@@ -1,0 +1,459 @@
+{
+  "_comment": "UTAH STATE LEGISLATURE — the curator's bill selection for the 2024 General Session, and the issue mapping for each. Same doctrine as db/vr-utah-bills.json, which covers 2025GS: read by scripts/vr-utah-ingest.mjs, which decides none of it; every entry was selected by hand; every mapping names the provision it reads. A bill is here because a contested recorded floor vote on it separates one legislator from another AND its operative provisions point one way on an issue the app already has a key for. No key was invented for this session. HOW THE CANDIDATE LIST WAS BUILT: `vr-utah-ingest.mjs --survey --session 2024GS` read the legislature's own passed-bills index (552 bills), walked every bill's action table, and applied the same one-final-passage-per-chamber and 10% minority-share rules the ingest applies later. It reported 125 admissible contested roll calls across 103 bills. Forty of those 103 were read in full; 28 are admitted below and 12 are refused with reasons. The other 63 contested bills were not reviewed in this wave — that is a coverage gap, not a judgement about them, and it is recorded here so the selection cannot read as 'all the contested bills there were'.",
+  "session": "2024GS",
+  "jurisdiction": "Utah",
+  "sourceHome": "https://le.utah.gov/",
+  "_weights": "0-100, same scale as db/vr-issue-seed.json and db/vr-utah-bills.json. Weight is how squarely the bill is ABOUT the issue. It is not a score, not a magnitude of approval, and act depth (floor vote vs co-sponsorship) is decided elsewhere, in stance-helpers.js.",
+  "_surveyed": "db/../tmp survey artefact is regenerable: node scripts/vr-utah-ingest.mjs --survey --session 2024GS. 552 bills in the legislature's passed-bills index, 125 admissible contested final-passage roll calls across 103 bills, 264 recorded votes on action codes the ingest does not admit as final passage (conference reports, suspension passage, failed passage) — those are the same coverage gaps wave 1 left open, listed by the survey rather than dropped in silence.",
+  "bills": [
+    {
+      "bill": "HB0257",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "lgbtq_rights",
+          "weight": 85,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The bill defines sex for the entire Utah Code, restricts sex-designated restroom, shower and locker room facilities in the public education system and in publicly owned or controlled buildings to the designated sex, and adds components to the crimes of voyeurism and criminal trespass for entering a covered facility. Transgender access to public facilities is the operative subject, and a yea is a vote to restrict it."
+        },
+        {
+          "issueKey": "privacy_rights",
+          "weight": 30,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill's own general provisions name individual privacy as the interest being protected, and it requires government entities to adopt privacy compliance plans and to provide a single-occupant facility in new construction. Secondary because those duties are the bill's mechanism, not its disputed subject."
+        }
+      ]
+    },
+    {
+      "bill": "HB0261",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "end_dei",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill prohibits institutions of higher education, the public education system and governmental employers from requiring diversity submissions or training that promotes differential treatment, from using protected characteristics in employment or admissions decisions, and from maintaining an office that engages in those practices. Dismantling diversity, equity and inclusion offices is the whole bill, so a yea is a vote for it."
+        }
+      ]
+    },
+    {
+      "bill": "SB0057",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "states_federal_power",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill enacts the Utah Constitutional Sovereignty Act, which establishes a framework for the Legislature to prohibit state officers from enforcing a federal directive it determines violates state sovereignty. Asserting state authority against federal directives is the entire operative content."
+        }
+      ]
+    },
+    {
+      "bill": "HB0529",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "school_choice",
+          "weight": 75,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill amends the Utah Fits All Scholarship Program: it extends eligibility to children of military service members and to adopting foster parents, opens local education agency participation to home-based scholarship students, and moves administration of appeals and cost-effectiveness review. Every operative provision widens or entrenches the state's education voucher programme."
+        }
+      ]
+    },
+    {
+      "bill": "SB0044",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "school_choice",
+          "weight": 65,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill merges the Carson Smith and Special Needs Opportunity scholarship programmes, extends eligibility to home-school and preschool-aged students, adds qualifying-provider expenses to allowable uses, and grants regulatory autonomy to qualifying schools and providers. It expands publicly funded private-education scholarships and reduces oversight of the providers."
+        }
+      ]
+    },
+    {
+      "bill": "HB0119",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "gun_rights",
+          "weight": 75,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill creates the Educator-Protector Program, which incentivises school teachers to secure or carry a firearm on school grounds. It expands where and by whom firearms may be carried, and a yea is a vote for that expansion."
+        }
+      ]
+    },
+    {
+      "bill": "SB0194",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "privacy_rights",
+          "weight": 60,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill requires social media companies to verify a new account holder's age through an approved system, to enable maximum default privacy settings on Utah minor accounts, to provide supervisory and verifiable parental consent tools, and to protect the confidentiality of minors' data, with Division of Consumer Protection enforcement behind it. The disputed question was how far the state may go in mandating data practices on behalf of minors."
+        }
+      ]
+    },
+    {
+      "bill": "HB0374",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "energy_production",
+          "weight": 65,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill rewrites the state energy policy to encourage the use of dispatchable energy resources, to focus the policy on human well-being and quality of life, and to require the Office of Energy Development to report on the state energy plan's compliance with it. 'Dispatchable' is the bill's own operative word and it points at thermal generation, so a yea is a vote to steer state policy toward conventional production."
+        }
+      ]
+    },
+    {
+      "bill": "HB0215",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "econ_corp_account",
+          "weight": 50,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill amends the Residential Solar Energy Disclosure Act to require a solar retailer to hand the customer a signed copy of the agreement, forbids beginning installation until four business days later, gives the customer a four-day cancellation window, and adds Division of Consumer Protection enforcement and court action. The subject is what a seller owes a household, not whether solar is built."
+        }
+      ]
+    },
+    {
+      "bill": "SB0224",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "energy_production",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill changes the factors the Public Service Commission must weigh in evaluating energy resource decisions, sets terms for a utility's recovery of costs for proven dispatchable generation located within the state, and encourages the commission to evaluate buying excess dispatchable capacity. It puts a thumb on the scale for in-state conventional generation."
+        }
+      ]
+    },
+    {
+      "bill": "SB0161",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "energy_production",
+          "weight": 75,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill lets the state buy an electrical generation facility that is slated for decommissioning, creates a Decommissioned Asset Disposition Authority to run it, and creates an alternative air permit track for project entities. It exists to keep generating plants operating past the point their owners would retire them."
+        }
+      ]
+    },
+    {
+      "bill": "HB0011",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "water",
+          "weight": 60,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill restricts the use of overhead spray irrigation by certain governmental entities. It is a single-subject conservation mandate on public landscaping, so a yea is a vote for state action on water use."
+        }
+      ]
+    },
+    {
+      "bill": "SB0208",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "housing",
+          "weight": 45,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill requires that 12% of proposed dwelling units in a housing and transit reinvestment zone be reserved for specified income levels, that the affordability requirement be met in each phase of development, and that a zone be at least ten acres, while clarifying tax-increment notice and capture. It tightens the affordability terms on which the zones get public financing."
+        },
+        {
+          "issueKey": "transit",
+          "weight": 25,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "A housing and transit reinvestment zone is defined around transit infrastructure, and the bill amends how sales and use tax increment inside it is captured. Secondary because the amendments themselves are about housing terms rather than transit service."
+        }
+      ]
+    },
+    {
+      "bill": "SB0268",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "housing_first_time",
+          "weight": 65,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill enacts the First Home Investment Zone Act, which lets a municipality create a zone that captures tax increment to finance affordable owner-occupied housing and sets requirements for density, affordability and development size. Increasing opportunities for home ownership is named in the bill's own list of objectives."
+        },
+        {
+          "issueKey": "housing_build",
+          "weight": 40,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The density and mixed-use requirements and the tax-increment financing are supply-side: they pay for units to be built. Secondary because the Act's stated target is first purchase specifically."
+        }
+      ]
+    },
+    {
+      "bill": "HB0153",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "child_care",
+          "weight": 55,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill makes the Department of Health and Human Services certificate optional for residential child care, caps the number of under-threes an unlicensed home provider may take, requires criminal history checks of providers operating without a licence or certificate, and raises the age of a dependent for whom a child tax credit may be claimed. Its purpose is to enlarge the supply of home-based child care, and a yea is a vote for that trade of licensing for supply."
+        }
+      ]
+    },
+    {
+      "bill": "HB0461",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "child_care",
+          "weight": 50,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill authorises the Office of Child Care to award a full child care subsidy or grant to a child with at least one parent working full-time at a child care provider. It is a single-subject subsidy aimed at staffing the sector."
+        }
+      ]
+    },
+    {
+      "bill": "SB0173",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "public_schools",
+          "weight": 60,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill repeals and reenacts the Teacher Salary Supplement Program as a supplement for highly needed educators, creates an Excellence in Education and Leadership Supplement with eligibility criteria assessed by each local education agency and validated by the Center for the School of the Future, and directs the State Board of Education to disburse the funds. It is about how the state pays public school teachers."
+        }
+      ]
+    },
+    {
+      "bill": "HB0068",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 75,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill requires a court, with limited exceptions, to sentence a person convicted of distributing drugs to an indeterminate prison term where the person had a dangerous weapon readily accessible or distributed or possessed a firearm with intent to distribute. It removes judicial discretion in favour of prison, which is what this key names."
+        }
+      ]
+    },
+    {
+      "bill": "HB0273",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 55,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill renames the offence of negligently operating a vehicle resulting in death, creates a sentencing guideline for automobile homicide, and modifies impound fees and ignition-interlock election. The operative change is a sentencing guideline for a homicide offence."
+        }
+      ]
+    },
+    {
+      "bill": "SB0060",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "justice_reform",
+          "weight": 55,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill provides for the dismissal of a charge of possession of certain drug paraphernalia under specified conditions and sets the burden of proof for that dismissal. It narrows the reach of a possession offence, which is the reform direction of this key."
+        }
+      ]
+    },
+    {
+      "bill": "HB0471",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "lands_local",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill asserts state and county ownership and jurisdiction over roads on a county's class B and class D road map or travel plan unless closed through proper adjudicative proceedings, lets the state or a county disregard an attempted closure without due process, and places the burden of proof on the federal government. It is a claim of local control over land access."
+        },
+        {
+          "issueKey": "states_federal_power",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The burden-shifting clause is directed at the federal government by name. Secondary because the bill's subject is county roads rather than federal authority generally."
+        }
+      ]
+    },
+    {
+      "bill": "SB0069",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "lower_taxes",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill amends the corporate franchise and income tax rates and the individual income tax rate. It is a rate bill and nothing else; the 2024 session's rate change was a cut."
+        }
+      ]
+    },
+    {
+      "bill": "HB0165",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "border_security",
+          "weight": 60,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill requires a federal officer to follow specified procedures before releasing an alien within the state. It is a single-subject immigration-enforcement bill directed at federal release practices."
+        }
+      ]
+    },
+    {
+      "bill": "HB0269",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "religious_liberty",
+          "weight": 45,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill adds the Ten Commandments and the Magna Carta to the list of historical documents and principles that school curricula and activities may include for a thorough study. The contested addition is a religious text, and a yea is a vote to name it in statute."
+        },
+        {
+          "issueKey": "edu_parental",
+          "weight": 20,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The list the bill amends governs what public school curricula may include. Secondary because the bill grants no parental right and changes no consent requirement."
+        }
+      ]
+    },
+    {
+      "bill": "HB0182",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "edu_parental",
+          "weight": 65,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill removes references to the statewide student health and risk prevention survey, requires annual written parental consent for certain student surveys and new consent for a transferring student, requires that parents be given the list of recipients of collected data, and forbids rewards or consequences tied to participation. Parental control over what a school asks a child is the whole subject."
+        }
+      ]
+    },
+    {
+      "bill": "HB0158",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "free_speech",
+          "weight": 60,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill repeals the offence of criminal defamation. Removing a speech crime from the code is a single-subject speech question."
+        }
+      ]
+    },
+    {
+      "bill": "HB0405",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "medical_freedom",
+          "weight": 65,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill narrows when the Department of Health and Human Services and a local health department may invoke an order of restriction, and repeals the exception that let institutions of higher education impose vaccination and face covering requirements on medical students. Both provisions cut public health authority over individuals."
+        }
+      ]
+    },
+    {
+      "bill": "SB0272",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "econ_growth",
+          "weight": 40,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill establishes procedures for a qualifying local government to create a capital city revitalization zone, authorises a sales and use tax within its boundaries for use in the project area, and provides for a project participation agreement letting a private participant share in the funds collected. It is a publicly financed development district, and the disagreement was over the subsidy."
+        }
+      ]
+    }
+  ],
+  "_refused": [
+    {
+      "bill": "SB0240",
+      "why": "Government Records Access and Management Act Amendments. The provisions cut both ways on the same key: one clause lets a court award fees against a private party who fights disclosure and loses, which helps requesters, while others modify the definition of 'record' and widen what may be classified as protected, which does not. gov_transparency cannot take both, and no direction survives reading the highlighted provisions, so no mapping was written even though the vote was among the session's most contested."
+    },
+    {
+      "bill": "SB0132",
+      "why": "Property Tax Appeals Amendments. It lets counties pay appeal refunds from local tax funds without voter approval and impose a judgment levy in multiple years, which favours the taxing entity, and it also extends the period a taxpayer has to be paid after winning a reduction. One direction for counties, the other for taxpayers; property_tax would have to pick one and call it the bill."
+    },
+    {
+      "bill": "SB0059",
+      "why": "Government Leased Property Tax Exemption. The bill only 'defines terms to provide the circumstances under which property leased to a government entity qualifies for a property tax exemption'. Whether that narrows or widens the existing exemption cannot be read off the provisions, and an exemption bill whose sign is unknown is worse than no mapping."
+    },
+    {
+      "bill": "HB0249",
+      "why": "Utah Legal Personhood Amendments. It prohibits a governmental entity from granting or recognising legal personhood in certain categories of nonhumans. A close vote in both chambers, and no key on the list is about the legal standing of animals, ecosystems or artificial agents. No key was invented for it."
+    },
+    {
+      "bill": "HB0348",
+      "why": "Precious Metals Amendments. It exempts part of the budget reserve accounts from the State Money Management Act and lets the state treasurer invest in precious metals. Contested (25.7%), and the nearest keys — crypto_cbdc, audit_spending — are about other things. A close vote with no key stays out."
+    },
+    {
+      "bill": "HB0560",
+      "why": "Licensing Modifications. It 'allows the licensing of abortion clinics; allows abortions to be performed in licensed abortion clinics'. Read one way it restores a clinic pathway the code had closed; read the other it is the licensing condition that made a restriction operative. This is the issue where a wrong sign does the most damage, and the enrolled text would have to be read to settle it, so it was left out rather than guessed."
+    },
+    {
+      "bill": "SB0082",
+      "why": "Public Accommodation Amendments. The entire highlighted provision is 'clarifies the scope of state law governing places of public accommodation'. A one-line summary that names neither what is added nor what is removed cannot support a mapping, and the subject is charged enough that reading intent into the title would be exactly the wrong move."
+    },
+    {
+      "bill": "SB0248",
+      "why": "Permitted Occupations for Minors Amendments. It modifies working-hour requirements for minors sixteen and under and amends which occupations and age exemptions are permitted — loosening and tightening in the same bill. econ_workers would have to assume the net direction the summary does not state."
+    },
+    {
+      "bill": "SB0037",
+      "why": "Election Law Revisions. An omnibus: special district board election timing and term shortening, an electronic compilation of the Election Code for county clerks, and a ballot reconciliation arithmetic requirement. The reconciliation clause alone would map to election_integrity, but the vote was on the whole package and the rest of it is administrative."
+    },
+    {
+      "bill": "HB0084",
+      "why": "School Safety Amendments. A large package: fire code changes, emergency communication systems, school resource officer training and duties, a school guardian programme, threat reporting, SafeUT data flowing into state intelligence databases, and disciplinary reporting. The disagreement was mostly about armed guardians, but a vote on the package is not a vote on any one key, and gun_rights, back_police and public_schools would each claim it wrongly."
+    },
+    {
+      "bill": "SB0220",
+      "why": "School Readiness Amendments. It repeals the School Readiness Board, replaces it with a staff team drawn from the Office of Child Care and the State Board of Education, renames the grant programmes and prioritises funding between them. A governance reorganisation: the dispute was about who administers preschool grants, not about a stance child_care or public_schools names."
+    },
+    {
+      "bill": "HB0502",
+      "why": "Critical Infrastructure and Mining. It requires the Division of Oil, Gas, and Mining to study critical infrastructure materials operations, names who it must cooperate with, requires reporting and sets a sunset. Commissioning a study is not a position on mining, however close the vote."
+    }
+  ]
+}

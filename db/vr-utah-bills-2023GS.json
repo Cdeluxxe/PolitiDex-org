@@ -1,0 +1,679 @@
+{
+ "_comment": "UTAH STATE LEGISLATURE — the curator's bill selection for the 2023 General Session, and the issue mapping for each. Same doctrine as db/vr-utah-bills.json (2025GS) and db/vr-utah-bills-2024GS.json: read by scripts/vr-utah-ingest.mjs, which decides none of it; every entry was selected by hand; every mapping names the provision it reads. A bill is here because a contested recorded floor vote on it separates one legislator from another AND its operative provisions point one way on an issue the app already has a key for. No key was invented for this session. HOW THE CANDIDATE LIST WAS BUILT: `vr-utah-ingest.mjs --survey --session 2023GS` read the legislature's own passed-bills index (543 bills), walked every bill's action table, and applied the same one-final-passage-per-chamber and 10% minority-share rules the ingest applies later. It reported 113 admissible contested roll calls across 91 bills. Sixty-one of those 91 were read in full; 40 are admitted below and 21 are refused with reasons. The other 30 contested bills were not reviewed in this wave — that is a coverage gap, not a judgement about them, and it is recorded here so the selection cannot read as 'all the contested bills there were'. WHERE THE TEXT CAME FROM: the highlighted provisions in each bill's own JSON, cached under the session directory by --collect. One bill, SB0097, was refused only after reading the enrolled text at le.utah.gov/~2023/bills/sbillenr/SB0097.htm, because the definition that decides its subject lives in the code section it amends rather than in the summary.",
+ "session": "2023GS",
+ "jurisdiction": "Utah",
+ "sourceHome": "https://le.utah.gov/",
+ "_weights": "0-100, same scale as db/vr-issue-seed.json and db/vr-utah-bills.json. Weight is how squarely the bill is ABOUT the issue. It is not a score, not a magnitude of approval, and act depth (floor vote vs co-sponsorship) is decided elsewhere, in stance-helpers.js.",
+ "_surveyed": "db/../tmp survey artefact is regenerable: node scripts/vr-utah-ingest.mjs --survey --session 2023GS. 543 bills in the legislature's passed-bills index, 113 admissible contested final-passage roll calls across 91 bills, 232 recorded votes on action codes the ingest does not admit as final passage (conference reports, suspension passage, failed passage) — the same coverage gaps waves 1 and 2 left open, listed by the survey rather than dropped in silence.",
+ "bills": [
+  {
+   "bill": "HB0215",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "school_choice",
+     "weight": 90,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill establishes the Utah Fits All Scholarship Program, requires the state board to contract a program manager by September 1, 2023, and authorises scholarship accounts that pay for approved education goods and services at eligible private schools and providers from the 2024-2025 school year. Publicly funded scholarship accounts spendable outside the district system is what school_choice names, and a yea created the program. The same bill also codifies and doubles the state-provided educator salary adjustment; the two were joined on purpose, and a legislator who wanted the raise could not vote for it separately. The mapping records the position the vote enacted, not the motive behind it, which is why the salary half carries no second key."
+    }
+   ]
+  },
+  {
+   "bill": "HB0398",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "school_choice",
+     "weight": 75,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill expands the expenses a Special Needs Opportunity Scholarship recipient may pay with an award, amends the formula for calculating the amount, and increases the donations a scholarship granting organisation may carry forward. Every operative clause widens a tax-credit scholarship that pays for private schooling, so a yea is a vote to enlarge it."
+    }
+   ]
+  },
+  {
+   "bill": "HB0477",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "public_schools",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill amends the kindergarten funding formulas to reflect a full-day class, requires local education agency boards to keep an optional half-day class available on request, and repeals the earlier optional expanded kindergarten program it replaces. Moving the district funding formula to full-day kindergarten is spending on the public system, and a yea is a vote for it."
+    }
+   ]
+  },
+  {
+   "bill": "HB0400",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "public_schools",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill directs local education agencies to use named evidence-based strategies against student absenteeism, enacts State Board of Education duties for chronic absenteeism prevention and intervention, and requires the Division of Juvenile Justice and Youth Services to use research-informed interventions. It is a duty imposed on and resourced through the district system; the weight is moderate because the bill spends attention rather than money."
+    }
+   ]
+  },
+  {
+   "bill": "HB0465",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "edu_parental",
+     "weight": 80,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill requires local education agencies that provide school libraries to run an online platform on which a parent can see what materials the parent's child has borrowed. Parental visibility into a child's schooling is the entire operative provision, so a yea is a vote for it."
+    }
+   ]
+  },
+  {
+   "bill": "HB0427",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "end_dei",
+     "weight": 85,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill requires the State Board of Education, local education agencies and staff to keep instructional materials and classroom instruction consistent with enumerated principles, prohibits materials and policies inconsistent with them, and bars the State Instructional Materials Commission from recommending such materials. Those principles are the 'divisive concepts' list, and a yea restricts how race and sex may be taught in public classrooms."
+    },
+    {
+     "issueKey": "religious_liberty",
+     "weight": 35,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The same bill broadens the existing provision on prayer and religious devotionals in public schools. Secondary because it is one clause beside the instructional-materials restrictions that occupy the rest of the bill."
+    }
+   ]
+  },
+  {
+   "bill": "HB0348",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "religious_liberty",
+     "weight": 75,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill clarifies how a school must respond when a student refrains from participating because of the student's or a parent's religious belief or right of conscience, citing Utah Constitution Article I Section 4, and grants the state board rulemaking authority to implement it. Protecting religiously grounded non-participation is the whole bill, so a yea is a vote for it."
+    },
+    {
+     "issueKey": "edu_parental",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The waiver runs to the parent's belief as well as the student's, so it also enlarges what a parent may opt a child out of. Secondary because the religious ground, not parental authority generally, is what the bill turns on."
+    }
+   ]
+  },
+  {
+   "bill": "SB0016",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 90,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The bill prohibits a health care provider from giving a hormonal transgender treatment to any new patient not diagnosed with gender dysphoria before a set date, prohibits sex characteristic surgical procedures on a minor for the purpose of a sex change, extends the malpractice limitations period for those treatments and lets a patient disaffirm consent given as a minor. Access to transgender medical care is the operative subject and a yea is a vote to restrict it."
+    }
+   ]
+  },
+  {
+   "bill": "HB0467",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "pro_life",
+     "weight": 90,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill requires abortions to be performed in a hospital with limited exceptions, prohibits the licensing of abortion clinics after May 2, 2023, makes performing an abortion contrary to statute unprofessional conduct for six categories of clinician, bars an abortion for rape or incest after 18 weeks gestational age, and creates a criminal offence for prescribing an abortion drug unless the prescriber is a Utah-licensed physician. Every operative clause narrows lawful access, so a yea is a vote to restrict abortion."
+    }
+   ]
+  },
+  {
+   "bill": "HB0219",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "gun_rights",
+     "weight": 90,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill declares the state's commitment to the Second Amendment and declares that the state and its political subdivisions will not enforce federal regulations purporting to restrict or ban certain firearms, ammunition or accessories. Refusing to enforce federal firearm regulation is the whole bill, so a yea is a vote for it."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The mechanism is a refusal of state assistance in enforcing federal law, which is a claim about the division of authority as much as about firearms. Secondary because the subject the refusal is aimed at is guns."
+    }
+   ]
+  },
+  {
+   "bill": "HB0107",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "gun_rights",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill waives the concealed weapons permit fee for a school employee in certain circumstances. It lowers the cost of carrying rather than changing who may carry, which is why the weight is moderate, but the direction is not in doubt: a yea makes a permit easier to obtain."
+    }
+   ]
+  },
+  {
+   "bill": "HB0461",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "gun_rights",
+     "weight": 65,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill provides when a firearm seized in connection with an airport offence may be returned to its owner, modifies the offence of possession of a dangerous weapon at an airport, and restricts a prosecutor's ability to seek forfeiture of a firearm. Each clause moves in the owner's favour, so a yea is a vote for firearm owners against the seizure."
+    }
+   ]
+  },
+  {
+   "bill": "HB0165",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "gun_rights",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill provides that a private property occupant is not liable for the discharge of a firearm on the property by someone in lawful possession of it. Removing the liability that deters an occupant from allowing lawful discharge is a vote for firearm use, so a yea supports it."
+    },
+    {
+     "issueKey": "property_rights",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The immunity attaches to the occupant of private property and is about what an owner may permit on their own land. Secondary because firearms, not land use generally, are what the immunity covers."
+    }
+   ]
+  },
+  {
+   "bill": "HB0131",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "medical_freedom",
+     "weight": 90,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill makes it unlawful for a place of public accommodation to discriminate on immunity status, prohibits a governmental entity from requiring proof of immunity status, makes an employer's demand for such proof unlawful discrimination, and prohibits a governmental entity or employer from requiring an individual to receive a vaccine. Barring vaccine and vaccine-proof requirements is the whole bill, so a yea is a vote for it."
+    }
+   ]
+  },
+  {
+   "bill": "SB0133",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "healthcare",
+     "weight": 75,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill requires the state Medicaid program to seek waivers or state plan amendments to expand eligibility for certain limited family planning services and to extend the duration of postpartum coverage. Both clauses widen public coverage, so a yea is a vote to expand it. This was the most contested House vote of the session."
+    }
+   ]
+  },
+  {
+   "bill": "SB0019",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "healthcare",
+     "weight": 65,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill requires the Department of Health and Human Services to seek authorisation to provide dental services to Medicaid-eligible adults not already eligible for them. Adding a benefit to public coverage is the operative provision, so a yea is a vote to expand it."
+    }
+   ]
+  },
+  {
+   "bill": "SB0217",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "healthcare",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill creates alternative eligibility requirements for the Children's Health Insurance Program, specifies the benefits a child eligible under them may receive, and creates a fund to pay for that enrolment. It brings children into public coverage who were not eligible before, so a yea is a vote to expand it; the waiting-list and enrolment-cap clauses limit the size of the expansion rather than reversing its direction."
+    }
+   ]
+  },
+  {
+   "bill": "SB0204",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "healthcare",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill requires the Department of Health and Human Services to seek a state plan amendment providing Medicaid coverage for autism treatment services. One added benefit, no offsetting clause, so a yea is a vote to widen public coverage."
+    }
+   ]
+  },
+  {
+   "bill": "HB0315",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "healthcare",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill requires the department to apply for a waiver or state plan amendment expanding Medicaid coverage of recreational therapy services. The weight is modest because the bill directs a request rather than an entitlement, but the direction of the request is unambiguous."
+    }
+   ]
+  },
+  {
+   "bill": "HB0105",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "health_mental",
+     "weight": 80,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill establishes a three-year pilot in which a public employee with a mental objective medical impairment qualifies for the same disability benefit as one with a physical objective medical impairment, with review and compliance requirements attached. Paying for mental impairment on the same terms as physical impairment is what the bill does, so a yea is a vote for mental-health parity. It was the second most contested House vote of the session."
+    }
+   ]
+  },
+  {
+   "bill": "HB0425",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "energy_production",
+     "weight": 75,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill requires 180 days' notice to the Legislative Management Committee before a project entity disposes of an asset or decommissions a coal-powered generation facility, requires an Office of Energy Development study of a project entity, and amends the state energy policy to promote energy independence through the use of energy resources generated within the state. Slowing coal retirement and writing in-state generation into state policy is a vote for domestic production."
+    }
+   ]
+  },
+  {
+   "bill": "SB0288",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "cost_living",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill creates a Utility Bill Assistance Program under the Division of Public Utilities that disburses money to large-scale electricity and natural gas utilities to fund bill credits for customers meeting income requirements. Lowering household energy bills for lower-income customers is the whole programme, so a yea is a vote for it."
+    }
+   ]
+  },
+  {
+   "bill": "SB0118",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "water",
+     "weight": 75,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill authorises water conservancy districts to receive grants funding water-efficient landscaping incentives, sets the conditions under which an owner may receive an incentive, and tracks local government implementation of water use efficiency standards. Reducing outdoor water demand is the operative subject, so a yea is a vote for conservation."
+    }
+   ]
+  },
+  {
+   "bill": "HB0217",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "water",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill authorises the state board to issue grants for school energy and water reduction projects, prioritises certain projects, requires an evaluation panel and reporting, and sets a repeal date. Water reduction is half of a two-part purpose and the programme sunsets, which is why the weight is moderate; the direction is not in question."
+    }
+   ]
+  },
+  {
+   "bill": "SB0174",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "housing_build",
+     "weight": 75,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill widens what counts as an internal accessory dwelling unit to include a garage in defined circumstances, limits a political subdivision's authority to restrict internal accessory dwelling units, enacts a new subdivision review and approval process, and amends the penalties for a political subdivision that fails to file its moderate income housing report. Each clause makes it harder for a local government to stop new units, so a yea is a vote for building."
+    }
+   ]
+  },
+  {
+   "bill": "SB0271",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "housing",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill prohibits a county or municipal legislative body from adopting or enforcing a land use regulation that treats co-owned homes differently from other residential units, or from using such a regulation to punish people for owning or using a co-owned home. Protecting a lower-cost route into ownership is the operative provision, so a yea is a vote for housing supply of that kind."
+    },
+    {
+     "issueKey": "property_rights",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The prohibition runs against local regulation of what an owner may do with a home they hold in common with others. Secondary because the class of property protected is narrow."
+    }
+   ]
+  },
+  {
+   "bill": "SB0240",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "housing_first_time",
+     "weight": 85,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill creates the First-Time Homebuyer Assistance Program within the Utah Housing Corporation, limits which purchase costs programme funds may pay, provides for repayment in certain circumstances and requires annual reporting on disbursements. The programme is named for the constituency the key names, so a yea is a vote for it."
+    }
+   ]
+  },
+  {
+   "bill": "HB0364",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "housing_support",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill increases the aggregate annual amount of state low-income housing tax credits, allows the credit to pass through to certain business entities, creates an appeal board for a city or county found out of compliance with its moderate income housing report, and requires annual reporting on the Utah Housing Preservation Fund. Subsidised low-income housing is the operative subject, so a yea is a vote to fund more of it."
+    }
+   ]
+  },
+  {
+   "bill": "HB0468",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "justice_reform",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill prohibits public employers and their contractors hiring a mental health professional from considering certain arrests or convictions or denying employment for certain convictions or participation in substance use treatment, and prohibits a private employer from excluding such an applicant from an interview over a juvenile adjudication, certain arrests, or an expunged offence. Removing a criminal record as a bar to work is what justice_reform names, so a yea is a vote for it."
+    }
+   ]
+  },
+  {
+   "bill": "HB0114",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill provides that it is not a defence to theft of livestock that the animal was sick, injured or a liability to its owner. Closing a defence makes conviction easier, so a yea is a vote in the prosecution's direction; the weight is moderate because the offence is a single narrow one."
+    },
+    {
+     "issueKey": "rural_ag",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The protected interest is a livestock owner's, and the bill exists because of theft from Utah ranches. Secondary because the mechanism is criminal-defence law."
+    }
+   ]
+  },
+  {
+   "bill": "HB0208",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill establishes the elements of and penalty for a form of criminal trespass, specifies defences, and provides statutory damages, attorney fees and court costs. Creating an offence and attaching penalties to it is a vote for enforcement, so a yea supports it."
+    },
+    {
+     "issueKey": "property_rights",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The interest the new offence and its statutory damages protect is the landowner's right to exclude. Secondary because the instrument is the criminal code."
+    }
+   ]
+  },
+  {
+   "bill": "SB0156",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "privacy_rights",
+     "weight": 80,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill sets requirements a law enforcement agency must meet before requesting investigative genetic genealogy services or processing a third-party DNA specimen, limits arrests, charges and uses based on genetic information, requires retention and destruction procedures, and creates remedies. Constraining police use of genetic data is the whole bill, so a yea is a vote for the privacy interest."
+    }
+   ]
+  },
+  {
+   "bill": "HB0281",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "privacy_rights",
+     "weight": 65,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill prohibits a governmental entity from using, enforcing, feeding data into or otherwise participating in any system that uses a social credit score to advantage or disadvantage a person, and requires the Division of Consumer Protection to take consumer reports about a financial institution's use of such a score. Barring state scoring of individuals is the operative provision, so a yea is a vote against that surveillance. The bill is also read as an anti-ESG measure; no key was assigned for that reading, because the clause the reading rests on creates a reporting channel rather than a duty on any company."
+    }
+   ]
+  },
+  {
+   "bill": "HB0347",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "election_integrity",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill increases the criminal penalty for taking, carrying away, concealing, removing or destroying a ballot drop box or its contents. Penalising interference with ballots in transit is the whole bill, so a yea is a vote for it. The weight is moderate because the bill changes a penalty rather than any rule about who may vote or how."
+    }
+   ]
+  },
+  {
+   "bill": "HB0243",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "econ_workers",
+     "weight": 80,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The bill excludes confidential employees, managerial employees and supervisors of a public transit district from the rights to self-organisation, to form or join a labour organisation, and to bargain collectively through representatives of their choosing. Removing collective bargaining rights from a class of public workers is the whole bill, so a yea is a vote against those workers' organising rights."
+    }
+   ]
+  },
+  {
+   "bill": "SB0260",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "transit",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill allows a portion of a local option sales and use tax in a county of the first class to fund or make loans for public transit projects, and amends the distribution and allowed uses of that tax. Opening a revenue stream to transit capital is the operative provision, so a yea is a vote for it."
+    },
+    {
+     "issueKey": "housing_support",
+     "weight": 35,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The same bill conditions a city's receipt of the revenue on complying with the moderate income housing plan requirements. Secondary because the housing clause is a condition attached to a transportation tax rather than a housing programme."
+    }
+   ]
+  },
+  {
+   "bill": "SB0153",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "econ_growth",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill modifies the Governor's Office of Economic Opportunity's authorisation of economic development tax credits and its award of loans and grants from the Industrial Assistance Account, repeals a limit on its use of State Small Business Credit Initiative funds for administration, and requires reporting on reinvestment agencies. State incentives for business expansion are the operative subject; the weight is modest because the bill is an omnibus of adjustments to an existing office rather than a new commitment."
+    }
+   ]
+  },
+  {
+   "bill": "HB0042",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "tech_innovation",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill enacts the Utah Innovation Lab Act, creates the innovation lab and its governing board, and establishes the Utah innovation fund to invest in businesses developed in the state through technology commercialisation, with audit and reporting requirements. Public money placed behind commercialising research is what the key names, so a yea is a vote for it."
+    },
+    {
+     "issueKey": "econ_growth",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The fund's stated purpose is business formation in the state. Secondary because the instrument is specific to technology transfer."
+    }
+   ]
+  },
+  {
+   "bill": "HB0289",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "crypto_cbdc",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill creates the Noncustodial Blockchain Registry within the Utah Office of Regulatory Relief and sets application, renewal and removal requirements, giving a registered provider that does not hold customer keys a defined status in state law. Accommodating blockchain businesses is the operative provision, so a yea is a vote for the industry; the weight is moderate because registration is voluntary."
+    }
+   ]
+  },
+  {
+   "bill": "HB0357",
+   "session": "2023GS",
+   "issues": [
+    {
+     "issueKey": "crypto_cbdc",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill enacts the Decentralized Autonomous Organization Act, establishing what a decentralised autonomous organisation must do to be recognised by the state, the purposes for which one may be formed, and the membership rights of its members. Giving on-chain organisations legal recognition is the whole bill, so a yea is a vote for them."
+    }
+   ]
+  }
+ ],
+ "_refused": [
+  {
+   "bill": "SB0031",
+   "why": "State Flag Amendments. It establishes a new state flag, designates the current one as the historical state flag and provides for displaying both. This was the single most contested recorded vote of the session — 46.7% minority share in the House — and there is no key on the list that a state flag belongs to. No key was invented for it. The contest was real and the app cannot represent it; that is a limit of the issue map, not a judgement that the vote did not matter."
+  },
+  {
+   "bill": "SB0100",
+   "why": "School Gender Identity Policies. The bill's title names one subject and its operative provisions name another: everything that survived into the version voted on requires a school and a local governing board to ensure a parent's access to the education record of the parent's child, and prohibits withholding it. edu_parental would fit that text and lgbtq_rights would fit that title, and a member voting on a bill carrying both cannot be said to have taken either position on the strength of the provisions alone. Naming one key would be choosing which of the two the vote was about."
+  },
+  {
+   "bill": "SB0093",
+   "why": "Birth Certificate Modifications. The provisions cut both ways on lgbtq_rights. The bill lets the department amend a birth certificate without a court order in some circumstances, which eases correction, and it also creates a court procedure for amending a sex designation that requires the appointment of a guardian ad litem and requires the department to issue an amendment history with the certificate, which adds a hurdle and removes the confidentiality of the change. One key cannot hold both directions, so no mapping was written."
+  },
+  {
+   "bill": "HB0507",
+   "why": "Firearm Possession Revisions. The whole substance is that it 'amends the definition of a restricted person'. Whether that widens or narrows the class of people who may not possess a firearm is the entire question, and the provisions do not say. gun_rights and gun_safety would take opposite signs depending on the answer, so no mapping was written."
+  },
+  {
+   "bill": "SB0152",
+   "why": "Social Media Regulation Amendments. The bill requires age verification for every Utah account, parental consent for a minor's account, and for minors' accounts bars direct messaging with certain accounts, search visibility, advertising, personal information collection and access during set hours. The same yea reads as a protection of minors' privacy and as a restriction on anonymous access to speech, and the list carries keys for both privacy_rights and free_speech. Choosing one would be choosing a frame rather than recording a vote, so neither was written."
+  },
+  {
+   "bill": "SB0065",
+   "why": "Charter School Authorizers Modifications. The bill 'modifies the entities that are eligible to authorize charter schools' without saying whether it adds or removes any, and requires authorizers to adopt procedures before imposing a standard, guideline or policy, providing when one is invalid. The procedural half points toward less authorizer control over charters; the eligibility half could point either way. school_choice needs a direction the provisions do not give."
+  },
+  {
+   "bill": "SB0258",
+   "why": "Upstart Program Amendments. It moves the UPSTART home-based preschool technology programme into the Economic Opportunity Act under the Governor's Office of Economic Opportunity, amends procurement and provider evaluation criteria, and expands participation to all Utah preschool children, residential certificate providers and Head Start. A state-funded home-based programme for preschoolers is neither public_schools nor school_choice as the list uses those keys, and no key was invented for early childhood education."
+  },
+  {
+   "bill": "SB0199",
+   "why": "Local Land Use Amendments. The bill disallows referring a referendum to voters on a municipal land use law passed unanimously by the local legislative body. That moves power from one local actor to another — from the town's voters to the town's council — so lands_local, which is about local control, has no single side here. housing_build was considered and refused too: the bill removes a tool that has been used both to block and to force development, and the provisions do not say which use they are aimed at."
+  },
+  {
+   "bill": "HB0174",
+   "why": "Conviction Reduction Amendments. It 'modifies the requirements for reducing the degree of an offense for a conviction after the defendant is sentenced'. Whether the modification makes a reduction easier or harder is exactly what justice_reform and tough_on_crime disagree about, and the highlighted provisions do not say. No mapping was written on a guess about the direction."
+  },
+  {
+   "bill": "HB0365",
+   "why": "Voter Affiliation Amendments. The bill prohibits voting in more than one registered party's primary for the same election, which reads as an integrity measure, and it also 'amends the deadline by which a voter may change the voter's political party affiliation' in even-numbered years without saying whether the deadline moves earlier or later. That half decides whether the bill narrows access, and it is unstated, so neither election_integrity nor voting_access was written."
+  },
+  {
+   "bill": "SB0096",
+   "why": "Fiduciary Duty Modifications. It requires a public entity to invest public funds under the prudent investor rule, addresses proxy voting duties and gives the state treasurer access to proxy voting reports. Both sides of the environmental-and-social investing argument claim the prudent investor rule as their own position, and econ_corp_account would have to be signed one way or the other to be written at all. The provisions do not settle it."
+  },
+  {
+   "bill": "HB0470",
+   "why": "Government Digital Verifiable Record Amendments. The bill has the Division of Technology Services recommend digital verifiable records and credentials to government entities and run a pilot programme. A digital state credential is read by its sponsors as a convenience and by its opponents as an identity infrastructure, and privacy_rights would take opposite signs under those two readings. A pilot programme's provisions do not choose between them."
+  },
+  {
+   "bill": "SB0097",
+   "why": "Public Contract Requirements. The bill amends the definitions chapter of the public contract boycott restrictions and adds an 'economic boycott' certification alongside the boycott-of-Israel certification that was already in statute, where a boycotted company is defined by fossil fuel-based energy activity. israel_support would credit this session's vote with a clause an earlier legislature enacted, and the new prong is a restriction on divestment from energy companies that fits neither energy_production nor econ_corp_account cleanly. Nothing was written rather than pick one."
+  },
+  {
+   "bill": "HB0094",
+   "why": "Reverse Mortgage Amendments. The bill amends the borrower age requirement, amends the requirement to meet an independent housing counselor, shortens the cooling off period from seven days to five, and provides that certain prerequisites for foreclosure do not apply once the borrower has died. Shortening the cooling off period and easing foreclosure run against the borrower; the counselling and age clauses have no stated direction. This was among the session's most contested votes and it still does not resolve into one position."
+  },
+  {
+   "bill": "HB0297",
+   "why": "Victim Services Amendments. The operative provisions require sexual assault hotline operators and the department to convey information about accessing emergency contraception and other services, add sexual trauma response training for law enforcement, and impose agency policy, public information and reporting duties. Providing information about a service is not a rule about access to it, so neither pro_choice nor repro_balance fits, and no key on the list covers sexual assault response as such."
+  },
+  {
+   "bill": "SB0129",
+   "why": "Judiciary Amendments. The bill repeals the Judicial Selection Act, defines judicial nominating commissions and addresses the selection, appointment and confirmation of judges, including 'partisan political consideration in regard to' them. Whether it invites partisan consideration into judicial selection or bars it is the whole question for judicial_check, and the provisions state the subject without stating the direction."
+  },
+  {
+   "bill": "HB0301",
+   "why": "Transportation Tax Amendments. The bill raises vehicle registration fees by $7, reduces the motor fuel tax rate, and imposes a new tax on electricity sold at electric vehicle charging stations and on charging subscriptions. It raises one tax, lowers another and creates a third, all into the Transportation Fund. lower_taxes cannot be signed against that, and infrastructure would be reading a spending position into a revenue bill."
+  },
+  {
+   "bill": "SB0062",
+   "why": "Hydrogen Amendments. The bill's only operative provision directs the Department of Natural Resources to establish a hydrogen advisory council within the Office of Energy Development which 'may advise' on issues related to hydrogen. energy_production exists and the subject is energy, but a council with permissive advisory authority and no programme behind it does not settle a position on production. The floor was not lowered to admit it."
+  },
+  {
+   "bill": "SB0257",
+   "why": "State Board of Education Amendments. The bill requires local education agencies to issue high school diplomas to students who earn an associate's degree or an industry certificate with minimum hours, and exempts a school whose assessment opt out rate exceeds 50% from the school accountability system in some conditions. The first clause reads toward public_schools and the second reads away from the accountability regime that key is usually invoked to defend. No single direction survives both."
+  },
+  {
+   "bill": "HR0004",
+   "why": "House Rules Resolution - Amendments to House Rules. A chamber's own procedural rules are not a position on a public issue, and no key on the list is about them. The same reasoning refused SR0004, the Senate's rules resolution, which was also contested. Both are recorded here so that a reader comparing this file against the survey does not read their absence as an oversight."
+  },
+  {
+   "bill": "SR0004",
+   "why": "Senate Rules Resolution - Amendments to Senate Rules. Refused for the reason given for HR0004: amendments to the standing rules of a legislative chamber are internal procedure, and the issue map has no key for the conduct of floor business. It is listed separately rather than folded into that entry so that neither resolution looks unexamined."
+  }
+ ]
+}

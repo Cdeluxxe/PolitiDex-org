@@ -3,7 +3,13 @@
 // test-vr-utah-record.mjs — the Utah state formal record, pinned to its fences
 // ─────────────────────────────────────────────────────────────────────────────
 // Data wave 1 put 42 Utah bills, 55 floor roll calls and 2,254 member votes into
-// the formal lane. That is the first time this repo has held a legislature that
+// the formal lane, and threw 905 more recorded votes away: a quarter of the Utah
+// House had no roster record to attribute them to. Data wave 2 added those 27
+// people and re-ran the attribution, so the same 55 roll calls now carry 3,159
+// votes across 104 members and drop nobody. Wave 2 then went backwards through
+// the archive — 28 bills from the 2024 general session, 40 from 2023 — so a
+// member who has served three years shows a pattern rather than one year's
+// agenda. That is the first time this repo has held a legislature that
 // is not Congress, and almost every way it could go wrong is a way of making a
 // confident false claim about a real person. This harness is the list of those
 // ways, each one an assertion:
@@ -21,6 +27,11 @@
 //      a source URL — no mapping is inferred from a sponsor, a party or a vote.
 //   6. THE MIGRATION IS THE SEED. Not a paraphrase of it: every roll call in the
 //      JSON is in the SQL, at the same roll number, in the same chamber.
+//   7. AN OLDER SESSION GETS NO SLACK. Rules 1-6 again, per archive session, on
+//      that session's own committed files — plus the two things the archive
+//      added: a printed name is confirmed against the legislature's roster for
+//      that year, and a name the reviewer REFUSED is disclosed as a refusal
+//      rather than folded in with the ordinary coverage gaps.
 //
 //   node scripts/test-vr-utah-record.mjs
 //
@@ -82,8 +93,8 @@ console.log("── The Utah state formal record (2025 general session)");
 section("Shape");
 eq(measures.length, 42, "measures in the seed");
 eq(rollcalls.length, 55, "roll calls in the seed");
-eq(votes.length, 2254, "member votes in the seed");
-eq(new Set(votes.map((x) => x.v.politicianId)).size, 77, "distinct legislators covered");
+eq(votes.length, 3159, "member votes in the seed");
+eq(new Set(votes.map((x) => x.v.politicianId)).size, 104, "distinct legislators covered");
 eq(measures.length, BILLS.bills.length, "seed measures vs curated bill list");
 
 // ── 2. It is not federal ─────────────────────────────────────────────────────
@@ -179,11 +190,38 @@ const mismatched = votes.filter((x) => x.v.printedAs && accepted.get(x.v.politic
 eq(new Set(mismatched).size, 0,
   `each pid is only ever printed one way (${[...new Set(mismatched)].slice(0, 5).join(", ")})`);
 // Refusals stay refused: a surname-only match is not a person.
-must(Array.isArray(MAP._refusedNames) && MAP._refusedNames.length > 0,
-  "the member map records no refusals, so this probe proves nothing");
+must(Array.isArray(MAP._refusedNames), "the member map has no _refusedNames list at all");
 for (const name of MAP._refusedNames) {
   ok(![...printedToPid.keys()].some((k) => k.endsWith(`|${name}`)),
     `refused name "${name}" is not mapped to anybody`);
+}
+// An EMPTY refusal list is the state wave 2 left the map in, and it is only honest
+// if it was emptied the right way. Wave 1 refused three printed names because each
+// shared a surname with a different person already on the roster; wave 2 mapped all
+// three by ADDING THE REAL PEOPLE, after which the printed initial plus the district
+// on the vote page resolves each uniquely. So when the list is empty the map owes a
+// prose account of how it got that way — and every one of those three names must now
+// resolve to somebody who is NOT the roster member it used to collide with. That is
+// the invariant "keep the collisions refused until the human map is unique" reduces
+// to once the map IS unique: a cleared refusal, never a loosened rule.
+if (MAP._refusedNames.length === 0) {
+  ok(typeof MAP._refusalsCleared === "string" && MAP._refusalsCleared.trim().length >= 200,
+    "an empty refusal list is explained in prose by _refusalsCleared");
+}
+// [printed name, the roster member a surname-only match would have handed the vote to]
+const CLEARED = [
+  ["Moss, J.", "carol_spackman_moss"],
+  ["Peterson, K.", "valpeterson_h56"],
+  ["Peterson, T.", "valpeterson_h56"],
+];
+for (const [printed, collidesWith] of CLEARED) {
+  const pid = printedToPid.get(`H|${printed}`);
+  must(accepted.has(collidesWith),
+    `the collision fixture is stale — '${collidesWith}' is no longer in the map, so "${printed}" proves nothing`);
+  ok(pid !== collidesWith,
+    `"${printed}" is not handed to ${collidesWith} on a shared surname (got ${pid})`);
+  ok(pid == null || votes.some((x) => x.v.politicianId === pid),
+    `"${printed}" maps to a pid that actually casts votes in the seed (${pid})`);
 }
 // Every roll call discloses how many recorded members it could not attribute.
 ok(rollcalls.every(({ rc }) => Array.isArray(rc.droppedNotOnRoster)),
@@ -287,6 +325,276 @@ eq((carrierSql.match(/CREATE UNIQUE INDEX IF NOT EXISTS/g) || []).length, 2,
   "both of the carrier's CREATEs are guarded");
 lacks(carrierSql, "INSERT INTO", "the carrier writes no data — it carries a snapshot");
 lacks(carrierSql, "DROP ", "the carrier drops nothing");
+
+// ── 7c. The expansion migration carries votes and nothing else ───────────────
+// The 905 votes wave 1 dropped could not be added by editing the migration that
+// dropped them — that one is applied, and an applied migration is a historical
+// record of what the database was told, not a draft. So they arrive in a second
+// file, and the whole risk of a second file is that it starts restating the first
+// one's facts: a re-emitted measure, a re-created roll call, an invented question.
+// What is pinned here is the narrowness. It writes member votes, it finds its roll
+// calls by the tuple the state index is on, and where wave 1 had a verified
+// question, tally, date and source page to attach, this file RAISEs instead of
+// inventing one.
+section("The expansion migration carries votes and nothing else");
+const MIG2 = "netlify/database/migrations/20261001000000_vr_utah_2025gs_roster_attribution_votes.sql";
+const SQL2 = R(MIG2);
+for (const forbidden of ["INSERT INTO vr_measures", "INSERT INTO vr_rollcalls",
+  "INSERT INTO vr_measure_issues", "INSERT INTO vr_positions", "CREATE ", "DROP ", "ALTER "]) {
+  lacks(SQL2, forbidden, `the expansion migration contains no "${forbidden.trim()}"`);
+}
+eq((SQL2.match(/INSERT INTO vr_member_votes \(rollcall_id, politician_id, position\) VALUES/g) || []).length,
+  rollcalls.length, "one member-vote insert per roll call and no other write");
+eq((SQL2.match(/ON CONFLICT \(rollcall_id, politician_id\) DO NOTHING/g) || []).length,
+  rollcalls.length, "every insert in the expansion migration is re-runnable");
+eq((SQL2.match(/^ {4}\(rc, '/gm) || []).length, votes.length,
+  "every seeded member vote reached the expansion migration");
+eq((SQL2.match(/SELECT id INTO rc FROM vr_rollcalls/g) || []).length, rollcalls.length,
+  "each roll call is looked up rather than assumed");
+eq((SQL2.match(/RAISE EXCEPTION 'Utah 2025GS attribution: utah/g) || []).length, rollcalls.length,
+  "a missing roll call aborts the deploy rather than being created");
+for (const { m, rc } of rollcalls) {
+  has(SQL2, `WHERE chamber = '${rc.chamber}' AND congress IS NULL AND session = ${rc.session}`,
+    `${m.utahBill}: the expansion migration looks up a STATE roll call`);
+  has(SQL2, `AND roll_number = ${rc.rollNumber};`,
+    `${m.utahBill}: roll call ${rc.rollNumber} is looked up by its own number`);
+}
+lacks(SQL2, "congress = ", "the expansion migration never matches a Congress number");
+// Same canary as above, counted only in the VALUES rows — the verification block
+// lists every attributed pid, so a bare match would count it twice.
+eq((SQL2.match(/\(rc, 'mschultz',/g) || []).length, spotCheck,
+  "the canary's votes all reached the expansion migration");
+const strayInMig = [...new Set((SQL2.match(/^ {4}\(rc, '([a-z0-9_]+)'/gm) || [])
+  .map((r) => r.replace(/^.*'([a-z0-9_]+)'$/, "$1")))].filter((p) => !accepted.has(p));
+eq(strayInMig.length, 0,
+  `every pid the expansion migration writes comes from the accepted map (${strayInMig.join(", ")})`);
+// A skipped INSERT must not read as success.
+const verify = SQL2.slice(SQL2.indexOf("-- ── Verification"));
+must(verify.length > 400, "could not isolate the expansion migration's verification block");
+has(verify, `IF n_rolls <> ${rollcalls.length} THEN`,
+  "the verification block counts the roll calls it expected to find");
+has(verify, `IF n_votes < ${votes.length} THEN`,
+  "the verification block fails the deploy if the expansion did not land");
+has(verify, "IF n_orphan > 0 THEN",
+  "the verification block fails the deploy on a vote attributed off the map");
+has(verify, "congress IS NULL", "the verification block counts state rows only");
+
+// ── 7d. The archive sessions carry the same fences ───────────────────────────
+// 2024 and 2023 were ingested after 2025, from a different shape of source page,
+// and an older session is exactly where a bar gets quietly lowered: fewer of its
+// members are still on the roster, so more of its votes are droppable, so the
+// temptation is to widen the map or admit a lopsided roll call to make the file
+// look full. Everything below is the same rule the 2025 section pins, applied to
+// each archive session's own committed artefacts, plus the two rules those
+// sessions added: a printed name is confirmed against the legislature's roster
+// for that year, and a REFUSED name is disclosed as a refusal rather than as a
+// gap.
+section("The archive sessions carry the same fences");
+const ARCHIVE = [
+  {
+    session: "2024GS", year: 2024,
+    mig: "netlify/database/migrations/20261002000000_vr_utah_2024gs_state_record.sql",
+    measures: 28, rolls: 39, votes: 1885, issues: 33, dropped: 442,
+    unmapped: { H: 16, S: 2 }, refused: ["Judkins, M.", "Lyman, P."],
+    crossChamber: ["Brammer, B.", "Musselman, C.R.", "Stratton, K."],
+  },
+  {
+    session: "2023GS", year: 2023,
+    mig: "netlify/database/migrations/20261003000000_vr_utah_2023gs_state_record.sql",
+    measures: 40, rolls: 49, votes: 2490, issues: 49, dropped: 677,
+    unmapped: { H: 17, S: 3 }, refused: ["Judkins, M.", "Lyman, P."],
+    crossChamber: ["Brammer, B.", "Musselman, C.R.", "Stratton, K."],
+  },
+];
+const seenTuple = new Set(rollcalls.map(({ rc }) => `${rc.chamber}|${rc.session}|${rc.rollNumber}`));
+for (const A of ARCHIVE) {
+  const T = A.session;
+  const aBills = J(`db/vr-utah-bills-${T}.json`);
+  const aMap = J(`db/vr-utah-member-map-${T}.json`);
+  const aSeed = J(`db/vr-utah-vote-seed-${T}.json`);
+  const aSql = R(A.mig);
+  const aMeasures = aSeed.measures || [];
+  const aRolls = aMeasures.flatMap((m) => (m.rollcalls || []).map((rc) => ({ m, rc })));
+  const aVotes = aRolls.flatMap(({ m, rc }) => (rc.votes || []).map((v) => ({ m, rc, v })));
+
+  // The counts are pinned so that a re-run that silently drops a bill, a roll call
+  // or a member is a test failure rather than a smaller file.
+  eq(aSeed.session, T, `${T}: the seed names its own session`);
+  eq(aMeasures.length, A.measures, `${T}: ${A.measures} measures`);
+  eq(aRolls.length, A.rolls, `${T}: ${A.rolls} roll calls`);
+  eq(aVotes.length, A.votes, `${T}: ${A.votes} member votes`);
+  eq(aBills.bills.length, A.measures,
+    `${T}: every admitted bill produced a measure`);
+
+  // 1. It is not federal, and it is not another session.
+  for (const { m, rc } of aRolls) {
+    ok(CHAMBERS.has(rc.chamber), `${T}/${m.utahBill}: chamber '${rc.chamber}' is a Utah chamber`);
+    ok(rc.congress == null, `${T}/${m.utahBill}: roll call ${rc.rollNumber} carries no Congress`);
+    eq(rc.session, A.year, `${T}/${m.utahBill}: roll call ${rc.rollNumber} is filed under ${A.year}`);
+    eq(m.session, T, `${T}/${m.utahBill}: the measure names its own session`);
+    const tuple = `${rc.chamber}|${rc.session}|${rc.rollNumber}`;
+    ok(!seenTuple.has(tuple),
+      `${T}/${m.utahBill}: (${rc.chamber}, ${rc.session}, ${rc.rollNumber}) is not already taken by another session`);
+    seenTuple.add(tuple);
+  }
+
+  // 2. One instrument, one act.
+  const perBC = new Map();
+  for (const { m, rc } of aRolls) {
+    const k = `${m.utahBill}|${rc.chamber}`;
+    perBC.set(k, (perBC.get(k) || 0) + 1);
+  }
+  eq([...perBC].filter(([, n]) => n > 1).length, 0,
+    `${T}: no bill carries two roll calls in one chamber (${[...perBC].filter(([, n]) => n > 1).map(([k]) => k).join(", ")})`);
+
+  // 3. No lopsided votes — the 10% floor, recomputed from the seeded tallies.
+  const lop = [];
+  let aDropped = 0;
+  for (const { m, rc } of aRolls) {
+    const cast = (rc.votes || []).filter((v) => v.position === "yea" || v.position === "nay").length;
+    const yea = (rc.votes || []).filter((v) => v.position === "yea").length;
+    const tot = rc.totals || {};
+    const printedCast = (tot.yea || 0) + (tot.nay || 0);
+    const minority = Math.min(tot.yea || 0, tot.nay || 0);
+    must(printedCast > 0, `${T}/${m.utahBill}: roll call ${rc.rollNumber} carries a printed tally`);
+    if (minority / printedCast < 0.1) lop.push(`${m.utahBill} ${rc.chamber} ${tot.yea}-${tot.nay}`);
+    ok(cast <= printedCast,
+      `${T}/${m.utahBill}: attributed yea/nay (${cast}) never exceeds the printed tally (${printedCast})`);
+    ok(yea <= (tot.yea || 0), `${T}/${m.utahBill}: attributed yeas never exceed the printed yeas`);
+    // The votes a roll call could not attribute are named on the roll call itself,
+    // so the gap is legible where the tally is, not only in the migration header.
+    eq((rc.votes || []).length + (rc.droppedNotOnRoster || []).length,
+      printedCast + (tot.notVoting || 0) + (tot.absent || 0),
+      `${T}/${m.utahBill}: attributed + dropped accounts for every name on the page`);
+    aDropped += (rc.droppedNotOnRoster || []).length;
+  }
+  eq(lop.length, 0, `${T}: no roll call is near-unanimous (${lop.join("; ")})`);
+  eq(aDropped, A.dropped, `${T}: ${A.dropped} vote rows were dropped for want of a roster identity`);
+
+  // 4. Nobody is guessed. Every printed name that became a vote is in the reviewed
+  // map, the map sends no two printed names to one pid, and a name the map REFUSED
+  // never reappears as an accepted one.
+  const aAccepted = new Map();      // pid -> printed
+  const aPidOf = new Map();         // printed -> pid
+  const aPidCount = new Map();
+  for (const house of ["H", "S"]) {
+    for (const [printed, pid] of Object.entries(aMap.chambers[house] || {})) {
+      aAccepted.set(pid, printed);
+      aPidOf.set(printed, pid);
+      aPidCount.set(pid, (aPidCount.get(pid) || 0) + 1);
+    }
+  }
+  eq([...aPidCount].filter(([, n]) => n > 1).length, 0,
+    `${T}: no roster id is claimed by two printed names (${[...aPidCount].filter(([, n]) => n > 1).map(([p]) => p).join(", ")})`);
+  const aStray = [...new Set(aVotes.filter((x) => !aAccepted.has(x.v.politicianId))
+    .map((x) => x.v.politicianId))];
+  eq(aStray.length, 0, `${T}: every vote's pid is on the reviewed map (${aStray.join(", ")})`);
+  const aMismatch = aVotes.filter((x) => x.v.printedAs && aAccepted.get(x.v.politicianId) !== x.v.printedAs)
+    .map((x) => `${x.v.printedAs} → ${x.v.politicianId}`);
+  eq(aMismatch.length, 0,
+    `${T}: every vote's printed name is the one the map accepted (${[...new Set(aMismatch)].slice(0, 6).join("; ")})`);
+  for (const n of A.refused) {
+    ok(!aPidOf.has(n), `${T}: the refused name "${n}" was not quietly accepted`);
+    ok((aMap.unmapped.H || []).concat(aMap.unmapped.S || []).some((u) => u.printed === n),
+      `${T}: the refused name "${n}" is still listed among the names that got no votes`);
+    has(aMap._refusalNotes, n, `${T}: the map says in prose why "${n}" was refused`);
+  }
+  eq(JSON.stringify(aMap._refusedNames), JSON.stringify(A.refused),
+    `${T}: the map's refusal list is the reviewed one`);
+  eq(aMap.unmapped.H.length, A.unmapped.H, `${T}: ${A.unmapped.H} House names went unattributed`);
+  eq(aMap.unmapped.S.length, A.unmapped.S, `${T}: ${A.unmapped.S} Senate names went unattributed`);
+  for (const u of aMap.unmapped.H.concat(aMap.unmapped.S)) {
+    ok(!aPidOf.has(u.printed),
+      `${T}: "${u.printed}" is unattributed, so it holds no roster id`);
+  }
+  // The cross-chamber additions are the one place a human overrode the tool, so the
+  // file has to say so and must not claim a district confirmed them.
+  for (const n of A.crossChamber) {
+    ok(aPidOf.has(n), `${T}: the hand-added cross-chamber name "${n}" is on the map`);
+    eq(aMap.confirmedByDistrict.H[n], false,
+      `${T}: "${n}" is not claimed as district-confirmed — the district belongs to another chamber`);
+    has(aMap._crossChamberNotes, n, `${T}: the map names "${n}" in its cross-chamber note`);
+  }
+  ok(String(aMap._howReviewed || "").includes(`roster.asp?year=${A.year}`),
+    `${T}: the map names the roster it was confirmed against`);
+
+  // 5. Every mapping is defensible, and no key was invented for an older session.
+  const aSeen = new Set();
+  for (const b of aBills.bills) {
+    eq(b.session, T, `${T}/${b.bill}: the curator entry names its own session`);
+    ok(!aSeen.has(b.bill), `${T}/${b.bill}: appears once in the curator file`);
+    aSeen.add(b.bill);
+    const prim = (b.issues || []).filter((i) => i.isPrimary);
+    eq(prim.length, 1, `${T}/${b.bill}: exactly one primary issue`);
+    for (const i of b.issues) {
+      ok(ISSUE_KEYS.has(i.issueKey), `${T}/${b.bill}: '${i.issueKey}' is an existing issue key`);
+      ok(MEANINGS.has(i.supportMeaning), `${T}/${b.bill}: '${i.issueKey}' says which way a yea points`);
+      ok(typeof i.weight === "number" && i.weight > 0 && i.weight <= 100,
+        `${T}/${b.bill}: '${i.issueKey}' carries a weight in range`);
+      ok(String(i.rationale || "").length >= 120,
+        `${T}/${b.bill}: '${i.issueKey}' carries a rationale in prose, not a label`);
+    }
+  }
+  eq(aMeasures.reduce((n, m) => n + (m.issues || []).length, 0), A.issues,
+    `${T}: ${A.issues} issue mappings reached the seed`);
+  // A refusal is a curated act too: it names a bill that is NOT admitted and says why.
+  ok((aBills._refused || []).length > 0, `${T}: the curator file records what it left out`);
+  for (const r of aBills._refused) {
+    ok(!aSeen.has(r.bill), `${T}/${r.bill}: a refused bill is not also admitted`);
+    ok(String(r.why || "").length >= 200,
+      `${T}/${r.bill}: the refusal is argued, not asserted`);
+  }
+
+  // 6. The migration is the seed — same rolls, same numbers, no DDL, and a
+  // verification block that fails the deploy rather than reading as success.
+  for (const forbidden of ["CREATE ", "DROP ", "ALTER ", "TRUNCATE", "DELETE FROM"]) {
+    lacks(aSql, forbidden, `${T}: the migration contains no "${forbidden.trim()}"`);
+  }
+  eq((aSql.match(/INSERT INTO vr_measures /g) || []).length, A.measures,
+    `${T}: one measure insert per admitted bill`);
+  eq((aSql.match(/INSERT INTO vr_rollcalls /g) || []).length, A.rolls,
+    `${T}: one roll-call insert per roll call`);
+  eq((aSql.match(/INSERT INTO vr_measure_issues /g) || []).length, A.issues,
+    `${T}: one issue insert per mapping`);
+  eq((aSql.match(/^ {4}\(rc_id, '/gm) || []).length, A.votes,
+    `${T}: every seeded member vote reached the migration`);
+  eq((aSql.match(/ON CONFLICT \(rollcall_id, politician_id\) DO NOTHING/g) || []).length, A.rolls,
+    `${T}: every member-vote insert is re-runnable`);
+  for (const other of ["2025GS", "2024GS", "2023GS"].filter((x) => x !== T)) {
+    lacks(aSql, other, `${T}: the migration writes nothing under ${other}`);
+  }
+  for (const { m, rc } of aRolls) {
+    has(aSql, `'utahSession', '${T}', 'utahBill', '${m.utahBill}'`,
+      `${T}/${m.utahBill}: the measure carries its session in external_ids`);
+    has(aSql, `AND roll_number = ${rc.rollNumber}`,
+      `${T}/${m.utahBill}: roll call ${rc.rollNumber} is looked up by its own number`);
+  }
+  const aStrayMig = [...new Set((aSql.match(/^ {4}\(rc_id, '([a-z0-9_]+)'/gm) || [])
+    .map((r) => r.replace(/^.*'([a-z0-9_]+)'$/, "$1")))].filter((p) => !aAccepted.has(p));
+  eq(aStrayMig.length, 0,
+    `${T}: every pid the migration writes comes from the accepted map (${aStrayMig.join(", ")})`);
+  // The dropped votes are disclosed by count and by name, and a REFUSED name is
+  // disclosed as a refusal — the distinction is the whole point of keeping both lists.
+  has(aSql, `NOT WRITTEN — ${A.unmapped.H} member(s) of the utah house`,
+    `${T}: the migration discloses the House names it could not attribute`);
+  has(aSql, `NOT WRITTEN — ${A.unmapped.S} member(s) of the utah senate`,
+    `${T}: the migration discloses the Senate names it could not attribute`);
+  has(aSql, `${A.refused.length} of those (${A.refused.join("; ")}) are REFUSALS rather than gaps`,
+    `${T}: the migration calls a refusal a refusal`);
+  has(aSql, `db/vr-utah-member-map-${T}.json`,
+    `${T}: the migration's refusal note points at this session's own map`);
+  has(aSql, String(A.dropped), `${T}: the migration states how many vote rows are absent`);
+  const aVerify = aSql.slice(aSql.indexOf("-- ── Verification"));
+  must(aVerify.length > 400, `${T}: could not isolate the migration's verification block`);
+  has(aVerify, `IF n_measures <> ${A.measures} THEN`, `${T}: the verification counts measures`);
+  has(aVerify, `IF n_rolls <> ${A.rolls} THEN`, `${T}: the verification counts roll calls`);
+  has(aVerify, `IF n_votes < ${A.votes} THEN`, `${T}: the verification counts member votes`);
+  has(aVerify, `IF n_issues <> ${A.issues} THEN`, `${T}: the verification counts issue mappings`);
+  has(aVerify, "IF n_orphan > 0 THEN",
+    `${T}: the verification fails the deploy on a vote attributed off the map`);
+  has(aVerify, "congress IS NULL", `${T}: the verification counts state rows only`);
+  has(aVerify, `r.session = ${A.year}`, `${T}: the verification counts this session's rows`);
+}
 
 // ── 8. No surface labels a Utah vote as a federal one ────────────────────────
 // The bug this closes: voting-record.js keyed the chamber glossary card off

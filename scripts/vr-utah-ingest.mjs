@@ -17,6 +17,25 @@
 //   committee vote, per member      https://le.utah.gov/mtgvotes.jsp?voteid=<ID>
 //   current legislator roster       https://le.utah.gov/data/legislators.json
 //   citable bill page               https://le.utah.gov/~<YEAR>/bills/static/<BILL>.html
+//   every bill that passed a session /asp/passedbills/passedbills.asp?Session=<SESSION>
+//
+// TWO SESSION SHAPES, ONE DOCTRINE. From 2025GS the bill JSON carries a full
+// actionHistoryList: an actionCode, a voteID, a voiceVote flag and the tally, per
+// action. Before 2025 it does not — 2024GS and 2023GS publish actionhistory as
+// {date, action, location} and nothing else, so there is no vote id in the JSON at
+// all and the recorded floor votes are unreachable from it. They are on the STATIC
+// BILL PAGE, whose action table has carried a linked tally per recorded vote for
+// years: four cells of date, action, location, vote, the fourth linking to the same
+// svotes.jsp page the modern JSON points at.
+//
+// So the archive path reads the page and normalises it into the shape the modern
+// JSON already has, and every downstream rule — one final passage per chamber, the
+// minority-share bar, the printed-name map — runs unchanged on both. What the page
+// does NOT print is the actionCode, which is the field the final-passage rule keys
+// on. It is not guessed: ARCHIVE_ACTION_CODES below is the legislature's own
+// pairing, harvested from the sessions that publish BOTH fields, and a recorded
+// vote whose action text is not in that table is reported as unclassified rather
+// than dropped in silence.
 //
 // WHAT THIS TOOL DECIDES, AND WHAT IT REFUSES TO DECIDE. It decides mechanical
 // things: which action history rows are recorded floor votes, which one is FINAL
@@ -54,6 +73,7 @@
 // "House" next to the glossary's "435 members, each representing one district".
 //
 // USAGE
+//   node scripts/vr-utah-ingest.mjs --survey --session S # network. what a session HAS
 //   node scripts/vr-utah-ingest.mjs --collect            # network. caches + drafts the map
 //   node scripts/vr-utah-ingest.mjs --seed               # no network. writes the vote seed
 //   node scripts/vr-utah-ingest.mjs --sql                # no network. writes the .sql.draft
@@ -92,10 +112,27 @@ const OUTDIR = val("--out", "/tmp/vr-utah-drafts");
 const ONLY_SESSION = val("--session", "");
 const AS_JSON = has("--json");
 
+// ── One file per session, and why the 2025 ones have no suffix ───────────────
+// Wave 1 shipped a bill list, a member map and a vote seed with no session in their
+// names, because there was one session. Wave 2 added two more, and the choice was
+// between growing those three files to hold every session or splitting per session.
+// Split, for two reasons that are not tidiness: the 2025 seed is already 560 KB and
+// a reader diffing one session should not read three, and — the deciding one — the
+// 2025 counts are PINNED by scripts/test-vr-utah-record.mjs and referenced by an
+// applied migration, so a 2024 bill landing in the same file would have moved
+// numbers that describe a database that has already been written.
+//
+// So the 2025 files keep their exact names. Renaming them would churn an applied
+// migration's stated source for no gain, and a suffix on one file does not make the
+// other two more honest. Every LATER session is "<base>-<SESSION>.json".
+const LEGACY_SESSION = "2025GS";
+const sessionFile = (base, session) =>
+  P("db", session === LEGACY_SESSION ? `${base}.json` : `${base}-${session}.json`);
 const BILLS_FILE = P("db", "vr-utah-bills.json");
-const MAP_FILE = P("db", "vr-utah-member-map.json");
-const MAP_DRAFT = path.join(CACHE, "vr-utah-member-map.draft.json");
-const SEED_FILE = P("db", "vr-utah-vote-seed.json");
+const BILLS_GLOB = /^vr-utah-bills-(\d{4}[A-Z0-9]*)\.json$/;
+const mapFile = (session) => sessionFile("vr-utah-member-map", session);
+const mapDraft = (session) => path.join(CACHE, `vr-utah-member-map.${session}.draft.json`);
+const seedFile = (session) => sessionFile("vr-utah-vote-seed", session);
 
 // ── Source URLs. One place, so a citation and a fetch can never disagree. ────
 const SRC = {
@@ -104,6 +141,7 @@ const SRC = {
   floorVote: (s, id, house) =>
     `https://le.utah.gov/DynaBill/svotes.jsp?sessionid=${s}&voteid=${id}&house=${house}`,
   roster: () => `https://le.utah.gov/data/legislators.json`,
+  passedBills: (s) => `https://le.utah.gov/asp/passedbills/passedbills.asp?Session=${s}`,
 };
 const SOURCE_LABEL = "Utah State Legislature";
 
@@ -115,6 +153,109 @@ const PASSAGE_CODES = {
 };
 // Everything else with a voteID is procedural chamber housekeeping (circling,
 // substituting, floor amendments) or a committee vote. Neither is ingested here.
+//
+// Note what is NOT in that list, because two of the omissions are coverage gaps
+// rather than principles. SPASS23SP / HPASS23SP ("passed 2nd & 3rd readings/
+// suspension") IS a chamber's final act on a bill, and so is a conference
+// committee's HCOMFINALP / SCOMFINALP; HFAIL / SFAIL is a chamber refusing one.
+// Wave 1 admitted none of them, so wave 2 admits none of them either — widening the
+// rule would change what the 2025 record already says, and that is a separate,
+// deliberate change with its own migration. Recorded here so the next pass finds it
+// as a decision rather than rediscovering it as a bug.
+
+// The action text the Utah Legislature prints beside each of those codes. Harvested
+// from the sessions that publish an actionCode AND a description on the same row
+// (2025GS onward), which is what makes it a reading of the source rather than a
+// guess about it: the archive path classifies a 2023 row by the exact string the
+// legislature itself pairs with that code today. Anything not in this table is
+// reported as unclassified — see surveyBill.
+const ARCHIVE_ACTION_CODES = {
+  "House/ passed 2nd reading": "HPASS2",
+  "House/ passed 3rd reading": "HPASS3",
+  "House/ concurs with Senate amendment": "HCONCUR",
+  "Senate/ passed 2nd reading": "SPASS2",
+  "Senate/ passed 3rd reading": "SPASS3",
+  "Senate/ concurs with House amendment": "SCONCUR",
+};
+// The sessions whose JSON carries actionHistoryList. Everything earlier is read
+// from the static page. Expressed as a floor year rather than a list so a future
+// session does not silently take the archive path.
+const MODERN_FROM_YEAR = 2025;
+export const isArchiveSession = (session) => parseInt(String(session).slice(0, 4), 10) < MODERN_FROM_YEAR;
+
+// "HB0257" → "H.B. 257", the form 2025GS's own billNumberShort uses. Mechanical.
+export function shortNumber(bill) {
+  const m = /^([A-Z]+)0*(\d+)$/.exec(String(bill).trim());
+  if (!m) return String(bill);
+  return m[1].split("").join(".") + ". " + m[2];
+}
+
+// ── the static bill page's action table ─────────────────────────────────────
+// Four cells: date, action, location, vote. The vote cell is empty, or a committee
+// tally with no link, or a recorded floor vote linking to svotes.jsp — and a voice
+// vote links there too while printing "Voice vote", which is why the tally string
+// and not the presence of a link is what says a vote was recorded.
+export function parseBillPageActions(html) {
+  const out = [];
+  for (const tr of html.match(/<TR[^>]*>[\s\S]*?<\/TR>/gi) || []) {
+    const tds = tr.match(/<TD[^>]*>[\s\S]*?<\/TD>/gi) || [];
+    if (tds.length !== 4) continue;
+    const cell = (i) => de(tds[i].replace(/<[^>]*>/g, " "));
+    const dateRaw = cell(0), description = cell(1), location = cell(2), voteText = cell(3);
+    if (!/^\d{1,2}\/\d{1,2}\/\d{4}/.test(dateRaw)) continue;
+    const link = /svotes\.jsp\?sessionid=([^&"']+)&(?:amp;)?voteid=(\d+)&(?:amp;)?house=([HS])/i.exec(tds[3]);
+    const tally = /^(\d+)\s+(\d+)\s+(\d+)$/.exec(voteText);
+    out.push({
+      actionDate: dateRaw,
+      description,
+      location,
+      actionCode: ARCHIVE_ACTION_CODES[description] || null,
+      voteID: link ? link[2] : null,
+      voteHouse: link ? link[3] : null,
+      voiceVote: /voice vote/i.test(voteText) ? "1" : "0",
+      voteStr: tally ? `${tally[1]}-${tally[2]}-${tally[3]}` : null,
+    });
+  }
+  return out;
+}
+
+// One bill, in one shape, whichever session it came from. Downstream code reads
+// only these fields, so nothing below has to know which decade it is in.
+export function normaliseBill(session, billJson, pageHtml) {
+  const j = billJson || {};
+  if (!isArchiveSession(session)) {
+    return {
+      archive: false,
+      number: j.billNumberShort,
+      title: j.shortTitle,
+      lastAction: j.lastAction || "",
+      primeSponsor: j.primeSponsorName || "",
+      floorSponsor: j.floorSponsorName || "",
+      generalProvisions: j.generalProvisions || "",
+      actions: (j.actionHistoryList || []),
+    };
+  }
+  const page = String(pageHtml || "");
+  const sponsorOf = (divId) => {
+    const i = page.indexOf(`id="${divId}"`);
+    if (i < 0) return "";
+    const seg = page.slice(i, i + 900);
+    const a = /<a[^>]*>([\s\S]*?)<\/a>/i.exec(seg);
+    return a ? de(a[1].replace(/<[^>]*>/g, " ")) : "";
+  };
+  return {
+    archive: true,
+    number: shortNumber(j.bill || ""),
+    title: de(String(j.shorttitle || "")),
+    lastAction: j.lastaction || "",
+    // The archive JSON's sponsor field is an internal code ("BIRKEK"), which is not
+    // a name and must never be printed as one. The page prints the name.
+    primeSponsor: sponsorOf("billsponsordiv"),
+    floorSponsor: sponsorOf("floorsponsordiv"),
+    generalProvisions: j.generalprovisions || "",
+    actions: parseBillPageActions(page),
+  };
+}
 
 // A margin this lopsided differentiates nobody. Expressed as the losing side's
 // share of the members who actually voted.
@@ -250,18 +391,42 @@ export function proposeMember(printed, district, pool) {
 
 // ── the pieces of the run ───────────────────────────────────────────────────
 function billList() {
-  const j = readJson(BILLS_FILE);
+  // Every curator file in db/, oldest name first. A bill's own `session` field is
+  // what places it, not the filename, so a file that names the wrong session shows
+  // up as a cache miss rather than as a vote filed under the wrong year.
+  const files = [BILLS_FILE, ...fs.readdirSync(P("db")).filter((f) => BILLS_GLOB.test(f)).sort().map((f) => P("db", f))];
   const out = [];
-  for (const b of j.bills || []) {
-    if (ONLY_SESSION && b.session !== ONLY_SESSION) continue;
-    out.push(b);
+  const metas = {};
+  for (const f of files) {
+    const j = readJson(f);
+    for (const b of j.bills || []) {
+      if (ONLY_SESSION && b.session !== ONLY_SESSION) continue;
+      metas[b.session] = j;
+      out.push(b);
+    }
   }
-  return { meta: j, bills: out };
+  return { meta: readJson(BILLS_FILE), metas, bills: out, files };
+}
+
+// The bill JSON and, for an archive session, the page its roll calls live on.
+function billShape(b, { network }) {
+  const get = network
+    ? (rel, url) => cached(rel, url)
+    : (rel) => {
+      const f = path.join(CACHE, rel);
+      if (!fs.existsSync(f)) throw new Error(`${rel} is not in ${CACHE} — run --collect`);
+      return fs.readFileSync(f, "utf8");
+    };
+  const j = JSON.parse(get(`${b.session}/${b.bill}.json`, SRC.billJson(b.session, b.bill)));
+  const page = isArchiveSession(b.session)
+    ? get(`${b.session}/${b.bill}.page.html`, SRC.billPage(b.session, b.bill))
+    : null;
+  return normaliseBill(b.session, j, page);
 }
 
 // Every recorded floor vote on the bill, plus which one is final in each chamber.
-export function passageVotes(billJson) {
-  const rows = (billJson.actionHistoryList || []).filter(
+export function passageVotes(norm) {
+  const rows = (norm.actions || []).filter(
     (a) => a && a.voteID && a.voiceVote !== "1" && a.voteHouse
   );
   const picked = {}, discarded = [];
@@ -314,7 +479,12 @@ const QUESTION = {
 function isoOf(usDate) {
   // "1/28/2025 11:36 AM" → ISO. Utah is UTC-7 (MST) / UTC-6 (MDT); the session
   // runs Jan–Mar, so MST. Recorded to the minute because the source is.
-  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})\s*([AP])M$/.exec(String(usDate).trim());
+  //   The static page writes the same instant as "1/19/2024 (12:58:57 PM)". A row
+  // with no time at all ("1/11/2024") is a filing step, never a roll call, so it
+  // returns null rather than a midnight that was never printed.
+  const t = String(usDate).trim();
+  const p2 = /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s*\((\d{1,2}):(\d{2}):\d{2}\s*([AP])M\)$/.exec(t);
+  const m = p2 || /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})\s*([AP])M$/.exec(t);
   if (!m) return null;
   let hh = +m[4] % 12; if (m[6] === "P") hh += 12;
   const p = (n, w = 2) => String(n).padStart(w, "0");
@@ -333,12 +503,17 @@ function collect() {
     });
   }
 
-  const seen = { H: new Map(), S: new Map() };
+  // One residue per session, because a printed name is only unambiguous within the
+  // legislature that printed it: "Peterson, V." is one person in 2025 and could be
+  // another in 2019, and a single shared map would quietly merge them.
+  const seen = {};
+  const perSession = (session) => (seen[session] || (seen[session] = { H: new Map(), S: new Map() }));
   const report = [];
   for (const b of bills) {
-    const j = JSON.parse(cached(`${b.session}/${b.bill}.json`, SRC.billJson(b.session, b.bill)));
-    const { picked, discarded } = passageVotes(j);
-    const line = { session: b.session, bill: b.bill, number: j.billNumberShort, title: j.shortTitle, votes: [], discarded: discarded.length };
+    const n = billShape(b, { network: true });
+    const { picked, discarded, procedural } = passageVotes(n);
+    const line = { session: b.session, bill: b.bill, number: n.number, title: n.title, votes: [], discarded: discarded.length,
+      unclassified: procedural.filter((a) => a.voteStr && !a.actionCode).map((a) => `${a.description} ${a.voteStr} #${a.voteID}`) };
     for (const house of ["H", "S"]) {
       const a = picked[house];
       if (!a) { line.votes.push({ house, skipped: "no recorded final-passage vote" }); continue; }
@@ -346,12 +521,13 @@ function collect() {
       const html = cached(`${b.session}/vote-${house}-${a.voteID}.html`,
         SRC.floorVote(b.session, a.voteID, house));
       const v = parseVotePage(html);
+      const bucket = perSession(b.session)[house];
       for (const grp of ["yeas", "nays", "absent"]) {
-        for (const n of v[grp]) {
-          const cur = seen[house].get(n.name) || { name: n.name, districts: new Set(), n: 0 };
-          if (n.district != null) cur.districts.add(n.district);
+        for (const who of v[grp]) {
+          const cur = bucket.get(who.name) || { name: who.name, districts: new Set(), n: 0 };
+          if (who.district != null) cur.districts.add(who.district);
           cur.n++;
-          seen[house].set(n.name, cur);
+          bucket.set(who.name, cur);
         }
       }
       line.votes.push({
@@ -366,34 +542,39 @@ function collect() {
   // Draft the map: propose a pid for every distinct printed name, and say why
   // when it cannot. The residue is the point — a reviewer reads it and decides.
   const rosterPids = rosterPidPool();
-  const draft = {
-    _comment:
-      "DRAFT — not read by scripts/vr-utah-ingest.mjs. Review every line, then save as " +
-      "db/vr-utah-member-map.json. Keys are the EXACT string le.utah.gov prints on a " +
-      "vote page; values are roster ids. `unmapped` is people who voted in these roll " +
-      "calls and are not on the PolitiDex roster — their votes are dropped, counted and " +
-      "disclosed, never attributed to whoever holds the seat now.",
-    generatedBy: "scripts/vr-utah-ingest.mjs --collect",
-    chambers: { H: {}, S: {} },
-    confirmedByDistrict: { H: {}, S: {} },
-    unmapped: { H: [], S: [] },
-  };
-  for (const house of ["H", "S"]) {
-    const pool = rosterPids[house];
-    for (const [printed, info] of [...seen[house].entries()].sort()) {
-      const dist = info.districts.size === 1 ? [...info.districts][0] : null;
-      const prop = proposeMember(printed, dist, pool);
-      if (prop.pid) {
-        draft.chambers[house][printed] = prop.pid;
-        draft.confirmedByDistrict[house][printed] = !!prop.confirmedByDistrict;
-      } else {
-        draft.unmapped[house].push({ printed, district: dist, why: prop.why, candidates: prop.candidates || [] });
+  const drafts = {};
+  for (const session of Object.keys(seen).sort()) {
+    const draft = {
+      _comment:
+        "DRAFT — not read by scripts/vr-utah-ingest.mjs. Review every line, then save as " +
+        `db/${path.basename(mapFile(session))}. Keys are the EXACT string le.utah.gov ` +
+        "prints on a vote page; values are roster ids. `unmapped` is people who voted in " +
+        "these roll calls and are not on the PolitiDex roster — their votes are dropped, " +
+        "counted and disclosed, never attributed to whoever holds the seat now.",
+      generatedBy: `scripts/vr-utah-ingest.mjs --collect --session ${session}`,
+      session,
+      chambers: { H: {}, S: {} },
+      confirmedByDistrict: { H: {}, S: {} },
+      unmapped: { H: [], S: [] },
+    };
+    for (const house of ["H", "S"]) {
+      const pool = rosterPids[house];
+      for (const [printed, info] of [...seen[session][house].entries()].sort()) {
+        const dist = info.districts.size === 1 ? [...info.districts][0] : null;
+        const prop = proposeMember(printed, dist, pool);
+        if (prop.pid) {
+          draft.chambers[house][printed] = prop.pid;
+          draft.confirmedByDistrict[house][printed] = !!prop.confirmedByDistrict;
+        } else {
+          draft.unmapped[house].push({ printed, district: dist, why: prop.why, candidates: prop.candidates || [] });
+        }
       }
     }
+    drafts[session] = draft;
+    fs.writeFileSync(mapDraft(session), JSON.stringify(draft, null, 2) + "\n");
   }
-  fs.writeFileSync(MAP_DRAFT, JSON.stringify(draft, null, 2) + "\n");
 
-  if (AS_JSON) { console.log(JSON.stringify({ report, draft }, null, 2)); return; }
+  if (AS_JSON) { console.log(JSON.stringify({ report, drafts }, null, 2)); return; }
   console.log(`cache: ${CACHE}`);
   for (const r of report) {
     console.log(`\n${r.number}  ${r.title}   [${r.session}/${r.bill}]`);
@@ -404,15 +585,22 @@ function collect() {
         (v.marginOK ? "margin OK" : `REFUSED: ${v.marginWhy}`));
     }
     if (r.discarded) console.log(`   (${r.discarded} earlier/other recorded floor vote(s) on this bill not admitted — one instrument, one act)`);
+    // Named, not dropped in silence: a recorded tally whose action text this tool
+    // cannot classify is a hole in coverage and the curator is the one who decides
+    // whether it matters.
+    r.unclassified.forEach((u) => console.log(`   ? unclassified recorded vote: ${u}`));
   }
-  for (const house of ["H", "S"]) {
-    console.log(`\n${CHAMBER_LABEL[house]}: proposed ${Object.keys(draft.chambers[house]).length}, ` +
-      `needs review ${draft.unmapped[house].length}`);
-    draft.unmapped[house].forEach((u) =>
-      console.log(`   ${u.printed}${u.district ? " #" + u.district : ""} — ${u.why}` +
-        (u.candidates.length ? ` (${u.candidates.join(", ")})` : "")));
+  for (const session of Object.keys(drafts).sort()) {
+    const draft = drafts[session];
+    for (const house of ["H", "S"]) {
+      console.log(`\n${session} ${CHAMBER_LABEL[house]}: proposed ${Object.keys(draft.chambers[house]).length}, ` +
+        `needs review ${draft.unmapped[house].length}`);
+      draft.unmapped[house].forEach((u) =>
+        console.log(`   ${u.printed}${u.district ? " #" + u.district : ""} — ${u.why}` +
+          (u.candidates.length ? ` (${u.candidates.join(", ")})` : "")));
+    }
+    console.log(`\ndraft map → ${mapDraft(session)}\nreview it, then: cp ${mapDraft(session)} ${mapFile(session)}`);
   }
-  console.log(`\ndraft map → ${MAP_DRAFT}\nreview it, then: cp ${MAP_DRAFT} ${MAP_FILE}`);
 }
 
 // The roster side of the proposal: Utah state legislators as PolitiDex knows them.
@@ -454,18 +642,35 @@ function rosterPidPool() {
 
 // ── --seed ──────────────────────────────────────────────────────────────────
 function seed() {
-  const { meta, bills } = billList();
-  if (!fs.existsSync(MAP_FILE)) {
-    throw new Error(`${MAP_FILE} is missing. Run --collect, review ${MAP_DRAFT}, then promote it.`);
-  }
-  const map = readJson(MAP_FILE);
-  const out = { _comment: meta._comment, generatedBy: "scripts/vr-utah-ingest.mjs --seed", measures: [] };
-  const stats = { measures: 0, rollcalls: 0, votes: 0, dropped: {}, refused: [] };
+  const { metas, bills } = billList();
+  const maps = {};
+  const mapOf = (session) => {
+    if (maps[session]) return maps[session];
+    const f = mapFile(session);
+    if (!fs.existsSync(f)) {
+      throw new Error(`${f} is missing. Run --collect --session ${session}, review ` +
+        `${mapDraft(session)}, then promote it.`);
+    }
+    return (maps[session] = readJson(f));
+  };
+  const outs = {};
+  const outOf = (session) => outs[session] || (outs[session] = {
+    _comment: (metas[session] || {})._comment,
+    generatedBy: `scripts/vr-utah-ingest.mjs --seed --session ${session}`,
+    session, measures: [],
+  });
+  const stats = { measures: 0, rollcalls: 0, votes: 0, dropped: {}, refused: [], bySession: {} };
+  const tally = (session) => stats.bySession[session] ||
+    (stats.bySession[session] = { measures: 0, rollcalls: 0, votes: 0, dropped: 0 });
 
   for (const b of bills) {
-    const jf = path.join(CACHE, `${b.session}/${b.bill}.json`);
-    if (!fs.existsSync(jf)) { stats.refused.push(`${b.session}/${b.bill}: not in cache (run --collect)`); continue; }
-    const j = readJson(jf);
+    let j, n;
+    try { n = billShape(b, { network: false }); }
+    catch { stats.refused.push(`${b.session}/${b.bill}: not in cache (run --collect)`); continue; }
+    j = n;
+    const map = mapOf(b.session);
+    const out = outOf(b.session);
+    const st = tally(b.session);
     for (const m of b.issues || []) {
       if (!m.issueKey || !m.supportMeaning || typeof m.weight !== "number" || !m.rationale) {
         throw new Error(`${b.session}/${b.bill}: mapping for "${m.issueKey || "?"}" is not decided ` +
@@ -476,16 +681,16 @@ function seed() {
     const measure = {
       session: b.session,
       utahBill: b.bill,
-      number: j.billNumberShort,
-      title: j.shortTitle,
+      number: j.number,
+      title: j.title,
       chamber: originating,
       measureType: /^(HJR|SJR|HCR|SCR)/.test(b.bill) ? "resolution" : "bill",
       status: /Signed/i.test(j.lastAction || "") ? "enacted"
         : /to Governor/i.test(j.lastAction || "") ? "passed_senate" : "failed",
       sourceUrl: SRC.billPage(b.session, b.bill),
       sourceLabel: SOURCE_LABEL,
-      primeSponsor: j.primeSponsorName || "",
-      floorSponsor: j.floorSponsorName || "",
+      primeSponsor: j.primeSponsor || "",
+      floorSponsor: j.floorSponsor || "",
       generalProvisions: de(String(j.generalProvisions || "").replace(/<[^>]*>/g, " ")).slice(0, 900),
       issues: b.issues,
       rollcalls: [],
@@ -496,9 +701,9 @@ function seed() {
       const a = picked[house];
       if (!a) continue;
       const mg = marginOK(a.voteStr);
-      if (!mg.ok) { stats.refused.push(`${j.billNumberShort} ${CHAMBER_LABEL[house]}: ${mg.why}`); continue; }
+      if (!mg.ok) { stats.refused.push(`${j.number} ${CHAMBER_LABEL[house]}: ${mg.why}`); continue; }
       const hf = path.join(CACHE, `${b.session}/vote-${house}-${a.voteID}.html`);
-      if (!fs.existsSync(hf)) { stats.refused.push(`${j.billNumberShort} ${CHAMBER_LABEL[house]}: vote page not in cache`); continue; }
+      if (!fs.existsSync(hf)) { stats.refused.push(`${j.number} ${CHAMBER_LABEL[house]}: vote page not in cache`); continue; }
       const v = parseVotePage(fs.readFileSync(hf, "utf8"));
       const votes = [];
       const drop = [];
@@ -510,8 +715,9 @@ function seed() {
         }
       };
       put(v.yeas, "yea"); put(v.nays, "nay"); put(v.absent, "not_voting");
-      const key = `${CHAMBER_LABEL[house]}`;
+      const key = `${b.session} ${CHAMBER_LABEL[house]}`;
       stats.dropped[key] = (stats.dropped[key] || 0) + drop.length;
+      st.dropped += drop.length;
       measure.rollcalls.push({
         chamber: CHAMBER[house],
         session: parseInt(b.session.slice(0, 4), 10),
@@ -528,15 +734,25 @@ function seed() {
         droppedNotOnRoster: drop.sort(),
       });
       stats.rollcalls++; stats.votes += votes.length;
+      st.rollcalls++; st.votes += votes.length;
     }
-    if (!measure.rollcalls.length) { stats.refused.push(`${j.billNumberShort}: no admissible roll call`); continue; }
+    if (!measure.rollcalls.length) { stats.refused.push(`${j.number}: no admissible roll call`); continue; }
     out.measures.push(measure);
-    stats.measures++;
+    stats.measures++; st.measures++;
   }
-  fs.writeFileSync(SEED_FILE, JSON.stringify(out, null, 2) + "\n");
-  if (AS_JSON) { console.log(JSON.stringify(stats, null, 2)); return; }
-  console.log(`seed → ${SEED_FILE}`);
+  const written = [];
+  for (const session of Object.keys(outs).sort()) {
+    const f = seedFile(session);
+    fs.writeFileSync(f, JSON.stringify(outs[session], null, 2) + "\n");
+    written.push(path.relative(ROOT, f));
+  }
+  if (AS_JSON) { console.log(JSON.stringify({ ...stats, written }, null, 2)); return; }
+  written.forEach((f) => console.log(`seed → ${f}`));
   console.log(`measures ${stats.measures}  rollcalls ${stats.rollcalls}  member votes ${stats.votes}`);
+  for (const session of Object.keys(stats.bySession).sort()) {
+    const t = stats.bySession[session];
+    console.log(`   ${session}: measures ${t.measures}  rollcalls ${t.rollcalls}  member votes ${t.votes}  dropped ${t.dropped}`);
+  }
   console.log(`dropped (voted, not on the PolitiDex roster): ${JSON.stringify(stats.dropped)}`);
   if (stats.refused.length) { console.log("refused:"); stats.refused.forEach((r) => console.log("   " + r)); }
 }
@@ -546,13 +762,17 @@ function seed() {
 // idempotent DO blocks, per-measure IF NOT EXISTS sentinels, sourceUrl on every
 // row. Written to .sql.draft so the platform's runner ignores it until a human
 // moves it.
-function sqlDraft() {
-  const s = readJson(SEED_FILE);
-  const map = fs.existsSync(MAP_FILE) ? readJson(MAP_FILE) : {};
+function sqlDraft(session) {
+  const s = readJson(seedFile(session));
+  const map = fs.existsSync(mapFile(session)) ? readJson(mapFile(session)) : {};
+  // The two partial indexes belong to the session that introduced them. A later
+  // session's draft restating applied DDL would put a CREATE in a migration that
+  // only moves rows, which is the thing scripts/test-vr-corrections.mjs checks for.
+  const firstSession = session === LEGACY_SESSION;
   const q = (v) => v == null ? "NULL" : `'${String(v).replace(/'/g, "''")}'`;
   const L = [];
   L.push("-- DRAFT — generated by scripts/vr-utah-ingest.mjs --sql from");
-  L.push("-- db/vr-utah-vote-seed.json. Review, then promote into");
+  L.push(`-- db/${path.basename(seedFile(session))}. Review, then promote into`);
   L.push("-- netlify/database/migrations/<timestamp>_<name>.sql with a header that says");
   L.push("-- what it is for. The tool does not write there.");
   L.push("");
@@ -565,7 +785,7 @@ function sqlDraft() {
   //   The measure index is the same argument: vr_measures has no unique index at
   // all, and "H.B. 60" is a number Utah reissues every session. Keying on the
   // session recorded in external_ids is what makes a Utah measure identifiable.
-  // The residue, stated once. Every name here cast a recorded vote in the 2025
+  // The residue, stated once. Every name here cast a recorded vote in this
   // session and is not on the PolitiDex roster, so their votes are absent from
   // this file. Saying so once, by name, is the difference between a coverage gap
   // and a silent one.
@@ -585,26 +805,35 @@ function sqlDraft() {
     }
     if (line.trim() !== "--") L.push(line.replace(/;\s*$/, ""));
     // A REFUSAL IS NOT A GAP, and the file says which is which. A gap is someone
-    // the roster has never carried. A refusal is a printed name whose surname is
-    // shared with a DIFFERENT person the roster does carry — the one case where
-    // guessing would invent a stranger, so it is declined on purpose.
+    // the roster has never carried and could not have been resolved to. A refusal is a
+    // printed name the roster COULD have absorbed — a shared surname, or a same-name
+    // record holding a different office — where resolving it would have rested on a
+    // guess about which human it is. Those are declined on purpose, and the map that
+    // declined them carries the reason in prose, so the reason is quoted from there
+    // rather than restated here in a form that might not fit the session.
     const refusedHere = names.filter((n) => (map._refusedNames || []).includes(n));
     if (refusedHere.length) {
       L.push(`-- ${refusedHere.length} of those (${refusedHere.join("; ")}) are REFUSALS rather than gaps:`);
-      L.push("-- the surname is shared with a different person on the roster. See");
-      L.push("-- db/vr-utah-member-map.json for each one.");
+      L.push("-- resolving them would have rested on a guess about which human the printed");
+      L.push(`-- name is. See db/${path.basename(mapFile(session))} for each one.`);
     }
     L.push("");
   }
-  L.push("-- Additive. Neither index constrains any existing federal row: both are");
-  L.push("-- partial and both predicates are false for every row already in the table.");
-  L.push("CREATE UNIQUE INDEX IF NOT EXISTS vr_rollcalls_state_unique");
-  L.push("  ON vr_rollcalls (chamber, session, roll_number) WHERE congress IS NULL;");
-  L.push("--> statement-breakpoint");
-  L.push("CREATE UNIQUE INDEX IF NOT EXISTS vr_measures_utah_unique");
-  L.push("  ON vr_measures (chamber, number, (external_ids->>'utahSession'))");
-  L.push("  WHERE external_ids ? 'utahSession';");
-  L.push("--> statement-breakpoint");
+  if (firstSession) {
+    L.push("-- Additive. Neither index constrains any existing federal row: both are");
+    L.push("-- partial and both predicates are false for every row already in the table.");
+    L.push("CREATE UNIQUE INDEX IF NOT EXISTS vr_rollcalls_state_unique");
+    L.push("  ON vr_rollcalls (chamber, session, roll_number) WHERE congress IS NULL;");
+    L.push("--> statement-breakpoint");
+    L.push("CREATE UNIQUE INDEX IF NOT EXISTS vr_measures_utah_unique");
+    L.push("  ON vr_measures (chamber, number, (external_ids->>'utahSession'))");
+    L.push("  WHERE external_ids ? 'utahSession';");
+    L.push("--> statement-breakpoint");
+  } else {
+    L.push("-- No DDL. vr_rollcalls_state_unique and vr_measures_utah_unique were created");
+    L.push("-- by the 2025 general session's migration and carried into the drizzle chain");
+    L.push("-- by its snapshot; this session relies on them and restates neither.");
+  }
   L.push("");
   for (const m of s.measures) {
     const tag = `${m.session}/${m.utahBill}`;
@@ -660,9 +889,95 @@ function sqlDraft() {
     L.push("");
   }
   fs.mkdirSync(OUTDIR, { recursive: true });
-  const f = path.join(OUTDIR, "vr-utah-record.sql.draft");
+  const f = path.join(OUTDIR, firstSession
+    ? "vr-utah-record.sql.draft" : `vr-utah-record-${session}.sql.draft`);
   fs.writeFileSync(f, L.join("\n"));
   console.log(`sql draft → ${f}  (${L.length} lines)`);
+}
+
+// Which sessions a no-network mode should act on: what --session names, or every
+// session that has a promoted seed on disk.
+function sessionsOnDisk() {
+  if (ONLY_SESSION) return [ONLY_SESSION];
+  const out = new Set();
+  for (const f of fs.readdirSync(P("db"))) {
+    if (f === "vr-utah-vote-seed.json") out.add(LEGACY_SESSION);
+    const m = /^vr-utah-vote-seed-(\d{4}[A-Z0-9]*)\.json$/.exec(f);
+    if (m) out.add(m[1]);
+  }
+  return [...out].sort();
+}
+
+// ── --survey ────────────────────────────────────────────────────────────────
+// The candidate list, mechanically. db/vr-utah-bills.json is curator-authored and
+// stays that way — but "which of a session's 550 bills even HAD a contested
+// recorded final-passage vote" is not a judgement, it is a reading of the source,
+// and doing it by hand is how a curator ends up choosing the bills they happened
+// to remember. So the tool reads the session's passed-bills index, walks every
+// bill's action table, applies the SAME final-passage and minority-share rules the
+// seeder applies, and prints what qualifies. The curator then decides which of
+// those to admit and which issue each one maps to — which is the part no tool can
+// do — and writes the reasons down either way.
+//
+// It reports only what the session PUBLISHED as passed. A bill that failed on the
+// floor never reaches the passed-bills index, and its HFAIL / SFAIL roll call is
+// outside the admitted action codes anyway; both are stated in the runbook as
+// coverage, not as a rule.
+function survey() {
+  if (!ONLY_SESSION) throw new Error("--survey needs --session <SESSION>, e.g. --session 2024GS");
+  const session = ONLY_SESSION;
+  const index = cached(`${session}/passed-bills.html`, SRC.passedBills(session));
+  const bills = [];
+  for (const tr of index.match(/<TR>[\s\S]*?<\/TR>/gi) || []) {
+    const tds = tr.match(/<TD[^>]*>[\s\S]*?<\/TD>/gi) || [];
+    if (tds.length < 3) continue;
+    const m = /\/~(\d{4})\/bills\/static\/([A-Z]+\d{4})\.html/.exec(tds[0]);
+    if (!m) continue;
+    bills.push({ bill: m[2], title: de(tds[1].replace(/<[^>]*>/g, " ")), sponsor: de(tds[2].replace(/<[^>]*>/g, " ")) });
+  }
+  const seenBill = new Set();
+  const rows = [];
+  const unclassified = [];
+  let scanned = 0;
+  for (const b of bills) {
+    if (seenBill.has(b.bill)) continue;
+    seenBill.add(b.bill);
+    scanned++;
+    const j = JSON.parse(cached(`${session}/${b.bill}.json`, SRC.billJson(session, b.bill)));
+    const page = cached(`${session}/${b.bill}.page.html`, SRC.billPage(session, b.bill));
+    const n = normaliseBill(session, j, page);
+    const { picked, procedural } = passageVotes(n);
+    for (const a of procedural) {
+      if (a.voteStr && !a.actionCode) unclassified.push(`${b.bill} ${a.description} ${a.voteStr} #${a.voteID}`);
+    }
+    for (const house of ["H", "S"]) {
+      const a = picked[house];
+      if (!a) continue;
+      const mg = marginOK(a.voteStr);
+      if (!mg.ok) continue;
+      rows.push({ bill: b.bill, number: n.number, title: n.title, sponsor: b.sponsor,
+        house, code: a.actionCode, voteId: a.voteID, margin: a.voteStr,
+        share: +(mg.share * 100).toFixed(1), subjects: j.subjects || [] });
+    }
+  }
+  rows.sort((x, y) => x.share - y.share || (x.bill < y.bill ? -1 : 1));
+  const f = path.join(CACHE, `survey-${session}.json`);
+  fs.writeFileSync(f, JSON.stringify({ session, scanned, contested: rows, unclassified }, null, 2) + "\n");
+  if (AS_JSON) { console.log(JSON.stringify({ session, scanned, contested: rows, unclassified }, null, 2)); return; }
+  console.log(`${session}: ${scanned} bills in the passed-bills index; ` +
+    `${rows.length} admissible contested final-passage roll call(s) across ` +
+    `${new Set(rows.map((r) => r.bill)).size} bill(s)`);
+  for (const r of rows) {
+    console.log(`  ${String(r.share).padStart(5)}%  ${r.house} ${r.code.padEnd(8)} ` +
+      `${r.margin.padEnd(10)} ${r.number.padEnd(9)} ${r.title.slice(0, 62)}`);
+  }
+  if (unclassified.length) {
+    console.log(`\n${unclassified.length} recorded vote(s) whose action text is not an admitted ` +
+      "final-passage code (conference reports, suspension passage, failed passage):");
+    unclassified.slice(0, 25).forEach((u) => console.log("   " + u));
+    if (unclassified.length > 25) console.log(`   … and ${unclassified.length - 25} more`);
+  }
+  console.log(`\nsurvey → ${f}`);
 }
 
 // ── main ────────────────────────────────────────────────────────────────────
@@ -670,8 +985,9 @@ const isMain = process.argv[1] && path.resolve(process.argv[1]) === path.resolve
 if (isMain) {
   try {
     if (has("--collect")) collect();
+    else if (has("--survey")) survey();
     else if (has("--seed")) seed();
-    else if (has("--sql")) sqlDraft();
+    else if (has("--sql")) sessionsOnDisk().forEach(sqlDraft);
     else {
       console.log(fs.readFileSync(fileURLToPath(import.meta.url), "utf8")
         .split("\n").filter((l) => l.startsWith("//")).join("\n"));
