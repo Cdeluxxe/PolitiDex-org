@@ -5657,8 +5657,16 @@
       if (o.includes('secretary') || o.includes('director') || o.includes('ambassador')) return 'cabinet';
 
       // Federal Senate — incumbents and candidates ("Candidate for U.S. Senate").
+      // The bare-'senate' fallback exists for committee-chair titles ("Senate
+      // Finance Committee Chair"), which are always federal here. It excluded
+      // offices containing 'state' — but "Utah Senate President" does not contain
+      // that word, so the Utah Senate's presiding officer was filing under
+      // "U.S. Senate · Utah", i.e. the archive asserted a seat the person does not
+      // hold. A state chamber's presiding officer is excluded here and picked up by
+      // the state_senator clause below, where 'senate president' was already named.
       if (o.includes('u.s. senator') || o.includes('u.s. senate') ||
-          ((o.includes('senator') || o.includes('senate')) && !o.includes('state')))
+          ((o.includes('senator') || o.includes('senate')) && !o.includes('state') &&
+           !o.includes('senate president')))
         return 'senator';
 
       // Federal House / Congress — incumbents and candidates ("Candidate for

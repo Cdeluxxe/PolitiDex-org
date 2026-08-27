@@ -928,3 +928,204 @@ depth — 428 more judged votes standing behind positions that previously rested
    deferred it for that reason. It wants a dedicated pass whose entire subject is the consistency
    set, taken together with the S. 1605 `strong_defense` weight correction (rule 21, guarded
    `UPDATE`) since both touch the same five rows.
+
+---
+
+## § Utah — the first state legislature in the formal lane (`20260929000000`)
+
+Everything above this line is Congress. This section is the state path, added by
+Data wave 1 so that Utah ballot people stop opening to "No formal pattern on file
+yet." It is a separate path because `netlify/lib/vr-ingest.ts` knows only
+congress.gov and senate.gov: it takes a Congress number, a session and a roll
+number, and none of those three things means anything in Salt Lake City.
+
+Baseline before the wave: **92 Utah state-level pids on the archive — 65 with an
+empty formal file, 27 thin, 0 readable.** `mschultz`, the Speaker and the wave's
+canary, was empty. After it, measured by running the shipped `formalPatternIndex`
+over the seed in a vm: **14 empty, 33 thin, 46 readable** across 93 pids (the extra
+one is `sadams`, whom the `_classifyBrowseType` fix below returned to the
+state-senator bucket). The 14 still-empty files belong to people who cast no 2025
+legislature votes — former members, statewide executives and candidates — and
+nothing was manufactured for them.
+
+### Source of record
+
+Everything comes from `le.utah.gov`, which publishes per-member roll calls in
+HTML and bill metadata in JSON. There is no key and no API contract; there is a
+WAF.
+
+| What | URL |
+| --- | --- |
+| Bill metadata + action history | `https://le.utah.gov/data/{session}/{BILL}.json` |
+| Bill page (the citable URL) | `https://le.utah.gov/~{year}/bills/static/{BILL}.html` |
+| One floor roll call, per member | `https://le.utah.gov/DynaBill/svotes.jsp?sessionid={session}&voteid={id}&house={H\|S}` |
+| Legislator roster | `https://le.utah.gov/data/legislators.json` |
+
+**Node `fetch` is rejected.** The WAF returns a "Request Rejected" page to it
+regardless of headers. `scripts/vr-utah-ingest.mjs` shells out to `curl` with a
+browser user-agent plus `Accept` and `Accept-Language`, and treats that page as a
+hard error rather than caching it as content. `/data/` has no index and `/asp/…`
+is rejected outright, so bill numbers have to come from `/billlist.jsp` or from
+enumerating `HB0001…`.
+
+### How a state row is stored, and why there is no new column
+
+Jurisdiction lives **in the `chamber` field**: `'utah house'` and `'utah senate'`.
+`congress` is NULL, `session` is the calendar year (2025) and `roll_number` is
+Utah's own `voteID`. This was chosen over adding a `jurisdiction` column because
+`chamber` is the field the client already prints — so the stored value and the
+displayed label cannot drift apart, and a Utah vote physically cannot render as
+"House". Dedupe comes from two additive partial unique indexes:
+
+```sql
+CREATE UNIQUE INDEX vr_rollcalls_state_unique
+  ON vr_rollcalls (chamber, session, roll_number) WHERE congress IS NULL;
+CREATE UNIQUE INDEX vr_measures_utah_unique
+  ON vr_measures (chamber, number, (external_ids->>'utahSession'))
+  WHERE external_ids ? 'utahSession';
+```
+
+The existing `vr_rollcalls_unique` on `(chamber, congress, session, roll_number)`
+is not binding for these rows, because a NULL member makes the tuple non-unique in
+Postgres. Nothing applied was altered.
+
+Both indexes are declared in `db/schema.ts` **and** carried in the drizzle chain by
+`20260930000000_vr_utah_state_dedupe_indexes`, the snapshot twin of the
+hand-written migration — same pattern as
+`20260927000000` / `20260928000000_pdx_notification_follow_categories`. Skipping
+the twin is the trap: `drizzle-kit generate` diffs `db/schema.ts` against the
+newest `snapshot.json`, so an index declared in the schema but absent from that
+snapshot gets a second `CREATE` in the next generated migration. The generated
+stamp (a wall clock, `20260827010150`) sorted behind ninety-one applied migrations
+and had to be re-picked by hand, and the two `CREATE`s were guarded with
+`IF NOT EXISTS`, which is the only edit made to drizzle's output.
+
+**Every surface that prints a chamber owes the reader the display form, by exact
+match.** `voting-record.js` keyed its glossary chip off `/house/i.test(chamber)`,
+which is true of `'utah house'` — so a Utah floor vote would have opened the
+federal card, "435 members, each representing one district, apportioned by state
+population", above a vote of a 75-member body. Adding a state means adding: two
+entries to `CHAMBER_LABEL` / `CHAMBER_TERM` in `voting-record.js`, two cases in
+`bill-detail.js`'s `chamberLabel`, and two glossary entries in `pdx-learn.js`.
+A chamber with no glossary entry of its own renders as plain text — no tap
+target — rather than borrowing the nearest-looking one.
+
+### The five rules this pass ran on
+
+1. **One instrument, one act.** A Utah bill is commonly voted four times in one
+   chamber: second reading, third reading, a re-vote after amendment, and
+   concurrence. Exactly one is written per `(bill, chamber)` — the latest
+   passage-code action, tie-broken by date. This is the same rule as PASS 2's
+   floor-supersedes-non-floor in `stance-helpers.js`, applied at ingest instead
+   of at read time, because the roll calls are all floor votes and PASS 2 would
+   count all four.
+2. **Near-unanimous roll calls are refused**, at the same bar as the federal
+   rule at line 149: below one tenth of the yea+nay pool on the losing side, the
+   vote differentiates nobody and only inflates depth. Seven roll calls on
+   otherwise-admitted bills were dropped for this (the other chamber's vote on
+   the same bill is present in every case).
+3. **Nobody is guessed.** The vote pages print `Surname, I.` A candidate must
+   match on surname **within one chamber's pid pool**, then on first-name
+   compatibility (exact, initial-prefix, or a small nickname table), then be
+   confirmed against the district in the page's leglookup link. The tool writes a
+   *draft* map to its cache; the accepted table is `db/vr-utah-member-map.json`,
+   which is a reviewed human artifact and the only thing the seeder will read.
+   Three names are permanently refused there (`Moss, J.`, `Peterson, K.`,
+   `Peterson, T.` — surname-only, two plausible people each). 26 House names and
+   1 Senate name are unmapped because they are not on the PolitiDex roster at
+   all; each roll call carries its own `droppedNotOnRoster` list and the
+   migration discloses the count per roll call plus one consolidated list at the
+   head of the file. **An unmapped name is a coverage gap and is labelled as one;
+   it is never a refusal, and a refusal is never quietly a gap.**
+4. **Former members stay in the pool.** Tyler Clancy and Matthew Gwynn cast 2025
+   votes and have since left the House. Excluding them would either lose those
+   votes or — far worse — hand them to their successors. Their vote pages carry no
+   leglookup link, so they are the two entries under
+   `_acceptedWithoutDistrict`, accepted on the district recorded in the roster.
+5. **A bill nobody can read gets no mapping.** 42 bills were mapped; **30 were
+   refused in writing**, each with its reason, in `_refused` in
+   `db/vr-utah-bills.json`. The refusals are the useful half of that file. Two
+   patterns recur: a bill whose own coordination clause contradicts its operative
+   sentence (SB0327), and a genuinely contested bill for which no issue key
+   exists (HB0247 — the session's closest vote at 38-37). *A contested margin is
+   not a reason to invent a mapping.*
+
+### Deliberately deferred: sponsorship rows
+
+No `vr_positions` rows were written for prime or floor sponsorship this wave.
+Two reasons, both worth re-reading before someone adds them:
+
+- **They would add almost no signal.** PASS 2 makes a floor vote supersede a
+  non-floor act on the same instrument, and a Utah sponsor nearly always voted on
+  their own bill — so the 0.45 lead-sponsor act would be dropped in favour of the
+  1.00 floor vote it already has.
+- **They need a second identity path.** Sponsors are printed as
+  `Rep. Dunnigan, James A.` — a different format from the roll call's
+  `Dunnigan, J.`, which the accepted map is keyed on. That is a whole second
+  name-matching surface to review, for a signal PASS 2 discards.
+
+### The federal sweep is federal
+
+`scripts/test-vr-vote-seed.mjs` walks `db/*-vote-seed.json` and enforces bioguide
+attribution, a Congress number, a session of 1 or 2, a `house`/`senate` chamber and
+a mapping in `db/vr-issue-seed.json` — five things a state legislature does not
+have. It now partitions the directory: federal-shaped seeds (those with a top-level
+`votes` array) go through the pass, and anything else must be **named by some
+`scripts/test-*.mjs`** or the sweep fails. Adding a state seed therefore means
+adding its harness in the same change; the alternative — quietly excluding the file
+— produces a seed nobody has ever read.
+
+`scripts/vr-coverage-report.mjs` has the same federal assumption from the other
+side: it overlays committed-but-undeployed seeds and joins on a Congress number, so
+the Utah seed contributes nothing to it. It now prints the name of any seed it will
+not overlay, because contributing zero rows silently looks exactly like a pass that
+unlocked nothing. A state coverage overlay would need its own keying and is not
+written.
+
+### Verifying, and what is still blocked
+
+The migration is data-only; no `NETLIFY_DATABASE_URL` exists in the build sandbox,
+so it applies on deploy. Post-deploy, the check is `/p/mschultz`, whose brief block
+should read "26 issues on the formal record · 32 votes and formal actions read · 1
+deep enough to characterise" over a `housing` cluster at 4 advanced / 0 against —
+plus two or three other UT legislators (`sadams`, `rward`, `aromero`).
+`scripts/test-vr-utah-record.mjs` pins the seed and the client labels without a
+database.
+
+**No receipt cards, on purpose.** A Utah roll call has everything a share card's
+VERIFY line needs — `le.utah.gov` publishes a per-member vote page for every one,
+and the ingest stores its address — and `receipt-cards.js` refuses it anyway. Guard
+12 would have refused it by falling through (the citation is DERIVED from
+`(chamber, congress, session, roll)` and a state row has no congress), but falling
+through told a curator reading `audit()` that "the roll number is missing", which
+on these rows is false. The chamber is now named at `STATE_CHAMBERS` in
+receipt-cards.js with the real reason: nothing has read those pages.
+`scripts/vr-check-citations.mjs` is what makes guard 14 a denylist rather than an
+allowlist — it fetches every derivable citation, confirms the page names the roll
+call cited, and cross-checks the measure against the chamber's structured record —
+and it knows two page shapes, both federal. Printing a state address would put a
+permanently unread link on the one surface that travels without its context. What
+unblocks it: an `svotes.jsp` reader in that script plus a fetch that survives the
+WAF (the same browser headers `curl` needs; Node `fetch` is rejected outright).
+Until then the run summary names the gap — the citation check prints how many of
+its underivable rows are non-federal chambers, instead of folding them into one
+count.
+
+Still blocked, in priority order:
+
+1. **Committee votes.** Utah publishes them, but only inside per-committee PDF
+   minutes, not in the `svotes.jsp` structure. No parse path exists; a 0.60-weight
+   act lane for state committees is the largest available depth gain.
+2. **Sessions before 2025.** The same endpoints work for `2024GS`, `2023GS` and
+   the special sessions; the only cost is a curator pass over each session's
+   contested bills. This is the cheapest way to lift the 27 thin Utah files.
+3. **Roster coverage.** 26 of 75 House members are not on the archive at all, so
+   their votes are parsed and discarded. That is a `cmp-data.js` roster job, not
+   an ingest one.
+4. **Receipt cards for state votes.** See "No receipt cards, on purpose" above:
+   an `svotes.jsp` page reader and a WAF-surviving fetch in
+   `scripts/vr-check-citations.mjs`, after which the `STATE_CHAMBERS` branch in
+   receipt-cards.js becomes a citation instead of a refusal.
+5. **Other states.** The path generalises — the chamber-field convention, the
+   accepted-map rule, and the two partial indexes are not Utah-specific — but each
+   state needs its own fetcher, because none of them publish the same way.

@@ -1,0 +1,42 @@
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Snapshot carrier for the two state-record dedupe indexes
+-- ─────────────────────────────────────────────────────────────────────────────
+-- THIS IS THE TWIN, NOT THE CHANGE. Both indexes are introduced by the
+-- hand-written 20260929000000_vr_utah_2025gs_state_record.sql, which is where
+-- their reasoning lives and which is the file to read. This directory exists for
+-- one mechanical reason: drizzle-kit builds the next migration by diffing
+-- db/schema.ts against the NEWEST snapshot.json in this tree. An index introduced
+-- by hand-written .sql alone never enters that chain — and once the same index is
+-- declared in schema.ts, as these two now are, the next `generate` would emit a
+-- second CREATE for an index that already exists.
+--
+-- 20260927000000_pdx_notification_follow_categories.sql and its folder twin
+-- 20260928000000_pdx_notification_follow_categories sit in this tree for exactly
+-- the same reason, and 20260925000000_create_vr_vote_correction_overlays and
+-- 20260720053826_create_vr_measure_actions_and_provisions before them. Same
+-- shape, same reason.
+--
+-- WHY THE VERSION IS HAND-PICKED. drizzle-kit stamps the wall clock, and this
+-- repo's migrations run ahead of the calendar, so the generated stamp
+-- (20260827010150) sorted behind ninety-one migrations that are already applied
+-- and the platform would have rejected the deploy. 20260930000000 sorts after the
+-- .sql it follows.
+--
+-- WHY RE-STATING THE CREATEs IS SAFE. Both statements are guarded with IF NOT
+-- EXISTS, so on any branch where 20260929000000 already applied this is a no-op,
+-- and on a branch that somehow skipped it the indexes arrive with the same
+-- columns, the same predicate and the same uniqueness. Nothing is read, written,
+-- moved or dropped. drizzle-kit emits these two statements unguarded; the guard is
+-- the only edit made to its output.
+--
+-- WHAT THEY ARE FOR. `vr_rollcalls_unique` covers (chamber, congress, session,
+-- roll_number), and a state roll call has no congress — in Postgres a NULL member
+-- never collides, so that index accepts the same Utah vote twice and every member
+-- on it would be counted twice. These two supply the state identity instead:
+-- chamber (which carries the jurisdiction, 'utah house') + session + roll number
+-- for a vote, and chamber + number + the Utah session code for a measure. Both are
+-- partial, so no federal row is affected by either one.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+CREATE UNIQUE INDEX IF NOT EXISTS "vr_measures_utah_unique" ON "vr_measures" ("chamber","number",(external_ids->>'utahSession')) WHERE external_ids ? 'utahSession';--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "vr_rollcalls_state_unique" ON "vr_rollcalls" ("chamber","session","roll_number") WHERE congress IS NULL;

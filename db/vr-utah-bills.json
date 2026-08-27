@@ -1,0 +1,761 @@
+{
+  "_comment": "UTAH STATE LEGISLATURE — the curator's bill selection for the 2025 General Session, and the issue mapping for each. Read by scripts/vr-utah-ingest.mjs, which decides none of it. Every entry below was selected by hand and every mapping carries a rationale that names the provision it reads; the ingest refuses a bill whose mapping is missing an issueKey, a supportMeaning, a weight or a rationale. Bills are here because a contested recorded floor vote on them separates one legislator from another AND their operative provisions point one way on an issue the app already has a key for. Bills that produced only near-unanimous votes are excluded by the ingest itself (see the runbook's near-unanimity rule) — they add attribution without adding signal. Bills whose provisions run both ways on their own subject were considered and left out on purpose; _refused below names them and why, because a selection that shows only its hits reads as a keyword sweep.",
+  "session": "2025GS",
+  "jurisdiction": "Utah",
+  "sourceHome": "https://le.utah.gov/",
+  "_weights": "0-100, same scale as db/vr-issue-seed.json. Weight is how squarely the bill is ABOUT the issue. It is not a score, not a magnitude of approval, and act depth (floor vote vs co-sponsorship) is decided elsewhere, in stance-helpers.js.",
+  "bills": [
+    {
+      "bill": "HB0037",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "housing",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill authorizes a municipality or county to allow additional housing density in exchange for certain requirements, lets local governments offer incentives to promote owner-occupied affordable housing, tightens moderate income housing plan and reporting requirements, and directs the Governor's Office of Planning and Budget to produce a state housing plan. Housing supply and affordability are the bill's whole subject, so a yea is a vote to act on housing."
+        },
+        {
+          "issueKey": "housing_build",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The density-for-requirements authorization and the lowered minimum population for incorporating a new town are supply-side provisions specifically: they let more units be built where local government agrees. Secondary because the bill also carries planning, reporting and special-district provisions that are not about building."
+        }
+      ]
+    },
+    {
+      "bill": "HB0360",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "housing",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill qualifies cities of the first and second class for Utah Homes Investment Program funds to rehabilitate attainable homes, extends that program's sunset by a year, repeals the Utah Housing Corporation's sunset, and opens school surplus land to affordable housing use. Every operative provision expands a housing-affordability instrument, so a yea is a vote for them."
+        },
+        {
+          "issueKey": "housing_support",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The program funds and the Utah Housing Corporation sunset repeal are subsidy and finance provisions rather than construction provisions — public support for housing, which is this key's subject."
+        }
+      ]
+    },
+    {
+      "bill": "SB0262",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "housing",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill broadens the permitted uses of home ownership promotion zone revenue (water exactions, street lighting, environmental remediation), requires counties to apply land use provisions to pending as well as new applications, and directs the Utah Housing Corporation to write rules for first-time homebuyer lending. Affordable housing is named in the bill's own general provisions as its subject."
+        },
+        {
+          "issueKey": "housing_first_time",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The first-time homebuyer mortgage rules and the buyer incentive program are aimed at first purchases specifically. Secondary because the promotion-zone and land-use provisions are the larger part of the bill."
+        }
+      ]
+    },
+    {
+      "bill": "SB0181",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "housing",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill is short and single-purpose: it enacts limits on how local land use regulation may treat certain parking spaces, with exceptions. Its own general provisions name housing affordability as the subject, and parking minimums are a recognised cost per unit."
+        },
+        {
+          "issueKey": "housing_build",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Capping a parking requirement is a supply-side change — it reduces what a project must include before it may be built. Secondary only because the bill reaches parking and nothing else."
+        }
+      ]
+    },
+    {
+      "bill": "SB0023",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "housing",
+          "weight": 50,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill clarifies owner-occupancy requirements in a first home investment zone and how extraterritorial homes count toward that zone's density and owner-occupancy tests. It is a maintenance bill on a housing instrument, and the weight is deliberately low to say so: a yea keeps the zone workable, which is a smaller thing than creating it."
+        },
+        {
+          "issueKey": "housing_first_time",
+          "weight": 40,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "First home investment zones exist for first purchases, and the owner-occupancy clarification is what keeps them pointed there. Low weight for the same reason as above."
+        }
+      ]
+    },
+    {
+      "bill": "HB0256",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "lands_local",
+          "weight": 60,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill lets a municipality or county require a business license for a short-term rental, use a website listing as partial evidence of a violation, and ask a short-term rental platform to remove a non-compliant listing. Every provision hands a local government a tool it did not have, so a yea is a vote for local land use authority."
+        },
+        {
+          "issueKey": "property_rights",
+          "weight": 40,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The same provisions are restrictions on what an owner may do with their own dwelling — licensing, evidence, delisting. Recorded as the other side of the same coin rather than left out, because a reader who cares about property rights would read this vote the other way and is entitled to see it."
+        }
+      ]
+    },
+    {
+      "bill": "HB0103",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "lands_local",
+          "weight": 60,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill requires PLPCO and SITLA to identify and record notice of roads crossing state and trust lands, and — the operative provision — bars the Division of Wildlife Resources from permanently closing a road without the consent of the county's legislative body. A county consent requirement over a state division's closure decision is local control over land, which is this key's subject."
+        }
+      ]
+    },
+    {
+      "bill": "HB0209",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "edu_parental",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill removes the affidavit requirement for parents whose children begin homeschooling at the start of an academic year, removes the requirement that parents attest to criminal background history, and reduces a letter of intent to a notice the local board processes. It moves the decision to homeschool further from state review and closer to the parent, which is what this key is about."
+        },
+        {
+          "issueKey": "school_choice",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Lowering the procedural cost of leaving a district school widens the practical set of schooling options. Secondary because the bill funds nothing and creates no alternative — it only removes paperwork."
+        }
+      ]
+    },
+    {
+      "bill": "SB0272",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "school_choice",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill expands the occupancy standards a facility may satisfy to host a micro-education entity or home-based microschool, removes square footage minimums, and excludes such entities from the definition of \"school\" that triggers certain administrative regulation. Each provision makes a small non-district school easier to open and operate."
+        },
+        {
+          "issueKey": "edu_parental",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Microschools and home-based microschools are parent-organised. Secondary because the bill's text is about facilities and occupancy codes, not about parental authority as such."
+        }
+      ]
+    },
+    {
+      "bill": "SB0321",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "public_schools",
+          "weight": 60,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The bill removes the hold harmless provision on voted and board levies, with a graduated phase-out. Hold harmless is what protects a district's levy revenue when its enrolment or valuation falls; removing it withdraws a funding protection from district schools. A yea is therefore a vote against this key's direction, and the mapping says so rather than dressing a cut as a reform."
+        }
+      ]
+    },
+    {
+      "bill": "SB0102",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "gov_transparency",
+          "weight": 50,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill mandates regular program reviews by the Education Interim Committee for named programs. A standing legislative review requirement is oversight of how public money is working, which is this key's subject. Weight is modest because the bill creates a review duty and nothing else."
+        },
+        {
+          "issueKey": "public_schools",
+          "weight": 40,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The programs reviewed are public education programs and the review is aimed at whether they work. Recorded as secondary and as support because scrutiny of a programme is not a cut to it; nothing in the bill reduces a funding line."
+        }
+      ]
+    },
+    {
+      "bill": "HB0497",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "gov_transparency",
+          "weight": 60,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill requires the State Board of Education to publish information about its own meetings, to use an existing compliance framework when handling noncompliance reports, and to build a timely complaints process; and it requires districts and charter schools to hand the board the data its statutory reporting duties need. Publication and compliance machinery is what this key names."
+        },
+        {
+          "issueKey": "public_schools",
+          "weight": 40,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The duties land on the state board and on local education agencies, and are aimed at making the public system answerable rather than at reducing it."
+        }
+      ]
+    },
+    {
+      "bill": "HB0453",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "gov_transparency",
+          "weight": 50,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill has two provisions and both are disclosure: the State Board of Education must publish information related to its meetings on its website, and may be required to issue a report. Weight is modest because the bill is small, not because the direction is unclear."
+        }
+      ]
+    },
+    {
+      "bill": "SB0154",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "gov_transparency",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill restates the legislative auditor general's authority, requires an entity withholding privileged items to expressly assert the privilege, lets the auditor general contest that claim, and sends contested claims to an arbitrator. It makes it harder for an audited agency to refuse an auditor silently, which is oversight machinery."
+        }
+      ]
+    },
+    {
+      "bill": "HB0235",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "gov_transparency",
+          "weight": 50,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill establishes professional requirements for the county auditor, and for candidates for that office, in a county of the first class. The auditor is the county's internal check, and qualification requirements go to whether that check is capable of working. Weight is modest: the bill sets qualifications, and publishes nothing."
+        }
+      ]
+    },
+    {
+      "bill": "HB0508",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "privacy_rights",
+          "weight": 50,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill directs the State Board of Education to study how local education agencies collect and retain student personally identifiable information, to examine reporting requirements and possible sunsets, and to report recommendations. It is a study bill, so the weight is modest — but the thing being studied is student data collection, and the bill's stated aim is to find what can be reduced."
+        }
+      ]
+    },
+    {
+      "bill": "HB0303",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "privacy_rights",
+          "weight": 50,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The bill requires a local education agency to share student directory information with another local education agency on request. It converts a discretionary disclosure into a mandatory one, so a yea moves student data more freely between agencies. Recorded as opposition to the privacy key because that is the direction of the operative provision, whatever the bill's purpose in sharing."
+        }
+      ]
+    },
+    {
+      "bill": "HB0124",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "privacy_rights",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill bars a local education agency from selling or transferring employee contact information without consent, prohibits requiring certain technologies on an employee's personal device, requires accommodations where such technology use is mandatory, and gives employees a complaint route to the State Board of Education. Consent, device autonomy and enforcement are all squarely this key."
+        }
+      ]
+    },
+    {
+      "bill": "HB0267",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "econ_workers",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The bill prohibits a public employer from recognising a labor organization as a bargaining agent, prohibits public employers from entering collective bargaining contracts at all, bars public money or property from being used to assist or deter union organizing, and excludes new labor organization employees from Utah Retirement Systems. Ending public sector collective bargaining is the bill's headline and its operative core, so a yea runs against organised worker bargaining power. This is the session's clearest single division and the weight says so."
+        }
+      ]
+    },
+    {
+      "bill": "HB0106",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "lower_taxes",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill amends the individual income tax rate and the corporate franchise and income tax rates, and adds nonrefundable credits. Rate reduction is the bill's subject, named in its own title and general provisions."
+        },
+        {
+          "issueKey": "child_care",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The same bill enacts nonrefundable corporate and individual credits for employer-provided child care and extends the child tax credit to dependents under one and up to five years old. Secondary because the credits ride on a rate bill rather than being its purpose."
+        }
+      ]
+    },
+    {
+      "bill": "HB0201",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "energy_production",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill requires full cost attribution for supplemental resources in an electrical utility's integrated resource plan, sets how generation capacity is calculated, requires certain designations in the utility's action plan, and prohibits involuntary demand management programs. Attributing full cost to supplemental resources and forbidding involuntary demand reduction both push planning toward firm generating capacity, which is this key's subject."
+        }
+      ]
+    },
+    {
+      "bill": "HB0119",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "enviro_energy",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill stops a homeowners association from prohibiting solar panel installation, while leaving the association power to restrict how it is done. Removing an outright private ban on rooftop solar is a vote for that generation existing, which is what this key reads."
+        },
+        {
+          "issueKey": "property_rights",
+          "weight": 40,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The provision runs in the owner's favour against a community association's restriction on their own roof. Secondary because the bill also preserves association authority to restrict installation, so it is not a clean expansion of owner control."
+        }
+      ]
+    },
+    {
+      "bill": "HB0085",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "permitting_reform",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill requires the Division of Air Quality to publish guidance and rules on federal plantwide applicability limitations, to review its permit-by-rule registration rules, and to add at least five new source categories to the permit-by-rule program. Moving sources from individual permits into permit-by-rule is a reduction in permitting burden, which is this key's subject."
+        }
+      ]
+    },
+    {
+      "bill": "HB0355",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "lands_energy",
+          "weight": 60,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill widens vested critical infrastructure materials use provisions toward the more permissive vested mining standard, addresses operations on new land for both mining and critical infrastructure materials uses, and repeals a study requirement. It expands extractive use of land, which is this key's direction."
+        }
+      ]
+    },
+    {
+      "bill": "SB0187",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "lands_energy",
+          "weight": 60,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill widens the definition of a throughput infrastructure project, expands the Permanent Community Impact Fund Board's authority over the Throughput Infrastructure Fund, and allows a loan or grant from that fund for certain mining activity. Public finance for extraction and its transport is a vote for extractive land use."
+        }
+      ]
+    },
+    {
+      "bill": "HB0274",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "water",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill lets a municipality set different water rates based partly on conservation, creates a presumption that a conservation-based rate is reasonable, addresses tiered secondary water rates, and governs how retail rate revenue may be spent. Making conservation pricing legally defensible is a water-policy provision, and the conservation direction is explicit in the text."
+        }
+      ]
+    },
+    {
+      "bill": "SB0080",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "water",
+          "weight": 60,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill requires the Department of Environmental Quality to establish a water consumption fee schedule, allows the Water Development Coordinating Council to establish one subject to legislative approval, exempts wholesale and agricultural water, and deposits the proceeds into the Water Infrastructure Fund. A dedicated fee funding water infrastructure is a water-policy instrument; the agricultural exemption is why the weight is not higher."
+        }
+      ]
+    },
+    {
+      "bill": "HB0269",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "lgbtq_rights",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The bill removes a medical treatment documentation provision from the evidence a person may offer for access to a sex-designated privacy space, narrows an exception to the prohibition on sex-based distinctions so it reaches only a School Activity Eligibility Commission determination, broadens a nonprofit educational institution exception to the Utah Fair Housing Act, and adds student housing guidance duties. Each provision narrows where a transgender person may be, or removes a route by which they may establish access, so a yea runs against this key. Direction is stated plainly because the operative text is plain."
+        }
+      ]
+    },
+    {
+      "bill": "HB0312",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill constrains release of individuals due to correctional facility overcrowding, expands contracting to house individuals with federal and county entities, adds detention removal officers to the federal officers holding statewide law enforcement authority, and prohibits state funds for syringe exchange programs. Several independent provisions all increase detention capacity or enforcement reach and one withdraws a harm-reduction program, so the direction is consistent across the bill."
+        }
+      ]
+    },
+    {
+      "bill": "HB0562",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill extends the Office of State Debt Collection's authority to civil accounts receivable and civil restitution judgments, extends administrative garnishment to a debtor's property or wages held by a third party, sets repayment procedures for unpaid criminal accounts receivable after a sentence ends, and adds requirements for temporary pretrial detention orders. Collection after sentence and pretrial detention machinery both extend the reach of the criminal process."
+        }
+      ]
+    },
+    {
+      "bill": "HB0465",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill requires the law enforcement agency of the city that is a first-class county's seat of government to enter an interagency public safety agreement with the Department of Public Safety and to report on it, and lets the Division of Facilities Construction and Management condemn certain city-owned unincorporated property. It imposes state public safety involvement on a specific city's policing, which is an enforcement-side provision."
+        }
+      ]
+    },
+    {
+      "bill": "HB0096",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 60,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill increases the penalty for defrauding creditors according to the value defrauded. It is a single-provision penalty increase — clear in direction, modest in reach, and weighted accordingly."
+        }
+      ]
+    },
+    {
+      "bill": "HB0195",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "gun_rights",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill bars a plea in abeyance from conditioning on firearm forfeiture in certain circumstances and requires law enforcement to return a seized firearm to a person who may lawfully possess it and is not charged with a disqualifying crime. Both provisions restore possession, which is this key's subject."
+        }
+      ]
+    },
+    {
+      "bill": "HB0187",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "gun_safety",
+          "weight": 50,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill creates an infraction for a minor who, after a written warning, possesses an altered toy or imitation firearm made to look like an actual firearm. It regulates an object because of the danger created by mistaking it for a real gun. Weight is modest — the bill reaches imitations only, never a firearm — and it is mapped to safety rather than to rights for the same reason."
+        }
+      ]
+    },
+    {
+      "bill": "HB0365",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "health_mental",
+          "weight": 50,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill requires the Department of Health and Human Services to issue a request for proposals for a study of wait times and barriers for a child to see a therapist. It is a study and the weight says so, but its whole subject is access to mental health care."
+        }
+      ]
+    },
+    {
+      "bill": "SB0078",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "homeless",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill creates a homeless service provider ombudsman inside the Office of Homeless Services, defines the ombudsman's duties, authorizes implementing rules, and sets a five-year sunset review. A standing complaints and oversight route for people using homeless services is a service-side provision, which is this key's direction."
+        }
+      ]
+    },
+    {
+      "bill": "SB0189",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "child_care",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill enacts the Child Care Capacity Expansion Act, directs state departments to collaborate on implementing it, limits liability arising from an expanded facility's operations, and requires annual reporting. Expanding capacity is the act's stated purpose and its operative content."
+        }
+      ]
+    },
+    {
+      "bill": "SB0114",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "veterans",
+          "weight": 50,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill creates a program, as funding allows, offering resident qualified veterans an annual state parks pass at at least 25 percent off, with rulemaking authority and a three-year automatic repeal. A benefit for veterans is this key's subject; the funding condition and the sunset are why the weight is modest."
+        }
+      ]
+    },
+    {
+      "bill": "HB0290",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "transit",
+          "weight": 50,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill clarifies when a motor vehicle may be in a bicycle lane and restricts obstructing one. Protecting a bicycle lane from vehicles is a provision about non-car mobility, which is what this key covers. Weight is modest because the bill funds nothing and builds nothing."
+        }
+      ]
+    },
+    {
+      "bill": "SB0195",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "transit",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill adjusts a sales and use tax earmark to increase transportation funding, extends the deadline for taxes allocated to public transit innovation grants, requires that property the Department of Transportation acquires for a public transit purpose stay in department ownership, requires cities and metropolitan planning organizations to report on connectivity impediments, and requires follow-up on station area plans. Several provisions specifically protect or fund transit."
+        }
+      ]
+    },
+    {
+      "bill": "HB0203",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "cannabis_reform",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill allows additional medical cannabis pharmacies, creates a licence class for independent pharmacies with ownership restrictions, lets a processing facility publish product information on a website, and adjusts fees. Widening the number and kinds of licensed outlets is expansion of legal access, which is this key's direction; the processing licence cap is why the weight is not higher."
+        }
+      ]
+    },
+    {
+      "bill": "SB0097",
+      "session": "2025GS",
+      "issues": [
+        {
+          "issueKey": "disaster_resilience",
+          "weight": 50,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The bill requires a county, city or town emergency operations plan to designate at least one shelter able to accommodate a person's animal. It is a single requirement added to emergency planning — modest in weight, unambiguous in direction, and a known reason people refuse evacuation."
+        }
+      ]
+    }
+  ],
+  "_refused": [
+    {
+      "bill": "SB0327",
+      "why": "Public Sector Labor Organization Amendments. It states a private-sector right to collectively bargain AND carries a coordination clause whose purpose is to supersede a section of H.B. 267 if both become law. Read as pro-labor it is the opposite of what the coordination clause does; read as anti-labor it contradicts its own operative sentence. There is no direction here that survives reading the text, so no mapping was written."
+    },
+    {
+      "bill": "SB0268",
+      "why": "Rules Review and General Oversight Committee Amendments. It expands the committee's power to delay administrative rules and also lets the committee close its meetings. More oversight and less disclosure, in one bill; gov_transparency cannot take both."
+    },
+    {
+      "bill": "SB0197",
+      "why": "Property Tax Amendments. It restricts the homeowner's credit and removes its inflation adjustment while raising renter's credit income limits and amounts. One direction for owners, the other for renters — a single tax key would have to pick one and call it the bill."
+    },
+    {
+      "bill": "HB0456",
+      "why": "Transient Room Tax Amendments. Raises some county rates, changes the state rate, extends one earmark and adds an audit duty. No net direction on any tax key."
+    },
+    {
+      "bill": "HB0104",
+      "why": "Firearm Safety in Schools Amendments. Requires firearm safety instruction in public schools, with an opt-out. Reads as gun_safety (instruction reduces accidents) or gun_rights (normalising firearms in schools) depending on which door you come through, and the text does not settle it."
+    },
+    {
+      "bill": "HB0265",
+      "why": "Higher Education Strategic Reinvestment. Requires institutions to reallocate funding away from some programs toward others. Whether that is investment in or reduction of higher education is exactly what the floor was arguing about; edu_college_cost cannot be made to say it."
+    },
+    {
+      "bill": "SB0026",
+      "why": "Housing and Transit Reinvestment Zone Amendments. The housing provisions are real but the bill's bulk creates a convention center reinvestment zone with sales and property tax increment capture. A housing key would be reading the title."
+    },
+    {
+      "bill": "HB0368",
+      "why": "Local Land Use Amendments. A large renumbering and procedure bill on annexation and boundary adjustment. Some provisions constrain local government, others constrain developers; the operative direction is procedural."
+    },
+    {
+      "bill": "SB0221",
+      "why": "Child Care Revisions. Requires licensure or certification for residential providers above certain child counts and caps children under certain ages. Safety regulation that reduces capacity — child_care would have to choose, and the bill does not."
+    },
+    {
+      "bill": "SB0253",
+      "why": "Railroad and Transportation Amendments. Modifies rail ombudsman duties and repeals sections. Too technical to carry a direction."
+    },
+    {
+      "bill": "HB0313",
+      "why": "Construction Industry Amendments. Aligns the State Construction Code with updated IRC and NEC standards. Code maintenance."
+    },
+    {
+      "bill": "HB0343",
+      "why": "Cannabis Production Amendments. Adds odor control duties to production establishments and amends their land use treatment. Restriction and accommodation in the same bill."
+    },
+    {
+      "bill": "HB0499",
+      "why": "Department of Environmental Quality Amendments. Changes Air Quality Board member qualifications and removes certain water heater regulations. Two unrelated provisions, neither carrying the bill."
+    },
+    {
+      "bill": "SB0216",
+      "why": "Environmental Quality Amendments. Creates a radioactive waste facility expansion tax and also eases licence renewal requirements. Direction depends on which provision you weigh."
+    },
+    {
+      "bill": "HB0153",
+      "why": "Hunting Amendments. Guide, outfitter and spotter registration and enforcement. No issue key in db/issue-keys.json covers it, and inventing one for a single bill is how a key stops meaning anything."
+    },
+    {
+      "bill": "HB0461",
+      "why": "Animal Crime Victim Amendments. Same reason: no key covers animal welfare."
+    },
+    {
+      "bill": "HB0322",
+      "why": "Child Actor Regulations. Trust and record requirements for minors in entertainment and content creation. family_support would be a stretch and econ_corp_account would be a different bill."
+    },
+    {
+      "bill": "HB0356",
+      "why": "County Governance Amendments. Requires council members in certain counties to be elected by voter district. Arguably voting_access, arguably local structure; not decidable from the text."
+    },
+    {
+      "bill": "HB0247",
+      "why": "School Swimming and Lifeguarding Programs. The session's closest floor vote (38-37) and genuinely contested, but no issue key covers it. A contested margin is not a reason to invent a mapping."
+    },
+    {
+      "bill": "HB0067",
+      "why": "Precious Metals Investment and Administration Amendments. State treasury practice; crypto_cbdc is about currency and is not this."
+    },
+    {
+      "bill": "HB0234",
+      "why": "Motorcycle Safety Amendments. Rider training and helmet-related provisions. Nothing in the issue key list covers traffic or vehicle safety, and filing it under a health or transport key would be a guess about which reading the vote expressed rather than a mapping."
+    },
+    {
+      "bill": "SB0306",
+      "why": "Convention Center Investment Amendments. Economic development finance; no key carries it."
+    },
+    {
+      "bill": "SB0316",
+      "why": "Military Installation Development Authority and Other Development Zone Amendments. Development zone mechanics."
+    },
+    {
+      "bill": "SB0336",
+      "why": "Utah Fairpark Area Investment and Restoration District Modifications. Same reason as the other district-finance bills: development-zone and bonding mechanics, with no issue key that carries them."
+    },
+    {
+      "bill": "HB0542",
+      "why": "Economic Development Amendments. Broad and instrument-heavy; econ_growth would be a label, not a reading."
+    },
+    {
+      "bill": "HB0230",
+      "why": "Blockchain and Digital Innovation Amendments. tech_innovation is a balance-adjacent key and the bill is a sandbox extension; not worth a mapping."
+    },
+    {
+      "bill": "SB0310",
+      "why": "Transportation Utility Fee Amendments. Authorizes the fee and simultaneously constrains and sunsets non-compliant ones."
+    },
+    {
+      "bill": "HB0198",
+      "why": "Highway Expansion Impacts on Signage Amendments. Compensation mechanics for displaced signage."
+    },
+    {
+      "bill": "HB0466",
+      "why": "Uniform Antitrust Pre-Merger Notification Act Amendments. econ_corp_account is plausible but the bill is a notification procedure adoption, not an accountability standard."
+    },
+    {
+      "bill": "HB0508 (second key)",
+      "why": "A privacy_rights mapping was written; an edu key was considered and dropped, because a study of data practices is not a position on schools."
+    }
+  ]
+}

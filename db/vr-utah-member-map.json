@@ -1,0 +1,350 @@
+{
+  "_comment": "UTAH STATE LEGISLATURE — printed name to PolitiDex roster id, 2025 General Session. HUMAN-ACCEPTED. scripts/vr-utah-ingest.mjs proposes this file (--collect, into the cache directory) and reads it (--seed), but never writes it: a vote page prints \"Schultz, M.\" and never a roster id, so every line below is an identification a person made and can be held to. Keys are the EXACT string le.utah.gov prints in a roll-call cell. A printed name that is not a key here is counted, listed in the seed as droppedNotOnRoster, and its vote is DISCARDED — it is never attributed to whoever holds that district today.",
+  "_howReviewed": "Each proposal was matched on surname plus first-name compatibility within one chamber, then CONFIRMED against the district in the cell's own leglookup link. All 77 entries below matched their roster district except the two noted in _acceptedWithoutDistrict, which were checked by hand. District was never used as the primary key: a district's occupant changes between sessions, so keying on it would hand a departed member's 2025 votes to their successor.",
+  "_acceptedWithoutDistrict": {
+    "Clancy, T.": "Tyler Clancy, Utah House district 60 (Provo). The 2025 vote pages print no leglookup link for this member because they left the House after the session — now the state homeless coordinator — so no district came off the page. Accepted because the surname is unique in the 2025 House and the roster carries them at district 60.",
+    "Gwynn, M.": "Matthew H. Gwynn, Utah House district 6 (Box Elder / Weber). Same situation: no link on the page, unique surname in the chamber, roster district 6."
+  },
+  "_unmappedIsCoverage": "`unmapped` below is not an error and not a mystery. These are people who cast recorded votes in the 2025 session and are not on the PolitiDex roster at all (26 of 75 representatives, 1 of 29 senators). Their votes are dropped. Two entries are refusals rather than gaps and are marked as such: a shared surname with a different person on the roster is exactly the case where guessing would invent a stranger.",
+  "_refusedNames": [
+    "Moss, J.",
+    "Peterson, K.",
+    "Peterson, T."
+  ],
+  "session": "2025GS",
+  "generatedFrom": "scripts/vr-utah-ingest.mjs --collect",
+  "chambers": {
+    "H": {
+      "Albrecht, C.": "carl_albrecht",
+      "Auxier, T.": "auxier_h4",
+      "Bolinder, B.": "bolinder_h68",
+      "Brooks, W.": "walt_brooks",
+      "Chew, S.": "chew_h68",
+      "Christofferson, K.": "kay_christofferson",
+      "Clancy, T.": "tyler_clancy",
+      "Dailey-Provost, J.": "jennifer_dailey_provost",
+      "Defay, A.": "defay_h15",
+      "Dunnigan, J.": "james_dunnigan",
+      "Eliason, S.": "eliason_h45",
+      "Fitisemanu, J.": "fitisemanu_h30",
+      "Gricius, S.": "gricius_h50",
+      "Gwynn, M.": "gwynn_h6",
+      "Hall, K.": "hall_h11",
+      "Hawkins, J.": "jon_hawkins",
+      "Hollins, S.": "hollins_h24",
+      "Ivory, K.": "ivory_h39",
+      "Jack, C.": "colin_w_jack",
+      "Koford, J.": "koford_h10",
+      "Kohler, M.": "kohler_h59",
+      "Lee, T.": "tlee",
+      "Lisonbee, K.": "lisonbee_h14",
+      "Maloy, A. Cory": "cory_maloy_h52",
+      "Matthews, A.": "ashlee_matthews",
+      "Mauga, V.": "verona_mauga",
+      "Miller, G.": "grant_miller",
+      "Miller, T.": "tracy_miller",
+      "Monson, L.": "logan_monson",
+      "Moss, C.": "carol_spackman_moss",
+      "Nguyen, H.": "hoang_nguyen",
+      "Okerlund, C.": "clinton_okerlund",
+      "Owens, D.": "doug_owens",
+      "Peck, N.": "nicholeen_p_peck",
+      "Peterson, V.": "valpeterson_h56",
+      "Pierucci, C.": "candice_pierucci",
+      "Roberts, C.": "calvin_roberts",
+      "Romero, A.": "aromero",
+      "Sawyer, J.": "jake_sawyer",
+      "Schultz, M.": "mschultz",
+      "Shelley, T.": "shelley_h66",
+      "Shepherd, L.": "lisa_shepherd",
+      "Shipp, R.P.": "rshipp",
+      "Snider, C.": "snider_h5",
+      "Teuscher, J.": "teuscher_h44",
+      "Ward, R.": "rward",
+      "Watkins, C.": "christine_watkins",
+      "Welton, D.": "doug_welton",
+      "Whyte, S.": "whyte_h63"
+    },
+    "S": {
+      "Adams, J. Stuart": "sadams",
+      "Balderree, H.": "heidi_balderree",
+      "Blouin, N.": "blouin_s13",
+      "Brammer, B.": "brammer_s21",
+      "Cullimore, K. A.": "kcullimore",
+      "Escamilla, L.": "lescamilla",
+      "Fillmore, L.": "lincoln_fillmore",
+      "Grover, K.": "kgrover",
+      "Harper, W.": "harper_s16",
+      "Hinkins, D.": "dhinkins",
+      "Ipson, D.": "dipson",
+      "Johnson, J.": "john_johnson",
+      "Kwan, K.": "kwan_s12",
+      "McCay, D.": "mccay_s11",
+      "McKell, M.": "mckell_s25",
+      "Millner, A.": "amillner",
+      "Musselman, C.R.": "cmusselman",
+      "Owens, D.R.": "dowens_st",
+      "Pitcher, S.": "stephanie_pitcher",
+      "Plumb, J.": "jennifer_plumb",
+      "Riebe, K.": "kathleen_riebe",
+      "Sandall, S.": "ssandall",
+      "Stevenson, J.": "jstevenson",
+      "Stratton, K.": "kstratton",
+      "Vickers, E.": "evickers",
+      "Weiler, T.": "tweiler",
+      "Wilson, C.": "cwilson",
+      "Winterton, R.": "rwinterton"
+    }
+  },
+  "confirmedByDistrict": {
+    "H": {
+      "Albrecht, C.": true,
+      "Auxier, T.": true,
+      "Bolinder, B.": true,
+      "Brooks, W.": true,
+      "Chew, S.": true,
+      "Christofferson, K.": true,
+      "Clancy, T.": false,
+      "Dailey-Provost, J.": true,
+      "Defay, A.": true,
+      "Dunnigan, J.": true,
+      "Eliason, S.": true,
+      "Fitisemanu, J.": true,
+      "Gricius, S.": true,
+      "Gwynn, M.": false,
+      "Hall, K.": true,
+      "Hawkins, J.": true,
+      "Hollins, S.": true,
+      "Ivory, K.": true,
+      "Jack, C.": true,
+      "Koford, J.": true,
+      "Kohler, M.": true,
+      "Lee, T.": true,
+      "Lisonbee, K.": true,
+      "Maloy, A. Cory": true,
+      "Matthews, A.": true,
+      "Mauga, V.": true,
+      "Miller, G.": true,
+      "Miller, T.": true,
+      "Monson, L.": true,
+      "Moss, C.": true,
+      "Nguyen, H.": true,
+      "Okerlund, C.": true,
+      "Owens, D.": true,
+      "Peck, N.": true,
+      "Peterson, V.": true,
+      "Pierucci, C.": true,
+      "Roberts, C.": true,
+      "Romero, A.": true,
+      "Sawyer, J.": true,
+      "Schultz, M.": true,
+      "Shelley, T.": true,
+      "Shepherd, L.": true,
+      "Shipp, R.P.": true,
+      "Snider, C.": true,
+      "Teuscher, J.": true,
+      "Ward, R.": true,
+      "Watkins, C.": true,
+      "Welton, D.": true,
+      "Whyte, S.": true
+    },
+    "S": {
+      "Adams, J. Stuart": true,
+      "Balderree, H.": true,
+      "Blouin, N.": true,
+      "Brammer, B.": true,
+      "Cullimore, K. A.": true,
+      "Escamilla, L.": true,
+      "Fillmore, L.": true,
+      "Grover, K.": true,
+      "Harper, W.": true,
+      "Hinkins, D.": true,
+      "Ipson, D.": true,
+      "Johnson, J.": true,
+      "Kwan, K.": true,
+      "McCay, D.": true,
+      "McKell, M.": true,
+      "Millner, A.": true,
+      "Musselman, C.R.": true,
+      "Owens, D.R.": true,
+      "Pitcher, S.": true,
+      "Plumb, J.": true,
+      "Riebe, K.": true,
+      "Sandall, S.": true,
+      "Stevenson, J.": true,
+      "Stratton, K.": true,
+      "Vickers, E.": true,
+      "Weiler, T.": true,
+      "Wilson, C.": true,
+      "Winterton, R.": true
+    }
+  },
+  "unmapped": {
+    "H": [
+      {
+        "printed": "Abbott, N.",
+        "district": 57,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Acton, C.K.",
+        "district": 38,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Ballard, M.G.",
+        "district": 20,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Barlow, S.",
+        "district": 17,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Bennion, G.",
+        "district": null,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Burton, J.",
+        "district": null,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Chevrier, K.",
+        "district": 54,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Cutler, P.",
+        "district": 18,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Dominguez, R.",
+        "district": 35,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Elison, J.",
+        "district": 72,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Fiefia, D.",
+        "district": 48,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Hayes, S.",
+        "district": 32,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Kyle, J.",
+        "district": 8,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Loubet, A.",
+        "district": 27,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "MacPherson, M.",
+        "district": 26,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Moss, J.",
+        "district": null,
+        "why": "surname only",
+        "note": "Jefferson Moss. REFUSED, not missing: the roster carries Carol Spackman Moss (district 34), a different person."
+      },
+      {
+        "printed": "Petersen, M.",
+        "district": 2,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Peterson, K.",
+        "district": 13,
+        "why": "surname only",
+        "note": "Karen M. Peterson, district 13. REFUSED: the roster carries Val Peterson (district 56), a different person."
+      },
+      {
+        "printed": "Peterson, T.",
+        "district": 1,
+        "why": "surname only",
+        "note": "Thomas W. Peterson, district 1. REFUSED: same collision with Val Peterson."
+      },
+      {
+        "printed": "Shallenberger, D.",
+        "district": 58,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Stoddard, A.",
+        "district": 40,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Strong, M.A.",
+        "district": 47,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Thompson, J.",
+        "district": 3,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Thurston, N.",
+        "district": 62,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Walter, N.",
+        "district": 74,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      },
+      {
+        "printed": "Wilcox, R.",
+        "district": 7,
+        "why": "no candidate",
+        "note": "Not on the PolitiDex roster."
+      }
+    ],
+    "S": [
+      {
+        "printed": "Thatcher, D.",
+        "district": null,
+        "why": "no candidate",
+        "note": "Daniel Thatcher, Utah Senate district 11. Not on the PolitiDex roster; these votes are dropped."
+      }
+    ]
+  }
+}

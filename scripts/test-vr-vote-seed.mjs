@@ -29,6 +29,10 @@
 //     not a source — a roll that lives only in the seed would be counted as pending by
 //     the coverage report forever and never reach the database.
 //
+// FEDERAL SEEDS ONLY. Every rule above names something only Congress has, so a state
+// legislature's seed is routed out of this pass — and required to be named by a test
+// of its own rather than dropped. See the split at `isFederalSeed` below.
+//
 // Read-only. No database, no network.
 // ---------------------------------------------------------------------------
 import fs from 'node:fs';
@@ -94,8 +98,40 @@ const EXCEPTIONS = [
 const POSITIONS = new Set(['yea', 'nay', 'present', 'not_voting']);
 const PARTY_FLAGS = new Set(['with_party', 'against_party', null, undefined]);
 
-const seedFiles = fs.readdirSync(path.join(ROOT, 'db')).filter(f => /-vote-seed\.json$/.test(f)).sort();
-ok(seedFiles.length > 0, 'no db/*-vote-seed.json found — this test has nothing to guard');
+const allSeedFiles = fs.readdirSync(path.join(ROOT, 'db')).filter(f => /-vote-seed\.json$/.test(f)).sort();
+
+// ── FEDERAL SEEDS ONLY, AND THE SPLIT IS DECLARED RATHER THAN SILENT ────────
+// Every rule in the header above is a rule about CONGRESS: a bioguide id, a
+// Congress number, a session that is 1 or 2, a chamber that is 'house' or
+// 'senate', a mapping in db/vr-issue-seed.json. A state legislature has none of
+// those — Utah has no bioguide, no Congress and a chamber string that carries the
+// jurisdiction ('utah house'), and its measures are mapped in their own curated
+// file. Running these checks over a state seed does not find bugs; it reports the
+// shape difference 30 times.
+//
+// So the pass is split, and the state half is not skipped quietly: a state seed
+// must be named by a test of its own, and that is asserted here. A file matching
+// `*-vote-seed.json` that NOTHING guards still fails, which is the property worth
+// keeping. `scripts/test-vr-utah-record.mjs` is the Utah guard.
+const isFederalSeed = (f) => {
+  try {
+    const j = JSON.parse(fs.readFileSync(path.join(ROOT, 'db', f), 'utf8'));
+    return Array.isArray(j.votes);
+  } catch (e) { return true; } // a seed that does not parse is caught by the pass below
+};
+const seedFiles = allSeedFiles.filter(isFederalSeed);
+const stateSeeds = allSeedFiles.filter((f) => !isFederalSeed(f));
+ok(seedFiles.length > 0, 'no federal db/*-vote-seed.json found — this test has nothing to guard');
+if (stateSeeds.length) {
+  const harnesses = fs.readdirSync(path.join(ROOT, 'scripts'))
+    .filter((f) => /^test-.*\.mjs$/.test(f))
+    .map((f) => fs.readFileSync(path.join(ROOT, 'scripts', f), 'utf8')).join('\n');
+  for (const f of stateSeeds) {
+    ok(harnesses.includes(`db/${f}`),
+      `db/${f} is not the federal seed shape and no scripts/test-*.mjs names it — ` +
+      'a seed nothing guards is a seed nobody has read');
+  }
+}
 
 // Every applied migration, concatenated. Roll calls are looked up in here by the tuple
 // the insert writes, so the check does not care which migration carries which roll.
