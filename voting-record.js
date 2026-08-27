@@ -1753,14 +1753,32 @@
   // How much record there IS for a member, counted from the same warm cache — the
   // numbers behind the Official Record section's "12 mapped votes across 5 issues"
   // entry line. `votes` counts records carrying at least one issue mapping (those are
-  // the ones a stated position can be checked against); `total` counts every warm
+  // the ones a stated position can be checked against), minus the ones a floor vote
+  // on the same instrument already speaks for — see ONE INSTRUMENT, ONE COUNT below;
+  // `total` counts every warm
   // record, so a surface can stay honest about the gap between what is in the full
   // list and what is mappable. Pure, synchronous, never fetches: null when nothing is
   // warm for that member, so callers simply render nothing.
+  //
+  // ONE INSTRUMENT, ONE COUNT. A committee vote and a floor vote on the same bill
+  // are two records, and the engine already refuses to read them as two acts: the
+  // floor vote supersedes the committee vote in _recordDirectionIndex. This count
+  // feeds the same engine's coverage floor, so it has to agree — otherwise a member
+  // whose committee act was superseded for direction still gets a free +1 towards
+  // "enough record to characterise", which is the same double count wearing a
+  // different hat. So a non-floor act on an instrument the member ALSO has a floor
+  // act on is not counted here. Records that are all floor votes are unaffected,
+  // and `total` still reports every warm record.
   window._pdxRecordMappedCounts = function (pid) {
     var recs = PDXVotingRecord.memberRecords(pid);
     if (!recs) return null;
-    var seen = {}, keys = [], votes = 0;
+    var floorOn = {};
+    recs.forEach(function (it) {
+      if (!it || it.kind === 'position') return;
+      var k = _pdxCountMeasureKey(it);
+      if (k) floorOn[k] = 1;
+    });
+    var seen = {}, keys = [], votes = 0, supersededActs = 0;
     recs.forEach(function (it) {
       if (!it) return;
       var mapped = false;
@@ -1769,10 +1787,28 @@
         mapped = true;
         if (!seen[m.issueKey]) { seen[m.issueKey] = 1; keys.push(m.issueKey); }
       });
-      if (mapped) votes++;
+      if (!mapped) return;
+      if (it.kind === 'position') {
+        var k = _pdxCountMeasureKey(it);
+        if (k && floorOn[k]) { supersededActs++; return; }
+      }
+      votes++;
     });
-    return { votes: votes, issues: keys.length, total: recs.length, issueKeys: keys };
+    return {
+      votes: votes, issues: keys.length, total: recs.length, issueKeys: keys,
+      supersededActs: supersededActs
+    };
   };
+
+  // Instrument identity for the count above — deliberately the same shape as
+  // stance-helpers' _rdMeasureKey, so the two layers agree on what "the same bill"
+  // means without one importing the other.
+  function _pdxCountMeasureKey(it) {
+    if (!it) return '';
+    if (it.measureId != null && it.measureId !== '') return 'm:' + it.measureId;
+    var n = String(it.number || it.title || '').trim().toLowerCase();
+    return n ? 'n:' + n : '';
+  }
 
   // WHAT THE RECORD ITSELF DID on a (member, issue) pair, with no stated position
   // anywhere in the arithmetic — the companion to _pdxRecordIssueSummary above,

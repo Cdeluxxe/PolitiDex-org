@@ -1,0 +1,511 @@
+{
+  "_comment": "REVIEWED. Utah committee-minutes printed names → PolitiDex politician ids, for the 2025 General Session. This file exists because committee minutes print a member a third way. The roster prints a full name, the floor vote pages print \"Surname, Initials\", and a committee vote line prints \"Rep. T. Auxier\" — prefix, initials, surname. Every entry below was accepted by hand; the tool proposes and never writes here. See db/vr-ingest-runbook.md § Utah.",
+  "_howReviewed": "Two ways in, and nothing else was accepted. (1) exact_floor_key: the transposed printed form lands exactly on a key in db/vr-utah-member-map.json, which is itself a hand-reviewed file confirmed against the legislature`s roster for 2025 (roster.asp?year=2025). 87 of the 96 forms resolved this way and inherit that review. (2) unique_surname_confirmed_by_attendance: the printed initials are shorter than the floor key`s, so the two do not meet. Those 9 were resolved only where the surname is unique in that chamber`s floor map AND the SAME meeting`s own attendance list names exactly one member with that surname AND that attendance line`s full name agrees with both the vote line`s initials and the floor key`s. `confirmedBy` records the attendance line that did it. Representative Walter is the case that made this necessary: the committee prints \"Rep. R. Walter\", the floor page prints \"Walter, N.\", and only the attendance line \"Rep. R. Neil Walter\" shows that those are one person. Neither initial could have been derived from the other.",
+  "_unmappedIsCoverage": "`unmapped` is empty for this session, and that is a fact about 2025, not a rule: every printed name on an admitted 2025 committee vote resolved. If a later session leaves names here they are a COVERAGE GAP — votes not written — and they are never folded in with the refusals below.",
+  "_refusalNotes": "`_refusedNames` is empty for this session because no 2025 committee vote line was ambiguous. It is not empty in principle. db/vr-utah-member-map-2024GS.json and -2023GS.json each refuse \"Judkins, M.\" and \"Lyman, P.\": resolving those would rest on a guess about which human the printed name is. A name of that class stays REFUSED here too — a committee minute is not a second chance to attribute it.",
+  "session": "2025GS",
+  "generatedFrom": "scripts/vr-utah-committee-ingest.mjs --collect (proposals), reviewed by hand",
+  "printedForms": {
+    "H": {
+      "Rep. A. Defay": {
+        "politicianId": "defay_h15",
+        "floorKey": "Defay, A.",
+        "how": "exact_floor_key"
+      },
+      "Rep. A. Loubet": {
+        "politicianId": "anthony_loubet",
+        "floorKey": "Loubet, A.",
+        "how": "exact_floor_key"
+      },
+      "Rep. A. Maloy": {
+        "politicianId": "cory_maloy_h52",
+        "floorKey": "Maloy, A. Cory",
+        "how": "unique_surname_confirmed_by_attendance",
+        "confirmedBy": "Rep. A. Cory Maloy"
+      },
+      "Rep. A. Matthews": {
+        "politicianId": "ashlee_matthews",
+        "floorKey": "Matthews, A.",
+        "how": "exact_floor_key"
+      },
+      "Rep. A. Romero": {
+        "politicianId": "aromero",
+        "floorKey": "Romero, A.",
+        "how": "exact_floor_key"
+      },
+      "Rep. A. Stoddard": {
+        "politicianId": "andrew_stoddard",
+        "floorKey": "Stoddard, A.",
+        "how": "exact_floor_key"
+      },
+      "Rep. B. Bolinder": {
+        "politicianId": "bolinder_h68",
+        "floorKey": "Bolinder, B.",
+        "how": "exact_floor_key"
+      },
+      "Rep. C. Acton": {
+        "politicianId": "cheryl_acton",
+        "floorKey": "Acton, C.K.",
+        "how": "unique_surname_confirmed_by_attendance",
+        "confirmedBy": "Rep. Cheryl K. Acton"
+      },
+      "Rep. C. Albrecht": {
+        "politicianId": "carl_albrecht",
+        "floorKey": "Albrecht, C.",
+        "how": "exact_floor_key"
+      },
+      "Rep. C. Jack": {
+        "politicianId": "colin_w_jack",
+        "floorKey": "Jack, C.",
+        "how": "exact_floor_key"
+      },
+      "Rep. C. Moss": {
+        "politicianId": "carol_spackman_moss",
+        "floorKey": "Moss, C.",
+        "how": "exact_floor_key"
+      },
+      "Rep. C. Okerlund": {
+        "politicianId": "clinton_okerlund",
+        "floorKey": "Okerlund, C.",
+        "how": "exact_floor_key"
+      },
+      "Rep. C. Pierucci": {
+        "politicianId": "candice_pierucci",
+        "floorKey": "Pierucci, C.",
+        "how": "exact_floor_key"
+      },
+      "Rep. C. Roberts": {
+        "politicianId": "calvin_roberts",
+        "floorKey": "Roberts, C.",
+        "how": "exact_floor_key"
+      },
+      "Rep. C. Snider": {
+        "politicianId": "snider_h5",
+        "floorKey": "Snider, C.",
+        "how": "exact_floor_key"
+      },
+      "Rep. C. Watkins": {
+        "politicianId": "christine_watkins",
+        "floorKey": "Watkins, C.",
+        "how": "exact_floor_key"
+      },
+      "Rep. D. Fiefia": {
+        "politicianId": "doug_fiefia",
+        "floorKey": "Fiefia, D.",
+        "how": "exact_floor_key"
+      },
+      "Rep. D. Owens": {
+        "politicianId": "doug_owens",
+        "floorKey": "Owens, D.",
+        "how": "exact_floor_key"
+      },
+      "Rep. D. Shallenberger": {
+        "politicianId": "david_shallenberger",
+        "floorKey": "Shallenberger, D.",
+        "how": "exact_floor_key"
+      },
+      "Rep. D. Welton": {
+        "politicianId": "doug_welton",
+        "floorKey": "Welton, D.",
+        "how": "exact_floor_key"
+      },
+      "Rep. G. Bennion": {
+        "politicianId": "gay_lynn_bennion",
+        "floorKey": "Bennion, G.",
+        "how": "exact_floor_key"
+      },
+      "Rep. G. Miller": {
+        "politicianId": "grant_miller",
+        "floorKey": "Miller, G.",
+        "how": "exact_floor_key"
+      },
+      "Rep. H. Nguyen": {
+        "politicianId": "hoang_nguyen",
+        "floorKey": "Nguyen, H.",
+        "how": "exact_floor_key"
+      },
+      "Rep. J. Burton": {
+        "politicianId": "jefferson_burton",
+        "floorKey": "Burton, J.",
+        "how": "exact_floor_key"
+      },
+      "Rep. J. Dailey-Provost": {
+        "politicianId": "jennifer_dailey_provost",
+        "floorKey": "Dailey-Provost, J.",
+        "how": "exact_floor_key"
+      },
+      "Rep. J. Dunnigan": {
+        "politicianId": "james_dunnigan",
+        "floorKey": "Dunnigan, J.",
+        "how": "exact_floor_key"
+      },
+      "Rep. J. Elison": {
+        "politicianId": "joseph_elison",
+        "floorKey": "Elison, J.",
+        "how": "exact_floor_key"
+      },
+      "Rep. J. Fitisemanu": {
+        "politicianId": "fitisemanu_h30",
+        "floorKey": "Fitisemanu, J.",
+        "how": "exact_floor_key"
+      },
+      "Rep. J. Hawkins": {
+        "politicianId": "jon_hawkins",
+        "floorKey": "Hawkins, J.",
+        "how": "exact_floor_key"
+      },
+      "Rep. J. Koford": {
+        "politicianId": "koford_h10",
+        "floorKey": "Koford, J.",
+        "how": "exact_floor_key"
+      },
+      "Rep. J. Kyle": {
+        "politicianId": "jason_b_kyle",
+        "floorKey": "Kyle, J.",
+        "how": "exact_floor_key"
+      },
+      "Rep. J. Sawyer": {
+        "politicianId": "jake_sawyer",
+        "floorKey": "Sawyer, J.",
+        "how": "exact_floor_key"
+      },
+      "Rep. J. Thompson": {
+        "politicianId": "jason_thompson",
+        "floorKey": "Thompson, J.",
+        "how": "exact_floor_key"
+      },
+      "Rep. K. Chevrier": {
+        "politicianId": "kristen_chevrier",
+        "floorKey": "Chevrier, K.",
+        "how": "exact_floor_key"
+      },
+      "Rep. K. Christofferson": {
+        "politicianId": "kay_christofferson",
+        "floorKey": "Christofferson, K.",
+        "how": "exact_floor_key"
+      },
+      "Rep. K. Hall": {
+        "politicianId": "hall_h11",
+        "floorKey": "Hall, K.",
+        "how": "exact_floor_key"
+      },
+      "Rep. K. Ivory": {
+        "politicianId": "ivory_h39",
+        "floorKey": "Ivory, K.",
+        "how": "exact_floor_key"
+      },
+      "Rep. L. Monson": {
+        "politicianId": "logan_monson",
+        "floorKey": "Monson, L.",
+        "how": "exact_floor_key"
+      },
+      "Rep. L. Shepherd": {
+        "politicianId": "lisa_shepherd",
+        "floorKey": "Shepherd, L.",
+        "how": "exact_floor_key"
+      },
+      "Rep. M. Ballard": {
+        "politicianId": "mballard",
+        "floorKey": "Ballard, M.G.",
+        "how": "unique_surname_confirmed_by_attendance",
+        "confirmedBy": "Rep. Melissa G. Ballard"
+      },
+      "Rep. M. Gwynn": {
+        "politicianId": "gwynn_h6",
+        "floorKey": "Gwynn, M.",
+        "how": "exact_floor_key"
+      },
+      "Rep. M. Kohler": {
+        "politicianId": "kohler_h59",
+        "floorKey": "Kohler, M.",
+        "how": "exact_floor_key"
+      },
+      "Rep. M. MacPherson": {
+        "politicianId": "matt_macpherson",
+        "floorKey": "MacPherson, M.",
+        "how": "exact_floor_key"
+      },
+      "Rep. M. Petersen": {
+        "politicianId": "mike_petersen",
+        "floorKey": "Petersen, M.",
+        "how": "exact_floor_key"
+      },
+      "Rep. M. Schultz": {
+        "politicianId": "mschultz",
+        "floorKey": "Schultz, M.",
+        "how": "exact_floor_key"
+      },
+      "Rep. M. Strong": {
+        "politicianId": "mark_strong",
+        "floorKey": "Strong, M.A.",
+        "how": "unique_surname_confirmed_by_attendance",
+        "confirmedBy": "Rep. Mark A. Strong, Vice Chair"
+      },
+      "Rep. N. Abbott": {
+        "politicianId": "nelson_abbott",
+        "floorKey": "Abbott, N.",
+        "how": "exact_floor_key"
+      },
+      "Rep. N. Peck": {
+        "politicianId": "nicholeen_p_peck",
+        "floorKey": "Peck, N.",
+        "how": "exact_floor_key"
+      },
+      "Rep. N. Thurston": {
+        "politicianId": "nthurston",
+        "floorKey": "Thurston, N.",
+        "how": "exact_floor_key"
+      },
+      "Rep. P. Cutler": {
+        "politicianId": "paul_a_cutler",
+        "floorKey": "Cutler, P.",
+        "how": "exact_floor_key"
+      },
+      "Rep. R. Dominguez": {
+        "politicianId": "rosalba_dominguez",
+        "floorKey": "Dominguez, R.",
+        "how": "exact_floor_key"
+      },
+      "Rep. R. Shipp": {
+        "politicianId": "rshipp",
+        "floorKey": "Shipp, R.P.",
+        "how": "unique_surname_confirmed_by_attendance",
+        "confirmedBy": "Rep. Rex P. Shipp"
+      },
+      "Rep. R. Walter": {
+        "politicianId": "r_neil_walter",
+        "floorKey": "Walter, N.",
+        "how": "unique_surname_confirmed_by_attendance",
+        "confirmedBy": "Rep. R. Neil Walter"
+      },
+      "Rep. R. Ward": {
+        "politicianId": "rward",
+        "floorKey": "Ward, R.",
+        "how": "exact_floor_key"
+      },
+      "Rep. R. Wilcox": {
+        "politicianId": "ryan_d_wilcox",
+        "floorKey": "Wilcox, R.",
+        "how": "exact_floor_key"
+      },
+      "Rep. S. Barlow": {
+        "politicianId": "stewart_e_barlow",
+        "floorKey": "Barlow, S.",
+        "how": "exact_floor_key"
+      },
+      "Rep. S. Chew": {
+        "politicianId": "chew_h68",
+        "floorKey": "Chew, S.",
+        "how": "exact_floor_key"
+      },
+      "Rep. S. Eliason": {
+        "politicianId": "eliason_h45",
+        "floorKey": "Eliason, S.",
+        "how": "exact_floor_key"
+      },
+      "Rep. S. Gricius": {
+        "politicianId": "gricius_h50",
+        "floorKey": "Gricius, S.",
+        "how": "exact_floor_key"
+      },
+      "Rep. S. Hayes": {
+        "politicianId": "sahara_hayes",
+        "floorKey": "Hayes, S.",
+        "how": "exact_floor_key"
+      },
+      "Rep. S. Hollins": {
+        "politicianId": "hollins_h24",
+        "floorKey": "Hollins, S.",
+        "how": "exact_floor_key"
+      },
+      "Rep. S. Whyte": {
+        "politicianId": "whyte_h63",
+        "floorKey": "Whyte, S.",
+        "how": "exact_floor_key"
+      },
+      "Rep. T. Auxier": {
+        "politicianId": "auxier_h4",
+        "floorKey": "Auxier, T.",
+        "how": "exact_floor_key"
+      },
+      "Rep. T. Clancy": {
+        "politicianId": "tyler_clancy",
+        "floorKey": "Clancy, T.",
+        "how": "exact_floor_key"
+      },
+      "Rep. T. Lee": {
+        "politicianId": "tlee",
+        "floorKey": "Lee, T.",
+        "how": "exact_floor_key"
+      },
+      "Rep. T. Miller": {
+        "politicianId": "tracy_miller",
+        "floorKey": "Miller, T.",
+        "how": "exact_floor_key"
+      },
+      "Rep. T. Peterson": {
+        "politicianId": "thomas_peterson",
+        "floorKey": "Peterson, T.",
+        "how": "exact_floor_key"
+      },
+      "Rep. T. Shelley": {
+        "politicianId": "shelley_h66",
+        "floorKey": "Shelley, T.",
+        "how": "exact_floor_key"
+      },
+      "Rep. V. Peterson": {
+        "politicianId": "valpeterson_h56",
+        "floorKey": "Peterson, V.",
+        "how": "exact_floor_key"
+      },
+      "Rep. W. Brooks": {
+        "politicianId": "walt_brooks",
+        "floorKey": "Brooks, W.",
+        "how": "exact_floor_key"
+      }
+    },
+    "S": {
+      "Sen. A. Millner": {
+        "politicianId": "amillner",
+        "floorKey": "Millner, A.",
+        "how": "exact_floor_key"
+      },
+      "Sen. B. Brammer": {
+        "politicianId": "brammer_s21",
+        "floorKey": "Brammer, B.",
+        "how": "exact_floor_key"
+      },
+      "Sen. C. Musselman": {
+        "politicianId": "cmusselman",
+        "floorKey": "Musselman, C.R.",
+        "how": "unique_surname_confirmed_by_attendance",
+        "confirmedBy": "Sen. Calvin R. Musselman"
+      },
+      "Sen. C. Wilson": {
+        "politicianId": "cwilson",
+        "floorKey": "Wilson, C.",
+        "how": "exact_floor_key"
+      },
+      "Sen. D. Hinkins": {
+        "politicianId": "dhinkins",
+        "floorKey": "Hinkins, D.",
+        "how": "exact_floor_key"
+      },
+      "Sen. D. Ipson": {
+        "politicianId": "dipson",
+        "floorKey": "Ipson, D.",
+        "how": "exact_floor_key"
+      },
+      "Sen. D. McCay": {
+        "politicianId": "mccay_s11",
+        "floorKey": "McCay, D.",
+        "how": "exact_floor_key"
+      },
+      "Sen. D. Owens": {
+        "politicianId": "dowens_st",
+        "floorKey": "Owens, D.R.",
+        "how": "unique_surname_confirmed_by_attendance",
+        "confirmedBy": "Sen. Derrin R. Owens"
+      },
+      "Sen. D. Thatcher": {
+        "politicianId": "daniel_thatcher",
+        "floorKey": "Thatcher, D.",
+        "how": "exact_floor_key"
+      },
+      "Sen. E. Vickers": {
+        "politicianId": "evickers",
+        "floorKey": "Vickers, E.",
+        "how": "exact_floor_key"
+      },
+      "Sen. H. Balderree": {
+        "politicianId": "heidi_balderree",
+        "floorKey": "Balderree, H.",
+        "how": "exact_floor_key"
+      },
+      "Sen. J. Johnson": {
+        "politicianId": "john_johnson",
+        "floorKey": "Johnson, J.",
+        "how": "exact_floor_key"
+      },
+      "Sen. J. Plumb": {
+        "politicianId": "jennifer_plumb",
+        "floorKey": "Plumb, J.",
+        "how": "exact_floor_key"
+      },
+      "Sen. J. Stevenson": {
+        "politicianId": "jstevenson",
+        "floorKey": "Stevenson, J.",
+        "how": "exact_floor_key"
+      },
+      "Sen. K. Cullimore": {
+        "politicianId": "kcullimore",
+        "floorKey": "Cullimore, K. A.",
+        "how": "unique_surname_confirmed_by_attendance",
+        "confirmedBy": "Sen. Kirk A. Cullimore"
+      },
+      "Sen. K. Kwan": {
+        "politicianId": "kwan_s12",
+        "floorKey": "Kwan, K.",
+        "how": "exact_floor_key"
+      },
+      "Sen. K. Riebe": {
+        "politicianId": "kathleen_riebe",
+        "floorKey": "Riebe, K.",
+        "how": "exact_floor_key"
+      },
+      "Sen. K. Stratton": {
+        "politicianId": "kstratton",
+        "floorKey": "Stratton, K.",
+        "how": "exact_floor_key"
+      },
+      "Sen. L. Escamilla": {
+        "politicianId": "lescamilla",
+        "floorKey": "Escamilla, L.",
+        "how": "exact_floor_key"
+      },
+      "Sen. L. Fillmore": {
+        "politicianId": "lincoln_fillmore",
+        "floorKey": "Fillmore, L.",
+        "how": "exact_floor_key"
+      },
+      "Sen. M. McKell": {
+        "politicianId": "mckell_s25",
+        "floorKey": "McKell, M.",
+        "how": "exact_floor_key"
+      },
+      "Sen. N. Blouin": {
+        "politicianId": "blouin_s13",
+        "floorKey": "Blouin, N.",
+        "how": "exact_floor_key"
+      },
+      "Sen. R. Winterton": {
+        "politicianId": "rwinterton",
+        "floorKey": "Winterton, R.",
+        "how": "exact_floor_key"
+      },
+      "Sen. S. Pitcher": {
+        "politicianId": "stephanie_pitcher",
+        "floorKey": "Pitcher, S.",
+        "how": "exact_floor_key"
+      },
+      "Sen. T. Weiler": {
+        "politicianId": "tweiler",
+        "floorKey": "Weiler, T.",
+        "how": "exact_floor_key"
+      },
+      "Sen. W. Harper": {
+        "politicianId": "harper_s16",
+        "floorKey": "Harper, W.",
+        "how": "exact_floor_key"
+      }
+    }
+  },
+  "unmapped": {
+    "H": [],
+    "S": []
+  },
+  "_refusedNames": {
+    "H": [],
+    "S": []
+  }
+}

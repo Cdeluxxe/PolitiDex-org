@@ -1,0 +1,2300 @@
+{
+  "_comment": "Utah committee votes as formal acts (vr_positions, action_type='committee_vote'). Extraction source: the legislature's structured minutes feed; every act confirmed against the published minutes PDF (committee, date, motion, tally). No issue keys are defined here: a committee act inherits the parent bill's reviewed mappings.",
+  "generatedBy": "scripts/vr-utah-committee-ingest.mjs --seed",
+  "session": "2025GS",
+  "counts": {
+    "measures": 24,
+    "committeeActs": 32,
+    "positions": 241,
+    "supersededByFloorVote": 191,
+    "notOnAnyFloorRoll": 50,
+    "reprintsDropped": 10,
+    "nearUnanimousRefused": 44,
+    "billsWithAnyCommitteeVote": 42
+  },
+  "measures": [
+    {
+      "session": "2025GS",
+      "utahBill": "HB0085",
+      "number": "H.B. 85",
+      "title": "Environmental Permitting Modifications",
+      "chamber": "utah house",
+      "issueKeys": [
+        "permitting_reform"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19683",
+          "committee": "House Natural Resources, Agriculture, and Environment Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-01-24",
+          "motion": "Rep. Brooks moved to pass 1st Substitute H.B. 85 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 10,
+            "nay": 2,
+            "absent": 2
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00000448.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19683",
+          "votes": [
+            {
+              "politicianId": "bolinder_h68",
+              "supports": true,
+              "printedAs": "Rep. B. Bolinder",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "carl_albrecht",
+              "supports": true,
+              "printedAs": "Rep. C. Albrecht",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "chew_h68",
+              "supports": true,
+              "printedAs": "Rep. S. Chew",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "david_shallenberger",
+              "supports": true,
+              "printedAs": "Rep. D. Shallenberger",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "doug_owens",
+              "supports": true,
+              "printedAs": "Rep. D. Owens",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "gay_lynn_bennion",
+              "supports": false,
+              "printedAs": "Rep. G. Bennion",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "koford_h10",
+              "supports": true,
+              "printedAs": "Rep. J. Koford",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kohler_h59",
+              "supports": false,
+              "printedAs": "Rep. M. Kohler",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "logan_monson",
+              "supports": true,
+              "printedAs": "Rep. L. Monson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "rshipp",
+              "supports": true,
+              "printedAs": "Rep. R. Shipp",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "snider_h5",
+              "supports": true,
+              "printedAs": "Rep. C. Snider",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "walt_brooks",
+              "supports": true,
+              "printedAs": "Rep. W. Brooks",
+              "supersededByFloorVote": true
+            }
+          ]
+        },
+        {
+          "meetingId": "19834",
+          "committee": "Senate Natural Resources, Agriculture, and Environment Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-02-18",
+          "motion": "Sen. Hinkins moved to pass 1st Substitute H.B. 85 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 2,
+            "nay": 1,
+            "absent": 4
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001689.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19834",
+          "votes": [
+            {
+              "politicianId": "blouin_s13",
+              "supports": false,
+              "printedAs": "Sen. N. Blouin",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "dhinkins",
+              "supports": true,
+              "printedAs": "Sen. D. Hinkins",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "dowens_st",
+              "supports": true,
+              "printedAs": "Sen. D. Owens",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0103",
+      "number": "H.B. 103",
+      "title": "State Land Access Road Amendments",
+      "chamber": "utah house",
+      "issueKeys": [
+        "lands_local"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19924",
+          "committee": "Senate Transportation, Public Utilities, Energy, and Technology Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-03-04",
+          "motion": "Sen. Millner moved to pass 3rd Substitute H.B. 103 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 5,
+            "nay": 1,
+            "absent": 2
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001932.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19924",
+          "votes": [
+            {
+              "politicianId": "amillner",
+              "supports": true,
+              "printedAs": "Sen. A. Millner",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "dipson",
+              "supports": true,
+              "printedAs": "Sen. D. Ipson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "harper_s16",
+              "supports": true,
+              "printedAs": "Sen. W. Harper",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "kathleen_riebe",
+              "supports": false,
+              "printedAs": "Sen. K. Riebe",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "kwan_s12",
+              "supports": true,
+              "printedAs": "Sen. K. Kwan",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "rwinterton",
+              "supports": true,
+              "printedAs": "Sen. R. Winterton",
+              "supersededByFloorVote": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0106",
+      "number": "H.B. 106",
+      "title": "Income Tax Revisions",
+      "chamber": "utah house",
+      "issueKeys": [
+        "lower_taxes",
+        "child_care"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19884",
+          "committee": "House Revenue and Taxation Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-02-25",
+          "motion": "Rep. Okerlund moved to pass 1st Substitute H.B. 106 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 8,
+            "nay": 2,
+            "absent": 1
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001788.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19884",
+          "votes": [
+            {
+              "politicianId": "clinton_okerlund",
+              "supports": true,
+              "printedAs": "Rep. C. Okerlund",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "hoang_nguyen",
+              "supports": false,
+              "printedAs": "Rep. H. Nguyen",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "jason_b_kyle",
+              "supports": true,
+              "printedAs": "Rep. J. Kyle",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "jennifer_dailey_provost",
+              "supports": false,
+              "printedAs": "Rep. J. Dailey-Provost",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "joseph_elison",
+              "supports": true,
+              "printedAs": "Rep. J. Elison",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kay_christofferson",
+              "supports": true,
+              "printedAs": "Rep. K. Christofferson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "koford_h10",
+              "supports": true,
+              "printedAs": "Rep. J. Koford",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "lisa_shepherd",
+              "supports": true,
+              "printedAs": "Rep. L. Shepherd",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "mark_strong",
+              "supports": true,
+              "printedAs": "Rep. M. Strong",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "stewart_e_barlow",
+              "supports": true,
+              "printedAs": "Rep. S. Barlow",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0124",
+      "number": "H.B. 124",
+      "title": "Education Industry Employee Privacy",
+      "chamber": "utah house",
+      "issueKeys": [
+        "privacy_rights"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19620",
+          "committee": "Senate Education Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-02-07",
+          "motion": "Sen. Balderree moved to pass 1st Substitute H.B. 124 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 3,
+            "nay": 1,
+            "absent": 3
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001533.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19620",
+          "votes": [
+            {
+              "politicianId": "heidi_balderree",
+              "supports": true,
+              "printedAs": "Sen. H. Balderree",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "john_johnson",
+              "supports": true,
+              "printedAs": "Sen. J. Johnson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kathleen_riebe",
+              "supports": false,
+              "printedAs": "Sen. K. Riebe",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "lincoln_fillmore",
+              "supports": true,
+              "printedAs": "Sen. L. Fillmore",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0187",
+      "number": "H.B. 187",
+      "title": "Imitation Firearm Amendments",
+      "chamber": "utah house",
+      "issueKeys": [
+        "gun_safety"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19665",
+          "committee": "House Law Enforcement and Criminal Justice Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-02-06",
+          "motion": "Rep. Stoddard moved to pass 1st Substitute H.B. 187 out favorably.",
+          "result": "failed",
+          "printedTotals": {
+            "yea": 5,
+            "nay": 5,
+            "absent": 1
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001514.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19665",
+          "votes": [
+            {
+              "politicianId": "andrew_stoddard",
+              "supports": true,
+              "printedAs": "Rep. A. Stoddard",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "gwynn_h6",
+              "supports": false,
+              "printedAs": "Rep. M. Gwynn",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "hall_h11",
+              "supports": false,
+              "printedAs": "Rep. K. Hall",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "hollins_h24",
+              "supports": true,
+              "printedAs": "Rep. S. Hollins",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "lisa_shepherd",
+              "supports": false,
+              "printedAs": "Rep. L. Shepherd",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "mark_strong",
+              "supports": true,
+              "printedAs": "Rep. M. Strong",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "mballard",
+              "supports": true,
+              "printedAs": "Rep. M. Ballard",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "ryan_d_wilcox",
+              "supports": true,
+              "printedAs": "Rep. R. Wilcox",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "tlee",
+              "supports": false,
+              "printedAs": "Rep. T. Lee",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "whyte_h63",
+              "supports": false,
+              "printedAs": "Rep. S. Whyte",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0195",
+      "number": "H.B. 195",
+      "title": "Firearm Retention Amendments",
+      "chamber": "utah house",
+      "issueKeys": [
+        "gun_rights"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19605",
+          "committee": "House Judiciary Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-02-03",
+          "motion": "Rep. Gricius moved to pass 1st Substitute H.B. 195 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 7,
+            "nay": 2,
+            "absent": 2
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001247.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19605",
+          "votes": [
+            {
+              "politicianId": "anthony_loubet",
+              "supports": true,
+              "printedAs": "Rep. A. Loubet",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "auxier_h4",
+              "supports": true,
+              "printedAs": "Rep. T. Auxier",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cheryl_acton",
+              "supports": false,
+              "printedAs": "Rep. C. Acton",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "grant_miller",
+              "supports": true,
+              "printedAs": "Rep. G. Miller",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "gricius_h50",
+              "supports": true,
+              "printedAs": "Rep. S. Gricius",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "jason_thompson",
+              "supports": false,
+              "printedAs": "Rep. J. Thompson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "jon_hawkins",
+              "supports": true,
+              "printedAs": "Rep. J. Hawkins",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "nelson_abbott",
+              "supports": true,
+              "printedAs": "Rep. N. Abbott",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "tyler_clancy",
+              "supports": true,
+              "printedAs": "Rep. T. Clancy",
+              "supersededByFloorVote": false
+            }
+          ]
+        },
+        {
+          "meetingId": "19781",
+          "committee": "Senate Judiciary, Law Enforcement, and Criminal Justice Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-02-19",
+          "motion": "Sen. Balderree moved to pass 1st Substitute H.B. 195 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 4,
+            "nay": 2,
+            "absent": 3
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001958.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19781",
+          "votes": [
+            {
+              "politicianId": "brammer_s21",
+              "supports": true,
+              "printedAs": "Sen. B. Brammer",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "cmusselman",
+              "supports": true,
+              "printedAs": "Sen. C. Musselman",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "heidi_balderree",
+              "supports": true,
+              "printedAs": "Sen. H. Balderree",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "lescamilla",
+              "supports": false,
+              "printedAs": "Sen. L. Escamilla",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "stephanie_pitcher",
+              "supports": false,
+              "printedAs": "Sen. S. Pitcher",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "tweiler",
+              "supports": true,
+              "printedAs": "Sen. T. Weiler",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0201",
+      "number": "H.B. 201",
+      "title": "Energy Resource Amendments",
+      "chamber": "utah house",
+      "issueKeys": [
+        "energy_production"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19662",
+          "committee": "House Public Utilities and Energy Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-02-04",
+          "motion": "Rep. Peck moved to pass 1st Substitute H.B. 201 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 9,
+            "nay": 1,
+            "absent": 3
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001532.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19662",
+          "votes": [
+            {
+              "politicianId": "carl_albrecht",
+              "supports": true,
+              "printedAs": "Rep. C. Albrecht",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "carol_spackman_moss",
+              "supports": true,
+              "printedAs": "Rep. C. Moss",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "chew_h68",
+              "supports": true,
+              "printedAs": "Rep. S. Chew",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "colin_w_jack",
+              "supports": true,
+              "printedAs": "Rep. C. Jack",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "nicholeen_p_peck",
+              "supports": true,
+              "printedAs": "Rep. N. Peck",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "rosalba_dominguez",
+              "supports": false,
+              "printedAs": "Rep. R. Dominguez",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "rshipp",
+              "supports": true,
+              "printedAs": "Rep. R. Shipp",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "shelley_h66",
+              "supports": true,
+              "printedAs": "Rep. T. Shelley",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "snider_h5",
+              "supports": true,
+              "printedAs": "Rep. C. Snider",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "thomas_peterson",
+              "supports": true,
+              "printedAs": "Rep. T. Peterson",
+              "supersededByFloorVote": true
+            }
+          ]
+        },
+        {
+          "meetingId": "19834",
+          "committee": "Senate Natural Resources, Agriculture, and Environment Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-02-18",
+          "motion": "Sen. Hinkins moved to pass 2nd Substitute H.B. 201 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 3,
+            "nay": 1,
+            "absent": 3
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001689.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19834",
+          "votes": [
+            {
+              "politicianId": "blouin_s13",
+              "supports": false,
+              "printedAs": "Sen. N. Blouin",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "dhinkins",
+              "supports": true,
+              "printedAs": "Sen. D. Hinkins",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "dowens_st",
+              "supports": true,
+              "printedAs": "Sen. D. Owens",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kstratton",
+              "supports": true,
+              "printedAs": "Sen. K. Stratton",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0203",
+      "number": "H.B. 203",
+      "title": "Cannabis Amendments",
+      "chamber": "utah house",
+      "issueKeys": [
+        "cannabis_reform"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19684",
+          "committee": "House Natural Resources, Agriculture, and Environment Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-01-29",
+          "motion": "Rep. Watkins moved to pass 2nd Substitute H.B. 203 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 8,
+            "nay": 5,
+            "absent": 1
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00000908.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19684",
+          "votes": [
+            {
+              "politicianId": "carl_albrecht",
+              "supports": false,
+              "printedAs": "Rep. C. Albrecht",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "chew_h68",
+              "supports": false,
+              "printedAs": "Rep. S. Chew",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "christine_watkins",
+              "supports": true,
+              "printedAs": "Rep. C. Watkins",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "david_shallenberger",
+              "supports": true,
+              "printedAs": "Rep. D. Shallenberger",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "doug_owens",
+              "supports": true,
+              "printedAs": "Rep. D. Owens",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "gay_lynn_bennion",
+              "supports": true,
+              "printedAs": "Rep. G. Bennion",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "koford_h10",
+              "supports": true,
+              "printedAs": "Rep. J. Koford",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kohler_h59",
+              "supports": false,
+              "printedAs": "Rep. M. Kohler",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "logan_monson",
+              "supports": false,
+              "printedAs": "Rep. L. Monson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "mschultz",
+              "supports": true,
+              "printedAs": "Rep. M. Schultz",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "rshipp",
+              "supports": false,
+              "printedAs": "Rep. R. Shipp",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "snider_h5",
+              "supports": true,
+              "printedAs": "Rep. C. Snider",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "walt_brooks",
+              "supports": true,
+              "printedAs": "Rep. W. Brooks",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0267",
+      "number": "H.B. 267",
+      "title": "Public Sector Labor Union Amendments",
+      "chamber": "utah house",
+      "issueKeys": [
+        "econ_workers"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19649",
+          "committee": "Senate Revenue and Taxation Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-01-29",
+          "motion": "Sen. Brammer moved to pass 1st Substitute H.B. 267 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 4,
+            "nay": 3,
+            "absent": 0
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00000825.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19649",
+          "votes": [
+            {
+              "politicianId": "brammer_s21",
+              "supports": true,
+              "printedAs": "Sen. B. Brammer",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "cwilson",
+              "supports": true,
+              "printedAs": "Sen. C. Wilson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "harper_s16",
+              "supports": false,
+              "printedAs": "Sen. W. Harper",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kcullimore",
+              "supports": true,
+              "printedAs": "Sen. K. Cullimore",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "lescamilla",
+              "supports": false,
+              "printedAs": "Sen. L. Escamilla",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "lincoln_fillmore",
+              "supports": false,
+              "printedAs": "Sen. L. Fillmore",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "mccay_s11",
+              "supports": true,
+              "printedAs": "Sen. D. McCay",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0269",
+      "number": "H.B. 269",
+      "title": "Privacy Protections in Sex-designated Areas",
+      "chamber": "utah house",
+      "issueKeys": [
+        "lgbtq_rights"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19795",
+          "committee": "Senate Education Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-01-30",
+          "motion": "Sen. Hinkins moved to pass 1st Substitute H.B. 269 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 5,
+            "nay": 1,
+            "absent": 1
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00000994.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19795",
+          "votes": [
+            {
+              "politicianId": "cwilson",
+              "supports": true,
+              "printedAs": "Sen. C. Wilson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "dhinkins",
+              "supports": true,
+              "printedAs": "Sen. D. Hinkins",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "heidi_balderree",
+              "supports": true,
+              "printedAs": "Sen. H. Balderree",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "john_johnson",
+              "supports": true,
+              "printedAs": "Sen. J. Johnson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kathleen_riebe",
+              "supports": false,
+              "printedAs": "Sen. K. Riebe",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "lincoln_fillmore",
+              "supports": true,
+              "printedAs": "Sen. L. Fillmore",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0290",
+      "number": "H.B. 290",
+      "title": "Bicycle Lane Safety Amendments",
+      "chamber": "utah house",
+      "issueKeys": [
+        "transit"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19803",
+          "committee": "Senate Transportation, Public Utilities, Energy, and Technology Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-02-19",
+          "motion": "Sen. Ipson moved to pass H.B. 290 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 5,
+            "nay": 1,
+            "absent": 2
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001717.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19803",
+          "votes": [
+            {
+              "politicianId": "amillner",
+              "supports": true,
+              "printedAs": "Sen. A. Millner",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "dipson",
+              "supports": true,
+              "printedAs": "Sen. D. Ipson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "harper_s16",
+              "supports": false,
+              "printedAs": "Sen. W. Harper",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kathleen_riebe",
+              "supports": true,
+              "printedAs": "Sen. K. Riebe",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kwan_s12",
+              "supports": true,
+              "printedAs": "Sen. K. Kwan",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "rwinterton",
+              "supports": true,
+              "printedAs": "Sen. R. Winterton",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0303",
+      "number": "H.B. 303",
+      "title": "Public School Directory Sharing Amendments",
+      "chamber": "utah house",
+      "issueKeys": [
+        "privacy_rights"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19822",
+          "committee": "House Education Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-02-21",
+          "motion": "Rep. Auxier moved to pass H.B. 303 out favorably as amended.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 6,
+            "nay": 2,
+            "absent": 8
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001751.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19822",
+          "votes": [
+            {
+              "politicianId": "auxier_h4",
+              "supports": true,
+              "printedAs": "Rep. T. Auxier",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "carol_spackman_moss",
+              "supports": true,
+              "printedAs": "Rep. C. Moss",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "joseph_elison",
+              "supports": true,
+              "printedAs": "Rep. J. Elison",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kohler_h59",
+              "supports": false,
+              "printedAs": "Rep. M. Kohler",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "matt_macpherson",
+              "supports": true,
+              "printedAs": "Rep. M. MacPherson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "nicholeen_p_peck",
+              "supports": true,
+              "printedAs": "Rep. N. Peck",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "sahara_hayes",
+              "supports": true,
+              "printedAs": "Rep. S. Hayes",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "tracy_miller",
+              "supports": false,
+              "printedAs": "Rep. T. Miller",
+              "supersededByFloorVote": true
+            }
+          ]
+        },
+        {
+          "meetingId": "19940",
+          "committee": "Senate Education Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-03-03",
+          "motion": "Sen. Balderree moved to pass H.B. 303 out favorably.",
+          "result": "failed",
+          "printedTotals": {
+            "yea": 2,
+            "nay": 2,
+            "absent": 3
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001942.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19940",
+          "votes": [
+            {
+              "politicianId": "dhinkins",
+              "supports": false,
+              "printedAs": "Sen. D. Hinkins",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "heidi_balderree",
+              "supports": true,
+              "printedAs": "Sen. H. Balderree",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "john_johnson",
+              "supports": true,
+              "printedAs": "Sen. J. Johnson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "kathleen_riebe",
+              "supports": false,
+              "printedAs": "Sen. K. Riebe",
+              "supersededByFloorVote": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0355",
+      "number": "H.B. 355",
+      "title": "Mining and Critical Infrastructure Materials Amendments",
+      "chamber": "utah house",
+      "issueKeys": [
+        "lands_energy"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19845",
+          "committee": "House Natural Resources, Agriculture, and Environment Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-02-14",
+          "motion": "Rep. Bolinder moved to pass 1st Substitute H.B. 355 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 9,
+            "nay": 3,
+            "absent": 2
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001626.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19845",
+          "votes": [
+            {
+              "politicianId": "bolinder_h68",
+              "supports": true,
+              "printedAs": "Rep. B. Bolinder",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "carl_albrecht",
+              "supports": true,
+              "printedAs": "Rep. C. Albrecht",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "chew_h68",
+              "supports": true,
+              "printedAs": "Rep. S. Chew",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "christine_watkins",
+              "supports": true,
+              "printedAs": "Rep. C. Watkins",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "doug_owens",
+              "supports": false,
+              "printedAs": "Rep. D. Owens",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "gay_lynn_bennion",
+              "supports": false,
+              "printedAs": "Rep. G. Bennion",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "koford_h10",
+              "supports": true,
+              "printedAs": "Rep. J. Koford",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kohler_h59",
+              "supports": false,
+              "printedAs": "Rep. M. Kohler",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "logan_monson",
+              "supports": true,
+              "printedAs": "Rep. L. Monson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "mschultz",
+              "supports": true,
+              "printedAs": "Rep. M. Schultz",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "rshipp",
+              "supports": true,
+              "printedAs": "Rep. R. Shipp",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "snider_h5",
+              "supports": true,
+              "printedAs": "Rep. C. Snider",
+              "supersededByFloorVote": true
+            }
+          ]
+        },
+        {
+          "meetingId": "19936",
+          "committee": "Senate Revenue and Taxation Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-03-04",
+          "motion": "Chair McCay moved to pass 3rd Substitute H.B. 355 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 4,
+            "nay": 1,
+            "absent": 2
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001966.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19936",
+          "votes": [
+            {
+              "politicianId": "brammer_s21",
+              "supports": true,
+              "printedAs": "Sen. B. Brammer",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "harper_s16",
+              "supports": true,
+              "printedAs": "Sen. W. Harper",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "kcullimore",
+              "supports": true,
+              "printedAs": "Sen. K. Cullimore",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "lescamilla",
+              "supports": false,
+              "printedAs": "Sen. L. Escamilla",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "mccay_s11",
+              "supports": true,
+              "printedAs": "Sen. D. McCay",
+              "supersededByFloorVote": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0360",
+      "number": "H.B. 360",
+      "title": "Housing Attainability Amendments",
+      "chamber": "utah house",
+      "issueKeys": [
+        "housing",
+        "housing_support"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19810",
+          "committee": "House Political Subdivisions Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-02-13",
+          "motion": "Rep. Walter moved to pass H.B. 360 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 6,
+            "nay": 1,
+            "absent": 3
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001647.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19810",
+          "votes": [
+            {
+              "politicianId": "fitisemanu_h30",
+              "supports": true,
+              "printedAs": "Rep. J. Fitisemanu",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "gay_lynn_bennion",
+              "supports": true,
+              "printedAs": "Rep. G. Bennion",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "james_dunnigan",
+              "supports": true,
+              "printedAs": "Rep. J. Dunnigan",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "r_neil_walter",
+              "supports": true,
+              "printedAs": "Rep. R. Walter",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "rward",
+              "supports": false,
+              "printedAs": "Rep. R. Ward",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "tlee",
+              "supports": true,
+              "printedAs": "Rep. T. Lee",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "tracy_miller",
+              "supports": true,
+              "printedAs": "Rep. T. Miller",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0365",
+      "number": "H.B. 365",
+      "title": "Mental Health Care Study Amendments",
+      "chamber": "utah house",
+      "issueKeys": [
+        "health_mental"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19763",
+          "committee": "House Health and Human Services Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-02-18",
+          "motion": "Rep. Eliason moved to pass H.B. 365 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 10,
+            "nay": 2,
+            "absent": 2
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001643.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19763",
+          "votes": [
+            {
+              "politicianId": "bolinder_h68",
+              "supports": true,
+              "printedAs": "Rep. B. Bolinder",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "cheryl_acton",
+              "supports": true,
+              "printedAs": "Rep. C. Acton",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "eliason_h45",
+              "supports": true,
+              "printedAs": "Rep. S. Eliason",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "fitisemanu_h30",
+              "supports": true,
+              "printedAs": "Rep. J. Fitisemanu",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "gricius_h50",
+              "supports": true,
+              "printedAs": "Rep. S. Gricius",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "hall_h11",
+              "supports": false,
+              "printedAs": "Rep. K. Hall",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "jennifer_dailey_provost",
+              "supports": true,
+              "printedAs": "Rep. J. Dailey-Provost",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kristen_chevrier",
+              "supports": true,
+              "printedAs": "Rep. K. Chevrier",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "logan_monson",
+              "supports": true,
+              "printedAs": "Rep. L. Monson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "nelson_abbott",
+              "supports": false,
+              "printedAs": "Rep. N. Abbott",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "rward",
+              "supports": true,
+              "printedAs": "Rep. R. Ward",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "stewart_e_barlow",
+              "supports": true,
+              "printedAs": "Rep. S. Barlow",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0453",
+      "number": "H.B. 453",
+      "title": "State School Board Transparency Amendments",
+      "chamber": "utah house",
+      "issueKeys": [
+        "gov_transparency"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19821",
+          "committee": "House Education Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-02-19",
+          "motion": "Rep. Walter moved to pass H.B. 453 out favorably as amended.",
+          "result": "failed",
+          "printedTotals": {
+            "yea": 5,
+            "nay": 5,
+            "absent": 6
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001721.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19821",
+          "votes": [
+            {
+              "politicianId": "auxier_h4",
+              "supports": false,
+              "printedAs": "Rep. T. Auxier",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "carol_spackman_moss",
+              "supports": false,
+              "printedAs": "Rep. C. Moss",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "defay_h15",
+              "supports": true,
+              "printedAs": "Rep. A. Defay",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "doug_welton",
+              "supports": false,
+              "printedAs": "Rep. D. Welton",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "joseph_elison",
+              "supports": true,
+              "printedAs": "Rep. J. Elison",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kohler_h59",
+              "supports": false,
+              "printedAs": "Rep. M. Kohler",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "matt_macpherson",
+              "supports": true,
+              "printedAs": "Rep. M. MacPherson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "r_neil_walter",
+              "supports": true,
+              "printedAs": "Rep. R. Walter",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "sahara_hayes",
+              "supports": true,
+              "printedAs": "Rep. S. Hayes",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "tracy_miller",
+              "supports": false,
+              "printedAs": "Rep. T. Miller",
+              "supersededByFloorVote": true
+            }
+          ]
+        },
+        {
+          "meetingId": "19908",
+          "committee": "House Education Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-02-27",
+          "motion": "Rep. MacPherson moved to pass 1st Substitute H.B. 453 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 9,
+            "nay": 3,
+            "absent": 4
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001836.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19908",
+          "votes": [
+            {
+              "politicianId": "candice_pierucci",
+              "supports": true,
+              "printedAs": "Rep. C. Pierucci",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "nicholeen_p_peck",
+              "supports": true,
+              "printedAs": "Rep. N. Peck",
+              "supersededByFloorVote": true
+            }
+          ]
+        },
+        {
+          "meetingId": "19896",
+          "committee": "Senate Economic Development and Workforce Services Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-03-04",
+          "motion": "Sen. Owens moved to pass 1st Substitute H.B. 453 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 3,
+            "nay": 2,
+            "absent": 1
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001939.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19896",
+          "votes": [
+            {
+              "politicianId": "amillner",
+              "supports": true,
+              "printedAs": "Sen. A. Millner",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "dowens_st",
+              "supports": true,
+              "printedAs": "Sen. D. Owens",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "john_johnson",
+              "supports": false,
+              "printedAs": "Sen. J. Johnson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "jstevenson",
+              "supports": true,
+              "printedAs": "Sen. J. Stevenson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "kwan_s12",
+              "supports": false,
+              "printedAs": "Sen. K. Kwan",
+              "supersededByFloorVote": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0508",
+      "number": "H.B. 508",
+      "title": "School Data Amendments",
+      "chamber": "utah house",
+      "issueKeys": [
+        "privacy_rights"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19896",
+          "committee": "Senate Economic Development and Workforce Services Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-03-04",
+          "motion": "Sen. Johnson moved to pass 1st Substitute H.B. 508 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 3,
+            "nay": 1,
+            "absent": 2
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001939.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19896",
+          "votes": [
+            {
+              "politicianId": "amillner",
+              "supports": true,
+              "printedAs": "Sen. A. Millner",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "dowens_st",
+              "supports": false,
+              "printedAs": "Sen. D. Owens",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "john_johnson",
+              "supports": true,
+              "printedAs": "Sen. J. Johnson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "kwan_s12",
+              "supports": true,
+              "printedAs": "Sen. K. Kwan",
+              "supersededByFloorVote": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "HB0562",
+      "number": "H.B. 562",
+      "title": "Law Enforcement and Criminal Justice Amendments",
+      "chamber": "utah house",
+      "issueKeys": [
+        "tough_on_crime"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19948",
+          "committee": "House Law Enforcement and Criminal Justice Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-03-03",
+          "motion": "Rep. Hall moved to pass 1st Substitute H.B. 562 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 9,
+            "nay": 1,
+            "absent": 1
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001910.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19948",
+          "votes": [
+            {
+              "politicianId": "andrew_stoddard",
+              "supports": true,
+              "printedAs": "Rep. A. Stoddard",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "gwynn_h6",
+              "supports": true,
+              "printedAs": "Rep. M. Gwynn",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "hall_h11",
+              "supports": true,
+              "printedAs": "Rep. K. Hall",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "hollins_h24",
+              "supports": false,
+              "printedAs": "Rep. S. Hollins",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "lisa_shepherd",
+              "supports": true,
+              "printedAs": "Rep. L. Shepherd",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "mark_strong",
+              "supports": true,
+              "printedAs": "Rep. M. Strong",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "mballard",
+              "supports": true,
+              "printedAs": "Rep. M. Ballard",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "ryan_d_wilcox",
+              "supports": true,
+              "printedAs": "Rep. R. Wilcox",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "valpeterson_h56",
+              "supports": true,
+              "printedAs": "Rep. V. Peterson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "whyte_h63",
+              "supports": true,
+              "printedAs": "Rep. S. Whyte",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "SB0097",
+      "number": "S.B. 97",
+      "title": "Emergency Shelter Amendments",
+      "chamber": "utah senate",
+      "issueKeys": [
+        "disaster_resilience"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19638",
+          "committee": "Senate Government Operations and Political Subdivisions Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-01-24",
+          "motion": "Sen. Plumb moved to pass S.B. 97 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 5,
+            "nay": 1,
+            "absent": 1
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00000420.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19638",
+          "votes": [
+            {
+              "politicianId": "blouin_s13",
+              "supports": true,
+              "printedAs": "Sen. N. Blouin",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "daniel_thatcher",
+              "supports": true,
+              "printedAs": "Sen. D. Thatcher",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "evickers",
+              "supports": true,
+              "printedAs": "Sen. E. Vickers",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "jennifer_plumb",
+              "supports": true,
+              "printedAs": "Sen. J. Plumb",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "mckell_s25",
+              "supports": false,
+              "printedAs": "Sen. M. McKell",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "rwinterton",
+              "supports": true,
+              "printedAs": "Sen. R. Winterton",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "SB0102",
+      "number": "S.B. 102",
+      "title": "Public Education Reporting Amendments",
+      "chamber": "utah senate",
+      "issueKeys": [
+        "gov_transparency",
+        "public_schools"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19615",
+          "committee": "Senate Education Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-01-27",
+          "motion": "Sen. Fillmore moved to pass 2nd Substitute S.B. 102 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 4,
+            "nay": 1,
+            "absent": 2
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00000623.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19615",
+          "votes": [
+            {
+              "politicianId": "cwilson",
+              "supports": true,
+              "printedAs": "Sen. C. Wilson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "heidi_balderree",
+              "supports": true,
+              "printedAs": "Sen. H. Balderree",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "john_johnson",
+              "supports": true,
+              "printedAs": "Sen. J. Johnson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kathleen_riebe",
+              "supports": false,
+              "printedAs": "Sen. K. Riebe",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "lincoln_fillmore",
+              "supports": true,
+              "printedAs": "Sen. L. Fillmore",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "SB0154",
+      "number": "S.B. 154",
+      "title": "Legislative Audit Amendments",
+      "chamber": "utah senate",
+      "issueKeys": [
+        "gov_transparency"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19883",
+          "committee": "House Government Operations Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-03-03",
+          "motion": "Rep. Maloy moved to pass 1st Substitute S.B. 154 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 10,
+            "nay": 3,
+            "absent": 0
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001941.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19883",
+          "votes": [
+            {
+              "politicianId": "andrew_stoddard",
+              "supports": false,
+              "printedAs": "Rep. A. Stoddard",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "anthony_loubet",
+              "supports": true,
+              "printedAs": "Rep. A. Loubet",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "aromero",
+              "supports": false,
+              "printedAs": "Rep. A. Romero",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "candice_pierucci",
+              "supports": true,
+              "printedAs": "Rep. C. Pierucci",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cory_maloy_h52",
+              "supports": true,
+              "printedAs": "Rep. A. Maloy",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "doug_fiefia",
+              "supports": true,
+              "printedAs": "Rep. D. Fiefia",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "doug_welton",
+              "supports": true,
+              "printedAs": "Rep. D. Welton",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "jason_thompson",
+              "supports": true,
+              "printedAs": "Rep. J. Thompson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "jefferson_burton",
+              "supports": true,
+              "printedAs": "Rep. J. Burton",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "matt_macpherson",
+              "supports": true,
+              "printedAs": "Rep. M. MacPherson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "mike_petersen",
+              "supports": true,
+              "printedAs": "Rep. M. Petersen",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "paul_a_cutler",
+              "supports": true,
+              "printedAs": "Rep. P. Cutler",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "sahara_hayes",
+              "supports": false,
+              "printedAs": "Rep. S. Hayes",
+              "supersededByFloorVote": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "SB0195",
+      "number": "S.B. 195",
+      "title": "Transportation Amendments",
+      "chamber": "utah senate",
+      "issueKeys": [
+        "transit"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19911",
+          "committee": "House Transportation Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-02-27",
+          "motion": "Rep. Ivory moved to pass 5th Substitute S.B. 195 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 10,
+            "nay": 2,
+            "absent": 0
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001852.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19911",
+          "votes": [
+            {
+              "politicianId": "aromero",
+              "supports": false,
+              "printedAs": "Rep. A. Romero",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "ashlee_matthews",
+              "supports": true,
+              "printedAs": "Rep. A. Matthews",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "calvin_roberts",
+              "supports": true,
+              "printedAs": "Rep. C. Roberts",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "clinton_okerlund",
+              "supports": true,
+              "printedAs": "Rep. C. Okerlund",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "defay_h15",
+              "supports": true,
+              "printedAs": "Rep. A. Defay",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "ivory_h39",
+              "supports": true,
+              "printedAs": "Rep. K. Ivory",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "jake_sawyer",
+              "supports": true,
+              "printedAs": "Rep. J. Sawyer",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kay_christofferson",
+              "supports": true,
+              "printedAs": "Rep. K. Christofferson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kristen_chevrier",
+              "supports": true,
+              "printedAs": "Rep. K. Chevrier",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "mike_petersen",
+              "supports": true,
+              "printedAs": "Rep. M. Petersen",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "nthurston",
+              "supports": true,
+              "printedAs": "Rep. N. Thurston",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "rosalba_dominguez",
+              "supports": false,
+              "printedAs": "Rep. R. Dominguez",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "SB0262",
+      "number": "S.B. 262",
+      "title": "Housing Affordability Modifications",
+      "chamber": "utah senate",
+      "issueKeys": [
+        "housing",
+        "housing_first_time"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19767",
+          "committee": "Senate Economic Development and Workforce Services Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-02-18",
+          "motion": "Sen. Johnson moved to pass S.B. 262 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 3,
+            "nay": 1,
+            "absent": 2
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001719.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19767",
+          "votes": [
+            {
+              "politicianId": "amillner",
+              "supports": true,
+              "printedAs": "Sen. A. Millner",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "dowens_st",
+              "supports": true,
+              "printedAs": "Sen. D. Owens",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "john_johnson",
+              "supports": true,
+              "printedAs": "Sen. J. Johnson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "kwan_s12",
+              "supports": false,
+              "printedAs": "Sen. K. Kwan",
+              "supersededByFloorVote": false
+            }
+          ]
+        },
+        {
+          "meetingId": "19914",
+          "committee": "House Transportation Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-03-04",
+          "motion": "Rep. Roberts moved to pass 2nd Substitute S.B. 262 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 8,
+            "nay": 2,
+            "absent": 2
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001934.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19914",
+          "votes": [
+            {
+              "politicianId": "aromero",
+              "supports": true,
+              "printedAs": "Rep. A. Romero",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "ashlee_matthews",
+              "supports": true,
+              "printedAs": "Rep. A. Matthews",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "calvin_roberts",
+              "supports": true,
+              "printedAs": "Rep. C. Roberts",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "clinton_okerlund",
+              "supports": true,
+              "printedAs": "Rep. C. Okerlund",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "defay_h15",
+              "supports": true,
+              "printedAs": "Rep. A. Defay",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "ivory_h39",
+              "supports": true,
+              "printedAs": "Rep. K. Ivory",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "jake_sawyer",
+              "supports": true,
+              "printedAs": "Rep. J. Sawyer",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "mike_petersen",
+              "supports": false,
+              "printedAs": "Rep. M. Petersen",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "nthurston",
+              "supports": false,
+              "printedAs": "Rep. N. Thurston",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "rosalba_dominguez",
+              "supports": true,
+              "printedAs": "Rep. R. Dominguez",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "SB0272",
+      "number": "S.B. 272",
+      "title": "Micro-education Entity Amendments",
+      "chamber": "utah senate",
+      "issueKeys": [
+        "school_choice",
+        "edu_parental"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19772",
+          "committee": "Senate Education Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-02-20",
+          "motion": "Sen. Fillmore moved to pass S.B. 272 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 5,
+            "nay": 1,
+            "absent": 1
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001760.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19772",
+          "votes": [
+            {
+              "politicianId": "dhinkins",
+              "supports": true,
+              "printedAs": "Sen. D. Hinkins",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "heidi_balderree",
+              "supports": true,
+              "printedAs": "Sen. H. Balderree",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "john_johnson",
+              "supports": true,
+              "printedAs": "Sen. J. Johnson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kathleen_riebe",
+              "supports": false,
+              "printedAs": "Sen. K. Riebe",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "lincoln_fillmore",
+              "supports": true,
+              "printedAs": "Sen. L. Fillmore",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "mckell_s25",
+              "supports": true,
+              "printedAs": "Sen. M. McKell",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
