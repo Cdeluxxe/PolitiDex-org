@@ -179,7 +179,18 @@ function loadVoteSeeds() {
   if (!fs.existsSync(dir)) return out;
   for (const f of fs.readdirSync(dir).filter(n => /-vote-seed\.json$/.test(n)).sort()) {
     try {
-      for (const v of (JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')).votes || [])) {
+      const j = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
+      // A STATE SEED IS NOT OVERLAID, AND IT SAYS SO. Every key this report joins on
+      // is federal — rollKey and measureKey both carry a Congress number, which a
+      // state legislature does not have. Reading `.votes || []` off a state seed
+      // yields nothing, and silently contributing nothing is indistinguishable from
+      // a pass that unlocked nothing. So the file is named instead of skipped.
+      if (!Array.isArray(j.votes)) {
+        console.error(`  · ${f} is not the federal seed shape — not overlaid ` +
+          '(this report keys on congress; a state pass is counted by its own harness)');
+        continue;
+      }
+      for (const v of j.votes) {
         if (v && v.measure && Array.isArray(v.memberVotes)) out.push({ ...v, seedFile: f });
       }
     } catch (e) { console.error(`  ! ${f} failed to load: ${e.message}`); }

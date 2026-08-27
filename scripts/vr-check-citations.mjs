@@ -370,14 +370,22 @@ async function main() {
   // Derive with the production function, then collapse to distinct addresses —
   // one page is one check no matter how many members voted on it.
   const byUrl = new Map();
-  let underivable = 0;
+  let underivable = 0, stateRows = 0;
   for (const r of rows) {
     const cit = canonicalCitation({
       kind: 'vote', chamber: r.chamber, congress: r.congress, session: r.session,
       rollNumber: r.roll_number, date: r.vote_date ? new Date(r.vote_date).toISOString() : null,
       source: { url: r.source_url },
     });
-    if (!cit) { underivable++; continue; }
+    if (!cit) {
+      underivable++;
+      // Named rather than folded into the total. This script knows two page
+      // shapes, both federal; a state chamber's roll calls are refused by guard
+      // 12 for exactly that reason, so "underivable" here is not a data defect
+      // to chase but the size of the gap this script has not been taught yet.
+      if (!/^(house|senate)$/i.test(String(r.chamber || '').trim())) stateRows++;
+      continue;
+    }
     const roll = cit.url.includes('clerk.house.gov')
       ? String(parseInt(cit.url.split('/Votes/')[1].slice(4), 10))
       : String(parseInt(cit.url.match(/_(\d{5})\.htm$/)[1], 10));
@@ -390,7 +398,12 @@ async function main() {
   }
 
   const entries = [...byUrl.values()];
-  console.log(`${rows.length} sourced roll call(s) with member votes → ${entries.length} distinct citation(s); ${underivable} underivable (already refused by guard 12)\n`);
+  console.log(`${rows.length} sourced roll call(s) with member votes → ${entries.length} distinct citation(s); ${underivable} underivable (already refused by guard 12)`);
+  if (stateRows) {
+    console.log(`  · ${stateRows} of those are non-federal chambers this script has no page reader for — ` +
+      'their cards are refused, not silently unverified (see STATE CHAMBERS in receipt-cards.js)');
+  }
+  console.log('');
 
   const results = [];
   for (const e of entries) {

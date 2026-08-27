@@ -11396,10 +11396,12 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "issues": ["Child Online Safety", "Border Security", "Economic Development", "Human Trafficking Laws", "Penalties for Repeat Crime"]
  },
  // `party` is "F" — Forward Party. Not a typo and not a placeholder: index.html
- // renders 'F' / 'Forward' as "Forward Party", and she is the only member of
- // either chamber who is not R or D. Appointed Dec 12, 2025 and seated Dec 17 to
- // fill the vacancy left when Daniel Thatcher resigned; Thatcher is a former
- // member here and holds nothing.
+ // renders 'F' / 'Forward' as "Forward Party", and she is the only SITTING member
+ // of either chamber who is not R or D — her predecessor now has a record of his own
+ // (`daniel_thatcher`, added by the August 2026 pass below) and carries the same 'F'.
+ // Appointed Dec 12, 2025 and seated Dec 17 to fill the vacancy left when Daniel
+ // Thatcher resigned; Thatcher holds nothing, which is what the "Former" in his
+ // office and his `termEnd` say.
  "emily_buss": {
   "name": "Emily Buss", "office": "Utah State Senator",
   "state": "UT District 11 (Eagle Mountain / Tooele, Utah County)",
@@ -11508,6 +11510,288 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2018-01", "termEnd": "2026-01",
   "issues": ["Fiscal Discipline & Property Taxes", "Efficient County Government", "Infrastructure & Regional Planning", "ICE & Immigration Enforcement", "Experienced Executive Leadership"]
+ },
+ // ── EIGHTH PASS, August 2026 — the 27 Utah legislators whose 2025 recorded
+ // votes the formal lane already held and had to throw away ────────────────
+ // scripts/vr-utah-ingest.mjs read every contested floor vote of the 2025 General
+ // Session off le.utah.gov. A roll-call cell prints "Schultz, M." and never a roster
+ // id, so db/vr-utah-member-map.json carries a human identification for each printed
+ // name, and a printed name with no entry there is counted, listed in the seed as
+ // droppedNotOnRoster, and DISCARDED — never attributed to whoever holds that district
+ // today. 26 of 75 representatives and 1 of 29 senators sat in that bucket for a
+ // single reason: no record in this file. The votes existed and were parsed; the
+ // person did not exist here to hang them on.
+ //
+ // TWENTY-FIVE OF THE TWENTY-SEVEN WERE ALREADY IN THE DATA SET. That is the finding
+ // that shaped this pass. The first draft invented `thomas_peterson` as
+ // `peterson_h1`, `nthurston` as `thurston_h62` and twenty-two more like them, and
+ // assertion 10's profile-resolution guard caught fourteen of the twenty-four
+ // immediately: each id it named already carried a curated stance block in
+ // politician-stances.js, and several also carried Spotlight, consistency and
+ // say-vs-do content. The other ten were slug-invisible to that guard
+ // ("Norman K Thurston" does not slugify to `nthurston`) and would have shipped as
+ // silent duplicates — two ids for one living person, which is exactly the split
+ // `calbrecht` was merged out of. So every record below is keyed on the id the data
+ // set was ALREADY using for that person, and `issues` is lifted verbatim from their
+ // own stance-card topics in block order, capped at five, exactly as every identity
+ // pass above did. Nothing here authors a stance.
+ //
+ // Identity is confirmed, not inferred, and the two riskiest cases are why: the
+ // stance block labelled "Mike Petersen" and the one labelled "Jason Thompson" each
+ // cite bills by number, and le.utah.gov's own bill JSON names their prime sponsor —
+ // HB 95 (2025) is "Rep. Petersen, Michael J." and HB 190 (2026) is "Rep. Thompson,
+ // Jason E.", the sitting members for districts 2 and 3. Eighteen of the twenty-three
+ // sitting records were pinned that way (`mballard` by HB 248 (2024)'s sponsor code
+ // BALLAMG, `cheryl_acton` by ACTONCK, `sahara_hayes` by HAYESS, and so on); the
+ // remaining five carry a district or an occupation in their own block label and a
+ // surname that is unique in the chamber. Names, parties, districts, counties and
+ // service starts come from le.utah.gov/data/legislators.json, the chamber's own
+ // roster. Where that source prints a name without a period ("Norman K Thurston") it
+ // is carried that way rather than tidied, because the printed form is what a reader
+ // comparing against the chamber will see.
+ //
+ // `score` is null and kept/broken/pending are 0 for the usual reason — no
+ // promise-tracking pass has been run for any of them and a fabricated score is worse
+ // than none. Two records carry `issues: []`, which is new in this file: Jefferson
+ // Burton and Daniel Thatcher are the only two of the twenty-seven with no curated
+ // stance block anywhere, and a topic list authored here would be indistinguishable
+ // from a lifted one while being a guess about what a real legislator cares about.
+ // Empty reads as empty, and every consumer of `issues` on this path guards for
+ // length.
+ //
+ // NOTHING IS WIRED INTO _UTAH_HOUSE_INFO, KR_STATE_HOUSE_INCUMBENTS or
+ // KEY_RACES_BY_LOCATION. A record here is enough to attach a vote cell and render a
+ // profile; an entry in those tables asserts a live ballot seat and a verified county,
+ // which is a larger claim and a different pass. Assertion 10e permits a roster id to
+ // be absent from both tables, and that is exactly the state these are in — present,
+ // honest, and not yet on a race card.
+ //
+ // Three of these names were REFUSED by the wave-1 member map rather than merely
+ // unmapped: "Moss, J.", "Peterson, K." and "Peterson, T." each share a surname with
+ // a different person already on the roster (Carol Spackman Moss at district 34, Val
+ // Peterson at 56), and mapping on a shared surname is precisely how a vote gets
+ // handed to a stranger. The refusals are cleared by adding the real people, not by
+ // relaxing the rule: with Thomas W. Peterson at district 1 and Karen M. Peterson at
+ // district 13 on the roster, the printed initial plus the district in the cell's own
+ // leglookup link resolves all three uniquely.
+ "thomas_peterson": {
+  "name": "Thomas W. Peterson", "office": "Utah State Representative",
+  "state": "UT District 1 (Box Elder / Cache County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2022-09",
+  "issues": ["Wildfire Safety", "Building & Infrastructure", "Trades & Small Business", "Water Infrastructure", "Veterans"]
+ },
+ "mike_petersen": {
+  "name": "Michael J. Petersen", "office": "Utah State Representative",
+  "state": "UT District 2 (Cache County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2021-01",
+  "issues": ["Election Integrity", "Transparency & Accountability", "Religious Liberty", "Property Rights", "Income Taxes"]
+ },
+ "jason_thompson": {
+  "name": "Jason E. Thompson", "office": "Utah State Representative",
+  "state": "UT District 3 (Cache County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Child Care", "Opioids & Overdose", "Small Business & Licensing", "Higher Education", "Overdose Recognition"]
+ },
+ "ryan_d_wilcox": {
+  "name": "Ryan D. Wilcox", "office": "Utah State Representative",
+  "state": "UT District 7 (Weber County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2021-01",
+  "issues": ["Child Online Safety", "School Safety & Student Health", "Limited Government", "Public Safety & Crime", "Gun Rights"]
+ },
+ "jason_b_kyle": {
+  "name": "Jason B. Kyle", "office": "Utah State Representative",
+  "state": "UT District 8 (Morgan / Weber County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01",
+  "issues": ["Gun Rights", "Addiction Recovery", "Higher Education", "Property & Farmland Taxes", "Election Integrity"]
+ },
+ "karen_m_peterson": {
+  "name": "Karen M. Peterson", "office": "Utah State Representative",
+  "state": "UT District 13 (Davis County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2022-01",
+  "issues": ["Public Schools", "Roads & Infrastructure", "Economic Development & Innovation", "Higher-Ed Workforce Alignment", "Local Government"]
+ },
+ "stewart_e_barlow": {
+  "name": "Stewart E. Barlow", "office": "Utah State Representative",
+  "state": "UT District 17 (Davis County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2011-09",
+  "issues": ["Healthcare Workforce", "Mental Health Access", "Public Health Authority", "Medical Workforce Pipeline", "Cultural & Antiquities Preservation"]
+ },
+ "paul_a_cutler": {
+  "name": "Paul A. Cutler", "office": "Utah State Representative",
+  "state": "UT District 18 (Davis County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01",
+  "issues": ["Roads & Infrastructure", "Transparency & Accountability", "Election Integrity", "Courts & Civil Law", "Artificial Intelligence Policy"]
+ },
+ "mballard": {
+  "name": "Melissa G. Ballard", "office": "Utah State Representative",
+  "state": "UT District 20 (Davis County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2019-01",
+  "issues": ["Higher Education", "Criminal-Justice Reform", "Child Labor Protections", "Clean-Vehicle Incentives", "Government Efficiency"]
+ },
+ "matt_macpherson": {
+  "name": "Matt MacPherson", "office": "Utah State Representative",
+  "state": "UT District 26 (Salt Lake County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-10",
+  "issues": ["Gun Rights", "Small Business & Licensing", "Student Data Security", "School Safety", "Limited Government"]
+ },
+ "anthony_loubet": {
+  "name": "Anthony E. Loubet", "office": "Utah State Representative",
+  "state": "UT District 27 (Salt Lake County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01",
+  "issues": ["Transparency & Open Records", "Public Safety & Policing", "Child Safety", "Workers' Compensation & Costs", "Courts & Civil Law"]
+ },
+ "sahara_hayes": {
+  "name": "Sahara Hayes", "office": "Utah State Representative",
+  "state": "UT District 32 (Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01",
+  "issues": ["Gun Rights", "Transparency & Accountability", "LGBTQ+ Rights", "Victim Privacy", "Student Athlete Protections"]
+ },
+ "rosalba_dominguez": {
+  "name": "Rosalba Dominguez", "office": "Utah State Representative",
+  "state": "UT District 35 (Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Transparency & Accountability", "Housing Affordability", "Renewable Energy & Water", "Families in Need", "Women's Health"]
+ },
+ "cheryl_acton": {
+  "name": "Cheryl K. Acton", "office": "Utah State Representative",
+  "state": "UT District 38 (Salt Lake County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2017-09",
+  "issues": ["Agriculture & Rural Communities", "Public Schools", "Transparency & Accountability", "Disability & Person-Centered Services", "Child Welfare & Kinship Placement"]
+ },
+ "andrew_stoddard": {
+  "name": "Andrew Stoddard", "office": "Utah State Representative",
+  "state": "UT District 40 (Salt Lake County)",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2019-01",
+  "issues": ["Criminal Justice & Public Safety", "Public Schools", "Workers & Cost of Living", "Housing Affordability", "Reproductive Rights"]
+ },
+ "mark_strong": {
+  "name": "Mark A. Strong", "office": "Utah State Representative",
+  "state": "UT District 47 (Salt Lake County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2019-01",
+  "issues": ["Public Safety", "School Fees", "Children & Families", "Consumer Protection", "Medical Freedom"]
+ },
+ "doug_fiefia": {
+  "name": "Doug Fiefia", "office": "Utah State Representative",
+  "state": "UT District 48 (Salt Lake County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Children in State Care", "Data Ownership & Privacy", "Faster Election Results", "Frontier AI Transparency", "Inmate Healthcare Costs"]
+ },
+ "kristen_chevrier": {
+  "name": "Kristen Chevrier", "office": "Utah State Representative",
+  "state": "UT District 54 (Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Public Schools", "Medical Freedom & Informed Consent", "Raw Milk & Food Freedom", "SNAP Nutrition Reform", "Vehicle Data Privacy"]
+ },
+ "nelson_abbott": {
+  "name": "Nelson T. Abbott", "office": "Utah State Representative",
+  "state": "UT District 57 (Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2021-01",
+  "issues": ["Criminal Competency Reform", "Estate Planning for the Digital Age", "Local Government Accountability", "Guardianship & Disability Rights", "Civil Commitment Reform"]
+ },
+ "david_shallenberger": {
+  "name": "David Shallenberger", "office": "Utah State Representative",
+  "state": "UT District 58 (Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2025-01",
+  "issues": ["Agriculture & Rural Communities", "Roads & Infrastructure", "Privacy & Surveillance", "Water Conservation", "Energy Efficiency"]
+ },
+ "nthurston": {
+  "name": "Norman K Thurston", "office": "Utah State Representative",
+  "state": "UT District 62 (Utah County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2015-01",
+  "issues": ["Prescription Drug Costs", "Income Taxes", "Public Safety & Crime", "Election Integrity", "Health Workforce Access"]
+ },
+ "joseph_elison": {
+  "name": "Joseph Elison", "office": "Utah State Representative",
+  "state": "UT District 72 (Washington County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01",
+  "issues": ["Great Salt Lake & Water", "Online Education Accountability", "Retirement Readiness", "Anti-Gambling Enforcement", "State Fiscal Sovereignty"]
+ },
+ "r_neil_walter": {
+  "name": "R. Neil Walter", "office": "Utah State Representative",
+  "state": "UT District 74 (Washington County)",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2023-01",
+  "issues": ["Public Schools", "Higher Education", "HOA & Homeowner Rights", "Whistleblower Protections", "Food Labeling Transparency"]
+ },
+ // FORMER MEMBERS — four of the 27, and the reason the roster needed them at all.
+ // Each of their seats is already held by someone else here: john_arthur (41),
+ // leah_hansen (51), jackie_larson (64) and emily_buss (Senate 11). Their 2025 votes
+ // are theirs and must not land on a successor, which is what the "Former" office and
+ // the `termEnd` buy — _homeIsOfficeholder() in ballot-breakdown.js requires
+ // `termStart && !termEnd`, and the year range in `state` time-qualifies the district
+ // the same way tyler_clancy's does, so no surface reads any of these as a live claim
+ // on a seat.
+ //
+ // The district NUMBERS needed care, and are why the per-year roster
+ // (le.utah.gov/asp/roster/roster.asp?year=YYYY) was read instead of the current one:
+ // the 2023 renumbering moved every one of them. Bennion held District 46 in
+ // 2021–2022 and 41 from 2023; Burton held 66 then 64; Moss held 2 from 2017 then 51;
+ // Thatcher held Senate 12 from 2011 then 11. Each record below names the CURRENT
+ // number with only the years that number applied to that person, and the earlier
+ // number is recorded here in prose rather than in a field — one `state` string cannot
+ // hold two seats without claiming both.
+ //
+ // `termStart` is a bare year for all four. voter-hub-location.js
+ // _pdxParseTermDate() accepts "2021" as readily as "2021-01", and the per-year roster
+ // establishes the first year of service but not the month, three of the four having
+ // entered mid-cycle. `termEnd` is the month the seat changed hands, which is the date
+ // this data set has actually verified: it is the `termStart` already carried by the
+ // successor's own record above.
+ //
+ // Thatcher's `party` is "F" — Forward Party, the same value emily_buss carries and
+ // the reason her comment above now says "sitting member" rather than "member": he
+ // switched from Republican in 2023 and the chamber's own roster prints Forward for
+ // him, so with this record there are two non-R/D entries and only one of them holds
+ // a seat.
+ "gay_lynn_bennion": {
+  "name": "Gay Lynn Bennion", "office": "Former UT State Representative",
+  "state": "UT District 41 (Cottonwood Heights, Salt Lake County) 2023–2025",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2021", "termEnd": "2025-12",
+  "issues": ["Public Education", "Healthcare Access", "Reproductive Rights", "Youth Mental Health", "Air Quality & Environment"]
+ },
+ "jefferson_moss": {
+  "name": "Jefferson Moss", "office": "Former UT State Representative",
+  "state": "UT District 51 (Saratoga Springs / west Lehi, Utah County) 2023–2025",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2017", "termEnd": "2025-08",
+  "issues": ["Tech Economy & Jobs", "Workforce Education", "Broadband & Connectivity", "Government Efficiency", "Taxes & Growth"]
+ },
+ "jefferson_burton": {
+  "name": "Jefferson S. Burton", "office": "Former UT State Representative",
+  "state": "UT District 64 (Spanish Fork / Salem, Utah County) 2023–2026",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2021", "termEnd": "2026-05",
+  "issues": []
+ },
+ "daniel_thatcher": {
+  "name": "Daniel W. Thatcher", "office": "Former UT State Senator",
+  "state": "UT District 11 (Eagle Mountain / Tooele, Utah County) 2023–2025",
+  "party": "F", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "termStart": "2011", "termEnd": "2025-12",
+  "issues": []
  },
 // ── Voting Record unlock (July 2026) ──────────────────────────────────────
 // The 20 db/vr-member-map.json slugs that had ingested roll-call data but no

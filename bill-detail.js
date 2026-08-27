@@ -56,7 +56,21 @@
     enacted: 'Enacted', failed: 'Failed', vetoed: 'Vetoed', pending: 'Pending'
   };
   function statusLabel(s) { return STATUS[s] || (s ? String(s).replace(/_/g, ' ') : ''); }
-  function chamberLabel(c) { return c === 'house' ? 'House' : c === 'senate' ? 'Senate' : c === 'joint' ? 'Joint' : c === 'court' ? 'Court' : c === 'executive' ? 'Executive' : (c || ''); }
+  // Exact match, and a state chamber is in the table. The chain this replaced
+  // fell through to `(c || '')` for anything it did not name, so a Utah measure
+  // printed the bare stored value — 'utah house', lowercase, mid-sentence. The
+  // stored value is deliberately the jurisdiction (see the vr_* ingest), so every
+  // surface that prints it owes the reader the display form.
+  var CHAMBERS = {
+    house: 'House', senate: 'Senate', joint: 'Joint', court: 'Court',
+    executive: 'Executive', 'utah house': 'Utah House', 'utah senate': 'Utah Senate'
+  };
+  function chamberLabel(c) {
+    if (!c) return '';
+    var k = String(c).toLowerCase().trim();
+    return CHAMBERS[k] ||
+      String(c).replace(/\b\w/g, function (m) { return m.toUpperCase(); });
+  }
   function fmtDate(iso) {
     if (!iso) return '';
     try { return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); }

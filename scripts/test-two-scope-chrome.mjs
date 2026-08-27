@@ -261,6 +261,23 @@ has(hubIntro, "says so instead of filling in a stranger",
 has(INDEX, 'src="/scope-chrome.js"', "index.html does not load scope-chrome.js");
 has(INDEX, "scope-chrome.css", "index.html does not load scope-chrome.css");
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 8 · A blank district row is a limit, not a dead end
+// ─────────────────────────────────────────────────────────────────────────────
+section("8 · the honest blank has somewhere to send the reader");
+
+// Stating the scope honestly costs a non-Utah visitor three of their six seat
+// rows. That is the right answer, and on its own it is also the whole product
+// for them — so the standing scope copy has to point at the archive door that
+// IS national, and that door has to be labelled as an archive rather than a
+// ballot. (The archive surface itself is pinned by test-archive-browse.mjs.)
+has(HTML, "A blank row is not a dead end",
+    "the scope paragraph states the district limit without pointing anywhere the reader can still go");
+has(HTML, "those are archive listings, not seats",
+    "the scope paragraph sends the reader to the archive without saying it is not a ballot");
+has(INDEX, 'src="/archive-browse.js"',
+    "index.html does not load the archive's own chamber-and-state door, so the honest blank has no destination");
+
 console.log("");
 if (failures.length) {
   console.error(`✗ two-scope chrome: ${failures.length} failure(s), ${passed} passed\n`);

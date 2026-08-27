@@ -1,0 +1,321 @@
+{
+ "_comment": "UTAH STATE LEGISLATURE — printed vote-page name → PolitiDex roster id, for the 2023 General Session. Keys are the EXACT string le.utah.gov prints on a vote page. Same discipline as db/vr-utah-member-map.json (2025GS) and db/vr-utah-member-map-2024GS.json: resolution is by NAME against a per-chamber candidate pool and the district only ever CONFIRMS, never resolves, because a district's occupant changes between sessions. `unmapped` is people who cast recorded votes in these roll calls and are not on the PolitiDex roster — their votes are dropped, counted and disclosed, never handed to whoever holds the seat now. 2023 is the oldest session ingested and the furthest from the roster snapshot, which is why the unmapped list is the longest of the three.",
+ "_howReviewed": "scripts/vr-utah-ingest.mjs --collect --session 2023GS proposed 55 House and 26 Senate names and left 23 for review. Every proposal was then checked against a source the ingest does not read: the legislature's own roster for that year, https://le.utah.gov/asp/roster/roster.asp?year=2023, which prints full name, chamber and district for the 104 people who actually served in 2023. Each accepted printed name appears in that roster in the SAME chamber as the roll call, and the roster's full name agrees with the roster id it was mapped to. That check is what rules out the successor error: a 2023 member who has since left prints no district on the vote page, so a namesake now serving would otherwise resolve on surname and initial alone. Seven accepted names print no district on the page — Bennion, Burton, Clancy, Gwynn, Moss J., Wilson B. and Thatcher D. — and every one of them is confirmed by a 2023 roster row in the right chamber with an agreeing full name.",
+ "_nicknamesAreNotMismatches": "Five accepted names pair a printed initial with a roster record under a shorter first name: \"Ward, R.\" → Ray Ward (roster: Ward, Raymond P., House 19), \"Welton, D.\" → Doug Welton (Welton, Douglas R., House 65), \"Bramble, C.\" → Curt Bramble (Bramble, Curtis S., Senate 24), \"McKell, M.\" → Mike McKell (McKell, Michael K., Senate 25) and \"Plumb, J.\" → Jennifer Plumb (Plumb, Jen, Senate 9). A token-comparison audit flagged all five; each is a nickname of the same person, each is confirmed by the district printed on the vote page, and none is a second human with the same surname. They are recorded here so a later reviewer running the same audit does not read the flags as unresolved.",
+ "_crossChamberNotes": "Three printed names are 2023 House members whose roster record is a Utah STATE SENATE seat, because they moved chambers afterwards: \"Brammer, B.\" (House 54 in 2023) is Brady Brammer, now Senate 21; \"Musselman, C.R.\" (House 9) is Calvin Musselman, now Senate 4; \"Stratton, K.\" (House 58) is Keven Stratton, now Senate 24. The ingest's candidate pool is filtered by CURRENT office, so it proposed none of them; each was added here by hand, the same three that were added by hand for 2024. What is being asserted is identity of the person, not of the seat: the surname is unique across all 784 roster entries, the first name agrees with the 2023 roster, and the roll call itself carries the chamber, so a 2023 Utah House vote stays a Utah House vote no matter which chamber the person sits in now. confirmedByDistrict is false for all three, because their current district is a Senate district and cannot confirm a 2023 House seat.",
+ "_refusedNames": [
+  "Judkins, M.",
+  "Lyman, P."
+ ],
+ "_refusalNotes": "Two printed names match a roster entry with the same distinctive name whose office is NOT a Utah legislative seat: \"Judkins, M.\" (Marsha Judkins, House 61 in 2023) against a roster record for a Marsha Judkins who is Mayor of Provo, and \"Lyman, P.\" (Phil Lyman, House 69) against a roster record for a Phil Lyman who is a candidate for governor. The same two were refused for 2024 and are refused again here for the same reason. Both are probably the same human, and probably is the wrong standard for handing one person's votes to another person's page. Neither prints a district on the vote page — they had left the legislature by the time the page was served — so there is no second key to confirm with, and a mayoral or statewide-candidate record is not evidence of a legislative career. A refusal is not a coverage gap: the name could have been absorbed and was not.",
+ "_federalMoveNotes": "\"Kennedy, M.\" is Michael S. Kennedy, Utah Senate 21 in 2023, who is now a U.S. Representative. The roster carries him as a federal member and federal ingest is out of scope for this wave, so his 2023 state votes are dropped rather than filed onto a congressional record. That is a deliberate coverage gap, not a resolution failure, and it is the same disposition his 2024 votes received.",
+ "_unmappedIsCoverage": "Everyone left in `unmapped` served in 2023 and is not on the PolitiDex roster at all — most left the legislature before the roster snapshot was taken, and three of them — Kotter, Anderegg and Buxton — have no roster entry under any office at all. Their votes are counted and disclosed by the migration and by scripts/test-vr-utah-record.mjs, and attributed to nobody. Adding them is a roster decision for a later wave, made from a source, not something the ingest may infer from a vote page.",
+ "generatedBy": "scripts/vr-utah-ingest.mjs --collect --session 2023GS + hand review (see _howReviewed)",
+ "session": "2023GS",
+ "chambers": {
+  "H": {
+   "Abbott, N.": "nelson_abbott",
+   "Acton, C.K.": "cheryl_acton",
+   "Albrecht, C.": "carl_albrecht",
+   "Ballard, M.G.": "mballard",
+   "Barlow, S.": "stewart_e_barlow",
+   "Bennion, G.": "gay_lynn_bennion",
+   "Bolinder, B.": "bolinder_h68",
+   "Brammer, B.": "brammer_s21",
+   "Brooks, W.": "walt_brooks",
+   "Burton, J.": "jefferson_burton",
+   "Chew, S.": "chew_h68",
+   "Christofferson, K.": "kay_christofferson",
+   "Clancy, T.": "tyler_clancy",
+   "Cutler, P.": "paul_a_cutler",
+   "Dailey-Provost, J.": "jennifer_dailey_provost",
+   "Dunnigan, J.": "james_dunnigan",
+   "Eliason, S.": "eliason_h45",
+   "Elison, J.": "joseph_elison",
+   "Gricius, S.": "gricius_h50",
+   "Gwynn, M.": "gwynn_h6",
+   "Hall, K.": "hall_h11",
+   "Hawkins, J.": "jon_hawkins",
+   "Hayes, S.": "sahara_hayes",
+   "Hollins, S.": "hollins_h24",
+   "Ivory, K.": "ivory_h39",
+   "Jack, C.": "colin_w_jack",
+   "Kohler, M.": "kohler_h59",
+   "Kyle, J": "jason_b_kyle",
+   "Lee, T.": "tlee",
+   "Lisonbee, K.": "lisonbee_h14",
+   "Loubet, A.": "anthony_loubet",
+   "Maloy, A. Cory": "cory_maloy_h52",
+   "Matthews, A.": "ashlee_matthews",
+   "Moss, C.": "carol_spackman_moss",
+   "Moss, J.": "jefferson_moss",
+   "Musselman, C.R.": "cmusselman",
+   "Owens, D.": "doug_owens",
+   "Petersen, M.": "mike_petersen",
+   "Peterson, K.": "karen_m_peterson",
+   "Peterson, T.": "thomas_peterson",
+   "Peterson, V.": "valpeterson_h56",
+   "Pierucci, C.": "candice_pierucci",
+   "Romero, A.": "aromero",
+   "Schultz, M.": "mschultz",
+   "Shipp, R.P.": "rshipp",
+   "Snider, C.": "snider_h5",
+   "Stoddard, A.": "andrew_stoddard",
+   "Stratton, K.": "kstratton",
+   "Strong, M.A.": "mark_strong",
+   "Teuscher, J.": "teuscher_h44",
+   "Thurston, N.": "nthurston",
+   "Walter, R.": "r_neil_walter",
+   "Ward, R.": "rward",
+   "Watkins, C.": "christine_watkins",
+   "Welton, D.": "doug_welton",
+   "Whyte, S.": "whyte_h63",
+   "Wilcox, R.": "ryan_d_wilcox",
+   "Wilson, B.": "bwilson"
+  },
+  "S": {
+   "Adams, J. Stuart": "sadams",
+   "Blouin, N.": "blouin_s13",
+   "Bramble, C.": "cbramble",
+   "Cullimore, K. A.": "kcullimore",
+   "Escamilla, L.": "lescamilla",
+   "Fillmore, L.": "lincoln_fillmore",
+   "Grover, K.": "kgrover",
+   "Harper, W.": "harper_s16",
+   "Hinkins, D.": "dhinkins",
+   "Ipson, D.": "dipson",
+   "Johnson, J.": "john_johnson",
+   "Kwan, K.": "kwan_s12",
+   "McCay, D.": "mccay_s11",
+   "McKell, M.": "mckell_s25",
+   "Millner, A.": "amillner",
+   "Owens, D.R.": "dowens_st",
+   "Pitcher, S.": "stephanie_pitcher",
+   "Plumb, J.": "jennifer_plumb",
+   "Riebe, K.": "kathleen_riebe",
+   "Sandall, S.": "ssandall",
+   "Stevenson, J.": "jstevenson",
+   "Thatcher, D.": "daniel_thatcher",
+   "Vickers, E.": "evickers",
+   "Weiler, T.": "tweiler",
+   "Wilson, C.": "cwilson",
+   "Winterton, R.": "rwinterton"
+  }
+ },
+ "confirmedByDistrict": {
+  "H": {
+   "Abbott, N.": true,
+   "Acton, C.K.": true,
+   "Albrecht, C.": true,
+   "Ballard, M.G.": true,
+   "Barlow, S.": true,
+   "Bennion, G.": false,
+   "Bolinder, B.": true,
+   "Brammer, B.": false,
+   "Brooks, W.": true,
+   "Burton, J.": false,
+   "Chew, S.": true,
+   "Christofferson, K.": true,
+   "Clancy, T.": false,
+   "Cutler, P.": true,
+   "Dailey-Provost, J.": true,
+   "Dunnigan, J.": true,
+   "Eliason, S.": true,
+   "Elison, J.": true,
+   "Gricius, S.": true,
+   "Gwynn, M.": false,
+   "Hall, K.": true,
+   "Hawkins, J.": true,
+   "Hayes, S.": true,
+   "Hollins, S.": true,
+   "Ivory, K.": true,
+   "Jack, C.": true,
+   "Kohler, M.": true,
+   "Kyle, J": true,
+   "Lee, T.": true,
+   "Lisonbee, K.": true,
+   "Loubet, A.": true,
+   "Maloy, A. Cory": true,
+   "Matthews, A.": true,
+   "Moss, C.": true,
+   "Moss, J.": false,
+   "Musselman, C.R.": false,
+   "Owens, D.": true,
+   "Petersen, M.": true,
+   "Peterson, K.": true,
+   "Peterson, T.": true,
+   "Peterson, V.": true,
+   "Pierucci, C.": true,
+   "Romero, A.": true,
+   "Schultz, M.": true,
+   "Shipp, R.P.": true,
+   "Snider, C.": true,
+   "Stoddard, A.": true,
+   "Stratton, K.": false,
+   "Strong, M.A.": true,
+   "Teuscher, J.": true,
+   "Thurston, N.": true,
+   "Walter, R.": true,
+   "Ward, R.": true,
+   "Watkins, C.": true,
+   "Welton, D.": true,
+   "Whyte, S.": true,
+   "Wilcox, R.": true,
+   "Wilson, B.": false
+  },
+  "S": {
+   "Adams, J. Stuart": true,
+   "Blouin, N.": true,
+   "Bramble, C.": false,
+   "Cullimore, K. A.": true,
+   "Escamilla, L.": true,
+   "Fillmore, L.": true,
+   "Grover, K.": true,
+   "Harper, W.": true,
+   "Hinkins, D.": true,
+   "Ipson, D.": true,
+   "Johnson, J.": true,
+   "Kwan, K.": true,
+   "McCay, D.": true,
+   "McKell, M.": true,
+   "Millner, A.": true,
+   "Owens, D.R.": true,
+   "Pitcher, S.": true,
+   "Plumb, J.": true,
+   "Riebe, K.": true,
+   "Sandall, S.": true,
+   "Stevenson, J.": true,
+   "Thatcher, D.": false,
+   "Vickers, E.": true,
+   "Weiler, T.": true,
+   "Wilson, C.": true,
+   "Winterton, R.": true
+  }
+ },
+ "unmapped": {
+  "H": [
+   {
+    "printed": "Birkeland, K.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Briscoe, J.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Cobb, J.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Garner, B.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Jimenez, T.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Johnson, D.N.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Judkins, M.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "King, Brian S.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Kotter, Q.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Lesser, R.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Lund, S.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Lyman, P.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Pulsipher, S.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Rohner, J.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Spendlove, R.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Stenquist, J.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Wheatley, M.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   }
+  ],
+  "S": [
+   {
+    "printed": "Anderegg, J.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Buxton, D. G.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   },
+   {
+    "printed": "Kennedy, M.",
+    "district": null,
+    "why": "no candidate",
+    "candidates": []
+   }
+  ]
+ }
+}

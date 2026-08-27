@@ -98,11 +98,51 @@ ok(PIDS.length > 100, `the roster booted (${PIDS.length} profiles)`);
 // same relative order, with every score below unchanged. A removal or a reorder
 // still fails, because neither can be a repair.
 //
-// August 2026 ballot seat pack:
-//   kstratton · Keven J. Stratton, Utah Senate District 24 (Provo / Orem), the
-//               seat's officeholder since Jan 2025. He was already SD-24's
-//               incumbent in ballot-breakdown.js with no record behind the id.
-const ADDED = { kstratton: "SD-24 officeholder — pid existed in the ballot resolver with no roster record" };
+const ADDED = {
+  // August 2026 ballot seat pack:
+  //   kstratton · Keven J. Stratton, Utah Senate District 24 (Provo / Orem), the
+  //               seat's officeholder since Jan 2025. He was already SD-24's
+  //               incumbent in ballot-breakdown.js with no record behind the id.
+  kstratton: "SD-24 officeholder — pid existed in the ballot resolver with no roster record",
+
+  // August 2026 Utah data wave 2, priority 1. Twenty-seven Utah legislators cast
+  // recorded votes in the 2025 General Session that scripts/vr-utah-ingest.mjs
+  // parsed and then DISCARDED, because db/vr-utah-member-map.json can only map a
+  // printed name onto a roster id and there was no record here to map onto. All
+  // twenty-seven are identity-only: score null, kept/broken/pending 0, and
+  // `issues` lifted verbatim from the stance block the data set already carried
+  // for twenty-five of them. Twenty-three are sitting representatives; the last
+  // four are former members whose seats are held by someone else here, which is
+  // precisely why they need their own records — a 2025 vote may never land on a
+  // successor. See the comment block in cmp-data.js for the per-name confirmation.
+  thomas_peterson:     "HD-1 (Box Elder / Cache) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  mike_petersen:       "HD-2 (Cache) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  jason_thompson:      "HD-3 (Cache) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  ryan_d_wilcox:       "HD-7 (Weber) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  jason_b_kyle:        "HD-8 (Morgan / Weber) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  karen_m_peterson:    "HD-13 (Davis) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  stewart_e_barlow:    "HD-17 (Davis) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  paul_a_cutler:       "HD-18 (Davis) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  mballard:            "HD-20 (Davis) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  matt_macpherson:     "HD-26 (Salt Lake) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  anthony_loubet:      "HD-27 (Salt Lake) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  sahara_hayes:        "HD-32 (Salt Lake) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  rosalba_dominguez:   "HD-35 (Salt Lake) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  cheryl_acton:        "HD-38 (Salt Lake) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  andrew_stoddard:     "HD-40 (Salt Lake) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  mark_strong:         "HD-47 (Salt Lake) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  doug_fiefia:         "HD-48 (Salt Lake) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  kristen_chevrier:    "HD-54 (Utah) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  nelson_abbott:       "HD-57 (Utah) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  david_shallenberger: "HD-58 (Utah) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  nthurston:           "HD-62 (Utah) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  joseph_elison:       "HD-72 (Washington) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  r_neil_walter:       "HD-74 (Washington) — 2025GS floor votes were parsed and dropped for want of a roster record",
+  gay_lynn_bennion:    "HD-41 until Dec 2025 — former member; john_arthur holds the seat — 2025GS floor votes were parsed and dropped for want of a roster record",
+  jefferson_moss:      "HD-51 until Jul 2025 — former member; leah_hansen holds the seat — 2025GS floor votes were parsed and dropped for want of a roster record",
+  jefferson_burton:    "HD-64 until May 2026 — former member; jackie_larson holds the seat — 2025GS floor votes were parsed and dropped for want of a roster record",
+  daniel_thatcher:     "SD-11 until Dec 2025 — former member; emily_buss holds the seat — 2025GS floor votes were parsed and dropped for want of a roster record",
+};
 {
   const now = Object.keys(after.CMP_DATA || {});
   const nowSet = new Set(now);

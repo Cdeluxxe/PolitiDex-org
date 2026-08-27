@@ -1284,9 +1284,34 @@ for (const [what, item] of [
   ["a chamber we do not have a public vote page for",
     VOTE({ chamber: "", congress: 119, session: 1, rollNumber: 12, source: SRC("https://x.test/1") })],
   ["a co-sponsorship, which has no roll call", { kind: "position", chamber: "house", source: SRC(passthru) }],
+  // A real Utah roll call, exactly as db/vr-utah-vote-seed.json stores one: the
+  // per-member vote page IS the source, and it is still refused — no citation
+  // check has ever read that page shape, and a card is the one surface that
+  // travels with nothing to correct it. See STATE CHAMBERS in receipt-cards.js.
+  ["a state-chamber vote whose source IS the chamber's per-member vote page",
+    VOTE({
+      chamber: "utah house", congress: null, session: 2025, rollNumber: 1651,
+      date: "2025-03-07",
+      source: SRC("https://le.utah.gov/DynaBill/svotes.jsp?sessionid=2025GS&voteid=1651&house=H"),
+    })],
 ]) {
   eq(cc(item), null, `citation: fails closed on ${what}`);
   ok(!!RC.guards.blockCitation(item), `citation: guard 12 blocks ${what}`);
+}
+// The refusal has to be TRUE, not just non-empty. The generic vote message says
+// the roll number is missing; on a state vote it is sitting in the record, so a
+// curator reading audit() would go looking for a defect that is not there.
+{
+  const utahVote = VOTE({
+    chamber: "utah senate", congress: null, session: 2025, rollNumber: 812,
+    date: "2025-02-20",
+    source: SRC("https://le.utah.gov/DynaBill/svotes.jsp?sessionid=2025GS&voteid=812&house=S"),
+  });
+  const why = RC.guards.blockCitation(utahVote);
+  has(why, "state-chamber", "citation: guard 12 names the state chamber as the reason");
+  lacks(why, "roll number is missing",
+    "citation: guard 12 does not tell a curator the roll number is missing when the record carries it");
+  has(why, "read", "citation: guard 12 says the page shape has not been read, which is the actual unblock");
 }
 has(RC.guards.blockCitation(VOTE({ source: SRC("https://api.congress.gov/v3/house-vote/119") })), "api.congress.gov",
   "citation: guard 12 names the api endpoint when that is the reason, so the audit is actionable");

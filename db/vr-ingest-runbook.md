@@ -928,3 +928,614 @@ depth — 428 more judged votes standing behind positions that previously rested
    deferred it for that reason. It wants a dedicated pass whose entire subject is the consistency
    set, taken together with the S. 1605 `strong_defense` weight correction (rule 21, guarded
    `UPDATE`) since both touch the same five rows.
+
+---
+
+## § Utah — the first state legislature in the formal lane (`20260929000000`)
+
+Everything above this line is Congress. This section is the state path, added by
+Data wave 1 so that Utah ballot people stop opening to "No formal pattern on file
+yet." It is a separate path because `netlify/lib/vr-ingest.ts` knows only
+congress.gov and senate.gov: it takes a Congress number, a session and a roll
+number, and none of those three things means anything in Salt Lake City.
+
+Baseline before the wave: **92 Utah state-level pids on the archive — 65 with an
+empty formal file, 27 thin, 0 readable.** `mschultz`, the Speaker and the wave's
+canary, was empty. After it, measured by running the shipped `formalPatternIndex`
+over the seed in a vm: **14 empty, 33 thin, 46 readable** across 93 pids (the extra
+one is `sadams`, whom the `_classifyBrowseType` fix below returned to the
+state-senator bucket). The 14 still-empty files belong to people who cast no 2025
+legislature votes — former members, statewide executives and candidates — and
+nothing was manufactured for them.
+
+### Source of record
+
+Everything comes from `le.utah.gov`, which publishes per-member roll calls in
+HTML and bill metadata in JSON. There is no key and no API contract; there is a
+WAF.
+
+| What | URL |
+| --- | --- |
+| Bill metadata + action history | `https://le.utah.gov/data/{session}/{BILL}.json` |
+| Bill page (the citable URL) | `https://le.utah.gov/~{year}/bills/static/{BILL}.html` |
+| One floor roll call, per member | `https://le.utah.gov/DynaBill/svotes.jsp?sessionid={session}&voteid={id}&house={H\|S}` |
+| Legislator roster | `https://le.utah.gov/data/legislators.json` |
+
+**Node `fetch` is rejected.** The WAF returns a "Request Rejected" page to it
+regardless of headers. `scripts/vr-utah-ingest.mjs` shells out to `curl` with a
+browser user-agent plus `Accept` and `Accept-Language`, and treats that page as a
+hard error rather than caching it as content. `/data/` has no index and `/asp/…`
+is rejected outright, so bill numbers have to come from `/billlist.jsp` or from
+enumerating `HB0001…`.
+
+### How a state row is stored, and why there is no new column
+
+Jurisdiction lives **in the `chamber` field**: `'utah house'` and `'utah senate'`.
+`congress` is NULL, `session` is the calendar year (2025) and `roll_number` is
+Utah's own `voteID`. This was chosen over adding a `jurisdiction` column because
+`chamber` is the field the client already prints — so the stored value and the
+displayed label cannot drift apart, and a Utah vote physically cannot render as
+"House". Dedupe comes from two additive partial unique indexes:
+
+```sql
+CREATE UNIQUE INDEX vr_rollcalls_state_unique
+  ON vr_rollcalls (chamber, session, roll_number) WHERE congress IS NULL;
+CREATE UNIQUE INDEX vr_measures_utah_unique
+  ON vr_measures (chamber, number, (external_ids->>'utahSession'))
+  WHERE external_ids ? 'utahSession';
+```
+
+The existing `vr_rollcalls_unique` on `(chamber, congress, session, roll_number)`
+is not binding for these rows, because a NULL member makes the tuple non-unique in
+Postgres. Nothing applied was altered.
+
+Both indexes are declared in `db/schema.ts` **and** carried in the drizzle chain by
+`20260930000000_vr_utah_state_dedupe_indexes`, the snapshot twin of the
+hand-written migration — same pattern as
+`20260927000000` / `20260928000000_pdx_notification_follow_categories`. Skipping
+the twin is the trap: `drizzle-kit generate` diffs `db/schema.ts` against the
+newest `snapshot.json`, so an index declared in the schema but absent from that
+snapshot gets a second `CREATE` in the next generated migration. The generated
+stamp (a wall clock, `20260827010150`) sorted behind ninety-one applied migrations
+and had to be re-picked by hand, and the two `CREATE`s were guarded with
+`IF NOT EXISTS`, which is the only edit made to drizzle's output.
+
+**Every surface that prints a chamber owes the reader the display form, by exact
+match.** `voting-record.js` keyed its glossary chip off `/house/i.test(chamber)`,
+which is true of `'utah house'` — so a Utah floor vote would have opened the
+federal card, "435 members, each representing one district, apportioned by state
+population", above a vote of a 75-member body. Adding a state means adding: two
+entries to `CHAMBER_LABEL` / `CHAMBER_TERM` in `voting-record.js`, two cases in
+`bill-detail.js`'s `chamberLabel`, and two glossary entries in `pdx-learn.js`.
+A chamber with no glossary entry of its own renders as plain text — no tap
+target — rather than borrowing the nearest-looking one.
+
+### The five rules this pass ran on
+
+1. **One instrument, one act.** A Utah bill is commonly voted four times in one
+   chamber: second reading, third reading, a re-vote after amendment, and
+   concurrence. Exactly one is written per `(bill, chamber)` — the latest
+   passage-code action, tie-broken by date. This is the same rule as PASS 2's
+   floor-supersedes-non-floor in `stance-helpers.js`, applied at ingest instead
+   of at read time, because the roll calls are all floor votes and PASS 2 would
+   count all four.
+2. **Near-unanimous roll calls are refused**, at the same bar as the federal
+   rule at line 149: below one tenth of the yea+nay pool on the losing side, the
+   vote differentiates nobody and only inflates depth. Seven roll calls on
+   otherwise-admitted bills were dropped for this (the other chamber's vote on
+   the same bill is present in every case).
+3. **Nobody is guessed.** The vote pages print `Surname, I.` A candidate must
+   match on surname **within one chamber's pid pool**, then on first-name
+   compatibility (exact, initial-prefix, or a small nickname table), then be
+   confirmed against the district in the page's leglookup link. The tool writes a
+   *draft* map to its cache; the accepted table is `db/vr-utah-member-map.json`,
+   which is a reviewed human artifact and the only thing the seeder will read.
+   Wave 1 refused three names there (`Moss, J.`, `Peterson, K.`, `Peterson, T.`
+   — each sharing a surname with a *different* person already on the roster) and
+   left 26 House and 1 Senate name unmapped because they were not on the
+   PolitiDex roster at all. Wave 2's roster pass cleared all 27 and, with them,
+   the three refusals — not by relaxing the rule but because the three were
+   distinct people who were simply missing, and once they exist the printed
+   initial plus the district resolves each uniquely. `_refusalsCleared` in that
+   file records the reasoning; `_refusedNames` is now empty for 2025GS, and the
+   archive sessions have their own. Each roll call carries its own
+   `droppedNotOnRoster` list and the migration discloses the count per roll call
+   plus one consolidated list at the head of the file. **An unmapped name is a
+   coverage gap and is labelled as one; it is never a refusal, and a refusal is
+   never quietly a gap.**
+4. **Former members stay in the pool.** Tyler Clancy and Matthew Gwynn cast 2025
+   votes and have since left the House. Excluding them would either lose those
+   votes or — far worse — hand them to their successors. Their vote pages carry no
+   leglookup link, so they are the two entries under
+   `_acceptedWithoutDistrict`, accepted on the district recorded in the roster.
+5. **A bill nobody can read gets no mapping.** 42 bills were mapped; **30 were
+   refused in writing**, each with its reason, in `_refused` in
+   `db/vr-utah-bills.json`. The refusals are the useful half of that file. Two
+   patterns recur: a bill whose own coordination clause contradicts its operative
+   sentence (SB0327), and a genuinely contested bill for which no issue key
+   exists (HB0247 — the session's closest vote at 38-37). *A contested margin is
+   not a reason to invent a mapping.*
+
+### Data wave 2 — the roster first, then backwards through the archive
+
+Wave 1 left two holes in the same place. A quarter of the Utah House was not on
+`cmp-data.js` at all, so 905 parsed 2025 votes were thrown away for want of anyone
+to attribute them to; and only one session existed, so a member's "pattern" was
+one year's agenda. Wave 2 closed both, in that order, because the second one is
+worth less until the first is done: ingesting an older session for a roster that
+cannot hold half its votes just drops more rows.
+
+**1. Roster coverage.** 27 identity-only records were added to `cmp-data.js` —
+name, office, state, chamber, district and nothing else. No stances, no bio, no
+publishable flag: the publication floor is unchanged, and a person with votes and
+no positions is a legitimate, honest thing for this repo to hold. Re-running
+attribution over the *same* 55 roll calls turned 2,254 member votes into 3,159
+across 104 members, dropping nobody. `db/vr-utah-member-map.json` grew by those 27
+names; the three permanent refusals stayed refused.
+
+**2. Two archive sessions.** `2024GS` and `2023GS`, newest first, each a full pass
+of the wave-1 pipeline: survey → curator file → collect → reviewed member map →
+seed → migration.
+
+| | 2024GS | 2023GS |
+| --- | --- | --- |
+| Passed-bills index | 552 bills | 543 bills |
+| Admissible contested final-passage roll calls | 125, across 103 bills | 113, across 91 bills |
+| Bills read in full | 40 | 61 |
+| Admitted / refused in writing | 28 / 12 | 40 / 21 |
+| Measures · roll calls · member votes | 28 · 39 · 1,885 | 40 · 49 · 2,490 |
+| Issue mappings (distinct keys) | 33 (25) | 49 (30) |
+| Members attributed | 86 (59 H, 27 S) | 84 (58 H, 26 S) |
+| Vote rows dropped, no roster identity | 442 | 677 |
+| Migration | `20261002000000` | `20261003000000` |
+
+Not one issue key was invented for either session, and no bar moved: 14 of 2023's
+qualifying roll calls were refused on the same minority-share rule that refused
+seven in wave 1.
+
+**The archive publishes a different shape, not a different doctrine.** From 2025GS
+the bill JSON carries `actionHistoryList` with an `actionCode`, a `voteID` and a
+tally per action. 2024GS and 2023GS carry `actionhistory` as `{date, action,
+location}` — no vote id anywhere in the JSON, so the recorded floor votes are
+unreachable from it. They are on the **static bill page**, whose action table has
+carried a linked tally per recorded vote for years, pointing at the same
+`svotes.jsp` page the modern JSON points at. The archive path reads that page and
+normalises it into the shape the modern JSON already has, so one-final-passage-
+per-chamber, the minority-share bar and the printed-name map all run unchanged.
+The one field the page does not print is the `actionCode` the final-passage rule
+keys on; `ARCHIVE_ACTION_CODES` in `scripts/vr-utah-ingest.mjs` is the
+legislature's own action-text-to-code pairing, harvested from the sessions that
+publish both fields on the same row, and a recorded vote whose action text is not
+in that table is **reported as unclassified, never dropped in silence** — 264 such
+votes in 2024, 232 in 2023.
+
+**What the survey cannot see, stated as coverage rather than as a rule.** Two
+gaps, both inherited from wave 1 and both deliberately not closed here, because
+widening either would change what the already-shipped 2025 record says and that
+deserves its own migration:
+
+- **Bills that failed on the floor are invisible.** `--survey` walks
+  `passedbills.asp`, which is an index of what *passed*. A bill defeated on the
+  floor never appears in it, and its `HFAIL` / `SFAIL` roll call is outside the
+  admitted action codes anyway — so a member's most revealing vote of a session
+  can be one this pipeline structurally cannot reach.
+- **Suspension and conference passage are not admitted.** `SPASS23SP` /
+  `HPASS23SP` ("passed 2nd & 3rd readings/ suspension") is genuinely a chamber's
+  final act on a bill, and so is a conference committee's `SCOMFINALP` /
+  `HCOMFINALP`. `PASSAGE_CODES` admits neither.
+
+**A name is confirmed against the roster for its own year.** Old vote pages often
+carry no leglookup link, so the district cross-check that wave 1 relied on is
+frequently unavailable — and a 2023 district is not a 2025 district. Each archive
+session therefore has its own reviewed map (`db/vr-utah-member-map-2024GS.json`,
+`…-2023GS.json`), confirmed against `/asp/roster/roster.asp?year=YYYY` — the
+legislature's own membership list for that year, 105 people for 2024 and 104 for
+2023 — and each records in prose which names were accepted without a district and
+why. Three members sat in the other chamber in those years and were added by hand
+with `confirmedByDistrict: false`, because the district on the page belongs to a
+seat they no longer hold. **The map is extended, never fuzzy-matched.** Two names
+are refused in both sessions — `Judkins, M.` and `Lyman, P.`, each matching a
+roster record for the same distinctive name under a *non-legislative* office
+(Mayor of Provo; a gubernatorial candidate) — and they are listed as refusals,
+separately from the 18 and 20 names that are ordinary coverage gaps.
+
+**Where the text came from.** A bill summary is not the bill. `SB0097` (2023) reads
+as an existing Israel-boycott provision until you read the enrolled text at
+`/~2023/bills/sbillenr/<BILL>.htm`, which adds an economic-boycott prong broad
+enough that no single issue key states its direction — so it is refused, and the
+refusal says which document it was refused on. `SB0100`'s title says "School
+Gender Identity Policies" and its surviving text is parental access to education
+records: refused for the same reason. When a summary and a text disagree, the text
+is the bill and the refusal names the file it was read from.
+
+**Result, measured the same way as wave 1** — the shipped `formalPatternIndex` run
+over the seeds in a vm, no floors touched:
+
+| | empty | thin | readable |
+| --- | --- | --- | --- |
+| wave 1 (2025GS only) | 11 | 32 | 46 |
+| \+ wave 2 roster | 11 | 35 | 70 |
+| \+ 2024GS | 11 | 9 | 96 |
+| \+ 2023GS | 10 | 4 | 102 |
+
+Two cautions on that table. It is measured over 116 pids at the end and 89 at the
+start, so the columns are not a fixed population — 27 of the readable rows are
+people who had no file at all before wave 2. And the wave-1 row is this harness's
+own re-measurement, not the number wave 1 reported (14 / 33 / 46 over 93 pids);
+`readable` reproduces exactly, but the older run's pid predicate was about four
+pids wider, so `empty` and `thin` do not. The 10 still-empty files belong to
+people who cast no votes in any of the three sessions.
+
+### Deliberately deferred: sponsorship rows
+
+No `vr_positions` rows were written for prime or floor sponsorship this wave.
+Two reasons, both worth re-reading before someone adds them:
+
+- **They would add almost no signal.** PASS 2 makes a floor vote supersede a
+  non-floor act on the same instrument, and a Utah sponsor nearly always voted on
+  their own bill — so the 0.45 lead-sponsor act would be dropped in favour of the
+  1.00 floor vote it already has.
+- **They need a second identity path.** Sponsors are printed as
+  `Rep. Dunnigan, James A.` — a different format from the roll call's
+  `Dunnigan, J.`, which the accepted map is keyed on. That is a whole second
+  name-matching surface to review, for a signal PASS 2 discards.
+
+### The federal sweep is federal
+
+`scripts/test-vr-vote-seed.mjs` walks `db/*-vote-seed.json` and enforces bioguide
+attribution, a Congress number, a session of 1 or 2, a `house`/`senate` chamber and
+a mapping in `db/vr-issue-seed.json` — five things a state legislature does not
+have. It now partitions the directory: federal-shaped seeds (those with a top-level
+`votes` array) go through the pass, and anything else must be **named by some
+`scripts/test-*.mjs`** or the sweep fails. Adding a state seed therefore means
+adding its harness in the same change; the alternative — quietly excluding the file
+— produces a seed nobody has ever read.
+
+`scripts/vr-coverage-report.mjs` has the same federal assumption from the other
+side: it overlays committed-but-undeployed seeds and joins on a Congress number, so
+the Utah seed contributes nothing to it. It now prints the name of any seed it will
+not overlay, because contributing zero rows silently looks exactly like a pass that
+unlocked nothing. A state coverage overlay would need its own keying and is not
+written.
+
+### Verifying, and what is still blocked
+
+The migration is data-only; no `NETLIFY_DATABASE_URL` exists in the build sandbox,
+so it applies on deploy. Post-deploy, the check is `/p/mschultz`, whose brief block
+read "26 issues on the formal record · 32 votes and formal actions read · 1 deep
+enough to characterise" after wave 1, over a `housing` cluster at 4 advanced / 0
+against. After wave 2's three sessions the same page carries **42 issues, 8 of
+them deep enough to characterise** (6 strong, 2 mostly) — measured by running the
+shipped index over the three seeds, so the deployed page should match. Those
+numbers may only ever go up on the same data; a smaller count means votes went
+missing, and a larger one with no new seed means a floor moved. Check two or three
+other UT legislators the same way (`sadams`, `rward`, `aromero`).
+`scripts/test-vr-utah-record.mjs` pins all three sessions' seeds, curator files,
+member maps and migrations, plus the client labels, without a database — 2,597
+assertions, and its archive section re-derives the minority-share bar and the
+dropped-vote counts from the tallies rather than trusting the headers.
+
+**No receipt cards, on purpose.** A Utah roll call has everything a share card's
+VERIFY line needs — `le.utah.gov` publishes a per-member vote page for every one,
+and the ingest stores its address — and `receipt-cards.js` refuses it anyway. Guard
+12 would have refused it by falling through (the citation is DERIVED from
+`(chamber, congress, session, roll)` and a state row has no congress), but falling
+through told a curator reading `audit()` that "the roll number is missing", which
+on these rows is false. The chamber is now named at `STATE_CHAMBERS` in
+receipt-cards.js with the real reason: nothing has read those pages.
+`scripts/vr-check-citations.mjs` is what makes guard 14 a denylist rather than an
+allowlist — it fetches every derivable citation, confirms the page names the roll
+call cited, and cross-checks the measure against the chamber's structured record —
+and it knows two page shapes, both federal. Printing a state address would put a
+permanently unread link on the one surface that travels without its context. What
+unblocks it: an `svotes.jsp` reader in that script plus a fetch that survives the
+WAF (the same browser headers `curl` needs; Node `fetch` is rejected outright).
+Until then the run summary names the gap — the citation check prints how many of
+its underivable rows are non-federal chambers, instead of folding them into one
+count.
+
+Still blocked, in priority order:
+
+1. ~~**Committee votes.**~~ **Done in wave 3** — see "§ Utah committee votes —
+   the PDF minutes path" below. What this entry said at the time: Utah publishes
+   them, but only inside per-committee PDF minutes, not in the `svotes.jsp`
+   structure, and no parse path existed. There is one now, and the depth gain was
+   smaller than this entry predicted — 50 acts that no floor vote already speaks
+   for, and no change to any member's tier.
+2. **The special sessions, and 2022 and earlier.** Wave 2 did `2024GS` and
+   `2023GS`; the same archive path reads any session whose static bill page has
+   the four-cell action table, so the remaining cost is a curator pass per
+   session. Diminishing: three general sessions already carry most sitting
+   members past the characterisation floor, and the further back it goes the
+   fewer of the voters are still in the roster's House.
+3. **The two structural gaps above** — floor defeats (`HFAIL` / `SFAIL`, and
+   invisible to a passed-bills index) and suspension / conference final passage.
+   Admitting either changes what the shipped 2025 record says about the same
+   bills, so it needs its own curator pass and its own migration, not a widened
+   constant.
+4. **Receipt cards for state votes.** See "No receipt cards, on purpose" above:
+   an `svotes.jsp` page reader and a WAF-surviving fetch in
+   `scripts/vr-check-citations.mjs`, after which the `STATE_CHAMBERS` branch in
+   receipt-cards.js becomes a citation instead of a refusal.
+5. **Other states.** The path generalises — the chamber-field convention, the
+   accepted-map rule, and the two partial indexes are not Utah-specific — but each
+   state needs its own fetcher, because none of them publish the same way.
+
+## § Utah committee votes — the PDF minutes path (`20261004000000`, `20261005000000`)
+
+Wave 2 left committee votes as blocker #1: Utah publishes them, but only inside
+per-committee minutes, and the minutes are PDFs. Wave 3 built the parse path. It
+is a separate path again — not because the storage is different (it is
+`vr_positions`, the same table cosponsorships use) but because the *source* is a
+document rather than a table, and every step between the document and a row is a
+place to invent a fact about a named person.
+
+Result: **32 committee acts on 24 bills, 241 member positions**, of which 191 are
+already spoken for by a floor vote and **50 are the member's only act on that
+instrument**. Depth effect on the Utah state roster: **none** — 10 empty / 4 thin
+/ 102 readable before and after, 0 thin→readable. That is the honest headline and
+it is in the wave report; the value delivered is 50 acts on the record and a
+repeatable path, not a tier change.
+
+2024GS was run through the same path in the same wave (`20261005000000`), which
+brings the two sessions to **58 committee acts on 44 bills and 415 member
+positions, 62 of them the member's only act on that instrument**. See "The second
+session" below — including the two defects a second session was what it took to
+find.
+
+### The URL chain
+
+There is no committee-votes endpoint. There is a chain, and each link is needed:
+
+| Step | URL | What it gives |
+| --- | --- | --- |
+| 1. Committees | `https://le.utah.gov/ajax/ajaxLoadCommittees.jsp?yr={year}` | 82 committees for 2025; standing ones are `HST*` / `SST*` — 14 House, 11 Senate |
+| 2. Meetings | `https://le.utah.gov/committee/getMeetingInfo.jsp?com={COM}&yr={year}` | the committee's meetings, each with an `mtgid`. **Its `minutes` field is empty here** — this is the trap |
+| 3. Meeting | `https://le.utah.gov/committee/getMeetingInfo.jsp?mtgid={id}` | the same meeting again, and *now* `minutes` holds the PDF path |
+| 4. Minutes (structured) | `https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID={id}` | the minutes as JSON: attendance, agenda items, motions, **named vote lists** |
+| 5. Minutes (PDF) | `https://le.utah.gov/interim/{year}/pdf/{n}.pdf` | the citable document |
+
+Same WAF as wave 1: `curl` with a browser UA plus `Accept` / `Accept-Language`
+works, Node `fetch` is rejected outright, and a body containing "Request
+Rejected" is a hard error rather than an empty result. Everything is cached
+under `--cache` (default `/tmp/vr-utah-committee-cache`) so a re-run costs
+nothing and a parser change can be re-measured against identical bytes.
+
+### The PDF *and* the JSON, and why both
+
+Step 4 states the votes — `motionData.yesVotes[] / noVotes[] / absVotes[]`, by
+printed name. Step 5 draws them. Deriving the vote lists from the PDF instead
+would mean inferring which column a name sits in from its glyph x-position: a
+layout guess, on a document whose columns are not declared anywhere. So:
+
+* **the JSON is the extraction source** — it says who voted which way, in words;
+* **the PDF is the citation *and* a mandatory cross-check.** No act is admitted
+  unless its PDF text contains all four of the committee name, the meeting date
+  in words, the motion sentence, and the printed tally. All 32 admitted acts
+  cleared it; `pdfUnconfirmed` is 0.
+
+`scripts/vr-pdf-text.mjs` does the extraction, and the reason it exists is that
+these PDFs contain no readable text. Apache FOP writes every glyph as an index
+into a subset font (`[<000A000B…>] TJ` under `/F158`), so a reader looking for
+literal `(…)Tj` strings finds nothing and reports an *empty* document — which
+would be indistinguishable from "this meeting took no votes". The module decodes
+each font's `/ToUnicode` CMap (bfchar and bfrange) and says out loud that zero
+lines means UNREADABLE. 255 of 255 approved-meeting PDFs were readable; no
+scanned page was encountered in 2025GS.
+
+### What is admitted, and what is refused
+
+Seven rules, all in `readMotion()` / `collect()` in
+`scripts/vr-utah-committee-ingest.mjs`, checked in this order:
+
+1. **It has to be a pass motion.** "Pass out favorably" and its variants only.
+   `replace` (448), `adjourn` (259), `approve` minutes (242), `amend` (207),
+   `place on agenda` (100), `hold` (66) are all refused by name and counted.
+2. **It has to be a recorded roll.** A motion with no `yesVotes`/`noVotes` is an
+   attendance list dressed as a vote; 34 refused.
+3. **The bill has to be identifiable.** The motion sentence or its agenda item
+   must name a bill (`SB0308`, `SB0137S02`); 59 refused for naming none.
+4. **The bill has to be in the formal lane already.** A committee vote on a bill
+   with no reviewed issue mapping has nothing to say about an issue. This is the
+   biggest refusal by far: **1,166 rows across 675 bills**. 173 of those bills
+   had a *contested* committee vote and are the obvious curator-pass candidates.
+5. **It has to be contested.** The same 10%-minority bar wave 1 applied to floor
+   roll calls: a 9-0 committee vote differentiates nobody. 42 of the 76 in-lane
+   committee actions were unanimous; 44 rows refused as `near_unanimous`.
+6. **The printed name has to be in the reviewed map.** See below.
+7. **The PDF has to confirm it.** The four-way check above.
+
+The cost of rule 5 is recorded in the script's own comment so a curator can argue
+the other way with the numbers in front of them: **with** the bar, 24 bills / 32
+acts / 241 rows; **without** it, 42 bills / 76 acts / 546 rows.
+
+### Names: three spellings of one person
+
+The minutes print vote lines as `Rep. R. Walter`, attendance as
+`Rep. R. Neil Walter`, and the floor pages — the wave-1/2 map's keys — as
+`Walter, N.`. Neither initial is derivable from the other. So the reviewed map
+`db/vr-utah-committee-map.json` is keyed by the *committee* printed form, per
+chamber, and every entry states how it was accepted:
+
+* `exact_floor_key` (87 forms) — the printed form resolves to a wave-1/2 floor
+  key with no ambiguity.
+* `unique_surname_confirmed_by_attendance` (9 forms) — one surname on the floor
+  map, and the meeting's own attendance line carries a given name of which both
+  the printed initial and the floor key's initial are an in-order subsequence.
+  Each entry names the attendance line in `confirmedBy`. This is what resolved
+  Rep. Walter.
+
+96 printed forms, 0 unmapped, 0 refused in 2025GS. The Judkins/Lyman-class
+collisions the earlier waves refused **stay refused** and are listed separately
+from the coverage gaps, because an unmapped name is a gap and a refused name is a
+decision.
+
+### One instrument, one count — the defect this wave surfaced
+
+`stance-helpers.js` already supersedes a non-floor act when a floor act exists on
+the same instrument, so the direction read was correct from the start. But
+`window._pdxRecordMappedCounts` in `voting-record.js` — the count that feeds the
+12-record characterisation floor — had no instrument dedupe. A superseded
+committee act would therefore have bought its member a free +1 toward "enough
+record to characterise": the same double count wearing a different hat. It now
+skips a non-floor act on an instrument the member also has a floor act on, keeps
+reporting every warm record in `total`, and discloses the drop count in
+`supersededActs`. Records that are all floor votes are provably unaffected, which
+is why the fix is narrow rather than a global measure dedupe.
+
+`scripts/test-vr-utah-committee.mjs` §7 pins both halves against a synthetic
+member, and treats the fixture's own admission as fatal — an earlier draft had
+the floor vote's `position` as `"Yea"` rather than `"yea"`, so the engine judged
+it zero times and every "adds nothing" assertion passed for the wrong reason.
+
+### Why `vr_positions` and not `vr_rollcalls`
+
+Three reasons, and the third is the one the brief asked about:
+
+1. Only `kind: "position"` items get the 0.60 committee act class and the
+   "Committee vote" noun; a `vr_rollcalls` row would print "Voted Yea" at floor
+   weight 1.00.
+2. The unique index `(measure_id, politician_id, action_type)` is exactly the
+   "one act per person per instrument" rule, enforced by the database.
+3. **Roll-number collision is impossible because `vr_positions` has no
+   `roll_number` column.** There is nothing to collide with. The meeting id lives
+   in the row's `note` and in its `source_url`.
+
+`acted_at` is the meeting date at `T00:00:00-07:00`. The minutes give a date and
+a start time for the *meeting*, not for the individual motion, so the time of day
+is not known and is not invented.
+
+### The second session: 2024GS, and the two defects it found
+
+The brief's stretch scope was "2024GS if the parser is stable". It was, and the
+run needed no parser change — but it needed two fixes, both of which are the same
+kind of bug: a thing that looked verified because it had only ever been run once.
+
+**The committee list's code field is `ownerid`.** `survey()` read `c.id ||
+c.comCode`, which are what the *other* le.utah.gov feeds call that field. The
+2025 survey had been run against a cache a prototype had already filled, so the
+standing-committee filter matched nothing and it did not matter. Run cold against
+2024, it returned "0 standing committees of 85". Fixed by reading
+`ownerid || id || comCode`, and re-running 2025 from cache reproduced 25 / 278 /
+261 exactly.
+
+**The SQL header had two numbers typed in by hand.** The near-unanimous paragraph
+said "which is why 24 bills are represented and not the 42 that had a committee
+vote at all" — 2025's figures, printed unchanged into the 2024 file above 2024's
+20 bills. Both counts now come off the seed (`counts.measures`,
+`counts.billsWithAnyCommitteeVote`), the seed carries them because `--seed`
+records them at collect time, and `buildSql` throws rather than print a header
+with a hole in it if handed a seed that predates the keys. The generated 2025 file
+is byte-identical to the committed one after the change, and
+`test-vr-utah-committee.mjs` now asserts that byte-identity for both sessions —
+which is the only form of this check that a future hand-typed number cannot slip
+past.
+
+**A committee that renamed itself.** Three 2024 acts refused as
+`pdf_does_not_confirm`, all `missing: ["committee"]`. The meeting metadata says
+"House Public Utilities and Energy Standing Committee"; the letterhead on the PDF
+says "HOUSE PUBLIC UTILITIES, ENERGY, AND TECHNOLOGY STANDING COMMITTEE". The
+committee was renamed and the metadata was not. `committeePrefixKey()` is a
+documented second door: chamber plus the first *two* significant words
+(`HOUSEPUBLICUTILITIES`), never one — one word is loose enough to match a
+committee it is not. A match on the prefix rather than the full name sets
+`renamed: true` on the confirmation, the collect report prints the committee by
+name, and the date / motion / tally checks are untouched, so the relaxation is
+about a name and nothing else. 2025GS's seed came out byte-identical afterwards.
+
+The 2024 result:
+
+| | 2025GS | 2024GS |
+| --- | --- | --- |
+| Meetings cached / approved | 278 / 255 | 280 / 248 |
+| PDFs fetched / readable | 255 / 255 | 248 / 248 |
+| Motions / with a recorded roll | 2,732 / 2,661 | 2,608 / 2,536 |
+| Admitted motions | 32 | 26 |
+| In-lane bills with a recorded committee vote | 42 → 24 after the 10% bar | 28 → 20 after the 10% bar |
+| Motions refused as near-unanimous | 44 | 19 |
+| Printed names resolved / unmapped / refused | 96 / 0 / 0 | 67 / 12 / 0 |
+| Committee acts on bills in the lane | 32 on 24 | 26 on 20 |
+| Reprints collapsed | 10 | 0 |
+| Rows written | 241 | 174 |
+| — of those, superseded by a floor vote | 191 | 162 |
+| — of those, the member's only act on the bill | **50** | **12** |
+| Off-lane rows / bills / contested bills | 1,166 / 675 / 173 | 1,076 / 640 / 141 |
+
+The 12 unmapped 2024 names are a coverage gap and are counted as one: Rep. B.
+King, D. Johnson, J. Briscoe, J. Cobb, J. Rohner, K. Birkeland, P. Lyman, S.
+Lund, S. Pulsipher, T. Jimenez, Sen. D. Buxton and Sen. M. Kennedy. Each was
+checked against that chamber's 2024 floor map and has no unambiguous match there
+— "Johnson, J." on the 2024 Senate floor page is Sen. John Johnson, so the House's
+"D. Johnson" is genuinely absent rather than merely awkward. Rep. P. Lyman stays
+unmapped by the brief's explicit instruction: the Lyman collision is not to be
+attributed. Zero names were refused this session, and the refusal ledger is a
+stated zero rather than an absent key.
+
+### Run it
+
+```bash
+# 1. Fetch. Walks the five-step chain above and caches every byte. Network.
+node scripts/vr-utah-committee-ingest.mjs --survey --session 2025GS
+
+# 2. Read the cache and draft the printed-name map (writes nothing to db/):
+#    every printed form and how it would be resolved, for a human to accept,
+#    refuse, or leave unmapped. Prints the full refusal ledger.
+node scripts/vr-utah-committee-ingest.mjs --collect --session 2025GS
+
+# 3. With db/vr-utah-committee-map.json accepted, build the seed and the SQL
+#    into --out (default /tmp/vr-utah-drafts), for review before committing.
+node scripts/vr-utah-committee-ingest.mjs --seed --session 2025GS
+node scripts/vr-utah-committee-ingest.mjs --sql  --session 2025GS
+
+# Every step is per-session, and every artefact is suffixed for any session but
+# 2025GS: db/vr-utah-committee-map-2024GS.json, -seed-2024GS.json.
+node scripts/vr-utah-committee-ingest.mjs --survey  --session 2024GS
+node scripts/vr-utah-committee-ingest.mjs --collect --session 2024GS
+
+# What the PDF reader actually sees, for one document.
+node scripts/vr-pdf-text.mjs /tmp/vr-utah-committee-cache/2025GS/pdf/19683.pdf
+```
+
+### Parser limitations
+
+* **Columns.** A vote table drawn as one text run per column comes out as one
+  extracted line per baseline with the columns space-separated — fine for the
+  cross-check, which strips spaces on both sides, but a caller wanting the table
+  *structure* would have to read x-positions.
+* **Intra-array kerning.** Two runs separated by a kerning number inside a single
+  `TJ` array come out joined (`HOUSEEDUCATION`). Pinned in
+  `scripts/test-vr-pdf-text.mjs` rather than fixed, because nothing here needs the
+  boundary.
+* **Scanned pages.** Handled — `DCTDecode` yields zero lines, and zero lines is
+  reported as unreadable, never as empty. None occurred in either session: 255 of
+  255 PDFs readable for 2025GS, 248 of 248 for 2024GS.
+* **Draft and summary minutes.** Only `minutesStatus` APPROVED meetings are read
+  (255 of 278 for 2025GS; 17 Summary, 6 Draft — and 248 of 280 for 2024GS). A
+  draft can be edited before approval, so admitting one would cite a document that
+  may change.
+* **Renamed committees.** A committee whose letterhead and whose metadata name
+  disagree is confirmed on `committeePrefixKey()` — chamber plus two significant
+  words — and the relaxation is disclosed per act in the collect report. A
+  committee whose first two significant words also changed would refuse, and
+  should: at that point the document and the metadata are not obviously about the
+  same body.
+* **Joint and interim committees.** Not surveyed. Only `HST*` / `SST*` standing
+  committees were walked; appropriations subcommittees and interim committees
+  publish on the same chain and would extend the same parser.
+
+### Still blocked after wave 3
+
+1. **The 173 bills with a contested committee vote and no issue mapping.** The
+   single largest available gain, and it is a curator pass, not a parser change:
+   the committee acts are already extracted and refused only because the parent
+   bill has no reviewed mapping.
+2. ~~**2024GS and earlier.**~~ **2024GS done in the same wave**
+   (`20261005000000`): 26 acts on 20 bills, 174 rows, 12 of them the member's only
+   act on the bill. 2023GS and earlier remain open, and each needs the same three
+   things — its own survey fetch, its own reviewed printed-name map (the
+   membership changes) and its own migration. Nothing in the script is
+   session-specific except the `--session` default; the two fixes 2024 forced
+   (`ownerid`, the templated header) mean the next session should need neither.
+3. **Everything wave 2 left blocked** — floor defeats, suspension/conference
+   passage, receipt cards for state votes, other states — is unchanged. Wave 3
+   deliberately widened no floor-action code.

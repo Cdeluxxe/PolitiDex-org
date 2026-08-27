@@ -400,6 +400,10 @@
   // which encode it in their path. A URL already in canonical form is passed
   // through untouched. Anything else yields null and guard 12 refuses the card:
   // a receipt whose address does not resolve is worse than no receipt.
+  //
+  // "Both public chambers" above means both FEDERAL chambers. Everything in this
+  // block is about Congress; a state chamber's votes are refused, and the reason
+  // is written out at STATE CHAMBERS below rather than left to be inferred here.
   // ══════════════════════════════════════════════════════════════════════════
 
   // Both derived shapes stay well inside this; it exists so a future source shape
@@ -447,8 +451,12 @@
   // scheme and www stripped so the address fits a footer line and still reads as
   // something you can type. Nothing else is removed — no path is shortened and no
   // ellipsis is ever added, because a URL you cannot retype is not a citation.
-  // (No source URL in the ledger carries a query or a fragment, and one that did
-  // would be refused below rather than silently truncated.)
+  // (No source URL this function is ever asked to print carries a query or a
+  // fragment: the derived federal shapes have none, and the one ledger source
+  // that does — a state chamber's query-addressed vote page — never reaches a
+  // card, because guard 12 refuses it upstream for a different and larger reason.
+  // A query-carrying URL that did arrive here would be refused by cite() rather
+  // than silently truncated.)
   function printableUrl(u) {
     return String(u || '').replace(/^https?:\/\//i, '').replace(/^www\./i, '');
   }
@@ -467,6 +475,36 @@
     var x = f(a), y = f(b);
     return !!x && x === y;
   }
+  // ── State chambers ────────────────────────────────────────────────────────
+  // A Utah roll call carries everything a citation needs — le.utah.gov publishes
+  // a per-member vote page for each one, and the ingest stores its address — and
+  // it is still refused here, on purpose.
+  //
+  // Two things stand in the way, and only one of them is cosmetic. The cosmetic
+  // one: those pages are addressed by query string (`svotes.jsp?sessionid=2025GS&
+  // voteid=1651&house=H`), where every federal citation this module prints is
+  // addressed by path. The one that decides it: NOTHING HAS READ THEM. Guard 14's
+  // denylist publishes a new federal citation by default because
+  // scripts/vr-check-citations.mjs fetches every derivable address, confirms the
+  // page names the roll call we cited, and cross-checks the measure against the
+  // chamber's own structured record — it knows two page shapes, both federal.
+  // Printing a state address would put an unread link on the one surface that
+  // travels without its context, which is the exact trade guard 14 exists to
+  // refuse. So the chamber is NAMED here rather than falling through to the
+  // generic "we could not derive one" — a curator reading audit() gets the real
+  // reason and the real unblock, instead of a message that says the roll number
+  // is missing when it is sitting right there.
+  //
+  // What unblocks it: a Utah reader in scripts/vr-check-citations.mjs (a page
+  // parser for svotes.jsp, and a fetch that survives le.utah.gov's WAF — Node's
+  // fetch is rejected outright, curl with browser headers is not), after which
+  // this branch becomes a citation instead of a refusal. See § Utah in
+  // db/vr-ingest-runbook.md.
+  var STATE_CHAMBERS = { 'utah house': 1, 'utah senate': 1 };
+  function isStateChamber(item) {
+    return !!STATE_CHAMBERS[String((item && item.chamber) || '').toLowerCase().trim()];
+  }
+
   // The public roll-call page for this vote, or null when one cannot be derived.
   function canonicalCitation(item) {
     if (!item || item.kind !== 'vote') return null;
@@ -773,6 +811,9 @@
     }
     if (/api\.congress\.gov/i.test(u)) {
       return 'the only stored source is an api.congress.gov endpoint and the roll-call number is missing, so no public roll-call page can be derived';
+    }
+    if (isStateChamber(item)) {
+      return 'this is a state-chamber vote: the chamber does publish a per-member vote page and the ledger stores it, but no citation check has ever read that page shape, and an unread address is not a citation';
     }
     return 'no canonical public roll-call page can be derived for this vote (stored source is not a roll-call page and the roll number is missing)';
   }

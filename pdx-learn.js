@@ -116,6 +116,32 @@
       see: ['house', 'cloture', 'norecord']
     },
 
+    /* ── State chambers ─────────────────────────────────────────────────────
+       These exist because the formal record lane now holds state legislature
+       roll calls, and a state chamber is not a smaller Congress. Before these
+       entries, a Utah House vote would have opened the `house` card above and
+       told the reader that the chamber has 435 members apportioned by state
+       population — a confident, specific, wrong sentence about a 75-member body.
+       A chamber with no entry of its own gets no tap target at all rather than
+       the nearest-looking one; see CHAMBER_TERM in voting-record.js. Adding a
+       state means adding its two entries here. */
+    utah_house: {
+      term: 'Utah House of Representatives', kind: 'Chamber', cat: 'State chambers',
+      aka: ['Utah House'],
+      short: '75 members, each representing one Utah district, all elected every two years. It is a state legislature and has no relationship to the U.S. House.',
+      long: 'Utah’s legislature meets in a single general session each year, running 45 calendar days from mid-January. A bill has to clear both chambers inside that window or start over next year, which is why so much of the record lands in the last week of February and the first week of March.',
+      why: 'Utah state votes reach PolitiDex from le.utah.gov’s published per-member roll calls, not from the federal sources the U.S. House and Senate use. They are stored and labelled as Utah votes so they can never be read as congressional ones.',
+      see: ['utah_senate', 'rollcall']
+    },
+    utah_senate: {
+      term: 'Utah Senate', kind: 'Chamber', cat: 'State chambers',
+      aka: ['Utah State Senate'],
+      short: '29 members elected to four-year terms, with about half the seats up each cycle. A state chamber — unrelated to the U.S. Senate and its 100 seats.',
+      long: 'With 29 members, a single Utah senator is a much larger share of their chamber than a U.S. senator is of theirs, and a handful of votes decides most contested bills. Utah senators also carry House bills on the Senate floor as “floor sponsor”, which is a different act from sponsoring the bill.',
+      why: 'Same source and same separation as the Utah House: published per-member roll calls from le.utah.gov, stored under their own chamber label.',
+      see: ['utah_house', 'rollcall']
+    },
+
     /* ── How votes happen ───────────────────────────────────────────────── */
     rollcall: {
       term: 'Roll-call vote', kind: 'Vote type', cat: 'How votes happen',
@@ -311,6 +337,7 @@
   var CAT_ORDER = [
     'What the numbers mean',
     'The two chambers',
+    'State chambers',
     'How votes happen',
     'Procedure — and why it counts less',
     'Multi-issue bills',

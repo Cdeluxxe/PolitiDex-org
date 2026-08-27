@@ -488,12 +488,46 @@ section("8 · migrations stay append-only, and the old one is untouched");
     const newer = entries
       .filter((f) => /^\d{14}/.test(f) && f.slice(0, 14) > carrierStamp)
       .sort();
-    const last = newer[newer.length - 1];
-    if (last) {
-      ok(existsSync(join(ROOT, "netlify/database/migrations", last, "snapshot.json")),
-        `${last} sorts after ${carrier} and carries no snapshot.json — the next ` +
-        "generate will diff against a snapshot that predates it and re-emit its DDL");
+    // What the snapshot has to be newer than is the last SCHEMA change, not the last
+    // file. A migration that only moves rows — a backfill, a correction, a votes-only
+    // roster expansion — declares no object for a later `generate` to emit twice, so
+    // requiring it to carry a snapshot would mean copying the previous one forward
+    // unchanged and calling that a record of a schema that did not move. The check is
+    // therefore two-sided: the newest DDL-bearing migration carries the snapshot, and
+    // anything newer than it that carries no snapshot has to actually be DDL-free.
+    // Getting that wrong in the permissive direction is the original bug, so the
+    // DDL test is deliberately broad — any CREATE/ALTER/DROP of an object at all.
+    const DDL = /\b(CREATE|ALTER|DROP)\s+(UNIQUE\s+)?(TABLE|INDEX|TYPE|VIEW|SCHEMA|SEQUENCE|FUNCTION|TRIGGER|CONSTRAINT|MATERIALIZED)\b/i;
+    const sqlOf = (f) => {
+      for (const rel of [join(f, "migration.sql"), f]) {
+        const abs = join(ROOT, "netlify/database/migrations", rel);
+        if (existsSync(abs)) return readFileSync(abs, "utf8");
+      }
+      return "";
+    };
+    const bare = (src) => src.split("\n").filter((l) => !/^\s*--/.test(l)).join("\n");
+    const withSnapshot = (f) =>
+      existsSync(join(ROOT, "netlify/database/migrations", f, "snapshot.json"));
+    // A hand-written DDL .sql is fine — the house pattern is that a drizzle-shaped
+    // carrier directory follows it with the snapshot, which is why 20260928000000 and
+    // 20260930000000 exist. So the invariant is that no DDL sorts after the LAST
+    // snapshot in the tree, whatever files sit in between.
+    const ddlBearing = newer.filter((f) => DDL.test(bare(sqlOf(f))));
+    const lastDdl = ddlBearing[ddlBearing.length - 1];
+    const lastSnap = newer.filter(withSnapshot).sort().pop();
+    if (lastDdl) {
+      ok(!!lastSnap && lastSnap >= lastDdl,
+        `${lastDdl} declares an object and no snapshot sorts after it (newest snapshot: ` +
+        `${lastSnap || "none after " + carrier}) — the next generate will diff against a ` +
+        "snapshot that predates it and re-emit its DDL");
     }
+    // The snapshot-free tail is only safe while it stays data-only, so name what is in it.
+    const tail = newer.filter((f) => lastSnap && f > lastSnap);
+    for (const f of tail) {
+      ok(!DDL.test(bare(sqlOf(f))),
+        `${f} sorts after the newest snapshot ${lastSnap} and declares an object`);
+    }
+    if (tail.length) console.log(`      (data-only migrations after the newest snapshot: ${tail.join(", ")})`);
 
     // It runs on a database where the hand-written migration already created the
     // table, its indexes and its foreign key. Generated SQL is unguarded, which

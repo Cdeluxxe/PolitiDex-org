@@ -4186,7 +4186,21 @@
     var pos = String(it.position || '').toLowerCase();
     var pill = '';
     if (it.kind === 'position') {
-      pill = '<span class="vr-vote-pill vr-vote-execorder">' + _pdxEyeEsc(_vrhiTitleCase(it.position)) + '</span>';
+      // ── THE ACT IS NAMED BY THE ACT LAYER, NOT TITLE-CASED HERE ────────────
+      // This printed _vrhiTitleCase(it.position), which turns the wire slug into
+      // "Committee Vote" / "Cosponsor" — column values, not things a person does,
+      // sitting two inches from "Voted Yea" in the same list. voting-record.js's
+      // positionPill() and consistency.js's act-label branch both already defer to
+      // stance-helpers' _pdxActLabel for exactly this reason, and both carry a
+      // comment saying no fourth copy of those words may exist. This was the fourth
+      // copy. Same fallback as the other two: an act the layer cannot name still
+      // appears, title-cased, it just gets no agreed noun.
+      var actLb = '';
+      try {
+        if (typeof window._pdxActLabel === 'function') actLb = window._pdxActLabel(it) || '';
+      } catch (e) { actLb = ''; }
+      if (!actLb) actLb = _vrhiTitleCase(it.position);
+      pill = '<span class="vr-vote-pill vr-vote-execorder">' + _pdxEyeEsc(actLb) + '</span>';
     } else if (_VRHI_POS[pos]) {
       pill = '<span class="vr-vote-pill ' + _VRHI_POS[pos].cls + '">' + _VRHI_POS[pos].label + '</span>';
     } else if (pos) {

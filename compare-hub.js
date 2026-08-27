@@ -3689,7 +3689,32 @@
     // district (the congressional seat for U.S. House; the map-pinpointed State
     // Senate / State House seat for those chambers) wins, then the curated area's
     // roster district fills in.
+    // ── The district gate ──────────────────────────────────────────────────
+    // One question, asked in one place: may this reader be told that a district
+    // number is THEIRS?
+    //
+    // The answer is pdxRepsForMe().districtsResolvable — the app's single flag
+    // for "we hold district geometry for where this reader is", true in Utah and
+    // nowhere else today. Without this gate the curated Key-Races read below was
+    // the last stranger path left in the product: keyRacesRelevantData() always
+    // answers from a Utah area (its `state` field is the literal string 'Utah'),
+    // and the inference behind its `matched` flag matches on bare city and county
+    // names with no state check — so a visitor in Centerville OH, or Clearfield
+    // County PA, or Riverdale GA came back `matched` and had a Utah district
+    // number printed under their U.S. House seat as their own.
+    //
+    // Only an explicit negative closes the gate. An un-located visitor keeps the
+    // old path, which has nothing to be wrong about: with no saved location the
+    // curated read cannot match anything either.
+    function _pdxDistrictsMine() {
+      var reps = null;
+      try { reps = (typeof window.pdxRepsForMe === 'function') ? window.pdxRepsForMe() : null; } catch (e) { return true; }
+      if (!reps || !reps.located) return true;
+      return !!reps.districtsResolvable;
+    }
+
     function _myteamDistrictNum(key) {
+      if (!_pdxDistrictsMine()) return null;
       var loc = window._currentVoterLocation || {};
       var saved = '';
       if (key === 'house')            saved = loc.district || '';
@@ -5618,12 +5643,30 @@
       // incumbent (e.g. a U.S. House UT-01 candidate lands in U.S. Representatives →
       // Utah). The incumbent/candidate distinction is carried by status, not bucket.
 
-      if (o.includes('president') && !o.includes('senate president')) return 'president';
+      // "President" appears inside titles that are not the presidency, and a bare
+      // substring test filed all of them under President / Executive. The Senate's
+      // president pro tempore is a U.S. senator — Grassley was vanishing out of
+      // "U.S. Senate · Iowa" entirely, which reads as Iowa having one senator —
+      // and a school-board president is a local officeholder. Both now classify by
+      // the seat they actually hold. ("Senate President" was already excluded for
+      // the same reason: that is a state chamber's presiding officer.)
+      var _isBoardPresidency = o.includes('school board') || o.includes('board of education') ||
+                               o.includes('school district board');
+      if (o.includes('president') && !o.includes('senate president') &&
+          !o.includes('president pro tem') && !_isBoardPresidency) return 'president';
       if (o.includes('secretary') || o.includes('director') || o.includes('ambassador')) return 'cabinet';
 
       // Federal Senate — incumbents and candidates ("Candidate for U.S. Senate").
+      // The bare-'senate' fallback exists for committee-chair titles ("Senate
+      // Finance Committee Chair"), which are always federal here. It excluded
+      // offices containing 'state' — but "Utah Senate President" does not contain
+      // that word, so the Utah Senate's presiding officer was filing under
+      // "U.S. Senate · Utah", i.e. the archive asserted a seat the person does not
+      // hold. A state chamber's presiding officer is excluded here and picked up by
+      // the state_senator clause below, where 'senate president' was already named.
       if (o.includes('u.s. senator') || o.includes('u.s. senate') ||
-          ((o.includes('senator') || o.includes('senate')) && !o.includes('state')))
+          ((o.includes('senator') || o.includes('senate')) && !o.includes('state') &&
+           !o.includes('senate president')))
         return 'senator';
 
       // Federal House / Congress — incumbents and candidates ("Candidate for
@@ -5671,6 +5714,15 @@
 
       return 'other';
     }
+
+    // Exposed so archive-browse.js can slice the roster by chamber WITHOUT
+    // owning a second copy of this doctrine. That module's chamber+state
+    // listings ("U.S. Senate · Ohio") and this browse tree's chamber groups
+    // are therefore the same buckets by construction — if they ever disagree
+    // about a person, the bug is in this one function rather than a mismatch
+    // between two surfaces. Nothing about the BALLOT reads this: seat
+    // resolution stays entirely inside pdxRepsForMe().
+    window._pdxBrowseType = _classifyBrowseType;
 
     function _getBrowseLocation(pid) {
       var d = CMP_DATA[pid];
@@ -5799,6 +5851,11 @@
       var checkVal = origSt || (CMP_DATA[pid] && CMP_DATA[pid].state) || '';
       return window._pdxNormalizeState(checkVal, pid);
     }
+
+    // Same reason as _pdxBrowseType above: the archive's state axis and this
+    // browse tree's state groups resolve a person to a state the same way, so
+    // "Ohio" means the identical set of people on both surfaces.
+    window._pdxBrowseStateOf = _getPoliticianState;
 
     // Real county for each Utah State House district (1–75). Used to replace the
     // placeholder "(Your County)" text that imported profile data ships with, so
@@ -6302,6 +6359,11 @@
     // district" meaning the same thing everywhere. Conservative by design — when
     // a seat's district can't be resolved we stay silent rather than over-claim.
     function _myteamOwnDistricts() {
+      // Same gate as _myteamDistrictNum: outside a district-mapped state nothing
+      // in the browse tree gets flagged as the reader's own seat, because we do
+      // not know which district is theirs. The tree still lists everyone — it
+      // just lists them as archive rows rather than as "yours".
+      if (!_pdxDistrictsMine()) return { county: '', house: null, senate: null, lower: null };
       var loc = window._currentVoterLocation || {};
       var krd = (typeof window.keyRacesRelevantData === 'function') ? window.keyRacesRelevantData() : null;
       var matched = !!(krd && krd.matched);

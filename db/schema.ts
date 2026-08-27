@@ -22,6 +22,7 @@ import {
   index,
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 // A community-submitted post. Marked "Community Submitted" everywhere it renders.
 export const ceePosts = pgTable(
@@ -744,6 +745,14 @@ export const vrMeasures = pgTable(
     typeIdx: index("vr_measures_type_idx").on(t.measureType),
     congressChamberIdx: index("vr_measures_congress_chamber_idx").on(t.congress, t.chamber),
     numberIdx: index("vr_measures_number_idx").on(t.number),
+    // STATE MEASURES. A state legislature has no Congress number, so the federal
+    // identity (congress + chamber + number) does not identify one. Utah's own
+    // session code carries it instead, and this partial index applies only to rows
+    // that have one — federal measures are untouched and keep relying on the
+    // ingest's per-measure sentinels.
+    utahUniq: uniqueIndex("vr_measures_utah_unique")
+      .on(t.chamber, t.number, sql`(external_ids->>'utahSession')`)
+      .where(sql`external_ids ? 'utahSession'`),
   })
 );
 
@@ -824,6 +833,14 @@ export const vrRollcalls = pgTable(
       t.session,
       t.rollNumber
     ),
+    // …and for a STATE roll call there is no congress, which makes the index above
+    // non-binding: in Postgres a NULL member never collides, so two ingests of the
+    // same Utah vote would both be accepted and every member's depth would double.
+    // `chamber` carries the jurisdiction for state rows ('utah house'), so
+    // chamber + session + roll number is the state identity.
+    stateUniq: uniqueIndex("vr_rollcalls_state_unique")
+      .on(t.chamber, t.session, t.rollNumber)
+      .where(sql`congress IS NULL`),
   })
 );
 

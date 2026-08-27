@@ -551,6 +551,36 @@
     return String(s).replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
   }
 
+  // ── THE CHAMBER, AND WHICH LEGISLATURE IT BELONGS TO ────────────────────────
+  // `chamber` is the one field on a vote row that carries its jurisdiction, and it
+  // is carried there on purpose: the formal lane has no separate state column, so
+  // the ingest writes 'utah house' / 'utah senate' into the field the UI already
+  // prints. Data and label cannot then drift, which is the whole point — but only
+  // if this file reads the field exactly rather than sniffing it for 'house'.
+  //
+  // Two tables, both exact-match:
+  //   CHAMBER_LABEL turns the stored value into the words a reader sees, so
+  //     'utah house' prints as "Utah House" and never as the bare lowercase string
+  //     titleCase would have produced ("Utah House" by luck here, "Utah Senate" by
+  //     luck too — but 'joint' would have printed "Joint" with no legislature
+  //     attached, and any future value would print raw).
+  //   CHAMBER_TERM maps a chamber to its glossary entry, and a value with no entry
+  //     gets NO tap target rather than the nearest-looking one.
+  var CHAMBER_LABEL = {
+    house: 'House', senate: 'Senate', joint: 'Joint', court: 'Court',
+    executive: 'Executive',
+    'utah house': 'Utah House', 'utah senate': 'Utah Senate'
+  };
+  var CHAMBER_TERM = {
+    house: 'house', senate: 'senate',
+    'utah house': 'utah_house', 'utah senate': 'utah_senate'
+  };
+  function chamberLabel(c) {
+    if (!c) return '';
+    var k = String(c).toLowerCase().trim();
+    return CHAMBER_LABEL[k] || titleCase(c);
+  }
+
   // Position pill (yea / nay / present / not voting, or a non-vote action label).
   //
   // ── WHY THE ACTION PILL DOES NOT TITLE-CASE THE SLUG ─────────────────────────
@@ -887,9 +917,18 @@
     if (item.chamber) {
       // "House" / "Senate" is a chamber, not a party — worth one tap for anyone
       // who does not already know the two are separate votes on the same bill.
-      var chKey = /senate/i.test(item.chamber) ? 'senate' : /house/i.test(item.chamber) ? 'house' : '';
+      //   AND THE GLOSSARY KEY IS AN EXACT MATCH, NEVER A SUBSTRING. This was
+      // /house/i.test(chamber), which is true of 'utah house' — so the moment the
+      // formal lane started holding state legislature roll calls, a Utah House
+      // vote would have carried the glossary card that begins "435 members, each
+      // representing one district, all elected every two years". That is a
+      // confidently wrong sentence about a 75-member chamber whose members serve
+      // two-year terms in a body with no relationship to Congress, printed by us,
+      // on their page. A state chamber gets its own entry or it gets none.
+      var chRaw = String(item.chamber).toLowerCase().trim();
+      var chKey = CHAMBER_TERM[chRaw] || '';
       meta.push('<span class="vr-tag">' +
-        (chKey ? LT(chKey, titleCase(item.chamber)) : esc(titleCase(item.chamber))) + '</span>');
+        (chKey ? LT(chKey, chamberLabel(item.chamber)) : esc(chamberLabel(item.chamber))) + '</span>');
     }
     if (item.result) {
       var rc = /pass|agree/.test(item.result) ? 'vr-result-passed' : /fail|reject/.test(item.result) ? 'vr-result-failed' : '';
@@ -1714,14 +1753,32 @@
   // How much record there IS for a member, counted from the same warm cache — the
   // numbers behind the Official Record section's "12 mapped votes across 5 issues"
   // entry line. `votes` counts records carrying at least one issue mapping (those are
-  // the ones a stated position can be checked against); `total` counts every warm
+  // the ones a stated position can be checked against), minus the ones a floor vote
+  // on the same instrument already speaks for — see ONE INSTRUMENT, ONE COUNT below;
+  // `total` counts every warm
   // record, so a surface can stay honest about the gap between what is in the full
   // list and what is mappable. Pure, synchronous, never fetches: null when nothing is
   // warm for that member, so callers simply render nothing.
+  //
+  // ONE INSTRUMENT, ONE COUNT. A committee vote and a floor vote on the same bill
+  // are two records, and the engine already refuses to read them as two acts: the
+  // floor vote supersedes the committee vote in _recordDirectionIndex. This count
+  // feeds the same engine's coverage floor, so it has to agree — otherwise a member
+  // whose committee act was superseded for direction still gets a free +1 towards
+  // "enough record to characterise", which is the same double count wearing a
+  // different hat. So a non-floor act on an instrument the member ALSO has a floor
+  // act on is not counted here. Records that are all floor votes are unaffected,
+  // and `total` still reports every warm record.
   window._pdxRecordMappedCounts = function (pid) {
     var recs = PDXVotingRecord.memberRecords(pid);
     if (!recs) return null;
-    var seen = {}, keys = [], votes = 0;
+    var floorOn = {};
+    recs.forEach(function (it) {
+      if (!it || it.kind === 'position') return;
+      var k = _pdxCountMeasureKey(it);
+      if (k) floorOn[k] = 1;
+    });
+    var seen = {}, keys = [], votes = 0, supersededActs = 0;
     recs.forEach(function (it) {
       if (!it) return;
       var mapped = false;
@@ -1730,10 +1787,28 @@
         mapped = true;
         if (!seen[m.issueKey]) { seen[m.issueKey] = 1; keys.push(m.issueKey); }
       });
-      if (mapped) votes++;
+      if (!mapped) return;
+      if (it.kind === 'position') {
+        var k = _pdxCountMeasureKey(it);
+        if (k && floorOn[k]) { supersededActs++; return; }
+      }
+      votes++;
     });
-    return { votes: votes, issues: keys.length, total: recs.length, issueKeys: keys };
+    return {
+      votes: votes, issues: keys.length, total: recs.length, issueKeys: keys,
+      supersededActs: supersededActs
+    };
   };
+
+  // Instrument identity for the count above — deliberately the same shape as
+  // stance-helpers' _rdMeasureKey, so the two layers agree on what "the same bill"
+  // means without one importing the other.
+  function _pdxCountMeasureKey(it) {
+    if (!it) return '';
+    if (it.measureId != null && it.measureId !== '') return 'm:' + it.measureId;
+    var n = String(it.number || it.title || '').trim().toLowerCase();
+    return n ? 'n:' + n : '';
+  }
 
   // WHAT THE RECORD ITSELF DID on a (member, issue) pair, with no stated position
   // anywhere in the arithmetic — the companion to _pdxRecordIssueSummary above,
