@@ -1,0 +1,207 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ARCHIVE BROWSE  ·  styles
+   ═══════════════════════════════════════════════════════════════════════════
+
+   This band sits directly under the ballot's seat rows, which is the one place
+   in the product where a reader is most primed to read any list of names as
+   "my representatives". So the visual job here is separation, not decoration:
+   it has to look like a different kind of thing from the seat rows above it.
+
+   The seat rows are cards with status colour. This is a flat, indexy list —
+   hairline rules, no per-row fill, no status colour, monospace-ish condensed
+   metadata. It reads as a directory, because that is what it is.
+
+   Nothing animates, and nothing here uses amber or red. A short chamber list
+   is a fact about how much of the archive exists, not a warning.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ab-band {
+  max-width: 47rem;
+  margin: 1.6rem auto 0;
+  padding: 1rem 1.05rem 0.9rem;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.1rem;
+  background: rgba(8, 13, 28, 0.5);
+}
+
+.ab-kicker {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7d90ad;
+  margin: 0 0 0.3rem;
+}
+
+.ab-lead {
+  font-family: 'Oswald', 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  color: #e6eefb;
+  margin: 0 0 0.35rem;
+}
+
+.ab-sub,
+.ab-growth {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: #8296b4;
+  margin: 0;
+}
+
+.ab-growth {
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 0.72rem;
+}
+
+/* ── Chamber chips ───────────────────────────────────────────────────────── */
+.ab-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.75rem 0 0.6rem;
+}
+
+.ab-chip {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #b9c9e2;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 0.42rem 0.8rem;
+  min-height: 34px;
+  cursor: pointer;
+}
+
+.ab-chip:hover { color: #e6eefb; border-color: rgba(255, 255, 255, 0.24); }
+
+.ab-chip.is-on {
+  color: #0a1024;
+  background: #b9c9e2;
+  border-color: #b9c9e2;
+}
+
+.ab-chip--sm { font-size: 0.72rem; padding: 0.32rem 0.66rem; min-height: 30px; }
+
+/* ── State narrower ──────────────────────────────────────────────────────── */
+.ab-statewrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.8rem;
+}
+
+.ab-statelab {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #7d90ad;
+}
+
+.ab-state {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.8rem;
+  color: #e6eefb;
+  background: rgba(6, 10, 24, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.6rem;
+  padding: 0.36rem 0.5rem;
+  min-height: 36px;
+}
+
+/* ── The listing ─────────────────────────────────────────────────────────── */
+.ab-count {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #9db0cd;
+  margin: 0 0 0.3rem;
+}
+
+.ab-count strong { color: #e6eefb; font-weight: 600; }
+
+.ab-rows {
+  display: block;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.ab-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.7rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 0.52rem 0.15rem;
+  min-height: 40px;
+  cursor: pointer;
+}
+
+.ab-row:hover { background: rgba(255, 255, 255, 0.035); }
+
+.ab-rowname {
+  font-family: 'Oswald', 'Barlow Condensed', sans-serif;
+  font-size: 0.88rem;
+  letter-spacing: 0.03em;
+  color: #e6eefb;
+  flex: 0 1 auto;
+}
+
+.ab-rowmeta {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: #7d90ad;
+  text-align: right;
+  flex: 1 1 auto;
+}
+
+.ab-empty,
+.ab-over {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: #8296b4;
+  margin: 0.5rem 0 0;
+}
+
+.ab-empty strong { color: #b9c9e2; font-weight: 600; }
+
+/* ── Door 1 chamber shortcut row ─────────────────────────────────────────── */
+.ab-d1 {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.55rem;
+}
+
+.ab-d1-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #7d90ad;
+}
+
+.ab-d1-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+@media (max-width: 640px) {
+  .ab-band { margin-left: 0.4rem; margin-right: 0.4rem; padding: 0.85rem 0.8rem; }
+  .ab-row { flex-direction: column; align-items: flex-start; gap: 0.15rem; }
+  .ab-rowmeta { text-align: left; }
+}

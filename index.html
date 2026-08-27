@@ -1981,6 +1981,12 @@ window.PDXLazy = (function () {
        path as the sections it labels. -->
   <link rel="stylesheet" href="/scope-chrome.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/scope-chrome.css" /></noscript>
+  <!-- Archive browse — the chamber+state listing band under the ballot's seat
+       rows, and the chamber shortcut row in the browse toolbar. A directory,
+       styled deliberately unlike the seat cards above it so a roster slice is
+       never mistaken for a resolved seat. Non-blocking, same as scope chrome. -->
+  <link rel="stylesheet" href="/archive-browse.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/archive-browse.css" /></noscript>
   <!-- The person-file kicker — one line in the profile modal's top bar naming
        the surface and its citable address. Modal chrome, so it loads on the same
        non-blocking path as the rest of the overlay CSS. -->
@@ -4878,7 +4884,7 @@ window.PDXLazy = (function () {
 
       <div id="wrm-reps"></div>
 
-      <p class="wrm-scope">PolitiDex resolves your <strong>U.S. Senate and Governor</strong> seats from your state, anywhere in the country. Your <strong>U.S. House, State Senate and State House</strong> seats need district lines, which we map in Utah so far &mdash; elsewhere we leave those rows blank rather than name someone else&rsquo;s district. Local offices &mdash; mayor, council, school board, county &mdash; are listed where we have them, and we say so where we don&rsquo;t.</p>
+      <p class="wrm-scope">PolitiDex resolves your <strong>U.S. Senate and Governor</strong> seats from your state, anywhere in the country. Your <strong>U.S. House, State Senate and State House</strong> seats need district lines, which we map in Utah so far &mdash; elsewhere we leave those rows blank rather than name someone else&rsquo;s district. Local offices &mdash; mayor, council, school board, county &mdash; are listed where we have them, and we say so where we don&rsquo;t. A blank row is not a dead end: anyone, anywhere, can read the record of everyone we track from the chamber-and-state listings below &mdash; those are archive listings, not seats.</p>
     </div>
   </section>
   <script src="/who-represents-me.js" defer></script>
@@ -13175,6 +13181,12 @@ window.PDXLazy = (function () {
           <div class="text-4xl mb-2" style="opacity:0.55;">🔍</div>
           <div class="font-display text-xl tracking-wider text-white">No matches found</div>
           <p class="font-condensed text-steel-400 tracking-wide mt-1" style="font-size:0.9rem;">Try a broader search term or clear a filter to see more of the field.</p>
+          <!-- Coverage, said out loud. An empty result under a state or chamber
+               filter usually means the archive does not track those people yet,
+               not that the office is vacant — and a reader who cannot tell the
+               difference draws the wrong conclusion about the office. Direction
+               only: no dates, no completeness claim. -->
+          <p class="font-condensed text-steel-500 tracking-wide mt-2" style="font-size:0.82rem;max-width:32rem;margin-left:auto;margin-right:auto;">The archive is building federal depth first, then state chambers. An empty chamber here means we don&rsquo;t track those people yet &mdash; not that nobody holds the seats.</p>
         </div>
       </div>
       <div id="mypol-empty" style="display:none;"></div>
@@ -21556,6 +21568,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        scopes in the chrome of Door 2 and of the archive header. Loads after the
        location resolver it reads; re-paints on _updateTeamPositionsForLocation. -->
   <script defer src="/scope-chrome.js"></script>
+  <!-- Archive browse. The national archive's own door: chamber + state roster
+       listings ("U.S. Senate · Ohio") under the ballot's seat rows, plus a
+       chamber shortcut row wired into the browse toolbar's existing office
+       filter. Not a ballot surface — it slices the roster and never resolves a
+       seat, and it has no district dimension at all, so there is no path here
+       that could pick a district for a reader whose lines we do not map.
+       Loads after compare-hub.js, which owns the chamber and state classifiers
+       it borrows (window._pdxBrowseType / _pdxBrowseStateOf) so this surface and
+       Door 1's browse tree group people identically; renders nothing at all if
+       those are missing rather than guessing at chambers. -->
+  <script defer src="/archive-browse.js"></script>
   <!-- First run. Owns the answer to "has this visitor finished one meaningful
        task yet", runs the two ranked cold-start paths behind the hero CTAs, and
        flips one attribute on <html> that defers the second tier until they have
