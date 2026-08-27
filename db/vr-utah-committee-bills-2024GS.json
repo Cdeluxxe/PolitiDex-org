@@ -1,0 +1,1084 @@
+{
+ "_session": "2024GS",
+ "_note": "Wave 4 curator mapping pass over the committee-wave refusal bucket (bill has no reviewed issue mapping). Each admitted mapping was grounded in the enrolled or last substituted text; each refusal states why no shipped ISSUE_MAP key carries a direction.",
+ "bills": [
+  {
+   "bill": "HB0028",
+   "issues": [
+    {
+     "issueKey": "voting_access",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text lets a registered voter who is assisting with an emergency on election day outside the voter's county of residence cast an electronic ballot after filing a declaration of eligibility, and requires the lieutenant governor to report annually. It adds a way for one class of voter to cast a ballot they would otherwise lose, which is a narrow but real access gain."
+    }
+   ]
+  },
+  {
+   "bill": "HB0029",
+   "issues": [
+    {
+     "issueKey": "edu_parental",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text requires that protecting children from illicit pornography be prioritized over other considerations when instructional material is evaluated, names who may trigger a formal sensitive material review, splits objective from subjective sensitive material, forces statewide removal once a threshold of LEAs finds material objectively sensitive, and orders a compliance audit. Parent-triggered control of classroom material is the whole bill."
+    }
+   ]
+  },
+  {
+   "bill": "HB0047",
+   "issues": [
+    {
+     "issueKey": "disaster_resilience",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text extends the sunset date on the Utah Seismic Safety Commission so the state's standing earthquake preparedness body keeps operating. Keeping preparedness capacity alive is the direction this key measures, and a sunset extension is the narrowest form of it, which is why the weight sits at the narrow-link floor."
+    }
+   ]
+  },
+  {
+   "bill": "HB0059",
+   "issues": [
+    {
+     "issueKey": "states_federal_power",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text requires a state agency seeking a federal funds reauthorization or a new federal request above a threshold to file a contingency disclosure, a contingency plan, and a state jurisdiction evaluation, and requires agencies above a federal funding threshold to keep a standing contingency plan. The bill exists to prepare the state to operate without federal money, which is the state-autonomy direction."
+    }
+   ]
+  },
+  {
+   "bill": "HB0062",
+   "issues": [
+    {
+     "issueKey": "water",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text directs the Utah Water Ways partnership to work with the State Board of Education on standards-aligned conservation resources and professional development, and to promote coordination of grants, rebate programs, and localized conservation messaging, with annual reporting. Conservation outreach is a real but narrow water measure, so it sits at the narrow-link floor."
+    }
+   ]
+  },
+  {
+   "bill": "HB0097",
+   "issues": [
+    {
+     "issueKey": "gun_safety",
+     "weight": 75,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text creates a waiting period between the purchase of a firearm from a dealer and delivery of the firearm to the purchaser, with defined exceptions. A purchase-to-delivery delay is a firearm restriction in the plain sense and is the entire operative content of the bill."
+    }
+   ]
+  },
+  {
+   "bill": "HB0098",
+   "issues": [
+    {
+     "issueKey": "gun_safety",
+     "weight": 80,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text requires that a firearm be securely stored or rendered inoperable by a locking device and sets civil penalties for violations. A storage mandate backed by penalties is the core of the safe-storage agenda, and the bill does nothing else."
+    }
+   ]
+  },
+  {
+   "bill": "HB0111",
+   "issues": [
+    {
+     "issueKey": "end_dei",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text makes it employment discrimination for an employer to impose training or other requirements that compel adherence to or belief in specified concepts about race, sex, and related characteristics, while clarifying that objective discussion is still allowed, and adds a severability clause. Banning compelled-belief training is the operative anti-DEI mechanism."
+    }
+   ]
+  },
+  {
+   "bill": "HB0137",
+   "issues": [
+    {
+     "issueKey": "healthcare",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text requires the Department of Health and Human Services to seek a Medicaid waiver or state plan amendment providing wraparound services to qualified individuals with a disability, with sliding-scale cost sharing capped at stated percentages and maximums. It directs the state to add a Medicaid benefit that does not exist today."
+    }
+   ]
+  },
+  {
+   "bill": "HB0141",
+   "issues": [
+    {
+     "issueKey": "housing_support",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text requires the Division of Finance to transfer a set amount of state liquor sale revenue from the Liquor Control Fund to the Olene Walker Housing Loan Fund every year. It is a single provision, but it moves ongoing money into the state's affordable housing loan fund rather than studying or reorganizing it."
+    }
+   ]
+  },
+  {
+   "bill": "HB0149",
+   "issues": [
+    {
+     "issueKey": "tax_middle_class",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text makes the state earned income tax credit refundable, so a low or moderate wage household receives the credit amount that exceeds its liability instead of only zeroing the liability out. Refundability is the whole bill and the benefit lands entirely on working households below the median."
+    }
+   ]
+  },
+  {
+   "bill": "HB0161",
+   "issues": [
+    {
+     "issueKey": "voting_access",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text provides that a law passed by a local school board, other than one imposing a new tax or a tax increase, may be referred to the voters of the school district for approval or rejection, subject to stated exceptions. It creates a ballot route where none existed, which is an access gain, though confined to school district law."
+    }
+   ]
+  },
+  {
+   "bill": "HB0164",
+   "issues": [
+    {
+     "issueKey": "crypto_cbdc",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text amends the Uniform Commercial Code so that a central bank digital currency, defined as a digital currency issued by the Federal Reserve System, a federal agency, or a foreign government or central bank, is excluded from money and is not specie. Refusing CBDC legal status as money is the substance of this key."
+    }
+   ]
+  },
+  {
+   "bill": "HB0173",
+   "issues": [
+    {
+     "issueKey": "voting_access",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text provides that a law passed by a local school board that imposes a new tax or increases a tax may be referred to the voters of the school district for approval or rejection. Like its companion, it adds a referendum route that the electorate did not previously have, which is a narrow access gain."
+    }
+   ]
+  },
+  {
+   "bill": "HB0186",
+   "issues": [
+    {
+     "issueKey": "free_speech",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "First substitute text defines the words that may appear on a personalized license plate and prohibits the Motor Vehicle Division from issuing a plate whose requested combination is indecent, obscene, profane, or connotes certain illegal activities or substances, with a severability clause. The state is deciding which expressive combinations it will refuse, which is a speech restriction, narrow because the forum is a state-issued plate."
+    }
+   ]
+  },
+  {
+   "bill": "HB0191",
+   "issues": [
+    {
+     "issueKey": "energy_production",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text requires the Public Service Commission to act in accordance with the state energy policy, requires stated determinations before it may authorize the early retirement of an electrical generation facility, and requires annual reporting on retirement requests. The operative effect is to make it harder to close existing thermal generation."
+    }
+   ]
+  },
+  {
+   "bill": "HB0241",
+   "issues": [
+    {
+     "issueKey": "enviro_energy",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Third substitute text replaces renewable with clean throughout the energy statutes, and the clean energy source definition it relies on includes nuclear fuel and carbon capture utilization and sequestration. The qualifying set is broadened past renewables into the all-of-the-above framing this key measures rather than narrowed."
+    }
+   ]
+  },
+  {
+   "bill": "HB0242",
+   "issues": [
+    {
+     "issueKey": "water",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text requires state agencies to report water usage, directs the Division of Water Resources to study public school water use in stated areas and publish findings and recommendations, and provides for procurement of smart irrigation controllers. Measuring and then reducing the state's own water use is a conservation direction, with the controllers giving it operative teeth."
+    }
+   ]
+  },
+  {
+   "bill": "HB0267",
+   "issues": [
+    {
+     "issueKey": "healthcare",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute conditionally requires a health benefit plan to reimburse a provider for telemedicine services at no less than ninety percent of the rate the plan pays that provider for the same service delivered in person in Utah. Payment parity is what keeps a telehealth option available to patients, so the bill expands access rather than merely describing it."
+    }
+   ]
+  },
+  {
+   "bill": "HB0284",
+   "issues": [
+    {
+     "issueKey": "voting_access",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Introduced text, contingent on a constitutional amendment, raises the vote percentage required for a statewide initiative that would impose a new tax or increase a tax rate to pass, and adds application and fiscal impact statement requirements about how a proposed law would be funded. A supermajority threshold means a majority of voters can approve an initiative and still lose, which is a restriction on the ballot route."
+    }
+   ]
+  },
+  {
+   "bill": "HB0289",
+   "issues": [
+    {
+     "issueKey": "property_rights",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text lets a party who prevails in court on an issue the Office of the Property Rights Ombudsman had already decided in that party's favor recover attorney fees, and in stated circumstances collect a civil penalty and consequential damages. It puts money behind a property owner's win against a government entity that ignored the ombudsman."
+    }
+   ]
+  },
+  {
+   "bill": "HB0303",
+   "issues": [
+    {
+     "issueKey": "free_speech",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "First substitute text prohibits school officials and employees from using instructional materials or a display of symbols, images, or language to endorse, promote, or disparage a religious belief or a political viewpoint, and has the attorney general defend and the state indemnify those enforcing the prohibition. Whatever the neutrality framing, the operative clause removes expression from public employees in the classroom."
+    }
+   ]
+  },
+  {
+   "bill": "HB0307",
+   "issues": [
+    {
+     "issueKey": "gun_safety",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text requires law enforcement agencies to report lost or stolen firearms used in a crime and the disposition of firearms in agency custody, and requires the State Commission on Criminal and Juvenile Justice to compile and publish that data. Public firearm data is the evidentiary groundwork of this key, but it regulates no purchase or possession, so it stays at the narrow-link floor."
+    }
+   ]
+  },
+  {
+   "bill": "HB0309",
+   "issues": [
+    {
+     "issueKey": "gun_rights",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text lets a concealed firearm permit holder have the permit number printed on a driver license or identification card, lets that card be presented in place of the permit itself, and sets a five-year expiration for such a license. It removes a document a permit holder must otherwise carry to exercise the permit."
+    }
+   ]
+  },
+  {
+   "bill": "HB0316",
+   "issues": [
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 65,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "First substitute text prohibits the Department of Corrections and county jails, with limited exceptions, from assigning inmates of the opposite biological sex to the same housing area. Housing determined by birth sex rather than gender identity is the operative rule, which subtracts from the recognition this key measures."
+    }
+   ]
+  },
+  {
+   "bill": "HB0323",
+   "issues": [
+    {
+     "issueKey": "justice_reform",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text allows a peace officer to stop a vehicle for improper side window tinting only if the officer has already stopped the vehicle for another offense, and prohibits revoking or suspending a registration or driver license over a tint violation. Removing a stand-alone pretext for a traffic stop is a policing-practice reform."
+    }
+   ]
+  },
+  {
+   "bill": "HB0326",
+   "issues": [
+    {
+     "issueKey": "gun_safety",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sixth substitute text enacts a nonrefundable individual income tax credit for the purchase of a firearm safety device, limits it to one claim per household, and provides for sunset review. It pays people to lock firearms up, which is the safe-storage direction, but it is an incentive rather than a requirement."
+    }
+   ]
+  },
+  {
+   "bill": "HB0335",
+   "issues": [
+    {
+     "issueKey": "audit_spending",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Fourth substitute text requires a state grant recipient to submit a proposed budget and agree to deliverables, reporting, audit, and clawback requirements before receiving any funds, sets the disbursement schedule, requires later review of grants funded by ongoing appropriations, and adds requirements specific to direct award and competitive grants. Every clause attaches accountability to public money."
+    }
+   ]
+  },
+  {
+   "bill": "HB0355",
+   "issues": [
+    {
+     "issueKey": "housing_support",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text establishes the period of advance notice a landlord must give a tenant before a rent increase takes effect. It is a single obligation, but it runs entirely in the renter's favor and gives a tenant time to respond to an increase, which is the protection this key measures."
+    }
+   ]
+  },
+  {
+   "bill": "HB0378",
+   "issues": [
+    {
+     "issueKey": "health_mental",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text broadens who is eligible for first responder mental health resources, keeps eligibility after a person leaves first responder employment, requires agencies to inform employees of resources and name a liaison, requires the Department of Public Safety to post resource information and investigate denials, and lets the criminal justice commission withhold grants from an agency that improperly denies care. Access to treatment is created and then enforced."
+    }
+   ]
+  },
+  {
+   "bill": "HB0396",
+   "issues": [
+    {
+     "issueKey": "religious_liberty",
+     "weight": 65,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text prohibits an employer from compelling an employee to communicate or act in a manner the employee believes would burden or offend the employee's sincerely held religious beliefs, and sets out a process for accommodating those beliefs. Protecting religious conscience inside employment is the substance of this key."
+    }
+   ]
+  },
+  {
+   "bill": "HB0406",
+   "issues": [
+    {
+     "issueKey": "gun_rights",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text prohibits the use of a firearms merchant category code in payment processing, creates a complaint process and civil penalties for violations, and gives the attorney general enforcement power. The bill exists to stop financial intermediaries from flagging lawful firearm purchases, which is a gun-owner protection."
+    }
+   ]
+  },
+  {
+   "bill": "HB0409",
+   "issues": [
+    {
+     "issueKey": "states_federal_power",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text declares that jurisdiction over subject matters not enumerated to the federal government remains with Utah, provides that any presumption against state jurisdiction is overcome only by a federal demonstration of specific constitutional authorization, places the burden on the federal government in non-enumerated disputes, and presumes the federal interest in federal lands is proprietary. The bill is a sovereignty claim from top to bottom."
+    }
+   ]
+  },
+  {
+   "bill": "HB0424",
+   "issues": [
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Fourth substitute text rewrites the elements of lewdness involving a child, reaching simulated masturbation and restating exposure conduct in terms that no longer depend on the actor's gender. The offense covers conduct it did not clearly reach before, which is an expansion of criminal exposure."
+    }
+   ]
+  },
+  {
+   "bill": "HB0425",
+   "issues": [
+    {
+     "issueKey": "health_drug_prices",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text requires a health benefit plan to ensure pharmaceutical rebates are used for stated purposes, enacts pharmacy network requirements, modifies pharmacy audit rules, and requires a pharmacy benefit manager to offer specified options to self-funded plans. Directing rebate dollars and constraining benefit managers is drug-cost policy aimed at the middlemen."
+    }
+   ]
+  },
+  {
+   "bill": "HB0429",
+   "issues": [
+    {
+     "issueKey": "civil_service_control",
+     "weight": 65,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text classifies a state employee as exempt from career service status beginning January 2025 unless the position requires POST certification, career status is needed to keep federal funding, or the employee held career status before reclassification, and it redefines career service by reference to the system section. Stripping tenure protections from the state workforce is exactly what this key tracks."
+    }
+   ]
+  },
+  {
+   "bill": "HB0430",
+   "issues": [
+    {
+     "issueKey": "transit",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text lets local option sales tax revenue and Transit Transportation Investment Fund money pay for public transit innovation grants, has the Department of Transportation and the Transportation Commission administer and prioritize them, and requires a large transit district to report expenditures, service, and ridership to each municipality. New money for transit service plus accountability for it."
+    }
+   ]
+  },
+  {
+   "bill": "HB0459",
+   "issues": [
+    {
+     "issueKey": "justice_reform",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text prohibits a court from accepting a plea that blends a juvenile adjudication and disposition with an adult criminal conviction and sentence, and voids any conviction or sentence entered as a prohibited blended plea. It closes a route by which a minor picks up an adult sentence in the same breath as a juvenile disposition."
+    }
+   ]
+  },
+  {
+   "bill": "HB0460",
+   "issues": [
+    {
+     "issueKey": "religious_liberty",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Third substitute text requires a governmental entity to grant an employee's request to be relieved from performing a task that violates the employee's conscience, defined as a sincerely held belief about the rightness or wrongness of an action, unless doing so would impose undue hardship, and creates protections and a cause of action for a denied employee. Conscience protection with a remedy attached."
+    }
+   ]
+  },
+  {
+   "bill": "HB0463",
+   "issues": [
+    {
+     "issueKey": "healthcare",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Second substitute defines a Medicaid shortfall and requires that on a shortfall the responsible departments suspend hiring, suspend wage increases, suspend increases in provider payment rates, suspend expanding reimbursement benefits including drug reimbursements, and close enrollment to new members. A mandatory enrollment freeze is a coverage contraction written into statute ahead of time."
+    }
+   ]
+  },
+  {
+   "bill": "HB0465",
+   "issues": [
+    {
+     "issueKey": "housing_support",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Third substitute text authorizes redevelopment and community development agencies to fund acquisition, construction, or rehabilitation of income targeted housing, requires the Department of Workforce Services to create pass-through funding agreements that spend state funds on stated affordable housing investments, modifies the low-income housing tax credit, and adjusts moderate income housing reporting. The bill's money and mandates run toward income-targeted units."
+    }
+   ]
+  },
+  {
+   "bill": "HB0473",
+   "issues": [
+    {
+     "issueKey": "transit",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text creates the Transit Access Pass for Students pilot grant program with application requirements, rulemaking by the state board, reporting, and a sunset date. It puts state grant money behind transit passes for students, which is a service subsidy rather than a study."
+    }
+   ]
+  },
+  {
+   "bill": "HB0481",
+   "issues": [
+    {
+     "issueKey": "climate_action",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text replaces the declining schedule for the alternative fuel heavy duty vehicle tax credit, which was stepping down from fifteen thousand dollars to three thousand, with a flat fifteen thousand dollar credit, and adds a new credit for locomotive idle-reduction devices subject to an annual aggregate cap and a sunset. Emission-reducing equipment is made cheaper for the taxpayers who buy it."
+    }
+   ]
+  },
+  {
+   "bill": "HB0496",
+   "issues": [
+    {
+     "issueKey": "lands_balance",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text requires the Public Lands Policy Coordinating Office to recognize and promote the principles of multiple use and sustained yield on federal public lands within the state, and prohibits natural asset companies from purchasing or leasing state public lands. Multiple use and sustained yield is the stated standard, and the natural asset company ban forecloses the alternative of retiring land from use."
+    }
+   ]
+  },
+  {
+   "bill": "HB0514",
+   "issues": [
+    {
+     "issueKey": "religious_liberty",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text permits an LEA to allow a volunteer chaplain in its schools, requires LEAs that do so to adopt policies and requirements for chaplains, and requires the State Board of Education to report to the Education Interim Committee. Opening the public school building to religious volunteers is the operative change."
+    }
+   ]
+  },
+  {
+   "bill": "HB0517",
+   "issues": [
+    {
+     "issueKey": "edu_parental",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text requires half-day kindergarten instruction to meet minimum standards the State Board of Education sets, requires an LEA governing board to inform parents that the half-day option exists, and requires it to provide a designated half-day class once half-day enrollment reaches a threshold. A parent's option is disclosed and then guaranteed, which is the narrow parental-control end of this key."
+    }
+   ]
+  },
+  {
+   "bill": "HB0534",
+   "issues": [
+    {
+     "issueKey": "gov_waste",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text repeals roughly two dozen boards, commissions, task forces, and advisory councils outright and folds seven separate professional licensing boards into consolidated boards, along with repealing the COVID-19 Health and Economic Response Act chapter. It is a streamlining bill whose every clause removes or merges a standing body rather than creating one."
+    }
+   ]
+  },
+  {
+   "bill": "HB0560",
+   "issues": [
+    {
+     "issueKey": "pro_choice",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text deletes the prohibition on the state issuing a license for an abortion clinic after May 2, 2023 and the related bar on a licensed abortion clinic performing abortions, and restores type I and type II abortion clinics to the licensed facility categories. Removing the licensing shutdown is what keeps clinic-based abortion legally available in the state."
+    }
+   ]
+  },
+  {
+   "bill": "SB0071",
+   "issues": [
+    {
+     "issueKey": "cannabis_reform",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text enacts a nonrefundable income tax credit for business expenses related to selling medical cannabis in the state, and requires the Department of Agriculture and Food to report license applicants' tax identification numbers to the State Tax Commission. The credit exists to offset the federal deduction denial that makes cannabis retail uniquely expensive, which supports the legal medical market."
+    }
+   ]
+  },
+  {
+   "bill": "SB0111",
+   "issues": [
+    {
+     "issueKey": "back_police",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text creates the Law Enforcement Canine Grant Program to fund the purchase, training, handling, and insuring of law enforcement canines, has the Department of Public Safety administer it with priority to small agencies, and adds a sunset. It is direct state funding of police capability."
+    }
+   ]
+  },
+  {
+   "bill": "SB0118",
+   "issues": [
+    {
+     "issueKey": "water",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Fourth substitute text provides incentives for water efficient landscaping in new residential development, grants rulemaking authority to implement them, and sets a sunset date. Landscaping is where most residential water goes in this state, so incentivizing efficient installation at build time is a substantive conservation measure."
+    }
+   ]
+  },
+  {
+   "bill": "SB0126",
+   "issues": [
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text replaces the gestational agreement statute's references to a prospective gestational mother's husband with references to the mother's spouse, and removes the clause requiring that both spouses among the intended parents satisfy the married requirement in the gendered form. The statute stops assuming an opposite-sex marriage, which is a narrow recognition gain."
+    }
+   ]
+  },
+  {
+   "bill": "SB0128",
+   "issues": [
+    {
+     "issueKey": "justice_reform",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text doubles the monetary thresholds that set offense grades across the theft and fraud chapters, moving conduct down from felony to misdemeanor and from class A to class B, and the new sentencing section it enacts orders mental health or substance abuse screening on a second offense and supervised probation rather than prison on later ones. Both halves reduce severity."
+    }
+   ]
+  },
+  {
+   "bill": "SB0138",
+   "issues": [
+    {
+     "issueKey": "public_schools",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text requires the State Board of Education to solicit proposals and award grants that an LEA must use to employ an additional first year educator in a high-need school, with matching funds, reporting, and a sunset. State money buys teaching positions in the schools that have the hardest time staffing them."
+    }
+   ]
+  },
+  {
+   "bill": "SB0166",
+   "issues": [
+    {
+     "issueKey": "healthcare",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text defines a long-term drug as one an enrollee has been prescribed for at least one hundred eighty days and requires a health benefit plan to establish procedures, including notice, before requiring the enrollee to switch off that drug or when it leaves the formulary. Continuity of an established prescription is a narrow but real access protection."
+    }
+   ]
+  },
+  {
+   "bill": "SB0176",
+   "issues": [
+    {
+     "issueKey": "child_care",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text enacts the Child Care Capacity Expansion Act, states its purpose, directs named state departments to collaborate on implementing it, and requires an annual report to legislative committees. The stated object is expanding capacity, but the mechanism is interagency coordination rather than money or slots, so it stays at the narrow-link floor."
+    }
+   ]
+  },
+  {
+   "bill": "SB0182",
+   "issues": [
+    {
+     "issueKey": "prop_tax",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Fifth substitute text gives a property owner additional remedies when valuation alone raises an assessment past a threshold with no significant change to the property, changes the burdens of proof at the county board of equalization and the State Tax Commission so the carrying party need not show substantial error, requires reporting when a county exceeds the threshold, and sets deferral and partial payment rules. The taxpayer's position in a valuation fight improves."
+    }
+   ]
+  },
+  {
+   "bill": "SB0200",
+   "issues": [
+    {
+     "issueKey": "checks_balances",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Fourth substitute text requires the Legislature to approve the sentencing and supervision length guidelines and the juvenile disposition guidelines developed by the State Commission on Criminal and Juvenile Justice, and adjusts the membership and duties of that commission and the sentencing commission. Guideline-setting moves from an executive commission to legislative sign-off, which is an institutional power shift."
+    }
+   ]
+  },
+  {
+   "bill": "SB0210",
+   "issues": [
+    {
+     "issueKey": "gov_regulation",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text creates a certification allowing an optometrist to perform specified laser procedures after required training, imposes reporting and standards on certified optometrists, requires the Office of Professional Licensure Review to recommend whether the practice should continue based on outcome data, and sets a sunset. A licensure barrier to performing a procedure is lowered under review conditions."
+    }
+   ]
+  },
+  {
+   "bill": "SB0211",
+   "issues": [
+    {
+     "issueKey": "water_storage",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text creates the Water District Water Development Council under the Interlocal Cooperation Act with powers, duties, reporting, and consultation requirements, addresses expenditures from the Water Infrastructure Restricted Account, and creates the Utah water agent to negotiate for new water supply with a sunset. The bill builds standing capacity to develop and import water supply."
+    }
+   ]
+  },
+  {
+   "bill": "SB0233",
+   "issues": [
+    {
+     "issueKey": "cannabis_reform",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Third substitute text widens the address types medical cannabis may be delivered to, permits targeted marketing by pharmacies, processors, and clinics, lets additional medical providers recommend to the Compassionate Use Board, eases felony-related license bars, strengthens public employee protections for medical cannabis use, and gives a public employee a Labor Commission complaint route. The advertising limits it keeps are guardrails on a net expansion."
+    }
+   ]
+  },
+  {
+   "bill": "SB0250",
+   "issues": [
+    {
+     "issueKey": "prop_tax",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text aligns the maximum annual renter's credit with the maximum allowed for the homeowner's credit, raising the ceiling on relief a qualifying renter can receive. It is one number, but unlike the two-way relief packages this wave refused, nothing in the bill withdraws relief from anyone."
+    }
+   ]
+  },
+  {
+   "bill": "SB0269",
+   "issues": [
+    {
+     "issueKey": "rural_ag",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text requires a manufacturer of agricultural equipment to give the owner or an unaffiliated repair provider access to the data, software, software updates, and parts needed to repair the equipment, and exempts the manufacturer from liability for repairs done by others. A farmer's ability to fix their own equipment is the whole point of the bill."
+    }
+   ]
+  },
+  {
+   "bill": "SB0275",
+   "issues": [
+    {
+     "issueKey": "healthcare",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text creates deadlines by which a managed care organization must respond to specified authorization requests and adds a reporting requirement. A hard clock on preauthorization decides whether covered care actually reaches the patient in time, which is why this outranks the disclosure-only preauthorization bills."
+    }
+   ]
+  }
+ ],
+ "_refused": [
+  {
+   "bill": "HB0036",
+   "why": "Open and Public Meetings Act rewrite that cuts both ways: it repeals the requirement to post written notice of an electronic meeting and rewrites anchor location and vote recording provisions, while adding a prohibition on a quorum of a public body taking action outside a meeting. Access is loosened in one clause and tightened in another, so gov_transparency has no single direction."
+  },
+  {
+   "bill": "HB0051",
+   "why": "Directs the Office of the Legislative Fiscal Analyst to analyze Medicaid funding risk and recommend budgetary actions, renames the Medicaid Expansion Fund, merges the Medicaid Restricted Account into a stabilization account, and permits appropriations to and from it. Budget plumbing and analysis with no change to who is covered or what is paid for."
+  },
+  {
+   "bill": "HB0052",
+   "why": "Industrial hemp package that deregulates and regulates the same market at once: it repeals the hemp laboratory permit and the cannabinoid product registration fee, exempts cannabinoid sales from sales and use tax, and creates a production grant program, while enacting a Cannabinoid Product Licensing and Tax Act and requiring underage buying investigations. cannabis_reform cannot be scored in one direction from it."
+  },
+  {
+   "bill": "HB0074",
+   "why": "Allocates the cost of relocating utility infrastructure in state highway and transit rights of way between the Department of Transportation and the affected utilities, and requires coordination and adherence to existing agreements. A cost-sharing rule between a state agency and utilities; no shipped key has a direction on it."
+  },
+  {
+   "bill": "HB0078",
+   "why": "Repeals the sunset on motion picture incentives reserved for rural productions, authorizes tax credit certificates in an amount set the preceding session, and adds a biennial legislative review. A targeted industry subsidy: lower_taxes is about the burden on taxpayers generally and no shipped key covers film production incentives."
+  },
+  {
+   "bill": "HB0101",
+   "why": "Restructures law enforcement reporting requirements in the Public Safety Code and adds reporting on lawfully seized firearms. Reporting on seized firearms serves gun-owner accountability and firearm data collection equally well, and the bill states no direction, so gun_safety and gun_rights would each be an imported reading."
+  },
+  {
+   "bill": "HB0109",
+   "why": "Requires a school traffic safety committee to submit a child access routing plan with priority infrastructure recommendations, requires highway authorities to give feedback on cost, timing, and their own priorities, and routes bus route recommendations to the local board for discretionary referral. A planning and recommendation process that funds and builds nothing."
+  },
+  {
+   "bill": "HB0112",
+   "why": "Removes human sexuality from the statutory definition of sex education instruction. Because that definition is what triggers the parental consent requirement, the change reads either as taking human sexuality outside the consent regime or as removing it from what may be taught as sex education, and the text does not say which, so edu_parental would have to import the direction."
+  },
+  {
+   "bill": "HB0113",
+   "why": "Allows a rural county to impose a local option sales and use tax for county jail facilities subject to voter and county legislative body approval, and addresses collection, distribution, and the state administrative charge. A local revenue authorization: tough_on_crime measures sentencing and enforcement policy, not whether a county may ask its voters for jail construction money."
+  },
+  {
+   "bill": "HB0121",
+   "why": "Prohibits an LEA from collecting background check fees from volunteers and licensed, non-licensed, and contract employees, and allows background information to be cloned between LEAs or a qualifying private school. A fee shift and a records convenience; public_schools has no direction to read from who pays a background check fee."
+  },
+  {
+   "bill": "HB0127",
+   "why": "Directs the attorney general to build and operate a public reporting system for alleged victim targeting offenses, meaning offenses subject to the victim targeting sentencing enhancement. No shipped key covers bias-motivated crime reporting, and tough_on_crime would turn a complaint portal into a sentencing position the text never takes."
+  },
+  {
+   "bill": "HB0166",
+   "why": "Moves an alien unlawfully in the United States from Category I to Category II restricted person while moving an individual subject to a domestic violence protective order or with a qualifying domestic violence conviction from Category II to Category I. The same section loosens one class of firearm restriction and tightens another, which is the two-way pattern this wave refuses."
+  },
+  {
+   "bill": "HB0170",
+   "why": "Identifies conduct that may disqualify a claimant from unemployment benefits but leaves the description of that conduct to Unemployment Insurance Division rulemaking, and requires a website for employers to report suspected fraud. The eligibility direction is delegated to rules the bill does not write, so econ_workers would be scoring a rulemaking instruction."
+  },
+  {
+   "bill": "HB0189",
+   "why": "Requires an optometrist or physician prescribing a contact lens to disclose specified information to the patient. A single professional disclosure duty; healthcare_costs and healthcare both require more than a notice requirement in one specialty."
+  },
+  {
+   "bill": "HB0193",
+   "why": "Extends the repeal dates for the inpatient hospital assessment and the Medicaid expansion hospital assessment. Continuing an existing provider assessment is financing maintenance, and the text changes no eligibility, benefit, or rate."
+  },
+  {
+   "bill": "HB0197",
+   "why": "Authorizes supported decision-making agreements for individuals under guardianship while making their use subject to the permission of the guardian or conservator wherever a court has granted that authority. Autonomy is created and subordinated in the same text, the same reason the 2025 guardianship bills were refused, and no shipped key covers disability guardianship."
+  },
+  {
+   "bill": "HB0198",
+   "why": "Requires the juvenile court to provide a fundamentally fair process before terminating parental rights and to give serious consideration to the fundamental right of a parent, with heightened findings when a governmental entity is the moving party. The direction is clear but has no home: edu_parental is scoped to schooling and curriculum, and family_support is about the household economics of raising children, so admitting either would stretch a key past its vocabulary."
+  },
+  {
+   "bill": "HB0200",
+   "why": "Modifies the professional conduct standards applicable to physicians, advanced practice registered nurses, and physician assistants in relation to do not resuscitate orders, largely by adjusting what is and is not unprofessional conduct and delegating definitions to rulemaking. Neither patient autonomy nor provider obligation is clearly enlarged."
+  },
+  {
+   "bill": "HB0208",
+   "why": "Amends legislative findings on teacher competency, directs the state board and the Board of Higher Education to develop a strategy for modifying teacher preparation programs, prohibits the state board from requiring a pedagogical performance assessment for licensure, and limits delegation of authority over preparation programs. Removing one licensure hurdle reads as widening the teacher pipeline or as lowering the bar, and the strategy directive supplies no tiebreaker."
+  },
+  {
+   "bill": "HB0218",
+   "why": "Addresses restitution owed to an individual for financial support a deceased or permanently impaired victim was legally obligated to provide, and how restitution interacts with a civil action for the same conduct. Restitution mechanics sit between the criminal and civil systems, and neither tough_on_crime nor justice_reform is about who collects which dollar first."
+  },
+  {
+   "bill": "HB0220",
+   "why": "Adds factors for determining the marital standard of living, sets a look-back period for a spouse's financial showing, restricts when a court may reduce a showing of need, and limits imputation of income in stated circumstances. Alimony formula mechanics; no shipped key covers divorce awards."
+  },
+  {
+   "bill": "HB0243",
+   "why": "Directs the creation of a state position related to riparian areas with a sunset on the position and requires the division to publish riparian information. One staff line and a publication duty; water and enviro_balance both need an operative change to water use or land management."
+  },
+  {
+   "bill": "HB0249",
+   "why": "Prohibits a governmental entity from granting or recognizing legal personhood for stated categories of nonhumans. No shipped key covers legal personhood for animals, ecosystems, or artificial intelligence, and stretching enviro_balance to cover it would score a member on pollution policy from a definitional bar."
+  },
+  {
+   "bill": "HB0251",
+   "why": "Creates an alternative route for a Utah Retirement Systems retiree to return to work for a participating employer while receiving a retirement allowance, and adds reporting requirements. Public pension reemployment mechanics; no shipped key covers them."
+  },
+  {
+   "bill": "HB0262",
+   "why": "Exempts the sale or lease of certain large aggregations of trust lands from advertising requirements, excludes stated lands from that exemption, and requires rulemaking on determining fair market value. A procedural exemption paired with its own carve-out; whether trust land disposal gets easier or better priced depends on which clause you weigh."
+  },
+  {
+   "bill": "HB0283",
+   "why": "Removes the requirement that certain vehicles display a month or year registration decal, creates a month-to-month registration option with program framework, and clarifies expiration notices. Registration administration; no shipped key covers it."
+  },
+  {
+   "bill": "HB0288",
+   "why": "Excludes land acquired by certain governmental entities from the agricultural rollback tax, requires an in lieu fee if such land is sold within a period, extends the rollback payment and appeal deadlines, and requires rules allowing appeal extensions. A rollback tax exception plus deadline mechanics, with the exemption offset by the in lieu fee."
+  },
+  {
+   "bill": "HB0290",
+   "why": "Moves the repeal date of the Municipal Alternate Voting Methods Pilot Project from January 2026 to May 2024, ending the ranked choice voting pilot. Like the 2025 runoff and advisory question bills, this rearranges how votes are counted rather than adding or removing a voter's ability to have a vote count, so voting_access and election_integrity both stay refused."
+  },
+  {
+   "bill": "HB0327",
+   "why": "Renames the victims and witnesses chapter and limits the use of a polygraph on a victim of a sexual offense. A protection for one class of victim during investigation; no shipped key covers victim treatment, and justice_reform is about the defendant's side of the system."
+  },
+  {
+   "bill": "HB0334",
+   "why": "Modifies the exemptions from liability, and the safe harbor protections, in the cause of action for injury of a minor by pornographic material, and clarifies who must give the warning. Liability is narrowed and widened within the same section, so neither tech_balance nor edu_parental has a single direction."
+  },
+  {
+   "bill": "HB0338",
+   "why": "Adds specific disorders to the definition of mental illness for offender proceedings, sets requirements for documents and arrest reports used in treatment assessments and hearings, clarifies competency evaluation scheduling, and addresses third party service providers. Procedure for existing evaluations rather than an expansion of treatment capacity."
+  },
+  {
+   "bill": "HB0347",
+   "why": "Requires an LEA to provide an educational environment that is safe for all students and staff and has minimal disruptions, and then forecloses private rights of action and waivers of governmental immunity for those duties. A duty created and its enforcement removed in the same bill."
+  },
+  {
+   "bill": "HB0348",
+   "why": "Exempts a portion of certain budget reserve accounts from the State Money Management Act, authorizes the state treasurer to invest part of those reserves in precious metals, and requires a treasurer study. No shipped key covers precious metals or sound money policy: crypto_cbdc is scoped to digital assets and central bank digital currency."
+  },
+  {
+   "bill": "HB0351",
+   "why": "Allows a newly licensed driver younger than eighteen to carry one passenger who is not an immediate family member. A single graduated licensing adjustment; no shipped key covers teen driving restrictions."
+  },
+  {
+   "bill": "HB0353",
+   "why": "Modifies mining definitions, addresses judicial review, amends the approval process for notices of intention for large mining operations, provides for conversion between small and large operations, and sets procedures for review of permit orders. Permitting procedure that constrains the regulator and the operator in the same text."
+  },
+  {
+   "bill": "HB0373",
+   "why": "Environmental Quality Code package that requires Federalism Commission meetings with the department, repeals the Air Quality Policy Advisory Board, addresses sales tax exemptions and certifications for pollution control equipment, and rewrites the powers of the Board and Division of Oil, Gas, and Mining. Four unrelated subjects pulling in different directions."
+  },
+  {
+   "bill": "HB0376",
+   "why": "Permits an alleged victim, or a representative in stated cases, to view the booking photo of a person charged in relation to that victim, and conforms the Government Records Access and Management Act. A single narrow viewing right rather than a change in public access to records."
+  },
+  {
+   "bill": "HB0408",
+   "why": "Requires a transportation network company to let a passenger flag oversize luggage and to notify passengers of child restraint requirements, and makes an adult passenger responsible for restraining supervised minors. Consumer notice and responsibility allocation in ride-share; no shipped key covers it."
+  },
+  {
+   "bill": "HB0412",
+   "why": "Amends what an agency must cover in the self-assessment it files as part of the legislative budget review, deleting budget controls and organizational culture from the assessed scope and pointing agencies at the auditor general's self-assessment tools. Narrowing an assessment questionnaire is not an audit expansion, so audit_spending has no direction here."
+  },
+  {
+   "bill": "HB0421",
+   "why": "Homelessness omnibus that expands and conditions services in the same text: it creates the HOME Court pilot, lets municipalities take emergency weather measures, and requires shelter bed prioritization standards, while barring mitigation funds to a municipality unless it enforces certain prohibitions and shows reduced conduct, and raising the code blue alert temperature. The homeless key cannot be scored in one direction."
+  },
+  {
+   "bill": "HB0446",
+   "why": "Creates the Recreational Vehicle Account funded by a portion of certain tax revenue, the Recreational Vehicle Grant Program in the Division of Outdoor Recreation, and an advisory committee with rulemaking authority. An outdoor recreation grant program; no shipped key covers it."
+  },
+  {
+   "bill": "HB0449",
+   "why": "Extends the Pedestrian Safety and Facilities Act to bicyclists and adds safety measures for pedestrians and bicyclists. No shipped key measures non-motorized road safety: transit is about public transportation service and infrastructure is about the built network, and neither is what a crosswalk standard changes."
+  },
+  {
+   "bill": "HB0453",
+   "why": "Great Salt Lake package that both facilitates and restrains extraction: it changes severance tax distribution and disclosure, provides royalty discounts and small project treatment, and declares the lake a multiple mineral development area, while enacting the Great Salt Lake Preservation Act, a distribution management plan for water rights, and eminent domain authority to acquire mineral estates. water and lands_energy each capture only half."
+  },
+  {
+   "bill": "HB0483",
+   "why": "Raises the dollar threshold below which a person may work in the construction trades without a license and adds failure to obtain a building permit as a qualifying violation. One clause deregulates entry and the next adds an enforcement trigger, so gov_regulation has no single direction."
+  },
+  {
+   "bill": "HB0493",
+   "why": "Requires an LEA in stated circumstances to contract with an eligible institution offering an online concurrent enrollment course and adds reporting on the right of first refusal. Contracting procedure between education providers; school_choice is about a family's ability to choose a school, which this does not touch."
+  },
+  {
+   "bill": "HB0502",
+   "why": "Requires the Division of Oil, Gas, and Mining to study critical infrastructure materials operations and related mining, names who it must cooperate with, requires reporting, and sets a sunset. A study with no operative change to permitting or production."
+  },
+  {
+   "bill": "HB0505",
+   "why": "Creates the Property Loss Related to Homelessness Compensation Fund, describes allowable uses and nonlapsing treatment, and creates an advisory committee. Compensating third parties for property loss neither expands nor restricts homelessness services, which is why the same fund was refused in the 2025 pass."
+  },
+  {
+   "bill": "HB0521",
+   "why": "Redirects an existing class size reduction appropriation toward districts and charter schools with the highest need, adjusts which grades the funds may serve, requires recipient reporting, and permits an inflation adjustment. Reallocating a fixed appropriation among LEAs changes no funding level, so public_schools has no direction to score."
+  },
+  {
+   "bill": "HB0524",
+   "why": "Requires the state engineer to study issues related to conveyances of water interests for residential buildings and to report. A study; water requires an operative change to a right or a use."
+  },
+  {
+   "bill": "HB0525",
+   "why": "Requires the Department of Agriculture and Food to study barriers and gaps in increasing the availability of local food and to report findings to an interim committee. A study; rural_ag requires an operative change for farmers or rural communities."
+  },
+  {
+   "bill": "HB0532",
+   "why": "Repeals and consolidates a long list of boards and committees but also adds new obligations in the same text, requiring law enforcement agencies and domestic violence service organizations to submit data to the State Commission on Criminal and Juvenile Justice and modifying that commission's membership. Unlike the companion repeal bill, this one creates duties as well as removing bodies, so gov_waste has no clean direction."
+  },
+  {
+   "bill": "HB0561",
+   "why": "Creates the Communication Habits to reduce Adolescent Threats pilot program, requires the Department of Health and Human Services to issue a request for proposals, and requires a report to an interim committee. A pilot procurement with no standing program or benefit."
+  },
+  {
+   "bill": "HB0562",
+   "why": "Creates the Utah Fairpark Area Investment and Restoration District with boundary, board, an array of new local taxes, privilege tax on state land, impact fee prohibitions, enhanced property tax revenue, and authority to own and help build a qualified stadium. Project finance for one district; no shipped key covers stadium districts, and the same reasoning refused the 2025 Fairpark and Beehive Development bills."
+  },
+  {
+   "bill": "HR0004",
+   "why": "A House resolution urging Congress to pass H.R. 4052 to create a national infrastructure bank. Federal advocacy is out of scope for the state formal lane by the standing doctrine, and the resolution has no enacted text to read a state-level direction from."
+  },
+  {
+   "bill": "SB0030",
+   "why": "Requires purchase price disclosure to the county recorder on transfer while classifying that price as a private and confidential tax record with limited sharing, modifies the burden of proof and presumed value in valuation appeals above a threshold, authorizes income-approach assessment of leased commercial property, and changes telecommunications valuation. Disclosure and confidentiality are enacted together, so prop_tax and gov_transparency each get half the text."
+  },
+  {
+   "bill": "SB0061",
+   "why": "Prohibits the sale of electronic cigarette products lacking federal market authorization, codifies a nicotine limit, bans flavored electronic cigarette products, and creates a product registry. No shipped key covers tobacco or nicotine regulation, the same reason the 2025 tobacco enforcement bill was refused."
+  },
+  {
+   "bill": "SB0075",
+   "why": "Amends mineral exploration definitions including eligible claimant, modifies the aggregate value of tax credit certificates that may be issued, and addresses federal agency consultation before certain federal designations. A credit cap adjustment plus a consultation duty, with no stated direction on production or conservation."
+  },
+  {
+   "bill": "SB0079",
+   "why": "Recodifies fiduciary, probate, and trust statutes into new titles, clarifies fiduciary payment and deposit provisions and definitions, moves asset protection trust provisions, and includes transition clauses. A recodification; the 2025 estate planning bill was refused for the same reason."
+  },
+  {
+   "bill": "SB0082",
+   "why": "Adds to the public accommodation statute that nothing in the act regulates business website accessibility, carving websites out of state accommodation obligations. No shipped key covers disability accommodation or accessibility law, so there is nothing to map the carve-out onto without inventing a key."
+  },
+  {
+   "bill": "SB0084",
+   "why": "Governor's Office of Economic Opportunity omnibus: definitional renaming, board and commission membership changes, a procurement exception for the Office of Tourism, aligned reporting dates, modified broadband grant programs, a new Broadband Equity Access and Deployment Grant Program, and an artificial intelligence grant pilot. Reorganization across several subjects with no single direction."
+  },
+  {
+   "bill": "SB0086",
+   "why": "Prohibits a local political subdivision from issuing a lease revenue bond above a specified threshold, with an exception, and requires notice and a public hearing before issuing certain lease revenue bonds. Restraining local debt that avoids a bond election reads as fiscal discipline or as blocking local capital projects, and the text picks neither."
+  },
+  {
+   "bill": "SB0121",
+   "why": "Establishes the Long-term Education Achievement Program pilot letting LEAs, nonprofits, and municipalities partner on student outcomes, with proposal requirements, funding conditions, regulatory waivers, and reporting. A pilot partnership framework; public_schools requires a change in funding or staffing, which the bill does not make."
+  },
+  {
+   "bill": "SB0129",
+   "why": "Creates a medical director position within the Department of Health and Human Services focused on children, youth, and families, with qualifications and defined duties and authority. A single leadership position; healthcare and health_mental both require a change to coverage or services."
+  },
+  {
+   "bill": "SB0135",
+   "why": "Aeronautics package covering roadable aircraft registration and fee distribution, airports of regional significance, leasing navigable airspace over highway rights of way, land use protections for vertiports, flight over state lands, and a ban on government purchase of foreign-manufactured drones for critical infrastructure inspection. Several unrelated subjects, none of which a shipped key measures."
+  },
+  {
+   "bill": "SB0148",
+   "why": "Subjects aircraft to state registration based on days operated in the state, limits which aircraft the State Tax Commission centrally assesses, and requires an annual aircraft list from the Department of Transportation. Assessment administration for one property class; prop_tax is about the burden on homeowners and real property."
+  },
+  {
+   "bill": "SB0159",
+   "why": "Creates a self-government and classroom communication discipline framework pilot program inside the Teacher and Student Success Program and lets an LEA fold it into its existing framework. An optional pilot; public_schools and edu_balance both need an operative change the text does not make."
+  },
+  {
+   "bill": "SB0189",
+   "why": "Changes how a net metering customer's credit for exported generation is calculated, removing the alternative of a credit as determined by the governing authority and pegging it to a method using data from the last completed rate case, with at least avoided cost as the floor. Whether rooftop customers end up better or worse off turns on the rate case, so enviro_energy and energy_production would both be guesses."
+  },
+  {
+   "bill": "SB0203",
+   "why": "Requires the Department of Environmental Quality to establish a Safe Drinking Water Act fee schedule with stated requirements, permits fees set to create a compliance incentive, addresses a wholesale supplier exemption, and treats the fees as dedicated credits. A fee schedule; water measures rights, supply, and conservation rather than permit costs."
+  },
+  {
+   "bill": "SB0206",
+   "why": "Creates the One Utah Service Fellowship Program with oversight by the Commission on Service and Volunteerism, third-party administration, reporting, and a sunset. A youth service fellowship; no shipped key covers national or state service programs."
+  },
+  {
+   "bill": "SB0216",
+   "why": "Requires an LEA to use semesters or quarters for its school schedule. A calendar mandate with no bearing on funding, staffing, curriculum, or family choice."
+  },
+  {
+   "bill": "SB0220",
+   "why": "Repeals the School Readiness Board, replaces it with a staff team drawn from the Office of Child Care and the state board, renames the school readiness grant programs, prioritizes funding between them, and requires coordination with UPSTART providers. Administrative restructuring of existing grant programs with no change in eligibility or funding level."
+  },
+  {
+   "bill": "SB0226",
+   "why": "Establishes an independent School of General Education within the University of Utah, requires undergraduates to complete a forty-two credit common core, and exempts that core from administrative policies on course content. The 2025 civic excellence center was refused on the same ground: the text names no curriculum outcome a shipped key measures, and reading end_dei into a credit requirement would import the direction from the debate."
+  },
+  {
+   "bill": "SB0237",
+   "why": "Allows towing information to be shared with a designated agent and with a towed vehicle's insurance company in stated circumstances, and amends the Uninsured Motorist Identification Restricted Account. Information sharing among commercial parties in towing; privacy_rights would be scoring an insurer notification."
+  },
+  {
+   "bill": "SB0245",
+   "why": "Revises the distribution of sixteen percent of the revenue from the county botanical, cultural, recreational, and zoological tax in a county of the first class. A distribution formula for one county; no shipped key covers it."
+  },
+  {
+   "bill": "SB0248",
+   "why": "Replaces Utah's own hour limits for minors under sixteen with limits keyed to the federal standard, tightening evening hours from nine thirty to seven and school-day hours from four to three, while incorporating the federal exemptions in 29 U.S.C. 213 and 29 C.F.R. 570.35 and amending the list of permitted occupations. Protections tighten and exemptions widen in the same section."
+  },
+  {
+   "bill": "SB0255",
+   "why": "Clarifies that an immediate family member is not a long-term guest and addresses the case where one party seeks to remove a long-term guest while another gives express permission to stay. Trespass definitions inside a residence; neither property_rights nor housing_support turns on who counts as a guest."
+  },
+  {
+   "bill": "SB0273",
+   "why": "Requires the district attorney's office in a county of the first class to track time spent on criminal cases and report annually to an interim committee, with sunset review, and provides a process for recommending that the Supreme Court appoint a prosecutor pro tempore. Data collection and an appointment procedure; no shipped key has a direction on prosecutor workload reporting."
+  }
+ ]
+}

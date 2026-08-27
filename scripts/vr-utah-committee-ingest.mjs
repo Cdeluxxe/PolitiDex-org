@@ -94,6 +94,7 @@
 //   --survey  [--session 2025GS]   fetch committee/meeting/minutes/PDF (network)
 //   --collect [--session 2025GS]   read the cache; draft the printed-name map
 //   --seed    [--session 2025GS]   write db/vr-utah-committee-seed[-S].json
+//   --bucket  [--session 2025GS]   list the off-lane contested bills (curator worklist)
 //   --sql     [--session 2025GS]   write the migration into --out
 //   --json                         machine-readable report on stdout
 // ─────────────────────────────────────────────────────────────────────────────
@@ -400,7 +401,21 @@ function survey(session) {
 // ─────────────────────────────────────────────────────────────────────────────
 // COLLECT — no network. Read the cache, apply the admission rules, and report.
 // ─────────────────────────────────────────────────────────────────────────────
-function collect(session, { reviewedMapRequired }) {
+// `extraLane` — THE DOOR FOR A CURATOR PASS, AND WHY IT IS A PARAMETER.
+// Rule 5 above says a committee act is admitted only for a bill already in the formal
+// lane with reviewed issue mappings, and that rule is not being relaxed: a bill still
+// cannot reach an act without a reviewed mapping. What `extraLane` changes is WHERE
+// the reviewed mapping may come from. Wave 1's floor seed is one reviewed source;
+// wave 4's committee-mapping file (db/vr-utah-committee-bills-<S>.json, read and
+// decided bill by bill against the enrolled text) is another. Both are human-accepted
+// files in this repo, and a bill in neither is refused exactly as before.
+//
+// Every other fence still applies to an extraLane bill without exception — the
+// contested-margin bar, the four-way PDF confirmation, the reviewed printed-name map,
+// one act per person per bill. The floor-supersession bookkeeping applies too: an
+// extraLane measure carries whatever floor voters its caller states, which for a
+// committee-only measure is none, and that is reported rather than assumed away.
+export function collect(session, { reviewedMapRequired, extraLane }) {
   const floorMap = readJson(floorMapFile(session));
   const floorSeed = readJson(floorSeedFile(session));
   const lane = new Map();               // BILL -> measure from the floor seed
@@ -410,6 +425,13 @@ function collect(session, { reviewedMapRequired }) {
     const set = new Set();
     for (const rc of m.rollcalls || []) for (const v of rc.votes || []) set.add(v.politicianId);
     floorVoters.set(m.utahBill, set);
+  }
+  for (const [bill, m] of (extraLane || new Map())) {
+    if (lane.has(bill)) continue;       // the floor seed's reviewed mapping wins
+    lane.set(bill, m);
+    const set = new Set();
+    for (const rc of m.rollcalls || []) for (const v of rc.votes || []) set.add(v.politicianId);
+    floorVoters.set(bill, set);
   }
   // surname → floor keys, per chamber: the only fallback, and only when unique.
   const bySurname = { H: new Map(), S: new Map() };
@@ -432,7 +454,7 @@ function collect(session, { reviewedMapRequired }) {
     pdfs: { published: 0, fetched: 0, readable: 0, unreadable: 0, unreadableIds: [] },
     motions: { total: 0, withRecordedRoll: 0, nearUnanimous: 0, admitted: 0, refused: {} },
     bills: { inLane: 0, inLaneAnyCommitteeVote: [], offLane: 0, offLaneList: [],
-             offLaneContested: 0, offLaneContestedList: [] },
+             offLaneContested: 0, offLaneContestedList: [], offLaneDetail: {} },
     names: { resolved: 0, unmapped: 0, refused: 0, unmappedForms: {}, refusedForms: {} },
     acts: { built: 0, reprints: 0, pdfUnconfirmed: 0, pdfUnconfirmedDetail: [],
             pdfConfirmedOnShortName: 0, renamedCommittees: [] },
@@ -492,6 +514,19 @@ function collect(session, { reviewedMapRequired }) {
         if (contested) {
           rep.bills.offLaneContested++;
           if (!rep.bills.offLaneContestedList.includes(mot.bill)) rep.bills.offLaneContestedList.push(mot.bill);
+          // THE BUCKET, WRITTEN DOWN RATHER THAN COUNTED. Wave 3 reported this
+          // bucket as a number, and a number cannot be worked. A curator pass needs
+          // the row itself — which committee, which day, which motion sentence,
+          // which tally — so `--bucket` can hand the pass a worklist instead of a
+          // count. Nothing here is admitted: the bill still has no reviewed
+          // mapping, and this branch still `continue`s.
+          const det = (rep.bills.offLaneDetail[mot.bill] = rep.bills.offLaneDetail[mot.bill] || []);
+          det.push({
+            meeting: id, committee: d.description || "", date: iso, motion: mot.text,
+            yea: yes.length, nay: no.length, absent: absent.length,
+            chamber: /^Senate/i.test(d.description || "") ? "utah senate" : "utah house",
+            sourceUrl: m.pdfPath ? SRC.pdf(m.pdfPath) : null, minutesUrl: SRC.minutes(id),
+          });
         }
         continue;
       }
@@ -878,6 +913,26 @@ function main() {
       console.log(`  acts ${rep.acts.built} on ${rep.bills.inLane} bills · reprints ${rep.acts.reprints} · rows ${rep.rows.kept} (superseded by a floor vote ${rep.rows.supersededByFloor}, fresh ${rep.rows.freshOfFloor})`);
       console.log(`  off-lane: ${rep.bills.offLane} rows across ${rep.bills.offLaneList.length} bills with no reviewed issue keys — ${rep.bills.offLaneContestedList.length} of those bills had a CONTESTED committee vote (candidates for a curator pass; nothing written)`);
       console.log(`  draft map: ${draft}`);
+    }
+    return;
+  }
+  if (has("--bucket")) {
+    // The curator worklist for the off-lane bucket: every bill that had a CONTESTED
+    // pass-out-favorably vote in a standing committee and is not in the formal lane
+    // because nobody has reviewed an issue mapping for it. Read-only, and it writes
+    // nothing anywhere — the decision this feeds is a human's.
+    const { rep } = collect(SESSION, { reviewedMapRequired: false });
+    const bills = rep.bills.offLaneContestedList.slice().sort();
+    const out = {
+      session: SESSION,
+      offLaneBills: rep.bills.offLaneList.length,
+      contestedBills: bills.length,
+      bills: bills.map((b) => ({ bill: b, acts: rep.bills.offLaneDetail[b] || [] })),
+    };
+    if (AS_JSON) console.log(JSON.stringify(out, null, 2));
+    else {
+      console.log(`${SESSION}: ${out.contestedBills} bills with a contested committee vote and no reviewed issue mapping (of ${out.offLaneBills} off-lane bills)`);
+      for (const b of out.bills) console.log(`  ${b.bill}  ${b.acts.length} act(s)  ${b.acts.map((a) => `${a.date} ${a.yea}-${a.nay}`).join(" · ")}`);
     }
     return;
   }
