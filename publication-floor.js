@@ -34,9 +34,28 @@
 
    2. CITED RECORD CONTENT. At least MIN_CITED_POSITIONS documented positions
       that each carry a source URL, or one such position plus at least one
-      tracked promise. "Cited" is load-bearing — a position with no source is
+      tracked promise, or at least MIN_CITED_POSITIONS measures with a sourced
+      formal act on file. "Cited" is load-bearing — a position with no source is
       exactly the thing this product refuses to publish, so it cannot be the
       thing that earns an address.
+
+      THE THIRD DOOR IS NOT A LOWER FLOOR. MIN_CITED_POSITIONS has never moved
+      and does not move here; the same number is asked of a third source of
+      cited content the floor used to be unable to see. The formal record —
+      roll calls and committee acts — lives in the database behind
+      /api/voting-record, not in the repo, so for as long as this file read only
+      CMP_DATA and ISSUE_STANCE_DATA it was answering "is there anything cited
+      here?" while looking away from the most heavily cited material in the
+      product. It said no about files holding a hundred sourced formal acts, and
+      the person-file kicker then printed "record still being built" over them.
+      That was the floor being wrong, not strict.
+
+      formal-index.js closes it: a generated, committed count of sourced acts
+      per person, built from the shipped lane seeds by
+      scripts/gen-formal-index.mjs, so both runtimes read the same integers and
+      the browser needs no fetch to ask. The door counts MEASURES rather than
+      acts, because "two documented positions" has always meant two subjects and
+      never one subject voted on twice.
 
    The threshold is two rather than one because the product already has a word
    for one item, and it is "thin": word-action.js prints "this row rests on one
@@ -59,8 +78,10 @@
   var root = typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this);
   if (root.PDXPublicationFloor) return;
 
-  // Two cited positions, or one plus a tracked promise. See the note above for
-  // why this is the existing thin line rather than a new number.
+  // Two cited positions, or one plus a tracked promise, or two measures with a
+  // sourced formal act. See the note above for why this is the existing
+  // thin/not-thin line rather than a new number, and why the third door is the
+  // same number asked of a source this file could not previously see.
   var MIN_CITED_POSITIONS = 2;
 
   // A pid is part of a URL, so its shape is part of the contract. Every id in
@@ -72,14 +93,17 @@
 
   function isPid(pid) { return typeof pid === 'string' && PID_RE.test(pid); }
 
-  // Both data sources are injectable so the generator can hand in exactly what
-  // it loaded, and so a test can probe the rule with a fixture instead of the
-  // 757-record roster. Defaults are the globals the app itself reads.
+  // All three data sources are injectable so the generator can hand in exactly
+  // what it loaded, and so a test can probe the rule with a fixture instead of
+  // the 757-record roster. Defaults are the globals the app itself reads.
   function sources(src) {
     src = src || {};
     return {
       roster: src.roster || root.CMP_DATA || {},
-      stances: src.stances || root.ISSUE_STANCE_DATA || {}
+      stances: src.stances || root.ISSUE_STANCE_DATA || {},
+      // Absent in a sandbox that did not load formal-index.js, which must cost
+      // the third door and nothing else — never a thrown floor decision.
+      formal: src.formal || root.PDXFormalIndex || null
     };
   }
 
@@ -110,6 +134,18 @@
     return n;
   }
 
+  // Measures with at least one sourced formal act on file. Read through the
+  // generated index rather than through a live record fetch: the floor is asked
+  // at kicker time, before /api/voting-record has resolved, and a floor whose
+  // answer depends on network timing would flicker between two claims about the
+  // same file.
+  function formalMeasures(pid, src) {
+    var f = sources(src).formal;
+    if (!f || typeof f.measures !== 'function') return 0;
+    var n = Number(f.measures(pid));
+    return isFinite(n) && n > 0 ? n : 0;
+  }
+
   function identity(pid, src) {
     var d = sources(src).roster[pid];
     if (!d) return null;
@@ -126,16 +162,25 @@
   function read(pid, src) {
     var out = {
       pid: pid, publishable: false, reasons: [],
-      identity: null, cited: 0, promises: 0
+      identity: null, cited: 0, promises: 0, formal: 0
     };
     if (!isPid(pid)) { out.reasons.push('pid-shape'); return out; }
     out.identity = identity(pid, src);
     if (!out.identity) { out.reasons.push('no-identity'); }
     out.cited = citedPositions(pid, src).length;
     out.promises = promiseCount(pid, src);
+    out.formal = formalMeasures(pid, src);
     var contentOk = out.cited >= MIN_CITED_POSITIONS ||
-                    (out.cited >= 1 && out.promises > 0);
-    if (!contentOk) out.reasons.push(out.cited === 0 ? 'no-cited-record' : 'thin-record');
+                    (out.cited >= 1 && out.promises > 0) ||
+                    out.formal >= MIN_CITED_POSITIONS;
+    // A promise total is not content. It can only ever TOP UP one cited
+    // position, and on its own it does not open a door — which is why a file
+    // with twenty-five tracked promises, no cited stance and no formal act
+    // still fails, and why the reason it fails says "no cited record" rather
+    // than pretending the promises were the near miss.
+    if (!contentOk) {
+      out.reasons.push((out.cited === 0 && out.formal === 0) ? 'no-cited-record' : 'thin-record');
+    }
     out.publishable = !!out.identity && contentOk;
     return out;
   }
@@ -161,6 +206,7 @@
     publishable: publishable,
     _citedPositions: citedPositions,
     _promiseCount: promiseCount,
+    _formalMeasures: formalMeasures,
     _identity: identity
   };
 })();

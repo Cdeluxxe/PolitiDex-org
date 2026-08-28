@@ -21241,11 +21241,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        looks them up lazily at call time and every consumer is guarded, so the
        ordering is a convenience rather than a requirement. -->
   <script defer src="/issue-colors.js"></script>
+  <!-- GENERATED (scripts/gen-formal-index.mjs) — how much formal record is on
+       file per person, counted from the shipped Utah lane seeds, plus the
+       reviewed one-line reason a file is empty where there is one. It exists
+       because the formal record itself lives behind /api/voting-record: the
+       publication floor below and the person-file kicker both have to know
+       whether a file HAS a record before that fetch could possibly have
+       resolved, and before this file they guessed no. Two integers and a
+       sentence per person; no score, no tier, and no surface prints the
+       figures. Must load before publication-floor.js, which reads it as its
+       third source. -->
+  <script defer src="/formal-index.js"></script>
   <!-- The publication floor — one rule for "does this record earn a citable
        address", read by the person-file kicker here and by
        scripts/gen-sitemap.mjs in Node, so the sitemap and the app cannot
        disagree about what is publishable. Pure logic, no DOM, no data of its
-       own: it reads CMP_DATA and ISSUE_STANCE_DATA at call time. -->
+       own: it reads CMP_DATA, ISSUE_STANCE_DATA and PDXFormalIndex at call
+       time. -->
   <script defer src="/publication-floor.js"></script>
   <!-- The money lane. Owns the ONE composition read of a campaign-finance filing
        and the coverage disclosure that travels with it, and owns the retirement of

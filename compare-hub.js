@@ -1725,6 +1725,20 @@
         : (_cs === 'withdrew' || _cs === 'withdrawn' || _cs === 'suspended') ? '✖ Withdrew before taking office — no record'
         : '✖ Did not advance — never took office';
 
+      // "EARLY IN TERM" IS A CLAIM ABOUT A DATE, so it has to read one. The
+      // sprout line fired for every sitting officeholder with an empty ledger,
+      // including legislators seated a decade ago — telling the reader the one
+      // thing that would make an empty record unremarkable, and telling it
+      // wrongly. termStart is right there on the record every status-only
+      // caller already passes as opts.record. Where the tenure is known and
+      // longer than a term's start, the pill states what is actually true and
+      // promises nothing about time.
+      var officeMsg = function () {
+        var tn = (opts.record && typeof window._pdxTenure === 'function') ? window._pdxTenure(opts.record) : null;
+        if (tn && tn.current && isFinite(tn.years) && tn.years >= 2) return '⊘ Nothing tracked yet — record being compiled';
+        return '🌱 Early in term — record being tracked';
+      };
+
       // ── Status-only mode ────────────────────────────────────────────────────
       // No ratio, no open counts, no zeroes. Just the office-status line, and
       // only when there is one worth printing. A politician with a real ledger
@@ -1736,7 +1750,7 @@
         var sMsg = '';
         if (opts.status === 'candidate') sMsg = opts.year2026 ? '🗳️ 2026 candidate — record starts in office' : '🗳️ Candidate — no voting record yet';
         else if (opts.status === 'former') sMsg = '⏳ Former office — record archived';
-        else if (opts.status === 'office') sMsg = '🌱 Early in term — record being tracked';
+        else if (opts.status === 'office') sMsg = officeMsg();
         return sMsg ? '<div class="pdx-statpills">' + pill('none', sMsg) + '</div>' : '';
       }
 
@@ -1759,7 +1773,7 @@
       else if (unresolved > 0) msg = '⊘ None resolved yet';
       else if (opts.status === 'candidate') msg = opts.year2026 ? '🗳️ 2026 candidate — record starts in office' : '🗳️ Candidate — no voting record yet';
       else if (opts.status === 'former') msg = '⏳ Former office — record archived';
-      else if (opts.status === 'office') msg = '🌱 Early in term — record being tracked';
+      else if (opts.status === 'office') msg = officeMsg();
       return '<div class="pdx-statpills">' + openPills + pill('none', msg) + '</div>';
     };
 

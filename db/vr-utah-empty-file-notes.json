@@ -1,0 +1,94 @@
+{
+  "_comment": [
+    "REVIEWED NOTES — WHY A UTAH FILE IS EMPTY. Hand-written, not generated.",
+    "",
+    "The Utah formal lane bands every member of its roster empty / thin / readable",
+    "(scripts/vr-utah-fpi.mjs). 'Empty' is the honest state of a file that holds no",
+    "formal act at all, and it is the one band a reader cannot interpret without",
+    "help: an empty file looks identical whether the person cast no admitted vote",
+    "in the sessions on file, left the Legislature before the earliest session, or",
+    "was seated after the latest one. Left unexplained, the blank reads as a verdict",
+    "on the person. It is not. It is a documentation status.",
+    "",
+    "So each pid below carries ONE sentence saying why the formal record is empty,",
+    "written from facts already in the repo — the roster's own termStart/termEnd and",
+    "the reviewed findings in scripts/UTAH-LAUNCH-CLEANUP-TRACKER.md — and nothing",
+    "else. No note here characterises a record, ranks anybody, or implies that a",
+    "fuller file would have been better or worse. A note is not a score and is not",
+    "an input to one.",
+    "",
+    "WHAT A NOTE MAY SAY. Five reason codes, and no sixth is invented to cover an",
+    "awkward case; a pid with no honest note is simply absent from this file and the",
+    "surface falls back to the plain empty state.",
+    "  seated_after      seated after the last session on file, so there is no",
+    "                    session in the lane they could have voted in",
+    "  left_before       out of the Legislature before the earliest session on file",
+    "  candidate_only    on a ballot, never seated",
+    "  federal           the id is a federal record; PolitiDex ingests no federal",
+    "                    roll calls, so a federal file is empty here by design",
+    "  no_admitted_vote  sat during a session on file, but no vote of theirs cleared",
+    "                    the lane's admission rules (near-unanimity exclusion, an",
+    "                    unreviewed printed name, a refused mapping)",
+    "",
+    "SESSIONS ON FILE when these notes were written: 2023GS, 2024GS, 2025GS. A note",
+    "that says 'seated after' or 'left before' is relative to that span and has to be",
+    "re-read when a session is added. That is why the span is stated here rather than",
+    "left implicit in each sentence.",
+    "",
+    "Consumed by scripts/gen-formal-index.mjs, which copies these strings verbatim",
+    "into the shipped formal-index.js. Checked by scripts/test-empty-file-honesty.mjs."
+  ],
+  "sessionsOnFile": ["2023GS", "2024GS", "2025GS"],
+  "notes": {
+    "emily_buss": {
+      "reason": "seated_after",
+      "note": "Seated in December 2025, after the last session on file — there is no session here she could have voted in yet.",
+      "basis": "roster termStart 2025-12"
+    },
+    "john_arthur": {
+      "reason": "seated_after",
+      "note": "Seated in December 2025, after the last session on file — there is no session here he could have voted in yet.",
+      "basis": "roster termStart 2025-12"
+    },
+    "leah_hansen": {
+      "reason": "seated_after",
+      "note": "Seated in August 2025, after the 2025 general session had adjourned — no session on file overlaps her service.",
+      "basis": "roster termStart 2025-08"
+    },
+    "grant_pace": {
+      "reason": "seated_after",
+      "note": "Seated in 2026, after every session on file — no roll call in the lane was his to cast.",
+      "basis": "roster termStart 2026-05"
+    },
+    "jackie_larson": {
+      "reason": "seated_after",
+      "note": "Seated in 2026, after every session on file — no roll call in the lane was hers to cast.",
+      "basis": "roster termStart 2026-05"
+    },
+    "rob_bishop": {
+      "reason": "seated_after",
+      "note": "Seated in 2026, after every session on file — no roll call in the lane was his to cast.",
+      "basis": "roster termStart 2026-05"
+    },
+    "jwestwood": {
+      "reason": "left_before",
+      "note": "Served 2013–2019 and left the Legislature four years before the earliest session on file.",
+      "basis": "roster termEnd 2018-12; office text 'Former UT State Representative … 2013–2019'"
+    },
+    "jdraxler": {
+      "reason": "left_before",
+      "note": "Left the Legislature in 2017, before the earliest session on file; the roster still carries a sitting-member label for him, which is a separate correction.",
+      "basis": "UTAH-LAUNCH-CLEANUP-TRACKER.md — confirmed former member; roster record reads District 3 though he left in 2017"
+    },
+    "fgibson": {
+      "reason": "left_before",
+      "note": "A former member whose roster record still reads as sitting; he was out of the Legislature before the earliest session on file, and the district on the record belongs to somebody else.",
+      "basis": "UTAH-LAUNCH-CLEANUP-TRACKER.md — confirmed former member; record reads District 60, which is Grant Pace's"
+    },
+    "jknotts": {
+      "reason": "left_before",
+      "note": "A former-member record from before the earliest session on file, and one under review: the name looks like a garbled John Knotwell and the district on it belongs to a sitting representative.",
+      "basis": "UTAH-LAUNCH-CLEANUP-TRACKER.md — 'jknotts \"John Knotts\" reads District 65 (Doug Welton's) under a name that looks like a garbled John Knotwell'"
+    }
+  }
+}

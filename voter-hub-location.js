@@ -382,6 +382,17 @@
     if (status !== 'office') return '';
     var depth = window._pdxRecordDepth(d);
     if (depth === 'full') return '';
+    // "EARLY IN TERM" HAS TO AGREE WITH THE TERM. _pdxRecordDepth reads pledge
+    // columns and a score, never a date, so it returned 'none' for a legislator
+    // seated in 2015 whose ledger happens to be empty and this badge then said
+    // they had just arrived. Where the roster knows the seat has been held for
+    // more than a term's opening, the record is limited — which is true — and
+    // not early, which was not. The sprout is kept for the case it was written
+    // for: someone who really did just take office.
+    if (depth === 'none') {
+      var tn = (typeof window._pdxTenure === 'function') ? window._pdxTenure(d) : null;
+      if (tn && tn.current && isFinite(tn.years) && tn.years >= 2) depth = 'limited';
+    }
     var sm = opts.size === 'sm';
     var fs = sm ? '0.5rem' : '0.6rem';
     var pad = sm ? '0.1rem 0.42rem' : '0.16rem 0.5rem';

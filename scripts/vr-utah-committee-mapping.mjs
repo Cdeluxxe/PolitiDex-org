@@ -55,8 +55,11 @@
 //   node scripts/vr-utah-committee-mapping.mjs --worksheet --session 2025GS
 //   node scripts/vr-utah-committee-mapping.mjs --worksheet --session 2025GS --bill HB0015
 //   node scripts/vr-utah-committee-mapping.mjs --verify   --session 2025GS
+//   node scripts/vr-utah-committee-mapping.mjs --dropped  --session 2024GS   # read-only
 //   node scripts/vr-utah-committee-mapping.mjs --seed     --session 2025GS
 //   node scripts/vr-utah-committee-mapping.mjs --sql      --session 2025GS --out DIR
+//   node scripts/vr-utah-committee-mapping.mjs --sql      --session 2024GS --out DIR \
+//        --bills HB0137,HB0267,HB0463 --name renamed_committee    # forward delta only
 // ─────────────────────────────────────────────────────────────────────────────
 
 import fs from "node:fs";
@@ -347,16 +350,63 @@ function statusOf(lastAction) {
 const q = (s) => `'${String(s).replace(/'/g, "''")}'`;
 const qn = (s) => (s == null || s === "" ? "NULL" : q(s));
 
-export function buildSql(session) {
+// A MIGRATION THAT IS ALREADY APPLIED IS NOT EDITABLE, SO THE DELTA GETS ITS OWN
+// FILE. The first run of this generator wrote one migration per session and it
+// shipped. When a fence is later lifted — the renamed-committee door in
+// vr-utah-committee-ingest.mjs was widened to match a committee name as a
+// sequence of significant words rather than as one string, which recovered four
+// acts and 67 positions in 2024GS — the seed grows and the applied file must
+// not. `only` restricts the emitted DO blocks to the measures named, so the
+// forward migration carries exactly the delta and nothing else.
+//
+// The blocks it emits are the SAME blocks, unmodified: every one of them selects
+// its measure before inserting, guards each issue mapping with NOT EXISTS, and
+// ends every position insert with ON CONFLICT DO NOTHING. Re-stating a measure
+// that already exists is therefore a no-op, which is what makes a partial
+// re-emission safe — a bill that gained three positions can ship its whole block
+// and only the three new rows land.
+export function buildSql(session, opts) {
   const { seed } = buildSeed(session);
-  const c = seed.counts;
+  const only = opts && opts.only && opts.only.length ? new Set(opts.only) : null;
+  if (only) {
+    const strangers = [...only].filter((b) => !seed.measures.some((m) => m.utahBill === b));
+    if (strangers.length) {
+      throw new Error(`--bills names ${strangers.length} bill(s) with no measure in the ${session} seed: ` +
+        strangers.join(", "));
+    }
+    seed.measures = seed.measures.filter((m) => only.has(m.utahBill));
+  }
+  // The header states what THIS FILE does, so when the file is a delta the counts
+  // are the delta's own — recounted off the emitted measures, not copied from the
+  // whole-seed totals. A migration whose prose claims 64 bills while its body
+  // carries 12 is a lie in the place a reader is most likely to trust.
+  const c = only ? (function () {
+    const acts = seed.measures.reduce((n, m) => n + m.committeeActs.length, 0);
+    const votes = seed.measures.flatMap((m) => m.committeeActs.flatMap((a) => a.votes));
+    const sup = votes.filter((v) => v.supersededByFloorVote).length;
+    return Object.assign({}, seed.counts, {
+      measures: seed.measures.length,
+      issueMappings: seed.measures.reduce((n, m) => n + m.issues.length, 0),
+      committeeActs: acts, positions: votes.length,
+      supersededByFloorVote: sup, notOnAnyFloorRoll: votes.length - sup,
+    });
+  })() : seed.counts;
   const L = [];
   L.push(`-- ─────────────────────────────────────────────────────────────────────────────`);
   L.push(`-- vr_measures / vr_measure_issues / vr_positions — Utah ${session} committee-only measures`);
   L.push(`-- ─────────────────────────────────────────────────────────────────────────────`);
-  L.push(`-- WHAT THIS ADDS. ${c.measures} Utah bills that until now had no measure row at all,`);
-  L.push(`-- with ${c.issueMappings} reviewed issue mappings and ${c.positions} committee positions across`);
-  L.push(`-- ${c.committeeActs} standing-committee actions. Every one of these bills was already in the`);
+  L.push(only
+    ? `-- WHAT THIS ADDS. ${c.measures} Utah bills whose committee rows changed after the earlier`
+    : `-- WHAT THIS ADDS. ${c.measures} Utah bills that until now had no measure row at all,`);
+  L.push(only
+    ? `-- ${session} migration shipped, restated in full: ${c.issueMappings} reviewed issue mappings and`
+    : `-- with ${c.issueMappings} reviewed issue mappings and ${c.positions} committee positions across`);
+  L.push(only
+    ? `-- ${c.positions} committee positions across ${c.committeeActs} standing-committee actions, of which whatever`
+    : `-- ${c.committeeActs} standing-committee actions. Every one of these bills was already in the`);
+  if (only) {
+    L.push(`-- the database already holds is a no-op. Every one of these bills was already in the`);
+  }
   L.push(`-- committee ingest's refusal bucket for ${session}: a CONTESTED pass-out-favorably vote,`);
   L.push(`-- confirmed against the published minutes PDF, with every voting name resolved through`);
   L.push(`-- the reviewed printed-name map — refused only because nobody had reviewed an issue`);
@@ -387,7 +437,19 @@ export function buildSql(session) {
   L.push(`-- act was confirmed against. Each measure's external_ids records which document the`);
   L.push(`-- mapping was read out of — enrolled text, or the last substitute where the bill never`);
   L.push(`-- enrolled — so a reader can check the mapping against the same file the curator used.`);
-  L.push(`-- Generated by scripts/vr-utah-committee-mapping.mjs --sql --session ${session}. Idempotent.`);
+  if (only) {
+    L.push(`--`);
+    L.push(`-- THIS IS A DELTA, NOT THE WHOLE SEED. The ${session} committee mapping already shipped`);
+    L.push(`-- in an earlier migration and that file is applied, so it is not edited. This one`);
+    L.push(`-- carries only the ${c.measures} bill(s) whose rows changed afterwards:`);
+    for (const m of seed.measures) L.push(`--   ${m.utahBill} · ${m.number}`);
+    L.push(`-- Each block below is the same generated block as before, unmodified: it selects the`);
+    L.push(`-- measure before inserting, guards every issue mapping with NOT EXISTS, and ends every`);
+    L.push(`-- position insert with ON CONFLICT DO NOTHING. Re-stating a bill that is already in`);
+    L.push(`-- the database is a no-op; only rows that are genuinely new land.`);
+  }
+  L.push(`-- Generated by scripts/vr-utah-committee-mapping.mjs --sql --session ${session}` +
+    (only ? ` --bills ${[...only].sort().join(",")}` : "") + `. Idempotent.`);
   L.push(`-- ─────────────────────────────────────────────────────────────────────────────`);
   L.push("");
   for (const m of seed.measures) {
@@ -439,6 +501,22 @@ export function buildSql(session) {
   return L.join("\n") + "\n";
 }
 
+// What the reviewed-map fence costs, printed the same way the ingest prints it: the
+// number of DROPPED VOTES first, then the ranked printed forms behind it. Names and
+// votes are two different numbers and only the second one is the record we are not
+// publishing, so the summary line leads with votes and says how many names they sit
+// on rather than the other way round.
+function printDropped(rep, label) {
+  const rank = Object.entries(rep.names.droppedByForm).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  if (!rank.length && !rep.names.refusedPositions) {
+    console.log(`  ${label}: no dropped votes — every printed name on every admitted act resolved`);
+    return;
+  }
+  console.log(`  ${label}: dropped votes ${rep.names.droppedPositions} across ${rank.length} unmapped name(s)` +
+    (rep.names.refusedPositions ? ` · ${rep.names.refusedPositions} on refused name(s)` : ""));
+  for (const [form, n] of rank) console.log(`     ${String(n).padStart(3)}  ${form}`);
+}
+
 // ── main ─────────────────────────────────────────────────────────────────────
 function main() {
   if (has("--worksheet")) { worksheet(SESSION); return; }
@@ -452,20 +530,41 @@ function main() {
     if (a.unaccounted.length || a.strangers.length) process.exitCode = 1;
     return;
   }
+  if (has("--dropped")) {
+    // The cost of the reviewed-map fence, in votes rather than in names. Read-only:
+    // it builds the seed in memory and writes nothing. This is the command the
+    // coverage ledger in db/vr-utah-committee-map-<session>.json is quoted from, so
+    // that ledger can be re-derived after any fence change instead of hand-totalled.
+    const { rep } = buildSeed(SESSION);
+    if (AS_JSON) {
+      console.log(JSON.stringify({
+        session: SESSION, lane: "mapping",
+        droppedPositions: rep.names.droppedPositions, droppedByForm: rep.names.droppedByForm,
+        refusedPositions: rep.names.refusedPositions, refusedByForm: rep.names.refusedByForm,
+        actsBuilt: rep.acts.built, rowsKept: rep.rows.kept,
+      }, null, 2));
+      return;
+    }
+    printDropped(rep, `${SESSION} mapping lane`);
+    return;
+  }
   if (has("--seed")) {
-    const { seed } = buildSeed(SESSION);
+    const { seed, rep } = buildSeed(SESSION);
     const f = has("--out") ? path.join(OUTDIR, path.basename(mappingSeedFile(SESSION))) : mappingSeedFile(SESSION);
     fs.mkdirSync(path.dirname(f), { recursive: true });
     fs.writeFileSync(f, JSON.stringify(seed, null, 2) + "\n");
     console.log(`${path.relative(ROOT, f)}  ${seed.counts.measures} measures · ${seed.counts.issueMappings} mappings · ` +
       `${seed.counts.committeeActs} acts · ${seed.counts.positions} positions ` +
       `(fresh ${seed.counts.notOnAnyFloorRoll}, superseded ${seed.counts.supersededByFloorVote})`);
+    printDropped(rep, `${SESSION} mapping lane`);
     return;
   }
   if (has("--sql")) {
     fs.mkdirSync(OUTDIR, { recursive: true });
-    const f = path.join(OUTDIR, `vr_utah_${SESSION.toLowerCase()}_committee_mapping.sql`);
-    fs.writeFileSync(f, buildSql(SESSION));
+    const only = val("--bills", "").split(",").map((x) => x.trim()).filter(Boolean);
+    const suffix = has("--name") ? `_${val("--name", "")}` : (only.length ? "_delta" : "");
+    const f = path.join(OUTDIR, `vr_utah_${SESSION.toLowerCase()}_committee_mapping${suffix}.sql`);
+    fs.writeFileSync(f, buildSql(SESSION, { only }));
     console.log(f);
     return;
   }

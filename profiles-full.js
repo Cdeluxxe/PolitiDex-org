@@ -2959,7 +2959,37 @@
       } else if (isChallenger) {
         lede = first + ' is running' + (is2026 ? ' in 2026' : '') + ' and does not yet hold this office, so <strong>there is no formal record yet to test their word against</strong> — and that\'s expected this early. We\'re building a clear picture of ' + first + '\'s values and positions over time, ' + _standsClause + 'adding votes and sources as the race develops.';
       } else {
-        lede = first + ' is early in their term, so <strong>little of their word has been tested by a formal action yet</strong> — having little on file to test this early is normal. We\'re building a clear picture of ' + first + '\'s values and positions over time, ' + _standsClause + 'adding more of their voting record as it develops.';
+        // NOT EVERY OFFICEHOLDER WITHOUT A RECORD IS EARLY IN THEIR TERM. This
+        // branch said "early in their term … having little on file to test this
+        // early is normal" to every non-challenger who reached the card, which
+        // over a legislator seated a decade ago tells the reader the one thing
+        // that would make an empty file forgivable, and it is not true. Read
+        // the tenure the roster already carries and say which of the three it
+        // actually is; prefer the reviewed sentence from
+        // db/vr-utah-empty-file-notes.json when a human has written one for
+        // this file.
+        var _t = (typeof window._pdxTenure === 'function') ? window._pdxTenure(p) : null;
+        var _tYears = (_t && isFinite(_t.years)) ? Number(_t.years) : null;
+        var _wasHolder = !!(_t && _t.current === false);
+        var _early = !_wasHolder && (_tYears === null || _tYears < 2);
+        var _why = '';
+        try {
+          var _FX = window.PDXFormalIndex;
+          var _n = (_FX && typeof _FX.emptyNote === 'function') ? _FX.emptyNote(id) : null;
+          _why = (_n && _n.note) ? String(_n.note) : '';
+        } catch (e) { _why = ''; }
+        if (_wasHolder) {
+          lede = (_why || 'This is an archived record of an office ' + first + ' no longer holds, and PolitiDex holds no formal act for it.') +
+            ' <strong>Nothing here has been tested against a vote</strong>, so there is nothing to score. ' +
+            (_hasStands ? 'What is below is what we hold: stated positions, kept for the record.' : 'This profile reflects only what is verifiable from public records, so positions are left out rather than invented.');
+        } else if (_early) {
+          lede = first + ' is early in their term, so <strong>little of their word has been tested by a formal action yet</strong> — having little on file to test this early is normal. We\'re building a clear picture of ' + first + '\'s values and positions over time, ' + _standsClause + 'adding more of their voting record as it develops.';
+        } else {
+          var _since = (_t && _t.start && _t.start.year) ? String(_t.start.year) : '';
+          lede = (_why || 'PolitiDex holds no formal act for this file, so <strong>none of ' + first + '\'s word has been tested against a vote yet</strong>.') +
+            (_since ? ' ' + first + ' has held this office since ' + _since + ', so this is a gap in our documentation rather than a record that has not had time to form.' : ' This is a gap in our documentation rather than a record that has not had time to form.') +
+            ' We\'re building the picture from sources we can cite, ' + _standsClause + 'adding formal actions as they are confirmed.';
+        }
       }
 
       // ── THE AT-A-GLANCE FACTS ROW IS RETIRED ──────────────────────────
@@ -3189,7 +3219,14 @@
       // yet, "Limited Record" otherwise), so a visitor sees the SAME label in the
       // modal that drew them in from the card. Challengers keep "Limited Record"
       // since their card already carries the "2026 Candidate" status badge.
-      var csPillLabel = (!isChallenger && typeof window._pdxRecordDepth === 'function' && window._pdxRecordDepth(p) === 'none')
+      // Tenure gates the sprout label here for the same reason it gates the
+      // card badge in _pdxDepthBadge: _pdxRecordDepth reads pledge columns and
+      // never a date, so 'none' says nothing about how long the seat has been
+      // held. _early is the tenure read taken for the lede above; it is only
+      // defined on the non-challenger path, which is the only path that can
+      // reach 'Early in Term' anyway.
+      var csPillLabel = (!isChallenger && _early === true &&
+        typeof window._pdxRecordDepth === 'function' && window._pdxRecordDepth(p) === 'none')
         ? 'Early in Term' : 'Limited Record';
 
       // THE TITLE IS SHARED VOCABULARY NOW. "Candidate Snapshot" named a product
@@ -3366,6 +3403,38 @@
   window._renderFollowThrough = function(kept, broken, pending, pid, published, itemized){
     var m = window._ftMeta(kept, broken, pending, published, itemized);
     if (m.resolved === 0 && m.pending === 0) return '';
+    // ── NO FORMAL RECORD → THIS BLOCK STOPS CLAIMING TO BE EVIDENCE ──────────
+    // Every sentence below used to say the counts were "the receipts behind the
+    // pledge tier of their ⚖️ Word vs Action read", and the block closed with a
+    // button offering to jump to that read. On a file with no formal act there
+    // is no such read published, and the pledge counts were the only numbers on
+    // the page — so a reader met "10 kept · 5 broken" presented as the evidence
+    // behind a verdict that does not exist, standing where the record should
+    // be. That is the leftover outranking the file.
+    //
+    // The counts themselves are not removed: they are on file and they are
+    // real. What is removed is the claim that they feed something, the offer to
+    // go read it, and the eyebrow that borrowed Word vs Action's authority. A
+    // ledger that IS separately sourced — itemized, with per-pledge verdicts
+    // and sources — keeps its own label and says so; a bare set of summary
+    // counts says that too, and the noRate paragraph below already spells out
+    // that there is nothing itemized to check them against.
+    // Demoting takes POSITIVE knowledge that the file is empty. "I could not
+    // find out" is not "there is nothing" — in a runtime where the generated
+    // index never loaded, treating absence as emptiness would quietly demote
+    // this block on every profile in the product, including the ones whose
+    // Word vs Action read is right there above it. So the default is: leave it
+    // exactly as it was.
+    var standsAlone = (function () {
+      try {
+        var FX = window.PDXFormalIndex;
+        if (!FX || typeof FX.has !== 'function') return false;   // cannot tell
+        if (FX.has(pid)) return false;                            // has a record
+        var VR = window.PDXVotingRecord;
+        var recs = (VR && typeof VR.memberRecords === 'function') ? VR.memberRecords(pid) : null;
+        return !(recs && recs.length);                            // live rows beat the count
+      } catch (e) { return false; }
+    })();
     // With no itemized ledger there is nothing below to filter TO, so the counts
     // stay as plain, readable counts rather than dead buttons.
     var interactive = m.itemized;
@@ -3393,12 +3462,18 @@
     var line = m.resolved
       ? 'On file: <strong style="color:#4ade80;">' + m.kept + ' kept</strong> and <strong style="color:#f87171;">' + m.broken + ' broken</strong>' +
         (m.pending ? ', with <strong style="color:#cbd9ec;">' + m.pending + '</strong> not yet resolved' : '') + '. ' +
-        'These are the receipts behind the pledge tier of their ⚖️ Word vs Action read — not a separate grade.'
+        (standsAlone
+          ? 'PolitiDex holds no formal act for this file, so none of this has been tested against a vote — these are pledge records only, and not a read on the person.'
+          : 'These are the receipts behind the pledge tier of their ⚖️ Word vs Action read — not a separate grade.')
       : 'Nothing has resolved yet, so there is nothing to judge here — only pledges to watch.';
     return '' +
       '<div class="pdx-ft-block" style="margin-bottom:1.25rem;background:rgba(16,26,46,0.55);border:1px solid rgba(159,180,212,0.2);border-left:3px solid rgba(159,180,212,0.55);border-radius:0.8rem;padding:0.85rem 0.95rem;">' +
         '<div style="margin-bottom:0.6rem;">' +
-          '<div class="pdx-ft-eyebrow" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.11em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">🤝 Pledge ledger · evidence for the pledge tier of Word vs Action</div>' +
+          '<div class="pdx-ft-eyebrow" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.11em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.2rem;">' +
+            (standsAlone
+              ? (m.itemized ? '🤝 Pledge ledger · sourced pledges, on their own' : '🤝 Pledge ledger · summary counts only')
+              : '🤝 Pledge ledger · evidence for the pledge tier of Word vs Action') +
+          '</div>' +
           '<div class="pdx-ft-verdict" style="display:inline-flex;align-items:center;gap:0.4rem;font-family:\'Bebas Neue\',sans-serif;font-size:1.1rem;letter-spacing:0.04em;color:' + ACC + ';line-height:1.1;">🤝 ' + head + '</div>' +
           '<p class="pdx-ft-sub" style="font-size:0.7rem;color:#9fb4d4;line-height:1.45;margin:0.3rem 0 0;">' + line + '</p>' +
         '</div>' +
@@ -3422,7 +3497,9 @@
             (m.itemized
               ? 'Each pledge below is listed with its own verdict and sources, so you can read the record instead of a number derived from it. '
               : 'The counts above are on file, but the individual pledges behind them are not itemized yet, so there is nothing here to check a number against. ') +
-            'PolitiDex publishes one integrity read — ⚖️ <b style="color:#9fb4d4;">Word vs Action</b> — and kept and broken pledges are part of what feeds it.' +
+            (standsAlone
+              ? 'PolitiDex publishes one integrity read — ⚖️ <b style="color:#9fb4d4;">Word vs Action</b> — and it is not published for this file, because there is no formal action on file to test anything against. This block is not standing in for it.'
+              : 'PolitiDex publishes one integrity read — ⚖️ <b style="color:#9fb4d4;">Word vs Action</b> — and kept and broken pledges are part of what feeds it.') +
           '</p>' +
           '<button type="button" class="pdx-ft-rate-how pdx-ft-rate-click"' + ftClick + '>ⓘ How does this lane work?</button>' +
         '</div>' +
@@ -3431,14 +3508,22 @@
         // here has no way to tell whether it was retired or broke. The link closes
         // the loop the other way too: the primary section lists this block as an
         // input, so this block has to be one tap from the read it feeds.
-        '<p style="font-size:0.66rem;color:#7596c0;line-height:1.5;margin:0.5rem 0 0;border-top:1px solid rgba(159,180,212,0.14);padding-top:0.5rem;">' +
-          'This covers explicit pledges only. The ⚖️ <b style="color:#9fb4d4;">Word vs Action</b> read above weighs these alongside their stated positions and the issues they campaign on — because they should be held to all of it, not just the part phrased as a promise.' +
-        '</p>' +
-        '<button type="button" class="pdx-ft-primary" ' +
-          'onclick="event.stopPropagation();if(window._pdxNavJump){window._pdxNavJump(\'pdxsec-wordaction\');}' +
-          'else{var e=document.getElementById(\'pdxsec-wordaction\');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">' +
-          '⚖️ See the Word vs Action read this feeds <span aria-hidden="true">→</span>' +
-        '</button>' +
+        // Both of these point at a read that is only above when a formal
+        // record exists. With none on file the paragraph would describe a
+        // weighing that never happened and the button would scroll to a section
+        // that is not on the page, so the block ends on what it actually holds.
+        (standsAlone
+          ? '<p style="font-size:0.66rem;color:#7596c0;line-height:1.5;margin:0.5rem 0 0;border-top:1px solid rgba(159,180,212,0.14);padding-top:0.5rem;">' +
+              'This covers explicit pledges only, and it is the whole of what is on file here — there is no voting record above for it to be weighed against. Read it as a pledge record, not as a record of what they did in office.' +
+            '</p>'
+          : '<p style="font-size:0.66rem;color:#7596c0;line-height:1.5;margin:0.5rem 0 0;border-top:1px solid rgba(159,180,212,0.14);padding-top:0.5rem;">' +
+              'This covers explicit pledges only. The ⚖️ <b style="color:#9fb4d4;">Word vs Action</b> read above weighs these alongside their stated positions and the issues they campaign on — because they should be held to all of it, not just the part phrased as a promise.' +
+            '</p>' +
+            '<button type="button" class="pdx-ft-primary" ' +
+              'onclick="event.stopPropagation();if(window._pdxNavJump){window._pdxNavJump(\'pdxsec-wordaction\');}' +
+              'else{var e=document.getElementById(\'pdxsec-wordaction\');if(e&&e.scrollIntoView)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});}">' +
+              '⚖️ See the Word vs Action read this feeds <span aria-hidden="true">→</span>' +
+            '</button>') +
       '</div>';
   };
 
@@ -4596,13 +4681,81 @@
     // Thin when there is no scorable record yet (no published score and nothing
     // resolved). A score-less profile that carries only a few pending pledges still
     // counts — the notice explains the gap while the pending items list below it.
-    const _isThinProfile = scoreNum === null && _resolvedCount === 0 && _pbThinTotal === 0;
+    //
+    // THE FORMAL RECORD IS PART OF "IS THIS THIN", and leaving it out was a lie
+    // with a large audience. All three counters above read pledge columns and
+    // the Word-vs-Action score, and both of those are empty on a Utah
+    // legislator whose file holds ninety sourced roll calls and committee
+    // votes: chew_h68 arrived here with scoreNum null, nothing resolved and no
+    // breakdown, so this profile printed "Early in term — limited record" over
+    // the deepest formal record in the product. A file with a sourced formal
+    // act on it is not thin, whatever the pledge columns say about it.
+    //
+    // Two readers, cheapest first: the generated index (PDXFormalIndex — the
+    // same count the publication floor's third door asks, readable at render
+    // time with no fetch), then the live record for the case where
+    // /api/voting-record has already landed and holds rows the index has not
+    // been regenerated for. Either one is proof; neither is a number that
+    // reaches the page.
+    const _formalOnFile = (function () {
+      try {
+        const FX = window.PDXFormalIndex;
+        if (FX && typeof FX.has === 'function' && FX.has(id)) return true;
+        const VR = window.PDXVotingRecord;
+        const recs = (VR && typeof VR.memberRecords === 'function') ? VR.memberRecords(id) : null;
+        return !!(recs && recs.length);
+      } catch (e) { return false; }
+    })();
+    const _isThinProfile = scoreNum === null && _resolvedCount === 0 && _pbThinTotal === 0 && !_formalOnFile;
+    // _formalOnFile answers "may this profile print a thin-record story", where a
+    // missing index costs nothing more than the behaviour we already shipped.
+    // Saying "no formal record on file" out loud is the opposite: it is a claim,
+    // and a claim needs the index to actually be there to have made it. Absent
+    // index → we do not know → we do not say.
+    const _formalKnownEmpty = (function () {
+      try {
+        const FX = window.PDXFormalIndex;
+        if (!FX || typeof FX.has !== 'function') return false;
+        return !_formalOnFile;
+      } catch (e) { return false; }
+    })();
     const _statusMode = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(p) : 'office';
     const _is2026 = (typeof window._pdx2026Candidate === 'function') && window._pdx2026Candidate(p);
     const _isChallenger = _statusMode === 'candidate' || /candidat|challenger|nominee|running/i.test(((p.office||'') + ' ' + (p.state||'')));
+    // TENURE, so the notice cannot invent a first term. This branch used to run
+    // "Early in term — limited record" over anyone who was not a challenger,
+    // which on a legislator seated in 2015 is not a gentler claim than a wrong
+    // number — it is a wrong claim, and it is precisely the one a reader uses
+    // to excuse an empty record ("give them time"). Three honest shapes
+    // instead: a former officeholder's record is archived, not early; a genuine
+    // first-termer keeps the sentence that was written for them; and everyone
+    // else is untested, which is a statement about our documentation and says
+    // so.
+    const _tenure = (typeof window._pdxTenure === 'function') ? window._pdxTenure(p) : null;
+    const _tenureYears = (_tenure && isFinite(_tenure.years)) ? Number(_tenure.years) : null;
+    const _formerHolder = !!(_tenure && _tenure.current === false);
+    // No tenure data at all falls to the early-in-term wording, because that is
+    // where an unknown start date has always landed and this pass is not the
+    // place to start guessing at seats we have no dates for.
+    const _reallyEarly = !_formerHolder && (_tenureYears === null || _tenureYears < 2);
+    const _sinceTxt = (_tenure && _tenure.start && _tenure.start.year) ? String(_tenure.start.year) : '';
+    // The reviewed one-line reason, where a human has actually looked at the
+    // file (db/vr-utah-empty-file-notes.json, via the generated index).
+    // Preferred over anything composed here: it is sourced and it is specific.
+    const _emptyWhyLine = (function () {
+      try {
+        const FX = window.PDXFormalIndex;
+        const n = (FX && typeof FX.emptyNote === 'function') ? FX.emptyNote(id) : null;
+        return (n && n.note) ? String(n.note) : '';
+      } catch (e) { return ''; }
+    })();
     const _thinTitle = _isChallenger
       ? (_is2026 ? '2026 Candidate — no voting record yet' : 'Candidate — no voting record yet')
-      : 'Early in term — limited record';
+      : _formerHolder
+        ? 'Former officeholder — no record on file'
+        : _reallyEarly
+          ? 'Early in term — limited record'
+          : 'Limited record — nothing tested against a vote yet';
     const _onTeamAlready = (typeof _myPoliticians !== 'undefined' && _myPoliticians && _myPoliticians.has(id));
     // THE FALLBACK'S BUTTON PAIR IS RETIRED. It offered 🎯 Compare on the issues
     // and ★ Add to my team, the same two actions the sticky rail and the roster
@@ -4625,7 +4778,11 @@
           '<div class="ptn-title">' + _thinTitle + '<span class="ptn-pill">◷ Monitoring</span></div>' +
           '<p class="ptn-text">' + (_isChallenger
             ? ('This politician is running as a ' + (_is2026 ? '2026 challenger' : 'challenger') + ' and does not yet have a legislative voting record in this office, so there is nothing to score yet. We are tracking their stated positions now and will log kept-and-broken promises as the race develops.')
-            : 'Early in their first term, this official does not yet have enough of a record to score fairly. We are tracking their stated positions now and will log kept-and-broken promises as their record develops.') + '</p>' +
+            : _formerHolder
+              ? ((_emptyWhyLine || 'This is an archived record, and PolitiDex holds no formal act for it.') + ' Nothing on this page has been tested against a vote, so there is nothing to score — a note about what we hold, not a finding about them.')
+              : _reallyEarly
+                ? 'Early in their first term, this official does not yet have enough of a record to score fairly. We are tracking their stated positions now and will log kept-and-broken promises as their record develops.'
+                : ((_emptyWhyLine || 'PolitiDex holds no formal act for this file, so none of their word has been tested against a vote yet.') + (_sinceTxt ? (' They have held this office since ' + _sinceTxt + ', so this is a gap in our documentation') : ' This is a gap in our documentation') + ' — not a new officeholder with nothing behind them, and not a finding about them.')) + '</p>' +
           // ↑ NOT ↓. This notice mounts at the FOOT of the verdict stage now, under
           // 🌳 All Issues by Topic — the positions it used to promise "below" are
           // above the reader by the time they get here.
@@ -4978,11 +5135,29 @@
                  is worth zero pixels until it holds something. -->
             ${(window.PDXWordAction && typeof window.PDXWordAction.compactBadgeMount === 'function') ? window.PDXWordAction.compactBadgeMount(id, p) : ''}
             ${(scoreNum === null && !_isThinProfile) ? '<span class="profile-status-monitoring">' + (
+              // AND THE COUNTS CHIP DOES NOT GET TO BE THE RECORD.
+              //
+              // This chip sits in the identity block, two lines under the name,
+              // where a reader takes whatever it says as the summary of the file.
+              // On a profile with a formal record under it that is fine: the pledge
+              // counts are one tier of a larger read, and the read is right there.
+              // On a file where PolitiDex holds no formal act at all, "10 kept · 5
+              // broken of 15 resolved" was the loudest thing on the page and it was
+              // standing exactly where the record should have been — a ledger from
+              // another source, printed as though we had tested this person against
+              // a vote. jknotts shipped that way.
+              //
+              // So when the formal record is knowably empty, the chip says the true
+              // thing instead, and the counts keep their place further down inside
+              // the pledge ledger, under their own label, where they are not
+              // pretending to be a voting record.
+              (_formalKnownEmpty && (promiseState === 'counts' || promiseState === 'tracking'))
+                ? '⊘ No formal record on file'
               // 'counts' is a record with a real, closed pledge ledger that simply
               // is not itemized. It must NOT wear "No voting record yet" — that chip
               // was written for a profile with nothing on file, and on a member with
               // 27 kept and 8 broken it is plainly false. Say what is actually known.
-              promiseState === 'counts' ? '🤝 ' + countsNote
+              : promiseState === 'counts' ? '🤝 ' + countsNote
               : promiseState === 'tracking' ? '⏳ ' + trackingNote
               : '◷ No voting record yet') + '</span>' : ''}
             ${p.party ? `<span class="profile-party">${p.party}</span>` : ''}
@@ -5562,6 +5737,18 @@
       })()}
 
       <!--PDXSP:brief-->
+      <!-- WHY THIS FILE IS EMPTY — one line, and only on a file that holds no
+           formal act AND has a reviewed reason on file (formal-index.js, from
+           db/vr-utah-empty-file-notes.json). It leads the brief stage because on
+           such a file the pledge leftovers in the drawers below are the only
+           numbers on the page, and meeting them first tells the reader the
+           opposite of the truth by ordering alone. Documentation status, not a
+           verdict; no chip, no count, no colour. Self-gates to '' everywhere
+           else, which is almost everywhere. -->
+      ${(window.PDXProfileSpine && typeof window.PDXProfileSpine.emptyFileNoteHtml === 'function')
+        ? (function(){ try { return window.PDXProfileSpine.emptyFileNoteHtml(id, p); } catch(e){ return ''; } })()
+        : ''}
+
       <!-- The brief — the first screen. Answers "what defines them", "where is the
            tension" and "what should I share or inspect next" from the same
            accessors the full sections below use, so it can never claim something

@@ -278,6 +278,46 @@
   margin: 0;
 }
 
+/* WHY THIS FILE IS EMPTY. Deliberately the quietest block in the brief stage:
+   slate, no accent colour, no icon, no chip. It is a statement about PolitiDex's
+   own coverage, and anything louder would read as a finding about the person —
+   which is the exact misreading it exists to prevent. */
+.pdxsp-emptywhy {
+  background: rgba(10, 15, 30, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-left: 3px solid rgba(148, 163, 184, 0.45);
+  border-radius: 0.65rem;
+  padding: 0.65rem 0.75rem;
+  margin: 0 0 1rem;
+}
+
+.pdxsp-emptywhy-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.56rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: #7596c0;
+  margin-bottom: 0.25rem;
+}
+
+.pdxsp-emptywhy-p {
+  font-size: 0.76rem;
+  line-height: 1.55;
+  color: #cbd9ec;
+  margin: 0;
+}
+
+.pdxsp-emptywhy-p b {
+  color: #dbe6f7;
+}
+
+.pdxsp-emptywhy-foot {
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: #7596c0;
+  margin: 0.4rem 0 0;
+}
+
 /* The tension card. Colour carries the KIND of tension, never a judgement of
    the person: amber for a scored gap between the two feeds, red for a flagged
    flashpoint, slate for "nothing contradicts itself", which is a finding and
