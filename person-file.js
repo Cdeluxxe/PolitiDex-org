@@ -176,8 +176,34 @@
       .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
   }
 
+  // The one id this file will open for `pid`. A key the profile-alias table has
+  // already ruled on — the repo's standing assertion that the id on the left is
+  // NOT a separate officeholder — resolves to its canonical target before anyone
+  // asks whether that retired key happens to have a document of its own. Without
+  // this, a stray duplicate filed under the retired key opens as a second current
+  // file for one seat (the /p/scott_chew vs /p/chew_h68 defect); with it, the
+  // retirement holds wherever the arrival came from. Returns `pid` unchanged when
+  // no table entry applies, so an id nobody has ruled on is never rewritten.
+  function canonId(pid) {
+    if (!pid) return '';
+    pid = String(pid);
+    try {
+      if (fn(window.PDXProfilePid)) {
+        var a = window.PDXProfilePid(pid);
+        if (a && a !== pid && record(a)) return String(a);
+      }
+    } catch (e) {}
+    return pid;
+  }
+
   // '' for no match AND for an ambiguous one — a name that two records answer to
   // is not an address, so it does not get to pick one of them.
+  //
+  // Candidates are canonicalised BEFORE the ambiguity test, or the fix above
+  // would defeat itself here: "Scott Chew" is the display name on both the
+  // retired duplicate and the roster record, so the raw scan sees two ids for one
+  // name and correctly refuses to pick — leaving a name search with no file at
+  // all. Two ids that canonicalise to the same one are one match, not a tie.
   var AMBIGUOUS = '\u0000';
   function bySlug(pid) {
     var want = slug(pid);
@@ -189,8 +215,9 @@
         if (!Object.prototype.hasOwnProperty.call(roster, id)) continue;
         var rec = roster[id];
         if (!rec || slug(rec.name) !== want) continue;
-        if (hit && hit !== id) { hit = AMBIGUOUS; return; }
-        hit = id;
+        var cid = canonId(id);
+        if (hit && hit !== cid) { hit = AMBIGUOUS; return; }
+        hit = cid;
       }
     }
     try { scan(window.PROFILES); } catch (e) {}
@@ -203,15 +230,18 @@
   function resolve(pid) {
     pid = pid ? String(pid) : '';
     if (!pid) return '';
+    // The alias hop runs FIRST, ahead of `record(pid)`. See canonId: a retirement
+    // the repo has already asserted outranks a document that happens to sit under
+    // the retired key, which is the whole of the one-person-two-files fix. It is
+    // a no-op for every id with no table entry, so ordinary arrivals are untouched.
+    var canon = canonId(pid);
+    if (canon !== pid) return canon;
     if (record(pid)) return pid;
-    try {
-      if (fn(window.PDXProfilePid)) {
-        var aliased = window.PDXProfilePid(pid);
-        if (aliased && aliased !== pid && record(aliased)) return aliased;
-      }
-    } catch (e) {}
     var lower = pid.toLowerCase();
-    if (lower !== pid && record(lower)) return lower;
+    if (lower !== pid) {
+      var lc = canonId(lower);
+      if (record(lc)) return lc;
+    }
     var named = bySlug(pid);
     return named && record(named) ? named : '';
   }
@@ -414,6 +444,11 @@
   //   caller in the app already uses (profiles-full, consistency, receipt-cards,
   //   ballot-breakdown), and using a different one here would warm a cache key
   //   nobody reads and issue two requests instead of one.
+  // Stage clock (index.html head + pdx-perf.js). First write wins; never throws.
+  function perf(name) {
+    try { if (window.PDXPerf && window.PDXPerf.mark) window.PDXPerf.mark(name); } catch (e) {}
+  }
+
   var _warmed = {};
   function warm(pid) {
     if (!pid || _warmed[pid]) return;
@@ -425,7 +460,19 @@
     try {
       VR.fetchMember(pid, { pageSize: 100 }).then(function (data) {
         try {
-          if (data && data.items && fn(VR.noteMember)) VR.noteMember(pid, data.items);
+          if (data && data.items && fn(VR.noteMember)) {
+            VR.noteMember(pid, data.items);
+            perf('vr-warm');
+            // Same event, same meaning, same owner as the one voting-record.js
+            // fires when its own section finishes loading: "the sync record cache
+            // is warm for this member". On a cold /p/ arrival this now happens
+            // BEFORE the section loads, and the surfaces listening (the profile's
+            // Voting Record Highlights slot, the hero's formal brief) need to hear
+            // the moment the record exists, not the moment a section mounted. Both
+            // listeners re-read the cache and repaint; a second dispatch later is
+            // an idempotent repaint, not a double render.
+            try { window.dispatchEvent(new CustomEvent('pdx-voting-warm', { detail: { pid: pid } })); } catch (e) {}
+          }
         } catch (e) {}
       }, function () {});
     } catch (e) {}
@@ -469,6 +516,7 @@
     // on screen by this point: a reader who can see the file but whose address
     // bar did not update has a cosmetic problem, whereas a throw here would
     // leave them looking at a half-opened overlay.
+    perf('person-open');
     try { stamp(pid); } catch (e) {}
     try { kicker(pid); } catch (e) {}
     // Fired after the modal is up so it cannot delay the open by even one turn
@@ -593,7 +641,7 @@
     if (fromPath() !== pid) { _adoptSettled = true; return; }
     if (window._pdxCurrentProfileId) { _adoptSettled = true; return; }
 
-    if (settledAt === null && rosterSettled()) settledAt = waited;
+    if (settledAt === null && rosterSettled()) { settledAt = waited; perf('roster'); }
 
     var ready = (settledAt !== null || waited >= EARLY);
     var canOpen = ready && !!resolve(pid) && fn(window.openModal);
@@ -616,6 +664,17 @@
   function bootAdopt() {
     var pid = fromPath();
     if (!pid) return '';      // ?p= is still owned by _pdxOpenFromUrl
+    perf('person-boot');
+    // The record does not depend on the roster. attempt() below is a WAIT — for
+    // the roster to settle so an unknown id can be answered honestly — and the
+    // voting record has nothing to do with that question: the endpoint is keyed
+    // by pid alone, and the pid is in the address. Warming here rather than from
+    // open() hands the sync record cache (and every surface reading it) the
+    // answer as soon as the network has it, instead of one roster wait later.
+    // open() still calls warm(); it is memoised per pid, so this is the same one
+    // request moved earlier, not a second one. The path pid is used as-is —
+    // fetchMember and memberRecords canonicalize aliases for themselves.
+    try { warm(pid); } catch (e) {}
     _adoptSettled = false;
     attempt(pid, 0, null);
     return pid;

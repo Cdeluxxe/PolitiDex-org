@@ -41,7 +41,10 @@
 //      stays the taxonomy's on every profile.
 //  10. FILTERS ARE VIEWS. One active at a time, each one hiding rows and touching
 //      nothing else: same leaf markup, same counts object, same scores, same
-//      pattern-only disclosures. An empty view says so in words.
+//      pattern-only disclosures. An empty view says so in words. The three
+//      characterised views (record supports / record opposes / split) read the
+//      pattern engine's own tier and tone, admit no thin, unread or no-pole row,
+//      agree with the formal brief's characterised set, and carry no figure.
 //  11. FLAT MODE UNDER THE THRESHOLD. One constant decides it, a handful of leaves
 //      renders as one flat list in tension order with no accordions, and both
 //      sides of the boundary are asserted on real profiles.
@@ -881,8 +884,9 @@ section("10 · tension order is a sort key and nothing else");
 section("11 · filters are views — they hide rows and touch nothing else");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  eq(T.FILTERS.map((f) => f.key).join(","), "all,stance,cuts,aligns,only,baseline,onfile",
-    "the chip set is the seven the brief names, in that order");
+  eq(T.FILTERS.map((f) => f.key).join(","),
+    "all,stance,cuts,aligns,only,baseline,onfile,recsup,recopp,recsplit",
+    "the chip set is the ten the brief names, in that order");
   eq(T.FILTER_ALL, "all", "…and the default is the full set");
   eq(T.FILTERS[0].test, null, "…which has no predicate at all, so it can hide nothing");
   T.FILTERS.forEach((f) => ok(!!f.label && !!f.title,
@@ -900,6 +904,16 @@ section("11 · filters are views — they hide rows and touch nothing else");
     // record reads a side. A subset of `only` by construction.
     baseline: (lf) => !!lf.baseline,
     onfile: (lf) => !!(lf.record && lf.record.onRecord),
+    // The three characterised views, restated off the tier and tone the row
+    // already prints. Written out longhand — not through T.CHARACTERISED — so a
+    // change to that table disagrees with this harness instead of moving it.
+    recsup: (lf) =>
+      !!lf.record && (lf.record.tier === "strong" || lf.record.tier === "mostly") &&
+      lf.record.tone === "support",
+    recopp: (lf) =>
+      !!lf.record && (lf.record.tier === "strong" || lf.record.tier === "mostly") &&
+      lf.record.tone === "oppose",
+    recsplit: (lf) => !!lf.record && lf.record.tier === "split",
   };
   const leavesBefore = JSON.stringify(LEAVES);
   const waBefore = JSON.stringify(A.PDXWordAction.read(PID));
@@ -1012,6 +1026,94 @@ section("11 · filters are views — they hide rows and touch nothing else");
   has(handler, "filterOf(", "…normalising the key through the filter table first");
   has(handler, "focus()", "…and returning focus to the chip it replaced");
   ok(!/innerHTML\s*=/.test(handler), "…and hides no row by hand in the DOM");
+
+  // ── THE THREE CHARACTERISED VIEWS ─────────────────────────────────────────
+  // WHAT THE PATTERN ENGINE CHARACTERISED, AND NOTHING ELSE. The fixture seeds one
+  // row of every shape on purpose — a deep one-way support run, a deep one-way
+  // oppose run, two both-ways runs, a single-vote row, and a deep row the index
+  // declines to read — so each of these is a claim about a row that exists.
+  const CHAR = ["recsup", "recopp", "recsplit"];
+  eq(JSON.stringify(T.CHARACTERISED), JSON.stringify({ strong: 1, mostly: 1 }),
+    "the characterised set is the formal brief's two tiers and no others");
+  // The same two tiers the brief's own hero counts, read out of the shipped source
+  // rather than restated here, so the two surfaces cannot drift apart.
+  const fpi = R("consistency.js");
+  const fpiSet = (fpi.match(/var _FPI_CHARACTERISED = \{([^}]*)\}/) || [, ""])[1];
+  Object.keys(T.CHARACTERISED).forEach((t) => has(fpiSet, t,
+    `${t}: the tree and the formal brief count the same tier as characterised`));
+  eq((fpiSet.match(/:/g) || []).length, Object.keys(T.CHARACTERISED).length,
+    "…and the brief counts no tier the tree leaves out");
+
+  const sup = T.filter(LEAVES, "recsup");
+  const opp = T.filter(LEAVES, "recopp");
+  const spl = T.filter(LEAVES, "recsplit");
+  must(sup.length > 0 && opp.length > 0 && spl.length > 0,
+    "the fixture no longer holds a one-way support run, a one-way oppose run and a split");
+  ok(sup.indexOf(byKey[ALIGNS]) !== -1, "the deep one-way support run is a characterised support row");
+  ok(opp.indexOf(byKey[CUTS]) !== -1, "the deep one-way oppose run is a characterised oppose row");
+  ok(spl.indexOf(byKey[ONLY_SPLIT]) !== -1, "the both-ways run is a split row");
+  ok(spl.indexOf(byKey[SPLITCUE]) !== -1, "…including where a stated position sits beside it");
+
+  // NO THIN, NO UNREAD, NO NO-POLE ROW ENTERS ANY OF THE THREE.
+  CHAR.forEach((k) => {
+    T.filter(LEAVES, k).forEach((lf) => {
+      ok(lf.record.tier !== "thin", `${k}/${lf.key}: no thin row enters a characterised view`);
+      ok(lf.record.tier !== "none", `${k}/${lf.key}: …and no unread or no-pole row either`);
+      ok(!!lf.record.onRecord, `${k}/${lf.key}: …and every row in one has formal items on file`);
+      ok(T.filter(LEAVES, "onfile").indexOf(lf) !== -1,
+        `${k}/${lf.key}: …so the three are subsets of the formal-on-file view`);
+    });
+  });
+  [ONLY_THIN, UNREADABLE].forEach((k) => CHAR.forEach((f) =>
+    ok(T.filter(LEAVES, f).indexOf(byKey[k]) === -1,
+      `${f}: the ${k === ONLY_THIN ? "single-vote" : "uncharacterised"} row stays out`)));
+  LEAVES.filter((lf) => !lf.record || !lf.record.onRecord).forEach((lf) => CHAR.forEach((f) =>
+    ok(T.filter(LEAVES, f).indexOf(lf) === -1,
+      `${f}/${lf.key}: a row with no formal record on file cannot be characterised`)));
+
+  // ONE ROW, ONE VIEW: a side and a split are mutually exclusive reads.
+  LEAVES.forEach((lf) => {
+    const inN = CHAR.filter((k) => T.filter(LEAVES, k).indexOf(lf) !== -1).length;
+    ok(inN <= 1, `${lf.key}: a row appears in at most one characterised view`);
+  });
+  eq(sup.length + opp.length + spl.length,
+    LEAVES.filter((lf) => T.CHARACTERISED[lf.record.tier] || lf.record.tier === "split").length,
+    "the three views together are exactly the characterised rows on the tree");
+
+  // THE SAME LANGUAGE AS THE BRIEF, on the row the chip selected — and the row is
+  // still the dossier door it is under every other view.
+  CHAR.forEach((k) => {
+    // Same uid as the full view, so the row comparison below is byte-for-byte.
+    const h = T.html(PID, { uid: "t", filter: k });
+    T.filter(LEAVES, k).forEach((lf) => {
+      const row = rowIn(h, lf.key);
+      must(!!row, `${k}/${lf.key}: the row is missing from its own view`);
+      eq(row, rowIn(HTML, lf.key), `${k}/${lf.key}: byte-identical to its row in the full view`);
+      has(row, `data-pdxtree-dos="${lf.key}"`, `${k}/${lf.key}: …and still opens the dossier`);
+      // The words a characterised row shows are the pattern read's own — except on a
+      // row Direction Match already scored, which keeps its verdict word there and
+      // is read as characterised only by the tier underneath it.
+      if (!lf.record.scored) has(row, lf.record.label,
+        `${k}/${lf.key}: …saying what the pattern read says, in its words`);
+    });
+    // The one percentage a leaf may carry is Direction Match's, on a scored row, and
+    // these views add none: no percentage appears anywhere else in one.
+    eq((h.match(/class="pdxtree-pct"/g) || []).length,
+       T.filter(LEAVES, k).filter((lf) => lf.record.state === "scored").length,
+      `${k}: a percentage appears only where a scored row already carried one`);
+    lacks(h.toLowerCase(), "approval", `${k}: and nothing in the view calls it approval`);
+  });
+  ok(/Strongly|Mostly/.test(rowIn(HTML, ONLY_STRONG)),
+    "an unscored one-way run reads in the brief's depth-qualified words");
+  has(rowIn(HTML, ONLY_SPLIT), "Split", "…and a both-ways run reads as Split");
+
+  // A CHIP IS NOT A TALLY. No count on any of the three, and nothing profile-wide.
+  CHAR.forEach((k) => {
+    const f = T.FILTERS.filter((x) => x.key === k)[0];
+    ok(!/\d|%|approval/i.test(f.label + " " + f.title),
+      `${k}: neither the chip nor its sentence carries a figure, a percentage or "approval"`);
+    has(f.title, "formal record", `${k}: …and it says which record it is reading`);
+  });
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

@@ -221,7 +221,20 @@
 // than shell assets, so it is left with them; the version rename empties the
 // runtime cache on activate, and the three then arrive together on the load
 // after. Nothing about this half is database-side.
-const CACHE_VERSION = 'v79';
+// v80 — PERF PASS 1: THE COLD /p/<pid> RECORD REQUEST MOVED INTO THE HEAD.
+// index.html changed above the fold (an inline script that starts
+// GET /api/voting-record/member/<pid> before any module executes, and publishes
+// the promise for voting-record.js to adopt), and '/' is precached — so a repeat
+// visitor served the old shell would keep the old waterfall no matter how many
+// times they reloaded. The rename empties both caches on activate, which is also
+// what carries the four changed modules (voting-record.js, person-file.js,
+// word-action.js) and the new pdx-perf.js as one set: a phone that took the new
+// index.html but kept the old voting-record.js would issue the head prefetch and
+// then a SECOND request from fetchMember, which is worse than either version.
+// pdx-perf.js is deliberately NOT added to SHELL_ASSETS — it is a deferred
+// reporting module, nothing a first paint depends on, and the shell budget for
+// this pass is unchanged by design.
+const CACHE_VERSION = 'v80';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

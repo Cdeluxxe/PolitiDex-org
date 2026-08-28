@@ -26,6 +26,200 @@
      Neither one touches the network or the lazy data bundles. -->
 <link rel="preload" as="script" href="/hero-showcase-data.js">
 <link rel="preload" as="script" href="/hero-showcase.js">
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PERSON-FILE COLD OPEN — the clock, and the one request that starts it.
+     ────────────────────────────────────────────────────────────────────────
+     WHAT WAS SLOW, MEASURED RATHER THAN GUESSED.
+
+     A cold arrival on /p/<pid> is served this same index.html by a
+     netlify.toml rewrite, so nothing in the document knows a person was asked
+     for until the client says so. The formal brief at the top of a person file
+     is derived from the roll-call record, and the request for that record used
+     to be the LAST link in a four-stage chain:
+
+       1. parse index.html
+       2. execute the deferred module chain in document order — person-file.js
+          sits ~80 scripts in, and a deferred script cannot run until the whole
+          document has been parsed
+       3. person-file.js's arrival wait: PROFILES is fetched from Firestore
+          behind an anonymous-sign-in wait, so adopt() polls _pdxRosterState
+          and only opens the file once the roster has settled (EARLY 2000ms,
+          CEILING 15000ms)
+       4. PDXPerson.open() → warm() → GET /api/voting-record/member/<pid>
+
+     Stages 1–3 are all work the record does not depend on. The pid is in
+     location.pathname from the first byte, the endpoint is keyed by pid alone,
+     and the response is memoised by (id, query) inside PDXVotingRecord — so
+     every one of those stages was pure latency in front of the fetch, and the
+     reader spent it looking at "Still loading the roll-call record" as the top
+     state of a file whose chips could already count its rows.
+
+     THIS BLOCK IS THAT REQUEST, MOVED TO THE FRONT. It is an inline head
+     script because that is the earliest executable moment in the document —
+     a deferred script, however early in the chain, still waits for the whole
+     2MB parse. It issues exactly ONE request, for exactly the URL and query
+     PDXVotingRecord.fetchMember builds for { pageSize: 100 } (the query every
+     warming caller in the app already uses), and hands the promise over on
+     window.__pdxVRPrefetch. fetchMember adopts it instead of issuing a second
+     request — see the adoption path in voting-record.js. Nothing waits on it
+     here, nothing renders from it here, and a failure costs exactly what it
+     cost before: the lazy path retries.
+
+     IT CHANGES NO ANSWER. Same endpoint, same query, same payload, same
+     client-side engine reading it. The only thing that moved is when the
+     request starts.
+
+     WHY THE ALIAS MAPS ARE COPIED HERE. fetchMember caches BY ID, so it asks
+     for the canonical id — a request for a retired id would warm a cache key
+     nobody reads and cost two requests instead of one. Both tables the arrival
+     path consults are mirrored, in the order it consults them: first
+     PDX_PROFILE_ALIAS (profile-evidence.js), which is the table PDXPerson.resolve
+     canonicalises the address through — /p/scott_chew IS chew_h68's file, and one
+     Scott Chew means one pack — then PDX_PID_ALIASES (stance-helpers.js /
+     db/vr-pid-aliases.json), the voting-record retirements the endpoint itself is
+     keyed by. scripts/test-person-file-perf.mjs fails the build if any of these
+     copies disagrees with its source.
+
+     THE SESSION CACHE IS READ BEFORE THE NETWORK. voting-record.js writes the
+     unfiltered member payload into sessionStorage under this exact key, so a
+     back/forward onto a person file already visited in this tab resolves from
+     memory with no request at all. Key format and TTL are owned by
+     voting-record.js and asserted identical here by the same test.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  // ── PDXPerf: the clock ────────────────────────────────────────────────────
+  // Defined here rather than in pdx-perf.js because the first marks worth
+  // having are laid before any external script has executed. pdx-perf.js
+  // (deferred, first in the chain) attaches the reporting surface to THIS
+  // object; it never replaces it, so no mark is lost.
+  var P = window.PDXPerf;
+  if (!P) {
+    P = window.PDXPerf = {
+      marks: {},        // name -> ms since navigation start (first write wins)
+      order: [],        // the order they were laid, for the waterfall report
+      mark: function (name, at) {
+        if (!name || this.marks[name] !== undefined) return this.marks[name];
+        var t;
+        try { t = (at === undefined) ? performance.now() : at; } catch (e) { t = at || 0; }
+        this.marks[name] = t;
+        this.order.push(name);
+        return t;
+      },
+      // ms between two marks, or null when either is missing. Used by the
+      // report; kept here so a console poke works before pdx-perf.js lands.
+      between: function (a, b) {
+        var x = this.marks[a], y = this.marks[b];
+        return (x === undefined || y === undefined) ? null : (y - x);
+      }
+    };
+  }
+  P.mark('head');
+
+  // ── The prefetch ──────────────────────────────────────────────────────────
+  var m;
+  try { m = String(location.pathname).match(/^\/p\/([A-Za-z0-9_]+)\/?$/); } catch (e) { m = null; }
+  if (!m) return;
+
+  // Mirror of PDX_PROFILE_ALIAS (profile-evidence.js) — "which id has a roster
+  // record". Applied FIRST, because that is the order the arrival path resolves
+  // in: PDXPerson.resolve() canonicalises the address before it warms anything,
+  // so /p/scott_chew opens chew_h68's file and a prefetch of scott_chew's pack
+  // would warm a cache key nobody reads.
+  var PROFILE_ALIASES = {
+    kivory: 'ivory_h39', wharper: 'harper_s16', seliason: 'eliason_h45',
+    klisonbee: 'lisonbee_h14', dmccay: 'mccay_s11', jteuscher: 'teuscher_h44',
+    ken_ivory: 'ivory_h39', eliason: 'eliason_h45', teuscher: 'teuscher_h44',
+    lisonbee: 'lisonbee_h14', mccay: 'mccay_s11', bridger_bolinder: 'bolinder_h68',
+    casey_snider: 'snider_h5', cory_maloy: 'cory_maloy_h52', curt_bramble: 'cbramble',
+    don_ipson: 'dipson', jerry_stevenson: 'jstevenson', jill_koford: 'koford_h10',
+    luz_escamilla: 'lescamilla', matthew_gwynn: 'gwynn_h6', nate_blouin: 'blouin_s13',
+    phil_lyman: 'lyman', scott_chew: 'chew_h68', scott_sandall: 'ssandall',
+    stephen_l_whyte: 'whyte_h63', stuart_adams: 'sadams', tiara_auxier: 'auxier_h4',
+    todd_weiler: 'tweiler', troy_shelley: 'shelley_h66'
+  };
+  // Mirror of PDX_PID_ALIASES (stance-helpers.js) / db/vr-pid-aliases.json — the
+  // voting-record retirements, which is the id the endpoint itself is keyed by.
+  var ALIASES = {
+    susan_collins: 'collins', kennedy_rfk: 'rfkjr', cullimore_s19: 'kcullimore',
+    calbrecht: 'carl_albrecht', derek_brown: 'derek_brown_ut'
+  };
+  var pid = PROFILE_ALIASES[m[1]] || m[1];
+  pid = ALIASES[pid] || pid;
+  var qs = '?pageSize=100';
+  var url = '/api/voting-record/member/' + encodeURIComponent(pid) + qs;
+  // Key format + TTL are owned by voting-record.js (PDXVotingRecord._ssKey /
+  // _ssTtlMs) and asserted identical to these two lines by the perf test.
+  var ssKey = 'pdxvr1:' + pid + qs;
+  var ssTtl = 300000;
+
+  // A session hit costs no request. The parse is pushed off the parser's own
+  // task so a 60KB payload cannot stall the head; a missing, stale or corrupt
+  // entry rejects and the network attempt takes over, so there is exactly ONE
+  // promise on __pdxVRPrefetch and it cannot be adopted in a dead state.
+  function fromSession() {
+    return new Promise(function (resolve, reject) {
+      var raw = null;
+      try { raw = sessionStorage.getItem(ssKey); } catch (e) { raw = null; }
+      if (!raw) { reject(new Error('vr session miss')); return; }
+      setTimeout(function () {
+        try {
+          var box = JSON.parse(raw);
+          if (box && box.d && box.t && (Date.now() - box.t) < ssTtl) {
+            P.mark('vr-session-hit');
+            resolve(box.d);
+            return;
+          }
+        } catch (e) {}
+        reject(new Error('vr session stale'));
+      }, 0);
+    });
+  }
+
+  function fromNetwork(isFallback) {
+    // The same 12s deadline PDXVotingRecord._timeoutMs applies to its own
+    // requests: a stalled connection never resolves and never rejects, and the
+    // promise handed to fetchMember must not be able to hang a caller forever.
+    var ctl = null;
+    try { if (typeof AbortController === 'function') ctl = new AbortController(); } catch (e) { ctl = null; }
+    var init = { headers: { accept: 'application/json' } };
+    if (ctl) init.signal = ctl.signal;
+    var timer = null;
+    try {
+      timer = setTimeout(function () { try { if (ctl) ctl.abort(); } catch (e) {} }, 12000);
+    } catch (e) { timer = null; }
+    var clear = function () { if (timer) { try { clearTimeout(timer); } catch (e) {} timer = null; } };
+
+    P.mark(isFallback ? 'vr-prefetch-retry' : 'vr-prefetch-start');
+    return fetch(url, init).then(function (r) {
+      P.mark('vr-prefetch-headers');
+      if (!r.ok) throw new Error('voting-record ' + r.status);
+      return r.json();
+    }).then(function (d) {
+      clear();
+      P.mark('vr-prefetch-json');
+      return d;
+    }, function (e) { clear(); throw e; });
+  }
+
+  // One box, one promise, published synchronously so a module that executes a
+  // moment later cannot miss it. `session` records WHICH way the answer came:
+  // voting-record.js must not re-write (and so renew) a session copy it was
+  // just served from, or one entry could live past its five minutes forever.
+  var box = { pid: pid, url: url, promise: null, session: false };
+  box.promise = fromSession().then(function (d) {
+    box.session = true;
+    return d;
+  }, function () {
+    return fromNetwork(true);
+  });
+  // Adoption may be a second or more away; nothing here may surface as an
+  // unhandled rejection in the meantime.
+  box.promise.catch(function () {});
+  window.__pdxVRPrefetch = box;
+})();
+</script>
+<script defer src="/pdx-perf.js"></script>
 <script defer src="/pdx-lazy-data.js"></script>
 <!-- Share deep links (share-links.js). Loaded ahead of every feature module so a
      server-visible share link (?bill=… / ?receipt=… / ?record=… / ?rank=…, or a

@@ -381,6 +381,14 @@
       matthew_gwynn:    'gwynn_h6',
       nate_blouin:      'blouin_s13',
       phil_lyman:       'lyman',
+      // CANONICAL: chew_h68. It is the roster record for Utah House District 68
+      // (termStart 2015-01) and it holds the 90-act formal file; `scott_chew` is
+      // the slug of that record's own display name and has no roster record of
+      // its own. A stray PROFILES document under `scott_chew` is the same
+      // officeholder, not a second one, so it must never open as its own file —
+      // see the ordering note on PDXProfilePid below. Vote rows are NOT merged:
+      // no voting-record rows were ever filed under `scott_chew`, so
+      // PDX_PID_ALIASES / db/vr-pid-aliases.json stay out of this.
       scott_chew:       'chew_h68',
       scott_sandall:    'ssandall',
       stephen_l_whyte:  'whyte_h63',
@@ -396,18 +404,39 @@
 
     // Resolve any id to one a profile can actually open, in a single step.
     // Single-hop-on-miss, deliberately: a candidate is accepted only if IT has a
-    // record, so nothing chains through a dead id, a real profile always beats an
-    // alias, and an unknown id passes through untouched so callers can still show
-    // their own not-found state instead of silently opening the wrong person.
+    // record, so nothing chains through a dead id, and an unknown id passes
+    // through untouched so callers can still show their own not-found state
+    // instead of silently opening the wrong person.
+    //
+    // A BRIDGE OUTRANKS A STRAY DOCUMENT FILED UNDER THE RETIRED KEY. This used
+    // to read "a real profile always beats an alias" and returned `id` the moment
+    // `id` had any record at all. That is right for an id nobody has ruled on and
+    // wrong for the keys in the table above, because every one of them is this
+    // repo's standing assertion that the id on the LEFT is not a separate
+    // officeholder. When a stray PROFILES document later appears under one of
+    // those keys — /p/scott_chew arriving with its own photo, seven topics and a
+    // 100% figure next to chew_h68's 90-act formal file — the old order handed the
+    // reader that document and never consulted the bridge, so ONE person read as
+    // TWO current files for Utah House District 68.
+    //
+    // So the table is asked first, and only for keys that are IN the table. The
+    // hop still requires the target to have a record of its own, so a stale alias
+    // value can never blank out a live profile, and `direct !== id` keeps a
+    // self-referential entry from looping. scripts/test-identity-integrity.mjs §11
+    // already holds both sides of the table — every value is a live cmp-data
+    // record, and no key is one — so the only id this reordering can reach is one
+    // that has a PROFILES document and no roster record of its own: a duplicate
+    // filed under a retired key, which is the defect.
+    // scripts/test-chew-identity.mjs pins the live case end to end.
     window.PDXProfilePid = function (id) {
       if (!id) return id;
       var hasRec = function (x) {
         return !!((window.PROFILES && window.PROFILES[x]) ||
                   (typeof CMP_DATA !== 'undefined' && CMP_DATA[x]));
       };
-      if (hasRec(id)) return id;
       var direct = window.PDX_PROFILE_ALIAS && window.PDX_PROFILE_ALIAS[id];
-      if (direct && hasRec(direct)) return direct;
+      if (direct && direct !== id && hasRec(direct)) return direct;
+      if (hasRec(id)) return id;
       var curated = window.ACCT_ALIAS && window.ACCT_ALIAS[id];
       if (curated && hasRec(curated)) return curated;
       return id;
