@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
-  "count": 118,
+  "count": 121,
   "keys": [
     "america_first",
     "america_first_fp",
@@ -23,6 +23,7 @@
     "datacenter_water",
     "democracy_balance",
     "deportations",
+    "dev_district_finance",
     "disaster_resilience",
     "econ_balance",
     "econ_corp_account",
@@ -100,6 +101,7 @@
     "school_choice",
     "scotus_reform",
     "social_security",
+    "sound_money",
     "state_standing",
     "states_federal_power",
     "stock_trading_ban",
@@ -112,6 +114,7 @@
     "tech_balance",
     "tech_innovation",
     "term_limits",
+    "tobacco_nicotine",
     "tough_on_crime",
     "transit",
     "veterans",
@@ -438,6 +441,23 @@
       "remove",
       "secure the border",
       "interior enforcement"
+    ],
+    "dev_district_finance": [
+      "development district",
+      "reinvestment zone",
+      "tax increment",
+      "property tax differential",
+      "public infrastructure district",
+      "special district",
+      "stadium",
+      "convention center",
+      "fairpark",
+      "mida",
+      "military installation development authority",
+      "project area",
+      "resort community",
+      "bonding authority",
+      "economic development zone"
     ],
     "disaster_resilience": [
       "wildfire",
@@ -1531,6 +1551,19 @@
       "elderly",
       "retiree"
     ],
+    "sound_money": [
+      "precious metals",
+      "gold",
+      "silver",
+      "bullion",
+      "specie",
+      "legal tender",
+      "gold reserve",
+      "state treasurer",
+      "money management act",
+      "severance tax in gold",
+      "inflation hedge"
+    ],
     "state_standing": [
       "state standing",
       "cause of action",
@@ -1700,6 +1733,24 @@
       "government reform",
       "accountability",
       "revolving door"
+    ],
+    "tobacco_nicotine": [
+      "tobacco",
+      "nicotine",
+      "vape",
+      "vaping",
+      "e-cigarette",
+      "electronic cigarette",
+      "flavored",
+      "flavoured",
+      "flavor ban",
+      "nicotine limit",
+      "tobacco permit",
+      "tobacco retailer",
+      "product registry",
+      "smoking",
+      "smoke shop",
+      "underage sales"
     ],
     "tough_on_crime": [
       "tough on crime",

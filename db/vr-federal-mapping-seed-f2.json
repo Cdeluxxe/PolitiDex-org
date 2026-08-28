@@ -1,0 +1,435 @@
+{
+  "_comment": "Federal wave F2 — the mapping decisions behind db/vr-federal-wave-f2-vote-seed.json. Two ACCEPTED issue rows, one RETRACTED row, and the written refusals. Projected read-only by scripts/vr-federal-fpi.mjs (--waves f1,f2) and turned into SQL by scripts/vr-gen-federal-wave-f2-migration.mjs.",
+  "_status": "DECIDED. Every row below carries a decision, a weight, a polarity and an argument. Nothing is UNDECIDED, so nothing here is silently ignored by the overlay.",
+  "_decidedBy": "Curator pass, August 2026. Rules applied: 3 (what a measure's primary axis is), 8 and 12 (which question form is the act), 11 and Utah §1121 (near-unanimity is relative to the question scored, and below one tenth of the yea+nay pool on the losing side a vote differentiates nobody), 21 (a live rationale belongs to the first writer; changing it needs a guarded UPDATE with its own argument), 25 (consistency is owed to the text, not the aggregate), 30 (supply a PRIMARY, never a fifth secondary, and census the key first), 31 (reserve funds, points of order and sense-of-the-Senate resolutions are not acts), 32 (when a key narrows, walk the live MAPPINGS, not just the refusal notes).",
+  "_doctrine": "This wave adds NO issue keys. The vocabulary standing rule from V1 — recurring fight, clean polarity, not a cousin of an existing chip — was not put to any candidate here because no candidate cleared the first test: every hole F2 found is an ATTRIBUTION hole, not a vocabulary hole. H.R. 1069 stays unmapped for the reason F1 gave.",
+  "_fpiTarget": "energy_production had no PRIMARY instrument a senator could vote on. F1 closed with that finding written down (follow-up 0e) and six senators named — alsobrooks, ashley_moody, jim_justice, mccormick, moreno, sheehy — reading `incidental`, \"Not about this issue\", on a key their record plainly speaks to. The mechanism is in stance-helpers.js: past _RD_MIN_JUDGED a member moves onto the deepEnough branch of _recordDirectionIndex, where out.primary < _RD_MIN_PRIMARY returns stop('record_thin','no_primary'). No floor is touched by this wave. The wall is cleared by two real Senate votes on the key or not at all.",
+  "measures": [
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 10",
+      "shortTitle": "Terminating the energy national emergency (February 2025)",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/10",
+      "decisiveRoll": "senate 119/1 roll 95, 'On the Joint Resolution', 47-52 Rejected, 2025-02-26 — the only roll call on this resolution in either chamber",
+      "checks": {
+        "decisiveQuestion": "'On the Joint Resolution' on an S.J.Res. is the single entry in rule 12's PASSAGE_FORMS. Admitted on the form alone, so no decisiveWhy is written.",
+        "singleSubject": "Read from the introduced text (govinfo BILLS-119sjres10is), which is one operative sentence in full: 'That the national emergency relating to energy declared on January 20, 2025, by the President in Executive Order 14156 (90 Fed. Reg. 8433) and pursuant to the National Emergencies Act (50 U.S.C. 1601 et seq.), is terminated.' There is no second subject, no reserve fund, no sense-of-the-Senate clause and no severable provision. Rule 31 does not reach it: the operative verb is 'is terminated', not 'consider'.",
+        "notReserveFund": "Correct. Rule 31's three textual tells — 'To establish a deficit-neutral reserve fund relating to…', 'To make sure the Senate can…', and an operative verb of 'consider' — are all absent. This is a privileged joint resolution under 50 U.S.C. 1622(c), which if enacted terminates the emergency by operation of law.",
+        "proceduralInversion": "No. The question is the resolution itself, so yeaBlocksMeasure() does not fire and the ordinary direction holds: a yea advances the resolution.",
+        "nearUnanimity": "No. 47-52 with one senator not voting. The losing side is 47.475% of the yea+nay pool, far above the one-tenth bar. Party totals from the document itself: D 45-0 yea, I 2-0 yea, R 0-52 nay.",
+        "twoFlankNays": "Checked (rule 5 / rule 23) and NO. The 52 nays are 52 Republicans — one bloc with one argument, that the emergency should stand. There is no second flank arguing the resolution does not go far enough, so the headline key stands and no provision-level substitution is needed.",
+        "enactedTier": "Not law. Rejected on the Senate floor 2025-02-26 and never reached the House. Filed status 'rejected_senate'."
+      },
+      "issues": [
+        {
+          "issueKey": "energy_production",
+          "decision": "ACCEPTED",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The resolution's whole operative text terminates the national energy emergency declared in Executive Order 14156, and that order is already in this record as energy_production w100 PRIMARY yea_supports for 'directing agencies to use emergency authorities to expedite domestic energy production'. Terminating it withdraws exactly those authorities, so a yea cuts against expanded domestic production and the row is coded yea_opposes. Weight 90 rather than 100 because the instrument reaches the emergency authorities alone and not the separate permitting and leasing apparatus of Executive Order 14154, which the record scores on its own. The corpus already files an emergency-termination joint resolution this way: H.J. Res. 46, on the February 2019 border emergency, carries border_security w90 PRIMARY yea_opposes as its single row — same instrument class, same weight, same polarity logic, and likewise no secondary for the National Emergencies Act process itself.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119sjres10is/html/BILLS-119sjres10is.htm"
+        },
+        {
+          "issueKey": "congress_oversight",
+          "decision": "REFUSED",
+          "why": "Tempting and wrong. A National Emergencies Act termination resolution is, in form, Congress reclaiming a delegated power, and there is a real argument that the axis is who decides rather than what is decided. It is refused for two reasons. First, precedent: the two emergency-termination resolutions already in the corpus — S.J.Res. 37 on the Canada tariff emergency and H.J. Res. 46 on the border emergency — carry the SUBJECT-MATTER axis and no process axis at all, tariffs_authority and border_security respectively. Second, the narrowed america_first scope note makes the general point for this whole family: 'whether CONGRESS must authorise the use of force' is held by members on both sides of the substantive question, so filing it alongside the substantive key double-counts one vote onto two chips. congress_oversight already has a Senate-reachable primary (S.Amdt. 3535), so nothing about the wall argues for it either. One instrument, one claim."
+        }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 71",
+      "shortTitle": "Terminating the energy national emergency (October 2025)",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/71",
+      "decisiveRoll": "senate 119/1 roll 554, 'On the Joint Resolution', 47-51 Rejected, 2025-10-08 — the only roll call on this resolution in either chamber",
+      "checks": {
+        "decisiveQuestion": "Same as S.J.Res. 10: 'On the Joint Resolution' on an S.J.Res., rule 12's one PASSAGE_FORMS entry, no decisiveWhy needed.",
+        "singleSubject": "The introduced text (govinfo BILLS-119sjres71is) is word-for-word identical to S.J.Res. 10's, terminating the same Executive Order 14156 emergency. Same single operative sentence, same subject.",
+        "whyBothAreAdmitted": "DISCLOSED, because it is the one thing about this pair a reader could reasonably object to. The two resolutions are the same text voted twice: 50 U.S.C. 1622(b) re-privileges a termination resolution every six months, which is how Kaine and Heinrich forced a second floor vote in October after February's failed. Among senators who actually cast a yea or nay, the two rolls are IDENTICAL — the yea sets match exactly, member for member. The only differences are absences, and they cut both ways: kevin_cramer was Not Voting on roll 95 and voted nay on roll 554, while cruz and sheehy voted nay on roll 95 and were Not Voting on roll 554. So each roll is the sole record of some senator's position on this question, and admitting only one would leave a senator unrecorded on a fight they took a side in. Admitting both is therefore not depth-padding by choice: it is the only way to record all 100 seats. What it does NOT do is add discrimination — no senator changed sides — and that is stated here rather than left for a reader to discover from the numbers.",
+        "notReserveFund": "Correct, for the same textual reasons as S.J.Res. 10. None of rule 31's tells is present.",
+        "proceduralInversion": "No. The question is the resolution itself.",
+        "nearUnanimity": "No. 47-51 with two senators not voting. The losing side is 47.959% of the yea+nay pool. Party totals from the document: D 45-0 yea, I 2-0 yea, R 0-51 nay.",
+        "twoFlankNays": "Checked and NO — the 51 nays are 51 Republicans, one bloc, one argument.",
+        "enactedTier": "Not law. Rejected on the Senate floor 2025-10-08. Filed status 'rejected_senate'."
+      },
+      "issues": [
+        {
+          "issueKey": "energy_production",
+          "decision": "ACCEPTED",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The resolution's whole operative text terminates the national energy emergency declared in Executive Order 14156, which this record already scores as energy_production w100 PRIMARY yea_supports for directing agencies to use emergency authorities to expedite domestic production. Terminating it withdraws those authorities, so a yea cuts against expanded domestic production. Weight and polarity match the February companion S.J.Res. 10 because the text is identical; the two are separate acts six months apart, taken under the re-privileging clock in 50 U.S.C. 1622(b), and each is the only record of where some senators stood on the question.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119sjres71is/html/BILLS-119sjres71is.htm"
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 6644",
+      "shortTitle": "21st Century ROAD to Housing Act",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6644",
+      "decisiveRoll": "senate 119/2 roll 53, 'On Passage of the Bill', 89-10 Passed, 2026-03-12",
+      "mustExist": "Live as vr_measures id 88 — measure_type 'bill', congress 119, chamber 'house', number 'H.R. 6644' — already carrying housing_build w100 PRIMARY, housing w80, permitting_reform w60 and crypto_cbdc w40, all with written rationales, and all of them right. THIS ENTRY ADDS NO MAPPING. It exists so the wave's one pure-attribution decision is written down in the same place as its mapping decisions.",
+      "checks": {
+        "decisiveQuestion": "senate 119/2 roll 53, 'On Passage of the Bill'. Admitted by rule 8 as the Senate's one decisive act on the measure. The other eight Senate rolls on H.R. 6644 are refused in declinedRollCalls below.",
+        "chamberGap": "This is the gap rule 30's second corollary describes: a measure whose own chamber list does not include the chamber that voted on it. Before this wave H.R. 6644 carried exactly one roll — house 119/2/224, the concurrence — so every senator's housing_build row read `vehicle_only`, whose text is 'Every mapped instrument on this issue arrived as a provision inside a larger vehicle.' Their only housing_build instrument was S. 2296 Division I at weight 35: the Road to Housing Act carried inside the defense authorization. The Senate voted on the standalone bill and the record did not have it.",
+        "nearUnanimity": "89-10 puts the losing side at 10.101% of the yea+nay pool — over the one-tenth bar by a tenth of a point, and admitted on that basis rather than on a comfortable margin. TWO THINGS MUST BE SAID PLAINLY. First, how thin that is: one more yea would have put it under. Second, the ten nays are not noise — they are nine Republicans (cruz, lee, rand_paul, rick_scott, ron_johnson, ted_budd, tillis, todd_young, tommy_tuberville) against a 43-9 Republican yea majority, plus schatz against a 44-1 Democratic yea majority. Every one of the ten is recorded as against_party from this document's own party tallies, which is the highest-information pattern a roll can have. Third, and this is the part that decides it: the House roll the record ALREADY holds on this bill, 119/2/224, is 358-32 — 8.205%, BELOW the bar. Refusing the Senate roll while keeping the House one would mean the record admits a less separating vote and declines a more separating one on the same instrument.",
+        "proceduralInversion": "No. 'On Passage of the Bill' is straight passage; yeaBlocksMeasure() does not fire.",
+        "twoFlankNays": "Checked (rule 5 / rule 23) and YES, arguably — and it does not change the mapping. The nine Republican nays object to the federal role and the spending; schatz's nay comes from the other direction. But the mapping being attributed here is the measure's EXISTING housing_build w100 PRIMARY row, written in an earlier wave from the bill's text, and rule 21 leaves that rationale with its first writer. A two-flank split is a reason to re-read the mapping, not a reason to decline the chamber's own passage vote, and re-reading it is not this wave's business.",
+        "enactedTier": "Not law as filed. Status stays 'passed_house' — this wave adds a roll call, and does not touch the measure row."
+      },
+      "issues": [],
+      "liveMappedRowCount": 4,
+      "outcome": "PURE ATTRIBUTION. No mapping is added, changed or removed. The measure's four live rows (housing_build w100 PRIMARY, housing w80, permitting_reform w60, crypto_cbdc w40) are all correct and all stay exactly as an earlier pass wrote them, rationales included. What this wave gives the measure is the missing half of its own vote: the Senate passed the standalone bill 89-10 and the record held only the House concurrence. The migration pins the row count at 4 so a later pass cannot re-stuff the measure while landing an attribution."
+    }
+  ],
+  "retractions": [
+    {
+      "congress": 119,
+      "number": "H.R. 1048",
+      "measureId": 45,
+      "issueKey": "america_first",
+      "decision": "RETRACTED",
+      "was": {
+        "weight": 70,
+        "isPrimary": false,
+        "supportMeaning": "yea_supports",
+        "rationale": "Targets foreign influence — especially from China, Iran, North Korea, and Russia — on U.S. campuses as a national-security matter."
+      },
+      "why": "Rule 32, and the item F1 queued as follow-up 0e. The america_first chip was narrowed in August 2026 to ONE thing — what the United States funds and commits to abroad — and its scope note in alignment-tool.js puts this row's own stated ground on the OUT list by name: 'countering China and military posture toward adversaries (strong_defense, tariffs_china)'. The rationale above is that ground and nothing else. The DETERRENT Act is a domestic disclosure statute: it requires universities to report foreign gifts and contracts and enforces the duty through fines and Title IV. There is no aid level, no partner funding, no assessed contribution and no commitment wind-down anywhere in it, so the row cannot move to america_first_fp either — that chip is 'cut, condition or wind down U.S. foreign aid and open-ended commitments abroad'. A re-key would need a chip that fits, and none does. So this is a removal, which is also what follow-up 0e predicted after reading it.",
+      "whyItIsSafeToRemove": "The measure keeps gov_transparency w100 PRIMARY — 'force disclosure of foreign money flowing to universities, faculty, and endowments', which is the bill's actual operative purpose and is untouched — and edu_balance w55. The measure does not lose its primary, does not lose its roll (house 119/1/83, 241-169), and does not leave the record. What goes away is one non-primary row on a key the vocabulary disowned, which is the whole point: a stale mapping keeps publishing, while a stale refusal publishes nothing.",
+      "costDisclosed": "A retraction is a subtraction and is measured like one. Removing this row lowers by one the america_first judged-act count of every member attributed on roll 119/1/83, so the before/after FPI table for this wave is run over all 327 federal pids and not only the Utah seven. MEASURED RESULT: on the key itself, mixed_thin 10 → 2 and incidental 99 → 101 — removing the contradicting row lets eight members' america_first records resolve and costs two. The two are dan_crenshaw and massie, whose america_first record was two judged secondary acts of which this was one; the survivor is H.R. 4 alone, and their only primary on the key is a not_voting on H.R. 276, which was never a judged act for them. Named in full under readLossDisclosure. Net +6 characterised on the key whose vocabulary this fixes, and the two losses are not a reason to keep a mapping the vocabulary disowned."
+    }
+  ],
+  "americaFirstFullAudit": {
+    "_why": "Rule 32's second half: after editing a key's scope note, query vr_measure_issues for every live row on that key and re-read each rationale against the new chip. F1's follow-up 0e asked for this explicitly — 'the same query that found it should be run across all five live america_first rows'. It was run. Two of the five are clean, one is retracted above, and TWO MORE ARE STALE AND ARE NOT FIXED HERE. They are written down instead of quietly left, because a follow-up that names the row is the difference between a known debt and a hidden one.",
+    "clean": [
+      {
+        "number": "Executive Order 14150",
+        "weight": 100,
+        "isPrimary": true,
+        "verdict": "KEEP. Its rationale quotes section 1 — 'the foreign policy of the United States shall champion core American interests and always put America and American citizens first' — and section 2's direction to the Secretary of State. That is the chip's own doctrine, stated at the level of the Department as a whole."
+      },
+      {
+        "number": "H.R. 4",
+        "weight": 60,
+        "isPrimary": false,
+        "verdict": "KEEP. 'The bulk of the package (~$7.9B) rescinds unobligated foreign-aid and State Department funds.' Rescinding appropriated foreign aid is squarely on the narrowed chip's IN list (aid levels and conditions). Noted for a future pass, not acted on: the same measure also carries america_first_fp w65 on the same $7.9B, which is a cousin pair on one instrument — both rows predate this wave and rule 21 leaves them with their writer."
+      }
+    ],
+    "staleButNotFixedHere": [
+      {
+        "number": "H.R. 276",
+        "measureId": 50,
+        "weight": 100,
+        "isPrimary": true,
+        "row": "america_first w100 PRIMARY yea_supports — 'Codifies the \"Gulf of America\" renaming as a symbolic america-first measure and locks in the executive order.'",
+        "why": "Stale on the same reading that retracts H.R. 1048. A renaming statute funds nothing abroad and commits to nothing abroad, so it is not on the narrowed chip's IN list. But this is the measure's ONLY issue row, and removing it would drop a contested roll — house 119/1/122, 211-206 — out of the issue record entirely rather than re-file it. The honest fix needs a key for symbolic-sovereignty measures, and there is not one; inventing it is exactly the '1069-class vocab gap' this wave is told not to invent for. Queued, with the alternative stated: either a V-wave key that clears the standing rule, or a reasoned decision that a naming bill does not belong in the issue record at all."
+      },
+      {
+        "number": "H.R. 6395",
+        "measureId": 253,
+        "weight": 90,
+        "isPrimary": true,
+        "row": "america_first w90 PRIMARY yea_supports — the FY2021 NDAA, whose rationale argues from 'funding and manning the armed forces at the level the Department asked for'.",
+        "why": "Stale, and worse than H.R. 1048's row because it is a PRIMARY whose own written argument is another chip's subject: the narrowed scope note assigns 'military posture toward adversaries' to strong_defense by name. This is a re-key rather than a removal — the measure has a real axis and it is strong_defense — and a re-key moves published percentages on TWO keys at once. Under rule 21 that needs its own pass and its own argument, not a side effect of an attribution wave. Queued."
+      }
+    ]
+  },
+  "census": {
+    "_how": "Run before any candidate was looked at, per the brief's 're-census first; do not chase a stale list'. Per issue key: PRIMARY instruments by chamber straight off vr_measure_issues x vr_measures, and unread-reason counts by calling PDXConsistency.formalPatternIndex.rows() through the same node:vm sandbox scripts/vr-federal-fpi.mjs boots. Reproduce the reason half with: node scripts/vr-federal-fpi.mjs --set senate --why",
+    "findingThatShapedTheWave": "Before F2, exactly TWO issue keys in the entire corpus had a PRIMARY instrument with a Senate roll call attributed to it: gov_regulation (S.J.Res. 18, which is what F1 fixed) and congress_oversight (S.Amdt. 3535). Every other key a senator's record touches is read from House instruments, executive actions, or provisions inside vehicles. That is a systemic attribution gap, not a mapping error, and it is why five of the six priority keys in this wave end in blocked-on rather than in a mapping.",
+    "priorityKeys": [
+      {
+        "key": "energy_production",
+        "senatePrimariesBefore": 0,
+        "senateSet": {
+          "read": 45,
+          "incidental": 26
+        },
+        "utahSet": {
+          "incidental": 2
+        },
+        "outcome": "CLOSED BY THIS WAVE — two Senate primaries admitted."
+      },
+      {
+        "key": "housing_build",
+        "senatePrimariesBefore": 0,
+        "senateSet": {
+          "vehicle_only": 68
+        },
+        "outcome": "CLOSED BY THIS WAVE — the existing housing_build w100 PRIMARY on H.R. 6644 gains the Senate passage vote it was missing. No new mapping."
+      },
+      {
+        "key": "econ_workers",
+        "senatePrimariesBefore": 0,
+        "senateSet": {
+          "vehicle_only": 60
+        },
+        "utahSet": {
+          "vehicle_only": 3
+        },
+        "outcome": "BLOCKED-ON — see blockedOn."
+      },
+      {
+        "key": "free_speech",
+        "senatePrimariesBefore": 0,
+        "senateSet": {
+          "vehicle_only": 70
+        },
+        "outcome": "BLOCKED-ON — see blockedOn."
+      },
+      {
+        "key": "health_rural",
+        "senatePrimariesBefore": 0,
+        "primariesAnywhere": 0,
+        "senateSet": {
+          "vehicle_only": 71
+        },
+        "outcome": "BLOCKED-ON — see blockedOn."
+      },
+      {
+        "key": "scotus_reform",
+        "senatePrimariesBefore": 0,
+        "primariesAnywhere": 0,
+        "utahSet": {
+          "vehicle_only": 4
+        },
+        "outcome": "BLOCKED-ON — see blockedOn."
+      },
+      {
+        "key": "econ_smallbiz",
+        "senatePrimariesBefore": 0,
+        "senateSet": {
+          "vehicle_only": 60
+        },
+        "utahSet": {
+          "vehicle_only": 3
+        },
+        "outcome": "BLOCKED-ON — see blockedOn."
+      }
+    ]
+  },
+  "blockedOn": [
+    {
+      "key": "econ_workers",
+      "state": "No admissible Senate instrument exists in the 119th.",
+      "evidence": "H.R. 5408, the Faster Labor Contracts Act, is the key's PRIMARY and passed the House on roll 119/2/216 (230-193). It was received in the Senate 2026-06-10 and no vote has been taken. The only Senate labor-and-pay instrument of the Congress is S. 3012, back pay for excepted employees, and it never proceeded: cloture on the motion to proceed failed twice, roll 119/1/585 (54-45) and roll 119/1/609 (53-43), both short of sixty. Rule 8 admits passage, concurrence and conference reports; a failed cloture vote on a motion to proceed is none of those. The minimum-wage vehicle, Sanders Amdt. 2126 to H.Con.Res. 14 (roll 119/1/184, 47-52), is refused by rule 31 and was already refused by F1 on the same ground. S. 129, No Tax on Tips, passed the Senate by unanimous consent and has no roll call to attribute.",
+      "whatWouldUnblockIt": "A Senate passage vote on H.R. 5408 or a sibling first-contract bill. Nothing to do until then; piling a fifth secondary onto the key would deepen the wall F1 documented rather than clear it."
+    },
+    {
+      "key": "free_speech",
+      "state": "No Senate instrument of any kind.",
+      "evidence": "All 890 roll calls in the Senate's own vote menus for the 119th (vote_menu_119_1.xml and vote_menu_119_2.xml) were read for subject. ZERO concern free speech, press freedom, platform moderation or campus expression. The key's Senate-side instrument in the record is S. 146, the TAKE IT DOWN Act, which carries free_speech w30 as a non-primary — and S. 146 passed the Senate by UNANIMOUS CONSENT, so there is no roll call in existence to attribute, not merely one we have not ingested.",
+      "whatWouldUnblockIt": "A contested Senate vote on a speech or platform-moderation measure. There is not one."
+    },
+    {
+      "key": "health_rural",
+      "state": "No PRIMARY instrument anywhere in the corpus, in either chamber, which is why all 71 senators read vehicle_only.",
+      "evidence": "Every live health_rural row is a provision inside a larger vehicle — the largest is the Consolidated Appropriations Act, 2026 at weight 45. On the Senate side the menu sweep found only two shapes on the subject: deficit-neutral reserve funds during the S.Con.Res. 7 vote-a-rama, which rule 31 refuses by name and F1 already refused, and appropriations amendments that are provisions by construction. A standalone rural-health bill did not reach a Senate vote in the 119th.",
+      "whatWouldUnblockIt": "A standalone rural-health or provider-payment bill with a floor vote. Refusing to approximate one out of an appropriations amendment is the point of the vehicle_only reason existing at all."
+    },
+    {
+      "key": "scotus_reform",
+      "state": "No PRIMARY instrument anywhere. 101 of 101 rows on the key read vehicle_only.",
+      "evidence": "The menu sweep found the subject only in JUDICIAL NOMINATIONS, which are confirmations of individuals and not measures on court structure; rule 8 does not admit a nomination as an act on a policy key, and the record's PROCEDURAL_TYPES / nomination handling keeps them out for the same reason. No term-limits, court-expansion, jurisdiction-stripping or ethics-code bill reached a Senate vote in the 119th.",
+      "whatWouldUnblockIt": "A floor vote on court structure or a judicial ethics code. Note this key is a candidate for the deeper question of whether a key with no primary in either chamber should be publishing rows at all — raised here, not answered."
+    },
+    {
+      "key": "econ_smallbiz",
+      "state": "No Senate instrument.",
+      "evidence": "The menu sweep found the subject only in SBA nominations. Same refusal as scotus_reform: a confirmation is not an act on the policy.",
+      "whatWouldUnblockIt": "A contested Senate vote on a small-business bill."
+    }
+  ],
+  "declinedRollCalls": [
+    {
+      "roll": "senate 119/1/599",
+      "measure": "S.J.Res. 80",
+      "tally": "52-45 Passed",
+      "why": "REFUSED AS A MAPPING, not as a vote. This is the CRA disapproval of the NPR-A leasing rule, and it is the most tempting candidate this wave rejected: it is standalone, single-subject, Senate-originated, decisively contested and about energy. Rule 3 decides it — 'gov_regulation is for measures whose primary operative purpose is regulation itself, explicitly CRA disapprovals' — so its primary axis is gov_regulation, and the corpus is already consistent about where energy sits on a leasing CRA: H.J.Res. 131, the enacted BLM-leasing CRA, files energy_production as a SECONDARY at weight 75, non-primary. Admitting S.J.Res. 80 the same way would add the FIFTH non-primary energy_production row — precisely the 'fifth secondary' rule 30 forbids and the mechanism that produced F1's adverse finding, where a fourth non-primary act pushes a member across _RD_MIN_JUDGED onto the deepEnough branch and the primary wall then reads the row as `incidental`. It would make the key measurably WORSE. Filing it as a primary instead would contradict rule 3 and every CRA already in the record. Left out."
+    },
+    {
+      "roll": "senate 119/1/595",
+      "measure": "S.J.Res. 80",
+      "tally": "54-46 Agreed to",
+      "why": "Motion to proceed. Not a decisive question under rule 8, and moot given the mapping refusal above."
+    },
+    {
+      "roll": "senate 119/2/182",
+      "measure": "H.R. 6644",
+      "tally": "85-5 Agreed to",
+      "why": "Motion to concur. Refused twice over: 'On the Motion' is not a passage form under rule 12, and at 5.556% of the yea+nay pool the losing side is below the one-tenth bar, so the vote differentiates nobody. This is the later act on the measure and it is still refused — recency does not beat the near-unanimity floor."
+    },
+    {
+      "roll": "senate 119/2/51",
+      "measure": "H.R. 6644",
+      "tally": "84-10 Agreed to",
+      "why": "Scott (SC) Amdt. 4308, a substitute in the nature of. Rule 8 allows one decisive act per chamber per measure and roll 53 is it — the vote on the bill as amended, which is the text the Senate actually sent back. Admitting the substitute as well would double-count one Senate decision."
+    },
+    {
+      "roll": "senate 119/2/175 and 119/2/45",
+      "measure": "H.R. 6644",
+      "tally": "87-8 and 90-8",
+      "why": "Motions to proceed, and not decisive questions under rule 8, which admits passage, concurrence and conference only. A motion to proceed asks whether the Senate will take the bill up at all; it is answered before the chamber has voted on the policy, and 87-8 and 90-8 are what agreeing to debate looks like rather than what agreeing to the bill looks like. Both are also below rule 11's one-tenth bar (8.421% and 8.163%), so even if the question form were admissible the margin would not be. The Senate's one decisive act on this measure is roll 53, and rule 8 allows exactly one per chamber per measure."
+    },
+    {
+      "roll": "senate 119/2/180, 119/2/52, 119/2/50, 119/2/44",
+      "measure": "H.R. 6644",
+      "tally": "84-8, 82-11, 89-9, 84-6",
+      "why": "Cloture motions. Not decisive questions under rule 8, and all four are below the one-tenth bar besides."
+    },
+    {
+      "roll": "senate 119/1/585 and 119/1/609",
+      "measure": "S. 3012",
+      "tally": "54-45 and 53-43, both failed",
+      "why": "Cloture on the motion to proceed, twice, both short of sixty. The bill never proceeded, so there is no act on it. This is the whole of econ_workers' Senate-side story."
+    },
+    {
+      "roll": "senate 119/1/184",
+      "measure": "Sanders Amdt. 2126 to H.Con.Res. 14",
+      "tally": "47-52",
+      "why": "Rule 31. A budget-resolution amendment of this class is a reserve-fund or point-of-order device rather than an act on the underlying policy; F1 refused it on the same ground and nothing has changed."
+    },
+    {
+      "roll": "senate 119/1/318",
+      "measure": "S. 1582",
+      "tally": "68-30 Passed",
+      "why": "Not refused on the merits — simply not on any key this wave targets, and not read for mapping. Recorded here so the sweep's coverage claim is checkable: the sweep looked at every passage-form roll in the 119th, and this is one it passed over deliberately rather than missed."
+    },
+    {
+      "roll": "senate 119/1/127",
+      "measure": "S. 331",
+      "tally": "84-16 Passed",
+      "why": "Already in the record with its mapping. Listed so a reader can see the sweep found it and did not need to act."
+    }
+  ],
+  "chamberGapSweep": {
+    "_why": "Rule 30's second corollary: a measure whose `chamber` does not appear among its own roll calls is almost always an ingest gap. All 51 mapped 119th-Congress measures with no Senate roll were checked against the Senate's own vote menus.",
+    "_result": "H.R. 6644 is the ONLY one senate.gov has a substantive Senate vote for. The rest divide into three groups, and none of them is an ingest gap.",
+    "noSenateVoteExists": [
+      "H.R. 8595",
+      "H.R. 26",
+      "H.R. 22",
+      "H.R. 2483",
+      "H.R. 471",
+      "H.R. 1526",
+      "H.R. 3486",
+      "H.R. 884"
+    ],
+    "senateBillsPassedByUnanimousConsent": [
+      {
+        "number": "S. 146",
+        "note": "TAKE IT DOWN Act. Zero roll calls. This is why free_speech is blocked rather than un-ingested."
+      },
+      {
+        "number": "S. 129",
+        "note": "No Tax on Tips. Zero roll calls."
+      }
+    ],
+    "proceduralOnly": [
+      {
+        "number": "S. 1383",
+        "note": "Six Senate votes, all cloture, table or motion to proceed. No passage vote, so nothing rule 8 admits."
+      }
+    ]
+  },
+  "_counts": {
+    "measuresRead": 3,
+    "newMeasures": 2,
+    "rowsAccepted": 2,
+    "rowsRefused": 1,
+    "rowsRetracted": 1,
+    "rollCallsAdmitted": 3,
+    "rollCallsDeclined": 15,
+    "keysAdded": 0,
+    "keysBlockedOn": 5,
+    "floorsMoved": 0,
+    "readsLost": 29,
+    "readsGained": 112
+  },
+  "readLossDisclosure": {
+    "_comment": "The acceptance criterion for this wave is that no row the engine already characterised stops being characterised. Checking that on the shape counters (readable/thin/empty, strongN/splitN) is not good enough: a tier can move between two read states, a counter can net out, and the harness only diffs members whose counters moved at all. So it is checked directly on the row model's own `read` flag, over every pid in the set, set-wise. That check finds 29 rows this wave stops characterising. Both causes are recorded here in full rather than netted against the 112 rows it starts characterising, because a wave that reports only its wins is not measuring itself.",
+    "checkedBy": "scripts/vr-federal-fpi.mjs --set all  (readSets(); printed as 'rows that stopped being characterised')",
+    "pinnedBy": "scripts/test-vr-federal-wave-f2.mjs",
+    "totals": {
+      "lost": 29,
+      "gained": 112,
+      "lostTiers": {
+        "thin": 29
+      },
+      "gainedTiers": {
+        "strong": 7,
+        "mostly": 24,
+        "thin": 81
+      }
+    },
+    "utahSeven": {
+      "lost": 0,
+      "gained": 2,
+      "detail": "curtis energy_production → mostly, curtis housing_build → thin. lee, bmoore, owens, kennedy, maloy, cstewart lose nothing. The brief's named acceptance — Lee / Owens / Moore / Curtis briefs do not lose characterised rows — holds, and holds on the read flag rather than on a tier table."
+    },
+    "causes": [
+      {
+        "cause": "permitting_reform, 27 senators — a contradiction surfaced, not a wall tripped",
+        "members": [
+          "barrasso",
+          "britt",
+          "cassidy",
+          "cotton",
+          "crapo",
+          "daines",
+          "dan_sullivan",
+          "deb_fischer",
+          "fetterman",
+          "graham",
+          "hawley",
+          "kennedy_john",
+          "lankford",
+          "lummis",
+          "markey",
+          "merkley",
+          "ricketts",
+          "risch",
+          "roger_marshall",
+          "sanders",
+          "schatz",
+          "schmitt",
+          "tillis",
+          "tim_scott",
+          "todd_young",
+          "warren",
+          "wicker"
+        ],
+        "wasTier": "thin",
+        "nowReason": "mixed_thin",
+        "mechanism": "Each of these senators had exactly one permitting_reform act on the record: a nay on H.R. 3746, w70 PRIMARY yea_supports, which the engine read as '1 vote against'. Attributing H.R. 6644's Senate roll adds a second act — a yea, w60 secondary, yea_supports, so it advances. One act each way at depth two is mixed_thin. The engine stops characterising because the record genuinely does not say which way these senators lean on permitting.",
+        "notAWallTrip": "The row does not print incidental and the primary count does not change: H.R. 3746 is and remains a w70 PRIMARY on this key for all 27. _RD_MIN_PRIMARY is untouched (still 1) and no floor moved. This is not the failure mode the brief forbids — 'do not pile secondaries to trip the primary wall again' — because no wall is reached and because H.R. 6644 was not admitted for permitting_reform at all. It was admitted for housing_build, which it carries at w100 PRIMARY.",
+        "whyItIsNotFixed": "The fix would be to decline a real, verified, contested Senate passage vote (119/2/53, 89-10) so that 27 one-vote rows keep looking read. That is refusing evidence to protect a coverage number, and it inverts runbook rule 25: consistency is owed to the text, not to the aggregate. The wave takes the loss and names the 27.",
+        "honestSummary": "These rows were never characterisations. They were single votes with nothing to compare against. The wave supplies the comparison and the comparison disagrees."
+      },
+      {
+        "cause": "america_first, 2 representatives — the disclosed cost of the retraction",
+        "members": [
+          "dan_crenshaw",
+          "massie"
+        ],
+        "wasTier": "thin",
+        "nowReason": "incidental",
+        "mechanism": "Both had three america_first rows: H.R. 4 yea (w60 secondary), H.R. 276 not_voting (w100 PRIMARY — a not_voting is not a judged act, so it contributes no primary), and H.R. 1048 yea (w70 secondary). Two judged secondary acts, both advancing, read as thin. Retracting H.R. 1048 leaves one judged secondary act and still no judged primary, which the engine will not characterise.",
+        "whyItIsNotFixed": "H.R. 1048's america_first row is on the narrowed chip's own OUT list (alignment-tool.js:417-436, narrowed August 2026 to what the United States funds and commits to abroad). Keeping a mapping the vocabulary now says is wrong, in order to preserve two thin rows, would be the aggregate dictating the text. The retraction is a guarded DELETE carrying its own argument per runbook rule 21, not a silent rewrite.",
+        "netOnThisKey": "The retraction costs these 2 rows and gains 8: removing the contradicting w70 row lets eight other members' america_first records resolve. america_first mixed_thin 10 → 2, incidental 99 → 101. Net +6 characterised on the key whose vocabulary this fixes.",
+        "leftOpen": "H.R. 276 remains the stale case this wave will not touch — see americaFirstFullAudit.staleButNotFixedHere. It is these two members' only primary on the key, and it is a not_voting for both, so it was already carrying no weight for them."
+      }
+    ],
+    "netEffect": "29 thin rows out, 112 rows in (7 strong, 24 mostly, 81 thin). vehicle_only 911 → 816. No row moves from a clear or split read to unread; every loss is from the weakest read tier, and every loss is a case where the engine now has more evidence than it did and declines to pretend."
+  }
+}

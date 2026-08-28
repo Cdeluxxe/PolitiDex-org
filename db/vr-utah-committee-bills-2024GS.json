@@ -769,6 +769,30 @@
      "rationale": "Introduced text creates deadlines by which a managed care organization must respond to specified authorization requests and adds a reporting requirement. A hard clock on preauthorization decides whether covered care actually reaches the patient in time, which is why this outranks the disclosure-only preauthorization bills."
     }
    ]
+  },
+  {
+   "bill": "HB0562",
+   "issues": [
+    {
+     "issueKey": "dev_district_finance",
+     "weight": 80,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text creates the Utah Fairpark Area Investment and Restoration District with a boundary and a board, gives it an array of new local taxes and a privilege tax on state land, prohibits certain impact fees, directs enhanced property tax revenue to it, and authorizes it to own and help build a qualified stadium. Standing up a tax-capture district to finance one project is the whole bill, so a yea creates the district."
+    }
+   ]
+  },
+  {
+   "bill": "SB0061",
+   "issues": [
+    {
+     "issueKey": "tobacco_nicotine",
+     "weight": 80,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text prohibits the sale of an electronic cigarette product that lacks federal market authorization, codifies a nicotine limit, bans flavored electronic cigarette products, and creates a product registry retailers must sell from. Every operative provision narrows what may be sold and who may sell it, so a yea tightens the rules on nicotine products."
+    }
+   ]
   }
  ],
  "_refused": [
@@ -902,7 +926,7 @@
   },
   {
    "bill": "HB0348",
-   "why": "Exempts a portion of certain budget reserve accounts from the State Money Management Act, authorizes the state treasurer to invest part of those reserves in precious metals, and requires a treasurer study. No shipped key covers precious metals or sound money policy: crypto_cbdc is scoped to digital assets and central bank digital currency."
+   "why": "Exempts a portion of certain budget reserve accounts from the State Money Management Act, authorizes the state treasurer to invest part of those reserves in precious metals, and requires a treasurer study. The vocab-wave-V1 key sound_money now carries this, and the bill was admitted on the FLOOR ledger (db/vr-utah-bills-2024GS.json) where its contested House roll is the deeper act; the committee wave has nothing to add, so this stays out of the committee pass."
   },
   {
    "bill": "HB0351",
@@ -981,20 +1005,12 @@
    "why": "Creates the Communication Habits to reduce Adolescent Threats pilot program, requires the Department of Health and Human Services to issue a request for proposals, and requires a report to an interim committee. A pilot procurement with no standing program or benefit."
   },
   {
-   "bill": "HB0562",
-   "why": "Creates the Utah Fairpark Area Investment and Restoration District with boundary, board, an array of new local taxes, privilege tax on state land, impact fee prohibitions, enhanced property tax revenue, and authority to own and help build a qualified stadium. Project finance for one district; no shipped key covers stadium districts, and the same reasoning refused the 2025 Fairpark and Beehive Development bills."
-  },
-  {
    "bill": "HR0004",
    "why": "A House resolution urging Congress to pass H.R. 4052 to create a national infrastructure bank. Federal advocacy is out of scope for the state formal lane by the standing doctrine, and the resolution has no enacted text to read a state-level direction from."
   },
   {
    "bill": "SB0030",
    "why": "Requires purchase price disclosure to the county recorder on transfer while classifying that price as a private and confidential tax record with limited sharing, modifies the burden of proof and presumed value in valuation appeals above a threshold, authorizes income-approach assessment of leased commercial property, and changes telecommunications valuation. Disclosure and confidentiality are enacted together, so prop_tax and gov_transparency each get half the text."
-  },
-  {
-   "bill": "SB0061",
-   "why": "Prohibits the sale of electronic cigarette products lacking federal market authorization, codifies a nicotine limit, bans flavored electronic cigarette products, and creates a product registry. No shipped key covers tobacco or nicotine regulation, the same reason the 2025 tobacco enforcement bill was refused."
   },
   {
    "bill": "SB0075",

@@ -161,6 +161,35 @@
       // the two don't read as accidental duplicates; both feed the same
       // economy_cost_of_living core bundle.
       prop_tax:           { label: '🏦 Property Tax Relief', chip: 'Lower or cap property taxes so rising home values don’t tax families and seniors out of their homes', cat: 'gov', stanceKeys: [], keywords: ['property tax','property taxes','real estate tax','home value','assessment','tax assessment','mill levy','homestead exemption','property tax relief','property tax cap','escrow','homeowner tax','circuit breaker','seniors','fixed income'] },
+      // SCOPE (sound_money): what the treasury may HOLD and what the state will ACCEPT
+      // as payment. Three real instruments asked for the same thing and were refused for
+      // want of a key — 2024 H.B. 348 (exempt part of the budget reserves from the State
+      // Money Management Act and let the treasurer buy precious metals), 2025 H.B. 528
+      // (let severance and income tax be remitted in gold, at a reduced rate), and 2025
+      // H.B. 67 (Precious Metals Investment and Administration). All three widen the role
+      // of specie; none of them narrows it. That is the polarity, and the chip states the
+      // support direction, so every mapping is coded yea_supports = the vote widened it.
+      // OUT of scope, and the reason this is not crypto_cbdc: crypto_cbdc is scoped to
+      // digital assets and a central bank digital currency, and all three refusal notes
+      // said so in as many words. Filing a gold-remittance statute there would move a
+      // member's Bitcoin percentage on a vote about bullion. Also OUT: audit_spending
+      // (auditing the Fed, not holding metal), lower_taxes (H.B. 528 does cut the
+      // severance rate, but the rate cut is the inducement to remit in gold, not the ask),
+      // and national_debt. Deliberately carries NO `lean`: the state-level sound-money
+      // coalition and the treasury-practice objection to it both run inside one party
+      // here, so coding it R would be false signal.
+      // KEYWORDS, and the two that are deliberately absent. This list is read by the
+      // optional ingest classifier AND by word-action.js's brandingIssueKey(), which
+      // matches a member's campaign issue LABELS against it — so a keyword here is
+      // also a claim about a slogan. 'sound money' and 'hard money' are slogans, not
+      // bill language: the first matched Rep. Luna's "Spending & Sound Money" branding
+      // label and gave a Florida member a scorable issue this key can never test,
+      // since there is no federal instrument mapped to it; the second is what campaign
+      // finance calls a regulated contribution and would collide with campaign_finance.
+      // Utah's own instruments are titled "Precious Metals Amendments" and "Legal
+      // Tender Amendments", so dropping both costs the classifier nothing. Do not
+      // restore them just because they read like the key's name.
+      sound_money:        { label: '🥇 Gold & Sound Money', chip: 'Let the treasury hold reserves in gold and silver, and let people pay the state in it', cat: 'gov', stanceKeys: [], keywords: ['precious metals','gold','silver','bullion','specie','legal tender','gold reserve','state treasurer','money management act','severance tax in gold','inflation hedge'] },
 
       // ── Immigration ──
       border_security:    { label: '🛡 Strong Border & Enforcement', chip: 'Finish border barriers and deport people here illegally', cat: 'immig', lean: 'R', stanceKeys: ['border'], keywords: ['border','border security','immigration enforcement','wall','ice','deportation','illegal immigration','enforcement'] },
@@ -248,6 +277,26 @@
       health_rural:       { label: '🚑 Protect Rural Hospitals', chip: 'Keep rural hospitals, maternity wards and emergency care open and funded', cat: 'health', stanceKeys: ['healthcare'], keywords: ['rural hospital','rural health','critical access','emergency room','ambulance','maternity care','hospital closure','telehealth','rural healthcare','clinic','underserved','provider shortage'] },
       medical_freedom:    { label: '🩺 Medical Freedom', chip: 'Protect personal choice over vaccines and government medical mandates', cat: 'health', lean: 'R', stanceKeys: [], keywords: ['medical freedom','vaccine mandate','vaccine choice','informed consent','health freedom','no mandates','medical privacy','personal choice','conscience','natural immunity','bodily autonomy'] },
 
+      // SCOPE (tobacco_nicotine): the rules on selling tobacco and nicotine products —
+      // what may be sold (flavour bans, nicotine caps, a federal-market-authorization
+      // requirement), who may sell it (permits, permit fees, a product registry), and what
+      // happens when they sell it anyway (retailer penalties, criminal penalties). Two
+      // instruments in two sessions asked for the same thing and were refused for want of
+      // a key: 2024 S.B. 61 (flavour ban, nicotine limit, market-authorization bar,
+      // registry) and 2025 S.B. 186 (registry and search provisions, flavoured-product
+      // penalties, higher permit fees, amended criminal penalties). Both tighten; neither
+      // loosens. The chip states the support direction, so every mapping is coded
+      // yea_supports = the vote tightened the rules.
+      // OUT of scope, and why the nearby health chips do not cover it: medical_freedom is
+      // about government mandates on a person's own medical care, and a flavour ban is a
+      // product-market rule, not a mandate on a patient — filing it there would score a
+      // vaccine-mandate position off a vape statute, in the wrong direction. health_mental
+      // is scoped to mental health and the opioid/fentanyl crisis, healthcare and
+      // healthcare_costs are about coverage and price, and cannabis_reform is a different
+      // substance under a different statute. Deliberately carries NO `lean`: retail-freedom
+      // and youth-protection arguments both run inside the majority party here.
+      tobacco_nicotine:   { label: '🚭 Tobacco & Vaping Rules', chip: 'Tighten the rules on selling tobacco, vapes and nicotine products', cat: 'health', stanceKeys: [], keywords: ['tobacco','nicotine','vape','vaping','e-cigarette','electronic cigarette','flavored','flavoured','flavor ban','nicotine limit','tobacco permit','tobacco retailer','product registry','smoking','smoke shop','underage sales'] },
+
       // ── Economy & Jobs ──
       econ_growth:        { label: '📈 Pro-Growth Deregulation', chip: 'Roll back federal business regulations and keep taxes low to spur hiring and investment', cat: 'econ', lean: 'R', stanceKeys: [], keywords: ['economy','economic growth','deregulation','free market','pro-growth','business','investment','industry','jobs','entrepreneur'] },
       econ_smallbiz:      { label: '🏪 Help Small Businesses', chip: 'Cut the licensing fees, permits and paperwork that fall hardest on small businesses', cat: 'econ', stanceKeys: [], keywords: ['small business','main street','entrepreneur','startup','licensing','permitting','red tape','paperwork','local business','self-employed','franchise'] },
@@ -270,6 +319,34 @@
       econ_workers:       { label: '🛠 Raise Wages & Protect Workers', chip: 'Raise the minimum wage and protect workers from exploitation', cat: 'econ', lean: 'D', stanceKeys: [], keywords: ['worker','workers','wage','minimum wage','union','labor','paid leave','overtime','collective bargaining','cost of living','affordable','middle class','jobs'] },
       econ_corp_account:  { label: '🏦 Corporate Accountability', chip: 'Use antitrust and anti-price-gouging enforcement to check large corporations', cat: 'econ', lean: 'D', stanceKeys: [], keywords: ['corporate accountability','price gouging','monopoly','antitrust','big corporation','wall street','profiteering','consumer protection','fair competition','executive pay'] },
       rural_ag:           { label: '🌾 Farmers & Rural Communities', chip: 'Support family farms, ranchers and rural communities with fair prices and access', cat: 'econ', stanceKeys: [], keywords: ['agriculture','farm','farmer','farming','ranch','rancher','rural','crop','livestock','farm bill','rural broadband','rural community','grazing','drought','water right'] },
+
+      // SCOPE (dev_district_finance): the special-purpose district and its money. A single
+      // recurring instrument — draw a boundary, seat a board, and let it capture sales-tax
+      // and property-tax increment (or levy its own, or issue bonds) to pay for a stadium,
+      // a convention centre, a resort zone or a project area. Five instruments across two
+      // sessions asked for it and were refused for want of a key: 2024 H.B. 562 (creates
+      // the Fairpark Area Investment and Restoration District, new local taxes, privilege
+      // tax on state land, impact-fee prohibitions, authority to help build a stadium),
+      // 2025 S.B. 336 (Fairpark modifications, a public infrastructure district empowered
+      // to levy property taxes and issue bonds), 2025 S.B. 316 (MIDA and development-zone
+      // finance, a construction-materials distribution formula, project-area agreements,
+      // PID subsidiaries), 2025 S.B. 26 (a convention-centre reinvestment zone capturing
+      // state and local sales tax and property-tax increment) and 2025 S.B. 337 (the
+      // Beehive Development Agency). Every one of them creates or widens the mechanism;
+      // none of them contracts it. The chip states the support direction, so every mapping
+      // is coded yea_supports = the vote created or widened a capture district.
+      // OUT of scope, and why the nearby chips do not cover it: econ_growth is federal
+      // business deregulation and a tax-increment district is the opposite posture — a
+      // targeted public subsidy, not a rollback. prop_tax and property_tax are about what
+      // a household pays; a PID levy is a new taxing body, and filing it under either
+      // would read as "voted for property tax relief". housing_build and housing_support
+      // are refused here on purpose: several of these bills carry housing provisions, but
+      // the refusal notes recorded that those provisions are tightened and loosened in the
+      // same text and are secondary to a financing tool, so a housing key would be reading
+      // the title. infrastructure is the built network itself, not the district that
+      // finances it. Deliberately carries NO `lean`: stadium and convention-centre finance
+      // splits both parties between the deal's boosters and its fiscal critics.
+      dev_district_finance: { label: '🏟 Development Districts & Public Financing', chip: 'Create special districts that capture tax revenue to finance stadiums, convention centers and development zones', cat: 'econ', stanceKeys: [], keywords: ['development district','reinvestment zone','tax increment','property tax differential','public infrastructure district','special district','stadium','convention center','fairpark','mida','military installation development authority','project area','resort community','bonding authority','economic development zone'] },
 
       // ── Infrastructure & Transportation ──
       infrastructure:     { label: '🚧 Rebuild Roads & Bridges', chip: 'Invest in roads, bridges, water systems and the power grid', cat: 'infra', stanceKeys: [], keywords: ['infrastructure','roads','bridges','highway','public works','transportation','grid','power grid','water systems','airport','rebuild','construction'] },

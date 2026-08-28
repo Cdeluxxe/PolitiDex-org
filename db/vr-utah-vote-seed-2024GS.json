@@ -11423,6 +11423,363 @@
           ]
         }
       ]
+    },
+    {
+      "session": "2024GS",
+      "utahBill": "HB0348",
+      "number": "H.B. 348",
+      "title": "Precious Metals Amendments",
+      "chamber": "utah house",
+      "measureType": "bill",
+      "status": "enacted",
+      "sourceUrl": "https://le.utah.gov/~2024/bills/static/HB0348.html",
+      "sourceLabel": "Utah State Legislature",
+      "primeSponsor": "Rep. Ivory, Ken",
+      "floorSponsor": "Sen. Cullimore, Kirk A.",
+      "generalProvisions": "This bill modifies provisions related to precious metals.",
+      "issues": [
+        {
+          "issueKey": "sound_money",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Enrolled text exempts a portion of the funds in certain budget reserve accounts from the State Money Management Act, authorizes the state treasurer to invest a portion of those reserve funds in precious metals, and requires the treasurer to conduct a precious-metals study. Taking part of the state's reserves out of the ordinary money-management rules in order to buy bullion is the whole bill, so a yea is a vote for the state holding metal."
+        }
+      ],
+      "rollcalls": [
+        {
+          "chamber": "utah house",
+          "session": 2024,
+          "rollNumber": 895,
+          "voteDate": "2024-02-22T20:41:00-07:00",
+          "question": "On passage, third reading",
+          "actionType": "passage",
+          "result": "passed",
+          "totals": {
+            "yea": 52,
+            "nay": 18,
+            "notVoting": 5
+          },
+          "sourceUrl": "https://le.utah.gov/DynaBill/svotes.jsp?sessionid=2024GS&voteid=895&house=H",
+          "sourceLabel": "Utah State Legislature · Utah House roll call",
+          "actionCode": "HPASS3",
+          "votes": [
+            {
+              "politicianId": "cheryl_acton",
+              "position": "yea",
+              "printedAs": "Acton, C.K."
+            },
+            {
+              "politicianId": "carl_albrecht",
+              "position": "yea",
+              "printedAs": "Albrecht, C."
+            },
+            {
+              "politicianId": "stewart_e_barlow",
+              "position": "yea",
+              "printedAs": "Barlow, S."
+            },
+            {
+              "politicianId": "bolinder_h68",
+              "position": "yea",
+              "printedAs": "Bolinder, B."
+            },
+            {
+              "politicianId": "brammer_s21",
+              "position": "yea",
+              "printedAs": "Brammer, B."
+            },
+            {
+              "politicianId": "walt_brooks",
+              "position": "yea",
+              "printedAs": "Brooks, W."
+            },
+            {
+              "politicianId": "jefferson_burton",
+              "position": "yea",
+              "printedAs": "Burton, J."
+            },
+            {
+              "politicianId": "chew_h68",
+              "position": "yea",
+              "printedAs": "Chew, S."
+            },
+            {
+              "politicianId": "kay_christofferson",
+              "position": "yea",
+              "printedAs": "Christofferson, K."
+            },
+            {
+              "politicianId": "tyler_clancy",
+              "position": "yea",
+              "printedAs": "Clancy, T."
+            },
+            {
+              "politicianId": "paul_a_cutler",
+              "position": "yea",
+              "printedAs": "Cutler, P."
+            },
+            {
+              "politicianId": "defay_h15",
+              "position": "yea",
+              "printedAs": "Defay, A."
+            },
+            {
+              "politicianId": "eliason_h45",
+              "position": "yea",
+              "printedAs": "Eliason, S."
+            },
+            {
+              "politicianId": "gricius_h50",
+              "position": "yea",
+              "printedAs": "Gricius, S."
+            },
+            {
+              "politicianId": "gwynn_h6",
+              "position": "yea",
+              "printedAs": "Gwynn, M."
+            },
+            {
+              "politicianId": "hall_h11",
+              "position": "yea",
+              "printedAs": "Hall, K."
+            },
+            {
+              "politicianId": "jon_hawkins",
+              "position": "yea",
+              "printedAs": "Hawkins, J."
+            },
+            {
+              "politicianId": "hollins_h24",
+              "position": "yea",
+              "printedAs": "Hollins, S."
+            },
+            {
+              "politicianId": "ivory_h39",
+              "position": "yea",
+              "printedAs": "Ivory, K."
+            },
+            {
+              "politicianId": "colin_w_jack",
+              "position": "yea",
+              "printedAs": "Jack, C."
+            },
+            {
+              "politicianId": "kohler_h59",
+              "position": "yea",
+              "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "jason_b_kyle",
+              "position": "yea",
+              "printedAs": "Kyle, J"
+            },
+            {
+              "politicianId": "tlee",
+              "position": "yea",
+              "printedAs": "Lee, T."
+            },
+            {
+              "politicianId": "lisonbee_h14",
+              "position": "yea",
+              "printedAs": "Lisonbee, K."
+            },
+            {
+              "politicianId": "anthony_loubet",
+              "position": "yea",
+              "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "matt_macpherson",
+              "position": "yea",
+              "printedAs": "MacPherson, M."
+            },
+            {
+              "politicianId": "cory_maloy_h52",
+              "position": "yea",
+              "printedAs": "Maloy, A. Cory"
+            },
+            {
+              "politicianId": "mike_petersen",
+              "position": "yea",
+              "printedAs": "Petersen, M."
+            },
+            {
+              "politicianId": "karen_m_peterson",
+              "position": "yea",
+              "printedAs": "Peterson, K."
+            },
+            {
+              "politicianId": "thomas_peterson",
+              "position": "yea",
+              "printedAs": "Peterson, T."
+            },
+            {
+              "politicianId": "valpeterson_h56",
+              "position": "yea",
+              "printedAs": "Peterson, V."
+            },
+            {
+              "politicianId": "candice_pierucci",
+              "position": "yea",
+              "printedAs": "Pierucci, C."
+            },
+            {
+              "politicianId": "mschultz",
+              "position": "yea",
+              "printedAs": "Schultz, M."
+            },
+            {
+              "politicianId": "snider_h5",
+              "position": "yea",
+              "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "kstratton",
+              "position": "yea",
+              "printedAs": "Stratton, K."
+            },
+            {
+              "politicianId": "mark_strong",
+              "position": "yea",
+              "printedAs": "Strong, M.A."
+            },
+            {
+              "politicianId": "teuscher_h44",
+              "position": "yea",
+              "printedAs": "Teuscher, J."
+            },
+            {
+              "politicianId": "nthurston",
+              "position": "yea",
+              "printedAs": "Thurston, N."
+            },
+            {
+              "politicianId": "rward",
+              "position": "yea",
+              "printedAs": "Ward, R."
+            },
+            {
+              "politicianId": "christine_watkins",
+              "position": "yea",
+              "printedAs": "Watkins, C."
+            },
+            {
+              "politicianId": "doug_welton",
+              "position": "yea",
+              "printedAs": "Welton, D."
+            },
+            {
+              "politicianId": "whyte_h63",
+              "position": "yea",
+              "printedAs": "Whyte, S."
+            },
+            {
+              "politicianId": "ryan_d_wilcox",
+              "position": "yea",
+              "printedAs": "Wilcox, R."
+            },
+            {
+              "politicianId": "nelson_abbott",
+              "position": "nay",
+              "printedAs": "Abbott, N."
+            },
+            {
+              "politicianId": "mballard",
+              "position": "nay",
+              "printedAs": "Ballard, M.G."
+            },
+            {
+              "politicianId": "gay_lynn_bennion",
+              "position": "nay",
+              "printedAs": "Bennion, G."
+            },
+            {
+              "politicianId": "jennifer_dailey_provost",
+              "position": "nay",
+              "printedAs": "Dailey-Provost, J."
+            },
+            {
+              "politicianId": "james_dunnigan",
+              "position": "nay",
+              "printedAs": "Dunnigan, J."
+            },
+            {
+              "politicianId": "joseph_elison",
+              "position": "nay",
+              "printedAs": "Elison, J."
+            },
+            {
+              "politicianId": "sahara_hayes",
+              "position": "nay",
+              "printedAs": "Hayes, S."
+            },
+            {
+              "politicianId": "ashlee_matthews",
+              "position": "nay",
+              "printedAs": "Matthews, A."
+            },
+            {
+              "politicianId": "carol_spackman_moss",
+              "position": "nay",
+              "printedAs": "Moss, C."
+            },
+            {
+              "politicianId": "doug_owens",
+              "position": "nay",
+              "printedAs": "Owens, D."
+            },
+            {
+              "politicianId": "aromero",
+              "position": "nay",
+              "printedAs": "Romero, A."
+            },
+            {
+              "politicianId": "andrew_stoddard",
+              "position": "nay",
+              "printedAs": "Stoddard, A."
+            },
+            {
+              "politicianId": "r_neil_walter",
+              "position": "nay",
+              "printedAs": "Walter, N."
+            },
+            {
+              "politicianId": "jefferson_moss",
+              "position": "not_voting",
+              "printedAs": "Moss, J."
+            },
+            {
+              "politicianId": "cmusselman",
+              "position": "not_voting",
+              "printedAs": "Musselman, C.R."
+            },
+            {
+              "politicianId": "rshipp",
+              "position": "not_voting",
+              "printedAs": "Shipp, R.P."
+            }
+          ],
+          "droppedNotOnRoster": [
+            "Birkeland, K.",
+            "Briscoe, J.",
+            "Cobb, J.",
+            "Garner, B.",
+            "Jimenez, T.",
+            "Johnson, D.N.",
+            "Judkins, M.",
+            "King, Brian S.",
+            "Lesser, R.",
+            "Lund, S.",
+            "Lyman, P.",
+            "Pulsipher, S.",
+            "Rohner, J.",
+            "Spendlove, R.",
+            "Stenquist, J.",
+            "Wheatley, M."
+          ]
+        }
+      ]
     }
   ]
 }

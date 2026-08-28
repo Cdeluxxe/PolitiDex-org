@@ -1,17 +1,32 @@
 # Issue-key proposals — six subjects the Utah passes kept refusing
 
-**Status: PROPOSAL. Nothing here is applied.** No key below exists in
-`ISSUE_MAP` (`alignment-tool.js`), no seed maps to one, and no migration writes
-one. This file is a decision to be made, not a change that was made. Adding any
-of these keys is a separate pass that also has to answer the questions in
-"What adding a key actually costs" at the bottom.
+**Status: DECIDED. Three of the six are applied; three are refused in writing.**
+Vocab wave V1 (2026-08) re-derived each proposal against the refusal ledgers
+rather than accepting the recommendation at the bottom of this file, and split
+them 3–3:
+
+| Proposal | Decision | Where it lives now |
+| --- | --- | --- |
+| `sound_money` | **APPLIED** | `ISSUE_MAP`, `db/issue-keys.json`, migration `20261010000000_vr_vocab_wave_v1` |
+| `tobacco_nicotine` | **APPLIED** (vocabulary only — no rows yet) | `ISSUE_MAP`, `db/issue-keys.json`, curator ledgers |
+| `dev_district_finance` | **APPLIED** | `ISSUE_MAP`, `db/issue-keys.json`, migration `20261010000000_vr_vocab_wave_v1` |
+| `family_parental_rights` | **REFUSED** — recurrence | nowhere; the bills stay refused |
+| `disability_rights` | **REFUSED** — recurrence and polarity | nowhere; the bills stay refused |
+| `road_safety_nonmotorized` | **REFUSED** — recurrence and boundary | nowhere; the bills stay refused |
+
+Each proposal below keeps its original text unedited and carries a **Decision**
+block stating what happened and why. The three refusals are not deferrals of a
+decision — they are the decision, and re-opening one needs new bills, not a new
+argument. The key count went 118 → 121.
 
 ## Why these six and not others
 
 Every Utah curator pass ran on a standing instruction to refuse rather than
 invent: a bill with no home in the shipped vocabulary is written down as refused,
 with prose, and left out. That worked — 118 keys, unchanged across four waves —
-but the refusal ledgers are now long enough to show *pattern*. Most refusals are
+but the refusal ledgers are now long enough to show *pattern*. (Wave V1 has since
+taken the count to 121; the sentence above records the state that produced this
+file.) Most refusals are
 one-off: a bill whose text picks no direction, a repeal-and-add hybrid, a local
 revenue authorization. These six are different. Each one is a subject the
 Legislature returns to across sessions, with bills whose direction is not
@@ -27,6 +42,18 @@ is where the reasoning already lives.
 ---
 
 ### 1. `family_parental_rights`
+
+> **Decision: REFUSED (vocab wave V1).** Fails the recurrence test: one usable
+> bill, no usable sibling. 2024GS H.B. 198 is the only instrument in the corpus
+> with clean polarity, and it is not a landmark. Every sibling this file names
+> fails polarity by the ledger's own words — H.B. 129 "opens and closes the same
+> records in one bill", H.B. 532 repeals bodies *and* creates duties, 2025GS
+> H.B. 112's text "does not say which" direction it takes so `edu_parental` would
+> have to import one, and 2023GS S.B. 100 is a title-versus-text conflict. A sweep
+> of all five Utah ledgers for parental-rights, termination, custody, foster,
+> juvenile-court, adoption, paternity and child-welfare language surfaced no
+> further candidate. One bill is a coincidence; the key would ship describing it.
+> Re-open when a second session produces a directional instrument.
 
 **Scope.** Whether a court, an agency, or the state must defer to a parent's
 authority over their own child — the standard of proof and the process before
@@ -60,6 +87,20 @@ its own unresolved subject (see HB0129 below) and should NOT be folded in here.
 
 ### 2. `sound_money`
 
+> **Decision: APPLIED (vocab wave V1).** Three instruments across two sessions,
+> one direction. The scope sentence shipped as written; the polarity shipped as
+> `yea_supports` = the vote widened the monetary role of specie; the OUT-of-scope
+> argument against `crypto_cbdc` shipped verbatim into the boundary comment above
+> the entry in `alignment-tool.js`, joined by `audit_spending`, `lower_taxes` and
+> `national_debt`. The key carries **no `lean`**: the state-level sound-money
+> coalition and the treasury-practice objection to it both run inside one party
+> here. Label 🥇 Gold & Sound Money, category `gov`.
+>
+> Bills homed: **2024GS H.B. 348** (weight 80, floor, in the migration), **2025GS
+> H.B. 67** (weight 40, floor, in the migration — a third instrument this file had
+> not yet found), **2025GS H.B. 528** (weight 70, committee ledger only — no rows
+> until the minutes bucket exists).
+
 **Scope.** Whether the state treats gold and silver as money — accepting them for
 state obligations, holding them as reserves, or exempting them from tax — as
 distinct from digital assets.
@@ -87,6 +128,20 @@ Both refusals name `crypto_cbdc` explicitly and decline it.
 
 ### 3. `tobacco_nicotine`
 
+> **Decision: APPLIED (vocab wave V1), vocabulary only.** Two instruments across
+> two sessions, both tightening, each refusal cross-referencing the other. Scope,
+> polarity and the OUT-of-scope argument against `medical_freedom` shipped as
+> written, joined by `health_mental`, `healthcare`, `healthcare_costs` and
+> `cannabis_reform`. No `lean`: retail-freedom and youth-protection arguments both
+> run inside the majority party here. Label 🚭 Tobacco & Vaping Rules, category
+> `health`.
+>
+> Bills homed in the curator ledgers: **2024GS S.B. 61** (weight 80) and **2025GS
+> S.B. 186** (weight 80). Both are committee-only, so the key has **no database
+> rows** and no chip with an act behind it until the committee wave lands its
+> minutes roster. That is deliberate: attributing a committee vote without the
+> roster means guessing who was in the room.
+
 **Scope.** How tightly the state regulates the sale of tobacco and nicotine
 products — flavor bans, product registries, nicotine limits, retailer permitting
 and the penalties attached.
@@ -113,6 +168,16 @@ proposal exists to name.
 ---
 
 ### 4. `disability_rights`
+
+> **Decision: REFUSED (vocab wave V1).** Fails recurrence *and* polarity, exactly
+> as the caveat below predicted. 2024GS H.B. 197, 2025GS H.B. 334 and 2025GS
+> S.B. 199 each expand and subordinate the same autonomy in one text, so a key
+> would house them without giving them a direction. That leaves 2024GS S.B. 82 as
+> the only clean instrument, and it is refused for a second, independent reason:
+> its entire highlighted provision is "clarifies the scope" of the public
+> accommodation act, a one-line summary naming neither what is added nor what is
+> removed. A key with one bill, and that bill unmappable on characterisation
+> grounds, is a chip with nothing behind it.
 
 **Scope.** The legal autonomy and access rights of people with disabilities —
 guardianship and supported decision-making, and whether public-accommodation
@@ -145,6 +210,15 @@ correct outcome. Only S.B. 82 has a clean direction.
 
 ### 5. `road_safety_nonmotorized`
 
+> **Decision: REFUSED (vocab wave V1).** Fails recurrence *and* the
+> not-a-cousin-of-a-shipped-key test. The corpus does hold a second bicycle-safety
+> measure — 2025GS H.B. 290, "Bicycle Lane Safety Amendments" — but it is **already
+> mapped to `transit` at weight 50, primary**, and wave V1 ran under a standing
+> rule against restuffing old maps. So the key would ship with the single 2024GS
+> H.B. 449 example this file already calls the thinnest of the six. That `transit`
+> absorbed a bike-lane bill without anyone objecting is also the empirical answer
+> to the boundary question below: the line against the shipped chip is not clean.
+
 **Scope.** Whether the state requires design and rules that protect people
 outside a vehicle — pedestrians, cyclists, and other non-motorized road users.
 
@@ -169,6 +243,24 @@ second session's evidence.
 ---
 
 ### 6. `dev_district_finance`
+
+> **Decision: APPLIED (vocab wave V1).** Five instruments across two sessions,
+> every one of them creating or widening the mechanism. Scope and polarity shipped
+> as written; the OUT-of-scope argument against `property_tax`, `prop_tax`,
+> `housing_build` and `econ_growth` shipped into the boundary comment, joined by
+> `housing_support` and `infrastructure`. No `lean`: stadium and convention-centre
+> finance split both parties between the deal's boosters and its fiscal critics.
+> Label 🏟 Development Districts & Public Financing, category `econ`.
+>
+> Bills homed: **2025GS S.B. 336** (75), **S.B. 316** (70) and **S.B. 26** (60) on
+> the floor ledger and in the migration; **2024GS H.B. 562** (80) in the committee
+> ledger only. The hybrid worry at the end of this section was the right one and it
+> cost one bill: **2025GS S.B. 337** (Beehive Development Agency) is **still
+> refused**, because its district-finance provisions sit inside an institutional
+> omnibus whose housing, economic-development and governance changes pull in
+> different directions, and admitting a whole-instrument vote on a narrow
+> non-primary link would put it behind a key the instrument is not about. The
+> housing provisions in S.B. 26 and S.B. 316 are left unmapped for the same reason.
 
 **Scope.** Whether the state creates or empowers a special development district
 that can tax, bond, capture property-tax differential, or fund a stadium or
@@ -231,3 +323,29 @@ Recommendation, for whoever decides: `tobacco_nicotine` and `sound_money` are th
 cleanest — recurring, directional, and refused for exactly one stated reason each.
 `family_parental_rights` and `dev_district_finance` are worth doing and need their
 boundary prose argued, not just written. The other two should wait.
+
+## What wave V1 actually paid
+
+The recommendation above got two of its four calls right. Against the five costs:
+
+1. **A permanent public label** — accepted for three keys, and the boundary prose
+   is where the cost was paid: each new entry in `alignment-tool.js` carries a
+   scope paragraph, the instruments that forced it, and a named refusal of every
+   nearby chip, because `gov_regulation` is the record of what happens without one.
+2. **Colour, category and lean** — categories are `gov`, `health` and `econ`; the
+   colour follows the category. **All three carry no `lean`**, which is the honest
+   answer this file predicted for two of them and turned out to be the right answer
+   for the third as well.
+3. **A stance side** — unpaid, and disclosed rather than hidden. All three ship
+   with empty `stanceKeys`, so they have a formal record and no cited words. Three
+   half-rows, not six.
+4. **Retroactive re-reading** — paid. All five Utah ledgers were re-read against
+   the three new keys, and only bills whose refusal note was already "clear
+   direction, no key" were moved. Nine bills were remapped; no existing mapping
+   was touched, restuffed or re-weighted.
+5. **Two of the six should probably not ship** — three did not. The two this file
+   named are both refused above, and `family_parental_rights` joined them on
+   recurrence grounds the file had not tested.
+
+Still proposed: **nothing.** All six rows are resolved. The next vocabulary wave
+starts from the refusal ledgers again, not from this file.

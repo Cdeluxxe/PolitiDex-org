@@ -33,6 +33,15 @@
 //      that year, and a name the reviewer REFUSED is disclosed as a refusal
 //      rather than folded in with the ordinary coverage gaps.
 //
+//   8. A NEW KEY DOES NOT REWRITE HISTORY. Vocab wave V1 minted three issue keys
+//      and five bills that earlier waves had refused for want of one finally had
+//      a home. Their rows could not go into the 2025GS and 2024GS record
+//      migrations — those are applied, and an applied migration is what the
+//      database was told, not a draft — so they arrive in a delta file. Rule 6 is
+//      therefore checked at the UNION: every roll call in a seed is in exactly one
+//      of the two files entitled to own it, and neither file restates the other's
+//      facts.
+//
 //   node scripts/test-vr-utah-record.mjs
 //
 // Data-only assertions read the shipped JSON; the client-honesty ones read the
@@ -70,6 +79,17 @@ const MAP = J("db/vr-utah-member-map.json");
 const BILLS = J("db/vr-utah-bills.json");
 const ISSUE_KEYS = new Set(J("db/issue-keys.json").keys);
 const SQL = R(MIG);
+// The delta migration (see doctrine note 8). Which file owns a given bill is a
+// fact about when its issue key was minted, not about the bill, so the two are
+// partitioned by an explicit list rather than by pattern-matching the SQL.
+const DELTA = "netlify/database/migrations/20261010000000_vr_vocab_wave_v1.sql";
+const SQLD = R(DELTA);
+const DELTA_BILLS = {
+  "2025GS": ["HB0067", "SB0026", "SB0316", "SB0336"], // sound_money, dev_district_finance
+  "2024GS": ["HB0348"],                               // sound_money
+  "2023GS": [],
+};
+const isDelta = (session, bill) => (DELTA_BILLS[session] || []).indexOf(bill) >= 0;
 const VR = R("voting-record.js");
 const LEARN = R("pdx-learn.js");
 const BILLDETAIL = R("bill-detail.js");
@@ -80,7 +100,20 @@ const measures = SEED.measures || [];
 const rollcalls = measures.flatMap((m) => (m.rollcalls || []).map((rc) => ({ m, rc })));
 const votes = rollcalls.flatMap(({ m, rc }) => (rc.votes || []).map((v) => ({ m, rc, v })));
 
+// Wave 1 + wave 2 own everything the delta does not. Both halves are asserted:
+// the record migrations against their half, the delta against its own.
+const w1Measures = measures.filter((m) => !isDelta("2025GS", m.utahBill));
+const w1Rolls = rollcalls.filter(({ m }) => !isDelta("2025GS", m.utahBill));
+const w1Votes = votes.filter(({ m }) => !isDelta("2025GS", m.utahBill));
+const dMeasures = measures.filter((m) => isDelta("2025GS", m.utahBill));
+const dRolls = rollcalls.filter(({ m }) => isDelta("2025GS", m.utahBill));
+const w1Mappings = w1Measures.reduce((t, m) => t + (m.issues || []).length, 0);
+
 must(measures.length > 0, "seed has no measures");
+must(dMeasures.length === DELTA_BILLS["2025GS"].length,
+  "the 2025GS seed does not carry the delta's bills, so the partition proves nothing");
+must(w1Measures.length + dMeasures.length === measures.length,
+  "the wave-1/delta partition of the 2025GS seed does not add up");
 must(rollcalls.length > 0, "seed has no roll calls");
 must(votes.length > 0, "seed has no member votes");
 must(ISSUE_KEYS.size > 50, "issue-keys.json did not load");
@@ -91,9 +124,17 @@ console.log("── The Utah state formal record (2025 general session)");
 // Exact counts, so a silent re-run of the ingest that quietly drops or doubles a
 // chunk of the record shows up here rather than on someone's profile.
 section("Shape");
-eq(measures.length, 42, "measures in the seed");
-eq(rollcalls.length, 55, "roll calls in the seed");
-eq(votes.length, 3159, "member votes in the seed");
+eq(measures.length, 46, "measures in the seed");
+eq(rollcalls.length, 61, "roll calls in the seed");
+eq(votes.length, 3425, "member votes in the seed");
+// …of which the applied record migrations own the wave-1 half exactly. If a delta
+// bill ever leaks into this count the assertions in section 7 stop meaning
+// anything, so the split is pinned too.
+eq(w1Measures.length, 42, "measures owned by the 2025GS record migration");
+eq(w1Rolls.length, 55, "roll calls owned by the 2025GS record migration");
+eq(w1Votes.length, 3159, "member votes owned by the 2025GS record migration");
+eq(dMeasures.length, 4, "measures owned by the vocab-wave delta");
+eq(dRolls.length, 6, "roll calls owned by the vocab-wave delta");
 eq(new Set(votes.map((x) => x.v.politicianId)).size, 104, "distinct legislators covered");
 eq(measures.length, BILLS.bills.length, "seed measures vs curated bill list");
 
@@ -257,8 +298,9 @@ for (const m of measures) {
   ok(/^https:\/\/le\.utah\.gov\//.test(m.sourceUrl || ""),
     `${m.utahBill} cites a Utah Legislature URL`);
 }
-eq(mappings, 54, "issue mappings in the seed");
-eq(primaries, 42, "one primary mapping per measure");
+eq(mappings, 58, "issue mappings in the seed");
+eq(primaries, 46, "one primary mapping per measure");
+eq(w1Mappings, 54, "issue mappings owned by the 2025GS record migration");
 // A refusal is a recorded decision, not an absence.
 must(Array.isArray(BILLS._refused) && BILLS._refused.length > 0,
   "the bill list records no refusals, so this probe proves nothing");
@@ -271,18 +313,18 @@ for (const r of BILLS._refused) {
 
 // ── 7. The migration is the seed ─────────────────────────────────────────────
 section("The migration is the seed");
-eq((SQL.match(/^DO \$\$/gm) || []).length, measures.length,
-  "one DO block per measure");
-eq((SQL.match(/--> statement-breakpoint/g) || []).length, measures.length + 2,
+eq((SQL.match(/^DO \$\$/gm) || []).length, w1Measures.length,
+  "one DO block per measure it owns");
+eq((SQL.match(/--> statement-breakpoint/g) || []).length, w1Measures.length + 2,
   "a breakpoint after each block and after each index");
-for (const { m, rc } of rollcalls) {
+for (const { m, rc } of w1Rolls) {
   const houseLetter = rc.chamber === "utah house" ? "H" : "S";
   has(SQL, `AND roll_number = ${rc.rollNumber} LIMIT 1`,
     `${m.utahBill}: roll call ${rc.rollNumber} is deduped in the migration`);
   has(SQL, `voteid=${rc.rollNumber}&house=${houseLetter}`,
     `${m.utahBill}: roll call ${rc.rollNumber} cites its own vote page`);
 }
-for (const m of measures) {
+for (const m of w1Measures) {
   has(SQL, `WHERE number = '${m.number}' AND chamber = '${m.chamber}'`,
     `${m.utahBill} is deduped on number + Utah chamber`);
   for (const it of m.issues || [])
@@ -290,11 +332,11 @@ for (const m of measures) {
       `${m.utahBill}/${it.issueKey} mapping is guarded against a re-run`);
 }
 eq((SQL.match(/ON CONFLICT \(rollcall_id, politician_id\) DO NOTHING/g) || []).length,
-  rollcalls.length, "every member-vote insert is re-runnable");
+  w1Rolls.length, "every member-vote insert is re-runnable");
 // Every write is sentinelled, so applying twice is a no-op rather than a double count.
 eq((SQL.match(/IF NOT EXISTS \(SELECT 1 FROM vr_measure_issues/g) || []).length,
-  mappings, "every mapping insert is sentinelled");
-const spotCheck = votes.filter((x) => x.v.politicianId === "mschultz").length;
+  w1Mappings, "every mapping insert is sentinelled");
+const spotCheck = w1Votes.filter((x) => x.v.politicianId === "mschultz").length;
 must(spotCheck > 0, "the canary pid casts no votes in the seed");
 eq((SQL.match(/'mschultz'/g) || []).length, spotCheck,
   "the canary's votes all reached the migration");
@@ -344,16 +386,16 @@ for (const forbidden of ["INSERT INTO vr_measures", "INSERT INTO vr_rollcalls",
   lacks(SQL2, forbidden, `the expansion migration contains no "${forbidden.trim()}"`);
 }
 eq((SQL2.match(/INSERT INTO vr_member_votes \(rollcall_id, politician_id, position\) VALUES/g) || []).length,
-  rollcalls.length, "one member-vote insert per roll call and no other write");
+  w1Rolls.length, "one member-vote insert per roll call and no other write");
 eq((SQL2.match(/ON CONFLICT \(rollcall_id, politician_id\) DO NOTHING/g) || []).length,
-  rollcalls.length, "every insert in the expansion migration is re-runnable");
-eq((SQL2.match(/^ {4}\(rc, '/gm) || []).length, votes.length,
+  w1Rolls.length, "every insert in the expansion migration is re-runnable");
+eq((SQL2.match(/^ {4}\(rc, '/gm) || []).length, w1Votes.length,
   "every seeded member vote reached the expansion migration");
-eq((SQL2.match(/SELECT id INTO rc FROM vr_rollcalls/g) || []).length, rollcalls.length,
+eq((SQL2.match(/SELECT id INTO rc FROM vr_rollcalls/g) || []).length, w1Rolls.length,
   "each roll call is looked up rather than assumed");
-eq((SQL2.match(/RAISE EXCEPTION 'Utah 2025GS attribution: utah/g) || []).length, rollcalls.length,
+eq((SQL2.match(/RAISE EXCEPTION 'Utah 2025GS attribution: utah/g) || []).length, w1Rolls.length,
   "a missing roll call aborts the deploy rather than being created");
-for (const { m, rc } of rollcalls) {
+for (const { m, rc } of w1Rolls) {
   has(SQL2, `WHERE chamber = '${rc.chamber}' AND congress IS NULL AND session = ${rc.session}`,
     `${m.utahBill}: the expansion migration looks up a STATE roll call`);
   has(SQL2, `AND roll_number = ${rc.rollNumber};`,
@@ -371,13 +413,153 @@ eq(strayInMig.length, 0,
 // A skipped INSERT must not read as success.
 const verify = SQL2.slice(SQL2.indexOf("-- ── Verification"));
 must(verify.length > 400, "could not isolate the expansion migration's verification block");
-has(verify, `IF n_rolls <> ${rollcalls.length} THEN`,
+has(verify, `IF n_rolls <> ${w1Rolls.length} THEN`,
   "the verification block counts the roll calls it expected to find");
-has(verify, `IF n_votes < ${votes.length} THEN`,
+has(verify, `IF n_votes < ${w1Votes.length} THEN`,
   "the verification block fails the deploy if the expansion did not land");
 has(verify, "IF n_orphan > 0 THEN",
   "the verification block fails the deploy on a vote attributed off the map");
 has(verify, "congress IS NULL", "the verification block counts state rows only");
+
+// ── 7e. The vocab-wave delta lands the newly homed bills and nothing else ────
+// Vocab wave V1 minted sound_money, dev_district_finance and tobacco_nicotine
+// because two or more real Utah instruments had already been REFUSED for want of
+// a key. Five of those bills had a contested floor roll, so they arrive with acts
+// behind them rather than as empty chips. The risk in a delta is the mirror of the
+// risk in an expansion migration: not that it writes too little, but that it
+// re-asserts what an applied file already owns, or quietly widens its own scope to
+// a whole session. What is pinned here is that it writes exactly five bills, that
+// each one's key is one of the three the wave added, that each rationale cites the
+// enrolled text it was read from, and that a chip with no roll behind it gets no
+// rows at all.
+section("The vocab-wave delta lands the newly homed bills and nothing else");
+const NEW_KEYS = ["sound_money", "dev_district_finance", "tobacco_nicotine"];
+for (const k of NEW_KEYS)
+  ok(ISSUE_KEYS.has(k), `the wave's key '${k}' is in the generated allow-list`);
+// Narrowness. No DDL, no deletes, and nothing that could reach a federal row.
+for (const forbidden of ["CREATE ", "DROP ", "ALTER ", "TRUNCATE", "DELETE FROM",
+  "UPDATE vr_", "chamber = 'house'", "chamber = 'senate'",
+  "'bill', NULL, 'house'", "'bill', NULL, 'senate'"]) {
+  lacks(SQLD, forbidden, `the delta contains no "${forbidden.trim()}"`);
+}
+has(SQLD, "congress IS NULL", "the delta dedupes state roll calls on a NULL congress");
+lacks(SQLD, "congress = ", "the delta never matches a Congress number");
+lacks(SQLD, "2023GS", "the delta writes nothing under 2023GS");
+
+// The bills it owns, from both sessions' seeds, and the counts that follow.
+const D2024 = J("db/vr-utah-vote-seed-2024GS.json").measures
+  .filter((m) => isDelta("2024GS", m.utahBill));
+const deltaMeasures = [...dMeasures.map((m) => ({ T: "2025GS", m })),
+  ...D2024.map((m) => ({ T: "2024GS", m }))];
+const deltaRolls = deltaMeasures.flatMap(({ T, m }) =>
+  (m.rollcalls || []).map((rc) => ({ T, m, rc })));
+const deltaVotes = deltaRolls.reduce((t, { rc }) => t + (rc.votes || []).length, 0);
+const deltaMappings = deltaMeasures.reduce((t, { m }) => t + (m.issues || []).length, 0);
+must(deltaMeasures.length === 5, "the delta's five bills are not all in the seeds");
+must(D2024.length === 1, "the 2024GS seed does not carry H.B. 348, so this proves nothing");
+eq(deltaRolls.length, 7, "the delta's bills carry seven contested rolls between them");
+eq(deltaVotes, 325, "the delta's rolls carry 325 attributed member votes");
+eq(deltaMappings, 5, "one mapping per newly homed bill");
+
+eq((SQLD.match(/^DO \$\$/gm) || []).length, deltaMeasures.length + 1,
+  "one DO block per newly homed bill, plus the verification block");
+eq((SQLD.match(/--> statement-breakpoint/g) || []).length, deltaMeasures.length,
+  "a breakpoint between every pair of statements and no empty ones");
+eq((SQLD.match(/INSERT INTO vr_measures /g) || []).length, deltaMeasures.length,
+  "one measure insert per newly homed bill");
+eq((SQLD.match(/INSERT INTO vr_measure_issues /g) || []).length, deltaMappings,
+  "one issue insert per mapping");
+eq((SQLD.match(/IF NOT EXISTS \(SELECT 1 FROM vr_measure_issues/g) || []).length, deltaMappings,
+  "every mapping insert is sentinelled");
+eq((SQLD.match(/INSERT INTO vr_rollcalls /g) || []).length, deltaRolls.length,
+  "one roll-call insert per roll call");
+eq((SQLD.match(/^ {4}\(rc_id, '/gm) || []).length, deltaVotes,
+  "every member vote on a newly homed bill reached the delta");
+eq((SQLD.match(/ON CONFLICT \(rollcall_id, politician_id\) DO NOTHING/g) || []).length,
+  deltaRolls.length, "every member-vote insert in the delta is re-runnable");
+
+// Every key the delta writes is one of the three the wave added. A delta that can
+// reach an old key is a delta that can restuff an old map, which is the one thing
+// this wave promised not to do.
+const writtenKeys = [...new Set((SQLD.match(/VALUES \(m_id, '([a-z_]+)'/g) || [])
+  .map((r) => r.replace(/^.*'([a-z_]+)'$/, "$1")))];
+must(writtenKeys.length > 0, "could not read the delta's issue keys");
+for (const k of writtenKeys)
+  ok(NEW_KEYS.indexOf(k) >= 0, `the delta writes '${k}', which is one of the wave's own keys`);
+eq(new Set(writtenKeys).size, 2,
+  `the delta writes the two keys that have floor acts behind them (${writtenKeys.join(", ")})`);
+// tobacco_nicotine is the honest hole: both of its instruments are committee-only,
+// their curator mappings exist, and the minutes roster does not. A chip with no
+// attributable act must arrive with no rows rather than with guessed ones.
+lacks(SQLD, "'tobacco_nicotine',",
+  "tobacco_nicotine gets no rows while its votes are committee-only");
+has(SQLD, "tobacco_nicotine gets NO rows here on purpose",
+  "the delta says in prose why tobacco_nicotine is empty");
+
+// Per bill: the measure is deduped on number + Utah chamber, the roll is looked up
+// by the state tuple, and the mapping cites the ENROLLED text — which is also what
+// external_ids records, so the explainer can link what the curator actually read.
+for (const { T, m } of deltaMeasures) {
+  has(SQLD, `'utahSession', '${T}', 'utahBill', '${m.utahBill}'`,
+    `${T}/${m.utahBill}: the delta stamps its session and bill id`);
+  has(SQLD, `WHERE number = '${m.number}' AND chamber = '${m.chamber}'`,
+    `${T}/${m.utahBill}: is deduped on number + Utah chamber`);
+  has(SQLD, "'mappingReadFrom', 'enrolled'",
+    `${T}/${m.utahBill}: external_ids records that the mapping was read from the enrolled text`);
+  for (const it of m.issues || []) {
+    has(SQLD, `AND issue_key = '${it.issueKey}'`,
+      `${T}/${m.utahBill}/${it.issueKey}: the mapping is guarded against a re-run`);
+    ok(NEW_KEYS.indexOf(it.issueKey) >= 0,
+      `${T}/${m.utahBill}: '${it.issueKey}' is one of the wave's keys, not an old one`);
+  }
+  for (const rc of m.rollcalls || []) {
+    const houseLetter = rc.chamber === "utah house" ? "H" : "S";
+    has(SQLD, `AND roll_number = ${rc.rollNumber} LIMIT 1`,
+      `${T}/${m.utahBill}: roll call ${rc.rollNumber} is deduped in the delta`);
+    has(SQLD, `voteid=${rc.rollNumber}&house=${houseLetter}`,
+      `${T}/${m.utahBill}: roll call ${rc.rollNumber} cites its own vote page`);
+  }
+}
+// The enrolled-text URL is a real citation, not the bill index page the ingest
+// defaults to: every source_url in this file resolves to the enrolled XML.
+const enrolled = (SQLD.match(/https:\/\/le\.utah\.gov\/[^' ]*[Ee]nrolled\/[A-Z0-9]+\.xml/g) || []);
+ok(enrolled.length >= deltaMeasures.length * 2,
+  `each newly homed bill cites the enrolled text more than once (${enrolled.length} citations)`);
+lacks(SQLD, "'mappingReadFrom', 'summary'",
+  "no mapping in the delta was read from a summary");
+
+// Neither the 2025GS record migration nor the expansion migration claims a delta
+// bill. Section 7d makes the same check for the archive sessions.
+for (const { m } of dMeasures.map((m) => ({ m }))) {
+  lacks(SQL, `'utahBill', '${m.utahBill}'`,
+    `2025GS/${m.utahBill}: the applied record migration does not also claim it`);
+  for (const rc of m.rollcalls || [])
+    lacks(SQL2, `AND roll_number = ${rc.rollNumber};`,
+      `2025GS/${m.utahBill}: the expansion migration does not also attribute roll ${rc.rollNumber}`);
+}
+
+// And a skipped sentinel must not read as success here either.
+const dVerify = SQLD.slice(SQLD.indexOf("-- ── Verification"));
+must(dVerify.length > 400, "could not isolate the delta's verification block");
+has(dVerify, `IF n_measures <> ${deltaMeasures.length} THEN`,
+  "the delta's verification counts the measures it added");
+has(dVerify, `IF n_rolls <> ${deltaRolls.length} THEN`,
+  "the delta's verification counts the roll calls it added");
+has(dVerify, `IF n_votes < ${deltaVotes} THEN`,
+  "the delta's verification counts the member votes it added");
+has(dVerify, `IF n_issues <> ${deltaMappings} THEN`,
+  "the delta's verification counts the mappings it added");
+has(dVerify, "IF n_orphan > 0 THEN",
+  "the delta's verification fails the deploy on a vote attributed off the map");
+has(dVerify, "congress IS NULL", "the delta's verification counts state rows only");
+// It counts its own five bills, not a whole session — an applied file owns the rest.
+lacks(dVerify, "r.session = 2025", "the delta's verification does not claim a whole session");
+const dStray = [...new Set((SQLD.match(/^ {4}\(rc_id, '([a-z0-9_]+)'/gm) || [])
+  .map((r) => r.replace(/^.*'([a-z0-9_]+)'$/, "$1")))].filter((p) => !accepted.has(p));
+// 2024GS pids are on that session's own map, so only the 2025GS ones are checked
+// against `accepted` here; section 7d checks the archive's against its own map.
+ok(dStray.every((p) => JSON.stringify(J("db/vr-utah-member-map-2024GS.json").chambers).includes(`"${p}"`)),
+  `every pid the delta writes is on one of the reviewed maps (${dStray.join(", ")})`);
 
 // ── 7d. The archive sessions carry the same fences ───────────────────────────
 // 2024 and 2023 were ingested after 2025, from a different shape of source page,
@@ -394,7 +576,9 @@ const ARCHIVE = [
   {
     session: "2024GS", year: 2024,
     mig: "netlify/database/migrations/20261002000000_vr_utah_2024gs_state_record.sql",
-    measures: 28, rolls: 39, votes: 1885, issues: 33, dropped: 442,
+    measures: 29, rolls: 40, votes: 1944, issues: 34, dropped: 458,
+    // H.B. 348 (sound_money) is the delta's; everything else is the record file's.
+    migMeasures: 28, migRolls: 39, migVotes: 1885, migIssues: 33, migDropped: 442,
     unmapped: { H: 16, S: 2 }, refused: ["Judkins, M.", "Lyman, P."],
     crossChamber: ["Brammer, B.", "Musselman, C.R.", "Stratton, K."],
   },
@@ -402,6 +586,8 @@ const ARCHIVE = [
     session: "2023GS", year: 2023,
     mig: "netlify/database/migrations/20261003000000_vr_utah_2023gs_state_record.sql",
     measures: 40, rolls: 49, votes: 2490, issues: 49, dropped: 677,
+    // No 2023GS bill got a home from vocab wave V1, so seed and migration agree.
+    migMeasures: 40, migRolls: 49, migVotes: 2490, migIssues: 49, migDropped: 677,
     unmapped: { H: 17, S: 3 }, refused: ["Judkins, M.", "Lyman, P."],
     crossChamber: ["Brammer, B.", "Musselman, C.R.", "Stratton, K."],
   },
@@ -416,6 +602,12 @@ for (const A of ARCHIVE) {
   const aMeasures = aSeed.measures || [];
   const aRolls = aMeasures.flatMap((m) => (m.rollcalls || []).map((rc) => ({ m, rc })));
   const aVotes = aRolls.flatMap(({ m, rc }) => (rc.votes || []).map((v) => ({ m, rc, v })));
+  // Which file is entitled to own each of this session's rows.
+  const owns = (bill) => (isDelta(T, bill) ? SQLD : aSql);
+  const aw1Measures = aMeasures.filter((m) => !isDelta(T, m.utahBill));
+  const aw1Rolls = aRolls.filter(({ m }) => !isDelta(T, m.utahBill));
+  must(aw1Measures.length === A.migMeasures,
+    `${T}: the seed's non-delta half is ${aw1Measures.length}, not the pinned ${A.migMeasures}`);
 
   // The counts are pinned so that a re-run that silently drops a bill, a roll call
   // or a member is a test failure rather than a smaller file.
@@ -550,24 +742,29 @@ for (const A of ARCHIVE) {
   for (const forbidden of ["CREATE ", "DROP ", "ALTER ", "TRUNCATE", "DELETE FROM"]) {
     lacks(aSql, forbidden, `${T}: the migration contains no "${forbidden.trim()}"`);
   }
-  eq((aSql.match(/INSERT INTO vr_measures /g) || []).length, A.measures,
-    `${T}: one measure insert per admitted bill`);
-  eq((aSql.match(/INSERT INTO vr_rollcalls /g) || []).length, A.rolls,
-    `${T}: one roll-call insert per roll call`);
-  eq((aSql.match(/INSERT INTO vr_measure_issues /g) || []).length, A.issues,
-    `${T}: one issue insert per mapping`);
-  eq((aSql.match(/^ {4}\(rc_id, '/gm) || []).length, A.votes,
-    `${T}: every seeded member vote reached the migration`);
-  eq((aSql.match(/ON CONFLICT \(rollcall_id, politician_id\) DO NOTHING/g) || []).length, A.rolls,
+  eq((aSql.match(/INSERT INTO vr_measures /g) || []).length, A.migMeasures,
+    `${T}: one measure insert per bill the record migration admitted`);
+  eq((aSql.match(/INSERT INTO vr_rollcalls /g) || []).length, A.migRolls,
+    `${T}: one roll-call insert per roll call it owns`);
+  eq((aSql.match(/INSERT INTO vr_measure_issues /g) || []).length, A.migIssues,
+    `${T}: one issue insert per mapping it owns`);
+  eq((aSql.match(/^ {4}\(rc_id, '/gm) || []).length, A.migVotes,
+    `${T}: every member vote it owns reached the migration`);
+  eq((aSql.match(/ON CONFLICT \(rollcall_id, politician_id\) DO NOTHING/g) || []).length, A.migRolls,
     `${T}: every member-vote insert is re-runnable`);
   for (const other of ["2025GS", "2024GS", "2023GS"].filter((x) => x !== T)) {
     lacks(aSql, other, `${T}: the migration writes nothing under ${other}`);
   }
   for (const { m, rc } of aRolls) {
-    has(aSql, `'utahSession', '${T}', 'utahBill', '${m.utahBill}'`,
+    has(owns(m.utahBill), `'utahSession', '${T}', 'utahBill', '${m.utahBill}'`,
       `${T}/${m.utahBill}: the measure carries its session in external_ids`);
-    has(aSql, `AND roll_number = ${rc.rollNumber}`,
+    has(owns(m.utahBill), `AND roll_number = ${rc.rollNumber}`,
       `${T}/${m.utahBill}: roll call ${rc.rollNumber} is looked up by its own number`);
+    // And the file that does NOT own it never mentions it, so the two files cannot
+    // both be writing the same act.
+    if (isDelta(T, m.utahBill))
+      lacks(aSql, `'utahBill', '${m.utahBill}'`,
+        `${T}/${m.utahBill}: the applied record migration does not also claim it`);
   }
   const aStrayMig = [...new Set((aSql.match(/^ {4}\(rc_id, '([a-z0-9_]+)'/gm) || [])
     .map((r) => r.replace(/^.*'([a-z0-9_]+)'$/, "$1")))].filter((p) => !aAccepted.has(p));
@@ -583,13 +780,13 @@ for (const A of ARCHIVE) {
     `${T}: the migration calls a refusal a refusal`);
   has(aSql, `db/vr-utah-member-map-${T}.json`,
     `${T}: the migration's refusal note points at this session's own map`);
-  has(aSql, String(A.dropped), `${T}: the migration states how many vote rows are absent`);
+  has(aSql, String(A.migDropped), `${T}: the migration states how many vote rows are absent`);
   const aVerify = aSql.slice(aSql.indexOf("-- ── Verification"));
   must(aVerify.length > 400, `${T}: could not isolate the migration's verification block`);
-  has(aVerify, `IF n_measures <> ${A.measures} THEN`, `${T}: the verification counts measures`);
-  has(aVerify, `IF n_rolls <> ${A.rolls} THEN`, `${T}: the verification counts roll calls`);
-  has(aVerify, `IF n_votes < ${A.votes} THEN`, `${T}: the verification counts member votes`);
-  has(aVerify, `IF n_issues <> ${A.issues} THEN`, `${T}: the verification counts issue mappings`);
+  has(aVerify, `IF n_measures <> ${A.migMeasures} THEN`, `${T}: the verification counts measures`);
+  has(aVerify, `IF n_rolls <> ${A.migRolls} THEN`, `${T}: the verification counts roll calls`);
+  has(aVerify, `IF n_votes < ${A.migVotes} THEN`, `${T}: the verification counts member votes`);
+  has(aVerify, `IF n_issues <> ${A.migIssues} THEN`, `${T}: the verification counts issue mappings`);
   has(aVerify, "IF n_orphan > 0 THEN",
     `${T}: the verification fails the deploy on a vote attributed off the map`);
   has(aVerify, "congress IS NULL", `${T}: the verification counts state rows only`);

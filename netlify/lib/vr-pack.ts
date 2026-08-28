@@ -95,6 +95,31 @@ async function loadIssuesByMeasure(measureIds: number[]): Promise<Map<number, Pa
   return map;
 }
 
+// ── MEASURE IDENTITY, PROJECTED ─────────────────────────────────────────────
+// Deliberately duplicated from netlify/functions/voting-record.mts rather than
+// shared: this file's whole contract is that a pack rehydrates to the SAME item
+// shape the live read produces, and the two are already written as mirrored
+// literals for exactly that reason. See the long note on the live copy for why
+// only three keys of external_ids cross the wire.
+//
+// `session` is the Utah session code as stored ("2025GS"), never reformatted —
+// it is the string the Legislature's own bill pages use, so a reader who
+// searches for it finds the bill.
+function measureIdent(externalIds: unknown) {
+  if (!externalIds || typeof externalIds !== "object") return null;
+  const x = externalIds as Record<string, unknown>;
+  const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
+  const session = str(x.utahSession);
+  const readFrom = str(x.mappingReadFrom);
+  const readFromUrl = str(x.mappingTextUrl);
+  const officialTitle = str(x.officialTitle);
+  // congress.gov before the BILLSTATUS XML: both are citable and both are already
+  // on file, but one of them is a page a reader can actually read.
+  const billUrl = str(x.congressGovUrl) || str(x.billStatusUrl);
+  if (!session && !readFrom && !readFromUrl && !officialTitle && !billUrl) return null;
+  return { session, readFrom, readFromUrl, officialTitle, billUrl };
+}
+
 // Build the compact pack for one member, newest-first, capped to PACK_ITEM_CAP.
 export async function buildMemberPack(politicianId: string) {
   const rawVoteRows = await db
@@ -121,6 +146,12 @@ export async function buildMemberPack(politicianId: string) {
       result: vrRollcalls.result,
       rcSourceUrl: vrRollcalls.sourceUrl,
       rcSourceLabel: vrRollcalls.sourceLabel,
+      // The measure's own provenance bag, projected below to the three
+      // reader-facing keys in it — see measureIdent(). The tuple above is the
+      // citation for a FEDERAL roll call and is null on every state one, so
+      // without this a Utah row in an offline pack cannot say which session's
+      // H.B. 208 it is.
+      externalIds: vrMeasures.externalIds,
       position: vrMemberVotes.position,
       isParty: vrMemberVotes.isParty,
     })
@@ -154,6 +185,7 @@ export async function buildMemberPack(politicianId: string) {
       actionType: vrPositions.actionType,
       supports: vrPositions.supports,
       actedAt: vrPositions.actedAt,
+      externalIds: vrMeasures.externalIds,
       posSourceUrl: vrPositions.sourceUrl,
       posSourceLabel: vrMeasures.sourceLabel,
     })
@@ -193,6 +225,7 @@ export async function buildMemberPack(politicianId: string) {
       congress: v.congress ?? null,
       session: v.session ?? null,
       rollNumber: v.rollNumber ?? null,
+      measureIdent: measureIdent(v.externalIds),
       issues: issuesByMeasure.get(v.measureId) ?? [],
       source: { url: v.rcSourceUrl, label: v.rcSourceLabel },
       // Disclosure travels with the row into the offline pack, so an offline reader
@@ -227,6 +260,7 @@ export async function buildMemberPack(politicianId: string) {
       congress: null,
       session: null,
       rollNumber: null,
+      measureIdent: measureIdent(p.externalIds),
       issues: issuesByMeasure.get(p.measureId) ?? [],
       source: { url: p.posSourceUrl, label: p.posSourceLabel ?? null },
     });
