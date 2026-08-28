@@ -558,8 +558,13 @@ section("5 · wired, cached, versioned");
   ok(IDX_SRC.indexOf('src="/issue-scope.js"') > IDX_SRC.indexOf('src="/stance-helpers.js"'),
     "issue-scope.js loads before the no-pole table it reads");
   has(SW_SRC, "'/issue-scope.js',", "the service worker does not precache issue-scope.js");
+  // AT LEAST v81, not exactly v81. This pass added a shell asset and its bump is
+  // v81, which is the floor this test defends; a later pass that ships its own
+  // shell change bumps past it and must not have to edit this line to do so. The
+  // pin that matters is that v81's own arrival is still explained in sw.js.
   const ver = (/const CACHE_VERSION = '(v\d+)';/.exec(SW_SRC) || [])[1];
-  ok(ver === "v81", `CACHE_VERSION is ${ver} — a new shell asset needs a bump`);
+  ok(/^v\d+$/.test(String(ver)) && Number(String(ver).slice(1)) >= 81,
+    `CACHE_VERSION is ${ver} — a new shell asset needs a bump to v81 or later`);
   has(SW_SRC, "// v81 —", "the cache bump was not explained");
   // The doctrinal comments are part of the deliverable.
   ok(IS_SRC.slice(0, IS_SRC.indexOf("(function")).length > 2000,

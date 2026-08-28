@@ -3870,11 +3870,42 @@
   // AND WHERE THERE IS NOTHING TO PRINT, IT SAYS THAT. A characterised row with no
   // two-sided count on file gets the absence in words rather than a bare tier
   // label, because a reader cannot tell a withheld number from a missing one.
+  //
+  // ── AND THE LEFTOVER, WHERE THE LIST HOLDS ONE ────────────────────────────
+  // The two integers are the JUDGED sides and always were: a Present, a Did Not
+  // Vote or an act with no recorded direction has never incremented either, and
+  // never could push a row to Strong or Mostly, because the engine drops it before
+  // the tier is decided. What it does do is sit in the dossier's enumeration, which
+  // lists everything on file — so a member who abstained on one of four mapped
+  // bills met a brief saying "3 advanced · 0 against" and a dossier saying "4
+  // listed", with nothing on either surface saying that the missing one was an
+  // abstention rather than a receipt we had lost. A reader who notices that
+  // subtracts and gets a fourth Yea.
+  //   So the row accounts for the whole list: "· 1 no side", in the engine's own
+  // words (_recordNoSidePhrase), appended AFTER the tally and never folded into it.
+  // Two consequences worth stating because they are the point:
+  //   · IT IS PRINTED EVEN WHERE THE CHIP ALREADY CARRIED THE TALLY. The early
+  //     return above exists so the row does not print the same two integers twice;
+  //     this is a third number the chip does not carry, so the return moved below
+  //     it. A row whose chip reads "Strongly supports · 3 advanced · 0 against"
+  //     gains "· 1 no side" beside it and nothing else changes.
+  //   · IT IS NOT A SIDE. No lead, no tier, no direction word and no arithmetic
+  //     over it — a surface that added it to either integer would be reporting an
+  //     abstention as a vote, which is the exact defect this discloses.
+  function shapeNoSideHtml(x) {
+    var n = (typeof x.noSide === 'number') ? x.noSide : 0;
+    if (n <= 0) return '';
+    var w = x.noSideCount ||
+      (window._recordNoSidePhrase ? window._recordNoSidePhrase(x) : '') ||
+      (n + ' no side');
+    return '<span class="pdxwa-shape-n pdxwa-shape-n-off">· ' + esc(w) + '</span>';
+  }
   function shapeTallyHtml(x) {
-    if (x.counts) return '';
+    var none = shapeNoSideHtml(x);
+    if (x.counts) return none;
     var t = x.sideCounts || '';
-    if (t) return '<span class="pdxwa-shape-n">· ' + esc(t) + '</span>';
-    return '<span class="pdxwa-shape-n pdxwa-shape-n-off">· no count on file yet</span>';
+    if (t) return '<span class="pdxwa-shape-n">· ' + esc(t) + '</span>' + none;
+    return '<span class="pdxwa-shape-n pdxwa-shape-n-off">· no count on file yet</span>' + none;
   }
   function shapeRowHtml(x, pid, mount) {
     var key = x.key || '';
@@ -3885,8 +3916,13 @@
     var door = !!(owner && key);
     var tally = shapeTallyHtml(x);
     var rowId = door ? shapeRowId(mount, owner, key) : '';
+    // The same three facts the face carries, in the same order, so the announced
+    // row and the seen row are one claim — including the leftover, which is the
+    // fact a screen-reader user has least other way of reaching.
+    var sayN = (x.counts || x.sideCounts || '') +
+      (x.noSideCount ? ((x.counts || x.sideCounts) ? ' · ' : '') + x.noSideCount : '');
     var say = x.label + ' — formal record: ' + (x.patLabel || 'on file') +
-      (x.counts ? ' (' + x.counts + ')' : (x.sideCounts ? ' (' + x.sideCounts + ')' : '')) +
+      (sayN ? ' (' + sayN + ')' : '') +
       '. Open the acts behind it.';
     var name = '<span class="pdxwa-shape-iss">' + esc(x.label) + '</span>';
     var bar = (x.chip || '') + tally;

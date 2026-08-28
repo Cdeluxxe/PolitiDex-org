@@ -250,7 +250,24 @@
 // repeat visit that renders the ⓘ and then has nothing behind it is a control that
 // eats taps. Nothing about this pass is database-side, and no floor, tier, count
 // or score moved.
-const CACHE_VERSION = 'v81';
+// v82 — PRESENT AND DID NOT VOTE STOPPED BEING INVISIBLE. The formal brief's
+// two-integer tally was always judged sides only — _recordDirectionIndex drops a
+// Present, a Did Not Vote and any act with no mapped direction in pass 1, before a
+// floor, a tier or a lead is computed — but nothing said so, and the dossier under
+// the same chip enumerates everything on file, so a reader who subtracted five
+// listed from four advanced got a Yea that does not exist. stance-helpers.js now
+// counts those acts as `noSide` and publishes the phrase ("1 no side"),
+// word-action.js prints it beside the tally and never inside it, and consistency.js
+// gives the row itself a dashed, dimmed frame with a first-line "Did not vote" /
+// "Present" / "No side" label and drops the polarity paragraph that used to explain
+// what a Yea here would have counted as. Bumped because the one bad pickup is the
+// reported bug wearing a fix: a phone holding v81 that takes the new
+// word-action.js but keeps the old stance-helpers.js reads a `noSide` nothing
+// publishes, so the chip prints the same unexplained tally it printed before while
+// the dossier beside it has already changed. All three files are precached below,
+// so the rename delivers them as one set. No floor, mapping, weight or Direction
+// Match input moved, and nothing here is database-side.
+const CACHE_VERSION = 'v82';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

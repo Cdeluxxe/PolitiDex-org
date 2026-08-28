@@ -2256,6 +2256,23 @@
       // Record proof line so the two surfaces read as one vocabulary.
       '.pdxdos-rec-dir{font-size:0.62rem;color:#9fb4d4;border:1px solid rgba(159,180,212,0.22);' +
         'border-radius:999px;padding:0.02rem 0.34rem;white-space:nowrap;}' +
+      // ── THE ROW THAT TOOK NO SIDE, AND WHY IT IS DASHED ─────────────────────
+      // Solid means counted, everywhere else in this sheet: the side pill above is
+      // solid, the verdict chips are solid, the hold mark is its own glyph. Dashed
+      // is already this file's mark for "on file, not resolved" — the ledger
+      // standing on a row face uses it, the derived-mechanism rule uses it — so an
+      // abstention borrows the same vocabulary rather than inventing a fourth one.
+      // The row is dimmed, not hidden and not greyed out of legibility: it is real
+      // evidence about a real bill and a reader must be able to read every word of
+      // it. What it must not do is scan as a fourth Yea in a list of three.
+      '.pdxdos-rec-nos>summary{opacity:0.74;}' +
+      '.pdxdos-rec-nos{border-left:2px dashed rgba(159,180,212,0.3);padding-left:0.4rem;}' +
+      // The label itself. Dashed border and no fill, so it cannot be mistaken for
+      // the side pill it stands in place of, and bold because it is the first thing
+      // on the line and the reason the rest of the line reads differently.
+      '.pdxdos-rec-nosl{font-size:0.62rem;font-weight:700;color:#9fb4d4;' +
+        'border:1px dashed rgba(159,180,212,0.45);border-radius:999px;' +
+        'padding:0.02rem 0.36rem;white-space:nowrap;flex:none;}' +
       // The standing of the whole list, above the rows. Same weight as the coverage
       // note it sits beside — this is disclosure, not a warning.
       '.pdxdos-led{font-size:0.68rem;color:#9fb4d4;line-height:1.5;padding:0.4rem 0.55rem;' +
@@ -8263,6 +8280,14 @@
         why: why,
         counts: t ? t.counts : '',
         judged: t ? t.judged : 0,
+        // THE ACTS ON FILE THAT TOOK NO SIDE. Carried from the tier, which carries
+        // it from the index, which has always excluded them from `judged` and from
+        // both side counts. It is here so a surface printing the two integers can
+        // account for the rest of the list in the same breath — see the wall over
+        // `noSide` in _recordDirectionIndex. It is not a side, it is not summed
+        // into anything, and no row's tier, tone, weight or sort position reads it.
+        noSide: t ? (t.noSide || 0) : 0,
+        noSideCount: t ? (t.noSideCount || '') : '',
         directional: !!(t && t.directional),
         read: !!t,
         single: single,
@@ -9120,6 +9145,14 @@
         (window._recordSidePhrase ? window._recordSidePhrase(x.pat) : ''),
       advances: (x.pat && typeof x.pat.advances === 'number') ? x.pat.advances : null,
       opposes: (x.pat && typeof x.pat.opposes === 'number') ? x.pat.opposes : null,
+      // AND THE LEFTOVER, flattened with them. The brief is the surface that made
+      // this necessary: it prints the tier and the two integers straight off this
+      // row, and a member who abstained on one of four mapped bills had a chip
+      // saying "3 advanced · 0 against" over a dossier saying "4 listed" with no
+      // sentence anywhere on either surface joining the two. The integers were
+      // always right; the inventory was the thing with no words. Not a side, not
+      // summed, not sorted on — see _fpiRows.
+      noSide: x.noSide || 0, noSideCount: x.noSideCount || '',
       said: !!x.said, chip: _stPatternHtml(x.row, x.pat)
     };
   }
@@ -12601,8 +12634,19 @@
   // 'Limited record'", teaching a reader that the RECORD was found wanting when the
   // record had never been tested at all. A ledger row ends record-relative instead,
   // in the mapping's own voice and about the measure rather than the person.
+  //
+  // AND WHERE NOTHING TOOK A SIDE, THERE IS NO DIRECTION TO EXPLAIN. On an
+  // abstention the sentence below read "On 🍎 Invest in Public Schools a Yea counts
+  // as support for the issue's direction, and they did not vote" — a polarity
+  // lesson about a vote that was not cast, printed in the slot labelled "Which way
+  // it cut" over a row where nothing cut either way. The label is the claim, and it
+  // is false on this population however carefully the sentence is worded, so the
+  // slot is empty here instead. What the act was is still printed, on the face and
+  // in the record's own words; what it meant for the issue is not, because it did
+  // not mean anything for the issue.
   function _dosDirLine(d, issueKey, led) {
     if (d.held) return '';
+    if (_dosNoSide(d)) return '';
     var lbl = _issueLabel(issueKey) || 'this issue';
     var v = VERDICTS[d.verdict];
     var ldir = led ? _dosItemDir(d) : '';
@@ -12769,6 +12813,43 @@
     }
     return (d.effect === 'advances') ? 'advances' : (d.effect === 'opposes') ? 'opposes' : '';
   }
+  // ── AN ACT WITH NO SIDE IS NOT A QUIET YEA ──────────────────────────────────
+  // The enumeration lists everything on file, which is right — an abstention on a
+  // bill this issue was about is a fact about the record, and dropping it would be
+  // the silence-means-absence framing in miniature. What was wrong was that it
+  // listed identically to a cast ballot: same icon, same weight, same slot layout,
+  // and a "Which way it cut" paragraph underneath explaining what a Yea here would
+  // have counted as. Four rows under a chip reading "3 advanced · 0 against" and
+  // one of them wearing the furniture of a vote is a row a reader counts as a
+  // fourth Yea, and the arithmetic they then cannot reproduce is ours.
+  //
+  // So this is the one predicate that says the row took no side, and it is asked
+  // of the SAME function that produces the side — `_dosItemDir` — rather than of a
+  // second reading of `position`. That is the whole design: there is no state in
+  // which this returns a label and that returns a direction, because this returns
+  // a label precisely when that returned nothing.
+  //
+  // THREE LABELS, AND THE THIRD IS THE HONEST CATCH-ALL. A recorded Present and a
+  // recorded absence are different facts and the clerk's file distinguishes them,
+  // so the row does too. Anything else with no direction on file — a formal act
+  // whose `supports` boolean was never recorded, a mapping carrying no support
+  // meaning — is not an abstention and must not be described as one; it is a row
+  // we cannot put on a side, which is what "No side" says and all it says.
+  //
+  // NOTHING HERE IS A GATE. It sets no verdict, moves no floor, and is read by
+  // exactly two places: the row's own presentation and the polarity paragraph it
+  // suppresses. The chip above the list was already counting judged sides only.
+  var _DOS_NOSIDE = {
+    present: 'Present', abstain: 'Present',
+    not_voting: 'Did not vote', notvoting: 'Did not vote', 'not voting': 'Did not vote',
+    absent: 'Did not vote', excused: 'Did not vote'
+  };
+  function _dosNoSide(d) {
+    if (!d || d.held || d.lane !== 'record') return '';
+    if (_dosItemDir(d)) return '';
+    var pos = String((d.item && d.item.position) || '').toLowerCase();
+    return _DOS_NOSIDE[pos] || 'No side';
+  }
   // Bare stem, not third-person singular: the clause is always "they said they ___",
   // so "supports" produced "they said they supports" — the exact kind of sentence that
   // tells a reader nobody read the line before shipping it.
@@ -12876,10 +12957,30 @@
     // and one went the other by scanning the faces, without opening anything.
     var ledRow = !!led && !d.held;
     var dir = _dosItemDir(d);
+    // ── AND THE THIRD KIND OF ROW: THE ONE THAT TOOK NO SIDE ──────────────────
+    // See the wall over _dosNoSide. A Yea or a Nay gets the ▲/▼ side pill; an act
+    // with no direction on file gets this label instead, in the same first line, so
+    // the answer to "which way did this one go" is in the same place on every row
+    // and is never blank. It leads the line rather than sitting in the pill's slot
+    // because it is the row's standing and not its direction: a reader scanning a
+    // list of four for the one that is not a vote should find it without reading
+    // any of them, and the dashed, dimmed frame the class carries is the other half
+    // of that. Nothing else about the row changes — same identity, same date, same
+    // session, same source, same body, and it is still listed and still counted in
+    // "listed", because it is on file.
+    var nos = _dosNoSide(d);
+    // ONE STATEMENT OF ONE FACT. On a ballot absence the act phrase the record
+    // itself produced ("Did not vote", "Voted Present") IS this label in the
+    // record's own voice, and printing both puts the same two words twice on one
+    // line. The catch-all keeps its act phrase: "No side" says we cannot place the
+    // row, which is a different fact from what the act was, and suppressing
+    // "Co-sponsored" to say it would lose the only description on the row.
+    var nosBallot = !!nos && nos !== 'No side';
     var head =
       (d.held ? '<span class="pdxdos-rec-ico pdxdos-rec-hold" aria-hidden="true">⊘</span>'
         : ledRow ? '<span class="pdxdos-rec-ico" aria-hidden="true">' + _LED.ico + '</span>'
         : '<span class="pdxdos-rec-ico" style="color:' + v.color + '" aria-hidden="true">' + v.ico + '</span>') +
+      (nos ? '<span class="pdxdos-rec-nosl">' + esc(nos) + '</span>' : '') +
       '<span class="pdxdos-rec-id">' + esc(d.ident) + '</span>' +
       // The sitting sits with the number because it is part of the number's meaning:
       // "H.R. 22" names one bill in the 119th and a different one in every other,
@@ -12890,7 +12991,7 @@
       (d.session || d.congress
         ? '<span class="pdxdos-rec-st">' + esc(d.session || d.congress) + '</span>' : '') +
       (d.question ? '<span class="pdxdos-rec-act">' + esc(d.question) + '</span>' : '') +
-      (d.act ? '<span class="pdxdos-rec-act">' + esc(d.act) + '</span>' : '') +
+      (d.act && !nosBallot ? '<span class="pdxdos-rec-act">' + esc(d.act) + '</span>' : '') +
       (dir && !d.held ? '<span class="pdxdos-rec-dir">' + esc(_ledDirShort(dir)) + '</span>' : '') +
       (d.held ? '<span class="pdxdos-rec-vd pdxdos-rec-hold">Not scored</span>'
         : ledRow ? '<span class="pdxdos-rec-vd pdxdos-rec-led" title="' + escAttr(_LED.full) + '">' +
@@ -12946,7 +13047,8 @@
          wk('Which way it cut:', m.dir) +
          wk('', m.gap, 'pdxdos-rec-gap') +
          _dosMultiHtml(m, d));
-    return '<details class="pdxdos-rec" data-pdxdos-i="' + i + '"' +
+    return '<details class="pdxdos-rec' + (nos ? ' pdxdos-rec-nos' : '') + '"' +
+        ' data-pdxdos-i="' + i + '"' +
         ' data-pdxdos-pid="' + escAttr(pid) + '" data-pdxdos-key="' + escAttr(issueKey) + '">' +
         '<summary>' + head + why + '</summary>' +
         // Empty on purpose. The body is built the first time this row is opened —
