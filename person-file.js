@@ -414,6 +414,11 @@
   //   caller in the app already uses (profiles-full, consistency, receipt-cards,
   //   ballot-breakdown), and using a different one here would warm a cache key
   //   nobody reads and issue two requests instead of one.
+  // Stage clock (index.html head + pdx-perf.js). First write wins; never throws.
+  function perf(name) {
+    try { if (window.PDXPerf && window.PDXPerf.mark) window.PDXPerf.mark(name); } catch (e) {}
+  }
+
   var _warmed = {};
   function warm(pid) {
     if (!pid || _warmed[pid]) return;
@@ -425,7 +430,19 @@
     try {
       VR.fetchMember(pid, { pageSize: 100 }).then(function (data) {
         try {
-          if (data && data.items && fn(VR.noteMember)) VR.noteMember(pid, data.items);
+          if (data && data.items && fn(VR.noteMember)) {
+            VR.noteMember(pid, data.items);
+            perf('vr-warm');
+            // Same event, same meaning, same owner as the one voting-record.js
+            // fires when its own section finishes loading: "the sync record cache
+            // is warm for this member". On a cold /p/ arrival this now happens
+            // BEFORE the section loads, and the surfaces listening (the profile's
+            // Voting Record Highlights slot, the hero's formal brief) need to hear
+            // the moment the record exists, not the moment a section mounted. Both
+            // listeners re-read the cache and repaint; a second dispatch later is
+            // an idempotent repaint, not a double render.
+            try { window.dispatchEvent(new CustomEvent('pdx-voting-warm', { detail: { pid: pid } })); } catch (e) {}
+          }
         } catch (e) {}
       }, function () {});
     } catch (e) {}
@@ -469,6 +486,7 @@
     // on screen by this point: a reader who can see the file but whose address
     // bar did not update has a cosmetic problem, whereas a throw here would
     // leave them looking at a half-opened overlay.
+    perf('person-open');
     try { stamp(pid); } catch (e) {}
     try { kicker(pid); } catch (e) {}
     // Fired after the modal is up so it cannot delay the open by even one turn
@@ -593,7 +611,7 @@
     if (fromPath() !== pid) { _adoptSettled = true; return; }
     if (window._pdxCurrentProfileId) { _adoptSettled = true; return; }
 
-    if (settledAt === null && rosterSettled()) settledAt = waited;
+    if (settledAt === null && rosterSettled()) { settledAt = waited; perf('roster'); }
 
     var ready = (settledAt !== null || waited >= EARLY);
     var canOpen = ready && !!resolve(pid) && fn(window.openModal);
@@ -616,6 +634,17 @@
   function bootAdopt() {
     var pid = fromPath();
     if (!pid) return '';      // ?p= is still owned by _pdxOpenFromUrl
+    perf('person-boot');
+    // The record does not depend on the roster. attempt() below is a WAIT — for
+    // the roster to settle so an unknown id can be answered honestly — and the
+    // voting record has nothing to do with that question: the endpoint is keyed
+    // by pid alone, and the pid is in the address. Warming here rather than from
+    // open() hands the sync record cache (and every surface reading it) the
+    // answer as soon as the network has it, instead of one roster wait later.
+    // open() still calls warm(); it is memoised per pid, so this is the same one
+    // request moved earlier, not a second one. The path pid is used as-is —
+    // fetchMember and memberRecords canonicalize aliases for themselves.
+    try { warm(pid); } catch (e) {}
     _adoptSettled = false;
     attempt(pid, 0, null);
     return pid;

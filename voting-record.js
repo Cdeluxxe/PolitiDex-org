@@ -235,6 +235,14 @@
     try { return (window.PDXCanonicalPid && window.PDXCanonicalPid(id)) || id; } catch (e) { return id; }
   }
 
+  // Stage clock, opened by the inline head script in index.html and reported by
+  // pdx-perf.js. Marking is first-write-wins and never throws, so a mark is safe
+  // to place on a hot path; a page served without the head block simply records
+  // nothing. See PERSON-FILE COLD OPEN in index.html for what the stages mean.
+  function perf(name) {
+    try { if (window.PDXPerf && window.PDXPerf.mark) window.PDXPerf.mark(name); } catch (e) {}
+  }
+
   // ── Data layer: PDXVotingRecord.fetchMember(id, opts) with in-memory cache ────
   var PDXVotingRecord = {
     _cache: new Map(),
@@ -268,25 +276,51 @@
       var key = id + qs;
       if (this._cache.has(key)) return this._cache.get(key);
       var url = API_BASE + '/member/' + encodeURIComponent(id) + qs;
-      var ctl = null, timer = null;
-      try { if (typeof AbortController === 'function') ctl = new AbortController(); } catch (e) { ctl = null; }
-      var init = { headers: { accept: 'application/json' } };
-      if (ctl) init.signal = ctl.signal;
-      try {
-        timer = setTimeout(function () {
-          try { if (ctl) ctl.abort(); } catch (e) {}
-        }, this._timeoutMs);
-      } catch (e) { timer = null; }
-      var clear = function () { if (timer) { try { clearTimeout(timer); } catch (e) {} timer = null; } };
-      var promise = fetch(url, init)
-        .then(function (r) {
+
+      // The head of index.html may already have this exact request in flight —
+      // see PERSON-FILE COLD OPEN there. Adopting it is the whole perf pass: the
+      // request stops waiting for the document to parse, 97 modules to execute
+      // and the roster to settle, and nothing else about it changes. When there
+      // is no prefetch to adopt (any other query, a second member, a warm SPA
+      // navigation) this falls through to the request it always made.
+      var box = this._adoptPrefetch(url);
+      var source, clear;
+      if (box) {
+        source = box.promise;
+        clear = function () {};
+      } else {
+        var ctl = null, timer = null;
+        try { if (typeof AbortController === 'function') ctl = new AbortController(); } catch (e) { ctl = null; }
+        var init = { headers: { accept: 'application/json' } };
+        if (ctl) init.signal = ctl.signal;
+        try {
+          timer = setTimeout(function () {
+            try { if (ctl) ctl.abort(); } catch (e) {}
+          }, this._timeoutMs);
+        } catch (e) { timer = null; }
+        clear = function () { if (timer) { try { clearTimeout(timer); } catch (e) {} timer = null; } };
+        perf('vr-fetch-start');
+        source = fetch(url, init).then(function (r) {
           if (!r.ok) throw new Error('voting-record ' + r.status);
           return r.json();
-        })
+        });
+      }
+
+      var promise = source
         // Disarmed only once the BODY has been read. Headers arriving is not the
         // request completing: a response that stops mid-body leaves r.json()
         // pending, which is the same stall one step later. The abort covers both.
-        .then(function (data) { clear(); return data; })
+        // (An adopted prefetch carries its own identical deadline, armed in the
+        // head, so this arm is a no-op for it rather than a second timer.)
+        .then(function (data) {
+          clear();
+          perf('vr-data');
+          // Keep the profile's first page for back/forward. Skipped when this
+          // page CAME from the session copy, so a reader bouncing between two
+          // files cannot keep renewing one entry past its five minutes.
+          if (!(box && box.session)) PDXVotingRecord._ssWrite(id, qs, data);
+          return data;
+        })
         .catch(function (e) {
           // On failure, drop the cache entry so a later (online) retry re-fetches,
           // and resolve to null so callers degrade quietly instead of throwing. An
@@ -299,6 +333,96 @@
         });
       this._cache.set(key, promise);
       return promise;
+    },
+
+    // ── Adopting the head prefetch ──────────────────────────────────────────────
+    // window.__pdxVRPrefetch is a single hand-over, not a cache: the box is
+    // claimed once and never consulted again. The memo above is the cache, so a
+    // second caller for the same key gets the same promise on the line above and
+    // can never take a second adoption of a promise already accounted for.
+    // Matching on the full URL (not just the pid) is what keeps this honest — a
+    // filtered or differently-paged query is a different question and must not
+    // be answered with the baseline page.
+    _adoptPrefetch: function (url) {
+      var box = null;
+      try { box = window.__pdxVRPrefetch; } catch (e) { box = null; }
+      if (!box || box.claimed || !box.promise || box.url !== url) return null;
+      box.claimed = true;
+      perf('vr-adopt');
+      return box;
+    },
+
+    // ── Session copy of the profile's first page ────────────────────────────────
+    // Back/forward between person files, and a reload of the same file, should
+    // not re-ask for a payload that has not changed (Chew's first page is ~60KB).
+    // The inline head script READS this — it is the one thing that can answer
+    // before the app exists — and this writes it. That split is why the key
+    // format and TTL are duplicated in index.html, and why
+    // scripts/test-person-file-perf.mjs asserts the two copies are identical.
+    //
+    // Deliberately narrow:
+    //   • the baseline profile query only. A filtered view is a different answer
+    //     and is never stored under a key that claims to be the record.
+    //   • five minutes, which is inside the ~60s the endpoint is already cached
+    //     for plus one revalidation window — long enough for a back/forward,
+    //     short enough that nobody reads a figure off a stale page.
+    //   • sessionStorage, not localStorage: it dies with the tab, so a stale copy
+    //     cannot outlive the session that made it.
+    _ssKey: function (id, qs) { return 'pdxvr1:' + canonPid(id) + qs; },
+    _ssTtlMs: 300000,
+    _ssMax: 4,
+    _ssBaselineQs: '?pageSize=100',
+
+    _ssWrite: function (id, qs, data) {
+      if (qs !== this._ssBaselineQs) return false;
+      // Only a real payload. A null (failed) load, or a shape without items, must
+      // never be cached as this member's record.
+      if (!data || !Array.isArray(data.items) || !data.summary) return false;
+      var key = this._ssKey(id, qs);
+      var self = this;
+      var run = function () {
+        var payload;
+        try { payload = JSON.stringify({ t: Date.now(), d: data }); } catch (e) { return; }
+        try { sessionStorage.setItem(key, payload); }
+        catch (e) {
+          // Out of quota (or storage denied). Clear everything this file owns and
+          // try once; if it still fails, the copy is simply skipped — it is an
+          // optimisation and no reader depends on it existing.
+          self._ssPrune(0);
+          try { sessionStorage.setItem(key, payload); } catch (e2) { return; }
+        }
+        self._ssPrune(self._ssMax);
+      };
+      // Stringifying ~60KB is not free, and this runs at the exact moment the
+      // profile is painting the record it just received. Off the paint.
+      try {
+        if (typeof requestIdleCallback === 'function') requestIdleCallback(run, { timeout: 2000 });
+        else setTimeout(run, 0);
+      } catch (e) { try { setTimeout(run, 0); } catch (e2) {} }
+      return true;
+    },
+
+    // Drop expired entries, then keep only the `keep` most recent. Bounded so a
+    // long session across many files cannot fill the tab's storage quota with
+    // record pages and break the features that actually need it.
+    _ssPrune: function (keep) {
+      try {
+        var now = Date.now(), rows = [], i, k;
+        for (i = 0; i < sessionStorage.length; i++) {
+          k = sessionStorage.key(i);
+          if (!k || k.indexOf('pdxvr1:') !== 0) continue;
+          var t = 0;
+          try { t = (JSON.parse(sessionStorage.getItem(k)) || {}).t || 0; } catch (e) { t = 0; }
+          if (!t || (now - t) >= this._ssTtlMs) { rows.push({ k: k, t: -1 }); continue; }
+          rows.push({ k: k, t: t });
+        }
+        rows.sort(function (a, b) { return b.t - a.t; });
+        for (i = 0; i < rows.length; i++) {
+          if (i >= keep || rows[i].t < 0) {
+            try { sessionStorage.removeItem(rows[i].k); } catch (e) {}
+          }
+        }
+      } catch (e) {}
     },
 
     clearCache: function () {
@@ -1337,6 +1461,87 @@
     return false;
   }
 
+  // ── Answering a filter from what is already in hand ─────────────────────────
+  // A chip click used to blank the list to "Loading…" and go back to the network
+  // every time, including for a view the reader had already seen a moment
+  // earlier — the request itself was memoised, but the repaint still waited a
+  // turn and the blank still flashed. Two things are kept so it does not have to:
+  //
+  //   _state.views — every payload that has answered a query on THIS open, by
+  //     query string. Clicking back to a chip is then a synchronous repaint.
+  //   _state.base  — the complete unfiltered record, when this member's whole
+  //     record fits the first page (hasMore === false). An issue chip is then a
+  //     filter over items already held, computed locally.
+  //
+  // Neither invents anything. The local issue filter is the same predicate the
+  // API applies (a record matches when the measure is mapped to the issue), over
+  // the same items the API returned, and the summary is recomputed field for
+  // field the way the endpoint computes it — see assembleMemberPayload in
+  // netlify/functions/voting-record.mts. Anything that does not match exactly
+  // (any other filter changed, a paged/incomplete baseline, the offline pack)
+  // falls through to the request it always made.
+  function baseKeyOf(opts) {
+    var o = {};
+    Object.keys(opts || {}).forEach(function (k) { o[k] = opts[k]; });
+    o.issue = ''; o.page = 1;
+    return PDXVotingRecord._query(o);
+  }
+
+  // Record a load as the baseline, but only when it really is the whole record:
+  // a strict `hasMore === false` (the pack fallback has no such field, so it can
+  // never be mistaken for one), page 1, and no issue filter on either side.
+  function noteBase(opts, data) {
+    if (!_state || !data || !Array.isArray(data.items)) return;
+    if (data.hasMore !== false) return;
+    if ((data.page || 1) !== 1) return;
+    if ((opts && opts.issue) || (data.filters && data.filters.issue)) return;
+    _state.base = { qs: baseKeyOf(opts || {}), data: data };
+  }
+
+  function issueOf(it, key) {
+    var ms = (it && it.issues) || [];
+    for (var i = 0; i < ms.length; i++) if (ms[i] && ms[i].issueKey === key) return true;
+    return false;
+  }
+
+  function localIssueView(opts) {
+    var b = _state && _state.base;
+    if (!b || !b.data) return null;
+    if (baseKeyOf(opts) !== b.qs) return null;   // something other than the issue moved
+    var key = opts.issue || '';
+    if (!key) return b.data;                     // "All issues" IS the baseline
+    var items = (b.data.items || []).filter(function (it) { return issueOf(it, key); });
+    var votes = items.filter(function (it) { return it.kind === 'vote'; });
+    var tally = function (f) {
+      var n = 0;
+      votes.forEach(function (it) { if (f(it)) n++; });
+      return n;
+    };
+    var bs = b.data.summary || {};
+    var pageSize = opts.pageSize || 100;
+    var total = items.length;
+    return {
+      politicianId: b.data.politicianId,
+      filters: Object.assign({}, b.data.filters || {}, { issue: key }),
+      summary: {
+        totalRecords: total,
+        votes: votes.length,
+        positions: total - votes.length,
+        withParty: tally(function (it) { return it.isParty === 'with_party'; }),
+        againstParty: tally(function (it) { return it.isParty === 'against_party'; }),
+        corrected: tally(function (it) { return !!(it.corrections && it.corrections.length); }),
+        correctionsStale: tally(function (it) { return !!(it.correctionsStale && it.correctionsStale.length); }),
+        correctionsAvailable: bs.correctionsAvailable
+      },
+      items: items.slice(0, pageSize),
+      page: 1,
+      pageSize: pageSize,
+      total: total,
+      totalPages: Math.max(1, Math.ceil(total / pageSize)),
+      hasMore: pageSize < total
+    };
+  }
+
   // Re-fetch with the current filters (resets to page 1) and repaint the body.
   var _searchTimer = null;
   function applyFilters() {
@@ -1345,6 +1550,18 @@
     // Remember the durable view preferences (sort + hide-procedural) across visits.
     savePrefs({ sort: _state.filters.sort || '', hideProcedural: !!_state.filters.hideProcedural });
     var opts = buildOpts(1);
+    var qs = PDXVotingRecord._query(opts);
+
+    var have = (_state.views && _state.views[qs]) || localIssueView(opts);
+    if (have) {
+      // No blank, no request, no turn of the event loop.
+      _state.offline = false;
+      _state.data = have;
+      _state.items = (have.items || []).slice();
+      renderBody();
+      return;
+    }
+
     var root = document.getElementById('pdx-vr-list');
     if (root) root.innerHTML = '<div class="vr-loading">Loading…</div>';
     PDXVotingRecord.fetchMember(id, opts).then(function (data) {
@@ -1353,6 +1570,8 @@
       _state.offline = false;
       _state.data = data;
       _state.items = (data.items || []).slice();
+      if (_state.views) _state.views[qs] = data;
+      noteBase(opts, data);
       renderBody();
     });
   }
@@ -1622,7 +1841,13 @@
       facets: { issues: [], chambers: [], actionTypes: [] },
       // focusKey: a record key (see _pdxRecordKey) that the NEXT paint should scroll
       // to and ring — set by _pdxVotingRecordFocusVote, consumed by renderBody.
-      data: null, items: [], page: 1, offline: false, focusKey: ''
+      data: null, items: [], page: 1, offline: false, focusKey: '',
+      // Per-open view memo (query string -> the payload that answered it) and the
+      // complete unfiltered baseline, if this member's whole record fits one
+      // page. Both exist so a chip click can repaint from what is already in hand
+      // instead of blanking the list and asking again. Reset with _state, so they
+      // can never leak across members.
+      views: {}, base: null
     };
 
     // Warm the offline pack (fire-and-forget) so the service worker caches it and
@@ -1653,6 +1878,13 @@
       if (!section) return;
       _state.data = data;
       _state.items = (data.items || []).slice();
+      // Only a live payload is remembered as an answer to a query: `data` here
+      // may be the offline pack, which is this member's record but not the answer
+      // to any particular filter, and must not be replayed as one.
+      if (_state.views && !_state.offline) {
+        _state.views[PDXVotingRecord._query(initOpts)] = data;
+        noteBase(initOpts, data);
+      }
       // Warm the sync record cache so the Alignment Tool (and its consistency line)
       // can read this member's votes without its own fetch.
       PDXVotingRecord.noteMember(job.id, _state.items);
@@ -1663,6 +1895,7 @@
       // and already has several listeners tuned to it, and this is a different
       // moment with a different owner. Listeners today: the profile's Voting Record
       // Highlights live slot (_pdxHydrateVoteHighlights).
+      perf('vr-section');
       try { window.dispatchEvent(new CustomEvent('pdx-voting-warm', { detail: { pid: job.id } })); } catch (e) {}
 
       // Build stable facets from this unfiltered set.

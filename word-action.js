@@ -3754,11 +3754,16 @@
     var c = h.read.coverage;
     if (c.warming) {
       var known = formalKnown(pid);
-      return gap(known === 'empty'
-        ? 'There is no formal record on file to test their words against.'
-        : known === 'deep'
-          ? 'Their formal record is on file and still loading — the match cannot be read until it lands.'
-          : 'Still loading the roll-call record — the match cannot be read until it lands.');
+      if (known === 'empty') return gap('There is no formal record on file to test their words against.');
+      if (briefGaveUp(pid)) {
+        return gap(known === 'deep'
+          ? 'Their formal record is on file, but it did not load, so the match cannot be read. Reload to try again.'
+          : 'The roll-call record did not load, so the match cannot be read. That is a loading failure, not an empty file — reload to try again.');
+      }
+      armBriefDeadline(pid, p);
+      return gap(known === 'deep'
+        ? 'Their formal record is on file and still loading — the match cannot be read until it lands.'
+        : 'Still loading the roll-call record — the match cannot be read until it lands.');
     }
     if (!c.word) {
       return gap('Nothing they have said is on file yet, so there is nothing to test' +
@@ -3959,12 +3964,80 @@
   //
   // It reports a STATE, never a figure: formal-index.js's own header says no
   // surface prints its counts, and a loading line is not the place to start.
+  //
+  // ABSENT FROM THE INDEX IS NOT EMPTY. The generated index covers ONE lane, and
+  // `has()` false means only "this lane holds no counted record for that pid" —
+  // for a federal member, or anyone the generator never reviewed, that is not a
+  // statement about their file at all. Reading it as 'empty' printed "No formal
+  // pattern on file yet" over a cold /p/lee, which has a real record still in
+  // flight. So 'empty' is now returned ONLY for the hand-reviewed empty notes the
+  // index publishes for exactly that purpose, and everything else the index
+  // cannot speak for returns '' — cannot tell — which keeps the wording we
+  // already shipped for the case where we do not know.
   function formalKnown(pid) {
     try {
       var FX = window.PDXFormalIndex;
       if (!FX || typeof FX.has !== 'function') return '';
-      return FX.has(pid) ? 'deep' : 'empty';
+      if (FX.has(pid)) return 'deep';
+      if (typeof FX.emptyNote === 'function' && FX.emptyNote(pid)) return 'empty';
+      return '';
     } catch (e) { return ''; }
+  }
+
+  // ── The loading state gets a deadline ───────────────────────────────────────
+  // "Still loading the roll-call record" is honest for a few seconds and a lie
+  // about the page after that: a fetch that failed, was aborted at its 12s
+  // deadline, or resolved to nothing leaves coverage.warming true forever, and
+  // the top of the file then promises something that is never coming. This gives
+  // the wait a bound. When it expires and the record is still not here, the copy
+  // changes to say the record did not load — which is a different fact from an
+  // empty file, and is never allowed to be printed as one (formalKnown ===
+  // 'empty' keeps its own sentence, and a landed record wins over both, because
+  // warming goes false the moment it arrives).
+  //
+  // 6s is chosen against the thing being waited for, not the reader's patience:
+  // the request now starts in the head of index.html rather than after the
+  // roster, so a page that has not answered in six seconds has almost certainly
+  // failed rather than queued.
+  var BRIEF_WAIT_MS = 6000;
+  var _briefGaveUp = {}, _briefTimer = {};
+  function briefGaveUp(pid) { return !!_briefGaveUp[pid]; }
+  function armBriefDeadline(pid, p) {
+    if (!pid || _briefGaveUp[pid] || _briefTimer[pid]) return;
+    try {
+      _briefTimer[pid] = setTimeout(function () {
+        _briefTimer[pid] = null;
+        // It may have landed while the timer ran; then there is nothing to
+        // report and the next repaint shows the record itself.
+        if (!briefWarming(pid, p)) return;
+        _briefGaveUp[pid] = true;
+        // Same repaint path the warm events use, so the surfaces that render a
+        // loading state are the surfaces that get to replace it. bindHero
+        // listens for this alongside the two warm events.
+        try { window.dispatchEvent(new CustomEvent('pdx-brief-timeout', { detail: { pid: pid } })); } catch (e) {}
+      }, BRIEF_WAIT_MS);
+    } catch (e) { _briefTimer[pid] = null; }
+  }
+
+  // The three absences the top of an empty-shaped file can be in, in the order
+  // they have to be told apart: the record is coming, the record was coming and
+  // did not arrive, or there is nothing on it. Only the last one is a statement
+  // about the person.
+  function briefAbsenceCopy(pid, p) {
+    var known = formalKnown(pid);
+    if (briefWarming(pid, p) && known !== 'empty') {
+      if (briefGaveUp(pid)) {
+        return known === 'deep'
+          ? 'Their formal record is on file, but it did not load, so no pattern can be read. Reload to try again.'
+          : 'The roll-call record did not load, so no formal pattern can be read. That is a loading failure, not an empty file — reload to try again.';
+      }
+      armBriefDeadline(pid, p);
+      return known === 'deep'
+        ? 'Their formal record is on file and still loading — no pattern can be read until it lands.'
+        : 'Still loading the roll-call record — no formal pattern can be read until it lands.';
+    }
+    return 'No formal pattern on file yet. Nothing we hold for them is a vote or formal action ' +
+      'a direction can be read from, and nothing here is inferred from what they said.';
   }
   // Does the block at the top of the file NAME this person's formal patterns?
   // Published because profiles-full.js has to keep exactly one record block on a
@@ -4059,12 +4132,7 @@
       if (!sh.issues) {
         return '<div class="pdxwa-brief pdxwa-brief-empty">' + head +
             '<p class="pdxwa-shape-none">' +
-              ((briefWarming(pid, p) && formalKnown(pid) !== 'empty')
-                ? (formalKnown(pid) === 'deep'
-                    ? 'Their formal record is on file and still loading — no pattern can be read until it lands.'
-                    : 'Still loading the roll-call record — no formal pattern can be read until it lands.')
-                : 'No formal pattern on file yet. Nothing we hold for them is a vote or formal action ' +
-                  'a direction can be read from, and nothing here is inferred from what they said.') +
+              briefAbsenceCopy(pid, p) +
             '</p>' +
             dmFor(false) +
           '</div>';
@@ -4193,11 +4261,24 @@
       '<div class="pdxwa-hero-sub">' + esc(h.sub) + '</div>';
   }
 
+  // THREE MOMENTS, NOT ONE. This used to listen only for 'pdx-consistency-warm'
+  // — consistency's own warm queue resolving — which on a cold /p/ arrival is not
+  // the moment the roll-call record lands. The record now arrives from the head
+  // prefetch, often before that queue has started, and 'pdx-voting-warm' is the
+  // event that says the sync record cache is warm for this member; without it the
+  // hero held its loading letterhead until some other repaint happened to come
+  // along. 'pdx-brief-timeout' is the other end of the same problem: the moment
+  // the wait is declared over, so loading is never the last thing on screen.
+  var HERO_REPAINT = ['pdx-consistency-warm', 'pdx-voting-warm', 'pdx-brief-timeout'];
+
   function bindHero(uid, pid, p, opts) {
     if (!window.addEventListener) return;
     var handler = function (ev) {
       var host = document.querySelector('[data-pdxwa-hero="' + uid + '"]');
-      if (!host) { window.removeEventListener('pdx-consistency-warm', handler); return; }
+      if (!host) {
+        HERO_REPAINT.forEach(function (n) { window.removeEventListener(n, handler); });
+        return;
+      }
       if (ev && ev.detail && ev.detail.pid && String(ev.detail.pid) !== String(pid)) return;
       try {
         var fresh = heroInner(pid, p, opts);
@@ -4209,7 +4290,7 @@
         if (fresh) { host.innerHTML = fresh; heroFlag(host, fresh); }
       } catch (e) {}
     };
-    window.addEventListener('pdx-consistency-warm', handler);
+    HERO_REPAINT.forEach(function (n) { window.addEventListener(n, handler); });
   }
 
   // ONE MARKER, ONE PLACE. `is-shape` is what the stylesheet keys the full-width

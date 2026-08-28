@@ -555,10 +555,46 @@ function paginate<T>(items: T[], page: number, pageSize: number) {
 }
 
 // ── GET /member/:politicianId ────────────────────────────────────────────────
-async function getMember(politicianId: string, url: URL): Promise<Response> {
+// The profile's first request, and the one a cold /p/<pid> waits on. Same
+// payload and same filters as before — the only additions are revalidation
+// headers, because the client now asks for this page earlier and more often
+// (the head of index.html starts it before the app exists, and a back/forward
+// re-asks for the same query).
+//
+// `stale-while-revalidate=300` lets the browser paint the record it already has
+// and refresh behind the paint, instead of holding the profile on a loading
+// state for a payload that is 60 seconds old. The weak ETag turns a revalidation
+// into a 304 with no body, which for Chew's first page is ~60KB not sent.
+//
+// Honest about what it does NOT do: the ETag is computed from the assembled
+// payload, so a 304 saves the transfer, not the query. It is a bandwidth and
+// paint-latency win, not a database one.
+async function getMember(politicianId: string, url: URL, req: Request): Promise<Response> {
   const f = parseFilters(url);
   if ("error" in f) return json({ error: f.error }, f.status);
-  return json(await assembleMemberPayload(politicianId, f));
+  const body = JSON.stringify(await assembleMemberPayload(politicianId, f));
+  const etag = `W/"vrm-${weakHash(body)}"`;
+  const cache = "public, max-age=60, stale-while-revalidate=300";
+  if ((req.headers.get("if-none-match") || "") === etag) {
+    return new Response(null, { status: 304, headers: { etag, "cache-control": cache } });
+  }
+  return new Response(body, {
+    status: 200,
+    headers: { "content-type": "application/json", "cache-control": cache, etag },
+  });
+}
+
+// FNV-1a over the serialized payload, plus its length. Weak by declaration: it
+// is a revalidation token, not a content hash anyone stores or compares across
+// versions, and any change to the payload (a correction landing, a new roll call
+// ingested) changes it.
+function weakHash(s: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(36) + "-" + s.length.toString(36);
 }
 
 // Run a member's record query for the given filters and shape the response object
@@ -1728,7 +1764,7 @@ export default async (req: Request): Promise<Response> => {
     if (memberMatch) {
       const id = canonicalPid(clean(decodeURIComponent(memberMatch[1]), ID_MAX));
       if (!id) return json({ error: "Missing politician id" }, 400);
-      return await getMember(id, url);
+      return await getMember(id, url, req);
     }
 
     const issueImpactsMatch = path.match(/^\/issue\/([^/]+)\/impacts$/);
