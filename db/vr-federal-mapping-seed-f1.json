@@ -1,0 +1,407 @@
+{
+ "_comment": "Wave F1 mapping decisions for the federal formal-depth pass: the four measures read, the seven issue rows accepted, and the refused candidates. This file is the DECISION RECORD, not an input to any migration — netlify/database/migrations/20261012000000_vr_federal_formal_depth_f1.sql carries the accepted rows itself, and db/vr-issue-seed.json carries them for applyCuratedIssueSeed(). What lives only here is the reasoning: for every accepted row the backwards read (runbook rule 22) and the evidence it rests on, and for every refused row the argument against it. scripts/vr-federal-fpi.mjs reads this file as an in-memory overlay so a proposed mapping's effect on the formal pattern index can be measured BEFORE it is written, and it ignores any row whose decision is UNDECIDED or whose supportMeaning is null — so the refused rows below cannot move a published number by sitting in this file.",
+ "_status": "decided",
+ "_decidedBy": "Human curation. scripts/vr-mapping-draft.mjs was run first on both bills and DECIDED NOTHING, as designed: it emitted three UNDECIDED candidates for H.R. 5408 (econ_workers, tech_balance, tech_innovation) and three for H.R. 1069 (econ_trade, strong_defense, tariffs_china), each with null in all three judgement fields. One of those six was accepted. The bench REFUSED to draft the other two measures at all and named the rule for each: the resolution family is blocked by runbook rule 2 (rules are not policy — a joint resolution that IS substantive, such as a CRA disapproval, must be drafted by hand against the underlying rule) and the amendment family by rule 4 (a truncated purpose line is not a mappable purpose). Both were therefore read by hand against the text they act on: the Bureau of Land Management's 2024 Record of Decision, and the Senate's own complete amendment_purpose field.",
+ "_doctrine": "No party scores. No circular stances: nothing here writes back into ISSUE_STANCE_DATA or Direction Match, and a stated position always outranks a derived one. No lowered floors: every roll behind these rows is contested, and the near-unanimous ones are in the vote seed's declinedRollCalls with their margins. No invented keys: every issueKey below already exists in alignment-tool.js's ISSUE_MAP, and where the vocabulary had no key for a measure's actual subject the measure ships unmapped rather than approximated (H.R. 1069). One instrument, one act.",
+ "_fpiTarget": "The three accepted primaries answer the three heaviest rows of the Utah federal blocker table produced by scripts/vr-federal-fpi.mjs --set utah --why, in which all 27 unread rows carried reason id `vehicle_only`: congress_oversight (5 members), econ_workers (5) and lands_energy (2). Each is answered by a standalone contested instrument in the chamber the blocked members sit in.",
+ "measures": [
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 5408",
+   "shortTitle": "Faster Labor Contracts Act",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/5408",
+   "decisiveRoll": "house 119/2/216, On Passage, 230-193, 2026-06-09 — the only decisive roll in either chamber",
+   "checks": {
+    "decisiveQuestion": "house 119/2 roll 216, 'On Passage'. Admitted by the DECISIVE set with no exception needed. The recommit roll 215 (211-212) and the rule rolls 213-214 are refused in the vote seed's declinedRollCalls; rule 8 allows one decisive vote per chamber per measure.",
+    "proceduralInversion": "No. Roll 216 is straight passage, so yeaBlocksMeasure() does not fire and the ordinary direction holds: a yea advances the bill.",
+    "nearUnanimity": "No. 230-193 with the parties inverted from the chamber's usual pattern — D 210-0, R 20-192, I 0-1. The twenty Republican yeas are recorded individually and are the highest-information votes on the roll.",
+    "twoFlankNays": "Checked (rule 5 / rule 23) and NO. The 193 nays are 192 Republicans and one Independent — one bloc with one argument, that the mandate and the arbitration referral are the objection. There is no second flank arguing the bill is too weak, so the headline key stands and no provision-level substitution is needed.",
+    "enactedTier": "Not law. Passed the House 2026-06-09, received in the Senate 2026-06-10, no further action. Filed status 'passed_house'."
+   },
+   "issues": [
+    {
+     "issueKey": "econ_workers",
+     "decision": "ACCEPTED",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill's entire operative text is a first-contract bargaining regime: negotiations must begin within 10 days of a written request from a newly certified or recognised representative, either party may call in the Federal Mediation and Conciliation Service after 90 days without an agreement, FMCS must refer the dispute to binding arbitration if mediation fails within 30, the resulting agreement binds for two years, and the employer must hold wages, hours and conditions steady while bargaining continues. A yea creates federal protection for workers trying to reach a first contract. The chip names the minimum wage and this bill does not touch it, so the row rests on the chip's second clause — 'protect workers from exploitation' — and on the key's own keyword list, which names 'collective bargaining', 'union' and 'labor'. The vocabulary declares this bill's subject in scope. Weighted 100 and primary because it is the measure's only subject: this is the record's first federal econ_workers primary, the three prior federal rows being secondaries on packages (S. 129 at 60, H.R. 1319 at 45).",
+     "backwardsRead": "A NAY on the Faster Labor Contracts Act is honestly described as opposition to 'Raise the minimum wage and protect workers from exploitation.' Reads TRUE on the second clause and silent on the first, which is why the rationale rests where it does. The 192 Republican nays argued against compulsory arbitration and the timetable, which is an argument about how far federal worker protection should reach — the axis itself, not a different one.",
+     "evidence": "Title of the Act; the NLRA amendments as passed; the GAO reporting requirement; econ_workers keywords 'collective bargaining', 'union', 'labor'."
+    },
+    {
+     "issueKey": "tech_balance",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "scripts/vr-mapping-draft.mjs (title keyword)",
+     "why": "Proposed by keyword evidence in the title and refused. tech_balance is 'Smart Tech Guardrails'; there is no technology, platform or data provision anywhere in the bill. The match is on the word 'efficient' in the long title, which is exactly the sort of accidental hit that keeps the drafting bench advisory."
+    },
+    {
+     "issueKey": "tech_innovation",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "scripts/vr-mapping-draft.mjs (title keyword)",
+     "why": "Same, and same refusal. 'Innovation & Light Rules' is about the regulatory posture toward new technology. A first-contract bargaining deadline is not that."
+    },
+    {
+     "issueKey": "econ_smallbiz",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "Read and rejected on the chip's own words. econ_smallbiz is 'Cut the licensing fees, permits and paperwork that fall hardest on small businesses'. The bill imposes no fee, no permit and no filing — it sets a bargaining timetable, and its obligations fall on any employer whose workforce has just certified a representative, of any size. Mapping it would let a single nay be scored both as opposition to worker protection and as support for small-business relief: two readings of one vote."
+    },
+    {
+     "issueKey": "econ_growth",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "Arguable and still refused. A yea adds a federal mandate on employers, so a nay has a deregulatory flavour — but econ_growth is 'Roll back federal business regulations and keep taxes low to spur hiring and investment', and voting against a NEW mandate is not the act of rolling an existing one back. Declining costs the record nothing: econ_workers carries the whole of what this roll tests, in the direction the floor actually divided on."
+    },
+    {
+     "issueKey": "econ_balance",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "Refused on direction. econ_balance is the moderate chip — 'Support business growth but keep worker protections, overtime and benefit rules in place' — and it is about PRESERVING existing protections. This bill creates a new one. A key whose text describes the status quo cannot be scored by a vote to change it."
+    },
+    {
+     "issueKey": "paid_leave",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "Checked because the key is adjacent, and refused: the bill contains no leave entitlement of any kind. Listed so a later keyword pass does not read the silence as an oversight."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.J.Res. 131",
+   "shortTitle": "ANWR Coastal Plain leasing ROD disapproval (P.L. 119-52)",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/131",
+   "decisiveRoll": "house 119/1/295 On Passage 217-209 (2025-11-18) and senate 119/1/632 On the Joint Resolution 49-45 (2025-12-04)",
+   "checks": {
+    "decisiveQuestion": "Two rolls, one per chamber, which is what rule 8 permits. The House roll is 'On Passage'. The Senate roll is 'On the Joint Resolution H.J.Res. 131', admitted by the joint-resolution passage form gated on the measure number — a shape gate, not a loosened regex.",
+    "proceduralInversion": "No. Both rolls advance the resolution; a yea strikes the rule.",
+    "nearUnanimity": "No, in either chamber. 217-209 and 49-45. House party split R 214-1, D 3-208; Senate R 49-1, D 0-42, I 0-2. The crossovers in each direction are individually recorded.",
+    "twoFlankNays": "Checked and NO. The 209 House nays are 208 Democrats and one Republican; the argument against was conservation of the refuge, from one direction only.",
+    "enactedTier": "Law. Public Law 119-52, 2025-12-11. Filed status 'enacted'.",
+    "vocabularyGap": "Noted rather than filled: there is no wildlife-refuge or endangered-species key. H.J.Res. 78 already records that gap in its live rationale and maps the conservation reading to lands_preserve. This resolution follows that precedent instead of inventing a key."
+   },
+   "issues": [
+    {
+     "issueKey": "lands_energy",
+     "decision": "ACCEPTED",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The resolution's operative effect is on federal public land: it nullifies the Bureau of Land Management's 2024-12-09 Record of Decision for the Coastal Plain oil and gas leasing programme, the decision that had made roughly 1.2 million of the programme area's roughly 1.6 million acres unavailable for leasing and exploration. Striking it reopens that acreage. lands_energy is 'Expand domestic energy, mining & resource development' and its keywords name 'oil', 'gas', 'drilling', 'public land' and 'extraction' — the axis is public-land resource development, which is precisely what a leasing-availability decision is. Primary at 100 because it is the resolution's whole subject: energy output is the consequence, and the acreage decision is the act. This is the record's first federal lands_energy PRIMARY — the two prior federal rows are secondaries on packages, H.R. 26 at 45 and H.R. 1 at 40, which is exactly why the formal index could not read the axis for either Utah senator.",
+     "backwardsRead": "A NAY on H.J.Res. 131 is honestly described as opposition to 'Expand domestic energy, mining & resource development'. TRUE — the 208 Democratic nays argued against opening the acreage and the 214 Republican yeas argued for it. Neither side would dispute the caption.",
+     "evidence": "The 2024 ROD's replacement of the 2020 ROD; the 1.2M-of-1.6M acre withdrawal; the statutory 400,000-acre minimum lease sale that survives either way."
+    },
+    {
+     "issueKey": "lands_preserve",
+     "decision": "ACCEPTED",
+     "weight": 90,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The acreage the resolution reopens is inside the Arctic National Wildlife Refuge, and the 2024 ROD's stated reason for withdrawing it was to protect and conserve resources and certain uses. A yea removes that protection. lands_preserve is 'Protect public lands & wild places for future generations' and its keywords name 'conservation', 'wilderness' and 'blm'. Weight 90 and yea_opposes follow the H.J.Res. 78 precedent exactly, including its written note that the conservation key is used because the vocabulary has no dedicated wildlife or endangered-species key. Not primary: the instrument acts on a leasing programme, and the conservation loss is the same act read from the other side.",
+     "backwardsRead": "A NAY on H.J.Res. 131 is honestly described as support for 'Protect public lands & wild places for future generations'. TRUE, and it is the nays' own stated argument."
+    },
+    {
+     "issueKey": "energy_production",
+     "decision": "ACCEPTED",
+     "weight": 75,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The reopened acreage is, under current law, the part of the programme area with the highest hydrocarbon potential, and the programme it belongs to exists to lease, develop, produce and transport oil and gas. A yea enlarges the area available for that. Weighted 75 — above H.J.Res. 88 and H.J.Res. 89's 70 on the same key, and the difference is textual per rule 25: those resolutions struck a Clean Air Act vehicle waiver and reach production only indirectly, through vehicle demand, whereas this one acts directly on an oil-and-gas leasing programme. Not primary, because lands_energy carries the public-land act itself.",
+     "backwardsRead": "A NAY is honestly described as opposition to 'Unleash American oil, gas and nuclear to lower energy prices and boost independence'. TRUE for the oil-and-gas half, which is the half this resolution is about."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "decision": "ACCEPTED",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The instrument is a Congressional Review Act resolution of disapproval under chapter 8 of title 5: its mechanism is congressional nullification of an agency decision, and a yea removes a federal agency's rule and bars a substantially similar one. gov_regulation's August 2026 scope note names 'Congressional Review Act disapprovals' first in its IN list, and its stated polarity — 'support = fewer and cheaper federal rules' — makes a yea yea_supports. Weight 60 matches H.J.Res. 88 and H.J.Res. 89, the two live CRA precedents in the record. The same scope note is why this row is a secondary and not the primary: what a particular rule should SAY belongs to the sector's key, which here is lands_energy.",
+     "backwardsRead": "A NAY is honestly described as opposition to 'Cut the number and cost of federal regulations'. TRUE at the mechanism level, and weighted at 60 precisely because the mechanism is a smaller share of what this vote was about than the acreage is."
+    },
+    {
+     "issueKey": "climate_action",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "The most tempting candidate and the one refused most deliberately, because two live CRA precedents carry it at 100 primary. H.J.Res. 88 and H.J.Res. 89 earn it: the rules they nullified were the Clean Air Act waivers behind California's zero-emission vehicle mandates, so greenhouse gases were the whole subject of the regulation being struck. The rule struck here is a Record of Decision about which acres of a leasing programme area are available. Emissions appear nowhere in it. Mapping climate_action would score a 217-209 acreage vote as a climate vote, and score it in a direction many of the 217 would reject — they would call the same yea an Alaska development vote. energy_production already carries the fossil-expansion reading, in a direction nobody disputes. Rule 25: consistency is owed to the text, not to the sibling."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "No. The Coastal Plain is federal land inside a federal refuge and the ROD is a federal agency decision. No state authority is expanded or contracted anywhere in the resolution. Alaska's revenue interest is a motive, and motive is excluded."
+    },
+    {
+     "issueKey": "lands_keep_public",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "Refused on a distinction worth keeping sharp. lands_keep_public is 'oppose selling or transferring federal land to states or developers'. Leasing is neither a sale nor a transfer; the acreage stays federal and stays in the refuge. Mapping it would put 217 members on the record as favouring disposal of public land, which the resolution does not do."
+    },
+    {
+     "issueKey": "permitting_reform",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "Refused on its own scope note, which was split out of gov_regulation in August 2026 and is about 'the scope of environmental review; statutory page and deadline limits on it'. This resolution changes no review procedure and sets no deadline. Its OUT list names 'whether the project itself is a good idea (energy_production, climate_action)', which is the question here."
+    },
+    {
+     "issueKey": "enviro_balance",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "Refused as a hedge key. 'Practical Stewardship' would let a yea and a nay both look moderate on a 217-209 party-line vote, which is the opposite of what the index is for."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.Amdt. 3535",
+   "shortTitle": "Scott (FL) Amdt. No. 3535 — Fed/CFPB inspector general confirmation",
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00563.htm",
+   "parent": "S. 2296 (119th, senate) — National Defense Authorization Act for Fiscal Year 2026",
+   "decisiveRoll": "senate 119/1/563, On the Amendment, 53-43 against a 3/5 threshold, 2025-10-09 — rejected",
+   "checks": {
+    "decisiveQuestion": "Admitted under runbook rule 12's amendment shape exception: the caption 'On the Amendment' is accepted only where the measure number matches the S.Amdt./H.Amdt. shape, and the vote seed carries the required written decisiveWhy. An amendment never receives a passage vote; agreeing to it or refusing to IS its disposition.",
+    "proceduralInversion": "No. A yea agrees to the amendment. It is not a motion to table, recommit or strike, so the ordinary direction holds.",
+    "nearUnanimity": "No. 53-43, and cross-party in both directions: R 44-6, D 8-36, I 1-1. Fourteen senators voted against their party's majority, which is the most separating shape a roll can have.",
+    "truncatedPurpose": "Rule 4's block cleared. The Senate's own amendment_purpose field is complete and carries the direction: 'To require Presidential appointment and Senate confirmation of the Inspector General of the Board of Governors of the Federal Reserve System and the Bureau of Consumer Financial Protection.' Nothing is cut off mid-clause, so the amendment is mappable from the chamber's own text. The builder asserts this field is non-empty and refuses the roll otherwise.",
+    "stowawayRisk": "Live and handled. The amendment rode the FY2026 NDAA because that is where floor time was. Its text has nothing to do with defence, so strong_defense is refused below and the parent's keys are not inherited.",
+    "enactedTier": "Rejected. 53 yeas against a 3/5 threshold, so a majority position is recorded as a defeat. Filed status 'failed'. The parent S. 2296 passed the Senate the next day and was never enacted."
+   },
+   "issues": [
+    {
+     "issueKey": "congress_oversight",
+     "decision": "ACCEPTED",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The amendment's stated purpose is its entire substance: to require Presidential appointment and Senate confirmation of the inspector general of the Federal Reserve Board of Governors and of the Consumer Financial Protection Bureau. Under current law that inspector general is designated by the Fed Chair, so a yea moves the watchdog of both bodies out of agency appointment and into advice and consent, giving the Senate a hold on an oversight officer it has none over today. congress_oversight's keyword list names 'inspector general' explicitly, which is the vocabulary's own statement that IG machinery belongs on this axis. Primary at 100 as the amendment's only subject; the record's one prior row on this key is a 45-weight secondary on H.R. 7888, a package — which is exactly why the formal index could not read the axis for five of the seven Utah federal members. The counter-reading is real and is recorded next door: the 36 Democratic nays argued that confirmation politicises the watchdog of an independent central bank. That is an argument about how much political control the post should carry, which is this axis; the executive-power half of it is why checks_balances is refused.",
+     "backwardsRead": "A NAY on S.Amdt. 3535 is honestly described as opposition to 'Make the executive branch answer congressional subpoenas, document requests and testimony.' TRUE at the level of the mechanism — the nays voted to leave the IG appointed inside the agency rather than confirmed by the Senate — and the chip's named instruments (subpoenas, testimony) are narrower than the amendment, which is why the rationale rests on the keyword the key itself carries.",
+     "evidence": "Senate amendment_purpose field, roll 119/1/563; current designation of the Fed/CFPB IG by the Board Chair; congress_oversight keyword 'inspector general'."
+    },
+    {
+     "issueKey": "audit_spending",
+     "decision": "ACCEPTED",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The office the amendment reshapes is the internal auditor of the Federal Reserve and the CFPB, and audit_spending is 'Audit federal agencies and the Federal Reserve and root out wasteful spending' — the only chip in the vocabulary that names the Federal Reserve at all, with keywords 'audit the fed' and 'federal reserve'. A yea subjects that auditor to Senate confirmation. Weighted 70 rather than 100 because the amendment changes who appoints the auditor and not what the auditor may examine: it adds no audit authority, so the row is a share of the key and not the whole of it. Above the record's two existing rows on this key (both 55, both secondaries) because those are provisions inside larger bills and this is the amendment's entire text.",
+     "backwardsRead": "A NAY is honestly described as opposition to 'Audit federal agencies and the Federal Reserve'. Reads TRUE but narrowly — the nays did not vote against auditing the Fed, they voted against this appointment route to its auditor. Recorded at 70 for that reason."
+    },
+    {
+     "issueKey": "checks_balances",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "Refused on scope before anything else, per runbook rule 28: alignment-tool.js says the key 'has no roll-call mappings and is expected to keep none — a general-posture claim cannot be settled by any single vote', and it sits on the receipt-card hold list for that reason. The merits point the same way and are worth writing down, because this amendment moves an appointment in two directions at once. It takes the IG out of the Fed Chair's hands, which reads as Congress checking an agency — and it does so by making the post PRESIDENTIALLY appointed, so the same yea can be read as handing the White House a nomination it does not have today over the watchdog of a deliberately independent central bank. Twenty rostered members hold a stance on this key, so a wrong direction would misjudge a lot of people. congress_oversight and audit_spending each read the amendment in one stable direction; checks_balances does not."
+    },
+    {
+     "issueKey": "gov_transparency",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "Refused. The chip is 'Force more disclosure, ban member stock trading and toughen ethics rules', and its scope comment says in terms that it is about disclosure BY members, not about compelling answers from the executive. This amendment contains no disclosure requirement, no reporting mandate and no ethics provision. It changes who appoints an officer."
+    },
+    {
+     "issueKey": "strong_defense",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "Refused on principle rather than on the merits, and it is the stowaway case the omnibus disclosure rules exist for. The amendment was offered to the FY2026 NDAA because vote-a-rama is where floor time exists; its text has nothing to do with defence. Mapping the vehicle's subject onto the amendment's own vote would score 96 senators on defence policy for a vote about an inspector general. The parent S. 2296 keeps strong_defense 100 primary; the child inherits none of it."
+    },
+    {
+     "issueKey": "econ_corp_account",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "Checked because the CFPB is named in the amendment, and refused. econ_corp_account is 'Use antitrust and anti-price-gouging enforcement to check large corporations'. The amendment neither expands nor contracts the bureau's authority over anyone — it changes how the bureau's own inspector general is appointed. Reading it as a consumer-finance vote would score 96 senators on an axis the text never reaches."
+    },
+    {
+     "issueKey": "gov_waste",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "Refused as duplicative of audit_spending, which is the sharper of the two and already carries the row. Two overlapping keys on one two-sentence amendment would double-count it."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 1069",
+   "shortTitle": "PROTECT Our Kids Act",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1069",
+   "decisiveRoll": "house 119/1/313, On Passage, 247-164, 2025-12-04 — live in the record with all 109 rostered member votes",
+   "outcome": "MAPPINGS REFUSED — nine candidates read, nine refused. Ships unmapped, on purpose.",
+   "checks": {
+    "priorRefusal": "db/vr-ingest-runbook.md follow-up 0c, opened by migration 20260912000000: 'No key for foreign influence in domestic institutions… tariffs_china is trade, america_first_fp is foreign aid, and public_schools is a funding-level chip. The bill stays unmapped until the vocabulary question is decided on its own; do not invent a key for one measure.'",
+    "reReadUnderRule27": "Rule 27 requires a refusal written before the taxonomy moved to be re-read rather than inherited. Re-read here, and the re-read REINFORCES the refusal: alignment-tool.js's August 2026 narrowing of america_first states that seven cards under 'support' were about countering China 'which the chip never mentioned', and its OUT list now names countering China explicitly. The one key a hurried pass would have reached for is the key the vocabulary just disowned.",
+    "attribution": "Verified, not assumed. The Clerk's XML for roll 119/1/313 was re-fetched and compared row by row against the 109 live vr_member_votes: all 109 agree on position AND on the party flag, and the Clerk names no rostered member the record is missing. No top-up to make.",
+    "fieldCorrection": "One. status 'pending' → 'passed_house'. The bill passed the House 247-164 and was received in the Senate and referred to the HELP Committee on 2025-12-04; H.R. 1048 is filed 'passed_house' for the same posture. Asserted in the migration's verification block rather than done silently.",
+    "staleLiveMappingFound": "A finding this pass reports and does NOT act on. H.R. 1048's live america_first 70 row was written before the August 2026 narrowing and now cites a subject the key's OUT list excludes. Rule 21 makes that a guarded UPDATE with its own argument, and rule 27's lesson — when a key moves, walk the notes that cited the old umbrella — has a mirror this pass just hit: walk the live MAPPINGS too. That is a vocabulary pass, not a depth pass, and changing it here would move published numbers for every member on that roll as a side effect."
+   },
+   "issues": [
+    {
+     "issueKey": "america_first",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "The key a hurried pass reaches for, and the one the vocabulary has just disowned. H.R. 1048 carries america_first 70 yea_supports with a rationale about foreign influence on U.S. campuses as a national-security matter — but that row predates August 2026, and the key's scope note now says it was narrowed BECAUSE 'a further seven cards under support were about countering China, which the chip never mentioned', listing 'countering China and military posture toward adversaries' in its OUT column. Rule 26: when a chip's scope note carves a subject out, the row rests only on what is left — and what is left here is nothing."
+    },
+    {
+     "issueKey": "tariffs_china",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "scripts/vr-mapping-draft.mjs (title keyword 'china')",
+     "why": "Refused. tariffs_china is a TARIFF chip by its own scope note. This bill levies no duty, sets no rate and touches no import; it conditions a domestic education grant."
+    },
+    {
+     "issueKey": "econ_trade",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "scripts/vr-mapping-draft.mjs (title keyword 'china')",
+     "why": "Refused. econ_trade is 'Use tariffs and trade rules to defend American manufacturing'. There is no manufacturing, offshoring or supply-chain provision in the bill."
+    },
+    {
+     "issueKey": "strong_defense",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "scripts/vr-mapping-draft.mjs (title keyword 'china')",
+     "why": "The scope note that removed countering-China from america_first hands the subject to 'strong_defense, tariffs_china', so this is the one candidate with a written claim on it — and it is still refused, on rule 22's backwards read. A nay on H.R. 1069 cannot honestly be described as opposition to 'Maintain the strongest military and stand firm abroad': the 164 nays argued the prohibition was overbroad and would strip federal money from schools over a language programme, which is an argument about domestic education funding."
+    },
+    {
+     "issueKey": "edu_balance",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "Refused as two-way. A yea withholds federal funds from a public school, which reads as yea_opposes; the 247 who voted yea would say they were protecting the students in it, which reads the other way. Unlike H.R. 1048 — where the operative act is a disclosure threshold and edu_balance sits at 55 behind a clear primary — there is no third key here to carry the weight, and a two-way direction on a measure's ONLY key would score 411 recorded members on a direction half of them dispute."
+    },
+    {
+     "issueKey": "public_schools",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "Refused, in follow-up 0c's own words: 'public_schools is a funding-level chip'. Its chip is about how much money schools get, not about conditions attached to it."
+    },
+    {
+     "issueKey": "school_choice",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "No. The bill withholds funds from schools meeting a condition; it creates no voucher, no education savings account, no charter authority and no mechanism by which a family chooses differently."
+    },
+    {
+     "issueKey": "gov_transparency",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "Refused, and the contrast is the finding. H.R. 1048 is mapped gov_transparency 100 PRIMARY because its operative text is disclosure thresholds, a searchable database and reporting obligations; H.R. 1005 likewise at 90 primary for requiring K-12 schools to disclose foreign funds. H.R. 1069 has no disclosure title at all — its operative act is a prohibition. Rule 25: two bills on the same subject may honestly carry different key sets, and the difference is the finding."
+    },
+    {
+     "issueKey": "free_speech",
+     "decision": "REFUSED",
+     "weight": null,
+     "isPrimary": null,
+     "supportMeaning": null,
+     "rationale": null,
+     "proposedBy": "human read",
+     "why": "Refused, and a deliberate departure from H.R. 1048's free_speech 35 yea_opposes 'recorded neutrally'. Conditioning a federal K-12 grant on not hosting a foreign government's language institute restricts nobody's speech — the school may keep the institute and forgo the money. A mapping recorded neutrally is still a mapping that scores people."
+    }
+   ]
+  }
+ ],
+ "_counts": {
+  "measuresRead": 4,
+  "rowsAccepted": 7,
+  "rowsRefused": 25,
+  "measuresShippedUnmapped": 1
+ }
+}

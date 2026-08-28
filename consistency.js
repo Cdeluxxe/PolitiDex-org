@@ -11686,6 +11686,54 @@
       did: 'A Congressional Review Act resolution whose entire operative effect is to strike the CFPB’s December 2024 overdraft rule off the books and bar a substantially similar rule.',
       why: 'Nullifying a federal rule is this chip’s direct subject, so a yea removes the regulation.'
     },
+    'H.J.Res. 131|119|lands_energy': {
+      did: 'Reopened roughly 1.2 million acres of the Arctic National Wildlife Refuge coastal plain to oil and gas leasing and exploration, by striking the Record of Decision that had withdrawn them.',
+      why: 'This chip is about developing resources on federal land, and a leasing-availability decision is that question in its most direct form — so a yea counts as support for development.',
+      more: 'The resolution is the record’s first federal instrument on this chip that is about nothing else; the two rows before it are secondary axes on packages (H.R. 26 at 45 and H.R. 1 at 40). The 214 Republican yeas argued for opening the acreage and the 208 Democratic nays argued against it, so neither side would dispute the caption in either direction.'
+    },
+    'H.J.Res. 131|119|lands_preserve': {
+      did: 'Removed the conservation withdrawal from roughly 1.2 million acres inside the Arctic National Wildlife Refuge — acreage the 2024 Record of Decision had held back specifically to protect and conserve resources and certain uses.',
+      why: 'The chip measures protection kept in place for wild country, and the resolution takes a protection away, so a yea is coded against it. Supporting link: the same acres are read as resource development on the domestic-energy chip.',
+      more: 'Weight and direction follow the H.J.Res. 78 precedent, including its written note that this conservation chip is the one used because the vocabulary carries no dedicated wildlife or endangered-species key. The row is secondary because the instrument acts on a leasing programme — the conservation loss is that same act read from the other side.'
+    },
+    'H.J.Res. 131|119|gov_regulation': {
+      did: 'Used the Congressional Review Act to nullify an agency decision outright and bar a substantially similar one, which is the only thing a chapter 8 resolution of disapproval does.',
+      why: 'Striking a federal rule is this chip’s direct subject, so a yea removes regulation. It is weighted as a share rather than the whole because what the rule should have SAID belongs to the sector chip, which here is domestic energy.',
+      more: 'The weight matches H.J.Res. 88 and H.J.Res. 89, the two live disapproval precedents in the record, so the mechanism is priced the same way wherever it appears. Reading it any heavier would let the disapproval power outweigh the acreage decision that was actually in dispute.'
+    },
+    'S.Amdt. 3535|119|congress_oversight': {
+      did: 'Would have required Presidential appointment and Senate confirmation of the inspector general of the Federal Reserve Board of Governors and of the Consumer Financial Protection Bureau — an officer the Fed Chair designates under current law.',
+      why: 'The chip is about the hold Congress has on officials who answer for the executive branch, and the amendment hands the Senate a confirmation vote over a watchdog it has no say in today — so a yea counts as support for that hold.',
+      more: 'Rejected 53-43 against a three-fifths threshold on 2025-10-09, so a majority of senators voting were recorded in favour and the amendment still fell. The counter-argument is real and was made on the floor: the 36 Democratic nays said confirmation politicises the auditor of an independent central bank. That is a dispute about how much political control the post should carry, which is this axis — the separation-of-powers half of it is refused on scope, since the general-posture chip takes no roll-call mappings at all.'
+    },
+    'S.Amdt. 3535|119|audit_spending': {
+      did: 'Changed how the internal auditor of the Federal Reserve and the CFPB is installed — Senate confirmation instead of designation by the Fed Chair — without changing what that auditor is allowed to examine.',
+      why: 'This is the only chip in the vocabulary that names the Federal Reserve, and the amendment puts its auditor through the Senate; a yea counts as support, but as a share rather than the whole, because no audit authority is added.',
+      more: 'Priced above the record’s two existing rows on this chip (both 55) because those are provisions buried inside larger bills and this is the amendment’s entire text. Read backwards it is narrow and stays narrow: the nays did not vote against auditing the Fed, they voted against this route to its auditor.'
+    },
+    'H.J.Res. 25|119|gov_regulation': {
+      did: 'A Congressional Review Act resolution striking the Internal Revenue Service’s digital-asset broker reporting rule off the books and barring a substantially similar one.',
+      why: 'Nullifying a federal rule is this chip’s subject, so a yea removes the regulation. Supporting link: what the rule actually required is read on the tech chip.'
+    },
+    // ── Wave F1 · 119th Congress ── the three judged pairs the depth pass took on.
+    // Each of these is a SECONDARY row except H.R. 5408, and a secondary is exactly where a
+    // derived restatement reads worst: the reader sees an energy chip on a wildlife-refuge
+    // resolution and needs the provision, not the category.
+    'H.J.Res. 131|119|energy_production': {
+      did: 'Struck the Bureau of Land Management’s December 2024 Record of Decision for the Arctic National Wildlife Refuge coastal plain, which had made roughly 1.2 million of the programme area’s 1.6 million acres unavailable for leasing or exploration — restoring the 2020 position that the whole area is open.',
+      why: 'Acreage reopened to oil and gas leasing is supply the chip counts directly, so a yea reads as a vote for more domestic production. Supporting link: the withdrawn acres are read as conservation on the public-lands chips, where the same yea runs the other way.',
+      more: 'The statutory floor was never in doubt — current law requires at least 400,000 acres to be offered in a specified lease sale, sited in the areas of highest hydrocarbon potential — so what the 2024 Record of Decision changed, and what striking it changes back, is everything above that floor. This is a secondary row for that reason: the resolution’s controlling subject is the disapproval power itself, read on the red-tape chip, and its land effect is read on the public-lands chips. Passed the House 217-209 on 2025-11-18 (roll 119/1/295) and the Senate 49-45 on 2025-12-04 (roll 119/1/632); became Public Law 119-52 on 2025-12-11.'
+    },
+    'H.J.Res. 25|119|tech_innovation': {
+      did: 'Nullified the Internal Revenue Service rule that had extended broker gross-proceeds reporting to decentralised-finance front ends, so software that never takes custody of a customer’s assets is not required to collect and report user transaction data.',
+      why: 'The rule put a custodial broker’s compliance duty on non-custodial software, and this chip measures what it costs to build and run that software in the United States — so a yea reads as a vote to lower that cost. Supporting link: striking the rule at all is read on the red-tape chip.',
+      more: 'The reporting duty was the disputed part rather than the tax: the underlying gain was taxable either way, and what the rule added was an identification-and-filing obligation on a party that holds no customer account to identify anyone from. Passed the House 292-132 on 2025-03-11 (roll 119/1/71) and the Senate 70-28 on 2025-03-26 (roll 119/1/151); became Public Law 119-5 on 2025-04-10.'
+    },
+    'H.R. 5408|119|econ_workers': {
+      did: 'Put a clock on a first union contract: bargaining must begin within 10 days of a written request from a newly certified representative, either side may call in Federal Mediation and Conciliation Service mediation after 90 days without agreement, and if mediation produces nothing in 30 more the dispute goes to an arbitration panel whose decision settles it for two years.',
+      why: 'This chip is about the leverage employees have at the bargaining table, and the bill’s whole mechanism is to stop a first contract being defeated by delay rather than by disagreement — so a yea counts as support for that leverage.',
+      more: 'The bill also requires an employer to hold existing wages, hours and conditions in place while negotiations run, and keeps the duty to bargain alive where a representative has been decertified. The arbitration panel is directed to weigh the employer’s financial prospects alongside the employees’ cost of living, so the deadline does not by itself decide the terms. Passed the House 230-193 on 2026-06-09 (roll 119/2/216) with the parties inverted from the usual pattern — Democrats 210-0 in favour, Republicans 192-20 against — and was received in the Senate the next day with no further action: this is a House-passed bill, not law.'
+    },
     // ── H.J.Res. 78 · 119th Congress ──
     'H.J.Res. 78|119|gov_regulation': {
       did: 'A Congressional Review Act resolution striking the Fish and Wildlife Service rule published in July 2024 that listed the San Francisco Bay-Delta longfin smelt as endangered.',
