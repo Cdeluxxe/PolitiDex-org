@@ -223,7 +223,21 @@ const EMPTY = { name: "Empty", score: null };
   // no record. This is the overcorrection the 'counts' state exists to prevent.
   const heroIdx = PROFILES.indexOf("profile-status-monitoring");
   must(heroIdx !== -1, "profiles-full.js no longer renders the .profile-status-monitoring hero chip");
-  const hero = PROFILES.slice(heroIdx - 400, heroIdx + 700);
+  // Bracket the WHOLE chip expression, not a fixed byte count after the class name.
+  // The window used to be heroIdx + 700, which held until the chip grew a branch:
+  // an empty formal record now says so instead of printing kept/broken counts as
+  // though they were the record. The doctrine comment explaining that branch pushed
+  // the counts branch past 700 characters and this contract failed on a chip that
+  // still had its counts branch, in the right order, three lines further down. So
+  // the window ends where the expression ends — at its final fallback.
+  // Anchor on the emitted string, not the phrase: the branch above the fallback
+  // explains in prose why a counts-only record must not wear it, so a plain phrase
+  // search lands in the comment and cuts the window short of the code it is meant
+  // to be reading.
+  const heroEnd = PROFILES.indexOf("'\u25f7 No voting record yet'", heroIdx);
+  must(heroEnd !== -1 && heroEnd - heroIdx < 4000,
+    "profiles-full.js no longer ends the hero chip with its 'No voting record yet' fallback");
+  const hero = PROFILES.slice(heroIdx - 400, heroEnd + 200);
   ok(/promiseState === 'counts'/.test(hero),
     "the hero chip has no 'counts' branch, so a counts-only record falls through to\n" +
     "    \"No voting record yet\" — plainly false on a member with a closed pledge record");

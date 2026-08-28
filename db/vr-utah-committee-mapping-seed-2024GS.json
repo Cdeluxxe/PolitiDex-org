@@ -6,19 +6,15 @@
     "bucket": 141,
     "admitted": 64,
     "refused": 77,
-    "measures": 61,
-    "issueMappings": 61,
-    "committeeActs": 73,
-    "positions": 408,
+    "measures": 64,
+    "issueMappings": 64,
+    "committeeActs": 77,
+    "positions": 475,
     "supersededByFloorVote": 0,
-    "notOnAnyFloorRoll": 408,
-    "admittedButNoActSurvived": 3
+    "notOnAnyFloorRoll": 475,
+    "admittedButNoActSurvived": 0
   },
-  "admittedButNoActSurvived": [
-    "HB0137",
-    "HB0267",
-    "HB0463"
-  ],
+  "admittedButNoActSurvived": [],
   "measures": [
     {
       "session": "2024GS",
@@ -67,15 +63,39 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "brammer_s21",
+              "supports": false,
+              "printedAs": "Rep. B. Brammer",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "candice_pierucci",
               "supports": false,
               "printedAs": "Rep. C. Pierucci",
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "cmusselman",
+              "supports": true,
+              "printedAs": "Rep. C. Musselman",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cory_maloy_h52",
+              "supports": true,
+              "printedAs": "Rep. A. Maloy",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "mike_petersen",
               "supports": false,
               "printedAs": "Rep. M. Petersen",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "nthurston",
+              "supports": true,
+              "printedAs": "Rep. N. Thurston",
               "supersededByFloorVote": false
             },
             {
@@ -689,6 +709,71 @@
       ],
       "committeeActs": [
         {
+          "meetingId": "19033",
+          "committee": "House Business, Labor, and Commerce Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2024-01-23",
+          "motion": "Rep. Brammer moved to pass H.B. 111 out favorably as amended.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 7,
+            "nay": 2,
+            "absent": 7
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2024/pdf/00001155.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19033",
+          "votes": [
+            {
+              "politicianId": "ashlee_matthews",
+              "supports": false,
+              "printedAs": "Rep. A. Matthews",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "brammer_s21",
+              "supports": true,
+              "printedAs": "Rep. B. Brammer",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cmusselman",
+              "supports": true,
+              "printedAs": "Rep. C. Musselman",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cory_maloy_h52",
+              "supports": true,
+              "printedAs": "Rep. A. Maloy",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "jefferson_burton",
+              "supports": true,
+              "printedAs": "Rep. J. Burton",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "teuscher_h44",
+              "supports": true,
+              "printedAs": "Rep. J. Teuscher",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "thomas_peterson",
+              "supports": true,
+              "printedAs": "Rep. T. Peterson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "whyte_h63",
+              "supports": true,
+              "printedAs": "Rep. S. Whyte",
+              "supersededByFloorVote": false
+            }
+          ]
+        },
+        {
           "meetingId": "19198",
           "committee": "Senate Business and Labor Standing Committee",
           "committeeChamber": "utah senate",
@@ -743,6 +828,116 @@
               "politicianId": "ssandall",
               "supports": true,
               "printedAs": "Sen. S. Sandall",
+              "supersededByFloorVote": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2024GS",
+      "utahBill": "HB0137",
+      "number": "H.B. 137",
+      "title": "Disability Coverage Amendments",
+      "chamber": "utah house",
+      "measureType": "bill",
+      "status": "introduced",
+      "sourceUrl": "https://le.utah.gov/~2024/bills/static/HB0137.html",
+      "sourceLabel": "Utah State Legislature",
+      "primeSponsor": "DAILEJ",
+      "floorSponsor": null,
+      "generalProvisions": "This bill addresses wraparound services for certain individuals with a disability.",
+      "textKind": "introduced",
+      "textUrl": "https://le.utah.gov/~2024/bills/hbillint/HB0137.htm",
+      "issues": [
+        {
+          "issueKey": "healthcare",
+          "weight": 55,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Introduced text requires the Department of Health and Human Services to seek a Medicaid waiver or state plan amendment providing wraparound services to qualified individuals with a disability, with sliding-scale cost sharing capped at stated percentages and maximums. It directs the state to add a Medicaid benefit that does not exist today."
+        }
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19221",
+          "committee": "House Business, Labor, and Commerce Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2024-02-05",
+          "motion": "Rep. Matthews moved to pass H.B. 137 out favorably.",
+          "result": "failed",
+          "printedTotals": {
+            "yea": 6,
+            "nay": 6,
+            "absent": 4
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2024/pdf/00001472.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19221",
+          "votes": [
+            {
+              "politicianId": "ashlee_matthews",
+              "supports": true,
+              "printedAs": "Rep. A. Matthews",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "brammer_s21",
+              "supports": false,
+              "printedAs": "Rep. B. Brammer",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cmusselman",
+              "supports": false,
+              "printedAs": "Rep. C. Musselman",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cory_maloy_h52",
+              "supports": false,
+              "printedAs": "Rep. A. Maloy",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "james_dunnigan",
+              "supports": true,
+              "printedAs": "Rep. J. Dunnigan",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "jefferson_burton",
+              "supports": true,
+              "printedAs": "Rep. J. Burton",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "nthurston",
+              "supports": true,
+              "printedAs": "Rep. N. Thurston",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "ryan_d_wilcox",
+              "supports": false,
+              "printedAs": "Rep. R. Wilcox",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "teuscher_h44",
+              "supports": false,
+              "printedAs": "Rep. J. Teuscher",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "walt_brooks",
+              "supports": true,
+              "printedAs": "Rep. W. Brooks",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "whyte_h63",
+              "supports": false,
+              "printedAs": "Rep. S. Whyte",
               "supersededByFloorVote": false
             }
           ]
@@ -1220,6 +1415,12 @@
           "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19040",
           "votes": [
             {
+              "politicianId": "ashlee_matthews",
+              "supports": true,
+              "printedAs": "Rep. A. Matthews",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "karen_m_peterson",
               "supports": true,
               "printedAs": "Rep. K. Peterson",
@@ -1542,6 +1743,128 @@
     },
     {
       "session": "2024GS",
+      "utahBill": "HB0267",
+      "number": "H.B. 267",
+      "title": "Telemedicine Amendments",
+      "chamber": "utah house",
+      "measureType": "bill",
+      "status": "introduced",
+      "sourceUrl": "https://le.utah.gov/~2024/bills/static/HB0267.html",
+      "sourceLabel": "Utah State Legislature",
+      "primeSponsor": "HAWKIJ",
+      "floorSponsor": "VICKEEJ",
+      "generalProvisions": "This bill amends provisions relating to reimbursement for telemedicine services.",
+      "textKind": "substitute_1",
+      "textUrl": "https://le.utah.gov/~2024/bills/hbillint/HB0267S01.htm",
+      "issues": [
+        {
+          "issueKey": "healthcare",
+          "weight": 50,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "First substitute text conditionally requires a health benefit plan to reimburse a provider for telemedicine services at no less than ninety percent of the rate the plan pays that provider for the same service delivered in person in Utah. Payment parity is what keeps a telehealth option available to patients, so the bill expands access rather than merely describing it."
+        }
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19224",
+          "committee": "House Business, Labor, and Commerce Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2024-02-13",
+          "motion": "Rep. Matthews moved to pass 1st Substitute H.B. 267 out favorably.",
+          "result": "failed",
+          "printedTotals": {
+            "yea": 3,
+            "nay": 11,
+            "absent": 2
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2024/pdf/00001663.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19224",
+          "votes": [
+            {
+              "politicianId": "ashlee_matthews",
+              "supports": true,
+              "printedAs": "Rep. A. Matthews",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "brammer_s21",
+              "supports": false,
+              "printedAs": "Rep. B. Brammer",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cmusselman",
+              "supports": false,
+              "printedAs": "Rep. C. Musselman",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cory_maloy_h52",
+              "supports": false,
+              "printedAs": "Rep. A. Maloy",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "james_dunnigan",
+              "supports": false,
+              "printedAs": "Rep. J. Dunnigan",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "jefferson_burton",
+              "supports": false,
+              "printedAs": "Rep. J. Burton",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "jon_hawkins",
+              "supports": true,
+              "printedAs": "Rep. J. Hawkins",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "nthurston",
+              "supports": false,
+              "printedAs": "Rep. N. Thurston",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "ryan_d_wilcox",
+              "supports": false,
+              "printedAs": "Rep. R. Wilcox",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "teuscher_h44",
+              "supports": false,
+              "printedAs": "Rep. J. Teuscher",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "thomas_peterson",
+              "supports": false,
+              "printedAs": "Rep. T. Peterson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "walt_brooks",
+              "supports": false,
+              "printedAs": "Rep. W. Brooks",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "whyte_h63",
+              "supports": false,
+              "printedAs": "Rep. S. Whyte",
+              "supersededByFloorVote": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2024GS",
       "utahBill": "HB0284",
       "number": "H.B. 284",
       "title": "Initiative Amendments",
@@ -1593,9 +1916,27 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "cmusselman",
+              "supports": true,
+              "printedAs": "Rep. C. Musselman",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cory_maloy_h52",
+              "supports": true,
+              "printedAs": "Rep. A. Maloy",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "mike_petersen",
               "supports": true,
               "printedAs": "Rep. M. Petersen",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "nthurston",
+              "supports": true,
+              "printedAs": "Rep. N. Thurston",
               "supersededByFloorVote": false
             },
             {
@@ -2298,9 +2639,21 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "cmusselman",
+              "supports": true,
+              "printedAs": "Rep. C. Musselman",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "mike_petersen",
               "supports": true,
               "printedAs": "Rep. M. Petersen",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "nthurston",
+              "supports": true,
+              "printedAs": "Rep. N. Thurston",
               "supersededByFloorVote": false
             },
             {
@@ -2996,9 +3349,27 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "cmusselman",
+              "supports": true,
+              "printedAs": "Rep. C. Musselman",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cory_maloy_h52",
+              "supports": true,
+              "printedAs": "Rep. A. Maloy",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "mike_petersen",
               "supports": true,
               "printedAs": "Rep. M. Petersen",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "nthurston",
+              "supports": true,
+              "printedAs": "Rep. N. Thurston",
               "supersededByFloorVote": false
             },
             {
@@ -3247,6 +3618,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "james_dunnigan",
+              "supports": true,
+              "printedAs": "Rep. J. Dunnigan",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "kohler_h59",
               "supports": true,
               "printedAs": "Rep. M. Kohler",
@@ -3259,9 +3636,137 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "teuscher_h44",
+              "supports": true,
+              "printedAs": "Rep. J. Teuscher",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "tlee",
               "supports": true,
               "printedAs": "Rep. T. Lee",
+              "supersededByFloorVote": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2024GS",
+      "utahBill": "HB0463",
+      "number": "H.B. 463",
+      "title": "Medicaid Funding Amendments",
+      "chamber": "utah house",
+      "measureType": "bill",
+      "status": "introduced",
+      "sourceUrl": "https://le.utah.gov/~2024/bills/static/HB0463.html",
+      "sourceLabel": "Utah State Legislature",
+      "primeSponsor": "BRAMMB",
+      "floorSponsor": null,
+      "generalProvisions": "This bill amends provisions related to the Medicaid program and Medicaid expansion.",
+      "textKind": "substitute_2",
+      "textUrl": "https://le.utah.gov/~2024/bills/hbillint/HB0463S02.htm",
+      "issues": [
+        {
+          "issueKey": "healthcare",
+          "weight": 55,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "Second substitute text defines a Medicaid shortfall and requires that on a shortfall the responsible departments suspend hiring, suspend wage increases, suspend increases in provider payment rates, suspend expanding reimbursement benefits including drug reimbursements, and close enrollment to new members. A mandatory enrollment freeze is a coverage contraction written into statute ahead of time."
+        }
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19225",
+          "committee": "House Business, Labor, and Commerce Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2024-02-15",
+          "motion": "Rep. Musselman moved to pass 2nd Substitute H.B. 463 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 10,
+            "nay": 4,
+            "absent": 2
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2024/pdf/00001694.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19225",
+          "votes": [
+            {
+              "politicianId": "ashlee_matthews",
+              "supports": false,
+              "printedAs": "Rep. A. Matthews",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "brammer_s21",
+              "supports": true,
+              "printedAs": "Rep. B. Brammer",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "carl_albrecht",
+              "supports": false,
+              "printedAs": "Rep. C. Albrecht",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cmusselman",
+              "supports": true,
+              "printedAs": "Rep. C. Musselman",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cory_maloy_h52",
+              "supports": true,
+              "printedAs": "Rep. A. Maloy",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "james_dunnigan",
+              "supports": false,
+              "printedAs": "Rep. J. Dunnigan",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "jefferson_burton",
+              "supports": true,
+              "printedAs": "Rep. J. Burton",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "jon_hawkins",
+              "supports": true,
+              "printedAs": "Rep. J. Hawkins",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "nthurston",
+              "supports": true,
+              "printedAs": "Rep. N. Thurston",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "teuscher_h44",
+              "supports": true,
+              "printedAs": "Rep. J. Teuscher",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "thomas_peterson",
+              "supports": true,
+              "printedAs": "Rep. T. Peterson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "walt_brooks",
+              "supports": true,
+              "printedAs": "Rep. W. Brooks",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "whyte_h63",
+              "supports": true,
+              "printedAs": "Rep. S. Whyte",
               "supersededByFloorVote": false
             }
           ]
@@ -3318,6 +3823,24 @@
               "politicianId": "candice_pierucci",
               "supports": true,
               "printedAs": "Rep. C. Pierucci",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cmusselman",
+              "supports": true,
+              "printedAs": "Rep. C. Musselman",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cory_maloy_h52",
+              "supports": true,
+              "printedAs": "Rep. A. Maloy",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "nthurston",
+              "supports": true,
+              "printedAs": "Rep. N. Thurston",
               "supersededByFloorVote": false
             },
             {
@@ -3842,15 +4365,39 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "brammer_s21",
+              "supports": true,
+              "printedAs": "Rep. B. Brammer",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "candice_pierucci",
               "supports": true,
               "printedAs": "Rep. C. Pierucci",
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "cmusselman",
+              "supports": true,
+              "printedAs": "Rep. C. Musselman",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cory_maloy_h52",
+              "supports": true,
+              "printedAs": "Rep. A. Maloy",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "mike_petersen",
               "supports": true,
               "printedAs": "Rep. M. Petersen",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "nthurston",
+              "supports": true,
+              "printedAs": "Rep. N. Thurston",
               "supersededByFloorVote": false
             },
             {

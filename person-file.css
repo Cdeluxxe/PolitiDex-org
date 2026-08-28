@@ -63,9 +63,13 @@
   text-underline-offset: 0.15em;
 }
 
-/* Below the publication floor. Same muted register as the address it replaces,
-   so a record still being built does not read as an error state. */
-.pf-kick-thin {
+/* Below the publication floor, in the two registers person-file.js distinguishes:
+   a file still being built, and a file whose formal record is empty for a reason
+   already reviewed and on file. Same muted treatment for both, and the same one
+   the address it replaces uses, so neither reads as an error state and neither
+   reads as a judgement of the person. */
+.pf-kick-thin,
+.pf-kick-empty {
   color: #6b7c9c;
   text-transform: none;
   letter-spacing: 0.02em;
@@ -74,6 +78,12 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+}
+/* The reviewed reason lives in the title attribute, so the label has to look
+   like something worth hovering. A dotted underline and nothing louder. */
+.pf-kick-empty {
+  border-bottom: 1px dotted rgba(107, 124, 156, 0.6);
+  cursor: help;
 }
 
 @media (max-width: 420px) {

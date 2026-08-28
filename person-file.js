@@ -69,9 +69,29 @@
 
    · AN ADDRESS IS ONLY ADVERTISED IF IT IS WORTH ARRIVING AT. The kicker prints
      the citable URL only for a record that clears PDXPublicationFloor, the same
-     rule the sitemap is generated from. Below the floor it says the record is
-     still being built — the app's own existing words for that state — rather
-     than handing out a link to a page that will say so on arrival.
+     rule the sitemap is generated from.
+
+     BELOW THE FLOOR IT SAYS WHICH KIND OF BELOW-THE-FLOOR IT IS, and this is
+     the part that used to lie. There was one sentence for every unpublished
+     file — "record still being built" — and it was printed over the two deepest
+     files in the Utah lane, because the floor could not see the formal record
+     and those two carry no cited stance card. The floor can see it now
+     (formal-index.js), so those files clear and get their address; and the
+     remaining below-floor files split in two, because they are two different
+     facts about a record and only one of them is "we have not finished":
+
+       empty formal record, with a reviewed reason on file — the file holds no
+         formal act at all and we know why (seated after the last session on
+         file, out of the Legislature before the earliest one, a candidate who
+         was never seated, a federal id we do not ingest roll calls for). That
+         is a documentation status, not work in progress, and the kicker says
+         "no formal record on file" with the reviewed sentence in its tooltip.
+       everything else — one cited position, or a file we genuinely have not
+         finished. That keeps the app's own existing words.
+
+     Nothing in either branch is a figure, and nothing in either branch is a
+     verdict on the person: an empty file is a statement about what PolitiDex
+     holds, and it is worded so it cannot be read as a statement about them.
 
    · IT NEVER TRAPS THE READER SOMEWHERE ELSE. The app answers on /, /issue/…,
      /vote/… and now /p/…, so stamping an address has to be reversible. The path
@@ -106,6 +126,7 @@
   }
   function fn(x) { return typeof x === 'function'; }
   function floor() { return window.PDXPublicationFloor || null; }
+  function formal() { return window.PDXFormalIndex || null; }
 
   // ── The record behind a pid ───────────────────────────────────────────────
   // Both rosters, in the order the rest of the app reads them: the live one
@@ -324,15 +345,37 @@
     var ok = F && fn(F.clears) ? F.clears(pid) : false;
     var addr = String(url(pid)).replace(/^https?:\/\//, '');
 
-    host.innerHTML =
-      '<span class="pf-kick-what">Person file</span>' +
-      (ok
-        ? '<a class="pf-kick-addr" href="' + esc(path(pid)) + '"' +
-            ' title="This record has a citable address — copy it, or open it in a new tab"' +
-            ' onclick="return window.PDXPerson.kickerClick(event);">' + esc(addr) + '</a>'
-        : '<span class="pf-kick-thin" title="A citable address is published once a record ' +
-            'has at least two cited positions. This one is still being built, so we do not ' +
-            'advertise one for it yet.">record still being built</span>');
+    // The reviewed "why is this file empty" sentence, when there is one. Asked
+    // only on the below-floor path, and it answers null for anybody who has a
+    // formal act on file — so this branch cannot print "empty" over a record.
+    var why = null;
+    if (!ok) {
+      try {
+        var FX = formal();
+        if (FX && fn(FX.emptyNote)) why = FX.emptyNote(pid);
+      } catch (e) { why = null; }
+    }
+
+    var state;
+    if (ok) {
+      state = '<a class="pf-kick-addr" href="' + esc(path(pid)) + '"' +
+        ' title="This record has a citable address — copy it, or open it in a new tab"' +
+        ' onclick="return window.PDXPerson.kickerClick(event);">' + esc(addr) + '</a>';
+    } else if (why) {
+      // "On file" and not "yet": for a former member or a seat filled after the
+      // last session on file, "yet" promises a record that is not coming, which
+      // is the same shape of lie in the other direction.
+      state = '<span class="pf-kick-empty" title="' + esc(why.note +
+        ' PolitiDex publishes a citable address once a record has cited content to show. ' +
+        'This is a note about what we hold, not a judgement of the person.') +
+        '">no formal record on file</span>';
+    } else {
+      state = '<span class="pf-kick-thin" title="A citable address is published once a record ' +
+        'has at least two cited positions, or two measures with a sourced formal act. This one ' +
+        'is still being built, so we do not advertise one for it yet.">record still being built</span>';
+    }
+
+    host.innerHTML = '<span class="pf-kick-what">Person file</span>' + state;
   }
 
   // The address in the kicker is a real anchor so it can be copied, opened in a
@@ -349,6 +392,43 @@
       if (pid) stamp(pid);
     } catch (e) {}
     return false;
+  }
+
+  // ── Warming the formal record, at the moment the file opens ───────────────
+  // WHY THIS IS HERE AND NOT IN A RENDERER. Every surface that needs the formal
+  // record fetches it lazily, from inside its own render: the issue rows, the
+  // Say-vs-Do hydration, the Direction Match read. That is correct for each of
+  // them in isolation and wrong for the file as a whole — the first fetch does
+  // not start until a renderer that wants it has already run, so the reader
+  // spends the whole of that round trip looking at "Still loading the roll-call
+  // record" as the top state of a file whose chips can already count its rows.
+  //
+  // This funnel is the earliest honest place to start it: the pid is resolved,
+  // the reader has committed to the file, and nothing here waits on the answer.
+  // It is a warm, not a dependency — the request is memoised inside
+  // PDXVotingRecord by (id, query), so the renderer that asks for the same page
+  // size a moment later gets THIS promise instead of a second request, and a
+  // failure costs exactly what it cost before: the lazy path retries.
+  //
+  //   { pageSize: 100 } is not a new number. It is the query every warming
+  //   caller in the app already uses (profiles-full, consistency, receipt-cards,
+  //   ballot-breakdown), and using a different one here would warm a cache key
+  //   nobody reads and issue two requests instead of one.
+  var _warmed = {};
+  function warm(pid) {
+    if (!pid || _warmed[pid]) return;
+    var VR = window.PDXVotingRecord;
+    if (!VR || !fn(VR.fetchMember)) return;
+    // Already resolved by an earlier open, a compare, or an issue-first read.
+    try { if (fn(VR.memberRecords) && VR.memberRecords(pid)) return; } catch (e) {}
+    _warmed[pid] = 1;
+    try {
+      VR.fetchMember(pid, { pageSize: 100 }).then(function (data) {
+        try {
+          if (data && data.items && fn(VR.noteMember)) VR.noteMember(pid, data.items);
+        } catch (e) {}
+      }, function () {});
+    } catch (e) {}
   }
 
   // ── The one way in ────────────────────────────────────────────────────────
@@ -391,6 +471,10 @@
     // leave them looking at a half-opened overlay.
     try { stamp(pid); } catch (e) {}
     try { kicker(pid); } catch (e) {}
+    // Fired after the modal is up so it cannot delay the open by even one turn
+    // of the event loop, and in its own guard for the same reason as the two
+    // above: a warm that throws must not take the file down with it.
+    try { warm(pid); } catch (e) {}
 
     if (opts.section && fn(window._pdxNavJump)) {
       // The file must be in the DOM before anything can scroll inside it. Same

@@ -1022,6 +1022,57 @@
     } catch (e) { return ''; }
   }
 
+  // ── emptyFileNoteHtml — why this file is empty, said once, near the top ────
+  // THE PROBLEM. An empty formal record looks the same from the outside whatever
+  // put it there. A member seated after the last session PolitiDex holds, a
+  // former member who left before the earliest one, a candidate never seated,
+  // and a file we simply have not built yet all render as the same blank — and a
+  // blank in a product about accountability reads as an accusation. It is not
+  // one. It is a statement about our own coverage.
+  //
+  // THE FIX IS NOT A GUESS. This prints only the reviewed sentence that ships in
+  // formal-index.js (from db/vr-utah-empty-file-notes.json), and only for a pid
+  // the index agrees holds no formal act. With no reviewed note there is no
+  // sentence: the surface stays as it was rather than inventing a reason, which
+  // is the whole point of keeping the notes hand-written.
+  //
+  // WHERE IT SITS AND WHY. In the BRIEF stage, above the record — because on a
+  // file with nothing on the formal record the pledge leftovers further down are
+  // the only numbers on the page, and a reader who meets them first has been
+  // told the opposite of the truth by ordering alone. It is one line, no chip,
+  // no count and no colour: an empty file does not get a badge.
+  //
+  // IT IS NOT A VERDICT AND SAYS SO. The label is "Documentation status", not
+  // "Record", and the sentence never characterises the person — see the note
+  // file's own header for the five reason codes it is allowed to draw on.
+  function emptyFileNoteHtml(pid, p) {
+    if (!pid) return '';
+    var note = null;
+    try {
+      var FX = window.PDXFormalIndex;
+      if (FX && typeof FX.emptyNote === 'function') note = FX.emptyNote(pid);
+    } catch (e) { note = null; }
+    if (!note || !note.note) return '';
+    // A live record beats a generated count. If the fetch has already landed and
+    // it holds rows, the index is behind the database and this note would be the
+    // stale half — so it stands down rather than contradict the record on screen.
+    try {
+      var VR = window.PDXVotingRecord;
+      var recs = VR && typeof VR.memberRecords === 'function' ? VR.memberRecords(pid) : null;
+      if (recs && recs.length) return '';
+    } catch (e) {}
+    p = p || {};
+    return '<section class="pdxsp-emptywhy" aria-label="' +
+        escAttr('Why PolitiDex holds no formal record for ' + (p.name || 'this person')) + '">' +
+        '<div class="pdxsp-emptywhy-lbl">Documentation status</div>' +
+        '<p class="pdxsp-emptywhy-p">' +
+          '<b>PolitiDex holds no formal act for this file.</b> ' + esc(note.note) +
+        '</p>' +
+        '<p class="pdxsp-emptywhy-foot">This is a note about our coverage, not a finding about ' +
+          esc(firstName(p)) + '. Nothing below has been tested against a vote.</p>' +
+      '</section>';
+  }
+
   // briefHtml — the first screen below the letterhead. Self-gating on substance:
   // with neither a signature issue nor a tension nor a share tier there is
   // nothing to brief, and the profile's own thin-record notice already handles
@@ -1140,6 +1191,10 @@
     assembleTagged: assembleTagged,
     drawer: drawer,
     briefHtml: briefHtml,
+    // One line, in the brief stage, on a file with nothing on the formal record
+    // and a reviewed reason why. Reads formal-index.js and nothing else; returns
+    // '' for every file that has a record or has no reviewed note.
+    emptyFileNoteHtml: emptyFileNoteHtml,
     // 🧭 The two-jobs explainer, mounted in the identity zone above everything
     // that makes a claim. Dismissible and remembered per visitor by PDXLearn; it
     // computes nothing and reads both counts off the surfaces that publish them.

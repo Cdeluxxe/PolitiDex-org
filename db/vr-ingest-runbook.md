@@ -1443,6 +1443,25 @@ committee it is not. A match on the prefix rather than the full name sets
 name, and the date / motion / tally checks are untouched, so the relaxation is
 about a name and nothing else. 2025GS's seed came out byte-identical afterwards.
 
+**And the door had a bug in it, which took a later pass to find.** The prefix key
+is built by dropping stopwords — `of`, `and`, `the`, `on`, `for`, `in` — and then
+stripping every non-letter, so `House Business, Labor, and Commerce Standing
+Committee` becomes `HOUSEBUSINESSLABOR`. It was then tested as a *substring* of a
+haystack that had had only its whitespace stripped, and that haystack still read
+`HOUSEBUSINESSANDLABORSTANDINGCOMMITTEE` — with the `AND` the key had just thrown
+away. The two strings can never match, whatever the document says. Three 2024
+acts sat refused as `pdf_does_not_confirm` on a comparison that could not have
+succeeded: H.B. 137, H.B. 267 and H.B. 463, each with its date, its motion
+sentence and its printed tally confirming against the published minutes all
+along. The fix is `committeePrefixHit()`, which matches chamber + first
+significant word + second significant word *as a sequence*, allowing punctuation
+and the same stopword list to appear between them in the document. It is strictly
+wider than the substring test it replaces — the gap also matches empty, so every
+name that confirmed before still confirms — and it still cannot admit a wrong
+document by itself, because date, motion and tally are unchanged fences beside
+it. The recovered acts are worth stating: four acts and 67 positions across 12
+bills, and `pdfUnconfirmed` for 2024GS went from 3 to 0.
+
 The 2024 result:
 
 | | 2025GS | 2024GS |
@@ -1453,7 +1472,7 @@ The 2024 result:
 | Admitted motions | 32 | 26 |
 | In-lane bills with a recorded committee vote | 42 → 24 after the 10% bar | 28 → 20 after the 10% bar |
 | Motions refused as near-unanimous | 44 | 19 |
-| Printed names resolved / unmapped / refused | 96 / 0 / 0 | 67 / 12 / 0 |
+| Printed names resolved / unmapped / refused | 96 / 0 / 0 | 74 / 12 / 0 |
 | Committee acts on bills in the lane | 32 on 24 | 26 on 20 |
 | Reprints collapsed | 10 | 0 |
 | Rows written | 241 | 174 |
@@ -1461,10 +1480,17 @@ The 2024 result:
 | — of those, the member's only act on the bill | **50** | **12** |
 | Off-lane rows / bills / contested bills | 1,166 / 675 / 173 | 1,076 / 640 / 141 |
 
-The 12 unmapped 2024 names are a coverage gap and are counted as one: Rep. B.
-King, D. Johnson, J. Briscoe, J. Cobb, J. Rohner, K. Birkeland, P. Lyman, S.
-Lund, S. Pulsipher, T. Jimenez, Sen. D. Buxton and Sen. M. Kennedy. Each was
-checked against that chamber's 2024 floor map and has no unambiguous match there
+(The 2024 resolved figure was 67 when wave 3 shipped and is 74 after wave 5
+widened the renamed-committee door — see "Wave 5" below. Nothing else in this
+table moved: the recovered acts are committee-mapping lane, not wave-3 lane.)
+
+The 18 unmapped 2024 names are a coverage gap and are counted as one: Rep. B.
+Garner, B. King, D. Johnson, J. Briscoe, J. Cobb, J. Rohner, J. Stenquist, K.
+Birkeland, M. Judkins, M. Wheatley, P. Lyman, R. Lesser, R. Spendlove, S. Lund,
+S. Pulsipher, T. Jimenez, Sen. D. Buxton and Sen. M. Kennedy. (Twelve of them
+when wave 3 shipped; the last six arrived with wave 4's wider lane — see "Wave 5"
+below.) Each was checked against that chamber's 2024 floor map and has no
+unambiguous match there
 — "Johnson, J." on the 2024 Senate floor page is Sen. John Johnson, so the House's
 "D. Johnson" is genuinely absent rather than merely awkward. Rep. P. Lyman stays
 unmapped by the brief's explicit instruction: the Lyman collision is not to be
@@ -1492,6 +1518,11 @@ node scripts/vr-utah-committee-ingest.mjs --sql  --session 2025GS
 node scripts/vr-utah-committee-ingest.mjs --survey  --session 2024GS
 node scripts/vr-utah-committee-ingest.mjs --collect --session 2024GS
 
+# What the reviewed-map fence costs, in votes rather than in names. Read-only:
+# builds the lane in memory, writes nothing, prints the ranked dropped-vote
+# ledger the coverage note in the map file quotes.
+node scripts/vr-utah-committee-mapping.mjs --dropped --session 2024GS
+
 # What the PDF reader actually sees, for one document.
 node scripts/vr-pdf-text.mjs /tmp/vr-utah-committee-cache/2025GS/pdf/19683.pdf
 ```
@@ -1514,11 +1545,15 @@ node scripts/vr-pdf-text.mjs /tmp/vr-utah-committee-cache/2025GS/pdf/19683.pdf
   draft can be edited before approval, so admitting one would cite a document that
   may change.
 * **Renamed committees.** A committee whose letterhead and whose metadata name
-  disagree is confirmed on `committeePrefixKey()` — chamber plus two significant
-  words — and the relaxation is disclosed per act in the collect report. A
-  committee whose first two significant words also changed would refuse, and
-  should: at that point the document and the metadata are not obviously about the
-  same body.
+  disagree is confirmed on `committeePrefixHit()` — chamber plus the first two
+  significant words, matched as a sequence that tolerates punctuation and the
+  stopword list between them — and the relaxation is disclosed per act in the
+  collect report as `renamed`. Matching as a sequence rather than as one
+  stopword-stripped substring is deliberate and was learned the hard way: the
+  substring form silently refused any committee whose real letterhead kept a word
+  the key had dropped. A committee whose first two significant words also changed
+  would refuse, and should: at that point the document and the metadata are not
+  obviously about the same body.
 * **Joint and interim committees.** Not surveyed. Only `HST*` / `SST*` standing
   committees were walked; appropriations subcommittees and interim committees
   publish on the same chain and would extend the same parser.
@@ -1539,3 +1574,96 @@ node scripts/vr-pdf-text.mjs /tmp/vr-utah-committee-cache/2025GS/pdf/19683.pdf
 3. **Everything wave 2 left blocked** — floor defeats, suspension/conference
    passage, receipt cards for state votes, other states — is unchanged. Wave 3
    deliberately widened no floor-action code.
+
+### Wave 5 — the cleanup pass, and how a shipped seed grows safely
+
+Wave 5 shipped no new session and no new lane. It fixed the renamed-committee door
+above and dealt with the consequence, which is the interesting part: **a seed that
+has already been written into a migration is not a file you can regenerate in
+place.** `20261007000000_vr_utah_2024gs_committee_mapping.sql` is applied. It is
+the record of what the database was actually told, so it is not edited, not
+renamed and not regenerated — and after the door was widened it no longer equals
+its own generator's output, which is correct and expected.
+
+What ships instead is a forward delta:
+`20261008000000_vr_utah_2024gs_committee_mapping_renamed_committee.sql`, generated
+by `--sql --bills <list> --name renamed_committee`. It restates the twelve
+affected bills in full — HB0028, HB0111, HB0137, HB0186, HB0267, HB0284, HB0335,
+HB0429, HB0460, HB0463, HB0465, HB0534 — with the same generated blocks as before,
+unmodified. Restating a whole block is safe precisely because the generator was
+idempotent from the start: each block selects its measure before inserting one,
+guards every issue mapping with `IF NOT EXISTS`, and ends every position insert
+with `ON CONFLICT (measure_id, politician_id, action_type) DO NOTHING`. Of the 124
+positions the delta names, 67 are new and the rest are no-ops. Three of the twelve
+bills are new measures; nine already existed and gained positions.
+
+Two things this forced, both worth keeping:
+
+* **The delta's header states the delta's own numbers.** `buildSql()` recounts
+  measures, mappings, acts and positions off the emitted subset when `--bills` is
+  given, and prints a paragraph naming every bill in the file and saying plainly
+  that whatever the database already holds is a no-op. A migration whose prose
+  claims 64 bills over a body carrying 12 is a lie in the place a reader trusts
+  most.
+* **The harness reads a session's migrations as a set, not as a file.**
+  `test-vr-utah-committee-mapping.mjs` used to compare one file's block count to
+  the seed's measure count. It now parses every migration for a session, keys
+  measures by chamber + number and positions by measure + politician + date, and
+  asserts the *union* equals the seed in both directions: every seeded position is
+  written by some migration, and no migration writes a position the seed does not
+  hold. Union rather than sum, because a delta restates.
+
+**Late printed-name additions.** Widening the door admitted meetings that had
+never been read, which surfaced seven printed forms not yet in
+`db/vr-utah-committee-map-2024GS.json`: Rep. A. Matthews, B. Brammer, J. Dunnigan,
+J. Teuscher and N. Thurston land exactly on hand-reviewed 2024 floor keys; Rep. A.
+Maloy and C. Musselman are unique surnames confirmed by the same meeting's own
+attendance lines. Both routes are the doors `_howReviewed` already documented (now
+64 exact / 10 attendance of 74). No fuzzy matching was added and no name was
+resolved by similarity.
+
+**The unmapped 2024 names are still unmapped, and now counted in votes rather
+than in names.** This is the one place this pass found its own paperwork lying.
+`_unmappedIsCoverage` quoted a hand-totalled figure — 12 names, 36 dropped
+positions, 29 acts — that had been true of wave 3's lane alone and was never
+updated when wave 4 more than tripled it. The root cause was in the report, not
+in the prose: `rep.names.unmappedForms` records each printed form **once**, which
+is the right unit for "how many people would a roster wave have to resolve" and
+the wrong unit for "how much record are we throwing away", since one unmapped
+chair on a busy committee costs more votes than five members who appeared once.
+The ingest now counts occurrences too (`droppedPositions` / `droppedByForm`), the
+mapping tool grew a read-only `--dropped` that prints the ranked ledger, and the
+map file quotes that output instead of arithmetic:
+
+```bash
+node scripts/vr-utah-committee-mapping.mjs --dropped --session 2024GS
+#   2024GS mapping lane: dropped votes 151 across 18 unmapped name(s)
+#       16  Rep. S. Lund
+#       15  Rep. K. Birkeland
+#       ...
+node scripts/vr-utah-committee-mapping.mjs --dropped --session 2025GS
+#   2025GS mapping lane: no dropped votes — every printed name on every
+#   admitted act resolved
+```
+
+So the true 2024 figure is **151 dropped committee positions across the 104 acts
+the lane now holds, on 18 printed names** — Lund 16, Birkeland 15, Rohner 13,
+Lyman 13, King 12, D. Johnson 12, Cobb 10, Pulsipher 10, Kennedy 9, Wheatley 8,
+Jimenez 8, Briscoe 7, Buxton 5, Garner 3, Judkins 3, Lesser 3, Stenquist 2,
+Spendlove 2. Wave 3's own 26 acts account for 33 of the 151; only 4 fall on the
+four acts this pass recovered, so the widened door is a rounding error in the gap
+and the gap is a roster wave's to close. Six names — Garner, Judkins, Lesser,
+Spendlove, Stenquist and Wheatley — are listed in the ledger for the first time
+even though the bar never moved; all six surnames are absent from both chambers of
+the 86-key 2024 floor map, so they are the same class of gap and need no new
+doctrine. `test-vr-utah-committee.mjs` now checks the note against the ledger it
+describes: same count, every gap named, and the re-derivation command cited.
+`_nearCollisions` records why each is a roster problem rather than a matching
+problem — House "Rep.
+D. Johnson" against Senate `john_johnson`, `marsha_judkins_provo` who is the Mayor
+of Provo, `lyman` who is a gubernatorial candidate, and Sen. M. Kennedy who is the
+federal `kennedy` pid. The fix is a roster wave, not a closer string comparison.
+
+**2025GS is unaffected.** Regenerating its mapping seed after the door change
+produced a byte-identical file, as did both wave-3 committee seeds. The widened
+door changed exactly one session's data.

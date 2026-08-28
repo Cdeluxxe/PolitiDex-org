@@ -207,7 +207,21 @@
 // shell AND the runtime cache on activate and no half of the share path can
 // arrive alone. The follow-category half is database-side (four columns on
 // pdx_notification_prefs) and ships through the migration, not the shell.
-const CACHE_VERSION = 'v78';
+// v79 — THE FORMAL DOOR ON THE PUBLICATION FLOOR. formal-index.js is a new,
+// generated shell asset (scripts/gen-formal-index.mjs): a per-person count of
+// sourced formal acts on file, plus the reviewed one-line reason a file is empty.
+// publication-floor.js reads it as a third source and person-file.js reads it to
+// choose which of three things the file kicker says. Bumped because a partial
+// pickup is a file that lies in the old way: a phone holding v78 that takes the
+// new publication-floor.js and person-file.js but not formal-index.js finds no
+// PDXFormalIndex on the device, reads zero formal measures for everybody, and
+// goes back to printing "record still being built" over the deepest records in
+// the Utah lane — which is the exact defect this pass exists to remove, arriving
+// silently. It is ~7 KB and both of its readers are runtime-cache entries rather
+// than shell assets, so it is left with them; the version rename empties the
+// runtime cache on activate, and the three then arrive together on the load
+// after. Nothing about this half is database-side.
+const CACHE_VERSION = 'v79';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

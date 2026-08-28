@@ -3752,7 +3752,14 @@
     };
     if (!h) return gap('Direction Match is not available on this profile.');
     var c = h.read.coverage;
-    if (c.warming) return gap('Still loading the roll-call record — the match cannot be read until it lands.');
+    if (c.warming) {
+      var known = formalKnown(pid);
+      return gap(known === 'empty'
+        ? 'There is no formal record on file to test their words against.'
+        : known === 'deep'
+          ? 'Their formal record is on file and still loading — the match cannot be read until it lands.'
+          : 'Still loading the roll-call record — the match cannot be read until it lands.');
+    }
     if (!c.word) {
       return gap('Nothing they have said is on file yet, so there is nothing to test' +
         (deep ? ' against this record. The missing half is their word, not their record.'
@@ -3937,6 +3944,28 @@
       return !!(h && h.read && h.read.coverage && h.read.coverage.warming);
     } catch (e) { return false; }
   }
+  // WHAT THE GENERATED INDEX ALREADY KNOWS WHILE THE PACK IS STILL IN FLIGHT.
+  // "Still loading the roll-call record" was the only top-of-file state for as
+  // long as the member pack took to arrive, which on a cold profile is long
+  // enough to read as a broken page — and on the ten reviewed empty files it was
+  // also wrong twice over: it made a reader wait for something that was never
+  // going to arrive, and then replaced the wait with "no formal pattern on file".
+  // formal-index.js is a static file that ships with the app and is parsed before
+  // any fetch starts, so the answer to "is there anything to wait for" is already
+  // in hand. It returns 'deep' when there is, 'empty' when the index positively
+  // says there is not, and '' when the index is absent — because a missing index
+  // means we cannot tell, not that the file is empty, and the only safe thing to
+  // do with "cannot tell" is keep the wording we already shipped.
+  //
+  // It reports a STATE, never a figure: formal-index.js's own header says no
+  // surface prints its counts, and a loading line is not the place to start.
+  function formalKnown(pid) {
+    try {
+      var FX = window.PDXFormalIndex;
+      if (!FX || typeof FX.has !== 'function') return '';
+      return FX.has(pid) ? 'deep' : 'empty';
+    } catch (e) { return ''; }
+  }
   // Does the block at the top of the file NAME this person's formal patterns?
   // Published because profiles-full.js has to keep exactly one record block on a
   // profile: where the top names the patterns, the standout strip below stands
@@ -4030,8 +4059,10 @@
       if (!sh.issues) {
         return '<div class="pdxwa-brief pdxwa-brief-empty">' + head +
             '<p class="pdxwa-shape-none">' +
-              (briefWarming(pid, p)
-                ? 'Still loading the roll-call record — no formal pattern can be read until it lands.'
+              ((briefWarming(pid, p) && formalKnown(pid) !== 'empty')
+                ? (formalKnown(pid) === 'deep'
+                    ? 'Their formal record is on file and still loading — no pattern can be read until it lands.'
+                    : 'Still loading the roll-call record — no formal pattern can be read until it lands.')
                 : 'No formal pattern on file yet. Nothing we hold for them is a vote or formal action ' +
                   'a direction can be read from, and nothing here is inferred from what they said.') +
             '</p>' +

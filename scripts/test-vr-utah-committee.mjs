@@ -610,7 +610,15 @@ eq(SEED24.counts.positions, 174, "2024: 174 rows, the number the report quotes")
       F24[printed] = rec;
     }
   }
-  eq(Object.keys(F24).length, 67, "2024: 67 printed forms were reviewed, the number the report quotes");
+  // 67 while wave 3 shipped, 74 now. Not drift: widening the renamed-committee
+  // door in the ingest admitted four committee acts whose meetings had never been
+  // read, and those meetings printed seven names the reviewed map had never seen.
+  // Five land exactly on hand-reviewed 2024 floor keys, two are unique surnames
+  // confirmed by the same meeting's own attendance lines — both are doors the map's
+  // _howReviewed already documented, and no name was resolved by similarity. The
+  // number is pinned rather than derived on purpose: it is the count a human
+  // accepted, so it should have to be re-accepted rather than quietly recomputed.
+  eq(Object.keys(F24).length, 74, "2024: 74 printed forms were reviewed, the number the report quotes");
   for (const [printed, rec] of Object.entries(F24)) {
     ok(/^(Rep|Sen)\. /.test(printed), `2024: "${printed}" carries the printed honorific`);
     ok(rec.how === "exact_floor_key" || rec.how === "unique_surname_confirmed_by_attendance",
@@ -633,19 +641,42 @@ eq(SEED24.counts.positions, 174, "2024: 174 rows, the number the report quotes")
     if (rec) eq(v.politicianId, rec.politicianId,
       `2024: "${v.printedAs}" resolves in the seed to exactly what the map says`);
   }
-  // Unmapped and refused stay two ledgers. 2024 has 12 gaps and no refusals,
-  // and a zero refusal ledger is a stated zero, not an absent key.
+  // Unmapped and refused stay two ledgers. 2024 has 18 gaps and no refusals,
+  // and a zero refusal ledger is a stated zero, not an absent key. The number is
+  // pinned rather than derived because the whole point of the ledger is that a
+  // human read every gap: it went 12 → 18 when wave 4 widened the lane from 26
+  // acts to 104, which surfaced six more printed names that no 2024 floor map
+  // holds. A silent rise here would mean votes were being dropped without anyone
+  // writing down whose they were.
   ok(CMAP24.unmapped && typeof CMAP24.unmapped === "object", "2024: the map keeps a coverage-gap ledger");
   ok(CMAP24._refusedNames && typeof CMAP24._refusedNames === "object",
     "2024: the map keeps a refusal ledger even when it is empty");
   const un24 = Object.values(CMAP24.unmapped).flat();
   const ref24 = Object.values(CMAP24._refusedNames).flat();
-  eq(un24.length, 12, "2024: 12 printed names are unmapped, the number the report quotes");
+  eq(un24.length, 18, "2024: 18 printed names are unmapped, the number the report quotes");
   eq(ref24.length, 0, "2024: no name was refused this session — separate ledger, separate number");
   eq(un24.filter((n) => ref24.includes(n)).length, 0,
     "2024: a name is either a gap or a refusal, never both");
   has(String(CMAP24._unmappedIsCoverage || ""), "NOT A GUESS",
     "2024: the map says in its own words that an unmapped name is a gap, not a guess");
+  // THE PROSE IS PART OF THE LEDGER, SO IT IS CHECKED LIKE ONE. The coverage note
+  // used to quote a hand-totalled figure that had drifted from the data it
+  // described — it said 12 names and 36 dropped votes across 29 acts while the
+  // lane actually held 18 names and 151 across 104. A ledger nobody can check is
+  // worth less than no ledger, so the note must name every gap it counts, state
+  // the count it claims, and cite the command that re-derives it.
+  {
+    const note = String(CMAP24._unmappedIsCoverage || "");
+    has(note, `The ${un24.length} names below`,
+      "2024: the coverage note states the same number of gaps the ledger lists");
+    for (const n of un24) {
+      has(note, String(n), `2024: the coverage note accounts for ${n} by name`);
+    }
+    has(note, "--dropped --session 2024GS",
+      "2024: the coverage note cites the read-only command that re-derives it");
+    ok(!/\b36 committee positions\b|\b29 admitted\b/.test(note),
+      "2024: the coverage note no longer carries the stale hand-totalled figures");
+  }
   // Rep. P. Lyman is the brief's named prohibition, and he is in the gap ledger
   // rather than attributed to either Lyman on the roster.
   ok(un24.some((n) => /Lyman/i.test(String(n))),

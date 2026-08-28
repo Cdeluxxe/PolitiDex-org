@@ -326,15 +326,57 @@ function pdfHaystack(session, m) {
 // sentence and the printed tally still all have to match the same PDF.
 const COM_STOP = new Set(["and", "the", "of", "on", "standing", "committee",
   "subcommittee", "appropriations", "interim"]);
-export function committeePrefixKey(committee) {
+export function committeePrefixParts(committee) {
   const words = String(committee || "").replace(/[^A-Za-z\s]/g, " ").split(/\s+/)
     .filter(Boolean);
-  if (!words.length) return "";
+  if (!words.length) return null;
   const chamber = /^(house|senate)$/i.test(words[0]) ? words[0] : "";
-  if (!chamber) return "";
+  if (!chamber) return null;
   const sig = words.slice(1).filter((w) => !COM_STOP.has(w.toLowerCase())).slice(0, 2);
-  if (sig.length < 2) return "";
-  return nospace(`${chamber}${sig.join("")}`).toUpperCase();
+  if (sig.length < 2) return null;
+  return { chamber: chamber.toUpperCase(), sig: sig.map((w) => w.toUpperCase()) };
+}
+export function committeePrefixKey(committee) {
+  const p = committeePrefixParts(committee);
+  return p ? nospace(`${p.chamber}${p.sig.join("")}`).toUpperCase() : "";
+}
+
+// AND THE DRIFT RUNS BOTH WAYS, WHICH THE FIRST VERSION OF THIS DOOR DID NOT
+// SURVIVE. The key above is built by DROPPING the words that carry no meaning —
+// "and", "of", "the" — and then looked for as a plain substring of a haystack
+// that still has them. That works when the letterhead happens to run the two
+// significant words together ("HOUSE PUBLIC UTILITIES, ENERGY, AND TECHNOLOGY"
+// contains HOUSEPUBLICUTILITIES) and fails when it does not:
+//
+//   metadata    House Business, Labor, and Commerce Standing Committee
+//   letterhead  HOUSE BUSINESS AND LABOR STANDING COMMITTEE
+//
+// Same committee, same drift, opposite direction — the metadata carries the name
+// the committee has now and the 2024 minutes carry the name it had then. The key
+// is HOUSEBUSINESSLABOR and the haystack says HOUSEBUSINESSANDLABOR, so the
+// substring missed by one dropped conjunction and three acts on H.B. 137, H.B.
+// 267 and H.B. 463 were refused with `missing: ["committee"]` while their date,
+// their motion sentence and their printed tally all confirmed against the same
+// PDF. That is the wrong answer for the same reason the first case was: the
+// document is plainly the right one.
+//
+// So the second door matches the SEQUENCE rather than the concatenation: chamber,
+// then the first significant word, then the second, with nothing between them but
+// the words and punctuation that carry no meaning. It is strictly wider than the
+// substring it replaces (the gap matches empty) and it still cannot admit a wrong
+// document on its own — the date, the motion sentence and the printed tally are
+// three separate checks against the same haystack, and all three still have to
+// pass. A committee whose first two significant words differ, or whose chamber
+// differs, does not match at all.
+const COM_GAP = "(?:[,.;:&/'\\-\u2013\u2014]|AND|OF|THE|ON|FOR|IN)*";
+export function committeePrefixHit(HAY, committee) {
+  const p = committeePrefixParts(committee);
+  if (!p) return false;
+  const w = (x) => String(x).replace(/[^A-Z]/g, "");
+  try {
+    return new RegExp(w(p.chamber) + COM_GAP + w(p.sig[0]) + COM_GAP + w(p.sig[1]))
+      .test(String(HAY || ""));
+  } catch (e) { return false; }
 }
 
 // ── the four things the published PDF has to confirm ─────────────────────────
@@ -344,7 +386,7 @@ export function confirmAgainstPdf(hay, { committee, dateWords, motionText, yea, 
   const full = nospace(committee).toUpperCase();
   const pref = committeePrefixKey(committee);
   const byFull = full && HAY.includes(full);
-  const byPrefix = !byFull && pref && HAY.includes(pref);
+  const byPrefix = !byFull && !!pref && committeePrefixHit(HAY, committee);
   if (!byFull && !byPrefix) missing.push("committee");
   if (!hay.includes(nospace(dateWords))) missing.push("date");
   if (!hay.includes(nospace(motionText).replace(/\.$/, ""))) missing.push("motion");
@@ -455,7 +497,19 @@ export function collect(session, { reviewedMapRequired, extraLane }) {
     motions: { total: 0, withRecordedRoll: 0, nearUnanimous: 0, admitted: 0, refused: {} },
     bills: { inLane: 0, inLaneAnyCommitteeVote: [], offLane: 0, offLaneList: [],
              offLaneContested: 0, offLaneContestedList: [], offLaneDetail: {} },
-    names: { resolved: 0, unmapped: 0, refused: 0, unmappedForms: {}, refusedForms: {} },
+    // DISTINCT NAMES AND DROPPED VOTES ARE TWO DIFFERENT NUMBERS, AND ONLY ONE OF
+    // THEM IS THE COST. unmappedForms lists each printed form once, which is the
+    // right unit for "how many people would a roster wave have to resolve". It is
+    // the wrong unit for "how much record are we throwing away" — one unmapped
+    // committee chair who sits on every meeting of a busy committee costs more
+    // votes than five members who appeared once. droppedByForm counts OCCURRENCES,
+    // so the coverage ledger in the reviewed map file can be re-derived instead of
+    // hand-totalled, and so a widened fence that admits new meetings cannot
+    // quietly raise the number of votes on the floor while the count of names
+    // stays put — which is exactly what happened when the renamed-committee door
+    // was fixed.
+    names: { resolved: 0, unmapped: 0, refused: 0, unmappedForms: {}, refusedForms: {},
+             droppedPositions: 0, droppedByForm: {}, refusedPositions: 0, refusedByForm: {} },
     acts: { built: 0, reprints: 0, pdfUnconfirmed: 0, pdfUnconfirmedDetail: [],
             pdfConfirmedOnShortName: 0, renamedCommittees: [] },
     rows: { kept: 0, supersededByFloor: 0, freshOfFloor: 0 },
@@ -580,7 +634,18 @@ export function collect(session, { reviewedMapRequired, extraLane }) {
             voters.push({ printed, politicianId: r.politicianId, supports, floorKey: r.floorKey || key });
             continue;
           }
-          if (reviewedMapRequired || !proposal.politicianId) continue; // counted below
+          if (reviewedMapRequired || !proposal.politicianId) {
+            // This vote line is real and is being dropped. Count it where it lands:
+            // a refused name is a decision, an unmapped one is a gap.
+            if (proposal.refused) {
+              rep.names.refusedPositions++;
+              bump(rep.names.refusedByForm, printed);
+            } else if (!proposal.politicianId) {
+              rep.names.droppedPositions++;
+              bump(rep.names.droppedByForm, printed);
+            }
+            continue;                                              // counted below
+          }
           voters.push({ printed, politicianId: proposal.politicianId, supports, floorKey: proposal.floorKey });
         }
       }
@@ -907,6 +972,12 @@ function main() {
       console.log(`  motions ${rep.motions.total} · with a recorded roll ${rep.motions.withRecordedRoll} · admitted ${rep.motions.admitted}`);
       console.log(`  refused: ${Object.entries(rep.motions.refused).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(", ")}`);
       console.log(`  names resolved ${rep.names.resolved} · unmapped ${rep.names.unmapped} · refused ${rep.names.refused}`);
+      if (rep.names.droppedPositions || rep.names.refusedPositions) {
+        const rank = Object.entries(rep.names.droppedByForm).sort((a, b) => b[1] - a[1]);
+        console.log(`  dropped votes ${rep.names.droppedPositions} across ${rank.length} unmapped name(s)` +
+          (rep.names.refusedPositions ? ` · ${rep.names.refusedPositions} on refused name(s)` : ""));
+        for (const [form, n] of rank) console.log(`     ${String(n).padStart(3)}  ${form}`);
+      }
       if (rep.acts.pdfConfirmedOnShortName) {
         console.log(`  ${rep.acts.pdfConfirmedOnShortName} act(s) confirmed on the committee's short name — the metadata name and the letterhead disagree: ${rep.acts.renamedCommittees.join("; ")}`);
       }

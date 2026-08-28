@@ -74,7 +74,12 @@ has(FLOOR_SRC, "PDXPublicationFloor", "publication-floor.js no longer exports PD
 const ctx = vm.createContext({ console, window: {} });
 ctx.window = ctx;
 ctx.globalThis = ctx;
-for (const f of ["cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js", "publication-floor.js"]) {
+// formal-index.js is in this list because the floor's third door reads it and
+// gen-sitemap.mjs loads it. Leaving it out here would fail this test for the
+// wrong reason: the sandbox floor would see zero formal measures, reject the
+// 50 person files that clear on formal acts alone, and report the SITEMAP as
+// wrong when the sitemap was right and the harness was blind.
+for (const f of ["cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js", "formal-index.js", "publication-floor.js"]) {
   new vm.Script(R(f), { filename: f }).runInContext(ctx);
 }
 const FLOOR = ctx.window.PDXPublicationFloor;

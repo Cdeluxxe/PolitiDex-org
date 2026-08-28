@@ -1,12 +1,23 @@
 {
  "_comment": "REVIEWED. Utah committee-minutes printed names \u2192 PolitiDex politician ids, for the 2024 General Session. Same job and same two doors as db/vr-utah-committee-map.json, one session earlier: the roster prints a full name, the floor vote pages print \"Surname, Initials\", and a committee vote line prints \"Rep. T. Auxier\". Every entry below was accepted by hand; the tool proposes and never writes here. See db/vr-ingest-runbook.md \u00a7 Utah committee votes.",
- "_howReviewed": "Two ways in, and nothing else was accepted. (1) exact_floor_key: the transposed printed form lands exactly on a key in db/vr-utah-member-map-2024GS.json, itself a hand-reviewed file confirmed against the legislature's roster for 2024. 59 of the 67 forms resolved this way and inherit that review. (2) unique_surname_confirmed_by_attendance: the printed initials are shorter than the floor key's, so the two do not meet. Those 8 were resolved only where the surname is unique in that chamber's floor map AND the SAME meeting's own attendance list names exactly one member with that surname AND that attendance line's full name agrees with both the vote line's initials and the floor key's. `confirmedBy` records the attendance line that did it. Rep. R. Walter is again the case that makes the door necessary: the committee prints \"Rep. R. Walter\", the floor page prints \"Walter, N.\", and only \"Rep. R. Neil Walter\" on the attendance list shows they are one person.",
- "_unmappedIsCoverage": "A COVERAGE GAP, NOT A GUESS. The 12 names below cast recorded committee votes in 2024 and are written to nobody. Each one's surname appears nowhere in that chamber's 2024 floor map, which means no hand-accepted mapping for that person exists for this session \u2014 they were never attributed a floor vote on the 28 bills wave 2 ingested, so nobody has confirmed which roster slug they are. Resolving them by surname alone is exactly the guess the doctrine forbids, and adding roster entries is a roster wave's job, not a committee wave's. Their votes are dropped and counted as dropped. This ledger is kept strictly apart from `_refusedNames`: an unmapped name is a gap someone could close, a refused name is a decision not to.",
- "_refusalNotes": "`_refusedNames` is empty for this session, and that is not the same as saying nothing was refused. db/vr-utah-member-map-2024GS.json refuses \"Judkins, M.\" and \"Lyman, P.\" on the floor pages, and \"Rep. P. Lyman\" duly appears in `unmapped` below rather than being attributed: a committee minute is not a second chance to attribute a name an earlier wave declined. Nothing reached this file as a fresh ambiguity \u2014 a printed form that matched two people in the same chamber would be listed here, not folded into the gaps above.",
+ "_howReviewed": "Two ways in, and nothing else was accepted. (1) exact_floor_key: the transposed printed form lands exactly on a key in db/vr-utah-member-map-2024GS.json, itself a hand-reviewed file confirmed against the legislature's roster for 2024. 64 of the 74 forms resolved this way and inherit that review. (2) unique_surname_confirmed_by_attendance: the printed initials are shorter than the floor key's, so the two do not meet. Those 10 were resolved only where the surname is unique in that chamber's floor map AND the SAME meeting's own attendance list names exactly one member with that surname AND that attendance line's full name agrees with both the vote line's initials and the floor key's. `confirmedBy` records the attendance line that did it. Rep. R. Walter is again the case that makes the door necessary: the committee prints \"Rep. R. Walter\", the floor page prints \"Walter, N.\", and only \"Rep. R. Neil Walter\" on the attendance list shows they are one person.",
+ "_unmappedIsCoverage": "A COVERAGE GAP, NOT A GUESS. The 18 names below cast recorded committee votes in 2024 and are written to nobody. Each one's surname appears nowhere in that chamber's 2024 floor map, which means no hand-accepted mapping for that person exists for this session \u2014 they were never attributed a floor vote on the 28 bills wave 2 ingested, so nobody has confirmed which roster slug they are. Resolving them by surname alone is exactly the guess the doctrine forbids, and adding roster entries is a roster wave's job, not a committee wave's. Their votes are dropped and counted as dropped, in votes and not merely in names: 151 committee positions across the 104 acts the 2024 lane now holds, of which Rep. S. Lund is 16, Rep. K. Birkeland 15, Rep. J. Rohner 13, Rep. P. Lyman 13, Rep. B. King 12, Rep. D. Johnson 12, Rep. J. Cobb 10, Rep. S. Pulsipher 10, Sen. M. Kennedy 9, Rep. M. Wheatley 8, Rep. T. Jimenez 8, Rep. J. Briscoe 7, Sen. D. Buxton 5, Rep. B. Garner 3, Rep. M. Judkins 3, Rep. R. Lesser 3, Rep. J. Stenquist 2 and Rep. R. Spendlove 2. Wave 3's own 26 acts account for 33 of those 151; the rest arrived with wave 4's 78 further acts, which is why six of the eighteen names \u2014 Garner, Judkins, Lesser, Spendlove, Stenquist and Wheatley \u2014 are listed here for the first time even though the bar never moved. Re-derive the whole ledger with `node scripts/vr-utah-committee-mapping.mjs --dropped --session 2024GS` rather than hand-totalling it: distinct names and dropped votes are two different numbers, and only the second one is the record this session is not publishing. This ledger is kept strictly apart from `_refusedNames`: an unmapped name is a gap someone could close, a refused name is a decision not to.",
+ "_refusalNotes": "`_refusedNames` is empty for this session, and that is not the same as saying nothing was refused. db/vr-utah-member-map-2024GS.json refuses \"Judkins, M.\" and \"Lyman, P.\" on the floor pages, and both \"Rep. M. Judkins\" and \"Rep. P. Lyman\" duly appear in `unmapped` below rather than being attributed: a committee minute is not a second chance to attribute a name an earlier wave declined. Nothing reached this file as a fresh ambiguity \u2014 a printed form that matched two people in the same chamber would be listed here, not folded into the gaps above.",
  "session": "2024GS",
  "generatedFrom": "scripts/vr-utah-committee-ingest.mjs --collect --session 2024GS (proposals), reviewed by hand",
  "printedForms": {
   "H": {
+   "Rep. A. Maloy": {
+    "politicianId": "cory_maloy_h52",
+    "floorKey": "Maloy, A. Cory",
+    "how": "unique_surname_confirmed_by_attendance",
+    "confirmedBy": "Rep. A. Cory Maloy"
+   },
+   "Rep. A. Matthews": {
+    "politicianId": "ashlee_matthews",
+    "floorKey": "Matthews, A.",
+    "how": "exact_floor_key"
+   },
    "Rep. A. Romero": {
     "politicianId": "aromero",
     "floorKey": "Romero, A.",
@@ -20,6 +31,11 @@
    "Rep. B. Bolinder": {
     "politicianId": "bolinder_h68",
     "floorKey": "Bolinder, B.",
+    "how": "exact_floor_key"
+   },
+   "Rep. B. Brammer": {
+    "politicianId": "brammer_s21",
+    "floorKey": "Brammer, B.",
     "how": "exact_floor_key"
    },
    "Rep. C. Acton": {
@@ -42,6 +58,12 @@
     "politicianId": "carol_spackman_moss",
     "floorKey": "Moss, C.",
     "how": "exact_floor_key"
+   },
+   "Rep. C. Musselman": {
+    "politicianId": "cmusselman",
+    "floorKey": "Musselman, C.R.",
+    "how": "unique_surname_confirmed_by_attendance",
+    "confirmedBy": "Rep. Calvin R. Musselman"
    },
    "Rep. C. Pierucci": {
     "politicianId": "candice_pierucci",
@@ -73,6 +95,11 @@
     "floorKey": "Burton, J.",
     "how": "exact_floor_key"
    },
+   "Rep. J. Dunnigan": {
+    "politicianId": "james_dunnigan",
+    "floorKey": "Dunnigan, J.",
+    "how": "exact_floor_key"
+   },
    "Rep. J. Elison": {
     "politicianId": "joseph_elison",
     "floorKey": "Elison, J.",
@@ -92,6 +119,11 @@
    "Rep. J. Moss": {
     "politicianId": "jefferson_moss",
     "floorKey": "Moss, J.",
+    "how": "exact_floor_key"
+   },
+   "Rep. J. Teuscher": {
+    "politicianId": "teuscher_h44",
+    "floorKey": "Teuscher, J.",
     "how": "exact_floor_key"
    },
    "Rep. K. Christofferson": {
@@ -154,6 +186,11 @@
    "Rep. N. Abbott": {
     "politicianId": "nelson_abbott",
     "floorKey": "Abbott, N.",
+    "how": "exact_floor_key"
+   },
+   "Rep. N. Thurston": {
+    "politicianId": "nthurston",
+    "floorKey": "Thurston, N.",
     "how": "exact_floor_key"
    },
    "Rep. R. Shipp": {
@@ -356,13 +393,19 @@
  },
  "unmapped": {
   "H": [
+   "Rep. B. Garner",
    "Rep. B. King",
    "Rep. D. Johnson",
    "Rep. J. Briscoe",
    "Rep. J. Cobb",
    "Rep. J. Rohner",
+   "Rep. J. Stenquist",
    "Rep. K. Birkeland",
+   "Rep. M. Judkins",
+   "Rep. M. Wheatley",
    "Rep. P. Lyman",
+   "Rep. R. Lesser",
+   "Rep. R. Spendlove",
    "Rep. S. Lund",
    "Rep. S. Pulsipher",
    "Rep. T. Jimenez"
@@ -375,5 +418,7 @@
  "_refusedNames": {
   "H": [],
   "S": []
- }
+ },
+ "_lateAdditions": "SEVEN FORMS ARRIVED AFTER THE FIRST REVIEW, AND NOT BECAUSE THE BAR MOVED. The three House Business, Labor, and Commerce acts on H.B. 137, H.B. 267 and H.B. 463 were refused in the first pass because the minutes PDF is headed with the committee's former name (\"HOUSE BUSINESS AND LABOR\"), so the published-PDF cross-check never got as far as resolving their vote lines and the people on them were never proposed. With the renamed-committee door widened to match the name as a sequence of significant words rather than as one string, those three acts confirm on all four checks and their fifteen printed forms arrive for review. Seven were new: Rep. A. Matthews, Rep. B. Brammer, Rep. J. Dunnigan, Rep. J. Teuscher and Rep. N. Thurston through door (1), landing exactly on keys wave 2 already reviewed for this same session; Rep. A. Maloy (\"Maloy, A. Cory\") and Rep. C. Musselman (\"Musselman, C.R.\") through door (2), each confirmed by that meeting's own attendance list. Rep. B. King was the eighth and is refused by the same rule as before: no Brian S. King entry exists in the 2024 floor map, so there is nobody to attribute the vote to, and he stays in the coverage ledger below. Two of the seven \u2014 Brammer and Musselman \u2014 sit in the roster as senators today; the mapping is to the person, and it is the mapping wave 2 accepted for this session's floor votes under the same key.",
+ "_nearCollisions": "TWO NAMES THAT LOOK RESOLVABLE AND ARE NOT. (1) \"Rep. D. Johnson\" prints in the HOUSE. The roster holds john_johnson, a Utah State SENATOR for District 3, and no House Johnson at all. Same surname, different chamber, different person \u2014 attributing the House vote to the senator would be a fabrication, so the form stays in the coverage ledger. (2) \"Judkins, M.\" and \"Lyman, P.\" were already refused on the floor pages by db/vr-utah-member-map-2024GS.json, and the only same-surname roster records are the wrong people: marsha_judkins_provo is the Mayor of Provo and lyman is a gubernatorial candidate, neither of them the legislator whose vote is printed. \"Sen. M. Kennedy\" is a third of the same kind: the roster's kennedy is a member of the U.S. House, deliberately not ingested here. None of these are fuzzy-match candidates; they are people the roster does not yet hold, and the fix is a roster wave, not a closer string comparison. Wave 4's wider lane surfaced five more names of the plain kind \u2014 Rep. B. Garner, Rep. R. Lesser, Rep. R. Spendlove, Rep. J. Stenquist and Rep. M. Wheatley \u2014 and they are not collisions at all: the 2024 floor map holds no record with any of those surnames in either chamber, so there was never a candidate to compare against. They are in the coverage ledger for the same reason and want the same fix."
 }
