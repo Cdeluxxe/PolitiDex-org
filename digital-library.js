@@ -744,9 +744,9 @@
   // an icon + accent color. Powers the card category label and the one-tap topic
   // filter. Additive: a key not listed here simply has no category (no chip shown).
   var ISSUE_CAT = {
-    economy:    { label: 'Economy & Taxes', icon: '💰', color: '#4ade80', keys: ['lower_taxes', 'tax_middle_class', 'cost_living', 'econ_workers', 'econ_corp_account', 'econ_trade', 'econ_balance', 'econ_growth', 'econ_smallbiz', 'tariffs_authority', 'tariffs_prices', 'tariffs_china', 'tariffs_growth', 'prop_tax', 'property_tax'] },
+    economy:    { label: 'Economy & Taxes', icon: '💰', color: '#4ade80', keys: ['lower_taxes', 'tax_middle_class', 'cost_living', 'econ_workers', 'econ_corp_account', 'econ_trade', 'econ_balance', 'econ_growth', 'econ_smallbiz', 'tariffs_authority', 'tariffs_prices', 'tariffs_china', 'tariffs_growth', 'prop_tax', 'property_tax', 'sound_money', 'dev_district_finance'] },
     spending:   { label: 'Spending & Debt', icon: '🏛️', color: '#f6d873', keys: ['national_debt', 'cut_spending', 'gov_services', 'gov_waste', 'audit_spending'] },
-    health:     { label: 'Health Care', icon: '🩺', color: '#f472b6', keys: ['healthcare', 'healthcare_market', 'healthcare_costs', 'health_drug_prices', 'health_mental', 'health_balance', 'health_rural', 'medical_freedom'] },
+    health:     { label: 'Health Care', icon: '🩺', color: '#f472b6', keys: ['healthcare', 'healthcare_market', 'healthcare_costs', 'health_drug_prices', 'health_mental', 'health_balance', 'health_rural', 'medical_freedom', 'tobacco_nicotine'] },
     immigration:{ label: 'Immigration', icon: '🛂', color: '#fb923c', keys: ['border_security', 'deportations', 'immigration_reform', 'immig_fentanyl', 'immig_balance', 'immig_legal'] },
     energy:     { label: 'Energy & Environment', icon: '⚡', color: '#22d3ee', keys: ['energy_production', 'enviro_energy', 'climate_action', 'enviro_balance', 'lands_energy', 'lands_balance', 'lands_keep_public', 'lands_local', 'lands_preserve', 'water', 'water_storage', 'disaster_resilience'] },
     defense:    { label: 'Defense & Foreign', icon: '🛡️', color: '#93b4d6', keys: ['strong_defense', 'restraint', 'foreign_balance', 'america_first', 'america_first_fp', 'veterans'] },

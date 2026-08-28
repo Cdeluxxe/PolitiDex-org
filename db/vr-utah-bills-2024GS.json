@@ -404,6 +404,19 @@
           "rationale": "The bill establishes procedures for a qualifying local government to create a capital city revitalization zone, authorises a sales and use tax within its boundaries for use in the project area, and provides for a project participation agreement letting a private participant share in the funds collected. It is a publicly financed development district, and the disagreement was over the subsidy."
         }
       ]
+    },
+    {
+      "bill": "HB0348",
+      "session": "2024GS",
+      "issues": [
+        {
+          "issueKey": "sound_money",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Enrolled text exempts a portion of the funds in certain budget reserve accounts from the State Money Management Act, authorizes the state treasurer to invest a portion of those reserve funds in precious metals, and requires the treasurer to conduct a precious-metals study. Taking part of the state's reserves out of the ordinary money-management rules in order to buy bullion is the whole bill, so a yea is a vote for the state holding metal."
+        }
+      ]
     }
   ],
   "_refused": [
@@ -422,10 +435,6 @@
     {
       "bill": "HB0249",
       "why": "Utah Legal Personhood Amendments. It prohibits a governmental entity from granting or recognising legal personhood in certain categories of nonhumans. A close vote in both chambers, and no key on the list is about the legal standing of animals, ecosystems or artificial agents. No key was invented for it."
-    },
-    {
-      "bill": "HB0348",
-      "why": "Precious Metals Amendments. It exempts part of the budget reserve accounts from the State Money Management Act and lets the state treasurer invest in precious metals. Contested (25.7%), and the nearest keys — crypto_cbdc, audit_spending — are about other things. A close vote with no key stays out."
     },
     {
       "bill": "HB0560",

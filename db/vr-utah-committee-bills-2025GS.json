@@ -948,6 +948,30 @@
      "rationale": "Enrolled text restructures cosmetology license classifications and qualifications and establishes approved apprenticeship standards, so an individual may qualify for licensure through a supervised apprenticeship instead of only through school hours, and exempts a registered apprentice from needing a license while training. It opens a cheaper route into a licensed trade."
     }
    ]
+  },
+  {
+   "bill": "HB0528",
+   "issues": [
+    {
+     "issueKey": "sound_money",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text lets severance and income taxes be paid in gold, sets a reduced severance rate for a mine operator who remits in gold, and creates an income tax credit for doing so. Making the state accept metal as payment, and paying operators to use it, is the whole bill, so a yea widens the role of specie. The reduced rate and the credit are the inducement to remit in gold rather than a tax-policy ask of their own, which is why lower_taxes is not mapped here."
+    }
+   ]
+  },
+  {
+   "bill": "SB0186",
+   "issues": [
+    {
+     "issueKey": "tobacco_nicotine",
+     "weight": 80,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text adds registry and search provisions for tobacco and electronic cigarette products, creates penalties for a retailer selling flavored electronic cigarette products, raises permit fees for general retailers and specialty businesses, and amends the criminal penalties for illegal sales. Enforcement against nicotine retailers is the whole bill, and every provision tightens it, so a yea tightens the rules."
+    }
+   ]
   }
  ],
  "_refused": [
@@ -1192,10 +1216,6 @@
    "why": "Automobile franchise law: it defines affiliate, repeals certain franchisor authority, and rewrites who counts as a franchise holder when a manufacturer acquires or expands its interests. A commercial allocation between manufacturers and dealers; no shipped key covers it."
   },
   {
-   "bill": "HB0528",
-   "why": "Allows severance and income taxes to be paid in gold, sets a reduced severance rate and an income tax credit for mine operators who pay in gold. No shipped key covers precious metals or sound money: crypto_cbdc is about digital assets and central bank digital currency, so mapping this there would score a member's crypto position off a gold remittance statute."
-  },
-  {
    "bill": "HB0540",
    "why": "Closes the preliminary municipality incorporation route after February 15, 2025, bars annexation by and of preliminary municipality areas, and requires landowner compensation to the county and compliance with county infrastructure standards before transition to a town. Local boundary and incorporation mechanics; no shipped key has a direction on how an area becomes a town."
   },
@@ -1213,7 +1233,7 @@
   },
   {
    "bill": "SB0026",
-   "why": "Housing and transit reinvestment zone omnibus whose new mechanism is a convention center reinvestment zone capturing state and local sales tax and property tax increment in a county of the first class, alongside hotel impact fund changes, remote sales exclusions, and adjustments to the affordability and bedroom mix requirements inside housing and transit zones. The housing provisions are tightened and loosened in the same text and are secondary to a convention center financing tool."
+   "why": "Housing and transit reinvestment zone omnibus whose new mechanism is a convention center reinvestment zone capturing state and local sales tax and property tax increment in a county of the first class. The vocab-wave-V1 key dev_district_finance now carries it, and the bill was admitted on the FLOOR ledger (db/vr-utah-bills.json) where its contested Senate concurrence roll is the deeper act; the committee wave has nothing to add. The housing provisions stay unmapped for the original reason: they are tightened and loosened in the same text."
   },
   {
    "bill": "SB0099",
@@ -1250,10 +1270,6 @@
   {
    "bill": "SB0176",
    "why": "Raises the maximum award in a dog attack bodily injury claim from fifty to seventy-five thousand dollars and allows a wrongful death claim in arbitration or at trial. Tort damages in one narrow claim type; no shipped key covers it."
-  },
-  {
-   "bill": "SB0186",
-   "why": "Tobacco and electronic cigarette enforcement: registry and search provisions, penalties for retailers selling flavored electronic cigarette products, higher permit fees for general retailers and specialty businesses, and amended criminal penalties for illegal sales. No shipped key covers tobacco or nicotine regulation."
   },
   {
    "bill": "SB0197",
@@ -1317,7 +1333,7 @@
   },
   {
    "bill": "SB0306",
-   "why": "Amends allowable uses of certain sales and use tax revenue for convention center revitalization, changes Hotel Impact Mitigation Fund distributions, and transfers jurisdiction of part of a state highway to a municipality. A financing and jurisdiction package for one project; no shipped key covers it."
+   "why": "Amends allowable uses of certain sales and use tax revenue for convention center revitalization, changes Hotel Impact Mitigation Fund distributions, and transfers jurisdiction of part of a state highway to a municipality. A financing and jurisdiction package for one project. STILL REFUSED after vocab wave V1: dev_district_finance is scoped to the special-purpose district and its capture mechanism, and this bill neither creates nor empowers one — it reallocates revenue a district would have captured. S.B. 26 was admitted under that key because it creates a convention center reinvestment zone; strip the zone and what is left is this bill, which is why it is the boundary case rather than the coverage case. The highway transfer is a second, unrelated provision."
   },
   {
    "bill": "SB0307",
@@ -1325,7 +1341,7 @@
   },
   {
    "bill": "SB0316",
-   "why": "Military Installation Development Authority and development zone finance: special district use of tax revenue, a distribution formula for construction materials sales within a qualified development zone, Schedule J sale revenue, resort communities tax clarifications, state land project area agreements and public infrastructure district subsidiaries. Tax increment plumbing; no shipped key covers it."
+   "why": "Military Installation Development Authority and development zone finance. The vocab-wave-V1 key dev_district_finance now carries it, and the bill was admitted on the FLOOR ledger (db/vr-utah-bills.json) where both chambers produced contested rolls; the committee wave has nothing to add."
   },
   {
    "bill": "SB0334",
@@ -1333,11 +1349,11 @@
   },
   {
    "bill": "SB0336",
-   "why": "Fairpark district modifications: land lease uses, taxing authority, land use authority, a public infrastructure district empowered to levy property taxes and issue bonds, district funding, conflict of interest disclosures and tax information access. Project finance for one district; no shipped key covers it."
+   "why": "Fairpark district modifications: taxing authority, land use authority, and a public infrastructure district empowered to levy property taxes and issue bonds. The vocab-wave-V1 key dev_district_finance now carries it, and the bill was admitted on the FLOOR ledger (db/vr-utah-bills.json) where both chambers produced contested rolls; the committee wave has nothing to add."
   },
   {
    "bill": "SB0337",
-   "why": "Creates the Beehive Development Agency as a political subdivision with a board, revolving loan fund, public infrastructure district authority and property tax differential revenue for significant community impact project areas, repeals the Governor's Office of Economic Opportunity board and the Unified Economic Opportunity Commission, creates a coordinating council, renames the executive director as commissioner, consolidates state housing programs into the office by July 2026, and removes the Utah Housing Corporation sunset. An institutional omnibus with housing, economic development and governance pulling in different directions."
+   "why": "Creates the Beehive Development Agency as a political subdivision with a board, revolving loan fund, public infrastructure district authority and property tax differential revenue for significant community impact project areas, repeals the Governor Office of Economic Opportunity board and the Unified Economic Opportunity Commission, creates a coordinating council, renames the executive director as commissioner, consolidates state housing programs into the office by July 2026, and removes the Utah Housing Corporation sunset. STILL REFUSED after vocab wave V1: dev_district_finance now exists and would carry the public infrastructure district and the tax differential, but they are provisions inside an institutional omnibus whose housing, economic development and governance changes pull in different directions. Admitting it on a narrow non-primary link would put a whole-instrument vote behind a key the instrument is not about."
   }
  ]
 }
