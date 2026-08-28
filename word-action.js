@@ -3825,11 +3825,142 @@
   // Depth, tops, splits, thin — in that order, because that is the order the
   // claims get weaker in, and a reader who stops after two lines should have
   // stopped on the two strongest facts rather than on the caveat.
-  function shapeRowHtml(x) {
-    return '<li class="pdxwa-shape-row">' +
-      '<span class="pdxwa-shape-iss">' + esc(x.label) + '</span>' +
-      (x.chip || '') +
+  //
+  // ── ONE ROW OF THE BLOCK: A DOOR, ITS TALLY, AND A KEY ────────────────────
+  // The row used to be two inert spans — an issue name and a tier chip — which
+  // made the strongest four facts on a profile the only place in the product
+  // where naming an issue did not open it. Everything that reads a formal record
+  // elsewhere (the topic tree, the standout strip, the atlas) is a door onto that
+  // issue's Official Record dossier, and this is now the same door: same
+  // [data-pdxst-dos] contract, same delegated handler in consistency.js, same
+  // openGap() with the same origin so closing the sheet returns the reader to the
+  // row they left rather than the top of the page.
+  //
+  // THE SHAPE IS THE ATLAS ROW'S SHAPE, and deliberately so. A container carries
+  // the pointer target, ONE inner button is the sole focus stop, and the chips are
+  // inert siblings inside it — so a thumb has a 2.75rem target across the whole
+  // title-and-bar area while a keyboard user tabs through one control per row, not
+  // three. No button is nested inside another button anywhere in here.
+  //
+  // AND THE KEY CONTROL SITS OUTSIDE THE DOOR. The ⓘ opens the issue key's own
+  // scope blurb — a different destination from the dossier — so it is a sibling of
+  // the door span rather than a child of it. That is the whole mechanism: the
+  // gateway's handler walks up with closest('[data-pdxst-dos]'), and from the ⓘ
+  // there is no such ancestor to find, so a tap on the key cannot fall through
+  // into the record sheet. No capture-phase listener, no stopPropagation, nothing
+  // to keep in sync.
+  function shapeRowId(mount, pid, key) {
+    return 'pdxwa-shrow-' + _idPart(mount || 'hero') + '-' + _idPart(pid) + '-' + _idPart(key);
+  }
+  // ── THE TALLY THIS ROW OWES THE READER ────────────────────────────────────
+  // A one-sided row printed "Mostly advances · 7 advanced · 0 against" and a split
+  // row printed "Split" and nothing else — same block, same engine, same two
+  // integers on file, and the row making the least flattering claim was the one
+  // that showed no arithmetic. That reads as evasion, and it was really the
+  // shallow-split publication rule (see _RD_TOKENS.record_split, counted:false)
+  // arriving on a surface that had no way to say "the numbers exist".
+  //
+  // WHAT THIS DOES AND DOES NOT DO. It prints the two integers, in the product's
+  // one phrase, when the chip did not already carry them. It does not lower the
+  // floor: the tier is unchanged, `counts` is unchanged, the chip is unchanged,
+  // every other surface reads what it read before, and Words-vs-Record and
+  // Direction Match never see this string. It also derives nothing — no lead, no
+  // direction word, no rate, no "mostly" from 5-vs-2. Two counts, side by side.
+  //
+  // AND WHERE THERE IS NOTHING TO PRINT, IT SAYS THAT. A characterised row with no
+  // two-sided count on file gets the absence in words rather than a bare tier
+  // label, because a reader cannot tell a withheld number from a missing one.
+  //
+  // ── AND THE LEFTOVER, WHERE THE LIST HOLDS ONE ────────────────────────────
+  // The two integers are the JUDGED sides and always were: a Present, a Did Not
+  // Vote or an act with no recorded direction has never incremented either, and
+  // never could push a row to Strong or Mostly, because the engine drops it before
+  // the tier is decided. What it does do is sit in the dossier's enumeration, which
+  // lists everything on file — so a member who abstained on one of four mapped
+  // bills met a brief saying "3 advanced · 0 against" and a dossier saying "4
+  // listed", with nothing on either surface saying that the missing one was an
+  // abstention rather than a receipt we had lost. A reader who notices that
+  // subtracts and gets a fourth Yea.
+  //   So the row accounts for the whole list: "· 1 no side", in the engine's own
+  // words (_recordNoSidePhrase), appended AFTER the tally and never folded into it.
+  // Two consequences worth stating because they are the point:
+  //   · IT IS PRINTED EVEN WHERE THE CHIP ALREADY CARRIED THE TALLY. The early
+  //     return above exists so the row does not print the same two integers twice;
+  //     this is a third number the chip does not carry, so the return moved below
+  //     it. A row whose chip reads "Strongly supports · 3 advanced · 0 against"
+  //     gains "· 1 no side" beside it and nothing else changes.
+  //   · IT IS NOT A SIDE. No lead, no tier, no direction word and no arithmetic
+  //     over it — a surface that added it to either integer would be reporting an
+  //     abstention as a vote, which is the exact defect this discloses.
+  function shapeNoSideHtml(x) {
+    var n = (typeof x.noSide === 'number') ? x.noSide : 0;
+    if (n <= 0) return '';
+    var w = x.noSideCount ||
+      (window._recordNoSidePhrase ? window._recordNoSidePhrase(x) : '') ||
+      (n + ' no side');
+    return '<span class="pdxwa-shape-n pdxwa-shape-n-off">· ' + esc(w) + '</span>';
+  }
+  function shapeTallyHtml(x) {
+    var none = shapeNoSideHtml(x);
+    if (x.counts) return none;
+    var t = x.sideCounts || '';
+    if (t) return '<span class="pdxwa-shape-n">· ' + esc(t) + '</span>' + none;
+    return '<span class="pdxwa-shape-n pdxwa-shape-n-off">· no count on file yet</span>' + none;
+  }
+  function shapeRowHtml(x, pid, mount) {
+    var key = x.key || '';
+    var owner = x.pid || pid || '';
+    // FAIL CLOSED, NOT BLANK. Without a pid/key pair there is nothing to open, so
+    // the row renders exactly as it always did — a labelled, inert fact — rather
+    // than a control that goes nowhere.
+    var door = !!(owner && key);
+    var tally = shapeTallyHtml(x);
+    var rowId = door ? shapeRowId(mount, owner, key) : '';
+    // The same three facts the face carries, in the same order, so the announced
+    // row and the seen row are one claim — including the leftover, which is the
+    // fact a screen-reader user has least other way of reaching.
+    var sayN = (x.counts || x.sideCounts || '') +
+      (x.noSideCount ? ((x.counts || x.sideCounts) ? ' · ' : '') + x.noSideCount : '');
+    var say = x.label + ' — formal record: ' + (x.patLabel || 'on file') +
+      (sayN ? ' (' + sayN + ')' : '') +
+      '. Open the acts behind it.';
+    var name = '<span class="pdxwa-shape-iss">' + esc(x.label) + '</span>';
+    var bar = (x.chip || '') + tally;
+    var body = door
+      ? '<span class="pdxwa-shape-door"' +
+          ' data-pdxst-dos="' + esc(key) + '" data-pdxst-pid="' + esc(owner) + '"' +
+          ' data-pdxst-origin="' + esc(rowId) + '"' +
+          ' data-pdxst-focus="record">' +
+          '<button type="button" class="pdxwa-shape-lbl pdxst-open"' +
+            ' aria-label="' + esc(say) + '">' +
+            esc(x.label) +
+            '<span class="pdxwa-shape-go" aria-hidden="true">›</span>' +
+          '</button>' +
+          '<span class="pdxwa-shape-bar">' + bar + '</span>' +
+        '</span>'
+      : name + bar;
+    return '<li class="pdxwa-shape-row"' + (rowId ? ' id="' + esc(rowId) + '"' : '') + '>' +
+      body +
+      // The key, last and outside the door — see the wall above.
+      (door ? scopeControlHtml(key) : '') +
       '</li>';
+  }
+  // THE KEY GLOSSARY IS A GUEST, NOT A DEPENDENCY. issue-scope.js publishes the
+  // shipped scope prose for an issue key; if it is not on the page, the row loses
+  // its ⓘ and keeps its door. Nothing here writes the copy — inventing a scope
+  // blurb for a key whose definition is not on file is exactly what the module
+  // refuses to do.
+  function scopeControlHtml(key) {
+    try {
+      var S = window.PDXIssueScope;
+      if (!S || typeof S.controlHtml !== 'function') return '';
+      return S.controlHtml(key) || '';
+    } catch (e) { return ''; }
+  }
+  // Both mounts render rows through one call so the letterhead and the brief
+  // cannot drift into two row markups.
+  function shapeRowsHtml(rows, pid, mount) {
+    return (rows || []).map(function (x) { return shapeRowHtml(x, pid, mount); }).join('');
   }
   function shapeHeroHtml(pid, p) {
     try {
@@ -3849,7 +3980,7 @@
       var tops = sh.tops.length
         ? '<div class="pdxwa-shape-grp">' +
             '<div class="pdxwa-shape-grp-h">Strongest patterns</div>' +
-            '<ul class="pdxwa-shape-list">' + sh.tops.map(shapeRowHtml).join('') + '</ul>' +
+            '<ul class="pdxwa-shape-list">' + shapeRowsHtml(sh.tops, pid, 'let') + '</ul>' +
             (sh.strongN > sh.tops.length
               ? '<p class="pdxwa-shape-more">' + (sh.strongN - sh.tops.length) +
                 ' more one-sided pattern' + ((sh.strongN - sh.tops.length) === 1 ? '' : 's') +
@@ -3867,7 +3998,7 @@
       var splits = sh.splitN
         ? '<div class="pdxwa-shape-grp">' +
             '<div class="pdxwa-shape-grp-h">Ran both ways</div>' +
-            '<ul class="pdxwa-shape-list">' + sh.splits.map(shapeRowHtml).join('') + '</ul>' +
+            '<ul class="pdxwa-shape-list">' + shapeRowsHtml(sh.splits, pid, 'let-split') + '</ul>' +
             (sh.splitN > sh.splits.length
               ? '<p class="pdxwa-shape-more">' + (sh.splitN - sh.splits.length) +
                 ' more split issue' + ((sh.splitN - sh.splits.length) === 1 ? '' : 's') +
@@ -4146,17 +4277,17 @@
             (sh.judged === 1 ? '' : 's') + ' read' +
           ' · <b>' + sh.characterised + '</b> deep enough to characterise' +
         '</p>';
-      var grp = function (label, rows, shown, of) {
+      var grp = function (label, rows, shown, of, mount) {
         if (!rows.length) return '';
         return '<div class="pdxwa-shape-grp">' +
             '<div class="pdxwa-shape-grp-h">' + label + '</div>' +
-            '<ul class="pdxwa-shape-list">' + rows.map(shapeRowHtml).join('') + '</ul>' +
+            '<ul class="pdxwa-shape-list">' + shapeRowsHtml(rows, pid, mount) + '</ul>' +
             (of > shown
               ? '<p class="pdxwa-shape-more">' + (of - shown) + ' more in the topic tree below.</p>' : '') +
           '</div>';
       };
-      var tops = grp('Strongest patterns', sh.tops, sh.tops.length, sh.strongN);
-      var splits = grp('Ran both ways', sh.splits, sh.splits.length, sh.splitN);
+      var tops = grp('Strongest patterns', sh.tops, sh.tops.length, sh.strongN, 'brief');
+      var splits = grp('Ran both ways', sh.splits, sh.splits.length, sh.splitN, 'brief-split');
       // ── thin ─────────────────────────────────────────────────────────────
       // Nothing one-sided, nothing split: the letterhead's own refusal, word for
       // word, and then the count behind it.

@@ -47,6 +47,27 @@
 //   7. NOTHING ELSE ADVERTISES THE RETIRED ADDRESS. The formal index, the share
 //      index and the sitemap's own source name chew_h68 and only chew_h68.
 //
+// Rules 1–7 all pin the RESOLVER, and every one of them was green while the
+// duplicate was still on screen — because the surface a reader meets first does
+// not resolve anything, it LISTS. A list asks the inverse question ("I am about
+// to print a row per id; which of these are the same person?"), and nobody had
+// answered it. So three more rules pin the LISTS, by booting the shipped modules
+// and reading what they actually render:
+//
+//   8. THE SEARCH INDEX LISTS ONE SCOTT CHEW. PDXEye.render("chew") prints the
+//      canonical row once and the retired address nowhere — and a phrase that
+//      only ever appeared in the duplicate document still reaches that one row,
+//      so a duplicate-row defect was not traded for a can't-find-them defect.
+//      Two people who genuinely share a name are still two results.
+//   9. THE ROSTER STAYS CLOSED TO A RETIRED ADDRESS. Warming a retired id no
+//      longer mints a CMP_DATA record for it, which is what keeps the browse
+//      grid, the compare add-column, the state filter and My Team at one row
+//      without editing any of them. The document itself is not discarded, and a
+//      genuinely new id still joins the roster.
+//  10. ONE MEMBER, ONE ROW — ACROSS THE WHOLE TABLE. The Evidence Locker's own
+//      roster lists each person once, and every alias key in the table is swept
+//      for the same properties, because the rule is the table and not one name.
+//
 //   node scripts/test-chew-identity.mjs
 //
 // No database, no network: every source of truth here is a committed file.
@@ -367,6 +388,348 @@ section("7 · nothing else advertises the retired address");
   ok(!share.people[RETIRED_KEY], "the share index does not list the retired address");
   const genSitemap = R("scripts/gen-sitemap.mjs");
   has(genSitemap, "cmp-data.js", "the sitemap is still generated from the roster the floor reads");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+section("8 · the search index lists one Scott Chew");
+// ─────────────────────────────────────────────────────────────────────────────
+// Sections 3–6 pinned the RESOLVER. They were satisfied while the reported
+// defect was still on screen, because the surface a reader meets first does not
+// resolve anything — it LISTS. The All-Seeing Eye built its haystack from the
+// union of every CMP_DATA and PROFILES key, so `scott_chew` was one more
+// officeholder in the bag, and a query for "chew" printed two current Utah House
+// District 68 files: the 90-act formal record and a photo stub whose own address
+// already redirected to it.
+//
+// So this section boots the SHIPPED module against the production shape and reads
+// the markup it renders. Three things have to hold at once, and the third is why
+// this is not simply a filter:
+//
+//   ONE ROW.  The retired address is not a second person, so it is not a second
+//             result — and the row that survives is the canonical one.
+//   NO LOSS.  The duplicate document holds a bio and topics of its own. A term
+//             that only ever appeared THERE must still reach the person it was
+//             about, or a duplicate-row defect has been traded for a
+//             can't-find-them defect.
+//   NO REACH. Two people who genuinely share a name are still two results. The
+//             collapse is driven by the alias table alone — never by a name
+//             match, never by a district match, never by a guess.
+function eyePanel(opts) {
+  opts = opts || {};
+  const els = {};
+  const mkEl = () => {
+    const cls = new Set();
+    const el = {
+      style: { setProperty() {}, removeProperty() {} },
+      textContent: "", innerHTML: "", value: "", className: "", id: "", hidden: false,
+      classList: { add: (c) => cls.add(c), remove: (c) => cls.delete(c), toggle() {}, contains: (c) => cls.has(c) },
+      _attrs: {},
+      setAttribute(k, v) { el._attrs[k] = String(v); },
+      getAttribute(k) { return k in el._attrs ? el._attrs[k] : null; },
+      removeAttribute(k) { delete el._attrs[k]; },
+      focus() {}, blur() {}, scrollIntoView() {}, addEventListener() {}, removeEventListener() {},
+      remove() {}, appendChild(c) { return c; }, insertBefore(c) { return c; },
+      querySelector: () => null, querySelectorAll: () => [], contains: () => true, closest: () => null,
+      getBoundingClientRect: () => ({ top: 0, left: 0, width: 300, height: 40, bottom: 40, right: 300 }),
+    };
+    return el;
+  };
+  const getEl = (id) => { if (!els[id]) { els[id] = mkEl(); els[id].id = id; } return els[id]; };
+  const ctx = {
+    console: { log() {}, warn() {}, error() {} }, JSON, Math, Date,
+    Promise, Set, Map, Object, Array, String, Number, Boolean, RegExp, Error, Symbol,
+    setTimeout: () => 0, clearTimeout() {}, setInterval: () => 0, clearInterval() {},
+    parseInt, parseFloat, isNaN, isFinite, encodeURIComponent, decodeURIComponent,
+    requestAnimationFrame: () => 0, fetch: () => new Promise(() => {}),
+    location: { href: "/", search: "", hash: "", pathname: "/", origin: "https://politidex.fyi" },
+    history: { replaceState() {}, pushState() {} },
+    localStorage: { getItem: () => null, setItem() {}, removeItem() {} },
+    sessionStorage: { getItem: () => null, setItem() {}, removeItem() {} },
+    navigator: { userAgent: "node" },
+    matchMedia: () => ({ matches: false, addEventListener() {}, addListener() {} }),
+    CustomEvent: class { constructor(t, o) { this.type = t; this.detail = o && o.detail; } },
+    document: {
+      readyState: "complete", head: mkEl(), body: mkEl(), documentElement: mkEl(),
+      createElement: mkEl, createTextNode: mkEl, getElementById: getEl,
+      querySelector: () => null, querySelectorAll: () => [],
+      addEventListener() {}, removeEventListener() {}, dispatchEvent() {},
+    },
+    CMP_DATA: opts.roster || {},
+    PROFILES: opts.profiles || {},
+    ACCT_SPOTLIGHT: {}, ACCT_ALIAS: {},
+    ISSUE_STANCE_DATA: opts.stances || {},
+  };
+  ctx.window = ctx; ctx.globalThis = ctx; ctx.self = ctx;
+  ctx.addEventListener = () => {}; ctx.removeEventListener = () => {};
+  ctx._getPhotoUrl = () => "";
+  const sb = vm.createContext(ctx);
+  // The document wires these in this order: profile-evidence.js owns the resolver
+  // and the two list helpers; the eye reads them off window at query time.
+  vm.runInContext(PE_SRC, sb, { filename: "profile-evidence.js" });
+  vm.runInContext(R("all-seeing-eye.js"), sb, { filename: "all-seeing-eye.js" });
+  return {
+    ctx,
+    search(q) {
+      ctx.PDXEye.render(q);
+      return getEl("pdx-eye-panel").innerHTML || "";
+    },
+  };
+}
+// Every id the rendered panel points at, in order, and the same restricted to
+// one result category ("pol" = the Politicians block, "stance" = receipts).
+const panelIds = (html) => [...String(html).matchAll(/data-kind="pol" data-id="([^"]*)"/g)].map((m) => m[1]);
+function catSlice(html, cat) {
+  const at = String(html).indexOf(`data-cat="${cat}"`);
+  if (at === -1) return "";
+  const next = String(html).indexOf('data-cat="', at + 10);
+  return String(html).slice(at, next === -1 ? undefined : next);
+}
+{
+  must(typeof R("all-seeing-eye.js") === "string", "all-seeing-eye.js is gone");
+  // THE PRODUCTION SHAPE, exactly as reported: chew_h68 is a roster record with
+  // no Firestore document, and `scott_chew` is a Firestore document with no
+  // roster record. Each source knows about exactly one of them.
+  const STUB = {
+    name: "Scott Chew", office: "Utah State Representative", district: "District 68",
+    state: "Utah", party: "R", score: 100, __lite: true,
+    bio: "A rancher who runs cattle in the Uinta Basin.",
+  };
+  const eye = eyePanel({ roster: ROSTER, profiles: { [RETIRED_KEY]: STUB } });
+  must(eye.ctx.PDXEye && typeof eye.ctx.PDXEye.render === "function",
+    "all-seeing-eye.js did not publish PDXEye.render — the harness can no longer read the surface");
+
+  // (a) ONE ROW. This is the acceptance line: query "chew", get one Scott Chew.
+  const html = eye.search("chew");
+  const pols = panelIds(catSlice(html, "pol"));
+  eq(pols.filter((id) => id === CANON).length, 1,
+    `a query for "chew" lists the canonical file exactly once (got ${JSON.stringify(pols)})`);
+  eq(pols.filter((id) => id === RETIRED_KEY).length, 0,
+    `a query for "chew" does not list the retired address as a second officeholder (got ${JSON.stringify(pols)})`);
+  ok(!html.includes(RETIRED_KEY),
+    "the retired id appears nowhere in the rendered panel — not in a row, a share action or a related chip");
+
+  // (b) NO LOSS. "Uinta Basin" exists ONLY in the duplicate document's bio. The
+  //     row that survived has to carry it, or collapsing the pair quietly made a
+  //     real person unfindable by their own record.
+  const deep = eye.search("uinta basin");
+  const deepIds = panelIds(catSlice(deep, "pol"));
+  eq(deepIds.length, 1, "a term only the duplicate document carried still finds exactly one person");
+  eq(deepIds[0], CANON, "and it finds them at the canonical address");
+
+  // (c) NO REACH. Two people, one name — still two results. The eye collapses on
+  //     the alias table and nothing else; it does not fuzzy-match names, offices
+  //     or districts, so this is the assertion that keeps the fix honest.
+  const twins = eyePanel({
+    roster: {
+      smith_h1: { name: "John Smith", office: "Utah State Representative", district: "District 1", state: "Utah" },
+      smith_s2: { name: "John Smith", office: "Utah State Senator", district: "District 2", state: "Utah" },
+    },
+    profiles: {},
+  });
+  const twinIds = panelIds(catSlice(twins.search("john smith"), "pol"));
+  eq(twinIds.length, 2,
+    `two different people who share a name are still two results (got ${JSON.stringify(twinIds)})`);
+
+  // (d) A RECEIPT IS TAGGED TO A PERSON. 18 of the 29 retired ids carry a curated
+  //     stance block — that is the documented convention, the block is filed under
+  //     the roster record's display-name slug. Every receipt row minted from one
+  //     used to read the slug back out as a name, file itself under the retired id
+  //     for My Team and Share, and aim "Jump to politician" at a redirect.
+  const withReceipt = eyePanel({
+    roster: ROSTER,
+    profiles: { [RETIRED_KEY]: STUB },
+    stances: {
+      [RETIRED_KEY]: [{
+        topic: "Carbon Capture & CO2 Storage", icon: "⚡", pos: "support",
+        issueKey: "lands_energy", text: "Enacted carbon-capture legislation.",
+        evidence: "Sponsored HB 452 (2024).",
+      }],
+    },
+  });
+  const receipts = withReceipt.search("carbon capture");
+  const rIds = panelIds(catSlice(receipts, "stance"));
+  ok(rIds.length > 0, "the receipt for the curated block is still reachable by its topic");
+  eq(rIds.indexOf(RETIRED_KEY), -1,
+    `a receipt row is tagged to the canonical pid, not the stance key (got ${JSON.stringify(rIds)})`);
+  ok(rIds.indexOf(CANON) !== -1, "and the pid it is tagged to is the one the person file opens at");
+  has(catSlice(receipts, "stance"), "Scott Chew",
+    "the receipt row names the person from the roster record, not the slug read back as words");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+section("9 · the roster stays closed to a retired address");
+// ─────────────────────────────────────────────────────────────────────────────
+// The single line that fanned this defect across the whole app. `scott_chew` is
+// not in cmp-data.js, so every Object.keys(CMP_DATA) surface — the browse grid,
+// the compare add-column, the state filter, My Team, the ballot breakdown —
+// was safe on the bundled data alone. But the Firestore lazy-loader, on finding
+// no CMP_DATA entry for an id it had just fetched, CREATED one. The Evidence
+// Locker warms every Utah legislator it can see in PROFILES, so the retired key
+// was fetched on an ordinary visit and joined the roster itself, and from then on
+// every one of those lists was faithfully rendering a second officeholder.
+//
+// Fixing it at the loader is what makes the rest of those surfaces need no edit
+// at all: an id the app has already ruled is an ADDRESS never becomes a record.
+function firebaseBoot(opts) {
+  opts = opts || {};
+  const roster = Object.assign({}, opts.roster || {});
+  const profiles = Object.assign({}, opts.profiles || {});
+  const fetched = [];
+  const mkEl = () => ({
+    style: { setProperty() {} }, innerHTML: "", textContent: "", className: "",
+    classList: { add() {}, remove() {}, contains: () => false },
+    setAttribute() {}, getAttribute: () => null, appendChild: (c) => c,
+    addEventListener() {}, querySelector: () => null, querySelectorAll: () => [],
+  });
+  const docFor = (id) => ({
+    get() {
+      fetched.push(id);
+      const d = opts.docs && opts.docs[id];
+      return Promise.resolve({ exists: !!d, data: () => d });
+    },
+    onSnapshot() {}, set: () => Promise.resolve(),
+  });
+  const ctx = {
+    console: { log() {}, warn() {}, error() {} }, JSON, Math, Date,
+    Promise, Set, Map, Object, Array, String, Number, RegExp, Error,
+    setTimeout: () => 0, clearTimeout() {}, encodeURIComponent, decodeURIComponent,
+    fetch: () => new Promise(() => {}),
+    location: { href: "/", search: "", hash: "", pathname: "/", origin: "https://politidex.fyi" },
+    localStorage: { getItem: () => null, setItem() {}, removeItem() {} },
+    document: {
+      readyState: "complete", body: mkEl(), head: mkEl(), createElement: mkEl,
+      getElementById: () => null, querySelector: () => null, querySelectorAll: () => [],
+      addEventListener() {},
+    },
+    CMP_DATA: roster, ACCT_ALIAS: {},
+    firebase: {
+      initializeApp: () => ({}),
+      firestore: () => ({ collection: () => ({ doc: docFor, get: () => Promise.resolve({ size: 0, forEach() {} }), onSnapshot() {} }) }),
+      auth: () => ({
+        currentUser: null, onAuthStateChanged: () => () => {},
+        signInAnonymously: () => Promise.reject(new Error("no auth")),
+        signOut: () => Promise.resolve(),
+      }),
+    },
+    // firebase-boot.js patches document.addEventListener and keeps the original
+    // under this name; the document defines it before the script runs.
+    _originalAddEventListener() {},
+  };
+  ctx.window = ctx; ctx.globalThis = ctx; ctx.self = ctx;
+  ctx.addEventListener = () => {};
+  const sb = vm.createContext(ctx);
+  vm.runInContext(PE_SRC, sb, { filename: "profile-evidence.js" });
+  vm.runInContext(R("firebase-boot.js"), sb, { filename: "firebase-boot.js" });
+  // The lightweight index is what puts a retired key in PROFILES in the first
+  // place; seed it directly rather than faking a paginated REST response.
+  Object.keys(profiles).forEach((id) => { ctx.PROFILES[id] = profiles[id]; });
+  return { ctx, fetched };
+}
+{
+  const chewRec = ROSTER[CANON];
+  const strayDoc = { name: "Scott Chew", office: "Utah State Representative", bio: "rancher", score: 100 };
+  const boot = firebaseBoot({
+    roster: { [CANON]: Object.assign({}, chewRec) },
+    profiles: { [RETIRED_KEY]: Object.assign({ __lite: true }, strayDoc) },
+    docs: { [RETIRED_KEY]: strayDoc, newcomer: { name: "Brand New", office: "Utah State Representative" } },
+  });
+  must(typeof boot.ctx._pdxEnsureFullProfile === "function",
+    "firebase-boot.js no longer publishes _pdxEnsureFullProfile");
+
+  // (a) THE DEFECT. Warming the retired key used to mint a roster entry for it.
+  await boot.ctx._pdxEnsureFullProfile(RETIRED_KEY);
+  ok(boot.ctx.CMP_DATA[RETIRED_KEY] === undefined,
+    "warming a retired address does not create a roster record for it — this is what keeps the " +
+    "browse grid, the compare add-column, the state filter and My Team at one row without editing any of them");
+
+  // (b) NOTHING WAS DELETED. The document is still there and still readable; only
+  //     its promotion to "a person on the roster" was refused.
+  ok(!!boot.ctx.PROFILES[RETIRED_KEY], "the Firestore document itself is untouched in PROFILES");
+  eq(boot.ctx.PROFILES[RETIRED_KEY].bio, "rancher", "and it is the full document, not a shell");
+
+  // (c) AN ID NOBODY HAS RULED ON IS STILL ADMITTED. The guard is the alias table,
+  //     not "is it missing from cmp-data.js" — otherwise a genuinely new
+  //     officeholder arriving from Firestore would never reach the roster.
+  boot.ctx.PROFILES.newcomer = { name: "Brand New", office: "Utah State Representative", __lite: true };
+  await boot.ctx._pdxEnsureFullProfile("newcomer");
+  ok(!!boot.ctx.CMP_DATA.newcomer,
+    "an id with no alias entry still joins the roster when its document arrives");
+
+  // (d) AND AN EXISTING ROSTER RECORD STILL RECEIVES ITS FULL DOCUMENT. That merge
+  //     is the whole purpose of this function and is not what changed.
+  const boot2 = firebaseBoot({
+    roster: { [CANON]: Object.assign({}, chewRec) },
+    docs: { [CANON]: { bio: "the deep file's own bio" } },
+  });
+  await boot2.ctx._pdxEnsureFullProfile(CANON);
+  eq(boot2.ctx.CMP_DATA[CANON].bio, "the deep file's own bio",
+    "a live roster record still merges its full document in place");
+  eq(boot2.ctx.CMP_DATA[CANON].name, "Scott Chew",
+    "and the merge is additive — the roster record's own fields survive it");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+section("10 · the Locker's member roster, and the sweep across every alias");
+// ─────────────────────────────────────────────────────────────────────────────
+// The Locker's _roster() scan did double duty: it is the member list the section
+// renders and filters by, AND the list it hands to _pdxEnsureFullProfile. So it
+// both listed the stub as its own member and was the thing that warmed it into
+// CMP_DATA. Section 9 closed the roster; this closes the list.
+{
+  const EL = R("evidence-locker.js");
+  const from = EL.indexOf("    function _isUtahLeg(office) {");
+  must(from !== -1, "evidence-locker.js: the roster-classification block is gone");
+  const tail = EL.indexOf("      return utah.concat(rest);", from);
+  must(tail !== -1, "evidence-locker.js: _roster no longer returns utah.concat(rest)");
+  const BLOCK = EL.slice(from, EL.indexOf("\n    }", tail) + 6);
+
+  const ctx = { console, JSON, Math, Date, Object, Array, String, RegExp };
+  ctx.window = ctx; ctx.globalThis = ctx;
+  ctx.CMP_DATA = ROSTER;
+  ctx.PROFILES = { [RETIRED_KEY]: { name: "Scott Chew", office: "Utah State Representative", __lite: true } };
+  ctx.ACCT_ALIAS = {};
+  const sb = vm.createContext(ctx);
+  vm.runInContext(PE_SRC, sb, { filename: "profile-evidence.js" });
+  vm.runInContext("(function(){ " + BLOCK + "\n window.__roster = _roster; })();", sb, { filename: "el-roster" });
+  must(typeof ctx.__roster === "function", "evidence-locker.js: _roster could not be lifted");
+
+  const utah = ctx.__roster("utah");
+  const chews = utah.filter((id) => id === CANON || id === RETIRED_KEY);
+  eq(chews.length, 1, `the Locker lists one Scott Chew (got ${JSON.stringify(chews)})`);
+  eq(chews[0], CANON, "and it is the canonical member, which is also the id it warms");
+  eq(utah.length, new Set(utah).size, "no member appears twice in the Locker roster");
+  utah.forEach((id) => {
+    if (id === CANON) return;
+    ok(!PROFILE_ALIAS[id], `the Locker roster carries no retired address (found ${JSON.stringify(id)})`);
+  });
+
+  // THE SWEEP. Chew is the reported case, not the only one: the table holds 29
+  // ids, and the rule has to be the table rather than one name. Every key must
+  // read as an address, resolve to a live roster record, collapse into that
+  // record in a list, and never be a roster id in its own right.
+  const keys = Object.keys(PROFILE_ALIAS);
+  ok(keys.length >= 29, `the alias table still holds the full set (found ${keys.length})`);
+  const canon = ctx.PDXCanonIds(keys.concat(Object.keys(ROSTER)));
+  keys.forEach((k) => {
+    ok(ctx.PDXRetiredPid(k), `PDXRetiredPid reads '${k}' as an address, not a person`);
+    ok(!ROSTER[k], `'${k}' is not a cmp-data.js roster id`);
+    ok(!!ROSTER[PROFILE_ALIAS[k]], `'${k}' resolves to a live roster record`);
+    eq(canon.ids.indexOf(k), -1, `'${k}' does not survive PDXCanonIds as its own entry`);
+    ok((canon.groups[PROFILE_ALIAS[k]] || []).indexOf(k) !== -1,
+      `'${k}' is folded into ${PROFILE_ALIAS[k]}'s group, so its text is not lost`);
+  });
+  eq(canon.ids.length, new Set(canon.ids).size, "PDXCanonIds returns each person once");
+
+  // Fail open, both helpers. A list that cannot place an id keeps the row: showing
+  // a duplicate is cosmetic, hiding a real officeholder is not.
+  ok(!ctx.PDXRetiredPid("nobody_here"), "an id nobody has ruled on is not treated as retired");
+  ok(!ctx.PDXRetiredPid(""), "an empty id is not treated as retired");
+  eq(ctx.PDXCanonIds(["nobody_here"]).ids[0], "nobody_here", "an unplaceable id survives a canonical list");
+  eq(ctx.PDXCanonIds([]).ids.length, 0, "an empty bag yields an empty list");
+  eq(ctx.PDXCanonIds(null).ids.length, 0, "a missing bag yields an empty list rather than a throw");
+  const stable = ctx.PDXCanonIds([CANON, "aromero", RETIRED_KEY, "aromero"]);
+  eq(stable.ids.join(","), `${CANON},aromero`,
+    "first-seen order is preserved, so no caller's existing sort shifts");
 }
 
 // ── Report ───────────────────────────────────────────────────────────────────

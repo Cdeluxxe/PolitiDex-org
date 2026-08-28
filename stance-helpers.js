@@ -863,6 +863,29 @@
         token: 'record_none', lead: null, characterised: false, counted: false,
         judged: 0, advances: 0, opposes: 0,
         advanceScore: 0, opposeScore: 0, primary: 0, total: 0, procedural: 0,
+        // ── THE ACTS THAT TOOK NO SIDE ────────────────────────────────────────
+        // A Present, a Did Not Vote, an absence, a vehicle whose `supports` was
+        // never recorded: on file, mapped to this issue, and not a direction. They
+        // have always been excluded from `judged`, `advances` and `opposes` — the
+        // skip is one line down in pass 1, and every floor, tier and lead in this
+        // file has therefore always been computed off the sides only. What was
+        // missing was the COUNT, and its absence was a real defect on the surfaces:
+        // the dossier enumerates every item on file and labels the no-side ones, so
+        // a row reading "4 listed" beside a chip reading "3 advanced · 0 against"
+        // left the reader to work out for themselves whether the fourth was a
+        // fourth Yea we had lost or an abstention we had correctly declined to
+        // count. So the number is published, and a surface may say "· 1 no side".
+        //   IT IS A DISCLOSURE AND NOTHING ELSE. Nothing below reads it: not
+        // `deepEnough`, not `dominant`, not `thinEnough`, not the split floors,
+        // not the noun swap. Adding an abstention to a row can never change its
+        // tier, its lead, its counts or its inclusion in anything, which is the
+        // property requirement 1 asks for and the property this file already had.
+        //   COUNTED IN PASS 1, BEFORE THE ONE-ACT-PER-INSTRUMENT DEDUPE, because
+        // an act with no side never reaches pass 2 to be deduped — it is not a
+        // candidate to speak for its instrument. Two abstentions on one bill are
+        // therefore two no-side acts here and two rows in the dossier, which is
+        // what is on file and what the list shows.
+        noSide: 0,
         // ── THE ACT MIX (see THE NON-VOTE FORMAL ACTS above) ─────────────────
         // `mix` counts the acts that were ADMITTED, by class. `actStrength` is
         // their summed depth weight and `floorStrength` the part of it that is
@@ -902,7 +925,7 @@
         // The SAME direction function the say-vs-do engine uses, including its
         // procedural inversion — not a second copy of the recommit/table rule.
         var eff = _voteEffectiveSupport(item, mapping.supportMeaning);
-        if (eff === null || typeof eff === 'undefined') return; // present / not voting
+        if (eff === null || typeof eff === 'undefined') { out.noSide++; return; } // present / not voting
         var cls = _rdActClass(item);
         if (!cls) { out.unclassified++; return; }   // statement, or an act we cannot name
         var mk = _rdMeasureKey(item);
@@ -1344,6 +1367,35 @@
     window._PDX_RD_SAYS_ON = _RD_SAYS_ON;
     window._recordSays = _recordSays;
 
+    // ── THE TWO-SIDED TALLY, IN ONE PLACE ─────────────────────────────────────
+    // "7 advanced · 0 against" is the product's one phrase for what the judged acts
+    // on an issue did, and it is written here once so that every surface allowed to
+    // print it prints the same words in the same order. It is arithmetic off the
+    // index and nothing else: no tier, no lead, no direction word, no rate.
+    function _rdSidePhrase(idx) {
+      if (!idx) return '';
+      var a = idx.advances, o = idx.opposes;
+      if (typeof a !== 'number' || typeof o !== 'number') return '';
+      if (!(a + o)) return '';
+      return a + ' advanced · ' + o + ' against';
+    }
+    window._recordSidePhrase = _rdSidePhrase;
+
+    // …and the LEFTOVER, worded once for the same reason. "1 no side" is the
+    // fragment a surface appends to the phrase above when the row holds acts that
+    // are on file and took no direction, so the two integers stop having to account
+    // for an inventory they were never counting. Deliberately not a side and
+    // deliberately not spelled "0 no side": where nothing abstained there is
+    // nothing to disclose, and a third zero on every chip in the product would
+    // teach a reader to stop reading the first two.
+    function _rdNoSidePhrase(idx) {
+      if (!idx) return '';
+      var n = idx.noSide;
+      if (typeof n !== 'number' || n <= 0) return '';
+      return n + ' no side';
+    }
+    window._recordNoSidePhrase = _rdNoSidePhrase;
+
     // Word the two counts. Printed only where the index permits counts, or where the
     // tier's own label already denies depth (thin) — a shallow split still withholds
     // its margin, exactly as the index does.
@@ -1366,7 +1418,7 @@
         return idx.judged + ' ' + _rdPlural(idx.judged, noun.one, noun.many) + ' ' +
           (idx.advances ? 'advanced' : 'against');
       }
-      return idx.advances + ' advanced · ' + idx.opposes + ' against';
+      return _rdSidePhrase(idx);
     }
 
     // MAY ONE ACT LEAN? The one-item read is the loudest thing this engine says
@@ -1440,7 +1492,30 @@
         // tier and one direction word in, one of the seven fixed words out.
         says: _recordSays(t.key, dir ? dir.word : ''),
         counts: showCounts ? _rdTierCounts(idx, noun, t.key) : '',
+        // ── THE TALLY, CARRIED WHETHER OR NOT THE CHIP MAY PRINT IT ──────────
+        // `counts` above is the PUBLICATION decision and it is unchanged: a shallow
+        // split still withholds its margin on every chip that reads `counts`, and
+        // nothing here moves a floor, a tier, a lead or a direction word.
+        //   `sideCounts` is the arithmetic on its own, exposed for the one surface
+        // that asks a different question. The 🏛 formal brief lists a handful of
+        // named issues with a heading over them that already says the record ran
+        // both ways; there, a row reading "Split" and nothing else is not restraint
+        // but a missing number, next to sibling rows that print theirs. So the
+        // brief prints the tally under the same phrase, and says so where there is
+        // none. Every other surface reads `counts` and is untouched.
+        //   NEVER A DIRECTION. Two integers a reader can count on the ledger below
+        // the chip, in the order the phrase always states them. No lead is derived
+        // from them here and none may be derived from them downstream — a split has
+        // no side, however the two numbers compare.
+        sideCounts: _rdSidePhrase(idx),
         judged: idx.judged, advances: idx.advances, opposes: idx.opposes,
+        // THE LEFTOVER, CARRIED BESIDE THE TALLY AND NEVER INSIDE IT. `sideCounts`
+        // above is the two integers and stays the two integers on every surface
+        // that prints it; this is the count of acts on file that took no side, and
+        // the phrase for it, for the one surface that has room to account for the
+        // whole inventory. Nothing here is a side and nothing here moved a floor.
+        noSide: idx.noSide || 0,
+        noSideCount: _rdNoSidePhrase(idx),
         directional: !!t.directional,
         token: idx.token,
         note: _RD_TIER_NOTE,
@@ -1559,7 +1634,16 @@
         // advanced" — because "3 advanced · 0 against" spends a number on a side
         // with nothing on it.
         counts: _rdTierCounts(idx, noun, (uniform || key === 'thin') ? 'thin' : key),
+        // The same two integers the pattern tier carries, in the same phrase, so a
+        // surface reading one field does not have to know which of the two reads it
+        // was handed. This lane already prints its split counts above; this is the
+        // identical arithmetic under a stable name.
+        sideCounts: _rdSidePhrase(idx),
         judged: judged, advances: adv, opposes: opp,
+        // The leftover, in the same two fields the pattern tier publishes it in, so
+        // a surface reading one of the two reads does not have to know which.
+        noSide: idx.noSide || 0,
+        noSideCount: _rdNoSidePhrase(idx),
         directional: key !== 'split',
         token: idx.token,
         note: _RD_TIER_NOTE,

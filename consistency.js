@@ -2239,6 +2239,11 @@
       '.pdxdos-gap{font-size:0.68rem;color:#f0cd8c;line-height:1.5;padding:0.35rem 0.5rem;' +
         'border:1px solid rgba(240,205,140,0.3);border-radius:0.4rem;background:rgba(240,205,140,0.06);' +
         'margin:0.35rem 0 0.15rem;}' +
+      // The shortfall note is the same amber box, one shade louder. The ⏳ gap above
+      // is a load state and resolves itself; this one is a list that does not add up
+      // to its own record and does not resolve, so it reads as the fault it is.
+      '.pdxdos-gap-short{color:#f5b8b8;border-color:rgba(245,184,184,0.34);' +
+        'background:rgba(245,184,184,0.07);font-weight:600;}' +
       '.pdxdos-rec{border-top:1px solid rgba(255,255,255,0.06);}' +
       '.pdxdos-rec>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;align-items:baseline;' +
         'gap:0.3rem;padding:0.4rem 0;min-height:2.2rem;}' +
@@ -2246,6 +2251,12 @@
       '.pdxdos-rec-ico{flex:none;}' +
       '.pdxdos-rec-id{font-weight:700;font-size:0.76rem;color:#e8eefc;}' +
       '.pdxdos-rec-act{font-size:0.72rem;color:#c6d4ec;}' +
+      // The measure's name. Dimmer than the number it follows and allowed to wrap
+      // onto its own line rather than being ellipsised by the layout — a title that
+      // has to fit the width of a phone in one line is a title nobody can read, and
+      // this list is read on a phone.
+      '.pdxdos-rec-ttl{font-size:0.7rem;color:#b8c8e4;min-width:0;overflow-wrap:break-word;' +
+        'font-family:system-ui,sans-serif;}' +
       '.pdxdos-rec-vd{font-size:0.68rem;}' +
       // The ledger standing on a row face. Muted and dashed-underlined rather than
       // coloured, so it cannot be mistaken for one of the four verdicts; it sits in
@@ -2256,6 +2267,28 @@
       // Record proof line so the two surfaces read as one vocabulary.
       '.pdxdos-rec-dir{font-size:0.62rem;color:#9fb4d4;border:1px solid rgba(159,180,212,0.22);' +
         'border-radius:999px;padding:0.02rem 0.34rem;white-space:nowrap;}' +
+      // ── THE ROW THAT TOOK NO SIDE, AND WHY IT IS DASHED ─────────────────────
+      // Solid means counted, everywhere else in this sheet: the side pill above is
+      // solid, the verdict chips are solid, the hold mark is its own glyph. Dashed
+      // is already this file's mark for "on file, not resolved" — the ledger
+      // standing on a row face uses it, the derived-mechanism rule uses it — so an
+      // abstention borrows the same vocabulary rather than inventing a fourth one.
+      // The row is dimmed, not hidden and not greyed out of legibility: it is real
+      // evidence about a real bill and a reader must be able to read every word of
+      // it. What it must not do is scan as a fourth Yea in a list of three.
+      '.pdxdos-rec-nos>summary{opacity:0.74;}' +
+      // The dashed rule encloses the whole card. It used to stop at the last
+      // baseline, so on the last row of a list — which is where an older act tends
+      // to sit — the frame read as though the row had been cut off rather than
+      // finished. A no-side row is a full card and has to look like one closed.
+      '.pdxdos-rec-nos{border-left:2px dashed rgba(159,180,212,0.3);padding-left:0.4rem;' +
+        'padding-bottom:0.2rem;margin-bottom:0.1rem;}' +
+      // The label itself. Dashed border and no fill, so it cannot be mistaken for
+      // the side pill it stands in place of, and bold because it is the first thing
+      // on the line and the reason the rest of the line reads differently.
+      '.pdxdos-rec-nosl{font-size:0.62rem;font-weight:700;color:#9fb4d4;' +
+        'border:1px dashed rgba(159,180,212,0.45);border-radius:999px;' +
+        'padding:0.02rem 0.36rem;white-space:nowrap;flex:none;}' +
       // The standing of the whole list, above the rows. Same weight as the coverage
       // note it sits beside — this is disclosure, not a warning.
       '.pdxdos-led{font-size:0.68rem;color:#9fb4d4;line-height:1.5;padding:0.4rem 0.55rem;' +
@@ -3675,27 +3708,48 @@
   //   Denominated by what it actually counted — the rows in this list, the same rows
   // the enumeration prints — never by the row's claimed total, so the split can never
   // assert coverage the list below it does not show.
+  // ── AND A FOURTH BUCKET, BECAUSE THERE IS A FOURTH KIND OF ROW ──────────────
+  // A recorded absence and a recorded Present used to land in `unclear`, beside the
+  // genuinely unreadable row — the act whose mapping carries no support meaning at
+  // all. Those are not the same fact and a reader cannot act on the merged one: "1
+  // with no direction mapped" says the file is incomplete, when the file is
+  // complete and says they did not vote. So the ballot absences get their own
+  // counter, read from `_dosNoSide` — the same predicate the row card's own dashed
+  // treatment and leading pill are drawn from, so the header's integer and the rows
+  // underneath it cannot disagree about which rows took no side.
+  //   `unclear` keeps its old meaning and only its old meaning, and `directional`
+  // is unchanged: neither bucket was ever on a side and neither is now.
   function _ledSplit(pid, issueKey, ov) {
     var items = [];
     try { items = _dosItems(pid, issueKey, ov) || []; } catch (e) { items = []; }
-    var s = { listed: items.length, advances: 0, opposes: 0, unclear: 0, held: 0 };
+    var s = { listed: items.length, advances: 0, opposes: 0, noSide: 0, unclear: 0, held: 0 };
     for (var i = 0; i < items.length; i++) {
       var d = items[i];
       if (d.held) { s.held++; continue; }
       var dir = _dosItemDir(d);
       if (dir === 'advances') s.advances++;
       else if (dir === 'opposes') s.opposes++;
+      else if (_dosNoSide(d)) s.noSide++;
       else s.unclear++;
     }
     s.directional = s.advances + s.opposes;
     return s;
   }
   // "5 advancing · 1 opposing" — the chip-length form, for a closed face.
+  //   THE LEFTOVER IS PART OF THE PHRASE. The brief above this sheet prints "4
+  // advanced · 0 against · 1 no side"; this line printed the first two integers and
+  // dropped the third, so the closed face of the measure list read "5 votes listed
+  // here · 4 advancing" — four and five, with nothing accounting for the gap. Same
+  // three integers, same order, same words as the brief, from the same rows.
+  //   And it is no longer gated on `directional`: a member whose whole record on an
+  // issue is absences has a shape, and "1 no side" is it. Gating on the sides meant
+  // the one case where the leftover IS the record printed nothing at all.
   function _ledSplitSay(sp) {
-    if (!sp || !sp.directional) return '';
+    if (!sp || (!sp.directional && !sp.noSide)) return '';
     var parts = [];
     if (sp.advances) parts.push(sp.advances + ' advancing');
     if (sp.opposes) parts.push(sp.opposes + ' opposing');
+    if (sp.noSide) parts.push(sp.noSide + ' no side');
     return parts.join(' · ');
   }
   // …and the sentence form, which names the issue, accounts for every row it did not
@@ -3706,6 +3760,11 @@
     if (sp.advances) parts.push(sp.advances + (sp.advances === 1 ? ' advances it' : ' advance it'));
     if (sp.opposes) parts.push(sp.opposes + (sp.opposes === 1 ? ' cuts against it' : ' cut against it'));
     var rest = [];
+    // In words, and in the record's own words. "with no direction mapped" is a
+    // statement about OUR file and it was being made about a fact the clerk's file
+    // records perfectly well: they were absent, or they answered Present. The two
+    // clauses are kept apart for the same reason the counters are.
+    if (sp.noSide) rest.push(sp.noSide + ' took no side');
     if (sp.unclear) rest.push(sp.unclear + ' with no direction mapped');
     if (sp.held) rest.push(sp.held + ' not scorable');
     return 'Mapped directions on ' + (_issueLabel(issueKey) || 'this issue') + ': ' +
@@ -4049,7 +4108,7 @@
   // records and name the bill anyway. De-duplicated, never re-ordered by verdict
   // beyond "contradiction before confirmation" (the sharper signal first).
   function _orProofPicks(pid, issueKey, ov, limit) {
-    var picks = [], seen = {};
+    var picks = [];
     var rec = (ov && ov.record) || null;
     if (!rec) return picks;
     var stance = rec.stance || null;
@@ -4076,19 +4135,31 @@
     // two fields which distinguish sibling records — the title and the ballot cast.
     // Losing a row is a far worse failure than listing a true duplicate: an
     // over-eager key hides evidence, a lax one shows the same receipt twice.
-    var key = function (it) {
-      return [
-        it.rollcallId || '', it.measureId || '', it.number || '', it.date || '',
-        it.action || '', it.title || it.shortTitle || '', it.position || ''
-      ].join('|');
-    };
+    // …AND THEN THE FALLBACK KEY DROPPED A YEA ANYWAY. Relaxing the key from five
+    // fields to seven made the collision rarer. It did not make it impossible, and
+    // it could not: every one of the seven is optional, so any two mapped acts that
+    // happen to agree on all seven still collapse to one row — and the reader is
+    // told nothing, because the summary that counts them is a different reader of
+    // the same array. That is the reported case. The dossier's measure list showed
+    // four acts and "3 advancing" while the row above it offered "See all 5 mapped
+    // votes" and the brief said "4 advanced · 0 against · 1 no side": one Yea, on
+    // file, mapped, counted in the verdict, absent from the enumeration, with no
+    // sentence anywhere saying a row had been removed.
+    //
+    // SO THE FALLBACK IS GONE. Identity is not a heuristic for the collision this
+    // dedupe was written for — it is the collision. `rec.topContradiction` and
+    // `rec.topConsistent` are stored by _issueRecordSummary as references INTO the
+    // very array _pdxRecordIssueItems re-derives below, so the same vote arriving
+    // from both sources arrives as the same object, and `indexOf` catches it every
+    // time. A field key can only ever fire on two DISTINCT objects — which is to
+    // say, on two distinct acts, which is to say: on a drop.
+    //   The wall above already stated the priority and this is it enforced rather
+    // than approximated: losing a row hides evidence, listing a true duplicate
+    // shows a receipt twice. Only one of those is a hidden action count.
     var pushed = [];
     var push = function (item, verdict) {
       if (!item || (limit && picks.length >= limit)) return;
       if (pushed.indexOf(item) >= 0) return;
-      var k = key(item);
-      if (seen[k]) return;
-      seen[k] = 1;
       pushed.push(item);
       picks.push({ item: item, verdict: verdict || _orItemVerdict(item, issueKey, stance) });
     };
@@ -8263,6 +8334,14 @@
         why: why,
         counts: t ? t.counts : '',
         judged: t ? t.judged : 0,
+        // THE ACTS ON FILE THAT TOOK NO SIDE. Carried from the tier, which carries
+        // it from the index, which has always excluded them from `judged` and from
+        // both side counts. It is here so a surface printing the two integers can
+        // account for the rest of the list in the same breath — see the wall over
+        // `noSide` in _recordDirectionIndex. It is not a side, it is not summed
+        // into anything, and no row's tier, tone, weight or sort position reads it.
+        noSide: t ? (t.noSide || 0) : 0,
+        noSideCount: t ? (t.noSideCount || '') : '',
         directional: !!(t && t.directional),
         read: !!t,
         single: single,
@@ -9101,10 +9180,33 @@
   // One row, flattened for a caller that wants to print it and nothing else. The
   // chip is the atlas's own chip, rendered here rather than described, so the
   // summary and the list cannot drift into two vocabularies for one tier.
+  //
+  // FOUR FIELDS FOR THE DOOR AND THE TALLY. `pid` travels with the row because a
+  // caller holding a flattened row is otherwise holding an issue key with nothing
+  // to open it against — the door needs the pair. `sideCounts` / `advances` /
+  // `opposes` are the two-sided phrase and its two integers, straight off the
+  // tier, and they are here for exactly one reason: a split row whose publication
+  // decision withheld its margin (`counts` empty, by the shallow-split rule in
+  // _RD_TOKENS) still printed the bare word "Split" into a profile brief, with the
+  // numbers sitting one field away. This does not lower that rule. `counts` is
+  // untouched, every surface reading `counts` reads the same string it read
+  // before, and no tier, floor, lead or direction is computed from these three.
   function _fpiShapeRow(x) {
     return {
-      key: x.key, label: x.label, tier: x.tier, tone: x.tone,
+      pid: x.pid, key: x.key, label: x.label, tier: x.tier, tone: x.tone,
       patLabel: x.patLabel, counts: x.counts, judged: x.judged,
+      sideCounts: (x.pat && x.pat.sideCounts) ||
+        (window._recordSidePhrase ? window._recordSidePhrase(x.pat) : ''),
+      advances: (x.pat && typeof x.pat.advances === 'number') ? x.pat.advances : null,
+      opposes: (x.pat && typeof x.pat.opposes === 'number') ? x.pat.opposes : null,
+      // AND THE LEFTOVER, flattened with them. The brief is the surface that made
+      // this necessary: it prints the tier and the two integers straight off this
+      // row, and a member who abstained on one of four mapped bills had a chip
+      // saying "3 advanced · 0 against" over a dossier saying "4 listed" with no
+      // sentence anywhere on either surface joining the two. The integers were
+      // always right; the inventory was the thing with no words. Not a side, not
+      // summed, not sorted on — see _fpiRows.
+      noSide: x.noSide || 0, noSideCount: x.noSideCount || '',
       said: !!x.said, chip: _stPatternHtml(x.row, x.pat)
     };
   }
@@ -12586,8 +12688,19 @@
   // 'Limited record'", teaching a reader that the RECORD was found wanting when the
   // record had never been tested at all. A ledger row ends record-relative instead,
   // in the mapping's own voice and about the measure rather than the person.
+  //
+  // AND WHERE NOTHING TOOK A SIDE, THERE IS NO DIRECTION TO EXPLAIN. On an
+  // abstention the sentence below read "On 🍎 Invest in Public Schools a Yea counts
+  // as support for the issue's direction, and they did not vote" — a polarity
+  // lesson about a vote that was not cast, printed in the slot labelled "Which way
+  // it cut" over a row where nothing cut either way. The label is the claim, and it
+  // is false on this population however carefully the sentence is worded, so the
+  // slot is empty here instead. What the act was is still printed, on the face and
+  // in the record's own words; what it meant for the issue is not, because it did
+  // not mean anything for the issue.
   function _dosDirLine(d, issueKey, led) {
     if (d.held) return '';
+    if (_dosNoSide(d)) return '';
     var lbl = _issueLabel(issueKey) || 'this issue';
     var v = VERDICTS[d.verdict];
     var ldir = led ? _dosItemDir(d) : '';
@@ -12754,6 +12867,55 @@
     }
     return (d.effect === 'advances') ? 'advances' : (d.effect === 'opposes') ? 'opposes' : '';
   }
+  // ── AN ACT WITH NO SIDE IS NOT A QUIET YEA ──────────────────────────────────
+  // The enumeration lists everything on file, which is right — an abstention on a
+  // bill this issue was about is a fact about the record, and dropping it would be
+  // the silence-means-absence framing in miniature. What was wrong was that it
+  // listed identically to a cast ballot: same icon, same weight, same slot layout,
+  // and a "Which way it cut" paragraph underneath explaining what a Yea here would
+  // have counted as. Four rows under a chip reading "3 advanced · 0 against" and
+  // one of them wearing the furniture of a vote is a row a reader counts as a
+  // fourth Yea, and the arithmetic they then cannot reproduce is ours.
+  //
+  // So this is the one predicate that says the row took no side, and it is asked
+  // of the SAME function that produces the side — `_dosItemDir` — rather than of a
+  // second reading of `position`. That is the whole design: there is no state in
+  // which this returns a label and that returns a direction, because this returns
+  // a label precisely when that returned nothing.
+  //
+  // THREE LABELS, AND THE THIRD IS THE HONEST CATCH-ALL. A recorded Present and a
+  // recorded absence are different facts and the clerk's file distinguishes them,
+  // so the row does too. Anything else with no direction on file — a formal act
+  // whose `supports` boolean was never recorded, a mapping carrying no support
+  // meaning — is not an abstention and must not be described as one; it is a row
+  // we cannot put on a side, which is what "No side" says and all it says.
+  //
+  // NOTHING HERE IS A GATE. It sets no verdict, moves no floor, and is read by
+  // exactly two places: the row's own presentation and the polarity paragraph it
+  // suppresses. The chip above the list was already counting judged sides only.
+  var _DOS_NOSIDE = {
+    present: 'Present', abstain: 'Present',
+    not_voting: 'Did not vote', notvoting: 'Did not vote', 'not voting': 'Did not vote',
+    absent: 'Did not vote', excused: 'Did not vote'
+  };
+  // What this measure is called, for the row face — '' when the identity already
+  // says it. Clipped at a word boundary rather than mid-word and rather than being
+  // dropped: a shortened name still identifies a bill, an absent one does not, and
+  // an ellipsis is the row telling the reader there is more of this name inside.
+  function _dosFaceTitle(d) {
+    var t = String((d && d.title) || '').trim();
+    if (!t) return '';
+    var id = String((d && d.ident) || '').trim();
+    if (id && (t.toLowerCase() === id.toLowerCase() || id.toLowerCase().indexOf(t.toLowerCase()) >= 0)) return '';
+    if (t.length > 64) t = t.slice(0, 64).replace(/\s+\S*$/, '') + '\u2026';
+    return t;
+  }
+  function _dosNoSide(d) {
+    if (!d || d.held || d.lane !== 'record') return '';
+    if (_dosItemDir(d)) return '';
+    var pos = String((d.item && d.item.position) || '').toLowerCase();
+    return _DOS_NOSIDE[pos] || 'No side';
+  }
   // Bare stem, not third-person singular: the clause is always "they said they ___",
   // so "supports" produced "they said they supports" — the exact kind of sentence that
   // tells a reader nobody read the line before shipping it.
@@ -12861,10 +13023,31 @@
     // and one went the other by scanning the faces, without opening anything.
     var ledRow = !!led && !d.held;
     var dir = _dosItemDir(d);
+    // ── AND THE THIRD KIND OF ROW: THE ONE THAT TOOK NO SIDE ──────────────────
+    // See the wall over _dosNoSide. A Yea or a Nay gets the ▲/▼ side pill; an act
+    // with no direction on file gets this label instead, in the same first line, so
+    // the answer to "which way did this one go" is in the same place on every row
+    // and is never blank. It leads the line rather than sitting in the pill's slot
+    // because it is the row's standing and not its direction: a reader scanning a
+    // list of four for the one that is not a vote should find it without reading
+    // any of them, and the dashed, dimmed frame the class carries is the other half
+    // of that. Nothing else about the row changes — same identity, same date, same
+    // session, same source, same body, and it is still listed and still counted in
+    // "listed", because it is on file.
+    var nos = _dosNoSide(d);
+    // ONE STATEMENT OF ONE FACT. On a ballot absence the act phrase the record
+    // itself produced ("Did not vote", "Voted Present") IS this label in the
+    // record's own voice, and printing both puts the same two words twice on one
+    // line. The catch-all keeps its act phrase: "No side" says we cannot place the
+    // row, which is a different fact from what the act was, and suppressing
+    // "Co-sponsored" to say it would lose the only description on the row.
+    var nosBallot = !!nos && nos !== 'No side';
+    var _faceTtl = _dosFaceTitle(d);
     var head =
       (d.held ? '<span class="pdxdos-rec-ico pdxdos-rec-hold" aria-hidden="true">⊘</span>'
         : ledRow ? '<span class="pdxdos-rec-ico" aria-hidden="true">' + _LED.ico + '</span>'
         : '<span class="pdxdos-rec-ico" style="color:' + v.color + '" aria-hidden="true">' + v.ico + '</span>') +
+      (nos ? '<span class="pdxdos-rec-nosl">' + esc(nos) + '</span>' : '') +
       '<span class="pdxdos-rec-id">' + esc(d.ident) + '</span>' +
       // The sitting sits with the number because it is part of the number's meaning:
       // "H.R. 22" names one bill in the 119th and a different one in every other,
@@ -12874,8 +13057,23 @@
       // federal row, and a session code where there was nothing before.
       (d.session || d.congress
         ? '<span class="pdxdos-rec-st">' + esc(d.session || d.congress) + '</span>' : '') +
+      // ── AND WHAT THE BILL IS CALLED ───────────────────────────────────────
+      // The face carried the number, the sitting, the question, the ballot, the
+      // direction and the day — everything except the one field that tells a reader
+      // what the measure was. "H.B. 400 · On concurrence in amendments · Did not
+      // vote · 2023-03-01" is a complete citation and an unreadable card: nothing on
+      // it says the bill was about school absenteeism. The title was on the item all
+      // along and was only reachable by opening the row, which is the wrong bargain
+      // on a list a reader is scanning to decide WHICH row to open.
+      //   Printed on every row of this list, not just the ones that took no side —
+      // a no-side card being a "full card" and a cast-ballot card being a partial
+      // one would be a second inconsistency dressed as a fix.
+      //   Skipped when it would only repeat the identity: on the migrated formal
+      // lane the ident IS the headline sentence, and on a record row filed without a
+      // bill number the ident falls back to the title.
+      (_faceTtl ? '<span class="pdxdos-rec-ttl">' + esc(_faceTtl) + '</span>' : '') +
       (d.question ? '<span class="pdxdos-rec-act">' + esc(d.question) + '</span>' : '') +
-      (d.act ? '<span class="pdxdos-rec-act">' + esc(d.act) + '</span>' : '') +
+      (d.act && !nosBallot ? '<span class="pdxdos-rec-act">' + esc(d.act) + '</span>' : '') +
       (dir && !d.held ? '<span class="pdxdos-rec-dir">' + esc(_ledDirShort(dir)) + '</span>' : '') +
       (d.held ? '<span class="pdxdos-rec-vd pdxdos-rec-hold">Not scored</span>'
         : ledRow ? '<span class="pdxdos-rec-vd pdxdos-rec-led" title="' + escAttr(_LED.full) + '">' +
@@ -12931,7 +13129,8 @@
          wk('Which way it cut:', m.dir) +
          wk('', m.gap, 'pdxdos-rec-gap') +
          _dosMultiHtml(m, d));
-    return '<details class="pdxdos-rec" data-pdxdos-i="' + i + '"' +
+    return '<details class="pdxdos-rec' + (nos ? ' pdxdos-rec-nos' : '') + '"' +
+        ' data-pdxdos-i="' + i + '"' +
         ' data-pdxdos-pid="' + escAttr(pid) + '" data-pdxdos-key="' + escAttr(issueKey) + '">' +
         '<summary>' + head + why + '</summary>' +
         // Empty on purpose. The body is built the first time this row is opened —
@@ -13568,6 +13767,34 @@
   // instead of quietly showing three and claiming six. `judged` is read from
   // judgedCountOf, the same count the score divides by, so the number a reader is
   // told to expect is the number the verdict actually rests on.
+  // ── HOW MANY ACTS THE RECORD ITSELF SAYS ARE ON FILE ────────────────────────
+  // `judged` above measures the list against the SCORE. This measures it against the
+  // INVENTORY — the same integer the Official Record row already prints on its way
+  // out of the sheet ("See all 5 mapped votes on this issue →"), which is
+  // `ov.record.total`, which is _issueRecordSummary counting mapped acts in the warm
+  // cache. The dossier's list is a second reader of that same cache, and the two
+  // came apart: five in the door's label, four in the list, nothing said.
+  //   So the inventory is read here, from the same field the door reads, and the
+  // branches mirror _dosItems exactly — whichever pool that function enumerates is
+  // the pool this function counts, or the check would measure the list against a
+  // number describing a different set of things. Executive counts items AND held
+  // documents because the list prints both.
+  //   Returns null rather than 0 when no lane owns the read: an unknown inventory
+  // must not read as an empty one, because Math.max would then turn every listed row
+  // into a surplus and the disclosure below would fire on a complete list.
+  function _dosExpected(ov) {
+    if (!ov) return null;
+    var pool = ov.execPool || ov.execHeld || null;
+    if (pool && pool.items && pool.items.length) {
+      return pool.items.length + ((pool.held && pool.held.length) || 0);
+    }
+    if (ov.record) {
+      var t = ov.record.total;
+      return (typeof t === 'number' && t >= 0) ? t : null;
+    }
+    if (ov.officialActions && ov.officialActions.items) return ov.officialActions.items.length;
+    return null;
+  }
   function _dosCoverage(pid, issueKey, ov, items) {
     ov = ov || officialIssue(pid, issueKey);
     items = items || _dosItems(pid, issueKey, ov);
@@ -13579,7 +13806,18 @@
     // no side on the stated position is scored `limited` and counts in neither. So
     // the gap is only ever "judged items with no row", never the reverse.
     var missing = (judged === null) ? 0 : Math.max(0, judged - scored);
-    return { listed: items.length, scored: scored, held: held, judged: judged, missing: missing };
+    // The second reconciliation, and the one the reported defect needed. `short` is
+    // acts the record says are on file with no row in this list. It should now be
+    // permanently zero — _orProofPicks no longer has a fallback key that can drop
+    // one — and it is measured anyway, because a silent drop is the failure mode and
+    // the only defence against a silent one is a loud one.
+    var expected = _dosExpected(ov);
+    var short = (typeof expected === 'number') ? Math.max(0, expected - items.length) : 0;
+    return {
+      listed: items.length, scored: scored, held: held,
+      judged: judged, missing: missing,
+      expected: (typeof expected === 'number') ? expected : null, short: short
+    };
   }
 
   // ── L2 — the group ──────────────────────────────────────────────────────────
@@ -13619,6 +13857,13 @@
     // and whether that depth is one measure wearing several names; what it never
     // carried was the shape of the record — five one way, one the other. A count of
     // mapped directions, on both sides, never a rate.
+    //   THREE INTEGERS, AND THEY ARE THE BRIEF'S THREE INTEGERS. The line used to
+    // read "5 votes listed here · 4 advancing" over a brief reading "4 advanced · 0
+    // against · 1 no side", so the closed face asserted five rows and accounted for
+    // four of them. _ledSplitSay now carries the leftover, from the same predicate
+    // the leftover row's own pill is drawn from, so the depth and the shape add up
+    // on the face — and the depth is still the ROW COUNT, first, in front of the
+    // noun, because that is the number the expander is about to have to honour.
     var sum = cov.listed + ' ' + (cov.listed === 1 ? n.one : n.many) + ' listed here' +
       (cov.held ? ' — ' + cov.held + ' of them not scorable' : '') +
       ((spread.single && spread.judged > 1) ? ' · all one measure' : '') +
@@ -13641,6 +13886,26 @@
           ' were judged on this issue and ' + cov.scored + ' of them can be listed right now. The other ' +
           cov.missing + ' are counted in the verdict; their detail arrives with this member’s full ' +
           'roll-call record and this list fills in when it lands. Nothing has been dropped.') + '</div>'
+      : '';
+    // ── AND IF THE LIST IS EVER SHORT OF THE INVENTORY, IT SAYS SO ─────────────
+    // This is the sentence whose absence was the actual defect. The list showed four
+    // acts; the door two sections down offered "See all 5 mapped votes"; the brief
+    // said 4 + 0 + 1. Every number was individually defensible and no surface
+    // reconciled them, so the missing Yea was not merely absent — it was
+    // unfalsifiable from the page. The drop it was caused by is fixed above and this
+    // should never render; it exists so that the next thing which drops a mapped act
+    // announces itself on the face instead of being found by a reader counting rows
+    // against a button label.
+    //   Worded as OUR failure, not as a load state: the acts are on file and warm,
+    // so "still loading" would be false and "nothing has been dropped" would be a
+    // lie. It names the count, names where the full set is, and says nothing about
+    // why, because a surface that does not know why must not guess.
+    var shortGap = cov.short
+      ? '<div class="pdxdos-gap pdxdos-gap-short" data-pdxdos-short="' + escAttr(String(cov.short)) + '">⚠️ ' +
+          esc(cov.expected + ' ' + (cov.expected === 1 ? n.one : n.many) + ' on this issue are on file and ' +
+            cov.listed + ' of them are listed here. That is a gap in this list, not in the record: the ' +
+            'other ' + cov.short + ' ' + (cov.short === 1 ? 'is' : 'are') + ' in the full record below and ' +
+            (cov.short === 1 ? 'is' : 'are') + ' counted wherever this issue is counted.') + '</div>'
       : '';
     // THE STANDING OF THE WHOLE LIST, ONCE, ABOVE THE ROWS. Each row says it for
     // itself, but a reader who opens a nine-row drawer meets the reason nine times
@@ -13673,7 +13938,7 @@
         '<summary><span aria-hidden="true">🏛️</span> ' + esc(sum) +
           ' <span aria-hidden="true">▾</span>' +
           '<span class="pdxdos-recs-list">' + esc(enumTxt) + '</span></summary>' +
-        gap + ledNote +
+        shortGap + gap + ledNote +
         items.map(function (d, i) { return _dosRowHtml(d, i, pid, issueKey, teach, led); }).join('') +
         note + _dosVrLinkHtml(pid, issueKey, ov) +
       '</details>';

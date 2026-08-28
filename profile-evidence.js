@@ -442,6 +442,52 @@
       return id;
     };
 
+    // ── ONE PERSON, ONE ROW — the list-shaped half of the same question ──────
+    // PDXProfilePid answers the question an ARRIVAL asks: "which id should this
+    // address open?" A LIST asks the inverse — given a bag of ids unioned out of
+    // PROFILES and CMP_DATA, how many PEOPLE are in it? Every list surface built
+    // that bag from raw keys, so each id in the table above counted as one more
+    // officeholder. That is why "chew" returned two current Utah House District
+    // 68 files: `chew_h68` with the 90-act formal record, and `scott_chew`, a
+    // Firestore photo stub whose own address already redirects to the first one.
+    //
+    // The two helpers below are the only new machinery in that pass, and neither
+    // makes a new claim about anybody: both read PDXProfilePid, so a list can
+    // never disagree with the address bar about who is one person. NOTHING IS
+    // MERGED. The retired document still exists, still holds whatever it holds,
+    // and its address still opens the canonical file. It just stops being
+    // counted, ranked and rendered as a second human.
+    //
+    // WHY BOTH FAIL OPEN. Each returns the "keep the row" answer when it cannot
+    // place an id — an id nobody has ruled on, or a bridge whose target has no
+    // record. For a list, showing a duplicate is a cosmetic defect; hiding a real
+    // officeholder is a factual one, and only one of those is worth risking.
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // "Is this id an address rather than a person?" One caller today: the
+    // Firestore lazy-loader, which must not mint a roster entry for a retired key.
+    window.PDXRetiredPid = function (id) {
+      if (!id) return false;
+      try { return window.PDXProfilePid(id) !== id; } catch (e) { return false; }
+    };
+
+    // A bag of ids in; one entry per person out, in first-seen order so no
+    // caller's existing sort shifts. `groups` maps each surviving id to every id
+    // that resolved into it, so a surface that must not lose the retired
+    // document's searchable text (the All-Seeing Eye's haystack) can fold that
+    // text into the one row it kept instead of dropping it on the floor.
+    window.PDXCanonIds = function (ids) {
+      var order = [], groups = Object.create(null);
+      (ids || []).forEach(function (id) {
+        if (!id) return;
+        var c = id;
+        try { c = window.PDXProfilePid(id) || id; } catch (e) { c = id; }
+        if (!groups[c]) { groups[c] = []; order.push(c); }
+        if (groups[c].indexOf(id) === -1) groups[c].push(id);
+      });
+      return { ids: order, groups: groups };
+    };
+
     // Resolve the overall theme for an official: a document-authored
     // `spotlightTheme` wins; otherwise the curated ACCT_THEME default. Returns
     // '' when there is nothing to show so callers can omit the banner cleanly.

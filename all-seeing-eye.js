@@ -44,11 +44,44 @@
     }
 
     // ── data access (defensive — sources may load asynchronously) ─────
-    function allPolIds() {
-      var ids = {};
-      try { if (typeof CMP_DATA !== 'undefined' && CMP_DATA) Object.keys(CMP_DATA).forEach(function (id) { ids[id] = 1; }); } catch (e) {}
-      try { if (window.PROFILES) Object.keys(window.PROFILES).forEach(function (id) { ids[id] = 1; }); } catch (e) {}
-      return Object.keys(ids);
+    // ONE PERSON IS ONE RESULT.
+    //
+    // This is the surface the defect was reported from: a query for "chew"
+    // returned two current Utah House District 68 officeholders. It got there
+    // honestly — the haystack is the union of every CMP_DATA and PROFILES key,
+    // and `scott_chew` is a real Firestore document key. What it is not is a
+    // second person: PDX_PROFILE_ALIAS (profile-evidence.js) has said `scott_chew`
+    // and `chew_h68` are one officeholder the whole time, which is why tapping
+    // the stub row already landed on /p/chew_h68 — the reader was shown a choice
+    // between two files that were never two files.
+    //
+    // So the ids are grouped by the address they actually open, through the one
+    // resolver the arrival path uses, and each group becomes ONE row. The groups
+    // are kept rather than thrown away because the duplicate document is not
+    // noise — it holds a bio and topics of its own, and a row that swallowed a
+    // record's text would trade a cosmetic defect for a discoverability one. See
+    // the haystack union in buildIndex below.
+    function polIdGroups() {
+      var raw = [];
+      try { if (typeof CMP_DATA !== 'undefined' && CMP_DATA) raw = raw.concat(Object.keys(CMP_DATA)); } catch (e) {}
+      try { if (window.PROFILES) raw = raw.concat(Object.keys(window.PROFILES)); } catch (e) {}
+      var g = null;
+      if (typeof window.PDXCanonIds === 'function') {
+        try { g = window.PDXCanonIds(raw); } catch (e) { g = null; }
+      }
+      // Fail open, and fail to the OLD behaviour: with the resolver unavailable
+      // the eye still lists everybody, de-duplicated by raw id exactly as it was.
+      if (!g || !g.ids) {
+        var order = [], groups = Object.create(null);
+        raw.forEach(function (id) { if (!groups[id]) { groups[id] = [id]; order.push(id); } });
+        g = { ids: order, groups: groups };
+      }
+      // The RAW count, for the index cache key: it must stay at least as
+      // sensitive to a roster arrival as it was before this grouping existed, and
+      // a page of Firestore docs that are all retired ids would not move the
+      // collapsed count at all.
+      g.total = raw.length;
+      return g;
     }
     function polRec(id) {
       var p = null;
@@ -60,6 +93,20 @@
       try { if (typeof window._getPhotoUrl === 'function') return window._getPhotoUrl(id) || ''; } catch (e) {}
       return '';
     }
+    // The searchable text of ONE record. Lifted out of the people loop below so
+    // the same fields are harvested from a retired document as from the record it
+    // resolves into — collapsing two rows into one must not make a person harder
+    // to find by a word only the duplicate happened to carry.
+    function hayParts(d) {
+      if (!d) return [];
+      var parts = [d.name, d.office, d.state, d.district, d.bio, d.quote, d.tagline, d.summary];
+      if (Array.isArray(d.issues)) parts = parts.concat(d.issues);
+      else if (typeof d.issues === 'string') parts.push(d.issues);
+      if (d.stances && typeof d.stances === 'object') {
+        for (var k in d.stances) { if (d.stances[k]) parts.push(d.stances[k]); }
+      }
+      return parts;
+    }
 
     // ── build the search index (people + issues), memoized ────────────
     var index = null, indexKey = '', relCache = {};
@@ -68,15 +115,27 @@
 
       // Politicians — mirror the app's browse haystack so a nav search and the
       // "All Politicians" search surface the same records.
-      allPolIds().forEach(function (id) {
+      var polGroups = polIdGroups();
+      polGroups.ids.forEach(function (id) {
+        var alsoKnownAs = polGroups.groups[id] || [id];
         var d = polRec(id);
-        if (!d || !d.name) return;
-        var parts = [d.name, d.office, d.state, d.district, d.bio, d.quote, d.tagline, d.summary];
-        if (Array.isArray(d.issues)) parts = parts.concat(d.issues);
-        else if (typeof d.issues === 'string') parts.push(d.issues);
-        if (d.stances && typeof d.stances === 'object') {
-          for (var k in d.stances) { if (d.stances[k]) parts.push(d.stances[k]); }
+        // The row reads from the record its own address opens. Only if that record
+        // carries no name at all does a retired sibling's stand in, so a collapse
+        // can never turn a findable person into no result.
+        if (!d || !d.name) {
+          for (var ai = 0; ai < alsoKnownAs.length; ai++) {
+            var altRec = polRec(alsoKnownAs[ai]);
+            if (altRec && altRec.name) { d = altRec; break; }
+          }
         }
+        if (!d || !d.name) return;
+        var parts = hayParts(d);
+        // Every address that resolves into this row contributes its text to it, so
+        // a term that only ever appeared in the duplicate document still reaches
+        // the one person it was about.
+        alsoKnownAs.forEach(function (alt) {
+          if (alt !== id) parts = parts.concat(hayParts(polRec(alt)));
+        });
         var pc = partyChip(d.party);
         if (pc) parts.push(pc.label === 'R' ? 'republican gop' : pc.label === 'D' ? 'democrat democratic' : 'independent');
         var sub = [d.office, d.district, d.state].map(function (x) { return String(x == null ? '' : x).trim(); })
@@ -139,9 +198,21 @@
       var stances = [];
       try {
         var SD = window.ISSUE_STANCE_DATA || {};
-        Object.keys(SD).forEach(function (pid) {
-          var list = SD[pid];
+        Object.keys(SD).forEach(function (rawPid) {
+          var list = SD[rawPid];
           if (!Array.isArray(list)) return;
+          // A receipt is tagged to a PERSON, so it is tagged to the id that
+          // person's file opens at. 18 of the 29 retired ids carry a curated
+          // stance block — that is the documented convention, the block is filed
+          // under the roster record's display-name slug — and every receipt row
+          // minted from one used to read the slug back out as its name
+          // ("scott chew"), file itself under the retired id for My Team and
+          // Share, and send "Jump to politician" at an address that redirects.
+          // The block is not moved; only the id the ROW carries is canonicalised.
+          var pid = rawPid;
+          try {
+            if (typeof window.PDXProfilePid === 'function') pid = window.PDXProfilePid(rawPid) || rawPid;
+          } catch (e) { pid = rawPid; }
           var d = polRec(pid);
           var pname = (d && d.name) || pid.replace(/_/g, ' ');
           var psub = d ? [d.office, d.state].map(function (x) { return String(x == null ? '' : x).trim(); }).filter(Boolean).join(' · ') : '';
@@ -241,7 +312,7 @@
     function getIndex() {
       ensureEyeBills(); // kick off the one-time live Legislation fetch (guarded)
       // Rebuild when the roster size changes (e.g. Firestore profiles arrive).
-      var key = allPolIds().length + ':' +
+      var key = polIdGroups().total + ':' +
         ((window.PDXSpotlight && window.PDXSpotlight.list) ? window.PDXSpotlight.list().length : 0) + ':' +
         ((window.CORE_NATIONAL_ISSUES || []).length) + ':' +
         (window.ISSUE_STANCE_DATA ? Object.keys(window.ISSUE_STANCE_DATA).length : 0) + ':' +

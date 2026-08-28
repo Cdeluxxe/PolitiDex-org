@@ -136,7 +136,37 @@ console.log("   ── 2 · an absence says it is an absence");
   ok(row.act === "Did not vote", `an absence reads "Did not vote" — got "${row.act}"`);
   hasnt(row.act, "Voted", 'an absence is never phrased as "Voted …"');
   const m = CS.dossierMechanism(row, KEY, null, true);
-  has(m.dir, "and they did not vote", "the direction line says the vote was not cast");
+  // THE POLARITY PARAGRAPH IS GONE FROM THIS ROW, AND THAT IS THE POINT NOW.
+  // This assertion used to require the direction line to end "…and they did not
+  // vote" — the sentence that begins "a Yea counts as support for the issue's
+  // direction". It was a polarity lesson about a ballot nobody cast, sitting under a
+  // row that already says the ballot was never cast, and a later pass dropped it:
+  // an act with no side gets the dashed frame and the first-line label instead. The
+  // fact this section defends is unchanged — the absence must SAY it is an absence —
+  // so the pin moved to the two places that now carry it, the act phrase above and
+  // the "What it did" sentence below, and the polarity beat is required to be
+  // absent rather than present.
+  ok(!m.dir, `an uncast ballot renders no direction line — got "${m.dir}"`);
+  // Massie's dossier lists every act he has on file for this chip, and the ones he
+  // did vote on keep their polarity paragraph, so the pin has to be the ONE row.
+  const mface = (function () {
+    const h = faceFor("massie");
+    const re = /<details class="pdxdos-rec(?![a-z])[^"]*"/g;
+    let x;
+    while ((x = re.exec(h))) {
+      const slice = h.slice(x.index, h.indexOf("</details>", x.index) + 10);
+      if (slice.indexOf(">H.R. 8281<") >= 0) return slice;
+    }
+    return "";
+  }());
+  ok(mface, "Massie's H.R. 8281 row did not render");
+  has(mface, "Did not vote", "the rendered row no longer says the vote was not cast");
+  has(mface, "pdxdos-rec-nos", "the absence row carries no no-side treatment");
+  hasnt(mface, "a Yea counts as support for the issue",
+    "the absence row still teaches the polarity of a ballot nobody cast");
+  const CAST = CS.dossierMechanism(pick(rowsFor("boebert"), "H.R. 8281"), KEY, null, true);
+  has(CAST.dir, "and they voted Yea",
+    "…while a cast ballot keeps its direction line, so the drop is about no-side rows only");
   // An absence is not a direction. Whatever the measure does to the issue, a ballot
   // that was never cast cannot back it up or cut against it, and the verdict says so.
   ok(row.verdict === "limited",

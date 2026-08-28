@@ -1730,6 +1730,75 @@
   line-height: 1.25;
   overflow-wrap: break-word;
 }
+/* ── THE ROW AS A DOOR ───────────────────────────────────────────────────────
+   The title and the pattern bar are one tap target onto the issue's Official
+   Record dossier, so they share one container and that container — not the row,
+   which also holds the key control — is what carries the 2.75rem thumb height.
+   The row itself stays a plain flex line so a rendering without a pid/key pair
+   still lays out as the labelled fact it always was. */
+.pdxwa-shape-door {
+  flex: 1 1 12rem;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.2rem 0.35rem;
+  margin-left: -0.35rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.14s ease;
+}
+.pdxwa-shape-door:hover,
+.pdxwa-shape-door:focus-within {
+  background: rgba(127, 180, 255, 0.09);
+}
+/* Same type as the inert name it replaced — a door that changes the row's
+   typography reads as a new kind of claim rather than the same fact, tappable. */
+.pdxwa-shape-lbl {
+  flex: 1 1 8rem;
+  min-width: 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  color: #dbe6f5;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.pdxwa-shape-lbl:hover,
+.pdxwa-shape-lbl:focus-visible { color: #9fdbff; }
+.pdxwa-shape-go { color: #7fb4ff; font-size: 0.86rem; line-height: 1; }
+.pdxwa-shape-bar {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.4rem;
+  min-width: 0;
+}
+/* The two-sided tally, where the tier chip did not already carry it. Same words,
+   same separator and near enough the same size as the chip's own count span, so
+   a split row and a one-sided row read as one sentence pattern. */
+.pdxwa-shape-n {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  font-size: 0.66rem;
+  letter-spacing: 0.03em;
+  color: #a8bfdd;
+  opacity: 0.9;
+  white-space: nowrap;
+}
+.pdxwa-shape-n-off { color: #7596c0; font-style: italic; white-space: normal; }
 .pdxwa-shape-more,
 .pdxwa-shape-none,
 .pdxwa-shape-thin {

@@ -234,7 +234,52 @@
 // pdx-perf.js is deliberately NOT added to SHELL_ASSETS — it is a deferred
 // reporting module, nothing a first paint depends on, and the shell budget for
 // this pass is unchanged by design.
-const CACHE_VERSION = 'v80';
+// v81 — THE FORMAL BRIEF'S ROWS BECAME DOORS, AND THE ISSUE KEYS EXPLAIN
+// THEMSELVES. issue-scope.js is a new shell asset: the scope prose from the
+// comments over ISSUE_MAP, plus the ⓘ control that opens it. index.html changed to
+// load it, and word-action.js now renders every row of the formal-record brief as
+// a dossier door with the issue's two-sided tally and that control beside it.
+// Bumped because a partial pickup is the one failure worth avoiding here: a phone
+// holding v80 that takes the new word-action.js but not issue-scope.js renders a
+// row whose ⓘ never appears, while one that takes the new index.html but keeps the
+// old word-action.js loads a glossary nothing calls. The rename empties both
+// caches on activate so index.html, word-action.js, word-action.css,
+// consistency.js, stance-helpers.js and issue-scope.js arrive as one set.
+// issue-scope.js IS precached rather than left to the runtime cache, unlike
+// pdx-perf.js: it is the only way to read what an issue key covers, and an offline
+// repeat visit that renders the ⓘ and then has nothing behind it is a control that
+// eats taps. Nothing about this pass is database-side, and no floor, tier, count
+// or score moved.
+// v82 — PRESENT AND DID NOT VOTE STOPPED BEING INVISIBLE. The formal brief's
+// two-integer tally was always judged sides only — _recordDirectionIndex drops a
+// Present, a Did Not Vote and any act with no mapped direction in pass 1, before a
+// floor, a tier or a lead is computed — but nothing said so, and the dossier under
+// the same chip enumerates everything on file, so a reader who subtracted five
+// listed from four advanced got a Yea that does not exist. stance-helpers.js now
+// counts those acts as `noSide` and publishes the phrase ("1 no side"),
+// word-action.js prints it beside the tally and never inside it, and consistency.js
+// gives the row itself a dashed, dimmed frame with a first-line "Did not vote" /
+// "Present" / "No side" label and drops the polarity paragraph that used to explain
+// what a Yea here would have counted as. Bumped because the one bad pickup is the
+// reported bug wearing a fix: a phone holding v81 that takes the new
+// word-action.js but keeps the old stance-helpers.js reads a `noSide` nothing
+// publishes, so the chip prints the same unexplained tally it printed before while
+// the dossier beside it has already changed. All three files are precached below,
+// so the rename delivers them as one set. No floor, mapping, weight or Direction
+// Match input moved, and nothing here is database-side.
+//   AND THE MEASURE LIST UNDER IT NOW LISTS EVERY MAPPED ACT. Same bump, same
+// deploy, because it is the same reader's same complaint one section further down:
+// the dossier's list was built through _orProofPicks — the function that picks the
+// one or two representative votes a profile row quotes — and its fallback dedupe
+// key was seven optional identifier fields, so two distinct acts that agreed on all
+// seven collapsed to one card while every count around them went on counting two.
+// consistency.js now dedupes that pick by object identity alone, measures the list
+// against the record's own inventory and says on the face when it comes up short,
+// carries the leftover into the closed face's integers ("5 votes listed here · 4
+// advancing · 1 no side") and prints each measure's title and sitting on its card.
+// One version covers both halves; a phone that takes one file and not the other is
+// the case this bump exists to prevent either way.
+const CACHE_VERSION = 'v82';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -320,6 +365,11 @@ const SHELL_ASSETS = [
   // repeat visit keeps issues colour-coded instead of falling back to slate
   // everywhere, which would read as "nothing is a core issue".
   '/issue-colors.js',
+  // What an issue key covers, in the words its scope was locked in. Precached with
+  // alignment-tool.js and issue-colors.js because it reads the same vocabulary and
+  // is the same order of magnitude, and because the control it powers is rendered
+  // by the profile brief — a shell surface — rather than by anything lazy.
+  '/issue-scope.js',
   // "Compare field for this seat" — one office, the whole field, ranked by the
   // formal record against the visitor's own positions. Precached alongside
   // alignment-tool.js because it is that engine's ballot-side surface: the entry
