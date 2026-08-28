@@ -2041,6 +2041,16 @@
         'padding:0.3rem 0.42rem;border-radius:0.45rem;border:1px solid rgba(255,255,255,0.09);' +
         'background:rgba(10,15,30,0.45);}' +
       '.pdxgap-drv-r.is-pkg{border-color:rgba(245,200,66,0.26);background:rgba(245,200,66,0.06);}' +
+      // THE DOOR HAS TO LOOK LIKE ONE ON EVERY DEVICE. Not :hover-gated: the whole
+      // point of the row-tap regression pinned in test-row-tap-dossier.mjs was a
+      // control that was reachable but invisible on any touch device. The arrow is
+      // always there, dim; the pointer cursor and the lift are the extra a mouse
+      // gets on top.
+      '.pdxgap-drv-r.is-door{cursor:pointer;transition:border-color 0.12s,background 0.12s;}' +
+      '.pdxgap-drv-r.is-door:hover{border-color:rgba(127,180,255,0.5);background:rgba(127,180,255,0.08);}' +
+      '.pdxgap-drv-r.is-door:focus-visible{outline:2px solid #7fb4ff;outline-offset:1px;}' +
+      '.pdxgap-drv-go{margin-left:auto;font-size:0.72rem;color:#7fb4ff;opacity:0.7;}' +
+      '.pdxgap-drv-r.is-door:hover .pdxgap-drv-go{opacity:1;}' +
       '.pdxgap-drv-id{font-weight:700;font-size:0.72rem;color:#e8eefc;}' +
       '.pdxgap-drv-n{font-size:0.61rem;color:#7e93b3;padding:0.02rem 0.3rem;border-radius:999px;' +
         'border:1px solid rgba(255,255,255,0.12);}' +
@@ -2360,6 +2370,41 @@
       '.pdxdos-tag-p{border-color:rgba(110,231,160,0.45);color:#a9e9c6;}' +
       '.pdxdos-tag-n{border-color:rgba(240,205,140,0.45);color:#f0cd8c;}' +
       '.pdxdos-src{display:inline-block;margin-top:0.3rem;font-size:0.68rem;color:#7fb4ff;}' +
+      // The bill text the mapping was read against, beside but never merged into the
+      // roll-call source: two documents, two links, dimmer on the secondary one.
+      '.pdxdos-src-txt{margin-left:0.55rem;color:#9fb4d4;}' +
+      // ── THE EXPLAINER'S SLOTS ────────────────────────────────────────────────
+      // Identity first and typographically first: number and sitting on one line,
+      // large enough that a reader who arrived from a roll-up row knows instantly
+      // which instrument they landed on.
+      '.pdxdos-x1{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.35rem;padding:0.1rem 0 0.05rem;}' +
+      '.pdxdos-x-id{font-weight:700;font-size:0.82rem;color:#e8eefc;letter-spacing:0.01em;}' +
+      '.pdxdos-x-sit{font-size:0.62rem;color:#8fa2c0;padding:0.02rem 0.34rem;border-radius:999px;' +
+        'border:1px solid rgba(255,255,255,0.14);}' +
+      // The official title is long by nature — one sentence of statute prose — so it
+      // is set smaller and quieter than the short title above it and allowed to wrap.
+      // Recessed, not hidden: it is the version of the name that matches the source.
+      '.pdxdos-x-ot{font-size:0.68rem;line-height:1.45;color:#a9bcd8;margin:0.12rem 0 0.05rem;}' +
+      '.pdxdos-x-otl{font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;' +
+        'color:#7f92b0;margin-right:0.2rem;}' +
+      // A labelled slot. The key is a quiet uppercase run rather than a heading:
+      // these are answers to a reader's questions, not sections of a document, and
+      // five headings in a drawer read as a form to fill in.
+      '.pdxdos-x-s{font-size:0.71rem;color:#c6d4ec;line-height:1.5;padding:0.22rem 0;}' +
+      '.pdxdos-x-s b{color:#e8eefc;}' +
+      '.pdxdos-x-k{display:block;font-size:0.58rem;font-weight:700;letter-spacing:0.07em;' +
+        'text-transform:uppercase;color:#8fa2c0;margin-bottom:0.1rem;}' +
+      // Whose sentence it is, said in the smallest type on the card. A curator note
+      // and a machine restatement may not look alike — see _dosCountsBy.
+      '.pdxdos-x-by{display:block;font-size:0.58rem;color:#7e93b3;margin-top:0.12rem;}' +
+      // A GAP IS NOT AN ERROR AND DOES NOT WEAR ONE'S COLOURS. Dashed and recessed:
+      // this is a curation slot nobody has filled, on a row whose measure, act and
+      // source are all present and linked directly above it.
+      '.pdxdos-x-gap{color:#9fb4d4;border-left:2px dashed rgba(147,166,196,0.4);' +
+        'padding-left:0.45rem;}' +
+      '.pdxdos-x-proc{color:#e2c98a;}' +
+      '.pdxdos-x-proc .pdxdos-x-k{color:#c8ab6a;}' +
+      '.pdxdos-x-led{color:#9fb4d4;}' +
       '.pdxdos-rel{margin-top:0.35rem;}' +
       // L4 — the receipt itself. Never opened for the reader.
       '.pdxdos-fine{margin-top:0.35rem;border-top:1px solid rgba(255,255,255,0.06);}' +
@@ -3043,6 +3088,18 @@
         _insOpen(ins);
         return;
       }
+      // ── Tap a measure in the roll-up, get that measure's explainer ────────
+      // The Official Record column lists the measures a reading came from; each of
+      // those lines is now the door to that measure's own screen, which is the L2
+      // row's expanded body further down the same sheet. Consumes the default
+      // because the roll-up row is a role="button" line rather than a real one —
+      // nothing else would happen, but nothing else should either.
+      var drv = e.target.closest && e.target.closest('[data-pdxdrv-open]');
+      if (drv) {
+        e.preventDefault();
+        _drvOpen(drv);
+        return;
+      }
       // The stance row's primary tap: the issue name opens that issue's dossier and
       // remembers the row it came from, so closing puts the reader back where they
       // were reading rather than at the top of the section.
@@ -3149,6 +3206,21 @@
       if (!card) return;
       e.preventDefault();
       _gateNav(card.getAttribute('data-pdxc-open'), card.getAttribute('data-pdxc-pid') || '');
+    });
+    // ── KEYBOARD PARITY FOR THE ROLL-UP DOORS ─────────────────────────────────
+    // The measure lines in the Official Record roll-up are role="button" rather
+    // than real <button>s, because a real one cannot legally hold the spans the
+    // line is made of — see the note on the door attribute in _dosDriversHtml. The
+    // cost of that choice is that the browser stops supplying Enter and Space, so
+    // they are supplied here. Space is consumed as well as handled: on a
+    // role="button" the browser's default for it is to scroll the page, which
+    // would move the sheet out from under the row the reader just opened.
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar' && e.keyCode !== 13 && e.keyCode !== 32) return;
+      var drv = e.target && e.target.closest && e.target.closest('[data-pdxdrv-open]');
+      if (!drv) return;
+      e.preventDefault();
+      _drvOpen(drv);
     });
     window.addEventListener('pdx-consistency-warm', function (ev) {
       var pid = ev && ev.detail && ev.detail.pid; if (!pid) return;
@@ -12006,6 +12078,80 @@
     var suf = (t >= 11 && t <= 13) ? 'th' : (u === 1) ? 'st' : (u === 2) ? 'nd' : (u === 3) ? 'rd' : 'th';
     return n + suf + ' Congress';
   }
+  // ── WHICH SITTING, ON EITHER GOVERNMENT ─────────────────────────────────────
+  // A bill number is not an identity. "H.B. 208" names a different bill in every
+  // Utah general session and "H.R. 22" names a different bill in every congress,
+  // so the sitting is part of the citation rather than decoration on it — which is
+  // what _dosCongressLabel above was already for, and what it could only ever say
+  // for a FEDERAL row: `congress` is null on every state roll call by design (see
+  // the vr_rollcalls state unique index), and null on every position of either
+  // government, because a committee vote or a co-sponsorship has no roll call to
+  // carry a tuple at all.
+  //
+  // So the fallback is the measure's own session code, shipped as
+  // item.measureIdent.session and PRINTED AS STORED: "2025GS" is the string the
+  // Legislature's own bill pages use, and a prettier "2025 General Session" would
+  // be a label a reader cannot search for. An unrecognised or absent code prints
+  // nothing — the same silence _dosCongressLabel keeps for a missing congress,
+  // because an invented session is worse than an unlabelled row.
+  //
+  // FEDERAL FIRST, ALWAYS. A federal measure could in principle carry a session
+  // key in its provenance bag; `congress` is the citation there and wins.
+  function _dosSessionLabel(item) {
+    if (!item) return '';
+    var fed = _dosCongressLabel(item.congress);
+    if (fed) return fed;
+    var mi = item.measureIdent;
+    var code = (mi && typeof mi.session === 'string') ? mi.session.trim() : '';
+    return code || '';
+  }
+  // Which text the issue mapping was read against, where the ingest recorded it.
+  // The rationale in slot 2 of the explainer is a claim about a SPECIFIC VERSION of
+  // a bill — a bill that was substituted twice says three different things — so the
+  // claim travels with the version it was read from and a link to it. Returns null
+  // rather than a guess: an ingest that did not record the text it read does not get
+  // to imply it read the enrolled one.
+  var _DOS_READ_FROM = {
+    enrolled: 'the enrolled text',
+    introduced: 'the introduced text',
+    substitute: 'the last substitute text',
+    last_substitute: 'the last substitute text',
+    amended: 'the amended text'
+  };
+  function _dosReadFrom(item) {
+    var mi = item && item.measureIdent;
+    if (!mi) return null;
+    var kind = (typeof mi.readFrom === 'string') ? mi.readFrom.trim().toLowerCase() : '';
+    var url = (typeof mi.readFromUrl === 'string') ? mi.readFromUrl.trim() : '';
+    if (!kind && !url) return null;
+    return { label: _DOS_READ_FROM[kind] || (kind ? 'the ' + kind + ' text' : ''), url: url };
+  }
+  // The official title, where the identity backfill recorded one. "SAVE Act" is what
+  // the bill is CALLED; "To amend the National Voter Registration Act of 1993 to
+  // require proof of United States citizenship to register an individual to vote…" is
+  // what it IS. A reader checking a claim against a source needs the second, and the
+  // row has only ever shown the first. Returned only when it says something the
+  // displayed title does not, so the common case — a measure whose two titles agree
+  // once punctuation is set aside — prints one line rather than the same line twice.
+  function _dosOfficialTitle(item, shown) {
+    var mi = item && item.measureIdent;
+    var t = (mi && typeof mi.officialTitle === 'string') ? mi.officialTitle.trim() : '';
+    if (!t) return '';
+    var norm = function (v) { return String(v || '').replace(/[^a-z0-9]+/gi, ' ').trim().toLowerCase(); };
+    if (norm(t) === norm(shown)) return '';
+    return t;
+  }
+  // The bill page, as distinct from the roll call. The source link on a vote row
+  // points at the VOTE — one tally, one question, one day — and a reader who wants
+  // to know what the bill did has to be able to reach the bill. Utah rows get this
+  // from the mapping text URL above, which additionally names which version was
+  // read; federal rows get the page and no version claim, because nothing on file
+  // records which text a federal mapping was read against and inventing that
+  // provenance would be worse than omitting it.
+  function _dosBillUrl(item) {
+    var mi = item && item.measureIdent;
+    return (mi && typeof mi.billUrl === 'string') ? mi.billUrl.trim() : '';
+  }
 
   // ── L2's data ───────────────────────────────────────────────────────────────
   // One normalised entry per instrument behind this issue — DATA, no markup — so the
@@ -12123,6 +12269,15 @@
           // part of the citation rather than decoration on it.
           identNote: _dosIdentNote(p.item),
           congress: _dosCongressLabel(p.item && p.item.congress),
+          // The same fact as `congress` on a federal row and the ONLY form of it a
+          // state row has ever been able to print. Added rather than folded into
+          // `congress` because that field means one specific thing — an ordinal
+          // congress — and a caller reading "2025GS" out of it would be reading a
+          // field that lied about its own name.
+          session: _dosSessionLabel(p.item),
+          readFrom: _dosReadFrom(p.item),
+          officialTitle: _dosOfficialTitle(p.item, b.title || p.item.title || ''),
+          billUrl: _dosBillUrl(p.item),
           url: b.url || '', srcLabel: b.label || 'Congress.gov',
           voteKey: _orVoteKey(p.item)
         }));
@@ -12559,6 +12714,24 @@
       var pos = String((d.item && d.item.position) || '').toLowerCase();
       var yea = /^(yea|aye|yes)$/.test(pos);
       var nay = /^(nay|no)$/.test(pos);
+      // A FORMAL ACT THAT IS NOT A BALLOT STILL WENT SOMEWHERE. A committee vote, a
+      // co-sponsorship, an amicus brief arrives as a `position` item whose
+      // `position` field is the act type ('committee_vote'), not a Yea or a Nay —
+      // so both tests above fail and the row used to be filed as "took no side".
+      // It has a side: `supports` is the boolean the ingest recorded for whether
+      // the act advanced the MEASURE, and it is the same field the shared
+      // summariser reads through _voteEffectiveSupport. Reading it here is what
+      // lets a committee vote state its direction on the issue in the explainer
+      // instead of going quiet at the one step that matters.
+      //   Nothing about a score moves. Direction Match reads the stance engine,
+      // which has always read `supports` for these; this function is the DOSSIER's
+      // direction word, and the only change is that a row which was silent now
+      // says the thing the engine already knew. An act with no boolean on file
+      // stays silent, which is the honest reading of a missing field.
+      if (!yea && !nay && d.item && d.item.kind === 'position') {
+        if (typeof d.item.supports !== 'boolean') return '';
+        return ((d.support !== 'yea_opposes') === d.item.supports) ? 'advances' : 'opposes';
+      }
       if (!yea && !nay) return '';
       // A Yea on a `yea_supports` mapping advances the issue's direction; every other
       // combination of the two flips it once.
@@ -12678,9 +12851,14 @@
         : ledRow ? '<span class="pdxdos-rec-ico" aria-hidden="true">' + _LED.ico + '</span>'
         : '<span class="pdxdos-rec-ico" style="color:' + v.color + '" aria-hidden="true">' + v.ico + '</span>') +
       '<span class="pdxdos-rec-id">' + esc(d.ident) + '</span>' +
-      // The congress sits with the number because it is part of the number's meaning:
-      // "H.R. 22" names one bill in the 119th and a different one in every other.
-      (d.congress ? '<span class="pdxdos-rec-st">' + esc(d.congress) + '</span>' : '') +
+      // The sitting sits with the number because it is part of the number's meaning:
+      // "H.R. 22" names one bill in the 119th and a different one in every other,
+      // and "H.B. 208" names a different bill in every Utah general session. Reads
+      // `session` rather than `congress` so the state half of the record stops
+      // printing a bare, unqualified bill number — same slot, same output on every
+      // federal row, and a session code where there was nothing before.
+      (d.session || d.congress
+        ? '<span class="pdxdos-rec-st">' + esc(d.session || d.congress) + '</span>' : '') +
       (d.question ? '<span class="pdxdos-rec-act">' + esc(d.question) + '</span>' : '') +
       (d.act ? '<span class="pdxdos-rec-act">' + esc(d.act) + '</span>' : '') +
       (dir && !d.held ? '<span class="pdxdos-rec-dir">' + esc(_ledDirShort(dir)) + '</span>' : '') +
@@ -12690,7 +12868,13 @@
         : '<span class="pdxdos-rec-vd" style="color:' + v.color + '">' + esc(v.label) + '</span>') +
       (d.standing ? '<span class="pdxdos-rec-st">' + esc(d.standing.ico + ' ' + d.standing.label) + '</span>' : '') +
       (d.multi ? '<span class="pdxdos-rec-tag">🧩 ' + d.item.issues.length + ' issues</span>' : '') +
-      (d.date ? '<span class="pdxdos-rec-st">' + esc(d.date) + '</span>' : '');
+      // THE DAY, NOT THE INSTANT. The API ships a full ISO timestamp and this slot
+      // used to print it whole, so a face read "2023-02-27T00:00:00.000Z" beside a
+      // bill number — a timestamp pretending to be a fact, and one that disagreed
+      // with the day the explainer below it names. _dosDay truncates and nothing
+      // else: no locale reformatting, because the day is also the string a reader
+      // searches the clerk's own site with.
+      (d.date ? '<span class="pdxdos-rec-st">' + esc(_dosDay(d.date)) + '</span>' : '');
     // A held item answers a different second question — not "why does this count"
     // but "why is it NOT being counted" — so it keeps the hold reason in that slot.
     // It still gets a "What it did" line: a document on file with its mechanism
@@ -12885,17 +13069,259 @@
   // Built on demand from the same normalised list, so this is a pure function of
   // (pid, issue, index) and can be re-derived after a warm repaint without holding
   // any state. Returns '' for an index that no longer exists.
+  // ── THE EXPLAINER, SIX SLOTS, ONE ORDER ─────────────────────────────────────
+  // A reader who taps a measure has a bill number and a direction chip. What they
+  // are asking is one question in three parts — what changed, why is it filed
+  // under THIS issue, and what did this person actually do — and until now the
+  // answer existed only as an unlabelled run of sentences whose order came from
+  // whichever lane branch happened to push first. Same facts, no shape.
+  //
+  // So the body is now an ordered form, and the order is the reader's question:
+  //
+  //   1 · which instrument this is (number, sitting, official title, the source)
+  //   2 · what the text did — the curator's, never assembled here
+  //   3 · why it is on this issue — how squarely, in words
+  //   4 · what this person did — the act, the day, the direction on this key
+  //   5 · how it reached a vote — vehicle / package / procedural, where true
+  //   6 · that this row is outside Direction Match, where that is the case
+  //
+  // WHAT IS NOT REPEATED. The row FACE one level up already carries the identity
+  // note, the said-vs-did pair, the "why it counts here" sentence and the direction
+  // sentence — see _dosMechanism. Printing those again here would read as if the
+  // expanded body had found something new to say, so the slots below add the six
+  // things the face cannot hold and label the ones it already has. Slot 2 is the
+  // clearest case: the face caps at two plain sentences, so the mapping rationale
+  // it cannot fit used to be reachable only inside a fold at the very bottom, which
+  // is the one place a reader looking for "what did this bill do" never looks.
+  //
+  // NO NEW CLAIM IS MANUFACTURED ANYWHERE IN HERE. Every slot is a field that was
+  // already on the wire or a phrase already locked in this file's vocabulary. Slot
+  // 2 in particular has a gap sentence rather than a fallback: where no curator has
+  // written what a text did, the explainer says exactly that and stops. The one
+  // thing this screen may never do is read like a summary nobody wrote.
+  //
+  // AND IT IS NOT A SCORE. No slot prints a weight, a percentage or a per-measure
+  // grade. "Primary link" and "narrow link" are the existing words for how squarely
+  // a measure sits on an issue, and they stay words.
+  var _DOS_X = {
+    did: 'What the text did',
+    why: 'Why it is on this issue',
+    act: 'What this person did',
+    proc: 'How it reached a vote'
+  };
+  // The gap, said out loud. Reached when a measure is on file with a title, an act
+  // and a source and NO curated account of its text — the "measures that only have
+  // a title" case. It names what is missing and what is present, so a reader can
+  // tell an unwritten summary from a measure that did nothing.
+  var _DOS_X_GAP = 'No curator has written what this text did yet. The measure, ' +
+    'the act and the source are on file and linked above; the account of the text ' +
+    'is not, and nothing here is generated to stand in for it.';
+  // ONE TO THREE SENTENCES, CUT ON A SENTENCE BOUNDARY. Mapping rationales are
+  // written for whoever audits the mapping and run to citation length; the slot is
+  // the top of a card. Cutting mid-sentence would put a truncated claim in a
+  // curator's mouth, so this keeps whole sentences and hands the remainder to the
+  // fold at the bottom, which still holds the paragraph in full.
+  function _dosClipSentences(text, n) {
+    var t = String(text || '').trim();
+    if (!t) return '';
+    var m = t.match(/[^.!?]+[.!?]+(\s|$)/g);
+    if (!m || m.length <= n) return t;
+    return m.slice(0, n).join('').trim();
+  }
+  // Slot 2's read: WHOSE sentence is about to be printed, and what it says.
+  //   · 'mapping'  — the curator's rationale on the measure_issues row. The one
+  //                  piece of curated prose that exists for every mapped act.
+  //   · 'curated'  — a hand-written mechanism line (_DOS_MECH) or the migrated
+  //                  formal lane's account.
+  //   · null       — nothing on file. The caller prints _DOS_X_GAP.
+  // Mapping first on the roll-call lane because that is the sentence about the
+  // TEXT; a curated `did` is already the face's own line one level up.
+  function _dosDidRead(d) {
+    if (!d) return null;
+    if (d.fineFromMapping && d.rationale) {
+      return { text: _dosClipSentences(d.rationale, 3), from: 'mapping', full: d.rationale };
+    }
+    if (d.plain) return { text: String(d.plain).trim(), from: 'curated', full: d.rationale || '' };
+    if (d.rationale) {
+      return { text: _dosClipSentences(d.rationale, 3), from: 'curated', full: d.rationale };
+    }
+    return null;
+  }
+  // The calendar day an act happened, from whatever the wire sent. The API ships a
+  // full ISO instant and a fixture ships a bare date; a vote has a day, not a
+  // moment, and "2023-02-27T00:00:00.000Z" printed beside a bill number is a
+  // timestamp pretending to be a fact. Truncation only — no locale reformatting,
+  // because the day is also the string a reader searches the clerk's site with.
+  function _dosDay(v) {
+    var s = String(v == null ? '' : v).trim();
+    var m = s.match(/^(\d{4}-\d{2}-\d{2})/);
+    return m ? m[1] : s;
+  }
+  // Slot 3's tail: the OTHER issue keys this same measure is mapped to, named and
+  // nothing more. A measure that maps to two keys is opened from one of them, and
+  // the second is a fact about the measure — not a second headline, not a second
+  // direction, not a second verdict. Those live in the multi-issue trail below,
+  // which is reached from here and says which way each of them cut.
+  function _dosOtherKeys(d, issueKey) {
+    var list = (d && d.item && d.item.issues) || [];
+    if (!list.length) return '';
+    var narrowAt = _dosNarrowAt(), out = [];
+    for (var i = 0; i < list.length; i++) {
+      var it = list[i];
+      if (!it || it.issueKey === issueKey) continue;
+      var lb = _issueLabel(it.issueKey);
+      if (!lb) continue;
+      var how = it.isPrimary ? 'the primary link'
+        : (typeof it.weight === 'number' && it.weight <= narrowAt) ? 'a narrow link'
+        : 'a supporting link';
+      out.push(lb + ' (' + how + ' there)');
+    }
+    if (!out.length) return '';
+    return 'The same measure is also mapped to ' +
+      (out.length === 1 ? out[0] : out.slice(0, -1).join(', ') + ' and ' + out[out.length - 1]) +
+      '. Each of those is read on its own issue; this screen answers for ' +
+      (_issueLabel(issueKey) || 'this issue') + ' only.';
+  }
+  // Slot 5: HOW THIS ONE INSTRUMENT REACHED A VOTE, in the vocabulary that is
+  // already locked for it. Silent on a clean standalone measure, which is the point
+  // — a disclosure that fires on everything discloses nothing.
+  //
+  // Three facts, each read from a predicate that already exists and already decides
+  // this for another surface:
+  //   · d.procedural — the roll call was floor machinery. _MENU.procedural_gate's
+  //     own label, so the row and the menu block cannot name it two ways.
+  //   · _rdIsProvision(item, mapping) — this issue rode INSIDE this measure rather
+  //     than being what the measure was about. The sentence is the drivers roll-up's
+  //     word for word, plus the vehicle family where the light classifier named one.
+  //   · _menuContext(...).state === 'provision_only' — and every mapped instrument
+  //     on this issue was one of those. The locked phrase, with the wall sentence
+  //     that keeps a statement about the calendar from reading as a mark against
+  //     the member.
+  // No intent is assigned anywhere in here and none can be: nothing below knows who
+  // scheduled anything, and the vocabulary it draws from bans the words that would
+  // pretend otherwise.
+  function _dosProcessBits(pid, issueKey, d) {
+    var bits = [];
+    if (!d || d.held || d.lane !== 'record') return bits;
+    if (d.procedural) bits.push(_MENU.procedural_gate.lb + ' — recorded and listed either way.');
+    var prov = false;
+    try {
+      prov = (typeof window._rdIsProvision === 'function') &&
+        window._rdIsProvision(d.item, _dosMapping(d.item, issueKey));
+    } catch (e) { prov = false; }
+    if (prov) {
+      var fam = '';
+      try {
+        var cls = (typeof window._rdVehicleClass === 'function')
+          ? window._rdVehicleClass(d.title || '', d.ident || '') : null;
+        if (cls && cls.label) fam = cls.label;
+      } catch (e) {}
+      bits.push('This issue rode inside it as a provision' + (fam ? ' — ' + fam : '') + '.');
+    }
+    var c = null;
+    try { c = _menuContext(pid, issueKey, { lane: d.lane }); } catch (e) { c = null; }
+    if (c && c.state === 'provision_only') bits.push(c.lb + '. ' + _MENU_WALL);
+    return bits;
+  }
+
+  // ── L3 (+ L4) — one instrument, expanded ────────────────────────────────────
+  // Built on demand from the same normalised list, so this is a pure function of
+  // (pid, issue, index) and can be re-derived after a warm repaint without holding
+  // any state. Returns '' for an index that no longer exists.
   function _dosDetailHtml(pid, issueKey, idx, items) {
     items = items || _dosItems(pid, issueKey);
     var d = items[idx];
     if (!d) return '';
     var lbl = _issueLabel(issueKey);
     var out = [];
+    // ── 1 · WHICH INSTRUMENT THIS IS ────────────────────────────────────────
+    // Number, sitting and official title together, because none of the three is an
+    // identity on its own: "H.B. 208" names a different bill in every Utah general
+    // session, "Criminal Trespass Amendments" names several across sessions, and a
+    // reader who arrived from a roll-up row has seen only the number.
+    var sit = d.session || d.congress || '';
+    out.push('<div class="pdxdos-x1">' +
+      '<span class="pdxdos-x-id">' + esc(d.ident) + '</span>' +
+      (sit ? '<span class="pdxdos-x-sit">' + esc(sit) + '</span>' : '') +
+      '</div>');
     if (d.title && d.title !== d.ident) out.push('<div class="pdxdos-d"><b>' + esc(d.title) + '</b></div>');
+    // The official title underneath the short one, where the two differ and the
+    // identity backfill recorded it. Labelled, because an unlabelled second title
+    // reads as a correction of the first rather than the same measure said twice —
+    // once the way people refer to it and once the way the statute books will.
+    if (d.officialTitle) {
+      out.push('<div class="pdxdos-x-ot">' +
+        '<span class="pdxdos-x-otl">Official title</span> ' + esc(d.officialTitle) + '</div>');
+    }
+    // The primary source, always, whenever there is one — and FIRST, not last. It is
+    // the only line on this screen a reader can check the rest of it against, and it
+    // used to sit five blocks below the claims it verifies.
+    if (d.url) {
+      out.push('<a class="pdxdos-src" href="' + esc(d.url) + '" target="_blank" rel="noopener">' +
+        esc(d.srcLabel || 'Source') + ' ↗</a>');
+    }
+    // WHICH TEXT THE MAPPING WAS READ AGAINST, where the ingest recorded it. A bill
+    // that was substituted twice says three different things, so a rationale about
+    // it is a claim about one specific version — and a claim about a version nobody
+    // can name is not checkable. Its own link, never merged into the source above:
+    // the roll call and the bill text are two different documents.
+    var rf = d.readFrom;
+    if (rf && (rf.url || rf.label)) {
+      var rfTxt = 'Mapping read from ' + (rf.label || 'the bill text');
+      out.push(rf.url
+        ? '<a class="pdxdos-src pdxdos-src-txt" href="' + esc(rf.url) + '" target="_blank" rel="noopener">' +
+            esc(rfTxt) + ' ↗</a>'
+        : '<div class="pdxdos-note">' + esc(rfTxt + '.') + '</div>');
+    } else if (d.billUrl) {
+      // No recorded mapping version, but the bill itself is on file and reachable.
+      // The wording claims exactly that and no more — "the bill", not "the text the
+      // mapping was read from" — because the second sentence would be a provenance
+      // claim nothing on this row supports.
+      out.push('<a class="pdxdos-src pdxdos-src-txt" href="' + esc(d.billUrl) + '" target="_blank" rel="noopener">' +
+        'The bill ↗</a>');
+    }
     if (d.held) {
       out.push('<div class="pdxdos-d pdxdos-rec-hold">' + esc(d.heldWhy) + '</div>');
     }
-    // ── the mechanism, in this lane's own terms ──────────────────────────────
+    // ── 2 · WHAT THE TEXT DID ───────────────────────────────────────────────
+    // The curator's sentences or an explicit gap. Never a generated summary, and
+    // never the derived act line dressed up as one: "Voted Yea on the question of
+    // concurrence" is what the PERSON did, which is slot 4's answer to a different
+    // question, and putting it here would answer "what changed" with "somebody
+    // voted".
+    var did = _dosDidRead(d);
+    var didPrinted = '';
+    if (did && did.text) {
+      didPrinted = did.text;
+      out.push('<div class="pdxdos-x-s"><b class="pdxdos-x-k">' + esc(_DOS_X.did) + '</b> ' +
+        esc(did.text) +
+        (did.from === 'mapping'
+          ? '<span class="pdxdos-x-by">from the curator’s note on this mapping</span>' : '') +
+        '</div>');
+    } else if (!d.held) {
+      out.push('<div class="pdxdos-x-s pdxdos-x-gap" data-pdxdos-gap="did">' +
+        '<b class="pdxdos-x-k">' + esc(_DOS_X.did) + '</b> ' + esc(_DOS_X_GAP) + '</div>');
+    }
+    // ── 3 · WHY IT IS ON THIS ISSUE ─────────────────────────────────────────
+    // How much of the document this issue's link actually rests on. Words, not a
+    // weight — see _dosRowHtml. The face carries the "why it counts here" sentence;
+    // this carries how squarely, and which other keys the same measure sits on.
+    var tags = [];
+    if (d.primary === true) tags.push('<span class="pdxdos-tag pdxdos-tag-p">primary link</span>');
+    else if (d.primary === false) tags.push('<span class="pdxdos-tag">supporting link</span>');
+    if (d.narrow) tags.push('<span class="pdxdos-tag pdxdos-tag-n">narrow link</span>');
+    if (d.procedural) tags.push('<span class="pdxdos-tag">procedural vote</span>');
+    if (tags.length) {
+      out.push('<div class="pdxdos-x-s"><b class="pdxdos-x-k">' + esc(_DOS_X.why) + '</b> ' +
+        '<span class="pdxdos-tags">' + tags.join('') + '</span></div>');
+    }
+    var others = _dosOtherKeys(d, issueKey);
+    if (others) out.push('<div class="pdxdos-note">' + esc(others) + '</div>');
+    // ── 4 · WHAT THIS PERSON DID ────────────────────────────────────────────
+    // The act, the day, and which way that landed on THIS key. `d.act` comes from
+    // _orActionPhrase, which routes every non-ballot formal act through the shared
+    // act layer — so a committee vote reads "Committee vote" and can never read
+    // "Voted Yea", here or on any other surface.
     if (d.lane === 'exec') {
       if (d.power && d.power.verb) {
         out.push('<div class="pdxdos-d">' + esc(d.power.verb) +
@@ -12921,11 +13347,10 @@
       // one level up, and printing it twice made the expanded body read as if it had
       // found something new to say.
     } else if (d.lane === 'record') {
-      // What the RECORD itself holds: the question and the ballot. The curated
-      // mechanism, where there is one, is already the row face one level up, and its
-      // long form is the L4 fold below — so this block stays the record's own two
-      // facts rather than repeating either of them. Padding it to match the ✒️ lane's
-      // depth would be inventing detail the record does not have.
+      // What the RECORD itself holds: the question, the ballot, the day and the
+      // direction. The curated mechanism, where there is one, is the row face one
+      // level up and its long form is the L4 fold below, so this stays the record's
+      // own facts rather than repeating either of them.
       var recBits = [];
       if (d.question) {
         recBits.push('The question on the floor: <b>' + esc(d.question) + '</b>');
@@ -12933,22 +13358,39 @@
         // phrase ("Did not vote") has to survive the same transform intact.
         if (d.act) recBits.push('They ' + esc(String(d.act).charAt(0).toLowerCase() + String(d.act).slice(1)));
       } else if (d.act) {
+        // No floor question means no ballot: a committee vote, a co-sponsorship, an
+        // amicus. The act layer's own label is the whole of what happened, stated as
+        // the act it was.
         recBits.push(esc(d.act));
       }
-      if (recBits.length) out.push('<div class="pdxdos-d">' + recBits.join('. ') + '.</div>');
+      var day = _dosDay(d.date);
+      if (day) recBits.push('on ' + esc(day));
+      var rdir = _dosItemDir(d);
+      if (rdir) {
+        recBits.push('which the mapping reads as <b>' +
+          (rdir === 'advances' ? 'advancing' : 'cutting against') + '</b> ' + esc(lbl || 'this issue'));
+      }
+      if (recBits.length) {
+        out.push('<div class="pdxdos-x-s"><b class="pdxdos-x-k">' + esc(_DOS_X.act) + '</b> ' +
+          recBits.join('. ') + '.</div>');
+      }
     }
-    // How much of the document this issue's link actually rests on. Words, not a
-    // weight — see _dosRowHtml.
-    var tags = [];
-    if (d.primary === true) tags.push('<span class="pdxdos-tag pdxdos-tag-p">primary link</span>');
-    else if (d.primary === false) tags.push('<span class="pdxdos-tag">supporting link</span>');
-    if (d.narrow) tags.push('<span class="pdxdos-tag pdxdos-tag-n">narrow link</span>');
-    if (d.procedural) tags.push('<span class="pdxdos-tag">procedural vote</span>');
-    if (tags.length) out.push('<div class="pdxdos-tags">' + tags.join('') + '</div>');
-    // The primary source, always, whenever there is one.
-    if (d.url) {
-      out.push('<a class="pdxdos-src" href="' + esc(d.url) + '" target="_blank" rel="noopener">' +
-        esc(d.srcLabel || 'Source') + ' ↗</a>');
+    // ── 5 · HOW IT REACHED A VOTE ───────────────────────────────────────────
+    var proc = _dosProcessBits(pid, issueKey, d);
+    if (proc.length) {
+      out.push('<div class="pdxdos-x-s pdxdos-x-proc" data-pdxdos-proc="' + proc.length + '">' +
+        '<b class="pdxdos-x-k">' + esc(_DOS_X.proc) + '</b> ' + esc(proc.join(' ')) + '</div>');
+    }
+    // ── 6 · AND THAT THIS IS NOT A DIRECTION MATCH ROW ──────────────────────
+    // Where there is no stated position to test the act against, the row is on
+    // record and outside the score — and the direction printed in slot 4 is the
+    // mapping's, not a verdict on the person. Said in the shared ledger words, so
+    // the sentence here and the chip on the face are the same claim.
+    var ledX = false;
+    try { ledX = _ledUnscored(officialIssue(pid, issueKey)); } catch (e) { ledX = false; }
+    if (ledX && !d.held) {
+      out.push('<div class="pdxdos-note pdxdos-x-led" data-pdxdos-led="1">' +
+        esc(_LED.ico + ' ' + _LED.full + '. ' + _LED.notScore) + '</div>');
     }
     // The same roll call inside the full Voting Record — the congressional lane's
     // own deeper surface, reached the way every other proof line reaches it.
@@ -12975,7 +13417,11 @@
     // to be reachable or the truncation would be a quiet edit. Same fold, different
     // label, because "what the document says" is the wrong promise for an account
     // assembled from council minutes or a press record.
-    if (d.rationale && d.rationale !== d.plain) {
+    //   AND THE CLIP IN SLOT 2 IS THE THIRD REASON. That slot prints at most three
+    // sentences of the rationale; where the paragraph is longer, the fold is what
+    // makes the truncation a fold rather than an edit. Where slot 2 printed the
+    // whole thing, there is nothing left to open and the fold stays away.
+    if (d.rationale && d.rationale !== d.plain && d.rationale !== didPrinted) {
       var fineLabel = (d.lane === 'formal')
         ? 'The full account on file ▾'
         // Third label, third promise. Mapping rationale is the curator explaining the
@@ -13027,6 +13473,62 @@
       }
       if (t.scrollIntoView) t.scrollIntoView({ block: 'nearest' });
       if (t.focus) t.focus();
+    } catch (e) {}
+  }
+
+  // ── OPEN ONE MEASURE'S EXPLAINER FROM ANYWHERE ON THE SHEET ─────────────────
+  // The roll-up row in the Official Record column and the L2 row in the list below
+  // it are two views of the same instrument, rendered in two places in one HTML
+  // string. This is the bridge: given the (pid, issue, index) a roll-up row carries,
+  // find that L2 row, open every disclosure between it and the page, build its body
+  // if this is its first opening, and put it on screen with focus where the tap
+  // pointed. Exactly the four steps _insOpen does for the multi-issue trail, for the
+  // same reason — a reader should not have to perform them by hand.
+  //
+  // THE SEARCH WIDENS FROM THE TAP OUTWARD, and it matters that it does. Two
+  // dossiers can be in the document at once (a sheet over a profile that has its
+  // own rendered row), the sheet has no unique root id by design — it is one HTML
+  // string, and a duplicated id would scroll to the wrong panel — and the pid/issue
+  // pair is not unique across two renders of the same issue. Walking up from the
+  // tapped element finds the match in the SMALLEST enclosing subtree, which is
+  // always the sheet the reader is actually looking at.
+  //
+  // Every step is defensive and the whole thing is a no-op on failure: the roll-up
+  // row is a summary of a list that is still on the page, so a bridge that cannot
+  // find its target costs a reader one scroll rather than an error.
+  function _drvOpen(el) {
+    try {
+      if (!el || !el.getAttribute) return;
+      var i = el.getAttribute('data-pdxdrv-open') || '';
+      var pid = el.getAttribute('data-pdxdrv-pid') || '';
+      var key = el.getAttribute('data-pdxdrv-key') || '';
+      if (i === '' || !pid || !key) return;
+      var sel = '[data-pdxdos-i="' + i + '"][data-pdxdos-pid="' + pid + '"]' +
+        '[data-pdxdos-key="' + key + '"]';
+      var rec = null, scope = el.parentNode;
+      while (scope && scope.querySelector) {
+        rec = scope.querySelector(sel);
+        if (rec) break;
+        scope = scope.parentNode;
+      }
+      if (!rec) return;
+      // Every <details> between the row and the page, including the row itself and
+      // the collapsed 🏛️ list it lives in. Opening only the row would scroll a
+      // reader to an element inside a closed disclosure — visible to the code and
+      // to nobody else.
+      var p = rec;
+      while (p) {
+        if (p.tagName === 'DETAILS') p.open = true;
+        p = p.parentNode;
+      }
+      _dosMount(rec);
+      // Focus lands on the row's own summary rather than the row: a <details> is
+      // not focusable, its summary is, and a keyboard reader who pressed Enter on
+      // the roll-up line needs the caret to arrive somewhere it can act from.
+      var sm = rec.querySelector && rec.querySelector('summary');
+      var land = sm || rec;
+      if (land.scrollIntoView) land.scrollIntoView({ block: 'nearest' });
+      if (land.focus) land.focus();
     } catch (e) {}
   }
 
@@ -13570,13 +14072,21 @@
       });
     }
     var by = Object.create(null), order = [];
-    items.forEach(function (dItem) {
+    items.forEach(function (dItem, idxOf) {
       var id = String((dItem && dItem.ident) || '').trim() || 'Unnamed action';
       var k = id.toLowerCase();
       if (!by[k]) {
         by[k] = {
           ident: id, title: String((dItem && dItem.title) || '').trim(),
-          n: 0, adv: 0, opp: 0, held: 0, pkg: !!pkg[k], cls: ''
+          n: 0, adv: 0, opp: 0, held: 0, pkg: !!pkg[k], cls: '',
+          // WHERE THIS MEASURE'S OWN SCREEN IS. The roll-up groups by instrument
+          // identity, so a measure with three roll calls is one row here and three
+          // rows in the list below it. This is the index of the FIRST of those —
+          // the row a reader tapping this line is asking to open. Recorded at
+          // grouping time because that is the only place the two orderings are
+          // both in hand; the sort below reorders the roll-up and would otherwise
+          // lose the correspondence entirely.
+          idx: idxOf
         };
         order.push(k);
       }
@@ -13625,7 +14135,32 @@
       if (g.held) bits.push(g.held + ' not scorable');
       var ttl = g.title && g.title.toLowerCase() !== g.ident.toLowerCase() ? g.title : '';
       if (ttl.length > 78) ttl = ttl.slice(0, 78).replace(/\s+\S*$/, '') + '…';
-      return '<li class="pdxgap-drv-r' + (g.pkg ? ' is-pkg' : '') + '">' +
+      // ── THE ROLL-UP ROW IS THE DOOR ───────────────────────────────────────
+      // This line names a measure, counts its items and says which way they cut,
+      // and until now it did none of the one thing a reader tapping it wants: open
+      // that measure. The screen they were asking for already existed — it is the
+      // L2 row's own expanded body, two sections down — so this opens THAT rather
+      // than growing a second copy of it. No new surface, no new nav, one
+      // explainer per instrument wherever a reader arrives from.
+      //
+      // THE DOOR ATTRIBUTE SITS ON THE OUTERMOST ELEMENT, and everything inside
+      // stays a <span>. Both halves are load-bearing and both are pinned by
+      // scripts/test-row-tap-dossier.mjs: a delegated closest() has to find the
+      // door wherever inside the row a tap lands, and an interactive element
+      // nested inside another makes the HTML parser close the outer one early —
+      // which drops every span after the nested one out of the row entirely.
+      // So: role and tabindex rather than a <button>, and no <a> or <button>
+      // anywhere in the line.
+      //
+      // The accessible name is the whole line's text, which the browser assembles
+      // from the spans; the title says what tapping does, because a row that
+      // opens something should say so before it is tapped.
+      var door = ' data-pdxdrv-open="' + escAttr(String(g.idx)) + '"' +
+        ' data-pdxdrv-pid="' + escAttr(pid) + '"' +
+        ' data-pdxdrv-key="' + escAttr(issueKey) + '"' +
+        ' role="button" tabindex="0"' +
+        ' title="' + escAttr('Open ' + g.ident + ' — what it did and how they voted') + '"';
+      return '<li class="pdxgap-drv-r is-door' + (g.pkg ? ' is-pkg' : '') + '"' + door + '>' +
         '<span class="pdxgap-drv-id">' + esc(g.ident) + '</span>' +
         '<span class="pdxgap-drv-n">' + esc(g.n + ' ' + (g.n === 1 ? 'item' : 'items')) + '</span>' +
         (bits.length ? '<span class="pdxgap-drv-c">' + esc(bits.join(' · ')) + '</span>' : '') +
@@ -13633,6 +14168,7 @@
         (g.pkg ? '<span class="pdxgap-drv-p"><span aria-hidden="true">🚂</span> ' +
           esc('this issue rode inside it as a provision' + (g.cls ? ' — ' + g.cls : '')) +
           '</span>' : '') +
+        '<span class="pdxgap-drv-go" aria-hidden="true">→</span>' +
       '</li>';
     }).join('');
     var more = d.more

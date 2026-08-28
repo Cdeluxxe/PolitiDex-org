@@ -334,6 +334,27 @@ type RecordItem = {
   congress: number | null;
   session: number | null;
   rollNumber: number | null;
+  // WHICH SITTING THIS MEASURE BELONGS TO, when the tuple above cannot say it.
+  // `congress` is the citation for a federal bill and is null for every state
+  // one — a Utah bill belongs to a named session ("2025GS"), and bill numbers
+  // are reused every session exactly the way federal ones are reused every
+  // congress. Without this a reader looking at "H.B. 208" on a Utah row has no
+  // way to know which H.B. 208, and a co-sponsorship row has no way to know it
+  // at all (a position has no roll call, so it has no congress or session).
+  //   THREE WHITELISTED KEYS, NOT THE BLOB. vr_measures.external_ids is ingest
+  // provenance and holds whatever an ingest wanted to keep; only these three are
+  // reader-facing facts, so only these three cross the wire. `readFrom` names
+  // WHICH TEXT the issue mapping was read against (enrolled, last substitute)
+  // and `readFromUrl` links it — the mapping rationale is a claim about a
+  // specific version of a bill, and a claim about a version nobody can name is
+  // not checkable.
+  measureIdent: {
+    session: string | null;
+    readFrom: string | null;
+    readFromUrl: string | null;
+    officialTitle: string | null;
+    billUrl: string | null;
+  } | null;
   issues: Array<{
     issueKey: string;
     weight: number;
@@ -352,6 +373,41 @@ type RecordItem = {
   // surfaced so a moderator can see the review has to be redone.
   correctionsStale?: Array<Record<string, unknown>>;
 };
+
+// ── MEASURE IDENTITY, PROJECTED ─────────────────────────────────────────────
+// external_ids is a free-form provenance bag: a federal ingest files a
+// billStatus package id in it, the Utah committee ingest files a session code, a
+// sponsor name, the URL of the text a mapping was read against, the official
+// title as the GPO prints it and the bill page. A reader needs five of those and
+// no surface needs the rest, so this projects the five rather than shipping the
+// bag — a whitelist, so a future ingest key cannot reach the client by accident
+// just because someone added it upstream.
+//
+// The five split cleanly by government, and that is the point rather than an
+// accident. A Utah measure has a session code and a recorded mapping-text kind
+// and no GPO title; a federal measure has an official title and a congress.gov
+// page and gets its sitting from `congress`. Neither government's vocabulary
+// reaches the other's rows, because the keys the other side never wrote come
+// back null.
+//
+// Returns null when none of the five is present, which is the case for the older
+// federal rows the identity backfill has not reached: `congress` already answers
+// "which sitting" there, and a null here is what tells the client to keep using
+// it and print nothing else.
+function measureIdent(externalIds: unknown): RecordItem["measureIdent"] {
+  if (!externalIds || typeof externalIds !== "object") return null;
+  const x = externalIds as Record<string, unknown>;
+  const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
+  const session = str(x.utahSession);
+  const readFrom = str(x.mappingReadFrom);
+  const readFromUrl = str(x.mappingTextUrl);
+  const officialTitle = str(x.officialTitle);
+  // congress.gov before the BILLSTATUS XML: both are citable and both are already
+  // on file, but one of them is a page a reader can actually read.
+  const billUrl = str(x.congressGovUrl) || str(x.billStatusUrl);
+  if (!session && !readFrom && !readFromUrl && !officialTitle && !billUrl) return null;
+  return { session, readFrom, readFromUrl, officialTitle, billUrl };
+}
 
 // Fetch every measure_issues row for a set of measure ids, validate each key
 // against the allow-list (defensive — a stray key never reaches the client), and
@@ -419,6 +475,7 @@ function assembleRecordItems(
       congress: v.congress ?? null,
       session: v.session ?? null,
       rollNumber: v.rollNumber ?? null,
+      measureIdent: measureIdent(v.externalIds),
       issues: issuesByMeasure.get(v.measureId) ?? [],
       source: { url: v.rcSourceUrl, label: v.rcSourceLabel },
       // Present only when the overlay actually changed this cell (or refused to).
@@ -453,6 +510,11 @@ function assembleRecordItems(
       congress: null,
       session: null,
       rollNumber: null,
+      // …which is exactly why this one matters more here than on a vote row: a
+      // committee vote or a co-sponsorship has no roll call to carry a sitting,
+      // so without the measure's own session code the row cannot say which
+      // H.B. 208 it is.
+      measureIdent: measureIdent(p.externalIds),
       issues: issuesByMeasure.get(p.measureId) ?? [],
       source: { url: p.posSourceUrl, label: p.posSourceLabel ?? null },
     });
@@ -519,6 +581,7 @@ const VOTE_COLUMNS = {
   result: vrRollcalls.result,
   rcSourceUrl: vrRollcalls.sourceUrl,
   rcSourceLabel: vrRollcalls.sourceLabel,
+  externalIds: vrMeasures.externalIds,
   position: vrMemberVotes.position,
   isParty: vrMemberVotes.isParty,
 } as const;
@@ -535,6 +598,7 @@ const POSITION_COLUMNS = {
   actionType: vrPositions.actionType,
   supports: vrPositions.supports,
   actedAt: vrPositions.actedAt,
+  externalIds: vrMeasures.externalIds,
   posSourceUrl: vrPositions.sourceUrl,
   posSourceLabel: vrMeasures.sourceLabel,
 } as const;
@@ -1528,6 +1592,11 @@ async function getIssueRecords(url: URL): Promise<Response> {
           status: it.status,
           chamber: it.chamber,
           parentMeasureId: it.parentMeasureId,
+          // Shared here for the same reason the rest of this object is: which
+          // sitting a bill belongs to, and which text its mappings were read
+          // against, are facts about the MEASURE, identical for every member who
+          // acted on it. A per-member ref would carry N copies of one string.
+          measureIdent: it.measureIdent,
           issues: it.issues,
         };
       }

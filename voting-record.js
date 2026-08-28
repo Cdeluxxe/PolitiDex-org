@@ -601,6 +601,11 @@
               congress: (rc.congress == null) ? null : rc.congress,
               session: (rc.session == null) ? null : rc.session,
               rollNumber: (rc.rollNumber == null) ? null : rc.rollNumber,
+              // WHICH SITTING, when the tuple above cannot say it. Shared once per
+              // measure in the bundle payload because it describes the bill, not the
+              // member's act on it: {session, readFrom, readFromUrl}, or null on a
+              // federal row where `congress` is already the answer.
+              measureIdent: m.measureIdent || null,
               issues: m.issues || [],
               source: rc.source || null,
               // CORRECTION DISCLOSURE, carried when the payload has it. An approved
@@ -637,6 +642,7 @@
               congress: null,
               session: null,
               rollNumber: null,
+              measureIdent: pm.measureIdent || null,
               issues: pm.issues || [],
               source: ref.source || null
             });
