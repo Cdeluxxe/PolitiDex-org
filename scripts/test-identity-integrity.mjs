@@ -879,12 +879,19 @@ for (const [from, to] of Object.entries(PROFILE_ALIAS)) {
 }
 
 // window.PDXProfilePid(), reimplemented exactly: single hop, a candidate is only
-// accepted if IT has a record, unknown ids pass through.
+// accepted if IT has a record, unknown ids pass through — and the PROFILE_ALIAS
+// hop runs BEFORE the "does this id have a record" test, because a retirement the
+// repo has already asserted outranks a stray Firestore document filed under the
+// retired key (the /p/scott_chew vs /p/chew_h68 split; see
+// scripts/test-chew-identity.mjs). The order makes no difference to the checks
+// below — this sandbox has no PROFILES, and section 11 separately forbids a
+// PROFILE_ALIAS key from being a roster id — but a reimplementation that has
+// drifted from the shipped function is a harness testing nothing.
 const profilePid = (id) => {
   if (!id) return id;
   const hasRec = (x) => !!(ROSTER && ROSTER[x]);
+  if (PROFILE_ALIAS[id] && PROFILE_ALIAS[id] !== id && hasRec(PROFILE_ALIAS[id])) return PROFILE_ALIAS[id];
   if (hasRec(id)) return id;
-  if (PROFILE_ALIAS[id] && hasRec(PROFILE_ALIAS[id])) return PROFILE_ALIAS[id];
   if (ACCT_ALIAS[id] && hasRec(ACCT_ALIAS[id])) return ACCT_ALIAS[id];
   return id;
 };

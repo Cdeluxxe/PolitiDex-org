@@ -2331,7 +2331,16 @@
       p = p || {};
       var s = window._pdxStanceRecordStats(id, p);
       var jsId = _pdxEvJsId(id);
-      var thinRecord = !s.tracked;
+      // "STILL BEING BUILT" IS A CLAIM ABOUT THE WHOLE RECORD, so it has to read
+      // the whole record. This asked `!s.tracked` — curated cards, curated issues,
+      // Locker evidence — and none of those are the formal file. A member with a
+      // deep roll-call record and no stated position on file therefore got a
+      // button telling them the record is in progress while the destination
+      // listed every issue that record touched, which is the same leftover the
+      // person-file kicker had. s.formal is the formal pattern index's own count
+      // and it is already computed one line up; a record with issues on it is not
+      // "being built" whatever the curated side holds.
+      var thinRecord = !s.tracked && !s.formal;
       // Thin profiles still get the button — the label simply tells the honest
       // truth that the record is in progress (and the overlay shows the gaps).
       var title = thinRecord ? 'View Full Record — still being built' : 'View the Full Record on the Issues';

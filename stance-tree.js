@@ -110,9 +110,12 @@
        list and the branch that opens by default all read one sort key, and that
        key puts said-vs-record disagreement first. Nobody should have to walk
        seven taxonomy branches to find the row where the two halves disagree.
-     · FILTERS (see FILTERS). Six chips, one active at a time, each of them a
+     · FILTERS (see FILTERS). Ten chips, one active at a time, each of them a
        VIEW: it hides rows and touches nothing else. An empty one says so in
-       words rather than rendering an empty tree.
+       words rather than rendering an empty tree. Three of the ten read the
+       formal pattern engine's own characterisation — record supports, record
+       opposes, split — and they select the rows it actually characterised, in
+       its words, with no figure of their own.
      · FLAT MODE (see FLAT). At or under the threshold, the topic accordions are
        pure tap tax — five one-row branches to open one at a time — so the same
        leaves render as one flat list in tension order. Above it, the tree.
@@ -323,7 +326,7 @@
   }
 
   // ── THE FILTERS ───────────────────────────────────────────────────────────
-  // Six chips, ONE ACTIVE AT A TIME, and every one of them is a VIEW ONLY. A
+  // Ten chips, ONE ACTIVE AT A TIME, and every one of them is a VIEW ONLY. A
   // filter hides rows. It does not touch a row, a record read, a count, a floor
   // or a score; the same leaf says exactly the same thing under every filter, and
   // `all` — the full set, nothing hidden — is the default.
@@ -331,6 +334,24 @@
   // PATTERN-ONLY KEEPS EVERY DISCLOSURE UNDER ITS OWN FILTER: the tag on the row,
   // the three denials in the accessible name, the footer note. A screenful of
   // pattern-only rows is where the disclosure matters most, not least.
+  //
+  // THE CHARACTERISED SET, TAKEN FROM THE ENGINE THAT OWNS IT. `strong` and
+  // `mostly` are the two tiers the formal brief counts as characterised (see
+  // _FPI_CHARACTERISED in consistency.js) and `split` is its third bucket; this
+  // table is the same two names so a row is characterised on the tree if and only
+  // if it is characterised in the brief. Nothing here reads a floor, a score or a
+  // percentage: the tier and the tone were decided by the shared record-display
+  // accessor before the leaf was built, and this only names them.
+  var CHARACTERISED = { strong: 1, mostly: 1 };
+  function recTier(lf) { return (lf && lf.record && lf.record.tier) || 'none'; }
+  // ONE SIDE, OR NOTHING. `support` and `oppose` are the only two tones a
+  // one-sided read carries; `mixed` belongs to Split and `muted` is a refusal, so
+  // both fall out here rather than being sorted into a side by default.
+  function charSide(lf) {
+    if (!CHARACTERISED[recTier(lf)]) return '';
+    var tone = (lf.record && lf.record.tone) || '';
+    return (tone === 'support' || tone === 'oppose') ? tone : '';
+  }
   var FILTER_ALL = 'all';
   var FILTERS = [
     { key: 'all', label: 'All', title: 'Every issue on this tree.', test: null },
@@ -351,7 +372,37 @@
       test: function (lf) { return !!lf.baseline; } },
     { key: 'onfile', label: 'Formal on file',
       title: 'At least one formal item on the record for that issue.',
-      test: function (lf) { return !!(lf.record && lf.record.onRecord); } }
+      test: function (lf) { return !!(lf.record && lf.record.onRecord); } },
+    // ── THE THREE CHARACTERISED VIEWS ───────────────────────────────────────
+    // WHICH WAY DID THE RECORD ACTUALLY RUN, asked of the rows where that
+    // question has an answer. These three read `record.tier` and `record.tone`
+    // and nothing else: the pattern engine's own characterisation, already
+    // computed for the chip printed on the row, reused rather than re-derived.
+    // So a row selected here says on screen exactly what the chip that selected
+    // it says — "Strongly supports", "Mostly opposes", "Split" — and the tree
+    // and the formal brief cannot drift into two vocabularies for one read.
+    //
+    // THIN, UNREAD AND NO-POLE ROWS DO NOT ENTER. `CHARACTERISED` is the brief's
+    // own set (strong, mostly) and `split` is the brief's own third bucket; the
+    // `thin` tier, the `none` refusal, and the balance/no-pole keys the display
+    // bar mutes to `none` all fall outside all three. A reader who taps "Record
+    // supports" gets the characterised one-sided rows and not one row more.
+    //
+    // NOT A TALLY. A chip is a view: it narrows the rows on screen. It carries no
+    // figure, so nothing here is a percentage, an approval rating or a
+    // profile-wide count of which way a person leans — and Direction Match, which
+    // never counts a pattern read, is untouched by every one of them.
+    { key: 'recsup', label: 'Record supports',
+      title: 'The formal record on that issue ran one way — strongly or mostly supports. ' +
+        'A pattern in the votes on file, never counted in Direction Match.',
+      test: function (lf) { return charSide(lf) === 'support'; } },
+    { key: 'recopp', label: 'Record opposes',
+      title: 'The formal record on that issue ran one way — strongly or mostly opposes. ' +
+        'A pattern in the votes on file, never counted in Direction Match.',
+      test: function (lf) { return charSide(lf) === 'oppose'; } },
+    { key: 'recsplit', label: 'Split',
+      title: 'The formal record on that issue ran both ways — read as Split, not as a side.',
+      test: function (lf) { return recTier(lf) === 'split'; } }
   ];
   // AN EMPTY FILTER SAYS SO, IN WORDS. A filter a profile has no rows for is not a
   // broken tree with nothing in it: it is an answer, and it is one of the more
@@ -1493,6 +1544,9 @@
     // surface.
     FILTERS: FILTERS,
     FILTER_ALL: FILTER_ALL,
+    // The characterised set, exported as data so a test can assert the tree and
+    // the formal brief count the same two tiers rather than restating the pair.
+    CHARACTERISED: CHARACTERISED,
     EMPTY_NOTE: EMPTY_NOTE,
     filter: filterLeaves,
     chipsFor: chipsFor,

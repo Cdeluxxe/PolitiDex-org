@@ -69,12 +69,16 @@
      client-side engine reading it. The only thing that moved is when the
      request starts.
 
-     WHY THE ALIAS MAP IS COPIED HERE. fetchMember caches BY ID, so it asks for
-     the canonical id — a request for a retired id would warm a cache key
-     nobody reads and cost two requests instead of one. The table is the same
-     five retirements as PDX_PID_ALIASES in stance-helpers.js and
-     db/vr-pid-aliases.json; scripts/test-person-file-perf.mjs fails the build
-     if the three ever disagree.
+     WHY THE ALIAS MAPS ARE COPIED HERE. fetchMember caches BY ID, so it asks
+     for the canonical id — a request for a retired id would warm a cache key
+     nobody reads and cost two requests instead of one. Both tables the arrival
+     path consults are mirrored, in the order it consults them: first
+     PDX_PROFILE_ALIAS (profile-evidence.js), which is the table PDXPerson.resolve
+     canonicalises the address through — /p/scott_chew IS chew_h68's file, and one
+     Scott Chew means one pack — then PDX_PID_ALIASES (stance-helpers.js /
+     db/vr-pid-aliases.json), the voting-record retirements the endpoint itself is
+     keyed by. scripts/test-person-file-perf.mjs fails the build if any of these
+     copies disagrees with its source.
 
      THE SESSION CACHE IS READ BEFORE THE NETWORK. voting-record.js writes the
      unfiltered member payload into sessionStorage under this exact key, so a
@@ -117,12 +121,31 @@
   try { m = String(location.pathname).match(/^\/p\/([A-Za-z0-9_]+)\/?$/); } catch (e) { m = null; }
   if (!m) return;
 
-  // Mirror of PDX_PID_ALIASES (stance-helpers.js) / db/vr-pid-aliases.json.
+  // Mirror of PDX_PROFILE_ALIAS (profile-evidence.js) — "which id has a roster
+  // record". Applied FIRST, because that is the order the arrival path resolves
+  // in: PDXPerson.resolve() canonicalises the address before it warms anything,
+  // so /p/scott_chew opens chew_h68's file and a prefetch of scott_chew's pack
+  // would warm a cache key nobody reads.
+  var PROFILE_ALIASES = {
+    kivory: 'ivory_h39', wharper: 'harper_s16', seliason: 'eliason_h45',
+    klisonbee: 'lisonbee_h14', dmccay: 'mccay_s11', jteuscher: 'teuscher_h44',
+    ken_ivory: 'ivory_h39', eliason: 'eliason_h45', teuscher: 'teuscher_h44',
+    lisonbee: 'lisonbee_h14', mccay: 'mccay_s11', bridger_bolinder: 'bolinder_h68',
+    casey_snider: 'snider_h5', cory_maloy: 'cory_maloy_h52', curt_bramble: 'cbramble',
+    don_ipson: 'dipson', jerry_stevenson: 'jstevenson', jill_koford: 'koford_h10',
+    luz_escamilla: 'lescamilla', matthew_gwynn: 'gwynn_h6', nate_blouin: 'blouin_s13',
+    phil_lyman: 'lyman', scott_chew: 'chew_h68', scott_sandall: 'ssandall',
+    stephen_l_whyte: 'whyte_h63', stuart_adams: 'sadams', tiara_auxier: 'auxier_h4',
+    todd_weiler: 'tweiler', troy_shelley: 'shelley_h66'
+  };
+  // Mirror of PDX_PID_ALIASES (stance-helpers.js) / db/vr-pid-aliases.json — the
+  // voting-record retirements, which is the id the endpoint itself is keyed by.
   var ALIASES = {
     susan_collins: 'collins', kennedy_rfk: 'rfkjr', cullimore_s19: 'kcullimore',
     calbrecht: 'carl_albrecht', derek_brown: 'derek_brown_ut'
   };
-  var pid = ALIASES[m[1]] || m[1];
+  var pid = PROFILE_ALIASES[m[1]] || m[1];
+  pid = ALIASES[pid] || pid;
   var qs = '?pageSize=100';
   var url = '/api/voting-record/member/' + encodeURIComponent(pid) + qs;
   // Key format + TTL are owned by voting-record.js (PDXVotingRecord._ssKey /

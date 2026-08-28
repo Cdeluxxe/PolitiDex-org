@@ -99,6 +99,33 @@
       // or Firestore. Returns the cleaned id->record map plus counts so the
       // result can be reported. Cached per PROFILES size so repeated calls
       // during a render pass stay cheap.
+      // A RETIRED KEY IS NOT A SECOND PERSON. PDX_PROFILE_ALIAS (profile-evidence.js)
+      // is this repo's standing assertion that the id on its left names the same
+      // officeholder as the id on its right, so a live Firestore document filed
+      // under a retired key is the same person as the roster record — not a
+      // duplicate to be judged on richness, and not a unique profile because it
+      // happens to be the only PROFILES doc answering to that name.
+      //
+      // Name-grouping below cannot catch this on its own. The canonical record
+      // often lives only in CMP_DATA (chew_h68 is a roster record with a 90-act
+      // formal file and no Firestore document), which leaves the retired doc alone
+      // in its name group, looking unique, and the public directory advertises one
+      // Utah House District 68 seat as two current files under two addresses.
+      //
+      // So the retirement is applied before richness: a retired key can never win
+      // its group, and a group with nothing but retired keys is filed under the
+      // canonical id — the address the person file actually opens.
+      function _hyCanonId(id) {
+        try {
+          if (typeof window.PDXProfilePid === 'function') {
+            var a = window.PDXProfilePid(id);
+            if (a && a !== id) return String(a);
+          }
+        } catch (e) {}
+        return id;
+      }
+      function _hyRetired(id) { return _hyCanonId(id) !== id; }
+
       window._cleanProfiles = function () {
         var raw = (typeof PROFILES === 'object' && PROFILES) ? PROFILES : {};
         var ids = Object.keys(raw);
@@ -113,12 +140,15 @@
 
         var keep = {};
         var dupRemoved = 0, dupGroups = 0, stubRemoved = 0;
-        var mergedAwayIds = [], stubIds = [];
+        var mergedAwayIds = [], stubIds = [], retiredIds = [];
 
         Object.keys(groups).forEach(function (key) {
           var members = groups[key];
-          // Canonical = richest record; ties broken by id for stability.
+          // Canonical = the richest record that is not filed under a retired key;
+          // ties broken by id for stability.
           var canonical = members.slice().sort(function (a, b) {
+            var ra = _hyRetired(a) ? 1 : 0, rb = _hyRetired(b) ? 1 : 0;
+            if (ra !== rb) return ra - rb;
             var diff = _hyCompleteness(raw[b]) - _hyCompleteness(raw[a]);
             if (diff !== 0) return diff;
             return a < b ? -1 : (a > b ? 1 : 0);
@@ -139,7 +169,18 @@
             stubRemoved++; stubIds.push(canonical);
             return;
           }
-          keep[canonical] = raw[canonical];
+
+          // 3) File it under the canonical id. Unchanged for every ordinary
+          //    record (publicId === canonical); for a retired key it retires the
+          //    duplicate address, and if the canonical id is already filed the
+          //    retired record merges away rather than overwriting it.
+          var publicId = _hyCanonId(canonical);
+          if (publicId !== canonical) retiredIds.push(canonical);
+          if (Object.prototype.hasOwnProperty.call(keep, publicId)) {
+            dupRemoved++; mergedAwayIds.push(canonical);
+            return;
+          }
+          keep[publicId] = raw[canonical];
         });
 
         var result = {
@@ -150,7 +191,8 @@
           dupRemoved: dupRemoved,
           stubRemoved: stubRemoved,
           mergedAwayIds: mergedAwayIds,
-          stubIds: stubIds
+          stubIds: stubIds,
+          retiredIds: retiredIds
         };
         window._dataHygiene = result;
         return result;
