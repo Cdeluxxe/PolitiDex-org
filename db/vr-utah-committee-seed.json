@@ -3,14 +3,14 @@
   "generatedBy": "scripts/vr-utah-committee-ingest.mjs --seed",
   "session": "2025GS",
   "counts": {
-    "measures": 24,
-    "committeeActs": 32,
-    "positions": 241,
-    "supersededByFloorVote": 191,
-    "notOnAnyFloorRoll": 50,
+    "measures": 27,
+    "committeeActs": 35,
+    "positions": 258,
+    "supersededByFloorVote": 201,
+    "notOnAnyFloorRoll": 57,
     "reprintsDropped": 10,
-    "nearUnanimousRefused": 44,
-    "billsWithAnyCommitteeVote": 42
+    "nearUnanimousRefused": 47,
+    "billsWithAnyCommitteeVote": 46
   },
   "measures": [
     {
@@ -1768,6 +1768,77 @@
     },
     {
       "session": "2025GS",
+      "utahBill": "SB0026",
+      "number": "S.B. 26",
+      "title": "Housing and Transit Reinvestment Zone Amendments",
+      "chamber": "utah senate",
+      "issueKeys": [
+        "dev_district_finance"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19876",
+          "committee": "House Political Subdivisions Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-02-25",
+          "motion": "Rep. Gwynn moved to pass 2nd Substitute S.B. 26 out favorably.",
+          "result": "failed",
+          "printedTotals": {
+            "yea": 2,
+            "nay": 6,
+            "absent": 2
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001806.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19876",
+          "votes": [
+            {
+              "politicianId": "fitisemanu_h30",
+              "supports": false,
+              "printedAs": "Rep. J. Fitisemanu",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "gay_lynn_bennion",
+              "supports": false,
+              "printedAs": "Rep. G. Bennion",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "gwynn_h6",
+              "supports": true,
+              "printedAs": "Rep. M. Gwynn",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "james_dunnigan",
+              "supports": false,
+              "printedAs": "Rep. J. Dunnigan",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "r_neil_walter",
+              "supports": false,
+              "printedAs": "Rep. R. Walter",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "rward",
+              "supports": false,
+              "printedAs": "Rep. R. Ward",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "tracy_miller",
+              "supports": false,
+              "printedAs": "Rep. T. Miller",
+              "supersededByFloorVote": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
       "utahBill": "SB0097",
       "number": "S.B. 97",
       "title": "Emergency Shelter Amendments",
@@ -2290,6 +2361,124 @@
               "politicianId": "mckell_s25",
               "supports": true,
               "printedAs": "Sen. M. McKell",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "SB0316",
+      "number": "S.B. 316",
+      "title": "Military Installation Development Authority and Other Development Zone Amendments",
+      "chamber": "utah senate",
+      "issueKeys": [
+        "dev_district_finance"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19891",
+          "committee": "House Economic Development and Workforce Services Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-03-04",
+          "motion": "Chair Hawkins moved to pass 3rd Substitute S.B. 316 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 4,
+            "nay": 3,
+            "absent": 3
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001936.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19891",
+          "votes": [
+            {
+              "politicianId": "colin_w_jack",
+              "supports": true,
+              "printedAs": "Rep. C. Jack",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "david_shallenberger",
+              "supports": true,
+              "printedAs": "Rep. D. Shallenberger",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "doug_fiefia",
+              "supports": false,
+              "printedAs": "Rep. D. Fiefia",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "grant_miller",
+              "supports": false,
+              "printedAs": "Rep. G. Miller",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "jon_hawkins",
+              "supports": true,
+              "printedAs": "Rep. J. Hawkins",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "paul_a_cutler",
+              "supports": true,
+              "printedAs": "Rep. P. Cutler",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "shelley_h66",
+              "supports": false,
+              "printedAs": "Rep. T. Shelley",
+              "supersededByFloorVote": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "SB0336",
+      "number": "S.B. 336",
+      "title": "Utah Fairpark Area Investment and Restoration District Modifications",
+      "chamber": "utah senate",
+      "issueKeys": [
+        "dev_district_finance"
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19894",
+          "committee": "Senate Economic Development and Workforce Services Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-02-27",
+          "motion": "Sen. Kwan moved to pass 1st Substitute S.B. 336 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 2,
+            "nay": 1,
+            "absent": 3
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001844.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19894",
+          "votes": [
+            {
+              "politicianId": "amillner",
+              "supports": true,
+              "printedAs": "Sen. A. Millner",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "john_johnson",
+              "supports": false,
+              "printedAs": "Sen. J. Johnson",
+              "supersededByFloorVote": true
+            },
+            {
+              "politicianId": "kwan_s12",
+              "supports": true,
+              "printedAs": "Sen. K. Kwan",
               "supersededByFloorVote": true
             }
           ]

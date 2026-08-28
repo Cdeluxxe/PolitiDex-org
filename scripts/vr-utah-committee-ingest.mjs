@@ -96,6 +96,7 @@
 //   --seed    [--session 2025GS]   write db/vr-utah-committee-seed[-S].json
 //   --bucket  [--session 2025GS]   list the off-lane contested bills (curator worklist)
 //   --sql     [--session 2025GS]   write the migration into --out
+//        --bills HB0215,SB0016 --name roster_rows --reason "..."   # forward delta
 //   --json                         machine-readable report on stdout
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -664,8 +665,20 @@ export function collect(session, { reviewedMapRequired, extraLane }) {
   }
 
   // Names: resolved / unmapped / refused, counted apart from each other.
+  //
+  // READ THE REVIEWED MAP HERE, NOT JUST THE PROPOSALS. `forms` holds what
+  // proposeForm() could work out on its own, and a form the reviewer resolved
+  // through a door the tool cannot walk — a session-roster match, say — still
+  // carries `politicianId: null` in its proposal. The vote loop above already
+  // lets the reviewed map win, so counting proposals here reported a name as an
+  // unresolved coverage gap in the same run that attributed all of its votes.
+  // The two numbers have to come off the same source or the header lies about
+  // the ledger the reviewed map is supposed to make re-derivable.
   for (const [printed, p] of forms) {
     const ch = p.chamber || "?";
+    const rev = ch !== "?" && reviewed && reviewed.printedForms && reviewed.printedForms[ch]
+      ? reviewed.printedForms[ch][printed] : null;
+    if (rev && rev.politicianId) { rep.names.resolved++; continue; }
     if (p.refused) { rep.names.refused++; (rep.names.refusedForms[ch] = rep.names.refusedForms[ch] || []).push(printed); }
     else if (p.politicianId) rep.names.resolved++;
     else { rep.names.unmapped++; (rep.names.unmappedForms[ch] = rep.names.unmappedForms[ch] || []).push(printed); }
@@ -818,23 +831,101 @@ function buildSeed(session) {
 // SQL
 // ─────────────────────────────────────────────────────────────────────────────
 const q = (s) => `'${String(s).replace(/'/g, "''")}'`;
-export function buildSql(session) {
+// A one-paragraph --reason arrives as one long line; a migration header that runs
+// off the side of the terminal is a header people stop reading.
+function wrapComment(text, width) {
+  const out = [];
+  let line = "";
+  for (const w of String(text).split(/\s+/)) {
+    if (line && (line + " " + w).length > width) { out.push(line); line = w; }
+    else line = line ? `${line} ${w}` : w;
+  }
+  if (line) out.push(line);
+  return out;
+}
+// A SHIPPED SEED CAN STILL GROW, AND THE APPLIED FILE MUST NOT.
+// The migration that carried a session's committee votes is immutable once it is
+// applied; the seed behind it is regenerable and grows whenever an earlier fence
+// is honestly lifted. Wave 6 lifted one — sixteen legislators who cast recorded
+// committee votes in 2023 and 2024 had no roster record, so the ingest dropped
+// their votes; the roster rows now exist and the votes attribute. `only`
+// restricts the emitted DO blocks to the bills named, so the forward migration
+// carries exactly the delta.
+//
+// The blocks are the SAME generated blocks, unmodified: each selects its measure
+// before inserting and every insert ends ON CONFLICT DO NOTHING, so re-stating a
+// bill already in the database is a no-op and only genuinely new rows land. That
+// is what makes a partial re-emission safe.
+//
+// Two different numbers live in this file and they are not interchangeable. The
+// PROSE counts describe what this file carries — recounted off the emitted
+// measures when it is a delta, because a header claiming 174 rows above a body
+// holding 47 is a lie where a reader is most likely to trust it. The
+// VERIFICATION counts describe the expected end state of THIS LANE — every
+// committee position the seed accounts for — because the assertion runs after
+// every migration for the session has been applied.
+//
+// AND THE LANE IS NOT THE SESSION. A second lane writes committee positions for
+// the same sessions: scripts/vr-utah-committee-mapping.mjs, whose committee-only
+// bills are measures this seed has never heard of, flagged
+// external_ids->>'committeeOnly' = 'true' on the measure row. Counting every
+// committee_vote row in the session would therefore compare a seed total against
+// a seed total plus a mapping total and fail the moment a mapping wave lands —
+// which is exactly what happened to 2024GS. The two count queries below exclude
+// committeeOnly measures so each lane verifies its own arithmetic; the roll-call
+// and citation guards further down stay session-wide, because those are
+// invariants no lane is allowed to break.
+export function buildSql(session, opts) {
   const seed = readJson(comSeedFile(session));
+  const whole = seed.counts;                       // what the session should hold once every file is applied
+  const only = opts && opts.only && opts.only.length ? new Set(opts.only) : null;
+  if (only) {
+    const strangers = [...only].filter((b) => !seed.measures.some((m) => m.utahBill === b));
+    if (strangers.length) {
+      throw new Error(`--bills names ${strangers.length} bill(s) with no measure in the ${session} committee seed: ` +
+        strangers.join(", "));
+    }
+    seed.measures = seed.measures.filter((m) => only.has(m.utahBill));
+  }
   const L = [];
   const yr = session.slice(0, 4);
   // Every number in this header is read off the seed. The one time a figure was
   // typed in by hand it survived a session change and told 2024's readers 2025's
   // truth, so an older seed that predates these two keys is a hard error rather
   // than a header with a hole in it.
-  const anyCV = seed.counts.billsWithAnyCommitteeVote;
-  if (anyCV == null || seed.counts.nearUnanimousRefused == null) {
+  const anyCV = whole.billsWithAnyCommitteeVote;
+  if (anyCV == null || whole.nearUnanimousRefused == null) {
     throw new Error(`${comSeedFile(session)} predates counts.billsWithAnyCommitteeVote / counts.nearUnanimousRefused — re-run --seed for ${session}`);
   }
+  // The prose counts. Whole-seed totals for a first file; the delta's own for a
+  // forward delta, so `seed.counts` below never over-claims what the body holds.
+  seed.counts = only ? (function () {
+    const acts = seed.measures.reduce((n, m) => n + m.committeeActs.length, 0);
+    const votes = seed.measures.flatMap((m) => m.committeeActs.flatMap((a) => a.votes));
+    const sup = votes.filter((v) => v.supersededByFloorVote).length;
+    // reprintsDropped, nearUnanimousRefused and billsWithAnyCommitteeVote are
+    // session-level facts about the pipeline's rules, not per-measure tallies, so
+    // they carry over from the whole seed unchanged.
+    return Object.assign({}, whole, {
+      measures: seed.measures.length, committeeActs: acts, positions: votes.length,
+      supersededByFloorVote: sup, notOnAnyFloorRoll: votes.length - sup,
+    });
+  })() : whole;
   L.push(`-- ─────────────────────────────────────────────────────────────────────────────`);
   L.push(`-- vr_positions — Utah ${yr} committee votes as formal acts`);
   L.push(`-- ─────────────────────────────────────────────────────────────────────────────`);
-  L.push(`-- WHAT THIS ADDS. ${seed.counts.positions} committee votes — ${seed.counts.committeeActs} committee actions on ${seed.counts.measures} bills`);
-  L.push(`-- already in the formal lane for ${session} — written as`);
+  L.push(only
+    ? `-- WHAT THIS RESTATES. ${seed.counts.positions} committee votes — ${seed.counts.committeeActs} committee actions on ${seed.counts.measures} bills`
+    : `-- WHAT THIS ADDS. ${seed.counts.positions} committee votes — ${seed.counts.committeeActs} committee actions on ${seed.counts.measures} bills`);
+  L.push(only
+    ? `-- already in the formal lane for ${session} — re-emitted in full so the rows that are`
+    : `-- already in the formal lane for ${session} — written as`);
+  if (only) {
+    L.push(`-- genuinely new can land. Whatever the database already holds is a no-op; how many of`);
+    L.push(`-- these rows are new depends on which ${session} committee migrations have been applied,`);
+    L.push(`-- which is a fact about the database and not about this file, so no count is claimed`);
+    L.push(`-- for it here. They are written as`);
+  }
   L.push(`-- vr_positions rows with action_type = 'committee_vote'. That action type already`);
   L.push(`-- exists in stance-helpers' act table at weight 0.60 and prints as "Committee vote";`);
   L.push(`-- nothing about weights, labels or floors is changed by this file.`);
@@ -882,6 +973,32 @@ export function buildSql(session) {
   L.push(`-- --seed and --sql. The seed is committed at db/${path.basename(comSeedFile(session))};`);
   L.push(`-- the reviewed name table at db/${path.basename(comMapFile(session))}.`);
   L.push(`--`);
+  if (only) {
+    L.push(`-- THIS IS A DELTA, NOT THE WHOLE SEED. ${session}'s committee votes already shipped in`);
+    L.push(`-- an earlier migration and that file is applied, so it is not edited. This one`);
+    L.push(`-- carries only the ${seed.counts.measures} bill(s) whose rows changed afterwards:`);
+    for (const m of seed.measures) {
+      L.push(`--   ${m.utahBill} · ${m.number} · ${m.committeeActs.length} act(s), ` +
+        `${m.committeeActs.reduce((n, a) => n + a.votes.length, 0)} position(s)`);
+    }
+    if (opts && opts.reason) {
+      L.push(`--`);
+      L.push(`-- WHY THEY CHANGED.`);
+      for (const line of wrapComment(opts.reason, 74)) L.push(`-- ${line}`);
+      L.push(`--`);
+    }
+    L.push(`-- Each block is the same generated block as before, unmodified: it selects the`);
+    L.push(`-- measure before inserting and ends ON CONFLICT DO NOTHING, so re-stating a bill the`);
+    L.push(`-- database already holds is a no-op and only genuinely new rows land. The`);
+    L.push(`-- VERIFICATION block at the foot asserts this lane's whole end state`);
+    L.push(`-- (${whole.positions} positions on ${whole.measures} bills), not this file's ${seed.counts.positions} on ${seed.counts.measures}, because it runs`);
+    L.push(`-- after every ${session} committee migration has been applied. The committee-only`);
+    L.push(`-- measures written by the mapping lane are excluded from that count by their own`);
+    L.push(`-- committeeOnly flag, so a later mapping wave cannot move it. Regenerate this exact`);
+    L.push(`-- file with --sql --session ${session} --bills`);
+    L.push(`--   ${[...only].sort().join(",")}`);
+    L.push(`--`);
+  }
   L.push(`-- IDEMPOTENT. Every row is ON CONFLICT DO NOTHING against vr_positions_unique`);
   L.push(`-- (measure_id, politician_id, action_type). No DDL.`);
   L.push(`-- ─────────────────────────────────────────────────────────────────────────────`);
@@ -917,19 +1034,23 @@ export function buildSql(session) {
   L.push(`DO $$`);
   L.push(`DECLARE n_pos integer; n_floorish integer; n_nosrc integer; n_measures integer;`);
   L.push(`BEGIN`);
+  L.push(`  -- This lane only: the committee-only bills the mapping lane writes carry`);
+  L.push(`  -- committeeOnly on the measure and are counted by that lane, not this one.`);
   L.push(`  SELECT count(*) INTO n_pos FROM vr_positions p`);
   L.push(`    JOIN vr_measures m ON m.id = p.measure_id`);
   L.push(`   WHERE p.action_type = 'committee_vote'`);
-  L.push(`     AND m.external_ids->>'utahSession' = ${q(session)};`);
-  L.push(`  IF n_pos <> ${seed.counts.positions} THEN`);
-  L.push(`    RAISE EXCEPTION 'expected ${seed.counts.positions} Utah ${session} committee_vote positions, found %', n_pos;`);
+  L.push(`     AND m.external_ids->>'utahSession' = ${q(session)}`);
+  L.push(`     AND (m.external_ids->>'committeeOnly') IS DISTINCT FROM 'true';`);
+  L.push(`  IF n_pos <> ${whole.positions} THEN`);
+  L.push(`    RAISE EXCEPTION 'expected ${whole.positions} Utah ${session} seed-lane committee_vote positions, found %', n_pos;`);
   L.push(`  END IF;`);
   L.push(`  SELECT count(DISTINCT p.measure_id) INTO n_measures FROM vr_positions p`);
   L.push(`    JOIN vr_measures m ON m.id = p.measure_id`);
   L.push(`   WHERE p.action_type = 'committee_vote'`);
-  L.push(`     AND m.external_ids->>'utahSession' = ${q(session)};`);
-  L.push(`  IF n_measures <> ${seed.counts.measures} THEN`);
-  L.push(`    RAISE EXCEPTION 'expected ${seed.counts.measures} bills with Utah ${session} committee votes, found %', n_measures;`);
+  L.push(`     AND m.external_ids->>'utahSession' = ${q(session)}`);
+  L.push(`     AND (m.external_ids->>'committeeOnly') IS DISTINCT FROM 'true';`);
+  L.push(`  IF n_measures <> ${whole.measures} THEN`);
+  L.push(`    RAISE EXCEPTION 'expected ${whole.measures} bills with Utah ${session} seed-lane committee votes, found %', n_measures;`);
   L.push(`  END IF;`);
   L.push(`  -- A committee act must never have been written as a roll call.`);
   L.push(`  SELECT count(*) INTO n_floorish FROM vr_rollcalls r`);
@@ -1017,8 +1138,15 @@ function main() {
   }
   if (has("--sql")) {
     fs.mkdirSync(OUTDIR, { recursive: true });
-    const f = path.join(OUTDIR, `vr_utah_${SESSION.toLowerCase()}_committee_votes.sql`);
-    fs.writeFileSync(f, buildSql(SESSION));
+    // --bills restricts the file to a forward delta; --name gives the delta a
+    // suffix that says WHY it exists rather than leaving a bare "_delta" behind.
+    const only = val("--bills", "").split(",").map((x) => x.trim()).filter(Boolean);
+    const suffix = has("--name") ? `_${val("--name", "")}` : (only.length ? "_delta" : "");
+    // --reason is prose, not a count: the tool cannot know why a seed grew, and a
+    // delta whose header cannot say why it exists makes the next reader guess.
+    const reason = val("--reason", null);
+    const f = path.join(OUTDIR, `vr_utah_${SESSION.toLowerCase()}_committee_votes${suffix}.sql`);
+    fs.writeFileSync(f, buildSql(SESSION, { only, reason }));
     console.log(f);
     return;
   }

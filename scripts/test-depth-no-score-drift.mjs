@@ -142,6 +142,35 @@ const ADDED = {
   jefferson_moss:      "HD-51 until Jul 2025 — former member; leah_hansen holds the seat — 2025GS floor votes were parsed and dropped for want of a roster record",
   jefferson_burton:    "HD-64 until May 2026 — former member; jackie_larson holds the seat — 2025GS floor votes were parsed and dropped for want of a roster record",
   daniel_thatcher:     "SD-11 until Dec 2025 — former member; emily_buss holds the seat — 2025GS floor votes were parsed and dropped for want of a roster record",
+
+  // August 2026 Utah data wave 6. Sixteen Utah legislators cast recorded
+  // COMMITTEE votes in the 2023 and 2024 general sessions that
+  // scripts/vr-utah-committee-ingest.mjs parsed and then DISCARDED for the same
+  // reason as the twenty-seven above: a printed name can only be mapped onto a
+  // roster id, and there was no record here to map onto. Fourteen were seated in
+  // both sessions; anderegg and kotter only in 2023, which is why the 2023 name
+  // map had to be reviewed on its own rather than copied from 2024. All sixteen
+  // are identity-only — score null, kept/broken/pending 0, `issues` carrying the
+  // district as a plain fact — and every field is off the Legislature's roster
+  // page for the session in question — the district is the only geography the
+  // roster page gives, so the district is all that is claimed here. See the
+  // comment block in cmp-data.js.
+  kera_birkeland:    "HD-4 — 2023GS and 2024GS committee votes were parsed and dropped for want of a roster record",
+  david_buxton:      "SD-4 — 2023GS and 2024GS committee votes were parsed and dropped for want of a roster record",
+  joel_briscoe:      "HD-24 — 2023GS and 2024GS committee votes were parsed and dropped for want of a roster record",
+  james_cobb:        "HD-48 — 2023GS and 2024GS committee votes were parsed and dropped for want of a roster record",
+  brett_garner:      "HD-31 — 2023GS and 2024GS committee votes were parsed and dropped for want of a roster record",
+  tim_jimenez:       "HD-28 — 2023GS and 2024GS committee votes were parsed and dropped for want of a roster record",
+  brian_king:        "HD-23 — 2023GS and 2024GS committee votes were parsed and dropped for want of a roster record",
+  rosemary_lesser:   "HD-10 — 2023GS and 2024GS committee votes were parsed and dropped for want of a roster record",
+  steven_lund:       "HD-66 — 2023GS and 2024GS committee votes were parsed and dropped for want of a roster record",
+  susan_pulsipher:   "HD-45 — 2023GS and 2024GS committee votes were parsed and dropped for want of a roster record",
+  judy_weeks_rohner: "HD-30 — 2023GS and 2024GS committee votes were parsed and dropped for want of a roster record",
+  robert_spendlove:  "HD-42 — 2023GS and 2024GS committee votes were parsed and dropped for want of a roster record",
+  jeffrey_stenquist: "HD-46 — 2023GS and 2024GS committee votes were parsed and dropped for want of a roster record",
+  mark_wheatley:     "HD-35 — 2023GS and 2024GS committee votes were parsed and dropped for want of a roster record",
+  jacob_anderegg:    "SD-22 seated 2023 only; heidi_balderree holds the seat — 2023GS committee votes were parsed and dropped for want of a roster record",
+  quinn_kotter:      "HD-26 seated 2023 only; matt_macpherson holds the seat — 2023GS committee votes were parsed and dropped for want of a roster record",
 };
 {
   const now = Object.keys(after.CMP_DATA || {});

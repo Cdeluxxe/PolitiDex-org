@@ -3,15 +3,15 @@
   "generatedBy": "scripts/vr-utah-committee-mapping.mjs",
   "session": "2025GS",
   "counts": {
-    "bucket": 173,
-    "admitted": 76,
-    "refused": 97,
-    "measures": 76,
-    "issueMappings": 81,
-    "committeeActs": 100,
-    "positions": 708,
+    "bucket": 170,
+    "admitted": 78,
+    "refused": 95,
+    "measures": 78,
+    "issueMappings": 83,
+    "committeeActs": 102,
+    "positions": 723,
     "supersededByFloorVote": 0,
-    "notOnAnyFloorRoll": 708,
+    "notOnAnyFloorRoll": 723,
     "admittedButNoActSurvived": 0
   },
   "admittedButNoActSurvived": [],
@@ -5287,6 +5287,110 @@
     },
     {
       "session": "2025GS",
+      "utahBill": "HB0528",
+      "number": "H.B. 528",
+      "title": "Tax Payments with Precious Metals",
+      "chamber": "utah house",
+      "measureType": "bill",
+      "status": "introduced",
+      "sourceUrl": "https://le.utah.gov/~2025/bills/static/HB0528.html",
+      "sourceLabel": "Utah State Legislature",
+      "primeSponsor": "Rep. Ivory, Ken",
+      "floorSponsor": null,
+      "generalProvisions": "This bill modifies provisions related to tax payments.",
+      "textKind": "substitute_1",
+      "textUrl": "https://le.utah.gov/Session/2025/bills/introduced/HB0528S01.xml",
+      "issues": [
+        {
+          "issueKey": "sound_money",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "First substitute text lets severance and income taxes be paid in gold, sets a reduced severance rate for a mine operator who remits in gold, and creates an income tax credit for doing so. Making the state accept metal as payment, and paying operators to use it, is the whole bill, so a yea widens the role of specie. The reduced rate and the credit are the inducement to remit in gold rather than a tax-policy ask of their own, which is why lower_taxes is not mapped here."
+        }
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19912",
+          "committee": "House Transportation Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2025-03-03",
+          "motion": "Vice Chair Defay moved to pass 1st Substitute H.B. 528 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 6,
+            "nay": 4,
+            "absent": 2
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00001894.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19912",
+          "votes": [
+            {
+              "politicianId": "aromero",
+              "supports": false,
+              "printedAs": "Rep. A. Romero",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "ashlee_matthews",
+              "supports": true,
+              "printedAs": "Rep. A. Matthews",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "calvin_roberts",
+              "supports": true,
+              "printedAs": "Rep. C. Roberts",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "defay_h15",
+              "supports": true,
+              "printedAs": "Rep. A. Defay",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "ivory_h39",
+              "supports": true,
+              "printedAs": "Rep. K. Ivory",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "jake_sawyer",
+              "supports": true,
+              "printedAs": "Rep. J. Sawyer",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "kay_christofferson",
+              "supports": false,
+              "printedAs": "Rep. K. Christofferson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "mike_petersen",
+              "supports": true,
+              "printedAs": "Rep. M. Petersen",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "nthurston",
+              "supports": false,
+              "printedAs": "Rep. N. Thurston",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "rosalba_dominguez",
+              "supports": false,
+              "printedAs": "Rep. R. Dominguez",
+              "supersededByFloorVote": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
       "utahBill": "HB0547",
       "number": "H.B. 547",
       "title": "Diaper Program Amendments",
@@ -6869,6 +6973,80 @@
               "politicianId": "tracy_miller",
               "supports": true,
               "printedAs": "Rep. T. Miller",
+              "supersededByFloorVote": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2025GS",
+      "utahBill": "SB0186",
+      "number": "S.B. 186",
+      "title": "Tobacco and Electronic Cigarette Amendments",
+      "chamber": "utah senate",
+      "measureType": "bill",
+      "status": "introduced",
+      "sourceUrl": "https://le.utah.gov/~2025/bills/static/SB0186.html",
+      "sourceLabel": "Utah State Legislature",
+      "primeSponsor": "Sen. Plumb, Jen",
+      "floorSponsor": "Rep. Burton, Jefferson S.",
+      "generalProvisions": "This bill amends provisions related to tobacco and electronic cigarette products.",
+      "textKind": "substitute_1",
+      "textUrl": "https://le.utah.gov/Session/2025/bills/introduced/SB0186S01.xml",
+      "issues": [
+        {
+          "issueKey": "tobacco_nicotine",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "First substitute text adds registry and search provisions for tobacco and electronic cigarette products, creates penalties for a retailer selling flavored electronic cigarette products, raises permit fees for general retailers and specialty businesses, and amends the criminal penalties for illegal sales. Enforcement against nicotine retailers is the whole bill, and every provision tightens it, so a yea tightens the rules."
+        }
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19597",
+          "committee": "Senate Business and Labor Standing Committee",
+          "committeeChamber": "utah senate",
+          "date": "2025-01-30",
+          "motion": "Sen. Pitcher moved to pass S.B. 186 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 4,
+            "nay": 1,
+            "absent": 3
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2025/pdf/00000726.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19597",
+          "votes": [
+            {
+              "politicianId": "cmusselman",
+              "supports": true,
+              "printedAs": "Sen. C. Musselman",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "dipson",
+              "supports": true,
+              "printedAs": "Sen. D. Ipson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "kcullimore",
+              "supports": true,
+              "printedAs": "Sen. K. Cullimore",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "stephanie_pitcher",
+              "supports": true,
+              "printedAs": "Sen. S. Pitcher",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "tweiler",
+              "supports": false,
+              "printedAs": "Sen. T. Weiler",
               "supersededByFloorVote": false
             }
           ]

@@ -196,11 +196,34 @@ for (const file of seedFiles) {
     ok(/^https:\/\/\S+$/.test(String(v.sourceUrl)), `${at}: sourceUrl is not an https URL`);
     ok(typeof v.sourceLabel === 'string' && v.sourceLabel.length > 0, `${at}: no sourceLabel`);
 
-    // ── the measure must be mapped, or these votes rank nothing ───────────
+    // ── the measure must be mapped, or the refusal must be written down ───
+    // A roll on an unmapped measure ranks nothing, so the default is still a
+    // failure. But "unmapped" and "unread" are not the same state: a measure can
+    // be read in full and refused every candidate key on the merits, which is a
+    // curatorial finding worth keeping rather than a gap to be closed by mapping
+    // it anyway. H.R. 1069 is that case — nine keys read and nine refused in F1,
+    // re-refused in F2, and a migration that RAISES if it ever gains an issue row.
+    //
+    // So the exemption is allowed and made expensive. The seed must name the
+    // measure in measuresDeliberatelyUnmapped AND argue it in declinedFacets, key
+    // by key, or the roll fails exactly as before. A one-line assertion buys
+    // nothing; a bare `measuresDeliberatelyUnmapped` entry with no facet behind it
+    // is still a hole, and still fails here.
     const m = v.measure || {};
     ok(!!m.number && !!m.chamber && Number.isInteger(m.congress), `${at}: measure is not fully identified`);
-    ok(MAPPED.has(mkey(m.congress, m.number)),
-      `${at}: measure ${m.number} (${m.congress}th) has no mapping in db/vr-issue-seed.json`);
+    const declaredUnmapped = (seed.measuresDeliberatelyUnmapped || [])
+      .some((d) => String(d).includes(String(m.number)));
+    const facetsRefused = (seed.declinedFacets || [])
+      .filter((d) => String(d.measure || '').includes(String(m.number)))
+      .filter((d) => typeof d.why === 'string' && d.why.trim().length >= 24);
+    if (MAPPED.has(mkey(m.congress, m.number))) {
+      pass++;
+    } else {
+      ok(declaredUnmapped && facetsRefused.length > 0,
+        `${at}: measure ${m.number} (${m.congress}th) has no mapping in db/vr-issue-seed.json `
+        + 'and is not declared in measuresDeliberatelyUnmapped with a reasoned declinedFacets '
+        + 'entry behind it — an unmapped measure is either a refusal on the record or a hole');
+    }
 
     // ── runbook rule 8: decisive questions only ───────────────────────────
     const question = String(v.question || '');
@@ -219,14 +242,39 @@ for (const file of seedFiles) {
     }
 
     // ── the roster is the ceiling, not the chamber ────────────────────────
+    // What this catches is a seed whose `totals` were copied off the roster subset
+    // instead of the chamber, which would make a 96-member slice look like the
+    // whole Senate. The comparison has to be like-for-like to catch it: an
+    // attributed member-vote may be yea, nay, present OR not_voting, so the
+    // ceiling is the chamber's HEADCOUNT — every position summed — and not its
+    // yea/nay tally. Comparing the roster's rows against yea+nay alone failed a
+    // seed that was right: Senate 119/1/632 is 49-45 with 6 not voting, 100
+    // senators, and its 96 attributed rows include those 6.
+    //
+    // Checking each position against its own chamber count is what makes this
+    // strict rather than merely looser: 50 attributed yeas under a printed
+    // yea of 49 is impossible however the totals were assembled, and is now
+    // caught per position instead of hiding inside a sum.
     const mvs = Array.isArray(v.memberVotes) ? v.memberVotes : [];
     ok(mvs.length > 0, `${at}: no attributed member-votes`);
     const t = v.totals || {};
     const tallied = (t.yea || 0) + (t.nay || 0);
     ok(tallied > 0, `${at}: totals carry no yea/nay tally`);
-    ok(tallied >= mvs.length,
-      `${at}: totals (${t.yea}-${t.nay}) are smaller than the ${mvs.length} attributed votes — `
+    const headcount = tallied + (t.present || 0) + (t.notVoting || 0);
+    ok(headcount >= mvs.length,
+      `${at}: totals (${t.yea}-${t.nay}, ${t.present || 0} present, ${t.notVoting || 0} not voting) `
+      + `count ${headcount} members, fewer than the ${mvs.length} attributed votes — `
       + 'totals must be the full chamber tally, not the roster subset');
+    const CEILING = { yea: t.yea || 0, nay: t.nay || 0, present: t.present || 0, not_voting: t.notVoting || 0 };
+    const attributedBy = { yea: 0, nay: 0, present: 0, not_voting: 0 };
+    for (const mv of mvs) {
+      if (Object.hasOwn(attributedBy, mv.position)) attributedBy[mv.position]++;
+    }
+    for (const [position, n] of Object.entries(attributedBy)) {
+      ok(n <= CEILING[position],
+        `${at}: ${n} attributed "${position}" votes under a printed ${position} count of `
+        + `${CEILING[position]} — the roster cannot hold more of a position than the chamber cast`);
+    }
 
     // ── attribution is fail-closed ────────────────────────────────────────
     const seenPids = new Set();

@@ -1933,3 +1933,172 @@ federal `kennedy` pid. The fix is a roster wave, not a closer string comparison.
 **2025GS is unaffected.** Regenerating its mapping seed after the door change
 produced a byte-identical file, as did both wave-3 committee seeds. The widened
 door changed exactly one session's data.
+
+### Wave 6 — 2023GS committee minutes, and the roster wave the gap ledger asked for
+
+Wave 6 did two jobs and found a third. The jobs were the third session of committee
+minutes and the 18 printed names wave 5 wrote down and could not resolve. The third
+thing was a discovery about *why* two shipped seeds had grown, and it is the part
+worth reading first because it is the part that is easy to get wrong in a report.
+
+**2023GS, the same path as 2024 and 2025.** `--survey` cached 285 meetings, 240 of
+them with `minutesStatus === "APPROVED"`; every one of the 240 published PDFs
+fetched and every one produced text, so **zero meetings failed closed as
+UNREADABLE** and none was a Draft or a Summary. 2 471 motions parsed, 2 364 with a
+recorded roll. The seven admission rules and the 10 %-minority contestedness bar
+then did their usual work: **40 acts admitted on 27 bills, 33 refused as
+near-unanimous, 9 later reprints dropped, 303 positions written** — 207 of them
+superseded by the same member's floor vote on the same bill and **96 fresh**, where
+the committee record is the only record. Three acts confirmed on the
+renamed-committee door's short name. That door was **not touched**: it is still the
+sequence match wave 5 made it, and wave 6 added no second relaxation.
+
+**The 2023 printed-name map had to be re-reviewed, and the membership is why.** It
+would have been quicker to copy `db/vr-utah-committee-map-2024GS.json` and change
+the session string. It would also have been wrong. Senate District 22 seats Jacob L.
+Anderegg in 2023 and Chris Balderree in 2024; House District 26 seats Quinn Kotter
+in 2023 and prints "MacPherson" in 2024. A reused map would have dropped two
+humans' votes while looking complete, so
+`db/vr-utah-committee-map-2023GS.json` names both seats in
+`_reviewedForThisSession`, cites the 2023 roster page and nothing else, and
+`test-vr-utah-committee.mjs` § 9 checks all three facts — including that Anderegg
+and Kotter appear in the 2023 map and *not* in the 2024 one.
+
+#### The third identity door: `unique_surname_on_session_roster`
+
+Wave 5 left 18 printed names written to nobody and **151 dropped committee
+positions** across the 2024 mapping lane. Every one of the 18 turned out to match
+exactly one member of the printed chamber on the Legislature's own 2024 roster page
+with an agreeing given initial — and **none of them had a record in `cmp-data.js`
+at all**. So the brief's first clause, "resolve only with a human-unique match to
+cmp-data", resolved zero: there was nothing to match against. The gap was never a
+matching problem. It was a roster problem, exactly as wave 5's `_nearCollisions`
+said.
+
+The door that closes it opens on one condition and has no threshold to tune:
+
+> the roster page for **this session** lists exactly one member of **that chamber**
+> with that surname, and that member's given name begins with the printed initial.
+
+One roster row in, one human out. A second same-surname member in the same chamber
+**closes** the door rather than starting a comparison — there is no string distance,
+no nickname table and no score. `confirmedBy` records the roster row verbatim
+("`King, Brian S. · Representative · Democrat · 23`") so a reader checks the
+resolution against the same line the reviewer read, and the test re-derives surname,
+chamber word and initial from that string rather than trusting it.
+
+**16 identity-only rows were added to `cmp-data.js`** from those roster rows: 14
+needed by 2024, plus Kotter and Anderegg needed only by 2023. They carry name,
+office, state, district and party — **no score, no promise ledger, no stances, no
+`termStart`** (a roster page states the seat, not the tenure, and 624 of the
+pre-existing 784 records already omit both). All 16 read "Former" because none
+appears in the current `le.utah.gov/data/legislators.json` in either chamber.
+
+Result: **`--dropped --session 2024GS` fell from "151 positions across 18 unmapped
+names" to "dropped votes 0 across 0 unmapped name(s) · 39 on refused name(s)"**, and
+`unmapped` is now empty in both the 2024 and the 2023 map.
+
+#### Four refusals, and why they moved ledgers
+
+`Rep. M. Judkins`, `Rep. P. Lyman`, `Sen. M. Kennedy` and `Rep. D. Johnson` stay
+refused in both sessions. Each already has a `cmp-data.js` record under the same
+distinctive name in **the wrong office**: `marsha_judkins_provo` is the Mayor of
+Provo, `lyman` is a gubernatorial candidate, `kennedy` is Mike Kennedy of the U.S.
+House under a federal pid. Attributing a state committee vote to one of those
+records files it under an office the person did not hold; creating a second record
+splits one human in two. `Rep. D. Johnson` prints in the **House** while the only
+Utah Johnson on the roster is `john_johnson`, a state **Senator** — and both hold
+District 3, which makes it the most dangerous near-match in the file rather than the
+easiest.
+
+They also **moved out of `unmapped` and into `_refusedNames`**, which is a doctrine
+point and not bookkeeping. Before the roster was read they were gaps someone could
+close. After it, they are decisions not to close them. That is precisely the
+distinction the two ledgers exist to draw, so the refusals are now in the ledger
+that means "decided" and `_unmappedIsCoverage` says the gap it heads is closed. 19
+positions are withheld by those four refusals — Kennedy 8, D. Johnson 7, Lyman 3,
+Judkins 1.
+
+#### Where the 2024 and 2025 seed growth actually came from
+
+This is the finding, and the first draft of the report got it wrong. Regenerating
+the 2024GS and 2025GS **committee-vote** seeds after wave 6 produced bigger files:
+2024 went 20 bills / 26 acts / 174 positions → 21 / 28 / 214, and 2025 went 24 / 32
+/ 241 → 27 / 35 / 258. The tempting explanation is "newly published minutes". It is
+false, and `--verify` said so out loud: `NOT IN BUCKET: HB0348` for 2024 and
+`NOT IN BUCKET: SB0026, SB0316, SB0336` for 2025.
+
+An act-level novelty check settled it: **every novel act belongs to a bill that
+vocabulary wave V1 gave a reviewed issue key.** 2025's +17 positions are exactly the
+three V1 acts (7 + 7 + 3); 2024's +40 are 15 on H.B. 348 plus 25 recovered by the
+roster door. **No newly published minutes contributed anything, and no fence moved.**
+A bill with no reviewed mapping is off-lane by rule; the moment V1 reviewed
+`sound_money` and `dev_district_finance` for those four bills, contested
+pass-out-favorably votes already sitting in the cache became admissible under rules
+already in force.
+
+That is also why the **mapping lane's bucket shrank while its admitted count grew**
+(2025GS 173 → 170 bucket, 76 → 78 admitted; 2024GS 141 → 140, 64 → 66). The bucket
+is "had a committee vote and has *no* reviewed mapping", so V1 reviewing a mapping
+moves a bill out of this lane and into the formal one. Their refusals stay on the
+record — this lane really did decline to map them — now flagged
+**`leftTheBucket: true`**, which is what lets `--verify` tell a documented exit from
+silent drift. An unflagged stranger still exits 1; a flag on a bill the bucket still
+holds exits 1 the other way.
+
+#### A shipped seed grew again, so `--sql` learned the delta
+
+Wave 5 taught `vr-utah-committee-mapping.mjs --sql` to emit a forward delta. Wave 6
+needed the same thing from `vr-utah-committee-ingest.mjs`, because
+`20261004000000` and `20261005000000` are applied and their seeds had just grown.
+Both tools now take `--bills`, `--name` and `--reason`; the ingest's `buildSql`
+keeps the **whole** seed's counts for the SQL `VERIFICATION` block (the database's
+end state after every migration in the session has run) and a **recounted** subset
+for the prose (what this file restates). A delta header says "WHAT THIS RESTATES",
+lists its bills with per-bill act and position counts, wraps `--reason` prose under
+"WHY THEY CHANGED.", and **refuses to claim a new-row count** — how many of its rows
+are new depends on which migrations have been applied, which is a fact about the
+database and not about the file.
+
+Five migrations shipped, all forward-only, none editing an applied file:
+
+| stamp | lane | shape |
+|---|---|---|
+| `20261012000000_vr_utah_2023gs_committee_votes` | committee votes | full — 303 positions / 40 acts / 27 bills |
+| `20261013000000_vr_utah_2024gs_committee_votes_roster_rows` | committee votes | delta — 13 bills, 164 restated rows, verifies 214 on 21 |
+| `20261014000000_vr_utah_2025gs_committee_votes_v1_vocabulary_keys` | committee votes | delta — 3 bills, 17 rows, verifies 258 on 27 |
+| `20261015000000_vr_utah_2024gs_committee_mapping_roster_rows_and_v1_bills` | mapping | delta — 44 bills |
+| `20261016000000_vr_utah_2025gs_committee_mapping_v1_committee_only_bills` | mapping | delta — 2 bills, 2 mappings, 15 positions |
+
+`test-vr-utah-committee.mjs` changed shape to match: a session is now a **list** of
+migrations, and what it asserts is the **union** of their rows keyed on
+`vr_positions_unique`, collapsed the way Postgres will collapse it. Counting insert
+statements would have read wave 6's restatement as a double count — 2024GS's two
+files hold 338 statements for 214 distinct rows. Per file it still checks the file's
+own arithmetic (stated rows = inserted rows, fresh + superseded = total, the
+near-unanimous paragraph counts *this file's* bills), and byte-identity against
+`buildSql` now applies to each session's **newest** file only. The applied files
+behind it were generated from a smaller seed and cannot regenerate — which is the
+whole reason the new rows arrived as a delta instead of an edit.
+
+#### What the index says, and what it does not
+
+The 16 identity rows grew the FPI denominator from **116 to 132**, and all 16 land
+on **thin** in both columns: real committee positions, not enough pattern for the
+engine to characterise. That is the honest tier for them and it is checked by name —
+none lands on **empty** (so no row was added that carries nothing) and none lands on
+**readable** (so no identity row bought a characterisation it had not earned). The
+ten empty members are the same ten before and after, and nobody lost a readable
+record.
+
+| lane | empty | thin | readable |
+|---|---|---|---|
+| waves 1–3 + 2023GS committee | 10 | 20 | 102 |
+| + wave-4 mapping positions | 10 | 19 | 103 |
+
+**Readable-tier movement from 2023GS is nil, and that was expected.** 207 of its 303
+positions are superseded by a floor vote the index already read, and the 96 fresh
+ones are spread thin across 27 bills — one member picking up one committee act on
+one bill does not cross a characterisation bar. The one member who moved
+(`jason_thompson`, thin → readable) moved on wave-4 mapping positions, not on 2023.
+Depth arrived; tiers barely noticed. Saying so is the report.

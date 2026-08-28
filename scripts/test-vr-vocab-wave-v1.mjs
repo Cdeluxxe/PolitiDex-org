@@ -316,18 +316,34 @@ has(ALIGN, "Do not\n      // restore them just because they read like the key's 
 
 // ── 5. Rule 5 — nothing was restuffed ────────────────────────────────────────
 // The rule the wave could most easily have broken quietly: rather than admit a
-// bill, re-key one that already had a home so the new chip looks busy. Checked
-// against HEAD, which is the state before the wave, so it is a fact and not a
-// claim. Every mapping that existed still has the same key, weight, primary flag
-// and direction; the only difference in any ledger is bills that MOVED OUT of the
-// refusal array.
+// bill, re-key one that already had a home so the new chip looks busy.
+//
+// HEAD is still the comparison, but it is no longer assumed to be the state
+// BEFORE the wave. Wave V1 has since shipped and been committed, so HEAD now
+// contains the nine remapped bills, and a harness that read HEAD as "before"
+// would report its own subject as drift and fail forever. What is invariant in
+// both states is the END state, so that is what is asserted here: the wave's own
+// nine bills, declared in ADDED above and therefore reviewed, may carry a wave
+// key; NO OTHER BILL IN ANY LEDGER MAY, whether it was mapped before or after.
+// Everything else HEAD knows about is held still — every mapping that existed
+// still has the same key, weight, primary flag and direction, no bill appeared
+// that is not one of the nine, and no refusal was dropped or invented.
 section("Nothing was restuffed");
+// The nine, per ledger. A bill outside this set carrying a wave key is the
+// restuffing the rule forbids, and the check below does not care when it happened.
+const WAVE = new Map();
+for (const a of ADDED)
+  for (const b of a.bills) {
+    if (!WAVE.has(b.ledger)) WAVE.set(b.ledger, new Set());
+    WAVE.get(b.ledger).add(b.bill);
+  }
 let churned = 0, appeared = [], unrefused = [];
 for (const f of LEDGERS) {
   let head;
   try { head = JSON.parse(execSync(`git show HEAD:${f}`, { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28 })); }
-  catch { must(false, `could not read HEAD:${f} — the before-state is unavailable`); }
+  catch { must(false, `could not read HEAD:${f} — the comparison state is unavailable`); }
   const now = J(f);
+  const wave = WAVE.get(f) || new Set();
   const sig = (b) => (b.issues || [])
     .map((i) => `${i.issueKey}/${i.weight}/${i.isPrimary ? "P" : "-"}/${i.supportMeaning}`)
     .sort().join(",");
@@ -335,30 +351,39 @@ for (const f of LEDGERS) {
   const nowMapped = new Map((now.bills || []).map((b) => [b.bill, b]));
   for (const [bill, was] of wasMapped) {
     const is = nowMapped.get(bill);
-    ok(!!is, `${f}: ${bill} was mapped before the wave and still is`);
+    ok(!!is, `${f}: ${bill} was mapped in HEAD and still is`);
     if (is && sig(was) !== sig(is)) {
       churned++;
       failures.push(`${f}: ${bill} was re-keyed — before ${sig(was)} / after ${sig(is)}`);
     } else if (is) passed++;
   }
-  for (const [bill] of nowMapped) if (!wasMapped.has(bill)) appeared.push(`${f}|${bill}`);
+  for (const [bill] of nowMapped)
+    if (!wasMapped.has(bill) && !wave.has(bill)) appeared.push(`${f}|${bill}`);
   const wasRefused = new Set((head._refused || []).map((r) => r.bill));
   const nowRefused = new Set((now._refused || []).map((r) => r.bill));
-  for (const b of wasRefused) if (!nowRefused.has(b)) unrefused.push(`${f}|${b}`);
+  for (const b of wasRefused)
+    if (!nowRefused.has(b) && !wave.has(b)) unrefused.push(`${f}|${b}`);
   for (const b of nowRefused)
     ok(wasRefused.has(b), `${f}: ${b} was already a refusal — the wave invented none`);
-  // A wave key on a bill that already had a home is the restuffing this forbids.
+  // The restuffing check, asked of the ledger as it stands rather than of the
+  // diff: a wave key lives on one of the nine or it does not live here.
   for (const [bill, is] of nowMapped)
-    if (wasMapped.has(bill))
-      ok(!(is.issues || []).some((i) => NEW_KEYS.indexOf(i.issueKey) >= 0),
-        `${f}: the pre-existing mapping of ${bill} did not acquire a wave key`);
+    for (const i of is.issues || [])
+      if (NEW_KEYS.indexOf(i.issueKey) >= 0)
+        ok(wave.has(bill),
+          `${f}: ${bill} carries the wave key '${i.issueKey}' and is not one of the wave's nine`);
+  // And the nine are out of the refusal array in the shipped state, not merely
+  // absent from it in some diff.
+  for (const b of wave) {
+    ok(nowMapped.has(b), `${f}: ${b} is one of the wave's nine and is mapped`);
+    ok(!nowRefused.has(b), `${f}: ${b} was admitted, so it is no longer a refusal`);
+  }
 }
 eq(churned, 0, "no existing mapping changed key, weight, primary flag or direction");
-const expectedMoved = ADDED.flatMap((a) => a.bills.map((b) => `${b.ledger}|${b.bill}`)).sort();
-eq(JSON.stringify(appeared.sort()), JSON.stringify(expectedMoved),
-  "exactly the wave's nine bills appeared in a ledger");
-eq(JSON.stringify(unrefused.sort()), JSON.stringify(expectedMoved),
-  "every bill that appeared came out of a refusal array, and no other refusal was dropped");
+eq(JSON.stringify(appeared.sort()), "[]",
+  "no bill outside the wave's nine appeared in a ledger");
+eq(JSON.stringify(unrefused.sort()), "[]",
+  "no refusal outside the wave's nine was dropped");
 
 // ── 6. Rules 1 and 2 — the nine mappings are arguable ────────────────────────
 // A mapping is a public claim about what a bill did and which way a yea points.
@@ -388,8 +413,12 @@ for (const a of ADDED) {
     ok(String(it.rationale || "").length >= 200,
       `${b.bill}/${a.key}: the rationale is argued, not asserted (${String(it.rationale || "").length} chars)`);
     // Rule 6's last clause: no key inferred from a title. The rationale has to name
-    // the text it was read from.
-    ok(/enrolled text|enrolled bill|the bill's text|highlighted provisions/i.test(it.rationale || ""),
+    // the text it was read from — and name WHICH text, because on four of the nine
+    // the document the curator actually read was a substitute rather than the
+    // enrolled bill, and a rationale that said "enrolled text" over a substitute's
+    // provisions would be citing a document it never opened.
+    ok(/enrolled text|enrolled bill|(first|second|third|fourth|fifth|sixth) substitute text|the bill's text|highlighted provisions/i
+      .test(it.rationale || ""),
       `${b.bill}/${a.key}: the rationale names the text it was read from`);
     lacks(it.rationale, "the title", `${b.bill}/${a.key}: the rationale did not read the title`);
   }

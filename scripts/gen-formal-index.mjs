@@ -24,7 +24,7 @@
 // its lane from, in the same order, under the same verifiability guard:
 //
 //   floor      db/vr-utah-vote-seed{,-2024GS,-2023GS}.json
-//   committee  db/vr-utah-committee-seed{,-2024GS}.json
+//   committee  db/vr-utah-committee-seed{,-2024GS,-2023GS}.json
 //   mapping    db/vr-utah-committee-mapping-seed-{2025GS,2024GS}.json
 //
 // A roll call with no sourceUrl is skipped, exactly as the FPI harness skips it:
@@ -81,7 +81,8 @@ const FLOOR = [["2025GS", "db/vr-utah-vote-seed.json"],
                ["2024GS", "db/vr-utah-vote-seed-2024GS.json"],
                ["2023GS", "db/vr-utah-vote-seed-2023GS.json"]];
 const COMMITTEE = [["2025GS", "db/vr-utah-committee-seed.json"],
-                   ["2024GS", "db/vr-utah-committee-seed-2024GS.json"]];
+                   ["2024GS", "db/vr-utah-committee-seed-2024GS.json"],
+                   ["2023GS", "db/vr-utah-committee-seed-2023GS.json"]];
 const MAPPING = [["2025GS", "db/vr-utah-committee-mapping-seed-2025GS.json"],
                  ["2024GS", "db/vr-utah-committee-mapping-seed-2024GS.json"]];
 const NOTES = "db/vr-utah-empty-file-notes.json";
