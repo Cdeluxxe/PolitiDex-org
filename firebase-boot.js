@@ -231,8 +231,33 @@
         }
         PROFILES[id] = merged;
         if (typeof CMP_DATA !== 'undefined') {
-          if (!CMP_DATA[id]) CMP_DATA[id] = merged;
-          else Object.assign(CMP_DATA[id], full);
+          // A RETIRED ID MAY NOT BECOME A ROSTER ENTRY.
+          //
+          // This line is where one Scott Chew became two. `scott_chew` has no
+          // cmp-data.js record — it is the slug of chew_h68's display name, and
+          // PDX_PROFILE_ALIAS has said so the whole time. But it DOES have a
+          // Firestore document, so the first surface to lazy-load it (the
+          // Evidence Locker warms every Utah legislator it finds in PROFILES)
+          // landed here, found no CMP_DATA entry, and created one. From that
+          // moment the retired key was in the roster itself, and every
+          // Object.keys(CMP_DATA) list in the app — the browse grid, the compare
+          // add-column, the state filter, My Team, the ballot breakdown — was
+          // correctly rendering what it had been handed: a second officeholder
+          // for Utah House District 68.
+          //
+          // So the roster stays closed to ids the app has already ruled are
+          // addresses. The document is NOT discarded: PROFILES[id] above still
+          // holds it, /p/scott_chew still opens chew_h68's file, and every read
+          // that goes through PDXProfilePid still finds it. What it can no longer
+          // do is enter the roster and be counted as a person.
+          //
+          // Updating an id that IS already in CMP_DATA is untouched — that branch
+          // is a live roster record receiving its own full document, which is the
+          // whole point of this function.
+          if (CMP_DATA[id]) Object.assign(CMP_DATA[id], full);
+          else if (!(typeof window.PDXRetiredPid === 'function' && window.PDXRetiredPid(id))) {
+            CMP_DATA[id] = merged;
+          }
         }
       }
       window._pdxFullIds.add(id);

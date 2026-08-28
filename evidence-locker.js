@@ -368,14 +368,43 @@
     // and the bundled static roster (CMP_DATA), deduped by id, with sitting Utah
     // legislators listed FIRST so the priority load wave covers them before the
     // broader federal/candidate set.
+    // ONE MEMBER, ONE ROW — and one warm-up.
+    //
+    // This scan does double duty, which is why the retired-id defect showed up
+    // twice over. It is the member list the locker renders and filters by, AND it
+    // is the list _load() hands to window._pdxEnsureFullProfile(). PROFILES is
+    // scanned first and keyed by raw id, so a Firestore document filed under a
+    // retired key (`scott_chew`, whose office reads "Utah State Representative")
+    // was both listed as its own member and lazily fetched — and the fetch used
+    // to mint a CMP_DATA entry for it, which is how one photo stub became a
+    // second Utah House District 68 officeholder in the browse grid, the compare
+    // add-column and the state filter. The loader now refuses that (see
+    // firebase-boot.js); this scan stops asking for it in the first place.
+    //
+    // Every id is resolved through the same resolver the address bar uses, and
+    // the group is judged on the record that address actually opens — a lite
+    // photo stub must not decide the scope of the deep roster record it resolves
+    // into. Nothing is merged: the retired document stays readable, and an id the
+    // resolver cannot place is kept exactly as it was.
+    function _canonPid(id) {
+      try {
+        if (typeof window.PDXProfilePid === 'function') return window.PDXProfilePid(id) || id;
+      } catch (e) {}
+      return id;
+    }
     function _roster(scope) {
       var want = EL_SCOPES[scope] || EL_SCOPES.all;
       var seen = {}, utah = [], rest = [];
       function scan(src) {
         if (!src) return;
-        Object.keys(src).forEach(function (id) {
+        Object.keys(src).forEach(function (rawId) {
+          var id = _canonPid(rawId);
           if (seen[id]) return;
-          var rec = src[id];
+          var rec = src[rawId];
+          if (id !== rawId) {
+            rec = (window.PROFILES && window.PROFILES[id]) ||
+                  ((typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) || rec);
+          }
           var g = _polGroup(rec);
           if (!g || !want[g]) return;
           seen[id] = 1;
