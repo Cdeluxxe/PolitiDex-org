@@ -9101,10 +9101,25 @@
   // One row, flattened for a caller that wants to print it and nothing else. The
   // chip is the atlas's own chip, rendered here rather than described, so the
   // summary and the list cannot drift into two vocabularies for one tier.
+  //
+  // FOUR FIELDS FOR THE DOOR AND THE TALLY. `pid` travels with the row because a
+  // caller holding a flattened row is otherwise holding an issue key with nothing
+  // to open it against — the door needs the pair. `sideCounts` / `advances` /
+  // `opposes` are the two-sided phrase and its two integers, straight off the
+  // tier, and they are here for exactly one reason: a split row whose publication
+  // decision withheld its margin (`counts` empty, by the shallow-split rule in
+  // _RD_TOKENS) still printed the bare word "Split" into a profile brief, with the
+  // numbers sitting one field away. This does not lower that rule. `counts` is
+  // untouched, every surface reading `counts` reads the same string it read
+  // before, and no tier, floor, lead or direction is computed from these three.
   function _fpiShapeRow(x) {
     return {
-      key: x.key, label: x.label, tier: x.tier, tone: x.tone,
+      pid: x.pid, key: x.key, label: x.label, tier: x.tier, tone: x.tone,
       patLabel: x.patLabel, counts: x.counts, judged: x.judged,
+      sideCounts: (x.pat && x.pat.sideCounts) ||
+        (window._recordSidePhrase ? window._recordSidePhrase(x.pat) : ''),
+      advances: (x.pat && typeof x.pat.advances === 'number') ? x.pat.advances : null,
+      opposes: (x.pat && typeof x.pat.opposes === 'number') ? x.pat.opposes : null,
       said: !!x.said, chip: _stPatternHtml(x.row, x.pat)
     };
   }

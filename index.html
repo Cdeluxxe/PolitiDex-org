@@ -21435,6 +21435,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        looks them up lazily at call time and every consumer is guarded, so the
        ordering is a convenience rather than a requirement. -->
   <script defer src="/issue-colors.js"></script>
+  <!-- The issue key, explained (window.PDXIssueScope). The scope arguments that
+       were fought out in the comments over ISSUE_MAP — what a key covers, what it
+       deliberately does not, and which cousin key holds the rest — transcribed so a
+       reader who taps an issue title can read them. Loaded after alignment-tool.js
+       because it reads window.ISSUE_MAP for each key's curated label and position
+       statement, and after stance-helpers.js because it asks that file's own
+       no-pole table which keys the record engine refuses a direction on rather than
+       keeping a second copy of the list. Both lookups happen at tap time and both
+       are guarded, so a load failure costs the ⓘ control and nothing else: no row,
+       no chip, no count and no dossier door depends on this file. -->
+  <script defer src="/issue-scope.js"></script>
   <!-- GENERATED (scripts/gen-formal-index.mjs) — how much formal record is on
        file per person, counted from the shipped Utah lane seeds, plus the
        reviewed one-line reason a file is empty where there is one. It exists

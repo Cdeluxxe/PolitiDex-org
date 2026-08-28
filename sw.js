@@ -234,7 +234,23 @@
 // pdx-perf.js is deliberately NOT added to SHELL_ASSETS — it is a deferred
 // reporting module, nothing a first paint depends on, and the shell budget for
 // this pass is unchanged by design.
-const CACHE_VERSION = 'v80';
+// v81 — THE FORMAL BRIEF'S ROWS BECAME DOORS, AND THE ISSUE KEYS EXPLAIN
+// THEMSELVES. issue-scope.js is a new shell asset: the scope prose from the
+// comments over ISSUE_MAP, plus the ⓘ control that opens it. index.html changed to
+// load it, and word-action.js now renders every row of the formal-record brief as
+// a dossier door with the issue's two-sided tally and that control beside it.
+// Bumped because a partial pickup is the one failure worth avoiding here: a phone
+// holding v80 that takes the new word-action.js but not issue-scope.js renders a
+// row whose ⓘ never appears, while one that takes the new index.html but keeps the
+// old word-action.js loads a glossary nothing calls. The rename empties both
+// caches on activate so index.html, word-action.js, word-action.css,
+// consistency.js, stance-helpers.js and issue-scope.js arrive as one set.
+// issue-scope.js IS precached rather than left to the runtime cache, unlike
+// pdx-perf.js: it is the only way to read what an issue key covers, and an offline
+// repeat visit that renders the ⓘ and then has nothing behind it is a control that
+// eats taps. Nothing about this pass is database-side, and no floor, tier, count
+// or score moved.
+const CACHE_VERSION = 'v81';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -320,6 +336,11 @@ const SHELL_ASSETS = [
   // repeat visit keeps issues colour-coded instead of falling back to slate
   // everywhere, which would read as "nothing is a core issue".
   '/issue-colors.js',
+  // What an issue key covers, in the words its scope was locked in. Precached with
+  // alignment-tool.js and issue-colors.js because it reads the same vocabulary and
+  // is the same order of magnitude, and because the control it powers is rendered
+  // by the profile brief — a shell surface — rather than by anything lazy.
+  '/issue-scope.js',
   // "Compare field for this seat" — one office, the whole field, ranked by the
   // formal record against the visitor's own positions. Precached alongside
   // alignment-tool.js because it is that engine's ballot-side surface: the entry

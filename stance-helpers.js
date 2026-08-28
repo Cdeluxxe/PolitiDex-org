@@ -1344,6 +1344,20 @@
     window._PDX_RD_SAYS_ON = _RD_SAYS_ON;
     window._recordSays = _recordSays;
 
+    // ── THE TWO-SIDED TALLY, IN ONE PLACE ─────────────────────────────────────
+    // "7 advanced · 0 against" is the product's one phrase for what the judged acts
+    // on an issue did, and it is written here once so that every surface allowed to
+    // print it prints the same words in the same order. It is arithmetic off the
+    // index and nothing else: no tier, no lead, no direction word, no rate.
+    function _rdSidePhrase(idx) {
+      if (!idx) return '';
+      var a = idx.advances, o = idx.opposes;
+      if (typeof a !== 'number' || typeof o !== 'number') return '';
+      if (!(a + o)) return '';
+      return a + ' advanced · ' + o + ' against';
+    }
+    window._recordSidePhrase = _rdSidePhrase;
+
     // Word the two counts. Printed only where the index permits counts, or where the
     // tier's own label already denies depth (thin) — a shallow split still withholds
     // its margin, exactly as the index does.
@@ -1366,7 +1380,7 @@
         return idx.judged + ' ' + _rdPlural(idx.judged, noun.one, noun.many) + ' ' +
           (idx.advances ? 'advanced' : 'against');
       }
-      return idx.advances + ' advanced · ' + idx.opposes + ' against';
+      return _rdSidePhrase(idx);
     }
 
     // MAY ONE ACT LEAN? The one-item read is the loudest thing this engine says
@@ -1440,6 +1454,22 @@
         // tier and one direction word in, one of the seven fixed words out.
         says: _recordSays(t.key, dir ? dir.word : ''),
         counts: showCounts ? _rdTierCounts(idx, noun, t.key) : '',
+        // ── THE TALLY, CARRIED WHETHER OR NOT THE CHIP MAY PRINT IT ──────────
+        // `counts` above is the PUBLICATION decision and it is unchanged: a shallow
+        // split still withholds its margin on every chip that reads `counts`, and
+        // nothing here moves a floor, a tier, a lead or a direction word.
+        //   `sideCounts` is the arithmetic on its own, exposed for the one surface
+        // that asks a different question. The 🏛 formal brief lists a handful of
+        // named issues with a heading over them that already says the record ran
+        // both ways; there, a row reading "Split" and nothing else is not restraint
+        // but a missing number, next to sibling rows that print theirs. So the
+        // brief prints the tally under the same phrase, and says so where there is
+        // none. Every other surface reads `counts` and is untouched.
+        //   NEVER A DIRECTION. Two integers a reader can count on the ledger below
+        // the chip, in the order the phrase always states them. No lead is derived
+        // from them here and none may be derived from them downstream — a split has
+        // no side, however the two numbers compare.
+        sideCounts: _rdSidePhrase(idx),
         judged: idx.judged, advances: idx.advances, opposes: idx.opposes,
         directional: !!t.directional,
         token: idx.token,
@@ -1559,6 +1589,11 @@
         // advanced" — because "3 advanced · 0 against" spends a number on a side
         // with nothing on it.
         counts: _rdTierCounts(idx, noun, (uniform || key === 'thin') ? 'thin' : key),
+        // The same two integers the pattern tier carries, in the same phrase, so a
+        // surface reading one field does not have to know which of the two reads it
+        // was handed. This lane already prints its split counts above; this is the
+        // identical arithmetic under a stable name.
+        sideCounts: _rdSidePhrase(idx),
         judged: judged, advances: adv, opposes: opp,
         directional: key !== 'split',
         token: idx.token,
