@@ -267,6 +267,18 @@
 // the dossier beside it has already changed. All three files are precached below,
 // so the rename delivers them as one set. No floor, mapping, weight or Direction
 // Match input moved, and nothing here is database-side.
+//   AND THE MEASURE LIST UNDER IT NOW LISTS EVERY MAPPED ACT. Same bump, same
+// deploy, because it is the same reader's same complaint one section further down:
+// the dossier's list was built through _orProofPicks — the function that picks the
+// one or two representative votes a profile row quotes — and its fallback dedupe
+// key was seven optional identifier fields, so two distinct acts that agreed on all
+// seven collapsed to one card while every count around them went on counting two.
+// consistency.js now dedupes that pick by object identity alone, measures the list
+// against the record's own inventory and says on the face when it comes up short,
+// carries the leftover into the closed face's integers ("5 votes listed here · 4
+// advancing · 1 no side") and prints each measure's title and sitting on its card.
+// One version covers both halves; a phone that takes one file and not the other is
+// the case this bump exists to prevent either way.
 const CACHE_VERSION = 'v82';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;

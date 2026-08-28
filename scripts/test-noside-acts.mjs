@@ -392,12 +392,21 @@ section("5 · brief integers are the dossier's judged counts");
   eq(E.split.listed, MIN_JUDGED + 1, "the dossier did not list the abstention");
   eq(E.split.listed - E.split.directional, E.row.noSide,
     "the rows the dossier put on no side are not the count the brief discloses");
-  eq(E.split.unclear, 1, "the dossier resolved the abstention onto a side");
+  // …in its own bucket. It used to land in `unclear` beside the act whose mapping
+  // carries no support meaning at all, and those are not the same fact: one says
+  // our file is incomplete, the other says the clerk recorded that they did not
+  // vote. The dossier row's dashed frame is drawn from the same predicate, so the
+  // header's integer and the rows underneath it cannot come apart.
+  eq(E.split.noSide, 1, "the dossier did not bucket the abstention as no-side");
+  eq(E.split.unclear, 0,
+    "the abstention is still filed as 'no direction mapped' — a claim about our file, not theirs");
   // And the sentence under the list says so in words, without calling it a vote.
   const line = E.W.PDXConsistency.ledger.splitLine(E.split, KEY);
   has(line, MIN_JUDGED + " advance it", "the dossier's sentence lost its judged count");
-  has(line, "1 with no direction mapped",
+  has(line, "1 took no side",
     "the dossier's sentence does not account for the abstention");
+  lacks(line, "with no direction mapped",
+    "the dossier's sentence still describes a recorded absence as an incomplete file");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
