@@ -127,7 +127,7 @@ const NO_POLE = probe._PDX_RD_NO_POLE || {};
 const POLED = Object.keys(probe.ISSUE_MAP || {})
   .filter((k) => !/_balance$/.test(k) && !NO_POLE[k]);
 const TOP_KEY = "gun_safety";   // the acceptance case: a curated, documented key
-const SPLIT_KEY = "water";      // poled, and deliberately WITHOUT scope prose
+const SPLIT_KEY = "cost_living"; // poled, and deliberately WITHOUT scope prose
 must(POLED.indexOf(TOP_KEY) >= 0 && POLED.indexOf(SPLIT_KEY) >= 0,
   "a fixture issue key is no longer polable — the fixture needs new keys");
 const FILLER = POLED.filter((k) => k !== TOP_KEY && k !== SPLIT_KEY);
@@ -410,14 +410,24 @@ const S = probe.PDXIssueScope;
    ["permitting_reform", "lead-agency"],
    ["civil_service_control", "competitive service"],
    ["israel_support", "weapons transfers"],
-   ["election_security", "chain-of-custody"]].forEach(([k, phrase]) => {
+   ["election_security", "chain-of-custody"],
+   ["water", "conservation-based"],
+   ["energy_production", "reopened acreage"],
+   ["edu_parental", "further from state review"],
+   ["deportations", "place in removal proceedings"],
+   ["privacy_rights", "age verification"],
+   ["public_schools", "levy protection"]].forEach(([k, phrase]) => {
     has(S.SCOPE[k].inn, phrase, `${k}'s locked scope no longer names "${phrase}"`);
     ok(AT_SRC.toLowerCase().indexOf(phrase.toLowerCase()) >= 0,
       `"${phrase}" is not in alignment-tool.js — the scope note is not transcribed`);
   });
 
-  // THE HONEST BLANK. `water` is a real, polable key with no scope argument on
-  // file, and the card says exactly that instead of describing the label back.
+  // THE HONEST BLANK. `cost_living` is a real, polable key with no scope argument
+  // on file — nothing in the shipped mapping evidence characterises it, so nothing
+  // was argued out over it — and the card says exactly that instead of describing
+  // the label back. It replaced `water` in August 2026, when water's own comment
+  // block was written and transcribed; the fixture needs a key that is still blank,
+  // not the key that used to be.
   const w = S.read(SPLIT_KEY);
   ok(!!w, "a key in ISSUE_MAP failed to read at all");
   eq(w.defined, false, `${SPLIT_KEY} gained a scope entry — the fallback case needs another key`);

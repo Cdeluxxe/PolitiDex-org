@@ -179,6 +179,147 @@
     property_tax: {
       inn: 'Property taxes as a housing-affordability question — caps that let families and seniors afford to stay in their homes.',
       note: 'The housing-side half of a deliberate pair; Property Tax Relief frames the same taxes as tax policy.'
+    },
+    property_rights: {
+      inn: 'What a government may do to a parcel its owner holds — take it, or forbid a use of it: eminent domain and condemnation, regulatory takings, the owner’s right to exclude, and local land use regulation aimed at what an owner may do with their own dwelling.',
+      out: 'Whether enough housing gets built (Build More Housing) and whether it is affordable (Housing Affordability, Affordable Housing & Renters) — those keys read the same zoning bills for supply and price, not for the owner. Also out: who owns the federal estate, water rights as a farm and ranch interest, and property tax.',
+      pole: 'Advanced = the vote strengthened an owner’s hand against the government. Against = it strengthened the government’s.',
+      note: 'A vote can be filed against this key rather than left out: short-term-rental licensing and delisting rules are restrictions on what an owner may do with their own dwelling, and a reader who cares about property rights is entitled to see that vote read the other way.'
+    },
+    national_debt: {
+      inn: 'The fiscal total — the deficit and the debt taken as a whole: budget resolutions, debt-limit measures, rescissions, and the net fiscal direction of a package.',
+      out: 'Which line to cut (Cut Federal Spending & Reduce Debt is the programme-cut chip, Audit Spending & the Fed the waste-and-audit one), which tax to change, the balanced-budget framing, and what the money buys.',
+      pole: 'Advanced = the vote reduced the deficit. Against = it increased it. Neither direction says anything about whether the underlying programme was worth having; that argument belongs to the programme’s own key.',
+      note: 'Read off the enacted or reported text and nothing else. Where a bill summary lists programmes without a topline figure, no slice is filed at all rather than asserting one.'
+    },
+    border_security: {
+      inn: 'Enforcement capacity at and behind the line — agents and support personnel, port-of-entry inspection equipment, surveillance technology, biometric entry and exit, detention, and the state and local cooperation that feeds the federal system.',
+      out: 'Mandatory removal itself, which is its own chip (Mass Deportations & Border Security). A bill that does both carries a slice on each with different weights, so neither chip reads as the whole bill. Also out: drug and cartel interdiction, visas and work-based admission, earned status for the long-settled, and criminal sentencing generally.',
+      pole: 'Advanced = the vote added enforcement capacity or tightened it.',
+      note: 'Enforcement severity without capacity — raising the penalty for illegal entry and reentry — is recorded as a secondary and weighted below the funding bills on purpose: it adds no barrier, no agent, no detention bed and no removal authority.'
+    },
+    immig_fentanyl: {
+      inn: 'The drug itself and the organisations that move it: sanctions and anti-money-laundering measures against opioid traffickers, scheduling of fentanyl-related substances, and the narcotics-interdiction share of a border appropriation.',
+      out: 'General border staffing and barriers (Strong Border & Enforcement) — an interdiction line inside a border bill is filed here as a secondary slice while the capacity line is filed there, so neither reads as the whole bill. Also out: treatment and the overdose crisis as a health question, drug sentencing in the criminal code, and cannabis.',
+      pole: 'Advanced = the vote added sanctions, scheduling or interdiction against fentanyl trafficking. Every instrument on file runs that way; none loosens.'
+    },
+    deportations: {
+      inn: 'Mandatory custody and removal — who the executive must detain and place in removal proceedings, and the money that carries removal out.',
+      out: 'Capacity at the line itself: agents, barriers, inspection equipment (Strong Border & Enforcement). The two chips overlap by design on a bill that does both, and a slice is filed on each rather than picking one. Also out: fentanyl and cartel measures, legal admission, and earned status.',
+      pole: 'Advanced = the vote widened mandatory detention or removal, or funded it. Every instrument on file runs that way.'
+    },
+    school_choice: {
+      inn: 'Public money spent on schooling outside the district system, and the regulatory room a non-district provider gets: scholarship and voucher accounts spendable at a private school or provider, charter and microschool authorisation, and course-level choice funded outside the district formula.',
+      out: 'What the district system is paid (Invest in Public Schools) — the two are scored independently and a record may advance both. Also out: the blended position, who decides what a child is taught (Parental Rights in Schools), and college and trade cost.',
+      pole: 'Advanced = the vote created, widened or entrenched a publicly funded option outside the district system, or reduced the regulation of one.',
+      note: 'A bill that funds nothing and creates no alternative — one that only removes paperwork — is filed as a secondary to say exactly that.'
+    },
+    public_schools: {
+      inn: 'The money and staffing of the district system — funding formulas, teacher compensation and supplements, levy protection, and duties the state imposes on and resources through local education agencies.',
+      out: 'Money that follows a student out of the district (School Choice & Education Freedom), the blended position, curriculum and parental consent, college cost, and school safety as a firearms question.',
+      pole: 'Advanced = the vote funded, staffed or protected the district system. Against = it withdrew a funding protection.',
+      note: 'A cut is not dressed as a reform: phasing out hold harmless on voted and board levies is filed against this key, because hold harmless is what protects a district’s levy revenue when enrolment or valuation falls. Scrutiny of a programme is not coded as a cut — a review bill that reduces no funding line is filed as secondary support.'
+    },
+    edu_parental: {
+      inn: 'The parent’s decision rights over their own child’s schooling: consent and notice requirements, the right to inspect or object to instructional material, opt-out rights, and moving the decision to homeschool closer to the parent and further from state review.',
+      out: 'How the district system is funded (Invest in Public Schools) and money that follows a student out of it (School Choice & Education Freedom) — a microschool facility bill is filed here only as a secondary slice, because its text is about occupancy codes rather than parental authority. Also out: what the curriculum should say as a rights or speech question.',
+      pole: 'Advanced = the vote enlarged what a parent may see, consent to or refuse.',
+      note: 'A bill that only amends a curriculum list, granting no parental right and changing no consent requirement, is filed as secondary and low-weight to say exactly that.'
+    },
+    healthcare: {
+      inn: 'Whether covered care actually reaches the patient — who is eligible, what is covered, and the plan procedures between the two: eligibility and benefit expansions, telehealth payment parity, preauthorization deadlines and disclosure, and continuity protections on an established prescription.',
+      out: 'Price and household cost, the market-competition posture, the blended position, mental health and addiction, rural facilities, mandates on a person’s own care, and the safety net read as a spending question.',
+      pole: 'Advanced = the vote widened eligibility or coverage, or removed a procedural barrier to covered care. Against = it contracted them.',
+      note: 'A statutory enrolment freeze and payment-rate suspension triggered by a defined Medicaid shortfall is filed against this key, because a mandatory freeze is a coverage contraction written into statute ahead of time.'
+    },
+    econ_smallbiz: {
+      inn: 'The fixed cost of being small — the licence, the permit, the paperwork and the credit line: small-business regulatory budgets, channels for reporting burdensome rules, access to capital, and cheaper routes into a licensed trade.',
+      out: 'The size of the federal rulebook generally (Cut Federal Red Tape) and project-level environmental review (Faster Permits & Reviews) — both name occupational licensing and small-business paperwork as out of their own scope, and this is the key they name. Also out: business tax rates and the growth posture, worker-side rules, and large-firm accountability.',
+      pole: 'Advanced = the vote lowered the licensing, permitting, paperwork or capital cost a small business carries.'
+    },
+    transit: {
+      inn: 'Moving people without a car, and the money that pays for it: revenue opened to transit capital and service grants, ridership and expenditure accountability, station-area and connectivity planning, transit passes, and protection for a bicycle lane.',
+      out: 'Roads, bridges, water systems and the grid; housing supply and the affordability terms inside a housing and transit reinvestment zone — a transit-zone bill whose amendments are about housing terms is filed here only as a secondary slice; the district that captures the tax increment; and vehicle emission rules.',
+      pole: 'Advanced = the vote funded, protected or expanded non-car mobility.',
+      note: 'A bill that funds nothing and builds nothing sits at the narrow-link floor rather than reading as a service expansion.'
+    },
+    water: {
+      inn: 'The demand side of the water problem — how much is used, by whom, and at what price: landscaping and turf rules on public property, irrigation restrictions, water-efficient landscaping incentives and grants, conservation-based and tiered retail rates, agency water-use reporting and smart controllers, conservation outreach, and a consumption fee that funds water infrastructure.',
+      out: 'The supply side — reservoirs, pipelines, recycling and new storage capacity (Water Storage & Infrastructure); drinking-water and wastewater systems as public works (Rebuild Roads & Bridges); a data centre’s cooling water and agricultural water purchases, which have their own guardrail key; and farm and ranch water rights. A vote to build water supply is not a vote to use less of it, and filing one here would print it as a conservation record.',
+      pole: 'Advanced = the vote reduced, priced or measured water use. Against = it removed a conservation requirement or its funding.',
+      note: 'Every instrument on file is a conservation measure and none runs the other way, so the direction is never the question — the size of the measure is. A conservation outreach or messaging bill sits at the narrow-link floor.'
+    },
+    climate_action: {
+      inn: 'Programmes, subsidies and rules that cut emissions, and their repeal: clean-energy credits, electrification rebates, zero-emission sales mandates and the waivers behind them, international climate finance, state renewable credits and assessments, and emission-reducing equipment credits and procurement.',
+      out: 'How much conventional supply there is (Expand Domestic Energy Production) and the all-of-the-above framing. Also out: water conservation, public lands, and how long a project review takes.',
+      pole: 'Advanced = the vote created or funded an emissions-reducing programme. Against = it repealed, defunded or taxed one.',
+      note: 'A vehicle zero-emission waiver resolution is filed on this key and on Expand Domestic Energy Production in opposite directions on purpose: a yea removed a limit on conventional vehicle sales and rolled back a state climate rule, and both are true of the same vote.'
+    },
+    energy_production: {
+      inn: 'How much conventional supply and firm generating capacity exists, and how hard it is to retire: leasing and reopened acreage, pipeline authorisation, emergency authorities to expedite production, dispatchable-resource state policy, cost recovery for in-state generation, and the determinations required before an existing plant may close.',
+      out: 'Emissions programmes and clean-energy subsidies (Climate Action & Clean Energy), the all-of-the-above framing, who owns the land it happens on, how long the federal review takes (Faster Permits & Reviews), and a data centre’s own power and ratepayer guardrails.',
+      pole: 'Advanced = the vote expanded conventional supply or kept generation online. Against = it withdrew an authority or an asset from production.',
+      note: 'The mirror is enforced: terminating an energy emergency is filed against this key for exactly the authorities the declaration itself is filed as advancing.'
+    },
+    housing: {
+      inn: 'Affordability as the whole subject — the cost of building and the cost of buying taken together, which is where a bill lands when its own general provisions name housing affordability generally as the subject: density traded for requirements, moderate income housing plans and reporting, parking-requirement limits, ownership-promotion zones, and state housing finance instruments.',
+      out: 'Supply mechanics alone (Build More Housing) and subsidy and renter protection alone (Affordable Housing & Renters) — a bill that does two of the three carries a slice on each with different weights rather than one slice here. Also out: the household price basket, property tax, first purchase specifically, homelessness, the owner’s hand against government, and the district that finances a project.',
+      pole: 'Advanced = the vote lowered the cost to build or to buy.',
+      note: 'A maintenance bill that keeps an existing instrument workable is weighted deliberately low, to say that keeping a zone workable is a smaller thing than creating it.'
+    },
+    housing_build: {
+      inn: 'Supply mechanics — the regulatory and approval barriers between a parcel and a finished unit: accessory dwelling unit rules and limits on local authority to restrict them, subdivision review and approval, parking-requirement caps, and reporting penalties on a local government that stalls.',
+      out: 'Subsidy, tax credits and renter protection (Affordable Housing & Renters), and affordability as a whole (Housing Affordability). Also out: federal environmental review of projects (Faster Permits & Reviews), which names local zoning and housing approvals as out of its own scope and points here; and the owner’s side of the same zoning bill (Private Property Rights).',
+      pole: 'Advanced = the vote reduced what a project must satisfy before it may be built, or paid for units to be built.',
+      note: 'A bill reaching one requirement and nothing else — parking, and nothing else — is filed as a secondary to say so.'
+    },
+    housing_support: {
+      inn: 'Public money for below-market housing, and the renter’s position in the landlord-tenant code: low-income housing tax credits, housing loan and preservation funds, agency authority to fund income-targeted housing, and notice, termination and increase-freeze duties owed to a tenant.',
+      out: 'Making it cheaper or easier to build (Build More Housing) and affordability as a whole (Housing Affordability) — a bill carrying both a subsidy provision and a construction provision is filed on each with different weights. Also out: shelter and services, first purchase, and property tax.',
+      pole: 'Advanced = the vote funded below-market housing or added a renter protection.',
+      note: 'A housing clause attached as a condition on a transportation tax is a secondary, because the condition is not the programme.'
+    },
+    tough_on_crime: {
+      inn: 'Criminal exposure and time served — what is an offence, at what level, and how long a person or a case stays in the system: offence elements, offence levels, mandatory minimums, sentencing enhancements, and juvenile adjustment and expungement eligibility.',
+      out: 'Funding and backing law enforcement itself (Back Law Enforcement), the accountability pairing, sentencing reform in the other direction (Criminal Justice Reform), cannabis, immigration detention and removal, and fentanyl trafficking sanctions.',
+      pole: 'Advanced = the vote increased exposure to punishment or time in custody. Every instrument on file runs that way.',
+      note: 'A single enhancement for one class of victim sits at the narrow-link floor: the link is real, the measure is narrow.'
+    },
+    religious_liberty: {
+      inn: 'Room for religious exercise and conscience inside a public institution: employment conscience protections and accommodation, recognition for belief-based student organisations that require adherence to their own standards, chaplains, religiously grounded non-participation, prayer and devotional provisions, and observance in public employment.',
+      out: 'Equal-treatment law and the balance position, and recognition and anti-discrimination protection (Protect LGBTQ+ Rights) — the two are scored independently and a bill touching both carries a slice on each. Also out: speech and platform censorship, diversity mandates, abortion, and parental consent as a schooling right.',
+      pole: 'Advanced = the vote widened protection for religious exercise or conscience. Every instrument on file runs that way.',
+      note: 'A single clause sitting beside provisions on another subject is filed as a secondary rather than as the bill’s meaning.'
+    },
+    lgbtq_rights: {
+      inn: 'Legal recognition and protection on the basis of sexual orientation and gender identity: transition-related care and coverage, custody and housing assignment, pronoun and affirmation duties, participation rules, service eligibility, and statutes that stop assuming an opposite-sex marriage.',
+      out: 'Religious exercise and conscience (Religious Liberty Focus), the equal-treatment pairing, diversity mandates, and speech. Also out: parental decision rights over schooling — a parental-affirmation shield is filed here because the protected conduct is defined by refusing a transgender person’s transition, not by parental authority generally.',
+      pole: 'Advanced = the vote added or preserved recognition or protection. Against = it subtracted one.',
+      note: 'The direction is read off the operative provision, whatever the bill’s stated purpose in enacting it. Most instruments on file run against this key’s direction, and the mapping records that rather than omitting them.'
+    },
+    strong_defense: {
+      inn: 'What the armed forces are authorised, funded and equipped to do: annual defence authorisations and their end strengths, procurement, military construction and national-security programmes; defence appropriations titles; supply-chain and industrial-base measures; servicemember pay and quality of life; and foreign intelligence collection authority sustained as a counterintelligence tool.',
+      out: 'Whether Congress must authorise the use of force, which is a who-decides claim held on both sides of the funding question (Congress and War Powers). Also out: foreign aid and commitments abroad, support for Israel, the restraint and alliance postures, and surveillance seen from the other side (Privacy & Big-Tech Accountability), which carries the mirrored slice.',
+      pole: 'Advanced = the vote authorised, funded or equipped the armed forces.',
+      note: 'An authorisation carrying unrelated social-policy riders is weighted below a clean one, because passage is then not a pure posture signal; an appropriations vehicle is weighted below an authorisation because it sets amounts for programmes authorised elsewhere and takes no position on force structure or posture.'
+    },
+    privacy_rights: {
+      inn: 'Who may collect, hold, move or act on data about a person: police use of genetic and third-party genomic data, government scoring of individuals, employer collection and device mandates, minors’ default settings and age verification, foreign-adversary limits on sequencing data, camera and tracking systems, and foreign intelligence collection authority.',
+      out: 'What a rule should say about a sector as a rulebook question — Cut Federal Red Tape names this key as the holder of data and platform duties. Also out: speech and censorship, digital assets, platform competition and consumer finance, and defence authorisation as a posture question (Peace Through Strength), which carries the mirrored slice on the same collection authority.',
+      pole: 'Advanced = the vote constrained collection or use. Against = it extended or mandated it.',
+      note: 'Direction is read off the operative provision: converting a discretionary student directory disclosure into a mandatory one is filed against this key whatever the purpose in sharing. A reauthorisation that also adds query approvals and audits is held below the top weight because the direction is a net extension rather than a clean one.'
+    },
+    gov_transparency: {
+      inn: 'What the public is entitled to be told about officeholders, and about the basis on which a decision was made: release of settlement and ethics records, conflict-of-interest and divestment rules, candidate and earmark disclosure, publication of the factual material relied on in rulemaking, and performance reporting by providers paid with public money.',
+      out: 'Campaign and outside money, the member stock trading ban as its own chip, auditing agencies and the Federal Reserve, term limits, the practical-reform blend, and administration of the ballot.',
+      pole: 'Advanced = the vote required more disclosure. Against = it required less.',
+      note: 'A disclosure duty covering one programme’s provider reports sits at the narrow-link floor rather than reading as a transparency record.'
+    },
+    cut_spending: {
+      inn: 'Taking money back or holding it down, line by line: rescissions of unobligated balances, instructions to find net spending reductions, account-level reduction amendments, eligibility and work-requirement tightening recorded as the reductions they are, and offsets that cancel an existing appropriation.',
+      out: 'The fiscal total and whether the deficit moved (Tackle the National Debt), auditing and waste as a process question, the balanced-budget framing, tax rates, and what the money buys — a Medicaid title is filed here for the reduction and on the programme’s own key for the contraction, and the reader is shown both.',
+      pole: 'Advanced = the vote cancelled, reduced or held down federal spending.',
+      note: 'Where the same act’s tax title runs the other way on the fiscal total, that is read on its own chip rather than netted out here. A reporting requirement is filed as a secondary and low-weight because it is not a cut.'
     }
   };
 
