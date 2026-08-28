@@ -840,6 +840,84 @@ depth — 428 more judged votes standing behind positions that previously rested
    key as scoped is about federal courts halting unlawful executive action, including nationwide.
    Filing FISA rolls there would put them in the nationwide-injunction percentage.
 
+### Three rules from the federal formal-depth pass (`20261009000000`)
+
+30. **Adding an honest secondary can make a member's record read WORSE. Check the primary wall
+   before you ship a depth pass, not after.** This is the rule this pass exists to write down.
+   `H.J.Res. 131` was mapped `gov_regulation` 60 `yea_supports` — correct on the merits, and the
+   same weight the two live CRA precedents `H.J.Res. 88` and `H.J.Res. 89` already carry. Adding
+   it gave 76 senators a **fourth** non-primary `gov_regulation` act, and four is exactly where
+   `_recordDirectionIndex` in `stance-helpers.js` changes branch. Below four the member sits on the
+   `thinEnough` branch (`judged >= _RD_THIN_MIN`, `actStrength >= _RD_THIN_MIN_STRENGTH`), whose
+   source comment says in terms that **the primary wall is deliberately not on this branch**, and a
+   one-sided run still reads. At four, `judged >= _RD_MIN_JUDGED` moves the member onto the
+   `deepEnough` branch, where `out.primary < _RD_MIN_PRIMARY` returns
+   `stop('record_thin', 'no_primary')`. `formalPatternIndex` then prints the row as unread with
+   reason id `incidental` — **"Not about this issue"** — for a member who has voted the same way
+   four times on four Congressional Review Act disapprovals.
+   The engine is not wrong. Deep, one-sided and entirely incidental is a fair description of four
+   secondaries and no primary, and it is a truer sentence than a confident direction would have
+   been. So there are exactly two illegitimate responses and one legitimate one. **Do not** lower
+   `_RD_MIN_PRIMARY` or move the wall: it is a floor, and the Utah cleanup's whole point was that
+   floors do not move for convenience. **Do not** weaken or drop the mapping that tripped it either
+   — that is tuning a reading to protect an index number, and rule 25 says consistency is owed to
+   the text, not to the aggregate. The legitimate response is to **supply a PRIMARY act**, and
+   before reaching for a new instrument, census the key: run the weight/`is_primary`/roll-coverage
+   query per key and ask *which chamber can actually reach a primary here*. On `gov_regulation` the
+   answer was that the Senate could not, and the reason was **attribution, not vocabulary**. All
+   three of the key's 119th primaries were already mapped `w100 PRIMARY` and none was reachable by
+   a senator: `H.R. 2965` is a House bill the Senate never voted on (correct), `H.J.Res. 25` was
+   enacted as **P.L. 119-5 carrying no roll call at all, in either chamber**, and `S.J.Res. 18` —
+   **a Senate joint resolution** — held only its **House** passage roll while its own chamber's
+   52-48 vote sat unclaimed on senate.gov. Attributing three rolls the chambers had published all
+   along cleared the wall upward: the 76 senators go `thin → strong` instead of `thin → unread`,
+   and the pass's national `clear` count moves +272 instead of +101.
+   Two corollaries worth keeping. First, **an enacted law with no attributed roll call anywhere is
+   a defect on its face** — grep for it directly rather than waiting for an index to complain.
+   Second, **a measure whose `chamber` does not appear among its own roll calls is almost always an
+   ingest gap**, and it is a two-line query: it found `S.J.Res. 18` immediately. Where no primary
+   is reachable even in principle, say so and stop. `energy_production` keeps six senators unread
+   after this pass for exactly that reason: its only federal primaries are `H.Amdt. 248` (a House
+   amendment) and `H.R. 1949`, which passed the House and has sat on the Senate Legislative
+   Calendar under General Orders since 2025-12-08 without a vote. There is nothing to attribute,
+   so the remedy is a future standalone contested Senate instrument on the key — never a fifth
+   secondary, which would only deepen the same wall.
+31. **A reserve fund, a point of order and a sense-of-the-Senate are not acts. Refuse the
+   vote-a-rama amendment class on the instrument, before you ever look at its subject.**
+   `S.Amdt. 2126` (Sanders) to `H.Con.Res. 14` is the trap in its most tempting form: contested
+   47-52, on precisely the subject `econ_workers` describes, in precisely the chamber where
+   `econ_workers` was blocked. Its stated purpose is "To make sure the Senate can increase the
+   Federal minimum wage to $17 an hour" — a reserve-fund/point-of-order device that creates no
+   authority, appropriates nothing and changes no law, offered to a **budget resolution, which is
+   never presented to the President**. Scoring it would tell a reader that 47 senators voted to
+   raise the minimum wage when what they voted for was permission to consider raising it later.
+   The tell is textual and mechanical, so use it as a filter: `"To establish a deficit-neutral
+   reserve fund relating to…"`, `"To make sure the Senate can…"`, and anything whose operative
+   verb is *consider*. Declined with it on identical grounds here: Senate 119/1 rolls 175
+   (Alsobrooks Amdt. 1466), 183 (Kim Amdt. 1644) and 186 (Baldwin Amdt. 1693), plus roll 65 in the
+   `S.Con.Res. 7` vote-a-rama. Note this does **not** narrow rule 12: a real second-degree
+   amendment to a real bill is still admissible on the shape gate, which is how `S.Amdt. 3535` to
+   `S. 2296` — whose entire text is an appointment mechanism — came in on the same pass that
+   refused these.
+32. **The mirror of rule 27: when a key narrows, walk the live MAPPINGS, not just the refusal
+   notes.** Rule 27 says re-read a refusal when the taxonomy moves. The reverse exposure is worse,
+   because a refusal that goes stale publishes nothing while a **mapping** that goes stale keeps
+   publishing. This pass refused `america_first` on `H.R. 1069` on solid ground — `alignment-tool.js`'s
+   August 2026 narrowing removed the countering-China cards from the key because "the chip never
+   mentioned" it, and the residue moved to `america_first_fp`, scoped to foreign aid and
+   open-ended commitments. Applying that same reading one row over finds `H.R. 1048` (DETERRENT
+   Act) live with `america_first` 70 `yea_supports` whose rationale reads, in full, "Targets
+   foreign influence — especially from China, Iran, North Korea, and Russia — on U.S. campuses as
+   a national-security matter." That is the exact ground the vocabulary disowned, on a measure
+   already correctly `gov_transparency` 100 PRIMARY, and it is neither `america_first` as now
+   chipped nor `america_first_fp` (there is no aid or commitment in it). It is **not** corrected
+   here, deliberately: under rule 21 the live rationale is the first writer's, the fix is a guarded
+   `UPDATE` that has to carry its own argument, and doing it inside a depth pass would move a
+   published number as an undisclosed side effect of an attribution wave. It is queued below as its
+   own item. The procedure to add to any narrowing: after editing a key's scope note, query
+   `vr_measure_issues` for every live row on that key and re-read each rationale against the new
+   chip — the query is cheap, and `america_first` had five rows.
+
 ### Best remaining follow-ups after this pass
 
 0. *(Closed August 2026.)* **H.R. 6955** (119/2 roll 271) and **H.R. 2670** (118/1 roll 723) were
@@ -886,6 +964,27 @@ depth — 428 more judged votes standing behind positions that previously rested
      violence. `back_police` is police funding and tougher penalties, `tough_on_crime` is
      sentencing, and `religious_liberty` is a rights chip rather than a grant chip — there is no
      homeland-security key at all. Left unmapped rather than approximated.
+0e. *(Opened by `20261009000000`, the federal formal-depth pass.)* Two rows to correct and one key
+   with nothing to attribute. All three are named by rule 30 or 32 and none is taken here, because
+   each moves a published number and belongs in a pass that argues for it:
+   · **`H.R. 1048`'s `america_first` 70 row is stale against the August 2026 narrowing** (rule 32).
+     Its rationale rests on countering-China grounds the key's own scope note now disowns, on a
+     measure already `gov_transparency` 100 PRIMARY. It is neither `america_first` as now chipped
+     nor `america_first_fp` — there is no aid or commitment in the DETERRENT Act. Wants a guarded
+     `UPDATE` (rule 21) carrying its own argument, most likely a removal rather than a re-key. The
+     same query that found it should be run across all five live `america_first` rows.
+   · **`energy_production` has no primary a senator can reach** (rule 30, second corollary). Six
+     senators — alsobrooks, ashley_moody, jim_justice, mccormick, moreno, sheehy — read `incidental`
+     after this pass for that reason alone. `H.Amdt. 248` is a House amendment; `H.R. 1949` passed
+     the House and has sat on the Senate Legislative Calendar under General Orders since 2025-12-08
+     with no vote taken, so there is genuinely nothing to attribute. This needs a standalone
+     contested Senate instrument on the key, NOT a fifth secondary.
+   · **The roster `state` field is wrong for two Utah House members.** `maloy` and `owens` carry
+     bare "District 2" and "District 4" in CMP_DATA where the other five carry Utah. It does not
+     affect this pass — House attribution resolves on the bioguide in the Clerk's XML, never on
+     state — but it WOULD silently break a Senate-style (surname, state) resolution, which is the
+     one place a bad state field fails closed into a skip rather than loudly.
+
 1. ~~**H.R. 7148, Consolidated Appropriations Act, 2026** (119/2 rolls 45 and 53).~~ **Closed by
    `20260913000000_vr_consolidated_approps_2026.sql`.** The division-by-division read was done
    against the enrolled text (govinfo `PLAW-119publ75`, 34,584 lines) and the measure was ingested

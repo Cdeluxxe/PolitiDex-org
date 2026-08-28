@@ -2826,6 +2826,85 @@
      "rationale": "Sec. 7018 bars funds made available to carry out part I of the Foreign Assistance Act of 1961 from paying for abortion as a method of family planning or from motivating or coercing any person to practice abortion. Recorded neutrally and weighted low on the H.R. 6703 precedent: a continuation of a long-standing rider rather than a new position taken on this vote."
     }
    ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 5408",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/5408",
+   "_note": "One key, on purpose. The drafting bench offered three candidates and two of them (tech_balance, tech_innovation) were title-keyword accidents; four further axes were read by hand and refused. econ_workers carries the whole of what the 230-193 roll tested. See db/vr-federal-mapping-seed-f1.json for the six refusals.",
+   "issues": [
+    {
+     "issueKey": "econ_workers",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill's entire operative text is a first-contract bargaining regime: negotiations must begin within 10 days of a written request from a newly certified or recognised representative, either party may call in the Federal Mediation and Conciliation Service after 90 days without an agreement, FMCS must refer the dispute to binding arbitration if mediation fails within 30, the resulting agreement binds for two years, and the employer must hold wages, hours and conditions steady while bargaining continues. A yea creates federal protection for workers trying to reach a first contract. The chip names the minimum wage and this bill does not touch it, so the row rests on the chip's second clause — 'protect workers from exploitation' — and on the key's own keyword list, which names 'collective bargaining', 'union' and 'labor'. The vocabulary declares this bill's subject in scope. Weighted 100 and primary because it is the measure's only subject: this is the record's first federal econ_workers primary, the three prior federal rows being secondaries on packages (S. 129 at 60, H.R. 1319 at 45)."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.J.Res. 131",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/131",
+   "_note": "A CRA disapproval that deliberately does NOT carry climate_action, unlike the two live CRA precedents H.J.Res. 88 and H.J.Res. 89. Those struck Clean Air Act vehicle waivers, where greenhouse gases were the whole subject of the rule; this one strikes a Record of Decision about which acres of a leasing programme are available, and emissions appear nowhere in it. energy_production carries the fossil-expansion reading in a direction nobody on the roll disputes. Runbook rule 25: consistency is owed to the text, not to the sibling.",
+   "issues": [
+    {
+     "issueKey": "lands_energy",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The resolution's operative effect is on federal public land: it nullifies the Bureau of Land Management's 2024-12-09 Record of Decision for the Coastal Plain oil and gas leasing programme, the decision that had made roughly 1.2 million of the programme area's roughly 1.6 million acres unavailable for leasing and exploration. Striking it reopens that acreage. lands_energy is 'Expand domestic energy, mining & resource development' and its keywords name 'oil', 'gas', 'drilling', 'public land' and 'extraction' — the axis is public-land resource development, which is precisely what a leasing-availability decision is. Primary at 100 because it is the resolution's whole subject: energy output is the consequence, and the acreage decision is the act. This is the record's first federal lands_energy PRIMARY — the two prior federal rows are secondaries on packages, H.R. 26 at 45 and H.R. 1 at 40, which is exactly why the formal index could not read the axis for either Utah senator."
+    },
+    {
+     "issueKey": "lands_preserve",
+     "weight": 90,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The acreage the resolution reopens is inside the Arctic National Wildlife Refuge, and the 2024 ROD's stated reason for withdrawing it was to protect and conserve resources and certain uses. A yea removes that protection. lands_preserve is 'Protect public lands & wild places for future generations' and its keywords name 'conservation', 'wilderness' and 'blm'. Weight 90 and yea_opposes follow the H.J.Res. 78 precedent exactly, including its written note that the conservation key is used because the vocabulary has no dedicated wildlife or endangered-species key. Not primary: the instrument acts on a leasing programme, and the conservation loss is the same act read from the other side."
+    },
+    {
+     "issueKey": "energy_production",
+     "weight": 75,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The reopened acreage is, under current law, the part of the programme area with the highest hydrocarbon potential, and the programme it belongs to exists to lease, develop, produce and transport oil and gas. A yea enlarges the area available for that. Weighted 75 — above H.J.Res. 88 and H.J.Res. 89's 70 on the same key, and the difference is textual per rule 25: those resolutions struck a Clean Air Act vehicle waiver and reach production only indirectly, through vehicle demand, whereas this one acts directly on an oil-and-gas leasing programme. Not primary, because lands_energy carries the public-land act itself."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The instrument is a Congressional Review Act resolution of disapproval under chapter 8 of title 5: its mechanism is congressional nullification of an agency decision, and a yea removes a federal agency's rule and bars a substantially similar one. gov_regulation's August 2026 scope note names 'Congressional Review Act disapprovals' first in its IN list, and its stated polarity — 'support = fewer and cheaper federal rules' — makes a yea yea_supports. Weight 60 matches H.J.Res. 88 and H.J.Res. 89, the two live CRA precedents in the record. The same scope note is why this row is a secondary and not the primary: what a particular rule should SAY belongs to the sector's key, which here is lands_energy."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.Amdt. 3535",
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00563.htm",
+   "_note": "Mapped from the Senate's own complete amendment_purpose field, which clears runbook rule 4 (a truncated purpose line is not a mappable purpose). The amendment rode the FY2026 NDAA because that is where floor time was, so the parent's strong_defense is NOT inherited — see db/vr-federal-mapping-seed-f1.json for that refusal and for why checks_balances is refused under rule 28 and on a two-way reading of Presidential appointment.",
+   "issues": [
+    {
+     "issueKey": "congress_oversight",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The amendment's stated purpose is its entire substance: to require Presidential appointment and Senate confirmation of the inspector general of the Federal Reserve Board of Governors and of the Consumer Financial Protection Bureau. Under current law that inspector general is designated by the Fed Chair, so a yea moves the watchdog of both bodies out of agency appointment and into advice and consent, giving the Senate a hold on an oversight officer it has none over today. congress_oversight's keyword list names 'inspector general' explicitly, which is the vocabulary's own statement that IG machinery belongs on this axis. Primary at 100 as the amendment's only subject; the record's one prior row on this key is a 45-weight secondary on H.R. 7888, a package — which is exactly why the formal index could not read the axis for five of the seven Utah federal members. The counter-reading is real and is recorded next door: the 36 Democratic nays argued that confirmation politicises the watchdog of an independent central bank. That is an argument about how much political control the post should carry, which is this axis; the executive-power half of it is why checks_balances is refused."
+    },
+    {
+     "issueKey": "audit_spending",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The office the amendment reshapes is the internal auditor of the Federal Reserve and the CFPB, and audit_spending is 'Audit federal agencies and the Federal Reserve and root out wasteful spending' — the only chip in the vocabulary that names the Federal Reserve at all, with keywords 'audit the fed' and 'federal reserve'. A yea subjects that auditor to Senate confirmation. Weighted 70 rather than 100 because the amendment changes who appoints the auditor and not what the auditor may examine: it adds no audit authority, so the row is a share of the key and not the whole of it. Above the record's two existing rows on this key (both 55, both secondaries) because those are provisions inside larger bills and this is the amendment's entire text."
+    }
+   ]
   }
  ],
  "_phase12_overlap_priority": {
