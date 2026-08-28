@@ -3,15 +3,15 @@
   "generatedBy": "scripts/vr-utah-committee-mapping.mjs",
   "session": "2024GS",
   "counts": {
-    "bucket": 141,
-    "admitted": 64,
-    "refused": 77,
-    "measures": 64,
-    "issueMappings": 64,
-    "committeeActs": 77,
-    "positions": 475,
+    "bucket": 140,
+    "admitted": 66,
+    "refused": 75,
+    "measures": 66,
+    "issueMappings": 66,
+    "committeeActs": 79,
+    "positions": 579,
     "supersededByFloorVote": 0,
-    "notOnAnyFloorRoll": 475,
+    "notOnAnyFloorRoll": 579,
     "admittedButNoActSurvived": 0
   },
   "admittedButNoActSurvived": [],
@@ -185,9 +185,27 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "kera_birkeland",
+              "supports": true,
+              "printedAs": "Rep. K. Birkeland",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "r_neil_walter",
               "supports": true,
               "printedAs": "Rep. R. Walter",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "steven_lund",
+              "supports": true,
+              "printedAs": "Rep. S. Lund",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "susan_pulsipher",
+              "supports": true,
+              "printedAs": "Rep. S. Pulsipher",
               "supersededByFloorVote": false
             },
             {
@@ -392,6 +410,18 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "robert_spendlove",
+              "supports": true,
+              "printedAs": "Rep. R. Spendlove",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "supports": false,
+              "printedAs": "Rep. R. Lesser",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "stewart_e_barlow",
               "supports": true,
               "printedAs": "Rep. S. Barlow",
@@ -490,9 +520,21 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "steven_lund",
+              "supports": true,
+              "printedAs": "Rep. S. Lund",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "thomas_peterson",
               "supports": true,
               "printedAs": "Rep. T. Peterson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "tim_jimenez",
+              "supports": true,
+              "printedAs": "Rep. T. Jimenez",
               "supersededByFloorVote": false
             },
             {
@@ -564,6 +606,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "james_cobb",
+              "supports": false,
+              "printedAs": "Rep. J. Cobb",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "jason_b_kyle",
               "supports": false,
               "printedAs": "Rep. J. Kyle",
@@ -573,6 +621,12 @@
               "politicianId": "joseph_elison",
               "supports": false,
               "printedAs": "Rep. J. Elison",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "supports": false,
+              "printedAs": "Rep. J. Rohner",
               "supersededByFloorVote": false
             },
             {
@@ -656,6 +710,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "james_cobb",
+              "supports": false,
+              "printedAs": "Rep. J. Cobb",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "jason_b_kyle",
               "supports": false,
               "printedAs": "Rep. J. Kyle",
@@ -665,6 +725,12 @@
               "politicianId": "joseph_elison",
               "supports": false,
               "printedAs": "Rep. J. Elison",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "supports": false,
+              "printedAs": "Rep. J. Rohner",
               "supersededByFloorVote": false
             },
             {
@@ -733,6 +799,12 @@
               "politicianId": "brammer_s21",
               "supports": true,
               "printedAs": "Rep. B. Brammer",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "brian_king",
+              "supports": false,
+              "printedAs": "Rep. B. King",
               "supersededByFloorVote": false
             },
             {
@@ -887,6 +959,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "brian_king",
+              "supports": true,
+              "printedAs": "Rep. B. King",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "cmusselman",
               "supports": false,
               "printedAs": "Rep. C. Musselman",
@@ -1003,6 +1081,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "joel_briscoe",
+              "supports": true,
+              "printedAs": "Rep. J. Briscoe",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "kay_christofferson",
               "supports": false,
               "printedAs": "Rep. K. Christofferson",
@@ -1071,6 +1155,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "joel_briscoe",
+              "supports": true,
+              "printedAs": "Rep. J. Briscoe",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "kay_christofferson",
               "supports": false,
               "printedAs": "Rep. K. Christofferson",
@@ -1086,6 +1176,12 @@
               "politicianId": "mark_strong",
               "supports": false,
               "printedAs": "Rep. M. Strong",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "supports": false,
+              "printedAs": "Rep. R. Spendlove",
               "supersededByFloorVote": false
             },
             {
@@ -1184,6 +1280,18 @@
               "politicianId": "r_neil_walter",
               "supports": true,
               "printedAs": "Rep. R. Walter",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "steven_lund",
+              "supports": true,
+              "printedAs": "Rep. S. Lund",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "susan_pulsipher",
+              "supports": true,
+              "printedAs": "Rep. S. Pulsipher",
               "supersededByFloorVote": false
             },
             {
@@ -1347,6 +1455,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "kera_birkeland",
+              "supports": true,
+              "printedAs": "Rep. K. Birkeland",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "lisonbee_h14",
               "supports": true,
               "printedAs": "Rep. K. Lisonbee",
@@ -1356,6 +1470,18 @@
               "politicianId": "r_neil_walter",
               "supports": true,
               "printedAs": "Rep. R. Walter",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "steven_lund",
+              "supports": true,
+              "printedAs": "Rep. S. Lund",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "susan_pulsipher",
+              "supports": false,
+              "printedAs": "Rep. S. Pulsipher",
               "supersededByFloorVote": false
             },
             {
@@ -1421,6 +1547,18 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "brett_garner",
+              "supports": false,
+              "printedAs": "Rep. B. Garner",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "supports": false,
+              "printedAs": "Rep. J. Stenquist",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "karen_m_peterson",
               "supports": true,
               "printedAs": "Rep. K. Peterson",
@@ -1436,6 +1574,12 @@
               "politicianId": "nelson_abbott",
               "supports": true,
               "printedAs": "Rep. N. Abbott",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "susan_pulsipher",
+              "supports": true,
+              "printedAs": "Rep. S. Pulsipher",
               "supersededByFloorVote": false
             }
           ]
@@ -1507,6 +1651,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "james_cobb",
+              "supports": true,
+              "printedAs": "Rep. J. Cobb",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "jason_b_kyle",
               "supports": true,
               "printedAs": "Rep. J. Kyle",
@@ -1516,6 +1666,12 @@
               "politicianId": "joseph_elison",
               "supports": true,
               "printedAs": "Rep. J. Elison",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "supports": true,
+              "printedAs": "Rep. J. Rohner",
               "supersededByFloorVote": false
             },
             {
@@ -1628,6 +1784,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "james_cobb",
+              "supports": true,
+              "printedAs": "Rep. J. Cobb",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "jason_b_kyle",
               "supports": true,
               "printedAs": "Rep. J. Kyle",
@@ -1637,6 +1799,12 @@
               "politicianId": "joseph_elison",
               "supports": true,
               "printedAs": "Rep. J. Elison",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "supports": true,
+              "printedAs": "Rep. J. Rohner",
               "supersededByFloorVote": false
             },
             {
@@ -1714,6 +1882,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "james_cobb",
+              "supports": true,
+              "printedAs": "Rep. J. Cobb",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "jason_b_kyle",
               "supports": true,
               "printedAs": "Rep. J. Kyle",
@@ -1723,6 +1897,12 @@
               "politicianId": "joseph_elison",
               "supports": true,
               "printedAs": "Rep. J. Elison",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "supports": false,
+              "printedAs": "Rep. J. Rohner",
               "supersededByFloorVote": false
             },
             {
@@ -1791,6 +1971,12 @@
               "politicianId": "brammer_s21",
               "supports": false,
               "printedAs": "Rep. B. Brammer",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "brian_king",
+              "supports": true,
+              "printedAs": "Rep. B. King",
               "supersededByFloorVote": false
             },
             {
@@ -2061,6 +2247,12 @@
           "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19102",
           "votes": [
             {
+              "politicianId": "brian_king",
+              "supports": true,
+              "printedAs": "Rep. B. King",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "cheryl_acton",
               "supports": false,
               "printedAs": "Rep. C. Acton",
@@ -2073,9 +2265,21 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "kera_birkeland",
+              "supports": true,
+              "printedAs": "Rep. K. Birkeland",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "lisonbee_h14",
               "supports": true,
               "printedAs": "Rep. K. Lisonbee",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "supports": true,
+              "printedAs": "Rep. M. Wheatley",
               "supersededByFloorVote": false
             },
             {
@@ -2177,6 +2381,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "kera_birkeland",
+              "supports": true,
+              "printedAs": "Rep. K. Birkeland",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "lisonbee_h14",
               "supports": true,
               "printedAs": "Rep. K. Lisonbee",
@@ -2186,6 +2396,12 @@
               "politicianId": "r_neil_walter",
               "supports": false,
               "printedAs": "Rep. R. Walter",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "steven_lund",
+              "supports": true,
+              "printedAs": "Rep. S. Lund",
               "supersededByFloorVote": false
             }
           ]
@@ -2257,6 +2473,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "james_cobb",
+              "supports": true,
+              "printedAs": "Rep. J. Cobb",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "jason_b_kyle",
               "supports": false,
               "printedAs": "Rep. J. Kyle",
@@ -2266,6 +2488,12 @@
               "politicianId": "joseph_elison",
               "supports": true,
               "printedAs": "Rep. J. Elison",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "supports": true,
+              "printedAs": "Rep. J. Rohner",
               "supersededByFloorVote": false
             },
             {
@@ -2387,6 +2615,12 @@
           "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19102",
           "votes": [
             {
+              "politicianId": "brian_king",
+              "supports": false,
+              "printedAs": "Rep. B. King",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "cheryl_acton",
               "supports": true,
               "printedAs": "Rep. C. Acton",
@@ -2399,9 +2633,21 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "kera_birkeland",
+              "supports": true,
+              "printedAs": "Rep. K. Birkeland",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "lisonbee_h14",
               "supports": true,
               "printedAs": "Rep. K. Lisonbee",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "supports": false,
+              "printedAs": "Rep. M. Wheatley",
               "supersededByFloorVote": false
             },
             {
@@ -2461,6 +2707,12 @@
           "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19174",
           "votes": [
             {
+              "politicianId": "brian_king",
+              "supports": false,
+              "printedAs": "Rep. B. King",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "cheryl_acton",
               "supports": true,
               "printedAs": "Rep. C. Acton",
@@ -2476,6 +2728,12 @@
               "politicianId": "lisonbee_h14",
               "supports": true,
               "printedAs": "Rep. K. Lisonbee",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "supports": false,
+              "printedAs": "Rep. M. Wheatley",
               "supersededByFloorVote": false
             },
             {
@@ -2559,6 +2817,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "james_cobb",
+              "supports": true,
+              "printedAs": "Rep. J. Cobb",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "jason_b_kyle",
               "supports": true,
               "printedAs": "Rep. J. Kyle",
@@ -2568,6 +2832,12 @@
               "politicianId": "joseph_elison",
               "supports": true,
               "printedAs": "Rep. J. Elison",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "supports": false,
+              "printedAs": "Rep. J. Rohner",
               "supersededByFloorVote": false
             },
             {
@@ -2861,6 +3131,12 @@
           "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19112",
           "votes": [
             {
+              "politicianId": "brian_king",
+              "supports": false,
+              "printedAs": "Rep. B. King",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "cheryl_acton",
               "supports": true,
               "printedAs": "Rep. C. Acton",
@@ -2879,9 +3155,27 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "judy_weeks_rohner",
+              "supports": true,
+              "printedAs": "Rep. J. Rohner",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "kera_birkeland",
+              "supports": true,
+              "printedAs": "Rep. K. Birkeland",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "lisonbee_h14",
               "supports": true,
               "printedAs": "Rep. K. Lisonbee",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "supports": false,
+              "printedAs": "Rep. M. Wheatley",
               "supersededByFloorVote": false
             },
             {
@@ -3006,6 +3300,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "david_buxton",
+              "supports": true,
+              "printedAs": "Sen. D. Buxton",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "dowens_st",
               "supports": true,
               "printedAs": "Sen. D. Owens",
@@ -3080,6 +3380,12 @@
           "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19183",
           "votes": [
             {
+              "politicianId": "brian_king",
+              "supports": false,
+              "printedAs": "Rep. B. King",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "cheryl_acton",
               "supports": true,
               "printedAs": "Rep. C. Acton",
@@ -3095,6 +3401,18 @@
               "politicianId": "jon_hawkins",
               "supports": true,
               "printedAs": "Rep. J. Hawkins",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "supports": true,
+              "printedAs": "Rep. J. Rohner",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "supports": false,
+              "printedAs": "Rep. M. Wheatley",
               "supersededByFloorVote": false
             },
             {
@@ -3476,6 +3794,12 @@
           "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19260",
           "votes": [
             {
+              "politicianId": "brett_garner",
+              "supports": false,
+              "printedAs": "Rep. B. Garner",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "karen_m_peterson",
               "supports": true,
               "printedAs": "Rep. K. Peterson",
@@ -3491,6 +3815,12 @@
               "politicianId": "nelson_abbott",
               "supports": true,
               "printedAs": "Rep. N. Abbott",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "susan_pulsipher",
+              "supports": true,
+              "printedAs": "Rep. S. Pulsipher",
               "supersededByFloorVote": false
             }
           ]
@@ -3538,6 +3868,12 @@
           "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19183",
           "votes": [
             {
+              "politicianId": "brian_king",
+              "supports": true,
+              "printedAs": "Rep. B. King",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "cheryl_acton",
               "supports": false,
               "printedAs": "Rep. C. Acton",
@@ -3553,6 +3889,24 @@
               "politicianId": "jon_hawkins",
               "supports": true,
               "printedAs": "Rep. J. Hawkins",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "supports": false,
+              "printedAs": "Rep. J. Rohner",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "kera_birkeland",
+              "supports": true,
+              "printedAs": "Rep. K. Birkeland",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "supports": true,
+              "printedAs": "Rep. M. Wheatley",
               "supersededByFloorVote": false
             },
             {
@@ -3618,6 +3972,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "james_cobb",
+              "supports": true,
+              "printedAs": "Rep. J. Cobb",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "james_dunnigan",
               "supports": true,
               "printedAs": "Rep. J. Dunnigan",
@@ -3633,6 +3993,12 @@
               "politicianId": "r_neil_walter",
               "supports": false,
               "printedAs": "Rep. R. Walter",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "supports": false,
+              "printedAs": "Rep. R. Lesser",
               "supersededByFloorVote": false
             },
             {
@@ -3701,6 +4067,12 @@
               "politicianId": "brammer_s21",
               "supports": true,
               "printedAs": "Rep. B. Brammer",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "brian_king",
+              "supports": false,
+              "printedAs": "Rep. B. King",
               "supersededByFloorVote": false
             },
             {
@@ -3918,9 +4290,27 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "kera_birkeland",
+              "supports": false,
+              "printedAs": "Rep. K. Birkeland",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "r_neil_walter",
               "supports": false,
               "printedAs": "Rep. R. Walter",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "steven_lund",
+              "supports": false,
+              "printedAs": "Rep. S. Lund",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "susan_pulsipher",
+              "supports": false,
+              "printedAs": "Rep. S. Pulsipher",
               "supersededByFloorVote": false
             }
           ]
@@ -3989,6 +4379,12 @@
               "politicianId": "jason_b_kyle",
               "supports": false,
               "printedAs": "Rep. J. Kyle",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "joel_briscoe",
+              "supports": true,
+              "printedAs": "Rep. J. Briscoe",
               "supersededByFloorVote": false
             },
             {
@@ -4164,6 +4560,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "kera_birkeland",
+              "supports": true,
+              "printedAs": "Rep. K. Birkeland",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "lisonbee_h14",
               "supports": true,
               "printedAs": "Rep. K. Lisonbee",
@@ -4173,6 +4575,18 @@
               "politicianId": "r_neil_walter",
               "supports": true,
               "printedAs": "Rep. R. Walter",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "steven_lund",
+              "supports": true,
+              "printedAs": "Rep. S. Lund",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "susan_pulsipher",
+              "supports": true,
+              "printedAs": "Rep. S. Pulsipher",
               "supersededByFloorVote": false
             },
             {
@@ -4297,6 +4711,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "kera_birkeland",
+              "supports": true,
+              "printedAs": "Rep. K. Birkeland",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "lisonbee_h14",
               "supports": true,
               "printedAs": "Rep. K. Lisonbee",
@@ -4306,6 +4726,18 @@
               "politicianId": "r_neil_walter",
               "supports": true,
               "printedAs": "Rep. R. Walter",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "steven_lund",
+              "supports": true,
+              "printedAs": "Rep. S. Lund",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "susan_pulsipher",
+              "supports": true,
+              "printedAs": "Rep. S. Pulsipher",
               "supersededByFloorVote": false
             },
             {
@@ -4498,6 +4930,12 @@
           "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19182",
           "votes": [
             {
+              "politicianId": "brian_king",
+              "supports": false,
+              "printedAs": "Rep. B. King",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "cheryl_acton",
               "supports": true,
               "printedAs": "Rep. C. Acton",
@@ -4516,9 +4954,21 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "kera_birkeland",
+              "supports": true,
+              "printedAs": "Rep. K. Birkeland",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "lisonbee_h14",
               "supports": true,
               "printedAs": "Rep. K. Lisonbee",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "supports": false,
+              "printedAs": "Rep. M. Wheatley",
               "supersededByFloorVote": false
             },
             {
@@ -4537,6 +4987,178 @@
               "politicianId": "tyler_clancy",
               "supports": true,
               "printedAs": "Rep. T. Clancy",
+              "supersededByFloorVote": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2024GS",
+      "utahBill": "HB0562",
+      "number": "H.B. 562",
+      "title": "Utah Fairpark Area Investment and Restoration District",
+      "chamber": "utah house",
+      "measureType": "bill",
+      "status": "enacted",
+      "sourceUrl": "https://le.utah.gov/~2024/bills/static/HB0562.html",
+      "sourceLabel": "Utah State Legislature",
+      "primeSponsor": "WILCORD",
+      "floorSponsor": "FILLML",
+      "generalProvisions": "This bill enacts and modifies provisions relating to the Utah Fairpark Area Investment and Restoration District.",
+      "textKind": "substitute_2",
+      "textUrl": "https://le.utah.gov/~2024/bills/hbillint/HB0562S02.htm",
+      "issues": [
+        {
+          "issueKey": "dev_district_finance",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Second substitute text creates the Utah Fairpark Area Investment and Restoration District with a boundary and a board, gives it an array of new local taxes and a privilege tax on state land, prohibits certain impact fees, directs enhanced property tax revenue to it, and authorizes it to own and help build a qualified stadium. Standing up a tax-capture district to finance one project is the whole bill, so a yea creates the district."
+        }
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19159",
+          "committee": "House Government Operations Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2024-02-23",
+          "motion": "Rep. Pierucci moved to pass 1st Substitute H.B. 562 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 8,
+            "nay": 2,
+            "absent": 3
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2024/pdf/00001823.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19159",
+          "votes": [
+            {
+              "politicianId": "andrew_stoddard",
+              "supports": true,
+              "printedAs": "Rep. A. Stoddard",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "brammer_s21",
+              "supports": true,
+              "printedAs": "Rep. B. Brammer",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "candice_pierucci",
+              "supports": true,
+              "printedAs": "Rep. C. Pierucci",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "cmusselman",
+              "supports": true,
+              "printedAs": "Rep. C. Musselman",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "mike_petersen",
+              "supports": false,
+              "printedAs": "Rep. M. Petersen",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "nthurston",
+              "supports": false,
+              "printedAs": "Rep. N. Thurston",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "sahara_hayes",
+              "supports": true,
+              "printedAs": "Rep. S. Hayes",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "valpeterson_h56",
+              "supports": true,
+              "printedAs": "Rep. V. Peterson",
+              "supersededByFloorVote": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "session": "2024GS",
+      "utahBill": "SB0061",
+      "number": "S.B. 61",
+      "title": "Electronic Cigarette Amendments",
+      "chamber": "utah senate",
+      "measureType": "bill",
+      "status": "enacted",
+      "sourceUrl": "https://le.utah.gov/~2024/bills/static/SB0061.html",
+      "sourceLabel": "Utah State Legislature",
+      "primeSponsor": "PLUMBJ",
+      "floorSponsor": "BRAMMB",
+      "generalProvisions": "This bill modifies provisions related to electronic cigarettes.",
+      "textKind": "substitute_5",
+      "textUrl": "https://le.utah.gov/~2024/bills/sbillint/SB0061S05.htm",
+      "issues": [
+        {
+          "issueKey": "tobacco_nicotine",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Fifth substitute text prohibits the sale of an electronic cigarette product that lacks federal market authorization, codifies a nicotine limit, bans flavored electronic cigarette products, and creates a product registry retailers must sell from. Every operative provision narrows what may be sold and who may sell it, so a yea tightens the rules on nicotine products."
+        }
+      ],
+      "committeeActs": [
+        {
+          "meetingId": "19171",
+          "committee": "House Health and Human Services Standing Committee",
+          "committeeChamber": "utah house",
+          "date": "2024-02-20",
+          "motion": "Rep. Dailey-Provost moved to pass 3rd Substitute S.B. 61 out favorably.",
+          "result": "passed",
+          "printedTotals": {
+            "yea": 9,
+            "nay": 1,
+            "absent": 4
+          },
+          "sourceUrl": "https://le.utah.gov/interim/2024/pdf/00001746.pdf",
+          "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19171",
+          "votes": [
+            {
+              "politicianId": "eliason_h45",
+              "supports": true,
+              "printedAs": "Rep. S. Eliason",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "hollins_h24",
+              "supports": true,
+              "printedAs": "Rep. S. Hollins",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "matt_macpherson",
+              "supports": false,
+              "printedAs": "Rep. M. MacPherson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "supports": true,
+              "printedAs": "Rep. R. Lesser",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "stewart_e_barlow",
+              "supports": true,
+              "printedAs": "Rep. S. Barlow",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "tim_jimenez",
+              "supports": true,
+              "printedAs": "Rep. T. Jimenez",
               "supersededByFloorVote": false
             }
           ]
@@ -4676,6 +5298,12 @@
               "politicianId": "thomas_peterson",
               "supports": true,
               "printedAs": "Rep. T. Peterson",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "tim_jimenez",
+              "supports": false,
+              "printedAs": "Rep. T. Jimenez",
               "supersededByFloorVote": false
             },
             {
@@ -4874,6 +5502,18 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "steven_lund",
+              "supports": true,
+              "printedAs": "Rep. S. Lund",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "tim_jimenez",
+              "supports": false,
+              "printedAs": "Rep. T. Jimenez",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "walt_brooks",
               "supports": true,
               "printedAs": "Rep. W. Brooks",
@@ -4930,6 +5570,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "david_buxton",
+              "supports": true,
+              "printedAs": "Sen. D. Buxton",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "lescamilla",
               "supports": true,
               "printedAs": "Sen. L. Escamilla",
@@ -4959,9 +5605,21 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "rosemary_lesser",
+              "supports": true,
+              "printedAs": "Rep. R. Lesser",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "stewart_e_barlow",
               "supports": true,
               "printedAs": "Rep. S. Barlow",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "tim_jimenez",
+              "supports": true,
+              "printedAs": "Rep. T. Jimenez",
               "supersededByFloorVote": false
             }
           ]
@@ -5185,6 +5843,12 @@
               "supports": true,
               "printedAs": "Rep. S. Barlow",
               "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "tim_jimenez",
+              "supports": false,
+              "printedAs": "Rep. T. Jimenez",
+              "supersededByFloorVote": false
             }
           ]
         }
@@ -5231,15 +5895,39 @@
           "minutesUrl": "https://le.utah.gov/MtgMinutes/PublicMinutes?requestType=getMeetingInfo&meetingID=19290",
           "votes": [
             {
+              "politicianId": "brett_garner",
+              "supports": true,
+              "printedAs": "Rep. B. Garner",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "chew_h68",
               "supports": false,
               "printedAs": "Rep. S. Chew",
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "jeffrey_stenquist",
+              "supports": true,
+              "printedAs": "Rep. J. Stenquist",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "joel_briscoe",
+              "supports": true,
+              "printedAs": "Rep. J. Briscoe",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "mark_strong",
               "supports": false,
               "printedAs": "Rep. M. Strong",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "supports": true,
+              "printedAs": "Rep. M. Wheatley",
               "supersededByFloorVote": false
             },
             {
@@ -5302,6 +5990,12 @@
               "politicianId": "jason_b_kyle",
               "supports": true,
               "printedAs": "Rep. J. Kyle",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "joel_briscoe",
+              "supports": true,
+              "printedAs": "Rep. J. Briscoe",
               "supersededByFloorVote": false
             },
             {
@@ -5574,6 +6268,12 @@
               "supersededByFloorVote": false
             },
             {
+              "politicianId": "david_buxton",
+              "supports": true,
+              "printedAs": "Sen. D. Buxton",
+              "supersededByFloorVote": false
+            },
+            {
               "politicianId": "dowens_st",
               "supports": true,
               "printedAs": "Sen. D. Owens",
@@ -5675,6 +6375,18 @@
               "politicianId": "kstratton",
               "supports": false,
               "printedAs": "Rep. K. Stratton",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "steven_lund",
+              "supports": true,
+              "printedAs": "Rep. S. Lund",
+              "supersededByFloorVote": false
+            },
+            {
+              "politicianId": "tim_jimenez",
+              "supports": true,
+              "printedAs": "Rep. T. Jimenez",
               "supersededByFloorVote": false
             },
             {

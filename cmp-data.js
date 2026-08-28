@@ -11793,6 +11793,130 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "termStart": "2011", "termEnd": "2025-12",
   "issues": []
  },
+// ── Utah committee-minutes identity rows (wave 6, Aug 2026) ───────────────
+// Sixteen Utah legislators who cast recorded committee votes in the 2023 and
+// 2024 general sessions but had no roster record, so the committee-minutes
+// ingest could not attribute their votes to a human and dropped them. Every
+// field below is copied off the Legislature's own roster page for the session
+// in question — https://le.utah.gov/asp/roster/roster.asp?year=2023 and
+// ?year=2024 — and nothing else. `score` is null and kept/broken/pending are
+// zero because no promise ledger exists for any of them; `issues` carries the
+// district as a plain fact rather than a topic guess. No termStart/termEnd:
+// the roster pages give the seat, not the tenure, and 624 other records here
+// already omit both. All sixteen read "Former" because none appears in the
+// current https://le.utah.gov/data/legislators.json in either chamber.
+ // Seated 2023 & 2024; House District 4.
+ "kera_birkeland": {
+  "name": "Kera Birkeland", "office": "Former UT State Representative",
+  "state": "UT District 4",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Utah House District 4"]
+ },
+ // Seated 2023 & 2024; Senate District 4.
+ "david_buxton": {
+  "name": "David G. Buxton", "office": "Former UT State Senator",
+  "state": "UT District 4",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Utah Senate District 4"]
+ },
+ // Seated 2023 & 2024; House District 24.
+ "joel_briscoe": {
+  "name": "Joel K. Briscoe", "office": "Former UT State Representative",
+  "state": "UT District 24",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Utah House District 24"]
+ },
+ // Seated 2023 & 2024; House District 48.
+ "james_cobb": {
+  "name": "James F. Cobb", "office": "Former UT State Representative",
+  "state": "UT District 48",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Utah House District 48"]
+ },
+ // Seated 2023 & 2024; House District 31.
+ "brett_garner": {
+  "name": "Brett Garner", "office": "Former UT State Representative",
+  "state": "UT District 31",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Utah House District 31"]
+ },
+ // Seated 2023 & 2024; House District 28.
+ "tim_jimenez": {
+  "name": "Tim Jimenez", "office": "Former UT State Representative",
+  "state": "UT District 28",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Utah House District 28"]
+ },
+ // Seated 2023 & 2024; House District 23.
+ "brian_king": {
+  "name": "Brian S. King", "office": "Former UT State Representative",
+  "state": "UT District 23",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Utah House District 23"]
+ },
+ // Seated 2023 & 2024; House District 10.
+ "rosemary_lesser": {
+  "name": "Rosemary T. Lesser", "office": "Former UT State Representative",
+  "state": "UT District 10",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Utah House District 10"]
+ },
+ // Seated 2023 & 2024; House District 66.
+ "steven_lund": {
+  "name": "Steven J. Lund", "office": "Former UT State Representative",
+  "state": "UT District 66",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Utah House District 66"]
+ },
+ // Seated 2023 & 2024; House District 45.
+ "susan_pulsipher": {
+  "name": "Susan Pulsipher", "office": "Former UT State Representative",
+  "state": "UT District 45",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Utah House District 45"]
+ },
+ // Seated 2023 & 2024; House District 30.
+ "judy_weeks_rohner": {
+  "name": "Judy Weeks Rohner", "office": "Former UT State Representative",
+  "state": "UT District 30",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Utah House District 30"]
+ },
+ // Seated 2023 & 2024; House District 42.
+ "robert_spendlove": {
+  "name": "Robert M. Spendlove", "office": "Former UT State Representative",
+  "state": "UT District 42",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Utah House District 42"]
+ },
+ // Seated 2023 & 2024; House District 46.
+ "jeffrey_stenquist": {
+  "name": "Jeffrey D. Stenquist", "office": "Former UT State Representative",
+  "state": "UT District 46",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Utah House District 46"]
+ },
+ // Seated 2023 & 2024; House District 35.
+ "mark_wheatley": {
+  "name": "Mark A. Wheatley", "office": "Former UT State Representative",
+  "state": "UT District 35",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Utah House District 35"]
+ },
+ // Seated 2023 only; Senate District 22.
+ "jacob_anderegg": {
+  "name": "Jacob L. Anderegg", "office": "Former UT State Senator",
+  "state": "UT District 22",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Utah Senate District 22"]
+ },
+ // Seated 2023 only; House District 26.
+ "quinn_kotter": {
+  "name": "Quinn Kotter", "office": "Former UT State Representative",
+  "state": "UT District 26",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": ["Utah House District 26"]
+ },
 // ── Voting Record unlock (July 2026) ──────────────────────────────────────
 // The 20 db/vr-member-map.json slugs that had ingested roll-call data but no
 // roster record, so openModal() dead-ended and the 🗳️ Voting Record section,

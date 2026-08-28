@@ -59,7 +59,7 @@
 //   node scripts/vr-utah-committee-mapping.mjs --seed     --session 2025GS
 //   node scripts/vr-utah-committee-mapping.mjs --sql      --session 2025GS --out DIR
 //   node scripts/vr-utah-committee-mapping.mjs --sql      --session 2024GS --out DIR \
-//        --bills HB0137,HB0267,HB0463 --name renamed_committee    # forward delta only
+//        --bills HB0137,HB0267,HB0463 --name renamed_committee --reason "..."
 // ─────────────────────────────────────────────────────────────────────────────
 
 import fs from "node:fs";
@@ -229,13 +229,25 @@ export function accountability(session) {
   const inBucket = new Set(bk.bills.map((b) => b.bill));
   const admitted = new Set((dec.bills || []).map((b) => b.bill));
   const refused = new Set((dec._refused || []).map((r) => r.bill));
+  // A BILL CAN LEAVE THIS BUCKET WITHOUT ANYONE HERE MOVING IT. The bucket is
+  // "had a committee vote and has NO reviewed issue mapping", so the moment another
+  // wave reviews a mapping for one of these bills it stops being this lane's
+  // problem and becomes the formal lane's — the committee-vote ingest picks it up
+  // under the keys that wave reviewed. That is a legitimate exit and it happened
+  // to four bills when vocabulary wave V1 shipped. It is still a divergence between
+  // a committed decision file and the bucket the tool recomputes, so it is not
+  // waved through: the refusal has to say so with `leftTheBucket: true`, and a flag
+  // on a bill that is still in the bucket is itself an error rather than a licence.
+  const flagged = new Set((dec._refused || []).filter((r) => r.leftTheBucket).map((r) => r.bill));
   return {
     session,
     bucket: inBucket.size,
     admitted: admitted.size,
     refused: refused.size,
     unaccounted: [...inBucket].filter((b) => !admitted.has(b) && !refused.has(b)).sort(),
-    strangers: [...admitted, ...refused].filter((b) => !inBucket.has(b)).sort(),
+    strangers: [...admitted, ...refused].filter((b) => !inBucket.has(b) && !flagged.has(b)).sort(),
+    leftBucket: [...flagged].filter((b) => !inBucket.has(b)).sort(),
+    mislabelled: [...flagged].filter((b) => inBucket.has(b)).sort(),
   };
 }
 
@@ -249,6 +261,10 @@ export function buildSeed(session) {
   if (acct.unaccounted.length) {
     throw new Error(`${acct.unaccounted.length} bill(s) in the ${session} bucket are neither admitted nor refused: ` +
       acct.unaccounted.join(", "));
+  }
+  if (acct.mislabelled.length) {
+    throw new Error(`${acct.mislabelled.length} refusal(s) in the ${session} decision file claim the bill left ` +
+      `the bucket, but the bucket still holds it: ` + acct.mislabelled.join(", "));
   }
   const tx = texts(session);
   const extraLane = new Map();
@@ -365,6 +381,19 @@ const qn = (s) => (s == null || s === "" ? "NULL" : q(s));
 // that already exists is therefore a no-op, which is what makes a partial
 // re-emission safe — a bill that gained three positions can ship its whole block
 // and only the three new rows land.
+// A one-paragraph --reason arrives as one long line; a migration header that runs
+// off the side of the terminal is a header people stop reading.
+function wrapComment(text, width) {
+  const out = [];
+  let line = "";
+  for (const w of String(text).split(/\s+/)) {
+    if (line && (line + " " + w).length > width) { out.push(line); line = w; }
+    else line = line ? `${line} ${w}` : w;
+  }
+  if (line) out.push(line);
+  return out;
+}
+
 export function buildSql(session, opts) {
   const { seed } = buildSeed(session);
   const only = opts && opts.only && opts.only.length ? new Set(opts.only) : null;
@@ -443,6 +472,12 @@ export function buildSql(session, opts) {
     L.push(`-- in an earlier migration and that file is applied, so it is not edited. This one`);
     L.push(`-- carries only the ${c.measures} bill(s) whose rows changed afterwards:`);
     for (const m of seed.measures) L.push(`--   ${m.utahBill} · ${m.number}`);
+    if (opts && opts.reason) {
+      L.push(`--`);
+      L.push(`-- WHY THEY CHANGED.`);
+      for (const line of wrapComment(opts.reason, 74)) L.push(`-- ${line}`);
+      L.push(`--`);
+    }
     L.push(`-- Each block below is the same generated block as before, unmodified: it selects the`);
     L.push(`-- measure before inserting, guards every issue mapping with NOT EXISTS, and ends every`);
     L.push(`-- position insert with ON CONFLICT DO NOTHING. Re-stating a bill that is already in`);
@@ -526,8 +561,10 @@ function main() {
     console.log(AS_JSON ? JSON.stringify(a, null, 2) :
       `${SESSION}: bucket ${a.bucket} · admitted ${a.admitted} · refused ${a.refused} · ` +
       `unaccounted ${a.unaccounted.length}${a.unaccounted.length ? " (" + a.unaccounted.slice(0, 20).join(", ") + ")" : ""}` +
-      `${a.strangers.length ? " · NOT IN BUCKET: " + a.strangers.join(", ") : ""}`);
-    if (a.unaccounted.length || a.strangers.length) process.exitCode = 1;
+      `${a.leftBucket.length ? " · LEFT THE BUCKET, IN WRITING: " + a.leftBucket.join(", ") : ""}` +
+      `${a.strangers.length ? " · NOT IN BUCKET: " + a.strangers.join(", ") : ""}` +
+      `${a.mislabelled.length ? " · FLAGGED BUT STILL IN BUCKET: " + a.mislabelled.join(", ") : ""}`);
+    if (a.unaccounted.length || a.strangers.length || a.mislabelled.length) process.exitCode = 1;
     return;
   }
   if (has("--dropped")) {
@@ -563,8 +600,11 @@ function main() {
     fs.mkdirSync(OUTDIR, { recursive: true });
     const only = val("--bills", "").split(",").map((x) => x.trim()).filter(Boolean);
     const suffix = has("--name") ? `_${val("--name", "")}` : (only.length ? "_delta" : "");
+    // --reason is prose, not a count: the tool cannot know why a seed grew, and a
+    // delta whose header cannot say why it exists makes the next reader guess.
+    const reason = val("--reason", null);
     const f = path.join(OUTDIR, `vr_utah_${SESSION.toLowerCase()}_committee_mapping${suffix}.sql`);
-    fs.writeFileSync(f, buildSql(SESSION, { only }));
+    fs.writeFileSync(f, buildSql(SESSION, { only, reason }));
     console.log(f);
     return;
   }

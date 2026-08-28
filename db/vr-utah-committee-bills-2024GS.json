@@ -778,7 +778,7 @@
      "weight": 80,
      "isPrimary": true,
      "supportMeaning": "yea_supports",
-     "rationale": "Enrolled text creates the Utah Fairpark Area Investment and Restoration District with a boundary and a board, gives it an array of new local taxes and a privilege tax on state land, prohibits certain impact fees, directs enhanced property tax revenue to it, and authorizes it to own and help build a qualified stadium. Standing up a tax-capture district to finance one project is the whole bill, so a yea creates the district."
+     "rationale": "Second substitute text creates the Utah Fairpark Area Investment and Restoration District with a boundary and a board, gives it an array of new local taxes and a privilege tax on state land, prohibits certain impact fees, directs enhanced property tax revenue to it, and authorizes it to own and help build a qualified stadium. Standing up a tax-capture district to finance one project is the whole bill, so a yea creates the district."
     }
    ]
   },
@@ -790,7 +790,7 @@
      "weight": 80,
      "isPrimary": true,
      "supportMeaning": "yea_supports",
-     "rationale": "Enrolled text prohibits the sale of an electronic cigarette product that lacks federal market authorization, codifies a nicotine limit, bans flavored electronic cigarette products, and creates a product registry retailers must sell from. Every operative provision narrows what may be sold and who may sell it, so a yea tightens the rules on nicotine products."
+     "rationale": "Fifth substitute text prohibits the sale of an electronic cigarette product that lacks federal market authorization, codifies a nicotine limit, bans flavored electronic cigarette products, and creates a product registry retailers must sell from. Every operative provision narrows what may be sold and who may sell it, so a yea tightens the rules on nicotine products."
     }
    ]
   }
@@ -926,7 +926,8 @@
   },
   {
    "bill": "HB0348",
-   "why": "Exempts a portion of certain budget reserve accounts from the State Money Management Act, authorizes the state treasurer to invest part of those reserves in precious metals, and requires a treasurer study. The vocab-wave-V1 key sound_money now carries this, and the bill was admitted on the FLOOR ledger (db/vr-utah-bills-2024GS.json) where its contested House roll is the deeper act; the committee wave has nothing to add, so this stays out of the committee pass."
+   "why": "Exempts a portion of certain budget reserve accounts from the State Money Management Act, authorizes the state treasurer to invest part of those reserves in precious metals, and requires a treasurer study. The vocab-wave-V1 key sound_money now carries this, and the bill was admitted on the FLOOR ledger (db/vr-utah-bills-2024GS.json) where its contested House roll is the deeper act; the committee wave has nothing to add, so this stays out of the committee pass.",
+   "leftTheBucket": true
   },
   {
    "bill": "HB0351",
@@ -1096,5 +1097,6 @@
    "bill": "SB0273",
    "why": "Requires the district attorney's office in a county of the first class to track time spent on criminal cases and report annually to an interim committee, with sunset review, and provides a process for recommending that the Supreme Court appoint a prosecutor pro tempore. Data collection and an appointment procedure; no shipped key has a direction on prosecutor workload reporting."
   }
- ]
+ ],
+ "_leftTheBucket": "WHAT `leftTheBucket: true` MEANS ON A REFUSAL. This lane’s bucket is “had a committee vote and has NO reviewed issue mapping”, so a bill leaves it the moment any wave reviews a mapping for it — not because anything here changed. Vocabulary wave V1 (netlify/database/migrations/20261010000000_vr_vocab_wave_v1.sql) did exactly that for the bills flagged below, and the committee-vote ingest then admitted their contested committee acts under V1’s reviewed keys, which is why those acts ship in the vr_utah_*_committee_votes migrations and not in this lane’s. The refusal stays on the record because it is still true of THIS lane: it declined to invent a mapping for the bill, and it is not retroactively claiming credit for the mapping V1 reviewed. The flag exists so that `--verify` can tell a documented exit from silent drift: without it the bill reads as a stranger and the command fails, and with it on a bill the bucket still holds the command fails the other way."
 }

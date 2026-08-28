@@ -1,12 +1,20 @@
 {
- "_comment": "REVIEWED. Utah committee-minutes printed names → PolitiDex politician ids, for the 2024 General Session. Same job and same two doors as db/vr-utah-committee-map.json, one session earlier: the roster prints a full name, the floor vote pages print \"Surname, Initials\", and a committee vote line prints \"Rep. T. Auxier\". Every entry below was accepted by hand; the tool proposes and never writes here. See db/vr-ingest-runbook.md § Utah committee votes.",
- "_howReviewed": "Three ways in, and nothing else was accepted. (1) exact_floor_key: the transposed printed form lands exactly on a key in db/vr-utah-member-map-2024GS.json, itself a hand-reviewed file confirmed against the legislature's roster for 2024. 64 of the 88 forms resolved this way and inherit that review. (2) unique_surname_confirmed_by_attendance: the printed initials are shorter than the floor key's, so the two do not meet. Those 10 were resolved only where the surname is unique in that chamber's floor map AND the SAME meeting's own attendance list names exactly one member with that surname AND that attendance line's full name agrees with both the vote line's initials and the floor key's. `confirmedBy` records the attendance line that did it. Rep. R. Walter is again the case that makes the door necessary: the committee prints \"Rep. R. Walter\", the floor page prints \"Walter, N.\", and only \"Rep. R. Neil Walter\" on the attendance list shows they are one person. (3) unique_surname_on_session_roster, NEW IN WAVE 6: 14 forms whose surname appears nowhere in either chamber of the 2024 floor map, because the person was never attributed a floor vote on the 28 bills wave 2 ingested for this session. See `_theRosterDoor`.",
- "_unmappedIsCoverage": "THE COVERAGE GAP IS CLOSED, AND `unmapped` IS NOW EMPTY. Wave 4 left 18 printed names written to nobody and 151 committee positions dropped across the 104 acts the 2024 lane then held. Wave 6 read the Legislature's 2024 roster page, found that each of the 18 matched exactly one member of the printed chamber with an agreeing given initial, and closed 14 of them through door (3) above by adding the 14 missing identity rows to cmp-data.js. The remaining four are in `_refusedNames`, not here: after the roster was read they stopped being gaps someone could close and became decisions not to close them. That distinction is the reason the two ledgers are kept apart, and it is why this key now records a closed gap rather than an open one. Re-derive the remainder with `node scripts/vr-utah-committee-mapping.mjs --dropped --session 2024GS` rather than hand-totalling it: distinct names and dropped votes are two different numbers, and the second is the one that measures what is not being published.",
- "_refusalNotes": "FOUR REFUSALS, AND THEY ARE DECISIONS RATHER THAN GAPS. `_refusedNames` holds \"Rep. D. Johnson\", \"Rep. M. Judkins\", \"Rep. P. Lyman\" and \"Sen. M. Kennedy\". Judkins and Lyman were already refused on the floor pages by db/vr-utah-member-map-2024GS.json, and a committee minute is not a second chance to attribute a name an earlier wave declined; the roster does hold records under both names, but marsha_judkins_provo is the Mayor of Provo and lyman is a gubernatorial candidate — the same two humans in different offices, so attributing a legislative committee vote to either record would file it under an office they did not hold, while creating a second record would split one person in two. \"Sen. M. Kennedy\" is the same shape one level up: the roster's kennedy is Mike Kennedy of the U.S. House, held under a federal politician id and deliberately outside this state lane, and Michael S. Kennedy of Senate District 21 is that same person one office earlier. \"Rep. D. Johnson\" prints in the HOUSE while the roster's only Utah Johnson is john_johnson, a state SENATOR — and both hold District 3, which makes it the most dangerous near-match in the file rather than the easiest, since a reader who saw the district agree could not tell the attribution was to the wrong chamber and the wrong person. Nothing reached this file as a fresh ambiguity: a printed form matching two members of the same chamber would be listed here and refused, not folded into a resolution.",
- "session": "2024GS",
- "generatedFrom": "scripts/vr-utah-committee-ingest.mjs --collect --session 2024GS (proposals), reviewed by hand",
+ "_comment": "REVIEWED. Utah committee-minutes printed names → PolitiDex politician ids, for the 2023 General Session. Same job and same doors as db/vr-utah-committee-map.json and db/vr-utah-committee-map-2024GS.json, one session earlier again: the roster prints a full name, the floor vote pages print \"Surname, Initials\", and a committee vote line prints \"Rep. B. Garner\". Every entry below was accepted by hand; the tool proposes and never writes here. See db/vr-ingest-runbook.md § Utah committee votes.",
+ "_reviewedForThisSession": "THIS FILE WAS BUILT FOR 2023 AND NOT COPIED FROM 2024 OR 2025, AND THE MEMBERSHIP IS THE REASON. Utah's 2023 and 2024 rosters are not the same roster: Sen. Jacob L. Anderegg (Senate 22) and Rep. Quinn Kotter (House 26) both sat in 2023 and neither appears in 2024 — Senate 22 is Balderree and House 26 is MacPherson by the 2024 session — so two of the printed forms resolved below have no counterpart in the 2024 file at all, and a reused map would have dropped their votes while looking complete. Every entry was proposed afresh by --collect against db/vr-utah-member-map-2023GS.json and the 2023 minutes' own attendance lists, and every roster-door entry was checked against the Legislature's 2023 roster page (https://le.utah.gov/asp/roster/roster.asp?year=2023) rather than 2024's.",
+ "_howReviewed": "Three ways in, and nothing else was accepted. (1) exact_floor_key: the transposed printed form lands exactly on a key in db/vr-utah-member-map-2023GS.json, itself a hand-reviewed file confirmed against the legislature's roster for 2023. 65 of the 89 forms resolved this way and inherit that review. (2) unique_surname_confirmed_by_attendance: the printed initials are shorter than the floor key's, so the two do not meet. Those 9 were resolved only where the surname is unique in that chamber's floor map AND the SAME meeting's own attendance list names exactly one member with that surname AND that attendance line's full name agrees with both the vote line's initials and the floor key's. `confirmedBy` records the attendance line that did it — \"Sen. J. Adams\" against \"Adams, J. Stuart\" needed \"President J. S. Adams\" on the attendance list, and \"Sen. D. Owens\" is the case that shows why the door is per-chamber: 2023 seats both Derrin R. Owens in the Senate and Doug Owens in the House, and only the Senate half of the floor map is consulted for a form printed \"Sen.\". (3) unique_surname_on_session_roster, NEW IN WAVE 6: 15 forms whose surname appears nowhere in either chamber of the 2023 floor map, because the person was never attributed a floor vote on the 40 bills wave 1 ingested for this session. See `_theRosterDoor` for exactly what was required and what was refused.",
+ "_theRosterDoor": "WHAT THE THIRD DOOR REQUIRES, AND WHY IT IS NOT A FUZZY MATCH. A printed committee form carries a chamber, one given initial and a surname — \"Rep. B. Garner\" is House, B, Garner. The door opens only when the Legislature's own roster page for THIS session lists exactly one member of THAT chamber with that surname, and that member's given name begins with that initial. One roster row in, one human out: there is no string distance, no nickname table, no scoring and no threshold to tune, and a second same-surname member in the same chamber closes the door rather than starting a comparison. `confirmedBy` records the roster row verbatim — surname, given name, office, party, district — so a reader can check the resolution against the same line the reviewer read. The politician ids on the other side of the door were created in cmp-data.js by this same wave from those same roster rows and carry name, office, state, district and party and nothing else: no score, no promise ledger, no stances. That is the point of the door — it closes an identity gap, and it is not licensed to invent a position.",
+ "_refusalNotes": "FOUR REFUSALS, AND THEY ARE DECISIONS RATHER THAN GAPS. `_refusedNames` holds \"Rep. D. Johnson\", \"Rep. M. Judkins\", \"Rep. P. Lyman\" and \"Sen. M. Kennedy\", and `unmapped` is empty: after wave 6 there is no printed form in this session that nobody has looked at. The distinction the doctrine draws is the whole point — an unmapped name is a coverage gap someone could close, a refused name is a decision not to close it — and these four moved from the first ledger to the second because the roster was read and the answer was still no. Their votes are dropped and counted as refused, in votes and not merely in names: 19 committee positions across the 40 acts this session admits, of which Sen. M. Kennedy is 8, Rep. D. Johnson 7, Rep. P. Lyman 3 and Rep. M. Judkins 1. Re-derive that with the tool rather than hand-totalling it; distinct names and refused votes are two different numbers.",
+ "_whyEachRefusal": "(1) \"Rep. D. Johnson\" prints in the HOUSE, and 2023 seats Dan N. Johnson in House District 3 and John D. Johnson in Senate District 3. The roster holds a record for the senator — john_johnson, UT State Senator — and the identical district number makes this the most dangerous near-match in the file rather than the easiest: a reader who saw \"District 3\" agree would have no way to tell the attribution was to the wrong chamber and the wrong person. The roster door is per-chamber precisely so this form cannot open it, and no identity row was added for the representative either, because adding one while a same-surname same-district record exists in the other chamber invites exactly the confusion the refusal avoids. (2) \"Rep. M. Judkins\" and (3) \"Rep. P. Lyman\" were already refused on the floor pages by db/vr-utah-member-map-2023GS.json, which lists \"Judkins, M.\" and \"Lyman, P.\" among its own refusals, and a committee minute is not a second chance to attribute a name an earlier wave declined. The roster does hold records under both names — marsha_judkins_provo is the Mayor of Provo and lyman is a gubernatorial candidate — and they are the same two humans in different offices, so attributing a 2023 legislative committee vote to either record would file a legislator's vote under an office they did not hold, while creating a second record would split one person in two. (4) \"Sen. M. Kennedy\": the roster's kennedy is Mike Kennedy, a member of the U.S. House, held under a federal politician id and deliberately outside this state lane. Michael S. Kennedy of Senate District 21 is that same person one office earlier; writing his 2023 committee votes onto the federal record would mix two legislatures in one ledger, and writing them onto a new state record would duplicate him. None of these four is a fuzzy-match candidate and none is waiting on a closer string comparison.",
+ "_nearCollisions": "NAMES THAT LOOK RESOLVABLE AND WERE CHECKED ANYWAY. Beyond the four refusals, the surnames the roster door opened were each checked for a same-chamber twin before the door was used, and three needed the check: King (2023 seats Brian S. King in the House and no Senate King; the roster's angus_king and nancy_king are a U.S. Senator from Maine and a Maryland state senator, neither of them this person), Pulsipher (roger_pulsipher in the roster sits on the Cache County School Board — a different given name and a different office, so no same-name conflict), and Owens, handled by door (2) above. No printed form matched two members of the same chamber; had one, it would be listed here and refused rather than folded into a resolution.",
+ "session": "2023GS",
+ "generatedFrom": "scripts/vr-utah-committee-ingest.mjs --collect --session 2023GS (proposals), reviewed by hand",
  "printedForms": {
   "H": {
+   "Rep. A. Loubet": {
+    "politicianId": "anthony_loubet",
+    "floorKey": "Loubet, A.",
+    "how": "exact_floor_key"
+   },
    "Rep. A. Maloy": {
     "politicianId": "cory_maloy_h52",
     "floorKey": "Maloy, A. Cory",
@@ -33,11 +41,6 @@
     "floorKey": "Bolinder, B.",
     "how": "exact_floor_key"
    },
-   "Rep. B. Brammer": {
-    "politicianId": "brammer_s21",
-    "floorKey": "Brammer, B.",
-    "how": "exact_floor_key"
-   },
    "Rep. B. Garner": {
     "politicianId": "brett_garner",
     "how": "unique_surname_on_session_roster",
@@ -52,7 +55,7 @@
     "politicianId": "cheryl_acton",
     "floorKey": "Acton, C.K.",
     "how": "unique_surname_confirmed_by_attendance",
-    "confirmedBy": "Rep. Cheryl K. Acton"
+    "confirmedBy": "Rep. Cheryl K. Acton, Vice Chair"
    },
    "Rep. C. Albrecht": {
     "politicianId": "carl_albrecht",
@@ -73,16 +76,11 @@
     "politicianId": "cmusselman",
     "floorKey": "Musselman, C.R.",
     "how": "unique_surname_confirmed_by_attendance",
-    "confirmedBy": "Rep. Calvin R. Musselman"
+    "confirmedBy": "Rep. Calvin R. Musselman, Chair"
    },
    "Rep. C. Pierucci": {
     "politicianId": "candice_pierucci",
     "floorKey": "Pierucci, C.",
-    "how": "exact_floor_key"
-   },
-   "Rep. C. Snider": {
-    "politicianId": "snider_h5",
-    "floorKey": "Snider, C.",
     "how": "exact_floor_key"
    },
    "Rep. C. Watkins": {
@@ -95,15 +93,15 @@
     "floorKey": "Owens, D.",
     "how": "exact_floor_key"
    },
+   "Rep. D. Welton": {
+    "politicianId": "doug_welton",
+    "floorKey": "Welton, D.",
+    "how": "exact_floor_key"
+   },
    "Rep. G. Bennion": {
     "politicianId": "gay_lynn_bennion",
     "floorKey": "Bennion, G.",
     "how": "exact_floor_key"
-   },
-   "Rep. J. Briscoe": {
-    "politicianId": "joel_briscoe",
-    "how": "unique_surname_on_session_roster",
-    "confirmedBy": "Briscoe, Joel K. · Representative · Democrat · 24"
    },
    "Rep. J. Burton": {
     "politicianId": "jefferson_burton",
@@ -115,9 +113,9 @@
     "how": "unique_surname_on_session_roster",
     "confirmedBy": "Cobb, James F. · Representative · Republican · 48"
    },
-   "Rep. J. Dunnigan": {
-    "politicianId": "james_dunnigan",
-    "floorKey": "Dunnigan, J.",
+   "Rep. J. Dailey-Provost": {
+    "politicianId": "jennifer_dailey_provost",
+    "floorKey": "Dailey-Provost, J.",
     "how": "exact_floor_key"
    },
    "Rep. J. Elison": {
@@ -151,11 +149,6 @@
     "how": "unique_surname_on_session_roster",
     "confirmedBy": "Stenquist, Jeffrey D. · Representative · Republican · 46"
    },
-   "Rep. J. Teuscher": {
-    "politicianId": "teuscher_h44",
-    "floorKey": "Teuscher, J.",
-    "how": "exact_floor_key"
-   },
    "Rep. K. Birkeland": {
     "politicianId": "kera_birkeland",
     "how": "unique_surname_on_session_roster",
@@ -171,6 +164,11 @@
     "floorKey": "Hall, K.",
     "how": "exact_floor_key"
    },
+   "Rep. K. Ivory": {
+    "politicianId": "ivory_h39",
+    "floorKey": "Ivory, K.",
+    "how": "exact_floor_key"
+   },
    "Rep. K. Lisonbee": {
     "politicianId": "lisonbee_h14",
     "floorKey": "Lisonbee, K.",
@@ -179,11 +177,6 @@
    "Rep. K. Peterson": {
     "politicianId": "karen_m_peterson",
     "floorKey": "Peterson, K.",
-    "how": "exact_floor_key"
-   },
-   "Rep. K. Stratton": {
-    "politicianId": "kstratton",
-    "floorKey": "Stratton, K.",
     "how": "exact_floor_key"
    },
    "Rep. M. Ballard": {
@@ -202,21 +195,15 @@
     "floorKey": "Kohler, M.",
     "how": "exact_floor_key"
    },
-   "Rep. M. MacPherson": {
-    "politicianId": "matt_macpherson",
-    "floorKey": "MacPherson, M.",
-    "how": "exact_floor_key"
-   },
    "Rep. M. Petersen": {
     "politicianId": "mike_petersen",
     "floorKey": "Petersen, M.",
     "how": "exact_floor_key"
    },
-   "Rep. M. Strong": {
-    "politicianId": "mark_strong",
-    "floorKey": "Strong, M.A.",
-    "how": "unique_surname_confirmed_by_attendance",
-    "confirmedBy": "Rep. Mark A. Strong"
+   "Rep. M. Schultz": {
+    "politicianId": "mschultz",
+    "floorKey": "Schultz, M.",
+    "how": "exact_floor_key"
    },
    "Rep. M. Wheatley": {
     "politicianId": "mark_wheatley",
@@ -233,6 +220,11 @@
     "floorKey": "Thurston, N.",
     "how": "exact_floor_key"
    },
+   "Rep. Q. Kotter": {
+    "politicianId": "quinn_kotter",
+    "how": "unique_surname_on_session_roster",
+    "confirmedBy": "Kotter, Quinn · Representative · Republican · 26"
+   },
    "Rep. R. Lesser": {
     "politicianId": "rosemary_lesser",
     "how": "unique_surname_on_session_roster",
@@ -242,7 +234,7 @@
     "politicianId": "rshipp",
     "floorKey": "Shipp, R.P.",
     "how": "unique_surname_confirmed_by_attendance",
-    "confirmedBy": "Rep. Rex P. Shipp, Vice Chair"
+    "confirmedBy": "Rep. Rex P. Shipp"
    },
    "Rep. R. Spendlove": {
     "politicianId": "robert_spendlove",
@@ -251,9 +243,13 @@
    },
    "Rep. R. Walter": {
     "politicianId": "r_neil_walter",
-    "floorKey": "Walter, N.",
-    "how": "unique_surname_confirmed_by_attendance",
-    "confirmedBy": "Rep. R. Neil Walter"
+    "floorKey": "Walter, R.",
+    "how": "exact_floor_key"
+   },
+   "Rep. R. Ward": {
+    "politicianId": "rward",
+    "floorKey": "Ward, R.",
+    "how": "exact_floor_key"
    },
    "Rep. R. Wilcox": {
     "politicianId": "ryan_d_wilcox",
@@ -273,6 +269,11 @@
    "Rep. S. Eliason": {
     "politicianId": "eliason_h45",
     "floorKey": "Eliason, S.",
+    "how": "exact_floor_key"
+   },
+   "Rep. S. Gricius": {
+    "politicianId": "gricius_h50",
+    "floorKey": "Gricius, S.",
     "how": "exact_floor_key"
    },
    "Rep. S. Hayes": {
@@ -362,11 +363,6 @@
     "floorKey": "Ipson, D.",
     "how": "exact_floor_key"
    },
-   "Sen. D. McCay": {
-    "politicianId": "mccay_s11",
-    "floorKey": "McCay, D.",
-    "how": "exact_floor_key"
-   },
    "Sen. D. Owens": {
     "politicianId": "dowens_st",
     "floorKey": "Owens, D.R.",
@@ -383,9 +379,25 @@
     "floorKey": "Vickers, E.",
     "how": "exact_floor_key"
    },
+   "Sen. J. Adams": {
+    "politicianId": "sadams",
+    "floorKey": "Adams, J. Stuart",
+    "how": "unique_surname_confirmed_by_attendance",
+    "confirmedBy": "President J. S. Adams"
+   },
+   "Sen. J. Anderegg": {
+    "politicianId": "jacob_anderegg",
+    "how": "unique_surname_on_session_roster",
+    "confirmedBy": "Anderegg, Jacob L. · Senator · Republican · 22"
+   },
    "Sen. J. Johnson": {
     "politicianId": "john_johnson",
     "floorKey": "Johnson, J.",
+    "how": "exact_floor_key"
+   },
+   "Sen. J. Plumb": {
+    "politicianId": "jennifer_plumb",
+    "floorKey": "Plumb, J.",
     "how": "exact_floor_key"
    },
    "Sen. J. Stevenson": {
@@ -453,11 +465,6 @@
     "politicianId": "tweiler",
     "floorKey": "Weiler, T.",
     "how": "exact_floor_key"
-   },
-   "Sen. W. Harper": {
-    "politicianId": "harper_s16",
-    "floorKey": "Harper, W.",
-    "how": "exact_floor_key"
    }
   }
  },
@@ -474,8 +481,5 @@
   "S": [
    "Sen. M. Kennedy"
   ]
- },
- "_lateAdditions": "SEVEN FORMS ARRIVED AFTER THE FIRST REVIEW, AND NOT BECAUSE THE BAR MOVED. The three House Business, Labor, and Commerce acts on H.B. 137, H.B. 267 and H.B. 463 were refused in the first pass because the minutes PDF is headed with the committee's former name (\"HOUSE BUSINESS AND LABOR\"), so the published-PDF cross-check never got as far as resolving their vote lines and the people on them were never proposed. With the renamed-committee door widened to match the name as a sequence of significant words rather than as one string, those three acts confirm on all four checks and their fifteen printed forms arrive for review. Seven were new: Rep. A. Matthews, Rep. B. Brammer, Rep. J. Dunnigan, Rep. J. Teuscher and Rep. N. Thurston through door (1), landing exactly on keys wave 2 already reviewed for this same session; Rep. A. Maloy (\"Maloy, A. Cory\") and Rep. C. Musselman (\"Musselman, C.R.\") through door (2), each confirmed by that meeting's own attendance list. Rep. B. King was the eighth and was dropped at the time by the same rule as before: no Brian S. King entry existed in the 2024 floor map, so there was nobody to attribute the vote to. Wave 6 resolved him through door (3) instead — the 2024 roster lists exactly one House King, Brian S. of District 23 — so this paragraph now describes a gap that has since been closed rather than an open one. Two of the seven — Brammer and Musselman — sit in the roster as senators today; the mapping is to the person, and it is the mapping wave 2 accepted for this session's floor votes under the same key.",
- "_nearCollisions": "SURNAMES THAT WERE CHECKED BEFORE THE ROSTER DOOR WAS USED. Every one of the 14 resolutions was tested for a same-chamber twin on the 2024 roster first, and three needed more than a glance: King (2024 seats Brian S. King in the House and no Senate King; the roster's angus_king and nancy_king are a U.S. Senator from Maine and a Maryland state senator, neither of them this person), Pulsipher (roger_pulsipher in the roster sits on the Cache County School Board — a different given name and a different office, so no same-name conflict), and Johnson, which failed the test and is refused above. The five names wave 4's wider lane surfaced — Garner, Lesser, Spendlove, Stenquist and Wheatley — were never collisions at all: the 2024 floor map held no record with any of those surnames in either chamber, so there was no candidate to compare against, and the roster door resolved each of them on a single unambiguous roster row.",
- "_theRosterDoor": "WHAT THE THIRD DOOR REQUIRES, AND WHY IT IS NOT A FUZZY MATCH. A printed committee form carries a chamber, one given initial and a surname — \"Rep. B. Garner\" is House, B, Garner. The door opens only when the Legislature's own roster page for THIS session (https://le.utah.gov/asp/roster/roster.asp?year=2024, the same source db/vr-utah-member-map-2024GS.json cites) lists exactly one member of THAT chamber with that surname, and that member's given name begins with that initial. One roster row in, one human out: no string distance, no nickname table, no scoring and no threshold to tune, and a second same-surname member in the same chamber closes the door rather than starting a comparison. `confirmedBy` records the roster row verbatim so a reader can check the resolution against the same line the reviewer read. The 14 politician ids on the other side of the door were created in cmp-data.js by this same wave from those same roster rows and carry name, office, state, district and party and nothing else: no score, no promise ledger, no stances. The door closes an identity gap; it is not licensed to invent a position. All fourteen read \"Former\" because none of them appears in the current https://le.utah.gov/data/legislators.json in either chamber, and none carries a termStart or termEnd because a roster page states the seat and not the tenure."
+ }
 }

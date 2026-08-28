@@ -10,8 +10,11 @@
 // quietly — so this harness fences the six ways it could rot:
 //
 //   1. ACCOUNTABILITY. Every bill in the refusal bucket is decided, once. No bill
-//      is both admitted and refused, no stranger is decided, none is skipped.
-//   2. NO NEW VOCABULARY. Every admitted key is one of the 118 shipped keys, and
+//      is both admitted and refused, no stranger is decided, none is skipped. A
+//      bill that LEFT the bucket because another wave reviewed a mapping for it is
+//      a documented exit, flagged `leftTheBucket` on its refusal, and an unflagged
+//      one still fails.
+//   2. NO NEW VOCABULARY. Every admitted key is one of the 121 shipped keys, and
 //      the shipped key list is byte-unchanged in count. The pass had a standing
 //      instruction to refuse rather than invent, and this is what that looks like
 //      as a test.
@@ -27,10 +30,14 @@
 //      committee_vote positions and reviewed mappings and nothing else: no
 //      rollcall, no member vote, no floor action code, no weight, no threshold.
 //   6. THE FLOORS DID NOT MOVE. The Utah formal pattern index is re-measured
-//      through the shipped module: the pre-wave triple still reads 10 / 4 / 102,
-//      and the post-wave triple is whatever the shipped tiers say it is — including
-//      the one issue that lost its characterisation, which is disclosed here
-//      rather than repaired by dropping the committee vote that contradicts it.
+//      through the shipped module: the pre-wave triple reads 10 / 20 / 102 on a
+//      132-member roster, and the post-wave triple is whatever the shipped tiers
+//      say it is — including the one issue that lost its characterisation, which is
+//      disclosed here rather than repaired by dropping the committee vote that
+//      contradicts it. Tier MEMBERSHIP is checked and not only tier size: the ten
+//      empty members are the same ten, nobody loses a readable record, and each of
+//      wave 6's 16 identity-only roster rows lands on thin — the tier that says
+//      "real material, not enough pattern to characterise".
 //
 //   node scripts/test-vr-utah-committee-mapping.mjs
 import { readFileSync, existsSync, readdirSync } from "node:fs";
@@ -76,9 +83,11 @@ for (const s of SESSIONS) {
 // drift. It compares distinct measures and distinct positions instead, and it
 // checks both directions, so a row that quietly disappeared from the seed after
 // being written to the database fails here rather than going unnoticed.
-const MIGS = { "2025GS": ["netlify/database/migrations/20261006000000_vr_utah_2025gs_committee_mapping.sql"],
+const MIGS = { "2025GS": ["netlify/database/migrations/20261006000000_vr_utah_2025gs_committee_mapping.sql",
+                          "netlify/database/migrations/20261016000000_vr_utah_2025gs_committee_mapping_v1_committee_only_bills.sql"],
                "2024GS": ["netlify/database/migrations/20261007000000_vr_utah_2024gs_committee_mapping.sql",
-                          "netlify/database/migrations/20261008000000_vr_utah_2024gs_committee_mapping_renamed_committee.sql"] };
+                          "netlify/database/migrations/20261008000000_vr_utah_2024gs_committee_mapping_renamed_committee.sql",
+                          "netlify/database/migrations/20261015000000_vr_utah_2024gs_committee_mapping_roster_rows_and_v1_bills.sql"] };
 for (const s of SESSIONS) for (const f of MIGS[s]) must(existsSync(join(ROOT, f)), `${s}: ${f} is missing`);
 const SQL = {};
 for (const s of SESSIONS) SQL[s] = MIGS[s].map((f) => R(f)).join("\n");
@@ -119,10 +128,42 @@ section("1 · every bill in the bucket is decided, exactly once");
     execFileSync(process.execPath,
     [join(ROOT, "scripts/vr-utah-committee-mapping.mjs"), "--verify", "--session", "2024GS"],
     { cwd: ROOT, encoding: "utf8" });
-  has(out, "2025GS: bucket 173 · admitted 76 · refused 97 · unaccounted 0",
-    "2025GS: the whole 173-bill bucket is decided, with nothing unaccounted");
-  has(out, "2024GS: bucket 141 · admitted 64 · refused 77 · unaccounted 0",
-    "2024GS: the whole 141-bill bucket is decided, with nothing unaccounted");
+  has(out, "2025GS: bucket 170 · admitted 78 · refused 95 · unaccounted 0",
+    "2025GS: the whole 170-bill bucket is decided, with nothing unaccounted");
+  has(out, "2024GS: bucket 140 · admitted 66 · refused 75 · unaccounted 0",
+    "2024GS: the whole 140-bill bucket is decided, with nothing unaccounted");
+  // THE BUCKET SHRANK WHILE THE ADMITTED COUNT GREW, AND THAT IS DISCLOSED RATHER
+  // THAN QUIET. The bucket is "bills with a committee vote and NO reviewed issue
+  // mapping", so vocabulary wave V1 reviewing a mapping for four of them moved them
+  // out of this lane and into the formal one. Their refusals stay on the record —
+  // this lane really did decline to map them — flagged `leftTheBucket: true`, which
+  // is what tells --verify a documented exit from silent drift. An unflagged one is
+  // still a failure, and a flag on a bill the bucket still holds is a failure the
+  // other way.
+  has(out, "LEFT THE BUCKET, IN WRITING: SB0026, SB0316, SB0336",
+    "2025GS: the three bills V1 mapped out of the bucket are named, not dropped");
+  has(out, "LEFT THE BUCKET, IN WRITING: HB0348",
+    "2024GS: … and so is 2024's one");
+  lacks(out, "NOT IN BUCKET", "no session names a bill it cannot account for");
+  lacks(out, "FLAGGED BUT STILL IN BUCKET",
+    "no refusal claims an exit the recomputed bucket contradicts");
+  for (const s of SESSIONS) {
+    const a = JSON.parse(execFileSync(process.execPath,
+      [join(ROOT, "scripts/vr-utah-committee-mapping.mjs"), "--verify", "--session", s, "--json"],
+      { cwd: ROOT, encoding: "utf8" }));
+    eq(a.mislabelled.length, 0, `${s}: no leftTheBucket flag sits on a bill still in the bucket`);
+    for (const b of a.leftBucket) {
+      const r = DEC[s]._refused.find((x) => x.bill === b);
+      ok(r && /vocab-wave-V1|vocabulary wave V1/.test(String(r.why)),
+        `${s}: ${b}'s refusal says which wave took it out of this lane`);
+      ok(!DEC[s].bills.some((x) => x.bill === b),
+        `${s}: ${b} is not also admitted here — one lane maps a bill, not two`);
+      ok(!SEED[s].measures.some((m) => m.utahBill === b),
+        `${s}: ${b} carries no measure in this lane's seed`);
+    }
+    has(String(DEC[s]._leftTheBucket || ""), "leftTheBucket",
+      `${s}: the decision file explains the flag in its own words`);
+  }
   lacks(out, "unaccounted 1", "no session leaves a bill undecided");
 
   for (const s of SESSIONS) {
@@ -138,7 +179,15 @@ section("2 · no key was invented for this pass");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const shipped = J("db/issue-keys.json");
-  eq(shipped.count, 118, "the shipped issue vocabulary is still 118 keys");
+  // 118 while wave 4 shipped, 121 now. The three are sound_money,
+  // tobacco_nicotine and dev_district_finance, and they were reviewed and shipped
+  // by vocabulary wave V1 (20261010000000) — not by this lane, which is exactly
+  // what this section exists to establish. The pin moves when a reviewed wave adds
+  // a key and never because a mapping pass wanted one.
+  eq(shipped.count, 121, "the shipped issue vocabulary is 121 keys, the three V1 added included");
+  for (const k of ["sound_money", "tobacco_nicotine", "dev_district_finance"]) {
+    ok(shipped.keys.includes(k), `${k} is a shipped key, reviewed by V1 rather than invented here`);
+  }
   eq(shipped.keys.length, shipped.count, "…and the list matches its own count");
   const allowed = new Set(shipped.keys);
   for (const s of SESSIONS) {
@@ -341,13 +390,22 @@ section("5 · the migrations add mappings and committee positions, and nothing e
     eq(rows.mappings.size, SEED[s].counts.issueMappings,
       `${s}: the migrations write exactly the seed's ${SEED[s].counts.issueMappings} reviewed mappings`);
   }
-  // The wave-1/2 seed family is untouched, so the shipped 54/42 assertions elsewhere
-  // in this suite still describe the same file.
+  // THIS LANE STILL ADDS NOTHING TO THE FLOOR SEED. The pin was 54/42 while wave 4
+  // shipped and is 58/46 now: vocabulary wave V1 reviewed four mappings straight
+  // onto floor-seed measures — which is how those four bills left this lane's
+  // bucket — and every one of them carries its own primary. The point of the pin is
+  // unchanged: a committee-mapping pass must not be able to write a floor mapping,
+  // so the delta is checked to be exactly V1's four and nothing else.
   const floor = J("db/vr-utah-vote-seed.json");
   const mappings = floor.measures.reduce((n, m) => n + (m.issues || []).length, 0);
   const primaries = floor.measures.reduce((n, m) => n + (m.issues || []).filter((i) => i.isPrimary).length, 0);
-  eq(mappings, 54, "wave 4 added no mapping to the wave-1/2 floor seed");
-  eq(primaries, 42, "…and no primary either");
+  eq(mappings, 58, "the wave-1/2 floor seed holds 58 mappings — V1's four, and nothing this lane wrote");
+  eq(primaries, 46, "…and 46 primaries, one per bill V1 mapped");
+  const V1KEYS = new Set(["sound_money", "tobacco_nicotine", "dev_district_finance"]);
+  const onFloor = floor.measures.flatMap((m) => (m.issues || [])
+    .filter((i) => V1KEYS.has(i.issueKey)).map((i) => `${m.utahBill}:${i.issueKey}`));
+  eq(onFloor.length, mappings - 54,
+    `the floor seed grew by exactly the V1-key mappings (${onFloor.join(", ")})`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -361,10 +419,38 @@ section("6 · the floors did not move, measured through the shipped index");
   // harness that cannot reproduce the number it is diffing against is measuring
   // something else.
   eq(M.before.empty, 10, "before: 10 members on the Utah roster hold nothing formal");
-  eq(M.before.thin, 4, "before: 4 members hold material the engine will not characterise");
   eq(M.before.readable, 102, "before: 102 members have a record that reads");
-  eq(M.before.members, 116, "the roster denominator is the same 116 either way");
+  // 4 while wave 4 shipped, 20 now, and the 16 are named rather than absorbed. Wave
+  // 6 added 16 identity-only rows to cmp-data.js for legislators who cast recorded
+  // committee votes in 2023 and 2024 and had no roster record at all, so the
+  // denominator grew from 116 to 132. Every one of them lands on THIN, which is the
+  // honest tier for them: they hold real committee positions and not enough of a
+  // pattern for the engine to characterise. None of them lands on EMPTY, so no row
+  // was added that carries nothing, and none of them lands on READABLE, so no
+  // identity row bought a characterisation it did not earn.
+  eq(M.before.thin, 20, "before: 20 members hold material the engine will not characterise");
+  eq(M.before.members, 132, "the roster denominator is the same 132 either way");
   eq(M.after.members, M.before.members, "wave 4 added no member to the roster");
+  {
+    const ROWS6 = ["jacob_anderegg", "kera_birkeland", "joel_briscoe", "david_buxton", "james_cobb",
+      "brett_garner", "tim_jimenez", "brian_king", "quinn_kotter", "rosemary_lesser", "steven_lund",
+      "susan_pulsipher", "judy_weeks_rohner", "robert_spendlove", "jeffrey_stenquist", "mark_wheatley"];
+    eq(ROWS6.length, 16, "the 16 wave-6 identity rows are enumerated, not counted from a total");
+    for (const w of ["before", "after"]) {
+      const bands = M[w].bands;
+      must(bands && Array.isArray(bands.thin), "the index does not report band membership");
+      const notThin = ROWS6.filter((p) => !bands.thin.includes(p));
+      eq(notThin.length, 0, `${w}: every wave-6 identity row is thin, not empty and not readable ` +
+        `(${notThin.join(", ")})`);
+    }
+    // AND THE TIERS DID NOT JUST HOLD THEIR SIZE — THEY HELD THEIR MEMBERSHIP. The
+    // ten empty members are the same ten, so nothing fell into the tier that means
+    // "nothing on file", which is the collapse this check exists to rule out.
+    eq(M.after.bands.empty.join(","), M.before.bands.empty.join(","),
+      "nobody entered or left the empty tier when wave 4's positions were added");
+    const lostRead = M.before.bands.readable.filter((p) => !M.after.bands.readable.includes(p));
+    eq(lostRead.length, 0, `no member lost a readable record (${lostRead.join(", ")})`);
+  }
   eq(M.after.empty, 10, "after: wave 4 reached nobody who had nothing — committee votes only reach sitting members who already voted");
   ok(M.after.readable >= M.before.readable,
     `after: no member lost a readable record (${M.before.readable} → ${M.after.readable})`);

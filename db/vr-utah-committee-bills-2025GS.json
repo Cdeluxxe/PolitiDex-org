@@ -957,7 +957,7 @@
      "weight": 70,
      "isPrimary": true,
      "supportMeaning": "yea_supports",
-     "rationale": "Enrolled text lets severance and income taxes be paid in gold, sets a reduced severance rate for a mine operator who remits in gold, and creates an income tax credit for doing so. Making the state accept metal as payment, and paying operators to use it, is the whole bill, so a yea widens the role of specie. The reduced rate and the credit are the inducement to remit in gold rather than a tax-policy ask of their own, which is why lower_taxes is not mapped here."
+     "rationale": "First substitute text lets severance and income taxes be paid in gold, sets a reduced severance rate for a mine operator who remits in gold, and creates an income tax credit for doing so. Making the state accept metal as payment, and paying operators to use it, is the whole bill, so a yea widens the role of specie. The reduced rate and the credit are the inducement to remit in gold rather than a tax-policy ask of their own, which is why lower_taxes is not mapped here."
     }
    ]
   },
@@ -969,7 +969,7 @@
      "weight": 80,
      "isPrimary": true,
      "supportMeaning": "yea_supports",
-     "rationale": "Enrolled text adds registry and search provisions for tobacco and electronic cigarette products, creates penalties for a retailer selling flavored electronic cigarette products, raises permit fees for general retailers and specialty businesses, and amends the criminal penalties for illegal sales. Enforcement against nicotine retailers is the whole bill, and every provision tightens it, so a yea tightens the rules."
+     "rationale": "First substitute text adds registry and search provisions for tobacco and electronic cigarette products, creates penalties for a retailer selling flavored electronic cigarette products, raises permit fees for general retailers and specialty businesses, and amends the criminal penalties for illegal sales. Enforcement against nicotine retailers is the whole bill, and every provision tightens it, so a yea tightens the rules."
     }
    ]
   }
@@ -1233,7 +1233,8 @@
   },
   {
    "bill": "SB0026",
-   "why": "Housing and transit reinvestment zone omnibus whose new mechanism is a convention center reinvestment zone capturing state and local sales tax and property tax increment in a county of the first class. The vocab-wave-V1 key dev_district_finance now carries it, and the bill was admitted on the FLOOR ledger (db/vr-utah-bills.json) where its contested Senate concurrence roll is the deeper act; the committee wave has nothing to add. The housing provisions stay unmapped for the original reason: they are tightened and loosened in the same text."
+   "why": "Housing and transit reinvestment zone omnibus whose new mechanism is a convention center reinvestment zone capturing state and local sales tax and property tax increment in a county of the first class. The vocab-wave-V1 key dev_district_finance now carries it, and the bill was admitted on the FLOOR ledger (db/vr-utah-bills.json) where its contested Senate concurrence roll is the deeper act; the committee wave has nothing to add. The housing provisions stay unmapped for the original reason: they are tightened and loosened in the same text.",
+   "leftTheBucket": true
   },
   {
    "bill": "SB0099",
@@ -1341,7 +1342,8 @@
   },
   {
    "bill": "SB0316",
-   "why": "Military Installation Development Authority and development zone finance. The vocab-wave-V1 key dev_district_finance now carries it, and the bill was admitted on the FLOOR ledger (db/vr-utah-bills.json) where both chambers produced contested rolls; the committee wave has nothing to add."
+   "why": "Military Installation Development Authority and development zone finance. The vocab-wave-V1 key dev_district_finance now carries it, and the bill was admitted on the FLOOR ledger (db/vr-utah-bills.json) where both chambers produced contested rolls; the committee wave has nothing to add.",
+   "leftTheBucket": true
   },
   {
    "bill": "SB0334",
@@ -1349,11 +1351,13 @@
   },
   {
    "bill": "SB0336",
-   "why": "Fairpark district modifications: taxing authority, land use authority, and a public infrastructure district empowered to levy property taxes and issue bonds. The vocab-wave-V1 key dev_district_finance now carries it, and the bill was admitted on the FLOOR ledger (db/vr-utah-bills.json) where both chambers produced contested rolls; the committee wave has nothing to add."
+   "why": "Fairpark district modifications: taxing authority, land use authority, and a public infrastructure district empowered to levy property taxes and issue bonds. The vocab-wave-V1 key dev_district_finance now carries it, and the bill was admitted on the FLOOR ledger (db/vr-utah-bills.json) where both chambers produced contested rolls; the committee wave has nothing to add.",
+   "leftTheBucket": true
   },
   {
    "bill": "SB0337",
    "why": "Creates the Beehive Development Agency as a political subdivision with a board, revolving loan fund, public infrastructure district authority and property tax differential revenue for significant community impact project areas, repeals the Governor Office of Economic Opportunity board and the Unified Economic Opportunity Commission, creates a coordinating council, renames the executive director as commissioner, consolidates state housing programs into the office by July 2026, and removes the Utah Housing Corporation sunset. STILL REFUSED after vocab wave V1: dev_district_finance now exists and would carry the public infrastructure district and the tax differential, but they are provisions inside an institutional omnibus whose housing, economic development and governance changes pull in different directions. Admitting it on a narrow non-primary link would put a whole-instrument vote behind a key the instrument is not about."
   }
- ]
+ ],
+ "_leftTheBucket": "WHAT `leftTheBucket: true` MEANS ON A REFUSAL. This lane’s bucket is “had a committee vote and has NO reviewed issue mapping”, so a bill leaves it the moment any wave reviews a mapping for it — not because anything here changed. Vocabulary wave V1 (netlify/database/migrations/20261010000000_vr_vocab_wave_v1.sql) did exactly that for the bills flagged below, and the committee-vote ingest then admitted their contested committee acts under V1’s reviewed keys, which is why those acts ship in the vr_utah_*_committee_votes migrations and not in this lane’s. The refusal stays on the record because it is still true of THIS lane: it declined to invent a mapping for the bill, and it is not retroactively claiming credit for the mapping V1 reviewed. The flag exists so that `--verify` can tell a documented exit from silent drift: without it the bill reads as a stranger and the command fails, and with it on a bill the bucket still holds the command fails the other way."
 }

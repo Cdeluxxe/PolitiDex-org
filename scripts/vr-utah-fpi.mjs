@@ -62,15 +62,16 @@ const ONE = argOf("member");
 // ── the lane, assembled from the shipped seeds ───────────────────────────────
 // THREE FEEDERS, IN THE ORDER THEY SHIPPED.
 //   floor      db/vr-utah-vote-seed{,-2024GS,-2023GS}.json — waves 1–2, roll calls
-//   committee  db/vr-utah-committee-seed{,-2024GS}.json    — wave 3, committee acts
-//              on bills that ALREADY had a reviewed mapping (which is why the
-//              wave-3 seed stores only `issueKeys`: the mapping lives on the floor
-//              seed's measure for the same bill).
+//   committee  db/vr-utah-committee-seed{,-2024GS,-2023GS}.json — waves 3 & 5,
+//              committee acts on bills that ALREADY had a reviewed mapping (which
+//              is why the wave-3 seed stores only `issueKeys`: the mapping lives on
+//              the floor seed's measure for the same bill).
 //   mapping    db/vr-utah-committee-mapping-seed-{2025GS,2024GS}.json — wave 4,
 //              committee acts on bills that had no mapping until this wave.
 const FLOOR = [["2025GS", "db/vr-utah-vote-seed.json"], ["2024GS", "db/vr-utah-vote-seed-2024GS.json"],
                ["2023GS", "db/vr-utah-vote-seed-2023GS.json"]];
-const COMMITTEE = [["2025GS", "db/vr-utah-committee-seed.json"], ["2024GS", "db/vr-utah-committee-seed-2024GS.json"]];
+const COMMITTEE = [["2025GS", "db/vr-utah-committee-seed.json"], ["2024GS", "db/vr-utah-committee-seed-2024GS.json"],
+                   ["2023GS", "db/vr-utah-committee-seed-2023GS.json"]];
 const MAPPING = [["2025GS", "db/vr-utah-committee-mapping-seed-2025GS.json"],
                  ["2024GS", "db/vr-utah-committee-mapping-seed-2024GS.json"]];
 
@@ -262,8 +263,17 @@ if (process.argv.includes("--drift")) {
 if (AS_JSON) {
   const strip = (m) => ({ empty: m.empty, thin: m.thin, readable: m.readable, members: m.members,
     rows: m.rows, strongN: m.strongN, splitN: m.splitN, thinN: m.thinN });
-  console.log(JSON.stringify({ before: { ...strip(B), lane: before.stats },
-    after: { ...strip(A), lane: after.stats },
+  // WHO IS IN EACH TIER, NOT JUST HOW MANY. A tier count can hold still while two
+  // members swap places, so the counts alone cannot show that nobody's record got
+  // worse. The band lists are what make "no tier collapse" checkable: a harness can
+  // diff the membership of a tier and not only its size.
+  const bands = (m) => {
+    const out = { empty: [], thin: [], readable: [] };
+    for (const [pid, r] of m.per) out[r.band].push(pid);
+    return out;
+  };
+  console.log(JSON.stringify({ before: { ...strip(B), lane: before.stats, bands: bands(B) },
+    after: { ...strip(A), lane: after.stats, bands: bands(A) },
     drift, weakened: weakened.map((d) => d.pid), newSplits: split.map((d) => d.pid),
     issueDrift: DRIFT_ROWS, lost: LOST, newlySplit: NEWSPLIT }, null, 1));
 } else if (ONE) {
