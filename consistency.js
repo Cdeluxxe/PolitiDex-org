@@ -11806,6 +11806,21 @@
       why: 'This chip is about the leverage employees have at the bargaining table, and the bill’s whole mechanism is to stop a first contract being defeated by delay rather than by disagreement — so a yea counts as support for that leverage.',
       more: 'The bill also requires an employer to hold existing wages, hours and conditions in place while negotiations run, and keeps the duty to bargain alive where a representative has been decertified. The arbitration panel is directed to weigh the employer’s financial prospects alongside the employees’ cost of living, so the deadline does not by itself decide the terms. Passed the House 230-193 on 2026-06-09 (roll 119/2/216) with the parties inverted from the usual pattern — Democrats 210-0 in favour, Republicans 192-20 against — and was received in the Senate the next day with no further action: this is a House-passed bill, not law.'
     },
+    // ── Wave F2 · 119th Congress ── the two National Emergencies Act resolutions that
+    // gave energy_production its first PRIMARY act a senator could vote on. Both are one
+    // operative sentence, so the derived pair here would read "counted on the energy chip
+    // because that is the primary subject of this measure" on a document whose subject a
+    // reader cannot see from its number at all.
+    'S.J.Res. 10|119|energy_production': {
+      did: 'A one-sentence joint resolution ending the national energy emergency declared in January 2025 by Executive Order 14156, the order directing agencies to use emergency authorities to expedite domestic energy projects. Rejected by the Senate 47-52 on 2025-02-26.',
+      why: 'This chip reads what expands domestic energy supply, and the order the resolution would end is already scored here as support for expanding it \u2014 so a yea to withdraw those emergency authorities counts against the chip\u2019s direction and a nay counts for it.',
+      more: 'Weighted 90 rather than 100 because the resolution reaches the emergency authorities alone and not the separate permitting and leasing order the record scores on its own. The corpus already files an emergency-termination resolution this way: H.J. Res. 46, on the February 2019 border emergency, carries the border chip at 90 as its single row, coded the same direction for the same reason. Party totals from the Senate\u2019s own document: Democrats 45-0 and Independents 2-0 for termination, Republicans 0-52 against.'
+    },
+    'S.J.Res. 71|119|energy_production': {
+      did: 'The same one-sentence termination of the Executive Order 14156 energy emergency, back on the floor eight months later under the clause that re-privileges such a resolution every six months. Rejected 47-51 on 2025-10-08.',
+      why: 'The order this resolution would end is scored on this chip as support for expanding domestic supply, so a yea to withdraw its emergency authorities counts against that direction. The reading matches the February companion because the text is word for word the same.',
+      more: 'Admitted alongside the February vote rather than instead of it, and the reason is coverage rather than depth: among senators who cast a yea or nay the two rolls are identical member for member, and the only differences are absences \u2014 Cramer was Not Voting in February and voted nay in October, while Cruz and Sheehy voted nay in February and were absent in October. So each roll is the only record of some senator\u2019s position on the question, and neither adds discrimination the other does not. No senator changed sides.'
+    },
     // ── H.J.Res. 78 · 119th Congress ──
     'H.J.Res. 78|119|gov_regulation': {
       did: 'A Congressional Review Act resolution striking the Fish and Wildlife Service rule published in July 2024 that listed the San Francisco Bay-Delta longfin smelt as endangered.',

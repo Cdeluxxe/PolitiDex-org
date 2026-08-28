@@ -918,6 +918,123 @@ depth — 428 more judged votes standing behind positions that previously rested
    `vr_measure_issues` for every live row on that key and re-read each rationale against the new
    chip — the query is cheap, and `america_first` had five rows.
 
+### Five rules from federal wave F2 (`20261011000000`)
+
+33. **An emergency-termination resolution files on the SUBJECT it terminates, coded against the
+   thing it terminates, and carries no process secondary.** `S.J.Res. 10` and `S.J.Res. 71` are one
+   operative sentence each: "That the national emergency relating to energy declared on January 20,
+   2025, by the President in Executive Order 14156 … is terminated." Executive Order 14156 is
+   already in this record at `energy_production` w100 PRIMARY `yea_supports`, for directing agencies
+   to use emergency authorities to expedite domestic production. Terminating it withdraws exactly
+   those authorities, so **a yea cuts against the key and the row is `yea_opposes`** — the polarity
+   is read off the target, not off the sponsor's party. Weight 90 rather than 100 because the
+   instrument reaches the emergency authorities alone and not the separate permitting and leasing
+   apparatus of EO 14154, which the record scores on its own. The corpus was already consistent
+   about this instrument class before the wave and it stays consistent: `H.J. Res. 46`, on the
+   February 2019 border emergency, carries `border_security` w90 PRIMARY `yea_opposes` as its single
+   row, and `S.J.Res. 37`, on the Canada tariff emergency, carries `tariffs_authority`. Both file
+   the subject and neither files a process axis. **`congress_oversight` is the tempting refusal
+   here** and it was refused: a National Emergencies Act termination is in form Congress reclaiming
+   a delegated power, but "who decides" is held by members on both sides of the substantive
+   question, so filing it alongside the subject key double-counts one vote onto two chips. The wall
+   argues nothing for it either — `congress_oversight` already has a Senate-reachable primary
+   (`S.Amdt. 3535`). One instrument, one claim.
+   **A new judged mapping owes a curated mechanism pair in the same pass that lands it.**
+   `scripts/test-mechanism-completeness.mjs` gates every judged act on a Contradicted or Mixed row
+   at 100%, so a mapping that arrives with no entry in `_DOS_MECH` (`consistency.js`) fails the
+   suite at once rather than at the next audit — which is the point of the gate. Both resolutions
+   got their `did` / `why` / `more` lines written from the introduced text, not from the mapping's
+   category, because on a one-sentence joint resolution the derived voice would read "counted on the
+   energy chip because that is the primary subject of this measure" on a document whose subject a
+   reader cannot infer from its number at all.
+34. **The same text voted twice is two acts. Admit both when each is the only record of somebody's
+   position — and state in the file what the second one does NOT add.** 50 U.S.C. 1622(b)
+   re-privileges a termination resolution every six months, which is how a second floor vote on
+   word-for-word identical text happened in October after February's failed. Depth-padding is the
+   obvious objection, so the seed answers it with the diff rather than with a claim: among senators
+   who cast a yea or nay the two rolls are **identical, member for member**, and the only
+   differences are absences that cut both ways — `kevin_cramer` was Not Voting on roll 95 and voted
+   nay on roll 554, while `cruz` and `sheehy` voted nay on roll 95 and were Not Voting on roll 554.
+   So admitting only one would leave a senator unrecorded on a fight they took a side in, and
+   admitting both is the only way to record all 100 seats. What it does **not** do is add
+   discrimination: nobody changed sides. **Write that sentence down.** An identical-text pair is
+   admissible on coverage grounds and inadmissible as evidence of independent agreement, and a
+   reader who works that out from the numbers unaided has caught the record being quiet about it.
+35. **Recency does not beat the near-unanimity floor, and one instrument's two chambers must be
+   admitted on the same bar.** `H.R. 6644`'s Senate passage roll (119/2/53, 89-10) clears rule 11 by
+   a tenth of a point — the losing side is **10.101%** of the yea+nay pool, and one more yea would
+   have put it under. It is admitted on that basis rather than on a comfortable margin, and the
+   thinness is stated rather than smoothed. The LATER act on the same bill, the 85-5 motion to
+   concur (119/2/182), is refused twice over: "On the Motion" is not a passage form under rule 12,
+   and 5.556% is below the bar. The deciding argument is a consistency one and worth keeping: the
+   House roll this record **already held** on `H.R. 6644` is 358-32 — **8.205%, below the bar** — so
+   refusing the Senate's 10.101% while keeping the House's 8.205% would have the record admitting a
+   less separating vote and declining a more separating one on the same instrument. Check the
+   sibling roll's share before refusing on margin. Nine cloture motions and motions to proceed on
+   the same bill (87-8, 90-8, 84-8, 82-11, 89-9, 84-6 …) are refused on rule 8's question form
+   first and would fail rule 11 second; both reasons go in the ledger, because a refusal that rests
+   on two grounds survives one of them being revisited.
+36. **A densification wave's no-loss promise must be checked on the row model's `read` flag, over
+   every pid — not on the shape counters. On this wave the counter-based check reported ZERO losses
+   when there were 29.** This is the rule most worth having. `scripts/vr-federal-fpi.mjs` derived
+   its "characterisation lost" list from `_fpiShape`'s counters (`band`, `strongN`, `splitN`,
+   `issues`) and computed it only over pids whose counters MOVED. That is the right view for "is
+   this member's brief readable" and the wrong view for "did any row stop being characterised",
+   for two independent reasons: a tier can move between two read states without changing a
+   counter, and a member who gains a row on one key while losing one on another nets out to no
+   movement and is never examined. F2 tripped both. The direct check — for every federal pid, the
+   SET of keys whose row carries `read`, before against after, set-wise rather than by arithmetic —
+   found 29 rows that stopped being characterised, on 29 members the old list never looked at. Both
+   causes were real and both were disclosed rather than repaired (see `readLossDisclosure` in
+   `db/vr-federal-mapping-seed-f2.json`): 27 senators whose only `permitting_reform` act was a nay
+   on `H.R. 3746` now have one act each way and read `mixed_thin`, which is a **contradiction
+   surfaced, not a wall tripped** — the honest fix would be to decline a verified contested 89-10
+   Senate passage vote so that 27 one-vote rows keep looking read, and that inverts rule 25; and 2
+   representatives lose `america_first` as the named cost of the retraction. **A retraction wave
+   needs this check even more than an additive one**, because subtracting an act can take a row
+   below the judged floor and the loss is invisible in any table where the same member gained a row
+   elsewhere.
+   The corollary is about the test, not the data. **A green test proves nothing until it has been
+   made to fail.** `scripts/test-vr-federal-wave-f2.mjs` was run against twenty-eight single-field
+   mutations of the seeds, the migration, the engine and the curated prose — floor lowered, polarity
+   flipped, PRIMARY demoted, weight softened, `DELETE` unguarded, disclosure deleted, losses
+   understated, no-loss check removed, a Utah brief made to lose a row, retraction dropped, refusal
+   argument gutted, row-count pin loosened, `state` fix reverted, tally softened, a vote attributed
+   to nobody, a procedural question admitted, an attribution dropped, `H.R. 1069` mapped, a
+   mechanism entry deleted, the derived sentence put in the curated slot, the prose stripped of the
+   order it names — and every one had to produce exit 1 with a specific complaint. Two did not, and
+   the reason was a defect in the test: `ok()` returned nothing, so the guard
+   `if (!ok(...)) continue;` always continued and **silently skipped every tally, question and
+   attribution check in section 1**. The suite had been green with 101 assertions; with `ok()`
+   returning its verdict, section 9 added for the mechanism pair and rule 37's timestamp and
+   generator-drift assertions added, it runs 181. The negative
+   controls found that, not the green run.
+
+37. **A roll call's timestamp is the document's, to the minute, with the offset on it — a calendar
+   day is not a timestamp.** senate.gov prints `<vote_date>` as Eastern wall time with no zone
+   attached ("October 8, 2025,  07:05 PM"). This wave's first seed filed the day alone, which the
+   migration then inserted as `TIMESTAMPTZ '2025-10-08'` — read by Postgres as midnight in whatever
+   zone the session happens to be set to, so a UTC-configured server stores the moment nine hours
+   before the Senate cast it and a west-of-Eastern one can print the vote on the wrong day. The rule
+   is the same one rule 4 states for tallies, applied to time: **file what the document says, do not
+   file a rounded version of it.** The parse and the daylight-saving table live in the F1 builder
+   (`scripts/vr-build-federal-depth-vote-seed.mjs`), and a later wave copies them rather than
+   inventing a second spelling, so two waves' rollcalls stay comparable rows. The declared field in
+   the builder's `ROLLS` table stays a CLAIM about the calendar day and is checked against the day
+   the document prints — a disagreement drops the roll whole, which is what happened when the check
+   was tried against a deliberately wrong date. `scripts/test-vr-vote-seed.mjs` already gated this
+   corpus-wide (`voteDate is not an ISO timestamp`) and it is the test that caught the defect: it
+   sorts after `test-vr-utah-committee-mapping.mjs`, which cannot run without a warm `/tmp` ingest
+   cache, so **the suite aborted before reaching it and the wave looked green for two full runs.**
+   When `npm test` stops early, run the scripts that sort after the stopping point by hand before
+   claiming a green suite — an aborted suite is not a passed suite.
+   A second finding rode along with the first: **a generated migration can fall behind its
+   generator silently.** `scripts/vr-gen-federal-wave-f2-migration.mjs` prints to stdout and the file
+   is written by redirection, so the on-disk SQL had a two-line refusal for `H.R. 6644`'s motions to
+   proceed while the generator had grown the full rule-8-then-rule-11 argument. Nothing complained,
+   because nothing compared them. The wave's test now regenerates and requires byte-identity, which
+   is the only bar that keeps the deployed SQL and its stated reasoning from drifting apart.
+
 ### Best remaining follow-ups after this pass
 
 0. *(Closed August 2026.)* **H.R. 6955** (119/2 roll 271) and **H.R. 2670** (118/1 roll 723) were
@@ -964,9 +1081,10 @@ depth — 428 more judged votes standing behind positions that previously rested
      violence. `back_police` is police funding and tougher penalties, `tough_on_crime` is
      sentencing, and `religious_liberty` is a rights chip rather than a grant chip — there is no
      homeland-security key at all. Left unmapped rather than approximated.
-0e. *(Opened by `20261009000000`, the federal formal-depth pass.)* Two rows to correct and one key
-   with nothing to attribute. All three are named by rule 30 or 32 and none is taken here, because
-   each moves a published number and belongs in a pass that argues for it:
+0e. *(Opened by `20261009000000`. **All three closed by `20261011000000`, wave F2** — see the
+   closure note at the end of this item.)* Two rows to correct and one key with nothing to
+   attribute. All three are named by rule 30 or 32 and none is taken here, because each moves a
+   published number and belongs in a pass that argues for it:
    · **`H.R. 1048`'s `america_first` 70 row is stale against the August 2026 narrowing** (rule 32).
      Its rationale rests on countering-China grounds the key's own scope note now disowns, on a
      measure already `gov_transparency` 100 PRIMARY. It is neither `america_first` as now chipped
@@ -984,6 +1102,55 @@ depth — 428 more judged votes standing behind positions that previously rested
      affect this pass — House attribution resolves on the bioguide in the Clerk's XML, never on
      state — but it WOULD silently break a Senate-style (surname, state) resolution, which is the
      one place a bad state field fails closed into a skip rather than loudly.
+
+   **Closure (wave F2, `20261011000000`).** · The `H.R. 1048` row was **retracted**, not re-keyed:
+   the DETERRENT Act is a domestic disclosure statute with no aid level, partner funding, assessed
+   contribution or commitment wind-down in it, so it does not fit `america_first_fp` either. The
+   `DELETE` is guarded on all five columns of the row it removes, and the retraction's measured cost
+   is published — `america_first` goes `mixed_thin` 10 → 2 and `incidental` 99 → 101, a net +6
+   characterised, with the two losses (`dan_crenshaw`, `massie`) named. The full five-row audit rule
+   32 asked for was run; two more stale rows came out of it and are queued as 0f below.
+   · `energy_production` got the **Senate-reachable PRIMARY** it lacked, twice over: `S.J.Res. 10`
+   and `S.J.Res. 71` at w90 PRIMARY `yea_opposes` (rule 33), with the Senate's own passage rolls
+   119/1/95 (47-52) and 119/1/554 (47-51) attributed. The key's `incidental` count over all federal
+   pids falls 41 → 10, and the six senators rule 30 named by hand are characterised. No fifth
+   secondary was added; the tempting one, `S.J.Res. 80`'s NPR-A leasing CRA, was refused on rule 3
+   for exactly that reason.
+   · The two roster `state` fields are **fixed** — `maloy` and `owens` now read "Utah · District 2"
+   and "Utah · District 4", matching the form the other five Utah House members already carried, and
+   `scripts/test-vr-federal-wave-f2.mjs` pins both literals so a regeneration cannot quietly revert
+   them.
+
+0f. *(Opened by `20261011000000`, wave F2.)* What the full `america_first` audit turned up and the
+   wave deliberately did not take. Rule 32's query was run across all five live rows: two are
+   clean, one was retracted, and **two are stale and left standing, named rather than hidden.**
+   · **`H.R. 276`'s `america_first` w100 PRIMARY** — "Codifies the 'Gulf of America' renaming as a
+     symbolic america-first measure and locks in the executive order." A renaming statute funds
+     nothing abroad and commits to nothing abroad, so it is off the narrowed chip's IN list on the
+     same reading that retracted `H.R. 1048`. It is left because it is the measure's **only** issue
+     row, and removing it would drop a contested roll — house 119/1/122, 211-206 — out of the issue
+     record entirely rather than re-file it. The honest fix needs a key for symbolic-sovereignty
+     measures and there is not one; inventing it for one measure is the 1069-class gap this wave was
+     told not to fill. Two ways out, both legitimate: a V-wave key that clears the standing rule
+     (recurring + clean polarity + not a cousin), or a reasoned decision that a naming bill does not
+     belong in the issue record at all.
+   · **`H.R. 6395`'s `america_first` w90 PRIMARY** (FY2021 NDAA) — worse than the row F2 retracted,
+     because it is a PRIMARY whose own written argument, "funding and manning the armed forces at the
+     level the Department asked for", is another chip's subject: the narrowed scope note assigns
+     military posture toward adversaries to `strong_defense` by name. This is a **re-key**, not a
+     removal — the measure has a real axis — and a re-key moves published percentages on two keys at
+     once, so under rule 21 it wants its own pass and its own argument.
+   · Noted while auditing, not acted on: **`H.R. 4` carries `america_first` w60 and
+     `america_first_fp` w65 on the same $7.9B rescission** — a cousin pair on one instrument. Both
+     rows predate the wave and rule 21 leaves them with their writer, but a cousin pair is exactly
+     what the V1 standing rule exists to prevent, so it should be settled the next time either chip
+     is opened.
+   · And the question `scotus_reform` raises rather than answers: **101 of 101 rows on that key read
+     `vehicle_only`, because it has no PRIMARY instrument anywhere in the corpus in either chamber.**
+     Nothing in the 119th unblocks it — the Senate menu sweep found the subject only in judicial
+     nominations, which are confirmations of individuals and not acts on court structure. Whether a
+     key with no primary in either chamber should be publishing rows at all is a design question,
+     and it is raised here, not decided.
 
 1. ~~**H.R. 7148, Consolidated Appropriations Act, 2026** (119/2 rolls 45 and 53).~~ **Closed by
    `20260913000000_vr_consolidated_approps_2026.sql`.** The division-by-division read was done
