@@ -101,7 +101,7 @@ function boot() {
   win.document.getElementById = (id) => (id === "pdx-bd-scroll" ? capture : null);
   win.history = { replaceState() {}, pushState() {} };
   const ctx = vm.createContext(win);
-  for (const f of [...ENGINE_FILES, "bill-detail.js"]) {
+  for (const f of [...ENGINE_FILES, "receipt-cards.js", "bill-detail.js"]) {
     vm.runInContext(readFileSync(join(ROOT, f), "utf8"), ctx, { filename: f });
   }
   if (!win.PDXBillDetail || typeof win.PDXBillDetail.open !== "function") {
@@ -175,8 +175,18 @@ section("1 · every mapped topic is on the act face, and none of them is cut");
   // element with the same head, so no row can be given less to work with.
   eq((HTML.match(/class="bd-omni-head"/g) || []).length, N,
     "some ledger rows are built from a different, smaller structure than the others");
-  has(HTML, `mapped to <strong>${N} topics</strong>`,
-    "the lead sentence does not state how many topics the reader is about to be shown");
+  // ONE TOPIC SURFACE, ONE STATEMENT OF ITS SIZE. The count is the letterhead's
+  // tally, which the reader has read before they reach this section. The paragraph
+  // that used to restate it here — with the lane disclaimer and a direction tally
+  // under it — was the page explaining itself a second time, so the rows now start
+  // immediately under the heading.
+  has(HTML, `${N} topics mapped`,
+    "the number of topics this act touches is not stated anywhere on the face");
+  const LEDGER = HTML.slice(HTML.indexOf("Every topic this act touches"));
+  hasNot(LEDGER, 'class="bd-lead"',
+    "the ledger has grown a lead paragraph again, restating what the letterhead said first");
+  hasNot(LEDGER, 'class="bd-omni-summary"',
+    "the ledger has grown a direction tally again — the per-row direction is the row's own job");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -316,7 +326,7 @@ section("6 · a single-topic act says so plainly, and grows no filter");
   const b = boot();
   const one = await render(b.win, b.capture, { ...DATA, issues: [ISSUES[0]], rollcalls: [] });
   eq((one.match(/class="bd-omni-row/g) || []).length, 1, "the single-topic act did not render its one row");
-  has(one, "mapped to one topic", "the single-topic act does not say plainly that it is one topic");
+  has(one, "1 topic mapped", "the single-topic act does not say plainly that it is one topic");
   hasNot(one, "bd-viewfilter", "a view filter was drawn over a list with one row in it");
   has(one, 'data-bd-view="all"', "even a one-row list ships in the all-topics state");
 }

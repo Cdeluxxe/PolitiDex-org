@@ -948,6 +948,34 @@
     return t;
   }
 
+  // Legislative prose is full of full stops that end nothing: "H.R. 6644",
+  // "Sec. 103", "42 U.S.C. 4333", "24 C.F.R. 58.34", "H.J.Res. 78". A splitter
+  // that treats those as sentence ends shreds a citation across two fragments,
+  // and a citation cut in half is worse copy than the note we came to remove.
+  // So a break is only taken at a stop followed by space and a capital, and only
+  // when what precedes the stop is not one of the shapes below.
+  var ABBREV_TAIL_RE = /(?:^|[\s(\[])(?:[A-Za-z]|Sec|Secs|No|Nos|Art|Res|Amdt|Amdts|Div|Doc|Ch|Pt|Cl|Stat|Pub|Cong|Rep|Reps|Sen|Sens|Fed|Reg|Regs|Cir|Ed|Dept|Govt|Comm|Subpt|vol|pp|al|etc|approx|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec|Mr|Mrs|Ms|Dr|St)$/;
+  function splitSentences(s) {
+    var out = [], start = 0, i = 0, txt = String(s || '');
+    for (i = 0; i < txt.length; i++) {
+      var c = txt.charAt(i);
+      if (c !== '.' && c !== '!' && c !== '?') continue;
+      // Run past a closing quote or bracket that belongs to this sentence.
+      var j = i;
+      while (j + 1 < txt.length && '"\')]”’'.indexOf(txt.charAt(j + 1)) !== -1) j++;
+      var after = txt.slice(j + 1);
+      // A capital, an opening bracket or quote — or a backtick, which is how the
+      // curators quote a raw key mid-note ("…inside a vehicle. `housing`'s
+      // published chip is…"). Without the backtick the two sentences stay glued
+      // and the reader-facing half is dropped along with the note.
+      if (!/^\s+[A-Z(“"`]/.test(after)) continue;
+      if (c === '.' && ABBREV_TAIL_RE.test(txt.slice(start, i))) continue;
+      out.push(txt.slice(start, j + 1));
+      start = j + 1;
+    }
+    if (start < txt.length) out.push(txt.slice(start));
+    return out.map(function (t) { return t.trim(); }).filter(Boolean);
+  }
   // ══════════════════════════════════════════════════════════════════════════
   // Curator housekeeping vs public disclosure
   // ══════════════════════════════════════════════════════════════════════════
@@ -977,6 +1005,7 @@
   var HOUSEKEEPING_SENTENCE_RE = /(?:^|(?<=[.!?])\s*)[^.!?]*\b(?:previously filed under|provision row|no measure-level counterpart)\b[^.!?]*[.!?]\s*/gi;
   var WEIGHT_FRAME_RE = /\bWeighted\b[^.!?]*?(?:\bon purpose\s*:|\bbecause\b|:)\s*/i;
   var WEIGHT_SENTENCE_RE = /(?:^|(?<=[.!?])\s*)\s*Weighted\b[^.!?]*[.!?]\s*/gi;
+  var WEIGHT_SENTENCE_START_RE = /^\s*Weighted\b/i;
   var LABEL_PREFIX_RE = /^(?:secondary|primary|note|internal)\s*:\s*/i;
   var XREF_PAREN_RE = /\s*\((?:see|cf\.?)\s[^)]*\)/gi;
   // What must never survive into public text, whatever shape it arrives in.
@@ -996,11 +1025,104 @@
       if (rest) rest = rest.charAt(0).toUpperCase() + rest.slice(1);
       t = tidyRemainder(head) + (head && rest ? ' ' : '') + rest;
     }
+    // A sentence that is nothing but a weighting note goes whole. Split with the
+    // abbreviation-aware splitter rather than at every full stop: WEIGHT_SENTENCE_RE
+    // read "Weighted 55, identical to S. 5's mapping, so the two vehicles score the
+    // same axis at the same strength." as ending at "S." and published the orphan
+    // "5's mapping, so the two vehicles…" — a citation cut in half, which is worse
+    // copy than the note it was removing.
+    t = splitSentences(t).filter(function (sen) {
+      return !WEIGHT_SENTENCE_START_RE.test(sen);
+    }).join(' ');
     t = t.replace(WEIGHT_SENTENCE_RE, '');
     t = t.replace(LABEL_PREFIX_RE, '');
     t = t.replace(/\s+/g, ' ').trim();
     if (t) t = t.charAt(0).toUpperCase() + t.slice(1);
     return tidyRemainder(t);
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // The reader's sentence, for a surface that cannot refuse
+  // ══════════════════════════════════════════════════════════════════════════
+  // publicRationale above is the share-card cleaner, and it works with guard 18
+  // standing behind it: when a housekeeping marker survives the clean, the card
+  // is REFUSED rather than published. The bill profile has no such exit. Its
+  // topic ledger prints one row per mapping whatever happens, because a row that
+  // quietly disappears is a rider that quietly stopped counting — so that row
+  // needs a cleaner that cannot leave a leak behind, and the only cleaner that
+  // can promise that is one which drops a whole sentence rather than editing
+  // inside it.
+  //
+  // So: publicRationale first, because the caveat it lifts out of a weighting
+  // frame is the part worth keeping. Then a sentence sweep over what is left. A
+  // sentence about the LEDGER — what a mapping weighs, what it is ranked below,
+  // which key it used to be filed under, what its flag says — is dropped whole. A
+  // sentence about the WORLD is untouched, to the word. Nothing is rewritten,
+  // nothing is summarised, and no sentence is composed here.
+  //
+  // When every sentence turns out to be bookkeeping the answer is the empty
+  // string, and the caller says "no mapping rationale on file yet" — which is
+  // true, and is the more useful thing for a reader to know than a note between
+  // curators dressed as a finding.
+  //
+  // IT IS DELIBERATELY NOT FOLDED INTO publicRationale. That function decides
+  // which share cards may publish at all: guard 18 reads its output, and loosening
+  // it would silently turn refusals into publications. This is a second, stricter
+  // pass for a surface with a different obligation, not a replacement for the
+  // first one.
+  //
+  // A label the curators wrote to each other, wherever in the text it starts a
+  // sentence. publicRationale only strips one at the very front.
+  var LEDGER_LABEL_RE = /(?:^|(?<=[.!?])\s*)(?:secondary|primary|note|internal)\s*:\s*/gi;
+  // The ledger's own vocabulary. Every entry can only be about this archive's
+  // filing system, never about the measure. Grouped by the kind of homework it
+  // names, because the list is long and each group is a different leak:
+  var LEDGER_SENTENCE_RE = new RegExp([
+    // How strongly a key was scored. `\bweights?\b` is the load-bearing term:
+    // "Weighted 80", "low-weight", "45-weight" and the trailing "the weight is
+    // what ranks the two axes" all fall to it. `w100` is the shorthand form.
+    '\\bweights?\\b', '\\bweighted\\b', '\\bweighting\\b', '\\bw\\d{2,3}\\b',
+    '\\bcarries (?:it )?at \\d', '\\bat full weight\\b',
+    // Which key won, and how the two were ranked against each other.
+    '\\branked (?:below|above|beside)\\b', '\\boutranks?\\b',
+    '\\bprimary at \\d', '\\bprimary status\\b', '\\bprimary flag\\b',
+    '\\bnot the flag\\b', '\\bcoded (?:a |the )?(?:primary|secondary)\\b',
+    '\\b(?:the|a|its|not) (?:primary|secondary)\\b', '\\bstays secondary\\b',
+    '\\bsecondaries\\b', '\\bkeys trade places\\b',
+    // Filing mechanics: how the row got into the archive, or why it did not.
+    '\\bmapp(?:ed|ing|ings)\\b', '\\bunmapped\\b', '\\bre-keyed\\b',
+    '\\bingest(?:ed|ion)\\b', '\\btaxonomy\\b', '\\bmatched pair\\b',
+    '\\bpreviously filed under\\b', '\\brecorded neutrally\\b',
+    '\\bno measure-level counterpart\\b', '\\bcomparable across chambers\\b',
+    '\\bmigration \\d{6,}', '\\.sql\\b', '\\bdeliberately (?:not|left)\\b',
+    // The archive talking about itself: rows, keys, axes, chips, scope notes.
+    '\\b(?:this|the|that) (?:row|key|axis|facet|record|corpus)\\b',
+    '\\b(?:the|this) (?:axes|record\'s)\\b', '\\bits own key\\b',
+    '\\benforcement axes\\b', '\\bcontrolling axis\\b',
+    '\\bchip (?:reads|is)\\b', '\\bthe chip\\b', '\\bkeyword set\\b',
+    '\\bkeywords? (?:name|names|set)\\b', '\\bscope note\\b',
+    '\\bdeclined outright\\b', '\\bprovision row\\b',
+    // Raw identifiers of any kind — issue keys, direction enums, seed filenames.
+    // Reader prose about a bill never contains a snake_case token.
+    '\\b[a-z]{3,}_[a-z][a-z_]*\\b'
+  ].join('|'), 'i');
+  function readerRationale(raw) {
+    var t = publicRationale(raw);
+    if (!t) return '';
+    // Strip the label wherever it starts a sentence, and give the word behind it
+    // the capital the label was carrying — "…a yea ends the assistance. the
+    // amendment's entire operative text…" is the seam this repairs.
+    t = t.replace(LEDGER_LABEL_RE, function (m, off) { return off ? ' \u0001' : '\u0001'; });
+    t = t.replace(/\u0001(\s*)(\S)/g, function (m, sp, ch) { return sp + ch.toUpperCase(); });
+    t = t.replace(/\u0001/g, '');
+    var kept = splitSentences(t).filter(function (sen) {
+      return !LEDGER_SENTENCE_RE.test(sen);
+    });
+    var out = tidyRemainder(kept.join(' ').replace(/\s+/g, ' ').trim());
+    if (out) out = out.charAt(0).toUpperCase() + out.slice(1);
+    // Belt and braces: if a phrasing nobody has seen yet slipped through the
+    // sweep, publish nothing rather than publish the note.
+    return LEDGER_SENTENCE_RE.test(out) ? '' : out;
   }
 
   // Guard 18: does any public text still read as a note between curators?
@@ -3829,6 +3951,8 @@
       blockFramedMapping: blockFramedMapping,
       blockHousekeeping: blockHousekeeping,
       publicRationale: publicRationale,
+      readerRationale: readerRationale,
+      splitSentences: splitSentences,
       blockDuplicateIdentity: blockDuplicateIdentity,
       stableVerdict: stableVerdict,
       wave1Hold: wave1Hold,
@@ -3896,6 +4020,13 @@
     handleHash: handleHash,
     handleWordRecordHash: handleWordRecordHash
   };
+
+  // ONE COPY, UNDER A SHARED NAME. The bill profile's topic ledger needs the same
+  // reader's sentence this file computes, and a second implementation of it over
+  // there is a second answer to "may a reader see this" — which is how one of the
+  // two quietly falls behind. So it is published the way _pdxBigPictureOrder is:
+  // a plain window function, taken by whoever needs it, owned here.
+  window._pdxReaderRationale = readerRationale;
 
   function boot() {
     try { bindDelegate(); } catch (e) {}

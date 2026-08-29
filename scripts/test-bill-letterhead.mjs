@@ -8,11 +8,14 @@
  * not the session, not what the act touched, not whether anyone voted on it.
  * The letterhead is that census, and it has four jobs:
  *
- *   1. IDENTITY. Number, official title where one was recorded, chamber and
- *      sitting, the dates we hold, and a link to the document the mapping was
- *      read from. A sitting is not "119th Congress" for a Utah bill; it is the
- *      2024 General Session, and the letterhead reads it out of the same
- *      externalIds key the ingest wrote.
+ *   1. IDENTITY, WITH THE TITLE ROW. Number, official title where one was
+ *      recorded, chamber and sitting, the dates we hold, and a link to the
+ *      document the mapping was read from. Those five facts answer "which act is
+ *      this", a reader asks it before anything else, and they are printed once —
+ *      in the header, under the title — rather than spread over a line here, a
+ *      link there and a table under the vote strips. A sitting is not "119th
+ *      Congress" for a Utah bill; it is the 2024 General Session, read out of the
+ *      same externalIds key the ingest wrote.
  *   2. THE TEACHING LINE. One recorded vote counts on every mapped topic. That
  *      is the whole doctrine of this archive in one sentence, and it sits above
  *      the topic list rather than in a footnote under it.
@@ -142,7 +145,7 @@ function boot() {
   win.document.getElementById = (id) => hosts[id] || null;
   win.history = { replaceState() {}, pushState() {} };
   const ctx = vm.createContext(win);
-  for (const f of [...ENGINE_FILES, "issue-colors.js", "issue-scope.js", "bill-detail.js"]) {
+  for (const f of [...ENGINE_FILES, "issue-colors.js", "issue-scope.js", "receipt-cards.js", "bill-detail.js"]) {
     vm.runInContext(readFileSync(join(ROOT, f), "utf8"), ctx, { filename: f });
   }
   if (!win.PDXBillDetail || typeof win.PDXBillDetail.open !== "function") {
@@ -177,6 +180,17 @@ function letterhead(html) {
   return j < 0 ? html.slice(i) : html.slice(i, j + 10);
 }
 
+// The header: everything from the number chip down to the end of the buttons,
+// which is where identity now lives. Sliced for the same reason the letterhead
+// is — "the official title is with the title row" is a claim about POSITION, and
+// a page that keeps it two sections lower must not be able to satisfy it.
+function head(html) {
+  const i = html.indexOf('<div class="bd-head">');
+  if (i < 0) return "";
+  const j = html.indexOf('class="bd-sec bd-lh"', i);
+  return j < 0 ? html.slice(i) : html.slice(i, j);
+}
+
 const { win, capture } = boot();
 const FED = await render(win, capture, HR6644);
 const UT = await render(win, capture, HB257);
@@ -193,36 +207,59 @@ for (const [name, html] of [["H.R. 6644", FED], ["H.B. 257", UT], ["S. 4021", EM
 const FED_LH = letterhead(FED);
 const UT_LH = letterhead(UT);
 const EMPTY_LH = letterhead(EMPTY);
+const FED_HEAD = head(FED);
+const UT_HEAD = head(UT);
+const EMPTY_HEAD = head(EMPTY);
+for (const [name, block] of [["H.R. 6644", FED_HEAD], ["H.B. 257", UT_HEAD], ["S. 4021", EMPTY_HEAD]]) {
+  ok(block.length > 100, `${name}: the panel rendered without a header block at all`);
+}
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("1 · identity — the census a reader arrives with nothing knowing");
 // ═════════════════════════════════════════════════════════════════════════════
+// WHICH ACT IS THIS, ANSWERED WITH THE TITLE. All five facts — number, official
+// title, chamber and sitting, the dates we hold, and the document the mapping was
+// read from — are printed together in the header, above the census. They used to
+// be spread over four positions: a chamber line under the title, a text link
+// under the buttons, a table under the vote strips, and the official title inside
+// a fold. Assembling an identity out of four places is work, and the page said
+// "House · 119th Congress" twice while the reader did it.
 {
-  has(FED_LH, "H.R. 6644", "the federal letterhead does not print the bill number");
-  // The official title is a sentence of legislative prose, so it went where the
-  // rest of the prose went — into the fold. It is still on the page, verbatim.
-  hasNot(FED_LH, "To increase the supply of housing",
-    "the official title is back in the census, which is where it used to crowd out the chips");
-  has(FED, "To increase the supply of housing",
-    "the official title was dropped from the page rather than moved into the fold");
-  has(FED_LH, "House", "the chamber is missing from the federal letterhead");
-  has(FED_LH, "119th Congress", "the federal sitting is not named");
-  has(FED_LH, "Introduced Dec 4, 2025", "the introduction date we hold is not printed");
-  has(FED_LH, "Voted Feb 11, 2026", "the date of the recorded vote is not printed");
+  has(FED_HEAD, "H.R. 6644", "the federal header does not print the bill number");
+  has(FED_HEAD, "To increase the supply of housing",
+    "the official title is not printed with the title row");
+  // The prose fold is for the section-by-section description and nothing else: an
+  // identity fact behind a disclosure is an identity fact a reader has to hunt for.
+  const FOLD = FED.slice(FED.indexOf('class="bd-sec bd-foldsec"'));
+  hasNot(FOLD, "To increase the supply of housing",
+    "the official title is printed twice — once as identity and once inside the fold");
+  has(FED_HEAD, "House", "the chamber is missing from the federal header");
+  has(FED_HEAD, "119th Congress", "the federal sitting is not named");
+  has(FED_HEAD, "Introduced Dec 4, 2025", "the introduction date we hold is not printed");
+  has(FED_HEAD, "Voted Feb 11, 2026", "the date of the recorded vote is not printed");
   // The mapping text beats the bill page: the mapping was made against THAT
   // document, so that is the one a reader checking our work needs.
-  has(FED_LH, "https://www.congress.gov/bill/119th-congress/house-bill/6644/text/eh",
-    "the letterhead does not link the document the mapping was read from");
-  has(FED_LH, "Engrossed text", "the text link does not name which document it is");
+  has(FED_HEAD, "https://www.congress.gov/bill/119th-congress/house-bill/6644/text/eh",
+    "the header does not link the document the mapping was read from");
+  has(FED_HEAD, "Engrossed text", "the text link does not name which document it is");
+  // SAID ONCE. Each of these is printed in exactly one place on the whole face.
+  for (const fact of ["119th Congress", "Engrossed text", "Introduced Dec 4, 2025",
+                      "To increase the supply of housing"]) {
+    eq(count(FED, new RegExp(fact.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")), 1,
+      `${JSON.stringify(fact)} is printed more than once on the bill face`);
+  }
+  // And the letterhead is the census only — the paperwork went up, not down.
+  hasNot(FED_LH, "Engrossed text", "the identity table is back under the vote strips");
+  hasNot(FED_LH, 'class="bd-ident"', "the identity block is being rendered inside the letterhead");
 
   // Utah: the sitting comes out of externalIds, not out of a null congress.
-  has(UT_LH, "H.B. 257", "the Utah letterhead does not print the bill number");
-  has(UT_LH, "Utah House · 2024 General Session",
-    "the Utah letterhead does not name the chamber and the named session together");
-  hasNot(UT_LH, "th Congress", "a Utah bill is being filed under a Congress it was never in");
-  hasNot(UT_LH, "nullth", "a null congress is leaking into the Utah identity line");
-  has(UT_LH, "Enrolled text", "the enrolled text Utah mappings are read from is not named");
-  has(UT_LH, "le.utah.gov", "the Utah text link does not point at the Utah Legislature");
+  has(UT_HEAD, "H.B. 257", "the Utah header does not print the bill number");
+  has(UT_HEAD, "Utah House · 2024 General Session",
+    "the Utah header does not name the chamber and the named session together");
+  hasNot(UT_HEAD, "th Congress", "a Utah bill is being filed under a Congress it was never in");
+  hasNot(UT_HEAD, "nullth", "a null congress is leaking into the Utah identity line");
+  has(UT_HEAD, "Enrolled text", "the enrolled text Utah mappings are read from is not named");
+  has(UT_HEAD, "le.utah.gov", "the Utah text link does not point at the Utah Legislature");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -242,9 +279,9 @@ section("2 · the teaching line, and the honest empty where there is no vote");
     "the vote strip's own honest empty is missing");
   has(EMPTY_LH, "No topics are mapped to this measure yet",
     "an unmapped measure does not say that a vote on it counts on nothing");
-  has(EMPTY_LH, "No link to the official text is on file",
+  has(EMPTY_HEAD, "No link to the official text is on file",
     "a measure with no text link pretends to have one, or says nothing");
-  has(EMPTY_LH, "No date is on file", "a measure with no dates says nothing about the gap");
+  has(EMPTY_HEAD, "No date is on file", "a measure with no dates says nothing about the gap");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -353,22 +390,32 @@ section("6 · the census is first, and the prose is folded under it");
 // characters of section-by-section description, which is the same as not having
 // it. This section is about ORDER — what a reader meets before they scroll.
 {
-  // Inside the letterhead: teaching line, then the tally, then the chips, then
-  // the vote strips, and the identity table last. Reference material is reference
-  // material; it does not get the top of the panel.
+  // THE COLD OPEN, IN ORDER: the number, the title, which act this is, the two
+  // buttons, then the census — teaching line, tally, chips, vote strips. Five
+  // things above the fold and not one of them repeated.
   const seq = [
+    ["the number", 'class="bd-num"'],
+    ["the title", 'class="bd-title"'],
+    ["the identity block", 'class="bd-ident"'],
+    ["the buttons", 'class="bd-actions"'],
     ["the teaching line", 'class="bd-lh-teach"'],
     ["the topic tally", 'class="bd-lh-tally"'],
     ["the chips", 'class="bd-lh-chips"'],
     ["the vote strips", 'class="bd-lh-votes"'],
-    ["the identity table", 'class="bd-lh-facts"'],
   ];
-  for (const [name, mark] of seq) has(FED_LH, mark, `${name} is not in the letterhead at all`);
-  const at = seq.map(([name, mark]) => ({ name, i: FED_LH.indexOf(mark) }));
+  for (const [name, mark] of seq) has(FED, mark, `${name} is not on the bill face at all`);
+  const at = seq.map(([name, mark]) => ({ name, i: FED.indexOf(mark) }));
   for (let k = 1; k < at.length; k++) {
     ok(at[k - 1].i < at[k].i,
-      `${at[k].name} is printed before ${at[k - 1].name} — the census order is wrong`);
+      `${at[k].name} is printed before ${at[k - 1].name} — the cold-open order is wrong`);
   }
+  // All of it before the prose fold, which is what "above the fold" means here.
+  ok(at[at.length - 1].i < FED.indexOf('class="bd-sec bd-foldsec"'),
+    "part of the cold open is printed after the prose fold");
+  // The two lines the header used to carry alongside identity are gone from it,
+  // because identity says both already.
+  hasNot(FED_HEAD, 'class="bd-meta"', "the header still prints its own chamber-and-sitting line");
+  hasNot(FED_HEAD, 'class="bd-src bd-src-top"', "the header still prints its own link to the record");
 
   // The narrative dump is out of the header and behind a closed disclosure.
   hasNot(FED.slice(0, FED.indexOf('class="bd-sec bd-lh"')), "Title I establishes",
@@ -378,6 +425,8 @@ section("6 · the census is first, and the prose is folded under it");
     "the fold is above the census it is supposed to sit under");
   has(FED, "Title I establishes", "the summary was dropped instead of folded");
   has(FED, "What’s in this act", "the fold does not say what is inside it");
+  hasNot(FED, 'class="bd-fold-official"',
+    "the fold is still building an official-title paragraph, which identity now owns");
   // Closed means closed: a native <details> with no open attribute, so the text
   // is in the DOM and none of it is painted until the reader asks.
   ok(/<details class="bd-fold">/.test(FED),
@@ -442,7 +491,7 @@ section("7 · the guards are load-bearing (mutations must break the claims)");
     win2.document.getElementById = (id) => (id === "pdx-bd-scroll" ? cap : null);
     win2.history = { replaceState() {}, pushState() {} };
     const ctx2 = vm.createContext(win2);
-    for (const f of [...ENGINE_FILES, "issue-colors.js", "issue-scope.js"]) {
+    for (const f of [...ENGINE_FILES, "issue-colors.js", "issue-scope.js", "receipt-cards.js"]) {
       vm.runInContext(readFileSync(join(ROOT, f), "utf8"), ctx2, { filename: f });
     }
     vm.runInContext(src, ctx2, { filename: "bill-detail.mutant.js" });
