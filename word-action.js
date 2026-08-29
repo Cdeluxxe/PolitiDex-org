@@ -4606,6 +4606,21 @@
     // scroll down to the full section. See compactBadgeHtml().
     compactBadgeHtml: compactBadgeHtml,
     compactBadgeMount: compactBadgeMount,
+    // WHAT THE GENERATED INDEX ALREADY KNOWS, PUBLISHED FOR THE CHIPS BESIDE IT.
+    // formalKnown() is the three-valued read the brief above uses to tell "the
+    // record is on its way" apart from "there is nothing on it": 'deep' when
+    // formal-index.js counts sourced acts for this pid, 'empty' ONLY for the
+    // hand-reviewed empty notes, and '' when the index cannot speak for that
+    // person at all. It answers from a static file, before any fetch starts, which
+    // is the whole reason it is worth exporting — a surface can stand its absence
+    // wording down on a deep file at first paint instead of flashing it and taking
+    // it back when the pack lands.
+    //
+    // The identity strip in profiles-full.js reads it so its depth and monitoring
+    // chips ask the same question this brief asks, rather than growing a second
+    // loading flag of their own. It reports a STATE and never a count; see the
+    // header of formal-index.js for why no surface prints those figures.
+    formalKnown: formalKnown,
     heroHtml: heroInner,
     dotsHtml: dotsHtml
   };

@@ -1744,6 +1744,23 @@
       border-radius: 999px; padding: 0.16rem 0.5rem;
       background: rgba(159,180,212,0.12); border: 1px solid rgba(159,180,212,0.35); color: #9fb4d4;
     }
+    /* The host the record-depth chips are mounted into (see _recChipsMount in
+       profiles-full.js). display:contents so the badges inside it stay direct
+       flex children of .profile-meta and keep the row's gap — a wrapper that
+       became one flex item would bunch two pills together with no space. Empty
+       it must be worth nothing at all, or a gated-off chip leaves a visible hole
+       between the status badge and the one beside it. Same discipline as
+       .pdxwa-cbadge-host in word-action.css, for the same reason. */
+    .profile-rec-chips { display: contents; }
+    .profile-rec-chips:empty { display: none; }
+    /* "Record loading" is not a verdict and must not be dressed as one. It borrows
+       the monitoring pill's metrics exactly and shifts only the hue — the blue this
+       product uses for work in progress — so it reads as the page still working
+       rather than as a finding about the person. The pill it replaces during flight
+       said the opposite thing in the same slot, so the slot must not look settled. */
+    .profile-status-monitoring.pdx-rec-loading {
+      background: rgba(96,165,250,0.12); border-color: rgba(96,165,250,0.38); color: #93c5fd;
+    }
     .profile-hero-score { flex-shrink: 0; }
     /* Ring + its denominator caption, stacked so the sample size behind the
        headline percentage sits directly under it ("100%" → "(1 of 1 resolved)"). */

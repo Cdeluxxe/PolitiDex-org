@@ -279,7 +279,53 @@
 // advancing · 1 no side") and prints each measure's title and sitting on its card.
 // One version covers both halves; a phone that takes one file and not the other is
 // the case this bump exists to prevent either way.
-const CACHE_VERSION = 'v82';
+// v83 — THE NO-SIDE CARD STOPPED BEING A FAINTER YEA. v82 gave the dossier's
+// absences a dashed grey frame at 0.74 opacity, on the theory that "solid means
+// counted"; on a live sheet that made the one card in the list which is NOT a vote
+// read as the least important vote in it, which is the opposite of what an absence
+// is. consistency.js now distinguishes it by hue instead of by weight — a violet
+// rail, a banner that fades across the card, a filled "Did not vote" / "Present"
+// pill, and the bill number and title back at full contrast — and groups the
+// no-side rows after the judged sides behind one divider line ("1 recorded
+// absence") so they arrive as a category rather than as a surprise at the bottom.
+// Presentation only, and one file: the sort lives in the renderer, `_dosItems`
+// returns what it always returned in the order it always returned it, every row
+// keeps its original index so its body and the roll-up's door still open onto the
+// right card, and the header integers, the coverage check and the enumeration count
+// the same acts as before. Bumped for delivery rather than for consistency — there
+// is no half-pickup to prevent here, the CSS and the markup are in the same file —
+// so a repeat visitor gets the corrected card on the next load instead of the one
+// after. No floor, mapping, weight or Direction Match input moved, and nothing here
+// is database-side.
+// v84 — THE LETTERHEAD STOPPED CALLING A LOADING FILE EMPTY. On a cold
+// /p/chew_h68 the identity strip printed "📋 LIMITED RECORD" and "◷ NO VOTING
+// RECORD YET" two lines under the name, and the brief directly below it then
+// painted 44 issues, 83 acts and 8 characterised. Neither chip was reading the
+// formal record: the depth badge is computed from the pledge columns and a score,
+// the monitoring pill from the pledge state, so a member with an empty ledger and
+// one of the deepest roll calls in the product was introduced as a person with
+// nothing on file. profiles-full.js now mounts both chips through one gate that
+// asks the two questions the rest of the app already asks — PDXWordAction's
+// formalKnown() (newly exported from word-action.js, the same three-valued read
+// the brief uses) and PDXConsistency.recordSettled() — and prints the absence
+// wording only for a file that is knowably empty and settled. app.css carries the
+// host and the "Record loading" state it shows while a request is genuinely
+// outstanding. compare-hub.js rides along with the Utah HD-68 headshot, keyed to
+// the canonical pid rather than the retired stub it was stranded on.
+// Bumped because this one IS a half-pickup risk in both directions: a phone
+// holding v83 that takes the new profiles-full.js but not app.css mounts a
+// display:contents host that is still an ordinary flex item, which bunches the
+// status pills into one another; one that takes it but not word-action.js finds no
+// formalKnown() to ask, falls to the "cannot tell" branch, and goes back to
+// printing the absence wording over a deep file for as long as the fetch is open —
+// the exact defect this pass removes, arriving silently. app.css and
+// word-action.js are precached below; profiles-full.js and compare-hub.js are
+// stale-while-revalidate runtime entries. Both cache names carry CACHE_VERSION, so
+// the rename empties the shell AND the runtime cache on activate and the four
+// arrive together on the load after. Presentation and load-state
+// only: no floor, mapping, weight, Direction Match input or dossier arithmetic
+// moved, no key or ingest was added, and nothing here is database-side.
+const CACHE_VERSION = 'v84';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
