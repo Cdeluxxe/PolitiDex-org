@@ -5013,7 +5013,17 @@
     .cmp-leader-badge.cmp-leader-neutral { color: #cbd5e1; }
 
     /* ── Money & Funding rows ─────────────────────────────────────────────── */
-    .cmp-fund-raised { color: #4ade80; font-size: 1.15rem; }
+    /* EVERY --pdx-money-* USE OUTSIDE finance-lane.css CARRIES A FALLBACK, and it
+       is not belt-and-braces. finance-lane.css is loaded non-blocking (media=print
+       + onload), so for the first frames of a page there is no :root token at all,
+       and `background: var(--pdx-money-fill)` with no fallback is guaranteed-invalid
+       — the property drops entirely and a funding pill paints with no fill and no
+       border before snapping into place. The fallbacks mean the pill is the right
+       colour in frame one. The stylesheet remains the ONE place the token is
+       DECLARED; these are the values it declares, repeated where a var cannot yet
+       resolve, and scripts/test-money-theme.mjs asserts the declaration and
+       PDXFinanceLane.THEME still agree. */
+    .cmp-fund-raised { color: var(--pdx-money-ink, #e3c176); font-size: 1.15rem; }
     .cmp-fund-none {
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem;
       letter-spacing: 0.05em; color: #4e72a0; font-style: italic;
@@ -5033,10 +5043,17 @@
       font-size: 0.66rem; letter-spacing: 0.03em;
       padding: 0.28rem 0.6rem; border-radius: 999px; white-space: nowrap;
     }
-    .cmp-fund-base.is-grass   { background: rgba(74,222,128,0.12);  border: 1px solid rgba(74,222,128,0.3);  color: #6ee7a0; }
-    .cmp-fund-base.is-mixed   { background: rgba(245,200,66,0.12);  border: 1px solid rgba(245,200,66,0.3);  color: #f5c842; }
-    .cmp-fund-base.is-big     { background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3); color: #f87171; }
-    .cmp-fund-base.is-unknown { background: rgba(159,180,212,0.1);  border: 1px solid rgba(159,180,212,0.25); color: #9fb4d4; }
+    /* Same ramp, same ban — see .pdx-fchip above. The Compare page put the
+       ladder side by side across several people at once, which turned it into
+       the cross-person ranking the lane's own wall forbids. */
+    .cmp-fund-base.is-grass,
+    .cmp-fund-base.is-mixed,
+    .cmp-fund-base.is-big,
+    .cmp-fund-base.is-unknown {
+      background: var(--pdx-money-fill, rgba(15, 61, 46, 0.55));
+      border: 1px solid var(--pdx-money-line-soft, rgba(201, 153, 47, 0.45));
+      color: var(--pdx-money-text, #bcd3c6);
+    }
     .cmp-fund-src {
       display: inline-flex; align-items: center; gap: 0.25rem;
       font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
@@ -5058,11 +5075,30 @@
     .pdx-fchip .pdx-fchip-ico { font-size: 0.78rem; line-height: 1; }
     .pdx-fchip b { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 0.95rem; letter-spacing: 0.02em; }
     .pdx-fchip .pdx-fchip-word { font-size: 0.5rem; letter-spacing: 0.09em; text-transform: uppercase; opacity: 0.85; }
-    .pdx-fchip.is-grass   { color: #6ee7a0; background: rgba(74,222,128,0.1);  border: 1px solid rgba(74,222,128,0.3); }
-    .pdx-fchip.is-mixed   { color: #f5c842; background: rgba(245,200,66,0.1);  border: 1px solid rgba(245,200,66,0.3); }
-    .pdx-fchip.is-big     { color: #f87171; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); }
-    .pdx-fchip.is-unknown { color: #9fb4d4; background: rgba(159,180,212,0.08); border: 1px solid rgba(159,180,212,0.24); }
-    .pdx-fchip.is-none    { color: #7d92b5; background: rgba(148,163,184,0.06); border: 1px dashed rgba(148,163,184,0.28); }
+    /* THE DONOR-MIX RAMP IS GONE, AND THIS IS THE BAN, NOT A RESTYLE.
+       These five rules were a green → amber → red ladder keyed to how much of a
+       filing came from small donors: is-grass green, is-mixed amber, is-big red.
+       That is the retired 0-100 Constituents-First grade — its three levels, its
+       three colours, its cut-offs — surviving as CSS after the arithmetic was
+       deleted. A reader did not need the tooltip to know which pill they were
+       meant to disapprove of, which is exactly what a colour ramp is for.
+         All five states now take the one money pair, at one weight. The dollar
+       figure and the mix word inside still say what the filing says; the pill
+       says only "this is the money lane". is-none is no longer dashed either:
+       an outline that frays when there is no filing reads as an unfinished
+       record rather than an absent one, and the absence is the archive's, not
+       the person's. Missing data stays words. */
+    .pdx-fchip.is-grass,
+    .pdx-fchip.is-mixed,
+    .pdx-fchip.is-big,
+    .pdx-fchip.is-unknown,
+    .pdx-fchip.is-none {
+      color: var(--pdx-money-text, #bcd3c6);
+      background: var(--pdx-money-fill, rgba(15, 61, 46, 0.55));
+      border: 1px solid var(--pdx-money-line-soft, rgba(201, 153, 47, 0.45));
+    }
+    .pdx-fchip .pdx-fchip-ico { color: var(--pdx-money-line, #c9992f); }
+    .pdx-fchip b { color: var(--pdx-money-ink, #e3c176); }
     .pdx-fchip.is-none b, .pdx-fchip.is-none .pdx-fchip-word {
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; letter-spacing: 0.03em; text-transform: none; opacity: 1;
     }
@@ -5075,7 +5111,7 @@
     .pdx-fund .pdx-fund-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 0.7rem; }
     .pdx-fund-stat { background: rgba(10,15,30,0.55); border: 1px solid rgba(159,180,212,0.16); border-radius: 0.7rem; padding: 0.7rem 0.8rem; min-width: 0; }
     .pdx-fund-stat-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: #7596c0; margin-bottom: 0.25rem; }
-    .pdx-fund-raised { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; line-height: 1; color: #4ade80; }
+    .pdx-fund-raised { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; line-height: 1; color: var(--pdx-money-ink, #e3c176); }
     .pdx-fund-top-name { font-size: 0.84rem; font-weight: 700; color: #dbe6f5; line-height: 1.2; word-break: break-word; }
     .pdx-fund-top-amt { font-family: 'Barlow Condensed', sans-serif; font-size: 0.64rem; letter-spacing: 0.04em; color: #7596c0; margin-top: 0.15rem; text-transform: capitalize; }
     .pdx-fund-dim { color: #7d92b5; font-weight: 600; font-style: italic; }
@@ -5084,10 +5120,15 @@
     .pdx-fund-scale.is-low  { color: #cbd5e1; background: rgba(148,163,184,0.12); border: 1px solid rgba(148,163,184,0.28); }
     .pdx-fund-baserow { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; }
     .pdx-fund-base { display: inline-flex; align-items: center; gap: 0.3rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.03em; padding: 0.32rem 0.7rem; border-radius: 999px; white-space: nowrap; }
-    .pdx-fund-base.is-grass   { background: rgba(74,222,128,0.12);  border: 1px solid rgba(74,222,128,0.35); color: #6ee7a0; }
-    .pdx-fund-base.is-mixed   { background: rgba(245,200,66,0.12);  border: 1px solid rgba(245,200,66,0.35); color: #f5c842; }
-    .pdx-fund-base.is-big     { background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.35); color: #f87171; }
-    .pdx-fund-base.is-unknown { background: rgba(159,180,212,0.1);  border: 1px solid rgba(159,180,212,0.25); color: #9fb4d4; }
+    /* Same ramp, same ban — see .pdx-fchip above. One pair, four states. */
+    .pdx-fund-base.is-grass,
+    .pdx-fund-base.is-mixed,
+    .pdx-fund-base.is-big,
+    .pdx-fund-base.is-unknown {
+      background: var(--pdx-money-fill, rgba(15, 61, 46, 0.55));
+      border: 1px solid var(--pdx-money-line-soft, rgba(201, 153, 47, 0.45));
+      color: var(--pdx-money-text, #bcd3c6);
+    }
     .pdx-fund-base-note { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: #9fb4d4; line-height: 1.35; }
     .pdx-fund-why { font-size: 0.76rem; color: #b9cae3; line-height: 1.6; margin: 0 0 0.7rem; padding: 0.55rem 0.7rem; background: rgba(139,92,246,0.06); border-left: 2px solid rgba(139,92,246,0.4); border-radius: 0.4rem; }
     .pdx-fund-why strong { color: #c4b5fd; }
@@ -14684,8 +14725,10 @@
     .btn-my-politicians:hover { border-color: #fad96a !important; color: #fad96a !important; background: rgba(245,200,66,0.15) !important; box-shadow: 0 6px 24px rgba(245,200,66,0.35), 0 0 16px rgba(245,200,66,0.2); transform: translateY(-1px); }
 
     /* ── Nav/CTA Color Updates: Follow the Money → vibrant money green ── */
-    .clr-money { color: #4ade80; text-shadow: 0 0 8px rgba(74,222,128,0.4); }
-    .clr-money:hover { color: #86efac; text-shadow: 0 0 12px rgba(74,222,128,0.6); }
+    /* The nav's money links join the lane's pair. #4ade80 here was the site's
+       YES colour doing duty as a section colour. */
+    .clr-money { color: var(--pdx-money-ink, #e3c176); text-shadow: 0 0 8px rgba(201,153,47,0.35); }
+    .clr-money:hover { color: var(--pdx-money-line, #c9992f); text-shadow: 0 0 12px rgba(201,153,47,0.55); }
     .btn-follow-money { border-color: #4ade80 !important; color: #4ade80 !important; background: rgba(74,222,128,0.08) !important; box-shadow: 0 4px 16px rgba(74,222,128,0.2), 0 0 10px rgba(74,222,128,0.1); }
     .btn-follow-money:hover { border-color: #86efac !important; color: #86efac !important; background: rgba(74,222,128,0.15) !important; box-shadow: 0 6px 24px rgba(74,222,128,0.35), 0 0 16px rgba(74,222,128,0.2); transform: translateY(-1px); }
 

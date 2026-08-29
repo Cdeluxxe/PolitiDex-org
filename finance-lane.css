@@ -1,26 +1,48 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   finance-lane.css — the letterhead money chip, and nothing else
+   finance-lane.css — THE MONEY THEME, and the letterhead chip that wears it
    ────────────────────────────────────────────────────────────────────────────
-   The money lane renders its composition with inline styles from
-   finance-lane.js, deliberately: that block is mounted into several surfaces
-   and travels with its own appearance. This file exists for the one finance
-   surface that must instead take its appearance FROM WHERE IT SITS — the
-   compact chip in the person file's letterhead.
+   ONE PAIR, ON MONEY SURFACES ONLY.
 
-   It is styled to the ⚖️ Word vs Action letterhead badge's measurements on
-   purpose (see .pdxwa-cbadge in word-action.css). The two chips sit next to
-   each other in .profile-meta, they are the same kind of object — a small
-   secondary door down to a section that shows the working — and two doors of
-   the same kind at two different sizes reads as one of them being the more
-   important finding. They are not ranked against each other.
+   Finance had no colour of its own. The letterhead chip shipped in the same
+   neutral steel as everything else on the page, so nothing told a reader that
+   the 💰 pill in a letterhead, the money row in the library, the header on
+   Follow the Money and the funding block on a profile were four doors into one
+   lane. Meanwhile the surfaces that DID have a colour had the wrong one: a
+   green-amber-red ramp keyed to donor mix (`is-grass` / `is-mixed` / `is-big`),
+   which is the retired Constituents-First grade delivered in colour after the
+   words had stopped delivering it.
 
-   THE PALETTE IS THE LANE'S DOCTRINE, NOT A STYLE CHOICE. One neutral steel
-   accent, identical in all three states. A chip that went green on a
-   small-dollar base and amber on a concentrated one would deliver the retired
-   Constituents-First verdict in colour after the words had carefully declined
-   to — which is exactly how that grade worked, and exactly why it was deleted.
-   #4ade80 and #f87171 (this codebase's yes/no colours) do not appear here, for
-   the same reason they do not appear in finance-lane.js.
+   Both problems have one fix. Money gets a token — a DEEP FOREST FILL with a
+   GOLD OUTLINE, gold 💰 and gold dollar marks — and that token means "this is
+   the money lane", nothing more. It is wayfinding. It is not a grade.
+
+   WHAT THE PAIR IS NOT ALLOWED TO ENCODE:
+
+     · Not donor mix. A grassroots filing and a PAC-heavy filing wear the
+       identical pair. There is no second variant to escalate to.
+     · Not presence of data. The empty file and the $8.6M file are the same
+       green-gold door at the same weight — same fill alpha, same border width,
+       same ink. A door that dims when the room behind it is empty tells a
+       reader "nothing here", and "no filing on file" is a fact about the
+       archive, not about the person. Missing data stays WORDS.
+     · Not amount. $8.6M and $40K are the same pair. Nothing here scales,
+       brightens or saturates with a dollar figure.
+     · Not rank, tier, ballot order, Direction Match or ⚖️ Word vs Action.
+
+   WHY GOLD AND NOT AMBER, WHICH IS THE OBVIOUS OBJECTION. Gold here is
+   metallic and deep (#c9992f), not the bright signal amber this codebase uses
+   for a middling verdict (#f5c842, #facc15). More to the point, gold is
+   attached to the CONSTANT — the lane itself — and never to a level, so it can
+   never be read as the middle of a ramp: there is no state in which a money
+   surface is not gold. A colour that never varies cannot grade.
+   The two yes/no colours (#4ade80, #f87171) and the verdict ramp's own hexes
+   (#6ee7a0, #f5c842, #86efac, #fca5a5) appear nowhere in this file.
+
+   WHERE THE PAIR IS ALLOWED, and the list is closed: the letterhead chip, the
+   on-page money section header, Follow-the-Money and library money entries, and
+   the dollar fill of a composition bar. NOT on issue chips (issue-colors.js
+   owns those and this file never touches them), NOT on Yea/Nay pills, NOT on
+   the ⚖️ Word vs Action badge sitting next to the chip in the same letterhead.
 
    ONE LINE, THEN WRAP. Sideways the chip is a single line beside the name; on a
    phone it is allowed to wrap onto a second line rather than force the hero
@@ -28,7 +50,34 @@
    block: nothing in this file has a chart, a bar, a table or a fixed height,
    because the hero must not grow by a graph. The details live in the money
    section the chip jumps to.
+
+   The chip is still measured to the ⚖️ Word vs Action letterhead badge beside
+   it (see .pdxwa-cbadge in word-action.css). They are the same kind of object —
+   a small secondary door down to a section that shows the working — and two
+   doors of the same kind at two different sizes reads as one of them being the
+   more important finding. They are not ranked against each other. They now
+   differ in colour, which is the point: one is the record, one is the money.
    ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── THE TOKEN ──────────────────────────────────────────────────────────────
+   Declared once, here, and mirrored in finance-lane.js as PDXFinanceLane.THEME
+   for the blocks that travel with their own inline styles. Two copies of a
+   token is one copy too many, so the test suite asserts the two agree. */
+:root {
+  /* The fill. Deep forest — dark enough to sit on this site's navy without
+     glowing, far enough from #4ade80 that it can never be read as a yes. */
+  --pdx-money-fill: rgba(15, 61, 46, 0.55);
+  --pdx-money-fill-hi: rgba(19, 78, 58, 0.78);
+  /* The outline, the 💰 and the dollar marks. */
+  --pdx-money-line: #c9992f;
+  --pdx-money-line-soft: rgba(201, 153, 47, 0.45);
+  --pdx-money-ink: #e3c176;
+  /* The words on a money surface that are not dollars. */
+  --pdx-money-text: #bcd3c6;
+  /* "The rest" — the unfilled remainder of a composition bar. Slate, so the
+     gold reads as the dollars and the track reads as what is not dollars. */
+  --pdx-money-rest: #3d4f66;
+}
 
 /* The host is a mount point, not a box. `display: contents` keeps it out of the
    letterhead's flex layout entirely, so the chip is a direct flex item of
@@ -48,43 +97,48 @@
   text-align: left;
   border-radius: 999px;
   padding: 0.16rem 0.55rem;
-  background: rgba(159, 180, 212, 0.1);
-  border: 1px solid rgba(159, 180, 212, 0.3);
-  color: #9fb4d4;
+  background: var(--pdx-money-fill);
+  border: 1px solid var(--pdx-money-line-soft);
+  color: var(--pdx-money-text);
   line-height: 1.15;
   white-space: nowrap;
   cursor: pointer;
   transition: background 0.12s ease, border-color 0.12s ease;
 }
 .pdx-mchip:hover {
-  background: rgba(159, 180, 212, 0.18);
-  border-color: rgba(159, 180, 212, 0.5);
+  background: var(--pdx-money-fill-hi);
+  border-color: var(--pdx-money-line);
 }
 .pdx-mchip:focus-visible {
   outline: 2px solid rgba(96, 165, 250, 0.8);
   outline-offset: 2px;
 }
 
-.pdx-mchip-ico { font-size: 0.7rem; line-height: 1; flex: none; }
+/* The 💰 in gold. It is the one glyph that says "money lane" at a glance from
+   across the letterhead, which is most of what this token exists to do. */
+.pdx-mchip-ico {
+  font-size: 0.7rem;
+  line-height: 1;
+  flex: none;
+  color: var(--pdx-money-line);
+}
 
-/* The figure — the one number on the chip, and the only thing on it that gets
-   any emphasis at all. */
+/* The figure — the one number on the chip. Gold, because dollar marks are gold
+   in this lane wherever they appear. */
 .pdx-mchip-fig {
   font-size: 0.74rem;
   letter-spacing: 0.02em;
-  color: #dbe6f6;
+  color: var(--pdx-money-ink);
 }
 
-/* …but the two absent states have no figure, and their wording must not borrow
-   the emphasis a dollar total earns. "No money file yet" set brighter and larger
-   than the highlights beside it would be shouting about missing data, which is
-   the opposite of what this chip exists to do calmly. */
-.pdx-mchip[data-pdx-mchip-state="empty"] .pdx-mchip-fig,
-.pdx-mchip[data-pdx-mchip-state="thin"] .pdx-mchip-fig {
-  font-size: 0.6rem;
-  letter-spacing: 0.08em;
-  color: #9fb4d4;
-}
+/* THE ABSENT STATE TAKES NO OVERRIDE, AND THAT IS THE WHOLE POINT.
+   This block used to set the two no-filing states a size smaller and a shade
+   dimmer so that "No money file yet" would not shout. The reasoning was sound
+   and the result was wrong: a chip that visibly weakens when there is no filing
+   IS a variant, and a reader learns to read the weak one as "clean" and the
+   strong one as "something here" — which is a finding about a person made out
+   of the archive's own gaps. One door, one weight, both states. The words
+   inside it carry the difference, and words are all that carries it. */
 
 .pdx-mchip-sep { opacity: 0.45; flex: none; }
 
@@ -103,6 +157,74 @@
     flex-wrap: wrap;
     row-gap: 0.08rem;
   }
+}
+
+/* ── THE OTHER THREE MONEY SURFACES ─────────────────────────────────────────
+   The chip is a door. These are the other three places the same door appears,
+   wearing the same pair so a reader crossing between them knows they have not
+   left the lane. Every one of them is state-blind: nothing below keys off donor
+   mix, off a dollar amount, or off whether a filing exists. */
+
+/* THE MONEY SECTION HEADER. Used on the on-page "Follow the Money" header, on a
+   profile's 💰 Money & Funding block, and on the side-by-side recap. Gold rule
+   above, gold glyph, forest wash behind — the same three moves at three sizes. */
+.pdx-money-h {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-left: 3px solid var(--pdx-money-line);
+  padding-left: 0.6rem;
+}
+.pdx-money-h-ico { color: var(--pdx-money-line); flex: none; }
+.pdx-money-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pdx-money-ink);
+  background: var(--pdx-money-fill);
+  border: 1px solid var(--pdx-money-line-soft);
+  border-radius: 999px;
+  padding: 0.22rem 0.7rem;
+}
+
+/* A MONEY ENTRY — the Follow-the-Money reachability row, and the money rows in
+   the Digital Library's index. A left gold edge and a forest wash: enough to
+   pick out of a list of a dozen non-money rows, not enough to outrank them. */
+.pdx-money-entry {
+  background: var(--pdx-money-fill);
+  border: 1px solid var(--pdx-money-line-soft);
+  border-left: 3px solid var(--pdx-money-line);
+  border-radius: 0.55rem;
+}
+
+/* Dollar marks. Anywhere a money surface prints a figure, the figure is gold —
+   the same gold, at the same weight, whatever the figure is. */
+.pdx-money-fig { color: var(--pdx-money-ink); font-variant-numeric: tabular-nums; }
+
+/* A COMPOSITION BAR: gold is the dollars, slate is the rest.
+   The track is slate rather than the near-black it used to be, because the
+   track is not decoration — it is the remainder, and a reader is entitled to
+   see the whole of the quantity the gold is a part of. Nothing about the fill
+   changes with the size of the share: a 4% fill and a 71% fill are the same
+   gold, and the bar communicates by LENGTH alone. Length is the honest channel
+   for a proportion; brightness would be a second, redundant, gradeable one. */
+.pdx-money-bar {
+  display: block;
+  background: var(--pdx-money-rest);
+  border-radius: 4px;
+  height: 11px;
+  overflow: hidden;
+}
+.pdx-money-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--pdx-money-line);
 }
 
 /* ── ARRIVAL ────────────────────────────────────────────────────────────────

@@ -209,13 +209,53 @@ const L = laneBox().PDXFinanceLane;
   for (const hex of Object.values(L.COLORS)) {
     ok(YES_NO.indexOf(hex.toLowerCase()) < 0, `bucket colour ${hex} is not a verdict colour`);
   }
+  // THIS ASSERTION IS THE REVERSE OF THE ONE IT REPLACES, DELIBERATELY.
+  // It used to read `eq(new Set(hexes).size, hexes.length, "every bucket is a
+  // distinguishable colour")` — five buckets, five hues, categorical and ranking
+  // nothing. The money theme retires that. Two reasons, and the second is the one
+  // that mattered: `selfFunded` was #ffb86c, an amber whose meaning was a
+  // donor-mix category, which is the banned channel however carefully the legend
+  // is worded; and the lane now has ONE pair, so a five-hue bar sitting under a
+  // green-and-gold chip and a green-and-gold header contradicted both of them.
+  // Buckets are now distinguished by their label and their dollar figure, and the
+  // composition is drawn as one gold-on-slate bar per bucket, so the share is
+  // carried by length. Reversing it back would need a reason written down here.
   const hexes = Object.values(L.COLORS).map((h) => h.toLowerCase());
-  eq(new Set(hexes).size, hexes.length, "every bucket is a distinguishable colour");
+  eq(new Set(hexes).size, 1, "every bucket is the same colour — the money gold");
+  eq(hexes[0], "#c9992f", "…and that colour is the money token's gold outline");
+  // The stacked bar is gone with the palette. It always filled 100% (the buckets
+  // sum to `receipts` by construction), so it measured nothing while looking like
+  // a measurement.
+  lacks(LANE_CODE, "overflow:hidden;margin-bottom:0.5rem;background:rgba(10,15,30,0.6)",
+    "the five-segment stacked composition bar is gone");
+  {
+    const comp = L.compositionHtml(L.read(SEED_IDS[0]));
+    const track = (comp.match(/background:#3d4f66/g) || []).length;
+    const fill = (comp.match(/background:#c9992f/g) || []).length;
+    ok(track >= 2, `each bucket row draws its own slate track (saw ${track})`);
+    eq(fill, track, "…and exactly one gold fill per slate track");
+    lacks(comp, "#fb923c",
+      "the outside-spending eyebrow no longer reports a level in orange");
+  }
 
   const MP = R("my-profile.js");
   const mixBlock = MP.slice(MP.indexOf("var MIX = ["), MP.indexOf("function group3"));
   for (const hex of YES_NO) lacks(mixBlock, hex, `the Money Tree palette does not use ${hex}`);
-  has(mixBlock, "LANE_COLORS", "…because it borrows the lane's palette instead");
+  // This used to assert `has(mixBlock, "LANE_COLORS")` — the Money Tree borrowed
+  // finance-lane.js's five hues so one bucket was never two colours on two
+  // surfaces. It now declares no colours at all: the lane's palette is a single
+  // gold, and reading five identical values out of it to paint five bars the same
+  // colour would only look like a distinction. The stronger guarantee is the one
+  // asserted here instead — the Money Tree names no hex.
+  lacks(mixBlock, "#", "the Money Tree declares no colour of its own, in any hex");
+  lacks(MP, "LANE_COLORS = ", "…and no longer keeps a local copy of the lane's palette");
+  {
+    const MPC0 = R("my-profile.css");
+    has(MPC0, "--pdx-money-line", "the Money Tree's bars take their gold from the money token");
+    has(MPC0, "--pdx-money-rest", "…and their track from the money token's slate");
+    lacks(MPC0, ".mp-mix-seg", "the stacked segment class is gone with the stack");
+    lacks(MPC0, ".mp-mix-dot", "…and so is the colour-key legend dot");
+  }
   const MPC = R("my-profile.css");
   lacks(MPC, ".mp-lean.is-grass { color: #86efac",
     "the funding-mix badge is no longer green for one answer and amber for another");

@@ -5018,8 +5018,14 @@
       if (typeof window._pdxFunding === 'function') {
         const _navFund = window._pdxFunding(id);
         if (_navFund) {
-          const _fk = (_navFund.character && _navFund.character.kind) || 'unknown';
-          const _fc = _fk === 'grassroots' ? '#6ee7a0' : _fk === 'bigmoney' ? '#f87171' : _fk === 'mixed' ? '#f5c842' : '#9fb4d4';
+          // The rail's funding dot is the money gold in every case. It used to
+          // switch on `character.kind` — mint for grassroots, red for big-money,
+          // amber for mixed — which put a three-colour verdict on donor mix into
+          // the one component that shows every section of the page at once, right
+          // beside dots that really are graded reads. The rail's job here is
+          // wayfinding: gold says "the money section is down there". What the
+          // filing says stays in the section, in words and figures.
+          const _fc = '#c9992f';
           const _fi = (_navFund.character && _navFund.character.icon) || '💰';
           _navItems.push({ target: 'pdxsec-funding', icon: _fi, label: 'Funding', value: _navFund.raisedFmt, color: _fc });
         }

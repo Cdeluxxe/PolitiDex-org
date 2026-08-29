@@ -150,12 +150,31 @@
 .mp-fig-num { font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif; font-size: 1.5rem; line-height: 1; color: #fcd34d; }
 .mp-fig-lbl { display: block; margin-top: 0.2rem; color: #a9bdda; font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; }
 
-/* stacked funding-mix bar (reused for team blend and per-node) */
-.mp-mix { display: flex; height: 12px; border-radius: 4px; overflow: hidden; background: rgba(10, 15, 30, 0.6); }
-.mp-mix-seg { height: 100%; }
-.mp-mix-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 0.9rem; margin-top: 0.5rem; }
-.mp-mix-key { display: inline-flex; align-items: center; gap: 0.3rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.66rem; letter-spacing: 0.04em; text-transform: uppercase; color: #90a4c4; }
-.mp-mix-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+/* Funding-mix rows (reused for team blend and per-node).
+   ONE ROW PER SOURCE, GOLD ON SLATE. These were flex containers holding coloured
+   segments, plus a dot legend to decode the colours. The money lane has one pair
+   now, so the segments would all have been the same gold and the legend would have
+   been five identical dots. Each source is its own row instead: gold fill for that
+   source's dollars, slate track for the rest of the filing, label and percentage
+   in text on the same line. The bar carries the share by LENGTH, which is the
+   honest channel for a proportion — and because the label sits on the row it
+   describes, there is nothing left for a legend to key. */
+.mp-mix, .mp-mix2 { display: flex; flex-direction: column; gap: 0.28rem; }
+.mp-mixrow { display: flex; align-items: center; gap: 0.5rem; }
+.mp-mixrow-lab {
+  flex: 0 0 7.5rem; min-width: 0; font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--pdx-money-text, #bcd3c6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mp-mixrow-track {
+  flex: 1 1 auto; height: 8px; border-radius: 4px; overflow: hidden;
+  background: var(--pdx-money-rest, #3d4f66);
+}
+.mp-mixrow-fill { display: block; height: 100%; border-radius: 4px; background: var(--pdx-money-line, #c9992f); }
+.mp-mixrow-pct {
+  flex: 0 0 2.2rem; text-align: right; font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.66rem; font-weight: 700; color: var(--pdx-money-ink, #e3c176);
+}
 
 .mp-sectors { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.35rem; }
 .mp-chip {
@@ -265,9 +284,9 @@
 .mp-money-plain { color: #cfe0fb; font-family: 'Barlow', sans-serif; font-size: 0.86rem; line-height: 1.5; margin: 0 0 0.65rem; }
 .mp-money-plain strong { color: #eef4ff; }
 
-/* grouped grassroots-vs-big bar */
-.mp-mix2 { display: flex; height: 16px; border-radius: 5px; overflow: hidden; background: rgba(10, 15, 30, 0.6); }
-.mp-mix2-seg { height: 100%; }
+/* The grouped grassroots-vs-big read shares the row layout above — same gold,
+   same slate, same height. It was a taller stacked bar; three sources do not earn
+   a different visual weight from five. */
 
 .mp-money-block { margin-top: 0.9rem; padding-top: 0.85rem; border-top: 1px solid rgba(255, 255, 255, 0.06); }
 .mp-block-h {

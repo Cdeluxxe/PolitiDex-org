@@ -200,7 +200,12 @@
       function () { if (window.PDXStanceLibrary && window.PDXStanceLibrary.open) window.PDXStanceLibrary.open(); else location.hash = '#stance-library'; });
     push('🗳️', 'Voting Records', 'What they actually did — ranked by consistency.', null, '#a78bfa',
       function () { if (window.PDXIssueView && window.PDXIssueView.open) location.hash = '#issue-front-door'; else location.hash = '#issue-front-door'; });
-    push('💰', 'Federal Spending Tracker', 'Government contracts by agency, company & state.', gcN, '#4ade80',
+    // The one money entry in this shelf takes the money lane's gold, so 💰 and
+    // gold together mean "dollars" here the same way they do on a profile. It was
+    // #4ade80 — the site's YES green, which belongs to a vote. Note that the
+    // `economy` ISSUE category further down keeps its own colour: issue chips are
+    // a different vocabulary and the money pair is not for sale to them.
+    push('💰', 'Federal Spending Tracker', 'Government contracts by agency, company & state.', gcN, '#c9992f',
       function () { if (window.PDXContracts && window.PDXContracts.open) window.PDXContracts.open(); else location.hash = '#digital-library'; });
     push('🧾', 'Say vs. Do', 'Receipts where the record met the rhetoric.', rcN, '#f6d873',
       function () { location.hash = '#say-vs-do'; });

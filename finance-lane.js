@@ -108,11 +108,52 @@
     { key: 'party', label: 'party committee transfers', short: 'Party' }
   ];
   // Categorical, not evaluative. See the palette note in the header.
+  // ── THE BUCKET PALETTE IS NOW ONE COLOUR, AND THAT IS A REVERSAL ───────────
+  // This map used to hold five distinguishable hues — blue, purple, mint, amber,
+  // steel — one per bucket, and FINANCE_INTEGRITY.md defended them as categorical:
+  // they distinguished buckets and ranked none of them. That defence was true of
+  // the ORDER of the colours. It was not true of the colours themselves.
+  //   `selfFunded` was #ffb86c. That is an amber, and its meaning was a donor-mix
+  // category. A reader does not need a legend to know what an amber band in a
+  // funding chart is telling them to think, and a palette cannot disclaim the
+  // connotations of its own members. Five hues on the most prominent money visual
+  // on the site also could not coexist with one money pair: whatever the chip and
+  // the header agreed to mean, the bar underneath them spoke a different language
+  // with five words in it.
+  //   So every bucket is the money gold, and the composition is drawn as one bar
+  // per bucket — gold for that bucket's dollars against a slate track for the rest
+  // of the receipts. Length carries the share, which is the honest channel for a
+  // proportion; the label and the dollar figure carry which bucket it is, which is
+  // what text is for. Nothing is distinguished by hue, so nothing can be over-read
+  // as ranked by hue. The doctrine's purpose survives; its mechanism does not.
+  //   The five keys stay, because `compose()` publishes a `color` on every row and
+  // consumers (the Money Tree, the ledger recap) read it. They now all read gold.
   var COLORS = {
-    smallDollar: '#7cc4ff', largeIndividual: '#c4a6ff', pac: '#5efcc4',
-    selfFunded: '#ffb86c', party: '#7596c0'
+    smallDollar: '#c9992f', largeIndividual: '#c9992f', pac: '#c9992f',
+    selfFunded: '#c9992f', party: '#c9992f'
   };
-  var ACCENT = '#9fb4d4';   // the lane's own neutral, used where a score used a ramp
+  // ── THE MONEY TOKEN ────────────────────────────────────────────────────────
+  // Mirrors the custom properties in finance-lane.css. Two homes because this
+  // module builds several blocks with inline styles on purpose (they travel into
+  // surfaces that do not load the lane's stylesheet), and a var() that resolves
+  // to nothing renders an invisible bar. scripts/test-money-theme.mjs asserts the
+  // two copies agree hex for hex, so they cannot drift.
+  //
+  // ONE PAIR. Deep forest fill, gold outline / 💰 / dollar marks. It means "this
+  // is the money lane" and it means nothing else: it does not vary with donor
+  // mix, with the size of the figure, or with whether a filing exists at all.
+  // The empty file and the $8.6M file wear it identically. See the doctrine note
+  // at the top of finance-lane.css.
+  var THEME = {
+    fill: 'rgba(15, 61, 46, 0.55)',
+    fillHi: 'rgba(19, 78, 58, 0.78)',
+    line: '#c9992f',
+    lineSoft: 'rgba(201, 153, 47, 0.45)',
+    ink: '#e3c176',
+    text: '#bcd3c6',
+    rest: '#3d4f66'
+  };
+  var ACCENT = THEME.line;  // the lane's one accent, where a score used a ramp
 
   // Unique-id counter for the mounted letterhead chip host. One profile can be
   // built more than once in a session (a repaint, a second modal), and two hosts
@@ -236,57 +277,75 @@
     return compose(rec, { asOf: W.FTM_AS_OF || '' });
   }
 
-  // ── THE COMPOSITION BLOCK ──────────────────────────────────────────────────
-  // Dollars lead, share follows in the same row, and the stacked bar is a picture
-  // of the same two numbers rather than a fourth figure. No tile, no headline
-  // number, no "why this score".
+  // ── THE COMPOSITION BLOCK ─────────────────────────────────────────────────
+  // Dollars lead, share follows in the same row, and the bar is a picture of the
+  // same two numbers rather than a fourth figure. No tile, no headline number, no
+  // "why this score".
+  //
+  //   WHY THIS IS NO LONGER ONE STACKED BAR. It used to be a single 14px bar cut
+  // into five coloured segments. Two things were wrong with that. The first is the
+  // palette — see COLORS above. The second is arithmetic: in `compose()` the five
+  // buckets sum to `receipts` by construction, so the stack ALWAYS filled the full
+  // width. A bar that is always 100% full is not measuring anything; it is a
+  // decoration shaped like a measurement, and the only variable a reader could
+  // actually see in it was which colour happened to be widest.
+  //   Now each bucket gets its own row: a gold fill against a slate track, where
+  // gold is that bucket's dollars and slate is every other dollar in the filing.
+  // Those bars differ from one another, and they differ for the reason a reader
+  // will assume they differ. No row is emphasised over another — same height, same
+  // gold, same slate, whether the bucket is 2% or 71%.
   function compositionHtml(c) {
     if (!c) return '';
-    var bar = c.rows.map(function (r) {
-      return '<div title="' + attr(r.short + ' ' + r.share + '%') + '" style="width:' +
-        Math.max(r.share, 1) + '%;background:' + r.color + ';height:100%;"></div>';
-    }).join('');
     var list = c.rows.map(function (r) {
-      return '<div style="display:flex;align-items:baseline;gap:0.5rem;padding:0.16rem 0;">' +
-        '<span style="width:9px;height:9px;border-radius:2px;background:' + r.color +
-          ';flex-shrink:0;position:relative;top:-1px;"></span>' +
-        '<span style="flex:1;min-width:0;font-family:\'Barlow\',sans-serif;font-size:0.7rem;color:#c8d8ea;">' +
-          esc(r.label) + '</span>' +
-        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.72rem;font-weight:700;color:#dbe6f6;white-space:nowrap;">' +
-          esc(r.amountFmt) + '</span>' +
-        '<span style="width:34px;text-align:right;font-family:\'Barlow Condensed\',sans-serif;font-size:0.66rem;color:#7596c0;">' +
-          r.share + '%</span>' +
+      var w = Math.max(Math.min(r.share, 100), 0);
+      return '<div style="padding:0.2rem 0;">' +
+        '<div style="display:flex;align-items:baseline;gap:0.5rem;">' +
+          '<span style="flex:1;min-width:0;font-family:\'Barlow\',sans-serif;font-size:0.7rem;color:' + THEME.text + ';">' +
+            esc(r.label) + '</span>' +
+          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.72rem;font-weight:700;color:' + THEME.ink + ';white-space:nowrap;">' +
+            esc(r.amountFmt) + '</span>' +
+          '<span style="width:34px;text-align:right;font-family:\'Barlow Condensed\',sans-serif;font-size:0.66rem;color:#7596c0;">' +
+            r.share + '%</span>' +
+        '</div>' +
+        '<div title="' + attr(r.short + ' ' + r.share + '% of reported receipts') +
+          '" style="margin-top:0.18rem;height:7px;border-radius:4px;overflow:hidden;background:' + THEME.rest + ';">' +
+          '<div style="width:' + w + '%;height:100%;background:' + THEME.line + ';border-radius:4px;"></div>' +
+        '</div>' +
       '</div>';
     }).join('');
     var cyc = c.cycle ? (esc(c.cycle) + ' cycle · ') : '';
+    // The outside-spending eyebrow was #fb923c. An orange headline attached to a
+    // donor-mix fact is the banned channel exactly: it reported a level in colour
+    // before the sentence underneath got to report it in words. The level, when
+    // there is one, is still printed — as text, in the eyebrow, where a reader can
+    // read what it is instead of inferring how bad it is.
     var outNote = c.outside && (c.outside.level || c.outside.note)
       ? '<div style="margin-top:0.5rem;font-family:\'Barlow\',sans-serif;font-size:0.66rem;color:#9fb4d4;line-height:1.5;">' +
-          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.08em;text-transform:uppercase;color:#fb923c;">' +
+          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.08em;text-transform:uppercase;color:' + THEME.ink + ';">' +
             '🕳️ Outside spending reported' + (c.outside.level ? ' — ' + esc(c.outside.level) : '') +
           '</span><br>' + esc(c.outside.note) +
           ' Outside spending is not itemized to the candidate, so no dollar figure is shown for it.' +
           (c.outside.source ? ' <a href="' + attr(c.outside.source) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color:#7596c0;">source ↗</a>' : '') +
         '</div>'
       : '';
-    return '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(159,180,212,0.22);border-radius:0.625rem;padding:0.7rem 0.8rem;margin-bottom:0.75rem;">' +
-      '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:0.5rem;margin-bottom:0.45rem;">' +
-        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">' +
-          'Reported receipts, by source</span>' +
-        '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.05rem;letter-spacing:0.03em;color:#dbe6f6;">' +
+    return '<div style="background:' + THEME.fill + ';border:1px solid ' + THEME.lineSoft + ';border-radius:0.625rem;padding:0.7rem 0.8rem;margin-bottom:0.75rem;">' +
+      '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;padding-bottom:0.4rem;border-bottom:1px solid ' + THEME.lineSoft + ';">' +
+        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;color:' + THEME.line + ';">' +
+          '💰 Reported receipts, by source</span>' +
+        '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.05rem;letter-spacing:0.03em;color:' + THEME.ink + ';">' +
           esc(c.receiptsFmt) + '</span>' +
       '</div>' +
-      '<div style="display:flex;height:14px;border-radius:4px;overflow:hidden;margin-bottom:0.5rem;background:rgba(10,15,30,0.6);">' + bar + '</div>' +
       list +
       outNote +
-      '<div style="margin-top:0.55rem;padding-top:0.45rem;border-top:1px solid rgba(255,255,255,0.06);font-family:\'Barlow\',sans-serif;font-size:0.62rem;color:#5b7196;line-height:1.5;">' +
+      '<div style="margin-top:0.55rem;padding-top:0.45rem;border-top:1px solid rgba(255,255,255,0.06);font-family:\'Barlow\',sans-serif;font-size:0.62rem;color:#8fa8bd;line-height:1.5;">' +
         'Composition as filed. This is a disclosure record, not a score — nothing here ' +
         'is rated, ranked, or read by ⚖️ Word vs Action, by Direction Match, or by any ' +
         'ordering of one person against another.' +
       '</div>' +
       '<div style="margin-top:0.4rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.35rem;">' +
-        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.04em;color:#5b7196;">🕒 ' +
+        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.04em;color:#8fa8bd;">🕒 ' +
           cyc + (c.asOf ? 'updated ' + esc(c.asOf) : 'filing date on source') + '</span>' +
-        (c.source ? '<a href="' + attr(c.source) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.06em;text-transform:uppercase;color:#7cc4ff;text-decoration:none;">📄 Verify at source ↗</a>' : '') +
+        (c.source ? '<a href="' + attr(c.source) + '" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.06em;text-transform:uppercase;color:' + THEME.ink + ';text-decoration:none;">📄 Verify at source ↗</a>' : '') +
       '</div>' +
     '</div>';
   }
@@ -297,29 +356,39 @@
   // "never checked". This row renders in BOTH states and is the person file's one
   // labelled door into the money lane. The absent state is a sentence about the
   // data, never a sentence about the person.
+  //
+  //   ONE DOOR IN BOTH STATES, INCLUDING THE FRAME. This row used to draw itself
+  // with a DASHED border when no filing was on file and a SOLID one when a filing
+  // was, which meant the row's own outline announced the answer before the words
+  // did — and announced it in the visual vocabulary of an unfinished thing. Both
+  // states now take the identical money pair: forest fill, gold left edge, gold
+  // dollar marks. What differs is the sentence inside, which is the only thing
+  // entitled to differ.
   function entryHtml(pid) {
     var c = read(pid), cov = coverage();
-    var head = '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">' +
-      '💵 Campaign finance — disclosure lane</span>';
+    var box = 'background:' + THEME.fill + ';border:1px solid ' + THEME.lineSoft +
+      ';border-left:3px solid ' + THEME.line + ';border-radius:0.55rem;padding:0.6rem 0.75rem;margin:0.5rem 0;';
+    var head = '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:' + THEME.ink + ';">' +
+      '<span style="color:' + THEME.line + ';">\ud83d\udcb0</span> Campaign finance \u2014 disclosure lane</span>';
     if (!c) {
-      return '<div style="border:1px dashed rgba(159,180,212,0.25);border-radius:0.7rem;padding:0.6rem 0.75rem;margin:0.5rem 0;">' +
-        head +
-        '<p style="font-family:\'Barlow\',sans-serif;font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0.3rem 0 0;">' +
-          '<strong style="color:#c8d8ea;">No itemized filing on file.</strong> ' + esc(cov.sentence) +
+      return '<div style="' + box + '">' + head +
+        '<p style="font-family:\'Barlow\',sans-serif;font-size:0.7rem;color:' + THEME.text + ';line-height:1.55;margin:0.3rem 0 0;">' +
+          '<strong style="color:#dbe6f6;">No itemized filing on file.</strong> ' + esc(cov.sentence) +
         '</p>' +
       '</div>';
     }
     var lead = c.largest
-      ? ('Largest reported source: ' + esc(c.largest.label) + ' — ' +
-         esc(c.largest.amountFmt) + ' of ' + esc(c.receiptsFmt) +
+      ? ('Largest reported source: ' + esc(c.largest.label) + ' \u2014 ' +
+         '<span style="color:' + THEME.ink + ';">' + esc(c.largest.amountFmt) + '</span> of ' +
+         '<span style="color:' + THEME.ink + ';">' + esc(c.receiptsFmt) + '</span>' +
          (c.largestTied ? ' (tied with another source)' : ''))
-      : ('Reported receipts: ' + esc(c.receiptsFmt));
-    return '<div style="border:1px solid rgba(159,180,212,0.22);border-radius:0.7rem;padding:0.6rem 0.75rem;margin:0.5rem 0;">' +
+      : ('Reported receipts: <span style="color:' + THEME.ink + ';">' + esc(c.receiptsFmt) + '</span>');
+    return '<div style="' + box + '">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">' + head +
-        '<a href="#follow-the-money" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:#7cc4ff;text-decoration:none;white-space:nowrap;">Follow the Money →</a>' +
+        '<a href="#follow-the-money" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:' + THEME.ink + ';text-decoration:none;white-space:nowrap;">Follow the Money \u2192</a>' +
       '</div>' +
-      '<p style="font-family:\'Barlow\',sans-serif;font-size:0.7rem;color:#c8d8ea;line-height:1.55;margin:0.3rem 0 0;">' + lead +
-        ' <span style="color:#7596c0;">· ' + c.rows.length + ' reported source' +
+      '<p style="font-family:\'Barlow\',sans-serif;font-size:0.7rem;color:' + THEME.text + ';line-height:1.55;margin:0.3rem 0 0;">' + lead +
+        ' <span style="color:#7596c0;">\u00b7 ' + c.rows.length + ' reported source' +
         (c.rows.length === 1 ? '' : 's') + '</span></p>' +
     '</div>';
   }
@@ -592,7 +661,11 @@
 
   W.PDXFinanceLane = {
     BUCKETS: BUCKETS.map(function (b) { return { key: b.key, label: b.label, short: b.short }; }),
-    COLORS: COLORS, ACCENT: ACCENT, THIN_AT: THIN_AT,
+    // THEME is published so the fence can compare it, value by value, against the
+    // :root custom properties in finance-lane.css. Two copies of the token exist
+    // (inline styles travel into surfaces that never load the stylesheet), and two
+    // copies that can drift silently are worse than one that cannot travel.
+    THEME: THEME, COLORS: COLORS, ACCENT: ACCENT, THIN_AT: THIN_AT,
     compose: compose, read: read,
     coverage: coverage, coverageHtml: coverageHtml,
     compositionHtml: compositionHtml, entryHtml: entryHtml,
