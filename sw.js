@@ -325,7 +325,29 @@
 // arrive together on the load after. Presentation and load-state
 // only: no floor, mapping, weight, Direction Match input or dossier arithmetic
 // moved, no key or ingest was added, and nothing here is database-side.
-const CACHE_VERSION = 'v84';
+// v85 — FEDERAL WAVE F3 SHIPPED THREE JUDGED MAPPINGS, SO THE CURATED MECHANISM
+// PROSE HAS TO ARRIVE WITH THEM. The wave's substance is database-side: migration
+// 20261017000000 admits three Senate/House roll calls, creates S.J.Res. 7 and
+// H.J.Res. 140, and files three issue mappings (broadband w100 PRIMARY,
+// lands_preserve w90 PRIMARY, lands_energy w75 secondary). The only shipped
+// browser file it touches is consistency.js, which gained the three matching
+// _DOS_MECH entries runbook rule 33 requires — the curated did/why pair the
+// mechanism pane prints instead of the derived sentence.
+// Bumped for delivery rather than to prevent a half-pickup: one file changed, so
+// there is no pair that can arrive out of step. What a phone still holding v84
+// would show is worth stating exactly, because it is a degradation and not a
+// breakage — the three new rows appear as soon as the migration lands (they come
+// from the API, not from the bundle), and their mechanism pane falls back to the
+// derived voice, which on a one-sentence joint resolution reads "counted on the
+// broadband chip because that is the primary subject of this measure" over a
+// document whose subject a reader cannot infer from its number. Correct, useless,
+// and the reason the entries were written. The rename empties the shell and the
+// runtime cache on activate so the curated prose arrives on the load after.
+// No floor moved (_RD_MIN_PRIMARY, _RD_MIN_JUDGED, _RD_SPLIT_*, _PDX_RD_MEMBER_FLOOR
+// are byte-identical), no issue key was added, no Direction Match or Word-vs-Action
+// input changed, and every issue row in the product is byte-identical to HEAD on a
+// twin boot — pinned by scripts/test-vr-federal-wave-f3.mjs.
+const CACHE_VERSION = 'v85';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

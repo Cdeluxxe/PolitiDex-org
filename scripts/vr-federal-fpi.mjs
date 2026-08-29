@@ -17,6 +17,7 @@
 //   node scripts/vr-federal-fpi.mjs --member lee         # one member, both reads
 //   node scripts/vr-federal-fpi.mjs --json               # machine-readable
 //   node scripts/vr-federal-fpi.mjs --drift              # per-issue tier changes
+//   node scripts/vr-federal-fpi.mjs --set all --chambers # PRIMARY by chamber + Senate unread
 //
 // "AFTER" INCLUDES ROWS THE DATABASE DOES NOT HOLD YET. The wave's migration is
 // applied by the platform at build, and the build cannot be run from here, so the
@@ -73,6 +74,7 @@ const J = (f) => JSON.parse(R(f));
 const WAVES = {
   f1: { mapping: "db/vr-federal-mapping-seed-f1.json", votes: "db/vr-federal-depth-vote-seed.json" },
   f2: { mapping: "db/vr-federal-mapping-seed-f2.json", votes: "db/vr-federal-wave-f2-vote-seed.json" },
+  f3: { mapping: "db/vr-federal-mapping-seed-f3.json", votes: "db/vr-federal-wave-f3-vote-seed.json" },
 };
 
 const FILES = [
@@ -528,6 +530,86 @@ function whyTable(rows) {
   return [...tally].sort((a, b) => b[1] - a[1]);
 }
 
+// ── WHICH CHAMBER, AND WHERE THE PRIMARY INSTRUMENTS ARE ────────────────────
+// F2 closed a hole in the numbers and left one in the WRITING: it added three
+// Senate rolls on two keys, and every other key a senator touches still had zero
+// Senate instrument mapped at PRIMARY weight. A senator's brief on such a key is
+// built entirely out of omnibus vehicles and stowaway secondaries, so the engine
+// either declines to read it (`vehicle_only`, `incidental`) or reads it off a
+// measure that is not about the issue. The band table cannot show that, because a
+// row is a row whichever chamber's instrument produced it. So the census below is
+// per (issue key, chamber), and it is the table a Senate densification wave has to
+// be picked off rather than off a candidate list carried over from the last pass.
+//
+// "PRIMARY in chamber C" means: at least one measure carrying this key with
+// `is_primary` true, on which a member of chamber C has a ROLL CALL vote in the
+// corpus. Roll calls only, not positions — a cosponsorship is not a floor act and
+// a wave aimed at readability cannot be measured on one. The count is of distinct
+// MEASURES, not rows: two rolls on one bill are one instrument.
+const MEMBER_CHAMBER = (() => {
+  const out = new Map();
+  for (const v of Object.values(J("db/vr-member-map.json").members || {})) {
+    if (v && v.slug && v.chamber) out.set(v.slug, String(v.chamber).toLowerCase());
+  }
+  return out;
+})();
+
+function chamberPrimary(lane, issueRows) {
+  const rollChambers = new Map();
+  for (const v of lane.votes) {
+    if (!v.source_url) continue;                            // same verifiability guard as itemsFor
+    const s = rollChambers.get(v.measure_id) || new Set();
+    s.add(String(v.chamber));
+    rollChambers.set(v.measure_id, s);
+  }
+  const label = new Map();
+  for (const m of lane.measures) label.set(m.id, String(m.number).trim());
+  const per = new Map();
+  const slot = (k) => {
+    let e = per.get(k);
+    if (!e) { e = { primary: { senate: new Set(), house: new Set() }, any: { senate: new Set(), house: new Set() } }; per.set(k, e); }
+    return e;
+  };
+  for (const r of issueRows) {
+    const chs = rollChambers.get(r.measure_id);
+    if (!chs) continue;
+    const e = slot(r.issue_key);
+    const name = label.get(r.measure_id) || String(r.measure_id);
+    for (const c of chs) {
+      if (!e.any[c]) continue;                              // a third chamber would be a data error, not a bucket
+      e.any[c].add(name);
+      if (r.is_primary) e.primary[c].add(name);
+    }
+  }
+  return per;
+}
+
+// ── THE OUTCOME COLUMN ──────────────────────────────────────────────────────
+// The census table's last column is the wave's DECISION on the key, and it lives
+// here rather than in prose so the before table and the after table are generated
+// from one source. A key with no entry prints "—", which is the honest reading for
+// most of the vocabulary: not examined this wave. Every entry a wave writes here
+// is either SHIPPED (a Senate PRIMARY instrument landed), REFUSED (an instrument
+// was found and declined, with the reason), or BLOCKED (no admissible instrument
+// exists yet, and the note names the bill that would unblock it).
+const F3_OUTCOME = {
+  broadband:        { verdict: "SHIPPED",  note: "S.J.Res. 7 — first broadband PRIMARY in either chamber" },
+  lands_preserve:   { verdict: "SHIPPED",  note: "H.J.Res. 140 — first Senate-reachable lands_preserve PRIMARY" },
+  lands_energy:     { verdict: "SHIPPED",  note: "H.J.Res. 140 mirror secondary; measured +8/-1, disclosed" },
+  gov_regulation:   { verdict: "REFUSED",  note: "process secondary on both CRAs: gains 0 rows, costs 2 (rule 30 wall)" },
+  energy_production:{ verdict: "REFUSED",  note: "no hydrocarbon programme in PLO 7917; cousin of lands_energy" },
+  water:            { verdict: "REFUSED",  note: "scope note is demand-side; this is a land-protection act" },
+  climate_action:   { verdict: "REFUSED",  note: "no emissions provision in the disapproved order" },
+  public_schools:   { verdict: "REFUSED",  note: "E-Rate hotspots are off-premises access, not district money" },
+  rural_ag:         { verdict: "REFUSED",  note: "keyword collision on 'rural broadband' / 'grazing' only" },
+  health_rural:     { verdict: "BLOCKED",  note: "only Baldwin Amdt. 1693, a deficit-neutral reserve fund (rule 31)" },
+  free_speech:      { verdict: "BLOCKED",  note: "S. 146 passed by unanimous consent; zero rolls to attribute" },
+  econ_smallbiz:    { verdict: "BLOCKED",  note: "only Scott FL Amdt. 3113, 15-81, below rule 11's one-tenth bar" },
+  econ_workers:     { verdict: "BLOCKED",  note: "H.R. 5408 received in the Senate, never voted" },
+  scotus_reform:    { verdict: "BLOCKED",  note: "no Senate instrument of any kind in the 119th" },
+  tax_middle_class: { verdict: "BLOCKED",  note: "every Senate act is inside a reconciliation vehicle" },
+};
+
 // ── ONE ROW, BEFORE AND AFTER ───────────────────────────────────────────────
 // The band table and the drift list say a row's tier moved; neither says what the
 // engine was looking at when it moved. This prints the row model itself for one
@@ -556,6 +638,60 @@ if (argOf("row")) {
   };
   dump(winB, before, "BEFORE");
   dump(winA, after, "AFTER");
+  console.log("");
+} else if (process.argv.includes("--chambers")) {
+  // PRIMARY-BY-CHAMBER, plus the Senate side of the unread-reason census, in one
+  // table. Run it with `--set all`: on the Utah set the PRIMARY counts would be
+  // limited to instruments a Utah member happened to vote on, which reads as a
+  // national gap when it is a roster artefact.
+  const senPids = [...ROSTER].filter((p) => MEMBER_CHAMBER.get(p) === "senate").sort();
+  const CP_B = chamberPrimary(lane, lane.issues), CP_A = chamberPrimary(V.lane, O.rows);
+  const bRows = whyRows(winB, before, senPids), aRows = whyRows(winA, after, senPids);
+  const bucket = (rows) => {
+    const m = new Map();
+    for (const r of rows) {
+      const e = m.get(r.key) || { vehicle_only: 0, incidental: 0, other: 0, total: 0 };
+      e[r.why === "vehicle_only" || r.why === "incidental" ? r.why : "other"]++;
+      e.total++;
+      m.set(r.key, e);
+    }
+    return m;
+  };
+  const UB = bucket(bRows), UA = bucket(aRows);
+  const keys = [...new Set([...CP_B.keys(), ...CP_A.keys(), ...UB.keys(), ...UA.keys(), ...Object.keys(F3_OUTCOME)])];
+  const sp = (m, k) => ((m.get(k) || {}).primary || {});
+  const rank = (k) => {
+    const u = UB.get(k) || { vehicle_only: 0, incidental: 0, total: 0 };
+    const s0 = (sp(CP_B, k).senate || new Set()).size;
+    return [s0 === 0 ? 0 : 1, -(u.vehicle_only * 2 + u.incidental), -u.total];
+  };
+  keys.sort((a, b) => {
+    const x = rank(a), y = rank(b);
+    for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] - y[i];
+    return a.localeCompare(b);
+  });
+  console.log(`\n  PRIMARY BY CHAMBER — set "${SET}" — waves ${WAVE_KEYS.join("+")} — ${senPids.length} senators on the roster\n`);
+  console.log(`  key                        SenP  SenP'  HouP  Sen unread (vehicle/incid/other)   outcome`);
+  for (const k of keys) {
+    const b = (sp(CP_B, k).senate || new Set()).size, a = (sp(CP_A, k).senate || new Set()).size;
+    const h = (sp(CP_B, k).house || new Set()).size;
+    const u = UB.get(k) || { vehicle_only: 0, incidental: 0, other: 0, total: 0 };
+    const u2 = UA.get(k) || { vehicle_only: 0, incidental: 0, other: 0, total: 0 };
+    const d = u2.total - u.total;
+    const o = F3_OUTCOME[k];
+    if (!o && !u.total && !a && !h) continue;               // nothing recorded either way: not a row of this table
+    console.log(`  ${k.padEnd(26)} ${String(b).padStart(4)} ${String(a === b ? "" : "→" + a).padStart(6)}`
+      + ` ${String(h).padStart(5)}   ${String(u.vehicle_only).padStart(3)} /${String(u.incidental).padStart(4)} /${String(u.other).padStart(5)}`
+      + `  ${String(u.total).padStart(3)} rows${d ? ` → ${u2.total} (${d > 0 ? "+" + d : d})` : "        "}`
+      + `   ${o ? o.verdict + " · " + o.note : "—"}`);
+  }
+  const senP0 = keys.filter((k) => !(sp(CP_B, k).senate || new Set()).size);
+  const senP0A = keys.filter((k) => !(sp(CP_A, k).senate || new Set()).size);
+  console.log(`\n  keys with a Senate PRIMARY instrument: before ${keys.length - senP0.length} of ${keys.length}   after ${keys.length - senP0A.length} of ${keys.length}`);
+  console.log(`  Senate unread rows over ${senPids.length} senators: before ${bRows.length}   after ${aRows.length}   (${aRows.length - bRows.length})`);
+  const tb = whyTable(bRows), ta = new Map(whyTable(aRows));
+  for (const [id, n] of tb) console.log(`    ${id.padEnd(22)} ${String(n).padStart(5)} → ${String(ta.get(id) || 0).padStart(5)}`);
+  for (const [id, n] of ta) if (!tb.some((x) => x[0] === id)) console.log(`    ${id.padEnd(22)} ${String(0).padStart(5)} → ${String(n).padStart(5)}`);
   console.log("");
 } else if (process.argv.includes("--why")) {
   const sorted = [...ROSTER].sort();

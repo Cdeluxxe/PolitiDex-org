@@ -1,0 +1,595 @@
+{
+ "_comment": "Federal wave F3 — DECISION SEED. Standalone Senate PRIMARYs for the chamber gap wave F2 left written on the page. Two Congressional Review Act joint resolutions, three roll calls, both measures new to the corpus. Every row below is a decision with a weight, a polarity and an argument, or a refusal with an argument. Consumed by scripts/vr-gen-federal-wave-f3-migration.mjs (which takes the insertable rationale and source from db/vr-issue-seed.json) and projected read-only by scripts/vr-federal-fpi.mjs.",
+ "_status": "DECIDED. Every row below carries a decision, a weight, a polarity and an argument, or a written refusal. Nothing is queued, nothing is provisional, and no key was assigned from a bill title or a vote-menu line: both instruments were read from their engrossed text on govinfo and both disapproved agency documents were read from their own Federal Register abstracts.",
+ "_decidedBy": "Federal wave F3, curator pass. Instruments read 2026-08-29.",
+ "_doctrine": "Formal record only. No party score, no package percentage, no invented stance, no floor moved: _RD_MIN_PRIMARY, _RD_MIN_JUDGED, _RD_SPLIT_MIN_JUDGED, _RD_SPLIT_MIN_SIDE and _PDX_RD_MEMBER_FLOOR are byte-identical to their pre-wave values and scripts/test-vr-federal-wave-f3.mjs reads them as literals out of stance-helpers.js to prove it. One instrument, one act. Direction Match and Word-vs-Action are untouched and are required to be byte-identical on a twin boot. Attribution is fail-closed: a voter this wave cannot resolve on two independent published identifiers is skipped and counted, never approximated.",
+ "_fpiTarget": "Give a censused key its first Senate-reachable PRIMARY instrument, so that the senators whose rows the primary wall currently writes read from their own record instead. Measured before and after with `node scripts/vr-federal-fpi.mjs --set all --chambers`; both tables are published in the write-up and the before half is reproduced under `census` below.",
+ "measures": [
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "senate",
+   "number": "S.J.Res. 7",
+   "shortTitle": "Disapproving the FCC E-Rate Wi-Fi hotspot rule",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/7",
+   "decisiveRoll": "senate 119/1 roll 238, 'On the Joint Resolution', 50-38 Joint Resolution Passed, 2025-05-08 11:18 ET — the only substantive roll call on this resolution in either chamber",
+   "checks": {
+    "decisiveQuestion": "'On the Joint Resolution' on an S.J.Res. is the single entry in rule 12's PASSAGE_FORMS. Admitted on the form alone, so no decisiveWhy is written. The sibling roll on the same resolution — senate 119/1 roll 235, 'On the Motion to Proceed', 53-47, 2025-05-06 — is refused on question form under rule 8 and is recorded under declinedRollCalls.",
+    "singleSubject": "Read from the engrossed text (govinfo BILLS-119sjres7es), which is one operative sentence in full: 'That Congress disapproves the rule submitted by the Federal Communications Commission relating to ``Addressing the Homework Gap Through the E-Rate Program'' (89 Fed. Reg. 67303 (August 20, 2024)), and such rule shall have no force or effect.' There is no second subject, no reserve fund, no sense-of-the-Senate clause and no severable provision.",
+    "notReserveFund": "Correct. Rule 31's three textual tells — 'To establish a deficit-neutral reserve fund relating to…', 'To make sure the Senate can…', and an operative verb of 'consider' — are all absent. The operative verb is 'disapproves', and 5 U.S.C. 802 makes the effect operate by law on enactment.",
+    "proceduralInversion": "No. The question is the joint resolution itself, so yeaBlocksMeasure() does not fire and the ordinary direction holds: a yea advances the disapproval.",
+    "nearUnanimity": "No. 50-38 with 12 not voting. The losing side is 43.182% of the yea+nay pool, far above rule 11's one-tenth bar. Party totals from the document itself: R 50-0 yea, D 0-36 nay, I 0-2 nay.",
+    "twoFlankNays": "Checked (rule 5 / rule 23) and NO. All 38 nays argue the same thing — that the hotspot support should stand — so there is no second flank arguing the disapproval does not go far enough, and the headline key stands with no provision-level substitution. Read off the floor statements on the resolution rather than off the tally's party columns, deliberately: the two-flank test asks how many ARGUMENTS the losing side holds, and a party column cannot answer that question. The party split is recorded on the roll call itself, where it belongs, and is not reasoning here.",
+    "enactedTier": "Not law. Passed the Senate 2025-05-08 and went no further: govinfo holds is, es and pcs for this resolution and returns 302 for enr and eh, so there is no enrolled text and no House passage. Filed status 'passed_senate'.",
+    "ruleStillInForce": "Recorded, and it does not change the vote. The FCC itself rescinded the 2024 hotspot rules on reconsideration at 91 Fed. Reg. 2492 (2026-01-21). The mapping is of the 2025 ACT, not of the rule's present status; a senator's recorded vote is not retroactively unmade by an agency doing the same thing later."
+   },
+   "issues": [
+    {
+     "issueKey": "broadband",
+     "decision": "ACCEPTED",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "See db/vr-issue-seed.json for the row as inserted. In short: the disapproved rule's own Federal Register abstract states its subject as 'allowing for the distribution of Wi-Fi hotspots and services to students, school staff, and library patrons for off-premises use' — household connectivity, funded through a school programme. broadband's chip is 'Bring fast, affordable internet to rural and underserved communities' and its keyword list names 'internet access', 'digital divide', 'connectivity', 'underserved' and 'fcc'. A yea strikes the rule, so yea_opposes. Primary at 100, the primary weight every CRA in the record already carries.",
+     "sourceUrl": "https://www.federalregister.gov/documents/2024/08/20/2024-18122/addressing-the-homework-gap-through-the-e-rate-program"
+    },
+    {
+     "issueKey": "gov_regulation",
+     "decision": "REFUSED",
+     "why": "REFUSED, and this is the wave's one deliberate divergence from a live corpus habit, so the argument is written out in full. Every Congressional Review Act resolution already in the record carries a gov_regulation process secondary — H.J.Res. 44, 88, 89 and 131 at weight 60, H.J.Res. 78 at 70 — and consistency alone would have filed this one the same way. It was drafted, projected and MEASURED, and the measurement refused it: adding the gov_regulation secondary to this resolution and to H.J.Res. 140 gains ZERO characterised rows and costs TWO (angus_king/gov_regulation and lujan/gov_regulation, both read → unread). The mechanism is the one runbook rule 30 names and F1 documented. Each of those two senators holds exactly three live gov_regulation acts — H.J.Res. 44, 88 and 89 — all of them non-primary, all of them voted nay, a perfectly uniform record the engine names today. Two more non-primary acts take them to five, across _RD_MIN_JUDGED, onto the deepEnough branch, where the primary wall (primary < 1) fires because neither senator has a recorded vote on any gov_regulation PRIMARY. A uniform record would stop being named, and nothing would be named in its place. That is a tripped wall, not a surfaced contradiction: all five acts point the same way, so there is no disagreement for the engine to have found. Rule 30 is explicit that a key is fixed by supplying a PRIMARY and never by a further secondary, and gov_regulation needs no fixing — it already holds five PRIMARY instruments, two of them Senate-reachable. Refusing costs the record nothing an act it does not already hold, because the process axis of these two resolutions is identical to the process axis of the four CRAs already filed on it. WHAT WOULD MAKE THE ROW CORRECT: a gov_regulation PRIMARY that King and Lujan have a recorded vote on. S.J.Res. 18 is the key's Senate PRIMARY and neither of them is on its roll. Until then the row is a deletion of information dressed as completeness, and it is left out."
+    },
+    {
+     "issueKey": "public_schools",
+     "decision": "REFUSED",
+     "why": "REFUSED on the key's own scope note, which is quoted here rather than paraphrased: public_schools is 'the money and staffing of the DISTRICT system — funding formulas, teacher compensation, levy protection, and duties the state imposes on and resources through local education agencies.' The E-Rate hotspot rule is none of those. It is a federal universal-service subsidy for connectivity used OFF school premises, and its beneficiaries as the rule names them are 'students, school staff, and library patrons' at home, not a district's payroll or formula. That the money arrives through a school programme is a funding path, not a subject; filing it here would print a home-broadband vote as a district-funding record. The temptation is real and is recorded: the rule's own title says 'E-Rate Program' and the phrase 'schools and libraries' appears in its abstract twice."
+    },
+    {
+     "issueKey": "rural_ag",
+     "decision": "REFUSED",
+     "why": "REFUSED, and the reason is a keyword collision, which is exactly the kind of match this doctrine does not accept. rural_ag's keyword list contains the literal string 'rural broadband', so a keyword-driven mapper would fire on this measure. But rural_ag's chip is 'Support family farms, ranchers and rural communities with fair prices and access' and every instrument on the key is about farming, ranching, crops, livestock, grazing or water rights. The disapproved rule is not about farms, is not limited to rural areas, and names no agricultural interest. A key is earned from the instrument's text, not from an overlap in a keyword array."
+    },
+    {
+     "issueKey": "edu_college_cost",
+     "decision": "REFUSED",
+     "why": "REFUSED. Read because the rule reaches libraries and because E-Rate's siblings in the universal-service programme include a higher-education component. This rule does not: 89 Fed. Reg. 67303 reaches elementary and secondary schools and public libraries, and edu_college_cost is 'Make college and trade school affordable and cut student debt'. No tuition, loan, Pell or trade-school provision exists in the text to map."
+    }
+   ]
+  },
+  {
+   "measureType": "resolution",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.J.Res. 140",
+   "shortTitle": "Disapproving the BLM Boundary Waters mineral withdrawal",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/140",
+   "decisiveRoll": "TWO decisive rolls, both admitted, because this measure has a passage vote in each chamber: senate 119/2 roll 84, 'On the Joint Resolution', 50-49 Joint Resolution Passed, 2026-04-16 11:08 ET; and house 119/2 roll 38, 'On Passage', 214-208 Passed, 2026-01-21 16:45 ET.",
+   "bothChambersWhy": "This is a HOUSE measure. Filing its Senate passage vote and withholding its House passage vote would create, inside the very wave that exists to close a chamber gap, the defect rule 30's second corollary names — a measure whose own chamber does not appear among its roll calls — and F2's chamberGapSweep flagged that pattern as almost always an ingest gap. So both halves of the measure's own record go in together. The wave's purpose is still the Senate side; the House roll is the same act's other half and adds no second measure and no second mapping.",
+   "checks": {
+    "decisiveQuestion": "Both forms are passage forms. 'On the Joint Resolution' is rule 12's single PASSAGE_FORMS entry for a joint resolution in the Senate; 'On Passage' is the House's passage form. Admitted on form alone, so neither carries a decisiveWhy. The Senate's own motion-to-proceed roll on this resolution — 119/2 roll 83, 51-49, 2026-04-15 — is refused on question form under rule 8 and recorded under declinedRollCalls.",
+    "singleSubject": "Read from the engrossed text (govinfo BILLS-119hjres140eh), which is one operative sentence in full: 'That Congress disapproves the rule submitted by the Bureau of Land Management of the Department of the Interior relating to Public Land Order No. 7917 for Withdrawal of Federal Lands; Cook, Lake, and Saint Louis Counties, MN (88 Fed. Reg. 6308 (January 31, 2023)), and such rule shall have no force or effect.' One subject, no reserve fund, no severable provision, no sense-of-Congress clause.",
+    "notReserveFund": "Correct. None of rule 31's three tells is present. The operative verb is 'disapproves'.",
+    "proceduralInversion": "No, in either chamber. Both questions are the resolution itself, so yeaBlocksMeasure() does not fire and a yea advances the disapproval in both rolls.",
+    "nearUnanimity": "No, in either chamber, and both were checked separately. Senate: 50-49 with 1 not voting, losing side 49.495% of the pool. House: 214-208 with 9 not voting, losing side 49.289%. Both are among the most closely contested rolls in the corpus. Party totals from each document itself — Senate R 50-2, D 0-45, I 0-2; House R 213-1, D 1-207, and the House document's own totals-by-party block was checked against our own count of its member rows and agreed.",
+    "twoFlankNays": "Checked (rule 5 / rule 23) and NO, in both chambers. The nays hold one argument — that the withdrawal should stand. Three of them crossed over from the side that carried the resolution (two in the Senate, one in the House) and they are on that same side of the argument, not a second flank arguing the disapproval is too narrow. Headline key stands; no provision-level substitution. Same discipline as S.J.Res. 7: the check is on arguments, read from the floor debate, not on the tally's party columns.",
+    "enactedTier": "LAW. Enrolled, presented and approved 2026-04-27 as Public Law 119-85. Filed status 'enacted'. Under 5 U.S.C. 801(b) the disapproved order is now of no force or effect and a substantially similar one is barred.",
+    "noticeNotRule": "Recorded rather than smoothed. 88 Fed. Reg. 6308 is published in the Federal Register as a NOTICE, not as a final rule. Congress treated it as a rule for chapter 8 purposes and enactment settled the question; the mapping is filed on that basis and does not assert an independent view of what chapter 8 reaches."
+   },
+   "issues": [
+    {
+     "issueKey": "lands_preserve",
+     "decision": "ACCEPTED",
+     "weight": 90,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "See db/vr-issue-seed.json for the row as inserted. The discriminator against H.J.Res. 131's shape is the one 131's own rationale wrote down — 'Not primary: the instrument acts on a leasing programme, and the conservation loss is the same act read from the other side.' 131's nullified instrument was the Coastal Plain Oil and Gas Leasing Program Record of Decision; this one's is Public Land Order No. 7917 for Withdrawal of Federal Lands, whose own abstract states its purpose as 'to protect and preserve the fragile and vital social and natural resources, ecological integrity, and wilderness values' of the Rainy River Watershed and the Boundary Waters Canoe Area Wilderness. When the disapproval acts on a protection order, the protection key carries it. Weight 90 is the weight lands_preserve carries everywhere in the record: PRIMARY on H.J.Res. 78 and H.Amdt. 97, mirror secondary on H.J.Res. 131.",
+     "sourceUrl": "https://www.federalregister.gov/documents/2023/01/31/2023-01969/public-land-order-no-7917-for-withdrawal-of-federal-lands-cook-lake-and-saint-louis-counties-mn"
+    },
+    {
+     "issueKey": "lands_energy",
+     "decision": "ACCEPTED",
+     "weight": 75,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The exact mirror of H.J.Res. 131's lands_preserve secondary. The acreage returns to disposition 'under the United States mineral and geothermal leasing laws' and the withdrawal was imposed against 'the potential adverse effects of mineral and geothermal exploration and development'; lands_energy's chip names 'mining & resource development' explicitly. Secondary for the mirrored reason: the instrument acts on the protection order and the development gain is the same act read from the other side. Weight 75 is the weight 131 argued for a secondary that acts DIRECTLY on the acreage. Measured before acceptance: see readLossDisclosure — this row was checked for the rule-30 failure mode (an added secondary pushing members past _RD_MIN_JUDGED onto the deepEnough branch, where the primary wall then reads the row as incidental) and the measurement, not the argument, is what admitted it.",
+     "sourceUrl": "https://www.federalregister.gov/documents/2023/01/31/2023-01969/public-land-order-no-7917-for-withdrawal-of-federal-lands-cook-lake-and-saint-louis-counties-mn"
+    },
+    {
+     "issueKey": "gov_regulation",
+     "decision": "REFUSED",
+     "why": "REFUSED, on the same measurement and for the same reason as S.J.Res. 7's gov_regulation row — the two were drafted, projected and refused together, because it is the PAIR that carries angus_king and lujan from three gov_regulation acts to five and across _RD_MIN_JUDGED onto the deepEnough branch, where the primary wall reads a uniform three-nay record as incidental. See the S.J.Res. 7 entry for the full argument, the numbers and what would make the row correct. Recorded here as well rather than cross-referenced only, because this is the measure whose closest sibling in the record — H.J.Res. 131, the other BLM CRA — DOES carry the row, and a future curator comparing the two files needs the reason on both."
+    },
+    {
+     "issueKey": "energy_production",
+     "decision": "REFUSED",
+     "why": "REFUSED, and this is the cousin refusal that keeps H.J.Res. 131's precedent honest. 131 DOES file energy_production, at weight 75, and it wrote its reason: 'The reopened acreage is, under current law, the part of the programme area with the highest hydrocarbon potential, and the programme it belongs to exists to lease, develop, produce and transport oil and gas.' None of that is true here. The Boundary Waters withdrawal is about copper-nickel sulphide mining; there is no hydrocarbon programme, no oil or gas lease sale and no generating capacity in the instrument. energy_production's scope note states its IN list as 'supply and firm capacity — leasing, drilling, pipelines, nuclear, and keeping existing thermal generation online' and puts 'who owns the land it happens on (lands_energy, lands_local)' on its OUT list by name. The word 'geothermal' does appear in the withdrawal's statutory citation, and it was the one real argument for the key; it is refused because a citation to the geothermal leasing laws is not a geothermal project, and mapping on it would file a hard-rock mining vote as an energy-supply record. Filing this row would also add a FIFTH non-primary energy_production act — the mechanism rule 30 forbids and the mechanism F2 refused S.J.Res. 80 over."
+    },
+    {
+     "issueKey": "water",
+     "decision": "REFUSED",
+     "why": "REFUSED on the key's own scope note. water is IN for 'reducing, pricing or measuring water DEMAND' and its OUT list names the supply side, public works, data-centre cooling and farm water rights. This resolution does none of those: it removes a withdrawal that protected a watershed from mining, which is a land-protection act with a water consequence, not a conservation-of-use instrument. The scope note's own warning applies almost verbatim — filing a land vote here 'would print it as a conservation record' of a kind the member never cast. The watershed language in the order's abstract ('the Rainy River Watershed') was read and is not enough."
+    },
+    {
+     "issueKey": "climate_action",
+     "decision": "REFUSED",
+     "why": "REFUSED. climate_action is 'programmes, subsidies and rules that cut emissions' and the record's CRA precedents on the key — H.J.Res. 88 and 89 — both struck Clean Air Act emission waivers with an explicit emissions mandate inside them. Public Land Order No. 7917 contains no emissions provision, no greenhouse-gas finding and no clean-energy programme. Any climate effect of copper-nickel mining would be a downstream inference about a project that does not yet exist, which is not a formal record."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "decision": "REFUSED",
+     "why": "REFUSED twice over. Substantively, the instrument is Congress overriding a federal agency, not a federalism instrument: no state authority is created, preempted or restored, and Minnesota is where the land is rather than a party to the allocation. Additionally the key sits in _RD_NO_POLE in stance-helpers.js — the engine will never characterise it — so a row here could not move a reader-visible state even if the argument held. It is refused on the text; the second point only records that nothing was lost by refusing."
+    },
+    {
+     "issueKey": "rural_ag",
+     "decision": "REFUSED",
+     "why": "REFUSED. Read because the counties are rural and because rural_ag's keyword list contains 'grazing' and 'water right'. The order withdraws land from mineral and geothermal leasing only; grazing and agricultural use are not among the dispositions it touches, and the resolution names no farm, ranch or commodity interest."
+    }
+   ]
+  }
+ ],
+ "retractions": [],
+ "_retractionsNote": "None. Rule 32 was walked: every live mapping on the two keys this wave supplies a PRIMARY for was re-read against the key's current scope note, and none of them is now wrong. broadband holds exactly one live row — H.R. 3684 division F, weight 65, non-primary, yea_supports — and the Broadband Equity, Access and Deployment programme it cites is squarely inside the chip. lands_preserve holds four live rows (H.J.Res. 78 and H.Amdt. 97 as primaries, H.J.Res. 131 and this wave's as mirrors) and all four are conservation-protection acts. Nothing to retract, and a retraction was not invented to make the wave look thorough.",
+ "census": {
+  "_how": "Rebuilt BEFORE any candidate was looked at, per the brief's census-first rule, and F2's candidate list was deliberately not reused. PRIMARY instruments per key per chamber come straight off vr_measure_issues x vr_measures, counting distinct MEASURES (not rows) that carry the key at is_primary and have at least one roll call in that chamber; the unread-reason half comes from calling PDXConsistency.formalPatternIndex.rows() through the node:vm sandbox, restricted to the 99 senators on the reviewed roster. Reproduce the whole table with: node scripts/vr-federal-fpi.mjs --set all --waves f1,f2 --chambers",
+  "findingThatShapedTheWave": "Of the 98 keys the formal index reports on, only 35 had a Senate-reachable PRIMARY instrument after F2 — sixty-three had none. On those keys a senator's row is written by the primary wall rather than by their record, and the two dominant reasons split cleanly: a block of keys where every senator's act arrived inside a package (vehicle_only, 429 rows) and a much larger block where senators hold four or more secondary acts and no primary (incidental, 1486 rows). The four highest-ranked vehicle_only keys — health_rural, free_speech, econ_smallbiz, econ_workers — were re-checked instrument by instrument and all four are blocked on the same thing F2 found: there is no admissible standalone Senate instrument in the 119th. The next band down is where this wave acted, and it acted on the two keys in that band that have a real standalone Senate instrument whose enrolled or engrossed text earns the key at PRIMARY weight.",
+  "_tableNote": "Senate PRIMARY / House PRIMARY are counts of distinct measures. 'Sen unread' is a count of ROWS over the 99 senators, bucketed by the reason string the engine itself returns. Ranked as the brief asked: zero Senate PRIMARY first, then by vehicle_only*2 + incidental.",
+  "beforeTable": [
+   {
+    "key": "health_rural",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 0,
+    "senateUnread": {
+     "vehicle_only": 98,
+     "incidental": 0,
+     "other": 0,
+     "total": 98
+    },
+    "outcome": "BLOCKED-ON — no admissible Senate instrument; see blockedOn"
+   },
+   {
+    "key": "free_speech",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 0,
+    "senateUnread": {
+     "vehicle_only": 97,
+     "incidental": 0,
+     "other": 1,
+     "total": 98
+    },
+    "outcome": "BLOCKED-ON — S. 146 passed by unanimous consent; see blockedOn"
+   },
+   {
+    "key": "econ_smallbiz",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 2,
+    "senateUnread": {
+     "vehicle_only": 88,
+     "incidental": 0,
+     "other": 1,
+     "total": 89
+    },
+    "outcome": "BLOCKED-ON — only instrument is below rule 11's bar; see blockedOn"
+   },
+   {
+    "key": "econ_workers",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 1,
+    "senateUnread": {
+     "vehicle_only": 88,
+     "incidental": 0,
+     "other": 1,
+     "total": 89
+    },
+    "outcome": "BLOCKED-ON — carried over from F2 unchanged; see blockedOn"
+   },
+   {
+    "key": "tax_middle_class",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 0,
+    "senateUnread": {
+     "vehicle_only": 0,
+     "incidental": 98,
+     "other": 0,
+     "total": 98
+    },
+    "outcome": "BLOCKED-ON — every Senate act is inside a reconciliation vehicle; see blockedOn"
+   },
+   {
+    "key": "america_first",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 1,
+    "senateUnread": {
+     "vehicle_only": 0,
+     "incidental": 97,
+     "other": 1,
+     "total": 98
+    },
+    "outcome": "NOT EXAMINED this wave — F2 narrowed the chip and retracted a row on it; left alone under rule 21"
+   },
+   {
+    "key": "econ_trade",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 0,
+    "senateUnread": {
+     "vehicle_only": 0,
+     "incidental": 97,
+     "other": 1,
+     "total": 98
+    },
+    "outcome": "NOT EXAMINED"
+   },
+   {
+    "key": "gov_waste",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 1,
+    "senateUnread": {
+     "vehicle_only": 0,
+     "incidental": 97,
+     "other": 1,
+     "total": 98
+    },
+    "outcome": "NOT EXAMINED"
+   },
+   {
+    "key": "housing",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 0,
+    "senateUnread": {
+     "vehicle_only": 0,
+     "incidental": 97,
+     "other": 1,
+     "total": 98
+    },
+    "outcome": "NOT EXAMINED — and see the cousin note: housing / housing_build / housing_support are not interchangeable and F2 already supplied housing_build's Senate roll"
+   },
+   {
+    "key": "lands_preserve",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 2,
+    "senateUnread": {
+     "vehicle_only": 0,
+     "incidental": 90,
+     "other": 6,
+     "total": 96
+    },
+    "outcome": "SHIPPED — H.J.Res. 140 (Public Law 119-85). 96 unread senator rows → 3."
+   },
+   {
+    "key": "health_drug_prices",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 0,
+    "senateUnread": {
+     "vehicle_only": 0,
+     "incidental": 89,
+     "other": 0,
+     "total": 89
+    },
+    "outcome": "NOT EXAMINED"
+   },
+   {
+    "key": "broadband",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 0,
+    "senateUnread": {
+     "vehicle_only": 0,
+     "incidental": 88,
+     "other": 1,
+     "total": 89
+    },
+    "outcome": "SHIPPED — S.J.Res. 7. The key held ONE live row in the whole corpus (H.R. 3684 division F, w65, non-primary) and zero primaries in either chamber. 89 unread senator rows → 26."
+   },
+   {
+    "key": "child_care",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 0,
+    "senateUnread": {
+     "vehicle_only": 0,
+     "incidental": 88,
+     "other": 1,
+     "total": 89
+    },
+    "outcome": "NOT EXAMINED"
+   },
+   {
+    "key": "disaster_resilience",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 1,
+    "senateUnread": {
+     "vehicle_only": 0,
+     "incidental": 88,
+     "other": 1,
+     "total": 89
+    },
+    "outcome": "NOT EXAMINED"
+   },
+   {
+    "key": "econ_growth",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 0,
+    "senateUnread": {
+     "vehicle_only": 0,
+     "incidental": 88,
+     "other": 1,
+     "total": 89
+    },
+    "outcome": "NOT EXAMINED"
+   },
+   {
+    "key": "transit",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 0,
+    "senateUnread": {
+     "vehicle_only": 0,
+     "incidental": 88,
+     "other": 1,
+     "total": 89
+    },
+    "outcome": "NOT EXAMINED"
+   },
+   {
+    "key": "water",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 0,
+    "senateUnread": {
+     "vehicle_only": 0,
+     "incidental": 88,
+     "other": 1,
+     "total": 89
+    },
+    "outcome": "REFUSED as a home for H.J.Res. 140 — the key is a real hole but this is not its instrument; see the refusal on the measure"
+   },
+   {
+    "key": "edu_college_cost",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 0,
+    "senateUnread": {
+     "vehicle_only": 6,
+     "incidental": 72,
+     "other": 0,
+     "total": 78
+    },
+    "outcome": "REFUSED as a home for S.J.Res. 7; see the refusal on the measure"
+   },
+   {
+    "key": "scotus_reform",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 0,
+    "senateUnread": {
+     "vehicle_only": 10,
+     "incidental": 0,
+     "other": 0,
+     "total": 10
+    },
+    "outcome": "BLOCKED-ON — carried over from F2 unchanged; see blockedOn"
+   },
+   {
+    "key": "public_schools",
+    "senatePrimaryBefore": 0,
+    "housePrimary": 0,
+    "senateUnread": {
+     "vehicle_only": 0,
+     "incidental": 13,
+     "other": 0,
+     "total": 13
+    },
+    "outcome": "REFUSED as a home for S.J.Res. 7 on the key's own scope note; see the refusal on the measure"
+   },
+   {
+    "key": "lands_energy",
+    "senatePrimaryBefore": 1,
+    "housePrimary": 2,
+    "senateUnread": {
+     "vehicle_only": 2,
+     "incidental": 6,
+     "other": 2,
+     "total": 10
+    },
+    "outcome": "Gained a mirror SECONDARY, not a primary. Already had a Senate PRIMARY (H.J.Res. 131), so it was not a target. 10 unread senator rows → 2."
+   },
+   {
+    "key": "gov_regulation",
+    "senatePrimaryBefore": 2,
+    "housePrimary": 3,
+    "senateUnread": {
+     "vehicle_only": 0,
+     "incidental": 1,
+     "other": 0,
+     "total": 1
+    },
+    "outcome": "REFUSED the process secondary on BOTH new CRAs. This line is why: the key has five primaries and one unread senator row. It needed nothing, and the row would have cost two readers. See the refusals."
+   },
+   {
+    "key": "energy_production",
+    "senatePrimaryBefore": 2,
+    "housePrimary": 2,
+    "senateUnread": {
+     "vehicle_only": 0,
+     "incidental": 0,
+     "other": 0,
+     "total": 0
+    },
+    "outcome": "REFUSED as a home for H.J.Res. 140. Zero unread senator rows — F2 closed it — so there was nothing to gain and a cousin-dumping precedent to lose."
+   }
+  ],
+  "totalsBefore": {
+   "keysReported": 98,
+   "keysWithSenatePrimary": 35,
+   "keysWithoutSenatePrimary": 63,
+   "senateUnreadRows": 3522,
+   "byReason": {
+    "incidental": 1486,
+    "no_side": 987,
+    "mixed_thin": 595,
+    "vehicle_only": 429,
+    "no_side_taken": 25
+   }
+  }
+ },
+ "blockedOn": [
+  {
+   "key": "health_rural",
+   "state": "No admissible Senate instrument exists in the 119th, and none exists in either chamber.",
+   "evidence": "The key holds zero PRIMARY instruments anywhere in the corpus, which is why all 98 senator rows read vehicle_only. Re-checked this wave rather than carried on F2's word: the only Senate instrument of the Congress that reaches rural health directly is Baldwin Amdt. 1693 to the budget resolution, and it is a deficit-neutral reserve fund — rule 31's tell 'To establish a deficit-neutral reserve fund relating to…' is its opening clause and its operative verb is 'consider'. Scoring it as law would be exactly the refusal the brief names first.",
+   "whatWouldUnblockIt": "A Senate passage vote on a standalone rural-hospital or rural-provider bill. The nearest live candidate is S. 2683, the Rural Hospital Stabilization Act, reported by Finance and never brought up."
+  },
+  {
+   "key": "free_speech",
+   "state": "No roll call exists to attribute, in either chamber.",
+   "evidence": "S. 146, the TAKE IT DOWN Act, is the Congress's free-speech instrument and it passed the Senate by UNANIMOUS CONSENT — zero roll calls, so there is nothing for a member vote to hang on. This is an attribution hole, not a mapping error, and no mapping can fill it. Carried from F2 and re-verified against both 119th vote menus: no joint resolution, bill or amendment on the key received a recorded Senate vote.",
+   "whatWouldUnblockIt": "A recorded Senate vote on any standalone speech instrument. Until one exists the key cannot be read for any senator no matter what is mapped."
+  },
+  {
+   "key": "econ_smallbiz",
+   "state": "One Senate instrument exists and rule 11 refuses it.",
+   "evidence": "Scott (FL) Amdt. 3113 is the only standalone Senate small-business instrument of the Congress with a recorded vote, and it failed 15-81. The losing side is 15.6% of the yea+nay pool — above the one-tenth bar on its face — but the amendment is the losing side, and rule 11's question is whether the vote separates anybody: fifteen yeas against eighty-one nays is one bloc and a fragment, and F2 already refused it on that ground. Re-read this wave and the refusal stands.",
+   "whatWouldUnblockIt": "A Senate passage vote on a standalone small-business bill. H.R. 3193 has passed the House and sits on the Senate calendar."
+  },
+  {
+   "key": "econ_workers",
+   "state": "No admissible Senate instrument exists in the 119th.",
+   "evidence": "Unchanged from F2 and re-verified: H.R. 5408 (Faster Labor Contracts Act) is the key's PRIMARY, passed the House, was received in the Senate 2026-06-10 and has never been voted on. S. 3012's only Senate votes are two failed cloture motions on a motion to proceed, which rule 8 does not admit. Sanders Amdt. 2126 is a budget-resolution pathway refused by rule 31. S. 129 passed by unanimous consent.",
+   "whatWouldUnblockIt": "A Senate passage vote on H.R. 5408."
+  },
+  {
+   "key": "scotus_reform",
+   "state": "No Senate instrument of any kind in the 119th.",
+   "evidence": "Zero PRIMARY instruments anywhere; the ten unread senator rows are all vehicle_only, from judiciary provisions inside appropriations. Both 119th Senate vote menus were swept for court-structure, ethics and jurisdiction instruments and none received a recorded vote.",
+   "whatWouldUnblockIt": "A recorded Senate vote on a standalone court instrument — S. 1101 (Supreme Court Ethics, Recusal, and Transparency Act) is the live candidate and has never been brought up."
+  },
+  {
+   "key": "tax_middle_class",
+   "state": "Every Senate act on the key is inside a reconciliation or budget vehicle.",
+   "evidence": "98 senator rows, all incidental: senators hold four or more secondary acts and no primary, because the key's federal instruments are all package provisions. This wave read the 119th Senate menus for a standalone middle-class tax instrument with a recorded vote and found none — every candidate is an amendment to H.Con.Res. 14 or a title of the reconciliation bill, and mapping a package title as a primary is the 'package %' the doctrine forbids.",
+   "whatWouldUnblockIt": "A Senate passage vote on a standalone rate, credit or bracket bill. Nothing on the calendar qualifies."
+  },
+  {
+   "key": "gov_regulation",
+   "state": "NOT blocked on an instrument — blocked on a PRIMARY the two affected senators can reach.",
+   "evidence": "Listed here because a reader of the refusals will ask why a key with five PRIMARY instruments still has an unread senator row. angus_king and lujan each hold three non-primary gov_regulation acts and no recorded vote on any of the five primaries. S.J.Res. 18 is the key's Senate PRIMARY and neither senator is on its roll call. That is why this wave's two process secondaries were refused: they would have taken both senators to five non-primary acts, across _RD_MIN_JUDGED, where the primary wall reads a uniform record as incidental.",
+   "whatWouldUnblockIt": "A recorded Senate vote, by King and Lujan, on an instrument whose PRIMARY is gov_regulation. Nothing this wave could map creates that."
+  }
+ ],
+ "declinedRollCalls": [
+  {
+   "roll": "senate 119/1/235",
+   "measure": "S.J.Res. 7",
+   "tally": "53-47 Motion Agreed to",
+   "why": "REFUSED ON QUESTION FORM, rule 8. 'On the Motion to Proceed' is not a passage, concurrence or conference form, and rule 12's PASSAGE_FORMS contains exactly one entry for a Senate joint resolution — 'On the Joint Resolution', which is the roll this wave admits. Admitting the motion as well would file one legislative act twice. Recorded rather than dropped silently because it is the same resolution's own sibling roll and a future curator will find it."
+  },
+  {
+   "roll": "senate 119/2/83",
+   "measure": "H.J.Res. 140",
+   "tally": "51-49 Motion Agreed to",
+   "why": "REFUSED ON QUESTION FORM, rule 8, on the same ground as S.J.Res. 7's motion roll. The measure's admitted Senate roll is 119/2/84, the passage vote taken the following day."
+  },
+  {
+   "roll": "the motion-to-proceed sweep",
+   "measure": "every joint resolution in the 119th",
+   "tally": "~48 rolls",
+   "why": "Recorded as one entry rather than forty-eight. Both 119th Senate vote menus were swept for joint-resolution rolls before any candidate was chosen, to be sure no admissible passage vote was being missed on a key in the census. Every roll the sweep turned up beyond the two admitted here carries a 'Motion to Proceed', 'On the Cloture Motion' or 'On the Motion to Table' question and is refused on form under rule 8. No passage-form joint-resolution roll on a censused zero-Senate-PRIMARY key was left unexamined."
+  },
+  {
+   "roll": "senate 119/1/184",
+   "measure": "Sanders Amdt. 2126 to H.Con.Res. 14",
+   "tally": "47-52 Rejected",
+   "why": "REFUSED AS A MAPPING under rule 31, for the third consecutive wave. A budget-resolution amendment establishing a pathway to consider a minimum-wage increase is not the wage law; the operative verb is 'consider'. F1 refused it, F2 refused it, and it is re-refused here rather than quietly omitted so that econ_workers' blocked-on state cannot be read as an oversight."
+  },
+  {
+   "roll": "senate 119/1 Baldwin Amdt. 1693",
+   "measure": "H.Con.Res. 14",
+   "tally": "reserve fund",
+   "why": "REFUSED under rule 31. Its opening clause is rule 31's first tell verbatim — 'To establish a deficit-neutral reserve fund relating to…' — and it is the only Senate instrument that reaches health_rural at all. This is the exact instrument the brief names as a thing to refuse in writing rather than score as law."
+  },
+  {
+   "roll": "senate 119/1 Scott (FL) Amdt. 3113",
+   "measure": "H.Con.Res. 14",
+   "tally": "15-81 Rejected",
+   "why": "REFUSED on rule 11. Fifteen yeas against eighty-one nays separates a fragment from a chamber, not one side from another. Recorded because econ_smallbiz is the third-highest-ranked hole in the census and this is the only Senate instrument on it."
+  },
+  {
+   "roll": "senate 119/1 S.Amdt. 3872",
+   "measure": "the NDAA",
+   "tally": "admissible on form",
+   "why": "DECLINED FOR A DIFFERENT REASON, recorded because it was a live candidate. The instrument is admissible and contested, but its key is guard_authority, which sits in _RD_NO_POLE in stance-helpers.js — the engine will never characterise it. A PRIMARY there moves no reader-visible state, so ingesting the roll would produce a row nobody can read and a wave that reports a number instead of an improvement. Same reason S. 1582 (crypto_cbdc) and H.Con.Res. 86 (war_powers) were dropped from the candidate slate: all three keys are in _RD_NO_POLE. Recorded so the next wave does not rediscover them as opportunities."
+  }
+ ],
+ "chamberGapSweep": {
+  "_why": "Rule 30's second corollary: a measure whose `chamber` does not appear among its own roll calls is almost always an ingest gap. Applied to this wave's OWN output rather than only to the existing corpus, because a wave aimed at a chamber gap is the easiest place to create one.",
+  "_result": "H.J.Res. 140 is a House measure. Its House passage roll (119/2/38) is admitted alongside its Senate passage roll (119/2/84) for exactly this reason. S.J.Res. 7 is a Senate measure with a Senate roll and no House action of any kind — govinfo returns 302 for its eh and enr texts — so it has no gap to close.",
+  "checkedAfter": "Both new measures have at least one roll call in their own chamber. The verification block in the migration asserts this per measure rather than trusting it."
+ },
+ "_counts": {
+  "measuresRead": 9,
+  "newMeasures": 2,
+  "rowsAccepted": 3,
+  "rowsRefused": 10,
+  "rowsRetracted": 0,
+  "rollCallsAdmitted": 3,
+  "rollCallsDeclined": 7,
+  "memberVotesAttributed": 303,
+  "memberVotesSkipped": 328,
+  "keysAdded": 0,
+  "keysBlockedOn": 7,
+  "floorsMoved": 0,
+  "readsLost": 1,
+  "readsGained": 184,
+  "senateKeysWithPrimaryBefore": 35,
+  "senateKeysWithPrimaryAfter": 37,
+  "senateUnreadRowsBefore": 3522,
+  "senateUnreadRowsAfter": 3358
+ },
+ "readLossDisclosure": {
+  "_comment": "The acceptance criterion for this wave is that no row the engine already characterised stops being characterised. Checking that on the shape counters (readable/thin/empty, strongN/splitN) is NOT good enough, and this wave is the proof: on the aggregate counters Lee and Curtis appear not to move at all, because a row that goes from unread to read-thin lands in thinN either way and never enters the `characterised` figure. Checked directly on the row model's own `read` flag instead, over every pid in the set, set-wise. That check finds 184 rows this wave starts characterising and ONE it stops. The one is recorded in full rather than netted against the 184, because a wave that reports only its wins is not measuring itself.",
+  "checkedBy": "scripts/vr-federal-fpi.mjs --set all --waves f1,f2,f3  (readSets(); printed as 'rows that stopped being characterised', and machine-readable under lostReads/gainedReads in --json)",
+  "pinnedBy": "scripts/test-vr-federal-wave-f3.mjs",
+  "totals": {
+   "lost": 1,
+   "gained": 184,
+   "lostTiers": {
+    "thin": 1
+   },
+   "gainedTiers": {
+    "thin": 177,
+    "mostly": 5,
+    "split": 2
+   },
+   "gainedByKey": {
+    "lands_preserve": 103,
+    "broadband": 73,
+    "lands_energy": 8
+   }
+  },
+  "utahSeven": {
+   "lost": 0,
+   "gained": 4,
+   "detail": "lee gains broadband and lands_preserve; curtis gains broadband and lands_preserve. All four land at tier thin with the counts string '2 votes against' — a real read, not a placeholder. bmoore, owens, kennedy, maloy and cstewart lose nothing; bmoore, owens, kennedy and maloy each gain a clear issue from the House roll. The brief's named acceptance — /p/lee and /p/curtis must move — holds, and holds on the read flag rather than on a tier table."
+  },
+  "causes": [
+   {
+    "cause": "trent_kelly, lands_energy — a wall tripped, and it is admitted as a cost rather than argued away",
+    "members": [
+     "trent_kelly"
+    ],
+    "mechanism": "He holds three live lands_energy acts: H.J.Res. 131 at w100 PRIMARY, on which he is recorded NOT VOTING, and two package secondaries (H.R. 26 w45, H.R. 1 w40) he voted yea on. His only primary act takes no side, so the primary wall has nothing to count. Today three acts keep him under _RD_MIN_JUDGED and the engine names the row thin. H.J.Res. 140's lands_energy secondary makes it four, which crosses the floor onto the deepEnough branch, where the primary wall (primary < 1) fires and the row goes unread. This is the rule-30 mechanism, not a surfaced contradiction — all three of his recorded votes point the same way.",
+    "whyTheRowWasKeptAnyway": "Measured both ways before deciding. The lands_energy row gains EIGHT characterised rows and costs this one, and it is the mirror row H.J.Res. 131's own precedent requires — 131 files lands_preserve as its mirror secondary at w90 for the same reason. Dropping it would have made this wave quieter and the record less true: the resolution really does reopen 225,504 acres to mineral leasing, and a member who voted for it has done that. The alternative cost is disclosed, not hidden, and it is the reason the two gov_regulation secondaries — which gain ZERO and cost TWO by the identical mechanism — were refused. The rule this wave applied is arithmetic, not taste: a secondary is admitted when it gains more than it costs and refused when it does not."
+   },
+   {
+    "cause": "jared_golden, lands_energy — a contradiction surfaced, not a wall tripped (rule 25)",
+    "members": [
+     "jared_golden"
+    ],
+    "mechanism": "He keeps the row and keeps reading; the tier weakens from 15 clear issues to 14 and his split count rises. He voted NAY on H.J.Res. 131 (w100 PRIMARY yea_supports), YEA on H.R. 26 and NAY on H.R. 1, and YEA on H.J.Res. 140. That is a genuinely mixed record on the key and the engine now says so. Rule 25: a contradiction the record contains should be surfaced, not smoothed. Not counted as a loss because the row is still read.",
+    "whyTheRowWasKeptAnyway": "Nothing to weigh. Surfacing a real contradiction is the engine working."
+   },
+   {
+    "cause": "don_bacon, jared_golden — split rows gained",
+    "members": [
+     "don_bacon",
+     "jared_golden"
+    ],
+    "mechanism": "Two members gain a split row (bacon 6→7, golden 17→19). Both are members whose votes on the new measures run against their other acts on the same key. A split row is a READ row — the engine is naming a division rather than declining to characterise — so these are gains, and two of the 184 gained rows land at tier split for exactly this reason.",
+    "whyTheRowWasKeptAnyway": "Not a cost."
+   }
+  ],
+  "netEffect": "Senate unread rows over the 99-senator roster fall from 3522 to 3358, a net of 164. The movement is concentrated where the census said it would be: lands_preserve 96 unread senator rows → 3, broadband 89 → 26, lands_energy 10 → 2. By reason, incidental falls 1486 → 1316 and no_side_taken 25 → 19, while mixed_thin RISES 595 → 609 — fourteen senators whose records on these keys are genuinely divided and who now read as divided instead of as unclassified. That rise is disclosed as part of the result, not filtered out of it. Keys with a Senate-reachable PRIMARY: 35 → 37 of 98."
+ }
+}
