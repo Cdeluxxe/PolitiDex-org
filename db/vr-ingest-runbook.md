@@ -1035,6 +1035,110 @@ depth — 428 more judged votes standing behind positions that previously rested
    because nothing compared them. The wave's test now regenerates and requires byte-identity, which
    is the only bar that keeps the deployed SQL and its stated reasoning from drifting apart.
 
+### Five rules from federal wave F3 (`20261017000000`)
+
+38. **"Census first" means census off the DATA, and the new ranking will not be the one the last
+   wave left behind.** F2 closed its pass with a candidate list, and reusing it was the obvious
+   opening move and the wrong one: three of its named candidates had since gained a Senate primary
+   from F2's own rolls, and the key that turned out to matter most (`lands_preserve`, 96 unread
+   senator rows) was not on it at all. The rebuild is two joins and one sandbox call, and it is
+   cheap enough that there is no excuse for inheriting a ranking. PRIMARY-by-chamber comes off
+   `vr_measure_issues × vr_measures`, counting distinct MEASURES — not rows — that carry the key at
+   `is_primary` and have at least one roll call in that chamber; the unread half comes from calling
+   `PDXConsistency.formalPatternIndex.rows()` through the `node:vm` sandbox and bucketing by the
+   reason string the engine itself returns, restricted to the 99 senators on the reviewed roster.
+   `node scripts/vr-federal-fpi.mjs --set all --waves f1,f2 --chambers` prints the whole thing.
+   What the rebuild said: of 98 keys the formal index reports on, **35 had a Senate-reachable
+   PRIMARY and 63 had none**, and on those 63 the row is written by the primary wall rather than
+   by the member's record. The two dominant reasons split cleanly — `vehicle_only` 429 rows (every
+   act arrived inside a package) and `incidental` 1486 rows (four or more secondaries and no
+   primary) — and they need different fixes, which is the point of bucketing rather than totalling.
+   **A wave that ranks 23 holes and closes 2 looks like a failure until it can name why the other
+   21 are attribution holes.** The four highest-ranked keys (`health_rural`, `free_speech`,
+   `econ_smallbiz`, `econ_workers`) were re-checked instrument by instrument, not carried on F2's
+   word, and all four are blocked on the same thing: there is no admissible standalone Senate
+   instrument in the 119th. Seven keys are written up that way in `blockedOn`, each naming the exact
+   bill that would unblock it (S. 2683, S. 146, H.R. 3193, H.R. 5408, S. 1101 …). A blocked key with
+   a named bill is a finding. A blocked key with no bill named is a curator who stopped looking.
+
+39. **A process secondary that consistency DEMANDS can still be a deletion of information. Project
+   it, measure it, and refuse it — and write the divergence on both measures.** This is the wave's
+   hardest call and its most reusable rule. Every Congressional Review Act resolution in the record
+   carries a `gov_regulation` process secondary — H.J.Res. 44, 88, 89 and 131 at weight 60,
+   H.J.Res. 78 at 70 — so filing the same row on `S.J.Res. 7` and `H.J.Res. 140` was the consistent
+   move, and it was drafted. Then it was measured: the pair gains **ZERO** characterised rows and
+   costs **TWO** (`angus_king/gov_regulation`, `lujan/gov_regulation`, both read → unread). The
+   mechanism is rule 30's exactly. Each senator holds three live `gov_regulation` acts —
+   H.J.Res. 44, 88, 89 — all non-primary, all nay, a perfectly uniform record the engine names
+   today. Two more non-primary acts take them to five, across `_RD_MIN_JUDGED`, onto the
+   `deepEnough` branch, where the primary wall (`primary < 1`) fires because neither senator has a
+   recorded vote on any `gov_regulation` PRIMARY. A uniform record stops being named and **nothing
+   is named in its place** — a tripped wall, not a surfaced contradiction, because all five acts
+   point the same way and there is no disagreement for the engine to have found. Rule 30 says a key
+   is fixed by supplying a PRIMARY and never by a further secondary, and `gov_regulation` needs no
+   fixing: it already holds five primaries, two Senate-reachable. **Consistency with a corpus habit
+   is not a reason on its own** — it is a hypothesis, and the counter is the referee. Two procedural
+   notes that cost nothing and save the next curator an afternoon: write the refusal on BOTH
+   measures rather than cross-referencing one, because the closest sibling in the record
+   (H.J.Res. 131, the other BLM CRA) DOES carry the row and a curator comparing the two files needs
+   the reason in front of them; and state what would make the row correct — here, a
+   `gov_regulation` PRIMARY that King and Lujan are actually recorded on. S.J.Res. 18 is the key's
+   Senate primary and neither of them is on its roll.
+
+40. **A mirror pair — a PRIMARY and a non-primary on the same measure pointing OPPOSITE ways — is
+   the one shape in which adding a secondary is worth it in a densification wave, and it still owes
+   a loss ledger.** `H.J.Res. 140` disapproves Public Land Order No. 7917, so it carries
+   `lands_preserve` w90 PRIMARY `yea_opposes` and `lands_energy` w75 non-primary `yea_supports`:
+   the resolution really does reopen 225,504 acres to mineral leasing, and a member who voted for
+   it has done that. The mirror is what makes the secondary safe in general — opposite polarity
+   reads as a position on the other side of one fight rather than as a fourth helping of the same
+   thing — and H.J.Res. 131's own precedent requires it, filing `lands_preserve` as ITS mirror at
+   w90. But "safe in general" is not "free", and this row is where the wave's one read loss came
+   from. `trent_kelly` holds three `lands_energy` acts: H.J.Res. 131 w100 PRIMARY on which he is
+   recorded NOT VOTING, plus two package secondaries he voted yea on. His only primary takes no
+   side, so the primary wall has nothing to count; three acts keep him under `_RD_MIN_JUDGED` and
+   the row reads thin; a fourth crosses the floor and the wall fires. **The row was kept on
+   arithmetic and not on taste: it gains eight characterised rows and costs one, against the
+   `gov_regulation` pair's zero and two.** Those two decisions have to be made by the same rule in
+   the same pass or neither is a rule. And the cost is published beside the 184 gains rather than
+   netted into them (see `readLossDisclosure` in `db/vr-federal-mapping-seed-f3.json`), because a
+   wave that reports only its wins is not measuring itself.
+
+41. **Cousin refusals are settled on the shipped scope note's OUT list and on the precedent
+   measure's own written reason — never on the curator's sense of adjacency. And a keyword array is
+   not evidence.** Ten rows were read and refused this wave, and the two that took real work are
+   worth transcribing. `energy_production` on H.J.Res. 140: H.J.Res. 131 files it at w75 and states
+   why — "the reopened acreage is … the part of the programme area with the highest hydrocarbon
+   potential, and the programme it belongs to exists to lease, develop, produce and transport oil
+   and gas." **Read the precedent's reason, not just its row.** None of it is true of a
+   copper-nickel sulphide withdrawal: no hydrocarbon programme, no lease sale, no generating
+   capacity. `energy_production`'s scope note puts "who owns the land it happens on (`lands_energy`,
+   `lands_local`)" on its OUT list by name, which decides it. The one real argument for the key —
+   "geothermal" appears in the withdrawal's statutory citation — is written down and then refused,
+   because a citation to the geothermal leasing laws is not a geothermal project. `water` goes the
+   same way on its own note: IN for "reducing, pricing or measuring water DEMAND", and this is a
+   land-protection act with a water consequence. And the trap to record for the next curator:
+   **`rural_ag`'s keyword list contains the literal string `'rural broadband'`, and also `'grazing'`
+   and `'water right'`, so a keyword-driven mapper fires on both of this wave's measures.** Neither
+   instrument names a farm, ranch or commodity interest. A key is earned from the instrument's text;
+   an overlap in a keyword array is a coincidence in a data structure. Refuse it in writing, because
+   the array is still there and the next wave will hit it again.
+
+42. **A key in `_RD_NO_POLE` can never be characterised, so declining its roll is not a gap — but
+   the no-pole fact must never be the FIRST reason, or engine configuration has started deciding
+   what is true about a document.** Two instances, deliberately handled in opposite order.
+   `S.Amdt. 3872` to the NDAA is admissible on form and genuinely contested, and it was declined
+   with the reason stated plainly: its key is `guard_authority`, which sits in `_RD_NO_POLE` in
+   `stance-helpers.js`, so a PRIMARY there moves no reader-visible state and ingesting the roll
+   would only pad the wave's numbers. That is an honest decline, and it belongs in
+   `declinedRollCalls` so a later curator does not re-derive it. `states_federal_power` on
+   H.J.Res. 140 is the mirror case and is refused **on the text first** — Congress overriding a
+   federal agency creates, preempts and restores no state authority, and Minnesota is where the land
+   is rather than a party to the allocation — with the no-pole fact appended only to record that
+   nothing was lost by refusing. Getting that order backwards would let the record refuse a true
+   mapping because a config array happens to exclude the key, and the day the array changes the
+   refusal becomes unreadable. Refuse on the document; note the engine second.
+
 ### Best remaining follow-ups after this pass
 
 0. *(Closed August 2026.)* **H.R. 6955** (119/2 roll 271) and **H.R. 2670** (118/1 roll 723) were
@@ -1151,6 +1255,48 @@ depth — 428 more judged votes standing behind positions that previously rested
      nominations, which are confirmations of individuals and not acts on court structure. Whether a
      key with no primary in either chamber should be publishing rows at all is a design question,
      and it is raised here, not decided.
+
+0g. *(Opened by `20261017000000`, wave F3.)* The chamber gap after the wave, and the four things it
+   could not close. F3 took the Senate count from 35 to **37 of 98 keys with a Senate-reachable
+   PRIMARY**, so **61 keys still have none** and on every one of them a senator's row is written by
+   the primary wall. That is the headline number to carry forward, and the honest reading of it is
+   that most of what remains is an ATTRIBUTION hole and not a mapping backlog — which is a different
+   kind of work and needs saying so the next wave does not go looking for text to map.
+   · **Seven keys are blocked on an instrument that does not exist, each with the bill named** — see
+     `blockedOn` in `db/vr-federal-mapping-seed-f3.json` for the full argument on each.
+     `health_rural` (98 rows; wants a standalone rural-hospital passage vote — S. 2683 was reported
+     by Finance and never brought up); `free_speech` (98 rows; S. 146 passed by UNANIMOUS CONSENT,
+     so there is no roll to attribute and no mapping can fill it); `econ_smallbiz` (89 rows; the
+     Congress's only Senate instrument, Scott (FL) Amdt. 3113, failed 15-81 and rule 11 refuses it —
+     H.R. 3193 has passed the House and sits on the Senate calendar); `econ_workers` (89 rows;
+     H.R. 5408 was received in the Senate 2026-06-10 and has never been voted); `scotus_reform` (10
+     rows; nothing of any kind in the 119th — S. 1101 is the live candidate); `tax_middle_class` (98
+     rows, all `incidental`; every Senate act on the key is a title of the reconciliation bill or an
+     amendment to H.Con.Res. 14, and mapping a package title as a primary is the "package %" the
+     doctrine forbids). Do not re-derive these; re-check them against the NEXT Congress's menu.
+   · **`gov_regulation` is blocked on a primary two named senators can reach, which is not the same
+     problem.** `angus_king` and `lujan` each hold three non-primary acts on a key that already has
+     five primaries, and no recorded vote on any of them. S.J.Res. 18 is the key's Senate primary and
+     neither is on its roll. This is the only entry in the ledger that a mapping wave cannot help
+     with at all, and it is why F3 refused the two CRA process secondaries (rule 39): they would have
+     carried both senators to five uniform secondaries and tripped the wall. Listed because a reader
+     of the refusals will otherwise ask why a well-stocked key still has an unread senator row.
+   · **`no_side` is now the largest single unread bucket over the Senate — 987 rows, untouched by
+     this wave and untouched by the last two.** It is worth stating plainly that this is NOT a gap
+     of the same species: those rows exist because the member took no side on the acts they have, and
+     no amount of ingest fixes them. `incidental` (1486 → 1316) and `vehicle_only` (429 → 427) are
+     the buckets a mapping wave can move. Ranking future candidates on the `no_side` count would
+     send a wave chasing rows that are already correct.
+   · **The `scotus_reform` design question 0f raised is still open and F3 sharpened it.** Both 119th
+     Senate vote menus were swept for court-structure, ethics and jurisdiction instruments and none
+     received a recorded vote, so the key's rows read `vehicle_only` off judiciary provisions inside
+     appropriations. Whether a key with no PRIMARY instrument in EITHER chamber should be publishing
+     rows at all is still a design decision and still not made here. F3's contribution is to have
+     verified that no ingest available in this Congress makes the question go away.
+   · Recorded because it moved and was disclosed rather than filtered: `mixed_thin` over the Senate
+     **rises** 595 → 609 on this wave. Fourteen senators whose records on the shipped keys are
+     genuinely divided now read as divided instead of as unclassified. That is a result, not a
+     regression, and rule 25 is why it ships.
 
 1. ~~**H.R. 7148, Consolidated Appropriations Act, 2026** (119/2 rolls 45 and 53).~~ **Closed by
    `20260913000000_vr_consolidated_approps_2026.sql`.** The division-by-division read was done

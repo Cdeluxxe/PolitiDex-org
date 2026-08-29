@@ -2267,28 +2267,66 @@
       // Record proof line so the two surfaces read as one vocabulary.
       '.pdxdos-rec-dir{font-size:0.62rem;color:#9fb4d4;border:1px solid rgba(159,180,212,0.22);' +
         'border-radius:999px;padding:0.02rem 0.34rem;white-space:nowrap;}' +
-      // ── THE ROW THAT TOOK NO SIDE, AND WHY IT IS DASHED ─────────────────────
-      // Solid means counted, everywhere else in this sheet: the side pill above is
-      // solid, the verdict chips are solid, the hold mark is its own glyph. Dashed
-      // is already this file's mark for "on file, not resolved" — the ledger
-      // standing on a row face uses it, the derived-mechanism rule uses it — so an
-      // abstention borrows the same vocabulary rather than inventing a fourth one.
-      // The row is dimmed, not hidden and not greyed out of legibility: it is real
-      // evidence about a real bill and a reader must be able to read every word of
-      // it. What it must not do is scan as a fourth Yea in a list of three.
-      '.pdxdos-rec-nos>summary{opacity:0.74;}' +
-      // The dashed rule encloses the whole card. It used to stop at the last
-      // baseline, so on the last row of a list — which is where an older act tends
-      // to sit — the frame read as though the row had been cut off rather than
-      // finished. A no-side row is a full card and has to look like one closed.
-      '.pdxdos-rec-nos{border-left:2px dashed rgba(159,180,212,0.3);padding-left:0.4rem;' +
-        'padding-bottom:0.2rem;margin-bottom:0.1rem;}' +
-      // The label itself. Dashed border and no fill, so it cannot be mistaken for
-      // the side pill it stands in place of, and bold because it is the first thing
-      // on the line and the reason the rest of the line reads differently.
-      '.pdxdos-rec-nosl{font-size:0.62rem;font-weight:700;color:#9fb4d4;' +
-        'border:1px dashed rgba(159,180,212,0.45);border-radius:999px;' +
-        'padding:0.02rem 0.36rem;white-space:nowrap;flex:none;}' +
+      // ── THE ROW THAT TOOK NO SIDE, AND WHY IT IS VIOLET RATHER THAN FAINT ───
+      // THE PREVIOUS ANSWER WAS WRONG IN A SPECIFIC WAY, so it is worth naming.
+      // The distinction was carried by WEIGHT — a dashed grey rule, a 0.74 opacity
+      // over the whole summary — on the theory that "solid means counted" and an
+      // abstention should therefore be drawn more quietly than a Yea. What that
+      // produced on a live sheet was the reported defect: the one card in the list
+      // that is not a vote read as the least important vote in the list. Grey on
+      // navy at three-quarter opacity is not a different state, it is a fainter
+      // copy of the same state, and a reader scanning five rows for the one that is
+      // an absence has to read all five to find it.
+      //   So the distinction moves from weight to HUE, and the weight comes back.
+      // Violet appears nowhere else in this sheet: the four verdicts own green, red
+      // and blue, the caveats own amber, the shortfall owns pink, and every muted
+      // slate here means "quieter version of the thing beside it". A hue with no
+      // other job cannot be misread as a degree of one — which is exactly what an
+      // absence needs, because it is not a weak side, it is the absence of one.
+      // Nothing about it is a judgement: violet is neither of the two directions
+      // and is not on the good/bad axis at all.
+      //   FULL CONTRAST, DELIBERATELY. The bill number is brighter than on a cast
+      // ballot, not dimmer; the title keeps its own tint of the same hue instead of
+      // fading toward the background. This row is real evidence about a real bill —
+      // a member being absent for a school-funding vote is a fact about them — and
+      // the only thing it must not do is look like a ballot they cast.
+      '.pdxdos-rec-nos>summary{opacity:1;}' +
+      // A SOLID RAIL AND A BANNER, not a dashed edge. The rail is the thing the eye
+      // lands on when the list is scrolled past at speed, and it is solid because
+      // the fact is certain: the clerk recorded no ballot from this member. The wash
+      // fades out across the card rather than filling it, so the rail reads as the
+      // card's left edge rather than as a highlight over the type. It encloses the
+      // whole card top to bottom — on the last row of a list a frame that stops at
+      // the final baseline reads as a row cut off rather than a row finished.
+      '.pdxdos-rec-nos{border-left:3px solid #a78bfa;padding-left:0.55rem;' +
+        'padding-bottom:0.3rem;margin-bottom:0.15rem;border-radius:0 0.35rem 0.35rem 0;' +
+        'background:linear-gradient(90deg,rgba(167,139,250,0.13),rgba(167,139,250,0.035) 58%,' +
+        'rgba(167,139,250,0));}' +
+      // The identity at more than its usual weight, because the acceptance test for
+      // this row is that a reader can name the bill without opening anything.
+      '.pdxdos-rec-nos .pdxdos-rec-id{color:#f4efff;}' +
+      '.pdxdos-rec-nos .pdxdos-rec-ttl{color:#d9cff5;}' +
+      // The label itself, and it is the loudest thing on the line on purpose. Filled
+      // and dark-on-light rather than outlined: this is the row's STATE, and it has
+      // to win the first glance against a bold bill number and a coloured verdict
+      // chip. It carries no ▲/▼ and no direction word, because there is no direction
+      // to carry — the pill says which non-vote this was and stops there.
+      '.pdxdos-rec-nosl{font-size:0.63rem;font-weight:700;letter-spacing:0.045em;' +
+        'text-transform:uppercase;color:#141024;background:#cbb8ff;' +
+        'border:1px solid #cbb8ff;border-radius:999px;' +
+        'padding:0.06rem 0.44rem;white-space:nowrap;flex:none;}' +
+      // ── THE ONE LINE THAT MAKES THEM A GROUP ────────────────────────────────
+      // Without it the reordering below would put the absences last and say nothing
+      // about why, which is a surprise at the bottom of a list rather than a
+      // section. It names the count in the same vocabulary the closed face uses
+      // ("1 no side" up there, "1 recorded absence" here, the same predicate behind
+      // both) and it renders only when there is at least one such row — an issue
+      // where every act was a cast ballot gets no divider and no leftover.
+      '.pdxdos-nosdiv{display:flex;align-items:center;gap:0.45rem;margin:0.5rem 0 0.15rem;' +
+        'font-family:"Barlow Condensed",sans-serif;font-size:0.66rem;font-weight:700;' +
+        'letter-spacing:0.08em;text-transform:uppercase;color:#cbb8ff;}' +
+      '.pdxdos-nosdiv::after{content:"";flex:1 1 auto;height:1px;min-width:1rem;' +
+        'background:linear-gradient(90deg,rgba(167,139,250,0.5),rgba(167,139,250,0));}' +
       // The standing of the whole list, above the rows. Same weight as the coverage
       // note it sits beside — this is disclosure, not a warning.
       '.pdxdos-led{font-size:0.68rem;color:#9fb4d4;line-height:1.5;padding:0.4rem 0.55rem;' +
@@ -11923,6 +11961,28 @@
       why: 'The order this resolution would end is scored on this chip as support for expanding domestic supply, so a yea to withdraw its emergency authorities counts against that direction. The reading matches the February companion because the text is word for word the same.',
       more: 'Admitted alongside the February vote rather than instead of it, and the reason is coverage rather than depth: among senators who cast a yea or nay the two rolls are identical member for member, and the only differences are absences \u2014 Cramer was Not Voting in February and voted nay in October, while Cruz and Sheehy voted nay in February and were absent in October. So each roll is the only record of some senator\u2019s position on the question, and neither adds discrimination the other does not. No senator changed sides.'
     },
+    // ── Wave F3 · 119th Congress ── the two Congressional Review Act resolutions that
+    // gave broadband and lands_preserve their first PRIMARY act a senator could vote on.
+    // Both are one operative sentence pointing at an agency document, which is the case
+    // where the derived pair is least usable: a reader who opens the row sees a broadband
+    // chip on something called "S.J.Res. 7" and needs to be told which rule, what the rule
+    // did, and which way a yea runs. The mirror secondary is written out too, because a
+    // mirror row is the one a reader is most likely to think is a mistake.
+    'S.J.Res. 7|119|broadband': {
+      did: 'A one-sentence Congressional Review Act resolution striking the Federal Communications Commission rule that let the E-Rate programme pay for Wi-Fi hotspots and service lent out by schools and libraries for use OFF the premises — at home, in other words, rather than in the building. Passed the Senate 50-38 on 2025-05-08.',
+      why: 'This chip reads household internet access, and the rule the resolution strikes is a subsidy for exactly that: connectivity where the student is rather than where the school is. So a yea withdraws the support and reads against the chip, and a nay leaves it in place.',
+      more: 'The rule was published at 89 Fed. Reg. 67303 and states its own reach — hotspots and services for “students, school staff, and library patrons for off-premises use”. Weighted 100 as the resolution’s entire subject, matching every other Congressional Review Act resolution in this record, and filed on the subject axis only: the process reading every other CRA here carries was drafted and then refused on a measurement, because adding it would have cost two senators a characterised row without gaining one. This is the record’s first broadband PRIMARY in either chamber; the only other federal row on the chip is a division-level secondary on the 2021 infrastructure act, which is why the formal index had been reading the axis as incidental for 88 of 99 senators.'
+    },
+    'H.J.Res. 140|119|lands_preserve': {
+      did: 'A one-sentence Congressional Review Act resolution nullifying Public Land Order No. 7917, the Bureau of Land Management order that had withdrawn about 225,504 acres of National Forest System land in Cook, Lake and Saint Louis counties, Minnesota — the Rainy River watershed above the Boundary Waters — from mineral and geothermal leasing for twenty years. Passed the House 214-208 and the Senate 50-49; became Public Law 119-85 on 2026-04-27.',
+      why: 'The order this resolution strikes was issued to protect that watershed from mining, and this chip’s support direction is keeping federal land protections in place — so a yea, which removes one, is coded against it. Supporting link: the acreage returned to leasing is read on the resource-development chip, where the same yea runs the other way.',
+      more: 'Filed as the primary row rather than as the mirror, and the discriminator is one the record already wrote down for itself. H.J.Res. 131, the other Bureau of Land Management resolution here, files resource development as primary and conservation as the mirror, and its rationale says why: the instrument it nullified was a LEASING programme decision. This one nullified a WITHDRAWAL order whose stated purpose is protection, so the two keys trade places. Mapped here at 90 — the weight the chip carries everywhere in this record — because the issue vocabulary has no dedicated wilderness or watershed chip.'
+    },
+    'H.J.Res. 140|119|lands_energy': {
+      did: 'The same resolution, read for what it returns rather than what it removes: the 225,504 acres come back into disposition specifically under the federal mineral and geothermal leasing laws, and the order it strikes had been imposed against “the potential adverse effects of mineral and geothermal exploration and development”.',
+      why: 'This chip counts land opened to mining and resource development, and a yea reopens the acreage — so a yea reads as support. This is the same act as the conservation row above, read from the other side; a reader who thinks one of the two must be wrong is reading a mirror pair working as intended.',
+      more: 'A secondary at 75 rather than a second primary, for the reason H.J.Res. 131 gives for its own mirror row: the instrument acts on the protection order, and the development gain is a consequence of striking it. 75 rather than the 40-60 the package-level rows on this chip carry, because this one acts directly on named acreage rather than through a demand-side rule — H.J.Res. 131 argued that weight for the same distinction, and this applies it to the other key. Admitted with its cost measured and disclosed: the row starts characterising eight rows on the chip and stops characterising one, a House member whose only primary act on it was a Not Voting.'
+    },
     // ── H.J.Res. 78 · 119th Congress ──
     'H.J.Res. 78|119|gov_regulation': {
       did: 'A Congressional Review Act resolution striking the Fish and Wildlife Service rule published in July 2024 that listed the San Francisco Bay-Delta longfin smelt as endangered.',
@@ -12916,6 +12976,75 @@
     var pos = String((d.item && d.item.position) || '').toLowerCase();
     return _DOS_NOSIDE[pos] || 'No side';
   }
+
+  // ── WHERE THE NO-SIDE ROWS SIT, AND WHAT ANNOUNCES THEM ─────────────────────
+  // The list used to arrive in whatever order the picks came back in, so an absence
+  // could land second of five between two Yeas. That is the worst position for it:
+  // a reader working down a column of cast ballots meets a row that answers a
+  // different question, mid-stride, with nothing above it saying so. Grouping them
+  // at the end fixes the interruption; the divider is what stops the grouping from
+  // becoming a different problem — three rows quietly demoted to the bottom of a
+  // list with no line saying they are a category rather than an afterthought.
+  //
+  // ORDER ONLY, AND ONLY HERE. This is a presentation sort inside the renderer:
+  // `_dosItems` still returns what it returned, in the order it returned it, so
+  // every other reader of it — the direction index that produces the header
+  // integers, the coverage check, the document spread, the cross-issue trail — sees
+  // exactly what it saw before. Each row also keeps its ORIGINAL index in
+  // `data-pdxdos-i`, because that index is how the row's own body is built
+  // (_dosMount → _dosDetailHtml reads `_dosItems(...)[i]`) and how the roll-up above
+  // opens a card down here. Sorting the rendered rows without carrying the index
+  // would have every card open onto somebody else's detail.
+  //
+  // STABLE WITHIN EACH GROUP. The cast ballots stay in their existing decisive-first
+  // order and the no-side rows stay in theirs; nothing is re-ranked, only partitioned.
+  function _dosOrder(items) {
+    var sided = [], nos = [];
+    for (var i = 0; i < (items || []).length; i++) {
+      var lbl = '';
+      try { lbl = _dosNoSide(items[i]); } catch (e) { lbl = ''; }
+      (lbl ? nos : sided).push({ d: items[i], i: i, nos: lbl });
+    }
+    return { rows: sided.concat(nos), sided: sided.length, nos: nos };
+  }
+  // The divider's words. Singular and plural on each, because "1 recorded absences"
+  // is the kind of line that tells a reader nobody read it. A recorded Present and a
+  // recorded absence are different facts — the clerk's file distinguishes them and so
+  // does the pill on each card — so the divider names whichever ones are actually
+  // below it rather than flattening both into one euphemism, and a mixed group gets
+  // both counts on the one line. The catch-all keeps its honest wording: "no side on
+  // file" claims only that we cannot place the row, which is all it knows.
+  var _DOS_NOSGRP = {
+    'Did not vote': ['recorded absence', 'recorded absences'],
+    'Present': ['recorded Present vote', 'recorded Present votes'],
+    'No side': ['row with no side on file', 'rows with no side on file']
+  };
+  function _dosNoSideGroupLine(nos) {
+    var order = [], n = {};
+    for (var i = 0; i < (nos || []).length; i++) {
+      var k = _DOS_NOSGRP[nos[i].nos] ? nos[i].nos : 'No side';
+      if (!n[k]) { n[k] = 0; order.push(k); }
+      n[k]++;
+    }
+    return order.map(function (k) {
+      return n[k] + ' ' + _DOS_NOSGRP[k][n[k] === 1 ? 0 : 1];
+    }).join(' · ');
+  }
+  // The rows of one list, in reading order, with the divider between the two groups.
+  // No divider when there are no no-side rows — an issue whose every act was a cast
+  // ballot renders exactly the list it rendered before, with nothing extra on it.
+  function _dosRowsHtml(ord, pid, issueKey, teach, led) {
+    var out = '', line = ord.nos.length ? _dosNoSideGroupLine(ord.nos) : '';
+    for (var i = 0; i < ord.rows.length; i++) {
+      var p = ord.rows[i];
+      // The divider goes immediately above the first no-side card, which is also the
+      // top of the group when the whole list took no side. It is a heading for what
+      // follows either way, so it is printed either way.
+      if (p.nos && line) { out += '<div class="pdxdos-nosdiv">' + esc(line) + '</div>'; line = ''; }
+      out += _dosRowHtml(p.d, p.i, pid, issueKey, teach, led);
+    }
+    return out;
+  }
   // Bare stem, not third-person singular: the clause is always "they said they ___",
   // so "supports" produced "they said they supports" — the exact kind of sentence that
   // tells a reader nobody read the line before shipping it.
@@ -13030,10 +13159,13 @@
     // and is never blank. It leads the line rather than sitting in the pill's slot
     // because it is the row's standing and not its direction: a reader scanning a
     // list of four for the one that is not a vote should find it without reading
-    // any of them, and the dashed, dimmed frame the class carries is the other half
-    // of that. Nothing else about the row changes — same identity, same date, same
-    // session, same source, same body, and it is still listed and still counted in
-    // "listed", because it is on file.
+    // any of them, and the violet rail, banner and filled pill the class carries are
+    // the other half of that — a different face, at full contrast, rather than a
+    // fainter copy of a Yea. Nothing else about the row changes — same identity, same
+    // date, same session, same source, same body, and it is still listed and still
+    // counted in "listed", because it is on file. What it loses is the two things it
+    // never had a right to: the ▲/▼ side pill, and the paragraph explaining which
+    // way it cut.
     var nos = _dosNoSide(d);
     // ONE STATEMENT OF ONE FACT. On a ballot absence the act phrase the record
     // itself produced ("Did not vote", "Voted Present") IS this label in the
@@ -13876,8 +14008,14 @@
     // identities are document numbers and stay short on their own; the migrated
     // formal lane's identity is a headline sentence, so it is clipped at a word
     // boundary with an ellipsis, which shortens a label without dropping an item.
-    var enumTxt = items.map(function (d) {
-      var s = String(d.ident || '').trim() || 'Unnamed action';
+    //   READ IN THE ORDER THE ROWS ARE IN, not the order the picks arrived in. The
+    // enumeration is an audit of the list below it, and an audit a reader has to
+    // re-sort in their head before it lines up with what they are auditing is a
+    // worse audit. Same names, same count, never a slice — only the sequence follows
+    // the cards now.
+    var ord = _dosOrder(items);
+    var enumTxt = ord.rows.map(function (p) {
+      var s = String(p.d.ident || '').trim() || 'Unnamed action';
       if (s.length > 44) s = s.slice(0, 44).replace(/\s+\S*$/, '') + '…';
       return s;
     }).join(' · ');
@@ -13939,7 +14077,7 @@
           ' <span aria-hidden="true">▾</span>' +
           '<span class="pdxdos-recs-list">' + esc(enumTxt) + '</span></summary>' +
         shortGap + gap + ledNote +
-        items.map(function (d, i) { return _dosRowHtml(d, i, pid, issueKey, teach, led); }).join('') +
+        _dosRowsHtml(ord, pid, issueKey, teach, led) +
         note + _dosVrLinkHtml(pid, issueKey, ov) +
       '</details>';
   }

@@ -1,0 +1,3287 @@
+{
+ "_comment": "Federal wave F3. Three verified roll calls on two Congressional Review Act joint resolutions, both new to the corpus: S.J.Res. 7 gives `broadband` its first PRIMARY instrument in either chamber, and H.J.Res. 140 gives `lands_preserve` its first Senate-reachable one. H.J.Res. 140's House passage vote is admitted alongside its Senate one because it is a House measure and filing only the Senate half would manufacture the chamber gap this wave exists to close. Built by scripts/vr-build-federal-wave-f3-seed.mjs; consumed by scripts/vr-gen-federal-wave-f3-migration.mjs and projected read-only by scripts/vr-federal-fpi.mjs.",
+ "builtBy": "scripts/vr-build-federal-wave-f3-seed.mjs",
+ "pulledAt": "2026-08-29",
+ "source": "senate.gov LIS roll-call XML (https://www.senate.gov/legislative/LIS/roll_call_votes/vote119{1,2}/) and House Clerk EVS XML (https://clerk.house.gov/evs/2026/). Senate voters resolved on TWO independent published keys that must agree: <lis_member_id> → congress-legislators → bioguide → db/vr-member-map.json, and a unique (congress-legislators name.last, state) pair over the senate roster. House voters resolved on the Clerk's own name-id bioguide attribute. The senate.gov vote menus and the Clerk's roll index were used ONLY to find which rolls exist.",
+ "attribution": {
+  "senate": "Double-keyed and fail-closed. A senator is attributed only when the bioguide chain and the unique (surname, state) pair name the SAME roster slug. A pair matching no roster senator, a pair matching two, and a pair naming a different slug than the bioguide are three different facts and are counted separately under resolution.noRosterNameState, resolution.ambiguousNameState and resolution.keyDisagreement. None of them is approximated.",
+  "house": "Clerk bioguide (the name-id attribute on each <legislator> row) → db/vr-member-map.json. No name matching is performed or needed. A bioguide with no roster slug is skipped and counted under resolution.unmappedBioguide.",
+  "surnameSource": "congress-legislators name.last, keyed by bioguide. Never derived by splitting a display name — that is how a hyphenated or multi-word surname silently collides.",
+  "rosterSenatorsIndexed": 99,
+  "rosterSenatorsWithoutSurname": [],
+  "ambiguousRosterKeys": []
+ },
+ "rollCallCount": 3,
+ "memberVoteCount": 303,
+ "skippedVoteCount": 328,
+ "newMeasures": [
+  "S.J.Res. 7",
+  "H.J.Res. 140"
+ ],
+ "votes": [
+  {
+   "chamber": "senate",
+   "congress": 119,
+   "session": 1,
+   "rollNumber": 238,
+   "voteDate": "2025-05-08T11:18:00-04:00",
+   "question": "On the Joint Resolution",
+   "voteDesc": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Federal Communications Commission relating to \"Addressing the Homework Gap Through the E-Rate Program\".",
+   "actionType": "passage",
+   "result": "passed",
+   "requiredMajority": "simple",
+   "admittedAs": "decisive",
+   "decisiveWhy": null,
+   "totals": {
+    "yea": 50,
+    "nay": 38,
+    "present": 0,
+    "notVoting": 12
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 0,
+     "nay": 36
+    },
+    "R": {
+     "yea": 50,
+     "nay": 0
+    },
+    "I": {
+     "yea": 0,
+     "nay": 2
+    }
+   },
+   "marginShare": 0.43182,
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00238.xml",
+   "sourceLabel": "U.S. Senate",
+   "measure": {
+    "measureType": "resolution",
+    "congress": 119,
+    "chamber": "senate",
+    "number": "S.J.Res. 7",
+    "parent": null,
+    "create": {
+     "measureType": "resolution",
+     "chamber": "senate",
+     "congress": 119,
+     "title": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Federal Communications Commission relating to \"Addressing the Homework Gap Through the E-Rate Program\"",
+     "shortTitle": "Disapproving the FCC E-Rate Wi-Fi hotspot rule",
+     "status": "passed_senate",
+     "introducedAt": "2025-01-27",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/7",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "billType": "sjres",
+      "billNumber": 7,
+      "congress": 119,
+      "govinfoText": "BILLS-119sjres7es",
+      "disapprovedRule": "89 FR 67303"
+     }
+    },
+    "mustExist": null
+   },
+   "memberVotes": [
+    {
+     "lisMemberId": "S428",
+     "bioguideId": "A000382",
+     "politicianId": "alsobrooks",
+     "party": "D",
+     "state": "MD",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S426",
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "state": "NJ",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S363",
+     "bioguideId": "K000383",
+     "politicianId": "angus_king",
+     "party": "I",
+     "state": "ME",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S439",
+     "bioguideId": "M001244",
+     "politicianId": "ashley_moody",
+     "party": "R",
+     "state": "FL",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S429",
+     "bioguideId": "B001299",
+     "politicianId": "banks",
+     "party": "R",
+     "state": "IN",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S317",
+     "bioguideId": "B001261",
+     "politicianId": "barrasso",
+     "party": "R",
+     "state": "WY",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S330",
+     "bioguideId": "B001267",
+     "politicianId": "bennet",
+     "party": "D",
+     "state": "CO",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S396",
+     "bioguideId": "B001243",
+     "politicianId": "blackburn",
+     "party": "R",
+     "state": "TN",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S341",
+     "bioguideId": "B001277",
+     "politicianId": "blumenthal",
+     "party": "D",
+     "state": "CT",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S430",
+     "bioguideId": "B001303",
+     "politicianId": "blunt_rochester",
+     "party": "D",
+     "state": "DE",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S370",
+     "bioguideId": "B001288",
+     "politicianId": "booker",
+     "party": "D",
+     "state": "NJ",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S343",
+     "bioguideId": "B001236",
+     "politicianId": "boozman",
+     "party": "R",
+     "state": "AR",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S416",
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "state": "AL",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S275",
+     "bioguideId": "C000127",
+     "politicianId": "cantwell",
+     "party": "D",
+     "state": "WA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S372",
+     "bioguideId": "C001047",
+     "politicianId": "capito",
+     "party": "R",
+     "state": "WV",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S373",
+     "bioguideId": "C001075",
+     "politicianId": "cassidy",
+     "party": "R",
+     "state": "LA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S364",
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "state": "CT",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "lisMemberId": "S252",
+     "bioguideId": "C001035",
+     "politicianId": "collins",
+     "party": "R",
+     "state": "ME",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S337",
+     "bioguideId": "C001088",
+     "politicianId": "coons",
+     "party": "D",
+     "state": "DE",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S385",
+     "bioguideId": "C001113",
+     "politicianId": "cortez_masto",
+     "party": "D",
+     "state": "NV",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "lisMemberId": "S374",
+     "bioguideId": "C001095",
+     "politicianId": "cotton",
+     "party": "R",
+     "state": "AR",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S266",
+     "bioguideId": "C000880",
+     "politicianId": "crapo",
+     "party": "R",
+     "state": "ID",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S355",
+     "bioguideId": "C001098",
+     "politicianId": "cruz",
+     "party": "R",
+     "state": "TX",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S431",
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "state": "UT",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S375",
+     "bioguideId": "D000618",
+     "politicianId": "daines",
+     "party": "R",
+     "state": "MT",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S383",
+     "bioguideId": "S001198",
+     "politicianId": "dan_sullivan",
+     "party": "R",
+     "state": "AK",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S357",
+     "bioguideId": "F000463",
+     "politicianId": "deb_fischer",
+     "party": "R",
+     "state": "NE",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S386",
+     "bioguideId": "D000622",
+     "politicianId": "duckworth",
+     "party": "D",
+     "state": "IL",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "lisMemberId": "S253",
+     "bioguideId": "D000563",
+     "politicianId": "durbin",
+     "party": "D",
+     "state": "IL",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S376",
+     "bioguideId": "E000295",
+     "politicianId": "ernst",
+     "party": "R",
+     "state": "IA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S418",
+     "bioguideId": "F000479",
+     "politicianId": "fetterman",
+     "party": "D",
+     "state": "PA",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "lisMemberId": "S432",
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "state": "AZ",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "lisMemberId": "S331",
+     "bioguideId": "G000555",
+     "politicianId": "gillibrand",
+     "party": "D",
+     "state": "NY",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S293",
+     "bioguideId": "G000359",
+     "politicianId": "graham",
+     "party": "R",
+     "state": "SC",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S153",
+     "bioguideId": "G000386",
+     "politicianId": "grassley",
+     "party": "R",
+     "state": "IA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S407",
+     "bioguideId": "H000601",
+     "politicianId": "hagerty",
+     "party": "R",
+     "state": "TN",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S399",
+     "bioguideId": "H001089",
+     "politicianId": "hawley",
+     "party": "R",
+     "state": "MO",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S359",
+     "bioguideId": "H001046",
+     "politicianId": "heinrich",
+     "party": "D",
+     "state": "NM",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S408",
+     "bioguideId": "H000273",
+     "politicianId": "hickenlooper",
+     "party": "D",
+     "state": "CO",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S361",
+     "bioguideId": "H001042",
+     "politicianId": "hirono",
+     "party": "D",
+     "state": "HI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S344",
+     "bioguideId": "H001061",
+     "politicianId": "hoeven",
+     "party": "R",
+     "state": "ND",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S347",
+     "bioguideId": "M000934",
+     "politicianId": "jerry_moran",
+     "party": "R",
+     "state": "KS",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S437",
+     "bioguideId": "J000312",
+     "politicianId": "jim_justice",
+     "party": "R",
+     "state": "WV",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S287",
+     "bioguideId": "C001056",
+     "politicianId": "john_cornyn",
+     "party": "R",
+     "state": "TX",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S414",
+     "bioguideId": "O000174",
+     "politicianId": "jon_ossoff",
+     "party": "D",
+     "state": "GA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S362",
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "state": "VA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S389",
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
+     "state": "LA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S398",
+     "bioguideId": "C001096",
+     "politicianId": "kevin_cramer",
+     "party": "R",
+     "state": "ND",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S311",
+     "bioguideId": "K000367",
+     "politicianId": "klobuchar",
+     "party": "D",
+     "state": "MN",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "lisMemberId": "S378",
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "state": "OK",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S346",
+     "bioguideId": "L000577",
+     "politicianId": "lee",
+     "party": "R",
+     "state": "UT",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S409",
+     "bioguideId": "L000570",
+     "politicianId": "lujan",
+     "party": "D",
+     "state": "NM",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S410",
+     "bioguideId": "L000571",
+     "politicianId": "lummis",
+     "party": "R",
+     "state": "WY",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "lisMemberId": "S388",
+     "bioguideId": "H001076",
+     "politicianId": "maggie_hassan",
+     "party": "D",
+     "state": "NH",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S406",
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "state": "AZ",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S369",
+     "bioguideId": "M000133",
+     "politicianId": "markey",
+     "party": "D",
+     "state": "MA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S174",
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "state": "KY",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S433",
+     "bioguideId": "M001243",
+     "politicianId": "mccormick",
+     "party": "R",
+     "state": "PA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S322",
+     "bioguideId": "M001176",
+     "politicianId": "merkley",
+     "party": "D",
+     "state": "OR",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S381",
+     "bioguideId": "R000605",
+     "politicianId": "mike_rounds",
+     "party": "R",
+     "state": "SD",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S434",
+     "bioguideId": "M001242",
+     "politicianId": "moreno",
+     "party": "R",
+     "state": "OH",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S419",
+     "bioguideId": "M001190",
+     "politicianId": "mullin",
+     "party": "R",
+     "state": "OK",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S288",
+     "bioguideId": "M001153",
+     "politicianId": "murkowski",
+     "party": "R",
+     "state": "AK",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S229",
+     "bioguideId": "M001111",
+     "politicianId": "murray",
+     "party": "D",
+     "state": "WA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S413",
+     "bioguideId": "P000145",
+     "politicianId": "padilla",
+     "party": "D",
+     "state": "CA",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "lisMemberId": "S380",
+     "bioguideId": "P000595",
+     "politicianId": "peters",
+     "party": "D",
+     "state": "MI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S348",
+     "bioguideId": "P000603",
+     "politicianId": "rand_paul",
+     "party": "R",
+     "state": "KY",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S259",
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "state": "RI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S404",
+     "bioguideId": "S001217",
+     "politicianId": "rick_scott",
+     "party": "R",
+     "state": "FL",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S423",
+     "bioguideId": "R000618",
+     "politicianId": "ricketts",
+     "party": "R",
+     "state": "NE",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S323",
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "state": "ID",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "lisMemberId": "S411",
+     "bioguideId": "M001198",
+     "politicianId": "roger_marshall",
+     "party": "R",
+     "state": "KS",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S345",
+     "bioguideId": "J000293",
+     "politicianId": "ron_johnson",
+     "party": "R",
+     "state": "WI",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S402",
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "state": "NV",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S313",
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "state": "VT",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S353",
+     "bioguideId": "S001194",
+     "politicianId": "schatz",
+     "party": "D",
+     "state": "HI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S427",
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "state": "CA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S420",
+     "bioguideId": "S001227",
+     "politicianId": "schmitt",
+     "party": "R",
+     "state": "MO",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S270",
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "state": "NY",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S324",
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "state": "NH",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "lisMemberId": "S435",
+     "bioguideId": "S001232",
+     "politicianId": "sheehy",
+     "party": "R",
+     "state": "MT",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S436",
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "state": "MI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S354",
+     "bioguideId": "B001230",
+     "politicianId": "tammy_baldwin",
+     "party": "D",
+     "state": "WI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S417",
+     "bioguideId": "B001305",
+     "politicianId": "ted_budd",
+     "party": "R",
+     "state": "NC",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S303",
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "state": "SD",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S384",
+     "bioguideId": "T000476",
+     "politicianId": "tillis",
+     "party": "R",
+     "state": "NC",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S365",
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "state": "SC",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S394",
+     "bioguideId": "S001203",
+     "politicianId": "tina_smith",
+     "party": "D",
+     "state": "MN",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "lisMemberId": "S391",
+     "bioguideId": "Y000064",
+     "politicianId": "todd_young",
+     "party": "R",
+     "state": "IN",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S412",
+     "bioguideId": "T000278",
+     "politicianId": "tommy_tuberville",
+     "party": "R",
+     "state": "AL",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S390",
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "state": "MD",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S327",
+     "bioguideId": "W000805",
+     "politicianId": "warner",
+     "party": "D",
+     "state": "VA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S415",
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "state": "GA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S366",
+     "bioguideId": "W000817",
+     "politicianId": "warren",
+     "party": "D",
+     "state": "MA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S422",
+     "bioguideId": "W000800",
+     "politicianId": "welch",
+     "party": "D",
+     "state": "VT",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S316",
+     "bioguideId": "W000802",
+     "politicianId": "whitehouse",
+     "party": "D",
+     "state": "RI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S318",
+     "bioguideId": "W000437",
+     "politicianId": "wicker",
+     "party": "R",
+     "state": "MS",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "lisMemberId": "S247",
+     "bioguideId": "W000779",
+     "politicianId": "wyden",
+     "party": "D",
+     "state": "OR",
+     "position": "nay",
+     "isParty": "with_party"
+    }
+   ],
+   "resolution": {
+    "listed": 100,
+    "attributed": 98,
+    "skipped": 2,
+    "unresolvedLis": [],
+    "unmappedBioguide": [
+     "H001104 (Jon Husted)",
+     "H001079 (Cindy Hyde-Smith)"
+    ],
+    "noRosterNameState": [],
+    "ambiguousNameState": [],
+    "keyDisagreement": []
+   }
+  },
+  {
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "rollNumber": 84,
+   "voteDate": "2026-04-16T11:08:00-04:00",
+   "question": "On the Joint Resolution",
+   "voteDesc": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Land Management relating to Public Land Order No. 7917 for Withdrawal of Federal Lands; Cook, Lake, and Saint Louis Counties, MN.",
+   "actionType": "passage",
+   "result": "passed",
+   "requiredMajority": "simple",
+   "admittedAs": "decisive",
+   "decisiveWhy": null,
+   "totals": {
+    "yea": 50,
+    "nay": 49,
+    "present": 0,
+    "notVoting": 1
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 0,
+     "nay": 45
+    },
+    "R": {
+     "yea": 50,
+     "nay": 2
+    },
+    "I": {
+     "yea": 0,
+     "nay": 2
+    }
+   },
+   "marginShare": 0.49495,
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00084.xml",
+   "sourceLabel": "U.S. Senate",
+   "measure": {
+    "measureType": "resolution",
+    "congress": 119,
+    "chamber": "house",
+    "number": "H.J.Res. 140",
+    "parent": null,
+    "create": {
+     "measureType": "resolution",
+     "chamber": "house",
+     "congress": 119,
+     "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Land Management relating to Public Land Order No. 7917 for Withdrawal of Federal Lands; Cook, Lake, and Saint Louis Counties, MN",
+     "shortTitle": "Disapproving the BLM Boundary Waters mineral withdrawal",
+     "status": "enacted",
+     "introducedAt": "2026-01-12",
+     "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/140",
+     "sourceLabel": "Congress.gov",
+     "externalIds": {
+      "billType": "hjres",
+      "billNumber": 140,
+      "congress": 119,
+      "govinfoText": "BILLS-119hjres140enr",
+      "publicLaw": "119-85",
+      "approvedAt": "2026-04-27",
+      "disapprovedRule": "88 FR 6308"
+     }
+    },
+    "mustExist": null
+   },
+   "memberVotes": [
+    {
+     "lisMemberId": "S428",
+     "bioguideId": "A000382",
+     "politicianId": "alsobrooks",
+     "party": "D",
+     "state": "MD",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S426",
+     "bioguideId": "K000394",
+     "politicianId": "andy_kim",
+     "party": "D",
+     "state": "NJ",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S363",
+     "bioguideId": "K000383",
+     "politicianId": "angus_king",
+     "party": "I",
+     "state": "ME",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S439",
+     "bioguideId": "M001244",
+     "politicianId": "ashley_moody",
+     "party": "R",
+     "state": "FL",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S429",
+     "bioguideId": "B001299",
+     "politicianId": "banks",
+     "party": "R",
+     "state": "IN",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S317",
+     "bioguideId": "B001261",
+     "politicianId": "barrasso",
+     "party": "R",
+     "state": "WY",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S330",
+     "bioguideId": "B001267",
+     "politicianId": "bennet",
+     "party": "D",
+     "state": "CO",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S396",
+     "bioguideId": "B001243",
+     "politicianId": "blackburn",
+     "party": "R",
+     "state": "TN",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S341",
+     "bioguideId": "B001277",
+     "politicianId": "blumenthal",
+     "party": "D",
+     "state": "CT",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S430",
+     "bioguideId": "B001303",
+     "politicianId": "blunt_rochester",
+     "party": "D",
+     "state": "DE",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S370",
+     "bioguideId": "B001288",
+     "politicianId": "booker",
+     "party": "D",
+     "state": "NJ",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S343",
+     "bioguideId": "B001236",
+     "politicianId": "boozman",
+     "party": "R",
+     "state": "AR",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S416",
+     "bioguideId": "B001319",
+     "politicianId": "britt",
+     "party": "R",
+     "state": "AL",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S275",
+     "bioguideId": "C000127",
+     "politicianId": "cantwell",
+     "party": "D",
+     "state": "WA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S372",
+     "bioguideId": "C001047",
+     "politicianId": "capito",
+     "party": "R",
+     "state": "WV",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S373",
+     "bioguideId": "C001075",
+     "politicianId": "cassidy",
+     "party": "R",
+     "state": "LA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S364",
+     "bioguideId": "M001169",
+     "politicianId": "chris_murphy",
+     "party": "D",
+     "state": "CT",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S252",
+     "bioguideId": "C001035",
+     "politicianId": "collins",
+     "party": "R",
+     "state": "ME",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "lisMemberId": "S337",
+     "bioguideId": "C001088",
+     "politicianId": "coons",
+     "party": "D",
+     "state": "DE",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S385",
+     "bioguideId": "C001113",
+     "politicianId": "cortez_masto",
+     "party": "D",
+     "state": "NV",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S374",
+     "bioguideId": "C001095",
+     "politicianId": "cotton",
+     "party": "R",
+     "state": "AR",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S266",
+     "bioguideId": "C000880",
+     "politicianId": "crapo",
+     "party": "R",
+     "state": "ID",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S355",
+     "bioguideId": "C001098",
+     "politicianId": "cruz",
+     "party": "R",
+     "state": "TX",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S431",
+     "bioguideId": "C001114",
+     "politicianId": "curtis",
+     "party": "R",
+     "state": "UT",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S375",
+     "bioguideId": "D000618",
+     "politicianId": "daines",
+     "party": "R",
+     "state": "MT",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S383",
+     "bioguideId": "S001198",
+     "politicianId": "dan_sullivan",
+     "party": "R",
+     "state": "AK",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S357",
+     "bioguideId": "F000463",
+     "politicianId": "deb_fischer",
+     "party": "R",
+     "state": "NE",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S386",
+     "bioguideId": "D000622",
+     "politicianId": "duckworth",
+     "party": "D",
+     "state": "IL",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S253",
+     "bioguideId": "D000563",
+     "politicianId": "durbin",
+     "party": "D",
+     "state": "IL",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S376",
+     "bioguideId": "E000295",
+     "politicianId": "ernst",
+     "party": "R",
+     "state": "IA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S418",
+     "bioguideId": "F000479",
+     "politicianId": "fetterman",
+     "party": "D",
+     "state": "PA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S432",
+     "bioguideId": "G000574",
+     "politicianId": "gallego",
+     "party": "D",
+     "state": "AZ",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S331",
+     "bioguideId": "G000555",
+     "politicianId": "gillibrand",
+     "party": "D",
+     "state": "NY",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S293",
+     "bioguideId": "G000359",
+     "politicianId": "graham",
+     "party": "R",
+     "state": "SC",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S153",
+     "bioguideId": "G000386",
+     "politicianId": "grassley",
+     "party": "R",
+     "state": "IA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S407",
+     "bioguideId": "H000601",
+     "politicianId": "hagerty",
+     "party": "R",
+     "state": "TN",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S399",
+     "bioguideId": "H001089",
+     "politicianId": "hawley",
+     "party": "R",
+     "state": "MO",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "lisMemberId": "S359",
+     "bioguideId": "H001046",
+     "politicianId": "heinrich",
+     "party": "D",
+     "state": "NM",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S408",
+     "bioguideId": "H000273",
+     "politicianId": "hickenlooper",
+     "party": "D",
+     "state": "CO",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S361",
+     "bioguideId": "H001042",
+     "politicianId": "hirono",
+     "party": "D",
+     "state": "HI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S344",
+     "bioguideId": "H001061",
+     "politicianId": "hoeven",
+     "party": "R",
+     "state": "ND",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S347",
+     "bioguideId": "M000934",
+     "politicianId": "jerry_moran",
+     "party": "R",
+     "state": "KS",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S437",
+     "bioguideId": "J000312",
+     "politicianId": "jim_justice",
+     "party": "R",
+     "state": "WV",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S287",
+     "bioguideId": "C001056",
+     "politicianId": "john_cornyn",
+     "party": "R",
+     "state": "TX",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S414",
+     "bioguideId": "O000174",
+     "politicianId": "jon_ossoff",
+     "party": "D",
+     "state": "GA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S362",
+     "bioguideId": "K000384",
+     "politicianId": "kaine",
+     "party": "D",
+     "state": "VA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S389",
+     "bioguideId": "K000393",
+     "politicianId": "kennedy_john",
+     "party": "R",
+     "state": "LA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S398",
+     "bioguideId": "C001096",
+     "politicianId": "kevin_cramer",
+     "party": "R",
+     "state": "ND",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S311",
+     "bioguideId": "K000367",
+     "politicianId": "klobuchar",
+     "party": "D",
+     "state": "MN",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S378",
+     "bioguideId": "L000575",
+     "politicianId": "lankford",
+     "party": "R",
+     "state": "OK",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S346",
+     "bioguideId": "L000577",
+     "politicianId": "lee",
+     "party": "R",
+     "state": "UT",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S409",
+     "bioguideId": "L000570",
+     "politicianId": "lujan",
+     "party": "D",
+     "state": "NM",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S410",
+     "bioguideId": "L000571",
+     "politicianId": "lummis",
+     "party": "R",
+     "state": "WY",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S388",
+     "bioguideId": "H001076",
+     "politicianId": "maggie_hassan",
+     "party": "D",
+     "state": "NH",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S406",
+     "bioguideId": "K000377",
+     "politicianId": "mark_kelly",
+     "party": "D",
+     "state": "AZ",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S369",
+     "bioguideId": "M000133",
+     "politicianId": "markey",
+     "party": "D",
+     "state": "MA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S174",
+     "bioguideId": "M000355",
+     "politicianId": "mcconnell",
+     "party": "R",
+     "state": "KY",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S433",
+     "bioguideId": "M001243",
+     "politicianId": "mccormick",
+     "party": "R",
+     "state": "PA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S322",
+     "bioguideId": "M001176",
+     "politicianId": "merkley",
+     "party": "D",
+     "state": "OR",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S381",
+     "bioguideId": "R000605",
+     "politicianId": "mike_rounds",
+     "party": "R",
+     "state": "SD",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S434",
+     "bioguideId": "M001242",
+     "politicianId": "moreno",
+     "party": "R",
+     "state": "OH",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S288",
+     "bioguideId": "M001153",
+     "politicianId": "murkowski",
+     "party": "R",
+     "state": "AK",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S229",
+     "bioguideId": "M001111",
+     "politicianId": "murray",
+     "party": "D",
+     "state": "WA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S413",
+     "bioguideId": "P000145",
+     "politicianId": "padilla",
+     "party": "D",
+     "state": "CA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S380",
+     "bioguideId": "P000595",
+     "politicianId": "peters",
+     "party": "D",
+     "state": "MI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S348",
+     "bioguideId": "P000603",
+     "politicianId": "rand_paul",
+     "party": "R",
+     "state": "KY",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S259",
+     "bioguideId": "R000122",
+     "politicianId": "reed",
+     "party": "D",
+     "state": "RI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S404",
+     "bioguideId": "S001217",
+     "politicianId": "rick_scott",
+     "party": "R",
+     "state": "FL",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S423",
+     "bioguideId": "R000618",
+     "politicianId": "ricketts",
+     "party": "R",
+     "state": "NE",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S323",
+     "bioguideId": "R000584",
+     "politicianId": "risch",
+     "party": "R",
+     "state": "ID",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S411",
+     "bioguideId": "M001198",
+     "politicianId": "roger_marshall",
+     "party": "R",
+     "state": "KS",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S345",
+     "bioguideId": "J000293",
+     "politicianId": "ron_johnson",
+     "party": "R",
+     "state": "WI",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S402",
+     "bioguideId": "R000608",
+     "politicianId": "rosen",
+     "party": "D",
+     "state": "NV",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S313",
+     "bioguideId": "S000033",
+     "politicianId": "sanders",
+     "party": "I",
+     "state": "VT",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S353",
+     "bioguideId": "S001194",
+     "politicianId": "schatz",
+     "party": "D",
+     "state": "HI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S427",
+     "bioguideId": "S001150",
+     "politicianId": "schiff",
+     "party": "D",
+     "state": "CA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S420",
+     "bioguideId": "S001227",
+     "politicianId": "schmitt",
+     "party": "R",
+     "state": "MO",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S270",
+     "bioguideId": "S000148",
+     "politicianId": "schumer",
+     "party": "D",
+     "state": "NY",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S324",
+     "bioguideId": "S001181",
+     "politicianId": "shaheen",
+     "party": "D",
+     "state": "NH",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S435",
+     "bioguideId": "S001232",
+     "politicianId": "sheehy",
+     "party": "R",
+     "state": "MT",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S436",
+     "bioguideId": "S001208",
+     "politicianId": "slotkin",
+     "party": "D",
+     "state": "MI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S354",
+     "bioguideId": "B001230",
+     "politicianId": "tammy_baldwin",
+     "party": "D",
+     "state": "WI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S417",
+     "bioguideId": "B001305",
+     "politicianId": "ted_budd",
+     "party": "R",
+     "state": "NC",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S303",
+     "bioguideId": "T000250",
+     "politicianId": "thune",
+     "party": "R",
+     "state": "SD",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S384",
+     "bioguideId": "T000476",
+     "politicianId": "tillis",
+     "party": "R",
+     "state": "NC",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "lisMemberId": "S365",
+     "bioguideId": "S001184",
+     "politicianId": "tim_scott",
+     "party": "R",
+     "state": "SC",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S394",
+     "bioguideId": "S001203",
+     "politicianId": "tina_smith",
+     "party": "D",
+     "state": "MN",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S391",
+     "bioguideId": "Y000064",
+     "politicianId": "todd_young",
+     "party": "R",
+     "state": "IN",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S412",
+     "bioguideId": "T000278",
+     "politicianId": "tommy_tuberville",
+     "party": "R",
+     "state": "AL",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S390",
+     "bioguideId": "V000128",
+     "politicianId": "van_hollen",
+     "party": "D",
+     "state": "MD",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S327",
+     "bioguideId": "W000805",
+     "politicianId": "warner",
+     "party": "D",
+     "state": "VA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S415",
+     "bioguideId": "W000790",
+     "politicianId": "warnock",
+     "party": "D",
+     "state": "GA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S366",
+     "bioguideId": "W000817",
+     "politicianId": "warren",
+     "party": "D",
+     "state": "MA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S422",
+     "bioguideId": "W000800",
+     "politicianId": "welch",
+     "party": "D",
+     "state": "VT",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S316",
+     "bioguideId": "W000802",
+     "politicianId": "whitehouse",
+     "party": "D",
+     "state": "RI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S318",
+     "bioguideId": "W000437",
+     "politicianId": "wicker",
+     "party": "R",
+     "state": "MS",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": "S247",
+     "bioguideId": "W000779",
+     "politicianId": "wyden",
+     "party": "D",
+     "state": "OR",
+     "position": "nay",
+     "isParty": "with_party"
+    }
+   ],
+   "resolution": {
+    "listed": 100,
+    "attributed": 97,
+    "skipped": 3,
+    "unresolvedLis": [],
+    "unmappedBioguide": [
+     "A000383 (Alan Armstrong)",
+     "H001104 (Jon Husted)",
+     "H001079 (Cindy Hyde-Smith)"
+    ],
+    "noRosterNameState": [],
+    "ambiguousNameState": [],
+    "keyDisagreement": []
+   }
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "rollNumber": 38,
+   "voteDate": "2026-01-21T16:45:00-05:00",
+   "question": "On Passage",
+   "voteDesc": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Land Management relating to Public Land Order No. 7917 for Withdrawal of Federal Lands; Cook, Lake, and Saint Louis Counties, MN",
+   "actionType": "passage",
+   "result": "passed",
+   "requiredMajority": "simple",
+   "admittedAs": "decisive",
+   "decisiveWhy": null,
+   "totals": {
+    "yea": 214,
+    "nay": 208,
+    "present": 0,
+    "notVoting": 9
+   },
+   "partyTotals": {
+    "D": {
+     "yea": 1,
+     "nay": 207
+    },
+    "R": {
+     "yea": 213,
+     "nay": 1
+    }
+   },
+   "marginShare": 0.49289,
+   "sourceUrl": "https://clerk.house.gov/evs/2026/roll038.xml",
+   "sourceLabel": "U.S. House Clerk",
+   "measure": {
+    "measureType": "resolution",
+    "congress": 119,
+    "chamber": "house",
+    "number": "H.J.Res. 140",
+    "parent": null,
+    "create": null,
+    "mustExist": "Introduced by this same wave from the senate 119/2/84 entry — H.J.Res. 140 is one measure with two passage votes, and filing only the Senate half would leave a House measure whose own chamber does not appear among its roll calls. The generator de-duplicates measures by (congress, chamber, number), so this roll attaches to the row that entry creates and adds no second measure and no second mapping."
+   },
+   "memberVotes": [
+    {
+     "lisMemberId": null,
+     "bioguideId": "S000510",
+     "politicianId": "adam_smith",
+     "party": "D",
+     "state": "WA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "A000371",
+     "politicianId": "aguilar",
+     "party": "D",
+     "state": "CA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "H001052",
+     "politicianId": "andy_harris",
+     "party": "R",
+     "state": "MD",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "C001119",
+     "politicianId": "angie_craig",
+     "party": "D",
+     "state": "MN",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "O000172",
+     "politicianId": "aoc",
+     "party": "D",
+     "state": "NY",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "A000375",
+     "politicianId": "arrington",
+     "party": "R",
+     "state": "TX",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "P000617",
+     "politicianId": "ayanna_pressley",
+     "party": "D",
+     "state": "MA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "T000193",
+     "politicianId": "bennie_thompson",
+     "party": "D",
+     "state": "MS",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "M001213",
+     "politicianId": "bmoore",
+     "party": "R",
+     "state": "UT",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "B000825",
+     "politicianId": "boebert",
+     "party": "R",
+     "state": "CO",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "B001296",
+     "politicianId": "brendan_boyle",
+     "party": "D",
+     "state": "PA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "B001291",
+     "politicianId": "brian_babin",
+     "party": "R",
+     "state": "TX",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "M001199",
+     "politicianId": "brian_mast",
+     "party": "R",
+     "state": "FL",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "W000821",
+     "politicianId": "bruce_westerman",
+     "party": "R",
+     "state": "AR",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "S001213",
+     "politicianId": "bryan_steil",
+     "party": "R",
+     "state": "WI",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "P000597",
+     "politicianId": "chellie_pingree",
+     "party": "D",
+     "state": "ME",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "R000614",
+     "politicianId": "chip_roy",
+     "party": "R",
+     "state": "TX",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "C000537",
+     "politicianId": "clyburn",
+     "party": "D",
+     "state": "SC",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "C001108",
+     "politicianId": "comer",
+     "party": "R",
+     "state": "KY",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "C001130",
+     "politicianId": "crockett",
+     "party": "D",
+     "state": "TX",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "C001120",
+     "politicianId": "dan_crenshaw",
+     "party": "R",
+     "state": "TX",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "G000599",
+     "politicianId": "dan_goldman",
+     "party": "D",
+     "state": "NY",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "D000624",
+     "politicianId": "debbie_dingell",
+     "party": "D",
+     "state": "MI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "D000216",
+     "politicianId": "delauro",
+     "party": "D",
+     "state": "CT",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "R000617",
+     "politicianId": "delia_ramirez",
+     "party": "D",
+     "state": "IL",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "D000197",
+     "politicianId": "diana_degette",
+     "party": "D",
+     "state": "CO",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "B001298",
+     "politicianId": "don_bacon",
+     "party": "R",
+     "state": "NE",
+     "position": "nay",
+     "isParty": "against_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "D000230",
+     "politicianId": "don_davis",
+     "party": "D",
+     "state": "NC",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "D000032",
+     "politicianId": "donalds",
+     "party": "R",
+     "state": "FL",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "E000294",
+     "politicianId": "emmer",
+     "party": "R",
+     "state": "MN",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "F000466",
+     "politicianId": "fitzpatrick",
+     "party": "R",
+     "state": "PA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "F000450",
+     "politicianId": "foxx",
+     "party": "R",
+     "state": "NC",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "L000491",
+     "politicianId": "frank_lucas",
+     "party": "R",
+     "state": "OK",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "H001072",
+     "politicianId": "french_hill",
+     "party": "R",
+     "state": "AR",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "G000597",
+     "politicianId": "garbarino",
+     "party": "R",
+     "state": "NY",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "T000467",
+     "politicianId": "glenn_thompson",
+     "party": "R",
+     "state": "PA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "L000601",
+     "politicianId": "greg_landsman",
+     "party": "D",
+     "state": "OH",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "G000558",
+     "politicianId": "guthrie",
+     "party": "R",
+     "state": "KY",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "S001215",
+     "politicianId": "haley_stevens",
+     "party": "D",
+     "state": "MI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "A000148",
+     "politicianId": "jake_auchincloss",
+     "party": "D",
+     "state": "MA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "S001145",
+     "politicianId": "jan_schakowsky",
+     "party": "D",
+     "state": "IL",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "G000592",
+     "politicianId": "jared_golden",
+     "party": "D",
+     "state": "ME",
+     "position": "yea",
+     "isParty": "against_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "H001068",
+     "politicianId": "jared_huffman",
+     "party": "D",
+     "state": "CA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "S001195",
+     "politicianId": "jason_smith",
+     "party": "R",
+     "state": "MO",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "J000298",
+     "politicianId": "jayapal",
+     "party": "D",
+     "state": "WA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "J000294",
+     "politicianId": "jeffries",
+     "party": "D",
+     "state": "NY",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "H001047",
+     "politicianId": "jim_himes",
+     "party": "D",
+     "state": "CT",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "J000289",
+     "politicianId": "jim_jordan",
+     "party": "R",
+     "state": "OH",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "M000312",
+     "politicianId": "jim_mcgovern",
+     "party": "D",
+     "state": "MA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "B001317",
+     "politicianId": "josh_brecheen",
+     "party": "R",
+     "state": "OK",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "G000583",
+     "politicianId": "josh_gottheimer",
+     "party": "D",
+     "state": "NJ",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "F000482",
+     "politicianId": "julie_fedorchak",
+     "party": "R",
+     "state": "ND",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "C001101",
+     "politicianId": "kclark",
+     "party": "D",
+     "state": "MA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "K000403",
+     "politicianId": "kennedy",
+     "party": "R",
+     "state": "UT",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "H001082",
+     "politicianId": "kevin_hern",
+     "party": "R",
+     "state": "OK",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "K000389",
+     "politicianId": "khanna",
+     "party": "D",
+     "state": "CA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "L000596",
+     "politicianId": "luna",
+     "party": "R",
+     "state": "FL",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "M001228",
+     "politicianId": "maloy",
+     "party": "R",
+     "state": "UT",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "M001215",
+     "politicianId": "mariannette_miller_meeks",
+     "party": "R",
+     "state": "IA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "G000600",
+     "politicianId": "marie_gluesenkamp_perez",
+     "party": "D",
+     "state": "WA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "M001184",
+     "politicianId": "massie",
+     "party": "R",
+     "state": "KY",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "W000187",
+     "politicianId": "maxine_waters",
+     "party": "D",
+     "state": "CA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "F000476",
+     "politicianId": "maxwell_frost",
+     "party": "D",
+     "state": "FL",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "M001136",
+     "politicianId": "mcclain",
+     "party": "R",
+     "state": "MI",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "M001137",
+     "politicianId": "meeks",
+     "party": "D",
+     "state": "NY",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "G000591",
+     "politicianId": "michael_guest",
+     "party": "R",
+     "state": "MS",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "B001295",
+     "politicianId": "mike_bost",
+     "party": "R",
+     "state": "IL",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "C001129",
+     "politicianId": "mike_collins",
+     "party": "R",
+     "state": "GA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "E000235",
+     "politicianId": "mike_ezell",
+     "party": "R",
+     "state": "MS",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "F000474",
+     "politicianId": "mike_flood",
+     "party": "R",
+     "state": "NE",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "J000299",
+     "politicianId": "mike_johnson",
+     "party": "R",
+     "state": "LA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "L000599",
+     "politicianId": "mike_lawler",
+     "party": "R",
+     "state": "NY",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "S001148",
+     "politicianId": "mike_simpson",
+     "party": "R",
+     "state": "ID",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "N000002",
+     "politicianId": "nadler",
+     "party": "D",
+     "state": "NY",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "M000194",
+     "politicianId": "nancy_mace",
+     "party": "R",
+     "state": "SC",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "N000015",
+     "politicianId": "neal",
+     "party": "D",
+     "state": "MA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "N000191",
+     "politicianId": "neguse",
+     "party": "D",
+     "state": "CO",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "O000173",
+     "politicianId": "omar",
+     "party": "D",
+     "state": "MN",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "O000086",
+     "politicianId": "owens",
+     "party": "R",
+     "state": "UT",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "P000034",
+     "politicianId": "pallone",
+     "party": "D",
+     "state": "NJ",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "K000391",
+     "politicianId": "raja_krishnamoorthi",
+     "party": "D",
+     "state": "IL",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "R000606",
+     "politicianId": "raskin",
+     "party": "D",
+     "state": "MD",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "C001087",
+     "politicianId": "rick_crawford",
+     "party": "R",
+     "state": "AR",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "L000560",
+     "politicianId": "rick_larsen",
+     "party": "D",
+     "state": "WA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "B001327",
+     "politicianId": "rob_bresnahan",
+     "party": "R",
+     "state": "PA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "G000598",
+     "politicianId": "robert_garcia",
+     "party": "D",
+     "state": "CA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "W000816",
+     "politicianId": "roger_williams",
+     "party": "R",
+     "state": "TX",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "M001230",
+     "politicianId": "ryan_mackenzie",
+     "party": "R",
+     "state": "PA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "G000546",
+     "politicianId": "sam_graves",
+     "party": "R",
+     "state": "MO",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "M001238",
+     "politicianId": "sarah_mcbride",
+     "party": "D",
+     "state": "DE",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "S001176",
+     "politicianId": "scalise",
+     "party": "R",
+     "state": "LA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "P000605",
+     "politicianId": "scott_perry",
+     "party": "R",
+     "state": "PA",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "M001196",
+     "politicianId": "seth_moulton",
+     "party": "D",
+     "state": "MA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "S001196",
+     "politicianId": "stefanik",
+     "party": "R",
+     "state": "NY",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "H000874",
+     "politicianId": "steny_hoyer",
+     "party": "D",
+     "state": "MD",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "B000740",
+     "politicianId": "stephanie_bice",
+     "party": "R",
+     "state": "OK",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "W000809",
+     "politicianId": "steve_womack",
+     "party": "R",
+     "state": "AR",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "L000602",
+     "politicianId": "summer_lee",
+     "party": "D",
+     "state": "PA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "T000472",
+     "politicianId": "takano",
+     "party": "D",
+     "state": "CA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "L000582",
+     "politicianId": "ted_lieu",
+     "party": "D",
+     "state": "CA",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "T000481",
+     "politicianId": "tlaib",
+     "party": "D",
+     "state": "MI",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "C001053",
+     "politicianId": "tom_cole",
+     "party": "R",
+     "state": "OK",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "S001201",
+     "politicianId": "tom_suozzi",
+     "party": "D",
+     "state": "NY",
+     "position": "nay",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "T000486",
+     "politicianId": "torres",
+     "party": "D",
+     "state": "NY",
+     "position": "not_voting",
+     "isParty": null
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "K000388",
+     "politicianId": "trent_kelly",
+     "party": "R",
+     "state": "MS",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "D000634",
+     "politicianId": "troy_downing",
+     "party": "R",
+     "state": "MT",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "W000798",
+     "politicianId": "walberg",
+     "party": "R",
+     "state": "MI",
+     "position": "yea",
+     "isParty": "with_party"
+    },
+    {
+     "lisMemberId": null,
+     "bioguideId": "L000397",
+     "politicianId": "zoe_lofgren",
+     "party": "D",
+     "state": "CA",
+     "position": "nay",
+     "isParty": "with_party"
+    }
+   ],
+   "resolution": {
+    "listed": 431,
+    "attributed": 108,
+    "skipped": 323,
+    "unresolvedLis": [],
+    "unmappedBioguide": [
+     "A000370 (Adams (NC))",
+     "A000055 (Aderholt (AL))",
+     "A000379 (Alford (MO))",
+     "A000372 (Allen (GA))",
+     "A000380 (Amo (RI))",
+     "A000369 (Amodei (NV) (NV))",
+     "A000381 (Ansari (AZ))",
+     "B001307 (Baird (IN))",
+     "B001306 (Balderson (OH))",
+     "B001318 (Balint (VT))",
+     "B001282 (Barr (KY))",
+     "B001300 (Barragan (CA))",
+     "B001321 (Barrett (MI))",
+     "B001322 (Baumgartner (WA))",
+     "B001314 (Bean (FL) (FL))",
+     "B001281 (Beatty (OH))",
+     "B001323 (Begich (AK))",
+     "B001324 (Bell (MO))",
+     "B000668 (Bentz (OR))",
+     "B001287 (Bera (CA))",
+     "B001301 (Bergman (MI))",
+     "B001292 (Beyer (VA))",
+     "B001302 (Biggs (AZ) (AZ))",
+     "B001325 (Biggs (SC) (SC))",
+     "B001257 (Bilirakis (FL))",
+     "B000490 (Bishop (GA))",
+     "B001278 (Bonamici (OR))",
+     "B001313 (Brown (OH))",
+     "B001285 (Brownley (CA))",
+     "B001260 (Buchanan (FL))",
+     "B001315 (Budzinski (IL))",
+     "B001309 (Burchett (TN))",
+     "B001316 (Burlison (MO))",
+     "B001326 (Bynum (OR))",
+     "C000059 (Calvert (CA))",
+     "C001039 (Cammack (FL))",
+     "C001112 (Carbajal (CA))",
+     "C001126 (Carey (OH))",
+     "C001072 (Carson (IN))",
+     "C001103 (Carter (GA) (GA))",
+     "C001125 (Carter (LA) (LA))",
+     "C001051 (Carter (TX) (TX))",
+     "C001131 (Casar (TX))",
+     "C001055 (Case (HI))",
+     "C001117 (Casten (IL))",
+     "C001066 (Castor (FL) (FL))",
+     "C001091 (Castro (TX) (TX))",
+     "C001127 (Cherfilus-McCormick (FL))",
+     "C001080 (Chu (CA))",
+     "C001133 (Ciscomani (AZ))",
+     "C001123 (Cisneros (CA))",
+     "C001067 (Clarke (NY) (NY))",
+     "C001061 (Cleaver (MO))",
+     "C001118 (Cline (VA))",
+     "C001115 (Cloud (TX))",
+     "C001116 (Clyde (GA))",
+     "C001068 (Cohen (TN))",
+     "C001136 (Conaway (NJ))",
+     "C001110 (Correa (CA))",
+     "C001059 (Costa (CA))",
+     "C001069 (Courtney (CT))",
+     "C001132 (Crane (AZ))",
+     "C001137 (Crank (CO))",
+     "C001121 (Crow (CO))",
+     "C001063 (Cuellar (TX))",
+     "D000629 (Davids (KS) (KS))",
+     "D000626 (Davidson (OH))",
+     "D000096 (Davis (IL) (IL))",
+     "D000594 (De La Cruz (TX))",
+     "D000631 (Dean (PA) (PA))",
+     "D000617 (DelBene (WA))",
+     "D000530 (Deluzio (PA))",
+     "D000623 (DeSaulnier (CA))",
+     "D000616 (DesJarlais (TN))",
+     "D000635 (Dexter (OR))",
+     "D000600 (Diaz-Balart (FL))",
+     "D000399 (Doggett (TX))",
+     "D000628 (Dunn (FL) (FL))",
+     "E000246 (Edwards (NC))",
+     "E000301 (Elfreth (MD))",
+     "E000071 (Ellzey (TX))",
+     "E000299 (Escobar (TX))",
+     "E000297 (Espaillat (NY))",
+     "E000298 (Estes (KS))",
+     "E000300 (Evans (CO) (CO))",
+     "E000296 (Evans (PA) (PA))",
+     "F000246 (Fallon (TX))",
+     "F000446 (Feenstra (IA))",
+     "F000110 (Fields (LA))",
+     "F000481 (Figures (AL))",
+     "F000484 (Fine (FL))",
+     "F000475 (Finstad (MN))",
+     "F000470 (Fischbach (MN))",
+     "F000471 (Fitzgerald (WI))",
+     "F000459 (Fleischmann (TN))",
+     "F000468 (Fletcher (TX))",
+     "F000480 (Fong (CA))",
+     "F000454 (Foster (IL))",
+     "F000477 (Foushee (NC))",
+     "F000462 (Frankel, Lois (FL))",
+     "F000472 (Franklin, Scott (FL))",
+     "F000483 (Friedman (CA))",
+     "F000478 (Fry (SC))",
+     "F000469 (Fulcher (ID))",
+     "G000559 (Garamendi (CA))",
+     "G000586 (Garcia (IL) (IL))",
+     "G000587 (Garcia (TX) (TX))",
+     "G000603 (Gill (TX) (TX))",
+     "G000602 (Gillen (NY))",
+     "G000593 (Gimenez (FL))",
+     "G000601 (Goldman (TX) (TX))",
+     "G000585 (Gomez (CA))",
+     "G000594 (Gonzales, Tony (TX))",
+     "G000581 (Gonzalez, V. (TX))",
+     "G000589 (Gooden (TX))",
+     "G000604 (Goodlander (NH))",
+     "G000565 (Gosar (AZ))",
+     "G000605 (Gray (CA))",
+     "G000553 (Green, Al (TX) (TX))",
+     "G000568 (Griffith (VA))",
+     "G000606 (Grijalva (AZ))",
+     "G000576 (Grothman (WI))",
+     "H001096 (Hageman (WY))",
+     "H001098 (Hamadeh (AZ) (AZ))",
+     "H001090 (Harder (CA) (CA))",
+     "H001099 (Haridopolos (FL))",
+     "H001101 (Harrigan (NC))",
+     "H001102 (Harris (NC) (NC))",
+     "H001086 (Harshbarger (TN))",
+     "H001081 (Hayes (CT))",
+     "H001077 (Higgins (LA) (LA))",
+     "H001091 (Hinson (IA))",
+     "H001066 (Horsford (NV))",
+     "H001093 (Houchin (IN))",
+     "H001085 (Houlahan (PA))",
+     "H001094 (Hoyle (OR) (OR))",
+     "H001067 (Hudson (NC))",
+     "H001058 (Huizenga (MI))",
+     "H001095 (Hunt (TX))",
+     "H001100 (Hurd (CO) (CO))",
+     "I000056 (Issa (CA))",
+     "I000058 (Ivey (MD))",
+     "J000311 (Jack (GA))",
+     "J000309 (Jackson (IL) (IL))",
+     "J000304 (Jackson (TX) (TX))",
+     "J000305 (Jacobs (CA))",
+     "J000307 (James (MI))",
+     "J000288 (Johnson (GA) (GA))",
+     "J000301 (Johnson (SD) (SD))",
+     "J000310 (Johnson (TX) (TX))",
+     "J000295 (Joyce (OH) (OH))",
+     "J000302 (Joyce (PA) (PA))",
+     "K000400 (Kamlager-Dove (CA))",
+     "K000009 (Kaptur (OH))",
+     "K000398 (Kean (NJ))",
+     "K000375 (Keating (MA))",
+     "K000385 (Kelly (IL) (IL))",
+     "K000376 (Kelly (PA) (PA))",
+     "K000402 (Kennedy (NY) (NY))",
+     "K000399 (Kiggans (VA) (VA))",
+     "K000401 (Kiley (CA) (CA))",
+     "K000397 (Kim (CA))",
+     "K000405 (Knott (NC))",
+     "K000392 (Kustoff (TN))",
+     "L000585 (LaHood (IL))",
+     "L000598 (LaLota (NY))",
+     "L000600 (Langworthy (NY))",
+     "L000557 (Larson (CT) (CT))",
+     "L000606 (Latimer (NY))",
+     "L000566 (Latta (OH))",
+     "L000597 (Lee (FL) (FL))",
+     "L000590 (Lee (NV) (NV))",
+     "L000273 (Leger Fernandez (NM))",
+     "L000595 (Letlow (LA))",
+     "L000593 (Levin (CA))",
+     "L000607 (Liccardo (CA))",
+     "L000583 (Loudermilk (GA))",
+     "L000603 (Luttrell (TX))",
+     "L000562 (Lynch (MA))",
+     "M001223 (Magaziner (RI))",
+     "M000317 (Malliotakis (NY))",
+     "M000871 (Mann (KS))",
+     "M001231 (Mannion (NY))",
+     "M001163 (Matsui (CA))",
+     "M001208 (McBath (GA))",
+     "M001157 (McCaul (TX))",
+     "M001232 (McClain Delaney (MD))",
+     "M001227 (McClellan (VA))",
+     "M001177 (McClintock (CA))",
+     "M001143 (McCollum (MN))",
+     "M001218 (McCormick (GA))",
+     "M001237 (McDonald Rivet (MI))",
+     "M001240 (McDowell (NC))",
+     "M001220 (McGarvey (KY))",
+     "M001239 (McGuire (VA))",
+     "M001229 (McIver (NJ))",
+     "M001226 (Menendez (NJ))",
+     "M001188 (Meng (NY))",
+     "M001233 (Messmer (IN))",
+     "M001204 (Meuser (PA))",
+     "M000687 (Mfume (MD))",
+     "M001211 (Miller (IL) (IL))",
+     "M001222 (Miller (OH) (OH))",
+     "M001205 (Miller (WV) (WV))",
+     "M001216 (Mills (FL))",
+     "M001241 (Min (CA))",
+     "M001194 (Moolenaar (MI))",
+     "M001212 (Moore (AL) (AL))",
+     "M001236 (Moore (NC) (NC))",
+     "M001160 (Moore (WI) (WI))",
+     "M001235 (Moore (WV) (WV))",
+     "M001224 (Moran (TX))",
+     "M001206 (Morelle (NY))",
+     "M001234 (Morrison (MN))",
+     "M001217 (Moskowitz (FL))",
+     "M001214 (Mrvan (IN))",
+     "M001225 (Mullin (CA))",
+     "M001210 (Murphy (NC))",
+     "N000026 (Nehls (TX))",
+     "N000189 (Newhouse (WA))",
+     "N000188 (Norcross (NJ))",
+     "N000190 (Norman (SC))",
+     "N000193 (Nunn (IA) (IA))",
+     "O000019 (Obernolte (CA))",
+     "O000175 (Ogles (TN))",
+     "O000176 (Olszewski (MD))",
+     "O000177 (Onder (MO))",
+     "P000609 (Palmer (AL))",
+     "P000613 (Panetta (CA))",
+     "P000614 (Pappas (NH))",
+     "P000622 (Patronis (FL))",
+     "P000197 (Pelosi (CA))",
+     "P000608 (Peters (CA))",
+     "P000620 (Pettersen (CO))",
+     "P000048 (Pfluger (TX))",
+     "P000607 (Pocan (WI))",
+     "P000621 (Pou (NJ))",
+     "Q000023 (Quigley (IL))",
+     "R000621 (Randall (WA))",
+     "R000610 (Reschenthaler (PA))",
+     "R000622 (Riley (NY) (NY))",
+     "R000620 (Rivas (CA))",
+     "R000575 (Rogers (AL) (AL))",
+     "R000395 (Rogers (KY) (KY))",
+     "R000612 (Rose (TN))",
+     "R000305 (Ross (NC))",
+     "R000603 (Rouzer (NC))",
+     "R000599 (Ruiz (CA))",
+     "R000619 (Rulli (OH))",
+     "R000609 (Rutherford (FL))",
+     "R000579 (Ryan (NY))",
+     "S000168 (Salazar (FL))",
+     "S001226 (Salinas (OR))",
+     "S001156 (Sanchez (CA))",
+     "S001205 (Scanlon (PA))",
+     "S001228 (Schmidt (KS))",
+     "S001190 (Schneider (IL))",
+     "S001221 (Scholten (MI))",
+     "S001216 (Schrier (WA))",
+     "S001183 (Schweikert (AZ))",
+     "S000185 (Scott (VA) (VA))",
+     "S001189 (Scott, Austin (GA))",
+     "S001157 (Scott, David (GA))",
+     "S001224 (Self (TX))",
+     "S000250 (Sessions (TX))",
+     "S001185 (Sewell (AL))",
+     "S000344 (Sherman (CA))",
+     "S001229 (Shreve (IN))",
+     "S001231 (Simon (CA))",
+     "S001172 (Smith (NE) (NE))",
+     "S000522 (Smith (NJ) (NJ))",
+     "S001199 (Smucker (PA))",
+     "S001225 (Sorensen (IL))",
+     "S001200 (Soto (FL))",
+     "S000929 (Spartz (IN))",
+     "S001218 (Stansbury (NM))",
+     "S001211 (Stanton (AZ))",
+     "S001212 (Stauber (MN))",
+     "S001214 (Steube (FL))",
+     "S001159 (Strickland (WA))",
+     "S001220 (Strong (AL))",
+     "S001188 (Stutzman (IN))",
+     "S001230 (Subramanyam (VA))",
+     "S001193 (Swalwell (CA))",
+     "S001223 (Sykes (OH))",
+     "T000490 (Taylor (OH))",
+     "T000478 (Tenney (NY))",
+     "T000488 (Thanedar (MI))",
+     "T000460 (Thompson (CA) (CA))",
+     "T000165 (Tiffany (WI))",
+     "T000480 (Timmons (SC))",
+     "T000468 (Titus (NV))",
+     "T000487 (Tokuda (HI))",
+     "T000469 (Tonko (NY))",
+     "T000474 (Torres (CA) (CA))",
+     "T000482 (Trahan (MA))",
+     "T000491 (Tran (CA))",
+     "T000463 (Turner (OH) (OH))",
+     "U000040 (Underwood (IL))",
+     "V000129 (Valadao (CA))",
+     "V000133 (Van Drew (NJ))",
+     "V000134 (Van Duyne (TX))",
+     "V000139 (Van Epps (TN))",
+     "V000135 (Van Orden (WI))",
+     "V000130 (Vargas (CA))",
+     "V000136 (Vasquez (NM))",
+     "V000131 (Veasey (TX))",
+     "V000081 (Velazquez (NY))",
+     "V000138 (Vindman (VA))",
+     "W000812 (Wagner (MO))",
+     "W000831 (Walkinshaw (VA))",
+     "W000797 (Wasserman Schultz (FL))",
+     "W000822 (Watson Coleman (NJ))",
+     "W000814 (Weber (TX) (TX))",
+     "W000806 (Webster (FL) (FL))",
+     "W000830 (Whitesides (CA))",
+     "W000829 (Wied (WI))",
+     "W000788 (Williams (GA) (GA))",
+     "W000808 (Wilson (FL) (FL))",
+     "W000795 (Wilson (SC) (SC))",
+     "W000804 (Wittman (VA))",
+     "Y000067 (Yakym (IN))",
+     "Z000018 (Zinke (MT))"
+    ],
+    "noRosterNameState": [],
+    "ambiguousNameState": [],
+    "keyDisagreement": []
+   }
+  }
+ ]
+}

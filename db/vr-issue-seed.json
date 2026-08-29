@@ -2941,6 +2941,50 @@
           "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119sjres71is/html/BILLS-119sjres71is.htm"
         }
       ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 7",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/7",
+      "_note": "Federal wave F3. A Congressional Review Act joint resolution read from its engrossed text (govinfo BILLS-119sjres7es), which is one operative sentence, and from the disapproved rule's own Federal Register abstract. Filed on the SUBJECT axis ONLY. The gov_regulation process secondary that every live CRA in the record carries was drafted and then REFUSED on a measurement: it gains no characterised row and costs two (angus_king, lujan), by the rule-30 mechanism. public_schools, rural_ag and edu_college_cost were read and refused in writing. This is the FIRST broadband PRIMARY in the corpus in either chamber. See db/vr-federal-mapping-seed-f3.json for the argument, the near-unanimity and two-flank checks, and the refusals.",
+      "issues": [
+        {
+          "issueKey": "broadband",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The resolution's whole operative text disapproves one named FCC rule, and that rule's subject is household internet access. 89 Fed. Reg. 67303 states its own purpose: the Commission “takes steps to modernize the E-Rate program to meet the evolving needs of schools and libraries around the country by allowing for the distribution of Wi-Fi hotspots and services to students, school staff, and library patrons for off-premises use.” Off-premises use is the whole point — the rule pays for connectivity where the student is, not where the school is. broadband is 'Bring fast, affordable internet to rural and underserved communities' and its keywords name 'internet access', 'digital divide', 'connectivity', 'underserved' and 'fcc'. A yea strikes the rule and withdraws the hotspot support, so the direction is yea_opposes. Primary at 100 because it is the resolution's entire subject; the weight matches the primary weight of every CRA already in the record (H.J.Res. 25, 88, 89 and 131 all file their subject key at 100). This is the record's first broadband PRIMARY in either chamber — the only other federal broadband row is a division-level secondary on H.R. 3684 at weight 65, which is exactly why the formal index reads the axis as incidental for 88 of 99 senators.",
+          "sourceUrl": "https://www.federalregister.gov/documents/2024/08/20/2024-18122/addressing-the-homework-gap-through-the-e-rate-program"
+        }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.J.Res. 140",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/140",
+      "_note": "Federal wave F3. A Congressional Review Act joint resolution read from its engrossed text (govinfo BILLS-119hjres140eh), which is one operative sentence, and from the disapproved order's own Federal Register abstract. Enacted as Public Law 119-85 on 2026-04-27. Filed in the H.J.Res. 78 shape rather than the H.J.Res. 131 shape, and the discriminator is the one H.J.Res. 131's own rationale wrote down: what instrument does the disapproval act ON. 131 acted on a leasing programme decision, so lands_energy carried it; this one acts on a withdrawal order whose stated purpose is protection, so lands_preserve carries it. This is the FIRST lands_preserve PRIMARY a senator can reach. The gov_regulation process secondary that every live CRA in the record carries — including H.J.Res. 131, the only other BLM CRA — was drafted and then REFUSED on a measurement; see db/vr-federal-mapping-seed-f3.json. energy_production, water, climate_action, states_federal_power and rural_ag were read and refused in writing. See db/vr-federal-mapping-seed-f3.json.",
+      "issues": [
+        {
+          "issueKey": "lands_preserve",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The resolution nullifies Bureau of Land Management Public Land Order No. 7917, and both the resolution's title and the order's title name the same thing: “Withdrawal of Federal Lands”. The order states its own purpose in its Federal Register abstract — it withdraws “approximately 225,504 acres of National Forest System lands in Cook, Lake, and Saint Louis counties, Minnesota, from disposition under the United States mineral and geothermal leasing laws, for a period of 20 years, subject to valid existing rights, to protect and preserve the fragile and vital social and natural resources, ecological integrity, and wilderness values in the Rainy River Watershed, the Boundary Waters Canoe Area Wilderness (BWCAW), the Boundary Waters Canoe Area Wilderness Mining Protection Area (MPA), and the 1854 Ceded Territory of the Lake Superior Chippewa”. The instrument the disapproval acts on is therefore a conservation withdrawal, and a yea strips it. lands_preserve is 'Protect public lands & wild places for future generations' and its keywords name 'wilderness', 'national forest', 'conservation' and 'blm'. Primary at 90, the weight this key carries everywhere in the record — as a PRIMARY on H.J.Res. 78 and H.Amdt. 97, and as the mirror secondary on H.J.Res. 131. It is NOT filed the way H.J.Res. 131 was filed, and the reason is the test 131's own rationale states: 'Not primary: the instrument acts on a leasing programme, and the conservation loss is the same act read from the other side.' 131's nullified instrument was the Coastal Plain Oil and Gas Leasing Program Record of Decision. This one's is a withdrawal order for protection, so the two keys trade places and the resource-development gain is the same act read from the other side.",
+          "sourceUrl": "https://www.federalregister.gov/documents/2023/01/31/2023-01969/public-land-order-no-7917-for-withdrawal-of-federal-lands-cook-lake-and-saint-louis-counties-mn"
+        },
+        {
+          "issueKey": "lands_energy",
+          "weight": 75,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The 225,504 acres the resolution returns to disposition are returned specifically 'under the United States mineral and geothermal leasing laws', and the withdrawal the resolution strikes was imposed against 'the potential adverse effects of mineral and geothermal exploration and development'. lands_energy is 'Expand domestic energy, mining & resource development' and its keywords name 'mining', 'public land', 'extraction' and 'development', so the axis reaches this directly. A yea reopens the acreage, which is yea_supports. This row is the exact mirror of H.J.Res. 131's lands_preserve secondary, and it is a secondary for the mirrored reason: the instrument acts on the protection order, and the resource-development gain is the same act read from the other side. Weight 75 rather than 131's 90 for its mirror row, and rather than the 40-60 the package-level lands_energy secondaries carry, because 75 is the weight H.J.Res. 131 argued for a secondary that acts DIRECTLY on the acreage rather than through a demand-side rule — the same reasoning, applied to the other key.",
+          "sourceUrl": "https://www.federalregister.gov/documents/2023/01/31/2023-01969/public-land-order-no-7917-for-withdrawal-of-federal-lands-cook-lake-and-saint-louis-counties-mn"
+        }
+      ]
     }
   ],
   "_phase12_overlap_priority": {

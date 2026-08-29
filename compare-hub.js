@@ -102,6 +102,20 @@
       janderegg: 'https://le.utah.gov/images/legislator/ANDEREJ.jpg',
       kwan_s12: 'https://le.utah.gov/images/legislator/KWANK.jpg',
       lescamilla: 'https://le.utah.gov/images/legislator/ESCAML.jpg',
+      // KEYED TO THE CANONICAL FILE, NOT THE ADDRESS THAT REACHES IT. Utah House
+      // District 68 has one person and one file, `chew_h68` — the roster record
+      // that holds the formal record and the one row search returns. The headshot
+      // was only ever filed under `scott_chew`, the retired Firestore stub whose
+      // own address already redirects here, so `_getPhotoUrl('chew_h68')` found a
+      // roster record with no `photo`, no document in PROFILES and no entry here,
+      // and every surface that asks it for a face — the letterhead first — painted
+      // the placeholder over a person whose portrait we had all along.
+      //   Same image, same official host as every other Utah legislator in this
+      // map (le.utah.gov, allowlisted in netlify.toml so the share card's
+      // same-origin proxy can fetch it too). This adds a photo to the canonical
+      // key; it does not put `scott_chew` back in the roster, the search index, the
+      // Eye or the sitemap, and PDX_PROFILE_ALIAS still sends it here.
+      chew_h68: 'https://le.utah.gov/images/legislator/CHEWSH.jpg',
       // ── New federal U.S. House & Senate profiles (June 2026 expansion waves) ──
       // Official congressional portraits (public domain) via the unitedstates/images
       // project, keyed by Bioguide ID — the same stable source used above. These

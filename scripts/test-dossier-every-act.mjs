@@ -401,7 +401,25 @@ section("6 · no floor, mapping or Direction Match input moved");
   const recs = C_SRC.slice(C_SRC.indexOf("function _dosRecordsHtml"));
   const rbody = recs.slice(0, recs.indexOf("\n  }\n"));
   lacks(rbody, "items.slice(", "the measure list caps the rows it renders");
-  has(rbody, "items.map(function (d, i)", "the measure list no longer renders every item");
+  // The rows used to be written by an inline items.map() here. They are emitted by
+  // _dosRowsHtml now, because the no-side cards sort after the judged sides behind
+  // a divider line and a sort has to hold the whole set before the first row is
+  // written. The contract has not changed — every item on file renders, none is
+  // capped — so it is checked in the two places the set now passes through.
+  has(rbody, "_dosRowsHtml(ord", "the measure list no longer hands its rows to _dosRowsHtml");
+  has(rbody, "ord.rows.map(function (p)",
+    "the enumeration no longer reads the same ordered set the rows are drawn from");
+  const ordf = C_SRC.slice(C_SRC.indexOf("function _dosOrder"));
+  const obody = ordf.slice(0, ordf.indexOf("\n  }\n"));
+  lacks(obody, ".slice(", "the row ordering caps the set it hands on");
+  has(obody, "sided.concat(nos)",
+    "_dosOrder no longer returns both of its buckets — a no-side card would be sorted\n" +
+    "    out of the list entirely, which is the hiding problem in a new place");
+  const rowsf = C_SRC.slice(C_SRC.indexOf("function _dosRowsHtml"));
+  const rowsb = rowsf.slice(0, rowsf.indexOf("\n  }\n"));
+  has(rowsb, "i < ord.rows.length",
+    "the row writer no longer walks the whole ordered set");
+  lacks(rowsb, ".slice(", "the row writer caps the rows it emits");
 }
 
 console.log("");

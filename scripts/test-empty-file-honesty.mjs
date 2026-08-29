@@ -422,7 +422,12 @@ section("4 · the empty brief, and the pledge leftovers that used to outrank it"
     "    an empty formal file prints \"10 kept · 5 broken of 15 resolved\" where the record goes");
   const chip = PROFILES.indexOf("profile-status-monitoring");
   must(chip !== -1, "the hero status chip is gone from profiles-full.js");
-  const around = PROFILES.slice(chip, chip + 1800);
+  // The window is measured from the FIRST mention of the pill class, which is now
+  // the "Record loading" state at the top of _recChipsHtml — the chip is composed
+  // in a function rather than inline in the template, so the gate and the wording
+  // sit further down the same block than they did when it was one ternary. Widened
+  // to cover the whole composer; still one block, still the same two strings.
+  const around = PROFILES.slice(chip, chip + 2600);
   has(around, "_formalKnownEmpty",
     "the hero status chip is no longer gated on the formal record — this is the string the\n" +
     "    brief names: \"10 kept · 5 broken of 15 resolved\" over an honestly empty file");

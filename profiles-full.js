@@ -5090,6 +5090,162 @@
         '</nav>'
       : '';
 
+    // ── THE IDENTITY STRIP MAY NOT CALL A LOADING FILE EMPTY ──────────────────
+    // Two of the chips in .profile-meta are claims about how much record is on
+    // file, and neither of them was reading the record. The depth badge
+    // (📋 Limited Record / 🌱 Early in Term) is computed by _pdxRecordDepth from
+    // the pledge columns and a score, never a vote; the monitoring chip's
+    // "◷ No voting record yet" comes off the pledge state the same way. So on a
+    // cold /p/chew_h68 the letterhead printed BOTH of them two lines under the
+    // name — and then the brief directly below painted 44 issues, 83 acts, 8
+    // characterised. A member whose ledger happens to be empty and whose roll call
+    // is one of the deepest we hold was introduced as a person with nothing on
+    // file, above the record that disproved it.
+    //
+    // A PACK IN FLIGHT IS NOT AN EMPTY FILE, AND A DEEP FILE IS NEVER ONE. Three
+    // states, in the order they can be answered, every one of them from logic that
+    // already exists on the page:
+    //
+    //   'deep'    — PDXWordAction.formalKnown() === 'deep' (formal-index.js counts
+    //               sourced acts for this pid), or a live record has landed with
+    //               rows on it. The index is a static file parsed before any fetch
+    //               starts, so on chew_h68 this is answerable at FIRST PAINT: the
+    //               absence wording never renders at all, rather than rendering and
+    //               being retracted. Both record claims stand down for good.
+    //   'waiting' — the index cannot speak for this pid (federal members, anyone
+    //               the generator never reviewed) and the lane's request is still
+    //               outstanding, per PDXConsistency.recordSettled. One chip, and it
+    //               says the lane is arriving. No verdict, no depth badge — a
+    //               "Limited Record" pill during flight is the same wrong claim in
+    //               a smaller font.
+    //   'settled' — asked and answered (with rows, empty, or failed), or a
+    //               hand-reviewed empty note, or there is no fetcher to wait on.
+    //               The shipped wording prints exactly as it always has, which is
+    //               what keeps a Knotts-class file saying no record.
+    //
+    // NO SECOND LOADING FLAG. formalKnown() is the brief's own three-valued read,
+    // now exported rather than re-derived; recordSettled() is the same "is the wait
+    // over" predicate the pending row model and the hero showcase already gate on,
+    // and it is bounded by the warm queue's 9s deadline so this cannot spin. The
+    // only thing composed here is which of the existing chips is allowed to speak.
+    const _recChipState = function () {
+      var known = '';
+      try {
+        var WA = window.PDXWordAction;
+        if (WA && typeof WA.formalKnown === 'function') known = WA.formalKnown(id) || '';
+      } catch (e) { known = ''; }
+      if (known === 'deep') return 'deep';
+      // A landed record is proof of the same thing the index asserts, and it is the
+      // only proof available for the lanes the index does not cover. Read before
+      // the reviewed-empty note deliberately: material in hand outranks a note
+      // about material we did not have.
+      try {
+        var VR = window.PDXVotingRecord;
+        var recs = (VR && typeof VR.memberRecords === 'function') ? VR.memberRecords(id) : null;
+        if (recs && recs.length) return 'deep';
+      } catch (e) {}
+      // A reviewed empty file has nothing outstanding to wait for — a human has
+      // already looked. Making it wait would put "Record loading" over the one kind
+      // of file we can honestly call empty. Same precedence briefAbsenceCopy() uses.
+      if (known === 'empty') return 'settled';
+      var settled = true;
+      try {
+        var CS = window.PDXConsistency;
+        if (CS && typeof CS.recordSettled === 'function') settled = !!CS.recordSettled(id);
+      } catch (e) { settled = true; }
+      return settled ? 'settled' : 'waiting';
+    };
+    const _recChipsHtml = function () {
+      var st = _recChipState();
+      // THE LOADING CHIP IS A SUBSTITUTE, NOT AN ADDITION. It stands in for a claim
+      // this strip would otherwise have made about how much record is on file, and
+      // only for that — so a profile that says nothing about its record when warm
+      // says nothing about it while cold either, and /p/lee does not grow a chip it
+      // never had just because a fetch is open. Declared here, beside the state read
+      // it belongs to, and emitted at the bottom once both claims are known.
+      var loading = '<span class="profile-status-monitoring pdx-rec-loading">◷ Record loading</span>';
+      // The depth badge is a claim about the size of the file. On a file we know
+      // holds a formal record it is simply false, whatever the pledge columns say,
+      // so it does not render there. Everywhere else it is untouched — the badge
+      // itself is shared with the browse cards, the ballot rows and the compare
+      // table, and it keeps its behaviour on all of them.
+      var depth = (st !== 'deep' && typeof window._pdxDepthBadge === 'function')
+        ? (window._pdxDepthBadge(p) || '') : '';
+      var mon = '', monAbsence = false;
+      if (scoreNum === null && !_isThinProfile) {
+        // AND THE COUNTS CHIP DOES NOT GET TO BE THE RECORD.
+        //
+        // This chip sits in the identity block, two lines under the name, where a
+        // reader takes whatever it says as the summary of the file. On a profile
+        // with a formal record under it that is fine: the pledge counts are one
+        // tier of a larger read, and the read is right there. On a file where
+        // PolitiDex holds no formal act at all, "10 kept · 5 broken of 15 resolved"
+        // was the loudest thing on the page and it was standing exactly where the
+        // record should have been — a ledger from another source, printed as though
+        // we had tested this person against a vote. jknotts shipped that way.
+        //
+        // So when the formal record is knowably empty, the chip says the true thing
+        // instead, and the counts keep their place further down inside the pledge
+        // ledger, under their own label, where they are not pretending to be a
+        // voting record.
+        if (_formalKnownEmpty && (promiseState === 'counts' || promiseState === 'tracking')) {
+          mon = '⊘ No formal record on file'; monAbsence = true;
+        }
+        // 'counts' is a record with a real, closed pledge ledger that simply is not
+        // itemized. It must NOT wear "No voting record yet" — that chip was written
+        // for a profile with nothing on file, and on a member with 27 kept and 8
+        // broken it is plainly false. Say what is actually known.
+        else if (promiseState === 'counts') mon = '🤝 ' + countsNote;
+        else if (promiseState === 'tracking') mon = '⏳ ' + trackingNote;
+        else { mon = '◷ No voting record yet'; monAbsence = true; }
+        // Two of those four are statements about the formal record and two are
+        // statements about the pledge ledger. Only the first pair has to stand down
+        // on a deep file; the ledger is what it is either way.
+        if (monAbsence && st === 'deep') mon = '';
+      }
+      var monSpan = mon ? ('<span class="profile-status-monitoring">' + mon + '</span>') : '';
+      // The pledge-ledger chip is not a record claim and is not waiting on anything,
+      // so while the lane is in flight it keeps its place beside the loading state
+      // rather than being swallowed by it. Only the two absence claims are replaced.
+      if (st === 'waiting') return ((depth || monAbsence) ? loading : '') + (monAbsence ? '' : monSpan);
+      return depth + monSpan;
+    };
+    // Same host discipline as the word-action chip beside it, and for the same
+    // reason: the letterhead is assembled while the roll-call request is still in
+    // flight, so the loading state has to have somewhere to be replaced. The three
+    // events are word-action.js's HERO_REPAINT set — the record landing, the
+    // section's own load landing, and the brief's deadline expiring — so the chips
+    // and the brief under them change on the same passes and cannot disagree about
+    // whether the wait is over. The listener removes itself once the host is gone.
+    const _bindRecChips = function (uid) {
+      if (!window.addEventListener) return;
+      var evs = ['pdx-consistency-warm', 'pdx-voting-warm', 'pdx-brief-timeout'];
+      var h = function (ev) {
+        var host = document.querySelector('[data-pdx-recchips="' + uid + '"]');
+        if (!host) { evs.forEach(function (n) { window.removeEventListener(n, h); }); return; }
+        if (ev && ev.detail && ev.detail.pid && String(ev.detail.pid) !== String(id)) return;
+        try { host.innerHTML = _recChipsHtml(); } catch (e) {}
+      };
+      evs.forEach(function (n) { window.addEventListener(n, h); });
+    };
+    const _recChipsMount = function () {
+      var uid = ('recchips-' + String(id) + '-' + Date.now()).replace(/[^A-Za-z0-9_-]/g, '');
+      var html = _recChipsHtml();
+      // If this chip is going to say the lane is arriving, the lane has to actually
+      // have been asked, or "Record loading" is a promise nobody is keeping.
+      // PDXConsistency.warm is the shared queue every pending row already uses —
+      // one attempt per member, four in flight, and a 9s deadline that converts no
+      // answer into an answer — which is what bounds the wait this chip announces.
+      // Asked here rather than off the state, so we warm exactly when we printed the
+      // promise and never for a strip that is saying nothing.
+      try {
+        var CS = window.PDXConsistency;
+        if (CS && typeof CS.warm === 'function' && html.indexOf('pdx-rec-loading') !== -1) CS.warm(id);
+      } catch (e) {}
+      try { setTimeout(function () { _bindRecChips(uid); }, 0); } catch (e) {}
+      return '<span class="profile-rec-chips" data-pdx-recchips="' + uid + '">' + html + '</span>';
+    };
+
     // Assemble full modal content.
     //
     // The body below is written in the order these sections were BUILT; it is
@@ -5122,7 +5278,17 @@
           ${(function(){ var tp=(typeof window._pdxTenurePill==='function')?window._pdxTenurePill(p):''; return tp ? '<div class="profile-tenure">' + tp + '</div>' : ''; })()}
           <div class="profile-meta">
             ${(typeof window._pdxStatusBadge === 'function') ? window._pdxStatusBadge(p) : ''}
-            ${(typeof window._pdxDepthBadge === 'function') ? window._pdxDepthBadge(p) : ''}
+            <!-- The two record-depth chips — 📋 Limited Record / 🌱 Early in Term and
+                 the ◷ monitoring pill — are mounted together, gated, and repainted
+                 as one. See _recChipState above for the three states and why a
+                 request in flight is never allowed to print as an empty file.
+                 One host rather than two because in flight they collapse to a
+                 single "Record loading" chip, and that has to be one node with one
+                 repaint. The cost is that the word-action chip below now sits after
+                 the monitoring pill instead of between the two: on a cold letterhead
+                 that chip is an empty host and nothing moves, and on the files where
+                 both do render they are two same-sized pills in the same row. -->
+            ${_recChipsMount()}
             <!-- The one-line form of ⚖️ Word vs Action, sized like the pills it sits
                  among: the figure, the verdict word, and a tap that scrolls to the
                  section further down that shows the working. It is here, in the
@@ -5143,32 +5309,6 @@
                  percentage and the chip has to have somewhere to arrive. The host
                  is worth zero pixels until it holds something. -->
             ${(window.PDXWordAction && typeof window.PDXWordAction.compactBadgeMount === 'function') ? window.PDXWordAction.compactBadgeMount(id, p) : ''}
-            ${(scoreNum === null && !_isThinProfile) ? '<span class="profile-status-monitoring">' + (
-              // AND THE COUNTS CHIP DOES NOT GET TO BE THE RECORD.
-              //
-              // This chip sits in the identity block, two lines under the name,
-              // where a reader takes whatever it says as the summary of the file.
-              // On a profile with a formal record under it that is fine: the pledge
-              // counts are one tier of a larger read, and the read is right there.
-              // On a file where PolitiDex holds no formal act at all, "10 kept · 5
-              // broken of 15 resolved" was the loudest thing on the page and it was
-              // standing exactly where the record should have been — a ledger from
-              // another source, printed as though we had tested this person against
-              // a vote. jknotts shipped that way.
-              //
-              // So when the formal record is knowably empty, the chip says the true
-              // thing instead, and the counts keep their place further down inside
-              // the pledge ledger, under their own label, where they are not
-              // pretending to be a voting record.
-              (_formalKnownEmpty && (promiseState === 'counts' || promiseState === 'tracking'))
-                ? '⊘ No formal record on file'
-              // 'counts' is a record with a real, closed pledge ledger that simply
-              // is not itemized. It must NOT wear "No voting record yet" — that chip
-              // was written for a profile with nothing on file, and on a member with
-              // 27 kept and 8 broken it is plainly false. Say what is actually known.
-              : promiseState === 'counts' ? '🤝 ' + countsNote
-              : promiseState === 'tracking' ? '⏳ ' + trackingNote
-              : '◷ No voting record yet') + '</span>' : ''}
             ${p.party ? `<span class="profile-party">${p.party}</span>` : ''}
           </div>
         </div>
