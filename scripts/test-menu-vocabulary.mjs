@@ -378,13 +378,13 @@ const pkg = hotRows.filter((r) => r.why && r.why.id === "vehicle_only")[0];
 must(pkg, "the seed produced no package-only refusal to inspect");
 eq(pkg.key, PKG_MIX,
   "the refusal is the package row that ran both ways, not the one-sided one");
-// …AND THE ONE-SIDED PACKAGE ROW READS INSTEAD OF REFUSING, at thin, with the
-// vehicle sentence carried rather than standing in for the read. The banned list
-// runs over that sentence too: a read is not a licence to say what a refusal may
-// not.
+// …AND THE ONE-SIDED PACKAGE ROW READS INSTEAD OF REFUSING, at the tier its own
+// acts earn, with the vehicle sentence carried beside the read rather than standing
+// in for it or shrinking it. The banned list runs over that sentence too: a read is
+// not a licence to say what a refusal may not.
 const pkgRead = hotRows.filter((r) => r.key === PKG_KEY)[0];
 must(pkgRead, "the one-sided package row vanished from the index");
-eq(pkgRead.tier, "thin", "eight one-sided riders read at thin");
+eq(pkgRead.tier, "strong", "eight one-sided riders read at the tier eight one-way acts earn");
 eq(pkgRead.why, null, "…and carry no refusal");
 ok(pkgRead.vehicle && pkgRead.vehicle.only, "…and wear the 🚂 disclosure");
 const readNote = hotW.PDXConsistency.vehicle.note(PID, PKG_KEY) || "";

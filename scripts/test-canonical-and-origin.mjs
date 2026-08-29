@@ -123,7 +123,16 @@ section("2 · canonicalPath derives the record address, not the request");
   eq(canon("/?issue=box-elder-stratos-data-center"), "/issue/box-elder-stratos-data-center",
      "…and the ?issue= form collapses onto that same path rather than competing with it");
   eq(canon("/vote/119/house/190"), "/vote/119/house/190", "a roll call canonicalizes to its official path");
-  eq(canon("/?bill=119/H.R.%201"), "/?bill=119%2FH.R.%201", "a bill canonicalizes to its own address");
+  // A bill profile is a record, so it canonicalizes to a path, and the ?bill= form
+  // collapses onto it the same way ?p= collapses onto /p/. The sitting leads because
+  // a bill number is only unique inside one — and a state measure, which has no
+  // congress at all, gets its session code in that slot rather than nothing.
+  eq(canon("/b/119/H.R.%201"), "/b/119/H.R.%201", "a bill canonicalizes to its own /b/ path");
+  eq(canon("/?bill=119/H.R.%201"), "/b/119/H.R.%201",
+     "the ?bill= form collapses onto the bill profile's clean /b/ path");
+  eq(canon("/b/2024GS/H.B.%20257"), "/b/2024GS/H.B.%20257",
+     "a state measure canonicalizes on its session, which is the only thing that makes its number unique");
+  eq(canon("/b/H.R.%201"), "/b/H.R.%201", "a number cited without a sitting keeps the address it was cited at");
   eq(canon("/?receipt=mike_lee~healthcare"), "/?receipt=mike_lee~healthcare", "a receipt keeps its issue key");
   eq(canon("/?record=mike_lee~healthcare"), "/?record=mike_lee~healthcare",
      "a record keeps its issue key — and stays distinct from the receipt surface");

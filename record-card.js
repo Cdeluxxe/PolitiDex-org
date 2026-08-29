@@ -271,7 +271,7 @@
     }
     if (!issueKey) {
       // The whole-person pattern, in counts. shape() is the four-fact summary of
-      // the formal-pattern index — issues read, acts judged, and the three tier
+      // the formal-pattern index — issues read, acts judged, and the tier
       // buckets. Counts and slices; there is no percentage in it by design.
       var sh = null;
       try {
@@ -285,6 +285,22 @@
         var buckets = [];
         if (sh.strongN) buckets.push(sh.strongN + ' where the record points one way');
         if (sh.splitN) buckets.push(sh.splitN + ' where it ran both ways');
+        // AND THE TAIL IN ITS OWN WORDS, WHICH IS WHY THERE ARE THREE OF THESE.
+        // This line used to end "N too thin to characterise" on one number that
+        // merged two unlike populations: issues where the browse lane publishes a
+        // side in as many words — the dossier one click away reads "Thin
+        // supports" — and issues with no published side anywhere. A card is the
+        // artefact a reader screenshots, so the merged number was the surface
+        // saying "too thin to characterise" about a record it had just
+        // characterised on the page beside it. shape() now hands the three
+        // populations over separately; each gets the sentence it earns.
+        //   NOTHING HERE IS A PROMOTION. Neither read-thin line claims a lean, a
+        // direction or a strength — one says the evidence is too light to lean
+        // on, the other says a side exists that this read does not count — and
+        // both stay out of the two characterised buckets above. `thinN` keeps the
+        // original wording because on `thinN`'s rows it was always true.
+        if (sh.readThinN) buckets.push(sh.readThinN + ' read thin — a side on file, too little to lean on');
+        if (sh.readOtherN) buckets.push(sh.readOtherN + ' with a side on file this read does not count');
         if (sh.thinN) buckets.push(sh.thinN + ' too thin to characterise');
         if (buckets.length) lines.push(buckets.join(' · '));
       }

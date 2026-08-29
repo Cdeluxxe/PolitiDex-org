@@ -52,7 +52,48 @@ curl -sS -X POST "$VR_SITE_URL/api/vr-ingest/seed-issues" \
 
 # 4. Confirm integrity again (no unsourced measures/rollcalls/actions)
 node scripts/vr-ingest.mjs verify
+
+# 5. PACK KEY MUST CHANGE. Any wave that touched vr_measure_issues ends here —
+#    print the mapping version and confirm it is not the one the wave started at.
+#    See the section immediately below for what this is and how to not defeat it.
+node scripts/test-vr-pack-key-version.mjs
 ```
+
+## Every mapping/promote migration ends with: **pack key must change.**
+
+Say it out loud at the end of every wave that writes, updates, retracts or promotes
+a row in `vr_measure_issues` — including a bare `is_primary` flip, which is the
+change that looks like nothing and is not.
+
+The reason it is a checklist line and not a task: **it is automatic, and the check is
+that you did not defeat it.** The offline pack's blob key and its URL both carry a
+fingerprint of the mapping table —
+`member:<pid>@m<rowCount>-<md5(contents)[0..12]>`, computed by `mappingVersion()`
+in `netlify/lib/vr-pack.ts` over `measure_id`, `issue_key`, `weight`, `is_primary`,
+`support_meaning` and `rationale`. Any mapping write changes it, so the new key
+misses, so the pack rebuilds on the next read, so the service worker's copy is
+bypassed because the URL is different too. Nothing to bump, no counter to remember.
+
+What "you did not defeat it" means, concretely:
+
+- **Do not add a mapping column to the pack without adding it to the fingerprint.**
+  If a wave teaches `PackIssue` a sixth field, that field belongs in the
+  `string_agg` in `mappingVersion()` the same day. A field the pack serves and the
+  fingerprint ignores is a stale pack with no window on it at all — permanent, not
+  six hours.
+- **Do not "fix" pack staleness by shortening `PACK_TTL_MS`.** It is six hours and
+  it is about roll-call freshness only. Mapping staleness is not what it measures.
+- **Do not write mapping rows around the pack.** A migration that changes the table
+  is fine. A path that hands the pack builder a mapping the table does not hold is
+  not: the fingerprint is of the table, so the key would not move.
+- **Confirm it moved.** `node scripts/test-vr-pack-key-version.mjs` prints the
+  current version and fails if the fingerprint is insensitive to any of the five
+  mutation shapes. Run it after the migration lands; the printed version must
+  differ from the one recorded in the wave's own notes.
+
+Old keys are never deleted and nothing sweeps them. That is deliberate: a retired
+pack is retired because nobody asks for its key any more, and a delete sweep that
+silently misses one is a worse guarantee than a key that cannot be requested.
 
 ## Strict mapping rule for any NEW measure the pull surfaces
 

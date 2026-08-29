@@ -6,8 +6,18 @@
 // none of it looked like the deficits the August 2026 pack fixed. Only ONE member was
 // refused outright with suppressed = 'no_primary'. The other 108 deep members were on
 // record_split with their two counts WITHHELD — because the record_split_deep branch in
-// stance-helpers.js gates the counts on out.primary >= _RD_MIN_PRIMARY too. Short of a
-// primary, a deep mixed record is not merely uncharacterised; it is uncounted.
+// stance-helpers.js gated the counts on out.primary >= _RD_MIN_PRIMARY too. Short of a
+// primary, a deep mixed record was not merely uncharacterised; it was uncounted.
+//
+//   AND THEN BOTH GATES CAME OFF, LATER THE SAME MONTH. Package-borne acts are full
+// votes: one instrument, one official Yea or Nay, and every issue mapped to it gets
+// that vote at full strength, with the vehicle disclosed beside the finding rather
+// than discounted from it. That does not retire this file — it sharpens it. The
+// promote was justified on the subject claim, and the subject claim is still either
+// true or false about H.R. 6703; what changed is that the flag no longer buys
+// coverage, so sections 4 and 5 now assert the gates ABSENT and the reading
+// IDENTICAL with and without the flag. A curation pass that cannot move a reading
+// cannot be a way of moving a reading.
 //
 // The cause was structural: all four healthcare primaries were unreachable by a House
 // member (one Senate confirmation, three executive orders), and all 109 deep members
@@ -178,9 +188,18 @@ const SH = R("stance-helpers.js");
   const m = SH.match(new RegExp("var " + name + "\\s*=\\s*([0-9.]+)"));
   eq(m && m[1], val, `${name} moved — a data pass may not buy coverage by lowering a floor`);
 });
-// The two gates this pack depends on, read off the source rather than remembered.
-has(SH, "out.primary >= _RD_MIN_PRIMARY", "the split-counts gate no longer consults the primary flag");
-has(SH, "return stop('record_thin', 'no_primary')", "the direction gate no longer refuses for want of a primary");
+// ── AND THE TWO GATES THIS PACK ONCE DEPENDED ON ARE GONE ────────────────────
+// Read off the source rather than remembered, and asserted ABSENT. August 2026:
+// one instrument means one official Yea or Nay, and every issue mapped to that
+// instrument gets that vote at full strength. How the act arrived is a label on the
+// bill — printed beside the finding, never subtracted from it — so neither the
+// direction branch nor the split-counts branch may consult it. What that makes of
+// this pack is the point of section 5: the promote is now a no-op for the reading,
+// which is the strongest form of "only the flag moved" there is.
+lacks(SH, "return stop('record_thin', 'no_primary')",
+  "the direction gate refuses for want of a primary again — that is a discount on a recorded vote");
+lacks(SH, "out.primary >= _RD_MIN_PRIMARY",
+  "the split-counts gate consults the primary flag again — a package-borne split withholds nothing a primary one publishes");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("5 · both mechanisms drift the way the pack claims");
@@ -204,11 +223,20 @@ const brush = (n, position) => ({
   const items = [promoted(true), brush(1, "yea"), brush(2, "yea"), brush(3, "yea")];
   const withIt = rdIndex(KEY, items, { memberRecordCount: 999 });
   const without = rdIndex(KEY, [promoted(false), ...items.slice(1)], { memberRecordCount: 999 });
-  eq(without.suppressed, "no_primary",
-    "four judged healthcare items without a primary are not refused — the direction gate moved");
   eq(withIt.token, "record_direction", "four judged items including H.R. 6703 still do not read as a direction");
   eq(withIt.characterised, true, "the read with H.R. 6703 is not characterised");
   eq(withIt.primary, 1, "exactly one of the four items should be the primary one");
+  // THE PROMOTE IS A NO-OP FOR THE READING, AND THAT IS THE DOCTRINE. This read used
+  // to be refused outright without the flag (suppressed = 'no_primary') and to
+  // characterise with it — so our own curation decided whether four recorded votes
+  // could be read. It cannot any more. Four judged items, all one way, read as a
+  // direction whether the measure was about the issue or carried it.
+  eq(without.suppressed, null,
+    "four judged healthcare items are refused for want of a primary — our flag is deciding what their votes say");
+  eq(without.token, "record_direction", "…and the same four items read as a direction without it");
+  eq(without.characterised, true, "…and are characterised, at full strength");
+  eq(without.lead, withIt.lead, "…leaning exactly where the promoted read leans");
+  eq(without.primary, 0, "…with the flag genuinely absent, so this is not a fixture accident");
 }
 
 // 5b · the split-counts gate — the 107 whose counts open. This is the bulk of the pack,
@@ -218,8 +246,13 @@ const brush = (n, position) => ({
                  brush(4, "nay"), brush(5, "nay")];
   const withIt = rdIndex(KEY, items, { memberRecordCount: 999 });
   const without = rdIndex(KEY, [promoted(false), ...items.slice(1)], { memberRecordCount: 999 });
-  eq(without.token, "record_split", "a deep mixed record without a primary does not withhold its counts");
   eq(withIt.token, "record_split_deep", "a deep mixed record with H.R. 6703 does not publish its counts");
+  // AND THE SAME LEDGER WITHOUT THE FLAG PUBLISHES THE SAME TWO NUMBERS. Withholding
+  // them was the quieter half of the same discount: short of a primary a deep mixed
+  // record was not merely uncharacterised, it was uncounted. Six judged acts are six
+  // judged acts.
+  eq(without.token, "record_split_deep",
+    "a deep mixed record withholds its counts for want of a primary — the arithmetic is the same arithmetic");
   eq(withIt.judged, 6, "the split fixture is not at _RD_SPLIT_MIN_JUDGED");
   eq(Math.min(withIt.advances, withIt.opposes), 2, "the split fixture's small side is not at _RD_SPLIT_MIN_SIDE");
   eq(withIt.lead, null, "opening the counts invented a direction — a split has no winner");

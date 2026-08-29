@@ -126,7 +126,7 @@ const CLEAR = SILENT.slice(0, 6);          // 12 one way each  → strong
 const SPLITS = SILENT.slice(6, 9);         // 8 votes, 4 each  → split
 const THINS = SILENT.slice(9, 25);         // one vote each    → thin
 const NOSIDE = SILENT.slice(25, 29);       // all Present      → no_side_taken
-const PKG = SILENT[29];                    // provisions only, all one way → thin + 🚂
+const PKG = SILENT[29];                    // provisions only, all one way → strong + 🚂
 const CARRIER = SILENT[30];
 const PKGMIX = SILENT[31];                 // provisions only, ran both ways → vehicle_only
 must(CLEAR.length === 6 && SPLITS.length === 3 && THINS.length === 16 &&
@@ -143,8 +143,10 @@ for (let i = 0; i < 4; i++) SEED.push(vote(nn++, BALANCE, "yea"));
 // Eight provisions on PKG, all riding CARRIER, all one way: deep enough and
 // one-sided enough that only the primary wall stopped it — which is exactly the
 // population the package sentence is for. Since the August 2026 relaxation the
-// display lane reads this row at THIN and hangs the 🚂 disclosure on it; the
-// ceiling that keeps eight riders off "Strongly" is asserted in section 5.
+// display lane reads this row and hangs the 🚂 disclosure on it, and since the
+// package-borne ceiling came off it reads at the tier eight one-way judged acts
+// earn — the same tier a primary run of the same shape reads. Section 5 asserts
+// that equality row for row.
 for (let i = 1; i <= 8; i++) SEED.push(rider(i, PKG, CARRIER, "H.R. " + (7000 + i), "yea"));
 // …AND THE SAME SHAPE THAT RAN BOTH WAYS, which is where the vehicle_only refusal
 // still lives. Uniform is the door; a package-borne ledger with acts on both sides
@@ -326,30 +328,43 @@ section("5 · six refusals, six sentences");
   //     eight votes on eight measures, every one of them advancing this issue as a
   //     provision, and the row printed "no direction claimed". The menu hides
   //     policy in vehicles; requiring a PRIMARY before the profile could name a
-  //     side recreated the hide. So the row reads now — at THIN, never above it,
-  //     with the package sentence attached.
+  //     side recreated the hide. The first fix let the row read but capped it at
+  //     thin, which is the same discount in a smaller font — a stack of riders that
+  //     became law, read as though it were one vote. That cap is gone too. Eight
+  //     judged acts is twice _RD_MIN_JUDGED and they all went one way, so the row
+  //     reads at the tier its own depth earns, with the arrival sentence and the 🚂
+  //     line beside it.
   const pkg = ROWS.filter((x) => x.key === PKG)[0];
   must(pkg, "the package fixture produced no row at all");
   const veh = A._pdxRecordVehicleStats(PID, PKG);
   eq(veh.only, true, "the stowaway detector says every instrument here was a provision");
   eq(pkg.read, true, "a package-borne run all one way is read, not refused");
   eq(pkg.why, null, "…so it carries no refusal reason");
-  eq(pkg.tier, "thin", "…at the thin tier");
-  eq(pkg.weight, "thin", "…with the thin weight, so no surface paints it as a finding");
+  eq(pkg.tier, "strong", "…at the tier eight one-way judged acts earn");
+  eq(pkg.weight, "full", "…with the weight those acts earn, because nothing here is partial");
   eq(pkg.tone, "support", "…on the side the eight provisions went");
   eq(pkg.directional, true, "…and it carries a direction");
-  // THE CEILING. Eight judged acts is twice _RD_MIN_JUDGED, so nothing but the
-  // package rule is holding this row at thin. Asserted by name in both vocabularies.
-  ["mostly", "strong"].forEach((t) =>
-    ok(pkg.tier !== t, `eight riders must never reach the ${t} tier`));
-  ["full", "strong"].forEach((w) =>
-    ok(pkg.weight !== w, `…nor the ${w} weight`));
-  ok(A.PDXConsistency.recordPattern.tier(pkg.row) === null ||
-     A.PDXConsistency.recordPattern.tier(pkg.row).tier === "none",
-    "…and the characterisation read still refuses it outright");
-  // THE 🚂 DISCLOSURE, which is now on the row rather than standing in for it. It
-  // may say this only because there is a direction to disclose about; see the wall
-  // over `vehicle` in _fpiRows.
+  // THE DOCTRINE, AS AN EQUALITY. Eight one-way riders and twelve one-way bills
+  // that were ABOUT their issue are the same kind of thing at different depths: the
+  // reading follows the acts, and how the acts arrived is a label on the bill. So
+  // the rider row lands in the same band, with the same tier word and the same
+  // weight, as a primary row of the same shape — never in a band of its own.
+  const clr = ROWS.filter((x) => x.key === CLEAR[0])[0];
+  must(clr, "the primary comparison row is missing from the fixture");
+  eq(pkg.tier, clr.tier, "eight riders read the same tier as a primary run of the same shape");
+  eq(pkg.weight, clr.weight, "…and carry the same weight");
+  eq(pkg.band, clr.band, "…and are filed in the same band");
+  // AND THE CHARACTERISATION READ NO LONGER REFUSES IT EITHER. This is the half of
+  // the fix that the display lane could not do alone: while the pattern engine
+  // still returned stop('record_thin', 'no_primary') on a deep one-sided run, the
+  // profile said "Strongly supports" on one surface and "too thin to characterise"
+  // on another, off one ledger.
+  const pt = A.PDXConsistency.recordPattern.tier(pkg.row);
+  ok(pt && pt.tier === "strong",
+    `the characterisation read agrees with the row (got ${JSON.stringify(pt && pt.tier)})`);
+  // THE 🚂 DISCLOSURE, which sits beside the finding rather than standing in for
+  // it. It may say this only because there is a direction to disclose about; see
+  // the wall over `vehicle` in _fpiRows.
   ok(pkg.vehicle && pkg.vehicle.stowaway,
     "the 🚂 disclosure is on the row that reads off packages");
   eq(pkg.vehicle.only, true, "…and says every instrument was one");
@@ -364,21 +379,25 @@ section("5 · six refusals, six sentences");
   // of them — this is the surface a reader meets the package fact on when the
   // record stands in for a stance they never stated.
   const bl = A.PDXConsistency.baseline.for(PID, PKG);
-  ok(!!bl, "a package-borne thin read is offerable as a record baseline");
-  eq(bl && bl.tier, "thin", "…at thin, the ceiling the display lane held it to");
+  ok(!!bl, "a package-borne read is offerable as a record baseline");
+  eq(bl && bl.tier, "strong", "…at the tier the acts earned, not at a rider's discount");
   eq(bl && bl.stance, "support", "…on the side the eight provisions went");
   has(bl ? bl.vehicleLine : "", "as provisions",
     "…and the baseline says the acts arrived as provisions");
   has(bl ? bl.vehicleNote : "", "what they were votes ON was the package",
     "…and keeps the sentence about what they were votes on");
-  // AND THE ROW'S OWN DISCLOSURE FIELD SAYS WHY IT IS THIN, in the display read's
-  // own words, so the strength and the reason for it travel together.
+  // AND THE ROW'S OWN DISCLOSURE FIELD SAYS HOW ITS ACTS ARRIVED, in the record
+  // read's own words, so the finding and the vehicle travel together — the second
+  // beside the first, never instead of it and never as a multiplier on it.
   const pkgD = A.PDXConsistency.recordPattern.display(pkg.row) || {};
-  eq(pkgD.tier, "thin", "the tree's Record slot reads the same row at thin");
+  eq(pkgD.tier, "strong", "the tree's Record slot reads the same row at the same tier");
+  eq(pkgD.packageOnly, true, "…and reports the packaging as a fact about the bills");
   has(pkgD.note, "mainly about something else",
     "…and its disclosure names the vehicles");
   has(pkgD.note, "a measure is not a position on everything inside it",
-    "…and explains why no characterisation follows from one");
+    "…and keeps the sentence that says what a package is not");
+  has(pkgD.note, "counted in full",
+    "…and says out loud that the acts are counted in full");
 
   // (a2) THE SAME SHAPE THAT RAN BOTH WAYS IS STILL THE REFUSAL, and still owns
   //      the locked menu sentence. Uniform is the door; this row gains nothing.

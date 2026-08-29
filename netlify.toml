@@ -123,6 +123,30 @@
   to = "/index.html"
   status = 200
 
+# Bill-profile deep-links. The third face of the archive gets the same treatment
+# the person file got: /b/<sitting>/<number> — /b/119/H.R.%201 for a federal
+# measure, /b/2024GS/H.B.%20257 for a state one — SERVES index.html (HTTP 200
+# rewrite) so share-links.js can read the path and open the bill panel on it.
+#
+# The sitting leads because a bill number alone is not an identity: "H.B. 257"
+# names a different bill in every Utah general session, which is exactly why the
+# ingest keys state rows on (chamber, number, external_ids->>'utahSession') rather
+# than on a congress the rows do not have. /b/<number> without a sitting still
+# resolves, for a number that is unambiguous across the whole archive.
+#
+# The older ?bill=<sitting>/<number> form is NOT retired — those links are in the
+# wild and share-links.js still reads them. What changed is which of the two
+# canonicalises: netlify/lib/share-target.ts now returns /b/… for a bill.
+#
+# And as with /vote/* and /p/*, the rewrite alone would be a trap — it answers 200
+# for /b/<anything>. share-preview.ts runs in front of it (its config lists /b/*)
+# to give the path a real card, and share-links.js posts an honest notice on
+# arrival when the address opened nothing.
+[[redirects]]
+  from = "/b/*"
+  to = "/index.html"
+  status = 200
+
 # Portrait hosts the Image CDN may fetch from.
 #
 # This exists for ONE caller: the shareable record card (profile-card.js). Every

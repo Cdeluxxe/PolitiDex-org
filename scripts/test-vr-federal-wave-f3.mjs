@@ -47,7 +47,9 @@
 // decision seed. What this file guarantees is that the check still exists, that the
 // recorded result is self-consistent, and that nobody reverted to the old tier-gated
 // list — which cannot see this wave at all, because a row moving unread → read-thin
-// lands in thinN either way and never enters the `characterised` figure.
+// stays in shape()'s tail either way. It changes which tail bucket counts the row
+// (thinN → readThinN, which is the whole point of splitting them) and never enters the
+// `characterised` figure, which is still strong/mostly plus split.
 //
 //   node scripts/test-vr-federal-wave-f3.mjs
 //
@@ -709,7 +711,7 @@ if (disc) {
 }
 
 // The measuring instrument itself. The tier-gated list cannot see this wave AT ALL: a
-// row moving unread → read-thin lands in thinN either way and never enters the
+// row moving unread → read-thin stays in shape()'s tail either way and never enters the
 // `characterised` figure, so on the aggregate counters Lee and Curtis appear not to
 // move. If the direct read-flag comparison is removed, the acceptance criterion becomes
 // unmeasurable and the next wave's report will be wrong in exactly that way.

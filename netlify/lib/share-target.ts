@@ -64,6 +64,11 @@ export type Target =
   | { kind: "profile"; id: string }
   | { kind: "spotlight"; slug: string }
   | { kind: "rank"; core: string; focus: string }
+  // `congress` carries the SITTING as it appears in the address: a congress number
+  // for a federal measure, a state session code ("2024GS") for a state one, or ""
+  // when the number was cited on its own. The field keeps its name because it is
+  // the wire name on ?bill=, #bill/ and the og query, and renaming it would break
+  // links already in the wild.
   | { kind: "bill"; congress: string; number: string }
   | { kind: "receipt"; pid: string; issue: string }
   | { kind: "record"; pid: string; issue: string }
@@ -169,6 +174,22 @@ export function parseTarget(url: URL): Target | null {
   const person = path.match(/^\/p\/([A-Za-z0-9_]+)\/?$/);
   if (person) return { kind: "profile", id: clean(person[1]) };
 
+  // /b/<sitting>/<number> — the canonical bill address, and /b/<number> for a
+  // number cited without one. A bill profile is a record like a person file is a
+  // record, so it gets a path a reader can read out loud and a scraper can preview,
+  // not a query parameter. The sitting comes first because that is the order the
+  // identity is spoken in: 119th Congress, H.R. 1.
+  const bill2 = path.match(/^\/b\/([A-Za-z0-9]{1,12})\/(.+?)\/?$/);
+  if (bill2) {
+    return {
+      kind: "bill",
+      congress: clean(decodeURIComponent(bill2[1]), 12),
+      number: clean(decodeURIComponent(bill2[2]), 60),
+    };
+  }
+  const bill1 = path.match(/^\/b\/(.+?)\/?$/);
+  if (bill1) return { kind: "bill", congress: "", number: clean(decodeURIComponent(bill1[1]), 60) };
+
   // Everything else hangs off the single-page document at "/".
   const issueQ = clean(q.get("issue"));
   if (issueQ) return { kind: "spotlight", slug: issueQ };
@@ -223,7 +244,10 @@ export function canonicalPath(t: Target): string {
     // Both /issue/<slug> and ?issue=<slug> resolve here; the path is the canonical one.
     case "spotlight": return `/issue/${e(t.slug)}`;
     case "vote":      return `/vote/${e(t.congress)}/${e(t.chamber)}/${e(t.roll)}`;
-    case "bill":      return `/?bill=${e(t.congress + "/" + t.number)}`;
+    // /b/<sitting>/<number>, and /b/<number> when no sitting was cited. ?bill= still
+    // RESOLVES for links already sent — it just stops being the canonical form, for
+    // the same reason ?p= did.
+    case "bill":      return t.congress ? `/b/${e(t.congress)}/${e(t.number)}` : `/b/${e(t.number)}`;
     case "receipt":
     case "record":    return `/?${t.kind}=${e(t.pid + (t.issue ? "~" + t.issue : ""))}`;
     case "rank":      return `/?rank=${e(t.core)}` + (t.focus ? `&key=${e(t.focus)}` : "");
@@ -281,6 +305,28 @@ async function apiGet(origin: string, path: string): Promise<{ ok: boolean; stat
   } catch {
     return { ok: false, status: 0, data: null };
   }
+}
+
+// A state chamber is named for its state; a federal one is not. The measure rows
+// carry "utah house" / "utah senate", which is the same test the client's chamber
+// table makes.
+function isStateChamber(chamber: unknown): boolean {
+  return /^[a-z]+ (house|senate)$/i.test(String(chamber || "").trim());
+}
+// The sitting in prose: a congress, or a state session code spelled out the way the
+// legislature itself spells it ("2024GS" → "2024 General Session"). An unrecognised
+// code is printed as itself rather than guessed at.
+const SESSION_KIND: Record<string, string> = {
+  GS: "General Session", VS: "Veto Override Session",
+  S1: "1st Special Session", S2: "2nd Special Session",
+  S3: "3rd Special Session", S4: "4th Special Session", S5: "5th Special Session",
+};
+function sittingText(m: any): string {
+  if (m?.congress) return `${m.congress}th Congress`;
+  const s = String(m?.session || "").trim();
+  if (!s) return "";
+  const p = s.match(/^(\d{4})([A-Za-z0-9]+)$/);
+  return p ? `${p[1]} ${SESSION_KIND[p[2].toUpperCase()] || p[2]}` : s;
 }
 
 function measureHeadline(m: any): { title: string; subtitle: string } {
@@ -542,8 +588,15 @@ export async function resolveTarget(
         `${head.title}${head.subtitle ? ` — ${head.subtitle}` : ""}. Who voted for it, what it bundles together, and where to read the text yourself.`,
         200
       ),
-      footnote: `${m.congress ? `${m.congress}th Congress · ` : ""}Sourced from Congress.gov.`,
-      hash: `#bill/${encodeURIComponent(String(m.congress || t.congress))}/${encodeURIComponent(String(m.number || t.number))}`,
+      // Whose legislature, and whose record. A state measure has no congress and is
+      // not sourced from Congress.gov, and saying so anyway would be a false
+      // citation on the one line of the card that is nothing but citation.
+      footnote: `${sittingText(m) ? `${sittingText(m)} · ` : ""}Sourced from ${
+        isStateChamber(m?.chamber) ? "le.utah.gov" : "Congress.gov"
+      }.`,
+      hash: `#bill/${encodeURIComponent(
+        String(m.congress || m.session || t.congress || "")
+      )}/${encodeURIComponent(String(m.number || t.number))}`,
       ogQuery: `kind=bill&congress=${encodeURIComponent(t.congress)}&number=${encodeURIComponent(t.number)}`,
     };
   }

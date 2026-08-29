@@ -2441,6 +2441,12 @@
       '.pdxdos-tag-p{border-color:rgba(110,231,160,0.45);color:#a9e9c6;}' +
       '.pdxdos-tag-n{border-color:rgba(240,205,140,0.45);color:#f0cd8c;}' +
       '.pdxdos-src{display:inline-block;margin-top:0.3rem;font-size:0.68rem;color:#7fb4ff;}' +
+      // The door to the measure's own face. Full width and its own line: it is a
+      // change of surface, not another citation on this one.
+      '.pdxdos-billdoor{display:block;width:100%;margin-top:0.45rem;padding:0.45rem 0.6rem;cursor:pointer;text-align:left;' +
+        'font:700 0.7rem/1.3 "Barlow Condensed",sans-serif;letter-spacing:0.03em;color:#cfe2ff;' +
+        'background:rgba(96,165,250,0.12);border:1px solid rgba(126,180,255,0.35);border-radius:0.45rem;}' +
+      '.pdxdos-billdoor:hover{background:rgba(96,165,250,0.22);border-color:#9ec8ff;color:#fff;}' +
       // The bill text the mapping was read against, beside but never merged into the
       // roll-call source: two documents, two links, dimmer on the secondary one.
       '.pdxdos-src-txt{margin-left:0.55rem;color:#9fb4d4;}' +
@@ -3169,6 +3175,18 @@
       if (drv) {
         e.preventDefault();
         _drvOpen(drv);
+        return;
+      }
+      // ── Tap the measure's own profile, get the whole bill ─────────────────
+      // The other direction of the same trip: the roll-up row above opens this
+      // measure's explainer inside the person file, and this opens the measure's own
+      // face — every topic it was mapped to, and the roll list. Checked here rather
+      // than left to bill-detail.js because the panel's own delegate only listens
+      // inside its overlay, and this button is on the person file.
+      var bopen = e.target.closest && e.target.closest('[data-pdxbill-open]');
+      if (bopen) {
+        e.preventDefault();
+        _billOpen(bopen);
         return;
       }
       // The stance row's primary tap: the issue name opens that issue's dossier and
@@ -6060,15 +6078,21 @@
   var _ST_REC_NOTE_SCORED = 'Direction Match on this issue: what they said, tested against the ' +
     'formal record on file.';
   // …AND THE ARRIVAL DISCLOSURE, FOR A SCORED ROW WHOSE FORMAL ACTS ALL TRAVELLED
-  // IN PACKAGES. The pattern engine's own package sentence cannot be borrowed here,
-  // for the same reason its note cannot: that sentence ends by stating a tier —
-  // "the side is stated thin" — and this slot is printing a Direction Match result,
-  // not a tier. What has to survive the trip is the fact the reader needs, that the
-  // acts on this issue reached it inside something larger, with no claim about
-  // strength attached to it. Appended, never substituted: the scored sentence keeps
-  // its place and its meaning, and no number on this slot moves.
+  // IN PACKAGES. The pattern engine's own package sentence is still not borrowed
+  // here — it opens on a judged count ("All 6 votes read here…") and this slot is
+  // printing a Direction Match result rather than a pattern read — but it now says
+  // the same two things, because there are two things a reader needs and dropping
+  // either one is a distortion. First, HOW the acts reached the issue: inside
+  // something larger. Second, that this changes nothing about what they weigh —
+  // one instrument carries one official Yea or Nay, and every issue mapped to that
+  // instrument gets it at full strength. The sentence used to stop after the first
+  // half, which left the disclosure reading like a caveat on the percentage beside
+  // it; the second half is what makes it a disclosure instead. Appended, never
+  // substituted: the scored sentence keeps its place and its meaning, no tier is
+  // stated here, and no number on this slot moves.
   var _ST_REC_NOTE_PKG = 'The formal acts behind this reached the issue inside measures ' +
-    'that were mainly about something else, rather than as votes on the issue itself.';
+    'that were mainly about something else, rather than as votes on the issue itself — ' +
+    'they are counted in full either way.';
   // THE SAME SENTENCE, IN THE LANE'S OWN COUNTABLE. The engine publishes one note
   // and it says "votes on file"; on the executive lane the countable is actions and
   // nothing else about the sentence changes. Fails safe by construction — if the
@@ -6167,11 +6191,13 @@
         note: items + ' ' + many + ' on file and open in the dossier. None of them takes a ' +
           'for-or-against side on this issue, so no direction is claimed here either way.' };
     }
-    if (sup === 'no_primary') {
-      return { id: 'incidental', lb: 'Formal items on file',
-        note: items + ' ' + many + ' on file touch this issue only incidentally — none of them ' +
-          'was about it — so no direction is read from them. The ' + n.many + ' are in the dossier.' };
-    }
+    // THERE WAS A BRANCH HERE FOR `no_primary`, and it printed "these items touch
+    // this issue only incidentally — none of them was about it". The index stopped
+    // emitting that suppression in August 2026: how an act arrived is a label on
+    // the bill, not a reason to withhold the reading, so there is no such
+    // suppression to answer and the ladder below names what is actually true of the
+    // row. Nothing else set it — see _rdSuppressedKey, which returns only the three
+    // muted keys — so this is a removal, not a hole.
     try { return _fpiUnreadWhy(r); } catch (e) {}
     return { id: 'unread', lb: 'Formal items on file', note: '' };
   }
@@ -8295,17 +8321,24 @@
   //   · AN ISSUE WITH NO POLE IS STILL SILENT. _RD_TIER_MUTE returns null there,
   //     at any depth, because "advanced it" is meaningless without a curated
   //     proposition to advance.
-  //   · AN INCIDENTAL MAPPING IS STILL A COINCIDENCE. Below _RD_MIN_PRIMARY the
-  //     display read returns null too — an omnibus that brushed this issue is not
-  //     a vote on it, and five of them are not a vote on it either.
-  //   · A RECORD THAT RAN BOTH WAYS IS NEVER GIVEN A LEAD. The display read words
-  //     those as `split`, `directional: false`, and the guard below drops them —
-  //     so no knife-edge acquires a side through this door.
-  //   · AND IT NEVER PROMOTES. `d.tier !== 'thin'` is asserted rather than
-  //     assumed: whatever arrives here is a row the characterisation engine
-  //     declined, and the only tier it may re-enter the index at is the quiet one.
+  //   · A RECORD THAT RAN BOTH WAYS IS NEVER GIVEN A LEAD. This door is for runs
+  //     that all went one way, and the mixed guard below is its own — it counts
+  //     acts, not mappings, so no knife-edge acquires a side through here.
+  //   · AND THE MAPPING FLAG IS NOT A DOOR, A CEILING, OR A DISCOUNT. It used to
+  //     be both of the first two. First `_RD_MIN_PRIMARY` made the display read
+  //     return null, so a rider that became law read as nothing at all. Then it
+  //     became a ceiling, and this function carried the matching cousin —
+  //     `d.tier !== 'thin'`, described here as "it never promotes" — which meant a
+  //     package-borne run that cleared every depth floor came back as `strong`
+  //     from the display lane and was dropped on the floor by this line, so the
+  //     row reported `unread` and left the match entirely. Both are gone. One
+  //     instrument gets one official Yea or Nay and every issue it maps to gets
+  //     that vote at full strength, so whatever tier the display lane earned on
+  //     the shared floors is the tier that re-enters the index.
   // What IS lowered, and only here, is depth: the member coverage floor and the
-  // two-item run floor, both of which are floors about SIZE.
+  // two-item run floor, both of which are floors about SIZE. Nothing about
+  // MEANING is lowered: a poleless issue is still silent, a record with nothing
+  // judged is still unread, and a record that ran both ways still gets no lead.
   //
   // WHY IT IS NOT CAPPED AT ONE ITEM, which is where it started. The cap was the
   // bug. Below the member coverage floor a single mapped vote read as "Thin
@@ -8334,7 +8367,11 @@
     if ((idx.advances || 0) > 0 && (idx.opposes || 0) > 0) return null;
     var d;
     try { d = window._recordDisplayTier(idx, { noun: _stNoun(r) }) || null; } catch (e) { return null; }
-    if (!d || !d.directional || d.tier !== 'thin') return null;
+    // ANY TIER THE SHARED FLOORS EARNED. `directional` is the only wall left here:
+    // a split read has no side to carry into the index. The tier itself is the
+    // display lane's, computed on _RD_MIN_JUDGED / _RD_MIN_STRENGTH / the coverage
+    // floor exactly as it is for any other formal act.
+    if (!d || !d.directional) return null;
     return d;
   }
 
@@ -8380,6 +8417,7 @@
       // and an issue with no formal signal is not part of the formal record index.
       if (!t && !refused && held <= 0) return;
       var why = t ? null : _fpiUnreadWhy(r);
+      var dtier = t ? '' : _fpiDisplayTier(r);
       out.push({
         pid: r.pid, key: r.key, label: r.label,
         tier: t ? t.tier : 'unread',
@@ -8387,6 +8425,16 @@
         tone: t ? t.tone : 'muted',
         patLabel: t ? t.label : why.lb,
         why: why,
+        // WHAT THE BROWSE LANE SAYS ABOUT THIS SAME ROW, on the rows this index
+        // has no read of its own for. Presentation only, and carried here rather
+        // than re-asked downstream so that a summary counting these rows cannot
+        // call one of them unreadable while the stance tree beside it prints
+        // "Thin supports" or "Split" off the same engine on the same row.
+        //   EMPTY ON EVERY ROW THAT HAS A TIER. There the tier IS the answer, and
+        // a second opinion sitting next to it is just an invitation to consult the
+        // wrong one. It is not a tier, nothing sorts, filters or gates on it, and
+        // no count, weight, confidence or percentage is derived from it.
+        displayTier: dtier,
         counts: t ? t.counts : '',
         judged: t ? t.judged : 0,
         // THE ACTS ON FILE THAT TOOK NO SIDE. Carried from the tier, which carries
@@ -9212,9 +9260,37 @@
   //
   //   tops    the strongest characterised patterns (strong / mostly)
   //   splits  issues where the record ran both ways
-  //   thin    inventory the engine refused to characterise — the honesty valve,
+  //   tail    inventory this index did not characterise — the honesty valve,
   //           counted out loud rather than dropped
   //   depth   how much record all of that was read from
+  //
+  // AND THE TAIL IS THREE NUMBERS, NOT ONE. `tailN` is its size, and it is still
+  // published whole because the surfaces that print "N more issues have formal
+  // items on file but not enough of them to characterise a pattern yet" are
+  // describing the whole tail and are right about it. But the tail is not one
+  // population, and a summary that hands out one integer for it forces every
+  // caller to describe all of it in the words of its weakest part:
+  //
+  //   readThinN  the browse lane published a THIN side on this row — the dossier
+  //              beside this summary says "Thin supports" / "Thin opposes" in as
+  //              many words. Too little to lean on; not nothing, and not
+  //              unreadable. 2,888 rows across the shipped corpus.
+  //   readOtherN a side is on file that this read does not count — the browse
+  //              lane published split, or (on the exec lane, which the
+  //              legislative read declines by design) something firmer. Named
+  //              rather than folded, and deliberately NOT added to strongN or
+  //              splitN: this index did not make that read and does not get to
+  //              inherit its confidence.
+  //   thinN      no published side anywhere. Nothing readable yet, and the only
+  //              bucket entitled to say so.
+  //
+  // The three are disjoint and sum to `tailN`, so a caller may print any subset
+  // without double-counting and the old whole-tail sentence is one field away.
+  //
+  // WHAT THIS IS NOT. It is not a promotion path. `characterised` is still
+  // strongN + splitN off this index's own tiers, no floor moved to make these
+  // buckets exist, and every row in all three is still a row this index declined
+  // to characterise. The only thing that changed is which sentence it earns.
   //
   // WHY THERE IS NO PERCENTAGE IN IT. Anything of the form "18 of 24 issues are
   // one-sided" is a number between 0 and 100 attached to a person's name, which
@@ -9272,15 +9348,25 @@
       var rows = _fpiRows(pid, { sort: 'strength' }) || [];
       var out = {
         issues: rows.length, read: 0, judged: 0,
-        characterised: 0, strongN: 0, splitN: 0, thinN: 0,
+        characterised: 0, strongN: 0, splitN: 0,
+        readThinN: 0, readOtherN: 0, thinN: 0, tailN: 0,
         tops: [], splits: []
       };
       var tops = [], splits = [];
       rows.forEach(function (x) {
         if (x.read) out.read++;
         out.judged += (x.judged || 0);
-        if (_FPI_CHARACTERISED[x.tier]) { out.strongN++; tops.push(x); }
-        else if (x.tier === 'split') { out.splitN++; splits.push(x); }
+        if (_FPI_CHARACTERISED[x.tier]) { out.strongN++; tops.push(x); return; }
+        if (x.tier === 'split') { out.splitN++; splits.push(x); return; }
+        // THE TAIL, IN THREE PARTS — see the note over this section for why it is
+        // not one. A row this index read as thin already HAS its published side
+        // (display thin is where a thin read goes), so its own tier answers
+        // first; a row it read nothing on falls back to what the browse lane
+        // published for the same row, which _fpiRows carried in beside it.
+        out.tailN++;
+        var side = (x.tier === 'thin') ? 'thin' : (x.displayTier || '');
+        if (side === 'thin') out.readThinN++;
+        else if (side) out.readOtherN++;
         else out.thinN++;
       });
       out.characterised = out.strongN + out.splitN;
@@ -10016,11 +10102,19 @@
   // the record is not about the issue contradicts a sentence the reader has
   // already been shown on the same profile. Read-only: it gates copy, never a
   // tier, a count or a percentage.
-  function _fpiPublishedTier(r) {
+  //   WHICH WORD, WHERE THERE IS ONE. The same call and the same walls, returning
+  // the tier the browse lane published rather than only whether it published
+  // something — because a summary over these rows has to tell "the tree says Thin
+  // supports here" from "the tree says Split here" from "the tree says nothing
+  // here", and those are three different sentences. Not a second read:
+  // _stDisplayTier is the accessor the stance tree itself calls, and no tier,
+  // floor, count or percentage is derived from the answer.
+  function _fpiDisplayTier(r) {
     var d = null;
     try { d = _stDisplayTier(r); } catch (e) { d = null; }
-    return !!(d && d.tier && d.tier !== 'none');
+    return (d && d.tier && d.tier !== 'none') ? String(d.tier) : '';
   }
+  function _fpiPublishedTier(r) { return !!_fpiDisplayTier(r); }
   function _fpiUnreadWhy(r) {
     var n = _stNoun(r);
     // THE ISSUE'S SHAPE IS ASKED FIRST, and from the KEY rather than from an index.
@@ -10115,32 +10209,27 @@
             'and in the dossier — but a package is not a position on everything inside it, so no ' +
             'direction is claimed from one. ' + _MENU_WALL };
       }
-      // ── AND THE WALL OVER "NOT ABOUT THIS ISSUE" ───────────────────────────
-      // The sentence is true of a bill that brushed the subject on its way past.
-      // It is false in two situations that reach this line, and it was printing
-      // in both:
-      //   · OUR OWN MAPPING SAYS OTHERWISE. `idx.primary` is the judged,
-      //     admitted, non-superseded subset; the curated mapping on the named
-      //     measure is a decision we published. Where that mapping is primary
-      //     for THIS issue, the record is about this issue whatever the judged
-      //     subset came to — see _primaryOnFile.
-      //   · ANOTHER SURFACE ALREADY GAVE THE ROW A SIDE. Where the display read
-      //     has published a tier — thin, split, mostly, strong — the stance
-      //     tree's Record slot is already showing it. Two answers to one
-      //     question on one profile is the defect this wall exists to prevent.
-      // In both cases the ladder CONTINUES rather than inventing a read: the
-      // next true refusal answers, and if none of them fits, the narrow one at
-      // the foot of this block says exactly what the shortfall is.
+      // ── "NOT ABOUT THIS ISSUE" IS OFF THIS LADDER ──────────────────────────
+      // There was a rung here that refused a direction because no mapping on the
+      // row was primary: "a bill that brushed the subject is not a vote on the
+      // subject, so no direction is claimed — however one-sided the arithmetic
+      // looks." That last clause is the whole problem with it. A rider that became
+      // law is a law; the member voted on it; and one instrument means one official
+      // Yea or Nay on every issue mapped to it. How the act arrived is a label,
+      // disclosed beside the reading by the 🚂 vehicle line and _rdPackageNote —
+      // never a reason to withhold the reading, and never a discount on it.
+      //   Two walls had already been built over that rung before it was removed,
+      // and both are worth keeping in view because they are why it was unreachable
+      // rather than merely wrong: our own curated mapping may be primary on the
+      // named measure whatever the judged subset came to (_primaryOnFile), and the
+      // display read may already be showing this row a tier, in which case a
+      // refusal here would be a second answer to one question on one profile.
+      //   `_pmOK` survives because the block at the foot of this function words the
+      // narrow shortfall differently where a primary mapping IS on file.
       var _pmOK = false;
       if ((idx.primary || 0) < 1) {
         var _pm = _primaryOnFile(r && r.pid, r && r.key);
         _pmOK = !!(_pm && _pm.any);
-        if (!_pmOK && !_fpiPublishedTier(r)) {
-          return { id: 'incidental', lb: 'Not about this issue',
-            note: 'The ' + n.many + ' on file here touched this issue as part of a larger measure ' +
-              'rather than being about it. A bill that brushed the subject is not a ' + n.one + ' on ' +
-              'the subject, so no direction is claimed — however one-sided the arithmetic looks.' };
-        }
       }
       if (idx.suppressed === 'coverage_floor') {
         return { id: 'coverage_floor', lb: 'Too little of their file held',
@@ -12370,6 +12459,18 @@
   // "119th Congress". Ordinary English ordinals, so 121st and 122nd come out right
   // when someone reads this in 2029 — the 11x block is the exception every naive
   // implementation gets wrong.
+  // THE SITTING AS AN ADDRESS SEGMENT, not as prose. _dosSessionLabel prints "119th
+  // Congress" / "2025GS" for a reader; a bill profile's address needs the raw
+  // segment, and the two must come from the same fields or a row could link to a
+  // different sitting than the one printed on it.
+  function _dosSittingKey(item) {
+    if (!item) return '';
+    var mi = item.measureIdent;
+    var code = (mi && typeof mi.session === 'string') ? mi.session.trim() : '';
+    if (code) return code;
+    var c = item.congress;
+    return (typeof c === 'number' && isFinite(c) && c > 0) ? String(c) : '';
+  }
   function _dosCongressLabel(n) {
     if (typeof n !== 'number' || !isFinite(n) || n <= 0) return '';
     var t = n % 100, u = n % 10;
@@ -12573,6 +12674,14 @@
           // congress — and a caller reading "2025GS" out of it would be reading a
           // field that lied about its own name.
           session: _dosSessionLabel(p.item),
+          // WHERE THE WHOLE MEASURE LIVES. This row is one issue's view of a bill:
+          // the one topic this dossier is about, and how they voted on it. The bill
+          // itself was mapped to every topic it touched, and the vote on this row is
+          // the same vote on all of them — so the row carries the measure's own
+          // address and slot 1 opens it. A number without its sitting is not an
+          // address, so both travel together.
+          billNum: (b.isPosition ? '' : (b.bill || '')),
+          billSit: _dosSittingKey(p.item),
           readFrom: _dosReadFrom(p.item),
           officialTitle: _dosOfficialTitle(p.item, b.title || p.item.title || ''),
           billUrl: _dosBillUrl(p.item),
@@ -13747,6 +13856,25 @@
       out.push('<a class="pdxdos-src pdxdos-src-txt" href="' + esc(d.billUrl) + '" target="_blank" rel="noopener">' +
         'The bill ↗</a>');
     }
+    // ── THE BILL'S OWN PROFILE ──────────────────────────────────────────────
+    // ONE ARCHIVE, THREE FACES, AND THIS IS THE DOOR BETWEEN TWO OF THEM. What this
+    // sheet shows is one issue's slice of a measure: this chip, this rationale, this
+    // member's ballot. The measure has a face of its own — every topic it was mapped
+    // to, whether each was the bill's subject or rode inside it, and the whole roll
+    // list — and the same vote on this row counts in full on every one of those
+    // topics. A reader who wants to check that has to be able to get there from here.
+    //
+    // Rendered only when the panel is actually on the page, and only for a row that
+    // names a measure: an executive document has no bill profile, and a button that
+    // opens nothing is worse than no button.
+    if (d.billNum && window.PDXBillDetail && typeof window.PDXBillDetail.open === 'function') {
+      out.push('<button type="button" class="pdxdos-billdoor" data-pdxbill-open' +
+        ' data-pdxbill-num="' + escAttr(d.billNum) + '"' +
+        ' data-pdxbill-sit="' + escAttr(d.billSit || '') + '"' +
+        ' title="' + escAttr('Open the full profile of ' + d.billNum) + '">' +
+        '📜 Open the full bill profile — every topic it was mapped to, and everyone who voted' +
+        '</button>');
+    }
     if (d.held) {
       out.push('<div class="pdxdos-d pdxdos-rec-hold">' + esc(d.heldWhy) + '</div>');
     }
@@ -13963,6 +14091,20 @@
   // Every step is defensive and the whole thing is a no-op on failure: the roll-up
   // row is a summary of a list that is still on the page, so a bridge that cannot
   // find its target costs a reader one scroll rather than an error.
+  // Hand the ref to the one panel that renders a measure. The sitting rides along so
+  // a state bill number — which repeats in every session — resolves to the session
+  // the row is actually about, and the panel is asked to open the number rather than
+  // an id because the number is the only identifier this row holds.
+  function _billOpen(el) {
+    try {
+      var num = el && el.getAttribute ? (el.getAttribute('data-pdxbill-num') || '') : '';
+      if (!num) return;
+      var sit = el.getAttribute('data-pdxbill-sit') || '';
+      var B = window.PDXBillDetail;
+      if (B && typeof B.open === 'function') B.open(num, sit);
+    } catch (e) {}
+  }
+
   function _drvOpen(el) {
     try {
       if (!el || !el.getAttribute) return;

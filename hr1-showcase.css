@@ -27,6 +27,21 @@
 }
 #hr1-showcase .hr1-src:hover { color: #cfe4ff; border-color: rgba(143,192,255,0.7); }
 
+/* Door into the bill panel. Shared by the H.R.1 block and every "not a one-off"
+   card, because both open the same one face of the same measure. */
+#hr1-showcase .hr1-billdoor {
+  display: inline-flex; align-items: center; gap: 0.35rem; margin-top: 0.7rem;
+  min-height: 44px; padding: 0.5rem 0.85rem; cursor: pointer; text-align: left;
+  font: 700 0.76rem/1.2 'Barlow Condensed', sans-serif; letter-spacing: 0.04em;
+  color: #cfe2ff; background: rgba(96,165,250,0.12);
+  border: 1px solid rgba(126,180,255,0.38); border-radius: 0.5rem;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+#hr1-showcase .hr1-billdoor:hover {
+  background: rgba(96,165,250,0.22); border-color: #9ec8ff; color: #fff;
+}
+#hr1-showcase .hr1-more-card .hr1-billdoor { align-self: flex-start; }
+
 /* ── Hero ─────────────────────────────────────────────────────────────────── */
 #hr1-showcase .hr1-hero { text-align: center; max-width: 52rem; margin: 0 auto 2.4rem; }
 #hr1-showcase .hr1-eyebrow {

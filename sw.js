@@ -347,6 +347,30 @@
 // are byte-identical), no issue key was added, no Direction Match or Word-vs-Action
 // input changed, and every issue row in the product is byte-identical to HEAD on a
 // twin boot — pinned by scripts/test-vr-federal-wave-f3.mjs.
+// ─────────────────────────────────────────────────────────────────────────────
+// THE OFFLINE PACK URL NOW CARRIES THE MAPPING VERSION, and CACHE_VERSION is
+// DELIBERATELY NOT BUMPED FOR IT. Read the next paragraph before bumping it.
+//
+// The pack is a per-member blob built from the measure→issue mapping table. The
+// live /member/:id read is a query and reflects that table instantly; the pack was
+// a blob on a six-hour TTL, so after a mapping wave landed the two disagreed for
+// up to six hours — and they disagreed about `isPrimary`, which flips a published
+// "Thin supports" to "Not about this issue". Federal wave F4's housing PRIMARY
+// flip was live in Postgres while the pack still served isPrimary: false. The
+// server now puts a fingerprint of the mapping table in the blob key AND in the
+// pack URL (302 from /pack to /pack/m<n>-<hash>), so a mapping change makes the
+// URL different and the copy cached here is bypassed rather than served.
+//
+// WHY NOT BUMP. Renaming the caches empties the runtime cache on activate, and the
+// runtime cache is where every previously-viewed member's offline pack lives.
+// Bumping would delete all of them on upgrade, taking offline record coverage with
+// it — to fix a staleness bug whose whole point is that offline coverage should
+// survive. Nothing in the shell changed (no precached asset moved, and the browser
+// installs a new worker on byte difference, not on cache name), so there is nothing
+// a rename would deliver. Instead the pack handler below treats the pre-upgrade
+// unversioned entries as valid offline fallbacks, which is exactly what they are:
+// the version that existed when the device last built its cache.
+//   So: bump CACHE_VERSION when a SHELL ASSET changes, as before. Not for this.
 const CACHE_VERSION = 'v85';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
@@ -600,14 +624,17 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(req.url);
 
-  // Voting-record offline packs are a static-ish artifact (ETagged, rebuilt at
-  // most every few hours), so — unlike the rest of /api/* — cache them
-  // stale-while-revalidate. This is what lets a previously-viewed member's voting
-  // record render with no network. Must be checked BEFORE the /api/ skip below.
-  if (url.origin === self.location.origin &&
-      /^\/api\/voting-record\/member\/[^/]+\/pack$/.test(url.pathname)) {
-    event.respondWith(handleStatic(req));
-    return;
+  // Voting-record offline packs are what let a previously-viewed member's record
+  // render with no network, so — unlike the rest of /api/* — they are cached.
+  // Their own handler, not handleStatic: the pack URL carries a mapping version
+  // now, so the request the page makes and the entry that answers it offline are
+  // not the same URL. Must be checked BEFORE the /api/ skip below.
+  if (url.origin === self.location.origin) {
+    const packHit = VR_PACK_RE.exec(url.pathname);
+    if (packHit) {
+      event.respondWith(handleVrPack(req, packHit[1]));
+      return;
+    }
   }
 
   // Dynamic backend — never intercept. Keeps live data live and lets the
@@ -626,6 +653,110 @@ self.addEventListener('fetch', (event) => {
   // Static assets (same-origin and CDN): stale-while-revalidate.
   event.respondWith(handleStatic(req));
 });
+
+// ─── Voting-record offline packs ────────────────────────────────────────────
+// Matches both forms the pack is reachable at:
+//   /api/voting-record/member/<pid>/pack                  ← what the page asks for
+//   /api/voting-record/member/<pid>/pack/m825-e21bb4b7021e ← what it redirects to
+// Capture 1 is the pid AS IT APPEARS IN THE PATH (still percent-encoded), which is
+// what the cached entries are keyed by, so it is compared without decoding.
+const VR_PACK_RE = /^\/api\/voting-record\/member\/([^/]+)\/pack(?:\/([^/]+))?$/;
+
+// NETWORK FIRST, CROSS-VERSION CACHE FALLBACK — and the inversion is the point.
+// This used to be stale-while-revalidate, which returned the cached copy
+// immediately and refreshed behind it. That is the right policy for an asset whose
+// old version is merely older; it is the wrong one for an artifact whose old
+// version can be WRONG, which a pack built from a retired measure→issue mapping is.
+// A device with a warm cache and a failing live endpoint fell back to the pack and
+// drank the stale one — the residual hole after the client-side guard in
+// voting-record.js stopped a stale pack from overwriting a warm live row.
+//
+// So the network is asked first. The page requests the unversioned URL and the
+// server answers 302 → the current version, which costs the warm path a second
+// request; that is affordable here and nowhere else, because the pack fetch is
+// fire-and-forget (see the note over fetchPack in voting-record.js — the live read
+// is what renders, and the pack fetch exists to fill this cache).
+//
+// WHAT IS STORED is the VERSIONED url the redirect landed on, never the
+// unversioned one the page asked for. Storing the unversioned URL is what made a
+// stale pack reachable in the first place; there is deliberately no entry at that
+// key any more, which is also why every online fetch reaches the network.
+//
+// OFFLINE, ANY VERSION IS THE RIGHT ANSWER. Neither hop can be reached with no
+// network, so the newest pack cached for this member is served whatever mapping
+// version it was built from — including an entry left at the pre-upgrade
+// unversioned URL. That is not a compromise: a pack is the offline fallback, and
+// the version that existed when the device last had a network is the only honest
+// thing it could have. The live read, when it comes back, outranks it — the client
+// guard sees to that, and it is untouched by any of this.
+async function handleVrPack(req, pid) {
+  const cache = await caches.open(RUNTIME_CACHE);
+
+  let res = null;
+  try { res = await fetch(req); } catch (e) { res = null; }
+
+  if (res && res.ok) {
+    // res.url is the URL the response actually came from — the versioned one,
+    // after the redirect. Falls back to the request URL if a browser ever hands
+    // back an empty url (opaque responses do; a same-origin JSON GET does not).
+    const finalUrl = res.url || req.url;
+    try {
+      await cache.put(new Request(finalUrl, { headers: { accept: 'application/json' } }), res.clone());
+      await prunePacks(cache, pid, finalUrl);
+    } catch (e) { /* a cache write failure must not fail the fetch */ }
+    return res;
+  }
+
+  const cached = await newestCachedPack(cache, pid);
+  if (cached) return cached;
+
+  // Nothing cached and network failed — same benign 504 handleStatic returns, so
+  // fetchPack's catch turns it into "no pack for this member" rather than an error.
+  return res || new Response('', { status: 504, statusText: 'Offline' });
+}
+
+// Every cached pack entry for one member, any version, plus a pre-upgrade entry at
+// the bare /pack path if one is still there.
+async function cachedPackKeys(cache, pid) {
+  const base = `/api/voting-record/member/${pid}/pack`;
+  const keys = await cache.keys();
+  return keys.filter((k) => {
+    let p = '';
+    try { p = new URL(k.url).pathname; } catch (e) { return false; }
+    return p === base || p.indexOf(base + '/') === 0;
+  });
+}
+
+// The newest of them, by the pack's own generatedAt rather than by cache order —
+// which the Cache API does not expose, and which would be the wrong question
+// anyway: what is wanted is the freshest RECORD, not the most recently written
+// entry. A body that will not parse is skipped rather than trusted.
+async function newestCachedPack(cache, pid) {
+  const keys = await cachedPackKeys(cache, pid);
+  let best = null, bestAt = '';
+  for (const k of keys) {
+    const res = await cache.match(k);
+    if (!res) continue;
+    let at = '';
+    try { at = String((await res.clone().json()).generatedAt || ''); } catch (e) { at = ''; }
+    if (!best || at > bestAt) { best = res; bestAt = at; }
+  }
+  return best;
+}
+
+// Drop this member's other pack versions once a newer one is stored. Cache hygiene
+// only — it is NOT how a retired pack is invalidated. Invalidation is the version
+// in the URL: an entry nobody requests cannot be served, whether or not this
+// sweep ever runs. Which is why it is allowed to fail silently.
+async function prunePacks(cache, pid, keepUrl) {
+  const keep = new URL(keepUrl, self.location.origin).pathname;
+  const keys = await cachedPackKeys(cache, pid);
+  for (const k of keys) {
+    let p = '';
+    try { p = new URL(k.url).pathname; } catch (e) { continue; }
+    if (p !== keep) await cache.delete(k).catch(() => {});
+  }
+}
 
 // Stale-while-revalidate for navigations. Repeat visits are the common case on
 // phones, so serve the cached app shell immediately (no waiting on the large HTML

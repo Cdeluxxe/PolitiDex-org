@@ -258,7 +258,7 @@ section("the shape hero itself");
 
   // SPLITS — present, headed, counted, and not folded into the thin line.
   has(QUIET_HERO, "Ran both ways", "issues where the record ran both ways are not surfaced");
-  if (SHAPE.thinN) {
+  if (SHAPE.tailN) {
     ok(QUIET_HERO.indexOf("Ran both ways") < QUIET_HERO.indexOf("formal items on file"),
       "the splits are printed after the thin caveat — they are being buried");
   }
@@ -267,9 +267,12 @@ section("the shape hero itself");
     "    the half a reader has to scroll past the promise metric to reach");
   has(t, "Split", "the split rows do not carry the engine's own Split label");
 
-  // THIN — the honesty valve, counted out loud.
-  if (SHAPE.thinN) {
-    has(t, `${SHAPE.thinN} more issue`,
+  // THIN — the honesty valve, counted out loud. `tailN` is the whole tail: every
+  // issue the index declined to characterise, whether or not the browse lane
+  // published a side on it. That is what this sentence is about, and shape()'s
+  // narrower `thinN` (no published side anywhere) is not.
+  if (SHAPE.tailN) {
+    has(t, `${SHAPE.tailN} more issue`,
       "the count of inventory too shallow to characterise is not printed");
     has(t, "not enough of them to characterise a pattern yet",
       "the thin line does not say what 'thin' means here");

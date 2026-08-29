@@ -228,7 +228,8 @@ if (ONE) {
     return { sh, tier };
   };
   const A = read(live), B = read([...live, ...applied]);
-  const band = (s) => `issues ${s.issues} · strong ${s.strongN} · split ${s.splitN} · thin-band ${s.thinN}`;
+  const band = (s) => `issues ${s.issues} · strong ${s.strongN} · split ${s.splitN} · ` +
+    `tail ${s.tailN} (read-thin ${s.readThinN} · other side ${s.readOtherN} · no side ${s.thinN})`;
   console.log(`\n${ONE} — ${live.length} item(s) live on ${base}, ${applied.length} wave-4 row(s) in the database`);
   console.log(`  live    ${band(A.sh)}`);
   console.log(`  applied ${band(B.sh)}`);

@@ -307,24 +307,30 @@ section("3 · the order is the record's direction, and nobody with a file is a v
 section("4 · votes on file that the engine will not characterise are not 'no record'");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // B's items on the reader's issue are omnibuses that brushed it — the issue was
-  // never what either measure was about — AND THEY RAN BOTH WAYS. That is a real
-  // formal file and it is behind a MEANING wall, not a depth one, so no direction
-  // may be read off it and B cannot be scored — correctly. What B must not be told
-  // is that there is nothing there.
+  // B's items on the reader's issue are real, dated, mapped votes on which B took
+  // no side — Present and Not Voting. That is a real formal file and it is behind a
+  // MEANING wall, not a depth one, so no direction may be read off it and B cannot
+  // be scored — correctly. What B must not be told is that there is nothing there.
   //   (A single item that IS about the issue is a different fixture and a
   //   different contract: it reads a side and it scores. That contract lives in
   //   scripts/test-single-item-side.mjs, which also pins this wall from the other
   //   direction — that lowering the depth floor to one item left it standing.)
-  //   WHY IT TAKES TWO VOTES NOW, where it used to take one. The August 2026
-  // package-borne relaxation turned the display lane's primary floor into a
-  // ceiling: a run of non-primary mappings that all went ONE WAY reads its side at
-  // thin, because a rider that became law is not a coincidence. What did not move
-  // is the uniform wall — a package-borne ledger with acts on both sides is still
-  // refused outright — so the fixture that demonstrates the band is now a 1–1
-  // rather than a 1–0. The wall being demonstrated is the same wall.
-  const thin = stage({ b: [vote(90, K, "yea", { incidental: true }),
-                           vote(91, K, "nay", { incidental: true })], keys: [K] });
+  //   WHY THE FIXTURE IS PRESENT VOTES NOW. It used to be one non-primary vote,
+  // and then a 1–1 pair of them, on the theory that a package-borne mapping was
+  // itself a meaning wall. It is not, and as of the August 2026 pass it never was:
+  // one instrument means one official Yea or Nay, and every issue mapped to that
+  // instrument gets that vote at full strength, whatever the measure was mainly
+  // about. So "not about this issue" is gone from the refusal ladder entirely, and
+  // a fixture built on it would now be demonstrating a coverage shortfall rather
+  // than the meaning wall this section is about.
+  //   What remains a meaning wall, and is the one being demonstrated here, is a
+  // file with no judged side in it: acts that are real, dated, sourced and mapped,
+  // where the member was Present or Not Voting and so nothing on the row went
+  // either way. There is nothing to read a direction FROM, at any depth — and the
+  // padding on K2 puts B over the member coverage floor so it is that wall
+  // answering and not ours.
+  const thin = stage({ b: [vote(90, K, "present"), vote(91, K, "not_voting")]
+                        .concat(runOf(12, K2, "nay", 40)), keys: [K] });
   const html = sheetHtml(thin);
   const idx = thin.PDXConsistency.formalPatternIndex.rows(B_PID).filter((x) => x.key === K)[0];
   must(idx && (idx.held || 0) > 0,
@@ -337,10 +343,12 @@ section("4 · votes on file that the engine will not characterise are not 'no re
   ok(r.gap[0].filed > 0,
     "…flagged as holding a formal file on the reader's issues, for the wording only");
   // The three places the old copy claimed an empty record.
-  has(html, "votes on file · not about this issue",
+  has(html, "votes on file · no vote here took a side",
     "the cell prints the depth of the file and the engine's own reason");
   lacks(html, "no clear pattern yet",
-    "…and the reason is the mapping one, not the blanket sentence that fits four cases");
+    "…and the reason is the specific one, not the blanket sentence that fits four cases");
+  lacks(html, "not about this issue",
+    "…and never the retired one, which said a mapped act was not an act on its issue");
   lacks(html.slice(html.indexOf('class="rs-band"')), "No formal record on your issues yet",
     "the band no longer claims an empty record over a real one");
   has(html, "Not ranked on your issues yet", "…it says what is actually true instead");
@@ -509,11 +517,14 @@ section("8 · the mutations — re-requiring a stance must break this file");
     "race-sheet.js": (s) =>
       s.replace(G4, "var silence = (mode === 'record') ? 'No readable vote pattern' : 'No documented position';"),
   }, (w) => {
-    w.PDXVotingRecord.noteMember(B_PID, [vote(90, K, "yea", { incidental: true })]);
+    w.PDXVotingRecord.noteMember(B_PID,
+      [vote(90, K, "present"), vote(91, K, "not_voting")].concat(runOf(12, K2, "nay", 40)));
     return { html: sheetHtml(w) };
   });
-  lacks(m3.html, "vote on file · not about this issue",
+  lacks(m3.html, "votes on file · no vote here took a side",
     "M3: collapsing the two silences hides a live file behind an empty-file sentence");
+  has(m3.html, "No readable vote pattern",
+    "M3: …and the mutant really does print the one flat sentence, so the lack above is the defect and not a typo");
 }
 
 // ── Report ───────────────────────────────────────────────────────────────────
