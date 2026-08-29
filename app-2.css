@@ -13,15 +13,42 @@
       font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase;
       color: #7e93b4; font-weight: 700;
     }
-    .el-field select, .el-search input {
+    .el-field select, .el-field .el-f-text, .el-search input {
       width: 100%; background: rgba(7,11,22,0.85); color: #e7eefb;
       border: 1px solid rgba(255,255,255,0.12); border-radius: 0.6rem;
       padding: 0.55rem 0.7rem; font-size: 0.85rem; appearance: none;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
-    .el-field select:focus, .el-search input:focus {
+    .el-field select:focus, .el-field .el-f-text:focus, .el-search input:focus {
       outline: none; border-color: rgba(96,165,250,0.6);
       box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+    /* The bill-number filter is typed rather than picked: the numbers in the
+       library are whatever the receipts happen to name. Matches the selects
+       beside it so the filter row still reads as one row. */
+    .el-field .el-f-text { font-family: inherit; }
+    .el-field .el-f-text::placeholder { color: #6f84a6; }
+    .el-field .el-f-text::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+    /* ── The bill door on a receipt ───────────────────────────────────────
+       A receipt that names a measure gets a door to that measure's own profile.
+       Parchment-toned like every other bill surface in the app, and quieter than
+       the source link next to it — the source is what the receipt IS, the bill is
+       what it refers to. */
+    .el-billdoor {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em;
+      color: #e8d9b0; background: rgba(212,175,95,0.09);
+      border: 1px solid rgba(212,175,95,0.3); border-radius: 0.55rem;
+      padding: 0.42rem 0.7rem; cursor: pointer; font-family: inherit;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+    .el-billdoor:hover { background: rgba(212,175,95,0.18); border-color: rgba(212,175,95,0.55); color: #f6ecd0; }
+    .el-billdoor:focus-visible { outline: 2px solid rgba(212,175,95,0.7); outline-offset: 2px; }
+    .el-billdoor.is-lg { font-size: 0.8rem; padding: 0.55rem 0.85rem; }
+    .el-modal-bills { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.85rem 0 0.2rem; }
+    .el-modal-bills-lbl {
+      font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: #7e93b4; font-weight: 700; width: 100%;
     }
     .el-search { flex: 2 1 16rem; }
     /* Prominent, full-width search bar that sits above the filter/sort row. */
