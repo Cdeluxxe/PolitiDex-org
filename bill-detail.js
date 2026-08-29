@@ -980,8 +980,20 @@
     } catch (e) {}
   }
 
+  // THE TOPIC CHIP'S DESTINATION IS THE ISSUE, NOT A MEMBER.
+  // This used to hand the key straight to PDXIssueView, the league table of
+  // PEOPLE - so a reader who tapped a topic on an ACT was answered with a sorted
+  // list of politicians, and, when the key had no curated core of its own, with
+  // whichever unrelated core that overlay widened it into. /issue/<key>
+  // (PDXIssuePage) is the page that answers the question the chip asks: which
+  // acts in the archive actually moved this issue. The old overlay stays as the
+  // fallback for a boot without the page module, and the library after it.
   function openIssue(key) {
     if (!key) return;
+    try {
+      var IP = window.PDXIssuePage;
+      if (IP && typeof IP.has === 'function' && IP.has(key) && IP.open(key)) { close(); return; }
+    } catch (e0) {}
     try { if (window.PDXIssueView && window.PDXIssueView.open) { close(); window.PDXIssueView.open(key); return; } } catch (e) {}
     try { if (window.PDXDigitalLibrary && window.PDXDigitalLibrary.focus) { close(); window.PDXDigitalLibrary.focus({ mode: 'library', issue: key }); return; } } catch (e) {}
   }

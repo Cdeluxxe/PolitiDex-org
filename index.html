@@ -21741,6 +21741,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        bill-detail.js so the panel can delegate to it. -->
   <script defer src="/impact-ledger.js"></script>
   <script defer src="/bill-detail.js"></script>
+  <!-- Issue page (window.PDXIssuePage) - the canonical /issue/<key> surface: every
+       measure formally mapped to one vocabulary key, subject-of-the-bill rows
+       first, then newest floor roll, with the members who published a direction on
+       it folded underneath. The destination every issue chip on a bill or a person
+       now lands on. Loads after bills.js + bill-detail.js (a row opens a bill
+       profile through them) and reads issue-scope.js for its locked scope prose. -->
+  <script defer src="/issue-page.js"></script>
   <!-- Digital Library — the central searchable archive (window.PDXDigitalLibrary).
        Aggregates spotlights, mandates, bills and receipts into one filterable
        browse grid, with cross-source search and collection tiles into every
@@ -28110,7 +28117,31 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         }
         return true;
       }
+      // THE SAME PREFIX, TWO KINDS OF PAGE. /issue/<slug> was only ever a
+      // spotlight address, so /issue/housing - a vocabulary key with no spotlight
+      // of its own - fell through this function and rendered the front page while
+      // netlify.toml was happily serving the document for it. The issue page
+      // (issue-page.js) is that slug's owner now. The spotlight branch above still
+      // runs first, so a slug the spotlight set already owns keeps its spotlight.
+      if (syncIssuePage(slug, fromPop)) return true;
       if (_open && fromPop) close({ fromPop: true });
+      return false;
+    }
+    // The vocabulary-key half of /issue/*, kept in one place so the boot gate, a
+    // popstate and a back button out of the page all take the same road.
+    function syncIssuePage(slug, fromPop) {
+      var IP = window.PDXIssuePage;
+      if (!IP || typeof IP.has !== 'function') return false;
+      try {
+        if (slug && IP.has(slug)) {
+          if (_open) close({ fromPop: true });
+          return IP.open(slug, { fromPop: true });
+        }
+        // Walked back off /issue/<key> - the page is the thing that has to close.
+        if (!slug && fromPop && typeof IP.isOpen === 'function' && IP.isOpen()) {
+          IP.close({ fromPop: true });
+        }
+      } catch (e) {}
       return false;
     }
 
@@ -28186,9 +28217,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Resolve an initial deep-link once the roster has had a chance to load (so
     // names/offices/icons resolve from PROFILES). Retry briefly if not yet ready.
     function bootDeepLink(tries) {
-      if (!slugFromLocation()) return;
+      var slug = slugFromLocation();
+      if (!slug) return;
       var ready = (window.PROFILES && Object.keys(window.PROFILES).length) ||
                   (typeof CMP_DATA !== 'undefined');
+      // A slug that is not a spotlight is a candidate ISSUE KEY, and the key table
+      // it is checked against (ISSUE_MAP, via PDXIssuePage.has) ships in a deferred
+      // script of its own. Asking too early answers "not a key" and drops the
+      // reader on the front page with their address still in the bar, so the gate
+      // waits for the page module too - and gives up on the same tries ceiling
+      // rather than waiting forever for a slug that is genuinely neither.
+      if (ready && !SPOTLIGHTS[slug] && !window.PDXIssuePage && (tries || 0) <= 20) {
+        setTimeout(function () { bootDeepLink((tries || 0) + 1); }, 250);
+        return;
+      }
       if (ready || tries > 20) { syncFromUrl(false); return; }
       setTimeout(function () { bootDeepLink((tries || 0) + 1); }, 250);
     }

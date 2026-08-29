@@ -1874,18 +1874,40 @@ async function getMeasures(url: URL): Promise<Response> {
   // recorded-vote counts (so a card can show "3 roll calls · 431 votes").
   const issuesByMeasure = await loadIssuesByMeasure(pageIds);
 
+  // The chamber, the day and the tally ride along with the count. A browse card
+  // could already say "3 roll calls", which answers how many times a measure was
+  // voted on and not one thing about WHEN or HOW it went - and the issue page's
+  // row line is exactly "chamber . last roll date . Yea-Nay", sorted by that date.
+  // Widening the select the page already runs is the whole cost; no extra query.
   const rollcalls = pageIds.length
     ? await db
-        .select({ id: vrRollcalls.id, measureId: vrRollcalls.measureId })
+        .select({
+          id: vrRollcalls.id,
+          measureId: vrRollcalls.measureId,
+          chamber: vrRollcalls.chamber,
+          voteDate: vrRollcalls.voteDate,
+          question: vrRollcalls.question,
+          result: vrRollcalls.result,
+          totals: vrRollcalls.totals,
+        })
         .from(vrRollcalls)
         .where(inArray(vrRollcalls.measureId, pageIds))
     : [];
   const rollcallCount: Record<number, number> = {};
   const rcToMeasure: Record<number, number> = {};
+  // The LAST roll on each measure, by vote date - the most recent thing that
+  // happened to it on a floor. Ties break on the higher id, which is the later
+  // ingest of two rolls stamped the same day.
+  const lastRc: Record<number, (typeof rollcalls)[number]> = {};
   for (const rc of rollcalls) {
     rollcallCount[rc.measureId] = (rollcallCount[rc.measureId] ?? 0) + 1;
     rcToMeasure[rc.id] = rc.measureId;
+    const held = lastRc[rc.measureId];
+    const t = rc.voteDate?.getTime?.() ?? 0;
+    const ht = held?.voteDate?.getTime?.() ?? -1;
+    if (!held || t > ht || (t === ht && rc.id > held.id)) lastRc[rc.measureId] = rc;
   }
+  const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
   const rcIds = rollcalls.map((r) => r.id);
   const voteRows = rcIds.length
     ? await db.select({ rollcallId: vrMemberVotes.rollcallId }).from(vrMemberVotes).where(inArray(vrMemberVotes.rollcallId, rcIds))
@@ -1911,9 +1933,25 @@ async function getMeasures(url: URL): Promise<Response> {
       congress: m.congress,
       introducedAt: m.introducedAt ? m.introducedAt.toISOString() : null,
       primaryIssue: primary ? primary.issueKey : null,
+      // EVERY primary flag, not just the one that sorted first. An act can be the
+      // subject of two axes at once (H.R. 6644 is a housing act AND a housing-supply
+      // act), and `primaryIssue` can only name one of them - so a caller filtered to
+      // one issue key had no way to tell "this bill's subject" from "rode inside"
+      // for the key it actually asked about.
+      primaryIssueKeys: issues.filter((i) => i.isPrimary).map((i) => i.issueKey),
       issueKeys: issues.map((i) => i.issueKey),
       isOmnibus: issues.length >= 2,
       rollcallCount: rollcallCount[m.id] ?? 0,
+      lastRoll: lastRc[m.id]
+        ? {
+            chamber: lastRc[m.id].chamber,
+            voteDate: lastRc[m.id].voteDate ? lastRc[m.id].voteDate.toISOString() : null,
+            question: lastRc[m.id].question ?? null,
+            result: lastRc[m.id].result ?? null,
+            yea: num((lastRc[m.id].totals ?? {}).yea),
+            nay: num((lastRc[m.id].totals ?? {}).nay),
+          }
+        : null,
       voteCount: voteCount[m.id] ?? 0,
       externalIds: m.externalIds,
       source: { url: m.sourceUrl, label: m.sourceLabel },
