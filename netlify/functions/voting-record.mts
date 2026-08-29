@@ -89,7 +89,7 @@ import execSummaryKeys from "../../db/exec-summary-keys.json" with { type: "json
 // away returns the real record instead of an empty one.
 import { canonicalPid } from "../lib/vr-normalize.js";
 // Offline-pack build/cache lives in the shared lib (shared with the ingest path).
-import { getCachedPack, writeMemberPack } from "../lib/vr-pack.js";
+import { getCachedPack, writeMemberPack, mappingVersion } from "../lib/vr-pack.js";
 
 const ISSUE_KEYS = new Set<string>((issueKeyData as { keys: string[] }).keys);
 
@@ -187,6 +187,16 @@ function execSourceOk(url: string | null | undefined): boolean {
 // viewed member's record still renders with no network. Built + cached by the
 // shared netlify/lib/vr-pack module (also used by the Phase-7 ingest). A cached
 // pack is served as-is until it ages past PACK_TTL_MS, then rebuilt on read.
+//
+// PACK_TTL_MS IS ABOUT ROLL CALLS, AND ONLY ABOUT ROLL CALLS. It is how long a
+// built pack may keep serving before it is rebuilt to pick up newly ingested
+// VOTES. It used to double as the invalidation window for MAPPING changes too,
+// which is why the pack could serve a retired mapping for six hours after a wave
+// landed. It no longer carries that job: the mapping version is in the blob key
+// and in the URL, so a mapping change invalidates both immediately and the TTL is
+// left at six hours on purpose. Shortening it would only make the old hole
+// smaller, and it would buy that with a rebuild on every member every few
+// minutes. See mappingVersion() in netlify/lib/vr-pack.ts.
 const PACK_TTL_MS = 6 * 60 * 60 * 1000; // 6h
 
 // ── Small helpers ────────────────────────────────────────────────────────────
@@ -767,33 +777,107 @@ async function assembleMemberPayload(politicianId: string, f: Filters) {
   };
 }
 
-// ── GET /member/:politicianId/pack ───────────────────────────────────────────
+// ── GET /member/:politicianId/pack[/<mappingVersion>] ────────────────────────
 // Serve the compact offline pack with an ETag so the SW and browser can
 // revalidate cheaply. The pack shape + build live in netlify/lib/vr-pack (shared
 // with the Phase-7 ingest, which pre-writes packs), so read and ingest can never
 // disagree. Served fresh from cache when recent; rebuilt (and re-cached) when
 // stale or missing.
-async function getMemberPack(politicianId: string, req: Request): Promise<Response> {
-  let pack: any = await getCachedPack(politicianId);
+//
+// ── THE VERSIONED URL, AND WHY IT IS A REDIRECT ─────────────────────────────
+// Versioning the BLOB key (netlify/lib/vr-pack.ts) closes the server-side hole on
+// its own: a mapping change changes the key, the new key misses, the pack is
+// rebuilt. It does nothing about the copy the service worker is holding, which is
+// keyed on the request URL and served stale-while-revalidate. So the URL has to
+// change too, and the version has to get INTO the URL.
+//
+// The client cannot put it there. `fetchPack` fires on a cold profile open before
+// the live read that would have told it the current version, and on the offline
+// path there is no live read at all — any client-side copy of the version is a
+// guess that is wrong exactly when a wave has just landed, which is the moment
+// this feature exists for. So the server owns it:
+//
+//   GET /member/:id/pack                  → 302 → /member/:id/pack/m825-e21bb4b7021e
+//   GET /member/:id/pack/m825-e21bb4b7021e → 200, the pack for that mapping
+//   GET /member/:id/pack/m801-9c3f...      → 302 → the current version
+//
+// The client keeps asking for the unversioned URL and needs no knowledge at all
+// (voting-record.js is untouched). The redirect is `no-store`, so nothing caches
+// the indirection; the versioned response is what the service worker caches, under
+// a URL that a mapping change makes different. A stale versioned URL — an old SW
+// copy revalidating — is redirected forward rather than answered, which is how a
+// device that has been offline across a wave catches up on its first success.
+//
+// AND WHY NOT SERVE THE REQUESTED OLD VERSION. Because its blob is unreachable by
+// design and rebuilding it is impossible: the mapping it was built from is not in
+// the database any more. An old version is a request for a pack that no longer
+// exists, and the honest answer is the current one.
+//
+// OFFLINE IS THE SERVICE WORKER'S JOB, NOT THIS FUNCTION'S. Neither hop can be
+// reached with no network, so sw.js answers a pack request from the newest cached
+// version it holds for that member, whatever version that is. See the pack
+// handler there.
+const PACK_VERSION_RE = /^m[0-9]+-[a-z0-9]+$/;
+
+async function getMemberPack(
+  politicianId: string,
+  req: Request,
+  requestedVersion: string | null,
+): Promise<Response> {
+  const mv = await mappingVersion();
+
+  // No version, or not the current one → point at the current one. A 302 (not a
+  // 301) because "current" is a moving target: the next wave has to be able to
+  // move it, and a permanently-cached redirect would pin a device to this wave's
+  // pack for as long as its HTTP cache lives.
+  if (requestedVersion !== mv) {
+    // A root-relative Location, built as a string rather than through URL so the
+    // already-encoded id cannot be re-encoded by the pathname setter. Same origin
+    // by construction, and no query string: the pack takes no parameters, and
+    // carrying one across the hop would be a second cache key for one artifact.
+    const location =
+      `/api/voting-record/member/${encodeURIComponent(politicianId)}/pack/${mv}`;
+    return new Response(null, {
+      status: 302,
+      headers: {
+        location,
+        // The indirection itself is never cached, by anyone. It is the one thing
+        // in this path that must always be re-asked, because it is the thing that
+        // knows the answer changed.
+        "cache-control": "no-store",
+        "x-pdx-mapping-version": mv,
+      },
+    });
+  }
+
+  let pack: any = await getCachedPack(politicianId, mv);
   if (!pack || !pack.generatedAt || Date.now() - new Date(pack.generatedAt).getTime() >= PACK_TTL_MS) {
-    pack = await writeMemberPack(politicianId);
+    pack = await writeMemberPack(politicianId, undefined, mv);
   }
 
   // Weak ETag over the generation time + record count — cheap and good enough for
-  // revalidation (the pack only changes when it is rebuilt).
-  const etag = `W/"vrpack-${politicianId}-${pack.generatedAt}-${pack.summary?.totalRecords ?? 0}"`;
+  // revalidation (the pack only changes when it is rebuilt). The mapping version
+  // is in it too, so a rebuild that changes nothing but the mapping still
+  // invalidates a conditional request that somehow reached this handler with the
+  // old body in hand.
+  const etag = `W/"vrpack-${politicianId}-${mv}-${pack.generatedAt}-${pack.summary?.totalRecords ?? 0}"`;
   if ((req.headers.get("if-none-match") || "") === etag) {
     return new Response(null, {
       status: 304,
-      headers: { etag, "cache-control": "public, max-age=300" },
+      headers: { etag, "cache-control": "public, max-age=300", "x-pdx-mapping-version": mv },
     });
   }
   return new Response(JSON.stringify(pack), {
     status: 200,
     headers: {
       "content-type": "application/json",
+      // A versioned URL is immutable in the only sense that matters: the mapping
+      // it names cannot change under it. It is still not `immutable`, because the
+      // roll calls behind it can — that is what PACK_TTL_MS is for, and 300s of
+      // shared caching is what it was before.
       "cache-control": "public, max-age=300",
       etag,
+      "x-pdx-mapping-version": mv,
     },
   });
 }
@@ -1815,11 +1899,18 @@ export default async (req: Request): Promise<Response> => {
   if (method !== "GET") return json({ error: "Method not allowed" }, 405);
 
   try {
-    const packMatch = path.match(/^\/member\/([^/]+)\/pack$/);
+    // Both pack forms land here: the unversioned URL the client asks for, which
+    // is answered with a redirect, and the versioned URL that redirect points at.
+    // A third path segment that is not version-shaped is a 404 rather than a
+    // silent redirect, so a typo in a hand-written URL is not disguised as a
+    // stale version.
+    const packMatch = path.match(/^\/member\/([^/]+)\/pack(?:\/([^/]+))?$/);
     if (packMatch) {
       const id = canonicalPid(clean(decodeURIComponent(packMatch[1]), ID_MAX));
       if (!id) return json({ error: "Missing politician id" }, 400);
-      return await getMemberPack(id, req);
+      const raw = packMatch[2] ? clean(decodeURIComponent(packMatch[2]), 64) : "";
+      if (raw && !PACK_VERSION_RE.test(raw)) return json({ error: "Not found" }, 404);
+      return await getMemberPack(id, req, raw || null);
     }
 
     const memberImpactsMatch = path.match(/^\/member\/([^/]+)\/impacts$/);

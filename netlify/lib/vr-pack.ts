@@ -13,11 +13,24 @@
 // — see PDXVotingRecord.fetchPack in voting-record.js. Every item keeps its
 // `issues[].supportMeaning` so the client's stance-vs-record verdicts work offline.
 //
-// Stored in Netlify Blobs (store "vr-packs", key "member:<id>"). Build is
-// self-contained (its own queries) so it never depends on the read Function's
-// internals — keeping the ingest path cleanly separate from the read path.
+// Stored in Netlify Blobs (store "vr-packs", key "member:<id>@<mappingVersion>").
+// Build is self-contained (its own queries) so it never depends on the read
+// Function's internals — keeping the ingest path cleanly separate from the read
+// path.
+//
+// WHY THE KEY CARRIES A MAPPING VERSION. The live /member/:id read is a query, so
+// it reflects vr_measure_issues the instant a mapping migration lands. The pack is
+// a blob on a six-hour TTL, so for up to six hours it served the OLD mapping —
+// and it disagreed about `isPrimary`, which is not cosmetic: _recordDisplayTier
+// refuses a direction outright below _RD_MIN_PRIMARY, so one stale flag turns a
+// published "Thin supports" into "Not about this issue". Federal wave F4's housing
+// PRIMARY flip was live in Postgres while the pack was still serving
+// isPrimary: false. Versioning the key makes that window zero: a mapping change
+// changes the version, the new key misses, and the pack is rebuilt on the next
+// read. The TTL is left alone and now governs only what it was for — roll-call
+// freshness within one mapping version. See mappingVersion() below.
 
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { getStore } from "@netlify/blobs";
 import { db } from "../../db/index.js";
 import {
@@ -58,8 +71,76 @@ export function yeaBlocksMeasure(question: string | null | undefined): boolean {
   );
 }
 
-export function packKey(politicianId: string): string {
-  return `member:${politicianId}`;
+// ── THE MAPPING VERSION ─────────────────────────────────────────────────────
+// A short token that changes whenever the measure→issue mapping changes, and does
+// not change otherwise. It is derived from the table itself, so it cannot be
+// forgotten: there is no counter for a wave to bump and no wall clock in it.
+//
+// WHY A CONTENT FINGERPRINT AND NOT max(updated_at). vr_measure_issues has no
+// updated_at column, and adding one would not have caught the case this exists
+// for. F4's regression was an UPDATE to `is_primary` on a row that already
+// existed — the shape of change a hand-bumped counter misses precisely when it
+// matters, because the row count does not move and nobody remembers that a flag
+// flip is a mapping change. md5 over the table's contents notices it for free.
+//
+// WHAT IS IN THE FINGERPRINT: exactly the five fields the pack SERVES (see
+// PackIssue) plus the row count. `source_url` and `rationale`'s provenance are
+// deliberately out of it — a corrected citation URL that the pack never sends
+// should not invalidate every member's pack. `rationale` IS in, because the pack
+// does send it. The count is carried in the token in the clear so the version is
+// legible in a log line and in a blob listing.
+//
+// COST: one aggregate over ~825 rows, ~5 ms measured against the live table.
+// Memoised for MAPPING_VERSION_MEMO_MS inside a warm Function instance so the
+// redirect in getMemberPack and the request that follows it share one query. The
+// memo is deliberately seconds, not minutes: "the next pack URL after a mapping
+// change is a different key" is the acceptance, and a long memo would trade the
+// six-hour hole for a smaller one of the same kind.
+export const MAPPING_VERSION_MEMO_MS = 5000;
+export const MAPPING_VERSION_UNKNOWN = "m0-unknown";
+let _mvMemo: { at: number; value: string } | null = null;
+
+export async function mappingVersion(): Promise<string> {
+  const now = Date.now();
+  if (_mvMemo && now - _mvMemo.at < MAPPING_VERSION_MEMO_MS) return _mvMemo.value;
+  let value = MAPPING_VERSION_UNKNOWN;
+  try {
+    const rows = (await db.execute(sql`
+      select count(*)::int as n,
+             coalesce(md5(string_agg(
+               measure_id || ':' || issue_key || ':' || weight || ':' ||
+               is_primary || ':' || support_meaning || ':' || coalesce(rationale, ''),
+               ',' order by id)), 'empty') as h
+        from vr_measure_issues
+    `)) as any;
+    const row = (Array.isArray(rows) ? rows[0] : rows?.rows?.[0]) || null;
+    if (row && row.h) value = `m${Number(row.n) || 0}-${String(row.h).slice(0, 12)}`;
+  } catch {
+    // FAIL CLOSED, NOT SILENT. A version we could not compute must not collapse
+    // onto a version we could: MAPPING_VERSION_UNKNOWN is its own key, so a pack
+    // built while the mapping table was unreadable can never be served as though
+    // it were a pack of a known mapping. It also expires from the memo in seconds,
+    // so the next read tries again.
+    value = MAPPING_VERSION_UNKNOWN;
+  }
+  _mvMemo = { at: now, value };
+  return value;
+}
+
+// Only for tests and the ingest, which change the mapping table underneath a
+// process that has already read it. Not a cache-control knob for the read path.
+export function resetMappingVersionMemo(): void {
+  _mvMemo = null;
+}
+
+// THE KEY SHAPE: `member:<politicianId>@<mappingVersion>`.
+//   member:massie@m825-e21bb4b7021e
+// A mapping change changes the suffix, so the old key is simply never asked for
+// again — old blobs become unreachable rather than deleted, which is what makes
+// this safe to rely on. Nothing walks the store looking for them, and a blob left
+// behind costs a few KB and answers no request.
+export function packKey(politicianId: string, mv: string): string {
+  return `member:${politicianId}@${mv}`;
 }
 
 type PackIssue = {
@@ -298,31 +379,53 @@ export async function buildMemberPack(politicianId: string) {
   };
 }
 
-// Read the cached pack (or null). Best-effort — never throws.
-export async function getCachedPack(politicianId: string): Promise<any | null> {
+// Read the cached pack for one mapping version (or null). Best-effort — never
+// throws. `mv` is required rather than defaulted: a caller that reads a pack
+// without saying which mapping version it wants is the bug this parameter exists
+// to make unwritable.
+export async function getCachedPack(politicianId: string, mv: string): Promise<any | null> {
   try {
     const store = getStore(PACK_STORE);
-    return (await store.get(packKey(politicianId), { type: "json" })) as any;
+    return (await store.get(packKey(politicianId, mv), { type: "json" })) as any;
   } catch {
     return null;
   }
 }
 
-// Build (unless `pack` supplied) and persist the pack. Returns the pack it wrote.
-export async function writeMemberPack(politicianId: string, pack?: any): Promise<any> {
-  const finalPack = pack ?? (await buildMemberPack(politicianId));
+// Build (unless `pack` supplied) and persist the pack under the CURRENT mapping
+// version. Returns the pack it wrote, with the version it was written under
+// stamped on it — so a client, a log line or a test can say which mapping a pack
+// in hand was built from without re-deriving it.
+//   `mv` is optional here, unlike on the read: the ingest calls this without one
+// (netlify/lib/vr-ingest.ts), and "write it under whatever the mapping is right
+// now" is the only thing it could mean.
+export async function writeMemberPack(
+  politicianId: string,
+  pack?: any,
+  mv?: string,
+): Promise<any> {
+  const version = mv ?? (await mappingVersion());
+  const built = pack ?? (await buildMemberPack(politicianId));
+  const finalPack = { ...built, mappingVersion: version };
   try {
-    await getStore(PACK_STORE).setJSON(packKey(politicianId), finalPack);
+    await getStore(PACK_STORE).setJSON(packKey(politicianId, version), finalPack);
   } catch {
     /* serve/return fresh even if the blob write fails */
   }
   return finalPack;
 }
 
-// Remove a member's cached pack (used to invalidate; the next read rebuilds).
-export async function deletePack(politicianId: string): Promise<void> {
+// Remove a member's cached pack for one mapping version (used to invalidate; the
+// next read rebuilds). Defaults to the current version.
+//
+// NOT THE INVALIDATION MECHANISM ANY MORE, and deliberately not extended into
+// one. Versioning the key retires old packs by making them unreachable, which is
+// the property worth having: a delete sweep can fail, time out, or miss a key and
+// nothing tells you, whereas a key that is never requested cannot be served.
+export async function deletePack(politicianId: string, mv?: string): Promise<void> {
   try {
-    await getStore(PACK_STORE).delete(packKey(politicianId));
+    const version = mv ?? (await mappingVersion());
+    await getStore(PACK_STORE).delete(packKey(politicianId, version));
   } catch {
     /* ignore */
   }
