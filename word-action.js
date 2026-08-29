@@ -3959,6 +3959,20 @@
   }
   // Both mounts render rows through one call so the letterhead and the brief
   // cannot drift into two row markups.
+  // THE WHOLE TAIL, IN ONE NUMBER. Both surfaces below print one sentence about
+  // every issue the formal-pattern index declined to characterise, and that
+  // sentence is about the whole tail, so it reads the whole tail's size.
+  //   WHY NOT `thinN` ANY MORE. shape() used to publish the tail as a single
+  // `thinN`, mixing rows whose browse-lane side IS published (the dossier reads
+  // "Thin supports") with rows that have no published side at all. It now splits
+  // the three, and `thinN` narrowed to the last of them — so `tailN` is the field
+  // that still means what these sentences say, and pointing at it keeps the
+  // rendered number byte-identical to what it was. `thinN` remains the fallback
+  // for a stale engine file, where it still carried the whole tail.
+  function shapeTailN(sh) {
+    if (!sh) return 0;
+    return (typeof sh.tailN === 'number') ? sh.tailN : (sh.thinN || 0);
+  }
   function shapeRowsHtml(rows, pid, mount) {
     return (rows || []).map(function (x) { return shapeRowHtml(x, pid, mount); }).join('');
   }
@@ -4008,9 +4022,10 @@
       // THE HONESTY VALVE, COUNTED OUT LOUD. Every issue the engine declined to
       // characterise is in this number, and the number is printed whatever it is
       // — including when it is most of the list.
-      var thin = sh.thinN
-        ? '<p class="pdxwa-shape-thin"><b>' + sh.thinN + '</b> more issue' + (sh.thinN === 1 ? '' : 's') +
-            ' ha' + (sh.thinN === 1 ? 's' : 've') + ' formal items on file but not enough of them to ' +
+      var tailN = shapeTailN(sh);
+      var thin = tailN
+        ? '<p class="pdxwa-shape-thin"><b>' + tailN + '</b> more issue' + (tailN === 1 ? '' : 's') +
+            ' ha' + (tailN === 1 ? 's' : 've') + ' formal items on file but not enough of them to ' +
             'characterise a pattern yet.</p>'
         : '';
       return '<div class="pdxwa-shape">' +
@@ -4298,17 +4313,18 @@
       // has a record one-sided enough" is one sentence too many about one issue.
       // Where no rows ran, the refusal and the count are the same sentence.
       var listed = !!(tops || splits);
+      var tailN = shapeTailN(sh);
       var none = '', thin = '';
       if (listed) {
-        thin = sh.thinN
-          ? '<p class="pdxwa-shape-thin"><b>' + sh.thinN + '</b> more issue' + (sh.thinN === 1 ? '' : 's') +
-              ' ha' + (sh.thinN === 1 ? 's' : 've') + ' formal items on file but not enough of them to ' +
+        thin = tailN
+          ? '<p class="pdxwa-shape-thin"><b>' + tailN + '</b> more issue' + (tailN === 1 ? '' : 's') +
+              ' ha' + (tailN === 1 ? 's' : 've') + ' formal items on file but not enough of them to ' +
               'characterise a pattern yet.</p>'
           : '';
       } else {
         none = '<p class="pdxwa-shape-none">No issue yet has a record one-sided enough to ' +
-          'characterise' + (sh.thinN
-            ? ' — <b>' + sh.thinN + '</b> ' + (sh.thinN === 1 ? 'has' : 'have') +
+          'characterise' + (tailN
+            ? ' — <b>' + tailN + '</b> ' + (tailN === 1 ? 'has' : 'have') +
               ' formal items on file but not enough of them to characterise a pattern yet.'
             : '.') + '</p>';
       }

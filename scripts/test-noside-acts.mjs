@@ -222,13 +222,20 @@ section("1 · 3 yea + 1 DNV → the count is 3, never 4");
   // WHY THIS ROW IS NOT ON THE BRIEF'S FACE, said out loud so a later reader does
   // not mistake the absence for a regression. Three judged acts is under the
   // per-issue floor this pass may not move, so the row is thin, and the brief
-  // reports thin issues as a sentence ("N more issues too thin to characterise")
-  // rather than as a listed row. Nothing here is a leftover of the fix; it is the
-  // shipped hierarchy, and the assertion is that the row lands in that bucket
-  // rather than being promoted into the tally by an abstention.
+  // reports the whole thin tail as a sentence ("N more issues have formal items
+  // on file but not enough of them to characterise a pattern yet") rather than as
+  // listed rows. Nothing here is a leftover of the fix; it is the shipped
+  // hierarchy, and the assertion is that the row lands in that bucket rather than
+  // being promoted into the tally by an abstention.
   eq(A.row.tier, "thin", "three judged acts were characterised");
   ok(!A.flat, "a thin row was listed among the brief's characterised patterns");
-  eq(A.shape && A.shape.thinN, 1, "the thin issue is not counted in the brief's shape");
+  // AND IN WHICH TAIL BUCKET. shape() no longer merges "this row's published side
+  // is thin" with "this row has no published side" — a thin row is READ thin, and
+  // the card's "too thin to characterise" tally (`thinN`) must not claim it. The
+  // whole-tail size the brief prints is `tailN`, and it still counts this row.
+  eq(A.shape && A.shape.readThinN, 1, "the read-thin issue is not counted as read thin in the brief's shape");
+  eq(A.shape && A.shape.thinN, 0, "a row with a published thin side was counted as having nothing readable");
+  eq(A.shape && A.shape.tailN, 1, "the thin issue left the brief's whole-tail count");
 
   // …so the acceptance's own sentence — the brief says 3 advanced, not 4 — is
   // pinned on the fixture the brief prints: the same three Yeas and the same

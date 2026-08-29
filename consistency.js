@@ -8380,6 +8380,7 @@
       // and an issue with no formal signal is not part of the formal record index.
       if (!t && !refused && held <= 0) return;
       var why = t ? null : _fpiUnreadWhy(r);
+      var dtier = t ? '' : _fpiDisplayTier(r);
       out.push({
         pid: r.pid, key: r.key, label: r.label,
         tier: t ? t.tier : 'unread',
@@ -8387,6 +8388,16 @@
         tone: t ? t.tone : 'muted',
         patLabel: t ? t.label : why.lb,
         why: why,
+        // WHAT THE BROWSE LANE SAYS ABOUT THIS SAME ROW, on the rows this index
+        // has no read of its own for. Presentation only, and carried here rather
+        // than re-asked downstream so that a summary counting these rows cannot
+        // call one of them unreadable while the stance tree beside it prints
+        // "Thin supports" or "Split" off the same engine on the same row.
+        //   EMPTY ON EVERY ROW THAT HAS A TIER. There the tier IS the answer, and
+        // a second opinion sitting next to it is just an invitation to consult the
+        // wrong one. It is not a tier, nothing sorts, filters or gates on it, and
+        // no count, weight, confidence or percentage is derived from it.
+        displayTier: dtier,
         counts: t ? t.counts : '',
         judged: t ? t.judged : 0,
         // THE ACTS ON FILE THAT TOOK NO SIDE. Carried from the tier, which carries
@@ -9212,9 +9223,37 @@
   //
   //   tops    the strongest characterised patterns (strong / mostly)
   //   splits  issues where the record ran both ways
-  //   thin    inventory the engine refused to characterise — the honesty valve,
+  //   tail    inventory this index did not characterise — the honesty valve,
   //           counted out loud rather than dropped
   //   depth   how much record all of that was read from
+  //
+  // AND THE TAIL IS THREE NUMBERS, NOT ONE. `tailN` is its size, and it is still
+  // published whole because the surfaces that print "N more issues have formal
+  // items on file but not enough of them to characterise a pattern yet" are
+  // describing the whole tail and are right about it. But the tail is not one
+  // population, and a summary that hands out one integer for it forces every
+  // caller to describe all of it in the words of its weakest part:
+  //
+  //   readThinN  the browse lane published a THIN side on this row — the dossier
+  //              beside this summary says "Thin supports" / "Thin opposes" in as
+  //              many words. Too little to lean on; not nothing, and not
+  //              unreadable. 2,888 rows across the shipped corpus.
+  //   readOtherN a side is on file that this read does not count — the browse
+  //              lane published split, or (on the exec lane, which the
+  //              legislative read declines by design) something firmer. Named
+  //              rather than folded, and deliberately NOT added to strongN or
+  //              splitN: this index did not make that read and does not get to
+  //              inherit its confidence.
+  //   thinN      no published side anywhere. Nothing readable yet, and the only
+  //              bucket entitled to say so.
+  //
+  // The three are disjoint and sum to `tailN`, so a caller may print any subset
+  // without double-counting and the old whole-tail sentence is one field away.
+  //
+  // WHAT THIS IS NOT. It is not a promotion path. `characterised` is still
+  // strongN + splitN off this index's own tiers, no floor moved to make these
+  // buckets exist, and every row in all three is still a row this index declined
+  // to characterise. The only thing that changed is which sentence it earns.
   //
   // WHY THERE IS NO PERCENTAGE IN IT. Anything of the form "18 of 24 issues are
   // one-sided" is a number between 0 and 100 attached to a person's name, which
@@ -9272,15 +9311,25 @@
       var rows = _fpiRows(pid, { sort: 'strength' }) || [];
       var out = {
         issues: rows.length, read: 0, judged: 0,
-        characterised: 0, strongN: 0, splitN: 0, thinN: 0,
+        characterised: 0, strongN: 0, splitN: 0,
+        readThinN: 0, readOtherN: 0, thinN: 0, tailN: 0,
         tops: [], splits: []
       };
       var tops = [], splits = [];
       rows.forEach(function (x) {
         if (x.read) out.read++;
         out.judged += (x.judged || 0);
-        if (_FPI_CHARACTERISED[x.tier]) { out.strongN++; tops.push(x); }
-        else if (x.tier === 'split') { out.splitN++; splits.push(x); }
+        if (_FPI_CHARACTERISED[x.tier]) { out.strongN++; tops.push(x); return; }
+        if (x.tier === 'split') { out.splitN++; splits.push(x); return; }
+        // THE TAIL, IN THREE PARTS — see the note over this section for why it is
+        // not one. A row this index read as thin already HAS its published side
+        // (display thin is where a thin read goes), so its own tier answers
+        // first; a row it read nothing on falls back to what the browse lane
+        // published for the same row, which _fpiRows carried in beside it.
+        out.tailN++;
+        var side = (x.tier === 'thin') ? 'thin' : (x.displayTier || '');
+        if (side === 'thin') out.readThinN++;
+        else if (side) out.readOtherN++;
         else out.thinN++;
       });
       out.characterised = out.strongN + out.splitN;
@@ -10016,11 +10065,19 @@
   // the record is not about the issue contradicts a sentence the reader has
   // already been shown on the same profile. Read-only: it gates copy, never a
   // tier, a count or a percentage.
-  function _fpiPublishedTier(r) {
+  //   WHICH WORD, WHERE THERE IS ONE. The same call and the same walls, returning
+  // the tier the browse lane published rather than only whether it published
+  // something — because a summary over these rows has to tell "the tree says Thin
+  // supports here" from "the tree says Split here" from "the tree says nothing
+  // here", and those are three different sentences. Not a second read:
+  // _stDisplayTier is the accessor the stance tree itself calls, and no tier,
+  // floor, count or percentage is derived from the answer.
+  function _fpiDisplayTier(r) {
     var d = null;
     try { d = _stDisplayTier(r); } catch (e) { d = null; }
-    return !!(d && d.tier && d.tier !== 'none');
+    return (d && d.tier && d.tier !== 'none') ? String(d.tier) : '';
   }
+  function _fpiPublishedTier(r) { return !!_fpiDisplayTier(r); }
   function _fpiUnreadWhy(r) {
     var n = _stNoun(r);
     // THE ISSUE'S SHAPE IS ASKED FIRST, and from the KEY rather than from an index.
