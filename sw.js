@@ -371,6 +371,34 @@
 // the wall is untouched: finance still feeds no Direction Match input, no formal
 // tier, no publication floor and no ordering of one person against another —
 // pinned by scripts/test-finance-lane.mjs.
+// v87 — THE EVIDENCE LOCKER LEFT THE HOMEPAGE STACK. The front page carried the
+// whole locker workspace — a sticky quick-jump map, a filter toolbar, a discovery
+// showcase and a grid of every receipt on file — mounted and open on every visit,
+// which is a workspace nobody asked for and thousands of pixels everybody paid
+// for. What ships on '/' now is a closed door and one honest line ("N receipts on
+// file"); the workspace markup sits inert inside <template id="el-workspace-tpl">
+// and evidence-locker.js clones it in on request. Three addresses open it and all
+// three land in the same place: the door's control, the #evidence-locker hash
+// every existing nav entry and deep-link already sets, and the new /locker path
+// (netlify.toml rewrites it to index.html, 200). The workspace gained a
+// bill-number filter, and a receipt that names a measure now shows a door to that
+// measure's own profile — handed to PDXBillDetail, the same panel every other bill
+// door in the app uses, so no roll call and no bill record is copied in here.
+// Bumped because this is a half-pickup risk of the v84/v86 kind, and a total one:
+// a phone holding v86 that takes the new index.html but keeps the old
+// evidence-locker.js gets a door with nothing behind it — the old file has no
+// mount step, so the template is never cloned and the locker cannot be opened at
+// all. The reverse split is just as bad: the new evidence-locker.js against the
+// old index.html looks for a template that isn't there. index.html is precached as
+// '/'; evidence-locker.js and app-2.css are stale-while-revalidate runtime
+// entries. Both cache names carry CACHE_VERSION, so the rename empties the shell
+// AND the runtime cache on activate and the three arrive together on the load
+// after.
+// Reachability and presentation only. No evidence item, count, strength grade or
+// issue mapping changed — the same index is still built from the same spotlight
+// data, and the data-only consumers of it (the People's Mandate on-record counts,
+// the profile depth pills, My Team's evidence tallies) still warm in the
+// background on '/' with no workspace mounted.
 // ─────────────────────────────────────────────────────────────────────────────
 // THE OFFLINE PACK URL NOW CARRIES THE MAPPING VERSION, and CACHE_VERSION is
 // DELIBERATELY NOT BUMPED FOR IT. Read the next paragraph before bumping it.
@@ -395,7 +423,13 @@
 // unversioned entries as valid offline fallbacks, which is exactly what they are:
 // the version that existed when the device last built its cache.
 //   So: bump CACHE_VERSION when a SHELL ASSET changes, as before. Not for this.
-const CACHE_VERSION = 'v86';
+// v88 - the issue overlay learned to close and the Eye's bill row learned to
+// wrap. Bumped because the Eye's fix is split across two files: index.html
+// carries the wrapping rules and all-seeing-eye.js emits the classes they
+// select. A device that took one and kept the other gets a bill row that is
+// merely unstyled rather than broken, but there is no reason to ship that
+// state to anyone when a version bump lands both together.
+const CACHE_VERSION = 'v88';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

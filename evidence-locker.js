@@ -42,7 +42,7 @@
     // Stable display order for the type chips.
     var EL_TYPE_ORDER = ['floor_video', 'committee_video', 'youtube', 'x_post', 'facebook', 'bill', 'audio', 'statement'];
 
-    var _state = { search: '', category: '', issue: '', pol: '', type: '', mandate: '', sort: 'date_desc', compare: null, relevant: false };
+    var _state = { search: '', category: '', issue: '', pol: '', bill: '', type: '', mandate: '', sort: 'date_desc', compare: null, relevant: false };
     var _items = null;       // flattened evidence items (built once full docs load)
     var _itemsByUid = {};    // uid → item, for the detail modal
     var _itemsByKey = {};    // stableKey → item, for re-linking saved evidence
@@ -749,6 +749,82 @@
     // Build the flat evidence list across the whole roster. Each member's own
     // `spotlight` array is authoritative; the static SPOTLIGHT_DATA map is folded
     // in as a fallback. Deduped by headline within a member.
+    // ── THE BILL NUMBER A RECEIPT NAMES ─────────────────────────────────────
+    // A receipt is a receipt: a video, a post, a statement, a bill record. Some of
+    // them name a measure in so many words ("carried H.B. 461", "voted against
+    // S.B. 186"), and when one does, the measure already has a face of its own in
+    // this app — the bill profile, at /b/<sitting>/<number>. So the locker reads
+    // the number off the text it already stores and offers the door. It does not
+    // copy a roll call, a vote list or a bill record into the locker; the door
+    // hands the number to PDXBillDetail and that panel does the rest.
+    //
+    // WHAT A NUMBER IS AND ISN'T: "H.B. 461" names a different bill in every Utah
+    // session, so a number alone is not an identity — which is exactly why the
+    // sitting rides along wherever the app HAS one (see consistency.js's bill
+    // door, which carries a session code off a roll-call row). A receipt carries
+    // no session code, so the door passes the number and lets the resolver pick;
+    // the panel it opens then prints the sitting it actually landed on, where the
+    // reader can see it. That is the honest version of a door built from prose.
+    //
+    // The printed form is the one the measures table stores — 'H.B. 528',
+    // 'H.R. 1', 'S. 2938' — dotted, spaced, leading zeros dropped, so the number
+    // this reads out of a headline is the number the resolver matches on.
+    var _EL_BILL_PRINT = {
+      HB: 'H.B.', SB: 'S.B.', HJR: 'H.J.R.', SJR: 'S.J.R.', HCR: 'H.C.R.', SCR: 'S.C.R.',
+      HR: 'H.R.', SR: 'S.R.', S: 'S.', HJRES: 'H.J.Res.', SJRES: 'S.J.Res.',
+      HCONRES: 'H.Con.Res.', SCONRES: 'S.Con.Res.',
+      HOUSEBILL: 'H.B.', SENATEBILL: 'S.B.'
+    };
+    var _EL_BILL_RE = /\b(H\.?\s?J\.?\s?Res\.?|S\.?\s?J\.?\s?Res\.?|H\.?\s?Con\.?\s?Res\.?|S\.?\s?Con\.?\s?Res\.?|H\.?\s?J\.?\s?R\.?|S\.?\s?J\.?\s?R\.?|H\.?\s?C\.?\s?R\.?|S\.?\s?C\.?\s?R\.?|House Bill|Senate Bill|H\.?\s?B\.?|S\.?\s?B\.?|H\.?\s?R\.?|S\.?\s?R\.?|S\.)\s*(\d{1,5})\b/gi;
+
+    // One comparable key per number, so "HB461", "hb 0461" and "H.B. 461" are the
+    // same thing to the filter — and so a reader who remembers only "461" still
+    // finds it (the key is matched as a substring).
+    function _billKey(str) {
+      return String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '').replace(/(^|[a-z])0+(\d)/g, '$1$2');
+    }
+
+    // Every distinct bill number named in a piece of text, de-duplicated, in the
+    // order they appear. Returns [] rather than null so callers can stay flat.
+    function _billRefs(text) {
+      var str = String(text || '');
+      if (!str) return [];
+      var out = [], seen = {}, m;
+      _EL_BILL_RE.lastIndex = 0;
+      while ((m = _EL_BILL_RE.exec(str))) {
+        // "U.S. 89" is a highway and "42 U.S.C. 1983" is a statute; both end in a
+        // letter-dot that the bare "S." form would happily read as a Senate bill.
+        // A real citation never has a dot immediately before its prefix.
+        if (m.index > 0 && str.charAt(m.index - 1) === '.') continue;
+        var letters = m[1].replace(/[^A-Za-z]/g, '').toUpperCase();
+        var print = _EL_BILL_PRINT[letters];
+        if (!print) continue;
+        var n = String(parseInt(m[2], 10));
+        if (n === 'NaN' || !m[2]) continue;
+        var ref = print + ' ' + n;
+        if (seen[ref]) continue;
+        seen[ref] = 1;
+        out.push({ ref: ref, key: _billKey(ref) });
+      }
+      return out;
+    }
+
+    // The card / modal door itself. Deliberately the same shape consistency.js's
+    // bill door uses — a button that hands a number to the one panel that renders
+    // a measure — so there is one bill object in this app, not a locker-shaped
+    // copy of one.
+    function _billDoorHtml(it, opts) {
+      opts = opts || {};
+      if (!it || !it.bills || !it.bills.length) return '';
+      var refs = it.bills.slice(0, 3).map(function (b) { return b.ref; });
+      var cls = 'el-billdoor' + (opts.cls ? ' ' + opts.cls : '');
+      return refs.map(function (r) {
+        return '<button type="button" class="' + cls + '" data-el-bill="' + _esc(r) + '"' +
+          ' title="' + _esc('Open the bill profile for ' + r + ' — every topic it was mapped to, and everyone who voted') + '">' +
+          '<span aria-hidden="true">📜</span> ' + _esc(r) + '</button>';
+      }).join('');
+    }
+
     function _build() {
       var list = [], imap = _issueMap();
       var SD = window.SPOTLIGHT_DATA || {};
@@ -844,7 +920,10 @@
             // Carried onto the flat item so strength grading and saved snapshots
             // both see it. May be `true` or an object documenting length/outlet.
             interview: it.interview || (it.media && it.media.interview) || null,
-            sourceLabel: (it.source && it.source.label) || (it.media && it.media.label) || ''
+            sourceLabel: (it.source && it.source.label) || (it.media && it.media.label) || '',
+            // Bill numbers this receipt names in so many words — the door to the
+            // measure's own profile, and what the bill-number filter matches on.
+            bills: _billRefs((it.headline || '') + ' . ' + (it.facts || ''))
           };
           item.strength = _strength(item);
           item.powerTie = _powerTie(item, rec);
@@ -1311,10 +1390,20 @@
         } else if (it.issueKey !== _state.issue) return false;
       }
       if (_state.pol && it.id !== _state.pol) return false;
+      // Bill number. Matched on the normalized key so the shape a reader types —
+      // "hb461", "H.B. 461", or just "461" — all find the same receipts.
+      if (_state.bill) {
+        var bq = _billKey(_state.bill);
+        if (bq) {
+          var bhit = (it.bills || []).some(function (b) { return b.key.indexOf(bq) !== -1; });
+          if (!bhit) return false;
+        }
+      }
       if (_state.type && it.typeKey !== _state.type) return false;
       if (_state.search) {
         var hay = (it.name + ' ' + it.office + ' ' + it.headline + ' ' + it.facts +
-                   ' ' + (it.categoryLabel || '') + ' ' + it.issueLabel + ' ' + it.typeLabel).toLowerCase();
+                   ' ' + (it.categoryLabel || '') + ' ' + it.issueLabel + ' ' + it.typeLabel +
+                   ' ' + (it.bills || []).map(function (b) { return b.ref; }).join(' ')).toLowerCase();
         if (hay.indexOf(_state.search) === -1) return false;
       }
       return true;
@@ -1677,7 +1766,7 @@
         quoteTile +
         facts +
         videoTile +
-        '<div class="el-actions">' + srcBtn + profBtn + lastAction +
+        '<div class="el-actions">' + srcBtn + _billDoorHtml(it) + profBtn + lastAction +
         '</div>' + ceeLink +
       '</article>';
     }
@@ -1999,7 +2088,7 @@
     // showcase steps aside whenever a filter or search is active so focused
     // results stay clean, while the category chips stay put as a quick filter.
     function _isDefaultState() {
-      return !_state.search && !_state.category && !_state.issue && !_state.pol && !_state.type && !_state.mandate;
+      return !_state.search && !_state.category && !_state.issue && !_state.pol && !_state.bill && !_state.type && !_state.mandate;
     }
     // How "feature-worthy" an item is: recorded video and strong sourcing lead,
     // with a gentle recency nudge so fresh, high-quality evidence rises.
@@ -2063,7 +2152,7 @@
     // Jump from the showcase into the full, unfiltered library sorted newest-first
     // — the destination for the "See all newest" rail CTA.
     function _browseNewest() {
-      _state = { search: '', category: '', issue: '', pol: '', type: '', mandate: '', sort: 'date_desc', compare: null, relevant: false };
+      _state = { search: '', category: '', issue: '', pol: '', bill: '', type: '', mandate: '', sort: 'date_desc', compare: null, relevant: false };
       var s = document.getElementById('el-f-search');
       var clear = document.getElementById('el-search-clear');
       var cat = document.getElementById('el-f-category');
@@ -2250,6 +2339,12 @@
         mediaBlock +
         summaryBlock +
         srcBtn +
+        // The measure this receipt names, if it names one — the third door out of
+        // a receipt, next to its source and the person it belongs to.
+        (it.bills && it.bills.length
+          ? '<div class="el-modal-bills"><span class="el-modal-bills-lbl">Named in this receipt</span>' +
+              _billDoorHtml(it, { cls: 'is-lg' }) + '</div>'
+          : '') +
         _connectedHtml(it) +
         profBtn;
     }
@@ -2496,9 +2591,11 @@
       var cat = document.getElementById('el-f-category');
       var iss = document.getElementById('el-f-issue');
       var pol = document.getElementById('el-f-pol');
+      var bil = document.getElementById('el-f-bill');
       if (cat) cat.value = _state.category;
       if (iss) iss.value = _state.issue;
       if (pol) pol.value = _state.pol;
+      if (bil) bil.value = _state.bill;
       var wrap = document.getElementById('el-types');
       if (wrap) wrap.querySelectorAll('.el-chip').forEach(function (c) {
         c.classList.toggle('is-active', (c.getAttribute('data-type') || '') === _state.type);
@@ -2552,9 +2649,11 @@
       var cat = document.getElementById('el-f-category');
       var iss = document.getElementById('el-f-issue');
       var pol = document.getElementById('el-f-pol');
+      var bil = document.getElementById('el-f-bill');
       var sort = document.getElementById('el-f-sort');
       var reset = document.getElementById('el-reset');
       var searchTimer = null;
+      var billTimer = null;
       if (s) s.addEventListener('input', function () {
         if (clear) clear.hidden = !s.value;
         clearTimeout(searchTimer);
@@ -2572,6 +2671,17 @@
       if (cat) cat.addEventListener('change', function () { _state.category = cat.value; _state.compare = null; _render(); });
       if (iss) iss.addEventListener('change', function () { _state.issue = iss.value; _state.compare = null; _render(); });
       if (pol) pol.addEventListener('change', function () { _state.pol = pol.value; _state.compare = null; _updatePolBridge(); _render(); });
+      // Bill number. Typed, not picked from a list: the numbers in the library are
+      // whatever the receipts happen to name, and a dropdown of every one of them
+      // would be a worse tool than a box you type "hb461" into.
+      if (bil) bil.addEventListener('input', function () {
+        clearTimeout(billTimer);
+        billTimer = setTimeout(function () {
+          _state.bill = bil.value.trim();
+          _state.compare = null;
+          _render();
+        }, 120);
+      });
       if (sort) sort.addEventListener('change', function () { _state.sort = sort.value; _render(); });
 
       // "Relevant to Me" toggle — flips the saved team + reps filter on/off and
@@ -2607,8 +2717,9 @@
         }
       });
       if (reset) reset.addEventListener('click', function () {
-        _state = { search: '', category: '', issue: '', pol: '', type: '', mandate: '', sort: 'date_desc', compare: null, relevant: false };
+        _state = { search: '', category: '', issue: '', pol: '', bill: '', type: '', mandate: '', sort: 'date_desc', compare: null, relevant: false };
         if (s) s.value = ''; if (cat) cat.value = ''; if (iss) iss.value = ''; if (pol) pol.value = '';
+        if (bil) bil.value = '';
         if (sort) sort.value = 'date_desc'; if (clear) clear.hidden = true;
         var wrap = document.getElementById('el-types');
         if (wrap) wrap.querySelectorAll('.el-chip').forEach(function (c) {
@@ -2644,7 +2755,8 @@
         issueKey: it.issueKey || '', issueLabel: it.issueLabel || '', typeKey: it.typeKey,
         category: it.category || '', categoryLabel: it.categoryLabel || '', categoryIcon: it.categoryIcon || '',
         typeLabel: it.typeLabel || '', url: it.url || '', timestamp: it.timestamp || '',
-        sourceLabel: it.sourceLabel || '', strength: it.strength, savedAt: Date.now()
+        sourceLabel: it.sourceLabel || '', strength: it.strength,
+        bills: (it.bills || []).slice(), savedAt: Date.now()
       };
     }
 
@@ -3977,6 +4089,26 @@
         }
       });
 
+      // The bill door, from a card or from the detail modal. Handed to the same
+      // panel every other bill door in the app uses — PDXBillDetail — so a reader
+      // who arrives at a measure from a receipt lands on the identical bill face
+      // (its topics, its roll list, its /b/<sitting>/<number> address) as a reader
+      // who arrived from a roll-call row or the bill library. Nothing about the
+      // measure is stored or re-rendered here.
+      document.addEventListener('click', function (e) {
+        var door = e.target.closest && e.target.closest('[data-el-bill]');
+        if (!door) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var ref = door.getAttribute('data-el-bill') || '';
+        if (!ref) return;
+        var B = window.PDXBillDetail;
+        if (B && typeof B.open === 'function') { B.open(ref, ''); return; }
+        // No detail panel on the page — the bills module can still open the
+        // measure's own record rather than leaving the tap dead.
+        if (window.PDXBills && typeof window.PDXBills.open === 'function') window.PDXBills.open(ref);
+      });
+
       // Clickable category headers and issue chips (cards + detail modal) jump the
       // Locker to that filter via the same deep-link path used by profiles. The
       // detail modal is dismissed first so the filtered All Evidence grid is visible.
@@ -4073,6 +4205,7 @@
       _state.category = opts.category || '';
       _state.issue  = opts.issue  || '';
       _state.pol    = opts.pol    || '';
+      _state.bill   = opts.bill   || '';
       _state.type   = opts.type   || '';
       _state.mandate = opts.mandate || '';
       // Comparison context — set when the visitor jumped here from a Compare
@@ -4090,11 +4223,13 @@
       var cat = document.getElementById('el-f-category');
       var iss = document.getElementById('el-f-issue');
       var pol = document.getElementById('el-f-pol');
+      var bil = document.getElementById('el-f-bill');
       if (s) s.value = _state.search;
       if (clear) clear.hidden = !_state.search;
       if (cat) cat.value = _state.category;
       if (iss) iss.value = _state.issue;
       if (pol) pol.value = _state.pol;
+      if (bil) bil.value = _state.bill;
       var wrap = document.getElementById('el-types');
       if (wrap) wrap.querySelectorAll('.el-chip').forEach(function (c) {
         c.classList.toggle('is-active', (c.getAttribute('data-type') || '') === _state.type);
@@ -4119,10 +4254,12 @@
       // too, so a jump from one of its rows / depth pills actually reveals the
       // Locker section we're scrolling to.
       if (typeof window._pdxCloseStanceRecord === 'function') { try { window._pdxCloseStanceRecord(); } catch (e) {} }
-      var section = document.getElementById('evidence-locker');
-      if (opts.scroll !== false && section && section.scrollIntoView) {
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+      // Every deep-link into the locker — a nav entry, an issue chip, a profile
+      // "see all evidence" row, a saved-team browse — arrives while the door is
+      // still shut, so open it first. _openLocker handles the scroll (it has to
+      // wait a frame for the freshly mounted layer to lay out), which is why the
+      // scroll isn't done inline here any more.
+      _openLocker({ scroll: opts.scroll !== false });
       if (_loaded) { _applyOpen(opts); return; }
       // Not loaded yet — remember the request and kick the deferred load; the
       // load's finish() will apply it. (_load no-ops if already in flight.)
@@ -4454,36 +4591,193 @@
       _enhanceCommunityLinks(section);
     }
 
-    function _init() {
-      if (_initDone) return;
+    // ═══════════════════ THE DOOR · the locker leaves the stack ═════════════
+    // The workspace this file renders into used to be mounted, open, on every
+    // visit to `/`. It is a four-view workspace with a sticky quick-jump map, a
+    // filter toolbar, a discovery showcase and a grid of the whole library — and
+    // it was one of the largest single blocks of homepage height, laid out and
+    // painted for every reader whether or not they ever scrolled to it.
+    //
+    // So index.html now carries a closed door and one line ("N receipts on
+    // file"), and the workspace markup sits inert in <template id=
+    // "el-workspace-tpl">. _mount() clones it back into #evidence-locker on
+    // request. Three things request it and they all land in the same place: the
+    // door's control, the hash #evidence-locker (what every existing nav entry,
+    // pulse chip and profile deep-link already sets), and the path /locker.
+    //
+    // NOTHING ELSE MOVED. Every id, class, filter mirror and CSS selector is the
+    // one that shipped, which is why _wire / _wireModal / _wireCollections /
+    // _wirePolView / _wireIssueView are called verbatim at mount instead of at
+    // boot, and why every deep link into the locker still resolves.
+    var _mounted = false;
+
+    // Is this load asking for the locker itself, rather than the homepage that
+    // holds its door? The hash is the app's own convention; /locker is the
+    // server-visible address of the same thing (see the rewrite in netlify.toml).
+    function _wantsLocker() {
+      try {
+        if (String(location.hash || '').replace(/^#/, '') === 'evidence-locker') return true;
+        return /^\/locker\/?$/i.test(String(location.pathname || ''));
+      } catch (e) { return false; }
+    }
+
+    // Clone the workspace into the section and wire it. Idempotent, and returns
+    // false rather than half-mounting when the template or the section is absent
+    // — a caller that gets false has simply not opened anything, which is the
+    // same fail-closed contract every other surface here follows.
+    function _mount() {
+      if (_mounted) return true;
       var section = document.getElementById('evidence-locker');
-      if (!section) return;   // DOM not ready yet — a later trigger will retry.
-      _initDone = true;
+      var tpl = document.getElementById('el-workspace-tpl');
+      if (!section || !tpl || !tpl.content || !section.appendChild) return false;
+      _mounted = true;
+      try {
+        section.appendChild(tpl.content.cloneNode(true));
+      } catch (e) {
+        console.error('Evidence Locker mount failed:', e);
+        _mounted = false;
+        return false;
+      }
+      if (section.classList) section.classList.remove('el-closed');
+      var door = document.getElementById('el-door');
+      if (door) door.hidden = true;
       _wire();
       _wireModal();
       _wireCollections();
       _wirePolView();
       _wireIssueView();
       _wireCommunityLinks();
-      // Defer the heavy per-member fetch until the section is actually viewed…
-      if ('IntersectionObserver' in window) {
-        var io = new IntersectionObserver(function (entries) {
-          entries.forEach(function (e) { if (e.isIntersecting) { io.disconnect(); _load(); } });
-        }, { rootMargin: '200px' });
-        io.observe(section);
-      } else {
-        _load();
+      // Surfaces that live in index.html and hang off this markup — the sticky
+      // quick-jump bar and the card-density switch — wire themselves off this
+      // event, because their elements did not exist until a moment ago.
+      try { document.dispatchEvent(new CustomEvent('pdx:locker:mounted')); } catch (e) {}
+      // Already-built index (a background pass finished before the door opened):
+      // paint it now. Otherwise _load()'s finish() does the first paint.
+      if (_items) { _populateFilters(); _syncControls(); _renderDiscovery(); _render(); }
+      _load();
+      return true;
+    }
+
+    // Reveal the workspace and put it on screen. Every public entry point funnels
+    // through here so "open the locker" means one thing.
+    function _openLocker(opts) {
+      opts = opts || {};
+      var ok = _mount();
+      if (!ok) return false;
+      if (opts.scroll === false) return true;
+      var go = function () {
+        var el = document.getElementById('evidence-locker');
+        if (el && el.scrollIntoView) { try { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} }
+      };
+      // One frame for the freshly revealed layer to lay out — scrolling to
+      // something that was a template fragment a microsecond ago lands short.
+      if (window.requestAnimationFrame) window.requestAnimationFrame(function () { setTimeout(go, 40); });
+      else setTimeout(go, 60);
+      return true;
+    }
+
+    // ── The door's one line · "N receipts on file" ───────────────────────────
+    // Counts the receipts this browser can actually prove it holds, with the
+    // same roster and the same per-member headline de-duplication _build() uses,
+    // over the data that is already in the page (the bundled SPOTLIGHT_DATA map
+    // plus any profile document already loaded). It costs no network and no
+    // workspace, so the door can carry a real number without opening anything.
+    //
+    // It is a floor, not a guess: once the library has actually been built the
+    // exact total replaces it (see _paintDoorCount). A number we cannot compute
+    // leaves the line hidden rather than printing a zero or a promise.
+    function _countOnFile() {
+      var SD = window.SPOTLIGHT_DATA || {};
+      var n = 0;
+      try {
+        _roster().forEach(function (id) {
+          var rec = (window.PROFILES && window.PROFILES[id]) ||
+                    ((typeof CMP_DATA !== 'undefined') ? CMP_DATA[id] : null) || {};
+          var sources = [];
+          if (Array.isArray(rec.spotlight)) sources = sources.concat(rec.spotlight);
+          if (Array.isArray(SD[id])) sources = sources.concat(SD[id]);
+          var seen = {};
+          sources.forEach(function (it) {
+            if (!it || !it.headline) return;
+            var hk = String(it.headline).toLowerCase().replace(/\s+/g, ' ').trim().slice(0, 80);
+            if (seen[hk]) return;
+            seen[hk] = 1;
+            n++;
+          });
+        });
+      } catch (e) { return 0; }
+      return n;
+    }
+
+    var _doorTries = 0;
+    function _paintDoorCount() {
+      var line = document.getElementById('el-door-count');
+      if (!line) return;
+      // The built library is authoritative the moment it exists; before that,
+      // what the page can count for itself.
+      var n = _items ? _items.length : _countOnFile();
+      if (!n) {
+        // Nothing countable yet. The roster and the bundled evidence map arrive
+        // on their own deferred scripts, so retry a few times, cheaply, then
+        // leave the line closed rather than asserting anything.
+        if (_doorTries++ < 8) setTimeout(_paintDoorCount, 900);
+        return;
       }
-      // …but don't make the visitor scroll into the section for content to appear.
-      // Kick a background load during idle time so the library is loading (or
-      // already loaded) by the time they reach it — the IntersectionObserver
-      // above just makes it immediate for anyone who scrolls there first, and
-      // _load() no-ops if a load is already in flight.
+      line.innerHTML = '<span class="el-door-count-n">' + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',') +
+        '</span> receipt' + (n === 1 ? '' : 's') + ' on file';
+      line.hidden = false;
+    }
+
+    function _wireDoor() {
+      var btn = document.getElementById('el-door-open');
+      if (btn) btn.addEventListener('click', function (e) {
+        // The control is a real link to /locker so it survives a middle-click, a
+        // copy-link and a JS-less load; with JS we open in place instead of
+        // navigating, and leave the hash the app already understands behind us.
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+        e.preventDefault();
+        _openLocker();
+        try { if (location.hash !== '#evidence-locker') location.hash = '#evidence-locker'; } catch (_e) {}
+      });
+      _paintDoorCount();
+      // The exact total, once the library has genuinely been built.
+      document.addEventListener('pdx-evidence-ready', function () { _doorTries = 0; _paintDoorCount(); });
+    }
+
+    // Every inbound address keeps working: the nav entries, the pulse chip, the
+    // cross-nav links and the shared /locker path all resolve to the same mount.
+    function _wireRoutes() {
+      window.addEventListener('hashchange', function () { if (_wantsLocker()) _openLocker(); });
+    }
+
+    // Public: the door, for anything in the page that wants to open the locker
+    // without a filter (and for the tests, which assert the door exists).
+    window.PDXEvidenceLocker = {
+      open: function (opts) { return _openLocker(opts); },
+      mounted: function () { return _mounted; },
+      count: function () { return _items ? _items.length : _countOnFile(); }
+    };
+
+    function _init() {
+      if (_initDone) return;
+      var section = document.getElementById('evidence-locker');
+      if (!section) return;   // DOM not ready yet — a later trigger will retry.
+      _initDone = true;
+      _wireDoor();
+      _wireRoutes();
+      // A load that ASKED for the locker gets the locker: /locker, or a shared
+      // #evidence-locker link. Mounting kicks the data load itself.
+      if (_wantsLocker()) { _openLocker({ scroll: true }); return; }
+      // Otherwise the door stays shut and no workspace is built. The evidence
+      // INDEX is still warmed in the background during idle time, because it is
+      // what the People's Mandate on-record counts, the profile depth pills and
+      // My Team's evidence tallies read — every one of those surfaces is
+      // elsewhere on the page and none of them renders a locker card. Every
+      // render path guards on its own element, so a build with no workspace
+      // mounted paints nothing anywhere.
       var _kick = function () { _load(); };
       if ('requestIdleCallback' in window) requestIdleCallback(_kick, { timeout: 2500 });
       else setTimeout(_kick, 1200);
-      // Cold deep-link straight to the locker shouldn't wait for a scroll.
-      if (location.hash === '#evidence-locker') _load();
     }
 
     // Primary path: runs after the deferred-DOMContentLoaded gate (i.e. once the

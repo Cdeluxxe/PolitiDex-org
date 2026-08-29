@@ -147,6 +147,32 @@
   to = "/index.html"
   status = 200
 
+# The Evidence Locker's own address. The locker used to be a permanently-open
+# section of the front page, which meant it had no address of its own and cost
+# every reader its whole height whether they opened it or not. It is now a closed
+# door on the homepage that mounts on request, so it needs a path a link can point
+# at: /locker SERVES index.html (HTTP 200 rewrite, not a redirect) and
+# evidence-locker.js reads location.pathname on arrival and opens the workspace
+# instead of the door.
+#
+# No edge function stands in front of this one, and it needs none: unlike /p/* or
+# /b/*, the path names no record — there is nothing to resolve and nothing to get
+# wrong. /locker is one page that always exists, so a 200 here is the truth.
+#
+# The in-app #evidence-locker hash is NOT retired by this: every nav entry, issue
+# chip and profile deep-link already sets it, and all of them still open the same
+# workspace. What /locker adds is a shareable, server-visible form of the same
+# address for a reader who wants to send someone the locker itself.
+[[redirects]]
+  from = "/locker"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/locker/*"
+  to = "/index.html"
+  status = 200
+
 # Portrait hosts the Image CDN may fetch from.
 #
 # This exists for ONE caller: the shareable record card (profile-card.js). Every

@@ -503,10 +503,10 @@ for (const [name, mutate] of MUTANTS) {
   const PEOPLE_MUTANTS = [
     ["the leaf's Direction Match is printed on the member row",
       (x) => x
-        .replace("return { label: String(rc.label), counts: String(rc.counts || '') };",
-                 "return { label: String(rc.label), counts: String(rc.counts || ''), pct: rc.pct };")
-        .replace("'<span class=\"pdxip-p-pat\"><b>🏛 Record:</b> ' + esc(p.pattern.label) +",
-                 "'<span class=\"pdxip-p-pat\"><b>🏛 Record:</b> ' + esc(p.pattern.label) + ' · ' + p.pattern.pct + '%' +"),
+        .replace("      counts: String(rc.counts || ''),",
+                 "      counts: String(rc.counts || ''), pct: rc.pct,")
+        .replace("        '<b>🏛 Record:</b> ' + esc(p.pattern.label) +",
+                 "        '<b>🏛 Record:</b> ' + esc(p.pattern.label) + ' · ' + p.pattern.pct + '%' +"),
       (r) => /\d\s*%/.test(r.html)],
     ["a thin row is counted as a readable member-row",
       (x) => x.replace("{ key: 'thin', label: 'Thin', readable: false }", "{ key: 'thin', label: 'Thin', readable: true }"),

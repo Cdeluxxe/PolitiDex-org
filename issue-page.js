@@ -70,6 +70,12 @@
   var PEOPLE_WALL = 'A published position on this issue, and the formal record behind it. ' +
     'This is not a ranking and it is not a match score.';
   var NO_PEOPLE = 'No member has a published position on this issue yet.';
+  // The tree's own sentence for a formal-record lane still in flight, matched
+  // character for character rather than paraphrased: the same member's tree may be
+  // open in the next tab, and a second wording for one state would read as a
+  // second state. Kept here so this file can tell "still loading" apart from a
+  // finding without importing consistency.js's private table.
+  var LANE_WARM = 'Checking the formal record\u2026';
   var BUCKETS = [
     { key: 'supports', label: 'Supports', readable: true },
     { key: 'opposes', label: 'Opposes', readable: true },
@@ -296,8 +302,14 @@
           cap(r.subject ? SUBJECT : RODE) + '. ' + cap(rollLine(r)) + '. Open this bill.') + '">' +
         '<span class="pdxip-num">' + esc(r.number) + '</span>' +
         '<span class="pdxip-ttl">' + esc(r.title) + '</span>' +
-        '<span class="pdxip-lane-t">' + esc(r.subject ? SUBJECT : RODE) + '</span>' +
-        '<span class="pdxip-meta">' + esc(rollLine(r)) + '</span>' +
+        // The lane and the roll line share one strip under the loud line, in that
+        // order, so a row is two lines rather than four stacked fragments. Both
+        // used to sit in their own grid cell at fine-print size, which is what made
+        // the whole list read as one block.
+        '<span class="pdxip-sub">' +
+          '<span class="pdxip-lane-t">' + esc(r.subject ? SUBJECT : RODE) + '</span>' +
+          '<span class="pdxip-meta">' + esc(rollLine(r)) + '</span>' +
+        '</span>' +
         '<span class="pdxip-go" aria-hidden="true">›</span>' +
       '</button>' +
     '</li>';
@@ -313,7 +325,12 @@
         '<p class="pdxip-empty-b">' + esc(s.defined ? s.inn : noDef()) + '</p>' +
       '</section>';
     }
-    return '<section class="pdxip-sect" data-pdxip-list="1">' +
+    // The tint rides on the SECTION, not just the header chip: `--pdx-ic` is a
+    // custom property and inherits, so every row inside can key its left edge off
+    // the one colour this issue already has everywhere else on the site. Nothing
+    // here reads the attribute — it is set by the same accessor the chip uses, so
+    // there is one way to ask for an issue's colour and not two.
+    return '<section class="pdxip-sect" data-pdxip-list="1"' + issueTint(key) + '>' +
       '<h3 class="pdxip-h">Every measure mapped to this issue</h3>' +
       '<ol class="pdxip-rows">' + rows.map(rowHtml).join('') + '</ol>' +
       '<p class="pdxip-note">' + esc(PKG_NOTE) + '</p>' +
@@ -399,7 +416,24 @@
     try { lf = T.leaf(pid, key); } catch (e) { lf = null; }
     var rc = lf && lf.record;
     if (!rc || !rc.label) return null;
-    return { label: String(rc.label), counts: String(rc.counts || '') };
+    // LOADING IS A STATE, NOT A FINDING. The formal-record lane arrives after first
+    // paint, so on a cold open the tree's record slot is legitimately 'pending' and
+    // its label is the sentence that says so. That sentence used to be printed in
+    // the same weight as a real record read and then left there for good, because
+    // this page rendered twice and never again. It is carried as a flag now: the
+    // row marks itself busy, and the warm repaint below clears it. `state` is the
+    // structural test; the label comparison is the backstop for a leaf assembled
+    // by anything that fills the label without filling the state.
+    var pending = (rc.state === 'pending') || (String(rc.label) === LANE_WARM);
+    return {
+      label: String(rc.label),
+      // The tree prints `depth` beside this label ('6 votes on file') and this page
+      // printed `counts` instead, which is the tally behind it. Both, in the tree's
+      // order, so the line reads the same in both places.
+      depth: String(rc.depth || ''),
+      counts: String(rc.counts || ''),
+      pending: pending
+    };
   }
   function peopleRows(key) {
     if (!key) return [];
@@ -437,11 +471,15 @@
   }
 
   function personHtml(p, key) {
-    var pat = p.pattern
-      ? '<span class="pdxip-p-pat"><b>🏛 Record:</b> ' + esc(p.pattern.label) +
-          (p.pattern.counts ? '<i class="pdxip-p-cnt"> · ' + esc(p.pattern.counts) + '</i>' : '') +
-        '</span>'
-      : '';
+    var pat = '';
+    if (p.pattern) {
+      var tail = [p.pattern.depth, p.pattern.counts].filter(Boolean).join(' · ');
+      pat = '<span class="pdxip-p-pat' + (p.pattern.pending ? ' is-warm' : '') + '"' +
+          (p.pattern.pending ? ' aria-busy="true"' : '') + '>' +
+        '<b>🏛 Record:</b> ' + esc(p.pattern.label) +
+        (tail ? '<i class="pdxip-p-cnt"> · ' + esc(tail) + '</i>' : '') +
+      '</span>';
+    }
     // The dossier door is the site's existing contract — [data-pdxst-dos] on the
     // element, resolved by the same delegated handler the tree's leaves use — so
     // this row lands on the person file for THIS issue and not on a second sheet
@@ -579,6 +617,9 @@
 
   // ── THE OVERLAY ─────────────────────────────────────────────────────────────
   var _key = '';
+  var _opener = null;  // the chip/button the reader opened the page from
+  var _prevUrl = '';   // the address the reader opened the page FROM
+  var _state = null;   // the last loaded page, kept so a lane can repaint it
   function ensureOverlay() {
     var ov = document.getElementById('pdx-ip-overlay');
     if (ov) return ov;
@@ -596,8 +637,12 @@
       '</div>';
     document.body.appendChild(ov);
     ov.addEventListener('click', function (e) {
-      if (e.target && e.target.hasAttribute && e.target.hasAttribute('data-pdxip-close')) { close(); return; }
       if (!e.target || !e.target.closest) return;
+      // closest(), not hasAttribute() - the X carries a glyph and the backdrop can
+      // be given children later, and a dismissal control that only answers to a tap
+      // on its own outermost box is a control that stops working the first time
+      // anything is nested inside it.
+      if (e.target.closest('[data-pdxip-close]')) { close(); return; }
       var b = e.target.closest('[data-pdxip-bill]');
       if (b) { openBill(b.getAttribute('data-pdxip-bill'), b.getAttribute('data-pdxip-sitting')); return; }
       var p = e.target.closest('[data-pdxip-pid]');
@@ -614,8 +659,58 @@
       }
     });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !ov.hidden) close();
+      if (e.key !== 'Escape' || !isOpen()) return;
+      e.preventDefault();
+      close();
     });
+    // ── THE WARM REPAINT ──────────────────────────────────────────────────────
+    // The member block's record lines come from the tree, whose formal-record lane
+    // lands after first paint. This page rendered exactly twice - loading, then
+    // loaded - so whatever the lane said while it was still in flight stayed on
+    // screen for the life of the overlay: that is how 'Checking the formal record'
+    // became a permanent caption rather than a wait. It rebuilds on the same
+    // 'pdx-consistency-warm' event the tree, the spine and the header tally already
+    // rebuild on, and only the member block is rebuilt - the measure list is not
+    // refetched, and the reader's fold stays as they left it.
+    if (window.addEventListener) {
+      window.addEventListener('pdx-consistency-warm', function () {
+        if (!isOpen() || !_state || !_state.key || _state.key !== _key) return;
+        // Nothing to repaint once every row has an answer. The event fires once per
+        // member in the queue, so without this the block would rebuild for members
+        // it has already finished reading.
+        var waiting = (_state.people || []).filter(function (p) {
+          return p.pattern && p.pattern.pending;
+        }).length;
+        if (!waiting) return;
+        var fold = document.querySelector('#pdx-ip-scroll [data-pdxip-people="1"]');
+        if (!fold) return;
+        var wasOpen = !!fold.open;
+        // The row the reader is standing on, if they are standing on one. The swap
+        // below destroys the element under the caret, and focus dropping to the
+        // body mid-read is the same discourtesy as a fold closing itself.
+        var heldPid = '';
+        try {
+          var ae = document.activeElement;
+          var row = (ae && ae.closest) ? ae.closest('[data-pdxip-pid]') : null;
+          if (row && fold.contains && fold.contains(row)) heldPid = row.getAttribute('data-pdxip-pid') || '';
+        } catch (e) {}
+        var people;
+        try { people = peopleRows(_state.key); } catch (e) { return; }
+        _state.people = people;
+        try { fold.outerHTML = peopleHtml(people, _state.key); } catch (e) { return; }
+        // The fold survives the swap. A repaint that closed a block the reader had
+        // opened would look like the block had collapsed on its own.
+        var next = document.querySelector('#pdx-ip-scroll [data-pdxip-people="1"]');
+        if (!next) return;
+        if (wasOpen) next.open = true;
+        if (heldPid) {
+          try {
+            var back = next.querySelector('[data-pdxip-pid="' + heldPid + '"]');
+            if (back && typeof back.focus === 'function') back.focus();
+          } catch (e2) {}
+        }
+      });
+    }
     return ov;
   }
   function show(html) {
@@ -623,6 +718,16 @@
     if (!ov) return false;
     var sc = document.getElementById('pdx-ip-scroll');
     if (sc) sc.innerHTML = html;
+    // Remembered on the way IN, while the chip that was tapped is still the active
+    // element, and only when the page was not already open - a repaint of an open
+    // page must not overwrite the reader's real origin with something inside the
+    // overlay itself.
+    if (ov.hidden) {
+      try {
+        var ae = document.activeElement;
+        _opener = (ae && ae !== document.body && !ov.contains(ae)) ? ae : null;
+      } catch (e) { _opener = null; }
+    }
     ov.hidden = false;
     try { document.documentElement.classList.add('pdxip-lock'); } catch (e) {}
     return true;
@@ -638,6 +743,12 @@
       if (!history.pushState) return;
       var want = '/issue/' + encodeURIComponent(key);
       if (location.pathname === want) return;
+      // The address to hand back on close. Never another /issue/ path: the page can
+      // be reopened on a second key while the first is still up, and restoring to
+      // the first would leave the bar claiming an issue page that is not there.
+      if (!/^\/issue\//.test(location.pathname || '')) {
+        _prevUrl = (location.pathname || '/') + (location.search || '') + (location.hash || '');
+      }
       history.pushState({ pdxIssuePage: key }, document.title, want);
     } catch (e) {}
   }
@@ -645,7 +756,15 @@
     try {
       if (!history.replaceState) return;
       if (!/^\/issue\//.test(location.pathname || '')) return;
-      history.replaceState({}, document.title, '/');
+      // RESTORED, NOT JUST CLEARED. The page is opened from a topic chip on a bill
+      // letterhead and from a chip in a person brief, so the address underneath is
+      // often /b/... or /p/... and not the front page. Closing used to rewrite it to
+      // '/' regardless, so the reader was left reading a profile at an address that
+      // said homepage. A reader who arrived on /issue/<key> cold has no earlier
+      // address here, and for them '/' - what is actually rendered behind the
+      // overlay - is still the honest answer.
+      history.replaceState({}, document.title, _prevUrl || '/');
+      _prevUrl = '';
     } catch (e) {}
   }
 
@@ -658,20 +777,41 @@
     if (!opts.fromPop) pushPath(key);
     load(key).then(function (st) {
       if (_key !== key) return; // the reader moved on while the archive answered
+      _state = st;
       show(bodyHtml(st));
     }).catch(function () {
       if (_key !== key) return;
-      show(bodyHtml({ key: key, rows: [], people: [], error: true }));
+      _state = { key: key, rows: [], people: [], error: true };
+      show(bodyHtml(_state));
     });
     return true;
   }
+  // THE ONE CLOSE. The X, the backdrop, Escape and the router's own back-button
+  // path (index.html -> syncIssuePage -> IP.close({fromPop:true})) all arrive here;
+  // the only thing fromPop changes is whether the address is ours to rewrite,
+  // because on a popstate the browser has already moved it.
   function close(opts) {
     opts = opts || {};
     var ov = document.getElementById('pdx-ip-overlay');
+    var held = null;
+    try {
+      // Focus is only ours to move if it is still inside the overlay. If the reader
+      // has since clicked into the page behind, leaving it where it is beats
+      // yanking it back to a chip they have finished with.
+      var ae = document.activeElement;
+      if (ov && ae && ov.contains && ov.contains(ae)) held = _opener;
+    } catch (e) {}
     if (ov) ov.hidden = true;
     _key = '';
+    _opener = null;
+    _state = null;
     try { document.documentElement.classList.remove('pdxip-lock'); } catch (e) {}
     if (!opts.fromPop) clearPath();
+    // After the overlay is display:none, so the browser is not asked to focus
+    // something it cannot see.
+    if (held && typeof held.focus === 'function') {
+      try { held.focus(); } catch (e) {}
+    }
   }
   function isOpen() {
     var ov = document.getElementById('pdx-ip-overlay');
@@ -692,15 +832,28 @@
     var css = [
       'html.pdxip-lock{overflow:hidden;}',
       '.pdxip-overlay{position:fixed;inset:0;z-index:9200;display:flex;align-items:flex-start;justify-content:center;}',
+      // WHY THIS LINE EXISTS. close() hides the overlay by setting the `hidden`
+      // attribute, and `hidden` is display:none in the UA sheet only - an author
+      // `display:flex` on the same element beats it outright, whatever the
+      // specificity. Without this rule close() ran in full and the reader still
+      // sat behind a backdrop that ate every tap: the X did nothing, the dimmed
+      // page did nothing, and Escape - gated on ov.hidden, by then true - had
+      // switched itself off. Every other overlay in the app pairs its display
+      // rule with this one (.pdx-act-overlay, .pdx-impact-overlay); this one did not.
+      '.pdxip-overlay[hidden]{display:none;}',
       '.pdxip-backdrop{position:absolute;inset:0;background:rgba(4,8,18,0.72);}',
-      '.pdxip-panel{position:relative;margin:2vh auto;width:min(46rem,calc(100vw - 1.5rem));',
-        'max-height:96vh;display:flex;flex-direction:column;background:linear-gradient(180deg,#101a2e,#0b1220);',
+      // A sheet, not a dumped div: the width cap was already here, the vertical
+      // cap keeps it off the top and bottom edges on a tall screen, and the inner
+      // padding below is what stops the content from starting at the border.
+      '.pdxip-panel{position:relative;margin:max(3vh,0.9rem) auto;width:min(46rem,calc(100vw - 1.75rem));',
+        'max-height:min(92vh,54rem);display:flex;flex-direction:column;background:linear-gradient(180deg,#101a2e,#0b1220);',
         'border:1px solid rgba(159,180,212,0.22);border-radius:16px;box-shadow:0 24px 64px rgba(0,0,0,0.55);}',
       '.pdxip-x{position:absolute;top:0.35rem;right:0.4rem;min-width:2.5rem;min-height:2.5rem;background:none;',
         'border:0;color:#9fb4d4;font-size:1.35rem;line-height:1;cursor:pointer;z-index:2;}',
       '.pdxip-x:hover,.pdxip-x:focus-visible{color:#eef4ff;}',
-      '.pdxip-scroll{overflow:auto;-webkit-overflow-scrolling:touch;padding:1rem 1rem 1.4rem;}',
-      '.pdxip-hd{padding-right:2.4rem;}',
+      '.pdxip-scroll{overflow:auto;-webkit-overflow-scrolling:touch;padding:1.4rem 1.4rem 1.7rem;}',
+      '@media (max-width:520px){.pdxip-scroll{padding:1.1rem 1rem 1.4rem;}}',
+      '.pdxip-hd{padding-right:2.6rem;}',
       '.pdxip-chipw{display:flex;align-items:center;gap:0.25rem;}',
       '.pdxip-chip{display:inline-flex;align-items:center;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;',
         'font-size:1.15rem;line-height:1.2;color:#eef4ff;border:1px solid rgba(159,180,212,0.28);',
@@ -714,18 +867,64 @@
       '.pdxip-h{margin:0 0 0.45rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.62rem;',
         'letter-spacing:0.12em;text-transform:uppercase;color:#7596c0;}',
       '.pdxip-rows,.pdxip-ps{list-style:none;margin:0;padding:0;}',
-      '.pdxip-row+.pdxip-row,.pdxip-p+.pdxip-p{margin-top:0.35rem;}',
+      '.pdxip-row+.pdxip-row{margin-top:0.5rem;}',
+      '.pdxip-p+.pdxip-p{margin-top:0.35rem;}',
+      // ON THE SITE'S OWN FACE. Nothing sets a font on buttons globally, so these
+      // rows were rendering their titles and names in the browser's button font
+      // while the header chip above them was in Barlow - which is most of why the
+      // header read as on-theme and the list did not.
       '.pdxip-open,.pdxip-p-open{display:grid;grid-template-columns:auto 1fr auto;gap:0.15rem 0.5rem;width:100%;',
+        'font-family:\'Barlow\',sans-serif;',
         'text-align:left;background:rgba(127,180,255,0.05);border:1px solid rgba(159,180,212,0.16);',
-        'border-radius:12px;padding:0.55rem 0.65rem;color:#eef4ff;cursor:pointer;}',
+        'border-radius:12px;padding:0.6rem 0.7rem;color:#eef4ff;cursor:pointer;}',
       '.pdxip-open:hover,.pdxip-open:focus-visible,.pdxip-p-open:hover,.pdxip-p-open:focus-visible{',
         'background:rgba(127,180,255,0.12);border-color:rgba(159,180,212,0.32);}',
-      '.pdxip-num{font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.92rem;color:#9fdbff;}',
-      '.pdxip-ttl{font-size:0.86rem;line-height:1.35;}',
+      // THE LOUD LINE. The number and the short title are the row, and they are
+      // the largest type in it; everything else in the row is smaller than both.
+      '.pdxip-num{font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:1.05rem;',
+        'line-height:1.25;color:#9fdbff;white-space:nowrap;}',
+      '.pdxip-ttl{font-weight:600;font-size:0.98rem;line-height:1.3;color:#eef4ff;}',
+      // Pinned to its own column across both rows of the measure card. Left to
+      // auto-placement it would follow the strip below the title into row two and
+      // sit at the bottom-right corner of the card instead of beside it.
       '.pdxip-go{align-self:center;color:#7596c0;}',
-      '.pdxip-lane-t{grid-column:2;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;',
-        'letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;}',
-      '.pdxip-meta{grid-column:2;font-size:0.74rem;color:#b9cae3;}',
+      '.pdxip-open>.pdxip-go{grid-column:3;grid-row:1/span 2;}',
+      // Under it, on one wrapping strip: the lane, then the roll line.
+      '.pdxip-sub{grid-column:1/span 2;display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem 0.5rem;',
+        'margin-top:0.15rem;}',
+      // A REAL BADGE, NOT FINE PRINT. Whether an act is the subject of this issue or
+      // rode inside something larger is the single most load-bearing fact in the
+      // row, and it was set in 0.58rem muted uppercase - smaller than the roll line
+      // it sat above. It is a pill now, and it is the one thing in the row that
+      // changes shape between the two lanes.
+      '.pdxip-lane-t{display:inline-flex;align-items:center;font-family:\'Barlow Condensed\',sans-serif;',
+        'font-weight:700;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;line-height:1.3;',
+        'padding:0.14rem 0.45rem;border-radius:9999px;border:1px solid rgba(159,180,212,0.3);',
+        'color:#cbd9ee;background:rgba(127,180,255,0.07);white-space:nowrap;}',
+      // One step heavier than the fine print beneath the title, which is what it
+      // was indistinguishable from: chamber, date and the Yea-Nay are the facts a
+      // reader scans a list of measures for.
+      '.pdxip-meta{font-family:\'Barlow Condensed\',sans-serif;font-weight:600;font-size:0.84rem;',
+        'letter-spacing:0.015em;line-height:1.3;color:#cfe0f7;}',
+      // ── SUBJECT VS RIDER, AS A SHAPE ──────────────────────────────────────────
+      // The issue's own colour at low alpha on the left edge of a row this issue is
+      // the subject of. Riders keep the flat card - dimmer, thinner edge, no wash -
+      // and are neither hidden nor folded away: a rider is still a mapping on file
+      // and the list still prints every one of them.
+      //   `--pdx-ic` arrives by inheritance from the section, so a boot without the
+      // colour table falls back to the neutral rule underneath rather than to no
+      // border at all, and a browser without color-mix drops only the wash.
+      '.pdxip-row[data-pdxip-lane="subject"]>.pdxip-open{',
+        'border-left:3px solid color-mix(in srgb,var(--pdx-ic,#9fb4d4) 55%,transparent);',
+        'background:linear-gradient(90deg,color-mix(in srgb,var(--pdx-ic,#9fb4d4) 11%,transparent),',
+        'rgba(127,180,255,0.05) 40%);}',
+      '.pdxip-row[data-pdxip-lane="subject"] .pdxip-lane-t{color:#eef4ff;',
+        'border-color:color-mix(in srgb,var(--pdx-ic,#9fb4d4) 55%,transparent);',
+        'background:color-mix(in srgb,var(--pdx-ic,#9fb4d4) 20%,transparent);}',
+      '.pdxip-row[data-pdxip-lane="rode"]>.pdxip-open{background:rgba(127,180,255,0.025);',
+        'border-color:rgba(159,180,212,0.13);}',
+      '.pdxip-row[data-pdxip-lane="rode"] .pdxip-lane-t{color:#9fb4d4;background:none;',
+        'border-color:rgba(159,180,212,0.24);}',
       '.pdxip-note{margin:0.6rem 0 0;font-size:0.72rem;line-height:1.5;color:#7596c0;}',
       '.pdxip-empty-h{margin:0;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:1rem;color:#eef4ff;}',
       '.pdxip-empty-b{margin:0.35rem 0 0;font-size:0.78rem;line-height:1.55;color:#b9cae3;}',
@@ -740,7 +939,13 @@
       '.pdxip-p-said{grid-column:2;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.6rem;',
         'letter-spacing:0.1em;text-transform:uppercase;color:#9fdbff;}',
       '.pdxip-p-pat{grid-column:2;font-size:0.74rem;color:#b9cae3;}',
-      '.pdxip-p-cnt{color:#7596c0;font-style:normal;}'
+      '.pdxip-p-cnt{color:#7596c0;font-style:normal;}',
+      // A wait, dressed as a wait. Same sentence the tree uses, set apart from the
+      // finished lines beside it so it cannot be mistaken for a finding while it
+      // stands - and it does not stand for long, because the warm repaint replaces
+      // it the moment the lane answers.
+      '.pdxip-p-pat.is-warm{color:#7596c0;font-style:italic;}',
+      '.pdxip-p-pat.is-warm b{font-style:normal;opacity:0.75;}'
     ].join('');
     var st = document.createElement('style');
     st.id = 'pdxip-css';
