@@ -2441,6 +2441,12 @@
       '.pdxdos-tag-p{border-color:rgba(110,231,160,0.45);color:#a9e9c6;}' +
       '.pdxdos-tag-n{border-color:rgba(240,205,140,0.45);color:#f0cd8c;}' +
       '.pdxdos-src{display:inline-block;margin-top:0.3rem;font-size:0.68rem;color:#7fb4ff;}' +
+      // The door to the measure's own face. Full width and its own line: it is a
+      // change of surface, not another citation on this one.
+      '.pdxdos-billdoor{display:block;width:100%;margin-top:0.45rem;padding:0.45rem 0.6rem;cursor:pointer;text-align:left;' +
+        'font:700 0.7rem/1.3 "Barlow Condensed",sans-serif;letter-spacing:0.03em;color:#cfe2ff;' +
+        'background:rgba(96,165,250,0.12);border:1px solid rgba(126,180,255,0.35);border-radius:0.45rem;}' +
+      '.pdxdos-billdoor:hover{background:rgba(96,165,250,0.22);border-color:#9ec8ff;color:#fff;}' +
       // The bill text the mapping was read against, beside but never merged into the
       // roll-call source: two documents, two links, dimmer on the secondary one.
       '.pdxdos-src-txt{margin-left:0.55rem;color:#9fb4d4;}' +
@@ -3169,6 +3175,18 @@
       if (drv) {
         e.preventDefault();
         _drvOpen(drv);
+        return;
+      }
+      // ── Tap the measure's own profile, get the whole bill ─────────────────
+      // The other direction of the same trip: the roll-up row above opens this
+      // measure's explainer inside the person file, and this opens the measure's own
+      // face — every topic it was mapped to, and the roll list. Checked here rather
+      // than left to bill-detail.js because the panel's own delegate only listens
+      // inside its overlay, and this button is on the person file.
+      var bopen = e.target.closest && e.target.closest('[data-pdxbill-open]');
+      if (bopen) {
+        e.preventDefault();
+        _billOpen(bopen);
         return;
       }
       // The stance row's primary tap: the issue name opens that issue's dossier and
@@ -12441,6 +12459,18 @@
   // "119th Congress". Ordinary English ordinals, so 121st and 122nd come out right
   // when someone reads this in 2029 — the 11x block is the exception every naive
   // implementation gets wrong.
+  // THE SITTING AS AN ADDRESS SEGMENT, not as prose. _dosSessionLabel prints "119th
+  // Congress" / "2025GS" for a reader; a bill profile's address needs the raw
+  // segment, and the two must come from the same fields or a row could link to a
+  // different sitting than the one printed on it.
+  function _dosSittingKey(item) {
+    if (!item) return '';
+    var mi = item.measureIdent;
+    var code = (mi && typeof mi.session === 'string') ? mi.session.trim() : '';
+    if (code) return code;
+    var c = item.congress;
+    return (typeof c === 'number' && isFinite(c) && c > 0) ? String(c) : '';
+  }
   function _dosCongressLabel(n) {
     if (typeof n !== 'number' || !isFinite(n) || n <= 0) return '';
     var t = n % 100, u = n % 10;
@@ -12644,6 +12674,14 @@
           // congress — and a caller reading "2025GS" out of it would be reading a
           // field that lied about its own name.
           session: _dosSessionLabel(p.item),
+          // WHERE THE WHOLE MEASURE LIVES. This row is one issue's view of a bill:
+          // the one topic this dossier is about, and how they voted on it. The bill
+          // itself was mapped to every topic it touched, and the vote on this row is
+          // the same vote on all of them — so the row carries the measure's own
+          // address and slot 1 opens it. A number without its sitting is not an
+          // address, so both travel together.
+          billNum: (b.isPosition ? '' : (b.bill || '')),
+          billSit: _dosSittingKey(p.item),
           readFrom: _dosReadFrom(p.item),
           officialTitle: _dosOfficialTitle(p.item, b.title || p.item.title || ''),
           billUrl: _dosBillUrl(p.item),
@@ -13818,6 +13856,25 @@
       out.push('<a class="pdxdos-src pdxdos-src-txt" href="' + esc(d.billUrl) + '" target="_blank" rel="noopener">' +
         'The bill ↗</a>');
     }
+    // ── THE BILL'S OWN PROFILE ──────────────────────────────────────────────
+    // ONE ARCHIVE, THREE FACES, AND THIS IS THE DOOR BETWEEN TWO OF THEM. What this
+    // sheet shows is one issue's slice of a measure: this chip, this rationale, this
+    // member's ballot. The measure has a face of its own — every topic it was mapped
+    // to, whether each was the bill's subject or rode inside it, and the whole roll
+    // list — and the same vote on this row counts in full on every one of those
+    // topics. A reader who wants to check that has to be able to get there from here.
+    //
+    // Rendered only when the panel is actually on the page, and only for a row that
+    // names a measure: an executive document has no bill profile, and a button that
+    // opens nothing is worse than no button.
+    if (d.billNum && window.PDXBillDetail && typeof window.PDXBillDetail.open === 'function') {
+      out.push('<button type="button" class="pdxdos-billdoor" data-pdxbill-open' +
+        ' data-pdxbill-num="' + escAttr(d.billNum) + '"' +
+        ' data-pdxbill-sit="' + escAttr(d.billSit || '') + '"' +
+        ' title="' + escAttr('Open the full profile of ' + d.billNum) + '">' +
+        '📜 Open the full bill profile — every topic it was mapped to, and everyone who voted' +
+        '</button>');
+    }
     if (d.held) {
       out.push('<div class="pdxdos-d pdxdos-rec-hold">' + esc(d.heldWhy) + '</div>');
     }
@@ -14034,6 +14091,20 @@
   // Every step is defensive and the whole thing is a no-op on failure: the roll-up
   // row is a summary of a list that is still on the page, so a bridge that cannot
   // find its target costs a reader one scroll rather than an error.
+  // Hand the ref to the one panel that renders a measure. The sitting rides along so
+  // a state bill number — which repeats in every session — resolves to the session
+  // the row is actually about, and the panel is asked to open the number rather than
+  // an id because the number is the only identifier this row holds.
+  function _billOpen(el) {
+    try {
+      var num = el && el.getAttribute ? (el.getAttribute('data-pdxbill-num') || '') : '';
+      if (!num) return;
+      var sit = el.getAttribute('data-pdxbill-sit') || '';
+      var B = window.PDXBillDetail;
+      if (B && typeof B.open === 'function') B.open(num, sit);
+    } catch (e) {}
+  }
+
   function _drvOpen(el) {
     try {
       if (!el || !el.getAttribute) return;

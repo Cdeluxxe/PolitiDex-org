@@ -96,6 +96,15 @@ eq(parse("/issue/ai-regulation-job-displacement-2026"),
 eq(parse("/?issue=ai-regulation-job-displacement-2026"),
   { kind: "spotlight", slug: "ai-regulation-job-displacement-2026" }, "parse: ?issue= → spotlight");
 eq(parse("/?bill=119/H.R.%201"), { kind: "bill", congress: "119", number: "H.R. 1" }, "parse: ?bill= splits congress/number");
+// /b/<sitting>/<number> is the canonical bill address, and the sitting is not always
+// a congress: a state measure's congress column is NULL and its session code is what
+// makes the number unique. Both forms, plus the sitting-less one, resolve.
+eq(parse("/b/119/H.R.%201"), { kind: "bill", congress: "119", number: "H.R. 1" },
+  "parse: /b/<congress>/<number> → bill");
+eq(parse("/b/2024GS/H.B.%20257"), { kind: "bill", congress: "2024GS", number: "H.B. 257" },
+  "parse: /b/<session>/<number> → bill, so a state measure has an address at all");
+eq(parse("/b/H.R.%201"), { kind: "bill", congress: "", number: "H.R. 1" },
+  "parse: /b/<number> alone → bill with no sitting claimed");
 eq(parse("/?receipt=aaron_ford~healthcare"),
   { kind: "receipt", pid: "aaron_ford", issue: "healthcare" }, "parse: ?receipt= → receipt");
 eq(parse("/?record=aaron_ford~healthcare"),
@@ -499,6 +508,16 @@ let w = loadLinks("https://politidex.fyi/?bill=119%2FH.R.%201");
 eq(w.location.hash, "#bill/119/H.R.%201", "arrival: ?bill= becomes the #bill/ hash the app already handles");
 ok(!/bill=/.test(w.location.search), "arrival: the consumed param is cleaned out of the URL");
 
+// The canonical path, on arrival. The path is left in place — copying the URL back
+// out of the bar has to keep the address that unfurls.
+w = loadLinks("https://politidex.fyi/b/119/H.R.%201");
+eq(w.location.hash, "#bill/119/H.R.%201", "arrival: /b/ becomes the #bill/ hash the panel handles");
+eq(w.location.pathname, "/b/119/H.R.%201", "arrival: the /b/ path is preserved");
+w = loadLinks("https://politidex.fyi/b/2024GS/H.B.%20257");
+eq(w.location.hash, "#bill/2024GS/H.B.%20257", "arrival: a state sitting survives the round trip intact");
+w = loadLinks("https://politidex.fyi/b/H.R.%201");
+eq(w.location.hash, "#bill//H.R.%201", "arrival: a sitting-less /b/ address still opens the number");
+
 w = loadLinks("https://politidex.fyi/?receipt=aaron_ford~healthcare");
 eq(w.location.hash, "#receipt=aaron_ford~healthcare", "arrival: ?receipt= becomes #receipt=");
 w = loadLinks("https://politidex.fyi/?record=aaron_ford~healthcare");
@@ -563,7 +582,12 @@ ok(!loadLinks("https://politidex.fyi/?receipt=aaron_ford~healthcare").notice,
 {
   const w2 = loadLinks("https://politidex.fyi/");
   const L = w2.PDXShareLinks;
-  eq(L.bill(119, "H.R. 1"), "https://politidex.fyi/?bill=119%2FH.R.%201", "builder: bill link is server-visible");
+  eq(L.bill(119, "H.R. 1"), "https://politidex.fyi/b/119/H.R.%201",
+    "builder: bill link is the canonical /b/ path");
+  eq(L.bill("2024GS", "H.B. 257"), "https://politidex.fyi/b/2024GS/H.B.%20257",
+    "builder: a state measure's sitting is its session code, not a congress");
+  eq(L.bill("", "H.R. 1"), "https://politidex.fyi/b/H.R.%201",
+    "builder: no sitting drops the segment rather than the link");
   eq(L.receipt("aaron_ford", "healthcare"), "https://politidex.fyi/?receipt=aaron_ford~healthcare", "builder: receipt link");
   eq(L.record("aaron_ford", "healthcare"), "https://politidex.fyi/?record=aaron_ford~healthcare", "builder: record link");
   eq(L.rank("healthcare", { key: "drug_prices", mode: "all" }),
@@ -575,6 +599,8 @@ ok(!loadLinks("https://politidex.fyi/?receipt=aaron_ford~healthcare").notice,
   // came from, and rebuild the same hash. This is the join between the two halves.
   for (const [url, kind] of [
     [L.bill(119, "H.R. 1"), "bill"],
+    [L.bill("2024GS", "H.B. 257"), "bill"],
+    [L.bill("", "H.R. 1"), "bill"],
     [L.receipt("aaron_ford", "healthcare"), "receipt"],
     [L.record("aaron_ford", "healthcare"), "record"],
     [L.rank("healthcare", { key: "drug_prices" }), "rank"],

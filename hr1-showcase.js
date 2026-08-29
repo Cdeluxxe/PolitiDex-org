@@ -420,6 +420,23 @@
     } catch (e) { done([]); }
   }
 
+  // ONE PANEL, EVERY ENTRANCE. bill-detail.js resolves a printed number plus its
+  // sitting, so that pair is all a door needs — no id lookup here, and no second
+  // idea of what identifies a bill. The sitting matters: a bill number repeats every
+  // congress and every state session, and a door that drops it is a door that can
+  // land on the wrong measure.
+  function billDoorHtml(number, sitting, label) {
+    if (!number) return '';
+    return '<button type="button" class="hr1-billdoor" data-hr1-bill="' + escAttr(number) + '"' +
+      ' data-hr1-sit="' + escAttr(sitting || '') + '">📜 ' + esc(label) + '</button>';
+  }
+  function sittingOf(m) {
+    var x = m && m.externalIds;
+    var us = (x && typeof x === 'object' && x.utahSession) ? String(x.utahSession).trim() : '';
+    if (us) return us;
+    return (m && m.congress != null && m.congress !== '') ? String(m.congress) : '';
+  }
+
   function moreOmnibusBlock() {
     if (!MORE.items.length) return '';
     var cards = MORE.items.map(function (m) {
@@ -440,6 +457,7 @@
           (tags ? '<div class="hr1-more-tags">' + tags + '</div>' : '') +
           (counts.length ? '<div class="hr1-more-meta">' + esc(counts.join(' · ')) + '</div>' : '') +
           src +
+          billDoorHtml(m.number || '', sittingOf(m), 'Open this bill’s profile') +
         '</div>';
     }).join('');
     return '<div class="hr1-block">' +
@@ -531,6 +549,16 @@
             '<p>Six different promises, decided together. That’s why a single “yea” lands as consistent on one issue and a contradiction on the next.</p>' +
           '</div>' +
           '<div class="hr1-omni-grid">' + OMNIBUS.map(omniCard).join('') + '</div>' +
+          // ── The bill's own face ─────────────────────────────────────────
+          // This block teaches what is inside the vote with six curated cards.
+          // The measure's own profile is the archive's answer to the same
+          // question — every topic H.R.1 was actually mapped to, whether each
+          // was the bill's subject or rode inside it, and the whole roll list —
+          // so the showcase hands the reader over to it rather than being the
+          // end of the road. Same panel the library and the person files open;
+          // there is one bill face, not one per entrance.
+          billDoorHtml('H.R. 1', '119',
+            'Open the H.R.1 bill profile — every topic it was mapped to, and everyone who voted') +
           '<p class="hr1-omni-foot" style="margin-top:.7rem;font-size:.82rem;color:#9fb4d4;line-height:1.5;">' +
             'Each #tag above is a real issue in the Voting Record. In a member’s profile, their one Yea or Nay on H.R.1 becomes a <strong style="color:#cbd9ec;">separate say-vs-do verdict on every one of these issues</strong> — matching their stated stance on some, contradicting it on others.' +
           '</p>' +
@@ -590,10 +618,30 @@
       '</div>';
 
     bindFilters(host);
+    bindBillDoors(host);
     hydrateShares(host);
   }
 
   // Delegated filter tabs (bound once per host innerHTML rebuild).
+  // Bound apart from bindFilters, which returns early when the showcase has no
+  // receipts grid to filter — the bill doors are on the page either way.
+  function bindBillDoors(host) {
+    if (!host || !host.addEventListener) return;
+    host.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('[data-hr1-bill]') : null;
+      if (!b) return;
+      e.preventDefault();
+      var num = b.getAttribute('data-hr1-bill') || '';
+      var sit = b.getAttribute('data-hr1-sit') || '';
+      try {
+        var B = window.PDXBillDetail;
+        if (B && typeof B.open === 'function') { B.open(num, sit); return; }
+        var L = window.PDXBills;
+        if (L && typeof L.open === 'function') L.open(num);
+      } catch (err) {}
+    });
+  }
+
   function bindFilters(host) {
     var tabs = host.querySelector('.hr1-tabs');
     var grid = host.querySelector('.hr1-receipts');

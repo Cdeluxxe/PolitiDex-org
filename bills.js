@@ -73,6 +73,16 @@
       .catch(function () { return null; });
   }
 
+  // The sitting an index card knows about: a congress for a federal row, the
+  // recorded session code for a state one whose congress column is NULL.
+  function sittingOfCard(card) {
+    if (!card) return '';
+    var x = card.externalIds;
+    var us = (x && typeof x === 'object' && x.utahSession) ? String(x.utahSession).trim() : '';
+    if (us) return us;
+    return (card.congress != null && card.congress !== '') ? String(card.congress) : '';
+  }
+
   // Find a card we already know about (live list caches first, then the inline
   // index) by numeric id or by bill number.
   function findCard(ref) {
@@ -95,11 +105,15 @@
   // Open a bill. Phase 2: prefer the rich in-app detail panel (PDXBillDetail) when
   // it's loaded; fall back to the Phase-1 behavior (open the canonical source in a
   // new tab) when it isn't. Always emits pdx:bill:open for any other listener.
-  function open(ref) {
+  function open(ref, sitting) {
     var card = findCard(ref);
     try { document.dispatchEvent(new CustomEvent('pdx:bill:open', { detail: { ref: ref, card: card } })); } catch (e) {}
     if (window.PDXBillDetail && typeof window.PDXBillDetail.open === 'function') {
-      return window.PDXBillDetail.open(ref);
+      // The sitting the caller named, or the one the card we already hold carries.
+      // A bill number repeats every congress and every state session, so passing it
+      // on is what keeps a library card and a shared link landing on the same row.
+      var sit = sitting || sittingOfCard(card);
+      return window.PDXBillDetail.open(ref, sit);
     }
     if (card && card.source && card.source.url) { window.open(card.source.url, '_blank', 'noopener'); return true; }
     if (/^\d+$/.test(String(ref))) {

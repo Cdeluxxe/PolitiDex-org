@@ -43,9 +43,11 @@
 //        query: chamber, position, from, to, sort, page, pageSize
 //   GET /measure/:measureId     one measure + its issues, roll calls (with votes),
 //                               and non-roll-call positions
-//   GET /measure-ref/:congress/:number
-//                               resolve a measure's printed identity ("119" +
-//                               "H.R. 9311") to its row — identity only
+//   GET /measure-ref/:sitting/:number
+//                               resolve a measure's printed identity to its row —
+//                               identity only. The sitting is a congress ("119")
+//                               or a state session code ("2024GS"), because a bill
+//                               number is only unique inside one sitting
 //   GET /rollcall/:congress/:chamber/:roll
 //                               resolve an official roll-call address to the measure
 //                               it belongs to (identity only, no member tally). This
@@ -1163,23 +1165,57 @@ async function getMemberImpacts(politicianId: string): Promise<Response> {
   return json({ politicianId, measures, cohortSummary });
 }
 
-// ── GET /measure-ref/:congress/:number ───────────────────────────────────────
-// Resolve a measure's NATURAL key — the congress plus the printed identifier
-// ("H.R. 9311") that a shared bill link carries — to its identity row.
+// ── GET /measure-ref/:sitting/:number ────────────────────────────────────────
+// Resolve a measure's NATURAL key — the sitting plus the printed identifier
+// ("H.R. 9311", "H.B. 257") that a shared bill link carries — to its identity row.
 //
 // The client already deep-links bills by congress + number; until now the only
 // way to turn that pair into a measure was to page through /measures and match
 // client-side, which a social scraper cannot do. This is the same resolution done
 // once, server-side, returning identity only.
-async function getMeasureRef(congress: number, number: string): Promise<Response> {
+//
+// THE FIRST SEGMENT IS A SITTING, NOT ONLY A CONGRESS. A bill number is unique
+// inside one sitting of one legislature and nowhere else: "H.B. 257" names a
+// different Utah bill in every general session, which is precisely why the ingest's
+// uniqueness index for state rows is (chamber, number, external_ids->>'utahSession')
+// rather than (congress, number). So this resolves either kind of sitting —
+// "119" against `congress`, "2024GS" against the recorded session — and a state
+// measure, whose congress column is NULL by design, becomes addressable for the
+// first time. An empty sitting resolves only when the number is unambiguous across
+// the whole archive; where it is not, the address is genuinely incomplete and
+// picking one row for the reader would be a guess.
+async function getMeasureRef(sitting: string, number: string): Promise<Response> {
   const wanted = number.trim();
   if (!wanted) return json({ error: "Missing measure number" }, 400);
+  const sit = String(sitting || "").trim();
+  const congress = /^\d+$/.test(sit) ? parseInt(sit, 10) : NaN;
 
-  const rows = await db
-    .select()
-    .from(vrMeasures)
-    .where(and(eq(vrMeasures.congress, congress), eq(vrMeasures.number, wanted)))
-    .limit(2);
+  // The indexed pair first, unchanged, for the federal address this route was born
+  // serving. Only when that misses is the number looked up on its own — the archive
+  // holds a few hundred measures, and a state row has no congress to index on.
+  let rows: (typeof vrMeasures.$inferSelect)[] = Number.isFinite(congress)
+    ? await db
+        .select()
+        .from(vrMeasures)
+        .where(and(eq(vrMeasures.congress, congress), eq(vrMeasures.number, wanted)))
+        .limit(2)
+    : [];
+  if (!rows.some((m) => m.sourceUrl)) {
+    const byNumber = await db.select().from(vrMeasures).where(eq(vrMeasures.number, wanted)).limit(40);
+    const citable = byNumber.filter((m) => m.sourceUrl);
+    const sessionOf = (m: typeof vrMeasures.$inferSelect) => {
+      const x = m.externalIds;
+      const v = x && typeof x === "object" ? (x as Record<string, unknown>).utahSession : null;
+      return typeof v === "string" ? v.trim().toUpperCase() : "";
+    };
+    rows = sit
+      ? citable.filter((m) =>
+          Number.isFinite(congress) ? m.congress === congress : sessionOf(m) === sit.toUpperCase()
+        )
+      : citable.length === 1
+        ? citable
+        : [];
+  }
 
   const measure = rows.find((m) => m.sourceUrl);
   if (!measure) return json({ error: "Measure not found" }, 404);
@@ -1189,6 +1225,10 @@ async function getMeasureRef(congress: number, number: string): Promise<Response
       id: measure.id,
       measureType: measure.measureType,
       congress: measure.congress,
+      // The sitting for a row that has no congress, projected through the same
+      // whitelist the record items use. A caller that has to build the measure's
+      // address back — a share card, a canonical link — cannot do it from a null.
+      session: measureIdent(measure.externalIds)?.session ?? null,
       chamber: measure.chamber,
       number: measure.number,
       title: measure.title,
@@ -1952,12 +1992,14 @@ export default async (req: Request): Promise<Response> => {
 
     // The printed bill identifier ("H.R. 9311") carries spaces and dots, so the
     // number is whatever remains after the congress segment.
-    const measureRefMatch = path.match(/^\/measure-ref\/(\d+)\/(.+)$/);
+    // The sitting segment may be a congress ("119"), a state session code
+    // ("2024GS"), or empty for a number that is unique on its own — see
+    // getMeasureRef. Anything outside that alphabet is not a sitting.
+    const measureRefMatch = path.match(/^\/measure-ref\/([A-Za-z0-9]*)\/(.+)$/);
     if (measureRefMatch) {
-      const congress = parseInt(measureRefMatch[1], 10);
+      const sitting = clean(decodeURIComponent(measureRefMatch[1]), 12);
       const number = clean(decodeURIComponent(measureRefMatch[2]), 80);
-      if (!Number.isFinite(congress)) return json({ error: "Congress must be an integer" }, 400);
-      return await getMeasureRef(congress, number);
+      return await getMeasureRef(sitting, number);
     }
 
     // The official roll-call address: /rollcall/119/house/190. Anything that is

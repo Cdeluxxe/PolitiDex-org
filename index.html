@@ -5372,9 +5372,12 @@ window.PDXLazy = (function () {
 
           // ── BILL / VOTE · one measure, split across what it touches ────────
           // The H.R.1 showcase is exactly that view, already built, so the door
-          // opens it rather than duplicating it. PDXBillDetail stays the route for
-          // any OTHER measure and is reached from inside that surface and from the
-          // Eye's bill results — this door does not need to guess a bill number.
+          // opens it rather than duplicating it — and the showcase now hands the
+          // reader on to the bill panel itself, both for H.R.1 and for every other
+          // multi-issue measure it lists, so this door reaches the bill face in one
+          // more tap without having to guess a bill number. PDXBillDetail is also
+          // reached from the library, the Eye's bill results and the measure rows in
+          // a person file; there is one panel behind all four.
           case 'bill':
             paint(function () { if (window.PDXHR1 && window.PDXHR1.mount) window.PDXHR1.mount(); });
             openWork('hr1-showcase');

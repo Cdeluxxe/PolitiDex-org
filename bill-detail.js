@@ -39,8 +39,16 @@
 
   var _current = null; // the bill currently shown (for follow + share)
 
+  // The app's own label first; then the shipped issue map behind the ⓘ control,
+  // which is the same table the issue faces read; and only then a key prettified
+  // into words. A chip that says "Lgbtq Rights" is a key wearing a label's clothes.
   function issueLabel(k) {
     try { if (typeof window._issueLabel === 'function') { var l = window._issueLabel(k); if (l) return l; } } catch (e) {}
+    try {
+      var S = window.PDXIssueScope;
+      var r = (S && typeof S.read === 'function') ? S.read(k) : null;
+      if (r && r.label) return r.label;
+    } catch (e2) {}
     return String(k || '').replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
   }
   function prof(id) {
@@ -75,6 +83,113 @@
     if (!iso) return '';
     try { return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); }
     catch (e) { return String(iso).slice(0, 10); }
+  }
+
+  // ── THE LETTERHEAD'S IDENTITY FACTS ─────────────────────────────────────────
+  // A bill profile opens the way a person file opens: a short census a reader can
+  // scan before deciding to read anything. Three of its identity slots were not on
+  // this face at all, and each is the difference between naming A measure and
+  // naming THIS one.
+  //
+  //   · THE SITTING. "H.B. 208" names a different bill in every Utah general
+  //     session, so a number without its sitting is not an identity. A federal row
+  //     carries `congress`; a state row carries none — the column is NULL by
+  //     design — and its session code lives in external_ids.utahSession, which is
+  //     the field the ingest's own uniqueness index keys on.
+  //   · THE DATE. Introduced when, and where there is one, decided when. Both come
+  //     off rows already in the payload. Nothing here dates a measure we hold no
+  //     date for.
+  //   · THE TEXT THAT WAS READ. A mapping rationale is a claim about a document,
+  //     and external_ids.mappingTextUrl records WHICH document the curator read —
+  //     an enrolled bill, a first substitute. Where it exists that is the honest
+  //     link to put under the identity; where it does not, the measure's own source
+  //     is; and where neither exists the letterhead says so rather than printing a
+  //     label that goes nowhere.
+  function extIds(m) {
+    var x = m && m.externalIds;
+    return (x && typeof x === 'object') ? x : {};
+  }
+  var UTAH_SITTING = {
+    GS: 'General Session', VS: 'Veto Override Session',
+    S1: '1st Special Session', S2: '2nd Special Session',
+    S3: '3rd Special Session', S4: '4th Special Session', S5: '5th Special Session'
+  };
+  function sittingLabel(m) {
+    var us = String(extIds(m).utahSession || '');
+    if (us) {
+      var p = us.match(/^(\d{4})([A-Za-z0-9]+)$/);
+      return p ? (p[1] + ' ' + (UTAH_SITTING[p[2].toUpperCase()] || p[2])) : us;
+    }
+    return (m && m.congress) ? (m.congress + 'th Congress') : '';
+  }
+  // The sitting as an ADDRESS SEGMENT rather than as prose: "119", "2024GS", or ''.
+  // One function so the hash, the share link and the resolver cannot disagree about
+  // what identifies a bill.
+  function sittingKey(m) {
+    var us = String(extIds(m).utahSession || '').trim();
+    if (us) return us;
+    return (m && m.congress) ? String(m.congress) : '';
+  }
+  function sittingKeyOfCard(c) {
+    if (!c) return '';
+    var x = c.externalIds;
+    var us = (x && typeof x === 'object' && x.utahSession) ? String(x.utahSession).trim() : '';
+    if (us) return us;
+    return (c.congress != null && c.congress !== '') ? String(c.congress) : '';
+  }
+  function sittingMatch(card, want) {
+    if (!want) return true;
+    return String(sittingKeyOfCard(card)).toUpperCase() === String(want).toUpperCase();
+  }
+
+  // The document a mapping was read from, named in the ingest's own vocabulary. An
+  // unrecognised value is printed as itself rather than guessed at.
+  var TEXT_KIND = {
+    enrolled: 'Enrolled text', introduced: 'Introduced text', engrossed: 'Engrossed text',
+    substitute_1: 'First substitute text', substitute_2: 'Second substitute text',
+    substitute_3: 'Third substitute text', substitute_4: 'Fourth substitute text'
+  };
+  // Read through the same five-key vocabulary the API's measureIdent() whitelists,
+  // in the order of how close each link sits to the document the mapping was made
+  // against: the recorded mapping text first, then the bill's own page, then the
+  // measure's source of record. Never the whole provenance bag.
+  function officialText(m) {
+    var x = extIds(m);
+    var u = x.mappingTextUrl ? String(x.mappingTextUrl) : '';
+    if (u) {
+      var k = String(x.mappingReadFrom || '').toLowerCase();
+      return { url: u, label: TEXT_KIND[k] || (k ? k.replace(/_/g, ' ') : 'Bill text') };
+    }
+    var bp = x.congressGovUrl || x.billStatusUrl;
+    if (bp) return { url: String(bp), label: 'Official bill page' };
+    if (m && m.source && m.source.url) return { url: m.source.url, label: m.source.label || 'Official record' };
+    return null;
+  }
+  function officialTitleOf(m) {
+    var t = extIds(m).officialTitle;
+    return (typeof t === 'string' && t.trim()) ? t.trim() : '';
+  }
+  // The day this measure was last decided on the floor, from the roll calls we hold.
+  function decidedDate(rollcalls) {
+    var best = '';
+    (rollcalls || []).forEach(function (rc) {
+      var d = rc && rc.voteDate ? String(rc.voteDate) : '';
+      if (d && (!best || d > best)) best = d;
+    });
+    return best;
+  }
+  // THE KEY GLOSSARY IS A GUEST, NOT A DEPENDENCY. issue-scope.js publishes the
+  // shipped scope prose for an issue key; if it is not on the page a chip loses its
+  // ⓘ and keeps its door. And the control is mounted as a SIBLING of the chip, never
+  // inside it — this panel's delegate resolves closest('[data-issue]'), so a ⓘ
+  // nested in the chip would be swallowed by the chip's destination and the scope
+  // card would never open. Two destinations, two controls, no interception.
+  function scopeControlHtml(key) {
+    try {
+      var S = window.PDXIssueScope;
+      if (!S || typeof S.controlHtml !== 'function') return '';
+      return S.controlHtml(key) || '';
+    } catch (e) { return ''; }
   }
 
   // ── BIG PICTURE ORDER: THE WHOLE MENU, UNRANKED ─────────────────────────────
@@ -206,13 +321,23 @@
   // "supporting only", "narrow" as a STATUS — does not belong here; where
   // narrowness is a fact about a mapping it belongs in that row's explanation
   // sentence, which is the one place it can be read rather than ranked.
+  // How a topic got into the act, in words, on the row. Both values are drawn the
+  // same size and in the same place: one line of provenance, not a rank.
+  function laneLabel(isPrimary) { return isPrimary ? 'This bill’s subject' : 'Rode inside this bill'; }
+  var LANE_DOCTRINE = 'Each row says how the topic got in — it was the bill’s subject, or it rode inside the bill. That is where it came from, not how much it counts: the same Yea or Nay lands at full size on every row.';
+
   function omnibusSection(m, issues) {
     if (!issues || !issues.length) return '';
     var ordered = bigPictureOrder(issues);
     var adv = 0, opp = 0;
     ordered.forEach(function (it) { if (it.supportMeaning === 'yea_opposes') opp++; else adv++; });
+    // THE LABEL IS NOT A WEIGHT, AND THE LEAD SAYS SO IN WORDS. Each row below is
+    // marked with how the topic got into the act — it was what the bill was about,
+    // or it rode inside a bigger vehicle. That mark is there so a stowaway stays
+    // visible, and stating what it does NOT mean is part of printing it: the vote
+    // that lands on a topic that rode inside is the same vote, at full size.
     var lead = ordered.length >= 2
-      ? 'This act is mapped to <strong>' + ordered.length + ' topics</strong>, and every one of them is listed below — so a single Yea or Nay is really a decision on each of these.'
+      ? 'This act is mapped to <strong>' + ordered.length + ' topics</strong>, and every one of them is listed below — so a single Yea or Nay is really a decision on each of these. ' + LANE_DOCTRINE
       : 'This act is mapped to one topic.';
     // At-a-glance summary of which way a Yea cuts across the act. A count of
     // directions, never a ranking of them.
@@ -234,6 +359,7 @@
           ' data-bd-lane="' + (it.isPrimary ? 'main' : 'other') + '">' +
         '<div class="bd-omni-head">' +
           '<button type="button" class="bd-omni-issue bd-omni-link" data-issue="' + escAttr(it.issueKey) + '" title="See the ' + escAttr(issueLabel(it.issueKey)) + ' spotlight">' + esc(issueLabel(it.issueKey)) + '</button>' +
+          '<span class="bd-omni-lane-l">' + esc(laneLabel(it.isPrimary)) + '</span>' +
           '<span class="bd-eff ' + effCls + '">' + effTxt + '</span>' +
         '</div>' +
         (it.rationale ? '<div class="bd-omni-why">' + esc(it.rationale) + '</div>' : '') +
@@ -359,7 +485,7 @@
 
   function rollcallsSection(m, issues, rollcalls) {
     if (!rollcalls || !rollcalls.length) {
-      return '<section class="bd-sec"><h3 class="bd-h">🗳️ Roll-call votes</h3><p class="bd-empty">No recorded roll-call votes for this measure yet.</p></section>';
+      return '<section class="bd-sec" data-bd-anchor="rolls"><h3 class="bd-h">🗳️ Roll-call votes</h3><p class="bd-empty">No recorded roll-call votes for this measure yet.</p></section>';
     }
     var blocks = rollcalls.map(function (rc) {
       var t = rc.totals || {};
@@ -412,7 +538,7 @@
         ? '<a class="bd-src" href="' + escAttr(rc.source.url) + '" target="_blank" rel="noopener">🔗 ' + esc(rc.source.label || 'Official roll call') + '</a>' : '';
       return '<div class="bd-rc">' + head + '<div class="bd-votes">' + rows + '</div>' + src + '</div>';
     }).join('');
-    return '<section class="bd-sec"><h3 class="bd-h">🗳️ Roll-call votes</h3>' + blocks + '</section>';
+    return '<section class="bd-sec" data-bd-anchor="rolls"><h3 class="bd-h">🗳️ Roll-call votes</h3>' + blocks + '</section>';
   }
   function statusLabelResult(r) { return String(r || '').replace(/_/g, ' ').replace(/\b\w/, function (c) { return c.toUpperCase(); }); }
 
@@ -709,6 +835,23 @@
   }
 
   // Open the Issue View / Spotlight for an issue key (with graceful fallbacks).
+  // THE VOTE STRIP IS A DOOR, NOT A SUMMARY. Tapping a tally moves the reader to
+  // the roll list in this same panel: the counts are the door's label and the names
+  // are what is behind it. An in-panel scroll rather than a new view, because the
+  // roll list is already on this face — there is nothing to load and nothing to
+  // close. If the anchor is not on screen (a payload with no roll calls, a body the
+  // panel has not filled yet) nothing happens, which is the honest outcome.
+  function gotoSection(name) {
+    try {
+      var host = document.getElementById('pdx-bd-scroll');
+      var t = host && host.querySelector ? host.querySelector('[data-bd-anchor="' + name + '"]') : null;
+      if (!t) return;
+      if (t.scrollIntoView) t.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      var h = t.querySelector ? t.querySelector('.bd-h') : null;
+      if (h && h.focus) { h.setAttribute('tabindex', '-1'); h.focus(); }
+    } catch (e) {}
+  }
+
   function openIssue(key) {
     if (!key) return;
     try { if (window.PDXIssueView && window.PDXIssueView.open) { close(); window.PDXIssueView.open(key); return; } } catch (e) {}
@@ -723,6 +866,138 @@
   // A compact "at a glance" strip of stat chips under the header — the shape of the
   // bill in one scannable row (how many issues it bundles, how much of a record it
   // has, where it stands). Purely presentational; everything is data already loaded.
+  // ── THE LETTERHEAD ──────────────────────────────────────────────────────────
+  // ONE ARCHIVE, THREE FACES. A person file opens with a brief: identity, one
+  // teaching line, then doors. An issue face opens the same way. This is that same
+  // opening for the third face — the measure — built from the payload this panel
+  // already fetches. No second mapping engine, no new ingest, no LLM chapter: every
+  // fact below is a row we hold, and every door leads to a face that already exists.
+  //
+  // The census, in the order a reader needs it:
+  //   1. WHAT IT DID TO THE ARCHIVE — the teaching line. A measure gets one
+  //      recorded vote, and that single Yea or Nay lands in full on every topic the
+  //      act was mapped to. That is the whole doctrine of this panel in a sentence,
+  //      so it is printed at the top rather than left to be inferred from a ledger
+  //      further down.
+  //   2. THE TOPIC TALLY — how many topics, how many were the bill's subject, how
+  //      many rode inside. Subject and rode-inside are a LABEL on the bill so
+  //      stowaways stay visible. They are not weights: the counts sit on one line
+  //      and neither is drawn as the bigger number.
+  //   3. THE CHIPS — one per mapped key, every one of them a door. A chip that
+  //      cannot be tapped is a dead label, and a dead label is how a rider quietly
+  //      stops counting. Each chip is paired with the shipped ⓘ scope control so a
+  //      reader can ask what the key covers without leaving the page.
+  //   4. THE VOTE STRIP — Yea / Nay / Present / Did not vote, and nothing else. No
+  //      party column, no party breakdown, no percentage anywhere on this face. It
+  //      taps through to the roll list, which is the only place names belong.
+  // Where the record is thin the letterhead says which fact is missing. It never
+  // fills a gap with a guess and never hides the gap to look complete.
+  var VOTE_SLOTS = [
+    ['yea', 'Yea'], ['nay', 'Nay'], ['present', 'Present'], ['notVoting', 'Did not vote']
+  ];
+
+  function letterheadIdentity(m, data) {
+    var rows = [];
+    // The header above prints the title we hold; the official title is only a
+    // separate fact when the ingest recorded one and it differs from that.
+    rows.push(['Number', m.number || 'Not numbered in the record']);
+    var official = officialTitleOf(m);
+    if (official && official !== (m.title || '')) rows.push(['Official title', official]);
+    var sit = sittingLabel(m);
+    var where = [chamberLabel(m.chamber), sit].filter(Boolean).join(' · ');
+    if (where) rows.push([sit && chamberLabel(m.chamber) ? 'Chamber &amp; session' : 'Chamber', where]);
+    var when = [];
+    if (m.introducedAt) when.push('Introduced ' + fmtDate(m.introducedAt));
+    var dd = decidedDate(data && data.rollcalls);
+    if (dd) when.push('Voted ' + fmtDate(dd));
+    rows.push(['Date', when.length ? when.join(' · ') : 'No date is on file for this measure yet.']);
+    var out = rows.map(function (r) {
+      return '<div class="bd-lh-fact"><dt class="bd-lh-k">' + r[0] + '</dt>' +
+        '<dd class="bd-lh-v">' + esc(r[1]) + '</dd></div>';
+    }).join('');
+    var txt = officialText(m);
+    out += '<div class="bd-lh-fact"><dt class="bd-lh-k">Text</dt><dd class="bd-lh-v">' +
+      (txt
+        ? '<a class="bd-lh-text" href="' + escAttr(txt.url) + '" target="_blank" rel="noopener">🔗 ' + esc(txt.label) + ' ↗</a>'
+        : '<span class="bd-lh-gap">No link to the official text is on file for this measure yet.</span>') +
+      '</dd></div>';
+    return '<dl class="bd-lh-facts">' + out + '</dl>';
+  }
+
+  function letterheadTopics(issues) {
+    var ordered = bigPictureOrder(issues || []);
+    if (!ordered.length) {
+      return '<p class="bd-lh-gap">No topics are mapped to this measure yet, so a vote on it is not counted on any issue.</p>';
+    }
+    var subj = 0;
+    ordered.forEach(function (it) { if (it.isPrimary) subj++; });
+    var rode = ordered.length - subj;
+    var tally = ordered.length + ' topic' + (ordered.length !== 1 ? 's' : '') + ' mapped' +
+      ' · ' + subj + ' this bill’s subject' +
+      ' · ' + rode + ' rode inside';
+    var chips = ordered.map(function (it) {
+      var lane = it.isPrimary ? 'this bill’s subject' : 'rode inside';
+      // The chip is the door; the ⓘ is its sibling, never its child.
+      return '<span class="bd-lh-chipw">' +
+        '<button type="button" class="bd-lh-chip" data-issue="' + escAttr(it.issueKey) + '"' +
+          ' title="' + escAttr('Open the ' + issueLabel(it.issueKey) + ' face') + '">' +
+          '<span class="bd-lh-chip-l">' + esc(issueLabel(it.issueKey)) + '</span>' +
+          '<span class="bd-lh-chip-lane">' + esc(lane) + '</span>' +
+        '</button>' + scopeControlHtml(it.issueKey) +
+      '</span>';
+    }).join('');
+    var unreasoned = ordered.filter(function (it) { return !it.rationale; }).length;
+    var gap = unreasoned
+      ? '<p class="bd-lh-gap">' + (unreasoned === ordered.length
+            ? 'No mapping rationale is on file yet'
+            : unreasoned + ' of these topics ' + (unreasoned === 1 ? 'carries' : 'carry') + ' no mapping rationale yet') +
+        ', so this profile cannot yet say in words what the act did on ' +
+        (unreasoned === 1 ? 'it' : 'them') + '. The vote still counts in full.</p>'
+      : '';
+    return '<p class="bd-lh-tally">' + esc(tally) + '</p>' +
+      '<div class="bd-lh-chips">' + chips + '</div>' + gap;
+  }
+
+  function letterheadVotes(rollcalls) {
+    var rcs = (rollcalls || []);
+    if (!rcs.length) {
+      return '<p class="bd-lh-gap">No recorded vote is on file for this measure yet — it may have died in committee, or the tally may not have reached us.</p>';
+    }
+    var blocks = rcs.map(function (rc) {
+      var t = rc.totals || {};
+      var cells = VOTE_SLOTS.map(function (sl) {
+        if (t[sl[0]] == null) return '';
+        return '<span class="bd-lh-vc bd-lh-vc-' + sl[0] + '"><b>' + esc(String(t[sl[0]])) + '</b> ' + sl[1] + '</span>';
+      }).filter(Boolean).join('');
+      var meta = [chamberLabel(rc.chamber), fmtDate(rc.voteDate), rc.result ? statusLabelResult(rc.result) : '']
+        .filter(Boolean).join(' · ');
+      return '<button type="button" class="bd-lh-strip" data-bd-goto="rolls"' +
+          ' title="Go to the roll list for this vote">' +
+        '<span class="bd-lh-vq">' + esc(rc.question || 'Vote') + '</span>' +
+        '<span class="bd-lh-vm">' + esc(meta) + '</span>' +
+        (cells ? '<span class="bd-lh-vcs">' + cells + '</span>'
+               : '<span class="bd-lh-gap">Totals are not in the record for this roll call.</span>') +
+        '<span class="bd-lh-vgo">See who voted →</span>' +
+      '</button>';
+    }).join('');
+    return blocks;
+  }
+
+  function letterheadHtml(m, issues, data) {
+    var rcs = (data && data.rollcalls) || [];
+    var teach = rcs.length === 1
+      ? 'One recorded vote. It counts on every topic below.'
+      : rcs.length > 1
+        ? rcs.length + ' recorded votes. Each one counts in full on every topic below.'
+        : 'No recorded vote on file. The topics below are what this act was mapped to, not how anyone voted on it.';
+    return '<section class="bd-sec bd-lh" aria-label="Bill profile">' +
+      letterheadIdentity(m, data) +
+      '<p class="bd-lh-teach">' + esc(teach) + '</p>' +
+      letterheadTopics(issues) +
+      '<div class="bd-lh-votes">' + letterheadVotes(rcs) + '</div>' +
+    '</section>';
+  }
+
   function glanceStrip(m, issues, data) {
     var chips = [];
     if (issues && issues.length >= 2) chips.push('<span class="bd-glance bd-glance-omni">📦 ' + issues.length + ' issues bundled</span>');
@@ -758,14 +1033,21 @@
     var issues = data.issues || [];
     _current = {
       id: (m.id != null) ? m.id : null, number: m.number || '', congress: m.congress || '',
+      // The sitting a shared address needs: a congress for a federal row, the
+      // recorded session code for a state one whose congress column is NULL.
+      sitting: sittingKey(m),
       title: m.shortTitle || m.title || m.number || 'Bill', status: m.status || '', chamber: m.chamber || '',
       source: m.source || null
     };
     var status = m.status ? '<span class="bd-status bd-s-' + esc(m.status) + '">' + esc(statusLabel(m.status)) + '</span>' : '';
     var omni = issues.length >= 2 ? '<span class="bd-omnibadge">📦 Omnibus · ' + issues.length + ' issues</span>' : '';
-    var meta = [chamberLabel(m.chamber), m.congress ? (m.congress + 'th Congress') : ''].filter(Boolean).join(' · ');
-    var src = (m.source && m.source.url)
-      ? '<a class="bd-src bd-src-top" href="' + escAttr(m.source.url) + '" target="_blank" rel="noopener">🔗 ' + esc(m.source.label || 'Official record') + '</a>' : '';
+    // The number alone is not an identity: a state bill number repeats every
+    // session, so the sitting rides in the header beside the chamber, and the dates
+    // we actually hold ride with it.
+    var meta = [chamberLabel(m.chamber), sittingLabel(m)].filter(Boolean).join(' · ');
+    var _txt = officialText(m);
+    var src = _txt
+      ? '<a class="bd-src bd-src-top" href="' + escAttr(_txt.url) + '" target="_blank" rel="noopener">🔗 ' + esc(_txt.label) + '</a>' : '';
     var following = false;
     try { following = !!(G('PDXBills') && G('PDXBills').isFollowed && G('PDXBills').isFollowed(_current)); } catch (e) {}
     var actionsBar =
@@ -782,6 +1064,7 @@
         (m.summary ? '<p class="bd-summary">' + esc(m.summary) + '</p>' : '') +
         src +
       '</div>' +
+      letterheadHtml(m, issues, data) +
       glanceStrip(m, issues, data) +
       omnibusSection(m, issues) +
       coTravelSection(m, issues, data.rollcalls) +
@@ -819,6 +1102,8 @@
       if (sb) { var slug = sb.getAttribute('data-slug'); if (slug && window.PDXSpotlight && window.PDXSpotlight.open) { close(); window.PDXSpotlight.open(slug); } return; }
       var ib = e.target.closest ? e.target.closest('[data-bd-view-set]') : null;
       if (ib) { setOmniView(ib); return; }
+      var gb = e.target.closest ? e.target.closest('[data-bd-goto]') : null;
+      if (gb) { gotoSection(gb.getAttribute('data-bd-goto')); return; }
       ib = e.target.closest ? e.target.closest('[data-issue]') : null;
       if (ib) { openIssue(ib.getAttribute('data-issue')); return; }
       var lb = e.target.closest ? e.target.closest('[data-legis]') : null;
@@ -860,9 +1145,9 @@
   function shareUrl() {
     if (!_current) return location.href;
     var links = G('PDXShareLinks');
-    if (links && links.bill) return links.bill(_current.congress, _current.number);
+    if (links && links.bill) return links.bill(_current.sitting || _current.congress, _current.number);
     return location.origin + location.pathname +
-      '#bill/' + encodeURIComponent(_current.congress || '') + '/' + encodeURIComponent(_current.number || '');
+      '#bill/' + encodeURIComponent(_current.sitting || _current.congress || '') + '/' + encodeURIComponent(_current.number || '');
   }
   // Reflect the open bill in the URL without triggering the hashchange handler
   // (history.replaceState does not fire hashchange), so a shared/refreshed link
@@ -870,7 +1155,7 @@
   function syncHash() {
     if (!_current) return;
     try {
-      var h = '#bill/' + encodeURIComponent(_current.congress || '') + '/' + encodeURIComponent(_current.number || '');
+      var h = '#bill/' + encodeURIComponent(_current.sitting || _current.congress || '') + '/' + encodeURIComponent(_current.number || '');
       if (location.hash !== h) history.replaceState(null, '', location.pathname + location.search + h);
     } catch (e) {}
   }
@@ -996,7 +1281,7 @@
   // Resolve a card ref (numeric id, or a bill number like "H.R. 1") to a measure id,
   // then fetch + render. Falls back to a card-only lite panel whenever the live detail
   // can't be loaded, so a click never dead-ends.
-  function open(ref) {
+  function open(ref, sitting) {
     var bills = G('PDXBills');
     var inlineCard = (bills && bills.listSync) ? findByNumber(bills.listSync().items, ref) : null;
     if (!bills || typeof bills.get !== 'function') { // no client module → best-effort
@@ -1005,7 +1290,7 @@
       return false;
     }
     renderLoading();
-    resolveId(ref, bills).then(function (id) {
+    resolveId(ref, bills, sitting).then(function (id) {
       var card = inlineCard || findByNumber((bills.listSync ? bills.listSync().items : []), ref);
       if (id == null) { if (!showLite(card)) renderError(card); return; }
       bills.get(id).then(function (data) {
@@ -1021,12 +1306,29 @@
     for (var i = 0; i < items.length; i++) { if (items[i] && (String(items[i].id) === String(ref) || items[i].number === ref)) return items[i]; }
     return null;
   }
-  function resolveId(ref, bills) {
+  // ONE PANEL, ANY REF. A ref reaches this panel from five places — an index card,
+  // the HR1 showcase, the library, a person file's measure row and a shared address
+  // — and it arrives as either a measure id or a printed number. The number path
+  // used to look only at the first page of /measures, which quietly meant: bills
+  // ranked past the hundredth, and every state bill in a chamber the default page
+  // does not lead with, had a number that resolved to nothing. So the list is asked
+  // properly — `q` is the API's own number/title search — and the page-one lookup
+  // stays as the offline-friendly first guess.
+  function resolveId(ref, bills, sitting) {
     if (/^\d+$/.test(String(ref))) return Promise.resolve(parseInt(ref, 10));
-    // A bill number — resolve its id from the live list.
-    return bills.list({ pageSize: 100 }).then(function (d) {
-      var c = findByNumber(d && d.items, ref);
+    var want = String(ref || '');
+    var pick = function (items) {
+      var hits = (items || []).filter(function (it) { return it && it.number === want; });
+      var sited = hits.filter(function (it) { return sittingMatch(it, sitting); });
+      var c = (sited[0] || (sitting ? null : hits[0]));
       return c && c.id != null ? c.id : null;
+    };
+    return bills.list({ pageSize: 100 }).then(function (d) {
+      var id = pick(d && d.items);
+      if (id != null) return id;
+      return bills.list({ q: want, pageSize: 50 }).then(function (d2) {
+        return pick(d2 && d2.items);
+      }).catch(function () { return null; });
     }).catch(function () { return null; });
   }
 
@@ -1060,6 +1362,38 @@
       '.bd-src:hover{text-decoration:underline;}' +
       '.bd-src-top{margin-top:.3rem;}' +
       '.bd-sec{margin-top:1.5rem;}' +
+      // ── the letterhead ────────────────────────────────────────────────────
+      // Flat, quiet, and above the fold: a census reads better as a list of facts
+      // than as a card. Nothing here is a percentage and nothing here is a bar,
+      // because a measure's topics are a set and not a distribution.
+      '.bd-lh{margin-top:1rem;padding:.85rem .9rem;border:1px solid rgba(159,180,212,.16);border-radius:.7rem;background:rgba(255,255,255,.02);}' +
+      '.bd-lh-facts{display:grid;grid-template-columns:auto 1fr;gap:.28rem .7rem;margin:0 0 .7rem;}' +
+      '.bd-lh-fact{display:contents;}' +
+      '.bd-lh-k{font:700 .62rem/1.5 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8aa0c4;margin:0;}' +
+      '.bd-lh-v{font:500 .84rem/1.45 "Barlow",sans-serif;color:#dce6f7;margin:0;}' +
+      '.bd-lh-text{color:#7fb4ff;text-decoration:none;}' +
+      '.bd-lh-text:hover{text-decoration:underline;}' +
+      '.bd-lh-gap{font:500 .8rem/1.45 "Barlow",sans-serif;color:#8aa0c4;font-style:italic;}' +
+      '.bd-lh-teach{font:700 .9rem/1.4 "Barlow",sans-serif;color:#f3d774;margin:.2rem 0 .6rem;}' +
+      '.bd-lh-tally{font:700 .68rem/1.4 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#bcd0f0;margin:0 0 .45rem;}' +
+      '.bd-lh-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.7rem;}' +
+      '.bd-lh-chipw{display:inline-flex;align-items:center;gap:.18rem;}' +
+      '.bd-lh-chip{display:inline-flex;flex-direction:column;align-items:flex-start;gap:.08rem;cursor:pointer;text-align:left;background:rgba(96,165,250,.1);border:1px solid rgba(126,180,255,.32);border-radius:.5rem;padding:.3rem .55rem;}' +
+      '.bd-lh-chip:hover{background:rgba(96,165,250,.2);border-color:#9ec8ff;}' +
+      '.bd-lh-chip-l{font:700 .8rem/1.15 "Barlow Condensed",sans-serif;color:#e6eefc;}' +
+      '.bd-lh-chip-lane{font:600 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#9fb4d4;}' +
+      '.bd-lh-votes{display:flex;flex-direction:column;gap:.4rem;}' +
+      '.bd-lh-strip{display:flex;flex-direction:column;align-items:flex-start;gap:.22rem;width:100%;cursor:pointer;text-align:left;background:rgba(159,180,212,.06);border:1px solid rgba(159,180,212,.2);border-radius:.55rem;padding:.5rem .6rem;}' +
+      '.bd-lh-strip:hover{background:rgba(159,180,212,.12);border-color:rgba(126,180,255,.5);}' +
+      '.bd-lh-vq{font:700 .82rem/1.25 "Barlow Condensed",sans-serif;color:#e6eefc;}' +
+      '.bd-lh-vm{font:600 .62rem/1.2 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;}' +
+      '.bd-lh-vcs{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.1rem;}' +
+      '.bd-lh-vc{font:600 .68rem/1 "Barlow",sans-serif;color:#cbd9ec;background:rgba(159,180,212,.1);border:1px solid rgba(159,180,212,.2);border-radius:.35rem;padding:.24rem .45rem;}' +
+      '.bd-lh-vc b{font:700 .78rem/1 "Barlow Condensed",sans-serif;color:#fff;}' +
+      '.bd-lh-vc-yea{color:#a7e8b6;background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.28);}' +
+      '.bd-lh-vc-nay{color:#f6b8b0;background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.28);}' +
+      '.bd-lh-vgo{font:700 .62rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#7fb4ff;}' +
+      '.bd-omni-lane-l{font:600 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#9fb4d4;background:rgba(159,180,212,.1);border:1px solid rgba(159,180,212,.2);border-radius:.3rem;padding:.2rem .4rem;}' +
       '.bd-h{font:700 1rem/1.1 "Barlow Condensed",sans-serif;letter-spacing:.03em;text-transform:uppercase;color:#fff;margin:0 0 .6rem;}' +
       '.bd-lead{font:500 .86rem/1.5 "Barlow",sans-serif;color:#9fb4d4;margin:0 0 .8rem;}' +
       '.bd-empty,.bd-note{font:500 .82rem/1.5 "Barlow",sans-serif;color:#8aa0c4;}' +
@@ -1214,6 +1548,10 @@
         '.bd-vf-btn{min-height:44px;display:inline-flex;align-items:center;padding:.3rem .85rem;font-size:.72rem;}' +
         '.bd-bag-chip{min-height:44px;display:inline-flex;align-items:center;}' +
         '.bd-omni-link{min-height:44px;display:inline-flex;align-items:center;}' +
+        // The letterhead's own doors: a chip and a vote strip are both taps, and a
+        // 30px tap is a miss on a phone.
+        '.bd-lh-chip{min-height:44px;justify-content:center;}' +
+        '.bd-lh-strip{min-height:44px;}' +
         '.bd-btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;}' +
         '.bd-person{min-height:44px;justify-content:center;}' +
         '.bd-vote-row,.bd-vote-sum{min-height:44px;}' +
@@ -1229,28 +1567,26 @@
   window.PDXBillDetail = { open: open, close: close };
 
   // ── Deep-link routing ───────────────────────────────────────────────────────
-  // A shareable link is #bill/<congress>/<number>. Open the panel when such a hash
-  // is present on load or changes, resolving the natural key to a measure id.
+  // In-app state is #bill/<sitting>/<number>; the shareable, server-visible form of
+  // the same address is /b/<sitting>/<number>, which share-links.js converts back
+  // into this hash on arrival. Open the panel when such a hash is present on load or
+  // changes, resolving the natural key to a measure id.
   function openFromHash() {
     var h = String(location.hash || '');
     var m = h.match(/^#bill\/([^/]*)\/(.+)$/);
     if (!m) return;
-    var congress = decodeURIComponent(m[1] || '');
+    var sitting = decodeURIComponent(m[1] || '');
     var number = decodeURIComponent(m[2] || '');
     // Already showing this bill (e.g. we just set the hash on open) — do nothing.
     var ov = document.getElementById('pdx-bd-overlay');
     if (ov && !ov.hidden && _current && _current.number === number &&
-        String(_current.congress || '') === String(congress || '')) return;
+        String(_current.sitting || _current.congress || '') === String(sitting || '')) return;
     var bills = G('PDXBills');
     if (!bills || !bills.list) { return; }
-    bills.list({ pageSize: 100, congress: congress || undefined }).then(function (d) {
-      var items = (d && d.items) || [];
-      var hit = null;
-      for (var i = 0; i < items.length; i++) {
-        if (items[i] && items[i].number === number && (!congress || String(items[i].congress) === String(congress))) { hit = items[i]; break; }
-      }
-      if (hit) open(hit.id != null ? hit.id : hit.number);
-    }).catch(function () {});
+    // The first segment is a SITTING: "119" for a congress, "2024GS" for a state
+    // session. It is not sent as ?congress= any more, because a state row has no
+    // congress and that filter would exclude the very bill being asked for.
+    open(number, sitting);
   }
   window.addEventListener('hashchange', openFromHash);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', openFromHash);

@@ -8,7 +8,7 @@
 //
 // So the share buttons now emit the same destination in a form the edge can read:
 //
-//   #bill/119/H.R. 1        →  /?bill=119/H.R.%201
+//   #bill/119/H.R. 1        →  /b/119/H.R.%201   (?bill=119/H.R.%201 still resolves)
 //   #receipt=pid~issue      →  /?receipt=pid~issue
 //   #record=pid~issue       →  /?record=pid~issue
 //   #issue=guns&key=…       →  /?rank=guns&key=…
@@ -153,16 +153,21 @@
       if (applyHash(edge.hash)) return true;
     }
 
-    // 2. What the URL says on its own — the path that still works when the edge
-    //    function did not run.
+    // 2. The canonical bill path, read straight off the address bar.
+    var bp = billFromPath();
+    if (bp && applyHash(bp)) return true;
+
+    // 3. What the URL says on its own — the query forms that still work when the
+    //    edge function did not run, and that older shared links still carry.
     for (var i = 0; i < PARAMS.length; i++) {
       var name = PARAMS[i];
       var h = hashFor(name, param(name));
       if (h && applyHash(h)) return true;
     }
 
-    // 3. Nothing opened. If this was a roll-call address, say so out loud.
+    // 4. Nothing opened. If this was a roll-call or a bill address, say so out loud.
     voteFallback();
+    billFallback();
     return false;
   }
 
@@ -177,6 +182,27 @@
   // opened. It claims only what it knows: we could not open it, not that it does
   // not exist.
   var VOTE_PATH = /^\/vote\/([^/]+)\/([^/]+)\/([^/]+)\/?$/;
+
+  // ── /b/<sitting>/<number> ───────────────────────────────────────────────────
+  // The bill profile's clean address, and the reason it needs a parser here rather
+  // than only at the edge: a path is server-visible, so it unfurls — but the edge
+  // is not always in the picture (netlify dev, a fail-open), and the panel opens
+  // from a hash. So the path is read here too and handed to the same #bill/ handler
+  // the panel has always used. The sitting segment is optional: a congress ("119"),
+  // a state session code ("2024GS"), or nothing at all for a number cited alone —
+  // and it is deliberately alphanumeric-only, which is what keeps "/b/H.R. 1" from
+  // reading its own number as a sitting.
+  var BILL_PATH = /^\/b\/(?:([A-Za-z0-9]{1,12})\/)?(.+?)\/?$/;
+
+  function billFromPath() {
+    try {
+      var m = BILL_PATH.exec(location.pathname || '');
+      if (!m) return '';
+      var number = decodeURIComponent(m[2] || '');
+      if (!number) return '';
+      return '#bill/' + encodeURIComponent(decodeURIComponent(m[1] || '')) + '/' + encodeURIComponent(number);
+    } catch (e) { return ''; }
+  }
 
   // The one "that link didn't resolve" notice. Extracted from voteFallback because
   // /vote/ is not the only address that can arrive unresolvable: a ?p= or ?record=
@@ -230,6 +256,22 @@
     } catch (e) { /* nothing to say, and nothing worth breaking over */ }
   }
 
+  // The same courtesy /vote/ gets. A /b/ address that opened nothing has landed the
+  // reader on the front page after they followed what looked like a citation, and
+  // the notice claims only what it knows: we could not open it.
+  function billFallback() {
+    try {
+      var m = BILL_PATH.exec(location.pathname || '');
+      if (!m) return;
+      var sit = decodeURIComponent(m[1] || '');
+      var number = decodeURIComponent(m[2] || '');
+      notice('pdx-bill-unresolved', 'Bill profile',
+        'We couldn’t open ' + number + (sit ? ' (' + sit + ')' : '') +
+        '. Rather than quietly show you the front page, here’s the plain answer: ' +
+        'that link didn’t resolve to a measure we could load.');
+    } catch (e) { /* nothing to say, and nothing worth breaking over */ }
+  }
+
   function esc(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -253,9 +295,14 @@
     try { return location.origin; } catch (e) { return ''; }
   }
   var API = {
-    bill: function (congress, number) {
+    // /b/<sitting>/<number>, matching canonicalPath() in netlify/lib/share-target.ts.
+    // The sitting is a congress for a federal measure and a session code for a state
+    // one; a bill number without its sitting is not an identity, but it is still an
+    // openable address, so a missing sitting drops the segment rather than the link.
+    bill: function (sitting, number) {
       if (!number) return origin() + '/';
-      return origin() + '/?bill=' + encodeURIComponent(String(congress || '') + '/' + String(number));
+      var sit = String(sitting == null ? '' : sitting).trim();
+      return origin() + '/b/' + (sit ? encodeURIComponent(sit) + '/' : '') + encodeURIComponent(String(number));
     },
     receipt: function (pid, issueKey) {
       if (!pid) return origin() + '/';

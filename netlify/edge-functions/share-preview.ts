@@ -217,8 +217,8 @@ export default async (req: Request, context: Context): Promise<Response | undefi
 };
 
 export const config: Config = {
-  // /p/* is here for the same reason /issue/* and /vote/* are: the rewrite in
-  // netlify.toml serves index.html for it, so without this function a person
-  // file would unfurl — and canonicalise — as the homepage.
-  path: ["/", "/index.html", "/issue/*", "/vote/*", "/p/*"],
+  // /p/* and /b/* are here for the same reason /issue/* and /vote/* are: the
+  // rewrites in netlify.toml serve index.html for them, so without this function a
+  // person file or a bill profile would unfurl — and canonicalise — as the homepage.
+  path: ["/", "/index.html", "/issue/*", "/vote/*", "/p/*", "/b/*"],
 };
