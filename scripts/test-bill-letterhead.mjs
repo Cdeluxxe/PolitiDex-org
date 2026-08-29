@@ -61,6 +61,17 @@ const HR6644 = {
     id: 6644, number: "H.R. 6644", congress: 119, chamber: "house", status: "passed_house",
     title: "Housing Supply and Permitting Act",
     introducedAt: "2025-12-04",
+    // The ingested description, at the length the real ones run to. It is the
+    // reason this pass exists: printed above the letterhead it pushed the chips
+    // and the vote strip off a phone screen entirely.
+    summary:
+      "Title I establishes a Federal housing supply block grant and conditions a portion of surface " +
+      "transportation formula funds on the adoption of by-right approval near fixed-guideway transit. " +
+      "Title II shortens the environmental review window for qualifying residential projects and sets " +
+      "deadlines for agency action on permit applications. Title III expands the low-income housing tax " +
+      "credit allocation and makes the small-state minimum permanent. Title IV directs the Comptroller " +
+      "General to report on local approval timelines. Title V bars a Federal Reserve central bank digital " +
+      "currency issued directly to individuals.",
     externalIds: {
       congressGovUrl: "https://www.congress.gov/bill/119th-congress/house-bill/6644",
       mappingReadFrom: "engrossed",
@@ -131,7 +142,7 @@ function boot() {
   win.document.getElementById = (id) => hosts[id] || null;
   win.history = { replaceState() {}, pushState() {} };
   const ctx = vm.createContext(win);
-  for (const f of [...ENGINE_FILES, "issue-scope.js", "bill-detail.js"]) {
+  for (const f of [...ENGINE_FILES, "issue-colors.js", "issue-scope.js", "bill-detail.js"]) {
     vm.runInContext(readFileSync(join(ROOT, f), "utf8"), ctx, { filename: f });
   }
   if (!win.PDXBillDetail || typeof win.PDXBillDetail.open !== "function") {
@@ -188,7 +199,12 @@ section("1 · identity — the census a reader arrives with nothing knowing");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   has(FED_LH, "H.R. 6644", "the federal letterhead does not print the bill number");
-  has(FED_LH, "To increase the supply of housing", "a recorded official title is not shown as its own fact");
+  // The official title is a sentence of legislative prose, so it went where the
+  // rest of the prose went — into the fold. It is still on the page, verbatim.
+  hasNot(FED_LH, "To increase the supply of housing",
+    "the official title is back in the census, which is where it used to crowd out the chips");
+  has(FED, "To increase the supply of housing",
+    "the official title was dropped from the page rather than moved into the fold");
   has(FED_LH, "House", "the chamber is missing from the federal letterhead");
   has(FED_LH, "119th Congress", "the federal sitting is not named");
   has(FED_LH, "Introduced Dec 4, 2025", "the introduction date we hold is not printed");
@@ -331,7 +347,81 @@ section("5 · doctrine — no percentage, no party, no rank on this face");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("6 · the guards are load-bearing (mutations must break the claims)");
+section("6 · the census is first, and the prose is folded under it");
+// ═════════════════════════════════════════════════════════════════════════════
+// The letterhead existed and was correct; it was just underneath two thousand
+// characters of section-by-section description, which is the same as not having
+// it. This section is about ORDER — what a reader meets before they scroll.
+{
+  // Inside the letterhead: teaching line, then the tally, then the chips, then
+  // the vote strips, and the identity table last. Reference material is reference
+  // material; it does not get the top of the panel.
+  const seq = [
+    ["the teaching line", 'class="bd-lh-teach"'],
+    ["the topic tally", 'class="bd-lh-tally"'],
+    ["the chips", 'class="bd-lh-chips"'],
+    ["the vote strips", 'class="bd-lh-votes"'],
+    ["the identity table", 'class="bd-lh-facts"'],
+  ];
+  for (const [name, mark] of seq) has(FED_LH, mark, `${name} is not in the letterhead at all`);
+  const at = seq.map(([name, mark]) => ({ name, i: FED_LH.indexOf(mark) }));
+  for (let k = 1; k < at.length; k++) {
+    ok(at[k - 1].i < at[k].i,
+      `${at[k].name} is printed before ${at[k - 1].name} — the census order is wrong`);
+  }
+
+  // The narrative dump is out of the header and behind a closed disclosure.
+  hasNot(FED.slice(0, FED.indexOf('class="bd-sec bd-lh"')), "Title I establishes",
+    "the section-by-section description is still printed above the letterhead");
+  has(FED, 'class="bd-fold"', "there is no fold on a bill that has prose to fold");
+  ok(FED.indexOf('class="bd-fold"') > FED.indexOf('class="bd-sec bd-lh"'),
+    "the fold is above the census it is supposed to sit under");
+  has(FED, "Title I establishes", "the summary was dropped instead of folded");
+  has(FED, "What’s in this act", "the fold does not say what is inside it");
+  // Closed means closed: a native <details> with no open attribute, so the text
+  // is in the DOM and none of it is painted until the reader asks.
+  ok(/<details class="bd-fold">/.test(FED),
+    "the fold ships open, or is not a real disclosure element");
+  hasNot(FED, '<p class="bd-summary">',
+    "the old always-open summary paragraph is still being rendered somewhere on the live face");
+  // A bill with nothing to fold gets no fold. An empty disclosure is a promise
+  // with nothing behind it.
+  hasNot(EMPTY, 'class="bd-fold"', "a measure with no prose on file grew an empty fold");
+
+  // The roll list is behind its own door, and the door says how many names.
+  has(FED, 'data-bd-anchor="rolls"', "the roll-call section lost its anchor");
+
+  // Every chip carries the site's own colour for its key — the same four tokens
+  // the tree and the compare surfaces read, from the same module.
+  const tinted = count(FED_LH, /data-ic="on"/g);
+  eq(tinted, HR6644.issues.length, "not every chip is carrying the site's issue colour tokens");
+  for (const v of ["--pdx-ic:", "--pdx-ic-soft:", "--pdx-ic-wash:", "--pdx-ic-ink:"]) {
+    has(FED_LH, v, `the chips are missing the ${v} token, so they cannot match the rest of the site`);
+  }
+  // The colour is the ISSUE's, not the lane's: identical keys must get identical
+  // tokens wherever they appear, and the two lanes must not resolve to two
+  // palettes. Checked against the shipped module rather than a copy of it.
+  for (const m of HR6644.issues) {
+    const want = win.PDXIssueColors.styleFor(m.issueKey);
+    ok(want && FED_LH.includes(want),
+      `${m.issueKey}'s chip is not tinted with the shipped token for that key`);
+  }
+  const subjKey = HR6644.issues.find((i) => i.isPrimary).issueKey;
+  const rodeKey = HR6644.issues.find((i) => !i.isPrimary).issueKey;
+  ok(win.PDXIssueColors.styleFor(subjKey) !== undefined && win.PDXIssueColors.styleFor(rodeKey) !== undefined,
+    "the colour module cannot resolve one of the fixture's keys");
+  // No second palette for provenance: the lane is a word on the chip, and the
+  // only thing that decides a chip's colour is its key.
+  const chipStyles = [...FED_LH.matchAll(/data-issue="([^"]+)"[^>]*style="([^"]*)"/g)];
+  eq(chipStyles.length, HR6644.issues.length, "a chip's tint is not attached to its own key");
+  for (const [, key, style] of chipStyles) {
+    eq(style, win.PDXIssueColors.styleFor(key),
+      `${key}'s chip was tinted by something other than the issue palette`);
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("7 · the guards are load-bearing (mutations must break the claims)");
 // ═════════════════════════════════════════════════════════════════════════════
 // Every assertion above is only worth its line count if the shipped source is
 // what satisfies it. These four mutations each break one claim; if a mutation
@@ -352,7 +442,7 @@ section("6 · the guards are load-bearing (mutations must break the claims)");
     win2.document.getElementById = (id) => (id === "pdx-bd-scroll" ? cap : null);
     win2.history = { replaceState() {}, pushState() {} };
     const ctx2 = vm.createContext(win2);
-    for (const f of [...ENGINE_FILES, "issue-scope.js"]) {
+    for (const f of [...ENGINE_FILES, "issue-colors.js", "issue-scope.js"]) {
       vm.runInContext(readFileSync(join(ROOT, f), "utf8"), ctx2, { filename: f });
     }
     vm.runInContext(src, ctx2, { filename: "bill-detail.mutant.js" });
@@ -390,6 +480,22 @@ section("6 · the guards are load-bearing (mutations must break the claims)");
     HR6644);
   ok(!letterhead(gated).includes("2 rode inside"),
     "the tally arithmetic reports the right number even when the source stops computing it");
+
+  // (e) cut the colour tokens off the chips.
+  const grey = await renderMutant(
+    mutate("      var st = C.styleFor(key);", "      var st = '';", "chip tint"),
+    HR6644);
+  ok(count(letterhead(grey), /data-ic="on"/g) === 0,
+    "the chips still report issue colours when the colour module's answer is thrown away");
+
+  // (f) put the prose back in the header, where it used to bury the census.
+  const dumped = await renderMutant(
+    mutate("      letterheadHtml(m, issues, data) +\n      foldSection(m) +",
+           "      '<p class=\"bd-summary\">' + esc(m.summary || '') + '</p>' +\n      letterheadHtml(m, issues, data) +",
+           "prose fold"),
+    HR6644);
+  ok(!/<details class="bd-fold">/.test(dumped),
+    "the fold assertion passes on a page that prints the summary open above the letterhead");
 }
 
 // ── report ───────────────────────────────────────────────────────────────────
@@ -400,4 +506,4 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(`✓ bill letterhead: all ${passed} assertions passed`);
-console.log(`  ${HR6644.issues.length} federal chips · ${HB257.issues.length} Utah chips · 4 vote slots · 3 fixtures · 4 mutations rejected`);
+console.log(`  ${HR6644.issues.length} federal chips · ${HB257.issues.length} Utah chips · 4 vote slots · 3 fixtures · 6 mutations rejected`);

@@ -1,6 +1,5 @@
-#!/usr/bin/env node
 /**
- * test-macro-menu-insight.mjs — one bag, shown as one bag
+ * test-macro-menu-insight.mjs — one bag, said once
  * ─────────────────────────────────────────────────────────────────────────────
  * The act face already shows the whole menu: fourteen mappings, fourteen rows,
  * none of them ranked. What it never said out loud is the thing that makes the
@@ -8,25 +7,31 @@
  * scroll the list and still come away thinking they were reading fourteen
  * decisions rather than one decision with fourteen consequences.
  *
- * This file guards the panel that says it. The danger in a panel like this is
- * that "how it was packaged" quietly becomes "what it was really about", so the
- * assertions here are mostly about what the insight is NOT allowed to become:
+ * That sentence is still on the face. What is gone is the panel it used to
+ * arrive in: a heading, three stat pills, a chip strip naming every topic again,
+ * a grouping by area of the topic map, and a paragraph disclaiming the ranking
+ * the grouping invited. Every topic in that strip was already a row in the
+ * ledger immediately above it, in the same order — so a reader met the same
+ * fourteen keys twice and had to work out which of the two lists was the real
+ * one. Two renderings of one list is not twice the information.
  *
- *   1. IT IS THE SAME LIST. Every topic in the bag is a topic already on the
- *      face, in the same order, and the count it prints is the ledger's own row
- *      count. A panel that says "12 topics" under a 14-row list is a new and
- *      quieter way of dropping two.
- *   2. IT READS NO CURATION. The panel never touches isPrimary or weight, and
- *      the proof is behavioural: flip every flag on, off, or onto a different
- *      mapping and the rendered panel does not move by one byte.
- *   3. IT RANKS NOTHING. No chip is styled, badged or worded differently from
- *      any other; no rank vocabulary appears anywhere in the panel; the topic
- *      areas are printed in the taxonomy's own order rather than by size.
- *   4. IT CHANGES NOTHING IT SITS NEXT TO. The ledger's default view, its lane
- *      keys, its row count and its filter are all exactly as they were, and the
- *      panel computes no score of any kind.
- *   5. IT DEGRADES HONESTLY. A one-topic measure gets no bag panel at all,
- *      because a bag of one is not a bag and the ledger already says so.
+ * So this file now guards a single line, and mostly guards it against growing
+ * back into a panel:
+ *
+ *   1. IT IS ONE LINE, UNDER THE LEDGER. No heading, no chips, no stat row, no
+ *      area grouping — and it names no topic keys, because the doors are the
+ *      ledger's rows and a second set of doors is a second list.
+ *   2. IT COUNTS WHAT THE LEDGER COUNTS. The number it states is the ledger's
+ *      own row count. A line that says "12 topics" under a 14-row list is a new
+ *      and quieter way of dropping two.
+ *   3. IT READS NO CURATION. It never touches isPrimary or weight, and the proof
+ *      is behavioural: flip every flag on, off, or onto a different mapping and
+ *      the rendered line does not move by one byte.
+ *   4. IT RANKS NOTHING AND SAYS NOTHING THAT RANKS.
+ *   5. THE WORDING FOLLOWS THE INSTRUMENT — one roll call, several, signed with
+ *      no roll call on file, or still moving.
+ *   6. IT DEGRADES HONESTLY. A one-topic measure gets no line at all, because a
+ *      bag of one is not a bag and the ledger already says so.
  *
  *   node scripts/test-macro-menu-insight.mjs
  */
@@ -99,71 +104,75 @@ const B = boot();
 const HTML = await render(B, BASE);
 if (!HTML || HTML.length < 2000) die(`the act face rendered ${HTML.length} characters`);
 
-// The bag panel, cut out of the page so every check below is scoped to it.
-const bagAt = HTML.indexOf('<section class="bd-sec bd-bag">');
-if (bagAt < 0) die("the co-travel panel is not on the act face at all");
-const BAG = HTML.slice(bagAt, HTML.indexOf("</section>", bagAt) + 10);
-const CHIPS = [...BAG.matchAll(/class="bd-bag-chip" data-issue="([^"]+)"/g)].map((m) => m[1]);
+// The one-instrument note, cut out of the page so every check below is scoped
+// to it — several claims ("names no topic", "no rank word") would be trivially
+// satisfiable by a page that keeps the offending text one section lower.
+const noteAt = HTML.indexOf('<section class="bd-sec bd-onebag">');
+if (noteAt < 0) die("the one-instrument note is not on the act face at all");
+const NOTE = HTML.slice(noteAt, HTML.indexOf("</section>", noteAt) + 10);
 const LEDGER = [...HTML.matchAll(/class="bd-omni-issue bd-omni-link" data-issue="([^"]+)"/g)].map((m) => m[1]);
 
-console.log(`\n🎒 macro menu insight — H.R. 1: ${N} mappings on one instrument`);
+console.log(`\n🎒 one bag, said once — H.R. 1: ${N} mappings on one instrument`);
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("1 · the panel is there, and it is after the full topic list");
+section("1 · one line, after the full topic list, and only one topic list");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  has(BAG, "Topics that shared this vote", "the panel does not name what it is showing");
   const ledgerAt = HTML.indexOf("Every topic this act touches");
-  ok(ledgerAt >= 0 && ledgerAt < bagAt, "the bag panel is drawn before the full topic list it summarises");
+  ok(ledgerAt >= 0 && ledgerAt < noteAt, "the note is drawn before the topic ledger it qualifies");
   const lastRow = HTML.lastIndexOf('class="bd-omni-row');
-  ok(lastRow < bagAt, "the bag panel is drawn inside or above the ledger instead of after it");
+  ok(lastRow < noteAt, "the note is drawn inside or above the ledger instead of after it");
   // It is an addition, not a replacement: the ledger is untouched underneath it.
   eq((HTML.match(/class="bd-omni-row/g) || []).length, N, "the ledger no longer renders one row per mapping");
   eq((HTML.match(/data-bd-view="all"/g) || []).length, 1, "the ledger no longer opens in the all-topics state");
   eq((HTML.match(/data-bd-lane="(?:main|other)"/g) || []).length, N, "the ledger's lane keys changed");
-  hasNot(BAG, "data-bd-lane", "the bag chips carry the ledger's filter key, so a slice could hide them");
-  hasNot(BAG, "data-bd-view", "the bag panel is wired into the ledger's view filter");
-  hasNot(BAG, "bd-omni-row", "the bag panel is re-rendering ledger rows instead of summarising them");
-}
 
-// ═════════════════════════════════════════════════════════════════════════════
-section("2 · co-travel completeness — the bag is exactly the mapping set");
-// ═════════════════════════════════════════════════════════════════════════════
-{
-  eq(CHIPS.length, N, `the bag lists all ${N} mapped topics`);
+  // ONE LINE. Structurally: one paragraph, no heading, no list, no controls.
+  eq((NOTE.match(/<p /g) || []).length, 1, "the note is more than one paragraph");
+  hasNot(NOTE, "<h3", "the note grew a heading again, which is what made it read as a second panel");
+  hasNot(NOTE, "<button", "the note grew controls again");
+  hasNot(NOTE, "<ul", "the note grew a list");
+
+  // AND IT NAMES NO TOPIC. The ledger's rows are the doors; a second set of
+  // doors is the duplicate list this pass deleted.
+  hasNot(NOTE, "data-issue", "the note is printing topic doors again — that is the second list, back");
   eq(LEDGER.length, N, "the ledger row count could not be read back");
-  eq(JSON.stringify(CHIPS), JSON.stringify(LEDGER),
-    "the bag and the ledger disagree about which topics this act carries, or about their order");
-  eq(new Set(CHIPS).size, CHIPS.length, "a topic appears twice in the bag");
-  const mapped = new Set(ISSUES.map((i) => i.issueKey));
-  ok(CHIPS.every((k) => mapped.has(k)), "the bag invented a topic that is not one of this act's mappings");
-  ok([...mapped].every((k) => CHIPS.includes(k)), "a mapped topic is missing from the bag");
-  ok(CHIPS.every((k) => !!(B.win.ISSUE_MAP || {})[k]), "the bag prints a key the shipped taxonomy does not know");
-  // Every count the panel states is the same count, and it is the ledger's.
-  has(BAG, `All <strong>${N} topics</strong> listed above`, "the lead does not state the size of the bag");
-  has(BAG, `📦 ${N} topics on this instrument`, "the bag-size chip does not state the size of the bag");
-  has(BAG, `1 roll call on all ${N}`, "the roll-call fact does not say the vote covered every topic");
-  has(BAG, `same ${N} mappings as the list above`, "the panel does not admit it is the same list");
-  has(HTML, `mapped to <strong>${N} topics</strong>`, "the ledger's own count changed");
-  const numbers = [...BAG.replace(/<[^>]+>/g, " ").matchAll(/\b(\d+) (?:topics?|mappings?)\b/g)]
-    .map((m) => Number(m[1]));
-  ok(numbers.length >= 3 && numbers.every((x) => x === N),
-    `a number in the panel claims a different-sized act: ${JSON.stringify(numbers)}`);
+  for (const k of LEDGER) hasNot(NOTE, k, `the note names ${k}, so the topic list is on the face twice`);
+  for (const cls of ["bd-bag-chip", "bd-bag-strip", "bd-bag-stat", "bd-bag-area", "bd-bag-note", "bd-omni-row"]) {
+    hasNot(NOTE, cls, `the note is rebuilding ${cls} — the panel is growing back`);
+  }
+  // Nothing anywhere on the face still renders the old panel.
+  hasNot(HTML, "bd-bag", "the old co-travel panel is still being rendered somewhere");
+  hasNot(HTML, "Topics that shared this", "the old panel's heading is still on the face");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("3 · the panel reads no curation — flags move, the panel does not");
+section("2 · it counts what the ledger counts");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  const fn = SRC.slice(SRC.indexOf("function coTravelSection"), SRC.indexOf("function rollcallsSection"));
-  ok(fn.length > 400, "the panel's source could not be located");
+  has(NOTE, `The same ${N} topics, one instrument.`, "the note does not state the size of the bag");
+  has(HTML, `mapped to <strong>${N} topics</strong>`, "the ledger's own count changed");
+  const numbers = [...NOTE.replace(/<[^>]+>/g, " ").matchAll(/\b(\d+) (?:topics?|mappings?)\b/g)]
+    .map((m) => Number(m[1]));
+  ok(numbers.length >= 1 && numbers.every((x) => x === N),
+    `a number in the note claims a different-sized act: ${JSON.stringify(numbers)}`);
+  // Any roll-call count it states is the roll-call count it was handed.
+  has(NOTE, "One roll call decided every one of them", "a single-roll-call act does not say so");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("3 · it reads no curation — flags move, the line does not");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const fn = SRC.slice(SRC.indexOf("function coTravelSection"), SRC.indexOf("  var POS_SLOTS"));
+  ok(fn.length > 400, "the note's source could not be located");
   const code = fn.replace(/\/\/.*$/gm, "");
   for (const w of ["isPrimary", "weight", "score", "_measureComponentBreakdown", "supportMeaning"]) {
-    ok(!code.includes(w), `the panel reads ${w} — it is supposed to know only which topics travelled together`);
+    ok(!code.includes(w), `the note reads ${w} — it is supposed to know only that the topics travelled together`);
   }
-  ok(!/\.sort\(/.test(code), "the panel sorts the list itself instead of taking the shared Big Picture order");
+  ok(!/\.sort\(/.test(code), "the note sorts the mappings itself");
   // The behavioural proof: the same mappings with the flags rearranged render the
-  // same panel, byte for byte.
+  // same line, byte for byte.
   const variants = [
     ["every mapping flagged", ISSUES.map((i) => ({ ...i, isPrimary: true }))],
     ["no mapping flagged", ISSUES.map((i) => ({ ...i, isPrimary: false }))],
@@ -173,12 +182,12 @@ section("3 · the panel reads no curation — flags move, the panel does not");
   for (const [name, issues] of variants) {
     const b = boot();
     const html = await render(b, { ...BASE, issues });
-    const at = html.indexOf('<section class="bd-sec bd-bag">');
-    ok(at >= 0, `${name}: the bag panel vanished`);
-    eq(html.slice(at, html.indexOf("</section>", at) + 10), BAG, `${name}: the bag panel changed`);
+    const at = html.indexOf('<section class="bd-sec bd-onebag">');
+    ok(at >= 0, `${name}: the note vanished`);
+    eq(html.slice(at, html.indexOf("</section>", at) + 10), NOTE, `${name}: the note changed`);
   }
   // And nothing was written back into the data on the way through.
-  eq(JSON.stringify(BASE), FROZEN, "rendering the panel mutated the mappings it was handed");
+  eq(JSON.stringify(BASE), FROZEN, "rendering the note mutated the mappings it was handed");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -188,100 +197,54 @@ section("4 · it ranks nothing, and it says nothing that ranks");
   for (const w of ["primary", "Primary", "secondary", "Secondary", "supporting", "Supporting",
                    "cargo", "lesser", "minor", "footnote", "headline topic", "core topic",
                    "sideshow", "rider", "the real subject", "mainly about", "chiefly"]) {
-    hasNot(BAG, w, `the bag panel calls part of the act ${JSON.stringify(w)}`);
+    hasNot(NOTE, w, `the note calls part of the act ${JSON.stringify(w)}`);
   }
-  ok(!/\bmain\b/i.test(BAG), "the bag panel names a main topic");
-  ok(!/Republican|Democrat|\bGOP\b|party/i.test(BAG), "the bag panel brings party into a packaging fact");
-  // Every chip is the same chip: one class, no modifier, no badge, no per-topic
-  // annotation that could be read as a rank.
-  const chipTags = [...BAG.matchAll(/<button[^>]*class="([^"]*)"/g)].map((m) => m[1]);
-  eq(new Set(chipTags).size, 1, `the chips are not all the same element: ${[...new Set(chipTags)].join(" / ")}`);
-  eq(chipTags.length, N, "some topics in the bag are not rendered as chips");
-  hasNot(BAG, "bd-eff", "the bag repeats the per-topic direction, which belongs to the ledger row");
-  hasNot(BAG, "bd-v-", "the bag carries a verdict");
-  // No style rule singles a chip out.
+  ok(!/\bmain\b/i.test(NOTE), "the note names a main topic");
+  ok(!/Republican|Democrat|\bGOP\b|party/i.test(NOTE), "the note brings party into a packaging fact");
+  ok(!/\d\s*%/.test(NOTE), "there is a percentage on the bill face");
+  // Its styles cannot single a topic out either, because it has no per-topic
+  // element left to single out.
   const styleBlock = SRC.slice(SRC.indexOf("function injectCss"));
-  const chipRules = [...styleBlock.matchAll(/'(\.bd-bag[^']*)\{/g)].map((m) => m[1]);
-  ok(chipRules.length > 0, "the bag panel ships without styles");
-  ok(!chipRules.some((sel) => /nth-child|first-child|\[data-issue=/.test(sel)),
-    `a style rule singles out one topic in the bag: ${chipRules.join(" / ")}`);
-  // The panel says outright that it is not a ranking.
-  has(BAG, "Nothing here is a ranking", "the panel does not disclaim the reading it invites");
+  const rules = [...styleBlock.matchAll(/'(\.bd-onebag[^']*)\{/g)].map((m) => m[1]);
+  ok(rules.length > 0, "the note ships without styles");
+  ok(!rules.some((sel) => /nth-child|first-child|\[data-issue=/.test(sel)),
+    `a style rule singles out part of the note: ${rules.join(" / ")}`);
+  ok(!styleBlock.includes(".bd-bag-"), "the deleted panel's styles are still shipping");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("5 · the packaging facts reconcile, and the areas are taxonomy order");
+section("5 · the wording follows the instrument");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  const areas = [...BAG.matchAll(/class="bd-bag-area">([^<]*)<b>(\d+)<\/b>/g)]
-    .map((m) => ({ label: m[1].trim(), n: Number(m[2]) }));
-  ok(areas.length > 1, `H.R. 1 should span more than one area of the topic map (${areas.length})`);
-  eq(areas.reduce((a, x) => a + x.n, 0), N, "the area counts do not add up to the size of the bag");
-  has(BAG, `🗂 ${areas.length} area`, "the stat row and the area list disagree about how many areas there are");
-  // Independently recomputed: category index of each area, in the order printed.
-  const cats = B.win._pdxIssueCategories();
-  const rankOf = (key) => cats.findIndex((c) => c.key === B.win._pdxIssueCatOf(key));
-  const printedRanks = [];
-  const seen = new Set();
-  for (const k of CHIPS) {
-    const r = rankOf(k);
-    if (!seen.has(r)) { seen.add(r); printedRanks.push(r); }
-  }
-  eq(printedRanks.length, areas.length, "the panel groups the bag into a different number of areas than the taxonomy does");
-  eq(JSON.stringify(printedRanks), JSON.stringify([...printedRanks].sort((a, b) => a - b)),
-    "the areas are not in the shipped taxonomy's own order");
-  ok(printedRanks.every((r) => r >= 0), "an area was printed for a category the taxonomy does not have");
-  // Explicitly NOT by size — that would be a ranking of the act's subjects.
-  const bySize = [...areas].sort((a, b) => b.n - a.n).map((a) => a.label);
-  ok(areas.length < 3 || JSON.stringify(areas.map((a) => a.label)) !== JSON.stringify(bySize),
-    "the areas happen to be in descending size order — check the sort, that is a ranking");
-  has(BAG, "a bigger group means more mappings landed in it", "the panel does not say what a big group is and is not");
-}
-
-// ═════════════════════════════════════════════════════════════════════════════
-section("6 · the wording follows the instrument, and every chip is a door");
-// ═════════════════════════════════════════════════════════════════════════════
-{
-  // Each chip uses the delegated issue handler the rest of the panel uses, so a
-  // topic in the bag opens the same dossier a ledger row opens.
-  has(SRC, "closest('[data-issue]')", "the panel's issue handler is gone");
-  eq((BAG.match(/data-issue="/g) || []).length, N, "not every chip in the bag is a link into its topic");
-  // Wording cases, all from the data already on the page.
-  const one = BAG;
-  has(one, "One roll call decided every one of them", "a single-roll-call act does not say so");
   const three = await render(boot(), { ...BASE, rollcalls: [rc(1), rc(2), rc(3)] });
-  has(three, "Topics that shared this vote", "a multi-roll-call act loses the vote wording");
-  has(three, "3 roll calls each decided every one of them at once", "a multi-roll-call act does not say how many carried the bag");
-  has(three, `3 roll calls, each on all ${N}`, "the stat row does not scale to several roll calls");
+  has(three, "3 roll calls each decided every one of them at once",
+    "a multi-roll-call act does not say how many carried the bag");
   const signed = await render(boot(), { ...BASE, rollcalls: [] });
-  has(signed, "Topics that shared this act", "an enacted instrument with no roll call on file does not say 'act'");
   has(signed, "signed into law as one instrument", "the signed case does not state how the topics arrived");
-  ok(!/roll call/.test(signed.slice(signed.indexOf('<section class="bd-sec bd-bag">'),
-    signed.indexOf("</section>", signed.indexOf('<section class="bd-sec bd-bag">')))),
-    "the signed case claims a roll call that is not in the record");
+  const signedNote = signed.slice(signed.indexOf('<section class="bd-sec bd-onebag">'),
+    signed.indexOf("</section>", signed.indexOf('<section class="bd-sec bd-onebag">')));
+  ok(!/roll call/.test(signedNote), "the signed case claims a roll call that is not in the record");
   const pending = await render(boot(), { ...BASE, measure: { ...MEASURE, status: "introduced" }, rollcalls: [] });
-  has(pending, "Topics that shared this measure", "a measure with no vote yet is called something it is not");
   has(pending, "They ride on one measure", "the pending case does not say the topics move together");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("7 · a bag of one is not a bag");
+section("6 · a bag of one is not a bag");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const one = await render(boot(), { ...BASE, issues: [ISSUES[0]] });
-  hasNot(one, "bd-bag", "a single-topic measure grew a co-travel panel");
+  hasNot(one, "bd-onebag", "a single-topic measure grew a one-instrument note");
   has(one, "mapped to one topic", "the single-topic measure lost the ledger's own plain sentence");
   eq((one.match(/class="bd-omni-row/g) || []).length, 1, "the single-topic ledger changed");
   const none = await render(boot(), { ...BASE, issues: [] });
-  hasNot(none, "bd-bag", "an unmapped measure grew a co-travel panel");
+  hasNot(none, "bd-onebag", "an unmapped measure grew a one-instrument note");
   const two = await render(boot(), { ...BASE, issues: ISSUES.slice(0, 2) });
-  has(two, "bd-bag", "a two-topic act should say the two travelled together");
-  eq((two.match(/class="bd-bag-chip"/g) || []).length, 2, "the two-topic bag does not hold exactly two topics");
-  has(two, "All <strong>2 topics</strong>", "the two-topic bag miscounts itself");
+  has(two, "bd-onebag", "a two-topic act should say the two travelled together");
+  has(two, "The same 2 topics, one instrument.", "the two-topic note miscounts itself");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("8 · nothing next to it moved");
+section("7 · nothing next to it moved");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   // The ledger, its filter and the jump chips are all exactly as the neighbouring
@@ -291,19 +254,20 @@ section("8 · nothing next to it moved");
   eq((HTML.match(/data-bd-view-set="[a-z]+"/g) || []).length, 3, "the ledger's view control changed shape");
   has(HTML, 'data-bd-view-set="all" aria-pressed="true"', "the ledger no longer opens on all topics");
   eq((HTML.match(/class="bd-omni-head"/g) || []).length, N, "the ledger rows changed structure");
-  // The panel is presentation with no engine underneath: it appears in exactly one
-  // file, is called from exactly one place, and nothing else renders a bag.
-  eq((SRC.match(/coTravelSection\(/g) || []).length, 2, "the bag panel is built or called from more than one place");
+  // The note is presentation with no engine underneath: it appears in exactly one
+  // file, is called from exactly one place, and nothing else renders it.
+  eq((SRC.match(/coTravelSection\(/g) || []).length, 2, "the note is built or called from more than one place");
   for (const f of ["digital-library.js", "spotlight-hub.js", "profiles-full.js", "exec-record-ui.js", "consistency.js"]) {
-    ok(!readFileSync(join(ROOT, f), "utf8").includes("bd-bag"),
-      `${f} has grown its own copy of the bag panel`);
+    const other = readFileSync(join(ROOT, f), "utf8");
+    ok(!other.includes("bd-bag") && !other.includes("bd-onebag"),
+      `${f} has grown its own copy of the co-travel note`);
   }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
 if (failures.length) {
-  console.error(`\n✗ macro menu insight: ${failures.length} failed, ${passed} passed\n`);
+  console.error(`\n✗ one bag, said once: ${failures.length} failed, ${passed} passed\n`);
   for (const f of failures) console.error(`  ✗ ${f}`);
   process.exit(1);
 }
-console.log(`\n✓ macro menu insight: all ${passed} assertions passed — ${N} topics, one instrument, nothing demoted to make the point\n`);
+console.log(`\n✓ one bag, said once: all ${passed} assertions passed — ${N} topics, one instrument, said in one line and listed once\n`);
