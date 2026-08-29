@@ -1073,6 +1073,25 @@
       '</section>';
   }
 
+  // WHERE A SIGNATURE CHIP LANDS.
+  // It used to go straight to PDXIssueView - the ranked overlay of PEOPLE on an
+  // issue - which was the wrong destination twice over. A chip on a PERSON that
+  // opens a league table of persons answers a question nobody asked; and the
+  // curated `issues` list these chips are usually built from holds DISPLAY LABELS
+  // ("Public Lands"), not vocabulary keys, so that overlay could not resolve them
+  // and quietly widened them into whichever core issue happened to sort first -
+  // an unrelated issue, opened silently.
+  //   So: a chip whose key is a real vocabulary key opens that key's own page
+  // (/issue/<key>, every measure mapped to it). Anything else keeps the old
+  // behaviour, because a label is not a key and this file will not guess which
+  // key a curator meant.
+  function sigTapJs(key) {
+    var k = jsStr(key);
+    return "var K='" + k + "';" +
+      "if(window.PDXIssuePage&&window.PDXIssuePage.has(K)){window.PDXIssuePage.open(K);}" +
+      "else if(window.PDXIssueView&&window.PDXIssueView.open){window.PDXIssueView.open(K);}";
+  }
+
   // briefHtml — the first screen below the letterhead. Self-gating on substance:
   // with neither a signature issue nor a tension nor a share tier there is
   // nothing to brief, and the profile's own thin-record notice already handles
@@ -1089,9 +1108,7 @@
     var name = firstName(p);
     var sigHtml = sigs.length
       ? '<div class="pdxbr-sigs">' + sigs.map(function (s) {
-          var tap = s.key
-            ? ' onclick="if(window.PDXIssueView&&window.PDXIssueView.open)window.PDXIssueView.open(\'' + jsStr(s.key) + '\');"'
-            : '';
+          var tap = s.key ? ' onclick="' + sigTapJs(s.key) + '"' : '';
           return '<button type="button" class="pdxbr-sig"' + tap +
               ' title="' + escAttr('Where ' + name + ' stands on ' + s.label) + '">' +
               '<span class="pdxbr-sig-lbl">' + esc(s.label) + '</span>' +

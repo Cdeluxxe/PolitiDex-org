@@ -209,13 +209,53 @@ const L = laneBox().PDXFinanceLane;
   for (const hex of Object.values(L.COLORS)) {
     ok(YES_NO.indexOf(hex.toLowerCase()) < 0, `bucket colour ${hex} is not a verdict colour`);
   }
+  // THIS ASSERTION IS THE REVERSE OF THE ONE IT REPLACES, DELIBERATELY.
+  // It used to read `eq(new Set(hexes).size, hexes.length, "every bucket is a
+  // distinguishable colour")` — five buckets, five hues, categorical and ranking
+  // nothing. The money theme retires that. Two reasons, and the second is the one
+  // that mattered: `selfFunded` was #ffb86c, an amber whose meaning was a
+  // donor-mix category, which is the banned channel however carefully the legend
+  // is worded; and the lane now has ONE pair, so a five-hue bar sitting under a
+  // green-and-gold chip and a green-and-gold header contradicted both of them.
+  // Buckets are now distinguished by their label and their dollar figure, and the
+  // composition is drawn as one gold-on-slate bar per bucket, so the share is
+  // carried by length. Reversing it back would need a reason written down here.
   const hexes = Object.values(L.COLORS).map((h) => h.toLowerCase());
-  eq(new Set(hexes).size, hexes.length, "every bucket is a distinguishable colour");
+  eq(new Set(hexes).size, 1, "every bucket is the same colour — the money gold");
+  eq(hexes[0], "#c9992f", "…and that colour is the money token's gold outline");
+  // The stacked bar is gone with the palette. It always filled 100% (the buckets
+  // sum to `receipts` by construction), so it measured nothing while looking like
+  // a measurement.
+  lacks(LANE_CODE, "overflow:hidden;margin-bottom:0.5rem;background:rgba(10,15,30,0.6)",
+    "the five-segment stacked composition bar is gone");
+  {
+    const comp = L.compositionHtml(L.read(SEED_IDS[0]));
+    const track = (comp.match(/background:#3d4f66/g) || []).length;
+    const fill = (comp.match(/background:#c9992f/g) || []).length;
+    ok(track >= 2, `each bucket row draws its own slate track (saw ${track})`);
+    eq(fill, track, "…and exactly one gold fill per slate track");
+    lacks(comp, "#fb923c",
+      "the outside-spending eyebrow no longer reports a level in orange");
+  }
 
   const MP = R("my-profile.js");
   const mixBlock = MP.slice(MP.indexOf("var MIX = ["), MP.indexOf("function group3"));
   for (const hex of YES_NO) lacks(mixBlock, hex, `the Money Tree palette does not use ${hex}`);
-  has(mixBlock, "LANE_COLORS", "…because it borrows the lane's palette instead");
+  // This used to assert `has(mixBlock, "LANE_COLORS")` — the Money Tree borrowed
+  // finance-lane.js's five hues so one bucket was never two colours on two
+  // surfaces. It now declares no colours at all: the lane's palette is a single
+  // gold, and reading five identical values out of it to paint five bars the same
+  // colour would only look like a distinction. The stronger guarantee is the one
+  // asserted here instead — the Money Tree names no hex.
+  lacks(mixBlock, "#", "the Money Tree declares no colour of its own, in any hex");
+  lacks(MP, "LANE_COLORS = ", "…and no longer keeps a local copy of the lane's palette");
+  {
+    const MPC0 = R("my-profile.css");
+    has(MPC0, "--pdx-money-line", "the Money Tree's bars take their gold from the money token");
+    has(MPC0, "--pdx-money-rest", "…and their track from the money token's slate");
+    lacks(MPC0, ".mp-mix-seg", "the stacked segment class is gone with the stack");
+    lacks(MPC0, ".mp-mix-dot", "…and so is the colour-key legend dot");
+  }
   const MPC = R("my-profile.css");
   lacks(MPC, ".mp-lean.is-grass { color: #86efac",
     "the funding-mix badge is no longer green for one answer and amber for another");
@@ -401,6 +441,147 @@ const L = laneBox().PDXFinanceLane;
   eq(withF, without,
     "Direction Match, the tiers, the publication floor and the mapped counts are identical " +
     "with a full filing on file and with none");
+}
+
+// ── 8 · the letterhead chip is a door, not a second money section ────────────
+{
+  section("8 · the compact money chip on the person letterhead");
+
+  const box = laneBox();
+  box.CMP_DATA = {};
+  for (let i = 0; i < 757; i++) box.CMP_DATA["p" + i] = { name: "p" + i };
+  // A file that exists but carries no itemized composition — the partial state.
+  box._FTM_BY_ID.partial_person = {
+    id: "partial_person", name: "Partial", totalRaised: 420000,
+    topDonors: [{ name: "A", amount: 2 }, { name: "B", amount: 1 }],
+    sectors: { Finance: 2, Energy: 1 },
+  };
+  const CL = box.PDXFinanceLane;
+
+  // THE TARGET IS THIS PAGE. The chip's whole point is that it does not navigate
+  // off the person file, so the id it jumps to is the money section's own anchor
+  // on the profile — never the site-level #follow-the-money index.
+  eq(CL.SECTION_ID, "pdxsec-funding", "the chip targets the money section on this person file");
+  has(R("index.html"), `id="${CL.SECTION_ID}"`, "…and that anchor is emitted by the money section");
+  const PFF = R("profiles-full.js");
+  has(PFF, "PDXFinanceLane.letterheadChipMount(id)",
+    "the letterhead mounts the chip");
+  ok(PFF.indexOf("letterheadChipMount(id)") < PFF.indexOf('<span class="profile-party">'),
+    "…inside the identity block, among the status pills");
+
+  // THREE STATES, AND THE EMPTY ONE IS NOT OPTIONAL. A chip that only appeared
+  // where a filing exists would leave "no chip" to be read as "clean".
+  eq(CL.chipRead(SEED_IDS[0]).state, "file", "a filing on file reads as `file`");
+  eq(CL.chipRead("partial_person").state, "thin", "a record with no composable base reads as `thin`");
+  eq(CL.chipRead("chew_h68").state, "empty", "a person with no money file reads as `empty`");
+  for (const id of [SEED_IDS[0], "partial_person", "chew_h68", "nobody_at_all"]) {
+    const html = CL.letterheadChipHtml(id);
+    ok(html.length > 80, `${id}: the chip renders`);
+    has(html, "<button", `${id}: …as a control, because it goes somewhere`);
+    has(html, `data-pdx-mchip-state="${CL.chipRead(id).state}"`, `${id}: …declaring its state`);
+    has(html, "PDXFinanceLane.openSection()", `${id}: …and its action is the jump`);
+    lacks(html, "#follow-the-money", `${id}: …which does not leave the person file`);
+    ok(CL.letterheadChipMount(id).indexOf("pdx-mchip-host") > 0, `${id}: the mount emits a host`);
+  }
+
+  // ONE LINE: a figure and at most three highlights. A fourth highlight is a
+  // strip that has not admitted it yet.
+  for (const id of SEED_IDS.concat(["partial_person", "chew_h68"])) {
+    const words = visible(CL.letterheadChipHtml(id));
+    const segs = words.split("·").length;
+    ok(segs <= 4, `${id}: the chip is a figure plus at most 3 highlights (${segs} segments)`);
+    ok(words.indexOf("\n") < 0, `${id}: …on one line`);
+    has(words, "💰", `${id}: …under the money glyph`);
+  }
+
+  // The on-file chip says what the spec asks of it, and every figure on it comes
+  // off the lane's one composition read rather than a second sum.
+  const c = CL.read("lee");
+  const lee = visible(CL.letterheadChipHtml("lee"));
+  has(lee, c.receiptsFmt, "the figure is the lane's own itemized base");
+  has(lee, c.shares.smallDollar + "% small-dollar", "…beside the small-dollar share of that base");
+  has(lee, c.largest.short, "…and the top pile, named");
+  has(lee, "13 of 757 filed", "…and the coverage counts, quoted");
+  // Never both, when they are the same pile: a chip cannot afford a highlight
+  // that restates its own previous segment.
+  const grass = SEED_IDS.map((id) => CL.read(id)).find((r) => r && r.largest.key === "smallDollar");
+  ok(grass, "the seed carries at least one small-dollar-led filing");
+  if (grass) {
+    const g = visible(CL.letterheadChipHtml(grass.pid || "massie"));
+    ok(g.toLowerCase().indexOf("top pile") < 0,
+      "a small-dollar-led file does not print `top pile: Small-dollar` after the share");
+  }
+
+  // The absent states are sentences about the DATA. Same fence as the entry row.
+  const emptyWords = visible(CL.letterheadChipHtml("chew_h68")).toLowerCase();
+  has(emptyWords, "no money file yet", "the empty chip says plainly that nothing is on file");
+  const thinWords = visible(CL.letterheadChipHtml("partial_person")).toLowerCase();
+  has(thinWords, "partial file", "the partial chip says the file is partial");
+  ok(/\d+ items?/.test(thinWords), "…and counts what is on it");
+  for (const bad of ["clean", "clear", "nothing to report", "no concerns", "good", "bad",
+    "score", "grade", "level", "rank", "/100", "special-interest", "constituents-first"]) {
+    lacks(emptyWords, bad, `the empty chip does not say "${bad}"`);
+    lacks(thinWords, bad, `the partial chip does not say "${bad}"`);
+  }
+  // …and the long form a screen reader hears carries the coverage disclosure,
+  // because that is where "a blank is missing data" has room to be said.
+  for (const id of ["chew_h68", "partial_person"]) {
+    const aria = (/aria-label="([^"]*)"/.exec(CL.letterheadChipHtml(id)) || [])[1] || "";
+    has(aria, "missing data", `${id}: the accessible name carries the coverage disclosure`);
+    has(aria, "not a finding about the person", `${id}: …including that it is not a finding`);
+  }
+
+  // NO MOTIVE LANGUAGE, on the chip either.
+  for (const id of [SEED_IDS[0], "partial_person", "chew_h68"]) {
+    const w = visible(CL.letterheadChipHtml(id)).toLowerCase();
+    for (const m of ["bought", "bribe", "beholden", "corrupt", "owned by", "captured by",
+      "sold out", "puppet"]) {
+      lacks(w, m, `${id}: the chip carries no motive language ("${m}")`);
+    }
+  }
+
+  // NO RING, NO RAMP, NO RANK. One neutral accent in all three states — a chip
+  // that went green on a diffuse base and amber on a concentrated one would be
+  // the retired Constituents-First verdict delivered in colour.
+  // Comments stripped, on the same terms section 1 strips the lane's: the
+  // stylesheet's header explains WHY it uses no verdict colour, and it cannot do
+  // that without naming the two colours it is refusing.
+  const CSS = R("finance-lane.css").replace(/\/\*[\s\S]*?\*\//g, " ");
+  for (const hex of ["#4ade80", "#f87171", "#86efac", "#fca5a5", "#6ee7a0", "#f5c842"]) {
+    lacks(CSS, hex, `finance-lane.css does not use the verdict colour ${hex}`);
+  }
+  for (const id of [SEED_IDS[0], "partial_person", "chew_h68"]) {
+    const html = CL.letterheadChipHtml(id);
+    ok(!/style="/.test(html), `${id}: the chip carries no inline colour of its own`);
+  }
+  // Every state takes the same class, so none of them can be styled as a verdict.
+  const classes = [SEED_IDS[0], "partial_person", "chew_h68"]
+    .map((id) => (/class="(pdx-mchip)"/.exec(CL.letterheadChipHtml(id)) || [])[1]);
+  eq(new Set(classes).size, 1, "all three states render under one chip class");
+  has(R("index.html"), 'href="/finance-lane.css"', "the chip's stylesheet is shipped");
+
+  // THE CHIP IS NOT THE SECTION. Nothing that belongs below is duplicated up here.
+  const onFileChip = visible(CL.letterheadChipHtml("lee")).toLowerCase();
+  for (const owned of ["outside spending", "not itemized to the candidate", "verify at source",
+    "composition as filed", "updated", "cycle"]) {
+    lacks(onFileChip, owned, `the chip does not restate the section's "${owned}"`);
+  }
+  ok(onFileChip.indexOf("<svg") < 0 && onFileChip.indexOf("<canvas") < 0,
+    "…and mounts no graph, so the hero cannot grow by a chart");
+  const chipHtmlRaw = CL.letterheadChipHtml("lee");
+  for (const tag of ["<svg", "<canvas", "<table", "<img", "<ul", "<li", "<div"]) {
+    lacks(chipHtmlRaw, tag, `the chip contains no <${tag.slice(1)}> — it is a pill, not a block`);
+  }
+
+  // THE WALL, on the new surface too. The chip is a display object; it may not
+  // have introduced a finance read into any engine.
+  const FIN2 = /PDXFinanceLane|_pdxFinance|_financeSignal|smallDollar|selfFunded|largeIndividual/;
+  for (const f of ["word-action.js", "publication-floor.js", "voting-record.js",
+    "stance-helpers.js", "consistency.js"]) {
+    ok(!FIN2.test(R(f)), `${f} still does not name the finance lane after the chip shipped`);
+  }
+  ok(!/letterheadChip|pdx-mchip/.test(R("word-action.js")),
+    "the ⚖️ letterhead badge knows nothing about the 💰 one beside it");
 }
 
 // ── Result ───────────────────────────────────────────────────────────────────

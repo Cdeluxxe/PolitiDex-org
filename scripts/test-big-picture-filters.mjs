@@ -99,7 +99,7 @@ function boot() {
     return el;
   };
   const ctx = vm.createContext(win);
-  for (const f of [...ENGINE_FILES, "bill-detail.js"]) {
+  for (const f of [...ENGINE_FILES, "receipt-cards.js", "bill-detail.js"]) {
     vm.runInContext(readFileSync(join(ROOT, f), "utf8"), ctx, { filename: f });
   }
   if (!win.PDXBillDetail || typeof win.PDXBillDetail.open !== "function") die("PDXBillDetail.open() is unavailable");
@@ -169,7 +169,7 @@ section("1 · the default is every topic, and it is the shipped attribute");
   eq(JSON.stringify(pressed), JSON.stringify(["all"]), "the pressed button on arrival is not All topics");
   // The lead sentence and the button agree with the row count, so no control on
   // the face promises a different-sized act than the one below it.
-  has(HTML, `mapped to <strong>${N} topics</strong>`, "the lead does not state the full topic count");
+  has(HTML, `${N} topics mapped`, "the face does not state the full topic count anywhere");
   has(HTML, `All topics (${N})`, "the All button does not state the full topic count");
 }
 

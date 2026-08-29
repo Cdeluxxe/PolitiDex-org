@@ -464,8 +464,31 @@
         // gets told on, not filled in.
         : '<div class="pdxis-sect"><div class="pdxis-sect-h">What it covers</div>' +
             '<p class="pdxis-sect-b pdxis-off">' + esc(NO_DEF) + '</p></div>') +
+      billsDoorHtml(r.key) +
       '<p class="pdxis-wall">This is what the issue key means, and it is the same for ' +
         'every politician on the site — it says nothing about this one’s record.</p>';
+  }
+
+  // ── THE ONE DOOR THIS CARD CARRIES ─────────────────────────────────────────
+  // The ⓘ is mounted beside EVERY issue row on the site, and it is the one control
+  // that is already about the KEY rather than about the person whose row it sits
+  // in. That makes it the right place — and, on a stance-tree leaf whose own door
+  // must keep opening that member's dossier, the only place — for the jump to the
+  // key's own page: every measure formally mapped to it.
+  //   OFFERED ONLY WHEN IT EXISTS. issue-page.js is a guest here exactly like this
+  // module is a guest on the surfaces that mount it: no page module on the page, or
+  // a key it will not take, and the card renders as it always did rather than
+  // promising a destination that is not there.
+  var BILLS_DOOR = 'See all bills on this issue';
+  function billsDoorHtml(key) {
+    try {
+      var IP = window.PDXIssuePage;
+      if (!key || !IP || typeof IP.has !== 'function' || !IP.has(key)) return '';
+    } catch (e) { return ''; }
+    return '<button type="button" class="pdxis-bills" data-pdxis-bills="' + esc(key) + '">' +
+      '<span class="pdxis-bills-t">' + esc(BILLS_DOOR) + '</span>' +
+      '<span class="pdxis-bills-go" aria-hidden="true">→</span>' +
+    '</button>';
   }
 
   var _card = null, _scrim = null, _trigger = null, _openKey = '';
@@ -531,6 +554,17 @@
     _bound = true;
     document.addEventListener('click', function (e) {
       if (!e.target || !e.target.closest) return;
+      // Checked before the close control, because the door is INSIDE the card and
+      // a reader who taps it means the page, not the dismissal.
+      var bd = e.target.closest('[data-pdxis-bills]');
+      if (bd) {
+        e.preventDefault();
+        var bk = bd.getAttribute('data-pdxis-bills') || '';
+        var IP = window.PDXIssuePage;
+        // Focus follows the reader onto the page, so it is not restored to the ⓘ.
+        if (IP && typeof IP.open === 'function' && IP.open(bk)) close(false);
+        return;
+      }
       var x = e.target.closest('[data-pdxis-close]');
       if (x) { e.preventDefault(); close(true); return; }
       var b = e.target.closest('[data-pdxis-key]');
@@ -595,6 +629,13 @@
         'letter-spacing:0.11em;text-transform:uppercase;color:#7596c0;margin-bottom:0.2rem;}',
       '.pdxis-sect-b{margin:0;font-size:0.78rem;line-height:1.55;color:#b9cae3;overflow-wrap:break-word;}',
       '.pdxis-off{color:#7596c0;font-style:italic;}',
+      '.pdxis-bills{display:flex;align-items:center;gap:0.4rem;width:100%;margin:0.85rem 0 0;',
+        'padding:0.55rem 0.65rem;background:rgba(127,180,255,0.08);border:1px solid rgba(159,180,212,0.22);',
+        'border-radius:10px;color:#eef4ff;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;',
+        'font-size:0.86rem;letter-spacing:0.02em;cursor:pointer;text-align:left;}',
+      '.pdxis-bills:hover,.pdxis-bills:focus-visible{background:rgba(127,180,255,0.16);border-color:rgba(159,180,212,0.4);}',
+      '.pdxis-bills-t{flex:1 1 auto;min-width:0;}',
+      '.pdxis-bills-go{flex:0 0 auto;color:#9fdbff;}',
       '.pdxis-wall{margin:0.85rem 0 0;padding-top:0.55rem;border-top:1px solid rgba(159,180,212,0.14);',
         'font-size:0.7rem;line-height:1.5;color:#7596c0;}'
     ].join('');
@@ -628,7 +669,7 @@
       var r = read(key);
       return r ? cardHtml(r) : '';
     }, open: open, close: close,
-    SCOPE: SCOPE, NO_DEF: NO_DEF,
+    SCOPE: SCOPE, NO_DEF: NO_DEF, BILLS_DOOR: BILLS_DOOR,
     POLE_DEFAULT: POLE_DEFAULT, POLE_BALANCE: POLE_BALANCE, POLE_NONE: POLE_NONE,
     selfTest: selfTest
   };

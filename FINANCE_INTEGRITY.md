@@ -54,13 +54,99 @@ reported source named as a fact about a sorted list. No headline number, no
 level, no letter, no verb. A share of a composition is composition; what is
 forbidden is a single figure standing in for the whole person.
 
-**The palette is categorical, and that is a doctrine decision, not a style one.**
-The old chart keyed small-dollar to green and PAC to red, so the colours
-delivered the verdict after the words stopped — a reader did not have to read
-the legend to know which bucket they were meant to disapprove of. The five hues
-in `PDXFinanceLane.COLORS` distinguish buckets and rank none of them, and this
-codebase's yes/no colours (`#4ade80`, `#f87171`) do not appear in the lane, in
-the Money Tree's palette, or in the impact-ledger recap.
+## The money theme: one pair, wayfinding, not a grade
+
+Finance now has a colour of its own — **a deep forest fill with a gold outline, a
+gold 💰 and gold dollar marks** — and it means exactly one thing: *this is the
+money lane*. It is a signpost. It is not a reading.
+
+The token is declared once, as `:root` custom properties in `finance-lane.css`,
+and mirrored in `finance-lane.js` as `PDXFinanceLane.THEME` for the blocks that
+travel into surfaces with their own inline styles and never load the stylesheet.
+`scripts/test-money-theme.mjs` asserts the two copies agree value for value,
+because two copies of a token that can drift silently are worse than one that
+cannot travel.
+
+| | |
+|---|---|
+| `--pdx-money-fill` | `rgba(15, 61, 46, 0.55)` — deep forest |
+| `--pdx-money-line` | `#c9992f` — the outline, the 💰, the dollar marks |
+| `--pdx-money-ink` | `#e3c176` — dollar figures |
+| `--pdx-money-text` | `#bcd3c6` — words on a money surface that are not dollars |
+| `--pdx-money-rest` | `#3d4f66` — "the rest" of a composition bar |
+
+**What the pair is not allowed to encode.** Not donor mix: a grassroots filing
+and a PAC-heavy filing wear the identical pair, and there is no second variant to
+escalate to. Not presence of data: **the empty file and the $8.6M file are the
+same green-gold door at the same weight** — same fill, same border width, same
+ink, same glyph. Not amount: nothing scales, brightens or saturates with a dollar
+figure. Not rank, tier, ballot order, Direction Match or ⚖️ Word vs Action.
+
+**Why gold, when amber is the objection.** Gold here is metallic and deep
+(`#c9992f`), not the bright signal amber this codebase uses for a middling
+verdict (`#f5c842`). More to the point, the gold is attached to the **constant** —
+the lane itself — and never to a level. There is no state in which a money
+surface is not gold, and a colour that never varies cannot grade.
+
+**Where the pair is allowed, and the list is closed:** the letterhead 💰 chip, an
+on-page money section header, Follow-the-Money and library money entries, and the
+dollar fill of a composition bar. It appears on no issue chip (`issue-colors.js`
+owns those and the money work never touched it), on no Yea/Nay pill, and not on
+the ⚖️ Word vs Action badge sitting inches away in the same letterhead.
+
+### The donor-mix ramp is deleted
+
+Four surfaces used to paint a **green → amber → red ladder keyed to donor mix** —
+`is-grass` green, `is-mixed` amber, `is-big` red — behind a matching 🌱 / ⚖️ / 🏦
+glyph ramp: the funding chip, the profile funding section, the Compare table's
+funding rows, and the profile nav rail's funding dot. That is the retired
+Constituents-First grade — its three levels, its three colours, its cut-offs —
+surviving as CSS and emoji after the arithmetic above was deleted. Nobody needed
+the tooltip to know which pill they were meant to disapprove of.
+
+All states now take the one pair at one weight, and `_fundingCharacter` returns
+💰 for every level. The mix is still reported, with its percentage, **in words**.
+The ⚖️ in the middle of the glyph ramp was the worse offence of the two: that
+glyph is Word vs Action's own badge, so a donor mix had borrowed the vocabulary
+of a promise-keeping measure.
+
+Missing data stays words — "No money file yet", "Not on file" — never a dimmer
+pill, a dashed frame or a greyer glyph. An undigitised filing is a fact about the
+archive, and a door that weakens when the room behind it is empty reports it as a
+fact about the person.
+
+### The bucket palette went from five hues to one
+
+**This reverses an earlier doctrine decision, deliberately.** `PDXFinanceLane.COLORS`
+used to hold five distinguishable hues, one per bucket, and this document defended
+them as categorical: they distinguished buckets and ranked none of them. That
+defence was true of the *order* of the colours. It was not true of the colours
+themselves — `selfFunded` was `#ffb86c`, an amber whose meaning was a donor-mix
+category, and a palette cannot disclaim the connotations of its own members. Five
+hues on the most prominent money visual on the site also could not coexist with
+one money pair.
+
+So every bucket is the gold, and a composition is drawn as **one bar per bucket:
+gold for that bucket's dollars, slate for the rest of the receipts.** Length
+carries the share, which is the honest channel for a proportion; the label and the
+dollar figure carry which bucket it is, which is what text is for. Nothing is
+distinguished by hue, so nothing can be over-read as ranked by hue.
+
+The single stacked bar went with the palette, and it deserved to. In `compose()`
+the five buckets sum to `receipts` by construction, so that bar **always filled
+100%** — it looked like a measurement while measuring nothing, and the only
+variable a reader could see in it was which colour happened to be widest. The
+same change landed on the Money Tree's mix bars (`my-profile.js`) and the ledger
+recap's finance column (`impact-ledger.js`), whose near-black track also became
+slate: that track is the *other dollars in the filing*, so it has to read as a
+quantity the gold is a share of rather than as empty background.
+
+This codebase's yes/no colours (`#4ade80`, `#f87171`), the retired grade's ramp
+(`#6ee7a0`, `#f5c842`, `#86efac`, `#fca5a5`) and the outside-spending orange
+(`#fb923c`) appear on no money surface — not in the lane, the Money Tree, or the
+impact-ledger recap. The outside-spending eyebrow used to report a *level* in
+orange before the sentence underneath got to report it in words; the level is
+still printed, as text.
 
 ## Coverage, disclosed every time
 
@@ -147,17 +233,35 @@ page.
 
 1. **Follow the Money cards** — each card leads with the total itemized
    receipts and the composition, then the outside-spending note.
-2. **Profile → 💰 Follow the Money** — the entry row (both states), the
+2. **Profile letterhead → the 💰 chip** (`letterheadChipMount`) — a one-line
+   pill among the status pills, sized to the ⚖️ Word vs Action badge beside it.
+   It prints the itemized-receipts figure, the small-dollar share, the top pile
+   and the coverage words, and it is a button: clicking it reveals and jumps to
+   the money section below on the same profile (`pdxsec-funding`). It is a door,
+   not a summary — no chart, no donor list, no ring, no colour that grades. It
+   renders on every profile, including the 744 with no filing, because a missing
+   badge would read as "clean" rather than as "unknown".
+3. **Profile → 💰 Follow the Money** — the entry row (both states), the
    composition block, and the coverage disclosure. This is the person file's one
    labelled door into the money lane.
-3. **Follow the Money — Side by Side** (`impact-ledger.js`) — the largest
+4. **Follow the Money — Side by Side** (`impact-ledger.js`) — the largest
    reported source paired with a distributional summary of who the member's key
    votes affect. It shows financial access and distributional effect, not
    corruption, motive, or causation.
-4. **My Profile → Your money tree** (`my-profile.js`) — the team-level blend,
+5. **My Profile → Your money tree** (`my-profile.js`) — the team-level blend,
    with its own coverage note stating how many of the team have a filing, since
    a blend over "everyone who happens to have a filing" is a different sentence
    from a blend over the team.
+6. **Library money entries** — the Federal Spending Tracker shelf card
+   (`digital-library.js`) and the Dig Deeper cards for OpenSecrets, OpenTheBooks
+   and FEC.gov. These are dollar trackers, so they wear the pair. LittleSis does
+   not: it maps relationships between people rather than amounts, and borrowing
+   the pair for it would dilute the one thing the pair is for.
+
+All six wear the money pair, which is the point of having one — a reader who has
+seen the 💰 chip on a letterhead can recognise the money section, the ledger
+recap, the library row and the Follow-the-Money header as the same lane without
+reading any of them first.
 
 ## Refreshing the data
 
@@ -235,7 +339,17 @@ access*, and reporting that composition is the whole of what this lane claims.
 
 ## Tests
 
-`scripts/test-finance-lane.mjs` — the fence around all of the above: no score in
+`scripts/test-finance-lane.mjs` — the fence around the retired score: no score in
 any shape, the arithmetic deleted rather than dormant, no verdict palette,
 coverage disclosed in words, both render states, no motive language, and the wall
 holding both statically and at runtime.
+
+`scripts/test-money-theme.mjs` — the fence around the token: the two copies agree
+value for value; **Lee's $8.6M chip and an empty Utah chip open with byte-identical
+markup** and carry the same 💰 in the same span; no surface maps `is-grass` /
+`is-mixed` / `is-big` to different paint and no glyph ramp survives; no banned hex
+reaches a money surface, in source or in rendered output; every composition bar is
+one gold fill on one slate track, as long as its share and encoding nothing in
+opacity; the pair reaches no issue chip, Yea pill or Word vs Action badge; and
+booting the whole theme moves no Direction Match figure, tier or formal-pattern
+row.

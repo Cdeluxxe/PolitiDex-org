@@ -2115,6 +2115,17 @@ window.PDXLazy = (function () {
        layout even if the CSS arrives after the first paint. -->
   <link rel="stylesheet" href="/word-action.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/word-action.css" /></noscript>
+  <!-- 💰 The letterhead money chip (finance-lane.js). Modal-only, and the only
+       finance surface that takes its appearance from a stylesheet rather than
+       carrying inline styles — because it has to match the ⚖️ badge it sits
+       beside in the letterhead, and matching is a thing done in one place. It is
+       styled entirely in neutral steel in all three of its states, which is the
+       money lane's palette doctrine rather than a style preference; see the
+       header of finance-lane.css. Non-blocking like the rest of the profile CSS:
+       unstyled it is a plain button with the right words in it, which is a
+       degradation and not a wrong statement. -->
+  <link rel="stylesheet" href="/finance-lane.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/finance-lane.css" /></noscript>
   <!-- 🌳 The topic tree of stances (stance-tree.js). Modal-only and below the
        fold, so it loads non-blocking like the rest of the profile CSS. It carries
        the one distinction the markup alone cannot make: a pattern-only row's
@@ -3592,6 +3603,19 @@ window.PDXLazy = (function () {
       .pdx-eye-tag{flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.12rem 0.42rem;border-radius:9999px;white-space:nowrap;}
       .pdx-eye-empty{padding:1.4rem 1rem;text-align:center;color:#8aa0c0;font-family:'Barlow',sans-serif;font-size:0.88rem;}
       .pdx-eye-empty b{color:#cdd9ec;font-weight:600;}
+      /* ── WARMING: "SEARCHING THE RECORD…", NEVER "FINDS NOTHING" ────────
+         A cold index is not an empty record. all-seeing-eye.js tracks three
+         lanes (people / bills / issues) and prints this instead of a verdict
+         while any of them is still loading — as the whole panel when nothing
+         has ranked yet, and as one row inside a lane that has not answered.
+         Same type and colour as the empty state it stands in for, because it
+         is the same sentence at an earlier moment, not an error. */
+      .pdx-eye-warm{display:flex;flex-direction:column;align-items:center;gap:0.35rem;}
+      .pdx-eye-warm-sub{font-size:0.78rem;color:#7d90ad;line-height:1.4;max-width:26rem;}
+      .pdx-eye-warmrow{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem 0.65rem;font-family:'Barlow',sans-serif;font-size:0.84rem;color:#8aa0c0;}
+      .pdx-eye-warm-dot{flex-shrink:0;display:inline-block;width:0.72rem;height:0.72rem;border-radius:9999px;border:2px solid rgba(245,200,66,0.22);border-top-color:#f5c842;animation:pdxEyeWarm .75s linear infinite;}
+      @keyframes pdxEyeWarm{to{transform:rotate(360deg);}}
+      @media (prefers-reduced-motion:reduce){.pdx-eye-warm-dot{animation:none;border-top-color:rgba(245,200,66,0.5);}}
       .pdx-eye-hint{padding:0.5rem 0.9rem;border-top:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:0.5rem;font-family:'Barlow Condensed',sans-serif;font-size:0.68rem;letter-spacing:0.06em;color:#64748b;}
       .pdx-eye-hint .pdx-eye-kbd{border:1px solid rgba(148,163,184,0.3);border-radius:0.3rem;padding:0 0.3rem;color:#8aa0c0;}
       /* ── Phase 2 · deeper content + connection hints ─────────────────── */
@@ -8632,7 +8656,7 @@ window.PDXLazy = (function () {
                 summary: word + top,
                 priority: EV_PRIORITY.money,
                 issueKey: '',
-                icon: c.icon || '💵',
+                icon: c.icon || '💰',
                 cls: 'is-money',
                 nav: { action: 'open-funding', pol: pid },
                 src: f
@@ -16875,20 +16899,28 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   <!-- ═══════════════════════════════ FOLLOW THE MONEY ═════════ -->
   <section id="follow-the-money" class="py-16 md:py-24 px-4 max-w-6xl mx-auto">
     <div class="text-center mb-8 animate-on-scroll">
-      <div class="inline-flex items-center gap-2 bg-navy-700/60 border border-green-400/25 rounded-full px-4 py-1.5 mb-3">
-        <span class="w-2 h-2 rounded-full bg-green-400 badge-live"></span>
-        <span class="font-condensed text-xs tracking-widest uppercase text-green-400">Campaign Finance Tracker</span>
+      <!-- The money eyebrow and glyph wear the lane's one pair — deep forest fill,
+           gold outline and gold 💰 — so this header, the letterhead chip, the
+           library's money row and a profile's funding block read as four doors
+           into one lane. It replaced bright #4ade80, which is this codebase's YES
+           colour and had no business being the house style of a disclosure lane,
+           and it replaced crimson on the word MONEY, which put the site's NO
+           colour on the name of the section. Neither hue said anything true about
+           campaign finance; both said something about approval. -->
+      <div class="pdx-money-eyebrow mb-3">
+        <span class="w-2 h-2 rounded-full badge-live" style="background:var(--pdx-money-line, #c9992f);"></span>
+        <span>Campaign Finance Tracker</span>
       </div>
       <h2 class="section-title font-display text-4xl md:text-5xl lg:text-6xl tracking-wider mb-3">
-        <span class="text-green-400">💰</span> FOLLOW THE <span class="text-crimson-400">MONEY</span>
+        <span style="color:var(--pdx-money-line, #c9992f);">💰</span> FOLLOW THE <span style="color:var(--pdx-money-ink, #e3c176);">MONEY</span>
       </h2>
       <p class="font-display text-lg md:text-xl tracking-wider text-steel-300 mb-2">Who Funds Your Representatives?</p>
       <p class="text-steel-400 font-body max-w-2xl mx-auto text-sm" style="line-height:1.7;">
         Campaign contributions reveal who has financial access to power. Transparency lets voters decide if their representatives serve the people — or their donors.
       </p>
-      <div style="max-width:48rem;margin:1.25rem auto 0;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25);border-radius:0.75rem;padding:0.85rem 1.1rem;">
-        <p style="font-family:'Barlow',sans-serif;font-size:0.78rem;color:#86efac;line-height:1.65;margin:0;text-align:center;">
-          <strong style="letter-spacing:0.04em;">⚠ DISCLAIMER:</strong> Campaign contributions are legal and do not imply corruption. Donations reflect supporter priorities, not guaranteed policy influence. All data is sourced from public FEC filings and OpenSecrets.org. Figures are representative totals from the most recent available election cycles. Users should verify current data at <a href="https://www.opensecrets.org" target="_blank" rel="noopener noreferrer" style="color:#4ade80;text-decoration:underline;">OpenSecrets.org</a> and <a href="https://www.fec.gov" target="_blank" rel="noopener noreferrer" style="color:#4ade80;text-decoration:underline;">FEC.gov</a>.
+      <div style="max-width:48rem;margin:1.25rem auto 0;background:var(--pdx-money-fill, rgba(15, 61, 46, 0.55));border:1px solid var(--pdx-money-line-soft, rgba(201, 153, 47, 0.45));border-radius:0.75rem;padding:0.85rem 1.1rem;">
+        <p style="font-family:'Barlow',sans-serif;font-size:0.78rem;color:var(--pdx-money-text, #bcd3c6);line-height:1.65;margin:0;text-align:center;">
+          <strong style="letter-spacing:0.04em;">⚠ DISCLAIMER:</strong> Campaign contributions are legal and do not imply corruption. Donations reflect supporter priorities, not guaranteed policy influence. All data is sourced from public FEC filings and OpenSecrets.org. Figures are representative totals from the most recent available election cycles. Users should verify current data at <a href="https://www.opensecrets.org" target="_blank" rel="noopener noreferrer" style="color:var(--pdx-money-ink, #e3c176);text-decoration:underline;">OpenSecrets.org</a> and <a href="https://www.fec.gov" target="_blank" rel="noopener noreferrer" style="color:var(--pdx-money-ink, #e3c176);text-decoration:underline;">FEC.gov</a>.
         </p>
       </div>
       <div class="flex items-center justify-center gap-6 mt-5 flex-wrap">
@@ -17568,11 +17600,22 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         if (isSmall) grass += (d.amount || 0);
       });
       var pct = raised > 0 ? Math.round(100 * grass / raised) : null;
-      var kind, label, icon;
-      if (pct === null) { kind = 'unknown'; label = 'Funding mix unavailable'; icon = '💵'; }
-      else if (pct >= 40) { kind = 'grassroots'; label = pct + '% small-dollar'; icon = '🌱'; }
-      else if (pct >= 15) { kind = 'mixed'; label = pct + '% small-dollar'; icon = '⚖️'; }
-      else { kind = 'bigmoney'; label = 'Mostly big-money'; icon = '🏦'; }
+      // ONE GLYPH, NOT A LADDER. This used to hand back a different emoji per
+      // level — 🌱 sprout for grassroots, ⚖️ scales for mixed, 🏦 bank for
+      // big-money — which is a three-step ranking that happens to be drawn in
+      // pictures instead of hexes. It also read as a verdict on the person when
+      // the underlying number is a property of a filing. The ⚖️ in the middle was
+      // worse than the ramp itself: that glyph is Word vs Action's badge, so a
+      // donor mix had borrowed the vocabulary of a promise-keeping measure.
+      //   Every state now returns 💰, the money lane's one mark. The mix is
+      // still reported — in `label`, in words, with its percentage — and callers
+      // still get `kind` for anything that needs the category in text. What no
+      // longer exists is a channel that grades it at a glance.
+      var kind, label, icon = '💰';
+      if (pct === null) { kind = 'unknown'; label = 'Funding mix unavailable'; }
+      else if (pct >= 40) { kind = 'grassroots'; label = pct + '% small-dollar'; }
+      else if (pct >= 15) { kind = 'mixed'; label = pct + '% small-dollar'; }
+      else { kind = 'bigmoney'; label = 'Mostly big-money'; }
       return { grassrootsPct: pct, kind: kind, label: label, icon: icon };
     }
 
@@ -17618,15 +17661,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     // ── Compact funding chip — the at-a-glance "who funds them" indicator ────
     // A single reusable pill for cards (Home Team ballot today; search / evidence
-    // later). Always returns something for a card: a colour-coded read when a
-    // filing record is on file, or a calm muted "Not on file" chip otherwise —
-    // never nothing, never noisy. Reuses window._pdxFunding, so it stays in sync
-    // with Compare automatically.
+    // later). Always returns something for a card: the filing's dollar figure when
+    // a record is on file, or the words "Not on file" otherwise — never nothing,
+    // never noisy. Reuses window._pdxFunding, so it stays in sync with Compare
+    // automatically.
+    //   Both states wear the same green-and-gold pill at the same weight. The chip
+    // is a door to the money lane, and a door does not change colour depending on
+    // what is behind it — an undigitised filing is a fact about the archive, and
+    // dimming the pill would report it as a fact about the person.
     window._pdxFundingChip = function (pid) {
       var f = window._pdxFunding(pid);
       if (!f) {
         return '<span class="pdx-fchip is-none" title="No campaign-finance record on file yet">'
-          + '<span class="pdx-fchip-ico">💵</span><b>Funding</b>'
+          + '<span class="pdx-fchip-ico">💰</span><b>Funding</b>'
           + '<span class="pdx-fchip-word">Not on file</span></span>';
       }
       var c = f.character || {};
@@ -17635,14 +17682,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var top = f.topFunder ? (' · Top funder: ' + f.topFunder.name + ' (' + f.topFunder.amountFmt + ')') : '';
       var title = word + '-funded · ' + f.raisedFmt + ' raised' + (c.label ? ' · ' + c.label : '') + top;
       return '<span class="pdx-fchip ' + _pdxFundCls(kind) + '" title="' + _pdxFAttr(title) + '">'
-        + '<span class="pdx-fchip-ico">' + (c.icon || '💵') + '</span>'
+        + '<span class="pdx-fchip-ico">' + (c.icon || '💰') + '</span>'
         + '<b>' + _pdxFEsc(f.raisedFmt) + '</b>'
         + '<span class="pdx-fchip-word">' + _pdxFEsc(word) + '</span></span>';
     };
 
     // ── Full profile "Money & Funding" section ──────────────────────────────
-    // The richer read shown on a politician profile. Same lookup + 🌱/⚖️/🏦
-    // language as Compare, laid out for one person. Renders a calm "Not on file"
+    // The richer read shown on a politician profile. Same lookup and the same
+    // words as Compare, laid out for one person. Renders a calm "Not on file"
     // state (never an empty gap or a fabricated figure) when there's no record.
     window._pdxFundingSection = function (pid, p) {
       p = p || {};
@@ -17650,13 +17697,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var f = window._pdxFunding(pid);
       var head = '<span id="pdxsec-funding" class="pdx-nav-anchor" aria-hidden="true"></span>'
         + '<div class="modal-section pdx-fund" id="modal-funding">'
-        + '<div class="modal-section-title">💰 Money &amp; Funding</div>';
+        + '<div class="modal-section-title pdx-money-h">'
+        +   '<span class="pdx-money-h-ico">💰</span> Money &amp; Funding</div>';
 
       if (!f) {
         return head
           + '<p class="modal-section-sub">Who bankrolls ' + _pdxFEsc(first) + ' — from public FEC / OpenSecrets filings.</p>'
           + '<div class="pdx-fund-none">'
-          +   '<div class="pdx-fund-none-ico">💵</div>'
+          +   '<div class="pdx-fund-none-ico">💰</div>'
           +   '<div><div class="pdx-fund-none-t">Not on file</div>'
           +   '<div class="pdx-fund-none-s">No campaign-finance record for ' + _pdxFEsc(first) + ' yet. This section fills in automatically as filings are added.</div></div>'
           + '</div>'
@@ -17692,7 +17740,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         + '</div>'
         + '<div class="pdx-fund-baserow">'
         +   '<span class="pdx-fund-base ' + _pdxFundCls(kind) + '" title="' + _pdxFAttr(word + ' — ' + baseExplain) + '">'
-        +     (c.icon || '💵') + ' ' + _pdxFEsc(word) + (c.label ? ' · ' + _pdxFEsc(c.label) : '') + '</span>'
+        +     (c.icon || '💰') + ' ' + _pdxFEsc(word) + (c.label ? ' · ' + _pdxFEsc(c.label) : '') + '</span>'
         +   '<span class="pdx-fund-base-note">' + _pdxFEsc(baseExplain) + '</span>'
         + '</div>'
         + (f.signal ? window._pdxFinanceSignalHTML(f.signal) : '')
@@ -17778,12 +17826,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </p>
     </div>
 
-    <!-- Core tools — broad, nonpartisan, featured first -->
+    <!-- Core tools — broad, nonpartisan, featured first.
+         THE MONEY ENTRIES WEAR THE MONEY PAIR. Three of these four cards are
+         dollar trackers — campaign finance (OpenSecrets), government spending
+         (OpenTheBooks) and the primary filings themselves (FEC) — and they now
+         carry the lane's gold accent and 💰 so that "this is where the money
+         is" is answerable from the shape of the card. OpenSecrets was drawn in
+         #4ade80, which is the site's YES green and belongs to a vote, not to a
+         donation. LittleSis keeps its own accent: it maps relationships between
+         people, not amounts, so it is not a money surface and borrowing the pair
+         for it would dilute the one thing the pair is for. -->
     <div class="dd-grid animate-on-scroll mb-8" style="transition-delay:0.05s;">
-      <a class="dd-card" style="--dd-accent:#4ade80;" href="https://www.opensecrets.org" target="_blank" rel="noopener noreferrer">
+      <a class="dd-card" style="--dd-accent:#c9992f;" href="https://www.opensecrets.org" target="_blank" rel="noopener noreferrer">
         <span class="dd-card-bar"></span>
         <div class="dd-top">
-          <span class="dd-ico">💵</span>
+          <span class="dd-ico">💰</span>
           <div>
             <div class="dd-name">OpenSecrets</div>
             <div class="dd-host">opensecrets.org</div>
@@ -17793,7 +17850,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         <span class="dd-go">Visit OpenSecrets ↗</span>
       </a>
 
-      <a class="dd-card" style="--dd-accent:#7cc4ff;" href="https://www.openthebooks.com" target="_blank" rel="noopener noreferrer">
+      <a class="dd-card" style="--dd-accent:#c9992f;" href="https://www.openthebooks.com" target="_blank" rel="noopener noreferrer">
         <span class="dd-card-bar"></span>
         <div class="dd-top">
           <span class="dd-ico">📊</span>
@@ -17819,7 +17876,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         <span class="dd-go">Visit LittleSis ↗</span>
       </a>
 
-      <a class="dd-card" style="--dd-accent:#7cc4ff;" href="https://www.fec.gov" target="_blank" rel="noopener noreferrer">
+      <a class="dd-card" style="--dd-accent:#c9992f;" href="https://www.fec.gov" target="_blank" rel="noopener noreferrer">
         <span class="dd-card-bar" style="background:linear-gradient(90deg,#3b82f6,#ffffff,#d91a31);"></span>
         <div class="dd-top">
           <span class="dd-ico">🏛️</span>
@@ -21684,6 +21741,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        bill-detail.js so the panel can delegate to it. -->
   <script defer src="/impact-ledger.js"></script>
   <script defer src="/bill-detail.js"></script>
+  <!-- Issue page (window.PDXIssuePage) - the canonical /issue/<key> surface: every
+       measure formally mapped to one vocabulary key, subject-of-the-bill rows
+       first, then newest floor roll, with the members who published a direction on
+       it folded underneath. The destination every issue chip on a bill or a person
+       now lands on. Loads after bills.js + bill-detail.js (a row opens a bill
+       profile through them) and reads issue-scope.js for its locked scope prose. -->
+  <script defer src="/issue-page.js"></script>
   <!-- Digital Library — the central searchable archive (window.PDXDigitalLibrary).
        Aggregates spotlights, mandates, bills and receipts into one filterable
        browse grid, with cross-source search and collection tiles into every
@@ -28053,7 +28117,31 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         }
         return true;
       }
+      // THE SAME PREFIX, TWO KINDS OF PAGE. /issue/<slug> was only ever a
+      // spotlight address, so /issue/housing - a vocabulary key with no spotlight
+      // of its own - fell through this function and rendered the front page while
+      // netlify.toml was happily serving the document for it. The issue page
+      // (issue-page.js) is that slug's owner now. The spotlight branch above still
+      // runs first, so a slug the spotlight set already owns keeps its spotlight.
+      if (syncIssuePage(slug, fromPop)) return true;
       if (_open && fromPop) close({ fromPop: true });
+      return false;
+    }
+    // The vocabulary-key half of /issue/*, kept in one place so the boot gate, a
+    // popstate and a back button out of the page all take the same road.
+    function syncIssuePage(slug, fromPop) {
+      var IP = window.PDXIssuePage;
+      if (!IP || typeof IP.has !== 'function') return false;
+      try {
+        if (slug && IP.has(slug)) {
+          if (_open) close({ fromPop: true });
+          return IP.open(slug, { fromPop: true });
+        }
+        // Walked back off /issue/<key> - the page is the thing that has to close.
+        if (!slug && fromPop && typeof IP.isOpen === 'function' && IP.isOpen()) {
+          IP.close({ fromPop: true });
+        }
+      } catch (e) {}
       return false;
     }
 
@@ -28129,9 +28217,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // Resolve an initial deep-link once the roster has had a chance to load (so
     // names/offices/icons resolve from PROFILES). Retry briefly if not yet ready.
     function bootDeepLink(tries) {
-      if (!slugFromLocation()) return;
+      var slug = slugFromLocation();
+      if (!slug) return;
       var ready = (window.PROFILES && Object.keys(window.PROFILES).length) ||
                   (typeof CMP_DATA !== 'undefined');
+      // A slug that is not a spotlight is a candidate ISSUE KEY, and the key table
+      // it is checked against (ISSUE_MAP, via PDXIssuePage.has) ships in a deferred
+      // script of its own. Asking too early answers "not a key" and drops the
+      // reader on the front page with their address still in the bar, so the gate
+      // waits for the page module too - and gives up on the same tries ceiling
+      // rather than waiting forever for a slug that is genuinely neither.
+      if (ready && !SPOTLIGHTS[slug] && !window.PDXIssuePage && (tries || 0) <= 20) {
+        setTimeout(function () { bootDeepLink((tries || 0) + 1); }, 250);
+        return;
+      }
       if (ready || tries > 20) { syncFromUrl(false); return; }
       setTimeout(function () { bootDeepLink((tries || 0) + 1); }, 250);
     }

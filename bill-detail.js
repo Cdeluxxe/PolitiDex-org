@@ -84,6 +84,48 @@
     try { return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); }
     catch (e) { return String(iso).slice(0, 10); }
   }
+  // The same day without the year. A vote chip and the identity line both print a
+  // floor date beside a full introduction date that has already established the
+  // year, and "Jun 23, 2026" in that company is three characters of chrome on a
+  // line whose whole job is to be short. The full date is still on the roll call
+  // itself, in the roll-call section, where the vote is the subject rather than a
+  // waypoint.
+  function shortDate(iso) {
+    if (!iso) return '';
+    try { return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
+    catch (e) { return String(iso).slice(0, 10); }
+  }
+  // ONE ORDER FOR THE ROLLS, EVERYWHERE. The chips, the identity dates and the
+  // roll-call section are three views of one list, and a reader who reads "House
+  // then Senate" on the chips and meets them the other way round below has been
+  // given a reason to wonder whether they are even the same votes. Chamber order,
+  // not arrival order and not date order: a measure that came back from the Senate
+  // amended has a House vote after the Senate's, and sorting by date would print
+  // the second chamber first on exactly the bills where the journey matters most.
+  var CHAMBER_RANK = { house: 1, senate: 2 };
+  function rollOrder(rollcalls) {
+    return (rollcalls || []).map(function (rc, i) { return { rc: rc, i: i }; }).sort(function (a, b) {
+      var ra = CHAMBER_RANK[String((a.rc && a.rc.chamber) || '').toLowerCase()] || 3;
+      var rb = CHAMBER_RANK[String((b.rc && b.rc.chamber) || '').toLowerCase()] || 3;
+      if (ra !== rb) return ra - rb;
+      var da = String((a.rc && a.rc.voteDate) || ''), db = String((b.rc && b.rc.voteDate) || '');
+      if (da !== db) return da < db ? -1 : 1;
+      return a.i - b.i;
+    }).map(function (x) { return x.rc; });
+  }
+  // The last floor date this measure got in each chamber, in chamber order, as
+  // "House Jun 23" / "Senate Mar 12".
+  function chamberDates(rollcalls) {
+    var seen = {}, out = [];
+    rollOrder(rollcalls).forEach(function (rc) {
+      var lb = chamberLabel(rc && rc.chamber), d = shortDate(rc && rc.voteDate);
+      if (!lb || !d) return;
+      if (seen[lb] != null) { out[seen[lb]] = lb + ' ' + d; return; }  // a later roll in the same chamber wins
+      seen[lb] = out.length;
+      out.push(lb + ' ' + d);
+    });
+    return out;
+  }
 
   // ── THE LETTERHEAD'S IDENTITY FACTS ─────────────────────────────────────────
   // A bill profile opens the way a person file opens: a short census a reader can
@@ -346,33 +388,52 @@
   // How a topic got into the act, in words, on the row. Both values are drawn the
   // same size and in the same place: one line of provenance, not a rank.
   function laneLabel(isPrimary) { return isPrimary ? 'This bill’s subject' : 'Rode inside this bill'; }
-  var LANE_DOCTRINE = 'Each row says how the topic got in — it was the bill’s subject, or it rode inside the bill. That is where it came from, not how much it counts: the same Yea or Nay lands at full size on every row.';
+
+  // ── READER COPY ONLY ────────────────────────────────────────────────────────
+  // `vr_measure_issues.rationale` is a working field. It carries the sentence this
+  // row exists to print — what the section did — and, in a couple of dozen places,
+  // notes the curators wrote to each other: how heavily a key was weighted, which
+  // key holds the primary flag, which row it was ranked below, which taxonomy split
+  // it was re-keyed in, which migration filed it. Inside a curator tool that is
+  // provenance sitting next to the thing it qualifies. On a voter's face it is a
+  // stranger's filing system printed as if it were a finding, and "Weighted 80"
+  // invites a reader to believe their representative's vote counted 80 percent on
+  // this topic. It did not. It counted in full.
+  //   The scrubbing lives in ONE place — receipt-cards.js, which already owns the
+  // question "may a reader see this sentence" for share cards — and is reached here
+  // through the same window handle the shared ordering helper uses. A second
+  // implementation on this face is how one of the two falls behind the other.
+  //   When the helper is not loaded (a stripped boot, an offline lite page) the row
+  // prints NO scope sentence rather than an unscrubbed one. That is the failure
+  // direction to choose: the letterhead already has honest words for a topic this
+  // profile cannot describe, and no reader is worse off for a missing sentence than
+  // for a note between curators dressed as a finding.
+  function scopeSentence(it) {
+    var raw = (it && it.rationale) ? String(it.rationale) : '';
+    if (!raw) return '';
+    var fn = window._pdxReaderRationale;
+    if (typeof fn !== 'function') return '';
+    try { return fn(raw) || ''; } catch (e) { return ''; }
+  }
 
   function omnibusSection(m, issues) {
     if (!issues || !issues.length) return '';
     var ordered = bigPictureOrder(issues);
-    var adv = 0, opp = 0;
-    ordered.forEach(function (it) { if (it.supportMeaning === 'yea_opposes') opp++; else adv++; });
-    // THE LABEL IS NOT A WEIGHT, AND THE LEAD SAYS SO IN WORDS. Each row below is
-    // marked with how the topic got into the act — it was what the bill was about,
-    // or it rode inside a bigger vehicle. That mark is there so a stowaway stays
-    // visible, and stating what it does NOT mean is part of printing it: the vote
-    // that lands on a topic that rode inside is the same vote, at full size.
-    var lead = ordered.length >= 2
-      ? 'This act is mapped to <strong>' + ordered.length + ' topics</strong>, and every one of them is listed below — so a single Yea or Nay is really a decision on each of these. ' + LANE_DOCTRINE
-      : 'This act is mapped to one topic.';
-    // At-a-glance summary of which way a Yea cuts across the act. A count of
-    // directions, never a ranking of them.
-    var summary = ordered.length >= 2
-      ? '<div class="bd-omni-summary">' +
-          '<span class="bd-eff bd-eff-adv">▲ Advances ' + adv + '</span>' +
-          (opp ? '<span class="bd-eff bd-eff-opp">▼ Cuts against ' + opp + '</span>' : '') +
-        '</div>'
-      : '';
+    // ONE SHORT ROW PER KEY, AND NOTHING ABOVE THEM. This section used to open with
+    // a paragraph restating that a single vote decides every row, plus a lane
+    // disclaimer, plus a direction tally — all three of which the letterhead
+    // directly above already says, in fewer words, before the reader scrolls. What
+    // is left is the thing only this section can give: for each topic, what the act
+    // did on it and which way a Yea cuts.
     var rows = ordered.map(function (it) {
       var opposes = it.supportMeaning === 'yea_opposes';
       var effCls = opposes ? 'bd-eff-opp' : 'bd-eff-adv';
       var effTxt = opposes ? 'A Yea cuts against this' : 'A Yea advances this';
+      // The scope sentence is the curators' own words about what the act did here,
+      // with their notes to each other taken out. Never rewritten, never
+      // summarised, and never composed — a row with nothing publishable left says
+      // nothing, and the letterhead's tally counts it as unexplained.
+      var why = scopeSentence(it);
       // `data-bd-lane` is a FILTER KEY AND NOTHING ELSE. It carries the curated
       // primary flag so the optional view control below has something to slice on;
       // it sets no default, hides nothing on its own, and no styling reads it
@@ -384,11 +445,10 @@
           '<span class="bd-omni-lane-l">' + esc(laneLabel(it.isPrimary)) + '</span>' +
           '<span class="bd-eff ' + effCls + '">' + effTxt + '</span>' +
         '</div>' +
-        (it.rationale ? '<div class="bd-omni-why">' + esc(it.rationale) + '</div>' : '') +
+        (why ? '<div class="bd-omni-why">' + esc(why) + '</div>' : '') +
       '</div>';
     }).join('');
     return '<section class="bd-sec"><h3 class="bd-h">📦 Every topic this act touches</h3>' +
-      '<p class="bd-lead">' + lead + '</p>' + summary +
       '<div class="bd-omni-view">' + viewFilter(ordered) +
         '<div class="bd-omni-list" data-bd-view="all">' + rows + '</div>' +
       '</div></section>';
@@ -421,60 +481,6 @@
       btn('main', 'Titles often described as the vehicle’s main jobs (' + main + ')', false) +
       btn('other', 'Other provisions in this act (' + other + ')', false) +
     '</div>';
-  }
-
-  // ── the bag: what travelled with what ───────────────────────────────────────
-  // MENU TRANSPARENCY, NOT A HIERARCHY. The ledger above answers "what is in this
-  // act?", one row per mapping. This panel answers the question a reader asks
-  // immediately afterwards and that no surface here answered before: "did all of
-  // that really go through on one vote?" It is a PACKAGING FACT — how Congress
-  // assembled the instrument — and it is derived from nothing but the same
-  // measure→issue mappings the ledger is built from. No new keys, no new
-  // curation, no score of any kind, and not one topic treated as the reason the
-  // others were carried.
-  //
-  // Three rules hold the panel to that:
-  //   · SAME LIST, SAME ORDER. Every chip is a topic already on the face, in the
-  //     shared Big Picture order the ledger uses. The count it prints is the row
-  //     count, so the panel can never quietly claim a different-sized act.
-  //   · EQUAL TREATMENT. isPrimary is not read here at all: no chip is styled,
-  //     sorted, badged or worded differently from any other, because "which of
-  //     these was the act really about" is not a fact this codebase has.
-  //   · IT ADDS A FACT, NOT A VERDICT. Bag size, how many areas of the shipped
-  //     topic map those mappings fall into, and how many roll calls carried the
-  //     whole bag. All three are counts of things already on the page.
-  //
-  // The area grouping is the taxonomy's own grouping, printed in the taxonomy's
-  // own order rather than by size, so a big group reads as more mappings and not
-  // as the act's "real" subject. A single-topic measure gets no panel: a bag of
-  // one is not a bag, and the ledger already says so in plain words.
-  // ── ONE LINE, NOT A SECOND LEDGER ───────────────────────────────────────────
-  // This used to be a full panel — stat chips, a chip strip of every topic, a
-  // grouping by area of the topic map, a disclaimer. Every one of those topics was
-  // already printed, in the same order, in the ledger directly above it. Two
-  // renderings of one list is not twice the information; it is a reader scrolling
-  // past the same four keys twice and wondering which of the two is the real one.
-  //   What was NOT duplicated is the fact the panel existed to state: they moved
-  // as one instrument, on one roll call, and nobody got to vote on them singly.
-  // That fact survives, as one sentence under the ledger. The chips are gone
-  // because the ledger's rows are already doors, and the area grouping is gone
-  // because the topic map's own face is where taxonomy belongs.
-  function coTravelSection(m, issues, rollcalls) {
-    if (!issues || issues.length < 2) return '';
-    var n = issues.length;
-    var rcs = (rollcalls || []).length;
-    var enacted = m && m.status === 'enacted';
-    var carried = rcs === 1
-      ? 'One roll call decided every one of them: a member could take the whole bag or refuse the whole bag, and there was no separate vote on any single topic in it.'
-      : rcs > 1
-        ? rcs + ' roll calls each decided every one of them at once. None of them was a vote on one topic.'
-        : enacted
-          ? 'They were signed into law as one instrument, so they arrived together or not at all.'
-          : 'They ride on one measure, so they move together for as long as it does.';
-    return '<section class="bd-sec bd-onebag">' +
-      '<p class="bd-onebag-l">🎒 <strong>The same ' + n + ' topics, one instrument.</strong> ' +
-        esc(carried) + '</p>' +
-    '</section>';
   }
 
   // The four positions a roll call records, in the order the tally prints them.
@@ -943,39 +949,51 @@
   }
 
   // Open the Issue View / Spotlight for an issue key (with graceful fallbacks).
-  // THE VOTE STRIP IS A DOOR, NOT A SUMMARY. Tapping a tally moves the reader to
-  // the roll list in this same panel: the counts are the door's label and the names
-  // are what is behind it. An in-panel scroll rather than a new view, because the
-  // roll list is already on this face — there is nothing to load and nothing to
-  // close. If the anchor is not on screen (a payload with no roll calls, a body the
-  // panel has not filled yet) nothing happens, which is the honest outcome.
+  // A VOTE CHIP IS A DESTINATION, NOT A DISCLOSURE. Tapping a chip moves the reader
+  // to that roll call in the roll-call section: an in-panel scroll rather than a new
+  // view, because the roll call is already on this face — there is nothing to load
+  // and nothing to close. If the anchor is not on screen (a payload with no roll
+  // calls, a body the panel has not filled yet) nothing happens, which is the honest
+  // outcome.
+  //   THE NAMES STAY SHUT. The strip this replaced was labelled "See who voted", so
+  // its jump also sprang the drawer, and a reader who tapped a tally got two hundred
+  // rows unfolding under them. The chip is labelled with a tally and delivers a
+  // tally; opening the names is a second, deliberate tap on a door that says so.
+  // That is why openRollDrop is gone rather than merely uncalled — a helper whose
+  // only purpose was to open a drawer nobody asked to open is not a fallback.
   function gotoSection(name, btn) {
     try {
       var host = document.getElementById('pdx-bd-scroll');
       var t = host && host.querySelector ? host.querySelector('[data-bd-anchor="' + name + '"]') : null;
       if (!t) return;
-      // The strip's own label is "See who voted", so the tap that lands on the roll
-      // list opens the names as well as scrolling to them. A closed drawer at the
-      // end of that jump would be the door refusing to be a door. Only the strip's
-      // own roll call opens — the other roll calls on a measure stay as they were.
-      openRollDrop(t, btn && btn.getAttribute ? btn.getAttribute('data-bd-roll-open') : null);
-      if (t.scrollIntoView) t.scrollIntoView({ block: 'start', behavior: 'smooth' });
-      var h = t.querySelector ? t.querySelector('.bd-h') : null;
+      // Scoped to the chip's OWN roll call when it names one, so a measure with a
+      // House and a Senate vote lands on the one the reader tapped rather than at
+      // the top of a section holding both.
+      var rcid = btn && btn.getAttribute ? btn.getAttribute('data-bd-roll') : null;
+      var scope = null;
+      if (rcid && t.querySelector) scope = t.querySelector('[data-bd-rc="' + rcid + '"]');
+      var target = scope || t;
+      if (target.scrollIntoView) target.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      var h = target.querySelector ? (target.querySelector('.bd-rc-q') || target.querySelector('.bd-h')) : null;
+      if (!h && t.querySelector) h = t.querySelector('.bd-h');
       if (h && h.focus) { h.setAttribute('tabindex', '-1'); h.focus(); }
     } catch (e) {}
   }
 
-  function openRollDrop(sec, rcid) {
-    try {
-      var scope = null;
-      if (rcid && sec.querySelector) scope = sec.querySelector('[data-bd-rc="' + rcid + '"]');
-      var d = (scope || sec).querySelector ? (scope || sec).querySelector('.bd-rolldrop') : null;
-      if (d) d.open = true;
-    } catch (e) {}
-  }
-
+  // THE TOPIC CHIP'S DESTINATION IS THE ISSUE, NOT A MEMBER.
+  // This used to hand the key straight to PDXIssueView, the league table of
+  // PEOPLE - so a reader who tapped a topic on an ACT was answered with a sorted
+  // list of politicians, and, when the key had no curated core of its own, with
+  // whichever unrelated core that overlay widened it into. /issue/<key>
+  // (PDXIssuePage) is the page that answers the question the chip asks: which
+  // acts in the archive actually moved this issue. The old overlay stays as the
+  // fallback for a boot without the page module, and the library after it.
   function openIssue(key) {
     if (!key) return;
+    try {
+      var IP = window.PDXIssuePage;
+      if (IP && typeof IP.has === 'function' && IP.has(key) && IP.open(key)) { close(); return; }
+    } catch (e0) {}
     try { if (window.PDXIssueView && window.PDXIssueView.open) { close(); window.PDXIssueView.open(key); return; } } catch (e) {}
     try { if (window.PDXDigitalLibrary && window.PDXDigitalLibrary.focus) { close(); window.PDXDigitalLibrary.focus({ mode: 'library', issue: key }); return; } } catch (e) {}
   }
@@ -1009,42 +1027,68 @@
   //      cannot be tapped is a dead label, and a dead label is how a rider quietly
   //      stops counting. Each chip is paired with the shipped ⓘ scope control so a
   //      reader can ask what the key covers without leaving the page.
-  //   4. THE VOTE STRIP — Yea / Nay / Present / Did not vote, and nothing else. No
-  //      party column, no party breakdown, no percentage anywhere on this face. It
-  //      taps through to the roll list, which is the only place names belong.
+  //   4. THE VOTE CHIPS — one line per roll call: chamber, day, outcome, margin,
+  //      how many were not on the roll. No party column, no party breakdown, no
+  //      percentage anywhere on this face. Each chip taps through to that roll call
+  //      in the roll-call section, which is the only place the motion title, the
+  //      clerk's link and the names belong.
+  //      The four-slot Yea / Nay / Present / Did not vote strip that used to sit
+  //      here is gone: it was the roll-call section's tally, printed a screen early
+  //      and a second time, and the section still prints all four.
   // Where the record is thin the letterhead says which fact is missing. It never
   // fills a gap with a guess and never hides the gap to look complete.
-  var VOTE_SLOTS = [
-    ['yea', 'Yea'], ['nay', 'Nay'], ['present', 'Present'], ['notVoting', 'Did not vote']
-  ];
 
-  function letterheadIdentity(m, data) {
+  // ── IDENTITY SITS WITH THE TITLE ────────────────────────────────────────────
+  // Which act is this? Number, official title, chamber and sitting, the dates we
+  // hold, and the document the mapping was read from. Those five facts answer one
+  // question, and a reader asks it before any other — so they are printed with the
+  // title row and nowhere else on the face.
+  //   They used to be spread across three places: a chamber-and-sitting line under
+  // the title, a text link under the buttons, an identity table under the vote
+  // strips, and the official title inside a fold. A reader who wanted to know what
+  // they were looking at had to assemble it from four positions, and the page said
+  // "House · 119th Congress" twice on the way. One block now, at the top.
+  //   The official title is a sentence of legislative prose and is printed as one,
+  // not squeezed into a cell — but it is identity, so it is here rather than folded
+  // away, and it is only printed when it differs from the title we already show.
+  function identityFacts(m, data) {
     var rows = [];
-    // The header above prints the title we hold. The OFFICIAL TITLE is not a row
-    // here any more: it is a sentence of legislative prose, it belongs with the
-    // rest of the prose, and it now sits at the top of the folded "What's in this
-    // act" panel. The link to the official text stays in this row set, because a
-    // reader who wants to go read the law should never have to open a fold first.
     rows.push(['Number', m.number || 'Not numbered in the record']);
+    var official = officialTitleOf(m);
+    if (official && official !== (m.title || '')) rows.push(['Official title', official]);
     var sit = sittingLabel(m);
-    var where = [chamberLabel(m.chamber), sit].filter(Boolean).join(' · ');
+    var where = [chamberLabel(m.chamber), sit].filter(Boolean).join(' \u00b7 ');
     if (where) rows.push([sit && chamberLabel(m.chamber) ? 'Chamber &amp; session' : 'Chamber', where]);
     var when = [];
     if (m.introducedAt) when.push('Introduced ' + fmtDate(m.introducedAt));
-    var dd = decidedDate(data && data.rollcalls);
-    if (dd) when.push('Voted ' + fmtDate(dd));
-    rows.push(['Date', when.length ? when.join(' · ') : 'No date is on file for this measure yet.']);
+    // A BILL THAT PASSED TWO CHAMBERS HAS TWO FLOOR DATES. This line used to print
+    // one: "Voted Mar 12, 2026", the latest roll call we hold. On a measure the
+    // House passed in June and the Senate in March that is not a summary, it is a
+    // deletion — the reader is told a date the bill was "voted" and cannot tell
+    // from it that the other chamber ever voted at all, or which of the two the
+    // date belongs to. Both dates now, labelled by chamber, in chamber order:
+    // "Introduced Dec 10, 2025 · House Jun 23 · Senate Mar 12".
+    //   A single-chamber measure prints its one chamber the same way. Only when we
+    // hold a roll call whose chamber or date we cannot name does the line fall back
+    // to the undated-by-chamber form, because "Voted" with no chamber is still true.
+    var floor = chamberDates(data && data.rollcalls);
+    if (floor.length) when = when.concat(floor);
+    else {
+      var dd = decidedDate(data && data.rollcalls);
+      if (dd) when.push('Voted ' + fmtDate(dd));
+    }
+    rows.push(['Date', when.length ? when.join(' \u00b7 ') : 'No date is on file for this measure yet.']);
     var out = rows.map(function (r) {
-      return '<div class="bd-lh-fact"><dt class="bd-lh-k">' + r[0] + '</dt>' +
-        '<dd class="bd-lh-v">' + esc(r[1]) + '</dd></div>';
+      return '<div class="bd-ident-fact"><dt class="bd-ident-k">' + r[0] + '</dt>' +
+        '<dd class="bd-ident-v">' + esc(r[1]) + '</dd></div>';
     }).join('');
     var txt = officialText(m);
-    out += '<div class="bd-lh-fact"><dt class="bd-lh-k">Text</dt><dd class="bd-lh-v">' +
+    out += '<div class="bd-ident-fact"><dt class="bd-ident-k">Text</dt><dd class="bd-ident-v">' +
       (txt
-        ? '<a class="bd-lh-text" href="' + escAttr(txt.url) + '" target="_blank" rel="noopener">🔗 ' + esc(txt.label) + ' ↗</a>'
-        : '<span class="bd-lh-gap">No link to the official text is on file for this measure yet.</span>') +
+        ? '<a class="bd-ident-text" href="' + escAttr(txt.url) + '" target="_blank" rel="noopener">\ud83d\udd17 ' + esc(txt.label) + ' \u2197</a>'
+        : '<span class="bd-ident-gap">No link to the official text is on file for this measure yet.</span>') +
       '</dd></div>';
-    return '<dl class="bd-lh-facts">' + out + '</dl>';
+    return '<dl class="bd-ident">' + out + '</dl>';
   }
 
   function letterheadTopics(issues) {
@@ -1070,7 +1114,11 @@
         '</button>' + scopeControlHtml(it.issueKey) +
       '</span>';
     }).join('');
-    var unreasoned = ordered.filter(function (it) { return !it.rationale; }).length;
+    // Counted on the SCRUBBED sentence, not the raw field. A rationale that is
+    // nothing but curator notes leaves the row below with nothing to print, and a
+    // tally that called it explained would be promising a sentence the reader will
+    // never find.
+    var unreasoned = ordered.filter(function (it) { return !scopeSentence(it); }).length;
     var gap = unreasoned
       ? '<p class="bd-lh-gap">' + (unreasoned === ordered.length
             ? 'No mapping rationale is on file yet'
@@ -1082,48 +1130,114 @@
       '<div class="bd-lh-chips">' + chips + '</div>' + gap;
   }
 
+  // ── THE ROLL IS A CHIP HERE AND A ROLL CALL DOWN THERE ──────────────────────
+  // H.R. 6644 painted two fat cards under the topic chips — motion title, chamber,
+  // date, result, four tally pills, "See who voted →" — and then painted the same
+  // two roll calls again, in full, in the roll-call section below. Every fact on
+  // the card was a fact the section already carried, so the page spent a third of
+  // its opening screen restating what a reader would reach by scrolling, and the
+  // letterhead stopped being a letterhead.
+  //   A card that duplicates a section is not a summary of it; it is a second copy
+  // competing with the first for which one the reader is supposed to believe. So
+  // the letterhead keeps only what a reader needs to decide whether to scroll, on
+  // ONE line each:
+  //
+  //     House · Jun 23 · Passed · 358–32 · 41 DNV
+  //     Senate · Mar 12 · Passed · 89–10 · 1 DNV
+  //
+  // Chamber, day, outcome, margin, and how many members were not on the roll. That
+  // is the whole of what a vote chip claims.
+  //   WHAT THE CHIP NO LONGER SAYS, and where it went: the motion title ("On
+  // Motion to Concur") is the roll call's own heading in the roll-call section; the
+  // clerk's link sits under that heading; the names sit behind the closed drawer
+  // under it. Each of those is printed exactly once on this face now, and the place
+  // it is printed is the place a reader is already looking for it.
+  //   AND THE CHIP DOES NOT OPEN THE NAMES. Its predecessor was labelled "See who
+  // voted", so tapping it scrolled to the roll list AND sprang the drawer — 200
+  // rows unfolding under a reader who had asked to see a vote. The chip is labelled
+  // with a tally and promises a tally: it scrolls to that roll call and leaves the
+  // drawer shut, where the reader can open it deliberately if names are what they
+  // came for.
+  function rollChipSegs(rc) {
+    var t = rc.totals || {};
+    var segs = [];
+    var ch = chamberLabel(rc.chamber);
+    if (ch) segs.push(['ch', ch]);
+    var d = shortDate(rc.voteDate);
+    if (d) segs.push(['date', d]);
+    if (rc.result) segs.push(['res', statusLabelResult(rc.result)]);
+    // The margin, as the record states it. No percentage and no party split: this
+    // face has never printed either and a chip is not the place to start.
+    if (t.yea != null && t.nay != null) segs.push(['tally', String(t.yea) + '\u2013' + String(t.nay)]);
+    else segs.push(['gap', 'tally not in the record']);
+    // Not voting and Present are different acts, so they stay different counts, and
+    // neither is printed as a zero — "0 DNV" is a fact about nobody.
+    if (t.notVoting) segs.push(['dnv', t.notVoting + ' DNV']);
+    if (t.present) segs.push(['dnv', t.present + ' present']);
+    return segs;
+  }
   function letterheadVotes(rollcalls) {
-    var rcs = (rollcalls || []);
+    var rcs = rollOrder(rollcalls);
     if (!rcs.length) {
-      return '<p class="bd-lh-gap">No recorded vote is on file for this measure yet — it may have died in committee, or the tally may not have reached us.</p>';
+      // ZERO ROLLS MEANS ZERO CHIPS. Not an empty chip, not a chip that says "no
+      // vote": one sentence, and it is the roll-call section's sentence to say.
+      return '';
     }
-    var blocks = rcs.map(function (rc) {
-      var t = rc.totals || {};
-      var cells = VOTE_SLOTS.map(function (sl) {
-        if (t[sl[0]] == null) return '';
-        return '<span class="bd-lh-vc bd-lh-vc-' + sl[0] + '"><b>' + esc(String(t[sl[0]])) + '</b> ' + sl[1] + '</span>';
-      }).filter(Boolean).join('');
-      var meta = [chamberLabel(rc.chamber), fmtDate(rc.voteDate), rc.result ? statusLabelResult(rc.result) : '']
-        .filter(Boolean).join(' · ');
-      return '<button type="button" class="bd-lh-strip" data-bd-goto="rolls"' +
-          (rc.id != null ? ' data-bd-roll-open="' + escAttr(String(rc.id)) + '"' : '') +
-          ' title="Go to the roll list for this vote">' +
-        '<span class="bd-lh-vq">' + esc(rc.question || 'Vote') + '</span>' +
-        '<span class="bd-lh-vm">' + esc(meta) + '</span>' +
-        (cells ? '<span class="bd-lh-vcs">' + cells + '</span>'
-               : '<span class="bd-lh-gap">Totals are not in the record for this roll call.</span>') +
-        '<span class="bd-lh-vgo">See who voted →</span>' +
+    return rcs.map(function (rc) {
+      var segs = rollChipSegs(rc).map(function (sg, i) {
+        return (i ? '<span class="bd-lh-vsep" aria-hidden="true">\u00b7</span>' : '') +
+          '<span class="bd-lh-v' + sg[0] + '">' + esc(sg[1]) + '</span>';
+      }).join('');
+      return '<button type="button" class="bd-lh-vchip" data-bd-goto="rolls"' +
+          (rc.id != null ? ' data-bd-roll="' + escAttr(String(rc.id)) + '"' : '') +
+          ' title="' + escAttr('Go to this roll call in the roll-call votes below') + '">' +
+        segs +
       '</button>';
     }).join('');
-    return blocks;
+  }
+
+  // ── ONE TEACHING LINE, TWO FACTS ────────────────────────────────────────────
+  // The doctrine of this archive is two sentences long: one recorded vote counts
+  // in full on every topic it was mapped to, and the topics moved as one
+  // instrument so nobody got to vote on them singly. Those two facts used to be
+  // printed a screen apart \u2014 the first here, the second in a panel of its own
+  // below the ledger \u2014 which read as the page explaining itself twice. They are
+  // one line now, in the position the first one already held. The packaging half
+  // only prints where there is packaging to describe: a measure mapped to one
+  // topic is not a bag, and saying so about a bag of one is noise.
+  function letterheadTeach(m, issues, rollcalls) {
+    var rcs = (rollcalls || []).length;
+    var votes = rcs === 1
+      ? 'One recorded vote. It counts on every topic below.'
+      : rcs > 1
+        ? rcs + ' recorded votes. Each one counts in full on every topic below.'
+        : 'No recorded vote on file. The topics below are what this act was mapped to, not how anyone voted on it.';
+    if (!issues || issues.length < 2) return votes;
+    var carried = rcs === 1
+      ? 'One roll call decided every one of them: a member could take the whole bill or refuse the whole bill, and there was no separate vote on any single topic in it.'
+      : rcs > 1
+        ? 'Each of those roll calls decided every one of them at once. None of them was a vote on one topic.'
+        : (m && m.status === 'enacted')
+          ? 'They were signed into law as one instrument, so they arrived together or not at all.'
+          : 'They ride on one measure, so they move together for as long as it does.';
+    return votes + ' ' + carried;
   }
 
   function letterheadHtml(m, issues, data) {
     var rcs = (data && data.rollcalls) || [];
-    var teach = rcs.length === 1
-      ? 'One recorded vote. It counts on every topic below.'
-      : rcs.length > 1
-        ? rcs.length + ' recorded votes. Each one counts in full on every topic below.'
-        : 'No recorded vote on file. The topics below are what this act was mapped to, not how anyone voted on it.';
-    // CENSUS FIRST, PAPERWORK LAST. The teaching line, the tally, the chips and the
-    // vote strips are what a reader came for and they now occupy the top of the
-    // panel; the identity table (number, chamber, dates, link to the text) is
-    // reference material and sits under them. Nothing was dropped in the move.
+    var vchips = letterheadVotes(rcs);
+    // ONE TOPIC SURFACE. The teaching line, the tally, the chips and the vote
+    // strips. Identity has gone up to the title row, where a reader looks for it
+    // first; nothing else has been added in its place, because the point of the
+    // move was a shorter panel and not a differently-filled one.
     return '<section class="bd-sec bd-lh" aria-label="Bill profile">' +
-      '<p class="bd-lh-teach">' + esc(teach) + '</p>' +
+      '<p class="bd-lh-teach">' + esc(letterheadTeach(m, issues, rcs)) + '</p>' +
       letterheadTopics(issues) +
-      '<div class="bd-lh-votes">' + letterheadVotes(rcs) + '</div>' +
-      letterheadIdentity(m, data) +
+      // No roll calls, no chip rail. The teaching line above has already said
+      // there is no recorded vote, and the roll-call section below says it again in
+      // the place a reader goes looking for votes — an empty rail here would be a
+      // third statement of the same absence.
+      (vchips ? '<div class="bd-lh-votes">' + vchips + '</div>' : '') +
     '</section>';
   }
 
@@ -1147,24 +1261,17 @@
   // render at all. An empty disclosure that promises contents and delivers none is
   // worse than an honest absence.
   function foldSection(m) {
-    var official = officialTitleOf(m);
-    var showOfficial = official && official !== (m.title || '');
+    // The official title no longer leads this panel: it is one of the five facts
+    // that say which act this is, so it went up to the identity block beside the
+    // title where a reader looks for it. What is left behind the fold is the one
+    // thing that genuinely is a footnote — the ingested section-by-section
+    // description, whole and verbatim. With no description on file there is nothing
+    // to disclose and no fold is drawn.
     var summary = m.summary ? String(m.summary) : '';
-    if (!showOfficial && !summary) return '';
-    // The hint names what is actually inside, not what usually is: a measure we
-    // hold a description for but no separate official title must not promise one.
-    var label = summary ? 'What’s in this act' : 'Official title';
-    var parts = [];
-    if (showOfficial) parts.push('the official title');
-    if (summary) parts.push('the full description on file');
-    var hint = parts.join(' and ');
-    var body =
-      (showOfficial
-        ? '<p class="bd-fold-official">' + esc(official) + '</p>'
-        : '') +
-      (summary
-        ? '<p class="bd-fold-body">' + esc(summary) + '</p>'
-        : '');
+    if (!summary) return '';
+    var label = 'What’s in this act';
+    var hint = 'the full description on file';
+    var body = '<p class="bd-fold-body">' + esc(summary) + '</p>';
     return '<section class="bd-sec bd-foldsec">' +
       '<details class="bd-fold">' +
         '<summary class="bd-fold-sum">' +
@@ -1219,13 +1326,10 @@
     };
     var status = m.status ? '<span class="bd-status bd-s-' + esc(m.status) + '">' + esc(statusLabel(m.status)) + '</span>' : '';
     var omni = issues.length >= 2 ? '<span class="bd-omnibadge">📦 Omnibus · ' + issues.length + ' issues</span>' : '';
-    // The number alone is not an identity: a state bill number repeats every
-    // session, so the sitting rides in the header beside the chamber, and the dates
-    // we actually hold ride with it.
-    var meta = [chamberLabel(m.chamber), sittingLabel(m)].filter(Boolean).join(' · ');
-    var _txt = officialText(m);
-    var src = _txt
-      ? '<a class="bd-src bd-src-top" href="' + escAttr(_txt.url) + '" target="_blank" rel="noopener">🔗 ' + esc(_txt.label) + '</a>' : '';
+    // The chamber-and-sitting line and the link to the official record used to be
+    // built here as well. Both are identity, both are now rows of the identity
+    // block below the title, and printing them twice is what made the header read
+    // as a page clearing its throat.
     var following = false;
     try { following = !!(G('PDXBills') && G('PDXBills').isFollowed && G('PDXBills').isFollowed(_current)); } catch (e) {}
     var actionsBar =
@@ -1237,15 +1341,13 @@
     return '<div class="bd-head">' +
         '<div class="bd-head-top"><span class="bd-num">' + esc(m.number || 'Measure') + '</span>' + status + omni + '</div>' +
         '<h2 class="bd-title">' + esc(m.title || '') + '</h2>' +
-        (meta ? '<div class="bd-meta">' + esc(meta) + '</div>' : '') +
+        identityFacts(m, data) +
         actionsBar +
-        src +
       '</div>' +
       letterheadHtml(m, issues, data) +
       foldSection(m) +
       glanceStrip(m, issues, data) +
       omnibusSection(m, issues) +
-      coTravelSection(m, issues, data.rollcalls) +
       provisionsSection(m, data.provisions) +
       impactLedgerSection(data) +
       rollcallsSection(m, issues, data.rollcalls) +
@@ -1553,12 +1655,17 @@
       // than as a card. Nothing here is a percentage and nothing here is a bar,
       // because a measure's topics are a set and not a distribution.
       '.bd-lh{margin-top:1rem;padding:.85rem .9rem;border:1px solid rgba(159,180,212,.16);border-radius:.7rem;background:rgba(255,255,255,.02);}' +
-      '.bd-lh-facts{display:grid;grid-template-columns:auto 1fr;gap:.28rem .7rem;margin:0 0 .7rem;}' +
-      '.bd-lh-fact{display:contents;}' +
-      '.bd-lh-k{font:700 .62rem/1.5 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8aa0c4;margin:0;}' +
-      '.bd-lh-v{font:500 .84rem/1.45 "Barlow",sans-serif;color:#dce6f7;margin:0;}' +
-      '.bd-lh-text{color:#7fb4ff;text-decoration:none;}' +
-      '.bd-lh-text:hover{text-decoration:underline;}' +
+      // Identity, in the header, under the title. A two-column grid so the labels
+      // form a readable spine and the whole block stays about as tall as the three
+      // separate lines it replaced — the point of the move was to stop the page
+      // repeating itself, not to spend the space saved on the same facts.
+      '.bd-ident{display:grid;grid-template-columns:auto 1fr;gap:.24rem .7rem;margin:.45rem 0 .1rem;}' +
+      '.bd-ident-fact{display:contents;}' +
+      '.bd-ident-k{font:700 .62rem/1.5 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8aa0c4;margin:0;}' +
+      '.bd-ident-v{font:500 .84rem/1.45 "Barlow",sans-serif;color:#dce6f7;margin:0;}' +
+      '.bd-ident-text{color:#7fb4ff;text-decoration:none;}' +
+      '.bd-ident-text:hover{text-decoration:underline;}' +
+      '.bd-ident-gap{color:#9fb4d4;font-style:italic;}' +
       '.bd-lh-gap{font:500 .8rem/1.45 "Barlow",sans-serif;color:#8aa0c4;font-style:italic;}' +
       '.bd-lh-teach{font:700 .9rem/1.4 "Barlow",sans-serif;color:#f3d774;margin:.2rem 0 .6rem;}' +
       '.bd-lh-tally{font:700 .68rem/1.4 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#bcd0f0;margin:0 0 .45rem;}' +
@@ -1580,24 +1687,28 @@
       '.bd-lh-chip[data-ic] .bd-lh-chip-l{color:var(--pdx-ic-ink,#e6eefc);}' +
       '.bd-lh-chip[data-ic]:hover{background:var(--pdx-ic-wash,rgba(96,165,250,.2));border-color:var(--pdx-ic,#9ec8ff);}' +
       '.bd-lh-chip[data-ic]:focus-visible{outline:2px solid var(--pdx-ic,#7fb4ff);outline-offset:2px;}' +
-      '.bd-lh-votes{display:flex;flex-direction:column;gap:.4rem;}' +
-      '.bd-lh-strip{display:flex;flex-direction:column;align-items:flex-start;gap:.22rem;width:100%;cursor:pointer;text-align:left;background:rgba(159,180,212,.06);border:1px solid rgba(159,180,212,.2);border-radius:.55rem;padding:.5rem .6rem;}' +
-      '.bd-lh-strip:hover{background:rgba(159,180,212,.12);border-color:rgba(126,180,255,.5);}' +
-      '.bd-lh-vq{font:700 .82rem/1.25 "Barlow Condensed",sans-serif;color:#e6eefc;}' +
-      '.bd-lh-vm{font:600 .62rem/1.2 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;}' +
-      '.bd-lh-vcs{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.1rem;}' +
-      '.bd-lh-vc{font:600 .68rem/1 "Barlow",sans-serif;color:#cbd9ec;background:rgba(159,180,212,.1);border:1px solid rgba(159,180,212,.2);border-radius:.35rem;padding:.24rem .45rem;}' +
-      '.bd-lh-vc b{font:700 .78rem/1 "Barlow Condensed",sans-serif;color:#fff;}' +
-      '.bd-lh-vc-yea{color:#a7e8b6;background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.28);}' +
-      '.bd-lh-vc-nay{color:#f6b8b0;background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.28);}' +
-      '.bd-lh-vgo{font:700 .62rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#7fb4ff;}' +
+      // THE VOTE CHIPS. One line each, and the line is the whole chip: a rail of
+      // chips rather than a stack of cards, so two roll calls cost two lines of the
+      // opening screen instead of two thirds of it. The margin is the one segment
+      // drawn heavier, because it is the fact the chip exists to carry; nothing
+      // here is coloured by outcome, since a Yea-heavy margin is not a good result
+      // and this face does not grade votes.
+      '.bd-lh-votes{display:flex;flex-direction:column;gap:.35rem;align-items:flex-start;}' +
+      '.bd-lh-vchip{display:inline-flex;align-items:center;gap:.34rem;max-width:100%;cursor:pointer;text-align:left;background:rgba(159,180,212,.06);border:1px solid rgba(159,180,212,.2);border-radius:999px;padding:.3rem .68rem;font:600 .74rem/1.25 "Barlow",sans-serif;color:#cbd9ec;}' +
+      '.bd-lh-vchip:hover{background:rgba(159,180,212,.13);border-color:rgba(126,180,255,.5);}' +
+      '.bd-lh-vchip:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      '.bd-lh-vch{font:700 .72rem/1.25 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#e6eefc;}' +
+      '.bd-lh-vdate,.bd-lh-vres{color:#9fb4d4;}' +
+      '.bd-lh-vtally{font:700 .82rem/1.2 "Barlow Condensed",sans-serif;color:#fff;font-variant-numeric:tabular-nums;}' +
+      '.bd-lh-vdnv{font:600 .68rem/1.2 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#8aa0c4;}' +
+      '.bd-lh-vgap{color:#8aa0c4;font-style:italic;}' +
+      '.bd-lh-vsep{color:rgba(159,180,212,.45);}' +
       '.bd-omni-lane-l{font:600 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#9fb4d4;background:rgba(159,180,212,.1);border:1px solid rgba(159,180,212,.2);border-radius:.3rem;padding:.2rem .4rem;}' +
       '.bd-h{font:700 1rem/1.1 "Barlow Condensed",sans-serif;letter-spacing:.03em;text-transform:uppercase;color:#fff;margin:0 0 .6rem;}' +
       '.bd-lead{font:500 .86rem/1.5 "Barlow",sans-serif;color:#9fb4d4;margin:0 0 .8rem;}' +
       '.bd-empty,.bd-note{font:500 .82rem/1.5 "Barlow",sans-serif;color:#8aa0c4;}' +
       '.bd-omni-row{border:1px solid rgba(159,180,212,.12);border-left:3px solid rgba(96,165,250,.5);border-radius:.6rem;padding:.6rem .7rem;margin-bottom:.5rem;background:rgba(255,255,255,.02);}' +
       '.bd-omni-opp{border-left-color:rgba(251,146,60,.55);}' +
-      '.bd-omni-summary{display:flex;flex-wrap:wrap;gap:.4rem;margin:-.3rem 0 .8rem;}' +
       '.bd-omni-head{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;}' +
       '.bd-omni-issue{font:700 .9rem/1.2 "Barlow Condensed",sans-serif;color:#e6eefc;}' +
       '.bd-omni-link{background:none;border:0;padding:0;cursor:pointer;text-align:left;text-decoration:underline;text-decoration-color:rgba(126,180,255,.35);text-underline-offset:2px;}' +
@@ -1619,11 +1730,6 @@
       // default state shows every row and why a missing/unknown value does too.
       '.bd-omni-list[data-bd-view="main"] .bd-omni-row[data-bd-lane="other"]{display:none;}' +
       '.bd-omni-list[data-bd-view="other"] .bd-omni-row[data-bd-lane="main"]{display:none;}' +
-      // The one-instrument note: a footnote's weight, sitting on the ledger it
-      // qualifies. No chips, no stat pills, no grouping — see coTravelSection.
-      '.bd-onebag{margin-top:.7rem;border-left:2px solid rgba(245,200,66,.35);padding-left:.7rem;}' +
-      '.bd-onebag-l{font:500 .84rem/1.5 "Barlow",sans-serif;color:#bcd0f0;margin:0;}' +
-      '.bd-onebag-l strong{color:#f3d774;font-weight:800;}' +
       '.bd-svd-cap{font:700 .6rem/1.3 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;margin:.1rem 0 .3rem;}' +
       '.bd-svd-count{font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#bcd0f0;background:rgba(159,180,212,.1);border:1px solid rgba(159,180,212,.22);border-radius:999px;padding:.16rem .45rem;}' +
       '.bd-eff{font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;border-radius:999px;padding:.16rem .45rem;white-space:nowrap;}' +
@@ -1652,7 +1758,6 @@
       '.bd-fold-h{font:600 .66rem/1.3 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;}' +
       '.bd-fold[open] .bd-fold-sum{border-bottom:1px solid rgba(159,180,212,.14);}' +
       '.bd-fold-in{padding:.7rem .75rem .85rem;}' +
-      '.bd-fold-official{font:600 .9rem/1.5 "Barlow",sans-serif;color:#cbd9ec;margin:0 0 .6rem;}' +
       '.bd-fold-body{font:500 .88rem/1.6 "Barlow",sans-serif;color:#b9c8e0;margin:0;white-space:pre-line;}' +
       // ── the roll-call drawer ──────────────────────────────────────────────
       // Closed by default (see rollcallsSection). The summary is the door the
@@ -1791,10 +1896,10 @@
         '.bd-rf-btn{min-height:44px;display:inline-flex;align-items:center;}' +
         '.bd-rf-in{min-height:44px;}' +
         '.bd-omni-link{min-height:44px;display:inline-flex;align-items:center;}' +
-        // The letterhead's own doors: a chip and a vote strip are both taps, and a
-        // 30px tap is a miss on a phone.
+        // The letterhead's own doors: a topic chip and a vote chip are both taps,
+        // and a 30px tap is a miss on a phone.
         '.bd-lh-chip{min-height:44px;justify-content:center;}' +
-        '.bd-lh-strip{min-height:44px;}' +
+        '.bd-lh-vchip{min-height:44px;}' +
         '.bd-btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;}' +
         '.bd-person{min-height:44px;justify-content:center;}' +
         '.bd-vote-row,.bd-vote-sum{min-height:44px;}' +

@@ -5018,8 +5018,14 @@
       if (typeof window._pdxFunding === 'function') {
         const _navFund = window._pdxFunding(id);
         if (_navFund) {
-          const _fk = (_navFund.character && _navFund.character.kind) || 'unknown';
-          const _fc = _fk === 'grassroots' ? '#6ee7a0' : _fk === 'bigmoney' ? '#f87171' : _fk === 'mixed' ? '#f5c842' : '#9fb4d4';
+          // The rail's funding dot is the money gold in every case. It used to
+          // switch on `character.kind` — mint for grassroots, red for big-money,
+          // amber for mixed — which put a three-colour verdict on donor mix into
+          // the one component that shows every section of the page at once, right
+          // beside dots that really are graded reads. The rail's job here is
+          // wayfinding: gold says "the money section is down there". What the
+          // filing says stays in the section, in words and figures.
+          const _fc = '#c9992f';
           const _fi = (_navFund.character && _navFund.character.icon) || '💰';
           _navItems.push({ target: 'pdxsec-funding', icon: _fi, label: 'Funding', value: _navFund.raisedFmt, color: _fc });
         }
@@ -5309,6 +5315,30 @@
                  percentage and the chip has to have somewhere to arrive. The host
                  is worth zero pixels until it holds something. -->
             ${(window.PDXWordAction && typeof window.PDXWordAction.compactBadgeMount === 'function') ? window.PDXWordAction.compactBadgeMount(id, p) : ''}
+            <!-- 💰 The money door, at chip scale, beside the ⚖️ one — and built to
+                 the same rule: a number, two or three highlights, and a jump to the
+                 section further down that shows the working. The composition, the
+                 bar, the outside-spending note, the named top source, the as-of
+                 stamp and the coverage sentence in full stay in that section and
+                 appear nowhere up here. A letterhead that answers the money
+                 question in place has grown a second money section, and then the
+                 profile says one thing twice at two lengths.
+
+                 IT RENDERS ON EVERY PROFILE, INCLUDING THE EMPTY ONES, and that is
+                 the load-bearing part. Filings are on file for a small minority of
+                 the roster, so a chip that only appeared where one exists would
+                 leave "no chip" doing the talking — and to a reader who has learned
+                 that this site puts a money chip on people with money problems,
+                 what "no chip" says is "clean". It is not clean, it is unchecked.
+                 The empty chip says which.
+
+                 No ring, no ramp, no rank: one neutral accent across all three
+                 states. Finance does not enter Direction Match, the formal tiers or
+                 any ordering, and a chip that turned amber when the money
+                 concentrated would be delivering the retired Constituents-First
+                 verdict in colour after the words declined to. See the block over
+                 SECTION_ID in finance-lane.js. -->
+            ${(window.PDXFinanceLane && typeof window.PDXFinanceLane.letterheadChipMount === 'function') ? window.PDXFinanceLane.letterheadChipMount(id) : ''}
             ${p.party ? `<span class="profile-party">${p.party}</span>` : ''}
           </div>
         </div>

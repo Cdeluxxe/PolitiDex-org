@@ -230,30 +230,34 @@
   }
 
   /* ── THE MONEY TREE model ───────────────────────────────────────────── */
-  // Detailed funding-mix segments (order and colours come from ONE place).
+  // Funding-mix sources, in one order, told apart by their labels.
   //
-  // The colours used to be green for small-dollar, amber for large individual and
-  // red for PAC, which delivered a verdict after the words had stopped: a reader
-  // did not have to read the legend to know which bucket they were supposed to
-  // disapprove of. finance-lane.js owns the categorical palette now — five hues
-  // that distinguish buckets and rank none of them — and this view borrows it so
-  // the same bucket is never two colours on two surfaces.
-  var LANE_COLORS = (window.PDXFinanceLane && window.PDXFinanceLane.COLORS) || {
-    smallDollar: '#7cc4ff', largeIndividual: '#c4a6ff', pac: '#5efcc4',
-    selfFunded: '#ffb86c', party: '#7596c0'
-  };
+  // This list has been through two palettes and now has none. It began green for
+  // small-dollar, amber for large individual and red for PAC, which delivered a
+  // verdict after the words had stopped: a reader did not have to consult the
+  // legend to know which bucket they were meant to disapprove of. It was then
+  // rewritten to borrow finance-lane.js's five categorical hues, so at least the
+  // same bucket was never two colours on two surfaces.
+  //   The money theme finishes the job. The lane's palette is now a single gold —
+  // one of the five hues it replaced was itself an amber attached to a donor-mix
+  // category — and these rows render gold-on-slate from the stylesheet, gold for
+  // the source's dollars and slate for the rest of the filing. So there is no
+  // per-source colour to declare. LANE_COLORS is gone with the segments it fed:
+  // reading five identical values out of the lane in order to paint five bars the
+  // same colour would only make it look as though a distinction were being drawn.
+  //   The order still comes from one place, which is this array.
   var MIX = [
-    { key: 'smallDollar',     label: 'Small-dollar', color: LANE_COLORS.smallDollar },
-    { key: 'largeIndividual', label: 'Large indiv',  color: LANE_COLORS.largeIndividual },
-    { key: 'pac',             label: 'PAC',          color: LANE_COLORS.pac },
-    { key: 'selfFunded',      label: 'Self-funded',  color: LANE_COLORS.selfFunded },
-    { key: 'party',           label: 'Party',        color: LANE_COLORS.party }
+    { key: 'smallDollar',     label: 'Small-dollar' },
+    { key: 'largeIndividual', label: 'Large indiv' },
+    { key: 'pac',             label: 'PAC' },
+    { key: 'selfFunded',      label: 'Self-funded' },
+    { key: 'party',           label: 'Party' }
   ];
   // Grouped 3-way view of the same composition, for a bar too small for five.
   var MIX3 = [
-    { key: 'grassroots', label: 'Small-dollar',        color: LANE_COLORS.smallDollar },
-    { key: 'largePac',   label: 'Large donors & PACs', color: LANE_COLORS.largeIndividual },
-    { key: 'selfParty',  label: 'Self / party',        color: LANE_COLORS.party }
+    { key: 'grassroots', label: 'Small-dollar' },
+    { key: 'largePac',   label: 'Large donors & PACs' },
+    { key: 'selfParty',  label: 'Self / party' }
   ];
   function group3(shares) {
     shares = shares || {};
@@ -362,32 +366,43 @@
   }
 
   /* ── shared render helpers ──────────────────────────────────────────── */
-  // Detailed 5-segment funding bar with legend (kept for the deeper read).
-  function mixBar(shares) {
-    var segs = MIX.filter(function (m) { return (shares[m.key] || 0) > 0; });
+  // ONE BAR PER SOURCE, GOLD ON SLATE — NOT ONE STACK IN FIVE COLOURS.
+  // Both of these used to build a single bar cut into coloured segments, one hue
+  // per funding source, borrowed from PDXFinanceLane.COLORS. That palette is now
+  // one colour (the money gold — see the note over COLORS in finance-lane.js), so
+  // a stack would be a solid gold rectangle with invisible internal boundaries.
+  //   The fix is the same one the lane's own composition block took. Each source
+  // gets its own row: its share as a gold fill against a slate track, with the
+  // label and the percentage in text beside it. Gold is that source's dollars,
+  // slate is the rest of the money. That reads as a proportion of a whole, which
+  // is what the number actually is, and it drops the legend entirely — the label
+  // is already on the row it describes, so a colour key has nothing left to key.
+  //   Nothing here is ordered, weighted or emphasised: same height, same gold,
+  // same slate, whether a source is 3% of the filing or 80% of it.
+  function mixRows(defs, shares, cls) {
+    var segs = defs.filter(function (m) { return (shares[m.key] || 0) > 0; });
     if (!segs.length) return '';
-    var bar = '<div class="mp-mix">' + segs.map(function (m) {
-      return '<div class="mp-mix-seg" style="width:' + Math.max(shares[m.key], 1) + '%;background:' + m.color + '"></div>';
+    return '<div class="' + cls + '">' + segs.map(function (m) {
+      var pct = Math.max(Math.min(shares[m.key], 100), 0);
+      return '<div class="mp-mixrow">' +
+        '<span class="mp-mixrow-lab">' + esc(m.label) + '</span>' +
+        '<span class="mp-mixrow-track" title="' + esc(m.label) + ' ' + shares[m.key] + '% of reported receipts">' +
+          '<span class="mp-mixrow-fill" style="width:' + pct + '%"></span>' +
+        '</span>' +
+        '<span class="mp-mixrow-pct">' + shares[m.key] + '%</span>' +
+      '</div>';
     }).join('') + '</div>';
-    var legend = '<div class="mp-mix-legend">' + segs.map(function (m) {
-      return '<span class="mp-mix-key"><span class="mp-mix-dot" style="background:' + m.color + '"></span>' + m.label + ' ' + shares[m.key] + '%</span>';
-    }).join('') + '</div>';
-    return bar + legend;
   }
-  // Grouped grassroots-vs-big bar — the intuitive lead visual.
+  // Detailed 5-source funding read (kept for the deeper view).
+  function mixBar(shares) {
+    return mixRows(MIX, shares || {}, 'mp-mix');
+  }
+  // Grouped grassroots-vs-big read — the intuitive lead visual. `noLegend` is kept
+  // in the signature because callers pass it; there is no legend to suppress any
+  // more, so it is now a no-op rather than a behaviour change at the call sites.
   function mix3Bar(m3, opts) {
     if (!m3) return '';
-    opts = opts || {};
-    var segs = MIX3.filter(function (m) { return (m3[m.key] || 0) > 0; });
-    if (!segs.length) return '';
-    var bar = '<div class="mp-mix2">' + segs.map(function (m) {
-      return '<div class="mp-mix2-seg" style="width:' + Math.max(m3[m.key], 1) + '%;background:' + m.color + '" title="' + esc(m.label) + ' ' + m3[m.key] + '%"></div>';
-    }).join('') + '</div>';
-    if (opts.noLegend) return bar;
-    var legend = '<div class="mp-mix-legend">' + segs.map(function (m) {
-      return '<span class="mp-mix-key"><span class="mp-mix-dot" style="background:' + m.color + '"></span>' + esc(m.label) + ' ' + m3[m.key] + '%</span>';
-    }).join('') + '</div>';
-    return bar + legend;
+    return mixRows(MIX3, m3, 'mp-mix2');
   }
   // The per-branch chip. It used to print the retired 0-100 finance score's graded
   // label in that score's colour ("Special-Interest Heavy" in red). The score is

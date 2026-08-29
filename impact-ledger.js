@@ -366,13 +366,19 @@
   // bar and an amber "Large indiv + PAC" bar. The score is gone from the read, so
   // the tile is gone with it; the palette is gone too, because green-for-grassroots
   // beside amber-for-PAC delivered the verdict the words had stopped delivering.
-  // What is left is the largest reported source, in dollars, and the bucket rows
-  // in the lane's own categorical colours.
+  // What is left is the largest reported source, in dollars, and one bar per bucket
+  // in the money lane's one pair: gold for that bucket's dollars, slate for the
+  // rest of the filing. The lane's five categorical hues went the same way as this
+  // column's own green-and-amber ramp, and for the same reason — one of them was
+  // an amber attached to a donor-mix category. `r.color` still arrives on every row
+  // from PDXFinanceLane.compose(); it is now the money gold on all of them, and the
+  // fallback below matches, so a row that somehow arrives without one is not the
+  // odd colour out.
   function financeRecapHTML(sig) {
     if (!sig) return '';
     var rows = (sig.rows || []).slice(0, 3);
     var lead = sig.largest
-      ? '<div class="pdx-ilx-fscore" style="border-color:rgba(159,180,212,0.33);">' +
+      ? '<div class="pdx-ilx-fscore" style="border-color:rgba(201,153,47,0.55);">' +
           '<span class="pdx-ilx-flead">' + esc(sig.largest.amountFmt || '') + '</span>' +
           '<span class="pdx-ilx-flabel">' + esc(sig.largest.label || '') + '</span>' +
         '</div>'
@@ -380,7 +386,7 @@
     var bars = rows.map(function (r) {
       return '<div class="pdx-ilx-fbar"><span class="pdx-ilx-fbar-lab">' + esc(r.short || '') + '</span>' +
         '<span class="pdx-ilx-fbar-track"><span class="pdx-ilx-fbar-fill" style="width:' +
-          Math.max(2, r.share || 0) + '%;background:' + esc(r.color || '#9fb4d4') + ';"></span></span>' +
+          Math.max(2, r.share || 0) + '%;background:' + esc(r.color || '#c9992f') + ';"></span></span>' +
         '<span class="pdx-ilx-fbar-pct">' + esc(r.amountFmt || '') + '</span></div>';
     }).join('');
     return '<div class="pdx-ilx-col">' +
@@ -431,7 +437,8 @@
     if (!id || !sig) return '';
     injectCss();
     return '<div class="modal-section pdx-ilx" data-il-sxs="' + escAttr(String(id)) + '" style="display:none;">' +
-        '<div class="modal-section-title">💰 Follow the Money — Side by Side</div>' +
+        '<div class="modal-section-title pdx-money-h">' +
+          '<span class="pdx-money-h-ico">💰</span> Follow the Money — Side by Side</div>' +
         '<p class="pdx-ilx-disclaimer">' + SXS_DISCLAIMER + '</p>' +
         '<div class="pdx-ilx-grid">' +
           financeRecapHTML(sig) +

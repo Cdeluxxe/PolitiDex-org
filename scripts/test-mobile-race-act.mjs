@@ -80,7 +80,7 @@ function shippedActCss() {
     return el;
   };
   const ctx = vm.createContext(win);
-  for (const f of [...ENGINE_FILES, "bill-detail.js"]) {
+  for (const f of [...ENGINE_FILES, "receipt-cards.js", "bill-detail.js"]) {
     vm.runInContext(R(f), ctx, { filename: f });
   }
   // injectCss() runs from ensureOverlay() on the first open. A minimal client
@@ -378,14 +378,19 @@ section("6 · the act face hides nothing to fit");
   // closed: the section-by-section prose, and a roll call's list of names. Both
   // are the reader's own tap away and both are native <details>, so they work
   // with no JS and find-in-page reaches them once open. Nothing else folds —
-  // and in particular the topic ledger and the one-instrument sentence under it
-  // are never a tap away, because they are the point of the face.
+  // and in particular the topic ledger, the identity block and the teaching line
+  // that carries the one-instrument fact are never a tap away, because they are
+  // the point of the face.
   const SRC = R("bill-detail.js");
-  const note = SRC.slice(SRC.indexOf("function coTravelSection"), SRC.indexOf("  var POS_SLOTS"));
-  must(note.length > 400, "coTravelSection moved");
+  const note = SRC.slice(SRC.indexOf("function letterheadTeach"), SRC.indexOf("function letterheadHtml"));
+  must(note.length > 400, "letterheadTeach moved");
   ok(!/<details|hidden|aria-expanded/.test(note),
     "the one-instrument sentence ships collapsed, so the fact that made the panel worth keeping is a tap away");
-  const ledger = SRC.slice(SRC.indexOf("function omnibusSection"), SRC.indexOf("function coTravelSection"));
+  const ident = SRC.slice(SRC.indexOf("function identityFacts"), SRC.indexOf("function letterheadTopics"));
+  must(ident.length > 400, "identityFacts moved");
+  ok(!/<details|hidden|aria-expanded/.test(ident),
+    "which act this is ships behind a disclosure, so a phone reader has to tap to find out what they opened");
+  const ledger = SRC.slice(SRC.indexOf("function omnibusSection"), SRC.indexOf("  // ── the optional view filter"));
   must(ledger.length > 400, "omnibusSection moved");
   ok(!/<details/.test(ledger), "the topic ledger ships collapsed");
   // The two that do fold, folded the honest way: a real disclosure element with
@@ -399,7 +404,7 @@ section("6 · the act face hides nothing to fit");
   ok(/var rows = '';/.test(SRC) && !/slice\(0,\s*\d+\)/.test(SRC.slice(SRC.indexOf("function rollcallsSection"),
     SRC.indexOf("function statusLabelResult"))),
     "the roll list is being truncated rather than folded");
-  for (const cls of [".bd-onebag", ".bd-onebag-l", ".bd-fold", ".bd-fold-sum", ".bd-rolldrop",
+  for (const cls of [".bd-lh-teach", ".bd-ident", ".bd-ident-k", ".bd-fold", ".bd-fold-sum", ".bd-rolldrop",
                      ".bd-roll-sum", ".bd-rf", ".bd-rf-btn", ".bd-rf-in"]) {
     ok(BD.some((r) => r.sels.includes(cls)), `the new chrome is unstyled (${cls})`);
   }
@@ -456,13 +461,19 @@ section("8 · the running order a phone actually meets");
   const iPanes = ranked.indexOf("panes +");
   ok(iRank >= 0 && iThin > iRank && iThin < iPanes,
     "the thin-axis note no longer sits between the rank line and the field it qualifies");
-  // And the act face still leads with the ledger, then the bag.
+  // And there is ONE topic surface: the ledger, with no second rendering of the
+  // same keys anywhere after it.
   const BDSRC = R("bill-detail.js").replace(/^\s*\/\/.*$/gm, "");
   const io = BDSRC.indexOf("omnibusSection(m, issues) +");
-  const ib = BDSRC.indexOf("coTravelSection(m, issues, data.rollcalls) +");
-  must(io > 0 && ib > 0, "the act face's section assembly moved");
-  ok(ib > io, "the one-instrument note no longer follows the topic ledger it qualifies");
-  ok(ib - io < 120, "the one-instrument note drifted away from the ledger it belongs to");
+  must(io > 0, "the act face's section assembly moved");
+  ok(!BDSRC.includes("coTravelSection"), "the second topic surface is back in the assembly");
+  ok(!BDSRC.includes("bd-onebag"), "the second topic surface is back in the markup");
+  // Identity rides with the title, above the census, where a phone reader meets it
+  // in the first screen rather than under two vote strips.
+  const ihead = BDSRC.indexOf("identityFacts(m, data) +");
+  const ititle = BDSRC.indexOf('<h2 class="bd-title">');
+  must(ihead > 0 && ititle > 0, "the header's identity block or title left the assembly");
+  ok(ihead > ititle && ihead < io, "identity is no longer printed with the title row");
   // And the census leads the face: letterhead, then the folded prose, then
   // everything else. On a phone this order IS the hierarchy.
   const ilh = BDSRC.indexOf("letterheadHtml(m, issues, data) +");
