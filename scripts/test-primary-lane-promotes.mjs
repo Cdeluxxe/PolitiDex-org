@@ -23,12 +23,16 @@
 //      side-effects are all still non-primary. Some of them would unblock MORE members
 //      than the three that shipped; that is exactly why they are pinned here.
 //   4. THE FLOORS DID NOT MOVE. A data pass may not buy coverage by lowering a floor.
-//   5. THE MECHANISM ACTUALLY DRIFTS THE WAY THE PACK CLAIMS. The shipped index is run
-//      over items built from the real seed rows: four same-way judged items on each
-//      issue read as a direction WITH the promoted instrument and are refused
-//      'no_primary' without it. This is the offline half of the drift table; the
-//      member-by-member half needs the live corpus and lives in
-//      scripts/vr-audit-primary-lane-aug2026.mjs --simulate.
+//   5. THE MECHANISM NO LONGER DRIFTS AT ALL, AND THAT IS NOW THE ASSERTION. The
+//      shipped index is run over items built from the real seed rows: four same-way
+//      judged items on each issue read as a direction WITH the promoted instrument
+//      and — since the package-borne gates came off in August 2026 — identically
+//      WITHOUT it. One instrument means one official Yea or Nay; every issue mapped
+//      to that instrument gets that vote at full strength, and the vehicle is
+//      disclosed beside the finding rather than discounted from it. So a promote
+//      cannot buy a reading, which is a stronger guarantee than the drift table it
+//      replaces. (The historical drift table lives in
+//      scripts/vr-audit-primary-lane-aug2026.mjs --simulate.)
 //   6. NOTHING THAT READS issues[0] MOVES. vr-pack.ts sorts a measure's issues
 //      primary-first then weight-desc, and callers downstream of the pack read that
 //      order. (The citizen bill face no longer does — bill-detail.js reorders every
@@ -241,10 +245,21 @@ for (const [number, congress, chamber, key] of PROMOTES) {
   }));
   const a = rdIndex(key, withIt, { memberRecordCount: 999 });
   const b = rdIndex(key, without, { memberRecordCount: 999 });
-  eq(b.suppressed, "no_primary",
-    `${key}: four judged items without the promoted instrument are not refused for want of a primary — the floor moved`);
   eq(a.token, "record_direction",
     `${key}: four judged items WITH ${number} still do not read as a direction`);
+  // ── AND THE SAME FOUR ITEMS READ THE SAME WAY WITHOUT THE FLAG ─────────────
+  // This pair used to be the drift the pack was justified by: refused 'no_primary'
+  // without the promoted instrument, characterised with it. Since August 2026 the
+  // reading follows the acts and the flag is a label on the bill, so the pair is
+  // asserted IDENTICAL instead. That is not this pack being undone — the subject
+  // claim in each rationale is still either true or false about the measure — it is
+  // the guarantee that promoting our own flag is not a way to move a reading.
+  eq(b.suppressed, null,
+    `${key}: four judged items are refused for want of a primary — our flag is deciding what their votes say`);
+  eq(b.token, a.token, `${key}: …and the same four items read differently with and without it`);
+  eq(b.characterised, a.characterised, `${key}: …or are characterised differently`);
+  eq(b.lead, a.lead, `${key}: …or lean differently`);
+  eq(b.primary, 0, `${key}: …with the flag genuinely absent, so this is not a fixture accident`);
   eq(a.characterised, true, `${key}: the read with ${number} is not characterised`);
   eq(a.judged, 4, `${key}: the item count changed`);
   // Direction is decided on act counts, not on the promoted row's weight: LEDGER-FIRST.

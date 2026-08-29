@@ -6060,15 +6060,21 @@
   var _ST_REC_NOTE_SCORED = 'Direction Match on this issue: what they said, tested against the ' +
     'formal record on file.';
   // …AND THE ARRIVAL DISCLOSURE, FOR A SCORED ROW WHOSE FORMAL ACTS ALL TRAVELLED
-  // IN PACKAGES. The pattern engine's own package sentence cannot be borrowed here,
-  // for the same reason its note cannot: that sentence ends by stating a tier —
-  // "the side is stated thin" — and this slot is printing a Direction Match result,
-  // not a tier. What has to survive the trip is the fact the reader needs, that the
-  // acts on this issue reached it inside something larger, with no claim about
-  // strength attached to it. Appended, never substituted: the scored sentence keeps
-  // its place and its meaning, and no number on this slot moves.
+  // IN PACKAGES. The pattern engine's own package sentence is still not borrowed
+  // here — it opens on a judged count ("All 6 votes read here…") and this slot is
+  // printing a Direction Match result rather than a pattern read — but it now says
+  // the same two things, because there are two things a reader needs and dropping
+  // either one is a distortion. First, HOW the acts reached the issue: inside
+  // something larger. Second, that this changes nothing about what they weigh —
+  // one instrument carries one official Yea or Nay, and every issue mapped to that
+  // instrument gets it at full strength. The sentence used to stop after the first
+  // half, which left the disclosure reading like a caveat on the percentage beside
+  // it; the second half is what makes it a disclosure instead. Appended, never
+  // substituted: the scored sentence keeps its place and its meaning, no tier is
+  // stated here, and no number on this slot moves.
   var _ST_REC_NOTE_PKG = 'The formal acts behind this reached the issue inside measures ' +
-    'that were mainly about something else, rather than as votes on the issue itself.';
+    'that were mainly about something else, rather than as votes on the issue itself — ' +
+    'they are counted in full either way.';
   // THE SAME SENTENCE, IN THE LANE'S OWN COUNTABLE. The engine publishes one note
   // and it says "votes on file"; on the executive lane the countable is actions and
   // nothing else about the sentence changes. Fails safe by construction — if the
@@ -6167,11 +6173,13 @@
         note: items + ' ' + many + ' on file and open in the dossier. None of them takes a ' +
           'for-or-against side on this issue, so no direction is claimed here either way.' };
     }
-    if (sup === 'no_primary') {
-      return { id: 'incidental', lb: 'Formal items on file',
-        note: items + ' ' + many + ' on file touch this issue only incidentally — none of them ' +
-          'was about it — so no direction is read from them. The ' + n.many + ' are in the dossier.' };
-    }
+    // THERE WAS A BRANCH HERE FOR `no_primary`, and it printed "these items touch
+    // this issue only incidentally — none of them was about it". The index stopped
+    // emitting that suppression in August 2026: how an act arrived is a label on
+    // the bill, not a reason to withhold the reading, so there is no such
+    // suppression to answer and the ladder below names what is actually true of the
+    // row. Nothing else set it — see _rdSuppressedKey, which returns only the three
+    // muted keys — so this is a removal, not a hole.
     try { return _fpiUnreadWhy(r); } catch (e) {}
     return { id: 'unread', lb: 'Formal items on file', note: '' };
   }
@@ -8295,17 +8303,24 @@
   //   · AN ISSUE WITH NO POLE IS STILL SILENT. _RD_TIER_MUTE returns null there,
   //     at any depth, because "advanced it" is meaningless without a curated
   //     proposition to advance.
-  //   · AN INCIDENTAL MAPPING IS STILL A COINCIDENCE. Below _RD_MIN_PRIMARY the
-  //     display read returns null too — an omnibus that brushed this issue is not
-  //     a vote on it, and five of them are not a vote on it either.
-  //   · A RECORD THAT RAN BOTH WAYS IS NEVER GIVEN A LEAD. The display read words
-  //     those as `split`, `directional: false`, and the guard below drops them —
-  //     so no knife-edge acquires a side through this door.
-  //   · AND IT NEVER PROMOTES. `d.tier !== 'thin'` is asserted rather than
-  //     assumed: whatever arrives here is a row the characterisation engine
-  //     declined, and the only tier it may re-enter the index at is the quiet one.
+  //   · A RECORD THAT RAN BOTH WAYS IS NEVER GIVEN A LEAD. This door is for runs
+  //     that all went one way, and the mixed guard below is its own — it counts
+  //     acts, not mappings, so no knife-edge acquires a side through here.
+  //   · AND THE MAPPING FLAG IS NOT A DOOR, A CEILING, OR A DISCOUNT. It used to
+  //     be both of the first two. First `_RD_MIN_PRIMARY` made the display read
+  //     return null, so a rider that became law read as nothing at all. Then it
+  //     became a ceiling, and this function carried the matching cousin —
+  //     `d.tier !== 'thin'`, described here as "it never promotes" — which meant a
+  //     package-borne run that cleared every depth floor came back as `strong`
+  //     from the display lane and was dropped on the floor by this line, so the
+  //     row reported `unread` and left the match entirely. Both are gone. One
+  //     instrument gets one official Yea or Nay and every issue it maps to gets
+  //     that vote at full strength, so whatever tier the display lane earned on
+  //     the shared floors is the tier that re-enters the index.
   // What IS lowered, and only here, is depth: the member coverage floor and the
-  // two-item run floor, both of which are floors about SIZE.
+  // two-item run floor, both of which are floors about SIZE. Nothing about
+  // MEANING is lowered: a poleless issue is still silent, a record with nothing
+  // judged is still unread, and a record that ran both ways still gets no lead.
   //
   // WHY IT IS NOT CAPPED AT ONE ITEM, which is where it started. The cap was the
   // bug. Below the member coverage floor a single mapped vote read as "Thin
@@ -8334,7 +8349,11 @@
     if ((idx.advances || 0) > 0 && (idx.opposes || 0) > 0) return null;
     var d;
     try { d = window._recordDisplayTier(idx, { noun: _stNoun(r) }) || null; } catch (e) { return null; }
-    if (!d || !d.directional || d.tier !== 'thin') return null;
+    // ANY TIER THE SHARED FLOORS EARNED. `directional` is the only wall left here:
+    // a split read has no side to carry into the index. The tier itself is the
+    // display lane's, computed on _RD_MIN_JUDGED / _RD_MIN_STRENGTH / the coverage
+    // floor exactly as it is for any other formal act.
+    if (!d || !d.directional) return null;
     return d;
   }
 
@@ -10172,32 +10191,27 @@
             'and in the dossier — but a package is not a position on everything inside it, so no ' +
             'direction is claimed from one. ' + _MENU_WALL };
       }
-      // ── AND THE WALL OVER "NOT ABOUT THIS ISSUE" ───────────────────────────
-      // The sentence is true of a bill that brushed the subject on its way past.
-      // It is false in two situations that reach this line, and it was printing
-      // in both:
-      //   · OUR OWN MAPPING SAYS OTHERWISE. `idx.primary` is the judged,
-      //     admitted, non-superseded subset; the curated mapping on the named
-      //     measure is a decision we published. Where that mapping is primary
-      //     for THIS issue, the record is about this issue whatever the judged
-      //     subset came to — see _primaryOnFile.
-      //   · ANOTHER SURFACE ALREADY GAVE THE ROW A SIDE. Where the display read
-      //     has published a tier — thin, split, mostly, strong — the stance
-      //     tree's Record slot is already showing it. Two answers to one
-      //     question on one profile is the defect this wall exists to prevent.
-      // In both cases the ladder CONTINUES rather than inventing a read: the
-      // next true refusal answers, and if none of them fits, the narrow one at
-      // the foot of this block says exactly what the shortfall is.
+      // ── "NOT ABOUT THIS ISSUE" IS OFF THIS LADDER ──────────────────────────
+      // There was a rung here that refused a direction because no mapping on the
+      // row was primary: "a bill that brushed the subject is not a vote on the
+      // subject, so no direction is claimed — however one-sided the arithmetic
+      // looks." That last clause is the whole problem with it. A rider that became
+      // law is a law; the member voted on it; and one instrument means one official
+      // Yea or Nay on every issue mapped to it. How the act arrived is a label,
+      // disclosed beside the reading by the 🚂 vehicle line and _rdPackageNote —
+      // never a reason to withhold the reading, and never a discount on it.
+      //   Two walls had already been built over that rung before it was removed,
+      // and both are worth keeping in view because they are why it was unreachable
+      // rather than merely wrong: our own curated mapping may be primary on the
+      // named measure whatever the judged subset came to (_primaryOnFile), and the
+      // display read may already be showing this row a tier, in which case a
+      // refusal here would be a second answer to one question on one profile.
+      //   `_pmOK` survives because the block at the foot of this function words the
+      // narrow shortfall differently where a primary mapping IS on file.
       var _pmOK = false;
       if ((idx.primary || 0) < 1) {
         var _pm = _primaryOnFile(r && r.pid, r && r.key);
         _pmOK = !!(_pm && _pm.any);
-        if (!_pmOK && !_fpiPublishedTier(r)) {
-          return { id: 'incidental', lb: 'Not about this issue',
-            note: 'The ' + n.many + ' on file here touched this issue as part of a larger measure ' +
-              'rather than being about it. A bill that brushed the subject is not a ' + n.one + ' on ' +
-              'the subject, so no direction is claimed — however one-sided the arithmetic looks.' };
-        }
       }
       if (idx.suppressed === 'coverage_floor') {
         return { id: 'coverage_floor', lb: 'Too little of their file held',

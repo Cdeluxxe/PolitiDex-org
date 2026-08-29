@@ -11,8 +11,11 @@
 // it". Both sentences were rendered from the same engine, over the same member,
 // on the same issue, from the same index.
 //
-// The emitter was _fpiUnreadWhy's `incidental` branch, reached from
-// _dosFormalRead. Two things let it fire under a leaf that carried a side:
+// The emitter was _fpiUnreadWhy's `incidental` branch, reached from _dosFormalRead.
+// The branch has since been removed outright — see item 3 below — but it was
+// removed in two steps, and the first one is still the load-bearing part of this
+// file, because it is about the SHAPE of the two lanes and not about the flag.
+// Two things let the refusal fire under a leaf that carried a side:
 //
 //   1. THE DOSSIER ASKED A NARROWER QUESTION THAN THE TREE. _dosFormalRead took
 //      the formal-pattern index's two steps — _stPatternTier, then the thin door
@@ -39,10 +42,16 @@
 //      same silence.
 //   2. NO ROW ANYWHERE contradicts: not one dossier prints a refusal, or a
 //      different tier, where the tree published a characterisation.
-//   3. THE SENTENCE SURVIVES WHERE IT IS TRUE. A genuinely incidental row still
-//      gets it, and a package-only row still gets the menu phrasing — both in
-//      numbers, over the whole corpus, each one verified as having no primary
-//      mapping on file and no published tier.
+//   3. THE SENTENCE IS RETIRED, BECAUSE IT WAS NEVER TRUE. "Not about this issue"
+//      was printed over judged, one-sided, recorded votes on the grounds that no
+//      mapping on them was PRIMARY — a fact about the vehicles, published as a
+//      finding about the member. One instrument carries one official Yea or Nay
+//      and every issue mapped to it gets that vote at full strength, so the rung
+//      is gone from _fpiUnreadWhy and its cousin from _stRecordWhy. This file
+//      holds it gone: nowhere on the ladder, and its words nowhere on any refusal.
+//      What remains is the disclosure — the 🚂 line and the arrival sentence — and
+//      section 3 follows the whole stowaway population to prove it travels BESIDE
+//      each finding rather than instead of it.
 //   4. THE MULTI-ISSUE DISCLOSURE IS UNTOUCHED. H.R. 6644 also carries
 //      housing_build; "1 of 1 from multi-issue bills" is not incidental, and the
 //      cousin key is still named.
@@ -107,6 +116,9 @@ console.log(`      ${byMember.size} members seeded from the shipped record corpu
 
 const NOT_ABOUT = "Not about this issue";
 const BRUSHED = "brushed the subject";
+// The arrival clause the engine's own package sentence is built around, matched
+// rather than the whole sentence because three surfaces word the rest three ways.
+const PACKAGE = "mainly about something else";
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("1 · the two rows in the report");
@@ -141,7 +153,11 @@ section("2 · no row anywhere says both things");
 // The whole corpus, every issue on every seeded member. Three ways to contradict:
 // refuse what the tree labelled, label it differently, or print "not about this
 // issue" over a mapping we ourselves called primary.
-const clash = [], wrongPrimary = [];
+const clash = [], wrongPrimary = [], notAbout = [], mute = [];
+const stowRead = [], stowRefused = [];
+const stowWall = Object.create(null);
+// The refusals that would be about the vehicles rather than about the ledger.
+const PKG_REFUSAL = new Set(["vehicle_only", "incidental"]);
 let rows = 0, reads = 0, refusals = 0, deferred = 0;
 const byId = Object.create(null);
 const incidentals = [], vehicleOnly = [];
@@ -155,11 +171,39 @@ for (const pid of byMember.keys()) {
     rows++;
     let tree = null; try { tree = CS.recordPattern.display(r) || null; } catch (e) { tree = null; }
     const pub = (tree && tree.tier && tree.tier !== "none") ? tree.tier : null;
+    // THE STOWAWAY POPULATION, gathered here so section 3 can ask what became of
+    // it. `stowaway && only` is _recordVehicleStats' exact claim: every mapped
+    // instrument on this issue arrived as a provision inside something larger.
+    let veh = null;
+    try { veh = win._pdxRecordVehicleStats(pid, r.key) || null; } catch (e) { veh = null; }
+    let vidx = null; try { vidx = win._pdxRecordDirection(pid, r.key) || null; } catch (e) { vidx = null; }
+    const stow = !!(veh && veh.stowaway && veh.only && vidx && (vidx.judged || 0) >= 1);
     if (d.state === "reads") {
       reads++;
       if (pub && d.tier !== pub) clash.push(`${pid}/${r.key}: dossier ${d.tier} vs tree ${pub}`);
       if (!fpi[r.key] || !fpi[r.key].read) deferred++;
+      if (stow) {
+        stowRead.push({ pid, key: r.key, tier: d.tier });
+        // BESIDE THE FINDING, on one of the two surfaces that can carry it: the
+        // index row's own `vehicle` object (which is what the 🚂 line renders
+        // from) or, on a row the index still refuses and the dossier reads by
+        // deferral, the tree note's arrival sentence.
+        const x = fpi[r.key];
+        const said = String((tree && tree.note) || "") + " " + String((tree && tree.packageNote) || "");
+        if (!(x && x.vehicle) && said.indexOf(PACKAGE) < 0) {
+          mute.push(`${pid}/${r.key} (${d.tier})`);
+        }
+      }
     } else {
+      // A stowaway ledger may still be walled — by no pole on the issue, or by
+      // nothing on it having taken a side. Those are facts about the LEDGER. What
+      // is collected here is only a refusal that is about the VEHICLES, which is
+      // the shape that would be standing where a finding belongs.
+      if (stow) {
+        const rid = (d.why && d.why.id) || "?";
+        stowWall[rid] = (stowWall[rid] || 0) + 1;
+        if (PKG_REFUSAL.has(rid)) stowRefused.push(`${pid}/${r.key} (${rid})`);
+      }
       refusals++;
       const id = (d.why && d.why.id) || "?";
       byId[id] = (byId[id] || 0) + 1;
@@ -169,6 +213,13 @@ for (const pid of byMember.keys()) {
         if (primaryOnFile.has(`${pid}|${r.key}`)) wrongPrimary.push(`${pid}/${r.key}`);
       }
       if (id === "vehicle_only") vehicleOnly.push({ pid, key: r.key, d });
+      // …and the words themselves, asked of every refusal on the ladder rather
+      // than of the one rung that used to carry them. A rung reinstated under a
+      // new id would be caught here even if `incidental` never came back.
+      const said = String((d.why && d.why.lb) || "") + " " + String((d.why && d.why.note) || "");
+      if (said.indexOf(NOT_ABOUT) >= 0 || said.indexOf(BRUSHED) >= 0) {
+        notAbout.push(`${pid}/${r.key} (${id})`);
+      }
     }
   }
 }
@@ -183,21 +234,63 @@ console.log(`      refusals by reason — ${Object.keys(byId).sort().map((k) => 
 // ═════════════════════════════════════════════════════════════════════════════
 section("3 · the sentence survives where it is true");
 // ═════════════════════════════════════════════════════════════════════════════
-// A wall that silences a true sentence is the same defect facing the other way.
-// Both refusals about package-borne records must still be reachable in numbers,
-// and every surviving incidental row must be one: no primary mapping on file, and
-// nothing published for it anywhere.
-must(incidentals.length > 100, `the incidental refusal has stopped firing (${incidentals.length} rows)`);
-must(vehicleOnly.length > 10, `the package-only refusal has stopped firing (${vehicleOnly.length} rows)`);
-for (const x of incidentals.slice(0, 400)) {
-  has(x.d.why.note, BRUSHED, `${x.pid}/${x.key}: the incidental sentence is intact`);
-  eq(x.d.why.lb, NOT_ABOUT, `${x.pid}/${x.key}: the incidental label is intact`);
-}
-for (const x of vehicleOnly.slice(0, 100)) {
-  ok(x.d.why.menu === "provision_only", `${x.pid}/${x.key}: the package-only refusal keeps the menu phrasing`);
-  no(x.d.why.lb, NOT_ABOUT, `${x.pid}/${x.key}: a package-only row is not called incidental`);
-}
-console.log(`      ${incidentals.length} incidental · ${vehicleOnly.length} package-only, all still worded`);
+// A wall that silences a true sentence is the same defect facing the other way,
+// so the two refusals this file was written about are checked in opposite
+// directions now — because only one of them was ever a true sentence.
+//
+//   `incidental` IS RETIRED, AND THIS IS WHERE THAT IS HELD. It said "Not about
+//     this issue" over a ledger of judged, one-sided acts on the grounds that no
+//     mapping on them was PRIMARY. That is a fact about the vehicles and it was
+//     being printed as a finding about the record: a member who voted for the
+//     package voted for what was in it, and one instrument's Yea counts the same
+//     on the issue that travelled as on the issue on the cover. The rung is gone
+//     from _fpiUnreadWhy, its cousin is gone from _stRecordWhy, and both lanes
+//     now read those rows at whatever tier their own depth floors reach. So the
+//     assertion is inverted: not "still firing in numbers" but "firing nowhere",
+//     and the sentence is chased by its words across the whole ladder below so a
+//     rung reinstated under some other id cannot slip past a name check.
+//   `vehicle_only` STAYS, and stays reachable in numbers. It is the 🚂 stowaway
+//     refusal and it rests on different evidence entirely — _recordVehicleStats
+//     found the acts were provisions inside larger measures and there is no
+//     judged side to state. Disclosure with nothing to discount is not a ceiling.
+//     It keeps its menu phrasing, and it must never borrow the retired words.
+eq(incidentals.length, 0,
+  `the retired incidental refusal fires nowhere — ${incidentals.slice(0, 3).map((x) => `${x.pid}/${x.key}`).join(", ")}`);
+eq(notAbout.length, 0,
+  `no refusal on the ladder says the record is not about the issue — ${notAbout.slice(0, 3).join(", ")}`);
+// ── AND THE STOWAWAY POPULATION ITSELF, WHICH IS WHERE THE 🚂 LINE WENT ──────
+// `vehicle_only` fires on no row in the shipped corpus now, and that is the point
+// rather than a regression. It is a REFUSAL, and it was reachable only while a
+// stowaway-only ledger could arrive at the dossier unread — which, below the
+// ceiling, it always did. With the ceiling gone every one of these rows has a
+// finding, so the disclosure has nowhere to stand except beside it, which is
+// where the doctrine wants it. The rung is left in the ladder because its
+// evidence is different from anything removed here (_recordVehicleStats found
+// provisions; it does not consult a mapping flag) and its sentence is still the
+// right one for a ledger with nothing to read — but the assertion cannot be a
+// corpus count any more, so it is the two things that must hold instead:
+//
+//   NOT ONE STOWAWAY-ONLY ROW IS REFUSED FOR BEING ONE. A row here may still be
+//     walled — by no pole on the issue, or by nothing on it having taken a side —
+//     and both of those walls are about the ledger, not the vehicles. What may not
+//     happen is a package-shaped refusal standing where a finding belongs.
+//   EVERY ONE THAT READS STILL SAYS HOW ITS ACTS ARRIVED, on the index row's own
+//     `vehicle` object where the index reads it, and in the tree note's arrival
+//     sentence on the rows the dossier reads by deferral. Disclosure beside the
+//     finding, never instead of it, and never as a multiplier on it.
+eq(vehicleOnly.length, 0,
+  `no stowaway ledger is refused now that every one of them has a finding — ${vehicleOnly.slice(0, 3).map((x) => `${x.pid}/${x.key}`).join(", ")}`);
+must(stowRead.length > 100,
+  `too few stowaway-only rows read to be worth sweeping (${stowRead.length})`);
+eq(stowRefused.length, 0,
+  `no stowaway-only ledger is refused for being one — ${stowRefused.slice(0, 3).join(", ")}`);
+eq(mute.length, 0,
+  `every stowaway-only read discloses how its acts arrived — ${mute.slice(0, 3).join(", ")}`);
+const stowTier = Object.create(null);
+for (const x of stowRead) stowTier[x.tier] = (stowTier[x.tier] || 0) + 1;
+console.log(`      0 incidental (retired) · 0 package-only refusals, because ${stowRead.length} stowaway ledgers now read`);
+console.log(`      those reads by tier — ${Object.keys(stowTier).sort().map((k) => `${k}:${stowTier[k]}`).join(" · ")}, every one disclosing its vehicles`);
+console.log(`      the stowaway rows still walled, and by what — ${Object.keys(stowWall).sort().map((k) => `${k}:${stowWall[k]}`).join(" · ") || "none"}`);
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("4 · the multi-issue disclosure is untouched");

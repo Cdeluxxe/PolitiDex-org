@@ -115,7 +115,7 @@ const SPOKEN = ISSUE_KEYS.filter((k) => stanceKeys.has(k))[0];
 // SPLIT:    six votes, three each         → Split, counts stated
 // SHALLOW:  four votes, two each          → Split, counts withheld
 // LOPSIDED: five procedural one way, one full-weight the other → Split, never Mostly
-// INCID:    five one-way votes, none primary → none (no_primary fails closed)
+// INCID:    five one-way votes, none primary → Strongly (a mapped act is an act)
 const [STRONG, MOSTLY, UNIFORM, MIXED3, SOLO, SPLIT, SHALLOW, LOPSIDED, INCID] = SILENT;
 if (!STRONG || !MOSTLY || !UNIFORM || !MIXED3 || !SOLO || !SPLIT || !SHALLOW ||
     !LOPSIDED || !INCID || !BALANCE || !SPOKEN) {
@@ -289,14 +289,27 @@ section("4 · fail closed — and the two failures are different");
   eq(A._pdxRecordDirection(PID, BALANCE, {}).suppressed, "balance_key",
     "…and the suppression is the issue's, as the index says");
 
-  // The RECORD is the problem: the grey label, which is the true statement.
+  // ── AND THE PACKAGE-BORNE RECORD IS NOT A SUPPRESSION AT ALL ──────────────
+  // This row read "No clear pattern yet" until August 2026, refused by a gate that
+  // consulted our own isPrimary flag: five recorded votes, every one of them one
+  // way, and the profile said there was no pattern because the measures were mainly
+  // about something else. One instrument means one official Yea or Nay, and every
+  // issue mapped to that instrument gets that vote at full strength — so the row
+  // reads what its five acts came to, and how they arrived is disclosed beside the
+  // finding rather than subtracted from it.
   const inc = tierOf(INCID);
-  eq(inc.tier, "none", "a deep but entirely incidental record gets no pattern");
-  eq(inc.label, "No clear pattern yet", "…and says exactly that");
-  ok(!/Strongl|Mostly|supports|opposes/i.test(inc.label),
-    "…never a direction read off bills this issue was not the subject of");
-  eq(A._pdxRecordDirection(PID, INCID, {}).suppressed, "no_primary",
-    "…and the shipped no_primary gate is what refused it");
+  eq(inc.tier, "strong", "five one-way votes read at the tier five one-way votes earn");
+  eq(inc.label, "Strongly supports", "…and the label is the reading, not a refusal");
+  eq(A._pdxRecordDirection(PID, INCID, {}).suppressed, null,
+    "…and nothing suppresses it — a mapped act is an act on the issue it is mapped to");
+  eq(inc.packageOnly, true, "…while the read still reports how its acts arrived");
+  has(inc.note, "mainly about something else", "…and names the vehicles beside the finding");
+  has(inc.note, "counted in full", "…and says the acts are counted in full");
+  // THE COMPARISON THAT MAKES IT DOCTRINE RATHER THAN A NUMBER. The identical ledger
+  // with the mappings marked primary reads the identical word.
+  eq(inc.tier, tierOf(STRONG).tier,
+    "…the same word a primary run all one way reads");
+  eq(inc.weight, tierOf(STRONG).weight, "…and the same weight, with nothing discounted");
 
   // A member we barely hold a record for: below the coverage floor, no pattern.
   const C = boot();

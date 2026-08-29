@@ -163,7 +163,7 @@ const SAIDONLY = SAID_OPPOSE.filter((k) => k !== CUTS)[0];
 // ONLY_THIN:   nothing stated + one vote              → pattern-only, thin, quiet
 // ONLY_SPLIT:  nothing stated + a deep both-ways record → pattern-only, split
 // UNREADABLE:  nothing stated + a record the index declines to characterise —
-//              incidental AND both ways, which is what unread looks like now
+//              five items on file, not one of them a judged Yea or Nay
 const [ONLY_STRONG, ONLY_THIN, ONLY_SPLIT, UNREADABLE] = SILENT;
 must(!!(ALIGNS && CUTS && SPLITCUE && MIXCUE && SAIDONLY),
   "the fixture no longer offers one stated issue per alignment cue");
@@ -189,21 +189,25 @@ for (let i = 0; i < 12; i++) SEED.push(vote(50 + i, MIXCUE, "yea"));
 for (let i = 0; i < 12; i++) SEED.push(vote(70 + i, ONLY_STRONG, "nay"));
 SEED.push(vote(85, ONLY_THIN, "yea"));
 for (let i = 0; i < 6; i++) SEED.push(vote(90 + i, ONLY_SPLIT, i % 2 ? "nay" : "yea"));
-// On file, entirely incidental, and RUNNING BOTH WAYS — five items the index
-// refuses to read at all, so the row states its file and names no direction.
-//   WHY IT IS 4-1 AND NOT 5-0. It was five incidental yeas until the August 2026
-// package-borne relaxation, which is now the one shape that does NOT belong here: a
-// uniform run of secondary acts publishes a thin side, because refusing to name a
-// side merely because the vehicle was somebody else's bill is how a rider that
-// became law printed a blank row. What survives the relaxation unread is a record
-// that is both package-borne and self-contradicting — no PRIMARY act to stand on
-// and no one direction to state. One dissenting item is enough to do it and is all
-// this fixture spends: two would clear _RD_SPLIT_MIN_SIDE and be read as a split,
-// which is a reading and not a refusal. The
-// contract the section tests is untouched: a record the engine will not
-// characterise is still a record, and still gets a row that says so.
+// On file and TAKING NO SIDE — five items the index cannot read a direction
+// from, so the row states its file and names no direction.
+//   WHY NOBODY VOTED YEA OR NAY HERE. This fixture used to be five incidental
+// yeas, and then a 4-1 incidental split, on the theory that a package-borne
+// record was the shape that stayed unread. It is not, and as of the August 2026
+// pass it never was: one instrument means one official Yea or Nay, and every
+// mapped issue on that instrument gets that vote at full strength. How the act
+// arrived — as the point of the bill or as a passenger inside somebody else's —
+// is a LABEL disclosed beside the finding, not a discount on it, so a uniform
+// run of secondary acts reads at whatever depth its own floors earn and a
+// both-ways run reads as a split. Neither is a refusal.
+//   What genuinely stays unread is a record with no judged side in it at all:
+// present, not voting, absent, excused. There is a file here — five dated,
+// sourced, mapped items — and no Yea or Nay anywhere in it to draw a direction
+// from. The contract the section tests is untouched: a record the engine will
+// not characterise is still a record, and still gets a row that says so.
+const NOSIDE_POS = ["present", "not_voting", "absent", "excused", "present"];
 for (let i = 0; i < 5; i++) {
-  SEED.push(vote(100 + i, UNREADABLE, i < 4 ? "yea" : "nay", { primary: false }));
+  SEED.push(vote(100 + i, UNREADABLE, NOSIDE_POS[i], { primary: false }));
 }
 
 const A = boot(true), B = boot(false);
@@ -516,12 +520,16 @@ section("3 · pattern-only rows are disclosed, three ways");
   eq(u.patternOnly, true, "…and with no stated position the row is pattern-only");
   eq(u.quiet, true, "…and quiet, because an unreadable record is not a finding");
   const uh = chunkOf(UNREADABLE);
-  has(uh, "<b>🏛 Record:</b> Formal items on file · direction not clear yet",
-    "the row says items are on file and that their direction is not clear yet");
+  has(uh, "<b>🏛 Record:</b> Formal items on file · no vote here took a side",
+    "the row says items are on file and why no direction is read off them");
   has(uh, 'class="pdxtree-depth"> · 5 votes<', "…with the count of them");
   lacks(uh, "pdxtree-pct", "…and no percentage, because nothing scored it");
   const usay = (uh.match(/aria-label="([^"]*)"/) || [])[1] || "";
-  has(usay, "only incidentally", "…and the accessible name says WHY no direction was read");
+  has(usay, "resolved to neither side",
+    "…and the accessible name says WHY no direction was read");
+  lacks(usay, "only incidentally",
+    "…and never says it was package-borne, because that is a label on the bill " +
+    "and not a reason to withhold a reading");
   ok(!!T.leaf(PID, UNREADABLE), "…so the leaf builder admits it");
   // Nothing here wrote a pattern into a position map.
   const pm = A._polPositionMap(PID, A.CMP_DATA[PID]) || {};
