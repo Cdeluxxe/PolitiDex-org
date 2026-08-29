@@ -125,10 +125,19 @@ must(PIDS.length >= 30, "too few members seeded to sweep");
 
 // One pass over the live corpus, kept for every section below so the sweep is
 // paid for once.
-const READS = [];   // { pid, key, d, html, drv, drvHtml, fpi }
+const READS = [];   // { pid, key, d, html, drv, drvHtml, fpi, tree }
 for (const pid of PIDS) {
   const fpi = Object.create(null);
   (CS.formalPatternIndex.rows(pid) || []).forEach((r) => { if (r && r.key) fpi[r.key] = r; });
+  // The stance tree's Record slot for the same row, which is the OTHER surface a
+  // reader sees this characterisation on. It is carried through the sweep because
+  // "the two may not disagree" is a claim about a pair, and the pair has to be
+  // held to be checked — see the third leg of section 1.
+  const tree = Object.create(null);
+  (CS.issueRows(pid) || []).forEach((r) => {
+    if (!r || !r.key) return;
+    try { tree[r.key] = CS.recordPattern.display(r) || null; } catch (e) { tree[r.key] = null; }
+  });
   for (const key of KEYS) {
     let d;
     try { d = CS.dossierRead(pid, key); } catch (e) { d = null; }
@@ -139,6 +148,7 @@ for (const pid of PIDS) {
       drv: CS.dossierDrivers(pid, key),
       drvHtml: CS.dossierDriversHtml(pid, key),
       fpi: fpi[key] || null,
+      tree: tree[key] || null,
     });
   }
 }
@@ -177,6 +187,35 @@ for (const x of READS) {
   }
 }
 must(refusals > 5, `too few refusals swept to check the unread path (${refusals})`);
+
+// ── AND THE THIRD LEG: THE ROWS THE INDEX REFUSED AND THE TREE DID NOT ───────
+// The formal-pattern index and the stance tree do not ask the same question. The
+// index goes through the thin door (_stThinDirRead), which refuses a ledger that
+// ran both ways and refuses any tier but `thin`; the tree's Record slot reads the
+// display tier directly, so it labels those rows. A dossier that mirrors only the
+// index therefore printed a refusal under a leaf whose own chip carried a side —
+// "Not about this issue" beneath "Thin supports", or "ran both ways, too few to
+// weigh" beneath "Split". Whichever the reader saw last won.
+//   So the mirror has two sources in a fixed order: the index where the index
+// read, the tree where it did not. What is forbidden is the third state — a
+// characterisation on one surface and a refusal, or a different tier, on the
+// other.
+const split = [];
+let deferred = 0;
+for (const x of READS) {
+  const pub = x.tree && x.tree.tier && x.tree.tier !== "none" ? x.tree.tier : null;
+  if (!pub) continue;
+  if (x.d.state !== "reads") {
+    split.push(`${x.pid}/${x.key}: tree published ${pub}, dossier refused with "${(x.d.why && x.d.why.lb) || x.d.state}"`);
+    continue;
+  }
+  if (x.d.tier !== pub) split.push(`${x.pid}/${x.key}: dossier ${x.d.tier} vs tree ${pub}`);
+  if (!x.fpi || !x.fpi.read) deferred++;
+}
+eq(split.length, 0, `the dossier never contradicts the tree's published read — ` +
+  split.slice(0, 3).join(" | "));
+must(deferred > 0, "no row in the sweep exercised the deferral to the tree's read");
+console.log(`      ${deferred} reads deferred to the tree where the index refused`);
 
 // And the side word is drawn from the locked vocabulary, never composed here.
 const strays = REEDS.filter((x) => x.d.says && !SAY_LABELS.has(x.d.says));

@@ -9942,6 +9942,68 @@
   //     mapping cannot say what "advancing" this issue would even mean, so no
   //     direction is claimed from a record that may well be perfectly clear. This
   //     is the shortfall this surface owns, and it says so.
+  // ── IS THE MAPPING ON THE NAMED MEASURE ACTUALLY ABOUT THIS ISSUE? ──────────
+  // WHY THIS EXISTS. `idx.primary` counts primary-mapped acts that were ADMITTED,
+  // JUDGED and NOT SUPERSEDED — three filters that are right for the direction
+  // index and wrong for the sentence below it. A member whose one act on the
+  // measure that WAS about this issue was Present, or was superseded by a later
+  // vote, reads `primary: 0` while the dossier beside it names that measure and
+  // our own mapping calls it primary. "Not about this issue" is then a false
+  // statement about a curated decision we made ourselves, printed over the bill
+  // that decision was about.
+  //
+  // So the wall over that sentence is asked of the MAPPING ON FILE, not of the
+  // judged subset: does any instrument on file for this (member, issue) carry a
+  // mapping for THIS issue that our seed marks primary? It is the same field the
+  // index reads (`isPrimary`, through the same _dosMapping accessor the dossier
+  // rows use) and the same item list the vehicle read walks — no new source, no
+  // new threshold, and nothing here can grant a direction to anything. It can
+  // only stop one sentence from being printed.
+  //
+  // Memoised on the epoch idiom _insSpread uses, and asked only from inside the
+  // branch it guards, so a dense index pays for it once per refused row that
+  // would otherwise have printed the wrong sentence.
+  var _pmCache = {}, _pmEpoch = -1;
+  function _primaryOnFile(pid, issueKey) {
+    var out = { any: false, count: 0, total: 0, idents: [] };
+    if (!pid || !issueKey) return out;
+    var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
+    if (_pmEpoch !== ep) { _pmCache = {}; _pmEpoch = ep; }
+    var k = norm(pid) + '||' + String(issueKey);
+    if (Object.prototype.hasOwnProperty.call(_pmCache, k)) return _pmCache[k];
+    try {
+      var VR = window.PDXVotingRecord;
+      var recs = (VR && typeof VR.memberRecords === 'function') ? VR.memberRecords(pid) : null;
+      if (Array.isArray(recs)) {
+        var seen = Object.create(null);
+        for (var i = 0; i < recs.length; i++) {
+          var it = recs[i], m = _dosMapping(it, issueKey);
+          if (!m) continue;
+          out.total++;
+          if (!m.isPrimary) continue;
+          out.count++;
+          var id = String((it && (it.number || it.title)) || '').trim();
+          if (id && !seen[id]) { seen[id] = 1; out.idents.push(id); }
+        }
+      }
+    } catch (e) {}
+    out.any = out.count > 0;
+    _pmCache[k] = out;
+    return out;
+  }
+  // DID SOME OTHER SURFACE ALREADY PUBLISH A CHARACTERISATION FOR THIS ROW? The
+  // stance tree's Record slot reads _recordDisplayTier directly (see
+  // _stRecordDisplay); the refusals in this function are worded for rows where
+  // nothing was published at all. Where the tree has already printed "Thin
+  // supports", "Split" or anything else with a side on it, a refusal that says
+  // the record is not about the issue contradicts a sentence the reader has
+  // already been shown on the same profile. Read-only: it gates copy, never a
+  // tier, a count or a percentage.
+  function _fpiPublishedTier(r) {
+    var d = null;
+    try { d = _stDisplayTier(r); } catch (e) { d = null; }
+    return !!(d && d.tier && d.tier !== 'none');
+  }
   function _fpiUnreadWhy(r) {
     var n = _stNoun(r);
     // THE ISSUE'S SHAPE IS ASKED FIRST, and from the KEY rather than from an index.
@@ -10036,11 +10098,32 @@
             'and in the dossier — but a package is not a position on everything inside it, so no ' +
             'direction is claimed from one. ' + _MENU_WALL };
       }
+      // ── AND THE WALL OVER "NOT ABOUT THIS ISSUE" ───────────────────────────
+      // The sentence is true of a bill that brushed the subject on its way past.
+      // It is false in two situations that reach this line, and it was printing
+      // in both:
+      //   · OUR OWN MAPPING SAYS OTHERWISE. `idx.primary` is the judged,
+      //     admitted, non-superseded subset; the curated mapping on the named
+      //     measure is a decision we published. Where that mapping is primary
+      //     for THIS issue, the record is about this issue whatever the judged
+      //     subset came to — see _primaryOnFile.
+      //   · ANOTHER SURFACE ALREADY GAVE THE ROW A SIDE. Where the display read
+      //     has published a tier — thin, split, mostly, strong — the stance
+      //     tree's Record slot is already showing it. Two answers to one
+      //     question on one profile is the defect this wall exists to prevent.
+      // In both cases the ladder CONTINUES rather than inventing a read: the
+      // next true refusal answers, and if none of them fits, the narrow one at
+      // the foot of this block says exactly what the shortfall is.
+      var _pmOK = false;
       if ((idx.primary || 0) < 1) {
-        return { id: 'incidental', lb: 'Not about this issue',
-          note: 'The ' + n.many + ' on file here touched this issue as part of a larger measure ' +
-            'rather than being about it. A bill that brushed the subject is not a ' + n.one + ' on ' +
-            'the subject, so no direction is claimed — however one-sided the arithmetic looks.' };
+        var _pm = _primaryOnFile(r && r.pid, r && r.key);
+        _pmOK = !!(_pm && _pm.any);
+        if (!_pmOK && !_fpiPublishedTier(r)) {
+          return { id: 'incidental', lb: 'Not about this issue',
+            note: 'The ' + n.many + ' on file here touched this issue as part of a larger measure ' +
+              'rather than being about it. A bill that brushed the subject is not a ' + n.one + ' on ' +
+              'the subject, so no direction is claimed — however one-sided the arithmetic looks.' };
+        }
       }
       if (idx.suppressed === 'coverage_floor') {
         return { id: 'coverage_floor', lb: 'Too little of their file held',
@@ -10102,6 +10185,27 @@
           note: 'The ' + n.many + ' on file here went both ways, and there are too few of them for ' +
             'the margin to mean anything. No lead is derived from a record this size, and the ' +
             n.many + ' themselves are in the dossier.' };
+      }
+      // ── THE ONE THE WALL ABOVE LEAVES BEHIND ───────────────────────────────
+      // Reached only where the mapping on file IS primary for this issue and the
+      // index still counted no primary act: the instrument that was about this
+      // issue holds nothing judged for this member — Present, Not Voting,
+      // superseded by a later act, or otherwise resolved to neither side — while
+      // the acts that WERE judged reached the issue through other measures. That
+      // is a real and specific shortfall, and it is not "not about this issue".
+      // It names the measure, claims no direction, and leaves the arithmetic
+      // exactly where the ledger has it.
+      if (_pmOK) {
+        var _pmn = _primaryOnFile(r && r.pid, r && r.key);
+        var _pmWhich = (_pmn.idents.length === 1)
+          ? ' — ' + _pmn.idents[0] + ' — '
+          : (_pmn.idents.length > 1 ? ' — ' + _pmn.idents.slice(0, 3).join(', ') + ' — ' : ' ');
+        return { id: 'primary_unjudged', lb: 'Nothing judged on the measure about it',
+          note: 'The measure on file that our mapping calls primary for this issue' + _pmWhich +
+            'carries no judged ' + n.one + ' for this member: it was Present, Not Voting, ' +
+            'superseded by a later ' + n.one + ', or otherwise resolved to neither side. What was ' +
+            'judged here reached this issue through other measures, so no direction is claimed. ' +
+            'Everything on file is in the dossier.' };
       }
     }
     // ── AND ONE LAST ONE THAT IS NOT ABOUT THEM AT ALL ────────────────────────
@@ -14232,6 +14336,46 @@
   var _DOS_READ_K = 'Record on this issue';
   // The caveat ladder, most load-bearing first. A reader who stops after one line
   // should have been handed the one that most changes how the record above reads.
+  // ── THE READ THE TREE HAS ALREADY PUBLISHED FOR THIS ROW ────────────────────
+  // WHAT WENT WRONG WITHOUT IT. This block took the two steps the formal-pattern
+  // index takes — the characterisation read, then the thin door — and the stance
+  // tree's Record slot takes ONE: _recordDisplayTier, directly (see
+  // _stRecordDisplay). The thin door is deliberately narrower than the display
+  // read on two axes it must not lower for the index: it refuses a ledger that
+  // ran both ways, and it refuses any tier but `thin`. So a row the tree had
+  // already labelled — "Split", or a thin run on a mapping the pattern engine
+  // declined — arrived here as nothing read, and the dossier printed a refusal
+  // under a leaf whose own chip carried a side. Same engine, same member, same
+  // issue, two answers, and the one a reader trusts is whichever they read last.
+  //
+  // So the refusal is the THIRD answer here, not the second. A row with no read
+  // from either of the index's two steps is offered the read the tree publishes
+  // — the same _recordDisplayTier object, quoted, not recomputed and not
+  // re-decided — and only a row with nothing published anywhere falls to
+  // _fpiUnreadWhy.
+  //
+  // WHAT THIS DOES NOT DO. It does not widen the thin door, so nothing enters the
+  // formal-pattern index or Direction Match through here: the only caller is this
+  // block, and the only thing it changes is which sentence the dossier prints.
+  // It cannot promote a tier either — whatever the display read says is what the
+  // reader is already being shown one surface over.
+  function _dosPublishedRead(r) {
+    var d = null;
+    try { d = _stDisplayTier(r); } catch (e) { d = null; }
+    return (d && d.tier && d.tier !== 'none') ? d : null;
+  }
+  // The executive lane, as the OVERLAY sees it. _fpiUnreadWhy answers by lane and
+  // reads `r.lane`; where the overlay is on the executive lane but the row model
+  // is not, handing it the row runs the legislative ladder and can return a
+  // legislative refusal — including "not about this issue" — for a block that is
+  // about executive actions. The lane is corrected on a copy so the row model
+  // itself is untouched.
+  function _dosExecLaneRow(r) {
+    var c = {};
+    for (var k in r) if (Object.prototype.hasOwnProperty.call(r, k)) c[k] = r[k];
+    c.lane = 'exec';
+    return c;
+  }
   function _dosFormalRead(pid, issueKey, ov) {
     var out = {
       state: 'cold', tier: '', tone: 'muted', label: '', says: '', sayKey: '',
@@ -14249,7 +14393,9 @@
       // formal-pattern index, so it is borrowed rather than worded a second time.
       if ((ov && ov.lane === 'exec') || r.lane === 'exec') {
         out.state = 'exec';
-        try { out.why = _fpiUnreadWhy(r); } catch (e) { out.why = null; }
+        try {
+          out.why = _fpiUnreadWhy(r.lane === 'exec' ? r : _dosExecLaneRow(r));
+        } catch (e) { out.why = null; }
         return out;
       }
       var idx = _stDirRaw(r);
@@ -14267,9 +14413,14 @@
       if ((idx.nonFloorActs || 0) > 0) out.noun = { one: 'formal act', many: 'formal acts' };
       // The same two steps _fpiRows and the row chip take, in the same order and
       // through the same two functions: the characterisation read, then the thin
-      // door for a row it declined. Neither is re-decided here.
+      // door for a row it declined — then, for a row both declined, the read the
+      // stance tree has already published. None of the three is re-decided here.
       var t = _stPatternTier(r);
       if (!t || t.tier === 'none') t = _stThinDirRead(r) || null;
+      // …AND THE THIRD: WHATEVER THE TREE IS ALREADY SHOWING. See
+      // _dosPublishedRead — the refusal below may not contradict a side this
+      // profile has already printed for the same row.
+      if (!t) t = _dosPublishedRead(r);
       if (t) {
         out.state = 'reads';
         out.tier = t.tier || '';
