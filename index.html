@@ -2115,6 +2115,17 @@ window.PDXLazy = (function () {
        layout even if the CSS arrives after the first paint. -->
   <link rel="stylesheet" href="/word-action.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/word-action.css" /></noscript>
+  <!-- 💰 The letterhead money chip (finance-lane.js). Modal-only, and the only
+       finance surface that takes its appearance from a stylesheet rather than
+       carrying inline styles — because it has to match the ⚖️ badge it sits
+       beside in the letterhead, and matching is a thing done in one place. It is
+       styled entirely in neutral steel in all three of its states, which is the
+       money lane's palette doctrine rather than a style preference; see the
+       header of finance-lane.css. Non-blocking like the rest of the profile CSS:
+       unstyled it is a plain button with the right words in it, which is a
+       degradation and not a wrong statement. -->
+  <link rel="stylesheet" href="/finance-lane.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/finance-lane.css" /></noscript>
   <!-- 🌳 The topic tree of stances (stance-tree.js). Modal-only and below the
        fold, so it loads non-blocking like the rest of the profile CSS. It carries
        the one distinction the markup alone cannot make: a pattern-only row's

@@ -114,6 +114,11 @@
   };
   var ACCENT = '#9fb4d4';   // the lane's own neutral, used where a score used a ramp
 
+  // Unique-id counter for the mounted letterhead chip host. One profile can be
+  // built more than once in a session (a repaint, a second modal), and two hosts
+  // answering to one selector is a chip that repaints the wrong letterhead.
+  var _seq = 0;
+
   // ── COVERAGE ───────────────────────────────────────────────────────────────
   // Read live off the shipped index rather than hard-coded, so the sentence cannot
   // drift from the data the moment a filing is added. Both getters are overridable
@@ -319,6 +324,264 @@
     '</div>';
   }
 
+  // ── THE LETTERHEAD MONEY CHIP — A DOOR, NOT A BLOCK ────────────────────────
+  // One chip in the person file's identity block: a number, two or three
+  // highlights, and a way down to the money section that shows the working. It is
+  // the finance twin of ⚖️ Word vs Action's compact letterhead badge, and it is
+  // deliberately built to the same rules, because the failure it is preventing is
+  // the same failure.
+  //
+  // WHAT IT IS NOT. It is not a strip, a card, a chart, a donor table or a
+  // composition. Everything that explains the money — the buckets, the bar, the
+  // outside-spending note, the named top source, the as-of stamp, the coverage
+  // sentence in full — lives in ONE place, the money section below, and the chip's
+  // whole job is to get a reader there. A letterhead that answers the money
+  // question in place is a letterhead that has grown a second money section, and
+  // then the profile says the same thing twice at two different lengths, which is
+  // exactly the state the header stack above ⚖️ Word vs Action was cut out of.
+  //
+  // NO SECOND ARITHMETIC. Every figure on the chip comes off read() — the one
+  // composition read in this file, the same call the section and the cards make.
+  // The dollar figure is the ITEMIZED BASE, the same base the shares are shares
+  // of, so the number and the percentage beside it are answers about one filing
+  // rather than two figures from two places that happen to sit in one pill. (The
+  // section's own "Total Raised" tile reports career receipts, which is a
+  // different and larger fact; the chip does not print it, because a share of a
+  // cycle's itemized base next to a career total is a ratio with two denominators.)
+  //
+  // THREE STATES, AND THE EMPTY ONE ALWAYS RENDERS. This is the whole reason the
+  // chip is worth having on a site with filings for a small minority of the
+  // roster. If the chip only appeared where a filing exists, then "no chip" would
+  // be doing the talking, and what it would say — to a reader who has learned that
+  // this site puts a money chip on people with money problems — is "clean". It is
+  // not clean; it is unchecked. So every profile gets a chip, and where there is
+  // nothing on file the chip says that in words.
+  //
+  //   on file   💰 $8.6M · 38% small-dollar · top pile: Large individual · 13 of 757 filed
+  //   partial   💰 Partial file · 6 items
+  //   empty     💰 No money file yet
+  //
+  // NO RING, NO RAMP, NO RANK. One neutral accent for all three states. A chip
+  // that is steel when the money is diffuse and amber when it is concentrated
+  // delivers a verdict with colour after the words have carefully declined to,
+  // which is the exact trick the retired Constituents-First badge was built on.
+  // Nothing here is a grade, a level, a 0–100, or a comparison to another person.
+  var SECTION_ID = 'pdxsec-funding';
+
+  // Does a money file exist for this person at all — in whatever state? Separate
+  // from read(), which reports null both for "no file" and for "a file we cannot
+  // compose a base out of". Telling those two apart is what makes an honest
+  // partial state possible instead of filing a thin record under "nothing here".
+  function recordFor(pid) {
+    if (!pid) return null;
+    var by = W._FTM_BY_ID;
+    return (by && by[pid]) ? by[pid] : null;
+  }
+
+  // How much is on a partial file, counted rather than characterised. Reported
+  // items only — a total-raised line, the named donor rows, the sector rows. It is
+  // a count of what a reader will find in the section, so the chip promises the
+  // section exactly what the section can deliver.
+  function itemCount(rec) {
+    var n = 0;
+    if (!rec) return 0;
+    if (num(rec.totalRaised)) n++;
+    if (rec.topDonors && rec.topDonors.length) n += rec.topDonors.length;
+    if (rec.sectors && typeof rec.sectors === 'object') n += Object.keys(rec.sectors).length;
+    return n;
+  }
+
+  // The chip's own three-valued read, published so a caller (or a test) can ask
+  // what the letterhead will say without rendering markup to find out.
+  function chipRead(pid) {
+    var rec = recordFor(pid);
+    var cov = coverage();
+    if (!rec) {
+      return { state: 'empty', pid: pid || null, sectionId: SECTION_ID,
+               items: 0, composition: null, coverage: cov };
+    }
+    var c = read(pid);
+    if (!c) {
+      return { state: 'thin', pid: pid, sectionId: SECTION_ID,
+               items: itemCount(rec), composition: null, coverage: cov };
+    }
+    return { state: 'file', pid: pid, sectionId: SECTION_ID,
+             items: c.rows.length, composition: c, coverage: c.coverage || cov };
+  }
+
+  // Coverage, short enough to ride on one line. The chip quotes the two counts;
+  // the sentence that says what a blank MEANS is in the aria-label and in full in
+  // the section, because that sentence is a paragraph and this is a pill.
+  function coverageTag(cov) {
+    if (!cov) return '';
+    return cov.roster
+      ? (cov.onFile + ' of ' + cov.roster + ' filed')
+      : (cov.onFile + ' filing' + (cov.onFile === 1 ? '' : 's') + ' on file');
+  }
+
+  // The visible segments, in the order the chip reads them: the figure, then the
+  // highlights. Kept as data rather than baked into a string so the one-line rule
+  // is inspectable — a chip is allowed a figure and up to three highlights, and a
+  // fourth highlight is a strip that has not admitted it yet.
+  function chipSegments(cr) {
+    var segs = [];
+    if (cr.state === 'file') {
+      var c = cr.composition;
+      segs.push({ fig: true, text: c.receiptsFmt });
+      segs.push({ fig: false, text: c.shares.smallDollar + '% small-dollar' });
+      // The top pile, EXCEPT when it is the pile the segment above just named.
+      // "70% small-dollar · top pile: Small-dollar" spends a third of the chip
+      // restating its own second segment, and a chip this size cannot afford a
+      // highlight that adds nothing. The section below still names the largest
+      // reported source in every case.
+      if (c.largest && !(c.largest.key === 'smallDollar' && !c.largestTied)) {
+        segs.push({ fig: false, text: c.largestTied
+          ? 'top pile: tied'
+          : ('top pile: ' + c.largest.short) });
+      }
+      var tag = coverageTag(cr.coverage);
+      if (tag) segs.push({ fig: false, text: tag });
+    } else if (cr.state === 'thin') {
+      segs.push({ fig: true, text: 'Partial file' });
+      segs.push({ fig: false, text: cr.items + ' item' + (cr.items === 1 ? '' : 's') });
+    } else {
+      segs.push({ fig: true, text: 'No money file yet' });
+    }
+    return segs;
+  }
+
+  // What a screen reader hears, which is where the honest long form goes. The
+  // coverage disclosure is quoted whole in the two states where a reader might
+  // otherwise take a gap for a finding.
+  function chipLabel(cr) {
+    var cov = cr.coverage || {};
+    if (cr.state === 'file') {
+      var c = cr.composition;
+      var top = c.largest
+        ? (c.largestTied ? 'Largest reported source tied. '
+                         : ('Largest reported source: ' + c.largest.label + '. '))
+        : '';
+      return c.receiptsFmt + ' in itemized receipts' + (c.cycle ? ', ' + c.cycle + ' cycle' : '') +
+        '. ' + c.shares.smallDollar + '% small-dollar. ' + top +
+        'Open the money section on this file for the full composition.';
+    }
+    if (cr.state === 'thin') {
+      return 'Partial money file — ' + cr.items + ' reported item' +
+        (cr.items === 1 ? '' : 's') + ' and no itemized composition. ' +
+        (cov.sentence || '') + ' Open the money section on this file.';
+    }
+    return 'No money file on record for this person yet. ' + (cov.sentence || '') +
+      ' Open the money section on this file, which says the same in full.';
+  }
+
+  // ── MOUNT-THEN-JUMP ────────────────────────────────────────────────────────
+  // The chip goes DOWN THIS PAGE and nowhere else. It is not a link to the
+  // site-level 💰 Follow the Money section: a reader who taps a chip beside a
+  // person's name and lands on a national index has been navigated off the file
+  // they were reading, and the back button is not an answer to that.
+  //
+  // The money stage can sit inside a fold or a deferred drawer, so the target node
+  // may legitimately not exist when the chip is tapped. _pdxNavJump already solves
+  // exactly this for the profile rail: it reveals the target (mounting a deferred
+  // drawer's held-back markup), opens every collapsed box above it, and measures
+  // the scroll AFTER that so the offset reflects the expanded layout. Reusing it
+  // rather than reimplementing a scroll means the chip cannot drift from the rail.
+  function sectionHost(id) {
+    var doc = W.document;
+    var a = doc && doc.getElementById(id);
+    if (!a) return null;
+    // The anchor is a zero-height aria-hidden marker sitting just above the
+    // section it names. Focusing that is focusing nothing, so step to the block it
+    // marks — which is the thing a reader was sent here to read.
+    if (a.getAttribute && a.getAttribute('aria-hidden') === 'true') {
+      return a.nextElementSibling || a.parentElement || a;
+    }
+    return a;
+  }
+
+  function focusSection(id) {
+    var host = sectionHost(id);
+    if (!host || typeof host.focus !== 'function') return false;
+    try {
+      if (host.hasAttribute && !host.hasAttribute('tabindex')) host.setAttribute('tabindex', '-1');
+      host.focus({ preventScroll: true });
+    } catch (e) {
+      try { host.focus(); } catch (e2) { return false; }
+    }
+    return true;
+  }
+
+  // The chip's one action. Exposed on the object so the inline handler is a call
+  // to a named function rather than a scroll expression pasted into markup.
+  function openSection() {
+    var id = SECTION_ID;
+    try {
+      if (typeof W._pdxNavJump === 'function') {
+        W._pdxNavJump(id);
+      } else {
+        if (typeof W._pdxRevealTarget === 'function') W._pdxRevealTarget(id);
+        var el = W.document && W.document.getElementById(id);
+        if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } catch (e) {}
+    // After the reveal, never before it: on a deferred stage the node that gets
+    // focus is the one that just materialised, not the absence that preceded it.
+    try { focusSection(id); } catch (e) {}
+    return false;
+  }
+
+  function letterheadChipHtml(pid) {
+    try {
+      var cr = chipRead(pid);
+      var segs = chipSegments(cr);
+      var inner = '';
+      for (var i = 0; i < segs.length; i++) {
+        if (i) inner += '<span class="pdx-mchip-sep" aria-hidden="true">·</span>';
+        inner += '<span class="' + (segs[i].fig ? 'pdx-mchip-fig' : 'pdx-mchip-hi') + '">' +
+          esc(segs[i].text) + '</span>';
+      }
+      return '<button type="button" class="pdx-mchip" data-pdx-mchip="' + attr(String(pid || '')) + '"' +
+        ' data-pdx-mchip-state="' + attr(cr.state) + '"' +
+        ' onclick="event.stopPropagation();if(window.PDXFinanceLane)window.PDXFinanceLane.openSection();"' +
+        ' aria-label="' + attr(chipLabel(cr)) + '">' +
+          '<span class="pdx-mchip-ico" aria-hidden="true">💰</span>' + inner +
+        '</button>';
+    } catch (e) { return ''; }
+  }
+
+  // Host + one deferred re-read, the same discipline the ⚖️ letterhead badge
+  // keeps. Not for the same reason, though, and the difference is worth stating:
+  // there is no warm event on this lane, because the filing index is inline
+  // synchronous data. The single re-read exists only so a letterhead built before
+  // that index was attached does not sit there saying "no money file yet" about a
+  // person who has one — and it is allowed to repaint ONLY out of the empty state,
+  // so a chip that is already telling the truth is never rewritten under a reader.
+  function bindLetterheadChip(uid, pid) {
+    var doc = W.document;
+    if (!doc || !W.setTimeout) return;
+    W.setTimeout(function () {
+      try {
+        var host = doc.querySelector('[data-pdx-mchip-host="' + uid + '"]');
+        if (!host) return;
+        var shown = host.firstChild && host.firstChild.getAttribute
+          ? host.firstChild.getAttribute('data-pdx-mchip-state') : null;
+        if (shown !== 'empty') return;
+        if (chipRead(pid).state === 'empty') return;
+        host.innerHTML = letterheadChipHtml(pid);
+      } catch (e) {}
+    }, 0);
+  }
+
+  function letterheadChipMount(pid) {
+    try {
+      _seq++;
+      var uid = ('mchip-' + String(pid || 'none') + '-' + _seq).replace(/[^A-Za-z0-9_-]/g, '');
+      var inner = letterheadChipHtml(pid);
+      bindLetterheadChip(uid, pid);
+      return '<span class="pdx-mchip-host" data-pdx-mchip-host="' + attr(uid) + '">' + inner + '</span>';
+    } catch (e) { return ''; }
+  }
+
   // The disclosure, on its own, for a surface that shows the lane at site level.
   function coverageHtml() {
     var cov = coverage();
@@ -333,6 +596,20 @@
     compose: compose, read: read,
     coverage: coverage, coverageHtml: coverageHtml,
     compositionHtml: compositionHtml, entryHtml: entryHtml,
+    // ── The letterhead chip: the person file's compact money door ────────────
+    // letterheadChipMount(pid) is what a letterhead wants — host + markup, and
+    // it renders on EVERY profile including the ones with nothing on file, which
+    // is the point (see the block over SECTION_ID). letterheadChipHtml() is the
+    // pure string; chipRead() is the three-valued state ('file' | 'thin' |
+    // 'empty') for anything that needs to know what the chip will say without
+    // rendering it. SECTION_ID / openSection() are the door: the id on this same
+    // person file that the chip jumps to, and the jump itself, which mounts a
+    // deferred stage before scrolling and focuses the section on arrival.
+    SECTION_ID: SECTION_ID,
+    chipRead: chipRead,
+    letterheadChipHtml: letterheadChipHtml,
+    letterheadChipMount: letterheadChipMount,
+    openSection: openSection,
     // Declared so the wall is readable from the object as well as from the header,
     // and asserted in scripts/test-finance-lane.mjs.
     scored: false,

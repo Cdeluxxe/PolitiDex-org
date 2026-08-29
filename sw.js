@@ -347,6 +347,30 @@
 // are byte-identical), no issue key was added, no Direction Match or Word-vs-Action
 // input changed, and every issue row in the product is byte-identical to HEAD on a
 // twin boot — pinned by scripts/test-vr-federal-wave-f3.mjs.
+// v86 — THE MONEY DOOR MOVED TO THE LETTERHEAD, AT CHIP SCALE. The person file's
+// only compact money surface is now one pill in the identity block beside the ⚖️
+// badge: the itemized total, the small-dollar share, the top pile and the coverage
+// counts, and a jump down to 💰 Money & Funding (#pdxsec-funding) on the same
+// file. finance-lane.js owns it (letterheadChipMount / chipRead / openSection), a
+// new finance-lane.css styles it, profiles-full.js mounts it, and index.html links
+// the sheet. It renders in all three states — on file, partial file, and nothing
+// on file — because filings exist for 13 of the 757 people the site carries, and a
+// chip that appeared only where one exists would leave "no chip" to be read as
+// "clean".
+// Bumped because this is a half-pickup risk of exactly the v84 kind: a phone
+// holding v85 that takes the new profiles-full.js but not the new index.html has
+// no <link> to finance-lane.css, so .pdx-mchip-host loses `display: contents` and
+// becomes an ordinary flex item wrapping an unstyled default-chrome <button> — the
+// same bunching of the letterhead's status pills v84 was bumped to prevent, with a
+// browser-default button in the middle of it. index.html is precached as '/';
+// profiles-full.js and finance-lane.js are stale-while-revalidate runtime entries.
+// Both cache names carry CACHE_VERSION, so the rename empties the shell AND the
+// runtime cache on activate and the four arrive together on the load after.
+// Presentation and reachability only. No finance figure is new, no arithmetic was
+// added (every number on the chip comes off the lane's one composition read), and
+// the wall is untouched: finance still feeds no Direction Match input, no formal
+// tier, no publication floor and no ordering of one person against another —
+// pinned by scripts/test-finance-lane.mjs.
 // ─────────────────────────────────────────────────────────────────────────────
 // THE OFFLINE PACK URL NOW CARRIES THE MAPPING VERSION, and CACHE_VERSION is
 // DELIBERATELY NOT BUMPED FOR IT. Read the next paragraph before bumping it.
@@ -371,7 +395,7 @@
 // unversioned entries as valid offline fallbacks, which is exactly what they are:
 // the version that existed when the device last built its cache.
 //   So: bump CACHE_VERSION when a SHELL ASSET changes, as before. Not for this.
-const CACHE_VERSION = 'v85';
+const CACHE_VERSION = 'v86';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

@@ -5309,6 +5309,30 @@
                  percentage and the chip has to have somewhere to arrive. The host
                  is worth zero pixels until it holds something. -->
             ${(window.PDXWordAction && typeof window.PDXWordAction.compactBadgeMount === 'function') ? window.PDXWordAction.compactBadgeMount(id, p) : ''}
+            <!-- 💰 The money door, at chip scale, beside the ⚖️ one — and built to
+                 the same rule: a number, two or three highlights, and a jump to the
+                 section further down that shows the working. The composition, the
+                 bar, the outside-spending note, the named top source, the as-of
+                 stamp and the coverage sentence in full stay in that section and
+                 appear nowhere up here. A letterhead that answers the money
+                 question in place has grown a second money section, and then the
+                 profile says one thing twice at two lengths.
+
+                 IT RENDERS ON EVERY PROFILE, INCLUDING THE EMPTY ONES, and that is
+                 the load-bearing part. Filings are on file for a small minority of
+                 the roster, so a chip that only appeared where one exists would
+                 leave "no chip" doing the talking — and to a reader who has learned
+                 that this site puts a money chip on people with money problems,
+                 what "no chip" says is "clean". It is not clean, it is unchecked.
+                 The empty chip says which.
+
+                 No ring, no ramp, no rank: one neutral accent across all three
+                 states. Finance does not enter Direction Match, the formal tiers or
+                 any ordering, and a chip that turned amber when the money
+                 concentrated would be delivering the retired Constituents-First
+                 verdict in colour after the words declined to. See the block over
+                 SECTION_ID in finance-lane.js. -->
+            ${(window.PDXFinanceLane && typeof window.PDXFinanceLane.letterheadChipMount === 'function') ? window.PDXFinanceLane.letterheadChipMount(id) : ''}
             ${p.party ? `<span class="profile-party">${p.party}</span>` : ''}
           </div>
         </div>

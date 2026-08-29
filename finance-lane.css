@@ -1,0 +1,119 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   finance-lane.css — the letterhead money chip, and nothing else
+   ────────────────────────────────────────────────────────────────────────────
+   The money lane renders its composition with inline styles from
+   finance-lane.js, deliberately: that block is mounted into several surfaces
+   and travels with its own appearance. This file exists for the one finance
+   surface that must instead take its appearance FROM WHERE IT SITS — the
+   compact chip in the person file's letterhead.
+
+   It is styled to the ⚖️ Word vs Action letterhead badge's measurements on
+   purpose (see .pdxwa-cbadge in word-action.css). The two chips sit next to
+   each other in .profile-meta, they are the same kind of object — a small
+   secondary door down to a section that shows the working — and two doors of
+   the same kind at two different sizes reads as one of them being the more
+   important finding. They are not ranked against each other.
+
+   THE PALETTE IS THE LANE'S DOCTRINE, NOT A STYLE CHOICE. One neutral steel
+   accent, identical in all three states. A chip that went green on a
+   small-dollar base and amber on a concentrated one would deliver the retired
+   Constituents-First verdict in colour after the words had carefully declined
+   to — which is exactly how that grade worked, and exactly why it was deleted.
+   #4ade80 and #f87171 (this codebase's yes/no colours) do not appear here, for
+   the same reason they do not appear in finance-lane.js.
+
+   ONE LINE, THEN WRAP. Sideways the chip is a single line beside the name; on a
+   phone it is allowed to wrap onto a second line rather than force the hero
+   wider or shrink to unreadable. What it is never allowed to do is become a
+   block: nothing in this file has a chart, a bar, a table or a fixed height,
+   because the hero must not grow by a graph. The details live in the money
+   section the chip jumps to.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* The host is a mount point, not a box. `display: contents` keeps it out of the
+   letterhead's flex layout entirely, so the chip is a direct flex item of
+   .profile-meta and lines up with the pills either side of it. */
+.pdx-mchip-host { display: contents; }
+
+.pdx-mchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  max-width: 100%;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+  border-radius: 999px;
+  padding: 0.16rem 0.55rem;
+  background: rgba(159, 180, 212, 0.1);
+  border: 1px solid rgba(159, 180, 212, 0.3);
+  color: #9fb4d4;
+  line-height: 1.15;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.pdx-mchip:hover {
+  background: rgba(159, 180, 212, 0.18);
+  border-color: rgba(159, 180, 212, 0.5);
+}
+.pdx-mchip:focus-visible {
+  outline: 2px solid rgba(96, 165, 250, 0.8);
+  outline-offset: 2px;
+}
+
+.pdx-mchip-ico { font-size: 0.7rem; line-height: 1; flex: none; }
+
+/* The figure — the one number on the chip, and the only thing on it that gets
+   any emphasis at all. */
+.pdx-mchip-fig {
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
+  color: #dbe6f6;
+}
+
+/* …but the two absent states have no figure, and their wording must not borrow
+   the emphasis a dollar total earns. "No money file yet" set brighter and larger
+   than the highlights beside it would be shouting about missing data, which is
+   the opposite of what this chip exists to do calmly. */
+.pdx-mchip[data-pdx-mchip-state="empty"] .pdx-mchip-fig,
+.pdx-mchip[data-pdx-mchip-state="thin"] .pdx-mchip-fig {
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: #9fb4d4;
+}
+
+.pdx-mchip-sep { opacity: 0.45; flex: none; }
+
+/* A real thumb target sideways, without changing how the chip reads. Same rule,
+   same numbers, as the ⚖️ badge next to it. */
+@media (hover: none), (pointer: coarse) {
+  .pdx-mchip { min-height: 1.9rem; padding: 0.22rem 0.6rem; }
+}
+
+/* On a phone the letterhead column is narrow enough that a four-segment chip
+   cannot hold one line. It wraps INSIDE the pill rather than pushing the hero
+   grid wider or spilling out of it. */
+@media (max-width: 560px) {
+  .pdx-mchip {
+    white-space: normal;
+    flex-wrap: wrap;
+    row-gap: 0.08rem;
+  }
+}
+
+/* ── ARRIVAL ────────────────────────────────────────────────────────────────
+   The chip focuses the money section on landing, so a keyboard or screen-reader
+   reader is put INSIDE the thing they asked for rather than left at the top of
+   the page with a scroll position. A programmatically focused tabindex="-1"
+   container does not match :focus-visible, so the ring is on :focus — and it is
+   soft, because it is arrival feedback on a section, not a form error. */
+.pdx-fund:focus { outline: none; }
+.pdx-fund[tabindex]:focus {
+  outline: 2px solid rgba(124, 196, 255, 0.5);
+  outline-offset: 4px;
+  border-radius: 0.5rem;
+}

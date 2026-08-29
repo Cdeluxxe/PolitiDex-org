@@ -147,14 +147,22 @@ page.
 
 1. **Follow the Money cards** — each card leads with the total itemized
    receipts and the composition, then the outside-spending note.
-2. **Profile → 💰 Follow the Money** — the entry row (both states), the
+2. **Profile letterhead → the 💰 chip** (`letterheadChipMount`) — a one-line
+   pill among the status pills, sized to the ⚖️ Word vs Action badge beside it.
+   It prints the itemized-receipts figure, the small-dollar share, the top pile
+   and the coverage words, and it is a button: clicking it reveals and jumps to
+   the money section below on the same profile (`pdxsec-funding`). It is a door,
+   not a summary — no chart, no donor list, no ring, no colour that grades. It
+   renders on every profile, including the 744 with no filing, because a missing
+   badge would read as "clean" rather than as "unknown".
+3. **Profile → 💰 Follow the Money** — the entry row (both states), the
    composition block, and the coverage disclosure. This is the person file's one
    labelled door into the money lane.
-3. **Follow the Money — Side by Side** (`impact-ledger.js`) — the largest
+4. **Follow the Money — Side by Side** (`impact-ledger.js`) — the largest
    reported source paired with a distributional summary of who the member's key
    votes affect. It shows financial access and distributional effect, not
    corruption, motive, or causation.
-4. **My Profile → Your money tree** (`my-profile.js`) — the team-level blend,
+5. **My Profile → Your money tree** (`my-profile.js`) — the team-level blend,
    with its own coverage note stating how many of the team have a filing, since
    a blend over "everyone who happens to have a filing" is a different sentence
    from a blend over the team.
