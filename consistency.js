@@ -6059,6 +6059,16 @@
   // result. One wrong disclosure is worse than none.
   var _ST_REC_NOTE_SCORED = 'Direction Match on this issue: what they said, tested against the ' +
     'formal record on file.';
+  // …AND THE ARRIVAL DISCLOSURE, FOR A SCORED ROW WHOSE FORMAL ACTS ALL TRAVELLED
+  // IN PACKAGES. The pattern engine's own package sentence cannot be borrowed here,
+  // for the same reason its note cannot: that sentence ends by stating a tier —
+  // "the side is stated thin" — and this slot is printing a Direction Match result,
+  // not a tier. What has to survive the trip is the fact the reader needs, that the
+  // acts on this issue reached it inside something larger, with no claim about
+  // strength attached to it. Appended, never substituted: the scored sentence keeps
+  // its place and its meaning, and no number on this slot moves.
+  var _ST_REC_NOTE_PKG = 'The formal acts behind this reached the issue inside measures ' +
+    'that were mainly about something else, rather than as votes on the issue itself.';
   // THE SAME SENTENCE, IN THE LANE'S OWN COUNTABLE. The engine publishes one note
   // and it says "votes on file"; on the executive lane the countable is actions and
   // nothing else about the sentence changes. Fails safe by construction — if the
@@ -6205,6 +6215,11 @@
       out.display = !!t.display; out.partial = !!t.partial;
       out.early = !!t.early; out.note = _stRecNote(r, t);
       out.says = t.says || null;
+      // THE ARRIVAL, UNDER ITS OWN NAME. Carried across so a surface that wants to
+      // place the package line itself — a caption, a footnote, a tooltip — does not
+      // have to re-derive it from the note it is already printing. Read-only on both
+      // counts: nothing below branches on either field, and neither one is a gate.
+      out.packageOnly = !!t.packageOnly; out.packageNote = t.packageNote || '';
     }
     // DEPTH IS THE INVENTORY, always — the number of formal items this row holds,
     // which is the number its dossier lists and the number _stResult prints. The
@@ -6253,7 +6268,9 @@
       out.pct = res.pct; out.metric = res.metric;
       out.label = res.label || (r.verdict && r.verdict.label) || '';
       out.color = res.color || '';
-      out.note = _ST_REC_NOTE_SCORED;
+      out.note = (t && t.packageOnly)
+        ? (_ST_REC_NOTE_SCORED + ' ' + _ST_REC_NOTE_PKG)
+        : _ST_REC_NOTE_SCORED;
       return out;
     }
     // ── direction ───────────────────────────────────────────────────────────

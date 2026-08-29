@@ -276,6 +276,12 @@
       var key = id + qs;
       if (this._cache.has(key)) return this._cache.get(key);
       var url = API_BASE + '/member/' + encodeURIComponent(id) + qs;
+      // Claim this member's row in _records for the live endpoint, at REQUEST
+      // time rather than on arrival. The offline pack is a snapshot and can be
+      // hours behind the mapping table; if it lands while this is still in
+      // flight it must not seed over the answer that is coming. See THE PACK IS
+      // NOT A WRITER below for what this flag gates.
+      this._liveRead[id] = true;
 
       // The head of index.html may already have this exact request in flight —
       // see PERSON-FILE COLD OPEN there. Adopting it is the whole perf pass: the
@@ -428,6 +434,9 @@
     clearCache: function () {
       this._cache.clear(); this._compareCache.clear(); this._packCache.clear(); this._issueRecCache.clear();
       this._records = {};
+      // Including the live-read claims: dropping the answers has to drop the
+      // reservations, or the pack could never seed an offline open again.
+      this._liveRead = {};
       // Dropping the records changes every derived read that used them.
       try { if (typeof window.PDXDataChanged === 'function') window.PDXDataChanged(); } catch (e) {}
     },
@@ -488,7 +497,29 @@
     // GET /member/:id/pack — the compact, SW-cached record. Fetching it while online
     // warms the service-worker cache so the SAME member renders offline later. Used
     // as the graceful fallback when the live /member/:id endpoint can't be reached.
+    //
+    // THE PACK IS NOT A WRITER.
+    // The pack is a Netlify Blobs snapshot on a six-hour TTL (PACK_TTL_MS in
+    // netlify/functions/voting-record.mts), rebuilt lazily on read. /member/:id is a
+    // live DB query. So the two disagree for up to six hours after any change to the
+    // measure→issue mapping table — and they disagree about isPrimary, which is not a
+    // cosmetic field: _recordDisplayTier refuses a direction outright below
+    // _RD_MIN_PRIMARY, so one dropped flag turns a published "Thin supports" into
+    // "Not about this issue". A member whose page is warmed from the live endpoint and
+    // then, milliseconds later, seeded over by the pack shows BOTH reads at once: the
+    // stance tree painted before the clobber, the dossier lede computed after it.
+    //
+    // Hence: the pack seeds _records only when nothing better holds that row. It never
+    // replaces a live read, in flight or resolved. That costs the pack nothing it was
+    // built for — warming the SW cache is a side effect of the fetch itself, and on the
+    // offline path there is no live answer to protect, so the seed goes through.
+    _liveRead: {},
     _packCache: new Map(),
+    _packMaySeed: function (id) {
+      id = canonPid(id);
+      if (this._liveRead[id]) return false;   // a live read owns this row
+      return !this._records[id];              // and so does anything already warm
+    },
     fetchPack: function (id) {
       id = canonPid(id);
       if (this._packCache.has(id)) return this._packCache.get(id);
@@ -497,7 +528,9 @@
       var promise = fetch(url, { headers: { accept: 'application/json' } })
         .then(function (r) { if (!r.ok) throw new Error('pack ' + r.status); return r.json(); })
         .then(function (data) {
-          if (data && Array.isArray(data.items)) self.noteMember(id, data.items);
+          // Checked here, not at call time: the race this closes is decided by
+          // which response arrives first, so the question has to be asked late.
+          if (data && Array.isArray(data.items) && self._packMaySeed(id)) self.noteMember(id, data.items);
           return data;
         })
         .catch(function () { self._packCache.delete(id); return null; });
@@ -1859,6 +1892,13 @@
     // Warm the offline pack (fire-and-forget) so the service worker caches it and
     // THIS member renders offline next time. Then load the section: live endpoint
     // first, falling back to the (SW-cached) pack when the network can't be reached.
+    //
+    // Fired before the live read but unable to outrank it: fetchPack decides whether
+    // to seed _records when its response ARRIVES, and the fetchMember below runs in
+    // this same task, so the live claim is always staked before any response can be
+    // delivered. The pack warms the SW cache here and nothing else. (Offline, the
+    // fallback below re-uses this same memoised promise and the seed happens
+    // explicitly at noteMember, further down, where the pack IS the answer.)
     PDXVotingRecord.fetchPack(job.id);
     var initOpts = { pageSize: 100 };
     if (_state.filters.sort) initOpts.sort = _state.filters.sort;

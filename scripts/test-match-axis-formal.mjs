@@ -307,16 +307,24 @@ section("3 · the order is the record's direction, and nobody with a file is a v
 section("4 · votes on file that the engine will not characterise are not 'no record'");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // B's only item on the reader's issue is an omnibus that brushed it — the issue
-  // was never what the measure was about. That is a real formal file and it is
-  // behind a MEANING wall, not a depth one, so no direction may be read off it at
-  // any depth and B cannot be scored — correctly. What B must not be told is that
-  // there is nothing there.
+  // B's items on the reader's issue are omnibuses that brushed it — the issue was
+  // never what either measure was about — AND THEY RAN BOTH WAYS. That is a real
+  // formal file and it is behind a MEANING wall, not a depth one, so no direction
+  // may be read off it and B cannot be scored — correctly. What B must not be told
+  // is that there is nothing there.
   //   (A single item that IS about the issue is a different fixture and a
   //   different contract: it reads a side and it scores. That contract lives in
   //   scripts/test-single-item-side.mjs, which also pins this wall from the other
   //   direction — that lowering the depth floor to one item left it standing.)
-  const thin = stage({ b: [vote(90, K, "yea", { incidental: true })], keys: [K] });
+  //   WHY IT TAKES TWO VOTES NOW, where it used to take one. The August 2026
+  // package-borne relaxation turned the display lane's primary floor into a
+  // ceiling: a run of non-primary mappings that all went ONE WAY reads its side at
+  // thin, because a rider that became law is not a coincidence. What did not move
+  // is the uniform wall — a package-borne ledger with acts on both sides is still
+  // refused outright — so the fixture that demonstrates the band is now a 1–1
+  // rather than a 1–0. The wall being demonstrated is the same wall.
+  const thin = stage({ b: [vote(90, K, "yea", { incidental: true }),
+                           vote(91, K, "nay", { incidental: true })], keys: [K] });
   const html = sheetHtml(thin);
   const idx = thin.PDXConsistency.formalPatternIndex.rows(B_PID).filter((x) => x.key === K)[0];
   must(idx && (idx.held || 0) > 0,
@@ -329,7 +337,7 @@ section("4 · votes on file that the engine will not characterise are not 'no re
   ok(r.gap[0].filed > 0,
     "…flagged as holding a formal file on the reader's issues, for the wording only");
   // The three places the old copy claimed an empty record.
-  has(html, "vote on file · not about this issue",
+  has(html, "votes on file · not about this issue",
     "the cell prints the depth of the file and the engine's own reason");
   lacks(html, "no clear pattern yet",
     "…and the reason is the mapping one, not the blanket sentence that fits four cases");

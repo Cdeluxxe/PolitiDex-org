@@ -714,6 +714,42 @@
     // nothing but floor votes still says nothing, because its chip already counts
     // votes and a note repeating that is noise — and noise is how a real
     // disclosure gets learned as ignorable.
+    // ── AND THE SENTENCE FOR AN ISSUE THE MEMBER NEVER VOTED ON DIRECTLY ─────
+    // Composed from the index alone, because the surface that needs it most — the
+    // stance row's Record chip — holds an index and not a pid. `primary` is the
+    // judged, admitted, non-superseded subset that carried a PRIMARY mapping for
+    // this issue; where it is zero, every act the read is standing on reached the
+    // issue as a secondary subject of a measure that was mainly about something
+    // else. That is a fact about the vehicles, not a finding about the member, and
+    // it is the weaker, always-provable half of what _recordVehicleStats says with
+    // bill numbers attached — so this sentence never replaces the 🚂 line, it
+    // guarantees one is present when the richer detector is out of reach.
+    //   AND IT CLAIMS ONLY WHAT THE FLAG PROVES. `primary === 0` says the mapping
+    // was secondary; it does not say the vehicle was an omnibus, a CR or anything
+    // else large. _recordVehicleStats is the thing that can tell a rider in a
+    // 3,000-page package from a passing mention in a standalone bill, and where it
+    // can, its line says "as provisions inside larger measures" with the numbers.
+    // So this sentence stops at the part that is true either way — the measure was
+    // mainly about something else — and leaves the word "package" to the detector
+    // that has earned it.
+    //   ITS LAST CLAUSE IS THE CEILING, IN WORDS. A row that reads only because of
+    // this relaxation is held at `thin` by the code below; the sentence says so, so
+    // a reader meeting the chip is told the strength and the reason for it in the
+    // same breath.
+    function _rdPackageNote(out, noun) {
+      var j = (out && out.judged) || 0;
+      if (!j) return '';
+      var n = noun || { one: 'vote', many: 'votes' };
+      var who = (j === 1)
+        ? ('The one ' + n.one + ' read here reached this issue inside a measure')
+        : ((j === 2 ? 'Both' : 'All ' + j) + ' ' + n.many +
+           ' read here reached this issue inside measures');
+      return who + ' that ' + (j === 1 ? 'was' : 'were') +
+        ' mainly about something else, rather than as ' +
+        (j === 1 ? 'a ' + n.one : n.many) + ' on this issue itself — a measure is ' +
+        'not a position on everything inside it, so the side is stated thin and ' +
+        'nothing here is characterised.';
+    }
     function _rdMixNote(out) {
       if (!out || !out.nonFloorActs) return '';
       var phrase = _rdMixPhrase(out.mix);
@@ -1583,10 +1619,39 @@
       if (sup && _RD_TIER_MUTE[sup]) return null; // no pole: no direction, at any depth
       var judged = idx.judged || 0;
       if (judged < 1) return null;                       // nothing judged: nothing did anything
-      if ((idx.primary || 0) < _RD_MIN_PRIMARY) return null; // incidental only: a coincidence
 
       var noun = opts.noun || { one: 'vote', many: 'votes' };
       var adv = idx.advances || 0, opp = idx.opposes || 0;
+      var uniform = (adv === 0 || opp === 0);
+      // ── THE PRIMARY RULE IS A CEILING ON THIS LANE, NOT A DOOR ────────────────
+      // This line used to be `return null`, and that refusal recreated on the
+      // profile the very thing the vehicle work exists to expose. The menu hides
+      // policy in packages: a rider becomes law, the member votes on it, the vote
+      // is dated and sourced and mapped — and because the mapping on the carrying
+      // measure is a SECONDARY one, the row printed nothing at all. The reader was
+      // told "not about this issue" over an act that decided the issue.
+      //   So a browse surface may now state the side, under three walls that do not
+      // move:
+      //   · UNIFORM ONLY. `pkgOnly && !uniform` returns null here, one line down.
+      //     A ledger that ran both ways is not "one way" however the arithmetic
+      //     leans, so a package-borne record never acquires a lead through this
+      //     door and split stays split — including the deep-and-dominant shape,
+      //     which is refused rather than led.
+      //   · THIN IS THE CEILING. `deep` below reads `!pkgOnly`, so no number of
+      //     riders reaches Strongly or Mostly. A continuing resolution pile and a
+      //     stack of five omnibus votes write the same word a single one writes.
+      //     In the shipped corpus that cap is the difference between 66 rows
+      //     reading Mostly/Strongly off packages alone and 66 rows reading Thin.
+      //   · AND THE ROW SAYS WHY IT IS THIN. `packageNote` below is appended to the
+      //     lane disclosure every surface already prints, so the sentence about the
+      //     vehicles travels with the side rather than being a separate feature a
+      //     surface could forget to mount.
+      // WHAT DOES NOT CHANGE: _recordPatternTier is untouched, so the
+      // characterisation read, the formal-pattern index's `characterised` set and
+      // Direction Match all still refuse exactly what they refused before. This
+      // lane characterises nothing and is read by nothing that scores.
+      var pkgOnly = (idx.primary || 0) < _RD_MIN_PRIMARY;
+      if (pkgOnly && !uniform) return null;
       var partial = (sup === 'coverage_floor');
       // THE SAME TWO SIZE FLOORS THE PATTERN ENGINE ASKS. This lane exists to stop
       // a browse surface printing a blank over one real act, and lowering the DEPTH
@@ -1594,9 +1659,11 @@
       // it means everywhere else, and a stack of co-sponsorships is not it. Without
       // this line the display read would hand back Strongly/Mostly on the very
       // rows _recordDirectionIndex had just refused to characterise.
-      var deep = !partial && judged >= _RD_MIN_JUDGED &&
+      //   …AND ONE MORE, ADDED WITH THE PRIMARY RELAXATION ABOVE: a record made
+      // entirely of package-borne acts is never deep on this lane, whatever its
+      // size. See the ceiling in the block above.
+      var deep = !partial && !pkgOnly && judged >= _RD_MIN_JUDGED &&
         (typeof idx.actStrength !== 'number' || idx.actStrength >= _RD_MIN_STRENGTH);
-      var uniform = (adv === 0 || opp === 0);
       // Act counts, not curator weight — the same ledger-first rule as the index
       // above. The chip sits directly on top of a list of acts; the number it is
       // reasoning from has to be the number under it. (idx.advanceScore and
@@ -1606,6 +1673,7 @@
       var dominant = tw > 0 &&
         (adv >= tw * _RD_DOMINANCE || opp >= tw * _RD_DOMINANCE);
 
+      var pkgNote = pkgOnly ? _rdPackageNote(idx, noun) : '';
       var key, weight, tone, label, dir = null;
       if (!uniform && !(deep && dominant)) {
         // Ran both ways, and no lead is derived from it — 'Split' is the pattern
@@ -1646,7 +1714,17 @@
         noSideCount: _rdNoSidePhrase(idx),
         directional: key !== 'split',
         token: idx.token,
-        note: _RD_TIER_NOTE,
+        // THE LANE DISCLOSURE, plus the package sentence where that is how the acts
+        // arrived. Appended rather than substituted: `note` is the pinned sentence
+        // that keeps this chip out of the integrity score and it is tested
+        // elsewhere in exactly its current words, so the second fact goes after it
+        // in the same field every surface already renders. See _rdPackageNote.
+        note: pkgNote ? (_RD_TIER_NOTE + ' ' + pkgNote) : _RD_TIER_NOTE,
+        // …and the two of them under their own names, for a surface that wants to
+        // place the package line itself rather than take it inside the disclosure.
+        // `packageOnly` is a report, not a gate: nothing downstream branches on it.
+        packageOnly: pkgOnly,
+        packageNote: pkgNote,
         // Carried in the same shape the pattern tier carries it, so a surface that
         // prints the mix does not have to know which of the two reads it got.
         //   THE ONE-ACT LEAN IS NOT GATED ON THIS LANE, and that is deliberate.

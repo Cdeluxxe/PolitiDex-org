@@ -162,7 +162,8 @@ const SAIDONLY = SAID_OPPOSE.filter((k) => k !== CUTS)[0];
 // ONLY_STRONG: nothing stated + a deep uniform record → pattern-only, strong
 // ONLY_THIN:   nothing stated + one vote              → pattern-only, thin, quiet
 // ONLY_SPLIT:  nothing stated + a deep both-ways record → pattern-only, split
-// UNREADABLE:  nothing stated + a record the index declines to characterise
+// UNREADABLE:  nothing stated + a record the index declines to characterise —
+//              incidental AND both ways, which is what unread looks like now
 const [ONLY_STRONG, ONLY_THIN, ONLY_SPLIT, UNREADABLE] = SILENT;
 must(!!(ALIGNS && CUTS && SPLITCUE && MIXCUE && SAIDONLY),
   "the fixture no longer offers one stated issue per alignment cue");
@@ -188,9 +189,22 @@ for (let i = 0; i < 12; i++) SEED.push(vote(50 + i, MIXCUE, "yea"));
 for (let i = 0; i < 12; i++) SEED.push(vote(70 + i, ONLY_STRONG, "nay"));
 SEED.push(vote(85, ONLY_THIN, "yea"));
 for (let i = 0; i < 6; i++) SEED.push(vote(90 + i, ONLY_SPLIT, i % 2 ? "nay" : "yea"));
-// Deep, one-sided and entirely incidental: the index refuses to characterise it,
-// so it is NOT a readable pattern and must not become a row of its own.
-for (let i = 0; i < 5; i++) SEED.push(vote(100 + i, UNREADABLE, "yea", { primary: false }));
+// On file, entirely incidental, and RUNNING BOTH WAYS — five items the index
+// refuses to read at all, so the row states its file and names no direction.
+//   WHY IT IS 4-1 AND NOT 5-0. It was five incidental yeas until the August 2026
+// package-borne relaxation, which is now the one shape that does NOT belong here: a
+// uniform run of secondary acts publishes a thin side, because refusing to name a
+// side merely because the vehicle was somebody else's bill is how a rider that
+// became law printed a blank row. What survives the relaxation unread is a record
+// that is both package-borne and self-contradicting — no PRIMARY act to stand on
+// and no one direction to state. One dissenting item is enough to do it and is all
+// this fixture spends: two would clear _RD_SPLIT_MIN_SIDE and be read as a split,
+// which is a reading and not a refusal. The
+// contract the section tests is untouched: a record the engine will not
+// characterise is still a record, and still gets a row that says so.
+for (let i = 0; i < 5; i++) {
+  SEED.push(vote(100 + i, UNREADABLE, i < 4 ? "yea" : "nay", { primary: false }));
+}
 
 const A = boot(true), B = boot(false);
 A.PDXVotingRecord.noteMember(PID, SEED.map((v) => JSON.parse(JSON.stringify(v))));

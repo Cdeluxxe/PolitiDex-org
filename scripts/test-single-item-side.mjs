@@ -239,7 +239,7 @@ section("2 · the formal index carries that side, and says it is one item");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("3 · the walls that did not move — depth was lowered, meaning was not");
+section("3 · the walls — depth was lowered, and meaning moved once, on purpose");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   // (a) One item that resolves to NO side. Nothing was read, so nothing is said.
@@ -255,14 +255,54 @@ section("3 · the walls that did not move — depth was lowered, meaning was not
     eq(w._calcAlignmentScore(A_PID, { mode: "record" }), null,
       "…and it must not make the axis live");
   }
-  // (b) One item that only brushed the issue. A coincidence is not a vote on it.
+  // (b) One item that only brushed the issue — and this wall MOVED, in August
+  //     2026, deliberately. Withholding the side because the vehicle was an
+  //     omnibus is how a rider that became law printed a blank row: the menu hides
+  //     policy inside packages, and a display lane that refuses to read anything
+  //     but a PRIMARY reproduces the hiding. A judged act that went one way is a
+  //     judged act that went one way, so the side is published.
+  //
+  //     What the wall became is a CEILING, and the ceiling is what is pinned here:
+  //     the side is stated thin, the row says out loud that its vote reached the
+  //     issue sideways, the pattern engine still characterises nothing, and the
+  //     compare axis may carry it only at the confidence a thin record earns —
+  //     which is the same ladder section 4 pins for a primary-mapped single item,
+  //     not one coined for riders. Direction Match is untouched: it still needs a
+  //     stated position and a PRIMARY pair, and no percentage on it moves.
   {
     const w = stage({ a: [vote(3, K, "yea", { incidental: true })].concat(runOf(11, K2, "yea", 20)) });
+    const row = (w.PDXConsistency.issueRows(A_PID) || []).filter((r) => r && r.key === K)[0];
+    must(!!row, "the incidental single item has no row on the profile at all");
     const x = fpiRow(w, A_PID, K);
     must(!!x, "the incidental single item fell out of the index entirely");
-    eq(x.directional, false, "an omnibus that brushed the issue was read as a vote on it");
-    eq(w._calcAlignmentScore(A_PID, { mode: "record" }), null,
-      "…and it must not make the axis live");
+    eq(x.directional, true, "a package-borne vote was refused the side it took");
+    eq(x.tier, "thin", "…or was stated at something other than thin");
+    eq(x.tone, "support", "…or lost which way it went");
+    eq(x.why, null, "…or is still carrying a refusal reason under a published side");
+    // AND THE DIVISION OF LABOUR BETWEEN THE TWO DISCLOSURES, which this fixture
+    // happens to be the clean case for: the measure here is a standalone bill that
+    // touched K as a secondary subject, so _recordVehicleStats correctly declines to
+    // call it a package — `only` is false and the 🚂 line is empty. The row is still
+    // owed an explanation of how the vote reached the issue, and the note is what
+    // owes it. That is the whole reason the note is composed from the primary count
+    // rather than from the vehicle detector.
+    ok(x.vehicle && x.vehicle.only === false,
+      "the vehicle detector called a standalone bill a package");
+    const d = w.PDXConsistency.recordPattern.display(row) || {};
+    eq(d.tier, "thin", "the display slot states the package-borne side above thin");
+    eq(d.packageOnly, true, "…or does not flag the row as package-borne");
+    has(d.note, "mainly about something else", "…or does not disclose how the vote arrived");
+    // The ceiling. Reading a rider is not characterising one.
+    const pt = w.PDXConsistency.recordPattern.tier(row);
+    ok(!pt || pt.tier === "none", "the pattern engine characterised a package-borne row");
+    const bd = w._calcAlignmentBreakdown(A_PID, { mode: "record" });
+    const ax = ((bd && bd.issues) || []).filter((r) => r.key === K)[0];
+    must(!!ax, "the package-borne row is not a live axis in the breakdown");
+    eq(ax.pattern && ax.pattern.tier, "thin", "the compare axis carries it above the thin tier");
+    eq(ax.pattern && ax.pattern.conf, w._PDX_ALIGN_PAT_CONF.thin,
+      "…or at a confidence a thin record has not earned");
+    eq(ax.stance, null, "…or invents a stance for the member");
+    eq(ax.direct, false, "…or calls it a documented position");
   }
   // (c) One item on an issue with no for-or-against pole. There is nothing to lean on.
   {
