@@ -624,10 +624,10 @@
         {
           "issueKey": "housing",
           "weight": 80,
-          "isPrimary": false,
+          "isPrimary": true,
           "supportMeaning": "yea_supports",
-          "rationale": "Secondary: the same package also carries affordability and federal housing-assistance provisions, so a yea advances housing affordability generally, not only new supply.",
-          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6644"
+          "rationale": "Primary: the 21st Century ROAD to Housing Act is a housing act, and housing affordability is its own subject rather than a title inside a vehicle. `housing`'s published chip is 'Make housing more affordable by boosting supply and lowering the cost to build and buy', and the enrolled text carries all three of those limbs as full titles: supply in Title I (Sec. 103 infill exemption, Sec. 104 publicly owned land database, Sec. 107 housing supply frameworks), Title II (Building More in America) and Title III (Manufactured Housing for America); the cost to build in Sec. 211, captioned the Housing Affordability Act, which raises the per-unit dollar limits on FHA multifamily mortgage insurance at 12 U.S.C. 1713(c)(3)(A) and 1715e(b)(2) roughly fourfold and re-indexes them to the Census Bureau's Price Deflator Index of Multifamily Residential Units Under Construction; and the cost to buy in Title IV (Accessing the American Dream) \u2014 Sec. 401 small-dollar loan originator incentives, Sec. 402 small-dollar mortgage points and fees, Sec. 403 Appraisal Industry Improvement Act, Sec. 404 Helping More Families Save Act \u2014 in Title IX (Strengthening Community Banks' Role in Housing) and in Title X (Home-Ownership for Main Street America), whose single section restricts large institutional-investor purchases of single-family homes. Eleven of the Act's twelve titles are housing titles. Weighted 80 rather than 100 and ranked below the housing_build primary because supply is the limb the Act's own long title names; the weight is what ranks the two axes, not the flag.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ101/html/PLAW-119publ101.htm"
         }
       ]
     },

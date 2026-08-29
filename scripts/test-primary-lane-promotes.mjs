@@ -104,12 +104,18 @@ has(rowOf(measureOf("H.Amdt. 235", 119, "house"), "israel_support").rationale,
   "H.Amdt. 235 no longer states that its whole text is the issue");
 
 // A measure carrying two primaries is the deliberate exception, not the convention.
-// Four measures may hold one; a fifth means the flag is drifting back into a ranking.
+// Five measures may hold one; a sixth means the flag is drifting back into a
+// ranking. The fifth is H.R. 6644, from federal wave F4 (October 2026): the 21st
+// Century ROAD to Housing Act is the instrument's own subject on housing supply
+// (housing_build, w100) and on housing affordability (housing, w80), and the
+// weights — not the flag — are what rank the two axes. The migration promoted it
+// in the database; this seed is the mirror a re-ingest reads, so the two say the
+// same thing or the next ingest reverts the wave.
 const multi = (SEED.measures || [])
   .filter((m) => (m.issues || []).filter((i) => i.isPrimary).length > 1)
   .map((m) => `${m.number} (${m.congress})`)
   .sort();
-eq(multi.join(", "), "H.Amdt. 235 (119), S. 1383 (119), S. 2 (119), S.J.Res. 18 (119)",
+eq(multi.join(", "), "H.Amdt. 235 (119), H.R. 6644 (119), S. 1383 (119), S. 2 (119), S.J.Res. 18 (119)",
   "the set of measures with two primaries changed — the flag is drifting back into a ranking");
 
 // ═════════════════════════════════════════════════════════════════════════════
