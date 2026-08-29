@@ -1,0 +1,470 @@
+{
+ "_comment": "Federal wave F4 — DECISION SEED. One act: a primary-lane promote on H.R. 6644, the 21st Century ROAD to Housing Act, which gives `housing` its first PRIMARY instrument reachable by a federal member in either chamber. No new measure, no new roll call and no new issue row: the row this wave writes is already live at weight 80, and what changes is the one field the primary wall reads. Forty-one candidate promotes were simulated one at a time and measured; forty are refused in writing below.",
+ "_status": "DECIDED. Every row below carries a decision, a weight, a polarity and an argument, or a written refusal. Nothing is queued, nothing is provisional, and no key was assigned from a bill title or a vote tally.",
+ "_decidedBy": "Federal wave F4, curator pass. Enrolled text read 2026-08-29 from govinfo BILLS-119hr6644enr.",
+ "_doctrine": "Formal record only. No party score, no package percentage, no invented stance, no floor moved: _RD_MIN_PRIMARY, _RD_MIN_JUDGED, _RD_THIN_MIN, _RD_MIN_STRENGTH, _RD_THIN_MIN_STRENGTH, _RD_SPLIT_MIN_JUDGED, _RD_SPLIT_MIN_SIDE, _RD_DOMINANCE and _PDX_RD_MEMBER_FLOOR are all byte-identical before and after. Direction Match and the Word-vs-Action score are untouched: this wave changes no support_meaning, adds no member vote and removes no mapping, so every DM input on every issue row except `housing` is the same object it was, and on `housing` the same acts with the same polarity are read through a lane flag rather than a new claim.",
+ "_fpiTarget": "Give a censused key its first PRIMARY instrument that a federal member has a recorded vote on, so the senators whose rows the primary wall currently writes read from their own record instead. Measured before and after, set-wise, on the row model's own `read` flag.",
+ "measures": [],
+ "_measuresNote": "EMPTY, AND THAT IS THE FINDING. F1 through F3 each ended with new measures and new roll calls. F4 does not, because the census below could not find one: the complete universe of Senate roll calls in the 119th Congress was swept for rule 12 passage forms — 890 rolls, of which 63 are passage forms and 18 are already in the corpus — and every un-ingested passage form serves a key that already holds a Senate-reachable PRIMARY (BLM, EPA, DOE, NPS, BOEM, OCC, CFPB, IRS, HHS and NHTSA disapprovals on lands_energy, lands_preserve, climate_action, energy_production, econ_corp_account and gov_regulation), or serves a `_RD_NO_POLE` key (the tariff-emergency terminations on tariffs_authority, H.Con.Res. 86 on war_powers), or is an appropriations vehicle (H.R. 5371, H.R. 6938, H.R. 6500, H.R. 7148, S. 2882, H.R. 3944), or is an executive-calendar resolution authorising en bloc consideration of nominations. Rather than manufacture a PRIMARY out of one of those, this wave acts on an instrument already in the corpus whose enrolled text has never been read against the key it carries.",
+ "promotes": [
+  {
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 6644",
+   "issueKey": "housing",
+   "decision": "ACCEPTED",
+   "from": {
+    "weight": 80,
+    "isPrimary": false,
+    "supportMeaning": "yea_supports"
+   },
+   "to": {
+    "weight": 80,
+    "isPrimary": true,
+    "supportMeaning": "yea_supports"
+   },
+   "instrument": "H.R. 6644, the 21st Century ROAD to Housing Act. House-origin and Senate-passed, which is the shape the wave brief prefers: Senate 119/2 roll 53, 'On Passage of the Bill', 89-10 with 1 not voting, 2026; House 119/2 roll 224, 'On Motion to Suspend the Rules and Concur in Senate Adt to House Adt to Senate Adt', 358-32. Both rolls are already in the corpus with attributed member votes, so admissibility was settled by an earlier wave and this one relitigates none of it.",
+   "textRead": "govinfo BILLS-119hr6644enr (enrolled, 442,682 bytes, read 2026-08-29), which is the same text the corpus's two other H.R. 6644 rows already cite as PLAW-119publ101 — the Act became Public Law 119-101. Not a summary and not congress.gov, which serves a JavaScript challenge to a non-browser client.",
+   "rationale": "Primary: the 21st Century ROAD to Housing Act is a housing act, and housing affordability is its own subject rather than a title inside a vehicle. `housing`'s published chip is 'Make housing more affordable by boosting supply and lowering the cost to build and buy', and the enrolled text carries all three of those limbs as full titles: supply in Title I (Sec. 103 infill exemption, Sec. 104 publicly owned land database, Sec. 107 housing supply frameworks), Title II (Building More in America) and Title III (Manufactured Housing for America); the cost to build in Sec. 211, captioned the Housing Affordability Act, which raises the per-unit dollar limits on FHA multifamily mortgage insurance at 12 U.S.C. 1713(c)(3)(A) and 1715e(b)(2) roughly fourfold and re-indexes them to the Census Bureau's Price Deflator Index of Multifamily Residential Units Under Construction; and the cost to buy in Title IV (Accessing the American Dream) — Sec. 401 small-dollar loan originator incentives, Sec. 402 small-dollar mortgage points and fees, Sec. 403 Appraisal Industry Improvement Act, Sec. 404 Helping More Families Save Act — in Title IX (Strengthening Community Banks' Role in Housing) and in Title X (Home-Ownership for Main Street America), whose single section restricts large institutional-investor purchases of single-family homes. Eleven of the Act's twelve titles are housing titles. Weighted 80 rather than 100 and ranked below the housing_build primary because supply is the limb the Act's own long title names; the weight is what ranks the two axes, not the flag.",
+   "cousinWall": "housing is NOT housing_build and NOT housing_support, and the promote is what makes the distinction visible rather than what blurs it. housing_build's chip is 'Loosen zoning and permitting so more homes — including apartments — can be built': that is Titles I, II and III and it is already this measure's w100 primary, untouched. Title IV, Title IX and Title X are outside housing_build entirely — a small-dollar mortgage origination incentive and an appraisal standard loosen no zoning and permit no construction — and they are what earns `housing` its own lane. housing_support's chip is 'Fund affordable housing and protect renters with assistance and limits on evictions'; see declinedPromotes for why it gets no row on this Act at all.",
+   "polarityUnchanged": "yea_supports, exactly as filed. A yea enacted the Act. Nothing about the direction is re-decided here and no support_meaning changes anywhere in this wave, which is what keeps Direction Match out of it.",
+   "weightUnchanged": "80, exactly as filed. The promote changes `is_primary` and rewrites the rationale to state the lane; it does not move the weight. vr-pack.ts sorts a measure's issues primary-first then weight-descending, and housing_build (w100, primary) still outranks housing (w80, primary), so the issue order on the bill page is identical before and after and bill-detail.js still reads housing_build as the headline issue.",
+   "twoPrimariesIsCorpusPractice": "S.J.Res. 18 carries gov_regulation w100 primary and econ_corp_account w75 primary. S. 2 carries deportations w100 primary and border_security w90 primary. H.R. 6703 carries healthcare_costs w100 primary and healthcare w70 primary, promoted by 20260922000000_vr_hr6703_healthcare_primary_lane on the same reasoning applied here: two axes that are both the instrument's own subject, ranked by weight.",
+   "theCaveat": "STATED RATHER THAN OMITTED, because it is the strongest thing that can be said against this promote: the Act's own long title is 'To increase the supply of housing in America, and for other purposes', which names supply and not affordability. That is why housing_build holds w100 and why this row stays at w80. It is not a reason to keep `housing` out of the primary lane, for two reasons. First, supply IS the chip's own first limb, so a supply-named act is not outside `housing` to begin with. Second, the Act has no findings or purposes section — Sec. 1 is a short title and a table of contents, and Secs. 1201 and 1202 are severability and a no-additional-funds clause — so there is no general-provisions statement of subject to read either way, and the titles are the only text there is. Read on the titles, the buy-side is not incidental to this Act: it is three of its twelve titles.",
+   "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr6644enr/html/BILLS-119hr6644enr.htm",
+   "sourceUrlWritten": "https://www.govinfo.gov/content/pkg/PLAW-119publ101/html/PLAW-119publ101.htm",
+   "sourceUrlNote": "The row currently carries the congress.gov bill page, which is a landing page rather than a text. The promote moves it to the enacted text on govinfo, matching the permitting_reform and crypto_cbdc rows on the same measure. That is a source improvement on a row this wave is already rewriting, not a second change smuggled in: a rationale that argues from the enrolled titles should cite the titles."
+  }
+ ],
+ "retractions": [],
+ "_retractionsNote": "None. Runbook rule 32 exists for a mapping left behind by a narrowed scope note, and no key this wave touched has narrowed. The one live mapping this wave believes is WRONG is recorded under surfacedContradictions rather than retracted, because fixing it would move a support_meaning and this wave's doctrine walls Direction Match off.",
+ "census": {
+  "_how": "Rebuilt before any candidate was looked at, and F3's leftover narrative was deliberately not reused. PRIMARY instruments per key per chamber come off vr_measure_issues x vr_measures, counting distinct MEASURES that carry the key at is_primary and have at least one roll call in that chamber; the unread-reason half comes from calling PDXConsistency.formalPatternIndex.rows() through the node:vm sandbox over the 99 senators on the reviewed roster. Reproduce with: node scripts/vr-federal-fpi.mjs --set all --waves f1,f2,f3 --chambers",
+  "findingThatShapedTheWave": "37 of the 98 keys the formal index reports on had a Senate-reachable PRIMARY after F3; 61 had none, and 3358 senator rows were unread. Ranking those 61 by unread volume reproduces F3's leftover queue and would have sent this wave at health_rural (196 weighted), free_speech (194), econ_smallbiz (176), econ_workers (176) and tax_middle_class (98) — all five of which the brief holds back — and then at america_first, econ_trade, gov_waste and housing at 97 each. THAT RANKING IS NOT THE RIGHT ONE, and finding out why is what this wave's census added.",
+  "theSecondQuestion": "Unread volume is not the same as reachable volume. Supplying a key's first PRIMARY only turns a row into a read where the rest of the row clears the depth floors, and 'which rows would clear them' cannot be read off a total. So a second table was built and a new harness flag written for it: `--band` takes every key with no Senate-reachable PRIMARY, flips every Senate-reachable non-primary act on that key to is_primary ONE AT A TIME, re-runs the formal index over all 99 senators, and diffs the read set against the baseline. Forty-one candidate promotes across 27 keys, each measured rather than argued. Reproduce with: node scripts/vr-federal-fpi.mjs --set all --waves f1,f2,f3 --band",
+  "whatTheSecondTableShowed": "Fifteen of the 41 candidates would each start characterising 88 or more senator rows, and none of the 41 would stop characterising a single one. So the constraint on this wave was never arithmetic — almost any promote moves a large number, because almost every candidate act is a measure the whole Senate voted on. The constraint is entirely the instrument argument, and the table's real service was to show that: it converts the wave from 'find the biggest number' into 'find the one instrument whose own enrolled text earns its key at primary weight', which is the only question left once every candidate moves roughly the same count. Four keys — campaign_finance, election_security, power_of_purse, scotus_reform — cannot be moved by any promote at all, because their senator rows hold no Senate-reachable act to promote; those need an instrument, not a lane change, and the census says so out loud.",
+  "howTheWinnerWasPicked": "Of the 41, exactly one candidate is a measure whose subject IS the key being promoted. Every other candidate that moves a meaningful number is a package promoting one of its own titles: H.R. 4 (Rescissions Act, eight keys) for america_first, gov_waste, free_speech, audit_spending and america_first_fp; H.R. 1 (reconciliation) for tax_middle_class and edu_college_cost; H.R. 1319 (American Rescue Plan, eight keys) for child_care, econ_smallbiz, econ_workers, public_schools and cost_living; H.R. 3684 (infrastructure) for transit, water and disaster_resilience; H.R. 5376 (Inflation Reduction Act) for health_drug_prices and healthcare_costs; H.R. 4346 (CHIPS and Science) for econ_growth; H.R. 1968 (continuing resolution) for health_rural; S. 2938 (Bipartisan Safer Communities Act) for health_mental and public_schools; S. 331 (HALT Fentanyl Act) for health_mental; H.R. 815 (118th supplemental) for america_first_fp. Promoting any of those is the package percentage the doctrine refuses by name. H.R. 6644 is not one of them: it is a housing act with one non-housing section, and eleven of its twelve titles are housing titles."
+ },
+ "surfacedContradictions": [
+  {
+   "where": "S.J.Res. 37 (119), issue_key econ_trade, weight 70, support_meaning yea_supports",
+   "what": "The corpus reads a vote to TERMINATE tariffs as SUPPORTING econ_trade, and also reads votes to IMPOSE tariffs as supporting it. Proclamation 11012, Proclamation 11020, Proclamation 10896 and Executive Order 14257 all impose or extend import duties and all carry econ_trade yea_supports; S.J.Res. 37 terminates the duties on Canadian imports and also carries econ_trade yea_supports, on the rationale 'a yea favors lower trade barriers with a top trading partner'. Proclamation 11038, which permits duty-free entry, carries yea_opposes. econ_trade's published chip is 'Use tariffs and trade rules to defend American manufacturing', so at most one of those two readings can be the key's polarity.",
+   "whyItIsNotFixedHere": "Fixing it means changing a support_meaning, and a support_meaning is a Direction Match input on every member holding the act. This wave's doctrine walls DM off, so the honest move is to surface the contradiction rather than to quietly resolve it inside a densification pass whose acceptance test is twin-boot byte-identity on DM. Runbook rule 25 is the rule being followed, not bent: the finding is published where a curator will find it and no number is moved on it.",
+   "whyItMatteredToTHISWave": "It is also the reason econ_trade is refused below rather than shipped. econ_trade sits at the very top of the volume ranking — 97 unread senator rows, 97 gained by the simulated promote, tied for first — and promoting S.J.Res. 37 would have published a directional read to 97 senators off an axis the corpus cannot presently agree on. A wave that ships that number and does not mention this has measured the wrong thing.",
+   "whatWouldFixIt": "A dedicated pass on the tariff family that settles econ_trade's polarity against its own chip across all ten acts at once, with the DM drift measured and disclosed. Ten rows, one decision, and not a by-product of something else."
+  }
+ ],
+ "declinedPromotes": [
+  {
+   "key": "health_rural",
+   "candidate": "H.R. 1968 (119) w45",
+   "onOffer": 98,
+   "why": "REFUSED. H.R. 1968 is a further continuing resolution making appropriations for the fiscal year ending 2025-09-30. Its health_rural mapping is a funding line inside a government-funding vehicle, and 'do not manufacture a PRIMARY from a vehicle' is the first thing the brief says. 98 senator rows were on offer here, the largest number the whole table held, and the size of the number is not an argument. The key stays blocked and its blockedOn line names the bill."
+  },
+  {
+   "key": "tax_middle_class",
+   "candidate": "H.R. 1 (119) w60",
+   "onOffer": 98,
+   "why": "REFUSED. H.R. 1 is a reconciliation act carrying fourteen keys. Its tax_middle_class mapping is one rate-and-credit title of a tax-and-spending vehicle, and promoting it would print a reconciliation vote as a middle-class tax record for 98 senators. This is the same refusal 20260922000000_vr_hr6703_healthcare_primary_lane recorded against H.R. 1 on healthcare, for the same reason, and the brief names this key as already blocked inside reconciliation."
+  },
+  {
+   "key": "america_first",
+   "candidate": "H.R. 4 (119) w60",
+   "onOffer": 97,
+   "why": "REFUSED on two independent grounds. First, H.R. 4 is the Rescissions Act of 2025 and carries eight keys; its primary is cut_spending w100 and the america_first mapping is a description of WHERE the cuts landed, not of what the Act is about. Second, america_first is a bundled key that the August 2026 vocabulary pass already superseded in the foreign-policy direction by america_first_fp; its 97 incidental senator rows are a vocabulary artefact and not a mapping gap, so the correct response is a proposal, not a promote. Recorded in db/vr-issue-key-proposals.md."
+  },
+  {
+   "key": "gov_waste",
+   "candidate": "H.R. 4 (119) w70",
+   "onOffer": 97,
+   "why": "REFUSED on the key's own scope. gov_waste is 'Cut duplicate programs and improper payments'. H.R. 4 cancels roughly $9 billion of unobligated balances Congress had already enacted — a programme rescission, which is a policy choice about what the government should fund, not a finding that a payment was duplicated or improper. cut_spending w100 already holds that axis precisely and correctly. Promoting gov_waste here would file a decision to stop funding something as a decision to stop wasting something, which is a different claim about 97 senators than their votes support."
+  },
+  {
+   "key": "free_speech",
+   "candidate": "H.R. 4 (119) w30",
+   "onOffer": 97,
+   "why": "REFUSED, and it is the clearest package-percentage case in the table. The free_speech mapping on H.R. 4 exists because one of twenty rescission paragraphs strikes the enacted appropriation for the Corporation for Public Broadcasting. That is a weight-30 secondary on an eight-key rescissions act, and promoting it would make a vote on a $9 billion rescission package into the recorded free-speech position of 97 senators. The brief holds this key blocked because S. 146 passed by unanimous consent; a w30 line item is not the standalone instrument that would unblock it."
+  },
+  {
+   "key": "econ_trade",
+   "candidate": "S.J.Res. 37 (119) w70",
+   "onOffer": 97,
+   "why": "REFUSED. See surfacedContradictions: the corpus presently reads tariff-imposing and tariff-terminating acts as both supporting econ_trade, so the axis cannot carry a published directional read until that is settled, and settling it moves support_meanings and therefore Direction Match. Separately and independently, S.J.Res. 37's own subject is the authority question — it terminates the national emergency declared in Executive Order 14193, the Canada border emergency, and tariffs_authority w100 holds that correctly. The four un-ingested siblings (S.J.Res. 77 Canada 50-46, S.J.Res. 81 Brazil 52-48, S.J.Res. 88 global 51-47, S.J.Res. 49 global 49-49 rejected) were read for the same purpose and refused for the same two reasons; admitting them would add more w70 secondaries to a family whose primary is the `_RD_NO_POLE` key tariffs_authority, which deepens the incidental pile without giving the engine anything it can read."
+  },
+  {
+   "key": "health_drug_prices",
+   "candidate": "H.R. 5376 (117) w90",
+   "onOffer": 89,
+   "why": "REFUSED. H.R. 5376 is the Inflation Reduction Act, seven keys, primary climate_action w100. The drug-pricing title (Sec. 11001, Medicare negotiation) is real, large and genuinely the most-cited part of the Act — which is exactly why the temptation is worth recording. It is still one title of a reconciliation act, and w90 is a measure of how big the title is, not of what the Act is about. Promoting it would publish a climate-and-tax vote as the drug-pricing record of 89 senators."
+  },
+  {
+   "key": "healthcare_costs",
+   "candidates": "H.R. 5376 (117) w70, H.R. 1319 (117) w60",
+   "onOffer": 1,
+   "why": "REFUSED, and this one is refused even though it costs almost nothing: only 1 senator row is unread on healthcare_costs and the promote would gain 1. Both candidates are reconciliation packages. A promote that is wrong on the instrument is not made right by being small."
+  },
+  {
+   "key": "child_care",
+   "candidate": "H.R. 1319 (117) w55",
+   "onOffer": 88,
+   "why": "REFUSED. H.R. 1319 is the American Rescue Plan Act, eight keys, primary family_support w100. Its child_care mapping is Title II stabilization funding — a title of an emergency pandemic package. Same refusal as econ_smallbiz w40, econ_workers w45, public_schools w50 and cost_living w70 on the same measure: five different keys, one vehicle, and promoting any of them turns one omnibus vote into a position on everything inside it."
+  },
+  {
+   "key": "disaster_resilience",
+   "candidate": "H.R. 3684 (117) w50",
+   "onOffer": 88,
+   "why": "REFUSED. H.R. 3684 is the infrastructure act and its disaster_resilience mapping is Divisions D and J. Same treatment for transit w70 and water w60 on the same measure. Worth recording separately: H.R. 6644, the measure this wave DOES act on, contains Sec. 504, the Reforming Disaster Recovery Act, and disaster_resilience's chip reaches 'speed up disaster recovery' — so a disaster_resilience row could have been argued onto H.R. 6644 as well. It is refused for the same reason as everything else in this list: one section of a twelve-title Act is a package percentage, whichever Act it is, and this wave does not get to apply a different rule to its own instrument than it applies to the ones it declines."
+  },
+  {
+   "key": "econ_growth",
+   "candidate": "H.R. 4346 (117) w65",
+   "onOffer": 88,
+   "why": "REFUSED. H.R. 4346 is the CHIPS and Science Act, primary tech_innovation w100. Sec. 103's financial assistance for semiconductor facilities is an industrial-policy mechanism inside a research-and-fabrication act; econ_growth as its primary would make a semiconductor vote into a general growth record."
+  },
+  {
+   "key": "econ_smallbiz",
+   "candidate": "H.R. 1319 (117) w40",
+   "onOffer": 88,
+   "why": "REFUSED. Title V's Restaurant Revitalization Fund and PPP lines inside the American Rescue Plan. The brief holds this key blocked on H.R. 3193 and the re-verification confirms it: H.R. 3193 appears in none of the 890 Senate roll calls of the 119th Congress."
+  },
+  {
+   "key": "econ_workers",
+   "candidate": "H.R. 1319 (117) w45",
+   "onOffer": 88,
+   "why": "REFUSED. Title IX's pandemic unemployment extensions inside the American Rescue Plan. The brief holds this key blocked on H.R. 5408 and the re-verification confirms it: H.R. 5408 appears in none of the 890 Senate roll calls of the 119th Congress."
+  },
+  {
+   "key": "transit",
+   "candidate": "H.R. 3684 (117) w70",
+   "onOffer": 88,
+   "why": "REFUSED. A title of the infrastructure act. No standalone transit instrument of any kind exists in the 119th Congress, in either chamber, which is what the blockedOn line says."
+  },
+  {
+   "key": "water",
+   "candidate": "H.R. 3684 (117) w60",
+   "onOffer": 88,
+   "why": "REFUSED. A title of the infrastructure act. Also re-confirms F3's refusal of H.J.Res. 140 as water and adds one of the same kind: H.J.Res. 20 disapproves a Department of Energy rule on 'Consumer Gas-fired Instantaneous Water Heaters', and the string 'water' in an appliance-standard title is the rural_ag keyword lesson exactly. water's scope is demand-side conservation. Refused on the text."
+  },
+  {
+   "key": "edu_college_cost",
+   "candidates": "H.R. 1 (119) w40, H.R. 3746 (118) w50",
+   "onOffer": 78,
+   "why": "REFUSED. A reconciliation act and a debt-limit act. Notable because edu_college_cost is the one key in the brief's suggested band whose senator rows are NOT uniformly one-act — 21 senators hold two or more — and it is still refused, because the two acts available to promote are both vehicles. Depth does not rescue a bad instrument."
+  },
+  {
+   "key": "national_debt",
+   "candidates": "H.R. 1 (119) w65, H.R. 82 (118) w55, H.R. 1319 (117) w55, H.R. 1968 (119) w50, H.R. 3684 (117) w45, H.R. 5376 (117) w45, H.R. 4 (119) w40, H.R. 4346 (117) w45, Vought — OMB (119) w55",
+   "onOffer": 15,
+   "why": "REFUSED, all nine. national_debt is the most-mapped key in the corpus precisely because every spending measure has a deficit consequence, and that is the definition of an incidental relation rather than a subject. Eight of the nine candidates are packages and the ninth is a nomination. 84 of the 99 senator rows on this key already read; the 15 that do not are members whose only acts are these secondaries."
+  },
+  {
+   "key": "cost_living",
+   "candidates": "H.R. 82 (118) w60, H.J.Res. 89 (119) w45, S.J.Res. 37 (119) w55, H.R. 1319 (117) w70, H.J.Res. 88 (119) w45",
+   "onOffer": 18,
+   "why": "REFUSED, all five. cost_living is the cousin every deregulatory disapproval and every spending measure can be argued into, and promoting a Congressional Review Act resolution or an omnibus here would collapse gov_regulation, econ_growth and cost_living into one undifferentiated key. Its 81 already-read senator rows are read off exactly this kind of secondary and that is as far as the key should be pushed."
+  },
+  {
+   "key": "audit_spending",
+   "candidates": "H.R. 4 (119) w55, S.Amdt. 3535 (119) w70",
+   "onOffer": 20,
+   "why": "REFUSED, both. H.R. 4 is the eight-key Rescissions Act; its audit_spending line is 'codifies cuts identified by DOGE', which is a description of the cuts' provenance and not of the Act's subject. S.Amdt. 3535 is closer and still no: its own stated substance is requiring Presidential appointment and Senate confirmation of the Inspectors General of the Federal Reserve Board and the CFPB, which congress_oversight w100 holds exactly. The amendment is about who appoints an auditor, and neither the Federal Reserve nor the CFPB is funded by appropriation, so 'audit federal spending' is not what its text does."
+  },
+  {
+   "key": "america_first_fp",
+   "candidates": "H.R. 4 (119) w65, H.R. 815 (118) w70",
+   "onOffer": 43,
+   "why": "REFUSED, both. H.R. 4 again, and H.R. 815 is the 118th Congress's national-security supplemental, a three-theatre appropriations package. Read alongside this: H.R. 5334, the Russia sanctions act, passed the Senate 86-11 at 119/2/224 and is NOT in the corpus. It was examined as a possible new america_first_fp PRIMARY and refused on the key's own scope note, which was narrowed in August 2026 to 'what the United States funds and commits to abroad' and explicitly OUTs 'countering China and military posture toward adversaries', routing those to strong_defense — which already holds seven Senate-reachable PRIMARYs and needs nothing. The tally is also close to rule 11's floor: the losing side is 11.34% of the yea-plus-nay pool."
+  },
+  {
+   "key": "health_mental",
+   "candidates": "S. 2938 (117) w70, S. 331 (119) w45",
+   "onOffer": 53,
+   "why": "REFUSED, both. S. 2938 is the Bipartisan Safer Communities Act; its mental-health title is large and its primary is gun_safety w100, and a firearms act is not a mental-health instrument however much of its money goes to mental health. S. 331 is the HALT All Lethal Trafficking of Fentanyl Act, primary immig_fentanyl w100, and its health_mental slice is filed yea_opposes as a consequence of class-wide Schedule I placement — a sentencing act read for a treatment effect. The key's real instrument is named in blockedOn."
+  },
+  {
+   "key": "public_schools",
+   "candidates": "H.R. 1319 (117) w50, S. 2938 (117) w45",
+   "onOffer": 13,
+   "why": "REFUSED, both. The American Rescue Plan's school-reopening fund and the Bipartisan Safer Communities Act's school-safety money. public_schools is 'the money and staffing of the DISTRICT system', and neither act is a district-funding instrument; F3 refused the same key on S.J.Res. 7 for the adjacent reason."
+  },
+  {
+   "key": "housing_support",
+   "candidate": "no live row — would have been a NEW mapping on H.R. 6644",
+   "onOffer": 0,
+   "why": "REFUSED, and recorded because it is the temptation created by this wave's own instrument. H.R. 6644 contains Sec. 405, the Choice in Affordable Housing Act (Section 8 voucher inspection and landlord participation), Sec. 404, the Helping More Families Save Act (an escrow pilot for section 8 and section 9 families), Sec. 212 (Rental Assistance Demonstration) and Sec. 501 (HOME Investment Partnerships reauthorization) — four subsidy provisions, and housing_support currently holds no federal instrument at all, only Utah bills. It gets no row anyway. First, four sections of a twelve-title Act is a package percentage on the same rule this wave applies to every measure it declined. Second, housing_support's chip is 'Fund affordable housing and protect renters with assistance and limits on evictions' and the Act contains no eviction protection and no rent limit, so half the chip has no text behind it. Third, measured: the row would be a single non-primary act, which the primary wall writes as incidental — it would gain zero characterised rows and add 98 unread ones. A key with no instrument is better described as having none."
+  },
+  {
+   "key": "permitting_reform, crypto_cbdc, housing_build",
+   "candidate": "the three other live rows on H.R. 6644",
+   "onOffer": 0,
+   "why": "UNTOUCHED, deliberately. housing_build w100 keeps the primary lane it already holds and its rationale is not rewritten. permitting_reform w60 and crypto_cbdc w40 keep their secondary lanes: each is a mechanism or a rider rather than the Act's subject, which is what their existing rationales say, and both keys are outside this wave's census band. This wave changes exactly one field on exactly one row."
+  }
+ ],
+ "declinedRollCalls": [
+  {
+   "roll": "senate 119/1/411 and 119/1/168 (house)",
+   "measure": "H.R. 4 (119)",
+   "why": "Not declined as rolls — both are already in the corpus. Recorded here because H.R. 4 is the single most-tempting measure in the whole band table, offering promotes on five separate keys (america_first, gov_waste, free_speech, audit_spending, america_first_fp) worth 97, 97, 97, 6 and 9 rows. All five refused above."
+  },
+  {
+   "roll": "senate 119/1/600, 119/1/598, 119/1/594, 119/1/225",
+   "measure": "S.J.Res. 88, S.J.Res. 77, S.J.Res. 81, S.J.Res. 49",
+   "why": "REFUSED AS NEW MEASURES. Rule 12 admits all four on question form ('On the Joint Resolution'), and all four clear rule 11 (losing sides 47.96%, 47.92%, 48.00%, 50.00%). They are refused on the mapping, not the roll: the family's subject is the emergency-powers authority question, whose key tariffs_authority is on the `_RD_NO_POLE` list and can never be characterised, and the econ_trade axis is the one surfacedContradictions says the corpus cannot presently agree on. Admitting four resolutions to add four more w70 secondaries to that axis would add 388 member votes and gain nothing."
+  },
+  {
+   "roll": "senate 119/2/224",
+   "measure": "H.R. 5334",
+   "why": "REFUSED ON THE MAPPING. Sanctions on the Russian Federation, passed 86-11. america_first_fp's scope note OUTs military posture toward adversaries and routes it to strong_defense, which already holds seven Senate-reachable PRIMARYs. The losing side is 11.34% of the pool, which clears rule 11's one-tenth bar but only just, and is recorded because a near-unanimous restuffing is the second refusal the brief names."
+  },
+  {
+   "roll": "senate 119/1/480",
+   "measure": "H.R. 3944",
+   "why": "REFUSED TWICE OVER. Military construction and Veterans Affairs appropriations: an appropriations vehicle, and 87-9 puts the losing side at 9.375% of the yea-plus-nay pool, below rule 11's one-tenth bar. Either ground alone is sufficient."
+  },
+  {
+   "roll": "senate 119/1/618, 119/1/535, 119/1/528, 119/1/534, 119/1/527, 119/2/228, 119/2/11",
+   "measure": "H.R. 5371, S. 2882, H.R. 6500, H.R. 6938",
+   "why": "REFUSED. Continuing and consolidated appropriations. 'Do not manufacture a PRIMARY from a vehicle' applies to the vehicle itself as much as to a promote on one."
+  },
+  {
+   "roll": "senate 119/1/623, 119/1/599, 119/1/560, 119/1/556, 119/1/549, 119/1/279, 119/1/275, 119/1/239, 119/1/237, 119/1/232, 119/1/229, 119/1/228, 119/1/223, 119/1/207, 119/1/162, 119/1/106, 119/1/102, 119/1/97, 119/1/92, 119/1/654, 119/2/37",
+   "measure": "H.J.Res. 130, S.J.Res. 80, H.J.Res. 106, H.J.Res. 105, H.J.Res. 104, H.J.Res. 87, S.J.Res. 55, H.J.Res. 60, S.J.Res. 13, H.J.Res. 61, S.J.Res. 31, H.J.Res. 75, H.J.Res. 42, H.J.Res. 20, H.J.Res. 24, S.J.Res. 28, S.J.Res. 3, H.J.Res. 35, S.J.Res. 11, S.J.Res. 82, H.J.Res. 142",
+   "why": "REFUSED AS A BLOCK, twenty-one Congressional Review Act and disapproval resolutions, all admissible on question form. Each one's primary lands on a key that already holds a Senate-reachable PRIMARY — lands_energy and lands_preserve (the BLM and National Park Service records of decision), climate_action and energy_production (the EPA and BOEM rules), gov_regulation (the HHS Administrative Procedure Act policy), econ_corp_account (the OCC Bank Merger Act and CFPB larger-participant rules), crypto (the IRS digital-asset broker rule) — or on no readable key at all (H.J.Res. 142 disapproves a District of Columbia Council tax act, which is a home-rule question and not a federal tax change). Ingesting them would add roughly 2,000 member votes and no new characterised row, and would add gov_regulation process secondaries of exactly the kind F3 measured a two-row cost for on King and Lujan."
+  },
+  {
+   "roll": "senate 119/1/645, 119/1/541, 119/1/517, 119/2/217, 119/2/114",
+   "measure": "S.Res. 532, S.Res. 412, S.Res. 377, S.Res. 817, S.Res. 690",
+   "why": "REFUSED ON FORM. Executive resolutions authorising en bloc consideration of nominations on the Executive Calendar. The question reads 'On the Resolution' and would pass a naive form check, but the act is calendar machinery for confirmations, not a legislative measure, and rule 8's ground — a procedural question is not a vote on a thing — is the same one that keeps motions to proceed out."
+  },
+  {
+   "roll": "senate 119/2/184, 119/1/87, 119/2/105",
+   "measure": "H.Con.Res. 86, S.Con.Res. 7, S.Con.Res. 33",
+   "why": "REFUSED. H.Con.Res. 86 directs removal of forces from hostilities with Iran under section 5(c) of the War Powers Resolution: its key is war_powers, which is on the `_RD_NO_POLE` list. S.Con.Res. 7 and S.Con.Res. 33 are budget resolutions, which is the reserve-fund and messaging territory rule 31 governs."
+  }
+ ],
+ "blockedOn": [
+  {
+   "key": "health_rural",
+   "state": "No admissible instrument exists in either chamber. Re-verified this wave rather than carried on F3's word.",
+   "evidence": "The key holds zero PRIMARY instruments anywhere in the corpus and all 98 senator rows read vehicle_only. The only Senate-reachable act is H.R. 1968, a continuing resolution, refused above. S. 2683, the Rural Hospital Stabilization Act, appears in NONE of the 890 Senate roll calls of the 119th Congress — searched literally, both spacings — so the calendar has not changed since F3 wrote the same sentence.",
+   "whatWouldUnblockIt": "A Senate passage vote on S. 2683, the Rural Hospital Stabilization Act, reported by Finance and never brought up."
+  },
+  {
+   "key": "free_speech",
+   "state": "No roll call exists to attribute, in either chamber.",
+   "evidence": "S. 146, the TAKE IT DOWN Act, is the Congress's free-speech instrument and it passed the Senate by unanimous consent. Re-verified: S. 146 appears in none of the 890 Senate roll calls of the 119th. The only Senate-reachable free_speech act is H.R. 4's w30 Corporation for Public Broadcasting rescission line, refused above. Nothing about the calendar changed.",
+   "whatWouldUnblockIt": "A recorded Senate vote on S. 146 or on any successor standalone measure. A unanimous-consent passage cannot be attributed to a member and the corpus will not invent one."
+  },
+  {
+   "key": "econ_smallbiz",
+   "state": "No admissible Senate instrument. The House-origin bill is still on the calendar.",
+   "evidence": "H.R. 3193 appears in none of the 890 Senate roll calls of the 119th. The only Senate-reachable act is H.R. 1319 w40, refused above. F3's alternative candidate, Scott FL Amdt. 3113 at 15-81, remains below rule 11's one-tenth bar.",
+   "whatWouldUnblockIt": "A Senate passage vote on H.R. 3193."
+  },
+  {
+   "key": "econ_workers",
+   "state": "No admissible Senate instrument. The House-origin bill was received and never voted.",
+   "evidence": "H.R. 5408 appears in none of the 890 Senate roll calls of the 119th. The only Senate-reachable act is H.R. 1319 w45, refused above.",
+   "whatWouldUnblockIt": "A Senate passage vote on H.R. 5408."
+  },
+  {
+   "key": "tax_middle_class",
+   "state": "Every Senate act on the key is inside a reconciliation vehicle.",
+   "evidence": "The only Senate-reachable act is H.R. 1 w60, refused above. No standalone middle-class tax bill reached a Senate passage vote in the 119th; the 63 passage-form rolls contain none.",
+   "whatWouldUnblockIt": "A Senate passage vote on a standalone rate-or-credit bill outside reconciliation."
+  },
+  {
+   "key": "scotus_reform",
+   "state": "No Senate instrument of any kind, and no act to promote.",
+   "evidence": "The key holds zero Senate-reachable acts — it is one of the four keys the band table reports as unmovable by any promote. S. 1101 appears in none of the 890 Senate roll calls of the 119th.",
+   "whatWouldUnblockIt": "A Senate passage vote on S. 1101."
+  },
+  {
+   "key": "gov_regulation",
+   "state": "NOT blocked, and deliberately not touched. Two Senate-reachable PRIMARYs already.",
+   "evidence": "The twenty-one un-ingested Congressional Review Act resolutions would each carry a gov_regulation process secondary at weight 60 to 70, following the corpus habit. F3 measured that cost and refused it: adding two such secondaries gains zero characterised rows and costs two — angus_king and lujan, both read to unread — because a fifth non-primary act crosses _RD_MIN_JUDGED onto the deep branch where the primary wall fires. Twenty-one resolutions would be that mechanism at ten times the scale. Rule 30 is explicit that a key is fixed by supplying a PRIMARY and never by a further secondary, and this key needs no fixing.",
+   "whatWouldUnblockIt": "Nothing. It is not blocked. What would make the King and Lujan rows correct is a gov_regulation PRIMARY either of them has a recorded vote on; S.J.Res. 18 is the key's Senate PRIMARY and neither is on its roll."
+  },
+  {
+   "key": "disaster_resilience",
+   "state": "The key's only w100 PRIMARY has House roll calls only.",
+   "evidence": "H.R. 471 carries disaster_resilience at w100 primary and has House rolls only; it appears in none of the 890 Senate roll calls of the 119th. The only Senate-reachable act is H.R. 3684 w50, refused above.",
+   "whatWouldUnblockIt": "A Senate passage vote on H.R. 471."
+  },
+  {
+   "key": "healthcare_costs",
+   "state": "The key's House-reachable PRIMARY has no Senate roll.",
+   "evidence": "H.R. 6703, promoted into the healthcare primary lane in September 2026, appears in none of the 890 Senate roll calls of the 119th. Only 1 senator row on this key is unread.",
+   "whatWouldUnblockIt": "A Senate passage vote on H.R. 6703."
+  },
+  {
+   "key": "health_mental",
+   "state": "The key's w100 PRIMARY has House roll calls only.",
+   "evidence": "H.R. 2483, the SUPPORT for Patients and Communities Reauthorization Act, carries health_mental at w100 primary and appears in none of the 890 Senate roll calls of the 119th.",
+   "whatWouldUnblockIt": "A Senate passage vote on H.R. 2483."
+  },
+  {
+   "key": "econ_growth",
+   "state": "No standalone Senate instrument.",
+   "evidence": "The only Senate-reachable act is H.R. 4346 w65, refused above. H.R. 3633 appears in none of the 890 Senate roll calls of the 119th.",
+   "whatWouldUnblockIt": "A Senate passage vote on H.R. 3633."
+  },
+  {
+   "key": "public_schools",
+   "state": "No standalone Senate instrument.",
+   "evidence": "Both Senate-reachable acts are packages, refused above. H.R. 28 appears in none of the 890 Senate roll calls of the 119th.",
+   "whatWouldUnblockIt": "A Senate passage vote on H.R. 28."
+  },
+  {
+   "key": "transit",
+   "state": "No standalone instrument exists in the 119th Congress in either chamber.",
+   "evidence": "The key's only Senate-reachable act is H.R. 3684 w70, a title of the infrastructure act. No transit bill of any kind reached a passage vote in the 119th.",
+   "whatWouldUnblockIt": "A standalone transit authorisation or funding bill reaching a Senate passage vote. None is pending; this is a menu gap, not an ingest gap."
+  },
+  {
+   "key": "water",
+   "state": "No standalone instrument exists in the 119th Congress in either chamber.",
+   "evidence": "The key's only Senate-reachable act is H.R. 3684 w60. F3 already refused H.J.Res. 140 as water; this wave adds H.J.Res. 20 to the refused list on the same keyword ground.",
+   "whatWouldUnblockIt": "A standalone water-conservation or drought bill reaching a Senate passage vote. None is pending."
+  },
+  {
+   "key": "child_care",
+   "state": "No standalone instrument exists in the 119th Congress in either chamber.",
+   "evidence": "The key's only Senate-reachable act is H.R. 1319 w55.",
+   "whatWouldUnblockIt": "A standalone child-care bill reaching a Senate passage vote. None is pending."
+  },
+  {
+   "key": "edu_college_cost",
+   "state": "No standalone instrument exists in the 119th Congress in either chamber.",
+   "evidence": "Both Senate-reachable acts are vehicles: H.R. 1 w40 and H.R. 3746 w50.",
+   "whatWouldUnblockIt": "A standalone tuition, loan or Pell bill reaching a Senate passage vote. None is pending."
+  },
+  {
+   "key": "health_drug_prices",
+   "state": "No standalone instrument exists in the 119th Congress in either chamber.",
+   "evidence": "The key's only Senate-reachable act is H.R. 5376 w90.",
+   "whatWouldUnblockIt": "A standalone drug-pricing bill reaching a Senate passage vote. None is pending."
+  },
+  {
+   "key": "campaign_finance, election_security, power_of_purse",
+   "state": "Unmovable by any promote, and for a different reason than the rest of this list.",
+   "evidence": "These three hold no Senate-reachable act to promote at all — their senator rows are built from non-floor acts. The band table reports them, with scotus_reform, as the four keys where the wall is the act count and not the flag.",
+   "whatWouldUnblockIt": "An instrument, not a lane change. Any standalone Senate passage vote on the subject would be the first federal floor act these keys hold."
+  }
+ ],
+ "chamberGapSweep": {
+  "_why": "Rule 30's second corollary: a measure whose `chamber` does not appear among its own roll calls is almost always an ingest gap. Applied to this wave's own output as well as to the corpus, because a wave aimed at a chamber gap is the easiest place to create one.",
+  "_result": "H.R. 6644 is a House measure and holds a House roll (119/2/224) as well as its Senate roll (119/2/53), so this wave's own instrument has no gap. Full corpus sweep found six pre-existing gaps, none created or touched here: H.R. 7776 (117) and H.R. 815 (118) hold Senate rolls only; S. 1383, S. 146, S. 2503 and S. 356 (all 119) hold House rolls only. S. 146 is the free_speech unanimous-consent case already written up in blockedOn — its House roll exists because the House recorded a vote and the Senate did not, which is the mirror of the usual gap and is not fixable by ingest.",
+  "checkedAfter": "This wave adds no roll call, so the sweep result is identical before and after. The migration's verification block asserts that H.R. 6644 still holds at least one roll in its own chamber rather than trusting it."
+ },
+ "vocab": {
+  "keysAdded": 0,
+  "_why": "Default held. No key was proposed at the V1 bar this wave, because no candidate cleared it: the V1 bar asks for recurrence plus polarity plus not-a-cousin plus a readable chip AND at least two instruments to map, and the one genuine vocabulary finding this wave turned up has zero instruments of its own.",
+  "proposal": {
+   "name": "america_first bundling artefact",
+   "finding": "america_first holds 97 unread senator rows, all incidental, and exactly one Senate-reachable act: H.R. 4 w60. Its foreign-policy limb was already superseded in August 2026 by america_first_fp, whose scope note narrows to 'what the United States funds and commits to abroad' and OUTs military posture. What is left in america_first is a bundle with no instrument of its own, and its 97 rows are an artefact of the bundling rather than a mapping gap a wave can close.",
+   "shipped": false,
+   "where": "db/vr-issue-key-proposals.md",
+   "whyNotShipped": "It is a retirement or a re-scoping question, not a new key, and it fails the V1 bar's two-instrument test in the direction that matters: there is nothing to map it to. Retiring or narrowing a live key moves published rows and belongs in a vocabulary pass with its own drift measurement, not inside a densification wave whose acceptance test is byte-identity on everything it did not admit."
+  }
+ },
+ "_counts": {
+  "measuresRead": 0,
+  "newMeasures": 0,
+  "rollCallsSwept": 890,
+  "rollCallsAdmissibleOnForm": 63,
+  "rollCallsAlreadyInCorpus": 18,
+  "rollCallsAdmitted": 0,
+  "rollCallsDeclined": 45,
+  "memberVotesAttributed": 0,
+  "memberVotesSkipped": 0,
+  "candidatePromotesSimulated": 41,
+  "promotesAccepted": 1,
+  "promotesRefused": 40,
+  "rowsAdded": 0,
+  "rowsRetracted": 0,
+  "keysAdded": 0,
+  "floorsMoved": 0,
+  "senateKeysWithPrimaryBefore": 37,
+  "senateKeysWithPrimaryAfter": 38,
+  "senateUnreadRowsBefore": 3358,
+  "senateUnreadRowsAfter": 3261,
+  "senateIncidentalRowsBefore": 1316,
+  "senateIncidentalRowsAfter": 1219,
+  "readsGained": 193,
+  "readsLost": 0
+ },
+ "readLossDisclosure": {
+  "_comment": "The acceptance criterion for this wave is that no row the engine already characterised stops being characterised. Checked directly on the row model's own `read` flag, set-wise, over every pid in the set — not on the shape counters, which can net a loss against a gain and which F3 proved insufficient. Filled from the measured run; see reportedIn.",
+  "checkedBy": "scripts/vr-federal-fpi.mjs --set all --waves f1,f2,f3,f4  (readSets(); printed as 'rows that stopped being characterised', machine-readable under lostReads/gainedReads in --json). Run over --set all, which is both chambers, not --set senate.",
+  "pinnedBy": "scripts/test-vr-federal-wave-f4.mjs",
+  "totals": {
+   "lost": 0,
+   "gained": 193,
+   "lostTiers": {},
+   "gainedTiers": {
+    "thin": 193
+   },
+   "gainedByKey": {
+    "housing": 193
+   },
+   "gainedByChamber": {
+    "senate": 97,
+    "house": 96
+   },
+   "membersChecked": 327,
+   "_note": "ZERO LOST, and it is checked rather than asserted: every one of the 327 federal members on the roster was booted before and after and the SET of keys the engine marks `read` was compared. Not one row on any key for any member stopped being characterised. All 193 gains are on `housing` and all 193 read at tier `thin`, which is the honest tier for a single judged act — the display read _stThinDirRead can word one judged act once the primary wall is cleared, and nothing here is dressed as deeper than that. The House half matters: 96 of the 193 are representatives reading through roll 119/2/224, so a check run over senators alone would have measured half the wave and missed any House loss entirely."
+  },
+  "utahSix": {
+   "_comment": "The acceptance faces, and the wave clears them with a characterised key rather than a blocked-on line.",
+   "gained": 6,
+   "lost": 0,
+   "rows": [
+    {
+     "pid": "lee",
+     "key": "housing",
+     "tier": "thin",
+     "act": "H.R. 6644, senate 119/2 roll 53, nay"
+    },
+    {
+     "pid": "curtis",
+     "key": "housing",
+     "tier": "thin",
+     "act": "H.R. 6644, senate 119/2 roll 53, yea"
+    },
+    {
+     "pid": "bmoore",
+     "key": "housing",
+     "tier": "thin",
+     "act": "H.R. 6644, house 119/2 roll 224, yea"
+    },
+    {
+     "pid": "maloy",
+     "key": "housing",
+     "tier": "thin",
+     "act": "H.R. 6644, house 119/2 roll 224, yea"
+    },
+    {
+     "pid": "kennedy",
+     "key": "housing",
+     "tier": "thin",
+     "act": "H.R. 6644, house 119/2 roll 224, yea"
+    },
+    {
+     "pid": "owens",
+     "key": "housing",
+     "tier": "thin",
+     "act": "H.R. 6644, house 119/2 roll 224, yea"
+    }
+   ],
+   "_whyItReadsBothWays": "Lee voted nay and Curtis voted yea on the same roll, so the promote does not hand the delegation a uniform position — it hands each member their own. That is the test a densification wave should want: a key that only ever reads one way across a delegation is a key being written by the mapping rather than by the record. No Utah-only ingest was required or performed."
+  }
+ },
+ "acceptanceFaces": {
+  "_comment": "The brief's two named faces, answered with the measured outcome rather than with a promise.",
+  "lee": "GAINS a characterised key. `housing`, tier thin, from H.R. 6644 — Senate 119/2 roll 53, On Passage of the Bill, nay. Before this wave Lee's housing row read `incidental` and the dossier said nothing about a housing vote he cast.",
+  "curtis": "GAINS a characterised key. `housing`, tier thin, from H.R. 6644 — Senate 119/2 roll 53, On Passage of the Bill, yea. The same roll as Lee, read the other way: the promote hands each senator the position the record holds for them, and the two Utah senators come out opposed.",
+  "andTheOtherFour": "blake_moore (bmoore), celeste_maloy (maloy), mike_kennedy (kennedy) and burgess_owens (owens) each gain `housing` at tier thin from House 119/2 roll 224, all four yea. The whole Utah federal delegation moves, and none of it required a Utah-only ingest.",
+  "blockedOnLinesStillNeeded": "None for this key. For the seven keys the brief held back, and for the eleven others still short of a Senate PRIMARY, see blockedOn — every entry names the exact bill."
+ }
+}
