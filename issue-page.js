@@ -579,6 +579,8 @@
 
   // ── THE OVERLAY ─────────────────────────────────────────────────────────────
   var _key = '';
+  var _opener = null;  // the chip/button the reader opened the page from
+  var _prevUrl = '';   // the address the reader opened the page FROM
   function ensureOverlay() {
     var ov = document.getElementById('pdx-ip-overlay');
     if (ov) return ov;
@@ -596,8 +598,12 @@
       '</div>';
     document.body.appendChild(ov);
     ov.addEventListener('click', function (e) {
-      if (e.target && e.target.hasAttribute && e.target.hasAttribute('data-pdxip-close')) { close(); return; }
       if (!e.target || !e.target.closest) return;
+      // closest(), not hasAttribute() - the X carries a glyph and the backdrop can
+      // be given children later, and a dismissal control that only answers to a tap
+      // on its own outermost box is a control that stops working the first time
+      // anything is nested inside it.
+      if (e.target.closest('[data-pdxip-close]')) { close(); return; }
       var b = e.target.closest('[data-pdxip-bill]');
       if (b) { openBill(b.getAttribute('data-pdxip-bill'), b.getAttribute('data-pdxip-sitting')); return; }
       var p = e.target.closest('[data-pdxip-pid]');
@@ -614,7 +620,9 @@
       }
     });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !ov.hidden) close();
+      if (e.key !== 'Escape' || !isOpen()) return;
+      e.preventDefault();
+      close();
     });
     return ov;
   }
@@ -623,6 +631,16 @@
     if (!ov) return false;
     var sc = document.getElementById('pdx-ip-scroll');
     if (sc) sc.innerHTML = html;
+    // Remembered on the way IN, while the chip that was tapped is still the active
+    // element, and only when the page was not already open - a repaint of an open
+    // page must not overwrite the reader's real origin with something inside the
+    // overlay itself.
+    if (ov.hidden) {
+      try {
+        var ae = document.activeElement;
+        _opener = (ae && ae !== document.body && !ov.contains(ae)) ? ae : null;
+      } catch (e) { _opener = null; }
+    }
     ov.hidden = false;
     try { document.documentElement.classList.add('pdxip-lock'); } catch (e) {}
     return true;
@@ -638,6 +656,12 @@
       if (!history.pushState) return;
       var want = '/issue/' + encodeURIComponent(key);
       if (location.pathname === want) return;
+      // The address to hand back on close. Never another /issue/ path: the page can
+      // be reopened on a second key while the first is still up, and restoring to
+      // the first would leave the bar claiming an issue page that is not there.
+      if (!/^\/issue\//.test(location.pathname || '')) {
+        _prevUrl = (location.pathname || '/') + (location.search || '') + (location.hash || '');
+      }
       history.pushState({ pdxIssuePage: key }, document.title, want);
     } catch (e) {}
   }
@@ -645,7 +669,15 @@
     try {
       if (!history.replaceState) return;
       if (!/^\/issue\//.test(location.pathname || '')) return;
-      history.replaceState({}, document.title, '/');
+      // RESTORED, NOT JUST CLEARED. The page is opened from a topic chip on a bill
+      // letterhead and from a chip in a person brief, so the address underneath is
+      // often /b/... or /p/... and not the front page. Closing used to rewrite it to
+      // '/' regardless, so the reader was left reading a profile at an address that
+      // said homepage. A reader who arrived on /issue/<key> cold has no earlier
+      // address here, and for them '/' - what is actually rendered behind the
+      // overlay - is still the honest answer.
+      history.replaceState({}, document.title, _prevUrl || '/');
+      _prevUrl = '';
     } catch (e) {}
   }
 
@@ -665,13 +697,31 @@
     });
     return true;
   }
+  // THE ONE CLOSE. The X, the backdrop, Escape and the router's own back-button
+  // path (index.html -> syncIssuePage -> IP.close({fromPop:true})) all arrive here;
+  // the only thing fromPop changes is whether the address is ours to rewrite,
+  // because on a popstate the browser has already moved it.
   function close(opts) {
     opts = opts || {};
     var ov = document.getElementById('pdx-ip-overlay');
+    var held = null;
+    try {
+      // Focus is only ours to move if it is still inside the overlay. If the reader
+      // has since clicked into the page behind, leaving it where it is beats
+      // yanking it back to a chip they have finished with.
+      var ae = document.activeElement;
+      if (ov && ae && ov.contains && ov.contains(ae)) held = _opener;
+    } catch (e) {}
     if (ov) ov.hidden = true;
     _key = '';
+    _opener = null;
     try { document.documentElement.classList.remove('pdxip-lock'); } catch (e) {}
     if (!opts.fromPop) clearPath();
+    // After the overlay is display:none, so the browser is not asked to focus
+    // something it cannot see.
+    if (held && typeof held.focus === 'function') {
+      try { held.focus(); } catch (e) {}
+    }
   }
   function isOpen() {
     var ov = document.getElementById('pdx-ip-overlay');
@@ -692,6 +742,15 @@
     var css = [
       'html.pdxip-lock{overflow:hidden;}',
       '.pdxip-overlay{position:fixed;inset:0;z-index:9200;display:flex;align-items:flex-start;justify-content:center;}',
+      // WHY THIS LINE EXISTS. close() hides the overlay by setting the `hidden`
+      // attribute, and `hidden` is display:none in the UA sheet only - an author
+      // `display:flex` on the same element beats it outright, whatever the
+      // specificity. Without this rule close() ran in full and the reader still
+      // sat behind a backdrop that ate every tap: the X did nothing, the dimmed
+      // page did nothing, and Escape - gated on ov.hidden, by then true - had
+      // switched itself off. Every other overlay in the app pairs its display
+      // rule with this one (.pdx-act-overlay, .pdx-impact-overlay); this one did not.
+      '.pdxip-overlay[hidden]{display:none;}',
       '.pdxip-backdrop{position:absolute;inset:0;background:rgba(4,8,18,0.72);}',
       '.pdxip-panel{position:relative;margin:2vh auto;width:min(46rem,calc(100vw - 1.5rem));',
         'max-height:96vh;display:flex;flex-direction:column;background:linear-gradient(180deg,#101a2e,#0b1220);',

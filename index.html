@@ -3597,9 +3597,38 @@ window.PDXLazy = (function () {
       .pdx-eye-thumb img{width:100%;height:100%;object-fit:cover;object-position:top center;}
       .pdx-eye-thumb.pdx-eye-thumb--issue{border-radius:0.6rem;border-color:rgba(251,146,60,0.4);background:linear-gradient(135deg,rgba(120,53,15,0.5),rgba(10,15,30,0.85));}
       .pdx-eye-body{min-width:0;flex:1;}
-      .pdx-eye-name{font-family:'Barlow',sans-serif;font-weight:600;font-size:0.9rem;color:#eaf1fd;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      /* display:block is what makes the next two lines mean anything. Both are
+         <span>s, and on an inline box margin-top does nothing, overflow does not
+         apply at all and text-overflow therefore never fires - so a long name or
+         sub line did not ellipsise, it overflowed the row and painted over the
+         tag pinned to its right. Blockifying them is the fix the two rules were
+         already written for. */
+      .pdx-eye-name{display:block;font-family:'Barlow',sans-serif;font-weight:600;font-size:0.9rem;color:#eaf1fd;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
       .pdx-eye-name mark{background:rgba(245,200,66,0.22);color:#ffe9a8;border-radius:0.2rem;padding:0 0.05em;}
-      .pdx-eye-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.75rem;letter-spacing:0.02em;color:#9fb4d4;line-height:1.25;margin-top:0.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .pdx-eye-sub{display:block;font-family:'Barlow Condensed',sans-serif;font-size:0.75rem;letter-spacing:0.02em;color:#9fb4d4;line-height:1.25;margin-top:0.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      /* ── The bill row: wraps, never clips ─────────────────────────────────
+         A measure carries a printed number, a chamber, up to three topic labels
+         and a status badge, which is more than one line of a 30rem dropdown will
+         hold. The other row kinds ellipsise because their overflow is a long
+         proper noun and the front of it is the useful part; a status badge has no
+         useful front, so this row is allowed to grow instead. Order is fixed:
+         title, then number, then the wrapping strip of topic chips and badges. */
+      .pdx-eye-item--bill{align-items:flex-start;}
+      .pdx-eye-item--bill .pdx-eye-name{white-space:normal;overflow:visible;text-overflow:clip;}
+      .pdx-eye-item--bill .pdx-eye-sub{white-space:normal;overflow:visible;text-overflow:clip;}
+      .pdx-eye-meta{display:flex;flex-wrap:wrap;align-items:center;gap:0.25rem;margin-top:0.25rem;}
+      /* The chip wraps its own label rather than clipping it. The longest topic in
+         the vocabulary is 42 characters ("Development Districts & Public
+         Financing"), which fits the strip on its own line at this size on a
+         desktop and needs a second line on a narrow phone - so it gets one. No
+         label in this row is ever cut: min-width:0 lets a chip narrower than its
+         text exist at all, and overflow-wrap is what it does instead of overflowing. */
+      .pdx-eye-topic{min-width:0;max-width:100%;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:0.62rem;letter-spacing:0.05em;line-height:1.3;text-transform:uppercase;padding:0.1rem 0.4rem;border-radius:9999px;color:#c8a8e9;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);white-space:normal;overflow-wrap:anywhere;}
+      .pdx-eye-topic--more{color:#8aa0c0;background:rgba(148,163,184,0.08);border-color:rgba(148,163,184,0.26);text-transform:none;letter-spacing:0.02em;}
+      /* The badges sit in the wrapping strip now, so they must not also try to hold
+         a pinned width off to the right. */
+      .pdx-eye-meta .pdx-eye-tag{flex-shrink:0;}
+      .pdx-eye-meta .pdx-eye-tag--src{max-width:none;}
       .pdx-eye-tag{flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.12rem 0.42rem;border-radius:9999px;white-space:nowrap;}
       .pdx-eye-empty{padding:1.4rem 1rem;text-align:center;color:#8aa0c0;font-family:'Barlow',sans-serif;font-size:0.88rem;}
       .pdx-eye-empty b{color:#cdd9ec;font-weight:600;}

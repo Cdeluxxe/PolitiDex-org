@@ -423,7 +423,13 @@
 // unversioned entries as valid offline fallbacks, which is exactly what they are:
 // the version that existed when the device last built its cache.
 //   So: bump CACHE_VERSION when a SHELL ASSET changes, as before. Not for this.
-const CACHE_VERSION = 'v87';
+// v88 - the issue overlay learned to close and the Eye's bill row learned to
+// wrap. Bumped because the Eye's fix is split across two files: index.html
+// carries the wrapping rules and all-seeing-eye.js emits the classes they
+// select. A device that took one and kept the other gets a bill row that is
+// merely unstyled rather than broken, but there is no reason to ship that
+// state to anyone when a version bump lands both together.
+const CACHE_VERSION = 'v88';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

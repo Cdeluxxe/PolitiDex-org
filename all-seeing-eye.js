@@ -383,6 +383,10 @@
               tokens: norm(numRaw + ' ' + numCompact + ' ' + disp + ' ' + kw).split(/[^\p{L}\p{N}]+/u).filter(Boolean),
               sub: numRaw + (chamberLbl ? ' · ' + chamberLbl : '') + (b.isOmnibus ? ' · omnibus' : ''),
               desc: descTxt,
+              // The same labels descTxt is joined from, kept apart. The row prints
+              // them as separate chips now and needs the seams; `desc` stays for
+              // shape parity with the issue entries above, which do still read it.
+              topics: namedLbls.slice(),
               icon: '🏛️', issueKey: b.primaryIssue || (ikeys[0] || ''), issueKeys: ikeys,
               status: b.status || '',
               hay: parts.filter(Boolean).join(' ').toLowerCase()
@@ -1119,15 +1123,45 @@
       var M = { introduced: 'Introduced', passed_house: 'Passed House', passed_senate: 'Passed Senate', enacted: 'Enacted', failed: 'Failed', vetoed: 'Vetoed', pending: 'Pending' };
       return M[s] || '';
     }
+    // The topics a measure is mapped to, as chips rather than as one more clause on
+    // the end of the sub line. Read-only labels, not doors: the row itself already
+    // opens the bill, and a chip inside a <button> cannot be a second button.
+    var BILL_TOPIC_CAP = 3;
+    function billTopicChips(e) {
+      var t = (e && e.topics) || [];
+      if (!t.length) return '';
+      var out = '';
+      for (var i = 0; i < t.length && i < BILL_TOPIC_CAP; i++) {
+        if (!t[i]) continue;
+        out += '<span class="pdx-eye-topic">' + esc(t[i]) + '</span>';
+      }
+      // Same promise the joined form made: name what fits and state the true total,
+      // so the number the reader carries to the bill page is the real one.
+      if (t.length > BILL_TOPIC_CAP) {
+        out += '<span class="pdx-eye-topic pdx-eye-topic--more">+' +
+          (t.length - BILL_TOPIC_CAP) + ' of ' + t.length + ' topics</span>';
+      }
+      return out;
+    }
+    // WHY THIS ROW WRAPS INSTEAD OF CLIPPING. It used to put the number, the
+    // chamber and every topic label on one nowrap sub line and pin the status badge
+    // to the right of it. On H.R. 6644 the topic ran straight over PASSED HOUSE:
+    // .pdx-eye-sub is an inline span, and overflow/text-overflow do not apply to
+    // inline boxes, so the text neither wrapped nor ellipsised - it simply painted
+    // on top of the badge. Clipping it would have hidden the collision rather than
+    // resolved it, so the row now reads top to bottom - title, number, then a
+    // wrapping strip of topic chips and status badges - and takes a second line
+    // when it needs one.
     function billItem(e, q, terms, idx) {
       var st = billStatusLabel(e.status);
       var badge = st ? '<span class="pdx-eye-tag pdx-eye-tag--src">' + esc(st) + '</span>' : '';
-      var sub = e.sub + (e.desc ? ' · ' + e.desc : '');
-      return '<button type="button" role="option" class="pdx-eye-item" data-i="' + idx + '" data-kind="bill" data-number="' + esc(e.number) + '">' +
+      var meta = billTopicChips(e) + badge + personalBadge(e);
+      return '<button type="button" role="option" class="pdx-eye-item pdx-eye-item--bill" data-i="' + idx + '" data-kind="bill" data-number="' + esc(e.number) + '">' +
         '<span class="pdx-eye-thumb pdx-eye-thumb--issue">' + esc(e.icon) + '</span>' +
         '<span class="pdx-eye-body"><span class="pdx-eye-name">' + highlight(e.title, q, terms) + '</span>' +
-        '<span class="pdx-eye-sub">' + esc(sub) + '</span></span>' +
-        personalBadge(e) + badge + '</button>';
+        '<span class="pdx-eye-sub">' + esc(e.sub) + '</span>' +
+        (meta ? '<span class="pdx-eye-meta">' + meta + '</span>' : '') +
+        '</span></button>';
     }
     // A single promise / position / receipt. Clicking opens the politician's
     // profile (where the full Evidence Locker card lives). The row leads with a
