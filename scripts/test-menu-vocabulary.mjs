@@ -315,16 +315,23 @@ const act = (n, key, position, o) => {
       : [{ issueKey: key, weight: 100, isPrimary: true, supportMeaning: "yea_supports" }],
   };
 };
-// Nine clean issues so the file is deep enough to read at all, then ONE issue
-// that exists only as provisions — eight of them, one-sided, deep enough that
-// nothing but the primary wall stops it. That is the population the package
-// sentence is for, and the only row here that should refuse.
+// Nine clean issues so the file is deep enough to read at all, then TWO issues
+// that exist only as provisions. One is eight one-sided riders — the population
+// the package sentence is for, which since the August 2026 relaxation READS at
+// thin with the 🚂 disclosure attached rather than refusing. The other ran both
+// ways, which is the shape the uniform wall still turns away, and is therefore the
+// row the locked provision_only phrasing is asserted on below.
 const PKG_KEY = KEYS[11];
+const PKG_MIX = KEYS[12];
 const seedOf = () => {
   const s = []; let n = 0;
   KEYS.slice(1, 10).forEach((k) => { for (let j = 0; j < 9; j++) s.push(act(n++, k, "yea")); });
   for (let j = 0; j < 8; j++) {
     s.push(act(n++, PKG_KEY, "yea", { rider: true, bill: "H.R. " + (7000 + j) }));
+  }
+  for (let j = 0; j < 3; j++) {
+    s.push(act(n++, PKG_MIX, j === 2 ? "nay" : "yea",
+      { rider: true, bill: "H.R. " + (7100 + j) }));
   }
   return s;
 };
@@ -369,6 +376,23 @@ hotW.PDXVotingRecord.noteMember(PID, seedOf());
 const hotRows = hotW.PDXConsistency.formalPatternIndex.rows(PID) || [];
 const pkg = hotRows.filter((r) => r.why && r.why.id === "vehicle_only")[0];
 must(pkg, "the seed produced no package-only refusal to inspect");
+eq(pkg.key, PKG_MIX,
+  "the refusal is the package row that ran both ways, not the one-sided one");
+// …AND THE ONE-SIDED PACKAGE ROW READS INSTEAD OF REFUSING, at thin, with the
+// vehicle sentence carried rather than standing in for the read. The banned list
+// runs over that sentence too: a read is not a licence to say what a refusal may
+// not.
+const pkgRead = hotRows.filter((r) => r.key === PKG_KEY)[0];
+must(pkgRead, "the one-sided package row vanished from the index");
+eq(pkgRead.tier, "thin", "eight one-sided riders read at thin");
+eq(pkgRead.why, null, "…and carry no refusal");
+ok(pkgRead.vehicle && pkgRead.vehicle.only, "…and wear the 🚂 disclosure");
+const readNote = hotW.PDXConsistency.vehicle.note(PID, PKG_KEY) || "";
+has(readNote, "omnibus appropriations act",
+  "the read names the family of measure that carried the policy too");
+eq(MENU.scan(readNote).length, 0, "…and stays off the banned list");
+eq(MENU.scan((hotW.PDXConsistency.recordPattern.display(pkgRead.row) || {}).note || "").length, 0,
+  "…as does the display read's own package disclosure");
 eq(pkg.why.lb, LOCKED.provision_only, "the package refusal speaks the locked phrase");
 eq(pkg.why.menu, "provision_only", "…and tags which menu case it is");
 has(pkg.why.note, "omnibus appropriations act",

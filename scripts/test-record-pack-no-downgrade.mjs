@@ -26,17 +26,26 @@
 // fetchPack's .then called noteMember unconditionally, so the fire-and-forget
 // pack warm-up in _pdxInitVotingRecord — fired to seed the service worker, not
 // the cache — landed on top of the live read the profile had just painted from.
-// isPrimary is not a cosmetic field: _recordDisplayTier returns null outright
-// below _RD_MIN_PRIMARY, so dropping that one boolean is the whole distance
-// between "Thin supports" and "Not about this issue". Surfaces painted before
-// the clobber kept the true read; the dossier sheet, which is computed when the
-// reader clicks, recomputed from the downgraded cache. Which member showed it
-// was decided by which response won a race — hence one of two identical rows.
+// isPrimary is not a cosmetic field. It says whether a mapped act was a vote ON
+// the issue or a vote on something larger that carried the issue, and both lanes
+// that read the record spend it: _recordPatternTier will not characterise a row
+// without one, and _recordDisplayTier — since the August 2026 package-borne
+// relaxation — will still publish the side without one but caps it at thin, marks
+// it packageOnly and makes it say how the vote arrived. On the reported deploy the
+// display lane had no such branch and returned null outright below
+// _RD_MIN_PRIMARY, so dropping that one boolean was the whole distance between
+// "Thin supports" and "Not about this issue". Today it is a narrower distance and
+// still a real one, which is what section 1 now pins. Surfaces painted before the
+// clobber kept the true read; the dossier sheet, which is computed when the reader
+// clicks, recomputed from the downgraded cache. Which member showed it was decided
+// by which response won a race — hence one of two identical rows.
 //
 // WHAT MUST STILL BE TRUE, and is what this file holds:
 //
-//   1. THE REFUSAL IS A DOWNGRADE, NOT A SIDE. Same items, flag on: both members
-//      read. Flag off: both members refuse, identically.
+//   1. THE DOWNGRADE IS A DOWNGRADE, NOT A SIDE. Same items, flag on: both
+//      members read a characterised thin. Flag off: both members read a
+//      package-borne thin — identically, same tier, same label, same side, now
+//      carrying the arrival disclosure and no longer characterised at all.
 //   2. THE PACK IS NOT A WRITER. A live read owns the member's row in _records
 //      from the moment it is REQUESTED, and a pack arriving before, during or
 //      after it cannot seed over the answer — in either arrival order.
@@ -45,8 +54,12 @@
 //      and is still seeded explicitly by the caller that asked for it.
 //   4. THE INVARIANT THE REPORT ASKED FOR, over the whole corpus: a row whose
 //      published display tier is thin — on EITHER side — never reaches an
-//      `incidental` refusal, because the two are mutually exclusive on
-//      idx.primary by construction.
+//      `incidental` refusal, and vice versa; the refusal and the read are two
+//      answers to one question and no row may hold both. Plus the ceiling the
+//      relaxation was granted under: every display-lane read standing on
+//      primary=0 is thin, is uniform, discloses that its acts reached the issue
+//      inside measures that were mainly about something else, and never reaches
+//      mostly or strong.
 //
 //   node scripts/test-record-pack-no-downgrade.mjs
 //
@@ -104,6 +117,15 @@ const boot = () => {
 
 const NOT_ABOUT = "Not about this issue";
 const BRUSHED = "brushed the subject";
+// The arrival disclosure a package-borne read must carry. Three surfaces word it
+// three ways — the pattern-engine note declines for one vote and for several, and
+// the scored slot has a sentence of its own that states no tier — so the clause all
+// three share is what is matched here, and none of them can be dropped without this
+// file noticing. The word "package" is deliberately NOT matched: only the vehicle
+// detector has the evidence to use it, and this sentence claims only what a missing
+// PRIMARY flag proves.
+const PACKAGE = "mainly about something else";
+const pkgLine = (s) => /mainly about something else/.test(String(s || ""));
 const MEASURE = "H.R. 6644";
 const KEY = "housing";
 // The report's two rows, and the label each must carry on BOTH surfaces. F4 left
@@ -147,7 +169,7 @@ const primaryFlag = (win, pid) => {
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("1 · the refusal is a downgrade, not a side");
+section("1 · the downgrade is a downgrade, not a side");
 // ═════════════════════════════════════════════════════════════════════════════
 // The claim in the report is that one side reads and the other refuses. Fed the
 // same snapshot, the two members do the same thing as each other — twice, once
@@ -174,25 +196,48 @@ for (const [snapshot, items] of [["live (F4)", fresh], ["stale pack", stale]]) {
       eq(tree && tree.tone, side, `${snapshot}/${pid}: the tree's side`);
       eq(d.state, "reads", `${snapshot}/${pid}: the dossier reads the record`);
       eq(d.label, want, `${snapshot}/${pid}: the dossier's label is the tree's label`);
+      // The half of the contrast the stale branch below is measured against: with
+      // the promotion on file this is the member's own vote on the issue, so the
+      // pattern engine characterises it and there is no arrival to disclose.
+      eq(tree && tree.display, false, `${snapshot}/${pid}: the pattern engine owns the read`);
+      eq(tree && tree.packageOnly, false, `${snapshot}/${pid}: nothing arrived in a package`);
+      ok(!(tree && tree.packageNote), `${snapshot}/${pid}: so there is no arrival sentence`);
+      no(tree && tree.note, PACKAGE, `${snapshot}/${pid}: and none in the note either`);
       has(html, MEASURE, `${snapshot}/${pid}: the sheet names the measure`);
       no(html, NOT_ABOUT, `${snapshot}/${pid}: the sheet does not refuse the row`);
       no(html, BRUSHED, `${snapshot}/${pid}: the sheet does not call the measure a brush`);
     } else {
-      // The reported symptom, reproduced — and note the tree goes with it. The
-      // two surfaces never actually disagreed about one set of items; they
-      // disagreed because they were rendered from two different sets.
+      // THE DOWNGRADE, IN ITS CURRENT SHAPE. The reported symptom itself is gone:
+      // the row no longer blanks, because a uniform run of judged acts may now
+      // state its side whether or not a PRIMARY mapping survived. What the stale
+      // snapshot still costs is the CLAIM, not the side. With the promotion the
+      // vote is Curtis's vote on housing and the pattern engine characterises it;
+      // without it the same vote is one that reached housing inside H.R. 6644, so
+      // the read drops to the browse-only lane, has to say how it arrived, and can
+      // never be more than thin however much else lands on the row later.
+      //
+      // Both members still do the same thing as each other, which is the claim
+      // this section exists to settle. The pack is still not allowed to do this —
+      // section 2 is what stops it — and a reader who met this row would still be
+      // told less than the record holds.
       eq(idx && idx.primary, 0, `${snapshot}/${pid}: the promotion is gone from the snapshot`);
-      // The slot still answers — it says "Formal items on file · direction not
-      // clear yet", which is the tree's own version of the same refusal. So the
-      // two surfaces were never in disagreement about ONE set of items; they were
-      // rendered from two.
-      eq(tree && tree.tier, "none", `${snapshot}/${pid}: the tree publishes no tier either`);
-      eq(tree && tree.display, false, `${snapshot}/${pid}: and nothing for a browse surface to print`);
-      eq(tree && tree.directional, false, `${snapshot}/${pid}: and no side`);
-      eq(d.state, "unread", `${snapshot}/${pid}: the dossier refuses the row`);
-      eq(why, "incidental", `${snapshot}/${pid}: and refuses it as incidental`);
-      has(html, NOT_ABOUT, `${snapshot}/${pid}: the reported sentence is what prints`);
-      has(html, BRUSHED, `${snapshot}/${pid}: including the brush clause`);
+      eq(tree && tree.tier, "thin", `${snapshot}/${pid}: the tree still states the side, thinly`);
+      eq(tree && tree.label, want, `${snapshot}/${pid}: with the live read's own label`);
+      eq(tree && tree.tone, side, `${snapshot}/${pid}: and the live read's own side`);
+      // …and here is the cost, in the two fields that carry it.
+      eq(tree && tree.display, true, `${snapshot}/${pid}: but published by the browse lane, not the pattern engine`);
+      eq(tree && tree.packageOnly, true, `${snapshot}/${pid}: and flagged as package-borne`);
+      has(tree && tree.note, PACKAGE, `${snapshot}/${pid}: with the arrival disclosed in the slot's own note`);
+      const pt = CS.recordPattern.tier(row);
+      ok(!pt || pt.tier === "none", `${snapshot}/${pid}: the pattern engine characterises nothing here`);
+      // The dossier follows the tree, as it did before — the two surfaces were
+      // never in disagreement about ONE set of items; they were rendered from two.
+      eq(d.state, "reads", `${snapshot}/${pid}: the dossier reads the row too`);
+      eq(d.tier, "thin", `${snapshot}/${pid}: at the same tier`);
+      eq(why, "", `${snapshot}/${pid}: so there is no refusal reason to print`);
+      has(html, PACKAGE, `${snapshot}/${pid}: the sheet carries the arrival sentence`);
+      no(html, NOT_ABOUT, `${snapshot}/${pid}: and no longer prints the reported refusal`);
+      no(html, BRUSHED, `${snapshot}/${pid}: nor the brush clause`);
     }
   }
   eq(seen[0], seen[1], `${snapshot}: both sides land in the same state (${seen.join(" vs ")})`);
@@ -335,15 +380,22 @@ section("3 · the pack is still the fallback");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("4 · a published thin read cannot reach the incidental branch");
+section("4 · read and refusal stay exclusive · the package-borne ceiling holds");
 // ═════════════════════════════════════════════════════════════════════════════
 // The invariant the report asked to be made explicit, swept over the whole
-// corpus. It holds by construction rather than by data: _recordDisplayTier
-// requires idx.primary >= _RD_MIN_PRIMARY (stance-helpers.js) and _fpiUnreadWhy's
-// incidental branch is only entered where idx.primary < 1 (consistency.js), so no
-// single index can satisfy both. This asserts it on real rows, on both sides, and
-// asserts the two halves of the mutual exclusion separately so a future edit to
-// either floor fails here rather than on a profile.
+// corpus. It used to hold on a floor: _recordDisplayTier returned null below
+// _RD_MIN_PRIMARY and _fpiUnreadWhy's incidental branch was only entered below 1,
+// so no single index could satisfy both. The August 2026 relaxation turned that
+// floor into a ceiling — a uniform run of package-borne acts now publishes a thin
+// side instead of nothing — and the exclusion survives it for a different reason:
+// the refusal ladder is only ever consulted where nothing was read, so a row that
+// published anything never reaches it at all.
+//
+// What replaces the floor here is the ceiling the relaxation was granted under,
+// asserted on real rows on both sides: a display-lane read standing on primary=0
+// is thin, is uniform, discloses how its acts arrived, and never reaches mostly or
+// strong. A future edit that lets riders characterise a row fails here rather than
+// on a profile.
 {
   const win = boot();
   for (const [pid, recs] of byMember) {
@@ -351,7 +403,7 @@ section("4 · a published thin read cannot reach the incidental branch");
   }
   const CS = win.PDXConsistency;
   const bad = [], floorBreak = [];
-  let rows = 0, thinSupport = 0, thinOppose = 0, incid = 0;
+  let rows = 0, thinSupport = 0, thinOppose = 0, incid = 0, pkgBorne = 0;
   let viaPattern = 0, viaDisplay = 0, viaDisplayAny = 0;
   for (const pid of byMember.keys()) {
     const fpi = Object.create(null);
@@ -406,7 +458,25 @@ section("4 · a published thin read cannot reach the incidental branch");
       if (published && tree.display === true) {
         viaDisplayAny++;
         if (voteLane && idx && (idx.primary || 0) < 1) {
-          floorBreak.push(`${pid}/${r.key}: display lane published ${tree.tier} on primary=0`);
+          // THE CEILING, ROW BY ROW. Everything this lane may say about a record it
+          // only ever met inside larger measures, and nothing it may not.
+          pkgBorne++;
+          const adv = idx.advances || 0, opp = idx.opposes || 0;
+          if (tree.tier !== "thin" && tree.tier !== "split") {
+            floorBreak.push(`${pid}/${r.key}: package-borne read reached ${tree.tier}`);
+          }
+          if (tree.weight === "full" || tree.weight === "strong") {
+            floorBreak.push(`${pid}/${r.key}: package-borne read weighted ${tree.weight}`);
+          }
+          if (tree.directional && adv > 0 && opp > 0) {
+            floorBreak.push(`${pid}/${r.key}: package-borne read took a side on ${adv}-${opp}`);
+          }
+          if (tree.directional && !pkgLine(tree.note)) {
+            floorBreak.push(`${pid}/${r.key}: package-borne read does not say how it arrived`);
+          }
+          if (tree.directional && !tree.packageOnly) {
+            floorBreak.push(`${pid}/${r.key}: package-borne read is not flagged as one`);
+          }
         }
         if (d.state !== "reads") {
           bad.push(`${pid}/${r.key}: display lane published ${tree.label}, dossier ${d.state}`);
@@ -433,12 +503,14 @@ section("4 · a published thin read cannot reach the incidental branch");
   must(viaPattern > 20, `no published thin read came through the pattern engine (${viaPattern})`);
   must(viaDisplayAny > 20, `the display lane published nothing to check (${viaDisplayAny})`);
   must(incid > 100, `the incidental refusal has stopped firing (${incid} rows) — the sweep proves nothing`);
+  must(pkgBorne > 100, `no package-borne reads in the sweep (${pkgBorne}) — the ceiling proves nothing`);
   eq(bad.length, 0, `no published thin row reaches a refusal — ${bad.slice(0, 3).join(" | ")}`);
   eq(floorBreak.length, 0,
     `each path to a published thin read excludes the refusal — ${floorBreak.slice(0, 3).join(" | ")}`);
   console.log(`      ${rows} rows · ${thinSupport} thin-support + ${thinOppose} thin-oppose published, 0 refused`);
   console.log(`      thin: ${viaPattern} via the pattern tier (answered at step 1), ${viaDisplay} via the display lane`);
-  console.log(`      ${viaDisplayAny} display-lane reads at any tier, every one on primary >= 1 and every one read`);
+  console.log(`      ${viaDisplayAny} display-lane reads at any tier, every one read by the dossier`);
+  console.log(`      ${pkgBorne} of them stand on primary=0: all thin or split, all uniform, all disclosed`);
   console.log(`      ${incid} incidental refusals, every one on primary=0 with nothing published`);
 }
 

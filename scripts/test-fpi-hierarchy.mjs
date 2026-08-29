@@ -126,10 +126,12 @@ const CLEAR = SILENT.slice(0, 6);          // 12 one way each  → strong
 const SPLITS = SILENT.slice(6, 9);         // 8 votes, 4 each  → split
 const THINS = SILENT.slice(9, 25);         // one vote each    → thin
 const NOSIDE = SILENT.slice(25, 29);       // all Present      → no_side_taken
-const PKG = SILENT[29];                    // provisions only  → vehicle_only
+const PKG = SILENT[29];                    // provisions only, all one way → thin + 🚂
 const CARRIER = SILENT[30];
+const PKGMIX = SILENT[31];                 // provisions only, ran both ways → vehicle_only
 must(CLEAR.length === 6 && SPLITS.length === 3 && THINS.length === 16 &&
-     NOSIDE.length === 4 && PKG && CARRIER, "the fixture no longer offers every band");
+     NOSIDE.length === 4 && PKG && CARRIER && PKGMIX,
+     "the fixture no longer offers every band");
 
 const SEED = [];
 let nn = 0;
@@ -139,9 +141,22 @@ THINS.forEach((k, i) => SEED.push(vote(nn++, k, i % 2 ? "yea" : "nay")));
 NOSIDE.forEach((k) => { for (let i = 0; i < 3; i++) SEED.push(vote(nn++, k, "present")); });
 for (let i = 0; i < 4; i++) SEED.push(vote(nn++, BALANCE, "yea"));
 // Eight provisions on PKG, all riding CARRIER, all one way: deep enough and
-// one-sided enough that only the primary wall stops it — which is exactly the
-// population the package sentence is for.
+// one-sided enough that only the primary wall stopped it — which is exactly the
+// population the package sentence is for. Since the August 2026 relaxation the
+// display lane reads this row at THIN and hangs the 🚂 disclosure on it; the
+// ceiling that keeps eight riders off "Strongly" is asserted in section 5.
 for (let i = 1; i <= 8; i++) SEED.push(rider(i, PKG, CARRIER, "H.R. " + (7000 + i), "yea"));
+// …AND THE SAME SHAPE THAT RAN BOTH WAYS, which is where the vehicle_only refusal
+// still lives. Uniform is the door; a package-borne ledger with acts on both sides
+// gains nothing, so the locked menu sentence still has a row to be asserted on.
+//   THREE OF THEM, NOT EIGHT, and the arithmetic is why: at eight the index's own
+// split branch reads the row (`record_split`) and a split is a read, not a
+// refusal — pre-existing behaviour that the package rule never governed. A 2–1
+// sits below the split floors, so the ledger reaches the refusal ladder with a
+// visible lean and is turned away there. That is the row this assertion is about.
+for (let i = 1; i <= 3; i++) {
+  SEED.push(rider(20 + i, PKGMIX, CARRIER, "H.R. " + (7100 + i), i === 3 ? "nay" : "yea"));
+}
 
 const A = boot();
 A.PDXVotingRecord.noteMember(PID, SEED.map((v) => JSON.parse(JSON.stringify(v))));
@@ -306,27 +321,88 @@ section("4 · the census survived the move");
 section("5 · six refusals, six sentences");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // (a) MATERIAL EXISTS ONLY AS PACKAGE-BORNE PROVISIONS.
+  // (a) MATERIAL EXISTS ONLY AS PACKAGE-BORNE PROVISIONS, AND IT ALL WENT ONE WAY.
+  //     This row was a refusal until August 2026, and the refusal was the defect:
+  //     eight votes on eight measures, every one of them advancing this issue as a
+  //     provision, and the row printed "no direction claimed". The menu hides
+  //     policy in vehicles; requiring a PRIMARY before the profile could name a
+  //     side recreated the hide. So the row reads now — at THIN, never above it,
+  //     with the package sentence attached.
   const pkg = ROWS.filter((x) => x.key === PKG)[0];
   must(pkg, "the package fixture produced no row at all");
   const veh = A._pdxRecordVehicleStats(PID, PKG);
   eq(veh.only, true, "the stowaway detector says every instrument here was a provision");
-  eq(pkg.why && pkg.why.id, "vehicle_only",
+  eq(pkg.read, true, "a package-borne run all one way is read, not refused");
+  eq(pkg.why, null, "…so it carries no refusal reason");
+  eq(pkg.tier, "thin", "…at the thin tier");
+  eq(pkg.weight, "thin", "…with the thin weight, so no surface paints it as a finding");
+  eq(pkg.tone, "support", "…on the side the eight provisions went");
+  eq(pkg.directional, true, "…and it carries a direction");
+  // THE CEILING. Eight judged acts is twice _RD_MIN_JUDGED, so nothing but the
+  // package rule is holding this row at thin. Asserted by name in both vocabularies.
+  ["mostly", "strong"].forEach((t) =>
+    ok(pkg.tier !== t, `eight riders must never reach the ${t} tier`));
+  ["full", "strong"].forEach((w) =>
+    ok(pkg.weight !== w, `…nor the ${w} weight`));
+  ok(A.PDXConsistency.recordPattern.tier(pkg.row) === null ||
+     A.PDXConsistency.recordPattern.tier(pkg.row).tier === "none",
+    "…and the characterisation read still refuses it outright");
+  // THE 🚂 DISCLOSURE, which is now on the row rather than standing in for it. It
+  // may say this only because there is a direction to disclose about; see the wall
+  // over `vehicle` in _fpiRows.
+  ok(pkg.vehicle && pkg.vehicle.stowaway,
+    "the 🚂 disclosure is on the row that reads off packages");
+  eq(pkg.vehicle.only, true, "…and says every instrument was one");
+  has(A.PDXConsistency.vehicle.line(PID, PKG), "as provisions",
+    "the face line says how the acts arrived");
+  has(A.PDXConsistency.vehicle.note(PID, PKG),
+    "Every mapped instrument on this issue was a larger measure",
+    "…and the note says every one of them did");
+  has(A.PDXConsistency.vehicle.note(PID, PKG), "what they were votes ON was the package",
+    "…and keeps the sentence that says what the votes were votes on");
+  // BASELINE-FROM-RECORD carries the same two sentences, not a second derivation
+  // of them — this is the surface a reader meets the package fact on when the
+  // record stands in for a stance they never stated.
+  const bl = A.PDXConsistency.baseline.for(PID, PKG);
+  ok(!!bl, "a package-borne thin read is offerable as a record baseline");
+  eq(bl && bl.tier, "thin", "…at thin, the ceiling the display lane held it to");
+  eq(bl && bl.stance, "support", "…on the side the eight provisions went");
+  has(bl ? bl.vehicleLine : "", "as provisions",
+    "…and the baseline says the acts arrived as provisions");
+  has(bl ? bl.vehicleNote : "", "what they were votes ON was the package",
+    "…and keeps the sentence about what they were votes on");
+  // AND THE ROW'S OWN DISCLOSURE FIELD SAYS WHY IT IS THIN, in the display read's
+  // own words, so the strength and the reason for it travel together.
+  const pkgD = A.PDXConsistency.recordPattern.display(pkg.row) || {};
+  eq(pkgD.tier, "thin", "the tree's Record slot reads the same row at thin");
+  has(pkgD.note, "mainly about something else",
+    "…and its disclosure names the vehicles");
+  has(pkgD.note, "a measure is not a position on everything inside it",
+    "…and explains why no characterisation follows from one");
+
+  // (a2) THE SAME SHAPE THAT RAN BOTH WAYS IS STILL THE REFUSAL, and still owns
+  //      the locked menu sentence. Uniform is the door; this row gains nothing.
+  const pkgm = ROWS.filter((x) => x.key === PKGMIX)[0];
+  must(pkgm, "the mixed package fixture produced no row at all");
+  eq(A._pdxRecordVehicleStats(PID, PKGMIX).only, true,
+    "the stowaway detector says every instrument here was a provision too");
+  eq(pkgm.why && pkgm.why.id, "vehicle_only",
     "…and the row says so, rather than calling the record incidental");
   // The locked menu phrasing (consistency.js, _MENU.provision_only): the claim is
   // about the chances that existed, not about how the member's record "carried".
-  eq(pkg.why.lb, "Only tested as a provision inside larger packages",
+  eq(pkgm.why.lb, "Only tested as a provision inside larger packages",
     "the package refusal has its own words");
-  eq(pkg.why.menu, "provision_only", "…and tags itself as a menu fact, not a verdict");
-  has(pkg.why.note, "not what the member chose to do",
+  eq(pkgm.why.menu, "provision_only", "…and tags itself as a menu fact, not a verdict");
+  has(pkgm.why.note, "not what the member chose to do",
     "…and carries the wall that keeps a floor fact off the member");
-  has(pkg.why.note, "a package is not a position on everything inside it",
+  has(pkgm.why.note, "a package is not a position on everything inside it",
     "…and explains why no direction follows from one");
-  ok(!pkg.tier || pkg.tier === "unread", `the package row claims no tier (${pkg.tier})`);
-  eq(pkg.vehicle, null,
+  ok(!pkgm.tier || pkgm.tier === "unread", `the mixed package row claims no tier (${pkgm.tier})`);
+  eq(pkgm.read, false, "…and is unread, not a read with no answer");
+  eq(pkgm.vehicle, null,
     "the directional 🚂 disclosure stays off a row that claims no direction");
   ["supports", "opposes", "advanc", "leans"].forEach((w) => {
-    lacks(pkg.why.lb + " " + pkg.why.note, w,
+    lacks(pkgm.why.lb + " " + pkgm.why.note, w,
       `the package refusal borrows no direction word ("${w}")`);
   });
 

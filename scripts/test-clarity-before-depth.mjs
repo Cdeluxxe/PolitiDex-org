@@ -27,8 +27,32 @@
 //
 // AND THE LINES THAT MUST NOT MOVE WHILE FIXING THEM. A split never acquires a
 // direction, at any depth or margin; the 90/55/12 ladder is untouched; a poleless
-// issue and an incidental mapping are still silent; nothing here reaches Direction
-// Match.
+// issue is still silent; nothing here reaches Direction Match.
+//
+// ── AUGUST 2026: THE PACKAGE-BORNE RELAXATION ────────────────────────────────
+// One of those lines DID move, deliberately, and this file now holds its new
+// shape. "An incidental mapping is still silent" was the doctrine until the
+// display lane's primary floor became a ceiling: requiring a PRIMARY mapping
+// before a browse surface could name a side recreated on the profile the very
+// thing the vehicle work exists to expose — the rider became law, the member
+// voted on it, and the row stayed blank. So a package-borne run that all went one
+// way now reads, and the three walls that replaced the floor are what is pinned
+// below:
+//
+//   · THIN IS THE CEILING. Five package-borne votes one way read "Thin supports",
+//     not "Strongly". No number of riders reaches a characterisation, so a
+//     continuing resolution pile writes the same word one omnibus vote writes.
+//     (`inc_deep`, section 2.)
+//   · UNIFORM ONLY. A package-borne ledger that ran both ways is refused outright
+//     and keeps "Not about this issue" — split stays split, and a true mixed file
+//     gains no side. (`inc_mixed`, sections 2 and 5.)
+//   · THE ROW SAYS WHY IT IS THIN. Every read that exists only because of this
+//     relaxation carries the package sentence in the same disclosure field the
+//     lane note travels in. (Section 2.)
+//
+// The characterisation read, the formal-pattern index's characterised set and
+// Direction Match are all untouched: this lane characterises nothing and nothing
+// scoring reads it.
 //
 //   node scripts/test-clarity-before-depth.mjs
 //
@@ -60,6 +84,9 @@ const failures = [];
 const ok = (cond, msg) => { if (cond) passed++; else failures.push(msg); };
 const eq = (a, b, msg) =>
   ok(a === b, `${msg} — expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`);
+const has = (hay, needle, msg) =>
+  ok(String(hay).toLowerCase().indexOf(String(needle).toLowerCase()) >= 0,
+     `${msg} — "${needle}" missing`);
 const lacks = (hay, needle, msg) =>
   ok(String(hay).toLowerCase().indexOf(String(needle).toLowerCase()) < 0,
      `${msg} — "${needle}" present and must not be`);
@@ -163,7 +190,7 @@ const DEEP = "curtis", SHALLOW = "lee";
 const mapD = probe._polPositionMap(DEEP, probe.CMP_DATA[DEEP]) || {};
 const mapS = probe._polPositionMap(SHALLOW, probe.CMP_DATA[SHALLOW]) || {};
 const SILENT = Object.keys(probe.ISSUE_MAP || {}).filter((k) => sideable(k) && !mapD[k] && !mapS[k]);
-must(SILENT.length >= 12, `the fixture needs 12+ issues neither member has stated, has ${SILENT.length}`);
+must(SILENT.length >= 14, `the fixture needs 14+ issues neither member has stated, has ${SILENT.length}`);
 const POLELESS = Object.keys(NO_POLE).filter((k) => probe.ISSUE_MAP[k])[0];
 must(POLELESS, "no poleless issue survives in the shared taxonomy");
 
@@ -177,6 +204,15 @@ const DEEP_FIX = {
   near43:     { key: SILENT[5],  desc: "near split 4–3 oppose lean",  recs: run(4, SILENT[5], "nay").concat(run(3, SILENT[5], "yea")) },
   coin33:     { key: SILENT[6],  desc: "true coin flip 3–3",          recs: run(3, SILENT[6], "yea").concat(run(3, SILENT[6], "nay")) },
   incidental: { key: SILENT[7],  desc: "incidental n=1",              recs: run(1, SILENT[7], "yea", { incidental: true }) },
+  // THE TWO PACKAGE-BORNE WALLS, added with the August 2026 relaxation. Both
+  // packs are made only of non-primary mappings, which is what `incidental: true`
+  // means on `vote()` — the issue was reached inside a measure our own mapping
+  // says is about something else.
+  inc_deep:   { key: SILENT[12], desc: "package-borne 5–0, deep enough to be tempting",
+                recs: run(5, SILENT[12], "yea", { incidental: true }) },
+  inc_mixed:  { key: SILENT[13], desc: "package-borne 2–1, ran both ways",
+                recs: run(2, SILENT[13], "yea", { incidental: true })
+                  .concat(run(1, SILENT[13], "nay", { incidental: true })) },
   uniform2:   { key: SILENT[8],  desc: "2–0 above the floor",         recs: run(2, SILENT[8], "yea") },
   proc_only:  { key: SILENT[10], desc: "1–1, and both were procedural",
                 recs: run(1, SILENT[10], "yea", { proc: true })
@@ -298,10 +334,54 @@ section("2 · the fixtures — tier, side, verdict and confidence, end to end");
       `${DEEP_FIX[f].desc}: a record with no direction must weigh less than one clear vote (got ${r.weight.toFixed(3)} vs ${row(DEEP_FIX.one_for.key).weight.toFixed(3)})`);
   });
 
-  // The two meaning walls are untouched: no pole, and an incidental mapping.
+  // The meaning walls that are untouched: no pole, and no side taken.
   eq(row(DEEP_FIX.poleless.key), null, "a poleless issue is scored by nobody, at any depth");
-  eq(row(DEEP_FIX.incidental.key), null, "an incidental mapping is a coincidence, not a vote on the issue");
   eq(row(DEEP_FIX.no_side.key), null, "a vote that took no side gives the match nothing to read");
+
+  // ── AND THE WALL THAT MOVED: PACKAGE-BORNE ACTS NOW READ, AT THIN ──────────
+  // The primary floor on the display lane became a ceiling in August 2026. What
+  // is asserted here is the ceiling, not the door — a package-borne run reads its
+  // side and may never read anything louder than the quiet tier, however deep the
+  // pile gets. See the header block.
+  [["incidental", 1], ["inc_deep", 5]].forEach(function (pair) {
+    const f = DEEP_FIX[pair[0]], n = pair[1], k = f.key;
+    const r = row(k), fr = F_DEEP[k];
+    ok(!!r, `${f.desc}: a package-borne run all one way must not read as a blank`);
+    ok(!!fr && fr.directional, `${f.desc}: …and must carry the side its ledger shows`);
+    eq(fr && fr.tier, "thin", `${f.desc}: …at the thin tier and never above it`);
+    eq(fr && fr.tone, "support", `${f.desc}: …on the side the ${n} act(s) went`);
+    eq(r && r.pattern.tier, "thin", `${f.desc}: the match row's tier is thin too`);
+    eq(r && r.pattern.side, "support", `${f.desc}: …and its side is the ledger's`);
+    eq(r && r.thin, true, `${f.desc}: …and it is marked thin in the match`);
+    // THE PACKAGE SENTENCE, on the read that only exists because of the
+    // relaxation. It is the disclosure the ceiling is explained in, so a reader
+    // meeting the chip is told the strength and the reason for it together.
+    const d = LIVE.PDXConsistency.recordPattern.display(
+      (LIVE.PDXConsistency.issueRows(DEEP) || []).find((x) => x && x.key === k)) || {};
+    eq(d.tier, "thin", `${f.desc}: the tree's Record slot reads thin`);
+    has(d.note || "", "mainly about something else",
+      `${f.desc}: the row does not say the acts reached the issue sideways`);
+    has(d.note || "", "a measure is not a position on everything inside it",
+      `${f.desc}: …nor keeps the sentence that says what a package is not`);
+  });
+  // …AND FIVE OF THEM IS STILL NOT A CHARACTERISATION. The deep pack clears
+  // _RD_MIN_JUDGED on the nose-and-then-some; the only thing holding it at thin is
+  // the ceiling, so the loud words are asserted absent by name.
+  ["mostly", "strong", "full"].forEach((t) =>
+    ok((F_DEEP[DEEP_FIX.inc_deep.key] || {}).tier !== t,
+      `a package-borne 5–0 must never reach the ${t} tier`));
+  ok((F_DEEP[DEEP_FIX.inc_deep.key] || {}).weight === "thin",
+    "…and it carries the thin weight, so no surface paints it as a finding");
+
+  // ── UNIFORM ONLY: A PACKAGE-BORNE LEDGER THAT RAN BOTH WAYS IS REFUSED ─────
+  // Split stays split. This is the row the relaxation is most tempting on — the
+  // arithmetic leans 2–1 — and it is the row that must gain nothing.
+  eq(row(DEEP_FIX.inc_mixed.key), null,
+    "a package-borne record that ran both ways is scored by nobody");
+  eq((F_DEEP[DEEP_FIX.inc_mixed.key] || {}).read, false,
+    "…and reports itself unread rather than as a read with no answer");
+  eq((F_DEEP[DEEP_FIX.inc_mixed.key] || {}).directional, false,
+    "…and carries no direction");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -339,13 +419,30 @@ section("3 · one more agreeing vote never silences the first (monotonicity)");
     const bd = win._calcAlignmentBreakdown(SHALLOW, { mode: "record" });
     eq(bd, null, "a 2–1 below the coverage floor still reads nothing — the door is for uniform runs only");
   }
-  // …and the incidental wall does not move for a run either.
+  // …and a package-borne run below the floor reads its side at thin, on the same
+  // terms as any other uniform run: partial, quiet, and never characterised. This
+  // block asserted `bd === null` until August 2026; the doctrine it encoded — that
+  // three non-primary mappings are three coincidences — is the one the relaxation
+  // overturned, because the third of them can be the vote that made the policy law.
   {
     const win = boot();
     win.PDXVotingRecord.noteMember(SHALLOW, run(3, SILENT[0], "yea", { incidental: true }));
     win.alignSetIntensity(SILENT[0], "support");
     const bd = win._calcAlignmentBreakdown(SHALLOW, { mode: "record" });
-    eq(bd, null, "three incidental mappings are three coincidences, not a record on the issue");
+    const r = bd ? bd.issues.find((x) => x.key === SILENT[0]) : null;
+    ok(!!r, "three package-borne mappings all one way read as a thin run, not as a blank");
+    eq(r && r.pattern.tier, "thin", "…at the thin tier");
+    eq(r && r.pattern.side, "support", "…on the side the three acts went");
+  }
+  // …but a package-borne 2–1 below the floor still reads nothing at all: the door
+  // is for uniform runs, at every depth and on both lanes.
+  {
+    const win = boot();
+    win.PDXVotingRecord.noteMember(SHALLOW,
+      run(2, SILENT[0], "yea", { incidental: true }).concat(run(1, SILENT[0], "nay", { incidental: true })));
+    win.alignSetIntensity(SILENT[0], "support");
+    eq(win._calcAlignmentBreakdown(SHALLOW, { mode: "record" }), null,
+      "a package-borne 2–1 below the floor is still refused outright");
   }
 }
 
@@ -374,11 +471,19 @@ section("5 · a refusal names its own reason");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const why = (rows, k) => (rows[k] || {}).why || null;
-  const w1 = why(F_DEEP, DEEP_FIX.incidental.key);
+  // "NOT ABOUT THIS ISSUE" SURVIVES WHERE IT IS STILL TRUE. The uniform
+  // package-borne rows read now (section 2), so the sentence moved to the row it
+  // was always most defensible on: a ledger of non-primary mappings that ran both
+  // ways, where there is no one thing the record did and no primary mapping saying
+  // the record is about the issue either.
+  const w1 = why(F_DEEP, DEEP_FIX.inc_mixed.key);
   ok(w1 && w1.id === "incidental",
-    `an incidental mapping says so — got ${JSON.stringify(w1 && w1.id)}`);
+    `a package-borne ledger that ran both ways says so — got ${JSON.stringify(w1 && w1.id)}`);
   lacks(w1 ? w1.lb : "", "no clear pattern", "…and does not fall back to the old blanket sentence");
-  eq(F_DEEP[DEEP_FIX.incidental.key].read, false, "…and reports itself as unread, not as a read with no answer");
+  eq(F_DEEP[DEEP_FIX.inc_mixed.key].read, false, "…and reports itself as unread, not as a read with no answer");
+  // …and the row the sentence LEFT does not keep it.
+  ok(!why(F_DEEP, DEEP_FIX.incidental.key),
+    "a row that now reads carries no refusal reason at all");
 
   const w2 = why(F_DEEP, DEEP_FIX.no_side.key);
   ok(w2 && w2.id === "no_side_taken",
@@ -437,7 +542,7 @@ section("5b · the ROW CHIP — the surface the last pass missed");
   // vocabulary — the same sentences the index already uses, not a second set.
   const refusals = {
     [DEEP_FIX.no_side.key]: "no vote here took a side",
-    [DEEP_FIX.incidental.key]: "not about this issue",
+    [DEEP_FIX.inc_mixed.key]: "not about this issue",
     // The locked menu phrasing, not "procedural votes only": what is true here
     // is what came up, not what the member cast. See _MENU in consistency.js.
     [DEEP_FIX.proc_only.key]: "procedural gate rather than a policy vote",
