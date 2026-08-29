@@ -349,3 +349,58 @@ The recommendation above got two of its four calls right. Against the five costs
 
 Still proposed: **nothing.** All six rows are resolved. The next vocabulary wave
 starts from the refusal ledgers again, not from this file.
+
+---
+
+## Federal wave F4 (2026-08): one vocabulary finding, not shipped
+
+**Status: PROPOSED. Nothing applied. `keysAdded 0`.**
+
+The federal census F4 ran to rank keys by how many senator rows they leave unread
+turned up one vocabulary problem, and it is the opposite shape from everything in
+this file above. The six proposals at the top are subjects the record kept voting
+on that the vocabulary had no chip for. This one is a chip the vocabulary already
+publishes that the record has stopped voting on.
+
+### `america_first` — a bundling artefact, not a mapping gap
+
+`america_first` sits near the top of the unread-row ranking: **97 unread senator
+rows, all of them `incidental`**, and exactly one Senate-reachable act to promote —
+H.R. 4 (the Rescissions Act of 2025) at weight 60, one title of an eight-key
+package. On volume alone it was a tempting target for F4's promote, and it was
+refused, because promoting one title of a rescissions package to argue a key whose
+chip reads *"Put American interests first in trade, immigration and foreign
+policy"* would be exactly the package-restuffing the wave's doctrine refuses.
+
+But the refusal exposed something the ranking cannot say by itself. The key's
+foreign-policy limb was **already superseded in August 2026** by `america_first_fp`,
+whose scope note narrows to *what the United States funds and commits to abroad*
+and explicitly OUTs military posture. What is left inside `america_first` is a
+three-subject bundle — trade, immigration, foreign policy — each of which now has
+a better-scoped home: `econ_trade` and `tariffs_authority` for the first,
+`immigration_reform`, `border_security` and `deportations` for the second,
+`america_first_fp` and `restraint` for the third.
+
+So the 97 rows are not a mapping gap that a wave can close by finding the right
+bill. They are an artefact of the bundling. There is no instrument that earns a
+three-subject bundle at PRIMARY weight, and if one existed, mapping it would make
+the key less readable rather than more.
+
+**Why it is not shipped, against the V1 bar.** The bar asks for recurrence,
+polarity, not-a-cousin, a readable chip, **and at least two instruments to map**.
+This finding fails the last test in the direction that matters: there is nothing
+to map it to. It also is not a *new* key at all — it is a retirement or a
+re-scoping, which moves rows that are already published. That belongs in a
+vocabulary pass with its own drift measurement, not inside a densification wave
+whose entire acceptance test is byte-identity on everything it did not admit.
+
+**What a decision would need.** Whoever takes this up needs three numbers this
+file does not have: how many *live mappings* carry `america_first` (not how many
+member rows read it), how many of those would land cleanly on one of the seven
+successor keys named above, and how many would land nowhere. If the third number
+is small the key can be retired by remapping. If it is large, the honest move is
+to narrow the chip to trade-and-immigration and let `america_first_fp` keep the
+rest — but that re-scoping has to be argued against the published chip, and every
+affected dossier re-read, the way V1 paid cost 4 above.
+
+Still proposed: **this one.** Nothing else changed.

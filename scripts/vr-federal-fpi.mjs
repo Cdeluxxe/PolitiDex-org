@@ -18,6 +18,7 @@
 //   node scripts/vr-federal-fpi.mjs --json               # machine-readable
 //   node scripts/vr-federal-fpi.mjs --drift              # per-issue tier changes
 //   node scripts/vr-federal-fpi.mjs --set all --chambers # PRIMARY by chamber + Senate unread
+//   node scripts/vr-federal-fpi.mjs --set all --band     # the promotable band: 0-primary keys by judged depth
 //
 // "AFTER" INCLUDES ROWS THE DATABASE DOES NOT HOLD YET. The wave's migration is
 // applied by the platform at build, and the build cannot be run from here, so the
@@ -75,6 +76,7 @@ const WAVES = {
   f1: { mapping: "db/vr-federal-mapping-seed-f1.json", votes: "db/vr-federal-depth-vote-seed.json" },
   f2: { mapping: "db/vr-federal-mapping-seed-f2.json", votes: "db/vr-federal-wave-f2-vote-seed.json" },
   f3: { mapping: "db/vr-federal-mapping-seed-f3.json", votes: "db/vr-federal-wave-f3-vote-seed.json" },
+  f4: { mapping: "db/vr-federal-mapping-seed-f4.json", votes: "db/vr-federal-wave-f4-vote-seed.json" },
 };
 
 const FILES = [
@@ -268,7 +270,8 @@ function voteOverlay(lane, pids) {
 function overlay(issues, measures) {
   if (!SEED_FILES.length) return { rows: issues.slice(), added: 0, skipped: 0, retracted: 0 };
   const seeds = SEED_FILES.map(J);
-  const seed = { measures: seeds.flatMap((x) => x.measures || []), retractions: seeds.flatMap((x) => x.retractions || []) };
+  const seed = { measures: seeds.flatMap((x) => x.measures || []), retractions: seeds.flatMap((x) => x.retractions || []),
+                 promotes: seeds.flatMap((x) => x.promotes || []) };
   const byKey = new Map();
   for (const m of measures) byKey.set(`${m.congress}|${String(m.number).trim().toLowerCase()}`, m.id);
   const rows = issues.slice();
@@ -291,6 +294,35 @@ function overlay(issues, measures) {
       added++;
     }
   }
+  // PROMOTES. The third thing a wave can do to a mapping, and the one this overlay
+  // could not project until F4 needed it: change the LANE of a row that is already
+  // live. `is_primary` has one consumer — the primary wall at _RD_MIN_PRIMARY — so a
+  // wave that supplies a key's first Senate-reachable PRIMARY by promoting an
+  // existing secondary moves exactly the same number the wall reads, and the loop
+  // above would have skipped the row as "already live" and reported no change at all.
+  // Matched on the same (congress, number, issue_key) identity the migration's UPDATE
+  // uses, and FAIL-CLOSED on the pre-state: a promote whose `from` block does not
+  // describe the row on file is COUNTED as a mismatch and not applied, because a seed
+  // that has drifted from the corpus must not silently rewrite a different row than
+  // the one its argument was written about. A promote already applied (the row is
+  // already primary) is counted separately — that is the expected steady state after
+  // the migration lands, exactly like retractionsAlreadyGone.
+  let promoted = 0, promotesAlreadyDone = 0, promoteMismatch = 0;
+  for (const pr of seed.promotes || []) {
+    const mid = byKey.get(`${pr.congress}|${String(pr.number).trim().toLowerCase()}`);
+    const at = mid == null ? -1 : rows.findIndex((x) => x.measure_id === mid && x.issue_key === pr.issueKey);
+    if (at === -1) { promoteMismatch++; continue; }
+    const row = rows[at], f = pr.from || {};
+    if (row.is_primary) { promotesAlreadyDone++; continue; }
+    if ((f.weight != null && Number(row.weight) !== Number(f.weight))
+      || (f.supportMeaning && row.support_meaning !== f.supportMeaning)) { promoteMismatch++; continue; }
+    const t = pr.to || {};
+    rows[at] = { ...row, is_primary: t.isPrimary !== false,
+      weight: t.weight != null ? t.weight : row.weight,
+      support_meaning: t.supportMeaning || row.support_meaning,
+      rationale: pr.rationale || row.rationale };
+    promoted++;
+  }
   // RETRACTIONS. A wave may also REMOVE a live row — the mirror of adding one, and
   // the only way the after column can honestly show a mapping going away. Runbook
   // rule 21 governs: the live rationale is the first writer's, so a retraction has
@@ -309,7 +341,8 @@ function overlay(issues, measures) {
     rows.splice(at, 1);
     retracted++;
   }
-  return { rows, added, skipped, retracted, retractionsAlreadyGone };
+  return { rows, added, skipped, retracted, retractionsAlreadyGone,
+           promoted, promotesAlreadyDone, promoteMismatch };
 }
 
 function itemsFor(lane, issueRows) {
@@ -590,8 +623,14 @@ function chamberPrimary(lane, issueRows) {
 // from one source. A key with no entry prints "—", which is the honest reading for
 // most of the vocabulary: not examined this wave. Every entry a wave writes here
 // is either SHIPPED (a Senate PRIMARY instrument landed), REFUSED (an instrument
-// was found and declined, with the reason), or BLOCKED (no admissible instrument
-// exists yet, and the note names the bill that would unblock it).
+// was found and declined, with the reason), BLOCKED (no admissible instrument
+// exists yet, and the note names the bill that would unblock it), or HELD (the key
+// was examined, is already correct, and the wave deliberately changed nothing —
+// added by F4, whose one act sits on a measure three other keys also map).
+//
+// LATER WAVES OVERRIDE EARLIER ONES on the same key, which is why the tables are
+// merged rather than concatenated: a key F3 recorded as BLOCKED on one bill and F4
+// re-verified against the full roll universe should print F4's finding, not both.
 const F3_OUTCOME = {
   broadband:        { verdict: "SHIPPED",  note: "S.J.Res. 7 — first broadband PRIMARY in either chamber" },
   lands_preserve:   { verdict: "SHIPPED",  note: "H.J.Res. 140 — first Senate-reachable lands_preserve PRIMARY" },
@@ -609,6 +648,46 @@ const F3_OUTCOME = {
   scotus_reform:    { verdict: "BLOCKED",  note: "no Senate instrument of any kind in the 119th" },
   tax_middle_class: { verdict: "BLOCKED",  note: "every Senate act is inside a reconciliation vehicle" },
 };
+
+// F4. One SHIPPED row, and it is a promote rather than an ingest: the key's
+// instrument was already in the corpus and only its lane was wrong. Everything
+// else here is a refusal or a block that was re-verified against the complete
+// 890-roll Senate universe of the 119th this wave, not carried over from F3.
+const F4_OUTCOME = {
+  housing:          { verdict: "SHIPPED",  note: "H.R. 6644 promoted to the primary lane — first housing PRIMARY in either chamber; +97 Sen / +96 Hou, -0" },
+  housing_build:    { verdict: "HELD",     note: "w100 primary untouched; its chip is zoning and permitting, which cannot carry Titles IV, IX and X" },
+  housing_support:  { verdict: "REFUSED",  note: "H.R. 6644 has no eviction limit or rent protection; 4 sections of 12 titles; a secondary would gain 0" },
+  econ_trade:       { verdict: "REFUSED",  note: "polarity contradiction surfaced (rule 25): imposing AND terminating tariffs both read yea_supports" },
+  america_first:    { verdict: "REFUSED",  note: "H.R. 4's primary is cut_spending; key superseded by america_first_fp — proposal only, no promote" },
+  gov_waste:        { verdict: "REFUSED",  note: "rescinding an enacted appropriation is a funding choice, not a duplicate or improper payment" },
+  audit_spending:   { verdict: "REFUSED",  note: "S.Amdt. 3535 is an IG-appointment question; congress_oversight w100 already holds it" },
+  america_first_fp: { verdict: "REFUSED",  note: "H.R. 5334 is posture toward an adversary; the Aug-2026 scope note routes that to strong_defense" },
+  health_drug_prices:{verdict: "REFUSED",  note: "H.R. 5376 w90 is one title of a reconciliation act — the package % the doctrine refuses" },
+  child_care:       { verdict: "REFUSED",  note: "H.R. 1319 w55 is Title II of the American Rescue Plan; no standalone bill exists" },
+  disaster_resilience:{verdict:"REFUSED",  note: "H.R. 3684 w50 is a division of the infrastructure act; H.R. 471 in 0 of 890 Senate rolls" },
+  econ_growth:      { verdict: "REFUSED",  note: "H.R. 4346 w65 is a title of CHIPS; H.R. 3633 in 0 of 890 Senate rolls" },
+  transit:          { verdict: "REFUSED",  note: "H.R. 3684 w70 is a title of the infrastructure act; no standalone transit bill in the 119th" },
+  water:            { verdict: "REFUSED",  note: "H.R. 3684 w60 is a title; H.J.Res. 20 is a water-heater rule — the rural_ag keyword lesson" },
+  edu_college_cost: { verdict: "REFUSED",  note: "H.R. 1 w40 and H.R. 3746 w50 are both vehicles; depth does not rescue a bad instrument" },
+  health_mental:    { verdict: "REFUSED",  note: "S. 2938 is a firearms act, S. 331 a sentencing act; H.R. 2483 in 0 of 890 Senate rolls" },
+  public_schools:   { verdict: "REFUSED",  note: "H.R. 1319 and S. 2938 are packages; H.R. 28 in 0 of 890 Senate rolls" },
+  healthcare_costs: { verdict: "REFUSED",  note: "both candidates are reconciliation; a wrong instrument is not made right by costing 1 row" },
+  cost_living:      { verdict: "REFUSED",  note: "promoting a CRA or an omnibus here collapses gov_regulation, econ_growth and cost_living into one key" },
+  national_debt:    { verdict: "REFUSED",  note: "9 candidates, 8 packages and a nomination — every spending measure has a deficit consequence" },
+  gov_regulation:   { verdict: "REFUSED",  note: "21 un-ingested CRAs would add process secondaries only; F3's measured King/Lujan cost stands" },
+  health_rural:     { verdict: "BLOCKED",  note: "S. 2683 in 0 of 890 Senate rolls; H.R. 1968 refused — a CR is not a rural-health instrument" },
+  free_speech:      { verdict: "BLOCKED",  note: "S. 146 by unanimous consent, 0 rolls; H.R. 4's w30 CPB rescission line refused" },
+  econ_smallbiz:    { verdict: "BLOCKED",  note: "H.R. 3193 in 0 of 890 Senate rolls; H.R. 1319 w40 refused as a package" },
+  econ_workers:     { verdict: "BLOCKED",  note: "H.R. 5408 in 0 of 890 Senate rolls; H.R. 1319 w45 refused as a package" },
+  tax_middle_class: { verdict: "BLOCKED",  note: "H.R. 1 w60 is reconciliation; none of the 63 passage-form rolls is a standalone rate bill" },
+  scotus_reform:    { verdict: "BLOCKED",  note: "S. 1101 in 0 of 890 Senate rolls, and no Senate-reachable act to promote either" },
+  campaign_finance: { verdict: "BLOCKED",  note: "no Senate-reachable act at all — needs an instrument, not a lane change" },
+  election_security:{ verdict: "BLOCKED",  note: "no Senate-reachable act at all — needs an instrument, not a lane change" },
+  power_of_purse:   { verdict: "BLOCKED",  note: "no Senate-reachable act at all — needs an instrument, not a lane change" },
+};
+
+// The column reads from the merge, later wave last.
+const OUTCOME = { ...F3_OUTCOME, ...F4_OUTCOME };
 
 // ── ONE ROW, BEFORE AND AFTER ───────────────────────────────────────────────
 // The band table and the drift list say a row's tier moved; neither says what the
@@ -639,6 +718,102 @@ if (argOf("row")) {
   dump(winB, before, "BEFORE");
   dump(winA, after, "AFTER");
   console.log("");
+} else if (process.argv.includes("--band")) {
+  // ── THE PROMOTABLE BAND, MEASURED BY SIMULATION ──────────────────────────
+  // --chambers answers "which keys have no Senate-reachable PRIMARY". That is the
+  // right first question and it is NOT enough to pick a wave off, because supplying
+  // a key's first primary only turns a row into a read where the REST of the row
+  // already clears the depth floors. The engine is explicit about it: the primary
+  // wall sits INSIDE the deep branch (_RD_MIN_JUDGED acts), and the thin branch
+  // below it needs _RD_THIN_MIN acts and does not consult the primary flag at all.
+  // So on a key where every senator holds exactly one act, a promote moves the
+  // unread REASON from "incidental" to "single_item" and gains nothing.
+  //
+  // That could be argued from the floors. It is MEASURED here instead, because the
+  // floors are three files away from the row and an argument is not a number: for
+  // every key with no Senate-reachable PRIMARY, every non-primary Senate-reachable
+  // act on that key is flipped to `is_primary` ONE AT A TIME, the formal index is
+  // re-run over every senator, and the read set is diffed against the baseline.
+  // The result is the exact count of senator rows that promote would start and stop
+  // characterising — the same set-wise check on the row model's own `read` flag that
+  // readSets() runs for a real wave, applied to a hypothetical one.
+  //
+  // NOTHING HERE IS A RECOMMENDATION. A promote that gains rows is still refused
+  // unless the instrument's own enrolled text earns the key at primary weight; this
+  // table only says which promotes are even capable of moving a number, so a wave
+  // is not spent on one that cannot.
+  //
+  //   node scripts/vr-federal-fpi.mjs --set all --waves f1,f2,f3 --band
+  const senPids = [...ROSTER].filter((p) => MEMBER_CHAMBER.get(p) === "senate").sort();
+  const CP = chamberPrimary(lane, lane.issues);
+  const rollCh = new Map();
+  for (const v of lane.votes) { if (!v.source_url) continue;
+    const st = rollCh.get(v.measure_id) || new Set(); st.add(String(v.chamber)); rollCh.set(v.measure_id, st); }
+  const mLabel = new Map(lane.measures.map((m) => [m.id, String(m.number).trim()]));
+  const mCong = new Map(lane.measures.map((m) => [m.id, m.congress]));
+  // The keys in play, and the reason column, off the live corpus.
+  const unread = whyRows(winB, before, senPids);
+  const seenKey = new Map();
+  for (const r of unread) {
+    const e = seenKey.get(r.key) || { unread: 0, why: new Map() };
+    e.unread++; e.why.set(r.why, (e.why.get(r.why) || 0) + 1); seenKey.set(r.key, e);
+  }
+  const baseline = readSets(winB, before, senPids);
+  const readCount = (sets) => { let n = 0; for (const m of sets.values()) n += m.size; return n; };
+  const BASE_N = readCount(baseline);
+  const targets = [...seenKey.keys()].filter((k) => {
+    const cp = CP.get(k);
+    if (cp && cp.primary.senate.size > 0) return false;             // already has one
+    const e = seenKey.get(k);
+    return !(e.why.get("no_side") >= e.unread);                     // poleless is not work
+  });
+  // One candidate row per (key, Senate-reachable non-primary act).
+  const cands = [];
+  for (const r of lane.issues) {
+    if (r.is_primary) continue;
+    if (!targets.includes(r.issue_key)) continue;
+    if (!(rollCh.get(r.measure_id) || new Set()).has("senate")) continue;
+    cands.push({ key: r.issue_key, mid: r.measure_id, number: mLabel.get(r.measure_id),
+      congress: mCong.get(r.measure_id), weight: Number(r.weight) });
+  }
+  cands.sort((a, b) => a.key.localeCompare(b.key) || b.weight - a.weight);
+  const win2 = boot();
+  const results = [];
+  for (const c of cands) {
+    const rows2 = lane.issues.map((r) =>
+      (r.measure_id === c.mid && r.issue_key === c.key) ? { ...r, is_primary: true } : r);
+    const l2 = itemsFor(lane, rows2);
+    const after2 = readSets(win2, l2, senPids);
+    let gained = 0, lost = 0;
+    const gk = new Map();
+    for (const pid of senPids) {
+      const b = baseline.get(pid) || new Map(), a = after2.get(pid) || new Map();
+      for (const [k, t] of a) if (!b.has(k)) { gained++; gk.set(`${k}/${t}`, (gk.get(`${k}/${t}`) || 0) + 1); }
+      for (const k of b.keys()) if (!a.has(k)) lost++;
+    }
+    results.push({ ...c, gained, lost, detail: [...gk].sort((x, y) => y[1] - x[1]) });
+  }
+  results.sort((a, b) => (b.gained - a.gained) || (a.lost - b.lost) || a.key.localeCompare(b.key));
+  console.log(`\n  THE PROMOTABLE BAND — every Senate-reachable non-primary act on a key with NO`);
+  console.log(`  Senate-reachable PRIMARY, flipped to primary one at a time and measured.`);
+  console.log(`  senators on roster: ${senPids.length}   candidate keys: ${targets.length}`
+    + `   candidate acts simulated: ${cands.length}   senator rows read now: ${BASE_N}\n`);
+  console.log(`  ${"key".padEnd(22)} ${"instrument".padEnd(16)} ${"cong".padStart(4)} ${"w".padStart(3)}`
+    + ` ${"unread".padStart(6)} ${"+read".padStart(6)} ${"-read".padStart(6)}  top unread reason`);
+  console.log(`  ${"-".repeat(22)} ${"-".repeat(16)} ${"-".repeat(4)} ${"-".repeat(3)} ${"-".repeat(6)} ${"-".repeat(6)} ${"-".repeat(6)}  ${"-".repeat(24)}`);
+  for (const r of results) {
+    const e = seenKey.get(r.key) || { unread: 0, why: new Map() };
+    const top = [...e.why].sort((a, b) => b[1] - a[1])[0];
+    console.log(`  ${r.key.padEnd(22)} ${String(r.number).padEnd(16)} ${String(r.congress).padStart(4)}`
+      + ` ${String(r.weight).padStart(3)} ${String(e.unread).padStart(6)} ${String(r.gained).padStart(6)}`
+      + ` ${String(r.lost).padStart(6)}  ${top ? `${top[0]} ${top[1]}` : "-"}`
+      + (r.detail.length ? `   [${r.detail.map(([k, n]) => `${k} x${n}`).join(", ")}]` : ""));
+  }
+  const dry = targets.filter((k) => !results.some((r) => r.key === k && r.gained > 0));
+  console.log(`\n  KEYS NO PROMOTE CAN MOVE (${dry.length} of ${targets.length}): ${dry.sort().join(", ")}`);
+  console.log(`  On these the senator rows hold too little to characterise even WITH a primary,`);
+  console.log(`  so the wall is the act count and not the flag. They need a second act, not a lane`);
+  console.log(`  change — which is a different wave, and the census has to say so out loud.\n`);
 } else if (process.argv.includes("--chambers")) {
   // PRIMARY-BY-CHAMBER, plus the Senate side of the unread-reason census, in one
   // table. Run it with `--set all`: on the Utah set the PRIMARY counts would be
@@ -658,7 +833,7 @@ if (argOf("row")) {
     return m;
   };
   const UB = bucket(bRows), UA = bucket(aRows);
-  const keys = [...new Set([...CP_B.keys(), ...CP_A.keys(), ...UB.keys(), ...UA.keys(), ...Object.keys(F3_OUTCOME)])];
+  const keys = [...new Set([...CP_B.keys(), ...CP_A.keys(), ...UB.keys(), ...UA.keys(), ...Object.keys(OUTCOME)])];
   const sp = (m, k) => ((m.get(k) || {}).primary || {});
   const rank = (k) => {
     const u = UB.get(k) || { vehicle_only: 0, incidental: 0, total: 0 };
@@ -678,7 +853,7 @@ if (argOf("row")) {
     const u = UB.get(k) || { vehicle_only: 0, incidental: 0, other: 0, total: 0 };
     const u2 = UA.get(k) || { vehicle_only: 0, incidental: 0, other: 0, total: 0 };
     const d = u2.total - u.total;
-    const o = F3_OUTCOME[k];
+    const o = OUTCOME[k];
     if (!o && !u.total && !a && !h) continue;               // nothing recorded either way: not a row of this table
     console.log(`  ${k.padEnd(26)} ${String(b).padStart(4)} ${String(a === b ? "" : "→" + a).padStart(6)}`
       + ` ${String(h).padStart(5)}   ${String(u.vehicle_only).padStart(3)} /${String(u.incidental).padStart(4)} /${String(u.other).padStart(5)}`
@@ -759,7 +934,8 @@ if (argOf("row")) {
   const strip = (m) => ({ empty: m.empty, thin: m.thin, readable: m.readable, members: m.members,
     withRecord: m.withRecord, rows: m.rows, strongN: m.strongN, splitN: m.splitN, thinN: m.thinN });
   console.log(JSON.stringify({ set: SET, waves: WAVE_KEYS,
-    seed: { added: O.added, skipped: O.skipped, retracted: O.retracted, retractionsAlreadyGone: O.retractionsAlreadyGone },
+    seed: { added: O.added, skipped: O.skipped, retracted: O.retracted, retractionsAlreadyGone: O.retractionsAlreadyGone,
+            promoted: O.promoted, promotesAlreadyDone: O.promotesAlreadyDone, promoteMismatch: O.promoteMismatch },
     voteSeed: { measures: V.addedMeasures, rolls: V.addedRolls, memberVotes: V.addedVotes, rollsAlreadyLive: V.skippedRolls },
     before: { ...strip(B), lane: before.stats }, after: { ...strip(A), lane: after.stats },
     drift, weakened: weakened.map((d) => d.pid), newSplits: split.map((d) => d.pid),
@@ -779,7 +955,9 @@ if (argOf("row")) {
   row("after", A, after.stats);
   console.log(`\n  delta    ${String(A.empty - B.empty).padStart(5)} ${String(A.thin - B.thin).padStart(5)} ${String(A.readable - B.readable).padStart(9)}`);
   console.log(`\n  seed rows overlaid: ${O.added}   ignored (undecided, refused, or already live): ${O.skipped}`
-    + `   retracted: ${O.retracted}${O.retractionsAlreadyGone ? ` (${O.retractionsAlreadyGone} already gone)` : ""}`);
+    + `   retracted: ${O.retracted}${O.retractionsAlreadyGone ? ` (${O.retractionsAlreadyGone} already gone)` : ""}`
+    + `   promoted: ${O.promoted}${O.promotesAlreadyDone ? ` (${O.promotesAlreadyDone} already primary)` : ""}`
+    + `${O.promoteMismatch ? `   PROMOTE MISMATCH: ${O.promoteMismatch}` : ""}`);
   console.log(`  vote seed projected: ${V.addedMeasures} measures, ${V.addedRolls} roll calls, ${V.addedVotes} member votes on this set`
     + `${V.skippedRolls ? `   (${V.skippedRolls} roll(s) already in the database, left alone)` : ""}`);
   console.log(`  members whose shape moved: ${drift.length}`);

@@ -1,0 +1,93 @@
+{
+ "_comment": "Federal wave F4 — VOTE SEED. IT ADMITS NO ROLL CALL, and that is the wave's finding rather than an omission. F1, F2 and F3 each ingested measures and rolls; F4 swept the complete Senate roll-call universe of the 119th Congress and found that no un-ingested admissible roll earns any key that currently lacks a Senate-reachable PRIMARY. So F4 acts on an instrument the corpus already holds, and this file exists to record the verification of the two rolls that act leans on and the sweep that declined the rest.",
+ "builtBy": "Federal wave F4, curator pass. Swept 2026-08-29.",
+ "pulledAt": "2026-08-29",
+ "source": "senate.gov LIS roll-call XML for the Senate menus of 119/1 and 119/2, and the House Clerk EVS XML for the House. Enrolled text from govinfo BILLS-119hr6644enr. congress.gov's HTML pages are not used as a source: they serve a JavaScript challenge to a non-browser client, so a fetch of one returns a challenge page rather than a bill.",
+ "attribution": {
+  "senate": "Not exercised. This wave attributes no member vote, so the double-keyed fail-closed senator path was not run and no surname was matched. Stated rather than left blank: an attribution counter of zero here means the path was never entered, not that it was entered and matched nothing.",
+  "house": "Not exercised, same reason.",
+  "surnameSource": "n/a — no name matching performed.",
+  "rosterSenatorsIndexed": 99,
+  "rosterSenatorsWithoutSurname": [],
+  "ambiguousRosterKeys": []
+ },
+ "rollCallCount": 0,
+ "memberVoteCount": 0,
+ "skippedVoteCount": 0,
+ "newMeasures": [],
+ "votes": [],
+ "_whyEmpty": {
+  "swept": 890,
+  "how": "Every roll call in the Senate menus of the 119th Congress, both sessions, read from the LIS XML and filtered on question form per runbook rule 12 — PASSAGE_FORMS admits 'On Passage of the Bill', 'On the Joint Resolution' and their exact siblings, and nothing else. Motions to proceed, cloture, motions to table, amendment votes and nomination confirmations are excluded by form, not by judgement.",
+  "admissibleOnForm": 63,
+  "alreadyInCorpus": 18,
+  "unIngestedAdmissible": 45,
+  "whatTheUnIngested45Are": "Twenty-one Congressional Review Act and disapproval resolutions; five tariff national-emergency terminations; seven appropriations vehicles, continuing and consolidated; five S.Res. resolutions authorising en bloc consideration of Executive Calendar nominations; three concurrent resolutions, two budget and one war-powers; H.R. 5334 (Russia sanctions); H.J.Res. 142 (District of Columbia Council tax act); and two remaining disapprovals. Each is itemised with its refusal in db/vr-federal-mapping-seed-f4.json under declinedRollCalls.",
+  "theTestEachFailed": "A roll is worth ingesting to THIS wave only if its measure's own subject earns, at primary weight, a key that has no Senate-reachable PRIMARY. All 45 fail: their primaries land on keys that already hold one (lands_energy, lands_preserve, climate_action, energy_production, gov_regulation, econ_corp_account, crypto, strong_defense, cut_spending), or on a `_RD_NO_POLE` key that can never be characterised (tariffs_authority, war_powers), or on no readable key at all.",
+  "whatWasNotDone": "No PRIMARY was manufactured from a vehicle, a unanimous-consent passage or a motion to proceed. That is the whole reason this file is empty, and it is a more useful thing to have recorded than 2,000 member votes attached to secondaries."
+ },
+ "rollsTheActLeansOn": [
+  {
+   "chamber": "senate",
+   "congress": 119,
+   "session": 2,
+   "rollNumber": 53,
+   "measure": "H.R. 6644 — 21st Century ROAD to Housing Act",
+   "question": "On Passage of the Bill",
+   "result": "passed",
+   "tally": "89-10, 1 not voting",
+   "voteDate": "2026-03-12",
+   "alreadyLive": true,
+   "rollcallId": 2574,
+   "attributedMemberVotes": 98,
+   "notVoting": [
+    "blackburn"
+   ],
+   "ruleChecks": {
+    "rule12QuestionForm": "PASS. 'On Passage of the Bill' is a passage form exactly.",
+    "rule11LosingSide": "PASS. The losing side is 10 of the 99 yea-plus-nay pool, 10.101%, above the one-tenth bar. Recorded because it clears by a tenth of a point and a reader is entitled to see that rather than a claim that it passed comfortably.",
+    "twoFlankNays": "PASS. Nays are 9 Republicans and 1 Democrat, so the opposition is not one party's caucus and the vote is not a party-line proxy.",
+    "notReserveFund": "PASS. Passage of an enrolled Act, not a budget-resolution amendment.",
+    "enactedTier": "PASS. The measure became law."
+   },
+   "whyItIsHere": "This is the roll the promoted `housing` PRIMARY will be read through for 98 senators. It is already in the database with its member votes attributed by an earlier wave, so this wave neither re-ingests it nor re-attributes it; the entry records that the roll was re-verified against the LIS XML before a primary flag was hung on it.",
+   "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00053.xml"
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "rollNumber": 224,
+   "measure": "H.R. 6644 — 21st Century ROAD to Housing Act",
+   "question": "On Motion to Suspend the Rules and Concur in Senate Adt to House Adt to Senate Adt",
+   "result": "passed",
+   "tally": "358-32, 41 not voting",
+   "voteDate": "2026-06-23",
+   "alreadyLive": true,
+   "rollcallId": 179,
+   "attributedMemberVotes": 108,
+   "ruleChecks": {
+    "questionForm": "A concurrence in a Senate amendment under suspension of the rules, not a plain passage form. It is in the corpus because an earlier wave admitted it as the House's final action on the measure — the vote that sent the Act to the President — and this wave does not relitigate that. It is recorded here plainly rather than described as a passage vote, because it is not one.",
+    "rule11LosingSide": "PASS. 32 of the 390 yea-plus-nay pool, 8.21%, is BELOW the one-tenth bar. Disclosed rather than buried: on the House side this measure is a near-consensus vote, which is one more reason the wave's argument rests on the enrolled text and not on the tallies.",
+    "nearUnanimity": "NOTED. Two-thirds suspension passage at 358-32 is a low-information roll on its own. The promote's value on the House side is correspondingly smaller than on the Senate side, and the measured House delta is reported rather than assumed."
+   },
+   "whyItIsHere": "Runbook rule 30 requires a House-origin measure's House companion roll to be present rather than left as a chamber gap. It is present, so this wave creates no gap. Its 108 attributed members are also the House half of the read-loss check: a promote that gains senators and costs a representative is a loss the headline must not net away.",
+   "sourceUrl": "https://api.congress.gov/v3/house-vote/119/2/224"
+  }
+ ],
+ "_declinedCandidateSweep": {
+  "_comment": "The Senate-reachable non-primary rows examined as promote candidates, measured one at a time by scripts/vr-federal-fpi.mjs --band. Recorded here so the refusals in the mapping seed can be checked against a number rather than taken on the curator's word.",
+  "candidatesSimulated": 41,
+  "keysCovered": 27,
+  "keysUnmovableByAnyPromote": [
+   "campaign_finance",
+   "election_security",
+   "power_of_purse",
+   "scotus_reform"
+  ],
+  "candidatesThatWouldHaveLostARow": 0,
+  "accepted": 1,
+  "refused": 40,
+  "reproduce": "node scripts/vr-federal-fpi.mjs --set all --waves f1,f2,f3 --band"
+ }
+}
