@@ -192,6 +192,28 @@
     } catch (e) { return ''; }
   }
 
+  // ── ONE PALETTE FOR THE WHOLE SITE ──────────────────────────────────────────
+  // A topic chip on the act face has to be the SAME COLOUR as that topic in the
+  // tree, on a stance chip and in compare, or the colour stops being information
+  // and becomes decoration. issue-colors.js is the only place that decides; this
+  // function does nothing but ask it and hand back the inline custom properties.
+  //   It fails open. No issue-colors.js on the page (offline lite boot, a stripped
+  // test sandbox) and every chip renders in the neutral house style instead of
+  // throwing — a colourless chip is still a working door.
+  //   IT ALSO MUST NOT BECOME A RANK. The tint is keyed on the ISSUE, never on
+  // whether the mapping was this bill's subject or rode inside; provenance stays a
+  // written label on the chip. Two chips of the same colour and different lanes is
+  // the correct rendering of "one instrument, two ways in".
+  function issueTint(key) {
+    try {
+      var C = window.PDXIssueColors;
+      if (!C || typeof C.styleFor !== 'function') return '';
+      var st = C.styleFor(key);
+      if (!st) return '';
+      return ' data-ic="on" style="' + escAttr(st) + '"';
+    } catch (e) { return ''; }
+  }
+
   // ── BIG PICTURE ORDER: THE WHOLE MENU, UNRANKED ─────────────────────────────
   // THE CITIZEN BIG PICTURE IGNORES `isPrimary` AS A VISIBILITY RULE. A mapping's
   // primary flag and its curated `weight` decide nothing on this face: not whether
@@ -426,61 +448,88 @@
   // own order rather than by size, so a big group reads as more mappings and not
   // as the act's "real" subject. A single-topic measure gets no panel: a bag of
   // one is not a bag, and the ledger already says so in plain words.
+  // ── ONE LINE, NOT A SECOND LEDGER ───────────────────────────────────────────
+  // This used to be a full panel — stat chips, a chip strip of every topic, a
+  // grouping by area of the topic map, a disclaimer. Every one of those topics was
+  // already printed, in the same order, in the ledger directly above it. Two
+  // renderings of one list is not twice the information; it is a reader scrolling
+  // past the same four keys twice and wondering which of the two is the real one.
+  //   What was NOT duplicated is the fact the panel existed to state: they moved
+  // as one instrument, on one roll call, and nobody got to vote on them singly.
+  // That fact survives, as one sentence under the ledger. The chips are gone
+  // because the ledger's rows are already doors, and the area grouping is gone
+  // because the topic map's own face is where taxonomy belongs.
   function coTravelSection(m, issues, rollcalls) {
     if (!issues || issues.length < 2) return '';
-    var ordered = bigPictureOrder(issues);
-    var n = ordered.length;
+    var n = issues.length;
     var rcs = (rollcalls || []).length;
     var enacted = m && m.status === 'enacted';
-    var unit = rcs ? 'vote' : (enacted ? 'act' : 'measure');
-
-    // Which areas of the shipped topic map these mappings fall into. `ordered` is
-    // already in taxonomy order, so first-seen order is taxonomy order — the
-    // groups are never re-sorted by how many mappings landed in them.
-    var areas = [], byCat = {};
-    ordered.forEach(function (it) {
-      var ck = '';
-      try { if (typeof window._pdxIssueCatOf === 'function') ck = window._pdxIssueCatOf(it.issueKey) || ''; } catch (e) {}
-      var lab = '';
-      try {
-        var c = (typeof window._pdxIssueCategory === 'function') ? window._pdxIssueCategory(ck) : null;
-        if (c && c.label) lab = (c.icon ? c.icon + ' ' : '') + c.label;
-      } catch (e) {}
-      if (!lab) { ck = '_unmapped'; lab = 'Elsewhere in the topic map'; }
-      if (!byCat[ck]) { byCat[ck] = { label: lab, n: 0 }; areas.push(byCat[ck]); }
-      byCat[ck].n++;
-    });
-
     var carried = rcs === 1
-      ? 'One roll call decided every one of them. A member could take the whole bag or refuse the whole bag; there was no separate vote on any single topic in it.'
+      ? 'One roll call decided every one of them: a member could take the whole bag or refuse the whole bag, and there was no separate vote on any single topic in it.'
       : rcs > 1
         ? rcs + ' roll calls each decided every one of them at once. None of them was a vote on one topic.'
         : enacted
           ? 'They were signed into law as one instrument, so they arrived together or not at all.'
           : 'They ride on one measure, so they move together for as long as it does.';
-
-    var chips = ordered.map(function (it) {
-      return '<button type="button" class="bd-bag-chip" data-issue="' + escAttr(it.issueKey) + '"' +
-        ' title="Open ' + escAttr(issueLabel(it.issueKey)) + '">' + esc(issueLabel(it.issueKey)) + '</button>';
-    }).join('');
-
-    var stats = '<span class="bd-bag-stat">📦 ' + n + ' topics on this instrument</span>' +
-      '<span class="bd-bag-stat">🗂 ' + areas.length + ' area' + (areas.length !== 1 ? 's' : '') + ' of the topic map</span>' +
-      (rcs ? '<span class="bd-bag-stat">🗳️ ' + (rcs === 1 ? '1 roll call on all ' + n : rcs + ' roll calls, each on all ' + n) + '</span>' : '');
-
-    var areaRow = '<div class="bd-bag-areas">' + areas.map(function (a) {
-      return '<span class="bd-bag-area">' + esc(a.label) + ' <b>' + a.n + '</b></span>';
-    }).join('') + '</div>';
-
-    return '<section class="bd-sec bd-bag"><h3 class="bd-h">🎒 Topics that shared this ' + esc(unit) + '</h3>' +
-      '<p class="bd-lead">All <strong>' + n + ' topics</strong> listed above rode the same instrument. ' + esc(carried) + '</p>' +
-      '<div class="bd-bag-stats">' + stats + '</div>' +
-      '<div class="bd-bag-strip" role="group" aria-label="Every topic carried on this instrument">' + chips + '</div>' +
-      areaRow +
-      '<p class="bd-note bd-bag-note">These are the same ' + n + ' mappings as the list above, in the same order, ' +
-        'grouped only to show they arrived as one bag. Nothing here is a ranking: the areas are printed in the topic ' +
-        'map’s own order, and a bigger group means more mappings landed in it, not that the act mattered more there.</p>' +
+    return '<section class="bd-sec bd-onebag">' +
+      '<p class="bd-onebag-l">🎒 <strong>The same ' + n + ' topics, one instrument.</strong> ' +
+        esc(carried) + '</p>' +
     '</section>';
+  }
+
+  // The four positions a roll call records, in the order the tally prints them.
+  // `present` and `not_voting` are kept apart because they are different acts:
+  // one is a member in the chamber declining to take a side, the other is a member
+  // who was not counted at all. Collapsing them would be a small lie about both.
+  var POS_SLOTS = [
+    ['yea', 'Yea'], ['nay', 'Nay'], ['present', 'Present'], ['not_voting', 'Did not vote']
+  ];
+  function posKey(pos) {
+    var p = String(pos || '');
+    return p ? ' data-bd-pos="' + escAttr(p) + '"' : '';
+  }
+  // What the closed drawer promises before it is opened: how many names are inside,
+  // and whether the reader's own representatives are among them. Both are facts
+  // about the list, so a reader can decide whether opening it is worth the tap.
+  function rollPromise(votes) {
+    var mine = 0;
+    votes.forEach(function (v) { if (isLocal(v.politicianId)) mine++; });
+    return votes.length + ' name' + (votes.length !== 1 ? 's' : '') + ' on this roll call' +
+      (mine ? ' · your ' + mine + ' rep' + (mine !== 1 ? 's' : '') + ' first' : '');
+  }
+  // The reader's own controls over a list of several hundred names: which position
+  // to show, and a name to look for. Neither is a summary and neither changes a
+  // count anywhere on this face — every row stays in the markup and the filter is
+  // one CSS rule keyed to the reader's own choice, exactly as the topic ledger's
+  // view control already works.
+  //   A slot with nobody in it gets no button. An empty filter that silently shows
+  // nothing reads as a bug; an absent one reads as the record.
+  function rollFilter(votes) {
+    var n = {};
+    votes.forEach(function (v) { var k = String(v.position || ''); n[k] = (n[k] || 0) + 1; });
+    var slots = [];
+    POS_SLOTS.forEach(function (sl) { if (n[sl[0]]) slots.push([sl[0], sl[1], n[sl[0]]]); });
+    // A filter with one slice in it is a control that cannot do anything: if every
+    // member on this roll call voted the same way, the pills would only ever say
+    // "all" twice. The count is already on the tally above, so the pills go and the
+    // search stays.
+    var btns = slots.length > 1 ? [['all', 'All', votes.length]].concat(slots) : [];
+    var pills = btns.length
+      ? '<div class="bd-rf-pills">' + btns.map(function (b, i) {
+          return '<button type="button" class="bd-rf-btn" data-bd-roll-set="' + escAttr(b[0]) + '"' +
+            ' aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' +
+            esc(b[1]) + ' <b>' + b[2] + '</b></button>';
+        }).join('') + '</div>'
+      : '';
+    return '<div class="bd-rf" role="group" aria-label="Show part of this roll call">' +
+      pills +
+      '<label class="bd-rf-find">' +
+        '<span class="bd-rf-find-l">Find a name</span>' +
+        '<input type="search" class="bd-rf-in" data-bd-roll-find' +
+          ' placeholder="Type part of a name" autocomplete="off" spellcheck="false">' +
+      '</label>' +
+      '<p class="bd-rf-none" role="status" aria-live="polite"></p>' +
+    '</div>';
   }
 
   function rollcallsSection(m, issues, rollcalls) {
@@ -520,7 +569,7 @@
           var svd = heavy ? null : memberOnAct(v.politicianId, pos, issues);
           var nameBtn = '<button type="button" class="bd-vote-name" data-pid="' + escAttr(v.politicianId) + '">' + esc(nameFor(v.politicianId)) + '</button>';
           if (svd) {
-            return '<details class="bd-vote-row bd-vote-exp' + (svd.hasContradiction ? ' bd-vote-contra' : '') + '">' +
+            return '<details class="bd-vote-row bd-vote-exp' + (svd.hasContradiction ? ' bd-vote-contra' : '') + '"' + posKey(pos) + '>' +
               '<summary class="bd-vote-sum">' + nameBtn + relTag +
                 '<span class="bd-pos ' + pcls + '">' + plabel + '</span>' +
                 '<span class="bd-svd-mini">' + svd.summary + '</span>' +
@@ -528,7 +577,7 @@
               '<div class="bd-svd-body">' + svd.rows + '</div>' +
             '</details>';
           }
-          return '<div class="bd-vote-row">' + nameBtn + relTag + '<span class="bd-pos ' + pcls + '">' + plabel + '</span></div>';
+          return '<div class="bd-vote-row"' + posKey(pos) + '>' + nameBtn + relTag + '<span class="bd-pos ' + pcls + '">' + plabel + '</span></div>';
         }).join('');
         if (heavy) rows = '<p class="bd-note">The per-member topic breakdown is available on smaller roll calls; the full topic list for this act is above, and a profile carries the same breakdown per member.</p>' + rows;
       } else {
@@ -536,7 +585,29 @@
       }
       var src = rc.source && rc.source.url
         ? '<a class="bd-src" href="' + escAttr(rc.source.url) + '" target="_blank" rel="noopener">🔗 ' + esc(rc.source.label || 'Official roll call') + '</a>' : '';
-      return '<div class="bd-rc">' + head + '<div class="bd-votes">' + rows + '</div>' + src + '</div>';
+      // THE TALLY IS THE FACE; THE NAMES ARE BEHIND A DOOR. On a full House roll
+      // call the list below is 430 rows, and printed open it buried the tallies,
+      // the topic ledger and everything else on this face under a wall of names.
+      // Closed, the reader meets the numbers first and opens the names when the
+      // names are what they came for — which is exactly what the letterhead's
+      // "See who voted" strip has always promised.
+      //   The rows are STILL IN THE DOM, all of them, unsummarised and untruncated.
+      // A closed <details> is not a filter and not a cap: find-in-page reaches them
+      // once open, the browser paints none of them until then, and no count on this
+      // page is computed from what happens to be visible.
+      var list = votes.length
+        ? '<details class="bd-rolldrop">' +
+            '<summary class="bd-roll-sum">' +
+              '<span class="bd-roll-sum-t">👥 See who voted</span>' +
+              '<span class="bd-roll-sum-n">' + esc(rollPromise(votes)) + '</span>' +
+            '</summary>' +
+            '<div class="bd-rollbody">' + rollFilter(votes) +
+              '<div class="bd-votes" data-bd-roll-view="all">' + rows + '</div>' +
+            '</div>' +
+          '</details>'
+        : '<div class="bd-votes">' + rows + '</div>';
+      return '<div class="bd-rc"' + (rc.id != null ? ' data-bd-rc="' + escAttr(String(rc.id)) + '"' : '') + '>' +
+        head + list + src + '</div>';
     }).join('');
     return '<section class="bd-sec" data-bd-anchor="rolls"><h3 class="bd-h">🗳️ Roll-call votes</h3>' + blocks + '</section>';
   }
@@ -834,6 +905,43 @@
     }
   }
 
+  // The reader's slice of one roll call. Same shape as setOmniView above: the state
+  // lives on the list as an attribute, the stylesheet does the hiding, and no row is
+  // removed from the DOM — so clearing the filter is free and nothing on this face
+  // is ever counted from what is currently on screen.
+  function setRollView(btn) {
+    var drop = btn.closest ? btn.closest('.bd-rollbody') : null;
+    if (!drop) return;
+    var view = btn.getAttribute('data-bd-roll-set') || 'all';
+    var list = drop.querySelector('.bd-votes');
+    if (list) list.setAttribute('data-bd-roll-view', view);
+    var btns = drop.querySelectorAll('[data-bd-roll-set]');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('aria-pressed', String(btns[i].getAttribute('data-bd-roll-set') === view));
+    }
+  }
+
+  // Find a name in a roll call. A plain case-insensitive substring match against
+  // the name we print, marking the rows that do not match — never deleting them,
+  // and never claiming a count. An empty box means no search, so every row comes
+  // back; a search that matches nothing says so rather than showing a blank list.
+  function findInRoll(box) {
+    var body = box.closest ? box.closest('.bd-rollbody') : null;
+    if (!body) return;
+    var q = String(box.value || '').trim().toLowerCase();
+    var rows = body.querySelectorAll('.bd-vote-row');
+    var hit = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var nm = rows[i].querySelector('.bd-vote-name');
+      var txt = (nm && (nm.textContent || '')).toLowerCase();
+      var show = !q || txt.indexOf(q) !== -1;
+      rows[i].classList.toggle('bd-vhide', !show);
+      if (show) hit++;
+    }
+    var note = body.querySelector('.bd-rf-none');
+    if (note) note.textContent = (q && !hit) ? 'No name on this roll call contains “' + box.value + '”.' : '';
+  }
+
   // Open the Issue View / Spotlight for an issue key (with graceful fallbacks).
   // THE VOTE STRIP IS A DOOR, NOT A SUMMARY. Tapping a tally moves the reader to
   // the roll list in this same panel: the counts are the door's label and the names
@@ -841,14 +949,28 @@
   // roll list is already on this face — there is nothing to load and nothing to
   // close. If the anchor is not on screen (a payload with no roll calls, a body the
   // panel has not filled yet) nothing happens, which is the honest outcome.
-  function gotoSection(name) {
+  function gotoSection(name, btn) {
     try {
       var host = document.getElementById('pdx-bd-scroll');
       var t = host && host.querySelector ? host.querySelector('[data-bd-anchor="' + name + '"]') : null;
       if (!t) return;
+      // The strip's own label is "See who voted", so the tap that lands on the roll
+      // list opens the names as well as scrolling to them. A closed drawer at the
+      // end of that jump would be the door refusing to be a door. Only the strip's
+      // own roll call opens — the other roll calls on a measure stay as they were.
+      openRollDrop(t, btn && btn.getAttribute ? btn.getAttribute('data-bd-roll-open') : null);
       if (t.scrollIntoView) t.scrollIntoView({ block: 'start', behavior: 'smooth' });
       var h = t.querySelector ? t.querySelector('.bd-h') : null;
       if (h && h.focus) { h.setAttribute('tabindex', '-1'); h.focus(); }
+    } catch (e) {}
+  }
+
+  function openRollDrop(sec, rcid) {
+    try {
+      var scope = null;
+      if (rcid && sec.querySelector) scope = sec.querySelector('[data-bd-rc="' + rcid + '"]');
+      var d = (scope || sec).querySelector ? (scope || sec).querySelector('.bd-rolldrop') : null;
+      if (d) d.open = true;
     } catch (e) {}
   }
 
@@ -898,11 +1020,12 @@
 
   function letterheadIdentity(m, data) {
     var rows = [];
-    // The header above prints the title we hold; the official title is only a
-    // separate fact when the ingest recorded one and it differs from that.
+    // The header above prints the title we hold. The OFFICIAL TITLE is not a row
+    // here any more: it is a sentence of legislative prose, it belongs with the
+    // rest of the prose, and it now sits at the top of the folded "What's in this
+    // act" panel. The link to the official text stays in this row set, because a
+    // reader who wants to go read the law should never have to open a fold first.
     rows.push(['Number', m.number || 'Not numbered in the record']);
-    var official = officialTitleOf(m);
-    if (official && official !== (m.title || '')) rows.push(['Official title', official]);
     var sit = sittingLabel(m);
     var where = [chamberLabel(m.chamber), sit].filter(Boolean).join(' · ');
     if (where) rows.push([sit && chamberLabel(m.chamber) ? 'Chamber &amp; session' : 'Chamber', where]);
@@ -940,6 +1063,7 @@
       // The chip is the door; the ⓘ is its sibling, never its child.
       return '<span class="bd-lh-chipw">' +
         '<button type="button" class="bd-lh-chip" data-issue="' + escAttr(it.issueKey) + '"' +
+          issueTint(it.issueKey) +
           ' title="' + escAttr('Open the ' + issueLabel(it.issueKey) + ' face') + '">' +
           '<span class="bd-lh-chip-l">' + esc(issueLabel(it.issueKey)) + '</span>' +
           '<span class="bd-lh-chip-lane">' + esc(lane) + '</span>' +
@@ -972,6 +1096,7 @@
       var meta = [chamberLabel(rc.chamber), fmtDate(rc.voteDate), rc.result ? statusLabelResult(rc.result) : '']
         .filter(Boolean).join(' · ');
       return '<button type="button" class="bd-lh-strip" data-bd-goto="rolls"' +
+          (rc.id != null ? ' data-bd-roll-open="' + escAttr(String(rc.id)) + '"' : '') +
           ' title="Go to the roll list for this vote">' +
         '<span class="bd-lh-vq">' + esc(rc.question || 'Vote') + '</span>' +
         '<span class="bd-lh-vm">' + esc(meta) + '</span>' +
@@ -990,11 +1115,64 @@
       : rcs.length > 1
         ? rcs.length + ' recorded votes. Each one counts in full on every topic below.'
         : 'No recorded vote on file. The topics below are what this act was mapped to, not how anyone voted on it.';
+    // CENSUS FIRST, PAPERWORK LAST. The teaching line, the tally, the chips and the
+    // vote strips are what a reader came for and they now occupy the top of the
+    // panel; the identity table (number, chamber, dates, link to the text) is
+    // reference material and sits under them. Nothing was dropped in the move.
     return '<section class="bd-sec bd-lh" aria-label="Bill profile">' +
-      letterheadIdentity(m, data) +
       '<p class="bd-lh-teach">' + esc(teach) + '</p>' +
       letterheadTopics(issues) +
       '<div class="bd-lh-votes">' + letterheadVotes(rcs) + '</div>' +
+      letterheadIdentity(m, data) +
+    '</section>';
+  }
+
+  // ── THE PROSE IS A FOOTNOTE, NOT THE GATEWAY ────────────────────────────────
+  // The ingested summary of a big act runs to thousands of characters of
+  // section-by-section legislative description. That text is worth keeping — it is
+  // the only place a reader can find out what Title VII actually said — but it is
+  // not what a cold reader needs in the first screen, and while it sat above the
+  // letterhead it pushed the chips and the vote strips off the fold entirely.
+  //   So it folds. A native <details>, closed by default, under the census:
+  //     · NOTHING IS SUMMARISED, REWRITTEN OR TRIMMED. The whole shipped summary
+  //       goes in verbatim. No model touches this text; if we have 2,500 characters
+  //       of it, all 2,500 are in the DOM behind one tap.
+  //     · The OFFICIAL TITLE leads the panel, because "To increase the supply of
+  //       housing in America, and for other purposes." is prose of exactly this
+  //       kind and reads as the summary's first line rather than a table row.
+  //     · <details> and not a CSS-hidden div, so the fold works with no JS, the
+  //       text stays findable by the browser's own find-in-page once opened, and
+  //       assistive tech gets a real disclosure widget instead of a mystery box.
+  //   When we hold neither an official title nor a summary the fold does not
+  // render at all. An empty disclosure that promises contents and delivers none is
+  // worse than an honest absence.
+  function foldSection(m) {
+    var official = officialTitleOf(m);
+    var showOfficial = official && official !== (m.title || '');
+    var summary = m.summary ? String(m.summary) : '';
+    if (!showOfficial && !summary) return '';
+    // The hint names what is actually inside, not what usually is: a measure we
+    // hold a description for but no separate official title must not promise one.
+    var label = summary ? 'What’s in this act' : 'Official title';
+    var parts = [];
+    if (showOfficial) parts.push('the official title');
+    if (summary) parts.push('the full description on file');
+    var hint = parts.join(' and ');
+    var body =
+      (showOfficial
+        ? '<p class="bd-fold-official">' + esc(official) + '</p>'
+        : '') +
+      (summary
+        ? '<p class="bd-fold-body">' + esc(summary) + '</p>'
+        : '');
+    return '<section class="bd-sec bd-foldsec">' +
+      '<details class="bd-fold">' +
+        '<summary class="bd-fold-sum">' +
+          '<span class="bd-fold-t">📄 ' + esc(label) + '</span>' +
+          '<span class="bd-fold-h">' + esc(hint) + '</span>' +
+        '</summary>' +
+        '<div class="bd-fold-in">' + body + '</div>' +
+      '</details>' +
     '</section>';
   }
 
@@ -1061,10 +1239,10 @@
         '<h2 class="bd-title">' + esc(m.title || '') + '</h2>' +
         (meta ? '<div class="bd-meta">' + esc(meta) + '</div>' : '') +
         actionsBar +
-        (m.summary ? '<p class="bd-summary">' + esc(m.summary) + '</p>' : '') +
         src +
       '</div>' +
       letterheadHtml(m, issues, data) +
+      foldSection(m) +
       glanceStrip(m, issues, data) +
       omnibusSection(m, issues) +
       coTravelSection(m, issues, data.rollcalls) +
@@ -1102,8 +1280,10 @@
       if (sb) { var slug = sb.getAttribute('data-slug'); if (slug && window.PDXSpotlight && window.PDXSpotlight.open) { close(); window.PDXSpotlight.open(slug); } return; }
       var ib = e.target.closest ? e.target.closest('[data-bd-view-set]') : null;
       if (ib) { setOmniView(ib); return; }
+      var rf = e.target.closest ? e.target.closest('[data-bd-roll-set]') : null;
+      if (rf) { setRollView(rf); return; }
       var gb = e.target.closest ? e.target.closest('[data-bd-goto]') : null;
-      if (gb) { gotoSection(gb.getAttribute('data-bd-goto')); return; }
+      if (gb) { gotoSection(gb.getAttribute('data-bd-goto'), gb); return; }
       ib = e.target.closest ? e.target.closest('[data-issue]') : null;
       if (ib) { openIssue(ib.getAttribute('data-issue')); return; }
       var lb = e.target.closest ? e.target.closest('[data-legis]') : null;
@@ -1120,6 +1300,12 @@
       if (fb) { toggleFollow(fb); return; }
       var shb = e.target.closest ? e.target.closest('[data-bd-share]') : null;
       if (shb) { share(shb); return; }
+    });
+    // Typing in a roll call's find box. Delegated like every other control on this
+    // panel, so it survives the body being re-rendered under it.
+    ov.addEventListener('input', function (e) {
+      var box = e.target && e.target.hasAttribute && e.target.hasAttribute('data-bd-roll-find') ? e.target : null;
+      if (box) findInRoll(box);
     });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !ov.hidden) close(); });
     return ov;
@@ -1382,6 +1568,18 @@
       '.bd-lh-chip:hover{background:rgba(96,165,250,.2);border-color:#9ec8ff;}' +
       '.bd-lh-chip-l{font:700 .8rem/1.15 "Barlow Condensed",sans-serif;color:#e6eefc;}' +
       '.bd-lh-chip-lane{font:600 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#9fb4d4;}' +
+      // THE SAME COLOUR THIS TOPIC HAS EVERYWHERE ELSE. issue-colors.js hands the
+      // chip its four tokens inline (see issueTint) and these rules spend them the
+      // way the stance tree and the compare surfaces already do: `soft` for the
+      // fill, the full colour for the edge and the focus ring, `ink` for the label.
+      // A chip with no tokens — no issue-colors.js on the page — keeps the house
+      // blue above, because the fallbacks in every var() below are the old values.
+      //   The LANE LABEL IS NOT TINTED. Provenance is a word, not a hue: two chips
+      // of one colour and different lanes is the correct rendering of a rider.
+      '.bd-lh-chip[data-ic]{background:var(--pdx-ic-soft,rgba(96,165,250,.1));border-color:var(--pdx-ic,rgba(126,180,255,.32));}' +
+      '.bd-lh-chip[data-ic] .bd-lh-chip-l{color:var(--pdx-ic-ink,#e6eefc);}' +
+      '.bd-lh-chip[data-ic]:hover{background:var(--pdx-ic-wash,rgba(96,165,250,.2));border-color:var(--pdx-ic,#9ec8ff);}' +
+      '.bd-lh-chip[data-ic]:focus-visible{outline:2px solid var(--pdx-ic,#7fb4ff);outline-offset:2px;}' +
       '.bd-lh-votes{display:flex;flex-direction:column;gap:.4rem;}' +
       '.bd-lh-strip{display:flex;flex-direction:column;align-items:flex-start;gap:.22rem;width:100%;cursor:pointer;text-align:left;background:rgba(159,180,212,.06);border:1px solid rgba(159,180,212,.2);border-radius:.55rem;padding:.5rem .6rem;}' +
       '.bd-lh-strip:hover{background:rgba(159,180,212,.12);border-color:rgba(126,180,255,.5);}' +
@@ -1421,16 +1619,11 @@
       // default state shows every row and why a missing/unknown value does too.
       '.bd-omni-list[data-bd-view="main"] .bd-omni-row[data-bd-lane="other"]{display:none;}' +
       '.bd-omni-list[data-bd-view="other"] .bd-omni-row[data-bd-lane="main"]{display:none;}' +
-      '.bd-bag-stats{display:flex;flex-wrap:wrap;gap:.4rem;margin:-.3rem 0 .7rem;}' +
-      '.bd-bag-stat{font:700 .62rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#bcd0f0;background:rgba(159,180,212,.09);border:1px solid rgba(159,180,212,.2);border-radius:999px;padding:.26rem .55rem;}' +
-      '.bd-bag-strip{display:flex;flex-wrap:wrap;gap:.4rem;}' +
-      '.bd-bag-chip{font:600 .74rem/1.2 "Barlow",sans-serif;color:#e6eefc;background:rgba(126,180,255,.09);border:1px solid rgba(126,180,255,.24);border-radius:.5rem;padding:.34rem .6rem;min-height:34px;cursor:pointer;text-align:left;}' +
-      '.bd-bag-chip:hover{background:rgba(126,180,255,.16);border-color:rgba(126,180,255,.45);}' +
-      '.bd-bag-chip:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
-      '.bd-bag-areas{display:flex;flex-wrap:wrap;gap:.35rem;margin:.6rem 0 .5rem;}' +
-      '.bd-bag-area{font:600 .66rem/1 "Barlow Condensed",sans-serif;letter-spacing:.02em;color:#9fb4d4;background:rgba(255,255,255,.03);border:1px solid rgba(159,180,212,.16);border-radius:999px;padding:.26rem .55rem;}' +
-      '.bd-bag-area b{color:#e6eefc;font-weight:800;}' +
-      '.bd-bag-note{margin-top:.2rem;}' +
+      // The one-instrument note: a footnote's weight, sitting on the ledger it
+      // qualifies. No chips, no stat pills, no grouping — see coTravelSection.
+      '.bd-onebag{margin-top:.7rem;border-left:2px solid rgba(245,200,66,.35);padding-left:.7rem;}' +
+      '.bd-onebag-l{font:500 .84rem/1.5 "Barlow",sans-serif;color:#bcd0f0;margin:0;}' +
+      '.bd-onebag-l strong{color:#f3d774;font-weight:800;}' +
       '.bd-svd-cap{font:700 .6rem/1.3 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;margin:.1rem 0 .3rem;}' +
       '.bd-svd-count{font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#bcd0f0;background:rgba(159,180,212,.1);border:1px solid rgba(159,180,212,.22);border-radius:999px;padding:.16rem .45rem;}' +
       '.bd-eff{font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;border-radius:999px;padding:.16rem .45rem;white-space:nowrap;}' +
@@ -1445,6 +1638,55 @@
       '.bd-tally{font:700 .62rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;border-radius:.35rem;padding:.2rem .45rem;color:#cbd9ec;background:rgba(159,180,212,.1);border:1px solid rgba(159,180,212,.2);}' +
       '.bd-tally-yea{color:#9ff0bd;background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.3);}' +
       '.bd-tally-nay{color:#fca5a5;background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.3);}' +
+      // ── the folded prose ──────────────────────────────────────────────────
+      // A closed disclosure has to look like something a reader is CHOOSING not
+      // to open, so it is a full-width bar with its own hint text rather than a
+      // bare caret. Open, it is body copy at reading width and nothing else.
+      '.bd-foldsec{margin-top:1rem;}' +
+      '.bd-fold{border:1px solid rgba(159,180,212,.16);border-radius:.6rem;background:rgba(10,15,30,.34);}' +
+      '.bd-fold-sum{display:flex;flex-wrap:wrap;align-items:center;gap:.2rem .6rem;cursor:pointer;list-style:none;padding:.6rem .75rem;}' +
+      '.bd-fold-sum::-webkit-details-marker{display:none;}' +
+      '.bd-fold-sum:hover{background:rgba(255,255,255,.03);}' +
+      '.bd-fold-sum:focus-visible{outline:2px solid #7fb4ff;outline-offset:-2px;}' +
+      '.bd-fold-t{font:700 .84rem/1.2 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#e6eefc;}' +
+      '.bd-fold-h{font:600 .66rem/1.3 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;}' +
+      '.bd-fold[open] .bd-fold-sum{border-bottom:1px solid rgba(159,180,212,.14);}' +
+      '.bd-fold-in{padding:.7rem .75rem .85rem;}' +
+      '.bd-fold-official{font:600 .9rem/1.5 "Barlow",sans-serif;color:#cbd9ec;margin:0 0 .6rem;}' +
+      '.bd-fold-body{font:500 .88rem/1.6 "Barlow",sans-serif;color:#b9c8e0;margin:0;white-space:pre-line;}' +
+      // ── the roll-call drawer ──────────────────────────────────────────────
+      // Closed by default (see rollcallsSection). The summary is the door the
+      // letterhead's vote strip promises, so it is styled as a control and not as
+      // a caption, and it says how many names are behind it before it is opened.
+      '.bd-rolldrop{margin-top:.5rem;border-top:1px solid rgba(159,180,212,.12);}' +
+      '.bd-roll-sum{display:flex;flex-wrap:wrap;align-items:center;gap:.2rem .6rem;cursor:pointer;list-style:none;padding:.55rem .1rem;}' +
+      '.bd-roll-sum::-webkit-details-marker{display:none;}' +
+      '.bd-roll-sum:hover .bd-roll-sum-t{color:#9ec8ff;text-decoration:underline;}' +
+      '.bd-roll-sum:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      '.bd-roll-sum-t{font:700 .8rem/1.2 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#7fb4ff;}' +
+      '.bd-roll-sum-n{font:600 .64rem/1.3 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;}' +
+      '.bd-rollbody{padding-bottom:.2rem;}' +
+      '.bd-rf{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem .7rem;margin:.1rem 0 .35rem;}' +
+      '.bd-rf-pills{display:flex;flex-wrap:wrap;gap:.3rem;}' +
+      '.bd-rf-btn{font:700 .62rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#cbd9ec;background:rgba(159,180,212,.08);border:1px solid rgba(159,180,212,.22);border-radius:999px;padding:.3rem .6rem;cursor:pointer;}' +
+      '.bd-rf-btn b{color:#e6eefc;font-weight:800;}' +
+      '.bd-rf-btn[aria-pressed="true"]{color:#9ff0bd;background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.35);}' +
+      '.bd-rf-btn:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      '.bd-rf-find{display:inline-flex;align-items:center;gap:.35rem;}' +
+      '.bd-rf-find-l{font:700 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#8aa0c4;}' +
+      '.bd-rf-in{font:500 .78rem/1.3 "Barlow",sans-serif;color:#e6eefc;background:rgba(10,15,30,.6);border:1px solid rgba(159,180,212,.22);border-radius:.4rem;padding:.3rem .5rem;min-width:9rem;}' +
+      '.bd-rf-in:focus-visible{outline:2px solid #7fb4ff;outline-offset:1px;}' +
+      '.bd-rf-none{flex-basis:100%;font:500 .74rem/1.4 "Barlow",sans-serif;color:#fdba74;margin:0;}' +
+      '.bd-rf-none:empty{display:none;}' +
+      // The reader's own two filters over a list of several hundred names. Both
+      // leave every row in the DOM: the position pills are one attribute on the
+      // list, and the name search marks the misses. Nothing on this face is
+      // counted from what is on screen, so neither can change a tally.
+      '.bd-votes[data-bd-roll-view="yea"] .bd-vote-row:not([data-bd-pos="yea"]){display:none;}' +
+      '.bd-votes[data-bd-roll-view="nay"] .bd-vote-row:not([data-bd-pos="nay"]){display:none;}' +
+      '.bd-votes[data-bd-roll-view="present"] .bd-vote-row:not([data-bd-pos="present"]){display:none;}' +
+      '.bd-votes[data-bd-roll-view="not_voting"] .bd-vote-row:not([data-bd-pos="not_voting"]){display:none;}' +
+      '.bd-vote-row.bd-vhide{display:none;}' +
       '.bd-votes{margin-top:.4rem;display:flex;flex-direction:column;gap:.2rem;}' +
       '.bd-vote-row{display:flex;align-items:center;gap:.5rem;padding:.28rem .1rem;border-bottom:1px solid rgba(255,255,255,.04);}' +
       '.bd-vote-sum{display:flex;align-items:center;gap:.5rem;cursor:pointer;list-style:none;padding:.28rem .1rem;}' +
@@ -1546,7 +1788,8 @@
         '.bd-scroll{padding-bottom:calc(2rem + env(safe-area-inset-bottom,0px));}' +
         '.bd-close{width:44px;height:44px;top:.35rem;right:.4rem;}' +
         '.bd-vf-btn{min-height:44px;display:inline-flex;align-items:center;padding:.3rem .85rem;font-size:.72rem;}' +
-        '.bd-bag-chip{min-height:44px;display:inline-flex;align-items:center;}' +
+        '.bd-rf-btn{min-height:44px;display:inline-flex;align-items:center;}' +
+        '.bd-rf-in{min-height:44px;}' +
         '.bd-omni-link{min-height:44px;display:inline-flex;align-items:center;}' +
         // The letterhead's own doors: a chip and a vote strip are both taps, and a
         // 30px tap is a miss on a phone.
@@ -1557,6 +1800,9 @@
         '.bd-vote-row,.bd-vote-sum{min-height:44px;}' +
         '.bd-vote-name{min-height:44px;display:inline-flex;align-items:center;}' +
         '.bd-stand-more>summary{min-height:44px;display:flex;align-items:center;}' +
+        // The two new doors: the prose fold and the roll-call drawer.
+        '.bd-fold-sum{min-height:44px;}' +
+        '.bd-roll-sum{min-height:44px;}' +
       '}';
     var st = document.createElement('style');
     st.id = 'bd-css';

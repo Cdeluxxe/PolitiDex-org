@@ -214,7 +214,11 @@ section("1 · every pointer on both surfaces is 44px on a phone");
   // The two that motivated the pass, named so a regression says which one.
   eq(targetPx(BD, ".bd-vf-btn", 390) >= 44, true, "the topic filter's pills are tappable");
   eq(targetPx(BD, ".bd-omni-link", 390) >= 44, true, "the ledger's dossier door is tappable");
-  eq(targetPx(BD, ".bd-bag-chip", 390) >= 44, true, "the bag chips are tappable");
+  // The three doors this pass added: the prose fold, the roll-call drawer, and
+  // the drawer's own position filter. Every one of them is a thumb target now.
+  eq(targetPx(BD, ".bd-fold-sum", 390) >= 44, true, "the prose fold opens with a real target");
+  eq(targetPx(BD, ".bd-roll-sum", 390) >= 44, true, "the roll-call drawer opens with a real target");
+  eq(targetPx(BD, ".bd-rf-btn", 390) >= 44, true, "the roll-call filter's pills are tappable");
   eq(targetPx(BD, ".bd-close", 390) >= 44, true, "the act face closes with a real target");
   eq(targetPx(RS, ".rs-name", 390) >= 44, true, "a candidate's name opens their profile with a real target");
   // Desktop keeps its own smaller chrome — this was a phone problem, and the fix
@@ -319,8 +323,8 @@ section("5 · one column, and no sideways mystery");
     eq(computed(RS, ".rs-snap-cells", w)["grid-template-columns"], "1fr", `${w}px: the snapshot cells are not stacked`);
     // Every wrapping strip on both surfaces genuinely wraps rather than running off.
     for (const [rules, sel] of [[RS, ".rs-ctx-chips"], [RS, ".rs-ovpeek"], [RS, ".rs-ovacts"],
-                                [BD, ".bd-bag-strip"], [BD, ".bd-bag-stats"], [BD, ".bd-viewfilter"],
-                                [BD, ".bd-bag-areas"]]) {
+                                [BD, ".bd-viewfilter"], [BD, ".bd-lh-chips"],
+                                [BD, ".bd-rf"], [BD, ".bd-rf-pills"]]) {
       eq(computed(rules, sel, w)["flex-wrap"], "wrap", `${w}px: ${sel} does not wrap`);
     }
   }
@@ -370,15 +374,43 @@ section("6 · the act face hides nothing to fit");
   ok(hiders.every((r) => !r.media), "the ledger's filter behaves differently on a phone");
   ok(hiders.every((r) => /data-bd-view="(main|other)"/.test(r.sels.join(","))),
     "a ledger row is hidden by something other than the view the reader chose");
-  // The bag panel is never collapsed by default — no details/summary, no height
-  // cap, nothing between the heading and the sentence about one instrument.
+  // WHAT IS ALLOWED TO BE FOLDED, AND WHAT IS NOT. Two things on this face ship
+  // closed: the section-by-section prose, and a roll call's list of names. Both
+  // are the reader's own tap away and both are native <details>, so they work
+  // with no JS and find-in-page reaches them once open. Nothing else folds —
+  // and in particular the topic ledger and the one-instrument sentence under it
+  // are never a tap away, because they are the point of the face.
   const SRC = R("bill-detail.js");
-  const fn = SRC.slice(SRC.indexOf("function coTravelSection"), SRC.indexOf("function rollcallsSection"));
-  must(fn.length > 400, "coTravelSection moved");
-  ok(!/<details|hidden|aria-expanded/.test(fn), "the bag panel ships collapsed, so the one-instrument sentence is a tap away");
-  for (const cls of [".bd-bag-strip", ".bd-bag-chip", ".bd-bag-stats", ".bd-bag-areas", ".bd-bag-note"]) {
-    ok(BD.some((r) => r.sels.includes(cls)), `the bag panel is unstyled (${cls})`);
+  const note = SRC.slice(SRC.indexOf("function coTravelSection"), SRC.indexOf("  var POS_SLOTS"));
+  must(note.length > 400, "coTravelSection moved");
+  ok(!/<details|hidden|aria-expanded/.test(note),
+    "the one-instrument sentence ships collapsed, so the fact that made the panel worth keeping is a tap away");
+  const ledger = SRC.slice(SRC.indexOf("function omnibusSection"), SRC.indexOf("function coTravelSection"));
+  must(ledger.length > 400, "omnibusSection moved");
+  ok(!/<details/.test(ledger), "the topic ledger ships collapsed");
+  // The two that do fold, folded the honest way: a real disclosure element with
+  // no `open` attribute, rather than CSS that hides text from find-in-page too.
+  for (const [what, mark] of [["the prose fold", '<details class="bd-fold">'],
+                              ["the roll-call drawer", '<details class="bd-rolldrop">']]) {
+    ok(SRC.includes(mark), `${what} is not a native closed <details>`);
   }
+  // A closed drawer is not a truncation: every member row is still built, so no
+  // count on this face is computed from what happens to be on screen.
+  ok(/var rows = '';/.test(SRC) && !/slice\(0,\s*\d+\)/.test(SRC.slice(SRC.indexOf("function rollcallsSection"),
+    SRC.indexOf("function statusLabelResult"))),
+    "the roll list is being truncated rather than folded");
+  for (const cls of [".bd-onebag", ".bd-onebag-l", ".bd-fold", ".bd-fold-sum", ".bd-rolldrop",
+                     ".bd-roll-sum", ".bd-rf", ".bd-rf-btn", ".bd-rf-in"]) {
+    ok(BD.some((r) => r.sels.includes(cls)), `the new chrome is unstyled (${cls})`);
+  }
+  // The drawer's own filters hide rows, and like the ledger's they are the
+  // reader's choice: width-independent, keyed to an attribute the reader set,
+  // and never touching a row the reader did not filter out.
+  const rollHiders = BD.filter((r) => /display\s*:\s*none/.test(r.decl) && r.sels.some((x) => x.includes("bd-vote-row")));
+  ok(rollHiders.length >= 2, "the roll-call filter no longer hides anything, so it does nothing");
+  ok(rollHiders.every((r) => !r.media), "the roll-call filter behaves differently on a phone");
+  ok(rollHiders.every((r) => /data-bd-roll-view=|bd-vhide/.test(r.sels.join(","))),
+    "a member row is hidden by something other than the filter or the search the reader used");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -429,8 +461,15 @@ section("8 · the running order a phone actually meets");
   const io = BDSRC.indexOf("omnibusSection(m, issues) +");
   const ib = BDSRC.indexOf("coTravelSection(m, issues, data.rollcalls) +");
   must(io > 0 && ib > 0, "the act face's section assembly moved");
-  ok(ib > io, "the bag panel no longer follows the full topic ledger it summarises");
-  ok(ib - io < 120, "the bag panel drifted away from the ledger it belongs to");
+  ok(ib > io, "the one-instrument note no longer follows the topic ledger it qualifies");
+  ok(ib - io < 120, "the one-instrument note drifted away from the ledger it belongs to");
+  // And the census leads the face: letterhead, then the folded prose, then
+  // everything else. On a phone this order IS the hierarchy.
+  const ilh = BDSRC.indexOf("letterheadHtml(m, issues, data) +");
+  const ifold = BDSRC.indexOf("foldSection(m) +");
+  must(ilh > 0 && ifold > 0, "the letterhead or the prose fold left the assembly");
+  ok(ilh < ifold, "the prose is assembled before the census it used to bury");
+  ok(ifold < io, "the prose fold is assembled after the topic ledger instead of under the census");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
