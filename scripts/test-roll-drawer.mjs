@@ -158,7 +158,10 @@ section("1 · closed on arrival, and closed is not shortened");
 section("2 · the door says what is behind it");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  has(HEAD, "See who voted", "the drawer does not use the words the vote strip promises");
+  // The drawer's summary is now the ONLY control on the face that promises names —
+  // the letterhead's chip promises a tally and delivers one — so these words are
+  // load-bearing in a way they were not when a strip upstairs said them too.
+  has(HEAD, "See who voted", "the only control that promises the names no longer says so");
   has(HEAD, `${VOTES.length} names on this roll call`, "the closed drawer does not say how many names are inside");
   has(HEAD, `your ${LOCAL.size} reps first`, "the drawer does not say the reader's own reps are at the top");
   // With no location set there is no claim about the reader's reps at all.
@@ -169,21 +172,49 @@ section("2 · the door says what is behind it");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("3 · the letterhead's strip is the door, and it opens this roll call");
+section("3 · the letterhead's chip is the door, and it leaves the door shut");
 // ═════════════════════════════════════════════════════════════════════════════
+// THIS SECTION USED TO REQUIRE THE OPPOSITE, AND THE REVERSAL IS THE POINT.
+// The letterhead's control was a fat roll card labelled "See who voted →", and
+// against that label the assertions below were right: a control promising names
+// that landed on a shut drawer would have been a door refusing to be a door, so
+// the jump called openRollDrop and sprang it.
+//   The card is a one-line chip now — "House · Jun 23 · Passed · 358–32 · 41 DNV"
+// — and it promises a tally, not a list. Tapping "358–32" and getting eight
+// hundred names unfolding under you is the same wall of names this whole file
+// exists to keep folded; the drawer's own summary is the control that says what is
+// behind it, and opening it is a second, deliberate tap. So openRollDrop is gone
+// rather than merely uncalled: a helper whose only job was to open a fold nobody
+// asked to open is not a fallback, it is the defect with a function name.
+//   What the chip still owes the reader is arrival at the RIGHT roll call, which is
+// what the id below is for.
 {
-  has(HTML, `data-bd-roll-open="${RC.id}"`, "the vote strip does not name the roll call it opens");
-  has(HTML, `data-bd-rc="${RC.id}"`, "nothing in the roll list answers to the strip's roll call id");
-  ok(HTML.indexOf('data-bd-goto="rolls"') < HTML.indexOf(`data-bd-rc="${RC.id}"`),
-    "the strip is below the roll list it jumps to");
-  // The handler: the jump opens the drawer as well as scrolling to it, because a
-  // control labelled "See who voted" that lands on a shut door is a dead label.
-  has(SRC, "function openRollDrop", "nothing opens the drawer on the strip's own tap");
-  has(SRC, "openRollDrop(t, btn && btn.getAttribute", "the jump no longer opens the drawer it lands on");
-  ok(/d\.open = true/.test(SRC), "openRollDrop does not actually open anything");
-  // One roll call at a time: the id scopes it.
-  has(SRC, "sec.querySelector('[data-bd-rc=\"' + rcid + '\"]')",
-    "the jump opens every drawer on the measure rather than the one its strip belongs to");
+  has(HTML, `data-bd-roll="${RC.id}"`, "the vote chip does not name the roll call it lands on");
+  has(HTML, `data-bd-rc="${RC.id}"`, "nothing in the roll list answers to the chip's roll call id");
+  // Named explicitly before the order is compared: a missing attribute makes
+  // indexOf return -1, which would have passed the comparison below while the
+  // chip pointed at nothing at all.
+  const GOTO = HTML.indexOf('data-bd-goto="rolls"');
+  ok(GOTO > -1, "the vote chip does not point at the roll-call section");
+  has(HTML, 'data-bd-anchor="rolls"', "there is no roll-call section for the chip to point at");
+  ok(GOTO < HTML.indexOf(`data-bd-rc="${RC.id}"`),
+    "the chip is below the roll list it jumps to");
+  // Comments stripped, so the reasoning above may name what it is explaining.
+  const SRCC = SRC.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, " ");
+  hasNot(SRCC, "openRollDrop", "the helper that sprang the drawer on the reader's behalf is back");
+  hasNot(SRCC, "data-bd-roll-open", "the attribute that told the jump which drawer to spring is back");
+  ok(!/\.open = true/.test(SRCC), "some code path still forces this drawer open");
+  // The jump: scoped to one roll call, and a scroll rather than a disclosure.
+  const JUMP = SRCC.slice(SRCC.indexOf("function gotoSection"), SRCC.indexOf("function openIssue"));
+  ok(JUMP.length > 200, "the jump handler could not be sliced out — the probe has gone stale");
+  has(JUMP, "scrollIntoView", "the chip's jump does not move the reader to the roll call at all");
+  has(JUMP, "data-bd-anchor", "the jump handler no longer resolves the roll-call section at all");
+  has(JUMP, "'[data-bd-rc=\"' + rcid + '\"]'",
+    "the jump lands at the top of the section rather than on the chip's own roll call");
+  hasNot(JUMP, ".open", "the chip's jump is opening a fold");
+  // And the drawer is still shut in the rendered page, which is the fact all of
+  // the above is in service of.
+  hasNot(HTML, "<details class=\"bd-rolldrop\" open", "the drawer ships open");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

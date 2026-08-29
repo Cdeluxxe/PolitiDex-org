@@ -236,7 +236,15 @@ section("1 · identity — the census a reader arrives with nothing knowing");
   has(FED_HEAD, "House", "the chamber is missing from the federal header");
   has(FED_HEAD, "119th Congress", "the federal sitting is not named");
   has(FED_HEAD, "Introduced Dec 4, 2025", "the introduction date we hold is not printed");
-  has(FED_HEAD, "Voted Feb 11, 2026", "the date of the recorded vote is not printed");
+  // ONE DATE PER CHAMBER, NOT ONE DATE PER BILL. This read "Voted Feb 11, 2026"
+  // when it was written, and on a one-roll fixture that was fine. It is not fine as
+  // doctrine: a measure that passed both chambers has two floor dates, and printing
+  // the latest of them unlabelled tells a reader neither which chamber it belongs to
+  // nor that the other chamber voted at all. The identity line names the chamber and
+  // drops the year, because the introduction date beside it has already fixed the
+  // year and this line's job is to be short.
+  has(FED_HEAD, "House Feb 11", "the recorded vote is not dated by the chamber that cast it");
+  hasNot(FED_HEAD, "Voted Feb 11", "the identity line still prints an unattributed vote date");
   // The mapping text beats the bill page: the mapping was made against THAT
   // document, so that is the one a reader checking our work needs.
   has(FED_HEAD, "https://www.congress.gov/bill/119th-congress/house-bill/6644/text/eh",
@@ -275,8 +283,20 @@ section("2 · the teaching line, and the honest empty where there is no vote");
   hasNot(EMPTY_LH, "One recorded vote", "a measure with no roll call is claiming a recorded vote");
   has(EMPTY_LH, "No recorded vote on file",
     "a measure with no roll call does not say so above its topic list");
-  has(EMPTY_LH, "No recorded vote is on file for this measure yet",
-    "the vote strip's own honest empty is missing");
+  // ZERO ROLLS MEANS ZERO CHIPS, AND ONE SENTENCE. The letterhead used to carry an
+  // honest empty of its own here — "No recorded vote is on file for this measure yet
+  // — it may have died in committee, or the tally may not have reached us." The
+  // sentence was true and it was the third statement of the same absence on one
+  // face: the teaching line above says "No recorded vote on file", and the roll-call
+  // section below says it in the place a reader goes looking for votes. Two of those
+  // are one too many, so the rail is now simply absent when there is nothing to put
+  // on it, and the roll-call section keeps the sentence.
+  hasNot(EMPTY_LH, "No recorded vote is on file for this measure yet",
+    "the letterhead is restating an absence the teaching line and the roll-call section both already state");
+  hasNot(EMPTY_LH, 'class="bd-lh-votes"',
+    "a measure with no roll calls is still painting an empty vote-chip rail");
+  has(EMPTY, "No recorded roll-call votes for this measure yet",
+    "the roll-call section does not state the absence the letterhead stopped stating");
   has(EMPTY_LH, "No topics are mapped to this measure yet",
     "an unmapped measure does not say that a vote on it counts on nothing");
   has(EMPTY_HEAD, "No link to the official text is on file",
@@ -339,23 +359,61 @@ section("3 · the tally is arithmetic, and every mapped key is a live chip");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("4 · the vote strip counts votes, not parties, and opens the roll list");
+section("4 · the vote chip is one line, and it lands on its own roll call");
 // ═════════════════════════════════════════════════════════════════════════════
+// THE CHIP REPLACED A CARD THAT DUPLICATED A SECTION. H.R. 6644 painted a fat
+// card per roll call under the topic chips — motion title, chamber, date, result,
+// four tally pills, "See who voted →" — and then painted the same roll calls
+// again, in full, in the roll-call section below. Every fact on the card was a
+// fact the section already carried, so a third of the opening screen restated
+// what one scroll would reach, and two copies of one roll call left a reader to
+// work out which was authoritative.
+//   So the letterhead keeps one line per roll: chamber, day, outcome, margin,
+// and how many members were not on the roll. The four-slot Yea / Nay / Present /
+// Did not vote strip this suite used to require is deliberately gone; the
+// assertions below check the section still prints all four, which is where the
+// full tally always belonged.
 {
   for (const [name, lh, data, html] of [["H.R. 6644", FED_LH, HR6644, FED], ["H.B. 257", UT_LH, HB257, UT]]) {
     const t = data.rollcalls[0].totals;
-    eq(count(lh, /class="bd-lh-strip"/g), data.rollcalls.length, `${name}: one vote strip per roll call`);
-    has(lh, `<b>${t.yea}</b> Yea`, `${name}: the strip does not print the Yea count`);
-    has(lh, `<b>${t.nay}</b> Nay`, `${name}: the strip does not print the Nay count`);
-    has(lh, `<b>${t.present}</b> Present`, `${name}: Present is not counted on the strip`);
-    has(lh, `<b>${t.notVoting}</b> Did not vote`, `${name}: the members who did not vote are not counted`);
-    eq(count(lh, /class="bd-lh-vc /g), 4, `${name}: the strip shows something other than the four vote slots`);
-    // The strip is a door to the roll list, and the roll list has the anchor it
+    const rc = data.rollcalls[0];
+    eq(count(lh, /class="bd-lh-vchip"/g), data.rollcalls.length, `${name}: one vote chip per roll call`);
+    // ONE LINE, AND THIS IS THE LINE. Read back as text, with the tags removed, so
+    // the assertion is on what a reader sees rather than on the span soup.
+    const chipText = lh.slice(lh.indexOf('class="bd-lh-votes"'))
+      .replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+    has(chipText, `${t.yea}\u2013${t.nay}`, `${name}: the chip does not print the margin`);
+    hasNot(chipText, "%", `${name}: a percentage has appeared on the vote chip`);
+    if (t.notVoting) has(chipText, `${t.notVoting} DNV`, `${name}: the members not on the roll are not counted on the chip`);
+    if (!t.present) hasNot(chipText, "present", `${name}: the chip prints a Present count of nobody`);
+    // A zero is not a fact about anybody, and neither Yea nor Nay is labelled: the
+    // margin is read as a margin, in the order every roll call in the record uses.
+    hasNot(chipText, "Yea", `${name}: the chip is re-labelling the tally it summarises`);
+    hasNot(chipText, "Did not vote", `${name}: the chip is printing the section's own tally labels`);
+
+    // WHAT THE CHIP DOES NOT SAY, AND WHERE IT WENT. The motion title, the clerk's
+    // link and the names are the roll-call section's, printed once, down there.
+    hasNot(lh, rc.question, `${name}: the motion title is still on the letterhead as well as in the roll-call section`);
+    has(html, rc.question, `${name}: the motion title has been dropped from the roll-call section too`);
+    hasNot(lh, rc.source.url, `${name}: the official roll-call link is still duplicated onto the letterhead`);
+    has(html, rc.source.url, `${name}: the official roll-call link is not in the roll-call section`);
+    hasNot(lh, "See who voted", `${name}: the letterhead still promises the names it no longer opens`);
+    // The section keeps the full four-slot tally the chip stopped carrying.
+    for (const [k, lb] of [["yea", "Yea"], ["nay", "Nay"], ["present", "Present"], ["notVoting", "Not voting"]]) {
+      if (t[k] == null) continue;
+      has(html, `${lb} ${t[k]}`, `${name}: the roll-call section has lost the ${lb} count`);
+    }
+
+    // The chip is a door to its OWN roll call, and the roll list has the anchor it
     // aims at. Two halves of one jump; each is useless alone.
-    has(lh, 'data-bd-goto="rolls"', `${name}: the vote strip does not tap through anywhere`);
-    has(html, 'data-bd-anchor="rolls"', `${name}: nothing on the page answers to the strip's jump`);
+    has(lh, 'data-bd-goto="rolls"', `${name}: the vote chip does not tap through anywhere`);
+    if (rc.id != null) {
+      has(lh, `data-bd-roll="${rc.id}"`, `${name}: the chip does not name the roll call it lands on`);
+      has(html, `data-bd-rc="${rc.id}"`, `${name}: nothing in the roll list answers to the chip's roll-call id`);
+    }
+    has(html, 'data-bd-anchor="rolls"', `${name}: nothing on the page answers to the chip's jump`);
     ok(html.indexOf('data-bd-anchor="rolls"') > html.indexOf('data-bd-goto="rolls"'),
-      `${name}: the roll list the strip jumps to is above the strip, which makes the jump a no-op`);
+      `${name}: the roll list the chip jumps to is above the chip, which makes the jump a no-op`);
   }
   has(EMPTY, 'data-bd-anchor="rolls"',
     "the roll-call section loses its anchor when there are no roll calls, so the jump target vanishes");

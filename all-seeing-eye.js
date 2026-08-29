@@ -108,6 +108,92 @@
       return parts;
     }
 
+    // ── LANE READINESS ────────────────────────────────────
+    // THE EYE MUST NOT DENY WHAT IT HAS NOT LOOKED FOR.
+    //
+    // Typing 6644 used to flash "The eye finds nothing for 6644", and then, a
+    // moment later, H.R. 6644 appeared. Both paints were produced by the same
+    // code and only one of them was true. The first was a report on an index that
+    // did not exist yet: this script is a plain sync tag, so it runs BEFORE the
+    // deferred roster and stance bundles, before the lazily-injected light bill
+    // index, and long before the paged /measures fetch that is the only place
+    // H.R. 6644 lives at all. A search over an empty haystack returns nothing,
+    // and the panel published that nothing as a finding.
+    //
+    // "Nothing found" and "nothing loaded" are different answers to a reader's
+    // question, and the difference is the whole credibility of a record archive:
+    // one says the record does not contain this, the other says the record has
+    // not arrived. So each lane the eye searches carries three states, and the
+    // panel is only ever allowed to print the third:
+    //
+    //   · WARMING          — the lane's sources have not all landed. "Searching
+    //                        the record…". Never "finds nothing", at any point,
+    //                        for any query.
+    //   · READY, WITH HITS — the ordinary result list.
+    //   · READY, WITH NONE — and only here, "The eye finds nothing".
+    //
+    // Three lanes, named for what a reader is looking for rather than for the
+    // files behind them:
+    //
+    //   people — the roster (CMP_DATA / PROFILES) and the receipts filed against
+    //            it (ISSUE_STANCE_DATA). A person and that person's positions are
+    //            one record, so they warm and clear together.
+    //   bills  — the light inline index (bills-index.js, lazily injected) merged
+    //            with the authoritative paged /measures list. THIS is the lane the
+    //            defect was reported from.
+    //   issues — the national issue categories and the Issue Spotlights.
+    //
+    // Every lane also has a CEILING. A lane whose source never announces itself —
+    // an offline boot, a 404, a bundle nobody ever requests — must not leave the
+    // eye saying "Searching the record…" for the rest of the session, because a
+    // permanent "searching" is a worse lie than a momentary "nothing". After the
+    // deadline a lane is treated as ready and reports honestly on whatever it did
+    // manage to load.
+    var LANE_DEADLINE_MS = 8000;
+    var bootAt = Date.now();
+    var billsSettled = false;
+    function pastDeadline() { return (Date.now() - bootAt) > LANE_DEADLINE_MS; }
+    function stanceCount() {
+      try { return Object.keys(window.ISSUE_STANCE_DATA || {}).length; } catch (e) { return 0; }
+    }
+    function spotlightCount() {
+      try {
+        return (window.PDXSpotlight && typeof window.PDXSpotlight.list === 'function')
+          ? window.PDXSpotlight.list().length : 0;
+      } catch (e) { return 0; }
+    }
+    // pdx-lazy-data.js is the honest witness for a bundle that is legitimately
+    // empty: `loaded` flips the moment the file has executed, whether or not it
+    // put anything in the global.
+    function lazyDone(key) {
+      try { return !!(window.PDXLazyData && window.PDXLazyData.loaded(key)); } catch (e) { return false; }
+    }
+    var LANE_ORDER = ['people', 'bills', 'issues'];
+    var LANE_TESTS = {
+      people: function () { return polIdGroups().total > 0 && stanceCount() > 0; },
+      bills: function () { return billsSettled; },
+      issues: function () {
+        return (window.CORE_NATIONAL_ISSUES || []).length > 0 && (lazyDone('spotlights') || spotlightCount() > 0);
+      }
+    };
+    function laneReady(lane) {
+      var t = LANE_TESTS[lane];
+      if (!t) return true;
+      var r = false;
+      try { r = !!t(); } catch (e) { r = false; }
+      return r || pastDeadline();
+    }
+    function warmingLanes() {
+      return LANE_ORDER.filter(function (l) { return !laneReady(l); });
+    }
+    // Which lane answers which result category. Politicians and their receipts are
+    // two categories over one lane, which is why the warming notice is printed per
+    // LANE and not per category — one loading roster is one fact.
+    var CAT_LANE = { pol: 'people', stance: 'people', bill: 'bills', iss: 'issues' };
+    var LANE_TITLES = { people: 'Politicians & Positions', bills: 'Legislation & Bills', issues: 'Issues & Hot Topics' };
+    var LANE_DOTS = { people: '#f5c842', bills: '#9ff0bd', issues: '#fb923c' };
+    var LANE_NOUNS = { people: 'the roster and its receipts', bills: 'the legislation index', issues: 'the issue library' };
+
     // ── build the search index (people + issues), memoized ────────────
     var index = null, indexKey = '', relCache = {};
     function buildIndex() {
@@ -325,12 +411,42 @@
     // for its curated search keywords), then rebuild so EVERY bill — not just the
     // marquee inline set — is discoverable in the eye. Guarded so it runs at most once
     // and only after PDXBills is present; failures leave the inline set in place.
-    var billsFetchStarted = false;
+    var billsFetchStarted = false, billsLazyAsked = false;
+    // The bills lane clears here, and it clears on EVERY terminal path — the list
+    // arrived, the list came back empty, the request failed. A lane that only
+    // clears on success is a lane that says "Searching the record…" forever the
+    // first time the network says no.
+    function billsDone() {
+      if (billsSettled) return;
+      billsSettled = true;
+      refreshOpenPanel();
+    }
+    function refreshOpenPanel() {
+      try {
+        if (window.PDXEye) window.PDXEye.rebuild();
+        if (eye.classList.contains('is-open')) render(input.value);
+      } catch (e) {}
+    }
     function ensureEyeBills() {
+      // THE EYE ASKS FOR THE FILE IT SEARCHES. bills-index.js is injected on
+      // demand by pdx-lazy-data.js the first time the Digital Library's Legislation
+      // tab opens — which means the eye's bill lane used to sit empty until some
+      // other part of the page happened to want it. Waiting for a tab nobody opened
+      // is not loading; it is not asking. The eye asks now, and rebuilds when the
+      // file lands, so the curated search keywords are in the haystack whether or
+      // not the reader has been to the library.
+      if (!billsLazyAsked) {
+        billsLazyAsked = true;
+        try {
+          if (window.PDXLazyData && typeof window.PDXLazyData.whenReady === 'function') {
+            window.PDXLazyData.whenReady('bills', refreshOpenPanel);
+          }
+        } catch (e) {}
+      }
       if (billsFetchStarted) return;
       if (!(window.PDXBills && typeof window.PDXBills.list === 'function')) return;
       billsFetchStarted = true;
-      try { if (typeof window.PDXBills.ensureIndex === 'function') window.PDXBills.ensureIndex().then(function () { if (window.PDXEye) { window.PDXEye.rebuild(); if (eye.classList.contains('is-open')) render(input.value); } }).catch(function () {}); } catch (e) {}
+      try { if (typeof window.PDXBills.ensureIndex === 'function') window.PDXBills.ensureIndex().then(refreshOpenPanel).catch(function () {}); } catch (e) {}
       try {
         // Page through the full list (the API caps pageSize at 100) so EVERY measure
         // is indexed, not just the first page — then rebuild once at the end.
@@ -344,12 +460,9 @@
           });
         };
         pull(1).then(function () {
-          if (acc.length) {
-            window.__pdxEyeBillsLive = acc;
-            if (window.PDXEye) { window.PDXEye.rebuild(); if (eye.classList.contains('is-open')) render(input.value); }
-          }
-        }).catch(function () {});
-      } catch (e) {}
+          if (acc.length) window.__pdxEyeBillsLive = acc;
+        }).catch(function () {}).then(billsDone, billsDone);
+      } catch (e) { billsDone(); }
     }
 
     // ── fuzzy scoring ─────────────────────────────────────────────────
@@ -1634,6 +1747,9 @@
       // the reader's own words back to them.
       var rawQ = String(q == null ? '' : q).trim();
       q = norm(q).trim();
+      // Which lanes have not finished loading. Read ONCE per paint, so the notice,
+      // the per-lane rows and the recheck timer cannot disagree about it.
+      var warm = warmingLanes();
       if (q !== curQ) { expand = { pol: false, stance: false, iss: false, bill: false, saved: false, team: false }; curQ = q; }
 
       if (!q) {
@@ -1653,6 +1769,7 @@
         html += hintBar();
         panel.innerHTML = html;
         wire();
+        scheduleWarmRecheck(warm.length > 0);
         return flat.length;
       }
 
@@ -1673,9 +1790,16 @@
       var claimHtml = claimBlock(rawQ);
       var nothingElse = !ansHtml && !pols.length && !sts.length && !bls.length && !iss.length;
 
+      // THE ONE PLACE "FINDS NOTHING" IS ALLOWED. Nothing ranked, nothing was
+      // asked as a claim, and no lane is still loading: every lane is ready and
+      // every lane came back empty, so the record genuinely does not hold this.
+      // While ANY lane is warming the same zero is reported as what it actually is.
       if (!claimHtml && nothingElse) {
-        panel.innerHTML = '<div class="pdx-eye-empty">The eye finds nothing for “<b>' + esc(q) + '</b>”.<br>Try a name, an office, a state, an issue, or a bill number.</div>';
+        panel.innerHTML = warm.length
+          ? warmPanel(warm)
+          : '<div class="pdx-eye-empty">The eye finds nothing for “<b>' + esc(q) + '</b>”.<br>Try a name, an office, a state, an issue, or a bill number.</div>';
         wire();
+        scheduleWarmRecheck(warm.length > 0);
         return 0;
       }
 
@@ -1683,17 +1807,82 @@
       // A claim that ranked nothing still gets the honest note under its block,
       // so the reader is not left wondering whether the search silently failed.
       if (nothingElse) {
-        html += '<div class="pdx-eye-empty">Nothing else matched “<b>' + esc(q) + '</b>” as a search.<br>Try a name, an office, a state, an issue, or a bill number.</div>';
+        html += warm.length
+          ? warmPanel(warm)
+          : '<div class="pdx-eye-empty">Nothing else matched “<b>' + esc(q) + '</b>” as a search.<br>Try a name, an office, a state, an issue, or a bill number.</div>';
       }
       html += ansHtml;
       html += catBlock('pol', 'Politicians', '#f5c842', pols, polItem, q, terms);
       html += catBlock('stance', 'Positions &amp; Receipts', '#5eead4', sts, stanceItem, q, terms);
       html += catBlock('bill', 'Legislation &amp; Bills', '#9ff0bd', bls, billItem, q, terms);
       html += catBlock('iss', 'Issues &amp; Hot Topics', '#fb923c', iss, issueItem, q, terms);
+      // A lane that is still loading AND has nothing to show says so, in the lane's
+      // own slot. Without this a half-warm index reads as a complete answer: the one
+      // person who matched "6644" would look like the whole of the record's reply.
+      html += warmStrip(warm, { pol: pols.length, stance: sts.length, bill: bls.length, iss: iss.length });
       html += hintBar();
       panel.innerHTML = html;
       wire();
+      scheduleWarmRecheck(warm.length > 0);
       return flat.length;
+    }
+    // ── WARMING, IN WORDS ─────────────────────────────────
+    // Two shapes, because a cold index shows up two different ways. When NOTHING
+    // ranked at all the whole panel is the notice, and it names which lanes are
+    // still coming so the reader knows what the wait buys them. When something
+    // DID rank — a person matched while the measures list was still paging — the
+    // notice is a row inside the lane that has not answered yet, in the same
+    // position and the same house style as the results it will be replaced by, so
+    // the reader can see that a lane exists and is still working rather than
+    // concluding it holds nothing.
+    function laneList(lanes) {
+      var w = lanes.map(function (l) { return LANE_NOUNS[l] || l; });
+      if (w.length <= 1) return w[0] || '';
+      return w.slice(0, -1).join(', ') + ' and ' + w[w.length - 1];
+    }
+    function warmPanel(lanes) {
+      return '<div class="pdx-eye-empty pdx-eye-warm" role="status" aria-live="polite">' +
+        '<span class="pdx-eye-warm-dot" aria-hidden="true"></span>' +
+        '<b>Searching the record…</b>' +
+        '<span class="pdx-eye-warm-sub">' + esc(laneList(lanes)) + ' ' +
+          (lanes.length === 1 ? 'is' : 'are') + ' still loading. Results appear as they arrive.</span>' +
+      '</div>';
+    }
+    function warmRow(lane) {
+      return '<div class="pdx-eye-cat" data-cat="warm" data-warm-lane="' + esc(lane) + '">' +
+        '<div class="pdx-eye-cat-h"><span class="pdx-eye-cat-dot" style="background:' + (LANE_DOTS[lane] || '#8aa0c0') + ';"></span>' +
+          esc(LANE_TITLES[lane] || lane) + '</div>' +
+        '<div class="pdx-eye-warmrow" role="status" aria-live="polite">' +
+          '<span class="pdx-eye-warm-dot" aria-hidden="true"></span>Searching the record…' +
+        '</div>' +
+      '</div>';
+    }
+    // The warming rows for the lanes that are BOTH still loading and currently
+    // empty. A lane that already produced hits does not get a row: the hits are a
+    // better report on that lane than a spinner is.
+    function warmStrip(lanes, hits) {
+      return lanes.filter(function (l) {
+        var n = 0;
+        for (var cat in CAT_LANE) { if (CAT_LANE[cat] === l) n += (hits[cat] || 0); }
+        return n === 0;
+      }).map(warmRow).join('');
+    }
+    // A warming panel has to resolve without being touched. The eye re-renders when
+    // a source announces itself, but nothing announces the DEADLINE, and nothing
+    // announces a bundle that will never arrive. So a painted warming state checks
+    // back on itself, and stops the moment no lane is warming — which laneReady()'s
+    // ceiling guarantees will happen, so this poll is bounded by the deadline rather
+    // than by the network.
+    var warmTimer = 0;
+    function scheduleWarmRecheck(isWarm) {
+      if (warmTimer) { try { clearTimeout(warmTimer); } catch (e) {} warmTimer = 0; }
+      if (!isWarm) return;
+      try {
+        warmTimer = setTimeout(function () {
+          warmTimer = 0;
+          if (eye.classList.contains('is-open')) render(input.value);
+        }, 420);
+      } catch (e) {}
     }
     function hintBar() {
       return '<div class="pdx-eye-hint"><span class="pdx-eye-kbd">↑</span><span class="pdx-eye-kbd">↓</span> move &nbsp;·&nbsp; <span class="pdx-eye-kbd">→</span> actions &nbsp;·&nbsp; <span class="pdx-eye-kbd">↵</span> open &nbsp;·&nbsp; <span class="pdx-eye-kbd">esc</span> close</div>';

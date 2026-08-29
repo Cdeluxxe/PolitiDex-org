@@ -84,6 +84,48 @@
     try { return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); }
     catch (e) { return String(iso).slice(0, 10); }
   }
+  // The same day without the year. A vote chip and the identity line both print a
+  // floor date beside a full introduction date that has already established the
+  // year, and "Jun 23, 2026" in that company is three characters of chrome on a
+  // line whose whole job is to be short. The full date is still on the roll call
+  // itself, in the roll-call section, where the vote is the subject rather than a
+  // waypoint.
+  function shortDate(iso) {
+    if (!iso) return '';
+    try { return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
+    catch (e) { return String(iso).slice(0, 10); }
+  }
+  // ONE ORDER FOR THE ROLLS, EVERYWHERE. The chips, the identity dates and the
+  // roll-call section are three views of one list, and a reader who reads "House
+  // then Senate" on the chips and meets them the other way round below has been
+  // given a reason to wonder whether they are even the same votes. Chamber order,
+  // not arrival order and not date order: a measure that came back from the Senate
+  // amended has a House vote after the Senate's, and sorting by date would print
+  // the second chamber first on exactly the bills where the journey matters most.
+  var CHAMBER_RANK = { house: 1, senate: 2 };
+  function rollOrder(rollcalls) {
+    return (rollcalls || []).map(function (rc, i) { return { rc: rc, i: i }; }).sort(function (a, b) {
+      var ra = CHAMBER_RANK[String((a.rc && a.rc.chamber) || '').toLowerCase()] || 3;
+      var rb = CHAMBER_RANK[String((b.rc && b.rc.chamber) || '').toLowerCase()] || 3;
+      if (ra !== rb) return ra - rb;
+      var da = String((a.rc && a.rc.voteDate) || ''), db = String((b.rc && b.rc.voteDate) || '');
+      if (da !== db) return da < db ? -1 : 1;
+      return a.i - b.i;
+    }).map(function (x) { return x.rc; });
+  }
+  // The last floor date this measure got in each chamber, in chamber order, as
+  // "House Jun 23" / "Senate Mar 12".
+  function chamberDates(rollcalls) {
+    var seen = {}, out = [];
+    rollOrder(rollcalls).forEach(function (rc) {
+      var lb = chamberLabel(rc && rc.chamber), d = shortDate(rc && rc.voteDate);
+      if (!lb || !d) return;
+      if (seen[lb] != null) { out[seen[lb]] = lb + ' ' + d; return; }  // a later roll in the same chamber wins
+      seen[lb] = out.length;
+      out.push(lb + ' ' + d);
+    });
+    return out;
+  }
 
   // ── THE LETTERHEAD'S IDENTITY FACTS ─────────────────────────────────────────
   // A bill profile opens the way a person file opens: a short census a reader can
@@ -907,34 +949,34 @@
   }
 
   // Open the Issue View / Spotlight for an issue key (with graceful fallbacks).
-  // THE VOTE STRIP IS A DOOR, NOT A SUMMARY. Tapping a tally moves the reader to
-  // the roll list in this same panel: the counts are the door's label and the names
-  // are what is behind it. An in-panel scroll rather than a new view, because the
-  // roll list is already on this face — there is nothing to load and nothing to
-  // close. If the anchor is not on screen (a payload with no roll calls, a body the
-  // panel has not filled yet) nothing happens, which is the honest outcome.
+  // A VOTE CHIP IS A DESTINATION, NOT A DISCLOSURE. Tapping a chip moves the reader
+  // to that roll call in the roll-call section: an in-panel scroll rather than a new
+  // view, because the roll call is already on this face — there is nothing to load
+  // and nothing to close. If the anchor is not on screen (a payload with no roll
+  // calls, a body the panel has not filled yet) nothing happens, which is the honest
+  // outcome.
+  //   THE NAMES STAY SHUT. The strip this replaced was labelled "See who voted", so
+  // its jump also sprang the drawer, and a reader who tapped a tally got two hundred
+  // rows unfolding under them. The chip is labelled with a tally and delivers a
+  // tally; opening the names is a second, deliberate tap on a door that says so.
+  // That is why openRollDrop is gone rather than merely uncalled — a helper whose
+  // only purpose was to open a drawer nobody asked to open is not a fallback.
   function gotoSection(name, btn) {
     try {
       var host = document.getElementById('pdx-bd-scroll');
       var t = host && host.querySelector ? host.querySelector('[data-bd-anchor="' + name + '"]') : null;
       if (!t) return;
-      // The strip's own label is "See who voted", so the tap that lands on the roll
-      // list opens the names as well as scrolling to them. A closed drawer at the
-      // end of that jump would be the door refusing to be a door. Only the strip's
-      // own roll call opens — the other roll calls on a measure stay as they were.
-      openRollDrop(t, btn && btn.getAttribute ? btn.getAttribute('data-bd-roll-open') : null);
-      if (t.scrollIntoView) t.scrollIntoView({ block: 'start', behavior: 'smooth' });
-      var h = t.querySelector ? t.querySelector('.bd-h') : null;
-      if (h && h.focus) { h.setAttribute('tabindex', '-1'); h.focus(); }
-    } catch (e) {}
-  }
-
-  function openRollDrop(sec, rcid) {
-    try {
+      // Scoped to the chip's OWN roll call when it names one, so a measure with a
+      // House and a Senate vote lands on the one the reader tapped rather than at
+      // the top of a section holding both.
+      var rcid = btn && btn.getAttribute ? btn.getAttribute('data-bd-roll') : null;
       var scope = null;
-      if (rcid && sec.querySelector) scope = sec.querySelector('[data-bd-rc="' + rcid + '"]');
-      var d = (scope || sec).querySelector ? (scope || sec).querySelector('.bd-rolldrop') : null;
-      if (d) d.open = true;
+      if (rcid && t.querySelector) scope = t.querySelector('[data-bd-rc="' + rcid + '"]');
+      var target = scope || t;
+      if (target.scrollIntoView) target.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      var h = target.querySelector ? (target.querySelector('.bd-rc-q') || target.querySelector('.bd-h')) : null;
+      if (!h && t.querySelector) h = t.querySelector('.bd-h');
+      if (h && h.focus) { h.setAttribute('tabindex', '-1'); h.focus(); }
     } catch (e) {}
   }
 
@@ -973,14 +1015,16 @@
   //      cannot be tapped is a dead label, and a dead label is how a rider quietly
   //      stops counting. Each chip is paired with the shipped ⓘ scope control so a
   //      reader can ask what the key covers without leaving the page.
-  //   4. THE VOTE STRIP — Yea / Nay / Present / Did not vote, and nothing else. No
-  //      party column, no party breakdown, no percentage anywhere on this face. It
-  //      taps through to the roll list, which is the only place names belong.
+  //   4. THE VOTE CHIPS — one line per roll call: chamber, day, outcome, margin,
+  //      how many were not on the roll. No party column, no party breakdown, no
+  //      percentage anywhere on this face. Each chip taps through to that roll call
+  //      in the roll-call section, which is the only place the motion title, the
+  //      clerk's link and the names belong.
+  //      The four-slot Yea / Nay / Present / Did not vote strip that used to sit
+  //      here is gone: it was the roll-call section's tally, printed a screen early
+  //      and a second time, and the section still prints all four.
   // Where the record is thin the letterhead says which fact is missing. It never
   // fills a gap with a guess and never hides the gap to look complete.
-  var VOTE_SLOTS = [
-    ['yea', 'Yea'], ['nay', 'Nay'], ['present', 'Present'], ['notVoting', 'Did not vote']
-  ];
 
   // ── IDENTITY SITS WITH THE TITLE ────────────────────────────────────────────
   // Which act is this? Number, official title, chamber and sitting, the dates we
@@ -1005,8 +1049,22 @@
     if (where) rows.push([sit && chamberLabel(m.chamber) ? 'Chamber &amp; session' : 'Chamber', where]);
     var when = [];
     if (m.introducedAt) when.push('Introduced ' + fmtDate(m.introducedAt));
-    var dd = decidedDate(data && data.rollcalls);
-    if (dd) when.push('Voted ' + fmtDate(dd));
+    // A BILL THAT PASSED TWO CHAMBERS HAS TWO FLOOR DATES. This line used to print
+    // one: "Voted Mar 12, 2026", the latest roll call we hold. On a measure the
+    // House passed in June and the Senate in March that is not a summary, it is a
+    // deletion — the reader is told a date the bill was "voted" and cannot tell
+    // from it that the other chamber ever voted at all, or which of the two the
+    // date belongs to. Both dates now, labelled by chamber, in chamber order:
+    // "Introduced Dec 10, 2025 · House Jun 23 · Senate Mar 12".
+    //   A single-chamber measure prints its one chamber the same way. Only when we
+    // hold a roll call whose chamber or date we cannot name does the line fall back
+    // to the undated-by-chamber form, because "Voted" with no chamber is still true.
+    var floor = chamberDates(data && data.rollcalls);
+    if (floor.length) when = when.concat(floor);
+    else {
+      var dd = decidedDate(data && data.rollcalls);
+      if (dd) when.push('Voted ' + fmtDate(dd));
+    }
     rows.push(['Date', when.length ? when.join(' \u00b7 ') : 'No date is on file for this measure yet.']);
     var out = rows.map(function (r) {
       return '<div class="bd-ident-fact"><dt class="bd-ident-k">' + r[0] + '</dt>' +
@@ -1060,30 +1118,70 @@
       '<div class="bd-lh-chips">' + chips + '</div>' + gap;
   }
 
+  // ── THE ROLL IS A CHIP HERE AND A ROLL CALL DOWN THERE ──────────────────────
+  // H.R. 6644 painted two fat cards under the topic chips — motion title, chamber,
+  // date, result, four tally pills, "See who voted →" — and then painted the same
+  // two roll calls again, in full, in the roll-call section below. Every fact on
+  // the card was a fact the section already carried, so the page spent a third of
+  // its opening screen restating what a reader would reach by scrolling, and the
+  // letterhead stopped being a letterhead.
+  //   A card that duplicates a section is not a summary of it; it is a second copy
+  // competing with the first for which one the reader is supposed to believe. So
+  // the letterhead keeps only what a reader needs to decide whether to scroll, on
+  // ONE line each:
+  //
+  //     House · Jun 23 · Passed · 358–32 · 41 DNV
+  //     Senate · Mar 12 · Passed · 89–10 · 1 DNV
+  //
+  // Chamber, day, outcome, margin, and how many members were not on the roll. That
+  // is the whole of what a vote chip claims.
+  //   WHAT THE CHIP NO LONGER SAYS, and where it went: the motion title ("On
+  // Motion to Concur") is the roll call's own heading in the roll-call section; the
+  // clerk's link sits under that heading; the names sit behind the closed drawer
+  // under it. Each of those is printed exactly once on this face now, and the place
+  // it is printed is the place a reader is already looking for it.
+  //   AND THE CHIP DOES NOT OPEN THE NAMES. Its predecessor was labelled "See who
+  // voted", so tapping it scrolled to the roll list AND sprang the drawer — 200
+  // rows unfolding under a reader who had asked to see a vote. The chip is labelled
+  // with a tally and promises a tally: it scrolls to that roll call and leaves the
+  // drawer shut, where the reader can open it deliberately if names are what they
+  // came for.
+  function rollChipSegs(rc) {
+    var t = rc.totals || {};
+    var segs = [];
+    var ch = chamberLabel(rc.chamber);
+    if (ch) segs.push(['ch', ch]);
+    var d = shortDate(rc.voteDate);
+    if (d) segs.push(['date', d]);
+    if (rc.result) segs.push(['res', statusLabelResult(rc.result)]);
+    // The margin, as the record states it. No percentage and no party split: this
+    // face has never printed either and a chip is not the place to start.
+    if (t.yea != null && t.nay != null) segs.push(['tally', String(t.yea) + '\u2013' + String(t.nay)]);
+    else segs.push(['gap', 'tally not in the record']);
+    // Not voting and Present are different acts, so they stay different counts, and
+    // neither is printed as a zero — "0 DNV" is a fact about nobody.
+    if (t.notVoting) segs.push(['dnv', t.notVoting + ' DNV']);
+    if (t.present) segs.push(['dnv', t.present + ' present']);
+    return segs;
+  }
   function letterheadVotes(rollcalls) {
-    var rcs = (rollcalls || []);
+    var rcs = rollOrder(rollcalls);
     if (!rcs.length) {
-      return '<p class="bd-lh-gap">No recorded vote is on file for this measure yet — it may have died in committee, or the tally may not have reached us.</p>';
+      // ZERO ROLLS MEANS ZERO CHIPS. Not an empty chip, not a chip that says "no
+      // vote": one sentence, and it is the roll-call section's sentence to say.
+      return '';
     }
-    var blocks = rcs.map(function (rc) {
-      var t = rc.totals || {};
-      var cells = VOTE_SLOTS.map(function (sl) {
-        if (t[sl[0]] == null) return '';
-        return '<span class="bd-lh-vc bd-lh-vc-' + sl[0] + '"><b>' + esc(String(t[sl[0]])) + '</b> ' + sl[1] + '</span>';
-      }).filter(Boolean).join('');
-      var meta = [chamberLabel(rc.chamber), fmtDate(rc.voteDate), rc.result ? statusLabelResult(rc.result) : '']
-        .filter(Boolean).join(' · ');
-      return '<button type="button" class="bd-lh-strip" data-bd-goto="rolls"' +
-          (rc.id != null ? ' data-bd-roll-open="' + escAttr(String(rc.id)) + '"' : '') +
-          ' title="Go to the roll list for this vote">' +
-        '<span class="bd-lh-vq">' + esc(rc.question || 'Vote') + '</span>' +
-        '<span class="bd-lh-vm">' + esc(meta) + '</span>' +
-        (cells ? '<span class="bd-lh-vcs">' + cells + '</span>'
-               : '<span class="bd-lh-gap">Totals are not in the record for this roll call.</span>') +
-        '<span class="bd-lh-vgo">See who voted →</span>' +
+    return rcs.map(function (rc) {
+      var segs = rollChipSegs(rc).map(function (sg, i) {
+        return (i ? '<span class="bd-lh-vsep" aria-hidden="true">\u00b7</span>' : '') +
+          '<span class="bd-lh-v' + sg[0] + '">' + esc(sg[1]) + '</span>';
+      }).join('');
+      return '<button type="button" class="bd-lh-vchip" data-bd-goto="rolls"' +
+          (rc.id != null ? ' data-bd-roll="' + escAttr(String(rc.id)) + '"' : '') +
+          ' title="' + escAttr('Go to this roll call in the roll-call votes below') + '">' +
+        segs +
       '</button>';
     }).join('');
-    return blocks;
   }
 
   // ── ONE TEACHING LINE, TWO FACTS ────────────────────────────────────────────
@@ -1115,6 +1213,7 @@
 
   function letterheadHtml(m, issues, data) {
     var rcs = (data && data.rollcalls) || [];
+    var vchips = letterheadVotes(rcs);
     // ONE TOPIC SURFACE. The teaching line, the tally, the chips and the vote
     // strips. Identity has gone up to the title row, where a reader looks for it
     // first; nothing else has been added in its place, because the point of the
@@ -1122,7 +1221,11 @@
     return '<section class="bd-sec bd-lh" aria-label="Bill profile">' +
       '<p class="bd-lh-teach">' + esc(letterheadTeach(m, issues, rcs)) + '</p>' +
       letterheadTopics(issues) +
-      '<div class="bd-lh-votes">' + letterheadVotes(rcs) + '</div>' +
+      // No roll calls, no chip rail. The teaching line above has already said
+      // there is no recorded vote, and the roll-call section below says it again in
+      // the place a reader goes looking for votes — an empty rail here would be a
+      // third statement of the same absence.
+      (vchips ? '<div class="bd-lh-votes">' + vchips + '</div>' : '') +
     '</section>';
   }
 
@@ -1572,17 +1675,22 @@
       '.bd-lh-chip[data-ic] .bd-lh-chip-l{color:var(--pdx-ic-ink,#e6eefc);}' +
       '.bd-lh-chip[data-ic]:hover{background:var(--pdx-ic-wash,rgba(96,165,250,.2));border-color:var(--pdx-ic,#9ec8ff);}' +
       '.bd-lh-chip[data-ic]:focus-visible{outline:2px solid var(--pdx-ic,#7fb4ff);outline-offset:2px;}' +
-      '.bd-lh-votes{display:flex;flex-direction:column;gap:.4rem;}' +
-      '.bd-lh-strip{display:flex;flex-direction:column;align-items:flex-start;gap:.22rem;width:100%;cursor:pointer;text-align:left;background:rgba(159,180,212,.06);border:1px solid rgba(159,180,212,.2);border-radius:.55rem;padding:.5rem .6rem;}' +
-      '.bd-lh-strip:hover{background:rgba(159,180,212,.12);border-color:rgba(126,180,255,.5);}' +
-      '.bd-lh-vq{font:700 .82rem/1.25 "Barlow Condensed",sans-serif;color:#e6eefc;}' +
-      '.bd-lh-vm{font:600 .62rem/1.2 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;}' +
-      '.bd-lh-vcs{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.1rem;}' +
-      '.bd-lh-vc{font:600 .68rem/1 "Barlow",sans-serif;color:#cbd9ec;background:rgba(159,180,212,.1);border:1px solid rgba(159,180,212,.2);border-radius:.35rem;padding:.24rem .45rem;}' +
-      '.bd-lh-vc b{font:700 .78rem/1 "Barlow Condensed",sans-serif;color:#fff;}' +
-      '.bd-lh-vc-yea{color:#a7e8b6;background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.28);}' +
-      '.bd-lh-vc-nay{color:#f6b8b0;background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.28);}' +
-      '.bd-lh-vgo{font:700 .62rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#7fb4ff;}' +
+      // THE VOTE CHIPS. One line each, and the line is the whole chip: a rail of
+      // chips rather than a stack of cards, so two roll calls cost two lines of the
+      // opening screen instead of two thirds of it. The margin is the one segment
+      // drawn heavier, because it is the fact the chip exists to carry; nothing
+      // here is coloured by outcome, since a Yea-heavy margin is not a good result
+      // and this face does not grade votes.
+      '.bd-lh-votes{display:flex;flex-direction:column;gap:.35rem;align-items:flex-start;}' +
+      '.bd-lh-vchip{display:inline-flex;align-items:center;gap:.34rem;max-width:100%;cursor:pointer;text-align:left;background:rgba(159,180,212,.06);border:1px solid rgba(159,180,212,.2);border-radius:999px;padding:.3rem .68rem;font:600 .74rem/1.25 "Barlow",sans-serif;color:#cbd9ec;}' +
+      '.bd-lh-vchip:hover{background:rgba(159,180,212,.13);border-color:rgba(126,180,255,.5);}' +
+      '.bd-lh-vchip:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
+      '.bd-lh-vch{font:700 .72rem/1.25 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#e6eefc;}' +
+      '.bd-lh-vdate,.bd-lh-vres{color:#9fb4d4;}' +
+      '.bd-lh-vtally{font:700 .82rem/1.2 "Barlow Condensed",sans-serif;color:#fff;font-variant-numeric:tabular-nums;}' +
+      '.bd-lh-vdnv{font:600 .68rem/1.2 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#8aa0c4;}' +
+      '.bd-lh-vgap{color:#8aa0c4;font-style:italic;}' +
+      '.bd-lh-vsep{color:rgba(159,180,212,.45);}' +
       '.bd-omni-lane-l{font:600 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#9fb4d4;background:rgba(159,180,212,.1);border:1px solid rgba(159,180,212,.2);border-radius:.3rem;padding:.2rem .4rem;}' +
       '.bd-h{font:700 1rem/1.1 "Barlow Condensed",sans-serif;letter-spacing:.03em;text-transform:uppercase;color:#fff;margin:0 0 .6rem;}' +
       '.bd-lead{font:500 .86rem/1.5 "Barlow",sans-serif;color:#9fb4d4;margin:0 0 .8rem;}' +
@@ -1776,10 +1884,10 @@
         '.bd-rf-btn{min-height:44px;display:inline-flex;align-items:center;}' +
         '.bd-rf-in{min-height:44px;}' +
         '.bd-omni-link{min-height:44px;display:inline-flex;align-items:center;}' +
-        // The letterhead's own doors: a chip and a vote strip are both taps, and a
-        // 30px tap is a miss on a phone.
+        // The letterhead's own doors: a topic chip and a vote chip are both taps,
+        // and a 30px tap is a miss on a phone.
         '.bd-lh-chip{min-height:44px;justify-content:center;}' +
-        '.bd-lh-strip{min-height:44px;}' +
+        '.bd-lh-vchip{min-height:44px;}' +
         '.bd-btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;}' +
         '.bd-person{min-height:44px;justify-content:center;}' +
         '.bd-vote-row,.bd-vote-sum{min-height:44px;}' +

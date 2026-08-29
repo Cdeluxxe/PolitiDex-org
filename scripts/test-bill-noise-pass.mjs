@@ -188,7 +188,7 @@ const TEXT = HTML.replace(/<[^>]*>/g, " ").replace(/&#39;/g, "'").replace(/&amp;
 console.log(`\n🧾 bill noise pass — H.R. 6644: ${N} topics, ${ROLLS.length} rolls, ${NAMES.length} names`);
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("1 · the cold open: title, identity, chips, both strips, then the prose");
+section("1 · the cold open: title, identity, chips, both rolls, then the prose");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const seq = [
@@ -197,7 +197,7 @@ section("1 · the cold open: title, identity, chips, both strips, then the prose
     ["the identity block", 'class="bd-ident"'],
     ["the teaching line", 'class="bd-lh-teach"'],
     ["the chips", 'class="bd-lh-chips"'],
-    ["the vote strips", 'class="bd-lh-votes"'],
+    ["the vote chips", 'class="bd-lh-votes"'],
   ];
   for (const [name, mark] of seq) has(HTML, mark, `${name} is not on the bill face`);
   const at = seq.map(([name, mark]) => ({ name, i: HTML.indexOf(mark) }));
@@ -205,23 +205,62 @@ section("1 · the cold open: title, identity, chips, both strips, then the prose
     ok(at[k - 1].i < at[k].i, `${at[k].name} is printed before ${at[k - 1].name}`);
   }
   ok(at[at.length - 1].i < FOLD_AT, "part of the cold open is printed after the prose fold");
-  // Both strips, above the fold, one per roll call in the record.
-  eq(count(HTML.slice(0, FOLD_AT), /class="bd-lh-strip"/g), ROLLS.length,
-    "the vote strips are not all above the folded prose");
+  // Both rolls, above the fold, ONE LINE EACH. These were fat cards when this file
+  // was written — motion title, chamber, date, result, four tally pills and a "See
+  // who voted →" label per roll — restating in the letterhead everything the
+  // roll-call section prints in full a screen below. One line now:
+  //     House · Feb 11 · Passed · 358–32 · 4 DNV
+  // and the facts the card carried past their one printing live only down there.
+  eq(count(HTML.slice(0, FOLD_AT), /class="bd-lh-vchip"/g), ROLLS.length,
+    "the vote chips are not all above the folded prose");
+  hasNot(HTML, "bd-lh-strip", "the fat roll card is back on the letterhead");
+  {
+    const RAIL = HTML.slice(HTML.indexOf('class="bd-lh-votes"'), FOLD_AT)
+      .replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+    for (const line of ["House \u00b7 Feb 11 \u00b7 Passed \u00b7 358\u201332 \u00b7 4 DNV",
+                        "Senate \u00b7 Mar 12 \u00b7 Passed \u00b7 89\u201310 \u00b7 1 DNV"]) {
+      has(RAIL, line, `the letterhead does not carry this roll as one line: ${JSON.stringify(line)}`);
+    }
+    // The motion titles, the clerk links and every name are the roll-call section's.
+    // Counted up to "How it moved", because the chronology below legitimately names
+    // the vote it is dating — a timeline row that said only "Jun 23, 2026" would be
+    // a date with no event attached to it. What is being guarded is the letterhead
+    // restating the roll-call card it sits a screen above.
+    {
+      const TL = HTML.indexOf("\ud83d\udd52 How it moved");
+      const CENSUS = TL > 0 ? HTML.slice(0, TL) : HTML;
+      ok(TL > 0, "the chronology section has moved or gone, so this count has lost its boundary");
+      for (const rc of ROLLS) {
+        hasNot(RAIL, rc.question, "the motion title is on the letterhead as well as in the roll-call section");
+        eq(CENSUS.split(rc.question).length - 1, 1,
+          `${JSON.stringify(rc.question)} is printed more than once above the chronology`);
+        eq(CENSUS.split(rc.source.url).length - 1, 1,
+          `${rc.source.label} is linked more than once above the chronology`);
+      }
+    }
+    hasNot(RAIL, "See who voted", "the letterhead still promises names it does not open");
+  }
 
   // IDENTITY, IN THE HEADER, ONCE EACH.
   has(HEAD, "H.R. 6644", "the number is not in the header");
   has(HEAD, "To increase the supply of housing in America", "the official title is not with the title row");
   has(HEAD, "House · 119th Congress", "the chamber and sitting are not printed together as identity");
   has(HEAD, "Introduced Dec 4, 2025", "the introduction date is not in the identity block");
-  // Two roll calls, so "Voted" is the day the measure was last decided — the
-  // House concurrence in February is not the date this bill was disposed of.
-  has(HEAD, "Voted Mar 12, 2026", "the identity block does not date the measure by its last recorded vote");
-  hasNot(HEAD, "Voted Feb 11, 2026", "the identity block dates the measure by the earlier of its two votes");
+  // TWO ROLL CALLS IS TWO DATES. This block used to print one — "Voted Mar 12,
+  // 2026", the latest roll we hold — and called the February House concurrence
+  // covered by it. It was not: a reader given a single unlabelled date cannot tell
+  // which chamber cast it or that the other chamber voted at all, and on a measure
+  // the Senate amended the later date belongs to the FIRST chamber. Both, in chamber
+  // order, labelled, with the year carried by the introduction date beside them:
+  //     Introduced Dec 4, 2025 · House Feb 11 · Senate Mar 12
+  has(HEAD, "Introduced Dec 4, 2025 \u00b7 House Feb 11 \u00b7 Senate Mar 12",
+    "the identity block does not date the measure once per chamber that voted on it");
+  hasNot(HEAD, "Voted Mar 12", "the identity block still prints an unattributed vote date");
+  hasNot(HEAD, "Voted Feb 11", "the identity block still prints an unattributed vote date");
   has(HEAD, "house-bill/6644/text/eh", "the header does not link the text the mapping was read from");
   has(HEAD, "Engrossed text", "the text link does not name which document it is");
-  for (const fact of ["House · 119th Congress", "Engrossed text", "Introduced Dec 4, 2025", "Voted Mar 12, 2026",
-                      "To increase the supply of housing in America"]) {
+  for (const fact of ["House · 119th Congress", "Engrossed text", "Introduced Dec 4, 2025", "House Feb 11",
+                      "Senate Mar 12", "To increase the supply of housing in America"]) {
     eq(HTML.split(fact).length - 1, 1, `${JSON.stringify(fact)} is printed more than once on the face`);
   }
   // The lines the header used to carry beside identity, and the fold's copy of
@@ -358,14 +397,28 @@ section("4 · the rolls stay shut, with every name still inside");
     "the drawer does not hold every yea");
   eq(count(HTML, /class="bd-pos bd-pos-nay"/g), NAMES.filter((v) => v.position === "nay").length,
     "the drawer does not hold every nay");
-  // Nothing opens it on first paint: the only caller is the reader's own jump.
-  const SRC = R("bill-detail.js");
-  const opens = [...SRC.matchAll(/openRollDrop\(/g)].length;
-  ok(opens >= 2, "openRollDrop is no longer both defined and called — the probe has gone stale");
-  const callers = SRC.split("openRollDrop(").slice(1).map((chunk, i) => i);
-  ok(callers.length >= 1, "openRollDrop has no callers at all");
-  ok(!/bodyHtml[\s\S]{0,4000}openRollDrop\(/.test(SRC.slice(SRC.indexOf("function bodyHtml"), SRC.indexOf("function ensureOverlay"))),
-    "the body builder opens the roll drawer while assembling the page");
+  // NOTHING OPENS IT AT ALL. When this file was written the letterhead's strip was
+  // labelled "See who voted", so its jump both scrolled to the roll list and sprang
+  // the drawer, and openRollDrop existed to do it — this probe checked that helper
+  // was defined and called. The strip is a vote chip now, labelled with a tally and
+  // promising a tally, and two hundred rows unfolding under a reader who tapped
+  // "358–32" is the same wall of names this section exists to keep folded. So the
+  // helper is not merely uncalled, it is gone: the drawer opens on one thing only,
+  // which is the reader's own tap on a summary that says what is behind it.
+  // Read over the source with comments removed: the reasoning above is allowed to
+  // name the helper it is explaining the removal of, and a sweep that could not tell
+  // a comment from a call would make that reasoning unwritable.
+  const SRC_RAW = R("bill-detail.js");
+  const SRC = SRC_RAW.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, " ");
+  hasNot(SRC, "openRollDrop", "something still opens the roll drawer on the reader's behalf");
+  hasNot(SRC, "data-bd-roll-open", "the letterhead still carries the attribute that sprang the drawer");
+  ok(!/\.open = true/.test(SRC), "some code path still forces a fold open");
+  // The chip's jump is a scroll and a focus move, and that is the whole of it.
+  const JUMP = SRC.slice(SRC.indexOf("function gotoSection"), SRC.indexOf("function openIssue"));
+  ok(JUMP.length > 200, "the vote chip's jump handler could not be sliced out — the probe has gone stale");
+  has(JUMP, "scrollIntoView", "the vote chip's jump does not actually move the reader to the roll call");
+  has(JUMP, "data-bd-rc", "the jump lands at the top of the section rather than on the chip's own roll call");
+  hasNot(JUMP, ".open", "the vote chip's jump is opening a fold");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
