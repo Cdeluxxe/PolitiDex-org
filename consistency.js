@@ -6019,6 +6019,13 @@
     // an absence would be a claim about a record that is not there.
     if (t && t.tier === 'none') {
       t = _stThinDirRead(r) || null;
+      // THE SAME THIRD RUNG THE INDEX AND THE DOSSIER TAKE. This chip is mounted
+      // beside the row's own ledger, so a refusal here sits directly above the acts
+      // it is refusing to read — the worst place on the product for one. A row with
+      // judged acts gets the read the browse lane publishes for it; only a poleless
+      // row or a row with nothing judged falls through to the refusal vocabulary.
+      // See _fpiPublishedRead.
+      if (!t) t = _fpiPublishedRead(r) || null;
       if (!t) {
         var why = null;
         try { why = _fpiUnreadWhy(r); } catch (e) { why = null; }
@@ -8410,6 +8417,55 @@
     return d;
   }
 
+  // ── THE THIRD ANSWER: WHATEVER THE TREE IS ALREADY SHOWING ──────────────────
+  // THE RULE THIS EXISTS TO ENFORCE. A (member, issue) row with judged formal acts
+  // on it ALWAYS gets a side read. One or two acts the same way is "Thin supports"
+  // or "Thin opposes"; acts both ways is "Split", with the two counts beside it;
+  // deeper one way is "Mostly" or "Strongly" on the existing floors. The only rows
+  // that may print a refusal are rows with nothing judged on them, or rows whose
+  // ISSUE has no for-or-against side at all — a gap in our mapping, which the
+  // no_side rung already words correctly.
+  //
+  // WHAT WAS WRONG. This index had a two-step ladder where the dossier already had
+  // three, and the two steps between them cannot answer for a mixed record: the
+  // characterisation engine declines below its depth floor, and the thin door above
+  // refuses anything that ran both ways and anything without a side to carry. So a
+  // member with three judged housing votes — two one way, one the other, all real,
+  // all dated, all sourced — reached the refusal branch and was told "Ran both ways,
+  // too few to weigh" while the stance tree one section up printed "Split · 2
+  // advanced · 1 against" off the same engine on the same row. Two answers about one
+  // ledger on one page, and the weaker one was the one wearing the authority of the
+  // record index. Across the shipped corpus that was 1,009 rows: 994 mixed and 15
+  // package-only.
+  //
+  // WHAT THIS IS. The same object the tree publishes, quoted — not recomputed, not
+  // re-decided, and not a new score. `_stDisplayTier` is the accessor the tree's own
+  // Record slot calls (see _stRecordDisplay), so the index and the tree cannot
+  // disagree by construction rather than by anyone remembering to keep them in step.
+  //
+  // WHAT IT CANNOT DO:
+  //   · IT CANNOT INVENT A SIDE. The display lane returns null on a poleless issue
+  //     and null below `judged >= 1`, so both remaining refusals survive untouched:
+  //     1,084 no_side rows still refuse, and a row with nothing judged still refuses.
+  //   · IT CANNOT PROMOTE A TIER. Whatever comes back is the word the reader is
+  //     already being shown one surface over, at the weight that lane assigned it.
+  //   · IT CANNOT REACH DIRECTION MATCH. The percentage is built in word-action.js
+  //     off the tested-statement pairs and the raw index, and reads no tier from this
+  //     lane — verified byte-identical across all 800 profiles before and after this
+  //     change. `characterised` is still the characterisation engine's set and still
+  //     excludes everything that arrives through this door: a split is
+  //     `directional: false`, and _FPI_CHARACTERISED holds only the led tiers.
+  //   · IT DOES NOT TOUCH THE EXECUTIVE LANE. "Pattern not read on this lane yet" is
+  //     a statement about the coverage of our pattern read, not about a member's
+  //     acts, and no primary flag was ever involved in it. Same guard the dossier
+  //     applies one rung earlier (see _dosFormalRead).
+  function _fpiPublishedRead(r) {
+    if (!r || r.lane === 'exec') return null;
+    var d = null;
+    try { d = _stDisplayTier(r); } catch (e) { d = null; }
+    return (d && d.tier && d.tier !== 'none') ? d : null;
+  }
+
   // ── THE ROWS ────────────────────────────────────────────────────────────────
   // Pure. Reads the shared row model and the shared pattern engine and derives
   // nothing of its own: `tier`, `tone`, `weight`, `label` and `counts` all arrive
@@ -8433,6 +8489,17 @@
       if (!t || t.tier === 'none') {
         var one = _stThinDirRead(r);
         if (one) { t = one; single = (one.judged || 0) === 1; }
+      }
+      // …AND THE THIRD RUNG. A row both of those declined is offered the read the
+      // stance tree has already published for it — which is how a mixed record
+      // reaches this index as "Split · 2 advanced · 1 against" instead of as a
+      // refusal that contradicts the chip beside it. See _fpiPublishedRead for the
+      // four things it cannot do, and for why the two remaining refusals (no side
+      // on the issue, nothing judged on the row) are untouched by it.
+      var deferred = false;
+      if (!t || t.tier === 'none') {
+        var pub = _fpiPublishedRead(r);
+        if (pub) { t = pub; single = (pub.judged || 0) === 1; deferred = true; }
       }
       // A REFUSAL IS NOT A READ. The characterisation engine's `none` tier is a
       // refusal wearing a chip: tone `muted`, no side, and the words "No clear
@@ -8482,6 +8549,24 @@
         noSideCount: t ? (t.noSideCount || '') : '',
         directional: !!(t && t.directional),
         read: !!t,
+        // ── QUOTED, NOT CHARACTERISED ─────────────────────────────────────────
+        // TRUE on a row whose read came from the third rung — the browse lane's
+        // published tier, quoted here so the index cannot contradict the chip
+        // beside it. It is the difference between the two things `read` used to
+        // mean at once:
+        //   · THIS ROW HAS A PRINTABLE CHARACTERISATION. That is `read`, and the
+        //     brief is unambiguous about it: a row with judged formal acts always
+        //     gets one, whatever the primary flag says.
+        //   · THIS ROW HAS A SIDE THE MATCH MAY CONSULT. That is `read && !deferred`,
+        //     and it is unchanged. The characterisation engine and the uniform thin
+        //     door are still the only two doors into a score, on the same floors
+        //     they have always used. A 2–1 below the coverage floor prints "Split ·
+        //     2 advanced · 1 against" and is scored by nobody — see the gates in
+        //     _blEntry and _alignRecordSideMap, and the doctrine in
+        //     test-clarity-before-depth.mjs, which is where that rule is owned.
+        // Do not fold this back into `read`. Widening the score is a different
+        // change from widening the copy, and this brief asked for the second.
+        deferred: deferred,
         single: single,
         held: held,
         noun: _stNoun(r),
@@ -8495,14 +8580,19 @@
         // wall over _vehLine for what it is allowed to say.
         //   AND ONLY ON A ROW THAT READ SOMETHING. `t` is the gate, and it is the
         // gate because the disclosure is a sentence about HOW this issue's formal
-        // support or opposition travelled — which presupposes there is some. A row
-        // the engine refused already says the stronger, truer thing in its own
-        // words ("Not about this issue", "No side to read on this issue"), and
-        // hanging "carried as a provision inside H.R. 1319" under that would be
-        // this feature over-claiming on exactly the population it has least to say
-        // about. Across the shipped corpus the gate is the difference between
-        // 1,954 marked rows and 386: four fifths of what the raw tally would have
-        // flagged are refusals, and not one of them is a finding.
+        // support or opposition travelled — which presupposes there is some. The
+        // rows still left without a `t` are the poleless ones, and "No side to read
+        // on this issue" is the stronger, truer sentence there: hanging "carried as
+        // a provision inside H.R. 1319" under a row we have no side for at all
+        // would be this feature over-claiming on exactly the population it has
+        // least to say about.
+        //   THE GATE IS NO LONGER A PACKAGE FILTER, and that is the point. It used
+        // to swallow the disclosure on every row the primary lock had refused —
+        // which was disproportionately the package-borne rows, the exact population
+        // the sentence exists for. Now that a judged row always reads (see the third
+        // rung above), 994 rows across the shipped corpus carry the vehicle tag,
+        // 702 of them "nothing but". Those are findings with a disclosure beside
+        // them, which is what this field was for.
         vehicle: t ? vehicleRead(r.pid, r.key) : null,
         // THE ACT MIX. Presentation only, on exactly the same terms as the vehicle
         // line above it, and for the same reason: it is a sentence about WHAT this
@@ -8595,7 +8685,12 @@
   // One index row → one baseline entry, or null. Every refusal here is a refusal
   // the row already carried; nothing is re-decided.
   function _blEntry(x) {
-    if (!x || !x.read || x.said) return null;
+    // `deferred` rows are excluded here for the same reason the match excludes
+    // them: a baseline stands in for a stated position and is scored as one, and
+    // the third rung's job is to stop the index printing a refusal over judged
+    // acts — not to widen what may be scored. See the wall over `deferred` in
+    // _fpiRows.
+    if (!x || !x.read || x.deferred || x.said) return null;
     var side = _BL_SIDE[x.tone];
     if (!side) return null;
     var says = (x.pat && x.pat.says) || null;
@@ -10439,11 +10534,18 @@
     // visible and we are declining to read it, which is a thing a reader is owed
     // the reason for. So each says which of the five it is, and — as everywhere in
     // this table — none of them borrows a direction word.
-    //   ORDER IS BY WALL, OUTERMOST FIRST: nothing took a side, then the mapping is
-    // not about this issue, then we hold too little of the member's file, then the
-    // items on file are all light, then the items on file ran both ways. A row that
+    //   ORDER IS BY WALL, OUTERMOST FIRST: the issue has no side to read, then the
+    // lane has no pattern read yet, then nothing on file took a side. A row that
     // trips more than one is named by the outer wall, because that is the one that
     // would still hold if the others were cleared.
+    //   AND THE LADDER IS SHORTER THAN IT WAS, on purpose. Every rung that refused a
+    // row holding judged acts has been removed: the two package rungs, and "ran both
+    // ways, too few to weigh". A row with judged acts on it now always reads — see
+    // _fpiPublishedRead — so the only refusals left on this list are about the
+    // ISSUE having no for-or-against side, the LANE having no pattern read, our own
+    // network still being in flight, or the file holding nothing that took a side.
+    // None of those is a claim about how a member's acts arrived, and none of them
+    // may become one again.
     if (idx && (idx.total || 0) > 0) {
       if ((idx.judged || 0) < 1) {
         return { id: 'no_side_taken', lb: 'No ' + n.one + ' here took a side',
@@ -10451,44 +10553,25 @@
             'resolved to neither side, so there is nothing to read a direction from. They are in ' +
             'the dossier exactly as they are.' };
       }
-      // ── AND ONE OF THOSE BRUSHES IS NOT A COINCIDENCE, IT IS A VEHICLE ─────
-      // "Not about this issue" is the right sentence for a bill that happened to
-      // touch the subject on its way past. It is the WRONG sentence for a policy
-      // that was deliberately carried inside larger measures — a different fact,
-      // about a different record, and one this codebase already detects: the
-      // stowaway read in _recordVehicleStats, the same one the read rows wear as
-      // their 🚂 line. Where that detector says EVERY mapped instrument here was
-      // a package, this row says so, names the packages it can name, and still
-      // claims no direction.
-      //   IT IS A NARROWER CLAIM THAN THE ONE IT REPLACES, not a stronger one,
-      // which is the only reason it is allowed past the wall over `vehicle` in
-      // _fpiRows. That wall forbids hanging the DIRECTIONAL disclosure ("advanced
-      // as a provision inside H.R. 7148") under a refusal, because that sentence
-      // presupposes a direction the row does not have. This one presupposes
-      // nothing: it reports the shape of the ledger and stops. `x.vehicle` stays
-      // null on a refused row, so no 🚂 line and no data-pdxfpi-vehicle attribute
-      // appears here either — only the words in the grey chip change.
-      var _veh = null;
-      try { _veh = vehicleRead(r && r.pid, r && r.key); } catch (e) { _veh = null; }
-      if (_veh && _veh.stowaway && _veh.only) {
-        // THE LOCKED MENU PHRASING, because this is the one refusal on the list
-        // that is already a statement about the menu rather than about the
-        // member: every chance on file to act here was a package. "Only carried
-        // inside larger packages" described the record; "Only tested as a
-        // provision inside larger packages" describes the chances, which is the
-        // truer and narrower claim and the one the vocabulary block locks.
-        //   Where the light classifier recognises the family the packages
-        // belonged to, it is named — "an omnibus appropriations act" is the
-        // reason there may have been nowhere else to put the policy, and a bill
-        // number alone is not. It stays silent on an unrecognised measure.
-        var _kinds = _menuVehicleKinds(_veh);
-        return { id: 'vehicle_only', lb: _MENU.provision_only.lb, menu: 'provision_only',
-          note: 'Every mapped instrument on this issue arrived as a provision ' + _vehWhere(_veh) +
-            (_kinds ? ' — ' + _kinds + ' — ' : ' ') +
-            'rather than as a ' + n.one + ' on the issue itself. Those measures are real, dated ' +
-            'and in the dossier — but a package is not a position on everything inside it, so no ' +
-            'direction is claimed from one. ' + _MENU_WALL };
-      }
+      // ── THE VEHICLE RUNG IS OFF THIS LADDER TOO ────────────────────────────
+      // There was a rung here for the row whose EVERY mapped instrument arrived as
+      // a provision inside a larger measure. It refused a direction and printed the
+      // menu's "Only tested as a provision inside larger packages" instead. It was
+      // the narrowest and best-worded of the package refusals, and it was still a
+      // refusal standing where a finding belonged: fifteen rows across the shipped
+      // corpus reached it holding three judged acts each, while the stance tree on
+      // the same profile printed Split with the two counts beside it. Two answers to
+      // one question, and the reader had no way to know which surface to believe.
+      //   The fact that rung existed to carry has not been dropped — it has been
+      // promoted. Those rows now READ, and the package sentence rides beside the
+      // finding on the field every surface already prints: `_rdPackageNote` inside
+      // the tier's `note`, `packageNote` under its own name, and the 🚂 vehicle line
+      // off `x.vehicle`, which is no longer null there because the row is no longer
+      // refused. Same words, same menu vocabulary, next to a side instead of instead
+      // of one. See _fpiPublishedRead.
+      //   `_MENU.provision_only` therefore has no caller on this ladder. It is left
+      // in the vocabulary block because the vehicle line and the rollup word
+      // themselves from the same menu, and they are what print it now.
       // ── "NOT ABOUT THIS ISSUE" IS OFF THIS LADDER ──────────────────────────
       // There was a rung here that refused a direction because no mapping on the
       // row was primary: "a bill that brushed the subject is not a vote on the
@@ -10566,12 +10649,19 @@
             (_one ? 'A single such act is not a pattern' : 'Acts this light do not add up to a pattern') +
             ', so no direction is claimed from it here.' };
       }
-      if ((idx.advances || 0) > 0 && (idx.opposes || 0) > 0) {
-        return { id: 'mixed_thin', lb: 'Ran both ways, too few to weigh',
-          note: 'The ' + n.many + ' on file here went both ways, and there are too few of them for ' +
-            'the margin to mean anything. No lead is derived from a record this size, and the ' +
-            n.many + ' themselves are in the dossier.' };
-      }
+      // ── AND SO IS "RAN BOTH WAYS, TOO FEW TO WEIGH" ────────────────────────
+      // The largest of the removals: 989 rows across the shipped corpus, every one
+      // of them holding real, dated, sourced acts that went both ways. The sentence
+      // was true about the MARGIN and false as a refusal — "the margin means
+      // nothing" is a reason not to derive a LEAD, which is a different act from
+      // characterising the record at all. A record that ran both ways HAS a
+      // characterisation and this product has always had the word for it: Split,
+      // with the two counts printed beside it and no lead claimed from either.
+      //   That is what these rows say now, in the display lane's own words, at the
+      // display lane's own weight — `thin` below _RD_SPLIT_MIN_JUDGED, so a shallow
+      // split still declines to publish a margin exactly as it always did. No floor
+      // moved. What changed is that the row names its own shape instead of refusing
+      // to, and the index and the stance tree now say the same thing about it.
       // ── THE ONE THE WALL ABOVE LEAVES BEHIND ───────────────────────────────
       // Reached only where the mapping on file IS primary for this issue and the
       // index still counted no primary act: the instrument that was about this

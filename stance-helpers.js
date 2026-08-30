@@ -1523,12 +1523,22 @@
       } else if (idx.token === 'record_split_deep' || idx.token === 'record_split') {
         t = _RD_TIERS.split;
       } else if (idx.token === 'record_thin' && !idx.suppressed &&
-                 idx.judged === 1 && idx.primary >= _RD_MIN_PRIMARY &&
-                 _rdLeanAllowed(idx)) {
-        // The one-vote lean. Only when that vote is ON this issue (primary) — an
-        // incidental omnibus brush is not a lean, it is a coincidence — and only
-        // when the single act is heavy enough to be a beginning rather than a
-        // signature (see _rdLeanAllowed).
+                 idx.judged === 1 && _rdLeanAllowed(idx)) {
+        // The one-vote lean. Only when the single act is heavy enough to be a
+        // beginning rather than a signature (see _rdLeanAllowed).
+        //   `idx.primary >= _RD_MIN_PRIMARY` WAS A THIRD TERM HERE AND IS GONE.
+        // It said an act that reached this issue inside a larger package was "a
+        // coincidence, not a lean", and that was this file deciding a member's
+        // one recorded act on an issue did not happen because of the shape of the
+        // bill it travelled in. A vote is a vote: it was cast, it is dated, it is
+        // sourced, and it went one way. HOW it arrived is a real fact and it has
+        // its own sentence — `pkgNote` below, printed beside the finding on every
+        // surface — which is where a fact about packaging belongs. It is not a
+        // gate on whether the act may be characterised at all.
+        //   This is the last of the primary locks. `isPrimary` is now what it was
+        // always documented to be: a label on the bill, printable everywhere and
+        // consultable by nothing. Do not put it back — see the brief in
+        // test-characterise-every-act.mjs.
         dir = _RD_TIER_DIR[idx.advances ? 'advances' : 'opposes'];
         t = _RD_TIERS.thin;
       }
@@ -1647,9 +1657,12 @@
     //       WHAT IS NOT ON THAT LIST, DELIBERATELY: how the acts arrived. A vote
     //     cast on a measure that carried this issue is a vote on this issue, at full
     //     strength, and `_RD_MIN_PRIMARY` is consulted on this lane for the
-    //     disclosure sentence alone. It still gates the pattern engine, the index's
-    //     `characterised` set and Direction Match, all of which are upstream of here
-    //     and none of which this change touches.
+    //     disclosure sentence alone. THAT IS NOW TRUE OF EVERY LANE IN THIS FILE:
+    //     the last primary term came off _recordPatternTier's one-vote lean, so the
+    //     constant no longer appears in any tier condition anywhere — only in the
+    //     two `pkgOnly` lines that word the package sentence. See the wall over that
+    //     lean, and test-characterise-every-act.mjs, which sets the constant to 99
+    //     and asserts that not one tier, label, count or percentage moves.
     //
     // `display: true` marks a read that only exists because of this bar, `early`
     // marks the one-item read that must be worded as a beginning, and `partial`
@@ -1708,11 +1721,14 @@
       //     sentence travels beside the finding rather than being a separate
       //     feature a surface could forget to mount. Beside it — never instead of
       //     it, and never as a multiplier on it.
-      // WHAT DOES NOT CHANGE: _recordPatternTier is untouched, so the
-      // characterisation read, the formal-pattern index's `characterised` set and
-      // Direction Match all still refuse exactly what they refused before, and
-      // _RD_MIN_PRIMARY still governs them at full strength. This lane is read by
-      // nothing that scores.
+      // WHAT DOES NOT CHANGE: this lane is still read by nothing that scores. The
+      // characterisation read and the `characterised` set are still
+      // _recordPatternTier's, on unchanged depth and dominance floors, and Direction
+      // Match still cannot see any of it.
+      //   AND _RD_MIN_PRIMARY NO LONGER GOVERNS THEM EITHER. It used to gate the
+      // pattern engine's one-vote lean; that term is gone, so beyond its declaration
+      // the constant is read on exactly two lines in this file — this one and its
+      // twin in _recordPatternTier — and both of them word a sentence.
       var pkgOnly = (idx.primary || 0) < _RD_MIN_PRIMARY;
       var partial = (sup === 'coverage_floor');
       // THE SAME TWO SIZE FLOORS THE PATTERN ENGINE ASKS, AND NO THIRD ONE. This

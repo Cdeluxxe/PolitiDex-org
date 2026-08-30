@@ -370,14 +370,23 @@ ok(hot.length > 100, "the fingerprint actually captured rows");
 eq(hot, cold,
   "every tier, label, count, refusal and score is identical whether or not a menu surface was rendered");
 
-// And the live package refusal now speaks the locked words and names the family.
+// AND THE LIVE PACKAGE ROW SPEAKS THE LOCKED WORDS FROM THE MENU BLOCK, which is
+// where a statement about the menu belongs. There used to be a `vehicle_only`
+// refusal on the formal-pattern index carrying this phrase, and it is gone: it was
+// a refusal printed over three dated, sourced votes, while the stance tree on the
+// same profile read Split off the same engine. A row holding judged acts now always
+// characterises itself, and the menu fact travels beside that finding.
 const hotW = boot();
 hotW.PDXVotingRecord.noteMember(PID, seedOf());
 const hotRows = hotW.PDXConsistency.formalPatternIndex.rows(PID) || [];
-const pkg = hotRows.filter((r) => r.why && r.why.id === "vehicle_only")[0];
-must(pkg, "the seed produced no package-only refusal to inspect");
-eq(pkg.key, PKG_MIX,
-  "the refusal is the package row that ran both ways, not the one-sided one");
+const pkgRow = hotRows.filter((r) => r.key === PKG_MIX)[0];
+must(pkgRow, "the package row that ran both ways vanished from the index");
+eq(pkgRow.why, null, "a row holding judged acts carries no refusal reason");
+eq(pkgRow.tier, "split", "…it reads Split, and the two counts are the whole claim");
+eq(pkgRow.deferred, true, "…quoted from the browse lane, so no score moved");
+const pkg = { why: hotW.PDXConsistency.menu.context(PID, PKG_MIX) || {} };
+eq(pkg.why.state, "provision_only",
+  "the menu block is where the package-only sentence lives now");
 // …AND THE ONE-SIDED PACKAGE ROW READS INSTEAD OF REFUSING, at the tier its own
 // acts earn, with the vehicle sentence carried beside the read rather than standing
 // in for it or shrinking it. The banned list runs over that sentence too: a read is
@@ -393,15 +402,16 @@ has(readNote, "omnibus appropriations act",
 eq(MENU.scan(readNote).length, 0, "…and stays off the banned list");
 eq(MENU.scan((hotW.PDXConsistency.recordPattern.display(pkgRead.row) || {}).note || "").length, 0,
   "…as does the display read's own package disclosure");
-eq(pkg.why.lb, LOCKED.provision_only, "the package refusal speaks the locked phrase");
+eq(pkg.why.lb, LOCKED.provision_only, "the menu block speaks the locked phrase");
 eq(pkg.why.menu, "provision_only", "…and tags which menu case it is");
-has(pkg.why.note, "omnibus appropriations act",
+has(pkg.why.facts + " " + (hotW.PDXConsistency.vehicle.note(PID, PKG_MIX) || ""),
+  "omnibus appropriations act",
   "…and names the family of measure that carried the policy");
 has(pkg.why.note, MENU.WALL, "…and carries the wall");
-eq(MENU.scan(pkg.why.lb + " " + pkg.why.note).length, 0,
-  "…and the whole refusal stays off the banned list");
+eq(MENU.scan(pkg.why.lb + " " + pkg.why.facts + " " + pkg.why.note).length, 0,
+  "…and the whole menu sentence stays off the banned list");
 // The classes ride beside the counts and never into them.
-const vs = hotW._pdxRecordVehicleStats(PID, pkg.key);
+const vs = hotW._pdxRecordVehicleStats(PID, PKG_MIX);
 must(vs, "the vehicle read for the package row is gone");
 ok(Array.isArray(vs.classes) && vs.classes.indexOf("omnibus") >= 0,
   "the read carries the recognised family");

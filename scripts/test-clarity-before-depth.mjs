@@ -410,8 +410,22 @@ section("2 · the fixtures — tier, side, verdict and confidence, end to end");
   // — the arithmetic leans 2–1 — and it is the row that must gain nothing.
   eq(row(DEEP_FIX.inc_mixed.key), null,
     "a package-borne record that ran both ways is scored by nobody");
-  eq((F_DEEP[DEEP_FIX.inc_mixed.key] || {}).read, false,
-    "…and reports itself unread rather than as a read with no answer");
+  // …AND IT SAYS "SPLIT", WHICH IS NOT A SIDE. The row used to report itself
+  // unread here, and that was the bug this file's own doctrine was being used to
+  // defend: a refusal printed over three dated, sourced votes while the stance
+  // tree one section up printed "Split · 2 advanced · 1 against" off the same
+  // engine on the same row. Two answers to one question on one profile.
+  //   The separation the assertion above protects is unchanged and is now pinned
+  // from both ends: the row CHARACTERISES (`read`, so the index prints the word
+  // instead of a refusal) and it is SCORED BY NOBODY (`deferred`, so the match
+  // and the baseline both decline it). Widening the copy and widening the score
+  // are two different changes; only the first one happened.
+  eq((F_DEEP[DEEP_FIX.inc_mixed.key] || {}).read, true,
+    "…and characterises itself rather than refusing over three real votes");
+  eq((F_DEEP[DEEP_FIX.inc_mixed.key] || {}).tier, "split",
+    "…in the engine's own word for a record that ran both ways");
+  eq((F_DEEP[DEEP_FIX.inc_mixed.key] || {}).deferred, true,
+    "…flagged as quoted from the browse lane, which is what keeps it out of the score");
   eq((F_DEEP[DEEP_FIX.inc_mixed.key] || {}).directional, false,
     "…and carries no direction");
   {
@@ -517,11 +531,15 @@ section("5 · a refusal names its own reason");
   // judgement rather than a label, and every row it used to cover now either reads
   // (section 2) or refuses for a reason that is about the votes: this ledger ran
   // both ways and is too small for the margin to mean anything.
-  const w1 = why(F_DEEP, DEEP_FIX.inc_mixed.key);
-  ok(w1 && w1.id === "mixed_thin",
-    `a package-borne ledger that ran both ways refuses on its arithmetic — got ${JSON.stringify(w1 && w1.id)}`);
-  lacks(w1 ? w1.lb : "", "no clear pattern", "…and does not fall back to the old blanket sentence");
-  eq(F_DEEP[DEEP_FIX.inc_mixed.key].read, false, "…and reports itself as unread, not as a read with no answer");
+  //   AND "RAN BOTH WAYS, TOO FEW TO WEIGH" IS RETIRED WITH IT. It was the
+  // replacement sentence this section used to demand, and it was still a refusal
+  // standing where a characterisation belonged. Saying the MARGIN means nothing is
+  // a reason not to derive a lead; it is not a reason to withhold the reading.
+  // Split, with the two counts beside it, is the reading — and it claims no lead.
+  ok(!why(F_DEEP, DEEP_FIX.inc_mixed.key),
+    "a package-borne ledger that ran both ways carries no refusal reason at all");
+  eq(F_DEEP[DEEP_FIX.inc_mixed.key].read, true,
+    "…because it reads: judged acts on file always get a characterisation");
   // …and the row the sentence LEFT does not keep it.
   ok(!why(F_DEEP, DEEP_FIX.incidental.key),
     "a row that now reads carries no refusal reason at all");
@@ -539,8 +557,9 @@ section("5 · a refusal names its own reason");
   const w2 = why(F_DEEP, DEEP_FIX.no_side.key);
   ok(w2 && w2.id === "no_side_taken",
     `a Present-only row says nothing took a side — got ${JSON.stringify(w2 && w2.id)}`);
-  ok(w1 && w2 && w1.lb !== w2.lb,
-    "…and the two refusals are two different sentences, which was the whole complaint");
+  const w4 = why(F_DEEP, DEEP_FIX.poleless.key);
+  ok(w2 && w4 && w2.lb !== w4.lb,
+    "…and the surviving refusals are still different sentences, which was the whole complaint");
 
   const w3 = why(F_DEEP, DEEP_FIX.poleless.key);
   ok(w3 && w3.id === "no_side", "a poleless issue still names the gap as ours, not theirs");
@@ -593,13 +612,6 @@ section("5b · the ROW CHIP — the surface the last pass missed");
   // vocabulary — the same sentences the index already uses, not a second set.
   const refusals = {
     [DEEP_FIX.no_side.key]: "no vote here took a side",
-    // A package-borne pile refuses on its arithmetic, exactly as the primary pile
-    // two lines down does — same words, because the same thing is wrong with both.
-    [DEEP_FIX.inc_mixed.key]: "ran both ways, too few to weigh",
-    // The locked menu phrasing, not "procedural votes only": what is true here
-    // is what came up, not what the member cast. See _MENU in consistency.js.
-    [DEEP_FIX.proc_only.key]: "procedural gate rather than a policy vote",
-    [DEEP_FIX.mixed_thin.key]: "ran both ways, too few to weigh",
   };
   Object.keys(refusals).forEach((k) => {
     const h = chip(DEEP, k);
@@ -607,6 +619,29 @@ section("5b · the ROW CHIP — the surface the last pass missed");
     lacks(h, "no clear pattern", `${k}: …and not the blanket sentence`);
     lacks(h, "supports", `${k}: …and borrows no direction word`);
     lacks(h, "opposes", `${k}: …in either direction`);
+  });
+
+  // ── AND THE ROWS THAT USED TO BE ON THAT LIST ARE NOT REFUSALS ANY MORE ────
+  // Three of the four entries above were rows holding judged acts — a package-borne
+  // pile that ran both ways, a primary pile that ran both ways, and a pile of
+  // procedural votes. Each one had a well-written refusal, and each one printed it
+  // directly above the list of acts it was declining to read. A reader who can see
+  // the arrow is not served by a paragraph explaining why we will not name it.
+  //   They read Split now, with the two counts. What was true about them is still
+  // printed beside that finding rather than instead of it: the packaging by the 🚂
+  // vehicle line and _rdPackageNote, the procedural gate by _menuContext's locked
+  // "Procedural gate rather than a policy vote", which is mounted in the dossier
+  // and is where a statement about the MENU belongs. Nothing was lost; one thing
+  // moved from the position of an answer to the position of a caveat.
+  [DEEP_FIX.inc_mixed.key, DEEP_FIX.mixed_thin.key, DEEP_FIX.proc_only.key].forEach((k) => {
+    const h = chip(DEEP, k);
+    eq(label(h), "Split", `${k}: a ledger holding judged acts characterises itself`);
+    lacks(h, "no clear pattern", `${k}: …and not the blanket sentence`);
+    lacks(h, "too few to weigh", `${k}: …nor the refusal it used to print`);
+    lacks(h, "supports", `${k}: …and borrows no direction word`);
+    lacks(h, "opposes", `${k}: …in either direction`);
+    ok(/advanced/.test(h) && /against/.test(h),
+      `${k}: …and prints the two counts, which are the whole claim`);
   });
 
   // NOT A NEW VOICE — the refusal chip is the grey flat chip the index already
@@ -771,11 +806,21 @@ section("7 · the mutations — each one must fail this file");
     const fr = rows.find((x) => x.key === SHALLOW_FIX.below2.key) || null;
     const bd = w._calcAlignmentBreakdown(SHALLOW, { mode: "record" });
     return { tier: fr ? fr.tier : null, label: fr ? fr.patLabel : "",
+             deferred: fr ? !!fr.deferred : null,
              scored: !!(bd && bd.issues.some((x) => x.key === SHALLOW_FIX.below2.key)) };
   });
   eq(m2.scored, false,
     "M2: capping the door at one item drops the 2–0 below the floor out of the match, which sections 3 and 4 catch");
-  ok(m2.tier !== "thin", "M2: …and the row loses its side entirely");
+  // …AND THE ROW KEEPS ITS PRINTED SIDE, which is the whole point of the third
+  // rung and the reason this mutation reads differently than it used to. Capping
+  // the door used to take the reader's answer away with the score; now the copy has
+  // a floor under it that the score does not share. The mutation is still caught —
+  // by `scored`, above, and by sections 3 and 4 — and what it can no longer do is
+  // make a real 2–0 ledger print a refusal.
+  eq(m2.tier, "thin", "M2: …but the row still prints the side its ledger shows");
+  eq(m2.label, "Thin supports", "M2: …in the same words, off the browse lane's read");
+  eq(m2.deferred, true,
+    "M2: …flagged as quoted rather than characterised, which is why it is out of the match");
 
   // M3 — put the package-borne ceiling back, on both lanes at once. This is the
   // discount the August 2026 pass removed: the pattern engine returned

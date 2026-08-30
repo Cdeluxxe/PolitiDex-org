@@ -146,8 +146,10 @@ for (let i = 0; i < 6; i++) SEED.push(vote(55 + i, SPLIT, i % 2 ? "nay" : "yea")
 for (let i = 0; i < 4; i++) SEED.push(vote(62 + i, SHALLOW, i % 2 ? "nay" : "yea"));
 for (let i = 0; i < 5; i++) SEED.push(vote(70 + i, LOPSIDED, "yea", { proc: true }));
 SEED.push(vote(75, LOPSIDED, "nay"));
-// Deep, one-sided and entirely incidental: the omnibus problem wearing a
-// confident face. The index refuses it; the chip must refuse it too.
+// Deep, one-sided and entirely incidental: five acts that all went the same way,
+// every one of them reached through a larger measure. It reads Strongly, with the
+// package sentence beside it — a mapped act is an act, and how it arrived is a
+// disclosure rather than a veto.
 for (let i = 0; i < 5; i++) SEED.push(vote(80 + i, INCID, "yea", { primary: false }));
 SEED.push(vote(90, BALANCE, "nay"), vote(91, BALANCE, "nay"),
           vote(92, BALANCE, "nay"), vote(93, BALANCE, "nay"));
@@ -272,7 +274,20 @@ section("3 · the site's direction colours, not a new palette");
   ok((chipOf(STRONG).match(/--c:([^;]*)/) || [])[1] !==
      (chipOf(MOSTLY).match(/--c:([^;]*)/) || [])[1],
     "a supporting pattern and an opposing pattern do not share a colour");
-  has(chipOf(MIXED3), "--c:#8fa6c6", "and no-pattern is grey, not a direction");
+  // Grey is the fourth colour and it belongs to the rows with nothing to colour.
+  // It is NOT where a shallow both-ways record lands any more: the chip reads what
+  // the profile is already showing, so MIXED3 prints the browse lane's Split in the
+  // mixed amber, with its two counts, while the pattern engine goes on refusing to
+  // characterise it (section 1 pins that refusal, unmoved). Grey survives in the
+  // published tone table for the rows that reach the chip with no side at all, and
+  // no directional tone may borrow it.
+  eq(TONE.muted.c, "#8fa6c6", "muted is the site's grey");
+  ok(TONE.support.c !== TONE.muted.c && TONE.oppose.c !== TONE.muted.c &&
+     TONE.mixed.c !== TONE.muted.c, "…and no direction is painted in it");
+  has(chipOf(MIXED3), "--c:#f5c842", "a shallow both-ways record is coloured mixed");
+  has(chipOf(MIXED3), "Split", "…and says Split rather than printing nothing");
+  lacks(chipOf(MIXED3), "--c:#4ade80", "…and never borrows a pole's hue");
+  lacks(chipOf(MIXED3), "--c:#f87171", "…on either side");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

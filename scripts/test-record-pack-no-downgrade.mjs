@@ -213,32 +213,36 @@ for (const [snapshot, items] of [["live (F4)", fresh], ["stale pack", stale]]) {
       no(html, NOT_ABOUT, `${snapshot}/${pid}: the sheet does not refuse the row`);
       no(html, BRUSHED, `${snapshot}/${pid}: the sheet does not call the measure a brush`);
     } else {
-      // THE DOWNGRADE, IN ITS CURRENT SHAPE. The reported symptom itself is gone:
-      // the row no longer blanks, because a uniform run of judged acts may now
-      // state its side whether or not a PRIMARY mapping survived. What the stale
-      // snapshot still costs is the CLAIM, not the side and not the strength. With
-      // the promotion the vote is Curtis's vote on housing and the pattern engine
-      // characterises it; without it the same vote is one that reached housing
-      // inside H.R. 6644, so the read is published by the browse lane and has to
-      // say how it arrived. It reads thin on BOTH snapshots, and for the same
-      // reason on both — it is one act, one measure, under _RD_THIN_MIN. Put a
-      // fifth one-sided act on this row and it would clear the depth floors and
-      // characterise with the promotion gone; the flag caps nothing.
+      // THE DOWNGRADE, IN ITS CURRENT SHAPE. The reported symptom is gone and so is
+      // the second-order one behind it. The row no longer blanks, because a uniform
+      // run of judged acts may state its side whether or not a PRIMARY mapping
+      // survived; and the read no longer drops to the browse lane either, because
+      // the pattern engine stopped consulting the PRIMARY count when it decides
+      // whether an act may be characterised at all. The stale snapshot now costs
+      // exactly ONE sentence: the row says its vote reached housing inside
+      // H.R. 6644 rather than being about housing outright. It reads thin on BOTH
+      // snapshots, and for the same reason on both — it is one act, one measure,
+      // under _RD_THIN_MIN. Put a fifth one-sided act on this row and it would
+      // clear the depth floors and characterise all the same with the promotion
+      // gone; the flag caps nothing.
       //
       // Both members still do the same thing as each other, which is the claim
       // this section exists to settle. The pack is still not allowed to do this —
-      // section 2 is what stops it — and a reader who met this row would still be
-      // told less than the record holds.
+      // section 2 is what stops it — and a reader who met this row would be told
+      // one true thing that a fresher snapshot would have worded differently.
       eq(idx && idx.primary, 0, `${snapshot}/${pid}: the promotion is gone from the snapshot`);
       eq(tree && tree.tier, "thin", `${snapshot}/${pid}: the tree still states the side, thinly`);
       eq(tree && tree.label, want, `${snapshot}/${pid}: with the live read's own label`);
       eq(tree && tree.tone, side, `${snapshot}/${pid}: and the live read's own side`);
       // …and here is the cost, in the two fields that carry it.
-      eq(tree && tree.display, true, `${snapshot}/${pid}: but published by the browse lane, not the pattern engine`);
-      eq(tree && tree.packageOnly, true, `${snapshot}/${pid}: and flagged as package-borne`);
+      eq(tree && tree.display, false, `${snapshot}/${pid}: the pattern engine still owns the read`);
+      eq(tree && tree.packageOnly, true, `${snapshot}/${pid}: and flags the row as package-borne`);
       has(tree && tree.note, PACKAGE, `${snapshot}/${pid}: with the arrival disclosed in the slot's own note`);
       const pt = CS.recordPattern.tier(row);
-      ok(!pt || pt.tier === "none", `${snapshot}/${pid}: the pattern engine characterises nothing here`);
+      must(!!pt, `${snapshot}/${pid}: the pattern engine returned nothing for a judged act`);
+      eq(pt.tier, "thin", `${snapshot}/${pid}: the pattern engine characterises it, thinly`);
+      eq(pt.label, want, `${snapshot}/${pid}: with the same label the tree prints`);
+      eq(pt.packageOnly, true, `${snapshot}/${pid}: and the same arrival flag`);
       // The dossier follows the tree, as it did before — the two surfaces were
       // never in disagreement about ONE set of items; they were rendered from two.
       eq(d.state, "reads", `${snapshot}/${pid}: the dossier reads the row too`);

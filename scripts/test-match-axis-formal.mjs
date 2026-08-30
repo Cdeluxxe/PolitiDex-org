@@ -495,11 +495,15 @@ section("8 · the mutations — re-requiring a stance must break this file");
   eq(m1.ranked, 0, "M1: …and empties the ranked field, which section 3 would catch");
 
   // M2 — the record side map: drop any pattern row we hold no quote for.
-  const G3 = "if (!x.read || !side || !conf) return;";
+  // The `x.deferred` term is the score wall added when the formal index learned
+  // to quote the tree's read for rows its own engine will not characterise: those
+  // rows print a tier but are scored by nobody. It is part of the fail-closed
+  // line, so it is part of the string M2 has to find.
+  const G3 = "if (!x.read || x.deferred || !side || !conf) return;";
   must(R("alignment-tool.js").indexOf(G3) > 0,
     "the record side map's fail-closed line has moved — M2 can no longer be applied");
   const m2 = mutant({
-    "alignment-tool.js": (s) => s.replace(G3, "if (!x.read || !side || !conf || !x.said) return;"),
+    "alignment-tool.js": (s) => s.replace(G3, "if (!x.read || x.deferred || !side || !conf || !x.said) return;"),
   }, (w) => ({
     score: w._calcAlignmentScore(A_PID, { mode: "record" }),
     html: sheetHtml(w),

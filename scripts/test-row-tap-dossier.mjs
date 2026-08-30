@@ -139,7 +139,12 @@ const ISSUE_KEYS = Object.keys(probe.ISSUE_MAP || {});
 const SILENT = ISSUE_KEYS.filter((k) => !stanceKeys.has(k) && !/_balance$/.test(k));
 const [STRONG, MOSTLY, SPLIT, THIN, MIXED] = SILENT;
 const RECORD_ONLY = SILENT.slice(5, 21);
-must(STRONG && MOSTLY && SPLIT && THIN && MIXED && RECORD_ONLY.length === 16,
+// The unread class needs a record that took NO SIDE — two votes where the member
+// was recorded present. A shallow both-ways record is no longer unread anywhere: it
+// prints the browse lane's Split. What is left in the unread class is the honest
+// silence, and an honestly silent row still has to be a door.
+const NOSIDE = SILENT[21];
+must(STRONG && MOSTLY && SPLIT && THIN && MIXED && NOSIDE && RECORD_ONLY.length === 16,
   "the fixture profile no longer offers every row class");
 
 const vote = (n, issueKey, position) => ({
@@ -155,6 +160,7 @@ for (let i = 0; i < 10; i++) SEED.push(vote(20 + i, MOSTLY, i < 8 ? "nay" : "yea
 for (let i = 0; i < 8; i++) SEED.push(vote(35 + i, SPLIT, i % 2 ? "nay" : "yea"));
 SEED.push(vote(50, THIN, "nay"));
 SEED.push(vote(55, MIXED, "nay"), vote(56, MIXED, "nay"), vote(57, MIXED, "yea"));
+SEED.push(vote(60, NOSIDE, "present"), vote(61, NOSIDE, "present"));
 let nn = 100;
 RECORD_ONLY.forEach((k, i) => {
   const n = (i % 5) + 1;

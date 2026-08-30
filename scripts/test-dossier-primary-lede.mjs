@@ -55,9 +55,13 @@
 //   4. THE MULTI-ISSUE DISCLOSURE IS UNTOUCHED. H.R. 6644 also carries
 //      housing_build; "1 of 1 from multi-issue bills" is not incidental, and the
 //      cousin key is still named.
-//   5. NOTHING ENTERED THE INDEX OR THE SCORE. Every row the dossier reads by
-//      deferral is still refused by the formal-pattern index, and no row's
-//      Direction Match result moves because a dossier was rendered.
+//   5. THE COPY WIDENED; NOTHING ENTERED THE SCORE. The formal-pattern index takes
+//      the same third answer now (_fpiPublishedRead), so it no longer refuses a row
+//      the dossier reads — the deferral population is empty by construction, which
+//      is the point rather than a stale probe. What is still walled is the SCORE:
+//      those rows carry `deferred: true`, and neither the alignment match's side
+//      map nor the record baseline will take one. No row's Direction Match result
+//      moves because a dossier was rendered, or because this pass shipped.
 //
 //   node scripts/test-dossier-primary-lede.mjs
 //
@@ -227,8 +231,14 @@ must(rows > 5000, `too few rows swept (${rows})`);
 eq(clash.length, 0, `no dossier contradicts the tree — ${clash.slice(0, 3).join(" | ")}`);
 eq(wrongPrimary.length, 0,
   `"${NOT_ABOUT}" never appears where our mapping calls the measure primary — ${wrongPrimary.slice(0, 3).join(", ")}`);
-must(deferred > 0, "no row exercised the deferral to the tree's published read");
-console.log(`      ${rows} rows · ${reads} read (${deferred} by deferral) · ${refusals} refused`);
+// THE DEFERRAL POPULATION IS EMPTY, AND THAT IS THE FIX. This counted rows the
+// dossier read while the formal-pattern index still refused — the two-surfaces,
+// two-answers state this file was written about. The index now takes the same third
+// rung the dossier does (_fpiPublishedRead), so the population is empty by
+// construction rather than by luck, and the assertion is inverted to say so.
+eq(deferred, 0,
+  `no row is read by the dossier while the index still refuses it (${deferred})`);
+console.log(`      ${rows} rows · ${reads} read (0 by deferral — the index reads them too) · ${refusals} refused`);
 console.log(`      refusals by reason — ${Object.keys(byId).sort().map((k) => `${k}:${byId[k]}`).join(" · ")}`);
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -249,26 +259,27 @@ section("3 · the sentence survives where it is true");
 //     assertion is inverted: not "still firing in numbers" but "firing nowhere",
 //     and the sentence is chased by its words across the whole ladder below so a
 //     rung reinstated under some other id cannot slip past a name check.
-//   `vehicle_only` STAYS, and stays reachable in numbers. It is the 🚂 stowaway
-//     refusal and it rests on different evidence entirely — _recordVehicleStats
-//     found the acts were provisions inside larger measures and there is no
-//     judged side to state. Disclosure with nothing to discount is not a ceiling.
-//     It keeps its menu phrasing, and it must never borrow the retired words.
+//   `vehicle_only` IS RETIRED TOO, and later than its cousin. It was the 🚂
+//     stowaway refusal, it rested on different evidence (_recordVehicleStats found
+//     provisions; it consulted no mapping flag), and its sentence was the locked
+//     menu phrasing rather than a claim about the member — which is why it outlived
+//     `incidental` by a pass. What finally took it out is that it had no population
+//     left that deserved it: a stowaway-only ledger with judged acts on it now
+//     reads, so the only rows reaching the rung were rows with a finding one
+//     surface over. The menu sentence itself is not gone — _menuContext returns
+//     `provision_only` for exactly these rows, and the dossier mounts it beside the
+//     finding, which is where a statement about the menu belongs.
 eq(incidentals.length, 0,
   `the retired incidental refusal fires nowhere — ${incidentals.slice(0, 3).map((x) => `${x.pid}/${x.key}`).join(", ")}`);
 eq(notAbout.length, 0,
   `no refusal on the ladder says the record is not about the issue — ${notAbout.slice(0, 3).join(", ")}`);
 // ── AND THE STOWAWAY POPULATION ITSELF, WHICH IS WHERE THE 🚂 LINE WENT ──────
-// `vehicle_only` fires on no row in the shipped corpus now, and that is the point
-// rather than a regression. It is a REFUSAL, and it was reachable only while a
-// stowaway-only ledger could arrive at the dossier unread — which, below the
-// ceiling, it always did. With the ceiling gone every one of these rows has a
-// finding, so the disclosure has nowhere to stand except beside it, which is
-// where the doctrine wants it. The rung is left in the ladder because its
-// evidence is different from anything removed here (_recordVehicleStats found
-// provisions; it does not consult a mapping flag) and its sentence is still the
-// right one for a ledger with nothing to read — but the assertion cannot be a
-// corpus count any more, so it is the two things that must hold instead:
+// `vehicle_only` fires on no row anywhere now, and that is the point rather than a
+// regression. It was reachable only while a stowaway-only ledger could arrive
+// unread — which, below the ceiling, it always did. With the ceiling gone every one
+// of these rows has a finding, so the disclosure has nowhere to stand except beside
+// it, which is where the doctrine wants it. The assertion cannot be a corpus count
+// any more, so it is the two things that must hold instead:
 //
 //   NOT ONE STOWAWAY-ONLY ROW IS REFUSED FOR BEING ONE. A row here may still be
 //     walled — by no pole on the issue, or by nothing on it having taken a side —
@@ -314,31 +325,36 @@ section("4 · the multi-issue disclosure is untouched");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("5 · nothing entered the index or the score");
+section("5 · the copy widened; nothing entered the score");
 // ═════════════════════════════════════════════════════════════════════════════
-// The third answer is the dossier's alone. If it had widened the thin door, rows
-// would have entered the formal-pattern index and Direction Match through it —
-// which is a scoring change wearing a copy fix. Two checks: every deferred row is
-// still REFUSED by the index, and a row's result is identical whether or not its
-// dossier was rendered first.
+// THE LINE MOVED, AND IT MOVED IN ONE DIRECTION ONLY. This section used to assert
+// that the third answer was the dossier's alone and that the formal-pattern index
+// still refused every row the dossier read by deferral. The index takes that answer
+// now — a row holding judged acts always characterises itself, whatever the primary
+// flag on its bills says — so the invariant this file is really defending is the
+// other one, and it is unchanged: widening what the reader is TOLD is not widening
+// what is SCORED.
+//   Those rows carry `deferred: true`, and that flag is a wall in two places — the
+// alignment match's side map and the record baseline. So: every deferred row is
+// absent from both, and a row's result is identical whether or not its dossier was
+// rendered first.
 {
   let checkedDeferred = 0;
   for (const pid of [...byMember.keys()].slice(0, 60)) {
-    const fpi = Object.create(null);
-    (CS.formalPatternIndex.rows(pid) || []).forEach((r) => { if (r && r.key) fpi[r.key] = r; });
-    for (const r of (CS.issueRows(pid) || [])) {
-      if (!r || !r.key) continue;
-      let d; try { d = CS.dossierRead(pid, r.key); } catch (e) { continue; }
-      if (!d || d.state !== "reads") continue;
-      const x = fpi[r.key];
-      if (!x || x.read) continue;
+    let sides = {};
+    try { sides = (win._alignRecordSideMap(pid) || {}).sides || {}; } catch (e) { sides = {}; }
+    const base = Object.create(null);
+    try { (CS.baseline.rows(pid) || []).forEach((b) => { if (b && b.key) base[b.key] = b; }); } catch (e) {}
+    for (const x of (CS.formalPatternIndex.rows(pid) || [])) {
+      if (!x || !x.key || !x.deferred) continue;
       checkedDeferred++;
-      eq(x.tier, "unread", `${pid}/${r.key}: the index still refuses a row the dossier deferred`);
-      eq(x.directional, false, `${pid}/${r.key}: a deferred row carries no side in the index`);
+      eq(x.read, true, `${pid}/${x.key}: a deferred row still reads, which is the whole point`);
+      eq(!!sides[x.key], false, `${pid}/${x.key}: a deferred row is not a side the match may consult`);
+      eq(!!base[x.key], false, `${pid}/${x.key}: …nor a record baseline standing in for a stance`);
     }
   }
-  must(checkedDeferred > 0, "no deferred row reached the index check");
-  console.log(`      ${checkedDeferred} deferred rows still refused by the formal-pattern index`);
+  must(checkedDeferred > 0, "no deferred row reached the score check");
+  console.log(`      ${checkedDeferred} rows read by deferral, every one out of the match and the baseline`);
 
   // Order independence. A fresh boot, results read BEFORE any dossier is built,
   // against the same results read after — same numbers or the read moved a score.
