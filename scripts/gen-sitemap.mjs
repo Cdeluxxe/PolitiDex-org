@@ -4,9 +4,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // WHAT THIS WRITES
 //
-//   sitemap.xml   the front door, the Issue Spotlights, and one /p/<pid> entry
-//                 per person file that clears the publication floor
-//   robots.txt    points crawlers at that sitemap and at nothing else
+//   sitemap.xml   the front door, the Issue Spotlights, one /p/<pid> entry per
+//                 person file that clears the publication floor, and one
+//                 /b/<sitting>/<number> entry per bill that has an address the
+//                 app can actually open
+//   robots.txt    points crawlers at that sitemap and at nothing else — one
+//                 Sitemap: line, which is why the bills ride in this file rather
+//                 than in a second one nothing links to
 //
 // WHY A GENERATOR AND NOT A HAND-WRITTEN FILE
 //
@@ -24,15 +28,39 @@
 // it. If the floor changes, the sitemap changes with it, and there is no second
 // copy of the rule to drift.
 //
+// THE BILLS, AND WHY THEY CAN BE LISTED NOW
+//
+// This file used to say that no measure page could be advertised, because the
+// measure set lives in the database behind /api/voting-record rather than in a
+// data file. That was half right. The rows are in the database — and every one of
+// them got there through an `INSERT INTO vr_measures` in netlify/database/
+// migrations/*.sql, which IS in the repo. scripts/vr-measure-addresses.mjs reads
+// those migrations in applied order and rebuilds the identity half of the table,
+// then keeps only the rows that can carry an address and open onto something:
+// a printed number, a sitting, a citable source_url, and a real title, an issue
+// mapping or a formal act on file. Same shape of promise the person floor makes,
+// against the same kind of evidence.
+//
+// The address it publishes is /b/<sitting>/<number> with the number spelled
+// exactly as the row prints it — /b/119/H.R.%206644, not /b/119/hr-6644. That is
+// not a style preference: getMeasureRef() in netlify/functions/voting-record.mts
+// matches `number` exactly, so a slug resolves to nothing, and a sitemap of
+// slugs would be a file of addresses that answer 404 at the edge and post "that
+// link didn’t resolve to a measure we could load" in the browser.
+//
 // WHAT IS DELIBERATELY NOT IN HERE
 //
-//   · No measure or issue-record pages. /vote/<congress>/<chamber>/<roll> is a
-//     real, server-visible address and would belong here — except that the set
-//     of roll calls lives in the database behind /api/voting-record, not in the
-//     repo, so enumerating it would mean either a build-time database read this
-//     script has no business doing or a hardcoded list that goes stale. The
-//     Spotlights ARE included, because their slugs are in the repo where this
-//     script can see them. Nothing was invented to fill the file.
+//   · No roll-call pages. /vote/<congress>/<chamber>/<roll> is a real,
+//     server-visible address, and unlike a bill it cannot be enumerated from the
+//     repo: the rolls the ingest cron pulls in arrive without a migration, so any
+//     list of them would be a guess dressed as a promise. A roll call is also
+//     reachable from the bill it belongs to, which IS now listed, so nothing in
+//     the archive is left without a path in.
+//   · No measure the migrations do not carry. Rows the live ingest added at
+//     runtime are missing from the bill list, and that is the honest cost of not
+//     reading the database at build time: it loses a crawl, not the truth.
+//   · No /locker address. It resolves and it is one page, but it is a workspace,
+//     not a record, and this file lists records.
 //   · No lastmod dates. This script has no honest source for when a record last
 //     changed — the roster carries no timestamp — and a lastmod that is really
 //     "when the generator last ran" is a fabricated freshness signal.
@@ -43,11 +71,17 @@
 //   node scripts/gen-sitemap.mjs            # write sitemap.xml + robots.txt
 //   node scripts/gen-sitemap.mjs --check    # exit 1 if either is stale
 //   node scripts/gen-sitemap.mjs --report   # what cleared, what did not, why
+//
+// To confirm the bill addresses actually resolve against the live resolver, run
+// scripts/vr-audit-bill-addresses.mjs. That check is a separate script on purpose:
+// this generator must stay offline and deterministic so --check means "the
+// committed file matches the repo" and nothing else.
 // ─────────────────────────────────────────────────────────────────────────────
 import fs from "node:fs";
 import path from "node:path";
 import url from "node:url";
 import vm from "node:vm";
+import { measureAddresses, billPath } from "./vr-measure-addresses.mjs";
 
 const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), "..");
 const CHECK = process.argv.includes("--check");
@@ -61,6 +95,23 @@ export const ORIGIN = "https://politidex.fyi";
 
 const SITEMAP = path.join(ROOT, "sitemap.xml");
 const ROBOTS = path.join(ROOT, "robots.txt");
+
+// ── The limits the sitemap protocol sets on one file ────────────────────────
+// 50,000 URLs and 50 MB uncompressed. Today this file holds ~1,160 URLs in ~75
+// KB, so it is two orders of magnitude clear on both counts and a single
+// sitemap.xml is the honest shape: one file, one Sitemap: line in robots.txt,
+// nothing indirected through an index that exists only in case.
+//
+// What happens at the limit is a decision, so it is written down rather than
+// left to whoever hits it. Splitting into sitemap-people.xml + sitemap-bills.xml
+// behind a sitemap index is the correct remedy, and it is not built yet, because
+// untested split machinery that has never emitted a file is a worse guarantee
+// than a build that stops and says which half to cut. So the generator refuses
+// to write an over-limit file: an invalid sitemap is silently ignored by
+// crawlers wholesale, which would cost every address in it, including the /p/
+// entries that work today.
+const MAX_URLS = 50000;
+const MAX_BYTES = 50 * 1024 * 1024;
 
 // ── Load the app's own modules and data, in a browser-shaped sandbox ─────────
 // Same technique the audit scripts in this directory use. The sandbox is a bare
@@ -130,7 +181,14 @@ function buildSitemap(urls) {
     "     or one such position and a tracked promise, or two measures with a sourced",
     "     formal act on file (a roll call or a committee vote). A record below that floor has",
     "     an address that works and is deliberately not advertised, because the page",
-    "     it opens says so itself: there is not yet enough cited content to arrive at. -->",
+    "     it opens says so itself: there is not yet enough cited content to arrive at.",
+    "",
+    "     Bill files appear as /b/<sitting>/<number>, the sitting being a Congress",
+    "     (119) or a Utah session (2025GS), and the number spelled exactly as the",
+    "     record prints it — the resolver behind /b/ matches it literally, so a",
+    "     tidier slug would be an address that 404s. A bill is listed only if the",
+    "     migrations that created it give it a number, a sitting, a citable source",
+    "     and something to read: a real title, an issue mapping, or a formal act. -->",
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
   ];
   for (const u of urls) lines.push(`  <url><loc>${xmlEscape(ORIGIN + u)}</loc></url>`);
@@ -170,14 +228,32 @@ const ids = Object.keys(roster);
 const publishable = floor.publishable();
 const excluded = ids.filter((id) => !floor.clears(id));
 
+const bills = measureAddresses(ROOT);
+
 const urls = [
   "/",
   ...spotlightSlugs().map((s) => `/issue/${s}`),
   ...publishable.map((pid) => `/p/${pid}`),
+  ...bills.published.map(billPath),
 ];
+
+// Two addresses reaching the same page would be this file recommending a record
+// twice, and it would mean the enumerator had a collision it did not notice.
+const dupes = urls.filter((u, i) => urls.indexOf(u) !== i);
+if (dupes.length) throw new Error(`gen-sitemap: duplicate urls: ${[...new Set(dupes)].slice(0, 5).join(", ")}`);
 
 const sitemap = buildSitemap(urls);
 const robots = buildRobots();
+
+if (urls.length > MAX_URLS || Buffer.byteLength(sitemap) > MAX_BYTES) {
+  console.error(
+    `gen-sitemap: ${urls.length} urls / ${Buffer.byteLength(sitemap)} bytes exceeds the ` +
+    `single-sitemap limit (${MAX_URLS} urls / ${MAX_BYTES} bytes). A sitemap over the ` +
+    `limit is discarded whole by crawlers, so nothing was written. Split into a ` +
+    `sitemap index (sitemap-people.xml + sitemap-bills.xml) before adding more.`
+  );
+  process.exit(1);
+}
 
 if (REPORT) {
   const why = {};
@@ -196,6 +272,19 @@ if (REPORT) {
            !(r.cited >= 1 && r.promises > 0);
   });
   console.log(`  via formal only   ${byFormal.length}`);
+
+  const bySitting = {};
+  for (const a of bills.published) bySitting[a.sitting] = (bySitting[a.sitting] || 0) + 1;
+  const byVia = {};
+  for (const a of bills.published) byVia[a.via] = (byVia[a.via] || 0) + 1;
+  const byReason = {};
+  for (const r of bills.refused) for (const reason of r.reasons) byReason[reason] = (byReason[reason] || 0) + 1;
+  console.log("");
+  console.log(`bills listed      ${bills.published.length}  ${JSON.stringify(bySitting)}`);
+  console.log(`  cleared via       ${JSON.stringify(byVia)}`);
+  console.log(`bills refused     ${bills.refused.length}  ${JSON.stringify(byReason)}`);
+  console.log(`migrations read   ${bills.stats.files} files, ${bills.stats.inserts} measure inserts, ${bills.stats.unparsed} unparsed`);
+  console.log(`limits            ${urls.length}/${MAX_URLS} urls, ${Buffer.byteLength(sitemap)}/${MAX_BYTES} bytes`);
 }
 
 if (CHECK) {
