@@ -502,12 +502,16 @@
     // The pack is a Netlify Blobs snapshot on a six-hour TTL (PACK_TTL_MS in
     // netlify/functions/voting-record.mts), rebuilt lazily on read. /member/:id is a
     // live DB query. So the two disagree for up to six hours after any change to the
-    // measure→issue mapping table — and they disagree about isPrimary, which is not a
-    // cosmetic field: _recordDisplayTier refuses a direction outright below
-    // _RD_MIN_PRIMARY, so one dropped flag turns a published "Thin supports" into
-    // "Not about this issue". A member whose page is warmed from the live endpoint and
-    // then, milliseconds later, seeded over by the pack shows BOTH reads at once: the
-    // stance tree painted before the clobber, the dossier lede computed after it.
+    // measure→issue mapping table — and they disagree about isPrimary, among other
+    // fields. isPrimary no longer decides whether a row may be read at all: as of
+    // August 2026 _RD_MIN_PRIMARY words the package sentence and nothing else, so a
+    // dropped flag now costs the disclosure rather than the finding ("mainly about
+    // something else" over a row that still says Thin supports). What a stale
+    // snapshot still costs is everything else it is stale about: acts it does not
+    // hold yet, mappings it has lost, and therefore counts, tiers and ordering. A
+    // member whose page is warmed from the live endpoint and then, milliseconds later,
+    // seeded over by the pack shows BOTH reads at once: the stance tree painted before
+    // the clobber, the dossier lede computed after it.
     //
     // Hence: the pack seeds _records only when nothing better holds that row. It never
     // replaces a live read, in flight or resolved. That costs the pack nothing it was

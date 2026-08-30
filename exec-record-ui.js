@@ -335,10 +335,12 @@
   // quoted subsections and belongs behind the tap.
   //   NO RANK BADGE. `isPrimary` used to print here as "primary" / "supporting" on
   // every single row — a two-way ranking of a document's own topics, stamped on the
-  // citizen face by default. The flag is untouched in the data and still read by the
-  // internal anti-noise floor in stance-helpers.js (_RD_MIN_PRIMARY: an incidental
-  // omnibus brush is not a lean); it is simply not a thing this face says about a
-  // topic any more. Every issue this document touches gets the same row.
+  // citizen face by default. The flag is untouched in the data and is still read in
+  // stance-helpers.js, where it now words one sentence and gates nothing: a row whose
+  // acts all arrived inside larger measures says so beside its finding
+  // (_RD_MIN_PRIMARY → `pkgOnly`), rather than being refused a finding. Either way it
+  // is not a thing this face says about a topic. Every issue this document touches
+  // gets the same row.
   function issueRowHtml(action, m) {
     var adv = effDir(action, m) === 'advances';
     var dcls = adv ? 'pdxer-dir-adv' : 'pdxer-dir-opp';

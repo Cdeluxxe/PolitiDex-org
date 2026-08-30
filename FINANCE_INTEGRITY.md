@@ -29,9 +29,9 @@ formal record and cleared no publication floor — the one honest thing about it
 was the list of reasons, which is not the same as being grounded.
 
 **The coverage made it a verdict built from almost no data.** Itemized filings
-are on file for **13** people. PolitiDex carries profiles for **757**. A red
+are on file for **13** people. PolitiDex carries profiles for **800**. A red
 "Special-Interest Heavy" badge against that denominator is a judgement about a
-person derived from data the site does not have — and the 744 people with no
+person derived from data the site does not have — and the 787 people with no
 badge at all could not tell "checked, nothing concentrated" from "never
 checked", because the money section rendered *nothing* for them.
 
@@ -53,6 +53,47 @@ Dollars per bucket, each bucket's share **of that base**, and the largest
 reported source named as a fact about a sorted list. No headline number, no
 level, no letter, no verb. A share of a composition is composition; what is
 forbidden is a single figure standing in for the whole person.
+
+And the section **leads with counts, not shares.** `PDXFinanceLane.countsHtml()`
+opens the on-file state with four plain cells — reported sources, named
+contributors, industry sectors, candidate self-funding — before any percentage
+appears. A count is anchored to a unit and to a filing; it is not comparable
+across two people the way a bare percentage is, so it cannot be lifted off the
+page and read as a rank. The composition percentages still follow, each welded
+to its own bucket name and dollar figure.
+
+The one composition fact PolitiDex does **not** hold is the in-state versus
+out-of-state split, and the counts footer says so in those words. The filings
+report it; the records this site carries do not transcribe it. Naming that gap
+is cheaper than the alternative, which is a reader assuming a lane that reports
+industry but never geography has a reason for the omission.
+
+### The filing index has to be reachable, and for a while it was not
+
+Worth recording, because the symptom looked like a coverage problem and was a
+wiring problem. `/p/trump` showed "No money file yet" on its letterhead while the
+money section a few hundred pixels below it drew a $780M composition. Trump has a
+filing; the chip could not see it.
+
+`FTM_DATA` and its `_FTM_BY_ID` index are built inside the Follow-the-Money IIFE
+in `index.html`, so `_FTM_BY_ID` was a local that never reached `window`.
+`finance-lane.js` read `W._FTM_BY_ID`, got `undefined` for every person on the
+roster, and rendered the empty chip for all 800 of them — including the 13 with
+filings. `coverage()` counted the same `undefined` and reported **0 filings on
+file**. The section below was unaffected only because it reads a different,
+separately-exposed accessor.
+
+The fix is two exported readers — `window._pdxFinanceFiling(pid)` and
+`window._pdxFinanceIds()` — and a `recordFor()` in the lane that prefers the
+accessor and falls back to the global index. Both return copies, so no surface
+can mutate the shipped record.
+
+**Both fences missed it, and the reason generalises.** `test-finance-lane.mjs`
+and `test-money-theme.mjs` each attach their own `win._FTM_BY_ID` before booting
+the lane, so both were testing a wiring that existed only in the harness. A test
+that supplies the seam it is checking cannot fail when production stops
+providing it. The probe that found this lifts the real inline `<script>` out of
+`index.html` and runs that.
 
 ## The money theme: one pair, wayfinding, not a grade
 
@@ -94,6 +135,30 @@ dollar fill of a composition bar. It appears on no issue chip (`issue-colors.js`
 owns those and the money work never touched it), on no Yea/Nay pill, and not on
 the ⚖️ Word vs Action badge sitting inches away in the same letterhead.
 
+### The donor-mix pill and the war-chest tier are deleted
+
+Two more survivors of the retired grade were still rendering inside
+`_pdxFundingSection`, below the fold rather than in it. `_pdxFundWord()` printed
+**"Grassroots" / "Mixed" / "Big-money" / "Unclassified"** as a labelled pill with
+an explanation under it — the three retired levels, renamed. Beside it,
+`scaleTag` printed **"Large war chest" / "Modest war chest"** off a dollar
+threshold: a second grade, on a second axis, of a figure the page had already
+stated plainly.
+
+Both are gone from the section, along with the CSS that painted them
+(`.pdx-fund-base` and its four state classes, `.pdx-fund-baserow`,
+`.pdx-fund-scale.is-high/.is-low`). Deleting the markup and leaving the
+stylesheet is how the ramp came back the last two times: a class with live paint
+and no caller is a grade waiting for a caller. `test-money-theme.mjs` now
+requires the `pdx-fund-base` family to resolve to **zero** rules, and checks the
+`_pdxFundingSection` body specifically for `pdx-fund-scale`, `war chest`,
+`pdx-fund-baserow` and `_pdxFundWord(` — scoped to that function, because one
+candidate's record narrative legitimately mentions "incumbent war chests" and a
+whole-file grep would have flagged a sourced sentence as a retired tier.
+
+The compact card chip (`_pdxFundingChip`) is a different surface with its own
+fence and was left alone.
+
 ### The donor-mix ramp is deleted
 
 Four surfaces used to paint a **green → amber → red ladder keyed to donor mix** —
@@ -110,10 +175,26 @@ The ⚖️ in the middle of the glyph ramp was the worse offence of the two: tha
 glyph is Word vs Action's own badge, so a donor mix had borrowed the vocabulary
 of a promise-keeping measure.
 
-Missing data stays words — "No money file yet", "Not on file" — never a dimmer
-pill, a dashed frame or a greyer glyph. An undigitised filing is a fact about the
-archive, and a door that weakens when the room behind it is empty reports it as a
-fact about the person.
+Missing data stays words — "No money file on hand", "Not on file" — never a
+dimmer pill, a dashed frame or a greyer glyph. An undigitised filing is a fact
+about the archive, and a door that weakens when the room behind it is empty
+reports it as a fact about the person.
+
+That rule was written before the CSS obeyed it. `.pdx-fund-none` — the profile
+section's empty state — carried `border: 1px dashed` and an `opacity: 0.8` glyph:
+a dashed frame and a dimmed 💰, which is the sentence above describing exactly
+what the stylesheet was doing. It now takes the money fill and a solid gold
+left rule at full weight, the same as the state with a filing in it.
+
+**"Yet" is gone too, and that was not a wording preference.** The empty state
+used to read "No campaign-finance record for Lee YET. This section fills in
+automatically as filings are added." Both halves described a queue. "Yet" tells a
+reader somebody looked and the archive is still arriving; "fills in
+automatically" promised an ingest that does not exist — there is no live FEC
+feed here and Utah publishes no API, so a curator transcribes filings by hand.
+For most of this roster nobody has looked and nothing is scheduled to look. The
+copy is now **"No money file on hand"**: a statement about what PolitiDex holds
+today, which is the only thing it can honestly report.
 
 ### The bucket palette went from five hues to one
 
@@ -153,7 +234,7 @@ still printed, as text.
 `PDXFinanceLane.coverage()` reads both counts off the shipped index — never
 hard-coded — and returns the sentence every surface prints:
 
-> Itemized filings are on file for 13 of the 757 people PolitiDex carries. Where
+> Itemized filings are on file for 13 of the 800 people PolitiDex carries. Where
 > a filing is missing, that is missing data — it is not a finding about the
 > person, and nothing on this lane is read as one.
 
@@ -162,12 +243,33 @@ a surface cannot render the chart and forget the caveat. This is the same
 posture `publication-floor.js` takes when it refuses to publish a Direction
 Match read: state the rule, state what you do not have, in words, unprompted.
 
-**And the lane renders in both states.** `PDXFinanceLane.entryHtml(pid)` returns
-a row whether or not a filing exists. On file it names the largest reported
-source and opens the door to the full breakdown. Off file it says plainly that
-no filing is on file and that this is missing data. The absent state is a
-sentence about the data; it is never a sentence about the person, and it uses
-none of the words "clean", "clear", "good" or "bad".
+**And the lane renders in both states.** `PDXFinanceLane.entryHtml(pid, p)`
+returns a row whether or not a filing exists. On file it names the largest
+reported source and opens the door to the full breakdown. Off file it says
+plainly that no filing is on file and that this is missing data. The absent state
+is a sentence about the data; it is never a sentence about the person, and it
+uses none of the words "clean", "clear", "good" or "bad".
+
+### The empty state names the archive it is missing from
+
+An absence with no stated cause is the one a reader explains for themselves, and
+"no money file" invites the wrong explanation. So `PDXFinanceLane.sourceGap()`
+reads the person's office and state and returns one line naming the disclosure
+system the filing would have come from. Three branches, and the third is the
+important one:
+
+| Office shape | Authority | What the line says |
+|---|---|---|
+| Federal — president, senator, representative | **FEC** | the filings are public there, and PolitiDex has not opened a file from them for this person |
+| Utah state or local | **Utah state disclosures** | the state publishes no API to read them from, and no curator has transcribed this one |
+| Everything else | **none opened** | PolitiDex has no disclosure source open for this office, so no filing has been looked for |
+
+The third branch links nowhere, deliberately: there is no honest URL to offer,
+and pointing at an archive the site has not searched would imply it had. Every
+branch ends by distinguishing an **unopened archive** from a search that came
+back empty — the two states a missing file collapses into if nobody separates
+them. No branch invents a donor, a committee, a filing date or a dollar figure,
+which `scripts/test-finance-lane.mjs` asserts per branch.
 
 ## The wall
 
@@ -235,15 +337,27 @@ page.
    receipts and the composition, then the outside-spending note.
 2. **Profile letterhead → the 💰 chip** (`letterheadChipMount`) — a one-line
    pill among the status pills, sized to the ⚖️ Word vs Action badge beside it.
-   It prints the itemized-receipts figure, the small-dollar share, the top pile
-   and the coverage words, and it is a button: clicking it reveals and jumps to
-   the money section below on the same profile (`pdxsec-funding`). It is a door,
-   not a summary — no chart, no donor list, no ring, no colour that grades. It
-   renders on every profile, including the 744 with no filing, because a missing
-   badge would read as "clean" rather than as "unknown".
-3. **Profile → 💰 Follow the Money** — the entry row (both states), the
-   composition block, and the coverage disclosure. This is the person file's one
-   labelled door into the money lane.
+   It prints the itemized-receipts figure, **how many reported sources it was
+   built from**, the top source named, and the coverage words — counts, never a
+   share. A percentage on the letterhead is the first screen of a score: one
+   number, no unit, comparable across people at a glance. The chip carried a
+   `38% small-dollar` segment and it does not any more; the fence now asserts
+   that no chip state contains a `%` at all.
+     It is a button: clicking it reveals and jumps to the money section below on
+   the same profile (`pdxsec-funding`). It is a door, not a summary — no chart,
+   no donor list, no ring, no colour that grades. It renders on every profile,
+   including the 787 with no filing, where it reads **"No money file on hand"** —
+   because a missing badge would read as "clean" rather than as "unknown".
+3. **Profile → 💰 Follow the Money** — the entry row (both states), the counts
+   lead, the composition block, the source-gap line when there is no filing, and
+   the coverage disclosure. This is the person file's one labelled door into the
+   money lane, and there is exactly one door: the letterhead 💰 chip and the
+   mid-page 💰 Money jump chip both call `PDXFinanceLane.openSection()`, which
+   reveals a deferred stage before it measures the scroll and focuses
+   `pdxsec-funding` on arrival. The Money chip used to aim at `pdxsp-money`, the
+   money *stage* rail, which lands a reader on a header above three sections and
+   leaves them to find the filing. Two money controls arriving at two places is
+   two doors into what the page calls one lane.
 4. **Follow the Money — Side by Side** (`impact-ledger.js`) — the largest
    reported source paired with a distributional summary of who the member's key
    votes affect. It shows financial access and distributional effect, not
@@ -322,7 +436,7 @@ lead on a document, not a replacement for reading it — a human verifies agains
 the filing and hand-updates the map, so nothing unverified ships. It touches no
 issue key, stated position, formal action, tier or publication floor: there is
 no finance → Direction Match path here either. And it cannot make the lane
-complete — refreshing the 13 filings we hold does not change the 13-of-757
+complete — refreshing the 13 filings we hold does not change the 13-of-800
 ratio, which the script prints, labelled incomplete, every run.
 
 **State and local.** `disclosures.utah.gov` publishes no open JSON API, so there
@@ -342,7 +456,18 @@ access*, and reporting that composition is the whole of what this lane claims.
 `scripts/test-finance-lane.mjs` — the fence around the retired score: no score in
 any shape, the arithmetic deleted rather than dormant, no verdict palette,
 coverage disclosed in words, both render states, no motive language, and the wall
-holding both statically and at runtime.
+holding both statically and at runtime. Plus, on the letterhead chip: no `%` in
+any state, counts and a named top source on file, "No money file on hand" off it,
+and one assertion per `sourceGap()` branch that the line names an authority,
+invents no dollar figure, says none of "clean" / "nothing to report" / "no
+concerns", and does not flip the chip out of its empty state.
+
+`scripts/test-profile-spine.mjs` — checks that the mid-page 💰 Money chip and the
+letterhead chip share one destination, that it goes through
+`PDXFinanceLane.openSection()` with `_pdxNavJump` as the fallback, and — because
+the spine's own rule is that a jump chip must never aim at a self-gating section
+anchor — that `_pdxFundingSection` emits the `pdxsec-funding` anchor *above* its
+no-filing branch, so the destination exists on the 787 profiles with no file.
 
 `scripts/test-money-theme.mjs` — the fence around the token: the two copies agree
 value for value; **Lee's $8.6M chip and an empty Utah chip open with byte-identical

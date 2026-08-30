@@ -386,7 +386,22 @@ section('11 · documented, and the shipped comment agrees');
     'the doc does not explain why the roster is derived');
   has(DOC, 'no finance → Direction Match path',
     'the doc does not restate the wall for the refresh path');
-  has(DOC, '13-of-757', 'the doc does not state the current coverage ratio');
+  // THE RATIO IS DERIVED HERE TOO, FOR THE SAME REASON THE SCRIPT DERIVES IT.
+  // This assertion used to read has(DOC, '13-of-757', …) — a literal, which meant
+  // the fence was pinning the doc to whatever the roster happened to be on the day
+  // it was written. cmp-data.js has since grown to 800 people, so the doc was
+  // quoting a denominator that was 43 people stale and this test was the reason it
+  // stayed that way: a hard-coded expectation enforces the drift it was meant to
+  // catch. Counted from the same two files the script counts, the fence now fails
+  // when the doc is stale rather than when the roster changes.
+  const _idx = read('index.html');
+  const _from = _idx.indexOf('var FTM_FUNDING = {');
+  const _block = _idx.slice(_from, _idx.indexOf('\n    };', _from));
+  const _fundKeys = (_block.match(/^\s{6}[a-z0-9_]+:\s*\{/gm) || []).length;
+  const _rosterN = (read('cmp-data.js').match(/^\s{0,2}"[a-z0-9_]+":\s*\{$/gm) || []).length;
+  ok(_fundKeys > 0 && _rosterN > 0, 'the coverage ratio could be counted from the shipped data');
+  has(DOC, `${_fundKeys}-of-${_rosterN}`,
+    `the doc does not state the current coverage ratio (${_fundKeys}-of-${_rosterN})`);
   has(DOC, 'no open JSON API', 'the doc does not record the state-refresh limitation');
   has(DOC, 'documented limitation, not a pending feature',
     'the doc leaves the state lane looking like pending work');

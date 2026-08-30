@@ -314,8 +314,41 @@ const L = laneBox().PDXFinanceLane;
 
   const off = L.entryHtml("nobody_has_this_id");
   ok(off.length > 100, "the NOT-on-file entry row renders too — a blank is not an answer");
-  has(visible(off), "No itemized filing on file", "…and says so plainly");
+  has(visible(off), "No money file on hand", "…and says so plainly");
   has(visible(off), "missing data", "…and says that is missing data");
+  // AND IT NAMES THE ARCHIVE. An absence with no named cause is the one a reader
+  // fills in themselves, so the empty lane says which disclosure system the filing
+  // would have come from — and says "none opened" where PolitiDex has none, rather
+  // than pointing at an archive it has not looked in.
+  has(visible(off), "Source gap", "…and names the source gap in one line");
+  {
+    const gapBox = makeSandbox();
+    const gctx = vm.createContext(gapBox);
+    gapBox.CMP_DATA = {
+      fed_person:   { name: "Fed", office: "U.S. Representative", state: "Maine" },
+      utah_person:  { name: "Utah", office: "State Attorney General", state: "Utah" },
+      other_person: { name: "Other", office: "Lieutenant Governor", state: "Michigan" }
+    };
+    vm.runInContext(LANE_SRC, gctx, { filename: "finance-lane.js" });
+    const G = gapBox.PDXFinanceLane;
+    eq(G.sourceGap("fed_person").authority, "FEC",
+      "a federal office's missing filing points at the FEC");
+    eq(G.sourceGap("utah_person").authority, "Utah state disclosures",
+      "a Utah state office's points at Utah's disclosure system");
+    eq(G.sourceGap("other_person").authority, "none opened",
+      "an office with no source open says exactly that, and names no archive");
+    eq(G.sourceGap("other_person").url, "",
+      "…and links nowhere, because there is nowhere honest to link");
+    // No filing, donor, committee or figure is conjured by any branch.
+    for (const pid of ["fed_person", "utah_person", "other_person"]) {
+      const line = G.sourceGap(pid).line;
+      ok(!/\$\d/.test(line), `${pid}: the source-gap line invents no dollar figure`);
+      eq(G.chipRead(pid).state, "empty", `${pid}: naming the gap does not conjure a file`);
+      for (const bad of ["clean", "nothing to report", "no concerns"]) {
+        lacks(line.toLowerCase(), bad, `${pid}: the source-gap line does not say "${bad}"`);
+      }
+    }
+  }
   const offWords = visible(off).toLowerCase();
   for (const bad of ["clean", "clear", "nothing to report", "no concerns", "good", "bad",
     "special-interest", "constituents-first", "score", "grade"]) {
@@ -324,7 +357,7 @@ const L = laneBox().PDXFinanceLane;
 
   // The profile section that mounts it renders in both states now.
   const PF = R("profiles-full.js");
-  has(PF, "L.entryHtml(id)", "the profile money section mounts the entry row");
+  has(PF, "L.entryHtml(id, p)", "the profile money section mounts the entry row");
   has(PF, "if (!finSig) {", "…and has a branch for no filing at all");
   ok(PF.indexOf("if (!entry) return ''") > PF.indexOf("if (!finSig) {"),
     "…returning nothing only when even the row could not be built");
@@ -499,24 +532,21 @@ const L = laneBox().PDXFinanceLane;
   const c = CL.read("lee");
   const lee = visible(CL.letterheadChipHtml("lee"));
   has(lee, c.receiptsFmt, "the figure is the lane's own itemized base");
-  has(lee, c.shares.smallDollar + "% small-dollar", "…beside the small-dollar share of that base");
-  has(lee, c.largest.short, "…and the top pile, named");
+  has(lee, c.rows.length + " source", "…beside how many reported sources it was built from");
+  has(lee, c.largest.short, "…and the top source, named");
   has(lee, "13 of 757 filed", "…and the coverage counts, quoted");
-  // Never both, when they are the same pile: a chip cannot afford a highlight
-  // that restates its own previous segment.
-  const grass = SEED_IDS.map((id) => CL.read(id)).find((r) => r && r.largest.key === "smallDollar");
-  ok(grass, "the seed carries at least one small-dollar-led filing");
-  if (grass) {
-    const g = visible(CL.letterheadChipHtml(grass.pid || "massie"));
-    ok(g.toLowerCase().indexOf("top pile") < 0,
-      "a small-dollar-led file does not print `top pile: Small-dollar` after the share");
+  // COUNTS, NEVER A SHARE. A percentage on the letterhead is the first screen
+  // of a score: it is one number, comparable across people, with no unit
+  // attached to it. Every chip state is held to counts and dollar figures.
+  for (const id of SEED_IDS.concat(["partial_person", "chew_h68", "nobody_at_all"])) {
+    lacks(visible(CL.letterheadChipHtml(id)), "%", `${id}: the chip carries no percentage`);
   }
 
   // The absent states are sentences about the DATA. Same fence as the entry row.
   const emptyWords = visible(CL.letterheadChipHtml("chew_h68")).toLowerCase();
-  has(emptyWords, "no money file yet", "the empty chip says plainly that nothing is on file");
+  has(emptyWords, "no money file on hand", "the empty chip says plainly that nothing is on file");
   const thinWords = visible(CL.letterheadChipHtml("partial_person")).toLowerCase();
-  has(thinWords, "partial file", "the partial chip says the file is partial");
+  has(thinWords, "partial money file", "the partial chip says the file is partial");
   ok(/\d+ items?/.test(thinWords), "…and counts what is on it");
   for (const bad of ["clean", "clear", "nothing to report", "no concerns", "good", "bad",
     "score", "grade", "level", "rank", "/100", "special-interest", "constituents-first"]) {

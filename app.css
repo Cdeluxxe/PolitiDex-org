@@ -5137,21 +5137,14 @@
     .pdx-fund-top-name { font-size: 0.84rem; font-weight: 700; color: #dbe6f5; line-height: 1.2; word-break: break-word; }
     .pdx-fund-top-amt { font-family: 'Barlow Condensed', sans-serif; font-size: 0.64rem; letter-spacing: 0.04em; color: #7596c0; margin-top: 0.15rem; text-transform: capitalize; }
     .pdx-fund-dim { color: #7d92b5; font-weight: 600; font-style: italic; }
-    .pdx-fund-scale { display: inline-block; margin-top: 0.4rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.1rem 0.45rem; border-radius: 999px; }
-    .pdx-fund-scale.is-high { color: #e2e8f0; background: rgba(148,163,184,0.16); border: 1px solid rgba(203,213,225,0.3); }
-    .pdx-fund-scale.is-low  { color: #cbd5e1; background: rgba(148,163,184,0.12); border: 1px solid rgba(148,163,184,0.28); }
-    .pdx-fund-baserow { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; }
-    .pdx-fund-base { display: inline-flex; align-items: center; gap: 0.3rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.03em; padding: 0.32rem 0.7rem; border-radius: 999px; white-space: nowrap; }
-    /* Same ramp, same ban — see .pdx-fchip above. One pair, four states. */
-    .pdx-fund-base.is-grass,
-    .pdx-fund-base.is-mixed,
-    .pdx-fund-base.is-big,
-    .pdx-fund-base.is-unknown {
-      background: var(--pdx-money-fill, rgba(15, 61, 46, 0.55));
-      border: 1px solid var(--pdx-money-line-soft, rgba(201, 153, 47, 0.45));
-      color: var(--pdx-money-text, #bcd3c6);
-    }
-    .pdx-fund-base-note { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; color: #9fb4d4; line-height: 1.35; }
+    /* THE SIZE TIER AND THE DONOR-MIX PILL ARE DELETED, NOT DORMANT.
+       `.pdx-fund-scale` painted "Large war chest" / "Modest war chest" — a
+       three-step ranking of a dollar figure printed in full an inch away — and
+       `.pdx-fund-base` painted the "Grassroots / Mixed / Big-money" pill that was
+       the retired Constituents-First grade's three levels written as prose. The
+       money section now leads with PDXFinanceLane.countsHtml instead, so nothing
+       emits either class. The rules go with the markup: a retired grade with live
+       CSS waiting for it is a retired grade that comes back. */
     .pdx-fund-why { font-size: 0.76rem; color: #b9cae3; line-height: 1.6; margin: 0 0 0.7rem; padding: 0.55rem 0.7rem; background: rgba(139,92,246,0.06); border-left: 2px solid rgba(139,92,246,0.4); border-radius: 0.4rem; }
     .pdx-fund-why strong { color: #c4b5fd; }
     .pdx-fund-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
@@ -5165,8 +5158,16 @@
     .pdx-fund-src:hover { color: #bfdbfe; border-color: rgba(96,165,250,0.55); background: rgba(59,130,246,0.16); }
     .pdx-fund-cmp { color: #c4b5fd; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.32); }
     .pdx-fund-cmp:hover { color: #ddd6fe; border-color: rgba(139,92,246,0.6); background: rgba(139,92,246,0.2); }
-    .pdx-fund-none { display: flex; gap: 0.7rem; align-items: flex-start; padding: 0.8rem 0.9rem; background: rgba(10,15,30,0.5); border: 1px dashed rgba(159,180,212,0.25); border-radius: 0.7rem; margin-bottom: 0.7rem; }
-    .pdx-fund-none-ico { font-size: 1.5rem; line-height: 1; opacity: 0.8; }
+    /* ONE DOOR IN BOTH STATES, INCLUDING THE FRAME. This box used to draw itself
+       with `1px dashed` and dim its 💰 to 0.8 opacity, which is the money lane's
+       own stated ban: "Missing data stays words — never a dimmer pill, a dashed
+       frame or a greyer glyph" (FINANCE_INTEGRITY.md). A dashed, faded panel
+       announces an unfinished thing before the words are read, and an
+       untranscribed filing is a fact about our archive rather than about the
+       person the panel is sitting on. Solid, full-strength, same money pair as
+       the on-file blocks; only the sentence inside differs. */
+    .pdx-fund-none { display: flex; gap: 0.7rem; align-items: flex-start; padding: 0.8rem 0.9rem; background: var(--pdx-money-fill, rgba(15, 61, 46, 0.55)); border: 1px solid var(--pdx-money-line-soft, rgba(201, 153, 47, 0.45)); border-left: 3px solid var(--pdx-money-line, #c9992f); border-radius: 0.7rem; margin-bottom: 0.7rem; }
+    .pdx-fund-none-ico { font-size: 1.5rem; line-height: 1; }
     .pdx-fund-none-t { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.9rem; letter-spacing: 0.03em; color: #c8d6ec; }
     .pdx-fund-none-s { font-size: 0.74rem; color: #9fb4d4; line-height: 1.5; margin-top: 0.15rem; }
 

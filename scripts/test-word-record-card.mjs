@@ -645,16 +645,37 @@ section("11. agreement with the formal pattern index");
   // word — that is the anti-second-engine check and it is unchanged.
   //
   // Where the index REFUSED, the two must refuse together. They part company only
-  // on wording: the index asks _fpiUnreadWhy which of the four unreadable cases
-  // this is and prints that, while the card prints the pattern engine's own
-  // one-size refusal. A more specific sentence about the same non-answer is not a
-  // second opinion about the record; claiming a direction the other one does not
-  // would be, and that is what is asserted here.
-  let checked = 0, refused = 0;
+  // on wording: the index asks _fpiUnreadWhy which of the unreadable cases this is
+  // and prints that, while the card prints the pattern engine's own one-size
+  // refusal. A more specific sentence about the same non-answer is not a second
+  // opinion about the record; claiming a direction the other one does not would
+  // be, and that is what is asserted here.
+  //
+  // AND THERE IS NOW A THIRD CASE. The index publishes a `deferred` row when the
+  // pattern engine will not characterise a record but the browse lane already
+  // does — a shallow both-ways record, for instance, which the engine leaves at
+  // `none` and the browse lane prints as a Split with its two counts. Those rows
+  // are QUOTED, not characterised: the index carries the browse lane's words so
+  // that no judged act goes unread anywhere a reader can see one, and marks them
+  // so that nothing which counts can pick them up.
+  //   THIS CARD IS SOMETHING THAT COUNTS. Its tally has a `split` column, and a
+  // split it accepted would be a comparable issue in the arithmetic — so letting
+  // a deferred split in would count a 2–1 as a split and quietly lower
+  // _RD_SPLIT_MIN_JUDGED for the headline number. The card therefore stays on the
+  // pattern engine, refuses the row, and the two surfaces are asserted to disagree
+  // in the one direction that is safe: the index may print more than the card, the
+  // card may never print a side the index does not hold.
+  let checked = 0, refused = 0, quoted = 0;
   for (const r of rows) {
     const f = byKey[r.key];
     if (!f) continue;
-    if (f.read) {
+    if (f.read && f.deferred) {
+      quoted++;
+      eq(r.shape, "unread",
+        `index: the ${r.key} row is a browse-lane quote and the card must not read it`);
+      eq(r.tier, "none", `index: …and the card's refusal is the engine's own none tier`);
+      ok(!f.said, `index: …and a quoted row is never a counted comparison on ${r.key}`);
+    } else if (f.read) {
       checked++;
       eq(r.tier, f.tier, `index: the ${r.key} pattern tier matches the index row`);
       eq(r.patLabel, f.patLabel, `index: the ${r.key} pattern label matches the index row`);
@@ -667,11 +688,12 @@ section("11. agreement with the formal pattern index");
         `index: the ${r.key} index refused the row but the card claims a reading`);
       eq(r.tier, "none", `index: …and the card's refusal is the engine's own none tier`);
       ok(!!(f.why && f.why.id),
-        `index: …and the index's refusal on ${r.key} names which of the four cases it is`);
+        `index: …and the index's refusal on ${r.key} names which case it is`);
     }
   }
   ok(checked >= 5, `index: at least five read rows were compared (was ${checked})`);
-  ok(refused >= 1, `index: no refused row was compared (was ${refused})`);
+  ok(refused + quoted >= 1,
+    `index: no row the card refuses was compared (was ${refused + quoted})`);
 }
 
 // ══ 12. ARRIVAL ══════════════════════════════════════════════════════════════

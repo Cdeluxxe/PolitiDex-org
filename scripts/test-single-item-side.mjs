@@ -264,11 +264,20 @@ section("3 · the walls — depth was lowered, and meaning moved once, on purpos
   //
   //     What the wall became is a CEILING, and the ceiling is what is pinned here:
   //     the side is stated thin, the row says out loud that its vote reached the
-  //     issue sideways, the pattern engine still characterises nothing, and the
-  //     compare axis may carry it only at the confidence a thin record earns —
-  //     which is the same ladder section 4 pins for a primary-mapped single item,
-  //     not one coined for riders. Direction Match is untouched: it still needs a
-  //     stated position and a PRIMARY pair, and no percentage on it moves.
+  //     issue sideways, nothing promotes past thin, and the compare axis may carry
+  //     it only at the confidence a thin record earns — which is the same ladder
+  //     section 4 pins for a primary-mapped single item, not one coined for riders.
+  //     Direction Match is untouched: it still needs a stated position and a
+  //     PRIMARY pair, and no percentage on it moves.
+  //
+  //     THE WALL MOVED A SECOND TIME, on the same reasoning, and this fixture is
+  //     where the second move is visible: the pattern engine used to refuse to
+  //     CHARACTERISE a package-borne act even while the display lane published its
+  //     side, so a rider's row read one way on the profile and nothing at all in
+  //     the engine. That was the last place a PRIMARY count decided whether an act
+  //     could be read, and it is gone. The engine now characterises this act too —
+  //     at thin, which is all one vote can ever be — and the disclosure of how the
+  //     vote arrived travels beside the finding instead of standing in for it.
   {
     const w = stage({ a: [vote(3, K, "yea", { incidental: true })].concat(runOf(11, K2, "yea", 20)) });
     const row = (w.PDXConsistency.issueRows(A_PID) || []).filter((r) => r && r.key === K)[0];
@@ -292,9 +301,15 @@ section("3 · the walls — depth was lowered, and meaning moved once, on purpos
     eq(d.tier, "thin", "the display slot states the package-borne side above thin");
     eq(d.packageOnly, true, "…or does not flag the row as package-borne");
     has(d.note, "mainly about something else", "…or does not disclose how the vote arrived");
-    // The ceiling. Reading a rider is not characterising one.
+    // The ceiling. Characterising a rider is not promoting one: thin is where a
+    // single act stops, on this lane as on every other.
     const pt = w.PDXConsistency.recordPattern.tier(row);
-    ok(!pt || pt.tier === "none", "the pattern engine characterised a package-borne row");
+    must(!!pt, "the pattern engine returned nothing at all for a judged act");
+    eq(pt.tier, "thin", "the pattern engine refused to characterise a package-borne act");
+    eq(pt.packageOnly, true, "…or dropped the disclosure of how the vote arrived");
+    has(pt.note, "mainly about something else", "…or dropped the sentence that says it");
+    ok(!/Strongly|Mostly/.test(String(pt.label || "")),
+      "…or promoted one package-borne vote into a career pattern");
     const bd = w._calcAlignmentBreakdown(A_PID, { mode: "record" });
     const ax = ((bd && bd.issues) || []).filter((r) => r.key === K)[0];
     must(!!ax, "the package-borne row is not a live axis in the breakdown");
@@ -461,10 +476,18 @@ section("8 · the mutations — putting n = 1 back behind silence must break thi
 
   // M1 — the index: refuse the one-item read and go back to the characterisation
   // read alone. This is the exact line the whole change turns on.
+  //   _fpiRows now has a THIRD rung under this one — it quotes whatever the browse
+  // lane is already publishing for rows the pattern engine will not characterise —
+  // so "the characterisation read alone" means both of the lower rungs off, and the
+  // mutation takes both. Leaving the third in place would let the row read anyway
+  // and the mutation would prove nothing.
   const G1 = "if (one) { t = one; single = (one.judged || 0) === 1; }";
-  must(R("consistency.js").indexOf(G1) > 0,
+  const G1b = "if (pub) { t = pub; single = (pub.judged || 0) === 1; deferred = true; }";
+  must(R("consistency.js").indexOf(G1) > 0 && R("consistency.js").indexOf(G1b) > 0,
     "the one-item split in _fpiRows has moved — M1 can no longer be applied");
-  const m1 = mutant({ "consistency.js": (s) => s.replace(G1, "if (false) { t = one; }") },
+  const m1 = mutant({ "consistency.js": (s) => s
+      .replace(G1, "if (false) { t = one; }")
+      .replace(G1b, "if (false) { t = pub; }") },
     (w) => ({
       dir: (fpiRow(w, A_PID, K) || {}).directional,
       score: w._calcAlignmentScore(A_PID, { mode: "record" }),

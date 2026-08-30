@@ -406,9 +406,11 @@
 // The pack is a per-member blob built from the measure→issue mapping table. The
 // live /member/:id read is a query and reflects that table instantly; the pack was
 // a blob on a six-hour TTL, so after a mapping wave landed the two disagreed for
-// up to six hours — and they disagreed about `isPrimary`, which flips a published
-// "Thin supports" to "Not about this issue". Federal wave F4's housing PRIMARY
-// flip was live in Postgres while the pack still served isPrimary: false. The
+// up to six hours — and they disagreed about `isPrimary`, among other fields.
+// Federal wave F4's housing PRIMARY flip was live in Postgres while the pack still
+// served isPrimary: false. (That flag no longer decides whether a row may be read —
+// since August 2026 it words the package disclosure only — but a stale snapshot is
+// stale about acts, mappings and counts too, and those do move a published read.) The
 // server now puts a fingerprint of the mapping table in the blob key AND in the
 // pack URL (302 from /pack to /pack/m<n>-<hash>), so a mapping change makes the
 // URL different and the copy cached here is bypassed rather than served.

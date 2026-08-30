@@ -188,20 +188,21 @@ for (const x of READS) {
 }
 must(refusals > 5, `too few refusals swept to check the unread path (${refusals})`);
 
-// ── AND THE THIRD LEG: THE ROWS THE INDEX REFUSED AND THE TREE DID NOT ───────
-// The formal-pattern index and the stance tree do not ask the same question. The
-// index goes through the thin door (_stThinDirRead), which refuses a ledger that
-// ran both ways and refuses any tier but `thin`; the tree's Record slot reads the
-// display tier directly, so it labels those rows. A dossier that mirrors only the
-// index therefore printed a refusal under a leaf whose own chip carried a side —
-// "Not about this issue" beneath "Thin supports", or "ran both ways, too few to
-// weigh" beneath "Split". Whichever the reader saw last won.
-//   So the mirror has two sources in a fixed order: the index where the index
-// read, the tree where it did not. What is forbidden is the third state — a
-// characterisation on one surface and a refusal, or a different tier, on the
-// other.
+// ── AND THE THIRD LEG: THE THREE SURFACES CONVERGE, ROW FOR ROW ──────────────
+// The formal-pattern index, the stance tree and this dossier used to ask the same
+// question and get three different answers. The index went through the thin door
+// (_stThinDirRead), which refuses a ledger that ran both ways; the tree's Record
+// slot read the display tier directly, so it labelled those rows; and the dossier
+// mirrored the index. A reader met "ran both ways, too few to weigh" beneath a chip
+// saying "Split · 2 advanced · 1 against", and whichever they saw last won.
+//   The index now takes the same third rung the dossier does (_fpiPublishedRead), so
+// the deferral population is EMPTY BY CONSTRUCTION rather than merely consistent:
+// every row the tree publishes a tier for is read by the index and by the dossier,
+// at the same tier. That is what is asserted here — the old counter looked for rows
+// where the dossier read and the index refused, and finding none of those is the
+// fix, not a stale probe.
 const split = [];
-let deferred = 0;
+let agree = 0;
 for (const x of READS) {
   const pub = x.tree && x.tree.tier && x.tree.tier !== "none" ? x.tree.tier : null;
   if (!pub) continue;
@@ -210,12 +211,17 @@ for (const x of READS) {
     continue;
   }
   if (x.d.tier !== pub) split.push(`${x.pid}/${x.key}: dossier ${x.d.tier} vs tree ${pub}`);
-  if (!x.fpi || !x.fpi.read) deferred++;
+  if (!x.fpi || !x.fpi.read) {
+    split.push(`${x.pid}/${x.key}: tree and dossier read ${pub}, formal index still refuses`);
+    continue;
+  }
+  if (x.fpi.tier !== pub) split.push(`${x.pid}/${x.key}: index ${x.fpi.tier} vs tree ${pub}`);
+  agree++;
 }
-eq(split.length, 0, `the dossier never contradicts the tree's published read — ` +
+eq(split.length, 0, `index, tree and dossier print one answer per row — ` +
   split.slice(0, 3).join(" | "));
-must(deferred > 0, "no row in the sweep exercised the deferral to the tree's read");
-console.log(`      ${deferred} reads deferred to the tree where the index refused`);
+must(agree > 100, `too few published rows swept to prove the convergence (${agree})`);
+console.log(`      ${agree} rows read at the same tier on all three surfaces`);
 
 // And the side word is drawn from the locked vocabulary, never composed here.
 const strays = REEDS.filter((x) => x.d.says && !SAY_LABELS.has(x.d.says));

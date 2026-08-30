@@ -3299,7 +3299,10 @@
     p = p || {};
     var L = window.PDXFinanceLane;
     var finSig = (typeof window._pdxFinanceSignal === 'function') ? window._pdxFinanceSignal(id) : null;
-    var entry = (L && typeof L.entryHtml === 'function') ? L.entryHtml(id) : '';
+    // `p` is handed through so the entry row's empty state can name the archive
+    // the missing filing would have come from — the lane derives that from the
+    // office/state fields, and this is the surface that already holds them.
+    var entry = (L && typeof L.entryHtml === 'function') ? L.entryHtml(id, p) : '';
     if (!finSig) {
       // No filing. One calm row, no chart of zeroes, and no section chrome that
       // implies a finding is being withheld.

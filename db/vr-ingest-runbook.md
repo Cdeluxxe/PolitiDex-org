@@ -938,6 +938,24 @@ depth — 428 more judged votes standing behind positions that previously rested
    Calendar under General Orders since 2025-12-08 without a vote. There is nothing to attribute,
    so the remedy is a future standalone contested Senate instrument on the key — never a fifth
    secondary, which would only deepen the same wall.
+
+   > **SUPERSEDED IN PART, 2026-08-30 — the wall this rule is about no longer exists.**
+   > `_RD_MIN_PRIMARY` has been removed from every tier condition in `stance-helpers.js`. It
+   > survives only as the term that words the package sentence, so a `(member, issue)` row with
+   > judged acts is now characterised whether or not any of those acts was PRIMARY-mapped, and
+   > the reason id `incidental` — "Not about this issue" — is deleted from `_fpiUnreadWhy`
+   > outright. The four CRA disapprovals in this rule would today read **Mostly/Strongly**, with
+   > "mainly about something else" printed beside the finding rather than in place of it. See
+   > `scripts/test-characterise-every-act.mjs`.
+   >
+   > **What survives, and it is most of the rule.** Do not lower a floor for convenience — the
+   > depth and dominance floors (`_RD_MIN_JUDGED`, `_RD_DOMINANCE`, `_RD_SPLIT_MIN_JUDGED`) are
+   > untouched and still decide the tier. Do not weaken a mapping to protect an index number.
+   > Census the key before reaching for a new instrument. And the two corollaries stand on their
+   > own: an enacted law with no attributed roll call anywhere is a defect on its face, and a
+   > measure whose `chamber` does not appear among its own roll calls is almost always an ingest
+   > gap. Supplying a reachable PRIMARY act is still the better record — it is simply no longer
+   > the difference between a row that reads and a row that does not.
 31. **A reserve fund, a point of order and a sense-of-the-Senate are not acts. Refuse the
    vote-a-rama amendment class on the instrument, before you ever look at its subject.**
    `S.Amdt. 2126` (Sanders) to `H.Con.Res. 14` is the trap in its most tempting form: contested

@@ -218,7 +218,11 @@ const L = laneBox();
   const empty = L.letterheadChipHtml(EMPTY_PID);
   ok(empty.length > 40, "the empty chip renders — it is never nothing");
   eq(L.chipRead(EMPTY_PID).state, "empty", "an id with no record reads as `empty`");
-  has(empty, "No money file yet", "the absent state is WORDS, not a colour");
+  // "Yet" described a queue that does not exist — it told a reader the file was on
+  // its way when for most of this roster nobody has looked and no ingest is
+  // scheduled to look. "On hand" states only what PolitiDex is holding.
+  has(empty, "No money file on hand", "the absent state is WORDS, not a colour");
+  lacks(empty, "No money file yet", "…and does not promise a file that is not queued");
 
   // THE CENTRAL ASSERTION OF THIS FILE, and it needs one clarification about what
   // "identical" can honestly mean here. Lee's chip prints four facts and the empty
@@ -295,10 +299,26 @@ const L = laneBox();
     }
     return out;
   };
-  for (const family of ["pdx-fchip", "pdx-fund-base", "cmp-fund-base"]) {
+  // `pdx-fund-base` is now in the second column: the profile money section leads
+  // with PDXFinanceLane.countsHtml (counts, no level), so nothing emits the
+  // donor-mix pill and both its markup and its CSS are deleted. A class family
+  // that does not exist is a STRONGER guarantee than one painted identically at
+  // three levels — there is no rule left for a future edit to differentiate. So
+  // the assertion is: either the family is gone, or every level it still has
+  // paints the same, from the money token.
+  const RAMP_FAMILIES = ["pdx-fchip", "cmp-fund-base"];
+  const RETIRED_FAMILIES = ["pdx-fund-base"];
+  for (const family of RAMP_FAMILIES.concat(RETIRED_FAMILIES)) {
     const grass = declsFor(`${family}\\.is-grass`);
     const mixed = declsFor(`${family}\\.is-mixed`);
     const big = declsFor(`${family}\\.is-big`);
+    if (RETIRED_FAMILIES.includes(family)) {
+      eq(grass.length + mixed.length + big.length, 0,
+        `.${family} is retired: no level of it resolves to any rule at all`);
+      lacks(stripJs(INDEX), `${family} `,
+        `…and index.html emits no ${family} pill for the counts lead to sit beside`);
+      continue;
+    }
     ok(grass.length > 0, `.${family}.is-grass still resolves to a rule`);
     eq(JSON.stringify(grass), JSON.stringify(mixed),
       `.${family}: grassroots and mixed are painted identically`);
@@ -308,6 +328,21 @@ const L = laneBox();
       has(d, "--pdx-money-", `.${family}'s one rule takes its colour from the money token`);
     }
   }
+
+  // The retired SIZE TIER, on the same terms. "Large war chest" / "Modest war
+  // chest" ranked a dollar figure that the tile beside it printed in full.
+  // Scoped to the renderer, not to the whole file: one candidate's `whyItMatters`
+  // prose calls a rival's fundraising "incumbent war chests", which is record
+  // narrative quoting a filing's context rather than a tier this lane assigns.
+  const sectAt = INDEX.indexOf("window._pdxFundingSection = function");
+  if (sectAt < 0) die("_pdxFundingSection is no longer in index.html");
+  const sectFn = stripJs(INDEX.slice(sectAt, INDEX.indexOf("\n    };", sectAt)));
+  for (const dead of ["pdx-fund-scale", "war chest", "pdx-fund-baserow", "_pdxFundWord("]) {
+    lacks(APP, dead, `app.css carries no ${dead} rule`);
+    lacks(sectFn, dead, `the profile money section emits no ${dead}`);
+  }
+  // …and the counts lead is what took their place.
+  has(sectFn, "PDXFinanceLane.countsHtml", "the money section leads with the counts read");
 
   // The glyph ramp behind the colour ramp. 🌱 / ⚖️ / 🏦 was the same three-step
   // judgement drawn in pictures, and the ⚖️ in the middle was Word vs Action's

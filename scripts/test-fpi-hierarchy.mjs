@@ -320,7 +320,7 @@ section("4 · the census survived the move");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("5 · six refusals, six sentences");
+section("5 · every judged row reads; the refusals left are about the issue");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   // (a) MATERIAL EXISTS ONLY AS PACKAGE-BORNE PROVISIONS, AND IT ALL WENT ONE WAY.
@@ -399,31 +399,47 @@ section("5 · six refusals, six sentences");
   has(pkgD.note, "counted in full",
     "…and says out loud that the acts are counted in full");
 
-  // (a2) THE SAME SHAPE THAT RAN BOTH WAYS IS STILL THE REFUSAL, and still owns
-  //      the locked menu sentence. Uniform is the door; this row gains nothing.
+  // (a2) THE SAME SHAPE THAT RAN BOTH WAYS IS SPLIT, NOT A REFUSAL. It used to be
+  //      the "Only tested as a provision inside larger packages" rung, and that
+  //      rung is gone: it was a well-worded refusal printed over three dated,
+  //      sourced votes while the stance tree on the same profile printed Split with
+  //      the two counts. A row holding judged acts always characterises itself now,
+  //      whatever the primary flag on its bills says.
+  //      THE MENU FACT IT CARRIED IS NOT LOST — it moved from the position of an
+  //      answer to the position of a caveat. _menuContext still returns
+  //      `provision_only` with the locked phrase and the wall sentence for exactly
+  //      this row, and the dossier mounts it beside the finding; the row's own 🚂
+  //      line and package note say the same thing one surface up. Asserted below,
+  //      because "the fact survived somewhere" is the claim that makes this a move
+  //      rather than a deletion.
   const pkgm = ROWS.filter((x) => x.key === PKGMIX)[0];
   must(pkgm, "the mixed package fixture produced no row at all");
   eq(A._pdxRecordVehicleStats(PID, PKGMIX).only, true,
     "the stowaway detector says every instrument here was a provision too");
-  eq(pkgm.why && pkgm.why.id, "vehicle_only",
-    "…and the row says so, rather than calling the record incidental");
-  // The locked menu phrasing (consistency.js, _MENU.provision_only): the claim is
-  // about the chances that existed, not about how the member's record "carried".
-  eq(pkgm.why.lb, "Only tested as a provision inside larger packages",
-    "the package refusal has its own words");
-  eq(pkgm.why.menu, "provision_only", "…and tags itself as a menu fact, not a verdict");
-  has(pkgm.why.note, "not what the member chose to do",
-    "…and carries the wall that keeps a floor fact off the member");
-  has(pkgm.why.note, "a package is not a position on everything inside it",
-    "…and explains why no direction follows from one");
-  ok(!pkgm.tier || pkgm.tier === "unread", `the mixed package row claims no tier (${pkgm.tier})`);
-  eq(pkgm.read, false, "…and is unread, not a read with no answer");
-  eq(pkgm.vehicle, null,
-    "the directional 🚂 disclosure stays off a row that claims no direction");
-  ["supports", "opposes", "advanc", "leans"].forEach((w) => {
-    lacks(pkgm.why.lb + " " + pkgm.why.note, w,
-      `the package refusal borrows no direction word ("${w}")`);
+  eq(pkgm.why, null, "a row holding judged acts carries no refusal reason at all");
+  eq(pkgm.tier, "split", "…it reads Split, the engine's word for a record that ran both ways");
+  eq(pkgm.read, true, "…and reports itself read rather than refusing over real votes");
+  eq(pkgm.deferred, true,
+    "…flagged as quoted from the browse lane, which is what keeps it out of every score");
+  eq(pkgm.directional, false, "…and claims no direction, because a split has no side");
+  ok(pkgm.counts && /advanced/.test(pkgm.counts) && /against/.test(pkgm.counts),
+    `…and prints the two counts, which are the whole claim (${JSON.stringify(pkgm.counts)})`);
+  ["supports", "opposes", "leans"].forEach((w) => {
+    lacks(pkgm.patLabel, w, `the split label borrows no direction word ("${w}")`);
   });
+  // THE LOCKED MENU SENTENCE, ON THE SURFACE THAT OWNS IT NOW.
+  const pkgmMenu = A.PDXConsistency.menu.context(PID, PKGMIX) || {};
+  eq(pkgmMenu.state, "provision_only",
+    "the menu block still says every chance to act here was a package");
+  eq(pkgmMenu.lb, "Only tested as a provision inside larger packages",
+    "…in the locked words the refusal used to print");
+  has(pkgmMenu.note, "not what the member chose to do",
+    "…and carries the wall that keeps a floor fact off the member");
+  // AND THE 🚂 DISCLOSURE IS ON THE ROW NOW, because there is a finding to disclose
+  // beside. This is the field that was null while the row was refused.
+  ok(pkgm.vehicle && pkgm.vehicle.stowaway,
+    "the 🚂 disclosure rides on the row that now reads");
+  eq(pkgm.vehicle.only, true, "…and still says every instrument was a provision");
 
   // (b) MATERIAL EXISTS BUT NOBODY TOOK A SIDE.
   const none = ROWS.filter((x) => x.key === NOSIDE[0])[0];

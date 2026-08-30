@@ -2142,7 +2142,17 @@
             var conf = _alignPatConfLock(_ALIGN_PAT_CONF)[x.tier];
             // FAIL CLOSED: unread lane, no readable pole, or a tier this does
             // not know is not a side. It is an issue we say nothing about.
-            if (!x.read || !side || !conf) return;
+            //   `deferred` IS THE FOURTH WALL, and it is the same wall as the other
+            // three. The index now prints a characterisation on every row holding
+            // judged acts — including the shallow splits and the package-borne rows
+            // it used to refuse outright — because a refusal over three dated,
+            // sourced votes is a worse answer than "Split · 2 advanced · 1 against".
+            // None of that is a side, and the match takes sides. A row flagged
+            // `deferred` was read by quoting the browse lane, which characterises
+            // nothing and scores nothing; the two doors into this map are still the
+            // characterisation engine and the uniform thin door, on unchanged
+            // floors. See the wall over `deferred` in consistency.js _fpiRows.
+            if (!x.read || x.deferred || !side || !conf) return;
             out.read++;
             out.sides[x.key] = {
               side: side, tier: x.tier, tone: x.tone, conf: conf,

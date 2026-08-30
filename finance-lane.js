@@ -268,11 +268,12 @@
     };
   }
 
+  // One lookup for the whole lane. read() used to inline its own `_FTM_BY_ID` dip,
+  // which is how it and recordFor() could ever have disagreed about whether a
+  // person has a file; both now go through the one door above.
   function read(pid) {
     if (!pid) return null;
-    var rec = null;
-    var by = W._FTM_BY_ID;
-    if (by && by[pid]) rec = by[pid];
+    var rec = recordFor(pid);
     if (!rec) return null;
     return compose(rec, { asOf: W.FTM_AS_OF || '' });
   }
@@ -350,6 +351,146 @@
     '</div>';
   }
 
+  // ── THE SOURCE GAP, NAMED ──────────────────────────────────────────────────
+  // "No money file on hand" is honest and still incomplete. It says the shelf is
+  // empty without saying WHICH ARCHIVE the file would have come from, and a reader
+  // cannot tell these three apart from the blank alone:
+  //
+  //     the FEC publishes this filing and PolitiDex has not read it yet
+  //     the filing sits in Utah's state system, which has no API to read it from
+  //     no disclosure source is open for this office at all
+  //
+  // Those are different facts about the gap, and only the third one is close to
+  // "there may be nothing to find". Naming the authority converts a blank from a
+  // hint about the person into a task on our side of the line.
+  //
+  // DERIVED FROM THE OFFICE STRING, AND FROM NOTHING ELSE. This function invents no
+  // filing, no donor, no committee and no figure. It reads `office` / `state` off
+  // the roster record — the same two fields the profile header prints — and returns
+  // the name of the archive that would hold the document. Where PolitiDex has no
+  // source open it says exactly that, rather than naming an archive it has not
+  // looked in, because "search the FEC" printed under a county council seat is a
+  // false lead dressed as a citation.
+  var FEDERAL_RE = /president|u\.?\s?s\.?\s*(senator|senate|rep\b|representative|congress)|congress(man|woman|person)?\b|house of representatives/i;
+
+  function rosterRec(pid) {
+    var src = W.CMP_DATA || W.PROFILES;
+    return (src && pid && src[pid]) ? src[pid] : null;
+  }
+  function fieldOf(pid, p, key) {
+    if (p && p[key]) return String(p[key]);
+    var rec = rosterRec(pid);
+    return (rec && rec[key]) ? String(rec[key]) : '';
+  }
+
+  // { authority, url, line } — one line, ready to print inside the lane.
+  function sourceGap(pid, p) {
+    var office = fieldOf(pid, p, 'office');
+    var state = fieldOf(pid, p, 'state');
+    if (FEDERAL_RE.test(office)) {
+      return {
+        authority: 'FEC',
+        url: 'https://www.fec.gov/data/candidates/',
+        line: 'Source gap — this is a federal office, so the filings are public at the ' +
+              'FEC and PolitiDex has not opened a file from them for this person.'
+      };
+    }
+    if (/utah/i.test(state) || /utah/i.test(office)) {
+      return {
+        authority: 'Utah state disclosures',
+        url: 'https://disclosures.utah.gov/Search/PublicSearch',
+        line: 'Source gap — this is a Utah state or local office, so the filings sit in ' +
+              'Utah’s state disclosure system, which publishes no API to read them from. ' +
+              'A curator has not transcribed this one.'
+      };
+    }
+    return {
+      authority: 'none opened',
+      url: '',
+      line: 'Source gap — PolitiDex has no disclosure source open for this office' +
+            (state ? ' in ' + esc(state) : '') + ' yet, so no filing has been looked for. ' +
+            'This is an unopened archive, not a search that came back empty.'
+    };
+  }
+
+  // The one-line rendering of the above, for the empty state of any money surface.
+  function sourceGapHtml(pid, p) {
+    var g = sourceGap(pid, p);
+    return '<p style="font-family:\'Barlow\',sans-serif;font-size:0.66rem;color:' + THEME.text +
+      ';line-height:1.5;margin:0.35rem 0 0;">' + esc(g.line) +
+      (g.url ? ' <a href="' + attr(g.url) + '" target="_blank" rel="noopener noreferrer" ' +
+        'onclick="event.stopPropagation();" style="color:' + THEME.ink + ';white-space:nowrap;">' +
+        esc(g.authority) + ' ↗</a>' : '') +
+    '</p>';
+  }
+
+  // ── THE COUNTS LEAD ────────────────────────────────────────────────────────
+  // What a person WITH a file leads with. The money section used to open on a pill
+  // reading "Grassroots · 38% small-dollar" beside a "Large war chest" tag, which is
+  // the retired Constituents-First grade wearing prose: three donor-mix levels, a
+  // three-step size tier, and a 0–100 figure sitting on the first line of the lane.
+  //
+  // This is counts instead. How many reported sources the filing breaks into, how
+  // many industry sectors are named in it, and what the candidate put in from their
+  // own pocket — each one a quantity a reader can go and check against the linked
+  // document, none of them a level. The shares still exist and are still published;
+  // they live one block down in compositionHtml(), attached to the bucket they are a
+  // share OF, which is the only place a percentage on this lane is a composition
+  // rather than a grade.
+  //
+  // IN-STATE VS OUT-OF-STATE IS NOT HERE, AND SAYS SO. It is the count a reader most
+  // wants and the FTM records do not carry donor geography at all. Deriving it would
+  // mean inventing it, so the row names it as a gap in what we hold. An absent count
+  // that is labelled absent costs a reader nothing; one that is quietly approximated
+  // costs them the ability to trust the three beside it.
+  function countsHtml(c, rec) {
+    if (!c) return '';
+    rec = rec || {};
+    var sectors = (rec.sectors && typeof rec.sectors === 'object')
+      ? Object.keys(rec.sectors).length : 0;
+    var donors = (rec.topDonors && rec.topDonors.length) ? rec.topDonors.length : 0;
+    var self = num(c.amounts && c.amounts.selfFunded);
+
+    var items = [
+      { k: 'Reported sources', v: String(c.rows.length),
+        n: 'buckets the filing breaks into' },
+      { k: 'Named contributors', v: donors ? String(donors) : 'none itemized',
+        n: donors ? 'listed on the filing' : 'no donor list in what we hold' },
+      { k: 'Industry sectors', v: sectors ? String(sectors) : 'none itemized',
+        n: sectors ? 'named in the filing' : 'no sector breakdown on file' },
+      { k: 'Candidate self-funding', v: self ? money(self) : 'none reported',
+        n: self ? 'from their own pocket' : 'nothing from their own pocket' }
+    ];
+    var cells = items.map(function (it) {
+      return '<div style="min-width:0;">' +
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.09em;' +
+          'text-transform:uppercase;color:' + THEME.line + ';">' + esc(it.k) + '</div>' +
+        '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:0.03em;color:' +
+          THEME.ink + ';line-height:1.2;">' + esc(it.v) + '</div>' +
+        '<div style="font-family:\'Barlow\',sans-serif;font-size:0.6rem;color:#8fa8bd;line-height:1.35;">' +
+          esc(it.n) + '</div>' +
+      '</div>';
+    }).join('');
+
+    return '<div style="background:' + THEME.fill + ';border:1px solid ' + THEME.lineSoft +
+        ';border-radius:0.625rem;padding:0.7rem 0.8rem;margin-bottom:0.75rem;">' +
+      '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.56rem;letter-spacing:0.1em;' +
+        'text-transform:uppercase;color:' + THEME.line + ';margin-bottom:0.5rem;">' +
+        '💰 What the filing is made of' + (c.cycle ? ' · ' + esc(c.cycle) + ' cycle' : '') +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:0.6rem 0.8rem;">' +
+        cells +
+      '</div>' +
+      '<p style="font-family:\'Barlow\',sans-serif;font-size:0.62rem;color:#8fa8bd;line-height:1.5;' +
+        'margin:0.55rem 0 0;padding-top:0.45rem;border-top:1px solid rgba(255,255,255,0.06);">' +
+        'Counts as filed, not a rating — there is no total here and nothing is compared to ' +
+        'another person. In-state vs out-of-state giving is not shown because the records ' +
+        'PolitiDex holds carry no donor geography; it is missing from our copy of the filing ' +
+        'rather than absent from the filing.' +
+      '</p>' +
+    '</div>';
+  }
+
   // ── THE REACHABILITY ROW ───────────────────────────────────────────────────
   // The old money section rendered nothing at all for the 744 people with no
   // filing, which left a reader unable to tell "checked, nothing concentrated" from
@@ -364,17 +505,21 @@
   // states now take the identical money pair: forest fill, gold left edge, gold
   // dollar marks. What differs is the sentence inside, which is the only thing
   // entitled to differ.
-  function entryHtml(pid) {
+  function entryHtml(pid, p) {
     var c = read(pid), cov = coverage();
     var box = 'background:' + THEME.fill + ';border:1px solid ' + THEME.lineSoft +
       ';border-left:3px solid ' + THEME.line + ';border-radius:0.55rem;padding:0.6rem 0.75rem;margin:0.5rem 0;';
     var head = '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:' + THEME.ink + ';">' +
       '<span style="color:' + THEME.line + ';">\ud83d\udcb0</span> Campaign finance \u2014 disclosure lane</span>';
     if (!c) {
+      // The blank, plus the archive the file would have come from. Without that
+      // second line the row states an absence and stops, and an absence with no
+      // named cause is the thing a reader fills in themselves.
       return '<div style="' + box + '">' + head +
         '<p style="font-family:\'Barlow\',sans-serif;font-size:0.7rem;color:' + THEME.text + ';line-height:1.55;margin:0.3rem 0 0;">' +
-          '<strong style="color:#dbe6f6;">No itemized filing on file.</strong> ' + esc(cov.sentence) +
+          '<strong style="color:#dbe6f6;">No money file on hand.</strong> ' + esc(cov.sentence) +
         '</p>' +
+        sourceGapHtml(pid, p) +
       '</div>';
     }
     var lead = c.largest
@@ -441,8 +586,26 @@
   // from read(), which reports null both for "no file" and for "a file we cannot
   // compose a base out of". Telling those two apart is what makes an honest
   // partial state possible instead of filing a thin record under "nothing here".
+  //   THE LOOKUP ORDER IS THE BUG THIS FILE WAS SHIPPING. recordFor() used to read
+  // `W._FTM_BY_ID` and nothing else. That index is built inside index.html's
+  // Follow-the-Money IIFE, so `var _FTM_BY_ID` is a CLOSURE variable and never
+  // reaches `window` — which means the lookup returned null in every browser, for
+  // every person, including the ones with a filing. The visible result was a
+  // letterhead reading "No money file" directly above a money section drawing the
+  // full $8.6M composition (that section reads `window._pdxFinanceSignal`, which IS
+  // exposed), and a coverage sentence that counted 0 filings out of 800 instead of
+  // 13. Two surfaces disagreeing about whether a filing exists is worse than either
+  // answer alone, and the one that was wrong was the one on the first screen.
+  //   `_pdxFinanceFiling(pid)` is the published accessor and is tried first: it
+  // hands back a shallow copy, so a display module cannot mutate the shipped record
+  // it is reporting. The bare `_FTM_BY_ID` lookup stays as the second seam, because
+  // that is where the fences and any future ingest attach their own index.
   function recordFor(pid) {
     if (!pid) return null;
+    var get = W._pdxFinanceFiling;
+    if (typeof get === 'function') {
+      try { var r = get(pid); if (r) return r; } catch (e) {}
+    }
     var by = W._FTM_BY_ID;
     return (by && by[pid]) ? by[pid] : null;
   }
@@ -492,29 +655,50 @@
   // highlights. Kept as data rather than baked into a string so the one-line rule
   // is inspectable — a chip is allowed a figure and up to three highlights, and a
   // fourth highlight is a strip that has not admitted it yet.
+  //   THE CHIP CARRIES COUNTS, NOT A SHARE. The on-file chip used to read
+  // "$8.6M · 38% small-dollar · top pile: Large individual · 13 of 757 filed". That
+  // 38% was the one thing on it that could be mistaken for a reading of the person:
+  // a bare 0–100 about someone, sitting on the first screen inches from ⚖️ Word vs
+  // Action's percentage and Your Match's percentage, with nothing in the pill's own
+  // width to say which of the three grammars it belonged to. A share of a
+  // composition is still composition — but only where the bucket it is a share OF is
+  // printed beside it, which is true in the section below and cannot be true in a
+  // pill. So the chip answers how much / who / how well disclosed, all as counts,
+  // and the percentages stay attached to their buckets one jump away.
+  //   The old "same pile twice" dedupe went with the share. It existed because
+  // "70% small-dollar · top pile: Small-dollar" restated its own previous segment;
+  // with no share segment there is nothing for the top source to restate, so a
+  // small-dollar-led filing now names its largest source like every other filing.
   function chipSegments(cr) {
     var segs = [];
     if (cr.state === 'file') {
       var c = cr.composition;
+      // How much — the itemized base, the same base every share in the section is
+      // taken over, so the chip and the section are answers about one filing.
       segs.push({ fig: true, text: c.receiptsFmt });
-      segs.push({ fig: false, text: c.shares.smallDollar + '% small-dollar' });
-      // The top pile, EXCEPT when it is the pile the segment above just named.
-      // "70% small-dollar · top pile: Small-dollar" spends a third of the chip
-      // restating its own second segment, and a chip this size cannot afford a
-      // highlight that adds nothing. The section below still names the largest
-      // reported source in every case.
-      if (c.largest && !(c.largest.key === 'smallDollar' && !c.largestTied)) {
+      // Who — the largest reported source, named, and how many sources there are.
+      // "Largest" is a fact about a sorted list, and a count is a count.
+      segs.push({ fig: false, text: c.rows.length + ' source' + (c.rows.length === 1 ? '' : 's') });
+      if (c.largest) {
         segs.push({ fig: false, text: c.largestTied
-          ? 'top pile: tied'
-          : ('top pile: ' + c.largest.short) });
+          ? 'top source: tied'
+          : ('top source: ' + c.largest.short) });
       }
+      // Disclosure — the coverage counts, so the figure above arrives already
+      // framed by how much of the roster this lane can speak about at all.
       var tag = coverageTag(cr.coverage);
       if (tag) segs.push({ fig: false, text: tag });
     } else if (cr.state === 'thin') {
-      segs.push({ fig: true, text: 'Partial file' });
-      segs.push({ fig: false, text: cr.items + ' item' + (cr.items === 1 ? '' : 's') });
+      segs.push({ fig: true, text: 'Partial money file' });
+      segs.push({ fig: false, text: cr.items + ' item' + (cr.items === 1 ? '' : 's') + ', no composition' });
     } else {
-      segs.push({ fig: true, text: 'No money file yet' });
+      // "No money file YET" was the wrong word and it was doing real work. "Yet"
+      // describes a queue: it tells a reader the file is coming, which implies
+      // somebody looked and found the archive still loading. For most of this
+      // roster nobody has looked, and there is no ingest scheduled to look. "On
+      // hand" states the only thing we can stand behind — what PolitiDex is
+      // holding — and leaves the reason to the source-gap line in the lane itself.
+      segs.push({ fig: true, text: 'No money file on hand' });
     }
     return segs;
   }
@@ -530,17 +714,22 @@
         ? (c.largestTied ? 'Largest reported source tied. '
                          : ('Largest reported source: ' + c.largest.label + '. '))
         : '';
+      // Counts here too, matching the visible pill word for word. A screen reader
+      // hearing a percentage the sighted chip no longer prints would be getting a
+      // different lane, and the longer form is not a licence to say more than the
+      // surface it names — only to say it more fully.
       return c.receiptsFmt + ' in itemized receipts' + (c.cycle ? ', ' + c.cycle + ' cycle' : '') +
-        '. ' + c.shares.smallDollar + '% small-dollar. ' + top +
-        'Open the money section on this file for the full composition.';
+        ' across ' + c.rows.length + ' reported source' + (c.rows.length === 1 ? '' : 's') + '. ' + top +
+        'Open the money section on this file for the full composition, bucket by bucket.';
     }
     if (cr.state === 'thin') {
       return 'Partial money file — ' + cr.items + ' reported item' +
         (cr.items === 1 ? '' : 's') + ' and no itemized composition. ' +
         (cov.sentence || '') + ' Open the money section on this file.';
     }
-    return 'No money file on record for this person yet. ' + (cov.sentence || '') +
-      ' Open the money section on this file, which says the same in full.';
+    return 'No money file on hand for this person. ' + (cov.sentence || '') +
+      ' Open the money section on this file, which names the disclosure source the ' +
+      'filing would have come from.';
   }
 
   // ── MOUNT-THEN-JUMP ────────────────────────────────────────────────────────
@@ -669,6 +858,18 @@
     compose: compose, read: read,
     coverage: coverage, coverageHtml: coverageHtml,
     compositionHtml: compositionHtml, entryHtml: entryHtml,
+    // ── The two reads the person file's money section leads with ─────────────
+    // countsHtml(read, ftmRecord) is the ON-FILE lead: reported sources, named
+    // contributors, industry sectors and self-funding, as counts. It replaced a
+    // pill reading "Grassroots · 38% small-dollar" beside a "Large war chest"
+    // tag, which was the retired grade's three donor-mix levels and a size tier
+    // rewritten as prose. sourceGap(pid, p) / sourceGapHtml(pid, p) are the
+    // OFF-FILE lead: which archive the missing filing would have come from —
+    // 'FEC', 'Utah state disclosures', or 'none opened' when PolitiDex has no
+    // source open for that office. Derived from the office string alone; it
+    // invents no filing, no donor and no figure.
+    countsHtml: countsHtml,
+    sourceGap: sourceGap, sourceGapHtml: sourceGapHtml,
     // ── The letterhead chip: the person file's compact money door ────────────
     // letterheadChipMount(pid) is what a letterhead wants — host + markup, and
     // it renders on EVERY profile including the ones with nothing on file, which
