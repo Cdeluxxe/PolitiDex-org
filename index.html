@@ -3338,11 +3338,64 @@ window.PDXLazy = (function () {
       </head>
 <body class="bg-navy-900 text-white font-body">
 
-  <!-- App-shell layout-stability hardening (pdx-stability.js). FIRST script in
-       <body> on purpose: it installs the shared scroll-lock coordinator on
-       document.body.style, and that seam has to exist before any feature module
-       can open a modal and set `body.style.overflow`. Tiny, no UI, no feature
-       behaviour — see the header comment in the file for what it fixes. -->
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       THE CRAWL HEADER BELONGS TO THIS ADDRESS, OR IT SAYS NOTHING.
+
+       share-preview.ts injects a per-person header immediately after this <body>
+       tag, so on a /p/<pid> document the node above this script is already in the
+       DOM and is the FIRST thing the page paints. Which is why this guard is
+       inline, parser-blocking, and sits here rather than in person-file.js (which
+       is deferred and runs ~18,000 lines later, long after that paint).
+
+       THE DEFECT IT EXISTS TO STOP, as it shipped: /p/khanna printed "U.S.
+       Senator · Utah" and Mike Lee's formal-record rows in its first HTML, then
+       flipped to Ro Khanna once the roster loaded. The document was Lee's — the
+       service worker was caching every person document under the single '/' shell
+       key and serving the last one written for every subsequent address (fixed in
+       sw.js's handleNavigate, which now keys a document by the address it was
+       generated at). A unique URL that paints another member's record is worse
+       than a duplicate page: Google and a slow phone both read the wrong person.
+
+       So the document proves its own identity before it is believed. The edge
+       stamps data-pdx-crawl-for with the ADDRESS it generated the block at, which
+       needs no alias table to compare — /p/mike_lee stamps "/p/mike_lee" and
+       carries data-pid="lee", and both are true. If the stamp is not this URL, the
+       header is a cache artifact and nothing in it is known to be about this
+       address, so it is emptied down to the same generic wording an unresolved pid
+       gets: no name, no office, no state, and ZERO issue rows. Never another
+       member's, and never the homepage's.
+
+       It computes nothing, reads no data, and fails silent: a throw here must not
+       cost the page its boot.
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <script>
+  (function(){
+    try{
+      var el=document.getElementById('pdx-crawl-person');
+      if(!el) return;
+      var m=String(location.pathname||'').match(/^\/p\/([A-Za-z0-9_]+)\/?$/);
+      var here=m?'/p/'+m[1]:'';
+      var stamp=el.getAttribute('data-pdx-crawl-for')||'';
+      if(here&&stamp===here) return;              // the block was written for this address
+      if(el.hasAttribute('data-pdx-crawl-generic')&&!el.getAttribute('data-pid')) return;
+      el.removeAttribute('data-pid');
+      el.setAttribute('data-pdx-crawl-generic','');
+      el.setAttribute('data-pdx-crawl-for',here);
+      el.innerHTML='<h1>Person file</h1>'+
+        '<p>Person file \u00b7 record still loading</p>'+
+        '<p>This address names a person file on PolitiDex. If the file does not open, PolitiDex holds no record under this id.</p>'+
+        '<p><a href="/">Go to PolitiDex</a></p>';
+    }catch(e){}
+  })();
+  </script>
+
+  <!-- App-shell layout-stability hardening (pdx-stability.js). The first script
+       FILE in <body> on purpose (the inline crawl-header guard above it loads
+       nothing and touches nothing else): it installs the shared scroll-lock
+       coordinator on document.body.style, and that seam has to exist before any
+       feature module can open a modal and set `body.style.overflow`. Tiny, no UI,
+       no feature behaviour — see the header comment in the file for what it
+       fixes. -->
   <script src="/pdx-stability.js"></script>
 
   <!-- ═══════════════════════════════════════════ NAV ══════ -->

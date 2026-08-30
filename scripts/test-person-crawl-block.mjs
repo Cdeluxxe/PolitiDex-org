@@ -377,7 +377,10 @@ section("4 · one person, one document — whichever spelling arrived");
   has(alias.html, '<meta property="og:url" content="https://www.politidex.fyi/p/lee"', "…including og:url");
   has(alias.html, "<h1>Mike Lee</h1>", "…and names the same person in the crawl block");
   has(alias.html, 'data-pid="lee"', "…under the canonical pid, not the one that was typed");
-  hasnt(blockOf(alias.html), "mike_lee", "the block never advertises the alias as an address");
+  has(alias.html, 'data-pdx-crawl-for="/p/mike_lee"',
+    "…and stamps the ADDRESS it was generated at, which is the alias the reader arrived on");
+  hasnt(blockOf(alias.html), 'href="https://www.politidex.fyi/p/mike_lee"',
+    "the block never advertises the alias as an address to open");
 
   // Same for the retirement case, which is the one where a stray document under
   // the retired key used to open as a second current file for one seat.
@@ -388,9 +391,20 @@ section("4 · one person, one document — whichever spelling arrived");
   has(chew.html, "<h1>Scott Chew</h1>", "…and names one Scott Chew");
   has(chew.html, 'data-pid="chew_h68"', "…under the roster id that holds the formal file");
 
-  // Two spellings, one document: the crawl blocks are identical strings.
+  // Two spellings, one record: the crawl blocks are identical strings apart from
+  // the ADDRESS STAMP, which is by design the one thing that must differ. data-pid
+  // says who the block is about (`lee`, both times); data-pdx-crawl-for says which
+  // URL it was written for, and it is what lets a client prove the document it
+  // received belongs to the address in its own bar without needing the alias table
+  // the browser has not loaded yet. Everything a reader or a crawler sees — the
+  // h1, the office line, the framing, the record rows, the canonical link — is
+  // byte-identical.
+  const destamp = (h) => h.replace(/ data-pdx-crawl-for="[^"]*"/g, "");
   const a = blockOf(alias.html), b = blockOf(LEE.html);
-  eq(a === b, true, "the alias address and the roster address serve the same crawl block, byte for byte");
+  ok(a !== b, "the two addresses stamp themselves differently…");
+  eq(destamp(a) === destamp(b), true,
+    "…and are otherwise the same crawl block, byte for byte: one person, one document");
+  has(b, 'data-pdx-crawl-for="/p/lee"', "the roster address stamps itself too");
 
   // Spelled out for the record section specifically, because that is the half
   // that is looked up in a table: the snapshot is keyed on the CANONICAL id, so
@@ -424,19 +438,46 @@ section("5 · the homepage is untouched, and an unknown pid mints nobody");
   }
 
   // AN ADDRESS THAT NAMES NOBODY. It must not mint a name, not borrow the
-  // homepage's h1 as a person's, and not guess at the nearest roster id.
+  // homepage's h1 as a person's, and not guess at the nearest roster id — and it
+  // must not leave the crawl seam EMPTY either, because an empty seam at the top of
+  // a /p/ document is a seam some cache layer fills with the last person file it
+  // held. So it gets the GENERIC block: a person file with no name, no office, no
+  // state, and zero issue rows.
   const ghost = await serve("/p/definitely_not_a_politician");
-  eq(ghost, null, "an unknown pid falls through to the page rather than being dressed up as a record");
+  must(ghost && ghost.html, "an unknown pid served no document at all");
+  const ghostBlock = blockOf(ghost.html);
+  ok(!!ghostBlock, "an unknown pid gets a block of its own rather than an empty seam");
+  has(ghostBlock, "data-pdx-crawl-generic", "…marked as the generic one");
+  has(ghostBlock, "<h1>Person file</h1>", "…headed as a person file and nobody in particular");
+  has(ghostBlock, "record still loading", "…saying what the reader is actually looking at");
+  hasnt(ghostBlock, "data-pdx-crawl-record", "…with NO formal-record section");
+  hasnt(ghostBlock, "<li>", "…and not one issue row");
+  hasnt(ghostBlock, "<ul>", "…not even an empty list");
+  hasnt(ghostBlock, 'data-pid="', "…and no pid, because it is about nobody");
   ok(!IDX.people.definitely_not_a_politician && !IDX.personAliases.definitely_not_a_politician,
     "…and nothing in the index answers to it");
+  // The head is untouched: there is no record to title or canonicalise, and
+  // index.html's own canonical pointing at "/" is the right answer for an address
+  // that names nothing.
+  has(ghost.html, "<title>PolitiDex | Bound by Truth</title>",
+    "an unknown pid keeps the shell's own title — nothing was invented for it");
 
   // The same, for an id that is one edit away from a real one. A fuzzy match here
   // would be the worst possible failure: a confident h1 with the wrong person's
   // name on someone else's address.
-  for (const ghostly of ["/p/lee_", "/p/mike_leee", "/p/l"]) {
+  for (const ghostly of ["/p/lee_", "/p/mike_leee", "/p/l", "/p/khann", "/p/not_a_real_pid"]) {
     const g = await serve(ghostly);
-    ok(g === null || !blockOf(g.html), `${ghostly} produces no crawl block`);
-    if (g) hasnt(g.html, "<h1>Mike Lee</h1>", `${ghostly} does not borrow a real person's name`);
+    must(g && g.html, `${ghostly} served no document`);
+    const gb = blockOf(g.html);
+    has(gb, "data-pdx-crawl-generic", `${ghostly} produces only the generic block`);
+    hasnt(g.html, "<h1>Mike Lee</h1>", `${ghostly} does not borrow a real person's name`);
+    hasnt(g.html, "<h1>Ro Khanna</h1>", `${ghostly} does not borrow another real person's name`);
+    hasnt(gb, "data-pdx-crawl-record", `${ghostly} carries no formal-record section`);
+    hasnt(gb, "<li>", `${ghostly} carries no other member's issue list`);
+    hasnt(gb, "U.S. Senator · Utah", `${ghostly} prints no office it cannot vouch for`);
+    hasnt(gb, "U.S. Representative · California", `${ghostly} prints no other office either`);
+    hasnt(g.html, "Peace Through Strength", `${ghostly} prints nobody's lead issue`);
+    has(gb, `data-pdx-crawl-for="${ghostly}"`, `${ghostly} stamps the address it was served at`);
   }
 
   // A profile opened ON TOP of another surface keeps that surface's document: the
@@ -766,8 +807,9 @@ section("8 · the SPA still boots, and the block yields to the live file");
 
   // AN UNRESOLVED ARRIVAL KEEPS ITS BLOCK. There is no live file to supersede it,
   // so hiding it would leave the reader with the app shell and nothing that names
-  // what they asked for. (The edge writes no block for an unknown pid at all; this
-  // pins the app half — it hides only on a successful open.)
+  // what they asked for. The edge now writes a GENERIC block on that address (see
+  // section 5), which is exactly the thing worth keeping: it says what the page is
+  // and names nobody. This pins the app half — it hides only on a successful open.
   const ghost = personFile({ roster, aliases: IDX.personAliases, pathname: "/p/definitely_not_a_politician" });
   eq(ghost.P.adopt(), "", "an unresolvable arrival opens nothing");
   eq(ghost.els["pdx-crawl-person"], undefined, "…and nothing hid a block it never opened over");
@@ -780,6 +822,224 @@ section("8 · the SPA still boots, and the block yields to the live file");
   eq(selectors.filter((s) => !s.startsWith("#pdx-crawl-person")), [],
     "every rule the block ships is scoped to #pdx-crawl-person");
   has(styleBlock[1], "#pdx-crawl-person[hidden]", "…including the rule that lets the app hide it");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("8b · /p/<pid> is THAT person in the first HTML — never another member's");
+// ═════════════════════════════════════════════════════════════════════════════
+// THE LIVE DEFECT THIS SECTION IS THE CONTRACT ON (Colt, 2026-08-30).
+//
+// https://www.politidex.fyi/p/khanna printed, in its FIRST HTML, before any script
+// finished:
+//
+//     U.S. Senator · Utah
+//     Strongly opposes · Peace Through Strength · 0 advanced · 7 against
+//     Strongly supports · Tough on Crime …
+//
+// That is Mike Lee's formal record on Ro Khanna's address. After the roster loaded
+// the modal corrected itself to Ro Khanna (CA House) — which is the worst shape a
+// bug of this kind can take: a crawler and a slow phone both read the wrong person
+// and never see the correction.
+//
+// Section 3 already proved /p/lee is Lee's. That is not the same claim as this one.
+// This section is about the pairs: two addresses, served independently, must not
+// share an office line, a lead issue, or a single record row that belongs to only
+// one of them. It is written as fixtures over the rendered first HTML — the same
+// bytes the reporter read with view-source — because every layer that got this
+// wrong (a shell cache serving one body for all 800 URLs) was invisible to a test
+// that only ever asked for one address.
+{
+  const KHANNA = await serve("/p/khanna");
+  must(KHANNA && KHANNA.html, "/p/khanna served no document");
+
+  const officeLine = (html) => {
+    const b = blockOf(html);
+    return (b.match(/<p>([^<]*formal voting record on PolitiDex)<\/p>/) || [])[1] || "";
+  };
+  const rowsOf = (html) => {
+    const rec = (html.match(/<section data-pdx-crawl-record>[\s\S]*?<\/section>/) || [""])[0];
+    return (rec.match(/<li>[\s\S]*?<\/li>/g) || []).map((li) =>
+      li.replace(/<[^>]*>/g, "").replace(/&amp;/g, "&").trim()
+    );
+  };
+  // The count of a needle in index.html is the BASELINE: the shell carries its own
+  // inline seed data (the finance showcase names two Utah senators by office), so
+  // "the document does not contain this string" is the wrong question. "The document
+  // contains no MORE of this string than the shell already did" is the right one —
+  // it is exactly the assertion that the injection added it.
+  const count = (h, n) => h.split(n).length - 1;
+  const addedNone = (html, needle, m) =>
+    eq(count(html, needle), count(INDEX_HTML, needle), `${m} (baseline ${count(INDEX_HTML, needle)})`);
+
+  // ── /p/khanna is Ro Khanna ────────────────────────────────────────────────
+  has(KHANNA.html, "<h1>Ro Khanna</h1>", "/p/khanna's first HTML names Ro Khanna");
+  eq(officeLine(KHANNA.html), "U.S. Representative · California · formal voting record on PolitiDex",
+    "…with Khanna's own office line");
+  has(KHANNA.html, 'data-pid="khanna"', "…under Khanna's pid");
+  has(KHANNA.html, 'data-pdx-crawl-for="/p/khanna"', "…stamped with the address it was generated at");
+
+  // The reported sentence, verbatim, and the rows that came with it.
+  const kBlock = blockOf(KHANNA.html);
+  hasnt(kBlock, "U.S. Senator · Utah", "/p/khanna's block does not say “U.S. Senator · Utah”");
+  hasnt(kBlock, "Mike Lee", "…and does not name Mike Lee");
+  addedNone(KHANNA.html, "Peace Through Strength", "/p/khanna's document adds no “Peace Through Strength”");
+  addedNone(KHANNA.html, "0 advanced · 7 against", "…and none of Lee's lead tally");
+  const kRows = rowsOf(KHANNA.html);
+  ok(kRows.length >= 3, `/p/khanna prints its own record rows (${kRows.length})`);
+  eq(kRows.filter((r) => /Peace Through Strength|Tough on Crime|Mass Deportations/.test(r)), [],
+    "…and not one row off Mike Lee's record");
+
+  // ── /p/lee is Mike Lee, and only Mike Lee ─────────────────────────────────
+  has(LEE.html, "<h1>Mike Lee</h1>", "/p/lee's first HTML names Mike Lee");
+  eq(officeLine(LEE.html), "U.S. Senator · Utah · formal voting record on PolitiDex",
+    "…with Lee's own office line");
+  const lBlock = blockOf(LEE.html);
+  has(lBlock, "Peace Through Strength", "/p/lee's block leads on Lee's actual strongest row");
+  has(lBlock, "0 advanced · 7 against", "…with its own tally");
+  hasnt(lBlock, "Ro Khanna", "/p/lee's block does not name Ro Khanna");
+  hasnt(lBlock, "U.S. Representative · California", "…and does not print Khanna's office");
+  const lRows = rowsOf(LEE.html);
+  eq(lRows.filter((r) => /Expand Voting Access|Stronger Gun Safety Laws|Protect Gun Rights/.test(r)), [],
+    "…and not one row off Ro Khanna's record");
+
+  // ── THE PAIR, STATED AS THE UNIQUENESS RULE ───────────────────────────────
+  // Two pids → two different office lines and two different lead issues. This is
+  // the assertion the defect would have failed at any layer: one body served under
+  // two URLs makes both of these equal.
+  ok(officeLine(LEE.html) !== officeLine(KHANNA.html), "two pids, two different office lines");
+  const leadOf = (rows) => (rows[0] || "").split(" · ")[1] || "";
+  ok(leadOf(lRows) && leadOf(kRows) && leadOf(lRows) !== leadOf(kRows),
+    `two pids, two different lead issues (${leadOf(lRows)} vs ${leadOf(kRows)})`);
+  eq(kBlock === lBlock, false, "…and two different crawl blocks");
+
+  // ── ALIAS: /p/mike_lee IS LEE'S, SAME AS /p/lee ───────────────────────────
+  const mikeLee = await serve("/p/mike_lee");
+  must(mikeLee && mikeLee.html, "/p/mike_lee served no document");
+  has(mikeLee.html, "<h1>Mike Lee</h1>", "/p/mike_lee's first HTML is Mike Lee's");
+  eq(officeLine(mikeLee.html), officeLine(LEE.html), "…the same office line /p/lee serves");
+  eq(rowsOf(mikeLee.html), lRows, "…and the same record rows, row for row");
+  hasnt(blockOf(mikeLee.html), "Ro Khanna", "…and it is not somebody else's file under an alias");
+
+  // ── WIDER THAN TWO. Uniqueness across a real slice of the roster, because a
+  // fixture pair can be made to pass by two hardcoded strings. Every person with a
+  // record in the snapshot in this sample must serve an office line and a lead
+  // issue that belong to THEM, and the set of (office line, lead issue) pairs must
+  // not collapse onto one value.
+  const withRecord = Object.keys(IDX.personRecord).filter((_, i) => i % 23 === 0).slice(0, 14);
+  ok(withRecord.length >= 8, `the uniqueness sample is real (${withRecord.length} people)`);
+  const seen = [];
+  const wrong = [];
+  for (const pid of withRecord) {
+    const res = await serve("/p/" + pid);
+    if (!res) { wrong.push(`${pid}: no document`); continue; }
+    const b = blockOf(res.html);
+    if (!b.includes(`data-pid="${pid}"`)) wrong.push(`${pid}: block is not stamped with this pid`);
+    if (!b.includes(`data-pdx-crawl-for="/p/${pid}"`)) wrong.push(`${pid}: block is not stamped with this address`);
+    if (!b.includes(`<h1>${IDX.people[pid].n.replace(/&/g, "&amp;")}</h1>`)) wrong.push(`${pid}: h1 is not this person`);
+    // The rows served are the rows the snapshot holds for THIS pid, and no other
+    // person's. Compared as a set against the snapshot, which is keyed canonically.
+    const want = IDX.personRecord[pid].map((r) => [r.p, r.i, r.c].filter(Boolean).join(" · "));
+    const got = rowsOf(res.html);
+    if (JSON.stringify(got) !== JSON.stringify(want)) wrong.push(`${pid}: rows are not this person's`);
+    seen.push(`${officeLine(res.html)}||${leadOf(got)}`);
+  }
+  eq(wrong.slice(0, 6), [], "every sampled address serves its own person's identity and its own person's rows");
+  ok(new Set(seen).size > 1, `the sample's (office, lead issue) pairs are not one repeated value (${new Set(seen).size} distinct)`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("8c · no cache layer may serve one person's document at another's address");
+// ═════════════════════════════════════════════════════════════════════════════
+// WHERE THE LIVE DEFECT ACTUALLY LIVED. Section 8b proves the edge builds the right
+// document; it always did. The wrong document was served by sw.js, whose navigation
+// handler wrote EVERY document to the single '/' shell key and read that key for
+// every address:
+//
+//     const cached = (await cache.match(req)) || (await cache.match('/'));
+//     if (res && res.ok) cache.put('/', res.clone());
+//
+// So a visit to /p/lee turned the '/' entry into Lee's document, and the next
+// /p/khanna navigation was served it — Lee's office, Lee's record rows, on Khanna's
+// address — until the roster loaded and the modal corrected itself. The homepage
+// got Lee's header too.
+//
+// This section pins the two halves of the repair: the SERVICE WORKER keys a cached
+// document by the address it was generated at, and the DOCUMENT proves its own
+// identity before it is believed (index.html's inline guard, run before the first
+// paint). Read as source, because the alternative is a browser.
+{
+  const SW = R("sw.js");
+
+  // ── the worker keys a document by its address ─────────────────────────────
+  const nav = SW.slice(SW.indexOf("async function handleNavigate"), SW.indexOf("async function handleStatic"));
+  must(nav.includes("cache.match"), "sw.js's handleNavigate is no longer recognisable to this harness");
+
+  has(SW, "function navDocKey", "sw.js derives a cache key from the navigation's address");
+  has(SW, "const PERSON_NAV_RE = /^\\/p\\/([A-Za-z0-9_]+)\\/?$/",
+    "…recognising a person address with the same pattern the edge and the app use");
+  ok(/return '\/p\/' \+ person\[1\]/.test(SW), "…and giving a person address a key of its own");
+
+  // THE REGRESSION, NAMED. Neither of the two lines that caused it may come back.
+  ok(!/cache\.put\('\/', res/.test(nav),
+    "handleNavigate never writes a navigation's document to the '/' key — that is what poisoned the shell");
+  ok(!/cache\.match\(req\)/.test(nav),
+    "…and no longer reads a document by the raw request while falling back to '/' for every miss");
+
+  // The '/' key is written by the homepage document and by nothing else.
+  ok(/url\.pathname === '\/' \|\| url\.pathname === '\/index\.html'/.test(SW),
+    "only / and /index.html map to the '/' key");
+  ok(/&& !url\.search/.test(SW),
+    "…and only without a query, so an address whose head the edge rewrites cannot become the homepage entry");
+
+  // A person address with no entry of its own must reach the NETWORK, not borrow
+  // '/'. The fallback to the shell exists, and it is after the network.
+  const netAt = nav.indexOf("const res = await network");
+  const shellAt = nav.indexOf("cache.match('/')");
+  ok(netAt > 0 && shellAt > netAt,
+    "a cold person address goes to the network first, and only falls back to the shell when that fails");
+  ok(nav.indexOf("const cached = key ? await cache.match(key) : null") > 0,
+    "…and a cached document is only ever read from this address's own key");
+
+  // The shell is dropped outright on this deploy, because the poisoned '/' entry
+  // is already on devices and neither fix can reach into it.
+  const ver = (SW.match(/const CACHE_VERSION = '(v\d+)'/) || [])[1];
+  must(ver, "sw.js no longer declares CACHE_VERSION");
+  ok(Number(ver.slice(1)) >= 94,
+    `sw: CACHE_VERSION is ${ver} — the v93 shell holds a person document under the '/' key on every ` +
+    `device that ever opened a /p/ link, and only a rename deletes it`);
+
+  // Person documents are the whole app shell each, so they are capped rather than
+  // accumulated. Correctness is the KEY; this is the storage manners.
+  has(SW, "PERSON_DOC_LIMIT", "sw.js caps how many person documents it keeps");
+  has(SW, "async function prunePersonDocs", "…with a prune that only ever deletes person-document keys");
+
+  // ── the document proves its own identity, before the first paint ──────────
+  const bodyAt = INDEX_HTML.indexOf("<body");
+  const guardAt = INDEX_HTML.indexOf("data-pdx-crawl-for", bodyAt);
+  ok(guardAt > bodyAt, "index.html carries a crawl-header guard inside <body>");
+  const firstFileScript = INDEX_HTML.indexOf("<script src=", bodyAt);
+  ok(guardAt < firstFileScript,
+    "…inline and ahead of every script FILE the shell loads, so it runs before the header can paint");
+  const guard = INDEX_HTML.slice(INDEX_HTML.lastIndexOf("<script>", guardAt), INDEX_HTML.indexOf("</script>", guardAt));
+  has(guard, "getElementById('pdx-crawl-person')", "the guard reads the crawl header the edge injected");
+  has(guard, "stamp===here", "…compares its stamp to the address in the bar");
+  has(guard, "data-pdx-crawl-generic", "…and marks what is left as generic");
+  has(guard, "removeAttribute('data-pid')", "…dropping the pid it can no longer vouch for");
+  has(guard, "<h1>Person file</h1>", "…replacing the whole header with the generic wording");
+  ok(!/<li>|<ul>/.test(guard), "…which contains no issue row and no list");
+  has(guard, "catch(e){}", "…and fails silent, so it cannot cost the page its boot");
+  // The guard replaces the header WHOLESALE (innerHTML), which is what guarantees
+  // the record section goes with it — there is no selective removal to get wrong.
+  has(guard, "el.innerHTML=", "the guard replaces the header's contents outright");
+
+  // The guard's escape hatch is the stamp, and the stamp comes from the edge. Both
+  // halves have to exist or the guard would wipe every correct block it sees.
+  has(SP_SRC, "data-pdx-crawl-for", "the edge stamps the address it generated the block at");
+  has(LEE.html, 'data-pdx-crawl-for="/p/lee"', "…on a real person's document");
+
+  // And the app half is unchanged in the one way that matters: person-file.js still
+  // hides the block on a successful open, and still leaves it alone otherwise.
+  has(PF_SRC, "function crawlDone", "person-file.js still owns the hide");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

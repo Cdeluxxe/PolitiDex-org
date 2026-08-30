@@ -480,7 +480,22 @@
 // while the file sits uncached. Every consumer guards on window.PDXPersonLink and
 // falls back to the markup it emitted before, so a half-pickup costs the href and
 // nothing else — but a shell asset changed, so the rule above applies.
-const CACHE_VERSION = 'v93';
+// v94 - THE SHELL CACHE ITSELF WAS HOLDING THE WRONG DOCUMENT, so the bump is not
+// about a changed asset this time: it is about DISCARDING WHAT IS ALREADY STORED.
+// Through v93 handleNavigate wrote every navigation's document to the single '/'
+// key, so any device that ever opened a /p/<pid> link has a '/' entry that is not
+// the homepage — it is the last person file it fetched, crawl header and all — and
+// served it for the homepage and for every other person address. That is the
+// /p/khanna-paints-Mike-Lee defect. handleNavigate now keys a document by the
+// address it was generated at (see the note over it), and index.html carries an
+// inline guard that neutralises a crawl header whose stamp is not the address in
+// the bar. Neither of those can clean up a poisoned entry that is already on the
+// device, and the entry lives in a cache named after this constant: renaming it
+// means activate() deletes politidex-shell-v93 outright and install() refetches
+// '/' from the network, so the first thing the new worker does is throw the wrong
+// document away. index.html changed too (the guard is in it) and '/' is precached,
+// which is the ordinary reason for a bump as well.
+const CACHE_VERSION = 'v94';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -899,22 +914,127 @@ async function prunePacks(cache, pid, keepUrl) {
   }
 }
 
-// Stale-while-revalidate for navigations. Repeat visits are the common case on
-// phones, so serve the cached app shell immediately (no waiting on the large HTML
-// document over a slow mobile connection) and refresh the cache in the background
-// for the next load. Only the first visit — or a visit after the cache was pruned —
-// pays the network cost; if that also fails we show the inline offline page.
+// ─── Navigations: one cached document per ADDRESS, never one for all of them ──
+// THE BUG THIS REPLACED, STATED AS THE SYMPTOM IT SHIPPED WITH.
+//
+// /p/khanna's first HTML printed "U.S. Senator · Utah" and Mike Lee's
+// formal-record rows, then flipped to Ro Khanna once the roster loaded. Nothing
+// was wrong with the document the CDN served: share-preview.ts had built Khanna's
+// header correctly. The wrong document was served from HERE.
+//
+// The old policy above did two things, and each one was half the defect:
+//
+//   const cached = (await cache.match(req)) || (await cache.match('/'));
+//   if (res && res.ok) cache.put('/', res.clone());
+//
+//   1. IT WROTE EVERY DOCUMENT TO ONE KEY. A navigation to /p/lee fetched Lee's
+//      document — crawl header and all — and stored it as '/'. So the '/' entry
+//      stopped being the homepage and became "the last person file this device
+//      looked at". The homepage itself then served Lee's header too.
+//   2. IT READ THAT KEY FOR EVERY ADDRESS. /p/lee was never stored under its own
+//      URL, so cache.match(req) always missed and the '/' fallback always
+//      answered. Every person address on the device was served whichever person
+//      file was fetched last.
+//
+// Phase B gave 800 person addresses 800 distinct documents. This function handed
+// out one of them under all 800 URLs — which is the same duplicate-content problem
+// Phase B set out to fix, with a worse failure mode: Google and a slow phone read a
+// real senator's office and a real senator's record rows on somebody else's
+// address. A unique URL is not a unique document if a cache serves one body for
+// all of them.
+//
+// WHAT REPLACES IT. A cached document is keyed by the ADDRESS IT WAS GENERATED AT,
+// which is the only thing that makes two navigations interchangeable now that the
+// edge writes per-person bodies:
+//
+//   · /p/<pid>          → its own key. A repeat visit to the SAME person is still
+//                         served instantly from the cache (that is the phone
+//                         latency win the old policy was written for, and it is
+//                         kept) and can only ever be that person's document.
+//   · / and /index.html → the '/' key, and ONLY these two write it. The homepage
+//                         entry is the plain homepage document again.
+//   · everything else   → NO KEY. /issue/<slug>, /vote/…, /b/…, /locker and any
+//                         address carrying a query the edge rewrites the head for
+//                         boot from the '/' shell as they always did, and never
+//                         write to it. A Spotlight's title must not become the
+//                         homepage's the way Lee's header did.
+//
+// A person address with no entry of its own goes to the NETWORK rather than
+// borrowing '/'. Correct identity in the first bytes is the whole point of the
+// document; a fast paint of the wrong person is the thing being fixed. Only when
+// the network fails does '/' stand in — and '/' names nobody, so it is a bootable
+// shell with an empty crawl seam, which index.html's inline guard leaves generic.
+//
+// THE COST OF THAT, NAMED, because it is the one thing this policy is slower at.
+// A cold person address on a warm device used to paint instantly from '/'; it now
+// waits for its own document. That is not a regression against any correct
+// behaviour — the instant paint was of the WRONG person — and it is not worse than
+// the no-service-worker baseline, where the same navigation waits for the same
+// bytes. The latency win the old policy was written for is kept where it is
+// legitimately available: a REPEAT visit to the same person (a bookmark, a shared
+// link opened twice, a back-navigation) is served from that person's own entry
+// with no network wait at all. A bounded race between the network and the generic
+// shell was considered and left out deliberately: it would put a timing-dependent
+// branch on the app's most critical path to buy a faster paint of a document that
+// names nobody.
+const PERSON_NAV_RE = /^\/p\/([A-Za-z0-9_]+)\/?$/;
+
+// How many person documents to keep. Each is the whole ~2 MB app shell, so this is
+// a storage decision and not a correctness one: correctness is the KEY, and an
+// entry that was pruned is simply refetched. Small enough to be polite on a phone,
+// big enough that moving between a handful of files stays instant.
+const PERSON_DOC_LIMIT = 4;
+
+// The cache key for a navigation, or '' for "serve from the shell, store nothing".
+function navDocKey(url) {
+  if (!url || url.origin !== self.location.origin) return '';
+  const person = PERSON_NAV_RE.exec(url.pathname);
+  if (person) return '/p/' + person[1];
+  // The plain homepage document, and nothing wearing a query the edge rewrites for
+  // (?p=, ?issue=, ?bill=, ?rank=, ?receipt=, ?record=, ?views= all change the head).
+  if ((url.pathname === '/' || url.pathname === '/index.html') && !url.search) return '/';
+  return '';
+}
+
+// Keep the newest few person documents. cache.keys() is insertion-ordered, so the
+// front of the list is the oldest. Hygiene only, and allowed to fail silently: a
+// document that is still here is still keyed to its own address, so an over-full
+// cache is a quota question and never a wrong-person question.
+async function prunePersonDocs(cache, keepKey) {
+  const keys = await cache.keys();
+  const docs = keys.filter((k) => {
+    let p = '';
+    try { p = new URL(k.url).pathname; } catch (e) { return false; }
+    return PERSON_NAV_RE.test(p);
+  });
+  for (let i = 0; i < docs.length - PERSON_DOC_LIMIT; i++) {
+    let p = '';
+    try { p = new URL(docs[i].url).pathname; } catch (e) { continue; }
+    if (p.replace(/\/$/, '') === keepKey) continue;
+    await cache.delete(docs[i]).catch(() => {});
+  }
+}
+
 async function handleNavigate(req) {
   const cache = await caches.open(SHELL_CACHE);
-  const cached = (await cache.match(req)) || (await cache.match('/'));
 
-  const network = fetch(req).then((res) => {
-    // Refresh the canonical shell entry so '/' and deep links boot with the
-    // newest page next time.
-    if (res && res.ok) cache.put('/', res.clone()).catch(() => {});
+  let url = null;
+  try { url = new URL(req.url); } catch (e) { url = null; }
+  const key = navDocKey(url);
+  const isPerson = key.slice(0, 3) === '/p/';
+
+  const network = fetch(req).then(async (res) => {
+    if (res && res.ok && key) {
+      try {
+        await cache.put(key, res.clone());
+        if (isPerson) await prunePersonDocs(cache, key);
+      } catch (e) { /* a cache write failure must not fail the navigation */ }
+    }
     return res;
   }).catch(() => null);
 
+  // Stale-while-revalidate, but only against this address's OWN entry.
+  const cached = key ? await cache.match(key) : null;
   if (cached) {
     network; // fire-and-forget background refresh
     return cached;
@@ -922,6 +1042,12 @@ async function handleNavigate(req) {
 
   const res = await network;
   if (res) return res;
+
+  // Offline, with no document of this address's own. '/' is the app shell and it
+  // names nobody — the honest stand-in for any address, and the one fallback that
+  // cannot claim to be a person we have not resolved.
+  const shell = await cache.match('/');
+  if (shell) return shell;
 
   return new Response(OFFLINE_FALLBACK, {
     status: 200,

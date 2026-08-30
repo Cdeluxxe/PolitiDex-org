@@ -168,9 +168,14 @@ function placeText(s: string): string {
 // paragraph of body prose about a person reads as a grade the moment a party
 // letter sits in it.
 //
-// A person we cannot name gets NO BLOCK AT ALL (see the handler: resolveTarget
-// returns null for an unknown pid and we never reach here). An invented name would
-// be worse than a duplicate page.
+// A PERSON WE CANNOT NAME IS NEVER NAMED. An unknown pid gets the GENERIC block
+// instead (genericCrawlBlock below) — a person file with no name, no office, no
+// state and zero issue rows. It used to get no block at all, which minted nobody
+// and was still one step short: an empty seam at the top of a /p/ document is a
+// seam any cache layer can fill with the last person file it happened to hold, and
+// that is precisely the defect this pass fixes. An invented name would be worse
+// than a duplicate page; another member's record under this pid is worse than
+// both.
 
 // ── The formal record, in the body ──────────────────────────────────────────
 // A NAME IS NOT A DOCUMENT EITHER. Identity made the 757 person addresses distinct
@@ -233,7 +238,31 @@ function recordSection(rows: RecordLine[]): string {
   );
 }
 
-function personCrawlBlock(r: Resolved, canonical: string): string {
+// ── The address the block was written FOR ───────────────────────────────────
+// data-pid carries the CANONICAL roster id, which is what the block is about.
+// This attribute carries something different and equally necessary: the address
+// the document was generated at. /p/mike_lee and /p/lee are one senator, so their
+// blocks name the same `lee` — and a client holding a document cannot tell from
+// `lee` alone whether that document belongs to the address in its own bar,
+// because resolving the alias needs a table the browser has not loaded yet on the
+// first paint. The arriving address, stamped verbatim, needs no table: the guard
+// at the top of index.html's <body> compares two strings and neutralises the
+// block when they differ, so a cache layer that hands over the wrong person's
+// document cannot paint that person on somebody else's URL.
+const CRAWL_STYLE =
+  `<style>#pdx-crawl-person{margin:0;padding:84px 20px 22px;background:#0a0f1e;` +
+  `border-bottom:1px solid rgba(255,255,255,0.08);color:#eef4ff;` +
+  `font-family:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;}` +
+  `#pdx-crawl-person h1{margin:0 0 8px;font-size:1.6rem;line-height:1.15;}` +
+  `#pdx-crawl-person p{margin:0 0 6px;color:#9fb4d4;font-size:.95rem;line-height:1.5;max-width:70ch;}` +
+  `#pdx-crawl-person a{color:#f5c842;}` +
+  `#pdx-crawl-person h2{margin:14px 0 6px;font-size:1rem;letter-spacing:.02em;color:#eef4ff;}` +
+  `#pdx-crawl-person ul{margin:0 0 6px;padding:0 0 0 18px;color:#c9d8f2;` +
+  `font-size:.95rem;line-height:1.55;max-width:70ch;}` +
+  `#pdx-crawl-person li{margin:0 0 2px;}` +
+  `#pdx-crawl-person[hidden]{display:none !important;}</style>`;
+
+function personCrawlBlock(r: Resolved, canonical: string, forPath: string): string {
   const who = r.person;
   if (!who || !who.name) return "";
   // office · state · what this page is. Built from the parts that are actually
@@ -246,23 +275,55 @@ function personCrawlBlock(r: Resolved, canonical: string): string {
   // to nothing — so the omission needs no branch and cannot half-render.
   const record = recordSection(who.record || []);
   return (
-    `<style>#pdx-crawl-person{margin:0;padding:84px 20px 22px;background:#0a0f1e;` +
-    `border-bottom:1px solid rgba(255,255,255,0.08);color:#eef4ff;` +
-    `font-family:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;}` +
-    `#pdx-crawl-person h1{margin:0 0 8px;font-size:1.6rem;line-height:1.15;}` +
-    `#pdx-crawl-person p{margin:0 0 6px;color:#9fb4d4;font-size:.95rem;line-height:1.5;max-width:70ch;}` +
-    `#pdx-crawl-person a{color:#f5c842;}` +
-    `#pdx-crawl-person h2{margin:14px 0 6px;font-size:1rem;letter-spacing:.02em;color:#eef4ff;}` +
-    `#pdx-crawl-person ul{margin:0 0 6px;padding:0 0 0 18px;color:#c9d8f2;` +
-    `font-size:.95rem;line-height:1.55;max-width:70ch;}` +
-    `#pdx-crawl-person li{margin:0 0 2px;}` +
-    `#pdx-crawl-person[hidden]{display:none !important;}</style>` +
-    `<header id="pdx-crawl-person" data-pdx-crawl-person data-pid="${attr(who.pid)}">` +
+    CRAWL_STYLE +
+    `<header id="pdx-crawl-person" data-pdx-crawl-person data-pid="${attr(who.pid)}"` +
+    ` data-pdx-crawl-for="${attr(forPath)}">` +
     `<h1>${text(who.name)}</h1>` +
     `<p>${line}</p>` +
     `<p>Person file. Formal record first. Word vs Action is a separate integrity check only where a stated position exists.</p>` +
     record +
     `<p><a href="${attr(canonical)}">Open the full file</a></p>` +
+    `</header>`
+  );
+}
+
+// ── The person address we hold no record for ────────────────────────────────
+// A /p/<pid> that resolves to nobody used to be handed the app shell untouched,
+// which was almost right: it printed no name, so it minted nobody. What it also
+// did was leave the ONE thing a document at a person address must not leave to
+// chance — an empty seam where a crawl header goes. Any cache layer between the
+// CDN and the paint (a service worker keyed on the wrong thing, a proxy, a
+// restored tab) that hands over some other /p/<pid>'s document lands its header
+// in that seam, and the page paints a real senator's office and a real senator's
+// record rows on an address that is not theirs.
+//
+// So the seam is filled, deliberately and generically. This block says only what
+// is true of every unresolved person address — that it is a person file, and that
+// the record is not on screen yet — and it carries:
+//
+//   · NO NAME. An id nobody carries must mint nobody, which was already the rule.
+//   · ZERO ISSUE ROWS. No <section data-pdx-crawl-record>, no <ul>, no <li>. Not
+//     an empty list, and above all not somebody else's list.
+//   · NO OFFICE and NO STATE. "U.S. Senator · Utah" on an unknown pid is the exact
+//     sentence this whole pass exists to stop.
+//   · the same id and the same address stamp as the real block, so the app hides
+//     it on a successful open by the same path, and the client-side guard reads it
+//     by the same attribute.
+//
+// It is NOT a 404: person-file.js resolves a handful of retired keys the build-time
+// share index does not hold, so an address that looks unresolvable here can still
+// open a real file a moment later. "Record still loading" is the honest thing to
+// say in that window, and the sentence under it is the honest thing to say if it
+// never arrives.
+function genericCrawlBlock(forPath: string): string {
+  return (
+    CRAWL_STYLE +
+    `<header id="pdx-crawl-person" data-pdx-crawl-person data-pdx-crawl-generic` +
+    ` data-pdx-crawl-for="${attr(forPath)}">` +
+    `<h1>Person file</h1>` +
+    `<p>Person file · record still loading</p>` +
+    `<p>This address names a person file on PolitiDex. If the file does not open, PolitiDex holds no record under this id.</p>` +
+    `<p><a href="/">Go to PolitiDex</a></p>` +
     `</header>`
   );
 }
@@ -367,7 +428,33 @@ export default async (req: Request, context: Context): Promise<Response | undefi
     if (resolved && "notFound" in resolved) {
       return notFoundPage(url.origin, resolved.message);
     }
-    if (!resolved) return; // unknown but not disproven — serve the page as-is
+    // A PERSON ADDRESS ALWAYS GETS A PERSON DOCUMENT — its own, or a generic one.
+    // Scoped by the PATH, exactly as the block below is: /p/<pid> is the address
+    // where a crawl header belongs, and the ?p= form is a query on some other
+    // surface. `asked` is the arriving id, kept verbatim (not canonicalised) so
+    // the stamp the client compares against is the address in its own bar.
+    const asked = PERSON_PATH.exec(url.pathname);
+    const forPath = asked ? "/p/" + asked[1] : "";
+
+    if (!resolved) {
+      // Unknown but not disproven. The head is left entirely alone — there is no
+      // record to title, describe or canonicalise, and index.html's own canonical
+      // pointing at "/" is the right answer for an address that names nothing.
+      // What the body gets is the generic block: the seam is filled so no cache
+      // layer can fill it with another member's header. Every other unknown link
+      // still passes straight through, untouched.
+      if (!forPath) return;
+      const bare = await context.next();
+      const bareCt = bare.headers.get("content-type") || "";
+      if (!bareCt.includes("text/html")) return bare;
+      const generic = injectAfterBody(await bare.text(), genericCrawlBlock(forPath));
+      const bareHeaders = new Headers(bare.headers);
+      bareHeaders.set("content-type", "text/html; charset=utf-8");
+      bareHeaders.set("cache-control", "public, max-age=300");
+      bareHeaders.delete("content-length");
+      bareHeaders.delete("content-encoding");
+      return new Response(generic, { status: bare.status, headers: bareHeaders });
+    }
 
     const res = await context.next();
     const ct = res.headers.get("content-type") || "";
@@ -385,8 +472,13 @@ export default async (req: Request, context: Context): Promise<Response | undefi
     // not just by the target kind: /issue/<slug>?p=<id> resolves to a profile (the
     // profile is what is on screen) but the DOCUMENT being served is the
     // Spotlight's, and two surfaces must not both claim the same <h1>.
-    if (PERSON_PATH.test(url.pathname)) {
-      html = injectAfterBody(html, personCrawlBlock(resolved, canonical));
+    if (forPath) {
+      // personCrawlBlock returns "" when the resolved target carries no person
+      // (a Spotlight, a bill), and injectAfterBody is a no-op on "". So a person
+      // PATH whose target is not a person leaves the seam empty — which is
+      // unreachable today (a /p/ path always parses as a profile) and would be
+      // the safe direction if it ever were not.
+      html = injectAfterBody(html, personCrawlBlock(resolved, canonical, forPath));
     }
 
     const headers = new Headers(res.headers);
