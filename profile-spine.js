@@ -65,6 +65,21 @@
     // Safe inside a double-quoted HTML attribute holding single-quoted JS.
     return escAttr(String(v == null ? '' : v).replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
   }
+  // The issue colour. Same module, same helper shape and same failure behaviour as
+  // the bill letterhead chip, so the issue named at the top of a person file is the
+  // colour that issue is everywhere else — including on the Word vs Action section
+  // this card points down at.
+  //   THE BADGE KEEPS ITS OWN VOCABULARY. "Contradiction On Record" is a verdict
+  // word and stays verdict-amber; only the issue chip beside it takes the issue
+  // colour. Two meanings, two colours, on purpose.
+  function issueTint(key) {
+    try {
+      var IC = window.PDXIssueColors;
+      if (!IC || typeof IC.styleFor !== 'function') return '';
+      var st = IC.styleFor(key);
+      return st ? ' data-ic="on" style="' + escAttr(st) + '"' : '';
+    } catch (e) { return ''; }
+  }
   function clip(s, n) {
     s = String(s == null ? '' : s);
     return s.length > n ? s.slice(0, n - 1).replace(/[\s,;:.—-]+$/, '') + '…' : s;
@@ -843,7 +858,7 @@
         '<div class="pdxbr-t-top">' +
           '<span class="pdxbr-t-ico" aria-hidden="true">⚠</span>' +
           '<span class="pdxbr-t-badge">' + esc(t.badge) + '</span>' +
-          (t.label ? '<span class="pdxbr-t-issue">' + esc(t.label) + '</span>' : '') +
+          (t.label ? '<span class="pdxbr-t-issue"' + issueTint(t.issueKey) + '>' + esc(t.label) + '</span>' : '') +
         '</div>' +
         '<h4 class="pdxbr-t-head">' + esc(t.headline) + '</h4>' +
         (t.detail ? '<p class="pdxbr-t-line">' + esc(t.detail) + '</p>' : '') +

@@ -320,6 +320,37 @@ section("5 · the brief adds no arithmetic");
   must(BRIEF_AT > 0, "briefHeroHtml is gone from word-action.js");
   const BRIEF = strip(WA_SRC.slice(BRIEF_AT, WA_SRC.indexOf("\n  function heroInner", BRIEF_AT)));
   must(BRIEF.length > 400, "briefHeroHtml could not be sliced out of word-action.js");
+  // THE BODY BOTH LANES RENDER THROUGH IS UNDER THE SAME RULE. The rows, the two
+  // headings, the tail sentence and the route out moved into briefBodyHtml so a
+  // member's brief and an executive's are one block; the no-arithmetic contract
+  // has to follow them there, or the drift check now covers a shell.
+  const BODY_AT = WA_SRC.indexOf("function briefBodyHtml");
+  must(BODY_AT > 0, "briefBodyHtml is gone — the two lanes no longer share one brief body");
+  const BODY = strip(WA_SRC.slice(BODY_AT, WA_SRC.indexOf("\n  function briefHeadHtml", BODY_AT) > BODY_AT
+    ? WA_SRC.indexOf("\n  function briefHeadHtml", BODY_AT)
+    : WA_SRC.indexOf("\n  // Does the block at the top", BODY_AT)));
+  must(BODY.length > 400, "briefBodyHtml could not be sliced out of word-action.js");
+  for (const bad of ["/ 100", "* 100", "Math.round", "toFixed", "MIN_", "FLOOR", "threshold", "%'"]) {
+    lacks(BODY, bad, `the shared brief body computes something — "${bad}" is in it`);
+  }
+  for (const bad of ["Finance", "finance", "Mandate", "mandate", "pledge", "party", "Party"]) {
+    lacks(BODY, bad, `the shared brief body reaches into another lane — "${bad}" is in it`);
+  }
+  // It cannot know which lane it is drawing: no office test, no exec branch.
+  for (const bad of ["exec", "Exec", "president", "President"]) {
+    lacks(BODY, bad, `the shared brief body is office-aware — "${bad}" is in it`);
+  }
+  // Each heading is written once in the shared body, and the only other place in
+  // the file that may print one is the letterhead above the gate. A copy anywhere
+  // else is a second brief, which is what this whole pass removed.
+  const HEAD_HOMES = { "Strongest patterns": 3, "Ran both ways": 2 };
+  for (const head of Object.keys(HEAD_HOMES)) {
+    eq(BODY.split(head).length - 1, 1,
+      `the shared brief body does not print "${head}" exactly once`);
+    const n = strip(WA_SRC).split(head).length - 1;
+    eq(n, HEAD_HOMES[head], `"${head}" is written ${n} times in word-action.js — only the ` +
+      "letterhead and the shared brief body may print it");
+  }
   // No division, no threshold, no ranking. Counts and slices off shape() only.
   for (const bad of ["/ 100", "* 100", "Math.round", "toFixed", "MIN_", "FLOOR", "threshold", "%'"]) {
     lacks(BRIEF, bad, `the record brief computes something — "${bad}" is in it`);
@@ -375,7 +406,11 @@ section("6 · one block, and it survives a phone");
   eq(WA.heroNamesPatterns(DEEP), true, "the deep file's top does not report naming its patterns");
   eq(WA.heroNamesPatterns(EMPTY), false, "an empty record's top claims to name patterns");
   // The accessor and the markup cannot disagree.
-  for (const pid of [DEEP, EMPTY, "thune", "mike_johnson", "wes_moore"]) {
+  // trump is in this loop on purpose: the executive brief lists rows now, so the
+  // accessor has to answer for the exec lane by reading the exec lane, and the
+  // agreement it fences is what keeps #pdxsec-standout from being emitted twice or
+  // aimed at from a rail entry that lands nowhere.
+  for (const pid of [DEEP, EMPTY, "thune", "mike_johnson", "wes_moore", "trump"]) {
     const html = WA.heroMount(pid, A.CMP_DATA[pid], {});
     const named = html.indexOf("pdxwa-shape-list") !== -1;
     eq(WA.heroNamesPatterns(pid), named,
@@ -419,39 +454,152 @@ section("6 · one block, and it survives a phone");
   eq((PF_SRC.match(/compactBadgeMount\(/g) || []).length, 1,
     "the compact Word vs Action badge mounts more than once on the person file");
 
-  // THE EXEC LANE. An executive has no roll-call ledger, so the roll-call brief must
-  // not describe one — but they were the last file in the roster still leading with a
-  // ring, so the top of the file gets the exec lane's own counted lines and a jump
-  // into the standouts section, which stays exactly where it is.
+  // THE EXEC LANE, ON THE SAME BRIEF AS EVERYBODY ELSE. An executive has no
+  // roll-call ledger, and for a while that meant the top of their file could only
+  // count: the volume clause, the per-class inventory, and a button reading "See
+  // what this record holds ↓" that jumped down to the standouts strip. Every
+  // number was true and no pattern was named, so the most-visited profile in the
+  // roster opened on a census while the file next door opened on four issues, a
+  // side and a tally each. Same formal lane, same reader, different treatment.
+  //
+  // WHAT THIS FENCES NOW.
+  //   · The rows are there, in the shared brief body, in the same two groups.
+  //   · The acts behind them are the exec seed's own — nothing about a floor vote
+  //     is printed, and the word "vote" does not appear on the block at all.
+  //   · The census survives: the volume clause and the inventory still print,
+  //     above the rows, as their denominator.
+  //   · The route out is the topic tree, like every other brief, and the strip it
+  //     used to point at stands down because the brief did its job.
   const xs = A.PDXConsistency.execRecordSummary;
   if (xs && typeof xs.pick === "function" && xs.pick("trump").on) {
     const xp = xs.pick("trump");
     const xh = WA.heroMount("trump", A.CMP_DATA.trump, {});
     const xt = txt(xh);
-    has(xh, "pdxwa-brief-exec", "the exec lane's top-of-file record line is gone");
+    has(xh, "pdxwa-brief-exec", "the exec lane's top-of-file record block is gone");
     hasI(xt, "The formal record", "the exec hero does not lead with the formal record");
     before(xh, "pdxwa-shape-hd", "pdxwa-shape-dm",
-      "the exec hero puts Word vs Action above its record line");
+      "the exec hero puts Word vs Action above its record block");
     lacks(xh, 'class="score-ring w-20 h-20 flex-shrink-0"',
       "the exec hero still leads with the 80px primary ring");
-    // Every string in it belongs to the exec lane already — nothing recounted here.
-    has(xt, xp.volume, "the exec hero's denominator sentence is not the lane's own volume clause");
+    // ── the census, unchanged, and still only the census ──────────────────
+    has(xt, xp.volume, "the exec brief's denominator sentence is not the lane's own volume clause");
     for (const line of xp.inventory) {
-      has(xt, line, `the exec hero dropped the lane's inventory line "${line}"`);
+      has(xt, line, `the exec brief dropped the lane's inventory line "${line}"`);
     }
-    // No pattern, no tier, no second finding: the standouts stay in their section.
-    lacks(xh, "pdxwa-shape-list", "the exec hero grew a pattern list");
-    lacks(xh, "pdxso-chip", "the exec hero copied the standout chips up into the header");
-    eq(WA.heroNamesPatterns("trump"), false,
-      "the exec hero claims to name patterns, which would suppress the standouts section below it");
-    has(A.PDXConsistency.execRecordSummary.html("trump"), 'id="pdxsec-standout"',
-      "the exec standouts section no longer mounts the anchor the header jumps to");
-    has(xh, "pdxsec-standout", "the exec hero's route-out does not jump into the standouts section");
+    has(xh, "pdxwa-shape-inv", "the exec brief lost the per-class inventory line");
+    // ── the rows, which are the point ─────────────────────────────────────
+    must(typeof xs.shape === "function",
+      "execRecordSummary publishes no shape() — the exec brief has nothing to list");
+    const xsh = xs.shape("trump");
+    must(xsh && xsh.issues > 0, "the exec shape came back empty for trump");
+    has(xh, "pdxwa-shape-list", "the exec brief does not list any pattern rows");
+    eq(WA.heroNamesPatterns("trump"), true,
+      "the exec brief lists patterns but does not report naming them");
+    // Strongest one-sided first, then ran both ways — the member order, in the
+    // member headings, from the member builder.
+    if (xsh.tops.length) has(xt, "Strongest patterns", "the exec brief lost the one-sided group");
+    if (xsh.splits.length) {
+      has(xt, "Ran both ways", "the exec brief lost the split group");
+      before(xh, ">Strongest patterns<", ">Ran both ways<",
+        "the exec brief puts the splits above the strongest patterns");
+    }
+    eq((xh.match(/<li class="pdxwa-shape-row"/g) || []).length,
+      xsh.tops.length + xsh.splits.length,
+      "the exec brief lists a different number of rows than the shape published");
+    for (const row of xsh.tops.concat(xsh.splits)) {
+      has(xt, row.label, `the exec brief lists a row without its issue name: ${row.key}`);
+      has(xt, row.patLabel, `the exec row for ${row.key} lists no side`);
+      // Chip shape and the tap target are the ones every other record row uses.
+      has(xh, `data-pdxst-dos="${row.key}"`,
+        `the exec row for ${row.key} does not open that issue's dossier`);
+      has(xh, 'data-pdxst-focus="record"',
+        "the exec rows do not open the dossier on the record");
+      has(row.chip, "data-pdxst-pat=",
+        `the exec row for ${row.key} carries something other than the shared pattern chip`);
+      // The tally is the engine's, and its verbs are advanced / against.
+      const tally = row.counts || row.sideCounts || "";
+      must(tally.length > 0, `the exec row for ${row.key} publishes no tally`);
+      has(xt, tally, `the exec row for ${row.key} does not print the engine's tally`);
+      ok(/advanced|against/.test(tally),
+        `the exec row for ${row.key} tallies in some other vocabulary: "${tally}"`);
+      // A characterised row has a side. One with acts and no side keeps its row and
+      // prints the refusal rather than being dropped — see the tail below.
+      ok(row.tier !== "unread", `a listed exec row is unread: ${row.key}`);
+    }
+    // NOTHING ON THIS BLOCK CALLS AN ACT A VOTE. The chips, the tallies, the tail
+    // sentence and the tier wall all go through the lane's own countable.
+    lacksI(xt, "vote", "the exec brief calls a formal action a vote");
+    lacksI(xt, "roll call", "the exec brief describes the executive record as roll calls");
+    // ── the honesty valve ─────────────────────────────────────────────────
+    // Every issue the engine declined to characterise is counted out loud, and the
+    // rows behind it are still reachable — they are in the topic tree this block
+    // routes to, each with its own refusal, not hidden.
+    if (xsh.tops.length || xsh.splits.length) {
+      const tail = (typeof xsh.tailN === "number") ? xsh.tailN : xsh.thinN;
+      if (tail) has(xt, `${tail} more issue`, "the exec brief hides its uncharacterised tail");
+    }
+    eq(xsh.issues, xsh.characterised + xsh.tailN,
+      "the exec shape's issue count is not its characterised rows plus its tail — a row went missing");
+    eq(xsh.characterised, xsh.strongN + xsh.splitN,
+      "the exec shape's characterised count is not its two buckets");
+    // ── the route out, and the one record block ───────────────────────────
+    has(xt, `Explore all ${xsh.issues} issue`,
+      "the exec brief's route out does not count the issues its own shape published");
+    has(xh, "pdxsec-stancetree", "the exec brief does not route out to the topic tree");
+    has(R("stance-tree.js"), 'id="pdxsec-stancetree"',
+      "nothing emits the anchor the exec brief's route-out aims at");
+    lacks(xh, "pdxsec-standout",
+      "the exec brief still jumps into the standouts strip it has replaced");
+    lacks(xh, "pdxso-chip", "the exec brief copied the standout chips up into the header");
+    // The strip below asks the same question the brief answered, so exactly one
+    // record block mounts — and the rail's pill asks it too, or it points at an
+    // anchor nobody emitted.
+    const xNamedAt = PF_SRC.indexOf("WA.heroNamesPatterns(id)");
+    const xHtmlAt = PF_SRC.indexOf("XS.html(id)");
+    ok(xNamedAt > 0 && xHtmlAt > xNamedAt,
+      "the exec standouts strip is built before the gate that is supposed to suppress it");
+    if (typeof A._pdxNavChips === "function") {
+      const chips = A._pdxNavChips("trump", A.CMP_DATA.trump);
+      eq(chips.standout, undefined,
+        "the rail still carries a 🏛 pill aimed at #pdxsec-standout, which the exec file no longer emits");
+      // The 🌳 pill is the rail's entry for the destination this brief now routes
+      // to, and it is the tree's own count — so it can only be asked for where the
+      // tree module is on the page. It is not in this harness's file list, so the
+      // question is asked of it only when it is loaded, and the anchor itself is
+      // checked against the module that emits it.
+      if (A.PDXStanceTree && typeof A.PDXStanceTree.count === "function") {
+        ok(!!chips.topics,
+          "the rail carries no 🌳 pill for the topic tree the exec brief now routes into");
+      }
+    }
+    // ── no new score ──────────────────────────────────────────────────────
     // The lane's own percentage-free posture: one figure on the block, from heroRead.
     const xhr = WA.heroRead("trump", A.CMP_DATA.trump);
     const xp2 = xt.match(/\d+%/g) || [];
-    ok(xp2.length <= 1, `the exec hero prints ${xp2.length} percentages: ${xp2.join(", ")}`);
-    if (xp2.length) eq(xp2[0], xhr.pct + "%", "the exec hero's percentage is not heroRead's");
+    ok(xp2.length <= 1, `the exec brief prints ${xp2.length} percentages: ${xp2.join(", ")}`);
+    if (xp2.length) eq(xp2[0], xhr.pct + "%", "the exec brief's percentage is not heroRead's");
+    lacksI(xt, "Republican", "the exec brief names a party");
+    lacksI(xt, "Democrat", "the exec brief names a party");
+    // ── /p/lee is structurally the same block ─────────────────────────────
+    // One builder, so the skeleton is identical bar the exec census line the
+    // requirement keeps: the same wrapper, the same heading, the same groups, the
+    // same rows, the same tail, the same route out, the same demoted ring, the same
+    // wall, in the same order.
+    const skel = (h) => (String(h).match(/class="pdxwa-[a-z-]+/g) || [])
+      .map((c) => c.slice(7)).join(">");
+    const twin = Object.keys(A.CMP_DATA).find((pid) => {
+      if (pid === "trump") return false;
+      let h = "";
+      try { h = WA.briefHtml(pid, A.CMP_DATA[pid]) || ""; } catch (e) { return false; }
+      return h.indexOf("pdxwa-shape-list") >= 0 &&
+        h.indexOf("pdxwa-shape-grp-h\">Ran both ways") >= 0 &&
+        (h.match(/<li class="pdxwa-shape-row"/g) || []).length ===
+          (xh.match(/<li class="pdxwa-shape-row"/g) || []).length;
+    });
+    must(!!twin, "no member brief lists the same number of rows as trump's — the structural " +
+      "comparison has no subject");
+    eq(skel(xh).replace(">pdxwa-shape-inv", ""), skel(WA.briefHtml(twin, A.CMP_DATA[twin])),
+      `the exec brief and ${twin}'s brief are not the same block`);
   }
   // An unresolvable pid has no absence to report.
   eq(WA.briefHtml("no_such_person_at_all", null), "",

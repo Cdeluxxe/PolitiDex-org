@@ -856,13 +856,39 @@ section("10 · the executive lane gets the same slot, in its own vocabulary");
     "the executive summary mounts on a member profile");
   eq(XS.pick(SUBJECT).on, false, "the executive summary claims a member figure");
 
-  // ── The jump bar's "The record" pill is a real destination again ───────────
+  // ── The jump bar's 🏛 pill and the strip it aims at are one decision ───────
+  // IT USED TO BE UNCONDITIONAL ON THIS LANE, AND THAT IS NO LONGER SAFE. The top
+  // of an executive file was a pointer down into this strip, so the strip always
+  // mounted and the pill always had somewhere to land. The top of the file lists
+  // the patterns itself now, and where it does the strip stands down — exactly as
+  // it does on a deep member — so a pill emitted anyway would scroll to an anchor
+  // nobody wrote. The pill and the mount therefore ask the same question, and this
+  // fences the agreement rather than either answer: where the brief named the
+  // patterns there is no pill, and where it only counted them there is one, with
+  // the block's own figure on it.
   const chips = base._pdxNavChips(EXEC, base.CMP_DATA[EXEC]);
-  ok(chips.standout, "the executive profile has no 🏛 The record pill, so the first spine slot is unreachable");
-  eq(chips.standout.value, `${x.acts} on file`,
-    "the record pill's figure is not the count the block it jumps to states");
-  ok(!/%/.test(String(chips.standout.value) + String(chips.standout.note)),
-    "the record pill carries a percentage on the executive lane");
+  const WAx = base.PDXWordAction;
+  const namedX = !!(WAx && typeof WAx.heroNamesPatterns === "function" &&
+    WAx.heroNamesPatterns(EXEC));
+  eq(!!chips.standout, !namedX,
+    namedX
+      ? "the executive profile still carries a 🏛 The record pill, but its brief named the patterns\n" +
+        "    and the strip that anchor belongs to stands down"
+      : "the executive profile has no 🏛 The record pill, so the first spine slot is unreachable");
+  if (chips.standout) {
+    eq(chips.standout.value, `${x.acts} on file`,
+      "the record pill's figure is not the count the block it jumps to states");
+    ok(!/%/.test(String(chips.standout.value) + String(chips.standout.note)),
+      "the record pill carries a percentage on the executive lane");
+  }
+  // The gate is asked of word-action.js, in the template, ahead of the block it
+  // suppresses — so the two cannot disagree at build time.
+  has(mount2, "heroNamesPatterns",
+    "the standout stage no longer asks whether the top of the file already named the patterns");
+  ok(code2.indexOf("heroNamesPatterns") < code2.indexOf("execRecordSummary"),
+    "the exec summary is built before the gate that is supposed to suppress it");
+  // Either way the reader has a route into the record: the pill where the strip
+  // mounts, and the brief's own "Explore all N issues by topic" where it does not.
   ok(chips.topics, "the executive profile lost its 🌳 By topic pill");
   eq(SP.targetStage("pdxsec-standout"), "standout",
     "the anchor both record blocks emit is no longer routed to the record stage");

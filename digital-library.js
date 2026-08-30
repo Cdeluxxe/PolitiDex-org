@@ -27,7 +27,10 @@
 
    Mounts into #digital-library (see index.html). Exposes:
      PDXDigitalLibrary.render()            (re)build everything
-     PDXDigitalLibrary.focus(opts)         scroll in; opts {q, type, issue}
+     PDXDigitalLibrary.focus(opts)         scroll in; opts {mode, q, type, issue}
+                                           mode: 'library' (the archive, and the
+                                           default when none is named) or
+                                           'legislation' (the bill catalog)
      PDXDigitalLibrary.search(q)           preset the search box
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
@@ -48,6 +51,38 @@
   function issueLabel(k) {
     try { if (typeof window._issueLabel === 'function') { var l = window._issueLabel(k); if (l) return l; } } catch (e) {}
     return String(k || '').replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+
+  // ── ONE SOURCE FOR "WHAT COLOUR IS THIS TOPIC" ─────────────────────────────
+  // Every chip on this surface names something from the issue vocabulary: a
+  // rollup topic ("Economy & Taxes") on the filter row and the card's category
+  // chip, a leaf ISSUE_MAP key ("housing", "gun_safety") on the per-bill topic
+  // chips. Both kinds resolve through issue-colors.js, which is also what the bill
+  // letterhead, the issue page and the person surfaces ask — so a topic is one
+  // colour on all of them instead of one colour per page. The rollup → core issue
+  // mapping is DECLARED there (PDXIssueColors.ROLLUP_PARENT), not here, precisely
+  // so it cannot drift into a second table.
+  //   IT EMITS BOTH SETS OF PROPERTIES. `--cat` is the plumbing this file's CSS
+  // already threads through card spines, left edges and chip borders, and it stays.
+  // `--pdx-ic*` ride alongside it so a chip can paint its fill and its text at the
+  // same strength as a letterhead chip (soft fill, full-strength border, ink text)
+  // without this file ever naming a hex.
+  //   IT FAILS OPEN. No issue-colors.js on the page (lite boot, a stripped test
+  // sandbox) and a rollup falls back to the house hex in ISSUE_CAT below, which is
+  // what shipped before the colour system existed. A colourless chip is still a
+  // working filter.
+  function tintStyle(key) {
+    var IC = G('PDXIssueColors');
+    if (!IC || typeof IC.styleFor !== 'function' || typeof IC.getIssueColor !== 'function') {
+      var f = ISSUE_CAT[key] && ISSUE_CAT[key].color;
+      return f ? '--cat:' + f + ';' : '';
+    }
+    return '--cat:' + IC.getIssueColor(key).color + ';' + IC.styleFor(key);
+  }
+  // The style ATTRIBUTE, or '' — for the call sites that emit one conditionally.
+  function tintAttr(key) {
+    var st = tintStyle(key);
+    return st ? ' style="' + escAttr(st) + '"' : '';
   }
 
   var PAGE = 18;                       // grid items per page
@@ -292,14 +327,14 @@
     var keys = (it.issueKeys || []).filter(Boolean);
     var c = null;
     for (var i = 0; i < keys.length && !c; i++) c = issueCatOf(keys[i]);
-    return c ? { key: c, label: ISSUE_CAT[c].label, icon: ISSUE_CAT[c].icon, color: ISSUE_CAT[c].color } : null;
+    return c ? { key: c, label: ISSUE_CAT[c].label, icon: ISSUE_CAT[c].icon } : null;
   }
 
   function cardHtml(it) {
     var tm = TYPES[it.type] || { icon: '📄', label: it.type };
     var badge = '<span class="dlib-badge dlib-b-' + it.type + '">' + tm.icon + ' ' + esc(tm.label) + '</span>';
     var cat = archiveCategory(it);
-    var catChip = cat ? '<span class="dlib-cat-chip" style="--cat:' + cat.color + '">' + cat.icon + ' ' + esc(cat.label) + '</span>' : '';
+    var catChip = cat ? '<span class="dlib-cat-chip"' + tintAttr(cat.key) + '>' + cat.icon + ' ' + esc(cat.label) + '</span>' : '';
     var tags = (it.issueKeys || []).slice(0, 2).map(function (k) {
       return '<span class="dlib-tag">' + esc(issueLabel(k)) + '</span>';
     }).join('');
@@ -307,7 +342,7 @@
     // archive card reads as an obvious, themed doorway rather than a flat block.
     var CTA = { spotlight: 'View Spotlight', receipt: 'See the receipt', mandate: 'Open reform', bill: 'Open bill', contract: 'See contract' };
     var cta = (CTA[it.type] || 'Open') + ' →';
-    var catStyle = cat ? ' style="--cat:' + cat.color + '"' : '';
+    var catStyle = cat ? tintAttr(cat.key) : '';
     return '<button type="button" class="dlib-card' + (cat ? ' dlib-cat' : '') + '" data-id="' + esc(it.id) + '"' + catStyle + ' aria-label="Open: ' + esc(it.title) + '">' +
       '<span class="dlib-card-top">' + badge + (it.sub ? '<span class="dlib-card-sub">' + esc(it.sub) + '</span>' : '') + '</span>' +
       catChip +
@@ -499,9 +534,13 @@
       // category accent wins over the type accent when an item has a topic.
       '.dlib-card.dlib-cat{border-left-color:var(--cat);}' +
       '.dlib-card.dlib-cat:hover{border-color:var(--cat);}' +
+      // Chip strength across this file matches the bill letterhead exactly: the soft
+      // fill, the full-strength border, the ink text. Every fallback is the value that
+      // shipped before the colour system, so a page without issue-colors.js renders
+      // the old house chip rather than a colourless one.
       '.dlib-cat-chip{align-self:flex-start;display:inline-flex;align-items:center;gap:.25rem;font:700 .56rem/1 "Barlow Condensed",sans-serif;' +
-        'letter-spacing:.05em;text-transform:uppercase;color:var(--cat,#9ec8ff);background:rgba(159,180,212,.06);' +
-        'border:1px solid var(--cat,rgba(159,180,212,.3));border-radius:999px;padding:.2rem .5rem;}' +
+        'letter-spacing:.05em;text-transform:uppercase;color:var(--pdx-ic-ink,var(--cat,#9ec8ff));background:var(--pdx-ic-soft,rgba(159,180,212,.06));' +
+        'border:1px solid var(--pdx-ic,var(--cat,rgba(159,180,212,.3)));border-radius:999px;padding:.2rem .5rem;}' +
       '.dlib-card-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;}' +
       '.dlib-badge{font:800 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;' +
         'border-radius:.4rem;padding:.22rem .45rem;color:#bcd0f0;background:rgba(96,165,250,.14);border:1px solid rgba(96,165,250,.3);white-space:nowrap;}' +
@@ -562,9 +601,9 @@
       // Section-breakdown chips on bill cards (each links to an Issue Spotlight).
       '.dlib-sec-head{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;padding-top:.1rem;font:700 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#7d97bd;}' +
       '.dlib-sec-chips{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.3rem;}' +
-      '.dlib-sec-chip{cursor:pointer;font:600 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:var(--cat,#9ec8ff);' +
-        'background:rgba(96,165,250,.08);border:1px solid var(--cat,rgba(96,165,250,.28));border-radius:.4rem;padding:.24rem .5rem;transition:background .15s,border-color .15s,filter .15s;}' +
-      '.dlib-sec-chip:hover{filter:brightness(1.15);background:rgba(96,165,250,.16);}' +
+      '.dlib-sec-chip{cursor:pointer;font:600 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:var(--pdx-ic-ink,var(--cat,#9ec8ff));' +
+        'background:var(--pdx-ic-soft,rgba(96,165,250,.08));border:1px solid var(--pdx-ic,var(--cat,rgba(96,165,250,.28)));border-radius:.4rem;padding:.24rem .5rem;transition:background .15s,border-color .15s,filter .15s;}' +
+      '.dlib-sec-chip:hover{filter:brightness(1.15);background:var(--pdx-ic-wash,rgba(96,165,250,.16));}' +
       // Two rules were deleted here along with the markup that used them: the filled,
       // inverted chip that marked one topic of a bundle as the real one, and the
       // greyed tail that rolled the rest of a long list up into a count. Neither
@@ -622,7 +661,7 @@
         'background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.35);border-radius:999px;padding:.2rem .45rem;}' +
       // Category label + omnibus / megabill tier badges + tiered card accents.
       '.dlib-bill-tagrow{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;}' +
-      '.dlib-bill-cat{display:inline-flex;align-items:center;gap:.25rem;font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--cat,#9ec8ff);background:rgba(159,180,212,.06);border:1px solid var(--cat,rgba(159,180,212,.3));border-radius:999px;padding:.22rem .55rem;}' +
+      '.dlib-bill-cat{display:inline-flex;align-items:center;gap:.25rem;font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--pdx-ic-ink,var(--cat,#9ec8ff));background:var(--pdx-ic-soft,rgba(159,180,212,.06));border:1px solid var(--pdx-ic,var(--cat,rgba(159,180,212,.3)));border-radius:999px;padding:.22rem .55rem;}' +
       '.dlib-bill-tier{font:800 .58rem/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase;border-radius:.4rem;padding:.24rem .5rem;white-space:nowrap;}' +
       '.dlib-tier-omni{color:#f6d873;background:rgba(245,200,66,.14);border:1px solid rgba(245,200,66,.4);}' +
       '.dlib-tier-mega{color:#0a0f1e;background:linear-gradient(90deg,#fbbf24,#f6d873);border:1px solid rgba(245,200,66,.65);box-shadow:0 0 10px rgba(245,200,66,.3);}' +
@@ -631,9 +670,23 @@
       '.dlib-billcard--mega:hover{border-color:rgba(245,200,66,.5);}' +
       // Topic quick-filter chips (facet bar).
       '.dlib-topics{display:flex;flex-wrap:wrap;gap:.4rem;width:100%;margin-bottom:.55rem;}' +
-      '.dlib-topic{cursor:pointer;font:700 .66rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#cbd9ec;background:rgba(159,180,212,.07);border:1px solid rgba(159,180,212,.2);border-radius:999px;padding:.4rem .75rem;display:inline-flex;align-items:center;gap:.3rem;transition:background .15s,border-color .15s,color .15s;}' +
-      '.dlib-topic:hover{background:rgba(159,180,212,.15);color:#fff;}' +
-      '.dlib-topic.is-on{color:#0a0f1e;background:var(--cat,#7fb4ff);border-color:var(--cat,#7fb4ff);}' +
+      // THE TOPIC FILTER ROW CARRIES ITS TOPIC'S COLOUR AT REST. It used to paint one
+      // navy pill per topic and only reach for the colour once a filter was selected,
+      // which meant the row a reader scans to FIND a topic was the one place on the
+      // site where topics had no colour — thirteen identical grey pills for a
+      // vocabulary that is amber, blue and coral everywhere else. Selected still means
+      // filled: the loud state is how a chip says it is doing something, and it now
+      // fills with the same colour it already wore.
+      //   The left edge is the third strength the card spines use, so a filter chip and
+      // the cards it filters are visibly the same topic.
+      '.dlib-topic{cursor:pointer;font:700 .66rem/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:var(--pdx-ic-ink,#cbd9ec);background:var(--pdx-ic-soft,rgba(159,180,212,.07));border:1px solid var(--pdx-ic,rgba(159,180,212,.2));border-left:3px solid var(--pdx-ic,rgba(159,180,212,.2));border-radius:999px;padding:.4rem .75rem;display:inline-flex;align-items:center;gap:.3rem;transition:background .15s,border-color .15s,color .15s;}' +
+      '.dlib-topic:hover{background:var(--pdx-ic-wash,rgba(159,180,212,.15));color:#fff;}' +
+      '.dlib-topic.is-on{color:#0a0f1e;background:var(--pdx-ic,var(--cat,#7fb4ff));border-color:var(--pdx-ic,var(--cat,#7fb4ff));}' +
+      // "All topics" names no topic, so it takes no topic's colour — it keeps the
+      // neutral pill it has always been, which is also what tells it apart from the
+      // thirteen coloured ones beside it.
+      '.dlib-topic-all{color:#cbd9ec;background:rgba(159,180,212,.07);border-color:rgba(159,180,212,.2);}' +
+      '.dlib-topic-all.is-on{color:#0a0f1e;background:#7fb4ff;border-color:#7fb4ff;}' +
       '.dlib-topic-n{font-size:.85em;opacity:.75;background:rgba(0,0,0,.15);border-radius:999px;padding:.03rem .32rem;}' +
       // Follow star on bill cards + the "Followed" facet toggle.
       '.dlib-bill-follow{margin-left:auto;cursor:pointer;font-size:1.05rem;line-height:1;color:#8aa0c4;padding:0 .1rem;user-select:none;transition:color .15s,transform .12s;}' +
@@ -746,8 +799,14 @@
 
   // ── Topic categories ────────────────────────────────────────────────────────
   // Group the fine-grained issue keys into a handful of scannable topics, each with
-  // an icon + accent color. Powers the card category label and the one-tap topic
-  // filter. Additive: a key not listed here simply has no category (no chip shown).
+  // an icon. Powers the card category label and the one-tap topic filter. Additive:
+  // a key not listed here simply has no category (no chip shown).
+  //   `color` IS NO LONGER THE SOURCE OF THE COLOUR. These thirteen topics are the
+  // rollups issue-colors.js declares a parent core issue for, and tintStyle() above
+  // takes the colour from there, so the Economy filter is the same amber as
+  // /issue/cost_living and a bill letterhead's Economy chip. The hexes below are
+  // kept as the fail-open value for a page that loaded without issue-colors.js —
+  // they are the pre-colour-system house palette and nothing reads them otherwise.
   var ISSUE_CAT = {
     economy:    { label: 'Economy & Taxes', icon: '💰', color: '#4ade80', keys: ['lower_taxes', 'tax_middle_class', 'cost_living', 'econ_workers', 'econ_corp_account', 'econ_trade', 'econ_balance', 'econ_growth', 'econ_smallbiz', 'tariffs_authority', 'tariffs_prices', 'tariffs_china', 'tariffs_growth', 'prop_tax', 'property_tax', 'sound_money', 'dev_district_finance'] },
     spending:   { label: 'Spending & Debt', icon: '🏛️', color: '#f6d873', keys: ['national_debt', 'cut_spending', 'gov_services', 'gov_waste', 'audit_spending'] },
@@ -794,7 +853,7 @@
     }
     if (best < 0) return null;
     var k = ISSUE_CAT_ORDER[best];
-    return { key: k, label: ISSUE_CAT[k].label, icon: ISSUE_CAT[k].icon, color: ISSUE_CAT[k].color };
+    return { key: k, label: ISSUE_CAT[k].label, icon: ISSUE_CAT[k].icon };
   }
   // Every category a bill touches — for the topic filter.
   function billCatSet(b) {
@@ -933,11 +992,17 @@
       ? window._pdxBigPictureKeys(keys, { labelFn: issueLabel })
       : keys.filter(function (k, i) { return keys.indexOf(k) === i; });
     var chips = ordered.map(function (k) {
+      // THE CHIP NAMES A LEAF KEY, SO IT IS COLOURED AS ONE. The icon still comes
+      // from the rollup this key sits in — an icon is a category cue — but the
+      // colour is the key's own, which is what makes a housing chip here the same
+      // amber as /issue/housing and as the housing chip on the bill's letterhead.
+      // Where a rollup spans bundles (Family & Rights holds both housing and the
+      // abortion keys) a leaf keeps its own colour rather than the bundle's; the
+      // chip names the leaf, not the bundle.
       var ic = issueCatOf(k);
       var cico = ic ? ISSUE_CAT[ic].icon + ' ' : '';
-      var ccol = ic ? ISSUE_CAT[ic].color : '';
       return '<button type="button" class="dlib-sec-chip' +
-        '" data-issue="' + escAttr(k) + '"' + (ccol ? ' style="--cat:' + ccol + '"' : '') +
+        '" data-issue="' + escAttr(k) + '"' + tintAttr(k) +
         ' title="See the ' + escAttr(issueLabel(k)) + ' spotlight">' +
         cico + esc(issueLabel(k)) + '</button>';
     }).join('');
@@ -951,7 +1016,7 @@
         : '';
     // Headline topic category (icon + label), for instant visual grouping.
     var cat = billCategory(b);
-    var catChip = cat ? '<span class="dlib-bill-cat" style="--cat:' + cat.color + '">' + cat.icon + ' ' + esc(cat.label) + '</span>' : '';
+    var catChip = cat ? '<span class="dlib-bill-cat"' + tintAttr(cat.key) + '>' + cat.icon + ' ' + esc(cat.label) + '</span>' : '';
     var tagrow = (catChip || tierBadge) ? '<span class="dlib-bill-tagrow">' + catChip + tierBadge + '</span>' : '';
 
     // "At a glance" line + color-coded progress track + a plain key-stats strip, all on
@@ -987,7 +1052,7 @@
       '<button type="button" class="dlib-bill-expand" data-expand aria-expanded="false" aria-label="Show what’s inside this bill">' +
         '<span class="dlib-bill-expand-lb">What’s inside &amp; why it matters</span>' +
         '<span class="dlib-bill-expand-ic" aria-hidden="true">▾</span></button>';
-    var catStyle = cat ? ' style="--cat:' + cat.color + '"' : '';
+    var catStyle = cat ? tintAttr(cat.key) : '';
 
     return '<div class="dlib-card dlib-billcard' + (tier ? ' dlib-billcard--' + tier : '') + '" data-bill="' + escAttr(String(ref)) + '"' + catStyle + ' role="button" tabindex="0" aria-label="Open bill: ' + escAttr(b.title) + '">' +
       '<span class="dlib-card-top"><span class="dlib-badge dlib-b-bill">🏛️ ' + esc(b.number || 'Bill') + '</span>' + status + star + '</span>' +
@@ -1046,7 +1111,7 @@
       ? '<div class="dlib-topics" role="group" aria-label="Filter by topic">' +
           '<button type="button" class="dlib-topic dlib-topic-all' + (!_billFilters.category ? ' is-on' : '') + '" data-topic="">🧭 All topics</button>' +
           catList.map(function (c) {
-            return '<button type="button" class="dlib-topic' + (_billFilters.category === c ? ' is-on' : '') + '" data-topic="' + c + '" style="--cat:' + ISSUE_CAT[c].color + '">' +
+            return '<button type="button" class="dlib-topic' + (_billFilters.category === c ? ' is-on' : '') + '" data-topic="' + c + '"' + tintAttr(c) + '>' +
               ISSUE_CAT[c].icon + ' ' + esc(ISSUE_CAT[c].label) + ' <span class="dlib-topic-n">' + catCounts[c] + '</span></button>';
           }).join('') +
         '</div>'
@@ -1243,6 +1308,11 @@
 
   function setMode(mode) {
     if (mode !== 'legislation') mode = 'library';
+    // The archive needs the spotlight registry before render() will build it, and
+    // that registry loads on demand — so a mode switch can legitimately arrive
+    // before render() has ever succeeded. injectCss() is idempotent and cheap, and
+    // without it the tab strip, facet bar and bill cards paint unstyled.
+    injectCss();
     if (_state.mode === mode && (mode !== 'legislation' || _bills)) { /* still refresh chrome below */ }
     _state.mode = mode;
     _state.shown = (mode === 'legislation') ? LEG_PAGE : PAGE;
@@ -1295,7 +1365,16 @@
       more._dlibWired = true;
       more.addEventListener('click', function () { _state.shown += (_state.mode === 'legislation' ? LEG_PAGE : PAGE); if (_state.mode === 'legislation') applyBills(); else applyBrowse(); });
     }
-    applyBrowse();
+    // Repaint whichever mode is SELECTED, not always the archive. render() is
+    // re-run whenever a lazily-loaded dataset lands (see the spotlights listener
+    // at the foot of this file), and on a phone that arrival routinely happens
+    // just after a reader has opened the Legislation tab — scrolling the library
+    // into view is itself what triggers the fetch. Ending unconditionally in
+    // applyBrowse() overwrote their bill list with the archive grid a beat after
+    // they asked for it, which is why "Legislation / Bills" looked like it landed
+    // on the same room as "Digital Library".
+    if (_state.mode === 'legislation') loadBills();
+    else applyBrowse();
     _built = true;
     return true;
   }
@@ -1317,7 +1396,10 @@
     focus: function (opts) {
       opts = opts || {};
       if (!_built) render();
-      if (opts.mode) { setMode(opts.mode); }
+      // No mode named means the archive: "Digital Library" has to open the
+      // library even when the last thing this visitor did was open Legislation.
+      // setMode() normalises anything that is not 'legislation' to 'library'.
+      setMode(opts.mode || 'library');
       // Legislation-mode deep link: filter the bill hub by issue / phase / sort.
       if (opts.mode === 'legislation') {
         if (typeof opts.issue === 'string') _billFilters.issue = opts.issue;

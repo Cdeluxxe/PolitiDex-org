@@ -52,6 +52,18 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
   function jsAttr(s) { return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+  // A label that names an issue is painted by that issue, from the one table every
+  // other surface reads (issue-colors.js) - so Health Care here is the blue it is
+  // on the bill, in the Library filter row and on /issue/healthcare. Returns ''
+  // when the module has not loaded, and the stylesheet's own colour stands.
+  function issueTint(key) {
+    try {
+      var IC = window.PDXIssueColors;
+      if (!IC || typeof IC.styleFor !== 'function') return '';
+      var st = IC.styleFor(key);
+      return st ? ' data-ic="on" style="' + esc(st) + '"' : '';
+    } catch (e) { return ''; }
+  }
   function initials(name) {
     var p = String(name || '').trim().split(/\s+/).filter(Boolean);
     if (!p.length) return '👤';
@@ -376,7 +388,7 @@
     if (!keys.length) return '';
     var chips = keys.map(function (k) {
       var active = (k === _state.issueKey) ? ' is-active' : '';
-      return '<span class="ic-fr-chip' + active + '">'
+      return '<span class="ic-fr-chip' + active + '"' + issueTint(k) + '>'
         + '<button type="button" class="ic-fr-go" onclick="window.PDXIssueCompare.selectIssue(\'' + jsAttr(k) + '\')" title="Compare the field on ' + esc(issueLabel(k)) + '">' + esc(issueLabel(k)) + '</button>'
         + '<button type="button" class="ic-fr-x" onclick="window.__icToggleFocus(\'' + jsAttr(k) + '\',this)" aria-label="Unpin ' + esc(issueLabel(k)) + '" title="Unpin">✕</button>'
         + '</span>';
@@ -397,7 +409,15 @@
     var chips = stances.slice(0, 12).map(function (s) {
       var st = STANCE[s.position] || STANCE.mixed;
       var active = s.issueKey === _state.issueKey ? ' is-active' : '';
-      return '<button type="button" class="ic-stance-chip' + active + '" style="--c:' + st.color + '" onclick="window.PDXIssueCompare.selectIssue(\'' + jsAttr(s.issueKey) + '\')" title="You take a ' + esc(st.pill) + ' position here — see who lines up">'
+      // Two vocabularies on one chip, kept apart on purpose: --c is the stance the
+      // reader took (support / oppose / mixed) and keeps the icon and the active
+      // fill; --pdx-ic is the issue the chip names and takes the border and the
+      // label. Collapsing them would make "Supports" and "Health Care" the same
+      // fact, and they are not.
+      var IC = window.PDXIssueColors;
+      var icVars = (IC && typeof IC.styleFor === 'function') ? (IC.styleFor(s.issueKey) || '') : '';
+      return '<button type="button" class="ic-stance-chip' + active + '"' + (icVars ? ' data-ic="on"' : '') +
+        ' style="--c:' + st.color + ';' + esc(icVars) + '" onclick="window.PDXIssueCompare.selectIssue(\'' + jsAttr(s.issueKey) + '\')" title="You take a ' + esc(st.pill) + ' position here — see who lines up">'
         + '<span class="ic-sc-ico">' + st.ico + '</span><span class="ic-sc-lbl">' + esc(issueLabel(s.issueKey)) + '</span></button>';
     }).join('');
     return '<div class="ic-strip">'
@@ -426,7 +446,7 @@
       var lbl = issueLabel(k);
       var on = focusHas(k);
       var hay = (lbl + ' ' + ((map[k] && map[k].keywords) || []).join(' ')).toLowerCase();
-      return '<button type="button" class="ic-opt' + (on ? ' is-pinned' : '') + '" data-ic-opt data-hay="' + esc(hay) + '" onclick="window.PDXIssueCompare.selectIssue(\'' + jsAttr(k) + '\')">'
+      return '<button type="button" class="ic-opt' + (on ? ' is-pinned' : '') + '" data-ic-opt' + issueTint(k) + ' data-hay="' + esc(hay) + '" onclick="window.PDXIssueCompare.selectIssue(\'' + jsAttr(k) + '\')">'
         + (on ? '<span class="ic-opt-pin" aria-hidden="true">📌</span>' : '')
         + '<span class="ic-opt-lbl">' + esc(lbl) + '</span>' + coverageTag(k) + '</button>';
     }).join('');

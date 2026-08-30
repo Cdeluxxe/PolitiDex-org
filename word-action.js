@@ -4185,37 +4185,168 @@
     return 'No formal pattern on file yet. Nothing we hold for them is a vote or formal action ' +
       'a direction can be read from, and nothing here is inferred from what they said.';
   }
+  // The brief's heading, in one place, because the empty states print it without a
+  // body under it.
+  function briefHeadHtml() {
+    return '<div class="pdxwa-shape-hd">' +
+        '<span aria-hidden="true">🏛</span> The formal record' +
+      '</div>';
+  }
+  // ── ONE BRIEF BODY, BOTH LANES ──────────────────────────────────────────────
+  // WHAT THIS IS. The rendered brief, from its heading to its tier wall: the
+  // strongest one-sided issues, then the ones that ran both ways, then the count
+  // of everything the engine declined to characterise, then the route out to the
+  // topic tree, then Direction Match demoted beneath it. Both the roll-call lane
+  // and the executive lane render THROUGH THIS CALL, so the two cannot drift into
+  // two briefs — a president's file and a member's file are the same block, the
+  // same headings, the same row markup, the same order.
+  //
+  // WHAT THE LANE STILL OWNS, AND WHY IT IS ONLY THIS.
+  //   opts.census — the paragraph(s) directly under the heading that say how much
+  //     is on file. A member's is three counts of a roll-call ledger; an
+  //     executive's is the volume clause and the per-class inventory the exec lane
+  //     already publishes ("8 laws signed · 4 vetoes · …"). It is a census in both
+  //     lanes and it is a different census, because the things being counted are
+  //     different things and calling forty vetoes "votes" would be the lie the row
+  //     copy is careful not to tell.
+  //   opts.total  — what "Explore all N issues" counts, from the lane's own index.
+  //   opts.cls    — a lane class on the wrapper, for CSS only. No copy hangs off it.
+  // Everything else — the ladder, the caps, the tier words, the chips, the
+  // tallies, the refusals, the wall — comes from the shape and is identical.
+  //
+  // THE SHAPE IS THE CONTRACT. Whatever produces it (formalPatternIndex.shape for
+  // the roll-call lane, execRecordSummary.shape for the executive one) publishes
+  // the same fields in the same row shape and reads its tiers out of the same
+  // record-direction engine. That is why no verb, no bucket and no score is
+  // invented here: this function does not know which lane it is drawing.
+  function briefBodyHtml(pid, p, sh, opts) {
+    opts = opts || {};
+    var head = briefHeadHtml();
+    var dmFor = function (recordAbove) {
+      return shapeMatchHtml(pid, p, { deep: false, recordAbove: recordAbove });
+    };
+    var grp = function (label, rows, shown, of, mount) {
+      if (!rows.length) return '';
+      return '<div class="pdxwa-shape-grp">' +
+          '<div class="pdxwa-shape-grp-h">' + label + '</div>' +
+          '<ul class="pdxwa-shape-list">' + shapeRowsHtml(rows, pid, mount) + '</ul>' +
+          (of > shown
+            ? '<p class="pdxwa-shape-more">' + (of - shown) + ' more in the topic tree below.</p>' : '') +
+        '</div>';
+    };
+    var tops = grp('Strongest patterns', sh.tops, sh.tops.length, sh.strongN, 'brief');
+    var splits = grp('Ran both ways', sh.splits, sh.splits.length, sh.splitN, 'brief-split');
+    // ── thin ─────────────────────────────────────────────────────────────
+    // Nothing one-sided, nothing split: the letterhead's own refusal, word for
+    // word, and then the count behind it.
+    //
+    // "MORE" ONLY WHERE SOMETHING CAME BEFORE. The letterhead's thin line always
+    // follows a list, so it can say "N MORE issues have formal items on file".
+    // Here nothing may have been listed, and "1 more issue" under "no issue yet
+    // has a record one-sided enough" is one sentence too many about one issue.
+    // Where no rows ran, the refusal and the count are the same sentence.
+    var listed = !!(tops || splits);
+    var tailN = shapeTailN(sh);
+    var none = '', thin = '';
+    if (listed) {
+      thin = tailN
+        ? '<p class="pdxwa-shape-thin"><b>' + tailN + '</b> more issue' + (tailN === 1 ? '' : 's') +
+            ' ha' + (tailN === 1 ? 's' : 've') + ' formal items on file but not enough of them to ' +
+            'characterise a pattern yet.</p>'
+        : '';
+    } else {
+      none = '<p class="pdxwa-shape-none">No issue yet has a record one-sided enough to ' +
+        'characterise' + (tailN
+          ? ' — <b>' + tailN + '</b> ' + (tailN === 1 ? 'has' : 'have') +
+            ' formal items on file but not enough of them to characterise a pattern yet.'
+          : '.') + '</p>';
+    }
+    // The tier wall explains the CHIPS. Where no chip rendered it is a rule about
+    // nothing, so it stands down with them. The lane may carry its own wording of
+    // it — an executive's says "actions on file" where a member's says "votes on
+    // file", because that is what each lane holds — and it is the same sentence and
+    // the same rule either way; where the shape publishes none, the shared sentence
+    // prints unchanged.
+    var wall = listed ? (sh.wall || window._PDX_RD_TIER_NOTE || '') : '';
+    var total = opts.total || sh.issues;
+    return '<div class="pdxwa-brief' + (opts.cls || '') + (listed ? '' : ' pdxwa-brief-thin') + '">' + head +
+        (opts.census || '') + tops + splits + none + thin +
+        '<button type="button" class="pdxwa-shape-all"' + jumpAttr(SHAPE_JUMP) +
+          ' aria-label="' + esc('Explore all ' + total + ' issues on the formal record, by topic') + '">' +
+          'Explore all ' + total + ' issue' + (total === 1 ? '' : 's') +
+          ' by topic <span aria-hidden="true">↓</span>' +
+        '</button>' +
+        dmFor(true) +
+        (wall ? '<p class="pdxwa-shape-wall">' + esc(wall) + '</p>' : '') +
+      '</div>';
+  }
+
   // Does the block at the top of the file NAME this person's formal patterns?
   // Published because profiles-full.js has to keep exactly one record block on a
   // profile: where the top names the patterns, the standout strip below stands
   // down, which is the same coordination shapeApplies() already does above the
   // gate. Counts-only and empty briefs do not claim the strip's job, so the strip
   // is free to mount under them.
+  //
+  // IT ASKS BOTH LANES, BECAUSE BOTH LANES NOW LIST ROWS. An executive file used
+  // to answer false here always — its top block was a pointer DOWN INTO the strip,
+  // so the strip had to mount and the pill had to aim at it. The exec brief lists
+  // the patterns itself now, so on a president this returns true and the strip
+  // stands down exactly as it does on a deep member. Where the exec shape lists
+  // nothing — a file whose acts are all too thin to characterise, or a stale
+  // engine that publishes no shape at all — it returns false, the strip mounts,
+  // and the pointer's old destination is there again.
   function heroNamesPatterns(pid) {
     try {
       if (shapeApplies(pid)) return true;
+      var XS = window.PDXConsistency && window.PDXConsistency.execRecordSummary;
+      if (XS && typeof XS.pick === 'function' && typeof XS.shape === 'function') {
+        var xp = null;
+        try { xp = XS.pick(pid); } catch (e) { xp = null; }
+        if (xp && xp.on) {
+          var xsh = null;
+          try { xsh = XS.shape(pid); } catch (e) { xsh = null; }
+          return !!(xsh && (xsh.tops.length || xsh.splits.length));
+        }
+      }
       var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
       if (!FPI || typeof FPI.shape !== 'function') return false;
       var sh = FPI.shape(pid);
       return !!(sh && (sh.tops.length || sh.splits.length));
     } catch (e) { return false; }
   }
-  // 🏛 THE EXEC LANE'S OWN TOP-OF-FILE LINE. An executive has no roll-call ledger,
-  // so the brief above cannot describe their record — but leaving them out meant the
-  // one profile in the roster that still reached the ring was also the most visited
-  // one, and its first screen was an 80px percentage with the record nowhere in it.
+
+  // 🏛 THE EXEC LANE'S TOP-OF-FILE BRIEF. An executive has no roll-call ledger, so
+  // for a while this slot was a POINTER: the volume clause, the inventory, and a
+  // button reading "See what this record holds ↓" that jumped a rung down to the
+  // standouts strip. Every figure in it was a count, so the most-visited profile in
+  // the roster opened on a census and a promise, while the file next door opened on
+  // "🛡 Strong Border & Enforcement — Strongly supports · 9 actions advanced" and
+  // three more like it. Same formal lane, same reader, different treatment.
   //
-  // This is a POINTER, not a second record block. Every string in it belongs to the
-  // exec lane already: the volume clause it publishes as its denominator sentence,
-  // and the inventory lines it publishes as what is on file. Nothing is recounted
-  // here, nothing is characterised, and the standouts — the lane's actual findings —
-  // stay in the section this jumps to, one rung down, exactly where they are today.
+  // It is the member brief now, through briefBodyHtml, on the exec lane's own acts:
+  //   · THE ROWS ARE THE ACTS ALREADY ON FILE — signed law, veto, executive order,
+  //     directive — weighted by the act table the exec lane already owns. No floor
+  //     vote is invented to stand in for one, because there is no floor here.
+  //   · THE VERBS ARE THE ONES THE PRODUCT ALREADY PRINTS. The chip and tally come
+  //     out of the record-direction engine, so a row reads "Strongly supports ·
+  //     9 actions advanced", never "9 votes". The lane's own noun does that swap;
+  //     nothing here writes copy about it.
+  //   · THE CENSUS SURVIVES THE CHANGE. The volume clause and the per-class
+  //     inventory still print, in the same words, directly under the heading —
+  //     they are the denominator for the rows beneath them, and they were never a
+  //     substitute for the list.
+  // The empty state is untouched: no acts, no rows, and the absence is named rather
+  // than filled.
+  //
+  // THE FALLBACK IS THE OLD POINTER, AND IT STILL HAS SOMEWHERE TO POINT. If the
+  // engine on the page publishes no exec shape, this cannot list anything, so it
+  // renders what it always rendered and jumps to the strip — and heroNamesPatterns()
+  // returns false for exactly that case, so the strip is mounted to receive it.
   var EXEC_JUMP = 'pdxsec-standout';
   function execBriefHtml(pid, p, xp) {
     try {
-      var head = '<div class="pdxwa-shape-hd">' +
-          '<span aria-hidden="true">🏛</span> The formal record' +
-        '</div>';
+      var head = briefHeadHtml();
       var vol = xp.volume
         ? '<p class="pdxwa-shape-depth">' + esc(xp.volume) + '</p>'
         : (xp.acts
@@ -4233,6 +4364,16 @@
       }
       var inv = (xp.inventory && xp.inventory.length)
         ? '<p class="pdxwa-shape-inv">' + esc(xp.inventory.join(' · ')) + '</p>' : '';
+      var XS = window.PDXConsistency && window.PDXConsistency.execRecordSummary;
+      var sh = null;
+      try { sh = (XS && typeof XS.shape === 'function') ? XS.shape(pid) : null; } catch (e) { sh = null; }
+      if (sh && sh.issues) {
+        return briefBodyHtml(pid, p, sh, {
+          census: vol + inv,
+          total: sh.issues,
+          cls: ' pdxwa-brief-exec'
+        });
+      }
       return '<div class="pdxwa-brief pdxwa-brief-exec">' + head + vol + inv +
           '<button type="button" class="pdxwa-shape-all"' + jumpAttr(EXEC_JUMP) +
             ' aria-label="' + esc('See what this formal record holds, issue by issue') + '">' +
@@ -4265,22 +4406,16 @@
       if (!FPI || typeof FPI.shape !== 'function') return '';
       var sh = FPI.shape(pid);
       if (!sh) return '';
-      var head = '<div class="pdxwa-shape-hd">' +
-          '<span aria-hidden="true">🏛</span> The formal record' +
-        '</div>';
-      var dmFor = function (recordAbove) {
-        return shapeMatchHtml(pid, p, { deep: false, recordAbove: recordAbove });
-      };
       // ── empty ────────────────────────────────────────────────────────────
       // Two different absences, and they are not interchangeable: a record that
       // has not arrived is a fact about this page load, a record with nothing on
       // it is a fact about the file. Both refuse to print a figure.
       if (!sh.issues) {
-        return '<div class="pdxwa-brief pdxwa-brief-empty">' + head +
+        return '<div class="pdxwa-brief pdxwa-brief-empty">' + briefHeadHtml() +
             '<p class="pdxwa-shape-none">' +
               briefAbsenceCopy(pid, p) +
             '</p>' +
-            dmFor(false) +
+            shapeMatchHtml(pid, p, { deep: false, recordAbove: false }) +
           '</div>';
       }
       var total = (typeof FPI.count === 'function') ? (FPI.count(pid) || sh.issues) : sh.issues;
@@ -4292,55 +4427,7 @@
             (sh.judged === 1 ? '' : 's') + ' read' +
           ' · <b>' + sh.characterised + '</b> deep enough to characterise' +
         '</p>';
-      var grp = function (label, rows, shown, of, mount) {
-        if (!rows.length) return '';
-        return '<div class="pdxwa-shape-grp">' +
-            '<div class="pdxwa-shape-grp-h">' + label + '</div>' +
-            '<ul class="pdxwa-shape-list">' + shapeRowsHtml(rows, pid, mount) + '</ul>' +
-            (of > shown
-              ? '<p class="pdxwa-shape-more">' + (of - shown) + ' more in the topic tree below.</p>' : '') +
-          '</div>';
-      };
-      var tops = grp('Strongest patterns', sh.tops, sh.tops.length, sh.strongN, 'brief');
-      var splits = grp('Ran both ways', sh.splits, sh.splits.length, sh.splitN, 'brief-split');
-      // ── thin ─────────────────────────────────────────────────────────────
-      // Nothing one-sided, nothing split: the letterhead's own refusal, word for
-      // word, and then the count behind it.
-      //
-      // "MORE" ONLY WHERE SOMETHING CAME BEFORE. The letterhead's thin line always
-      // follows a list, so it can say "N MORE issues have formal items on file".
-      // Here nothing may have been listed, and "1 more issue" under "no issue yet
-      // has a record one-sided enough" is one sentence too many about one issue.
-      // Where no rows ran, the refusal and the count are the same sentence.
-      var listed = !!(tops || splits);
-      var tailN = shapeTailN(sh);
-      var none = '', thin = '';
-      if (listed) {
-        thin = tailN
-          ? '<p class="pdxwa-shape-thin"><b>' + tailN + '</b> more issue' + (tailN === 1 ? '' : 's') +
-              ' ha' + (tailN === 1 ? 's' : 've') + ' formal items on file but not enough of them to ' +
-              'characterise a pattern yet.</p>'
-          : '';
-      } else {
-        none = '<p class="pdxwa-shape-none">No issue yet has a record one-sided enough to ' +
-          'characterise' + (tailN
-            ? ' — <b>' + tailN + '</b> ' + (tailN === 1 ? 'has' : 'have') +
-              ' formal items on file but not enough of them to characterise a pattern yet.'
-            : '.') + '</p>';
-      }
-      // The tier wall explains the CHIPS. Where no chip rendered it is a rule about
-      // nothing, so it stands down with them.
-      var wall = listed ? (window._PDX_RD_TIER_NOTE || '') : '';
-      return '<div class="pdxwa-brief' + (listed ? '' : ' pdxwa-brief-thin') + '">' + head +
-          depth + tops + splits + none + thin +
-          '<button type="button" class="pdxwa-shape-all"' + jumpAttr(SHAPE_JUMP) +
-            ' aria-label="' + esc('Explore all ' + total + ' issues on the formal record, by topic') + '">' +
-            'Explore all ' + total + ' issue' + (total === 1 ? '' : 's') +
-            ' by topic <span aria-hidden="true">↓</span>' +
-          '</button>' +
-          dmFor(true) +
-          (wall ? '<p class="pdxwa-shape-wall">' + esc(wall) + '</p>' : '') +
-        '</div>';
+      return briefBodyHtml(pid, p, sh, { census: depth, total: total, cls: '' });
     } catch (e) { return ''; }
   }
 

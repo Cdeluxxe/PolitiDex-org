@@ -194,7 +194,16 @@ button.pdxdo-chip-ev:hover { background: rgba(56, 189, 248, 0.2); border-color: 
 
 .pdxdo-chip-rec { color: #cbd9ec; }
 .pdxdo-chip-pr { color: #c3b7f0; background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.24); }
+/* The issue chip is the one place on this row that carries the ISSUE colour, at
+   the same strength as a bill letterhead chip: soft fill, full-strength border,
+   ink text. `data-ic` is only present when issue-colors.js resolved the key, so a
+   row whose key is outside the core set keeps the neutral chip it always had. */
 .pdxdo-chip-iss { color: #9fb4d4; }
+.pdxdo-chip-iss[data-ic] {
+  color: var(--pdx-ic-ink, #9fb4d4);
+  background: var(--pdx-ic-soft, rgba(255, 255, 255, 0.05));
+  border-color: var(--pdx-ic, rgba(255, 255, 255, 0.08));
+}
 
 /* Spotlight amber — matches the 🔦 blocks it navigates to. */
 button.pdxdo-chip-sl {
@@ -371,6 +380,13 @@ button.pdxdo-dg-b:hover { background: rgba(255, 255, 255, 0.05); border-left-col
 }
 .pdxdo-dg-badge { color: #c3b7f0; }
 .pdxdo-dg-iss { color: #9fb4d4; }
+/* The digest line is text, not a pill — it takes the ink and a left edge rather
+   than a fill, because a filled chip inside a one-line summary reads as a button. */
+.pdxdo-dg-iss[data-ic] {
+  color: var(--pdx-ic-ink, #9fb4d4);
+  border-left: 2px solid var(--pdx-ic, transparent);
+  padding-left: 0.3rem;
+}
 .pdxdo-dg-go { flex-shrink: 0; color: #7d8fae; font-size: 0.8rem; line-height: 1.5; }
 
 /* ── ⑥ DESKTOP ──────────────────────────────────────────────────────────── */

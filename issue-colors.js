@@ -15,6 +15,13 @@
    and a verdict color on its label at the same time, and they mean different
    things on purpose.
 
+   IT ALSO COLOURS THE ROLLUPS. Some surfaces filter by a handful of broad topics
+   ("Economy & Taxes", "Health Care") instead of by a leaf key. Each of those
+   rollups DECLARES which core issue it inherits from, in ROLLUP_PARENT below, so
+   a rollup chip and the leaf chips inside it come off the same table instead of
+   off a per-page hex. A rollup with no honest parent takes the neutral rather
+   than borrowing the nearest colour.
+
    IT DOES NOT INVENT A TAXONOMY. The keys below are the existing
    CORE_NATIONAL_ISSUES keys from alignment-tool.js. A leaf ISSUE_MAP key
    ('gun_safety', 'health_rural', …) resolves to its core bundle through the
@@ -34,7 +41,9 @@
 
    API:
      PDXIssueColors.CORE_ISSUE_COLORS       → { coreKey: {label,color,soft,wash,…} }
-     PDXIssueColors.getIssueColor(k [, lu]) → token for a core OR leaf key
+     PDXIssueColors.getIssueColor(k [, lu]) → token for a core, leaf OR rollup key
+     PDXIssueColors.ROLLUP_PARENT           → { rollupKey: coreKey } (declared)
+     PDXIssueColors.rollupParent(k)         → the core key a rollup inherits, or ''
      PDXIssueColors.isCore(k [, lu])        → did this key hit a real core issue?
      PDXIssueColors.FALLBACK                → the neutral slate token
      PDXIssueColors.styleFor(k [, lu])      → inline "--pdx-ic:…" style string
@@ -96,6 +105,68 @@
     spending_debt:     'spending_debt_waste',
     education_parents: 'education_parental',
     foreign_policy:    'foreign_policy_defense'
+  };
+
+  // ── Rollup topics → the core issue whose colour they inherit ───────────────
+  // A ROLLUP IS NOT A NEW COLOUR. Several surfaces do not filter by a leaf key at
+  // all — they filter by a handful of scannable topics ("Economy & Taxes",
+  // "Health Care", "Spending & Debt"). Those topics are bundles of the same leaf
+  // keys this table already colours, so each one declares WHICH core issue it
+  // rolls up into and takes that issue's colour verbatim. Nothing invents a hue
+  // for a rollup, and no page picks its own: the Digital Library's Economy filter
+  // is the same amber as /issue/cost_living, because both resolve to
+  // economy_cost_of_living right here.
+  //
+  // ONE DECLARED PARENT EACH, AND WHY. The mapping is the plurality of each
+  // rollup's own leaf keys inside CORE_NATIONAL_ISSUES, except where the plurality
+  // would name the rollup something it is not — those exceptions are called out:
+  //   economy     → economy_cost_of_living   (14 of its keys already live there)
+  //   spending    → spending_debt_waste
+  //   health      → healthcare
+  //   immigration → immigration_border
+  //   energy      → climate_energy
+  //   defense     → foreign_policy_defense
+  //   elections   → election_integrity
+  //   government  → checks_and_balances      · its keys (reform, transparency,
+  //                 stock-trading bans, court reform) are mostly outside the core
+  //                 bundles; the one core issue about who decides is the honest
+  //                 parent for a "Government & Reform" bundle.
+  //   education   → education_parental
+  //   justice     → crime_safety             · 5 keys to crime_safety, 3 to guns.
+  //                 A gun chip is still the guns slate on its own key; the BUNDLE
+  //                 named "Justice & Crime" reads as crime.
+  //   social      → civil_rights_culture     · the plurality is actually
+  //                 economy_cost_of_living, because every housing key lives in the
+  //                 economy bundle. Colouring a bundle called "Family & Rights"
+  //                 economy-amber would be the label lying about the colour, so it
+  //                 takes the rights bundle. A housing CHIP is still amber —
+  //                 a leaf chip names its leaf.
+  //   rural       → economy_cost_of_living   · shares Economy's amber on purpose:
+  //                 rural_ag, its only key, is inside that bundle. Two rollups may
+  //                 declare the same parent; what they may not do is pick a colour
+  //                 nobody declared.
+  //
+  // A ROLLUP WITH NO HONEST PARENT TAKES THE NEUTRAL. 'tech' is the whole reason
+  // this is stated rather than assumed: the app has no technology core issue, and
+  // its mapped keys split between climate_energy (the datacenter keys) and
+  // civil_rights_culture (free speech). Either pick would make "Technology" read
+  // as Energy or as Civil Rights. It is deliberately absent from the table, so it
+  // falls back to slate — which is exactly the colour /issue/tech_innovation,
+  // /issue/broadband and /issue/privacy_rights already show. Adding a core issue
+  // for it is a taxonomy decision, not a colour one.
+  var ROLLUP_PARENT = {
+    economy:     'economy_cost_of_living',
+    spending:    'spending_debt_waste',
+    health:      'healthcare',
+    immigration: 'immigration_border',
+    energy:      'climate_energy',
+    defense:     'foreign_policy_defense',
+    elections:   'election_integrity',
+    government:  'checks_and_balances',
+    education:   'education_parental',
+    justice:     'crime_safety',
+    social:      'civil_rights_culture',
+    rural:       'economy_cost_of_living'
   };
 
   // ── Color math ─────────────────────────────────────────────────────────────
@@ -230,7 +301,22 @@
 
     var idx = leafIndex();
     if (idx && idx[k] && CORE_ISSUE_COLORS[idx[k]]) return idx[k];
+
+    // Rollups are tried LAST, deliberately. A leaf key always wins: if the
+    // taxonomy ever grows a leaf that happens to be spelled like a rollup, the
+    // leaf's own bundle is the truthful answer and the rollup table must not
+    // shadow it.
+    if (ROLLUP_PARENT[k] && CORE_ISSUE_COLORS[ROLLUP_PARENT[k]]) return ROLLUP_PARENT[k];
     return '';
+  }
+
+  // "Which core issue does this rollup inherit from?" — the readable question for
+  // a surface that wants to say so in a tooltip or a test, and the reason the
+  // mapping is inspectable rather than buried in the resolver. '' for a rollup
+  // with no declared parent, which is a real answer and not an error.
+  function rollupParent(rollupKey) {
+    var p = ROLLUP_PARENT[norm(rollupKey)];
+    return (p && CORE_ISSUE_COLORS[p]) ? p : '';
   }
 
   // The helper every surface calls. Never throws and never returns null: an
@@ -298,6 +384,8 @@
     CORE_ISSUE_COLORS: CORE_ISSUE_COLORS,
     FALLBACK: FALLBACK,
     ALIASES: ALIASES,
+    ROLLUP_PARENT: ROLLUP_PARENT,
+    rollupParent: rollupParent,
     getIssueColor: getIssueColor,
     coreKeyFor: coreKeyFor,
     isCore: isCore,

@@ -62,6 +62,23 @@
     });
   }
   function jsStr(s) { return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+  // The issue colour, from the one module that decides it. Same helper, same
+  // strength and same failure behaviour as the bill letterhead's chip: the tint is
+  // keyed on the ISSUE and nothing else, so a Health Care row on a dossier is the
+  // same blue as Health Care on a bill, on /issue/healthcare and on the Digital
+  // Library's filter row.
+  //   NOT A SECOND VERDICT. This row already carries the verdict vocabulary on
+  // --pdxdo-col (the tier spine and the outcome word). The issue colour goes on the
+  // issue chip only, where it says "this row is the healthcare row" — never on the
+  // verdict, which would make two different meanings one colour.
+  function issueTint(key) {
+    try {
+      var IC = window.PDXIssueColors;
+      if (!IC || typeof IC.styleFor !== 'function') return '';
+      var st = IC.styleFor(key);
+      return st ? ' data-ic="on" style="' + esc(st) + '"' : '';
+    } catch (e) { return ''; }
+  }
   function fn(name) { return typeof window[name] === 'function' ? window[name] : null; }
   // Gated on `dots` — the one method this layer calls — rather than on the model
   // in general. A gate that tests a method it never uses either rejects a working
@@ -274,7 +291,7 @@
       : '<span class="pdxdo-none">Nothing filed against this issue in the Evidence Locker yet.</span>';
 
     // ④ issue / spotlight
-    var issueV = '<span class="pdxdo-chip pdxdo-chip-iss">' + esc(issueLabel(d.issueKey)) + '</span>';
+    var issueV = '<span class="pdxdo-chip pdxdo-chip-iss"' + issueTint(d.issueKey) + '>' + esc(issueLabel(d.issueKey)) + '</span>';
     if (d.spotlights.length) {
       issueV += d.spotlights.map(function (sp) {
         return '<button type="button" class="pdxdo-chip pdxdo-chip-sl"' +
@@ -389,7 +406,7 @@
                 '<span class="pdxdo-dg-m">' +
                   (it.badge ? '<span class="pdxdo-dg-badge">' + esc(it.badge) + '</span>' : '') +
                   (it.date ? '<span class="pdxdo-dg-d">' + esc(it.date) + '</span>' : '') +
-                  (it.issueKey ? '<span class="pdxdo-dg-iss">' + esc(issueLabel(it.issueKey)) + '</span>' : '') +
+                  (it.issueKey ? '<span class="pdxdo-dg-iss"' + issueTint(it.issueKey) + '>' + esc(issueLabel(it.issueKey)) + '</span>' : '') +
                 '</span>' +
                 (chips ? '<span class="pdxdo-dg-chips">' + chips + '</span>' : '') +
               '</span>' +
