@@ -61,6 +61,8 @@
   // loading state and never swapped off it.
   var STAGES = [
     ['head',                'inline head script runs (clock opens)'],
+    ['crawl-visible',       'edge crawl header on screen, named, for THIS address'],
+    ['crawl-generic',       'the header was neutralised or nameless (no first paint with a name)'],
     ['vr-session-hit',      'first voting-record page served from sessionStorage'],
     ['vr-prefetch-start',   'head prefetch issued GET /api/voting-record/member/<pid>'],
     ['vr-prefetch-retry',   'session entry stale/absent -> network prefetch issued'],
@@ -72,6 +74,7 @@
     ['person-boot',         'person-file.js began adopting the /p/ address'],
     ['roster',              'roster state settled (time to roster)'],
     ['person-open',         'PDXPerson.open() rendered the shell'],
+    ['file-named',          'modal/file paints with the person NAME on it'],
     ['vr-adopt',            'fetchMember adopted the head prefetch (no 2nd request)'],
     ['vr-fetch-start',      'fetchMember issued its OWN request (prefetch missed)'],
     ['vr-data',             'first voting-record page in hand (time to first page)'],
@@ -199,6 +202,72 @@
     } catch (e) {}
     return r;
   };
+
+  // ── The cold-open line ────────────────────────────────────────────────────
+  // FOUR NUMBERS, ONE LINE, NO OPT-IN. The waterfall below is for reading; this
+  // is for screenshotting. It answers the only question a cold /p/<pid> is judged
+  // on — how long until this address shows a recognisable person — by printing the
+  // four moments that make up that wait, in the order they happen, as milliseconds
+  // from navigation start:
+  //
+  //   crawl visible   the edge header named the person (first paint with a name)
+  //   vote sent       the roll-call request left the browser
+  //   vote back       its body was parsed (or answered from sessionStorage)
+  //   name on file    the modal/file itself painted with the name on it
+  //
+  // Each is taken from the first of several marks that can mean it, because the
+  // same moment has different owners depending on the path: the record request is
+  // the head prefetch on a cold arrival and fetchMember's own request on a warm
+  // SPA hop, and a session hit is both "sent" and "back" at once.
+  //
+  // A stage that never landed prints "—", and the absence is the finding: no
+  // `crawl visible` means the edge header was neutralised or missing; no
+  // `name on file` means the modal never painted this person's name.
+  //
+  // ONE console.log, on /p/<pid> only, once per page. Nothing is uploaded, nothing
+  // is sampled, and there is no vendor: this writes to the console of the browser
+  // it is running in and nowhere else.
+  var COLD = [
+    ['crawl visible', ['crawl-visible', 'crawl-generic']],
+    ['vote sent',     ['vr-prefetch-start', 'vr-prefetch-retry', 'vr-fetch-start', 'vr-session-hit']],
+    ['vote back',     ['vr-session-hit', 'vr-prefetch-json', 'vr-data']],
+    ['name on file',  ['file-named', 'person-open']]
+  ];
+
+  P.cold = function () {
+    var parts = [];
+    for (var i = 0; i < COLD.length; i++) {
+      var hit = pick(COLD[i][1]);
+      parts.push(COLD[i][0] + ' ' + (hit ? ms(hit.at) : '—'));
+    }
+    return 'PDX cold ' + location.pathname + ' · ms from navStart · ' + parts.join(' → ');
+  };
+
+  var _coldPrinted = false;
+  P.coldLine = function () {
+    if (_coldPrinted) return null;
+    _coldPrinted = true;
+    var line = P.cold();
+    try { if (window.console && console.log) console.log(line); } catch (e) {}
+    return line;
+  };
+
+  // Printed the moment the last of the four lands, so the line is on screen while
+  // the reader is still looking at the open they just did — and on a fallback
+  // timer after load, so a page where the file never painted still prints what it
+  // got instead of printing nothing at all.
+  try {
+    if (/^\/p\/[A-Za-z0-9_]+\/?$/.test(location.pathname)) {
+      document.addEventListener('pdx:perf', function (e) {
+        if (e && e.detail && e.detail.name === 'file-named') {
+          setTimeout(function () { P.coldLine(); }, 0);
+        }
+      });
+      var coldFallback = function () { setTimeout(function () { P.coldLine(); }, 4000); };
+      if (document.readyState === 'complete') coldFallback();
+      else window.addEventListener('load', coldFallback, { once: true });
+    }
+  } catch (e) {}
 
   // ── Opt-in auto-report ────────────────────────────────────────────────────
   // Never prints unless asked. The brief is graded on cold opens, and a cold
