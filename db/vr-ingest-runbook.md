@@ -57,6 +57,7 @@ node scripts/vr-ingest.mjs verify
 #    print the mapping version and confirm it is not the one the wave started at.
 #    See the section immediately below for what this is and how to not defeat it.
 node scripts/test-vr-pack-key-version.mjs
+node scripts/test-vr-pack-rebuild-on-flip.mjs   # needs no DB; runs the read path
 ```
 
 ## Every mapping/promote migration ends with: **pack key must change.**
@@ -90,6 +91,20 @@ What "you did not defeat it" means, concretely:
   current version and fails if the fingerprint is insensitive to any of the five
   mutation shapes. Run it after the migration lands; the printed version must
   differ from the one recorded in the wave's own notes.
+- **And confirm the read path acts on it.** `node
+  scripts/test-vr-pack-rebuild-on-flip.mjs` flips one `is_primary` in a fixture and
+  runs the shipping `getMemberPack` over it: the next read must carry the new flag
+  with the six-hour TTL nowhere near expiry, and the stance tree and the dossier
+  must then agree about that member and that issue. It needs no database, so it
+  runs in CI on every commit and not only at the end of a wave.
+
+If the mapping table cannot be read at all, `mappingVersion()` returns
+`m0-unknown` and the pack **fails closed**: nothing is read from the blob store
+under that version, nothing is written to it, the response is `no-store`, and the
+service worker declines to cache it. A reader still gets a freshly built pack; the
+store simply never accumulates a blob whose mapping nobody can name. Do not "fix" a
+noisy blind window by making that key cacheable — the previous mapping's blobs are
+still there and are still the offline fallback.
 
 Old keys are never deleted and nothing sweeps them. That is deliberate: a retired
 pack is retired because nobody asks for its key any more, and a delete sweep that

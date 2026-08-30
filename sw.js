@@ -464,7 +464,13 @@
 // the change is a renderer/stylesheet pair: word-action.js emits the attribute and
 // word-action.css draws the rail, and a device holding v90's stylesheet against a
 // v91 script would carry the properties with nothing to consume them.
-const CACHE_VERSION = 'v91';
+// v92 - the offline pack refuses to store a pack of no known mapping. The Function
+// answers /pack/m0-unknown when it cannot read vr_measure_issues, and it neither
+// reads nor writes a blob in that state; the Cache API ignores the `no-store` it
+// sends, so handleVrPack now skips both the put and the prune for that version.
+// Without the bump a warm device keeps the v91 handler, which would cache such a
+// response and then delete this member's good versioned entry in favour of it.
+const CACHE_VERSION = 'v92';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -782,6 +788,21 @@ const VR_PACK_RE = /^\/api\/voting-record\/member\/([^/]+)\/pack(?:\/([^/]+))?$/
 // the version that existed when the device last had a network is the only honest
 // thing it could have. The live read, when it comes back, outranks it — the client
 // guard sees to that, and it is untouched by any of this.
+// The Function's own sentinel for "the mapping table could not be read" (see
+// MAPPING_VERSION_UNKNOWN in netlify/lib/vr-pack.ts). Recognised from the response
+// header when it is there and from the URL segment when it is not, so a proxy that
+// strips the header cannot turn the refusal below into a cache write.
+const VR_PACK_UNKNOWN = 'm0-unknown';
+
+function isUnknownPackVersion(res, finalUrl) {
+  let header = '';
+  try { header = res.headers.get('x-pdx-mapping-version') || ''; } catch (e) { header = ''; }
+  if (header) return header === VR_PACK_UNKNOWN;
+  let p = '';
+  try { p = new URL(finalUrl, self.location.origin).pathname; } catch (e) { return false; }
+  return (VR_PACK_RE.exec(p) || [])[2] === VR_PACK_UNKNOWN;
+}
+
 async function handleVrPack(req, pid) {
   const cache = await caches.open(RUNTIME_CACHE);
 
@@ -793,10 +814,20 @@ async function handleVrPack(req, pid) {
     // after the redirect. Falls back to the request URL if a browser ever hands
     // back an empty url (opaque responses do; a same-origin JSON GET does not).
     const finalUrl = res.url || req.url;
-    try {
-      await cache.put(new Request(finalUrl, { headers: { accept: 'application/json' } }), res.clone());
-      await prunePacks(cache, pid, finalUrl);
-    } catch (e) { /* a cache write failure must not fail the fetch */ }
+    // A PACK OF NO KNOWN MAPPING IS SERVED AND NOT STORED. The Function answers
+    // under VR_PACK_UNKNOWN when it could not read the mapping table, and it
+    // neither writes nor reads a blob in that state; the Cache API ignores
+    // `no-store`, so the same refusal has to be spelled here. Storing it would be
+    // the worse half of the bargain twice over: the body may carry no issue tags
+    // at all (the builder reads the table that just failed), and prunePacks would
+    // drop this member's good versioned entry in favour of it — turning a
+    // momentary database blip into a lastingly wrong offline pack.
+    if (!isUnknownPackVersion(res, finalUrl)) {
+      try {
+        await cache.put(new Request(finalUrl, { headers: { accept: 'application/json' } }), res.clone());
+        await prunePacks(cache, pid, finalUrl);
+      } catch (e) { /* a cache write failure must not fail the fetch */ }
+    }
     return res;
   }
 
