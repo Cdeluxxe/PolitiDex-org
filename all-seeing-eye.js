@@ -24,6 +24,18 @@
       });
     }
     function norm(s) { return String(s == null ? '' : s).toLowerCase(); }
+    // A chip that names a vocabulary key is painted by that key, from the one
+    // table every other surface reads (issue-colors.js). Same strength as a bill
+    // letterhead chip: soft fill, solid border, ink text. Fails open to the
+    // stylesheet's own colour when the module has not loaded.
+    function issueTint(key) {
+      try {
+        var IC = window.PDXIssueColors;
+        if (!IC || typeof IC.styleFor !== 'function') return '';
+        var st = IC.styleFor(key);
+        return st ? ' data-ic="on" style="' + esc(st) + '"' : '';
+      } catch (e) { return ''; }
+    }
     // Canonicalize a party string to a display chip {label,color}.
     function partyChip(raw) {
       var p = String(raw || '').trim().toUpperCase();
@@ -365,7 +377,15 @@
             // reads as "this bill is about these three". It now names what it can
             // and states the total it could not, so the number a reader carries to
             // the bill page is the real one.
-            var namedLbls = issueLabels.filter(Boolean);
+            // The labels are filtered, so the KEYS are filtered in the same pass. Build
+            // them apart and a chip ends up wearing the colour of the topic beside it
+            // the moment one key in the middle of the bundle has no label.
+            var namedLbls = [], namedKeys = [];
+            for (var li = 0; li < issueLabels.length; li++) {
+              if (!issueLabels[li]) continue;
+              namedLbls.push(issueLabels[li]);
+              namedKeys.push(ikeys[li] || '');
+            }
             var descTxt = namedLbls.slice(0, 3).join(' · ');
             if (namedLbls.length > 3) descTxt += ' · +' + (namedLbls.length - 3) + ' more of ' + namedLbls.length + ' topics';
             var kw = b.keywords || inlineKw[natKey] || '';
@@ -387,6 +407,9 @@
               // them as separate chips now and needs the seams; `desc` stays for
               // shape parity with the issue entries above, which do still read it.
               topics: namedLbls.slice(),
+              // Paired with `topics` index for index: the label a chip prints and the
+              // vocabulary key it takes its colour from.
+              topicKeys: namedKeys.slice(),
               icon: '🏛️', issueKey: b.primaryIssue || (ikeys[0] || ''), issueKeys: ikeys,
               status: b.status || '',
               hay: parts.filter(Boolean).join(' ').toLowerCase()
@@ -649,7 +672,7 @@
       var chips = hints.map(function (h) {
         var attr = h.kind === 'pol' ? 'data-kind="pol" data-id="' + esc(h.id) + '"'
           : h.kind === 'spotlight' ? 'data-kind="spotlight" data-slug="' + esc(h.slug) + '"'
-          : 'data-kind="issue" data-key="' + esc(h.key || '') + '"';
+          : 'data-kind="issue" data-key="' + esc(h.key || '') + '"' + issueTint(h.key || '');
         return '<button type="button" class="pdx-eye-rel-chip" ' + attr + '><span class="pdx-eye-rel-ico" aria-hidden="true">' + esc(h.ico || '↳') + '</span>' + esc(h.label) + '</button>';
       }).join('');
       return '<div class="pdx-eye-rel"><span class="pdx-eye-rel-lead" aria-hidden="true">↳</span>' + chips + '</div>';
@@ -1129,14 +1152,16 @@
     var BILL_TOPIC_CAP = 3;
     function billTopicChips(e) {
       var t = (e && e.topics) || [];
+      var tk = (e && e.topicKeys) || [];
       if (!t.length) return '';
       var out = '';
       for (var i = 0; i < t.length && i < BILL_TOPIC_CAP; i++) {
         if (!t[i]) continue;
-        out += '<span class="pdx-eye-topic">' + esc(t[i]) + '</span>';
+        out += '<span class="pdx-eye-topic"' + issueTint(tk[i] || '') + '>' + esc(t[i]) + '</span>';
       }
       // Same promise the joined form made: name what fits and state the true total,
-      // so the number the reader carries to the bill page is the real one.
+      // so the number the reader carries to the bill page is the real one. It names
+      // no topic, so it takes no topic's colour - it stays the neutral counter.
       if (t.length > BILL_TOPIC_CAP) {
         out += '<span class="pdx-eye-topic pdx-eye-topic--more">+' +
           (t.length - BILL_TOPIC_CAP) + ' of ' + t.length + ' topics</span>';

@@ -29,6 +29,8 @@
      8. Purely visual — the module reads no data and no score
      9. The priority surfaces ask the module
     10. Wiring: script tag, precache, load order
+    11. Rollups resolve to a declared parent colour
+    12. The Digital Library renders the same colour as the bill and the issue page
    ═══════════════════════════════════════════════════════════════════════════ */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -441,7 +443,21 @@ const SOFT = {
     // the only issue surface that never asked the colour module at all. Its CSS
     // is injected from a string inside the same file, so both halves are checked
     // against that one path.
-    ['consistency.js',    'consistency.js',     /\.pdxc-ic\b/,     'Official Record and stance rows']
+    ['consistency.js',    'consistency.js',     /\.pdxc-ic\b/,     'Official Record and stance rows'],
+    // The chip sweep. Every one of these renders a chip whose LABEL is a
+    // vocabulary key or a core rollup, and every one of them used to pick its own
+    // paint: the Library filter row was navy, the Eye's topics lavender, Compare's
+    // focused issues gold. A chip that names an issue is now painted by that
+    // issue, and this list is what stops the next one from opting out.
+    ['digital-library.js', 'digital-library.js', /\.dlib-topic\{/,          'Digital Library topic filters and bill cards'],
+    ['bill-detail.js',     'bill-detail.js',     /\.bd-lh-chip\[data-ic\]/,     'bill letterhead topic chips'],
+    ['issue-page.js',      'issue-page.js',      /--pdx-ic/,                 'the issue page header'],
+    ['all-seeing-eye.js',  'index.html',         /\.pdx-eye-topic\[data-ic\]/, 'Eye result topic chips'],
+    ['profile-spine.js',   'profile-spine.css',  /\.pdxbr-t-issue\[data-ic\]/, 'person brief issue chip'],
+    ['profile-dossier.js', 'profile-dossier.css',/\.pdxdo-chip-iss\[data-ic\]/,'dossier issue chips'],
+    ['issue-compare.js',   'issue-compare.css',  /\.ic-fr-chip\[data-ic\]/,   'Compare focused-issue chips'],
+    ['compare-table.js',   'app.css',            /\.cmp-fr-chip\[data-ic\]/,  'Compare focus rail chips'],
+    ['stance-tree.js',     'stance-tree.css',    /--pdx-ic/,                 'the stance tree nodes']
   ];
   surfaces.forEach(([js, css, probe, name]) => {
     const src = read(js);
@@ -449,13 +465,13 @@ const SOFT = {
     ok(/styleFor/.test(src), `${name}: ${js} must use styleFor rather than reading hexes off the map`);
     // Every call site must be guarded — issue-colors.js is deferred like
     // everything else and a surface that assumes it is present will throw and
-    // take its whole panel down. Both spellings of the same guard count: the
-    // positive `IC && typeof IC.styleFor === 'function'` and the early-return
-    // `if (!IC || typeof IC.styleFor !== 'function')`. What is being tested is
-    // that the presence of the module is checked, not how it is phrased.
-    ok(/(window\.)?PDXIssueColors && typeof (window\.)?PDXIssueColors\.styleFor === 'function'/.test(src) ||
-       /IC && typeof IC\.styleFor === 'function'/.test(src) ||
-       /!IC \|\| typeof IC\.styleFor !== 'function'/.test(src),
+    // take its whole panel down. What is being tested is that the presence of
+    // the module is checked, not how it is phrased, so the local the module was
+    // read into is matched by back-reference: `IC`, `C` and the unaliased
+    // `window.PDXIssueColors` all count, in either the positive or the
+    // early-return spelling.
+    ok(/([A-Za-z_$][\w$.]*) && typeof \1\.styleFor === 'function'/.test(src) ||
+       /!([A-Za-z_$][\w$.]*) \|\| typeof \1\.styleFor !== 'function'/.test(src),
       `${name}: ${js} must guard the PDXIssueColors call`);
     if (css && probe) {
       const c = read(css);
@@ -510,6 +526,35 @@ const SOFT = {
   ok(/on \? ' pdxc-ic' : ''/.test(CJS),
     'consistency.js must only apply .pdxc-ic when the key resolved to a core issue');
 
+  // The swept chips, each with the one thing that would go wrong quietly.
+  //
+  // The Eye prints a bill's topics as chips and colours each from a key, so the
+  // labels and the keys must be built in ONE pass — filtered apart, a chip in the
+  // middle of the bundle silently wears its neighbour's colour.
+  const EYE = read('all-seeing-eye.js');
+  ok(/namedLbls\.push\(issueLabels\[li\]\);\s*\n\s*namedKeys\.push\(ikeys\[li\] \|\| ''\);/.test(EYE),
+    'the Eye must build topic labels and topic keys in the same pass, or a chip takes the wrong colour');
+  ok(/topicKeys: namedKeys\.slice\(\)/.test(EYE), 'the Eye must carry topic keys on the entry beside the labels');
+  const INDEX_CSS = read('index.html');
+  ok(/\.pdx-eye-topic--more\{[^}]*\}/.test(INDEX_CSS) && !/--more\{[^}]*--pdx-ic/.test(INDEX_CSS),
+    'the "+N topics" counter names no topic and must stay neutral');
+
+  // Compare's stance chip carries TWO facts: the stance the reader took and the
+  // issue it is about. Collapsing them would make "Supports" and "Health Care"
+  // the same colour, i.e. the same kind of fact.
+  const ICJS = read('issue-compare.js');
+  ok(/--c:' \+ st\.color/.test(ICJS), 'the stance chip must keep the stance colour on --c');
+  const ICCSS = read('issue-compare.css');
+  ok(/\.ic-stance-chip\.is-active \{[^}]*var\(--c\)/.test(ICCSS),
+    'the active stance fill must stay the stance colour, not the issue colour');
+  ok(/\.ic-stance-chip\[data-ic\] \{[^}]*var\(--pdx-ic/.test(ICCSS),
+    'the stance chip border must take the issue colour');
+
+  // The dossier row and the brief badge keep the VERDICT colour; only the chip
+  // that names the issue takes the issue colour.
+  ok(/--pdxdo-col/.test(read('profile-dossier.css')), 'the dossier row must keep its verdict colour variable');
+  ok(/pdxbr-t-badge/.test(read('profile-spine.css')), 'the brief contradiction badge must keep its own treatment');
+
   // Non-issue elements must NOT be forced into the issue palette.
   ok(/\.sl-chip--hot/.test(read('stance-library.css')),
     'Hot Topic chips must keep their own treatment — they are not issues');
@@ -538,6 +583,222 @@ const SOFT = {
     ok(/issue-colors\.js/.test(SW),
       'sw.js precaches alignment-tool.js but not issue-colors.js — offline, every issue would render slate');
   } else { passed++; }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 11. Rollups resolve to a declared parent colour
+// ═════════════════════════════════════════════════════════════════════════════
+// The Digital Library files legislation under thirteen BUNDLES — "Economy &
+// Taxes", "Health Care", "Justice & Crime" — which are not core issues and have
+// no colour of their own. Before this table each page that wanted to paint one
+// picked a hex, which is how "Economy & Taxes" ended up green in the Library and
+// amber on every bill in it. The parent is declared once, in the same module as
+// the palette, and every surface reads it from there.
+{
+  const { IC } = load();
+  must(IC.ROLLUP_PARENT && typeof IC.ROLLUP_PARENT === 'object',
+    'PDXIssueColors.ROLLUP_PARENT is gone — rollup colours would be per-page guesses again');
+  eq(typeof IC.rollupParent, 'function', 'PDXIssueColors.rollupParent(k) must be published');
+
+  const RP = IC.ROLLUP_PARENT;
+  const rollups = Object.keys(RP);
+  ok(rollups.length >= 12, `ROLLUP_PARENT must declare every shipped bundle, found ${rollups.length}`);
+
+  rollups.forEach((r) => {
+    // One parent each, and it must be a real core issue. A typo'd parent would
+    // silently make the whole bundle slate.
+    const parent = RP[r];
+    ok(typeof parent === 'string' && !!parent, `rollup "${r}" must declare exactly one parent key`);
+    ok(!!IC.CORE_ISSUE_COLORS[parent],
+      `rollup "${r}" declares parent "${parent}", which is not a core issue colour`);
+    // A rollup must not shadow a core key: if the two vocabularies ever collide,
+    // the core key is the one readers already see on /issue/<key>.
+    ok(!IC.CORE_ISSUE_COLORS[r], `"${r}" is both a core issue and a rollup — the core key must win outright`);
+    // Resolution: the bundle IS its parent's colour, to the byte, and reports as
+    // mapped so a caller cannot tell it apart from a first-class issue.
+    const tok = IC.getIssueColor(r);
+    eq(tok.color, IC.CORE_ISSUE_COLORS[parent].color, `rollup "${r}" must render its declared parent's colour`);
+    ok(tok.mapped === true, `rollup "${r}" must report as mapped — it has a declared colour`);
+    eq(IC.rollupParent(r), parent, `rollupParent("${r}") must return the declared parent`);
+  });
+
+  // Two bundles deliberately share one colour (Agriculture & Rural rides with
+  // Economy) — that is a declared decision, not an accident, and the test states
+  // it so removing it is a visible edit rather than a silent one.
+  eq(RP.rural, RP.economy, 'Agriculture & Rural shares Economy’s colour by declaration');
+
+  // Every bundle the Digital Library actually ships must be declared here or the
+  // filter row goes back to inventing paint. The one documented exception is
+  // "Technology": there is no technology core issue, and its keys split between
+  // climate/energy and civil rights, so it takes the neutral rather than picking
+  // a side. If a new bundle is added, this fails and asks for a parent.
+  const DL = read('digital-library.js');
+  const catAt = DL.indexOf('var ISSUE_CAT = {');
+  const catEnd = DL.indexOf('\n  };', catAt);
+  must(catAt !== -1 && catEnd > catAt, 'digital-library.js no longer declares `var ISSUE_CAT = {`');
+  const catKeys = [...DL.slice(catAt, catEnd).matchAll(/^\s{4}([a-z_]+)\s*:\s*\{/gm)].map((m) => m[1]);
+  must(catKeys.length >= 13, `only ${catKeys.length} Digital Library bundles found — the slice is wrong`);
+  const UNPARENTED = ['tech'];
+  catKeys.forEach((k) => {
+    if (UNPARENTED.includes(k)) {
+      const tok = IC.getIssueColor(k);
+      eq(tok.color, IC.FALLBACK.color, `"${k}" has no honest parent and must take the neutral`);
+      ok(tok.mapped === false, `"${k}" must report unmapped — the neutral is absence, not a colour choice`);
+      ok(!RP[k], `"${k}" must stay out of ROLLUP_PARENT — a random parent is worse than the neutral`);
+      return;
+    }
+    ok(!!RP[k], `Digital Library bundle "${k}" has no declared parent colour in ROLLUP_PARENT`);
+  });
+
+  // A LEAF KEY ALWAYS WINS. "housing" lives in the Family & Rights bundle but is
+  // its own leaf under Economy in the shipped taxonomy, and the chip that names it
+  // must be the orange /issue/housing already shows — not the bundle's colour.
+  eq(IC.getIssueColor('housing').color, IC.CORE_ISSUE_COLORS.economy_cost_of_living.color,
+    'a leaf key must resolve through the taxonomy, not through the bundle it is filed under');
+  const src = read('issue-colors.js');
+  const cf = src.slice(src.indexOf('function coreKeyFor'), src.indexOf('function rollupParent'));
+  must(cf.includes('leafIndex()') && cf.includes('ROLLUP_PARENT['),
+    'coreKeyFor no longer consults both the leaf index and ROLLUP_PARENT');
+  ok(cf.indexOf('leafIndex()') < cf.indexOf('ROLLUP_PARENT['),
+    'the rollup table must be consulted LAST, so a leaf key can never be overridden by a bundle name');
+
+  // The decisions are documented where they are made, not in a commit message.
+  ok(/ROLLUP_PARENT/.test(src.slice(0, src.indexOf('function'))),
+    'the module header must document ROLLUP_PARENT — an undocumented colour decision is a guess');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 12. The Digital Library renders the same colour as the bill and the issue page
+// ═════════════════════════════════════════════════════════════════════════════
+// The acceptance test, run rather than reasoned about: paint the Legislation view
+// and read the hexes back off the markup. A filter chip, the same topic's chip on
+// a bill card, and the leaf chips must all carry the colour the module gives that
+// key — which is the same colour /issue/<key> and the bill letterhead take.
+{
+  const nodes = {};
+  const stub = (id) => {
+    const e = {
+      id, innerHTML: '', textContent: '', hidden: false, value: '', style: {}, _cls: new Set(),
+      classList: {
+        add: (c) => e._cls.add(c), remove: (c) => e._cls.delete(c), contains: (c) => e._cls.has(c),
+        toggle(c, on) { if (on === undefined) on = !e._cls.has(c); on ? e._cls.add(c) : e._cls.delete(c); return on; }
+      },
+      appendChild: (k) => k, addEventListener() {}, setAttribute() {}, getAttribute: () => null,
+      querySelector: (sel) => stub(id + '>' + sel), querySelectorAll: () => [], scrollIntoView() {}, closest: () => null
+    };
+    return e;
+  };
+  // #dlib-css is the "has the stylesheet been injected yet" probe — it must read
+  // as absent or the file skips its own CSS.
+  const get = (id) => (id === 'dlib-css' ? (nodes[id] || null) : (nodes[id] = nodes[id] || stub(id)));
+  const bills = [{
+    id: 11, number: 'H.R. 1', title: 'One Big Beautiful Bill Act', congress: 119, chamber: 'house',
+    status: 'passed_house', issueKeys: ['cost_living', 'housing', 'gun_safety', 'datacenter_power'], voteCount: 2
+  }];
+  const ctx = {
+    console, Math, JSON, String, Array, Object, Number, Boolean, RegExp, Set, Map, Date, Promise,
+    isNaN, parseInt, parseFloat, isFinite, encodeURIComponent, decodeURIComponent, URLSearchParams,
+    setTimeout: (f) => { try { f(); } catch (e) {} return 0; }, clearTimeout() {},
+    setInterval: () => 0, clearInterval() {}, requestAnimationFrame: (f) => { f(); return 1; },
+    document: {
+      readyState: 'complete', getElementById: get, querySelector: () => null, querySelectorAll: () => [],
+      createElement: (t) => { const e = stub('c:' + t); e.tag = t; return e; },
+      addEventListener() {}, dispatchEvent: () => true, head: stub('head'), body: stub('body'), documentElement: stub('html')
+    },
+    location: { href: 'https://x/', pathname: '/', search: '', hash: '', origin: 'https://x' },
+    navigator: { userAgent: 'node' },
+    matchMedia: () => ({ matches: false, addEventListener() {}, addListener() {} }),
+    addEventListener() {}, removeEventListener() {}, dispatchEvent: () => true,
+    CustomEvent: class { constructor(t, o) { this.type = t; Object.assign(this, o || {}); } },
+    IntersectionObserver: class { observe() {} unobserve() {} disconnect() {} },
+    fetch: () => Promise.reject(new Error('no net')),
+    localStorage: { getItem: () => null, setItem() {}, removeItem() {} },
+    PDXSpotlight: { list: () => [], open() {} },
+    PDXBills: {
+      ensureIndex: () => Promise.resolve(bills), listSync: () => ({ items: bills }),
+      list: () => Promise.resolve({ items: bills }), open() {},
+      isFollowed: () => false, followed: () => [], toggleFollow: () => true
+    }
+  };
+  ctx.window = ctx; ctx.globalThis = ctx; ctx.self = ctx;
+  vm.createContext(ctx);
+  const at = ALIGN.indexOf('var CORE_NATIONAL_ISSUES = [');
+  const aEnd = ALIGN.indexOf('];', at);
+  vm.runInContext(ALIGN.slice(at, aEnd + 2) + ';window.CORE_NATIONAL_ISSUES=CORE_NATIONAL_ISSUES;', ctx);
+  vm.runInContext(SRC, ctx, { filename: 'issue-colors.js' });
+  vm.runInContext(read('digital-library.js'), ctx, { filename: 'digital-library.js' });
+  must(ctx.PDXDigitalLibrary && typeof ctx.PDXDigitalLibrary.focus === 'function',
+    'digital-library.js no longer publishes PDXDigitalLibrary.focus');
+  ctx.PDXDigitalLibrary.focus({ mode: 'legislation' });
+  await new Promise((r) => setTimeout(r, 0));
+  await new Promise((r) => setTimeout(r, 0));
+
+  const IC = ctx.window.PDXIssueColors;
+  const facets = nodes['dlib-bill-facets'] ? nodes['dlib-bill-facets'].innerHTML : '';
+  const grid = nodes['dlib-grid'] ? nodes['dlib-grid'].innerHTML : '';
+  must(/dlib-topic/.test(facets), 'the Legislation facets no longer render topic filter chips');
+  must(/dlib-bill-cat/.test(grid), 'a bill card no longer renders its category chip');
+
+  const hexOf = (tag) => { const m = /--pdx-ic:\s*(#[0-9A-Fa-f]{6})/.exec(tag || ''); return m ? m[1].toUpperCase() : ''; };
+  const chipFor = (key) => {
+    const re = new RegExp('<button[^>]*data-topic="' + key + '"[^>]*>');
+    const m = re.exec(facets);
+    return m ? m[0] : '';
+  };
+  const cardChip = (/<span class="dlib-bill-cat"[^>]*>/.exec(grid) || [''])[0];
+
+  // Requirement, stated as one line of code: the filter chip, the bill card chip
+  // and the module all say the same thing about "Economy & Taxes".
+  const wantEcon = IC.getIssueColor('economy').color.toUpperCase();
+  eq(hexOf(chipFor('economy')), wantEcon, 'the Economy & Taxes filter chip must carry the declared rollup colour');
+  eq(hexOf(cardChip), wantEcon, "a bill card's issue chip must match its filter chip exactly");
+  eq(wantEcon, IC.CORE_ISSUE_COLORS.economy_cost_of_living.color.toUpperCase(),
+    'and that colour must be the one /issue/<key> already shows for the parent issue');
+
+  // EVERY chip the row renders is coloured, whichever bundles this fixture's
+  // bills happen to fall into — the row only lists topics that have bills, so the
+  // set is read back off the markup rather than assumed.
+  const rendered = [...new Set([...facets.matchAll(/data-topic="([a-z_]+)"/g)].map((m) => m[1]))];
+  must(rendered.length >= 2, `only ${rendered.length} topic chips rendered — the fixture is not exercising the row`);
+  rendered.forEach((k) => {
+    const c = hexOf(chipFor(k));
+    ok(!!c, `the "${k}" filter chip must carry an issue colour`);
+    eq(c, IC.getIssueColor(k).color.toUpperCase(), `the "${k}" filter chip must take its declared colour`);
+  });
+  // The neutral is a colour decision too: Technology has no declared parent, and
+  // the chip must show the slate rather than borrow a neighbour's hue.
+  eq(IC.getIssueColor('tech').color.toUpperCase(), IC.FALLBACK.color.toUpperCase(),
+    'the Technology bundle must resolve to the neutral');
+
+  // A leaf chip is coloured as a leaf: housing is Economy amber even though it is
+  // filed under Family & Rights, because that is what /issue/housing shows.
+  const leaf = (key) => {
+    const m = new RegExp('<button[^>]*data-issue="' + key + '"[^>]*>').exec(grid);
+    return m ? m[0] : '';
+  };
+  if (leaf('housing')) {
+    eq(hexOf(leaf('housing')), IC.getIssueColor('housing').color.toUpperCase(),
+      'a leaf chip must carry its own key’s colour, not the bundle it is filed under');
+  } else { passed++; }
+
+  // The reported bug: the filter row was navy at rest and only reached for a
+  // colour once selected, so the one row a reader scans to FIND a topic was the
+  // only place topics had no colour.
+  const DLS = read('digital-library.js');
+  const topicRule = /'\.dlib-topic\{[^']*'/.exec(DLS);
+  must(topicRule, 'the .dlib-topic rule is gone from the injected stylesheet');
+  ok(/var\(--pdx-ic-soft/.test(topicRule[0]) && /var\(--pdx-ic\b/.test(topicRule[0]),
+    'a topic filter chip must take the issue colour at REST, not only when selected');
+  // "All topics" names no topic, so it stays neutral — and the status tiers keep
+  // their own vocabulary (requirement: PASSED HOUSE / PENDING / OMNIBUS / FAILED
+  // are status, not issues).
+  const allRule = /'\.dlib-topic-all\{[^']*'/.exec(DLS);
+  must(allRule, 'the .dlib-topic-all rule is gone — the "All topics" chip would inherit a topic colour');
+  ok(!/--pdx-ic/.test(allRule[0]), '"All topics" names no topic and must not take one’s colour');
+  const statusRule = /'\.dlib-bill-status\{[^']*'/.exec(DLS);
+  must(statusRule, 'the .dlib-bill-status rule is gone');
+  ok(!/--pdx-ic/.test(statusRule[0]), 'a status badge must never take an issue colour');
+  ok(/PASSED HOUSE|passed_house/.test(DLS), 'the status vocabulary must still exist to be kept separate from');
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

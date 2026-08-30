@@ -64,6 +64,13 @@
 }
 .ic-stance-chip:hover { transform: translateY(-1px); background: rgba(255, 255, 255, 0.06); }
 .ic-stance-chip.is-active { background: color-mix(in srgb, var(--c) 22%, transparent); box-shadow: 0 0 0 1px var(--c); }
+/* TWO FACTS, TWO COLOURS. --c is the stance the reader took and stays on the icon
+   and on the active fill above; the issue the chip NAMES takes the border and the
+   label, from the one table the whole app reads. A reader scanning this strip is
+   looking for a topic, and the topic is now the thing that is coloured. */
+.ic-stance-chip[data-ic] { border-color: var(--pdx-ic, var(--c, rgba(255,255,255,0.15))); }
+.ic-stance-chip[data-ic] .ic-sc-lbl { color: var(--pdx-ic-ink, #dbe6f7); }
+.ic-stance-chip[data-ic]:hover { background: var(--pdx-ic-soft, rgba(255,255,255,0.06)); }
 .ic-sc-ico { font-size: 0.85rem; }
 
 /* ── issue picker ──────────────────────────────────────────────────────── */
@@ -85,6 +92,13 @@
   font-family: 'Barlow', sans-serif; font-size: 0.9rem; transition: background 0.1s, border-color 0.1s;
 }
 .ic-opt:hover { background: rgba(96, 165, 250, 0.1); border-color: rgba(96, 165, 250, 0.4); }
+/* A picker row is a row, not a pill, so the issue takes the left edge instead of
+   the whole fill - the same left-edge treatment a bill card uses. Thirteen rows of
+   identical grey is a list you read; thirteen rows with the topic's own edge is a
+   list you aim at. */
+.ic-opt[data-ic] { border-left: 3px solid var(--pdx-ic, rgba(255,255,255,0.06)); }
+.ic-opt[data-ic]:hover { background: var(--pdx-ic-soft, rgba(96, 165, 250, 0.1)); border-color: rgba(96, 165, 250, 0.4); border-left-color: var(--pdx-ic, rgba(96,165,250,0.4)); }
+.ic-opt[data-ic] .ic-opt-lbl { color: var(--pdx-ic-ink, #dbe6f7); }
 .ic-cov { flex-shrink: 0; font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; letter-spacing: 0.04em; color: #7596c0; background: rgba(117, 150, 192, 0.12); padding: 0.05rem 0.4rem; border-radius: 999px; }
 
 /* current-issue bar (picker collapsed) */
@@ -115,6 +129,12 @@
 .ic-fr-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }
 .ic-fr-chip { display: inline-flex; align-items: center; background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.32); border-radius: 999px; overflow: hidden; }
 .ic-fr-chip.is-active { background: rgba(250, 204, 21, 0.22); border-color: rgba(250, 204, 21, 0.6); }
+/* A focused-issue chip names one issue, so it wears that issue rather than the
+   strip's gold. Same three tokens as a bill letterhead chip: soft fill, solid
+   border, ink text. "Clear" is not a chip and keeps the gold. */
+.ic-fr-chip[data-ic] { background: var(--pdx-ic-soft, rgba(250, 204, 21, 0.1)); border-color: var(--pdx-ic, rgba(250, 204, 21, 0.32)); }
+.ic-fr-chip[data-ic].is-active { background: var(--pdx-ic-wash, rgba(250, 204, 21, 0.22)); border-color: var(--pdx-ic, rgba(250, 204, 21, 0.6)); }
+.ic-fr-chip[data-ic] .ic-fr-go, .ic-fr-chip[data-ic] .ic-fr-x { color: var(--pdx-ic-ink, #fcd34d); }
 .ic-fr-go, .ic-fr-x, .ic-fr-clear {
   background: none; border: 0; cursor: pointer; min-height: unset; color: #fcd34d;
   font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.72rem;
@@ -126,6 +146,8 @@
 .ic-fr-clear { color: #7596c0; text-transform: uppercase; letter-spacing: 0.09em; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 999px; }
 .ic-fr-clear:hover { color: #cbd9ec; border-color: rgba(255, 255, 255, 0.28); }
 .ic-opt.is-pinned { border-color: rgba(250, 204, 21, 0.42); background: rgba(250, 204, 21, 0.07); }
+/* Pinned paints the box gold, but the left edge still answers "which issue". */
+.ic-opt[data-ic].is-pinned { border-left-color: var(--pdx-ic, rgba(250, 204, 21, 0.42)); }
 .ic-opt-pin { flex-shrink: 0; font-size: 0.8em; }
 .ic-mine { display: inline-block; margin-top: 0.25rem; font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent); border: 1px solid var(--c); padding: 0.08rem 0.5rem; border-radius: 999px; }
 

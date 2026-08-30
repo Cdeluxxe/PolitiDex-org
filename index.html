@@ -3624,6 +3624,15 @@ window.PDXLazy = (function () {
          label in this row is ever cut: min-width:0 lets a chip narrower than its
          text exist at all, and overflow-wrap is what it does instead of overflowing. */
       .pdx-eye-topic{min-width:0;max-width:100%;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:0.62rem;letter-spacing:0.05em;line-height:1.3;text-transform:uppercase;padding:0.1rem 0.4rem;border-radius:9999px;color:#c8a8e9;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);white-space:normal;overflow-wrap:anywhere;}
+      /* A TOPIC CHIP IS PAINTED BY ITS TOPIC. The flat lavender above is what a
+         chip wears when the colour table has not loaded; when it has, the chip
+         takes the same three tokens a bill letterhead chip takes for the same
+         key - soft fill, solid border, ink text - so Health Care is the same blue
+         in a search result, on the bill, and on /issue/healthcare. */
+      .pdx-eye-topic[data-ic]{color:var(--pdx-ic-ink,#c8a8e9);background:var(--pdx-ic-soft,rgba(167,139,250,0.1));border-color:var(--pdx-ic,rgba(167,139,250,0.3));}
+      /* The counter names no topic, so it inherits no topic's colour: it stays the
+         neutral "+2 of 5 topics" it was, and the [data-ic] rule cannot reach it
+         because billTopicChips() never tints it. */
       .pdx-eye-topic--more{color:#8aa0c0;background:rgba(148,163,184,0.08);border-color:rgba(148,163,184,0.26);text-transform:none;letter-spacing:0.02em;}
       /* The badges sit in the wrapping strip now, so they must not also try to hold
          a pinned width off to the right. */
@@ -3658,6 +3667,11 @@ window.PDXLazy = (function () {
       .pdx-eye-rel-lead{color:rgba(245,200,66,0.6);font-size:0.85rem;line-height:1;margin-right:0.02rem;}
       .pdx-eye-rel-chip{display:inline-flex;align-items:center;gap:0.28rem;max-width:100%;padding:0.14rem 0.5rem;border-radius:9999px;border:1px solid rgba(245,200,66,0.22);background:rgba(245,200,66,0.07);color:#d9c58a;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:0.68rem;letter-spacing:0.03em;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .13s ease,border-color .13s ease,color .13s ease;}
       .pdx-eye-rel-chip:hover{background:rgba(245,200,66,0.14);border-color:rgba(245,200,66,0.45);color:#ffe9a8;}
+      /* A "related" chip that names an issue is coloured by that issue; the ones
+         that name a politician or a Spotlight keep the gold above, because gold
+         here means "somewhere else to go", not "this topic". */
+      .pdx-eye-rel-chip[data-ic]{border-color:var(--pdx-ic,rgba(245,200,66,0.22));background:var(--pdx-ic-soft,rgba(245,200,66,0.07));color:var(--pdx-ic-ink,#d9c58a);}
+      .pdx-eye-rel-chip[data-ic]:hover{background:var(--pdx-ic-wash,rgba(245,200,66,0.14));border-color:var(--pdx-ic,rgba(245,200,66,0.45));color:#fff;}
       .pdx-eye-rel-chip .pdx-eye-rel-ico{font-size:0.72rem;opacity:0.85;}
       /* "See more" — a subtle, dashed expander that grows a category past its cap. */
       .pdx-eye-more{display:block;width:calc(100% - 0.5rem);margin:0.2rem 0.25rem 0.1rem;padding:0.42rem 0.6rem;border:1px dashed rgba(148,163,184,0.28);border-radius:0.6rem;background:none;color:#8aa0c0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background .13s ease,border-color .13s ease,color .13s ease;}

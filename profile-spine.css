@@ -378,6 +378,19 @@
   color: #c4b5fd;
 }
 
+/* The issue named in the brief takes the ISSUE colour — the same one the row for
+   it carries in Word vs Action further down the page, and the same one it has on a
+   bill and on /issue/<key>. Chip strength here is the letterhead's: soft fill,
+   full-strength border, ink text. `data-ic` is absent when the key did not resolve,
+   so an uncategorised flashpoint keeps the neutral lilac label it always had. */
+.pdxbr-t-issue[data-ic] {
+  color: var(--pdx-ic-ink, #c4b5fd);
+  background: var(--pdx-ic-soft, transparent);
+  border: 1px solid var(--pdx-ic, transparent);
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+}
+
 .pdxbr-t-head {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;

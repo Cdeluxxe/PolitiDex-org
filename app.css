@@ -4553,6 +4553,11 @@
       font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.58rem;
       letter-spacing: 0.06em; color: #fcd34d; padding: 0.16rem 0.5rem;
     }
+    /* A chip that names an issue wears that issue, not the rail's gold - the same
+       colour that issue carries on a bill, in the Library filter row and on
+       /issue/<key>. "Clear" names no issue and keeps the neutral. */
+    .cmp-fr-chip[data-ic] { background: var(--pdx-ic-soft, rgba(250,204,21,0.1)); border-color: var(--pdx-ic, rgba(250,204,21,0.32)); }
+    .cmp-fr-chip[data-ic] .cmp-fr-go { color: var(--pdx-ic-ink, #fcd34d); }
     .cmp-fr-go:hover { color: #fff; }
     .cmp-fr-x { color: #b08d2f; padding-left: 0.1rem; padding-right: 0.42rem; }
     .cmp-fr-x:hover { color: #fca5a5; }

@@ -2075,6 +2075,20 @@
   // into view and flashes it, and tapping the ✕ unpins. It does not filter, it
   // does not re-order, and it never says anything about a person — it names
   // issues the reader chose, in the order they chose them.
+  // A rail chip names one issue, so it is painted by that issue - the same tokens
+  // (soft fill, solid border, ink text) a bill letterhead chip takes for the same
+  // key, from issue-colors.js. Returns '' if the module has not loaded and the
+  // stylesheet's own gold stands.
+  function _cmpIssueTint(key) {
+    try {
+      var IC = window.PDXIssueColors;
+      if (!IC || typeof IC.styleFor !== 'function') return '';
+      var st = IC.styleFor(key);
+      if (!st) return '';
+      return ' data-ic="on" style="' + String(st).replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '"';
+    } catch (e) { return ''; }
+  }
+
   function _cmpRenderFocusRail() {
     const rail = document.getElementById('cmp-focus-rail');
     if (!rail) return;
@@ -2085,7 +2099,7 @@
     const map = (typeof window !== 'undefined' && window._alignIssueMap) ? window._alignIssueMap : null;
     const lbl = (k) => (map && map[k] && map[k].label) ? map[k].label : k;
     const chips = keys.map(k =>
-      `<span class="cmp-fr-chip">`
+      `<span class="cmp-fr-chip"${_cmpIssueTint(k)}>`
       + `<button type="button" class="cmp-fr-go" onclick="_cmpJumpToIssue('${j(k)}')" title="Jump to ${e(lbl(k))} in the comparison">${e(lbl(k))}</button>`
       + `<button type="button" class="cmp-fr-x" onclick="_cmpToggleFocus('${j(k)}',this)" aria-label="Unpin ${e(lbl(k))}" title="Unpin">✕</button>`
       + `</span>`).join('');
