@@ -2304,3 +2304,82 @@ ones are spread thin across 27 bills — one member picking up one committee act
 one bill does not cross a characterisation bar. The one member who moved
 (`jason_thompson`, thin → readable) moved on wave-4 mapping positions, not on 2023.
 Depth arrived; tiers barely noticed. Saying so is the report.
+
+### Wave 7 — the 2023GS committee lane re-run from a cold cache, and what it found
+
+Wave 7 was briefed as "2023GS committee votes into the formal lane, same path, same
+fences, earlier session." That session is already in the formal lane: wave 6 shipped
+it as `20261012000000_vr_utah_2023gs_committee_votes`, 303 positions on 27 bills. So
+wave 7 could either restate 303 applied rows under a new stamp and add nothing, or it
+could do the one thing nobody had done yet — **run the whole path again from an empty
+cache and check that the shipped lane is what the sources still say.** It did the
+second, and it shipped no migration, because a delta of zero rows is not a migration.
+
+**The re-run was cold.** `/tmp/vr-utah-committee-cache` was empty. `--survey --session
+2023GS` re-fetched the committee list, all 25 standing committees' meeting lists, all
+**285 meetings**, all 285 minutes records and all **249 published PDFs** over the
+network. `--collect` then re-read them: **240 meetings APPROVED** (36 Summary, 9
+Draft, none admitted), **240 PDFs published, fetched, readable, zero UNREADABLE**,
+**2 471 motions parsed, 2 364 with a recorded roll**.
+
+**Every number came back the same.** 40 acts admitted on 27 bills, 303 positions, 207
+superseded by the same member's floor vote, 96 fresh, 33 refused as near-unanimous, 9
+later reprints dropped, 89 printed forms resolved, 0 unmapped, 4 refused, 19 positions
+withheld by those refusals. `db/vr-utah-committee-seed-2023GS.json` regenerated
+**byte-identical** to the committed file, and `buildSql("2023GS")` regenerated
+`20261012000000` **byte-identical to the applied migration**. The lane is
+reproducible from its published sources, not just from its own seed.
+
+#### The three fence bills are refused here by the other fence
+
+H.B. 137, H.B. 267 and H.B. 463 are the three acts wave 5 had refused in **2024GS**
+with `missing: ["committee"]`, and the brief asked that they stay refused in 2023
+unless this session's PDFs independently confirm the committee name — and that the
+minutes fence not be widened to clear them. Both hold, and for a reason better than
+compliance: in 2023GS **the minutes fence is never consulted for them at all.**
+
+All three are 2023GS bills. All three are **off-lane** — the parent bill has no
+reviewed issue mapping — so they are refused at rule 5 before any PDF is opened.
+H.B. 137 (House Natural Resources, Agriculture, and Environment, 2023-02-15) and
+H.B. 463 (House Judiciary, 2023-02-22) do carry contested pass-out-favorably motions
+and sit in the off-lane contested bucket; H.B. 267 had a committee vote that was not
+contested. Not one of them turns on a committee-name match in this session.
+
+**No door was widened.** The renamed-committee door was used exactly **3 times** in
+2023GS, all on the same committee and all on the case wave 5 already documented —
+*House Public Utilities and Energy Standing Committee*, whose letterhead reads
+"…, ENERGY, AND TECHNOLOGY…" — on H.B. 289, H.B. 357 and H.B. 425. The sequence
+relaxation wave 5 added is unchanged and gained nothing new here.
+
+#### The off-lane refusal, counted
+
+Rule 5 is the largest refusal in this session and it is stated here rather than left
+in a tool's stdout. 2023GS committee minutes carry **1 020 recorded-roll
+pass-out-favorably rows across 612 bills that have no reviewed issue mapping**, and
+**135 of those bills carry a contested committee vote across 157 contested acts**.
+Every one is refused. None was mapped, and no issue key was invented to admit one:
+a committee vote is evidence of a position on a bill, never evidence of what the bill
+is about. Those 135 bills are the curator worklist `--bucket --session 2023GS`
+prints, and this pass deliberately left them where they are.
+
+#### What the index says about 2023GS specifically, with the number
+
+Wave 6 reported readable-tier movement from 2023GS as "nil". That was right and it
+was not measured. Wave 7 measured it, by booting the index with the 2023GS committee
+seed withheld and again with it in place — floor plus committee only, so the wave-4
+mapping positions cannot be confused for this lane's work:
+
+| lane | empty | thin | readable |
+|---|---|---|---|
+| floor + 2025/2024 committee (2023GS withheld) | 17 | 13 | 102 |
+| + 2023GS committee acts | 10 | 20 | 102 |
+| delta attributable to 2023GS | **−7** | **+7** | **0** |
+
+**Seven members moved from `empty` to `thin`, and nobody became readable.** Members
+with a record went 115 → 122, the same seven. That is the honest shape of this lane:
+2023GS put a first formal act on file for seven Utah legislators who had none, and
+bought no characterisation for anybody. **37 distinct members** hold at least one of
+the 96 fresh rows — a first recorded act on that bill — spread over 27 bills, which
+is why no characterisation bar moves: one act on one bill is depth, not a pattern.
+No floor moved, no tier collapsed, and the 102 readable records are the same 102.
+

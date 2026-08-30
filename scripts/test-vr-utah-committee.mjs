@@ -1199,6 +1199,70 @@ for (const { m, ca } of a23) {
 has(R("db/vr-ingest-runbook.md"), "2023GS",
   "the runbook records the third session it was run against");
 
+// ── 11. WAVE 7 — THE COLD RE-RUN'S FINDINGS ARE WRITTEN DOWN, WITH THEIR NUMBERS
+// Wave 7 shipped no migration: it re-fetched 2023GS from an empty cache and found the
+// shipped lane unchanged, so there was no delta to write. What it did produce is three
+// facts that live only in prose, and prose with a number in it rots silently. These
+// checks are what make the runbook's claims about this session checkable rather than
+// remembered — each one is a number a later wave would have to update on purpose.
+{
+  const RB = R("db/vr-ingest-runbook.md");
+
+  // THE OFF-LANE REFUSAL IS COUNTED, NOT GESTURED AT. Rule 5 is the biggest refusal
+  // in the session; "we refused the unmapped ones" without a count is not a refusal
+  // in writing. The four numbers are bills, rows, contested bills and contested acts.
+  has(RB, "1 020", "wave 7: the runbook counts the off-lane rows 2023GS refused");
+  has(RB, "612 bills that have no reviewed issue mapping",
+    "wave 7: … and the bills those rows sit on");
+  has(RB, "135 of those bills carry a contested committee vote across 157 contested acts",
+    "wave 7: … and how many of them a curator could still reach");
+
+  // AND IT SAYS WHY NONE OF THEM WAS MAPPED. The doctrine point, not the count: a
+  // committee vote tells you where a member stood, never what the bill is about.
+  has(RB, "never evidence of what the bill",
+    "wave 7: the runbook says why an off-lane bill was not mapped to admit its votes");
+
+  // THE INDEX CONTRIBUTION IS STATED AS A NUMBER. "Nil readable movement" was wave
+  // 6's word for it and was never measured. The measured shape is seven members off
+  // `empty` and nobody onto `readable`; a wave that quietly bought a characterisation
+  // would have to edit this line.
+  has(RB, "Seven members moved from `empty` to `thin`, and nobody became readable",
+    "wave 7: the runbook states 2023GS's own index contribution");
+  has(RB, "115 → 122", "wave 7: … and the with-a-record count those seven moved");
+
+  // THE REPRODUCTION CLAIM IS THE WHOLE POINT OF THE WAVE, SO IT IS NAMED.
+  has(RB, "byte-identical to the applied migration",
+    "wave 7: the runbook records that the applied migration regenerates byte-identically");
+  has(RB, "285 meetings", "wave 7: … over a re-survey whose size is stated");
+}
+
+// ── 12. THE THREE FENCE BILLS, AND THE DOOR THAT WAS NOT WIDENED ─────────────
+// H.B. 137 / 267 / 463 are the acts wave 5 had refused in 2024 on the committee name.
+// In 2023 they are refused by rule 5 instead — the parent bill has no reviewed
+// mapping — which is a stronger place for them to sit, because it does not depend on
+// the minutes fence at all. Asserted from the seed: they hold no 2023GS committee act.
+{
+  const bills23 = new Set(m23.map((m) => m.utahBill));
+  for (const fence of ["HB0137", "HB0267", "HB0463"]) {
+    ok(!bills23.has(fence),
+      `2023: ${fence} holds no committee act — the 2024 committee-name fence was not cleared here`);
+  }
+  has(R("db/vr-ingest-runbook.md"), "the minutes fence is never consulted for them at all",
+    "wave 7: the runbook says which fence refuses the three bills in 2023");
+
+  // THE RENAMED-COMMITTEE DOOR'S FOOTPRINT IN THIS SESSION IS THREE ACTS ON ONE
+  // COMMITTEE. Checkable from the seed without reopening a PDF: the three bills the
+  // door admitted each carry an act of that committee, and no OTHER 2023 committee
+  // needed it — which is what "no second relaxation" means in rows rather than prose.
+  const byBill = new Map(m23.map((m) => [m.utahBill, m]));
+  for (const b of ["HB0289", "HB0357", "HB0425"]) {
+    const m = byBill.get(b);
+    must(m, `2023: ${b} is missing — it is one of the renamed-committee door's three acts`);
+    ok((m.committeeActs || []).some((ca) => /House Public Utilities and Energy/.test(ca.committee)),
+      `2023 ${b}: the act sits on the committee whose letterhead and metadata disagree`);
+  }
+}
+
 // ── Report ───────────────────────────────────────────────────────────────────
 console.log(`\n   ${passed} checks passed`);
 if (failures.length) {
