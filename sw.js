@@ -429,7 +429,19 @@
 // select. A device that took one and kept the other gets a bill row that is
 // merely unstyled rather than broken, but there is no reason to ship that
 // state to anyone when a version bump lands both together.
-const CACHE_VERSION = 'v88';
+// v89 - the executive letterhead. /p/trump's top block lists its formal patterns
+// itself now (the rows, the two group headings, the route out, the demoted match
+// block) instead of pointing a rung down at the standouts strip, and its census is
+// one line rather than two. Bumped because that block is assembled from four files
+// that have to land together: consistency.js publishes the exec shape, word-action.js
+// draws the brief from it, profiles-full.js stands the mid-page strip down when the
+// brief named the patterns, and word-action.css sizes the one-line census. A device
+// that took some and kept others gets the worst version of this change — the strip
+// suppressed with no rows above it, or two copies of the same list at two heights.
+// The source for it shipped without a bump, so warm devices kept serving the
+// pre-brief bundle and the letterhead read as unchanged; this is the bump that
+// delivers it.
+const CACHE_VERSION = 'v89';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
