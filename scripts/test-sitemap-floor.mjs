@@ -26,7 +26,7 @@
 //      set is a strict subset of the roster, and every rejection names a reason.
 //   3. THE SITEMAP MATCHES THE FLOOR EXACTLY. Every /p/ entry clears it; every
 //      roster member that clears it is present. No extras, no omissions.
-//   4. EVERY ADDRESS IS WELL-FORMED. One origin, the locked apex, no duplicates,
+//   4. EVERY ADDRESS IS WELL-FORMED. One origin, the locked www host, no duplicates,
 //      and every pid inside the charset the URL scheme was designed around.
 //   5. THE GENERATOR IS DETERMINISTIC AND CHECKED-IN. `--check` passes, which
 //      means the committed sitemap.xml is the one this data produces.
@@ -54,7 +54,7 @@ const has = (h, n, m) => ok(String(h).includes(n), `${m} — missing ${JSON.stri
 const section = (t) => console.log(`\n   ── ${t}`);
 const must = (c, m) => { if (c) return; console.error(`✗ sitemap floor: STALE HARNESS — ${m}`); process.exit(2); };
 
-const ORIGIN = "https://politidex.fyi";
+const ORIGIN = "https://www.politidex.fyi";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1 · One floor, loaded the way the generator loads it
@@ -130,7 +130,7 @@ must(locs.length > 100, `the sitemap parsed (${locs.length} entries)`);
 
 eq(new Set(locs).size, locs.length, "the sitemap lists the same URL twice");
 for (const u of locs) {
-  if (!u.startsWith(ORIGIN + "/")) { ok(false, `${u} is not on the locked apex origin`); break; }
+  if (!u.startsWith(ORIGIN + "/")) { ok(false, `${u} is not on the locked public origin`); break; }
 }
 ok(locs.every((u) => u.startsWith(ORIGIN + "/")), "every sitemap URL is on the one public origin");
 ok(!/politidex\.org/.test(XML), "the sitemap still names the retired .org host");

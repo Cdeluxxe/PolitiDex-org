@@ -3,12 +3,13 @@
 // PolitiDex — THE SHAPE'S TAIL, DECOMPOSED (read-only)
 // ─────────────────────────────────────────────────────────────────────────────
 // WHAT THIS ANSWERS. formalPatternIndex.shape() used to publish its tail as one
-// integer, `thinN`, and record-card.js printed that integer as "N too thin to
-// characterise". The integer merged two unlike populations:
+// integer, `thinN`, and record-card.js printed that integer as one refusal —
+// "N with a thin or unread formal file" today, and a blanket "too thin to
+// characterise" before the copy lock. The integer merged two unlike populations:
 //
 //   • issues where the BROWSE lane publishes a side in as many words — the
 //     dossier one click from the card reads "Thin supports" / "Thin opposes" /
-//     "Split" — which is not "too thin to characterise", and
+//     "Split" — which is a read, not an unread file, and
 //   • issues with no published side anywhere, which is.
 //
 // shape() now publishes the tail as three disjoint counts (readThinN,
@@ -25,8 +26,8 @@
 //      same person                                         — the card and the
 //      tree agree about which issues have a thin side on file
 //
-// and then reads the actual record card and asserts that the "too thin to
-// characterise" number on it is `thinN` and nothing wider.
+// and then reads the actual record card and asserts that the thin-or-unread
+// number on it is `thinN` and nothing wider.
 //
 // THE DERIVATION IS NOT REIMPLEMENTED. consistency.js, stance-tree.js and
 // record-card.js are loaded through the node:vm sandbox the test suite boots and
@@ -230,6 +231,10 @@ function utahItems(pid) {
 // left the tail, and a row leaving the tail is the regression this pass is not
 // allowed to cause.
 const CHAR = { strong: 1, mostly: 1 };
+// The bucket's wording, spelled once here so the assertion reads the same
+// sentence the card prints. record-card.js says "N with a thin or unread formal
+// file"; if that copy moves, this line is the one place this harness follows it.
+const THIN_BUCKET = "with a thin or unread formal file";
 function read(win, pid, items) {
   const FPI = win.PDXConsistency.formalPatternIndex;
   win.PDXVotingRecord.noteMember(pid, JSON.parse(JSON.stringify(items)));
@@ -246,8 +251,8 @@ function read(win, pid, items) {
   try {
     const m = win.PDXRecordCard.read(pid, {});
     const ls = (m && m.formal && m.formal.lines) || [];
-    cardLine = ls.find((s) => /too thin to characterise|read thin|side on file/.test(s)) || "";
-    const hit = /(\d+) too thin to characterise/.exec(cardLine);
+    cardLine = ls.find((s) => new RegExp(`${THIN_BUCKET}|read thin|side on file`).test(s)) || "";
+    const hit = new RegExp(`(\\d+) ${THIN_BUCKET}`).exec(cardLine);
     cardThinN = hit ? Number(hit[1]) : 0;
   } catch (e) { cardLine = `<card read failed: ${e && e.message}>`; }
   return { rows, sh, oldThinN, treeThin, cardLine, cardThinN, acts: items.length };
@@ -262,10 +267,10 @@ function report(label, pid, r) {
   if (!AS_JSON) {
     console.log(`\n${label} — ${pid}  (${r.acts} formal act(s) on file, ${sh.issues} issue row(s))`);
     console.log(`  before   ${String(sh.strongN).padStart(3)} one way · ${String(sh.splitN).padStart(3)} both ways · ` +
-      `${String(oldThinN).padStart(3)} "too thin to characterise"`);
+      `${String(oldThinN).padStart(3)} thin-or-unread`);
     console.log(`  after    ${String(sh.strongN).padStart(3)} one way · ${String(sh.splitN).padStart(3)} both ways · ` +
       `${String(sh.readThinN).padStart(3)} read thin · ${String(sh.readOtherN).padStart(3)} other side on file · ` +
-      `${String(sh.thinN).padStart(3)} "too thin to characterise"   (tail ${sh.tailN})`);
+      `${String(sh.thinN).padStart(3)} thin-or-unread   (tail ${sh.tailN})`);
     console.log(`  card     ${r.cardLine || "<no bucket line>"}`);
   }
   const sum = sh.readThinN + sh.readOtherN + sh.thinN;
@@ -286,16 +291,16 @@ function report(label, pid, r) {
     : fail(`read-thin rows (${sh.readThinN}) ≠ thin sides on the tree (${treeThin.length}): ` +
       `[${treeThin.map((l) => l.key).sort().join(", ")}]`);
   r.cardThinN === sh.thinN
-    ? pass(`the card's "too thin to characterise" tally is thinN (${sh.thinN})`)
-    : fail(`the card says "${r.cardThinN} too thin to characterise" but thinN is ${sh.thinN}`);
+    ? pass(`the card's "${THIN_BUCKET}" tally is thinN (${sh.thinN})`)
+    : fail(`the card says "${r.cardThinN} ${THIN_BUCKET}" but thinN is ${sh.thinN}`);
   // …and no issue the tree calls thin may be inside that tally, which is the
   // acceptance stated the other way round and worth failing on separately: an
   // implementation that got the count right by coincidence still fails here.
   const thinKeys = new Set(treeThin.map((l) => l.key));
   const leaked = r.rows.filter((x) => thinKeys.has(x.key) && !CHAR[x.tier] && x.tier !== "split" &&
     x.tier !== "thin" && !(x.displayTier || "")).map((x) => x.key);
-  leaked.length ? fail(`issue(s) the tree reads as thin landed in the card's "too thin" tally: ${leaked.join(", ")}`)
-                : pass("no issue the tree reads as thin is inside the card's \"too thin\" tally");
+  leaked.length ? fail(`issue(s) the tree reads as thin landed in the card's unread tally: ${leaked.join(", ")}`)
+                : pass("no issue the tree reads as thin is inside the card's unread tally");
   out.push({ pid, label, acts: r.acts, issues: sh.issues,
     before: { strongN: sh.strongN, splitN: sh.splitN, thinN: oldThinN },
     after: { strongN: sh.strongN, splitN: sh.splitN, readThinN: sh.readThinN,

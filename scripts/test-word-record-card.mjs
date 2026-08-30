@@ -246,8 +246,8 @@ function boot(withLane) {
       querySelector: () => null, querySelectorAll: () => [],
       addEventListener() {},
     },
-    location: { hash: "", search: "", origin: "https://politidex.fyi", pathname: "/",
-                href: "https://politidex.fyi/" },
+    location: { hash: "", search: "", origin: "https://www.politidex.fyi", pathname: "/",
+                href: "https://www.politidex.fyi/" },
     history: { replaceState() {}, state: null },
     navigator: {},
     URLSearchParams,
@@ -424,7 +424,7 @@ if (card) {
   // THE ADDRESSES.
   eq(card.hash, "#wordrecord=wrrep",
     "card: it links back to this member's whole-person record, not to one issue");
-  eq(card.source.url, "https://politidex.fyi/?wordrecord=wrrep",
+  eq(card.source.url, "https://www.politidex.fyi/?wordrecord=wrrep",
     "card: the source is the member's record page in server-visible form");
   ok(!!card.verifyUrl && card.verifyUrl.length <= 96,
     "card: the footer address is printable at the card's width");
@@ -703,14 +703,14 @@ section("12. arrival");
 {
   const L = A.window.PDXShareLinks;
   ok(!!L, "arrival: share-links is loaded");
-  eq(L.wordrecord("wrrep"), "https://politidex.fyi/?wordrecord=wrrep",
+  eq(L.wordrecord("wrrep"), "https://www.politidex.fyi/?wordrecord=wrrep",
     "arrival: the server-visible form is a member address with no issue");
-  eq(L.wordrecord("a~b"), "https://politidex.fyi/?wordrecord=a~b",
+  eq(L.wordrecord("a~b"), "https://www.politidex.fyi/?wordrecord=a~b",
     "arrival: the builder encodes whatever it is given");
   // A query with an issue segment is a single-issue address wearing the wrong
   // param name, and opens nothing.
   eq(A.window.PDXReceipts.linkFor(card, "", { canonical: true }),
-    "https://politidex.fyi/?wordrecord=wrrep",
+    "https://www.politidex.fyi/?wordrecord=wrrep",
     "arrival: the card's own share link is the whole-person address, not /?receipt=");
 
   // The router. handleWordRecordHash opens the profile and then the Full Stance

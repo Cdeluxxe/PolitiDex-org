@@ -103,7 +103,7 @@ function mkSandbox(over) {
       querySelector: () => null, querySelectorAll: () => [],
       addEventListener() {},
     },
-    location: { href: "https://politidex.fyi/", origin: "https://politidex.fyi",
+    location: { href: "https://www.politidex.fyi/", origin: "https://www.politidex.fyi",
                 pathname: "/", search: "", hash: "" },
     history: { state: null, replaceState() {} },
     navigator: {},
@@ -146,18 +146,18 @@ const run = async () => {
   // ── The pathname bug, reproduced ──────────────────────────────────────────
   // Same module, same call, from a reader sitting on a /vote/ address. The old
   // builder was `location.origin + location.pathname + '?p='`, which produced
-  // https://politidex.fyi/vote/119/house/12?p=scalise — an address whose PATH
+  // https://www.politidex.fyi/vote/119/house/12?p=scalise — an address whose PATH
   // still claims to be a roll call, so share-links' own voteFallback puts a
   // "we couldn't open that roll call" notice on top of the arriving profile.
   const onVote = mkSandbox({
-    location: { href: "https://politidex.fyi/vote/119/house/12", origin: "https://politidex.fyi",
+    location: { href: "https://www.politidex.fyi/vote/119/house/12", origin: "https://www.politidex.fyi",
                 pathname: "/vote/119/house/12", search: "", hash: "" },
   });
   new vm.Script(SL_SRC, { filename: "share-links.js" }).runInContext(onVote);
   const away = onVote.window.PDXShareLinks;
   must(away, "the /vote/ sandbox did not register PDXShareLinks");
 
-  ok(away.profile("scalise") === "https://politidex.fyi/p/scalise",
+  ok(away.profile("scalise") === "https://www.politidex.fyi/p/scalise",
      "link: a profile link is rooted at '/' even when built from a /vote/ page — the address must name the profile, not the page the reader happened to be on");
   // The shape moved from ?p=<pid> to /p/<pid> in the product-spine pass, so a
   // shared person link and the canonical link for the same person are now the
@@ -175,14 +175,14 @@ const run = async () => {
 
   // ── The issue link, which is the whole dossier fix ────────────────────────
   const dossier = SL.forTarget({ pid: "scalise", issueKey: "voting_rights" });
-  ok(dossier === "https://politidex.fyi/?record=scalise~voting_rights",
+  ok(dossier === "https://www.politidex.fyi/?record=scalise~voting_rights",
      "link: a share from inside an issue dossier emits the ?record= form, which opens the Official Record for that issue");
   ok(dossier === SL.record("scalise", "voting_rights"),
      "link: forTarget does not invent a parallel scheme — it returns the existing record() link");
   ok(SL.forTarget({ pid: "jayapal", issueKey: "healthcare" })
-       === "https://politidex.fyi/?record=jayapal~healthcare",
+       === "https://www.politidex.fyi/?record=jayapal~healthcare",
      "link: the same holds for any (member, issue) pair, not just the reported one");
-  ok(SL.forTarget({ pid: "scalise" }) === "https://politidex.fyi/p/scalise",
+  ok(SL.forTarget({ pid: "scalise" }) === "https://www.politidex.fyi/p/scalise",
      "link: with no issue in play the target is the profile, unchanged");
   ok(SL.forTarget({ pid: "scalise" }) === SL.profile("scalise"),
      "link: forTarget does not invent a second person-file address either");
@@ -197,8 +197,8 @@ const run = async () => {
 
   // And the arrival actually fires, rather than the parser merely agreeing.
   const arrive = mkSandbox({
-    location: { href: "https://politidex.fyi/?record=scalise~voting_rights",
-                origin: "https://politidex.fyi", pathname: "/",
+    location: { href: "https://www.politidex.fyi/?record=scalise~voting_rights",
+                origin: "https://www.politidex.fyi", pathname: "/",
                 search: "?record=scalise~voting_rights", hash: "" },
   });
   const written = [];
@@ -257,10 +257,10 @@ const run = async () => {
 
   const seen = [];
   const good = withNav({ share: (p) => { seen.push(p); return Promise.resolve(); } });
-  const r1 = await good.native({ title: "T", text: "X", url: "https://politidex.fyi/?p=scalise" });
+  const r1 = await good.native({ title: "T", text: "X", url: "https://www.politidex.fyi/?p=scalise" });
   ok(r1.ok === true && r1.outcome === "shared", "native: a completed hand-off reports 'shared'");
   must(seen.length === 1, "the navigator.share stub was never called");
-  ok(seen[0].title === "T" && seen[0].url === "https://politidex.fyi/?p=scalise" && seen[0].text === "X",
+  ok(seen[0].title === "T" && seen[0].url === "https://www.politidex.fyi/?p=scalise" && seen[0].text === "X",
      "native: title, text and url all reach the platform — a payload without a url arrives as a bare image with no route back to the record");
 
   ok((await good.native({ text: "just words" })).outcome === "invalid",
@@ -286,7 +286,7 @@ const run = async () => {
 
   const filesSeen = [];
   const okFiles = withNav({ share: (p) => { filesSeen.push(p); return Promise.resolve(); }, canShare: () => true });
-  await okFiles.native({ files: [{ name: "card.png" }], title: "T", url: "https://politidex.fyi/?record=scalise~voting_rights" });
+  await okFiles.native({ files: [{ name: "card.png" }], title: "T", url: "https://www.politidex.fyi/?record=scalise~voting_rights" });
   ok(filesSeen.length === 1 && filesSeen[0].files.length === 1 && filesSeen[0].url,
      "native: the image travels WITH its link, so whoever receives the card can reach the record behind it");
 

@@ -19,7 +19,7 @@
 // What must stay true:
 //
 //   1. THE ADDRESS FORM IS THE ROUTER'S FORM. /b/<sitting>/<number>, the number
-//      percent-encoded verbatim, nothing slugified, no invented ids, apex origin.
+//      percent-encoded verbatim, nothing slugified, no invented ids, one origin.
 //   2. THE RESOLVER STILL WORKS THAT WAY. voting-record.mts matches number
 //      exactly and falls back to utahSession for state sittings. If that changes,
 //      this test fails before the sitemap starts lying.
@@ -48,7 +48,7 @@ const has = (h, n, m) => ok(String(h).includes(n), `${m} — missing ${JSON.stri
 const section = (t) => console.log(`\n   ── ${t}`);
 const must = (c, m) => { if (c) return; console.error(`✗ sitemap bills: STALE HARNESS — ${m}`); process.exit(2); };
 
-const ORIGIN = "https://politidex.fyi";
+const ORIGIN = "https://www.politidex.fyi";
 const XML = R("sitemap.xml");
 const locs = [...XML.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 must(locs.length > 100, `the sitemap parsed (${locs.length} entries)`);
@@ -68,7 +68,7 @@ has(XML, `<loc>${ORIGIN}/b/119/H.R.%206644</loc>`,
 ok(bills.some((u) => u.startsWith(ORIGIN + "/b/2025GS/")),
    "no 2025 Utah general-session bill is advertised — the state half of the archive has no crawl path");
 
-// Every bill URL is three segments on the apex origin, and the number segment is
+// Every bill URL is three segments on the public origin, and the number segment is
 // percent-encoded rather than rewritten. `H.R. 6644` becomes `H.R.%206644`; if
 // something here ever decides to slugify it, the segment stops round-tripping.
 for (const u of bills) {
@@ -82,11 +82,15 @@ for (const u of bills) {
     break;
   }
 }
-ok(bills.every((u) => u.split("/").length === 6), "every bill URL is /b/<sitting>/<number> on the apex origin");
+ok(bills.every((u) => u.split("/").length === 6), "every bill URL is /b/<sitting>/<number> on the public origin");
 ok(!bills.some((u) => /\/b\/[^/]+\/(?:h|s)(?:r|b|res|jres|conres)?-\d/i.test(u)),
    "a bill address is slugified (hr-6644 style) — the resolver matches the printed number exactly, so that address 404s");
 eq(new Set(bills).size, bills.length, "the sitemap lists the same bill address twice");
-ok(!bills.some((u) => u.includes("www.")), "a bill address names the www host — the sitemap is apex-only");
+// ONE HOST. www is the host Google indexes and the one the apex 301s onto, so a
+// bill address on the apex would advertise a redirect as a crawl target. This pin
+// read the other way round until the origin moved; it is the same rule either way
+// — every /b/ address is on the one origin the sitemap declares.
+ok(bills.every((u) => u.startsWith(ORIGIN + "/b/")), "a bill address is on some host other than the indexed origin");
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 2 · The resolver still resolves that way

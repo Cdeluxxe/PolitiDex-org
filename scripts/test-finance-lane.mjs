@@ -532,9 +532,43 @@ const L = laneBox().PDXFinanceLane;
   const c = CL.read("lee");
   const lee = visible(CL.letterheadChipHtml("lee"));
   has(lee, c.receiptsFmt, "the figure is the lane's own itemized base");
-  has(lee, c.rows.length + " source", "…beside how many reported sources it was built from");
   has(lee, c.largest.short, "…and the top source, named");
   has(lee, "13 of 757 filed", "…and the coverage counts, quoted");
+  // THE DOLLARS CARRY THEIR UNIT, so the figure cannot be read as personal wealth.
+  // A bare "$8.6M" beside a person's name is a number about a PERSON; the same
+  // figure with "itemized" and the filing's own cycle on it is a number about a
+  // DOCUMENT, and the chip has one line in which to say which it is.
+  has(lee, "itemized", "the figure states what kind of dollars it is");
+  has(lee, c.cycle + " cycle", "…and which cycle's filing they came out of");
+  // …AND WHERE THE PAPERWORK IS, read off the filing's own source URL rather than
+  // typed at the call site or guessed from the office — which is why this is
+  // asserted against the host in the seed rather than against a literal. Lee's
+  // filing is an OpenSecrets transcription; a federally-sourced one says "FEC".
+  const ARCHIVE_BY_HOST = [[/fec\.gov/, "FEC file"],
+                           [/disclosures\.utah\.gov/, "Utah disclosure file"],
+                           [/opensecrets\.org/, "OpenSecrets file"]];
+  const archiveTag = (url) => (ARCHIVE_BY_HOST.find(([re]) => re.test(String(url || ""))) || [])[1] || "filed";
+  has(lee, archiveTag(c.source), "…and the archive the filing was transcribed from");
+  ok(SEED_IDS.some((id) => /fec\.gov/.test(String((SEED[id] || {}).source || ""))),
+    "the seed holds at least one FEC-sourced filing to name");
+  for (const id of SEED_IDS) {
+    const cc = CL.read(id);
+    if (!cc) continue;
+    has(visible(CL.letterheadChipHtml(id)), archiveTag(cc.source),
+      `${id}: the chip names the archive its own source URL points at`);
+  }
+  // The source COUNT gave up its place on the pill to that provenance and is still
+  // spoken in full by the accessible name — the pill may carry fewer segments than
+  // the longer form, never more.
+  const leeAria = (/aria-label="([^"]*)"/.exec(CL.letterheadChipHtml("lee")) || [])[1] || "";
+  has(leeAria, c.rows.length + " reported source", "the accessible name still counts the sources");
+  has(leeAria, "itemized campaign receipts", "…and says whose receipts these are");
+  // NO GRADE, NO "GRASSROOTS". The unit and the provenance are facts about a
+  // document; neither is a licence to characterise the money or the person.
+  for (const bad of ["grassroots", "small-dollar funded", "people-powered", "self-funded candidate",
+    "dark money", "special interest"]) {
+    lacks(lee.toLowerCase(), bad, `the on-file chip does not say "${bad}"`);
+  }
   // COUNTS, NEVER A SHARE. A percentage on the letterhead is the first screen
   // of a score: it is one number, comparable across people, with no unit
   // attached to it. Every chip state is held to counts and dollar figures.
@@ -592,8 +626,13 @@ const L = laneBox().PDXFinanceLane;
 
   // THE CHIP IS NOT THE SECTION. Nothing that belongs below is duplicated up here.
   const onFileChip = visible(CL.letterheadChipHtml("lee")).toLowerCase();
+  // "cycle" IS OFF THIS LIST ON PURPOSE. It was here because the section's own
+  // heading carries it and the chip had no business repeating a heading. It now
+  // carries it as the UNIT on the dollars — "$8.6M itemized 2024 cycle" — which is
+  // not a restatement of the section but the one thing that stops the figure being
+  // read as this person's net worth. The rest of the list is unchanged.
   for (const owned of ["outside spending", "not itemized to the candidate", "verify at source",
-    "composition as filed", "updated", "cycle"]) {
+    "composition as filed", "updated"]) {
     lacks(onFileChip, owned, `the chip does not restate the section's "${owned}"`);
   }
   ok(onFileChip.indexOf("<svg") < 0 && onFileChip.indexOf("<canvas") < 0,

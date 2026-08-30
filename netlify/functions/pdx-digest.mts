@@ -199,7 +199,7 @@ async function unsubscribe(req: Request, url: URL): Promise<Response> {
 }
 
 function unsubPage(ok: boolean): string {
-  const site = "https://politidex.fyi";
+  const site = "https://www.politidex.fyi";
   const body = ok
     ? `<h1>You're unsubscribed</h1><p>You will no longer receive email digests from PolitiDex. The in-app “What Changed” digest is unaffected — you can re-enable email any time in Notification settings.</p>`
     : `<h1>Link expired</h1><p>This unsubscribe link is invalid or has expired. You can turn email digests off directly in Notification settings.</p>`;

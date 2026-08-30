@@ -279,7 +279,7 @@ function boot(opts) {
       querySelector: () => null, querySelectorAll: () => [],
       addEventListener() {},
     },
-    location: { hash: "", origin: "https://politidex.fyi", pathname: "/" },
+    location: { hash: "", origin: "https://www.politidex.fyi", pathname: "/" },
     navigator: {},
     setTimeout: (fn) => { if (typeof fn === "function") fn(); return 0; },
     clearTimeout: () => {}, setInterval: () => 0, clearInterval: () => {},
@@ -323,6 +323,12 @@ const RC = A.window.PDXReceiptCards;
 must(!!PC, "window.PDXConsistency is not exported");
 must(!!RC, "window.PDXReceiptCards is not exported");
 must(!!PC.recordDirection, "PDXConsistency.recordDirection is not exported — the shared slot is gone");
+// The thin token's own label, read from the engine so the copy pins below cannot
+// drift from it in either direction.
+const THIN_LABEL = ((A.window._PDX_RD_TOKENS || {}).record_thin || {}).label || "";
+must(!!THIN_LABEL, "_PDX_RD_TOKENS.record_thin.label is not published");
+must(!/too thin to characterise/i.test(THIN_LABEL),
+  "the thin token still carries the retired blanket refusal");
 
 const slot = (pid, key, o) => PC.recordDirection.slot(pid, key, o);
 const html = (pid, key, o) => PC.recordDirection.for(pid, key, o);
@@ -411,7 +417,15 @@ for (const [key, why] of [[MIXED3, "a 3-vote 2-1 record"], [SOLO, "a single vote
   eq(s && s.clause, "", `thin: ${why} states no direction`);
   ok(s.total > 0, `thin: ${why} still reports that something is on file`);
   has(s.text, s.total + " vote", `thin: ${why} prints the count it does have`);
-  has(s.text.toLowerCase(), "too thin to characterise", `thin: ${why} says why in the token's words`);
+  // THE TOKEN'S OWN WORDS, READ OFF THE TOKEN. The label was "Too thin to
+  // characterise" and is now "Thin read, not a deep pattern" — a depth read rather
+  // than a blanket refusal, because these same rows carry a Thin chip one click
+  // away. Asserted against _PDX_RD_TOKENS rather than a literal so this pin tests
+  // that the slot quotes the token, which is the property, and not which sentence
+  // the token currently holds.
+  has(s.text.toLowerCase(), THIN_LABEL.toLowerCase(), `thin: ${why} says why in the token's words`);
+  ok(!/too thin to characterise/i.test(s.text),
+    `thin: ${why} does not print the retired blanket refusal`);
   eq(s.note, PC.recordDirection.NOTE_THIN, `thin: ${why} carries the too-thin disclosure`);
 }
 // Suppressions are thin, not empty — the votes exist and are not being hidden,
@@ -897,7 +911,7 @@ for (const [pid, key, reason] of [
 
 // ══ 8. TWO THIN CELLS ARE NOT A COMPARISON ═══════════════════════════════════
 // Putting the record first solves one dishonesty and opens another: a row of cells
-// each reading "3 votes on file — too thin to characterise" has the same shape,
+// each reading "3 votes on file — thin read, not a deep pattern" has the same shape,
 // weight and visual promise as a row where two records ran plainly opposite ways,
 // and the reader's eye takes the ROW as the finding. The floor below is the shared
 // answer both grids use. What it must do is say so; what it must NOT do is touch

@@ -706,6 +706,10 @@ if (argOf("row")) {
     console.log(`\n  ${label} — ${rpid} / ${rkeyName}`);
     if (!row) { console.log("    (no row on the index)"); return; }
     console.log(`    tier=${row.tier} read=${!!row.read} judged=${row.judged} why=${(row.why && row.why.id) || "-"}`);
+    // The reason's WORDS, not just its id: a refusal that changes wording without
+    // changing rung is exactly the kind of drift this dump is used to check.
+    console.log(`    label=${JSON.stringify(row.patLabel || "")}`);
+    if (row.why && row.why.lb) console.log(`    why.lb=${JSON.stringify(row.why.lb)}`);
     console.log(`    counts=${JSON.stringify(row.counts)}`);
     const acts = items.filter((it) => (it.issues || []).some((i) => i.issueKey === rkeyName));
     for (const a of acts) {

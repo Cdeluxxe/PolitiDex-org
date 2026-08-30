@@ -572,7 +572,7 @@
   // drawn monogram (not a hotlinked photo) so the canvas is never tainted and
   // toBlob()/share always succeed, even offline.
   // ══════════════════════════════════════════════════════════════════════════
-  var SHARE_URL = 'https://politidex.fyi/';
+  var SHARE_URL = 'https://www.politidex.fyi/';
   // Ceiling for an Official Record post. tweetText() reserves both addresses out
   // of this before the headline is measured — see the comment there for why both
   // have to travel and why this is 280 rather than the old self-imposed 240.

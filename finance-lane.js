@@ -571,7 +571,7 @@
   // not clean; it is unchecked. So every profile gets a chip, and where there is
   // nothing on file the chip says that in words.
   //
-  //   on file   💰 $8.6M · 38% small-dollar · top pile: Large individual · 13 of 757 filed
+  //   on file   💰 $8.6M itemized 2024 cycle · top source: Large individual · FEC file · 13 of 757 filed
   //   partial   💰 Partial file · 6 items
   //   empty     💰 No money file yet
   //
@@ -641,6 +641,49 @@
              items: c.rows.length, composition: c, coverage: c.coverage || cov };
   }
 
+  // ── WHICH ARCHIVE THE FIGURE CAME OUT OF ────────────────────────────────────
+  // A dollar figure beside a person's name has two readings and only one of them is
+  // ours. "$780M" on a letterhead can be read as campaign receipts or as what this
+  // person is worth, and nothing in a pill's width had ever said which — the chip
+  // relied on the reader knowing that a site with a 💰 glyph means donations. So the
+  // figure now carries its unit ("itemized", "2024 cycle") and its PROVENANCE: the
+  // archive the filing was transcribed from, named on the chip, so the number is
+  // visibly a document rather than an estimate of a person.
+  //   READ OFF THE FILING'S OWN SOURCE URL, never typed at a call site and never
+  // guessed from the office. The filing carries the link a reader can open; the host
+  // of that link is the authority that published it, and the two therefore cannot
+  // disagree. An unrecognised host says "filed" and names nobody — a wrong authority
+  // on a real figure is worse than no authority at all.
+  //   NOT A GRADE AND NOT A RANK. "FEC file" says where the paperwork is, which is a
+  // fact about disclosure, not about the person. It is the same class of statement as
+  // the coverage counts beside it, and like them it has no tone, no colour and no
+  // threshold anywhere in this file that reads it.
+  var ARCHIVES = [
+    { re: /(^|\.)fec\.gov$/i,            tag: 'FEC file',           name: 'the FEC' },
+    { re: /(^|\.)disclosures\.utah\.gov$/i, tag: 'Utah disclosure file', name: 'Utah state disclosures' },
+    { re: /(^|\.)opensecrets\.org$/i,    tag: 'OpenSecrets file',   name: 'OpenSecrets' }
+  ];
+  function archiveOf(url) {
+    var u = String(url || '');
+    if (!u) return null;
+    var host = '';
+    try { host = (u.split('//')[1] || '').split('/')[0].split('?')[0].toLowerCase(); } catch (e) { host = ''; }
+    if (!host) return null;
+    for (var i = 0; i < ARCHIVES.length; i++) {
+      if (ARCHIVES[i].re.test(host)) return ARCHIVES[i];
+    }
+    return { re: null, tag: 'filed', name: 'the published filing' };
+  }
+  // The figure with its unit on it. "$780M" alone is a number about a person;
+  // "$780M itemized 2024 cycle" is a number about a document, and the difference is
+  // the whole point of this segment. The cycle is the filing's own (compose carries
+  // it straight off the record) and is dropped rather than invented where the record
+  // does not state one — "itemized receipts" is then the unit, and it is still a unit.
+  function figureText(c) {
+    if (!c) return '';
+    return c.receiptsFmt + (c.cycle ? ' itemized ' + c.cycle + ' cycle' : ' in itemized receipts');
+  }
+
   // Coverage, short enough to ride on one line. The chip quotes the two counts;
   // the sentence that says what a blank MEANS is in the aria-label and in full in
   // the section, because that sentence is a paragraph and this is a pill.
@@ -675,15 +718,22 @@
       var c = cr.composition;
       // How much — the itemized base, the same base every share in the section is
       // taken over, so the chip and the section are answers about one filing.
-      segs.push({ fig: true, text: c.receiptsFmt });
-      // Who — the largest reported source, named, and how many sources there are.
-      // "Largest" is a fact about a sorted list, and a count is a count.
-      segs.push({ fig: false, text: c.rows.length + ' source' + (c.rows.length === 1 ? '' : 's') });
+      segs.push({ fig: true, text: figureText(c) });
+      // Who — the largest reported source, named. "Largest" is a fact about a sorted
+      // list, and naming the top of a list is not ranking the person at the bottom.
       if (c.largest) {
         segs.push({ fig: false, text: c.largestTied
           ? 'top source: tied'
           : ('top source: ' + c.largest.short) });
       }
+      // WHERE THE PAPERWORK IS. See the wall over archiveOf. This is the segment the
+      // bare source COUNT gave up its place for: "5 sources" restates the length of
+      // the list the segment above it already names the top of, and the aria-label
+      // below still speaks it in full, so nothing was dropped from the chip's own
+      // account of itself — a count moved to the longer form and a provenance took
+      // the line, which is the trade the one-line rule requires be made explicitly.
+      var arc = archiveOf(c.source);
+      if (arc) segs.push({ fig: false, text: arc.tag });
       // Disclosure — the coverage counts, so the figure above arrives already
       // framed by how much of the roster this lane can speak about at all.
       var tag = coverageTag(cr.coverage);
@@ -718,8 +768,13 @@
       // hearing a percentage the sighted chip no longer prints would be getting a
       // different lane, and the longer form is not a licence to say more than the
       // surface it names — only to say it more fully.
-      return c.receiptsFmt + ' in itemized receipts' + (c.cycle ? ', ' + c.cycle + ' cycle' : '') +
+      // The source COUNT lives here now rather than on the pill (see chipSegments),
+      // so this is the surface that still speaks it — the longer form says the same
+      // things more fully, and it may not say fewer of them than the pill does.
+      var arc = archiveOf(c.source);
+      return c.receiptsFmt + ' in itemized campaign receipts' + (c.cycle ? ', ' + c.cycle + ' cycle' : '') +
         ' across ' + c.rows.length + ' reported source' + (c.rows.length === 1 ? '' : 's') + '. ' + top +
+        (arc ? 'Transcribed from ' + arc.name + '. ' : '') +
         'Open the money section on this file for the full composition, bucket by bucket.';
     }
     if (cr.state === 'thin') {

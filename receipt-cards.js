@@ -1691,7 +1691,7 @@
         if (u) return u;
       }
     } catch (e) {}
-    return 'https://politidex.fyi/#' + SHARE_HASH + '=' +
+    return 'https://www.politidex.fyi/#' + SHARE_HASH + '=' +
       encodeURIComponent(pid) + '~' + encodeURIComponent(issueKey);
   }
 
@@ -3254,7 +3254,7 @@
         if (u) return u;
       }
     } catch (e) {}
-    return 'https://politidex.fyi/#' + WR_HASH + '=' + encodeURIComponent(pid);
+    return 'https://www.politidex.fyi/#' + WR_HASH + '=' + encodeURIComponent(pid);
   }
 
   // ── The card ──────────────────────────────────────────────────────────────

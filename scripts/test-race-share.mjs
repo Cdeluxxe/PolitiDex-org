@@ -131,7 +131,7 @@ function boot(opts) {
   win.URLSearchParams = URLSearchParams;
   win.URL = URL;
   win.location = {
-    href: "https://politidex.fyi/", origin: "https://politidex.fyi",
+    href: "https://www.politidex.fyi/", origin: "https://www.politidex.fyi",
     pathname: opts.pathname || "/", search: opts.search || "", hash: opts.hash || "",
   };
   win.__replaced = [];
@@ -255,20 +255,20 @@ section("1 · The URL shape, root-anchored");
   const SL = w.PDXShareLinks;
 
   eq(SL.race("senate", { cands: ["a", "b"], rmode: "record" }),
-     "https://politidex.fyi/?race=senate&cands=a%2Cb&rmode=record",
+     "https://www.politidex.fyi/?race=senate&cands=a%2Cb&rmode=record",
      "race(): seat, field and ruler in one addressable query");
-  eq(SL.race("senate", {}), "https://politidex.fyi/?race=senate",
+  eq(SL.race("senate", {}), "https://www.politidex.fyi/?race=senate",
      "race(): a bare seat is a valid link — cands and rmode are both optional");
-  eq(SL.race("senate", { rmode: "all" }), "https://politidex.fyi/?race=senate",
+  eq(SL.race("senate", { rmode: "all" }), "https://www.politidex.fyi/?race=senate",
      "race(): a ruler this sheet does not have is dropped rather than emitted");
-  eq(SL.race(""), "https://politidex.fyi/", "race(): no seat, no claim");
-  eq(SL.team("TOKEN123"), "https://politidex.fyi/?team=TOKEN123#my-politicians",
+  eq(SL.race(""), "https://www.politidex.fyi/", "race(): no seat, no claim");
+  eq(SL.team("TOKEN123"), "https://www.politidex.fyi/?team=TOKEN123#my-politicians",
      "team(): the wire token is passed through untouched and lands on the slate");
   eq(SL.team(""), "", "team(): no token, no link");
 
   // The whole reason these live in share-links.js.
   const onVote = boot({ pathname: "/vote/119/house/12" });
-  eq(onVote.PDXShareLinks.race("senate", {}), "https://politidex.fyi/?race=senate",
+  eq(onVote.PDXShareLinks.race("senate", {}), "https://www.politidex.fyi/?race=senate",
      "race(): a share taken from a /vote/ address does not inherit that path");
   has(onVote._ballotLoad ? "ok" : "ok", "ok", "ballot store present");
   const teamUrl = onVote.PDXShareLinks.team("TOK");

@@ -193,7 +193,7 @@ function boot() {
       createElement: noopEl, getElementById: () => null, querySelector: () => null,
       querySelectorAll: () => [], addEventListener() {}, dispatchEvent() {},
     },
-    location: { hash: "", origin: "https://politidex.fyi", pathname: "/" },
+    location: { hash: "", origin: "https://www.politidex.fyi", pathname: "/" },
     navigator: {},
     setTimeout: (fn) => { if (typeof fn === "function") fn(); return 0; },
     clearTimeout: () => {}, setInterval: () => 0, clearInterval: () => {},

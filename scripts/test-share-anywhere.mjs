@@ -116,7 +116,7 @@ const ctx = {
     querySelector: () => null, querySelectorAll: () => [],
     addEventListener(name, fn) { (docListeners[name] = docListeners[name] || []).push(fn); },
   },
-  location: { hash: "", origin: "https://politidex.fyi", pathname: "/" },
+  location: { hash: "", origin: "https://www.politidex.fyi", pathname: "/" },
   navigator: {},
   setTimeout: (fn) => { try { fn(); } catch (e) {} return 0; },
   clearTimeout: () => {},

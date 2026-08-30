@@ -285,7 +285,7 @@ function mkCtx(opts) {
       execCommand() { return true; },
     },
     navigator: {},
-    location: { origin: "https://politidex.fyi", pathname: "/", hash: "" },
+    location: { origin: "https://www.politidex.fyi", pathname: "/", hash: "" },
     // Short waits fire straight away, as they always did. A LONG wait is a cap on
     // something that may never answer — the portrait's 2.5s ceiling — so it is
     // parked in `_timers` for a test to fire by hand instead of being either
@@ -363,7 +363,7 @@ function mkCtx(opts) {
     return { kept, broken, resolved: kept + broken, pending, partial: 0, unresolved: pending, tracked: kept + broken + pending };
   };
   ctx._pdxOfficeLine = (p) => "🏛️ " + [p.office, p.district ? "District " + p.district : "", p.state].filter(Boolean).join(" • ");
-  ctx.pdxShareUrl = (pid) => "https://politidex.fyi/?p=" + pid;
+  ctx.pdxShareUrl = (pid) => "https://www.politidex.fyi/?p=" + pid;
   ctx.PDXReceiptCards = { warm: () => Promise.resolve(null) };
   return ctx;
 }

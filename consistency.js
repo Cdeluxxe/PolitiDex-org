@@ -5934,6 +5934,112 @@
     return lbl ? lbl.charAt(0).toLowerCase() + lbl.slice(1) : '';
   }
 
+  // ── A POLELESS FILE THAT HOLDS REAL VOTES ───────────────────────────────────
+  // WHAT WENT WRONG. Thirteen issue keys name a SUBJECT or a contested AUTHORITY
+  // rather than a proposition ("🏕 Homelessness Policy", "🪖 Who Commands the
+  // National Guard"), so _RD_NO_POLE refuses to print a direction on them: the
+  // mapping's support_meaning resolves an arithmetic side, and printing it would
+  // assert a pole nobody curated. That refusal is right and it is not moving here.
+  //   What was wrong is what the refusal SAID. Every one of those rows printed "No
+  // side to read on this issue" whatever was underneath it, and underneath 2,656 of
+  // them across the shipped corpus is at least one judged, dated, sourced Yea or
+  // Nay — Markey's Homelessness row is one recorded vote reading as though nothing
+  // had been read. A sentence about OUR mapping in the clothes of a finding about
+  // THEIR record is the exact defect this file spends its length refusing, and the
+  // row beside it saying "1 vote on file" is what makes it visible.
+  //
+  // SO THE ROW SAYS BOTH FACTS, AND DEPTH DECIDES WHICH ONE LEADS.
+  //   · A THIN FILE LEADS WITH THE DEPTH READ. Below the index's own published
+  //     characterisation floor (_PDX_RD_MIN_JUDGED, read, never redeclared) the
+  //     honest headline is the one the slot already prints on the share card:
+  //     there is a small file here and none of it is a pattern. 2,182 rows.
+  //   · A DEEP ONE MAY NOT BORROW THAT WORD. Eleven judged votes are not thin, and
+  //     "thin" over them would be a false reason for a true refusal. Those rows say
+  //     only what is true of them: the subject has no side to publish. 474 rows.
+  // Neither says "supports" or "opposes", neither carries a tier, and neither
+  // changes a floor, a chip, a count or a score — this is the wording of a refusal
+  // the engine had already made, and both branches are still that refusal.
+  //   ONE SENTENCE, TWO SURFACES. _fpiUnreadWhy words the index row and _rdSlot
+  // words the share card and the Official Record line; they read this one function
+  // so a reader cannot be shown "No side to read on this issue" in the dossier and
+  // "thin read" on the card for the same row.
+  var _RD_NOPOLE_THIN = 'Thin read — this subject has no side';
+  var _RD_NOPOLE_DEEP = 'No side published on this subject';
+  // ONE RUNG, NOT ALL THREE. _ST_DIR_ISSUE_SILENT holds the three issue-shaped
+  // silences, and only `no_pole` is the one this wording is true of: a subject key
+  // with no for-or-against side. A `balance_key` row is a balance framing and a
+  // `no_issue` row is an unmapped key, and both already have their own sentence
+  // naming the gap as OURS — reworded here they would all collapse into one, which
+  // is the defect the refusal ladder exists to avoid.
+  var _RD_NOPOLE_GATE = { no_pole: 1 };
+  function _rdNoPoleSay(idx) {
+    if (!idx || !idx.suppressed || !_RD_NOPOLE_GATE[idx.suppressed]) return '';
+    if ((idx.judged || 0) < 1) return '';
+    var floor = window._PDX_RD_MIN_JUDGED;
+    if (typeof floor !== 'number' || !isFinite(floor)) floor = 4;
+    return ((idx.judged || 0) < floor) ? _RD_NOPOLE_THIN : _RD_NOPOLE_DEEP;
+  }
+  // THE WHOLE REFUSAL, WORDED ONCE. _fpiUnreadWhy reaches the poleless case by two
+  // different doors — the KEY's shape, which is answerable without an index and is
+  // therefore asked first, and the INDEX's own suppression flag — and both doors
+  // owe the reader the same paragraph. It lived at the second door only, which is
+  // how Markey's Homelessness row (one judged Nay on a `homeless` key) kept
+  // printing the bare mapping refusal: the key-shape door returned before the
+  // depth-aware branch was ever reached. `say` is the headline _rdNoPoleSay chose;
+  // the note under it states the file first and OUR limit second, in that order,
+  // because the reader's question is "so what is on file here".
+  function _rdNoPoleWhy(idx, say, n) {
+    var one = ((idx && idx.judged) || 0) === 1;
+    return { id: 'no_pole_read', lb: say,
+      note: 'The ' + (one ? n.one : n.many) + ' here ' + (one ? 'is' : 'are') +
+        ' on file, dated and sourced, and ' + (one ? 'it is' : 'they are') + ' open in the ' +
+        'dossier. What is not claimed is a direction: this issue names a subject rather than a ' +
+        'for-or-against proposition in our own issue mapping, so there is no side here for a ' +
+        'record to be on. That is a limit of our mapping, not a finding about their record.' };
+  }
+  // ── AND THE KIND OF NO-SIDE, IN THE DOSSIER'S OWN WORDS ─────────────────────
+  // The counts come from the index (`noSideKinds`, slugs); the phrases come from
+  // _DOS_NOSGRP, which is where the dossier's no-side divider already writes them
+  // down — "1 recorded absence", "2 recorded Present votes". Nothing is spelled
+  // twice, so the row and the ledger it opens onto cannot disagree about what an
+  // abstention is called. Counts, never a share, and read by copy only.
+  var _RD_NOSIDE_SAY = { present: 'Present', absent: 'Did not vote', other: 'No side' };
+  var _RD_NOSIDE_ORDER = ['present', 'absent', 'other'];
+  function _rdNoSideSay(idx) {
+    var k = idx && idx.noSideKinds;
+    if (!k) return '';
+    var out = [];
+    _RD_NOSIDE_ORDER.forEach(function (key) {
+      var n = k[key] || 0;
+      if (!n) return;
+      var w = _DOS_NOSGRP[_RD_NOSIDE_SAY[key]];
+      if (!w) return;
+      out.push(n + ' ' + w[n === 1 ? 0 : 1]);
+    });
+    return out.join(' \u00b7 ');
+  }
+  // …and the LABEL for a row whose whole mapped file took no side, which is the
+  // same question asked for a chip face rather than a sentence. THE ACT TYPE IS THE
+  // HEADLINE: "No vote here took a side" spent its only loud words on the refusal
+  // and buried the fact, and the fact — they were recorded absent, they voted
+  // Present — is the thing a reader came for. Count-free on purpose: the census
+  // pills above these rows print their own N in front of the label, so a count in
+  // here would be printed twice.
+  function _rdNoSideLb(idx) {
+    var k = (idx && idx.noSideKinds) || null;
+    if (!k) return '';
+    var kinds = _RD_NOSIDE_ORDER.filter(function (key) { return (k[key] || 0) > 0; });
+    if (kinds.length !== 1) return '';
+    // THE ACT FIRST, THE REFUSAL AFTER — AND IT HAS TO SURVIVE A COUNT IN FRONT
+    // OF IT. The census prints every label as "<b>N</b> label", so a label that
+    // reads as a sentence about one row ("Did not vote on this issue") reads as
+    // broken English as soon as three rows share it. These two read the same way
+    // either place: on the chip, and after the count.
+    if (kinds[0] === 'present') return 'Voted Present — no side taken';
+    if (kinds[0] === 'absent') return 'Did not vote — no side taken';
+    return '';
+  }
+
   // ── THE FORMAL-RECORD PATTERN CHIP ──────────────────────────────────────────
   // WHAT IT IS. One chip on the row's top line saying how one-sided the formal
   // record on this issue actually was — "Strongly opposes · 12 advanced · 0
@@ -6554,9 +6660,19 @@
         note = said ? _RD_SLOT_NOTE_SAID : _rdSlotNote();
         aria = (idx.summary || text) + ' ' + note;
       } else if (state === 'thin') {
-        // The token names its own refusal ("Too thin to characterise"), so the
+        // The token names its own read ("Thin read, not a deep pattern"), so the
         // reason a direction is withheld is not worded a second time here.
-        text = inv + ' — ' + String(idx.label || '').toLowerCase();
+        //   EXCEPT WHERE THE REASON IS NOT DEPTH AT ALL. On a poleless subject the
+        // token is `record_thin` whatever the file holds — the suppression takes the
+        // same exit — so eleven judged votes printed here as "too thin", which is a
+        // false reason for a correct refusal. Those rows borrow _rdNoPoleSay, the one
+        // sentence the index row beside them also prints, so the card and the dossier
+        // cannot end up describing one row two ways. '' back from that helper means
+        // depth IS the reason, and the token's own label stands.
+        var _npole = _rdNoPoleSay(idx);
+        text = inv + ' — ' + (_npole
+          ? _npole.charAt(0).toLowerCase() + _npole.slice(1)
+          : String(idx.label || '').toLowerCase());
         note = _RD_SLOT_NOTE_THIN;
         aria = text + '. ' + note;
       } else {
@@ -6608,7 +6724,7 @@
 
   // ── TWO THIN CELLS ARE NOT A COMPARISON ─────────────────────────────────────
   // Putting the record first solves one dishonesty and opens another. A row of
-  // cells each reading "3 votes on file — too thin to characterise" is, at a
+  // cells each reading "3 votes on file — thin read, not a deep pattern" is, at a
   // glance, a row: same shape, same weight, same visual promise as a row where
   // both records ran plainly opposite ways. The reader's eye takes the ROW as the
   // finding, and the row is not a finding — nobody's record here said anything.
@@ -7037,7 +7153,7 @@
     var says = pat ? (pat.says || null) : (d.says || null);
     // EXCEPT AT n = 1, WHERE THERE IS NOTHING TO CONTRADICT. The paragraph above
     // binds this line to the characterisation floors because a lead saying "Mixed"
-    // over an evidence line saying "3 votes on file — too thin to characterise" is
+    // over an evidence line saying "3 votes on file — thin read, not a deep pattern" is
     // a row arguing with itself. One item cannot produce that argument: the lead
     // says which way the single item went, the evidence line says there is one of
     // it, and both are the same fact. So where the display read named a side off a
@@ -10505,6 +10621,16 @@
       }
     } catch (e) { _fsup = null; }
     if (_fsup && _RD_TIER_MUTED[_fsup]) {
+      // THE KEY'S SHAPE IS THE SAME ANSWER AT ANY DEPTH — but it may not be stated
+      // as though nothing had been read. Where the member holds judged acts on this
+      // poleless key, this door answers exactly as the index door below does; see
+      // the wall over _rdNoPoleSay for why, and _rdNoPoleWhy for the paragraph both
+      // of them print. On the executive lane there is no index and _stDirRaw comes
+      // back empty, so the sentence below is what that row keeps.
+      var _kidx = null;
+      try { _kidx = _stDirRaw(r); } catch (e) { _kidx = null; }
+      var _ksay = _rdNoPoleSay(_kidx);
+      if (_ksay) return _rdNoPoleWhy(_kidx, _ksay, n);
       return { id: 'no_side', lb: 'No side to read on this issue',
         note: 'This issue has no for-or-against side in our own issue mapping, so we do not claim a ' +
           'direction for these ' + n.many + '. That is a gap in our mapping, not a finding about ' +
@@ -10519,6 +10645,16 @@
     var idx = null;
     try { idx = _stDirRaw(r); } catch (e) { idx = null; }
     if (idx && idx.suppressed && window._PDX_RD_TIERS && _RD_TIER_MUTED[idx.suppressed]) {
+      // ── AND A ROW HOLDING JUDGED VOTES DOES NOT SAY "NO SIDE TO READ" ──────
+      // See the wall over _rdNoPoleSay. "No side to read on this issue" is the right
+      // sentence for a poleless subject the member has nothing judged on, and it was
+      // the wrong one over a recorded Yea: the row printed a refusal that reads as a
+      // finding about their record beside a count saying a vote is on file. Where
+      // there IS something judged, the row leads with what is true of the file —
+      // thin, or simply not something we publish a side on — and keeps the mapping
+      // sentence underneath, where it has always belonged.
+      var _npole = _rdNoPoleSay(idx);
+      if (_npole) return _rdNoPoleWhy(idx, _npole, n);
       return { id: 'no_side', lb: 'No side to read on this issue',
         note: 'This issue has no for-or-against side in our own issue mapping, so we do not claim a ' +
           'direction for these ' + n.many + '. That is a gap in our mapping, not a finding about ' +
@@ -10548,10 +10684,24 @@
     // may become one again.
     if (idx && (idx.total || 0) > 0) {
       if ((idx.judged || 0) < 1) {
-        return { id: 'no_side_taken', lb: 'No ' + n.one + ' here took a side',
-          note: 'The ' + n.many + ' mapped to this issue were Present, Not Voting, or otherwise ' +
-            'resolved to neither side, so there is nothing to read a direction from. They are in ' +
-            'the dossier exactly as they are.' };
+        // ── AND THE ACT TYPE IS THE HEADLINE, NOT THE FOOTNOTE ──────────────
+        // "No vote here took a side" spent the loud words on the refusal and left the
+        // fact in a tooltip: 143 rows across the corpus reach this rung and every one
+        // of them is an abstention the clerk's file NAMES. A row whose whole mapped
+        // file is one recorded absence should say so on its face — the reader can
+        // then tell an absence from a gap in our ingest without opening anything,
+        // which is the whole difference this rung exists to draw. See _rdNoSideLb for
+        // why the label carries no count, and _rdNoSideSay for the counts, which go
+        // in the note where the census cannot print them twice.
+        var _nosLb = _rdNoSideLb(idx), _nosSay = _rdNoSideSay(idx);
+        return { id: 'no_side_taken', lb: _nosLb || 'No ' + n.one + ' here took a side',
+          note: (_nosSay
+                  ? 'What is mapped to this issue here is ' + _nosSay + ' — nothing that took a side, '
+                  : 'The ' + n.many + ' mapped to this issue were Present, Not Voting, or otherwise ' +
+                    'resolved to neither side, ') +
+            'so there is nothing to read a direction from. ' +
+            (_nosSay ? 'That is a record of what happened, not a gap in ours: it is ' : 'They are ') +
+            'in the dossier exactly as ' + (_nosSay ? 'it is' : 'they are') + '.' };
       }
       // ── THE VEHICLE RUNG IS OFF THIS LADDER TOO ────────────────────────────
       // There was a rung here for the row whose EVERY mapped instrument arrived as

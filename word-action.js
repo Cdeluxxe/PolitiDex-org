@@ -4066,11 +4066,19 @@
       // THE HONESTY VALVE, COUNTED OUT LOUD. Every issue the engine declined to
       // characterise is in this number, and the number is printed whatever it is
       // — including when it is most of the list.
+      //   AND IT IS A COUNT, NOT A SECOND REFUSAL. The line used to end "…but not
+      // enough of them to characterise a pattern yet", which is the blanket sentence
+      // the tail is not entitled to: shapeTailN() is readThinN + readOtherN + thinN,
+      // and the first of those three is issues whose dossier one click away reads
+      // "Thin supports" or "Thin opposes" in as many words. Telling a reader nothing
+      // could be characterised there and then showing them a side is two answers to
+      // one question. What is true of all three populations is the FILE — it is thin,
+      // or it is unread — so that is what the line says, and the count does the rest
+      // of the work it was always doing.
       var tailN = shapeTailN(sh);
       var thin = tailN
         ? '<p class="pdxwa-shape-thin"><b>' + tailN + '</b> more issue' + (tailN === 1 ? '' : 's') +
-            ' ha' + (tailN === 1 ? 's' : 've') + ' formal items on file but not enough of them to ' +
-            'characterise a pattern yet.</p>'
+            ' ha' + (tailN === 1 ? 's' : 've') + ' a thin or unread formal file.</p>'
         : '';
       return '<div class="pdxwa-shape">' +
           '<div class="pdxwa-shape-hd">' +
@@ -4310,14 +4318,13 @@
     if (listed) {
       thin = tailN
         ? '<p class="pdxwa-shape-thin"><b>' + tailN + '</b> more issue' + (tailN === 1 ? '' : 's') +
-            ' ha' + (tailN === 1 ? 's' : 've') + ' formal items on file but not enough of them to ' +
-            'characterise a pattern yet.</p>'
+            ' ha' + (tailN === 1 ? 's' : 've') + ' a thin or unread formal file.</p>'
         : '';
     } else {
       none = '<p class="pdxwa-shape-none">No issue yet has a record one-sided enough to ' +
         'characterise' + (tailN
           ? ' — <b>' + tailN + '</b> ' + (tailN === 1 ? 'has' : 'have') +
-            ' formal items on file but not enough of them to characterise a pattern yet.'
+            ' a thin or unread formal file.'
           : '.') + '</p>';
     }
     // The tier wall explains the CHIPS. Where no chip rendered it is a rule about

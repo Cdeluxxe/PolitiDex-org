@@ -4,7 +4,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // TWO BUGS, ONE FILE.
 //
-// 1. TWO DOMAINS. The public site is politidex.fyi. Seven places still named an
+// 1. TWO DOMAINS. The public site is https://www.politidex.fyi — the host Google
+//    indexes, with the apex 301ing onto it. Seven places once named an
 //    old .org host that we do not serve, and they were not decorative: the digest
 //    library built every emailed UNSUBSCRIBE link from it (an unsubscribe link
 //    that 404s is a compliance problem, not a typo), the digest functions built
@@ -13,7 +14,7 @@
 //    the place to go. There is now exactly one origin in the repo.
 //
 // 2. A CANONICAL THAT LIES. index.html is a single document, so it carries a
-//    single hardcoded `<link rel="canonical" href="https://politidex.fyi/">` and
+//    single hardcoded `<link rel="canonical" href="https://www.politidex.fyi/">` and
 //    a single `og:url`. Every share link is a rewrite of that same document —
 //    /issue/<slug>, /vote/<congress>/<chamber>/<roll>, /p/<id>, /?bill=…,
 //    /?receipt=… — so every one of them shipped a HEAD whose title, description
@@ -79,16 +80,50 @@ section("1 · there is exactly one public origin in the repo");
   const hits = files.filter((f) => OLD.test(R(f)));
   eq(hits, [], "no file names the retired .org domain — including comments, docs and runbooks");
 
-  // …and the live origin is present and singular. A second live host would be the
-  // same bug wearing a different name.
-  const LIVE = "politidex.fyi";
-  has(R("index.html"), `<link rel="canonical" href="https://${LIVE}/"`, "index.html declares the live origin as its canonical");
-  has(R("netlify/lib/digest.ts"), `https://${LIVE}`, "the digest library builds unsubscribe links on the live origin");
+  // ── THE PUBLIC ORIGIN IS THE www HOST ──────────────────────────────────────
+  // Google indexes https://www.politidex.fyi and the apex 301s onto it, so www is
+  // the address the site actually has. This gate used to pin the apex and forbid
+  // www, which had it exactly backwards: every absolute URL we emitted — the
+  // canonical, og:url, all 1,227 sitemap entries, the robots Sitemap line, every
+  // emailed record and unsubscribe link, every baked share URL — named a host that
+  // answers 301 and then hands the reader to a different one. A redirect is a hop
+  // a crawler did not need and a second address for one record, which is the same
+  // duplicate-host bug the .org sweep above exists to catch, wearing our own name.
+  const LIVE = "www.politidex.fyi";
+  has(R("index.html"), `<link rel="canonical" href="https://${LIVE}/"`, "index.html declares the www origin as its canonical");
+  has(R("index.html"), `<meta property="og:url" content="https://${LIVE}/"`, "…and unfurls on the same host it canonicalizes to");
+  has(R("netlify/lib/digest.ts"), `https://${LIVE}`, "the digest library builds unsubscribe links on the www origin");
   for (const f of ["netlify/functions/pdx-digest.mts", "netlify/functions/pdx-digest-cron.mts"]) {
-    has(R(f), `https://${LIVE}`, `${f} builds email links on the live origin`);
+    has(R(f), `https://${LIVE}`, `${f} builds email links on the www origin`);
   }
-  const wwwHits = files.filter((f) => /https?:\/\/www\.politidex\./i.test(R(f)));
-  eq(wwwHits, [], "no file mixes a www host into the apex origin — one form, or the two compete as duplicates");
+
+  // ONE SITEMAP, ONE HOST, AND IT IS THE INDEXED ONE. The generator writes both
+  // files from a single ORIGIN, so these two pins are what stops a hand edit from
+  // introducing a crawl entry point on one host and addresses on another.
+  const sitemap = R("sitemap.xml"), robots = R("robots.txt");
+  has(sitemap, `<loc>https://${LIVE}/</loc>`, "sitemap.xml lists the homepage on the www origin");
+  eq(robots.match(/^Sitemap:/gm) || [], ["Sitemap:"], "robots.txt names exactly one sitemap — a second host would be a second site");
+  has(robots, `Sitemap: https://${LIVE}/sitemap.xml`, "…and that one sitemap is on the www origin");
+  const locHosts = [...new Set([...sitemap.matchAll(/<loc>https?:\/\/([^/<]+)/g)].map((m) => m[1]))];
+  eq(locHosts, [LIVE], "every <loc> in the sitemap is on the one indexed host");
+
+  // …and the apex form appears in no absolute URL anywhere in the tree. Assembled
+  // from parts for the same reason the .org pattern above is: written as one
+  // literal, this line would be its own first hit.
+  const APEX = new RegExp("https?://" + "politidex" + "\\." + "fyi", "i");
+  const apexHits = files.filter((f) => APEX.test(R(f)));
+  eq(apexHits, [], "no absolute URL names the apex host — it 301s to www, so emitting it publishes a redirect as an address");
+
+  // WHAT IS DELIBERATELY NOT SWEPT: the bare hostname with no scheme. Cards paint
+  // "politidex.fyi" as the wordmark, the footer prints it as a signature, the
+  // methodology line on a share card reads "politidex.fyi/#methodology", and the
+  // ballot .ics export builds its event UIDs on "@politidex.fyi". None of those is
+  // an address a crawler follows or a link a canonical competes with: the first
+  // three are brand text a human reads and may type (where the 301 does its job),
+  // and the last is an opaque identifier that must stay stable across exports —
+  // rewriting it would make every already-exported calendar event a new event.
+  const brand = new RegExp("(^|[^./@a-z])" + "politidex" + "\\." + "fyi", "i");
+  ok(brand.test(R("profile-card.js")), "the painted wordmark is still the brand host, not a URL");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -105,7 +140,7 @@ section("2 · canonicalPath derives the record address, not the request");
   must(typeof S.canonicalPath === "function", "share-target.ts no longer exports canonicalPath");
 
   const canon = (u) => {
-    const t = S.parseTarget(new URL(u, "https://politidex.fyi"));
+    const t = S.parseTarget(new URL(u, "https://www.politidex.fyi"));
     return t ? S.canonicalPath(t) : null;
   };
 
