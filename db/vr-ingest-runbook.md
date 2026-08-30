@@ -2383,3 +2383,292 @@ the 96 fresh rows — a first recorded act on that bill — spread over 27 bills
 is why no characterisation bar moves: one act on one bill is depth, not a pattern.
 No floor moved, no tier collapsed, and the 102 readable records are the same 102.
 
+
+### Wave 8 — the 2023GS off-lane bucket, worked by hand (`20261019000000`)
+
+Wave 7 measured the cost of rule 5 in 2023GS and refused to pay it: **1 020
+recorded-roll pass-out-favorably rows across 612 bills with no reviewed issue
+mapping**, of which **135 bills / 157 contested acts** cleared the 10%-minority bar.
+Wave 8 is the curator pass over exactly that 135, the same job wave 4 did for 2024GS
+and 2025GS. **No new ingest, no fence widened, no floor moved, no issue key added.**
+
+**The list was recomputed, not pasted.** `--bucket --session 2023GS` was re-run
+against the shipped ingest output over the warm wave-7 cache (249 PDFs, 240 approved
+minutes) and returned 135 bills / 157 acts — the same number wave 7 published, from
+the same source rather than from wave 7's prose. `scripts/vr-utah-bill-text.mjs`
+then fetched all 135: **132 readable, 3 not** (H.R. 3, H.R. 4, S.R. 4 — the extractor
+cannot find an enacting clause in a resolution, which is correct, because a
+resolution has none).
+
+#### The count
+
+| | bills |
+|---|---|
+| contested off-lane bucket, recomputed | **135** |
+| admitted with a reviewed mapping | **68** |
+| refused in writing | **67** |
+| unaccounted | **0** |
+
+68 bills carry **70 reviewed mappings** — two bills earned a second key for a
+genuinely distinct provision (H.B. 54, `lower_taxes` 85 + `tax_middle_class` 50;
+H.B. 147, `tough_on_crime` 55 + `free_speech` 45 `yea_opposes`) — across **35 shipped
+keys**, **59 `yea_supports` / 11 `yea_opposes`**, weights **45–85, median 55**. The
+seed is **81 acts and 607 positions, 0 superseded**: these measures have no floor
+roll by construction, so every one of the 607 is that member's only act on that bill
+and all of them count.
+
+Admission rates, recomputed from the three decision files rather than quoted:
+
+| session | bucket | admitted | refused | rate | keys used |
+|---|---|---|---|---|---|
+| 2025GS (wave 4) | 173 | 78 | 95 | 45.1% | 46 |
+| 2024GS (wave 4) | 141 | 66 | 75 | 46.8% | 40 |
+| 2023GS (wave 8) | 135 | **68** | **67** | **50.4%** | 35 |
+
+The wave-8 brief quoted wave 4 as "314 → 140 admitted, 174 refused"; the two files
+read **144 admitted / 170 refused** over the same 314. Both pairs total 314, so the
+brief's figure is a transposition rather than a discrepancy in the record — but the
+recomputed pair is the one to quote. Note also that `--verify` recomputes the bucket
+on every run and now reads **170** for 2025GS and **140** for 2024GS, because
+vocabulary wave V1 later reviewed keys for four of those bills and they left this
+lane; the decision files still hold all 314 decisions. 2023GS has no such exits.
+
+The two bucket numbers above are therefore *decisions*, not *bucket size*, for
+2024/2025. For 2023GS the two coincide at 135.
+
+#### Two rules from this pass
+
+1. **An institution-creating bill is admitted only where the new body gets operative
+   duties over the policy itself.** H.B. 307 creates the Utah Water Ways partnership
+   and gives it water-stewardship powers and duties, so it takes `water` at a narrow
+   45 — the same key wave 4 reviewed for a 2024 bill directing that partnership's
+   work. H.B. 177, H.B. 210, H.B. 268, S.B. 62, S.B. 109 and S.B. 125 create bodies
+   that **study, advise or report** and nothing more, and are refused. A commission
+   that produces a recommendation is not a direction on the policy; treating it as
+   one would let any interim-study bill inherit the weight of the fight it studies.
+
+2. **A bill that pushes one key both ways is refused, not mapped to its louder half.**
+   H.B. 297, H.B. 303, H.B. 304, S.B. 93, S.B. 233 and S.B. 257 each contain
+   provisions running in opposite directions on the same key. Rule 22 already forbids
+   a circular stance; the mapping-pass version is that a curator may not pick the
+   subsection they find more consequential and publish it as the bill's direction.
+   Both halves are in the text, so the text does not have a direction.
+
+Both conventions are recorded verbatim in `_note` in
+`db/vr-utah-committee-bills-2023GS.json`, next to the decisions they governed, so a
+later reader can check a refusal against the rule that produced it.
+
+#### The three fence bills, one more time
+
+The brief asked that H.B. 137 / H.B. 267 / H.B. 463 stay off this list if they are
+off-lane, and that mapping not be used to reach past the minutes fence. **H.B. 267
+is not in the bucket at all** (its 2023GS committee vote was not contested).
+H.B. 137 and H.B. 463 are in it, and both are **refused on their own text**:
+
+- **2023GS H.B. 137 is "State Crustacean Designation"** — the brine shrimp. Utah
+  renumbers every session, so this is a different instrument from the 2024GS H.B. 137
+  wave 5 refused. A state-symbol designation carries no direction on any key.
+- **2023GS H.B. 463 is "High School Sports Amendments."** Its operative provision
+  names "birth certificate or other identifying documents" and never names sex or
+  gender. Mapping `lgbtq_rights` onto it would be inference past the text, which
+  fence 4 forbids.
+
+It is worth stating why this could not have gone wrong even if a mapping had been
+admitted: the ingest tests **lane membership before it confirms a PDF**, so admitting
+a mapping moves a bill from "refused at rule 5" to "now subject to rules 6 and 7" —
+the full four-part minutes confirmation still runs. A mapping cannot buy a
+committee-name match.
+
+#### No new key, and the one candidate that nearly earned one
+
+The bar was: the fight must already clear all six standing vocab rules **and** ≥3 of
+these bills must have been refused for lack of the key. Exactly one candidate met the
+second half and failed the first.
+
+**Candidate ballot access / party nomination method** — H.B. 91, H.B. 202, H.B. 393
+and H.B. 453 all turn on how a *candidate* reaches the ballot — convention versus
+signature gathering, and the signature counts required for a party's nomination —
+with H.B. 205 adjacent (a primary runoff, i.e. election method rather than access).
+Four refusals is over the threshold. It is still refused, and listed for V2, because it
+fails **rule 2 (CLEAN POLARITY)** — the convention-versus-signature fight has no
+single voter-legible direction; both camps describe themselves as widening access —
+and **rule 3 (NOT A COUSIN)**, since it sits on top of `voting_access`,
+`election_integrity` and `democracy_balance` without being any of them.
+
+Below the three-bill threshold and noted as watch items, not proposals:
+victims' rights / restitution (H.B. 456), automated traffic enforcement (S.B. 105),
+state-funded early childhood education (S.B. 258).
+
+H.B. 202 is worth its own line, as the clearest illustration of fence 4. It looked
+like an initiative-threshold bill and was expected to map. Dumping the whole of
+`20A-9-408` from the introduced text showed the section **reorganised into new
+subsections with every number unchanged** — 28 000 / 7 000 / 2 000 / 1 000 / 2 000
+and the 3% alternative all survive verbatim. There is no delta to have a direction
+about, so it is refused. The text is the bill.
+
+#### What it costs the reader, measured
+
+Booted with the 2023GS mapping seed withheld and again with it in place, floor plus
+committee plus the wave-4 mapping lane held constant:
+
+| lane | empty | thin | readable |
+|---|---|---|---|
+| shipped (2023GS mapping withheld) | 10 | 19 | 103 |
+| + the 68 bills of this pass | 10 | 16 | 106 |
+| delta | **0** | **−3** | **+3** |
+
+**Three members crossed thin → readable** — `kera_birkeland`, `steven_lund`,
+`susan_pulsipher` — **nobody regressed, and nobody left `empty`.** The 607 positions
+add **128 issue rows** but only **29 new (member, issue) cells**: 16 newly clear, 14
+newly split, 1 fewer unread. Nearly as many new cells argue with themselves as speak
+clearly, which is the honest shape of a committee lane: a single committee act on a
+single bill is depth, not a pattern.
+
+**The three who crossed are three of wave 6's sixteen identity-only roster rows, and
+that deserves saying out loud.** Wave 6 added those sixteen for legislators who cast
+recorded committee votes and had no roster record at all, and
+`test-vr-utah-committee-mapping.mjs` fenced them at `thin` in both states with the
+reasoning "no identity row buys a characterisation it did not earn." Wave 8 gave
+three of them enough mapped committee acts for the **shipped** tier rule to
+characterise one or two issues each:
+
+| member | before | after |
+|---|---|---|
+| `kera_birkeland` | thin · 10 acts · 0 clear | readable · 28 acts · 1 clear |
+| `steven_lund` | thin · 13 acts · 0 clear | readable · 32 acts · 2 clear |
+| `susan_pulsipher` | thin · 9 acts · 0 clear | readable · 22 acts · 1 clear |
+
+**No floor was moved to allow this.** The tier rule, the 0.60 committee weight and
+the coverage bar are the ones waves 3 and 4 shipped, and the index is the shipped
+module in a sandbox. What moved is the evidence. The fence was rewritten to match its
+own stated purpose rather than its then-true observation: the three are **named**, and
+what they earned is now asserted — each held **0** clear issues before and holds ≥1
+after, on strictly more acts, and crossed on a *clear* issue rather than by splitting
+an old one. The other thirteen must still be `thin` in both states, and none of the
+sixteen may land on `empty`.
+
+A reader who thinks a record built entirely of committee votes should not read as
+`readable` has a real objection, and the lever for it is not this file: it is the
+tier rule, or the 0.60 weight, or a rule that committee-only members are excluded
+from characterisation. Those are floor changes and this pass had no mandate for one.
+The change is disclosed here so the decision can be made deliberately.
+
+#### Twelve rows read as splits now, up from five
+
+`M.lost` — (member, issue) cells that lost a one-sided read — went **5 → 12**. The
+seven new ones: `andrew_stoddard`/`gun_rights`, `joseph_elison`/`edu_parental`,
+`karen_m_peterson`/`edu_parental`, `nelson_abbott`/`tough_on_crime`,
+`nthurston`/`privacy_rights`, `r_neil_walter`/`edu_parental`, `rshipp`/`water`.
+**Three of the twelve fell from `strong`**, the strongest read the engine gives
+(`karen_m_peterson`, `r_neil_walter`, `rshipp`). Every one is a member whose 2023
+committee vote runs against their own floor run on the same key, and **every one
+lands on `split`, not on `thin`** — a real tier that still says something. That is
+the wave-4 doctrine working: a committee vote is allowed to turn a one-sided read
+into a split, and the fence is that no such row stops being nameable. The harness
+bound was raised from 6 to 12 **with the seven names written into it**, not with a
+larger number and no list.
+
+#### One coverage gap, left open on purpose
+
+`Rep. J. Briscoe` appears on admitted acts in this wider lane and is not in
+`db/vr-utah-committee-map-2023GS.json`. **4 votes are dropped** rather than
+attributed, alongside the 42 withheld by the four names the map already refuses. Wave 4
+hit the same thing and recorded the precedent in `_nearCollisions`: a mapping pass
+surfaces printed names and **does not extend a reviewed identity artifact**, because
+name review is its own fence with its own doors. The name is logged here for the next
+name-review wave, not resolved here.
+
+#### Three corrections the harness forced
+
+1. **A secondary key at 50 was over the narrow-link bar.** H.B. 54's second key
+   (`tax_middle_class`) was reviewed at 50 while the shipped narrow-mapping bar is
+   **45**, and `loadDecisions()` does not check it — only the harness does. It was
+   lowered to 45. A non-primary key has to print as a narrow link, and a curator's
+   sense of how consequential the provision is does not get to override that.
+2. **The `_leftTheBucket` note has to name the flag it explains.** The harness reads
+   the note for the literal string `leftTheBucket`; the first draft explained the
+   concept without naming it. Rewritten to say "No bill carries the leftTheBucket
+   flag in this session…".
+3. **68 new bill addresses meant a stale sitemap.** `measureAddresses()` reads the
+   migrations, so the 68 new `vr_measures` inserts became 68 openable `/b/2023GS/…`
+   addresses the committed `sitemap.xml` did not list, and two sitemap tests failed
+   on it. `node scripts/gen-sitemap.mjs` — 1 227 urls, +68, `robots.txt` unchanged.
+   **A mapping pass ships a sitemap regeneration.** It is the step that is easy to
+   forget because nothing in the mapping tooling mentions it.
+
+#### Two things the generator learned
+
+1. **`--sql` now emits its own VERIFICATION block**, scoped by
+   `external_ids->>'committeeOnly' = 'true'` — the exact predicate the seed-lane
+   migrations *exclude*. The two guards therefore partition a session's
+   `committee_vote` rows instead of each asserting a total against the whole session,
+   which is what the brief asked for and what `20261015000000` (wave 4's 2024GS
+   mapping file) shipped without. A `--bills` delta narrows the same predicate to the
+   bills it restates. It also asserts that every committee-only measure carries its
+   reviewed issue rows, that none of them reached `vr_rollcalls` at all, and that
+   every position cites an `le.utah.gov` PDF.
+2. **The header no longer says "Wave 4."** It said so on every session because the
+   line was hardcoded, which would have put wave 4's name on this file's provenance.
+   It now reads "This pass read the bill text and reviewed them."
+
+#### The harness, and how sections 5 and 6 were actually verified
+
+`test-vr-utah-committee-mapping.mjs` now runs over three sessions. Its section 1
+recomputes each bucket through the shipped ingest, so **it cannot run in an
+environment without a warm `/tmp` ingest cache** — a known env failure, and it
+crashes at section 1 before sections 2–6 execute. Shipping unverified edits to
+sections 5 and 6 was not acceptable, so they were exercised by writing **scratch
+bucket stubs** to `/tmp/bucket-{2025,2024}GS.json`, derived from the shipped decision
+files as `admitted ∪ (refused minus leftTheBucket)` — which reproduces 170 and 140
+exactly. With those in place the harness runs end to end: **891 assertions, 0
+failed.** The stubs were then deleted, so the reported env failure is the same one as
+before. Section 1's real guarantee is unchanged and comes from `--verify`, which
+recomputes the bucket from the ingest rather than from a stub.
+
+Two shape changes were needed:
+
+- **The VERIFICATION block is not a measure block.** `sqlRows()` required every `DO`
+  block to select a measure by number and chamber; the guard selects none. It is now
+  skipped there and in the per-block arithmetic, identified by its own `DECLARE`
+  line rather than by position.
+- **The write fence had to be restated as a write fence.** It read `lacks(stmts,
+  "vr_rollcalls")` over all executable text, and the guard *reads* `vr_rollcalls` to
+  prove the count is zero. Reading a table to prove it is untouched is the opposite
+  of touching it. The guard is now cut out of that fence and given a stricter one:
+  **it may contain no `INSERT`, `UPDATE`, `DELETE`, `ALTER`, `DROP` or `CREATE` at
+  all.** Net stronger, not weaker.
+
+#### Twin boot
+
+The shipped Direction Match derivation was run from a HEAD-only copy of the tree and
+from the working tree, against the same live record:
+`vr-audit-record-direction-coverage.mjs` and `vr-audit-record-direction-cards.mjs`
+both came back **byte-identical** (`md5 3095ce3a…` and `5ae20174…`). 1 534 judged
+pairs before and after, **0 verdicts moved, 0 stated positions appeared or changed.**
+That is the expected result and it is worth stating why: this pass writes a pending
+migration, a seed and an index harness, none of which any shipped surface reads at
+runtime. The measured surfaces move when the migration is applied, not when it lands.
+
+#### Run it
+
+```bash
+# the list, recomputed from the shipped ingest output
+node scripts/vr-utah-committee-mapping.mjs --worksheet --session 2023GS
+
+# accounting: admitted + refused must equal the bucket, exit 1 otherwise
+node scripts/vr-utah-committee-mapping.mjs --verify --session 2023GS
+#   2023GS: bucket 135 · admitted 68 · refused 67 · unaccounted 0
+
+# the seed the index reads, and what the name fence costs
+node scripts/vr-utah-committee-mapping.mjs --seed --session 2023GS
+node scripts/vr-utah-committee-mapping.mjs --dropped --session 2023GS
+
+# the migration
+node scripts/vr-utah-committee-mapping.mjs --sql --session 2023GS --out /tmp/vr-utah-drafts
+
+# the reader-facing delta
+node scripts/vr-utah-fpi.mjs
+
+# 68 new bill addresses — do not skip this
+node scripts/gen-sitemap.mjs
+```

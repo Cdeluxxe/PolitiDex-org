@@ -439,7 +439,7 @@ export function buildSql(session, opts) {
   L.push(`-- committee ingest's refusal bucket for ${session}: a CONTESTED pass-out-favorably vote,`);
   L.push(`-- confirmed against the published minutes PDF, with every voting name resolved through`);
   L.push(`-- the reviewed printed-name map — refused only because nobody had reviewed an issue`);
-  L.push(`-- mapping for the parent bill. Wave 4 read the enrolled text and reviewed them.`);
+  L.push(`-- mapping for the parent bill. This pass read the bill text and reviewed them.`);
   L.push(`--`);
   L.push(`-- WHERE THE MAPPINGS CAME FROM. db/vr-utah-committee-bills-${session}.json, one entry per`);
   L.push(`-- bill, each carrying a direction, a weight, exactly one primary key and prose saying`);
@@ -533,6 +533,71 @@ export function buildSql(session, opts) {
     L.push(`END $$;`);
     L.push("");
   }
+  // ── VERIFICATION ───────────────────────────────────────────────────────────
+  // Scoped to the rows THIS FILE writes and nothing else. The mapping lane is
+  // identified by committeeOnly on the measure, which is the same predicate the
+  // seed-lane migrations exclude — so the two guards partition the session's
+  // committee_vote rows instead of both asserting a total against the whole
+  // session. A delta narrows further, to the bills it restates.
+  const lane = [
+    `     AND m.external_ids->>'utahSession' = ${q(session)}`,
+    `     AND (m.external_ids->>'committeeOnly') = 'true'`,
+  ].concat(only ? [`     AND m.external_ids->>'utahBill' IN (${[...only].sort().map(q).join(", ")})`] : []);
+  L.push(`-- \u2500\u2500 VERIFICATION `.padEnd(79, "\u2500"));
+  L.push(`-- Fails loudly rather than leaving a half-written committee record behind. This`);
+  L.push(`-- lane only: ${session} measures carrying committeeOnly. The seed-lane migration's`);
+  L.push(`-- own guard excludes exactly these rows, so neither file asserts the other's total.`);
+  L.push(`DO $$`);
+  L.push(`DECLARE n_pos integer; n_measures integer; n_issues integer; n_floorish integer; n_nosrc integer;`);
+  L.push(`BEGIN`);
+  L.push(`  SELECT count(*) INTO n_pos FROM vr_positions p`);
+  L.push(`    JOIN vr_measures m ON m.id = p.measure_id`);
+  L.push(`   WHERE p.action_type = 'committee_vote'`);
+  for (const c2 of lane) L.push(c2);
+  L.push(`  ;`);
+  L.push(`  IF n_pos <> ${c.positions} THEN`);
+  L.push(`    RAISE EXCEPTION 'expected ${c.positions} Utah ${session} mapping-lane committee_vote positions, found %', n_pos;`);
+  L.push(`  END IF;`);
+  L.push(`  SELECT count(DISTINCT p.measure_id) INTO n_measures FROM vr_positions p`);
+  L.push(`    JOIN vr_measures m ON m.id = p.measure_id`);
+  L.push(`   WHERE p.action_type = 'committee_vote'`);
+  for (const c2 of lane) L.push(c2);
+  L.push(`  ;`);
+  L.push(`  IF n_measures <> ${c.measures} THEN`);
+  L.push(`    RAISE EXCEPTION 'expected ${c.measures} bills with Utah ${session} mapping-lane committee votes, found %', n_measures;`);
+  L.push(`  END IF;`);
+  L.push(`  -- Every one of these measures exists only because a curator reviewed a mapping`);
+  L.push(`  -- for it; a committee-only measure with no issue row would be a vote with no`);
+  L.push(`  -- direction, which is the thing this lane refuses to publish.`);
+  L.push(`  SELECT count(*) INTO n_issues FROM vr_measure_issues i`);
+  L.push(`    JOIN vr_measures m ON m.id = i.measure_id`);
+  L.push(`   WHERE true`);
+  for (const c2 of lane) L.push(c2);
+  L.push(`  ;`);
+  L.push(`  IF n_issues <> ${c.issueMappings} THEN`);
+  L.push(`    RAISE EXCEPTION 'expected ${c.issueMappings} reviewed issue mappings on Utah ${session} mapping-lane measures, found %', n_issues;`);
+  L.push(`  END IF;`);
+  L.push(`  -- A committee act must never have been written as a roll call.`);
+  L.push(`  SELECT count(*) INTO n_floorish FROM vr_rollcalls r`);
+  L.push(`    JOIN vr_measures m ON m.id = r.measure_id`);
+  L.push(`   WHERE true`);
+  for (const c2 of lane) L.push(c2);
+  L.push(`  ;`);
+  L.push(`  IF n_floorish > 0 THEN`);
+  L.push(`    RAISE EXCEPTION 'a committee vote reached vr_rollcalls (% rows)', n_floorish;`);
+  L.push(`  END IF;`);
+  L.push(`  -- Every act carries the published minutes PDF it was confirmed against.`);
+  L.push(`  SELECT count(*) INTO n_nosrc FROM vr_positions p`);
+  L.push(`    JOIN vr_measures m ON m.id = p.measure_id`);
+  L.push(`   WHERE p.action_type = 'committee_vote'`);
+  for (const c2 of lane) L.push(c2);
+  L.push(`     AND (p.source_url IS NULL OR p.source_url NOT LIKE 'https://le.utah.gov/%.pdf')`);
+  L.push(`  ;`);
+  L.push(`  IF n_nosrc > 0 THEN`);
+  L.push(`    RAISE EXCEPTION '% committee votes without a minutes PDF citation', n_nosrc;`);
+  L.push(`  END IF;`);
+  L.push(`END $$;`);
+  L.push("");
   return L.join("\n") + "\n";
 }
 
