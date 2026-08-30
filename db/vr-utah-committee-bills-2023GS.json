@@ -1,0 +1,1107 @@
+{
+ "_session": "2023GS",
+ "_note": "Wave 8 curator mapping pass over the 2023GS committee-wave refusal bucket (bill had a contested committee vote and no reviewed issue mapping). Recomputed from the shipped ingest output, not from a stale roster: 135 bills, 157 contested acts. Each admitted mapping is grounded in the enrolled or last substituted text and names the provision it rests on; each refusal states in prose why no shipped ISSUE_MAP key carries a direction. No new issue key was added in this pass. Standing conventions followed here: an institution-creating bill is admitted only where the instrument gives the new body operative duties over the policy itself (HB0307), and refused where the body only studies, advises, or reports (HB0177, HB0210, HB0268, SB0062, SB0109, SB0125); a bill whose provisions push the same key both ways is refused under runbook rule 22 rather than mapped to the louder half (HB0297, HB0303, HB0304, SB0093, SB0233, SB0257).",
+ "bills": [
+  {
+   "bill": "HB0027",
+   "issues": [
+    {
+     "issueKey": "justice_reform",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text rewrites Subsection 76-10-503(3) so that a Category II restricted person who possesses a firearm is guilty of a class A misdemeanor rather than a third degree felony when the only basis for the restriction is unlawful possession of marijuana without intent to produce, manufacture, or dispense it. The operative change is a graded reduction of a criminal penalty, which is what justice_reform carries."
+    }
+   ]
+  },
+  {
+   "bill": "HB0054",
+   "issues": [
+    {
+     "issueKey": "lower_taxes",
+     "weight": 85,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text cuts the individual income tax rate and the corporate franchise tax rate, and removes the state sales and use tax on food and food ingredients contingent on a constitutional amendment. Three separate rate or base reductions in one instrument, all in the same direction, make this the clearest tax-cut vote in the 2023 committee bucket."
+    },
+    {
+     "issueKey": "tax_middle_class",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The same enrolled text also expands the state earned income tax credit and raises the income phase-out thresholds on the social security benefits credit. These are distinct provisions from the rate cuts and they target lower and middle income filers specifically rather than all filers, so they earn a second, narrower key."
+    }
+   ]
+  },
+  {
+   "bill": "HB0064",
+   "issues": [
+    {
+     "issueKey": "econ_corp_account",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text provides that a court may not enforce a provision of an agreement that waives or limits a party's liability for punitive damages, with an exception for depository institutions. Removing the ability to contract out of punitive damages exposure is a direct increase in the accountability a company faces in court, and the single carve-out does not reverse the rule."
+    }
+   ]
+  },
+  {
+   "bill": "HB0082",
+   "issues": [
+    {
+     "issueKey": "edu_parental",
+     "weight": 65,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Third substitute text requires a local education agency to notify a parent before a school assembly that addresses certain topics and to describe the assembly's content, so that the parent can act on the notice. The provision hands parents advance information and a decision they did not previously have, which is the edu_parental fight stated plainly."
+    }
+   ]
+  },
+  {
+   "bill": "HB0094",
+   "issues": [
+    {
+     "issueKey": "econ_corp_account",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Enrolled text shortens the reverse mortgage cooling-off period from seven days to five days during which the lender may not close the loan, and adds an exception letting a person initiate foreclosure without first sending the certified-mail notice and allowing 30 days to cure when the borrower is deceased. Every operative change reduces a duty the lender owes the borrower, so a yea vote weakens accountability rather than strengthening it."
+    }
+   ]
+  },
+  {
+   "bill": "HB0129",
+   "issues": [
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text makes it a criminal offense to possess or transport a communication device at a correctional facility without authorization and sets the offense level. Creating a new crime with a new penalty is the direction tough_on_crime carries, and nothing in the bill reduces an existing penalty."
+    }
+   ]
+  },
+  {
+   "bill": "HB0132",
+   "issues": [
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 80,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "First substitute text prohibits a health care provider from performing a sex characteristic surgical procedure on a minor and from providing hormonal transgender treatment to a minor who was not already receiving it, and makes a violation unprofessional conduct. The prohibition removes access to a category of care available only to transgender people, so a yea is a vote against lgbtq_rights."
+    }
+   ]
+  },
+  {
+   "bill": "HB0138",
+   "issues": [
+    {
+     "issueKey": "edu_parental",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sixth substitute text requires an LEA to review instructional material a parent alleges is prohibited sensitive material, to remove material determined to be prohibited, to report determinations to the State Board of Education, and to terminate a contract with a vendor that provides prohibited sensitive material. The instrument puts the parent's complaint at the front of a mandatory removal process, which is the parental-control direction."
+    }
+   ]
+  },
+  {
+   "bill": "HB0144",
+   "issues": [
+    {
+     "issueKey": "energy_production",
+     "weight": 65,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text extends the high cost infrastructure development tax credit and broadens the eligible project definition to include the storage or production of all fuels and infrastructure for an underground mine. Widening a production tax credit from a narrow list of fuels to all fuels, plus mine infrastructure, is a direct subsidy for extraction and fuel production capacity."
+    }
+   ]
+  },
+  {
+   "bill": "HB0147",
+   "issues": [
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text makes it a criminal offense to fail to render reasonable assistance to a victim of a crime the person witnesses, and imposes penalties. It creates a new affirmative criminal duty backed by punishment where none existed, which is squarely the tough_on_crime direction."
+    },
+    {
+     "issueKey": "free_speech",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "A separate provision of the same introduced text prohibits a person from distributing a visual recording of a crime unless the person first reported the crime to law enforcement. That is a distinct provision from the duty-to-assist offense and it restricts publication of a recording rather than conduct at the scene, so it earns a second, narrow key against free_speech."
+    }
+   ]
+  },
+  {
+   "bill": "HB0150",
+   "issues": [
+    {
+     "issueKey": "water",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text enacts water use preferences during a declared temporary water shortage emergency, sets out how the state engineer applies those preferences, and provides for compensation of a water right holder whose use is curtailed. It gives the state an operative drought tool over how scarce water is allocated, which is the core of the water key."
+    }
+   ]
+  },
+  {
+   "bill": "HB0155",
+   "issues": [
+    {
+     "issueKey": "election_integrity",
+     "weight": 65,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text requires the lieutenant governor to contract with an independent accounting firm to perform an attestation engagement evaluating the accuracy, validity, and completeness of election audits and results, and to make the report public. An outside attestation of the count, published, is the audit-and-verify direction that election_integrity carries."
+    }
+   ]
+  },
+  {
+   "bill": "HB0158",
+   "issues": [
+    {
+     "issueKey": "privacy_rights",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "First substitute text lets a law enforcement agency obtain a defined category of electronic information or data with an administrative subpoena rather than a warrant, and amends the notification a subscriber receives. Lowering the legal process required for the government to reach a person's electronic data reduces the protection the Electronic Information or Data Privacy Act gives, so a yea is a vote against privacy_rights."
+    }
+   ]
+  },
+  {
+   "bill": "HB0175",
+   "issues": [
+    {
+     "issueKey": "public_schools",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Third substitute text prescribes the fees an LEA may charge, prohibits an LEA from charging a general fee, and prohibits a fee for grade six remediation. The provisions take out-of-pocket charges off public school families for instruction the district must provide anyway, which strengthens the free public school guarantee rather than the private alternatives."
+    }
+   ]
+  },
+  {
+   "bill": "HB0187",
+   "issues": [
+    {
+     "issueKey": "rural_ag",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text exempts a person who performs pregnancy testing on bovine animals from the licensure requirements of the Veterinary Practice Act. The exemption exists so ranch and dairy operations can have herd pregnancy testing done without hiring a licensed veterinarian, a direct reduction of an operating cost carried by agricultural producers."
+    }
+   ]
+  },
+  {
+   "bill": "HB0195",
+   "issues": [
+    {
+     "issueKey": "econ_workers",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text requires that a school employee placed on administrative leave during a criminal investigation receive a portion of salary during the leave, provides for back pay if the allegation is not substantiated, and requires repayment if it is. Guaranteed partial pay and back pay during an investigation is a job-security protection for the employee, which is a narrow but real gain on the worker side."
+    }
+   ]
+  },
+  {
+   "bill": "HB0199",
+   "issues": [
+    {
+     "issueKey": "gun_safety",
+     "weight": 65,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text prohibits a law enforcement agency from returning a voluntarily surrendered firearm to a person who has become a restricted person or who has been arrested for a domestic violence offense, and requires the Department of Public Safety to produce a pamphlet on victim rights. Keeping a surrendered firearm out of the hands of a domestic violence arrestee is the gun_safety direction."
+    }
+   ]
+  },
+  {
+   "bill": "HB0229",
+   "issues": [
+    {
+     "issueKey": "paid_leave",
+     "weight": 75,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text requires every local education agency to provide paid parental and postpartum recovery leave at least equivalent to what state employees receive, to establish a leave sharing mechanism, and to notify qualified employees. A mandate that an employer class provide paid leave it was not previously required to provide is the paid_leave fight with no ambiguity."
+    }
+   ]
+  },
+  {
+   "bill": "HB0230",
+   "issues": [
+    {
+     "issueKey": "cannabis_reform",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text creates the Center for Medical Cannabis Research within the University of Utah, gives it duties, requires the Department of Health and Human Services to work with the center on guidance for medical cannabis use, and allows the center to draw on the Qualified Patient Enterprise Fund. Standing up and funding a state medical cannabis research institution is an expansion of the medical cannabis program's footing."
+    }
+   ]
+  },
+  {
+   "bill": "HB0231",
+   "issues": [
+    {
+     "issueKey": "housing_support",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text sets the circumstances under which a private owner of property used as permanent supportive housing qualifies as a nonprofit entity for the exclusive use property tax exemption. The exemption lowers the carrying cost of permanent supportive housing specifically, which is a subsidy to housing for people who would otherwise be unhoused rather than a general tax change."
+    }
+   ]
+  },
+  {
+   "bill": "HB0248",
+   "issues": [
+    {
+     "issueKey": "health_mental",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text requires the Department of Health and Human Services to create a long-term statewide assertive community treatment team plan and modifies the grant program that funds the development of ACT teams. ACT teams are a delivered service for adults with serious mental illness, and the bill funds and plans their expansion rather than merely studying the question."
+    }
+   ]
+  },
+  {
+   "bill": "HB0250",
+   "issues": [
+    {
+     "issueKey": "gov_regulation",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text removes the examination requirement for licensure as a certified social worker or a social service worker and repeals the certified social worker intern position. Striking a licensure examination is a reduction of an entry barrier into a regulated profession, the same direction the shipped vocabulary uses gov_regulation for."
+    }
+   ]
+  },
+  {
+   "bill": "HB0260",
+   "issues": [
+    {
+     "issueKey": "prop_tax",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text raises the household income limit at which a claimant qualifies for the homeowner's credit and raises the limit for the renter's credit under the Property Tax Act. Raising both income ceilings puts the circuit-breaker relief in reach of more low-income owners and renters, which is the property tax relief direction."
+    }
+   ]
+  },
+  {
+   "bill": "HB0283",
+   "issues": [
+    {
+     "issueKey": "econ_workers",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Third substitute text identifies additional conduct that disqualifies an individual from receiving unemployment benefits, directs the Unemployment Insurance Division to make rules on ineligibility for failing to accept suitable work, and requires a website for employers to report suspected fraud. Each provision narrows eligibility or adds employer-side policing of claims, so a yea cuts against the worker side."
+    }
+   ]
+  },
+  {
+   "bill": "HB0294",
+   "issues": [
+    {
+     "issueKey": "gov_transparency",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text requires certain state and local government entities to disclose specified information about their budgets. A new affirmative disclosure duty about how public money is budgeted is the gov_transparency direction with nothing in the instrument pulling the other way."
+    }
+   ]
+  },
+  {
+   "bill": "HB0307",
+   "issues": [
+    {
+     "issueKey": "water",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text creates the Utah Water Ways statewide partnership, sets out its powers and duties, provides for the selection of its board and executive director, and addresses the role of water supply entities in it. Wave 4 already reviewed water as the key for a 2024 bill directing this same partnership's work, and this is the instrument that gives the partnership its water stewardship duties, so the same key and a narrow weight apply."
+    }
+   ]
+  },
+  {
+   "bill": "HB0311",
+   "issues": [
+    {
+     "issueKey": "econ_corp_account",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text prohibits a social media company from using a design or feature that causes a minor to become addicted to its platform, authorizes a private right of action for damages and attorney fees, creates a rebuttable presumption of harm and causation in some circumstances, and prohibits waivers of the act. Private liability plus a presumption against the company is a direct increase in corporate accountability."
+    }
+   ]
+  },
+  {
+   "bill": "HB0313",
+   "issues": [
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text provides an increased penalty for the theft of certain suspect metals. Raising the offense level for an existing crime is the tough_on_crime direction, and no provision of the bill reduces a penalty."
+    }
+   ]
+  },
+  {
+   "bill": "HB0329",
+   "issues": [
+    {
+     "issueKey": "free_speech",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Third substitute text requires a public entity that issues a permit for an event with an adult theme to give public notice under defined conditions and sets out liability presumptions and limitations tied to that notice. Attaching a notice condition and a liability regime to a permit based on the expressive content of the event burdens the expression, so a yea is a vote against free_speech."
+    }
+   ]
+  },
+  {
+   "bill": "HB0331",
+   "issues": [
+    {
+     "issueKey": "econ_smallbiz",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text requires a political subdivision to allow a microenterprise home kitchen that meets the permit requirements to operate, limits the local regulations that may be imposed on it, and provides that the Microenterprise Home Kitchen Act supersedes a conflicting local regulation. It clears a local veto out of the way of the smallest class of food business, which is the econ_smallbiz direction."
+    }
+   ]
+  },
+  {
+   "bill": "HB0344",
+   "issues": [
+    {
+     "issueKey": "edu_parental",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text requires every LEA governing board to adopt a course content transparency policy, to publish the policy on the LEA website, and to give the State Board of Education an annual assurance with a link to it. Making course content visible to the parents of enrolled students, by mandatory published policy, is the parental-information side of the edu_parental fight."
+    }
+   ]
+  },
+  {
+   "bill": "HB0365",
+   "issues": [
+    {
+     "issueKey": "voting_access",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Enrolled text defines a change of affiliation deadline and, for an even-numbered year in which a presidential election is held, sets it at the day after the declaration of candidacy deadline instead of the long-standing spring cutoff, keeping April 1 for other even years; it also prohibits voting in the primaries of more than one registered political party for the same election. Moving the affiliation cutoff into early January in presidential years removes roughly ten weeks in which a voter could join a party in time to vote in its primary."
+    }
+   ]
+  },
+  {
+   "bill": "HB0370",
+   "issues": [
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text makes it a criminal offense to destroy, damage, or tamper with a critical infrastructure facility and a separate offense to impersonate a critical infrastructure facility officer or employee, while removing the same conduct from the lesser crime of criminal mischief. The instrument moves the conduct out of a general offense and into dedicated crimes at their own penalty levels."
+    }
+   ]
+  },
+  {
+   "bill": "HB0371",
+   "issues": [
+    {
+     "issueKey": "rural_ag",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text renames the LeRay McAllister Critical Land Conservation Program, establishes the LeRay McAllister Working Farm and Ranch Fund, and directs how a county may use rollback taxes and rollback tax funds. Re-pointing a standing conservation fund and county rollback revenue at keeping working farms and ranches in production is a direct subsidy of agricultural land use."
+    }
+   ]
+  },
+  {
+   "bill": "HB0386",
+   "issues": [
+    {
+     "issueKey": "healthcare",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text creates a grant program that pays health care providers to establish new clinical experience opportunities for health care students, and adds a reporting requirement. Paying for clinical training slots addresses the provider pipeline that determines whether care is available at all, which is a narrow but real gain on the healthcare side."
+    }
+   ]
+  },
+  {
+   "bill": "HB0407",
+   "issues": [
+    {
+     "issueKey": "gov_transparency",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Third substitute text requires each state agency that issues a tax credit certificate to publish a webpage listing the names of claimants and the amounts they are eligible to claim, and requires the State Tax Commission to publish a page linking to every agency's list. Naming who receives a tax credit and how much, in public, is a disclosure of public money that did not previously exist."
+    }
+   ]
+  },
+  {
+   "bill": "HB0412",
+   "issues": [
+    {
+     "issueKey": "civil_service_control",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text lets certain career service employees elect to convert to career service exempt status, establishes schedule AY positions as career service exempt, and converts schedule B employees who have not completed probation to exempt status when the position becomes schedule AY. Each provision moves state employees out of career service protection and under at-will management control."
+    }
+   ]
+  },
+  {
+   "bill": "HB0422",
+   "issues": [
+    {
+     "issueKey": "voting_access",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "First substitute text, contingent on the passage of a constitutional amendment, raises the share of the vote required for a statewide initiative that would increase taxes to pass. Wave 4 reviewed the identical mechanism in the 2024 session under voting_access with yea_opposes, and the same reasoning holds: it raises the bar on the ballot for one class of measure only."
+    }
+   ]
+  },
+  {
+   "bill": "HB0449",
+   "issues": [
+    {
+     "issueKey": "econ_corp_account",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text prohibits a company from coordinating with another company to intentionally destroy certain companies by eliminating the viable options for obtaining a product or service, allows a civil action for injunctive relief or damages, requires an award of attorney fees to the prevailing party, and bars a court from reducing damages below actual damages. It is a private enforcement regime against coordinated corporate conduct."
+    }
+   ]
+  },
+  {
+   "bill": "HB0451",
+   "issues": [
+    {
+     "issueKey": "end_dei",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text prohibits a state entity from using a prohibited submission, defined to reach diversity statements and similar required declarations, in determining employment, admission, or other benefits, with limited exceptions. Wave 4 reviewed end_dei for the same fight in the following session, and this instrument is the state-entity version of it."
+    }
+   ]
+  },
+  {
+   "bill": "HB0464",
+   "issues": [
+    {
+     "issueKey": "edu_parental",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text requires an LEA to run a review when a parent alleges instructional material is prohibited by state law, to vote publicly and explain any determination to reinstate or preserve student access to challenged material, and requires the State Board of Education to review LEA determinations and to establish an age-appropriateness rating system by rule. The parent's challenge drives a process the LEA cannot resolve quietly."
+    }
+   ]
+  },
+  {
+   "bill": "HB0466",
+   "issues": [
+    {
+     "issueKey": "civil_service_control",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Second substitute text provides that employees of the Office of the Attorney General hired after a specified date may not be given career service status, lets existing employees elect to convert to career service exempt status, and replaces removal protections with a review process the attorney general may adopt by policy. It converts a career service workforce into an at-will one under the office head's control."
+    }
+   ]
+  },
+  {
+   "bill": "HB0506",
+   "issues": [
+    {
+     "issueKey": "gov_transparency",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text requires the Office of Legislative Research and General Counsel to publicly post information about reports owed to legislative committees and policies a government actor is required to adopt, requires the state auditor to post the same kind of information, and lets the state auditor inquire into whether a government actor has complied. It puts a public record of compliance where none existed."
+    }
+   ]
+  },
+  {
+   "bill": "HB0507",
+   "issues": [
+    {
+     "issueKey": "gun_rights",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text rewrites the Category II restricted person definition in Section 76-10-503 so that a single non-violent, non-domestic-violence felony conviction no longer restricts firearm possession for life: it restricts only where there is a domestic violence or violent felony, multiple episodes, or a further felony or class A misdemeanor within seven years of completing the sentence. The net effect is to restore firearm possession to a class of people who were restricted before."
+    }
+   ]
+  },
+  {
+   "bill": "HB0513",
+   "issues": [
+    {
+     "issueKey": "water",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text clarifies which minerals carry royalties to the Great Salt Lake Account, provides royalties for certain elements and minerals extracted from the lake, expands the Division of Forestry, Fire, and State Lands' management responsibilities and rulemaking for the lake, and establishes emergency management responsibilities and powers over it. Revenue directed to the lake plus operative emergency authority over its management is a water-side gain."
+    }
+   ]
+  },
+  {
+   "bill": "HB0517",
+   "issues": [
+    {
+     "issueKey": "justice_reform",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text requires the Department of Corrections to use an inmate's earliest estimated release date when scheduling programs, to start an inmate in at least two programs as soon as the case action plan exists, to allow participation in more than one program at a time, to create an incentive program for completing programs, and to confer periodically with the inmate about progress. Guaranteed access to rehabilitative programming before release is the justice_reform direction."
+    }
+   ]
+  },
+  {
+   "bill": "HB0524",
+   "issues": [
+    {
+     "issueKey": "free_speech",
+     "weight": 65,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text prohibits a social media company from censoring user expression, from suspending, banning, demonetizing, deprioritizing, or attaching an accuracy assessment to a user's content in defined circumstances, requires a published acceptable use policy and an appeal process, and provides a private right of action. Whatever its constitutional fate, the operative rule is a prohibition on removing user speech, and a yea is a vote for that rule."
+    }
+   ]
+  },
+  {
+   "bill": "HB0525",
+   "issues": [
+    {
+     "issueKey": "lower_taxes",
+     "weight": 45,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text amends the definition of prosthetic device to include corrective eyeglasses and contact lenses, which has the effect of exempting them from the sales and use tax. It is a single narrow base exclusion rather than a rate change, but it removes a tax the state currently collects."
+    }
+   ]
+  },
+  {
+   "bill": "HB0529",
+   "issues": [
+    {
+     "issueKey": "privacy_rights",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "First substitute text allows the Department of Health and Human Services and local health departments to obtain records related to a customer's shopping history from a food establishment. Giving a government agency access to an individual's purchase records is a reduction of the privacy those records currently have, so a yea is a vote against privacy_rights."
+    }
+   ]
+  },
+  {
+   "bill": "HB0534",
+   "issues": [
+    {
+     "issueKey": "healthcare",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text requires a health insurer to reimburse a network provider for a telemedicine service at 90% or more of the rate paid for the equivalent in-person service when that provider also delivers the service in person in the state. A payment-parity floor is what determines whether providers offer telemedicine at all, so the mandate expands access to covered care."
+    }
+   ]
+  },
+  {
+   "bill": "HB0536",
+   "issues": [
+    {
+     "issueKey": "tobacco_nicotine",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text requires an LEA to amend its conduct and discipline policies to address possession or use of a tobacco product, an electronic cigarette product, or a nicotine product, and allows a school to issue a citation to a student who possesses one on school property. Both provisions tighten the consequences for youth nicotine possession."
+    }
+   ]
+  },
+  {
+   "bill": "HB0538",
+   "issues": [
+    {
+     "issueKey": "water",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Third substitute text requires a municipality or water supplier in the Great Salt Lake basin to adopt an ordinance, resolution, rule, or regulation prohibiting the use of culinary or pressurized secondary water to irrigate non-exempt lawn or turf during a restricted period, with listed exemptions, and expressly preserves stricter local limits. A mandatory outdoor watering restriction during shortage is the water key's core direction."
+    }
+   ]
+  },
+  {
+   "bill": "SB0050",
+   "issues": [
+    {
+     "issueKey": "gun_safety",
+     "weight": 75,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text creates a waiting period between the purchase of an assault weapon from a dealer and its delivery to the purchaser, with defined exceptions. Wave 4 reviewed gun_safety at the same weight for the 2024 waiting-period bill, and this is the same mechanism applied to one class of weapon."
+    }
+   ]
+  },
+  {
+   "bill": "SB0058",
+   "issues": [
+    {
+     "issueKey": "justice_reform",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text creates graduated deadlines by which a law enforcement agency must expunge criminal records that qualify for automatic expungement, sets deadlines for criminal justice agencies on petition-based expungement, and clarifies that certain deadlines apply to a court's expungement order. Enforceable deadlines are what make an expungement right real rather than nominal."
+    }
+   ]
+  },
+  {
+   "bill": "SB0088",
+   "issues": [
+    {
+     "issueKey": "pro_choice",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text removes the provision requiring a physician to verify that a report has been made to law enforcement before performing an abortion on a woman who is pregnant as a result of rape or incest. Striking a precondition that stands between a patient and a lawful abortion widens access, so a yea is a vote for pro_choice."
+    }
+   ]
+  },
+  {
+   "bill": "SB0097",
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text enacts Public Contract Boycott Restrictions, defines a boycott of the State of Israel, prohibits a public entity from contracting with a company that engages in one, and prohibits penalizing a company that agrees not to engage in one for the duration of a public contract. The definition and the contract bar are express state action against boycotts of Israel."
+    }
+   ]
+  },
+  {
+   "bill": "SB0100",
+   "issues": [
+    {
+     "issueKey": "edu_parental",
+     "weight": 65,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text requires each school and local governing board to ensure a parent's right to access the education record of the parent's child, including information related to gender identity, and prohibits a school or LEA from withholding that access. The instrument resolves a contested question of who controls information about a student in the parent's favor."
+    }
+   ]
+  },
+  {
+   "bill": "SB0113",
+   "issues": [
+    {
+     "issueKey": "rural_ag",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text defines animal enterprise and working animal and, subject to exceptions, prohibits a municipality or county from adopting or enforcing an ordinance or regulation that prohibits or effectively prohibits the operation of an animal enterprise or the use of a working animal. It removes local authority to shut down livestock and working-animal operations."
+    }
+   ]
+  },
+  {
+   "bill": "SB0130",
+   "issues": [
+    {
+     "issueKey": "privacy_rights",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text requires consent before individually identifiable social care information may be accessed or shared, sets out what that consent must include, and imposes information privacy and security requirements on any person who collects, processes, shares, or provides the information. A consent requirement plus security duties over a new class of sensitive records is a direct privacy gain."
+    }
+   ]
+  },
+  {
+   "bill": "SB0134",
+   "issues": [
+    {
+     "issueKey": "justice_reform",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text removes a felony conviction for enticing a minor from the list of offenses that require lifetime registration on the Sex and Kidnap Offender Registry. Shortening a lifetime registration requirement to the ordinary term is a reduction of a post-sentence penalty, which is the justice_reform direction."
+    }
+   ]
+  },
+  {
+   "bill": "SB0136",
+   "issues": [
+    {
+     "issueKey": "audit_spending",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text clarifies the legislative auditor general's authority over project entities, taxed interlocal entities, the Utah Data Research Center, and independent corporations, authorizes the office to conduct systemic performance audits of executive branch entities and local education agencies, authorizes subpoenas to financial institutions and service by electronic transmission, and requires a public body that holds a closed meeting to give the office information on request. Every one of those extends the reach of the audit function over public money."
+    }
+   ]
+  },
+  {
+   "bill": "SB0178",
+   "issues": [
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text creates the criminal offense of nonconsensual removal of a sexually protective device and imposes criminal penalties for it. A new offense with new penalties is the tough_on_crime direction; nothing in the instrument reduces an existing penalty."
+    }
+   ]
+  },
+  {
+   "bill": "SB0199",
+   "issues": [
+    {
+     "issueKey": "voting_access",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Enrolled text disallows referral of a referendum to voters for a municipal land use law that passed by a unanimous vote of the local legislative body. It closes the ballot to voters entirely for a defined class of local law, which is the same restriction of direct-ballot participation that the shipped vocabulary carries under voting_access with yea_opposes."
+    }
+   ]
+  },
+  {
+   "bill": "SB0231",
+   "issues": [
+    {
+     "issueKey": "gov_transparency",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Enrolled text establishes a process for a governmental entity to petition the State Records Committee for relief against a vexatious requester, authorizes the legislative and judicial branches and the governor to set up their own such processes, provides that an entity need not create a document stating that a requested record does not exist, limits judicial review of a GRAMA appeal to the issues raised below, and requires an outside person claiming business confidentiality to indemnify the entity. The requester-side additions are procedural; the operative new powers all run against access."
+    }
+   ]
+  },
+  {
+   "bill": "SB0249",
+   "issues": [
+    {
+     "issueKey": "enviro_energy",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text creates an income tax credit for a commercial entity that installs a commercial energy storage system, directs the Public Service Commission to make rules on qualification, and has the Office of Energy Development issue the certificate. Subsidising storage capacity is what makes intermittent clean generation dispatchable, and the credit is written for storage specifically."
+    }
+   ]
+  },
+  {
+   "bill": "SB0252",
+   "issues": [
+    {
+     "issueKey": "water",
+     "weight": 55,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text enacts nonrefundable corporate and individual tax credits for a homebuilder's purchase and installation of water efficient landscaping and fixtures in new homes, with a certificate process through the Division of Water Resources and an annual cap. Wave 4 reviewed water at the same weight for a 2024 bill incentivising water efficient landscaping, and this is the new-construction version of that incentive."
+    }
+   ]
+  },
+  {
+   "bill": "SB0254",
+   "issues": [
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "First substitute text creates the offense of drug-induced homicide and defines the terms that establish it. It creates a homicide-level offense out of conduct previously charged under lesser provisions, which is the clearest form of the tough_on_crime direction."
+    }
+   ]
+  },
+  {
+   "bill": "SB0295",
+   "issues": [
+    {
+     "issueKey": "dev_district_finance",
+     "weight": 65,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Introduced text enacts the Dedicated Infrastructure District Act, sets requirements for creating a district to finance infrastructure and improvements, provides for its board of trustees and charter, and allows the district to issue bonds and levy taxes subject to limitations and to a contest procedure. Wave 4 reviewed dev_district_finance for the 2024 instrument creating a bonding-and-taxing development district, and this is the general-purpose version of it."
+    }
+   ]
+  }
+ ],
+ "_refused": [
+  {
+   "bill": "HB0073",
+   "why": "Municipal vacancy plumbing that cuts both ways: the enrolled text authorizes a resigning member of a municipal legislative body to vote on the appointment of the replacement and prohibits rescinding a resignation, while also prohibiting a member from voting for the member's own appointment and changing notice requirements. One clause loosens who may decide a vacancy and another tightens it, so no shipped key carries a single direction."
+  },
+  {
+   "bill": "HB0091",
+   "why": "Introduced text divides legislative and State Board of Education districts into dense and dispersed districts and lowers the signature count needed to seek a qualified political party's nomination in dispersed districts (1,000 to 500 for a House district, 2,000 to 1,500 for a Senate or board district). This is candidate ballot access, not voter access: voting_access carries whether a voter can cast a ballot, and using it here would be the cousin error rule 3 forbids. Listed as a V2 candidate below."
+  },
+  {
+   "bill": "HB0093",
+   "why": "Enrolled text raises the amount available under the Recreation Restoration Infrastructure Grant Program and amends which entities are eligible for a grant. It changes the funding level of an existing program without changing what land is protected, opened, or developed, so lands_preserve and infrastructure would both be putting a policy direction on an appropriation dial."
+  },
+  {
+   "bill": "HB0113",
+   "why": "Enrolled text raises the minimum motor vehicle liability coverage limits. The increase protects accident victims from uncompensated loss and raises the premium every insured driver pays; cost_living and econ_corp_account point in opposite directions on the same clause, so neither can carry the vote."
+  },
+  {
+   "bill": "HB0118",
+   "why": "Third substitute text adjusts procurement provisions applicable to public education. Purchasing procedure with no direction on what schools teach, who attends, or what they are funded to do; no shipped key reaches it."
+  },
+  {
+   "bill": "HB0136",
+   "why": "First substitute text requires a school traffic safety committee to make recommendations about infrastructure and bus routes and to gather feedback. It obliges a body to recommend and report, with no funding, standard, or requirement attached to the recommendation, so infrastructure would be reading a direction into a planning step."
+  },
+  {
+   "bill": "HB0137",
+   "why": "Enrolled text designates the brine shrimp as the state crustacean. A state symbol designation carries no policy direction for any shipped key. Note for the reader: this is the 2023 general session H.B. 137, an entirely different instrument from the 2024 H.B. 137 named in the standing minutes fence — Utah renumbers bills each session — and it is refused here on its own text."
+  },
+  {
+   "bill": "HB0177",
+   "why": "Sixth substitute text creates an advisory State Mental Health System Commission to evaluate the state hospital and the state mental health system and to make recommendations, with a sunset date. It changes no service, eligibility, or payment; health_mental carries delivered mental health care, not the creation of a body to study it."
+  },
+  {
+   "bill": "HB0179",
+   "why": "Enrolled text designates September as American Founders Month and describes the purpose of Constitution Day. A commemorative designation with no operative requirement; no shipped key applies."
+  },
+  {
+   "bill": "HB0202",
+   "why": "Introduced text reorganizes Section 20A-9-408 and its signature threshold subsections, and the published introduced text shows the statewide, congressional, legislative, and State Board of Education counts unchanged at 28,000, 7,000, 2,000, 1,000, and 2,000 with the same 3% alternative. Fence 4 says the text is the bill: I cannot state which way this moves ballot access, so I cannot state a direction. Related to the V2 candidate listed below."
+  },
+  {
+   "bill": "HB0205",
+   "why": "First substitute text creates a regular primary runoff election for certain offices so a nominee has majority support, and provides contingency voting for races where a runoff may be required. Election method reform: no shipped key carries a direction on runoff or ranked-preference voting, and mapping it to voting_access or election_integrity would be the cousin error."
+  },
+  {
+   "bill": "HB0207",
+   "why": "Enrolled text addresses which state officials represent Utah on interstate compact commissions and amends the state's membership provisions for the Bear River Compact and the Columbia Interstate Compact. It changes who sits at the table, not how much water Utah may use, store, or deliver, so water carries nothing here."
+  },
+  {
+   "bill": "HB0210",
+   "why": "Enrolled text creates the Justice Court Reform Task Force with a sunset date, clarifies that a justice court is part of the state judiciary, amends judge eligibility and salary provisions, and repeals an annual compensation review. A task force plus court-administration and pay mechanics; judicial_check carries the courts' power to check the other branches, which this does not move."
+  },
+  {
+   "bill": "HB0235",
+   "why": "Enrolled text requires the Motor Vehicle Division to print a statement of certain prohibitions on removable windshield placards and the State Tax Commission to set standards for the statement by rule. A notice on a placard; no shipped key reaches it."
+  },
+  {
+   "bill": "HB0239",
+   "why": "Second substitute text requires certain hospital systems to collectively select a method allowing a treating provider to access a patient's information, and requires the department to facilitate discussions about improving patient access and control. It is a convening-and-choose-a-method mandate: healthcare carries coverage and access to care, and privacy_rights is pulled both ways by the same clause, which widens provider access while invoking patient control."
+  },
+  {
+   "bill": "HB0256",
+   "why": "Introduced text counts a pregnant individual as two occupants for high occupancy vehicle lane purposes and creates an affirmative defense allowing evidence of pregnancy to dismiss a citation. Read as text, it is an HOV occupancy rule; reading a personhood claim into it would be inference rather than the text, and no shipped key carries HOV eligibility."
+  },
+  {
+   "bill": "HB0268",
+   "why": "Enrolled text creates the Sex Offense Management Board with defined duties and a sunset date and clarifies the process by which the Department of Corrections establishes sex offender treatment standards. Standards-body plumbing with no change to an offense, a penalty, or a registration term, so neither tough_on_crime nor justice_reform carries a direction."
+  },
+  {
+   "bill": "HB0270",
+   "why": "Second substitute text prohibits a student from possessing a cellphone or smart watch in a classroom, subject to exceptions, and requires each LEA to enforce it in the manner the LEA determines. Classroom device policy: no shipped key carries a direction on it, and edu_parental would be backwards since the restriction runs against the parent's choice as much as anyone's."
+  },
+  {
+   "bill": "HB0285",
+   "why": "First substitute text permits the Department of Alcoholic Beverage Services to retain a percentage of prior-year liquor profits as innovation funds for expenditures that enhance productivity or customer experience, and to make rules for their use. An agency retained-earnings mechanism; no shipped key carries a direction on it."
+  },
+  {
+   "bill": "HB0297",
+   "why": "Enrolled text restricts an abortion based on rape or incest to a pregnancy in which the unborn child has not reached 18 weeks gestational age, and in the same instrument requires the state and sexual assault hotlines to tell victims how to obtain free emergency contraception, funds a reparations award covering the victim's pregnancy care and a year of care for the child, and adds law enforcement training and reporting duties. The 18-week cap is a real restriction and the emergency contraception provisions are a real access gain, so under runbook rule 22 this two-way instrument gets no repro key rather than a misleading one."
+  },
+  {
+   "bill": "HB0301",
+   "why": "Enrolled text reduces the motor fuel tax rate, raises the vehicle registration fee by $7, and imposes a new tax on electricity sold at an electric vehicle charging station. One tax down, one fee up, one new tax created, all feeding the Transportation Fund: lower_taxes has no single direction here, and the charging tax is a road-funding mechanism rather than a stance on electric vehicles."
+  },
+  {
+   "bill": "HB0303",
+   "why": "Enrolled text releases specified non-identifying information from a withheld voter registration record to political parties and candidates for political purposes, while adding a notice plan for affected voters and penalties for obtaining, providing, or using the information unlawfully. The record released is expressly non-identifying and the release arrives with new penalties attached, so privacy_rights is pulled both ways within the same provision."
+  },
+  {
+   "bill": "HB0304",
+   "why": "Enrolled text creates a new crime for a minor possessing a machinegun firearm attachment and expands school notification and referral requirements, while in the same instrument creating a gang and violent crime prevention and intervention program, requiring reintegration plans, and modifying nonjudicial adjustment eligibility. New criminal exposure and new diversion in one bill: neither tough_on_crime nor justice_reform can carry a yea honestly."
+  },
+  {
+   "bill": "HB0351",
+   "why": "Enrolled text establishes the County Recorder Standards Board to make statewide standards for county recorders, requires counties to create an appeal authority, and requires annual reporting. Recording-office administration; no shipped key carries a direction on it."
+  },
+  {
+   "bill": "HB0378",
+   "why": "Enrolled text provides that fireworks may be discharged between 11 a.m. and 11 p.m. on January 1. A single date-and-hours change; no shipped key applies."
+  },
+  {
+   "bill": "HB0393",
+   "why": "Second substitute text lets a qualified political party opt into a nomination method in which a candidate who receives 70% or more of the convention vote eliminates a candidate who qualified through signature gathering, and requires convention results to be reported and convention nominees identified on the primary ballot. This is the convention-versus-signature fight inside a party's nomination process, which has no clean public-facing polarity and sits directly on top of voting_access and election_integrity. Listed as a V2 candidate below."
+  },
+  {
+   "bill": "HB0396",
+   "why": "Enrolled text lets a city of the first or second class that operates a paleontology museum retain, curate, and manage specimens and paleontological resources recovered from land the city owns or controls. Custody of fossils between government museums; no shipped key reaches it."
+  },
+  {
+   "bill": "HB0416",
+   "why": "Enrolled text expedites the repeal dates of certain subsections of Sections 17-31-2 and 17-31-5.5. A repeal-date change whose policy effect is not stated in the text of the instrument itself, so fence 4 leaves me with no direction to assert."
+  },
+  {
+   "bill": "HB0426",
+   "why": "Enrolled text requires the Office of Energy Development to prepare a strategic energy plan and creates the Utah Energy Research Grant Program for the office to administer. The bill does not say what the plan must favor or what the grants must fund, so energy_production or enviro_energy would each be reading a direction into a fuel-neutral planning and research mandate."
+  },
+  {
+   "bill": "HB0430",
+   "why": "Enrolled text enacts the Olympic and Paralympic Winter Games Act, creates a coordination committee, renames the venue grant fund, authorizes the governor to sign hosting agreements and assurances, and addresses the state's liability under them. No shipped key carries a direction on hosting the games."
+  },
+  {
+   "bill": "HB0431",
+   "why": "Introduced text prohibits an entity not licensed by the Department of Health and Human Services from advertising certain personal care services, requires the department to solicit reports of prohibited advertisements and to notify the entity, and provides injunctive relief and civil penalties. It enforces an existing licensure boundary against false advertising, which free_speech does not carry and healthcare does not either."
+  },
+  {
+   "bill": "HB0445",
+   "why": "First substitute text allows a private employer to use location tracking technology on a company vehicle in defined circumstances and requires an employer and employee to enter a vehicle use agreement where the employee pays for personal use. The same section authorizes the surveillance and conditions it, so privacy_rights has no single direction across the instrument."
+  },
+  {
+   "bill": "HB0453",
+   "why": "Introduced text reduces the number of signatures a member of a qualified political party must gather to qualify for nomination to a State Board of Education office. Candidate ballot access again: voting_access carries the voter's ballot, not the candidate's petition, and using it here would be the cousin error. Listed as a V2 candidate below."
+  },
+  {
+   "bill": "HB0456",
+   "why": "First substitute text addresses restitution a defendant owes to an individual for financial support that a deceased or incapacitated victim was legally obliged to provide at the time of the criminal conduct. Victim restitution scope: justice_reform carries reductions in punishment and tough_on_crime carries increases, and expanding who may collect restitution is neither."
+  },
+  {
+   "bill": "HB0463",
+   "why": "First substitute text prohibits a public school from participating in an athletics association that does not collect and review an athlete's birth certificate or other identifying documents during registration. The provision names documents, not sex or gender, and mapping lgbtq_rights onto it would be inference beyond the text, which fence 4 forbids. Separately, on requirement 4: this is the 2023 H.B. 137/463 numbering, not the 2024 instruments behind the standing minutes fence, and because the ingest tests lane membership before it confirms a PDF, admitting a mapping could not have moved the fence in any case."
+  },
+  {
+   "bill": "HB0470",
+   "why": "Enrolled text requires the Division of Technology Services to give government entities recommendations about digital verifiable records and credentials and to create a pilot program for them. Recommendations and a pilot, with no entity required to adopt anything; privacy_rights carries a rule about data, not a study of one."
+  },
+  {
+   "bill": "HB0475",
+   "why": "Enrolled text adds a communications credit to the high school graduation requirements. A single course requirement with no direction on funding, choice, or parental control; no shipped key reaches it."
+  },
+  {
+   "bill": "HR0003",
+   "why": "Introduced text is a non-binding resolution urging the Utah Transit Authority to act on a bus driver shortage affecting ski season service. It imposes no requirement on anyone, and separately the fetched text failed the enacting-clause readability check, so it could not be admitted even if a key fit."
+  },
+  {
+   "bill": "HR0004",
+   "why": "Enrolled text amends the internal rules of the House of Representatives, including a prohibition on reading a written speech or using a prop during floor debate and a bar on committee review of legislation without an approved fiscal note. Chamber decorum and procedure, not government restriction of citizens' speech, so free_speech does not reach it; the fetched text also failed the enacting-clause readability check."
+  },
+  {
+   "bill": "SB0031",
+   "why": "Enrolled text establishes a new state flag, designates the existing flag as the historical state flag, and provides for displaying both. A state symbol with no operative policy direction for any shipped key."
+  },
+  {
+   "bill": "SB0036",
+   "why": "Enrolled text is a professional licensing omnibus that removes a radiology practical technician examination, removes prerequisites an advanced practice registered nurse must meet before prescribing a Schedule II controlled substance, and removes a bar on licensing a nurse with past convictions, while in the same instrument modifying penalties for unlawful conduct in a construction trade and modifying background check requirements for pharmacies, alarm companies, and other licensees. Barriers come down in some clauses and go up in others, so gov_regulation has no single direction."
+  },
+  {
+   "bill": "SB0043",
+   "why": "Enrolled text creates classifications of public notice, each with its own required method of publication, and conforms existing notice provisions to the new classification system. Whether any given notice becomes easier or harder to find depends on which class it lands in, so gov_transparency cannot be given a direction across the instrument."
+  },
+  {
+   "bill": "SB0059",
+   "why": "First substitute text changes a requirement for beehive frames. A single equipment specification; no shipped key reaches it."
+  },
+  {
+   "bill": "SB0062",
+   "why": "Enrolled text directs the Department of Natural Resources to establish a hydrogen advisory council within the Office of Energy Development which may advise on hydrogen issues. A council that may advise, with no authority and no funded program; energy_production and enviro_energy both carry more than this."
+  },
+  {
+   "bill": "SB0087",
+   "why": "Enrolled text requires the Administrative Office of the Courts to collect data on preliminary hearings and the State Commission on Criminal and Juvenile Justice to include it in an annual report. Data collection with no change to a hearing, a charge, or a penalty; no shipped key carries a direction on it."
+  },
+  {
+   "bill": "SB0092",
+   "why": "Enrolled text creates the Great Salt Lake Preservation support special group license plate and directs the plate revenue into the Sovereign Lands Management Account for watershed and ecosystem preservation. A voluntary plate that changes nothing about how the lake is managed or how much water reaches it; water and lands_preserve both carry more than an elective donation channel."
+  },
+  {
+   "bill": "SB0093",
+   "why": "Enrolled text creates a statutory procedure for a court to grant a petition amending the sex designation on a birth certificate and requires an amended certificate that does not identify which fields were changed, while in the same instrument requiring the court to appoint a guardian ad litem before granting the petition and requiring the department to issue an amendment history with the certificate. Access is codified in one clause and burdened in another, and the amendment history cuts against the very concealment the bill grants, so lgbtq_rights has no single direction."
+  },
+  {
+   "bill": "SB0096",
+   "why": "Enrolled text requires a public entity to invest public funds under the prudent investor rule, addresses the entity's proxy voting duties, and requires the entity to give the state treasurer access to proxy voting reports on request. A pecuniary-duty standard for public fund managers: no shipped key carries a direction on fiduciary standards, and reading climate_action into the proxy provisions would be inference rather than text."
+  },
+  {
+   "bill": "SB0105",
+   "why": "Fourth substitute text creates a speed safety camera pilot program allowing camera enforcement without a peace officer present, describes when law enforcement may use a camera for speed enforcement, and allocates fine revenue to the prosecuting entity and to the Zero Fatalities initiative. Automated traffic enforcement: back_police carries support for officers and staffing, privacy_rights carries data about identifiable individuals, and neither is what this instrument decides."
+  },
+  {
+   "bill": "SB0109",
+   "why": "Third substitute text creates the position of medical director within the Department of Health and Human Services with a focus on children, youth, and families, and sets its qualifications, duty, and authority. Creating a departmental post changes no coverage, eligibility, or service, so healthcare and health_mental have nothing to attach to."
+  },
+  {
+   "bill": "SB0112",
+   "why": "Enrolled text requires payment of a fee and display of an aquatic invasive species decal before launching a vessel, separates the resident fee from the registration fee, addresses collection by the Division of Motor Vehicles, and requires certain vessel owners to complete an education course. A fee, decal, and course compliance scheme for boaters; no shipped key carries a direction on aquatic invasive species."
+  },
+  {
+   "bill": "SB0125",
+   "why": "Enrolled text designates the ASPIRE Engineering Research Center at Utah State University as the lead research center for strategic planning on transportation electrification, creates a steering committee and an industry advisory board, requires reports on a proposed action plan, and provides for sunset review. A research designation and an advisory structure; infrastructure and climate_action both carry operative changes this instrument does not make."
+  },
+  {
+   "bill": "SB0126",
+   "why": "Enrolled text amends the factors the Medicaid program incorporates into the accountable care organization payment rate structure and extends the sunset on the hospital provider assessment. Financing mechanics between the state and hospitals, with no change to who is covered or what is covered, so healthcare has no direction to take."
+  },
+  {
+   "bill": "SB0129",
+   "why": "Enrolled text repeals the Judicial Selection Act, creates an Appellate Court Nominating Commission and a district and juvenile court nominating commission for each geographical division, sets their membership, procedures, and certification process, and provides that a commission selects applicants without any regard to partisan political consideration, while also rewriting the appointment and Senate confirmation timeline. The non-partisan selection language points one way and the wholesale rebuild of commission membership and appointment could point the other, and the text does not settle which dominates, so neither judicial_check nor checks_balances can be asserted."
+  },
+  {
+   "bill": "SB0140",
+   "why": "Enrolled text expands the circumstances in which Adult Protective Services may issue an administrative subpoena in an investigation concerning a vulnerable adult. The subpoena power exists to reach evidence of abuse of a vulnerable adult, so privacy_rights would mischaracterize the vote, and no other shipped key carries adult protective investigations."
+  },
+  {
+   "bill": "SB0149",
+   "why": "First substitute text adds a biennial option to the required educator evaluation frequency. An evaluation interval; no shipped key carries a direction on it."
+  },
+  {
+   "bill": "SB0154",
+   "why": "Enrolled text prohibits a child-placing agency from charging for services not rendered or for expenses paid with public funds, requires uniform fee and expense forms filed with the court and the Office of Licensing, and requires annual reporting on adoption costs, while in the same instrument protecting a consortium-member agency that cannot participate in a placement contrary to its religious teachings. Cost-disclosure consumer protection and a religious-objection protection in one bill leave neither religious_liberty nor family_support with a single direction."
+  },
+  {
+   "bill": "SB0155",
+   "why": "Enrolled text designates the Office of Substance Use and Mental Health as the reporting entity for opioid settlement funds, describes the reporting duties of governmental entities that receive them, and modifies the Opioid Litigation Proceeds Restricted Account. Reporting and account plumbing for money already awarded; no shipped key carries a direction on it."
+  },
+  {
+   "bill": "SB0167",
+   "why": "Enrolled text lengthens notice periods for changes to the approval process for certified online course providers, prohibits the state board from unenrolling a student in defined circumstances, sets a payment deadline to authorized providers, prescribes how a projected appropriation is calculated, requires approval processes for new course offerings and requirements for site visits, and requires a new educator license type. Administration of an existing program: the one substantive protection does not carry the school_choice fight on its own."
+  },
+  {
+   "bill": "SB0181",
+   "why": "First substitute text authorizes a transportation authority that removes a campaign sign from a roadway to seek reimbursement of the removal cost from the candidate named on the sign, and requires an opportunity to contest the charge. campaign_finance carries contributions, expenditures, and disclosure, not the cost of roadway cleanup, so no shipped key applies."
+  },
+  {
+   "bill": "SB0227",
+   "why": "Enrolled text routes an ethics complaint against a local school board member to the Political Subdivisions Ethics Review Commission and prohibits a school district from establishing its own local ethics commission. Which body hears a complaint, with no change to the standard applied; no shipped key carries a direction on it."
+  },
+  {
+   "bill": "SB0233",
+   "why": "Enrolled text allows a government or private entity to offer a portable benefit plan, requires contributions to be voluntary, and provides that contributions are not evidence of an employment relationship or employer liability and may not be used in determining employment classification. It opens a benefits vehicle to independent workers in one clause and insulates the paying company from classification liability in the next, so econ_workers has no single direction."
+  },
+  {
+   "bill": "SB0238",
+   "why": "Introduced text lets the Judicial Council charge a fee for electronic payment of a civil action fee, sets the amount by rule, and creates a nonlapsing restricted account to pay the costs of electronic payments. A cost-recovery fee and its account; no shipped key carries a direction on it."
+  },
+  {
+   "bill": "SB0257",
+   "why": "Enrolled text requires an LEA to issue a high school diploma to a student who earns an associate's degree or an industry certificate meeting minimum hours, and in the same instrument exempts a school with an assessment opt-out rate above 50% from the school accountability system and amends background check provisions for private school employees. A graduation pathway expansion alongside an accountability carve-out leaves public_schools without a single direction."
+  },
+  {
+   "bill": "SB0258",
+   "why": "Enrolled text moves the UPSTART program under the Governor's Office of Economic Opportunity, rewrites its procurement standards and provider evaluation criteria, transfers an existing contract, and expands participation to all Utah preschool children, residential certificate preschool providers, and the Head Start program. The participation expansion is real, but the instrument is predominantly a relocation-and-procurement rewrite and no shipped key carries state-funded home-based preschool; noted as a below-threshold V2 watch item."
+  },
+  {
+   "bill": "SB0279",
+   "why": "First substitute text lets a city, town, or county put to a vote an authorization for botanical, cultural, recreational, and zoological funding that extends the tax collection period to run simultaneously with repayment of a bond. Local option tax timing mechanics; no shipped key carries a direction on it."
+  },
+  {
+   "bill": "SR0004",
+   "why": "Enrolled text amends the internal rules of the Senate. Chamber procedure with no external effect, and the fetched text also failed the enacting-clause readability check, so it could not be admitted even if a key fit."
+  }
+ ],
+ "_leftTheBucket": "No bill carries the leftTheBucket flag in this session: nothing left this bucket by another wave's action during this pass. The bucket is recomputed on every run as \"had a contested committee vote in 2023GS and has no reviewed issue mapping\", so any bill this file admits leaves it by this file's own mapping, and the 67 refusals stay in it until a later wave reviews a key for them. The four V2 key candidates recorded in .netlify/results.md are the only reason any of those 67 would be revisited."
+}

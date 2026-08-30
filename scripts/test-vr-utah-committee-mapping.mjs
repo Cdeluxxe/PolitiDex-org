@@ -6,7 +6,8 @@
 // mapping, and reported the rest as a number: 314 bills with a contested
 // pass-out-favorably roll call and nowhere to file it. Wave 4 read those bills and
 // decided every one of them. The decisions are prose in db/vr-utah-committee-bills-
-// {2025GS,2024GS}.json, and prose is exactly the kind of artefact that rots
+// {2025GS,2024GS,2023GS}.json — wave 8 did the 2023GS bucket on the same terms —
+// and prose is exactly the kind of artefact that rots
 // quietly — so this harness fences the six ways it could rot:
 //
 //   1. ACCOUNTABILITY. Every bill in the refusal bucket is decided, once. No bill
@@ -35,9 +36,13 @@
 //      say it is — including the one issue that lost its characterisation, which is
 //      disclosed here rather than repaired by dropping the committee vote that
 //      contradicts it. Tier MEMBERSHIP is checked and not only tier size: the ten
-//      empty members are the same ten, nobody loses a readable record, and each of
-//      wave 6's 16 identity-only roster rows lands on thin — the tier that says
-//      "real material, not enough pattern to characterise".
+//      empty members are the same ten, nobody loses a readable record, and 13 of
+//      wave 6's 16 identity-only roster rows still land on thin — the tier that says
+//      "real material, not enough pattern to characterise". The other three are
+//      named: wave 8's 2023GS mappings gave kera_birkeland, steven_lund and
+//      susan_pulsipher their first characterised issue apiece, so they read now.
+//      That is asserted as an EARNED crossing — each held 0 clear issues before and
+//      holds at least one after, on strictly more acts — rather than forbidden.
 //
 //   node scripts/test-vr-utah-committee-mapping.mjs
 import { readFileSync, existsSync, readdirSync } from "node:fs";
@@ -60,7 +65,7 @@ const lacks = (hay, needle, msg) => ok(String(hay).indexOf(needle) < 0, `${msg} 
 const section = (t) => console.log(`\n   ── ${t}`);
 const must = (cond, msg) => { if (cond) return; console.error(`✗ vr-utah-committee-mapping: ${msg}`); process.exit(1); };
 
-const SESSIONS = ["2025GS", "2024GS"];
+const SESSIONS = ["2025GS", "2024GS", "2023GS"];
 const DEC = {}, SEED = {};
 for (const s of SESSIONS) {
   DEC[s] = J(`db/vr-utah-committee-bills-${s}.json`);
@@ -87,7 +92,9 @@ const MIGS = { "2025GS": ["netlify/database/migrations/20261006000000_vr_utah_20
                           "netlify/database/migrations/20261016000000_vr_utah_2025gs_committee_mapping_v1_committee_only_bills.sql"],
                "2024GS": ["netlify/database/migrations/20261007000000_vr_utah_2024gs_committee_mapping.sql",
                           "netlify/database/migrations/20261008000000_vr_utah_2024gs_committee_mapping_renamed_committee.sql",
-                          "netlify/database/migrations/20261015000000_vr_utah_2024gs_committee_mapping_roster_rows_and_v1_bills.sql"] };
+                          "netlify/database/migrations/20261015000000_vr_utah_2024gs_committee_mapping_roster_rows_and_v1_bills.sql"],
+               // Wave 8, the same job on the session wave 7 re-verified and left alone.
+               "2023GS": ["netlify/database/migrations/20261019000000_vr_utah_2023gs_committee_mapping_v1_committee_only_bills.sql"] };
 for (const s of SESSIONS) for (const f of MIGS[s]) must(existsSync(join(ROOT, f)), `${s}: ${f} is missing`);
 const SQL = {};
 for (const s of SESSIONS) SQL[s] = MIGS[s].map((f) => R(f)).join("\n");
@@ -100,6 +107,10 @@ function sqlRows(session) {
     const text = R(f);
     const blocks = text.split(/^DO \$\$$/m).slice(1);
     for (const b of blocks) {
+      // The trailing VERIFICATION block is not a measure block — it names no bill,
+      // writes nothing and only counts what the measure blocks above it wrote. It is
+      // skipped here and fenced separately in section 5, which asserts it is read-only.
+      if (/^DECLARE n_pos integer;/m.test(b)) continue;
       const num = /number = '([^']+)'/.exec(b), ch = /chamber = '([^']+)'/.exec(b);
       must(num && ch, `${session}: a DO block in ${f} does not select its measure by number and chamber`);
       const key = `${ch[1]}|${num[1]}`;
@@ -127,11 +138,16 @@ section("1 · every bill in the bucket is decided, exactly once");
     { cwd: ROOT, encoding: "utf8" }) +
     execFileSync(process.execPath,
     [join(ROOT, "scripts/vr-utah-committee-mapping.mjs"), "--verify", "--session", "2024GS"],
+    { cwd: ROOT, encoding: "utf8" }) +
+    execFileSync(process.execPath,
+    [join(ROOT, "scripts/vr-utah-committee-mapping.mjs"), "--verify", "--session", "2023GS"],
     { cwd: ROOT, encoding: "utf8" });
   has(out, "2025GS: bucket 170 · admitted 78 · refused 95 · unaccounted 0",
     "2025GS: the whole 170-bill bucket is decided, with nothing unaccounted");
   has(out, "2024GS: bucket 140 · admitted 66 · refused 75 · unaccounted 0",
     "2024GS: the whole 140-bill bucket is decided, with nothing unaccounted");
+  has(out, "2023GS: bucket 135 · admitted 68 · refused 67 · unaccounted 0",
+    "2023GS: the whole 135-bill bucket is decided, with nothing unaccounted");
   // THE BUCKET SHRANK WHILE THE ADMITTED COUNT GREW, AND THAT IS DISCLOSED RATHER
   // THAN QUIET. The bucket is "bills with a committee vote and NO reviewed issue
   // mapping", so vocabulary wave V1 reviewing a mapping for four of them moved them
@@ -144,6 +160,13 @@ section("1 · every bill in the bucket is decided, exactly once");
     "2025GS: the three bills V1 mapped out of the bucket are named, not dropped");
   has(out, "LEFT THE BUCKET, IN WRITING: HB0348",
     "2024GS: … and so is 2024's one");
+  // 2023GS has no exits: no wave reviewed a key for any of its 135 while the pass
+  // ran, so an exit line for it would be the invention this section exists to catch.
+  // The suffix rides on the same line as the summary, so the LINE is what is read.
+  {
+    const line = out.split("\n").find((l) => l.startsWith("2023GS: bucket")) || "";
+    lacks(line, "LEFT THE BUCKET", "2023GS: no bill claims an exit nobody granted");
+  }
   lacks(out, "NOT IN BUCKET", "no session names a bill it cannot account for");
   lacks(out, "FLAGGED BUT STILL IN BUCKET",
     "no refusal claims an exit the recomputed bucket contradicts");
@@ -341,6 +364,13 @@ section("5 · the migrations add mappings and committee positions, and nothing e
     const rows = sqlRows(s);
     const blocks = (sql.match(/DO \$\$/g) || []).length;
     eq(blocks, (sql.match(/END \$\$;/g) || []).length, `${s}: every DO block is closed`);
+    // A VERIFICATION block is a DO block that writes nothing and selects no measure
+    // — it counts what the file just wrote and raises if the number is wrong. It is
+    // told apart by its own DECLARE line rather than by position, and it is excluded
+    // from the per-measure block arithmetic below because it has no measure. Its own
+    // fence is the read-only assertion further down: it may not contain a write.
+    const guards = (sql.match(/^DECLARE n_pos integer;/gm) || []).length;
+    const measureBlocks = blocks - guards;
     eq(rows.measures.size, SEED[s].measures.length,
       `${s}: the migrations name exactly the seed's ${SEED[s].measures.length} measures between them`);
     for (const m of SEED[s].measures) {
@@ -350,9 +380,9 @@ section("5 · the migrations add mappings and committee positions, and nothing e
     // A restated measure is expected; a measure restated in a file that also has to
     // be the ONLY writer of a brand-new bill is not distinguishable here, so what is
     // asserted is the weaker true thing: every block re-selects before it inserts.
-    eq((sql.match(/SELECT id INTO m_id FROM vr_measures/g) || []).length, blocks,
+    eq((sql.match(/SELECT id INTO m_id FROM vr_measures/g) || []).length, measureBlocks,
       `${s}: every block finds its measure before writing anything`);
-    eq((sql.match(/IF m_id IS NULL THEN/g) || []).length, blocks,
+    eq((sql.match(/IF m_id IS NULL THEN/g) || []).length, measureBlocks,
       `${s}: …and only inserts the measure when it is genuinely absent`);
     // The wave-3 act type and weight are quoted, never redefined.
     const other = sql.match(/, '((?!committee_vote)[a-z_]+)', (?:true|false), '\d{4}-/g) || [];
@@ -377,7 +407,23 @@ section("5 · the migrations add mappings and committee positions, and nothing e
     // off the EXECUTABLE text only — the header prose is required to discuss
     // vr_rollcalls and the 0.60 act weight in order to say it changes neither, and a
     // fence that cannot tell a comment from a statement would forbid the disclosure.
-    const stmts = sql.split("\n").filter((l) => !/^\s*--/.test(l)).join("\n");
+    //
+    // A VERIFICATION block is held to a stricter rule and therefore read separately.
+    // The fence's own words are "the file never WRITES vr_rollcalls", and a guard
+    // that counts `FROM vr_rollcalls` to prove the count is zero is the assertion,
+    // not the breach — reading a table to prove it is untouched is the opposite of
+    // touching it. So the guard is cut out of the write fence and given a harder
+    // one: it may contain no write statement of any kind.
+    const wholeStmts = sql.split("\n").filter((l) => !/^\s*--/.test(l)).join("\n");
+    const guardBlocks = wholeStmts.match(/DO \$\$\nDECLARE n_pos integer;[\s\S]*?\nEND \$\$;/g) || [];
+    eq(guardBlocks.length, guards,
+      `${s}: every VERIFICATION block was located for the read-only check`);
+    for (const g of guardBlocks) {
+      for (const w of ["INSERT", "UPDATE", "DELETE", "ALTER", "DROP", "CREATE"]) {
+        lacks(g, w, `${s}: the VERIFICATION block only counts — it never runs ${w}`);
+      }
+    }
+    const stmts = guardBlocks.reduce((t, g) => t.split(g).join("\n"), wholeStmts);
     for (const t of ["vr_rollcalls", "vr_member_votes"]) lacks(stmts, t, `${s}: the file never writes ${t}`);
     lacks(stmts, "ALTER TABLE", `${s}: the file alters no table`);
     lacks(stmts, "DROP ", `${s}: the file drops nothing`);
@@ -436,12 +482,46 @@ section("6 · the floors did not move, measured through the shipped index");
       "brett_garner", "tim_jimenez", "brian_king", "quinn_kotter", "rosemary_lesser", "steven_lund",
       "susan_pulsipher", "judy_weeks_rohner", "robert_spendlove", "jeffrey_stenquist", "mark_wheatley"];
     eq(ROWS6.length, 16, "the 16 wave-6 identity rows are enumerated, not counted from a total");
+    // THREE OF THE SIXTEEN CROSSED INTO READABLE, AND THAT IS THE FINDING, NOT A
+    // FAILURE. This assertion used to require all 16 to be thin in BOTH states, and
+    // that held while the mapping lane covered 2025GS and 2024GS only. Wave 8 mapped
+    // the 2023GS off-lane bucket, and kera_birkeland, steven_lund and susan_pulsipher
+    // each picked up enough committee acts on mapped bills for the SHIPPED tier rule
+    // to characterise one or two issues for them. No floor moved to allow it: the
+    // rule, the 0.60 committee weight and the coverage bar are the ones wave 3 and
+    // wave 4 shipped, and the index is still the shipped module.
+    //
+    // The fence is kept where it belongs. Its purpose was never "an identity row may
+    // never read" — it was "no identity row buys a characterisation it did not earn".
+    // So the three are NAMED, and what they earned is asserted: each holds at least
+    // one CLEAR issue after the wave and held none before. The other thirteen must
+    // still be thin in both states, and nobody may land on empty.
+    const CROSSED = ["kera_birkeland", "steven_lund", "susan_pulsipher"];
     for (const w of ["before", "after"]) {
       const bands = M[w].bands;
       must(bands && Array.isArray(bands.thin), "the index does not report band membership");
-      const notThin = ROWS6.filter((p) => !bands.thin.includes(p));
-      eq(notThin.length, 0, `${w}: every wave-6 identity row is thin, not empty and not readable ` +
-        `(${notThin.join(", ")})`);
+      const expectThin = w === "before" ? ROWS6 : ROWS6.filter((p) => !CROSSED.includes(p));
+      const notThin = expectThin.filter((p) => !bands.thin.includes(p));
+      eq(notThin.length, 0, `${w}: every wave-6 identity row that has not been named as crossing ` +
+        `is thin, not empty and not readable (${notThin.join(", ")})`);
+      const onEmpty = ROWS6.filter((p) => bands.empty.includes(p));
+      eq(onEmpty.length, 0, `${w}: no identity row sits on empty (${onEmpty.join(", ")})`);
+    }
+    for (const pid of CROSSED) {
+      ok(M.before.bands.thin.includes(pid), `${pid}: was thin before the mapping lane reached 2023GS`);
+      ok(M.after.bands.readable.includes(pid), `${pid}: reads after it, which is why it is named here`);
+      // What it EARNED, read off the same index one member at a time. The pair of
+      // JSON objects `--member` prints is the shipped derivation's own answer.
+      const per = execFileSync(process.execPath,
+        [join(ROOT, "scripts/vr-utah-fpi.mjs"), "--member", pid],
+        { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+      const pair = per.match(/\{[^}]*\}/g) || [];
+      must(pair.length === 2, `${pid}: the index did not print a before/after pair`);
+      const b = JSON.parse(pair[0]), a = JSON.parse(pair[1]);
+      eq(b.characterised, 0, `${pid}: earned its first characterised issue in this wave, not before`);
+      ok(a.characterised >= 1, `${pid}: …and holds at least one clear issue afterwards (${a.characterised})`);
+      ok(a.acts > b.acts, `${pid}: on more acts than it held before (${b.acts} → ${a.acts})`);
+      eq(a.splitN, b.splitN, `${pid}: crossed on a clear issue, not by splitting an old one`);
     }
     // AND THE TIERS DID NOT JUST HOLD THEIR SIZE — THEY HELD THEIR MEMBERSHIP. The
     // ten empty members are the same ten, so nothing fell into the tier that means
@@ -454,6 +534,8 @@ section("6 · the floors did not move, measured through the shipped index");
   eq(M.after.empty, 10, "after: wave 4 reached nobody who had nothing — committee votes only reach sitting members who already voted");
   ok(M.after.readable >= M.before.readable,
     `after: no member lost a readable record (${M.before.readable} → ${M.after.readable})`);
+  eq(M.after.readable, 106, "after: the readable tier is 106 — 102 from waves 1–3, plus 4 the mapping lane earned");
+  eq(M.after.thin, 16, "after: 16 members still hold material the engine will not characterise");
   ok(M.after.rows > M.before.rows,
     `the index deepened: ${M.before.rows} → ${M.after.rows} issue rows`);
   eq(M.after.lane.wave4Acts > 0, true, "the after lane actually carries the wave-4 positions");
@@ -463,17 +545,30 @@ section("6 · the floors did not move, measured through the shipped index");
   // split. The instruction for this wave was to report that, and the fence is that
   // the harness can still name every such row.
   ok(Array.isArray(M.lost), "the harness reports which issues lost their characterisation");
-  // The bound was 3 while wave 4 shipped, and it is 6 now, for one reason that is
-  // worth writing down rather than quietly editing: the renamed-committee door in
-  // the ingest was widened, which recovered four committee acts and 67 positions
-  // that had been failing on a string comparison. Real votes arrived, and three of
-  // them run against their member's floor run on healthcare, so three more rows
-  // read as splits. That is the wave-4 doctrine working, not leaking — a committee
-  // vote is allowed to turn a one-sided read into a split, and the fence is that
-  // every such row is still named below and still lands on a real tier. The bound
-  // exists to catch a flood, not to protect a number.
-  ok(M.lost.length <= 6,
-    `wave 4 weakened at most a handful of rows (${M.lost.length}: ${M.lost.map((r) => `${r.pid}/${r.key} ${r.from}→${r.to}`).join(", ")})`);
+  // THE BOUND HAS MOVED TWICE, AND BOTH REASONS ARE WRITTEN DOWN RATHER THAN
+  // QUIETLY EDITED. It was 3 when wave 4 shipped. It went to 6 when the
+  // renamed-committee door in the ingest was widened, which recovered four committee
+  // acts and 67 positions that had been failing on a string comparison; three of
+  // those real votes run against their member's floor run on healthcare, so three
+  // more rows read as splits. It is 12 now because wave 8 mapped the 2023GS off-lane
+  // bucket: the row-level weakenings went 5 → 12, and the seven new ones are
+  // andrew_stoddard/gun_rights, joseph_elison/edu_parental,
+  // karen_m_peterson/edu_parental, nelson_abbott/tough_on_crime,
+  // nthurston/privacy_rights, r_neil_walter/edu_parental and rshipp/water.
+  //
+  // Every one is a member whose 2023 committee vote runs against their own floor run
+  // on the same key, and every one lands on `split` — which is the wave-4 doctrine
+  // working rather than leaking. A committee vote is allowed to turn a one-sided
+  // read into a split; what is not allowed is for such a row to stop being nameable.
+  // The bound exists to catch a flood, not to protect a number, and it is raised
+  // here with the seven names attached rather than with a larger number and no list.
+  ok(M.lost.length <= 12,
+    `wave 8 weakened at most a handful of rows (${M.lost.length}: ${M.lost.map((r) => `${r.pid}/${r.key} ${r.from}→${r.to}`).join(", ")})`);
+  // AND THE SPLITS ARE SPLITS, NOT DISAPPEARANCES. Three of the twelve fell from
+  // `strong`, the strongest read the engine gives, so the drop is checked to land on
+  // a tier that still says something rather than on "too thin to read".
+  eq(M.lost.filter((r) => r.to === "thin").length, 0,
+    `no weakened row fell out of characterisation altogether (${M.lost.filter((r) => r.to === "thin").map((r) => `${r.pid}/${r.key}`).join(", ")})`);
   for (const r of M.lost) ok(r.to === "split" || r.to === "thin",
     `${r.pid}/${r.key}: a weakened row landed on a real tier (${r.to}), not on a refusal`);
   ok(M.newlySplit.length >= M.lost.length,

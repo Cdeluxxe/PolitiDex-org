@@ -66,14 +66,16 @@ const ONE = argOf("member");
 //              committee acts on bills that ALREADY had a reviewed mapping (which
 //              is why the wave-3 seed stores only `issueKeys`: the mapping lives on
 //              the floor seed's measure for the same bill).
-//   mapping    db/vr-utah-committee-mapping-seed-{2025GS,2024GS}.json — wave 4,
-//              committee acts on bills that had no mapping until this wave.
+//   mapping    db/vr-utah-committee-mapping-seed-{2025GS,2024GS,2023GS}.json —
+//              waves 4 & 8, committee acts on bills that had no mapping until the
+//              curator pass that admitted them.
 const FLOOR = [["2025GS", "db/vr-utah-vote-seed.json"], ["2024GS", "db/vr-utah-vote-seed-2024GS.json"],
                ["2023GS", "db/vr-utah-vote-seed-2023GS.json"]];
 const COMMITTEE = [["2025GS", "db/vr-utah-committee-seed.json"], ["2024GS", "db/vr-utah-committee-seed-2024GS.json"],
                    ["2023GS", "db/vr-utah-committee-seed-2023GS.json"]];
 const MAPPING = [["2025GS", "db/vr-utah-committee-mapping-seed-2025GS.json"],
-                 ["2024GS", "db/vr-utah-committee-mapping-seed-2024GS.json"]];
+                 ["2024GS", "db/vr-utah-committee-mapping-seed-2024GS.json"],
+                 ["2023GS", "db/vr-utah-committee-mapping-seed-2023GS.json"]];
 
 // ── THE DENOMINATOR ─────────────────────────────────────────────────────────
 // "empty" is a count of PEOPLE, so it needs a roster, and the roster cannot be
@@ -284,7 +286,7 @@ if (AS_JSON) {
     `  ${lbl.padEnd(8)} ${String(m.empty).padStart(5)} ${String(m.thin).padStart(5)} ${String(m.readable).padStart(9)}` +
     `   │ ${String(m.members).padStart(4)} on roster, ${String(m.withRecord).padStart(3)} with a record · ${String(m.rows).padStart(5)} issue rows · ` +
     `${m.strongN} clear / ${m.splitN} split / ${m.thinN} unread   │ ` +
-    `${lane.floorVotes} floor + ${lane.committeeActs} cmte + ${lane.wave4Acts} wave-4 positions`);
+    `${lane.floorVotes} floor + ${lane.committeeActs} cmte + ${lane.wave4Acts} mapping-lane positions`);
   console.log("\n  UTAH FORMAL PATTERN INDEX — shipped tiers, no floor moved\n");
   console.log(`           empty  thin  readable`);
   row("before", B, before.stats);
