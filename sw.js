@@ -472,7 +472,15 @@
 // sends, so handleVrPack now skips both the put and the prune for that version.
 // Without the bump a warm device keeps the v91 handler, which would cache such a
 // response and then delete this member's good versioned entry in favour of it.
-const CACHE_VERSION = 'v92';
+// v93 - every surface that names a politician paints a real /p/<canonicalPid>
+// link. person-link.js is a NEW SHELL ASSET, which is the whole reason for the
+// bump: index.html now carries a parser-blocking <script src="/person-link.js">,
+// and a device holding v92's precached '/' would either take the new document
+// against a shell that has never heard of that file or keep the old document
+// while the file sits uncached. Every consumer guards on window.PDXPersonLink and
+// falls back to the markup it emitted before, so a half-pickup costs the href and
+// nothing else — but a shell asset changed, so the rule above applies.
+const CACHE_VERSION = 'v93';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -655,6 +663,13 @@ const SHELL_ASSETS = [
   // grade.
   '/record-card.js',
   '/record-card.css',
+  // 🔗 The person link primitive. Cached with the shell for the same reason
+  // record-card.js is: it is a module the reader arrives THROUGH. Every card, row
+  // and cell that names a politician asks it for href="/p/<canonicalPid>", so
+  // without it an offline repeat visitor gets a list of names that cannot be
+  // opened in a new tab, cannot be copied as an address, and — for the retired
+  // handful — would have no canonical id to advertise at all.
+  '/person-link.js',
   '/manifest.json',
   '/assets/icon.svg',
   '/assets/icon-maskable.svg'

@@ -53,7 +53,24 @@
 // word → not in the seed. If nothing survives, the list is empty and
 // hero-showcase.js renders nothing at all.
 //
+// THE SECOND OUTPUT: THE STATIC RECORD LINKS
+// The cards themselves are painted by JavaScript into an empty <div>, which means
+// the homepage's served markup names nobody and links nowhere. A crawler reading
+// / therefore never learns that /p/lee exists, and a reader with JavaScript off
+// sees an empty slot. So this generator also writes a small strip of real
+// <a href="/p/<canonicalPid>">Name</a> links into index.html, between sentinels,
+// for exactly the people in the seed it just built. Same source, same order, one
+// file — the strip cannot name someone the rotation does not, and the gate test
+// fails if the two ever disagree.
+//
+// The href is the CANONICAL pid, resolved through the app's own PDXProfilePid
+// (profile-evidence.js, loaded here for that one function). A retired alias like
+// `scott_chew` is the display slug of a record filed under `chew_h68`, and the
+// advertised address has to be the one the record actually lives at — publishing
+// both is how one officeholder ends up indexed as two people.
+//
 //   node scripts/gen-hero-showcase.mjs      # writes hero-showcase-data.js
+//                                           # and the strip inside index.html
 //
 // Deterministic: no timestamps, no randomness, ordering derived from the ranking
 // above with pid as the tiebreak. Re-running on unchanged inputs is a no-op.
@@ -65,6 +82,19 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 
 export const OUT_PATH = "hero-showcase-data.js";
+export const INDEX_PATH = "index.html";
+
+// The alias table's home. Loaded on top of the engine, not as part of it: nothing
+// in the ranking below reads it, and it is here only so the hrefs can be built
+// with the app's OWN canonicalisation rather than a second copy of the table.
+export const ALIAS_FILE = "profile-evidence.js";
+
+// The block this generator owns inside index.html. Everything between these two
+// lines is rewritten wholesale; everything outside them is never touched. A
+// missing or duplicated sentinel is a hard error rather than a guess, because the
+// alternative is a generator that edits 2 MB of hand-written markup by feel.
+export const CRAWL_BEGIN = "<!-- pdx:hero-crawl:begin -->";
+export const CRAWL_END = "<!-- pdx:hero-crawl:end -->";
 
 // The browser files the read needs, in load order. Deliberately the smallest set
 // that gets a real PDXWordAction.read(): cmp-data for the roster, the stance
@@ -150,7 +180,10 @@ export function makeSandbox() {
   return win;
 }
 
-export function loadEngine(root) {
+// `extra` is loaded AFTER the engine and after its own health check, so a file
+// added for the hrefs' sake cannot quietly change who is eligible or how they
+// rank — the seed is already decided by the time it runs.
+export function loadEngine(root, extra) {
   const win = makeSandbox();
   const ctx = vm.createContext(win);
   for (const f of ENGINE_FILES) {
@@ -162,7 +195,36 @@ export function loadEngine(root) {
   if (!win.CMP_DATA || !Object.keys(win.CMP_DATA).length) {
     throw new Error("CMP_DATA is empty after loading the engine files");
   }
+  for (const f of (extra || [])) {
+    vm.runInContext(readFileSync(join(root, f), "utf8"), ctx, { filename: f });
+  }
   return win;
+}
+
+// ── The one address per person, resolved the app's way ───────────────────────
+// PDXProfilePid is the same function person-file.js, the /p/ arrival path and
+// person-link.js all ask, so the address printed in the markup is the address the
+// app serves. FAIL LOUD here, unlike in the browser: at build time an unavailable
+// alias table means the strip would silently advertise raw ids, and a retired one
+// among them would publish a second URL for a record that already has one.
+export function canonicaliser(win) {
+  const f = win && win.PDXProfilePid;
+  if (typeof f !== "function") {
+    throw new Error(`PDXProfilePid unavailable after loading ${ALIAS_FILE}`);
+  }
+  return (pid) => {
+    const raw = String(pid || "");
+    let out = raw;
+    const hop = f(raw);
+    if (hop) {
+      const h = String(hop);
+      if (h) out = h;
+    }
+    if (!/^[A-Za-z0-9_]+$/.test(out)) {
+      throw new Error(`not a pid-shaped address: ${JSON.stringify(out)} (from ${JSON.stringify(raw)})`);
+    }
+    return out;
+  };
 }
 
 // The curated ACTION side, counted the way consistency.js counts it — voting
@@ -283,6 +345,73 @@ export function buildFeatured(win) {
   return interleaveByParty(rank(win)).slice(0, MAX_CANDIDATES).map(slim);
 }
 
+// ── The static strip ─────────────────────────────────────────────────────────
+// A paragraph, not a <nav> and not a list of cards: it names the people whose
+// records the rotation invites and links each name to that record's address. It
+// is left VISIBLE — small and muted, under the slot — because a hidden block of
+// links is a different thing with a bad name, and because with JavaScript off
+// this strip is the only way into a record from the homepage. It does not double
+// the cards: the cards are portraits with a live read, this is one line of text.
+export function crawlLinks(featured, canon) {
+  return featured.map((r) => {
+    const pid = canon(r.pid);
+    return { pid, name: String(r.name) };
+  });
+}
+
+function esc(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+export function buildCrawlHtml(featured, canon) {
+  const links = crawlLinks(featured, canon);
+  if (!links.length) {
+    // Fail closed, like every other gate in this file: no seed, no strip. An
+    // empty paragraph with a label and nothing after it would be worse markup
+    // than none.
+    return "";
+  }
+  const anchors = links.map((l) =>
+    `      <a class="pdx-hs-crawl-a" href="/p/${l.pid}" data-pdx-person-link="${esc(l.pid)}">${esc(l.name)}</a>`
+  ).join("\n");
+  return [
+    "    <p class=\"pdx-hs-crawl\">",
+    // "Read a record", not "Records on file": being in the seed means there is
+    // documented word worth inviting, not that the file is complete or that it
+    // clears the publication floor. The floor is asked at the door
+    // (person-file.js's kicker), never here. A link is navigation, not a claim.
+    "      <span class=\"pdx-hs-crawl-l\">Read a record:</span>",
+    anchors,
+    "    </p>",
+  ].join("\n");
+}
+
+// Rewrites only what is between the sentinels, and refuses anything else. The
+// returned string is the whole file, so the caller decides whether to write it —
+// which is what lets the gate test compare without touching the working tree.
+export function patchIndex(html, block) {
+  const b = html.indexOf(CRAWL_BEGIN);
+  const e = html.indexOf(CRAWL_END);
+  if (b < 0 || e < 0) throw new Error("index.html: hero crawl sentinels not found");
+  if (html.indexOf(CRAWL_BEGIN, b + 1) >= 0 || html.indexOf(CRAWL_END, e + 1) >= 0) {
+    throw new Error("index.html: hero crawl sentinels appear more than once");
+  }
+  if (e < b) throw new Error("index.html: hero crawl sentinels are out of order");
+  const head = html.slice(0, b + CRAWL_BEGIN.length);
+  const tail = html.slice(e);
+  return head + "\n" + (block ? block + "\n" : "") + "    " + tail;
+}
+
+// The inverse, for the gate test: what is in the file right now.
+export function readCrawlBlock(html) {
+  const b = html.indexOf(CRAWL_BEGIN);
+  const e = html.indexOf(CRAWL_END);
+  if (b < 0 || e < 0) throw new Error("index.html: hero crawl sentinels not found");
+  return html.slice(b + CRAWL_BEGIN.length, e).replace(/^\n/, "").replace(/\n?[ \t]*$/, "");
+}
+
 export function buildData(featured) {
   const body = JSON.stringify(featured, null, 2).replace(/\n/g, "\n  ");
   return `// ─────────────────────────────────────────────────────────────────────────────
@@ -320,10 +449,19 @@ const ROOT = join(HERE, "..");
 
 // Run directly → write the file. Imported by the test → just the pure builders.
 if (process.argv[1] && process.argv[1].endsWith("gen-hero-showcase.mjs")) {
-  const win = loadEngine(ROOT);
+  const win = loadEngine(ROOT, [ALIAS_FILE]);
   const featured = buildFeatured(win);
   const text = buildData(featured);
   writeFileSync(join(ROOT, OUT_PATH), text);
+
+  // Second output: the same people, as real links, inside index.html.
+  const canon = canonicaliser(win);
+  const block = buildCrawlHtml(featured, canon);
+  const idxPath = join(ROOT, INDEX_PATH);
+  const before = readFileSync(idxPath, "utf8");
+  const after = patchIndex(before, block);
+  if (after !== before) writeFileSync(idxPath, after);
+  const hopped = featured.filter((r) => canon(r.pid) !== r.pid);
   const parties = featured.reduce((a, r) => {
     const k = (r.party && r.party.label) || "?";
     a[k] = (a[k] || 0) + 1;
@@ -333,6 +471,13 @@ if (process.argv[1] && process.argv[1].endsWith("gen-hero-showcase.mjs")) {
     `✓ wrote ${OUT_PATH} — ${featured.length} candidate(s) from ${Object.keys(win.CMP_DATA).length} in the roster, ` +
     `${text.length} bytes\n  parties: ${JSON.stringify(parties)}` +
     `\n  scorable range: ${Math.min(...featured.map((r) => r._coverage.scorable))}–${Math.max(...featured.map((r) => r._coverage.scorable))}`
+  );
+  console.log(
+    `  ${INDEX_PATH}: ${crawlLinks(featured, canon).length} static record link(s)` +
+    `${after === before ? " (unchanged)" : " (rewritten)"}` +
+    `${hopped.length ? `\n  ⚠ ${hopped.length} seed pid(s) are retired aliases; the strip advertises the canonical address, ` +
+      `but the painted card links the raw id until profile-evidence.js loads: ` +
+      hopped.map((r) => `${r.pid}→${canon(r.pid)}`).join(", ") : ""}`
   );
   if (!featured.length) console.log("  ⚠ empty list — the showcase will render nothing (fail-closed)");
 }

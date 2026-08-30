@@ -254,6 +254,11 @@
   background: none; border: 0; padding: 0; text-align: left;
 }
 .bw-cand-name:hover { color: #93c5fd; text-decoration: underline; }
+/* The name is a real <a href="/p/<pid>"> now (ballot-workspace.js candOpen). It
+   keeps the heading colour and stays undecorated until hover, so a list of
+   candidates does not read as a list of links. */
+a.bw-cand-name { text-decoration: none; }
+a.bw-cand-name:hover, a.bw-cand-name:focus-visible { color: #93c5fd; text-decoration: underline; }
 .bw-cand-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.2rem; }
 .bw-tag {
   font-size: 0.64rem; letter-spacing: 0.05em; text-transform: uppercase;

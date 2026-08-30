@@ -990,6 +990,24 @@
       }
     }
 
+    // The column head names a politician and, until now, was the one cell in this
+    // table with no way to reach them: the only door to a person file was the
+    // "View Full Profile" button on the browse card the reader came from. The name
+    // becomes a real <a href="/p/<canonicalPid>"> — the same address the record
+    // card, the sitemap and the edge already use — so a comparison can be read,
+    // a column can be opened in a new tab beside it, and a crawler that reaches a
+    // compare view can walk from a name to that person's file.
+    //
+    // The <th> is not the link: it holds the avatar, the office line, the status
+    // badge and the pledge-receipt note, and wrapping all of that would make one
+    // enormous link out of four different facts. Falls back to the bare name when
+    // person-link.js has not loaded.
+    const _cmpNameLink = (pid, name) => {
+      const PL = window.PDXPersonLink;
+      if (!PL || typeof PL.anchor !== 'function') return name;
+      return PL.anchor(pid, name, { cls: 'cmp-col-namelink' });
+    };
+
     const _getPhoto = (pid) => {
       if (typeof window._getPhotoUrl === 'function') return window._getPhotoUrl(pid) || '';
       if (typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[pid]) return BROWSE_PHOTOS[pid];
@@ -1019,7 +1037,7 @@
         return `<th style="min-width:${colW}px;background:rgba(10,15,30,0.98);">
           <div class="cmp-col-header">
             ${avatarHtml}
-            <div class="cmp-col-name">${p.name}</div>
+            <div class="cmp-col-name">${_cmpNameLink(pid, p.name)}</div>
             <div class="cmp-col-office">${p.office} · ${p.state}</div>
             <div>${statusBadge(p, false)}</div>
             ${headCounts

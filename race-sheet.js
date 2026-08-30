@@ -222,6 +222,36 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
   function jsq(s) { return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+
+  // ── The person address, on every name this sheet opens a record from ──────
+  // A field name, an "Open profile" and the lone-candidate button are all the
+  // same act: they lead into one politician's formal record, which has an
+  // address of its own (/p/<canonicalPid>). So they are painted as real links to
+  // it rather than as buttons that know the address only inside a handler —
+  // otherwise the URL is in no markup, middle-click and "open in new tab" do
+  // nothing, and a crawler reading this sheet never learns that the file exists.
+  //
+  // person-link.js owns both halves of that: which pid is the ADVERTISED one (a
+  // retired alias resolves to the record it was folded into) and who gets the
+  // click (a plain one opens in app, a modified one stays the browser's). This
+  // pair only builds the tag. If the module has not loaded, the previous button
+  // is painted unchanged, so the worst case is a missing href and never a name
+  // that stopped opening.
+  function personOpen(pid, cls, extra) {
+    var PL = window.PDXPersonLink;
+    var a = (PL && typeof PL.attrs === 'function') ? PL.attrs(pid) : '';
+    if (!a) {
+      return '<button type="button" class="' + cls + '"' +
+        ' onclick="if(window.showProfile)window.showProfile(\'' + jsq(pid) + '\')"' +
+        (extra || '') + '>';
+    }
+    return '<a class="' + cls + '" ' + a + (extra || '') + '>';
+  }
+  function personClose(pid) {
+    var PL = window.PDXPersonLink;
+    var a = (PL && typeof PL.attrs === 'function') ? PL.attrs(pid) : '';
+    return a ? '</a>' : '</button>';
+  }
   function fn(n) { try { return typeof window[n] === 'function' ? window[n] : null; } catch (e) { return null; } }
 
   // ── Mode ───────────────────────────────────────────────────────────────────
@@ -1110,8 +1140,9 @@
     return '<article class="rs-ovcard" data-align-pid="' + esc(c.pid) + '">' +
       '<header class="rs-ovhd">' + avatar +
         '<span class="rs-whotext">' +
-          '<button type="button" class="rs-name" onclick="if(window.showProfile)window.showProfile(\'' + jsq(c.pid) + '\')"' +
-            ' aria-label="Open ' + esc(c.name) + '’s full record">' + esc(c.name) + '</button>' +
+          personOpen(c.pid, 'rs-name',
+            ' aria-label="Open ' + esc(c.name) + '’s full record"') +
+            esc(c.name) + personClose(c.pid) +
           '<span class="rs-ovseat">' + (sm ? sm.icon + ' ' + esc(sm.label) : '') + '</span>' +
           (c.incumbent ? '<span class="rs-inc">Holds this seat now</span>' : '') +
         '</span>' +
@@ -1127,7 +1158,7 @@
       '</div>' +
       '<div class="rs-ovacts">' +
         teamBtn(rk, c, picked, !!picked && picked !== c.pid) +
-        '<button type="button" class="rs-ovprof" onclick="if(window.showProfile)window.showProfile(\'' + jsq(c.pid) + '\')">Open profile ›</button>' +
+        personOpen(c.pid, 'rs-ovprof', '') + 'Open profile ›' + personClose(c.pid) +
       '</div>' +
     '</article>';
   }
@@ -1342,8 +1373,9 @@
         head +
         '<span class="rs-who">' + avatar +
           '<span class="rs-whotext">' +
-            '<button type="button" class="rs-name" onclick="if(window.showProfile)window.showProfile(\'' + jsq(c.pid) + '\')"' +
-              ' aria-label="Open ' + esc(c.name) + '’s full record">' + esc(c.name) + '</button>' +
+            personOpen(c.pid, 'rs-name',
+              ' aria-label="Open ' + esc(c.name) + '’s full record"') +
+              esc(c.name) + personClose(c.pid) +
             (c.incumbent ? '<span class="rs-inc">Holds this seat now</span>' : '') +
           '</span>' +
         '</span>' +
@@ -1642,8 +1674,8 @@
             (all[0].incumbent ? 'what they have said about it' : 'their own stated positions') + '. ' +
             'That is a record you can read now, not a race you have to wait for.</p>' +
           '<p class="rs-onlyone-a">' +
-            '<button type="button" class="rs-onlyone-b" onclick="if(window.showProfile)window.showProfile(\'' + jsq(all[0].pid) + '\')">' +
-              'Open ' + esc(all[0].name) + '’s full record ›</button>' +
+            personOpen(all[0].pid, 'rs-onlyone-b', '') +
+              'Open ' + esc(all[0].name) + '’s full record ›' + personClose(all[0].pid) +
             seatsBtn() +
           '</p>' +
         '</section>'

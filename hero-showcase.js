@@ -336,13 +336,34 @@
     return rows.length ? '<ul class="pdx-hs-proof">' + rows.join('') + '</ul>' : '';
   }
 
+  // The name is the LINK. Not the card: the card already holds a share button and
+  // a "Full record →" button, so wrapping the whole thing in an <a> would nest
+  // interactive elements inside a link. The name is the one element that means
+  // "this person" and nothing else, so it is where the address belongs — and a
+  // reader can now middle-click it, copy it, or open it in a new tab, none of
+  // which the card's role="button" could ever offer.
+  //
+  // Clicking it with JavaScript on still opens the in-app file: the anchor sits
+  // inside .pdx-hs-card, so the click bubbles to this component's own handler,
+  // which jumps to the record section exactly as it did when the name was an
+  // <h2>. See the guard at the top of that handler.
+  //
+  // Falls back to the plain heading when person-link.js has not loaded, so the
+  // card never loses its name.
+  function nameHtml(c, d) {
+    var label = (d && d.name) || c.name;
+    var PL = window.PDXPersonLink;
+    if (!PL || typeof PL.anchor !== 'function') return esc(label);
+    return PL.anchor(c.pid, label, { cls: 'pdx-hs-namelink', section: RECORD_ANCHOR });
+  }
+
   function headHtml(c, d) {
     var party = (d && d.party) || c.party;
     return '' +
       '<div class="pdx-hs-head">' +
         faceHtml(c) +
         '<div class="pdx-hs-who">' +
-          '<h2 class="pdx-hs-name">' + esc((d && d.name) || c.name) + '</h2>' +
+          '<h2 class="pdx-hs-name">' + nameHtml(c, d) + '</h2>' +
           '<p class="pdx-hs-office">' + esc((d && d.office) || c.office) + '</p>' +
         '</div>' +
         (party
@@ -566,6 +587,18 @@
   host.addEventListener('click', function (e) {
     var t = e.target;
     var hit = function (sel) { return t.closest && t.closest(sel); };
+
+    // The name is now a real <a href="/p/<pid>">. A modified or middle click on it
+    // is the reader asking the BROWSER for a new tab, so this component gets out
+    // of the way and lets the href do its job. A plain click is ours: the default
+    // is prevented here and the .pdx-hs-card branch below opens the in-app file on
+    // the record section, which is what tapping this card has always done.
+    var plink = hit('a[data-pdx-person-link]');
+    if (plink) {
+      var PL = window.PDXPersonLink;
+      if (PL && typeof PL.isBrowserNav === 'function' && PL.isBrowserNav(e)) return;
+      e.preventDefault();
+    }
 
     if (hit('.pdx-hs-prev')) { pause(); step(-1); return; }
     if (hit('.pdx-hs-next')) { pause(); step(1); return; }

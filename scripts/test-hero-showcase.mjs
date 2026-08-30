@@ -820,10 +820,19 @@ for (const c of seed) {
   // and an executive card stops printing roll-call nouns for a lane that has no
   // roll calls. Nothing new is fetched, parsed or derived on the critical path —
   // the strip rides the read() the visible card was already paying for.
+  //
+  // BUDGET NOTE · raised to 15 KB / 16.5 KB when the card's name became a real
+  // <a href="/p/<canonicalPid>">. The code for that is ten lines — an anchor
+  // builder that delegates to PDXPersonLink and a browser-nav guard at the top of
+  // the click handler — and the rest of the ~630 B is the prose saying why the
+  // NAME is the link and not the card (the card holds buttons; a link may not),
+  // and why a modified click is handed back to the browser. Nothing was added to
+  // what the card computes or fetches. person-link.js itself is parser-blocking
+  // too and carries its own budget, in test-person-links.mjs.
   ok(dataGz < 3 * 1024, `payload: seed is ${dataGz} B gzipped (budget 3 KB)`);
-  ok(rendGz < 14 * 1024, `payload: renderer is ${rendGz} B gzipped (budget 14 KB)`);
-  ok(dataGz + rendGz < 15.5 * 1024,
-    `payload: ${dataGz + rendGz} B gzipped on the parser-blocking critical path (budget 15.5 KB)`);
+  ok(rendGz < 15 * 1024, `payload: renderer is ${rendGz} B gzipped (budget 15 KB)`);
+  ok(dataGz + rendGz < 16.5 * 1024,
+    `payload: ${dataGz + rendGz} B gzipped on the parser-blocking critical path (budget 16.5 KB)`);
   console.log(`  critical path: ${dataGz} B + ${rendGz} B = ${dataGz + rendGz} B gzipped`);
 }
 
