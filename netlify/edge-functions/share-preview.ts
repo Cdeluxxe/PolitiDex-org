@@ -25,7 +25,14 @@
 // emits a query-string equivalent instead, and share-links.js turns it back into
 // the very same hash on arrival. Nothing downstream of the hash changed.
 import type { Context, Config } from "@netlify/edge-functions";
-import { parseTarget, resolveTarget, pageTitle, canonicalPath, type Resolved } from "../lib/share-target.ts";
+import {
+  parseTarget,
+  resolveTarget,
+  pageTitle,
+  canonicalPath,
+  type Resolved,
+  type RecordLine,
+} from "../lib/share-target.ts";
 
 // A person file's own address. Only this shape gets a crawl block: /p/<pid> is the
 // canonical person address, and the ?p= form is a query on some other surface.
@@ -151,6 +158,7 @@ function placeText(s: string): string {
 //   · the FORMAL RECORD named first, because that is what the file leads with.
 //   · Word vs Action named as what it is: a narrow integrity check that applies
 //     only where a stated position exists.
+//   · up to six lines of the FORMAL RECORD ITSELF (see recordSection below).
 //   · a link to the canonical address, so the block is useful to a reader who
 //     arrives with JavaScript off rather than being crawler furniture.
 //
@@ -158,12 +166,73 @@ function placeText(s: string): string {
 // "Accountability Score", no "complete ballot", no with/against-party tally, no
 // party letter — the card headline may carry "(R)" as office identity, but a
 // paragraph of body prose about a person reads as a grade the moment a party
-// letter sits in it. Phase A is identity and a unique document. The formal-pattern
-// snapshot is Phase B and is not smuggled in early.
+// letter sits in it.
 //
 // A person we cannot name gets NO BLOCK AT ALL (see the handler: resolveTarget
 // returns null for an unknown pid and we never reach here). An invented name would
 // be worse than a duplicate page.
+
+// ── The formal record, in the body ──────────────────────────────────────────
+// A NAME IS NOT A DOCUMENT EITHER. Identity made the 757 person addresses distinct
+// from the homepage; it did not make them distinct from each other. Take the name
+// out of Mike Lee's block and out of John Curtis's and what is left is the same
+// three sentences — so a crawler comparing two person files sees the template, and
+// what it has learned is that PolitiDex holds files, not what is in them.
+//
+// So the block carries the SHAPE OF THE RECORD as well: up to six lines, each one
+// a pattern tier and the issue it was read on, plus the two side counts where the
+// profile brief already prints them.
+//
+// WHERE THE WORDS COME FROM. db/share-index.json's personRecord table, baked by
+// scripts/gen-crawl-record.mjs, which boots the real consistency.js and reads
+// formalPatternIndex.shape() / execRecordSummary.shape() — the same accessors the
+// live brief renders from, in the same exec-lane-first precedence, capped and
+// ordered the same way (strongest one-sided first, then the splits). There is no
+// second pattern engine and no second vocabulary: this function selects strings
+// and escapes them. It computes nothing.
+//
+// AND NOT FROM THE NETWORK. The obvious implementation is to fetch
+// /api/voting-record here. That would put a database round trip in front of every
+// crawl of every person address, on the one request with no session and no cache
+// warmth, to render text that changes when a seed lands — not per request. The
+// snapshot costs ~160 KB of static JSON the edge already imports and nothing at
+// request time.
+//
+// THE WALLS, AGAIN, BECAUSE THIS IS THE PART THAT LOOKS LIKE A SCORE. A tier and
+// an issue and two integers about one person's own record — never a percentage,
+// never a ratio, never a Direction Match or Word-vs-Action figure, never a
+// with/against-party tally, never a total across issues, and no arithmetic over
+// any of it. "Formal record" is the heading because that is what it is: a record,
+// not a grade. The one-sided rows are strong words on purpose ("Strongly opposes")
+// and they are the RECORD LANE'S OWN words — the brief prints them on the page
+// this block introduces, so a reader who follows the link finds the same sentence.
+//
+// A PERSON WITH NO READABLE PATTERN GETS NO SECTION. Not an empty list, not "no
+// pattern on file" — nothing. 472 of the 800 roster records are offices with no
+// roll-call lane (attorneys general, school boards, mayors) or files nobody has
+// reviewed yet, and printing our curation gap as a bullet point would read as a
+// finding about the person. Their addresses stay name and office, which is what
+// Phase A shipped and is still true.
+function recordSection(rows: RecordLine[]): string {
+  const lines = rows
+    .filter((x) => x && x.p && x.i)
+    .slice(0, 6)
+    .map((x) => {
+      // pattern · issue · counts, with the tally dropped where the brief has none
+      // to print. Every part is escaped: the issue labels carry "&" and are data,
+      // not markup.
+      const parts = [x.p, x.i, x.c || ""].filter(Boolean).map(text).join(" · ");
+      return `<li>${parts}</li>`;
+    });
+  if (!lines.length) return "";
+  return (
+    `<section data-pdx-crawl-record>` +
+    `<h2>Formal record</h2>` +
+    `<ul>${lines.join("")}</ul>` +
+    `</section>`
+  );
+}
+
 function personCrawlBlock(r: Resolved, canonical: string): string {
   const who = r.person;
   if (!who || !who.name) return "";
@@ -173,6 +242,9 @@ function personCrawlBlock(r: Resolved, canonical: string): string {
     .filter(Boolean)
     .map(text)
     .join(" · ");
+  // Empty string when the snapshot holds nothing, and an empty string concatenates
+  // to nothing — so the omission needs no branch and cannot half-render.
+  const record = recordSection(who.record || []);
   return (
     `<style>#pdx-crawl-person{margin:0;padding:84px 20px 22px;background:#0a0f1e;` +
     `border-bottom:1px solid rgba(255,255,255,0.08);color:#eef4ff;` +
@@ -180,11 +252,16 @@ function personCrawlBlock(r: Resolved, canonical: string): string {
     `#pdx-crawl-person h1{margin:0 0 8px;font-size:1.6rem;line-height:1.15;}` +
     `#pdx-crawl-person p{margin:0 0 6px;color:#9fb4d4;font-size:.95rem;line-height:1.5;max-width:70ch;}` +
     `#pdx-crawl-person a{color:#f5c842;}` +
+    `#pdx-crawl-person h2{margin:14px 0 6px;font-size:1rem;letter-spacing:.02em;color:#eef4ff;}` +
+    `#pdx-crawl-person ul{margin:0 0 6px;padding:0 0 0 18px;color:#c9d8f2;` +
+    `font-size:.95rem;line-height:1.55;max-width:70ch;}` +
+    `#pdx-crawl-person li{margin:0 0 2px;}` +
     `#pdx-crawl-person[hidden]{display:none !important;}</style>` +
     `<header id="pdx-crawl-person" data-pdx-crawl-person data-pid="${attr(who.pid)}">` +
     `<h1>${text(who.name)}</h1>` +
     `<p>${line}</p>` +
     `<p>Person file. Formal record first. Word vs Action is a separate integrity check only where a stated position exists.</p>` +
+    record +
     `<p><a href="${attr(canonical)}">Open the full file</a></p>` +
     `</header>`
   );
