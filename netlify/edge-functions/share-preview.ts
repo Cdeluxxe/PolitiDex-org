@@ -27,6 +27,10 @@
 import type { Context, Config } from "@netlify/edge-functions";
 import { parseTarget, resolveTarget, pageTitle, canonicalPath, type Resolved } from "../lib/share-target.ts";
 
+// A person file's own address. Only this shape gets a crawl block: /p/<pid> is the
+// canonical person address, and the ?p= form is a query on some other surface.
+const PERSON_PATH = /^\/p\/([A-Za-z0-9_]+)\/?$/;
+
 // Escape a value for an HTML double-quoted attribute.
 function attr(s: string): string {
   return String(s == null ? "" : s)
@@ -105,6 +109,100 @@ function applyMeta(html: string, r: Resolved, origin: string, canonical: string)
     html = html.replace(/<\/head>/i, boot + "</head>");
   }
   return html;
+}
+
+// The place, in a sentence rather than in a headline.
+//
+// The share index caps a person's `state` field at 40 characters, which is right
+// for a 1200×630 card headline and wrong here: 43 of the Utah records describe a
+// district ("UT District 68 (Vernal, Uintah / Duchesne Counties)") and arrive
+// clipped mid-word, sometimes with the opening parenthesis unclosed. In a headline
+// that reads as an abbreviation; in a paragraph a crawler will index it reads as a
+// defect. So a clipped value is cut back to its last clean boundary — the district
+// without its parenthetical, or the last whole word. Nothing is added, and the
+// unclipped values (every federal and statewide record) pass through untouched.
+function placeText(s: string): string {
+  const raw = String(s || "").trim();
+  if (!raw.includes("…")) return raw;
+  const head = raw.split(" (")[0];
+  const base = head && !head.includes("…") ? head : raw.replace(/…$/, "").replace(/\s+\S*$/, "");
+  return base.replace(/[\s(,;:·/-]+$/, "").trim();
+}
+
+// ── The crawl block ─────────────────────────────────────────────────────────
+// WHY A HEAD REWRITE WAS NOT ENOUGH.
+//
+// /p/lee has carried its own <title>, its own canonical and its own card since
+// the rewrite above shipped, and Google still indexes exactly one URL on this
+// site. The reason is not the head: it is that the DOCUMENT was the homepage. All
+// 757 person addresses served the same ~2.2 MB app shell, byte for byte, with
+// nothing in the body that named the person — so a crawler comparing /p/lee to /
+// saw two identical documents with different titles and did the only sensible
+// thing, which was to keep one of them.
+//
+// So the body gets a short block that says who this page is about. It is the
+// smallest thing that makes the document unique, and every word of it is already
+// true of the page it introduces:
+//
+//   · the NAME, the OFFICE and the STATE — the same three fields the title and
+//     the card are built from (INDEX.people). No new roster fetch, no second
+//     identity table, and nothing on the anonymous critical path that was not
+//     already there.
+//   · the FORMAL RECORD named first, because that is what the file leads with.
+//   · Word vs Action named as what it is: a narrow integrity check that applies
+//     only where a stated position exists.
+//   · a link to the canonical address, so the block is useful to a reader who
+//     arrives with JavaScript off rather than being crawler furniture.
+//
+// WHAT IT DELIBERATELY DOES NOT SAY. No Direction Match figure, no percentage, no
+// "Accountability Score", no "complete ballot", no with/against-party tally, no
+// party letter — the card headline may carry "(R)" as office identity, but a
+// paragraph of body prose about a person reads as a grade the moment a party
+// letter sits in it. Phase A is identity and a unique document. The formal-pattern
+// snapshot is Phase B and is not smuggled in early.
+//
+// A person we cannot name gets NO BLOCK AT ALL (see the handler: resolveTarget
+// returns null for an unknown pid and we never reach here). An invented name would
+// be worse than a duplicate page.
+function personCrawlBlock(r: Resolved, canonical: string): string {
+  const who = r.person;
+  if (!who || !who.name) return "";
+  // office · state · what this page is. Built from the parts that are actually
+  // present, so a record with no state does not print a stray separator.
+  const line = [who.office, placeText(who.state), "formal voting record on PolitiDex"]
+    .filter(Boolean)
+    .map(text)
+    .join(" · ");
+  return (
+    `<style>#pdx-crawl-person{margin:0;padding:84px 20px 22px;background:#0a0f1e;` +
+    `border-bottom:1px solid rgba(255,255,255,0.08);color:#eef4ff;` +
+    `font-family:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;}` +
+    `#pdx-crawl-person h1{margin:0 0 8px;font-size:1.6rem;line-height:1.15;}` +
+    `#pdx-crawl-person p{margin:0 0 6px;color:#9fb4d4;font-size:.95rem;line-height:1.5;max-width:70ch;}` +
+    `#pdx-crawl-person a{color:#f5c842;}` +
+    `#pdx-crawl-person[hidden]{display:none !important;}</style>` +
+    `<header id="pdx-crawl-person" data-pdx-crawl-person data-pid="${attr(who.pid)}">` +
+    `<h1>${text(who.name)}</h1>` +
+    `<p>${line}</p>` +
+    `<p>Person file. Formal record first. Word vs Action is a separate integrity check only where a stated position exists.</p>` +
+    `<p><a href="${attr(canonical)}">Open the full file</a></p>` +
+    `</header>`
+  );
+}
+
+// Put the block as early in the body as it can go: immediately after the opening
+// <body> tag, ahead of every script the shell loads. A crawler that reads the
+// first few KB of the document and stops has still read who this page is about.
+//
+// Nothing else in the document moves. This is a single insertion at one seam — no
+// reordering, no rewriting of the app's own markup — which is what keeps
+// person-file.js's cold-arrival adoption working exactly as it did; the block is a
+// sibling of the shell, not a wrapper around it. Once the live file opens,
+// person-file.js hides this node (see crawlDone there): the real file supersedes
+// the summary of it. An absent <body> tag is a no-op rather than a throw.
+function injectAfterBody(html: string, block: string): string {
+  if (!block) return html;
+  return html.replace(/<body[^>]*>/i, (m) => m + block);
 }
 
 // The honest dead end. A 404 status (not a 200 dressed as one) with a page that
@@ -204,7 +302,16 @@ export default async (req: Request, context: Context): Promise<Response | undefi
     // path — normalizes to the one address that opens this record. og:url gets
     // the same value so three shares of one record unfurl as one entity.
     const canonical = url.origin + canonicalPath(target);
-    const html = applyMeta(await res.text(), resolved, url.origin, canonical);
+    let html = applyMeta(await res.text(), resolved, url.origin, canonical);
+
+    // The body block, on a person file's own address only. Scoped by the PATH and
+    // not just by the target kind: /issue/<slug>?p=<id> resolves to a profile (the
+    // profile is what is on screen) but the DOCUMENT being served is the
+    // Spotlight's, and two surfaces must not both claim the same <h1>.
+    if (PERSON_PATH.test(url.pathname)) {
+      html = injectAfterBody(html, personCrawlBlock(resolved, canonical));
+    }
+
     const headers = new Headers(res.headers);
     headers.set("content-type", "text/html; charset=utf-8");
     headers.set("cache-control", "public, max-age=300");
