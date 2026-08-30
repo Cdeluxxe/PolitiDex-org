@@ -25,6 +25,9 @@
 //   5. No drift — the brief adds no percentage, no ratio, no tier and no gate.
 //   6. Mobile — the first viewport carries the record without scroll luck, and
 //      exactly one record block mounts per profile.
+//   7. The executive lane — the same brief, listing the same rows in the same
+//      order, with a ONE-LINE census above them, no pointer button, one route out,
+//      and a shell bump so a warm device actually gets it.
 //
 //   node scripts/test-record-top.mjs
 
@@ -71,6 +74,7 @@ const WA_SRC = R("word-action.js");
 const WA_CSS = R("word-action.css");
 const APP_CSS = R("app.css");
 const PF_SRC = R("profiles-full.js");
+const SW_SRC = R("sw.js");
 
 let passed = 0;
 const failures = [];
@@ -487,6 +491,76 @@ section("6 · one block, and it survives a phone");
       has(xt, line, `the exec brief dropped the lane's inventory line "${line}"`);
     }
     has(xh, "pdxwa-shape-inv", "the exec brief lost the per-class inventory line");
+    // ── AND THE CENSUS IS ONE LINE ────────────────────────────────────────
+    // It printed as two stacked paragraphs — the volume clause, then the
+    // inventory under it — which on a phone spent about a third of the first
+    // screen on how much is on file before the first pattern row appeared. The
+    // rows are what the letterhead is for, so the inventory rides inline at the
+    // end of the clause it breaks down: one block-level census element, both
+    // classes, same order, nothing dropped and nothing abbreviated.
+    eq((xh.match(/<p class="pdxwa-shape-depth"/g) || []).length, 1,
+      "the exec census is not exactly one block-level line");
+    lacks(xh, '<p class="pdxwa-shape-inv"',
+      "the exec inventory is a paragraph of its own again, under the volume clause");
+    ok(/<p class="pdxwa-shape-depth">[^<]*<span class="pdxwa-shape-inv">[^<]*<\/span><\/p>/.test(xh),
+      "the exec inventory is not an inline run inside the census line");
+    ok(!/\.pdxwa-shape-inv \{[^}]*(?:margin|display)\s*:/.test(WA_CSS),
+      "the inventory run carries block spacing again in word-action.css");
+    // NOTHING BETWEEN THE CENSUS AND THE ROWS. The first viewport has to carry
+    // the name, the census and at least two pattern rows, and the only way to
+    // keep that true as the block grows is to fence what may sit above the list:
+    // the heading, the census, and then the group.
+    const briefSkel = (String(xh).match(/class="pdxwa-[a-z-]+/g) || [])
+      .map((c) => c.slice(7));
+    const briefAt = briefSkel.findIndex((c) => c.indexOf("pdxwa-brief") === 0);
+    eq(briefSkel.slice(briefAt + 1, briefAt + 5).join(">"),
+      "pdxwa-shape-hd>pdxwa-shape-depth>pdxwa-shape-inv>pdxwa-shape-grp",
+      "something new sits between the exec letterhead's heading and its first pattern group");
+    // ── THE POINTER COPY IS GONE, IN EVERY STATE ──────────────────────────
+    // "See what this record holds ↓" was the exec fallback's own button, in its
+    // own words, aimed a rung down at the standouts strip — the top of the file
+    // advertising a block further down instead of holding a record. There is one
+    // route out now, built once, counted from the lane's own index and aimed at
+    // the topic tree, so the state where the engine publishes no shape cannot
+    // reintroduce the old copy.
+    lacks(strip(WA_SRC), "See what this record holds",
+      "the exec letterhead can still print the old pointer button");
+    // Both states of the brief — the one with rows and the one without — call the
+    // shared route-out builder rather than writing a button of their own. The
+    // pre-brief shape letterhead upstream keeps its own copy of that markup; this
+    // is about the two branches that used to disagree with each other.
+    const fnBody = (src, name) => {
+      const at = src.indexOf(`function ${name}(`);
+      if (at < 0) return "";
+      const next = src.indexOf("\n  function ", at + 1);
+      return src.slice(at, next < 0 ? src.length : next);
+    };
+    for (const fn of ["briefBodyHtml", "execBriefHtml"]) {
+      const body = strip(fnBody(WA_SRC, fn));
+      must(body.length > 0, `word-action.js publishes no ${fn}() to check`);
+      has(body, "exploreAllHtml(", `${fn}() does not route out through the shared builder`);
+      lacks(body, 'class="pdxwa-shape-all"',
+        `${fn}() writes its own route-out button instead of calling the shared one`);
+      lacks(body, "Explore all ", `${fn}() writes its own route-out copy`);
+    }
+    eq((strip(fnBody(WA_SRC, "exploreAllHtml")).match(/class="pdxwa-shape-all"/g) || []).length, 1,
+      "the shared route-out builder does not emit exactly one button");
+    lacks(strip(WA_SRC), "EXEC_JUMP",
+      "the exec brief still keeps its own jump target for a pointer it no longer prints");
+    // ── AND IT HAS TO REACH A WARM DEVICE ─────────────────────────────────
+    // The letterhead is assembled from four files that ship independently —
+    // consistency.js publishes the shape, word-action.js draws the brief,
+    // profiles-full.js stands the mid-page strip down, word-action.css sizes the
+    // census — and the service worker serves the shell stale-while-revalidate.
+    // The first pass at this landed all four without renaming the caches, so warm
+    // devices kept serving the pre-brief bundle and the change read as unshipped.
+    // v89 is the floor, not the pin: a later pass with its own shell change bumps
+    // past it without editing this line.
+    const swVer = (/const CACHE_VERSION = '(v\d+)';/.exec(SW_SRC) || [])[1];
+    ok(/^v\d+$/.test(String(swVer)) && Number(String(swVer).slice(1)) >= 89,
+      `CACHE_VERSION is ${swVer} — the exec letterhead needs a bump to v89 or later to reach ` +
+      "a device that already has the shell cached");
+    has(SW_SRC, "// v89 -", "the cache bump that ships the exec letterhead was not explained");
     // ── the rows, which are the point ─────────────────────────────────────
     must(typeof xs.shape === "function",
       "execRecordSummary publishes no shape() — the exec brief has nothing to list");

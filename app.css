@@ -1891,6 +1891,23 @@
       .profile-hero-score:has(.pdxwa-shape) .profile-hero-score-lbl,
       .profile-hero-score:has(.pdxwa-brief) .profile-hero-score-lbl { display: none; }
 
+      /* THE CENSUS PAYS FOR THE ROWS. The executive census is the longest line
+         either lane writes — the framing clause, the volume counts, then a
+         counted phrase per document class — and it is the only thing between the
+         heading and the first pattern row, which is what the letterhead is for.
+         It is not shortened to fit: the framing clause is what stops "80 across
+         37 issues" reading as their complete output, and the class nouns belong
+         to the exec lane (execInventory() in exec-record.js). So it is set
+         smaller and tighter here instead, which buys back a wrapped line and puts
+         two pattern rows inside the first screen. Authored here rather than in
+         word-action.css because that file's only narrow passes are the hero ring
+         layout and the pledge-lane demotion, and app.css is linked after it. */
+      .pdxwa-brief-exec .pdxwa-shape-depth {
+        font-size: 0.75rem;
+        line-height: 1.35;
+        margin-bottom: 0.45rem;
+      }
+
       /* ── The summary rows, attached to that card ──────────────────
          The evidence tally and the depth/scope stack are mounted as siblings of
          the letterhead, not inside it — deliberately, so they get the full page

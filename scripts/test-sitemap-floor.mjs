@@ -166,8 +166,11 @@ ok(people.every((pid) => pid === encodeURIComponent(pid)),
    "a published pid needs percent-encoding — the address scheme was chosen so it would not");
 // The home page is the one non-record entry we claim.
 has(XML, `<loc>${ORIGIN}/</loc>`, "the sitemap does not list the site root");
-// Issue records ride along where they already have addresses; roll calls do not,
-// because that set lives behind an API and cannot be enumerated at build time.
+// Issue records ride along where they already have addresses, and so do bill
+// files — /b/<sitting>/<number>, enumerated from the migrations and audited by
+// scripts/test-sitemap-bills.mjs, which is where every claim about those
+// addresses lives. Roll calls do not: /vote/ rows arrive from the ingest cron
+// without a migration, so no repo-side list of them could be honest.
 ok(locs.some((u) => u.startsWith(ORIGIN + "/issue/")), "no Issue Spotlight is advertised");
 ok(!locs.some((u) => u.startsWith(ORIGIN + "/vote/")),
    "the sitemap advertises roll-call pages — that set is not enumerable at build time, so any list of it is a guess");

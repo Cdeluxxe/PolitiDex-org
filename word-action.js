@@ -4192,6 +4192,21 @@
         '<span aria-hidden="true">🏛</span> The formal record' +
       '</div>';
   }
+  // THE ROUTE OUT, IN ONE PLACE. Every brief ends the same way — the count of
+  // everything on the formal record, and a jump to the topic tree where each of
+  // those issues is reachable with its own refusal attached. It is one builder
+  // because it used to be two: the exec lane's fallback wrote its own button, in
+  // its own words, at a different destination, and that is how a president's file
+  // came to offer "See what this record holds ↓" while every other file offered
+  // the tree. One copy, one count, one door.
+  function exploreAllHtml(total) {
+    return '<button type="button" class="pdxwa-shape-all"' + jumpAttr(SHAPE_JUMP) +
+        ' aria-label="' + esc('Explore all ' + total + ' issues on the formal record, by topic') + '">' +
+        'Explore all ' + total + ' issue' + (total === 1 ? '' : 's') +
+        ' by topic <span aria-hidden="true">↓</span>' +
+      '</button>';
+  }
+
   // ── ONE BRIEF BODY, BOTH LANES ──────────────────────────────────────────────
   // WHAT THIS IS. The rendered brief, from its heading to its tier wall: the
   // strongest one-sided issues, then the ones that ran both ways, then the count
@@ -4271,11 +4286,7 @@
     var total = opts.total || sh.issues;
     return '<div class="pdxwa-brief' + (opts.cls || '') + (listed ? '' : ' pdxwa-brief-thin') + '">' + head +
         (opts.census || '') + tops + splits + none + thin +
-        '<button type="button" class="pdxwa-shape-all"' + jumpAttr(SHAPE_JUMP) +
-          ' aria-label="' + esc('Explore all ' + total + ' issues on the formal record, by topic') + '">' +
-          'Explore all ' + total + ' issue' + (total === 1 ? '' : 's') +
-          ' by topic <span aria-hidden="true">↓</span>' +
-        '</button>' +
+        exploreAllHtml(total) +
         dmFor(true) +
         (wall ? '<p class="pdxwa-shape-wall">' + esc(wall) + '</p>' : '') +
       '</div>';
@@ -4336,23 +4347,40 @@
   //     inventory still print, in the same words, directly under the heading —
   //     they are the denominator for the rows beneath them, and they were never a
   //     substitute for the list.
+  //   · THE CENSUS IS ONE LINE. It was two blocks — the volume clause, then the
+  //     per-class inventory in a second paragraph under it — and on a phone that
+  //     spent about a third of the first screen saying how much is on file before
+  //     the first pattern row appeared. Same words, same order, same two classes:
+  //     the inventory is now an inline run at the end of the clause it breaks
+  //     down, joined by the separator it already uses between its own phrases.
+  //     NOTHING IS ABBREVIATED TO FIT. The counted phrases are the lane's own —
+  //     execInventory() in exec-record.js owns those nouns and never shortens
+  //     "executive orders" — and the framing clause stays whole, because "80
+  //     across 37 issues" read alone claims our file is their complete output,
+  //     which is the one thing the census exists to avoid claiming.
+  //
   // The empty state is untouched: no acts, no rows, and the absence is named rather
   // than filled.
   //
-  // THE FALLBACK IS THE OLD POINTER, AND IT STILL HAS SOMEWHERE TO POINT. If the
-  // engine on the page publishes no exec shape, this cannot list anything, so it
-  // renders what it always rendered and jumps to the strip — and heroNamesPatterns()
-  // returns false for exactly that case, so the strip is mounted to receive it.
-  var EXEC_JUMP = 'pdxsec-standout';
+  // THE FALLBACK CANNOT POINT AT THE STRIP ANY MORE, AND SAYS SO IN THE SHARED
+  // WORDS. If the engine on the page publishes no exec shape, this block has no
+  // rows to list, so it prints the census and then the route-out every other brief
+  // prints — "Explore all N issues by topic ↓", into the topic tree, where every
+  // issue with an act on file is reachable with its own refusal. It used to be a
+  // button reading "See what this record holds ↓" aimed a rung down at the
+  // standouts strip, which made the top of the file an advertisement for a block
+  // further down instead of a record. The strip still mounts on that path —
+  // heroNamesPatterns() returns false for exactly this case — so nothing about it
+  // is orphaned; it is simply no longer the thing the letterhead is for.
   function execBriefHtml(pid, p, xp) {
     try {
       var head = briefHeadHtml();
       var vol = xp.volume
-        ? '<p class="pdxwa-shape-depth">' + esc(xp.volume) + '</p>'
+        ? esc(xp.volume)
         : (xp.acts
-            ? '<p class="pdxwa-shape-depth"><b>' + xp.acts + '</b> formal action' +
+            ? '<b>' + xp.acts + '</b> formal action' +
                 (xp.acts === 1 ? '' : 's') + ' on file across <b>' + xp.issues + '</b> issue' +
-                (xp.issues === 1 ? '' : 's') + '</p>'
+                (xp.issues === 1 ? '' : 's')
             : '');
       if (!xp.acts) {
         return '<div class="pdxwa-brief pdxwa-brief-empty">' + head +
@@ -4363,22 +4391,20 @@
           '</div>';
       }
       var inv = (xp.inventory && xp.inventory.length)
-        ? '<p class="pdxwa-shape-inv">' + esc(xp.inventory.join(' · ')) + '</p>' : '';
+        ? '<span class="pdxwa-shape-inv"> · ' + esc(xp.inventory.join(' · ')) + '</span>' : '';
+      var census = vol ? '<p class="pdxwa-shape-depth">' + vol + inv + '</p>' : '';
       var XS = window.PDXConsistency && window.PDXConsistency.execRecordSummary;
       var sh = null;
       try { sh = (XS && typeof XS.shape === 'function') ? XS.shape(pid) : null; } catch (e) { sh = null; }
       if (sh && sh.issues) {
         return briefBodyHtml(pid, p, sh, {
-          census: vol + inv,
+          census: census,
           total: sh.issues,
           cls: ' pdxwa-brief-exec'
         });
       }
-      return '<div class="pdxwa-brief pdxwa-brief-exec">' + head + vol + inv +
-          '<button type="button" class="pdxwa-shape-all"' + jumpAttr(EXEC_JUMP) +
-            ' aria-label="' + esc('See what this formal record holds, issue by issue') + '">' +
-            'See what this record holds <span aria-hidden="true">↓</span>' +
-          '</button>' +
+      return '<div class="pdxwa-brief pdxwa-brief-exec">' + head + census +
+          exploreAllHtml(xp.issues || 0) +
           shapeMatchHtml(pid, p, { deep: false, recordAbove: true }) +
         '</div>';
     } catch (e) { return ''; }

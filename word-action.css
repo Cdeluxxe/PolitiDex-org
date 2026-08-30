@@ -1677,22 +1677,25 @@
   margin-bottom: 0.35rem;
 }
 /* Depth. The first line a reader meets, and the one that has to survive being
-   read alone: three counts, no rate, no adjective. */
+   read alone: three counts, no rate, no adjective. It is ONE line — the census,
+   whichever lane wrote it, sits between the heading and the first pattern row and
+   the rows are what the letterhead is for. */
 .pdxwa-shape-depth {
-  margin: 0 0 0.7rem;
+  margin: 0 0 0.55rem;
   font-size: 0.82rem;
-  line-height: 1.45;
+  line-height: 1.4;
   color: #b9cae3;
   overflow-wrap: break-word;
 }
 .pdxwa-shape-depth b { color: #fff; font-weight: 700; }
-/* The exec lane's inventory line, under its volume clause: what is on file, in the
-   lane's own counted phrases. Quieter than the clause above it, because it is the
-   breakdown of that sentence rather than a second claim. */
+/* The exec lane's inventory — what is on file, in the lane's own counted phrases.
+   It is an inline run at the end of the volume clause rather than a paragraph
+   under it: quieter than the clause it breaks down, because it is a breakdown of
+   that sentence and not a second claim, but on the same line, because two stacked
+   census blocks pushed the first pattern row off a phone's first screen. It wraps
+   with the clause; it is never a second block. */
 .pdxwa-shape-inv {
-  margin: -0.4rem 0 0.7rem;
-  font-size: 0.76rem;
-  line-height: 1.5;
+  font-size: 0.94em;
   color: #8fa6c4;
   overflow-wrap: break-word;
 }
