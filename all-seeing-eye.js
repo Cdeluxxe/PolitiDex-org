@@ -1046,6 +1046,29 @@
       return esc(text.slice(0, at)) + '<mark>' + esc(text.slice(at, at + len)) + '</mark>' + esc(text.slice(at + len));
     }
 
+    // ── A result row that names a person opens as a LINK ────────────────────
+    // Every other row kind (issue, spotlight, bill, saved) keeps its <button>:
+    // those open panels and overlays with no address of their own, and a link to
+    // nowhere is worse than a button. Only the two person-shaped rows change,
+    // because only they have a URL to advertise.
+    //
+    // rowOpen/rowClose are a pair so the tag can never disagree with itself: if
+    // person-link.js has not loaded, or the id is not pid-shaped, BOTH fall back
+    // to the <button> this row has always been and the row behaves exactly as
+    // before. The class list and the data-* attributes are identical either way,
+    // so wire(), the keyboard model and every selector in this file are untouched.
+    function rowOpen(pid, cls, data) {
+      var PL = window.PDXPersonLink;
+      var a = (PL && typeof PL.attrs === 'function') ? PL.attrs(pid) : '';
+      if (!a) return '<button type="button" role="option" class="' + cls + '" ' + data + '>';
+      return '<a role="option" class="' + cls + '" ' + a + ' ' + data + '>';
+    }
+    function rowClose(pid) {
+      var PL = window.PDXPersonLink;
+      var a = (PL && typeof PL.attrs === 'function') ? PL.attrs(pid) : '';
+      return a ? '</a>' : '</button>';
+    }
+
     function polItem(e, q, terms, idx) {
       var url = photoFor(e.id);
       var thumb = url
@@ -1086,11 +1109,22 @@
       if (!receipt) {
         try { if (window.PDXCoverage && window.PDXCoverage.badgeHTML) receipt = window.PDXCoverage.badgeHTML(e.id) || ''; } catch (cerr) {}
       }
-      return '<button type="button" role="option" class="pdx-eye-item" data-i="' + idx + '" data-kind="pol" data-id="' + esc(e.id) + '">' +
+      // THE ROW IS A LINK, not a button. Everything inside it — thumb, name, sub
+      // line, badges — is the same person, so the whole row is the photo+name
+      // cluster the address belongs on, and there is nothing interactive inside it
+      // to nest: the action strip (Add to My Team, Compare, Share) is a SIBLING in
+      // .pdx-eye-res, not a child, precisely so the row can be one control.
+      //
+      // role="option" is kept, so the combobox contract with the input above is
+      // unchanged; wire() still opens the in-app file on a plain click and now
+      // leaves a ⌘-click to the browser. What is new is that the address is in the
+      // markup: a reader can open a search result in a new tab, and a crawler that
+      // reaches this panel can walk from a name to /p/<pid>.
+      return rowOpen(e.id, 'pdx-eye-item', 'data-i="' + idx + '" data-kind="pol" data-id="' + esc(e.id) + '"') +
         thumb +
         '<span class="pdx-eye-body"><span class="pdx-eye-name">' + highlight(e.title, q, terms) + '</span>' +
         (e.sub ? '<span class="pdx-eye-sub">' + esc(e.sub) + '</span>' : '') + '</span>' +
-        personalBadge(e) + receipt + tag + '</button>';
+        personalBadge(e) + receipt + tag + rowClose(e.id);
     }
     // Which single sub-issue (an ISSUE_MAP key) the current query is really about,
     // if any — so "housing" reaches housing instead of the whole economy bundle.
@@ -1198,11 +1232,14 @@
         : '<span class="pdx-eye-thumb">' + esc(e.icon) + '</span>';
       var src = e.sourceLabel ? '<span class="pdx-eye-tag pdx-eye-tag--src">' + esc(e.sourceLabel) + '</span>' : '';
       var sub = posPill(e.pos) + esc(e.polName) + (e.polSub ? ' · ' + esc(e.polSub) : '') + (e.pledge ? ' · pledge' : '');
-      return '<button type="button" role="option" class="pdx-eye-item" data-i="' + idx + '" data-kind="pol" data-id="' + esc(e.id) + '">' +
+      // Same treatment as a person row, and for the same reason: this row's click
+      // already opened e.id's person file, so the address it opens is the address
+      // it should advertise.
+      return rowOpen(e.id, 'pdx-eye-item', 'data-i="' + idx + '" data-kind="pol" data-id="' + esc(e.id) + '"') +
         thumb +
         '<span class="pdx-eye-body"><span class="pdx-eye-name">' + highlight(e.title, q, terms) + '</span>' +
         '<span class="pdx-eye-sub">' + sub + '</span></span>' +
-        personalBadge(e) + src + '</button>';
+        personalBadge(e) + src + rowClose(e.id);
     }
     // Wrap one rendered row so its related hints and its action strip live in a
     // single focus/hover container — this is what lets the eye reveal the action
@@ -1971,8 +2008,22 @@
         res.addEventListener('mouseenter', function () { setActive(i); });
         var item = res.querySelector('.pdx-eye-item');
         if (item) {
-          item.addEventListener('mousedown', function (ev) { ev.preventDefault(); }); // keep input focus
-          item.addEventListener('click', function () { activateEntry(flat[i]); });
+          // Keep input focus — but only for the primary button, so a middle click
+          // is left intact for the browser to open in a new tab.
+          item.addEventListener('mousedown', function (ev) {
+            if (typeof ev.button !== 'number' || ev.button === 0) ev.preventDefault();
+          });
+          item.addEventListener('click', function (ev) {
+            // A person row is now an <a href="/p/<pid>">. A ⌘/Ctrl/Shift-click or a
+            // middle click is the reader asking the browser for a new tab: the eye
+            // stays open, nothing is activated, and the href does the work. A plain
+            // click is the eye's, and preventing the default here is what tells
+            // person-link.js's delegated listener that this one is already handled.
+            var PL = window.PDXPersonLink;
+            if (PL && typeof PL.isBrowserNav === 'function' && PL.isBrowserNav(ev)) return;
+            if (ev && typeof ev.preventDefault === 'function') ev.preventDefault();
+            activateEntry(flat[i]);
+          });
         }
         res.querySelectorAll('.pdx-eye-act').forEach(function (btn) {
           btn.addEventListener('mousedown', function (ev) { ev.preventDefault(); });

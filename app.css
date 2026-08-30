@@ -4255,6 +4255,11 @@
       font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.08em;
       color: white; line-height: 1.15;
     }
+    /* The column head's name is a real <a href="/p/<pid>"> (compare-table.js
+       _cmpNameLink). It keeps the cell's own colour and takes an underline only on
+       hover/focus, so a header row of names does not read as a row of links. */
+    .cmp-col-namelink { color: inherit; text-decoration: none; }
+    .cmp-col-namelink:hover, .cmp-col-namelink:focus-visible { text-decoration: underline; }
     .cmp-col-office {
       font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem;
       letter-spacing: 0.08em; text-transform: uppercase; color: #7596c0;

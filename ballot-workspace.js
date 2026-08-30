@@ -92,6 +92,33 @@
     return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
   }
   function fn(n) { return typeof window[n] === 'function'; }
+
+  // ── A candidate name is the address of that candidate's record ────────────
+  // Every name on this workspace opens one politician's formal file, and that
+  // file has a URL of its own (/p/<canonicalPid>). Painted as a <button> the URL
+  // lived only inside the handler: nothing to middle-click, nothing to open in a
+  // new tab while you keep your ballot on screen, and nothing for a crawler to
+  // follow. So the name is a real link, and person-link.js decides both which
+  // pid is the advertised one (a retired alias resolves to the record it was
+  // folded into) and who owns the click. The pick button stays a <button> and
+  // stays OUTSIDE the link — a control inside a link is neither.
+  //
+  // No PDXPersonLink means the previous button, unchanged.
+  function candOpen(pid, extra) {
+    var PL = window.PDXPersonLink;
+    var a = (PL && typeof PL.attrs === 'function') ? PL.attrs(pid) : '';
+    if (!a) {
+      return '<button type="button" class="bw-cand-name"' +
+        ' onclick="if(window.showProfile)window.showProfile(\'' + jsq(pid) + '\')"' +
+        (extra || '') + '>';
+    }
+    return '<a class="bw-cand-name" ' + a + (extra || '') + '>';
+  }
+  function candClose(pid) {
+    var PL = window.PDXPersonLink;
+    var a = (PL && typeof PL.attrs === 'function') ? PL.attrs(pid) : '';
+    return a ? '</a>' : '</button>';
+  }
   function rs() {
     var r = window.PDXRaceSheet;
     return (r && typeof r._field === 'function') ? r : null;
@@ -251,9 +278,9 @@
     var named = hold.filter(function (lv) { return lv.pid && personOf(lv.pid); });
     if (named.length) {
       var who = named.map(function (lv) {
-        return '<b><button type="button" class="bw-cand-name" style="font-size:0.8rem;"' +
-          ' onclick="if(window.showProfile)window.showProfile(\'' + jsq(lv.pid) + '\')"' +
-          ' aria-label="Open ' + esc(nameOf(lv.pid)) + '’s full record">' + esc(nameOf(lv.pid)) + '</button></b>';
+        return '<b>' + candOpen(lv.pid, ' style="font-size:0.8rem;"' +
+          ' aria-label="Open ' + esc(nameOf(lv.pid)) + '’s full record"') +
+          esc(nameOf(lv.pid)) + candClose(lv.pid) + '</b>';
       }).join(' · ');
       return '<span class="bw-fact"><span aria-hidden="true">\u{1F3DB}</span>' +
         '<span>Holds this seat now: ' + who + '</span></span>';
@@ -424,9 +451,8 @@
     return '<li class="bw-cand' + (mine ? ' is-mine' : '') + (banded ? ' is-gap' : '') + '">' +
       head +
       '<span class="bw-cand-who">' +
-        '<button type="button" class="bw-cand-name"' +
-          ' onclick="if(window.showProfile)window.showProfile(\'' + jsq(c.pid) + '\')"' +
-          ' aria-label="Open ' + esc(c.name) + '’s full record">' + esc(c.name) + '</button>' +
+        candOpen(c.pid, ' aria-label="Open ' + esc(c.name) + '’s full record"') +
+          esc(c.name) + candClose(c.pid) +
         (tags ? '<span class="bw-cand-tags">' + tags + '</span>' : '') +
         gapWord +
         dmLine(c) +

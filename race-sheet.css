@@ -284,6 +284,12 @@
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .rs-name:hover { color: #93c5fd; text-decoration: underline; }
+/* The name is a real <a href="/p/<pid>"> (race-sheet.js personOpen), so it needs
+   the link colour and underline off — it already reads as the card's heading and
+   takes an underline on hover like it always did. display:block keeps the
+   ellipsis truncation that the old <button> got for free. */
+a.rs-name { display: block; text-decoration: none; }
+a.rs-name:hover, a.rs-name:focus-visible { color: #93c5fd; text-decoration: underline; }
 .rs-inc {
   font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem;
   letter-spacing: 0.06em; text-transform: uppercase; color: #fbbf24;
@@ -838,6 +844,14 @@
   font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem;
   color: #bfdbfe; background: rgba(96, 165, 250, 0.1);
   border: 1px solid rgba(96, 165, 250, 0.3); cursor: pointer;
+}
+/* Both of these are links now, not buttons (race-sheet.js personOpen). An
+   anchor is inline, so it ignores min-height and centres nothing: inline-flex
+   restores the 44px target and the vertical centring the <button> had, and
+   text-decoration:none keeps a pill from also being underlined. */
+a.rs-ovprof, a.rs-onlyone-b {
+  display: inline-flex; align-items: center; justify-content: center;
+  box-sizing: border-box; text-decoration: none;
 }
 
 @media (min-width: 700px) {

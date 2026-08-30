@@ -147,10 +147,33 @@
       ? '<span class="wrm-avatar" style="border-color:' + color + ';"><img src="' + esc(photo) + '" alt="" loading="lazy"></span>'
       : '<span class="wrm-avatar wrm-avatar--empty" style="border-color:' + color + '99;" aria-hidden="true">🏛</span>';
 
-    return '<div class="wrm-row" role="button" tabindex="0" data-rk="' + esc(rkOf(lv)) + '" style="border-left-color:' + color + ';"' +
-        ' onclick="' + go + '"' +
-        ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();' + go + '}"' +
-        ' title="See ' + esc(person.name) + '&rsquo;s full record">' +
+    // THE WHOLE ROW IS THE LINK, and that is safe here in a way it is not on the
+    // homepage card: this row has never contained an interactive element. The
+    // "Compare field for this seat" control is a deliberate SIBLING of the row
+    // rather than a child, for exactly the nesting reason documented under
+    // seatCompare() below — which is what now lets the row become an <a> instead
+    // of a role="button" div carrying two hand-rolled event attributes.
+    //
+    // What the reader gains: the seat row can be middle-clicked, opened in a new
+    // tab, and copied as an address; the address of their own representative's
+    // record is in the page rather than inside an onclick. What they keep: a plain
+    // click still opens the in-app file, now through person-link.js's delegated
+    // listener, and Enter works because it is a link rather than because of an
+    // onkeydown handler that had to reimplement it.
+    //
+    // Falls back to the previous role="button" markup when person-link.js has not
+    // loaded, so a seat row is never left without a way to open.
+    var PL = window.PDXPersonLink;
+    var plAttrs = (PL && typeof PL.attrs === 'function') ? PL.attrs(lv.pid) : '';
+    var rowOpen = plAttrs
+      ? '<a class="wrm-row" ' + plAttrs + ' data-rk="' + esc(rkOf(lv)) + '" style="border-left-color:' + color + ';"' +
+          ' title="See ' + esc(person.name) + '&rsquo;s full record">'
+      : '<div class="wrm-row" role="button" tabindex="0" data-rk="' + esc(rkOf(lv)) + '" style="border-left-color:' + color + ';"' +
+          ' onclick="' + go + '"' +
+          ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();' + go + '}"' +
+          ' title="See ' + esc(person.name) + '&rsquo;s full record">';
+
+    return rowOpen +
       avatar +
       '<span class="wrm-rowtext">' +
         '<span class="wrm-rowlevel" style="color:' + color + ';">' + esc(lv.distLabel) + '</span>' +
@@ -158,7 +181,7 @@
         '<span class="wrm-rowsub">' + esc(person.office || lv.tierLabel) + '</span>' +
       '</span>' +
       '<span class="wrm-rowgo" style="color:' + color + ';">See their record ›</span>' +
-    '</div>' + seatCompare(lv);
+    (plAttrs ? '</a>' : '</div>') + seatCompare(lv);
   }
 
   // ── "Compare field for this seat" ──────────────────────────────────────────

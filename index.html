@@ -2541,6 +2541,28 @@ window.PDXLazy = (function () {
       margin: 0; text-transform: none; letter-spacing: -.01em;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
+    /* The name inside the heading is a real anchor to /p/<pid> (person-link.js),
+       so it needs the heading's own colour rather than the document's link colour.
+       Underlined only on hover/focus: the whole card is already the affordance, and
+       a permanently underlined name would read as the one link on a card where
+       everything is tappable. */
+    .pdx-hs-name a { color: inherit; text-decoration: none; }
+    .pdx-hs-name a:hover, .pdx-hs-name a:focus-visible { text-decoration: underline; }
+    /* The static record strip under the slot (generated — see the block beside
+       #hero-showcase). Muted and small: it is a doorway list, not a headline, and
+       it sits beneath a card that is already the loud thing on the page. The
+       anchors are underlined only on hover so eighteen names do not read as a
+       ransom note of links. */
+    .pdx-hs-crawl {
+      display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem .5rem;
+      margin: -.25rem 0 1.25rem; padding: 0 .5rem;
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: .74rem; line-height: 1.35;
+    }
+    .pdx-hs-crawl-l { color: #64748b; letter-spacing: .04em; text-transform: uppercase; }
+    .pdx-hs-crawl-a { color: #94a3b8; text-decoration: none; }
+    .pdx-hs-crawl-a:hover, .pdx-hs-crawl-a:focus-visible { color: #bfdbfe; text-decoration: underline; }
+    @media (min-width: 640px) { .pdx-hs-crawl { padding: 0; } }
     .pdx-hs-office {
       font-family: 'Barlow Condensed', system-ui, sans-serif;
       font-size: .72rem; letter-spacing: .04em; color: #94a3b8;
@@ -3591,6 +3613,11 @@ window.PDXLazy = (function () {
       .pdx-eye-cat-h .pdx-eye-cat-dot{width:0.4rem;height:0.4rem;border-radius:9999px;flex-shrink:0;}
       .pdx-eye-cat-h .pdx-eye-cat-n{margin-left:auto;font-size:0.66rem;letter-spacing:0.08em;color:#64748b;}
       .pdx-eye-item{display:flex;align-items:center;gap:0.7rem;width:100%;text-align:left;padding:0.5rem 0.6rem;border-radius:0.7rem;background:none;border:none;cursor:pointer;transition:background .13s ease;}
+      /* A person result row is an anchor to /p/<pid> rather than a <button>
+         (all-seeing-eye.js rowOpen). Same box, same states — the row must not pick
+         up the document's link colour or an underline, because it is a row, not a
+         sentence with a link in it. */
+      a.pdx-eye-item{color:inherit;text-decoration:none;box-sizing:border-box;}
       .pdx-eye-item:hover,.pdx-eye-item.is-active{background:rgba(59,130,246,0.12);}
       .pdx-eye-item.is-active{box-shadow:inset 0 0 0 1px rgba(245,200,66,0.35);}
       .pdx-eye-thumb{flex-shrink:0;width:2.35rem;height:2.35rem;border-radius:9999px;overflow:hidden;background:linear-gradient(135deg,rgba(30,53,96,0.7),rgba(10,15,30,0.85));border:1.5px solid rgba(148,163,184,0.28);display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
@@ -4580,6 +4607,53 @@ window.PDXLazy = (function () {
          cannot ship. -->
     <div id="hero-showcase" class="mb-6 px-2 sm:px-0" hidden></div>
 
+    <!-- ── THE SAME PEOPLE, AS REAL LINKS ─────────────────────────────────────
+         The slot above is empty in the served markup and filled by JavaScript, so
+         until this strip existed the homepage NAMED nobody and LINKED nowhere. A
+         reader with JavaScript off got a blank space, "open in new tab" on a card
+         did nothing, and a crawler reading / had no way to discover that
+         /p/lee is a document — the sitemap was the only path in, which is why the
+         person files were being seen as one page.
+
+         So: one line of real anchors to /p/<canonicalPid>, generated from the very
+         same seed the cards rotate through (scripts/gen-hero-showcase.mjs writes
+         both, and scripts/test-person-links.mjs fails if they disagree). Nobody is
+         named here who is not in the rotation, and nobody in the rotation is
+         missing. The href is the canonical address — a retired alias resolves to
+         the record it was folded into, because publishing both addresses for one
+         officeholder is the defect the /p/ arrival path was fixed to prevent.
+
+         Visible on purpose. A hidden pile of links is a different thing with a
+         worse name, and with JavaScript off this strip is the only door into a
+         record from this page. It does not double the cards: the cards are
+         portraits carrying a live read, this is a muted line of text. Clicking it
+         with JavaScript on opens the in-app file exactly like a card does —
+         person-link.js takes the plain click and leaves ⌘/middle-click to the
+         browser, which is the whole reason the address is in the markup. -->
+    <!-- pdx:hero-crawl:begin -->
+    <p class="pdx-hs-crawl">
+      <span class="pdx-hs-crawl-l">Read a record:</span>
+      <a class="pdx-hs-crawl-a" href="/p/trump" data-pdx-person-link="trump">Donald Trump</a>
+      <a class="pdx-hs-crawl-a" href="/p/bennie_thompson" data-pdx-person-link="bennie_thompson">Bennie Thompson</a>
+      <a class="pdx-hs-crawl-a" href="/p/lee" data-pdx-person-link="lee">Mike Lee</a>
+      <a class="pdx-hs-crawl-a" href="/p/jayapal" data-pdx-person-link="jayapal">Pramila Jayapal</a>
+      <a class="pdx-hs-crawl-a" href="/p/scalise" data-pdx-person-link="scalise">Steve Scalise</a>
+      <a class="pdx-hs-crawl-a" href="/p/khanna" data-pdx-person-link="khanna">Ro Khanna</a>
+      <a class="pdx-hs-crawl-a" href="/p/jim_jordan" data-pdx-person-link="jim_jordan">Jim Jordan</a>
+      <a class="pdx-hs-crawl-a" href="/p/blouin_s13" data-pdx-person-link="blouin_s13">Nate Blouin</a>
+      <a class="pdx-hs-crawl-a" href="/p/mike_flood" data-pdx-person-link="mike_flood">Mike Flood</a>
+      <a class="pdx-hs-crawl-a" href="/p/verona_mauga" data-pdx-person-link="verona_mauga">Verona Mauga</a>
+      <a class="pdx-hs-crawl-a" href="/p/steve_womack" data-pdx-person-link="steve_womack">Steve Womack</a>
+      <a class="pdx-hs-crawl-a" href="/p/kclark" data-pdx-person-link="kclark">Katherine Clark</a>
+      <a class="pdx-hs-crawl-a" href="/p/massie" data-pdx-person-link="massie">Thomas Massie</a>
+      <a class="pdx-hs-crawl-a" href="/p/don_davis" data-pdx-person-link="don_davis">Don Davis</a>
+      <a class="pdx-hs-crawl-a" href="/p/boebert" data-pdx-person-link="boebert">Lauren Boebert</a>
+      <a class="pdx-hs-crawl-a" href="/p/aoc" data-pdx-person-link="aoc">Alexandria Ocasio-Cortez</a>
+      <a class="pdx-hs-crawl-a" href="/p/cox" data-pdx-person-link="cox">Spencer Cox</a>
+      <a class="pdx-hs-crawl-a" href="/p/tlaib" data-pdx-person-link="tlaib">Rashida Tlaib</a>
+    </p>
+    <!-- pdx:hero-crawl:end -->
+
     <!-- ── THE TWO DOORS, RANKED FOR A COLD START ──────────────────────────
          The hero had no call to action at all: the old START / BALLOT / TOUR
          cluster was deleted for being a five-button pile-up, and nothing replaced
@@ -4781,6 +4855,16 @@ window.PDXLazy = (function () {
        pulled here; the read arrives later, off the critical path. The budget is
        enforced by scripts/test-hero-showcase.mjs. Placed after </section> so the
        whole hero above them streams and lays out first. -->
+  <!-- 🔗 The person LINK primitive. Parser-blocking and placed ahead of the hero
+       renderer because it is what every surface that names a politician uses to
+       build href="/p/<canonicalPid>" — the homepage card, the All-Seeing Eye rows,
+       the Who-Represents-Me seats, the compare column heads, the race-sheet field
+       and the ballot workspace. ~2 KB gzipped, no dependencies of its own (it
+       reads PDXProfilePid and PDXPerson lazily, at call time), and it owns the one
+       delegated click listener that keeps ⌘-click and middle-click with the
+       browser while a plain click still opens the in-app file. See person-link.js
+       and scripts/test-person-links.mjs. -->
+  <script src="/person-link.js"></script>
   <script src="/hero-showcase-data.js"></script>
   <script src="/hero-showcase.js"></script>
 
@@ -5041,6 +5125,10 @@ window.PDXLazy = (function () {
         cursor:pointer;min-height:56px;transition:background .15s ease,transform .15s ease;}
       .wrm-row:hover{background:rgba(10,15,30,0.72);transform:translateX(1px);}
       .wrm-row:focus-visible{outline:2px solid #f5c842;outline-offset:2px;}
+      /* A resolved seat row is an anchor to /p/<pid> (who-represents-me.js), so it
+         must not inherit the document's link colour or an underline — the row's own
+         spans already own every colour in it. */
+      a.wrm-row{color:inherit;text-decoration:none;box-sizing:border-box;}
       .wrm-row--unresolved{cursor:default;opacity:0.8;}
       .wrm-row--unresolved:hover{background:rgba(10,15,30,0.45);transform:none;}
       /* The landing mark for a shared race link whose sheet could not mount.
