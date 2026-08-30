@@ -117,10 +117,13 @@ export async function mappingVersion(): Promise<string> {
     if (row && row.h) value = `m${Number(row.n) || 0}-${String(row.h).slice(0, 12)}`;
   } catch {
     // FAIL CLOSED, NOT SILENT. A version we could not compute must not collapse
-    // onto a version we could: MAPPING_VERSION_UNKNOWN is its own key, so a pack
-    // built while the mapping table was unreadable can never be served as though
-    // it were a pack of a known mapping. It also expires from the memo in seconds,
-    // so the next read tries again.
+    // onto a version we could, so the unknown case gets its own sentinel — and the
+    // sentinel is not merely a separate key, it is an UNCACHEABLE one: getCachedPack
+    // refuses to read under it and writeMemberPack refuses to write under it, so a
+    // window in which the mapping table is unreadable can never leave a blob behind
+    // and can never be answered from one. Every request in such a window rebuilds.
+    // The sentinel also expires from the memo in seconds, so the next read tries
+    // the real fingerprint again.
     value = MAPPING_VERSION_UNKNOWN;
   }
   _mvMemo = { at: now, value };
@@ -384,6 +387,14 @@ export async function buildMemberPack(politicianId: string) {
 // without saying which mapping version it wants is the bug this parameter exists
 // to make unwritable.
 export async function getCachedPack(politicianId: string, mv: string): Promise<any | null> {
+  // FAIL CLOSED ON AN UNREADABLE MAPPING. If mappingVersion() could not reach
+  // vr_measure_issues it returns MAPPING_VERSION_UNKNOWN, which is a legal key
+  // segment but not a statement about any mapping. Reading under it is refused
+  // outright rather than allowed to hit, because a hit would serve a pack whose
+  // mapping nobody can name — the unversioned blob this whole key scheme exists
+  // to make unreachable — and would keep serving it for a full PACK_TTL_MS.
+  // A miss costs a rebuild, which is the cheap half of that trade.
+  if (mv === MAPPING_VERSION_UNKNOWN) return null;
   try {
     const store = getStore(PACK_STORE);
     return (await store.get(packKey(politicianId, mv), { type: "json" })) as any;
@@ -407,10 +418,20 @@ export async function writeMemberPack(
   const version = mv ?? (await mappingVersion());
   const built = pack ?? (await buildMemberPack(politicianId));
   const finalPack = { ...built, mappingVersion: version };
-  try {
-    await getStore(PACK_STORE).setJSON(packKey(politicianId, version), finalPack);
-  } catch {
-    /* serve/return fresh even if the blob write fails */
+  // THE OTHER HALF OF FAILING CLOSED — the write, not just the read. A pack built
+  // while the mapping table was unreadable is not merely of an unknown mapping:
+  // buildMemberPack reads that same table for its issue tags, so the thing built
+  // in that window may carry no mapping at all. It is fine to SERVE (the caller
+  // asked, and the roll calls in it are real) and never fine to KEEP, so it is
+  // returned and not persisted. Nothing is deleted to achieve that: the
+  // known-version blobs already in the store stay exactly as they are, and stay
+  // the offline fallback.
+  if (version !== MAPPING_VERSION_UNKNOWN) {
+    try {
+      await getStore(PACK_STORE).setJSON(packKey(politicianId, version), finalPack);
+    } catch {
+      /* serve/return fresh even if the blob write fails */
+    }
   }
   return finalPack;
 }

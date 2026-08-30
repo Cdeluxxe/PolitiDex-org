@@ -31,10 +31,16 @@
     10. Wiring: script tag, precache, load order
     11. Rollups resolve to a declared parent colour
     12. The Digital Library renders the same colour as the bill and the issue page
+    13. The formal-record brief's pattern rows render the same colour
    ═══════════════════════════════════════════════════════════════════════════ */
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+// Section 13 renders the real brief rather than reading its source, so it needs
+// the shared DOM stub every other engine test boots against and the roll-call
+// corpus that gives a member file a characterised record to list.
+import { makeSandbox } from './gen-hero-showcase.mjs';
+import { buildCorpus } from './vr-record-corpus.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
@@ -488,6 +494,9 @@ const SOFT = {
   // The Word vs Action row must keep BOTH vocabularies: issue on the spine,
   // verdict on the label. Losing the verdict colour would be a real regression.
   const WA = read('word-action.js');
+  // The pattern chip's tone table lives in consistency.js; read once here so the
+  // brief-row checks below and the Official Record checks further down share it.
+  const CJS_FOR_TONE = read('consistency.js');
   ok(/pdxwa-row-verdict" style="color:' \+ col/.test(WA),
     'the verdict must keep its own colour on the row label');
   const WACSS = read('word-action.css');
@@ -508,6 +517,53 @@ const SOFT = {
   ok(/pdxwa-ic/.test(WA), 'word-action.js must mark resolved rows with .pdxwa-ic');
   ok(/\.pdxwa-row\.pdxwa-ic/.test(WACSS), 'word-action.css must give .pdxwa-ic its own stronger treatment');
   ok(/var\(--pdx-ic-wash/.test(WACSS), 'the row tint must use the wash token, not the chip-strength soft token');
+
+  // ── The formal-record brief's pattern rows ────────────────────────────────
+  // The letterhead's "Strongest patterns" / "Ran both ways" rows and the
+  // below-gate brief's are ONE renderer (shapeRowHtml), and they were the last
+  // rows in the product that named an issue and then painted it house grey. They
+  // take the tint as `[data-ic]` + inline properties rather than as a class, for
+  // the reason documented over issueTintAttr(): their opening tag is matched
+  // verbatim by the harnesses that slice rows out of a rendered mount.
+  ok(/function issueTintAttr\(/.test(WA),
+    'word-action.js must publish the attribute spelling of the issue skin for its brief rows');
+  ok(/issueTintAttr\(key\)/.test(WA),
+    'the brief pattern row must ask for its issue tint — an unthemed row is the reported defect');
+  // Built on the ONE guard, not a second read of the module. A private copy would
+  // be a second place for the fallback to drift.
+  const tintFn = /function issueTintAttr\(key\) \{[\s\S]*?\n  \}/.exec(WA);
+  must(tintFn, 'issueTintAttr() is gone or reshaped — this harness is testing nothing');
+  ok(/issueSkin\(key\)/.test(tintFn[0]),
+    'issueTintAttr() must go through issueSkin() rather than reading PDXIssueColors again');
+  ok(/!skin\.on/.test(tintFn[0]),
+    'issueTintAttr() must emit nothing for a key that did not resolve — a neutral row says so by ' +
+    'omission, or an unresolved row and a deliberately slate one become indistinguishable');
+  const railRule = /\.pdxwa-shape-row\[data-ic\] \{[^}]*\}/.exec(WACSS);
+  must(railRule, 'the .pdxwa-shape-row[data-ic] rule is gone — the brief rows would render unthemed again');
+  ok(/border-left: \d+px solid var\(--pdx-ic\)/.test(railRule[0]),
+    'a brief pattern row must take the issue colour on its left rail');
+  ok(/var\(--pdx-ic-wash/.test(railRule[0]),
+    'the brief row tint must use the wash token — the note over .pdxwa-row explains why soft is not enough');
+  ok(!/var\(--pdxwa-col/.test(railRule[0]),
+    'the verdict colour must never be a fallback for a brief row rail, any more than for the card row');
+  // Two vocabularies. The tier chip is the DIRECTION and keeps _stPatternHtml()'s
+  // own green / red / amber; the ⓘ is the glossary and paints itself. Neither may
+  // start consuming the issue property — a verdict recoloured by its issue stops
+  // being a verdict, and a key control tinted by the key it defines reads as a
+  // state of that issue.
+  const chipTone = /_ST_PAT_TONE = \{[\s\S]*?\n  \};/.exec(CJS_FOR_TONE);
+  must(chipTone, 'the pattern chip tone table is gone — the verdict vocabulary cannot be checked');
+  ok(!/--pdx-ic/.test(chipTone[0]),
+    'the pattern chip must keep its own direction colours and never read the issue property');
+  ok(/#(4ade80|22c55e|86efac|f87171|f5c842)/i.test(chipTone[0]),
+    'the pattern chip tone table must still carry its own green / red / amber');
+  const SCOPE = read('issue-scope.js');
+  ok(/pdxis-key/.test(SCOPE) && !/--pdx-ic/.test(SCOPE),
+    'the ⓘ key control is the glossary, not a colour — issue-scope.js must not read the issue property');
+  // Comments stripped: the reasoning above the rail rule names .pdxis-key in prose,
+  // and a probe that reads a comment as a declaration proves nothing.
+  ok(!/\.pdxis-key[^{]*\{[^}]*--pdx-ic/.test(WACSS.replace(/\/\*[\s\S]*?\*\//g, '')),
+    'word-action.css must not tint the ⓘ from the row it sits in');
 
   // consistency.js: same contract, its own class. The Official Record row is a
   // <details>, so its open state needs the colour too or the row loses its
@@ -799,6 +855,147 @@ const SOFT = {
   must(statusRule, 'the .dlib-bill-status rule is gone');
   ok(!/--pdx-ic/.test(statusRule[0]), 'a status badge must never take an issue colour');
   ok(/PASSED HOUSE|passed_house/.test(DLS), 'the status vocabulary must still exist to be kept separate from');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 13. The formal-record brief's pattern rows render the same colour
+// ═════════════════════════════════════════════════════════════════════════════
+// Section 9 checks that the renderer asks and the stylesheet consumes. This is the
+// acceptance test for the reported defect, run rather than reasoned about: boot the
+// real engine, paint the letterhead and the below-gate brief for an executive file
+// and a deep member file, and read the hexes back off the markup. A row that names
+// an issue must carry that issue's published colour — the same one /issue/<key>,
+// the Digital Library filter and that topic's chip on a bill letterhead take.
+//
+// BOTH MOUNTS, BECAUSE THEY ARE ONE RENDERER AND HAVE DRIFTED BEFORE. The
+// letterhead and the brief go through shapeRowHtml(); rendering both is what stops
+// a future change from theming one and leaving the other grey.
+{
+  const win = makeSandbox();
+  const ctx = vm.createContext(win);
+  // issue-colors.js and its taxonomy source, then the record engines. This is the
+  // shipped order from index.html for the files that matter here: issue-colors.js
+  // is deferred well before word-action.js paints.
+  const FILES = [
+    'cmp-data.js', 'politician-stances-core.js', 'politician-stances-ext.js',
+    'state-senate-stances.js', 'stance-helpers.js', 'alignment-tool.js',
+    'issue-colors.js', 'issue-scope.js', 'acct-spotlight-data.js', 'say-vs-do.js',
+    'exec-action-data.js', 'exec-record.js', 'exec-record-ui.js',
+    'consistency.js', 'voting-record.js', 'word-action.js'
+  ];
+  for (const f of FILES) vm.runInContext(read(f), ctx, { filename: f });
+  must(win.PDXIssueColors && win.PDXWordAction && typeof win.PDXWordAction.heroHtml === 'function',
+    'the engine did not come up — the brief cannot be rendered to read colours off it');
+  // Roll calls, so the member file has a characterised record to list rows for.
+  const corpus = buildCorpus(ROOT);
+  must(corpus && corpus.byMember && corpus.byMember.size > 0,
+    'the roll-call corpus is empty — the member letterhead would have no rows to colour');
+  for (const [pid, items] of corpus.byMember) {
+    try { win.PDXVotingRecord.noteMember(pid, items); } catch (e) {}
+  }
+
+  // Every rendered row, as (issue key, the hex on its rail, was it tinted at all).
+  // Sliced whole rather than read off the opening tag alone: the row's issue key is
+  // carried by the door's `data-pdxst-dos`, which is the identifier the dossier
+  // gateway itself dispatches on, so the key under test is the product's own and not
+  // one this file reconstructs out of an id.
+  const ROW_RE = /<li class="pdxwa-shape-row"([^>]*)>/g;
+  const rowsOf = (html) => {
+    const src = html || '';
+    const out = [];
+    let m;
+    ROW_RE.lastIndex = 0;
+    while ((m = ROW_RE.exec(src))) {
+      const attrs = m[1];
+      const end = src.indexOf('</li>', ROW_RE.lastIndex);
+      const inner = end === -1 ? src.slice(ROW_RE.lastIndex) : src.slice(ROW_RE.lastIndex, end);
+      out.push({
+        key: ((/data-pdxst-dos="([^"]*)"/.exec(inner) || [])[1] || ''),
+        hex: ((/--pdx-ic:\s*([^;"]+)/.exec(attrs) || [])[1] || '').trim(),
+        tinted: /data-ic="on"/.test(attrs)
+      });
+    }
+    return out;
+  };
+
+  const EXEC = 'trump';
+  const MEMBER = 'lee';
+  const mounts = [];
+  for (const pid of [EXEC, MEMBER]) {
+    const hero = win.PDXWordAction.heroHtml(pid, win.PDXWordAction.read(pid), {}) || '';
+    const brief = win.PDXWordAction.briefHtml(pid) || '';
+    mounts.push([pid + ' letterhead', rowsOf(hero)], [pid + ' brief', rowsOf(brief)]);
+  }
+  mounts.forEach(([name, rows]) => {
+    must(rows.length >= 2,
+      `the ${name} rendered fewer than two pattern rows — there is nothing here to colour`);
+    rows.forEach((r) => {
+      // A row with no pid/key pair renders as an inert labelled fact with no door —
+      // see shapeRowHtml's fail-closed note. There is no issue to colour it by.
+      if (!r.key) return;
+      const want = win.PDXIssueColors.getIssueColor(r.key);
+      // A key outside the core set is the one honest reason for a bare row, and
+      // it must be bare rather than neutral-slate-by-property: see issueTintAttr.
+      if (!want.mapped) {
+        ok(!r.tinted && !r.hex,
+          `${name}: ${r.key} is not a core issue and must carry no issue colour at all, ` +
+          `not a slate one that looks deliberate`);
+        return;
+      }
+      ok(r.tinted, `${name}: the ${r.key} row is unthemed — this is the reported defect`);
+      eq(r.hex, want.color,
+        `${name}: the ${r.key} row does not carry that issue's published colour`);
+    });
+  });
+
+  // ── The acceptance, named ────────────────────────────────────────────────────
+  const execRows = mounts.find(([n]) => n === EXEC + ' letterhead')[1];
+  const hexFor = (k) => (execRows.find((r) => r.key === k) || {}).hex || '';
+  const border = execRows.find((r) => /border|immig|deport/.test(r.key));
+  const energy = execRows.find((r) => /energy|climate|enviro/.test(r.key));
+  must(border && energy,
+    `the ${EXEC} letterhead no longer lists a border row and an energy row — the acceptance case is gone`);
+  ok(border.hex && energy.hex && border.hex !== energy.hex,
+    `the ${EXEC} letterhead's border and energy rows must be visually distinct by issue colour ` +
+    `(got ${border.hex} and ${energy.hex})`);
+  // Two rows of the SAME core issue are the same colour on purpose — that is the
+  // palette's whole contract — so distinctness is asserted across core issues and
+  // sameness within one, or the next change "fixes" a working row.
+  const sameCore = execRows.filter((r) =>
+    win.PDXIssueColors.coreKeyFor(r.key) === win.PDXIssueColors.coreKeyFor(energy.key) && r.hex);
+  if (sameCore.length > 1) {
+    ok(sameCore.every((r) => r.hex === sameCore[0].hex),
+      'two rows rolling up to one core issue must share its colour — a per-row hue would make the ' +
+      'palette decoration');
+  }
+  // The named member keys from the acceptance: whatever mount they land on, they
+  // take the colour their issue page takes. gun_safety rides in the guns bundle;
+  // housing rides in economy_cost_of_living, which is the orange /issue/housing is.
+  eq(win.PDXIssueColors.getIssueColor('housing').color,
+    win.PDXIssueColors.CORE_ISSUE_COLORS.economy_cost_of_living.color,
+    'housing must take the economy amber /issue/housing renders in');
+  eq(win.PDXIssueColors.getIssueColor('gun_safety').color,
+    win.PDXIssueColors.CORE_ISSUE_COLORS.guns.color,
+    'gun_safety must take the guns colour');
+  const memberRows = mounts.find(([n]) => n === MEMBER + ' letterhead')[1];
+  ok(memberRows.every((r) => r.tinted || !win.PDXIssueColors.isCore(r.key)),
+    `every core-issue row on the ${MEMBER} letterhead must be themed`);
+  // /p/lee unchanged in every other respect is covered by test-record-top.mjs;
+  // here the point is only that the member lane got the treatment too rather than
+  // it landing on the executive letterhead alone.
+  ok(memberRows.some((r) => r.tinted), `the ${MEMBER} letterhead took no issue colour at all`);
+
+  // The ⓘ and the tier chips came through untinted — checked on the rendered
+  // markup, not just the source, because a stray inherited property is a thing you
+  // only see in output.
+  const rendered = win.PDXWordAction.heroHtml(EXEC, win.PDXWordAction.read(EXEC), {}) || '';
+  const infos = rendered.match(/<button[^>]*class="pdxis-key"[^>]*>/g) || [];
+  must(infos.length > 0, 'the letterhead rendered no ⓘ controls — the glossary check is vacuous');
+  ok(!infos.some((b) => /--pdx-ic/.test(b)), 'the ⓘ must carry no issue colour of its own');
+  const chipStyles = rendered.match(/<span class="pdxst-pat[^"]*" style="([^"]*)"/g) || [];
+  must(chipStyles.length > 0, 'the letterhead rendered no tier chips — the verdict check is vacuous');
+  ok(!chipStyles.some((c) => /--pdx-ic/.test(c)),
+    'a verdict chip must keep its own direction colour and never read the issue property');
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

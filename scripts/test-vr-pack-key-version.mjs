@@ -215,6 +215,25 @@ const sample = liveVersion || "m825-1beb2b0fb077";
 ok(PACK_VERSION_RE.test(sample), `the router accepts a real version segment (${sample})`);
 ok(PACK_VERSION_RE.test(sentinel),
   `the unknown-version sentinel "${sentinel}" must be a legal segment, or a DB blip 404s instead of serving a pack`);
+
+// ── AND THE SENTINEL IS AN UNCACHEABLE KEY ─────────────────────────────────
+// Legal to route is not the same as safe to store under. A version that could not
+// be read names no mapping, so a blob under it is precisely the unversioned blob
+// this whole scheme exists to make unreachable — and a worse one than F4's, since
+// buildMemberPack reads the same table that just failed and may produce a pack
+// with no issue tags at all. So the sentinel is refused on BOTH sides of the blob
+// layer and in the HTTP cache too, in four places, each pinned here. What they do
+// rather than what they say is exercised in test-vr-pack-rebuild-on-flip.mjs.
+ok(/if \(mv === MAPPING_VERSION_UNKNOWN\) return null;/.test(PACK_TS),
+  "getCachedPack must MISS under the sentinel rather than risk hitting a blob nobody can date");
+ok(/if \(version !== MAPPING_VERSION_UNKNOWN\) \{[\s\S]{0,200}setJSON\(packKey/.test(PACK_TS),
+  "writeMemberPack must not persist under the sentinel — the blob it would leave could never be validated");
+ok(/versionKnown \? "public, max-age=300" : "no-store"/.test(FN_MTS),
+  "a sentinel-versioned response must be no-store, or a shared cache keeps what the blob store refused");
+ok(SW.indexOf("isUnknownPackVersion") > 0 && /if \(!isUnknownPackVersion\(/.test(SW),
+  "sw.js must skip its own cache write for a sentinel-versioned pack — the Cache API ignores no-store");
+ok(SW.indexOf(`VR_PACK_UNKNOWN = '${sentinel}'`) > 0,
+  `sw.js must know the sentinel by the value the library defines ("${sentinel}")`);
 for (const junk of ["", "latest", "../secrets", "m825-1beb2b0fb077/x", "m825 1beb", "M825-abc"])
   ok(!PACK_VERSION_RE.test(junk), `the router rejects ${JSON.stringify(junk)}`);
 // Both URL forms: the unversioned one the client asks for, and the versioned one
@@ -238,6 +257,18 @@ ok(/if \(requestedVersion !== mv\)/.test(FN_MTS),
 const memo = Number((PACK_TS.match(/MAPPING_VERSION_MEMO_MS = (\d+)/) || [])[1] || 0);
 ok(memo > 0 && memo <= 60000,
   `the mapping-version memo is seconds, not minutes (${memo}ms) — a long memo trades the six-hour hole for a smaller one of the same kind`);
+
+// …and the wave that MOVED the version must not write its eager packs under the
+// one it read before moving it. Nothing stale could be served either way — the
+// read path recomputes and misses — but every write in that loop would be wasted
+// and every reader would pay the lazy rebuild the loop exists to spare them.
+const INGEST = read("netlify/lib/vr-ingest.ts");
+const resetAt = INGEST.indexOf("resetMappingVersionMemo()");
+const eagerAt = INGEST.indexOf("await writeMemberPack(pid)");
+ok(resetAt > 0, "the ingest must drop the mapping-version memo after its mapping upserts");
+ok(eagerAt > 0, "the ingest no longer refreshes packs eagerly at all");
+ok(resetAt > 0 && eagerAt > 0 && resetAt < eagerAt,
+  "the memo is dropped BEFORE the eager pack writes, or they land on the pre-wave key");
 
 // ── 5. The TTL is not the fix ────────────────────────────────────────────────
 section("5. PACK_TTL_MS is roll-call freshness and stays six hours");

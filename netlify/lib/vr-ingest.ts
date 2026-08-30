@@ -43,7 +43,7 @@ import {
 import memberMapSeed from "../../db/vr-member-map.json" with { type: "json" };
 import issueSeedData from "../../db/vr-issue-seed.json" with { type: "json" };
 import measureIdentityData from "../../db/vr-measure-identity.json" with { type: "json" };
-import { writeMemberPack } from "./vr-pack.js";
+import { writeMemberPack, resetMappingVersionMemo } from "./vr-pack.js";
 import { fetchSenateRollcalls } from "./vr-senate-source.js";
 import {
   ISSUE_KEYS,
@@ -762,6 +762,17 @@ export async function ingestVotes(
   }
 
   // Refresh the offline packs for everyone whose record changed.
+  //
+  // THE VERSION IS RE-READ FIRST. writeMemberPack resolves the current mapping
+  // version itself, and mappingVersion() memoises for a few seconds — so a warm
+  // instance running a second wave inside that window would write this wave's
+  // packs under the PREVIOUS wave's key. Nothing stale would ever be served (the
+  // read path computes the true version and misses), but every eager write here
+  // would be wasted and every reader would pay a lazy rebuild that this loop
+  // exists to spare them. The upserts above are done; drop the memo so the keys
+  // below are the ones the next read will ask for.
+  resetMappingVersionMemo();
+
   for (const pid of affectedMembers) {
     try { await writeMemberPack(pid); report.packsWritten++; }
     catch (e: any) { report.errors.push(`pack ${pid}: ${e?.message || String(e)}`); }

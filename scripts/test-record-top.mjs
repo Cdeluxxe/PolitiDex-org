@@ -75,6 +75,7 @@ const WA_CSS = R("word-action.css");
 const APP_CSS = R("app.css");
 const PF_SRC = R("profiles-full.js");
 const SW_SRC = R("sw.js");
+const INDEX_SRC = R("index.html");
 
 let passed = 0;
 const failures = [];
@@ -678,6 +679,143 @@ section("6 · one block, and it survives a phone");
   // An unresolvable pid has no absence to report.
   eq(WA.briefHtml("no_such_person_at_all", null), "",
     "the brief reports an empty formal record about somebody who is not in the roster");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 7. The exec letterhead survives the load order the site actually ships in
+// ═════════════════════════════════════════════════════════════════════════════
+section("7 · the exec letterhead survives the shipped load order");
+{
+  // WHAT WENT WRONG ON PRODUCTION, and why every assertion above missed it.
+  // index.html loads consistency.js (~line 21849) BEFORE exec-action-data.js and
+  // exec-record.js (~21937). So on every real page load there is a window in
+  // which a president's row model can be derived from an exec action pool that is
+  // not on the page yet — and that row model is memoised per politician. One read
+  // inside the window — a roster card, a nav pill, a prefetch — pinned an
+  // exec-blind answer for the life of the page. The letterhead's shape then
+  // published `issues: 0`, printed its census-and-a-door fallback ("Explore all 37
+  // issues by topic" over a single census line and no rows), reported
+  // heroNamesPatterns() false, and the standouts strip mid-page mounted with the
+  // very rows the letterhead had just failed to find. The hero has no repaint
+  // event on an executive file — there is no roll-call fetch to land — so that
+  // first paint was the final one and a hard refresh could not clear it.
+  //
+  // The harness above cannot see any of this, and that is the point of this
+  // section: it loads the exec modules FIRST and never reads a row early, which
+  // is the one order production never uses.
+  // EXEC — trump, the file this section was reported on. The exec seed is bundled,
+  // so unlike the roll-call subjects above this one needs no warm at all: whatever
+  // the letterhead fails to say about them, it fails to say from data already on
+  // the page.
+  const EXEC = "trump";
+  // THE SPLIT IS index.html's OWN, not a worst case invented for the test:
+  // stance-helpers, voting-record, say-vs-do, consistency and profile-spine all
+  // ship above the exec trio, and coverage and word-action ship below it.
+  const COLD_PRE = [
+    "cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js",
+    "state-senate-stances.js", "stance-helpers.js", "alignment-tool.js",
+    "acct-spotlight-data.js", "voting-record.js", "say-vs-do.js",
+    "consistency.js", "profile-spine.js",
+  ];
+  const COLD_POST = [
+    "exec-action-data.js", "exec-record.js", "exec-record-ui.js",
+    "coverage.js", "word-action.js", "profiles-full.js",
+  ];
+  must(COLD_PRE.concat(COLD_POST).slice().sort().join("|") === FILES.slice().sort().join("|"),
+    "the cold boot does not load the same module set as the warm one — the comparison is not like for like");
+  for (const [above, below] of [["consistency.js", "exec-action-data.js"],
+                                ["consistency.js", "exec-record.js"]]) {
+    const ia = INDEX_SRC.indexOf(`src="/${above}"`), ib = INDEX_SRC.indexOf(`src="/${below}"`);
+    ok(ia >= 0 && ib >= 0 && ia < ib,
+      `index.html no longer loads ${above} before ${below} — this section's premise needs re-checking`);
+  }
+  const cold = (function () {
+    const win = makeSandbox();
+    const sandbox = vm.createContext(win);
+    win.PROFILES = win.CMP_DATA;
+    for (const f of COLD_PRE) vm.runInContext(R(f), sandbox, { filename: f });
+    win.PROFILES = win.CMP_DATA;
+    // The roll-call records land first, as they do on a real arrival — and they
+    // bump the derivation epoch, which clears every derived cache. That happens
+    // BEFORE the poisoning read on purpose: an executive file has no roll-call
+    // fetch of its own to land, so nothing bumps the epoch again between the read
+    // below and the render, which is precisely why the bad answer used to stick.
+    for (const [pid, items] of corpus.byMember) {
+      try { win.PDXVotingRecord.noteMember(pid, items); } catch (e) {}
+    }
+    // THE POISONING READ, which is any surface at all asking for a president's
+    // rows during the window described above.
+    try { win.PDXConsistency.issueRows(EXEC); } catch (e) {}
+    for (const f of COLD_POST) vm.runInContext(R(f), sandbox, { filename: f });
+    win.PROFILES = win.CMP_DATA;
+    return win;
+  })();
+  const cWA = cold.PDXWordAction;
+  const cXS = cold.PDXConsistency.execRecordSummary;
+  must(cWA && cXS && typeof cXS.shape === "function",
+    "the cold boot did not come up — the load-order case has nothing to check");
+  // The strip's own source is unaffected by the window, which is exactly why the
+  // two surfaces could disagree: it reads PDXExecRecord directly.
+  const cPick = cXS.pick(EXEC);
+  must(cPick.on, `the exec lane is not on for ${EXEC} in the cold boot`);
+  // ── THE SHAPE, WHICH IS WHAT WAS EMPTY ──────────────────────────────────
+  const cSh = cXS.shape(EXEC);
+  must(cSh, "the exec shape came back null on the shipped load order");
+  eq(cSh.issues, cPick.issues,
+    "the cold exec shape does not hold every issue the lane's own summary holds");
+  ok(cSh.tops.length + cSh.splits.length >= 2,
+    `the cold exec shape characterises ${cSh.tops.length + cSh.splits.length} rows — the first ` +
+    "viewport needs at least two");
+  // ── AND THE LETTERHEAD, WHICH IS WHERE THE READER MEETS IT ──────────────
+  const cH = cWA.heroMount(EXEC, cold.CMP_DATA[EXEC], {});
+  const cT = txt(cH);
+  has(cH, "pdxwa-brief-exec", "the cold exec hero is not the exec brief");
+  has(cH, "pdxwa-shape-list", "the cold exec letterhead lists no pattern rows");
+  ok((cH.match(/<li class="pdxwa-shape-row"/g) || []).length >= 2,
+    "the cold exec letterhead's first viewport carries fewer than two issue rows");
+  has(cT, "Strongest patterns", "the cold exec letterhead lost the one-sided group");
+  // Every row it lists is an issue the lane itself holds — the letterhead selects
+  // from the strip's list, it does not assemble a list of its own.
+  const cKeys = {};
+  const cLaneRows = (function () {
+    try { return cold.PDXExecRecord.summary(EXEC, { allTerms: true }).rows || []; }
+    catch (e) { return []; }
+  })();
+  must(cLaneRows.length > 0,
+    "PDXExecRecord.summary() published no rows — the strip's own row list is empty");
+  cLaneRows.forEach(function (r) { if (r && r.issueKey) cKeys[r.issueKey] = 1; });
+  eq(cSh.issues, cLaneRows.length,
+    "the cold exec shape and the strip's row list do not hold the same number of issues");
+  for (const row of cSh.tops.concat(cSh.splits)) {
+    ok(!!cKeys[row.key],
+      `the cold letterhead lists ${row.key}, which the exec lane's own row list does not hold`);
+  }
+  // THE ACCEPTANCE, IN THE STRIP'S OWN WORDS: the issues the mid-page strip was
+  // showing (the Border / Energy class) are named in the first screen now.
+  for (const r of cPick.oneway) {
+    has(cT, r.label,
+      `the mid-page strip lists "${r.label}" but the cold letterhead does not`);
+  }
+  // ── ONE RECORD BLOCK, AND THE GATE THAT DECIDES IT ──────────────────────
+  eq(cWA.heroNamesPatterns(EXEC), true,
+    "the cold letterhead lists the patterns but still reports naming none — the mid-page strip " +
+    "would mount a second copy of them");
+  // ── AND NO SECOND SCORE TREATMENT IN THE FIRST SCREEN ───────────────────
+  // Word vs Action rides under the rows as the demoted 52px block. The 80px
+  // primary ring is what the letterhead replaced; it may not come back above it.
+  lacks(cH, 'viewBox="0 0 80 80"',
+    "the cold exec letterhead draws the 80px primary ring in the first screen");
+  lacks(cH, 'class="score-ring w-20 h-20 flex-shrink-0"',
+    "the cold exec letterhead leads with the 80px primary ring");
+  eq((cH.match(/pdxwa-shape-dm-hd/g) || []).length, 1,
+    "the cold exec letterhead does not carry exactly one Word vs Action heading");
+  // ── /p/lee IS UNTOUCHED BY ANY OF IT ────────────────────────────────────
+  const clean = (h) => String(h).replace(/data-pdxwa-hero="[^"]*"/g, "")
+    .replace(/pdxwa-shrow-[^" ]*/g, "");
+  eq(clean(cWA.heroMount(DEEP, cold.CMP_DATA[DEEP], {})), clean(DEEP_HERO),
+    "the deep member letterhead is not byte-identical across the two load orders");
+  eq(cWA.heroNamesPatterns(DEEP), true,
+    "the deep member file stopped reporting that it names its patterns");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

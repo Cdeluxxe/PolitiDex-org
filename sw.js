@@ -441,7 +441,36 @@
 // The source for it shipped without a bump, so warm devices kept serving the
 // pre-brief bundle and the letterhead read as unchanged; this is the bump that
 // delivers it.
-const CACHE_VERSION = 'v89';
+// v90 - the executive letterhead's rows, which v89 shipped and production never
+// showed. The brief was reading the MEMBER-lane row model and keeping the rows it
+// had marked exec; that model is memoised per politician and its exec lane is built
+// from the action pool, which arrives in a later script than consistency.js. One
+// read inside that window pinned an exec-blind row model for the life of the page,
+// so /p/trump published a shape with zero issues, printed its census-and-a-door
+// fallback, and let the mid-page standouts strip mount with the very rows the
+// letterhead had failed to find. The brief now selects from PDXExecRecord's own row
+// list — the same list the strip selects its chips from — and the row cache heals
+// when the pool lands. Bumped because the change is in consistency.js alone but the
+// surface it repairs is assembled with word-action.js and profiles-full.js, and a
+// device holding v89's consistency.js keeps the empty letterhead no matter how many
+// times it reloads: there is no repaint event on an executive file to recover on.
+// v91 - the formal-record brief's pattern rows take their issue's colour. The
+// letterhead and the below-gate brief were the last rows in the product that named
+// an issue and then painted it house grey, so a stack of seven read as seven
+// identical steel lines and the only way to navigate it was to read it. Each row
+// now carries `[data-ic]` and issue-colors.js's inline properties — the spelling a
+// bill letterhead chip uses — so Border is the same teal as /issue/border_security
+// and the Library's Immigration filter, and Energy the same green. Bumped because
+// the change is a renderer/stylesheet pair: word-action.js emits the attribute and
+// word-action.css draws the rail, and a device holding v90's stylesheet against a
+// v91 script would carry the properties with nothing to consume them.
+// v92 - the offline pack refuses to store a pack of no known mapping. The Function
+// answers /pack/m0-unknown when it cannot read vr_measure_issues, and it neither
+// reads nor writes a blob in that state; the Cache API ignores the `no-store` it
+// sends, so handleVrPack now skips both the put and the prune for that version.
+// Without the bump a warm device keeps the v91 handler, which would cache such a
+// response and then delete this member's good versioned entry in favour of it.
+const CACHE_VERSION = 'v92';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -759,6 +788,21 @@ const VR_PACK_RE = /^\/api\/voting-record\/member\/([^/]+)\/pack(?:\/([^/]+))?$/
 // the version that existed when the device last had a network is the only honest
 // thing it could have. The live read, when it comes back, outranks it — the client
 // guard sees to that, and it is untouched by any of this.
+// The Function's own sentinel for "the mapping table could not be read" (see
+// MAPPING_VERSION_UNKNOWN in netlify/lib/vr-pack.ts). Recognised from the response
+// header when it is there and from the URL segment when it is not, so a proxy that
+// strips the header cannot turn the refusal below into a cache write.
+const VR_PACK_UNKNOWN = 'm0-unknown';
+
+function isUnknownPackVersion(res, finalUrl) {
+  let header = '';
+  try { header = res.headers.get('x-pdx-mapping-version') || ''; } catch (e) { header = ''; }
+  if (header) return header === VR_PACK_UNKNOWN;
+  let p = '';
+  try { p = new URL(finalUrl, self.location.origin).pathname; } catch (e) { return false; }
+  return (VR_PACK_RE.exec(p) || [])[2] === VR_PACK_UNKNOWN;
+}
+
 async function handleVrPack(req, pid) {
   const cache = await caches.open(RUNTIME_CACHE);
 
@@ -770,10 +814,20 @@ async function handleVrPack(req, pid) {
     // after the redirect. Falls back to the request URL if a browser ever hands
     // back an empty url (opaque responses do; a same-origin JSON GET does not).
     const finalUrl = res.url || req.url;
-    try {
-      await cache.put(new Request(finalUrl, { headers: { accept: 'application/json' } }), res.clone());
-      await prunePacks(cache, pid, finalUrl);
-    } catch (e) { /* a cache write failure must not fail the fetch */ }
+    // A PACK OF NO KNOWN MAPPING IS SERVED AND NOT STORED. The Function answers
+    // under VR_PACK_UNKNOWN when it could not read the mapping table, and it
+    // neither writes nor reads a blob in that state; the Cache API ignores
+    // `no-store`, so the same refusal has to be spelled here. Storing it would be
+    // the worse half of the bargain twice over: the body may carry no issue tags
+    // at all (the builder reads the table that just failed), and prunePacks would
+    // drop this member's good versioned entry in favour of it — turning a
+    // momentary database blip into a lastingly wrong offline pack.
+    if (!isUnknownPackVersion(res, finalUrl)) {
+      try {
+        await cache.put(new Request(finalUrl, { headers: { accept: 'application/json' } }), res.clone());
+        await prunePacks(cache, pid, finalUrl);
+      } catch (e) { /* a cache write failure must not fail the fetch */ }
+    }
     return res;
   }
 

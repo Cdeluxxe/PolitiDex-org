@@ -91,7 +91,12 @@ import execSummaryKeys from "../../db/exec-summary-keys.json" with { type: "json
 // away returns the real record instead of an empty one.
 import { canonicalPid } from "../lib/vr-normalize.js";
 // Offline-pack build/cache lives in the shared lib (shared with the ingest path).
-import { getCachedPack, writeMemberPack, mappingVersion } from "../lib/vr-pack.js";
+import {
+  getCachedPack,
+  writeMemberPack,
+  mappingVersion,
+  MAPPING_VERSION_UNKNOWN,
+} from "../lib/vr-pack.js";
 
 const ISSUE_KEYS = new Set<string>((issueKeyData as { keys: string[] }).keys);
 
@@ -852,10 +857,22 @@ async function getMemberPack(
     });
   }
 
+  // An unreadable mapping table takes the miss. getCachedPack returns null under
+  // the sentinel and writeMemberPack declines to persist under it, so this branch
+  // reads as the ordinary one and behaves as a permanent cache miss for as long as
+  // the condition lasts — a rebuild per request, never a blob nobody can date.
+  const versionKnown = mv !== MAPPING_VERSION_UNKNOWN;
+
   let pack: any = await getCachedPack(politicianId, mv);
   if (!pack || !pack.generatedAt || Date.now() - new Date(pack.generatedAt).getTime() >= PACK_TTL_MS) {
     pack = await writeMemberPack(politicianId, undefined, mv);
   }
+
+  // The same refusal, one layer up. A versioned URL may be shared-cached for 300s
+  // because the mapping it names cannot change under it; the sentinel URL names no
+  // mapping, so caching a body under it anywhere — browser, CDN, proxy — would
+  // reintroduce exactly the artifact the blob path just refused to keep.
+  const packCacheControl = versionKnown ? "public, max-age=300" : "no-store";
 
   // Weak ETag over the generation time + record count — cheap and good enough for
   // revalidation (the pack only changes when it is rebuilt). The mapping version
@@ -866,7 +883,7 @@ async function getMemberPack(
   if ((req.headers.get("if-none-match") || "") === etag) {
     return new Response(null, {
       status: 304,
-      headers: { etag, "cache-control": "public, max-age=300", "x-pdx-mapping-version": mv },
+      headers: { etag, "cache-control": packCacheControl, "x-pdx-mapping-version": mv },
     });
   }
   return new Response(JSON.stringify(pack), {
@@ -876,8 +893,8 @@ async function getMemberPack(
       // A versioned URL is immutable in the only sense that matters: the mapping
       // it names cannot change under it. It is still not `immutable`, because the
       // roll calls behind it can — that is what PACK_TTL_MS is for, and 300s of
-      // shared caching is what it was before.
-      "cache-control": "public, max-age=300",
+      // shared caching is what it was before. The sentinel URL gets no-store.
+      "cache-control": packCacheControl,
       etag,
       "x-pdx-mapping-version": mv,
     },

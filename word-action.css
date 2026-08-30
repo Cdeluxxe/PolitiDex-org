@@ -1722,6 +1722,41 @@
   border-top: 1px solid rgba(159, 180, 212, 0.1);
 }
 .pdxwa-shape-row:first-child { border-top: 0; }
+/* ── THE ISSUE, ON THE RAIL ───────────────────────────────────────────────────
+   The one colour vocabulary, on the last rows that named an issue without wearing
+   it. `--pdx-ic` arrives inline from issue-colors.js via word-action.js's
+   issueTintAttr(), so every hex in this treatment is the same hex /issue/<key>,
+   the Digital Library filter and that topic's chip on a bill letterhead take —
+   there is no colour authored here.
+
+   4px and a wash, matching .pdxwa-row rather than inventing a third strength. The
+   note over that rule is the reason: at 2px on dark navy under a 14% tint the
+   treatment was present and invisible, so the tint is a horizontal gradient that
+   concentrates against the rail and clears out well before the text, which buys a
+   glance-level signal at no cost to the copy's contrast.
+
+   THE ATTRIBUTE, NOT A CLASS, AND ONLY WHEN THE KEY RESOLVED. `[data-ic]` is the
+   spelling the letterhead chip and every chip surface after it settled on, and
+   word-action.js emits it only for a key that landed on a real Core National
+   Issue. A row whose key stopped resolving carries no attribute and keeps the
+   plain hairline — an unresolved row must not be one typo away from looking like a
+   deliberate slate one.
+
+   WHAT IT DOES NOT TOUCH. The tier chip in .pdxwa-shape-bar paints itself from
+   _stPatternHtml()'s tone table (supports green, opposes red, ran-both-ways
+   amber) and the ⓘ in .pdxis-key paints itself from issue-scope.js. Neither
+   consumes --pdx-ic, so the direction and the glossary keep their own meanings
+   while the row keeps its issue — which is why this is a rail and a wash and not a
+   text colour. */
+.pdxwa-shape-row[data-ic] {
+  border-left: 4px solid var(--pdx-ic);
+  padding-left: 0.5rem;
+  background: linear-gradient(
+    90deg,
+    var(--pdx-ic-wash, var(--pdx-ic-soft, transparent)),
+    transparent 66%
+  );
+}
 .pdxwa-shape-iss {
   flex: 1 1 8rem;
   min-width: 0;
