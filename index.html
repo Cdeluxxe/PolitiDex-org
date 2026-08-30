@@ -17826,6 +17826,46 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var _FTM_BY_ID = {};
     FTM_DATA.forEach(function(p) { _FTM_BY_ID[p.id] = p; });
 
+    // ── THE INDEX HAS TO LEAVE THIS CLOSURE ─────────────────────────────────
+    // `_FTM_BY_ID` is a `var` inside this IIFE, so it is not a global and never
+    // was. finance-lane.js — which owns the letterhead 💰 chip, the coverage
+    // sentence and the money lane's one composition read — looked it up as
+    // `window._FTM_BY_ID`, found undefined in every browser, and therefore
+    // reported "no money file" for EVERY person on the site and a coverage count
+    // of 0 filings. Mike Lee's profile printed "No money file" in the letterhead
+    // directly above a money section drawing his full $8.6M composition, because
+    // that section reads `window._pdxFinanceSignal` instead, which IS exposed.
+    // The fences never caught it: both test files attach their own
+    // `win._FTM_BY_ID` before booting the lane, so they were testing a wiring
+    // that only existed in the harness.
+    //
+    // Exposed as ACCESSORS rather than as the raw object, for the reason
+    // `_pdxFinanceRecord` above already gives: a display module should not be
+    // able to mutate the record it is reporting on. `_pdxFinanceFiling` hands
+    // back a shallow copy with the funding buckets attached; `_pdxFinanceIds`
+    // hands back the ids that actually carry a filing, which is the numerator in
+    // the coverage sentence and must be counted from the shipped data rather
+    // than typed into it.
+    window._pdxFinanceFiling = function(pid) {
+      var p = pid && _FTM_BY_ID[pid];
+      if (!p) return null;
+      return {
+        id: p.id, name: p.name || '', office: p.office || '',
+        totalRaised: p.totalRaised || 0,
+        topDonors: (p.topDonors || []).map(function(d) {
+          return { name: d.name, amount: d.amount, type: d.type };
+        }),
+        sectors: Object.assign({}, p.sectors || {}),
+        funding: p.funding ? Object.assign({}, p.funding) : null,
+        source: p.source || ''
+      };
+    };
+    window._pdxFinanceIds = function() {
+      return Object.keys(_FTM_BY_ID).filter(function(id) {
+        return !!(_FTM_BY_ID[id] && _FTM_BY_ID[id].funding);
+      });
+    };
+
     function _fmtMoney(n) {
       if (n === null || n === undefined || isNaN(n)) return '—';
       var abs = Math.abs(n);
@@ -17948,30 +17988,69 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         + '<div class="modal-section-title pdx-money-h">'
         +   '<span class="pdx-money-h-ico">💰</span> Money &amp; Funding</div>';
 
+      // ── THE EMPTY STATE IS COVERAGE COPY, AND IT NAMES THE GAP ──────────
+      // This used to read "Not on file — No campaign-finance record for Lee YET.
+      // This section fills in automatically as filings are added." Three problems,
+      // and all three were about who the sentence was describing.
+      //   "Yet" describes a queue. It tells a reader the file is on its way, which
+      // implies somebody looked and the archive is still loading. For most of this
+      // roster nobody has looked and no ingest is scheduled to look.
+      //   "Fills in automatically" promised a pipeline that does not exist. There is
+      // no live FEC ingest and Utah publishes no API; a curator transcribes filings
+      // by hand. A promise the site cannot keep is worse than a blank.
+      //   And it named no source, so the blank could not be told apart from a search
+      // that came back clean. PDXFinanceLane.sourceGapHtml names the archive the
+      // filing would have come from — the FEC, Utah's state disclosure system, or
+      // plainly "none opened" — in one line, derived from the office string alone.
+      // No donor, committee or figure is invented anywhere in this branch.
       if (!f) {
+        var _gap = (window.PDXFinanceLane && typeof window.PDXFinanceLane.sourceGapHtml === 'function')
+          ? window.PDXFinanceLane.sourceGapHtml(pid, p) : '';
+        var _cov = (window.PDXFinanceLane && typeof window.PDXFinanceLane.coverageHtml === 'function')
+          ? window.PDXFinanceLane.coverageHtml() : '';
         return head
-          + '<p class="modal-section-sub">Who bankrolls ' + _pdxFEsc(first) + ' — from public FEC / OpenSecrets filings.</p>'
+          + '<p class="modal-section-sub">Who bankrolls ' + _pdxFEsc(first) + ' — from public disclosure filings. This is a coverage statement, not a finding.</p>'
           + '<div class="pdx-fund-none">'
           +   '<div class="pdx-fund-none-ico">💰</div>'
-          +   '<div><div class="pdx-fund-none-t">Not on file</div>'
-          +   '<div class="pdx-fund-none-s">No campaign-finance record for ' + _pdxFEsc(first) + ' yet. This section fills in automatically as filings are added.</div></div>'
+          +   '<div><div class="pdx-fund-none-t">No money file on hand</div>'
+          +   '<div class="pdx-fund-none-s">PolitiDex holds no itemized campaign-finance filing for '
+          +     _pdxFEsc(first) + '. That is missing data on our side — it is not a finding about '
+          +     _pdxFEsc(first) + ', and nothing here reads it as one.</div>'
+          +   _gap + '</div>'
           + '</div>'
-          + '<div class="pdx-fund-actions"><a class="pdx-fund-src" href="https://www.opensecrets.org" target="_blank" rel="noopener noreferrer">🔎 Search OpenSecrets ↗</a></div>'
+          + _cov
           + '</div>';
       }
 
-      var c = f.character || {};
-      var kind = c.kind || 'unknown';
-      var word = _pdxFundWord(kind);
-      var baseExplain = kind === 'grassroots' ? 'Leans on small-dollar donors.'
-        : kind === 'bigmoney' ? 'Leans on named mega-donors, PACs and industries.'
-        : kind === 'mixed' ? 'A blend of small-dollar and big-money support.'
-        : 'Funding mix not yet classified.';
-
-      // A calm, neutral scale read — more money isn't a virtue, just context.
-      var scaleTag = '';
-      if (f.raised >= 10000000) scaleTag = '<span class="pdx-fund-scale is-high">Large war chest</span>';
-      else if (f.raised > 0 && f.raised < 500000) scaleTag = '<span class="pdx-fund-scale is-low">Modest war chest</span>';
+      // ── THE LEAD IS COMPOSITION AS COUNTS ───────────────────────────────
+      // Deleted from this branch, deliberately:
+      //
+      //   THE DONOR-MIX WORD. `_pdxFundWord(kind)` printed "Grassroots" /
+      // "Mixed" / "Big-money" in a pill with an explanatory line under it
+      // ("Leans on named mega-donors, PACs and industries"). That is the retired
+      // Constituents-First grade — its three levels, its cut-offs, its
+      // characterisation of a person — surviving as prose after the arithmetic,
+      // the colour ramp and the glyph ladder were each deleted in turn. A level
+      // written in words is still a level, and this one led the money lane.
+      //   ITS PERCENTAGE. `c.label` was "38% small-dollar" — a bare 0–100 on the
+      // first line of the section, detached from the bucket it was a share of.
+      // The shares are still published, one block down in the composition, each
+      // one attached to its own bucket and its own dollar figure, which is the
+      // only arrangement in which a percentage here is composition rather than a
+      // grade.
+      //   THE SIZE TIER. "Large war chest" above $10M and "Modest war chest"
+      // below $500K is a three-step ranking of a dollar figure that is already
+      // printed in full an inch away. The comment defending it said more money
+      // "isn't a virtue, just context" — which is exactly the argument for
+      // printing the figure and stopping.
+      //
+      // What leads instead is PDXFinanceLane.countsHtml: reported sources, named
+      // contributors, industry sectors and self-funding, as counts, plus an
+      // explicit line saying in-state vs out-of-state giving is absent from the
+      // records we hold rather than absent from the filing.
+      var _ftmRec = _FTM_BY_ID[pid] || null;
+      var countsLead = (window.PDXFinanceLane && typeof window.PDXFinanceLane.countsHtml === 'function')
+        ? window.PDXFinanceLane.countsHtml(f.signal, _ftmRec) : '';
 
       var topBlock = f.topFunder
         ? '<div class="pdx-fund-stat"><div class="pdx-fund-stat-label">Top Funder</div>'
@@ -17983,14 +18062,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         + '<p class="modal-section-sub">Who bankrolls ' + _pdxFEsc(first) + ' — from public FEC / OpenSecrets filings. Donations are legal and don\'t imply corruption; this is about <em>who has financial access</em>.</p>'
         + '<div class="pdx-fund-grid">'
         +   '<div class="pdx-fund-stat"><div class="pdx-fund-stat-label">Total Raised</div>'
-        +     '<div class="pdx-fund-raised">' + _pdxFEsc(f.raisedFmt) + '</div>' + scaleTag + '</div>'
+        +     '<div class="pdx-fund-raised">' + _pdxFEsc(f.raisedFmt) + '</div></div>'
         +   topBlock
         + '</div>'
-        + '<div class="pdx-fund-baserow">'
-        +   '<span class="pdx-fund-base ' + _pdxFundCls(kind) + '" title="' + _pdxFAttr(word + ' — ' + baseExplain) + '">'
-        +     (c.icon || '💰') + ' ' + _pdxFEsc(word) + (c.label ? ' · ' + _pdxFEsc(c.label) : '') + '</span>'
-        +   '<span class="pdx-fund-base-note">' + _pdxFEsc(baseExplain) + '</span>'
-        + '</div>'
+        + countsLead
         + (f.signal ? window._pdxFinanceSignalHTML(f.signal) : '')
         + (f.whyItMatters ? '<p class="pdx-fund-why"><strong>Why it matters:</strong> ' + _pdxFEsc(f.whyItMatters) + '</p>' : '')
         + '<div class="pdx-fund-actions">'

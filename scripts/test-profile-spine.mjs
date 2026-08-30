@@ -396,10 +396,41 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   const withShare = SP.briefHtml("massie", MASSIE);
   ok(/pdxsa-share-btn/.test(withShare) && /data-pid='massie'/.test(withShare),
      "brief: 'what should I share next' is answered by the tier-aware share control, not by a second share path");
-  ok(/data-pdxbr-to="pdxsp-record"/.test(withShare) && /data-pdxbr-to="pdxsp-money"/.test(withShare),
+  ok(/data-pdxbr-to="pdxsp-record"/.test(withShare) && /data-pdxbr-to="pdxsp-receipts"/.test(withShare),
      "brief: inspect-next chips target the stage rails, which exist exactly when their stage has content");
-  ok(!/pdxsec-funding/.test(withShare),
-     "brief: no chip aims at a section anchor that only exists when that section renders — that is the dead control this replaced");
+  // 💰 MONEY IS THE DELIBERATE EXCEPTION, AND IT IS THE ONLY ONE.
+  // The rule above exists because a chip aimed at a self-gating section anchor
+  // scrolls nowhere on the profiles where that section does not mount. The money
+  // section is not self-gating: _pdxFundingSection emits the `pdxsec-funding`
+  // anchor in its head, before it branches on whether a filing exists, so the
+  // destination is on the page for every person — file or no file. That is what
+  // makes it safe to aim at, and it is what makes aiming at the STAGE rail wrong:
+  // `pdxsp-money` lands a reader on a stage header above three sections and
+  // leaves them to find the filing, while the letterhead 💰 chip lands on the
+  // filing itself. Two money controls arriving at two places is two doors into
+  // what the page calls one lane.
+  ok(/data-pdxbr-to="pdxsec-funding"/.test(withShare),
+     "brief: the money chip aims at the funding section — the same destination the letterhead money chip opens, so the lane has one door");
+  ok(!/data-pdxbr-to="pdxsp-money"/.test(withShare),
+     "brief: …and no longer at the money STAGE rail, which arrived above the filing rather than at it");
+  // &amp;&amp; in the expected string, not && — the handler is escaped on its way
+  // into the attribute, and asserting on the raw form would pass only if it were not.
+  ok(/PDXFinanceLane&amp;&amp;window\.PDXFinanceLane\.openSection/.test(withShare),
+     "brief: it opens the lane through PDXFinanceLane.openSection(), the module that owns the reveal-then-measure jump");
+  ok(/openSection\(\);\}else if\(window\._pdxNavJump\)/.test(withShare),
+     "brief: …with _pdxNavJump as the fallback, so a page where the lane never loaded still scrolls");
+  // The claim that the destination always exists is a claim about index.html,
+  // so it is checked there rather than assumed here: the anchor must be emitted
+  // ahead of the branch that asks whether there is a filing.
+  {
+    const FS = read("index.html");
+    const fn = FS.slice(FS.indexOf("window._pdxFundingSection = function"));
+    const body = fn.slice(0, fn.indexOf("\n    };"));
+    const anchor = body.indexOf('id="pdxsec-funding"');
+    ok(anchor > 0, "brief: _pdxFundingSection emits the pdxsec-funding anchor");
+    ok(anchor < body.indexOf("if (!f)"),
+       "brief: …in its head, BEFORE the no-filing branch — so the money chip's destination exists on a person with no money file, which is most of the roster");
+  }
 
   // 4f. Self-gating: nothing to brief means no card at all.
   ctx.window._resolveStanceList = () => [];

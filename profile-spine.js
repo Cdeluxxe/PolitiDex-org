@@ -890,13 +890,34 @@
     // Chip labels are the STAGE names, not the names of sections that used to sit
     // in them. This middle chip read "Say vs. do" — a retired peer product, named
     // above the fold, pointing at the shared evidence layer that replaced it.
+    // 💰 MONEY IS THE ONE CHIP HERE THAT AIMS AT A SECTION RATHER THAN A STAGE,
+    // AND IT AIMS AT THE SAME ONE THE LETTERHEAD CHIP DOES. It used to target
+    // `pdxsp-money`, the money STAGE rail — which lands a reader on the stage
+    // header above three sections (funding, impact, contracts) and leaves them to
+    // find the filing. The letterhead 💰 chip, meanwhile, jumps to
+    // `pdxsec-funding`. Two money controls on one page arriving at two different
+    // places is two doors into what the page insists is one lane, and the reader
+    // who taps both learns that the site is not sure where its money lives.
+    //   So both go through PDXFinanceLane.openSection(), which owns the jump:
+    // it reveals a deferred stage before measuring the scroll and focuses the
+    // section on arrival. The `data-pdxbr-to` attribute carries the real
+    // destination so prune() checks the section this chip actually opens, and
+    // _pdxNavJump stays as the fallback for a page where the lane never loaded.
     var jumps = [
       { t: 'pdxsp-record',   ico: '🏛️', l: 'Official record' },
       { t: 'pdxsp-receipts', ico: '🧾', l: 'Evidence' },
-      { t: 'pdxsp-money',    ico: '💰', l: 'Money' }
+      { t: 'pdxsec-funding', ico: '💰', l: 'Money', lane: true }
     ].map(function (j) {
+      // Built raw and escaped once, on the way into the attribute — the ids are
+      // literal constants above, but escAttr is what makes that a property of the
+      // code rather than of the current contents of the array.
+      var fall = "if(window._pdxNavJump){window._pdxNavJump('" + j.t + "');}";
+      var act = j.lane
+        ? "if(window.PDXFinanceLane&&window.PDXFinanceLane.openSection)" +
+          "{window.PDXFinanceLane.openSection();}else " + fall
+        : fall;
       return '<button type="button" class="pdxbr-jump" data-pdxbr-to="' + escAttr(j.t) + '"' +
-          ' onclick="if(window._pdxNavJump)window._pdxNavJump(\'' + jsStr(j.t) + '\');">' +
+          ' onclick="' + escAttr(act) + '">' +
           '<span aria-hidden="true">' + j.ico + '</span> ' + esc(j.l) +
         '</button>';
     }).join('');
