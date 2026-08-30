@@ -3474,8 +3474,8 @@ window.PDXLazy = (function () {
               <a href="#hot-topics" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🔥</span><span class="pdx-navmenu__lb">Hot Topics / Spotlights</span></a>
               <a href="#stance-library" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🎯</span><span class="pdx-navmenu__lb">Issues &amp; Stances</span></a>
               <a href="#digital-library" onclick="window.PDXDigitalLibrary&&window.PDXDigitalLibrary.focus&&window.PDXDigitalLibrary.focus()" role="menuitem" class="pdx-navmenu__item pdx-navmenu__item--primary" title="The central searchable archive of everything PolitiDex tracks"><span class="pdx-navmenu__ico" aria-hidden="true">📚</span><span class="pdx-navmenu__lb">Digital Library</span></a>
-              <a href="#digital-library" onclick="window.PDXDigitalLibrary&&window.PDXDigitalLibrary.focus&&window.PDXDigitalLibrary.focus({mode:'legislation'})" role="menuitem" class="pdx-navmenu__item" title="Bills & measures — the Legislation library"><span class="pdx-navmenu__ico" aria-hidden="true">🏛️</span><span class="pdx-navmenu__lb">Legislation / Bills</span></a>
-              <a href="#hr1-showcase" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🏛️</span><span class="pdx-navmenu__lb">H.R.1 / Omnibus Showcase</span></a>
+              <a href="#digital-library" onclick="if(window.pdxOpenBills)window.pdxOpenBills();" role="menuitem" class="pdx-navmenu__item" title="Bills & measures — the Legislation library"><span class="pdx-navmenu__ico" aria-hidden="true">🏛️</span><span class="pdx-navmenu__lb">Legislation / Bills</span></a>
+              <a href="#hr1-showcase" onclick="if(window.pdxOpenSurface)window.pdxOpenSurface('hr1-showcase');" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🏛️</span><span class="pdx-navmenu__lb">H.R.1 / Omnibus Showcase</span></a>
               <div class="pdx-navmenu__sep"></div>
               <a href="#all-spotlights" onclick="window.PDXSpotlightHub&&window.PDXSpotlightHub.focus&&window.PDXSpotlightHub.focus()" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">📌</span><span class="pdx-navmenu__lb">All Spotlights</span></a>
               <a href="#issue-front-door" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🧭</span><span class="pdx-navmenu__lb">Issues Ranked</span></a>
@@ -3982,8 +3982,8 @@ window.PDXLazy = (function () {
       <a href="#hot-topics" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-orange-300 hover:text-orange-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🔥 Hot Topics / Spotlights</a>
       <a href="#stance-library" title="Browse by issue: who stands where" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🎯 Issues &amp; Stances</a>
       <a href="#digital-library" title="The central searchable archive of everything PolitiDex tracks" onclick="document.getElementById('mobileMenu').classList.add('hidden');window.PDXDigitalLibrary&&window.PDXDigitalLibrary.focus&&window.PDXDigitalLibrary.focus()" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ec8ff;">📚 Digital Library</a>
-      <a href="#digital-library" title="Bills &amp; measures — the Legislation library" onclick="document.getElementById('mobileMenu').classList.add('hidden');window.PDXDigitalLibrary&&window.PDXDigitalLibrary.focus&&window.PDXDigitalLibrary.focus({mode:'legislation'})" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ff0bd;">🏛️ Legislation / Bills</a>
-      <a href="#hr1-showcase" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-300 hover:text-gold-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🏛️ H.R.1 / Omnibus Showcase</a>
+      <a href="#digital-library" title="Bills &amp; measures — the Legislation library" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenBills)window.pdxOpenBills();" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ff0bd;">🏛️ Legislation / Bills</a>
+      <a href="#hr1-showcase" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenSurface)window.pdxOpenSurface('hr1-showcase');" class="text-gold-300 hover:text-gold-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🏛️ H.R.1 / Omnibus Showcase</a>
       <div class="mnav-group-label mnav-group-label--money">💰 Money &amp; Spending</div>
       <a href="#follow-the-money" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-money flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">💰 Follow the Money</a>
       <a href="#follow-the-money" title="Federal Spending Tracker — major government contracts by agency, company &amp; state" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.PDXContracts&&window.PDXContracts.open){event.preventDefault();window.PDXContracts.open();}" class="clr-money flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🏛️ Government Contracts &amp; Spending</a>
@@ -4853,6 +4853,14 @@ window.PDXLazy = (function () {
             else if(typeof window.toggleChangeLocation==='function') window.toggleChangeLocation();
             return;
           }
+          // Three of these chips (Say vs. Do, Issues Ranked, H.R.1 Showcase) name
+          // sections that live inside Door 1's work layer, which starts closed.
+          // The element is in the document but display:none, so the branch below
+          // used to preventDefault() and then scroll to nothing — a chip that did
+          // visibly nothing at all. pdxOpenSurface() opens the layer, paints the
+          // surface and scrolls once the page settles; it answers false for every
+          // other chip, which keeps the plain smooth-scroll for the rest.
+          if(id&&window.pdxOpenSurface&&window.pdxOpenSurface(id)){e.preventDefault();return;}
           if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'});}
         });
       });
@@ -5364,30 +5372,112 @@ window.PDXLazy = (function () {
     (function () {
       var WORK_IDS = ['hero-receipt', 'say-vs-do', 'issue-front-door', 'hr1-showcase'];
 
-      // Reveal the work layer and land on one surface inside it. Called by the
-      // doors, and by the hash handler below on behalf of every inbound anchor
-      // that used to point at a section sitting in the open.
-      function openWork(targetId) {
-        var work = document.getElementById('pdx-door-work');
-        if (work) work.classList.add('is-open');
-        if (!targetId) return;
-        // Give the browser one frame to lay the revealed layer out before asking
-        // it to scroll into it; scrolling to an element that was display:none a
-        // microsecond ago lands at the wrong offset.
-        var go = function () {
-          var el = document.getElementById(targetId);
-          if (el && el.scrollIntoView) { try { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} }
-        };
-        if (window.requestAnimationFrame) window.requestAnimationFrame(function () { setTimeout(go, 40); });
-        else setTimeout(go, 60);
-      }
-      window.pdxDoorWork = openWork;
-
       // Ask a module to paint its surface now rather than whenever its own timer
       // next fires. Each of these is idempotent in its own file, and each already
       // self-gates to [hidden] when it has nothing sourced to show — so a door
       // can open onto an honest empty state but never onto a fabricated one.
       function paint(fn) { try { fn(); } catch (e) {} }
+
+      // Surface id → the module that fills it. openWork() paints BEFORE it
+      // reveals, so every entrance is the same entrance: a door, a nav item, a
+      // homepage chip and a shared hash all land on a surface that has already
+      // had its chance to fill, instead of on whatever the module's own timer
+      // happened to have done by then.
+      var PAINT = {
+        'issue-front-door': function () { if (window.PDXIssueView && window.PDXIssueView.mountFrontDoor) window.PDXIssueView.mountFrontDoor(); },
+        'hr1-showcase': function () { if (window.PDXHR1 && window.PDXHR1.mount) window.PDXHR1.mount(); }
+      };
+
+      // Scroll to a surface that was display:none a moment ago, and keep the
+      // promise once the page settles. One frame is not enough on a phone: the
+      // sections in this layer carry content-visibility:auto, so the browser
+      // measures them at their placeholder height first and the offset computed
+      // on that frame can be thousands of pixels off once they render for real.
+      // So the scroll is re-issued while the ground above the target is still
+      // MOVING (document-space offset changed by more than a rem between
+      // attempts) and stops the moment it holds still — at most three attempts
+      // inside a second, which is short enough never to fight a reader who has
+      // started scrolling somewhere else.
+      function settleScroll(targetId) {
+        var tries = 0, prevTop = null;
+        function step() {
+          var el = document.getElementById(targetId);
+          if (!el || !el.scrollIntoView) return;
+          // No way to measure is not a reason not to travel: jump once and stop.
+          if (!el.getBoundingClientRect) { try { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} return; }
+          var top = el.getBoundingClientRect().top +
+            (window.pageYOffset || (document.documentElement && document.documentElement.scrollTop) || 0);
+          if (prevTop !== null && Math.abs(top - prevTop) < 24) return; // settled
+          prevTop = top;
+          try { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+          if (++tries >= 3) return;
+          setTimeout(step, tries === 1 ? 320 : 700);
+        }
+        if (window.requestAnimationFrame) window.requestAnimationFrame(function () { setTimeout(step, 40); });
+        else setTimeout(step, 60);
+      }
+
+      // Reveal the work layer and land on one surface inside it. Called by the
+      // doors, by the nav and the homepage chips through pdxOpenSurface(), and by
+      // the hash handler below on behalf of every inbound anchor that used to
+      // point at a section sitting in the open.
+      var _last = { id: '', t: 0 };
+      function openWork(targetId) {
+        var work = document.getElementById('pdx-door-work');
+        if (work) work.classList.add('is-open');
+        if (!targetId) return true;
+        if (PAINT[targetId]) paint(PAINT[targetId]);
+        // A click handler and the hashchange that same click causes are ONE
+        // arrival, not two. Without this the second one restarts the scroll
+        // mid-flight, which reads on a phone as a jump that changed its mind.
+        var now = Date.now ? Date.now() : +new Date();
+        if (_last.id === targetId && (now - _last.t) < 700) return true;
+        _last.id = targetId; _last.t = now;
+        settleScroll(targetId);
+        return true;
+      }
+      window.pdxDoorWork = openWork;
+
+      // ── window.pdxOpenSurface(id) · the one way in for an in-page jump ──────
+      // A link whose href names a section inside this layer cannot simply be left
+      // to the browser: any handler that preventDefault()s it and scrolls (the
+      // homepage pulse bar did exactly that) is scrolling to a display:none
+      // element, which is a silent no-op. Anything holding such an href calls
+      // this instead and gets `true` when the jump was taken care of, so a
+      // caller can still fall back to its own behaviour for every other anchor.
+      window.pdxOpenSurface = function (id) {
+        id = String(id || '').replace(/^#/, '');
+        if (WORK_IDS.indexOf(id) === -1) return false;
+        return openWork(id);
+      };
+
+      // ── window.pdxOpenBills() · the bill catalog ────────────────────────────
+      // The Digital Library's Legislation tab IS the bill catalog — one row per
+      // measure, each opening the one bill file (PDXBillDetail, whose shareable
+      // address is /b/<sitting>/<number>). It lives in the open, not in this
+      // layer, so all this has to do is make sure the tab that is actually
+      // selected is Legislation.
+      //
+      // The library is a deferred module fed by data that arrives lazily, so a tap
+      // can genuinely land before it exists. Scroll first — the reader is moving
+      // immediately either way — then keep asking for the tab for a few seconds.
+      // Returning false rather than doing nothing is what lets the link fall back
+      // to its own href instead of dying quietly.
+      function openBills(tries) {
+        tries = tries || 0;
+        if (!tries) {
+          var host = document.getElementById('digital-library');
+          if (host && host.scrollIntoView) { try { host.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} }
+        }
+        var L = window.PDXDigitalLibrary;
+        if (L && typeof L.focus === 'function') {
+          try { L.focus({ mode: 'legislation' }); return true; } catch (e) {}
+        }
+        if (tries >= 20) return false;                 // ~3s, then it stops asking
+        setTimeout(function () { openBills(tries + 1); }, 150);
+        return true;
+      }
+      window.pdxOpenBills = function () { return openBills(0); };
 
       window.pdxDoor = function (mode) {
         switch (mode) {
@@ -5418,8 +5508,9 @@ window.PDXLazy = (function () {
             return;
 
           // ── ISSUE · the ledger of where everyone stands ────────────────────
+          // openWork() paints the surface it is about to reveal (see PAINT), so
+          // the door names the surface and nothing else.
           case 'issue':
-            paint(function () { if (window.PDXIssueView && window.PDXIssueView.mountFrontDoor) window.PDXIssueView.mountFrontDoor(); });
             openWork('issue-front-door');
             return;
 
@@ -5432,9 +5523,18 @@ window.PDXLazy = (function () {
           // reached from the library, the Eye's bill results and the measure rows in
           // a person file; there is one panel behind all four.
           case 'bill':
-            paint(function () { if (window.PDXHR1 && window.PDXHR1.mount) window.PDXHR1.mount(); });
             openWork('hr1-showcase');
             return;
+
+          // ── BILLS · the catalog behind that one measure ─────────────────────
+          // Not a door in the chooser, for the same reason 'receipts' is not: it
+          // is what the nav's "Legislation / Bills" entry resolves to. The
+          // catalog is the Digital Library's Legislation tab, and the bill file
+          // it opens is /b/<sitting>/<number> — the same panel the showcase, the
+          // Eye's bill results and a person file's measure rows all open. There
+          // is no second bill product here and this adds none.
+          case 'bills':
+            return window.pdxOpenBills();
 
           // ── MY PEOPLE · the seats resolved for this visitor ────────────────
           // Straight to the lookup band, which owns its own location prompt and

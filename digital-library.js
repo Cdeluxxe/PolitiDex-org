@@ -27,7 +27,10 @@
 
    Mounts into #digital-library (see index.html). Exposes:
      PDXDigitalLibrary.render()            (re)build everything
-     PDXDigitalLibrary.focus(opts)         scroll in; opts {q, type, issue}
+     PDXDigitalLibrary.focus(opts)         scroll in; opts {mode, q, type, issue}
+                                           mode: 'library' (the archive, and the
+                                           default when none is named) or
+                                           'legislation' (the bill catalog)
      PDXDigitalLibrary.search(q)           preset the search box
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
@@ -1243,6 +1246,11 @@
 
   function setMode(mode) {
     if (mode !== 'legislation') mode = 'library';
+    // The archive needs the spotlight registry before render() will build it, and
+    // that registry loads on demand — so a mode switch can legitimately arrive
+    // before render() has ever succeeded. injectCss() is idempotent and cheap, and
+    // without it the tab strip, facet bar and bill cards paint unstyled.
+    injectCss();
     if (_state.mode === mode && (mode !== 'legislation' || _bills)) { /* still refresh chrome below */ }
     _state.mode = mode;
     _state.shown = (mode === 'legislation') ? LEG_PAGE : PAGE;
@@ -1295,7 +1303,16 @@
       more._dlibWired = true;
       more.addEventListener('click', function () { _state.shown += (_state.mode === 'legislation' ? LEG_PAGE : PAGE); if (_state.mode === 'legislation') applyBills(); else applyBrowse(); });
     }
-    applyBrowse();
+    // Repaint whichever mode is SELECTED, not always the archive. render() is
+    // re-run whenever a lazily-loaded dataset lands (see the spotlights listener
+    // at the foot of this file), and on a phone that arrival routinely happens
+    // just after a reader has opened the Legislation tab — scrolling the library
+    // into view is itself what triggers the fetch. Ending unconditionally in
+    // applyBrowse() overwrote their bill list with the archive grid a beat after
+    // they asked for it, which is why "Legislation / Bills" looked like it landed
+    // on the same room as "Digital Library".
+    if (_state.mode === 'legislation') loadBills();
+    else applyBrowse();
     _built = true;
     return true;
   }
@@ -1317,7 +1334,10 @@
     focus: function (opts) {
       opts = opts || {};
       if (!_built) render();
-      if (opts.mode) { setMode(opts.mode); }
+      // No mode named means the archive: "Digital Library" has to open the
+      // library even when the last thing this visitor did was open Legislation.
+      // setMode() normalises anything that is not 'legislation' to 'library'.
+      setMode(opts.mode || 'library');
       // Legislation-mode deep link: filter the bill hub by issue / phase / sort.
       if (opts.mode === 'legislation') {
         if (typeof opts.issue === 'string') _billFilters.issue = opts.issue;
