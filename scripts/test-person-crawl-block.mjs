@@ -31,13 +31,25 @@
 //      and one h1. And an id that names nobody must mint NOBODY: an invented name
 //      is worse than a duplicate page.
 //
-//   3. IT SAYS ONLY WHAT PHASE A IS ALLOWED TO SAY. Identity and a formal-record-
-//      first framing. No Direction Match figure, no percentage, no "Accountability
-//      Score", no "complete ballot", no with/against-party tally, no party letter
-//      in body prose. The formal record is named before Word vs Action, because
-//      that is the order the file itself keeps. The formal-pattern snapshot is
-//      Phase B and this harness fails if it arrives early wearing Phase A's
-//      clothes — and it fails if the scoring engines moved at all.
+//   3. IT SAYS ONLY WHAT IT IS ALLOWED TO SAY. Identity, a formal-record-first
+//      framing, and the record's own pattern lines. No Direction Match figure, no
+//      percentage, no "Accountability Score", no "complete ballot", no
+//      with/against-party tally, no party letter in body prose, and no measure
+//      citations. The formal record is named before Word vs Action, because that
+//      is the order the file itself keeps. And this harness fails if the scoring
+//      engines moved at all.
+//
+//   4. THE RECORD LINES ARE THE PROFILE BRIEF'S OWN ROWS. This is the assertion
+//      that keeps the block honest as the data moves. The lines are baked at build
+//      time (db/share-index.json's personRecord, from
+//      scripts/gen-crawl-record.mjs) precisely so the edge never fetches the
+//      voting-record API on an anonymous first byte — and a baked string is a
+//      string that can go stale, or be wrong, and still render beautifully. So the
+//      section below BOOTS THE REAL ENGINES, renders the real
+//      PDXWordAction.briefHtml() for the same person, and requires every served
+//      <li> to be a row that brief actually prints. A hand-written fixture, a
+//      second pattern engine, or a snapshot regenerated against changed seeds all
+//      fail here.
 //
 // And the fourth thing, which is not a copy rule: THE APP MUST STILL BOOT. The
 // block is one insertion at one seam. Nothing else in the document may move, and
@@ -47,8 +59,9 @@
 //   node scripts/test-person-crawl-block.mjs
 //
 // Bundles netlify/edge-functions/share-preview.ts with esbuild and invokes it with
-// a stubbed context.next() serving the real index.html. Loads person-file.js into a
-// node:vm sandbox. No database, no network, no browser.
+// a stubbed context.next() serving the real index.html. Loads person-file.js, and
+// the whole record/consistency engine stack, into node:vm sandboxes. No database,
+// no network, no browser.
 
 import { readFileSync, mkdtempSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -57,6 +70,8 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import vm from "node:vm";
+import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { buildCorpus } from "./vr-record-corpus.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -320,6 +335,17 @@ must(LEE && LEE.html, "the edge returned nothing for /p/lee — it used to rewri
   has(block, "Person file. Formal record first.", "block: the framing line");
   has(block, 'href="https://www.politidex.fyi/p/lee"', "block: a link to the canonical address");
   has(block, "Open the full file", "block: …with words a reader can act on");
+  has(block, "<section data-pdx-crawl-record>", "block: the formal-record section");
+  has(block, "<h2>Formal record</h2>", "block: …named as a record, not as a score");
+
+  // ORDER INSIDE THE BLOCK. The framing sentence says what the file is before the
+  // record lines say what is in it, and the link out comes last — so a crawler
+  // that truncates the block still gets the framing with the lines it keeps.
+  const framedAt = block.indexOf("Person file. Formal record first.");
+  const recAt = block.indexOf("<section data-pdx-crawl-record>");
+  const outAt = block.indexOf("Open the full file");
+  ok(framedAt > 0 && recAt > framedAt, "the record section follows the framing line");
+  ok(recAt < outAt, "…and precedes the link out");
 
   // ONE INSERTION, NOTHING ELSE MOVED. Strip the block (and the style that
   // belongs to it) out of the served document and the body must be byte-identical
@@ -365,6 +391,15 @@ section("4 · one person, one document — whichever spelling arrived");
   // Two spellings, one document: the crawl blocks are identical strings.
   const a = blockOf(alias.html), b = blockOf(LEE.html);
   eq(a === b, true, "the alias address and the roster address serve the same crawl block, byte for byte");
+
+  // Spelled out for the record section specifically, because that is the half
+  // that is looked up in a table: the snapshot is keyed on the CANONICAL id, so
+  // an alias address cannot miss its own record (an alias-keyed lookup would
+  // return nothing here and quietly serve a thinner page under a second URL).
+  const recordOf = (html) => (html.match(/<section data-pdx-crawl-record>[\s\S]*?<\/section>/) || [""])[0];
+  const ar = recordOf(alias.html), br = recordOf(LEE.html);
+  ok(!!br, "/p/lee serves a formal-record section at all");
+  eq(ar === br, true, "/p/mike_lee serves a byte-identical formal-record section");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -376,9 +411,17 @@ section("5 · the homepage is untouched, and an unknown pid mints nobody");
   has(INDEX_HTML, "<title>PolitiDex | Bound by Truth</title>", "the homepage keeps its own title");
   hasnt(INDEX_HTML, 'id="pdx-crawl-person"', "the homepage document carries no person crawl block of its own");
   hasnt(INDEX_HTML, "<h1>Mike Lee", "…and no person h1");
+  hasnt(INDEX_HTML, "data-pdx-crawl-record", "…and no formal-record section: / is not about a person");
 
   // /index.html is the same document by another name.
   eq(await serve("/index.html"), null, "/index.html is likewise handed back untouched");
+
+  // The record section is scoped to a PERSON address, not written wherever the
+  // edge happens to run. Every other path the config matches must be free of it.
+  for (const other of ["/", "/index.html", "/issue/box-elder-stratos-data-center", "/b/utah", "/vote/119/house/1"]) {
+    const res = await serve(other);
+    hasnt(res ? res.html : INDEX_HTML, "data-pdx-crawl-record", `${other} carries no formal-record section`);
+  }
 
   // AN ADDRESS THAT NAMES NOBODY. It must not mint a name, not borrow the
   // homepage's h1 as a person's, and not guess at the nearest roster id.
@@ -410,7 +453,7 @@ section("5 · the homepage is untouched, and an unknown pid mints nobody");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("6 · the copy walls Phase A ships under");
+section("6 · the copy walls the block ships under");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const block = blockOf(LEE.html);
@@ -442,10 +485,22 @@ section("6 · the copy walls Phase A ships under");
   ok(formalAt < waAt, "the formal record is named FIRST");
   has(block, "only where a stated position exists", "Word vs Action is scoped to where a stated position exists");
 
-  // Phase A is identity and a unique document. The formal-pattern snapshot is
-  // Phase B: if it lands early, it lands with its own tests, not smuggled in here.
-  for (const phaseB of ["Voted ", "Co-sponsored", "roll call", "Roll call", "H.R.", "S.B.", "H.B."]) {
-    hasnt(block, phaseB, `Phase A does not print formal-record content (${JSON.stringify(phaseB)})`);
+  // THE RECORD LINES ARE PATTERNS, NOT CITATIONS. The block prints the shape of
+  // the record — a tier, an issue, the two side counts — and never an individual
+  // act. A measure number or a "Voted yes on…" in a crawlable block is a specific
+  // claim about a specific ballot, cached by a search engine, with no source link
+  // next to it and no way for a correction to reach it. The full file, one click
+  // away, carries every act with its citation; this block carries none.
+  for (const citation of ["Voted ", "Co-sponsored", "roll call", "Roll call", "H.R.", "S.B.", "H.B."]) {
+    hasnt(block, citation, `the block cites no individual measure (${JSON.stringify(citation)})`);
+  }
+
+  // The heading names a RECORD. "Formal record" is a description of what the lines
+  // are; anything in the register of a rating would turn six ordinal facts into a
+  // verdict the page never issued.
+  has(block, "<h2>Formal record</h2>", "the section is headed as a record");
+  for (const notARecord of ["Rating", "rating", "Report card", "report card", "Overall", "Summary score"]) {
+    hasnt(block, notARecord, `the record section is not framed as a rating (${JSON.stringify(notARecord)})`);
   }
 
   // The same walls over a wide sample of real people, not just the one everybody
@@ -460,7 +515,37 @@ section("6 · the copy walls Phase A ships under");
     const b = blockOf(res.html);
     if (!b) { offenders.push(`${pid}: no block`); continue; }
     checked++;
-    if (/%|\bscore\b|Accountability|\((R|D|I|L|G)\)/i.test(b)) offenders.push(`${pid}: banned copy`);
+    // "Accountability Score" is the banned phrase, and it must be matched as the
+    // phrase: two of the app's own shipped issue labels are "🏦 Corporate
+    // Accountability" and "🔒 Privacy & Big-Tech Accountability", and a bare
+    // /Accountability/i here would flag a legitimate record line as banned copy —
+    // failing the test for printing the issue vocabulary correctly.
+    if (/%|\bscore\b|accountability score|\((R|D|I|L|G)\)/i.test(b)) offenders.push(`${pid}: banned copy`);
+
+    // THE RECORD LINES, ACROSS THE SAMPLE. Two rules, and the second is the one
+    // that matters: a person with nothing readable gets no section at all.
+    const rec = (b.match(/<section data-pdx-crawl-record>[\s\S]*?<\/section>/) || [""])[0];
+    const items = rec ? rec.match(/<li>[\s\S]*?<\/li>/g) || [] : [];
+    if (rec) {
+      if (!items.length) offenders.push(`${pid}: an empty record section was printed`);
+      if (items.length > 6) offenders.push(`${pid}: ${items.length} record lines (cap is 6)`);
+      for (const li of items) {
+        const t = li.replace(/<[^>]*>/g, "");
+        // Vocabulary, not free text: the tier words the record lane publishes.
+        if (!/^(Strongly (supports|opposes)|Mostly (supports|opposes)|Split) · /.test(t)) {
+          offenders.push(`${pid}: record line is not a published pattern label (${t})`);
+        }
+        // A tally is two side counts in the engine's own phrase, or it is absent.
+        // Never a ratio, never a denominator, never a percentage.
+        const tail = t.split(" · ").slice(2).join(" · ");
+        if (tail && !/^\d+ (advanced|actions advanced|actions against)( · \d+ against)?$/.test(tail)) {
+          offenders.push(`${pid}: record line tally is not a side count (${tail})`);
+        }
+      }
+      if (!IDX.personRecord || !IDX.personRecord[pid]) offenders.push(`${pid}: printed lines the snapshot does not hold`);
+    } else if (IDX.personRecord && IDX.personRecord[pid]) {
+      offenders.push(`${pid}: the snapshot holds lines that were not printed`);
+    }
     // A clipped district string must not reach an indexable sentence as a
     // mid-word fragment with an unclosed parenthesis.
     const line = (b.match(/<p>([^<]*)<\/p>/) || [])[1] || "";
@@ -474,7 +559,178 @@ section("6 · the copy walls Phase A ships under");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("7 · the SPA still boots, and the block yields to the live file");
+section("7 · the record lines are the profile brief's own rows");
+// ═════════════════════════════════════════════════════════════════════════════
+// THE FAILURE THIS SECTION EXISTS TO CATCH. The record lines are baked into
+// db/share-index.json at build time, because the alternative is fetching
+// /api/voting-record on the anonymous first byte of every crawl of every person
+// address. That is the right call and it has a cost: a baked string renders just
+// as beautifully when it is stale, when it came from a hand-written fixture, or
+// when someone stood up a second pattern engine to produce it. None of those
+// failures are visible in the HTML.
+//
+// So this section does not check the block against the snapshot — it checks the
+// block against THE LIVE BRIEF. The real consistency.js, word-action.js and
+// voting-record.js are booted in a sandbox, the record lane is seeded from the
+// shipped seeds, PDXWordAction.briefHtml() renders the same person's brief, and
+// every served <li> must be a row that brief actually prints, tier and counts and
+// all. The brief is the page a reader reaches by clicking "Open the full file";
+// if the block and that page disagree about somebody's record, one of them is
+// lying to a search engine.
+{
+  const ENGINE_STACK = [
+    "cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js", "state-senate-stances.js",
+    ...Array.from({ length: 15 }, (_, i) => `state-senate-stances-w${i + 2}.js`),
+    "stance-helpers.js", "alignment-tool.js", "acct-spotlight-data.js", "say-vs-do.js",
+    "exec-action-data.js", "exec-record.js", "exec-record-ui.js", "consistency.js",
+    "voting-record.js", "word-action.js",
+  ];
+  const win = makeSandbox();
+  const ctx = vm.createContext(win);
+  for (const f of ENGINE_STACK) vm.runInContext(R(f), ctx, { filename: f });
+  win.PROFILES = win.CMP_DATA; // profiles-full.js is not in the sandbox; the roster stands in, as elsewhere
+  must(win.PDXWordAction && typeof win.PDXWordAction.briefHtml === "function",
+    "PDXWordAction.briefHtml is no longer the brief renderer — this cross-check cannot run");
+  must(win.PDXVotingRecord && typeof win.PDXVotingRecord.noteMember === "function",
+    "PDXVotingRecord.noteMember is gone — the record lane cannot be seeded offline");
+
+  // The federal lane, from the shipped seeds. This is the same projection
+  // scripts/gen-crawl-record.mjs feeds the engines, read here through a SEPARATE
+  // boot: agreement between the two is agreement about the engines' output, not a
+  // shared cache.
+  const corpus = buildCorpus(ROOT);
+  must(corpus.byMember.size > 100, `the offline record corpus is real (${corpus.byMember.size} members)`);
+  for (const [pid, items] of corpus.byMember) {
+    try { win.PDXVotingRecord.noteMember(pid, items); } catch { /* one member's pack is not the run */ }
+  }
+
+  // Brief text, flattened the way a reader sees it. The brief prints a row as
+  // "<issue> › 🏛 Record <tier> · <counts>", so a served line's three parts must
+  // appear there in that arrangement.
+  const briefText = (pid) => {
+    let html = "";
+    try { html = win.PDXWordAction.briefHtml(pid, win.CMP_DATA[pid]) || ""; } catch { html = ""; }
+    return html.replace(/<[^>]*>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+  };
+  const linesOf = (html) => {
+    const rec = (html.match(/<section data-pdx-crawl-record>[\s\S]*?<\/section>/) || [""])[0];
+    return (rec.match(/<li>[\s\S]*?<\/li>/g) || []).map((li) =>
+      li.replace(/<[^>]*>/g, "").replace(/&amp;/g, "&").trim()
+    );
+  };
+
+  // ── the mission's named subject, line by line ──────────────────────────────
+  const leeLines = linesOf(LEE.html);
+  ok(leeLines.length >= 3 && leeLines.length <= 6, `/p/lee prints ${leeLines.length} record lines (3–6 expected)`);
+  const leeBrief = briefText("lee");
+  must(leeBrief.includes("The formal record"), "the brief did not render for lee — the sandbox is not seeded");
+
+  const orphans = [];
+  for (const line of leeLines) {
+    const parts = line.split(" · ");
+    const tier = parts[0], issue = parts[1], counts = parts.slice(2).join(" · ");
+    // The brief's own arrangement, quoted. Requiring the ORDER (issue, then the
+    // Record eyebrow, then the tier and counts) is what makes this a match against
+    // a real row rather than a word search over a long page: the tier and the
+    // counts have to belong to that issue.
+    const want = `${issue} › 🏛 Record ${tier}${counts ? ` · ${counts}` : ""}`;
+    if (!leeBrief.includes(want)) orphans.push(want);
+  }
+  eq(orphans, [], "every record line /p/lee serves is a row the live brief prints for Mike Lee");
+  ok(leeLines.some((l) => /^(Strongly|Mostly) (supports|opposes) · /.test(l)),
+    "…including at least one one-sided pattern");
+
+  // ORDER IS THE BRIEF'S ORDER. The brief lists its strongest one-sided reads
+  // first and then the rows that ran both ways; the block must not reshuffle them
+  // into something that reads like a ranking of its own.
+  const firstSplit = leeLines.findIndex((l) => l.startsWith("Split · "));
+  const lastSided = leeLines.reduce((acc, l, i) => (l.startsWith("Split · ") ? acc : i), -1);
+  ok(firstSplit === -1 || firstSplit > lastSided, "one-sided patterns come before the splits, as in the brief");
+
+  // ── the executive lane reads its own surface ───────────────────────────────
+  // consistency.js's roll-call shape returns "0 read" for a president by design,
+  // so a block built off the wrong lane would print nothing for the most-crawled
+  // person on the site. The brief asks the exec lane first; so must the snapshot.
+  const trump = await serve("/p/trump");
+  if (trump) {
+    const tLines = linesOf(trump.html);
+    ok(tLines.length > 0, `/p/trump prints its executive record (${tLines.length} lines)`);
+    const tBrief = briefText("trump");
+    const tOrphans = tLines.filter((line) => {
+      const parts = line.split(" · ");
+      const want = `${parts[1]} › 🏛 Record ${parts[0]}${parts.slice(2).length ? ` · ${parts.slice(2).join(" · ")}` : ""}`;
+      return !tBrief.includes(want);
+    });
+    eq(tOrphans, [], "every record line /p/trump serves is a row the live exec brief prints");
+  } else {
+    ok(false, "/p/trump served no document — the most-crawled person on the site lost its block");
+  }
+
+  // ── A THIN FILE PRINTS NOTHING, AND SAYS NOTHING ABOUT IT ──────────────────
+  // 472 of the 800 roster records are offices with no roll-call lane (attorneys
+  // general, sheriffs, school boards) or files nobody has reviewed yet. Their
+  // pages keep their name and their office. What they must never carry is a line
+  // announcing the absence: "no pattern on file" reads as a finding about the
+  // person, and it is a fact about our curation queue.
+  const empties = Object.keys(IDX.people).filter((pid) => !IDX.personRecord[pid]);
+  ok(empties.length > 50, `the index really holds unreviewed files (${empties.length})`);
+  const thin = await serve("/p/" + empties[0]);
+  must(thin && thin.html, `/p/${empties[0]} served no document`);
+  const thinBlock = blockOf(thin.html);
+  ok(!!thinBlock, `an unreviewed file still gets its identity block (${empties[0]})`);
+  has(thinBlock, "<h1>", "…with a name");
+  hasnt(thinBlock, "data-pdx-crawl-record", "…and no formal-record section at all");
+  hasnt(thinBlock, "<ul>", "…not an empty list");
+  for (const excuse of ["No pattern", "no pattern", "Not enough", "not enough", "No record", "no record", "unreviewed", "Thin"]) {
+    hasnt(thinBlock, excuse, `…and no note about the absence (${JSON.stringify(excuse)})`);
+  }
+
+  // Also true of the engine's own answer: a pid the engines read nothing for must
+  // be ABSENT from the snapshot rather than present with an empty list, because
+  // that difference is what tells the edge to omit the section.
+  const emptyLists = Object.entries(IDX.personRecord).filter(([, v]) => !Array.isArray(v) || !v.length).map(([k]) => k);
+  eq(emptyLists, [], "the snapshot holds no empty entries — absence is expressed by absence");
+
+  // ── the snapshot is a census, not a demo ──────────────────────────────────
+  // One hand-checked senator would pass every assertion above. These pin the
+  // SCALE: both lanes present, at scale, keyed the way the edge looks them up.
+  const snap = IDX.personRecord;
+  ok(Object.keys(snap).length > 250, `the snapshot covers the reviewed roster (${Object.keys(snap).length} people)`);
+  const total = Object.values(snap).reduce((n, v) => n + v.length, 0);
+  ok(total > 1200, `…with real depth (${total} lines)`);
+  ok(Object.values(snap).every((v) => v.length <= 6), "no person carries more than 6 lines");
+  // The Utah legislature is a SEPARATE lane in the generator (the three shipped
+  // Utah floor/committee feeders, assembled the way scripts/vr-utah-fpi.mjs
+  // assembles them). A federal-only snapshot would still pass everything above, so
+  // the state seats are counted on their own: 82 of the 88 Utah legislators on the
+  // roster carry lines, and a collapse to zero means a feeder stopped being read.
+  const utah = Object.keys(snap).filter((pid) => /Utah State (Representative|Senator)/.test(IDX.people[pid]?.o || ""));
+  ok(utah.length > 50, `the Utah lane is in the snapshot (${utah.length} state legislators) — its seeds are read, not skipped`);
+  const aliasKeyed = Object.keys(snap).filter((pid) => IDX.personAliases[pid]);
+  eq(aliasKeyed, [], "every snapshot key is a canonical roster id, never an alias");
+  const strays = Object.keys(snap).filter((pid) => !IDX.people[pid]);
+  eq(strays, [], "…and every snapshot key is a person the index holds");
+
+  // The vocabulary, over the WHOLE table rather than over a sample: the labels are
+  // the record lane's published tiers, and nothing here is a percentage or a total.
+  const tiers = new Set();
+  const badTally = [];
+  for (const [pid, rows] of Object.entries(snap)) {
+    for (const row of rows) {
+      tiers.add(row.p);
+      if (row.c && !/^\d+ (advanced|actions advanced|actions against)( · \d+ against)?$/.test(row.c)) {
+        badTally.push(`${pid}: ${row.c}`);
+      }
+      if (/%|percent|\bscore\b/i.test(`${row.p} ${row.i} ${row.c || ""}`)) badTally.push(`${pid}: scored copy`);
+    }
+  }
+  eq([...tiers].sort(), ["Mostly opposes", "Mostly supports", "Split", "Strongly opposes", "Strongly supports"],
+    "the snapshot speaks only the record lane's published tiers");
+  eq(badTally.slice(0, 6), [], "every tally in the snapshot is a side count, and nothing is scored");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("8 · the SPA still boots, and the block yields to the live file");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   // The two path patterns must agree, or the edge writes a block on an address the
@@ -527,7 +783,7 @@ section("7 · the SPA still boots, and the block yields to the live file");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("8 · the engines did not move");
+section("9 · the engines did not move");
 // ═════════════════════════════════════════════════════════════════════════════
 // This pass is a document-shape change. It has no business anywhere near the
 // arithmetic, so the arithmetic is pinned by content hash against HEAD rather than

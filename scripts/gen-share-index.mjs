@@ -12,15 +12,34 @@
 // edge function can (or should) load. This build step distills the four small
 // pieces that matter into one JSON file the edge imports at cold start:
 //
-//   people      — id → name / office / state / party        (from cmp-data.js)
-//   spotlights  — slug → title / description / place        (from spotlights-data.js)
-//   cores       — core issue key → label / blurb            (from alignment-tool.js)
-//   issues      — ISSUE_MAP key → label                     (from alignment-tool.js)
+//   people       — id → name / office / state / party       (from cmp-data.js)
+//   spotlights   — slug → title / description / place       (from spotlights-data.js)
+//   cores        — core issue key → label / blurb           (from alignment-tool.js)
+//   issues       — ISSUE_MAP key → label                    (from alignment-tool.js)
+//   personRecord — id → up to 6 formal-pattern lines        (from gen-crawl-record.mjs)
 //
 // Nothing here is a judgment. There is deliberately no score, no verdict, no
 // kept/broken tally: a preview is an ADDRESS LABEL for a page, and a cached
 // verdict that has since moved is exactly the kind of thing that must never
 // travel as a PNG in someone's feed. The edge card says what the page IS.
+//
+// ── The fifth table is not for a card ───────────────────────────────────────
+// personRecord is read by the person-file CRAWL BLOCK, not by a preview: the
+// visible <h1>/office/record header share-preview.ts injects into /p/<pid> so the
+// address is a document about one person before any JavaScript runs. Phase A gave
+// that block a name and an office, which made 757 person addresses distinct from
+// the homepage without making them distinct from EACH OTHER. These lines are the
+// formal record's shape, in the profile brief's own words.
+//
+// It is still not a judgment, and it is held to the same walls: a tier and an
+// issue and, where the brief prints them, two side counts. No percentage, no
+// Direction Match figure, no Word-vs-Action number, no party tally. And the lines
+// are SELECTED here, never derived — scripts/gen-crawl-record.mjs boots the real
+// consistency.js and reads formalPatternIndex.shape(), the same accessor the live
+// brief renders from, so there is exactly one pattern engine in the product. Its
+// header carries the rest of the reasoning; regenerating this index refreshes the
+// snapshot, which is why it lives here and not in a file of its own that could be
+// forgotten.
 //
 // ── The second output: db/share-stances.json ─────────────────────────────────
 // A Word-vs-Action link is ABOUT a comparison, and until now the edge could not
@@ -56,6 +75,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { buildCrawlRecord } from "./gen-crawl-record.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -328,23 +348,35 @@ if (!Object.keys(cores).length) {
   throw new Error("CORE_NATIONAL_ISSUES produced zero entries — refusing to write an empty index");
 }
 
+// ── the formal-pattern snapshot (the person-file crawl block's record lines) ──
+// Keyed on the CANONICAL roster id, because that is what canonicalPersonId()
+// hands the lookup: /p/mike_lee and /p/lee resolve to `lee` before the table is
+// read, so one entry serves both addresses and the two pages cannot print
+// different records. A person the engines read nothing for gets no entry at all,
+// and an address with no entry prints no record section — a thin unpublished file
+// stays name and office, and never says "no pattern" as though that were a
+// finding about the person rather than a gap in our curation.
+const { personRecord, stats: recordStats } = buildCrawlRecord(ROOT);
+
 const payload = {
   _generatedBy:
-    "scripts/gen-share-index.mjs (from cmp-data.js, spotlights-data.js, alignment-tool.js)",
+    "scripts/gen-share-index.mjs (from cmp-data.js, spotlights-data.js, alignment-tool.js, gen-crawl-record.mjs)",
   _note:
-    "Read by netlify/edge-functions/share-preview.ts and share-og.ts to build per-link social previews. Titles and descriptions only — no scores, no verdicts. personAliases maps an arriving person id to the one roster id it means (PDX_PROFILE_ALIAS, then the unambiguous display-name slug — the same precedence person-file.js resolve() uses); it holds no facts about anybody.",
+    "Read by netlify/edge-functions/share-preview.ts and share-og.ts to build per-link social previews. Titles and descriptions only — no scores, no verdicts. personAliases maps an arriving person id to the one roster id it means (PDX_PROFILE_ALIAS, then the unambiguous display-name slug — the same precedence person-file.js resolve() uses); it holds no facts about anybody. personRecord is the person-file crawl block's formal-record lines, keyed on canonical roster id: p=pattern label, i=issue label, c=side counts where the profile brief prints them. It is a BUILD-TIME PROJECTION of the shipped roll-call and committee seeds read through the live formalPatternIndex/execRecordSummary engines, capped at 6 lines in the brief's own order, and it exists so the crawl block never has to call the voting-record API on an anonymous first byte. A pid with no readable pattern is absent by design; do not fill one in.",
   counts: {
     people: Object.keys(people).length,
     personAliases: Object.keys(personAliases).length,
     spotlights: Object.keys(spotlights).length,
     cores: Object.keys(cores).length,
     issues: Object.keys(issues).length,
+    personRecord: Object.keys(personRecord).length,
   },
   people,
   personAliases,
   spotlights,
   cores,
   issues,
+  personRecord,
 };
 
 // ── stated positions (the SAID half of a Word-vs-Action preview) ─────────────
@@ -434,7 +466,8 @@ console.log(
   `Wrote share index to ${OUT} — ` +
     `${payload.counts.people} people (+${payload.counts.personAliases} id aliases), ` +
     `${payload.counts.spotlights} spotlights, ` +
-    `${payload.counts.cores} core issues, ${payload.counts.issues} issue keys`
+    `${payload.counts.cores} core issues, ${payload.counts.issues} issue keys, ` +
+    `${payload.counts.personRecord} formal-record snapshots (${recordStats.lines} lines)`
 );
 console.log(
   `Wrote stated positions to ${OUT_STANCES} — ` +

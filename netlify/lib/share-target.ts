@@ -40,6 +40,14 @@ import shareStances from "../../db/share-stances.json" with { type: "json" };
 type PersonRec = { n: string; o?: string; s?: string; p?: string };
 type SpotlightRec = { t: string; d?: string; pl?: string; u?: string };
 type CoreRec = { l: string; b?: string };
+// One line of a person's formal record, as the profile brief already prints it:
+// p = pattern label ("Strongly opposes" / "Mostly supports" / "Split"), i = issue
+// label including its chip emoji, c = the two side counts in the engine's own
+// phrase, present only where the brief prints a tally. Nothing computed, nothing
+// aggregated: no percentage, no total, no Word-vs-Action figure. See
+// scripts/gen-crawl-record.mjs for where the words come from and why they are
+// baked at build time instead of fetched.
+export type RecordLine = { p: string; i: string; c?: string };
 type ShareIndex = {
   people: Record<string, PersonRec>;
   // An arriving person id → the ONE roster id it means. Generated from the app's
@@ -50,9 +58,16 @@ type ShareIndex = {
   spotlights: Record<string, SpotlightRec>;
   cores: Record<string, CoreRec>;
   issues: Record<string, string>;
+  // Canonical roster id → up to 6 formal-record lines. Keyed canonically, so
+  // /p/mike_lee and /p/lee read the SAME entry and cannot print different
+  // records. A person with no readable pattern is absent from this table rather
+  // than present-and-empty, because the crawl block's rule is that a thin
+  // unpublished file prints no record section at all.
+  personRecord?: Record<string, RecordLine[]>;
 };
 const INDEX = shareIndex as unknown as ShareIndex;
 const PERSON_ALIASES: Record<string, string> = INDEX.personAliases || {};
+const PERSON_RECORD: Record<string, RecordLine[]> = INDEX.personRecord || {};
 
 // ── canonicalPersonId ────────────────────────────────────────────────────────
 // The roster id an arriving person address MEANS. `mike_lee` is the display-name
@@ -156,10 +171,27 @@ export type Resolved = {
   // (INDEX.people), re-exposed unformatted so nothing downstream has to parse a
   // display string back into an office and a state.
   //
-  // Identity only: a name, the office they hold, the state they hold it in. No
-  // score, no Direction Match, no party-as-grade — the same wall the rest of this
-  // file keeps.
-  person?: { pid: string; name: string; office: string; state: string };
+  // Identity, plus the shape of the formal record. A name, the office they hold,
+  // the state they hold it in, and up to six pattern lines in the profile brief's
+  // own words — because a name and an office made the 757 person addresses
+  // distinct from the homepage without making them distinct from each other, and
+  // a crawler reading two of those bodies could not tell whose file it was on.
+  //
+  // `record` is a snapshot read at build time (see personRecord above): the same
+  // tiers and issue labels the live brief renders, never a second engine's
+  // opinion, and never a network call on the anonymous first byte. It is absent
+  // for a person with no readable pattern, and callers must print nothing at all
+  // in that case rather than announcing the absence.
+  //
+  // No score, no Direction Match, no party-as-grade, no percentage — the same
+  // wall the rest of this file keeps.
+  person?: {
+    pid: string;
+    name: string;
+    office: string;
+    state: string;
+    record?: RecordLine[];
+  };
 };
 
 // A link we positively know is wrong — as opposed to one we merely could not
@@ -513,7 +545,17 @@ export async function resolveTarget(
       // same id. Office and state are passed through as themselves; the "(R)" the
       // title carries is office identity in a card headline and is deliberately
       // NOT part of this, because the body block must not read as a grade.
-      person: { pid: t.id, name: rec.n, office: rec.o || "", state: rec.s || "" },
+      person: {
+        pid: t.id,
+        name: rec.n,
+        office: rec.o || "",
+        state: rec.s || "",
+        // Canonical id in, so an alias address gets the identical list. Undefined
+        // rather than [] when the snapshot holds nothing for this person: the
+        // difference is what tells the caller to omit the section instead of
+        // rendering an empty one.
+        record: PERSON_RECORD[t.id] && PERSON_RECORD[t.id].length ? PERSON_RECORD[t.id] : undefined,
+      },
     };
   }
 
