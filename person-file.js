@@ -355,7 +355,13 @@
   // reader looking at the file itself rather than at a summary of the file sitting
   // above the app. It is only ever hidden by the OPEN path: a /p/<pid> arrival
   // that resolves to nobody keeps its block, because then the block is the only
-  // thing on the page that says anything true.
+  // thing on the page that says anything true. That case now has a block to keep —
+  // the edge writes a GENERIC one for a pid it holds no record for (name, office,
+  // state and issue rows all absent), so the seam at the top of a person document
+  // is never empty for a cache layer to fill with the last member it happened to
+  // hold. index.html's inline guard is the other half of that: it neutralises any
+  // header whose data-pdx-crawl-for stamp is not the address in the bar, before
+  // the first paint and long before this function runs.
   //
   // Nothing here can take an open down with it — the whole call sits in a guard at
   // its one call site, and the node is absent on every address except /p/<pid>.
