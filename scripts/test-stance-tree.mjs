@@ -525,8 +525,12 @@ section("3 · pattern-only rows are disclosed, three ways");
   has(uh, 'class="pdxtree-depth"> · 5 votes<', "…with the count of them");
   lacks(uh, "pdxtree-pct", "…and no percentage, because nothing scored it");
   const usay = (uh.match(/aria-label="([^"]*)"/) || [])[1] || "";
-  has(usay, "resolved to neither side",
-    "…and the accessible name says WHY no direction was read");
+  // WHY, in the rung's own words. Where the file names the positions, the note
+  // now inventories them ("… is 3 Present · 2 Did not vote — nothing that took a
+  // side") and only falls back to the generic clause where it cannot. Either
+  // sentence answers the question this pin asks; a bare count answers neither.
+  ok(/resolved to neither side|nothing that took a side/.test(usay),
+    `…and the accessible name says WHY no direction was read (got ${JSON.stringify(usay)})`);
   lacks(usay, "only incidentally",
     "…and never says it was package-borne, because that is a label on the bill " +
     "and not a reason to withhold a reading");

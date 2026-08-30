@@ -561,8 +561,17 @@ section("5 · a refusal names its own reason");
   ok(w2 && w4 && w2.lb !== w4.lb,
     "…and the surviving refusals are still different sentences, which was the whole complaint");
 
+  // A poleless row holding judged acts answers on the no_pole_read rung, which
+  // leads with what is on file and keeps the mapping sentence underneath; a
+  // poleless row holding nothing judged still answers on no_side. What this pin
+  // defends either way is the direction of the sentence: the limit is OURS.
   const w3 = why(F_DEEP, DEEP_FIX.poleless.key);
-  ok(w3 && w3.id === "no_side", "a poleless issue still names the gap as ours, not theirs");
+  ok(w3 && (w3.id === "no_side" || w3.id === "no_pole_read"),
+    `a poleless issue still refuses on a mapping rung — got ${JSON.stringify(w3 && w3.id)}`);
+  ok(w3 && /our own issue mapping|gap in our mapping|limit of our mapping/.test(String(w3.note)),
+    "a poleless issue still names the gap as ours, not theirs");
+  ok(w3 && !/supports|opposes/i.test(String(w3.lb)),
+    "…and names no side while doing it");
 
   // Every unread row in the index now carries a reason and a note.
   [F_DEEP, F_SHALLOW].forEach((rows) => {
@@ -610,12 +619,20 @@ section("5b · the ROW CHIP — the surface the last pass missed");
 
   // A refusal on the chip names which refusal it is, in _fpiUnreadWhy's own
   // vocabulary — the same sentences the index already uses, not a second set.
+  // Read off the index rather than pinned as a literal: the refusal a Present-only
+  // ledger prints now names the ACT ("Voted Present on this issue") instead of the
+  // generic "no vote here took a side", because "1 vote" was the quietest thing on
+  // the row. What this pin defends is that the chip and the index say it in the
+  // SAME words, whichever words those are.
   const refusals = {
-    [DEEP_FIX.no_side.key]: "no vote here took a side",
+    [DEEP_FIX.no_side.key]: String(((F_DEEP[DEEP_FIX.no_side.key] || {}).why || {}).lb || "").toLowerCase(),
   };
   Object.keys(refusals).forEach((k) => {
     const h = chip(DEEP, k);
+    ok(!!refusals[k], `${k}: the index published no refusal label to compare against`);
     eq(label(h).toLowerCase(), refusals[k], `${k}: the chip names the real reason`);
+    ok(/present|did not vote|took a side|no side/i.test(refusals[k]),
+      `${k}: …and that reason is about who took a side, not about depth`);
     lacks(h, "no clear pattern", `${k}: …and not the blanket sentence`);
     lacks(h, "supports", `${k}: …and borrows no direction word`);
     lacks(h, "opposes", `${k}: …in either direction`);

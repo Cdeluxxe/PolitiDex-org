@@ -197,7 +197,7 @@ function makeDom() {
     requestAnimationFrame() { return 0; },
     matchMedia() { return { matches: false, addEventListener() {}, addListener() {} }; },
     getComputedStyle() { return { getPropertyValue() { return ""; } }; },
-    location: { href: "https://politidex.fyi/", pathname: "/", search: "", hash: "", origin: "https://politidex.fyi" },
+    location: { href: "https://www.politidex.fyi/", pathname: "/", search: "", hash: "", origin: "https://www.politidex.fyi" },
     history: { pushState(s, t, u) { win.location.pathname = String(u); }, replaceState(s, t, u) { win.location.pathname = String(u); } },
     navigator: { userAgent: "node" },
     fetch() { return Promise.reject(new Error("test-issue-visual-pass: no network")); },

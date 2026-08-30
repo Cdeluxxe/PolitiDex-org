@@ -17,4 +17,4 @@ Allow: /
 Disallow: /.netlify/
 Disallow: /api/
 
-Sitemap: https://politidex.fyi/sitemap.xml
+Sitemap: https://www.politidex.fyi/sitemap.xml

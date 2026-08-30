@@ -248,7 +248,7 @@ function personFile(opts) {
   };
   const win = {
     document: doc,
-    location: { origin: "https://politidex.fyi", pathname: opts.pathname || "/", search: "", hash: "", href: "https://politidex.fyi/" },
+    location: { origin: "https://www.politidex.fyi", pathname: opts.pathname || "/", search: "", hash: "", href: "https://www.politidex.fyi/" },
     history: { replaceState(a, b, url) { calls.replace.push(url); }, pushState() {} },
     _listeners: {},
     addEventListener(t, f) { (win._listeners[t] = win._listeners[t] || []).push(f); },
@@ -441,7 +441,7 @@ function eyePanel(opts) {
     setTimeout: () => 0, clearTimeout() {}, setInterval: () => 0, clearInterval() {},
     parseInt, parseFloat, isNaN, isFinite, encodeURIComponent, decodeURIComponent,
     requestAnimationFrame: () => 0, fetch: () => new Promise(() => {}),
-    location: { href: "/", search: "", hash: "", pathname: "/", origin: "https://politidex.fyi" },
+    location: { href: "/", search: "", hash: "", pathname: "/", origin: "https://www.politidex.fyi" },
     history: { replaceState() {}, pushState() {} },
     localStorage: { getItem: () => null, setItem() {}, removeItem() {} },
     sessionStorage: { getItem: () => null, setItem() {}, removeItem() {} },
@@ -594,7 +594,7 @@ function firebaseBoot(opts) {
     Promise, Set, Map, Object, Array, String, Number, RegExp, Error,
     setTimeout: () => 0, clearTimeout() {}, encodeURIComponent, decodeURIComponent,
     fetch: () => new Promise(() => {}),
-    location: { href: "/", search: "", hash: "", pathname: "/", origin: "https://politidex.fyi" },
+    location: { href: "/", search: "", hash: "", pathname: "/", origin: "https://www.politidex.fyi" },
     localStorage: { getItem: () => null, setItem() {}, removeItem() {} },
     document: {
       readyState: "complete", body: mkEl(), head: mkEl(), createElement: mkEl,

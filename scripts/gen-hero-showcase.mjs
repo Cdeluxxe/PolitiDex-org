@@ -131,7 +131,7 @@ export function makeSandbox() {
     requestIdleCallback() { return 0; },
     matchMedia() { return { matches: false, addEventListener() {}, addListener() {} }; },
     getComputedStyle() { return { getPropertyValue() { return ""; } }; },
-    location: { href: "https://politidex.fyi/", pathname: "/", search: "", hash: "", origin: "https://politidex.fyi" },
+    location: { href: "https://www.politidex.fyi/", pathname: "/", search: "", hash: "", origin: "https://www.politidex.fyi" },
     navigator: { userAgent: "node" },
     screen: { width: 1280, height: 800 }, devicePixelRatio: 1,
     localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} },

@@ -310,7 +310,7 @@ const getMemberPack = makeGetMemberPack({
 // would have landed on; null means it asked the unversioned URL.
 const request = async (pid, version) => {
   PACK.resetMappingVersionMemo();
-  const url = `https://politidex.fyi/api/voting-record/member/${pid}/pack` +
+  const url = `https://www.politidex.fyi/api/voting-record/member/${pid}/pack` +
     (version ? `/${version}` : "");
   const res = await getMemberPack(pid, new Request(url), version);
   const body = res.status === 200 ? await res.json() : null;

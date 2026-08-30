@@ -882,9 +882,45 @@
       record_uniform_thin: { key: 'record_uniform_thin', label: 'Every vote one way',    characterised: true,  counted: true },
       record_split_deep:   { key: 'record_split_deep',   label: 'Ran both ways, counted', characterised: false, counted: true },
       record_split:        { key: 'record_split',        label: 'Ran both ways',         characterised: false, counted: false },
-      record_thin:         { key: 'record_thin',         label: 'Too thin to characterise', characterised: false, counted: false },
+      // "TOO THIN TO CHARACTERISE" WAS A REFUSAL WHERE A READ BELONGED. The old
+      // label was printed by the slot on the share card and by the Official Record
+      // row, on rows that one click away already carried a Thin / Split / Mostly /
+      // Strongly chip: the dossier said "Thin opposes" and the card beside it said
+      // "too thin to characterise", which is two answers to one question about one
+      // row. What this token actually withholds is DEPTH, not the file — there is a
+      // record, it is small, and none of it is a pattern. So the label states the
+      // depth it has ("thin read") and denies only the thing it is entitled to deny
+      // ("not a deep pattern"), and every surface that prints `label` says the same
+      // non-contradictory sentence by construction rather than by agreement.
+      //   `characterised` and `counted` are untouched. This is a rename of a
+      // refusal, not a promotion of one: nothing that gates on those two flags can
+      // see any more than it saw before.
+      record_thin:         { key: 'record_thin',         label: 'Thin read, not a deep pattern', characterised: false, counted: false },
       record_none:         { key: 'record_none',         label: 'Nothing directional on file', characterised: false, counted: false }
     };
+
+    // ── WHICH KIND OF NO-SIDE, IN SLUGS ────────────────────────────────────────
+    // `noSide` counts the acts on file that took no direction. It could not say
+    // WHICH kind of no-side each one was, and that mattered on exactly one surface:
+    // a row whose whole mapped file is an abstention printed "no vote here took a
+    // side" over a ledger that says, in the clerk's own words, "Did not vote". The
+    // reader was handed the refusal and denied the fact behind it.
+    //   SLUGS, NEVER WORDS. A recorded Present and a recorded absence are different
+    // facts and the phrases for them are already written down once, in
+    // consistency.js beside the dossier's own no-side divider (_DOS_NOSGRP). This
+    // classifies and hands back a key; the surface that speaks owns the speaking, so
+    // there is no second place for "Did not vote" to be spelled differently.
+    //   IT IS A DISCLOSURE AND NOTHING ELSE, on the same terms as `noSide` itself:
+    // no floor, tier, lead, count or share below reads it, and a row's tier cannot
+    // change because one of its abstentions was a Present rather than an absence.
+    var _RD_NOSIDE_KIND = {
+      present: 'present', abstain: 'present',
+      not_voting: 'absent', notvoting: 'absent', absent: 'absent', excused: 'absent'
+    };
+    function _rdNoSideKind(item) {
+      var p = String((item && item.position) || '').toLowerCase().trim().replace(/\s+/g, '_');
+      return _RD_NOSIDE_KIND[p] || 'other';
+    }
 
     function _rdPlural(n, one, many) { return n === 1 ? one : many; }
 
@@ -930,6 +966,10 @@
         // therefore two no-side acts here and two rows in the dossier, which is
         // what is on file and what the list shows.
         noSide: 0,
+        // …and the same count broken out by kind, in _rdNoSideKind's slugs. Sums to
+        // `noSide` by construction (every increment below sets exactly one key), and
+        // is read only by copy — see the wall over _rdNoSideKind.
+        noSideKinds: { present: 0, absent: 0, other: 0 },
         // ── THE ACT MIX (see THE NON-VOTE FORMAL ACTS above) ─────────────────
         // `mix` counts the acts that were ADMITTED, by class. `actStrength` is
         // their summed depth weight and `floorStrength` the part of it that is
@@ -969,7 +1009,11 @@
         // The SAME direction function the say-vs-do engine uses, including its
         // procedural inversion — not a second copy of the recommit/table rule.
         var eff = _voteEffectiveSupport(item, mapping.supportMeaning);
-        if (eff === null || typeof eff === 'undefined') { out.noSide++; return; } // present / not voting
+        if (eff === null || typeof eff === 'undefined') {   // present / not voting
+          out.noSide++;
+          out.noSideKinds[_rdNoSideKind(item)]++;
+          return;
+        }
         var cls = _rdActClass(item);
         if (!cls) { out.unclassified++; return; }   // statement, or an act we cannot name
         var mk = _rdMeasureKey(item);

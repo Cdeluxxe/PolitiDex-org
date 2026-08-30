@@ -221,7 +221,7 @@ export function parseTarget(url: URL): Target | null {
 // The one clean address for a record, derived from the TARGET rather than from
 // the request. This is what rel="canonical" and og:url are for, and it is the
 // reason both used to be wrong: index.html carries a single hardcoded
-// `<link rel="canonical" href="https://politidex.fyi/">`, so every share link —
+// `<link rel="canonical" href="https://www.politidex.fyi/">`, so every share link —
 // every profile, Spotlight, roll call, bill and receipt — told search engines it
 // was really the homepage, and og:url unfurled with whatever the reader happened
 // to have in their address bar (`?utm_source=…`, a stale `?p=` layered on an
@@ -268,6 +268,12 @@ const CHROME: Record<TargetKind, { eyebrow: string; accent: string }> = {
   vote: { eyebrow: "🗳 ROLL-CALL VOTE", accent: "#f59e0b" },
 };
 
+// THE BARE BRAND HOST, NOT A URL. No scheme on purpose: this is the wordmark a
+// painted card prints, matching every other wordmark in the repo, and it is a
+// string a human reads and may type — which is exactly what the apex 301 exists
+// to catch. It is not an address a crawler follows, so it stays scheme-less. If
+// this ever becomes an href, it must be built on the www origin instead; the
+// absolute apex form is banned repo-wide by scripts/test-canonical-and-origin.mjs.
 const SITE = "politidex.fyi";
 
 function issueLabel(key: string): string {

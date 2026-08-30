@@ -56,7 +56,7 @@ const ctx = {
     querySelector: () => null, querySelectorAll: () => [],
     addEventListener() {},
   },
-  location: { hash: "", origin: "https://politidex.fyi", pathname: "/" },
+  location: { hash: "", origin: "https://www.politidex.fyi", pathname: "/" },
   navigator: {},
   setTimeout: () => 0, clearTimeout: () => {},
   setInterval: () => 0, clearInterval: () => {},
@@ -948,7 +948,7 @@ has(svd, "isRecordCard", "share text: one predicate decides, not a scattered che
     "\nThe record: ",
     "\nSource: ",
     "\nHow this is judged: politidex.fyi/#methodology",
-    "\nCheck it yourself: https://politidex.fyi/#record=",
+    "\nCheck it yourself: https://www.politidex.fyi/#record=",
   ];
   for (const [label, card] of [["contradiction", contra], ["consistency", consis], ["omnibus", omni]]) {
     const cap = R._caption(card);
@@ -1140,7 +1140,7 @@ has(svd, "isRecordCard", "share text: one predicate decides, not a scattered che
       `share text: a ${label} post keeps its source URL even when the headline is far too long`);
     ok(tw.endsWith(card.source.url),
       `share text: and keeps it whole and last, where a client will linkify it`);
-    has(tw, "\nCheck: https://politidex.fyi/#record=",
+    has(tw, "\nCheck: https://www.politidex.fyi/#record=",
       `share text: a ${label} post also carries the path back to the receipt`);
     has(tw, "\nSource: ", `share text: and labels which of the two addresses is the government's own`);
     ok(tw.indexOf("#record=" + card.pid) > -1,
@@ -1164,7 +1164,7 @@ has(svd, "isRecordCard", "share text: one predicate decides, not a scattered che
     });
     const tw = R._tweetText(senate);
     ok(tw.endsWith(senate.source.url), "share text: a long Senate URL still survives whole");
-    has(tw, "\nCheck: https://politidex.fyi/#record=", "share text: and so does the check path beside it");
+    has(tw, "\nCheck: https://www.politidex.fyi/#record=", "share text: and so does the check path beside it");
     ok(tw.length <= POST_CEILING, `share text: on the longest citation shape in the ledger (${tw.length})`);
     has(tw, "Voted Yea", "share text: and so does the vote — the direction is never what gives way");
     has(tw, "H.R. 1", "share text: with the measure named, so the citation can be matched to it");
@@ -1197,8 +1197,12 @@ has(svd, "isRecordCard", "share text: one predicate decides, not a scattered che
   lacks(cc, "Their stated position:", "share text: it keeps its own past-tense framing");
   has(cc, "Said: ", "share text: which is the wording it always used");
   has(cc, "But the record: ", "share text: including the impact-keyed prefix, unchanged");
-  has(cc, "Checked on PolitiDex · politidex.fyi",
-    "share text: and its own closing line, unchanged");
+  // The closing line is the card's canonical deep link with the scheme stripped,
+  // so its host follows the public origin: the www host Google indexes, which is
+  // what the link itself resolves to. The sentence around it is what this pin is
+  // guarding — a curated receipt signs off in its own words, not the record feed's.
+  has(cc, "Checked on PolitiDex · www.politidex.fyi",
+    "share text: and its own closing line, on the public origin, otherwise unchanged");
   lacks(cc, "How this is judged:",
     "share text: the record feed's method line does not leak onto a curated receipt");
   ok(R._tweetText(curated).indexOf("🧾 ") === 0,
@@ -2419,7 +2423,7 @@ if (craCard) {
     has(cap, "Voted against it: ", "split caption: and so is the against-side one");
     has(cap, split.sides.with.url, "split caption: carrying the with-side chamber address in full");
     has(cap, split.sides.against.url, "split caption: and the against-side one");
-    has(cap, "\nCheck it yourself: https://politidex.fyi/#record=splitrep",
+    has(cap, "\nCheck it yourself: https://www.politidex.fyi/#record=splitrep",
       "split caption: and the path back to the record that holds both");
     has(cap, "How this is judged: politidex.fyi/#methodology", "split caption: with the method link");
 
@@ -2427,7 +2431,7 @@ if (craCard) {
     ok(post.indexOf("🏛️ OFFICIAL RECORD") === 0, "split post: marked as Official Record");
     has(post, "\nVoted with: " + split.sides.with.url, "split post: both government addresses travel, labelled by side");
     has(post, "\nVoted against: " + split.sides.against.url, "split post: neither side is the one left unfootnoted");
-    has(post, "\nCheck: https://politidex.fyi/#record=splitrep", "split post: alongside the path back to the receipt");
+    has(post, "\nCheck: https://www.politidex.fyi/#record=splitrep", "split post: alongside the path back to the receipt");
     has(post, "\nSaid: ", "split post: the stated position survives the two extra addresses");
     has(post, "\nDid: ", "split post: and so does what the member actually did");
     has(post, "and against it", "split post: which is stated as both sides, not as one");

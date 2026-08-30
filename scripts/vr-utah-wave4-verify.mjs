@@ -192,11 +192,12 @@ if (ONE) {
     for (const [f, s] of SRC) vm.runInContext(s, ctx, { filename: f });
     w.PROFILES = w.CMP_DATA; return w;
   };
-  // THE APEX ORIGIN, DELIBERATELY NOT process.env.URL. The build environment hands
-  // this run a www host, and the repo has exactly one public origin — the apex —
+  // THE PUBLIC ORIGIN, DELIBERATELY NOT process.env.URL. The repo has exactly one
+  // public origin — the www host Google indexes, with the apex 301ing onto it —
   // enforced by scripts/test-canonical-and-origin.mjs. Reading the record from the
-  // other host would be reading it through a duplicate.
-  const base = (argOf("origin") || "https://politidex" + ".fyi").replace(/\/+$/, "");
+  // apex would be reading it through a redirect, and from a deploy-preview URL
+  // would be reading a different build than the one the sitemap advertises.
+  const base = (argOf("origin") || "https://www.politidex.fyi").replace(/\/+$/, "");
   const live = [];
   for (let page = 1; page <= 10; page++) {
     const res = await fetch(`${base}/api/voting-record/member/${encodeURIComponent(ONE)}?page=${page}&pageSize=100`);

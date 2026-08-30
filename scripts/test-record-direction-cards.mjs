@@ -166,7 +166,7 @@ function boot(withRecordDirection) {
       querySelector: () => null, querySelectorAll: () => [],
       addEventListener() {},
     },
-    location: { hash: "", origin: "https://politidex.fyi", pathname: "/" },
+    location: { hash: "", origin: "https://www.politidex.fyi", pathname: "/" },
     navigator: {},
     setTimeout: () => 0, clearTimeout: () => {},
     setInterval: () => 0, clearInterval: () => {},
@@ -606,7 +606,15 @@ for (const key of Object.keys(LABELS)) {
 
 eq(idx("recrep", MIXED3).token, "record_thin", "eligibility: a 3-vote 2-1 record is thin");
 ok(!rdEligible(MIXED3), "eligibility: …so it gets no card");
-has(rdReason(MIXED3), "too thin to characterise", "eligibility: and the audit says why");
+// The audit quotes the engine's own thin wording rather than a literal pinned
+// here: the label is the one place that phrase is spelled, and a card that
+// disagrees with the dossier is the bug this pin exists to catch.
+const THIN_LABEL = ((A.window._PDX_RD_TOKENS || {}).record_thin || {}).label || "";
+ok(!!THIN_LABEL, "eligibility: _PDX_RD_TOKENS.record_thin.label is published");
+has(rdReason(MIXED3).toLowerCase(), THIN_LABEL.toLowerCase(),
+  "eligibility: and the audit says why");
+ok(!/too thin to characterise/i.test(rdReason(MIXED3)),
+  "eligibility: the audit does not refuse where a read belongs");
 
 eq(idx("recrep", SOLO).token, "record_thin", "eligibility: a single vote is thin");
 ok(!rdEligible(SOLO), "eligibility: …so it gets no card");

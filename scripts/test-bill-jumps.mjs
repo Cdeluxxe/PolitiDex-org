@@ -290,7 +290,7 @@ function runLibrary() {
     setTimeout: () => 0, clearTimeout() {}, setInterval: () => 0, clearInterval() {},
     requestAnimationFrame: (fn) => { fn(); return 1; },
     document: doc,
-    location: { href: "https://politidex.fyi/", pathname: "/", search: "", hash: "", origin: "https://politidex.fyi" },
+    location: { href: "https://www.politidex.fyi/", pathname: "/", search: "", hash: "", origin: "https://www.politidex.fyi" },
     navigator: { userAgent: "node" },
     matchMedia: () => ({ matches: false, addEventListener() {}, addListener() {} }),
     addEventListener() {}, removeEventListener() {}, dispatchEvent() { return true; },

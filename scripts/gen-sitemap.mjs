@@ -87,11 +87,18 @@ const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), ".."
 const CHECK = process.argv.includes("--check");
 const REPORT = process.argv.includes("--report");
 
-// The single public origin, apex, as locked in Phase 0. Hardcoded rather than
-// read from an env var: a sitemap is a published claim about one site, and a
-// sitemap that changes hostname with the environment is a sitemap that can ship
-// a preview URL to a search engine.
-export const ORIGIN = "https://politidex.fyi";
+// The single public origin: the www host, which is the one Google has indexed and
+// the one the apex 301s to. The apex form is NOT a second address this file may
+// emit — a sitemap listing a host that redirects hands every crawler a hop it did
+// not need and invites the two forms to compete as duplicates of each other.
+// Hardcoded rather than read from an env var: a sitemap is a published claim about
+// one site, and a sitemap that changes hostname with the environment is a sitemap
+// that can ship a preview URL to a search engine.
+//
+// ONE HOST, ONE FILE. This constant also builds the single `Sitemap:` line in
+// robots.txt below, so the crawl entry point and the addresses inside it cannot
+// drift onto different hosts, and there is still exactly one sitemap host.
+export const ORIGIN = "https://www.politidex.fyi";
 
 const SITEMAP = path.join(ROOT, "sitemap.xml");
 const ROBOTS = path.join(ROOT, "robots.txt");

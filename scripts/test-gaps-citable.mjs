@@ -114,7 +114,7 @@ function build({
   if (person) {
     win.PDXPerson = {
       SECTION_HASH: { gaps: 'pdxsec-gaps' },
-      sectionUrl: (pid, alias) => 'https://politidex.fyi/p/' + pid + '#' + alias
+      sectionUrl: (pid, alias) => 'https://www.politidex.fyi/p/' + pid + '#' + alias
     };
   }
   if (inventory) {
@@ -473,12 +473,12 @@ section('10 · the address: #gaps resolves, fails closed, and is copyable');
   // The section prints its own address, and a copy control for it.
   const { G } = build(BOTH);
   const html = G.sectionHtml('booker', { name: 'Cory Booker' });
-  eq(G.citeUrl('booker'), 'https://politidex.fyi/p/booker#gaps',
+  eq(G.citeUrl('booker'), 'https://www.politidex.fyi/p/booker#gaps',
     'citeUrl does not build the durable address through PDXPerson');
   has(html, 'Cite this list:', 'the section does not offer its own address');
   has(html, 'politidex.fyi/p/booker#gaps', 'the printed address is wrong');
   no(html, '>https://', 'the printed address shows a scheme a reader has to read past');
-  has(html, 'data-pdxgs-cite="https://politidex.fyi/p/booker#gaps"', 'the copy control has no address to copy');
+  has(html, 'data-pdxgs-cite="https://www.politidex.fyi/p/booker#gaps"', 'the copy control has no address to copy');
   ok(typeof build(BOTH).win._pdxGapsCopyCite === 'function', 'the copy control has no handler');
 
   // No PDXPerson (an overlay, a dossier, a cold first paint) → no address clause,

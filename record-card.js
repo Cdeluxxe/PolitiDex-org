@@ -297,11 +297,18 @@
         //   NOTHING HERE IS A PROMOTION. Neither read-thin line claims a lean, a
         // direction or a strength — one says the evidence is too light to lean
         // on, the other says a side exists that this read does not count — and
-        // both stay out of the two characterised buckets above. `thinN` keeps the
-        // original wording because on `thinN`'s rows it was always true.
+        // both stay out of the two characterised buckets above.
+        //   AND THE THIRD BUCKET NO LONGER SAYS "TOO THIN TO CHARACTERISE" EITHER.
+        // The phrase was true of `thinN`'s rows and it is still the wrong thing to
+        // print on a card: the same words are banned everywhere a row carries a Thin
+        // / Split / Mostly / Strongly chip, and a reader holding a screenshot cannot
+        // tell which population a bucket was counted from. What is true of every row
+        // in this bucket without qualification is the FILE — thin, or unread — so the
+        // bucket states that and the number carries the claim, which is the house
+        // rule for this whole line: counts, never a characterisation of a refusal.
         if (sh.readThinN) buckets.push(sh.readThinN + ' read thin — a side on file, too little to lean on');
         if (sh.readOtherN) buckets.push(sh.readOtherN + ' with a side on file this read does not count');
-        if (sh.thinN) buckets.push(sh.thinN + ' too thin to characterise');
+        if (sh.thinN) buckets.push(sh.thinN + ' with a thin or unread formal file');
         if (buckets.length) lines.push(buckets.join(' · '));
       }
     }

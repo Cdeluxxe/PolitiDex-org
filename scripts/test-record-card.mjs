@@ -292,14 +292,14 @@ section("3 · a thin file gets a thin card that says so");
 section("4 · the link, the paste and the image agree, and all three land on /p/");
 // ═════════════════════════════════════════════════════════════════════════════
 
-eq(C.url(RICH), `https://politidex.fyi/p/${RICH}`, "a person card's url is the person file");
+eq(C.url(RICH), `https://www.politidex.fyi/p/${RICH}`, "a person card's url is the person file");
 eq(C.url(RICH, RICH_ISSUE),
-  `https://politidex.fyi/p/${RICH}?record=${encodeURIComponent(RICH + "~" + RICH_ISSUE)}`,
+  `https://www.politidex.fyi/p/${RICH}?record=${encodeURIComponent(RICH + "~" + RICH_ISSUE)}`,
   "an issue card's url is the person file with the record view named on it");
 eq(C.url(RICH), W.PDXShareLinks.personRecord(RICH),
   "and the builder is share-links', so the copy path cannot disagree with the link");
 eq(C.url(RICH, RICH_ISSUE), W.PDXShareLinks.personRecord(RICH, RICH_ISSUE), "on both scopes");
-eq(C.url(""), "https://politidex.fyi/", "no pid, no fabricated address");
+eq(C.url(""), "https://www.politidex.fyi/", "no pid, no fabricated address");
 eq(M_PERSON.url, C.url(RICH), "the model carries that url");
 has(C.text(M_PERSON), M_PERSON.url, "the paste ends on it");
 has(C.text(M_ISSUE), M_ISSUE.url, "the issue paste ends on its own");
@@ -365,7 +365,7 @@ caught({ coverage: { lines: ["Graded B on the record"] } },
   "a grade or ranking", "a letter grade is caught");
 caught({ complete: true }, "claims completeness", "a completeness flag is caught");
 caught({ note: "" }, "without the coverage wall", "a card shipped without the wall is caught");
-caught({ url: "https://politidex.fyi/?record=lee~x" },
+caught({ url: "https://www.politidex.fyi/?record=lee~x" },
   "not a person file", "a url that is not a person file is caught");
 eq(C.audit({ ...M_ISSUE, directionMatch: { pct: 83, text: "Direction Match 83%" } })
   .filter((v) => v.indexOf("Direction Match on an issue card") >= 0).length, 1,

@@ -63,9 +63,9 @@ execFileSync(
 const S = await import(outFile);
 const INDEX = JSON.parse(readFileSync(join(ROOT, "db/share-index.json"), "utf8"));
 
-const at = (u) => new URL(u, "https://politidex.fyi");
+const at = (u) => new URL(u, "https://www.politidex.fyi");
 const parse = (u) => S.parseTarget(at(u));
-const resolve = (u, origin = "https://politidex.fyi") => S.resolveTarget(parse(u), origin);
+const resolve = (u, origin = "https://www.politidex.fyi") => S.resolveTarget(parse(u), origin);
 
 // ── 1. The generated index is real ───────────────────────────────────────────
 // A silently empty index would make every assertion below vacuous: parseTarget
@@ -384,7 +384,7 @@ execFileSync(
 );
 const OG = await import(ogOut);
 const renderCard = async (query) =>
-  (await OG.default(new Request("https://politidex.fyi/share-og?" + query))).text();
+  (await OG.default(new Request("https://www.politidex.fyi/share-og?" + query))).text();
 
 const REAL_VOTE = [
   { kind: "vote", position: "yea", isProcedural: false, number: "S. 5", shortTitle: "Laken Riley Act", date: "2025-01-20", chamber: "senate", result: "passed", source: { url: "https://c" } },
@@ -504,30 +504,30 @@ function loadLinks(href) {
   return win;
 }
 
-let w = loadLinks("https://politidex.fyi/?bill=119%2FH.R.%201");
+let w = loadLinks("https://www.politidex.fyi/?bill=119%2FH.R.%201");
 eq(w.location.hash, "#bill/119/H.R.%201", "arrival: ?bill= becomes the #bill/ hash the app already handles");
 ok(!/bill=/.test(w.location.search), "arrival: the consumed param is cleaned out of the URL");
 
 // The canonical path, on arrival. The path is left in place — copying the URL back
 // out of the bar has to keep the address that unfurls.
-w = loadLinks("https://politidex.fyi/b/119/H.R.%201");
+w = loadLinks("https://www.politidex.fyi/b/119/H.R.%201");
 eq(w.location.hash, "#bill/119/H.R.%201", "arrival: /b/ becomes the #bill/ hash the panel handles");
 eq(w.location.pathname, "/b/119/H.R.%201", "arrival: the /b/ path is preserved");
-w = loadLinks("https://politidex.fyi/b/2024GS/H.B.%20257");
+w = loadLinks("https://www.politidex.fyi/b/2024GS/H.B.%20257");
 eq(w.location.hash, "#bill/2024GS/H.B.%20257", "arrival: a state sitting survives the round trip intact");
-w = loadLinks("https://politidex.fyi/b/H.R.%201");
+w = loadLinks("https://www.politidex.fyi/b/H.R.%201");
 eq(w.location.hash, "#bill//H.R.%201", "arrival: a sitting-less /b/ address still opens the number");
 
-w = loadLinks("https://politidex.fyi/?receipt=aaron_ford~healthcare");
+w = loadLinks("https://www.politidex.fyi/?receipt=aaron_ford~healthcare");
 eq(w.location.hash, "#receipt=aaron_ford~healthcare", "arrival: ?receipt= becomes #receipt=");
-w = loadLinks("https://politidex.fyi/?record=aaron_ford~healthcare");
+w = loadLinks("https://www.politidex.fyi/?record=aaron_ford~healthcare");
 eq(w.location.hash, "#record=aaron_ford~healthcare", "arrival: ?record= becomes #record=");
-w = loadLinks("https://politidex.fyi/?rank=healthcare&key=drug_prices&mode=votes");
+w = loadLinks("https://www.politidex.fyi/?rank=healthcare&key=drug_prices&mode=votes");
 eq(w.location.hash, "#issue=healthcare&key=drug_prices&mode=votes", "arrival: ?rank= rebuilds the full ranking hash");
 
 // An existing hash is what the reader asked for. This module's entire job is to be
 // invisible when it is not needed — including for every hash link already shared.
-w = loadLinks("https://politidex.fyi/?bill=119%2FH.R.%201#receipt=aaron_ford");
+w = loadLinks("https://www.politidex.fyi/?bill=119%2FH.R.%201#receipt=aaron_ford");
 eq(w.location.hash, "#receipt=aaron_ford", "arrival: an existing hash always wins");
 
 // Profiles and Spotlights are already server-visible and already have their own
@@ -537,7 +537,7 @@ ok(!/['"]p['"]/.test(LINKS_SRC.match(/var PARAMS = \[[^\]]*\]/)[0]) &&
   "arrival: ?p= and ?issue= are left to their existing handlers");
 
 // The edge's hint drives the case the client cannot work out for itself: /vote/.
-const voteWin = loadLinks("https://politidex.fyi/vote/119/house/190");
+const voteWin = loadLinks("https://www.politidex.fyi/vote/119/house/190");
 eq(voteWin.location.hash, "", "arrival: /vote/ alone opens nothing without the edge");
 
 // …but it must not silently look like a working link. When the edge did not run,
@@ -554,13 +554,13 @@ ok(voteWin.notice, "arrival: an unresolved /vote/ address gets an on-page notice
     "notice: claims only that we could not open it, never that the vote does not exist");
   ok(/Dismiss/.test(said), "notice: is dismissible");
 }
-ok(!loadLinks("https://politidex.fyi/?receipt=aaron_ford~healthcare").notice,
+ok(!loadLinks("https://www.politidex.fyi/?receipt=aaron_ford~healthcare").notice,
   "notice: never appears on a link that did open");
 
 // Re-run with the edge hint present, as share-preview.ts injects it.
 {
   const src = "window.__PDX_SHARE_TARGET__={kind:'vote',hash:'#bill/119/H.R.%201'};\n" + LINKS_SRC;
-  const u = new URL("https://politidex.fyi/vote/119/house/190");
+  const u = new URL("https://www.politidex.fyi/vote/119/house/190");
   const win = {
     location: { href: u.href, origin: u.origin, pathname: u.pathname, search: u.search, hash: "" },
     history: { state: null, replaceState(_s, _t, next) { const n = new URL(next, u.origin); win.location.hash = n.hash; win.location.pathname = n.pathname; } },
@@ -580,20 +580,20 @@ ok(!loadLinks("https://politidex.fyi/?receipt=aaron_ford~healthcare").notice,
 
 // Canonical builders — what the share buttons actually emit.
 {
-  const w2 = loadLinks("https://politidex.fyi/");
+  const w2 = loadLinks("https://www.politidex.fyi/");
   const L = w2.PDXShareLinks;
-  eq(L.bill(119, "H.R. 1"), "https://politidex.fyi/b/119/H.R.%201",
+  eq(L.bill(119, "H.R. 1"), "https://www.politidex.fyi/b/119/H.R.%201",
     "builder: bill link is the canonical /b/ path");
-  eq(L.bill("2024GS", "H.B. 257"), "https://politidex.fyi/b/2024GS/H.B.%20257",
+  eq(L.bill("2024GS", "H.B. 257"), "https://www.politidex.fyi/b/2024GS/H.B.%20257",
     "builder: a state measure's sitting is its session code, not a congress");
-  eq(L.bill("", "H.R. 1"), "https://politidex.fyi/b/H.R.%201",
+  eq(L.bill("", "H.R. 1"), "https://www.politidex.fyi/b/H.R.%201",
     "builder: no sitting drops the segment rather than the link");
-  eq(L.receipt("aaron_ford", "healthcare"), "https://politidex.fyi/?receipt=aaron_ford~healthcare", "builder: receipt link");
-  eq(L.record("aaron_ford", "healthcare"), "https://politidex.fyi/?record=aaron_ford~healthcare", "builder: record link");
+  eq(L.receipt("aaron_ford", "healthcare"), "https://www.politidex.fyi/?receipt=aaron_ford~healthcare", "builder: receipt link");
+  eq(L.record("aaron_ford", "healthcare"), "https://www.politidex.fyi/?record=aaron_ford~healthcare", "builder: record link");
   eq(L.rank("healthcare", { key: "drug_prices", mode: "all" }),
-    "https://politidex.fyi/?rank=healthcare&key=drug_prices", "builder: ranking link drops default lens");
-  eq(L.on("https://politidex.fyi", "http://localhost:8888/?receipt=x~y"),
-    "https://politidex.fyi/?receipt=x~y", "builder: .on() moves a link onto the public share domain");
+    "https://www.politidex.fyi/?rank=healthcare&key=drug_prices", "builder: ranking link drops default lens");
+  eq(L.on("https://www.politidex.fyi", "http://localhost:8888/?receipt=x~y"),
+    "https://www.politidex.fyi/?receipt=x~y", "builder: .on() moves a link onto the public share domain");
 
   // Round trip: everything a share button emits must parse back to the surface it
   // came from, and rebuild the same hash. This is the join between the two halves.

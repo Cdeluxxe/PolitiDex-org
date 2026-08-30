@@ -169,11 +169,14 @@ export function verifyUnsubToken(token: string): string | null {
   try { return crypto.timingSafeEqual(a, b) ? userId : null; } catch { return null; }
 }
 
-// The single public origin. Every other surface in the repo already uses this
-// apex host; the digest was one of the last places still naming the old
-// .org domain, which meant every emailed unsubscribe link pointed at a host we
-// do not serve. There is exactly one origin, and it is written here once.
-const SITE_URL = "https://politidex.fyi";
+// The single public origin: the www host Google indexes, which the apex 301s
+// onto. Every other surface in the repo uses this host; the digest was one of the
+// last places still naming the old .org domain, which meant every emailed
+// unsubscribe link pointed at a host we do not serve. Email is the surface where
+// a redirect costs the most — an unsubscribe link that hops hosts is the one link
+// a reader will not click twice, and some clients strip the query on a 301. There
+// is exactly one origin, and it is written here once.
+const SITE_URL = "https://www.politidex.fyi";
 export function unsubscribeUrl(userId: string): string {
   return `${SITE_URL}/api/pdx-digest/unsubscribe?u=${encodeURIComponent(makeUnsubToken(userId))}`;
 }

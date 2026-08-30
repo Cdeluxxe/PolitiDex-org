@@ -84,7 +84,7 @@ function loadApp() {
       addEventListener() {}, removeEventListener() {},
       cookie: '',
     },
-    location: { hash: '', search: '', href: 'https://politidex.fyi/', origin: 'https://politidex.fyi', pathname: '/' },
+    location: { hash: '', search: '', href: 'https://www.politidex.fyi/', origin: 'https://www.politidex.fyi', pathname: '/' },
     navigator: { userAgent: 'node', onLine: true, language: 'en-US' },
     localStorage: { getItem: () => null, setItem() {}, removeItem() {}, clear() {} },
     sessionStorage: { getItem: () => null, setItem() {}, removeItem() {}, clear() {} },

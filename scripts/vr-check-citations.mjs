@@ -92,7 +92,7 @@ const REHEARSE = process.argv.reduce((out, a, i) => {
 }, []);
 const VR_TABLES = ['vr_measures', 'vr_rollcalls', 'vr_measure_issues', 'vr_measure_actions', 'vr_member_votes', 'vr_positions'];
 
-const UA = 'PolitiDex citation check (+https://politidex.fyi)';
+const UA = 'PolitiDex citation check (+https://www.politidex.fyi)';
 const TIMEOUT_MS = 30000;
 const ATTEMPTS = 3;
 const PAUSE_MS = 400; // one request at a time, politely spaced
@@ -118,7 +118,7 @@ function loadDeriver() {
       createElement: noopEl, getElementById: () => null,
       querySelector: () => null, querySelectorAll: () => [], addEventListener() {},
     },
-    location: { hash: '', origin: 'https://politidex.fyi', pathname: '/' },
+    location: { hash: '', origin: 'https://www.politidex.fyi', pathname: '/' },
     navigator: {},
     setTimeout: () => 0, clearTimeout: () => {}, setInterval: () => 0, clearInterval: () => {},
     requestAnimationFrame: () => 0,

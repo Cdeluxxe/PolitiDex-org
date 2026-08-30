@@ -71,7 +71,7 @@ function esc(s: unknown): string {
 // at send time) so opting out is always one tap away.
 function renderEmail(digest: Digest, unsubUrl: string): { subject: string; html: string; text: string } {
   const total = digest.counts.total;
-  const site = "https://politidex.fyi";
+  const site = "https://www.politidex.fyi";
 
   // Record events lead the email, because they are the only group in it that is
   // the archive rather than the conversation about it. The kicker names the KIND

@@ -111,7 +111,7 @@ const app = {};
 vm.runInContext(APP_HELPERS + "\n;out.RECORD_KICKER=RECORD_KICKER;out.RECORD_ICO=RECORD_ICO;out.fmt=fmtRecordDate;out.RECORD_CAT=RECORD_CAT;out.CAT_ORDER=RECORD_CAT_ORDER;out.CAT_LABEL=RECORD_CAT_LABEL;out.CAT_BLURB=RECORD_CAT_BLURB;out.catOn=recordCatOn;",
   vm.createContext({ out: app, console }), { filename: "index.html:record-helpers" });
 
-const SITE = "https://politidex.fyi";
+const SITE = "https://www.politidex.fyi";
 
 // A synthetic group covering all four kinds, both address shapes, an undated act
 // and a hostile string. Nothing here is read from the database — the point is to

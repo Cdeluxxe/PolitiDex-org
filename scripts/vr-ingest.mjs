@@ -18,7 +18,7 @@
 //
 // Examples:
 //   VR_INGEST_TOKEN=… node scripts/vr-ingest.mjs verify
-//   VR_SITE_URL=https://politidex.fyi VR_INGEST_TOKEN=… \
+//   VR_SITE_URL=https://www.politidex.fyi VR_INGEST_TOKEN=… \
 //     node scripts/vr-ingest.mjs run senate 119 60
 
 const BASE = (process.env.VR_SITE_URL || "http://localhost:8889").replace(/\/+$/, "");

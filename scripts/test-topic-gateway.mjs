@@ -700,7 +700,7 @@ const calls = [];
   }
 
   // Nowhere else. Opening the dossier changes no address and mounts no route.
-  eq(A.location.href, "https://politidex.fyi/", "opening a dossier navigates nowhere");
+  eq(A.location.href, "https://www.politidex.fyi/", "opening a dossier navigates nowhere");
   eq(A.location.hash, "", "…and leaves no hash route behind");
 
   // The executive profile the report named behaves the same way.

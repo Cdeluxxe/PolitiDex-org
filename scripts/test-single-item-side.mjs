@@ -249,7 +249,14 @@ section("3 · the walls — depth was lowered, and meaning moved once, on purpos
     must(!!x, "the unreadable single item fell out of the index entirely");
     eq(x.directional, false, "an item with no readable side was given one");
     eq(x.tone, "muted", "…and a colour to go with it");
-    has(x.patLabel, "No vote here took a side", "…instead of the honest refusal");
+    // The refusal names the ACT rather than the arithmetic: a lone Present prints
+    // "Voted Present on this issue", because on a one-item row "no vote here took
+    // a side" spent its only sentence on the count. What has to hold is that no
+    // side is claimed and the reason given is the position, not the depth.
+    ok(/present/i.test(x.patLabel),
+      `…instead of the honest refusal (got ${JSON.stringify(x.patLabel)})`);
+    ok(!/thin|too little|not a deep pattern/i.test(x.patLabel),
+      "…and the refusal is not restated as a depth problem");
     lacks(x.patLabel, "No clear pattern yet",
       "…and the refusal names its own reason rather than the blanket one");
     eq(w._calcAlignmentScore(A_PID, { mode: "record" }), null,

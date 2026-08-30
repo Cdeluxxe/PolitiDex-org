@@ -132,7 +132,7 @@ function sandbox(opts) {
     : { mike_lee: { name: "Mike Lee", office: "U.S. Senator", state: "Utah" } };
   const win = {
     document: doc,
-    location: Object.assign({ origin: "https://politidex.fyi", pathname: "/", search: "", hash: "", href: "https://politidex.fyi/" }, opts.location || {}),
+    location: Object.assign({ origin: "https://www.politidex.fyi", pathname: "/", search: "", hash: "", href: "https://www.politidex.fyi/" }, opts.location || {}),
     history: {
       replaceState(a, b, url) { calls.replace.push(url); },
       pushState() {},
@@ -178,7 +178,7 @@ must(P && typeof P.open === "function", "PDXPerson did not register in a sandbox
 
 eq(P.PREFIX, "/p/", "the address prefix moved");
 eq(P.path("mike_lee"), "/p/mike_lee", "PDXPerson.path does not mint the path form");
-eq(P.url("mike_lee"), "https://politidex.fyi/p/mike_lee", "PDXPerson.url does not mint the absolute form");
+eq(P.url("mike_lee"), "https://www.politidex.fyi/p/mike_lee", "PDXPerson.url does not mint the absolute form");
 ok(P.PATH_RE.test("/p/mike_lee"), "the path matcher does not recognise its own output");
 ok(P.PATH_RE.test("/p/mike_lee/"), "the path matcher rejects a trailing slash");
 ok(!P.PATH_RE.test("/p/"), "the path matcher accepts an empty pid");
@@ -301,7 +301,7 @@ has(INDEX, 'href="/person-file.css"', "index.html does not load /person-file.css
 // ─────────────────────────────────────────────────────────────────────────────
 // 7 · The cold arrival — the bug this section exists for
 // ─────────────────────────────────────────────────────────────────────────────
-// https://politidex.fyi/p/mike_lee served the app shell and never opened the
+// https://www.politidex.fyi/p/mike_lee served the app shell and never opened the
 // file. Two causes, both in the arrival path and neither in the rewrite:
 //
 //   · adopt() gated on record(pid) — an EXACT roster hit — while every in-app

@@ -26,7 +26,7 @@ try {
   ({ encode } = require('/opt/buildhome/node-deps/node_modules/uqr/dist/index.cjs'));
 }
 
-const TARGET_URL = 'https://politidex.fyi';
+const TARGET_URL = 'https://www.politidex.fyi';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = join(__dirname, '..', 'assets', 'politidex-qr-card.svg');
 

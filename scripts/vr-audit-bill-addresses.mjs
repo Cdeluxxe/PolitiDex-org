@@ -31,7 +31,7 @@ const arg = (name, dflt) => {
   const i = argv.indexOf(name);
   return i === -1 || i === argv.length - 1 ? dflt : argv[i + 1];
 };
-const ORIGIN = String(arg("--origin", "https://politidex.fyi")).replace(/\/+$/, "");
+const ORIGIN = String(arg("--origin", "https://www.politidex.fyi")).replace(/\/+$/, "");
 const LIMIT = Number(arg("--limit", "0")) || 0;
 const CONCURRENCY = 6; // polite: this is somebody's production API, not a load test
 

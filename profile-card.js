@@ -83,7 +83,7 @@
   if (window.PDXProfileCard) return; // idempotent
 
   var IMG_W = 1080, IMG_H = 1350, PAD = 64;
-  var SHARE_URL = 'https://politidex.fyi/';
+  var SHARE_URL = 'https://www.politidex.fyi/';
 
   // Tone colours, borrowed from the shared consistency palette rather than
   // re-picked here, so a card cannot say "green" where the app says "amber".

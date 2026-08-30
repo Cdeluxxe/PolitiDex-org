@@ -77,7 +77,7 @@ const ctx = {
   requestAnimationFrame: (f) => setTimeout(f, 0), cancelAnimationFrame() {},
   requestIdleCallback: (f) => setTimeout(f, 0),
   fetch: () => new Promise(() => {}),
-  location: { href: "/", pathname: "/", search: "", hash: "", origin: "https://politidex.fyi" },
+  location: { href: "/", pathname: "/", search: "", hash: "", origin: "https://www.politidex.fyi" },
   history: { replaceState() {} },
   navigator: { userAgent: "node" },
   matchMedia: () => ({ matches: false, addEventListener() {}, addListener() {} }),

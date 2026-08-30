@@ -197,9 +197,9 @@ function makeDom(opts) {
     matchMedia() { return { matches: false, addEventListener() {}, addListener() {} }; },
     getComputedStyle() { return { getPropertyValue() { return ""; } }; },
     location: {
-      href: "https://politidex.fyi" + (opts.pathname || "/"),
+      href: "https://www.politidex.fyi" + (opts.pathname || "/"),
       pathname: opts.pathname || "/", search: "", hash: opts.hash || "",
-      origin: "https://politidex.fyi",
+      origin: "https://www.politidex.fyi",
     },
     history: { replaceState() {}, pushState() {} },
     navigator: { userAgent: "node" },

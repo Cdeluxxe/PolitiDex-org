@@ -107,7 +107,7 @@ export function makeSandbox() {
     setInterval() { return 0; }, clearInterval() {},
     requestAnimationFrame() { return 0; }, cancelAnimationFrame() {},
     matchMedia() { return { matches: false, addEventListener() {}, addListener() {} }; },
-    location: { href: "https://politidex.fyi/", pathname: "/", search: "", hash: "", origin: "https://politidex.fyi" },
+    location: { href: "https://www.politidex.fyi/", pathname: "/", search: "", hash: "", origin: "https://www.politidex.fyi" },
     navigator: { userAgent: "node" },
     localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} },
     console,
