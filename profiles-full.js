@@ -3911,14 +3911,20 @@
       var XSC = window.PDXConsistency && window.PDXConsistency.execRecordSummary;
       var xsc = null;
       try { xsc = (XSC && typeof XSC.pick === 'function') ? XSC.pick(id) : null; } catch (e) { xsc = null; }
-      if (xsc && xsc.on) {
+      // A president's brief names the patterns now, and where it does the strip
+      // below does not emit #pdxsec-standout — so this pill has to ask the same
+      // question the mount asks, in the same words, or the rail carries an entry
+      // that scrolls nowhere. `shaped` covers the member lane above the gate;
+      // heroNamesPatterns covers both lanes at every depth.
+      var named = !!(WAS && typeof WAS.heroNamesPatterns === 'function' && WAS.heroNamesPatterns(id));
+      if (!named && xsc && xsc.on) {
         out.standout = { value: xsc.acts + ' on file', pending: false,
           color: xsc.contested ? '#f5c842' : '#9fdbd0',
           note: xsc.inventory.length
             ? xsc.inventory.join(' · ') + ' — across ' + xsc.issues +
               ' issue' + (xsc.issues === 1 ? '' : 's')
             : 'formal actions on file' };
-      } else if (!shaped && SO && typeof SO.pick === 'function') {
+      } else if (!named && !shaped && SO && typeof SO.pick === 'function') {
         var so = SO.pick(id);
         if (so && so.any) {
           out.standout = { value: so.issues + ' issue' + (so.issues === 1 ? '' : 's') + ' read',
@@ -5541,15 +5547,26 @@
           // compact summary, in its own vocabulary, in the same place. Checked
           // first and returned from, so the two can never both emit
           // #pdxsec-standout.
+          //   THE EXEC STRIP ANSWERS TO THE SAME GATE AS THE MEMBER ONE NOW.
+          // The brief at the top of an executive file used to be a pointer down
+          // into this strip, so the strip was the only place a president's
+          // patterns were named and it always mounted. The brief lists them
+          // itself now, and heroNamesPatterns() is true when it did — so the
+          // strip stands down for the same reason it stands down on a deep
+          // member: a second copy of the same rows is not a second finding. It
+          // still mounts where the brief only counted (a thin exec record, or a
+          // stale engine that publishes no shape), which is exactly when the
+          // pointer's destination has to exist.
+          var WA = window.PDXWordAction;
+          var _named = !!(WA && typeof WA.heroNamesPatterns === 'function' && WA.heroNamesPatterns(id));
           var XS = window.PDXConsistency && window.PDXConsistency.execRecordSummary;
-          if (XS && typeof XS.html === 'function') {
+          if (!_named && XS && typeof XS.html === 'function') {
             var xh = XS.html(id) || '';
             if (xh) return '<div class="modal-section pdxso-face">' + xh + '</div>';
           }
           var SO = window.PDXConsistency && window.PDXConsistency.recordStandout;
           if (!SO || typeof SO.html !== 'function') return '';
-          var WA = window.PDXWordAction;
-          if (WA && typeof WA.heroNamesPatterns === 'function' && WA.heroNamesPatterns(id)) return '';
+          if (_named) return '';
           if (WA && typeof WA.heroNamesPatterns !== 'function' &&
               typeof WA.shapeApplies === 'function' && WA.shapeApplies(id)) return '';
           var html = SO.html(id) || '';

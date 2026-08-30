@@ -6122,12 +6122,19 @@
   // hold all of it or none of it — so a uniform run of seven orders is seven of
   // seven, not seven of an unknown number, and the display tier reads its depth at
   // face value. See the `partial` flag in _recordDisplayTier.
-  function _stExecDisplayIndex(r) {
+  //   THE TERM SCOPE IS THE CALLER'S, AND ITS DEFAULT DOES NOT MOVE. Passed straight
+  // through to PDXExecRecord.issue(), which owns it. A browse row asks with no opts
+  // and gets the current term exactly as it always did; the record brief asks with
+  // `allTerms` because the census printed directly above its rows — the volume
+  // clause and the per-class inventory — is an all-terms count, and a block whose
+  // heading says "80 across 37 issues" over rows counted from one term hands the
+  // reader two denominators and calls them one.
+  function _stExecDisplayIndex(r, opts) {
     try {
       if (!r || r.lane !== 'exec' || !r.pid || !r.key) return null;
       var XR = window.PDXExecRecord;
       if (!XR || typeof XR.issue !== 'function') return null;
-      var res = XR.issue(r.pid, r.key) || {};
+      var res = XR.issue(r.pid, r.key, opts || null) || {};
       var acts = res.actions || [];
       var idx = { issueKey: r.key, token: 'record_exec', lead: null,
                   characterised: false, counted: false,
@@ -6150,15 +6157,15 @@
   // WHICH INDEX, BY LANE — and _stDirRaw is left exactly as it is. That function
   // declines on the executive lane by design and the scoring path depends on it
   // declining; the display path routes around it instead of loosening it.
-  function _stDisplayIndex(r) {
+  function _stDisplayIndex(r, opts) {
     if (!r) return null;
-    if (r.lane === 'exec') return _stExecDisplayIndex(r);
+    if (r.lane === 'exec') return _stExecDisplayIndex(r, opts);
     try { return _stDirRaw(r); } catch (e) { return null; }
   }
-  function _stDisplayTier(r) {
+  function _stDisplayTier(r, opts) {
     try {
       if (typeof window._recordDisplayTier !== 'function') return _stPatternTier(r);
-      var idx = _stDisplayIndex(r);
+      var idx = _stDisplayIndex(r, opts);
       if (!idx) return null;
       return window._recordDisplayTier(idx, { noun: _stNoun(r) }) || null;
     } catch (e) { return null; }
@@ -9850,6 +9857,198 @@
              cap: p.cap, floor: p.floor, minIssues: p.minIssues, enough: p.enough,
              onewayN: p.onewayN, bothN: p.bothN,
              oneway: p.oneway.map(row), both: p.both.map(row), any: p.any };
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ✒️ THE EXEC LANE'S FORMAL-PATTERN SHAPE — THE MEMBER BRIEF'S OWN FOUR FACTS
+  // ══════════════════════════════════════════════════════════════════════════
+  // WHAT IT IS. _fpiShape() for an executive: depth, the strongest one-sided
+  // issues, the issues whose acts ran both ways, and the tail it declined to
+  // characterise — in the SAME field names, the same order and the same row shape,
+  // so the 🏛 record brief at the top of a person file renders an exec and a member
+  // through one code path instead of two faces of one lane.
+  //
+  // WHY IT EXISTS. The brief could not describe an executive, so it printed the
+  // census — "80 across 37 issues", the per-class inventory, and a button into the
+  // standouts section — and stopped. A reader arriving on /p/lee met issue rows
+  // they could scan; a reader arriving on /p/trump met four counts and a door.
+  // Same lane, same question, two different amounts of answer.
+  //
+  // WHERE EVERY FIGURE COMES FROM, AND WHAT IS NOT INVENTED HERE:
+  //   · THE ROWS ARE _fpiRows()'s ROWS. The formal-pattern index already enumerates
+  //     an executive's issues — one row per issue the acts touch — and already
+  //     carries each row's own inventory and its refusal sentence. This selects
+  //     among them and recounts nothing.
+  //   · THE TIER IS _stDisplayTier()'s TIER, which is _recordDisplayTier() over
+  //     _stExecDisplayIndex() — the shipped exec-lane read, unweighted, one act one
+  //     count, already inverted for the blocking classes by issueDirection(). It is
+  //     the same read the stance rows further down the page print, so the brief and
+  //     the rows beneath it cannot disagree about an issue.
+  //   · THE CHIP IS _stPatternHtml()'s CHIP, so an exec row and a member row saying
+  //     the same thing are the same chip with the same tone and the same weight.
+  //   · THE TALLY IS _rdSidePhrase()'s TALLY — "4 advanced · 4 against" — and the
+  //     one-sided countable is _rdTierCounts()'s, in the exec lane's own noun ("9
+  //     actions advanced"). No vote word reaches an exec row: there are no floor
+  //     votes on this lane and none is invented for it.
+  //
+  // NO NEW SCORE AND NO NEW FLOOR. Every threshold that decides a tier here is a
+  // shipped record-direction gate (_RD_MIN_JUDGED, _RD_DOMINANCE,
+  // _RD_SPLIT_MIN_JUDGED), reached through the same function every other surface
+  // reaches them through. The strip's own set floor (_XS_MIN_ISSUES) and per-chip
+  // floor (_xsFloor) are NOT applied: they exist because "standout" is a
+  // superlative over a set, and this is a brief rather than a superlative — the
+  // member brief lists whatever its engine characterised and so does this.
+  //
+  // AND A ROW WITH ACTS AND NO SIDE KEEPS ITS ROW. Where the tier declines — a
+  // balance key, an issue our mapping gives no for-or-against pole — the row is
+  // still counted in `issues` and still in the tail the brief prints out loud, and
+  // if such a row is ever listed it carries the existing refusal chip
+  // (_fpiUnreadHtml) rather than an empty slot. Nothing is hidden for being
+  // unreadable.
+  var _XS_CHARACTERISED = { strong: 1, mostly: 1 };
+  // ONE TERM SCOPE FOR THE WHOLE BLOCK. The census lines this shape carries up to
+  // the brief — the volume clause and the per-class inventory — are counted over
+  // every term on file (_xsPick asks summary() with allTerms), and the row's own
+  // formal inventory in _fpiRows is the same all-terms figure. So the tier is read
+  // over the same set, and "9 actions advanced" on a row reconciles with the nine
+  // acts its dossier enumerates instead of counting one term of them.
+  var _XS_SCOPE = { allTerms: true };
+  // The chip's lane disclosure, in the countable this lane actually holds. The
+  // swap is _stRecNote()'s, which every other exec record surface already goes
+  // through — "a pattern in the votes on file" is a sentence about roll calls, and
+  // this lane has none.
+  function _xsChipTier(r, t) {
+    var out = {}, k;
+    for (k in t) if (Object.prototype.hasOwnProperty.call(t, k)) out[k] = t[k];
+    out.note = _stRecNote(r, t);
+    return out;
+  }
+  // WHY NO DIRECTION ON THIS ROW, in the display lane's own words rather than the
+  // index's. _fpiUnreadWhy() answers for the pattern engine, and on the exec lane
+  // its answer is "the pattern read has not been extended to executive actions yet"
+  // — which was true of the characterisation engine and is not true of this read.
+  // _stRecordWhy() is the display lane's own ladder: a poleless issue says so
+  // first (it delegates to _fpiUnreadWhy for exactly that sentence), and what is
+  // left says the acts are on file and none of them took a side.
+  function _xsWhy(r, x) {
+    try {
+      var idx = _stDisplayIndex(r, _XS_SCOPE);
+      var w = _stRecordWhy(r, idx, (x && x.held) || (idx && idx.total) || 0);
+      if (w && w.lb) return w;
+    } catch (e) {}
+    return (x && x.why) || { id: 'unread', lb: 'Pattern not read yet', note: '' };
+  }
+  // One row, flattened into the field names shapeRowHtml() reads — the same nine
+  // fields _fpiShapeRow() publishes, so the brief's row markup does not learn that
+  // there are two lanes.
+  function _xsShapeRow(x, t) {
+    var r = x.row;
+    var chip = '';
+    try { if (t) chip = _stPatternHtml(r, _xsChipTier(r, t)) || ''; } catch (e) { chip = ''; }
+    var why = t ? null : _xsWhy(r, x);
+    if (!chip) chip = _fpiUnreadHtml({ why: why || _xsWhy(r, x) });
+    return {
+      pid: x.pid, key: x.key, label: x.label,
+      tier: t ? t.tier : 'unread',
+      weight: t ? t.weight : 'flat',
+      tone: t ? t.tone : 'muted',
+      patLabel: t ? t.label : why.lb,
+      why: why,
+      counts: t ? (t.counts || '') : '',
+      judged: t ? (t.judged || 0) : 0,
+      sideCounts: t ? (t.sideCounts || '') : '',
+      advances: (t && typeof t.advances === 'number') ? t.advances : null,
+      opposes: (t && typeof t.opposes === 'number') ? t.opposes : null,
+      noSide: t ? (t.noSide || 0) : 0,
+      noSideCount: t ? (t.noSideCount || '') : '',
+      directional: !!(t && t.directional),
+      read: !!t,
+      held: x.held || 0,
+      said: !!x.said,
+      chip: chip
+    };
+  }
+  // The index's own confidence ladder, applied to the tier this lane actually
+  // read: the characterised tiers before the qualified one, then the deeper
+  // record, then the bigger inventory, then the label so two renders of one
+  // profile never disagree about the order. Same comparator shape as _fpiRows'.
+  var _XS_TIER_RANK = { strong: 0, mostly: 1, split: 2, thin: 3, unread: 4 };
+  function _xsByLadder(a, b) {
+    var ar = _XS_TIER_RANK[a.tier], br = _XS_TIER_RANK[b.tier];
+    if (ar !== br) return ar - br;
+    if (a.judged !== b.judged) return b.judged - a.judged;
+    if (a.held !== b.held) return b.held - a.held;
+    return a.label < b.label ? -1 : a.label > b.label ? 1 : 0;
+  }
+  // …and the both-ways group by HOW SPLIT IT IS, smaller side first, which is this
+  // lane's own published rule for that bucket (see _xsMinority over _xsPick) and
+  // the only honest measure of a split.
+  function _xsBySplit(a, b) {
+    var am = Math.min(a.advances || 0, a.opposes || 0);
+    var bm = Math.min(b.advances || 0, b.opposes || 0);
+    if (am !== bm) return bm - am;
+    return _xsByLadder(a, b);
+  }
+
+  function _xsShape(pid) {
+    try {
+      if (!pid) return null;
+      var p = _xsPick(pid);
+      if (!p.on) return null;
+      ensureStyles();
+      // The chips and the row doors are [data-pdxst-dos] surfaces, so this arms the
+      // one delegated listener every other dossier door on the page arms.
+      bindGateway();
+      var rows = _fpiRows(pid, { sort: 'strength' }) || [];
+      var out = {
+        issues: 0, read: 0, judged: 0,
+        characterised: 0, strongN: 0, splitN: 0,
+        readThinN: 0, readOtherN: 0, thinN: 0, tailN: 0,
+        tops: [], splits: [],
+        // The census, carried through so the brief prints the lane's own counted
+        // lines rather than assembling a second phrasing of them. Not part of the
+        // pattern read and never summed with it: `acts` counts documents and
+        // `issues` counts issues, which is the one addition this lane forbids.
+        acts: p.acts, actIssues: p.issues, readable: p.readable,
+        inventory: p.inventory.slice(), volume: p.volume,
+        thin: p.thin, contested: p.contested,
+        // THE BLOCK'S TIER WALL, IN THIS LANE'S COUNTABLE. The brief prints the
+        // engine's one tier sentence under the chips, and on this lane the engine's
+        // wording ("a pattern in the votes on file") is a sentence about roll calls
+        // the executive lane does not hold. Swapped by the same _stRecNote() the
+        // chips inside the block already go through, so the wall and the chip it
+        // explains cannot end up describing two different countables. Published
+        // here rather than swapped at the surface because the swap is this file's
+        // rule; a shape that does not carry it lets the surface fall back to the
+        // shared sentence unchanged.
+        wall: _stRecNote({ lane: 'exec' }, { note: window._PDX_RD_TIER_NOTE || '' })
+      };
+      var tops = [], splits = [];
+      rows.forEach(function (x) {
+        var r = x && x.row;
+        if (!r || r.lane !== 'exec') return;
+        out.issues++;
+        var t = null;
+        try { t = _stDisplayTier(r, _XS_SCOPE); } catch (e) { t = null; }
+        if (t && t.tier === 'none') t = null;
+        var row = _xsShapeRow(x, t);
+        if (t) { out.read++; out.judged += (t.judged || 0); }
+        if (t && _XS_CHARACTERISED[t.tier]) { out.strongN++; tops.push(row); return; }
+        if (t && t.tier === 'split') { out.splitN++; splits.push(row); return; }
+        // THE TAIL, IN THE SAME THREE PARTS THE MEMBER SHAPE PUBLISHES IT IN, and
+        // disjoint for the same reason: a thin read has a published side, a row
+        // with no tier at all has none, and a caller may print any subset without
+        // double-counting. Nothing here is a promotion path.
+        out.tailN++;
+        if (t && t.tier === 'thin') out.readThinN++;
+        else if (t) out.readOtherN++;
+        else out.thinN++;
+      });
+      out.characterised = out.strongN + out.splitN;
+      out.tops = tops.sort(_xsByLadder).slice(0, _FPI_TOPS_CAP);
+      out.splits = splits.sort(_xsBySplit).slice(0, _FPI_SPLITS_CAP);
+      return out;
+    } catch (e) { return null; }
   }
 
   // The thin / withheld sentences. Each names the rule that produced it rather than
@@ -16141,6 +16340,14 @@
     execRecordSummary: {
       pick: execRecordSummary,
       html: execRecordSummaryHtml,
+      // ✒️ The same four facts _fpiShape publishes for a member — depth, tops,
+      // splits, tail — for an executive, in the same field names and the same row
+      // shape, so the 🏛 record brief renders both lanes through one code path.
+      // Counts and slices only; see the long note over _xsShape for why no floor,
+      // no vocabulary and no score is invented here.
+      shape: _xsShape,
+      TOPS_CAP: _FPI_TOPS_CAP,
+      SPLITS_CAP: _FPI_SPLITS_CAP,
       CAP: _XS_CAP,
       MIN_ISSUES: _XS_MIN_ISSUES,
       floor: _xsFloor,

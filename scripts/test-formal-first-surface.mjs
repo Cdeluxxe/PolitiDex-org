@@ -542,10 +542,28 @@ section("6 · the executive lane's summary is not a roll-call wall in disguise")
   // ── It reads the exec lane, and only the exec lane ────────────────────────
   has(code, "PDXExecRecord", "the executive summary does not read the executive record");
   has(code, "sum.rows", "the executive summary rebuilds the issue universe instead of reading the one pass");
-  ok(!/_fpiRows|_stPatternTier|_soPick|formalPatternIndex/.test(code),
-    "the executive summary reaches into the member pattern engine — that engine returns null for this\n" +
-    "    lane by design, and anything it produced here would be a tier invented for a record with no votes");
-  ok(!/\bvote|roll[ -]?call|judged/i.test(code),
+  //   THE ROW ENUMERATOR IS SHARED NOW, AND IT IS NOT WHAT THIS FORBADE. This
+  // block also publishes shape() — the same four facts the top-of-file brief lists
+  // for a member (depth, strongest one-sided, ran both ways, the uncharacterised
+  // tail) — so an executive file and a member file render ONE brief instead of a
+  // pattern list on one and a census on the other. Listing rows means reading
+  // _fpiRows(), which is the issue-row ENUMERATOR: lane-tagged rows carrying the
+  // formal inventory each already holds, filtered here to lane 'exec'.
+  //   WHAT STAYS FORBIDDEN IS THE MEMBER CHARACTERISATION TIER. _stPatternTier()
+  // returns null for this lane by design, and a tier taken from it would be a read
+  // of roll calls that do not exist. The tier these rows carry comes from the
+  // record-direction DISPLAY engine over PDXExecRecord's own acts — the same engine,
+  // the same chip and the same "advanced / against" words a member's rows use, with
+  // no floor vote invented to stand in for a signature.
+  has(code, "r.lane !== 'exec'",
+    "the exec shape does not filter the shared row enumerator to its own lane");
+  has(code, "_stDisplayTier",
+    "the exec shape does not read the shared record-direction display tier");
+  ok(!/_stPatternTier|_soPick|formalPatternIndex/.test(code),
+    "the executive summary reaches into the member CHARACTERISATION engine — that engine returns null\n" +
+    "    for this lane by design, and anything it produced here would be a tier invented for a record\n" +
+    "    with no votes");
+  ok(!/\bvote|roll[ -]?call/i.test(code),
     "the executive summary borrowed roll-call vocabulary for a lane that casts no votes");
   ok(!/publicTally|_stPublic|receipt/i.test(code),
     "the executive summary reads the public lane — a formal summary padded with public receipts is\n" +
@@ -586,6 +604,24 @@ section("6 · the executive lane's summary is not a roll-call wall in disguise")
     "rendering the executive formal summary moved Direction Match");
   // …and it must not have opened anything in the gateway below it.
   ok(!/pdxtree-open="1"/.test(html), "the executive summary expands a topic-tree branch");
+  // ── The listed rows count acts, and only the acts on file ─────────────────
+  // NO FLOOR VOTE IS INVENTED FOR A LANE WITH NO FLOOR. One act is one count, so a
+  // row can never report having read more than its own dossier holds, and the tier
+  // behind it is a read of that inventory rather than a weighted floor tally.
+  const xsh = (typeof XS.shape === "function") ? XS.shape("trump") : null;
+  ok(!!(xsh && xsh.issues > 0), "the executive summary publishes no shape for the brief to list");
+  if (xsh) {
+    for (const row of xsh.tops.concat(xsh.splits)) {
+      ok(row.judged > 0, `a listed exec row reports nothing read: ${row.key}`);
+      ok(row.judged <= row.held,
+        `the exec row for ${row.key} reports ${row.judged} read out of ${row.held} on file`);
+      ok(/advanced|against/.test(row.counts || row.sideCounts || ""),
+        `the exec row for ${row.key} tallies in some other vocabulary`);
+    }
+    eq(xsh.issues, xsh.characterised + xsh.tailN,
+      "the exec shape drops issues between its buckets and its tail — a row with acts and no side " +
+      "must still be counted");
+  }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
