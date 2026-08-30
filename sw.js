@@ -454,7 +454,17 @@
 // surface it repairs is assembled with word-action.js and profiles-full.js, and a
 // device holding v89's consistency.js keeps the empty letterhead no matter how many
 // times it reloads: there is no repaint event on an executive file to recover on.
-const CACHE_VERSION = 'v90';
+// v91 - the formal-record brief's pattern rows take their issue's colour. The
+// letterhead and the below-gate brief were the last rows in the product that named
+// an issue and then painted it house grey, so a stack of seven read as seven
+// identical steel lines and the only way to navigate it was to read it. Each row
+// now carries `[data-ic]` and issue-colors.js's inline properties — the spelling a
+// bill letterhead chip uses — so Border is the same teal as /issue/border_security
+// and the Library's Immigration filter, and Energy the same green. Bumped because
+// the change is a renderer/stylesheet pair: word-action.js emits the attribute and
+// word-action.css draws the rail, and a device holding v90's stylesheet against a
+// v91 script would carry the properties with nothing to consume them.
+const CACHE_VERSION = 'v91';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

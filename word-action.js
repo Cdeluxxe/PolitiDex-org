@@ -1269,6 +1269,31 @@
     try { on = (typeof IC.isCore === 'function') ? IC.isCore(key) : !!IC.getIssueColor(key).mapped; } catch (e) { on = false; }
     return { style: IC.styleFor(key), cls: on ? ' pdxwa-ic' : '', on: on };
   }
+  // ── THE SAME SKIN, AS ATTRIBUTES ───────────────────────────────────────────
+  // One guard, two spellings. The card rows above take the tint as a CLASS, which
+  // is what they have always done and what their stylesheet keys off. The brief's
+  // pattern rows take it as `[data-ic]` plus the inline properties — the spelling
+  // bill-detail.js uses for a letterhead topic chip, and the one every chip surface
+  // added since has followed. Both come out of issueSkin(), so a key that resolves
+  // for one resolves for the other and the fallback story is identical.
+  //
+  // WHY NOT A SECOND CLASS ON THE BRIEF ROW. Its opening tag — `<li
+  // class="pdxwa-shape-row"` — is matched verbatim by several harnesses that slice
+  // rows out of a rendered mount, and a class appended inside that attribute would
+  // stop those matches finding a row without failing anything. The tint is a
+  // rendering fact ABOUT the row, not a new kind of row, so it rides beside the
+  // class rather than inside it.
+  //
+  // AN UNRESOLVED KEY GETS NOTHING AT ALL, deliberately, for the reason spelled out
+  // over issueSkin(): styleFor() never fails, so a row that quietly stopped
+  // resolving would carry neutral-slate properties and look exactly like a row that
+  // resolved to slate on purpose. No attribute means the row renders precisely as it
+  // did before this system existed, and the stylesheet has nothing to hook.
+  function issueTintAttr(key) {
+    var skin = issueSkin(key);
+    if (!skin.on || !skin.style) return '';
+    return ' data-ic="on" style="' + skin.style + '"';
+  }
   function _laneNoun(row, n) {
     var one = (row.lane === 'exec') ? 'executive action' : 'vote';
     return n + ' ' + one + (n === 1 ? '' : 's');
@@ -3939,7 +3964,26 @@
           '<span class="pdxwa-shape-bar">' + bar + '</span>' +
         '</span>'
       : name + bar;
-    return '<li class="pdxwa-shape-row"' + (rowId ? ' id="' + esc(rowId) + '"' : '') + '>' +
+    // ── THE ROW WEARS ITS ISSUE ─────────────────────────────────────────────
+    // These rows were the last place in the product that named an issue and then
+    // painted it in house grey. Seven rows of identical steel is a list a reader
+    // has to READ to navigate; with the rail on, Border is teal and Energy is
+    // green before a word of it is parsed, and they are the same teal and the same
+    // green as /issue/border_security, the Library's Immigration filter and that
+    // topic's chip on a bill letterhead — which is the entire point of having one
+    // palette rather than a nice colour per surface.
+    //   TWO VOCABULARIES, SIDE BY SIDE, UNCHANGED. The rail is the ISSUE. The tier
+    // chip inside `bar` keeps its own green / red / amber for the direction, out of
+    // _stPatternHtml()'s tone table, and reads none of these properties — supports
+    // stays green on an amber-railed economy row, which is the correct rendering of
+    // "this is the cost-of-living row, and on it they advanced". Nothing here can
+    // recolour a verdict and nothing here reads one.
+    //   AND THE ⓘ STAYS THE GLOSSARY. It is a sibling of the door and it paints
+    // itself; it consumes no --pdx-ic and must not start, because a key control
+    // tinted by the key it explains reads as a state of that issue rather than as
+    // the one control on the row that is about wording.
+    return '<li class="pdxwa-shape-row"' + (rowId ? ' id="' + esc(rowId) + '"' : '') +
+      issueTintAttr(key) + '>' +
       body +
       // The key, last and outside the door — see the wall above.
       (door ? scopeControlHtml(key) : '') +
