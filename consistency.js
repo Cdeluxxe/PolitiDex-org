@@ -5178,15 +5178,43 @@
     // `pid` alone does not identify the answer: the same politician read inside
     // withExecTermScope('current_term', …) has a different row model, and it is
     // rendered next to the all-time one for comparison.
+    //
+    // ✒️ AND ON THE EXEC ACTION POOL, WHICH ARRIVES IN A LATER SCRIPT THAN THIS
+    // FILE. index.html loads consistency.js before exec-action-data.js and
+    // exec-record.js, so for the length of that window a president's row model can
+    // be built with no exec lane in it at all — every row's formal side is read
+    // from a pool that is not on the page yet. The epoch does not cover this: it is
+    // bumped by a Firestore merge, a roll-call arrival and the lazy-data pass, and
+    // none of those is "the executive record just loaded". So a single early read
+    // — a roster card, a nav pill, a prefetch — used to pin an exec-blind row model
+    // for the life of the page, and the surfaces built on it (the letterhead's
+    // shape, the topic tree's Record slot, the atlas) all reported an empty formal
+    // record for a file with eighty documents in it.
+    //   The fingerprint is the same self-healing key _erfCache already uses one
+    // rung down: the identity and length of this pid's seeded action list. It is
+    // 'x0' for everyone the exec lane does not hold, so nothing about a member's
+    // row model changes, and it flips exactly once on an executive file — when the
+    // pool lands — which recomputes the rows off data that now exists.
     var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
     if (_rowsEpoch !== ep) { _rowsCache = {}; _rowsEpoch = ep; }
-    var k = norm(pid) + '||' + execTermScope().key;
+    var k = norm(pid) + '||' + execTermScope().key + '||' + _rowsExecFp(pid);
     if (Object.prototype.hasOwnProperty.call(_rowsCache, k)) return _rowsCache[k];
     var v = issuesWithSignal(pid, 'combined').map(function (x) { return issueRow(pid, x); });
     _rowsCache[k] = v;
     return v;
   }
   var _rowsCache = {}, _rowsEpoch = 0;
+  // The exec pool's fingerprint for the row cache above: whether the read path is on
+  // the page at all, and how many actions this pid's seeded list holds. Counts only,
+  // and nothing reads it as data — it exists so a cached answer cannot outlive the
+  // arrival of the inputs it was computed without.
+  function _rowsExecFp(pid) {
+    try {
+      if (!window.PDXExecRecord) return 'x0';
+      var raw = _erfRaw(pid);
+      return 'x' + (raw ? raw.length : 0);
+    } catch (e) { return 'x0'; }
+  }
   // ── THE ONE TALLY ───────────────────────────────────────────────────────────
   // Every surface that summarises a politician's record in counts reads this. The
   // unit is the ISSUE ROW — the same object the profile prints one line per — so a
@@ -9990,6 +10018,22 @@
     return _xsByLadder(a, b);
   }
 
+  // ONE EXEC ISSUE AS A ROW THE SHARED BUILDERS CAN READ, for the case where the
+  // member-lane row model has no entry for it. It is not a second row model: it
+  // carries the four fields _stExecDisplayIndex() needs in order to ask
+  // PDXExecRecord.issue() — pid, key, label, lane — and the lane's own act count as
+  // `held`, which is the same number the strip's chip prints as "N actions on file".
+  // No tier, no side, no direction and no copy is decided here; every one of those
+  // still comes back from the display read over the acts themselves.
+  function _xsSpineRow(pid, sr) {
+    var label = _issueLabel(sr.issueKey);
+    return {
+      pid: pid, key: sr.issueKey, label: label,
+      row: { pid: pid, key: sr.issueKey, label: label, lane: 'exec' },
+      held: sr.acts || 0, said: false, why: null
+    };
+  }
+
   function _xsShape(pid) {
     try {
       if (!pid) return null;
@@ -9999,7 +10043,44 @@
       // The chips and the row doors are [data-pdxst-dos] surfaces, so this arms the
       // one delegated listener every other dossier door on the page arms.
       bindGateway();
-      var rows = _fpiRows(pid, { sort: 'strength' }) || [];
+      // ── THE ROW SET IS THE LANE'S OWN, AND THAT IS THE WHOLE FIX ─────────
+      // WHAT WENT WRONG. This selected from _fpiRows() — the member-lane row
+      // model — and kept the rows it had marked `lane: 'exec'`. That model is
+      // memoised per politician (see issueRows) and its exec lane is built from
+      // the exec action pool, which arrives in a LATER script than this file:
+      // index.html loads consistency.js before exec-action-data.js and
+      // exec-record.js. Any surface that touched a president's rows inside that
+      // window cached a row model with no exec lane in it, and nothing
+      // invalidated it — so this shape published `issues: 0`, the letterhead
+      // printed its census-and-a-door fallback, heroNamesPatterns() answered
+      // false, and the standouts strip mid-page mounted with the very rows the
+      // letterhead had just failed to find. On an executive file the hero has no
+      // repaint event to recover on — there is no roll-call fetch to land — so the
+      // first paint was the last one and a hard refresh changed nothing.
+      //
+      // WHAT IT READS INSTEAD. `p.sum.rows` — one row per issue the acts touch,
+      // straight off PDXExecRecord.summary(), which is the SAME array the mid-page
+      // strip selects its chips from (see _xsPick above). The letterhead and the
+      // strip therefore cannot disagree about which issues exist: they are two
+      // selections over one list rather than two lists.
+      //
+      // THE MEMBER-LANE ROW IS STILL USED WHERE IT EXISTS, and only for what it is
+      // good for: it carries the row object the shared chip, noun and refusal
+      // builders already read, plus `held` and `said`. Where it is missing — the
+      // cold-cache case above — a minimal exec row stands in, and every figure on
+      // it still comes from the lane's own read, because _stExecDisplayIndex() asks
+      // PDXExecRecord.issue() off nothing but pid, key and lane. Nothing here
+      // recounts an act, invents a tier, or writes a word of copy.
+      var spine = {};
+      (_fpiRows(pid, { sort: 'strength' }) || []).forEach(function (x) {
+        if (x && x.key && x.row && x.row.lane === 'exec') spine[x.key] = x;
+      });
+      var rows = [], seen = {};
+      ((p.sum && p.sum.rows) || []).forEach(function (sr) {
+        if (!sr || !sr.issueKey || seen[sr.issueKey]) return;
+        seen[sr.issueKey] = 1;
+        rows.push(spine[sr.issueKey] || _xsSpineRow(pid, sr));
+      });
       var out = {
         issues: 0, read: 0, judged: 0,
         characterised: 0, strongN: 0, splitN: 0,
@@ -10026,7 +10107,7 @@
       var tops = [], splits = [];
       rows.forEach(function (x) {
         var r = x && x.row;
-        if (!r || r.lane !== 'exec') return;
+        if (!r) return;
         out.issues++;
         var t = null;
         try { t = _stDisplayTier(r, _XS_SCOPE); } catch (e) { t = null; }

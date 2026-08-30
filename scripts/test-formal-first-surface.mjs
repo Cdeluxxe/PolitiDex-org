@@ -542,21 +542,35 @@ section("6 · the executive lane's summary is not a roll-call wall in disguise")
   // ── It reads the exec lane, and only the exec lane ────────────────────────
   has(code, "PDXExecRecord", "the executive summary does not read the executive record");
   has(code, "sum.rows", "the executive summary rebuilds the issue universe instead of reading the one pass");
-  //   THE ROW ENUMERATOR IS SHARED NOW, AND IT IS NOT WHAT THIS FORBADE. This
-  // block also publishes shape() — the same four facts the top-of-file brief lists
-  // for a member (depth, strongest one-sided, ran both ways, the uncharacterised
-  // tail) — so an executive file and a member file render ONE brief instead of a
-  // pattern list on one and a census on the other. Listing rows means reading
-  // _fpiRows(), which is the issue-row ENUMERATOR: lane-tagged rows carrying the
-  // formal inventory each already holds, filtered here to lane 'exec'.
+  //   THE ROW ENUMERATOR IS SHARED, BUT IT IS NO LONGER THE UNIVERSE. This block
+  // also publishes shape() — the same four facts the top-of-file brief lists for a
+  // member (depth, strongest one-sided, ran both ways, the uncharacterised tail) —
+  // so an executive file and a member file render ONE brief instead of a pattern
+  // list on one and a census on the other.
+  //   WHICH ISSUES EXIST IS DECIDED BY THIS LANE, NOT BY THE MEMBER MODEL. It used
+  // to enumerate _fpiRows() and keep the rows marked `lane: 'exec'`, which made the
+  // letterhead's row list a hostage of a cache the member lane fills: _fpiRows() is
+  // memoised per politician and its exec lane is built from the exec action pool,
+  // which index.html loads AFTER this file. One early read of a president's rows and
+  // the memo held no exec lane at all, so shape() published zero issues, the
+  // letterhead fell back to its census-and-a-door, and the mid-page strip mounted
+  // with the rows the letterhead had failed to find — with no repaint event on an
+  // executive file to recover on. The universe is now `sum.rows`, the same array the
+  // strip's own chips are selected from, so the two cannot disagree. The member row
+  // is still consulted where it exists, keyed by issue, for the row object the
+  // shared chip and refusal builders read; the lane filter lives on that lookup, so
+  // no member-lane row can enter under an exec issue's key.
+  has(code, "x.row.lane === 'exec'",
+    "the exec shape stopped filtering the shared row enumerator to its own lane");
+  has(code, "spine[sr.issueKey]",
+    "the exec shape no longer keys the member row by the exec lane's own issue — the row set is\n" +
+    "    back to being whatever the member-lane memo happened to hold when it was first filled");
   //   WHAT STAYS FORBIDDEN IS THE MEMBER CHARACTERISATION TIER. _stPatternTier()
   // returns null for this lane by design, and a tier taken from it would be a read
   // of roll calls that do not exist. The tier these rows carry comes from the
   // record-direction DISPLAY engine over PDXExecRecord's own acts — the same engine,
   // the same chip and the same "advanced / against" words a member's rows use, with
   // no floor vote invented to stand in for a signature.
-  has(code, "r.lane !== 'exec'",
-    "the exec shape does not filter the shared row enumerator to its own lane");
   has(code, "_stDisplayTier",
     "the exec shape does not read the shared record-direction display tier");
   ok(!/_stPatternTier|_soPick|formalPatternIndex/.test(code),
@@ -621,6 +635,22 @@ section("6 · the executive lane's summary is not a roll-call wall in disguise")
     eq(xsh.issues, xsh.characterised + xsh.tailN,
       "the exec shape drops issues between its buckets and its tail — a row with acts and no side " +
       "must still be counted");
+    // ── AND THE ROW SET IS THIS LANE'S OWN LIST ─────────────────────────────
+    // The letterhead lists what the mid-page strip selects from, so the two are
+    // checked against ONE array: PDXExecRecord's summary rows. If shape() ever
+    // enumerates a different universe again — the member-lane memo, filled before
+    // the exec pool loads — this is the assertion that reports zero issues on a
+    // record with dozens, which is exactly how the empty letterhead shipped.
+    const laneKeys = new Set(
+      (W.PDXExecRecord.summary("trump", { allTerms: true }).rows || [])
+        .map((r) => r && r.issueKey).filter(Boolean));
+    ok(laneKeys.size > 0, "the executive fixture holds no issues — this check is vacuous");
+    eq(xsh.issues, laneKeys.size,
+      "the exec shape counts a different set of issues than the executive record does");
+    for (const row of xsh.tops.concat(xsh.splits)) {
+      ok(laneKeys.has(row.key),
+        `the exec shape lists ${row.key}, which the executive record's own row list does not hold`);
+    }
   }
 }
 

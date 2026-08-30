@@ -441,7 +441,20 @@
 // The source for it shipped without a bump, so warm devices kept serving the
 // pre-brief bundle and the letterhead read as unchanged; this is the bump that
 // delivers it.
-const CACHE_VERSION = 'v89';
+// v90 - the executive letterhead's rows, which v89 shipped and production never
+// showed. The brief was reading the MEMBER-lane row model and keeping the rows it
+// had marked exec; that model is memoised per politician and its exec lane is built
+// from the action pool, which arrives in a later script than consistency.js. One
+// read inside that window pinned an exec-blind row model for the life of the page,
+// so /p/trump published a shape with zero issues, printed its census-and-a-door
+// fallback, and let the mid-page standouts strip mount with the very rows the
+// letterhead had failed to find. The brief now selects from PDXExecRecord's own row
+// list — the same list the strip selects its chips from — and the row cache heals
+// when the pool lands. Bumped because the change is in consistency.js alone but the
+// surface it repairs is assembled with word-action.js and profiles-full.js, and a
+// device holding v89's consistency.js keeps the empty letterhead no matter how many
+// times it reloads: there is no repaint event on an executive file to recover on.
+const CACHE_VERSION = 'v90';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
