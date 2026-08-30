@@ -340,6 +340,132 @@
     } catch (e) {}
   }
 
+  // ── What the edge already told us, on this address ────────────────────────
+  // The crawl header the edge writes into the first byte is not only for
+  // crawlers. It carries, before a single module has executed, the two things a
+  // cold arrival otherwise waits on the roster for: the CANONICAL roster id for
+  // the address in the bar (data-pid), and the person's name, office and formal
+  // rows as text. This reads it — and reads it only when it is provably about the
+  // address the reader is on, which is the same two-string comparison the inline
+  // guard at the top of index.html makes:
+  //
+  //   data-pdx-crawl-for  the address the edge GENERATED the block at
+  //   location.pathname   the address this document was served for
+  //
+  // If they differ, the block is a cache artifact and nothing in it is known to
+  // be about this reader (the /p/khanna-printing-Lee's-record defect), so it is
+  // refused here exactly as the guard neutralises it there. A generic block —
+  // written for an address the edge holds no record for — carries no data-pid and
+  // is refused for the same reason: it names nobody, so it can tell us nothing.
+  //
+  // querySelector, not getElementById, on purpose: this runs on the resolve path
+  // for every arrival, and it must not be the thing that decides the node was
+  // looked for. crawlDone() is the only place that asks for the node by id.
+  function crawlHeader() {
+    try {
+      var el = document.querySelector('#pdx-crawl-person');
+      if (!el || !el.getAttribute) return null;
+      var here = fromPath(location.pathname);
+      if (!here) return null;
+      if (el.getAttribute('data-pdx-crawl-for') !== PREFIX + here) return null;
+      if (el.hasAttribute && el.hasAttribute('data-pdx-crawl-generic')) return null;
+      var pid = el.getAttribute('data-pid');
+      return pid ? { el: el, pid: String(pid) } : null;
+    } catch (e) { return null; }
+  }
+
+  // The roster id the edge stamped for THIS address, or ''. Accepted only when a
+  // roster record answers to it, because openModal renders from the roster and an
+  // id with no record behind it would open the error state rather than a file.
+  function stampId() {
+    var h = crawlHeader();
+    return h && record(h.pid) ? h.pid : '';
+  }
+
+  // resolve(), plus the edge's own answer for the address in the bar.
+  //
+  // WHY BOTH. resolve() reads the tables the app ships — PDX_PROFILE_ALIAS, the
+  // case fold, the display-name slug — and they are a subset of what the edge
+  // resolves through (db/share-index.json's personAliases is generated from more
+  // of the repo's identity tables than any one client module carries). So an
+  // address the edge could name and the client could not used to sit out the full
+  // roster wait for no reason. The stamp is consulted SECOND, so nothing about how
+  // the app resolves its own ids changes; it only answers where the app had no
+  // answer, and only ever with an id that has a record on hand.
+  function resolveArrival(pid) {
+    return resolve(pid) || stampId();
+  }
+
+  // ── The skeleton that keeps the first paint on screen ─────────────────────
+  // A cold /p/<pid> arrival opens the modal on a loading shell, because the full
+  // profile document has not been fetched yet. That shell used to be a spinner
+  // and the sentence "Loading <name>…", drawn OVER a header that was already
+  // showing the reader the name, the office and up to six formal-record rows. The
+  // page went backwards at the exact moment it was supposed to go forwards.
+  //
+  // So the shell repeats what the first paint already said. Same strings, read
+  // out of the same header, re-escaped as text — nothing here parses or re-hosts
+  // markup that came off the wire, and nothing here computes a row. The status
+  // line under it is the only new sentence, and it is a status rather than the
+  // whole content: the rows above it are real and stay put until the file lands.
+  //
+  // Returns '' when the header cannot be trusted for this pid, which is the
+  // caller's cue to keep the spinner it always had. Two conditions, both cheap:
+  // the header must be stamped for the address in the bar (crawlHeader), and the
+  // id it names must be the id being opened — a person opened from a card while
+  // some earlier arrival's header is still in the document gets no skeleton, and
+  // above all not that other person's rows.
+  var SKEL_STYLE = '<style>' +
+    '.pdx-file-skel{padding:1.25rem 1.15rem 1.4rem;color:#eef4ff;text-align:left;}' +
+    '.pdx-file-skel h2{margin:0 0 .35rem;font-size:1.55rem;line-height:1.15;' +
+      "font-family:'Barlow Condensed',sans-serif;letter-spacing:.01em;color:#fff;}" +
+    '.pdx-file-skel-line{margin:0 0 1rem;color:#9fb4d4;font-size:.9rem;line-height:1.45;max-width:60ch;}' +
+    '.pdx-file-skel h3{margin:0 0 .45rem;font-size:.7rem;letter-spacing:.14em;' +
+      'text-transform:uppercase;color:#f5c842;}' +
+    '.pdx-file-skel ul{margin:0 0 1.15rem;padding:0;list-style:none;}' +
+    '.pdx-file-skel li{margin:0 0 .3rem;padding:.5rem .7rem;border-radius:.4rem;' +
+      'background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);' +
+      'color:#c9d8f2;font-size:.86rem;line-height:1.4;}' +
+    '.pdx-file-skel-status{display:flex;align-items:center;gap:.5rem;margin:0;' +
+      'color:#6b7c9c;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;}' +
+    '</style>';
+
+  function arrivalSkeleton(pid) {
+    try {
+      var h = crawlHeader();
+      if (!h) return '';
+      // The header names one person. Opening anybody else must not borrow it.
+      if (canonId(h.pid) !== canonId(pid) && h.pid !== pid) return '';
+
+      var nameEl = h.el.querySelector ? h.el.querySelector('h1') : null;
+      var name = nameEl ? String(nameEl.textContent || '').trim() : '';
+      if (!name) return '';
+
+      var ps = h.el.querySelectorAll ? h.el.querySelectorAll('p') : [];
+      var line = ps && ps.length ? String(ps[0].textContent || '').trim() : '';
+
+      var rows = [];
+      var lis = h.el.querySelectorAll ? h.el.querySelectorAll('[data-pdx-crawl-record] li') : [];
+      for (var i = 0; i < lis.length && i < 6; i++) {
+        var t = String(lis[i].textContent || '').trim();
+        if (t) rows.push('<li>' + esc(t) + '</li>');
+      }
+
+      return SKEL_STYLE +
+        '<div class="pdx-file-skel" role="status" aria-live="polite" data-pdx-file-skel="' + esc(pid) + '">' +
+          '<h2>' + esc(name) + '</h2>' +
+          (line ? '<p class="pdx-file-skel-line">' + esc(line) + '</p>' : '') +
+          (rows.length
+            ? '<h3>Formal record</h3><ul>' + rows.join('') + '</ul>'
+            : '') +
+          '<p class="pdx-file-skel-status">' +
+            '<span class="pdx-roster-spin" aria-hidden="true"></span>' +
+            '<span>Loading the latest roster…</span>' +
+          '</p>' +
+        '</div>';
+    } catch (e) { return ''; }
+  }
+
   // ── The first-byte crawl block ────────────────────────────────────────────
   // A cold arrival on /p/<pid> is served the app shell, and the shell is the same
   // document for every person — which is why a crawler read /p/lee as a duplicate
@@ -365,6 +491,16 @@
   //
   // Nothing here can take an open down with it — the whole call sits in a guard at
   // its one call site, and the node is absent on every address except /p/<pid>.
+  //
+  // WHEN. Not when the modal opens — when the FILE is in it. openModal opens on a
+  // loading shell whenever the full profile document has not been fetched yet,
+  // which on a cold /p/<pid> is always, so hiding the block at open() time swapped
+  // a header that already carried the right name and the right formal rows for a
+  // centred spinner that said "Loading <name>…" and nothing else. The hide now
+  // waits for mounted() below, which profiles-full.js calls at the one moment the
+  // real content is in the DOM. open() still hides directly when the file is
+  // already mounted by the time it returns (a warm profile, or any caller whose
+  // renderer is synchronous), so nothing that used to hide immediately stopped.
   function crawlDone() {
     var el = document.getElementById('pdx-crawl-person');
     if (!el) return;
@@ -386,6 +522,31 @@
       }
       history.replaceState(null, '', back + location.hash);
     } catch (e) {}
+  }
+
+  // ── "The file is on screen" ───────────────────────────────────────────────
+  // profiles-full.js sets window._pdxCurrentProfileId at the one point in
+  // openModal where the built content is in the DOM — after the innerHTML write,
+  // after the overlay is revealed. That is the honest definition of mounted, and
+  // it is the one thing that distinguishes the real file from the loading shell
+  // openModal opens first whenever a full profile document still has to be
+  // fetched (which, on a cold /p/<pid>, is every time).
+  function mountedNow(pid) {
+    try { return String(window._pdxCurrentProfileId || '') === String(pid); }
+    catch (e) { return false; }
+  }
+
+  // Called BY the renderer, at that point. Two things, both idempotent:
+  //   · the first-byte header steps aside, now that there is a file to step
+  //     aside for,
+  //   · the stage clock takes the mark the perf pass is judged on — the moment a
+  //     reader can read this person's name off the file itself.
+  // A repeat call (openModal re-runs after the lazy document lands) hides an
+  // already-hidden node and re-takes a mark that keeps its first value.
+  function mounted(pid) {
+    perf('file-named');
+    try { crawlDone(); } catch (e) {}
+    return true;
   }
 
   // ── The file kicker ───────────────────────────────────────────────────────
@@ -553,10 +714,14 @@
     perf('person-open');
     try { stamp(pid); } catch (e) {}
     try { kicker(pid); } catch (e) {}
-    // The edge's first-byte crawl header has been superseded by the file itself.
+    // The edge's first-byte crawl header is superseded by the file — but only once
+    // the file is actually THERE. openModal returns early on a loading shell
+    // whenever the full profile document still has to be fetched, and hiding the
+    // header then is how a cold arrival lost a paint it had already earned. So the
+    // hide is conditional on the mount, and mounted() below does it otherwise.
     // Guarded like the two above, and for the same reason: a reader who can see
     // the file must not lose it to a chrome detail.
-    try { crawlDone(); } catch (e) {}
+    if (mountedNow(pid)) { try { crawlDone(); } catch (e) {} }
     // Fired after the modal is up so it cannot delay the open by even one turn
     // of the event loop, and in its own guard for the same reason as the two
     // above: a warm that throws must not take the file down with it.
@@ -581,8 +746,9 @@
     // Strict, unlike open(): an id out of the address bar is untrusted input,
     // so an arrival that resolves to nobody says so instead of handing openModal
     // an id it will only fail on. Fails CLOSED — no modal, no blank shell
-    // pretending the record loaded.
-    var pid = resolve(asked);
+    // pretending the record loaded, and the edge's generic zero-row header is
+    // left standing because it is then the only thing on the page that is true.
+    var pid = resolveArrival(asked);
     if (!pid) {
       try {
         var L = window.PDXShareLinks;
@@ -619,6 +785,11 @@
     adopt: adopt,
     record: record,
     resolve: resolve,
+    // The arrival surface: what the edge already told this document about the
+    // address in the bar, and the two things the renderer needs from it.
+    resolveArrival: resolveArrival,
+    arrivalSkeleton: arrivalSkeleton,
+    mounted: mounted,
     bootAdopt: function () { return bootAdopt(); },
     publishable: function (pid) {
       var F = floor();
@@ -657,7 +828,12 @@
   // settled roster earns the not-found notice. The one thing this can no longer
   // do is call a real person unknown because the network was slow.
   var STEP = 120;           // ms between attempts
-  var EARLY = 2000;         // a bundled-roster pid need not wait on a stalled fetch
+  // RETIRED, not re-tuned. EARLY used to be "how long before we trust the bundled
+  // roster instead of the fetched one" — 2000ms of guaranteed staring on an
+  // address the app could resolve at once. Nothing needs it now: an arrival that
+  // resolves opens immediately (see attempt), and the only answer that still waits
+  // on the roster is "we carry nobody by that name", which waits on the flag
+  // itself rather than on a number.
   var SETTLED_GRACE = 240;  // one beat after the roster lands, before answering
   var CEILING = 15000;      // hard stop: this polls a flag, it does not poll forever
   var _adoptSettled = false;
@@ -665,8 +841,8 @@
   // firebase-boot.js sets this to 'loading', then to 'done' or 'error' — every
   // one of its load paths reaches one of the two, including the no-Firebase and
   // failed-fetch branches, so this cannot hang on a missing flag. An app served
-  // without firebase-boot.js at all leaves it undefined, which is why EARLY and
-  // CEILING exist.
+  // without firebase-boot.js at all leaves it undefined, which is why CEILING
+  // exists.
   function rosterSettled() {
     var s = window._pdxRosterState;
     return s === 'done' || s === 'error';
@@ -681,8 +857,23 @@
 
     if (settledAt === null && rosterSettled()) { settledAt = waited; perf('roster'); }
 
-    var ready = (settledAt !== null || waited >= EARLY);
-    var canOpen = ready && !!resolve(pid) && fn(window.openModal);
+    // THE FILE DOES NOT WAIT ON THE FULL ROSTER.
+    //
+    // This used to read `ready && !!resolve(pid) && …`, with `ready` meaning "the
+    // roster has settled, or EARLY has elapsed". That gate cost every arrival the
+    // app could already answer a flat 2000ms of staring: cmp-data.js is a bundled
+    // script, so CMP_DATA is populated by the time this runs, and the alias tables
+    // and the edge's own stamp are in the document from the first byte. The wait
+    // was only ever there for the OTHER answer — telling a reader we carry nobody
+    // by that name — and that answer is still gated, below, on the roster having
+    // actually arrived.
+    //
+    // So: an address that resolves against what is on hand opens now, and the live
+    // roster merges in behind it (openModal's own lazy full-profile fetch, and
+    // every surface listening on PDXDataChanged, already handle arriving depth —
+    // that is what they are for). An address that does not resolve yet keeps
+    // polling, exactly as before, and fails closed only when the roster is in.
+    var canOpen = !!resolveArrival(pid) && fn(window.openModal);
     // Give the honest not-found answer only once the roster has actually
     // arrived (plus a beat for _checkAndTrigger's merge and the alias tables),
     // or once this has waited long enough that no answer is coming.
@@ -695,6 +886,48 @@
       return;
     }
     setTimeout(function () { attempt(pid, waited + STEP, settledAt); }, STEP);
+  }
+
+  // ── ONE REQUEST PER PERSON, ON THE ARRIVAL PATH ───────────────────────────
+  // The id the record endpoint should be asked for, on a cold arrival, before
+  // anything has been opened. Three sources, in the order of how much they know:
+  //
+  //   1. resolveArrival(path pid) — the app's tables plus the edge's stamp. This
+  //      is the id the file will actually open under, so it is the id worth
+  //      spending a request on.
+  //   2. the head prefetch's own pid — window.__pdxVRPrefetch.pid, computed by the
+  //      inline block in index.html from this same address through mirrors of the
+  //      same two alias tables. Used when 1 has no answer yet, because adopting
+  //      that in-flight request costs no network at all.
+  //   3. the path pid, verbatim, for a document served without the head block.
+  //
+  // WHAT THIS FIXES. fetchMember canonicalises with PDXCanonicalPid, which knows
+  // the voting-record retirements and NOT the roster bridges — so warming the raw
+  // path pid on /p/scott_chew asked for `/member/scott_chew`, a URL the head
+  // prefetch (correctly pointed at `chew_h68`) could not be adopted for. That was
+  // two network requests for one person: one nobody reads, one that arrives late
+  // because the first is ahead of it in the connection. Resolving first makes the
+  // one request the head already started the one request the file uses.
+  function warmTarget(pathPid) {
+    var box = null;
+    try { box = window.__pdxVRPrefetch; } catch (e) { box = null; }
+    return resolveArrival(pathPid) || (box && box.pid) || pathPid;
+  }
+
+  // A prefetch for a member this arrival turns out NOT to be about is dead weight
+  // on the one connection that matters (/p/mike_lee resolves to `lee`, and the
+  // head cannot know that without the roster). Abandoning it frees the socket for
+  // the request the file is waiting on, and claims the box so nothing can later
+  // adopt a promise that is being aborted. Unclaimed only: a box fetchMember has
+  // already taken is somebody's answer.
+  function dropStalePrefetch(want) {
+    try {
+      var box = window.__pdxVRPrefetch;
+      if (!box || box.claimed || !want || box.pid === want) return false;
+      box.claimed = true;
+      if (fn(box.abandon)) box.abandon();
+      return true;
+    } catch (e) { return false; }
   }
 
   // Returns the pid it is going to try for, or '' when this URL names nobody —
@@ -710,9 +943,11 @@
     // open() hands the sync record cache (and every surface reading it) the
     // answer as soon as the network has it, instead of one roster wait later.
     // open() still calls warm(); it is memoised per pid, so this is the same one
-    // request moved earlier, not a second one. The path pid is used as-is —
-    // fetchMember and memberRecords canonicalize aliases for themselves.
-    try { warm(pid); } catch (e) {}
+    // request moved earlier, not a second one — and warmTarget makes sure it is
+    // the SAME id open() will resolve to, so an alias arrival cannot spend two.
+    var target = warmTarget(pid);
+    dropStalePrefetch(target);
+    try { warm(target); } catch (e) {}
     _adoptSettled = false;
     attempt(pid, 0, null);
     return pid;

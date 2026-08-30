@@ -3681,19 +3681,53 @@
   }
 
   // Loading shell for the full-profile modal while its full document is fetched.
-  // Reveals the same overlay openModal uses and drops a spinner into #modal-content
-  // (which openModal overwrites once the data arrives), so a cold open / deep link
-  // gives immediate feedback instead of a frozen tap.
+  // Reveals the same overlay openModal uses and drops a placeholder into
+  // #modal-content (which openModal overwrites once the data arrives), so a cold
+  // open / deep link gives immediate feedback instead of a frozen tap.
+  //
+  // ON A COLD /p/<pid> IT IS NOT A SPINNER.
+  //
+  // A cold arrival on a person address is served a document whose first byte
+  // already names the person, their office and up to six formal-record rows — the
+  // header the edge writes (netlify/edge-functions/share-preview.ts). This shell
+  // then opened on top of it saying "Loading Ro Khanna…" and nothing else, which
+  // took a page that was ahead and put it behind: the reader had the name, and we
+  // covered it with the word "loading".
+  //
+  // So when the arrival header is provably about the person being opened,
+  // PDXPerson.arrivalSkeleton repeats those rows here, as text, with the roster
+  // status demoted to the small line it should always have been. It is the same
+  // first paint held in place until the real file replaces it — not a second
+  // rendering of anything, and not a computation: the strings come from the
+  // document that was served, and person-file.js refuses the header outright
+  // unless its address stamp matches the address in the bar.
+  //
+  // Every other caller — a card tap on a member whose full document has not been
+  // fetched, an in-app hop — gets exactly the spinner it always got, because there
+  // is no arrival header to repeat.
   window._pdxOpenFullModalShell = function (id) {
     var d = (typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) ||
             (window.PROFILES && window.PROFILES[id]) || {};
     var nm = d && d.name ? (typeof window._slEsc === 'function' ? window._slEsc(d.name) : d.name) : 'profile';
     var host = document.getElementById('modal-content');
+    var skel = '';
+    try {
+      if (window.PDXPerson && typeof window.PDXPerson.arrivalSkeleton === 'function') {
+        skel = window.PDXPerson.arrivalSkeleton(id) || '';
+      }
+    } catch (e) { skel = ''; }
     if (host) {
-      host.innerHTML = '<div class="pdx-modal-loading">' +
+      host.innerHTML = skel || ('<div class="pdx-modal-loading">' +
           '<span class="pdx-roster-spin" aria-hidden="true"></span>' +
           '<p>Loading ' + nm + '…</p>' +
-        '</div>';
+        '</div>');
+    }
+    // The stage clock's "a reader can read this person's name" mark. Taken here
+    // and not only at mount, because with the skeleton up that is TRUE here: the
+    // name and the formal rows are on screen. First write wins, so the later mount
+    // does not overwrite it.
+    if (host && skel) {
+      try { if (window.PDXPerf && window.PDXPerf.mark) window.PDXPerf.mark('file-named'); } catch (e) {}
     }
     var overlay = document.getElementById('modal-overlay');
     if (overlay) {
@@ -7536,6 +7570,16 @@
     // Track which profile is open (used by the top-bar Share button) and reflect
     // it in the address bar so the link can be copied or shared directly.
     window._pdxCurrentProfileId = id;
+    // The file is now IN the DOM, which is the one moment the first-byte crawl
+    // header can be retired and the one moment the stage clock can honestly say a
+    // reader is looking at this person's file. Both live in person-file.js because
+    // both are about the address, not about the render; idempotent, so openModal's
+    // own re-entrant second run costs nothing.
+    try {
+      if (window.PDXPerson && typeof window.PDXPerson.mounted === 'function') {
+        window.PDXPerson.mounted(id);
+      }
+    } catch (e) {}
     // The canonical address for a person is the path form /p/<id>, owned by
     // person-file.js so that every entry point — this one, a share link, a
     // back-button pop — puts the same string in the bar. The ?p=<id> fallback

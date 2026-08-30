@@ -46,6 +46,15 @@
 //      the formal index" is not reported as "empty file".
 //   8. THE STAGES ARE DOCUMENTED. Every perf mark the app takes is named in
 //      pdx-perf.js's stage list, so the waterfall cannot drift from its own map.
+//   9. THE FIRST PAINT IS NOT COVERED UP. A cold arrival opens the modal on a
+//      loading shell, and that shell repeats the first-byte header's name, office
+//      and formal rows instead of drawing a spinner over them. The header itself
+//      is hidden only once the real file is mounted.
+//  10. THE FILE DOES NOT WAIT ON THE FULL ROSTER. An address the app (or the
+//      edge's stamp) can already resolve opens now; only "we carry nobody by that
+//      name" waits for the roster flag.
+//  11. FOUR NUMBERS, ONE LINE. pdx-perf.js prints navStart → crawl visible → vote
+//      sent → vote back → name on file, once, on /p/<pid> only, to the console.
 //
 //   node scripts/test-person-file-perf.mjs
 
@@ -74,6 +83,8 @@ const WA = R("word-action.js");
 const SH = R("stance-helpers.js");
 const PE = R("profile-evidence.js");
 const API = R("netlify/functions/voting-record.mts");
+const PROF = R("profiles-full.js");
+const PERFJS = R("pdx-perf.js");
 
 // ── The inline block, isolated ────────────────────────────────────────────────
 // Everything below reads THIS slice, not the whole 2.12 MB document, so an
@@ -85,6 +96,17 @@ must(blockStart !== -1, "no inline <script> follows the cold-open comment");
 const blockEnd = INDEX.indexOf("</script>", blockStart);
 must(blockEnd !== -1, "the inline cold-open script is unterminated");
 const BLOCK = INDEX.slice(blockStart, blockEnd);
+
+// ── The crawl guard, isolated ────────────────────────────────────────────────
+const GMARK = "data-pdx-crawl-for";
+must(INDEX.includes(GMARK), "index.html no longer stamps the crawl header address");
+const gStart = INDEX.lastIndexOf("<script>", INDEX.indexOf("pdx-crawl-generic", INDEX.indexOf("<body")));
+must(gStart !== -1, "the inline crawl guard is gone");
+const gEnd = INDEX.indexOf("</script>", gStart);
+must(gEnd !== -1, "the inline crawl guard is unterminated");
+const BLOCK_GUARD = INDEX.slice(gStart, gEnd);
+must(BLOCK_GUARD.includes("pdx-crawl-person"), "the isolated slice is not the crawl guard");
+
 
 // ── 1 · one request, at the earliest executable moment ───────────────────────
 section("1 · the request starts in the head, once");
@@ -293,9 +315,22 @@ section("6 · the record is warmed before the roster wait, not after it");
   const bm = PF.match(/function bootAdopt\(\) \{[\s\S]*?\n  \}/);
   must(bm, "person-file's bootAdopt is gone");
   const B = bm[0];
-  has(B, "warm(pid)", "bootAdopt warms the record");
-  ok(B.indexOf("warm(pid)") < B.indexOf("attempt(pid, 0, null)"),
+  // The warm goes to the pid the record is actually filed under, not the raw
+  // path spelling: /p/scott_chew must warm chew_h68, or the head's prefetch is
+  // stranded and a second request goes out for a member nobody reads.
+  has(B, "var target = warmTarget(pid);", "bootAdopt resolves the pid it is about to warm");
+  has(B, "warm(target)", "bootAdopt warms the resolved record");
+  has(B, "dropStalePrefetch(target)", "a prefetch for some other member is dropped, not left racing");
+  ok(B.indexOf("warm(target)") < B.indexOf("attempt(pid, 0, null)"),
     "the warm happens before the roster wait begins");
+  ok(B.indexOf("var target = warmTarget(pid);") < B.indexOf("warm(target)"),
+    "the target is resolved before the request goes out");
+  const wt = PF.match(/function warmTarget\(pathPid\) \{[\s\S]*?\n  \}/);
+  must(wt, "person-file's warmTarget is gone");
+  has(wt[0], "resolveArrival(pathPid)", "the warm target comes from the resolved arrival first");
+  has(wt[0], "window.__pdxVRPrefetch", "and falls back to whatever the head already asked for");
+  ok(wt[0].indexOf("resolveArrival(pathPid)") < wt[0].indexOf("box.pid"),
+    "a pid the app can resolve beats the head's guess");
   // Still memoised per pid, so this is the same one request moved earlier.
   has(PF, "if (!pid || _warmed[pid]) return;", "warm is still once per pid");
   has(PF, "try { warm(pid); } catch (e) {}", "a warm that throws never takes the open down with it");
@@ -449,6 +484,139 @@ section("10 · every mark the app takes is named in the stage list");
   // The four numbers the pass is judged on.
   ["time to first paint", "time to roster", "time to first voting-record page",
     "time to brief off-loading"].forEach((h) => has(PERF, h, `the headline "${h}" is reported`));
+}
+
+// ── 11 · the first paint is not covered up ──────────────────────────────────
+section("11 · the loading shell repeats the first paint instead of hiding it");
+{
+  // The header steps aside for a FILE, not for a spinner. open() used to hide it
+  // unconditionally right after openModal(), and on a cold arrival openModal
+  // returns early on a loading shell — so the name and rows a reader could
+  // already see were replaced by "Loading <name>…".
+  has(PF, "if (mountedNow(pid)) { try { crawlDone(); } catch (e) {} }",
+    "open() hides the crawl header only when the file is actually mounted");
+  const mn = PF.match(/function mountedNow\(pid\) \{[\s\S]*?\n  \}/);
+  must(mn, "person-file's mountedNow is gone");
+  has(mn[0], "window._pdxCurrentProfileId", "mounted means the renderer stamped the current profile id");
+
+  // And the renderer says when that happened, rather than person-file guessing.
+  const md = PF.match(/function mounted\(pid\) \{[\s\S]*?\n  \}/);
+  must(md, "person-file's mounted is gone");
+  has(md[0], "perf('file-named')", "the mount takes the name-on-file mark");
+  has(md[0], "crawlDone()", "the mount is what retires the first-byte header");
+  has(PF, "mounted: mounted", "mounted is exported for the renderer to call");
+  has(PROF, "window.PDXPerson.mounted(id)", "profiles-full.js calls back on mount");
+  const openIdx = PROF.indexOf("window._pdxCurrentProfileId = id;");
+  must(openIdx !== -1, "profiles-full.js no longer stamps _pdxCurrentProfileId");
+  ok(openIdx < PROF.indexOf("window.PDXPerson.mounted(id)"),
+    "the callback fires after the content is in the DOM, not before");
+
+  // The shell itself carries the same rows.
+  const sk = PF.match(/function arrivalSkeleton\(pid\) \{[\s\S]*?\n  \}/);
+  must(sk, "person-file's arrivalSkeleton is gone");
+  const SK = sk[0];
+  has(SK, "if (!h) return ''", "no trustworthy header means no skeleton");
+  has(SK, "if (canonId(h.pid) !== canonId(pid) && h.pid !== pid) return ''",
+    "one person's rows are never borrowed for another person's file");
+  has(SK, "[data-pdx-crawl-record] li", "the formal rows come from the header's own rows");
+  has(SK, "textContent", "the rows are read as text");
+  has(SK, "esc(t)", "and re-escaped as text, never re-hosted as markup");
+  has(SK, "Loading the latest roster…", "the roster wait is stated");
+  has(SK, "pdx-file-skel-status", "…as a small status line, not as the content");
+  ok(SK.indexOf("esc(name)") < SK.indexOf("pdx-file-skel-status"),
+    "the name is above the status line, not replaced by it");
+  hasnt(SK, "innerHTML", "the skeleton is a string, it does not write to the DOM itself");
+
+  // querySelector, not getElementById: the resolve path must not be the thing
+  // that decides the header node was looked for.
+  const ch = PF.match(/function crawlHeader\(\) \{[\s\S]*?\n  \}/);
+  must(ch, "person-file's crawlHeader is gone");
+  has(ch[0], "document.querySelector('#pdx-crawl-person')", "the header is read by querySelector");
+  has(ch[0], "data-pdx-crawl-for", "a header stamped for another address is refused");
+  has(ch[0], "data-pdx-crawl-generic", "a generic header names nobody and is refused");
+  eq((PF.match(/getElementById\('pdx-crawl-person'\)/g) || []).length, 1,
+    "exactly one place still asks for the header node by id (crawlDone)");
+
+  // The shell prefers the skeleton and keeps the spinner as the fallback.
+  const shell = PROF.match(/window\._pdxOpenFullModalShell = function \(id\) \{[\s\S]*?\n  \};/);
+  must(shell, "profiles-full.js's _pdxOpenFullModalShell is gone");
+  const SH2 = shell[0];
+  has(SH2, "window.PDXPerson.arrivalSkeleton(id)", "the shell asks for the skeleton");
+  has(SH2, "skel ||", "and falls back to the old spinner when there is none");
+  has(SH2, "pdx-modal-loading", "the fallback loading state is still there");
+  ok(SH2.indexOf("arrivalSkeleton(id)") < SH2.indexOf("host.innerHTML"),
+    "the skeleton is resolved before the shell is written");
+  has(SH2, "PDXPerf.mark('file-named')",
+    "a shell that painted the name takes the name-on-file mark itself");
+}
+
+// ── 12 · the file does not wait on the full roster ──────────────────────────
+section("12 · an address already resolved opens now");
+{
+  const at = PF.match(/function attempt\(pid, waited, settledAt\) \{[\s\S]*?\n  \}/);
+  must(at, "person-file's attempt is gone");
+  const AT = at[0];
+  has(AT, "var canOpen = !!resolveArrival(pid) && fn(window.openModal);",
+    "an arrival that resolves against what is on hand opens without waiting");
+  hasnt(AT, "waited >= EARLY", "the flat early-open delay is gone from the open gate");
+  hasnt(PF, "var EARLY =", "EARLY is retired, not re-tuned");
+  has(PF, "RETIRED, not re-tuned", "the retirement is explained where the constant was");
+
+  // Fail closed, not fail slow: the not-found answer is still gated on the flag.
+  has(AT, "settledAt !== null && waited - settledAt >= SETTLED_GRACE",
+    "the not-found answer still waits for the roster to settle");
+  has(AT, "waited >= CEILING", "and for a hard ceiling when no flag ever arrives");
+  has(PF, "var CEILING = 15000;", "the ceiling is unchanged");
+
+  // The edge's stamp is a resolve source, and only ever for its own address.
+  const ra = PF.match(/function resolveArrival\(pid\) \{[\s\S]*?\n  \}/);
+  must(ra, "person-file's resolveArrival is gone");
+  has(ra[0], "resolve(pid) || stampId()", "the app's own tables answer first, the stamp second");
+  const si = PF.match(/function stampId\(\) \{[\s\S]*?\n  \}/);
+  must(si, "person-file's stampId is gone");
+  has(si[0], "record(h.pid)", "a stamped id with no roster record behind it is not accepted");
+  has(PF, "var pid = resolveArrival(asked);", "adopt() opens through the same resolver");
+}
+
+// ── 13 · four numbers, one line ─────────────────────────────────────────────
+section("13 · the cold open prints its own four timestamps");
+{
+  has(PERFJS, "var COLD = [", "pdx-perf.js carries the cold-open line");
+  const cm = PERFJS.match(/var COLD = \[[\s\S]*?\n  \];/);
+  must(cm, "the COLD table is gone");
+  ["crawl visible", "vote sent", "vote back", "name on file"].forEach((l) =>
+    has(cm[0], `'${l}'`, `the line reports "${l}"`));
+  // Ordered as they happen, so the line reads as a waterfall.
+  const order = ["crawl visible", "vote sent", "vote back", "name on file"]
+    .map((l) => cm[0].indexOf(l));
+  ok(order.every((v, i) => i === 0 || v > order[i - 1]), "the four stages print in the order they happen");
+  has(cm[0], "'crawl-visible'", "crawl visible is taken from the body guard's own mark");
+  has(cm[0], "'file-named'", "name on file is taken from the mount's mark");
+
+  has(PERFJS, "'PDX cold ' + location.pathname + ' · ms from navStart · '",
+    "the line names the address and its unit");
+  has(PERFJS, "parts.join(' → ')", "the four numbers are one line, not four");
+  has(PERFJS, "hit ? ms(hit.at) : '—'", "a stage that never landed prints an em dash rather than a zero");
+
+  // Once, on /p/<pid> only, to the console and nowhere else.
+  has(PERFJS, "var _coldPrinted = false;", "the line is printed at most once");
+  has(PERFJS, "if (_coldPrinted) return null;", "a repeat call is a no-op");
+  eq((PERFJS.match(/console\.log\(line\)/g) || []).length, 1, "exactly one console.log prints it");
+  has(PERFJS, "/^\\/p\\/[A-Za-z0-9_]+\\/?$/.test(location.pathname)",
+    "the auto-print is scoped to /p/<pid>");
+  has(PERFJS, "e.detail.name === 'file-named'", "it prints as soon as the last of the four lands");
+  has(PERFJS, "}, 4000); };", "with a post-load fallback for a file that never painted");
+  hasnt(PERFJS, "navigator.sendBeacon", "nothing is uploaded");
+  hasnt(PERFJS, "fetch(", "there is no new analytics vendor");
+
+  // The body guard is what knows whether the first paint was this person's.
+  has(BLOCK_GUARD, "mk('crawl-visible')", "the crawl guard marks a header it accepted");
+  has(BLOCK_GUARD, "mk('crawl-generic')", "and distinguishes one it neutralised or that named nobody");
+  ok(BLOCK_GUARD.indexOf("mk('crawl-visible')") <
+       BLOCK_GUARD.indexOf("if(here&&stamp===here) return;"),
+    "the mark is taken before the guard hands an accepted header back untouched");
+  ok(BLOCK_GUARD.indexOf("mk('crawl-generic')") < BLOCK_GUARD.indexOf("el.removeAttribute('data-pid')"),
+    "and before a mismatched header is neutralised");
 }
 
 console.log("");

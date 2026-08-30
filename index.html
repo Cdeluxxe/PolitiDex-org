@@ -157,6 +157,7 @@
   // task so a 60KB payload cannot stall the head; a missing, stale or corrupt
   // entry rejects and the network attempt takes over, so there is exactly ONE
   // promise on __pdxVRPrefetch and it cannot be adopted in a dead state.
+  var netCtl = null;
   function fromSession() {
     return new Promise(function (resolve, reject) {
       var raw = null;
@@ -182,6 +183,7 @@
     // promise handed to fetchMember must not be able to hang a caller forever.
     var ctl = null;
     try { if (typeof AbortController === 'function') ctl = new AbortController(); } catch (e) { ctl = null; }
+    netCtl = ctl;   // so box.abandon() below can drop a request for the wrong member
     var init = { headers: { accept: 'application/json' } };
     if (ctl) init.signal = ctl.signal;
     var timer = null;
@@ -206,7 +208,20 @@
   // moment later cannot miss it. `session` records WHICH way the answer came:
   // voting-record.js must not re-write (and so renew) a session copy it was
   // just served from, or one entry could live past its five minutes forever.
+  //
+  // `abandon` is the other half of "one request per person". The alias tables
+  // above resolve every id the app itself carries a bridge for, but not the
+  // display-name spellings the roster only knows after it loads — /p/mike_lee is
+  // `lee`, and no table in this document says so. When person-file.js works that
+  // out (it has the roster, or the edge's own stamp in the body) and the answer is
+  // NOT the member this block asked for, it claims the box and calls this: the
+  // wrong member's request stops competing for the connection with the right
+  // one, on the one page load where that connection is the whole wait. Claimed
+  // first, so nothing can adopt a promise that is being aborted.
   var box = { pid: pid, url: url, promise: null, session: false };
+  box.abandon = function () {
+    try { if (netCtl) netCtl.abort(); } catch (e) {}
+  };
   box.promise = fromSession().then(function (d) {
     box.session = true;
     return d;
@@ -3376,6 +3391,16 @@ window.PDXLazy = (function () {
       var m=String(location.pathname||'').match(/^\/p\/([A-Za-z0-9_]+)\/?$/);
       var here=m?'/p/'+m[1]:'';
       var stamp=el.getAttribute('data-pdx-crawl-for')||'';
+      // The stage clock's first person-file mark, and the one Colt's cold-open
+      // line starts from: the moment a named header is on screen. Taken here
+      // rather than in a module because this is the earliest place the answer is
+      // known — the header is parsed, and this is the script that decides whether
+      // it is about this address. A neutralised block is marked separately, so a
+      // waterfall showing 'crawl-generic' says "the first paint named nobody"
+      // instead of quietly reporting a paint that did not happen.
+      var mk=function(n){try{if(window.PDXPerf&&window.PDXPerf.mark)window.PDXPerf.mark(n);}catch(e){}};
+      if(here&&stamp===here&&!el.hasAttribute('data-pdx-crawl-generic')) mk('crawl-visible');
+      else mk('crawl-generic');
       if(here&&stamp===here) return;              // the block was written for this address
       if(el.hasAttribute('data-pdx-crawl-generic')&&!el.getAttribute('data-pid')) return;
       el.removeAttribute('data-pid');
