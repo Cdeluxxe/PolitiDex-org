@@ -340,6 +340,34 @@
     } catch (e) {}
   }
 
+  // ── The first-byte crawl block ────────────────────────────────────────────
+  // A cold arrival on /p/<pid> is served the app shell, and the shell is the same
+  // document for every person — which is why a crawler read /p/lee as a duplicate
+  // of the front page even after it had its own title and canonical. The edge
+  // (netlify/edge-functions/share-preview.ts) now writes a short header into that
+  // document naming who the page is about: name, office, state, formal record
+  // first, and a link to the canonical address. It is the whole page for a reader
+  // with no JavaScript, and for anyone else it is a placeholder that stops being
+  // true the moment the live file is on screen.
+  //
+  // So it is hidden HERE, once — not removed. Hiding it keeps it in the DOM for a
+  // rendering crawler that reads the document after scripts run, and leaves the
+  // reader looking at the file itself rather than at a summary of the file sitting
+  // above the app. It is only ever hidden by the OPEN path: a /p/<pid> arrival
+  // that resolves to nobody keeps its block, because then the block is the only
+  // thing on the page that says anything true.
+  //
+  // Nothing here can take an open down with it — the whole call sits in a guard at
+  // its one call site, and the node is absent on every address except /p/<pid>.
+  function crawlDone() {
+    var el = document.getElementById('pdx-crawl-person');
+    if (!el) return;
+    el.hidden = true;
+    // Belt and braces: the block ships its own inline <style>, and an inline
+    // display beats any rule that might later win over [hidden].
+    try { el.style.display = 'none'; } catch (e) {}
+  }
+
   function restore() {
     try {
       var back = _return;
@@ -519,6 +547,10 @@
     perf('person-open');
     try { stamp(pid); } catch (e) {}
     try { kicker(pid); } catch (e) {}
+    // The edge's first-byte crawl header has been superseded by the file itself.
+    // Guarded like the two above, and for the same reason: a reader who can see
+    // the file must not lose it to a chrome detail.
+    try { crawlDone(); } catch (e) {}
     // Fired after the modal is up so it cannot delay the open by even one turn
     // of the event loop, and in its own guard for the same reason as the two
     // above: a warm that throws must not take the file down with it.

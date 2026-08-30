@@ -9,8 +9,11 @@
 //
 // The two halves are deliberately separate:
 //
-//   parseTarget(url)      — pure string work. Which surface is this, and with what
-//                           ids? No lookups, no network, no judgment.
+//   parseTarget(url)      — string work. Which surface is this, and with what ids?
+//                           No network, no judgment. The ONE table it reads is the
+//                           person-alias map, so /p/mike_lee and /p/lee arrive here
+//                           as the same target rather than as two records — the
+//                           same resolution person-file.js performs in the browser.
 //   resolveTarget(t, …)   — turn those ids into real words. Reads the generated
 //                           share index (db/share-index.json) for anything that
 //                           lives in the client bundle, and the Voting Record API
@@ -39,11 +42,37 @@ type SpotlightRec = { t: string; d?: string; pl?: string; u?: string };
 type CoreRec = { l: string; b?: string };
 type ShareIndex = {
   people: Record<string, PersonRec>;
+  // An arriving person id → the ONE roster id it means. Generated from the app's
+  // own tables in the app's own precedence (see gen-share-index.mjs), so the edge
+  // resolves /p/mike_lee the way person-file.js does instead of treating it as an
+  // id nobody carries. Never a fact about a person — only which id is which.
+  personAliases: Record<string, string>;
   spotlights: Record<string, SpotlightRec>;
   cores: Record<string, CoreRec>;
   issues: Record<string, string>;
 };
 const INDEX = shareIndex as unknown as ShareIndex;
+const PERSON_ALIASES: Record<string, string> = INDEX.personAliases || {};
+
+// ── canonicalPersonId ────────────────────────────────────────────────────────
+// The roster id an arriving person address MEANS. `mike_lee` is the display-name
+// spelling of the senator the roster files under `lee`; `scott_chew` is the
+// display-name spelling of the Utah representative the roster files under
+// `chew_h68`, and PDX_PROFILE_ALIAS already asserts it is not a second
+// officeholder. person-file.js has resolved both for a while, so the addresses
+// open the right file in a browser — but the EDGE could not, so /p/mike_lee kept
+// the homepage's <title> and, worse, the homepage's canonical. That is a second
+// address for a person who already has one, telling a crawler to index neither.
+//
+// One static-table read, no network, no guessing: an id with no entry comes back
+// unchanged (so an unknown pid stays unknown and mints nobody), and a hop is only
+// taken when its target is a person the index actually holds.
+export function canonicalPersonId(id: string): string {
+  if (!id) return "";
+  const hop = PERSON_ALIASES[id];
+  if (hop && hop !== id && INDEX.people[hop]) return hop;
+  return id;
+}
 
 // The SAID half, keyed "<rosterId>|<issueKey>" (see scripts/gen-share-index.mjs).
 // t=position text, w=support/oppose/mixed, h=topic headline, s=source label.
@@ -115,6 +144,22 @@ export type Resolved = {
   ogQuery: string;
   // Facts for the comparison layout. Absent on every other surface.
   comparison?: Comparison;
+  // WHO this page is about, spelled out in fields rather than in a formatted
+  // string. Present on a person file only.
+  //
+  // It exists because a <title> is not a document. /p/lee has carried its own
+  // title, canonical and card for a while, and Google still read it as a
+  // duplicate of "/" — because the BODY it was serving was the homepage shell,
+  // byte for byte, for every one of 757 people. share-preview.ts uses these three
+  // fields to write one short, unique, crawlable header into that body. They are
+  // the same three values the card and the title are already built from
+  // (INDEX.people), re-exposed unformatted so nothing downstream has to parse a
+  // display string back into an office and a state.
+  //
+  // Identity only: a name, the office they hold, the state they hold it in. No
+  // score, no Direction Match, no party-as-grade — the same wall the rest of this
+  // file keeps.
+  person?: { pid: string; name: string; office: string; state: string };
 };
 
 // A link we positively know is wrong — as opposed to one we merely could not
@@ -149,7 +194,7 @@ export function parseTarget(url: URL): Target | null {
   // path the reader arrived on. The share button copies whatever is in the bar, so
   // /issue/<slug>?p=<id> is a real URL people can send, and it is about the person.
   const p = clean(q.get("p"));
-  if (p) return { kind: "profile", id: p };
+  if (p) return { kind: "profile", id: canonicalPersonId(p) };
 
   // /vote/<congress>/<chamber>/<roll> — the official roll-call address.
   const vote = path.match(/^\/vote\/([^/]+)\/([^/]+)\/([^/]+)\/?$/);
@@ -171,8 +216,13 @@ export function parseTarget(url: URL): Target | null {
   // produces but a hand-edited link could. The query wins there because ?p= is
   // what the app writes for "the profile currently on screen", so it is the more
   // recent of two claims about the same reader.
+  //
+  // The id is canonicalised on the way through (canonicalPersonId), so an alias
+  // address and the roster address are ONE target from here on: one lookup, one
+  // canonical, one og:url, one crawl block. An id with no alias entry — including
+  // one that names nobody — passes through untouched.
   const person = path.match(/^\/p\/([A-Za-z0-9_]+)\/?$/);
-  if (person) return { kind: "profile", id: clean(person[1]) };
+  if (person) return { kind: "profile", id: canonicalPersonId(clean(person[1])) };
 
   // /b/<sitting>/<number> — the canonical bill address, and /b/<number> for a
   // number cited without one. A bill profile is a record like a person file is a
@@ -458,6 +508,12 @@ export async function resolveTarget(
       ),
       footnote: "Every claim on the profile links to its source.",
       ogQuery: `kind=profile&id=${encodeURIComponent(t.id)}`,
+      // t.id is already the canonical roster id — parseTarget resolved it — so the
+      // crawl header, the canonical and the card all name the same person by the
+      // same id. Office and state are passed through as themselves; the "(R)" the
+      // title carries is office identity in a card headline and is deliberately
+      // NOT part of this, because the body block must not read as a grade.
+      person: { pid: t.id, name: rec.n, office: rec.o || "", state: rec.s || "" },
     };
   }
 

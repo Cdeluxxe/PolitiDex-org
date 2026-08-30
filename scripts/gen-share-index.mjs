@@ -198,6 +198,88 @@ if (!Object.keys(people).length) {
   throw new Error("CMP_DATA produced zero people — refusing to write an empty index");
 }
 
+// ── personAliases — the id an ARRIVING person address means ──────────────────
+// /p/mike_lee and /p/lee are one senator. /p/scott_chew and /p/chew_h68 are one
+// Utah representative. The app has always known that: person-file.js resolve()
+// walks PDX_PROFILE_ALIAS and then the display-name slug before it opens
+// anything, which is why those addresses open the right file in the browser.
+//
+// The EDGE could not know it, and that was a crawl defect rather than a cosmetic
+// one. An unresolved alias meant INDEX.people had no row, so resolveTarget
+// returned null, so /p/mike_lee kept the homepage's title and the homepage's
+// canonical — a second address for a person who already has one, declaring
+// itself a duplicate of "/". So the same two tables the app resolves through are
+// distilled here, in the same precedence order, exactly as the stance index below
+// mirrors _resolveStanceList. This is NOT a second identity table: every entry is
+// derived from a claim the repo already makes, and no entry invents a person.
+//
+//   1 · PDX_PROFILE_ALIAS (profile-evidence.js) — the repo's standing assertion
+//       that the id on the left is not a separate officeholder. It wins, because
+//       it wins in canonId(): a retirement outranks a stray document filed under
+//       the retired key (the /p/scott_chew vs /p/chew_h68 defect).
+//   2 · the display-name slug, accepted ONLY when exactly one roster record
+//       answers to it. Two people share a name more often than a slug table
+//       expects, so an ambiguous name resolves to nothing rather than to a coin
+//       flip — the same refusal bySlug() makes.
+//
+// A slug that is itself a roster id is never emitted: resolve() checks
+// record(pid) before it reaches the slug step, so that id already means itself.
+// PROFILES (the Firestore half of the roster) is not readable at build time, so a
+// person who exists ONLY there gets no alias row and simply keeps today's generic
+// preview — the same fail-open the rest of this file uses.
+const profileAliases = evalLiteral(
+  extractLiteral(
+    readFileSync(join(ROOT, "profile-evidence.js"), "utf8"),
+    /window\.PDX_PROFILE_ALIAS\s*=\s*window\.PDX_PROFILE_ALIAS\s*\|\|\s*/,
+    "{",
+    "}",
+    "`window.PDX_PROFILE_ALIAS =`"
+  ),
+  "the PDX_PROFILE_ALIAS literal"
+);
+
+// Mirror of canonId() in person-file.js: the bridge hop, taken only when its
+// target is a live record, so a stale alias can never blank out a real person.
+function canonId(id) {
+  const direct = profileAliases[id];
+  if (direct && direct !== id && people[direct]) return direct;
+  return id;
+}
+function nameSlug(s) {
+  return String(s == null ? "" : s).toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+
+const personAliases = {};
+for (const key of Object.keys(profileAliases).sort()) {
+  const target = canonId(key);
+  if (target !== key && people[target]) personAliases[key] = target;
+}
+// Candidates are canonicalised BEFORE the ambiguity test, exactly as bySlug()
+// does it: "Scott Chew" is the display name on the roster record and on the
+// retired key, and two ids that canonicalise to the same one are one match, not a
+// tie.
+const AMBIGUOUS = " ";
+const bySlug = {};
+for (const id of Object.keys(people).sort()) {
+  const want = nameSlug(people[id].n);
+  if (!want) continue;
+  const cid = canonId(id);
+  if (bySlug[want] && bySlug[want] !== cid) bySlug[want] = AMBIGUOUS;
+  else bySlug[want] = cid;
+}
+for (const want of Object.keys(bySlug).sort()) {
+  const cid = bySlug[want];
+  if (cid === AMBIGUOUS) continue;
+  if (want === cid || people[want] || personAliases[want]) continue;
+  personAliases[want] = cid;
+}
+if (!personAliases.mike_lee || !personAliases.scott_chew) {
+  throw new Error(
+    "personAliases lost a known alias (mike_lee → lee, scott_chew → chew_h68) — " +
+      "refusing to write an index that would canonicalise a person's own address as the homepage"
+  );
+}
+
 // ── spotlights ───────────────────────────────────────────────────────────────
 // An Issue Spotlight is a documented explainer, not a verdict on a person, so the
 // index carries only its own framing: what it is called, where it applies, and
@@ -250,14 +332,16 @@ const payload = {
   _generatedBy:
     "scripts/gen-share-index.mjs (from cmp-data.js, spotlights-data.js, alignment-tool.js)",
   _note:
-    "Read by netlify/edge-functions/share-preview.ts and share-og.ts to build per-link social previews. Titles and descriptions only — no scores, no verdicts.",
+    "Read by netlify/edge-functions/share-preview.ts and share-og.ts to build per-link social previews. Titles and descriptions only — no scores, no verdicts. personAliases maps an arriving person id to the one roster id it means (PDX_PROFILE_ALIAS, then the unambiguous display-name slug — the same precedence person-file.js resolve() uses); it holds no facts about anybody.",
   counts: {
     people: Object.keys(people).length,
+    personAliases: Object.keys(personAliases).length,
     spotlights: Object.keys(spotlights).length,
     cores: Object.keys(cores).length,
     issues: Object.keys(issues).length,
   },
   people,
+  personAliases,
   spotlights,
   cores,
   issues,
@@ -348,7 +432,8 @@ writeFileSync(OUT, JSON.stringify(payload) + "\n", "utf8");
 writeFileSync(OUT_STANCES, JSON.stringify(stancePayload) + "\n", "utf8");
 console.log(
   `Wrote share index to ${OUT} — ` +
-    `${payload.counts.people} people, ${payload.counts.spotlights} spotlights, ` +
+    `${payload.counts.people} people (+${payload.counts.personAliases} id aliases), ` +
+    `${payload.counts.spotlights} spotlights, ` +
     `${payload.counts.cores} core issues, ${payload.counts.issues} issue keys`
 );
 console.log(

@@ -149,10 +149,31 @@ section("2 · canonicalPath derives the record address, not the request");
   // /p/<pid> — so the ?p= form collapses onto it exactly the way ?issue= already
   // collapsed onto /issue/<slug>. ?p= still RESOLVES; it just stops being the
   // address we claim, emit or advertise.
-  eq(canon("/?p=mike_lee"), "/p/mike_lee",
+  eq(canon("/?p=lee"), "/p/lee",
      "the ?p= form collapses onto the person file's clean /p/ path");
-  eq(canon("/p/mike_lee"), "/p/mike_lee", "a person file canonicalizes to its own /p/ path");
-  eq(canon("/p/mike_lee/"), "/p/mike_lee", "…with or without a trailing slash");
+  eq(canon("/p/lee"), "/p/lee", "a person file canonicalizes to its own /p/ path");
+  eq(canon("/p/lee/"), "/p/lee", "…with or without a trailing slash");
+
+  // AND AN ALIAS ADDRESS COLLAPSES ONTO THE RECORD'S OWN, which reverses what
+  // this file used to assert. These three lines pinned /p/mike_lee → /p/mike_lee
+  // back when the edge could not resolve an alias: `mike_lee` is a browse key, the
+  // roster record is `lee`, and the generated index the edge reads held no row
+  // under the key. So parseTarget resolved nothing, and /p/mike_lee — an address
+  // the app has opened correctly for a long time, and one that is linked — served
+  // the HOMEPAGE's canonical. A second address for a senator who already has one,
+  // declaring itself a duplicate of "/". Collapsing it is the fix, not a
+  // relaxation: the assertion below is strictly stronger than the one it replaced,
+  // because it now names WHICH person the address belongs to.
+  eq(canon("/p/mike_lee"), "/p/lee", "an alias address canonicalizes to the roster record's address");
+  eq(canon("/p/mike_lee/"), "/p/lee", "…with or without a trailing slash");
+  eq(canon("/?p=mike_lee"), "/p/lee", "…and from the ?p= form too");
+  eq(canon("/p/scott_chew"), "/p/chew_h68", "the retirement case collapses the same way");
+  // One person, one canonical: the two spellings must not produce two addresses.
+  eq(canon("/p/mike_lee") === canon("/p/lee"), true, "both spellings of one senator yield one canonical");
+  // An id nobody carries is not repointed at whoever is nearest. It keeps the
+  // address it was cited at, and the edge writes no person markup for it at all.
+  eq(canon("/p/definitely_not_a_politician"), "/p/definitely_not_a_politician",
+     "an unknown pid keeps its own address rather than being mapped onto a real person");
   eq(canon("/issue/box-elder-stratos-data-center"), "/issue/box-elder-stratos-data-center",
      "a Spotlight canonicalizes to its clean /issue/ path");
   eq(canon("/?issue=box-elder-stratos-data-center"), "/issue/box-elder-stratos-data-center",
@@ -180,11 +201,11 @@ section("2 · canonicalPath derives the record address, not the request");
      "/issue/box-elder-stratos-data-center", "tracking params are not part of a record's address");
   // ?p= wins over the path it was layered on, exactly as parseTarget decides —
   // the canonical follows the resolved record rather than second-guessing it.
-  eq(canon("/issue/box-elder-stratos-data-center?p=mike_lee"), "/p/mike_lee",
+  eq(canon("/issue/box-elder-stratos-data-center?p=mike_lee"), "/p/lee",
      "a profile opened on top of a Spotlight canonicalizes to the profile that is on screen");
 
   // Nothing may return a bare "/" — that is the bug this file exists to prevent.
-  for (const u of ["/?p=mike_lee", "/p/mike_lee", "/issue/x", "/vote/119/house/190", "/?bill=119/HR1",
+  for (const u of ["/?p=mike_lee", "/p/mike_lee", "/p/lee", "/p/scott_chew", "/issue/x", "/vote/119/house/190", "/?bill=119/HR1",
                    "/?receipt=a~b", "/?record=a~b", "/?rank=healthcare"]) {
     const c = canon(u);
     ok(c && c !== "/", `${u} does not canonicalize to the homepage (got ${JSON.stringify(c)})`);
