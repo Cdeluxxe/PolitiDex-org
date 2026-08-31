@@ -382,6 +382,50 @@
     return h && record(h.pid) ? h.pid : '';
   }
 
+  // ── THE FORMAL ROWS THE HEADER ALREADY PRINTED ────────────────────────────
+  // The same rows arrivalSkeleton repeats below, parsed rather than pasted, so a
+  // surface that renders the formal record can print what the first byte already
+  // showed instead of a sentence saying there is nothing to show. That was a live
+  // defect: the gold brief on a cold /p/steven_lund said "No formal pattern on
+  // file yet" directly under a header that had just printed Parental Rights 8-2
+  // and Water 7-0, off this very node.
+  //
+  // THE EDGE'S LINE FORMAT, READ THE WAY THE EDGE WROTE IT. share-preview.ts's
+  // recordSection() joins "pattern · issue · counts" with " · " — and the counts
+  // phrase carries its own separator ("8 advanced · 2 against"). So the first two
+  // parts are taken and the REST is rejoined: the line is never split into more
+  // fields than were written into it.
+  //
+  // IT WIDENS NOTHING. Same node and the same identity guard as arrivalSkeleton —
+  // the block must be stamped for the address in the bar (crawlHeader) and must
+  // name the person being asked about — and the same six-row cap the edge itself
+  // applies. `text` is the untouched line for a caller that wants to repeat it
+  // verbatim; a line the edge did not write as a pattern and an issue is carried
+  // with those two fields empty rather than guessed at. Nothing here is a tier, a
+  // score or a characterisation: it is one document's own header, re-read.
+  function crawlRecord(pid) {
+    try {
+      var h = crawlHeader();
+      if (!h) return [];
+      // The header names one person. Nobody else may borrow their rows.
+      if (canonId(h.pid) !== canonId(pid) && h.pid !== pid) return [];
+      var lis = h.el.querySelectorAll ? h.el.querySelectorAll('[data-pdx-crawl-record] li') : [];
+      var out = [];
+      for (var i = 0; i < lis.length && i < 6; i++) {
+        var t = String(lis[i].textContent || '').trim();
+        if (!t) continue;
+        var parts = t.split(' · ');
+        out.push({
+          text: t,
+          pattern: (parts.length > 1) ? String(parts[0]).trim() : '',
+          label: (parts.length > 1) ? String(parts[1]).trim() : '',
+          counts: (parts.length > 2) ? parts.slice(2).join(' · ').trim() : ''
+        });
+      }
+      return out;
+    } catch (e) { return []; }
+  }
+
   // resolve(), plus the edge's own answer for the address in the bar.
   //
   // WHY BOTH. resolve() reads the tables the app ships — PDX_PROFILE_ALIAS, the
@@ -444,12 +488,10 @@
       var ps = h.el.querySelectorAll ? h.el.querySelectorAll('p') : [];
       var line = ps && ps.length ? String(ps[0].textContent || '').trim() : '';
 
-      var rows = [];
-      var lis = h.el.querySelectorAll ? h.el.querySelectorAll('[data-pdx-crawl-record] li') : [];
-      for (var i = 0; i < lis.length && i < 6; i++) {
-        var t = String(lis[i].textContent || '').trim();
-        if (t) rows.push('<li>' + esc(t) + '</li>');
-      }
+      // The same six rows, off the same node, through the one reader that parses
+      // them (crawlRecord above) — repeated here as the header's own text, which
+      // is what this shell has always printed.
+      var rows = crawlRecord(pid).map(function (x) { return '<li>' + esc(x.text) + '</li>'; });
 
       return SKEL_STYLE +
         '<div class="pdx-file-skel" role="status" aria-live="polite" data-pdx-file-skel="' + esc(pid) + '">' +
@@ -789,6 +831,9 @@
     // address in the bar, and the two things the renderer needs from it.
     resolveArrival: resolveArrival,
     arrivalSkeleton: arrivalSkeleton,
+    // The header's formal rows, for the record surfaces that must not contradict
+    // them. Read-only, identity-guarded, capped where the edge capped it.
+    crawlRecord: crawlRecord,
     mounted: mounted,
     bootAdopt: function () { return bootAdopt(); },
     publishable: function (pid) {

@@ -4206,8 +4206,13 @@
       _briefTimer[pid] = setTimeout(function () {
         _briefTimer[pid] = null;
         // It may have landed while the timer ran; then there is nothing to
-        // report and the next repaint shows the record itself.
-        if (!briefWarming(pid, p)) return;
+        // report and the next repaint shows the record itself. TWO WAYS TO HAVE
+        // LANDED, because two different waits arm this deadline: the warm read
+        // resolving (coverage.warming goes false) and the index simply acquiring
+        // rows — which is the only signal the identity-only path below ever gets,
+        // since nothing ever set warming for it to unset.
+        if (briefShaped(pid)) return;
+        if (!briefWarming(pid, p) && !briefRecordOnHand(pid)) return;
         _briefGaveUp[pid] = true;
         // Same repaint path the warm events use, so the surfaces that render a
         // loading state are the surfaces that get to replace it. bindHero
@@ -4217,20 +4222,164 @@
     } catch (e) { _briefTimer[pid] = null; }
   }
 
+  // ── WHAT THE TAB ALREADY HOLDS, BEFORE THE ENGINE HOLDS IT ─────────────────
+  // A cold /p/<pid> arrival mounts this brief from the seed roster, before the
+  // roll-call engine has read a single row — and the empty branch below used to be
+  // the only sentence available there. On a member with stated positions that was
+  // survivable: consistency.js queues a warm read only where there is a stance to
+  // test, so coverage.warming was set for them and the wait got a sentence of its
+  // own. ON AN IDENTITY-ONLY ROSTER RECORD IT WAS NOT. steven_lund,
+  // jeffrey_stenquist and brett_garner carry no stance ledger, so warming is never
+  // set for them at all, and the first paint of the gold file fell straight through
+  // to "No formal pattern on file yet" — over a document whose own header had just
+  // printed Parental Rights 8-2 and Water 7-0, beside a chip counting 97 records.
+  // Two surfaces, one person, opposite sentences, and the empty one arrived second
+  // and won.
+  //
+  // So the wait is no longer asked of the stance ledger. These readers answer "is
+  // there a formal record in this tab" from the three places that already know,
+  // and not one of them is a new source of fact:
+  //
+  //   briefLiveN      the member payload the API answered with, through the same
+  //                   memberRecords() accessor the vote chip counts.
+  //   briefSeedRows   the rows the EDGE printed into the first byte of this exact
+  //                   document, through PDXPerson.crawlRecord — which keeps the
+  //                   identity guard where it belongs, in the module that owns the
+  //                   header, and returns nothing at all for anybody else.
+  //   formalKnown     the static index, already consulted below. 'deep' means the
+  //                   shipped file counts acts for them; it reports a STATE and
+  //                   never a figure, and that is unchanged here.
+  //
+  // Nothing here infers a stance, characterises a record, or moves a floor. They
+  // decide WHICH TRUE SENTENCE the top of the file gets while the engine is still
+  // arriving — and they take the empty-file sentence off the table while any of
+  // the three can still speak.
+  function briefLiveN(pid) {
+    try {
+      var VR = window.PDXVotingRecord;
+      if (!VR || typeof VR.memberRecords !== 'function') return 0;
+      var r = VR.memberRecords(pid);
+      return (r && r.length) ? r.length : 0;
+    } catch (e) { return 0; }
+  }
+  function briefSeedRows(pid) {
+    try {
+      var PP = window.PDXPerson;
+      if (!PP || typeof PP.crawlRecord !== 'function') return [];
+      return (PP.crawlRecord(pid) || []).filter(function (x) {
+        return !!(x && x.pattern && x.label);
+      });
+    } catch (e) { return []; }
+  }
+  function briefRecordOnHand(pid) {
+    if (briefLiveN(pid) > 0) return true;
+    if (briefSeedRows(pid).length) return true;
+    return formalKnown(pid) === 'deep';
+  }
+  // The engine's own answer: does the formal-pattern index list a row for them
+  // yet. Every wait above is waiting for exactly this, so this is what "it landed"
+  // means — on the warmed path and on the identity-only path alike.
+  function briefShaped(pid) {
+    try {
+      var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      if (!FPI || typeof FPI.shape !== 'function') return false;
+      var sh = FPI.shape(pid);
+      return !!(sh && sh.issues);
+    } catch (e) { return false; }
+  }
+  // Is the wait for this page load over. consistency.js owns the answer and
+  // publishes it; absent, there is no request outstanding that this page started,
+  // so the honest default is "settled" — the same fail-open the record chip uses.
+  function briefSettled(pid) {
+    try {
+      var CS = window.PDXConsistency;
+      if (!CS || typeof CS.recordSettled !== 'function') return true;
+      return !!CS.recordSettled(pid);
+    } catch (e) { return true; }
+  }
+
+  // ── THE FIRST-BYTE RECORD, PRINTED AS THE RECORD IT IS ─────────────────────
+  // The best record already in the tab, where the engine has none: the rows the
+  // edge wrote into this document's header, in the brief, under the brief's own
+  // heading. They are the same projection of the same shipped seeds the index
+  // itself is generated from (db/share-index.json's personRecord, via
+  // gen-crawl-record.mjs), which is why they can be printed here without the file
+  // saying two things at once — and why the live read replaces them in place
+  // rather than correcting them, when 'pdx-voting-warm' repaints the hero.
+  //
+  // WHAT IT REFUSES TO DRESS THEM AS.
+  //   · NO TIER CHIP. .pdxst-pat is the characterisation engine's own claim,
+  //     painted from its own tone table, and this is not the engine. Reconstructing
+  //     a tier from the label the header printed would be this surface inventing
+  //     agreement with a read it has not performed.
+  //   · NO DOOR. shapeRowHtml's door needs an issue KEY and the header carries
+  //     labels; a control that opened nothing, or worse opened the wrong dossier
+  //     off a label match, is not an improvement on an inert row.
+  //   · NO COUNT AND NO ROUTE-OUT. The edge caps the header at six rows, so the
+  //     length of this list is a fact about the cap and not about the file.
+  //     "Explore all 3 issues by topic" would be a total, and it would be wrong.
+  //   · NO "STRONGEST PATTERNS" HEADING. These rows are not ranked into tops and
+  //     splits here; the engine does that, and it has not run yet.
+  // Three facts per row, in the header's own words, plus one line saying where
+  // they came from and that they are about to be replaced.
+  var SEED_NOTE = 'These rows came with the page itself — the same formal record the ' +
+    'header at the top of this document printed. The live roll-call read is still ' +
+    'arriving, and replaces them the moment it lands.';
+  function briefSeedHtml(pid, p) {
+    var rows = briefSeedRows(pid);
+    if (!rows.length) return '';
+    var lis = rows.map(function (x) {
+      return '<li class="pdxwa-shape-row">' +
+          '<span class="pdxwa-shape-iss">' + esc(x.label) + '</span>' +
+          '<span class="pdxwa-shape-bar">' +
+            '<span class="pdxwa-seed-pat">' + esc(x.pattern) + '</span>' +
+            (x.counts ? '<span class="pdxwa-shape-n">· ' + esc(x.counts) + '</span>' : '') +
+          '</span>' +
+        '</li>';
+    }).join('');
+    return '<div class="pdxwa-brief pdxwa-brief-seed">' + briefHeadHtml() +
+        '<div class="pdxwa-shape-grp">' +
+          '<div class="pdxwa-shape-grp-h">On the formal record</div>' +
+          '<ul class="pdxwa-shape-list">' + lis + '</ul>' +
+        '</div>' +
+        '<p class="pdxwa-seed-note">' + esc(SEED_NOTE) + '</p>' +
+        shapeMatchHtml(pid, p, { deep: false, recordAbove: true }) +
+      '</div>';
+  }
+
   // The three absences the top of an empty-shaped file can be in, in the order
   // they have to be told apart: the record is coming, the record was coming and
   // did not arrive, or there is nothing on it. Only the last one is a statement
   // about the person.
   function briefAbsenceCopy(pid, p) {
     var known = formalKnown(pid);
-    if (briefWarming(pid, p) && known !== 'empty') {
+    // THE RECORD IN THE TAB OPENS THE SAME DOOR THE WARM READ DOES. A file the
+    // vote chip is counting, or the header has already listed, or the shipped
+    // index holds acts for, is a file with a record — whether or not anything ever
+    // queued a warm read for it. A REVIEWED EMPTY FILE STILL OUTRANKS ALL THREE:
+    // formalKnown returns 'empty' only for the hand-written notes the index
+    // publishes for that purpose, and jknotts must say so rather than be promised
+    // a wait that is never coming.
+    var onHand = briefRecordOnHand(pid);
+    if ((briefWarming(pid, p) || onHand) && known !== 'empty') {
       if (briefGaveUp(pid)) {
-        return known === 'deep'
+        return (known === 'deep' || onHand)
           ? 'Their formal record is on file, but it did not load, so no pattern can be read. Reload to try again.'
           : 'The roll-call record did not load, so no formal pattern can be read. That is a loading failure, not an empty file — reload to try again.';
       }
       armBriefDeadline(pid, p);
-      return known === 'deep'
+      // THE PAYLOAD LANDED AND THE INDEX READ NO ISSUE OFF IT. Not a wait, and not
+      // an empty file: a gap in OUR mapping, which is a different sentence and is
+      // owed one. "No formal pattern on file" over a member whose record this same
+      // page is counting is the exact claim this branch exists to stop printing.
+      if (briefLiveN(pid) > 0 && briefSettled(pid)) {
+        return 'Their roll-call record is on file, but none of it is mapped yet to an issue ' +
+          'a direction can be read from. That gap is ours, not an empty file.';
+      }
+      // Still arriving. Same two sentences, same split on what formalKnown already
+      // knows — widened only by `onHand`, which is the same claim reached from the
+      // header or the payload instead of from the index.
+      return (known === 'deep' || onHand)
         ? 'Their formal record is on file and still loading — no pattern can be read until it lands.'
         : 'Still loading the roll-call record — no formal pattern can be read until it lands.';
     }
@@ -4488,6 +4637,16 @@
       // has not arrived is a fact about this page load, a record with nothing on
       // it is a fact about the file. Both refuse to print a figure.
       if (!sh.issues) {
+        // FIRST, WHAT IS ALREADY ON THE PAGE. Before either absence is named, the
+        // rows this document's own header printed get the slot: on a cold arrival
+        // they are the best record in the tab for as long as the engine has none,
+        // and mounting the empty letterhead over them is the file contradicting
+        // its own first paint. They are replaced in place when the live read lands
+        // (bindHero repaints on 'pdx-voting-warm'), never flashed away — the seed
+        // is re-read on every repaint, so a repaint that still has no engine rows
+        // keeps the rows it already showed.
+        var seeded = briefSeedHtml(pid, p);
+        if (seeded) return seeded;
         return '<div class="pdxwa-brief pdxwa-brief-empty">' + briefHeadHtml() +
             '<p class="pdxwa-shape-none">' +
               briefAbsenceCopy(pid, p) +

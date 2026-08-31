@@ -10,7 +10,10 @@
     "notOnAnyFloorRoll": 96,
     "reprintsDropped": 9,
     "nearUnanimousRefused": 33,
-    "billsWithAnyCommitteeVote": 40
+    "billsWithAnyCommitteeVote": 40,
+    "supersededByFloorVoteNow": 252,
+    "notOnAnyFloorRollNow": 51,
+    "_nowNote": "supersededByFloorVote/notOnAnyFloorRoll are this session's ingest-time figures, quoted in the prose of its applied migration and frozen there. The *Now keys are the same two counts re-derived from the committed floor seeds after the wave-9 name admit attributed floor votes this session had parsed and dropped. The per-row supersededByFloorVote flags are current, not frozen."
   },
   "measures": [
     {
@@ -309,13 +312,13 @@
               "politicianId": "david_buxton",
               "supports": true,
               "printedAs": "Sen. D. Buxton",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "jacob_anderegg",
               "supports": true,
               "printedAs": "Sen. J. Anderegg",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "jennifer_plumb",
@@ -501,7 +504,7 @@
               "politicianId": "steven_lund",
               "supports": true,
               "printedAs": "Rep. S. Lund",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "thomas_peterson",
@@ -513,7 +516,7 @@
               "politicianId": "tim_jimenez",
               "supports": true,
               "printedAs": "Rep. T. Jimenez",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "walt_brooks",
@@ -548,7 +551,7 @@
               "politicianId": "david_buxton",
               "supports": true,
               "printedAs": "Sen. D. Buxton",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "dowens_st",
@@ -661,7 +664,7 @@
               "politicianId": "kera_birkeland",
               "supports": true,
               "printedAs": "Rep. K. Birkeland",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "lisonbee_h14",
@@ -685,13 +688,13 @@
               "politicianId": "steven_lund",
               "supports": true,
               "printedAs": "Rep. S. Lund",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "susan_pulsipher",
               "supports": false,
               "printedAs": "Rep. S. Pulsipher",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "tyler_clancy",
@@ -845,7 +848,7 @@
               "politicianId": "kera_birkeland",
               "supports": false,
               "printedAs": "Rep. K. Birkeland",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "r_neil_walter",
@@ -857,13 +860,13 @@
               "politicianId": "steven_lund",
               "supports": true,
               "printedAs": "Rep. S. Lund",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "susan_pulsipher",
               "supports": false,
               "printedAs": "Rep. S. Pulsipher",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             }
           ]
         },
@@ -1070,7 +1073,7 @@
               "politicianId": "brett_garner",
               "supports": false,
               "printedAs": "Rep. B. Garner",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "doug_welton",
@@ -1082,7 +1085,7 @@
               "politicianId": "jeffrey_stenquist",
               "supports": true,
               "printedAs": "Rep. J. Stenquist",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "karen_m_peterson",
@@ -1106,7 +1109,7 @@
               "politicianId": "susan_pulsipher",
               "supports": true,
               "printedAs": "Rep. S. Pulsipher",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             }
           ]
         },
@@ -1265,7 +1268,7 @@
               "politicianId": "james_cobb",
               "supports": false,
               "printedAs": "Rep. J. Cobb",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "jason_b_kyle",
@@ -1283,13 +1286,13 @@
               "politicianId": "judy_weeks_rohner",
               "supports": false,
               "printedAs": "Rep. J. Rohner",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "quinn_kotter",
               "supports": false,
               "printedAs": "Rep. Q. Kotter",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             }
           ]
         }
@@ -1485,7 +1488,7 @@
               "politicianId": "kera_birkeland",
               "supports": true,
               "printedAs": "Rep. K. Birkeland",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "lisonbee_h14",
@@ -1509,13 +1512,13 @@
               "politicianId": "steven_lund",
               "supports": false,
               "printedAs": "Rep. S. Lund",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "susan_pulsipher",
               "supports": true,
               "printedAs": "Rep. S. Pulsipher",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "tyler_clancy",
@@ -1574,7 +1577,7 @@
               "politicianId": "james_cobb",
               "supports": true,
               "printedAs": "Rep. J. Cobb",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "jason_b_kyle",
@@ -1586,7 +1589,7 @@
               "politicianId": "judy_weeks_rohner",
               "supports": false,
               "printedAs": "Rep. J. Rohner",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "mike_petersen",
@@ -1598,7 +1601,7 @@
               "politicianId": "quinn_kotter",
               "supports": false,
               "printedAs": "Rep. Q. Kotter",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             }
           ]
         }
@@ -1669,13 +1672,13 @@
               "politicianId": "steven_lund",
               "supports": true,
               "printedAs": "Rep. S. Lund",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "susan_pulsipher",
               "supports": true,
               "printedAs": "Rep. S. Pulsipher",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "tyler_clancy",
@@ -1793,7 +1796,7 @@
               "politicianId": "james_cobb",
               "supports": true,
               "printedAs": "Rep. J. Cobb",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "jason_b_kyle",
@@ -1811,7 +1814,7 @@
               "politicianId": "quinn_kotter",
               "supports": true,
               "printedAs": "Rep. Q. Kotter",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             }
           ]
         },
@@ -1942,19 +1945,19 @@
               "politicianId": "kera_birkeland",
               "supports": true,
               "printedAs": "Rep. K. Birkeland",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "steven_lund",
               "supports": true,
               "printedAs": "Rep. S. Lund",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "susan_pulsipher",
               "supports": true,
               "printedAs": "Rep. S. Pulsipher",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             }
           ]
         }
@@ -2149,7 +2152,7 @@
               "politicianId": "kera_birkeland",
               "supports": true,
               "printedAs": "Rep. K. Birkeland",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "r_neil_walter",
@@ -2161,13 +2164,13 @@
               "politicianId": "steven_lund",
               "supports": true,
               "printedAs": "Rep. S. Lund",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "susan_pulsipher",
               "supports": true,
               "printedAs": "Rep. S. Pulsipher",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "tyler_clancy",
@@ -2243,7 +2246,7 @@
               "politicianId": "brian_king",
               "supports": false,
               "printedAs": "Rep. B. King",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "cheryl_acton",
@@ -2261,7 +2264,7 @@
               "politicianId": "james_cobb",
               "supports": true,
               "printedAs": "Rep. J. Cobb",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "jon_hawkins",
@@ -2273,7 +2276,7 @@
               "politicianId": "kera_birkeland",
               "supports": true,
               "printedAs": "Rep. K. Birkeland",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "lisonbee_h14",
@@ -2285,7 +2288,7 @@
               "politicianId": "mark_wheatley",
               "supports": false,
               "printedAs": "Rep. M. Wheatley",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "nelson_abbott",
@@ -2397,7 +2400,7 @@
               "politicianId": "david_buxton",
               "supports": true,
               "printedAs": "Sen. D. Buxton",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "evickers",
@@ -2409,7 +2412,7 @@
               "politicianId": "jacob_anderegg",
               "supports": true,
               "printedAs": "Sen. J. Anderegg",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "jennifer_plumb",
@@ -2486,19 +2489,19 @@
               "politicianId": "quinn_kotter",
               "supports": true,
               "printedAs": "Rep. Q. Kotter",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "robert_spendlove",
               "supports": true,
               "printedAs": "Rep. R. Spendlove",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "rosemary_lesser",
               "supports": false,
               "printedAs": "Rep. R. Lesser",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "rward",
@@ -2516,7 +2519,7 @@
               "politicianId": "tim_jimenez",
               "supports": true,
               "printedAs": "Rep. T. Jimenez",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             }
           ]
         }
@@ -2764,13 +2767,13 @@
               "politicianId": "david_buxton",
               "supports": true,
               "printedAs": "Sen. D. Buxton",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "jacob_anderegg",
               "supports": true,
               "printedAs": "Sen. J. Anderegg",
-              "supersededByFloorVote": false
+              "supersededByFloorVote": true
             },
             {
               "politicianId": "jennifer_plumb",

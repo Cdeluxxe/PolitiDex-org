@@ -129,7 +129,10 @@ const UT_MAPPING = [
   ["2023GS", "db/vr-utah-committee-mapping-seed-2023GS.json"],
 ];
 
-function buildUtahLane(ROOT) {
+// Exported so a harness can seed the same Utah lane this generator feeds the
+// engines, without re-deriving it. scripts/test-person-cold-record.mjs uses it to
+// stand up a real member payload for the delayed-fetch sandbox.
+export function buildUtahLane(ROOT) {
   const J = (f) => JSON.parse(readFileSync(join(ROOT, f), "utf8"));
   let seq = 0;
   const MID = new Map();
