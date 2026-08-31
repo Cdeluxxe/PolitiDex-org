@@ -357,21 +357,34 @@ const roster = J("db/vr-roster-admitted.json");
   // fails the moment the change is committed and HEAD carries it too. Every assertion
   // here that can be made against the shipped file alone is made that way, and the
   // HEAD comparison is used only for the direction of travel, only when the two differ.
+  //
+  // AND PINNED TO F6'S OWN VERSION, not to whatever is newest. This block read the
+  // CURRENT CACHE_VERSION's note while F6 was the newest thing in the tree, and that was
+  // the same file either way. It stops being the same file the moment a LATER wave bumps
+  // the shell for its own reasons: federal wave F7 ships twenty-eight more mechanism
+  // pairs and moves the shell to v98, whose note is about war-powers rows that print no
+  // direction and says nothing about eight congressional portraits — because F7 shipped
+  // none. Reading the newest note would have failed F6's assertions on a tree where
+  // everything F6 asserted is still true. So F6 reads the v97 entry it wrote, by number,
+  // and the only thing it asks of the CURRENT version is that it is not BELOW v97 — a
+  // later bump is somebody else's story, a rollback would be F6's problem.
+  const F6_VERSION = 97;
   const swNow = R("sw.js");
   const cv = swNow.match(/CACHE_VERSION\s*=\s*'v(\d+)'/);
   const hv = (head("sw.js") || "").match(/CACHE_VERSION\s*=\s*'v(\d+)'/);
   if (ok(!!cv, "CACHE_VERSION is not readable in sw.js")) {
     if (hv && hv[1] !== cv[1]) eq(+cv[1], +hv[1] + 1, "CACHE_VERSION did not move by exactly one version");
-    const noteAt = swNow.indexOf(`// v${cv[1]} `);
-    ok(noteAt !== -1, `sw.js is at v${cv[1]} with no entry for it in the version log — the log is how the next reader knows what a bump was for`);
+    ok(+cv[1] >= F6_VERSION, `the shell is at v${cv[1]}, below the v${F6_VERSION} F6 shipped — F6's mechanism prose would reach nobody`);
+    const noteAt = swNow.indexOf(`// v${F6_VERSION} `);
+    ok(noteAt !== -1, `sw.js has no v${F6_VERSION} entry in the version log — the log is how the next reader knows what F6's bump was for`);
     // The whole entry, to wherever the previous version's entry starts — reading a
     // fixed number of bytes would silently stop checking the moment the note grew.
-    const nextAt = swNow.indexOf(`// v${+cv[1] - 1} `, noteAt);
+    const nextAt = swNow.indexOf(`// v${F6_VERSION - 1} `, noteAt);
     const note = swNow.slice(noteAt, nextAt === -1 ? noteAt + 4000 : nextAt);
-    ok(/consistency\.js/.test(note), "the version note for the current shell does not name the asset that changed");
-    ok(/compare-hub\.js/.test(note), "the version note does not name the second shipped file — the portrait map moved too");
-    ok(/monogram|initials/i.test(note), "the version note does not say what a warm device missing the new portraits would draw");
-    ok(/derived/i.test(note), "the version note does not say what a warm device holding the old copy would show");
+    ok(/consistency\.js/.test(note), "F6's version note does not name the asset that changed");
+    ok(/compare-hub\.js/.test(note), "F6's version note does not name the second shipped file — the portrait map moved too");
+    ok(/monogram|initials/i.test(note), "F6's version note does not say what a warm device missing the new portraits would draw");
+    ok(/derived/i.test(note), "F6's version note does not say what a warm device holding the old copy would show");
     ok(swNow.includes("'/consistency.js'"), "consistency.js is no longer a precached shell asset, which is what made this a bump at all");
   }
   ok(scope.length > 1000, "issue-scope.js did not load");
@@ -672,8 +685,21 @@ function boot(get, label) {
       eq(mb.after, ma.after, "consistency.js changed below _DOS_MECH — the waiver is for curated prose, not for the renderer");
       ok(mb.map.startsWith(ma.map),
         "an existing _DOS_MECH entry was edited — this wave only appends, because rule 21 leaves a live rationale with its first writer");
-      const added = [...mb.map.slice(ma.map.length).matchAll(/'(H\.R\. \d+)\|119\|([a-z_]+)':/g)].map((m) => `${m[1]}|${m[2]}`);
-      eq(added.length, 11, "the number of appended mechanism entries is not the eleven acts this wave creates");
+      // WHOSE APPEND IS IT? While F6 was the newest wave the appended entries were F6's
+      // eleven, and counting them here was the same as reading F6's diff. Once F6 is
+      // committed the delta against HEAD belongs to whoever came next — F7 appends
+      // twenty-eight — so a count of eleven would be an assertion about a later wave's
+      // size, made by the wrong harness. What F6 can still say about an append it did not
+      // write is the part that is about F6: no later entry may key on a measure F6 read
+      // and REFUSED, because a mechanism line exists to explain a live judged mapping and
+      // one naming these numbers would mean a wall F6 argued was quietly taken. F6's own
+      // eleven pairs are asserted against the shipped file in the block below, which
+      // holds whether the diff is empty or not.
+      const appended = mb.map.slice(ma.map.length);
+      const F6_REFUSED = ["H.R. 3015", "H.R. 3638", "H.R. 3109", "H.R. 3617", "H.R. 4553", "H.R. 1834"];
+      for (const num of F6_REFUSED)
+        ok(!appended.includes(`'${num}|`),
+          `a later wave appended mechanism prose for ${num}, which F6 read and refused — a study-and-report bill does not become a policy vote by being explained`);
     }
   }
   {

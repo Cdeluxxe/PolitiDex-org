@@ -796,6 +796,7 @@
   <url><loc>https://www.politidex.fyi/b/119/H.Amdt.%2085</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/H.Amdt.%2087</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/H.Amdt.%2097</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/H.Amdt.%2099</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/H.Amdt.%20232</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/H.Amdt.%20234</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/H.Amdt.%20235</loc></url>
@@ -851,6 +852,7 @@
   <url><loc>https://www.politidex.fyi/b/119/H.R.%201919</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/H.R.%201949</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/H.R.%201968</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/H.R.%202056</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/H.R.%202478</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/H.R.%202483</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/H.R.%203062</loc></url>
@@ -870,6 +872,9 @@
   <url><loc>https://www.politidex.fyi/b/119/H.R.%204690</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/H.R.%204758</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/H.R.%204776</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/H.R.%204922</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/H.R.%205140</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/H.R.%205214</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/H.R.%205362</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/H.R.%205408</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/H.R.%206329</loc></url>
@@ -923,7 +928,21 @@
   <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%2041</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%2059</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%2071</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%2083</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%2090</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%2098</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%20104</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%20114</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%20116</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%20118</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%20123</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%20138</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%20163</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%20172</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%20180</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%20181</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%20184</loc></url>
+  <url><loc>https://www.politidex.fyi/b/119/S.J.Res.%20185</loc></url>
   <url><loc>https://www.politidex.fyi/b/119/Vought%20%E2%80%94%20OMB</loc></url>
   <url><loc>https://www.politidex.fyi/b/2023GS/H.B.%2027</loc></url>
   <url><loc>https://www.politidex.fyi/b/2023GS/H.B.%2042</loc></url>

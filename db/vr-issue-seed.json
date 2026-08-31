@@ -626,7 +626,7 @@
           "weight": 80,
           "isPrimary": true,
           "supportMeaning": "yea_supports",
-          "rationale": "Primary: the 21st Century ROAD to Housing Act is a housing act, and housing affordability is its own subject rather than a title inside a vehicle. `housing`'s published chip is 'Make housing more affordable by boosting supply and lowering the cost to build and buy', and the enrolled text carries all three of those limbs as full titles: supply in Title I (Sec. 103 infill exemption, Sec. 104 publicly owned land database, Sec. 107 housing supply frameworks), Title II (Building More in America) and Title III (Manufactured Housing for America); the cost to build in Sec. 211, captioned the Housing Affordability Act, which raises the per-unit dollar limits on FHA multifamily mortgage insurance at 12 U.S.C. 1713(c)(3)(A) and 1715e(b)(2) roughly fourfold and re-indexes them to the Census Bureau's Price Deflator Index of Multifamily Residential Units Under Construction; and the cost to buy in Title IV (Accessing the American Dream) \u2014 Sec. 401 small-dollar loan originator incentives, Sec. 402 small-dollar mortgage points and fees, Sec. 403 Appraisal Industry Improvement Act, Sec. 404 Helping More Families Save Act \u2014 in Title IX (Strengthening Community Banks' Role in Housing) and in Title X (Home-Ownership for Main Street America), whose single section restricts large institutional-investor purchases of single-family homes. Eleven of the Act's twelve titles are housing titles. Weighted 80 rather than 100 and ranked below the housing_build primary because supply is the limb the Act's own long title names; the weight is what ranks the two axes, not the flag.",
+          "rationale": "Primary: the 21st Century ROAD to Housing Act is a housing act, and housing affordability is its own subject rather than a title inside a vehicle. `housing`'s published chip is 'Make housing more affordable by boosting supply and lowering the cost to build and buy', and the enrolled text carries all three of those limbs as full titles: supply in Title I (Sec. 103 infill exemption, Sec. 104 publicly owned land database, Sec. 107 housing supply frameworks), Title II (Building More in America) and Title III (Manufactured Housing for America); the cost to build in Sec. 211, captioned the Housing Affordability Act, which raises the per-unit dollar limits on FHA multifamily mortgage insurance at 12 U.S.C. 1713(c)(3)(A) and 1715e(b)(2) roughly fourfold and re-indexes them to the Census Bureau's Price Deflator Index of Multifamily Residential Units Under Construction; and the cost to buy in Title IV (Accessing the American Dream) — Sec. 401 small-dollar loan originator incentives, Sec. 402 small-dollar mortgage points and fees, Sec. 403 Appraisal Industry Improvement Act, Sec. 404 Helping More Families Save Act — in Title IX (Strengthening Community Banks' Role in Housing) and in Title X (Home-Ownership for Main Street America), whose single section restricts large institutional-investor purchases of single-family homes. Eleven of the Act's twelve titles are housing titles. Weighted 80 rather than 100 and ranked below the housing_build primary because supply is the limb the Act's own long title names; the weight is what ranks the two axes, not the flag.",
           "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ101/html/PLAW-119publ101.htm"
         }
       ]
@@ -3181,6 +3181,355 @@
           "supportMeaning": "yea_opposes",
           "rationale": "SEC. 2 strikes subclauses (I) and (II) of section 305(a)(3)(D)(i) of the Energy Conservation and Production Act (42 U.S.C. 6834(a)(3)(D)(i)) — the fossil-fuel-use reduction targets for new and renovated Federal buildings — and then provides that subpart B of part 433 and subpart B of part 435 of title 10, Code of Federal Regulations 'shall have no force or effect', with a transition clause implementing the statute 'as though the requirements of subclauses (I) and (II) had never taken effect'. Subsections (a)(2) and (c) further bar the green-building certification system from withholding certification 'solely based on direct or indirect consumption of fossil fuels'. climate_action's written scope names 'Programmes, subsidies and rules that cut emissions, and their repeal' as what is IN, and its pole reads 'Against = it repealed, defunded or taxed one'. This is a repeal, so the row is yea_opposes and a yea is published as against the key. Weight 100: the repeal is the entire measure.",
           "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr4690eh/html/BILLS-119hr4690eh.htm"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F7 · senate 119/1/555 · On the Motion to Discharge S.J.Res. 83 · 48-51 · admitted as exception: discharge. Mirrors the issue rows in netlify/database/migrations/20261023000000_vr_federal_wave_f7.sql; the census, the refusal record, the keys declined for this measure and the rule 34 argument for the seven Senate rolls that ship with no issue row at all are in db/vr-federal-mapping-seed-f7.json.",
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 83",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/83",
+      "issues": [
+        {
+          "issueKey": "restraint",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The resolution's operative section directs the President to remove United States Armed Forces from hostilities that Congress has not authorized, and its saving clause preserves only defence against an attack already under way or imminent. The instrument's whole command is withdrawal, so the direction on the key is not inferred from a title: a yea ordered forces out and a nay left them in. This is the face S.J.Res. 59 already carries for the identical form and the identical question -- restraint w100 primary yea_supports, war_powers w70, strong_defense w55 opposed -- and it is copied rather than re-derived, because runbook rule 25 says the same subject may not be mapped two ways without a written reason and there is no reason here: this is the same subject.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/83"
+        },
+        {
+          "issueKey": "war_powers",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "A privileged joint resolution under section 5(c) of the War Powers Resolution, which reached the floor only because the Foreign Relations Committee was discharged, and what it asserts is that the decision to authorize belongs to Congress. war_powers sits in _RD_NO_POLE in stance-helpers.js, so this row is inventory and never prints a direction: it records that the member voted on a war-powers instrument, which is true, and it makes no claim about where they stand. Filed at 70 rather than 100 because the operative command is the removal of forces rather than a change to the authorization machinery itself -- the weight S.J.Res. 59 carries for the same reason.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/83"
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/83"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F7 · senate 119/1/608 · On the Motion to Discharge S.J.Res. 90 · 49-51 · admitted as exception: discharge. Mirrors the issue rows in netlify/database/migrations/20261023000000_vr_federal_wave_f7.sql; the census, the refusal record, the keys declined for this measure and the rule 34 argument for the seven Senate rolls that ship with no issue row at all are in db/vr-federal-mapping-seed-f7.json.",
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 90",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/90",
+      "issues": [
+        {
+          "issueKey": "restraint",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The resolution's operative section directs the President to remove United States Armed Forces from hostilities within or against Venezuela that Congress has not authorized, and its saving clause preserves only defence against an attack already under way or imminent. The instrument's whole command is withdrawal, so the direction on the key is not inferred from a title: a yea ordered forces out and a nay left them in. This is the face S.J.Res. 59 already carries for the identical form and the identical question -- restraint w100 primary yea_supports, war_powers w70, strong_defense w55 opposed -- and it is copied rather than re-derived, because runbook rule 25 says the same subject may not be mapped two ways without a written reason and there is no reason here: this is the same subject.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/90"
+        },
+        {
+          "issueKey": "war_powers",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "A privileged joint resolution under section 5(c) of the War Powers Resolution, which reached the floor only because the Foreign Relations Committee was discharged, and what it asserts is that the decision to authorize belongs to Congress. war_powers sits in _RD_NO_POLE in stance-helpers.js, so this row is inventory and never prints a direction: it records that the member voted on a war-powers instrument, which is true, and it makes no claim about where they stand. Filed at 70 rather than 100 because the operative command is the removal of forces rather than a change to the authorization machinery itself -- the weight S.J.Res. 59 carries for the same reason.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/90"
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/90"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F7 · senate 119/2/5 · On the Motion to Discharge S.J.Res. 98 · 52-47 · admitted as exception: discharge. Mirrors the issue rows in netlify/database/migrations/20261023000000_vr_federal_wave_f7.sql; the census, the refusal record, the keys declined for this measure and the rule 34 argument for the seven Senate rolls that ship with no issue row at all are in db/vr-federal-mapping-seed-f7.json.",
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 98",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/98",
+      "issues": [
+        {
+          "issueKey": "restraint",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The resolution's operative section directs the President to remove United States Armed Forces from hostilities within or against Venezuela that Congress has not authorized, and its saving clause preserves only defence against an attack already under way or imminent. The instrument's whole command is withdrawal, so the direction on the key is not inferred from a title: a yea ordered forces out and a nay left them in. This is the face S.J.Res. 59 already carries for the identical form and the identical question -- restraint w100 primary yea_supports, war_powers w70, strong_defense w55 opposed -- and it is copied rather than re-derived, because runbook rule 25 says the same subject may not be mapped two ways without a written reason and there is no reason here: this is the same subject.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/98"
+        },
+        {
+          "issueKey": "war_powers",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "A privileged joint resolution under section 5(c) of the War Powers Resolution, which reached the floor only because the Foreign Relations Committee was discharged, and what it asserts is that the decision to authorize belongs to Congress. war_powers sits in _RD_NO_POLE in stance-helpers.js, so this row is inventory and never prints a direction: it records that the member voted on a war-powers instrument, which is true, and it makes no claim about where they stand. Filed at 70 rather than 100 because the operative command is the removal of forces rather than a change to the authorization machinery itself -- the weight S.J.Res. 59 carries for the same reason.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/98"
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/98"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F7 · senate 119/2/46 · On the Motion to Discharge S.J.Res. 104 · 47-53 · admitted as exception: discharge. Mirrors the issue rows in netlify/database/migrations/20261023000000_vr_federal_wave_f7.sql; the census, the refusal record, the keys declined for this measure and the rule 34 argument for the seven Senate rolls that ship with no issue row at all are in db/vr-federal-mapping-seed-f7.json.",
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 104",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/104",
+      "issues": [
+        {
+          "issueKey": "restraint",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The resolution's operative section directs the President to remove United States Armed Forces from hostilities within or against Iran that Congress has not authorized, and its saving clause preserves only defence against an attack already under way or imminent. The instrument's whole command is withdrawal, so the direction on the key is not inferred from a title: a yea ordered forces out and a nay left them in. This is the face S.J.Res. 59 already carries for the identical form and the identical question -- restraint w100 primary yea_supports, war_powers w70, strong_defense w55 opposed -- and it is copied rather than re-derived, because runbook rule 25 says the same subject may not be mapped two ways without a written reason and there is no reason here: this is the same subject.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/104"
+        },
+        {
+          "issueKey": "war_powers",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "A privileged joint resolution under section 5(c) of the War Powers Resolution, which reached the floor only because the Foreign Relations Committee was discharged, and what it asserts is that the decision to authorize belongs to Congress. war_powers sits in _RD_NO_POLE in stance-helpers.js, so this row is inventory and never prints a direction: it records that the member voted on a war-powers instrument, which is true, and it makes no claim about where they stand. Filed at 70 rather than 100 because the operative command is the removal of forces rather than a change to the authorization machinery itself -- the weight S.J.Res. 59 carries for the same reason.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/104"
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/104"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F7 · senate 119/2/113 · On the Motion to Discharge S.J.Res. 184 · 47-50 · admitted as exception: discharge. Mirrors the issue rows in netlify/database/migrations/20261023000000_vr_federal_wave_f7.sql; the census, the refusal record, the keys declined for this measure and the rule 34 argument for the seven Senate rolls that ship with no issue row at all are in db/vr-federal-mapping-seed-f7.json.",
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 184",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/184",
+      "issues": [
+        {
+          "issueKey": "restraint",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The resolution's operative section directs the President to remove United States Armed Forces from hostilities within or against Iran that Congress has not authorized, and its saving clause preserves only defence against an attack already under way or imminent. The instrument's whole command is withdrawal, so the direction on the key is not inferred from a title: a yea ordered forces out and a nay left them in. This is the face S.J.Res. 59 already carries for the identical form and the identical question -- restraint w100 primary yea_supports, war_powers w70, strong_defense w55 opposed -- and it is copied rather than re-derived, because runbook rule 25 says the same subject may not be mapped two ways without a written reason and there is no reason here: this is the same subject.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/184"
+        },
+        {
+          "issueKey": "war_powers",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "A privileged joint resolution under section 5(c) of the War Powers Resolution, which reached the floor only because the Foreign Relations Committee was discharged, and what it asserts is that the decision to authorize belongs to Congress. war_powers sits in _RD_NO_POLE in stance-helpers.js, so this row is inventory and never prints a direction: it records that the member voted on a war-powers instrument, which is true, and it makes no claim about where they stand. Filed at 70 rather than 100 because the operative command is the removal of forces rather than a change to the authorization machinery itself -- the weight S.J.Res. 59 carries for the same reason.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/184"
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/184"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F7 · senate 119/2/118 · On the Motion to Discharge S.J.Res. 163 · 49-50 · admitted as exception: discharge. Mirrors the issue rows in netlify/database/migrations/20261023000000_vr_federal_wave_f7.sql; the census, the refusal record, the keys declined for this measure and the rule 34 argument for the seven Senate rolls that ship with no issue row at all are in db/vr-federal-mapping-seed-f7.json.",
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 163",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/163",
+      "issues": [
+        {
+          "issueKey": "restraint",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The resolution's operative section directs the President to remove United States Armed Forces from hostilities within or against Iran that Congress has not authorized, and its saving clause preserves only defence against an attack already under way or imminent. The instrument's whole command is withdrawal, so the direction on the key is not inferred from a title: a yea ordered forces out and a nay left them in. This is the face S.J.Res. 59 already carries for the identical form and the identical question -- restraint w100 primary yea_supports, war_powers w70, strong_defense w55 opposed -- and it is copied rather than re-derived, because runbook rule 25 says the same subject may not be mapped two ways without a written reason and there is no reason here: this is the same subject.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/163"
+        },
+        {
+          "issueKey": "war_powers",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "A privileged joint resolution under section 5(c) of the War Powers Resolution, which reached the floor only because the Foreign Relations Committee was discharged, and what it asserts is that the decision to authorize belongs to Congress. war_powers sits in _RD_NO_POLE in stance-helpers.js, so this row is inventory and never prints a direction: it records that the member voted on a war-powers instrument, which is true, and it makes no claim about where they stand. Filed at 70 rather than 100 because the operative command is the removal of forces rather than a change to the authorization machinery itself -- the weight S.J.Res. 59 carries for the same reason.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/163"
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/163"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F7 · senate 119/2/129 · On the Motion to Discharge S.J.Res. 185 · 50-47 · admitted as exception: discharge. Mirrors the issue rows in netlify/database/migrations/20261023000000_vr_federal_wave_f7.sql; the census, the refusal record, the keys declined for this measure and the rule 34 argument for the seven Senate rolls that ship with no issue row at all are in db/vr-federal-mapping-seed-f7.json.",
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 185",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/185",
+      "issues": [
+        {
+          "issueKey": "restraint",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The resolution's operative section directs the President to remove United States Armed Forces from hostilities within or against Iran that Congress has not authorized, and its saving clause preserves only defence against an attack already under way or imminent. The instrument's whole command is withdrawal, so the direction on the key is not inferred from a title: a yea ordered forces out and a nay left them in. This is the face S.J.Res. 59 already carries for the identical form and the identical question -- restraint w100 primary yea_supports, war_powers w70, strong_defense w55 opposed -- and it is copied rather than re-derived, because runbook rule 25 says the same subject may not be mapped two ways without a written reason and there is no reason here: this is the same subject.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/185"
+        },
+        {
+          "issueKey": "war_powers",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "A privileged joint resolution under section 5(c) of the War Powers Resolution, which reached the floor only because the Foreign Relations Committee was discharged, and what it asserts is that the decision to authorize belongs to Congress. war_powers sits in _RD_NO_POLE in stance-helpers.js, so this row is inventory and never prints a direction: it records that the member voted on a war-powers instrument, which is true, and it makes no claim about where they stand. Filed at 70 rather than 100 because the operative command is the removal of forces rather than a change to the authorization machinery itself -- the weight S.J.Res. 59 carries for the same reason.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/185"
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/185"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F7 · house 119/1/171 · On Passage · 224-194 · admitted as decisive. Mirrors the issue rows in netlify/database/migrations/20261023000000_vr_federal_wave_f7.sql; the census, the refusal record, the keys declined for this measure and the rule 34 argument for the seven Senate rolls that ship with no issue row at all are in db/vr-federal-mapping-seed-f7.json.",
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 2056",
+      "shortTitle": "District of Columbia Federal Immigration Compliance Act of 2025",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/2056",
+      "issues": [
+        {
+          "issueKey": "border_security",
+          "weight": 75,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The Act's whole mechanism is the state and local end of federal immigration enforcement: it forbids the District from adopting a law, policy or practice that stops its entities from sending, receiving, maintaining or exchanging citizenship or immigration status information, and from declining lawful federal requests. border_security's written scope in issue-scope.js names, as what is IN, 'the state and local cooperation that feeds the federal system' -- this Act is that clause and almost nothing else. Weight 75 rather than 100 because the key's scope also covers the physical border and the entry apparatus, which this Act does not touch, and because the carve-out for witnesses and victims of crime is a real limit on the mandate rather than a recital. A yea compelled the cooperation.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr2056eh/html/BILLS-119hr2056eh.htm"
+        },
+        {
+          "issueKey": "deportations",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The second operative limb reaches detainers and release notification -- the District may not decline a lawful request to hold or to notify before release -- and that is the hand-off by which a person in local custody enters removal proceedings. deportations' written scope names 'mandatory custody and removal -- who the executive must detain and place in removal proceedings'. This Act does not itself order a removal, which is why it is filed at 70 and secondary: it removes the local discretion that currently interrupts the chain. The CRS summary confirms the clause; the engrossed text was read for it rather than the summary alone.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr2056eh/html/BILLS-119hr2056eh.htm"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F7 · house 119/1/270 · On Passage · 240-179 · admitted as decisive. Mirrors the issue rows in netlify/database/migrations/20261023000000_vr_federal_wave_f7.sql; the census, the refusal record, the keys declined for this measure and the rule 34 argument for the seven Senate rolls that ship with no issue row at all are in db/vr-federal-mapping-seed-f7.json.",
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 4922",
+      "shortTitle": "D.C. Criminal Reforms to Immediately Make Everyone Safe Act of 2025",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4922",
+      "issues": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Two of the Act's three operative limbs are inside tough_on_crime's written enumeration verbatim. The key is IN for 'how long a person or a case stays in the system: offence elements, offence levels, mandatory minimums, sentencing enhancements, and juvenile adjustment and expungement eligibility'. Cutting the youth offender ceiling from 24 to 18 is juvenile adjustment eligibility; repealing the authority to sentence a youth offender below the mandatory minimum is a mandatory minimum. The key's pole reads 'Advanced = the vote increased exposure to punishment or time in custody', and both limbs do that on their face. Weight 90 rather than 100 because the third operative limb -- the Home Rule Act amendment freezing the Council's sentencing authority -- is a federal-local authority question this wave refuses to file at all, and the weight is where that remainder is recorded rather than in a second row on a key that takes no roll calls.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr4922eh/html/BILLS-119hr4922eh.htm"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F7 · house 119/1/271 · On Passage · 225-203 · admitted as decisive. Mirrors the issue rows in netlify/database/migrations/20261023000000_vr_federal_wave_f7.sql; the census, the refusal record, the keys declined for this measure and the rule 34 argument for the seven Senate rolls that ship with no issue row at all are in db/vr-federal-mapping-seed-f7.json.",
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 5140",
+      "shortTitle": "To lower the age at which a minor may be tried as an adult for certain criminal offenses in the District of Columbia to 14 years of age",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/5140",
+      "issues": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "One operative provision and nothing else: the age at which a minor charged with the enumerated violent offences leaves family court for adult court drops to 14. tough_on_crime's written scope is IN for 'juvenile adjustment' eligibility by name, and its pole reads 'Advanced = the vote increased exposure to punishment or time in custody' -- adult court is the greater exposure, which is the entire point of the change. There is no remainder to record in a weight, so the weight is 100.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr5140eh/html/BILLS-119hr5140eh.htm"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F7 · house 119/1/298 · On Passage · 237-179 · admitted as decisive. Mirrors the issue rows in netlify/database/migrations/20261023000000_vr_federal_wave_f7.sql; the census, the refusal record, the keys declined for this measure and the rule 34 argument for the seven Senate rolls that ship with no issue row at all are in db/vr-federal-mapping-seed-f7.json.",
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 5214",
+      "shortTitle": "District of Columbia Cash Bail Reform Act of 2025",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/5214",
+      "issues": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "This one is argued on the key's IN headline and its pole line rather than on the enumeration, because bail is not in the enumeration and pretending otherwise would be the keyword reasoning rule 41 forbids. The headline is 'Criminal exposure and time served -- what is an offence, at what level, and how long a person or a case stays in the system', and the pole is 'Advanced = the vote increased exposure to punishment or time in custody'. The Act makes detention mandatory for two classes of charge where a judge now decides, and conditions release on cash for a third. Time in custody before trial is time in custody, and how long a case stays in the system is the headline in terms. Weight 90 because the mechanism is pretrial process rather than an offence level or a sentence, and the enumeration reaches the latter.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr5214eh/html/BILLS-119hr5214eh.htm"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F7 · house 119/1/244 · On Agreeing to the Amendment · 261-167 · admitted as exception: amendment. Mirrors the issue rows in netlify/database/migrations/20261023000000_vr_federal_wave_f7.sql; the census, the refusal record, the keys declined for this measure and the rule 34 argument for the seven Senate rolls that ship with no issue row at all are in db/vr-federal-mapping-seed-f7.json.",
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 99",
+      "shortTitle": "Meeks amendment to H.R. 3838 repealing the 2002 and 1991 authorizations for use of military force",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/99",
+      "issues": [
+        {
+          "issueKey": "war_powers",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The amendment's text is the whole question and the question is the authorization itself: it repeals the 2002 authorization for the use of military force against Iraq and the 1991 authorization. war_powers is the subject of who may authorize the use of force and on what standing grant, and this instrument changes that machinery directly rather than ordering any force to move -- so the weight is 100 and the row is primary. war_powers sits in _RD_NO_POLE in stance-helpers.js, so the row is inventory: the reader is told the member voted on a war-powers instrument and is told nothing about a direction, which is the correct outcome for a repeal of superseded standing authority.",
+          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/99"
+        },
+        {
+          "issueKey": "restraint",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Filed at 70 and secondary, which is the mirror of the face the war-powers resolutions in this same wave carry, and rule 25 requires the reason for the difference to be written down. The resolutions order forces out of an engagement now under way; their operative subject is the scope of American military involvement, so restraint leads there at 100. This amendment moves no forces and ends no engagement -- it withdraws two standing legal authorizations. The restraint reading is real, because a repealed authorization is one fewer basis for future action, but it is a consequence of the change rather than the change, and 70 is where a consequence is recorded.",
+          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/99"
         }
       ]
     }

@@ -12938,6 +12938,171 @@
       did: 'Repealed the fossil-fuel-use reduction targets for new and renovated federal buildings, voided the regulations implementing them as though the targets had never taken effect, and barred a green-building certification from being withheld solely over fossil-fuel consumption.',
       why: 'This chip counts rules that cut emissions and counts their repeal against itself, so the row runs the other way from the rest of this wave: a yea is published as against the chip’s direction and a nay as for it.',
       more: 'The only inverted row in the wave, and the inversion is in the mapping rather than in the reading — support_meaning is yea_opposes, so nothing here reinterprets a ballot. What is repealed is a target on the federal government’s own buildings; no private construction standard is touched. Passed the House 215-202 on 2026-04-22 (roll 119/2/134).'
+    },
+    // ── Wave F7 · 119th Congress ── the 113 rolls F6 left unread, opened Senate
+    // first: fourteen privileged war-powers joint resolutions that reached the floor
+    // only by a motion to discharge the Foreign Relations Committee, four D.C. bills
+    // keyed to an existing SUBJECT rather than to the venue they happened in, and one
+    // NDAA amendment repealing two standing authorizations. Twelve of the nineteen
+    // measures carry mappings; the other seven ship with none, and the migration says
+    // why in prose rather than in a weight. Three notes on the copy below:
+    //
+    //   · Seven of the resolutions are the SAME instrument aimed at different
+    //     theatres, so the "what it did" lines are deliberately parallel — runbook
+    //     rule 25 forbids mapping one subject two ways without a written reason, and
+    //     there is no reason here. What differs per measure is the theatre, the tally
+    //     and whether the discharge motion carried; that is what the reader needs.
+    //   · war_powers sits in _RD_NO_POLE, so those eight rows — seven resolutions and
+    //     the amendment — are inventory and print no direction. Their "why" says so on
+    //     the face instead of implying a stance the row will never render. Eight
+    //     restraint rows sit beside them on the same instruments and DO print one.
+    //   · Every pair carries a `more`, and it earns the slot rather than restating the
+    //     face. A curated `more` DISPLACES the mapping rationale in the L4 fold, so a
+    //     second draft of the two lines above it would cost the reader the provision-
+    //     level argument in db/vr-issue-seed.json and give nothing back. What the
+    //     `more` lines hold instead is what the face has no room for: the roll and the
+    //     tally, the theatre, whether the discharge carried and what followed it, and
+    //     what the instrument does NOT reach — the last of which is where a weight
+    //     below 100 is actually argued.
+    'S.J.Res. 83|119|restraint': {
+      did: 'Directed the President to remove United States Armed Forces from any hostilities that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, rejected 48-51 on 2025-10-08.',
+      why: 'A yea ordered forces out of hostilities Congress never authorized absent a vote of Congress, and that is the restrained side of this chip on the instrument’s own face. The resolution named no single theatre, which makes it the widest withdrawal question in the wave.',
+      more: 'The only resolution in this wave that names no theatre: it reaches any hostilities Congress has not authorized, wherever they are, which makes it the widest withdrawal question on file here. The saving clause preserves defence against an attack under way or imminent, so a yea was not a vote to leave forces exposed. The discharge motion was rejected 48-51 on 2025-10-08 (roll 119/1/555) with one senator not recorded, and a rejected discharge ends the measure — no vote on passage ever came.'
+    },
+    'S.J.Res. 83|119|war_powers': {
+      did: 'Directed the President to remove United States Armed Forces from any hostilities that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, rejected 48-51 on 2025-10-08.',
+      why: 'This chip is inventory rather than a direction: it records that the member voted on a privileged war-powers instrument, and it prints no stance either way. Filed at 70 because the command is the withdrawal of forces rather than a change to the authorization machinery itself.',
+      more: 'What this row adds to a member’s file is that they were present on a question of authorization, not where they stood on it. The instrument reached a vote at all only through the privileged track the War Powers Resolution creates, which is why the committee’s refusal to report it did not settle the matter. Roll 119/1/555, rejected 48-51 on 2025-10-08.'
+    },
+    'S.J.Res. 83|119|strong_defense': {
+      did: 'Directed the President to remove United States Armed Forces from any hostilities that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, rejected 48-51 on 2025-10-08.',
+      why: 'A yea pulls United States forces out of an engagement already under way, which this chip reads as its opposed direction. The weight stays at 55 because the resolution reaches one deployment and takes no position on force levels, budgets or posture.',
+      more: 'The opposed reading is deliberately narrow: the resolution reaches one class of engagement and says nothing about force levels, procurement or posture, so a member read as opposed here can be recorded as advancing the chip elsewhere in the same file. Six other withdrawal resolutions in this wave carry the same three-chip face, and seven more were ingested with none, because the same text voted again is one subject rather than seven. Roll 119/1/555, rejected 48-51.'
+    },
+    'S.J.Res. 90|119|restraint': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Venezuela that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, rejected 49-51 on 2025-11-06.',
+      why: 'A yea ordered forces out of Venezuela absent a vote of Congress, and that is the restrained side of this chip on the instrument’s own face. The discharge motion fell 49-51, so this ballot is the only recorded position on the question.',
+      more: 'The first of two Venezuela resolutions here. The discharge motion fell 49-51 on 2025-11-06 (roll 119/1/608) with the full chamber recorded, and because a rejected discharge ends the measure this ballot is the only record of where a senator stood on this text. The second Venezuela resolution reached the floor two months later and its motion carried, so both are mapped: the two rolls do not hold the same set of positions.'
+    },
+    'S.J.Res. 90|119|war_powers': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Venezuela that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, rejected 49-51 on 2025-11-06.',
+      why: 'This chip is inventory rather than a direction: it records that the member voted on a privileged war-powers instrument about Venezuela, and it prints no stance either way. Filed at 70 because the command is the withdrawal of forces rather than a change to the authorization machinery itself.',
+      more: 'Inventory on the widest reading of the wave’s subject: fourteen of these instruments were voted in this Congress and every one of them arrived by discharge, so what the chip records is participation in that pattern. The theatre named in the operative section is Venezuela. Roll 119/1/608, rejected 49-51 on 2025-11-06, with every senator recorded.'
+    },
+    'S.J.Res. 90|119|strong_defense': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Venezuela that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, rejected 49-51 on 2025-11-06.',
+      why: 'A yea pulls United States forces out of an engagement already under way in or against Venezuela, which this chip reads as its opposed direction. The weight stays at 55 because the resolution reaches one deployment and takes no position on force levels, budgets or posture.',
+      more: 'Held at 55 because the resolution reaches the Venezuela deployment and stops: it takes no position on the fleet, the budget or the posture behind it, and a file that scored it higher would be reading a defence posture off a single engagement. Roll 119/1/608, rejected 49-51.'
+    },
+    'S.J.Res. 98|119|restraint': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Venezuela that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, agreed to 52-47 on 2026-01-08.',
+      why: 'A yea ordered forces out of Venezuela absent a vote of Congress, and that is the restrained side of this chip on the instrument’s own face. The discharge motion carried 52-47, so the recorded majority here sits on the withdrawal side.',
+      more: 'The discharge motion carried 52-47 on 2026-01-08 (roll 119/2/5), one of only two in the wave to do so, so the recorded majority on this row sits on the withdrawal side. Nothing became law: no vote on passage followed, and the resolution fell later that month when a point of order against it was sustained. A point of order is a form this ledger does not admit, so the discharge motion stays the only recorded position on the merits.'
+    },
+    'S.J.Res. 98|119|war_powers': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Venezuela that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, agreed to 52-47 on 2026-01-08.',
+      why: 'This chip is inventory rather than a direction: it records that the member voted on a privileged war-powers instrument about Venezuela, and it prints no stance either way. Filed at 70 because the command is the withdrawal of forces rather than a change to the authorization machinery itself.',
+      more: 'That the motion carried changes nothing about what this row prints, because it prints no direction at all — the chip is inventory whichever way the tally fell. What it does record is the second Venezuela vote of the Congress, taken two months after the first. Roll 119/2/5, agreed to 52-47 on 2026-01-08.'
+    },
+    'S.J.Res. 98|119|strong_defense': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Venezuela that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, agreed to 52-47 on 2026-01-08.',
+      why: 'A yea pulls United States forces out of an engagement already under way in or against Venezuela, which this chip reads as its opposed direction. The weight stays at 55 because the resolution reaches one deployment and takes no position on force levels, budgets or posture.',
+      more: 'One of two rolls in the wave where the side this chip reads as opposed was the winning side, which is worth knowing before reading the direction on any single row as a minority position. The reach is still one engagement: no force level, procurement line or posture question is touched. Roll 119/2/5, agreed to 52-47.'
+    },
+    'S.J.Res. 104|119|restraint': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Iran that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, rejected 47-53 on 2026-03-04.',
+      why: 'A yea ordered forces out of Iran absent a vote of Congress, and that is the restrained side of this chip on the instrument’s own face. Rejected 47-53, and because the committee was never discharged no vote on passage followed.',
+      more: 'The first Iran resolution in this Congress to reach a vote, rejected 47-53 on 2026-03-04 (roll 119/2/46) with every senator recorded. Ten more Iran resolutions were voted after it. Four Iran texts in all are mapped and seven are ingested with no mapping, because the same question asked again is not a second subject — runbook rule 34 admits a repeat only where the roll is the only record of somebody’s position.'
+    },
+    'S.J.Res. 104|119|war_powers': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Iran that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, rejected 47-53 on 2026-03-04.',
+      why: 'This chip is inventory rather than a direction: it records that the member voted on a privileged war-powers instrument about Iran, and it prints no stance either way. Filed at 70 because the command is the withdrawal of forces rather than a change to the authorization machinery itself.',
+      more: 'Inventory, and on this measure the inventory is the point: the committee was never discharged, so there is no passage roll anywhere in the record and this motion is the whole documentary trace of the question. The theatre named in the operative section is Iran. Roll 119/2/46, rejected 47-53 on 2026-03-04.'
+    },
+    'S.J.Res. 104|119|strong_defense': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Iran that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, rejected 47-53 on 2026-03-04.',
+      why: 'A yea pulls United States forces out of an engagement already under way in or against Iran, which this chip reads as its opposed direction. The weight stays at 55 because the resolution reaches one deployment and takes no position on force levels, budgets or posture.',
+      more: 'Filed at 55 on the same reasoning every withdrawal resolution in this wave gets, which is why the eleven Iran rolls could not each be read as an escalating defence-posture judgment. The resolution reaches the Iran engagement and takes no view of force levels or budgets. Roll 119/2/46, rejected 47-53.'
+    },
+    'S.J.Res. 184|119|restraint': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Iran that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, rejected 47-50 on 2026-04-30.',
+      why: 'A yea ordered forces out of Iran absent a vote of Congress, and that is the restrained side of this chip on the instrument’s own face. Rejected 47-50 with three senators absent, and the discharge motion is the whole of the record here.',
+      more: 'Rejected 47-50 on 2026-04-30 (roll 119/2/113) with three senators not recorded — an absence is not a position, so those three files gain nothing from this roll rather than gaining a nay. The operative section names Iran, and the saving clause for an attack under way or imminent is the same one every resolution in the wave carries. A rejected discharge ended the measure.'
+    },
+    'S.J.Res. 184|119|war_powers': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Iran that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, rejected 47-50 on 2026-04-30.',
+      why: 'This chip is inventory rather than a direction: it records that the member voted on a privileged war-powers instrument about Iran, and it prints no stance either way. Filed at 70 because the command is the withdrawal of forces rather than a change to the authorization machinery itself.',
+      more: 'Inventory, so the row is a record of attendance on the authorization question and prints no stance. This is the third Iran text of the wave to be mapped, and the reason it is mapped rather than withheld is that the set of senators recorded on it is not the set recorded on the others. Roll 119/2/113, rejected 47-50 on 2026-04-30.'
+    },
+    'S.J.Res. 184|119|strong_defense': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Iran that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, rejected 47-50 on 2026-04-30.',
+      why: 'A yea pulls United States forces out of an engagement already under way in or against Iran, which this chip reads as its opposed direction. The weight stays at 55 because the resolution reaches one deployment and takes no position on force levels, budgets or posture.',
+      more: 'The narrow opposed reading again, at the same 55 the rest of the wave carries: one engagement, no posture. Three senators were not recorded and are absent from this row entirely. Roll 119/2/113, rejected 47-50.'
+    },
+    'S.J.Res. 163|119|restraint': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Iran that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, rejected 49-50 on 2026-05-13.',
+      why: 'A yea ordered forces out of Iran absent a vote of Congress, and that is the restrained side of this chip on the instrument’s own face. Rejected 49-50, one vote short of discharge, and the ballot on file is that motion rather than passage.',
+      more: 'Rejected 49-50 on 2026-05-13 (roll 119/2/118), one vote short of discharge and the closest this question came to the floor before it got there. One senator was not recorded. Because the motion failed, the resolution never reached a vote on passage, and this ballot is the only place a senator’s position on the text appears.'
+    },
+    'S.J.Res. 163|119|war_powers': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Iran that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, rejected 49-50 on 2026-05-13.',
+      why: 'This chip is inventory rather than a direction: it records that the member voted on a privileged war-powers instrument about Iran, and it prints no stance either way. Filed at 70 because the command is the withdrawal of forces rather than a change to the authorization machinery itself.',
+      more: 'Inventory. What it records is that the member was on the floor for the closest of the Iran discharge votes, decided by a single vote with one senator unrecorded. Roll 119/2/118, rejected 49-50 on 2026-05-13.'
+    },
+    'S.J.Res. 163|119|strong_defense': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Iran that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, rejected 49-50 on 2026-05-13.',
+      why: 'A yea pulls United States forces out of an engagement already under way in or against Iran, which this chip reads as its opposed direction. The weight stays at 55 because the resolution reaches one deployment and takes no position on force levels, budgets or posture.',
+      more: 'Held at 55 like the rest: the resolution reaches the Iran engagement and no more, so a member read as opposed on this row has said nothing here about force levels, procurement or posture. Roll 119/2/118, rejected 49-50.'
+    },
+    'S.J.Res. 185|119|restraint': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Iran that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, agreed to 50-47 on 2026-05-19.',
+      why: 'A yea ordered forces out of Iran absent a vote of Congress, and that is the restrained side of this chip on the instrument’s own face. Carried 50-47; the motion to proceed that followed was rejected, so this is where positions are recorded.',
+      more: 'The second and last discharge motion in the wave to carry, agreed to 50-47 on 2026-05-19 (roll 119/2/129) with three senators not recorded. Discharge did not put the resolution on the floor: the Senate then rejected the motion to proceed to it, 47-50, and a motion to proceed is a form this ledger does not admit. So this roll is where the positions live, and the resolution did not pass.'
+    },
+    'S.J.Res. 185|119|war_powers': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Iran that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, agreed to 50-47 on 2026-05-19.',
+      why: 'This chip is inventory rather than a direction: it records that the member voted on a privileged war-powers instrument about Iran, and it prints no stance either way. Filed at 70 because the command is the withdrawal of forces rather than a change to the authorization machinery itself.',
+      more: 'Inventory, and unaffected by the fact that the motion carried — the chip prints no direction either way. It records participation in the last of the eleven Iran votes of the Congress. Roll 119/2/129, agreed to 50-47 on 2026-05-19.'
+    },
+    'S.J.Res. 185|119|strong_defense': {
+      did: 'Directed the President to remove United States Armed Forces from hostilities in or against Iran that Congress had not authorized, saving only defence against an attack under way or imminent. The Senate reached it on a motion to discharge the Foreign Relations Committee, agreed to 50-47 on 2026-05-19.',
+      why: 'A yea pulls United States forces out of an engagement already under way in or against Iran, which this chip reads as its opposed direction. The weight stays at 55 because the resolution reaches one deployment and takes no position on force levels, budgets or posture.',
+      more: 'The second of the two rolls in this wave where the side this chip reads as opposed prevailed. The reach is unchanged: one engagement, and nothing about force levels or budgets, which is why the weight is the same 55 the losing rolls carry. Roll 119/2/129, agreed to 50-47.'
+    },
+    'H.R. 2056|119|border_security': {
+      did: 'Barred the District from adopting any law, policy or practice that stops its agencies from sending, receiving, maintaining or exchanging citizenship and immigration status information, or from complying with a lawful federal request, with a carve-out for victims and witnesses of crime. Passed the House 224-194 on 2025-06-12.',
+      why: 'The chip covers the state and local cooperation that feeds federal immigration enforcement, and compelling that exchange of status information is nearly all this Act does. It is weighted 75 rather than 100 because it reaches neither the physical border nor the entry apparatus.',
+      more: 'The chip is the subject, not the venue. This Act reaches only the District, and the ledger has no District key because a place is not a subject — that is F6’s finding on vocab rule 5, and this wave did not reopen it. What the Act commands is the information side of local cooperation: status information may not be withheld, refused or left unexchanged. The carve-out for witnesses and victims of crime survives, which is part of why the weight stops at 75. Passed 224-194 on 2025-06-12 (roll 119/1/171).'
+    },
+    'H.R. 2056|119|deportations': {
+      did: 'Forbade the District from declining a lawful federal request to hold a person already in local custody, or to give notice before releasing them. Passed the House 224-194 on 2025-06-12.',
+      why: 'Detainers and release notification are the hand-off by which someone in local custody enters removal proceedings, so taking away the discretion to decline them counts here. Secondary at 70 because the Act orders no removal itself; it clears the path to one.',
+      more: 'Secondary because the Act orders no removal. Its second limb reaches detainers and release notification — the hand-off that happens before proceedings begin — and the engrossed text was read for that limb rather than the summary alone. Fourteen members were not recorded on the roll and gain nothing from it. Roll 119/1/171, passed 224-194.'
+    },
+    'H.R. 4922|119|tough_on_crime': {
+      did: 'Cut the youth offender ceiling in the District from 24 to 18, repealed the authority to sentence a youth offender below an applicable mandatory minimum, and required annual juvenile crime reporting. Passed the House 240-179 on 2025-09-16.',
+      why: 'Two of the three limbs are named in this chip’s own enumeration — juvenile adjustment eligibility and mandatory minimums — and both increase exposure to time in custody, which is its advanced direction. Weighted 90 because the home rule limb is an authority question this ledger does not file.',
+      more: 'Two limbs sit inside the chip’s own enumeration: the youth offender ceiling and the authority to sentence below a mandatory minimum. The third, an amendment to the Home Rule Act freezing the Council’s power over sentences already in effect, is a federal-local authority question this ledger files nowhere — the weight is where that remainder is recorded, because the key that would take such a row accepts no roll calls at all. Passed 240-179 on 2025-09-16 (roll 119/1/270).'
+    },
+    'H.R. 5140|119|tough_on_crime': {
+      did: 'Lowered the age at which a minor charged with the enumerated violent offences in the District leaves family court for adult court to 14. Passed the House 225-203 on 2025-09-16.',
+      why: 'Adult court is the greater exposure to punishment and custody, which is exactly this chip’s advanced direction, and juvenile adjustment eligibility is named in its written scope. There is no second subject in the bill to hold weight back for, so it is filed at 100.',
+      more: 'One provision, one act: the age at which a minor charged with the enumerated violent offences is tried as an adult drops to 14 from the current 16 and 15. There was no remainder to record in the weight, which is why this is the only measure in the wave filed at 100 on this chip. It was voted the same day as the youth offender bill and by a narrower margin — 225-203 on 2025-09-16 (roll 119/1/271) — so the two rolls separate members that a single roll would have merged.'
+    },
+    'H.R. 5214|119|tough_on_crime': {
+      did: 'Required pretrial detention for defendants charged with crimes of violence and dangerous crimes in the District, and restored money bail for public safety and order offences. Passed the House 237-179 on 2025-11-19.',
+      why: 'Detention before trial and a money condition of release both lengthen the time a person spends in custody, the direction this chip reads as advanced. Weighted 90 rather than 100 because the change is to release conditions rather than to what an offence carries at sentencing.',
+      more: 'Argued from the chip’s headline and pole rather than from its enumeration, because bail is not enumerated and reading it in by keyword is what runbook rule 41 forbids. Detention becomes mandatory for two classes of charge where a judge now assesses risk, and cash conditions release for a third; time in custody before trial is still time in custody. Passed 237-179 on 2025-11-19 (roll 119/1/298).'
+    },
+    'H.Amdt. 99|119|war_powers': {
+      did: 'Repealed the 2002 authorization for the use of military force against Iraq and the 1991 authorization that preceded it, as an amendment to the annual defense authorization bill. Agreed to 261-167 on 2025-09-10.',
+      why: 'This is the authorization machinery itself rather than one deployment: striking a standing authorization sends the decision to commit forces back to Congress. Primary at 100 because that is the whole of what the amendment does, and like every chip on this key it is inventory rather than a direction and prints no stance.',
+      more: 'Disposed of by a recorded vote on its own text rather than en bloc, which is what makes it an act this ledger can read at all; the parent defense authorization bill’s passage roll is a separate question on a separate subject and is not mapped here. Agreed to 261-167 on 2025-09-10 (roll 119/1/244). It is the only House roll in the wave on this chip, and the only measure anywhere in the wave that reaches the authorization machinery instead of a deployment.'
+    },
+    'H.Amdt. 99|119|restraint': {
+      did: 'Struck two standing authorizations for the use of military force — the 2002 Iraq authorization and the 1991 authorization — out of the annual defense authorization bill’s text. Agreed to 261-167 on 2025-09-10.',
+      why: 'Removing a live authorization narrows what can be done without asking Congress again, which is the restrained side of this chip. Secondary at 70 because the amendment orders no withdrawal and reaches no engagement already under way.',
+      more: 'The mirror of the seven resolutions in this wave, and the reason runbook rule 25 wants the difference written down: there restraint leads at 100 because the command is withdrawal, here it follows at 70 because the command is repeal. A repealed authorization is one fewer basis for a future deployment, which is real, but it is a consequence of the act rather than the act. Roll 119/1/244, agreed to 261-167 on 2025-09-10.'
     }
   };
   // Fails closed in three places, on purpose: a position (no congress, no ballot), a

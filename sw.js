@@ -495,6 +495,52 @@
 // '/' from the network, so the first thing the new worker does is throw the wrong
 // document away. index.html changed too (the guard is in it) and '/' is precached,
 // which is the ordinary reason for a bump as well.
+// v98 - THE F7 MECHANISM LINES, and the eight rows that must never print a
+// direction. Federal wave F7 opens the pool F6 left unread: fourteen privileged
+// war-powers joint resolutions that only ever reached the Senate floor as a motion
+// to discharge the Foreign Relations Committee, four District of Columbia bills
+// keyed to an existing SUBJECT (border security, removals, criminal exposure) rather
+// than to the venue they happened in, and one NDAA amendment repealing the 2002 and
+// 1991 authorizations. Twelve of the nineteen measures carry mappings; twenty-eight
+// issue rows in all. The ingest and the mapping are database-side and bump nothing.
+// What is client-side is consistency.js: _DOS_MECH gained twenty-eight curated pairs,
+// so a member row reading Contradicted or Mixed on restraint, war_powers,
+// strong_defense, border_security, deportations or tough_on_crime says what the
+// instrument commanded and which way the ballot cut, instead of "counted on this chip
+// because that is the primary subject of this measure" on a face whose only other text
+// is "On the Motion to Discharge" and a number.
+//   The warm-device combination worth avoiding is sharper than usual here. Eight of
+// the twenty-eight rows are war_powers rows, and war_powers sits in _RD_NO_POLE: the
+// row is inventory and renders no direction at all. On a device holding v97's
+// consistency.js those rows arrive from the database with the derived restatement
+// beside them and nothing on the face explaining why no stance is shown — a reader
+// looking at a run of identical procedural questions with no direction and no
+// explanation would reasonably read it as a bug (and the eight sit beside eight
+// restraint rows on the same instruments, which do print one). The new pairs say it in words: this
+// chip records that the member voted on a war-powers instrument and prints no stance
+// either way. Every one of the twenty-eight carries a `more` as well, which the
+// appended-entry wall in scripts/test-person-crawl-block.mjs requires and which is not
+// a restatement: a curated `more` DISPLACES the mapping rationale in the L4 fold, so
+// these hold the roll and the tally, the theatre, whether the discharge carried and
+// what followed it, and what the instrument does not reach.
+//   THE SECOND SHIPPED FILE IS NOT A SCRIPT. db/share-index.json is regenerated in this
+// wave: it carries personRecord, the up-to-six formal-record lines the share-preview
+// edge function injects as the crawl block on /p/<pid> before any JavaScript boots. The
+// wave's Senate rolls move 35 of those rows a tier and re-rank the six-line window for
+// 172 of the 332 people who have one, so a device or an edge cache holding the old copy
+// serves a person's old six lines — Mike Lee leading on Peace Through Strength at 0
+// advanced and 7 against, where the regenerated snapshot reads Split at 7 and 7. It is
+// not a precached shell asset and no service worker version can invalidate it; it is
+// named here because the bump is the only place the two shipped artifacts are listed
+// together, and the mapping seed's theOfflineSnapshotThisWaveAlsoMoves says why that
+// lane moves further than the live one does.
+//   No floor, tier, weight, score or verdict moved. The three mechanism harnesses
+// re-derive every verdict and every Direction Match reading with the prose in and with
+// _DOS_MECH emptied and require them identical, and the wave harness boots HEAD and
+// this tree side by side and requires the same rows out of both except the keys this
+// wave writes. consistency.js and db/share-index.json are the shipped files;
+// everything else is a migration, two seeds, a sitemap and a harness.
+//
 // v97 - ELEVEN NEW JUDGED BILLS ARRIVED WITH THEIR MECHANISM LINES, and the lines
 // live in a precached asset. Federal wave F6 ingests eleven contested House passage
 // votes and maps eleven PRIMARY issue rows on four keys that were already live, all
@@ -565,7 +611,7 @@
 // saying there is nothing on file. person-file.css ships with its script for the
 // usual reason: the header and kicker it styles are hidden-by-default blocks, and
 // unstyled they are loose text above the fold.
-const CACHE_VERSION = 'v97';
+const CACHE_VERSION = 'v98';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

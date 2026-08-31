@@ -79,6 +79,7 @@ const WAVES = {
   f4: { mapping: "db/vr-federal-mapping-seed-f4.json", votes: "db/vr-federal-wave-f4-vote-seed.json" },
   f5: { mapping: "db/vr-federal-mapping-seed-f5.json", votes: "db/vr-federal-wave-f5-vote-seed.json" },
   f6: { mapping: "db/vr-federal-mapping-seed-f6.json", votes: "db/vr-federal-wave-f6-vote-seed.json" },
+  f7: { mapping: "db/vr-federal-mapping-seed-f7.json", votes: "db/vr-federal-wave-f7-vote-seed.json" },
 };
 
 const FILES = [
@@ -533,8 +534,19 @@ for (const pid of ALL_PIDS) {
   for (const [k, tier] of a) if (!b.has(k)) GAINED_READS.push({ pid, key: k, nowTier: tier });
 }
 
+// ── PER-ISSUE DRIFT IS MEASURED OVER EVERY PID ──────────────────────────────
+// This list used to be gated on `drift` — the pids whose SHAPE COUNTERS moved —
+// which looked like a free filter and was the same blind spot the read-flag note
+// above exists for. A member who loses a direction on one key and gains one on
+// another nets out to identical strongN/splitN counters, never enters `drift`,
+// and both of their moved rows go unreported. F7 hit it squarely: angus_king's
+// strong_defense fell mostly → split while his restraint rose split → mostly, and
+// the gated list named neither, so the wave's own read-loss disclosure was about
+// to publish eight direction changes when the real figure was several times that.
+// Measuring every pid costs one extra boot per member and buys the only number
+// that disclosure is allowed to print.
 const MOVED = drift.map((d) => d.pid);
-const DRIFT_ROWS = issueDrift(MOVED);
+const DRIFT_ROWS = issueDrift(ALL_PIDS);
 const LOST = DRIFT_ROWS.filter((r) => (r.from === "strong" || r.from === "mostly") && r.to !== "strong" && r.to !== "mostly");
 const NEWSPLIT = DRIFT_ROWS.filter((r) => r.to === "split" && r.from !== "split");
 const NEWREAD = DRIFT_ROWS.filter((r) => r.from === "(absent)" || r.from === "unread");
@@ -1042,7 +1054,8 @@ if (argOf("row")) {
   }
   console.log("");
 } else if (process.argv.includes("--drift")) {
-  console.log(`\n  per-issue tier changes across ${MOVED.length} members: ${DRIFT_ROWS.length}\n`);
+  console.log(`\n  per-issue tier changes over all ${ALL_PIDS.length} pids: ${DRIFT_ROWS.length}`
+    + ` (${MOVED.length} of those members also moved a shape counter)\n`);
   const show = (t, rows) => { console.log(`  ${t} (${rows.length})`); for (const r of rows.slice(0, 60)) console.log(`    ${r.pid.padEnd(26)} ${r.key.padEnd(26)} ${r.from} → ${r.to}`); };
   console.log(`  rows that STOPPED being characterised, checked on the read flag over all ${ALL_PIDS.length} pids: ${LOST_READS.length}`
     + (LOST_READS.length ? `\n${LOST_READS.slice(0, 60).map((r) => `    ${r.pid.padEnd(26)} ${r.key} (was ${r.wasTier})`).join("\n")}` : ""));

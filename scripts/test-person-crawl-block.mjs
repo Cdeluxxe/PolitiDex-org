@@ -882,11 +882,33 @@ section("8b · /p/<pid> is THAT person in the first HTML — never another membe
   const kBlock = blockOf(KHANNA.html);
   hasnt(kBlock, "U.S. Senator · Utah", "/p/khanna's block does not say “U.S. Senator · Utah”");
   hasnt(kBlock, "Mike Lee", "…and does not name Mike Lee");
-  addedNone(KHANNA.html, "Peace Through Strength", "/p/khanna's document adds no “Peace Through Strength”");
-  addedNone(KHANNA.html, "0 advanced · 7 against", "…and none of Lee's lead tally");
+  // WHOSE ROW IS IT. This pair used to be fingerprinted on three chip names and one
+  // tally typed in as literals, which held only while the two records happened to
+  // share no issue key. Federal wave F7 ended that: the District of Columbia bills
+  // gave Ro Khanna a Tough on Crime row of his very own, and the Senate war-powers
+  // rolls moved Lee's lead line off Peace Through Strength — so the literals started
+  // failing on a document that was correct. A fixture that has to be retyped after
+  // every densification wave is testing the wave, not the property. The fingerprints
+  // are therefore READ FROM THE SHIPPED SNAPSHOT the edge itself serves: the lines
+  // that belong to one of these two records and not the other must never appear
+  // under the other's address, whatever this month's chips happen to be.
+  // The snapshot holds the raw label; the served document holds it escaped, the same
+  // way recordSection() writes it, so the needle is escaped before it is counted.
+  const esc = (t) => t.replace(/&/g, "&amp;");
+  const lineOf = (r) => [r.p, r.i, r.c].filter(Boolean).join(" · ");
+  const snapOf = (pid) => (IDX.personRecord[pid] || []).map(lineOf);
+  const LEE_LINES = snapOf("lee"), KHANNA_LINES = snapOf("khanna");
+  const leeOnly = LEE_LINES.filter((l) => !KHANNA_LINES.includes(l));
+  const khannaOnly = KHANNA_LINES.filter((l) => !LEE_LINES.includes(l));
+  ok(LEE_LINES.length >= 4 && KHANNA_LINES.length >= 4,
+    `both records are in the snapshot to be confused with each other (${LEE_LINES.length} / ${KHANNA_LINES.length} lines)`);
+  ok(leeOnly.length >= 4 && khannaOnly.length >= 4,
+    `…and they disagree on enough lines for the mix-up to be visible (${leeOnly.length} / ${khannaOnly.length} unshared)`);
+
+  addedNone(KHANNA.html, esc(LEE_LINES[0]), "/p/khanna's document adds none of Lee's lead row");
   const kRows = rowsOf(KHANNA.html);
   ok(kRows.length >= 3, `/p/khanna prints its own record rows (${kRows.length})`);
-  eq(kRows.filter((r) => /Peace Through Strength|Tough on Crime|Mass Deportations/.test(r)), [],
+  eq(kRows.filter((r) => leeOnly.includes(r)), [],
     "…and not one row off Mike Lee's record");
 
   // ── /p/lee is Mike Lee, and only Mike Lee ─────────────────────────────────
@@ -894,12 +916,12 @@ section("8b · /p/<pid> is THAT person in the first HTML — never another membe
   eq(officeLine(LEE.html), "U.S. Senator · Utah · formal voting record on PolitiDex",
     "…with Lee's own office line");
   const lBlock = blockOf(LEE.html);
-  has(lBlock, "Peace Through Strength", "/p/lee's block leads on Lee's actual strongest row");
-  has(lBlock, "0 advanced · 7 against", "…with its own tally");
+  eq(rowsOf(LEE.html)[0], LEE_LINES[0], "/p/lee's block leads on the row the shipped snapshot leads with");
+  has(lBlock, LEE_LINES[0].split(" · ")[2] || "—", "…with that row's own tally");
   hasnt(lBlock, "Ro Khanna", "/p/lee's block does not name Ro Khanna");
   hasnt(lBlock, "U.S. Representative · California", "…and does not print Khanna's office");
   const lRows = rowsOf(LEE.html);
-  eq(lRows.filter((r) => /Expand Voting Access|Stronger Gun Safety Laws|Protect Gun Rights/.test(r)), [],
+  eq(lRows.filter((r) => khannaOnly.includes(r)), [],
     "…and not one row off Ro Khanna's record");
 
   // ── THE PAIR, STATED AS THE UNIQUENESS RULE ───────────────────────────────
