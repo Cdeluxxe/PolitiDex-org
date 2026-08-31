@@ -495,7 +495,37 @@
 // '/' from the network, so the first thing the new worker does is throw the wrong
 // document away. index.html changed too (the guard is in it) and '/' is precached,
 // which is the ordinary reason for a bump as well.
-const CACHE_VERSION = 'v94';
+// v95 - THE BUMP THAT THREE SHIPPED FIXES DID NOT GET, and the reason the empty
+// letterhead was still on screen after every one of them. /word-action.js is a
+// precached SHELL ASSET on stale-while-revalidate: a warm device is served the
+// copy in politidex-shell-<version> INSTANTLY and the network copy only replaces
+// it in the background, for the NEXT load. Three consecutive passes rewrote that
+// file — the seed-yields-to-record fix, the first-paint honesty fix and the
+// cold-arrival fix, all of which added the readers that forbid the contradiction —
+// and not one of them renamed this cache. So every device that had opened
+// PolitiDex since v94 landed kept running a word-action.js from before the first
+// of those fixes, and reproduced the exact defect the source had already made
+// impossible: "No formal pattern on file yet" beside a chip reading VOTES · 68.
+// The source was right and the bytes in the browser were three fixes old.
+//
+// THE STANDING RULE, RESTATED BECAUSE IT WAS THE THING THAT FAILED: a change to
+// any file in SHELL_ASSETS is not shipped until this constant moves. The list
+// below is a precache manifest, not a hint — an unbumped edit to anything on it
+// reaches nobody who has already visited.
+//
+// AND THE BRIEF'S OWN DEPENDENCIES JOIN THE LIST. word-action.js decides which
+// true sentence the letterhead gets by asking three modules, and only one of them
+// was precached: PDXVotingRecord (voting-record.js, on the list) for the payload
+// and the chip count, PDXFormalIndex (formal-index.js) for the shipped act counts
+// and the reviewed empty notes, and PDXPerson.crawlRecord (person-file.js) for the
+// rows the edge printed into this document's own header. On a cached boot the two
+// unlisted ones arrived from the network or not at all, so the brief lost two of
+// its four "is there a record here" readers on exactly the slow connection where
+// it needed them — and a reader that cannot speak looks identical to a reader
+// saying there is nothing on file. person-file.css ships with its script for the
+// usual reason: the header and kicker it styles are hidden-by-default blocks, and
+// unstyled they are loose text above the fold.
+const CACHE_VERSION = 'v95';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -638,6 +668,23 @@ const SHELL_ASSETS = [
   // copy is useful on its own.
   '/word-action.js',
   '/word-action.css',
+  // 🏛 THE BRIEF'S OTHER TWO FACT SOURCES. word-action.js above is the letterhead;
+  // these are two of the four readers it asks before it is allowed to print an
+  // absence. formal-index.js publishes the shipped per-member act counts and the
+  // hand-reviewed empty-file notes (PDXFormalIndex.has / .measures / .emptyNote);
+  // person-file.js publishes the rows the edge wrote into this document's own
+  // header (PDXPerson.crawlRecord) and owns the person-file surface itself. Both
+  // are read through guarded optional lookups, so a cached copy is useful on its
+  // own — but a MISSING copy is the failure mode that matters here: it does not
+  // degrade to "cannot tell", it degrades to "nothing answered", which is the
+  // door the empty-file paragraph comes through. Precached with the module that
+  // reads them so the brief's inputs and the brief itself can never be a version
+  // apart. person-file.css ships with its script: the crawl header and the
+  // kicker it styles are display-controlled blocks, and unstyled they are loose
+  // text above the fold.
+  '/formal-index.js',
+  '/person-file.js',
+  '/person-file.css',
   // 🌳 The topic tree of stances (window.PDXStanceTree) and its stylesheet — the
   // profile's browse-all-stances surface, mounted directly under Word vs Action.
   // Precached with it for the same reason: without the script the profile loses

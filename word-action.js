@@ -4387,9 +4387,60 @@
   }
   function briefRecordOnHand(pid) {
     if (briefLiveN(pid) > 0) return true;
-    if (briefChipN(pid) > 0) return true;
+    if (voteChipN(pid) > 0) return true;
     if (briefHeaderRowN(pid) > 0) return true;
     return formalHasRecord(pid);
+  }
+  // THE CHIP'S OWN NAME, BECAUSE THE RULE IS WRITTEN IN IT. The hard rule this
+  // file now enforces is one line long — "if the vote chip is counting, the
+  // empty-file paragraph may not be printed" — and a rule about the chip has to
+  // be readable as a rule about the chip at every site that applies it. Same
+  // reader, same single source (memberRecords through _pdxRecordMappedCounts),
+  // no second count: briefChipN is kept as its historical spelling so the two
+  // can never drift, and both are exported so a harness can assert the rule
+  // against the served module rather than against the source on disk.
+  function voteChipN(pid) { return briefChipN(pid); }
+
+  // ── AND THE ONE DOOR THE EMPTY PARAGRAPH IS ALLOWED THROUGH ─────────────────
+  // WHY A GATE AND NOT A CONDITION. Every defect this brief has ever shipped was
+  // the empty-file paragraph escaping through a fall-through, and every fix was a
+  // new clause on a DIFFERENT `if` — so the paragraph's safety came to depend on
+  // the ORDER of four branches rather than on anything the paragraph itself
+  // checked. Reorder them, add a fifth, return early for a new lane, and the
+  // sentence escapes again while every clause that was supposed to stop it is
+  // still present and still correct. The report is that shape: a letterhead
+  // reading "No formal pattern on file yet" beside a chip reading VOTES · 68.
+  //
+  // So the four vetoes move INSIDE the paragraph's own door, and they are
+  // absolute. Not "unless the wait is over", not "unless the index says
+  // otherwise", not "unless this is the reviewed-note branch" — if any one of
+  // these four can speak, this document is showing formal record for this person
+  // and may not, in the same frame, deny holding any:
+  //
+  //   voteChipN        the nav pill's own count. THE CHIP AND THE EMPTY
+  //                    PARAGRAPH CANNOT BOTH BE TRUE — that is the whole rule.
+  //   briefLiveN       the member payload in memory (memberRecords), which is
+  //                    what the chip counts, asked directly.
+  //   briefHeaderRowN  the rows the edge printed into this document's own header.
+  //   formalHasRecord  the shipped index counting acts at either depth.
+  //
+  // NOTHING HERE IS A NEW SOURCE OF FACT and nothing here is a figure: it is the
+  // same four readers briefRecordOnHand already joined, restated as a refusal so
+  // the refusal is legible at the decision.
+  function briefEmptyForbidden(pid) {
+    if (voteChipN(pid) > 0) return true;
+    if (briefLiveN(pid) > 0) return true;
+    if (briefHeaderRowN(pid) > 0) return true;
+    if (formalHasRecord(pid)) return true;
+    return false;
+  }
+  // …AND THE SECOND HALF OF THE SAME DOOR, for the branch that is not a reviewed
+  // note. A reviewed empty note is hand-checked knowledge that there is nothing
+  // to wait for, so it may outrank a wait (jknotts gets his sentence and his
+  // reason at first paint). The FALL-THROUGH may not: it also needs positive
+  // knowledge that the wait is over, which is what briefWaitOver reports.
+  function briefEmptyLegal(pid) {
+    return !briefEmptyForbidden(pid) && briefWaitOver(pid);
   }
 
   // ── AND THE QUESTION NONE OF THE READERS ABOVE WAS ASKING ───────────────────
@@ -4603,6 +4654,36 @@
   // through a fall-through.
   var EMPTY_FILE_COPY = 'No formal pattern on file yet. Nothing we hold for them is a vote or formal action ' +
     'a direction can be read from, and nothing here is inferred from what they said.';
+  // ── THE HARD RULE, ENFORCED AT THE ONLY PLACE THAT CAN BREAK IT ─────────────
+  // EMPTY_FILE_COPY is referenced exactly once in this file — inside
+  // emptyFileCopy() below — and every branch that wants to print it asks THAT
+  // function for it. That is the point: a branch can be wrong, a branch can be
+  // added, a branch can be reordered, a new lane can return early — and the
+  // paragraph still cannot reach the screen while the vote chip is counting,
+  // because the veto is on the STRING and not on the route to it. Every previous
+  // fix here added a clause to a different `if`, which left the sentence's safety
+  // depending on the order of four branches instead of on anything the sentence
+  // itself checked.
+  //
+  // When the door is locked, the caller does not get a different absence: it gets
+  // the true sentence for the frame it is actually in — a record is on file and
+  // the lane has not landed — with the repaint that ends that sentence already
+  // armed, and it consults the shipped index for which of the two wordings applies
+  // in exactly the expression the sibling branch below uses, so the two cannot
+  // drift. The four sentences are ONE unbroken literal each, deliberately:
+  // harnesses assert them against this file character for character, and a wrapped
+  // concatenation is invisible to a reader and invisible to those greps too.
+  var WAIT_ONFILE_COPY = 'Their formal record is on file and still loading — no pattern can be read until it lands.';
+  var WAIT_BARE_COPY = 'Still loading the roll-call record — no formal pattern can be read until it lands.';
+  var FAILED_ONFILE_COPY = 'Their formal record is on file, but it did not load, so no pattern can be read. Reload to try again.';
+  var FAILED_BARE_COPY = 'The roll-call record did not load, so no formal pattern can be read. That is a loading failure, not an empty file — reload to try again.';
+  function emptyFileCopy(pid, p) {
+    if (!briefEmptyForbidden(pid)) return EMPTY_FILE_COPY;
+    var onFile = formalHasRecord(pid) || briefRecordOnHand(pid);
+    if (briefGaveUp(pid)) return onFile ? FAILED_ONFILE_COPY : FAILED_BARE_COPY;
+    armBriefDeadline(pid, p);
+    return onFile ? WAIT_ONFILE_COPY : WAIT_BARE_COPY;
+  }
   // A FILE THAT IS STILL LOADING IS NEVER CALLED EMPTY.
   //
   // The order below is the order the facts have to be told apart in, and the last
@@ -4637,7 +4718,7 @@
     // AND IT STILL YIELDS TO A RECORD IN THE TAB. If a reviewed note and a counting
     // chip ever disagree about the same person, the note is the thing under review
     // — it may not be printed over rows the same document is showing.
-    if (known === 'empty' && !onHand && live === 0) return EMPTY_FILE_COPY;
+    if (known === 'empty' && !briefEmptyForbidden(pid)) return emptyFileCopy(pid, p);
     // ── THE PAYLOAD IS IN MEMORY: THE WAIT IS OVER, WHATEVER THE INDEX MADE OF IT
     // Asked ahead of every wait, because it is the fact that ends them. `settled`
     // was the only release before, and consistency.js only sets it where a request
@@ -4664,28 +4745,25 @@
     // whether or not anything ever queued a warm read for it.
     if (briefWarming(pid, p) || onHand || briefComing(pid)) {
       if (briefGaveUp(pid)) {
-        return (formalHasRecord(pid) || onHand)
-          ? 'Their formal record is on file, but it did not load, so no pattern can be read. Reload to try again.'
-          : 'The roll-call record did not load, so no formal pattern can be read. That is a loading failure, not an empty file — reload to try again.';
+        return (formalHasRecord(pid) || onHand) ? FAILED_ONFILE_COPY : FAILED_BARE_COPY;
       }
       armBriefDeadline(pid, p);
       // Still arriving. Same two sentences, same split on what formalKnown already
       // knows — widened only by `onHand`, which is the same claim reached from the
-      // header instead of from the index.
-      return (formalHasRecord(pid) || onHand)
-        ? 'Their formal record is on file and still loading — no pattern can be read until it lands.'
-        : 'Still loading the roll-call record — no formal pattern can be read until it lands.';
+      // header instead of from the index. Both are the named constants above, so
+      // the locked door returns the same wording this branch does.
+      return (formalHasRecord(pid) || onHand) ? WAIT_ONFILE_COPY : WAIT_BARE_COPY;
     }
     // NOTHING IN THE TAB, NOTHING COMING, NOTHING SAID. The wait is over by the
     // one reading that does not need a lane to publish it (briefWaitOver: the
     // payload was filed, or no request was ever started), and no reader in the
     // document holds a record. That is the empty file, and this is the only
     // sentence in this function allowed to say so.
-    if (briefWaitOver(pid)) return EMPTY_FILE_COPY;
+    if (briefEmptyLegal(pid)) return emptyFileCopy(pid, p);
     // A request is outstanding and has neither answered nor timed out. There is
     // exactly one true thing to say about this frame.
     armBriefDeadline(pid, p);
-    return 'Still loading the roll-call record — no formal pattern can be read until it lands.';
+    return WAIT_BARE_COPY;
   }
   // The brief's heading, in one place, because the empty states print it without a
   // body under it.
@@ -5327,6 +5405,24 @@
     // loading flag of their own. It reports a STATE and never a count; see the
     // header of formal-index.js for why no surface prints those figures.
     formalKnown: formalKnown,
+    // ── THE HARD RULE, EXPORTED SO IT CAN BE ASSERTED ON THE SERVED MODULE ─────
+    // The reported contradiction — an empty letterhead beside a chip reading
+    // VOTES · 68 — was not reproducible from this file's source: the source
+    // already forbade it, and the harnesses that ask the source already pass. It
+    // was reproducible from the file the SERVICE WORKER was serving, which was
+    // three fixes behind because /word-action.js is a precached shell asset and
+    // CACHE_VERSION had not moved with it. A rule that only lives inside a
+    // closure cannot be checked against the bytes a browser actually ran, so the
+    // three readers the rule is written in are published here. They are pure
+    // reads, they print no figure anywhere, and a harness (or a console) can now
+    // ask the LOADED module whether the rule is in it.
+    voteChipN: voteChipN,
+    briefRecordOnHand: briefRecordOnHand,
+    // "May the empty-file paragraph be printed for this person, in this frame."
+    // false whenever the chip, the payload, the crawl header or the shipped index
+    // can speak for them — which is the rule, stated as one call.
+    briefEmptyForbidden: briefEmptyForbidden,
+    briefEmptyLegal: briefEmptyLegal,
     heroHtml: heroInner,
     dotsHtml: dotsHtml
   };

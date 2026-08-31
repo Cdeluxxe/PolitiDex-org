@@ -1321,7 +1321,24 @@ section("9 · the engines did not move");
           "armPayloadDeadline", "evForPid",
           "briefChipN", "briefCanonPid", "briefNoted", "briefAsked",
           "briefComing", "briefWaitOver",
-          "briefHeaderRowN", "briefIdSet", "briefSameMember"];
+          "briefHeaderRowN", "briefIdSet", "briefSameMember",
+          // …AND THE FIFTH ROUND, the pass that found the empty letterhead was still
+          // on screen because the SERVICE WORKER was serving a word-action.js from
+          // before the three fixes above. The rule was right and was not running, so
+          // this round's job in this file is to stop the rule depending on the ORDER
+          // of the branches that enforce it: the paragraph now has ONE door and the
+          // vetoes live inside it.
+          //   voteChipN            the chip's own count under the chip's own name,
+          //                        because the rule is written in it. Same reader as
+          //                        briefChipN, so the two cannot drift.
+          //   briefEmptyForbidden  may this document deny holding formal record at
+          //                        all — false whenever the chip, the payload, the
+          //                        header or the shipped index can speak
+          //   briefEmptyLegal      …and, for the fall-through branch only, plus
+          //                        positive knowledge that the wait is over
+          //   emptyFileCopy        the one door: the only reader of EMPTY_FILE_COPY
+          //                        in the file, and it is locked by the veto
+          "voteChipN", "briefEmptyForbidden", "briefEmptyLegal", "emptyFileCopy"];
 
         const changed = [], added = [], removed = [];
         for (const [k, v] of A.fns) {
@@ -1394,6 +1411,22 @@ section("9 · the engines did not move");
           .replace(/\n\s*var SEED_NOTE = [\s\S]*?';\n/g, "\n")
           .replace(/\n\s*var MAPPED_GAP_COPY = [\s\S]*?';\n/g, "\n")
           .replace(/\n\s*var EMPTY_FILE_COPY = [\s\S]*?';\n/g, "\n")
+          // The four wait/failure sentences, lifted out of briefAbsenceCopy's
+          // branches so the one door can return the same wording those branches do
+          // instead of a second copy that drifts from them. Each is one unbroken
+          // literal; the branches that used to inline them are in TOUCHED above.
+          .replace(/\n\s*var WAIT_ONFILE_COPY = [^\n]*\n/g, "\n")
+          .replace(/\n\s*var WAIT_BARE_COPY = [^\n]*\n/g, "\n")
+          .replace(/\n\s*var FAILED_ONFILE_COPY = [^\n]*\n/g, "\n")
+          .replace(/\n\s*var FAILED_BARE_COPY = [^\n]*\n/g, "\n")
+          // …and the four readers the rule is now published under, so a harness can
+          // assert it against the module a browser actually LOADED rather than only
+          // against this file — which is the whole finding of this round. Pure
+          // reads; §6 of test-vote-chip-outranks-empty.mjs asserts every one.
+          // Line-anchored rather than newline-delimited: these four exports are
+          // CONSECUTIVE lines, and a /\n…\n/g pattern eats the next match's leading
+          // newline and silently skips every other one.
+          .replace(/^\s*(?:voteChipN|briefRecordOnHand|briefEmptyForbidden|briefEmptyLegal): [A-Za-z0-9_$]+,\n/gm, "")
           .replace(/\n\s*var FORMAL_DEEP_MIN = [^\n]*\n/g, "\n")
           .replace(/\n\s*var PAYLOAD_GRACE_MS = [^\n]*\n/g, "\n")
           .replace(/\n\s*var _liveAt = [^\n]*\n/g, "\n")
