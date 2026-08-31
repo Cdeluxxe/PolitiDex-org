@@ -58,6 +58,7 @@ node scripts/vr-ingest.mjs verify
 #    See the section immediately below for what this is and how to not defeat it.
 node scripts/test-vr-pack-key-version.mjs
 node scripts/test-vr-pack-rebuild-on-flip.mjs   # needs no DB; runs the read path
+node scripts/test-vr-mapping-migration-pack-step.mjs   # the migration declared the step
 ```
 
 ## Every mapping/promote migration ends with: **pack key must change.**
@@ -87,6 +88,29 @@ What "you did not defeat it" means, concretely:
 - **Do not write mapping rows around the pack.** A migration that changes the table
   is fine. A path that hands the pack builder a mapping the table does not hold is
   not: the fingerprint is of the table, so the key would not move.
+- **Declare it in the migration.** Every migration that writes `vr_measure_issues`
+  — insert, update, delete, promote, retraction, a bare `is_primary` flip — carries
+  one comment line saying what happens to the packs:
+
+  ```sql
+  -- pack-generation: derived — the fingerprint moves with these rows; every
+  --   affected member's pack retires and rebuilds on the next read. Confirmed
+  --   with scripts/test-vr-pack-key-version.mjs.
+  ```
+
+  or, for the rare wave that has to invalidate by hand instead (it must name the
+  `vr-packs` store or `deletePack`, so "purge" cannot be used to mean "handled"):
+
+  ```sql
+  -- pack-generation: purge — deletePack() swept for the 63 mapped members,
+  --   because <why the derived fingerprint was not enough>
+  ```
+
+  `node scripts/test-vr-mapping-migration-pack-step.mjs` fails CI when a mapping
+  migration ships without it, so **a promote that does not say what it does to the
+  packs does not ship.** Migrations timestamped before `20261022000000` are
+  grandfathered: they are already applied, and an applied migration may never be
+  edited. There is no exemption list — an exemption list is a place to hide.
 - **Confirm it moved.** `node scripts/test-vr-pack-key-version.mjs` prints the
   current version and fails if the fingerprint is insensitive to any of the five
   mutation shapes. Run it after the migration lands; the printed version must
@@ -105,6 +129,17 @@ service worker declines to cache it. A reader still gets a freshly built pack; t
 store simply never accumulates a blob whose mapping nobody can name. Do not "fix" a
 noisy blind window by making that key cacheable — the previous mapping's blobs are
 still there and are still the offline fallback.
+
+The client has the last word on a pack it is already holding. Both mouths stamp
+their generation into the payload (`mappingVersion`, plus `x-pdx-mapping-version`
+on the response, which is the copy `sw.js` reads). `PDXVotingRecord` files the
+generation of every live read on arrival, and refuses to file a pack of a
+different generation over a member whose live read has already landed — the one
+path a versioned key cannot reach, because a service-worker pack is answered with
+no request at all. Generations are fingerprints, not a counter, so the test is
+"different generation", never "older": `m895-…` does not sort against `m894-…`.
+See THE MAPPING GENERATION, AS THE CLIENT SEES IT in `voting-record.js`, held by
+`scripts/test-record-pack-no-downgrade.mjs`.
 
 Old keys are never deleted and nothing sweeps them. That is deliberate: a retired
 pack is retired because nobody asks for its key any more, and a delete sweep that

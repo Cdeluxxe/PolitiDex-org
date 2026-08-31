@@ -445,6 +445,125 @@ for (const [pid, want, side] of PAIR) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+section("2b · twin: an unchanged generation renders byte-identically");
+// ═════════════════════════════════════════════════════════════════════════════
+// The other half of the acceptance, and the one that keeps the first half honest.
+// A generation change must move the reader's answer — section 1 and section 2 are
+// that. A REBUILD must not. Under one generation the pack is rebuilt whenever the
+// six-hour TTL lapses, whenever the ingest writes eagerly, whenever a cold
+// Function instance misses; each rebuild stamps a new `generatedAt` and re-runs
+// every query behind the pack. If any of that could move a Direction Match figure
+// or a formal row, the versioned key would have traded a six-hour window of one
+// wrong answer for a permanent lottery between two, and nobody would be able to
+// tell a mapping wave from a cache expiry by looking at a screen.
+//
+// So the twin here is two packs of the SAME generation, one of them a genuine
+// rebuild forced by ageing the cached blob past PACK_TTL_MS, and the comparison
+// is byte-for-byte: the pack bodies (modulo the timestamp that is supposed to
+// differ), then the two surfaces a reader meets — Direction Match, and every
+// formal row on the profile.
+const AGE = (pid, mv) => {
+  const k = PACK.packKey(pid, mv);
+  const body = JSON.parse(blobs.get(k) || "null");
+  must(!!body, `nothing cached under ${k} to age`);
+  body.generatedAt = new Date(Date.now() - PACK_TTL_MS - 1000).toISOString();
+  blobs.set(k, JSON.stringify(body));
+};
+
+// Direction Match and the formal rows, serialised. Everything a reader is shown
+// about this member's record that is derived from the pack: the person-level
+// figure and its inputs, the formal pattern census, and every issue row's tier,
+// label, side, arrival flag and refusal reason.
+const surfaceSnap = (win, pid) => {
+  const CS = win.PDXConsistency;
+  const p = win.CMP_DATA[pid] || null;
+  const r = (win.PDXWordAction.read(pid, p) || {});
+  const sh = (CS.formalPatternIndex.shape(pid) || {});
+  const lines = [
+    ["dm", pid, r.pct, r.publishable, (r.tested || []).length, (r.untested || []).length].join("|"),
+    ["formal", pid, sh.judged, sh.read, sh.strongN, sh.splitN, sh.thinN, sh.mostlyN].join("|"),
+  ];
+  for (const row of (CS.issueRows(pid) || [])) {
+    if (!row || !row.key) continue;
+    const t = CS.recordPattern.display(row) || {};
+    const d = CS.dossierRead(pid, row.key) || {};
+    lines.push(["row", pid, row.key, t.tier, t.label, t.tone, t.display, t.packageOnly,
+                t.note, d.state, d.tier, d.label, (d.why && d.why.id) || ""].join("|"));
+  }
+  return lines.join("\n");
+};
+// A byte comparison that reports WHERE it differs instead of printing two 60KB
+// strings into a failure message.
+const sameBytes = (a, b, msg) => {
+  if (a === b) { passed++; return; }
+  const la = a.split("\n"), lb = b.split("\n");
+  let i = 0;
+  while (i < Math.max(la.length, lb.length) && la[i] === lb[i]) i++;
+  failures.push(`${msg} — first difference at line ${i + 1}:\n        ${la[i]}\n        ${lb[i]}`);
+};
+
+{
+  const first = {}, again = {};
+  for (const [pid] of PAIR) {
+    queryFor = pid;
+    // Make sure a pack of the current generation is on file, then read it.
+    first[pid] = (await request(pid, V_AFTER)).body;
+    AGE(pid, V_AFTER);
+    const r2 = await request(pid, V_AFTER);
+    again[pid] = r2.body;
+    ok(again[pid].generatedAt !== first[pid].generatedAt,
+      `${pid}: the second read really did rebuild (a new generatedAt)`);
+    eq(again[pid].mappingVersion, V_AFTER, `${pid}: and rebuilt under the same generation`);
+    ok(writes.filter((k) => k === PACK.packKey(pid, V_AFTER)).length >= 2,
+      `${pid}: the rebuild was persisted under the same key, not a new one`);
+    const strip = (pk) => JSON.stringify({ ...pk, generatedAt: "" });
+    ok(strip(first[pid]) === strip(again[pid]),
+      `${pid}: the rebuilt pack differs from the first by more than its timestamp`);
+  }
+
+  const winA = boot();
+  const winB = boot();
+  for (const [pid] of PAIR) {
+    winA.PDXVotingRecord.noteMember(pid, first[pid].items);
+    winB.PDXVotingRecord.noteMember(pid, again[pid].items);
+  }
+  for (const [pid] of PAIR) {
+    const a = surfaceSnap(winA, pid), b = surfaceSnap(winB, pid);
+    must(a.length > 40, `${pid}: the snapshot is too thin to be comparing anything`);
+    sameBytes(a, b, `${pid}: a rebuild under an unchanged generation moved a surface`);
+    console.log(`      ${pid}: ${a.split("\n").length} rendered lines, byte-identical across the rebuild`);
+  }
+
+  // NON-VACUITY. The same comparison, across a generation CHANGE, must fail —
+  // otherwise the snapshot above is measuring nothing. Flip housing back to the
+  // pre-F4 state, rebuild, and the housing row must move.
+  housingRow.isPrimary = false;
+  PACK.resetMappingVersionMemo();
+  const V_BACK = await PACK.mappingVersion();
+  ok(V_BACK === V_BEFORE, "flipping the flag back returns the generation it came from");
+  const winC = boot();
+  for (const [pid] of PAIR) {
+    queryFor = pid;
+    winC.PDXVotingRecord.noteMember(pid, (await request(pid, V_BACK)).body.items);
+  }
+  let moved = 0;
+  for (const [pid] of PAIR) {
+    const a = surfaceSnap(winA, pid), c = surfaceSnap(winC, pid);
+    if (a !== c) moved++;
+    const rowA = a.split("\n").find((l) => l.indexOf(`|${KEY}|`) > 0) || "";
+    const rowC = c.split("\n").find((l) => l.indexOf(`|${KEY}|`) > 0) || "";
+    ok(!!rowA && !!rowC, `${pid}: the ${KEY} row is present in both snapshots to compare`);
+    ok(rowA !== rowC, `${pid}: the ${KEY} row must MOVE when the generation moves`);
+  }
+  eq(moved, PAIR.length, "the comparison has teeth: a generation change moves both members");
+
+  // Back to the promoted world section 3 expects.
+  housingRow.isPrimary = true;
+  PACK.resetMappingVersionMemo();
+  eq(await PACK.mappingVersion(), V_AFTER, "and the fixture is restored to the post-F4 mapping");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 section("3 · fail closed: an unnameable mapping is served, never cached");
 // ═════════════════════════════════════════════════════════════════════════════
 // mappingVersion() cannot reach vr_measure_issues. It returns its sentinel, which

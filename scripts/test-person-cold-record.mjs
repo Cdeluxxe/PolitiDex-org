@@ -410,8 +410,10 @@ section("4 · five real seconds of delayed fetch");
   // is mirrored here rather than re-invented, and its source is asserted so this
   // sandbox cannot drift from the shipped one.
   const VR_SRC = R("voting-record.js");
-  has(VR_SRC, "PDXVotingRecord.noteMember(job.id, _state.items)",
-    "voting-record.js still notes the member from its own fetch");
+  // The third argument is the payload's mapping generation — '' for the live read,
+  // the pack's own generation offline — so the quoted prefix stops before it.
+  has(VR_SRC, "PDXVotingRecord.noteMember(job.id, _state.items, PDXVotingRecord._payloadGen(data))",
+    "voting-record.js still notes the member from its own fetch, generation and all");
   has(VR_SRC, "'pdx-voting-warm'", "…and still dispatches the repaint event this brief listens for");
   has(R("word-action.js"), "'pdx-voting-warm'", "…which word-action.js's hero binding still listens for");
 

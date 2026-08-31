@@ -495,6 +495,18 @@
 // '/' from the network, so the first thing the new worker does is throw the wrong
 // document away. index.html changed too (the guard is in it) and '/' is precached,
 // which is the ordinary reason for a bump as well.
+// v96 - voting-record.js learned which mapping generation a payload is of, and
+// refuses to file a cached pack built from a superseded one over a live read this
+// device has already been shown. That is the last shape of the F4 bug the
+// versioned pack key cannot reach: on the section's offline fallback the pack is
+// answered from THIS cache, so no request is made, no redirect happens and no
+// header is read — the only thing standing between an old mapping and the reader
+// is the comparison inside the shipped file. Which means a warm device running the
+// v95 copy of voting-record.js still has the hole, out of politidex-shell-v95,
+// until the shell is renamed. Hence this bump: the fix is entirely in a precached
+// asset. (The packs themselves need no sweep — prunePacks already drops superseded
+// versions, and handleVrPack has always tried the network first.)
+//
 // v95 - THE BUMP THAT THREE SHIPPED FIXES DID NOT GET, and the reason the empty
 // letterhead was still on screen after every one of them. /word-action.js is a
 // precached SHELL ASSET on stale-while-revalidate: a warm device is served the
@@ -525,7 +537,7 @@
 // saying there is nothing on file. person-file.css ships with its script for the
 // usual reason: the header and kicker it styles are hidden-by-default blocks, and
 // unstyled they are loose text above the fold.
-const CACHE_VERSION = 'v95';
+const CACHE_VERSION = 'v96';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

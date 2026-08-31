@@ -650,18 +650,54 @@ function paginate<T>(items: T[], page: number, pageSize: number) {
 // Honest about what it does NOT do: the ETag is computed from the assembled
 // payload, so a 304 saves the transfer, not the query. It is a bandwidth and
 // paint-latency win, not a database one.
+//
+// ── AND IT SAYS WHICH MAPPING GENERATION IT IS ───────────────────────────────
+// The pack has carried its generation since the key was versioned; this read now
+// carries the same field, in the body as `mappingVersion` and on the response as
+// `x-pdx-mapping-version`. It costs one memoised aggregate, run CONCURRENTLY with
+// the payload assembly, so the profile's first request is not made to wait for it.
+//
+// WHY THE LIVE READ HAS TO SAY IT. Renaming the pack closes the hole for anything
+// that reaches the network: a mapping change moves the generation, the blob key
+// and the pack URL move with it, and the retired pack is never asked for again.
+// It does nothing about a pack a DEVICE is already holding — the service worker's
+// copy, answered with no network at all — and the client is allowed to file that
+// copy as the member's record when it is the only answer there is. To tell "the
+// only answer there is" from "an older photograph of a row the reader has already
+// been shown live", the client needs both payloads to name their generation. This
+// is the half it could not name before; see THE MAPPING GENERATION, AS THE CLIENT
+// SEES IT in voting-record.js for the rule it enables.
+//
+// The field is inside the body deliberately, not only on the header: the body is
+// what index.html's session copy stores, what the Cache API replays, and what a
+// 304 leaves in the client's hands — a header does not survive all three.
+// Because the field is in the body, the ETag already covers it: a mapping change
+// changes the body, so it changes the token, so a conditional request cannot be
+// answered 304 with a body that names the previous generation.
 async function getMember(politicianId: string, url: URL, req: Request): Promise<Response> {
   const f = parseFilters(url);
   if ("error" in f) return json({ error: f.error }, f.status);
-  const body = JSON.stringify(await assembleMemberPayload(politicianId, f));
+  const [payload, mv] = await Promise.all([
+    assembleMemberPayload(politicianId, f),
+    mappingVersion(),
+  ]);
+  const body = JSON.stringify({ ...payload, mappingVersion: mv });
   const etag = `W/"vrm-${weakHash(body)}"`;
   const cache = "public, max-age=60, stale-while-revalidate=300";
   if ((req.headers.get("if-none-match") || "") === etag) {
-    return new Response(null, { status: 304, headers: { etag, "cache-control": cache } });
+    return new Response(null, {
+      status: 304,
+      headers: { etag, "cache-control": cache, "x-pdx-mapping-version": mv },
+    });
   }
   return new Response(body, {
     status: 200,
-    headers: { "content-type": "application/json", "cache-control": cache, etag },
+    headers: {
+      "content-type": "application/json",
+      "cache-control": cache,
+      etag,
+      "x-pdx-mapping-version": mv,
+    },
   });
 }
 
