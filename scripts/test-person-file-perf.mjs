@@ -370,14 +370,18 @@ section("7 · the wait is bounded, and an unknown pid is not an empty file");
   ok(wait < ceiling, `the brief gives up (${wait}ms) before the roster wait's hard stop (${ceiling}ms)`);
 
   // Every loading site arms it, and each has a not-loaded sentence that is
-  // distinct from the empty-file sentence. There are three: the match copy, the
-  // brief's record-on-hand wait, and — since the pass that stopped the first
-  // frame calling a loading file empty — the brief's no-signal wait, where
-  // nothing is on hand yet but a member request is in the air. That last one is
-  // the fall-through, so it is the one that most needs a bound: without an armed
-  // deadline a request that never comes back would sit on "still loading"
-  // forever instead of turning into "did not load".
-  eq((WA.match(/armBriefDeadline\(pid, p\);/g) || []).length, 3,
+  // distinct from the empty-file sentence. There are four: the match copy, the
+  // brief's record-on-hand wait, the brief's no-signal wait — where nothing is
+  // on hand yet but a member request is in the air — and, since the pass that
+  // made a live vote chip outrank the empty-file paragraph, emptyFileCopy's
+  // wait, reached when a reviewed empty note collides with rows the document is
+  // already showing. The no-signal wait is the fall-through, so it is the one
+  // that most needs a bound: without an armed deadline a request that never
+  // comes back would sit on "still loading" forever instead of turning into
+  // "did not load". emptyFileCopy needs it for the same reason — it is reached
+  // from a branch that used to be terminal, and a state that can never expire
+  // is a hang wearing a loading sentence.
+  eq((WA.match(/armBriefDeadline\(pid, p\);/g) || []).length, 4,
     "every one of the brief's loading states arms the deadline");
   has(WA, "briefGaveUp(pid)", "the copy consults the deadline");
   [
