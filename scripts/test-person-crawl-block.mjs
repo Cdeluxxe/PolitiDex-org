@@ -1273,9 +1273,22 @@ section("9 · the engines did not move");
         //                      does not go deaf on a host that has not landed yet
         //   shapeMatchHtml     the SAME two sentences, asked by name; see the note
         //                      over the byte-identity list below
+        //
+        // …AND THE FOURTH ROUND, the pass that made the ARRIVAL paint rather than the
+        // reload. The sentence was already behind the request readers, and the frame
+        // still went wrong, because the signals reach this file spelled three
+        // different ways — the address's id, the roster id, the canonical id — and
+        // every comparison here folded only one side:
+        //   briefAsked         folds BOTH sides through both alias tables, so a
+        //                      member request for an aliased pid is not read as "no
+        //                      request is outstanding" — which is the door the empty
+        //                      paragraph comes through
+        //   briefRecordOnHand  counts the header's rows unfiltered: a line the edge
+        //                      wrote in a shape this file cannot DRAW is still formal
+        //                      record on screen behind the modal
         const TOUCHED = ["armBriefDeadline", "briefAbsenceCopy", "briefHeroHtml",
           "briefSeedHtml", "briefLiveN", "briefRecordOnHand", "formalKnown",
-          "bindHero", "shapeMatchHtml"];
+          "bindHero", "shapeMatchHtml", "briefAsked"];
         // …and the readers the two passes added. Every one is a pure read of state
         // that already existed in the tab — the live member payload, the crawl
         // header's rows, the static formal index, the pattern index's shape, the
@@ -1298,12 +1311,17 @@ section("9 · the engines did not move");
         //                  PDXVotingRecord._liveRead, both true at first paint
         //   briefComing    asked and not yet answered: the missing fact
         //   briefWaitOver  and therefore: may this file be called empty at all
+        //   briefHeaderRowN  every row the header lists, whether or not this surface
+        //                    can draw it — the fact the empty paragraph denies
+        //   briefIdSet       one member's spellings, folded through both alias tables
+        //   briefSameMember  and therefore: are these two ids the same person
         const ADDED = ["briefLiveN", "briefSeedRows", "briefRecordOnHand",
           "briefShaped", "briefSettled", "briefSeedHtml",
           "formalHasRecord", "nowMs", "stampLive", "liveHeldMs",
           "armPayloadDeadline", "evForPid",
           "briefChipN", "briefCanonPid", "briefNoted", "briefAsked",
-          "briefComing", "briefWaitOver"];
+          "briefComing", "briefWaitOver",
+          "briefHeaderRowN", "briefIdSet", "briefSameMember"];
 
         const changed = [], added = [], removed = [];
         for (const [k, v] of A.fns) {

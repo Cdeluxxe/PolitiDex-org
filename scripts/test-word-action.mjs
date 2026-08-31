@@ -880,7 +880,22 @@ const voteNarration = (issueKey, extra = {}) => ({
   eq(live.flush(), 1, 'the hero did not defer exactly one bind step to mount time');
   eq((live.listeners['pdx-consistency-warm'] || []).length, 1,
     'the mounted hero does not listen for the record warming, so a ⏳ ring stays ⏳ until reload');
-  // Detached node → the listener removes itself (document.querySelector is stubbed null).
+  // Detached node → the listener removes itself. But "no host" has two meanings,
+  // and only one of them is a closed modal: bindHero is armed beside markup the
+  // caller is still assembling into a bigger template string, so the first event
+  // can land before the host is in the document. Unbinding there is permanent
+  // deafness on exactly the cold arrival that needed the repaint most. So the
+  // subscription survives a pre-mount event, and ends only after the host has
+  // been seen once and then gone away.
+  live.warm({ pid: 'p1' });
+  eq((live.listeners['pdx-consistency-warm'] || []).length, 1,
+    'the hero unbound on an event that arrived before its host had landed — a record that warms\n' +
+    '    during mount then repaints nothing, for the life of the modal');
+  const heroHost = { innerHTML: '', classList: { toggle: () => {} } };
+  live.ctx.document.querySelector = () => heroHost;
+  live.warm({ pid: 'p1' });
+  ok(heroHost.innerHTML.length > 0, 'the hero found its host on warm and painted nothing into it');
+  live.ctx.document.querySelector = () => null;
   live.warm({ pid: 'p1' });
   eq((live.listeners['pdx-consistency-warm'] || []).length, 0,
     'the hero warm listener does not detach when its node is gone — every closed modal leaks one');

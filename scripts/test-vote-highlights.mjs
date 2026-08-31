@@ -284,7 +284,15 @@ const rec = (o) => Object.assign({
   ok(noteAt !== -1 && /pdx-voting-warm/.test(VR.slice(noteAt, noteAt + 900)),
      "voting-record.js warms the sync cache without announcing it, so a surface built before the fetch landed\n" +
      "    has no way to know it can stop guessing");
-  ok(VR.indexOf("pdx-voting-warm") > noteAt,
+  // ORDERING IS ABOUT THE DISPATCH, NOT ABOUT THE NAME. This used to compare the
+  // first textual mention of the event name, which a block comment explaining why
+  // the event exists satisfies just as well as a dispatch does — so prose above
+  // the queue read as a premature announcement. Only a dispatchEvent call can fire
+  // an event, so only those positions are checked, and every one of them must sit
+  // after the line that populates the cache.
+  const warmFires = [...VR.matchAll(/dispatchEvent\(new CustomEvent\('pdx-voting-warm'/g)]
+    .map((m) => m.index);
+  ok(warmFires.length > 0 && warmFires.every((i) => i > noteAt),
      "the warm event fires BEFORE the cache it announces is populated");
 }
 
