@@ -1,0 +1,585 @@
+{
+  "_comment": "Federal wave F5 — DECISION SEED, and the decision is that NOTHING SHIPS. The census was rebuilt first, as the brief required, and it refused both halves of the mission on measurement and on doctrine rather than on judgement. Option A (admit a first Senate PRIMARY where one would convert unread senator volume) is refused on ARITHMETIC: the whole promotable band — 21 Senate-reachable non-primary acts across 17 keys holding no Senate PRIMARY — was flipped to primary one at a time and every single one measured +read 0 and -read 0, because all 2806 unread federal rows are structurally suppressed (_RD_NO_POLE, *_balance) or are the member's own Present/absent. Option B (map already-ingested rolls sitting unmapped for want of a reviewed issue row) is refused on DOCTRINE: the 33-measure pool was swept in full, 19 fail rule 11's one-tenth bar, 7 are rules for the consideration of unrelated bills and fail on form, 3 amendments fail on merit or evidence, and the two that survived the engrossed text — H.R. 1069 → public_schools and H.R. 973 → gov_regulation — are each walled off by a STANDING WRITTEN REFUSAL that names the bill: runbook follow-up 0c and wave F1 for the first, runbook rule 3 for the second. Both rows were drafted, argued, measured, and are refused here in writing with the wall quoted. Option C (propose a key) is refused four times over under the six standing vocabulary rules. So this wave writes no migration, no row, no key and no floor. Per the brief — 'If the census says nothing converts this week, stop after the census and say so' — the census is the product and this file is the saying-so.",
+  "_status": "DECIDED, AND THE DECISION IS NO WRITE. Every candidate carries a decision and an argument: 2 rows drafted and refused as reversals of standing doctrine, 11 rows refused on the text, 21 promotes refused on measurement, 33 pool measures screened, 4 keys proposed and refused, 0 rows shipped. No migration accompanies this seed and that is the finding, not an omission. Nothing is queued and nothing is provisional.",
+  "_decidedBy": "Federal wave F5, curator pass. Engrossed texts read 2026-08-31 from govinfo BILLS-119hr1069eh and BILLS-119hr973eh.",
+  "_doctrine": "Formal record only. Person versus record, formal acts first, voting pattern. No party score, no package percentage, no invented stance, no floor moved: _RD_MIN_JUDGED, _RD_MIN_PRIMARY, _RD_THIN_MIN, _RD_MIN_STRENGTH, _RD_THIN_MIN_STRENGTH, _RD_SPLIT_MIN_JUDGED, _RD_SPLIT_MIN_SIDE, _RD_DOMINANCE and _PDX_RD_MEMBER_FLOOR are byte-identical before and after, and the publication floor is untouched. Direction Match and the Word-vs-Action score are out of scope and unmoved: this wave changes no support_meaning on any existing row, adds no position, adds no member vote and removes no mapping, so every DM input in the corpus is the same object it was.",
+  "_fpiTarget": "Convert roll calls the corpus already holds into characterised rows, by supplying the reviewed issue row they were missing. Measured before and after, set-wise, on the row model's own `read` flag over all 343 members on the roster.",
+  "measures": [
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 1069",
+      "shortTitle": "PROTECT Our Kids Act",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1069",
+      "decisiveRoll": "house 119/1 roll 313, 'On Passage', 247-164 Passed with 22 not voting, 2025-12-04 15:28 ET — the only roll call on this bill in either chamber. Already in the corpus (vr_rollcalls id 154) with 109 attributed member votes: 61 yea, 38 nay, 10 other.",
+      "checks": {
+        "decisiveQuestion": "'On Passage' on an H.R. is in rule 12's PASSAGE_FORMS. Admitted on the form alone, so no decisiveWhy is written. There is no sibling roll to decline: the bill holds exactly one.",
+        "oneTenthBar": "CLEARS BY A WIDE MARGIN, and the margin is the reason this bill is the wave rather than one of the nineteen refused below. The losing side is 164 of the 411-vote yea+nay pool, 39.9%, four times rule 11's one-tenth bar. This was a contested passage vote, not a suspension calendar formality.",
+        "singleSubject": "Read from the engrossed text (govinfo BILLS-119hr1069eh, read 2026-08-31). The bill is one operative section. Sec. 2(a) provides that no funds made available under an applicable program — defined by cross-reference to 20 U.S.C. 1221(c)(1), which reaches every programme the Department of Education administers — may be made available to an elementary or secondary school that maintains a Confucius Institute partnership, hosts a Confucius Classroom, or otherwise receives direct or indirect support from the Government of the People's Republic of China. Sec. 2(b) sets a one-year effective date. Sec. 2(c) waives the prohibition for contracts entered into before enactment, conditioned on the school publishing the unredacted text and a statement of benefit. Sec. 2(d) requires the Secretary to notify state educational agencies within 90 days. There is no second subject, no offsetting appropriation, no curriculum provision, no authorisation of a new programme and no severable title carrying a different fight.",
+        "notAVehicle": "Correct, and this is the whole point of the wave. H.R. 1069 is a two-section standalone bill of roughly one page. It is not an appropriations act, not a continuing resolution, not a reconciliation bill and not a rule for the consideration of anything. The 'package percentage' problem the doctrine refuses by name cannot arise here: there is no package. Every other federal act now on public_schools is a title inside something enormous — H.R. 1319 (American Rescue Plan, eight keys), S. 2938 (Bipartisan Safer Communities Act) and H.R. 28 — and replacing a package-borne read with a record-borne one on this key is the wave's product.",
+        "proceduralInversion": "No. The question is passage of the bill itself, so yeaBlocksMeasure() does not fire and the ordinary direction holds: a yea enacted the prohibition.",
+        "attribution": "Fail-closed and already settled. The roll and its 109 member votes were ingested by an earlier wave; this wave adds no member vote, no roll call and no measure, so it invents no attribution and cannot widen the ceiling. Every one of the 109 pids was matched to a bioguide by the ingest that created them.",
+        "stowaway": "None to disclose. The bill has no unrelated provision to hide, and the wave adds no package vote. The one thing a reader could be surprised by is the polarity, and it is stated in the rationale and again under theCaveat rather than buried."
+      },
+      "issues": [
+        {
+          "issueKey": "public_schools",
+          "decision": "REFUSED",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr1069eh/html/BILLS-119hr1069eh.htm",
+          "whyItIsTheWave": "This row is the record's FIRST federal public_schools PRIMARY in either chamber. Before it the key held three federal rows, all non-primary and all package-borne — H.R. 1319 w50, S. 2938 w45, H.R. 28 w55 — and 85 House members sat at exactly three judged public_schools acts with no primary, which is one act short of the rule 30 wall. Measured: 4124 → 4198 clear rows (+74 with H.R. 973, +73 from this row alone), 2806 → 2805 unread, ZERO rows stopped being characterised.",
+          "theCaveat": "STATED RATHER THAN OMITTED, because it is the strongest thing that can be said against the row. A member who voted yea will say the vote PROTECTS public schools by removing a hostile foreign government from them, and that reading is not silly — it is the bill's motive, and it is why the sponsors named it the PROTECT Our Kids Act. It is not the reading the key takes, for the reason public_schools' own scope note gives in the sentence quoted above: the mapping reads the operative funding effect and refuses to dress a withdrawal of funds as a reform. The direct precedent is already live and already decided the same way — 2026 S.B. 321's graduated phase-out of hold harmless on voted and board levies is filed yea_opposes on this key, over exactly the same objection that its sponsors called it a formula modernisation. Reading H.R. 1069 the other way would require reading motive over text on a key whose scope note forbids it, and would put this bill on the opposite side of the axis from a state bill that does the same thing. The motive is not lost to the reader: it is in the bill's short title, which is what the pack displays beside the row.",
+          "notMotiveMapping": "The bill's motive — countering the PRC — is deliberately NOT mapped. See the four refusals below. F4's scope note routes adversary posture to strong_defense; a K-12 funding condition is not posture, and mapping it there on the word 'china' would be the keyword reach this corpus refuses.",
+          "refusalIsAReversalDeclined": true,
+          "why": "REFUSED — REVERSAL OF A STANDING WRITTEN REFUSAL, DECLINED. This row was drafted, argued from the engrossed text, measured at +73 clear rows and 0 lost, and it is NOT SHIPPED, because H.R. 1069 → public_schools is not an unexamined mapping: it is a mapping wave F1 read and refused BY NAME, quoting the runbook. db/vr-federal-mapping-seed-f1.json reads nine candidate keys on H.R. 1069 and refuses all nine, and the public_schools refusal is verbatim: \"Refused, in follow-up 0c's own words: 'public_schools is a funding-level chip'. Its chip is about how much money schools get, not about conditions attached to it.\" The runbook item it quotes — db/vr-ingest-runbook.md follow-up 0c, opened by migration 20260912000000 — is a standing instruction: \"tariffs_china is trade, america_first_fp is foreign aid, and public_schools is a funding-level chip. The bill stays unmapped until the vocabulary question is decided on its own; do not invent a key for one measure.\" Two shipped tests assert the wall as a wall — scripts/test-vr-federal-wave-f2.mjs section 5 and the same check in scripts/test-vr-federal-wave-f3.mjs both scan every migration for an issue mapping on H.R. 1069 and require zero. They caught this row, which is the tests working. THE ARGUMENT FOR THE ROW WAS REAL AND IS NOT WITHDRAWN QUIETLY. public_schools' scope note as published today reads wider than the phrase F1 quoted: it covers 'duties the state imposes on and resources through local education agencies', and its polarity rule is written for a withdrawal — \"'oppose' = it withdrew a funding protection, and the mapping says so rather than dressing a cut as a reform.\" A federal funding condition on local education agencies is that axis one level up, and F1's own strong_defense refusal makes the same point from the other direction: \"the 164 nays argued the prohibition was overbroad and would strip federal money from schools over a language programme, which is an argument about domestic education funding.\" IT IS STILL REFUSED, FOR THREE REASONS THIS WAVE CANNOT ANSWER. (1) Follow-up 0c does not say public_schools is the wrong SHAPE, it says the bill waits for a vocabulary decision, and 0c reserves that decision to a pass that takes it on its own. (2) This wave's own vocabulary pass REFUSED the key that would settle 0c — 'foreign influence in American education' fails rule 3 NOT A COUSIN and rule 5 NO RESTUFFING and therefore rule 1 — so the vocabulary question is answered in the NEGATIVE, and the honest consequence of that answer is that H.R. 1069 stays unmapped permanently rather than provisionally. It is not that a key was found and public_schools is second best. (3) F1's edu_balance refusal argues, independently, against exactly the row this wave drafted: \"there is no third key here to carry the weight, and a two-way direction on a measure's ONLY key would score 411 recorded members on a direction half of them dispute.\" public_schools would be H.R. 1069's ONLY key and its direction is disputed by the 247 who voted yea. That argument is not weaker today than it was in F1. WHAT WOULD UNBLOCK IT: a pass that takes follow-up 0c on its own and either adds a key that clears all six standing vocabulary rules, or CLOSES 0c by re-arguing the public_schools scope note on its own terms and amending it in alignment-tool.js so the boundary is published before any row leans on it. Either is a vocabulary or scope decision with its own argument and its own measured cost. Neither is a curator pass, and F5 will not smuggle one in behind a coverage number. Rule 25: the contradiction between F1's quoted phrase and today's scope note is SURFACED here, not silently resolved in either direction.",
+          "standingWallCited": "db/vr-federal-mapping-seed-f1.json measures[3].issues[5]; db/vr-ingest-runbook.md follow-up 0c; scripts/test-vr-federal-wave-f2.mjs §5 and scripts/test-vr-federal-wave-f3.mjs (both assert zero issue mappings on H.R. 1069 in any migration)",
+          "_draftedRowKeptForTheNextPass": {
+            "_why": "Kept in full rather than deleted, because the next pass to take follow-up 0c or runbook rule 3 on its own terms should not have to re-derive the reading, the text citations or the measured cost. What is refused is SHIPPING it, not having drafted it.",
+            "weight": 90,
+            "isPrimary": true,
+            "supportMeaning": "yea_opposes",
+            "rationale": "H.R. 1069 conditions the availability of federal elementary- and secondary-school funding: a yea makes funds under every Department of Education programme unavailable to a school that holds a Confucius Institute partnership, hosts a Confucius Classroom, or otherwise receives direct or indirect support from the Government of the People's Republic of China. Sec. 2(a) is the bill's only operative provision, and it reaches every ED programme through its cross-reference to 20 U.S.C. 1221(c)(1); Sec. 2(b) is an effective date, Sec. 2(c) a waiver for pre-enactment contracts, and Sec. 2(d) a 90-day notice to state educational agencies. public_schools' scope note is 'the money and staffing of the DISTRICT system — funding formulas, teacher compensation, levy protection, and duties the state imposes on and resources through local education agencies', and its chip is 'Raise teacher pay and fund public schools and classrooms'. A federal funding condition on local education agencies is that axis one level up, and it is the only axis in the vocabulary the bill's operative text touches. The polarity follows the key's own published polarity rule — 'oppose = it withdrew a funding protection, and the mapping says so rather than dressing a cut as a reform' — so yea_opposes; Congress's own long title states the effect in the same direction, 'To prohibit the availability of Federal education funds for elementary and secondary schools that receive direct or indirect support from the Government of the People's Republic of China.' A member who voted yea will say the vote protects public schools by removing a hostile foreign government from them: that is the bill's motive, it is why the sponsors named it the PROTECT Our Kids Act, and it is displayed beside this row in the bill's short title — but the key reads the operative funding effect, exactly as Utah 2026 S.B. 321's hold-harmless phase-out is filed yea_opposes here over the identical objection. PRIMARY, because the funding prohibition is the bill's only operative provision. Weight 90 rather than 100 follows the sibling precedent H.R. 1005 in this same Congress, which carries gov_transparency at 90 primary on the same shape: the operative axis is the whole mechanism, but the bill's named subject — PRC influence in schools — sits outside the vocabulary, and 100 is reserved in this corpus for a measure whose own subject IS the key. This is the record's first federal public_schools PRIMARY in either chamber; the only other federal rows on the key are package-borne secondaries on H.R. 1319 (w50), S. 2938 (w45) and H.R. 28 (w55), which is why 85 House members read the axis off a vehicle rather than off their own vote. Decisive roll: house 119/1 roll 313, 'On Passage', 247-164 Passed with 22 not voting, 2025-12-04 — a losing side of 39.9% of the yea+nay pool, four times rule 11's one-tenth bar.",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr1069eh/html/BILLS-119hr1069eh.htm"
+          }
+        },
+        {
+          "issueKey": "gov_transparency",
+          "decision": "REFUSED",
+          "why": "REFUSED on the text, and this is the closest call among the four. gov_transparency's chip is 'Force more disclosure, ban member stock trading and toughen ethics rules', and the sibling bill H.R. 1005 — same Congress, same rule (H.Res. 916), same PRC-in-K-12 subject — carries it at 90 primary because H.R. 1005 REQUIRES schools to disclose foreign-source funds. H.R. 1069 compels no disclosure. Its only publication requirement is inside Sec. 2(c), the waiver: a school that wants to keep a pre-enactment contract must publish the unredacted text and a benefit statement. That is a condition on an exemption a school may decline to seek, not a disclosure duty the bill imposes; a school with no pre-enactment contract publishes nothing, and a school that gives up the contract publishes nothing. Filing gov_transparency off an opt-in waiver clause would read a transparency record onto 109 members for a duty the bill does not place on anyone."
+        },
+        {
+          "issueKey": "strong_defense",
+          "decision": "REFUSED",
+          "why": "REFUSED on keyword reach. strong_defense's keyword list contains 'china' and 'adversaries', and that is the entire case for the mapping. Its chip is 'Maintain the strongest military and stand firm abroad' and F4's scope note routes what the armed forces are authorised, funded and equipped to do — the NDAAs, end strengths, procurement — to this key. H.R. 1069 authorises nothing, funds nothing and equips nothing; it is a condition on Title I-style grants to school districts. If a bill counts as a defence act because the word 'china' appears in its findings, then every appropriations rider is a defence act, and the key stops meaning anything for the 109 members who hold it."
+        },
+        {
+          "issueKey": "edu_parental",
+          "decision": "REFUSED",
+          "why": "REFUSED on the text, and the refusal is written out because the corpus's own treatment of a near neighbour cuts the other way and a reader is entitled to know why. H.R. 1049, the Transparency in Reporting of Adversarial Contributions to Education Act, is mapped edu_parental at 100 primary plus gov_transparency at 65 — same Congress, same rule, same adversarial-funding-in-education family. edu_parental's chip is 'Give parents more say over curriculum, library materials and what their children are taught'. H.R. 1049 earns it because its operative provision puts information about adversarial contributions in front of the public, which is something a parent can act on. H.R. 1069 has no parent-facing provision at all: no notice to parents, no curriculum review, no opt-out, no consent. Its single notification requirement, Sec. 2(d), runs from the Secretary to STATE EDUCATIONAL AGENCIES. Nothing in the engrossed text mentions a parent, a curriculum, a library or an instructional material. The neighbour is mapped differently because the neighbour's text is different."
+        },
+        {
+          "issueKey": "end_dei",
+          "decision": "REFUSED",
+          "why": "REFUSED on the text. Nothing in the engrossed bill mentions diversity, equity, inclusion, race, identity or curriculum content of any kind. The mapping was considered only because bills conditioning school funding often carry a DEI rider, and this one does not."
+        },
+        {
+          "issueKey": "school_choice",
+          "decision": "REFUSED",
+          "why": "REFUSED on the scope note, which is explicit: public_schools OUTs 'money that follows a student out of the district (school_choice)'. H.R. 1069 moves no money to any student, family, voucher, scholarship or charter. It withholds money from a district-run school and stops there."
+        },
+        {
+          "issueKey": "edu_balance",
+          "decision": "REFUSED",
+          "why": "REFUSED as a structural key. edu_balance is one of the six *_balance keys the read model suppresses by construction — _rdSuppressedKey() returns balance_key and the row can never be characterised for anyone. Its chip is a blended position ('Fully fund public schools while letting some funding follow students to other options') and H.R. 1069 is a single-direction act, so the key would be wrong even if it read. Filing it would add 109 permanently unread rows and inflate the corpus's own unread count, which is the opposite of this wave's job. Recorded because edu_balance's keyword list contains 'school funding' and 'public school' and a keyword pass would have proposed it."
+        },
+        {
+          "issueKey": "states_federal_power",
+          "decision": "REFUSED",
+          "why": "REFUSED on two grounds. First, states_federal_power is in _RD_NO_POLE — thirteen subject-and-authority keys the read model refuses to give a side, and the largest single source of unread rows in the whole census (99 senator rows on this key alone, none of them convertible by any mapping). Second, on the merits: attaching a condition to a federal education grant is the ordinary operation of the spending power, exercised in every ESEA reauthorisation, and reading it as a federalism act would put the same claim on 109 members for a provision they would not recognise as being about federalism at all."
+        }
+      ],
+      "outcome": "MAPPING REFUSED — the one candidate key that survives the engrossed text is walled off by a standing written refusal this wave has no standing to reverse. Ships unmapped, on purpose, for the second time."
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 973",
+      "shortTitle": "Setting Consumer Standards for Lithium-Ion Batteries Act",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/973",
+      "decisiveRoll": "house 119/1 roll 103, 'On Motion to Suspend the Rules and Pass', 365-42 Passed with 25 not voting, 2025-04-28 22:54 ET — the only roll call on this bill in either chamber. Already in the corpus (vr_rollcalls id 166) with 108 attributed member votes: 94 yea, 11 nay, 3 other.",
+      "checks": {
+        "decisiveQuestion": "'On Motion to Suspend the Rules and Pass' is in rule 12's PASSAGE_FORMS. Admitted on the form alone. The bill holds exactly one roll, so there is no sibling to decline.",
+        "oneTenthBar": "CLEARS, BUT NARROWLY, AND THE NUMBER IS PRINTED RATHER THAN ROUNDED. The losing side is 42 of the 407-vote yea+nay pool, which is 10.32% against rule 11's one-tenth bar. Forty-one nays would have failed it. This is the tightest admission in the wave and the reason H.R. 973 is a second act rather than the wave's subject: a suspension vote that clears the bar by one vote carries less about a member than a contested 247-164 passage. It is admitted because the rule is a floor and 42 members is a real minority, not because the margin is comfortable.",
+        "singleSubject": "Read from the engrossed text (govinfo BILLS-119hr973eh, read 2026-08-31). The entire bill is a rulemaking mandate: 'Not later than 180 days after the date of the enactment of this Act, the Consumer Product Safety Commission … shall promulgate, under section 553 of title 5, United States Code, the provisions of ANSI/CAN/UL 2271 … ANSI/CAN/UL 2849 … and ANSI/CAN/UL 2272 … as final consumer product safety standards.' The remaining subsections scope it to consumer products as defined at 15 U.S.C. 2052(a)(5), provide that a revision to any of the three voluntary standards takes effect as the federal standard automatically unless the Commission objects within 90 days, and require a report to Congress after five years. There is no second subject, no appropriation, no enforcement title and no unrelated provision.",
+        "notAVehicle": "Correct. A single-section standalone bill mandating one rulemaking. No package, no rider, no percentage.",
+        "proceduralInversion": "No. The question is passage, so a yea enacted the mandate.",
+        "attribution": "Fail-closed and already settled. The roll and its 108 member votes were ingested by an earlier wave; this wave adds none.",
+        "stowaway": "None to disclose."
+      },
+      "issues": [
+        {
+          "issueKey": "gov_regulation",
+          "decision": "REFUSED",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr973eh/html/BILLS-119hr973eh.htm",
+          "whyItWasWorthAddingAtAll": "Measured at +1 clear row and 0 lost, which on its own would not justify a migration. It is in the wave for a second reason the numbers do not show: gov_regulation currently holds ELEVEN federal rows and every single one of them is yea_supports — three CRA and deregulation primaries at 100 and eight secondaries at 55 to 85. The key as published reads as though the 119th Congress only ever cut regulation, because the only instruments ever mapped to it were instruments that cut. H.R. 973 is the first federal act in the corpus where a yea CREATES federal regulation, and adding it makes the key capable of showing a member on both sides of its own axis instead of only one. That is a formal-pattern gain that the clear-row counter cannot see, and it is disclosed here rather than dressed up as arithmetic.",
+          "notASecondScore": "This adds no party lean and no score. The row is an act with a direction, read by the same floors as every other row.",
+          "refusalIsAReversalDeclined": true,
+          "why": "REFUSED — REVERSAL OF A STANDING WRITTEN REFUSAL, DECLINED. This row was drafted, argued from the engrossed text, measured, and it is NOT SHIPPED, because the runbook refuses it by name and predicts, exactly, the effect this wave went on to measure. db/vr-ingest-runbook.md rule 3: \"gov_regulation is about the regulatory question, not about every mandate. Reserve it for measures whose primary operative purpose is regulation itself: CRA disapprovals, regulatory-budget caps, red-tape hotlines, rulemaking-quality bills. Do not map a measure to it merely because the measure directs an agency to issue or enforce a rule — that description fits most of the statute book, and it would turn a member's deregulation stance into a contradiction on any safety vote. This is why H.R. 973 (CPSC rule for micromobility batteries) and S. 2503 (ADS-B In equipment requirement) are unmapped despite both being contested. Without the line, 'creates a federal mandate' sweeps in dozens of measures and the key stops meaning anything.\" Follow-up 0c repeats it as a standing state rather than a one-off: \"Rule 3 is now the reason two contested bills stay dark: H.R. 973 (105 member-votes) and S. 2503 (98). Both were re-read in this pass and left where rule 3 put them. If rule 3 is ever revisited, these are the two measures that change.\" THE DRAFTED ARGUMENT IS THE ONE RULE 3 FORBIDS, ALMOST WORD FOR WORD. It said: the whole bill is an instruction to an agency to promulgate rules under 5 U.S.C. 553, therefore gov_regulation. That is 'the measure directs an agency to issue a rule'. The best version of the case — that the automatic-adoption subsection makes each future revision of a private standard binding unless the Commission objects within 90 days, which is the inverse of 'require review before new ones take effect' — is a genuine strengthening and it is still not enough, because rule 3's test is the measure's PRIMARY OPERATIVE PURPOSE, and the primary operative purpose of H.R. 973 is lithium-ion battery fire safety. The rulemaking is the instrument, not the subject. AND THE MEASUREMENT CONFIRMED RULE 3 RATHER THAN BEATING IT. Projected through the harness the row moves 38 members from a uniform gov_regulation record to a mixed one. That is not a bonus finding, it is rule 3's stated harm in numbers: \"it would turn a member's deregulation stance into a contradiction on any safety vote\", 38 times, on a suspension vote about battery testing. The wave had written that up as its honest headline before checking the runbook, which is the whole reason a standing-doctrine check has to run before the measurement and not after. WHAT WOULD UNBLOCK IT: revisiting rule 3 on its own terms, in a pass that argues the boundary and re-reads every live gov_regulation row against the new line — the runbook already names H.R. 973 and S. 2503 as the two measures that would change. That is a doctrine pass. This wave is a mapping wave and does not have the standing.",
+          "standingWallCited": "db/vr-ingest-runbook.md rule 3 ('gov_regulation is about the regulatory question, not about every mandate', which names H.R. 973); db/vr-ingest-runbook.md follow-up 0c ('Rule 3 is now the reason two contested bills stay dark')",
+          "_draftedRowKeptForTheNextPass": {
+            "_why": "Kept in full rather than deleted, because the next pass to take follow-up 0c or runbook rule 3 on its own terms should not have to re-derive the reading, the text citations or the measured cost. What is refused is SHIPPING it, not having drafted it.",
+            "weight": 90,
+            "isPrimary": true,
+            "supportMeaning": "yea_opposes",
+            "rationale": "The whole of H.R. 973 is an instruction to a federal agency to promulgate binding rules: 'Not later than 180 days after the date of the enactment of this Act, the Consumer Product Safety Commission ... shall promulgate, under section 553 of title 5, United States Code, the provisions of ANSI/CAN/UL 2271 ... ANSI/CAN/UL 2849 ... and ANSI/CAN/UL 2272 ... as final consumer product safety standards.' The remaining subsections scope it to consumer products as defined at 15 U.S.C. 2052(a)(5), provide that a revision to any of the three voluntary standards takes effect as the federal standard automatically unless the Commission objects within 90 days, and require a report to Congress after five years. gov_regulation's chip is 'Cut the number and cost of federal regulations and require review before new ones take effect', and the bill runs against both of its limbs: it converts three privately drafted voluntary standards into mandatory federal standards under 5 U.S.C. 553, and the automatic-adoption subsection makes each future revision binding federal law by default — the precise inverse of requiring review before new rules take effect. The key's keyword list names 'regulation', 'rulemaking', 'compliance' and 'administrative state'. A yea creates the rules, so yea_opposes. PRIMARY, because the rulemaking mandate is not a title of this bill, it is the bill. Weight 90 rather than 100 because the named subject — lithium-ion battery fire safety — has no key in the vocabulary, and 100 is reserved here for a measure whose own subject IS the key, which is why every CRA disapproval carries 100. This is the first federal act in the corpus where a yea CREATES federal regulation: the key's other eleven federal rows are all yea_supports, three deregulation primaries at 100 and eight secondaries at 55 to 85, so before this row the axis could only ever show a member cutting regulation. Decisive roll: house 119/1 roll 103, 'On Motion to Suspend the Rules and Pass', 365-42 Passed with 25 not voting, 2025-04-28 — a losing side of 42 of the 407-vote yea+nay pool, 10.32%, which clears rule 11's one-tenth bar by one vote and the number is printed rather than rounded.",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr973eh/html/BILLS-119hr973eh.htm"
+          }
+        },
+        {
+          "issueKey": "econ_corp_account",
+          "decision": "REFUSED",
+          "why": "REFUSED on the chip, over a genuine keyword collision. econ_corp_account's keyword list contains 'consumer protection' and this is a consumer product safety bill, so a keyword pass proposes it immediately. The chip is 'Use antitrust and anti-price-gouging enforcement to check large corporations'. Adopting a UL cell-and-battery-pack test standard is neither antitrust nor price-gouging, and the firms it binds are mostly importers and small assemblers rather than large corporations. The chip governs the key, not the keyword list — that is what stops the key from becoming a bucket for anything with a company in it."
+        },
+        {
+          "issueKey": "privacy_rights",
+          "decision": "REFUSED",
+          "why": "REFUSED on the chip. privacy_rights also carries 'consumer protection' in its keyword list, and its chip is 'Protect personal data and hold Big Tech accountable'. H.R. 973 concerns no data, no surveillance and no platform. Recorded so the collision is on the record twice, because two keys reached for the same word."
+        },
+        {
+          "issueKey": "tech_innovation",
+          "decision": "REFUSED",
+          "why": "REFUSED as a cousin the wave will not split. tech_innovation's chip is 'Let American tech and AI innovate with minimal red tape' and its keyword list contains 'deregulation' and 'light touch', so a mandatory standard on battery packs is arguably against it. It is refused because it would be the SAME claim as the gov_regulation row made twice about the same act — one act, one instrument, and the red-tape axis already holds it. Doubling it would let a single suspension vote count twice against a member's regulatory record, which is the package percentage in miniature."
+        },
+        {
+          "issueKey": "econ_smallbiz",
+          "decision": "REFUSED",
+          "why": "REFUSED for want of a provision. H.R. 2965 and H.R. 4305 both carry econ_smallbiz alongside gov_regulation because both bills are scoped BY small-business burden in their own text — H.R. 2965 caps the SBA's regulatory budget, H.R. 4305 is titled for it. H.R. 973 contains no small-business provision, no size threshold, no regulatory flexibility analysis and no compliance-cost offset. The burden on small assemblers is real and is not in the bill."
+        }
+      ],
+      "outcome": "MAPPING REFUSED — the one candidate key that survives the engrossed text is walled off by a standing written refusal this wave has no standing to reverse. Ships unmapped, on purpose, for the second time."
+    }
+  ],
+  "census": {
+    "_how": "Rebuilt from scratch before any candidate was looked at, exactly as the brief requires, and F4's candidate queue was deliberately not reused. Reproduce with:\n  node scripts/vr-federal-fpi.mjs --set all --waves f1,f2,f3,f4 --chambers\n  node scripts/vr-federal-fpi.mjs --set all --waves f1,f2,f3,f4 --band\n  node scripts/vr-federal-fpi.mjs --set all --waves f1,f2,f3,f4 --why\nAll three are read-only SELECTs plus the node:vm sandbox; nothing is written and no threshold is redefined.",
+    "questionA_senatePrimaryHoles": {
+      "raw": "38 of 98 keys the formal index reports on hold a Senate-reachable PRIMARY instrument. 60 hold none. 1006 senator rows over 99 senators are unread: no_pole_read 778, no_side 209, no_side_taken 19.",
+      "theBriefsActualQuestion": "The brief did not ask for keys with 0 Senate PRIMARY instruments. It asked for keys with 0 Senate PRIMARY instruments AND unread senator-row volume that a first PRIMARY would actually CONVERT — 'not raw unread' — and warned that F4 already showed unread is not reachable. So the reachable half was measured rather than inferred.",
+      "measured": "The promotable band was rebuilt: every Senate-reachable non-primary act on a key with no Senate-reachable PRIMARY, flipped to is_primary ONE AT A TIME, the formal index re-run over all 99 senators, and the read set diffed against baseline. 17 candidate keys, 21 candidate acts.",
+      "result": "EVERY ONE OF THE 21 CANDIDATES REPORTS +read 0 AND -read 0. Not one senator row anywhere in the corpus is converted by supplying a first Senate PRIMARY on any key. The harness prints it as 'KEYS NO PROMOTE CAN MOVE (17 of 17): america_first, child_care, crypto_cbdc, disaster_resilience, econ_growth, econ_smallbiz, econ_trade, econ_workers, free_speech, gov_waste, guard_authority, homeless, states_federal_power, tariffs_prices, transit, war_powers, water.'",
+      "whyZero": "The 21 candidates split cleanly into two structurally hopeless groups and there is no third group. TEN candidate acts sit on a key carrying 95 to 99 senator rows, and every one of those keys is in _RD_NO_POLE — crypto_cbdc, guard_authority, homeless, states_federal_power, tariffs_prices, war_powers. The read model refuses those keys a side by construction, so a primary changes nothing: _rdSuppressedKey() returns no_pole before the primary wall is ever consulted. The other ELEVEN candidates sit on a key carrying exactly ONE senator row, and in every case that row's unread reason is no_side_taken — the senator voted Present or was absent. That is the member's own conduct on the record, not a gap in our mapping, and no mapping can convert it.",
+      "conclusion": "Option A is refused wholesale, in writing, on a measurement rather than on a judgement. There is no highest-conversion Senate PRIMARY slice this week because there is no converting Senate PRIMARY slice at all."
+    },
+    "questionA_wholeRoster": {
+      "_why": "Because a Senate-only view could be an artefact of looking at one chamber, the same question was asked of all 343 members on the roster.",
+      "unreadTotal": 2806,
+      "breakdown": {
+        "no_pole_read": 1732,
+        "no_side": 915,
+        "no_side_taken": 151,
+        "no_rollcall": 8
+      },
+      "everyOneOfThemIsStructural": "no_pole_read 1732 — the thirteen _RD_NO_POLE subject-and-authority keys, which the read model will not give a side. no_side 915 — of which 895 are the ten *_balance keys (tech_balance 212, foreign_balance 210, enviro_balance 122, lands_balance 115, reform_balance 115, edu_balance 110, democracy_balance 6, justice_balance 2, rights_balance 2, gov_balance 1), suppressed by _rdSuppressedKey() as balance_key, and the remaining 20 are ALSO on _RD_NO_POLE keys (homeless 10, guard_authority 4, medical_freedom 3, state_standing 1, tariffs_authority 1, tariffs_prices 1). no_side_taken 151 — the member voted Present or was absent. no_rollcall 8 — position rows with no roll to attribute.",
+      "conclusion": "ZERO of the 2806 unread federal rows can be converted by adding, promoting or reweighting any mapping. 2655 of them are suppressed by the read model's own structure and 151 are the member's own conduct. This is the census finding that decided the wave, and it is the reason no amount of Option A work would have produced a row. It is also a standing result worth carrying forward: 'unread' in the federal lane is now almost entirely a vocabulary-design fact about the *_balance and _RD_NO_POLE families, not a backlog."
+    },
+    "questionB_alreadyIngestedUnmapped": {
+      "_how": "Every measure that holds at least one roll call with attributed member votes and ZERO rows in vr_measure_issues.",
+      "pool": "33 measures, carrying 2903 attributed member votes. All House-side.",
+      "shape": "23 bills, 7 rules-for-consideration resolutions, 3 amendments to H.R. 8800.",
+      "screen": "Rule 11's one-tenth bar was applied to each, then the key question was asked of the survivors, and then — the step this wave learned to do FIRST — the survivors were checked against the prior waves' written refusals.",
+      "outcome": "19 bills refused on rule 11 as near-unanimous (every tally printed under declinedRollCalls). 7 resolutions refused on FORM — each is a rule providing for the consideration of between two and six unrelated bills, so it cannot carry the subject of any of them; these are notable because their margins are the tightest in the pool (H.Res. 1398 adoption failed 198-224, H.Res. 916 adoption passed 210-209) and refusing them on form rather than on margin is the whole of the stowaway rule. 5 refused or blocked on the key or the evidence. 2 survived the text — H.R. 1069 and H.R. 973 — and BOTH were then refused on standing doctrine, each already refused by name in this repository before this wave opened. 0 admitted. 19 + 7 + 5 + 2 = 33.",
+      "whyThisIsACuratorPassAndNotAScraper": "The pass was a curator pass in the only sense that matters: nothing was scraped and nothing was ingested. Both surviving measures, both roll calls and all 217 attributed member votes were already in the database, and the wave's entire proposed footprint was two rows in vr_measure_issues. H.R. 1069 looked like the clearest possible instance of the brief's 'sitting unmapped for want of a reviewed issue row': it came to the floor under H.Res. 916 together with H.R. 1005, H.R. 1049, H.R. 2965 and H.R. 4305, and all four of those are mapped, some with two rows each, while H.R. 1069 has none. That appearance is what the wall explains. H.R. 1069 is unmapped because a mapping was proposed for it in F1, argued at length, and refused — not because nobody got to it. A gap that a prior wave dug on purpose is not a gap, and the census could not tell the difference because it queried vr_measure_issues and not the refusal record.",
+      "whatTheNextWaveInherits": "The full 33-measure screen, with tallies, forms and refusal grounds. It does not have to be re-swept. What it should do differently is start from declinedRollCalls, declinedMappings and blockedOn, since 26 of the 33 are refused on arithmetic or form that will not change, and the remaining 7 are where any future work is."
+    },
+    "questionC_thinFormalIndex": {
+      "bands": "0 empty, 10 thin, 333 readable of 343 on the roster.",
+      "theTen": "Two are Utah state members (bwilson 29 issues / 38 acts, jacob_anderegg 18 / 19). Eight are federal House members holding EXACTLY 5 issues and 2 acts each: adrian_smith, dina_titus, gabe_vasquez, melanie_stansbury, russ_fulcher, susie_lee, teresa_leger_fernandez, zach_nunn.",
+      "whyOptionBCannotReachThem": "Checked rather than assumed. All eight hold exactly 2 member votes, and ZERO of those votes are on a measure this wave could map — none of them appears on any of the 33 unmapped measures. They also hold 0 positions. Their wall is _PDX_RD_MEMBER_FLOOR = 12, which the doctrine forbids moving, and the only thing that would clear it is ingesting more of their votes. That is an ingest wave, not a mapping wave, and the census says so rather than pretending a curator pass could help.",
+      "conversionArithmeticThatPickedTheKey": "Across the 109 federal members who hold the reviewed roster's House rolls, the cell census found 2484 key-member cells at 1 judged act, 1016 at 3 judged acts, and of those 1016, 419 with no primary and 597 with a primary. The single largest coherent block: public_schools holds 85 members sitting at EXACTLY 3 judged acts with NO primary. That is one act short of _RD_MIN_JUDGED = 4, where primary < 1 fires and the read is lost. Adding a SECONDARY there would have cost 85 reads; adding a PRIMARY converts them. public_schools held zero federal primaries and only three package-borne secondaries. That arithmetic, not the unread column, is what chose the wave."
+    },
+    "whyOptionAIsRefused": "Written out because the brief asked for refusals in writing and because F4 was a promote wave and F5 was expected to be another. Refused because it converts nothing, measured on 21 candidates one at a time: 17 of 17 keys immovable, 0 rows gained, 0 lost. The Senate half of the record is not short of PRIMARY instruments in any way a mapping can fix — it is short of admissible Senate roll calls on keys that have a pole at all, and F4 already swept all 890 Senate rolls of the 119th and published that finding. Nothing about the calendar has changed since. senateKeysWithPrimary is 38 of 98 before this wave and 38 of 98 after it, and senateUnreadRows is 1006 before and 1006 after, and both facts are disclosed rather than buried: THIS WAVE MOVES NO SENATOR."
+  },
+  "promotes": [],
+  "_promotesNote": "EMPTY, AND THAT IS THE CENSUS'S FINDING. F4 was a promote wave and F5 was expected to be another. It is not, because the promotable band was re-measured from scratch and every candidate in it converts nothing. See census.whyOptionAIsRefused.",
+  "retractions": [],
+  "_retractionsNote": "None. No key this wave touches has narrowed its scope, and no live mapping was found wrong. Runbook rule 32 does not fire.",
+  "declinedRollCalls": [
+    {
+      "roll": "house 119/2 roll 252",
+      "measure": "H.R. 1118 — Value Over Cost Act of 2026",
+      "tally": "421-1",
+      "losingSide": "1 of 422 of the yea+nay pool = 0.24%",
+      "why": "REFUSED on rule 11. The losing side is 0.24% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that almost nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/1 roll 107",
+      "measure": "H.R. 1402 — TICKET Act",
+      "tally": "409-15",
+      "losingSide": "15 of 424 of the yea+nay pool = 3.54%",
+      "why": "REFUSED on rule 11. The losing side is 3.54% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that almost nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/1 roll 119",
+      "measure": "H.R. 1503 — Stop Forced Organ Harvesting Act of 2025",
+      "tally": "406-1",
+      "losingSide": "1 of 407 of the yea+nay pool = 0.25%",
+      "why": "REFUSED on rule 11. The losing side is 0.25% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that almost nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/1 roll 316",
+      "measure": "H.R. 1676 — Make SWAPs Efficient Act of 2025",
+      "tally": "400-0",
+      "losingSide": "0 of 400 of the yea+nay pool = 0.00%",
+      "why": "REFUSED on rule 11. The losing side is 0.00% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/2 roll 227",
+      "measure": "H.R. 2478 — Financial Exploitation Prevention Act of 2025",
+      "tally": "414-2",
+      "losingSide": "2 of 416 of the yea+nay pool = 0.48%",
+      "why": "REFUSED on rule 11. The losing side is 0.48% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that almost nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/2 roll 234",
+      "measure": "H.R. 3106 — Weatherizing Infrastructure in the North and Terrorism Emergency Readiness Act of 2025",
+      "tally": "400-7",
+      "losingSide": "7 of 407 of the yea+nay pool = 1.72%",
+      "why": "REFUSED on rule 11. The losing side is 1.72% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that almost nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/1 roll 240",
+      "measure": "H.R. 3424 — SPACE Act of 2025",
+      "tally": "397-1",
+      "losingSide": "1 of 398 of the yea+nay pool = 0.25%",
+      "why": "REFUSED on rule 11. The losing side is 0.25% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that almost nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/1 roll 241",
+      "measure": "H.R. 3425 — Personnel Oversight and Shift Tracking Act of 2025",
+      "tally": "402-0",
+      "losingSide": "0 of 402 of the yea+nay pool = 0.00%",
+      "why": "REFUSED on rule 11. The losing side is 0.00% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/1 roll 307",
+      "measure": "H.R. 4423 — No New Burma Funds Act",
+      "tally": "385-0",
+      "losingSide": "0 of 385 of the yea+nay pool = 0.00%",
+      "why": "REFUSED on rule 11. The losing side is 0.00% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/2 roll 250",
+      "measure": "H.R. 4541 — Young Women's Breast Health Education and Awareness Requires Learning Young Act reauthorisation",
+      "tally": "394-6",
+      "losingSide": "6 of 400 of the yea+nay pool = 1.50%",
+      "why": "REFUSED on rule 11. The losing side is 1.50% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that almost nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/1 roll 115",
+      "measure": "H.R. 530 — ACES Act",
+      "tally": "376-5",
+      "losingSide": "5 of 381 of the yea+nay pool = 1.31%",
+      "why": "REFUSED on rule 11. The losing side is 1.31% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that almost nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/1 roll 306",
+      "measure": "H.R. 5348 — Social Security Child Protection Act of 2025",
+      "tally": "386-0",
+      "losingSide": "0 of 386 of the yea+nay pool = 0.00%",
+      "why": "REFUSED on rule 11. The losing side is 0.00% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/2 roll 248",
+      "measure": "H.R. 5362 — Naming the Marietta, Georgia VA multispecialty clinic for Col. Michael H. Boyce",
+      "tally": "418-0",
+      "losingSide": "0 of 418 of the yea+nay pool = 0.00%",
+      "why": "REFUSED on rule 11. The losing side is 0.00% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/2 roll 229",
+      "measure": "H.R. 7128 — TRIA Program Reauthorization Act of 2026",
+      "tally": "373-15",
+      "losingSide": "15 of 388 of the yea+nay pool = 3.87%",
+      "why": "REFUSED on rule 11. The losing side is 3.87% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that almost nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/2 roll 225",
+      "measure": "H.R. 7401 — Small Business Lending Fraud Prevention Act",
+      "tally": "415-0",
+      "losingSide": "0 of 415 of the yea+nay pool = 0.00%",
+      "why": "REFUSED on rule 11. The losing side is 0.00% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/2 roll 251",
+      "measure": "H.R. 8823 — Putting Patients First by Strengthening Provider Accountability in FECA Act",
+      "tally": "396-0",
+      "losingSide": "0 of 396 of the yea+nay pool = 0.00%",
+      "why": "REFUSED on rule 11. The losing side is 0.00% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/2 roll 235",
+      "measure": "H.R. 8897 — Improving Travel for American Families Act",
+      "tally": "398-12",
+      "losingSide": "12 of 410 of the yea+nay pool = 2.93%",
+      "why": "REFUSED on rule 11. The losing side is 2.93% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that almost nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/2 roll 226",
+      "measure": "H.R. 915 — Small Business Technological Advancement Act",
+      "tally": "414-4",
+      "losingSide": "4 of 418 of the yea+nay pool = 0.96%",
+      "why": "REFUSED on rule 11. The losing side is 0.96% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that almost nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/1 roll 315",
+      "measure": "S. 356 — Secure Rural Schools Reauthorization Act of 2025",
+      "tally": "399-5",
+      "losingSide": "5 of 404 of the yea+nay pool = 1.24%",
+      "why": "REFUSED on rule 11. The losing side is 1.24% of the yea+nay pool, below the one-tenth bar, so the roll is near-unanimous and inadmissible as an act. No key was considered: a vote that almost nobody opposed says nothing about a member that distinguishes them from the chamber."
+    },
+    {
+      "roll": "house 119/1 rolls 117 and 118 (H.Res. 377), 242 and 243 (H.Res. 682), 308 and 309 (H.Res. 916); house 119/2 rolls 73 and 74 (H.Res. 1075), 230 and 231 (H.Res. 1398), 236 and 237 (H.Res. 1423), 253 and 254 (H.Res. 1438)",
+      "measure": "Seven rules for the consideration of legislation — 14 roll calls, 'On Ordering the Previous Question' and 'On Agreeing to the Resolution'",
+      "tally": "All contested, between 198-224 and 217-210",
+      "why": "REFUSED ON FORM, not on margin, and this is the wave's largest single block of declined contested rolls so the reasoning is written out. Each of these resolutions provides for the consideration of between two and six unrelated bills. H.Res. 1438 alone covers H.R. 8800 (defence authorisation), H.R. 8884 (Social Security demonstration authority), H.Con.Res. 113 (the budget resolution), H.R. 7008 (member stock trading), H.R. 6955 (banking law) and H.R. 9770 (continuing appropriations) — six different fights on one vote. There is no issue key a yea on that resolution advances, because a yea advances all six and opposes none of them. Mapping any of these would be the stowaway problem in its purest form: a member's vote on a procedural rule printed as a substantive position on whichever of the six bills the curator happened to pick. H.Res. 377 is the strongest temptation and is refused with the rest — it provides for H.R. 881, which restricts DHS funding to universities with Confucius Institute relationships, and would have looked like a second instrument in H.R. 1069's own family. It is a previous-question vote on a rule that also renames the Gulf of Mexico. 'On Ordering the Previous Question' additionally fails rule 8 on question form."
+    },
+    {
+      "roll": "house 119/1 roll 315",
+      "measure": "S. 356 — Secure Rural Schools Reauthorization Act of 2025",
+      "tally": "399-5",
+      "losingSide": "5 of 404 = 1.24%",
+      "why": "REFUSED on rule 11, and recorded separately because it is the near-miss a curator hunting public_schools instruments would reach for. It is a school-funding bill on the same key this wave ships, and 5 nays out of 404 makes it inadmissible. A wave does not lower a floor to reach a bill it wants."
+    }
+  ],
+  "declinedMappings": [
+    {
+      "measure": "H.Amdt. 245 (Boebert) to H.R. 8800",
+      "roll": "house 119/2 roll 258, 'On Agreeing to the Amendment', 265-161 agreed to",
+      "candidateKey": "privacy_rights",
+      "decision": "REFUSED — MEASURED NET LOSS",
+      "why": "REFUSED, and refused on the measurement rather than on the argument, which is the point of the brief's rule that a promote which does not convert unread rows is a written block. The amendment strikes a pilot programme on drug testing using voice-based risk assessment technology, so privacy_rights ('Protect personal data and hold Big Tech accountable', keywords 'privacy', 'surveillance', 'data') is a genuine reading and it was drafted at PRIMARY 100. Projected through the harness it costs the record NINE characterised rows — clear rows 4124 → 4115 — and WEAKENS TEN MEMBERS, by the rule 30 mechanism: ten members hold exactly three non-primary privacy_rights acts, and this row is the fourth act rather than the primary they need, so it pushes them across _RD_MIN_JUDGED = 4 into deepEnough where primary < 1 fires and the read is lost. A row that destroys nine reads to add one act is a block, and it is written here instead of shipped.",
+      "secondIndependentGround": "The subject cannot be verified from a readable source. See blockedOn."
+    },
+    {
+      "measure": "H.Amdt. 244 (Boebert) to H.R. 8800",
+      "roll": "house 119/2 roll 257, 'On Agreeing to the Amendment', 65-359 failed",
+      "candidateKey": "strong_defense",
+      "decision": "REFUSED",
+      "why": "REFUSED on de minimis subject, though it clears rule 11 (65 of 424 = 15.3%) and measures harmlessly at +1 clear / -1 split / 0 weakening. H.R. 8800 §524 was read in the engrossed text: it eliminates the existing five-per-year cap on cadets and midshipmen who may receive an alternative service obligation in order to become professional athletes (10 U.S.C. 7448(b)(4), 8459(b)(4), 9448(b)(4)). The amendment would restore the cap. Filing that as a Peace Through Strength act — 'Maintain the strongest military and stand firm abroad' — on 36 members' records because it appears in a defence bill is keyword reach through the vehicle. Five athletes a year is not what the key means, and the +1 does not buy the right to say otherwise."
+    },
+    {
+      "measure": "S. 2503 — ROTOR Act",
+      "roll": "house 119/2 roll 72, 'On Motion to Suspend the Rules and Pass', 264-133 FAILED (two-thirds not reached)",
+      "candidateKey": "infrastructure",
+      "decision": "REFUSED — MEASURED COST",
+      "why": "REFUSED on the chip and confirmed by the measurement. The roll is admissible: it clears rule 11 comfortably (133 of 397 = 33.5%) and a failed suspension is still a recorded position. infrastructure's keyword list contains 'airport', which is the whole of the case for the mapping; its chip is 'Invest in roads, bridges, water systems and the power grid'. The ROTOR Act is an aviation-safety bill about helicopter route deconfliction and cockpit equipage near controlled airspace after a mid-air collision. It builds no road, no bridge, no water system and no grid, and it appropriates nothing. Projected as a secondary at 60 it counts 20 new acts but adds ZERO clear rows, adds 16 split rows and INCREASES unread by 2 — it makes the record longer and no more readable. Refused."
+    },
+    {
+      "measure": "H.R. 139 — Sunshine Protection Act of 2025",
+      "roll": "house 119/2 roll 238, 'On Passage', 308-117 passed",
+      "candidateKey": "(none)",
+      "decision": "REFUSED — NO KEY, AND NO KEY PROPOSED",
+      "why": "REFUSED for want of a key, and this is the honest shape of that refusal rather than a stretch to the nearest chip. The bill makes daylight saving time permanent. The roll is excellent — 117 nays out of 425 is 27.5%, a genuinely contested vote that split both caucuses — and it is exactly the sort of act a densification wave wants. There is no key in the vocabulary it belongs to, and no cousin close enough to borrow: it is not health, not energy, not commerce, not gov_regulation. A new key was considered and refused under the standing vocabulary rules; see vocab.refusedProposals. Every member's vote on it stays unmapped, which is the correct outcome and not a backlog item."
+    },
+    {
+      "measure": "H.R. 1069",
+      "candidateKeys": "gov_transparency, strong_defense, edu_parental, end_dei, school_choice, edu_balance, states_federal_power",
+      "decision": "REFUSED (7 rows)",
+      "why": "Seven candidate rows on the wave's own instrument, each refused in writing with its own textual argument in measures[0].issues. Recorded here so the refusals are countable: a wave that ships one row on a bill and does not say which six it turned down has not disclosed its reasoning."
+    },
+    {
+      "measure": "H.R. 973",
+      "candidateKeys": "econ_corp_account, privacy_rights, tech_innovation, econ_smallbiz",
+      "decision": "REFUSED (4 rows)",
+      "why": "Four candidate rows, each refused in writing in measures[1].issues. Two of them (econ_corp_account, privacy_rights) are keyword collisions on the single phrase 'consumer protection', which appears in both keys' keyword lists; both are refused on the chip. Recorded because the collision is instructive: the keyword list finds candidates, the chip decides them."
+    },
+    {
+      "measure": "public_schools as a SECONDARY on any instrument",
+      "decision": "REFUSED — STRUCTURAL",
+      "why": "REFUSED as a class, before any particular bill was considered, because the census made it arithmetically impossible. 85 federal members sit at exactly 3 judged public_schools acts with no primary. Any fourth NON-PRIMARY act on this key pushes all 85 across _RD_MIN_JUDGED = 4 into deepEnough, where primary < 1 fires and 85 reads are destroyed. This is runbook rule 30's trap and it is only ever fixed by supplying a PRIMARY, never a further secondary. It is the reason the wave's one act is a primary and the reason no companion secondary was added to it."
+    }
+  ],
+  "blockedOn": [
+    {
+      "key": "(evidence, not a key) H.Amdt. 259 (Issa) to H.R. 8800",
+      "state": "BLOCKED ON EVIDENCE, NOT ON MERIT. The roll is the best in the entire unmapped pool — house 119/2 roll 274, 'On Agreeing to the Amendment', 207-224 failed, a losing side of 48.0%, as close to an even split as the corpus holds.",
+      "evidence": "The amendment's subject cannot be read from any source available here. The corpus's title says it would 'authorize the Secretary to approve any eligible investor and cleared investment professional who meets the program's statutory and regulatory' requirements. The engrossed bill (govinfo BILLS-119hr8800eh, read 2026-08-31) contains neither the phrase 'cleared investment professional' nor 'eligible investor' anywhere — the amendment failed, so its text is absent from the engrossed bill by construction. congress.gov returns 403 to a non-browser client and api.congress.gov requires a key this environment does not hold. A tech_innovation PRIMARY was drafted and measured at +7 clear rows with one member weakened (boebert), which is a positive number and is NOT a reason to ship: the wave cannot state what the amendment does, and a rationale that cannot cite a text it has read is an invented stance.",
+      "whatWouldUnblockIt": "The amendment text from the Congressional Record for house 119/2, or an API key for api.congress.gov. This is a one-row unblock once either exists.",
+      "alsoAppliesTo": "H.Amdt. 245, for the same reason. H.R. 8800's engrossed §518 is the 'Soldier Digital Lifecycle Modernization Initiative', not the voice-based drug-testing pilot the amendment's title names, because H.Amdt. 245 PASSED and the section numbers shifted between the reported and engrossed texts. So even the amendment that succeeded cannot have its subject confirmed from the engrossed bill. H.Amdt. 245 is refused on its measured cost regardless; the evidence gap is a second, independent ground."
+    },
+    {
+      "key": "(the whole Senate lane)",
+      "state": "BLOCKED, and blocked by structure rather than by a missing instrument.",
+      "evidence": "Measured this wave: 21 candidate promotes across 17 keys, every one +0/-0. 1006 unread senator rows, of which 778 are no_pole_read, 209 no_side (all on *_balance or _RD_NO_POLE keys) and 19 no_side_taken. Not one is reachable by a mapping.",
+      "whatWouldUnblockIt": "Admissible Senate roll calls on keys that have a pole. F4 swept all 890 Senate rolls of the 119th Congress and found none un-ingested that serves a poled key without being an appropriations or nominations vehicle. So the honest answer is: the Senate's 119th-Congress record, as it stands, is close to fully mapped for what the read model can characterise, and the remaining unread volume is a vocabulary-design question about the *_balance and _RD_NO_POLE families — not a wave."
+    },
+    {
+      "key": "the eight thin federal House members",
+      "state": "BLOCKED on ingest, out of scope for a mapping wave.",
+      "evidence": "adrian_smith, dina_titus, gabe_vasquez, melanie_stansbury, russ_fulcher, susie_lee, teresa_leger_fernandez and zach_nunn each hold exactly 5 issues, 2 acts, 2 member votes and 0 positions. Neither of their two votes is on any of the 33 unmapped measures, so no curator pass can reach them. Their wall is _PDX_RD_MEMBER_FLOOR = 12.",
+      "whatWouldUnblockIt": "Ingesting more of their roll calls. Not lowering the member floor, which the doctrine forbids."
+    }
+  ],
+  "chamberGapSweep": {
+    "_why": "Rule 30's second corollary: a measure whose `chamber` does not appear among its own roll calls is usually an ingest gap. Run on this wave's own output as well as on the corpus.",
+    "_result": "Both instruments are House measures holding House rolls, so this wave creates no gap. H.R. 1069 → house 119/1 roll 313. H.R. 973 → house 119/1 roll 103. Full corpus sweep found the same six pre-existing gaps F4 published, none created or touched here: H.R. 7776 (117) and H.R. 815 (118) hold Senate rolls only; S. 1383, S. 146, S. 2503 and S. 356 (all 119) hold House rolls only.",
+    "notableThisWave": "S. 2503 and S. 356 are both on that pre-existing gap list AND both in this wave's unmapped pool — Senate-origin bills whose only recorded vote is a House suspension motion. Both are refused above, on the key and on rule 11 respectively, so neither refusal rests on the gap.",
+    "checkedAfter": "This wave adds no roll call, so the sweep result is identical before and after. The migration's verification block asserts each instrument still holds a roll in its own chamber rather than trusting it."
+  },
+  "vocab": {
+    "keysAdded": 0,
+    "_why": "The brief permits a new key only if three or more instruments fight the same fight, under the six standing vocabulary rules of scripts/test-vr-vocab-wave-v1.mjs — 1 RECURRING, 2 CLEAN POLARITY, 3 NOT A COUSIN, 4 VOTER LANGUAGE, 5 NO RESTUFFING, 6 NO PARTY LEAN / NO NEW SCORE — and instructs: 'Add only keys that change a readable pattern. Refuse the rest in writing.' Four proposals were tested against all six rules. All four are refused, and none is left as a queued item.",
+    "refusedProposals": [
+      {
+        "name": "foreign influence in American education",
+        "instruments": "H.R. 1069 (PRC support of K-12 schools, admitted this wave), H.R. 1005 (foreign-source funds disclosure by schools), H.R. 1049 (adversarial contributions to education reporting), H.R. 881 (DHS funding restrictions on universities with Confucius Institutes).",
+        "rule1_RECURRING": "PASSES on its face — four instruments in one Congress, and this is the only one of the four proposals that gets past rule 1 at all. H.R. 881 is not ingested as a measure with its own roll (it appears only as a subject of the H.Res. 377 rule), so three are live.",
+        "rule2_CLEAN_POLARITY": "PASSES. A yea restricts foreign influence in all three live cases.",
+        "rule3_NOT_A_COUSIN": "FAILS. The key would sit directly on top of two live keys that already hold two of its three instruments: H.R. 1005 is gov_transparency at 90 primary, H.R. 1049 is edu_parental at 100 primary plus gov_transparency at 65. It is not a new axis, it is a re-cut of two existing ones along a motive.",
+        "rule5_NO_RESTUFFING": "FAILS, and this is what makes rule 3's failure fatal. The only way the new key carries more than one instrument is to move H.R. 1005 and H.R. 1049 into it, which rule 5 forbids. Left alone, the key founds on H.R. 1069 by itself — and then it fails rule 1 too.",
+        "rule4_VOTER_LANGUAGE": "Would pass. 'Keep hostile foreign governments out of American schools' is a sentence a voter recognises.",
+        "rule6_NO_PARTY_LEAN": "Would pass.",
+        "verdict": "REFUSED on rules 3 and 5, and therefore on rule 1. The fight is real and it is already housed: three instruments, three homes, decided on what each bill's text operatively DOES rather than on the motive they share. H.R. 1069 going to public_schools rather than to a new foreign-influence key is the same discipline applied a third time.",
+        "shipped": false
+      },
+      {
+        "name": "consumer product safety",
+        "instruments": "H.R. 973 (lithium-ion battery standards, admitted this wave). H.R. 2478 and H.R. 8897 are adjacent but both fail rule 11 (414-2 and 398-12), so neither is an admissible act.",
+        "rule1_RECURRING": "FAILS. One admissible instrument. A key founded on a single bill is a description of that bill.",
+        "verdict": "REFUSED on rule 1. Not tested further; one rule failure is enough and the remaining five were not used to argue around it.",
+        "shipped": false
+      },
+      {
+        "name": "aviation safety",
+        "instruments": "S. 2503 (ROTOR Act) is the only admissible one. H.R. 3106 (400-7), H.R. 3424 (397-1) and H.R. 8897 (398-12) all fail rule 11.",
+        "rule1_RECURRING": "FAILS. One admissible instrument.",
+        "verdict": "REFUSED on rule 1. Recorded because S. 2503's infrastructure mapping was also refused above, so its votes stay unmapped on both routes — and that is the correct outcome rather than a gap to be closed by whichever route is available.",
+        "shipped": false
+      },
+      {
+        "name": "daylight saving time",
+        "instruments": "H.R. 139 (Sunshine Protection Act of 2025).",
+        "rule1_RECURRING": "FAILS. One instrument, and no second one is pending in either chamber.",
+        "rule4_VOTER_LANGUAGE": "Also doubtful. A voter recognises the question, but 'should clocks change' is not a policy axis a record is read along — it is a one-off with no direction that carries to any other vote.",
+        "verdict": "REFUSED on rules 1 and 4. This is the wave's cleanest example of the brief's instruction to refuse in writing: a contested 308-117 roll on 425 members, sitting in the pool, and the right answer is still no key and no mapping.",
+        "shipped": false
+      }
+    ],
+    "noKeyRenamedNoScopeNarrowed": "No live key's scope note, chip, label or keyword list is edited by this wave. public_schools and gov_regulation are both mapped strictly inside the scope notes they already publish, and each accepted rationale quotes the note it is relying on."
+  },
+  "_counts": {
+    "measuresRead": 2,
+    "engrossedTextsRead": 2,
+    "newMeasures": 0,
+    "newRollCalls": 0,
+    "rollCallsAdmitted": 0,
+    "memberVotesAttributed": 0,
+    "memberVotesSkipped": 0,
+    "unmappedPoolSwept": 33,
+    "unmappedPoolMemberVotes": 2903,
+    "poolRefusedOnRule11": 19,
+    "poolRefusedOnForm": 7,
+    "poolRefusedOnKeyOrEvidence": 5,
+    "poolAdmitted": 0,
+    "candidatePromotesSimulated": 21,
+    "promotesAccepted": 0,
+    "promotesRefused": 21,
+    "rowsAccepted": 0,
+    "rowsRefused": 13,
+    "rowsRetracted": 0,
+    "keysAdded": 0,
+    "keysProposedAndRefused": 4,
+    "floorsMoved": 0,
+    "readsLost": 0,
+    "readsGained": 0,
+    "membersMoved": 0,
+    "issueTierChanges": 0,
+    "clearRowsBefore": 4124,
+    "clearRowsAfter": 4124,
+    "splitRowsBefore": 3562,
+    "splitRowsAfter": 3562,
+    "unreadRowsBefore": 2806,
+    "unreadRowsAfter": 2806,
+    "publicSchoolsFederalPrimariesBefore": 0,
+    "publicSchoolsFederalPrimariesAfter": 0,
+    "govRegulationFederalActsOpposingBefore": 0,
+    "govRegulationFederalActsOpposingAfter": 0,
+    "senateKeysWithPrimaryBefore": 38,
+    "senateKeysWithPrimaryAfter": 38,
+    "senateUnreadRowsBefore": 1006,
+    "senateUnreadRowsAfter": 1006,
+    "senatorsMovedThisWave": 0,
+    "rowsDraftedAndRefusedAsDoctrineReversals": 2,
+    "poolRefusedOnStandingDoctrine": 2,
+    "migrationsShipped": 0,
+    "standingWallsFound": 2,
+    "runbookFollowUpsAnswered": 1,
+    "_afterMeansAfterThisWave": "Every 'After' counter equals its 'Before' counter, because this wave writes nothing. The projected figures for the two refused rows are under measuredCostOfTheRefusedRows and are labelled as projections there."
+  },
+  "acceptanceFaces": {
+    "_comment": "The brief's three named smoke faces, answered with the measured outcome. Two of the three do not move, and that is the census's finding rather than a shortfall — so it is stated first.",
+    "lee": "DOES NOT MOVE. Nothing changes on Mike Lee's record: issues 68, clear 7, split 14, unread 11, characterised 21, acts 63 — identical before and after. Both of this wave's instruments are House measures whose only roll calls are House roll calls, and Lee has no vote on either. The smoke check on /p/lee is therefore an assertion of NO drift on any key, which the twin-boot test pins.",
+    "curtis": "DOES NOT MOVE, for the same reason. Issues 72, clear 12, split 11, unread 10, characterised 23, acts 70 — identical before and after.",
+    "whyTheTwoSenatorsCannotMove": "Because the census says no senator can be moved by any mapping at all. 21 candidate promotes measured, +0/-0 on every one; 1006 unread senator rows, all structurally suppressed or the senator's own Present/absent. A wave that moved Lee and Curtis this week would have had to either lower a floor or map a vehicle, and both are refused by name. senateKeysWithPrimary is 38 of 98 before and after; senatorsMoved is 0 and is published as 0.",
+    "moore": "MOVES ON BOTH KEYS. Blake Moore (pid bmoore) votes yea on house 119/1 roll 313 (H.R. 1069) and yea on house 119/1 roll 103 (H.R. 973). public_schools moves from split to mostly — clear rows 29 → 30, split rows 13 → 12 — and gov_regulation moves from strong to mostly, because H.R. 973 is the first act on his record where a yea created federal regulation. Characterised count unchanged at 42, issues unchanged at 80, acts unchanged at 146: the wave adds no act to his file, it reads two he already had.",
+    "theOtherThreeUtahHouseMembers": "maloy — yea on both; public_schools thin → split (split 3 → 4, characterised 27 → 28). kennedy — yea on H.R. 1069, NAY on H.R. 973; public_schools thin → split (split 2 → 3, characterised 27 → 28). owens — yea on both; public_schools split → mostly (clear 29 → 30, split 11 → 10). Kennedy voting nay on H.R. 973 while the other three voted yea is the wave working as intended: the same roll read four ways, each member given the position the record holds for them.",
+    "noNotAboutThisIssueOnAPrimaryRow": "Both accepted rows are PRIMARY, so neither can render the no-issue or poleless copy. public_schools and gov_regulation are both absent from _RD_NO_POLE and neither is a *_balance key, so _rdSuppressedKey() returns null for both and _rdNoPoleSay()/_rdNoPoleWhy() cannot fire on either. Pinned by the test."
+  },
+  "whatShipsThisWave": {
+    "rows": 0,
+    "measures": 0,
+    "rollCalls": 0,
+    "memberVotes": 0,
+    "keys": 0,
+    "floorsMoved": 0,
+    "migrations": 0,
+    "_soWhatIsTheProduct": "Four things, none of them a coverage number. (1) A rebuilt census that measures Option A dead rather than asserting it: 21 candidate promotes, +0/-0 each, and a whole-roster proof that all 2806 unread federal rows are structurally unconvertible by any mapping. (2) A complete sweep of the 33-measure unmapped pool with every tally printed, which is the work the next wave does not have to repeat. (3) Two drafted-and-measured rows kept in full beside the standing refusals that block them, so the pass that revisits runbook rule 3 or follow-up 0c starts from an argued draft and a measured cost instead of a blank page. (4) Follow-up 0c's vocabulary question, answered in the negative under the six standing rules — which converts H.R. 1069 from 'unmapped until the vocabulary question is decided' to 'unmapped because it was decided', and that is a smaller claim than a mapping but a more durable one.",
+    "_whyNoMigrationWasShipped": "A migration was written and then withdrawn, unapplied, in the same session that wrote it. The order of work is the lesson: the rows were drafted from the engrossed text, projected through the harness, and measured clean (+74 clear, 0 lost) BEFORE the standing-doctrine check ran. The measurement was the strongest argument the wave had and it was the wrong argument, because runbook rule 3 predicted the 38-member effect the wave had written up as its honest headline. A doctrine check that runs after the measurement is a doctrine check that argues with a number it has already fallen for. It runs first from now on."
+  },
+  "standingWallsFound": {
+    "_why": "The brief's walls include 'a promote that does not convert unread rows is a written block, not a mapping' and rule 25's requirement to surface contradictions rather than silently fix them. These are the two walls that stopped this wave, quoted rather than summarised, with the file and line a reader can check.",
+    "wall1_HR1069_publicSchools": {
+      "source": "db/vr-ingest-runbook.md follow-up 0c (opened by migration 20260912000000) and db/vr-federal-mapping-seed-f1.json measures[3].issues[5]",
+      "quote": "'No key for foreign influence in domestic institutions. H.R. 1069 (PROTECT Our Kids Act, 247-164, 99 member-votes) cuts federal education funds from any K-12 school partnered with a PRC-funded institute. tariffs_china is trade, america_first_fp is foreign aid, and public_schools is a funding-level chip. The bill stays unmapped until the vocabulary question is decided on its own; do not invent a key for one measure.'",
+      "alsoAssertedBy": "scripts/test-vr-federal-wave-f2.mjs §5 and scripts/test-vr-federal-wave-f3.mjs both scan every migration for an issue mapping on H.R. 1069 and require zero. They failed against this wave's draft migration, which is how the wall was found. Both pass again.",
+      "howF5Answers": "By taking the vocabulary question 0c reserved and answering it NO, under the six standing rules, and by leaving the bill unmapped — which is what 0c instructs when the answer is no. F5 does not touch the public_schools scope note, because amending a published boundary to admit a row is the restuffing rule 5 forbids, wearing a scope note."
+    },
+    "wall2_HR973_govRegulation": {
+      "source": "db/vr-ingest-runbook.md rule 3 ('Two more rules, learned the hard way in the substantive-remainder pass') and follow-up 0c",
+      "quote": "'gov_regulation is about the regulatory question, not about every mandate. Reserve it for measures whose primary operative purpose is regulation itself... Do not map a measure to it merely because the measure directs an agency to issue or enforce a rule — that description fits most of the statute book, and it would turn a member's deregulation stance into a contradiction on any safety vote. This is why H.R. 973 (CPSC rule for micromobility batteries) and S. 2503 (ADS-B In equipment requirement) are unmapped despite both being contested.'",
+      "howF5Answers": "By not shipping the row, and by recording that the harness CONFIRMED rule 3 rather than beating it: the drafted row moves 38 members from a uniform gov_regulation record to a mixed one, which is rule 3's stated harm expressed in members. The runbook's own note that 'if rule 3 is ever revisited, these are the two measures that change' is where H.R. 973 and S. 2503 stay."
+    },
+    "_theGeneralLesson": "A standing written refusal is data, and the census has to read it. This census read the database, the read model and the engrossed texts, and did not read db/vr-federal-mapping-seed-f1.json or the runbook's own rule list until after it had a measured result it liked. Both survivors of a 33-measure sweep were already refused by name, in writing, in this repository. The next census's first query is against the prior waves' refusals, not against vr_measure_issues."
+  },
+  "measuredCostOfTheRefusedRows": {
+    "_why": "Both refused rows were fully projected before the walls were found, and the measurements are kept because a future pass revisiting either wall needs them and because a refusal is more checkable with its price attached. NONE OF THESE NUMBERS SHIPPED. The live record is unchanged by this wave: 4124 clear / 3562 split / 2806 unread, 0 empty / 10 thin / 333 readable, exactly as before.",
+    "hadBothRowsShipped": {
+      "clearRows": "4124 → 4198 (+74)",
+      "splitRows": "3562 → 3505 (−57)",
+      "unreadRows": "2806 → 2805 (−1)",
+      "bands": "0 empty / 10 thin / 333 readable — unchanged",
+      "membersMoved": 90,
+      "issueTierChanges": 129,
+      "readsLost": 0,
+      "readsGained": 1,
+      "senatorsMoved": 0,
+      "_note": "Checked set-wise on the row model's own `read` flag over all 343 pids, not on the shape counters. The clean loss column is why the rows survived measurement and is exactly why measurement was not the last check."
+    },
+    "theEffectRule3Predicted": {
+      "_why": "The brief asks for a read-loss disclosure if a promote costs a row. Nothing costs a row. But 129 rows change TIER across 90 members, and three of those four transitions are worth naming because a reader looking at a member's page will see them, and calling the wave '+74 clear rows, 0 lost' without them would be true and incomplete.",
+      "public_schools_split_to_mostly": {
+        "rows": 73,
+        "meaning": "73 members whose public_schools record read as a split now read as mostly one way. This is the +73 and it is a gain: a split row says 'this member has gone both ways', a mostly row names the direction. These are the members the census found sitting at 3 judged acts with no primary."
+      },
+      "public_schools_thin_to_split": {
+        "rows": 17,
+        "meaning": "17 members whose public_schools record read at the thin tier now read as a split. Still characterised, and now characterised as genuinely divided — which is what the record shows: they hold package-borne acts on one side of the key and H.R. 1069 on the other. Named in full: delia_ramirez, josh_brecheen, julie_fedorchak, kennedy, luna, maloy, maxwell_frost, mike_collins, mike_ezell, mike_flood, mike_lawler, rob_bresnahan, robert_garcia, ryan_mackenzie, sarah_mcbride, summer_lee, troy_downing. Sixteen of the seventeen show a net +1 split row; sarah_mcbride nets zero because her gov_regulation row moves the other way in the same wave (split → mostly), which is the one gov_regulation split→mostly transition below."
+      },
+      "gov_regulation_strong_to_mostly": {
+        "rows": 38,
+        "meaning": "THE MOST IMPORTANT LINE IN THIS DISCLOSURE, because it is the effect the clear-row counter cannot see and because it moves records in a direction some of the 38 will dislike. 38 members' gov_regulation records read `strong` before this wave — uniform, one-directional, no counter-act — and read `mostly` after it. Nothing is lost: all 38 stay clear and stay characterised, and the tier label changes because they now hold one act on the other side of the axis. The cause is that all eleven federal gov_regulation rows in the corpus were yea_supports before today — three CRA and deregulation primaries plus eight secondaries — so the key could only ever show a member cutting regulation. H.R. 973 is the first federal act on this key where a yea CREATES regulation. The 38: arrington, bmoore, boebert, bruce_westerman, bryan_steil, comer, dan_crenshaw, don_bacon, emmer, foxx, frank_lucas, french_hill, garbarino, glenn_thompson, guthrie, jason_smith, jim_jordan, julie_fedorchak, kevin_hern, maloy, mariannette_miller_meeks, michael_guest, mike_bost, mike_ezell, mike_flood, mike_lawler, owens, rick_crawford, rob_bresnahan, roger_williams, sam_graves, scalise, stephanie_bice, steve_womack, tom_cole, trent_kelly, troy_downing, walberg. Each of them voted yea on a suspension motion that ordered the CPSC to promulgate three mandatory standards, and the record now says so."
+      },
+      "gov_regulation_split_to_mostly": {
+        "rows": 1,
+        "meaning": "sarah_mcbride. Her gov_regulation record was a split and now reads mostly one way."
+      },
+      "noPartyPatternClaimed": "The 38 are not offered as a party finding and the wave makes none. They are the 38 members who held a uniform gov_regulation record and voted yea on house 119/1 roll 103. Nothing in any rationale, any row or any rendered string names a party."
+    },
+    "theSingleUnreadConversion": {
+      "lost": 0,
+      "gained": 1,
+      "membersChecked": 343,
+      "lostReads": [],
+      "gainedReads": [
+        {
+          "pid": "don_davis",
+          "key": "public_schools",
+          "nowTier": "thin",
+          "why": "don_davis's public_schools row was unread before this wave for reason no_side_taken — he held only package-borne rows and had taken no side on them. H.R. 1069 gives him a recorded yea or nay of his own on the key, so the row reads. This is the wave's single unread → read conversion, and it is one row, stated as one row."
+        }
+      ],
+      "_note": "ZERO LOST, checked and not asserted. All 343 members were booted before and after and the SET of keys the engine marks `read` was compared. Not one row on any key for any member stopped being characterised. `weakened` — readable → not, or fewer clear issues — is also empty: 0 of 343."
+    },
+    "checkedBy": "node scripts/vr-federal-fpi.mjs --set all --waves f1,f2,f3,f4,f5   (readSets(); printed as 'rows that stopped being characterised', machine-readable as lostReads/gainedReads under --json). Run over --set all, which is both chambers."
+  }
+}

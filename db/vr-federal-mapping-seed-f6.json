@@ -1,0 +1,831 @@
+{
+ "_comment": "Federal wave F6 decision record, and the wave's own artifact: written by hand and read by scripts/vr-gen-federal-wave-f6-migration.mjs, scripts/vr-federal-fpi.mjs (the mapping overlay matches a measure on the (congress, number) pair the runbook treats as its identity) and scripts/test-vr-federal-wave-f6.mjs. The prose is the wave; the numbers are quoted from the chamber sources it fetched.",
+ "wave": "f6",
+ "mission": "Ingest contested standalone rolls that are not in the seed yet, so that pattern density for federal members rises on the formal record. No party score, no package percentage, no invented stance, no floor moved.",
+ "whatShipsThisWave": {
+  "measures": 11,
+  "rollcalls": 11,
+  "memberVotes": 1284,
+  "issueRows": 11,
+  "newIssueKeys": 0,
+  "newRosterSlugs": 8,
+  "floorsMoved": 0,
+  "shellAssetsChanged": 0,
+  "cacheVersionBump": false,
+  "note": "Eleven passage rolls on eleven standalone House bills, eleven mapping rows on four keys that were already live and already poled, and eight names added to the attribution roster. No new vocabulary — see vocabDecision, where the wave's one new-key candidate is refused in writing. No SHELL_ASSETS file changes, so CACHE_VERSION stays where it is; the brief's rule is that data-only SQL does not bump it."
+ },
+ "census": {
+  "ordering": "Refusal record first, fetch pool second, thin files third. F5 established the reason: its census asked vr_measure_issues which measures were unmapped and could not tell a gap nobody had reached from a gap a prior wave dug on purpose. Both measures it surfaced had already been refused by name. So this wave built the refusal gate before it built the pool, and applied it as a pre-filter rather than as a late check.",
+  "questionA_refusalRecordFirst": {
+   "question": "What does this repository already refuse, by name?",
+   "gateHolds": 73,
+   "sources": [
+    "db/vr-federal-mapping-seed-f1.json",
+    "db/vr-federal-mapping-seed-f2.json",
+    "db/vr-federal-mapping-seed-f3.json",
+    "db/vr-federal-mapping-seed-f4.json",
+    "db/vr-federal-mapping-seed-f5.json",
+    "db/vr-ingest-runbook.md"
+   ],
+   "standingRefusalsReaffirmed": [
+    {
+     "measure": "H.R. 1069",
+     "status": "STAYS REFUSED",
+     "why": "F1 proposed a public_schools mapping, argued it at length and refused it; F2 and F3 re-refused it; F5 drafted a row and refused that too. public_schools remains a funding-level chip and this wave takes no vocab decision that reopens it. Nothing in this pass writes a row against H.R. 1069, and the wave's test asserts F1, F2 and F3 still see zero mappings on it."
+    },
+    {
+     "measure": "H.R. 973",
+     "status": "STAYS REFUSED",
+     "why": "Refused under runbook rule 3 — gov_regulation is the regulatory question, not every mandate. This wave refuses gov_regulation five more times on five more measures under the same rule, which is the rule being applied rather than eroded."
+    },
+    {
+     "measure": "S. 2503",
+     "status": "STAYS REFUSED",
+     "why": "Named in the runbook under rule 3 alongside H.R. 973. Not in this wave's pool and not reopened."
+    },
+    {
+     "measure": "rules-for-consideration resolutions",
+     "status": "STAYS REFUSED",
+     "why": "Every H.Res. 'providing for consideration of' was filtered out of the pool before the form gate ran. The brief's instruction and the standing practice agree: a rule for consideration is a procedural vehicle, and its passage is not a direction on the bill it carries."
+    }
+   ],
+   "appliedAsPrefilter": {
+    "contestedRollsScreened": 178,
+    "alreadyRefusedByName": 54,
+    "survived": 124,
+    "houseSurvived": 106,
+    "senateSurvived": 18,
+    "whatTheGateCaught": "Fifty-four contested rolls that a naive sweep would have offered as fresh. The largest block is F4's twenty-one Congressional Review Act and disapproval resolutions, refused as a block; the rest are the appropriations refusals (H.R. 5371 three times, H.R. 6500, H.R. 3944, H.R. 4553) and the named joint resolutions S.J.Res. 88, 80, 82 and H.J.Res. 130. Every one of those would have looked like an unmapped gap to a query against vr_measure_issues. That is the F5 lesson, installed as a filter instead of learned again."
+   }
+  },
+  "questionB_theFetchPool": {
+   "question": "Which current-Congress passage and amendment rolls are not in the corpus, are contested, and are standalone policy?",
+   "chamberSourcesVerified": [
+    "clerk.house.gov/evs/{year}/ROLL_000.asp, ROLL_100.asp, ROLL_200.asp for the full year listing — index.asp is a truncated recent-votes view and returns only the last handful of rolls, which is why the chunked listings are used",
+    "clerk.house.gov/evs/{year}/roll{NNN}.xml for the roll itself, with bioguide in the legislator name-id attribute",
+    "senate.gov/legislative/LIS/roll_call_lists/vote_menu_119_{session}.xml for the Senate menu"
+   ],
+   "funnel": [
+    {
+     "step": "0. listed on a chamber source",
+     "from": 1535,
+     "to": 1535,
+     "note": "house 645 (2025: 362, 2026: 283), senate 890 (session 1: 659, session 2: 231)"
+    },
+    {
+     "step": "1. not already in vr_rollcalls",
+     "from": 1535,
+     "to": 1362,
+     "note": "-173 already on file"
+    },
+    {
+     "step": "2. rule 8/12 decisive question form",
+     "from": 1362,
+     "to": 278,
+     "note": "-1084. Admitted forms: 237 decisive, 25 on the joint-resolution passage form, 16 on the discharge exception. The amendment exception admitted ZERO, because the House listing files an amendment roll under the parent bill's number, so the shape test in rule 12 cannot be satisfied from the listing alone and 89 House amendment rolls are inadmissible without a per-roll fetch. That is a real gap in this pass's reach and it is recorded rather than papered over."
+    },
+    {
+     "step": "3. not a rule providing for consideration",
+     "from": 278,
+     "to": 278,
+     "note": "the form gate had already removed every one"
+    },
+    {
+     "step": "4. not a nomination",
+     "from": 278,
+     "to": 278,
+     "note": "none survived the form gate"
+    },
+    {
+     "step": "5. contested at rule 11's one-tenth bar",
+     "from": 278,
+     "to": 178,
+     "note": "-100. House 128, Senate 50."
+    },
+    {
+     "step": "6. refusal-first gate",
+     "from": 178,
+     "to": 124,
+     "note": "-54 already refused by name"
+    },
+    {
+     "step": "7. admitted this wave",
+     "from": 124,
+     "to": 11,
+     "note": "eleven, on eleven distinct measures. The remainder is not refused — it is unread. See whatTheNextWaveInherits."
+    }
+   ],
+   "poolIsNotEmpty": "It is not. Unlike F5, both chamber sources return live XML and the gated pool holds 124 contested rolls the corpus has never seen. The brief's stop condition — 'if the fetch pool is empty after refusal-first, stop and say so' — does not fire.",
+   "aBugWorthRecording": "The first Senate tally run reported zero contested Senate rolls. The LIS menu carries a <vote_tally> display string, '51-42', and parsing it as a number gives 5142, which reads as a pool of 5142 with a losing side of zero — uncontested. The House XML uses yea/nay and the Senate menu uses yeas/nays, and a single fallback chain across both silently preferred the display string. The fix is that the chamber decides which pair is authoritative. Corrected, the Senate contributes 50 of the 178 contested rolls. A filter that quietly returns nothing looks exactly like a filter that correctly returns nothing, which is why this is written down."
+  },
+  "questionC_whichThinFilesAnewRollTouches": {
+   "question": "Which thin House files would a new roll actually touch?",
+   "harness": "node scripts/vr-federal-fpi.mjs --set all --waves f1,f2,f3,f4,f5 --thin",
+   "memberFloor": 12,
+   "floorCountsMappedRecords": "Traced, because the answer decides whether an ingest-only wave converts anything. stance-helpers.js line 1112 reads opts.memberRecordCount; voting-record.js line 2266 passes counts.votes from window._pdxRecordMappedCounts(pid); and that helper increments votes only for a record that carries at least one issue mapping. An unmapped roll is therefore not an act. A wave that ingests without mapping moves no member off the floor, which is why this wave does both in one pass.",
+   "thinBandBefore": "10 of 343 members in the federal set are outside the readable band. Two are state figures at gap 0 (jacob_anderegg 18/19, bwilson 29/38) and are reachable by a mapping wave. The other eight are the whole thin House band: five or six issues, two acts each, gap 10.",
+   "theEightNamed": [
+    {
+     "pid": "adrian_smith",
+     "bioguide": "S001172",
+     "state": "NE",
+     "district": 3
+    },
+    {
+     "pid": "dina_titus",
+     "bioguide": "T000468",
+     "state": "NV",
+     "district": 1
+    },
+    {
+     "pid": "gabe_vasquez",
+     "bioguide": "V000136",
+     "state": "NM",
+     "district": 2
+    },
+    {
+     "pid": "melanie_stansbury",
+     "bioguide": "S001218",
+     "state": "NM",
+     "district": 1
+    },
+    {
+     "pid": "russ_fulcher",
+     "bioguide": "F000469",
+     "state": "ID",
+     "district": 1
+    },
+    {
+     "pid": "susie_lee",
+     "bioguide": "L000590",
+     "state": "NV",
+     "district": 3
+    },
+    {
+     "pid": "teresa_leger_fernandez",
+     "bioguide": "L000273",
+     "state": "NM",
+     "district": 3
+    },
+    {
+     "pid": "zach_nunn",
+     "bioguide": "N000193",
+     "state": "IA",
+     "district": 3
+    }
+   ],
+   "theirTwoExistingActs": "Both acts, for all eight, are the same pair: H.J.Res. 89 (119/1/112) and H.J.Res. 88 (119/1/114), each already mapped energy_production. Eight members, two acts, one key, one instrument type. That is not a thin record because the members vote rarely; it is a thin record because only two of their votes were ever attributable.",
+   "theRealCause": "Attribution, not vocabulary. None of the eight was in db/vr-member-map.json before this wave. They are SPOTLIGHTS figures with no BROWSE_PHOTOS portrait, so the generator had no URL to read a Bioguide out of and nobody had named them by hand — the same shape as the gov_regulation finding runbook rule 30 records, where the answer was 'attribution, not vocabulary'. Every one of the 645 House rolls in the 119th was unattributable to these eight for that reason alone.",
+   "theFix": "Eight entries in SEED_SLUGS in scripts/vr-gen-member-map.mjs and a federal_wave_f6_aug2026 wave in db/vr-roster-admitted.json, then regenerate. Each Bioguide was read from the clerk XML name-id attribute and verified twice: against legislators-current.json by name and state, and independently by unique surname+state on the same roll — the clerk disambiguates the three colliding surnames as 'Smith (NE)', 'Lee (NV)' and 'Nunn (IA)', which is what the second path matches. The generator's own portrait identity cross-check then passed for all 221 admitted slugs. Precedent: the Israel roster expansion added 37 members the same way.",
+   "whatTheyGain": "Eleven acts each. All eight are recorded on all eleven admitted rolls with a side — no not_voting among them — so every one of the eleven both counts toward the member floor and is readable. 2 + 11 = 13 against a floor of 12.",
+   "marginIsThin": "One act. Three of the wave's first-draft candidates were refused on the runbook's study-and-report rule after the slice was already sized, which took the gain from twelve to nine and put the eight at 11 — below the floor. Rather than keep a refused measure to make the arithmetic work, the slice was re-sized: H.R. 4090 and H.R. 4690 were read and admitted on their operative sections. The order matters and is stated plainly — the refusals were decided on the text, and then the count was fixed by finding more text, not by softening a refusal."
+  }
+ },
+ "refusedThisWave": {
+  "onTheStudyAndReportRule": {
+   "rule": "db/vr-ingest-runbook.md, 'Two rules from this pass', rule 1: an institution-creating bill is admitted only where the new body gets operative duties over the policy itself. A body that studies, advises or reports and nothing more is refused, because 'a commission that produces a recommendation is not a direction on the policy; treating it as one would let any interim-study bill inherit the weight of the fight it studies.'",
+   "appliedToFederalTextForTheFirstTime": "The rule was written on Utah bills. It reads the same on federal ones, and four measures in this wave's own energy slice fail it. All four were contested, all four survived the refusal gate, and all four would have been easy acts.",
+   "measures": [
+    {
+     "measure": "H.R. 3015",
+     "shortTitle": "National Coal Council Reestablishment Act",
+     "roll": "119/1/278",
+     "tally": "217-209",
+     "losingSharePct": 49.06,
+     "why": "The purpose line refuses the bill by itself: 'to reestablish the National Coal Council in the Department of Energy to provide advice and recommendations to the Secretary of Energy'. SEC. 2 gives the Council no operative duty over coal — no lease, no standard, no approval. It advises. This is the runbook's refused shape word for word, and the fact that the fight it advises on is a real fight is precisely what the rule says not to inherit."
+    },
+    {
+     "measure": "H.R. 3638",
+     "shortTitle": "Electric Supply Chain Act",
+     "roll": "119/1/324",
+     "tally": "267-159",
+     "losingSharePct": 37.32,
+     "why": "SEC. 2 is captioned ASSESSMENT AND REPORT ON THE SUPPLY CHAIN FOR THE GENERATION of electric energy. The Secretary prepares periodic assessments and submits reports. Nothing is approved, required, funded or prohibited. Refused, and it is the least comfortable of the four because at a 37.3% losing share it is the most contested roll in the whole slice — a measure being genuinely fought over does not make its text a direction."
+    },
+    {
+     "measure": "H.R. 3109",
+     "shortTitle": "REFINER Act",
+     "roll": "119/1/303",
+     "tally": "230-176",
+     "losingSharePct": 43.35,
+     "why": "SEC. 2 is captioned REPORT ON PETROCHEMICAL REFINERIES and directs the Secretary of Energy to have the National Petroleum Council issue a report. A report commissioned from an advisory council is two steps from an operative duty, not one."
+    },
+    {
+     "measure": "H.R. 3617",
+     "shortTitle": "Securing America's Critical Minerals Supply Act",
+     "roll": "119/2/64",
+     "tally": "223-206",
+     "losingSharePct": 48.02,
+     "why": "The closest of the four and refused after a full read, with the counter-argument recorded so a later curator can reopen it on the merits rather than on a fresh guess. FOR admission: SEC. 2 amends the Department of Energy Organization Act to add a statutory definition of 'critical energy resource', a new purpose at section 102(20) and a new function at section 203(a)(12), and SEC. 3(a)(2)-(4) direct the Secretary to facilitate strategies, develop substitutes and improve recycling technology, which are programmatic activities rather than paperwork. AGAINST, and decisive: every one of those verbs is an assess-strategise-report verb. SEC. 3(a)(1) is 'conduct ongoing assessments', SEC. 3(b) is a report due in two years, the new section 102 item is a purpose declaration, and no permit, standard, approval, prohibition or dollar changes anywhere in the Act. A purpose clause is the statutory form of a recommendation. Refused on the same rule as the other three, and refused knowing it cost the wave an act."
+    }
+   ],
+   "cost": "Nine admitted rolls instead of twelve, which put the eight thin members one act below the floor until two further measures were read. Recorded here because the honest version of this wave includes the sentence 'the rule cost us the conversion and we applied it anyway'."
+  },
+  "onStandingDoctrine": [
+   {
+    "measure": "H.R. 4553",
+    "shortTitle": "Energy and Water Development and Related Agencies Appropriations Act, 2026",
+    "roll": "119/1/239",
+    "losingSharePct": 49.88,
+    "why": "Appropriations. F4 refused continuing and consolidated appropriations by name — 'do not map an appropriations vehicle' — and an annual division act is the same instrument. It reached this wave's attention only because its title contains the words Energy and Water, which is how a keyword sweep finds an appropriations bill and calls it a policy bill."
+   }
+  ],
+  "onSubjectScope": [
+   {
+    "measure": "H.R. 1834",
+    "shortTitle": "Breaking the Gridlock Act",
+    "roll": "119/2/11",
+    "losingSharePct": 46.01,
+    "why": "Named rather than silently dropped, because it is the wave's best illustration of rule 5. The title matched an energy keyword sweep on the word gridlock; the engrossed text is a single section extending the enhanced premium tax credit under section 36B of the Internal Revenue Code from 2025 through 2028. It is a health-coverage subsidy bill with a pun for a name. Out of this wave's subject scope, not refused on the merits, and left for a wave that reads the health keys — a later curator should not have to rediscover that the title lies."
+   }
+  ]
+ },
+ "vocabDecision": {
+  "candidate": "A District of Columbia key",
+  "whyItWasConsidered": "It is the one cluster in the gated pool with no live home. Nine contested measures in the 119th act directly on the District: H.R. 2056 (Federal Immigration Compliance), H.R. 2096 (Protecting Our Nation's Capital Emergency), H.R. 4922 (DC CRIMES), H.R. 5103 (Make the District of Columbia Safe and Beautiful), H.R. 5107 (CLEAN DC), H.R. 5125 (Judicial Nominations Reform), H.R. 5140 (lowering the age at which a minor may be tried as an adult), H.R. 5143 (Policing Protection), H.R. 5214 (Cash Bail Reform). Nine contested standalone rolls in one Congress is a pattern, and parking them was not an option: states_federal_power is a `_RD_NO_POLE` key and could never characterise them, the District is not a state, and `homeless` — which CLEAN DC would otherwise tempt — is also `_RD_NO_POLE`.",
+  "outcome": "REFUSED. Not added.",
+  "sixRules": [
+   {
+    "rule": "1. Recurring",
+    "verdict": "PASS",
+    "note": "Nine contested measures in one Congress, across two sessions."
+   },
+   {
+    "rule": "2. Pole",
+    "verdict": "PASS ON ITS FACE, and this is where the trouble starts",
+    "note": "A direction can be stated — Congress overrides the District's local law, or it does not. But the coalition on all nine rolls is the same coalition, and a key whose direction is read off a near-uniform split is a party label with a policy title. The brief forbids party in reader copy and vocab rule 6 in the older numbering forbids a new key carrying a party lean. Passing rule 2 only by pointing at who voted which way is not passing it."
+   },
+   {
+    "rule": "3. Distinct",
+    "verdict": "MARGINAL",
+    "note": "states_federal_power exists and is deliberately no-pole, because 'whose rule governs' was judged to have no direction. Giving the District version of that same shape a pole would be a decision that the earlier judgement was wrong, taken sideways, in a wave whose brief says not to rewrite history."
+   },
+   {
+    "rule": "4. Written scope + cousin wall",
+    "verdict": "PASS, in the sense that a scope could be written",
+    "note": "'What Congress does to the District's own local law' is writable, and its cousin wall against states_federal_power and lands_local is statable. This rule was not the one that failed."
+   },
+   {
+    "rule": "5. Subject not vehicle",
+    "verdict": "FAIL, and this is the refusal",
+    "note": "Read the nine subjects: immigration enforcement cooperation, emergency federal control of the police, the criminal code, sanitation and encampments, judicial nominations, cash bail, the age at which a minor is tried as an adult, policing, and public safety. Those are seven different policy fights. The only thing the nine measures share is the jurisdiction they operate on. The District is the venue, not the subject — it is the vehicle in exactly rule 5's sense — and a key named after a venue would characterise where a bill lands rather than what it does. A member's cash-bail position and their immigration-enforcement position would be averaged into one number and published as a single stance, which is the specific harm the rule exists to prevent."
+   },
+   {
+    "rule": "6. No history rewrite",
+    "verdict": "FAIL BY IMPLICATION",
+    "note": "See rule 3. The key cannot be added without reversing the no-pole decision on states_federal_power, and no vocab decision in this pass reopens it."
+   }
+  ],
+  "consequences": [
+   "No key is added, so no scope is transcribed into issue-scope.js and no entry is added to ISSUE_MAP in alignment-tool.js. Both files are byte-identical to HEAD.",
+   "No SHELL_ASSETS file changes, so CACHE_VERSION stays at v96. The brief's rule holds: data-only SQL does not bump it.",
+   "The nine measures are NOT refused on the merits. Each has a real subject and several of those subjects have live keys — immigration enforcement, policing, criminal justice. What is refused is the key that would have covered all nine at once. A later wave that reads each bill's own text and files it on its own subject key is the right way to reach them, and that wave inherits the reading above rather than a blank."
+  ],
+  "wallsReaffirmed": [
+   "public_schools remains a funding-level chip. No vocab decision in this pass reopens it, and no measure in this wave is filed there.",
+   "gov_regulation is the regulatory question, not every mandate. H.R. 973 stays unmapped, and gov_regulation was refused five more times in this wave — on H.R. 3062, H.R. 4776, H.R. 3616, H.R. 3898 and H.R. 4090, two of which carry the word 'regulation' or 'regulatory' in a section caption or long title.",
+   "no_pole keys still do not characterise. states_federal_power was refused on H.R. 3628 partly for that reason, and the DC key was refused rather than given a pole to make it usable.",
+   "No `*_balance` key was used to park anything. enviro_balance was named and refused on H.R. 3898."
+  ]
+ },
+ "measures": [
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 1047",
+   "shortTitle": "GRID Power Act",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1047",
+   "govinfo": "BILLS-119hr1047eh",
+   "govinfoUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr1047eh/html/BILLS-119hr1047eh.htm",
+   "purpose": "To require the Federal Energy Regulatory Commission to reform the interconnection queue process for the prioritization and approval of certain projects.",
+   "roll": "119/1/279",
+   "question": "On Passage",
+   "result": "Passed",
+   "tally": "216-206",
+   "notVoting": 9,
+   "losingSharePct": 48.815,
+   "rule11": "cleared — the losing side is far above the one-tenth bar",
+   "fullChamberRecorded": 431,
+   "attributed": 116,
+   "rollSourceUrl": "https://clerk.house.gov/evs/2025/roll279.xml",
+   "issues": [
+    {
+     "issueKey": "energy_production",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "SEC. 3 (RULEMAKING TO IMPROVE INTERCONNECTION QUEUE FLEXIBILITY) gives the Commission ninety days to initiate a rulemaking that, in the Act's own words, ensures 'new dispatchable power projects that improve grid reliability and resource adequacy can interconnect to the electric grid quickly, cost-effectively, and reliably', and directs it to amend the pro forma Large Generator Interconnection Procedures promulgated under 18 C.F.R. 35.28(f). The direction on the policy is the word dispatchable: the Act does not shorten every queue, it moves firm generating capacity to the front of one. energy_production's written scope in issue-scope.js names 'how much conventional supply and firm generating capacity exists' as what is IN and names 'dispatchable-resource state policy' among its instruments, and its pole reads 'Advanced = the vote expanded conventional supply or kept generation online'. A yea did that."
+    }
+   ],
+   "declinedKeys": [
+    {
+     "issueKey": "permitting_reform",
+     "why": "This is the closest call in the wave and it is refused on the written scope rather than on feel. permitting_reform is 'how long a federal review of a PROJECT takes and who may challenge it: the scope of environmental review, statutory page and deadline limits on it, lead-agency and one-federal-decision consolidation, and the window in which a completed permit may be sued over'. H.R. 1047 touches none of those four things. An interconnection queue is a Commission tariff procedure under 18 C.F.R. 35.28(f), not an environmental review; no page limit, no lead agency, no litigation window appears in the text. Filing it here would print a reader's vote on which generators connect as a vote on how long NEPA takes."
+    },
+    {
+     "issueKey": "climate_action",
+     "why": "No emissions programme is created, funded, repealed or taxed. climate_action's pole is written entirely in those terms and the Act contains none of them."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 3062",
+   "shortTitle": "Promoting Cross-border Energy Infrastructure Act",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/3062",
+   "govinfo": "BILLS-119hr3062eh",
+   "govinfoUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr3062eh/html/BILLS-119hr3062eh.htm",
+   "purpose": "To establish a more uniform, transparent, and modern process to authorize the construction, connection, operation, and maintenance of international border-crossing facilities for the import and export of oil and natural gas and the transmission of electricity.",
+   "roll": "119/1/277",
+   "question": "On Passage",
+   "result": "Passed",
+   "tally": "224-203",
+   "notVoting": 5,
+   "losingSharePct": 47.541,
+   "rule11": "cleared — the losing side is far above the one-tenth bar",
+   "fullChamberRecorded": 432,
+   "attributed": 117,
+   "rollSourceUrl": "https://clerk.house.gov/evs/2025/roll277.xml",
+   "issues": [
+    {
+     "issueKey": "permitting_reform",
+     "weight": 90,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "SEC. 2 (STRENGTHENING NORTH AMERICAN ENERGY SECURITY) replaces the Presidential-permit practice for border-crossing facilities with a statutory certificate-of-crossing process carrying its own decision deadline and its own agency assignment. The Act's own long title states the axis — 'a more uniform, transparent, and modern process to authorize' — and process is what the text changes. That is permitting_reform's subject: the scope of a federal authorisation, who runs it and by when. Weighted 90 rather than 100 because the long title names a motive beyond the key, the import and export of oil and natural gas, and the weight is where that is recorded rather than in a second row."
+    }
+   ],
+   "declinedKeys": [
+    {
+     "issueKey": "energy_production",
+     "why": "Tempting, and refused, because the Act does not authorise a single facility: it changes who issues the authorisation and on what clock. It also covers 'the transmission of electricity' alongside oil and natural gas, so a row on a conventional-supply key would characterise a vote about a transmission line as a vote for conventional supply. The motive is carried in the weight above, not in a row that says something the text does not."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "why": "Runbook rule 3: gov_regulation is the regulatory question, not every mandate. A statutory permit process for cross-border facilities is a permitting instrument."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 1366",
+   "shortTitle": "Mining Regulatory Clarity Act of 2025",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1366",
+   "govinfo": "BILLS-119hr1366eh",
+   "govinfoUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr1366eh/html/BILLS-119hr1366eh.htm",
+   "purpose": "To provide for the location of multiple hardrock mining mill sites, to establish the Abandoned Hardrock Mine Fund, and for other purposes.",
+   "roll": "119/1/358",
+   "question": "On Passage",
+   "result": "Passed",
+   "tally": "219-198",
+   "notVoting": 16,
+   "losingSharePct": 47.482,
+   "rule11": "cleared — the losing side is far above the one-tenth bar",
+   "fullChamberRecorded": 433,
+   "attributed": 117,
+   "rollSourceUrl": "https://clerk.house.gov/evs/2025/roll358.xml",
+   "issues": [
+    {
+     "issueKey": "lands_energy",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "SEC. 2 (HARDROCK MINING MILL SITES) amends section 42 of the Revised Statutes (30 U.S.C. 42) so that a claimant may locate and use mill sites for operations ancillary to a mining claim without the acreage and use constraints the current section imposes, and the Act establishes the Abandoned Hardrock Mine Fund alongside it. Both limbs are hardrock mining on the federal estate, which is the whole of lands_energy's published chip: 'Expand domestic energy, mining & resource development'. The entire subject of the measure is the key, so weight 100."
+    }
+   ],
+   "declinedKeys": [
+    {
+     "issueKey": "lands_preserve",
+     "why": "The mirror row is not written. lands_preserve is a distinct key with its own instruments and a D lean in ISSUE_MAP, and filing every mining bill against it would manufacture a conservation record out of a mining vote for every member who voted nay. A nay on this Act is already published as 'against' on lands_energy, which is the true sentence."
+    },
+    {
+     "issueKey": "permitting_reform",
+     "why": "No environmental review, deadline, lead agency or litigation window is touched. The Act changes what a claimant may locate, not how long a review of it runs."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 4776",
+   "shortTitle": "SPEED Act",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4776",
+   "govinfo": "BILLS-119hr4776eh",
+   "govinfoUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr4776eh/html/BILLS-119hr4776eh.htm",
+   "purpose": "To amend the National Environmental Policy Act of 1969 to clarify ambiguous provisions, and for other purposes.",
+   "roll": "119/1/356",
+   "question": "On Passage",
+   "result": "Passed",
+   "tally": "221-196",
+   "notVoting": 16,
+   "losingSharePct": 47.002,
+   "rule11": "cleared — the losing side is far above the one-tenth bar",
+   "fullChamberRecorded": 433,
+   "attributed": 117,
+   "rollSourceUrl": "https://clerk.house.gov/evs/2025/roll356.xml",
+   "issues": [
+    {
+     "issueKey": "permitting_reform",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "This is the key's own subject with nothing left over. SEC. 2 (NEPA REFORM) amends the National Environmental Policy Act itself; SEC. 3 (JUDICIAL REVIEW) sets the window and the standing conditions on which a completed environmental document may be challenged; SEC. 4 preserves ongoing administrative corrections. permitting_reform's written scope names exactly these limbs — 'the scope of environmental review, statutory page and deadline limits on it' and 'the window in which a completed permit may be sued over' — and its pole reads 'Advanced = narrower review and firm deadlines'. A yea narrowed the review and shortened the window to sue. Weight 100."
+    }
+   ],
+   "declinedKeys": [
+    {
+     "issueKey": "gov_regulation",
+     "why": "Runbook rule 3. NEPA reform is the environmental-review question and it has its own key; gov_regulation is the size and posture of the federal rulebook. permitting_reform's own scope note names 'the size of the federal rulebook generally (Cut Federal Red Tape)' as OUT, which is the same wall read from the other side."
+    },
+    {
+     "issueKey": "climate_action",
+     "why": "Narrowing environmental review is not repealing an emissions programme. climate_action's scope note names 'how long a project review takes' as OUT in terms."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 3616",
+   "shortTitle": "Reliable Power Act",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/3616",
+   "govinfo": "BILLS-119hr3616eh",
+   "govinfoUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr3616eh/html/BILLS-119hr3616eh.htm",
+   "purpose": "To require the Federal Energy Regulatory Commission to review regulations that may affect the reliable operation of the bulk-power system, and for other purposes.",
+   "roll": "119/1/347",
+   "question": "On Passage",
+   "result": "Passed",
+   "tally": "225-203",
+   "notVoting": 5,
+   "losingSharePct": 47.43,
+   "rule11": "cleared — the losing side is far above the one-tenth bar",
+   "fullChamberRecorded": 433,
+   "attributed": 117,
+   "rollSourceUrl": "https://clerk.house.gov/evs/2025/roll347.xml",
+   "issues": [
+    {
+     "issueKey": "energy_production",
+     "weight": 90,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "SEC. 2 amends section 215 of the Federal Power Act (16 U.S.C. 824o) to build a chain of binding duties, not a study. Subsection (g)(2) requires the Electric Reliability Organization's assessment to include an annual long-term assessment ending in 'a determination of whether additional generation resources are necessary'; (g)(3) requires that, on such a finding, the ERO 'shall publicly notify the Commission that the bulk-power system is in a state of generation inadequacy'; and new subsection (h) then requires the Commission to notify the Department of Energy, the Environmental Protection Agency and any other agency it names, after which 'the head of each Federal agency that received such notice shall provide to the Commission for review and comment any covered agency action' before that action reaches the Federal Register, and the Commission 'shall, by order' return comments. That is an operative interposition into other agencies' rulemakings, triggered by a generation-adequacy finding, and its object is keeping generation online — energy_production's pole in terms. Weight 90 because the long title names a motive beyond the key, the reliable operation of the bulk-power system."
+    }
+   ],
+   "declinedKeys": [
+    {
+     "issueKey": "gov_regulation",
+     "why": "Refused under runbook rule 3, and this measure is the wave's clearest test of that rule because the Act's own long title says 'review regulations'. gov_regulation is the regulatory question — the size and posture of the federal rulebook as such — not every instrument that touches a rulemaking. Here the trigger is a generation-inadequacy determination, the object under review is a rule's effect on the bulk-power system, and the Act reaches no other rulemaking for any other reason. Filing it on gov_regulation would print a vote about grid reliability as a general deregulatory vote, and would hand every member holding it a fourth non-primary act on a key whose Senate primary problem runbook rule 30 already documents at length."
+    },
+    {
+     "issueKey": "checks_balances",
+     "why": "The Act redistributes review duties among executive agencies. Congress and the courts gain nothing, so the key's subject is absent."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 3632",
+   "shortTitle": "Power Plant Reliability Act of 2025",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/3632",
+   "govinfo": "BILLS-119hr3632eh",
+   "govinfoUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr3632eh/html/BILLS-119hr3632eh.htm",
+   "purpose": "To amend the Federal Power Act to adjust the requirements for orders under section 207 of such Act, and to require owners or operators of generating facilities to provide notice of planned retirements of certain electric generating units, and for other purposes.",
+   "roll": "119/1/342",
+   "question": "On Passage",
+   "result": "Passed",
+   "tally": "222-202",
+   "notVoting": 9,
+   "losingSharePct": 47.642,
+   "rule11": "cleared — the losing side is far above the one-tenth bar",
+   "fullChamberRecorded": 433,
+   "attributed": 117,
+   "rollSourceUrl": "https://clerk.house.gov/evs/2025/roll342.xml",
+   "issues": [
+    {
+     "issueKey": "energy_production",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "SEC. 2 amends section 207 of the Federal Power Act and requires an owner or operator that retires an electric generating unit to give notice of the planned retirement before it happens. energy_production's written scope in issue-scope.js names, as part of what is IN, 'the determinations required before an existing plant may close' — this measure is that clause and nothing else, which is why the weight is 100 and why the key needed no argument beyond quoting itself."
+    }
+   ],
+   "declinedKeys": [
+    {
+     "issueKey": "climate_action",
+     "why": "A retirement-notice duty is not an emissions programme in either direction. The Act neither requires nor forbids the retirement; it requires that it be announced."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 3668",
+   "shortTitle": "Improving Interagency Coordination for Pipeline Reviews Act",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/3668",
+   "govinfo": "BILLS-119hr3668eh",
+   "govinfoUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr3668eh/html/BILLS-119hr3668eh.htm",
+   "purpose": "To promote interagency coordination for reviewing certain authorizations under section 3 of the Natural Gas Act, and for other purposes.",
+   "roll": "119/1/334",
+   "question": "On Passage",
+   "result": "Passed",
+   "tally": "213-184",
+   "notVoting": 36,
+   "losingSharePct": 46.348,
+   "rule11": "cleared — the losing side is far above the one-tenth bar",
+   "fullChamberRecorded": 433,
+   "attributed": 117,
+   "rollSourceUrl": "https://clerk.house.gov/evs/2025/roll334.xml",
+   "issues": [
+    {
+     "issueKey": "permitting_reform",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "SEC. 2 (PROMOTING INTERAGENCY COORDINATION FOR REVIEW OF NATURAL GAS PIPELINES) makes the Commission the lead agency for authorisations under section 3 of the Natural Gas Act and binds the other agencies whose sign-off a project needs to the Commission's schedule. permitting_reform's written scope names 'lead-agency and one-federal-decision consolidation' as what is IN, verbatim; this Act is that clause applied to one statute. Weight 100."
+    }
+   ],
+   "declinedKeys": [
+    {
+     "issueKey": "energy_production",
+     "why": "The Act authorises no pipeline and expands no acreage. It coordinates the agencies that review an application, which is the process, and the process key already carries it at full weight."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 3898",
+   "shortTitle": "PERMIT Act",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/3898",
+   "govinfo": "BILLS-119hr3898eh",
+   "govinfoUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr3898eh/html/BILLS-119hr3898eh.htm",
+   "purpose": "To amend the Federal Water Pollution Control Act with respect to water quality standards, certifications, general permits, and the terms of permits, and for other purposes.",
+   "roll": "119/1/330",
+   "question": "On Passage",
+   "result": "Passed",
+   "tally": "221-205",
+   "notVoting": 7,
+   "losingSharePct": 48.122,
+   "rule11": "cleared — the losing side is far above the one-tenth bar",
+   "fullChamberRecorded": 433,
+   "attributed": 117,
+   "rollSourceUrl": "https://clerk.house.gov/evs/2025/roll330.xml",
+   "issues": [
+    {
+     "issueKey": "permitting_reform",
+     "weight": 80,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Five of the Act's ten sections are permit-process sections under the Clean Water Act and they are what the Act is named for: SEC. 5 (IMPROVING WATER QUALITY CERTIFICATIONS AND AMERICAN ENERGY INFRASTRUCTURE) narrows the section 401 certification a project must obtain from a State, which is the single most litigated project-review step in the statute; SEC. 6 (CLARIFYING FEDERAL GENERAL PERMITS) widens what a general permit may cover in place of an individual review; SEC. 7 (NPDES PERMIT TERMS) sets the terms of a discharge permit; SEC. 8 (CONFIDENCE IN CLEAN WATER PERMITS) fixes the finality a permittee may rely on and therefore the ground on which a permit may be attacked; SEC. 10 exempts agricultural stormwater discharge. Those are the scope of a federal project review, the substitution of a general authorisation for an individual one, and the window in which a completed permit may be challenged — permitting_reform's written scope in three of its own clauses, with a pole of 'narrower review and firm deadlines' that a yea advanced.\n\nDISCLOSED PARTIAL COVERAGE, because half the Act is not on this key and pretending otherwise is what weight 100 would have said. SEC. 2 (WATER QUALITY STANDARDS ATTAINABILITY), SEC. 3 (WATER QUALITY CRITERIA DEVELOPMENT AND TRANSPARENCY) and SEC. 4 (WATER QUALITY TECHNOLOGY AVAILABILITY) change the substantive standard-setting rules of the Clean Water Act, and SEC. 9 concerns forest roads and wildland firefighter safety. No key on the live topic tree covers substantive water-quality standards: `water` is Water Conservation, whose written pole is 'Advanced = the vote reduced, priced or measured water use' and whose scope note excludes the supply and works side in terms, so loosening a pollution standard is not in it in either direction; `water_storage` is reservoirs and pipelines; `enviro_balance` is a `*_balance` key and is structurally suppressed from every read. Those four sections are therefore recorded here as uncovered and are deliberately not mapped. Weight 80 rather than 100 is the honest arithmetic of that: the permit sections are the operative axis of a larger act."
+    }
+   ],
+   "declinedKeys": [
+    {
+     "issueKey": "water",
+     "why": "Cousin wall, and the seed says it out loud because the bill has the word water in nine of its ten section headings. `water` is Water Conservation — 'Advanced = the vote reduced, priced or measured water use'. This Act does not touch how much water anyone uses; it changes water-quality standards and discharge permits. A row here would print a vote about pollution limits as a vote about conservation, and its own scope note already warns that filing the wrong instrument here 'would print it as a conservation record'."
+    },
+    {
+     "issueKey": "water_storage",
+     "why": "No reservoir, pipeline, recycling or storage capacity appears in the text."
+    },
+    {
+     "issueKey": "enviro_balance",
+     "why": "A `*_balance` key. stance-helpers.js suppresses every read on a balance key with reason `balance_key`, so a row here would characterise nothing while appearing to cover the bill — which is the definition of parking a measure. The brief forbids it and so does the engine."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "why": "Runbook rule 3."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 3628",
+   "shortTitle": "State Planning for Reliability and Affordability Act",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/3628",
+   "govinfo": "BILLS-119hr3628eh",
+   "govinfoUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr3628eh/html/BILLS-119hr3628eh.htm",
+   "purpose": "To amend the Public Utility Regulatory Policies Act of 1978 to establish a standard related to State consideration of reliable generation, and for other purposes.",
+   "roll": "119/1/323",
+   "question": "On Passage",
+   "result": "Passed",
+   "tally": "218-207",
+   "notVoting": 8,
+   "losingSharePct": 48.706,
+   "rule11": "cleared — the losing side is far above the one-tenth bar",
+   "fullChamberRecorded": 433,
+   "attributed": 117,
+   "rollSourceUrl": "https://clerk.house.gov/evs/2025/roll323.xml",
+   "issues": [
+    {
+     "issueKey": "energy_production",
+     "weight": 90,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "SEC. 2 amends section 111(d) of the Public Utility Regulatory Policies Act of 1978 (16 U.S.C. 2621(d)) by adding standard (22), 'Ensuring electric reliability with reliable generation facilities', which each State regulated electric utility's regulatory authority must consider. energy_production's written scope names 'dispatchable-resource state policy' among the instruments that are IN, and this is the federal instrument that creates one. Weight 90 because the Act's own short title names affordability alongside reliability, a motive beyond the key."
+    }
+   ],
+   "declinedKeys": [
+    {
+     "issueKey": "states_federal_power",
+     "why": "Refused twice over. First on the engine: states_federal_power is one of the thirteen `_RD_NO_POLE` keys, so every read on it returns reason `no_pole` and a row here would add an act that can never be characterised. Second on the merits: a PURPA consideration standard is a direction about which generation a State should plan for, not a claim about whose rule governs — PURPA has assigned States consideration duties since 1978 and nobody's federalism position is revealed by standard (22)."
+    },
+    {
+     "issueKey": "cost_living",
+     "why": "The Act's short title names affordability and cost_living's published chip names utility prices, so the row was considered and refused. The operative text adds a reliability consideration standard for State regulators and sets no rate, no cap and no bill-relief mechanism; nothing in it lowers a utility bill except by an argument about what reliable generation costs, which is a forecast rather than an instrument. Runbook rule 4's principle applies to a short title as much as to a truncated purpose line: the name is not the instrument."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 4090",
+   "shortTitle": "Critical Mineral Dominance Act",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4090",
+   "govinfo": "BILLS-119hr4090eh",
+   "govinfoUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr4090eh/html/BILLS-119hr4090eh.htm",
+   "purpose": "To codify certain provisions of certain Executive Orders relating to domestic mining and hardrock mineral resources, and for other purposes.",
+   "roll": "119/2/55",
+   "question": "On Passage",
+   "result": "Passed",
+   "tally": "224-195",
+   "notVoting": 13,
+   "losingSharePct": 46.539,
+   "rule11": "cleared — the losing side is far above the one-tenth bar",
+   "fullChamberRecorded": 432,
+   "attributed": 116,
+   "rollSourceUrl": "https://clerk.house.gov/evs/2026/roll055.xml",
+   "issues": [
+    {
+     "issueKey": "lands_energy",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "SEC. 4 (PRIORITY PROJECTS) is the operative section and it is a duty, not a study: within ten days of enactment and annually after, the Secretary must send Congress a list of every mining project on Federal land with a pending plan of operations or permit application, and within ten days of that list must identify each priority project the Secretary 'can immediately approve' and then 'take all necessary and appropriate action to approve or issue' it. SEC. 5 directs an assessment of mining potential on Federal land and SEC. 6 a regulatory review, but the Act does not stop at either. lands_energy's published chip is 'Expand domestic energy, mining & resource development' and a ten-day approval duty over federal mining permits is that, so weight 100."
+    }
+   ],
+   "declinedKeys": [
+    {
+     "issueKey": "permitting_reform",
+     "why": "Argued and refused. SEC. 4 does compress a permit timeline, which is why it was considered, but permitting_reform is about the review itself — its scope, its page and deadline limits, its lead agency and the window to sue. H.R. 4090 changes none of those; it directs a Secretary to approve a class of applications under the law as it stands. The distinction matters because the two keys read the same bill differently: one would say the member voted to shorten reviews generally, the other that they voted to open federal land to mining, and only the second is in the text."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "why": "SEC. 6 is captioned REGULATORY REVIEW, and runbook rule 3 is exactly the rule that stops a caption from carrying a key. The review is of mining regulations in service of SEC. 4's approval duty."
+    }
+   ]
+  },
+  {
+   "measureType": "bill",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.R. 4690",
+   "shortTitle": "Reliable Federal Infrastructure Act",
+   "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4690",
+   "govinfo": "BILLS-119hr4690eh",
+   "govinfoUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr4690eh/html/BILLS-119hr4690eh.htm",
+   "purpose": "To amend the Energy Conservation and Production Act to repeal certain Federal building energy efficiency performance standards, and for other purposes.",
+   "roll": "119/2/134",
+   "question": "On Passage",
+   "result": "Passed",
+   "tally": "215-202",
+   "notVoting": 13,
+   "losingSharePct": 48.441,
+   "rule11": "cleared — the losing side is far above the one-tenth bar",
+   "fullChamberRecorded": 430,
+   "attributed": 116,
+   "rollSourceUrl": "https://clerk.house.gov/evs/2026/roll134.xml",
+   "issues": [
+    {
+     "issueKey": "climate_action",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "SEC. 2 strikes subclauses (I) and (II) of section 305(a)(3)(D)(i) of the Energy Conservation and Production Act (42 U.S.C. 6834(a)(3)(D)(i)) — the fossil-fuel-use reduction targets for new and renovated Federal buildings — and then provides that subpart B of part 433 and subpart B of part 435 of title 10, Code of Federal Regulations 'shall have no force or effect', with a transition clause implementing the statute 'as though the requirements of subclauses (I) and (II) had never taken effect'. Subsections (a)(2) and (c) further bar the green-building certification system from withholding certification 'solely based on direct or indirect consumption of fossil fuels'. climate_action's written scope names 'Programmes, subsidies and rules that cut emissions, and their repeal' as what is IN, and its pole reads 'Against = it repealed, defunded or taxed one'. This is a repeal, so the row is yea_opposes and a yea is published as against the key. Weight 100: the repeal is the entire measure."
+    }
+   ],
+   "declinedKeys": [
+    {
+     "issueKey": "energy_production",
+     "why": "No conventional supply is expanded and no generating unit is kept online. The Act governs how Federal buildings are built. energy_production's scope note names emissions programmes as OUT and points at climate_action, which is where the row went."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "why": "Runbook rule 3. The Act voids two named CFR subparts, which is a rule repeal in service of a specific policy — building energy standards — and not a position on the rulebook as such. The polarity above already publishes the direction honestly."
+    }
+   ]
+  }
+ ],
+ "attribution": {
+  "rule": "Fail-closed. bioguide from the clerk's own name-id attribute, then db/vr-member-map.json, and nothing else. A recorded member who does not resolve is skipped and counted.",
+  "whySurnameMatchingIsNotUsedAsAFallback": "The clerk disambiguates colliding surnames as 'Smith (NE)'. A bare-surname fallback would have attributed one member's vote to another, and on this wave's own rolls three of the eight new slugs are exactly such collisions. Surname+state was used as an independent VERIFICATION of the eight bioguides, never as an attribution path.",
+  "totalsAreFullChamber": "yea/nay/present/notVoting come from the clerk's <totals-by-vote> block and count all 430-433 recorded members. The attributed rows are a much smaller set and the two are kept in separate fields. Recomputing a tally from the attributed rows would publish a 60-57 vote that never happened.",
+  "ceiling": {
+   "attributedPerRollMax": 117,
+   "fullChamberRecordedRange": [
+    430,
+    433
+   ],
+   "distinctSlugsTouched": 117,
+   "unresolvedRecordedTotal": 3472,
+   "note": "The roster admits 221 slugs and about 117 of them are serving House members who were recorded on these rolls. So roughly a quarter of each chamber vote is attributable and three quarters is not. That is the roster ceiling, not a bug, and it is stated here because 1284 attributed votes out of 4756 recorded ones is the honest denominator for anything this wave claims."
+  }
+ },
+ "readDisclosure": {
+  "promotes": 0,
+  "retractions": 0,
+  "weightChanges": 0,
+  "polarityChanges": 0,
+  "note": "This wave promotes nothing and retracts nothing, so no existing row's reading changes and the no-loss check has no promote to check. Every issue row is new, on a new measure. The measured before/after read counts are in the results write-up; the rule 36 method applies — the row model's own read flag over every pid, never a shape counter.",
+  "primaryWallChecked": "Runbook rule 30 says to check the primary wall BEFORE shipping a depth pass. Every one of the eleven rows is is_primary = true, so no member can be pushed from the thinEnough branch onto the deepEnough branch and then fail out.primary < _RD_MIN_PRIMARY on account of this wave: any member who reaches four acts on one of these four keys reaches it through a primary this wave supplied. energy_production gains three primaries, permitting_reform four, lands_energy two, climate_action one.",
+  "floorsUntouched": "_RD_MIN_PRIMARY 1, _RD_MIN_JUDGED 4, _RD_THIN_MIN 2, _RD_MIN_STRENGTH 4, _RD_DOMINANCE 0.75, _RD_SPLIT_MIN_JUDGED 6, _RD_SPLIT_MIN_SIDE 2, _RD_MEMBER_FLOOR 12. None is read, written or moved by this wave.",
+  "measuredEffect": {
+   "harness": "node scripts/vr-federal-fpi.mjs --set all --waves f1,f2,f3,f4,f5,f6 --drift",
+   "whatItProjects": "The eleven rolls, the 1,284 member votes and the eleven issue rows overlaid on the live corpus, then the whole formal index recomputed on both sides. 343 members on the federal roster, all with a record.",
+   "bandBefore": "empty 0 · thin 10 · readable 333",
+   "bandAfter": "empty 0 · thin 2 · readable 341",
+   "issueRows": "20400 → 20416",
+   "clearSplitUnread": "4124 clear / 3562 split / 2806 unread → 4174 clear / 3550 split / 2806 unread",
+   "membersWhoseShapeMoved": 62,
+   "rowsThatStoppedBeingCharacterised": 0,
+   "howThatWasChecked": "On the row model's own `read` flag, over every one of the 343 pids in the set — runbook rule 36, which exists because shape counters can net a lost reading against a gained one and report zero.",
+   "rowsThatStartedBeingCharacterised": 16,
+   "theTenRowsThatChangedDIRECTION": {
+    "what": "Ten rows moved from a one-directional tier to Split. Nothing went unread: Split is a reading, and the read flag is true on both sides. But the published label changes for ten members, so it is named here rather than left inside a net figure.",
+    "rows": [
+     "aguilar permitting_reform mostly → split",
+     "clyburn permitting_reform mostly → split",
+     "fitzpatrick permitting_reform strong → split",
+     "jake_auchincloss permitting_reform mostly → split",
+     "jim_himes permitting_reform mostly → split",
+     "marie_gluesenkamp_perez lands_energy mostly → split",
+     "maxine_waters permitting_reform mostly → split",
+     "steny_hoyer permitting_reform mostly → split",
+     "ted_lieu permitting_reform mostly → split",
+     "zoe_lofgren permitting_reform mostly → split"
+    ],
+    "theCause": "Not a mapping change — none of these rows' existing acts were touched. Nine of the ten are permitting_reform, where the member's pre-existing acts include a yea on H.R. 3746 (the 118th Congress debt-limit act, whose Division C Title III is the NEPA title, w70 PRIMARY) and in most cases H.R. 471 and H.R. 6644 as well. This wave adds four nay acts on the key's own subject. A member who voted for one permitting title and against four others is split on permitting_reform, and that is what the index now says.",
+    "workedExample": "aguilar / permitting_reform. BEFORE: tier=mostly, read=true, judged=4, '3 advanced · 1 against' — yea on H.R. 6644 (w60), nay on H.R. 1949 (w70), yea on H.R. 471 (w55), yea on H.R. 3746 (w70 PRIMARY). AFTER: tier=split, read=true, judged=8, '3 advanced · 5 against' — the same four acts plus nay on H.R. 3062 (w90 PRIMARY), H.R. 4776 (w100 PRIMARY), H.R. 3668 (w100 PRIMARY) and H.R. 3898 (w80 PRIMARY). Printed with `--row aguilar:permitting_reform`.",
+    "whyThisIsNotAReasonToRefuseTheWave": "The alternative to publishing the split is declining to ingest four contested passage votes that these members actually cast on the key's own subject. That is the F5 failure mode inverted: a record kept legible by leaving votes out. Runbook rule 30 warns that an honest secondary can make a record read worse and says to check the wall before shipping — checked, and the answer is that the reading gets more accurate rather than less.",
+    "noFloorWasMoved": "_RD_MIN_PRIMARY, _RD_MIN_JUDGED, _RD_THIN_MIN, _RD_MIN_STRENGTH, _RD_DOMINANCE, _RD_SPLIT_MIN_JUDGED, _RD_SPLIT_MIN_SIDE and _RD_MEMBER_FLOOR are all untouched. A wave that dislikes ten split labels can move _RD_DOMINANCE and make them go away; this one does not."
+   },
+   "theEightConverted": {
+    "before": "2 mapped acts each, 5-6 issues, 0 characterised rows — thin band, gap to floor 10.",
+    "after": "13 mapped acts each. Every one of the eight gains permitting_reform → strong and lands_energy → thin; gabe_vasquez and susie_lee, who already held thin climate_action and energy_production rows, gain a side on both and read split there.",
+    "newlyOnTheIndex": "16 rows: permitting_reform and lands_energy for all eight.",
+    "marginOverTheFloor": "One act. 13 against a floor of 12."
+   }
+  }
+ },
+ "whatTheNextWaveInherits": {
+  "gatedPoolRemaining": 113,
+  "namedLeads": [
+   "The nine District of Columbia measures, each to be read on its own subject key rather than on a venue key. The vocab argument above is done; what remains is nine engrossed texts.",
+   "89 House amendment rolls that rule 12's amendment exception cannot admit from a listing, because the House files an amendment roll under its parent bill's number. Reaching them needs a per-roll fetch pass, not a vocab decision.",
+   "18 contested Senate rolls that survived the refusal gate and were not read this pass. The Senate side of the pool is untouched by this wave.",
+   "H.R. 1834, whose title says gridlock and whose text extends a health-coverage subsidy."
+  ],
+  "warning": "The remaining 113 gated rolls are UNREAD, not admitted. Nothing above says they are mappable. F5's lesson cuts both ways: a gap in vr_measure_issues is not evidence of a mappable measure, and a survivor of the refusal gate is not evidence of one either."
+ },
+ "_counts": {
+  "measures": 11,
+  "rollcalls": 11,
+  "memberVotes": 1284,
+  "issueRows": 11,
+  "declinedKeysInWriting": 22,
+  "refusedMeasuresInWriting": 15,
+  "keysUsed": [
+   "climate_action",
+   "energy_production",
+   "lands_energy",
+   "permitting_reform"
+  ],
+  "newKeys": 0,
+  "newRosterSlugs": 8,
+  "poolListed": 1535,
+  "poolNotInCorpus": 1362,
+  "poolPassedFormGate": 278,
+  "poolContested": 178,
+  "poolAlreadyRefusedByName": 54,
+  "poolSurvivedRefusalGate": 124,
+  "poolAdmitted": 11,
+  "thinMembersConverted": 8,
+  "actsGainedPerThinMember": 11,
+  "memberFloor": 12,
+  "actsAfterWave": 13
+ }
+}

@@ -882,11 +882,33 @@ section("8b · /p/<pid> is THAT person in the first HTML — never another membe
   const kBlock = blockOf(KHANNA.html);
   hasnt(kBlock, "U.S. Senator · Utah", "/p/khanna's block does not say “U.S. Senator · Utah”");
   hasnt(kBlock, "Mike Lee", "…and does not name Mike Lee");
-  addedNone(KHANNA.html, "Peace Through Strength", "/p/khanna's document adds no “Peace Through Strength”");
-  addedNone(KHANNA.html, "0 advanced · 7 against", "…and none of Lee's lead tally");
+  // WHOSE ROW IS IT. This pair used to be fingerprinted on three chip names and one
+  // tally typed in as literals, which held only while the two records happened to
+  // share no issue key. Federal wave F7 ended that: the District of Columbia bills
+  // gave Ro Khanna a Tough on Crime row of his very own, and the Senate war-powers
+  // rolls moved Lee's lead line off Peace Through Strength — so the literals started
+  // failing on a document that was correct. A fixture that has to be retyped after
+  // every densification wave is testing the wave, not the property. The fingerprints
+  // are therefore READ FROM THE SHIPPED SNAPSHOT the edge itself serves: the lines
+  // that belong to one of these two records and not the other must never appear
+  // under the other's address, whatever this month's chips happen to be.
+  // The snapshot holds the raw label; the served document holds it escaped, the same
+  // way recordSection() writes it, so the needle is escaped before it is counted.
+  const esc = (t) => t.replace(/&/g, "&amp;");
+  const lineOf = (r) => [r.p, r.i, r.c].filter(Boolean).join(" · ");
+  const snapOf = (pid) => (IDX.personRecord[pid] || []).map(lineOf);
+  const LEE_LINES = snapOf("lee"), KHANNA_LINES = snapOf("khanna");
+  const leeOnly = LEE_LINES.filter((l) => !KHANNA_LINES.includes(l));
+  const khannaOnly = KHANNA_LINES.filter((l) => !LEE_LINES.includes(l));
+  ok(LEE_LINES.length >= 4 && KHANNA_LINES.length >= 4,
+    `both records are in the snapshot to be confused with each other (${LEE_LINES.length} / ${KHANNA_LINES.length} lines)`);
+  ok(leeOnly.length >= 4 && khannaOnly.length >= 4,
+    `…and they disagree on enough lines for the mix-up to be visible (${leeOnly.length} / ${khannaOnly.length} unshared)`);
+
+  addedNone(KHANNA.html, esc(LEE_LINES[0]), "/p/khanna's document adds none of Lee's lead row");
   const kRows = rowsOf(KHANNA.html);
   ok(kRows.length >= 3, `/p/khanna prints its own record rows (${kRows.length})`);
-  eq(kRows.filter((r) => /Peace Through Strength|Tough on Crime|Mass Deportations/.test(r)), [],
+  eq(kRows.filter((r) => leeOnly.includes(r)), [],
     "…and not one row off Mike Lee's record");
 
   // ── /p/lee is Mike Lee, and only Mike Lee ─────────────────────────────────
@@ -894,12 +916,12 @@ section("8b · /p/<pid> is THAT person in the first HTML — never another membe
   eq(officeLine(LEE.html), "U.S. Senator · Utah · formal voting record on PolitiDex",
     "…with Lee's own office line");
   const lBlock = blockOf(LEE.html);
-  has(lBlock, "Peace Through Strength", "/p/lee's block leads on Lee's actual strongest row");
-  has(lBlock, "0 advanced · 7 against", "…with its own tally");
+  eq(rowsOf(LEE.html)[0], LEE_LINES[0], "/p/lee's block leads on the row the shipped snapshot leads with");
+  has(lBlock, LEE_LINES[0].split(" · ")[2] || "—", "…with that row's own tally");
   hasnt(lBlock, "Ro Khanna", "/p/lee's block does not name Ro Khanna");
   hasnt(lBlock, "U.S. Representative · California", "…and does not print Khanna's office");
   const lRows = rowsOf(LEE.html);
-  eq(lRows.filter((r) => /Expand Voting Access|Stronger Gun Safety Laws|Protect Gun Rights/.test(r)), [],
+  eq(lRows.filter((r) => khannaOnly.includes(r)), [],
     "…and not one row off Ro Khanna's record");
 
   // ── THE PAIR, STATED AS THE UNIQUENESS RULE ───────────────────────────────
@@ -1055,7 +1077,7 @@ section("9 · the engines did not move");
 // passing quietly.
 {
   const ENGINES = [
-    "alignment-tool.js", "consistency.js",
+    "alignment-tool.js",
     "say-vs-do.js", "exec-record.js", "stance-helpers.js",
     "publication-floor.js", "cmp-data.js", "issue-colors.js",
     "netlify/lib/vr-pack.ts", "netlify/lib/vr-normalize.ts", "db/issue-keys.json",
@@ -1074,8 +1096,69 @@ section("9 · the engines did not move");
   if (!compared) {
     console.log("      (no git baseline available — engine byte-identity not checked in this environment)");
   } else {
-    ok(compared >= 10, `the engine set was read from HEAD (${compared} files)`);
+    ok(compared >= 9, `the engine set was read from HEAD (${compared} files)`);
     eq(moved, [], "Direction Match, the formal-pattern engines, the packs and the roster are byte-identical to HEAD");
+  }
+
+  // ── consistency.js: PINNED EVERYWHERE EXCEPT THE MECHANISM MAP ──────────────
+  // _DOS_MECH is not arithmetic. It is the curated two-line face a judged row shows
+  // instead of its derived sentence, and it is APPEND-ONLY BY DESIGN: every wave that
+  // ships a new judged act owes one entry per act, or the act renders in the derived
+  // voice and the mechanism-completeness harness fails. A blanket hash on this file
+  // would forbid exactly the pass it is supposed to survive, so the map is carved out
+  // with the same seam discipline voting-record.js gets below — anchors unique on both
+  // sides, the whole remainder hashed, and the span inside argued rather than excused.
+  {
+    const CJ_NOW = R("consistency.js");
+    let headCJ = null;
+    try {
+      headCJ = execFileSync("git", ["show", "HEAD:consistency.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
+    } catch { /* no baseline here */ }
+    if (!headCJ) {
+      console.log("      (no git baseline available — consistency.js shape not checked in this environment)");
+    } else {
+      const A = "  var _DOS_MECH = {\n", B = "\n  };\n  // Fails closed in three places, on purpose:";
+      const carveMech = (src, side) => {
+        const i = src.indexOf(A), j = src.indexOf(B, i < 0 ? 0 : i);
+        must(i >= 0 && j > i, `${side}: the mechanism map no longer reads as written in consistency.js`);
+        must(src.split(A).length === 2 && src.split(B).length === 2,
+          `${side}: a mechanism-map anchor is no longer unique in consistency.js — widen it, do not loosen it`);
+        return { pinned: src.slice(0, i + A.length) + src.slice(j), map: src.slice(i + A.length, j) };
+      };
+      const ca = carveMech(headCJ, "HEAD"), cb = carveMech(CJ_NOW, "now");
+      eq(sha(ca.pinned), sha(cb.pinned),
+        "consistency.js is byte-identical to HEAD everywhere outside the mechanism map — the formal-pattern " +
+        "arithmetic, the floors, the bands and the row model did not move");
+      ok(cb.pinned.length > CJ_NOW.length * 0.55,
+        `the carve is a seam, not a hole: ${cb.pinned.length} of ${CJ_NOW.length} bytes are still pinned`);
+
+      // APPEND-ONLY. A live rationale belongs to whoever wrote it first (runbook rule
+      // 21), so a pass may add entries and may not rewrite one a reader has already been
+      // shown. HEAD's map must survive verbatim as a prefix.
+      ok(cb.map.startsWith(ca.map),
+        "an existing mechanism entry was rewritten rather than appended to — the sentence a reader " +
+        "already saw on a live row is not this pass's to edit");
+      const appended = cb.map.slice(ca.map.length);
+      if (appended.trim()) {
+        // What may be appended is prose in the three declared slots and nothing else:
+        // no code, no branch, no key the row model would have to interpret.
+        ok(!/\b(function|=>|require\(|window\.|if\s*\()/.test(appended),
+          "the appended mechanism text carries code — this map holds three prose slots per act, nothing executable");
+        const keys = [...appended.matchAll(/^\s{4}'([^']+)':\s*\{$/gm)].map((m) => m[1]);
+        ok(keys.length > 0, "the mechanism map grew without gaining a single entry key — the append is malformed");
+        for (const k of keys)
+          ok(/^[^|]+\|\d+\|[a-z_]+$/.test(k),
+            `appended mechanism key "${k}" is not number|congress|issueKey, so _dosMechFor could never look it up`);
+        const slots = [...appended.matchAll(/^\s{6}([a-z]+):/gm)].map((m) => m[1]);
+        eq([...new Set(slots)].sort().join(","), "did,more,why",
+          "an appended mechanism entry uses a slot the face does not render (or omits one it does)");
+        eq(slots.length, keys.length * 3, "an appended mechanism entry is missing one of its three slots");
+        for (const m of appended.matchAll(/why: '((?:[^'\\]|\\.)*)'/g))
+          ok(m[1].length <= 340, "an appended \"why it counts here\" is longer than the row face allows");
+        ok(!/\b(Republicans?|Democrats?|Democratic|GOP|partisan|bipartisan)\b/i.test(appended),
+          "an appended mechanism entry names a party — the party split stays in the roll's totals, off the face");
+      }
+    }
   }
 
   // ── voting-record.js: PINNED EVERYWHERE EXCEPT ITS NAMED SEAMS ──────────────

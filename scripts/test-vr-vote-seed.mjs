@@ -122,10 +122,14 @@ const isFederalSeed = (f) => {
 const seedFiles = allSeedFiles.filter(isFederalSeed);
 const stateSeeds = allSeedFiles.filter((f) => !isFederalSeed(f));
 ok(seedFiles.length > 0, 'no federal db/*-vote-seed.json found — this test has nothing to guard');
+// Every harness in the tree, concatenated. Used twice below: a state seed must be
+// named by one, and so must a federal seed that ingested nothing.
+const HARNESSES = fs.readdirSync(path.join(ROOT, 'scripts'))
+  .filter((f) => /^test-.*\.mjs$/.test(f))
+  .map((f) => fs.readFileSync(path.join(ROOT, 'scripts', f), 'utf8')).join('\n');
+
 if (stateSeeds.length) {
-  const harnesses = fs.readdirSync(path.join(ROOT, 'scripts'))
-    .filter((f) => /^test-.*\.mjs$/.test(f))
-    .map((f) => fs.readFileSync(path.join(ROOT, 'scripts', f), 'utf8')).join('\n');
+  const harnesses = HARNESSES;
   for (const f of stateSeeds) {
     ok(harnesses.includes(`db/${f}`),
       `db/${f} is not the federal seed shape and no scripts/test-*.mjs names it — ` +
@@ -152,7 +156,32 @@ for (const file of seedFiles) {
   catch (e) { fails.push(`${label}: does not parse — ${e.message}`); continue; }
 
   const votes = Array.isArray(seed.votes) ? seed.votes : [];
-  ok(votes.length > 0, `${label}: carries no votes`);
+
+  // ── an empty seed is admitted only when it says why, in writing ────────────
+  // A wave can honestly ingest nothing, and the record of that is worth more than
+  // the votes it declined to write. F4 is the case: 890 Senate rolls swept, 63
+  // admissible on question form, and all 45 un-ingested ones refused because every
+  // primary they could carry already had one — so the file holds the sweep and no
+  // member votes. What this check has to separate is that seed from a seed that is
+  // empty because the fetch broke or nobody looked, and on disk those are the same
+  // shape. So the exemption is bought rather than assumed: `_whyEmpty` must be
+  // present and substantive, and the wave must be guarded by a harness of its own
+  // that can assert the emptiness is still true. A bare `_whyEmpty: true` fails
+  // here, exactly as an undeclared empty seed does.
+  const whyEmpty = seed._whyEmpty;
+  const whyEmptyText = typeof whyEmpty === 'string' ? whyEmpty
+    : (whyEmpty && typeof whyEmpty === 'object'
+        ? Object.values(whyEmpty).filter((v) => typeof v === 'string').join(' ')
+        : '');
+  if (votes.length === 0) {
+    ok(whyEmptyText.trim().length >= 200 && HARNESSES.includes(`db/${file}`),
+      `${label}: carries no votes and does not earn it — an empty seed needs a substantive `
+      + '_whyEmpty recording what was swept and why nothing was admitted, and a '
+      + 'scripts/test-*.mjs that names the file, or "refused on the record" and "the ingest '
+      + 'silently wrote nothing" are indistinguishable');
+  } else {
+    ok(true, `${label}: carries votes`);
+  }
 
   // Declared counts must match the contents, or a truncated write goes unnoticed.
   if (typeof seed.rollCallCount === 'number') {

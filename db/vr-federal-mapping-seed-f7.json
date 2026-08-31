@@ -1,0 +1,1523 @@
+{
+  "_comment": "Federal wave F7 decision record, and the wave's own artifact: written by hand, read by scripts/vr-gen-federal-wave-f7-migration.mjs and checked by scripts/test-vr-federal-wave-f7.mjs. Every refusal in this file is an argument against a written scope note or a standing rule, never against a feeling about a measure. Where this wave departs from a face the corpus already ships, the departure is labelled as one and the reason is stated -- there is exactly one, foreign_balance.",
+  "wave": "f7",
+  "mission": "Formal pattern density from the 113 rolls F6 left unread: the Senate slice first, then the District of Columbia measures keyed on their subjects. Ingest and map in one pass. No party score, no package percentage, no invented stance, no floor moved. Stance harvest and direct messages are out of scope.",
+  "whatShipsThisWave": {
+    "measures": 19,
+    "rollcalls": 19,
+    "memberVotes": 1948,
+    "issueRows": 28,
+    "newIssueKeys": 0,
+    "newRosterSlugs": 0,
+    "floorsMoved": 0,
+    "shellAssetsChanged": 0,
+    "cacheVersionBump": true,
+    "measuresIngestedWithZeroMappings": 7,
+    "note": "Nineteen measures and nineteen roll calls: fourteen Senate war-powers resolutions on three texts, four District of Columbia bills on their own subjects, and one House amendment repealing two authorizations for the use of military force. Twenty-eight mapping rows on six keys that were already live and already placed -- restraint, war_powers, strong_defense, border_security, deportations, tough_on_crime. Seven of the fourteen Senate rolls ship with zero mapping rows on purpose; censusRule34 is the argument and the member-for-member diff. CACHE_VERSION moves because consistency.js gains _DOS_MECH pairs for the judged acts.",
+    "admittedForms": {
+      "exception: discharge": 14,
+      "decisive": 4,
+      "exception: amendment": 1
+    }
+  },
+  "censusRule34": {
+    "rule": "db/vr-ingest-runbook.md rule 34: the same text voted twice is two acts; admit both when each is the only record of somebody's position, and state in the file what the second does NOT add -- the member-for-member diff, not a claim.",
+    "whyItGovernsThisWave": "Twelve of the fourteen Senate rolls are two texts, not twelve. Eleven are the Iran withdrawal resolution with a different sponsor on the cover and identical operative language; two are the Venezuela resolution. Mapping all fourteen would have handed every senator eleven judged acts on restraint for one position held once, which is manufactured density -- the opposite of what this wave was asked to measure.",
+    "test": "For each text, in vote-date order, count the (member, position) pairs a roll records that no earlier roll on the same text records, counting only yea and nay. A not_voting is not a judged act and contributes no position, so it cannot earn a mapping.",
+    "resultIran": [
+      {
+        "date": "2026-03-04",
+        "roll": "119/2/46",
+        "measure": "S.J.Res. 104",
+        "tally": "47-53",
+        "newJudgedPairs": 98,
+        "changedVsPrevious": 0,
+        "decision": "MAPPED -- the act of record for this text"
+      },
+      {
+        "date": "2026-03-18",
+        "roll": "119/2/58",
+        "measure": "S.J.Res. 118",
+        "tally": "47-53",
+        "newJudgedPairs": 0,
+        "changedVsPrevious": 0,
+        "decision": "ingested, zero mappings -- member for member identical to roll 46"
+      },
+      {
+        "date": "2026-03-24",
+        "roll": "119/2/69",
+        "measure": "S.J.Res. 116",
+        "tally": "47-53",
+        "newJudgedPairs": 0,
+        "changedVsPrevious": 0,
+        "decision": "ingested, zero mappings -- member for member identical to roll 46"
+      },
+      {
+        "date": "2026-04-15",
+        "roll": "119/2/79",
+        "measure": "S.J.Res. 123",
+        "tally": "47-52",
+        "newJudgedPairs": 0,
+        "changedVsPrevious": 1,
+        "decision": "ingested, zero mappings -- the single change is jim_justice to not_voting, which is not a position"
+      },
+      {
+        "date": "2026-04-22",
+        "roll": "119/2/88",
+        "measure": "S.J.Res. 114",
+        "tally": "46-51",
+        "newJudgedPairs": 0,
+        "changedVsPrevious": 4,
+        "decision": "ingested, zero mappings -- all four changes are to not_voting (grassley, mccormick, warner)"
+      },
+      {
+        "date": "2026-04-30",
+        "roll": "119/2/113",
+        "measure": "S.J.Res. 184",
+        "tally": "47-50",
+        "newJudgedPairs": 1,
+        "newPairs": [
+          "collins:yea"
+        ],
+        "changedVsPrevious": 7,
+        "decision": "MAPPED -- the only record of collins voting yea on this text"
+      },
+      {
+        "date": "2026-05-13",
+        "roll": "119/2/118",
+        "measure": "S.J.Res. 163",
+        "tally": "49-50",
+        "newJudgedPairs": 1,
+        "newPairs": [
+          "murkowski:yea"
+        ],
+        "changedVsPrevious": 5,
+        "decision": "MAPPED -- the only record of murkowski voting yea on this text"
+      },
+      {
+        "date": "2026-05-19",
+        "roll": "119/2/129",
+        "measure": "S.J.Res. 185",
+        "tally": "50-47",
+        "newJudgedPairs": 1,
+        "newPairs": [
+          "cassidy:yea"
+        ],
+        "changedVsPrevious": 5,
+        "decision": "MAPPED -- the only record of cassidy voting yea on this text, and the roll the motion carried"
+      },
+      {
+        "date": "2026-06-16",
+        "roll": "119/2/174",
+        "measure": "S.J.Res. 172",
+        "tally": "47-48",
+        "newJudgedPairs": 0,
+        "changedVsPrevious": 8,
+        "decision": "ingested, zero mappings -- all eight changes are to not_voting"
+      },
+      {
+        "date": "2026-07-23",
+        "roll": "119/2/207",
+        "measure": "S.J.Res. 180",
+        "tally": "47-49",
+        "newJudgedPairs": 0,
+        "changedVsPrevious": 8,
+        "decision": "ingested, zero mappings -- all eight changes are to not_voting"
+      },
+      {
+        "date": "2026-07-30",
+        "roll": "119/2/216",
+        "measure": "S.J.Res. 181",
+        "tally": "49-50",
+        "newJudgedPairs": 0,
+        "changedVsPrevious": 3,
+        "decision": "ingested, zero mappings -- three members returned to a position an earlier roll already records"
+      }
+    ],
+    "resultVenezuela": [
+      {
+        "date": "2025-11-06",
+        "roll": "119/1/608",
+        "measure": "S.J.Res. 90",
+        "tally": "49-51",
+        "newJudgedPairs": 98,
+        "decision": "MAPPED -- the act of record for this text"
+      },
+      {
+        "date": "2026-01-08",
+        "roll": "119/2/5",
+        "measure": "S.J.Res. 98",
+        "tally": "52-47",
+        "newJudgedPairs": 3,
+        "newPairs": [
+          "collins:yea",
+          "hawley:yea",
+          "todd_young:yea"
+        ],
+        "changedVsPrevious": 4,
+        "decision": "MAPPED -- three senators are recorded yea here and nowhere else on this text, and the motion carried"
+      }
+    ],
+    "resultUntargeted": [
+      {
+        "date": "2025-10-08",
+        "roll": "119/1/555",
+        "measure": "S.J.Res. 83",
+        "tally": "48-51",
+        "newJudgedPairs": 97,
+        "decision": "MAPPED -- its own text: hostilities generally, no named country"
+      }
+    ],
+    "theSafetyCheckThatMadeThisAdmissible": "Withholding mappings from seven rolls is only honest if no senator's judged position lives exclusively on one of them. Checked set-wise over the attributed rows: 98 senators hold a yea or a nay on a roll that keeps its mappings, and the set of senators judged only on a zero-mapping roll is empty. Mullin, who left the chamber during the series and is attributed on five rolls only, holds positions on four that are mapped.",
+    "whatIsNotLost": "All fourteen rolls are ingested in full, with every attributed member vote, and every one is readable on the measure's own page against the Official Record. What the seven zero-mapping rolls do not do is add a judged act to anybody's pattern index, because they record no position that is not already recorded. The precedent for a measure on file with zero issue rows is already in this corpus: H.Amdt. 244, H.Amdt. 245 and H.Amdt. 259.",
+    "counts": {
+      "senateRollsIngested": 14,
+      "senateRollsMapped": 7,
+      "senateRollsIngestedWithZeroMappings": 7,
+      "judgedPositionsLostByTheDecision": 0,
+      "judgedActsPerSenatorAvoided": "seven duplicate restraint acts and seven duplicate strong_defense acts per senator, on one position held once"
+    }
+  },
+  "census": {
+    "ordering": "Refusal record first, then the two named pools, then the amendment bridge, then the thin files. The brief fixed the order and it is the order the work was done in.",
+    "questionA_refusalRecordFirst": {
+      "question": "What does this repository already refuse by name, and does the refusal record close any of this wave's pool before a text is read?",
+      "standingRefusalsReaffirmed": [
+        "H.R. 1069",
+        "H.R. 973",
+        "S. 2503",
+        "the F4 Congressional Review Act and disapproval block",
+        "the named appropriations vehicles H.R. 5371, H.R. 6500, H.R. 3944 and H.R. 4553",
+        "the four study-and-report energy bills F6 refused: H.R. 3015, H.R. 3638, H.R. 3109, H.R. 3617",
+        "rules providing for consideration",
+        "nominations"
+      ],
+      "noneReopened": "This wave writes no new issue key, so nothing above reopens. H.R. 1069 and H.R. 973 are on file with zero issue mappings and end this wave with zero.",
+      "appliedAsPrefilter": {
+        "gateStep": "5. refusal-first gate",
+        "senateRollsRemoved": 31,
+        "ofWhich": "28 named in vr-federal-mapping-seed-f4.json:declinedRollCalls, 1 in f2, plus 2 rolls of vehicles named there",
+        "whatThatMeans": "Thirty-one of the forty-nine contested Senate rolls were closed by the record before a single text was fetched. F5's lesson, applied forward."
+      }
+    },
+    "questionB_theEighteenSenateRolls": {
+      "question": "The 18 Senate rolls that survived F6's gate and were never opened -- what are they and which can be read?",
+      "source": "senate.gov LIS roll_call_votes menus for 119/1 and 119/2, then the per-roll LIS XML document for every roll admitted.",
+      "funnel": [
+        "listed 890 (session 1: 659, session 2: 231)",
+        "not already in vr_rollcalls: 890 -> 842",
+        "rule 8/12 decisive question form: 842 -> 51",
+        "not a rule providing for consideration: 51 -> 51 (the form gate had already removed every one)",
+        "contested at rule 11's one-tenth bar: 51 -> 49",
+        "refusal-first gate: 49 -> 18"
+      ],
+      "survivors": 18,
+      "admitted": 14,
+      "refused": 4,
+      "reproduced": "node scripts/vr-federal-wave-f7-census.mjs -- the count is regenerated from the menus each run, not copied from F6.",
+      "twoRollsNotAdmittedAndWhyTheyAreNamed": "Two of the fourteen discharge motions carried, and each was followed by a second Senate roll that killed the measure: 119/2/9 on S.J.Res. 98, a point of order sustained 50-50, and 119/2/192 on S.J.Res. 185, a motion to proceed rejected 47-50. Neither question form is one rule 8/12 admits, so neither is ingested. They are named because the alternative is a measure page showing a 52-47 or a 50-47 in favour with no indication that the resolution died. All fourteen measures are filed with status failed, because none of them passed the Senate. Establishing this took a scan of both session menus for all fourteen numbers rather than a look at the rolls already in hand: twelve carry exactly one roll, two carry two, and not one of the sixteen is a vote on passage.",
+      "whatTheFourteenAre": "Three texts. One resolution on unauthorized hostilities generally (S.J.Res. 83), two on Venezuela, eleven on Iran. Rule 34 governs what is mapped -- see censusRule34."
+    },
+    "questionC_theNineDistrictMeasures": {
+      "question": "The 9 District of Columbia measures -- can each be mapped to an existing SUBJECT key? Home rule is not a key; venue failed rule 5 in F6.",
+      "method": "Read the engrossed text or the CRS summary of each, then test the subject against the written scope in issue-scope.js. Venue was never a candidate: F6 already ran the six vocab rules on a District key and refused it, and rule 5 -- subject not vehicle -- is the rule it failed.",
+      "admitted": [
+        {
+          "measure": "H.R. 2056",
+          "key": "border_security primary + deportations",
+          "subject": "local cooperation with federal immigration enforcement, including detainers and release notification"
+        },
+        {
+          "measure": "H.R. 4922",
+          "key": "tough_on_crime primary",
+          "subject": "youth offender age ceiling and mandatory minimum authority"
+        },
+        {
+          "measure": "H.R. 5140",
+          "key": "tough_on_crime primary",
+          "subject": "the age at which a minor is tried as an adult"
+        },
+        {
+          "measure": "H.R. 5214",
+          "key": "tough_on_crime primary",
+          "subject": "mandatory pretrial detention and cash bail"
+        }
+      ],
+      "refused": 5,
+      "refusedDetail": [
+        {
+          "measures": [
+            "H.R. 2096",
+            "H.R. 5107",
+            "H.R. 5143"
+          ],
+          "subject": "police discipline, use-of-force and vehicular pursuit rules for the Metropolitan Police Department",
+          "why": "Refused for want of a directional key, and every candidate was tested in writing. tough_on_crime's OUT list sends away 'funding and backing law enforcement itself (Back Law Enforcement), the accountability pairing' -- these measures are the accountability pairing. back_police has no written scope note and its shipped pattern is money plus offences against officers; these bills carry neither. justice_reform has no written scope note either. justice_balance is a _balance key, permanently unread by _rdSuppressedKey(), and F6's shipped wall forbids parking a row there. The vocabulary gap is named in vocabDecision rather than papered over, and the three measures stay unread.",
+          "whatWouldReopenThem": "A police-accountability key that passes all six vocab rules, with a written scope note and a pole. This wave did not write one and says so."
+        },
+        {
+          "measures": [
+            "H.R. 5103"
+          ],
+          "subject": "an advisory commission and a cleanliness programme for the District",
+          "why": "Two refusals, either of which is sufficient. The runbook's study-and-report rule: an institution that studies and reports is not a policy vote, and the commission limb is exactly that -- F6 applied the same rule to four federal energy bills. The cleanliness programme limb has no subject key at all, and what is left after both is 'it happened in the District', which is venue. Rule 5 already refused venue."
+        },
+        {
+          "measures": [
+            "H.R. 5125"
+          ],
+          "subject": "who appoints and confirms local judges in the District",
+          "why": "The honest key is checks_balances, and runbook rule 28 says checks_balances takes no roll-call mappings. No second key was reached for. Refused on the standing rule, named here so the next wave does not re-derive it."
+        }
+      ],
+      "venueChipWall": "No measure in this wave carries a District of Columbia key, chip or tree slot, because no such key exists. F6 ran the six vocab rules on one and rule 5 refused it -- a place is a venue, not a subject -- and this wave does not reopen that. The four admitted District bills print the subject chip they earned and nothing else."
+    },
+    "questionD_theAmendmentRolls": {
+      "question": "House amendment rolls F6 could not list under the parent bill number -- can the amendment text and a contested question be identified?",
+      "whyF6CouldNotListThem": "The House files an amendment roll under its parent bill's number, so a menu listing shows the parent and never the amendment. F6 named 89 of them as unreachable without a per-roll pass.",
+      "theBridge": "For each amendment roll, fetch the PARENT bill's BILLSTATUS and read its <amendments> collection, matching on the roll number inside each amendment's own action text. That gives the H.Amdt. number, the sponsor and the purpose from the amendment's own record.",
+      "aBugWorthRecording": "The first bridge run reported 0 unique matches and 88 ambiguous. 'Roll no. NNN' occurs twice inside every <amendment> block -- once in <latestAction><text> and once in <links><name> -- so each amendment collided with itself. De-duplicating the roll numbers per block fixed it. This is the same duplication class that makes a first-match regex on <latestAction> attribute one measure's roll number to another, which is why every roll in this wave was verified against its own per-roll LIS or clerk document rather than against a BILLSTATUS listing.",
+      "funnel": [
+        "clerk amendment rolls in the pool: 90",
+        "bridged to a unique H.Amdt. with sponsor and purpose: 88",
+        "unbridged: 2 (2026/395 on H.R. 2988, 2026/427 on H.Res. 1014)",
+        "already on file and mapped: 24",
+        "on file with zero issue mappings: 3 (H.Amdt. 244, 245, 259)",
+        "not on file: 61",
+        "of those, failing rule 11: 7",
+        "contested and unread: 54"
+      ],
+      "admittedFromThisPool": 1,
+      "whyOnlyOne": "A stated principle rather than a budget. This wave's axis is war powers; H.Amdt. 99 repeals the 2002 and 1991 authorizations for the use of military force, which lands on the same axis the fourteen Senate resolutions land on. Admitting fifty-four amendments would have scattered one pass across thirty keys and produced a wide thin layer instead of density on one axis, which is what the brief asked against. The other 53 are named as inherited, not as refused.",
+      "f5sBlockedOnClosedHere": [
+        {
+          "amendment": "H.Amdt. 259",
+          "sponsor": "Issa",
+          "f5Status": "blockedOn evidence -- the subject could not be established from the engrossed text",
+          "nowResolved": "The parent's BILLSTATUS <amendments> collection carries the amendment's own purpose, a path F5 did not use. The purpose is uncapped investor and cleared-professional eligibility for a defense investment programme. That is now a refusal ON SUBJECT with the vocabulary gap named -- this corpus has no key for defense-industrial-base finance -- and no longer a refusal on missing evidence."
+        },
+        {
+          "amendment": "H.Amdt. 245",
+          "f5Status": "blockedOn evidence",
+          "nowResolved": "A voice-based drug-testing pilot under section 518. De minimis on the merits; stays at zero mappings."
+        },
+        {
+          "amendment": "H.Amdt. 244",
+          "f5Status": "blockedOn evidence",
+          "nowResolved": "A cadet athlete cap under section 524. BILLSTATUS independently corroborates F5's engrossed-text reading; stays at zero mappings."
+        }
+      ]
+    },
+    "questionE_thinFiles": {
+      "question": "Which remaining thin federal files can this slice give mapped acts to?",
+      "answer": "None, and the reason is lane rather than depth.",
+      "harness": "node scripts/vr-federal-fpi.mjs --set all",
+      "bandBeforeThisWave": "empty 0 · thin 2 · readable 341",
+      "theTwoThinFiles": [
+        "bwilson",
+        "jacob_anderegg"
+      ],
+      "whyThisSliceCannotReachThem": "Both are state-lane figures with 0 characterised keys. Neither is on the federal roster, so no federal roll call can attribute a vote to them. A Utah committee or floor wave reaches them; a Senate wave cannot.",
+      "federalLaneDepth": {
+        "senateFiles": 99,
+        "houseFiles": 121,
+        "allReadable": true,
+        "shallowestSenate": [
+          "rubio 5 characterised keys",
+          "ashley_moody 12",
+          "alsobrooks 12",
+          "moreno 13",
+          "sheehy 13"
+        ],
+        "shallowestHouse": "2 characterised keys over 13 acts"
+      },
+      "theSenateBaselineThisWaveMoves": {
+        "keysWithASenatePrimaryInstrument": "38 of 98",
+        "senateUnreadRowsOver99Senators": 1006,
+        "unreadBreakdown": {
+          "no_pole_read": 778,
+          "no_side": 209,
+          "no_side_taken": 19
+        },
+        "note": "war_powers is in _RD_NO_POLE, so its rows land in no_pole_read by design and are not a deficit this wave can close. restraint and strong_defense are poled, and they are where the seven mapped Senate rolls actually move a reading."
+      }
+    }
+  },
+  "refusedThisWave": {
+    "onStandingDoctrine": [
+      {
+        "measure": "H.R. 1968",
+        "roll": "119/1/133",
+        "tally": "54-46",
+        "losingSharePct": 46,
+        "why": "Full-year continuing appropriations. F4's standing refusal names appropriations vehicles, and the measure is already on file with six issue mappings. Ingesting the Senate passage roll would attach a chamber vote on a whole-government package to those six subject rows, which publishes a package percentage -- the exact thing this brief forbids. Refused on the standing record, not re-argued."
+      },
+      {
+        "measure": "H.R. 7148",
+        "roll": "119/2/20",
+        "tally": "71-29",
+        "losingSharePct": 29,
+        "why": "Consolidated appropriations for fiscal 2026: Transportation and Housing, Defense, the District of Columbia, the Judiciary and more, in one vehicle. Already on file with six issue mappings. Same refusal as H.R. 1968 and the same reason. Note that one of its divisions is a District of Columbia appropriation -- which is precisely why a District venue key would have been a trap, since it would have made this vehicle mappable on venue alone."
+      }
+    ],
+    "onSubjectScope": [
+      {
+        "measures": [
+          "S.J.Res. 53",
+          "S.J.Res. 54"
+        ],
+        "rolls": [
+          "119/1/306",
+          "119/1/307"
+        ],
+        "tally": "39-56 on both",
+        "losingSharePct": 41.053,
+        "subject": "joint resolutions of disapproval under section 36 of the Arms Export Control Act, on proposed foreign military sales to Qatar and to the United Arab Emirates",
+        "why": "Contested, in form, never refused before, and still not mappable -- which is worth saying plainly because it is a vocabulary gap and not a judgment about the vote. The corpus has israel_support for arms transfers to Israel and nothing equivalent for a transfer to any other partner. america_first_fp's IN list does not reach a foreign military sale. strong_defense is about American force posture, not about what a partner is sold. Filing these on israel_support because they are arms sales in the same region would be the adjacency reasoning rule 41 forbids. They stay unread, and the gap is named in vocabDecision.",
+        "whatWouldReopenThem": "A key for arms transfers to a partner other than Israel, passing all six vocab rules with a written scope note and a pole."
+      }
+    ],
+    "evidenceNowResolvedRatherThanRefused": [
+      {
+        "amendment": "H.Amdt. 259",
+        "was": "F5 recorded it as blocked on evidence",
+        "now": "Refused on subject: defense-industrial-base finance has no key in this corpus. The evidence question is closed."
+      }
+    ],
+    "theStudyAndReportWallHeld": "H.R. 5103's advisory commission limb is the only place it came up this wave, and it held: an institution that studies and reports is not a policy vote."
+  },
+  "vocabDecision": {
+    "outcome": "This wave adds NO issue key, no tree slot and no colour. CACHE_VERSION moves only because consistency.js gains _DOS_MECH pairs for the judged acts.",
+    "whyThatIsTheRightOutcome": "The brief allows a key when all six rules pass and requires it to be placed on the topic tree the same pass. Two candidates were considered seriously and both fail rule 4, the written scope and cousin wall, in the same way: the cousin they would have to wall off has no written scope note of its own, so there is nothing to draw the wall against. Writing a key whose boundary cannot be stated is how gov_regulation became a dumping ground, and F6's wall against restuffing it is the same wall seen from the other side.",
+    "gapsNamedForTheNextWave": [
+      {
+        "gap": "arms transfers to a partner other than Israel",
+        "evidence": "Two contested Senate rolls this wave refused (S.J.Res. 53, S.J.Res. 54), plus the F4 disapproval block for context.",
+        "rule1Recurring": "passes -- the form recurs every Congress",
+        "rule4Blocker": "the cousin is israel_support, which does have a scope note, so this candidate is the closer of the two. What it lacked this pass is a pole that is not a proxy for a view of one partner."
+      },
+      {
+        "gap": "police discipline and accountability rules",
+        "evidence": "Three contested District measures this wave refused (H.R. 2096, H.R. 5107, H.R. 5143).",
+        "rule1Recurring": "passes",
+        "rule4Blocker": "the cousins are back_police and justice_reform, neither of which has a written scope note in issue-scope.js. A wall cannot be drawn against an unwritten scope, so the key was not written."
+      }
+    ],
+    "districtKeyNotReconsidered": "F6 ran the six rules on a District of Columbia key and refused it on rule 5, subject not vehicle. This wave takes that as settled and maps the four admissible District bills on their subjects instead. H.R. 7148 is the demonstration of why: a venue key would have made a whole-government appropriations vehicle mappable because one of its divisions funds the District.",
+    "wallsReaffirmed": [
+      "No *_balance key was used to park anything -- F6's wall, and the reason foreign_balance is a written departure from the S.J.Res. 59 face rather than a copied row.",
+      "gov_regulation was not restuffed, and public_schools was not used as a funding key.",
+      "Study-and-report is not a policy vote.",
+      "checks_balances takes no roll-call mappings (rule 28), which is why two honest readings in this wave are refused rather than filed.",
+      "No floor moved: _RD_MIN_PRIMARY, _RD_MIN_JUDGED, the split floors, _PDX_RD_MEMBER_FLOOR and the publication floor are unread and unwritten by this wave."
+    ]
+  },
+  "measures": [
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 83",
+      "documentTitle": "A joint resolution to direct the removal of United States Armed Forces from hostilities that have not been authorized by Congress.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/83",
+      "sponsor": "Sen. Schiff, Adam B. [D-CA]",
+      "introducedDate": "2025-09-18",
+      "purpose": "Directs the President to remove United States Armed Forces from hostilities that have not been authorized by Congress unless a declaration of war or a specific authorization for the use of military force has been enacted.",
+      "roll": "119/1/555",
+      "question": "On the Motion to Discharge S.J.Res. 83",
+      "admittedAs": "exception: discharge",
+      "decisiveWhy": "A war-powers resolution under 50 U.S.C. 1544(c) reaches the floor only if the Foreign Relations Committee is discharged, so the discharge motion IS the vote on the resolution: a rejected motion ends the measure and no vote on passage ever occurs. This is the same admitted form F4 used for the arms-sale disapprovals.",
+      "result": "rejected",
+      "tally": "48-51",
+      "notVoting": 1,
+      "losingSharePct": 48.485,
+      "rule11": "cleared -- the losing side holds 48.5% of the yea+nay pool, far above the one-tenth bar",
+      "fullChamberRecorded": 100,
+      "attributed": 98,
+      "rollSourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00555.htm",
+      "mapped": true,
+      "issues": [
+        {
+          "issueKey": "restraint",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The resolution's operative section directs the President to remove United States Armed Forces from hostilities that Congress has not authorized, and its saving clause preserves only defence against an attack already under way or imminent. The instrument's whole command is withdrawal, so the direction on the key is not inferred from a title: a yea ordered forces out and a nay left them in. This is the face S.J.Res. 59 already carries for the identical form and the identical question -- restraint w100 primary yea_supports, war_powers w70, strong_defense w55 opposed -- and it is copied rather than re-derived, because runbook rule 25 says the same subject may not be mapped two ways without a written reason and there is no reason here: this is the same subject."
+        },
+        {
+          "issueKey": "war_powers",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "A privileged joint resolution under section 5(c) of the War Powers Resolution, which reached the floor only because the Foreign Relations Committee was discharged, and what it asserts is that the decision to authorize belongs to Congress. war_powers sits in _RD_NO_POLE in stance-helpers.js, so this row is inventory and never prints a direction: it records that the member voted on a war-powers instrument, which is true, and it makes no claim about where they stand. Filed at 70 rather than 100 because the operative command is the removal of forces rather than a change to the authorization machinery itself -- the weight S.J.Res. 59 carries for the same reason."
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score."
+        }
+      ],
+      "declinedKeys": [
+        {
+          "issueKey": "foreign_balance",
+          "why": "A WRITTEN DEPARTURE from the precedent face, and the only one. S.J.Res. 59 carries foreign_balance w45 from the July 2026 landmark pass with the rationale 'Concerns the scope and restraint of U.S. military involvement abroad.' F7 does not copy it. _rdSuppressedKey() in stance-helpers.js returns 'balance_key' for any key ending in _balance, which means such a row is permanently unread: it can never print a direction and never counts toward a characterised reading. F6's shipped wall was 'no *_balance key was used to park anything', and seven more measures times one unread row is exactly the parking F6 forbade. Dropping it changes no reader-visible sentence, because the row it would create is one the reader never sees. The three rows that ship carry the whole of what the vote says."
+        },
+        {
+          "issueKey": "america_first_fp",
+          "why": "Refused because the repository already removed it from this instrument by hand. Migration 20260904000000_vr_split_umbrella_issue_keys.sql re-keyed S.J.Res. 59's america_first_fp w70 to war_powers, and its own comment names the five war-powers instruments it moved. Adding the umbrella key back on a fresh measure of the same form would undo a settled re-key from outside it, which runbook rule 21 exists to prevent."
+        },
+        {
+          "issueKey": "israel_support",
+          "why": "Not adjacent, not applicable, and named because the corpus's other Middle East instruments carry it. None of these resolutions mentions Israel, and the Iran ones reach only United States forces in hostilities with Iran. Runbook rule 41: a cousin refusal is settled on the shipped scope note, never on the fact that two subjects share a region."
+        }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 90",
+      "documentTitle": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against Venezuela that have not been authorized by Congress.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/90",
+      "sponsor": "Sen. Kaine, Tim [D-VA]",
+      "introducedDate": "2025-10-16",
+      "purpose": "Directs the President to remove United States Armed Forces from hostilities within or against Venezuela unless a declaration of war or a specific authorization for the use of military force has been enacted.",
+      "roll": "119/1/608",
+      "question": "On the Motion to Discharge S.J.Res. 90",
+      "admittedAs": "exception: discharge",
+      "decisiveWhy": "A war-powers resolution under 50 U.S.C. 1544(c) reaches the floor only if the Foreign Relations Committee is discharged, so the discharge motion IS the vote on the resolution: a rejected motion ends the measure and no vote on passage ever occurs. This is the same admitted form F4 used for the arms-sale disapprovals.",
+      "result": "rejected",
+      "tally": "49-51",
+      "notVoting": 0,
+      "losingSharePct": 49,
+      "rule11": "cleared -- the losing side holds 49.0% of the yea+nay pool, far above the one-tenth bar",
+      "fullChamberRecorded": 100,
+      "attributed": 98,
+      "rollSourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00608.htm",
+      "mapped": true,
+      "issues": [
+        {
+          "issueKey": "restraint",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The resolution's operative section directs the President to remove United States Armed Forces from hostilities within or against Venezuela that Congress has not authorized, and its saving clause preserves only defence against an attack already under way or imminent. The instrument's whole command is withdrawal, so the direction on the key is not inferred from a title: a yea ordered forces out and a nay left them in. This is the face S.J.Res. 59 already carries for the identical form and the identical question -- restraint w100 primary yea_supports, war_powers w70, strong_defense w55 opposed -- and it is copied rather than re-derived, because runbook rule 25 says the same subject may not be mapped two ways without a written reason and there is no reason here: this is the same subject."
+        },
+        {
+          "issueKey": "war_powers",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "A privileged joint resolution under section 5(c) of the War Powers Resolution, which reached the floor only because the Foreign Relations Committee was discharged, and what it asserts is that the decision to authorize belongs to Congress. war_powers sits in _RD_NO_POLE in stance-helpers.js, so this row is inventory and never prints a direction: it records that the member voted on a war-powers instrument, which is true, and it makes no claim about where they stand. Filed at 70 rather than 100 because the operative command is the removal of forces rather than a change to the authorization machinery itself -- the weight S.J.Res. 59 carries for the same reason."
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score."
+        }
+      ],
+      "declinedKeys": [
+        {
+          "issueKey": "foreign_balance",
+          "why": "A WRITTEN DEPARTURE from the precedent face, and the only one. S.J.Res. 59 carries foreign_balance w45 from the July 2026 landmark pass with the rationale 'Concerns the scope and restraint of U.S. military involvement abroad.' F7 does not copy it. _rdSuppressedKey() in stance-helpers.js returns 'balance_key' for any key ending in _balance, which means such a row is permanently unread: it can never print a direction and never counts toward a characterised reading. F6's shipped wall was 'no *_balance key was used to park anything', and seven more measures times one unread row is exactly the parking F6 forbade. Dropping it changes no reader-visible sentence, because the row it would create is one the reader never sees. The three rows that ship carry the whole of what the vote says."
+        },
+        {
+          "issueKey": "america_first_fp",
+          "why": "Refused because the repository already removed it from this instrument by hand. Migration 20260904000000_vr_split_umbrella_issue_keys.sql re-keyed S.J.Res. 59's america_first_fp w70 to war_powers, and its own comment names the five war-powers instruments it moved. Adding the umbrella key back on a fresh measure of the same form would undo a settled re-key from outside it, which runbook rule 21 exists to prevent."
+        },
+        {
+          "issueKey": "israel_support",
+          "why": "Not adjacent, not applicable, and named because the corpus's other Middle East instruments carry it. None of these resolutions mentions Israel, and the Iran ones reach only United States forces in hostilities with Iran. Runbook rule 41: a cousin refusal is settled on the shipped scope note, never on the fact that two subjects share a region."
+        }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 98",
+      "documentTitle": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against Venezuela that have not been authorized by Congress.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/98",
+      "sponsor": "Sen. Kaine, Tim [D-VA]",
+      "introducedDate": "2025-12-03",
+      "purpose": "Directs the President to remove United States Armed Forces from hostilities within or against Venezuela unless a declaration of war or a specific authorization for the use of military force has been enacted.",
+      "roll": "119/2/5",
+      "question": "On the Motion to Discharge S.J.Res. 98",
+      "admittedAs": "exception: discharge",
+      "decisiveWhy": "A war-powers resolution under 50 U.S.C. 1544(c) reaches the floor only if the Foreign Relations Committee is discharged, and this is that motion. Unlike the twelve rejected motions in this wave it CARRIED, so it did not by itself end the measure — and the sentence is written out rather than borrowed, because the borrowed one would be false here. No vote on passage followed: the resolution fell on 119/2/9 when a point of order against it was sustained, 50-50. That roll is a form rule 8/12 does not admit, so the discharge motion remains the only recorded position on the merits of this text, and it is the roll admitted. The resolution did not pass the Senate.",
+      "result": "agreed_to",
+      "tally": "52-47",
+      "notVoting": 1,
+      "losingSharePct": 47.475,
+      "rule11": "cleared -- the losing side holds 47.5% of the yea+nay pool, far above the one-tenth bar",
+      "fullChamberRecorded": 100,
+      "attributed": 98,
+      "rollSourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00005.htm",
+      "mapped": true,
+      "postHistoryAndTheRollNotAdmitted": "This discharge motion CARRIED, 52-47, which is why its decisiveWhy is written out rather than shared with the twelve that were rejected. The resolution still never reached a vote on passage: on 119/2/9 a point of order against it was sustained, 50-50, and the measure fell. 'On the Point of Order' is not a form rule 8/12 admits, so that roll is not ingested -- it is named here so that a reader who sees one Senate roll on this measure knows a second exists and knows why it is not on the page. The measure's status on file is failed, because it is.",
+      "issues": [
+        {
+          "issueKey": "restraint",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The resolution's operative section directs the President to remove United States Armed Forces from hostilities within or against Venezuela that Congress has not authorized, and its saving clause preserves only defence against an attack already under way or imminent. The instrument's whole command is withdrawal, so the direction on the key is not inferred from a title: a yea ordered forces out and a nay left them in. This is the face S.J.Res. 59 already carries for the identical form and the identical question -- restraint w100 primary yea_supports, war_powers w70, strong_defense w55 opposed -- and it is copied rather than re-derived, because runbook rule 25 says the same subject may not be mapped two ways without a written reason and there is no reason here: this is the same subject."
+        },
+        {
+          "issueKey": "war_powers",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "A privileged joint resolution under section 5(c) of the War Powers Resolution, which reached the floor only because the Foreign Relations Committee was discharged, and what it asserts is that the decision to authorize belongs to Congress. war_powers sits in _RD_NO_POLE in stance-helpers.js, so this row is inventory and never prints a direction: it records that the member voted on a war-powers instrument, which is true, and it makes no claim about where they stand. Filed at 70 rather than 100 because the operative command is the removal of forces rather than a change to the authorization machinery itself -- the weight S.J.Res. 59 carries for the same reason."
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score."
+        }
+      ],
+      "declinedKeys": [
+        {
+          "issueKey": "foreign_balance",
+          "why": "A WRITTEN DEPARTURE from the precedent face, and the only one. S.J.Res. 59 carries foreign_balance w45 from the July 2026 landmark pass with the rationale 'Concerns the scope and restraint of U.S. military involvement abroad.' F7 does not copy it. _rdSuppressedKey() in stance-helpers.js returns 'balance_key' for any key ending in _balance, which means such a row is permanently unread: it can never print a direction and never counts toward a characterised reading. F6's shipped wall was 'no *_balance key was used to park anything', and seven more measures times one unread row is exactly the parking F6 forbade. Dropping it changes no reader-visible sentence, because the row it would create is one the reader never sees. The three rows that ship carry the whole of what the vote says."
+        },
+        {
+          "issueKey": "america_first_fp",
+          "why": "Refused because the repository already removed it from this instrument by hand. Migration 20260904000000_vr_split_umbrella_issue_keys.sql re-keyed S.J.Res. 59's america_first_fp w70 to war_powers, and its own comment names the five war-powers instruments it moved. Adding the umbrella key back on a fresh measure of the same form would undo a settled re-key from outside it, which runbook rule 21 exists to prevent."
+        },
+        {
+          "issueKey": "israel_support",
+          "why": "Not adjacent, not applicable, and named because the corpus's other Middle East instruments carry it. None of these resolutions mentions Israel, and the Iran ones reach only United States forces in hostilities with Iran. Runbook rule 41: a cousin refusal is settled on the shipped scope note, never on the fact that two subjects share a region."
+        }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 104",
+      "documentTitle": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/104",
+      "sponsor": "Sen. Kaine, Tim [D-VA]",
+      "introducedDate": "2026-01-29",
+      "purpose": "Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted.",
+      "roll": "119/2/46",
+      "question": "On the Motion to Discharge S.J.Res. 104",
+      "admittedAs": "exception: discharge",
+      "decisiveWhy": "A war-powers resolution under 50 U.S.C. 1544(c) reaches the floor only if the Foreign Relations Committee is discharged, so the discharge motion IS the vote on the resolution: a rejected motion ends the measure and no vote on passage ever occurs. This is the same admitted form F4 used for the arms-sale disapprovals.",
+      "result": "rejected",
+      "tally": "47-53",
+      "notVoting": 0,
+      "losingSharePct": 47,
+      "rule11": "cleared -- the losing side holds 47.0% of the yea+nay pool, far above the one-tenth bar",
+      "fullChamberRecorded": 100,
+      "attributed": 98,
+      "rollSourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00046.htm",
+      "mapped": true,
+      "issues": [
+        {
+          "issueKey": "restraint",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The resolution's operative section directs the President to remove United States Armed Forces from hostilities within or against Iran that Congress has not authorized, and its saving clause preserves only defence against an attack already under way or imminent. The instrument's whole command is withdrawal, so the direction on the key is not inferred from a title: a yea ordered forces out and a nay left them in. This is the face S.J.Res. 59 already carries for the identical form and the identical question -- restraint w100 primary yea_supports, war_powers w70, strong_defense w55 opposed -- and it is copied rather than re-derived, because runbook rule 25 says the same subject may not be mapped two ways without a written reason and there is no reason here: this is the same subject."
+        },
+        {
+          "issueKey": "war_powers",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "A privileged joint resolution under section 5(c) of the War Powers Resolution, which reached the floor only because the Foreign Relations Committee was discharged, and what it asserts is that the decision to authorize belongs to Congress. war_powers sits in _RD_NO_POLE in stance-helpers.js, so this row is inventory and never prints a direction: it records that the member voted on a war-powers instrument, which is true, and it makes no claim about where they stand. Filed at 70 rather than 100 because the operative command is the removal of forces rather than a change to the authorization machinery itself -- the weight S.J.Res. 59 carries for the same reason."
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score."
+        }
+      ],
+      "declinedKeys": [
+        {
+          "issueKey": "foreign_balance",
+          "why": "A WRITTEN DEPARTURE from the precedent face, and the only one. S.J.Res. 59 carries foreign_balance w45 from the July 2026 landmark pass with the rationale 'Concerns the scope and restraint of U.S. military involvement abroad.' F7 does not copy it. _rdSuppressedKey() in stance-helpers.js returns 'balance_key' for any key ending in _balance, which means such a row is permanently unread: it can never print a direction and never counts toward a characterised reading. F6's shipped wall was 'no *_balance key was used to park anything', and seven more measures times one unread row is exactly the parking F6 forbade. Dropping it changes no reader-visible sentence, because the row it would create is one the reader never sees. The three rows that ship carry the whole of what the vote says."
+        },
+        {
+          "issueKey": "america_first_fp",
+          "why": "Refused because the repository already removed it from this instrument by hand. Migration 20260904000000_vr_split_umbrella_issue_keys.sql re-keyed S.J.Res. 59's america_first_fp w70 to war_powers, and its own comment names the five war-powers instruments it moved. Adding the umbrella key back on a fresh measure of the same form would undo a settled re-key from outside it, which runbook rule 21 exists to prevent."
+        },
+        {
+          "issueKey": "israel_support",
+          "why": "Not adjacent, not applicable, and named because the corpus's other Middle East instruments carry it. None of these resolutions mentions Israel, and the Iran ones reach only United States forces in hostilities with Iran. Runbook rule 41: a cousin refusal is settled on the shipped scope note, never on the fact that two subjects share a region."
+        }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 118",
+      "documentTitle": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/118",
+      "sponsor": "Sen. Booker, Cory A. [D-NJ]",
+      "introducedDate": "2026-03-05",
+      "purpose": "Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted.",
+      "roll": "119/2/58",
+      "question": "On the Motion to Discharge S.J.Res. 118",
+      "admittedAs": "exception: discharge",
+      "decisiveWhy": "A war-powers resolution under 50 U.S.C. 1544(c) reaches the floor only if the Foreign Relations Committee is discharged, so the discharge motion IS the vote on the resolution: a rejected motion ends the measure and no vote on passage ever occurs. This is the same admitted form F4 used for the arms-sale disapprovals.",
+      "result": "rejected",
+      "tally": "47-53",
+      "notVoting": 0,
+      "losingSharePct": 47,
+      "rule11": "cleared -- the losing side holds 47.0% of the yea+nay pool, far above the one-tenth bar",
+      "fullChamberRecorded": 100,
+      "attributed": 98,
+      "rollSourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00058.htm",
+      "mapped": false,
+      "issues": [],
+      "declinedKeys": [],
+      "zeroMappingReason": "See censusRule34 -- this roll records no yea or nay that an earlier roll on the same text does not already record."
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 116",
+      "documentTitle": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/116",
+      "sponsor": "Sen. Murphy, Christopher [D-CT]",
+      "introducedDate": "2026-03-05",
+      "purpose": "Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted.",
+      "roll": "119/2/69",
+      "question": "On the Motion to Discharge S.J.Res. 116",
+      "admittedAs": "exception: discharge",
+      "decisiveWhy": "A war-powers resolution under 50 U.S.C. 1544(c) reaches the floor only if the Foreign Relations Committee is discharged, so the discharge motion IS the vote on the resolution: a rejected motion ends the measure and no vote on passage ever occurs. This is the same admitted form F4 used for the arms-sale disapprovals.",
+      "result": "rejected",
+      "tally": "47-53",
+      "notVoting": 0,
+      "losingSharePct": 47,
+      "rule11": "cleared -- the losing side holds 47.0% of the yea+nay pool, far above the one-tenth bar",
+      "fullChamberRecorded": 100,
+      "attributed": 97,
+      "rollSourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00069.htm",
+      "mapped": false,
+      "issues": [],
+      "declinedKeys": [],
+      "zeroMappingReason": "See censusRule34 -- this roll records no yea or nay that an earlier roll on the same text does not already record."
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 123",
+      "documentTitle": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/123",
+      "sponsor": "Sen. Duckworth, Tammy [D-IL]",
+      "introducedDate": "2026-03-10",
+      "purpose": "Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted.",
+      "roll": "119/2/79",
+      "question": "On the Motion to Discharge S.J.Res. 123",
+      "admittedAs": "exception: discharge",
+      "decisiveWhy": "A war-powers resolution under 50 U.S.C. 1544(c) reaches the floor only if the Foreign Relations Committee is discharged, so the discharge motion IS the vote on the resolution: a rejected motion ends the measure and no vote on passage ever occurs. This is the same admitted form F4 used for the arms-sale disapprovals.",
+      "result": "rejected",
+      "tally": "47-52",
+      "notVoting": 1,
+      "losingSharePct": 47.475,
+      "rule11": "cleared -- the losing side holds 47.5% of the yea+nay pool, far above the one-tenth bar",
+      "fullChamberRecorded": 100,
+      "attributed": 97,
+      "rollSourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00079.htm",
+      "mapped": false,
+      "issues": [],
+      "declinedKeys": [],
+      "zeroMappingReason": "See censusRule34 -- this roll records no yea or nay that an earlier roll on the same text does not already record."
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 114",
+      "documentTitle": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/114",
+      "sponsor": "Sen. Baldwin, Tammy [D-WI]",
+      "introducedDate": "2026-03-05",
+      "purpose": "Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted.",
+      "roll": "119/2/88",
+      "question": "On the Motion to Discharge S.J.Res. 114",
+      "admittedAs": "exception: discharge",
+      "decisiveWhy": "A war-powers resolution under 50 U.S.C. 1544(c) reaches the floor only if the Foreign Relations Committee is discharged, so the discharge motion IS the vote on the resolution: a rejected motion ends the measure and no vote on passage ever occurs. This is the same admitted form F4 used for the arms-sale disapprovals.",
+      "result": "rejected",
+      "tally": "46-51",
+      "notVoting": 3,
+      "losingSharePct": 47.423,
+      "rule11": "cleared -- the losing side holds 47.4% of the yea+nay pool, far above the one-tenth bar",
+      "fullChamberRecorded": 100,
+      "attributed": 97,
+      "rollSourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00088.htm",
+      "mapped": false,
+      "issues": [],
+      "declinedKeys": [],
+      "zeroMappingReason": "See censusRule34 -- this roll records no yea or nay that an earlier roll on the same text does not already record."
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 184",
+      "documentTitle": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/184",
+      "sponsor": "Sen. Schiff, Adam B. [D-CA]",
+      "introducedDate": "2026-04-16",
+      "purpose": "Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted.",
+      "roll": "119/2/113",
+      "question": "On the Motion to Discharge S.J.Res. 184",
+      "admittedAs": "exception: discharge",
+      "decisiveWhy": "A war-powers resolution under 50 U.S.C. 1544(c) reaches the floor only if the Foreign Relations Committee is discharged, so the discharge motion IS the vote on the resolution: a rejected motion ends the measure and no vote on passage ever occurs. This is the same admitted form F4 used for the arms-sale disapprovals.",
+      "result": "rejected",
+      "tally": "47-50",
+      "notVoting": 3,
+      "losingSharePct": 48.454,
+      "rule11": "cleared -- the losing side holds 48.5% of the yea+nay pool, far above the one-tenth bar",
+      "fullChamberRecorded": 100,
+      "attributed": 97,
+      "rollSourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00113.htm",
+      "mapped": true,
+      "issues": [
+        {
+          "issueKey": "restraint",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The resolution's operative section directs the President to remove United States Armed Forces from hostilities within or against Iran that Congress has not authorized, and its saving clause preserves only defence against an attack already under way or imminent. The instrument's whole command is withdrawal, so the direction on the key is not inferred from a title: a yea ordered forces out and a nay left them in. This is the face S.J.Res. 59 already carries for the identical form and the identical question -- restraint w100 primary yea_supports, war_powers w70, strong_defense w55 opposed -- and it is copied rather than re-derived, because runbook rule 25 says the same subject may not be mapped two ways without a written reason and there is no reason here: this is the same subject."
+        },
+        {
+          "issueKey": "war_powers",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "A privileged joint resolution under section 5(c) of the War Powers Resolution, which reached the floor only because the Foreign Relations Committee was discharged, and what it asserts is that the decision to authorize belongs to Congress. war_powers sits in _RD_NO_POLE in stance-helpers.js, so this row is inventory and never prints a direction: it records that the member voted on a war-powers instrument, which is true, and it makes no claim about where they stand. Filed at 70 rather than 100 because the operative command is the removal of forces rather than a change to the authorization machinery itself -- the weight S.J.Res. 59 carries for the same reason."
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score."
+        }
+      ],
+      "declinedKeys": [
+        {
+          "issueKey": "foreign_balance",
+          "why": "A WRITTEN DEPARTURE from the precedent face, and the only one. S.J.Res. 59 carries foreign_balance w45 from the July 2026 landmark pass with the rationale 'Concerns the scope and restraint of U.S. military involvement abroad.' F7 does not copy it. _rdSuppressedKey() in stance-helpers.js returns 'balance_key' for any key ending in _balance, which means such a row is permanently unread: it can never print a direction and never counts toward a characterised reading. F6's shipped wall was 'no *_balance key was used to park anything', and seven more measures times one unread row is exactly the parking F6 forbade. Dropping it changes no reader-visible sentence, because the row it would create is one the reader never sees. The three rows that ship carry the whole of what the vote says."
+        },
+        {
+          "issueKey": "america_first_fp",
+          "why": "Refused because the repository already removed it from this instrument by hand. Migration 20260904000000_vr_split_umbrella_issue_keys.sql re-keyed S.J.Res. 59's america_first_fp w70 to war_powers, and its own comment names the five war-powers instruments it moved. Adding the umbrella key back on a fresh measure of the same form would undo a settled re-key from outside it, which runbook rule 21 exists to prevent."
+        },
+        {
+          "issueKey": "israel_support",
+          "why": "Not adjacent, not applicable, and named because the corpus's other Middle East instruments carry it. None of these resolutions mentions Israel, and the Iran ones reach only United States forces in hostilities with Iran. Runbook rule 41: a cousin refusal is settled on the shipped scope note, never on the fact that two subjects share a region."
+        }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 163",
+      "documentTitle": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/163",
+      "sponsor": "Sen. Merkley, Jeff [D-OR]",
+      "introducedDate": "2026-04-13",
+      "purpose": "Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted.",
+      "roll": "119/2/118",
+      "question": "On the Motion to Discharge S.J.Res. 163",
+      "admittedAs": "exception: discharge",
+      "decisiveWhy": "A war-powers resolution under 50 U.S.C. 1544(c) reaches the floor only if the Foreign Relations Committee is discharged, so the discharge motion IS the vote on the resolution: a rejected motion ends the measure and no vote on passage ever occurs. This is the same admitted form F4 used for the arms-sale disapprovals.",
+      "result": "rejected",
+      "tally": "49-50",
+      "notVoting": 1,
+      "losingSharePct": 49.495,
+      "rule11": "cleared -- the losing side holds 49.5% of the yea+nay pool, far above the one-tenth bar",
+      "fullChamberRecorded": 100,
+      "attributed": 97,
+      "rollSourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00118.htm",
+      "mapped": true,
+      "issues": [
+        {
+          "issueKey": "restraint",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The resolution's operative section directs the President to remove United States Armed Forces from hostilities within or against Iran that Congress has not authorized, and its saving clause preserves only defence against an attack already under way or imminent. The instrument's whole command is withdrawal, so the direction on the key is not inferred from a title: a yea ordered forces out and a nay left them in. This is the face S.J.Res. 59 already carries for the identical form and the identical question -- restraint w100 primary yea_supports, war_powers w70, strong_defense w55 opposed -- and it is copied rather than re-derived, because runbook rule 25 says the same subject may not be mapped two ways without a written reason and there is no reason here: this is the same subject."
+        },
+        {
+          "issueKey": "war_powers",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "A privileged joint resolution under section 5(c) of the War Powers Resolution, which reached the floor only because the Foreign Relations Committee was discharged, and what it asserts is that the decision to authorize belongs to Congress. war_powers sits in _RD_NO_POLE in stance-helpers.js, so this row is inventory and never prints a direction: it records that the member voted on a war-powers instrument, which is true, and it makes no claim about where they stand. Filed at 70 rather than 100 because the operative command is the removal of forces rather than a change to the authorization machinery itself -- the weight S.J.Res. 59 carries for the same reason."
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score."
+        }
+      ],
+      "declinedKeys": [
+        {
+          "issueKey": "foreign_balance",
+          "why": "A WRITTEN DEPARTURE from the precedent face, and the only one. S.J.Res. 59 carries foreign_balance w45 from the July 2026 landmark pass with the rationale 'Concerns the scope and restraint of U.S. military involvement abroad.' F7 does not copy it. _rdSuppressedKey() in stance-helpers.js returns 'balance_key' for any key ending in _balance, which means such a row is permanently unread: it can never print a direction and never counts toward a characterised reading. F6's shipped wall was 'no *_balance key was used to park anything', and seven more measures times one unread row is exactly the parking F6 forbade. Dropping it changes no reader-visible sentence, because the row it would create is one the reader never sees. The three rows that ship carry the whole of what the vote says."
+        },
+        {
+          "issueKey": "america_first_fp",
+          "why": "Refused because the repository already removed it from this instrument by hand. Migration 20260904000000_vr_split_umbrella_issue_keys.sql re-keyed S.J.Res. 59's america_first_fp w70 to war_powers, and its own comment names the five war-powers instruments it moved. Adding the umbrella key back on a fresh measure of the same form would undo a settled re-key from outside it, which runbook rule 21 exists to prevent."
+        },
+        {
+          "issueKey": "israel_support",
+          "why": "Not adjacent, not applicable, and named because the corpus's other Middle East instruments carry it. None of these resolutions mentions Israel, and the Iran ones reach only United States forces in hostilities with Iran. Runbook rule 41: a cousin refusal is settled on the shipped scope note, never on the fact that two subjects share a region."
+        }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 185",
+      "documentTitle": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/185",
+      "sponsor": "Sen. Kaine, Tim [D-VA]",
+      "introducedDate": "2026-04-27",
+      "purpose": "Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted.",
+      "roll": "119/2/129",
+      "question": "On the Motion to Discharge S.J.Res. 185",
+      "admittedAs": "exception: discharge",
+      "decisiveWhy": "A war-powers resolution under 50 U.S.C. 1544(c) reaches the floor only if the Foreign Relations Committee is discharged, and this is that motion. Unlike the twelve rejected motions in this wave it CARRIED, so it did not by itself end the measure — and the sentence is written out rather than borrowed, because the borrowed one would be false here. No vote on passage followed: the Senate rejected the motion to proceed to it on 119/2/192, 47-50. That roll is a form rule 8/12 does not admit, so the discharge motion remains the only recorded position on the merits of this text, and it is the roll admitted. The resolution did not pass the Senate.",
+      "result": "agreed_to",
+      "tally": "50-47",
+      "notVoting": 3,
+      "losingSharePct": 48.454,
+      "rule11": "cleared -- the losing side holds 48.5% of the yea+nay pool, far above the one-tenth bar",
+      "fullChamberRecorded": 100,
+      "attributed": 97,
+      "rollSourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00129.htm",
+      "mapped": true,
+      "postHistoryAndTheRollNotAdmitted": "This discharge motion CARRIED, 50-47. The Senate then rejected the motion to proceed to the resolution on 119/2/192, 47-50, and no vote on passage was ever held. 'On the Motion to Proceed' is not a form rule 8/12 admits, so that roll is not ingested and is named here instead. The measure's status on file is failed.",
+      "issues": [
+        {
+          "issueKey": "restraint",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The resolution's operative section directs the President to remove United States Armed Forces from hostilities within or against Iran that Congress has not authorized, and its saving clause preserves only defence against an attack already under way or imminent. The instrument's whole command is withdrawal, so the direction on the key is not inferred from a title: a yea ordered forces out and a nay left them in. This is the face S.J.Res. 59 already carries for the identical form and the identical question -- restraint w100 primary yea_supports, war_powers w70, strong_defense w55 opposed -- and it is copied rather than re-derived, because runbook rule 25 says the same subject may not be mapped two ways without a written reason and there is no reason here: this is the same subject."
+        },
+        {
+          "issueKey": "war_powers",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "A privileged joint resolution under section 5(c) of the War Powers Resolution, which reached the floor only because the Foreign Relations Committee was discharged, and what it asserts is that the decision to authorize belongs to Congress. war_powers sits in _RD_NO_POLE in stance-helpers.js, so this row is inventory and never prints a direction: it records that the member voted on a war-powers instrument, which is true, and it makes no claim about where they stand. Filed at 70 rather than 100 because the operative command is the removal of forces rather than a change to the authorization machinery itself -- the weight S.J.Res. 59 carries for the same reason."
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes",
+          "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score."
+        }
+      ],
+      "declinedKeys": [
+        {
+          "issueKey": "foreign_balance",
+          "why": "A WRITTEN DEPARTURE from the precedent face, and the only one. S.J.Res. 59 carries foreign_balance w45 from the July 2026 landmark pass with the rationale 'Concerns the scope and restraint of U.S. military involvement abroad.' F7 does not copy it. _rdSuppressedKey() in stance-helpers.js returns 'balance_key' for any key ending in _balance, which means such a row is permanently unread: it can never print a direction and never counts toward a characterised reading. F6's shipped wall was 'no *_balance key was used to park anything', and seven more measures times one unread row is exactly the parking F6 forbade. Dropping it changes no reader-visible sentence, because the row it would create is one the reader never sees. The three rows that ship carry the whole of what the vote says."
+        },
+        {
+          "issueKey": "america_first_fp",
+          "why": "Refused because the repository already removed it from this instrument by hand. Migration 20260904000000_vr_split_umbrella_issue_keys.sql re-keyed S.J.Res. 59's america_first_fp w70 to war_powers, and its own comment names the five war-powers instruments it moved. Adding the umbrella key back on a fresh measure of the same form would undo a settled re-key from outside it, which runbook rule 21 exists to prevent."
+        },
+        {
+          "issueKey": "israel_support",
+          "why": "Not adjacent, not applicable, and named because the corpus's other Middle East instruments carry it. None of these resolutions mentions Israel, and the Iran ones reach only United States forces in hostilities with Iran. Runbook rule 41: a cousin refusal is settled on the shipped scope note, never on the fact that two subjects share a region."
+        }
+      ]
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 172",
+      "documentTitle": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/172",
+      "sponsor": "Sen. Warnock, Raphael G. [D-GA]",
+      "introducedDate": "2026-04-13",
+      "purpose": "Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted.",
+      "roll": "119/2/174",
+      "question": "On the Motion to Discharge S.J.Res. 172",
+      "admittedAs": "exception: discharge",
+      "decisiveWhy": "A war-powers resolution under 50 U.S.C. 1544(c) reaches the floor only if the Foreign Relations Committee is discharged, so the discharge motion IS the vote on the resolution: a rejected motion ends the measure and no vote on passage ever occurs. This is the same admitted form F4 used for the arms-sale disapprovals.",
+      "result": "rejected",
+      "tally": "47-48",
+      "notVoting": 5,
+      "losingSharePct": 49.474,
+      "rule11": "cleared -- the losing side holds 49.5% of the yea+nay pool, far above the one-tenth bar",
+      "fullChamberRecorded": 100,
+      "attributed": 97,
+      "rollSourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00174.htm",
+      "mapped": false,
+      "issues": [],
+      "declinedKeys": [],
+      "zeroMappingReason": "See censusRule34 -- this roll records no yea or nay that an earlier roll on the same text does not already record."
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 180",
+      "documentTitle": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/180",
+      "sponsor": "Sen. Van Hollen, Chris [D-MD]",
+      "introducedDate": "2026-04-13",
+      "purpose": "Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted.",
+      "roll": "119/2/207",
+      "question": "On the Motion to Discharge S.J.Res. 180",
+      "admittedAs": "exception: discharge",
+      "decisiveWhy": "A war-powers resolution under 50 U.S.C. 1544(c) reaches the floor only if the Foreign Relations Committee is discharged, so the discharge motion IS the vote on the resolution: a rejected motion ends the measure and no vote on passage ever occurs. This is the same admitted form F4 used for the arms-sale disapprovals.",
+      "result": "rejected",
+      "tally": "47-49",
+      "notVoting": 4,
+      "losingSharePct": 48.958,
+      "rule11": "cleared -- the losing side holds 49.0% of the yea+nay pool, far above the one-tenth bar",
+      "fullChamberRecorded": 100,
+      "attributed": 97,
+      "rollSourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00207.htm",
+      "mapped": false,
+      "issues": [],
+      "declinedKeys": [],
+      "zeroMappingReason": "See censusRule34 -- this roll records no yea or nay that an earlier roll on the same text does not already record."
+    },
+    {
+      "measureType": "resolution",
+      "congress": 119,
+      "chamber": "senate",
+      "number": "S.J.Res. 181",
+      "documentTitle": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/181",
+      "sponsor": "Sen. Gillibrand, Kirsten E. [D-NY]",
+      "introducedDate": "2026-04-13",
+      "purpose": "Directs the President to remove United States Armed Forces from hostilities within or against Iran unless a declaration of war or a specific authorization for the use of military force has been enacted.",
+      "roll": "119/2/216",
+      "question": "On the Motion to Discharge S.J.Res. 181",
+      "admittedAs": "exception: discharge",
+      "decisiveWhy": "A war-powers resolution under 50 U.S.C. 1544(c) reaches the floor only if the Foreign Relations Committee is discharged, so the discharge motion IS the vote on the resolution: a rejected motion ends the measure and no vote on passage ever occurs. This is the same admitted form F4 used for the arms-sale disapprovals.",
+      "result": "rejected",
+      "tally": "49-50",
+      "notVoting": 1,
+      "losingSharePct": 49.495,
+      "rule11": "cleared -- the losing side holds 49.5% of the yea+nay pool, far above the one-tenth bar",
+      "fullChamberRecorded": 100,
+      "attributed": 97,
+      "rollSourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00216.htm",
+      "mapped": false,
+      "issues": [],
+      "declinedKeys": [],
+      "zeroMappingReason": "See censusRule34 -- this roll records no yea or nay that an earlier roll on the same text does not already record."
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 2056",
+      "shortTitle": "District of Columbia Federal Immigration Compliance Act of 2025",
+      "officialTitle": "To require the District of Columbia to comply with federal immigration laws.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/2056",
+      "sponsor": "Rep. Higgins, Clay [R-LA-3]",
+      "introducedDate": "2025-03-11",
+      "purpose": "Bars the District from adopting any law, policy or practice that limits its cooperation with federal immigration enforcement, including the exchange of citizenship or immigration status information and compliance with lawful detainer and release-notification requests, with a carve-out for witnesses and victims of crime.",
+      "roll": "119/1/171",
+      "question": "On Passage",
+      "admittedAs": "decisive",
+      "result": "Passed",
+      "tally": "224-194",
+      "notVoting": 14,
+      "losingSharePct": 46.411,
+      "rule11": "cleared -- the losing side holds 46.4% of the yea+nay pool",
+      "fullChamberRecorded": 432,
+      "attributed": 117,
+      "rollSourceUrl": "https://clerk.house.gov/Votes/2025171",
+      "mapped": true,
+      "govinfo": "BILLS-119hr2056eh",
+      "govinfoUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr2056eh/html/BILLS-119hr2056eh.htm",
+      "issues": [
+        {
+          "issueKey": "border_security",
+          "weight": 75,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The Act's whole mechanism is the state and local end of federal immigration enforcement: it forbids the District from adopting a law, policy or practice that stops its entities from sending, receiving, maintaining or exchanging citizenship or immigration status information, and from declining lawful federal requests. border_security's written scope in issue-scope.js names, as what is IN, 'the state and local cooperation that feeds the federal system' -- this Act is that clause and almost nothing else. Weight 75 rather than 100 because the key's scope also covers the physical border and the entry apparatus, which this Act does not touch, and because the carve-out for witnesses and victims of crime is a real limit on the mandate rather than a recital. A yea compelled the cooperation."
+        },
+        {
+          "issueKey": "deportations",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "The second operative limb reaches detainers and release notification -- the District may not decline a lawful request to hold or to notify before release -- and that is the hand-off by which a person in local custody enters removal proceedings. deportations' written scope names 'mandatory custody and removal -- who the executive must detain and place in removal proceedings'. This Act does not itself order a removal, which is why it is filed at 70 and secondary: it removes the local discretion that currently interrupts the chain. The CRS summary confirms the clause; the engrossed text was read for it rather than the summary alone."
+        }
+      ],
+      "declinedKeys": [
+        {
+          "issueKey": "tough_on_crime",
+          "why": "Refused on the key's own OUT list, which names 'immigration detention and removal' in terms. The measure creates no offence, changes no offence level and alters no sentence, so nothing in tough_on_crime's IN enumeration -- offence elements, offence levels, mandatory minimums, sentencing enhancements, juvenile adjustment and expungement -- is engaged. That the bill is about custody is not enough: the OUT line was written for exactly this confusion."
+        },
+        {
+          "issueKey": "checks_balances",
+          "why": "The Act does constrain what the District's own government may enact, and that is a federal-local authority question. Runbook rule 28: checks_balances takes no roll-call mappings. Named rather than silently dropped, because it is the honest second reading of the measure and the reason it is not filed is a standing rule, not an absence."
+        },
+        {
+          "issueKey": "gov_regulation",
+          "why": "Refused as restuffing. F6's shipped wall forbids using gov_regulation as a home for anything that has a subject key, and this measure has two."
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 4922",
+      "shortTitle": "D.C. Criminal Reforms to Immediately Make Everyone Safe Act of 2025",
+      "officialTitle": "To limit youth offender status in the District of Columbia to individuals 18 years of age or younger, to direct the Attorney General of the District of Columbia to establish and operate a publicly accessible website containing updated statistics on juvenile crime in the District of Columbia, to amend the District of Columbia Home Rule Act to prohibit the Council of the District of Columbia from enacting changes to existing criminal liability sentences, and for other purposes.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4922",
+      "sponsor": "Rep. Donalds, Byron [R-FL-19]",
+      "introducedDate": "2025-08-08",
+      "purpose": "Reduces the maximum age of a youth offender in the District from 24 to 18, repeals the provision allowing a District court to sentence a youth offender below an otherwise applicable mandatory minimum, directs publication of juvenile crime statistics, and amends the Home Rule Act to bar the Council from changing criminal liability sentences in effect on enactment.",
+      "roll": "119/1/270",
+      "question": "On Passage",
+      "admittedAs": "decisive",
+      "result": "Passed",
+      "tally": "240-179",
+      "notVoting": 13,
+      "losingSharePct": 42.721,
+      "rule11": "cleared -- the losing side holds 42.7% of the yea+nay pool",
+      "fullChamberRecorded": 432,
+      "attributed": 117,
+      "rollSourceUrl": "https://clerk.house.gov/Votes/2025270",
+      "mapped": true,
+      "govinfo": "BILLS-119hr4922eh",
+      "govinfoUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr4922eh/html/BILLS-119hr4922eh.htm",
+      "issues": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Two of the Act's three operative limbs are inside tough_on_crime's written enumeration verbatim. The key is IN for 'how long a person or a case stays in the system: offence elements, offence levels, mandatory minimums, sentencing enhancements, and juvenile adjustment and expungement eligibility'. Cutting the youth offender ceiling from 24 to 18 is juvenile adjustment eligibility; repealing the authority to sentence a youth offender below the mandatory minimum is a mandatory minimum. The key's pole reads 'Advanced = the vote increased exposure to punishment or time in custody', and both limbs do that on their face. Weight 90 rather than 100 because the third operative limb -- the Home Rule Act amendment freezing the Council's sentencing authority -- is a federal-local authority question this wave refuses to file at all, and the weight is where that remainder is recorded rather than in a second row on a key that takes no roll calls."
+        }
+      ],
+      "declinedKeys": [
+        {
+          "issueKey": "checks_balances",
+          "why": "The Home Rule Act limb is a genuine checks_balances subject: it removes a legislature's power to legislate in a field. Runbook rule 28 says the key takes no roll-call mappings, so it is refused on the standing rule and the remainder is carried in the tough_on_crime weight instead. This is the whole reason that weight is 90."
+        },
+        {
+          "issueKey": "justice_reform",
+          "why": "Refused, and the reason is direction rather than subject. justice_reform has no written scope in issue-scope.js, so there is nothing to test a claim against, and tough_on_crime's OUT list names 'sentencing reform in the other direction (Criminal Justice Reform)' -- which places this measure, moving exposure upward, on the tough_on_crime side of the same pair. Filing both would double-count one vote across a poled pair."
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 5140",
+      "shortTitle": "To lower the age at which a minor may be tried as an adult for certain criminal offenses in the District of Columbia to 14 years of age",
+      "officialTitle": "To lower the age at which a minor may be tried as an adult for certain criminal offenses in the District of Columbia to 14 years of age.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/5140",
+      "sponsor": "Rep. Gill, Brandon [R-TX-26]",
+      "introducedDate": "2025-09-04",
+      "purpose": "Lowers to 14 the age at which an individual may be tried as an adult in the District for the enumerated violent offences, from the current thresholds of 16 and 15.",
+      "roll": "119/1/271",
+      "question": "On Passage",
+      "admittedAs": "decisive",
+      "result": "Passed",
+      "tally": "225-203",
+      "notVoting": 4,
+      "losingSharePct": 47.43,
+      "rule11": "cleared -- the losing side holds 47.4% of the yea+nay pool",
+      "fullChamberRecorded": 432,
+      "attributed": 117,
+      "rollSourceUrl": "https://clerk.house.gov/Votes/2025271",
+      "mapped": true,
+      "govinfo": "BILLS-119hr5140eh",
+      "govinfoUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr5140eh/html/BILLS-119hr5140eh.htm",
+      "issues": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "One operative provision and nothing else: the age at which a minor charged with the enumerated violent offences leaves family court for adult court drops to 14. tough_on_crime's written scope is IN for 'juvenile adjustment' eligibility by name, and its pole reads 'Advanced = the vote increased exposure to punishment or time in custody' -- adult court is the greater exposure, which is the entire point of the change. There is no remainder to record in a weight, so the weight is 100."
+        }
+      ],
+      "declinedKeys": [
+        {
+          "issueKey": "justice_reform",
+          "why": "Same refusal as on H.R. 4922 and for the same written reason: the key has no scope note to test against, and tough_on_crime's OUT list assigns movement in the other direction to it, which makes these two keys a poled pair rather than two homes for one vote."
+        }
+      ]
+    },
+    {
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 5214",
+      "shortTitle": "District of Columbia Cash Bail Reform Act of 2025",
+      "officialTitle": "To require mandatory pretrial and post conviction detention for crimes of violence and dangerous crimes and require mandatory cash bail for certain offenses that pose a threat to public safety or order in the District of Columbia, and for other purposes.",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/5214",
+      "sponsor": "Rep. Stefanik, Elise M. [R-NY-21]",
+      "introducedDate": "2025-09-08",
+      "purpose": "Requires pretrial and post-conviction detention in the District for crimes of violence and dangerous crimes, and requires cash bail to obtain pretrial release for public safety or order offences, displacing the current judicial assessment of risk.",
+      "roll": "119/1/298",
+      "question": "On Passage",
+      "admittedAs": "decisive",
+      "result": "Passed",
+      "tally": "237-179",
+      "notVoting": 17,
+      "losingSharePct": 43.029,
+      "rule11": "cleared -- the losing side holds 43.0% of the yea+nay pool",
+      "fullChamberRecorded": 433,
+      "attributed": 117,
+      "rollSourceUrl": "https://clerk.house.gov/Votes/2025298",
+      "mapped": true,
+      "govinfo": "BILLS-119hr5214eh",
+      "govinfoUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr5214eh/html/BILLS-119hr5214eh.htm",
+      "issues": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "This one is argued on the key's IN headline and its pole line rather than on the enumeration, because bail is not in the enumeration and pretending otherwise would be the keyword reasoning rule 41 forbids. The headline is 'Criminal exposure and time served -- what is an offence, at what level, and how long a person or a case stays in the system', and the pole is 'Advanced = the vote increased exposure to punishment or time in custody'. The Act makes detention mandatory for two classes of charge where a judge now decides, and conditions release on cash for a third. Time in custody before trial is time in custody, and how long a case stays in the system is the headline in terms. Weight 90 because the mechanism is pretrial process rather than an offence level or a sentence, and the enumeration reaches the latter."
+        }
+      ],
+      "declinedKeys": [
+        {
+          "issueKey": "justice_reform",
+          "why": "As on H.R. 4922 and H.R. 5140: no written scope, and the poled pair sends a vote that raises exposure to tough_on_crime."
+        },
+        {
+          "issueKey": "back_police",
+          "why": "Refused on shape. back_police has no written scope note either, and the shipped pattern for it in this corpus is funding-plus-penalties -- money for law enforcement and offences against officers. This Act funds nothing and creates no offence; it moves a bail decision from a judge to a statute. Adjacency to policing is not evidence (rule 41)."
+        }
+      ]
+    },
+    {
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 99",
+      "shortTitle": "Meeks amendment to H.R. 3838 repealing the 2002 and 1991 authorizations for use of military force",
+      "officialTitle": "Amendment repeals the 2002 and 1991 Authorization for Use of Military Force (AUMFs).",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/99",
+      "sponsor": "Rep. Meeks, Gregory W. [D-NY-5]",
+      "introducedDate": "2025-09-10",
+      "purpose": "Repeals the 2002 authorization for the use of military force against Iraq and the 1991 authorization for the use of military force, as an amendment to the National Defense Authorization Act for Fiscal Year 2026.",
+      "roll": "119/1/244",
+      "question": "On Agreeing to the Amendment",
+      "admittedAs": "exception: amendment",
+      "result": "Agreed to",
+      "tally": "261-167",
+      "notVoting": 9,
+      "losingSharePct": 39.019,
+      "rule11": "cleared -- the losing side holds 39.0% of the yea+nay pool",
+      "fullChamberRecorded": 437,
+      "attributed": 117,
+      "rollSourceUrl": "https://clerk.house.gov/Votes/2025244",
+      "mapped": true,
+      "decisiveWhy": "The amendment's own text is the whole question — it repeals two standing authorizations for the use of military force — and the amendment was disposed of by recorded vote on its own, not en bloc. The parent bill's passage roll is a separate act on a separate subject.",
+      "parentNumber": "H.R. 3838",
+      "parentTitle": "Streamlining Procurement for Effective Execution and Delivery and National Defense Authorization Act for Fiscal Year 2026",
+      "issues": [
+        {
+          "issueKey": "war_powers",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "The amendment's text is the whole question and the question is the authorization itself: it repeals the 2002 authorization for the use of military force against Iraq and the 1991 authorization. war_powers is the subject of who may authorize the use of force and on what standing grant, and this instrument changes that machinery directly rather than ordering any force to move -- so the weight is 100 and the row is primary. war_powers sits in _RD_NO_POLE in stance-helpers.js, so the row is inventory: the reader is told the member voted on a war-powers instrument and is told nothing about a direction, which is the correct outcome for a repeal of superseded standing authority."
+        },
+        {
+          "issueKey": "restraint",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Filed at 70 and secondary, which is the mirror of the face the war-powers resolutions in this same wave carry, and rule 25 requires the reason for the difference to be written down. The resolutions order forces out of an engagement now under way; their operative subject is the scope of American military involvement, so restraint leads there at 100. This amendment moves no forces and ends no engagement -- it withdraws two standing legal authorizations. The restraint reading is real, because a repealed authorization is one fewer basis for future action, but it is a consequence of the change rather than the change, and 70 is where a consequence is recorded."
+        }
+      ],
+      "declinedKeys": [
+        {
+          "issueKey": "strong_defense",
+          "why": "Refused, and the argument matters because the war-powers resolutions in this same wave DO carry strong_defense at 55 opposed. The reason those carry it is stated in S.J.Res. 59's own shipped rationale: 'A yea withdraws U.S. forces from an ongoing engagement absent a vote of Congress.' That sentence is false of this amendment. Nothing is withdrawn from anywhere; two authorizations that no operation now relies on are struck from the books, and the amendment carried 261-167 with support from both sides of the chamber. Copying the row because the words look alike would be the adjacency reasoning rule 41 forbids, and it would publish an opposed direction on a defence key for 261 members on no evidence."
+        },
+        {
+          "issueKey": "foreign_balance",
+          "why": "Same written departure as on the fourteen resolutions: a _balance key is permanently unread by _rdSuppressedKey(), and F6's wall forbids parking a row there."
+        }
+      ]
+    }
+  ],
+  "attribution": {
+    "rule": "Fail-closed, and the two chambers take different paths because the two sources carry different identifiers.",
+    "housePath": "bioguide from the clerk's own name-id attribute, then db/vr-member-map.json. A recorded member who does not resolve is skipped and counted.",
+    "senatePath": "There is no bioguide in the LIS XML, so the only available key is (surname, state) resolved against the roster with a whole-name compare, plus the LIS member id where present. A surname that resolves to more than one distinct person in the same state is skipped and counted as ambiguous, never guessed. Ambiguous skips this wave: 0.",
+    "totalsAreFullChamber": "yea, nay, present and notVoting come from <count><yeas>/<nays> in the Senate document and <totals-by-vote> in the clerk's, and they count every recorded member. The attributed rows are a smaller set and the two live in separate fields. There is a specific trap here: the LIS <vote_tally> element renders '51-42' as a display string, which parses to 5142 and makes the losing side zero, so rule 11 would pass everything. The authority is the count block.",
+    "ceiling": {
+      "attributedPerRollMaxSenate": 98,
+      "attributedPerRollMaxHouse": 117,
+      "fullChamberRecordedRange": [
+        100,
+        437
+      ],
+      "attributedMemberVotes": 1948,
+      "unresolvedRecordedTotal": 1618,
+      "distinctSlugsTouched": 215,
+      "ambiguousSkippedTotal": 0,
+      "note": "The roster holds 221 slugs, 99 of them senators. Every Senate roll here records all 100 senators, so the ceiling is a roster question and not a reading question: three serving senators are absent from db/vr-member-map.json -- Husted (OH) and Hyde-Smith (MS) on all fourteen rolls, and Armstrong (OK) on the nine rolls after Mullin left. That is 37 unattributable rows. They are named rather than fixed, because adding a roster slug is a roster wave with its own argument and this wave was asked for ingest and mapping."
+    },
+    "aResolverDefectFoundAndFixed": {
+      "what": "The first Senate run left five senators unresolved on every roll. Three are the roster gap above. The other two were a defect in this wave's own resolver: 'Angus S. King, Jr.' keeps a trailing comma after the suffix strip, so the surname compare against <last_name>King failed, and 'Ben Ray Lujan' carries an accent the LIS <last_name> does not. Both are now folded through NFD normalisation with the suffix and punctuation stripped in the right order.",
+      "effect": "+28 attributed rows on this wave's rolls. Ambiguity stayed at 0 -- the fix loosened nothing that could match a second person.",
+      "readLossItExposedElsewhere": "See readDisclosure.priorRollsCarryingTheSameDefect. It is disclosed, not silently backfilled."
+    },
+    "rollToMeasureVerification": "Every roll's measure was read off the roll's OWN document -- <document_type> and <document_number> in the Senate XML, <legis-num> in the clerk's -- and asserted against the seed. This is not defensive habit: govinfo repeats <latestAction> once per related bill and amendment, so a first-match regex made S.J.Res. 98 claim roll 608 and made four identical-text Iran resolutions each claim roll 46. Clerk punctuation also differs from corpus punctuation ('H R 2056' against 'H.R. 2056'), so the comparison is on alphanumerics only."
+  },
+  "readDisclosure": {
+    "promotes": 0,
+    "retractions": 0,
+    "weightChanges": 0,
+    "polarityChanges": 0,
+    "note": "Nothing is promoted and nothing is retracted, so no existing row's reading changes and the no-loss check has no promote to check. Every mapping row is new, on a measure that was not on file. The measured before and after counts are below, on the rule 36 method: the row model's own read flag over every pid, set-wise, never a shape counter that can net a lost reading against a gained one.",
+    "primaryWallChecked": "Runbook rule 30 says to check the primary wall BEFORE shipping a depth pass, and the count first: of the twenty-eight rows TWELVE are primary and sixteen are secondary — seven restraint primaries on the Senate rolls, one war_powers primary on the amendment, one border_security primary and three tough_on_crime primaries on the District bills. FOUR of the six keys gain a primary from this wave. TWO DO NOT, and saying otherwise would be the easy false sentence here: deportations gains exactly one secondary row (H.R. 2056, where the border_security row is the primary), and strong_defense gains seven secondary rows and no primary at all, because a resolution ordering forces out of one engagement is not a vote on force levels, procurement or posture. WHAT THAT ACTUALLY COSTS, read in the shipped code rather than assumed. _RD_MIN_PRIMARY is no longer a lock on characterisation: stance-helpers.js:1573 records that the last primary gate was removed on purpose ('isPrimary is a label on the bill, printable everywhere and consultable by nothing'), and the surviving use at stance-helpers.js:1598 only decides whether _rdPackageNote's sentence prints beside the finding. So a secondary-only key cannot suppress or downgrade a reading; the exposure is that a member whose whole reading on such a key rests on non-primary acts is told so in a sentence. MEASURED, not argued: of the 98 members this wave touches on strong_defense and the 116 it touches on deportations, the number who become newly readable on those keys is 0 and the number whose reading starts printing the package sentence is 0 — every one of them already held at least one primary act on the key from an earlier instrument. The wall is clear on the numbers, not on the structure, and it is stated that way. The one place the sentence WOULD be true if it ever printed is worth recording as well: a withdrawal resolution genuinely is mainly about something other than defence posture, which is exactly why the strong_defense row is filed at 55 and secondary, so _rdPackageNote would be telling the reader something accurate rather than papering over a mis-keyed row.",
+    "floorsUntouched": "_RD_MIN_PRIMARY, _RD_MIN_JUDGED, _RD_THIN_MIN, _RD_MIN_STRENGTH, _RD_DOMINANCE, _RD_SPLIT_MIN_JUDGED, _RD_SPLIT_MIN_SIDE, _PDX_RD_MEMBER_FLOOR and the publication floor are neither read nor written by this wave.",
+    "noPoleKeysDoNotPrintADirection": "war_powers is in _RD_NO_POLE in stance-helpers.js, so _rdSuppressedKey() returns 'no_pole' for it and its rows keep inventory copy and never print a stance. Eight of the twenty-eight rows are war_powers rows (seven discharge motions plus the NDAA amendment), so twenty rows print a direction and eight do not; the seed says so plainly rather than letting a reader assume twenty-eight new directional readings.",
+    "priorRollsCarryingTheSameDefect": {
+      "what": "The King and Lujan resolver defect is not new to this wave -- it is in the path four already-shipped Senate rolls used, and each of those carries 96 attributed rows where 98 were available: 119/1/151 H.J.Res. 25, 119/1/153 S.J.Res. 18, 119/1/563 S.Amdt. 3535, 119/1/632 H.J.Res. 131.",
+      "whyItIsNotFixedHere": "Backfilling those four rolls would move percentages that are already published and would put writes outside this wave's roll ids, which the brief's verification wall forbids. F7 fixes its own path forward and discloses the four rolls by number so the correction is a named piece of work with its own argument, under rule 21, rather than a silent edit inside an ingest wave.",
+      "sizeOfTheLoss": "Two attributed rows per roll on four rolls: eight member votes, on two senators whose positions on those measures are recorded elsewhere in the corpus."
+    },
+    "measuredEffect": {
+      "harness": "node scripts/vr-federal-fpi.mjs --set all --json",
+      "whatItProjects": "The nineteen rolls, the 1,948 attributed member votes and the twenty-eight issue rows overlaid on the live corpus in memory, then the whole formal index recomputed on both sides. 343 members in the federal set, all with a record. Nothing is written.",
+      "seedProjection": {
+        "issueRowsAdded": 28,
+        "alreadyPresentAndSkipped": 72,
+        "promotes": 0,
+        "retractions": 0,
+        "promoteMismatch": 0,
+        "voteSeed": {
+          "measures": 19,
+          "rolls": 19,
+          "memberVotes": 1948,
+          "rollsAlreadyLive": 25
+        }
+      },
+      "bandBefore": "empty 0 - thin 2 - readable 341",
+      "bandAfter": "empty 0 - thin 2 - readable 341",
+      "bandUnchangedAndWhy": "The band does not move, and that is the census answer rather than a disappointment: the only two members outside the readable band are state-lane figures no federal roll can reach. A Senate wave cannot convert them and this seed says so instead of implying otherwise.",
+      "memberKeyRows": "20416 -> 20457",
+      "clearSplitThin": "4174 clear / 3550 split / 2806 thin -> 4280 clear / 3497 split / 2816 thin",
+      "laneVotes": "32289 -> 34237",
+      "membersWhoseShapeMoved": 126,
+      "rowsThatStoppedBeingCharacterised": 0,
+      "rowsThatStartedBeingCharacterised": 31,
+      "howThatWasChecked": "On the row model's own read flag, over every one of the 343 pids in the set, set-wise -- runbook rule 36, which exists because a shape counter can net a lost reading against a gained one and report zero. lostReads is the empty list, not a zero.",
+      "tierTransitions": {
+        "split -> mostly": 72,
+        "thin -> strong": 43,
+        "(absent) -> thin": 29,
+        "mostly -> split": 15,
+        "(absent) -> unread": 10,
+        "thin -> mostly": 6,
+        "strong -> mostly": 5,
+        "thin -> split": 2,
+        "(absent) -> split": 2
+      },
+      "tierTransitionsByKey": {
+        "restraint": 128,
+        "tough_on_crime": 15,
+        "border_security": 12,
+        "strong_defense": 12,
+        "war_powers": 9,
+        "deportations": 8
+      },
+      "theMeasurementDefectFoundWhileWritingThis": {
+        "what": "The first draft of this disclosure published EIGHT rows as having changed direction. The measured figure is FIFTEEN. The eight was not a typo and not a second definition of the word: scripts/vr-federal-fpi.mjs built its per-issue tier list only over the pids whose SHAPE COUNTERS had moved, and a member who loses a direction on one key while gaining one on another nets out to identical counters and never enters that list at all.",
+        "theMemberWhoExposedIt": "angus_king. His strong_defense fell from Mostly supports to Split on seven war-powers yeas, and his restraint rose from Split to Mostly supports on the same seven, so his shape came out identical on both sides -- readable, 67 issues, 7 clear, 13 split, 10 thin -- and the drift list named neither of his two moved rows. Six further senators and two representatives were hidden by the same arithmetic.",
+        "theFix": "The pid gate is gone: DRIFT_ROWS is now measured over every pid in the set, set-wise, the way the read-flag check in that same file already was. This is precisely the trap that file's own read-flag note was written about, and the tier list had been left on the wrong side of it. The cost is one extra boot per member.",
+        "whyItIsWrittenDownRatherThanQuietlyCorrected": "A number that moved because the instrument was wrong is the one thing a reader cannot audit from the artifact, and F7's whole claim is that its cost is measured rather than asserted. Runbook rule 21 keeps the first writer's rationale on a live row; the same principle is applied here to a published count.",
+        "whatDidNotMove": "Nothing in the band table, the row counts, the lane totals or the read-flag check came from the gated list, so no other figure in this disclosure changes: rowsThatStoppedBeingCharacterised was measured over all 343 pids from the start and is still 0."
+      },
+      "theShiftThisWaveActuallyCauses": {
+        "what": "128 of the 184 tier transitions are on restraint, and the two big movements there are 59 members from Split to Mostly supports and 43 from thin to Strongly supports. That is the wave's real published effect and it is named here rather than left inside a net figure.",
+        "theObjectionAndTheAnswer": "The objection is that seven mapped rolls on three texts is repetition, and repetition should not move a reading. The answer is that the direction each senator now reads is the direction that senator actually voted, seven, eight or nine times, and the tier is decided by _RD_DOMINANCE at 0.75 over their own counts -- a floor this wave does not touch. What rule 34 forbids is admitting a duplicate that records nobody's position, and seven rolls were withheld from the mapping table for exactly that reason. What it requires is admitting the roll that is the only record of somebody's position, and three of the four mapped Iran rolls are admitted on precisely that ground: collins, murkowski and cassidy are each recorded voting yea on one roll and nowhere else on that text. Withholding those three would have published a restraint reading for three senators that omits the one time they crossed.",
+        "whyItIsNotAPartyPattern": "No party word appears in any rationale, no party total is mapped, and the crossovers this wave surfaces run in both directions."
+      },
+      "theFifteenRowsThatChangedDIRECTION": {
+        "what": "Fifteen rows moved from a one-directional tier to Split. Nothing went unread -- Split is a reading and the read flag is true on both sides -- but the published label changes for fourteen members, so each row is named with the vote that caused it. Seven strong_defense rows, seven restraint rows, one tough_on_crime row.",
+        "rows": [
+          "collins strong_defense mostly -> split: recorded yea on the Venezuela discharge motion and on three Iran motions, and strong_defense reads a yea as opposed",
+          "murkowski strong_defense mostly -> split: yea on the Venezuela motion and on two Iran motions",
+          "don_davis restraint mostly -> split: yea on H.Amdt. 99, which repeals the 2002 and 1991 authorizations",
+          "jared_golden restraint mostly -> split: yea on H.Amdt. 99",
+          "josh_gottheimer restraint mostly -> split: yea on H.Amdt. 99",
+          "marie_gluesenkamp_perez restraint mostly -> split: yea on H.Amdt. 99",
+          "tom_suozzi restraint mostly -> split: yea on H.Amdt. 99",
+          "tom_suozzi tough_on_crime mostly -> split: nay on H.R. 4922 and H.R. 5140, yea on H.R. 5214",
+          "angus_king strong_defense mostly -> split: yea on all seven mapped discharge motions, which takes the key from 10 advanced and 3 against to 10 and 10",
+          "maggie_hassan strong_defense mostly -> split: yea on all seven mapped discharge motions, same arithmetic",
+          "peters strong_defense mostly -> split: yea on all seven mapped discharge motions, same arithmetic",
+          "schumer strong_defense mostly -> split: yea on all seven mapped discharge motions, same arithmetic",
+          "shaheen strong_defense mostly -> split: yea on all seven mapped discharge motions, same arithmetic",
+          "greg_landsman restraint mostly -> split: yea on H.Amdt. 99",
+          "steny_hoyer restraint mostly -> split: yea on H.Amdt. 99"
+        ],
+        "theLastSevenAreTheOnesTheGatedListHid": "angus_king, maggie_hassan, peters, schumer, shaheen, greg_landsman and steny_hoyer. Every one of them gained a restraint direction in the same pass -- five senators from Split to Mostly supports on restraint, the two representatives from a restraint reading that stayed put -- which is exactly the netting-out that kept them off the first list. See theMeasurementDefectFoundWhileWritingThis.",
+        "everyOneTracesToARecordedVote": "Checked row by row against this wave's own attributed rows with scripts/vr-federal-fpi.mjs --row <pid>:<key>, which prints the acts on both sides. There is no transition in this list that is not a vote that member cast.",
+        "twoMoreWorthNaming": [
+          "gabe_vasquez tough_on_crime absent -> split: nay on H.R. 4922 and H.R. 5140, yea on H.R. 5214",
+          "susie_lee tough_on_crime absent -> split: yea on H.R. 4922 and H.R. 5140, nay on H.R. 5214"
+        ],
+        "theFloorThatWouldHaveHiddenThese": "_RD_DOMINANCE is 0.75 and the split floors are _RD_SPLIT_MIN_JUDGED 6 and _RD_SPLIT_MIN_SIDE 2. Raising _RD_DOMINANCE, or lifting either split floor, would have held all fifteen rows in their old one-directional tier and made this list empty. None of the three was touched, which is why the list is published instead."
+      },
+      "theFiveRowsThatWEAKENEDWithoutChangingDirection": {
+        "what": "Five rows went from Strongly to Mostly. The label still points the same way, so this is not a direction change, but it is a published word that moved and each one is a single crossing on a single instrument -- which is the shape a reader should be able to see rather than infer.",
+        "rows": [
+          "cassidy strong_defense strong -> mostly: yea on S.J.Res. 185 and nay on the other six, 12 advanced and 0 against becomes 18 and 1",
+          "todd_young strong_defense strong -> mostly: yea on S.J.Res. 98 and nay on the other six, 13 and 0 becomes 19 and 1",
+          "bruce_westerman restraint strong -> mostly: yea on H.Amdt. 99, 0 advanced and 4 against becomes 1 and 4",
+          "dan_crenshaw restraint strong -> mostly: yea on H.Amdt. 99, same arithmetic",
+          "tom_cole restraint strong -> mostly: yea on H.Amdt. 99, same arithmetic"
+        ]
+      },
+      "theOfflineSnapshotThisWaveAlsoMoves": {
+        "what": "db/share-index.json carries personRecord: up to six formal-record lines per person, baked at build time and served by netlify/edge-functions/share-preview.ts as the crawl block on /p/<pid> before any JavaScript boots. It is regenerated in this wave, and it moves further than the live lane does: 172 of the 332 people with a record have at least one line change, 35 rows change tier, 184 lines enter the six-line window and 173 leave it.",
+        "whyItMovesFurtherThanTheLiveLANE": "The two artifacts are read from different lanes, and neither is wrong. scripts/vr-federal-fpi.mjs measures the LIVE lane -- the database as deployed, plus this wave's rows projected in memory. scripts/gen-crawl-record.mjs measures the SHIPPED-SEED lane, built by scripts/vr-record-corpus.mjs from the db/vr-*seed*.json files only, which is a strictly smaller act inventory: it does not carry the nomination, cloture and amendment rows the database holds from outside a seed. A thinner base means seven new acts tip a tier that the fuller base absorbs.",
+        "theWorkedEXAMPLE": "lee / strong_defense. In the live lane the row is Split on both sides -- 6 advanced and 7 against before, 13 and 7 after -- because the database already holds S. 1071, S. 2296, H.R. 1, the H.R. 1968 cloture vote and two nomination votes on that key. In the seed corpus none of those six acts exists, so HEAD's snapshot read Strongly opposes on 0 advanced and 7 against, and the seven war-powers nays take it to 7 and 7: Split. Same wave, same engine, same floors; different act inventory.",
+        "theThirtyFiveTierMoves": "All 35 are on strong_defense, the key every senator now holds seven more acts on: 21 Strongly supports to Split, 10 Mostly supports to Split, 2 Strongly supports to Mostly supports, 1 Split to Mostly supports, and lee's 1 Strongly opposes to Split. Nothing becomes unread and no person loses their section.",
+        "theRerankingIsNotARETRACTION": "The window holds six lines chosen by strength, so a denser record pushes weaker lines out: Khanna's Strong Border & Enforcement line leaves the block and a Tough on Crime line he earned on the District bills takes its place. The rows that leave the window are still in the live brief. The snapshot is a selection, and this seed says so rather than letting 173 vanished lines read as retractions.",
+        "whatAWarmDeviceWouldServe": "A device holding the old snapshot serves the old six lines until the shell updates, which is why sw.js's v98 note names db/share-index.json beside consistency.js instead of only the file whose bytes a reader can see."
+      }
+    },
+    "primaryWallPerKey": {
+      "_comment": "Derived from the measures block, not typed: rows and wave-primaries per key.",
+      "keysGainingAPrimaryFromThisWave": [
+        "border_security",
+        "restraint",
+        "tough_on_crime",
+        "war_powers"
+      ],
+      "keysGainingSecondariesOnly": [
+        "deportations",
+        "strong_defense"
+      ],
+      "perKey": {
+        "border_security": {
+          "rows": 1,
+          "wavePrimaries": 1
+        },
+        "deportations": {
+          "rows": 1,
+          "wavePrimaries": 0
+        },
+        "restraint": {
+          "rows": 8,
+          "wavePrimaries": 7
+        },
+        "strong_defense": {
+          "rows": 7,
+          "wavePrimaries": 0
+        },
+        "tough_on_crime": {
+          "rows": 3,
+          "wavePrimaries": 3
+        },
+        "war_powers": {
+          "rows": 8,
+          "wavePrimaries": 1
+        }
+      },
+      "corpusPrimariesBeforeThisWave": {
+        "border_security": 8,
+        "deportations": 7,
+        "restraint": 5,
+        "strong_defense": 11,
+        "tough_on_crime": 26,
+        "war_powers": 2
+      },
+      "newlyReadableOnASecondaryOnlyKey": 0,
+      "readingsThatStartPrintingThePackageSentence": 0
+    },
+    "theProceduralLabelOnTheFourteenSenateActs": "A DEFECT FOUND AND FIXED BEFORE THE MIGRATION SHIPPED, recorded because the fix is invisible in the final files. The vote seed generator first wrote actionType 'discharge' for the fourteen Senate rolls. vr_rollcalls.action_type is a closed vocabulary and 'discharge' is not in it, so the migration would have filed 'motion' while the seed said something else, and netlify/lib/vr-pack.ts reads exactly two action types as procedural, ['procedural','motion'] -- meaning the reader's own pack would mark these acts procedural and stance-helpers.js would multiply their curator weight by 0.25 before the record index compares the two sides, while every offline harness and every projected measurement read them as substantive at full weight. A four-fold weight difference between the numbers this wave published and the numbers a reader would see. The generator now writes 'motion' and the form-gate record of what was admitted stays in admittedAs and decisiveWhy. WHAT THE CORRECTION MOVED: nothing. The full --set all projection was re-run after the change and the output is byte-identical to the run before it -- same 126 members whose shape moved, same 184 tier transitions, same 31 gained reads, same empty lostReads, same fifteen direction changes. That comparison was then RE-RUN on both sides after the drift instrument itself was corrected (see theMeasurementDefectFoundWhileWritingThis), because an identity proved with a gated measurement proves only that the gate was stable; on the ungated measurement the two runs are still identical, row for row. The reason is that every act a member gains on restraint from this wave carries the same factor, and a uniform scale applied to one side of a lopsided ratio does not cross _RD_DOMINANCE. It is stated as a measurement rather than an argument because the argument would have been wrong in the shape where a member's pre-existing acts on the key run the other way. WHAT IT DOES CHANGE, and the reader sees it: each of these fourteen acts now carries the word procedural on its row, which is true -- a motion to discharge a committee is a procedural question, and the whole reason it is the admitted form here is that no vote on the merits ever followed."
+  },
+  "whatTheNextWaveInherits": {
+    "gatedPoolRemaining": "4 Senate rolls named and refused with reasons, 53 contested House amendment rolls bridged to their amendment text and unread, and 5 District measures refused for want of a key.",
+    "measurementInherited": "scripts/vr-federal-fpi.mjs measures per-issue tier drift over every pid in the set as of this wave. The next wave inherits a correct instrument and should not restore the shape-counter gate as an optimisation: the eight-versus-fifteen error it produced here is in readDisclosure.measuredEffect.theMeasurementDefectFoundWhileWritingThis, and the wave harness asserts the ungated call site by name.",
+    "twoLanesInherited": "Any wave that maps federal rows moves TWO artifacts and owes both: the live lane, measured by vr-federal-fpi.mjs against the deployed database, and db/share-index.json, rebuilt by gen-share-index.mjs from the shipped-seed corpus alone. They disagree by construction because the seed corpus is a smaller act inventory, and F7's numbers differ between them by a factor of two on tier moves. Regenerate the snapshot in the same pass, name it in the sw.js note, and disclose what it moved.",
+    "namedLeads": [
+      "53 contested House amendment rolls, each already bridged to its H.Amdt. number, sponsor and purpose by scripts/vr-federal-wave-f7-census.mjs. The evidence work is done; what remains is subject arguments.",
+      "Two unbridged amendment rolls: 2026/395 on H.R. 2988 and 2026/427 on H.Res. 1014. The parent's BILLSTATUS does not carry a matching action text, so a third path is needed.",
+      "A key for arms transfers to a partner other than Israel would reopen S.J.Res. 53 and S.J.Res. 54, both contested at 41.053%.",
+      "A police-accountability key with a written scope note would reopen H.R. 2096, H.R. 5107 and H.R. 5143.",
+      "Three serving senators are absent from db/vr-member-map.json -- Husted (OH), Hyde-Smith (MS), Armstrong (OK). A roster wave lifts the Senate attribution ceiling from 98 to 100 for every Senate roll in the corpus.",
+      "The four prior Senate rolls carrying the King and Lujan attribution defect, listed above, want a correction wave with its own rule 21 argument.",
+      "The two thin files, bwilson and jacob_anderegg, are state-lane and reachable only by a Utah wave."
+    ],
+    "warning": "The 53 unread amendment rolls are UNREAD, not admitted. Being bridged to a purpose is evidence that a subject can be READ, never evidence that a key exists for it -- H.Amdt. 259 is this wave's own demonstration: fully evidenced and still refused."
+  },
+  "_counts": {
+    "measures": 19,
+    "rollcalls": 19,
+    "memberVotes": 1948,
+    "issueRows": 28,
+    "measuresWithZeroIssueRows": 7,
+    "declinedKeysInWriting": 31,
+    "refusedMeasuresInWriting": 9,
+    "keysUsed": [
+      "border_security",
+      "deportations",
+      "restraint",
+      "strong_defense",
+      "tough_on_crime",
+      "war_powers"
+    ],
+    "newKeys": 0,
+    "newRosterSlugs": 0,
+    "senatePoolListed": 890,
+    "senatePoolNotInCorpus": 842,
+    "senatePoolPassedFormGate": 51,
+    "senatePoolContested": 49,
+    "senatePoolAlreadyRefusedByName": 31,
+    "senatePoolSurvived": 18,
+    "senatePoolAdmitted": 14,
+    "districtMeasuresConsidered": 9,
+    "districtMeasuresAdmitted": 4,
+    "districtMeasuresRefused": 5,
+    "amendmentRollsBridged": 88,
+    "amendmentRollsContestedAndUnread": 54,
+    "amendmentRollsAdmitted": 1,
+    "losingShareRangePct": [
+      39.019,
+      49.495
+    ],
+    "thinFilesBefore": 2,
+    "thinFilesReachableByThisSlice": 0,
+    "primaryRows": 12,
+    "secondaryRows": 16
+  }
+}

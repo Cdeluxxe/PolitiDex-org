@@ -90,6 +90,35 @@ const SEED_SLUGS = {
   maloy: "M001228",           // Celeste Maloy — Rep, UT-02
   neguse: "N000191",          // Joe Neguse — Rep, CO-02
   lujan: "L000570",           // Ben Ray Luján — Sen, NM (Commons portrait, no readable Bioguide)
+
+  // ── The eight thin House files ─────────────────────────────────────────────
+  // Federal wave F6 named these eight as the whole thin band of the House set:
+  // five or six issues, two acts each, both acts on the same pair of Congressional
+  // Review Act resolutions, and ten acts short of the member floor. Every roll in
+  // the 119th that could have moved them was unattributable, because none of the
+  // eight was in this map — they were SPOTLIGHTS figures with no BROWSE_PHOTOS
+  // portrait, so there was no URL to read a Bioguide out of and nobody had named
+  // them by hand. That is an attribution gap, not a vocabulary one, and it is the
+  // reason a mapping-only wave could not reach them.
+  //   The same wave gave all eight a portrait in BROWSE_PHOTOS, because a member who
+  // attributes votes can be the subject of an Official Record share card and that card
+  // must not open on initials. These entries stay anyway: they are the record of the
+  // by-hand verification, and they keep attribution from depending on a curated photo
+  // URL. buildMap() now errors if the two sources ever name different people.
+  // Each Bioguide below was read from the clerk.house.gov roll XML `name-id`
+  // attribute and then verified twice: against legislators-current.json by
+  // name+state, and independently by unique surname+state on the same roll (the
+  // clerk disambiguates the colliding surnames as "Smith (NE)", "Lee (NV)" and
+  // "Nunn (IA)", which is what the second path matches). The state on each line
+  // agrees with the district comment on the slug in politician-stances.js.
+  adrian_smith: "S001172",           // Adrian Smith — Rep, NE-03
+  dina_titus: "T000468",             // Dina Titus — Rep, NV-01
+  gabe_vasquez: "V000136",           // Gabe Vasquez — Rep, NM-02
+  melanie_stansbury: "S001218",      // Melanie A. Stansbury — Rep, NM-01
+  russ_fulcher: "F000469",           // Russ Fulcher — Rep, ID-01
+  susie_lee: "L000590",              // Susie Lee — Rep, NV-03
+  teresa_leger_fernandez: "L000273",  // Teresa Leger Fernandez — Rep, NM-03
+  zach_nunn: "N000193",              // Zachary Nunn — Rep, IA-03
 };
 
 // ── 1. slug → bioguide from BROWSE_PHOTOS congress portraits ──────────────────
@@ -147,8 +176,26 @@ async function loadLegislators(local = LEG_LOCAL, url = LEG_URL) {
 }
 
 function buildMap() {
-  const slugToBio = { ...fromBrowsePhotos() };
+  const fromPhotos = fromBrowsePhotos();
+  const slugToBio = { ...fromPhotos };
   for (const [slug, bio] of Object.entries(SEED_SLUGS)) slugToBio[slug] = bio;
+
+  // A SEED_SLUGS entry OVERRIDES a portrait, so a slug named in both places has two
+  // claims about who it is and only one of them reaches the ingest. That is the
+  // King-Hinds failure with the halves swapped: the map would attribute the votes
+  // correctly while the share card drew someone else's face, and neither end would
+  // look wrong. Federal wave F6 created the first eight overlaps (hand-named for
+  // attribution, then given portraits so their share cards do not open on initials),
+  // so the two sources are made to agree out loud rather than silently.
+  const disagree = Object.entries(SEED_SLUGS)
+    .filter(([slug, bio]) => fromPhotos[slug] && fromPhotos[slug] !== bio)
+    .map(([slug, bio]) => `${slug}: SEED_SLUGS says ${bio}, its BROWSE_PHOTOS portrait is ${fromPhotos[slug]}`);
+  if (disagree.length) {
+    throw new Error(
+      `${disagree.length} slug(s) are claimed by two different Bioguides. SEED_SLUGS wins for the ingest, ` +
+      `so the votes would attribute one way and the face on the share card would be another member:\n  ` +
+      disagree.join("\n  "));
+  }
 
   // Scope to the admitted roster, failing on an admitted slug we cannot resolve rather
   // than shipping a member the ingest will silently never attribute a vote to.

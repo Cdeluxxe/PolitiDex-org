@@ -77,6 +77,9 @@ const WAVES = {
   f2: { mapping: "db/vr-federal-mapping-seed-f2.json", votes: "db/vr-federal-wave-f2-vote-seed.json" },
   f3: { mapping: "db/vr-federal-mapping-seed-f3.json", votes: "db/vr-federal-wave-f3-vote-seed.json" },
   f4: { mapping: "db/vr-federal-mapping-seed-f4.json", votes: "db/vr-federal-wave-f4-vote-seed.json" },
+  f5: { mapping: "db/vr-federal-mapping-seed-f5.json", votes: "db/vr-federal-wave-f5-vote-seed.json" },
+  f6: { mapping: "db/vr-federal-mapping-seed-f6.json", votes: "db/vr-federal-wave-f6-vote-seed.json" },
+  f7: { mapping: "db/vr-federal-mapping-seed-f7.json", votes: "db/vr-federal-wave-f7-vote-seed.json" },
 };
 
 const FILES = [
@@ -531,8 +534,19 @@ for (const pid of ALL_PIDS) {
   for (const [k, tier] of a) if (!b.has(k)) GAINED_READS.push({ pid, key: k, nowTier: tier });
 }
 
+// ── PER-ISSUE DRIFT IS MEASURED OVER EVERY PID ──────────────────────────────
+// This list used to be gated on `drift` — the pids whose SHAPE COUNTERS moved —
+// which looked like a free filter and was the same blind spot the read-flag note
+// above exists for. A member who loses a direction on one key and gains one on
+// another nets out to identical strongN/splitN counters, never enters `drift`,
+// and both of their moved rows go unreported. F7 hit it squarely: angus_king's
+// strong_defense fell mostly → split while his restraint rose split → mostly, and
+// the gated list named neither, so the wave's own read-loss disclosure was about
+// to publish eight direction changes when the real figure was several times that.
+// Measuring every pid costs one extra boot per member and buys the only number
+// that disclosure is allowed to print.
 const MOVED = drift.map((d) => d.pid);
-const DRIFT_ROWS = issueDrift(MOVED);
+const DRIFT_ROWS = issueDrift(ALL_PIDS);
 const LOST = DRIFT_ROWS.filter((r) => (r.from === "strong" || r.from === "mostly") && r.to !== "strong" && r.to !== "mostly");
 const NEWSPLIT = DRIFT_ROWS.filter((r) => r.to === "split" && r.from !== "split");
 const NEWREAD = DRIFT_ROWS.filter((r) => r.from === "(absent)" || r.from === "unread");
@@ -686,8 +700,88 @@ const F4_OUTCOME = {
   power_of_purse:   { verdict: "BLOCKED",  note: "no Senate-reachable act at all — needs an instrument, not a lane change" },
 };
 
+// F5. The first wave with NO SHIPPED verdict in it, because the census refused both lanes
+// on measurement and on doctrine rather than on judgement, and the brief's instruction for
+// that case is to stop after the census and say so.
+//
+// Option A died on arithmetic: the whole promotable band — 21 Senate-reachable non-primary
+// acts across 17 keys with no Senate PRIMARY — was flipped to primary one at a time and
+// every one measured +read 0 / -read 0, so the four Senate counters are identical before
+// and after and no senator was ever movable this week.
+//
+// Option B died on standing doctrine. The 33-measure pool of already-ingested measures
+// holding roll calls with attributed votes and ZERO issue rows was swept in full; two
+// measures survived rule 11, the form screen and the engrossed text — H.R. 1069 and
+// H.R. 973 — and BOTH are walled off by a written refusal in this repository that names
+// the bill. H.R. 1069 → public_schools was refused by wave F1 quoting runbook follow-up
+// 0c, and is asserted as a wall by the F2 and F3 tests. H.R. 973 → gov_regulation is
+// refused by runbook rule 3, which names the bill and predicts, in words, the 38-member
+// effect this wave went on to measure. Both rows were drafted, argued and projected before
+// the walls were found; both are kept in the seed with their measured cost and neither
+// ships. The lesson is the ordering: the standing-refusal check now runs before the
+// measurement, because a doctrine check that runs after it is arguing with a number it has
+// already fallen for.
+//
+// The seventeen keys no promote could move are recorded here as REFUSED with the
+// measurement, not left silent, because a later wave reading this table needs to know they
+// were examined and why they did not convert. Where F4 already refused a key for a
+// different reason, F5's entry names the NEW reason — the read model's own suppression —
+// which is a stronger finding than F4's instrument-quality one and supersedes it.
+const F5_OUTCOME = {
+  public_schools:   { verdict: "BLOCKED",  note: "H.R. 1069 drafted w90 PRIMARY, measured +73 clear / -0, REFUSED: F1 + runbook 0c wall it. Needs a pass that takes 0c on its own" },
+  gov_regulation:   { verdict: "BLOCKED",  note: "H.R. 973 drafted w90 PRIMARY, REFUSED on runbook rule 3, which names the bill and predicts the 38 mixed records it measured" },
+  edu_parental:     { verdict: "REFUSED",  note: "H.R. 1069 has no parent-facing provision; its Sec. 2(d) notice runs to state agencies. H.R. 1049 keeps the key" },
+  gov_transparency: { verdict: "REFUSED",  note: "H.R. 1069 compels no disclosure — its only publication sits inside an opt-in waiver. H.R. 1005 keeps the key" },
+  strong_defense:   { verdict: "REFUSED",  note: "keyword reach on 'china'; a K-12 funding condition authorises, funds and equips nothing" },
+  school_choice:    { verdict: "REFUSED",  note: "no money follows any student in H.R. 1069 — the scope note OUTs exactly this" },
+  end_dei:          { verdict: "REFUSED",  note: "no such provision in the engrossed text" },
+  econ_corp_account:{ verdict: "REFUSED",  note: "'consumer protection' keyword only; a UL cell-pack test standard is neither antitrust nor price-gouging" },
+  privacy_rights:   { verdict: "REFUSED",  note: "H.Amdt. 245 measured: -9 clear rows, 10 members weakened by the rule 30 wall. A written block, not a mapping" },
+  tech_innovation:  { verdict: "REFUSED",  note: "would be the same claim as H.R. 973's gov_regulation row, twice — one instrument, one act" },
+  infrastructure:   { verdict: "REFUSED",  note: "S. 2503 measured: 0 clear rows, +16 split, +2 UNREAD. An aviation equipage mandate builds no road or grid" },
+  econ_smallbiz:    { verdict: "REFUSED",  note: "no promote converts a row (no_side_taken on the one senator row); H.R. 973's text is not scoped by small-business burden" },
+  crypto_cbdc:      { verdict: "REFUSED",  note: "in _RD_NO_POLE — 95 senator rows, all no_pole_read. A first PRIMARY converts 0 of them" },
+  guard_authority:  { verdict: "REFUSED",  note: "in _RD_NO_POLE — suppressed before the primary wall is consulted; promote measured +0/-0" },
+  homeless:         { verdict: "REFUSED",  note: "in _RD_NO_POLE — promote measured +0/-0" },
+  states_federal_power:{verdict:"REFUSED", note: "in _RD_NO_POLE; and on the merits a grant condition is the ordinary spending power" },
+  tariffs_prices:   { verdict: "REFUSED",  note: "in _RD_NO_POLE — promote measured +0/-0" },
+  war_powers:       { verdict: "REFUSED",  note: "in _RD_NO_POLE — promote measured +0/-0" },
+  disaster_resilience:{verdict:"REFUSED",  note: "promote measured +0/-0: the only senator row is no_side_taken — the senator's own Present/absent" },
+  econ_growth:      { verdict: "REFUSED",  note: "promote measured +0/-0: one senator row, reason no_side_taken" },
+  econ_trade:       { verdict: "REFUSED",  note: "promote measured +0/-0; F4's surfaced polarity contradiction also still unresolved (rule 25)" },
+  econ_workers:     { verdict: "REFUSED",  note: "promote measured +0/-0: one senator row, reason no_side_taken" },
+  child_care:       { verdict: "REFUSED",  note: "promote measured +0/-0: one senator row, reason no_side_taken" },
+  america_first:    { verdict: "REFUSED",  note: "promote measured +0/-0; key superseded by america_first_fp, so a promote would densify a retiring key" },
+  edu_balance:      { verdict: "REFUSED",  note: "a *_balance key: _rdSuppressedKey() returns balance_key, so a row here is 109 permanently unread rows" },
+  health_rural:     { verdict: "BLOCKED",  note: "unchanged from F4 — S. 2683 in 0 Senate rolls. Not re-examined this wave" },
+  free_speech:      { verdict: "BLOCKED",  note: "unchanged from F4 — S. 146 by unanimous consent, 0 rolls. Not re-examined this wave" },
+};
+
+// F6. The first wave in this sequence whose SHIPPED rows are INGESTS rather than
+// promotes: eleven contested standalone House rolls that were not in the corpus at
+// all, on eleven measures that were not either. Four keys gain a PRIMARY act each
+// (three, four, two and one of them), and every row is is_primary = true, so no
+// member is carried across rule 30's primary wall by a secondary this wave wrote.
+//
+// The refusals below are the ones this wave actually READ and declined. They are
+// worth more than the admissions to a later curator, because each names a bill: a
+// refusal with a bill number can be reopened, and a refusal without one has to be
+// rediscovered. Four of them are the runbook's study-and-report rule reaching
+// federal text for the first time.
+const F6_OUTCOME = {
+  energy_production:{ verdict: "SHIPPED",  note: "H.R. 1047, H.R. 3616, H.R. 3632, H.R. 3628 — four new House PRIMARY acts on dispatchable supply and retirement notice" },
+  permitting_reform:{ verdict: "SHIPPED",  note: "H.R. 3062, H.R. 4776, H.R. 3668, H.R. 3898 — four new PRIMARY acts; H.R. 4776 is the key's own subject (NEPA + judicial review) at w100" },
+  lands_energy:     { verdict: "SHIPPED",  note: "H.R. 1366, H.R. 4090 — two new PRIMARY acts; supersedes F3's mirror-secondary reading with instruments of the key's own" },
+  climate_action:   { verdict: "SHIPPED",  note: "H.R. 4690 — first act on the key's repeal pole in this sequence: w100 yea_opposes on a Federal-building standards repeal" },
+  cost_living:      { verdict: "REFUSED",  note: "H.R. 3628 names affordability in its short title and changes no price: a PURPA standard a State must consider is not a utility bill (rule 4 — the name is not the instrument)" },
+  water:            { verdict: "REFUSED",  note: "H.R. 3898 amends the Clean Water Act; the key's scope note is demand-side conservation, and a 401 certification is a permit step" },
+  gov_regulation:   { verdict: "REFUSED",  note: "not restuffed. Eight of the eleven change a federal process, which is permitting_reform's subject, not the size of the rulebook (runbook rule 3)" },
+  healthcare:       { verdict: "REFUSED",  note: "H.R. 1834 refused on subject scope: its title says gridlock, its text extends the section 36B enhanced premium tax credit through 2028" },
+  states_federal_power:{verdict:"REFUSED", note: "in _RD_NO_POLE, and the wave declined to give it one — see the District of Columbia key refused below" },
+};
+
 // The column reads from the merge, later wave last.
-const OUTCOME = { ...F3_OUTCOME, ...F4_OUTCOME };
+const OUTCOME = { ...F3_OUTCOME, ...F4_OUTCOME, ...F5_OUTCOME, ...F6_OUTCOME };
 
 // ── ONE ROW, BEFORE AND AFTER ───────────────────────────────────────────────
 // The band table and the drift list say a row's tier moved; neither says what the
@@ -722,6 +816,41 @@ if (argOf("row")) {
   dump(winB, before, "BEFORE");
   dump(winA, after, "AFTER");
   console.log("");
+} else if (process.argv.includes("--thin")) {
+  // ── THE THIN BAND, NAMED ─────────────────────────────────────────────────
+  // The band table counts thin members; it never says who they are, which makes the
+  // number impossible to act on. F5 hit exactly that wall: it could report "10 thin"
+  // and could not report whether any wave could reach them, so it had to argue from
+  // the floors instead of measuring. This branch names them and prints the two numbers
+  // that decide reachability — issues on file and ACTS on file — beside the member
+  // floor, because a member below _PDX_RD_MEMBER_FLOOR is not short of mappings, they
+  // are short of votes, and only an ingest wave moves that.
+  const floor = (() => {
+    // The literal is declared as _RD_MEMBER_FLOOR and only re-exported on window as
+    // _PDX_RD_MEMBER_FLOOR, so read the booted value and fall back to the declaration.
+    if (typeof winB._PDX_RD_MEMBER_FLOOR === "number") return winB._PDX_RD_MEMBER_FLOOR;
+    const m = SRC.map(([, src]) => src).join("\n").match(/_RD_MEMBER_FLOOR\s*=\s*(\d+)/);
+    return m ? +m[1] : null;
+  })();
+  const rows = [...B.per.entries()]
+    .filter(([, v]) => v.band !== "readable")
+    .sort((a, b) => (a[1].acts - b[1].acts) || a[0].localeCompare(b[0]));
+  console.log(`\n  THE THIN AND EMPTY BAND — ${rows.length} of ${B.members} on the roster`);
+  console.log(`  member floor (_PDX_RD_MEMBER_FLOOR) = ${floor === null ? "not found" : floor} acts\n`);
+  console.log("  member                    band     issues  acts  chars  gap to floor  what would move them");
+  for (const [pid, v] of rows) {
+    const gap = floor === null ? null : Math.max(0, floor - v.acts);
+    const why = v.band === "empty" ? "no record at all — attribution or ingest"
+      : gap > 0 ? `${gap} more acts — INGEST, no mapping reaches this`
+      : "acts clear the floor; a mapping or a primary could read them";
+    console.log(`  ${pid.padEnd(24)} ${v.band.padEnd(8)} ${String(v.issues).padStart(5)} ${String(v.acts).padStart(6)}`
+      + ` ${String(v.characterised).padStart(6)} ${String(gap === null ? "?" : gap).padStart(13)}  ${why}`);
+  }
+  const reachable = rows.filter(([, v]) => floor !== null && v.acts >= floor);
+  console.log(`\n  reachable by a MAPPING wave: ${reachable.length}`
+    + `   ·   need ACTS first: ${rows.length - reachable.length}`);
+  console.log("  A wave that wants to move this band has to add votes to the named members,");
+  console.log("  not rows to the corpus. Check a candidate roll's roster against this list.\n");
 } else if (process.argv.includes("--band")) {
   // ── THE PROMOTABLE BAND, MEASURED BY SIMULATION ──────────────────────────
   // --chambers answers "which keys have no Senate-reachable PRIMARY". That is the
@@ -925,7 +1054,8 @@ if (argOf("row")) {
   }
   console.log("");
 } else if (process.argv.includes("--drift")) {
-  console.log(`\n  per-issue tier changes across ${MOVED.length} members: ${DRIFT_ROWS.length}\n`);
+  console.log(`\n  per-issue tier changes over all ${ALL_PIDS.length} pids: ${DRIFT_ROWS.length}`
+    + ` (${MOVED.length} of those members also moved a shape counter)\n`);
   const show = (t, rows) => { console.log(`  ${t} (${rows.length})`); for (const r of rows.slice(0, 60)) console.log(`    ${r.pid.padEnd(26)} ${r.key.padEnd(26)} ${r.from} → ${r.to}`); };
   console.log(`  rows that STOPPED being characterised, checked on the read flag over all ${ALL_PIDS.length} pids: ${LOST_READS.length}`
     + (LOST_READS.length ? `\n${LOST_READS.slice(0, 60).map((r) => `    ${r.pid.padEnd(26)} ${r.key} (was ${r.wasTier})`).join("\n")}` : ""));

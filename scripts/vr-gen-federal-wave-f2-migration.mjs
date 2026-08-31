@@ -77,7 +77,26 @@ const seed = J(SEED_PATH);
 const issueSeed = J("db/vr-issue-seed.json");
 const decision = J(DECISION_PATH);
 const memberMap = J("db/vr-member-map.json");
-const ROSTER = [...new Set(Object.values(memberMap.map || {}))].sort();
+// THE APPLIED MIGRATION IS THE ARTIFACT, SO THIS GENERATOR HAS TO STAY REPRODUCIBLE.
+// The roster list below is used for one thing: the verification block's NOT IN, which
+// counts member votes on THIS wave's rolls that carry a politician_id outside the
+// reviewed roster. It was frozen into the migration on the day it applied. Later ingest
+// waves admit more slugs — F6 added eight House members who had no portrait to read a
+// bioguide out of — and regenerating against the grown roster would rewrite the bytes of
+// a file that has already run, which is why the wave harness compares the two. So waves
+// admitted AFTER this migration are excluded by name. A later wave that adds roster
+// slugs adds its wave key here; a key that is not in the roster file is a typo and
+// throws rather than silently excluding nothing.
+const ROSTER_WAVES_ADMITTED_AFTER_THIS_MIGRATION = ["federal_wave_f6_aug2026"];
+const ROSTER = (() => {
+  const waves = J("db/vr-roster-admitted.json").waves || {};
+  const later = new Set();
+  for (const key of ROSTER_WAVES_ADMITTED_AFTER_THIS_MIGRATION) {
+    if (!Array.isArray(waves[key])) throw new Error(`no roster wave "${key}" in db/vr-roster-admitted.json`);
+    for (const s of waves[key]) later.add(s);
+  }
+  return [...new Set(Object.values(memberMap.map || {}))].filter((s) => !later.has(s)).sort();
+})();
 const LABEL = "Federal wave F2";
 
 const pidCheck = assertSeedPidsMatchMap(seed, memberMap, SEED_PATH);

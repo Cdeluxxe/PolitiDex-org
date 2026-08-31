@@ -1,7 +1,7 @@
 {
   "_comment": "bioguide -> roster slug for the Voting Record ingest. Regenerate with scripts/vr-gen-member-map.mjs. The ingest reads `map`; `members` is for human review only. Roster scope is db/vr-roster-admitted.json.",
-  "count": 213,
-  "serving119": 204,
+  "count": 221,
+  "serving119": 212,
   "annotated": true,
   "unadmittedPortraits": 0,
   "map": {
@@ -64,6 +64,7 @@
     "F000450": "foxx",
     "F000463": "deb_fischer",
     "F000466": "fitzpatrick",
+    "F000469": "russ_fulcher",
     "F000474": "mike_flood",
     "F000476": "maxwell_frost",
     "F000479": "fetterman",
@@ -113,6 +114,7 @@
     "K000393": "kennedy_john",
     "K000394": "andy_kim",
     "K000403": "kennedy",
+    "L000273": "teresa_leger_fernandez",
     "L000397": "zoe_lofgren",
     "L000491": "frank_lucas",
     "L000560": "rick_larsen",
@@ -121,6 +123,7 @@
     "L000575": "lankford",
     "L000577": "lee",
     "L000582": "ted_lieu",
+    "L000590": "susie_lee",
     "L000596": "luna",
     "L000599": "mike_lawler",
     "L000601": "greg_landsman",
@@ -152,6 +155,7 @@
     "N000002": "nadler",
     "N000015": "neal",
     "N000191": "neguse",
+    "N000193": "zach_nunn",
     "O000086": "owens",
     "O000172": "aoc",
     "O000173": "omar",
@@ -178,6 +182,7 @@
     "S001145": "jan_schakowsky",
     "S001148": "mike_simpson",
     "S001150": "schiff",
+    "S001172": "adrian_smith",
     "S001176": "scalise",
     "S001181": "shaheen",
     "S001184": "tim_scott",
@@ -192,17 +197,20 @@
     "S001213": "bryan_steil",
     "S001215": "haley_stevens",
     "S001217": "rick_scott",
+    "S001218": "melanie_stansbury",
     "S001227": "schmitt",
     "S001232": "sheehy",
     "T000193": "bennie_thompson",
     "T000250": "thune",
     "T000278": "tommy_tuberville",
     "T000467": "glenn_thompson",
+    "T000468": "dina_titus",
     "T000472": "takano",
     "T000476": "tillis",
     "T000481": "tlaib",
     "T000486": "torres",
     "V000128": "van_hollen",
+    "V000136": "gabe_vasquez",
     "W000187": "maxine_waters",
     "W000437": "wicker",
     "W000779": "wyden",
@@ -227,6 +235,15 @@
       "chamber": "house",
       "state": "WA",
       "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001172",
+      "slug": "adrian_smith",
+      "name": "Adrian Smith",
+      "chamber": "house",
+      "state": "NE",
+      "party": "Republican",
       "serving119": true
     },
     {
@@ -707,6 +724,15 @@
       "serving119": true
     },
     {
+      "bioguide": "T000468",
+      "slug": "dina_titus",
+      "name": "Dina Titus",
+      "chamber": "house",
+      "state": "NV",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "B001298",
       "slug": "don_bacon",
       "name": "Don Bacon",
@@ -812,6 +838,15 @@
       "chamber": "house",
       "state": "AR",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "V000136",
+      "slug": "gabe_vasquez",
+      "name": "Gabe Vasquez",
+      "chamber": "house",
+      "state": "NM",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -1346,6 +1381,15 @@
       "serving119": true
     },
     {
+      "bioguide": "S001218",
+      "slug": "melanie_stansbury",
+      "name": "Melanie A. Stansbury",
+      "chamber": "house",
+      "state": "NM",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "M001176",
       "slug": "merkley",
       "name": "Jeff Merkley",
@@ -1715,6 +1759,15 @@
       "serving119": false
     },
     {
+      "bioguide": "F000469",
+      "slug": "russ_fulcher",
+      "name": "Russ Fulcher",
+      "chamber": "house",
+      "state": "ID",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "M001230",
       "slug": "ryan_mackenzie",
       "name": "Ryan Mackenzie",
@@ -1886,6 +1939,15 @@
       "serving119": true
     },
     {
+      "bioguide": "L000590",
+      "slug": "susie_lee",
+      "name": "Susie Lee",
+      "chamber": "house",
+      "state": "NV",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "T000472",
       "slug": "takano",
       "name": "Mark Takano",
@@ -1918,6 +1980,15 @@
       "name": "Ted Lieu",
       "chamber": "house",
       "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "L000273",
+      "slug": "teresa_leger_fernandez",
+      "name": "Teresa Leger Fernandez",
+      "chamber": "house",
+      "state": "NM",
       "party": "Democrat",
       "serving119": true
     },
@@ -2117,6 +2188,15 @@
       "chamber": "senate",
       "state": "OR",
       "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "N000193",
+      "slug": "zach_nunn",
+      "name": "Zachary Nunn",
+      "chamber": "house",
+      "state": "IA",
+      "party": "Republican",
       "serving119": true
     },
     {
