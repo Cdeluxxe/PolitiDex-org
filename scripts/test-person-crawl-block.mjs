@@ -1281,10 +1281,29 @@ section("9 · the engines did not move");
         // header's rows, the static formal index, the pattern index's shape, the
         // settle flag, the wall clock — or, in armPayloadDeadline's case, the one
         // timer that stops the arriving sentence from being the last word.
+        //
+        // …AND THE THIRD ROUND, the pass that stopped the first frame lying. Every
+        // reader above answers "what does this tab HOLD", and on a cold arrival all
+        // of them can honestly answer nothing for one paint while the record is
+        // still in the air — which is how /p/brett_garner's first frame read "No
+        // formal pattern on file yet" over a header already listing six
+        // characterised rows. So the readers below ask a different question, about
+        // the REQUEST rather than the answer, and the empty sentence was moved
+        // behind them:
+        //   briefChipN     the vote chip's own count, asked as the chip asks it, so
+        //                  the pill and the paragraph can never disagree
+        //   briefCanonPid  the id the request was filed under
+        //   briefNoted     has noteMember run for this member at all
+        //   briefAsked     did a member request go out — the head's prefetch box or
+        //                  PDXVotingRecord._liveRead, both true at first paint
+        //   briefComing    asked and not yet answered: the missing fact
+        //   briefWaitOver  and therefore: may this file be called empty at all
         const ADDED = ["briefLiveN", "briefSeedRows", "briefRecordOnHand",
           "briefShaped", "briefSettled", "briefSeedHtml",
           "formalHasRecord", "nowMs", "stampLive", "liveHeldMs",
-          "armPayloadDeadline", "evForPid"];
+          "armPayloadDeadline", "evForPid",
+          "briefChipN", "briefCanonPid", "briefNoted", "briefAsked",
+          "briefComing", "briefWaitOver"];
 
         const changed = [], added = [], removed = [];
         for (const [k, v] of A.fns) {
@@ -1333,6 +1352,9 @@ section("9 · the engines did not move");
         //   PAYLOAD_GRACE_MS   how long a landed payload may still be "arriving"
         //   _liveAt/_liveTimer the payload clock and its one timer
         //   MAPPED_GAP_COPY    the mapping-gap sentence, quoted once
+        //   EMPTY_FILE_COPY    the empty-file paragraph itself, hoisted out of the
+        //                      branch it used to be inlined at so that there is one
+        //                      literal to guard and one door to it
         //   HERO_REPAINT       gained 'pdx-record-noted' — the arrival announcing
         //                      itself, which is the event that ends the seed. The
         //                      three it already carried are asserted unchanged
@@ -1353,6 +1375,7 @@ section("9 · the engines did not move");
           .replace(/^\s*\/\/.*$/gm, "")
           .replace(/\n\s*var SEED_NOTE = [\s\S]*?';\n/g, "\n")
           .replace(/\n\s*var MAPPED_GAP_COPY = [\s\S]*?';\n/g, "\n")
+          .replace(/\n\s*var EMPTY_FILE_COPY = [\s\S]*?';\n/g, "\n")
           .replace(/\n\s*var FORMAL_DEEP_MIN = [^\n]*\n/g, "\n")
           .replace(/\n\s*var PAYLOAD_GRACE_MS = [^\n]*\n/g, "\n")
           .replace(/\n\s*var _liveAt = [^\n]*\n/g, "\n")

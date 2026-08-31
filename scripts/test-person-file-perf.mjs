@@ -369,10 +369,16 @@ section("7 · the wait is bounded, and an unknown pid is not an empty file");
   must(ceiling, "person-file's CEILING is gone");
   ok(wait < ceiling, `the brief gives up (${wait}ms) before the roster wait's hard stop (${ceiling}ms)`);
 
-  // Both loading sites arm it, and both have a not-loaded sentence that is
-  // distinct from the empty-file sentence.
-  eq((WA.match(/armBriefDeadline\(pid, p\);/g) || []).length, 2,
-    "both of the brief's loading states arm the deadline");
+  // Every loading site arms it, and each has a not-loaded sentence that is
+  // distinct from the empty-file sentence. There are three: the match copy, the
+  // brief's record-on-hand wait, and — since the pass that stopped the first
+  // frame calling a loading file empty — the brief's no-signal wait, where
+  // nothing is on hand yet but a member request is in the air. That last one is
+  // the fall-through, so it is the one that most needs a bound: without an armed
+  // deadline a request that never comes back would sit on "still loading"
+  // forever instead of turning into "did not load".
+  eq((WA.match(/armBriefDeadline\(pid, p\);/g) || []).length, 3,
+    "every one of the brief's loading states arms the deadline");
   has(WA, "briefGaveUp(pid)", "the copy consults the deadline");
   [
     "Their formal record is on file, but it did not load, so no pattern can be read.",
