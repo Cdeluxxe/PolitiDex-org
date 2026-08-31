@@ -205,9 +205,29 @@
   // name and correctly refuses to pick — leaving a name search with no file at
   // all. Two ids that canonicalise to the same one are one match, not a tie.
   var AMBIGUOUS = '\u0000';
+  // ONE SCAN PER ROSTER GENERATION. bySlug walks BOTH rosters and slugs every
+  // display name in them — ~1,600 records and 1,600 regex passes for one answer.
+  // That is fine once and ruinous eight times a second: attempt() below polls
+  // this same question while it waits for the roster, and on an address the
+  // bundled roster cannot answer (every live-roster-only pid) the answer was
+  // recomputed from scratch on every tick, which is how a person file came to
+  // earn Chrome's "this tab is slowing your browser". The result can only change
+  // when a roster changes, so it is cached against a generation stamp: the
+  // roster-load flag plus the derivation epoch, both of which move when a merge
+  // lands. Cheap to read, and no scan repeats inside one generation.
+  var _slugCache = {}, _slugGen = '';
+  function rosterGen() {
+    var st = '', ep = 0;
+    try { st = String(window._pdxRosterState || ''); } catch (e) {}
+    try { ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0; } catch (e) { ep = 0; }
+    return st + '|' + ep;
+  }
   function bySlug(pid) {
     var want = slug(pid);
     if (!want) return '';
+    var gen = rosterGen();
+    if (gen !== _slugGen) { _slugGen = gen; _slugCache = {}; }
+    if (Object.prototype.hasOwnProperty.call(_slugCache, want)) return _slugCache[want];
     var hit = '';
     function scan(roster) {
       if (!roster || hit === AMBIGUOUS) return;
@@ -222,7 +242,9 @@
     }
     try { scan(window.PROFILES); } catch (e) {}
     try { scan(window.CMP_DATA); } catch (e) {}
-    return hit === AMBIGUOUS ? '' : hit;
+    var out = hit === AMBIGUOUS ? '' : hit;
+    _slugCache[want] = out;
+    return out;
   }
 
   // The roster id for whatever a caller (or a URL) named, or '' when nothing in
@@ -881,6 +903,23 @@
   // itself rather than on a number.
   var SETTLED_GRACE = 240;  // one beat after the roster lands, before answering
   var CEILING = 15000;      // hard stop: this polls a flag, it does not poll forever
+  // ── AND A CAP ON THE NUMBER OF TICKS, NOT JUST ON THE CLOCK ────────────────
+  // CEILING alone permitted 125 attempts on one arrival, every one of them
+  // re-asking the roster a question whose answer cannot change between ticks, at
+  // 120ms — on the same main thread that is mounting the file, warming the
+  // record and repainting the hero. Two changes, both of which keep the outer
+  // 15s window exactly as it was:
+  //   · the gap GROWS (120ms, 162, 219, … capped at 900ms), so the dense polling
+  //     happens in the first second where the answer plausibly arrives, and the
+  //     long tail costs almost nothing;
+  //   · a hard MAX_TRIES, so no timing pathology (a background tab whose timers
+  //     are clamped, a clock that jumps) can turn this into an open-ended loop.
+  // A poll that ends early is not a poll that answers wrong: the answers
+  // themselves — open the file, or say we carry nobody by that name — are
+  // unchanged, and adopt() is still what gives them.
+  var STEP_MAX = 900;
+  var STEP_GROW = 1.35;
+  var MAX_TRIES = 40;
   var _adoptSettled = false;
 
   // firebase-boot.js sets this to 'loading', then to 'done' or 'error' — every
@@ -893,11 +932,18 @@
     return s === 'done' || s === 'error';
   }
 
-  function attempt(pid, waited, settledAt) {
+  function attempt(pid, waited, settledAt, tries) {
     if (_adoptSettled) return;
+    tries = tries || 0;
     // The reader moved on, or something else opened a file first. Either way the
     // arrival is no longer the thing deciding what is on screen.
     if (fromPath() !== pid) { _adoptSettled = true; return; }
+    // THE FILE IS ALREADY NAMED. profiles-full.js sets this at the one point in
+    // openModal where the built content is in the DOM (see mountedNow), so a
+    // truthy value means a reader is looking at a file — this one, or one they
+    // opened themselves while this was waiting. Either way there is nothing left
+    // for the arrival to decide, and every further tick is pure cost on a tab
+    // that is now doing real work.
     if (window._pdxCurrentProfileId) { _adoptSettled = true; return; }
 
     if (settledAt === null && rosterSettled()) { settledAt = waited; perf('roster'); }
@@ -922,7 +968,7 @@
     // Give the honest not-found answer only once the roster has actually
     // arrived (plus a beat for _checkAndTrigger's merge and the alias tables),
     // or once this has waited long enough that no answer is coming.
-    var outOfTime = waited >= CEILING ||
+    var outOfTime = waited >= CEILING || tries >= MAX_TRIES ||
       (settledAt !== null && waited - settledAt >= SETTLED_GRACE);
 
     if (canOpen || outOfTime) {
@@ -930,7 +976,8 @@
       try { adopt(); } catch (e) {}
       return;
     }
-    setTimeout(function () { attempt(pid, waited + STEP, settledAt); }, STEP);
+    var gap = Math.min(STEP_MAX, Math.round(STEP * Math.pow(STEP_GROW, tries)));
+    setTimeout(function () { attempt(pid, waited + gap, settledAt, tries + 1); }, gap);
   }
 
   // ── ONE REQUEST PER PERSON, ON THE ARRIVAL PATH ───────────────────────────
@@ -994,7 +1041,7 @@
     dropStalePrefetch(target);
     try { warm(target); } catch (e) {}
     _adoptSettled = false;
-    attempt(pid, 0, null);
+    attempt(pid, 0, null, 0);
     return pid;
   }
 

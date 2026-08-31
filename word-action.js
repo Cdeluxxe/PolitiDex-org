@@ -3780,13 +3780,19 @@
     if (c.warming) {
       var known = formalKnown(pid);
       if (known === 'empty') return gap('There is no formal record on file to test their words against.');
+      // `formalHasRecord`, NOT `known === 'deep'`: formalKnown gained a fourth
+      // word ('thin') above, and Direction Match's question is only ever "does
+      // the index hold a record for this person at all". Asking it by name keeps
+      // both sentences byte-identical to the ones this block shipped with on
+      // every file, thin or deep — this pass changes the BRIEF's timing, and
+      // nothing about the match.
       if (briefGaveUp(pid)) {
-        return gap(known === 'deep'
+        return gap(formalHasRecord(pid)
           ? 'Their formal record is on file, but it did not load, so the match cannot be read. Reload to try again.'
           : 'The roll-call record did not load, so the match cannot be read. That is a loading failure, not an empty file — reload to try again.');
       }
       armBriefDeadline(pid, p);
-      return gap(known === 'deep'
+      return gap(formalHasRecord(pid)
         ? 'Their formal record is on file and still loading — the match cannot be read until it lands.'
         : 'Still loading the roll-call record — the match cannot be read until it lands.');
     }
@@ -4172,14 +4178,39 @@
   // index publishes for exactly that purpose, and everything else the index
   // cannot speak for returns '' — cannot tell — which keeps the wording we
   // already shipped for the case where we do not know.
+  //
+  // FOUR WORDS, NOT THREE. 'deep' used to be the answer for every id the index
+  // counts a single act for, which made it two claims at once: "there is a record
+  // here" and "there is a lot of it". Only the first is what the copy below needs,
+  // and the second is what the word says — so a file the index holds four acts for
+  // was described to a reader in the same sentence as one holding a hundred and
+  // forty. The count is split at a documented floor and reported as 'thin' below
+  // it. NEITHER IS A FIGURE: the index's own header says no surface prints its
+  // counts, and both words are consumed by the same predicate everywhere the
+  // question is "is there a formal record to wait for". A missing measures()
+  // accessor answers 'deep', which is the wording we already shipped.
+  var FORMAL_DEEP_MIN = 8;   // distinct measures with a sourced act
   function formalKnown(pid) {
     try {
       var FX = window.PDXFormalIndex;
       if (!FX || typeof FX.has !== 'function') return '';
-      if (FX.has(pid)) return 'deep';
+      if (FX.has(pid)) {
+        var m = 0;
+        try { m = (typeof FX.measures === 'function') ? (FX.measures(pid) || 0) : 0; } catch (e) { m = 0; }
+        return (m > 0 && m < FORMAL_DEEP_MIN) ? 'thin' : 'deep';
+      }
       if (typeof FX.emptyNote === 'function' && FX.emptyNote(pid)) return 'empty';
       return '';
     } catch (e) { return ''; }
+  }
+  // "The shipped index counts a formal record for them", which is the only thing
+  // any wait, any absence sentence and any explore-stage mount asks of the index.
+  // Both depth words answer it; '' (no index) and 'empty' (a reviewed empty note)
+  // do not. One predicate, so a new depth word can never be introduced as a state
+  // that silently reads as "no record".
+  function formalHasRecord(pid) {
+    var k = formalKnown(pid);
+    return k === 'deep' || k === 'thin';
   }
 
   // ── The loading state gets a deadline ───────────────────────────────────────
@@ -4198,7 +4229,51 @@
   // roster, so a page that has not answered in six seconds has almost certainly
   // failed rather than queued.
   var BRIEF_WAIT_MS = 6000;
+  // ── AND THE SHORTER DEADLINE, FOR THE WAIT THAT IS ALREADY OVER ─────────────
+  // A DIFFERENT WAIT WITH A DIFFERENT ANSWER. Above, the page is waiting for the
+  // member payload and the honest sentence is "still loading". Once the payload is
+  // IN MEMORY that wait has ended, whatever the pattern index makes of it — and
+  // the copy went on saying "still loading" anyway, because `settled` is the only
+  // thing that used to release it and nothing sets it on the identity-only path.
+  // A reader on /p/steven_lund therefore sat under "still loading the roll-call
+  // record" beside a chip counting ninety of them.
+  //
+  // So the payload gets its own, much shorter clock. Two seconds after the rows
+  // land, a still-empty shape stops being reported as an arrival and is reported
+  // as what it is: a record on file that our mapping cannot read an issue off yet.
+  // That is the mapped-gap sentence, and it is OURS rather than theirs.
+  // Two seconds is chosen against the work, not the reader: the pattern index is
+  // recomputed synchronously on the next read after PDXDataChanged, so anything
+  // still empty two seconds later is not mid-derivation.
+  var PAYLOAD_GRACE_MS = 2000;
   var _briefGaveUp = {}, _briefTimer = {};
+  var _liveAt = {}, _liveTimer = {};
+  function nowMs() { try { return Date.now(); } catch (e) { return 0; } }
+  // WHEN THE ROWS LANDED, stamped from the two places that know: the arrival
+  // events, and the first read that finds rows on hand (for a record that was
+  // already warm before this file mounted). First write wins, so the clock is the
+  // payload's and not the repaint's.
+  function stampLive(pid) {
+    if (!pid) return;
+    if (!_liveAt[pid]) _liveAt[pid] = nowMs();
+  }
+  function liveHeldMs(pid) {
+    var t = _liveAt[pid];
+    return t ? (nowMs() - t) : 0;
+  }
+  // The repaint the sentence above needs to actually reach the screen. Without it
+  // the copy would only change on the next unrelated warm event, which on an
+  // identity-only file is never. Same channel as the 6s deadline — one event, one
+  // set of listeners — and once per pid.
+  function armPayloadDeadline(pid) {
+    if (!pid || _liveTimer[pid]) return;
+    try {
+      _liveTimer[pid] = setTimeout(function () {
+        if (briefShaped(pid)) return;
+        try { window.dispatchEvent(new CustomEvent('pdx-brief-timeout', { detail: { pid: pid } })); } catch (e) {}
+      }, PAYLOAD_GRACE_MS + 50);
+    } catch (e) { _liveTimer[pid] = null; }
+  }
   function briefGaveUp(pid) { return !!_briefGaveUp[pid]; }
   function armBriefDeadline(pid, p) {
     if (!pid || _briefGaveUp[pid] || _briefTimer[pid]) return;
@@ -4259,7 +4334,9 @@
       var VR = window.PDXVotingRecord;
       if (!VR || typeof VR.memberRecords !== 'function') return 0;
       var r = VR.memberRecords(pid);
-      return (r && r.length) ? r.length : 0;
+      var n = (r && r.length) ? r.length : 0;
+      if (n > 0) stampLive(pid);
+      return n;
     } catch (e) { return 0; }
   }
   function briefSeedRows(pid) {
@@ -4274,7 +4351,7 @@
   function briefRecordOnHand(pid) {
     if (briefLiveN(pid) > 0) return true;
     if (briefSeedRows(pid).length) return true;
-    return formalKnown(pid) === 'deep';
+    return formalHasRecord(pid);
   }
   // The engine's own answer: does the formal-pattern index list a row for them
   // yet. Every wait above is waiting for exactly this, so this is what "it landed"
@@ -4325,7 +4402,21 @@
   var SEED_NOTE = 'These rows came with the page itself — the same formal record the ' +
     'header at the top of this document printed. The live roll-call read is still ' +
     'arriving, and replaces them the moment it lands.';
+  //
+  // AND IT IS FIRST PAINT ONLY. THE GUARD IS HERE, IN THE BUILDER, because the
+  // seed's whole licence is "the best record in the tab while the engine has
+  // none" — and the moment PDXVotingRecord holds a non-empty answer for this
+  // member that is no longer true, whether or not the pattern index made anything
+  // of it. The header is HIDDEN rather than removed when the file mounts
+  // (crawlDone), so crawlRecord() keeps returning rows for the life of the
+  // document and the old gate — "the engine shape is empty" — went on being true
+  // on a file whose mapping we simply have no read for. That is how a cold
+  // /p/steven_lund kept the grey pills and the words "the live roll-call read is
+  // still arriving" over a payload that had arrived. A payload with no readable
+  // issue in it is a MAPPING GAP with a sentence of its own (briefAbsenceCopy),
+  // and that sentence is true where the seed's is not.
   function briefSeedHtml(pid, p) {
+    if (briefLiveN(pid) > 0) return '';
     var rows = briefSeedRows(pid);
     if (!rows.length) return '';
     var lis = rows.map(function (x) {
@@ -4351,35 +4442,53 @@
   // they have to be told apart: the record is coming, the record was coming and
   // did not arrive, or there is nothing on it. Only the last one is a statement
   // about the person.
+  var MAPPED_GAP_COPY = 'Their roll-call record is on file, but none of it is mapped yet to an issue ' +
+    'a direction can be read from. That gap is ours, not an empty file.';
   function briefAbsenceCopy(pid, p) {
     var known = formalKnown(pid);
+    // A REVIEWED EMPTY FILE OUTRANKS EVERYTHING BELOW, and it is asked first now
+    // rather than as a condition on the branch. formalKnown returns 'empty' only
+    // for the hand-written notes the index publishes for that purpose, so jknotts
+    // gets his sentence and his reason instead of a wait that is never coming.
+    if (known === 'empty') {
+      return 'No formal pattern on file yet. Nothing we hold for them is a vote or formal action ' +
+        'a direction can be read from, and nothing here is inferred from what they said.';
+    }
+    // ── THE PAYLOAD IS IN MEMORY: THE WAIT IS OVER, WHATEVER THE INDEX MADE OF IT
+    // Asked SECOND, ahead of every wait, because it is the fact that ends them.
+    // `settled` was the only release before, and consistency.js only sets it where
+    // a request it started is outstanding — so on an identity-only file, where
+    // nothing ever queued one, "still loading" was permanent. Three ways the wait
+    // is over: the lane settled, two seconds have passed since the rows landed, or
+    // the 6s deadline already expired. In all three the honest sentence is the
+    // mapping gap, and it is OURS.
+    var live = briefLiveN(pid);
+    if (live > 0) {
+      if (briefSettled(pid) || liveHeldMs(pid) >= PAYLOAD_GRACE_MS || briefGaveUp(pid)) {
+        return MAPPED_GAP_COPY;
+      }
+      // Landed a moment ago and the index may still be recomputing. One short,
+      // bounded arrival sentence — with the repaint that ends it already armed.
+      armPayloadDeadline(pid);
+      return 'Their formal record is on file and the roll-call lane is arriving — no pattern ' +
+        'can be read until it lands.';
+    }
     // THE RECORD IN THE TAB OPENS THE SAME DOOR THE WARM READ DOES. A file the
-    // vote chip is counting, or the header has already listed, or the shipped
-    // index holds acts for, is a file with a record — whether or not anything ever
-    // queued a warm read for it. A REVIEWED EMPTY FILE STILL OUTRANKS ALL THREE:
-    // formalKnown returns 'empty' only for the hand-written notes the index
-    // publishes for that purpose, and jknotts must say so rather than be promised
-    // a wait that is never coming.
+    // header has already listed, or the shipped index counts acts for at either
+    // depth, is a file with a record — whether or not anything ever queued a warm
+    // read for it.
     var onHand = briefRecordOnHand(pid);
-    if ((briefWarming(pid, p) || onHand) && known !== 'empty') {
+    if (briefWarming(pid, p) || onHand) {
       if (briefGaveUp(pid)) {
-        return (known === 'deep' || onHand)
+        return (formalHasRecord(pid) || onHand)
           ? 'Their formal record is on file, but it did not load, so no pattern can be read. Reload to try again.'
           : 'The roll-call record did not load, so no formal pattern can be read. That is a loading failure, not an empty file — reload to try again.';
       }
       armBriefDeadline(pid, p);
-      // THE PAYLOAD LANDED AND THE INDEX READ NO ISSUE OFF IT. Not a wait, and not
-      // an empty file: a gap in OUR mapping, which is a different sentence and is
-      // owed one. "No formal pattern on file" over a member whose record this same
-      // page is counting is the exact claim this branch exists to stop printing.
-      if (briefLiveN(pid) > 0 && briefSettled(pid)) {
-        return 'Their roll-call record is on file, but none of it is mapped yet to an issue ' +
-          'a direction can be read from. That gap is ours, not an empty file.';
-      }
       // Still arriving. Same two sentences, same split on what formalKnown already
       // knows — widened only by `onHand`, which is the same claim reached from the
-      // header or the payload instead of from the index.
-      return (known === 'deep' || onHand)
+      // header instead of from the index.
+      return (formalHasRecord(pid) || onHand)
         ? 'Their formal record is on file and still loading — no pattern can be read until it lands.'
         : 'Still loading the roll-call record — no formal pattern can be read until it lands.';
     }
@@ -4645,8 +4754,15 @@
         // (bindHero repaints on 'pdx-voting-warm'), never flashed away — the seed
         // is re-read on every repaint, so a repaint that still has no engine rows
         // keeps the rows it already showed.
-        var seeded = briefSeedHtml(pid, p);
-        if (seeded) return seeded;
+        // …AND ONLY WHILE THE ENGINE IS THE ONLY THING WITHOUT AN ANSWER. The
+        // seed builder refuses on its own once memberRecords(pid) is non-empty
+        // (see briefSeedHtml); the same question is asked out loud here so the
+        // one rule a reader of this function needs — SEED IS FIRST PAINT ONLY —
+        // is visible at the decision, not two hundred lines away.
+        if (briefLiveN(pid) <= 0) {
+          var seeded = briefSeedHtml(pid, p);
+          if (seeded) return seeded;
+        }
         return '<div class="pdxwa-brief pdxwa-brief-empty">' + briefHeadHtml() +
             '<p class="pdxwa-shape-none">' +
               briefAbsenceCopy(pid, p) +
@@ -4739,17 +4855,62 @@
   // hero held its loading letterhead until some other repaint happened to come
   // along. 'pdx-brief-timeout' is the other end of the same problem: the moment
   // the wait is declared over, so loading is never the last thing on screen.
-  var HERO_REPAINT = ['pdx-consistency-warm', 'pdx-voting-warm', 'pdx-brief-timeout'];
+  // 'pdx-record-noted' IS THE ARRIVAL ITSELF. The three events above are all
+  // reported by a LANE — the consistency queue warmed, the sync record cache
+  // warmed, the wait expired — and every one of them can be silent on the path
+  // that actually feeds an identity-only profile: a head prefetch adopted inside
+  // fetchMember, a /compare read, the offline pack. PDXVotingRecord.noteMember is
+  // the one line all of those go through, so it now announces itself and the hero
+  // listens for it. Anything that puts rows in memory repaints the brief; nothing
+  // has to remember to warm a queue first.
+  var HERO_REPAINT = ['pdx-consistency-warm', 'pdx-voting-warm', 'pdx-brief-timeout',
+    'pdx-record-noted'];
+
+  // Does an event about SOME member concern the one this hero is drawing? Both
+  // ids travel on 'pdx-record-noted' (the caller's and the canonical one the rows
+  // are stored under), and the two differ for every aliased pid — so a strict
+  // `detail.pid !== pid` test drops the repaint on exactly the members whose
+  // record was hardest to find. One alias hop on each side, then compare.
+  function evForPid(ev, pid) {
+    if (!ev || !ev.detail) return true;
+    var d = ev.detail;
+    if (!d.pid && !d.canon) return true;
+    var want = String(pid);
+    var alias = want;
+    try {
+      if (typeof window.PDXCanonicalPid === 'function') alias = String(window.PDXCanonicalPid(want) || want);
+    } catch (e) { alias = want; }
+    var names = [d.pid, d.canon];
+    for (var i = 0; i < names.length; i++) {
+      if (!names[i]) continue;
+      var got = String(names[i]);
+      if (got === want || got === alias) return true;
+      try {
+        if (typeof window.PDXCanonicalPid === 'function' &&
+            String(window.PDXCanonicalPid(got) || got) === alias) return true;
+      } catch (e) {}
+    }
+    return false;
+  }
 
   function bindHero(uid, pid, p, opts) {
     if (!window.addEventListener) return;
+    // THE HOST MAY NOT BE IN THE DOCUMENT YET. bindHero is armed from a
+    // setTimeout(…,0) beside markup the caller is still assembling into a bigger
+    // template string, so the first event can arrive before the host exists.
+    // Unbinding then is permanent deafness on the very file that needed the
+    // repaint most, so a missing host only ends the subscription AFTER the host
+    // has been seen at least once — i.e. once it can mean "this hero is gone",
+    // and not "this hero has not landed".
+    var seen = false;
     var handler = function (ev) {
       var host = document.querySelector('[data-pdxwa-hero="' + uid + '"]');
       if (!host) {
-        HERO_REPAINT.forEach(function (n) { window.removeEventListener(n, handler); });
+        if (seen) HERO_REPAINT.forEach(function (n) { window.removeEventListener(n, handler); });
         return;
       }
-      if (ev && ev.detail && ev.detail.pid && String(ev.detail.pid) !== String(pid)) return;
+      seen = true;
+      if (!evForPid(ev, pid)) return;
       try {
         var fresh = heroInner(pid, p, opts);
         // The shape gate reads the roll-call index, which is exactly what this
@@ -4761,6 +4922,17 @@
       } catch (e) {}
     };
     HERO_REPAINT.forEach(function (n) { window.addEventListener(n, handler); });
+    // ── AND ONE RECONCILING PAINT, BECAUSE THE ARRIVAL DOES NOT WAIT FOR US.
+    // The record can already be in memory by the time this listener is armed —
+    // the pack is synchronous, and a prefetch started in <head> routinely lands
+    // first — in which case the event that would have repainted the brief has
+    // already been dispatched to nobody. So ask once, on our own, as soon as the
+    // host can exist. `null` is not an event: evForPid treats it as "concerns
+    // everyone", and heroInner is a pure read, so the worst case is repainting
+    // identical markup one time.
+    try {
+      setTimeout(function () { handler(null); }, 0);
+    } catch (e) {}
   }
 
   // ONE MARKER, ONE PLACE. `is-shape` is what the stylesheet keys the full-width
@@ -4946,11 +5118,14 @@
     compactBadgeHtml: compactBadgeHtml,
     compactBadgeMount: compactBadgeMount,
     // WHAT THE GENERATED INDEX ALREADY KNOWS, PUBLISHED FOR THE CHIPS BESIDE IT.
-    // formalKnown() is the three-valued read the brief above uses to tell "the
+    // formalKnown() is the four-valued read the brief above uses to tell "the
     // record is on its way" apart from "there is nothing on it": 'deep' when
-    // formal-index.js counts sourced acts for this pid, 'empty' ONLY for the
+    // formal-index.js counts sourced acts across eight or more distinct measures,
+    // 'thin' when it counts acts on fewer than that, 'empty' ONLY for the
     // hand-reviewed empty notes, and '' when the index cannot speak for that
-    // person at all. It answers from a static file, before any fetch starts, which
+    // person at all. 'deep' and 'thin' are the same claim about WHETHER there is
+    // a record — callers asking only that should test for either, which is what
+    // formalHasRecord() does internally. It answers from a static file, before any fetch starts, which
     // is the whole reason it is worth exporting — a surface can stand its absence
     // wording down on a deep file at first paint instead of flashing it and taking
     // it back when the pack lands.

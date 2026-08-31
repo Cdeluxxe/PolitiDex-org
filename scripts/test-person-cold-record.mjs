@@ -563,12 +563,26 @@ section("6 · Direction Match and the floors did not move");
     eq(gained, [], "no member gained the empty-file letterhead in this pass");
     eq(movedNotEmpty, [],
       "every brief that changed changed in exactly one way: off the empty-file letterhead");
-    ok(docsMoved > 0, `${docsMoved} briefs were wrong at HEAD and are not now`);
+    // ── AND THE BASELINE HAS MOVED, WHICH IS THE POINT OF SAYING SO HERE ──────
+    // When this section was written, HEAD was the deploy the report was filed
+    // against: the three named pids really did print the empty-file letterhead in
+    // a bare sandbox, and `docsMoved > 0` was the proof the pass had fixed them.
+    // HEAD now CONTAINS that fix, so a bare boot — no crawl header, no payload —
+    // is expected to be byte-identical for every member, and this pass's own
+    // change is invisible from here: it is about what happens once a record LANDS,
+    // which needs a payload in the tab (see scripts/test-seed-yields-to-record.mjs
+    // for that half). So the claim is inverted rather than deleted: FIRST PAINT
+    // DID NOT MOVE AT ALL.
+    eq(docsMoved, 0,
+      "no brief changed on a bare cold boot — this pass changes what happens when the " +
+      "record arrives, not what the file says before it does");
     ok(stillEmpty.length > 0, `${stillEmpty.length} briefs still say the file is empty, unchanged`);
-    // The report's own three, inside that set.
+    // The report's own three, on both sides, still off the sentence.
     for (const pid of NAMED) {
-      ok(brief(A, pid).includes(EMPTY), `${pid}: HEAD really did print the empty-file letterhead`);
-      hasnt(brief(B, pid), EMPTY, `${pid}: …and does not now`);
+      hasnt(brief(A, pid), EMPTY, `${pid}: HEAD already keeps the empty-file letterhead off them`);
+      hasnt(brief(B, pid), EMPTY, `${pid}: …and so does this pass`);
+      has(brief(B, pid), "Their formal record is on file",
+        `${pid}: …naming the record the index already counts for them`);
     }
     ok(!brief(A, CHARACTERISED).includes(EMPTY) && !brief(B, CHARACTERISED).includes(EMPTY),
       `${CHARACTERISED}: was never called empty and still is not`);
