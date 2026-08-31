@@ -1497,9 +1497,26 @@
   // a rate. Counts still show — they are directly attested and useful. Only the
   // percentage is withheld, and only until an itemized ledger exists.
   //
-  // Deliberately synchronous and re-read per render: promises[] is populated at
-  // template time from the record (and merged in by the admin manager), never
-  // hydrated asynchronously, so there is no warm-up state to wait for here.
+  // Deliberately synchronous and re-read per render, and re-read is the operative
+  // word. promises[] is populated from the record rather than fetched on its own,
+  // but the RECORD can arrive in two passes: a cold /p/<pid> arrival now mounts the
+  // full file off the bundled CMP_DATA seed and merges the Firestore document in
+  // behind the paint (see window._pdxColdOpen in profiles-full.js), and a CMP_DATA
+  // seed carries summary counts with no promises[] behind them. So for the length
+  // of that window this returns false for a person whose itemized ledger is about
+  // to land, and the pledge block reads "the individual pledges behind them are not
+  // itemized yet".
+  //
+  // THAT IS THE RIGHT ANSWER AND NOT A PLACEHOLDER FOR ONE. It is exactly what the
+  // guard is for: at that instant the ledger genuinely is not inspectable, the
+  // Promise Tracker below genuinely has nothing to render, and the copy says "not
+  // itemized yet" — the same sentence the 41 counts-only records get permanently,
+  // with a "yet" that the merge then makes good on. No rate is published in either
+  // state, so nothing is withheld on the way in and nothing is retracted on the way
+  // out; the merge repaints and the ledger appears. A "still loading" variant here
+  // would buy a reader nothing and would put a spinner where a true sentence is.
+  // Which is why this stays synchronous: do NOT make it consult _pdxFullIds or the
+  // merge promise.
   window._pdxHasItemizedPledges = function(p) {
     if (!p || !Array.isArray(p.promises)) return false;
     for (var i = 0; i < p.promises.length; i++) {

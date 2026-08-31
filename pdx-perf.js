@@ -74,7 +74,9 @@
     ['person-boot',         'person-file.js began adopting the /p/ address'],
     ['roster',              'roster state settled (time to roster)'],
     ['person-open',         'PDXPerson.open() rendered the shell'],
-    ['file-named',          'modal/file paints with the person NAME on it'],
+    ['skeleton-named',      'arrival skeleton up (crawl rows repeated, file not mounted yet)'],
+    ['file-named',          'the FULL letterhead is mounted (h1 + office + formal brief)'],
+    ['roster-merged',       'Firestore document merged into the mounted file (never gates file-named)'],
     ['vr-adopt',            'fetchMember adopted the head prefetch (no 2nd request)'],
     ['vr-fetch-start',      'fetchMember issued its OWN request (prefetch missed)'],
     ['vr-data',             'first voting-record page in hand (time to first page)'],
@@ -231,7 +233,15 @@
     ['crawl visible', ['crawl-visible', 'crawl-generic']],
     ['vote sent',     ['vr-prefetch-start', 'vr-prefetch-retry', 'vr-fetch-start', 'vr-session-hit']],
     ['vote back',     ['vr-session-hit', 'vr-prefetch-json', 'vr-data']],
-    ['name on file',  ['file-named', 'person-open']]
+    // NAME ON FILE IS THE FULL LETTERHEAD, AND NOTHING SHORTER. It used to fall
+    // back to 'person-open' (the shell was up) and the shell used to take
+    // 'file-named' itself, so a cold open that mounted nothing for 39 seconds
+    // still printed a small number here. Only the mount takes this mark now; a
+    // cold open that never mounted prints an em dash, and the em dash is the
+    // finding. 'roster-merged' is deliberately NOT in this line: the Firestore
+    // settle is behind the paint, so it cannot move the number the pass is judged
+    // on — read it off PDXPerf.waterfall() when you want it.
+    ['name on file',  ['file-named']]
   ];
 
   P.cold = function () {

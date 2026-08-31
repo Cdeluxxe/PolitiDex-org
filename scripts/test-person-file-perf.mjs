@@ -546,8 +546,14 @@ section("11 · the loading shell repeats the first paint instead of hiding it");
   has(SH2, "pdx-modal-loading", "the fallback loading state is still there");
   ok(SH2.indexOf("arrivalSkeleton(id)") < SH2.indexOf("host.innerHTML"),
     "the skeleton is resolved before the shell is written");
-  has(SH2, "PDXPerf.mark('file-named')",
-    "a shell that painted the name takes the name-on-file mark itself");
+  // THE SHELL DOES NOT CLAIM THE NUMBER THE PASS IS JUDGED ON. It takes its own
+  // mark — the skeleton IS on screen and that is worth timing — but `file-named`
+  // has to mean the full letterhead, or a cold open that sat 39 seconds on
+  // "Loading the latest roster…" reports as a fast one.
+  has(SH2, "PDXPerf.mark('skeleton-named')",
+    "a shell that painted the name takes the skeleton mark");
+  hasnt(SH2, "mark('file-named')",
+    "the shell no longer claims name-on-file — that mark means the mounted letterhead");
 }
 
 // ── 12 · the file does not wait on the full roster ──────────────────────────
