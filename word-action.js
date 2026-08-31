@@ -4343,6 +4343,23 @@
       return n;
     } catch (e) { return 0; }
   }
+  // EVERY ROW THE HEADER LISTS, whether or not this surface can draw it. The two
+  // readers below answer two different questions and conflating them was a way
+  // for the empty paragraph to escape: briefSeedRows answers "what can I PRINT"
+  // (a row needs a pattern and an issue label to render as a row), and
+  // briefHeaderRowN answers "does this document's own header list formal record
+  // for this person" — which is the fact the empty paragraph is a denial of. A
+  // header line the edge wrote in a shape this file cannot draw is still a
+  // formal-record row sitting on screen behind the modal, and "nothing we hold
+  // for them is a vote or formal action" may not be printed over it.
+  function briefHeaderRowN(pid) {
+    try {
+      var PP = window.PDXPerson;
+      if (!PP || typeof PP.crawlRecord !== 'function') return 0;
+      var rows = PP.crawlRecord(pid) || [];
+      return rows.length;
+    } catch (e) { return 0; }
+  }
   function briefSeedRows(pid) {
     try {
       var PP = window.PDXPerson;
@@ -4371,7 +4388,7 @@
   function briefRecordOnHand(pid) {
     if (briefLiveN(pid) > 0) return true;
     if (briefChipN(pid) > 0) return true;
-    if (briefSeedRows(pid).length) return true;
+    if (briefHeaderRowN(pid) > 0) return true;
     return formalHasRecord(pid);
   }
 
@@ -4402,6 +4419,40 @@
   function briefCanonPid(pid) {
     try { return (window.PDXCanonicalPid && window.PDXCanonicalPid(pid)) || pid; } catch (e) { return pid; }
   }
+  // ── ONE MEMBER, UP TO THREE SPELLINGS ───────────────────────────────────────
+  // A cold arrival spells the same person three ways, in three different layers,
+  // and none of them is wrong: the id the ADDRESS carried (/p/mike_lee), the
+  // roster id PDXProfilePid folds it to (lee), and the canonical id
+  // PDXCanonicalPid folds a retirement to (slee). The prefetch box is keyed by
+  // the first, _liveRead by whatever fetchMember was handed, and this brief by
+  // whatever openModal resolved — so a ONE-SIDED comparison (fold my id, then
+  // test the other one raw) misses on exactly the members whose record was
+  // hardest to find, and a missed match here does not degrade to a wait: it
+  // degrades to "no request is outstanding", which is the door the empty
+  // paragraph comes through. Fold BOTH sides through BOTH tables and compare the
+  // sets. It resolves spellings; it never invents a member.
+  function briefIdSet(pid) {
+    var out = [];
+    var push = function (x) {
+      if (!x) return;
+      x = String(x);
+      for (var i = 0; i < out.length; i++) if (out[i] === x) return;
+      out.push(x);
+    };
+    push(pid);
+    try { if (typeof window.PDXCanonicalPid === 'function') push(window.PDXCanonicalPid(pid)); } catch (e) {}
+    try { if (typeof window.PDXProfilePid === 'function') push(window.PDXProfilePid(pid)); } catch (e) {}
+    return out;
+  }
+  function briefSameMember(a, b) {
+    if (!a || !b) return false;
+    if (String(a) === String(b)) return true;
+    var A = briefIdSet(a), B = briefIdSet(b);
+    for (var i = 0; i < A.length; i++) {
+      for (var j = 0; j < B.length; j++) if (A[i] === B[j]) return true;
+    }
+    return false;
+  }
   // noteMember RAN for this member — with rows or with none. memberRecords()
   // answers null until it does and an array (possibly empty) forever after, which
   // is the difference between "the answer is not here" and "the answer is none".
@@ -4414,14 +4465,24 @@
   }
   function briefAsked(pid) {
     if (!pid) return false;
+    // THE HEAD'S BOX, IN ANY OF ITS THREE STATES. In flight, resolved, or already
+    // claimed by fetchMember — all three mean the same thing to this predicate: a
+    // member payload was requested for this person on this page load, so nobody
+    // is in a position to say there is nothing on file. The box is a hand-over
+    // rather than a cache and nothing ever removes it, so `claimed` is a fact
+    // about who owns the promise and not about whether the request happened.
     try {
       var box = window.__pdxVRPrefetch;
-      if (box && box.pid &&
-          (String(box.pid) === String(pid) || String(box.pid) === String(briefCanonPid(pid)))) return true;
+      if (box && box.pid && briefSameMember(box.pid, pid)) return true;
     } catch (e) {}
+    // …and fetchMember's own claim, which is set at REQUEST time (not at answer
+    // time) for whatever spelling the caller handed it.
     try {
       var VR = window.PDXVotingRecord, lr = VR && VR._liveRead;
-      if (lr && (lr[pid] || lr[briefCanonPid(pid)])) return true;
+      if (lr) {
+        var ids = briefIdSet(pid);
+        for (var i = 0; i < ids.length; i++) if (lr[ids[i]]) return true;
+      }
     } catch (e) {}
     return false;
   }

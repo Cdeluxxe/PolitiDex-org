@@ -4510,6 +4510,14 @@
     var _vrhiSettled = function () { window._pdxHydrateVoteHighlights({ settled: true }); };
     window.addEventListener('pdx-consistency-warm', _vrhiWarm);
     window.addEventListener('pdx-voting-warm', _vrhiSettled);
+    // AND THE ARRIVAL ITSELF SETTLES IT TOO. 'pdx-record-noted' is dispatched by
+    // PDXVotingRecord.noteMember — the one line every path to rows in memory goes
+    // through, including the head prefetch the record client adopts, which on a
+    // cold /p/<pid> can land before either lane above has warmed anything. It
+    // means the same thing 'pdx-voting-warm' means here (a record load landed),
+    // so it gets the same handler; the handler still ignores the event's pid and
+    // re-reads the host's own, so a warm for another member cannot paint here.
+    window.addEventListener('pdx-record-noted', _vrhiSettled);
   }
 
   // ── THE COLD MOUNT: PAINT FROM WHAT IS ON HAND, MERGE WHAT ARRIVES ────────
@@ -5404,21 +5412,50 @@
     };
     // Same host discipline as the word-action chip beside it, and for the same
     // reason: the letterhead is assembled while the roll-call request is still in
-    // flight, so the loading state has to have somewhere to be replaced. The three
-    // events are word-action.js's HERO_REPAINT set — the record landing, the
-    // section's own load landing, and the brief's deadline expiring — so the chips
-    // and the brief under them change on the same passes and cannot disagree about
-    // whether the wait is over. The listener removes itself once the host is gone.
+    // flight, so the loading state has to have somewhere to be replaced. The
+    // events ARE word-action.js's HERO_REPAINT set, all four of them, so the
+    // chips and the brief under them change on the same passes and cannot
+    // disagree about whether the wait is over.
+    //
+    // 'pdx-record-noted' IS THE ONE THAT WAS MISSING, and its absence is the
+    // reported defect stated as a subscription: the chip a screen up counts rows
+    // out of PDXVotingRecord._records, _records is written by exactly one
+    // function (noteMember), and noteMember is what dispatches this event. So the
+    // only moment the strip's own claim can change is a moment it was not
+    // listening for. On a cold /p/<pid> where nothing warms a lane —
+    // identity-only members, a head prefetch adopted inside fetchMember — the
+    // rows landed, the pill repainted to "68 Records", and this strip kept
+    // "◷ No voting record yet" beside a letterhead that had already moved on.
+    // Chip and letterhead disagreeing about one person in one frame is the bug;
+    // one shared event set is the fix.
+    //
+    // AND BOTH IDS ON THE EVENT ARE ACCEPTED. 'pdx-record-noted' carries the id
+    // the caller asked for AND the canonical id the rows are filed under, and
+    // they differ for every aliased pid — the members whose record was hardest to
+    // find. A strict detail.pid test dropped the repaint on exactly those. Same
+    // two-sided match _bindAtlasLate makes, for the same reason.
+    //
+    // The listener removes itself once the host is gone — but only after the host
+    // has been seen, because this arms from a setTimeout beside markup the caller
+    // is still assembling, and unbinding on "not yet" is permanent deafness. One
+    // reconciling call at the end covers the arrival that beat the subscription.
     const _bindRecChips = function (uid) {
       if (!window.addEventListener) return;
-      var evs = ['pdx-consistency-warm', 'pdx-voting-warm', 'pdx-brief-timeout'];
+      var evs = ['pdx-consistency-warm', 'pdx-voting-warm', 'pdx-brief-timeout',
+        'pdx-record-noted'];
+      var seen = false;
       var h = function (ev) {
         var host = document.querySelector('[data-pdx-recchips="' + uid + '"]');
-        if (!host) { evs.forEach(function (n) { window.removeEventListener(n, h); }); return; }
-        if (ev && ev.detail && ev.detail.pid && String(ev.detail.pid) !== String(id)) return;
+        if (!host) { if (seen) evs.forEach(function (n) { window.removeEventListener(n, h); }); return; }
+        seen = true;
+        if (ev && ev.detail && ev.detail.pid && ev.detail.canon &&
+            String(ev.detail.pid) !== String(id) && String(ev.detail.canon) !== String(id)) return;
+        if (ev && ev.detail && ev.detail.pid && !ev.detail.canon &&
+            String(ev.detail.pid) !== String(id)) return;
         try { host.innerHTML = _recChipsHtml(); } catch (e) {}
       };
       evs.forEach(function (n) { window.addEventListener(n, h); });
+      try { setTimeout(function () { h(null); }, 0); } catch (e) {}
     };
     const _recChipsMount = function () {
       var uid = ('recchips-' + String(id) + '-' + Date.now()).replace(/[^A-Za-z0-9_-]/g, '');

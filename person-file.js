@@ -383,13 +383,41 @@
   // querySelector, not getElementById, on purpose: this runs on the resolve path
   // for every arrival, and it must not be the thing that decides the node was
   // looked for. crawlDone() is the only place that asks for the node by id.
+  //
+  // ── AND IT COMPARES AGAINST THE ARRIVAL, NOT AGAINST THE BAR ─────────────
+  // This was the live cold-arrival defect. `location.pathname` is not a constant
+  // on a person file: stamp() rewrites it the moment open() runs, to the
+  // CANONICAL id, and the edge stamped the header for the id that was ASKED
+  // for. So on /p/lee (canonical `slee`) the two strings agreed for exactly as
+  // long as it took the modal to mount, and every read after that — the seed
+  // rows the letterhead prints, crawlRecord()'s answer to "does the header list
+  // rows for this pid" — got null from a header sitting in the document with the
+  // rows in it. A first paint then said "No formal pattern on file yet" while a
+  // vote chip a screen up said 68, and a hard reload "fixed" it only because the
+  // second document's prefetch had already settled before anything asked.
+  //
+  // ARRIVAL is the address THIS DOCUMENT WAS SERVED FOR, read once at module
+  // evaluation — before any modal, any stamp, any roster. That is the same
+  // string the edge generated the block at, so the comparison is the one the
+  // guard in index.html makes and it stays true for the life of the document.
+  // It widens nothing: the stale-cache refusal is unchanged, because the inline
+  // guard at the top of index.html already neutralises a block generated for
+  // another address (data-pid removed, data-pdx-crawl-generic set) at first
+  // parse, against this very address, and the generic check below still refuses
+  // it. The live bar is still accepted as a fallback for the /?p= form and for
+  // an in-app hop, where no document-level arrival exists.
+  var ARRIVAL = (function () {
+    try { return fromPath(location.pathname); } catch (e) { return ''; }
+  })();
+
   function crawlHeader() {
     try {
       var el = document.querySelector('#pdx-crawl-person');
       if (!el || !el.getAttribute) return null;
-      var here = fromPath(location.pathname);
+      var forPath = el.getAttribute('data-pdx-crawl-for');
+      var here = ARRIVAL || fromPath(location.pathname);
       if (!here) return null;
-      if (el.getAttribute('data-pdx-crawl-for') !== PREFIX + here) return null;
+      if (forPath !== PREFIX + here && forPath !== PREFIX + fromPath(location.pathname)) return null;
       if (el.hasAttribute && el.hasAttribute('data-pdx-crawl-generic')) return null;
       var pid = el.getAttribute('data-pid');
       return pid ? { el: el, pid: String(pid) } : null;
@@ -429,6 +457,14 @@
     try {
       var h = crawlHeader();
       if (!h) return [];
+      // THE ID IN THE ADDRESS MEANS THE PERSON THE HEADER NAMES. On /p/lee the
+      // edge stamped data-pid="slee" and generated the block AT /p/lee, so the
+      // two ids are the same claim about the same person, made by the same
+      // resolver — and the caller that has not waited for the roster (the
+      // letterhead, keyed by the arriving id) must not be told the header is
+      // about somebody else. This is a spelling normalisation, not a widening:
+      // it only ever fires for the one id this document was served for.
+      if (ARRIVAL && String(pid) === ARRIVAL) pid = h.pid;
       // The header names one person. Nobody else may borrow their rows.
       if (canonId(h.pid) !== canonId(pid) && h.pid !== pid) return [];
       var lis = h.el.querySelectorAll ? h.el.querySelectorAll('[data-pdx-crawl-record] li') : [];
@@ -500,6 +536,10 @@
     try {
       var h = crawlHeader();
       if (!h) return '';
+      // Same spelling normalisation crawlRecord makes, for the same reason: the
+      // id this document was served for and the canonical id the edge stamped
+      // are one claim about one person.
+      if (ARRIVAL && String(pid) === ARRIVAL) pid = h.pid;
       // The header names one person. Opening anybody else must not borrow it.
       if (canonId(h.pid) !== canonId(pid) && h.pid !== pid) return '';
 
@@ -856,6 +896,11 @@
     // The header's formal rows, for the record surfaces that must not contradict
     // them. Read-only, identity-guarded, capped where the edge capped it.
     crawlRecord: crawlRecord,
+    // The pid the address bar carried when THIS document was parsed, or ''.
+    // Constant for the life of the document — stamp() cannot move it and the
+    // roster is not consulted — so a surface that must decide "is a record
+    // coming for the person on screen?" before anything has resolved can ask.
+    arrivalPid: function () { return ARRIVAL; },
     mounted: mounted,
     bootAdopt: function () { return bootAdopt(); },
     publishable: function (pid) {
