@@ -455,8 +455,41 @@
     // line runs. See THE DERIVATION EPOCH in stance-helpers.js.
     noteMember: function (id, items) {
       if (!id || !Array.isArray(items)) return;
-      this._records[canonPid(id)] = items.slice();
+      var key = canonPid(id);
+      var had = this._records[key];
+      this._records[key] = items.slice();
       try { if (typeof window.PDXDataChanged === 'function') window.PDXDataChanged(); } catch (e) {}
+      // ── THE ARRIVAL, ANNOUNCED WHERE IT HAPPENS ─────────────────────────────
+      // WHY A SECOND EVENT. 'pdx-voting-warm' is fired by the two CALLERS that
+      // happen to fetch — voting-record.js's own section queue and person-file.js's
+      // arrival warm — so every other way a member's rows can land is silent: the
+      // head prefetch adopted by fetchMember, a /compare matrix, the offline pack,
+      // a surface that fetched for its own reasons. A cold /p/<pid> that got its
+      // record from one of those left the letterhead holding the seed brief it
+      // painted at t=0, because nothing told it the payload was in memory.
+      // This is the one line every one of those paths goes through, so the
+      // announcement belongs here and not in the callers.
+      //
+      // ON A TRANSITION, NOT ON EVERY CALL. One homepage render notes ~950 members
+      // (see the drain queue below), and a listener pass per call would be ~950
+      // repaint attempts for rows nobody is looking at. It fires only when this
+      // member GAINED rows — first arrival, or a longer answer replacing a shorter
+      // one — which is once per member per page load.
+      //
+      // BOTH IDS TRAVEL. Listeners are bound with the id their surface resolved,
+      // which is not always the id the record cache is keyed under (/p/scott_chew
+      // is stored as chew_h68), so a handler comparing one string would drop the
+      // repaint for exactly the alias arrivals person-file.js works hardest to get
+      // right. `pid` is the caller's id, `canon` is the cache key; a listener may
+      // match either.
+      try {
+        if (items.length && (!had || had.length < items.length) &&
+            typeof window.dispatchEvent === 'function' && typeof window.CustomEvent === 'function') {
+          window.dispatchEvent(new CustomEvent('pdx-record-noted', {
+            detail: { pid: String(id), canon: String(key), n: items.length }
+          }));
+        }
+      } catch (e) {}
     },
     memberRecords: function (id) { return this._records[canonPid(id)] || null; },
 

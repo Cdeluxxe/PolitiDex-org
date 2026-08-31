@@ -467,8 +467,15 @@ section("4 · the empty brief, and the pledge leftovers that used to outrank it"
                       "Still loading the roll-call record — no formal pattern can be read"]) {
     const j = WA.indexOf(site);
     must(j !== -1, `word-action.js no longer carries the loading line "${site.slice(0, 40)}…"`);
-    const near = WA.slice(Math.max(0, j - 700), j + 700);
-    has(near, "formalKnown",
+    const near = WA.slice(Math.max(0, j - 900), j + 700);
+    // EITHER NAME FOR THE SAME QUESTION. formalKnown() gained a fourth answer
+    // ('thin', for a file the index counts acts for across fewer than eight
+    // measures), and the two loading lines only ever asked whether the index holds
+    // a record AT ALL — so both sites now put that question by its own name,
+    // formalHasRecord(), which is formalKnown() with 'deep' and 'thin' folded
+    // together. What this assertion is for is unchanged: neither line may be
+    // printed without consulting the shipped index first.
+    ok(/formalKnown|formalHasRecord/.test(near),
       `the loading line at "${site.slice(0, 40)}…" is not gated on what the index already knows`);
     ok(!/\.acts\(|\.measures\(/.test(near),
       "a loading line reads a COUNT out of the formal index — the index's contract is that no\n" +

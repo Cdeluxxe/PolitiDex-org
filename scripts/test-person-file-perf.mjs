@@ -321,7 +321,7 @@ section("6 · the record is warmed before the roster wait, not after it");
   has(B, "var target = warmTarget(pid);", "bootAdopt resolves the pid it is about to warm");
   has(B, "warm(target)", "bootAdopt warms the resolved record");
   has(B, "dropStalePrefetch(target)", "a prefetch for some other member is dropped, not left racing");
-  ok(B.indexOf("warm(target)") < B.indexOf("attempt(pid, 0, null)"),
+  ok(B.indexOf("warm(target)") < B.indexOf("attempt(pid, 0, null, 0)"),
     "the warm happens before the roster wait begins");
   ok(B.indexOf("var target = warmTarget(pid);") < B.indexOf("warm(target)"),
     "the target is resolved before the request goes out");
@@ -572,7 +572,7 @@ section("11 · the loading shell repeats the first paint instead of hiding it");
 // ── 12 · the file does not wait on the full roster ──────────────────────────
 section("12 · an address already resolved opens now");
 {
-  const at = PF.match(/function attempt\(pid, waited, settledAt\) \{[\s\S]*?\n  \}/);
+  const at = PF.match(/function attempt\(pid, waited, settledAt, tries\) \{[\s\S]*?\n  \}/);
   must(at, "person-file's attempt is gone");
   const AT = at[0];
   has(AT, "var canOpen = !!resolveArrival(pid) && fn(window.openModal);",
@@ -586,6 +586,35 @@ section("12 · an address already resolved opens now");
     "the not-found answer still waits for the roster to settle");
   has(AT, "waited >= CEILING", "and for a hard ceiling when no flag ever arrives");
   has(PF, "var CEILING = 15000;", "the ceiling is unchanged");
+
+  // The wait also has to stop COSTING anything while it runs. A flat 120ms tick
+  // for fifteen seconds is 125 wake-ups and a full roster walk on each one, which
+  // is what put "this tab is slowing your browser" on /p/steven_lund. The gap
+  // backs off and the try count is capped; the ceiling above still governs.
+  has(AT, "waited >= CEILING || tries >= MAX_TRIES", "the wait gives up on a try count as well as a clock");
+  has(AT, "Math.min(STEP_MAX, Math.round(STEP * Math.pow(STEP_GROW, tries)))",
+    "each tick waits longer than the one before it");
+  has(AT, "attempt(pid, waited + gap, settledAt, tries + 1)", "and the backed-off gap is what is counted");
+  const nums = {};
+  ["STEP", "STEP_MAX", "STEP_GROW", "MAX_TRIES"].forEach((k) => {
+    const m = PF.match(new RegExp("var " + k + " = ([0-9.]+);"));
+    must(m, `person-file's ${k} is gone`);
+    nums[k] = Number(m[1]);
+  });
+  ok(nums.STEP_GROW > 1, "the growth factor actually grows");
+  ok(nums.STEP_MAX >= nums.STEP, "the cap is above the first step");
+  // Simulated: the budget still reaches the ceiling, in far fewer wake-ups.
+  let waited = 0, ticks = 0;
+  while (waited < 15000 && ticks < nums.MAX_TRIES) {
+    waited += Math.min(nums.STEP_MAX, Math.round(nums.STEP * Math.pow(nums.STEP_GROW, ticks)));
+    ticks++;
+  }
+  ok(waited >= 15000, `the backed-off schedule still spans the 15s ceiling (${waited}ms)`);
+  ok(ticks <= 25, `…in ${ticks} wake-ups rather than 125`);
+  ok(nums.MAX_TRIES > ticks, `MAX_TRIES (${nums.MAX_TRIES}) is a backstop, not the thing that ends the normal wait`);
+  // And the loop stops dead the moment the file has a name, however it got one.
+  has(PF, "if (window._pdxCurrentProfileId) { _adoptSettled = true; return; }",
+    "a file that is already named ends the poll instead of polling beside it");
 
   // The edge's stamp is a resolve source, and only ever for its own address.
   const ra = PF.match(/function resolveArrival\(pid\) \{[\s\S]*?\n  \}/);

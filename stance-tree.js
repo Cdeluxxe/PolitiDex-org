@@ -1114,14 +1114,52 @@
   // Connections, unmounted in the one-browse-path pass) — so every existing jump
   // into "their stated positions", from the rail, a deep link or a shared hash,
   // lands on the surface that now holds them instead of on nothing.
+  // ── IS A TREE COMING? ─────────────────────────────────────────────────────
+  // The tree's leaves are built from PDXConsistency.issueRows(pid), which reads
+  // the roll-call record — so on a cold arrival there are none yet and treeHtml
+  // returns ''. Returning '' from the SECTION on that basis is what made the
+  // absence permanent: with no host in the document, bindHost is never armed, and
+  // the warm repaint that has 70 issues to draw has nowhere to draw them. A file
+  // with a record and no tree is a MOUNT bug.
+  //
+  // So the section asks a second question when the body is empty: is there a
+  // record for this person that a tree can be built from once it is read? Two
+  // sources, both cheap and both available before any fetch resolves — the rows
+  // already in memory, and the shipped formal index. NEITHER IS A STANCE LEDGER:
+  // an identity-only member with no stated positions at all is exactly the file
+  // this branch exists for, and coverage.scorable / coverage.warming are asked
+  // nowhere here.
+  function treeExpected(pid) {
+    if (!pid) return false;
+    try {
+      var VR = window.PDXVotingRecord;
+      var rows = (VR && typeof VR.memberRecords === 'function') ? VR.memberRecords(pid) : null;
+      if (rows && rows.length) return true;
+    } catch (e) {}
+    try {
+      var FX = window.PDXFormalIndex;
+      if (FX && typeof FX.has === 'function' && FX.has(pid)) return true;
+    } catch (e) {}
+    return false;
+  }
+
+  // What stands in the body until the read lands. Not a spinner and not a claim
+  // about the file: one sentence saying which half is still arriving, replaced
+  // wholesale by the tree the moment there is one.
+  var TREE_WAIT = 'Their roll-call record is on file and the topic tree is being built from it — ' +
+    'the issues appear here as the read lands.';
+
   function sectionHtml(pid) {
     // ONE id for the section and for the leaves inside it. The warm repaint re-renders
     // the body with this same uid, so a leaf's id — which is the `origin` the dossier's
     // back pill returns to — survives the swap instead of being reissued under it.
     var host = uidFor(pid);
     var body = '';
-    try { body = treeHtml(pid, { uid: host }); } catch (e) { return ''; }
-    if (!body) return '';
+    try { body = treeHtml(pid, { uid: host }); } catch (e) { body = ''; }
+    if (!body) {
+      if (!treeExpected(pid)) return '';
+      body = '<p class="pdxtree-note pdxtree-wait" data-pdxtree-wait="1">' + esc(TREE_WAIT) + '</p>';
+    }
     try { setTimeout(function () { bindHost(host, pid); }, 0); } catch (e) {}
     return '<span id="pdxsec-stancetree" class="pdx-nav-anchor" aria-hidden="true"></span>' +
       '<span id="pdxsec-glance" class="pdx-nav-anchor" aria-hidden="true"></span>' +
@@ -1497,13 +1535,32 @@
   // record slot reading its cold value — so it rebuilds on the same
   // 'pdx-consistency-warm' event the header tally and the issue index rebuild on,
   // carrying the reader's open branches across the swap.
+  // THE THREE EVENTS THAT CAN FILL AN EMPTY TREE. 'pdx-consistency-warm' is the
+  // consistency queue reporting that a read it started is warm — and on an
+  // identity-only file nothing ever queues one, because that queue is fed by the
+  // stance ledger. 'pdx-voting-warm' is the sync record cache warming, and
+  // 'pdx-record-noted' is PDXVotingRecord.noteMember announcing rows in memory:
+  // between them they cover every path that can put a roll-call record in this
+  // tab, including the head prefetch and the offline pack. A tree that waits only
+  // on the first event is a tree that never arrives for the members who most need
+  // it.
+  var TREE_REPAINT = ['pdx-consistency-warm', 'pdx-voting-warm', 'pdx-record-noted'];
+
   function bindHost(host, pid) {
     bindOnce();
     if (!window.addEventListener) return;
+    // The section's markup is usually still inside a template string the caller
+    // is assembling when this arms (see sectionHtml's setTimeout), so a missing
+    // host means "not yet", not "gone" — until it has been seen once.
+    var seen = false;
     var handler = function (ev) {
       var el = document.querySelector('[data-pdxtree-host="' + host + '"] .pdxtree-body');
-      if (!el) { window.removeEventListener('pdx-consistency-warm', handler); return; }
-      if (ev && ev.detail && ev.detail.pid && norm(ev.detail.pid) !== norm(pid)) return;
+      if (!el) {
+        if (seen) TREE_REPAINT.forEach(function (n) { window.removeEventListener(n, handler); });
+        return;
+      }
+      seen = true;
+      if (ev && ev.detail && !treeEvForPid(ev, pid)) return;
       try {
         // The reader's view survives the warm swap as well as their open branches:
         // a repaint that silently reset an active filter would look like the
@@ -1517,7 +1574,36 @@
         if (next) el.innerHTML = next;
       } catch (e) {}
     };
-    window.addEventListener('pdx-consistency-warm', handler);
+    TREE_REPAINT.forEach(function (n) { window.addEventListener(n, handler); });
+    // One reconciling paint, for the same reason bindHero takes one: the rows can
+    // already be in memory by the time this listener exists (the pack is
+    // synchronous, a head prefetch routinely lands first), in which case the
+    // event that would have filled the tree was dispatched to nobody.
+    try { setTimeout(function () { handler(null); }, 0); } catch (e) {}
+  }
+
+  // Both ids travel on 'pdx-record-noted' — the caller's and the canonical one
+  // the rows are stored under — and they differ for every aliased pid, so a
+  // strict comparison against one of them drops the repaint on exactly the
+  // members whose record was hardest to find.
+  function treeEvForPid(ev, pid) {
+    var d = ev && ev.detail;
+    if (!d || (!d.pid && !d.canon)) return true;
+    var want = norm(pid), alias = want;
+    try {
+      if (typeof window.PDXCanonicalPid === 'function') alias = norm(window.PDXCanonicalPid(pid) || pid);
+    } catch (e) {}
+    var names = [d.pid, d.canon];
+    for (var i = 0; i < names.length; i++) {
+      if (!names[i]) continue;
+      var got = norm(names[i]);
+      if (got === want || got === alias) return true;
+      try {
+        if (typeof window.PDXCanonicalPid === 'function' &&
+            norm(window.PDXCanonicalPid(names[i]) || names[i]) === alias) return true;
+      } catch (e) {}
+    }
+    return false;
   }
   try { bindOnce(); } catch (e) {}
 

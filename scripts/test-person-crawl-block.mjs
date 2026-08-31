@@ -1055,7 +1055,7 @@ section("9 · the engines did not move");
 // passing quietly.
 {
   const ENGINES = [
-    "alignment-tool.js", "consistency.js", "voting-record.js",
+    "alignment-tool.js", "consistency.js",
     "say-vs-do.js", "exec-record.js", "stance-helpers.js",
     "publication-floor.js", "cmp-data.js", "issue-colors.js",
     "netlify/lib/vr-pack.ts", "netlify/lib/vr-normalize.ts", "db/issue-keys.json",
@@ -1076,6 +1076,59 @@ section("9 · the engines did not move");
   } else {
     ok(compared >= 10, `the engine set was read from HEAD (${compared} files)`);
     eq(moved, [], "Direction Match, the formal-pattern engines, the packs and the roster are byte-identical to HEAD");
+  }
+
+  // ── voting-record.js: PINNED EVERYWHERE EXCEPT THE ONE LINE THE ARRIVAL GOES
+  // THROUGH. It was in the list above until the seed brief had to learn when to
+  // stand down, and the fix is a single dispatch inside noteMember(): the one
+  // place every path that puts a member's rows in memory arrives at, and
+  // therefore the only place that can announce it for all of them. Nothing else
+  // in the file may move — the request path, the pack, the drain queue and the
+  // counts are what the whole record surface is built on — so the method is cut
+  // out on both sides at its own boundaries and everything around it is compared
+  // byte for byte, which is stricter than the blanket hash was for the other 99%
+  // of the file.
+  {
+    const VR_NOW = R("voting-record.js");
+    let headVR = null;
+    try {
+      headVR = execFileSync("git", ["show", "HEAD:voting-record.js"], { cwd: ROOT, encoding: "utf8" });
+    } catch { /* no baseline here */ }
+    if (!headVR) {
+      console.log("      (no git baseline available — voting-record.js shape not checked in this environment)");
+    } else {
+      const cut = (src) => {
+        const a = src.indexOf("    noteMember: function (id, items) {");
+        const b = src.indexOf("\n    memberRecords: function (id)", a);
+        must(a !== -1 && b > a, "voting-record.js's noteMember/memberRecords pair no longer reads as written");
+        return { before: src.slice(0, a), body: src.slice(a, b), after: src.slice(b) };
+      };
+      const ha = cut(headVR), hb = cut(VR_NOW);
+      eq(sha(ha.before), sha(hb.before),
+        "everything in voting-record.js above noteMember() is byte-identical to HEAD");
+      eq(sha(ha.after), sha(hb.after),
+        "…and everything below it — the batch fetch, the pack, the drain queue, the counts — as well");
+      // And inside the method: everything it did at HEAD it still does, named one
+      // claim at a time rather than compared line by line — the cache write now
+      // goes through a local `key` so the previous answer can be read for the
+      // transition test, which is a different line for the same store.
+      const code = hb.body.replace(/^\s*\/\/.*$/gm, "").replace(/\n\s*\n/g, "\n");
+      has(code, "if (!id || !Array.isArray(items)) return;",
+        "noteMember() no longer refuses a non-array payload");
+      has(code, "canonPid(id)", "…or no longer canonicalises the id it stores under");
+      has(code, "= items.slice()", "…or no longer copies the rows instead of holding the caller's array");
+      has(code, "window.PDXDataChanged()", "…or no longer bumps the derivation epoch every cached read keys on");
+      // The store is written exactly once, under the canonical key and nowhere else.
+      const writes = (code.match(/this\._records\[[^\]]+\] =/g) || []);
+      eq(writes.length, 1, "noteMember() writes the record store more than once");
+      has(writes[0], "key", "…and the one write is not through the canonicalised key");
+      has(code, "var key = canonPid(id);", "…which is where that key comes from");
+      has(code, "'pdx-record-noted'", "noteMember() does not announce the arrival it just took");
+      has(code, "had.length < items.length",
+        "…and it announces on every call rather than on a transition, which is ~950 repaints per homepage render");
+      ok(!/fetch|_state|queue|pack/i.test(code),
+        "noteMember() grew a request, a queue or a pack — it is a cache write and an announcement, nothing else");
+    }
   }
 
   // formal-index.js is deliberately NOT in that list, and the distinction matters.
@@ -1196,19 +1249,42 @@ section("9 · the engines did not move");
       if (A && B) {
         ok(A.fns.size > 100, `word-action.js's top-level functions were located (${A.fns.size} at HEAD)`);
 
-        // The three functions this pass owns. Each one is a sentence about an absent
-        // record, and each one had to learn that "absent" and "not read yet" are
-        // different states:
+        // The three functions the crawl-seed pass owned. Each one is a sentence about
+        // an absent record, and each one had to learn that "absent" and "not read
+        // yet" are different states:
         //   armBriefDeadline   the timeout can now be armed by the index acquiring
         //                      rows, not only by a warm read resolving
         //   briefAbsenceCopy   the empty sentence is last, behind the record checks
         //   briefHeroHtml      an empty shape falls back to the seed rows first
-        const TOUCHED = ["armBriefDeadline", "briefAbsenceCopy", "briefHeroHtml"];
-        // …and the readers it added. All six are pure reads of state that already
-        // existed in the tab: the live member payload, the crawl header's rows, the
-        // static formal index, the pattern index's shape, the settle flag.
+        //
+        // …AND THE SECOND ROUND, which is the pass that made the seed stand down.
+        // The seed brief printed for the life of the document — the header stays in
+        // the DOM (hidden) and a payload the index reads no issue off leaves the
+        // shape empty — so the licence was moved from "the engine has nothing" to
+        // "there is no payload":
+        //   briefSeedHtml      refuses outright once memberRecords(pid) is non-empty
+        //   briefHeroHtml      asks that same question at the decision
+        //   briefAbsenceCopy   releases the wait on the payload, not on a settle
+        //                      that never comes for a file with no stance ledger
+        //   briefLiveN         stamps the clock the 2s release reads
+        //   briefRecordOnHand  asks formalHasRecord instead of re-deriving 'deep'
+        //   formalKnown        four answers, not three — 'thin' joins 'deep'
+        //   bindHero           listens for the arrival, tolerates an aliased id, and
+        //                      does not go deaf on a host that has not landed yet
+        //   shapeMatchHtml     the SAME two sentences, asked by name; see the note
+        //                      over the byte-identity list below
+        const TOUCHED = ["armBriefDeadline", "briefAbsenceCopy", "briefHeroHtml",
+          "briefSeedHtml", "briefLiveN", "briefRecordOnHand", "formalKnown",
+          "bindHero", "shapeMatchHtml"];
+        // …and the readers the two passes added. Every one is a pure read of state
+        // that already existed in the tab — the live member payload, the crawl
+        // header's rows, the static formal index, the pattern index's shape, the
+        // settle flag, the wall clock — or, in armPayloadDeadline's case, the one
+        // timer that stops the arriving sentence from being the last word.
         const ADDED = ["briefLiveN", "briefSeedRows", "briefRecordOnHand",
-          "briefShaped", "briefSettled", "briefSeedHtml"];
+          "briefShaped", "briefSettled", "briefSeedHtml",
+          "formalHasRecord", "nowMs", "stampLive", "liveHeldMs",
+          "armPayloadDeadline", "evForPid"];
 
         const changed = [], added = [], removed = [];
         for (const [k, v] of A.fns) {
@@ -1225,8 +1301,22 @@ section("9 · the engines did not move");
         // Named individually as well as covered by the set above, because these are the
         // ones the brief said not to touch and a reader of this file should be able to
         // see them checked by name.
+        // shapeMatchHtml IS NO LONGER IN THIS LIST, and the reason is worth stating
+        // where the exception is taken. Its two loading sentences split on whether
+        // the shipped index holds a record for this person, and they asked for that
+        // by testing `formalKnown(pid) === 'deep'`. formalKnown gained a fourth
+        // answer in this pass ('thin', for a file the index counts acts for across
+        // fewer than eight distinct measures), so leaving that literal in place
+        // would have CHANGED Direction Match's copy on those files — the opposite of
+        // what the brief asked for. Both sites now put the question by its own name,
+        // formalHasRecord(), which is 'deep' or 'thin'. The bytes moved so the
+        // behaviour would not, and the behaviour is proved rather than asserted:
+        // scripts/test-seed-yields-to-record.mjs boots HEAD's word-action.js beside
+        // the working copy and compares the rendered Direction Match block for every
+        // roster member whose read is warming — the only state these lines are
+        // reachable in.
         for (const f of ["read", "scopedRead", "issueRead", "heroRead", "ringDash",
-          "shapeMatchHtml", "shapeRead", "recordDepth", "mappedUnits", "judgedOf"]) {
+          "shapeRead", "recordDepth", "mappedUnits", "judgedOf"]) {
           if (!A.fns.has(f)) { ok(false, `word-action.js still defines ${f}()`); continue; }
           eq(sha(A.fns.get(f)), sha(B.fns.get(f) || ""),
             `${f}() is byte-identical to HEAD — Direction Match and the floors did not move`);
@@ -1234,13 +1324,39 @@ section("9 · the engines did not move");
 
         // Everything outside a function: the FRAME copy table that names the metric, the
         // tier weights, SHAPE_MIN / SHAPE_MIN_READ, HERO_REPAINT. Comments are stripped
-        // because this pass wrote a long one explaining the defect, and the new SEED_NOTE
-        // declaration is set aside by name — it is the seed brief's disclosure line and
-        // the only top-level value added.
+        // because this pass wrote a long one explaining the defect, and the declarations
+        // the two passes ADDED are set aside by name — each one listed here, so a value
+        // that appears without being named in this test still fails.
+        //
+        //   SEED_NOTE          the seed brief's disclosure line
+        //   FORMAL_DEEP_MIN    the measure count that tells 'deep' from 'thin'
+        //   PAYLOAD_GRACE_MS   how long a landed payload may still be "arriving"
+        //   _liveAt/_liveTimer the payload clock and its one timer
+        //   MAPPED_GAP_COPY    the mapping-gap sentence, quoted once
+        //   HERO_REPAINT       gained 'pdx-record-noted' — the arrival announcing
+        //                      itself, which is the event that ends the seed. The
+        //                      three it already carried are asserted unchanged
+        //                      beside it rather than being waved through.
+        const REPAINT_RE = /\n\s*var HERO_REPAINT = \[[\s\S]*?\];\n/;
+        for (const src of [A.rest, B.rest]) {
+          const m = src.match(REPAINT_RE);
+          must(m, "word-action.js no longer declares HERO_REPAINT as a literal list");
+          for (const ev of ["pdx-consistency-warm", "pdx-voting-warm", "pdx-brief-timeout"]) {
+            has(m[0], ev, `HERO_REPAINT lost ${ev} — a surface that used to repaint no longer does`);
+          }
+        }
+        has(B.rest.match(REPAINT_RE)[0], "pdx-record-noted",
+          "HERO_REPAINT does not listen for the arrival itself, so a payload that lands " +
+          "without a lane event repaints nothing");
         const bare = (src) => src
           .replace(/\/\*[\s\S]*?\*\//g, "")
           .replace(/^\s*\/\/.*$/gm, "")
           .replace(/\n\s*var SEED_NOTE = [\s\S]*?';\n/g, "\n")
+          .replace(/\n\s*var MAPPED_GAP_COPY = [\s\S]*?';\n/g, "\n")
+          .replace(/\n\s*var FORMAL_DEEP_MIN = [^\n]*\n/g, "\n")
+          .replace(/\n\s*var PAYLOAD_GRACE_MS = [^\n]*\n/g, "\n")
+          .replace(/\n\s*var _liveAt = [^\n]*\n/g, "\n")
+          .replace(REPAINT_RE, "\n")
           .replace(/\n\s*\n/g, "\n").trim();
         const xa = bare(A.rest), xb = bare(B.rest);
         ok(xa.length > 3000, "the file's top-level constants were isolated from its functions");

@@ -5438,6 +5438,64 @@
       return '<span class="profile-rec-chips" data-pdx-recchips="' + uid + '">' + html + '</span>';
     };
 
+    // ── 🏛 THE FLAT FORMAL LIST'S LATE HOST ───────────────────────────────────
+    // Its gate (FPI.count(id) >= 8) is a question about a read that has usually
+    // not happened at first paint. `_atlasLateHost` is what the gate returns
+    // INSTEAD of '' when the file demonstrably has a record — memberRecords rows
+    // in memory, or acts on the shipped static index — so the block has somewhere
+    // to appear once the read lands. Neither test is a stance ledger: the
+    // identity-only members this pass is about carry no stated positions at all,
+    // and coverage.scorable is asked nowhere here.
+    const _atlasExpected = function () {
+      try {
+        var VR = window.PDXVotingRecord;
+        var rows = (VR && typeof VR.memberRecords === 'function') ? VR.memberRecords(id) : null;
+        if (rows && rows.length) return true;
+      } catch (e) {}
+      try {
+        var FX = window.PDXFormalIndex;
+        if (FX && typeof FX.has === 'function' && FX.has(id)) return true;
+      } catch (e) {}
+      return false;
+    };
+    // Re-render THE SAME BLOCK, gate included, into the host. The renderer is
+    // passed in by the block itself so there is one copy of that markup and one
+    // copy of that gate; a second implementation here is how two surfaces come to
+    // disagree about how many rows are on file.
+    const _bindAtlasLate = function (uid, render) {
+      if (!window.addEventListener) return;
+      var evs = ['pdx-consistency-warm', 'pdx-voting-warm', 'pdx-record-noted'];
+      var seen = false;
+      var h = function (ev) {
+        var host = document.querySelector('[data-pdx-atlas-late="' + uid + '"]');
+        // Not in the document yet is not the same as gone: this arms from a
+        // setTimeout beside markup the caller is still assembling.
+        if (!host) { if (seen) evs.forEach(function (n) { window.removeEventListener(n, h); }); return; }
+        seen = true;
+        if (ev && ev.detail && ev.detail.pid && ev.detail.canon &&
+            String(ev.detail.pid) !== String(id) && String(ev.detail.canon) !== String(id)) return;
+        if (ev && ev.detail && ev.detail.pid && !ev.detail.canon &&
+            String(ev.detail.pid) !== String(id)) return;
+        var html = '';
+        try { html = render(false) || ''; } catch (e) { html = ''; }
+        // Only ever fill; never blank a block that is already on screen, and stop
+        // listening once it is, because the gate cannot un-pass.
+        if (html) {
+          try { host.outerHTML = html; } catch (e) { return; }
+          evs.forEach(function (n) { window.removeEventListener(n, h); });
+        }
+      };
+      evs.forEach(function (n) { window.addEventListener(n, h); });
+      try { setTimeout(function () { h(null); }, 0); } catch (e) {}
+    };
+    let _atlasRender = function (/* mayHost */) { return ''; };
+    const _atlasLateHost = function (countedNow) {
+      if (countedNow > 0 || !_atlasExpected()) return '';
+      var uid = ('atlaslate-' + String(id) + '-' + Date.now()).replace(/[^A-Za-z0-9_-]/g, '');
+      try { setTimeout(function () { _bindAtlasLate(uid, _atlasRender); }, 0); } catch (e) {}
+      return '<div data-pdx-atlas-late="' + uid + '" hidden></div>';
+    };
+
     // Assemble full modal content.
     //
     // The body below is written in the order these sections were BUILT; it is
@@ -5890,7 +5948,7 @@
            scripts/test-no-second-score.mjs still holds. A pattern read here is never
            a stated position and never enters Direction Match; the list prints that
            wall at its own foot. -->
-      ${(function () {
+      ${(_atlasRender = function (mayHost) {
         try {
           var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
           if (!FPI || typeof FPI.html !== 'function') return '';
@@ -5901,7 +5959,21 @@
           // already showing.
           var FACE_MIN = 8;
           var n = (typeof FPI.count === 'function') ? (FPI.count(id) || 0) : 0;
-          if (n < FACE_MIN) return '';
+          // …AND THE GATE IS READ ONCE, WHILE THE RECORD IS STILL ARRIVING.
+          // count() reads the roll-call index, which on a cold /p/<pid> holds
+          // nothing yet — so a member with ninety acts on file counts ZERO here,
+          // fails the depth gate, and the block returns '' into a template string
+          // that is rendered exactly once. The record lands a second later with
+          // nothing to land into. That is the mount bug, not a thin file.
+          //
+          // So a failed gate leaves a HOST behind whenever the file has a record
+          // that this surface has simply not read yet: rows already in memory, or
+          // acts counted by the shipped static index. The host fills itself on the
+          // same repaint set the letterhead and the chips use, re-running this
+          // exact gate against the read that has since arrived — so nothing prints
+          // below FACE_MIN, and a deep file stops depending on the order two
+          // asynchronous things happened in.
+          if (n < FACE_MIN) return mayHost ? _atlasLateHost(n) : '';
           // `mount` names this instance. The overlay renders the same index for the
           // same person, and both can be in the DOM at once — the key is what keeps
           // their row ids distinct and stops a filter tap in one from re-filtering
@@ -5938,7 +6010,7 @@
               '<div class="pdxfpi-flat-b pdxfpi-face">' + html + '</div>' +
             '</details>';
         } catch (e) { return ''; }
-      })()}
+      }, _atlasRender(true))}
 
       <!--PDXSP:verdict-->
       <!-- 🌱 WHY THIS RECORD IS THIN — the last thing in the verdict stage, and
