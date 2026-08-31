@@ -1,7 +1,7 @@
 {
   "_comment": "bioguide -> roster slug for the Voting Record ingest. Regenerate with scripts/vr-gen-member-map.mjs. The ingest reads `map`; `members` is for human review only. Roster scope is db/vr-roster-admitted.json.",
-  "count": 221,
-  "serving119": 212,
+  "count": 224,
+  "serving119": 215,
   "annotated": true,
   "unadmittedPortraits": 0,
   "map": {
@@ -9,6 +9,7 @@
     "A000371": "aguilar",
     "A000375": "arrington",
     "A000382": "alsobrooks",
+    "A000383": "alan_armstrong",
     "B000740": "stephanie_bice",
     "B000825": "boebert",
     "B001230": "tammy_baldwin",
@@ -96,8 +97,10 @@
     "H001068": "jared_huffman",
     "H001072": "french_hill",
     "H001076": "maggie_hassan",
+    "H001079": "hyde_smith",
     "H001082": "kevin_hern",
     "H001089": "hawley",
+    "H001104": "jon_husted",
     "J000289": "jim_jordan",
     "J000293": "ron_johnson",
     "J000294": "jeffries",
@@ -253,6 +256,15 @@
       "chamber": "house",
       "state": "CA",
       "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "A000383",
+      "slug": "alan_armstrong",
+      "name": "Alan Armstrong",
+      "chamber": "senate",
+      "state": "OK",
+      "party": "Republican",
       "serving119": true
     },
     {
@@ -994,6 +1006,15 @@
       "serving119": true
     },
     {
+      "bioguide": "H001079",
+      "slug": "hyde_smith",
+      "name": "Cindy Hyde-Smith",
+      "chamber": "senate",
+      "state": "MS",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "A000148",
       "slug": "jake_auchincloss",
       "name": "Jake Auchincloss",
@@ -1107,6 +1128,15 @@
       "name": "John Cornyn",
       "chamber": "senate",
       "state": "TX",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "H001104",
+      "slug": "jon_husted",
+      "name": "Jon Husted",
+      "chamber": "senate",
+      "state": "OH",
       "party": "Republican",
       "serving119": true
     },
