@@ -280,7 +280,7 @@ const rec = (o) => Object.assign({
   ok(/__pdxVrhiBound/.test(PF),
      "the warm listeners are bound unguarded — profiles-full.js re-evaluated would stack duplicates");
   // And the signal exists on the other side.
-  const noteAt = VR.indexOf("PDXVotingRecord.noteMember(job.id, _state.items)");
+  const noteAt = VR.indexOf("PDXVotingRecord.noteMember(job.id, _state.items,");
   ok(noteAt !== -1 && /pdx-voting-warm/.test(VR.slice(noteAt, noteAt + 900)),
      "voting-record.js warms the sync cache without announcing it, so a surface built before the fetch landed\n" +
      "    has no way to know it can stop guessing");

@@ -161,10 +161,22 @@ const stale = (pid) => {
   must(flipped === 1, `${pid}: the fixture flipped ${flipped} mappings, expected exactly 1`);
   return items;
 };
-const payload = (items) => ({
+// `extra` is where a fixture names its provenance: the live read carries
+// `mappingVersion`, a pack carries `pack: true` and the generation it was built
+// from. Both are fields the shipping payloads really have — see getMember and
+// buildMemberPack.
+const payload = (items, extra) => Object.assign({
   items, generatedAt: "2026-08-29T02:24:59.038Z",
   summary: { totalRecords: items.length },
-});
+}, extra || {});
+// The two generations of the F4 story: the mapping before the promote, and after.
+// Fingerprints, not a sequence — they are deliberately not orderable, because the
+// guard being tested must not assume they are.
+const GEN_OLD = "m894-9c3f10ab77de";
+const GEN_NEW = "m894-e21bb4b7021e";
+const livePayload = (pid) => payload(fresh(pid), { mappingVersion: GEN_NEW });
+const packPayload = (pid, gen) =>
+  payload(stale(pid), { pack: true, mappingVersion: gen });
 const primaryFlag = (win, pid) => {
   const recs = win.PDXVotingRecord.memberRecords(pid) || [];
   for (const it of recs) {
@@ -548,6 +560,107 @@ section("4 · read and refusal stay exclusive · packaging is disclosed, not dis
   console.log(`      ${viaDisplayAny} display-lane reads at any tier, every one read by the dossier`);
   console.log(`      ${pkgBorne} published reads stand on primary=0 — ${JSON.stringify(pkgTier)} — every one disclosed and counted in full`);
   console.log(`      ${pkgLoud} of them reached a characterising tier, and ${incid} rows carry the retired incidental refusal`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("5 · a pack of another generation may not apply over a noted live read");
+// ═════════════════════════════════════════════════════════════════════════════
+// Section 2 holds the RACE: a pack cannot seed while a live read is in flight or
+// resolved, because fetchPack asks _packMaySeed on arrival. This section holds the
+// path that guard does not sit in front of — the caller that fetched the pack
+// deliberately, as the offline fallback, and seeds what it renders:
+//
+//   PDXVotingRecord.noteMember(job.id, _state.items, PDXVotingRecord._payloadGen(data))
+//
+// That seed has to keep working (offline, the pack IS the answer) and must not be
+// able to file a photograph of an older mapping over a live read this device has
+// already been shown. The server cannot help here: no request is made on that
+// path at all — the service worker answers it from its own cache — so the
+// versioned key and the 302 never come into play. What decides it is the
+// generation each payload declares.
+//
+// "OLDER" IS ENFORCED AS "DIFFERENT", and deliberately. A generation is an md5 of
+// the mapping table's contents; m894-9c3f10ab77de does not sort against
+// m894-e21bb4b7021e, and a client that tried to rank them would be inventing an
+// order the server never promised. A pack whose generation is not the one the live
+// read reported is not the mapping the reader was just shown, which is the whole
+// question.
+{
+  section("   · the live read has landed → the pack is refused, and says so");
+  const win = mute(boot());
+  const net = stub(win);
+  const VR = win.PDXVotingRecord;
+
+  const liveP = VR.fetchMember("curtis", { pageSize: 100 });
+  net.deliver("curtis", "live", livePayload("curtis"));
+  const live = await liveP;
+  VR.noteMember("curtis", live.items, VR._payloadGen(live));
+  eq(VR._payloadGen(live), "", "a live payload declares no pack generation");
+  eq(VR.recordGeneration("curtis"), "live", "so the rows are filed as live rows");
+  eq(VR._liveGen.curtis, GEN_NEW, "and the generation the live read reported is on file");
+  eq(primaryFlag(win, "curtis"), true, "the live read seeded the promotion");
+
+  // THE OFFLINE FALLBACK'S OWN SEED, with a pack built before the promote.
+  const old = packPayload("curtis", GEN_OLD);
+  eq(VR._payloadGen(old), GEN_OLD, "the pack declares the generation it was built from");
+  eq(VR.noteMember("curtis", old.items, VR._payloadGen(old)), false,
+    "THE ACCEPTANCE: noteMember refuses a pack of another generation over a live read");
+  eq(primaryFlag(win, "curtis"), true, "the live row wins — the promotion is still on file");
+  eq(VR.recordGeneration("curtis"), "live", "and the rows are still the live ones");
+  eq(VR._packMaySeed("curtis", GEN_OLD), false, "fetchPack would refuse it too");
+
+  // A PRE-VERSIONING BLOB, still sitting in some device's cache with no generation
+  // on it at all. It cannot match a live read and must not be allowed to try.
+  const ancient = payload(stale("curtis"), { pack: true });
+  eq(VR._payloadGen(ancient), "m0-unknown", "a pack with no generation reads as the sentinel");
+  eq(VR.noteMember("curtis", ancient.items, VR._payloadGen(ancient)), false,
+    "and is refused over the live read as well");
+  eq(primaryFlag(win, "curtis"), true, "the live row still wins");
+
+  section("   · nothing live on file → the pack still seeds, generation and all");
+  // The regression this guard must not become. Same fixture, no live read: the
+  // offline reader gets the pack, and _records says honestly where it came from.
+  const w2 = mute(boot());
+  const n2 = stub(w2);
+  const V2 = w2.PDXVotingRecord;
+  const packP = V2.fetchPack("lee");
+  const chain = V2.fetchMember("lee", { pageSize: 100 }).then((d) => d || packP);
+  n2.deliver("lee", "live", null);                     // offline
+  n2.deliver("lee", "pack", packPayload("lee", GEN_OLD));
+  const resolved = await chain;
+  ok(!!resolved && Array.isArray(resolved.items), "offline: the pack is still the payload");
+  eq(V2.noteMember("lee", resolved.items.slice(), V2._payloadGen(resolved)), true,
+    "offline: and the caller's seed still goes through — a failed live read vetoes nothing");
+  eq(V2.recordGeneration("lee"), GEN_OLD, "offline: filed under the pack's own generation");
+  eq(primaryFlag(w2, "lee"), false, "offline: honestly the snapshot, not a forgery");
+
+  section("   · a live read that arrives later still wins");
+  // The other arrival order on the same device: the pack is in hand, then the
+  // network comes back. A live payload is never refused.
+  const liveLater = livePayload("lee");
+  eq(V2.noteMember("lee", liveLater.items, V2._payloadGen(liveLater)), true,
+    "a live payload may always be filed, whatever the pack left behind");
+  eq(V2.recordGeneration("lee"), "live", "and takes over the row");
+  eq(primaryFlag(w2, "lee"), true, "with the promotion the pack did not have");
+  // …and now the same pack cannot come back.
+  eq(V2.noteMember("lee", packPayload("lee", GEN_OLD).items, GEN_OLD), false,
+    "after which the older pack is refused, in this order too");
+
+  section("   · same generation, no live rows: the pack may seed");
+  // The rule is about disagreement, not about packs. A pack that names the SAME
+  // generation the live read reported is a photograph of the mapping the reader
+  // was shown, so once the live rows are gone (clearCache) it may stand in.
+  const w3 = mute(boot());
+  const V3 = w3.PDXVotingRecord;
+  const l3 = livePayload("curtis");
+  V3._noteLiveGen("curtis", l3);
+  V3.noteMember("curtis", l3.items);
+  V3.clearCache();
+  eq(V3.recordGeneration("curtis"), "", "clearCache drops the rows");
+  eq(V3._liveGen.curtis, undefined, "…and the generation claim that went with them");
+  eq(V3.noteMember("curtis", packPayload("curtis", GEN_OLD).items, GEN_OLD), true,
+    "so a pack may seed an offline open again after a cache clear");
+  console.log("      live wins · offline still seeds · a later live read takes over");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

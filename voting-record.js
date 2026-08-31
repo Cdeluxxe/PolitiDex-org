@@ -321,6 +321,11 @@
         .then(function (data) {
           clear();
           perf('vr-data');
+          // WHICH MAPPING THIS ANSWER IS OF. Recorded on arrival, for every live
+          // read — including one adopted from the head prefetch or resolved from
+          // the session copy below, which are the two paths a cold profile open
+          // actually takes. It is what a pack is later measured against.
+          PDXVotingRecord._noteLiveGen(id, data);
           // Keep the profile's first page for back/forward. Skipped when this
           // page CAME from the session copy, so a reader bouncing between two
           // files cannot keep renewing one entry past its five minutes.
@@ -437,6 +442,11 @@
       // Including the live-read claims: dropping the answers has to drop the
       // reservations, or the pack could never seed an offline open again.
       this._liveRead = {};
+      // …and the generations that went with them. A live generation is a statement
+      // about an answer this session holds; dropping the answers drops the
+      // statement, or a pack could never seed an offline open again.
+      this._liveGen = {};
+      this._recordGen = {};
       // Dropping the records changes every derived read that used them.
       try { if (typeof window.PDXDataChanged === 'function') window.PDXDataChanged(); } catch (e) {}
     },
@@ -453,11 +463,31 @@
     // verdict and bucket on a profile is derived partly from this record, and the
     // caches that hold those derivations are only allowed to be stale until this
     // line runs. See THE DERIVATION EPOCH in stance-helpers.js.
-    noteMember: function (id, items) {
-      if (!id || !Array.isArray(items)) return;
+    noteMember: function (id, items, gen) {
+      if (!id || !Array.isArray(items)) return false;
       var key = canonPid(id);
+      // ── THE GATE, WHERE EVERY PATH TO _records ALREADY PASSED ────────────────
+      // fetchPack has its own check (_packMaySeed, asked at arrival because that
+      // is when the race is decided) and it covers the fire-and-forget warm-up.
+      // This covers the other way a pack gets filed: a CALLER that fetched the
+      // pack deliberately, as the offline fallback, and then seeds what it
+      // renders. That seed used to be unconditional, so a device holding a
+      // service-worker pack from before a mapping wave could still file it over
+      // the live read it had already been shown — the last shape of the F4 bug the
+      // versioned key cannot reach, because on that path no request is made at all.
+      //
+      // Refusing costs the offline reader nothing: the section renders from the
+      // payload in hand either way, and what changes is only which of the two sets
+      // of rows the sync cache keeps. It keeps the live one. See THE MAPPING
+      // GENERATION, AS THE CLIENT SEES IT for why the test is "different
+      // generation" and not "older generation".
+      var src = gen ? String(gen) : this._LIVE_GEN;
+      if (src !== this._LIVE_GEN && !this._packMayApply(key, src)) return false;
       var had = this._records[key];
       this._records[key] = items.slice();
+      // Provenance travels with the rows, so a later payload can be judged against
+      // what is actually held rather than against arrival order alone.
+      this._recordGen[key] = src;
       try { if (typeof window.PDXDataChanged === 'function') window.PDXDataChanged(); } catch (e) {}
       // ── THE ARRIVAL, ANNOUNCED WHERE IT HAPPENS ─────────────────────────────
       // WHY A SECOND EVENT. 'pdx-voting-warm' is fired by the two CALLERS that
@@ -490,8 +520,13 @@
           }));
         }
       } catch (e) {}
+      return true;
     },
     memberRecords: function (id) { return this._records[canonPid(id)] || null; },
+    // Which mapping generation the rows in hand came from — 'live' for a live
+    // read, a pack's own generation for a pack. Read by the tests and by anything
+    // that needs to say out loud what it is looking at.
+    recordGeneration: function (id) { return this._recordGen[canonPid(id)] || ''; },
 
     // ── Batched side-by-side fetch for the comparison surfaces ──────────────────
     // GET /api/voting-record/compare?members=a,b,c → { members, issue, matrix }.
@@ -552,10 +587,84 @@
     // offline path there is no live answer to protect, so the seed goes through.
     _liveRead: {},
     _packCache: new Map(),
-    _packMaySeed: function (id) {
+
+    // ── THE MAPPING GENERATION, AS THE CLIENT SEES IT ───────────────────────────
+    // Both mouths now stamp the mapping generation they were built from into their
+    // payload: `mappingVersion` in the body of /member/:id and of
+    // /member/:id/pack (and on the response as `x-pdx-mapping-version`, which is
+    // the copy sw.js reads). This file reads the BODY, because the body is what
+    // index.html's sessionStorage copy stores and what the Cache API replays — a
+    // header does not survive either.
+    //
+    // WHY THE GUARD ABOVE IS NOT ENOUGH ON ITS OWN. _packMaySeed is checked inside
+    // fetchPack, and it is the whole answer for the fire-and-forget warm-up. It is
+    // not the only way a pack reaches _records: the section's offline fallback
+    // seeds what it renders, by calling noteMember itself (see
+    // _pdxInitVotingRecord), and that call used to be unconditional. It has to
+    // stay possible — offline, the pack IS the answer and nothing else is coming —
+    // but it must not be able to file a photograph of an older mapping over a live
+    // read this device has already been shown.
+    //
+    // GENERATIONS ARE FINGERPRINTS, NOT A COUNTER. m895-d5f70fce2abf does not sort
+    // against m894-…, so "older" is not a question two of them can answer. The
+    // sound question is whether they are the SAME generation: a pack whose
+    // generation is not the one the live read reported is, by construction, not
+    // the mapping table the reader was just shown. So "never apply a pack from an
+    // older generation over a noted live read" ships as "never apply a pack from a
+    // DIFFERENT generation" — the same rule with no ordering assumption in it, and
+    // the strict one when the two disagree about which way time ran.
+    _LIVE_GEN: 'live',
+    // pid → the generation a LIVE read reported. Set on ARRIVAL, never on request:
+    // "a live answer is coming" is _liveRead's job, and the offline path turns on
+    // the difference — a live read that FAILED must not be able to veto the pack
+    // that stands in for it.
+    _liveGen: {},
+    // pid → where the rows currently in _records came from: _LIVE_GEN for anything
+    // the live endpoints produced (/member/:id, /compare, an adopted prefetch), a
+    // pack's own generation otherwise.
+    _recordGen: {},
+
+    // The generation a payload declares, or '' for a live one. Only a pack says
+    // `pack: true`. A pack with no generation on it at all is a pre-versioning
+    // blob still sitting in some device's cache, so it is read as the server's own
+    // unnameable sentinel — a value that can never match a live read, which is
+    // exactly the standing it deserves.
+    _payloadGen: function (data) {
+      if (!data || !data.pack) return '';
+      return String(data.mappingVersion || 'm0-unknown');
+    },
+
+    // File the generation a live payload was built from. Silent when the payload
+    // does not name one (an older deploy still in a CDN, a test stub): the rule
+    // below then falls back to provenance alone, which is what it enforced before
+    // generations existed.
+    _noteLiveGen: function (id, data) {
+      var gen = (data && data.mappingVersion) ? String(data.mappingVersion) : '';
+      if (!gen) return '';
+      this._liveGen[canonPid(id)] = gen;
+      return gen;
+    },
+
+    // May a payload of generation `gen` be filed as this member's record?
+    //   '' (a live payload) always may — the live read is the mapping table.
+    //   a pack may not, if the rows in hand came from a live read at all;
+    //   a pack may not, if a live read for this member has arrived in this session
+    //   under a different generation, even if its rows are no longer held.
+    _packMayApply: function (id, gen) {
+      if (!gen) return true;
+      var key = canonPid(id);
+      if (this._recordGen[key] === this._LIVE_GEN) return false;
+      var live = this._liveGen[key];
+      return !(live && live !== gen);
+    },
+
+    _packMaySeed: function (id, gen) {
       id = canonPid(id);
       if (this._liveRead[id]) return false;   // a live read owns this row
-      return !this._records[id];              // and so does anything already warm
+      if (this._records[id]) return false;    // and so does anything already warm
+      // …and a pack of a generation this device has already seen superseded may
+      // not seed even an empty slot.
+      return this._packMayApply(id, gen || '');
     },
     fetchPack: function (id) {
       id = canonPid(id);
@@ -567,7 +676,11 @@
         .then(function (data) {
           // Checked here, not at call time: the race this closes is decided by
           // which response arrives first, so the question has to be asked late.
-          if (data && Array.isArray(data.items) && self._packMaySeed(id)) self.noteMember(id, data.items);
+          // The generation travels with the seed so _records knows what it holds.
+          var gen = self._payloadGen(data);
+          if (data && Array.isArray(data.items) && self._packMaySeed(id, gen)) {
+            self.noteMember(id, data.items, gen);
+          }
           return data;
         })
         .catch(function () { self._packCache.delete(id); return null; });
@@ -1970,7 +2083,10 @@
       }
       // Warm the sync record cache so the Alignment Tool (and its consistency line)
       // can read this member's votes without its own fetch.
-      PDXVotingRecord.noteMember(job.id, _state.items);
+      // The generation travels with the seed. Live payload → '' (the live read is
+      // the mapping table). Offline pack → its own generation, which noteMember
+      // refuses to file over a live read this device already got for this member.
+      PDXVotingRecord.noteMember(job.id, _state.items, PDXVotingRecord._payloadGen(data));
       // Announce that the sync record cache is now warm for this member, so
       // surfaces built before the fetch landed can read real votes instead of
       // guessing. Deliberately its own event rather than reusing

@@ -275,17 +275,54 @@ section("5. PACK_TTL_MS is roll-call freshness and stays six hours");
 const ttl = (FN_MTS.match(/PACK_TTL_MS = ([^;]+);/) || [])[1] || "";
 eq(ttl.trim(), "6 * 60 * 60 * 1000", "PACK_TTL_MS is unchanged — mapping staleness is fixed by the key, not the clock");
 
-// ── 6. The client guard is untouched ─────────────────────────────────────────
+// ── 6. The client compares generations ──────────────────────────────────────
 // Behaviour is proved by test-record-pack-no-downgrade.mjs, which boots the real
-// file. What is pinned here is that this change stayed additive.
-section("6. voting-record.js is still version-blind and still guarded");
+// file. What is pinned here is the shape of the client's half of the scheme —
+// including the one thing it must NOT do.
+section("6. voting-record.js knows the generation and refuses a mismatch");
 has(CLIENT, "_packMaySeed", "the no-downgrade guard is still present");
 has(CLIENT, "_liveRead", "the live-read claim it stands on is still present");
 has(CLIENT, "'/member/' + encodeURIComponent(id) + '/pack'",
-  "fetchPack still asks for the unversioned URL — the server tells it the version");
-ok(CLIENT.indexOf("mappingVersion") < 0 && CLIENT.indexOf("x-pdx-mapping-version") < 0,
-  "the client does not try to know the mapping version — on a cold open it could not");
+  "fetchPack still asks for the unversioned URL — the server tells it the version by redirect");
 
+// The generation reaches the client in the BODY, not only the header. It has to:
+// index.html copies the live payload into sessionStorage, the Cache API replays it,
+// and a 304 carries no body at all — a header-only channel would be lost at each
+// of those, and the one moment the comparison matters is a first paint served from
+// one of them.
+has(CLIENT, "data.mappingVersion",
+  "the client reads the generation out of the payload body, which survives the session copy");
+has(CLIENT, "_noteLiveGen", "the live read files the generation it reported");
+has(CLIENT, "_packMayApply", "and a pack is asked whether it may apply over it");
+has(CLIENT, "recordGeneration", "…with the answer readable, so a test can see the provenance");
+
+// THE RULE IS "DIFFERENT", NOT "OLDER", and this is the assertion that keeps it
+// that way. A generation is m<rows>-<md5 prefix>: two of them do not sort, and a
+// client that ranked them would be inventing an order the server never promised.
+const guard = CLIENT.slice(CLIENT.indexOf("_packMayApply: function"),
+  CLIENT.indexOf("_packMaySeed: function"));
+must(guard.length > 0, "_packMayApply is not where this test expects it");
+has(guard, "live !== gen", "the comparison is inequality — the generations are compared, not ranked");
+ok(!/[<>]/.test(guard.replace(/\/\/.*$/gm, "")),
+  "the guard does not order two generations — a fingerprint has no older and newer");
+
+// The seed that has no server in front of it. When the service worker answers the
+// pack from its own cache there is no request, no redirect and no header; the only
+// thing standing between an old mapping and the reader is this call passing the
+// pack's own generation in.
+has(CLIENT, "noteMember(job.id, _state.items, PDXVotingRecord._payloadGen(data))",
+  "the offline seed declares the generation it is seeding from");
+const noteFn = CLIENT.slice(CLIENT.indexOf("noteMember: function"),
+  CLIENT.indexOf("memberRecords: function"));
+must(noteFn.length > 0, "noteMember is not where this test expects it");
+has(noteFn, "!this._packMayApply(key, src)) return false",
+  "and noteMember itself refuses — the guard is at the till, not only at the door");
+has(noteFn, "src !== this._LIVE_GEN",
+  "while a live payload is never refused, whatever a pack left behind");
+
+// Both mouths of the API stamp it, so the two halves are comparing the same thing.
+for (const [name, src] of [["/member/:id", FN_MTS], ["the pack", PACK_TS]])
+  has(src, "mappingVersion", `${name} reports the generation it was built from`);
 // ── 7. The service worker ────────────────────────────────────────────────────
 section("7. the service worker is network-first for packs");
 has(SW, "VR_PACK_RE", "packs have their own route in the fetch handler");

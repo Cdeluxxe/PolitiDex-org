@@ -1078,16 +1078,20 @@ section("9 · the engines did not move");
     eq(moved, [], "Direction Match, the formal-pattern engines, the packs and the roster are byte-identical to HEAD");
   }
 
-  // ── voting-record.js: PINNED EVERYWHERE EXCEPT THE ONE LINE THE ARRIVAL GOES
-  // THROUGH. It was in the list above until the seed brief had to learn when to
-  // stand down, and the fix is a single dispatch inside noteMember(): the one
-  // place every path that puts a member's rows in memory arrives at, and
-  // therefore the only place that can announce it for all of them. Nothing else
-  // in the file may move — the request path, the pack, the drain queue and the
-  // counts are what the whole record surface is built on — so the method is cut
-  // out on both sides at its own boundaries and everything around it is compared
-  // byte for byte, which is stricter than the blanket hash was for the other 99%
-  // of the file.
+  // ── voting-record.js: PINNED EVERYWHERE EXCEPT ITS NAMED SEAMS ──────────────
+  // This file is the request path, the pack, the drain queue and the counts the
+  // whole record surface is built on, so it is compared byte for byte against HEAD
+  // — but a blanket hash would forbid the passes it is supposed to survive. Two
+  // have landed: the seed brief learning to stand down (a dispatch inside
+  // noteMember) and the mapping-generation guard (a pack of a superseded mapping
+  // may not be filed over a live read this device already got).
+  //
+  // So the file is cut at SEAMS instead. Each seam is a start and an end anchor
+  // that exists, exactly once, in BOTH versions — the line above the change and the
+  // line below it — which means the harness cannot silently widen: an anchor that
+  // stops being unique fails loudly here rather than quietly excusing a diff. The
+  // spans between seams are hashed; the spans inside them are argued line by line
+  // below. That is stricter than the blanket hash was for the other 99% of the file.
   {
     const VR_NOW = R("voting-record.js");
     let headVR = null;
@@ -1097,23 +1101,57 @@ section("9 · the engines did not move");
     if (!headVR) {
       console.log("      (no git baseline available — voting-record.js shape not checked in this environment)");
     } else {
-      const cut = (src) => {
-        const a = src.indexOf("    noteMember: function (id, items) {");
-        const b = src.indexOf("\n    memberRecords: function (id)", a);
-        must(a !== -1 && b > a, "voting-record.js's noteMember/memberRecords pair no longer reads as written");
-        return { before: src.slice(0, a), body: src.slice(a, b), after: src.slice(b) };
+      // [start, end, what the seam is for]
+      const SEAMS = [
+        ["          perf('vr-data');\n",
+         "          // Keep the profile's first page for back/forward.",
+         "the live read files the generation it arrived under"],
+        ["      this._liveRead = {};\n",
+         "      // Dropping the records changes every derived read that used them.",
+         "clearCache drops the generation claims with the rows"],
+        ["    noteMember: function (id, items",
+         "\n    // ── Batched side-by-side fetch for the comparison surfaces",
+         "noteMember, its announcement and the provenance accessors"],
+        ["    _packCache: new Map(),\n",
+         "\n    // ── Batched issue-scoped read for RANKING",
+         "the generation machinery and fetchPack's arrival check"],
+        ["      // Warm the sync record cache so the Alignment Tool",
+         "      // Announce that the sync record cache is now warm",
+         "the section's own seed, offline pack included"],
+      ];
+      const carve = (src, side) => {
+        let pinned = "", pos = 0;
+        const bodies = [];
+        for (const [a, b, why] of SEAMS) {
+          const i = src.indexOf(a, pos), j = src.indexOf(b, i < 0 ? 0 : i);
+          must(i >= 0 && j > i, `${side}: the seam for ${why} no longer reads as written in voting-record.js`);
+          must(src.split(a).length === 2 && src.split(b).length === 2,
+            `${side}: a seam anchor for ${why} is no longer unique in voting-record.js — widen it, do not loosen it`);
+          pinned += src.slice(pos, i + a.length);
+          bodies.push(src.slice(i, j));
+          pos = j;
+        }
+        return { pinned: pinned + src.slice(pos), bodies };
       };
-      const ha = cut(headVR), hb = cut(VR_NOW);
-      eq(sha(ha.before), sha(hb.before),
-        "everything in voting-record.js above noteMember() is byte-identical to HEAD");
-      eq(sha(ha.after), sha(hb.after),
-        "…and everything below it — the batch fetch, the pack, the drain queue, the counts — as well");
-      // And inside the method: everything it did at HEAD it still does, named one
-      // claim at a time rather than compared line by line — the cache write now
-      // goes through a local `key` so the previous answer can be read for the
-      // transition test, which is a different line for the same store.
-      const code = hb.body.replace(/^\s*\/\/.*$/gm, "").replace(/\n\s*\n/g, "\n");
-      has(code, "if (!id || !Array.isArray(items)) return;",
+      const ha = carve(headVR, "HEAD"), hb = carve(VR_NOW, "now");
+      eq(sha(ha.pinned), sha(hb.pinned),
+        "voting-record.js is byte-identical to HEAD everywhere outside its five named seams " +
+        "— the request path, the drain queue, the counts and the caches did not move");
+      ok(hb.pinned.length > VR_NOW.length * 0.85,
+        `the seams are seams, not a hole: ${hb.pinned.length} of ${VR_NOW.length} bytes are still pinned`);
+
+      // ── seam 1: the live read records which mapping it is an answer of ───────
+      has(hb.bodies[0], "_noteLiveGen(id, data)",
+        "the live arrival no longer files the generation it reported — a pack has nothing to be measured against");
+
+      // ── seam 2: and clearCache releases it ───────────────────────────────────
+      has(hb.bodies[1], "this._liveGen = {}", "clearCache no longer drops the live generation claims");
+      has(hb.bodies[1], "this._recordGen = {}", "…or the provenance of the rows it just dropped");
+
+      // ── seam 3: noteMember, everything it did at HEAD plus the gate ──────────
+      // Named one claim at a time rather than compared line by line.
+      const code = hb.bodies[2].replace(/^\s*\/\/.*$/gm, "").replace(/\n\s*\n/g, "\n");
+      has(code, "if (!id || !Array.isArray(items)) return false;",
         "noteMember() no longer refuses a non-array payload");
       has(code, "canonPid(id)", "…or no longer canonicalises the id it stores under");
       has(code, "= items.slice()", "…or no longer copies the rows instead of holding the caller's array");
@@ -1126,8 +1164,40 @@ section("9 · the engines did not move");
       has(code, "'pdx-record-noted'", "noteMember() does not announce the arrival it just took");
       has(code, "had.length < items.length",
         "…and it announces on every call rather than on a transition, which is ~950 repaints per homepage render");
-      ok(!/fetch|_state|queue|pack/i.test(code),
-        "noteMember() grew a request, a queue or a pack — it is a cache write and an announcement, nothing else");
+      // THE GATE. A pack is judged; a live payload never is.
+      has(code, "!this._packMayApply(key, src)) return false",
+        "noteMember() no longer refuses a pack of a superseded mapping — the offline seed is a hole again");
+      has(code, "src !== this._LIVE_GEN",
+        "…and it must judge only packs: a live payload is the mapping table and is never refused");
+      has(code, "this._recordGen[key] = src",
+        "…filing what the rows are, so the next payload is judged against what is held");
+      has(code, "memberRecords: function (id) { return this._records[canonPid(id)] || null; }",
+        "the sync accessor beside it did move");
+      has(code, "recordGeneration: function (id)", "…and the provenance of those rows is not readable");
+      // Still a cache write, an announcement and now one comparison — nothing else.
+      const naked = code.replace(/_packMayApply|_packMaySeed|_LIVE_GEN/g, "");
+      ok(!/fetch|_state|queue|pack/i.test(naked),
+        "noteMember() grew a request, a queue or a pack fetch — it decides and files, nothing more");
+
+      // ── seam 4: the generation machinery, and the pack's own check ───────────
+      const gens = hb.bodies[3];
+      has(gens, "_payloadGen: function (data)", "the generation of a payload is no longer read from the payload");
+      has(gens, "data.pack", "…and a live payload is no longer told apart from a pack by what it says it is");
+      has(gens, "m0-unknown",
+        "…a pre-versioning pack with no generation on it no longer reads as the unmatchable sentinel");
+      has(gens, "_packMaySeed(id, gen)", "fetchPack no longer passes the generation to its own guard");
+      has(gens, "self.noteMember(id, data.items, gen)", "…or no longer hands it on to the seed");
+      has(gens, "'/member/' + encodeURIComponent(id) + '/pack'",
+        "fetchPack no longer asks for the unversioned pack URL — the server owns the version, by redirect");
+      // The one thing the client must NOT do: rank two fingerprints.
+      const guard = gens.slice(gens.indexOf("_packMayApply: function"), gens.indexOf("_packMaySeed: function"));
+      must(guard.length > 0, "_packMayApply is no longer where this harness expects it");
+      ok(!/[<>]/.test(guard.replace(/^\s*\/\/.*$/gm, "")),
+        "the guard orders two generations — a content fingerprint has no older and no newer");
+
+      // ── seam 5: the section's own seed still declares its source ─────────────
+      has(hb.bodies[4], "noteMember(job.id, _state.items, PDXVotingRecord._payloadGen(data))",
+        "the section seeds the record cache without saying which mapping the payload is of");
     }
   }
 
