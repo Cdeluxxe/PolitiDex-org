@@ -1055,7 +1055,7 @@ section("9 · the engines did not move");
 // passing quietly.
 {
   const ENGINES = [
-    "alignment-tool.js", "consistency.js", "word-action.js", "voting-record.js",
+    "alignment-tool.js", "consistency.js", "voting-record.js",
     "say-vs-do.js", "exec-record.js", "stance-helpers.js",
     "publication-floor.js", "cmp-data.js", "issue-colors.js",
     "netlify/lib/vr-pack.ts", "netlify/lib/vr-normalize.ts", "db/issue-keys.json",
@@ -1109,6 +1109,144 @@ section("9 · the engines did not move");
       const a = logic(headFI), b = logic(R("formal-index.js"));
       ok(a.length < headFI.length, "the generated tables were located and set aside");
       eq(sha(a), sha(b), "formal-index.js's reader logic is byte-identical to HEAD — only counts moved");
+    }
+  }
+
+  // word-action.js is the second deliberate exclusion, for the same reason and by the
+  // same method as formal-index.js above: this pass had to change it. The cold /p/<pid>
+  // brief is rendered here, and the whole point of the pass was that a cold arrival must
+  // stop printing "No formal pattern on file yet" over a record the header above it had
+  // already listed. Pinning the file to HEAD would say the change is forbidden, which is
+  // false; deleting the pin would say nothing in the file matters, which is worse — the
+  // Direction Match arithmetic, the copy FRAME, the floors and the repaint list all live
+  // in this file, inches from the lines that moved.
+  //
+  // So the pin is narrowed to a shape rather than a hash, and the shape is strict: the
+  // file's top-level functions are lifted out on both sides and compared one by one, and
+  // everything that is NOT inside a top-level function — every constant, the FRAME copy
+  // table, SHAPE_MIN, HERO_REPAINT — is compared as a whole. A change is allowed only if
+  // it is one of the named brief-path functions this pass owns. Anything else moving,
+  // anywhere in eighty-odd kilobytes, fails here.
+  {
+    // A brace scanner that also knows about regex literals. word-action.js contains
+    // /data-pdxwa="([^"]+)"/ inside sectionHtml(), and a scanner that reads that
+    // double-quote as a string opener swallows the rest of the file in silence — which
+    // looks exactly like "one enormous function, unchanged".
+    const RE_OK = "(,=:[!&|?{};+-~*%^<>\n\t ";
+    const scanFn = (src, head) => {
+      let i = src.indexOf("{", head), depth = 0, prev = "";
+      for (; i < src.length; i++) {
+        const c = src[i], n = src[i + 1];
+        if (c === "/" && n === "/") { i = src.indexOf("\n", i); if (i < 0) break; continue; }
+        if (c === "/" && n === "*") { i = src.indexOf("*/", i) + 1; continue; }
+        if (c === "/" && RE_OK.includes(prev)) {
+          let j = i + 1, cls = false;
+          for (; j < src.length; j++) {
+            const d = src[j];
+            if (d === "\\") { j++; continue; }
+            if (d === "[") cls = true;
+            else if (d === "]") cls = false;
+            else if (d === "/" && !cls) break;
+            else if (d === "\n") { j = -1; break; }
+          }
+          if (j > 0) { i = j; prev = "/"; continue; }
+        }
+        if (c === "'" || c === '"' || c === "`") {
+          let j = i + 1;
+          for (; j < src.length; j++) { const d = src[j]; if (d === "\\") { j++; continue; } if (d === c) break; }
+          i = j; prev = c; continue;
+        }
+        if (c === "{") depth++;
+        else if (c === "}") { depth--; if (depth === 0) { i++; break; } }
+        if (!/\s/.test(c)) prev = c;
+      }
+      return { text: src.slice(head, i), end: i, depth };
+    };
+    // Top level means exactly two spaces of indent: word-action.js is one IIFE, and
+    // anything deeper is a closure inside a function this scan already captured whole.
+    const fnMap = (src, side) => {
+      const fns = new Map(), spans = [], torn = [];
+      const re = /\n  function ([A-Za-z0-9_$]+)\s*\(/g;
+      let m;
+      while ((m = re.exec(src))) {
+        const head = m.index + 1;
+        const f = scanFn(src, head);
+        if (f.depth !== 0) { torn.push(m[1]); continue; }
+        fns.set(m[1], f.text);
+        spans.push([head, f.end]);
+        re.lastIndex = f.end;
+      }
+      // A torn scan is not a soft failure: it would silently hide every function after
+      // the tear inside one oversized body, and two torn sides compare as equal.
+      eq(torn, [], `word-action.js (${side}) brace-scanned end to end`);
+      if (torn.length) return null;
+      let rest = "", at = 0;
+      for (const [a, b] of spans) { rest += src.slice(at, a); at = b; }
+      return { fns, rest: rest + src.slice(at) };
+    };
+
+    let headWA = null;
+    try {
+      headWA = execFileSync("git", ["show", "HEAD:word-action.js"], { cwd: ROOT, encoding: "utf8" });
+    } catch { /* no baseline here; the shape checks below need one, so they are skipped */ }
+    if (!headWA) {
+      console.log("      (no git baseline available — word-action.js shape not checked in this environment)");
+    } else {
+      const A = fnMap(headWA, "HEAD"), B = fnMap(R("word-action.js"), "working copy");
+      if (A && B) {
+        ok(A.fns.size > 100, `word-action.js's top-level functions were located (${A.fns.size} at HEAD)`);
+
+        // The three functions this pass owns. Each one is a sentence about an absent
+        // record, and each one had to learn that "absent" and "not read yet" are
+        // different states:
+        //   armBriefDeadline   the timeout can now be armed by the index acquiring
+        //                      rows, not only by a warm read resolving
+        //   briefAbsenceCopy   the empty sentence is last, behind the record checks
+        //   briefHeroHtml      an empty shape falls back to the seed rows first
+        const TOUCHED = ["armBriefDeadline", "briefAbsenceCopy", "briefHeroHtml"];
+        // …and the readers it added. All six are pure reads of state that already
+        // existed in the tab: the live member payload, the crawl header's rows, the
+        // static formal index, the pattern index's shape, the settle flag.
+        const ADDED = ["briefLiveN", "briefSeedRows", "briefRecordOnHand",
+          "briefShaped", "briefSettled", "briefSeedHtml"];
+
+        const changed = [], added = [], removed = [];
+        for (const [k, v] of A.fns) {
+          if (!B.fns.has(k)) removed.push(k);
+          else if (sha(v) !== sha(B.fns.get(k))) changed.push(k);
+        }
+        for (const k of B.fns.keys()) if (!A.fns.has(k)) added.push(k);
+
+        eq(removed, [], "word-action.js lost no function — nothing was deleted to make room");
+        eq(changed.filter((f) => !TOUCHED.includes(f)).sort(), [],
+          "…and the only function bodies that moved are the three brief-path functions this pass owns");
+        eq(added.filter((f) => !ADDED.includes(f)).sort(), [],
+          "…and the only functions it gained are the six named record readers");
+        // Named individually as well as covered by the set above, because these are the
+        // ones the brief said not to touch and a reader of this file should be able to
+        // see them checked by name.
+        for (const f of ["read", "scopedRead", "issueRead", "heroRead", "ringDash",
+          "shapeMatchHtml", "shapeRead", "recordDepth", "mappedUnits", "judgedOf"]) {
+          if (!A.fns.has(f)) { ok(false, `word-action.js still defines ${f}()`); continue; }
+          eq(sha(A.fns.get(f)), sha(B.fns.get(f) || ""),
+            `${f}() is byte-identical to HEAD — Direction Match and the floors did not move`);
+        }
+
+        // Everything outside a function: the FRAME copy table that names the metric, the
+        // tier weights, SHAPE_MIN / SHAPE_MIN_READ, HERO_REPAINT. Comments are stripped
+        // because this pass wrote a long one explaining the defect, and the new SEED_NOTE
+        // declaration is set aside by name — it is the seed brief's disclosure line and
+        // the only top-level value added.
+        const bare = (src) => src
+          .replace(/\/\*[\s\S]*?\*\//g, "")
+          .replace(/^\s*\/\/.*$/gm, "")
+          .replace(/\n\s*var SEED_NOTE = [\s\S]*?';\n/g, "\n")
+          .replace(/\n\s*\n/g, "\n").trim();
+        const xa = bare(A.rest), xb = bare(B.rest);
+        ok(xa.length > 3000, "the file's top-level constants were isolated from its functions");
+        eq(sha(xa), sha(xb),
+          "every constant in word-action.js — FRAME, the tier weights, the shape gate, the repaint list — is byte-identical to HEAD");
+      }
     }
   }
 

@@ -518,9 +518,22 @@ section("11 · the loading shell repeats the first paint instead of hiding it");
   has(SK, "if (!h) return ''", "no trustworthy header means no skeleton");
   has(SK, "if (canonId(h.pid) !== canonId(pid) && h.pid !== pid) return ''",
     "one person's rows are never borrowed for another person's file");
-  has(SK, "[data-pdx-crawl-record] li", "the formal rows come from the header's own rows");
   has(SK, "textContent", "the rows are read as text");
-  has(SK, "esc(t)", "and re-escaped as text, never re-hosted as markup");
+  // The row parse moved out of the skeleton into crawlRecord(), so that the gold
+  // brief can print the same rows without a second parser and without a second
+  // copy of the identity guard. The two facts this section has always asserted are
+  // asserted where they now live: the rows come off the header's own <li>s, and the
+  // skeleton re-hosts them as TEXT.
+  has(SK, "crawlRecord(pid)", "the formal rows come from the one reader that parses the header");
+  has(SK, "esc(x.text)", "and re-escaped as text, never re-hosted as markup");
+  const cr = PF.match(/function crawlRecord\(pid\) \{[\s\S]*?\n  \}/);
+  must(cr, "person-file's crawlRecord is gone");
+  has(cr[0], "[data-pdx-crawl-record] li", "…off the header's own rows");
+  has(cr[0], "textContent", "…read as text");
+  has(cr[0], "if (canonId(h.pid) !== canonId(pid) && h.pid !== pid) return []",
+    "…and refused outright for anybody the header does not name");
+  has(cr[0], "i < 6", "…under the same six-row cap the edge itself applies");
+  hasnt(cr[0], "innerHTML", "…and it reads the node, it never writes to it");
   has(SK, "Loading the latest roster…", "the roster wait is stated");
   has(SK, "pdx-file-skel-status", "…as a small status line, not as the content");
   ok(SK.indexOf("esc(name)") < SK.indexOf("pdx-file-skel-status"),

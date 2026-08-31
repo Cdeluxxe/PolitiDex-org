@@ -1940,6 +1940,44 @@
 }
 .pdxwa-shape-wall { margin-top: 0.65rem; }
 
+/* ── The first-byte record, printed as the record it is ────────────────────── */
+/* The rows the edge wrote into this document's header, mounted inside the brief
+   while the roll-call engine is still arriving — briefSeedHtml() in
+   word-action.js, and see the wall over it for the four things it refuses to
+   dress them as. They reuse the brief's own row furniture (.pdxwa-shape-row,
+   -iss, -bar, -n) because they carry the brief's own three facts; the ONE new
+   thing is the pattern label, and it is deliberately NOT .pdxst-pat. That chip is
+   the characterisation engine's claim, painted from its green/red/amber tone
+   table, and a row the engine has not read yet must not borrow its colours: a
+   reader who learns "amber means ran both ways" would be reading a verdict off a
+   line that is only a repetition. House grey, uppercase, quiet — the same weight
+   as the tally beside it. */
+.pdxwa-seed-pat {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #c3d4ec;
+  white-space: nowrap;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+/* Where the rows came from, and that they are about to be replaced. Sized and
+   coloured as the brief's other disclosures (.pdxwa-shape-wall), because it is
+   one: the rows above it are real and provisional at the same time, and the only
+   dishonest version of this block is the one that does not say so. */
+.pdxwa-seed-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: #7596c0;
+  overflow-wrap: break-word;
+}
+
 /* THE HERO PLEDGE CHIP IS GONE — see pledgeChipHtml's obituary in word-action.js.
    "🤝 6 kept · 6 broken · 2 pending" no longer renders under the ring on any
    screen, so the ~44px tap target it reserved in the letterhead, and the
