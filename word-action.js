@@ -4281,13 +4281,17 @@
       _briefTimer[pid] = setTimeout(function () {
         _briefTimer[pid] = null;
         // It may have landed while the timer ran; then there is nothing to
-        // report and the next repaint shows the record itself. TWO WAYS TO HAVE
-        // LANDED, because two different waits arm this deadline: the warm read
-        // resolving (coverage.warming goes false) and the index simply acquiring
-        // rows — which is the only signal the identity-only path below ever gets,
-        // since nothing ever set warming for it to unset.
+        // report and the next repaint shows the record itself. THREE WAYS TO HAVE
+        // LANDED, because three different waits arm this deadline: the warm read
+        // resolving (coverage.warming goes false), the index simply acquiring rows
+        // — which is the only signal the identity-only path below ever gets, since
+        // nothing ever set warming for it to unset — and a member request that
+        // went out and never came back (briefAsked), which is the wait on a file
+        // no other reader in the tab can speak for. Without that third one the
+        // give-up could not fire there at all, and "still loading" would be
+        // permanent on a request that failed.
         if (briefShaped(pid)) return;
-        if (!briefWarming(pid, p) && !briefRecordOnHand(pid)) return;
+        if (!briefWarming(pid, p) && !briefRecordOnHand(pid) && !briefAsked(pid)) return;
         _briefGaveUp[pid] = true;
         // Same repaint path the warm events use, so the surfaces that render a
         // loading state are the surfaces that get to replace it. bindHero
@@ -4348,10 +4352,97 @@
       });
     } catch (e) { return []; }
   }
+  // THE VOTE CHIP'S OWN COUNT, ASKED AS THE CHIP ASKS IT. The nav pill two
+  // surfaces up reads _pdxRecordMappedCounts(pid).total and prints "VOTES · 68
+  // RECORDS" off it; a document whose chip is counting records may not, in the
+  // same frame, contain a paragraph saying nothing on file is a vote or a formal
+  // action. It is derived from the same memberRecords() rows briefLiveN counts —
+  // no second source of fact — and it is asked here by the chip's own name so the
+  // rule is legible at the decision: THE CHIP AND THE EMPTY PARAGRAPH CANNOT BOTH
+  // BE TRUE. No figure of it is ever printed.
+  function briefChipN(pid) {
+    try {
+      var f = window._pdxRecordMappedCounts;
+      if (typeof f !== 'function') return 0;
+      var c = f(pid);
+      return (c && c.total) ? c.total : 0;
+    } catch (e) { return 0; }
+  }
   function briefRecordOnHand(pid) {
     if (briefLiveN(pid) > 0) return true;
+    if (briefChipN(pid) > 0) return true;
     if (briefSeedRows(pid).length) return true;
     return formalHasRecord(pid);
+  }
+
+  // ── AND THE QUESTION NONE OF THE READERS ABOVE WAS ASKING ───────────────────
+  // IS A ROLL-CALL PAYLOAD ON ITS WAY FOR THIS PERSON. Every reader above asks
+  // what the tab already HOLDS, and each one can come up empty for a reason that
+  // has nothing to do with the person: the crawl header can be a cache artifact
+  // this document is right to refuse, the shipped index covers one lane and
+  // cannot speak for a federal member, and the payload is by definition not here
+  // yet on the frame this brief first paints. Three sources that can all say
+  // nothing at t=0 — and the old copy read "all three said nothing" as "there is
+  // nothing on file", which is the sentence the report is about: /p/brett_garner
+  // opened on "No formal pattern on file yet" while the header behind the modal
+  // listed six characterised rows and the chip settled at 68 records.
+  //
+  // THE REQUEST ITSELF IS THE MISSING FACT, and it is the one thing that is
+  // already true at first paint. index.html's head issues exactly one member
+  // request per /p/<pid> arrival and publishes it on window.__pdxVRPrefetch with
+  // the pid it asked for; PDXVotingRecord claims the row in _liveRead the moment
+  // fetchMember starts. Either one means A PAYLOAD IS COMING, so "no formal
+  // pattern on file" is not a statement anybody is in a position to make yet.
+  //
+  // It reads a REQUEST, never a response: nothing here counts a row, infers a
+  // stance, or characterises anything. And it is positive knowledge in the same
+  // sense as formalKnown — "nobody asked" is not "a request is outstanding", so a
+  // surface with no fetcher behind it (a bare engine read, a compare sheet, the
+  // showcase harness) is not put into a wait that is never going to end.
+  function briefCanonPid(pid) {
+    try { return (window.PDXCanonicalPid && window.PDXCanonicalPid(pid)) || pid; } catch (e) { return pid; }
+  }
+  // noteMember RAN for this member — with rows or with none. memberRecords()
+  // answers null until it does and an array (possibly empty) forever after, which
+  // is the difference between "the answer is not here" and "the answer is none".
+  function briefNoted(pid) {
+    try {
+      var VR = window.PDXVotingRecord;
+      if (!VR || typeof VR.memberRecords !== 'function') return false;
+      return VR.memberRecords(pid) !== null;
+    } catch (e) { return false; }
+  }
+  function briefAsked(pid) {
+    if (!pid) return false;
+    try {
+      var box = window.__pdxVRPrefetch;
+      if (box && box.pid &&
+          (String(box.pid) === String(pid) || String(box.pid) === String(briefCanonPid(pid)))) return true;
+    } catch (e) {}
+    try {
+      var VR = window.PDXVotingRecord, lr = VR && VR._liveRead;
+      if (lr && (lr[pid] || lr[briefCanonPid(pid)])) return true;
+    } catch (e) {}
+    return false;
+  }
+  // A request was started for this member and has not been filed yet.
+  function briefComing(pid) { return briefAsked(pid) && !briefNoted(pid); }
+  // ── AND THEREFORE: MAY THIS FILE BE CALLED EMPTY AT ALL ─────────────────────
+  // The empty-file paragraph is a statement about the PERSON, so it takes the one
+  // thing an absence of signals never gave it: positive knowledge that the wait is
+  // over. Three ways it is over, and no fourth —
+  //   · noteMember ran (the payload is filed, rows or none);
+  //   · nobody ever asked (no request was started, so nothing is coming);
+  //   · the 6s deadline already expired on a request that never answered — and
+  //     THAT case does not reach the empty paragraph at all, because "the record
+  //     did not load" is a different fact with a sentence of its own.
+  // PAYLOAD_GRACE is deliberately NOT a release here: it is the clock for the
+  // other absence (rows on hand, nothing mapped), and spending it on this one
+  // would print "nothing on file" two seconds into a request that answers with
+  // sixty-eight records on the third. This door is narrower than the report asked
+  // for, never wider.
+  function briefWaitOver(pid) {
+    return briefNoted(pid) || briefGaveUp(pid) || !briefAsked(pid);
   }
   // The engine's own answer: does the formal-pattern index list a row for them
   // yet. Every wait above is waiting for exactly this, so this is what "it landed"
@@ -4444,25 +4535,56 @@
   // about the person.
   var MAPPED_GAP_COPY = 'Their roll-call record is on file, but none of it is mapped yet to an issue ' +
     'a direction can be read from. That gap is ours, not an empty file.';
+  // ── THE EMPTY-FILE PARAGRAPH, IN ONE PLACE ──────────────────────────────────
+  // Quoted once and reachable from one branch, because it is the only sentence in
+  // this function that is a statement about the PERSON rather than about this page
+  // load, and every defect this function has ever had was that sentence escaping
+  // through a fall-through.
+  var EMPTY_FILE_COPY = 'No formal pattern on file yet. Nothing we hold for them is a vote or formal action ' +
+    'a direction can be read from, and nothing here is inferred from what they said.';
+  // A FILE THAT IS STILL LOADING IS NEVER CALLED EMPTY.
+  //
+  // The order below is the order the facts have to be told apart in, and the last
+  // branch is the only one that may say the file is empty. What changed, and why:
+  //
+  //   BEFORE, the empty paragraph was the FALL-THROUGH — the sentence printed when
+  //   none of the three record readers happened to answer. Each of them can answer
+  //   nothing at first paint for reasons that are not about the person (a crawl
+  //   header this document is right to refuse, a shipped index that covers one
+  //   lane, a payload that has not landed), so on the identity-only class —
+  //   coverage.scorable === 0, warming never set, nothing queued — the file opened
+  //   on "No formal pattern on file yet" over a header listing six characterised
+  //   rows. /p/lee got the wait only because a stance ledger happened to set
+  //   warming for him. That is "with stated positions" printed as "has a record".
+  //
+  //   NOW, the empty paragraph takes POSITIVE KNOWLEDGE that the wait is over
+  //   (briefWaitOver) and no record signal anywhere in the tab (briefRecordOnHand,
+  //   which is the vote chip's own count, the header's own rows and the shipped
+  //   index, in one predicate). Everything else is a wait, and a wait is true of
+  //   every one of those frames. THE DEFAULT IS "STILL LOADING", NOT "NOTHING ON
+  //   FILE" — that inversion is the whole pass.
   function briefAbsenceCopy(pid, p) {
     var known = formalKnown(pid);
-    // A REVIEWED EMPTY FILE OUTRANKS EVERYTHING BELOW, and it is asked first now
-    // rather than as a condition on the branch. formalKnown returns 'empty' only
-    // for the hand-written notes the index publishes for that purpose, so jknotts
-    // gets his sentence and his reason instead of a wait that is never coming.
-    if (known === 'empty') {
-      return 'No formal pattern on file yet. Nothing we hold for them is a vote or formal action ' +
-        'a direction can be read from, and nothing here is inferred from what they said.';
-    }
-    // ── THE PAYLOAD IS IN MEMORY: THE WAIT IS OVER, WHATEVER THE INDEX MADE OF IT
-    // Asked SECOND, ahead of every wait, because it is the fact that ends them.
-    // `settled` was the only release before, and consistency.js only sets it where
-    // a request it started is outstanding — so on an identity-only file, where
-    // nothing ever queued one, "still loading" was permanent. Three ways the wait
-    // is over: the lane settled, two seconds have passed since the rows landed, or
-    // the 6s deadline already expired. In all three the honest sentence is the
-    // mapping gap, and it is OURS.
     var live = briefLiveN(pid);
+    var onHand = briefRecordOnHand(pid);
+    // A REVIEWED EMPTY FILE OUTRANKS EVERY WAIT BELOW, because it is the one place
+    // the app holds positive, hand-checked knowledge that there is nothing to wait
+    // for. formalKnown returns 'empty' only for the notes the index publishes for
+    // exactly that purpose, so jknotts gets his sentence and his reviewed reason at
+    // first paint instead of a wait that is never coming.
+    //
+    // AND IT STILL YIELDS TO A RECORD IN THE TAB. If a reviewed note and a counting
+    // chip ever disagree about the same person, the note is the thing under review
+    // — it may not be printed over rows the same document is showing.
+    if (known === 'empty' && !onHand && live === 0) return EMPTY_FILE_COPY;
+    // ── THE PAYLOAD IS IN MEMORY: THE WAIT IS OVER, WHATEVER THE INDEX MADE OF IT
+    // Asked ahead of every wait, because it is the fact that ends them. `settled`
+    // was the only release before, and consistency.js only sets it where a request
+    // it started is outstanding — so on an identity-only file, where nothing ever
+    // queued one, "still loading" was permanent. Three ways the wait is over: the
+    // lane settled, two seconds have passed since the rows landed, or the 6s
+    // deadline already expired. In all three the honest sentence is the mapping
+    // gap, and it is OURS.
     if (live > 0) {
       if (briefSettled(pid) || liveHeldMs(pid) >= PAYLOAD_GRACE_MS || briefGaveUp(pid)) {
         return MAPPED_GAP_COPY;
@@ -4473,12 +4595,13 @@
       return 'Their formal record is on file and the roll-call lane is arriving — no pattern ' +
         'can be read until it lands.';
     }
-    // THE RECORD IN THE TAB OPENS THE SAME DOOR THE WARM READ DOES. A file the
-    // header has already listed, or the shipped index counts acts for at either
-    // depth, is a file with a record — whether or not anything ever queued a warm
-    // read for it.
-    var onHand = briefRecordOnHand(pid);
-    if (briefWarming(pid, p) || onHand) {
+    // THE RECORD IN THE TAB OPENS THE SAME DOOR THE WARM READ DOES, AND SO DOES
+    // THE REQUEST. A file the header has already listed, or the chip is counting,
+    // or the shipped index counts acts for at either depth, is a file with a
+    // record; and a member request that has gone out and not come back is a
+    // payload on its way. Any one of them, and the top of the file is waiting —
+    // whether or not anything ever queued a warm read for it.
+    if (briefWarming(pid, p) || onHand || briefComing(pid)) {
       if (briefGaveUp(pid)) {
         return (formalHasRecord(pid) || onHand)
           ? 'Their formal record is on file, but it did not load, so no pattern can be read. Reload to try again.'
@@ -4492,8 +4615,16 @@
         ? 'Their formal record is on file and still loading — no pattern can be read until it lands.'
         : 'Still loading the roll-call record — no formal pattern can be read until it lands.';
     }
-    return 'No formal pattern on file yet. Nothing we hold for them is a vote or formal action ' +
-      'a direction can be read from, and nothing here is inferred from what they said.';
+    // NOTHING IN THE TAB, NOTHING COMING, NOTHING SAID. The wait is over by the
+    // one reading that does not need a lane to publish it (briefWaitOver: the
+    // payload was filed, or no request was ever started), and no reader in the
+    // document holds a record. That is the empty file, and this is the only
+    // sentence in this function allowed to say so.
+    if (briefWaitOver(pid)) return EMPTY_FILE_COPY;
+    // A request is outstanding and has neither answered nor timed out. There is
+    // exactly one true thing to say about this frame.
+    armBriefDeadline(pid, p);
+    return 'Still loading the roll-call record — no formal pattern can be read until it lands.';
   }
   // The brief's heading, in one place, because the empty states print it without a
   // body under it.
