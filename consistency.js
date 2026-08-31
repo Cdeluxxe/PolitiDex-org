@@ -12874,6 +12874,70 @@
     'S.J.Res. 59|119|strong_defense': {
       did: 'A privileged war-powers resolution directing the removal of U.S. forces from hostilities against Iran that Congress has not authorized, and requiring an authorization before they continue.',
       why: 'Pulling forces out of an engagement already under way is read on this chip as cutting against a forward posture, so a yea is coded against it. What the resolution changes is who authorizes the operation — not any force level, budget or capability.'
+    },
+    // ── Wave F6 · 119th Congress ── eleven contested standalone House passage votes,
+    // ingested and mapped in one pass. Every one of them is a PRIMARY row on a key that
+    // was already live, and every one is a bill a reader cannot identify from its number:
+    // the derived pair on 'H.R. 3632' would say the reliability chip was counted "because
+    // that is the primary subject of this measure" on a face whose only other text is a
+    // long title about section 207 of the Federal Power Act. Each `did` is written from
+    // the engrossed text cited in the mapping's own rationale in
+    // db/vr-federal-mapping-seed-f6.json, never from the short title — four of these
+    // eleven have short titles that name a virtue rather than a mechanism.
+    'H.R. 1047|119|energy_production': {
+      did: 'Gave the Federal Energy Regulatory Commission ninety days to open a rulemaking letting new dispatchable power projects — generation that can be called on when needed — move to the front of the interconnection queue, and to amend the standard large-generator interconnection procedures to match.',
+      why: 'This chip measures how much firm generating capacity exists, and the bill clears the queue that stands between a built plant and the grid for exactly that class of plant, so a yea counts as support.',
+      more: 'The direction on the policy is carried by one word: the bill does not shorten every queue, it reorders one, and a project that cannot be dispatched on demand is no better off than before. Passed the House 216-206 on 2025-09-18 (roll 119/1/279); this is a House-passed bill, not law.'
+    },
+    'H.R. 3062|119|permitting_reform': {
+      did: 'Replaced the presidential-permit practice for oil, gas and electricity facilities that cross the national border with a statutory certificate of crossing, carrying its own decision deadline and its own deciding agency.',
+      why: 'Which agency issues a federal authorisation and by when is this chip’s subject, and the bill moves a border crossing off executive discretion onto a deadline, so a yea counts as support. Weighted below full because the long title also names an aim beyond process, the import and export of oil and natural gas.',
+      more: 'Passed the House 224-203 on 2025-09-18 (roll 119/1/277). The certificate reaches the crossing itself; the pipeline or line on either side of the border is permitted under the statutes that already govern it.'
+    },
+    'H.R. 1366|119|lands_energy': {
+      did: 'Let a hardrock claimant locate and use mill sites for operations ancillary to a mining claim without the acreage and use limits current law imposes, and established an Abandoned Hardrock Mine Fund.',
+      why: 'Mining on the federal estate is the whole of what this chip covers, and the bill widens the ground a claimant may occupy to work a claim, so a yea counts as support for resource development.',
+      more: 'The two limbs pull in the same direction on this chip for different reasons: the mill-site change is what a claimant may do now, and the fund is money for the sites nobody is left to reclaim. Passed the House 219-198 on 2025-12-18 (roll 119/1/358).'
+    },
+    'H.R. 4776|119|permitting_reform': {
+      did: 'Amended the National Environmental Policy Act itself, then set the window in which a completed environmental document may be challenged in court and the conditions under which a challenger has standing to bring it.',
+      why: 'Narrower review and firm deadlines is this chip’s own pole, and the bill narrows the review and shortens the window to sue over the result, so a yea counts as support.',
+      more: 'The judicial-review title is the operative half for anyone building: a document that can no longer be challenged after a fixed period is a different asset from one that can be challenged at any time, whatever the review itself required. Passed the House 221-196 on 2025-12-18 (roll 119/1/356).'
+    },
+    'H.R. 3616|119|energy_production': {
+      did: 'Required the grid reliability organisation to notify the Commission publicly when the bulk-power system is short of generation, and required every federal agency then notified to send the Commission any rule affecting reliability for review and comment before it reaches the Federal Register.',
+      why: 'Keeping generation online is what this chip measures, and the bill interposes a reliability comment step into other agencies’ rulemakings once a shortage has been declared, so a yea counts as support. Weighted below full: the long title names the reliable operation of the whole system, which is broader than the chip.',
+      more: 'Read for whether it was a study and admitted because it is not: the annual assessment ends in a determination, the determination triggers a public notification, and the notification triggers a duty on other agencies. Three sibling bills swept in the same census were refused precisely because they stop at a report. Passed the House 225-203 on 2025-12-17 (roll 119/1/347).'
+    },
+    'H.R. 3632|119|energy_production': {
+      did: 'Adjusted the requirements for Federal Power Act emergency orders and required the owner or operator of an electric generating unit to give notice of a planned retirement before shutting it down.',
+      why: 'What has to happen before an existing plant may close sits inside this chip’s written scope, and this bill is that requirement with nothing else attached, so a yea counts as support for keeping generation online.',
+      more: 'Notice is not a veto: nothing here stops a retirement, it makes one visible in advance to the regulator that would have to replace the capacity. Passed the House 222-202 on 2025-12-16 (roll 119/1/342).'
+    },
+    'H.R. 3668|119|permitting_reform': {
+      did: 'Made the Federal Energy Regulatory Commission the lead agency for natural-gas import and export facility authorisations and bound every other agency whose sign-off a project needs to the Commission’s schedule.',
+      why: 'Lead-agency consolidation — one federal decision on one timetable — is named in this chip’s scope in those words, and the bill applies it to one statute, so a yea counts as support.',
+      more: 'What changes is sequence and deadline rather than standard: each agency still applies its own law, and none of the substantive tests a crossing or terminal has to meet is altered. Passed the House 213-184 on 2025-12-12 (roll 119/1/334), the widest absence count in this wave at 36 members not voting.'
+    },
+    'H.R. 3898|119|permitting_reform': {
+      did: 'Narrowed the state water-quality certification a project must obtain, widened what a general permit may cover in place of individual review, fixed the terms and finality of a discharge permit, and exempted agricultural stormwater discharge.',
+      why: 'Project-review scope, a general authorisation standing in for an individual one, and the ground on which a finished permit can be attacked are three of this chip’s own clauses, so a yea counts as support. Weighted 80, not 100, and the reason is on the record below.',
+      more: 'DISCLOSED PARTIAL COVERAGE. Five of the act’s ten sections are the permit-process sections read above. Three more rewrite the substantive water-quality standard-setting rules and one concerns forest roads and firefighter safety, and no key on the live topic tree covers substantive water-quality standards — the water chip is conservation, whose pole is reduced or measured use, and the balance key is structurally unread. Those four sections are recorded as uncovered rather than folded into this row. Passed the House 221-205 on 2025-12-11 (roll 119/1/330).'
+    },
+    'H.R. 3628|119|energy_production': {
+      did: 'Added a ratemaking standard that every state regulator of an electric utility must consider: ensuring electric reliability with reliable generation facilities.',
+      why: 'State policy on dispatchable resources is one of the instruments this chip counts, and the bill is the federal handle that creates one, so a yea counts as support. Weighted below full because the act’s own title names affordability alongside reliability.',
+      more: 'A standard a state authority must consider is weaker than one it must adopt, and the bill leaves the outcome with the state — which is why the row is weighted as an operative axis rather than the measure’s entire subject. Passed the House 218-207 on 2025-12-11 (roll 119/1/323).'
+    },
+    'H.R. 4090|119|lands_energy': {
+      did: 'Required the Secretary to send Congress a list of every mining project on federal land awaiting a plan of operations or a permit within ten days of enactment and annually after, then to identify those that can be approved immediately and take all necessary action to approve or issue them.',
+      why: 'Mining and resource development on federal land is what this chip covers, and the bill puts a ten-day approval duty on the department holding the permits, so a yea counts as support.',
+      more: 'The act also directs a mineral-potential assessment and a regulatory review, either of which would have been refused on its own as a study; it is the approval duty that makes this a judged act rather than a report. Passed the House 224-195 on 2026-02-04 (roll 119/2/55).'
+    },
+    'H.R. 4690|119|climate_action': {
+      did: 'Repealed the fossil-fuel-use reduction targets for new and renovated federal buildings, voided the regulations implementing them as though the targets had never taken effect, and barred a green-building certification from being withheld solely over fossil-fuel consumption.',
+      why: 'This chip counts rules that cut emissions and counts their repeal against itself, so the row runs the other way from the rest of this wave: a yea is published as against the chip’s direction and a nay as for it.',
+      more: 'The only inverted row in the wave, and the inversion is in the mapping rather than in the reading — support_meaning is yea_opposes, so nothing here reinterprets a ballot. What is repealed is a target on the federal government’s own buildings; no private construction standard is touched. Passed the House 215-202 on 2026-04-22 (roll 119/2/134).'
     }
   };
   // Fails closed in three places, on purpose: a position (no congress, no ballot), a

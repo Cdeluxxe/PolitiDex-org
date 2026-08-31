@@ -1055,7 +1055,7 @@ section("9 · the engines did not move");
 // passing quietly.
 {
   const ENGINES = [
-    "alignment-tool.js", "consistency.js",
+    "alignment-tool.js",
     "say-vs-do.js", "exec-record.js", "stance-helpers.js",
     "publication-floor.js", "cmp-data.js", "issue-colors.js",
     "netlify/lib/vr-pack.ts", "netlify/lib/vr-normalize.ts", "db/issue-keys.json",
@@ -1074,8 +1074,69 @@ section("9 · the engines did not move");
   if (!compared) {
     console.log("      (no git baseline available — engine byte-identity not checked in this environment)");
   } else {
-    ok(compared >= 10, `the engine set was read from HEAD (${compared} files)`);
+    ok(compared >= 9, `the engine set was read from HEAD (${compared} files)`);
     eq(moved, [], "Direction Match, the formal-pattern engines, the packs and the roster are byte-identical to HEAD");
+  }
+
+  // ── consistency.js: PINNED EVERYWHERE EXCEPT THE MECHANISM MAP ──────────────
+  // _DOS_MECH is not arithmetic. It is the curated two-line face a judged row shows
+  // instead of its derived sentence, and it is APPEND-ONLY BY DESIGN: every wave that
+  // ships a new judged act owes one entry per act, or the act renders in the derived
+  // voice and the mechanism-completeness harness fails. A blanket hash on this file
+  // would forbid exactly the pass it is supposed to survive, so the map is carved out
+  // with the same seam discipline voting-record.js gets below — anchors unique on both
+  // sides, the whole remainder hashed, and the span inside argued rather than excused.
+  {
+    const CJ_NOW = R("consistency.js");
+    let headCJ = null;
+    try {
+      headCJ = execFileSync("git", ["show", "HEAD:consistency.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
+    } catch { /* no baseline here */ }
+    if (!headCJ) {
+      console.log("      (no git baseline available — consistency.js shape not checked in this environment)");
+    } else {
+      const A = "  var _DOS_MECH = {\n", B = "\n  };\n  // Fails closed in three places, on purpose:";
+      const carveMech = (src, side) => {
+        const i = src.indexOf(A), j = src.indexOf(B, i < 0 ? 0 : i);
+        must(i >= 0 && j > i, `${side}: the mechanism map no longer reads as written in consistency.js`);
+        must(src.split(A).length === 2 && src.split(B).length === 2,
+          `${side}: a mechanism-map anchor is no longer unique in consistency.js — widen it, do not loosen it`);
+        return { pinned: src.slice(0, i + A.length) + src.slice(j), map: src.slice(i + A.length, j) };
+      };
+      const ca = carveMech(headCJ, "HEAD"), cb = carveMech(CJ_NOW, "now");
+      eq(sha(ca.pinned), sha(cb.pinned),
+        "consistency.js is byte-identical to HEAD everywhere outside the mechanism map — the formal-pattern " +
+        "arithmetic, the floors, the bands and the row model did not move");
+      ok(cb.pinned.length > CJ_NOW.length * 0.55,
+        `the carve is a seam, not a hole: ${cb.pinned.length} of ${CJ_NOW.length} bytes are still pinned`);
+
+      // APPEND-ONLY. A live rationale belongs to whoever wrote it first (runbook rule
+      // 21), so a pass may add entries and may not rewrite one a reader has already been
+      // shown. HEAD's map must survive verbatim as a prefix.
+      ok(cb.map.startsWith(ca.map),
+        "an existing mechanism entry was rewritten rather than appended to — the sentence a reader " +
+        "already saw on a live row is not this pass's to edit");
+      const appended = cb.map.slice(ca.map.length);
+      if (appended.trim()) {
+        // What may be appended is prose in the three declared slots and nothing else:
+        // no code, no branch, no key the row model would have to interpret.
+        ok(!/\b(function|=>|require\(|window\.|if\s*\()/.test(appended),
+          "the appended mechanism text carries code — this map holds three prose slots per act, nothing executable");
+        const keys = [...appended.matchAll(/^\s{4}'([^']+)':\s*\{$/gm)].map((m) => m[1]);
+        ok(keys.length > 0, "the mechanism map grew without gaining a single entry key — the append is malformed");
+        for (const k of keys)
+          ok(/^[^|]+\|\d+\|[a-z_]+$/.test(k),
+            `appended mechanism key "${k}" is not number|congress|issueKey, so _dosMechFor could never look it up`);
+        const slots = [...appended.matchAll(/^\s{6}([a-z]+):/gm)].map((m) => m[1]);
+        eq([...new Set(slots)].sort().join(","), "did,more,why",
+          "an appended mechanism entry uses a slot the face does not render (or omits one it does)");
+        eq(slots.length, keys.length * 3, "an appended mechanism entry is missing one of its three slots");
+        for (const m of appended.matchAll(/why: '((?:[^'\\]|\\.)*)'/g))
+          ok(m[1].length <= 340, "an appended \"why it counts here\" is longer than the row face allows");
+        ok(!/\b(Republicans?|Democrats?|Democratic|GOP|partisan|bipartisan)\b/i.test(appended),
+          "an appended mechanism entry names a party — the party split stays in the roll's totals, off the face");
+      }
+    }
   }
 
   // ── voting-record.js: PINNED EVERYWHERE EXCEPT ITS NAMED SEAMS ──────────────

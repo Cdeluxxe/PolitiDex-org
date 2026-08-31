@@ -55,6 +55,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { createHash } from "node:crypto";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -263,22 +264,56 @@ const CANDIDATES = {
     "the lesson must be actionable for the next census, not a regret");
 
   // AND THE F2/F3 ASSERTION MUST BE SATISFIED, checked here the same way they check it.
-  const mapped1069 = [];
-  for (const f of MIGS) {
-    const src = R(join(MIG_DIR, f));
-    if (!src.includes("H.R. 1069")) continue;
-    const vars = new Set();
-    for (const m of src.matchAll(/(\w+)\s*(?::=|INTO)\s*[\s\S]{0,200}?'H\.R\. 1069'/g)) vars.add(m[1]);
-    for (const m of src.matchAll(/INSERT INTO vr_measure_issues[\s\S]*?;/g))
-      for (const v of vars) if (new RegExp(`\\(\\s*${v}\\s*,`).test(m[0])) mapped1069.push(`${f} (${v})`);
-  }
+  // The scan reads both plpgsql spellings, because they put the variable on opposite
+  // sides of the keyword — `m_hr1069 := (SELECT id …)` and `SELECT id INTO m_hr1069 …`.
+  // The version this file shipped read `(\w+)\s*(?::=|INTO)`, which captures the word
+  // BEFORE the keyword: correct for `:=`, and for `INTO` it captures "id" and the
+  // tripwire cannot fire at all. It also now catches the live id written inline, which
+  // is how a row could reach a walled measure without naming it.
+  // The scan runs on SQL with its comments removed, the way the F2 and F3 harnesses do
+  // it: a commented-out INSERT is not a row, and a header sentence that reaffirms a wall
+  // is not a violation of it.
+  const stripSqlComments = (src) => {
+    let out = "", i = 0, q = false;
+    while (i < src.length) {
+      if (q) { if (src[i] === "'") { if (src[i + 1] === "'") { out += "''"; i += 2; continue; } q = false; } out += src[i++]; continue; }
+      if (src[i] === "'") { q = true; out += src[i++]; continue; }
+      if (src[i] === "-" && src[i + 1] === "-") { while (i < src.length && src[i] !== "\n") i++; continue; }
+      out += src[i++];
+    }
+    return out;
+  };
+  const LIVE_IDS = { "H.R. 1069": 74 };
+  const mappedRowsFor = (number) => {
+    const hits = [];
+    const lit = number.replace(/\./g, "\\.");
+    for (const f of MIGS) {
+      const src = stripSqlComments(R(join(MIG_DIR, f)));
+      if (!src.includes(number)) continue;
+      const vars = new Set();
+      for (const m of src.matchAll(new RegExp(`(\\w+)\\s*:=\\s*[\\s\\S]{0,200}?'${lit}'`, "g"))) vars.add(m[1]);
+      for (const m of src.matchAll(new RegExp(`\\bINTO\\s+(\\w+)\\b[\\s\\S]{0,200}?'${lit}'`, "g"))) vars.add(m[1]);
+      const id = LIVE_IDS[number];
+      for (const m of src.matchAll(/INSERT INTO vr_measure_issues[\s\S]*?;/g)) {
+        for (const v of vars) if (new RegExp(`\\(\\s*${v}\\s*,`).test(m[0])) hits.push(`${f} (${v})`);
+        if (id != null && new RegExp(`\\(\\s*${id}\\s*,\\s*'`).test(m[0])) hits.push(`${f} (id ${id} inline)`);
+        if (new RegExp(`SELECT id FROM vr_measures[^;]*'${lit}'`).test(m[0])) hits.push(`${f} (inline subquery)`);
+      }
+    }
+    return [...new Set(hits)];
+  };
+  const mapped1069 = mappedRowsFor("H.R. 1069");
   eq(mapped1069.length, 0,
     `H.R. 1069 carries an issue mapping in a migration (${mapped1069.join(", ")}) — the F2 and F3 tests assert zero, and F5 does not reverse the refusal they are asserting`);
-  const mapped973 = MIGS.filter((f) => {
-    const src = R(join(MIG_DIR, f));
-    return /INSERT INTO vr_measure_issues[\s\S]*?gov_regulation/.test(src) && /'H\.R\. 973'/.test(src);
-  });
-  eq(mapped973.length, 0, `H.R. 973 carries a gov_regulation mapping in a migration (${mapped973.join(", ")}) — runbook rule 3 keeps it dark`);
+  // H.R. 973 IS CHECKED THE SAME WAY, and it has to be. The first version of this check
+  // asked whether a file contained an INSERT INTO vr_measure_issues somewhere and the
+  // string 'H.R. 973' somewhere — which F6 tripped by DISCLOSING the wall: its header says
+  // the chip stands and its verification block raises if a later pass writes the row, so
+  // both needles were present and no row was. A wall check that fires on the sentence
+  // reaffirming the wall teaches the next writer to delete the sentence, so it resolves the
+  // measure's own plpgsql variable and looks for that variable inside a single INSERT.
+  const mapped973 = mappedRowsFor("H.R. 973");
+  eq(mapped973.length, 0, `H.R. 973 carries an issue mapping in a migration (${mapped973.join(", ")}) — runbook rule 3 keeps it dark`);
   // And S. 2503, which rule 3 names in the same breath.
   ok(/S\. 2503/.test(JSON.stringify(decide)), "S. 2503 is the other bill rule 3 names and it should be on this wave's record too");
 }
@@ -426,15 +461,54 @@ function boot(get, label) {
   return win;
 }
 {
-  // NO BOOTED FILE MAY CHANGE AT ALL. F5's whole footprint is db/ and scripts/, so this is
-  // byte-identity rather than the output comparison a shipping wave has to settle for.
+  // NO BOOTED FILE MAY CHANGE AT ALL — with ONE structural exception, named here rather
+  // than assumed. This section compares the working tree to HEAD, which was the whole
+  // truth while F5 was the newest thing in the tree and stops being it the moment a LATER
+  // wave ships a shipped-file change: F5's footprint is db/ and scripts/, but the diff
+  // against HEAD is everyone's diff, not F5's. Federal wave F6 appends curated _DOS_MECH
+  // prose to consistency.js for the eleven judged acts it creates, which runbook rule 33
+  // requires of it, and that append would read here as F5 having edited the engine.
+  //
+  // So the exception is granted to ONE file, in ONE region, and is made to pay for
+  // itself: outside _DOS_MECH consistency.js is byte-identical, the map is append-only,
+  // and — the part that is actually about F5 — no appended entry may key on a measure F5
+  // REFUSED. A mechanism line exists to explain a live judged mapping; one naming
+  // H.R. 1069, H.R. 973 or the Boebert amendment would mean a later wave quietly took a
+  // wall F5 argued and left standing, which is failure mode 4 arriving through the engine
+  // instead of through a migration. Section 8's twin boot below is unwaived either way.
+  const LATER_WAVE_WAIVER = { "consistency.js": "F6 appended eleven curated _DOS_MECH entries (rule 33)" };
+  const F5_REFUSED = ["H.R. 1069", "H.R. 973", "H.R. 8800", "H.Amdt. 245"];
   let touched = [];
   for (const f of FILES) {
     const h = headSrc(f);
     if (h === null) continue;
     if (h !== nowSrc(f)) touched.push(f);
   }
-  eq(touched.length, 0, `F5 changed a booted file (${touched.join(", ")}) — a wave that writes no row has no business editing the engine`);
+  const stray = touched.filter((f) => !LATER_WAVE_WAIVER[f]);
+  eq(stray.length, 0, `F5 changed a booted file (${stray.join(", ")}) — a wave that writes no row has no business editing the engine`);
+  if (touched.includes("consistency.js")) {
+    const A = "  var _DOS_MECH = {\n", B = "\n  };\n  // Fails closed in three places, on purpose:";
+    const carve = (src, side) => {
+      const i = src.indexOf(A), j = src.indexOf(B, i < 0 ? 0 : i);
+      if (i < 0 || j <= i) { ok(false, `${side}: the mechanism map no longer reads as written in consistency.js`); return null; }
+      ok(src.split(A).length === 2 && src.split(B).length === 2,
+        `${side}: a mechanism-map anchor is no longer unique in consistency.js — widen it, do not loosen it`);
+      return { pinned: src.slice(0, i + A.length) + src.slice(j), map: src.slice(i + A.length, j) };
+    };
+    const ca = carve(headSrc("consistency.js"), "HEAD"), cb = carve(nowSrc("consistency.js"), "now");
+    if (ca && cb) {
+      // Hashed rather than compared outright: a failure here should name the file, not
+      // print a megabyte of engine into the log.
+      const sha = (x) => createHash("sha256").update(x).digest("hex").slice(0, 16);
+      eq(sha(cb.pinned), sha(ca.pinned),
+        "consistency.js moved OUTSIDE the mechanism map — the arithmetic, the floors and the bands are not any wave's to edit under this waiver");
+      ok(cb.map.startsWith(ca.map), "an existing mechanism entry was rewritten rather than appended to");
+      const appended = cb.map.slice(ca.map.length);
+      for (const num of F5_REFUSED)
+        ok(!appended.includes(num),
+          `a later wave appended mechanism prose naming ${num}, which F5 refused — a wall F5 argued was taken without saying so`);
+    }
+  }
 
   const head = boot(headSrc, "HEAD");
   const work = boot(nowSrc, "working");
@@ -575,4 +649,5 @@ console.log(`  F5: NOTHING SHIPPED, on purpose · ${c.unmappedPoolSwept} unmappe
   + `${c.poolRefusedOnForm} form, ${c.poolRefusedOnKeyOrEvidence} key/evidence, ${c.poolAdmitted} admitted) · `
   + `${c.candidatePromotesSimulated} Senate promotes simulated, all +0/-0 · ${c.standingWallsFound} standing walls found and quoted · `
   + `${c.rowsDraftedAndRefusedAsDoctrineReversals} drafted rows refused as declined reversals, kept with their measured cost · `
-  + `keysAdded ${c.keysAdded} · floors unmoved · not one row, key or booted byte changed\n`);
+  + `keysAdded ${c.keysAdded} · floors unmoved · not one row or key written, and no engine byte outside `
+  + `the mechanism prose a later wave appends for its own acts\n`);

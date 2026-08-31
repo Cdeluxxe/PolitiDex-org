@@ -2985,6 +2985,204 @@
           "sourceUrl": "https://www.federalregister.gov/documents/2023/01/31/2023-01969/public-land-order-no-7917-for-withdrawal-of-federal-lands-cook-lake-and-saint-louis-counties-mn"
         }
       ]
+    },
+    {
+      "_comment": "Federal wave F6 · house 119/1/279 · On Passage · 216-206. Mirrors the issue rows in netlify/database/migrations/20261022000000_vr_federal_wave_f6.sql; the census, the refusal record and the keys declined for this measure are in db/vr-federal-mapping-seed-f6.json.",
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 1047",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1047",
+      "issues": [
+        {
+          "issueKey": "energy_production",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "SEC. 3 (RULEMAKING TO IMPROVE INTERCONNECTION QUEUE FLEXIBILITY) gives the Commission ninety days to initiate a rulemaking that, in the Act's own words, ensures 'new dispatchable power projects that improve grid reliability and resource adequacy can interconnect to the electric grid quickly, cost-effectively, and reliably', and directs it to amend the pro forma Large Generator Interconnection Procedures promulgated under 18 C.F.R. 35.28(f). The direction on the policy is the word dispatchable: the Act does not shorten every queue, it moves firm generating capacity to the front of one. energy_production's written scope in issue-scope.js names 'how much conventional supply and firm generating capacity exists' as what is IN and names 'dispatchable-resource state policy' among its instruments, and its pole reads 'Advanced = the vote expanded conventional supply or kept generation online'. A yea did that.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr1047eh/html/BILLS-119hr1047eh.htm"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F6 · house 119/1/277 · On Passage · 224-203. Mirrors the issue rows in netlify/database/migrations/20261022000000_vr_federal_wave_f6.sql; the census, the refusal record and the keys declined for this measure are in db/vr-federal-mapping-seed-f6.json.",
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 3062",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/3062",
+      "issues": [
+        {
+          "issueKey": "permitting_reform",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "SEC. 2 (STRENGTHENING NORTH AMERICAN ENERGY SECURITY) replaces the Presidential-permit practice for border-crossing facilities with a statutory certificate-of-crossing process carrying its own decision deadline and its own agency assignment. The Act's own long title states the axis — 'a more uniform, transparent, and modern process to authorize' — and process is what the text changes. That is permitting_reform's subject: the scope of a federal authorisation, who runs it and by when. Weighted 90 rather than 100 because the long title names a motive beyond the key, the import and export of oil and natural gas, and the weight is where that is recorded rather than in a second row.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr3062eh/html/BILLS-119hr3062eh.htm"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F6 · house 119/1/358 · On Passage · 219-198. Mirrors the issue rows in netlify/database/migrations/20261022000000_vr_federal_wave_f6.sql; the census, the refusal record and the keys declined for this measure are in db/vr-federal-mapping-seed-f6.json.",
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 1366",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1366",
+      "issues": [
+        {
+          "issueKey": "lands_energy",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "SEC. 2 (HARDROCK MINING MILL SITES) amends section 42 of the Revised Statutes (30 U.S.C. 42) so that a claimant may locate and use mill sites for operations ancillary to a mining claim without the acreage and use constraints the current section imposes, and the Act establishes the Abandoned Hardrock Mine Fund alongside it. Both limbs are hardrock mining on the federal estate, which is the whole of lands_energy's published chip: 'Expand domestic energy, mining & resource development'. The entire subject of the measure is the key, so weight 100.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr1366eh/html/BILLS-119hr1366eh.htm"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F6 · house 119/1/356 · On Passage · 221-196. Mirrors the issue rows in netlify/database/migrations/20261022000000_vr_federal_wave_f6.sql; the census, the refusal record and the keys declined for this measure are in db/vr-federal-mapping-seed-f6.json.",
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 4776",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4776",
+      "issues": [
+        {
+          "issueKey": "permitting_reform",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "This is the key's own subject with nothing left over. SEC. 2 (NEPA REFORM) amends the National Environmental Policy Act itself; SEC. 3 (JUDICIAL REVIEW) sets the window and the standing conditions on which a completed environmental document may be challenged; SEC. 4 preserves ongoing administrative corrections. permitting_reform's written scope names exactly these limbs — 'the scope of environmental review, statutory page and deadline limits on it' and 'the window in which a completed permit may be sued over' — and its pole reads 'Advanced = narrower review and firm deadlines'. A yea narrowed the review and shortened the window to sue. Weight 100.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr4776eh/html/BILLS-119hr4776eh.htm"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F6 · house 119/1/347 · On Passage · 225-203. Mirrors the issue rows in netlify/database/migrations/20261022000000_vr_federal_wave_f6.sql; the census, the refusal record and the keys declined for this measure are in db/vr-federal-mapping-seed-f6.json.",
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 3616",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/3616",
+      "issues": [
+        {
+          "issueKey": "energy_production",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "SEC. 2 amends section 215 of the Federal Power Act (16 U.S.C. 824o) to build a chain of binding duties, not a study. Subsection (g)(2) requires the Electric Reliability Organization's assessment to include an annual long-term assessment ending in 'a determination of whether additional generation resources are necessary'; (g)(3) requires that, on such a finding, the ERO 'shall publicly notify the Commission that the bulk-power system is in a state of generation inadequacy'; and new subsection (h) then requires the Commission to notify the Department of Energy, the Environmental Protection Agency and any other agency it names, after which 'the head of each Federal agency that received such notice shall provide to the Commission for review and comment any covered agency action' before that action reaches the Federal Register, and the Commission 'shall, by order' return comments. That is an operative interposition into other agencies' rulemakings, triggered by a generation-adequacy finding, and its object is keeping generation online — energy_production's pole in terms. Weight 90 because the long title names a motive beyond the key, the reliable operation of the bulk-power system.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr3616eh/html/BILLS-119hr3616eh.htm"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F6 · house 119/1/342 · On Passage · 222-202. Mirrors the issue rows in netlify/database/migrations/20261022000000_vr_federal_wave_f6.sql; the census, the refusal record and the keys declined for this measure are in db/vr-federal-mapping-seed-f6.json.",
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 3632",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/3632",
+      "issues": [
+        {
+          "issueKey": "energy_production",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "SEC. 2 amends section 207 of the Federal Power Act and requires an owner or operator that retires an electric generating unit to give notice of the planned retirement before it happens. energy_production's written scope in issue-scope.js names, as part of what is IN, 'the determinations required before an existing plant may close' — this measure is that clause and nothing else, which is why the weight is 100 and why the key needed no argument beyond quoting itself.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr3632eh/html/BILLS-119hr3632eh.htm"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F6 · house 119/1/334 · On Passage · 213-184. Mirrors the issue rows in netlify/database/migrations/20261022000000_vr_federal_wave_f6.sql; the census, the refusal record and the keys declined for this measure are in db/vr-federal-mapping-seed-f6.json.",
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 3668",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/3668",
+      "issues": [
+        {
+          "issueKey": "permitting_reform",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "SEC. 2 (PROMOTING INTERAGENCY COORDINATION FOR REVIEW OF NATURAL GAS PIPELINES) makes the Commission the lead agency for authorisations under section 3 of the Natural Gas Act and binds the other agencies whose sign-off a project needs to the Commission's schedule. permitting_reform's written scope names 'lead-agency and one-federal-decision consolidation' as what is IN, verbatim; this Act is that clause applied to one statute. Weight 100.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr3668eh/html/BILLS-119hr3668eh.htm"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F6 · house 119/1/330 · On Passage · 221-205. Mirrors the issue rows in netlify/database/migrations/20261022000000_vr_federal_wave_f6.sql; the census, the refusal record and the keys declined for this measure are in db/vr-federal-mapping-seed-f6.json.",
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 3898",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/3898",
+      "issues": [
+        {
+          "issueKey": "permitting_reform",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "Five of the Act's ten sections are permit-process sections under the Clean Water Act and they are what the Act is named for: SEC. 5 (IMPROVING WATER QUALITY CERTIFICATIONS AND AMERICAN ENERGY INFRASTRUCTURE) narrows the section 401 certification a project must obtain from a State, which is the single most litigated project-review step in the statute; SEC. 6 (CLARIFYING FEDERAL GENERAL PERMITS) widens what a general permit may cover in place of an individual review; SEC. 7 (NPDES PERMIT TERMS) sets the terms of a discharge permit; SEC. 8 (CONFIDENCE IN CLEAN WATER PERMITS) fixes the finality a permittee may rely on and therefore the ground on which a permit may be attacked; SEC. 10 exempts agricultural stormwater discharge. Those are the scope of a federal project review, the substitution of a general authorisation for an individual one, and the window in which a completed permit may be challenged — permitting_reform's written scope in three of its own clauses, with a pole of 'narrower review and firm deadlines' that a yea advanced.\n\nDISCLOSED PARTIAL COVERAGE, because half the Act is not on this key and pretending otherwise is what weight 100 would have said. SEC. 2 (WATER QUALITY STANDARDS ATTAINABILITY), SEC. 3 (WATER QUALITY CRITERIA DEVELOPMENT AND TRANSPARENCY) and SEC. 4 (WATER QUALITY TECHNOLOGY AVAILABILITY) change the substantive standard-setting rules of the Clean Water Act, and SEC. 9 concerns forest roads and wildland firefighter safety. No key on the live topic tree covers substantive water-quality standards: `water` is Water Conservation, whose written pole is 'Advanced = the vote reduced, priced or measured water use' and whose scope note excludes the supply and works side in terms, so loosening a pollution standard is not in it in either direction; `water_storage` is reservoirs and pipelines; `enviro_balance` is a `*_balance` key and is structurally suppressed from every read. Those four sections are therefore recorded here as uncovered and are deliberately not mapped. Weight 80 rather than 100 is the honest arithmetic of that: the permit sections are the operative axis of a larger act.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr3898eh/html/BILLS-119hr3898eh.htm"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F6 · house 119/1/323 · On Passage · 218-207. Mirrors the issue rows in netlify/database/migrations/20261022000000_vr_federal_wave_f6.sql; the census, the refusal record and the keys declined for this measure are in db/vr-federal-mapping-seed-f6.json.",
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 3628",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/3628",
+      "issues": [
+        {
+          "issueKey": "energy_production",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "SEC. 2 amends section 111(d) of the Public Utility Regulatory Policies Act of 1978 (16 U.S.C. 2621(d)) by adding standard (22), 'Ensuring electric reliability with reliable generation facilities', which each State regulated electric utility's regulatory authority must consider. energy_production's written scope names 'dispatchable-resource state policy' among the instruments that are IN, and this is the federal instrument that creates one. Weight 90 because the Act's own short title names affordability alongside reliability, a motive beyond the key.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr3628eh/html/BILLS-119hr3628eh.htm"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F6 · house 119/2/55 · On Passage · 224-195. Mirrors the issue rows in netlify/database/migrations/20261022000000_vr_federal_wave_f6.sql; the census, the refusal record and the keys declined for this measure are in db/vr-federal-mapping-seed-f6.json.",
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 4090",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4090",
+      "issues": [
+        {
+          "issueKey": "lands_energy",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "SEC. 4 (PRIORITY PROJECTS) is the operative section and it is a duty, not a study: within ten days of enactment and annually after, the Secretary must send Congress a list of every mining project on Federal land with a pending plan of operations or permit application, and within ten days of that list must identify each priority project the Secretary 'can immediately approve' and then 'take all necessary and appropriate action to approve or issue' it. SEC. 5 directs an assessment of mining potential on Federal land and SEC. 6 a regulatory review, but the Act does not stop at either. lands_energy's published chip is 'Expand domestic energy, mining & resource development' and a ten-day approval duty over federal mining permits is that, so weight 100.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr4090eh/html/BILLS-119hr4090eh.htm"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F6 · house 119/2/134 · On Passage · 215-202. Mirrors the issue rows in netlify/database/migrations/20261022000000_vr_federal_wave_f6.sql; the census, the refusal record and the keys declined for this measure are in db/vr-federal-mapping-seed-f6.json.",
+      "measureType": "bill",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.R. 4690",
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/4690",
+      "issues": [
+        {
+          "issueKey": "climate_action",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "SEC. 2 strikes subclauses (I) and (II) of section 305(a)(3)(D)(i) of the Energy Conservation and Production Act (42 U.S.C. 6834(a)(3)(D)(i)) — the fossil-fuel-use reduction targets for new and renovated Federal buildings — and then provides that subpart B of part 433 and subpart B of part 435 of title 10, Code of Federal Regulations 'shall have no force or effect', with a transition clause implementing the statute 'as though the requirements of subclauses (I) and (II) had never taken effect'. Subsections (a)(2) and (c) further bar the green-building certification system from withholding certification 'solely based on direct or indirect consumption of fossil fuels'. climate_action's written scope names 'Programmes, subsidies and rules that cut emissions, and their repeal' as what is IN, and its pole reads 'Against = it repealed, defunded or taxed one'. This is a repeal, so the row is yea_opposes and a yea is published as against the key. Weight 100: the repeal is the entire measure.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr4690eh/html/BILLS-119hr4690eh.htm"
+        }
+      ]
     }
   ],
   "_phase12_overlap_priority": {

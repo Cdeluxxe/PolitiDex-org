@@ -495,6 +495,34 @@
 // '/' from the network, so the first thing the new worker does is throw the wrong
 // document away. index.html changed too (the guard is in it) and '/' is precached,
 // which is the ordinary reason for a bump as well.
+// v97 - ELEVEN NEW JUDGED BILLS ARRIVED WITH THEIR MECHANISM LINES, and the lines
+// live in a precached asset. Federal wave F6 ingests eleven contested House passage
+// votes and maps eleven PRIMARY issue rows on four keys that were already live, all
+// of it database-side — which on its own bumps nothing. What is client-side is the
+// curated pair each of those judged acts needs: _DOS_MECH in consistency.js gained
+// eleven entries so that a row reading Contradicted or Mixed on the energy,
+// permitting, lands or climate chip says what the bill did and which way the ballot
+// cut, instead of "counted on this chip because that is the primary subject of this
+// measure" on a face whose only other text is a long title. A warm device holding
+// v96's consistency.js takes the new rows from the database and renders every one of
+// them in the derived voice, which is the one combination worth avoiding: the mapping
+// is live, the explanation is not, and the reader sees the restatement on eleven
+// bills nobody can identify from a number. No floor, tier, weight, score or verdict
+// moved — the three mechanism harnesses re-derive every verdict and every Direction
+// Match reading with the prose in and out and require them identical, and the wave
+// harness boots HEAD and this tree side by side and requires the same.
+//   The second shipped file is compare-hub.js, which carries BROWSE_PHOTOS and gained
+// eight official congressional portraits: the eight thin House files this wave finally
+// attributes votes to. Any member who attributes a roll call can be the subject of an
+// Official Record share card, and that card is an image with a face on it whose
+// #record= link paints before — or entirely without — a Firestore round trip. Without a
+// bundled portrait the card showed a face and the page it opened showed a party-tinted
+// monogram of the same person. compare-hub.js is a stale-while-revalidate runtime entry
+// rather than a precached one, but the runtime cache name carries CACHE_VERSION too, so
+// the rename drops the copy holding the old map and the portraits arrive with the rows
+// they belong to. Same public-domain source and same allowlisted host as every other
+// federal portrait in that map; no roster, no address and no photo tier order changed.
+//
 // v96 - voting-record.js learned which mapping generation a payload is of, and
 // refuses to file a cached pack built from a superseded one over a live read this
 // device has already been shown. That is the last shape of the F4 bug the
@@ -537,7 +565,7 @@
 // saying there is nothing on file. person-file.css ships with its script for the
 // usual reason: the header and kicker it styles are hidden-by-default blocks, and
 // unstyled they are loose text above the fold.
-const CACHE_VERSION = 'v96';
+const CACHE_VERSION = 'v97';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

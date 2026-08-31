@@ -158,8 +158,19 @@
       // ══ Photo audit (additive): verified official/reputable portraits ══════════
       // Federal members — official congressional portraits (public domain) via the
       // unitedstates/images project, keyed by Bioguide ID (authoritative dataset).
+      // ── Federal wave F6: the eight thin House files ───────────────────────────
+      // These eight attribute roll calls as of this wave (db/vr-member-map.json), so
+      // each can now be the subject of a vote-derived Official Record share card. A
+      // card is an image with a face on it and the #record= link it opens paints before
+      // any Firestore round trip, so a member who attributes votes without a BUNDLED
+      // portrait shows a face on the card and a party-tinted monogram on arrival. Same
+      // official public-domain source and same allowlisted host as every other federal
+      // member above, keyed by the Bioguide the ingest reads; each URL was fetched and
+      // came back an image/jpeg, and each Bioguide is the one verified by name+state in
+      // scripts/vr-gen-member-map.mjs.
       aguilar: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000371.jpg',
       adam_smith: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S000510.jpg', // WA-09 · S000510
+      adrian_smith: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001172.jpg', // NE-03 · S001172
       alsobrooks: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000382.jpg',
       andy_kim: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000394.jpg',
       angus_king: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000383.jpg',
@@ -184,11 +195,13 @@
       debbie_dingell: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000624.jpg',
       delia_ramirez: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000617.jpg',
       diana_degette: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000197.jpg',
+      dina_titus: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000468.jpg', // NV-01 · T000468
       don_bacon: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001298.jpg',
       donalds: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000032.jpg',
       duckworth: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000622.jpg',
       ernst: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/E000295.jpg',
       fitzpatrick: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000466.jpg',
+      gabe_vasquez: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/V000136.jpg', // NM-02 · V000136
       gallego: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000574.jpg',
       gillibrand: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000555.jpg',
       greg_landsman: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000601.jpg',
@@ -221,6 +234,7 @@
       mcconnell: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M000355.jpg',
       mccormick: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001243.jpg',
       meeks: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001137.jpg', // NY-05 · M001137
+      melanie_stansbury: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001218.jpg', // NM-01 · S001218
       merkley: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001176.jpg',
       mike_lawler: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000599.jpg',
       mike_rounds: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000605.jpg',
@@ -240,6 +254,7 @@
       roger_marshall: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001198.jpg',
       ron_johnson: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000293.jpg',
       rosen: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000608.jpg',
+      russ_fulcher: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000469.jpg', // ID-01 · F000469
       sanders: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S000033.jpg',
       sarah_mcbride: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001238.jpg',
       schatz: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001194.jpg',
@@ -253,9 +268,11 @@
       stefanik: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001196.jpg',
       steny_hoyer: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H000874.jpg',
       summer_lee: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000602.jpg',
+      susie_lee: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000590.jpg', // NV-03 · L000590
       tammy_baldwin: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001230.jpg',
       ted_budd: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001305.jpg',
       ted_lieu: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000582.jpg',
+      teresa_leger_fernandez: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000273.jpg', // NM-03 · L000273
       thune: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000250.jpg',
       tillis: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000476.jpg',
       tim_scott: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001184.jpg', // SC Sen · S001184
@@ -267,6 +284,7 @@
       torres: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000486.jpg',
       warnock: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000790.jpg',
       welch: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000800.jpg',
+      zach_nunn: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/N000193.jpg', // IA-03 · N000193
       // Governors, attorneys general & state legislative leaders — official/reputable
       // portraits via Wikimedia Commons (Wikipedia pageimages; name+state verified).
       aaron_ford: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Nevada_Attorney_General_Aaron_Ford_addresses_the_United_Nations_Human_Rights_Committee%2C_October_17-18%2C_2023_1_%28cropped%29.jpg/500px-Nevada_Attorney_General_Aaron_Ford_addresses_the_United_Nations_Human_Rights_Committee%2C_October_17-18%2C_2023_1_%28cropped%29.jpg',

@@ -78,6 +78,7 @@ const WAVES = {
   f3: { mapping: "db/vr-federal-mapping-seed-f3.json", votes: "db/vr-federal-wave-f3-vote-seed.json" },
   f4: { mapping: "db/vr-federal-mapping-seed-f4.json", votes: "db/vr-federal-wave-f4-vote-seed.json" },
   f5: { mapping: "db/vr-federal-mapping-seed-f5.json", votes: "db/vr-federal-wave-f5-vote-seed.json" },
+  f6: { mapping: "db/vr-federal-mapping-seed-f6.json", votes: "db/vr-federal-wave-f6-vote-seed.json" },
 };
 
 const FILES = [
@@ -744,8 +745,31 @@ const F5_OUTCOME = {
   free_speech:      { verdict: "BLOCKED",  note: "unchanged from F4 — S. 146 by unanimous consent, 0 rolls. Not re-examined this wave" },
 };
 
+// F6. The first wave in this sequence whose SHIPPED rows are INGESTS rather than
+// promotes: eleven contested standalone House rolls that were not in the corpus at
+// all, on eleven measures that were not either. Four keys gain a PRIMARY act each
+// (three, four, two and one of them), and every row is is_primary = true, so no
+// member is carried across rule 30's primary wall by a secondary this wave wrote.
+//
+// The refusals below are the ones this wave actually READ and declined. They are
+// worth more than the admissions to a later curator, because each names a bill: a
+// refusal with a bill number can be reopened, and a refusal without one has to be
+// rediscovered. Four of them are the runbook's study-and-report rule reaching
+// federal text for the first time.
+const F6_OUTCOME = {
+  energy_production:{ verdict: "SHIPPED",  note: "H.R. 1047, H.R. 3616, H.R. 3632, H.R. 3628 — four new House PRIMARY acts on dispatchable supply and retirement notice" },
+  permitting_reform:{ verdict: "SHIPPED",  note: "H.R. 3062, H.R. 4776, H.R. 3668, H.R. 3898 — four new PRIMARY acts; H.R. 4776 is the key's own subject (NEPA + judicial review) at w100" },
+  lands_energy:     { verdict: "SHIPPED",  note: "H.R. 1366, H.R. 4090 — two new PRIMARY acts; supersedes F3's mirror-secondary reading with instruments of the key's own" },
+  climate_action:   { verdict: "SHIPPED",  note: "H.R. 4690 — first act on the key's repeal pole in this sequence: w100 yea_opposes on a Federal-building standards repeal" },
+  cost_living:      { verdict: "REFUSED",  note: "H.R. 3628 names affordability in its short title and changes no price: a PURPA standard a State must consider is not a utility bill (rule 4 — the name is not the instrument)" },
+  water:            { verdict: "REFUSED",  note: "H.R. 3898 amends the Clean Water Act; the key's scope note is demand-side conservation, and a 401 certification is a permit step" },
+  gov_regulation:   { verdict: "REFUSED",  note: "not restuffed. Eight of the eleven change a federal process, which is permitting_reform's subject, not the size of the rulebook (runbook rule 3)" },
+  healthcare:       { verdict: "REFUSED",  note: "H.R. 1834 refused on subject scope: its title says gridlock, its text extends the section 36B enhanced premium tax credit through 2028" },
+  states_federal_power:{verdict:"REFUSED", note: "in _RD_NO_POLE, and the wave declined to give it one — see the District of Columbia key refused below" },
+};
+
 // The column reads from the merge, later wave last.
-const OUTCOME = { ...F3_OUTCOME, ...F4_OUTCOME, ...F5_OUTCOME };
+const OUTCOME = { ...F3_OUTCOME, ...F4_OUTCOME, ...F5_OUTCOME, ...F6_OUTCOME };
 
 // ── ONE ROW, BEFORE AND AFTER ───────────────────────────────────────────────
 // The band table and the drift list say a row's tier moved; neither says what the
@@ -780,6 +804,41 @@ if (argOf("row")) {
   dump(winB, before, "BEFORE");
   dump(winA, after, "AFTER");
   console.log("");
+} else if (process.argv.includes("--thin")) {
+  // ── THE THIN BAND, NAMED ─────────────────────────────────────────────────
+  // The band table counts thin members; it never says who they are, which makes the
+  // number impossible to act on. F5 hit exactly that wall: it could report "10 thin"
+  // and could not report whether any wave could reach them, so it had to argue from
+  // the floors instead of measuring. This branch names them and prints the two numbers
+  // that decide reachability — issues on file and ACTS on file — beside the member
+  // floor, because a member below _PDX_RD_MEMBER_FLOOR is not short of mappings, they
+  // are short of votes, and only an ingest wave moves that.
+  const floor = (() => {
+    // The literal is declared as _RD_MEMBER_FLOOR and only re-exported on window as
+    // _PDX_RD_MEMBER_FLOOR, so read the booted value and fall back to the declaration.
+    if (typeof winB._PDX_RD_MEMBER_FLOOR === "number") return winB._PDX_RD_MEMBER_FLOOR;
+    const m = SRC.map(([, src]) => src).join("\n").match(/_RD_MEMBER_FLOOR\s*=\s*(\d+)/);
+    return m ? +m[1] : null;
+  })();
+  const rows = [...B.per.entries()]
+    .filter(([, v]) => v.band !== "readable")
+    .sort((a, b) => (a[1].acts - b[1].acts) || a[0].localeCompare(b[0]));
+  console.log(`\n  THE THIN AND EMPTY BAND — ${rows.length} of ${B.members} on the roster`);
+  console.log(`  member floor (_PDX_RD_MEMBER_FLOOR) = ${floor === null ? "not found" : floor} acts\n`);
+  console.log("  member                    band     issues  acts  chars  gap to floor  what would move them");
+  for (const [pid, v] of rows) {
+    const gap = floor === null ? null : Math.max(0, floor - v.acts);
+    const why = v.band === "empty" ? "no record at all — attribution or ingest"
+      : gap > 0 ? `${gap} more acts — INGEST, no mapping reaches this`
+      : "acts clear the floor; a mapping or a primary could read them";
+    console.log(`  ${pid.padEnd(24)} ${v.band.padEnd(8)} ${String(v.issues).padStart(5)} ${String(v.acts).padStart(6)}`
+      + ` ${String(v.characterised).padStart(6)} ${String(gap === null ? "?" : gap).padStart(13)}  ${why}`);
+  }
+  const reachable = rows.filter(([, v]) => floor !== null && v.acts >= floor);
+  console.log(`\n  reachable by a MAPPING wave: ${reachable.length}`
+    + `   ·   need ACTS first: ${rows.length - reachable.length}`);
+  console.log("  A wave that wants to move this band has to add votes to the named members,");
+  console.log("  not rows to the corpus. Check a candidate roll's roster against this list.\n");
 } else if (process.argv.includes("--band")) {
   // ── THE PROMOTABLE BAND, MEASURED BY SIMULATION ──────────────────────────
   // --chambers answers "which keys have no Senate-reachable PRIMARY". That is the
