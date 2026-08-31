@@ -454,11 +454,23 @@ const deltaMeasures = [...dMeasures.map((m) => ({ T: "2025GS", m })),
 const deltaRolls = deltaMeasures.flatMap(({ T, m }) =>
   (m.rollcalls || []).map((rc) => ({ T, m, rc })));
 const deltaVotes = deltaRolls.reduce((t, { rc }) => t + (rc.votes || []).length, 0);
+// THE DELTA'S OWN ROWS ARE FROZEN; THE SEED'S ARE NOT. 20261010000000 is applied, so it
+// owns exactly the 325 votes it wrote and no more. The wave-9 name admit then attributed
+// 13 further printed names on the SAME rolls — H.B. 348 is one of the delta's bills and
+// eleven of its recorded names had no roster identity when the delta ran. So the seed
+// legitimately holds more than the delta does, and the delta's floor assertion
+// (`IF n_votes < 325`) still holds because it is a floor. What is pinned is both numbers
+// and the identity of the file that owns the difference — the one thing that would
+// actually be wrong is the gap belonging to nobody.
+const DELTA_OWNS = 325;
+const deltaAdmitted = deltaVotes - DELTA_OWNS;
 const deltaMappings = deltaMeasures.reduce((t, { m }) => t + (m.issues || []).length, 0);
 must(deltaMeasures.length === 5, "the delta's five bills are not all in the seeds");
 must(D2024.length === 1, "the 2024GS seed does not carry H.B. 348, so this proves nothing");
 eq(deltaRolls.length, 7, "the delta's bills carry seven contested rolls between them");
-eq(deltaVotes, 325, "the delta's rolls carry 325 attributed member votes");
+eq(deltaVotes, 338, "the delta's rolls carry 338 attributed member votes in the seed");
+eq(deltaAdmitted, 13,
+  "13 of them were attributed after the delta ran, by the wave-9 name admit");
 eq(deltaMappings, 5, "one mapping per newly homed bill");
 
 eq((SQLD.match(/^DO \$\$/gm) || []).length, deltaMeasures.length + 1,
@@ -473,8 +485,8 @@ eq((SQLD.match(/IF NOT EXISTS \(SELECT 1 FROM vr_measure_issues/g) || []).length
   "every mapping insert is sentinelled");
 eq((SQLD.match(/INSERT INTO vr_rollcalls /g) || []).length, deltaRolls.length,
   "one roll-call insert per roll call");
-eq((SQLD.match(/^ {4}\(rc_id, '/gm) || []).length, deltaVotes,
-  "every member vote on a newly homed bill reached the delta");
+eq((SQLD.match(/^ {4}\(rc_id, '/gm) || []).length, DELTA_OWNS,
+  "every member vote the delta could attribute reached the delta");
 eq((SQLD.match(/ON CONFLICT \(rollcall_id, politician_id\) DO NOTHING/g) || []).length,
   deltaRolls.length, "every member-vote insert in the delta is re-runnable");
 
@@ -545,8 +557,8 @@ has(dVerify, `IF n_measures <> ${deltaMeasures.length} THEN`,
   "the delta's verification counts the measures it added");
 has(dVerify, `IF n_rolls <> ${deltaRolls.length} THEN`,
   "the delta's verification counts the roll calls it added");
-has(dVerify, `IF n_votes < ${deltaVotes} THEN`,
-  "the delta's verification counts the member votes it added");
+has(dVerify, `IF n_votes < ${DELTA_OWNS} THEN`,
+  "the delta's verification counts the member votes it added, as a floor a later wave may exceed");
 has(dVerify, `IF n_issues <> ${deltaMappings} THEN`,
   "the delta's verification counts the mappings it added");
 has(dVerify, "IF n_orphan > 0 THEN",
@@ -576,19 +588,25 @@ const ARCHIVE = [
   {
     session: "2024GS", year: 2024,
     mig: "netlify/database/migrations/20261002000000_vr_utah_2024gs_state_record.sql",
-    measures: 29, rolls: 40, votes: 1944, issues: 34, dropped: 458,
+    measures: 29, rolls: 40, votes: 2308, issues: 34, dropped: 94,
     // H.B. 348 (sound_money) is the delta's; everything else is the record file's.
     migMeasures: 28, migRolls: 39, migVotes: 1885, migIssues: 33, migDropped: 442,
-    unmapped: { H: 16, S: 2 }, refused: ["Judkins, M.", "Lyman, P."],
+    admit: "netlify/database/migrations/20261020000000_vr_utah_2024gs_name_admit_floor_votes.sql",
+    admitVotes: 364, admitPids: 14, admitRolls: 40,
+    unmappedThen: { H: 16, S: 2 },
+    unmapped: { H: 3, S: 1 }, refused: ["Judkins, M.", "Lyman, P."],
     crossChamber: ["Brammer, B.", "Musselman, C.R.", "Stratton, K."],
   },
   {
     session: "2023GS", year: 2023,
     mig: "netlify/database/migrations/20261003000000_vr_utah_2023gs_state_record.sql",
-    measures: 40, rolls: 49, votes: 2490, issues: 49, dropped: 677,
-    // No 2023GS bill got a home from vocab wave V1, so seed and migration agree.
+    measures: 40, rolls: 49, votes: 3004, issues: 49, dropped: 163,
+    // No 2023GS bill got a home from vocab wave V1, so the delta owns nothing here.
     migMeasures: 40, migRolls: 49, migVotes: 2490, migIssues: 49, migDropped: 677,
-    unmapped: { H: 17, S: 3 }, refused: ["Judkins, M.", "Lyman, P."],
+    admit: "netlify/database/migrations/20261021000000_vr_utah_2023gs_name_admit_floor_votes.sql",
+    admitVotes: 514, admitPids: 15, admitRolls: 49,
+    unmappedThen: { H: 17, S: 3 },
+    unmapped: { H: 4, S: 1 }, refused: ["Judkins, M.", "Lyman, P."],
     crossChamber: ["Brammer, B.", "Musselman, C.R.", "Stratton, K."],
   },
 ];
@@ -772,10 +790,16 @@ for (const A of ARCHIVE) {
     `${T}: every pid the migration writes comes from the accepted map (${aStrayMig.join(", ")})`);
   // The dropped votes are disclosed by count and by name, and a REFUSED name is
   // disclosed as a refusal — the distinction is the whole point of keeping both lists.
-  has(aSql, `NOT WRITTEN — ${A.unmapped.H} member(s) of the utah house`,
-    `${T}: the migration discloses the House names it could not attribute`);
-  has(aSql, `NOT WRITTEN — ${A.unmapped.S} member(s) of the utah senate`,
-    `${T}: the migration discloses the Senate names it could not attribute`);
+  // These are the counts the RECORD migration disclosed WHEN IT RAN, not the map's
+  // residue today. The wave-9 name admit attributed most of them, and an applied
+  // migration is never edited to match a later truth — it is a statement about what
+  // that file wrote, and it was correct. What has to stay true is that the file still
+  // discloses its own gap by count and by name, and that the gap it left is accounted
+  // for downstream: `unmappedThen` below equals the residue plus the admits.
+  has(aSql, `NOT WRITTEN — ${A.unmappedThen.H} member(s) of the utah house`,
+    `${T}: the record migration discloses the ${A.unmappedThen.H} House names IT could not attribute`);
+  has(aSql, `NOT WRITTEN — ${A.unmappedThen.S} member(s) of the utah senate`,
+    `${T}: the record migration discloses the ${A.unmappedThen.S} Senate names IT could not attribute`);
   has(aSql, `${A.refused.length} of those (${A.refused.join("; ")}) are REFUSALS rather than gaps`,
     `${T}: the migration calls a refusal a refusal`);
   has(aSql, `db/vr-utah-member-map-${T}.json`,
@@ -791,6 +815,151 @@ for (const A of ARCHIVE) {
     `${T}: the verification fails the deploy on a vote attributed off the map`);
   has(aVerify, "congress IS NULL", `${T}: the verification counts state rows only`);
   has(aVerify, `r.session = ${A.year}`, `${T}: the verification counts this session's rows`);
+}
+
+// ── 7e. The name admit attributes people, never invents them ────────────────
+// WHAT WENT WRONG AND WHAT THIS PINS. Both archive sessions shipped with a residue:
+// printed names left in `unmapped` because the people behind them were on no PolitiDex
+// roster when the floor map was written. Later waves put them on the roster and nobody
+// went back, so their roll-call votes stayed parsed and dropped while their files sat
+// empty or thin. Wave 9 re-ran that one stale fence.
+//
+// A pass that ADDS attributions is the most dangerous kind in this lane, because the
+// cheapest way to make a thin file look full is to relax who a printed name is allowed
+// to be. So this section does not check that the admits happened — it checks that they
+// could not have been guessed, and that everything the admit did NOT reach is still
+// visibly refused rather than quietly absorbed.
+section("The name admit attributes people, never invents them");
+// The roster, read the way the ingest reads it: cmp-data.js is a browser file, so it is
+// evaluated against a window stub rather than imported.
+const winR = {};
+new Function("window", R("cmp-data.js"))(winR);
+const ROSTER = new Set(Object.keys(winR.CMP_DATA || {}));
+must(ROSTER.size > 100, "cmp-data.js did not yield a roster, so the created-nobody check proves nothing");
+for (const A of ARCHIVE) {
+  const T = A.session;
+  const aMap = J(`db/vr-utah-member-map-${T}.json`);
+  const cMap = J(`db/vr-utah-committee-map-${T}.json`);
+  const aSql = R(A.mig);
+  const mSql = R(A.admit);
+  const admitted = aMap._wave9Admitted || {};
+  const admitPids = new Set(Object.values(admitted));
+
+  // 1. THE ARITHMETIC CLOSES. Every name the record migration disclosed as unattributed
+  //    is either attributed now or still listed as unattributed. A name that is in
+  //    neither column has gone missing, which is how a disclosed gap becomes an
+  //    undisclosed one.
+  for (const house of ["H", "S"]) {
+    const admittedHere = Object.keys(admitted).filter((k) => k.startsWith(house + " ")).length;
+    eq(admittedHere + A.unmapped[house], A.unmappedThen[house],
+      `${T}/${house}: ${A.unmappedThen[house]} disclosed unattributed = ${admittedHere} admitted + ${A.unmapped[house]} still unattributed`);
+  }
+  eq(admitPids.size, A.admitPids, `${T}: the map records ${A.admitPids} wave-9 admissions`);
+  eq(Object.keys(admitted).length, admitPids.size,
+    `${T}: no two printed forms were admitted onto one roster id`);
+
+  // 2. THE ADMITTED SET IS THE MAPPED SET. A pid claimed in the note but absent from
+  //    `chambers` would mean the prose and the mapping disagree; the reverse would mean
+  //    a mapping arrived without the note that justifies it.
+  const nowMapped = new Map();
+  for (const house of ["H", "S"])
+    for (const [printed, pid] of Object.entries(aMap.chambers[house] || {})) nowMapped.set(`${house} ${printed}`, pid);
+  for (const [k, pid] of Object.entries(admitted)) {
+    eq(nowMapped.get(k), pid, `${T}: the admitted form "${k}" is mapped to ${pid} in chambers`);
+    // The vote page prints no district for a member who had left, so nothing here may
+    // claim a district confirmed the identity.
+    eq(aMap.confirmedByDistrict[k.slice(0, 1)][k.slice(2)], false,
+      `${T}: "${k}" is not claimed as district-confirmed`);
+  }
+
+  // 3. NOTHING WAS ADDED TO THE ROSTER. An admit may only point at a record that already
+  //    exists — creating a person to receive a vote is the failure this whole lane is
+  //    built to prevent.
+  for (const pid of admitPids)
+    ok(ROSTER.has(pid), `${T}: ${pid} was already on the roster; the admit created nobody`);
+
+  // 4. GATE TWO IS REAL. Every admitted pid must appear in the SAME session's reviewed
+  //    committee map under a printed form with the same surname, in the same chamber.
+  //    That is the human-accepted decision the admit reuses instead of making a new one.
+  for (const [k, pid] of Object.entries(admitted)) {
+    const house = k.slice(0, 1);
+    const surname = k.slice(2).split(",")[0].trim();
+    const forms = Object.entries((cMap.printedForms || {})[house] || {})
+      .filter(([, v]) => v.politicianId === pid);
+    eq(forms.length, 1, `${T}: ${pid} has exactly one accepted committee form in ${house}`);
+    has(forms[0][0], surname, `${T}: the committee form "${forms[0][0]}" carries the surname "${surname}"`);
+    ok(String(forms[0][1].confirmedBy || "").length > 0,
+      `${T}: the committee map's decision on ${pid} names what confirmed it`);
+  }
+
+  // 5. GATE THREE IS NAMED IN THE MIGRATION, with the year whose roster was read.
+  has(mSql, `roster.asp?year=${A.year}`,
+    `${T}: the admit migration names the roster it was confirmed against`);
+  has(mSql, `db/vr-utah-committee-map-${T}.json`,
+    `${T}: the admit migration names the reviewed map it reused`);
+
+  // 6. A REFUSAL SURVIVED THE PASS. The names the committee map refuses by name are the
+  //    exact names the admit must not have reached, and they must still be disclosed as
+  //    unattributed rather than dropped from the file.
+  const stillUnmapped = new Set(aMap.unmapped.H.concat(aMap.unmapped.S).map((u) => u.printed));
+  const cRefused = [...new Set([...(cMap._refusedNames.H || []), ...(cMap._refusedNames.S || [])]
+    .map((n) => n.replace(/^(?:Rep|Sen)\.\s+[A-Z]\.?\s+/, "")))];
+  must(cRefused.length >= 3, `${T}: the committee map refuses fewer than three names, so this proves nothing`);
+  for (const sur of cRefused) {
+    const reached = Object.keys(admitted).filter((k) => k.slice(2).startsWith(sur + ","));
+    eq(reached.length, 0, `${T}: the committee map refuses "${sur}", and the admit did not reach it`);
+    ok([...stillUnmapped].some((pnt) => pnt.startsWith(sur + ",")),
+      `${T}: "${sur}" is still disclosed among the names that got no votes`);
+  }
+  for (const n of A.refused) ok(!admitPids.size || !Object.keys(admitted).some((k) => k.slice(2) === n),
+    `${T}: the refused name "${n}" was not admitted`);
+
+  // 7. THE MIGRATION IS THE SEED'S DELTA AND NOTHING MORE. Member votes only, no DDL,
+  //    no other session, one re-runnable insert per roll, and every row belongs to a pid
+  //    the map records as admitted. A stray pid here is a vote published under a stranger.
+  for (const forbidden of ["CREATE ", "DROP ", "ALTER ", "TRUNCATE", "DELETE FROM",
+    "UPDATE vr_", "INSERT INTO vr_measures", "INSERT INTO vr_rollcalls",
+    "INSERT INTO vr_measure_issues", "INSERT INTO vr_positions"]) {
+    lacks(mSql, forbidden, `${T}: the admit migration contains no "${forbidden.trim()}"`);
+  }
+  for (const other of ["2025GS", "2024GS", "2023GS"].filter((x) => x !== T))
+    lacks(mSql, other, `${T}: the admit migration writes nothing under ${other}`);
+  has(mSql, "congress IS NULL", `${T}: the admit migration dedupes state roll calls on a NULL congress`);
+  const mRows = mSql.match(/^ {4}\(rc, '([a-z0-9_]+)', '([a-z_]+)'\)/gm) || [];
+  eq(mRows.length, A.admitVotes, `${T}: ${A.admitVotes} member votes reached the admit migration`);
+  eq((mSql.match(/ON CONFLICT \(rollcall_id, politician_id\) DO NOTHING/g) || []).length, A.admitRolls,
+    `${T}: every member-vote insert in the admit migration is re-runnable`);
+  eq((mSql.match(/^  SELECT id INTO rc FROM vr_rollcalls$/gm) || []).length, A.admitRolls,
+    `${T}: one roll-call lookup per roll it adds to`);
+  eq((mSql.match(/RAISE EXCEPTION 'Utah \S+ name admit: utah (?:house|senate)/g) || []).length, A.admitRolls,
+    `${T}: a missing roll call RAISEs rather than being invented`);
+  const mStray = [...new Set(mRows.map((r) => r.replace(/^.*'([a-z0-9_]+)', '[a-z_]+'\)$/, "$1")))]
+    .filter((pid) => !admitPids.has(pid));
+  eq(mStray.length, 0,
+    `${T}: every pid in the admit migration is one the map records as admitted (${mStray.join(", ")})`);
+
+  // 8. AND IT IS THE ARITHMETIC OF THE THREE FILES. The seed's votes equal what the
+  //    record migration owns, plus what the vocab delta owns on this session's rolls,
+  //    plus what the admit owns. A number that does not close means one file is writing
+  //    another's rows.
+  const dOwnsHere = T === "2024GS" ? DELTA_OWNS - deltaMeasures.filter((x) => x.T === "2025GS")
+    .reduce((t, { m }) => t + (m.rollcalls || []).reduce((n, rc) => n + (rc.votes || []).length, 0), 0) : 0;
+  eq(A.migVotes + dOwnsHere + A.admitVotes, A.votes,
+    `${T}: ${A.migVotes} (record) + ${dOwnsHere} (vocab delta) + ${A.admitVotes} (admit) = ${A.votes} seeded votes`);
+
+  // 9. AND THE PROSE IS THERE. A pass that changes who a vote belongs to has to say so
+  //    in the file a reviewer opens, not only in a migration nobody re-reads.
+  for (const key of ["_wave9NameAdmit", "_unmappedIsCoverage"])
+    ok(String(aMap[key] || "").length >= 400, `${T}: ${key} explains itself in prose`);
+  has(aMap._wave9NameAdmit, `roster.asp?year=${A.year}`,
+    `${T}: the map's own note names the roster the admit was confirmed against`);
+  lacks(aMap._unmappedIsCoverage, "roster decision for a later wave",
+    `${T}: the coverage note no longer defers a decision this wave made`);
+  ok(!/still being built|record still/i.test(String(aMap._unmappedIsCoverage)),
+    `${T}: the coverage note does not call a refusal on the merits unfinished work`);
+  // The record migration is untouched: it is applied, and its disclosure was true.
+  has(aSql, `NOT WRITTEN — ${A.unmappedThen.H} member(s) of the utah house`,
+    `${T}: the applied record migration was not rewritten to match the new truth`);
 }
 
 // ── 8. No surface labels a Utah vote as a federal one ────────────────────────

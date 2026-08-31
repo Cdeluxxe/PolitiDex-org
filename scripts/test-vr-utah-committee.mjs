@@ -634,8 +634,22 @@ for (const m of m24) {
     if (!!v.supersededByFloorVote !== pairs.has(`${m.utahBill}|${v.politicianId}`)) disagreed++;
   }
   eq(disagreed, 0, "2024: every row's supersededByFloorVote agrees with the 2024 floor seed");
-  eq(sup, SEED24.counts.supersededByFloorVote, "2024: the seed's superseded count is the superseded rows");
-  eq(fresh, SEED24.counts.notOnAnyFloorRoll, "2024: the seed's fresh count is the un-superseded rows");
+  // The seed carries these two counts TWICE, and the distinction is the point. The bare
+  // keys are this session's ingest-time figures, quoted verbatim in the prose of its
+  // applied migration and frozen there — the byte-identity check below regenerates that
+  // migration from them, so they can never be edited to match a later truth. The *Now
+  // keys are the same two counts re-derived from the committed floor seeds after the
+  // wave-9 name admit attributed floor votes this session had parsed and dropped for want
+  // of a roster id. The PER-ROW flags follow the *Now figures, because a row that says a
+  // member never floor-voted on a bill they demonstrably did is simply wrong.
+  const nowSup = (S) => S.counts.supersededByFloorVoteNow ?? S.counts.supersededByFloorVote;
+  const nowFresh = (S) => S.counts.notOnAnyFloorRollNow ?? S.counts.notOnAnyFloorRoll;
+  eq(sup, nowSup(SEED24), "2024: the seed's re-derived superseded count is the superseded rows");
+  eq(fresh, nowFresh(SEED24), "2024: the seed's re-derived fresh count is the un-superseded rows");
+  ok(SEED24.counts.supersededByFloorVote + SEED24.counts.notOnAnyFloorRoll === sup + fresh,
+    "2024: the frozen pair still totals the same rows — the admit moved the split, not the row count");
+  ok(nowSup(SEED24) >= SEED24.counts.supersededByFloorVote,
+    "2024: re-deriving only ever supersedes MORE rows, because a floor vote is never withdrawn");
   ok(sup > 0 && fresh > 0, "2024: both the superseded and the fresh case are present");
   // The whole depth claim for this session is those 44 rows and nothing more.
   // 12 while wave 3 shipped, 44 now, and the rise is two disclosed causes rather
@@ -643,7 +657,11 @@ for (const m of m24) {
   // never had, which pulled the bill into the formal lane with 15 fresh rows, and
   // wave 6's roster door resolved 14 printed names that had been dropped, whose
   // acts are mostly on bills no floor roll in this seed speaks for.
-  eq(fresh, 44, "2024: the depth this session adds is 44 rows, the number the report quotes");
+  eq(SEED24.counts.notOnAnyFloorRoll, 44,
+    "2024: the frozen depth figure is still the 44 rows the applied migration's report quotes");
+  eq(fresh, 19,
+    "2024: the depth this session adds TODAY is 19 rows — the name admit moved 25 of the 44 " +
+    "under a floor vote by the same member on the same bill, which is one position, not two");
 }
 
 // 4 · one act per person per instrument per committee action.
@@ -948,10 +966,30 @@ for (const [yr, , files] of YEARS) {
   let regenerated = null;
   try { regenerated = buildSql(session, args); }
   catch (e) { regenerated = `THREW: ${e.message}`; }
-  ok(regenerated === sql,
-    `${yr}: ${file} is byte-identical to what buildSql("${session}") regenerates — a ` +
-    `hand-typed number would show up here` + (regenerated === sql ? "" :
-      ` (first difference at byte ${[...sql].findIndex((c, i) => c !== String(regenerated)[i])})`));
+  // ONE EXEMPTION, AND IT IS NAMED. The header's double-count paragraph reports how many
+  // of these rows belong to a member who ALSO floor-voted on the same bill. That number is
+  // derived from the floor seed, and the floor seed grows: the wave-9 name admit attributed
+  // 878 floor votes these sessions had parsed and dropped, which legitimately supersedes 70
+  // committee rows that were fresh when these migrations were written. The migrations are
+  // APPLIED and are never edited, so regenerating them today produces a different pair of
+  // figures in that one paragraph and identical bytes everywhere else.
+  //
+  // Blanking the two figures keeps everything the check was built for — every INSERT, every
+  // per-bill act and position count, every cited PDF, every measure and issue total — and
+  // gives up only the disclosure that is supposed to move. The frozen figures are then
+  // asserted directly against the seed's frozen keys, so they are still pinned, just not
+  // pinned to a number that re-derivation will contradict.
+  const DOUBLE_COUNT = /^-- (?:AND IT DOES NOT DOUBLE COUNT\. |)\d+ of these rows belong to a member$/m;
+  const DEPTH = /^-- (?:because they happened, not to add depth: the depth this file adds is the other\n-- |)\d+ rows, where the committee record is the only record of that member on$/m;
+  const blank = (t) => String(t).replace(DOUBLE_COUNT, "-- <double-count figure>")
+                                .replace(DEPTH, "-- <depth figure>");
+  const same = blank(regenerated) === blank(sql);
+  ok(same,
+    `${yr}: ${file} is byte-identical to what buildSql("${session}") regenerates, outside the ` +
+    `double-count figures the floor seed legitimately moves — a hand-typed number would show ` +
+    `up here` + (same ? "" :
+      ` (first difference at byte ${[...blank(sql)].findIndex((c, i) => c !== blank(regenerated)[i])})`));
+  if (!same) console.error(`      regenerated ${regenerated.length}b vs shipped ${sql.length}b`);
 }
 ok(SEED.counts.billsWithAnyCommitteeVote !== SEED24.counts.billsWithAnyCommitteeVote,
   "the two sessions have genuinely different pre-bar counts — the templating is being tested");
@@ -1090,9 +1128,27 @@ for (const { m, ca } of a23) {
     if (!!v.supersededByFloorVote !== pairs.has(`${m.utahBill}|${v.politicianId}`)) disagreed++;
   }
   eq(disagreed, 0, "2023: every row's supersededByFloorVote agrees with the 2023 floor seed");
-  eq(sup, SEED23.counts.supersededByFloorVote, "2023: the seed's superseded count is the superseded rows");
-  eq(fresh, SEED23.counts.notOnAnyFloorRoll, "2023: the seed's fresh count is the un-superseded rows");
-  eq(fresh, 96, "2023: the depth this session adds is 96 rows, the number the report quotes");
+  // The seed carries these two counts TWICE, and the distinction is the point. The bare
+  // keys are this session's ingest-time figures, quoted verbatim in the prose of its
+  // applied migration and frozen there — the byte-identity check below regenerates that
+  // migration from them, so they can never be edited to match a later truth. The *Now
+  // keys are the same two counts re-derived from the committed floor seeds after the
+  // wave-9 name admit attributed floor votes this session had parsed and dropped for want
+  // of a roster id. The PER-ROW flags follow the *Now figures, because a row that says a
+  // member never floor-voted on a bill they demonstrably did is simply wrong.
+  const nowSup = (S) => S.counts.supersededByFloorVoteNow ?? S.counts.supersededByFloorVote;
+  const nowFresh = (S) => S.counts.notOnAnyFloorRollNow ?? S.counts.notOnAnyFloorRoll;
+  eq(sup, nowSup(SEED23), "2023: the seed's re-derived superseded count is the superseded rows");
+  eq(fresh, nowFresh(SEED23), "2023: the seed's re-derived fresh count is the un-superseded rows");
+  ok(SEED23.counts.supersededByFloorVote + SEED23.counts.notOnAnyFloorRoll === sup + fresh,
+    "2023: the frozen pair still totals the same rows — the admit moved the split, not the row count");
+  ok(nowSup(SEED23) >= SEED23.counts.supersededByFloorVote,
+    "2023: re-deriving only ever supersedes MORE rows, because a floor vote is never withdrawn");
+  eq(SEED23.counts.notOnAnyFloorRoll, 96,
+    "2023: the frozen depth figure is still the 96 rows the applied migration's report quotes");
+  eq(fresh, 51,
+    "2023: the depth this session adds TODAY is 51 rows — the name admit moved 45 of the 96 " +
+    "under a floor vote by the same member on the same bill, which is one position, not two");
   const seen = new Set(), dupes = [];
   for (const { m, v } of r23) {
     const k = `${m.utahBill}|${v.politicianId}`;

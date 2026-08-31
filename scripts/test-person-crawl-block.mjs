@@ -68,7 +68,7 @@ import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
@@ -1056,7 +1056,7 @@ section("9 · the engines did not move");
 {
   const ENGINES = [
     "alignment-tool.js", "consistency.js", "word-action.js", "voting-record.js",
-    "say-vs-do.js", "exec-record.js", "stance-helpers.js", "formal-index.js",
+    "say-vs-do.js", "exec-record.js", "stance-helpers.js",
     "publication-floor.js", "cmp-data.js", "issue-colors.js",
     "netlify/lib/vr-pack.ts", "netlify/lib/vr-normalize.ts", "db/issue-keys.json",
   ];
@@ -1076,6 +1076,40 @@ section("9 · the engines did not move");
   } else {
     ok(compared >= 10, `the engine set was read from HEAD (${compared} files)`);
     eq(moved, [], "Direction Match, the formal-pattern engines, the packs and the roster are byte-identical to HEAD");
+  }
+
+  // formal-index.js is deliberately NOT in that list, and the distinction matters.
+  // Every other file there is written by hand, so a byte for byte match against HEAD is
+  // exactly the right guard. formal-index.js is generator output: it is a committed count
+  // of the sourced acts in the shipped Utah seeds, so any pass that admits an act MUST
+  // regenerate it, and pinning it to HEAD would make this document-shape harness fail on
+  // every future data wave for the one file that is supposed to change. What actually
+  // needs protecting is the pair of properties a stale or hand edited index would break:
+  //
+  //   1. the file is exactly what its generator produces from the shipped seeds, and
+  //   2. the READER LOGIC around the generated tables has not moved — because that logic
+  //      is the publication floor's contract, and a data regeneration must not be cover
+  //      for quietly changing what `acts`, `measures`, `has` or `emptyNote` return.
+  //
+  // Both are checked instead. Per-member movement in the counts themselves is proved
+  // where it belongs, in scripts/test-vr-utah-name-admit.mjs, which boots the engine
+  // before and after and shows every untouched member identical.
+  {
+    const gen = spawnSync("node", [join(ROOT, "scripts/gen-formal-index.mjs"), "--check"],
+      { cwd: ROOT, encoding: "utf8" });
+    eq(gen.status, 0, "formal-index.js is exactly its generator's output for the shipped seeds");
+    // Strip the two generated tables and compare what is left. The tables are delimited by
+    // their own declarations, so this reads the hand-written scaffolding on both sides.
+    const logic = (src) => src.replace(/var (?:COUNTS|EMPTY) = \{[\s\S]*?\n  \};/g, "var $1 = {/* generated */};");
+    let headFI = null;
+    try {
+      headFI = execFileSync("git", ["show", "HEAD:formal-index.js"], { cwd: ROOT, encoding: "utf8" });
+    } catch { /* no baseline in this environment; the generator check still ran */ }
+    if (headFI) {
+      const a = logic(headFI), b = logic(R("formal-index.js"));
+      ok(a.length < headFI.length, "the generated tables were located and set aside");
+      eq(sha(a), sha(b), "formal-index.js's reader logic is byte-identical to HEAD — only counts moved");
+    }
   }
 
   // And the pass touched no scoring vocabulary in the files it DID change. Read

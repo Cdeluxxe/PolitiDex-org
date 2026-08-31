@@ -25,7 +25,7 @@
 //
 //   floor      db/vr-utah-vote-seed{,-2024GS,-2023GS}.json
 //   committee  db/vr-utah-committee-seed{,-2024GS,-2023GS}.json
-//   mapping    db/vr-utah-committee-mapping-seed-{2025GS,2024GS}.json
+//   mapping    db/vr-utah-committee-mapping-seed-{2025GS,2024GS,2023GS}.json
 //
 // A roll call with no sourceUrl is skipped, exactly as the FPI harness skips it:
 // an act nobody can follow to a published page is not a citation and must not
@@ -84,7 +84,15 @@ const COMMITTEE = [["2025GS", "db/vr-utah-committee-seed.json"],
                    ["2024GS", "db/vr-utah-committee-seed-2024GS.json"],
                    ["2023GS", "db/vr-utah-committee-seed-2023GS.json"]];
 const MAPPING = [["2025GS", "db/vr-utah-committee-mapping-seed-2025GS.json"],
-                 ["2024GS", "db/vr-utah-committee-mapping-seed-2024GS.json"]];
+                 ["2024GS", "db/vr-utah-committee-mapping-seed-2024GS.json"],
+                 // 2023GS shipped its reviewed mapping seed after this generator was
+                 // written and was never added here, so 607 sourced committee votes
+                 // across 87 members were live in scripts/vr-utah-fpi.mjs and invisible
+                 // to the count the publication floor reads. Restoring it moves no band
+                 // and crosses no floor — nobody here was empty, and nobody was sitting
+                 // on one documented measure — it just stops the index under-reporting a
+                 // record the app already publishes.
+                 ["2023GS", "db/vr-utah-committee-mapping-seed-2023GS.json"]];
 const NOTES = "db/vr-utah-empty-file-notes.json";
 
 const acts = new Map();          // pid -> count

@@ -64,6 +64,11 @@
               "printedAs": "Barlow, S."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -139,6 +144,11 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
@@ -162,6 +172,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -204,6 +219,11 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
@@ -217,6 +237,16 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "kstratton",
@@ -284,6 +314,11 @@
               "printedAs": "Bennion, G."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "nay",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "jennifer_dailey_provost",
               "position": "nay",
               "printedAs": "Dailey-Provost, J."
@@ -309,6 +344,21 @@
               "printedAs": "Hollins, S."
             },
             {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "nay",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "ashlee_matthews",
               "position": "nay",
               "printedAs": "Matthews, A."
@@ -324,6 +374,11 @@
               "printedAs": "Owens, D."
             },
             {
+              "politicianId": "judy_weeks_rohner",
+              "position": "nay",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "aromero",
               "position": "nay",
               "printedAs": "Romero, A."
@@ -332,25 +387,18 @@
               "politicianId": "andrew_stoddard",
               "position": "nay",
               "printedAs": "Stoddard, A."
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "position": "nay",
+              "printedAs": "Wheatley, M."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         },
         {
@@ -376,9 +424,19 @@
               "printedAs": "Adams, J. Stuart"
             },
             {
+              "politicianId": "jacob_anderegg",
+              "position": "yea",
+              "printedAs": "Anderegg, J."
+            },
+            {
               "politicianId": "cbramble",
               "position": "yea",
               "printedAs": "Bramble, C."
+            },
+            {
+              "politicianId": "david_buxton",
+              "position": "yea",
+              "printedAs": "Buxton, D. G."
             },
             {
               "politicianId": "kcullimore",
@@ -502,8 +560,6 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Anderegg, J.",
-            "Buxton, D. G.",
             "Kennedy, M."
           ]
         }
@@ -580,6 +636,11 @@
               "printedAs": "Bennion, G."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -608,6 +669,11 @@
               "politicianId": "kay_christofferson",
               "position": "yea",
               "printedAs": "Christofferson, K."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -660,6 +726,11 @@
               "printedAs": "Kohler, M."
             },
             {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
+            },
+            {
               "politicianId": "jason_b_kyle",
               "position": "yea",
               "printedAs": "Kyle, J"
@@ -668,6 +739,11 @@
               "politicianId": "tlee",
               "position": "yea",
               "printedAs": "Lee, T."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "lisonbee_h14",
@@ -710,9 +786,24 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "mark_strong",
@@ -765,6 +856,11 @@
               "printedAs": "Eliason, S."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "sahara_hayes",
               "position": "nay",
               "printedAs": "Hayes, S."
@@ -773,6 +869,16 @@
               "politicianId": "hollins_h24",
               "position": "nay",
               "printedAs": "Hollins, S."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "nay",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "ashlee_matthews",
@@ -800,9 +906,19 @@
               "printedAs": "Stoddard, A."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "nay",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "tyler_clancy",
               "position": "not_voting",
               "printedAs": "Clancy, T."
+            },
+            {
+              "politicianId": "tim_jimenez",
+              "position": "not_voting",
+              "printedAs": "Jimenez, T."
             },
             {
               "politicianId": "jefferson_moss",
@@ -825,6 +941,11 @@
               "printedAs": "Snider, C."
             },
             {
+              "politicianId": "robert_spendlove",
+              "position": "not_voting",
+              "printedAs": "Spendlove, R."
+            },
+            {
               "politicianId": "kstratton",
               "position": "not_voting",
               "printedAs": "Stratton, K."
@@ -841,23 +962,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -948,6 +1056,11 @@
               "printedAs": "Clancy, T."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "jennifer_dailey_provost",
               "position": "yea",
               "printedAs": "Dailey-Provost, J."
@@ -966,6 +1079,11 @@
               "politicianId": "joseph_elison",
               "position": "yea",
               "printedAs": "Elison, J."
+            },
+            {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
             },
             {
               "politicianId": "gwynn_h6",
@@ -993,14 +1111,29 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "jason_b_kyle",
               "position": "yea",
               "printedAs": "Kyle, J"
             },
             {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -1043,6 +1176,16 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -1051,6 +1194,16 @@
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -1078,6 +1231,11 @@
               "printedAs": "Welton, D."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "whyte_h63",
               "position": "yea",
               "printedAs": "Whyte, S."
@@ -1098,6 +1256,11 @@
               "printedAs": "Acton, C.K."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "nay",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "brammer_s21",
               "position": "nay",
               "printedAs": "Brammer, B."
@@ -1116,6 +1279,11 @@
               "politicianId": "ivory_h39",
               "position": "nay",
               "printedAs": "Ivory, K."
+            },
+            {
+              "politicianId": "tim_jimenez",
+              "position": "nay",
+              "printedAs": "Jimenez, T."
             },
             {
               "politicianId": "tlee",
@@ -1168,6 +1336,11 @@
               "printedAs": "Kohler, M."
             },
             {
+              "politicianId": "quinn_kotter",
+              "position": "not_voting",
+              "printedAs": "Kotter, Q."
+            },
+            {
               "politicianId": "thomas_peterson",
               "position": "not_voting",
               "printedAs": "Peterson, T."
@@ -1194,23 +1367,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -1291,6 +1451,11 @@
               "printedAs": "Clancy, T."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "paul_a_cutler",
               "position": "yea",
               "printedAs": "Cutler, P."
@@ -1309,6 +1474,11 @@
               "politicianId": "eliason_h45",
               "position": "yea",
               "printedAs": "Eliason, S."
+            },
+            {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
             },
             {
               "politicianId": "gwynn_h6",
@@ -1341,14 +1511,29 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
             },
             {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "ashlee_matthews",
@@ -1396,6 +1581,11 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -1409,6 +1599,16 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -1446,6 +1646,11 @@
               "printedAs": "Welton, D."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "whyte_h63",
               "position": "yea",
               "printedAs": "Whyte, S."
@@ -1469,6 +1674,11 @@
               "politicianId": "stewart_e_barlow",
               "position": "nay",
               "printedAs": "Barlow, S."
+            },
+            {
+              "politicianId": "kera_birkeland",
+              "position": "nay",
+              "printedAs": "Birkeland, K."
             },
             {
               "politicianId": "bolinder_h68",
@@ -1501,6 +1711,16 @@
               "printedAs": "Ivory, K."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "nay",
+              "printedAs": "Jimenez, T."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
+            },
+            {
               "politicianId": "jason_b_kyle",
               "position": "nay",
               "printedAs": "Kyle, J"
@@ -1519,6 +1739,11 @@
               "politicianId": "cory_maloy_h52",
               "position": "nay",
               "printedAs": "Maloy, A. Cory"
+            },
+            {
+              "politicianId": "susan_pulsipher",
+              "position": "nay",
+              "printedAs": "Pulsipher, S."
             },
             {
               "politicianId": "kstratton",
@@ -1547,23 +1772,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -1669,6 +1881,11 @@
               "printedAs": "Clancy, T."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "paul_a_cutler",
               "position": "yea",
               "printedAs": "Cutler, P."
@@ -1714,9 +1931,24 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -1737,6 +1969,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -1784,6 +2021,16 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
@@ -1797,6 +2044,16 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -1869,6 +2126,11 @@
               "printedAs": "Dailey-Provost, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "sahara_hayes",
               "position": "nay",
               "printedAs": "Hayes, S."
@@ -1877,6 +2139,11 @@
               "politicianId": "hollins_h24",
               "position": "nay",
               "printedAs": "Hollins, S."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "nay",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "carol_spackman_moss",
@@ -1894,29 +2161,26 @@
               "printedAs": "Romero, A."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "not_voting",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "ivory_h39",
               "position": "not_voting",
               "printedAs": "Ivory, K."
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "position": "not_voting",
+              "printedAs": "Wheatley, M."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -1994,6 +2258,11 @@
               "printedAs": "Barlow, S."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -2027,6 +2296,11 @@
               "politicianId": "tyler_clancy",
               "position": "yea",
               "printedAs": "Clancy, T."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -2074,9 +2348,19 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -2092,6 +2376,11 @@
               "politicianId": "lisonbee_h14",
               "position": "yea",
               "printedAs": "Lisonbee, K."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -2134,9 +2423,24 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "rshipp",
               "position": "yea",
               "printedAs": "Shipp, R.P."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "kstratton",
@@ -2199,6 +2503,11 @@
               "printedAs": "Dunnigan, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "sahara_hayes",
               "position": "nay",
               "printedAs": "Hayes, S."
@@ -2207,6 +2516,16 @@
               "politicianId": "hollins_h24",
               "position": "nay",
               "printedAs": "Hollins, S."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "nay",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "anthony_loubet",
@@ -2229,6 +2548,11 @@
               "printedAs": "Owens, D."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "nay",
+              "printedAs": "Pulsipher, S."
+            },
+            {
               "politicianId": "aromero",
               "position": "nay",
               "printedAs": "Romero, A."
@@ -2242,6 +2566,11 @@
               "politicianId": "nthurston",
               "position": "nay",
               "printedAs": "Thurston, N."
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "position": "nay",
+              "printedAs": "Wheatley, M."
             },
             {
               "politicianId": "mschultz",
@@ -2260,23 +2589,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -2354,6 +2670,11 @@
               "printedAs": "Barlow, S."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -2382,6 +2703,11 @@
               "politicianId": "tyler_clancy",
               "position": "yea",
               "printedAs": "Clancy, T."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -2429,6 +2755,11 @@
               "printedAs": "Kohler, M."
             },
             {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
+            },
+            {
               "politicianId": "jason_b_kyle",
               "position": "yea",
               "printedAs": "Kyle, J"
@@ -2447,6 +2778,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -2484,6 +2820,16 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
@@ -2497,6 +2843,11 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "mark_strong",
@@ -2559,6 +2910,11 @@
               "printedAs": "Elison, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "sahara_hayes",
               "position": "nay",
               "printedAs": "Hayes, S."
@@ -2567,6 +2923,16 @@
               "politicianId": "hollins_h24",
               "position": "nay",
               "printedAs": "Hollins, S."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "nay",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "ashlee_matthews",
@@ -2594,14 +2960,29 @@
               "printedAs": "Stoddard, A."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "nay",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "eliason_h45",
               "position": "not_voting",
               "printedAs": "Eliason, S."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "not_voting",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "cmusselman",
               "position": "not_voting",
               "printedAs": "Musselman, C.R."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "not_voting",
+              "printedAs": "Spendlove, R."
             },
             {
               "politicianId": "kstratton",
@@ -2620,23 +3001,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -2742,6 +3110,11 @@
               "printedAs": "Clancy, T."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "paul_a_cutler",
               "position": "yea",
               "printedAs": "Cutler, P."
@@ -2792,6 +3165,11 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "jason_b_kyle",
               "position": "yea",
               "printedAs": "Kyle, J"
@@ -2810,6 +3188,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -2852,6 +3235,16 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
@@ -2865,6 +3258,16 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "kstratton",
@@ -2942,6 +3345,21 @@
               "printedAs": "Hollins, S."
             },
             {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "nay",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "ashlee_matthews",
               "position": "nay",
               "printedAs": "Matthews, A."
@@ -2967,28 +3385,26 @@
               "printedAs": "Stoddard, A."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "nay",
+              "printedAs": "Wheatley, M."
+            },
+            {
+              "politicianId": "kera_birkeland",
+              "position": "not_voting",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "not_voting",
               "printedAs": "Kohler, M."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         },
         {
@@ -3014,9 +3430,19 @@
               "printedAs": "Adams, J. Stuart"
             },
             {
+              "politicianId": "jacob_anderegg",
+              "position": "yea",
+              "printedAs": "Anderegg, J."
+            },
+            {
               "politicianId": "cbramble",
               "position": "yea",
               "printedAs": "Bramble, C."
+            },
+            {
+              "politicianId": "david_buxton",
+              "position": "yea",
+              "printedAs": "Buxton, D. G."
             },
             {
               "politicianId": "kcullimore",
@@ -3140,8 +3566,6 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Anderegg, J.",
-            "Buxton, D. G.",
             "Kennedy, M."
           ]
         }
@@ -3213,6 +3637,11 @@
               "printedAs": "Barlow, S."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -3241,6 +3670,11 @@
               "politicianId": "tyler_clancy",
               "position": "yea",
               "printedAs": "Clancy, T."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -3293,9 +3727,19 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -3316,6 +3760,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -3353,6 +3802,11 @@
               "printedAs": "Peterson, V."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
               "politicianId": "rshipp",
               "position": "yea",
               "printedAs": "Shipp, R.P."
@@ -3361,6 +3815,16 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "kstratton",
@@ -3423,6 +3887,11 @@
               "printedAs": "Dailey-Provost, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "sahara_hayes",
               "position": "nay",
               "printedAs": "Hayes, S."
@@ -3431,6 +3900,16 @@
               "politicianId": "hollins_h24",
               "position": "nay",
               "printedAs": "Hollins, S."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "nay",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "ashlee_matthews",
@@ -3458,6 +3937,11 @@
               "printedAs": "Stoddard, A."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "nay",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "chew_h68",
               "position": "not_voting",
               "printedAs": "Chew, S."
@@ -3466,6 +3950,11 @@
               "politicianId": "candice_pierucci",
               "position": "not_voting",
               "printedAs": "Pierucci, C."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "not_voting",
+              "printedAs": "Rohner, J."
             },
             {
               "politicianId": "mschultz",
@@ -3479,23 +3968,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -3573,6 +4049,11 @@
               "printedAs": "Barlow, S."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -3606,6 +4087,11 @@
               "politicianId": "tyler_clancy",
               "position": "yea",
               "printedAs": "Clancy, T."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -3653,9 +4139,19 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -3676,6 +4172,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -3723,6 +4224,16 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
@@ -3736,6 +4247,16 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "kstratton",
@@ -3798,6 +4319,11 @@
               "printedAs": "Dailey-Provost, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "sahara_hayes",
               "position": "nay",
               "printedAs": "Hayes, S."
@@ -3806,6 +4332,16 @@
               "politicianId": "hollins_h24",
               "position": "nay",
               "printedAs": "Hollins, S."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "nay",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "carol_spackman_moss",
@@ -3828,6 +4364,11 @@
               "printedAs": "Stoddard, A."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "nay",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "jon_hawkins",
               "position": "not_voting",
               "printedAs": "Hawkins, J."
@@ -3839,23 +4380,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -3926,6 +4454,11 @@
               "printedAs": "Barlow, S."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -3959,6 +4492,11 @@
               "politicianId": "tyler_clancy",
               "position": "yea",
               "printedAs": "Clancy, T."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -4006,9 +4544,19 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -4029,6 +4577,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -4076,9 +4629,29 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "rshipp",
               "position": "yea",
               "printedAs": "Shipp, R.P."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "kstratton",
@@ -4136,6 +4709,11 @@
               "printedAs": "Dailey-Provost, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "sahara_hayes",
               "position": "nay",
               "printedAs": "Hayes, S."
@@ -4144,6 +4722,16 @@
               "politicianId": "hollins_h24",
               "position": "nay",
               "printedAs": "Hollins, S."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "nay",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "carol_spackman_moss",
@@ -4186,29 +4774,21 @@
               "printedAs": "Thurston, N."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "not_voting",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "bwilson",
               "position": "not_voting",
               "printedAs": "Wilson, B."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         },
         {
@@ -4234,9 +4814,19 @@
               "printedAs": "Adams, J. Stuart"
             },
             {
+              "politicianId": "jacob_anderegg",
+              "position": "yea",
+              "printedAs": "Anderegg, J."
+            },
+            {
               "politicianId": "cbramble",
               "position": "yea",
               "printedAs": "Bramble, C."
+            },
+            {
+              "politicianId": "david_buxton",
+              "position": "yea",
+              "printedAs": "Buxton, D. G."
             },
             {
               "politicianId": "kcullimore",
@@ -4360,8 +4950,6 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Anderegg, J.",
-            "Buxton, D. G.",
             "Kennedy, M."
           ]
         }
@@ -4433,6 +5021,11 @@
               "printedAs": "Barlow, S."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -4466,6 +5059,11 @@
               "politicianId": "tyler_clancy",
               "position": "yea",
               "printedAs": "Clancy, T."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -4513,9 +5111,19 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -4536,6 +5144,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -4578,6 +5191,16 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
@@ -4591,6 +5214,16 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -4648,6 +5281,11 @@
               "printedAs": "Dailey-Provost, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "sahara_hayes",
               "position": "nay",
               "printedAs": "Hayes, S."
@@ -4656,6 +5294,16 @@
               "politicianId": "hollins_h24",
               "position": "nay",
               "printedAs": "Hollins, S."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "nay",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "ashlee_matthews",
@@ -4683,6 +5331,11 @@
               "printedAs": "Walter, R."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "nay",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "jon_hawkins",
               "position": "not_voting",
               "printedAs": "Hawkins, J."
@@ -4699,23 +5352,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -4793,6 +5433,11 @@
               "printedAs": "Barlow, S."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -4873,9 +5518,19 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -4896,6 +5551,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -4948,6 +5608,16 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "rshipp",
               "position": "yea",
               "printedAs": "Shipp, R.P."
@@ -4956,6 +5626,16 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "kstratton",
@@ -5013,6 +5693,11 @@
               "printedAs": "Dailey-Provost, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "sahara_hayes",
               "position": "nay",
               "printedAs": "Hayes, S."
@@ -5021,6 +5706,16 @@
               "politicianId": "hollins_h24",
               "position": "nay",
               "printedAs": "Hollins, S."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "nay",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "doug_owens",
@@ -5038,6 +5733,11 @@
               "printedAs": "Stoddard, A."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "not_voting",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "jon_hawkins",
               "position": "not_voting",
               "printedAs": "Hawkins, J."
@@ -5053,29 +5753,21 @@
               "printedAs": "Thurston, N."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "not_voting",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "bwilson",
               "position": "not_voting",
               "printedAs": "Wilson, B."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -5146,6 +5838,11 @@
               "printedAs": "Barlow, S."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -5179,6 +5876,11 @@
               "politicianId": "tyler_clancy",
               "position": "yea",
               "printedAs": "Clancy, T."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -5231,9 +5933,19 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -5254,6 +5966,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -5296,6 +6013,16 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
@@ -5309,6 +6036,16 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -5376,6 +6113,11 @@
               "printedAs": "Dailey-Provost, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "sahara_hayes",
               "position": "nay",
               "printedAs": "Hayes, S."
@@ -5384,6 +6126,16 @@
               "politicianId": "hollins_h24",
               "position": "nay",
               "printedAs": "Hollins, S."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "nay",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "ashlee_matthews",
@@ -5406,29 +6158,21 @@
               "printedAs": "Romero, A."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "nay",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "ryan_d_wilcox",
               "position": "not_voting",
               "printedAs": "Wilcox, R."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         },
         {
@@ -5454,9 +6198,19 @@
               "printedAs": "Adams, J. Stuart"
             },
             {
+              "politicianId": "jacob_anderegg",
+              "position": "yea",
+              "printedAs": "Anderegg, J."
+            },
+            {
               "politicianId": "cbramble",
               "position": "yea",
               "printedAs": "Bramble, C."
+            },
+            {
+              "politicianId": "david_buxton",
+              "position": "yea",
+              "printedAs": "Buxton, D. G."
             },
             {
               "politicianId": "kcullimore",
@@ -5580,8 +6334,6 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Anderegg, J.",
-            "Buxton, D. G.",
             "Kennedy, M."
           ]
         }
@@ -5663,6 +6415,11 @@
               "printedAs": "Clancy, T."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "paul_a_cutler",
               "position": "yea",
               "printedAs": "Cutler, P."
@@ -5681,6 +6438,11 @@
               "politicianId": "eliason_h45",
               "position": "yea",
               "printedAs": "Eliason, S."
+            },
+            {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
             },
             {
               "politicianId": "gwynn_h6",
@@ -5718,9 +6480,29 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "ashlee_matthews",
@@ -5743,6 +6525,11 @@
               "printedAs": "Peterson, K."
             },
             {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -5751,6 +6538,11 @@
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -5778,6 +6570,11 @@
               "printedAs": "Welton, D."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "whyte_h63",
               "position": "yea",
               "printedAs": "Whyte, S."
@@ -5791,6 +6588,11 @@
               "politicianId": "stewart_e_barlow",
               "position": "nay",
               "printedAs": "Barlow, S."
+            },
+            {
+              "politicianId": "kera_birkeland",
+              "position": "nay",
+              "printedAs": "Birkeland, K."
             },
             {
               "politicianId": "bolinder_h68",
@@ -5821,6 +6623,11 @@
               "politicianId": "gricius_h50",
               "position": "nay",
               "printedAs": "Gricius, S."
+            },
+            {
+              "politicianId": "tim_jimenez",
+              "position": "nay",
+              "printedAs": "Jimenez, T."
             },
             {
               "politicianId": "kohler_h59",
@@ -5873,6 +6680,11 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "nay",
+              "printedAs": "Pulsipher, S."
+            },
+            {
               "politicianId": "rshipp",
               "position": "nay",
               "printedAs": "Shipp, R.P."
@@ -5913,29 +6725,21 @@
               "printedAs": "Moss, J."
             },
             {
+              "politicianId": "jeffrey_stenquist",
+              "position": "not_voting",
+              "printedAs": "Stenquist, J."
+            },
+            {
               "politicianId": "bwilson",
               "position": "not_voting",
               "printedAs": "Wilson, B."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -6041,6 +6845,11 @@
               "printedAs": "Clancy, T."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "paul_a_cutler",
               "position": "yea",
               "printedAs": "Cutler, P."
@@ -6054,6 +6863,11 @@
               "politicianId": "eliason_h45",
               "position": "yea",
               "printedAs": "Eliason, S."
+            },
+            {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
             },
             {
               "politicianId": "gricius_h50",
@@ -6091,9 +6905,24 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "lisonbee_h14",
@@ -6104,6 +6933,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "ashlee_matthews",
@@ -6141,9 +6975,29 @@
               "printedAs": "Peterson, V."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -6176,6 +7030,11 @@
               "printedAs": "Whyte, S."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "nay",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "brammer_s21",
               "position": "nay",
               "printedAs": "Brammer, B."
@@ -6184,6 +7043,11 @@
               "politicianId": "joseph_elison",
               "position": "nay",
               "printedAs": "Elison, J."
+            },
+            {
+              "politicianId": "tim_jimenez",
+              "position": "nay",
+              "printedAs": "Jimenez, T."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -6261,6 +7125,11 @@
               "printedAs": "Welton, D."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "not_voting",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "ryan_d_wilcox",
               "position": "not_voting",
               "printedAs": "Wilcox, R."
@@ -6272,23 +7141,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -6339,6 +7195,11 @@
               "printedAs": "Adams, J. Stuart"
             },
             {
+              "politicianId": "jacob_anderegg",
+              "position": "yea",
+              "printedAs": "Anderegg, J."
+            },
+            {
               "politicianId": "blouin_s13",
               "position": "yea",
               "printedAs": "Blouin, N."
@@ -6347,6 +7208,11 @@
               "politicianId": "cbramble",
               "position": "yea",
               "printedAs": "Bramble, C."
+            },
+            {
+              "politicianId": "david_buxton",
+              "position": "yea",
+              "printedAs": "Buxton, D. G."
             },
             {
               "politicianId": "kcullimore",
@@ -6465,8 +7331,6 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Anderegg, J.",
-            "Buxton, D. G.",
             "Kennedy, M."
           ]
         }
@@ -6568,6 +7432,11 @@
               "printedAs": "Clancy, T."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "paul_a_cutler",
               "position": "yea",
               "printedAs": "Cutler, P."
@@ -6591,6 +7460,11 @@
               "politicianId": "joseph_elison",
               "position": "yea",
               "printedAs": "Elison, J."
+            },
+            {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
             },
             {
               "politicianId": "gwynn_h6",
@@ -6623,6 +7497,11 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
@@ -6633,9 +7512,19 @@
               "printedAs": "Lee, T."
             },
             {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "ashlee_matthews",
@@ -6683,6 +7572,16 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -6696,6 +7595,16 @@
               "politicianId": "rshipp",
               "position": "yea",
               "printedAs": "Shipp, R.P."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -6743,6 +7652,11 @@
               "printedAs": "Welton, D."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "whyte_h63",
               "position": "yea",
               "printedAs": "Whyte, S."
@@ -6766,6 +7680,16 @@
               "politicianId": "jon_hawkins",
               "position": "nay",
               "printedAs": "Hawkins, J."
+            },
+            {
+              "politicianId": "tim_jimenez",
+              "position": "nay",
+              "printedAs": "Jimenez, T."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -6793,6 +7717,11 @@
               "printedAs": "Wilcox, R."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "not_voting",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "gricius_h50",
               "position": "not_voting",
               "printedAs": "Gricius, S."
@@ -6804,23 +7733,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -6926,6 +7842,11 @@
               "printedAs": "Clancy, T."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "paul_a_cutler",
               "position": "yea",
               "printedAs": "Cutler, P."
@@ -6949,6 +7870,11 @@
               "politicianId": "joseph_elison",
               "position": "yea",
               "printedAs": "Elison, J."
+            },
+            {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
             },
             {
               "politicianId": "gwynn_h6",
@@ -6986,14 +7912,29 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
             },
             {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -7036,6 +7977,16 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -7049,6 +8000,11 @@
               "politicianId": "rshipp",
               "position": "yea",
               "printedAs": "Shipp, R.P."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -7091,6 +8047,11 @@
               "printedAs": "Welton, D."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "whyte_h63",
               "position": "yea",
               "printedAs": "Whyte, S."
@@ -7099,6 +8060,21 @@
               "politicianId": "bwilson",
               "position": "yea",
               "printedAs": "Wilson, B."
+            },
+            {
+              "politicianId": "kera_birkeland",
+              "position": "nay",
+              "printedAs": "Birkeland, K."
+            },
+            {
+              "politicianId": "tim_jimenez",
+              "position": "nay",
+              "printedAs": "Jimenez, T."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -7151,29 +8127,21 @@
               "printedAs": "Peterson, V."
             },
             {
+              "politicianId": "robert_spendlove",
+              "position": "not_voting",
+              "printedAs": "Spendlove, R."
+            },
+            {
               "politicianId": "teuscher_h44",
               "position": "not_voting",
               "printedAs": "Teuscher, J."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -7254,6 +8222,11 @@
               "printedAs": "Eliason, S."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "gwynn_h6",
               "position": "yea",
               "printedAs": "Gwynn, M."
@@ -7269,9 +8242,19 @@
               "printedAs": "Hollins, S."
             },
             {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "anthony_loubet",
@@ -7314,6 +8297,11 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -7349,6 +8337,11 @@
               "printedAs": "Welton, D."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "whyte_h63",
               "position": "yea",
               "printedAs": "Whyte, S."
@@ -7372,6 +8365,11 @@
               "politicianId": "stewart_e_barlow",
               "position": "nay",
               "printedAs": "Barlow, S."
+            },
+            {
+              "politicianId": "kera_birkeland",
+              "position": "nay",
+              "printedAs": "Birkeland, K."
             },
             {
               "politicianId": "bolinder_h68",
@@ -7399,6 +8397,11 @@
               "printedAs": "Clancy, T."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "nay",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "joseph_elison",
               "position": "nay",
               "printedAs": "Elison, J."
@@ -7424,6 +8427,16 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "nay",
+              "printedAs": "Jimenez, T."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
+            },
+            {
               "politicianId": "jason_b_kyle",
               "position": "nay",
               "printedAs": "Kyle, J"
@@ -7439,6 +8452,11 @@
               "printedAs": "Lisonbee, K."
             },
             {
+              "politicianId": "steven_lund",
+              "position": "nay",
+              "printedAs": "Lund, S."
+            },
+            {
               "politicianId": "jefferson_moss",
               "position": "nay",
               "printedAs": "Moss, J."
@@ -7449,6 +8467,11 @@
               "printedAs": "Petersen, M."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "nay",
+              "printedAs": "Pulsipher, S."
+            },
+            {
               "politicianId": "rshipp",
               "position": "nay",
               "printedAs": "Shipp, R.P."
@@ -7457,6 +8480,11 @@
               "politicianId": "snider_h5",
               "position": "nay",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "nay",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "mark_strong",
@@ -7507,26 +8535,18 @@
               "politicianId": "valpeterson_h56",
               "position": "not_voting",
               "printedAs": "Peterson, V."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "not_voting",
+              "printedAs": "Spendlove, R."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -7592,6 +8612,11 @@
               "printedAs": "Barlow, S."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -7625,6 +8650,11 @@
               "politicianId": "tyler_clancy",
               "position": "yea",
               "printedAs": "Clancy, T."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -7672,9 +8702,19 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -7695,6 +8735,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -7732,6 +8777,16 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
@@ -7745,6 +8800,11 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "kstratton",
@@ -7787,6 +8847,11 @@
               "printedAs": "Welton, D."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "whyte_h63",
               "position": "yea",
               "printedAs": "Whyte, S."
@@ -7812,6 +8877,11 @@
               "printedAs": "Dailey-Provost, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "sahara_hayes",
               "position": "nay",
               "printedAs": "Hayes, S."
@@ -7820,6 +8890,11 @@
               "politicianId": "hollins_h24",
               "position": "nay",
               "printedAs": "Hollins, S."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
             },
             {
               "politicianId": "ashlee_matthews",
@@ -7857,29 +8932,26 @@
               "printedAs": "Dunnigan, J."
             },
             {
+              "politicianId": "rosemary_lesser",
+              "position": "not_voting",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "valpeterson_h56",
               "position": "not_voting",
               "printedAs": "Peterson, V."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "not_voting",
+              "printedAs": "Spendlove, R."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -7950,6 +9022,11 @@
               "printedAs": "Bennion, G."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -7968,6 +9045,11 @@
               "politicianId": "chew_h68",
               "position": "yea",
               "printedAs": "Chew, S."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -7995,6 +9077,11 @@
               "printedAs": "Elison, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "jon_hawkins",
               "position": "yea",
               "printedAs": "Hawkins, J."
@@ -8015,9 +9102,24 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "lisonbee_h14",
               "position": "yea",
               "printedAs": "Lisonbee, K."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -8060,6 +9162,11 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -8073,6 +9180,16 @@
               "politicianId": "rshipp",
               "position": "yea",
               "printedAs": "Shipp, R.P."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -8098,6 +9215,11 @@
               "politicianId": "christine_watkins",
               "position": "yea",
               "printedAs": "Watkins, C."
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
             },
             {
               "politicianId": "whyte_h63",
@@ -8145,9 +9267,19 @@
               "printedAs": "Ivory, K."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "nay",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "nay",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -8178,6 +9310,11 @@
               "politicianId": "thomas_peterson",
               "position": "nay",
               "printedAs": "Peterson, T."
+            },
+            {
+              "politicianId": "susan_pulsipher",
+              "position": "nay",
+              "printedAs": "Pulsipher, S."
             },
             {
               "politicianId": "snider_h5",
@@ -8216,23 +9353,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -8303,6 +9427,11 @@
               "printedAs": "Bennion, G."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -8321,6 +9450,11 @@
               "politicianId": "tyler_clancy",
               "position": "yea",
               "printedAs": "Clancy, T."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -8348,6 +9482,11 @@
               "printedAs": "Elison, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "hall_h11",
               "position": "yea",
               "printedAs": "Hall, K."
@@ -8373,6 +9512,16 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
@@ -8388,9 +9537,19 @@
               "printedAs": "Lee, T."
             },
             {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -8443,6 +9602,16 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -8456,6 +9625,16 @@
               "politicianId": "rshipp",
               "position": "yea",
               "printedAs": "Shipp, R.P."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -8486,6 +9665,11 @@
               "politicianId": "doug_welton",
               "position": "yea",
               "printedAs": "Welton, D."
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
             },
             {
               "politicianId": "whyte_h63",
@@ -8533,6 +9717,11 @@
               "printedAs": "Ivory, K."
             },
             {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
+            },
+            {
               "politicianId": "mike_petersen",
               "position": "nay",
               "printedAs": "Petersen, M."
@@ -8569,23 +9758,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -8656,6 +9832,11 @@
               "printedAs": "Bennion, G."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -8681,6 +9862,11 @@
               "printedAs": "Clancy, T."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "paul_a_cutler",
               "position": "yea",
               "printedAs": "Cutler, P."
@@ -8704,6 +9890,11 @@
               "politicianId": "joseph_elison",
               "position": "yea",
               "printedAs": "Elison, J."
+            },
+            {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
             },
             {
               "politicianId": "gricius_h50",
@@ -8741,9 +9932,19 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -8751,9 +9952,19 @@
               "printedAs": "Kyle, J"
             },
             {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -8811,6 +10022,16 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -8819,6 +10040,16 @@
               "politicianId": "rshipp",
               "position": "yea",
               "printedAs": "Shipp, R.P."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -8861,6 +10092,11 @@
               "printedAs": "Welton, D."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "whyte_h63",
               "position": "yea",
               "printedAs": "Whyte, S."
@@ -8896,6 +10132,11 @@
               "printedAs": "Ivory, K."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "nay",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "tlee",
               "position": "nay",
               "printedAs": "Lee, T."
@@ -8922,23 +10163,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -9044,6 +10272,11 @@
               "printedAs": "Christofferson, K."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "paul_a_cutler",
               "position": "yea",
               "printedAs": "Cutler, P."
@@ -9067,6 +10300,11 @@
               "politicianId": "joseph_elison",
               "position": "yea",
               "printedAs": "Elison, J."
+            },
+            {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
             },
             {
               "politicianId": "gwynn_h6",
@@ -9099,9 +10337,24 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "tlee",
               "position": "yea",
               "printedAs": "Lee, T."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "lisonbee_h14",
@@ -9154,6 +10407,11 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -9162,6 +10420,11 @@
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -9229,9 +10492,19 @@
               "printedAs": "Kohler, M."
             },
             {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
+            },
+            {
               "politicianId": "mike_petersen",
               "position": "nay",
               "printedAs": "Petersen, M."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "nay",
+              "printedAs": "Rohner, J."
             },
             {
               "politicianId": "rshipp",
@@ -9254,9 +10527,24 @@
               "printedAs": "Welton, D."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "nay",
+              "printedAs": "Wheatley, M."
+            },
+            {
+              "politicianId": "kera_birkeland",
+              "position": "not_voting",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "jason_b_kyle",
               "position": "not_voting",
               "printedAs": "Kyle, J"
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "not_voting",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "doug_owens",
@@ -9272,26 +10560,18 @@
               "politicianId": "snider_h5",
               "position": "not_voting",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "not_voting",
+              "printedAs": "Spendlove, R."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -9399,6 +10679,11 @@
               "printedAs": "Clancy, T."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "paul_a_cutler",
               "position": "yea",
               "printedAs": "Cutler, P."
@@ -9449,9 +10734,19 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "tlee",
               "position": "yea",
               "printedAs": "Lee, T."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "lisonbee_h14",
@@ -9462,6 +10757,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -9509,6 +10809,11 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
@@ -9522,6 +10827,16 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -9579,6 +10894,11 @@
               "printedAs": "Bennion, G."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "nay",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "chew_h68",
               "position": "nay",
               "printedAs": "Chew, S."
@@ -9587,6 +10907,11 @@
               "politicianId": "jennifer_dailey_provost",
               "position": "nay",
               "printedAs": "Dailey-Provost, J."
+            },
+            {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
             },
             {
               "politicianId": "sahara_hayes",
@@ -9599,9 +10924,19 @@
               "printedAs": "Hollins, S."
             },
             {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "nay",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "ashlee_matthews",
@@ -9614,9 +10949,19 @@
               "printedAs": "Moss, C."
             },
             {
+              "politicianId": "judy_weeks_rohner",
+              "position": "nay",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "aromero",
               "position": "nay",
               "printedAs": "Romero, A."
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "position": "nay",
+              "printedAs": "Wheatley, M."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -9635,23 +10980,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -9777,6 +11109,11 @@
               "printedAs": "Elison, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "gricius_h50",
               "position": "yea",
               "printedAs": "Gricius, S."
@@ -9817,6 +11154,16 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "jason_b_kyle",
               "position": "yea",
               "printedAs": "Kyle, J"
@@ -9827,9 +11174,19 @@
               "printedAs": "Lee, T."
             },
             {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "lisonbee_h14",
               "position": "yea",
               "printedAs": "Lisonbee, K."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -9882,6 +11239,11 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -9900,6 +11262,11 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -9927,6 +11294,11 @@
               "printedAs": "Watkins, C."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "whyte_h63",
               "position": "yea",
               "printedAs": "Whyte, S."
@@ -9942,9 +11314,19 @@
               "printedAs": "Christofferson, K."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "nay",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "nay",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "mike_petersen",
@@ -9952,9 +11334,24 @@
               "printedAs": "Petersen, M."
             },
             {
+              "politicianId": "judy_weeks_rohner",
+              "position": "nay",
+              "printedAs": "Rohner, J."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "nay",
+              "printedAs": "Stenquist, J."
+            },
+            {
               "politicianId": "rward",
               "position": "nay",
               "printedAs": "Ward, R."
+            },
+            {
+              "politicianId": "kera_birkeland",
+              "position": "not_voting",
+              "printedAs": "Birkeland, K."
             },
             {
               "politicianId": "brammer_s21",
@@ -9988,23 +11385,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -10105,6 +11489,11 @@
               "printedAs": "Clancy, T."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "paul_a_cutler",
               "position": "yea",
               "printedAs": "Cutler, P."
@@ -10128,6 +11517,11 @@
               "politicianId": "joseph_elison",
               "position": "yea",
               "printedAs": "Elison, J."
+            },
+            {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
             },
             {
               "politicianId": "gwynn_h6",
@@ -10160,6 +11554,16 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "jason_b_kyle",
               "position": "yea",
               "printedAs": "Kyle, J"
@@ -10170,6 +11574,11 @@
               "printedAs": "Lee, T."
             },
             {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "lisonbee_h14",
               "position": "yea",
               "printedAs": "Lisonbee, K."
@@ -10178,6 +11587,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -10230,6 +11644,11 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -10243,6 +11662,16 @@
               "politicianId": "rshipp",
               "position": "yea",
               "printedAs": "Shipp, R.P."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -10285,6 +11714,11 @@
               "printedAs": "Welton, D."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "whyte_h63",
               "position": "yea",
               "printedAs": "Whyte, S."
@@ -10320,14 +11754,29 @@
               "printedAs": "Kohler, M."
             },
             {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
+            },
+            {
               "politicianId": "mike_petersen",
               "position": "nay",
               "printedAs": "Petersen, M."
             },
             {
+              "politicianId": "judy_weeks_rohner",
+              "position": "nay",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "kstratton",
               "position": "nay",
               "printedAs": "Stratton, K."
+            },
+            {
+              "politicianId": "kera_birkeland",
+              "position": "not_voting",
+              "printedAs": "Birkeland, K."
             },
             {
               "politicianId": "jefferson_burton",
@@ -10341,23 +11790,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -10433,6 +11869,11 @@
               "printedAs": "Clancy, T."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "paul_a_cutler",
               "position": "yea",
               "printedAs": "Cutler, P."
@@ -10453,6 +11894,11 @@
               "printedAs": "Eliason, S."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "gwynn_h6",
               "position": "yea",
               "printedAs": "Gwynn, M."
@@ -10466,6 +11912,21 @@
               "politicianId": "sahara_hayes",
               "position": "yea",
               "printedAs": "Hayes, S."
+            },
+            {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "anthony_loubet",
@@ -10508,6 +11969,11 @@
               "printedAs": "Peterson, K."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -10516,6 +11982,11 @@
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -10543,6 +12014,11 @@
               "printedAs": "Welton, D."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "whyte_h63",
               "position": "yea",
               "printedAs": "Whyte, S."
@@ -10566,6 +12042,11 @@
               "politicianId": "stewart_e_barlow",
               "position": "nay",
               "printedAs": "Barlow, S."
+            },
+            {
+              "politicianId": "kera_birkeland",
+              "position": "nay",
+              "printedAs": "Birkeland, K."
             },
             {
               "politicianId": "brammer_s21",
@@ -10598,6 +12079,11 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
+            },
+            {
               "politicianId": "jason_b_kyle",
               "position": "nay",
               "printedAs": "Kyle, J"
@@ -10613,6 +12099,11 @@
               "printedAs": "Lisonbee, K."
             },
             {
+              "politicianId": "steven_lund",
+              "position": "nay",
+              "printedAs": "Lund, S."
+            },
+            {
               "politicianId": "thomas_peterson",
               "position": "nay",
               "printedAs": "Peterson, T."
@@ -10621,6 +12112,11 @@
               "politicianId": "candice_pierucci",
               "position": "nay",
               "printedAs": "Pierucci, C."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "nay",
+              "printedAs": "Rohner, J."
             },
             {
               "politicianId": "snider_h5",
@@ -10691,26 +12187,18 @@
               "politicianId": "rshipp",
               "position": "not_voting",
               "printedAs": "Shipp, R.P."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "not_voting",
+              "printedAs": "Spendlove, R."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -10768,9 +12256,19 @@
               "printedAs": "Adams, J. Stuart"
             },
             {
+              "politicianId": "jacob_anderegg",
+              "position": "yea",
+              "printedAs": "Anderegg, J."
+            },
+            {
               "politicianId": "cbramble",
               "position": "yea",
               "printedAs": "Bramble, C."
+            },
+            {
+              "politicianId": "david_buxton",
+              "position": "yea",
+              "printedAs": "Buxton, D. G."
             },
             {
               "politicianId": "kcullimore",
@@ -10894,8 +12392,6 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Anderegg, J.",
-            "Buxton, D. G.",
             "Kennedy, M."
           ]
         }
@@ -10969,6 +12465,11 @@
               "printedAs": "Barlow, S."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -11002,6 +12503,11 @@
               "politicianId": "tyler_clancy",
               "position": "yea",
               "printedAs": "Clancy, T."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -11054,9 +12560,24 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -11077,6 +12598,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -11107,6 +12633,11 @@
               "politicianId": "candice_pierucci",
               "position": "yea",
               "printedAs": "Pierucci, C."
+            },
+            {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
             },
             {
               "politicianId": "mschultz",
@@ -11159,6 +12690,11 @@
               "printedAs": "Watkins, C."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "whyte_h63",
               "position": "yea",
               "printedAs": "Whyte, S."
@@ -11179,6 +12715,11 @@
               "printedAs": "Dailey-Provost, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "sahara_hayes",
               "position": "nay",
               "printedAs": "Hayes, S."
@@ -11187,6 +12728,11 @@
               "politicianId": "hollins_h24",
               "position": "nay",
               "printedAs": "Hollins, S."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "nay",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "ashlee_matthews",
@@ -11219,6 +12765,11 @@
               "printedAs": "Snider, C."
             },
             {
+              "politicianId": "jeffrey_stenquist",
+              "position": "nay",
+              "printedAs": "Stenquist, J."
+            },
+            {
               "politicianId": "doug_welton",
               "position": "nay",
               "printedAs": "Welton, D."
@@ -11237,26 +12788,23 @@
               "politicianId": "valpeterson_h56",
               "position": "not_voting",
               "printedAs": "Peterson, V."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "not_voting",
+              "printedAs": "Rohner, J."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "not_voting",
+              "printedAs": "Spendlove, R."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         },
         {
@@ -11282,9 +12830,19 @@
               "printedAs": "Adams, J. Stuart"
             },
             {
+              "politicianId": "jacob_anderegg",
+              "position": "yea",
+              "printedAs": "Anderegg, J."
+            },
+            {
               "politicianId": "cbramble",
               "position": "yea",
               "printedAs": "Bramble, C."
+            },
+            {
+              "politicianId": "david_buxton",
+              "position": "yea",
+              "printedAs": "Buxton, D. G."
             },
             {
               "politicianId": "kcullimore",
@@ -11408,8 +12966,6 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Anderegg, J.",
-            "Buxton, D. G.",
             "Kennedy, M."
           ]
         }
@@ -11511,6 +13067,11 @@
               "printedAs": "Clancy, T."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "paul_a_cutler",
               "position": "yea",
               "printedAs": "Cutler, P."
@@ -11529,6 +13090,11 @@
               "politicianId": "eliason_h45",
               "position": "yea",
               "printedAs": "Eliason, S."
+            },
+            {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
             },
             {
               "politicianId": "gwynn_h6",
@@ -11551,14 +13117,29 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
             },
             {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "ashlee_matthews",
@@ -11596,6 +13177,16 @@
               "printedAs": "Peterson, T."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -11604,6 +13195,11 @@
               "politicianId": "rshipp",
               "position": "yea",
               "printedAs": "Shipp, R.P."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -11616,6 +13212,11 @@
               "printedAs": "Walter, R."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "whyte_h63",
               "position": "yea",
               "printedAs": "Whyte, S."
@@ -11624,6 +13225,11 @@
               "politicianId": "bwilson",
               "position": "yea",
               "printedAs": "Wilson, B."
+            },
+            {
+              "politicianId": "kera_birkeland",
+              "position": "nay",
+              "printedAs": "Birkeland, K."
             },
             {
               "politicianId": "brammer_s21",
@@ -11654,6 +13260,16 @@
               "politicianId": "ivory_h39",
               "position": "nay",
               "printedAs": "Ivory, K."
+            },
+            {
+              "politicianId": "tim_jimenez",
+              "position": "nay",
+              "printedAs": "Jimenez, T."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -11741,29 +13357,21 @@
               "printedAs": "Peterson, V."
             },
             {
+              "politicianId": "robert_spendlove",
+              "position": "not_voting",
+              "printedAs": "Spendlove, R."
+            },
+            {
               "politicianId": "nthurston",
               "position": "not_voting",
               "printedAs": "Thurston, N."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -11834,6 +13442,11 @@
               "printedAs": "Barlow, S."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -11867,6 +13480,11 @@
               "politicianId": "tyler_clancy",
               "position": "yea",
               "printedAs": "Clancy, T."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -11919,9 +13537,19 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -11942,6 +13570,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -11984,6 +13617,16 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "rshipp",
               "position": "yea",
               "printedAs": "Shipp, R.P."
@@ -11992,6 +13635,16 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "kstratton",
@@ -12059,6 +13712,11 @@
               "printedAs": "Dailey-Provost, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "sahara_hayes",
               "position": "nay",
               "printedAs": "Hayes, S."
@@ -12067,6 +13725,16 @@
               "politicianId": "hollins_h24",
               "position": "nay",
               "printedAs": "Hollins, S."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "nay",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "ashlee_matthews",
@@ -12094,29 +13762,21 @@
               "printedAs": "Stoddard, A."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "nay",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "mschultz",
               "position": "not_voting",
               "printedAs": "Schultz, M."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         },
         {
@@ -12137,9 +13797,19 @@
           "actionCode": "SPASS3",
           "votes": [
             {
+              "politicianId": "jacob_anderegg",
+              "position": "yea",
+              "printedAs": "Anderegg, J."
+            },
+            {
               "politicianId": "cbramble",
               "position": "yea",
               "printedAs": "Bramble, C."
+            },
+            {
+              "politicianId": "david_buxton",
+              "position": "yea",
+              "printedAs": "Buxton, D. G."
             },
             {
               "politicianId": "kcullimore",
@@ -12268,8 +13938,6 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Anderegg, J.",
-            "Buxton, D. G.",
             "Kennedy, M."
           ]
         }
@@ -12336,6 +14004,11 @@
               "printedAs": "Ballard, M.G."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -12364,6 +14037,11 @@
               "politicianId": "tyler_clancy",
               "position": "yea",
               "printedAs": "Clancy, T."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -12411,9 +14089,19 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -12434,6 +14122,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -12471,6 +14164,16 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
@@ -12484,6 +14187,16 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "kstratton",
@@ -12546,6 +14259,11 @@
               "printedAs": "Dailey-Provost, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "sahara_hayes",
               "position": "nay",
               "printedAs": "Hayes, S."
@@ -12554,6 +14272,16 @@
               "politicianId": "hollins_h24",
               "position": "nay",
               "printedAs": "Hollins, S."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "nay",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "ashlee_matthews",
@@ -12586,6 +14314,11 @@
               "printedAs": "Thurston, N."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "nay",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "jefferson_burton",
               "position": "not_voting",
               "printedAs": "Burton, J."
@@ -12607,23 +14340,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -12694,6 +14414,11 @@
               "printedAs": "Barlow, S."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -12722,6 +14447,11 @@
               "politicianId": "kay_christofferson",
               "position": "yea",
               "printedAs": "Christofferson, K."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -12764,6 +14494,16 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
+            },
+            {
               "politicianId": "jason_b_kyle",
               "position": "yea",
               "printedAs": "Kyle, J"
@@ -12777,6 +14517,11 @@
               "politicianId": "lisonbee_h14",
               "position": "yea",
               "printedAs": "Lisonbee, K."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -12819,6 +14564,11 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
@@ -12832,6 +14582,11 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "kstratton",
@@ -12889,6 +14644,11 @@
               "printedAs": "Dunnigan, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "sahara_hayes",
               "position": "nay",
               "printedAs": "Hayes, S."
@@ -12897,6 +14657,16 @@
               "politicianId": "hollins_h24",
               "position": "nay",
               "printedAs": "Hollins, S."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "nay",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "anthony_loubet",
@@ -12919,9 +14689,19 @@
               "printedAs": "Owens, D."
             },
             {
+              "politicianId": "judy_weeks_rohner",
+              "position": "nay",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "aromero",
               "position": "nay",
               "printedAs": "Romero, A."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "nay",
+              "printedAs": "Spendlove, R."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -12957,26 +14737,18 @@
               "politicianId": "doug_welton",
               "position": "not_voting",
               "printedAs": "Welton, D."
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "position": "not_voting",
+              "printedAs": "Wheatley, M."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         },
         {
@@ -13002,9 +14774,19 @@
               "printedAs": "Adams, J. Stuart"
             },
             {
+              "politicianId": "jacob_anderegg",
+              "position": "yea",
+              "printedAs": "Anderegg, J."
+            },
+            {
               "politicianId": "cbramble",
               "position": "yea",
               "printedAs": "Bramble, C."
+            },
+            {
+              "politicianId": "david_buxton",
+              "position": "yea",
+              "printedAs": "Buxton, D. G."
             },
             {
               "politicianId": "kcullimore",
@@ -13128,8 +14910,6 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Anderegg, J.",
-            "Buxton, D. G.",
             "Kennedy, M."
           ]
         }
@@ -13203,6 +14983,11 @@
               "printedAs": "Bennion, G."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -13228,6 +15013,11 @@
               "printedAs": "Christofferson, K."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "paul_a_cutler",
               "position": "yea",
               "printedAs": "Cutler, P."
@@ -13241,6 +15031,11 @@
               "politicianId": "eliason_h45",
               "position": "yea",
               "printedAs": "Eliason, S."
+            },
+            {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
             },
             {
               "politicianId": "gricius_h50",
@@ -13273,9 +15068,24 @@
               "printedAs": "Hollins, S."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "jason_b_kyle",
               "position": "yea",
               "printedAs": "Kyle, J"
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "lisonbee_h14",
@@ -13286,6 +15096,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -13338,6 +15153,11 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -13356,6 +15176,16 @@
               "politicianId": "snider_h5",
               "position": "yea",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -13381,6 +15211,11 @@
               "politicianId": "doug_welton",
               "position": "yea",
               "printedAs": "Welton, D."
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
             },
             {
               "politicianId": "whyte_h63",
@@ -13443,6 +15278,11 @@
               "printedAs": "Kohler, M."
             },
             {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
+            },
+            {
               "politicianId": "tlee",
               "position": "nay",
               "printedAs": "Lee, T."
@@ -13451,6 +15291,11 @@
               "politicianId": "mike_petersen",
               "position": "nay",
               "printedAs": "Petersen, M."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "nay",
+              "printedAs": "Rohner, J."
             },
             {
               "politicianId": "mark_strong",
@@ -13474,23 +15319,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         },
         {
@@ -13516,6 +15348,11 @@
               "printedAs": "Adams, J. Stuart"
             },
             {
+              "politicianId": "jacob_anderegg",
+              "position": "yea",
+              "printedAs": "Anderegg, J."
+            },
+            {
               "politicianId": "blouin_s13",
               "position": "yea",
               "printedAs": "Blouin, N."
@@ -13524,6 +15361,11 @@
               "politicianId": "cbramble",
               "position": "yea",
               "printedAs": "Bramble, C."
+            },
+            {
+              "politicianId": "david_buxton",
+              "position": "yea",
+              "printedAs": "Buxton, D. G."
             },
             {
               "politicianId": "kcullimore",
@@ -13642,8 +15484,6 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Anderegg, J.",
-            "Buxton, D. G.",
             "Kennedy, M."
           ]
         }
@@ -13720,6 +15560,11 @@
               "printedAs": "Bennion, G."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -13750,6 +15595,11 @@
               "printedAs": "Clancy, T."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "paul_a_cutler",
               "position": "yea",
               "printedAs": "Cutler, P."
@@ -13773,6 +15623,11 @@
               "politicianId": "joseph_elison",
               "position": "yea",
               "printedAs": "Elison, J."
+            },
+            {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
             },
             {
               "politicianId": "gricius_h50",
@@ -13810,9 +15665,19 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
             },
             {
               "politicianId": "lisonbee_h14",
@@ -13823,6 +15688,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -13875,6 +15745,16 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "yea",
+              "printedAs": "Rohner, J."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -13888,6 +15768,16 @@
               "politicianId": "rshipp",
               "position": "yea",
               "printedAs": "Shipp, R.P."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -13920,6 +15810,11 @@
               "printedAs": "Welton, D."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "whyte_h63",
               "position": "yea",
               "printedAs": "Whyte, S."
@@ -13938,6 +15833,16 @@
               "politicianId": "ivory_h39",
               "position": "nay",
               "printedAs": "Ivory, K."
+            },
+            {
+              "politicianId": "tim_jimenez",
+              "position": "nay",
+              "printedAs": "Jimenez, T."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -13981,23 +15886,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -14090,6 +15982,11 @@
               "printedAs": "Clancy, T."
             },
             {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
+            },
+            {
               "politicianId": "paul_a_cutler",
               "position": "yea",
               "printedAs": "Cutler, P."
@@ -14113,6 +16010,11 @@
               "politicianId": "joseph_elison",
               "position": "yea",
               "printedAs": "Elison, J."
+            },
+            {
+              "politicianId": "brett_garner",
+              "position": "yea",
+              "printedAs": "Garner, B."
             },
             {
               "politicianId": "gwynn_h6",
@@ -14145,6 +16047,11 @@
               "printedAs": "Kyle, J"
             },
             {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "lisonbee_h14",
               "position": "yea",
               "printedAs": "Lisonbee, K."
@@ -14153,6 +16060,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -14200,6 +16112,11 @@
               "printedAs": "Peterson, V."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
               "politicianId": "aromero",
               "position": "yea",
               "printedAs": "Romero, A."
@@ -14208,6 +16125,16 @@
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -14245,6 +16172,11 @@
               "printedAs": "Welton, D."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "whyte_h63",
               "position": "yea",
               "printedAs": "Whyte, S."
@@ -14258,6 +16190,11 @@
               "politicianId": "stewart_e_barlow",
               "position": "nay",
               "printedAs": "Barlow, S."
+            },
+            {
+              "politicianId": "kera_birkeland",
+              "position": "nay",
+              "printedAs": "Birkeland, K."
             },
             {
               "politicianId": "jefferson_burton",
@@ -14285,9 +16222,19 @@
               "printedAs": "Ivory, K."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "nay",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "nay",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "tlee",
@@ -14303,6 +16250,11 @@
               "politicianId": "candice_pierucci",
               "position": "nay",
               "printedAs": "Pierucci, C."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "nay",
+              "printedAs": "Rohner, J."
             },
             {
               "politicianId": "rshipp",
@@ -14330,6 +16282,11 @@
               "printedAs": "Gricius, S."
             },
             {
+              "politicianId": "brian_king",
+              "position": "not_voting",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "kstratton",
               "position": "not_voting",
               "printedAs": "Stratton, K."
@@ -14341,23 +16298,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         },
         {
@@ -14391,6 +16335,11 @@
               "politicianId": "cbramble",
               "position": "yea",
               "printedAs": "Bramble, C."
+            },
+            {
+              "politicianId": "david_buxton",
+              "position": "yea",
+              "printedAs": "Buxton, D. G."
             },
             {
               "politicianId": "kcullimore",
@@ -14468,6 +16417,11 @@
               "printedAs": "Winterton, R."
             },
             {
+              "politicianId": "jacob_anderegg",
+              "position": "nay",
+              "printedAs": "Anderegg, J."
+            },
+            {
               "politicianId": "lincoln_fillmore",
               "position": "nay",
               "printedAs": "Fillmore, L."
@@ -14509,8 +16463,6 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Anderegg, J.",
-            "Buxton, D. G.",
             "Kennedy, M."
           ]
         }
@@ -14582,6 +16534,11 @@
               "printedAs": "Barlow, S."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -14615,6 +16572,11 @@
               "politicianId": "tyler_clancy",
               "position": "yea",
               "printedAs": "Clancy, T."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -14667,9 +16629,19 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "yea",
+              "printedAs": "Kotter, Q."
             },
             {
               "politicianId": "jason_b_kyle",
@@ -14690,6 +16662,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -14737,6 +16714,11 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
               "politicianId": "mschultz",
               "position": "yea",
               "printedAs": "Schultz, M."
@@ -14745,6 +16727,16 @@
               "politicianId": "rshipp",
               "position": "yea",
               "printedAs": "Shipp, R.P."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "kstratton",
@@ -14812,9 +16804,19 @@
               "printedAs": "Dailey-Provost, J."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
               "politicianId": "sahara_hayes",
               "position": "nay",
               "printedAs": "Hayes, S."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "nay",
+              "printedAs": "King, Brian S."
             },
             {
               "politicianId": "carol_spackman_moss",
@@ -14825,6 +16827,11 @@
               "politicianId": "doug_owens",
               "position": "nay",
               "printedAs": "Owens, D."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "nay",
+              "printedAs": "Rohner, J."
             },
             {
               "politicianId": "aromero",
@@ -14842,29 +16849,26 @@
               "printedAs": "Ivory, K."
             },
             {
+              "politicianId": "rosemary_lesser",
+              "position": "not_voting",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "snider_h5",
               "position": "not_voting",
               "printedAs": "Snider, C."
+            },
+            {
+              "politicianId": "mark_wheatley",
+              "position": "not_voting",
+              "printedAs": "Wheatley, M."
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
@@ -14935,6 +16939,11 @@
               "printedAs": "Barlow, S."
             },
             {
+              "politicianId": "kera_birkeland",
+              "position": "yea",
+              "printedAs": "Birkeland, K."
+            },
+            {
               "politicianId": "bolinder_h68",
               "position": "yea",
               "printedAs": "Bolinder, B."
@@ -14968,6 +16977,11 @@
               "politicianId": "tyler_clancy",
               "position": "yea",
               "printedAs": "Clancy, T."
+            },
+            {
+              "politicianId": "james_cobb",
+              "position": "yea",
+              "printedAs": "Cobb, J."
             },
             {
               "politicianId": "paul_a_cutler",
@@ -15035,6 +17049,16 @@
               "printedAs": "Jack, C."
             },
             {
+              "politicianId": "tim_jimenez",
+              "position": "yea",
+              "printedAs": "Jimenez, T."
+            },
+            {
+              "politicianId": "brian_king",
+              "position": "yea",
+              "printedAs": "King, Brian S."
+            },
+            {
               "politicianId": "kohler_h59",
               "position": "yea",
               "printedAs": "Kohler, M."
@@ -15050,6 +17074,11 @@
               "printedAs": "Lee, T."
             },
             {
+              "politicianId": "rosemary_lesser",
+              "position": "yea",
+              "printedAs": "Lesser, R."
+            },
+            {
               "politicianId": "lisonbee_h14",
               "position": "yea",
               "printedAs": "Lisonbee, K."
@@ -15058,6 +17087,11 @@
               "politicianId": "anthony_loubet",
               "position": "yea",
               "printedAs": "Loubet, A."
+            },
+            {
+              "politicianId": "steven_lund",
+              "position": "yea",
+              "printedAs": "Lund, S."
             },
             {
               "politicianId": "cory_maloy_h52",
@@ -15100,9 +17134,24 @@
               "printedAs": "Pierucci, C."
             },
             {
+              "politicianId": "susan_pulsipher",
+              "position": "yea",
+              "printedAs": "Pulsipher, S."
+            },
+            {
               "politicianId": "rshipp",
               "position": "yea",
               "printedAs": "Shipp, R.P."
+            },
+            {
+              "politicianId": "robert_spendlove",
+              "position": "yea",
+              "printedAs": "Spendlove, R."
+            },
+            {
+              "politicianId": "jeffrey_stenquist",
+              "position": "yea",
+              "printedAs": "Stenquist, J."
             },
             {
               "politicianId": "andrew_stoddard",
@@ -15140,6 +17189,11 @@
               "printedAs": "Welton, D."
             },
             {
+              "politicianId": "mark_wheatley",
+              "position": "yea",
+              "printedAs": "Wheatley, M."
+            },
+            {
               "politicianId": "whyte_h63",
               "position": "yea",
               "printedAs": "Whyte, S."
@@ -15160,6 +17214,16 @@
               "printedAs": "Bennion, G."
             },
             {
+              "politicianId": "brett_garner",
+              "position": "nay",
+              "printedAs": "Garner, B."
+            },
+            {
+              "politicianId": "quinn_kotter",
+              "position": "nay",
+              "printedAs": "Kotter, Q."
+            },
+            {
               "politicianId": "doug_owens",
               "position": "nay",
               "printedAs": "Owens, D."
@@ -15168,6 +17232,11 @@
               "politicianId": "mike_petersen",
               "position": "nay",
               "printedAs": "Petersen, M."
+            },
+            {
+              "politicianId": "judy_weeks_rohner",
+              "position": "nay",
+              "printedAs": "Rohner, J."
             },
             {
               "politicianId": "aromero",
@@ -15201,23 +17270,10 @@
             }
           ],
           "droppedNotOnRoster": [
-            "Birkeland, K.",
             "Briscoe, J.",
-            "Cobb, J.",
-            "Garner, B.",
-            "Jimenez, T.",
             "Johnson, D.N.",
             "Judkins, M.",
-            "King, Brian S.",
-            "Kotter, Q.",
-            "Lesser, R.",
-            "Lund, S.",
-            "Lyman, P.",
-            "Pulsipher, S.",
-            "Rohner, J.",
-            "Spendlove, R.",
-            "Stenquist, J.",
-            "Wheatley, M."
+            "Lyman, P."
           ]
         }
       ]
