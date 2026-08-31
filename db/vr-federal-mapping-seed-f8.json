@@ -1,0 +1,1548 @@
+{
+  "_comment": "Federal wave F8 decision record. Read this file, not the SQL, to learn what was decided and why. The migration is generated from this file and db/vr-federal-wave-f8-attribution-seed.json; neither the SQL nor the generator re-decides anything here. Every count in this file was read out of scripts/vr-federal-wave-f8-census.mjs or the vote seed rather than typed by hand.",
+  "wave": "F8",
+  "mission": "Formal pattern density. Admit the three serving senators no Senate roll call could reach, and pay the attribution debt that admission creates on the Senate rolls already in the record. No party score, no package %, no invented stance, no floor moved. Stance harvest and Direction Match are out of scope.",
+  "whatShipsThisWave": {
+    "rosterSlugs": 3,
+    "newMeasures": 0,
+    "newRollCalls": 0,
+    "newIssueMappingRows": 0,
+    "newIssueKeys": 0,
+    "memberVoteCells": 136,
+    "rollCallsTouched": 73,
+    "cacheVersionBump": "v98 \u2192 v99",
+    "summary": "Three roster admissions, and 136 member x roll-call cells filled on 73 Senate roll calls that were already in the record. No measure, roll call, issue mapping, issue key, weight, polarity or stated position is created, changed or retracted. The energy half of the brief shipped empty and says so below."
+  },
+  "census": {
+    "_comment": "The brief's order: the three senators first, the Senate energy pool second. Both are re-derivable \u2014 run scripts/vr-federal-wave-f8-census.mjs.",
+    "step1_theThreeSenators": {
+      "mandate": "Wave F7 ingested a Senate slice and recorded, rather than fixed, a roster gap: Husted, Hyde-Smith and Armstrong were absent from db/vr-member-map.json, so every Senate roll in the corpus lost the same three rows. F7 named them instead of guessing at them, 'because adding a roster slug is a roster wave with its own argument'. This is that wave.",
+      "verifiedTwice": "Each Bioguide was confirmed by two independent published paths, and the census asserts both rather than asserting one and trusting the other. Path 1: name + state, restricted to sitting senators, against legislators-current.json. Path 2: the <lis_member_id> the Senate's own roll XML records for that senator, against id.lis in the same dataset. Path 2 is the one that carries weight here, because the Senate identifies a voter by LIS id and not by Bioguide, so the LIS id is what actually connects a slug to a vote.",
+      "senators": [
+        {
+          "slug": "jon_husted",
+          "name": "Jon Husted",
+          "bioguide": "H001104",
+          "lisMemberId": "S438",
+          "state": "OH",
+          "portraitHost": "upload.wikimedia.org",
+          "checksPassed": 7,
+          "allChecksPassed": true
+        },
+        {
+          "slug": "hyde_smith",
+          "name": "Cindy Hyde-Smith",
+          "bioguide": "H001079",
+          "lisMemberId": "S395",
+          "state": "MS",
+          "portraitHost": "raw.githubusercontent.com",
+          "checksPassed": 7,
+          "allChecksPassed": true
+        },
+        {
+          "slug": "alan_armstrong",
+          "name": "Alan Armstrong",
+          "bioguide": "A000383",
+          "lisMemberId": "S440",
+          "state": "OK",
+          "portraitHost": "commons.wikimedia.org",
+          "checksPassed": 7,
+          "allChecksPassed": true
+        }
+      ],
+      "portraits": "hyde_smith carries an official congressional portrait, so BROWSE_PHOTOS and SEED_SLUGS name her independently and the generator's disagree wall cross-checks the two. jon_husted's portrait was already in BROWSE_PHOTOS (Wikimedia, official Senate portrait) and is left exactly as it was. alan_armstrong has no file in unitedstates/images and none at bioguide.congress.gov \u2014 both 404 \u2014 so his portrait is the official U.S. Senate photograph on Commons, in the hash-independent Special:FilePath form. All three hosts are among the six netlify.toml already allows; the allowlist is NOT widened by this wave.",
+      "noInventedBios": "No CMP_DATA row was added for any of the three, and no score, issue list or biography was written for them. The brief forbids it and it would have been a fabrication to satisfy a guard. What the guard actually needed was a NAME, so the name alone is declared in a new SEED_NAMES map in scripts/vr-gen-member-map.mjs \u2014 read off the same official record the Bioguide came from, consulted only when the app publishes no name for the slug, and never rendered to a reader. See the walls block below for why that made the identity check stronger rather than weaker.",
+      "notKellyArmstrong": "alan_armstrong is Alan Armstrong, R-OK, sworn 2026-03-24. The app already carries kelly_armstrong, the Governor of North Dakota. They share a surname and nothing else, and the surname-only compare the identity wall used could not have told them apart \u2014 which is why declared names are now held to an exact match against the official record."
+    },
+    "step2_theSenateEnergyPool": {
+      "question": "Is there a contested Senate standalone, discharge or passage roll left to ingest whose subject is energy_production, permitting_reform, lands_energy, climate_action, or a new key that clears the six vocabulary rules?",
+      "answer": "NO. The pool is empty after refusal-first, and the wave says so rather than restuffing war_powers or an NDAA rider to manufacture an energy row.",
+      "sources": [
+        "senate.gov/legislative/LIS/roll_call_lists/vote_menu_119_1.xml",
+        "senate.gov/legislative/LIS/roll_call_lists/vote_menu_119_2.xml",
+        "vr_rollcalls / vr_measures / vr_measure_issues / vr_member_votes",
+        "unitedstates.github.io/congress-legislators/legislators-current.json"
+      ],
+      "listed": {
+        "total": 890,
+        "session1": 659,
+        "session2": 231
+      },
+      "senateRollsAlreadyOnFile": 52,
+      "funnel": [
+        {
+          "step": "1. not already in vr_rollcalls",
+          "from": 890,
+          "to": 838,
+          "note": "-52 already on file (52 Senate 119th rolls on file)"
+        },
+        {
+          "step": "2. rule 8/12 decisive question form",
+          "from": 838,
+          "to": 38,
+          "note": "-800. Admitted: 25 passage form: joint resolution, 11 decisive, 2 exception: discharge"
+        },
+        {
+          "step": "3. contested at rule 11's one-tenth bar",
+          "from": 38,
+          "to": 36,
+          "note": "-2"
+        },
+        {
+          "step": "4. refusal-first gate",
+          "from": 36,
+          "to": 2,
+          "note": "-34 already refused by name"
+        },
+        {
+          "step": "5. subject is energy / permitting / lands / climate",
+          "from": 2,
+          "to": 0,
+          "note": "the surviving rolls are about something else"
+        }
+      ],
+      "energyPool": [],
+      "nonEnergySurvivors": {
+        "_comment": "Two rolls survive the whole funnel. Both are arms-sale discharge motions and neither is an energy roll, so neither is this wave's to take. They are named so a later wave can find them, and left where they are.",
+        "rows": [
+          {
+            "roll": "119/1/307",
+            "measure": "S. J. RES. 54",
+            "question": "On the Motion to Discharge",
+            "tally": "39-56",
+            "title": "Motion to Discharge: S.J. Res. 54; A joint resolution providing for congressional disapproval of the proposed foreign military sale to the Government of the United Arab Emirates of certain defense articles and services."
+          },
+          {
+            "roll": "119/1/306",
+            "measure": "S. J. RES. 53",
+            "question": "On the Motion to Discharge",
+            "tally": "39-56",
+            "title": "Motion to Discharge S. J. Res. 53; A joint resolution providing for congressional disapproval of the proposed foreign military sale to the Government of Qatar of certain defense articles and services."
+          }
+        ]
+      },
+      "whyAFunnelIsNotEnough": "A funnel that returns nothing looks exactly like a funnel with a broken filter, and wave F6 shipped that bug \u2014 it read <vote_tally>'s display string, so '51-42' parsed as 5142 and every Senate roll appeared unanimous. So the census also scans ALL 890 listed rolls for energy vocabulary independently of the funnel and explains where each hit died. 69 rolls mention energy; 0 of them survive. The funnel and the scan agree that there is nothing there.",
+      "independentEnergyScan": {
+        "hits": 69,
+        "survivorsTheFunnelMissed": 0,
+        "whereTheEnergyRollsDied": {
+          "refusedByNameInAnEarlierWave": 35,
+          "alreadyInVrRollcalls": 5,
+          "motionToProceedOrCloture": 17,
+          "formGateOther": 12,
+          "rule11Uncontested": 0,
+          "rule31NotAnAct": 0,
+          "_comment": "refusedByNameInAnEarlierWave splits into the F4 CRA/disapproval block (29) and the six rolls waves F2 and F3 refused by name (6)."
+        },
+        "rows": [
+          {
+            "roll": "119/1/652",
+            "measure": "PN645-2",
+            "issue": "PN645-2",
+            "question": "On the Nomination",
+            "tally": "71-29",
+            "title": "Confirmation: Douglas Weaver, of Maryland, to be a Member of the Nuclear Regulatory Commission",
+            "died": "form gate \u2014 nomination"
+          },
+          {
+            "roll": "119/1/651",
+            "measure": "PN645-2",
+            "issue": "PN645-2",
+            "question": "On the Cloture Motion",
+            "tally": "69-27",
+            "title": "Motion to Invoke Cloture: Douglas Weaver to be a Member of the Nuclear Regulatory Commission",
+            "died": "not an admitted form \u2014 \"On the Cloture Motion\" is a procedural motion, not a decisive question"
+          },
+          {
+            "roll": "119/1/632",
+            "measure": "H. J. RES. 131",
+            "issue": "H.J.Res. 131",
+            "question": "On the Joint Resolution",
+            "tally": "49-45",
+            "title": "H.J. Res. 131; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Land Management relating to \"Coastal Plain Oil and Gas Leasing Program Record of Decision\".",
+            "died": "already in vr_rollcalls \u2014 ingested by an earlier wave"
+          },
+          {
+            "roll": "119/1/630",
+            "measure": "S. J. RES. 91",
+            "issue": "S.J.Res. 91",
+            "question": "On the Motion to Proceed",
+            "tally": "49-47",
+            "title": "Motion to Proceed to S. J. Res. 91; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Land Management relating to \"Coastal Plain Oil and Gas Leasing Program Record of Decision\".",
+            "died": "not an admitted form \u2014 \"On the Motion to Proceed\" is a procedural motion, not a decisive question"
+          },
+          {
+            "roll": "119/1/622",
+            "measure": "S. J. RES. 76",
+            "issue": "S.J.Res. 76",
+            "question": "On the Motion to Proceed",
+            "tally": "46-51",
+            "title": "Motion to Proceed to S.J.Res. 76; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Environmental Protection Agency relating to \"Extension of Deadlines in Standards of Performance for New, Reconstructed, and Modified Sources and Emissions Guidelines for Existing Sources: Oil and Natural Gas Sector Climate Review Final Rule\".",
+            "died": "not an admitted form \u2014 \"On the Motion to Proceed\" is a procedural motion, not a decisive question"
+          },
+          {
+            "roll": "119/1/620",
+            "measure": "PN445-6",
+            "issue": "PN445-6",
+            "question": "On the Nomination",
+            "tally": "66-32",
+            "title": "Confirmation: Ho Nieh, of Alabama, to be a Member of the Nuclear Regulatory Commission",
+            "died": "form gate \u2014 nomination"
+          },
+          {
+            "roll": "119/1/619",
+            "measure": "PN445-6",
+            "issue": "PN445-6",
+            "question": "On the Cloture Motion",
+            "tally": "65-32",
+            "title": "Motion to Invoke Cloture: Ho Nieh to be a Member of the Nuclear Regulatory Commission",
+            "died": "not an admitted form \u2014 \"On the Cloture Motion\" is a procedural motion, not a decisive question"
+          },
+          {
+            "roll": "119/1/599",
+            "measure": "S. J. RES. 80",
+            "issue": "S.J.Res. 80",
+            "question": "On the Joint Resolution",
+            "tally": "52-45",
+            "title": "S.J. Res. 80; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Land Management relating to \"National Petroleum Reserve in Alaska Integrated Activity Plan Record of Decision\".",
+            "died": "roll refused by name in vr-federal-mapping-seed-f2.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/595",
+            "measure": "S. J. RES. 80",
+            "issue": "S.J.Res. 80",
+            "question": "On the Motion to Proceed",
+            "tally": "54-46",
+            "title": "Motion to Proceed to S.J.Res. 80; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Land Management relating to \"National Petroleum Reserve in Alaska Integrated Activity Plan Record of Decision\".",
+            "died": "roll refused by name in vr-federal-mapping-seed-f2.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/570",
+            "measure": "S. 2296",
+            "issue": "S. 2296",
+            "question": "On Passage of the Bill",
+            "tally": "77-20",
+            "title": "S. 2296, as amended; An original bill to authorize appropriations for fiscal year 2026 for military activities of the Department of Defense, for military construction, and for defense activities of the Department of Energy, to prescribe military personnel strengths for such fiscal year, and for other purposes.",
+            "died": "already in vr_rollcalls \u2014 ingested by an earlier wave"
+          },
+          {
+            "roll": "119/1/554",
+            "measure": "S. J. RES. 71",
+            "issue": "S.J.Res. 71",
+            "question": "On the Joint Resolution",
+            "tally": "47-51",
+            "title": "S. J. Res. 71; A joint resolution terminating the national emergency declared with respect to energy.",
+            "died": "already in vr_rollcalls \u2014 ingested by an earlier wave"
+          },
+          {
+            "roll": "119/1/520",
+            "measure": "S. J. RES. 60",
+            "issue": "S.J.Res. 60",
+            "question": "On the Motion to Proceed",
+            "tally": "47-51",
+            "title": "Motion to Proceed to S. J. Res. 60; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Environmental Protection Agency relating to \"Emissions Budget and Allowance Allocations for Indiana Under the Revised Cross-State Air Pollution Rule Update\".",
+            "died": "not an admitted form \u2014 \"On the Motion to Proceed\" is a procedural motion, not a decisive question"
+          },
+          {
+            "roll": "119/1/503",
+            "measure": "S. 2296",
+            "issue": "S. 2296",
+            "question": "On the Motion to Proceed",
+            "tally": "83-13",
+            "title": "Motion to Proceed to S. 2296; An original bill to authorize appropriations for fiscal year 2026 for military activities of the Department of Defense, for military construction, and for defense activities of the Department of Energy, to prescribe military personnel strengths for such fiscal year, and for other purposes.",
+            "died": "not an admitted form \u2014 \"On the Motion to Proceed\" is a procedural motion, not a decisive question"
+          },
+          {
+            "roll": "119/1/500",
+            "measure": "S. 2296",
+            "issue": "S. 2296",
+            "question": "On Cloture on the Motion to Proceed",
+            "tally": "84-14",
+            "title": "Motion to Invoke Cloture: Motion to Proceed to S. 2296; An original bill to authorize appropriations for fiscal year 2026 for military activities of the Department of Defense, for military construction, and for defense activities of the Department of Energy, to prescribe military personnel strengths for such fiscal year, and for other purposes.",
+            "died": "not an admitted form \u2014 \"On Cloture on the Motion to Proceed\" is a procedural motion, not a decisive question"
+          },
+          {
+            "roll": "119/1/439",
+            "measure": "PN345-20",
+            "issue": "PN345-20",
+            "question": "On the Nomination",
+            "tally": "50-39",
+            "title": "Confirmation: David Wright, of South Carolina, to be a Member of the Nuclear Regulatory Commission",
+            "died": "form gate \u2014 nomination"
+          },
+          {
+            "roll": "119/1/438",
+            "measure": "PN345-20",
+            "issue": "PN345-20",
+            "question": "On the Cloture Motion",
+            "tally": "51-45",
+            "title": "Motion to Invoke Cloture: David Wright to be a Member of the Nuclear Regulatory Commission",
+            "died": "not an admitted form \u2014 \"On the Cloture Motion\" is a procedural motion, not a decisive question"
+          },
+          {
+            "roll": "119/1/375",
+            "measure": "PN12-20",
+            "issue": "PN12-20",
+            "question": "On the Nomination",
+            "tally": "54-43",
+            "title": "Confirmation: Preston Griffith, of Virginia, to be Under Secretary of Energy",
+            "died": "form gate \u2014 nomination"
+          },
+          {
+            "roll": "119/1/373",
+            "measure": "PN12-20",
+            "issue": "PN12-20",
+            "question": "On the Cloture Motion",
+            "tally": "47-41",
+            "title": "Motion to Invoke Cloture: Preston Griffith to be Under Secretary of Energy",
+            "died": "not an admitted form \u2014 \"On the Cloture Motion\" is a procedural motion, not a decisive question"
+          },
+          {
+            "roll": "119/1/366",
+            "measure": "H. R. 1",
+            "issue": "H.R. 1",
+            "question": "On the Amendment <measure>S.Amdt. 2564</measure>",
+            "tally": "49-51",
+            "title": "Shaheen Amdt. No. 2564; To repeal amendments that terminate certain clean energy credits, and for other purposes.",
+            "died": "form gate \u2014 question \"On the Amendment <measure>S.Amdt. 2564</measure>\" is not an admitted decisive form for H.R. 1"
+          },
+          {
+            "roll": "119/1/365",
+            "measure": "H. R. 1",
+            "issue": "H.R. 1",
+            "question": "On the Amendment <measure>S.Amdt. 2719</measure>",
+            "tally": "48-52",
+            "title": "Hickenlooper Amdt. No. 2719; To modify the provision terminating the residential clean energy credit, and for other purposes.",
+            "died": "form gate \u2014 question \"On the Amendment <measure>S.Amdt. 2719</measure>\" is not an admitted decisive form for H.R. 1"
+          },
+          {
+            "roll": "119/1/364",
+            "measure": "H. R. 1",
+            "issue": "H.R. 1",
+            "question": "On the Amendment <measure>S.Amdt. 2717</measure>",
+            "tally": "47-53",
+            "title": "Rosen Amdt. No. 2717; To maintain parity for wind and solar facilities under the Internal Revenue Code of 1986.",
+            "died": "form gate \u2014 question \"On the Amendment <measure>S.Amdt. 2717</measure>\" is not an admitted decisive form for H.R. 1"
+          },
+          {
+            "roll": "119/1/360",
+            "measure": "H. R. 1",
+            "issue": "H.R. 1",
+            "question": "On the Amendment <measure>S.Amdt. 2745</measure>",
+            "tally": "21-79",
+            "title": "Lee Amdt. No. 2745; To terminate wind and solar credits.",
+            "died": "form gate \u2014 question \"On the Amendment <measure>S.Amdt. 2745</measure>\" is not an admitted decisive form for H.R. 1"
+          },
+          {
+            "roll": "119/1/279",
+            "measure": "H. J. RES. 87",
+            "issue": "H.J.Res. 87",
+            "question": "On the Joint Resolution",
+            "tally": "51-45",
+            "title": "H.J.Res. 87; A joint resolution providing congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Environmental Protection Agency relating to \"California State Motor Vehicle and Engine Pollution Control Standards; Heavy-Duty Vehicle and Engine Emission Warranty and Maintenance Provisions; Advanced Clean Trucks; Zero Emission Airport Shuttle; Zero-Emission Power Train Certification; Waiver of Preemption; Notice of Decision\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/278",
+            "measure": "H. J. RES. 87",
+            "issue": "H.J.Res. 87",
+            "question": "On the Motion to Proceed",
+            "tally": "51-46",
+            "title": "Motion to Proceed to H.J. Res. 87; A joint resolution providing congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Environmental Protection Agency relating to \"California State Motor Vehicle and Engine Pollution Control Standards; Heavy-Duty Vehicle and Engine Emission Warranty and Maintenance Provisions; Advanced Clean Trucks; Zero Emission Airport Shuttle; Zero-Emission Power Train Certification; Waiver of Preemption; Notice of Decision\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/275",
+            "measure": "S. J. RES. 55",
+            "issue": "S.J.Res. 55",
+            "question": "On the Joint Resolution",
+            "tally": "51-46",
+            "title": "S.J.Res. 55; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the National Highway Traffic Safety Administration relating to \"Federal Motor Vehicle Safety Standards; Fuel System Integrity of Hydrogen Vehicles; Compressed Hydrogen Storage System Integrity; Incorporation by Reference\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/274",
+            "measure": "S. J. RES. 55",
+            "issue": "S.J.Res. 55",
+            "question": "On the Point of Order",
+            "tally": "51-46",
+            "title": "Shall Joint Resolutions that Meet All the Requirements of Section 802 of the Congressional Review Act or are Disapproving of Agency Actions which have been Determined to be Rules Subject to the Congressional Review Act by a Legal Decision from the Government Accountability Office, be Entitled to Expedited Procedures under the Congressional Review Act?; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the National Highway Traffic Safety Administration relating to \"Federal Motor Vehicle Safety Standards; Fuel System Integrity of Hydrogen Vehicles; Compressed Hydrogen Storage System Integrity; Incorporation by Reference\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/273",
+            "measure": "S. J. RES. 55",
+            "issue": "S.J.Res. 55",
+            "question": "On the Point of Order",
+            "tally": "51-46",
+            "title": "Shall Points of Order be in Order under the Congressional Review Act?; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the National Highway Traffic Safety Administration relating to \"Federal Motor Vehicle Safety Standards; Fuel System Integrity of Hydrogen Vehicles; Compressed Hydrogen Storage System Integrity; Incorporation by Reference\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/272",
+            "measure": "S. J. RES. 55",
+            "issue": "S.J.Res. 55",
+            "question": "On the Motion to Adjourn",
+            "tally": "46-51",
+            "title": "Motion to Adjourn; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the National Highway Traffic Safety Administration relating to \"Federal Motor Vehicle Safety Standards; Fuel System Integrity of Hydrogen Vehicles; Compressed Hydrogen Storage System Integrity; Incorporation by Reference\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/271",
+            "measure": "S. J. RES. 55",
+            "issue": "S.J.Res. 55",
+            "question": "On the Motion",
+            "tally": "45-52",
+            "title": "Motion to Recess for Ten Minutes; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the National Highway Traffic Safety Administration relating to \"Federal Motor Vehicle Safety Standards; Fuel System Integrity of Hydrogen Vehicles; Compressed Hydrogen Storage System Integrity; Incorporation by Reference\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/270",
+            "measure": "S. J. RES. 55",
+            "issue": "S.J.Res. 55",
+            "question": "On the Motion",
+            "tally": "46-51",
+            "title": "Motion to Recess for Fifteen Minutes; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the National Highway Traffic Safety Administration relating to \"Federal Motor Vehicle Safety Standards; Fuel System Integrity of Hydrogen Vehicles; Compressed Hydrogen Storage System Integrity; Incorporation by Reference\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/269",
+            "measure": "S. J. RES. 55",
+            "issue": "S.J.Res. 55",
+            "question": "On the Motion",
+            "tally": "46-51",
+            "title": "Motion to Recess for Thirty Minutes; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the National Highway Traffic Safety Administration relating to \"Federal Motor Vehicle Safety Standards; Fuel System Integrity of Hydrogen Vehicles; Compressed Hydrogen Storage System Integrity; Incorporation by Reference\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/268",
+            "measure": "S. J. RES. 55",
+            "issue": "S.J.Res. 55",
+            "question": "On the Motion",
+            "tally": "45-51",
+            "title": "Motion to Recess for 60 Minutes; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the National Highway Traffic Safety Administration relating to \"Federal Motor Vehicle Safety Standards; Fuel System Integrity of Hydrogen Vehicles; Compressed Hydrogen Storage System Integrity; Incorporation by Reference\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/267",
+            "measure": "S. J. RES. 55",
+            "issue": "S.J.Res. 55",
+            "question": "On the Motion",
+            "tally": "46-51",
+            "title": "Motion to Recess for Ninety Minutes; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the National Highway Traffic Safety Administration relating to \"Federal Motor Vehicle Safety Standards; Fuel System Integrity of Hydrogen Vehicles; Compressed Hydrogen Storage System Integrity; Incorporation by Reference\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/266",
+            "measure": "S. J. RES. 55",
+            "issue": "S.J.Res. 55",
+            "question": "On the Motion to Table",
+            "tally": "51-46",
+            "title": "Motion to Table the Appeal that Two Points of Order are Not in Order at the Same Time; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the National Highway Traffic Safety Administration relating to \"Federal Motor Vehicle Safety Standards; Fuel System Integrity of Hydrogen Vehicles; Compressed Hydrogen Storage System Integrity; Incorporation by Reference\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/265",
+            "measure": "S. J. RES. 55",
+            "issue": "S.J.Res. 55",
+            "question": "On the Motion to Table",
+            "tally": "46-52",
+            "title": "Motion to Table the Submitted Point of Order: Shall Points of Order Be in Order under the Congressional Review Act?; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the National Highway Traffic Safety Administration relating to \"Federal Motor Vehicle Safety Standards; Fuel System Integrity of Hydrogen Vehicles; Compressed Hydrogen Storage System Integrity; Incorporation by Reference\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/264",
+            "measure": "S. J. RES. 55",
+            "issue": "S.J.Res. 55",
+            "question": "On the Motion to Proceed",
+            "tally": "53-46",
+            "title": "Motion to Proceed to S.J.Res. 55; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the National Highway Traffic Safety Administration relating to \"Federal Motor Vehicle Safety Standards; Fuel System Integrity of Hydrogen Vehicles; Compressed Hydrogen Storage System Integrity; Incorporation by Reference\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/250",
+            "measure": "PN13-10",
+            "issue": "PN13-10",
+            "question": "On the Nomination",
+            "tally": "54-40",
+            "title": "Confirmation: Katharine MacGregor, of Florida, to be Deputy Secretary of the Interior",
+            "died": "form gate \u2014 nomination"
+          },
+          {
+            "roll": "119/1/249",
+            "measure": "PN13-10",
+            "issue": "PN13-10",
+            "question": "On the Cloture Motion",
+            "tally": "57-41",
+            "title": "Motion to Invoke Cloture: Katharine MacGregor to be Deputy Secretary of the Interior",
+            "died": "not an admitted form \u2014 \"On the Cloture Motion\" is a procedural motion, not a decisive question"
+          },
+          {
+            "roll": "119/1/248",
+            "measure": "PN13-4",
+            "issue": "PN13-4",
+            "question": "On the Nomination",
+            "tally": "52-44",
+            "title": "Confirmation: James Danly, of Tennessee, to be Deputy Secretary of Energy",
+            "died": "form gate \u2014 nomination"
+          },
+          {
+            "roll": "119/1/247",
+            "measure": "PN13-4",
+            "issue": "PN13-4",
+            "question": "On the Cloture Motion",
+            "tally": "53-45",
+            "title": "Motion to Invoke Cloture: James Danly to be Deputy Secretary of Energy",
+            "died": "not an admitted form \u2014 \"On the Cloture Motion\" is a procedural motion, not a decisive question"
+          },
+          {
+            "roll": "119/1/232",
+            "measure": "H. J. RES. 61",
+            "issue": "H.J.Res. 61",
+            "question": "On the Joint Resolution",
+            "tally": "55-45",
+            "title": "H.J.Res. 61; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Environmental Protection Agency relating to \"National Emission Standards for Hazardous Air Pollutants: Rubber Tire Manufacturing\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/231",
+            "measure": "H. J. RES. 61",
+            "issue": "H.J.Res. 61",
+            "question": "On the Motion to Proceed",
+            "tally": "51-43",
+            "title": "Motion to proceed to H.J. Res. 61; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Environmental Protection Agency relating to \"National Emission Standards for Hazardous Air Pollutants: Rubber Tire Manufacturing\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/228",
+            "measure": "H. J. RES. 75",
+            "issue": "H.J.Res. 75",
+            "question": "On the Joint Resolution",
+            "tally": "52-45",
+            "title": "H.J.Res. 75; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Office of Energy Efficiency and Renewable Energy, Department of Energy relating to \"Energy Conservation Program: Energy Conservation Standards for Commercial Refrigerators, Freezers, and Refrigerator-Freezers\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/224",
+            "measure": "H. J. RES. 75",
+            "issue": "H.J.Res. 75",
+            "question": "On the Motion to Proceed",
+            "tally": "52-46",
+            "title": "Motion to Proceed to H.J.Res. 75; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Office of Energy Efficiency and Renewable Energy, Department of Energy relating to \"Energy Conservation Program: Energy Conservation Standards for Commercial Refrigerators, Freezers, and Refrigerator-Freezers\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/223",
+            "measure": "H. J. RES. 42",
+            "issue": "H.J.Res. 42",
+            "question": "On the Joint Resolution",
+            "tally": "52-46",
+            "title": "H.J.Res. 42; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Department of Energy relating to \"Energy Conservation Program for Appliance Standards: Certification Requirements, Labeling Requirements, and Enforcement Provisions for Certain Consumer Products and Commercial Equipment\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/222",
+            "measure": "H. J. RES. 42",
+            "issue": "H.J.Res. 42",
+            "question": "On the Motion to Proceed",
+            "tally": "52-46",
+            "title": "Motion to Proceed to H.J.Res. 42; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Department of Energy relating to \"Energy Conservation Program for Appliance Standards: Certification Requirements, Labeling Requirements, and Enforcement Provisions for Certain Consumer Products and Commercial Equipment\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/207",
+            "measure": "H. J. RES. 20",
+            "issue": "H.J.Res. 20",
+            "question": "On the Joint Resolution",
+            "tally": "53-44",
+            "title": "H.J.Res. 20; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Department of Energy relating to \"Energy Conservation Program: Energy Conservation Standards for Consumer Gas-fired Instantaneous Water Heaters\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/206",
+            "measure": "H. J. RES. 20",
+            "issue": "H.J.Res. 20",
+            "question": "On the Motion to Proceed",
+            "tally": "52-42",
+            "title": "Motion to Proceed to H.J.Res. 20; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Department of Energy relating to \"Energy Conservation Program: Energy Conservation Standards for Consumer Gas-fired Instantaneous Water Heaters\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/189",
+            "measure": "H. CON. RES. 14",
+            "issue": "H.Con.Res. 14",
+            "question": "On the Amendment <measure>S.Amdt. 1989</measure>",
+            "tally": "49-50",
+            "title": "Wyden Amdt. No. 1989; To strike section 2001(b)(4) relating to reconciliation instructions to the Committee on Energy and Commerce of the House of Representatives to cut $880,000,000,000 from Medicaid.",
+            "died": "measure refused by name in vr-federal-mapping-seed-f2.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/181",
+            "measure": "H. CON. RES. 14",
+            "issue": "H.Con.Res. 14",
+            "question": "On the Amendment <measure>S.Amdt. 2107</measure>",
+            "tally": "48-51",
+            "title": "Hickenlooper Amdt. No. 2107; To establish a deficit-neutral reserve fund relating to preventing the use of proceeds from public land sales to reduce the Federal deficit.",
+            "died": "measure refused by name in vr-federal-mapping-seed-f2.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/162",
+            "measure": "H. J. RES. 24",
+            "issue": "H.J.Res. 24",
+            "question": "On the Joint Resolution",
+            "tally": "53-42",
+            "title": "H.J. Res. 24; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Department of Energy relating to \"Energy Conservation Program: Energy Conservation Standards for Walk-In Coolers and Walk-In Freezers\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/161",
+            "measure": "H. J. RES. 24",
+            "issue": "H.J.Res. 24",
+            "question": "On the Motion to Proceed",
+            "tally": "51-46",
+            "title": "Motion to Proceed to H.J. Res. 24; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Department of Energy relating to \"Energy Conservation Program: Energy Conservation Standards for Walk-In Coolers and Walk-In Freezers\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/97",
+            "measure": "H. J. RES. 35",
+            "issue": "H.J.Res. 35",
+            "question": "On the Joint Resolution",
+            "tally": "52-47",
+            "title": "H. J. Res. 35; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Environmental Protection Agency relating to \"Waste Emissions Charge for Petroleum and Natural Gas Systems: Procedures for Facilitating Compliance, Including Netting and Exemptions\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/96",
+            "measure": "S. J. RES. 12",
+            "issue": "S.J.Res. 12",
+            "question": "On the Motion to Proceed",
+            "tally": "52-47",
+            "title": "Motion to Proceed to S. J. Res. 12; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Environmental Protection Agency relating to \"Waste Emissions Charge for Petroleum and Natural Gas Systems: Procedures for Facilitating Compliance, Including Netting and Exemptions\".",
+            "died": "not an admitted form \u2014 \"On the Motion to Proceed\" is a procedural motion, not a decisive question"
+          },
+          {
+            "roll": "119/1/95",
+            "measure": "S. J. RES. 10",
+            "issue": "S.J.Res. 10",
+            "question": "On the Joint Resolution",
+            "tally": "47-52",
+            "title": "S. J. Res. 10; A joint resolution terminating the national emergency declared with respect to energy.",
+            "died": "already in vr_rollcalls \u2014 ingested by an earlier wave"
+          },
+          {
+            "roll": "119/1/92",
+            "measure": "S. J. RES. 11",
+            "issue": "S.J.Res. 11",
+            "question": "On the Joint Resolution",
+            "tally": "54-44",
+            "title": "S. J. Res. 11; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Ocean Energy Management relating to \"Protection of Marine Archaeological Resources\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/91",
+            "measure": "S. J. RES. 11",
+            "issue": "S.J.Res. 11",
+            "question": "On the Motion to Proceed",
+            "tally": "54-42",
+            "title": "Motion to Proceed to S. J. Res. 11; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Ocean Energy Management relating to \"Protection of Marine Archaeological Resources\".",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/67",
+            "measure": "S. CON. RES. 7",
+            "issue": "S.Con.Res. 7",
+            "question": "On the Motion <measure>S.Amdt. 925</measure>",
+            "tally": "47-53",
+            "title": "Motion to Waive All Applicable Budgetary Discipline Re: Hickenlooper Amdt. No. 925; To create a point of order against legislation that would raise energy costs for Americans, including higher monthly electricity bills, building material expenses, and transportation costs.",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/1/30",
+            "measure": "PN11-15",
+            "issue": "PN11-15",
+            "question": "On the Nomination",
+            "tally": "59-38",
+            "title": "Confirmation: Christopher Wright, of Colorado, to be Secretary of Energy",
+            "died": "form gate \u2014 nomination"
+          },
+          {
+            "roll": "119/1/27",
+            "measure": "PN11-15",
+            "issue": "PN11-15",
+            "question": "On the Cloture Motion",
+            "tally": "62-35",
+            "title": "Motion to Invoke Cloture: Christopher Wright to be Secretary of Energy",
+            "died": "not an admitted form \u2014 \"On the Cloture Motion\" is a procedural motion, not a decisive question"
+          },
+          {
+            "roll": "119/1/26",
+            "measure": "PN11-3",
+            "issue": "PN11-3",
+            "question": "On the Nomination",
+            "tally": "80-17",
+            "title": "Confirmation: Douglas Burgum, of N.D., to be Secretary of the Interior",
+            "died": "form gate \u2014 nomination"
+          },
+          {
+            "roll": "119/1/25",
+            "measure": "PN11-3",
+            "issue": "PN11-3",
+            "question": "On the Cloture Motion",
+            "tally": "78-20",
+            "title": "Motion to Invoke Cloture: Douglas Burgum to be Secretary of the Interior",
+            "died": "not an admitted form \u2014 \"On the Cloture Motion\" is a procedural motion, not a decisive question"
+          },
+          {
+            "roll": "119/2/223",
+            "measure": "H. R. 5334",
+            "issue": "H.R. 5334",
+            "question": "On the Amendment <measure>S.Amdt. 6715</measure>",
+            "tally": "32-64",
+            "title": "Paul Amdt. No. 6715; To strike the provision relating to duties on countries that purchase Russian-origin crude oil or natural gas or facilitate sanctions evasion.",
+            "died": "measure refused by name in vr-federal-mapping-seed-f4.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/2/195",
+            "measure": "S. 4784",
+            "issue": "S. 4784",
+            "question": "On Cloture on the Motion to Proceed",
+            "tally": "50-46",
+            "title": "Motion to Invoke Cloture: Motion to Proceed to S. 4784; An original bill to authorize appropriations for fiscal year 2027 for military activities of the Department of Defense, for military construction, and for defense activities of the Department of Energy, to prescribe military personnel strengths for such fiscal year, and for other purposes.",
+            "died": "not an admitted form \u2014 \"On Cloture on the Motion to Proceed\" is a procedural motion, not a decisive question"
+          },
+          {
+            "roll": "119/2/135",
+            "measure": "S. J. RES. 188",
+            "issue": "S.J.Res. 188",
+            "question": "On the Motion to Proceed",
+            "tally": "46-53",
+            "title": "Motion to Proceed: S.J. Res. 188; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Environmental Protection Agency relating to \"National Emission Standards for Hazardous Air Pollutants: Coal- and Oil-Fired Electric Utility Steam Generating Units: Final Repeal\".",
+            "died": "not an admitted form \u2014 \"On the Motion to Proceed\" is a procedural motion, not a decisive question"
+          },
+          {
+            "roll": "119/2/84",
+            "measure": "H. J. RES. 140",
+            "issue": "H.J.Res. 140",
+            "question": "On the Joint Resolution",
+            "tally": "50-49",
+            "title": "H.J. Res. 140; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Land Management relating to Public Land Order No. 7917 for Withdrawal of Federal Lands; Cook, Lake, and Saint Louis Counties, MN.",
+            "died": "already in vr_rollcalls \u2014 ingested by an earlier wave"
+          },
+          {
+            "roll": "119/2/83",
+            "measure": "H. J. RES. 140",
+            "issue": "H.J.Res. 140",
+            "question": "On the Motion to Proceed",
+            "tally": "51-49",
+            "title": "Motion to Proceed to H. J. Res. 140; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Land Management relating to Public Land Order No. 7917 for Withdrawal of Federal Lands; Cook, Lake, and Saint Louis Counties, MN.",
+            "died": "roll refused by name in vr-federal-mapping-seed-f3.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/2/82",
+            "measure": "H. J. RES. 140",
+            "issue": "H.J.Res. 140",
+            "question": "On the Motion to Table",
+            "tally": "51-48",
+            "title": "Motion to Table: Submitted Point of Order Re: H. J. Res. 140; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Land Management relating to Public Land Order No. 7917 for Withdrawal of Federal Lands; Cook, Lake, and Saint Louis Counties, MN.",
+            "died": "measure refused by name in vr-federal-mapping-seed-f3.json:declinedRollCalls"
+          },
+          {
+            "roll": "119/2/70",
+            "measure": "S. J. RES. 107",
+            "issue": "S.J.Res. 107",
+            "question": "On the Motion to Proceed",
+            "tally": "47-53",
+            "title": "Motion to Proceed to S.J. Res. 107; A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Internal Revenue Service relating to \"Beginning of Construction Requirements for Purposes of the Termination of Clean Electricity Production Credits and Clean Electricity Investment Credits for Applicable Wind and Solar Facilities\".",
+            "died": "not an admitted form \u2014 \"On the Motion to Proceed\" is a procedural motion, not a decisive question"
+          }
+        ]
+      }
+    },
+    "step3_ifThePoolIsEmpty": "The brief: 'If the Senate energy pool is empty after refusal-first, stop and say so \u2014 do not restuff war_powers or NDAA riders to fake an energy row.' It is empty, and nothing was restuffed. No war_powers measure was re-keyed, no NDAA or appropriations roll was admitted, and no measure already on file gained or lost an issue row. What ships instead is the roster half, in full, plus the attribution debt it creates \u2014 which is the half of the brief that could be delivered.",
+    "step4_houseAmendmentLeftover": {
+      "decision": "LEFT WHERE THEY ARE, which is the brief's stated default.",
+      "why": "The brief opens the 54-contested House amendment leftover only if 'a single amend is the only Senate-reachable instrument for one of those four keys'. No House amendment is Senate-reachable \u2014 the Senate does not vote House amendments \u2014 so the condition cannot be met by construction, and step 8 of the census shows the premise it was meant to rescue does not hold either: all four keys already carry a PRIMARY measure with a Senate roll and Senate cells on it."
+    }
+  },
+  "correctedPremise": {
+    "_comment": "The brief's stated reason for this wave does not survive the census, and recording that is more useful than quietly shipping around it.",
+    "theBriefSaid": "/p/lee and /p/curtis still show Climate as a thin folder while /p/bmoore shows Expand Domestic Energy 8-0 and Faster Permits 6, because senators never vote the House energy rolls F6 admitted.",
+    "whatTheRecordSays": "The chamber half of that is exactly right and is the whole explanation. It is NOT an ingest gap. Every one of the four keys already has a PRIMARY measure the Senate voted and that carries Senate cells: energy_production through S.J.Res. 10 and S.J.Res. 71, permitting_reform through H.R. 3746 (118th), lands_energy through H.J.Res. 131, climate_action through H.J.Res. 88, H.J.Res. 89 and H.R. 5376 (117th). lee and curtis hold every one of them.",
+    "actsHeldBeforeThisWave": {
+      "bmoore": {
+        "climate_action": {
+          "acts": 11,
+          "primaryActs": 7
+        },
+        "energy_production": {
+          "acts": 14,
+          "primaryActs": 6
+        },
+        "lands_energy": {
+          "acts": 7,
+          "primaryActs": 3
+        },
+        "permitting_reform": {
+          "acts": 8,
+          "primaryActs": 5
+        }
+      },
+      "curtis": {
+        "climate_action": {
+          "acts": 5,
+          "primaryActs": 3
+        },
+        "energy_production": {
+          "acts": 8,
+          "primaryActs": 2
+        },
+        "lands_energy": {
+          "acts": 3,
+          "primaryActs": 1
+        },
+        "permitting_reform": {
+          "acts": 2,
+          "primaryActs": 1
+        }
+      },
+      "lee": {
+        "climate_action": {
+          "acts": 5,
+          "primaryActs": 3
+        },
+        "energy_production": {
+          "acts": 8,
+          "primaryActs": 2
+        },
+        "lands_energy": {
+          "acts": 3,
+          "primaryActs": 1
+        },
+        "permitting_reform": {
+          "acts": 2,
+          "primaryActs": 1
+        }
+      }
+    },
+    "keyInventory": {
+      "energy_production": {
+        "measures": 29,
+        "primaryMeasures": 21,
+        "primaryWithASenateRoll": [
+          "senate S.J.Res. 10 (119), 98 Senate cells",
+          "senate S.J.Res. 71 (119), 98 Senate cells"
+        ],
+        "housePrimaryWithNoSenateRoll": [
+          "H.Amdt. 248 (119)",
+          "H.R. 1047 (119)",
+          "H.R. 1949 (119)",
+          "H.R. 3616 (119)",
+          "H.R. 3628 (119)",
+          "H.R. 3632 (119)"
+        ]
+      },
+      "permitting_reform": {
+        "measures": 9,
+        "primaryMeasures": 6,
+        "primaryWithASenateRoll": [
+          "house H.R. 3746 (118), 86 Senate cells"
+        ],
+        "housePrimaryWithNoSenateRoll": [
+          "H.R. 3062 (119)",
+          "H.R. 3668 (119)",
+          "H.R. 3898 (119)",
+          "H.R. 4776 (119)"
+        ]
+      },
+      "lands_energy": {
+        "measures": 12,
+        "primaryMeasures": 6,
+        "primaryWithASenateRoll": [
+          "house H.J.Res. 131 (119), 96 Senate cells"
+        ],
+        "housePrimaryWithNoSenateRoll": [
+          "H.R. 1366 (119)",
+          "H.R. 4090 (119)"
+        ]
+      },
+      "climate_action": {
+        "measures": 18,
+        "primaryMeasures": 12,
+        "primaryWithASenateRoll": [
+          "house H.J.Res. 88 (119), 98 Senate cells",
+          "house H.J.Res. 89 (119), 98 Senate cells",
+          "house H.R. 5376 (117), 79 Senate cells"
+        ],
+        "housePrimaryWithNoSenateRoll": [
+          "H.Amdt. 234 (119)",
+          "H.R. 4690 (119)",
+          "H.R. 4758 (119)"
+        ]
+      }
+    },
+    "soWhatIsTheDifference": "bmoore's larger counts come from House standalone bills \u2014 H.R. 1047, 1949, 3616, 3628, 3632 on energy_production; H.R. 3062, 3668, 3898, 4776 on permitting_reform; H.R. 1366 and 4090 on lands_energy; H.R. 4690 and 4758 on climate_action \u2014 each of which has exactly one House roll and no Senate roll, because the Senate never voted them. There is no instrument that gives a senator a comparable count, and inventing one would mean either mapping a Senate procedural motion as an act or re-keying a measure whose job is something else. Neither is allowed and neither was done. A senator's energy folder is smaller than a House member's because the Senate held fewer energy votes, and that is a fact about the record rather than a defect in it.",
+    "aCensusClaimThisWaveCorrects": "An earlier reading of this pool concluded that permitting_reform had no Senate PRIMARY anywhere in the corpus. That was wrong: H.R. 3746 (118th) carries permitting_reform as PRIMARY at weight 70 and has a Senate passage roll, 118/1 roll 146, with 86 Senate cells. The key is Senate-reachable and both Utah-adjacent senators already hold the act. Step 8 of the census now reads that inventory out of the database rather than inferring it, so the claim cannot go stale silently."
+  },
+  "vocabDecision": {
+    "newKeys": 0,
+    "decision": "No new issue key. No key was placed on the Climate / Energy tree, no colour was assigned and no \u24d8 text was written, because nothing needed one.",
+    "why": "A new key is only admissible when all six standing vocabulary rules pass, and the first of them is RECURRING. The census found no Senate roll on any energy subject left to ingest, so there is no repeated pattern for a new key to name \u2014 a key coined here would have exactly zero measures under it. Rule 5 (subject not vehicle) also forecloses the shapes the pool actually offered: a motion to proceed, a cloture motion, a reserve fund and a point of order are vehicles, and the four keys already on the tree are where their subjects belong.",
+    "noVenueKey": "No venue key was added. The D.C. venue key F6 refused stays dead, and this wave gave no reason to reopen it.",
+    "noRestuffing": "gov_regulation and public_schools were not restuffed, and neither was war_powers. The measures this wave touches keep the mappings they already had, byte for byte."
+  },
+  "measures": [],
+  "_measuresComment": "Empty, and that is the finding rather than an omission. This wave creates no measure and writes no vr_measure_issues row, so the wall requiring a pack-generation comment on every new issue row is satisfied at zero rows, and the test asserts the count is zero rather than assuming it.",
+  "attribution": {
+    "_comment": "This is what the wave actually delivers: the debt the roster admission creates against every Senate roll already built.",
+    "source": "senate.gov roll-call XML (LIS)",
+    "identityPath": "<lis_member_id> \u2192 Bioguide (congress-legislators current + historical) \u2192 profile slug (db/vr-member-map.json)",
+    "whyNotSurnameAndState": "The earlier federal waves resolved a Senate voter by folding (surname, state) against the roster, because the rolls they ingested were new and had to be read from the document alone. Here the roll is already ours and the document carries <lis_member_id>, so the stronger key is available and is used: LIS id -> Bioguide -> slug, three published identifiers and no name matching. An LIS id in neither legislators dataset is skipped and counted; a Bioguide the member map does not carry is skipped and counted. Nothing is guessed.",
+    "rollsConsidered": 77,
+    "rollsRejected": 4,
+    "rejectedRolls": [
+      {
+        "congress": 119,
+        "session": 1,
+        "roll": null,
+        "measure": "Rubio \u2014 State",
+        "why": [
+          "no roll number stored, so there is no LIS document to verify against"
+        ]
+      },
+      {
+        "congress": 119,
+        "session": 1,
+        "roll": null,
+        "measure": "McMahon \u2014 ED",
+        "why": [
+          "no roll number stored, so there is no LIS document to verify against"
+        ]
+      },
+      {
+        "congress": 119,
+        "session": 1,
+        "roll": null,
+        "measure": "Gabbard \u2014 DNI",
+        "why": [
+          "no roll number stored, so there is no LIS document to verify against"
+        ]
+      },
+      {
+        "congress": 119,
+        "session": 1,
+        "roll": null,
+        "measure": "Vought \u2014 OMB",
+        "why": [
+          "no roll number stored, so there is no LIS document to verify against"
+        ]
+      }
+    ],
+    "rollCallsTouched": 73,
+    "cells": 136,
+    "perSlug": {
+      "hyde_smith": {
+        "name": "Cindy Hyde-Smith",
+        "bioguideId": "H001079",
+        "lisMemberId": "S395",
+        "cells": 73,
+        "rollsAppearedOn": 73,
+        "cellsOnMappedMeasures": 66,
+        "issueKeysReached": [
+          "america_first",
+          "america_first_fp",
+          "audit_spending",
+          "back_police",
+          "border_security",
+          "broadband",
+          "child_care",
+          "climate_action",
+          "congress_oversight",
+          "cost_living",
+          "crypto_cbdc",
+          "cut_spending",
+          "deportations",
+          "disaster_resilience",
+          "econ_corp_account",
+          "econ_growth",
+          "econ_smallbiz",
+          "econ_trade",
+          "econ_workers",
+          "edu_college_cost",
+          "energy_production",
+          "family_support",
+          "foreign_balance",
+          "free_speech",
+          "gov_regulation",
+          "gov_services",
+          "gov_transparency",
+          "gov_waste",
+          "guard_authority",
+          "gun_rights",
+          "gun_safety",
+          "health_drug_prices",
+          "health_mental",
+          "health_rural",
+          "healthcare",
+          "healthcare_costs",
+          "homeless",
+          "housing",
+          "housing_build",
+          "immig_fentanyl",
+          "immigration_reform",
+          "infrastructure",
+          "israel_support",
+          "lands_energy",
+          "lands_preserve",
+          "lgbtq_rights",
+          "lower_taxes",
+          "national_debt",
+          "permitting_reform",
+          "privacy_rights",
+          "public_schools",
+          "restraint",
+          "school_choice",
+          "social_security",
+          "state_standing",
+          "states_federal_power",
+          "strong_defense",
+          "tariffs_authority",
+          "tariffs_prices",
+          "tax_middle_class",
+          "tech_balance",
+          "tech_innovation",
+          "tough_on_crime",
+          "transit",
+          "veterans",
+          "war_powers",
+          "water"
+        ],
+        "primaryIssueKeysReached": [
+          "back_police",
+          "border_security",
+          "broadband",
+          "climate_action",
+          "congress_oversight",
+          "cut_spending",
+          "deportations",
+          "econ_corp_account",
+          "energy_production",
+          "family_support",
+          "foreign_balance",
+          "gov_regulation",
+          "gov_services",
+          "gov_transparency",
+          "gun_rights",
+          "gun_safety",
+          "healthcare",
+          "housing",
+          "housing_build",
+          "immig_fentanyl",
+          "immigration_reform",
+          "infrastructure",
+          "israel_support",
+          "lands_energy",
+          "lands_preserve",
+          "lgbtq_rights",
+          "lower_taxes",
+          "permitting_reform",
+          "privacy_rights",
+          "restraint",
+          "social_security",
+          "state_standing",
+          "strong_defense",
+          "tariffs_authority",
+          "tech_innovation",
+          "tough_on_crime",
+          "veterans"
+        ]
+      },
+      "jon_husted": {
+        "name": "Jon Husted",
+        "bioguideId": "H001104",
+        "lisMemberId": "S438",
+        "cells": 48,
+        "rollsAppearedOn": 48,
+        "cellsOnMappedMeasures": 41,
+        "issueKeysReached": [
+          "america_first",
+          "america_first_fp",
+          "audit_spending",
+          "back_police",
+          "border_security",
+          "broadband",
+          "climate_action",
+          "congress_oversight",
+          "cost_living",
+          "crypto_cbdc",
+          "cut_spending",
+          "deportations",
+          "econ_corp_account",
+          "econ_trade",
+          "edu_college_cost",
+          "energy_production",
+          "family_support",
+          "foreign_balance",
+          "free_speech",
+          "gov_regulation",
+          "gov_services",
+          "gov_transparency",
+          "gov_waste",
+          "guard_authority",
+          "health_mental",
+          "health_rural",
+          "healthcare",
+          "homeless",
+          "housing",
+          "housing_build",
+          "immig_fentanyl",
+          "immigration_reform",
+          "israel_support",
+          "lands_energy",
+          "lands_preserve",
+          "lower_taxes",
+          "national_debt",
+          "permitting_reform",
+          "restraint",
+          "school_choice",
+          "states_federal_power",
+          "strong_defense",
+          "tariffs_authority",
+          "tariffs_prices",
+          "tax_middle_class",
+          "tech_balance",
+          "tech_innovation",
+          "tough_on_crime",
+          "war_powers"
+        ],
+        "primaryIssueKeysReached": [
+          "back_police",
+          "border_security",
+          "broadband",
+          "climate_action",
+          "congress_oversight",
+          "cut_spending",
+          "deportations",
+          "econ_corp_account",
+          "energy_production",
+          "gov_regulation",
+          "gov_transparency",
+          "healthcare",
+          "housing",
+          "housing_build",
+          "immig_fentanyl",
+          "immigration_reform",
+          "israel_support",
+          "lands_energy",
+          "lands_preserve",
+          "lower_taxes",
+          "restraint",
+          "strong_defense",
+          "tariffs_authority",
+          "tech_innovation",
+          "tough_on_crime"
+        ]
+      },
+      "alan_armstrong": {
+        "name": "Alan Armstrong",
+        "bioguideId": "A000383",
+        "lisMemberId": "S440",
+        "cells": 15,
+        "rollsAppearedOn": 15,
+        "cellsOnMappedMeasures": 9,
+        "issueKeysReached": [
+          "back_police",
+          "border_security",
+          "deportations",
+          "immig_fentanyl",
+          "immigration_reform",
+          "israel_support",
+          "lands_energy",
+          "lands_preserve",
+          "restraint",
+          "strong_defense",
+          "tough_on_crime",
+          "war_powers"
+        ],
+        "primaryIssueKeysReached": [
+          "back_police",
+          "border_security",
+          "deportations",
+          "immigration_reform",
+          "israel_support",
+          "lands_preserve",
+          "restraint"
+        ]
+      }
+    },
+    "issueKeysReached": [
+      "america_first",
+      "america_first_fp",
+      "audit_spending",
+      "back_police",
+      "border_security",
+      "broadband",
+      "child_care",
+      "climate_action",
+      "congress_oversight",
+      "cost_living",
+      "crypto_cbdc",
+      "cut_spending",
+      "deportations",
+      "disaster_resilience",
+      "econ_corp_account",
+      "econ_growth",
+      "econ_smallbiz",
+      "econ_trade",
+      "econ_workers",
+      "edu_college_cost",
+      "energy_production",
+      "family_support",
+      "foreign_balance",
+      "free_speech",
+      "gov_regulation",
+      "gov_services",
+      "gov_transparency",
+      "gov_waste",
+      "guard_authority",
+      "gun_rights",
+      "gun_safety",
+      "health_drug_prices",
+      "health_mental",
+      "health_rural",
+      "healthcare",
+      "healthcare_costs",
+      "homeless",
+      "housing",
+      "housing_build",
+      "immig_fentanyl",
+      "immigration_reform",
+      "infrastructure",
+      "israel_support",
+      "lands_energy",
+      "lands_preserve",
+      "lgbtq_rights",
+      "lower_taxes",
+      "national_debt",
+      "permitting_reform",
+      "privacy_rights",
+      "public_schools",
+      "restraint",
+      "school_choice",
+      "social_security",
+      "state_standing",
+      "states_federal_power",
+      "strong_defense",
+      "tariffs_authority",
+      "tariffs_prices",
+      "tax_middle_class",
+      "tech_balance",
+      "tech_innovation",
+      "tough_on_crime",
+      "transit",
+      "veterans",
+      "war_powers",
+      "water"
+    ],
+    "primaryIssueKeysReached": [
+      "back_police",
+      "border_security",
+      "broadband",
+      "climate_action",
+      "congress_oversight",
+      "cut_spending",
+      "deportations",
+      "econ_corp_account",
+      "energy_production",
+      "family_support",
+      "foreign_balance",
+      "gov_regulation",
+      "gov_services",
+      "gov_transparency",
+      "gun_rights",
+      "gun_safety",
+      "healthcare",
+      "housing",
+      "housing_build",
+      "immig_fentanyl",
+      "immigration_reform",
+      "infrastructure",
+      "israel_support",
+      "lands_energy",
+      "lands_preserve",
+      "lgbtq_rights",
+      "lower_taxes",
+      "permitting_reform",
+      "privacy_rights",
+      "restraint",
+      "social_security",
+      "state_standing",
+      "strong_defense",
+      "tariffs_authority",
+      "tech_innovation",
+      "tough_on_crime",
+      "veterans"
+    ],
+    "energyKeysGained": {
+      "_comment": "The brief asks whether the energy keys actually gain Senate PRIMARY attribution. They do \u2014 not by creating a measure, but by attributing senators who could not previously be attributed at all to Senate PRIMARY measures already on file. All three held zero acts on all four keys before this wave.",
+      "rows": [
+        {
+          "key": "energy_production",
+          "gainedBy": [
+            "hyde_smith",
+            "jon_husted"
+          ],
+          "throughRolls": [
+            "119/1 roll 554 (S.J.Res. 71)",
+            "119/1 roll 95 (S.J.Res. 10)"
+          ]
+        },
+        {
+          "key": "permitting_reform",
+          "gainedBy": [
+            "hyde_smith"
+          ],
+          "throughRolls": [
+            "118/1 roll 146 (H.R. 3746)"
+          ]
+        },
+        {
+          "key": "lands_energy",
+          "gainedBy": [
+            "hyde_smith",
+            "jon_husted"
+          ],
+          "throughRolls": [
+            "119/1 roll 632 (H.J.Res. 131)"
+          ]
+        },
+        {
+          "key": "climate_action",
+          "gainedBy": [
+            "hyde_smith",
+            "jon_husted"
+          ],
+          "throughRolls": [
+            "117/2 roll 325 (H.R. 5376)",
+            "119/1 roll 277 (H.J.Res. 88)",
+            "119/1 roll 281 (H.J.Res. 89)"
+          ]
+        }
+      ]
+    },
+    "outOfScopeCells": {
+      "_comment": "Cells that are missing AND resolvable but belong to a slug this wave did not admit. Counted here and NOT written: a densification pass over the rest of the chamber is a different wave with a different argument, and a wave that quietly widens its own scope cannot be reviewed.",
+      "total": 8,
+      "bySlug": {
+        "angus_king": 4,
+        "lujan": 4
+      }
+    },
+    "notServing": {
+      "_comment": "Roll calls where a scoped senator is absent from the Senate's own member list, because they were not yet serving. Husted was appointed 2025-01-21, Armstrong sworn 2026-03-24; Hyde-Smith has served since 2018 and is listed on every verified roll. No cell is written for an absence.",
+      "total": 83,
+      "bySlug": {
+        "jon_husted": 25,
+        "hyde_smith": 0,
+        "alan_armstrong": 58
+      }
+    },
+    "unresolvedCells": {
+      "_comment": "Recorded votes skipped, never guessed: an LIS id in neither legislators dataset, or one whose Bioguide the member map does not carry.",
+      "lisIdUnresolvable": 0,
+      "bioguideNotInMemberMap": 341
+    },
+    "storedCellsConfirmed": 6811,
+    "discrepancies": {
+      "_comment": "Cells we ALREADY store whose stored position disagrees with the Senate's document. This wave does not touch them: the migration it feeds is ON CONFLICT DO NOTHING throughout, so a disagreement stays visible and stays a decision rather than becoming a side effect of a roster wave.",
+      "rows": []
+    },
+    "repairsNothing": "Every stored cell on these 73 rolls was re-read against the Senate's own document. 6811 agree and 0 disagree. The migration is ON CONFLICT DO NOTHING throughout, so it cannot restate the ones that agree and cannot overwrite the ones that do not."
+  },
+  "refusedThisWave": {
+    "_comment": "Written refusals, so a later wave can tell a decision from an oversight. Refusal-first means these were removed from the pool BEFORE any subject test ran.",
+    "standingRefusals": [
+      {
+        "measure": "H.R. 1069",
+        "why": "Named in the brief's do-not-reopen list. Carried forward unexamined, by design."
+      },
+      {
+        "measure": "H.R. 973",
+        "why": "Named in the brief's do-not-reopen list."
+      },
+      {
+        "measure": "S. 2503",
+        "why": "Named in the brief's do-not-reopen list."
+      },
+      {
+        "measure": "H.R. 3015 / H.R. 3638 / H.R. 3109 / H.R. 3617",
+        "why": "F6's study-and-report energy bills. A bill whose operative text commissions a study is not an act on the subject it studies, and F6 argued that in writing. Not reopened."
+      },
+      {
+        "measure": "H.R. 1968 / H.R. 7148 and the other named appropriations vehicles",
+        "why": "Standing refusal, restated by F7. An omnibus is not an act on any one of the subjects inside it, and a permitting rider does not make an appropriations roll a permitting act."
+      }
+    ],
+    "theF4CraBlock": {
+      "why": "The single largest category in the independent energy scan: 29 of the 69 energy-mentioning Senate rolls are Congressional Review Act or disapproval resolutions refused as a block by wave F4, on the argument that a disapproval vote is an act on the agency's authority to make the rule rather than on the rule's subject. Refused by name here, unexamined, because refusal-first means exactly that.",
+      "rolls": [
+        "119/1/279",
+        "119/1/278",
+        "119/1/275",
+        "119/1/274",
+        "119/1/273",
+        "119/1/272",
+        "119/1/271",
+        "119/1/270",
+        "119/1/269",
+        "119/1/268",
+        "119/1/267",
+        "119/1/266",
+        "119/1/265",
+        "119/1/264",
+        "119/1/232",
+        "119/1/231",
+        "119/1/228",
+        "119/1/224",
+        "119/1/223",
+        "119/1/222",
+        "119/1/207",
+        "119/1/206",
+        "119/1/162",
+        "119/1/161",
+        "119/1/97",
+        "119/1/92",
+        "119/1/91",
+        "119/1/67",
+        "119/2/223"
+      ]
+    },
+    "refusedByNameInWavesF2AndF3": {
+      "why": "Six energy-mentioning rolls were already refused by name, with a written reason, by wave F2 or F3 \u2014 S.J.Res. 80 (two rolls), H.Con.Res. 14 (two rolls, a budget resolution and not an act on any subject inside it) and H.J.Res. 140 (two rolls). Refusal-first means an earlier wave's written refusal is honoured without being relitigated, so these were removed from the pool before any subject test ran.",
+      "rolls": [
+        "119/1/599 \u00b7 S. J. RES. 80",
+        "119/1/595 \u00b7 S. J. RES. 80",
+        "119/1/189 \u00b7 H. CON. RES. 14",
+        "119/1/181 \u00b7 H. CON. RES. 14",
+        "119/2/83 \u00b7 H. J. RES. 140",
+        "119/2/82 \u00b7 H. J. RES. 140"
+      ]
+    },
+    "motionsToProceedAndClotureMotions": {
+      "why": "17 energy-mentioning rolls are a motion to proceed, a cloture motion or cloture on a motion to proceed. None is an admitted decisive form: the question is whether the Senate will take the measure up, not what the Senate thinks of it, and mapping one as an act would file a scheduling decision as a position. Runbook rules 8 and 12.",
+      "rolls": [
+        "119/1/651",
+        "119/1/630",
+        "119/1/622",
+        "119/1/619",
+        "119/1/520",
+        "119/1/503",
+        "119/1/500",
+        "119/1/438",
+        "119/1/373",
+        "119/1/249",
+        "119/1/247",
+        "119/1/96",
+        "119/1/27",
+        "119/1/25",
+        "119/2/195",
+        "119/2/135",
+        "119/2/70"
+      ]
+    },
+    "nominationsAsPolicy": {
+      "why": "Nominations in the energy scan are refused at the form gate and again by the brief's do-not-reopen list. Confirming an administrator is not a vote on the subject the agency regulates.",
+      "rolls": [
+        "119/1/652",
+        "119/1/620",
+        "119/1/439",
+        "119/1/375",
+        "119/1/250",
+        "119/1/248",
+        "119/1/30",
+        "119/1/26"
+      ]
+    },
+    "hr1ReconciliationAmendments": {
+      "why": "Four contested Senate amendment rolls to H.R. 1 mention energy and are refused. LIS records the PARENT bill number in the roll's `issue` field and the amendment number only inside the question text, so the amendment exception \u2014 which requires the measure number itself to be of amendment shape \u2014 does not admit them, and admitting them anyway would mean hand-declaring a measure identity the document does not put where the gate reads it. H.R. 1 is already on file with a Senate roll (119/1 roll 372) carrying energy_production, lands_energy and climate_action as secondaries, and all three senators gain a cell on it in this wave, so nothing about the underlying bill is lost by the refusal.",
+      "rolls": [
+        "119/1/366",
+        "119/1/365",
+        "119/1/364",
+        "119/1/360"
+      ]
+    },
+    "houseAmendmentLeftover": {
+      "why": "Out of scope by the brief's default. The exception it allows requires a House amendment to be 'the only Senate-reachable instrument' for one of the four keys, and a House amendment is never Senate-reachable. The census also shows all four keys already hold a Senate-voted PRIMARY, so the exception has nothing to rescue.",
+      "count": 54
+    },
+    "densificationBeyondTheThree": {
+      "why": "The pull found 8 cells that are missing and resolvable but belong to slugs this wave did not admit (angus_king 4, lujan 4). They are counted in the vote seed and deliberately not written. A densification pass over the rest of the chamber is a different wave with a different argument, and a wave that quietly widens its own scope cannot be reviewed."
+    },
+    "theFourNominationRollsWithNoRollNumber": {
+      "why": "Four Senate nomination rows in vr_rollcalls store no roll number, so there is no LIS document to verify them against and no safe way to fill a cell on them. Refused by name rather than fetched at a guessed URL \u2014 the same four wave senate_lis_backfill refused for the same reason.",
+      "rolls": [
+        "Rubio \u2014 State (no roll number stored)",
+        "McMahon \u2014 ED (no roll number stored)",
+        "Gabbard \u2014 DNI (no roll number stored)",
+        "Vought \u2014 OMB (no roll number stored)"
+      ]
+    }
+  },
+  "walls": {
+    "packGenerationComment": "Vacuously satisfied: this wave writes zero vr_measure_issues rows. The test asserts the count is zero on the wave's own rolls rather than trusting that it is.",
+    "dosMechPairs": "No judged act is added, because no measure and no issue mapping are added, so no _DOS_MECH pair is owed. The mechanism copy is untouched.",
+    "cacheVersion": "BUMPED, v98 to v99, and the reason is compare-hub.js. It carries BROWSE_PHOTOS and gained two portraits. compare-hub.js is a stale-while-revalidate runtime entry rather than a precached one, but the runtime cache name carries CACHE_VERSION too, so without the bump a warm device keeps the copy of the map that has no face for hyde_smith or alan_armstrong \u2014 and a member who attributes a roll call can be the subject of an Official Record share card, which would then draw a card with a face over a page showing a party-tinted monogram of the same person. This is the same reasoning and the same file wave F6 bumped for.",
+    "verificationScoping": "The migration's verification block is scoped to THIS WAVE'S roll ids, collected into an integer[] local variable by natural key and queried with = ANY. Nothing counts a session-wide or corpus-wide total, because a guard that fails when some other wave lands is a guard that gets deleted.",
+    "noCreateTable": "No CREATE of any kind. The migration is data-only: one array variable, look-ups by natural key, and INSERT ... ON CONFLICT DO NOTHING.",
+    "twinBoot": "Direction Match is unchanged \u2014 no stance row, no curator weight, no polarity and no mechanism text moved. Formal rows move only on the keys this wave writes, and this wave writes no issue key at all: what moves is which members are attributed on measures whose mappings are byte-identical to HEAD.",
+    "americanSpelling": "No new mechanism copy was written. The prose added by this wave is comments and this decision record; both use American spelling (defense, not defence).",
+    "identityWallStrengthened": {
+      "_comment": "The brief: 'Generator must error if hand slug and portrait bioguide disagree.' It already did, and it now errors in two more places it used to stay quiet in. All three were mutation-tested rather than asserted.",
+      "wall1": "SEED_SLUGS disagrees with the slug's BROWSE_PHOTOS portrait -> hard error. Pre-existing (added by F6). Exercised for real by hyde_smith, whose congress-images portrait carries H001079 and whose SEED_SLUGS entry says H001079, so the two sources now cross-check each other. Mutation-tested by repointing SEED_SLUGS at H001104: it errors.",
+      "wall2": "NEW. An admitted slug with no app-published name AND no SEED_NAMES entry -> hard error. It used to land in a soft 'could not be cross-checked' list, which meant the slug nobody had ever seen a name next to was the one slug the identity check said nothing about. Mutation-tested by deleting alan_armstrong's SEED_NAMES line: it errors.",
+      "wall3": "NEW. A SEED_NAMES entry is held to an EXACT match against the official record, where an app-published name is held only to its surname. The lenient rule is right for published names ('Mike Simpson' against 'Michael K. Simpson' is agreement) and wrong for declared ones: a surname compare cannot tell Alan Armstrong from Kelly Armstrong, and this app carries both. Mutation-tested by declaring alan_armstrong as 'Kelly Armstrong': it errors."
+    }
+  },
+  "readDisclosure": {
+    "_comment": "What a reader gains and what is still missing, stated by the wave rather than left for someone to discover.",
+    "whatMoves": "Three profiles that could not be attributed a single Senate roll call gain their Senate record: hyde_smith 73 cells, jon_husted 48, alan_armstrong 15. 116 of those cells land on measures that already carry issue mappings, so they become acts; the remainder land on measures with no mapping and are recorded votes that produce no act.",
+    "whatDoesNotMove": "Nobody else's profile moves. No existing cell is written, no measure's mappings change, and the House record is untouched \u2014 so /p/bmoore's energy numbers cannot move on this wave, and /p/lee and /p/curtis gain nothing, because they already held every Senate-reachable energy act. The brief's smoke expectation for lee and curtis was conditional on a Senate energy roll being attributed; none was, because there was none to attribute.",
+    "senateAttributionCeiling": "The Senate ceiling rises by three. On the 119th rolls it moves from 98 attributed of about 100 recorded to 101, and the remaining loss is alumni and vacancies rather than roster gaps.",
+    "whatIsStillLost": "341 recorded Senate votes across these 73 rolls resolve to a Bioguide the member map does not carry. Almost all are former senators whose votes are still in the 117th and 118th windows; the app profiles no file for them, so there is nowhere to attribute the vote to. This is a read loss, it is not closed by this wave, and it is the number a future roster wave would move.",
+    "lisIdsThatResolveToNothing": 0,
+    "absencesAreNotVotes": "83 roll x senator pairs are absences rather than gaps: the senator was not serving. Husted was appointed 2025-01-21 and Armstrong sworn 2026-03-24, so most of the corpus predates them (25 and 58 rolls respectively). No cell is written for an absence and no absence is counted as a missing vote.",
+    "noPartyInReaderCopy": "is_party is stored per cell and derived from the full chamber tally in the same document the vote was read from \u2014 the member's own party's yea/nay split on that roll. It is a stored fact about the roll, not a score, nothing ranks on it, and no party name or party count appears in any string a reader sees."
+  },
+  "whatTheNextWaveInherits": {
+    "senateEnergyPool": "Empty, and re-derivable. Two rolls survive the full funnel and are not energy: 119/1/306 and 119/1/307, the S.J.Res. 53 and S.J.Res. 54 arms-sale discharge motions at 39-56. If a later wave wants a foreign-arms key, those are the instruments and they are still unclaimed.",
+    "theRemainingSenateReadLoss": "341 unattributable recorded votes on the 73 verified Senate rolls, essentially all of them former senators. Closing it means admitting alumni profiles, which is a product decision about whether the app files people who no longer serve \u2014 not an ingest decision.",
+    "densificationCellsLeftOnTheTable": {
+      "_comment": "Cells that are missing AND resolvable but belong to a slug this wave did not admit. Counted here and NOT written: a densification pass over the rest of the chamber is a different wave with a different argument, and a wave that quietly widens its own scope cannot be reviewed.",
+      "total": 8,
+      "bySlug": {
+        "angus_king": 4,
+        "lujan": 4
+      }
+    },
+    "theFourNominationRowsWithNoRollNumber": "Still unverifiable, still refused. Storing the roll number on those four rows would make them fillable; that is a repair to existing data with its own citation, not a wave.",
+    "hr1SenateAmendments": "Four contested Senate amendment rolls on H.R. 1 that the form gate cannot reach, because LIS puts the parent bill number where the gate reads the measure number. Admitting them needs a gate that can read an amendment number out of the question text and prove it against the amendment's own document \u2014 a change to the gate, argued on its own, not a wave that quietly widens it.",
+    "houseAmendmentLeftover": "54 contested House amendment rolls, untouched by F7 and untouched here.",
+    "whatWouldActuallyThickenASenatorsEnergyFolder": "Nothing in the 119th Senate. The instruments that gave bmoore 14 energy_production acts are House standalone bills with one House roll each and no Senate roll. A senator's energy folder grows when the Senate votes on energy, and in this Congress it mostly voted on whether to proceed."
+  },
+  "_counts": {
+    "measures": 0,
+    "rollCalls": 0,
+    "issueRows": 0,
+    "keysUsed": [],
+    "newKeys": 0,
+    "rosterSlugsAdmitted": 3,
+    "memberVoteCells": 136,
+    "rollCallsTouched": 73,
+    "senateRollsVerified": 73,
+    "senateRollsRejected": 4,
+    "storedCellsReCheckedAndAgreeing": 6811,
+    "storedCellsContradicted": 0,
+    "cacheVersionBumped": true
+  }
+}

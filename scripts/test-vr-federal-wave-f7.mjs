@@ -308,12 +308,39 @@ const roster = J("db/vr-roster-admitted.json");
     "the read loss on already-published rolls must be disclosed as a loss rather than backfilled inside a data wave");
   ok(/\b(eight|8)\b/.test(String(prior.sizeOfTheLoss)), "the size of that loss is not stated");
 
-  // NO ROSTER MOVED. The wave votes 215 slugs and admits none, so both roster files
-  // must be byte-identical to HEAD.
+  // NO ROSTER MOVED IN THIS WAVE. F7 votes 215 slugs and admits none, so nothing it
+  // ships may add, remove or repoint a roster entry. A LATER roster wave may add, and it
+  // is named here — the same convention the migration generators use for the roster they
+  // freeze, so an applied artifact keeps checking out against a roster that has since
+  // grown. An addition belonging to a named later wave passes; a removal, a rewritten
+  // earlier wave, or a bioguide repointed to a different slug still fails. A wave key that
+  // is not in the roster file is a typo and fails rather than silently allowing everything.
+  const ROSTER_WAVES_ADMITTED_AFTER_THIS_WAVE = ["federal_wave_f8_aug2026"];
   const head = (f) => { try { return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }); } catch (e) { return null; } };
-  for (const f of ["db/vr-member-map.json", "db/vr-roster-admitted.json"]) {
-    const h = head(f);
-    if (h !== null) eq(R(f), h, `${f} changed, but this wave admits no slug — an ingest that widens the roster owes a roster wave`);
+  const laterSlugs = new Set();
+  for (const key of ROSTER_WAVES_ADMITTED_AFTER_THIS_WAVE) {
+    const w = (roster.waves || {})[key];
+    if (ok(Array.isArray(w), `no roster wave "${key}" in db/vr-roster-admitted.json`)) for (const sl of w) laterSlugs.add(sl);
+  }
+  const headMap = head("db/vr-member-map.json");
+  if (headMap !== null) {
+    const was = JSON.parse(headMap).map || {};
+    const now = JSON.parse(R("db/vr-member-map.json")).map || {};
+    for (const [bio, sl] of Object.entries(was))
+      eq(now[bio], sl, `db/vr-member-map.json dropped or repointed ${bio} — this wave admits no slug, and a later wave may only add`);
+    for (const [bio, sl] of Object.entries(now))
+      if (!(bio in was)) ok(laterSlugs.has(sl),
+        `db/vr-member-map.json gained ${bio} → ${sl}, which belongs to no roster wave admitted after this one`);
+  }
+  const headRoster = head("db/vr-roster-admitted.json");
+  if (headRoster !== null) {
+    const was = JSON.parse(headRoster).waves || {};
+    const now = roster.waves || {};
+    for (const [key, sl] of Object.entries(was))
+      eq(JSON.stringify(now[key]), JSON.stringify(sl), `db/vr-roster-admitted.json rewrote wave "${key}" — an earlier wave's admissions are a closed record`);
+    for (const key of Object.keys(now))
+      if (!(key in was)) ok(ROSTER_WAVES_ADMITTED_AFTER_THIS_WAVE.includes(key),
+        `db/vr-roster-admitted.json gained wave "${key}", which this harness was not told about`);
   }
   const admitted = new Set(Object.values(roster.waves || {}).filter(Array.isArray).flat());
   for (const pid of touched)
@@ -426,9 +453,15 @@ const roster = J("db/vr-roster-admitted.json");
   if (ok(!!cv, "CACHE_VERSION is not readable in sw.js")) {
     if (hv && hv[1] !== cv[1]) eq(+cv[1], +hv[1] + 1, "CACHE_VERSION did not move by exactly one version");
     ok(+cv[1] >= 98, `CACHE_VERSION is at v${cv[1]} — this wave ships a precached asset and owes a bump`);
-    const noteAt = swNow.indexOf(`// v${cv[1]} `);
-    ok(noteAt !== -1, `sw.js is at v${cv[1]} with no entry for it in the version log`);
-    const nextAt = swNow.indexOf(`// v${+cv[1] - 1} `, noteAt);
+    // THIS WAVE'S OWN NOTE, NOT WHATEVER THE CONSTANT POINTS AT TODAY. F7 shipped v98 and
+    // a later wave that bumps the constant leaves the v98 entry where it is. Reading the note
+    // for the CURRENT version would hand F7's content checks a later wave's note, which would
+    // then fail for the honest reason that the later wave changed different files — so the
+    // checks below are pinned to the version this wave is the bump note for.
+    const MY_VERSION = 98;
+    const noteAt = swNow.indexOf(`// v${MY_VERSION} `);
+    ok(noteAt !== -1, `sw.js has no v${MY_VERSION} entry in the version log — this wave's bump note was removed`);
+    const nextAt = swNow.indexOf(`// v${MY_VERSION - 1} `, noteAt);
     const note = swNow.slice(noteAt, nextAt === -1 ? noteAt + 6000 : nextAt);
     ok(/consistency\.js/.test(note), "the version note does not name the asset that changed");
     // AND THE SECOND SHIPPED FILE. db/share-index.json is not precached and no worker

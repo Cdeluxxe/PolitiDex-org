@@ -78,6 +78,31 @@ export function buildCorpus(ROOT) {
   const measures = new Map(); // key → { number, congress, title, rolls }
   let rolls = 0, cells = 0, unmapped = 0;
 
+  // ── the best title for a measure, before any roll is read ─────────────────
+  // A seed carries its measure either as an OBJECT (number, congress, title — the
+  // ingest shape) or as a bare designator STRING (the attribution shape: a backfill
+  // or roster wave fills cells on rolls that already exist and asserts no title it
+  // did not verify). Both are legitimate, and a measure is routinely covered by one
+  // of each. Resolving the title inside the roll loop made it FILE-ORDER dependent:
+  // whichever seed readdirSync happened to hand over first won the record, so a
+  // string-measure seed sorting early left the measure titled "S.J.Res. 111" and every
+  // reader downstream — the vehicle classifier, the crawl record, the record card —
+  // lost the sentence it reads. That is a title going missing because of a filename.
+  // So titles are collected across every seed first and the roll loop just looks one up.
+  const titleBy = new Map();
+  for (const f of files) {
+    let doc; try { doc = J(f); } catch (e) { continue; }
+    for (const v of (Array.isArray(doc.votes) ? doc.votes : [])) {
+      const mo = (v.measure && typeof v.measure === "object") ? v.measure : null;
+      if (!mo || !mo.title) continue;
+      const number = norm(mo.number);
+      const congress = mo.congress || v.congress || doc.congress || null;
+      if (!number || !congress) continue;
+      const key = number + "|" + congress;
+      if (!titleBy.has(key)) titleBy.set(key, mo.title);
+    }
+  }
+
   for (const f of files) {
     let doc; try { doc = J(f); } catch (e) { continue; }
     const votes = Array.isArray(doc.votes) ? doc.votes : [];
@@ -90,7 +115,7 @@ export function buildCorpus(ROOT) {
       const issues = issuesBy.get(key);
       if (!issues || !issues.length) { unmapped++; continue; } // the API joins; no mapping, no issue row
       const ident = identity.get(key), sm = seedMeasures.get(key);
-      const title = (mo && mo.title) || (ident && ident.title) || (sm && sm.title) || number;
+      const title = (mo && mo.title) || titleBy.get(key) || (ident && ident.title) || (sm && sm.title) || number;
       const rk = [(mo && mo.chamber) || v.chamber || doc.chamber || "", congress,
         v.session || doc.session || "", v.rollNumber].join("|");
       const already = seenRoll.get(rk) || null;

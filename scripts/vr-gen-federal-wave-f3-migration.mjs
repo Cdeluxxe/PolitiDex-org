@@ -106,7 +106,7 @@ const memberMap = J("db/vr-member-map.json");
 // admitted AFTER this migration are excluded by name. A later wave that adds roster
 // slugs adds its wave key here; a key that is not in the roster file is a typo and
 // throws rather than silently excluding nothing.
-const ROSTER_WAVES_ADMITTED_AFTER_THIS_MIGRATION = ["federal_wave_f6_aug2026"];
+const ROSTER_WAVES_ADMITTED_AFTER_THIS_MIGRATION = ["federal_wave_f6_aug2026", "federal_wave_f8_aug2026"];
 const ROSTER = (() => {
   const waves = J("db/vr-roster-admitted.json").waves || {};
   const later = new Set();

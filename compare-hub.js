@@ -142,9 +142,25 @@
       jon_ossoff: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000174.jpg', // GA U.S. Senate · O000174
       collins: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001035.jpg', // ME U.S. Senate · C001035 (canonical id — `susan_collins` was merged into it, see db/vr-pid-aliases.json)
       john_cornyn: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001056.jpg', // TX U.S. Senate · C001056
+      // Federal wave F8 roster admission. Both were serving senators the app already
+      // published stance rows for and could not attribute a single Senate roll to,
+      // because neither carried a portrait to read a Bioguide out of and neither was
+      // named by hand — 37 unattributable rows per Senate roll, recorded as a gap by
+      // wave F7 rather than guessed. Cindy Hyde-Smith has an official congressional
+      // portrait, so hers is the URL form scripts/vr-gen-member-map.mjs reads a
+      // Bioguide out of, and her SEED_SLUGS entry and this line cross-check each other.
+      hyde_smith: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001079.jpg', // MS U.S. Senate · H001079
       // Non-incumbent nominees / appointee with no congressional portrait —
       // official or high-quality public portraits via Wikimedia Commons (500px).
       jon_husted: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Sen._Jon_Husted_official_portrait%2C_119th_Congress.jpg/500px-Sen._Jon_Husted_official_portrait%2C_119th_Congress.jpg', // OH U.S. Senate (appointed 2025) — official Senate portrait
+      // Alan Armstrong (R-OK, sworn 2026-03-24) has no file in unitedstates/images and
+      // none at bioguide.congress.gov yet — both 404 — so the portrait is the official
+      // Senate photograph on Commons (public domain, U.S. Senate photo by Daniel Rios),
+      // in the hash-independent Special:FilePath form. It carries no readable Bioguide,
+      // so his slug is mapped by hand in SEED_SLUGS and his identity is cross-checked
+      // through SEED_NAMES instead of through this URL. NOT `kelly_armstrong`, who is
+      // the Governor of North Dakota and a different person with the same surname.
+      alan_armstrong: 'https://commons.wikimedia.org/wiki/Special:FilePath/Alan_S_Armstrong_official_portrait.jpg?width=500', // OK U.S. Senate (sworn 2026) — official Senate portrait
       sherrod_brown: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Sherrod_Brown_117th_Congress_(2).jpg/500px-Sherrod_Brown_117th_Congress_(2).jpg', // OH U.S. Senate nominee — former U.S. Senator
       roy_cooper: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Roy_Cooper_in_November_2023_(cropped2).jpg/500px-Roy_Cooper_in_November_2023_(cropped2).jpg', // NC U.S. Senate nominee — former NC Governor
       michael_whatley: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Michael_Whatley_(54670563614)_(cropped).jpg/500px-Michael_Whatley_(54670563614)_(cropped).jpg', // NC U.S. Senate nominee — RNC chair

@@ -495,6 +495,18 @@
 // '/' from the network, so the first thing the new worker does is throw the wrong
 // document away. index.html changed too (the guard is in it) and '/' is precached,
 // which is the ordinary reason for a bump as well.
+// v99 - FEDERAL WAVE F8, and the reason is compare-hub.js. It carries
+// BROWSE_PHOTOS and gained two portraits — Cindy Hyde-Smith and Alan Armstrong,
+// the senators the wave admitted so their Senate votes could be attributed at all.
+// compare-hub.js is a RUNTIME entry rather than a precached one, which is exactly why
+// it needs this bump rather than being exempt from it: the runtime cache NAME carries
+// CACHE_VERSION, so without a move a warm device keeps serving the copy of the map
+// that has no face for either of them. That is not cosmetic here. A member who
+// attributes a roll call is a member an Official Record share card can be drawn for,
+// and the card renders the portrait — so the same person would appear with a photo on
+// the card and as a party-tinted monogram on the page it came from. Wave F6 bumped
+// this constant for this file for this reason; F8 is the same change and gets the
+// same treatment.
 // v98 - THE F7 MECHANISM LINES, and the eight rows that must never print a
 // direction. Federal wave F7 opens the pool F6 left unread: fourteen privileged
 // war-powers joint resolutions that only ever reached the Senate floor as a motion
@@ -611,7 +623,7 @@
 // saying there is nothing on file. person-file.css ships with its script for the
 // usual reason: the header and kicker it styles are hidden-by-default blocks, and
 // unstyled they are loose text above the fold.
-const CACHE_VERSION = 'v98';
+const CACHE_VERSION = 'v99';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

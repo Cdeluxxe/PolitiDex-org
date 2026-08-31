@@ -119,6 +119,58 @@ const SEED_SLUGS = {
   susie_lee: "L000590",              // Susie Lee — Rep, NV-03
   teresa_leger_fernandez: "L000273",  // Teresa Leger Fernandez — Rep, NM-03
   zach_nunn: "N000193",              // Zachary Nunn — Rep, IA-03
+
+  // ── The three senators no Senate roll could reach ──────────────────────────
+  // Federal wave F7 ingested a Senate slice and recorded, rather than fixed, a
+  // roster gap: three serving senators were absent from this map, so every Senate
+  // roll in the corpus lost the same three rows — 37 unattributable rows per roll
+  // once the alumni and the vacancies are counted. F8 admits them.
+  //   Each Bioguide below was verified TWICE, and by two independent paths:
+  //   1. name + state against legislators-current.json, which gives the Bioguide;
+  //   2. the `<lis_member_id>` the Senate's own LIS roll XML records for that
+  //      senator, matched against `id.lis` in the same dataset — S438, S395 and
+  //      S440 respectively. Path 2 is the one that matters here, because the
+  //      Senate resolver keys on (surname, state) off the roll XML and not on a
+  //      Bioguide, so the LIS id is what actually connects a slug to a vote.
+  //   The bioguides also agree with the ones waves F2 and F3 wrote into their own
+  // `unmappedBioguide` arrays when they counted these three as losses.
+  //   hyde_smith additionally carries a congress-images portrait, so BROWSE_PHOTOS
+  // and this list name her independently and buildMap() cross-checks them. The
+  // other two have Commons portraits with no readable Bioguide, which is why their
+  // identity is cross-checked through SEED_NAMES below instead.
+  jon_husted: "H001104",             // Jon Husted — Sen, OH (LIS S438; appointed 2025-01-21)
+  hyde_smith: "H001079",             // Cindy Hyde-Smith — Sen, MS (LIS S395)
+  alan_armstrong: "A000383",         // Alan Armstrong — Sen, OK (LIS S440; sworn 2026-03-24)
+};
+
+// ── The official-record name for a slug the app publishes no name for ─────────
+// checkNamesAgree() below is the wall that catches a portrait pointed at the wrong
+// member's Bioguide. It can only fire when it has TWO names to compare: the one the
+// authoritative dataset attaches to the Bioguide, and the one the app publishes for
+// the slug. For a slug the app publishes no name for, the wall used to go quiet and
+// the slug landed in a soft "could not be cross-checked" list — which is exactly the
+// slug most likely to be wrong, because nobody has ever seen the name next to it.
+//
+// The three senators F8 admits are all in that position: they carry stance rows and
+// a portrait but no compare card and no spotlight row, so the app publishes no name
+// for them. Rather than invent a compare-card bio to satisfy a guard — a fabricated
+// score and a fabricated issue list, to check a name — the name is declared here, on
+// its own, read off the same official record the Bioguide came from.
+//
+// This is an identity string, not a profile: name only, no office, no party, no
+// score, nothing a reader ever sees. And it is not circular. The wall's job is to
+// catch a Bioguide that belongs to someone else, so if `hyde_smith`'s portrait is
+// ever repointed at H001104, "Cindy Hyde-Smith" will not match "Husted" and
+// generation fails — which is the failure the wall exists for, and which could not
+// be detected for these slugs at all before.
+//
+// An app-published name always wins over an entry here; these are consulted only
+// when the app has none. Delete a line the moment the app starts publishing that
+// name, so there is one source and not two.
+const SEED_NAMES = {
+  jon_husted: "Jon Husted",
+  hyde_smith: "Cindy Hyde-Smith",
+  alan_armstrong: "Alan Armstrong",
 };
 
 // ── 1. slug → bioguide from BROWSE_PHOTOS congress portraits ──────────────────
@@ -333,20 +385,52 @@ function checkNamesAgree(slugToBio, admitted, byBio, names) {
   const errors = [];
   const warnings = [];
   const unverified = [];
+  const unnamed = [];
   let checked = 0;
+  let declared = 0;
   for (const [slug, bio] of Object.entries(slugToBio)) {
     const auth = byBio.get(bio);
-    const app = names.get(slug);
+    // The app's published name wins; SEED_NAMES is consulted only for a slug the app
+    // publishes no name for, so the wall has two names to compare instead of going
+    // quiet on exactly the slug nobody has ever seen a name next to.
+    const app = names.get(slug) || SEED_NAMES[slug];
+    if (app && !names.has(slug)) declared++;
+    if (!app && admitted.has(slug)) {
+      unnamed.push(`${slug} → ${bio}`);
+      continue;
+    }
     if (!auth || !app) {
       if (admitted.has(slug)) {
-        unverified.push(`${slug} (${bio}${auth ? "" : " not in either legislators dataset"}${app ? "" : ", no published name"})`);
+        unverified.push(`${slug} (${bio} not in either legislators dataset)`);
       }
       continue;
     }
     checked++;
+    // An app-published name is held to its surname, because the app publishes the name
+    // a reader would recognise and the dataset publishes the legal one — "Mike Simpson"
+    // against "Michael K. Simpson" is agreement, not a mismatch.
+    //   A SEED_NAMES entry is held to the whole name, because it was typed by hand off
+    // this same official record and has no reason to differ from it. That strictness is
+    // the point: a surname-only compare cannot tell Alan Armstrong (Sen, OK) from Kelly
+    // Armstrong (Gov, ND), and those two slugs both exist in this app.
+    if (!names.has(slug)) {
+      if (normName(app) === normName(auth.name)) continue;
+      errors.push(`${slug} → ${bio} is ${auth.name} (${auth.chamber}, ${auth.state}), but SEED_NAMES `
+        + `declares "${app}" — a hand-declared name must match the official record exactly`);
+      continue;
+    }
     if (auth.last && normName(app).includes(normName(auth.last))) continue;
     const row = `${slug} → ${bio} is ${auth.name} (${auth.chamber}, ${auth.state}), but the app profiles "${app}"`;
     (admitted.has(slug) ? errors : warnings).push(row);
+  }
+  // An admitted slug with no name from either source cannot be cross-checked at all,
+  // and an unchecked admitted slug is the one that misattributes a whole voting record
+  // in silence. Declare it in SEED_NAMES (identity only) or do not admit it.
+  if (unnamed.length) {
+    throw new Error(
+      `${unnamed.length} admitted slug(s) have no published name and no SEED_NAMES entry, so their ` +
+      `portrait Bioguide could not be checked against any name. Add the official-record name to ` +
+      `SEED_NAMES in this file before admitting them:\n  ` + unnamed.join("\n  "));
   }
   if (errors.length) {
     throw new Error(
@@ -354,7 +438,8 @@ function checkNamesAgree(slugToBio, admitted, byBio, names) {
       `would attribute one member's votes to another. Repoint the portrait in BROWSE_PHOTOS (or the ` +
       `SEED_SLUGS entry) at the right Bioguide before regenerating:\n  ` + errors.join("\n  "));
   }
-  console.log(`✓ portrait identity cross-check — ${checked} slug(s) agree with their Bioguide`);
+  console.log(`✓ portrait identity cross-check — ${checked} slug(s) agree with their Bioguide`
+    + (declared ? ` (${declared} named by SEED_NAMES, the app publishes no name for them)` : ""));
   if (warnings.length) {
     console.warn(`⚠ ${warnings.length} UNADMITTED portrait(s) name a different member. Nothing is attributed`);
     console.warn("  through them today, but admitting one as-is would misattribute that member's votes:");
