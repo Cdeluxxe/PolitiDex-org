@@ -752,7 +752,29 @@
 // the new stylesheet against the old renderer has a rule for a node nothing emits.
 // Nothing else moved — no count, no chip, no tier, no Direction Match figure — so
 // the bump exists purely so the pair arrives as a pair.
-const CACHE_VERSION = 'v104';
+// v105 - THE DOOR 1 WORKSPACE, and the reason is a new pair plus the four
+// surfaces it relabels. door1-workspace.js and door1-workspace.css are both new
+// entries on the manifest below, and they are the same kind of pair as v104's:
+// the script paints a two-region desk — a mode rail beside one open mode — and
+// the stylesheet is what makes it two regions. A device that takes the script
+// without the sheet gets the rail, the desk, the shelves and the four view
+// strips as one undifferentiated column of buttons and paragraphs, which is
+// precisely the stacked-surfaces shape the feature exists to replace: the
+// reader would meet MORE stacked prose than before the change, not less.
+//
+// The bump also matters for the surfaces the script does not own. It writes a
+// one-line "a view of the Door 1 workspace" strip into #hero-receipt,
+// #say-vs-do, #issue-front-door and #hr1-showcase. On a warm device serving a
+// v104 index.html there is no #pdx-door1-workspace mount, so the script's own
+// gate keeps it silent and those four strips are never painted — correct, but it
+// means the whole feature is invisible until index.html itself refreshes, and
+// index.html is on this manifest too. One bump ships the mount, the script, the
+// stylesheet and the relabelling together, which is the only combination in
+// which a surface calling itself "a view" has a desk to be a view of.
+//
+// Nothing else moved: no floor, no count, no mapping, no roster row and no
+// figure of any kind. The desk reads the modules already on this list.
+const CACHE_VERSION = 'v105';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -791,6 +813,10 @@ const SHELL_ASSETS = [
   // is a list of buttons with no rail and no sense of progress — which is the
   // exact failure the feature exists to fix. Shipped with its script below.
   '/ballot-workspace.css',
+  // The Door 1 workspace's stylesheet, for the reason the version log above
+  // gives at length: the sheet is what makes the desk two regions instead of a
+  // column. Shipped with its script below.
+  '/door1-workspace.css',
   // The two-axis elections lens (🔐 safeguards / 📩 access). Tiny, and it renders a
   // section inside the profile and a header inside the Stance Library — both of which
   // are precached — so leaving it to the runtime cache would mean the first offline
@@ -855,6 +881,14 @@ const SHELL_ASSETS = [
   // every fact it prints — offline with one and not the other, the mount paints
   // nothing at all.
   '/ballot-workspace.js',
+  // Door 1's workspace: the mode rail, the one open desk, and the view strips
+  // on the four older Door 1 surfaces. Precached with the modules it reads —
+  // claim-check.js, issue-view.js, consistency.js, bill-detail.js and
+  // person-file.js are all already on this list — because it prints no fact of
+  // its own: offline with the desk and without them, every mode paints its own
+  // honest "not loaded on this page" line and the reader gets a working rail
+  // over four empty modes.
+  '/door1-workspace.js',
   '/stance-library.js',
   '/ballot-axes.js',
   '/voting-record.js',

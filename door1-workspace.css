@@ -1,0 +1,449 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   door1-workspace.css — Door 1 as one desk, not four products
+   ────────────────────────────────────────────────────────────────────────────
+   Door 1 already held every piece of the truth loop. The claim checker resolved
+   a pasted quote, the receipts library held the worked receipts, the issue front
+   door ranked people on the formal record, the measure showcase took a bill
+   apart. What it did not hold was the loop: those four lived thousands of lines
+   apart, each with its own title, its own explanation of itself, and its own
+   dead end. This file styles the one surface that carries all four at once —
+   a mode rail plus one open desk.
+
+   LAYOUT CONTRACT
+   ───────────────
+   Two regions, and only two. The rail (.d1-rail) is the four ways in, one of
+   them current, with a count beside any the reader has already used this visit.
+   The desk (.d1-desk) is exactly one of those modes: the field or the shelf,
+   the result, the doors onward, and one footer control. Wide screens set them
+   side by side; a phone stacks rail over desk and the rail becomes a horizontal
+   strip. Same markup either way — nothing in the JS knows which.
+
+   The rail deliberately mirrors the ballot workspace's seat rail rather than
+   inventing a second idiom: a reader who has worked Door 2 should recognise
+   this shape on sight, because it is the same promise (you are somewhere, here
+   is everywhere else, you will not lose your place).
+
+   COLOUR DISCIPLINE
+   ─────────────────
+   There is NO good/bad ramp on this surface, because nothing here is graded.
+   The rail's counts are counts. The people list is ordered by acts on the
+   formal record, and every row is styled identically regardless of who is on
+   it — no party colour, no tier colour, no direction colour. The only three
+   accents in the file are structural: blue for the current mode, amber for the
+   one footer control, and a dashed neutral panel for an honest empty. An
+   honest empty is deliberately the quietest block here and not a warning: it
+   is a fact about what the record holds, and a red box would read as a finding
+   against the person the reader just asked about.
+
+   The claim result hosts the shipped receipt card, which brings its own colour
+   with it. This file gives it a container and does not restyle it.
+
+   Targets are 44px minimum on every control, per the mobile brief.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+#pdx-door1-workspace { margin: 0 0 1.5rem; }
+#pdx-door1-workspace[hidden] { display: none !important; }
+
+#pdx-d1-body {
+  position: relative;
+  border-radius: 1.25rem;
+  border: 2px solid rgba(96, 165, 250, 0.2);
+  background:
+    linear-gradient(135deg, rgba(26, 58, 107, 0.2) 0%, rgba(8, 12, 24, 0.94) 46%, rgba(192, 21, 42, 0.1) 100%);
+  box-shadow: 0 12px 46px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+#pdx-d1-body:empty { display: none; }
+#pdx-d1-body::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, #ef4444 20%, #fff 50%, #3b82f6 80%, transparent);
+  opacity: 0.55;
+}
+
+/* ── Head ─────────────────────────────────────────────────────────────────── */
+.d1-hd { padding: 1.1rem 1.15rem 0.9rem; }
+.d1-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: #93c5fd;
+}
+.d1-title {
+  font-family: 'Oswald', 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 1.3rem; letter-spacing: 0.02em; color: #fff; margin: 0.15rem 0 0;
+}
+.d1-sub { font-size: 0.82rem; line-height: 1.5; color: #9fb0c8; margin: 0.35rem 0 0; }
+
+/* ── Body: rail + desk ────────────────────────────────────────────────────── */
+.d1-body { display: block; }
+@media (min-width: 900px) {
+  .d1-body { display: grid; grid-template-columns: 16rem minmax(0, 1fr); align-items: start; }
+}
+
+/* ── The rail ─────────────────────────────────────────────────────────────── */
+.d1-rail {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 0.75rem 1.15rem 0.9rem;
+}
+@media (min-width: 900px) {
+  .d1-rail {
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    padding: 0.9rem 0.85rem 1.1rem 1.15rem;
+    position: sticky; top: 1rem; align-self: start;
+  }
+}
+.d1-rail-lbl {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #7f93b0; margin-bottom: 0.5rem;
+}
+/* Phone: a horizontal strip that keeps all four modes one thumb away.
+   Desktop: a column. Same buttons. */
+.d1-modes {
+  display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.35rem;
+  scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;
+}
+.d1-modes::-webkit-scrollbar { height: 4px; }
+.d1-modes::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 99px; }
+@media (min-width: 900px) {
+  .d1-modes { flex-direction: column; overflow: visible; gap: 0.4rem; }
+}
+
+.d1-mode {
+  position: relative; flex: 0 0 auto; scroll-snap-align: start;
+  min-height: 44px; min-width: 9.5rem; max-width: 14rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 0.6rem; border-radius: 0.8rem; cursor: pointer; text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 3px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+  color: #cbd5e1; transition: background 0.16s ease, border-color 0.16s ease;
+}
+@media (min-width: 900px) { .d1-mode { min-width: 0; max-width: none; width: 100%; } }
+.d1-mode:hover { background: rgba(96, 165, 250, 0.1); border-color: rgba(96, 165, 250, 0.32); }
+/* Used-this-visit is a hairline, not a tick and not a fill. It marks where the
+   reader has been; it does not mark anything as complete. */
+.d1-mode.is-used { border-left-color: rgba(148, 163, 184, 0.55); }
+.d1-mode.is-open {
+  background: rgba(96, 165, 250, 0.16);
+  border-color: rgba(96, 165, 250, 0.5);
+  border-left-color: #60a5fa;
+  color: #fff;
+}
+.d1-mode-ico { font-size: 1rem; flex: none; }
+.d1-mode-txt { min-width: 0; display: block; flex: 1 1 auto; }
+.d1-mode-lb {
+  display: block; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.8rem; letter-spacing: 0.03em; text-transform: uppercase;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.d1-mode-sub {
+  display: block; font-size: 0.68rem; line-height: 1.3; color: #8fa2bd;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* A count of things that happened. Tabular so it does not jitter, grey so it
+   does not read as a score, and absent entirely at zero. */
+.d1-mode-n {
+  flex: none; font-size: 0.62rem; line-height: 1.2; color: #93a7c2;
+  font-variant-numeric: tabular-nums;
+  padding: 0.2rem 0.4rem; border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── The desk: one mode ───────────────────────────────────────────────────── */
+.d1-desk {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 1rem 1.15rem calc(1.2rem + env(safe-area-inset-bottom, 0px));
+  min-width: 0;
+}
+.d1-desk-hd { margin-bottom: 0.85rem; }
+.d1-desk-t {
+  font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 1.05rem;
+  color: #fff; margin: 0; letter-spacing: 0.02em;
+}
+.d1-desk-l { font-size: 0.76rem; line-height: 1.5; color: #8fa2bd; margin: 0.2rem 0 0; }
+
+/* One sentence naming what ordered a list, above the list. */
+.d1-lead {
+  margin: 0.9rem 0 0.5rem; padding: 0.55rem 0.7rem; border-radius: 0.7rem;
+  font-size: 0.74rem; line-height: 1.5; color: #a9bad2;
+  background: rgba(96, 165, 250, 0.07); border: 1px solid rgba(96, 165, 250, 0.18);
+}
+.d1-scope {
+  margin: 0.7rem 0 0; font-size: 0.74rem; line-height: 1.5; color: #93a7c2;
+}
+.d1-scope b { color: #dbeafe; }
+
+/* An honest empty. The quietest block on the surface, on purpose: it reports
+   what the record holds, and nothing about the person who was asked about. */
+.d1-empty {
+  margin: 0.8rem 0 0; padding: 0.75rem 0.85rem; border-radius: 0.75rem;
+  font-size: 0.78rem; line-height: 1.6; color: #a3b3c9;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+}
+
+/* ── Claim mode ───────────────────────────────────────────────────────────── */
+.d1-claim-form { display: block; }
+.d1-claim-lb {
+  display: block; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #7f93b0; margin-bottom: 0.35rem;
+}
+.d1-claim-in {
+  width: 100%; box-sizing: border-box; min-height: 5.2rem; resize: vertical;
+  padding: 0.7rem 0.8rem; border-radius: 0.8rem;
+  font-family: inherit; font-size: 0.88rem; line-height: 1.5; color: #e8eefb;
+  background: rgba(4, 8, 18, 0.6); border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.d1-claim-in:focus { outline: none; border-color: rgba(96, 165, 250, 0.6); }
+.d1-claim-in::placeholder { color: #64748b; }
+.d1-claim-row {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.8rem;
+  margin-top: 0.6rem;
+}
+.d1-claim-min { font-size: 0.68rem; line-height: 1.4; color: #7f93b0; flex: 1 1 12rem; }
+.d1-claim-busy {
+  margin: 0.9rem 0 0; font-size: 0.78rem; color: #93c5fd;
+}
+
+.d1-go {
+  min-height: 44px; padding: 0.6rem 0.95rem; border-radius: 0.75rem; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.82rem; letter-spacing: 0.05em; text-transform: uppercase;
+  color: #dbeafe; background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+.d1-go:hover { border-color: rgba(96, 165, 250, 0.5); color: #fff; }
+.d1-go.is-lead {
+  color: #071018; background: linear-gradient(135deg, #93c5fd, #60a5fa);
+  border-color: transparent;
+}
+
+/* ── A result ─────────────────────────────────────────────────────────────── */
+.d1-out {
+  margin: 1rem 0 0; padding: 0.85rem 0.9rem; border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+}
+/* A hit is marked as a hit by a hairline, not by a green field. The card inside
+   carries its own verdict, and a container colour agreeing with it would be
+   this surface adding a second opinion. */
+.d1-out-hit { border-left: 3px solid rgba(96, 165, 250, 0.6); }
+/* A miss and a refusal look the same, because they are the same kind of thing:
+   a statement about what we hold. Dashed, neutral, no alarm colour. */
+.d1-out-miss, .d1-out-flat {
+  border-style: dashed; border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.02);
+}
+.d1-out-k {
+  margin: 0 0 0.35rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.64rem; letter-spacing: 0.15em; text-transform: uppercase; color: #7f93b0;
+}
+.d1-out-h {
+  margin: 0; font-family: 'Oswald', sans-serif; font-weight: 700;
+  font-size: 0.98rem; line-height: 1.4; color: #fff;
+}
+.d1-out-p { margin: 0.45rem 0 0; font-size: 0.8rem; line-height: 1.55; color: #b8c6da; }
+.d1-out-p b { color: #fff; }
+.d1-out-meta { margin: 0.35rem 0 0; font-size: 0.72rem; color: #8fa2bd; }
+.d1-out-fine { margin: 0.6rem 0 0; font-size: 0.7rem; line-height: 1.5; color: #7f93b0; }
+/* The shipped receipt card's container. No restyling — it owns its own look on
+   every other surface and must look the same here. */
+.d1-card { margin: 0.7rem 0 0; }
+.d1-card:empty { display: none; }
+.d1-src {
+  display: inline-block; margin-top: 0.5rem; font-size: 0.72rem;
+  color: #93c5fd; text-decoration: none; border-bottom: 1px dotted rgba(147, 197, 253, 0.5);
+}
+.d1-src:hover { color: #dbeafe; }
+
+/* The doors onward — the whole reason this is a desk. */
+.d1-doors { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.8rem 0 0; }
+.d1-door {
+  min-height: 44px; display: inline-flex; align-items: center;
+  padding: 0.55rem 0.8rem; border-radius: 0.7rem; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase;
+  color: #cbd5e1; text-decoration: none;
+  background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.d1-door:hover { background: rgba(96, 165, 250, 0.12); border-color: rgba(96, 165, 250, 0.45); color: #fff; }
+.d1-door.is-lead { border-color: rgba(96, 165, 250, 0.55); color: #dbeafe; }
+
+/* ── Person mode: a strip, never a second profile ─────────────────────────── */
+.d1-strip {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.4rem 0.7rem;
+  padding: 0.6rem 0.75rem; border-radius: 0.75rem;
+  background: rgba(96, 165, 250, 0.08); border: 1px solid rgba(96, 165, 250, 0.22);
+}
+.d1-strip-k {
+  flex: none; font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+  font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase; color: #93c5fd;
+}
+.d1-strip-n {
+  flex: 1 1 auto; min-width: 0; font-family: 'Oswald', sans-serif; font-weight: 700;
+  font-size: 1rem; color: #fff;
+}
+.d1-strip-go {
+  flex: none; min-height: 36px; display: inline-flex; align-items: center;
+  padding: 0.35rem 0.6rem; border-radius: 0.6rem; cursor: pointer;
+  font-size: 0.72rem; color: #dbeafe; text-decoration: none;
+  background: transparent; border: 1px solid rgba(147, 197, 253, 0.4);
+}
+.d1-strip-go:hover { background: rgba(96, 165, 250, 0.16); }
+
+.d1-rows { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.45rem; }
+.d1-row {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.6rem;
+  padding: 0.55rem 0.7rem; border-radius: 0.7rem;
+  background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.09);
+}
+.d1-row-a {
+  flex: 1 1 10rem; min-width: 0; min-height: 32px; display: inline-flex; align-items: center;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.86rem; letter-spacing: 0.02em; color: #e8eefb; text-decoration: none;
+  background: transparent; border: 0; cursor: pointer; text-align: left; padding: 0;
+}
+.d1-row-a:hover { color: #93c5fd; }
+.d1-row-m { flex: none; font-size: 0.7rem; color: #8fa2bd; }
+
+/* ── Shelves: the issue set, the measure set ──────────────────────────────── */
+.d1-shelf { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.d1-shelf-issues { margin-top: 0.5rem; }
+.d1-chip {
+  min-height: 40px; display: inline-flex; align-items: center;
+  padding: 0.4rem 0.7rem; border-radius: 99px; cursor: pointer;
+  font-size: 0.76rem; line-height: 1.2; color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.13);
+}
+.d1-chip:hover { border-color: rgba(96, 165, 250, 0.45); color: #fff; }
+.d1-chip.is-open {
+  background: rgba(96, 165, 250, 0.16); border-color: rgba(96, 165, 250, 0.55); color: #fff;
+}
+.d1-chip.is-issue { border-style: dashed; }
+
+/* ── The people on an issue ───────────────────────────────────────────────── */
+/* Every row is identical. There is no per-row accent, because a colour that
+   varied row to row on this list could only be reading something the order
+   deliberately does not read. */
+.d1-people { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.45rem; }
+.d1-person {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.6rem;
+  padding: 0.55rem 0.7rem; border-radius: 0.7rem;
+  background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.09);
+}
+.d1-person-a {
+  flex: 0 1 auto; min-width: 0; min-height: 32px; display: inline-flex; align-items: center;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.9rem; letter-spacing: 0.02em; color: #fff; text-decoration: none;
+  background: transparent; border: 0; cursor: pointer; padding: 0;
+}
+.d1-person-a:hover { color: #93c5fd; }
+.d1-person-m {
+  flex: 1 1 8rem; font-size: 0.72rem; color: #8fa2bd;
+  font-variant-numeric: tabular-nums;
+}
+/* The baseline mark. The alignment lane's own tag, in the alignment lane's own
+   register: a small neutral label saying where this row rests, not a grade. */
+.d1-base {
+  flex: none; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+  font-weight: 700; color: #a3b3c9;
+  padding: 0.18rem 0.4rem; border-radius: 0.45rem;
+  background: rgba(255, 255, 255, 0.055); border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.d1-cite {
+  flex: none; min-height: 32px; padding: 0.25rem 0.55rem; border-radius: 0.55rem;
+  cursor: pointer; font-size: 0.7rem; color: #dbeafe;
+  background: transparent; border: 1px solid rgba(147, 197, 253, 0.35);
+}
+.d1-cite:hover { background: rgba(96, 165, 250, 0.14); }
+.d1-more { margin: 0.6rem 0 0; font-size: 0.74rem; color: #8fa2bd; }
+.d1-link {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font: inherit; color: #93c5fd; text-decoration: underline;
+}
+
+/* ── Measure mode ─────────────────────────────────────────────────────────── */
+.d1-meas { margin-top: 0.85rem; }
+.d1-meas-n {
+  margin: 0; font-family: 'Oswald', sans-serif; font-weight: 700;
+  font-size: 1.15rem; color: #fff; letter-spacing: 0.02em;
+}
+.d1-meas-t { margin: 0.15rem 0 0; font-size: 0.86rem; line-height: 1.45; color: #cbd5e1; }
+/* The stowaway note. Marked, quietly, as a fact about the vehicle — the note
+   itself is the floor vocabulary's own sentence about packages. */
+.d1-stow {
+  margin: 0.7rem 0 0; padding: 0.65rem 0.75rem; border-radius: 0.7rem;
+  background: rgba(251, 191, 36, 0.07); border: 1px solid rgba(251, 191, 36, 0.22);
+}
+.d1-stow-t {
+  display: block; font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+  font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: #fcd34d;
+  margin-bottom: 0.25rem;
+}
+.d1-stow-n { display: block; font-size: 0.76rem; line-height: 1.6; color: #d6c9a8; }
+
+/* ── The footer: one control ──────────────────────────────────────────────── */
+/* One control, and it advances to a mode. There is no bar, no fill and no
+   figure here — nothing on this desk is a quantity that could be part-done. */
+.d1-foot {
+  margin-top: 1.1rem; padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.d1-next {
+  min-height: 44px; display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.6rem 1rem; border-radius: 0.75rem; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.84rem; letter-spacing: 0.05em; text-transform: uppercase;
+  color: #78350f; background: linear-gradient(135deg, #fcd34d, #f59e0b);
+  border: 0;
+}
+.d1-next:hover { filter: brightness(1.06); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   VIEW CHROME · the four old Door 1 surfaces
+   ────────────────────────────────────────────────────────────────────────────
+   Same treatment, and the same reasoning, as .d2-view-strip: the quietest band
+   in Door 1. Flat, unfilled, one hairline below it, no gradient and no glow.
+   Every other header on these surfaces is a heading, and a heading here would be
+   the fifth competing title the strip exists to dissolve. It reads as a label ON
+   the section, not as a section of its own.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.d1-strip-slot { display: block; }
+
+.d1-view-strip {
+  display: flex; align-items: baseline; flex-wrap: wrap;
+  gap: 0.4rem 0.7rem;
+  padding: 0 0 0.6rem; margin: 0 0 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  font-family: 'Barlow Condensed', sans-serif; line-height: 1.25;
+}
+/* What this surface is a view of. The only uppercase element in the strip, so
+   the eye reads the relationship first and the detail second. */
+.d1-view-kick {
+  flex: none; font-size: 0.6rem; font-weight: 800;
+  letter-spacing: 0.16em; text-transform: uppercase; color: #7f92b4;
+}
+.d1-view-kick::after { content: "·"; margin-left: 0.55rem; opacity: 0.5; }
+/* The job this view does that the desk does not. Sentence case, normal weight —
+   it is a description, not a claim. */
+.d1-view-job {
+  flex: 1 1 14rem; min-width: 0;
+  font-family: 'Barlow', sans-serif; font-size: 0.8rem; font-weight: 400;
+  color: #9fb4d4;
+}
+/* The way back to the desk. A real control at a real size, because a reader who
+   arrived on a deep link needs it — but outlined in steel, so it never
+   out-shouts the surface it sits on. */
+.d1-view-back {
+  flex: none; min-height: 36px; display: inline-flex; align-items: center;
+  padding: 0.35rem 0.65rem; border-radius: 0.6rem; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: #cbd5e1; background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.d1-view-back:hover { color: #fff; border-color: rgba(96, 165, 250, 0.5); }
+
+@media (prefers-reduced-motion: reduce) {
+  .d1-mode, .d1-next { transition: none; }
+}
