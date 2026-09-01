@@ -1,0 +1,1418 @@
+{
+ "_comment": "Federal wave F9 decision record. Read this file, not the SQL, to learn what was admitted, what was refused, and why. The census is re-derivable with scripts/vr-federal-wave-f9-census.mjs; the vote data is re-derivable with scripts/vr-gen-federal-wave-f9-vote-seed.mjs.",
+ "wave": "F9",
+ "mission": "Formal pattern only. Read the contested House amendment rolls F7 bridged and deliberately left unread, and map only where the amendment's own operative text is an existing key's subject. Ingest and map in one pass. No party score, no package percentage, no invented stance, no floor moved, no stance harvest, no District venue key.",
+ "whatShipsThisWave": {
+  "newMeasures": 7,
+  "newRollCalls": 7,
+  "newIssueMappingRows": 7,
+  "newIssueKeys": 0,
+  "memberVoteCells": 811,
+  "dosMechPairs": 7,
+  "cacheVersionBump": "v99 -> v100",
+  "summary": "Seven contested House amendments, each admitted on its own operative text and each carrying exactly one PRIMARY issue row on its own subject. Two vehicles are named and neither is touched. 44 of the 51 contested rolls are refused in writing."
+ },
+ "census": {
+  "wave": "F9",
+  "chamber": "house",
+  "subject": "contested House amendment rolls F7 left unread",
+  "generated": "2026-08-31",
+  "sources": [
+   "clerk.house.gov/evs/2025/ROLL_{000..600}.asp and /evs/2026/ROLL_{000..600}.asp — the paginated indexes, not index.asp",
+   "clerk.house.gov/evs/{year}/roll{NNN}.xml — one document per amendment roll, for <totals-by-vote>",
+   "govinfo BULKDATA BILLSTATUS-119{type}{n}.xml — the roll → H.Amdt. bridge",
+   "govinfo BILLS-119hr{n}eh and BILLS-119hr{n}rh — the operative-text diff",
+   "vr_rollcalls (chamber = 'house', congress = 119) — the on-file set"
+  ],
+  "listed": {
+   "indexRowsTotal": 645,
+   "amendmentRolls": 90,
+   "y2025": 49,
+   "y2026": 41
+  },
+  "funnel": [
+   {
+    "step": "0. clerk amendment rolls in the 119th (2025 + 2026 indexes)",
+    "from": 645,
+    "to": 90,
+    "note": "-555 rolls whose question is not 'On Agreeing to the Amendment'"
+   },
+   {
+    "step": "1. bridged to a unique H.Amdt. with sponsor and purpose",
+    "from": 90,
+    "to": 90,
+    "note": "-0. F7 reported 2 unbridged and mislabeled them by yea total; both bridge here"
+   },
+   {
+    "step": "2. not already in vr_rollcalls",
+    "from": 90,
+    "to": 62,
+    "note": "-28 on file (25 mapped, 3 with zero issue mappings: H.Amdt. 259, H.Amdt. 245, H.Amdt. 244)"
+   },
+   {
+    "step": "3. contested at rule 11's one-tenth bar",
+    "from": 62,
+    "to": 51,
+    "note": "-11: H.Amdt. 15 0.98%, H.Amdt. 14 0.726%, H.Amdt. 100 0.693%, H.Amdt. 95 2.088%, H.Amdt. 56 6.977%, H.Amdt. 55 1.402%, H.Amdt. 53 1.405%, H.Amdt. 154 0%, H.Amdt. 152 5.276%, H.Amdt. 191 1.887%, H.Amdt. 186 8.353%"
+   },
+   {
+    "step": "4. refusal-first gate on the parent and the instrument",
+    "from": 51,
+    "to": 48,
+    "note": "-3: H.Amdt. 40 (2025/188), H.Amdt. 35 (2025/180), H.Amdt. 175 (2026/123)"
+   },
+   {
+    "step": "5. operative text verifiable (see note 5)",
+    "from": 48,
+    "to": 10,
+    "note": "-38 failed amendments: no published text carries the words they would have inserted, so the roll is refused in writing"
+   }
+  ],
+  "f7Reconciliation": {
+   "f7Claimed": {
+    "bridged": 88,
+    "unbridged": 2,
+    "alreadyOnFile": 28,
+    "notOnFile": 61,
+    "failingRule11": 7,
+    "contestedAndUnread": 54
+   },
+   "f9Rebuilt": {
+    "bridged": 90,
+    "unbridged": 0,
+    "alreadyOnFile": 28,
+    "notOnFile": 62,
+    "failingRule11": 11,
+    "contestedAndUnread": 51
+   },
+   "defects": [
+    "F7's unbridged pair is named by yea total, not roll number: '2026/395 on H.R. 2988' is roll 2026/29 (H.Amdt. 152, 395-22) and '2026/427 on H.Res. 1014' is roll 2026/40 (H.Amdt. 154, 427-0). Both bridge here; both fail rule 11.",
+    "F7 found 7 rule-11 failures in its 61 where 9 exist: it missed 2026/145 (H.Amdt. 186, 8.353%) and 2026/146 (H.Amdt. 191, 1.887%)."
+   ],
+   "net": "54 → 51. Two rolls join the pool by being bridged and immediately leave it by failing rule 11; two more that F7 carried as contested are not."
+  },
+  "textGate": {
+   "rule": "operative text or refusal, never the title",
+   "probed": [
+    {
+     "source": "clerk EVS <vote-desc>",
+     "result": "empty on all 90 amendment rolls in this pool"
+    },
+    {
+     "source": "api.congress.gov v3 /amendment/119/hamdt/{n}/text",
+     "result": "textVersions: [] for every H.Amdt. of the 119th"
+    },
+    {
+     "source": "congress.gov amendment page",
+     "result": "HTTP 403 to a script"
+    },
+    {
+     "source": "govinfo BILLSTATUS <amendment><description>",
+     "result": "descriptive, not operative — 'never guess from the title' covers it"
+    },
+    {
+     "source": "govinfo CRPT-119hrpt* committee reports",
+     "result": "descriptive; the amendment texts are in the Rules print, not the report"
+    },
+    {
+     "source": "Rules Committee amendment PDFs",
+     "result": "encrypted with the PDF standard security handler; the protection was left in place, not circumvented"
+    },
+    {
+     "source": "govinfo CREC granules for the debate day",
+     "result": "granule ids do not resolve — every fetch lands on a 44,165-byte landing page"
+    },
+    {
+     "source": "govinfo BILLS-119hr{n}eh diffed against BILLS-119hr{n}rh",
+     "result": "WORKS for agreed amendments; this is the brief's 'enrolled amend' and it is the only path that carries operative words"
+    }
+   ]
+  },
+  "admitted": [
+   {
+    "roll": "house 119/1/252",
+    "clerkYear": 2025,
+    "hamdt": "H.Amdt. 81",
+    "parent": "H R 3838",
+    "date": "10-Sep-2025",
+    "tally": "228-205",
+    "losingSharePct": 47.344,
+    "result": "Agreed to",
+    "sponsor": "Rep. Wilson, Joe [R-SC-2]",
+    "bioguide": "W000795"
+   },
+   {
+    "roll": "house 119/1/251",
+    "clerkYear": 2025,
+    "hamdt": "H.Amdt. 79",
+    "parent": "H R 3838",
+    "date": "10-Sep-2025",
+    "tally": "224-208",
+    "losingSharePct": 48.148,
+    "result": "Agreed to",
+    "sponsor": "Rep. Patronis, Jimmy [R-FL-1]",
+    "bioguide": "P000622"
+   },
+   {
+    "roll": "house 119/1/249",
+    "clerkYear": 2025,
+    "hamdt": "H.Amdt. 89",
+    "parent": "H R 3838",
+    "date": "10-Sep-2025",
+    "tally": "219-209",
+    "losingSharePct": 48.832,
+    "result": "Agreed to",
+    "sponsor": "Rep. Mace, Nancy [R-SC-1]",
+    "bioguide": "M000194"
+   },
+   {
+    "roll": "house 119/1/248",
+    "clerkYear": 2025,
+    "hamdt": "H.Amdt. 88",
+    "parent": "H R 3838",
+    "date": "10-Sep-2025",
+    "tally": "221-210",
+    "losingSharePct": 48.724,
+    "result": "Agreed to",
+    "sponsor": "Rep. Mace, Nancy [R-SC-1]",
+    "bioguide": "M000194"
+   },
+   {
+    "roll": "house 119/1/246",
+    "clerkYear": 2025,
+    "hamdt": "H.Amdt. 86",
+    "parent": "H R 3838",
+    "date": "10-Sep-2025",
+    "tally": "221-207",
+    "losingSharePct": 48.364,
+    "result": "Agreed to",
+    "sponsor": "Rep. Mace, Nancy [R-SC-1]",
+    "bioguide": "M000194"
+   },
+   {
+    "roll": "house 119/2/152",
+    "clerkYear": 2026,
+    "hamdt": "H.Amdt. 207",
+    "parent": "H R 7567",
+    "date": "30-Apr-2026",
+    "tally": "215-213",
+    "losingSharePct": 49.766,
+    "result": "Agreed to",
+    "sponsor": "Rep. Spartz, Victoria [R-IN-5]",
+    "bioguide": "S000929"
+   },
+   {
+    "roll": "house 119/2/148",
+    "clerkYear": 2026,
+    "hamdt": "H.Amdt. 196",
+    "parent": "H R 7567",
+    "date": "30-Apr-2026",
+    "tally": "280-142",
+    "losingSharePct": 33.649,
+    "result": "Agreed to",
+    "sponsor": "Rep. Luna, Anna Paulina [R-FL-13]",
+    "bioguide": "L000596"
+   }
+  ],
+  "refusedInWriting": [
+   {
+    "roll": "house 119/1/188",
+    "hamdt": "H.Amdt. 40",
+    "tally": "220-212",
+    "gate": "refusal-first",
+    "reason": "parent is a resolution providing for consideration — rules-for-consideration is on the standing refusal list"
+   },
+   {
+    "roll": "house 119/1/180",
+    "hamdt": "H.Amdt. 35",
+    "tally": "219-206",
+    "gate": "refusal-first",
+    "reason": "parent is a named appropriations vehicle — on the standing refusal list"
+   },
+   {
+    "roll": "house 119/2/123",
+    "hamdt": "H.Amdt. 175",
+    "tally": "200-220",
+    "gate": "refusal-first",
+    "reason": "parent is a resolution providing for consideration — rules-for-consideration is on the standing refusal list"
+   },
+   {
+    "roll": "house 119/1/80",
+    "hamdt": "H.Amdt. 13",
+    "parent": "H R 1048",
+    "tally": "92-321",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/79",
+    "hamdt": "H.Amdt. 12",
+    "parent": "H R 1048",
+    "tally": "199-214",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/32",
+    "hamdt": "H.Amdt. 5",
+    "parent": "H R 27",
+    "tally": "182-226",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/150",
+    "hamdt": "H.Amdt. 25",
+    "parent": "H R 2483",
+    "tally": "213-213",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/256",
+    "hamdt": "H.Amdt. 94",
+    "parent": "H R 3838",
+    "tally": "60-370",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/255",
+    "hamdt": "H.Amdt. 93",
+    "parent": "H R 3838",
+    "tally": "60-372",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/254",
+    "hamdt": "H.Amdt. 91",
+    "parent": "H R 3838",
+    "tally": "194-236",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/250",
+    "hamdt": "H.Amdt. 78",
+    "parent": "H R 3838",
+    "tally": "209-224",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/237",
+    "hamdt": "H.Amdt. 76",
+    "parent": "H R 4553",
+    "tally": "76-351",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/236",
+    "hamdt": "H.Amdt. 75",
+    "parent": "H R 4553",
+    "tally": "127-297",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/235",
+    "hamdt": "H.Amdt. 74",
+    "parent": "H R 4553",
+    "tally": "120-302",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/234",
+    "hamdt": "H.Amdt. 73",
+    "parent": "H R 4553",
+    "tally": "120-307",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/233",
+    "hamdt": "H.Amdt. 72",
+    "parent": "H R 4553",
+    "tally": "127-299",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/232",
+    "hamdt": "H.Amdt. 71",
+    "parent": "H R 4553",
+    "tally": "124-303",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/231",
+    "hamdt": "H.Amdt. 70",
+    "parent": "H R 4553",
+    "tally": "120-306",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/230",
+    "hamdt": "H.Amdt. 69",
+    "parent": "H R 4553",
+    "tally": "140-286",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/229",
+    "hamdt": "H.Amdt. 68",
+    "parent": "H R 4553",
+    "tally": "77-347",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/228",
+    "hamdt": "H.Amdt. 67",
+    "parent": "H R 4553",
+    "tally": "143-285",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/227",
+    "hamdt": "H.Amdt. 66",
+    "parent": "H R 4553",
+    "tally": "195-235",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/210",
+    "hamdt": "H.Amdt. 60",
+    "parent": "H R 4016",
+    "tally": "76-355",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/209",
+    "hamdt": "H.Amdt. 57",
+    "parent": "H R 4016",
+    "tally": "76-353",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/206",
+    "hamdt": "H.Amdt. 54",
+    "parent": "H R 4016",
+    "tally": "104-326",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/204",
+    "hamdt": "H.Amdt. 52",
+    "parent": "H R 4016",
+    "tally": "63-365",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/354",
+    "hamdt": "H.Amdt. 140",
+    "parent": "H R 4776",
+    "tally": "204-217",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/353",
+    "hamdt": "H.Amdt. 139",
+    "parent": "H R 4776",
+    "tally": "208-214",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/352",
+    "hamdt": "H.Amdt. 138",
+    "parent": "H R 4776",
+    "tally": "205-220",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/327",
+    "hamdt": "H.Amdt. 127",
+    "parent": "H R 3383",
+    "tally": "214-215",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/326",
+    "hamdt": "H.Amdt. 125",
+    "parent": "H R 3383",
+    "tally": "211-219",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/325",
+    "hamdt": "H.Amdt. 123",
+    "parent": "H R 3383",
+    "tally": "54-374",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/2/44",
+    "hamdt": "H.Amdt. 156",
+    "parent": "H R 7148",
+    "tally": "136-291",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/2/43",
+    "hamdt": "H.Amdt. 155",
+    "parent": "H R 7148",
+    "tally": "164-268",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/2/27",
+    "hamdt": "H.Amdt. 150",
+    "parent": "H R 7006",
+    "tally": "127-291",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/2/26",
+    "hamdt": "H.Amdt. 149",
+    "parent": "H R 7006",
+    "tally": "163-257",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/2/174",
+    "hamdt": "H.Amdt. 219",
+    "parent": "H R 8469",
+    "tally": "80-333",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/2/151",
+    "hamdt": "H.Amdt. 206",
+    "parent": "H R 7567",
+    "tally": "186-238",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/2/149",
+    "hamdt": "H.Amdt. 200",
+    "parent": "H R 7567",
+    "tally": "187-239",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/2/147",
+    "hamdt": "H.Amdt. 193",
+    "parent": "H R 7567",
+    "tally": "69-355",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/2/144",
+    "hamdt": "H.Amdt. 181",
+    "parent": "H R 7567",
+    "tally": "210-216",
+    "gate": "text not verifiable",
+    "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+   },
+   {
+    "roll": "house 119/1/258",
+    "hamdt": "H.Amdt. 96",
+    "parent": "H R 3838",
+    "tally": "219-211",
+    "gate": "text read, no key earned",
+    "reason": "the operative text bars the Department from rating news sources for factual accuracy. free_speech is a one-line ISSUE_MAP entry with no argued-out scope note in issue-scope.js, so its boundary cannot be stated to a reader — F7's own rule refuses the mapping rather than inventing the boundary here."
+   },
+   {
+    "roll": "house 119/1/253",
+    "hamdt": "H.Amdt. 90",
+    "parent": "H R 3838",
+    "tally": "222-210",
+    "gate": "text read, no key earned",
+    "reason": "the operative text repeals a limit on which flags a commander may display. No key on any existing tree has that as its subject, and a new key for it fails vocab rule 1 (RECURRING) and rule 3 (NOT A COUSIN)."
+   },
+   {
+    "roll": "house 119/2/150",
+    "hamdt": "H.Amdt. 202",
+    "parent": "H R 7567",
+    "tally": "233-194",
+    "gate": "text read, no key earned",
+    "reason": "the operative text widens an agricultural research authority to cover precision agriculture. rural_ag has no argued-out scope note either, and climate_action's written boundary is emissions, which this text does not touch."
+   }
+  ],
+  "poolHandedOn": {
+   "contestedAndUnread": 51,
+   "admitted": 7,
+   "refused": 44,
+   "stillUnreadableUntilAFailedAmendmentTextSourceExists": 38
+  }
+ },
+ "f7CountCorrection": {
+  "f7Claimed": {
+   "bridged": 88,
+   "unbridged": 2,
+   "alreadyOnFile": 28,
+   "notOnFile": 61,
+   "failingRule11": 7,
+   "contestedAndUnread": 54
+  },
+  "f9Rebuilt": {
+   "bridged": 90,
+   "unbridged": 0,
+   "alreadyOnFile": 28,
+   "notOnFile": 62,
+   "failingRule11": 11,
+   "contestedAndUnread": 51
+  },
+  "defects": [
+   "F7's unbridged pair is named by yea total, not roll number: '2026/395 on H.R. 2988' is roll 2026/29 (H.Amdt. 152, 395-22) and '2026/427 on H.Res. 1014' is roll 2026/40 (H.Amdt. 154, 427-0). Both bridge here; both fail rule 11.",
+   "F7 found 7 rule-11 failures in its 61 where 9 exist: it missed 2026/145 (H.Amdt. 186, 8.353%) and 2026/146 (H.Amdt. 191, 1.887%)."
+  ],
+  "net": "54 → 51. Two rolls join the pool by being bridged and immediately leave it by failing rule 11; two more that F7 carried as contested are not."
+ },
+ "vocabDecision": {
+  "newKeys": 0,
+  "decision": "No new issue key. Every one of the seven admitted amendments landed on a key that already exists and already carries an argued-out scope note in issue-scope.js: lgbtq_rights (three), climate_action (two), tough_on_crime (one), states_federal_power (one). Two amendments whose text was read and verified were refused precisely BECAUSE the key that would fit them has no written scope -- free_speech and rural_ag are one-line ISSUE_MAP entries with stanceKeys: [] and no scope comment, and issue-scope.js states its own rule that such a key has no entry and the reader is told exactly that.",
+  "sixRules": [
+   {
+    "rule": 1,
+    "name": "RECURRING",
+    "note": "Not exercised: no key is proposed. Had one been proposed for H.Amdt. 90's flag-display repeal, this is the rule it would have failed -- one amendment on one NDAA is not a recurring subject.",
+    "verdict": "not exercised; no new key proposed"
+   },
+   {
+    "rule": 2,
+    "name": "CLEAN POLARITY",
+    "note": "Not exercised. Worth recording that states_federal_power, which this wave does use, deliberately has NO pole -- it is in _RD_NO_POLE and carries no pole field -- so its row is inventory rather than a direction. That is the existing key's settled answer to this rule, not a new one.",
+    "verdict": "not exercised; no new key proposed"
+   },
+   {
+    "rule": 3,
+    "name": "NOT A COUSIN",
+    "note": "Not exercised for a new key, and it is the rule that did the most work on the existing ones. Four candidate mappings were declined as cousins of the row that was written: energy_production beside climate_action on H.Amdt. 79, strong_defense beside tough_on_crime on H.Amdt. 81, gov_regulation beside states_federal_power on H.Amdt. 196, and gov_regulation beside climate_action on H.Amdt. 207. Each decline cites the out clause that excludes it.",
+    "verdict": "not exercised; no new key proposed"
+   },
+   {
+    "rule": 4,
+    "name": "VOTER LANGUAGE",
+    "note": "Not exercised. The seven rationales are written in the language of what the section does -- coverage, forms, facilities, vehicle preference, penalty, preemption, emission standards -- and none of them uses a party name, a chamber-procedure term of art, or a score.",
+    "verdict": "not exercised; no new key proposed"
+   },
+   {
+    "rule": 5,
+    "name": "NO RESTUFFING",
+    "note": "Not exercised for a new key, and enforced hard on the parents. H.R. 3838 and H.R. 7567 receive no new roll, no new issue row, no new title and no new status. Seven amendments to an NDAA and a farm bill did not become seven more defense votes or seven more agriculture votes; each landed on the subject of its own words.",
+    "verdict": "not exercised; no new key proposed"
+   },
+   {
+    "rule": 6,
+    "name": "NO PARTY LEAN / NO NEW SCORE",
+    "note": "Not exercised. No score is created by this wave: no party percentage, no package percentage, no stance row, no curator weight, no Direction Match change. is_party is stored per cell as it always has been and never surfaces in reader copy.",
+    "verdict": "not exercised; no new key proposed"
+   }
+  ],
+  "noVenueKey": "No venue key. The military installation in H.Amdt. 81 and H.Amdt. 89 and the District venue key F6 refused are the same refusal: venue is where an instrument operates, not what it is about.",
+  "noRestuffing": "Neither parent was restuffed. No existing key's scope note was widened to accommodate an amendment, and no existing issue row on any measure was edited."
+ },
+ "measures": [
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 86",
+   "shortTitle": "Mace amendment to H.R. 3838 barring TRICARE coverage of gender-related medical treatment",
+   "officialTitle": "An amendment numbered 14 printed in Part A of House Report 119-255 to prohibit DoD from covering or furnishing gender-related medical treatment under TRICARE.",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/86",
+   "sponsor": "Rep. Mace, Nancy [R-SC-1]",
+   "sponsorBioguide": "M000194",
+   "purpose": "Amendment prohibits the Department of Defense from covering or furnishing gender-related medical treatment under TRICARE.",
+   "roll": "119/1/246",
+   "question": "On Agreeing to the Amendment",
+   "admittedAs": "exception: amendment",
+   "result": "agreed",
+   "tally": "221-207",
+   "notVoting": 9,
+   "losingSharePct": 48.364,
+   "rule11": "cleared -- the losing side holds 48.4% of the yea+nay pool",
+   "fullChamberRecorded": 437,
+   "attributed": 116,
+   "rollSourceUrl": "https://clerk.house.gov/Votes/2025246",
+   "textVerifiedAt": "SEC. 713 of BILLS-119hr3838eh",
+   "textVerificationMethod": "the parent's engrossed text (BILLS-119hr{n}eh) diffed against its as-reported text (BILLS-119hr{n}rh)",
+   "mapped": true,
+   "decisiveWhy": "The amendment's own text is the whole question — it bars coverage of gender-related medical treatment under TRICARE by inserting a new section 1076g of title 10 — and it was disposed of by its own recorded vote, not en bloc. The parent bill is a vehicle: its passage roll is a separate act on a separate subject and is not re-read here. This is the amendment exception under rule 8/12, admitted on the amendment's own subject.",
+   "parentNumber": "H.R. 3838",
+   "parentTitle": "Streamlining Procurement for Effective Execution and Delivery and National Defense Authorization Act for Fiscal Year 2026",
+   "parentIsAVehicle": "The parent already exists in the corpus and is not re-read, re-titled or re-mapped by this wave. No roll and no issue row is added to it. The amendment earns its own PRIMARY on its own subject; the parent keeps whatever it already had.",
+   "issues": [
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The amendment's operative text is one section and one subject. SEC. 713 of the engrossed bill inserts a new section 1076g of title 10 barring coverage of gender-related medical treatment under TRICARE, with narrow exceptions for a disorder of sex development. issue-scope.js puts this inside lgbtq_rights in as many words: the key covers legal recognition and protection on the basis of sexual orientation and gender identity, and the first item on its own list of what is inside is transition-related care and coverage. Coverage is the whole of what this text changes, so the weight is 100 and the row is primary. The direction is read off the operative provision rather than off the sponsor's purpose, which is what the key's own note requires: the text subtracts a protection, so a yea runs AGAINST the key's direction. Nothing here is inferred from the amendment's title.",
+     "direction": "against"
+    }
+   ],
+   "declinedIssues": [
+    {
+     "issueKey": "strong_defense",
+     "why": "TRICARE coverage terms are servicemember benefits, and strong_defense does name servicemember pay and quality of life. But what this section decides is WHICH treatment is covered on the basis of gender identity, not how much the benefit is worth, and strong_defense's own note says an authorisation carrying unrelated social-policy riders is weighted below a clean one -- the key is written to hold posture, not to absorb the riders. Filing this here would make every social-policy amendment to an NDAA a defense vote."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 88",
+   "shortTitle": "Mace amendment to H.R. 3838 barring gender identity questions on Defense Department forms and surveys",
+   "officialTitle": "An amendment numbered 16 printed in Part A of House Report 119-255 to prohibit the Secretary of Defense from soliciting information through a form or survey regarding the gender identity of an individual, providing an option to indicate the sex or gender of an individual is something other than male or female, and requiring the Secretary reject a response other than male or female to a required question on a form or survey regarding sex or gender.",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/88",
+   "sponsor": "Rep. Mace, Nancy [R-SC-1]",
+   "sponsorBioguide": "M000194",
+   "purpose": "Amendment prohibits the Secretary of Defense from soliciting information through a form or survey regarding the gender identity of an individual, providing an option to indicate the sex or gender of an individual is something other than male or female, and requires the Secretary reject a response other than male or female to a required question on a form or survey regarding sex or gender.",
+   "roll": "119/1/248",
+   "question": "On Agreeing to the Amendment",
+   "admittedAs": "exception: amendment",
+   "result": "agreed",
+   "tally": "221-210",
+   "notVoting": 6,
+   "losingSharePct": 48.724,
+   "rule11": "cleared -- the losing side holds 48.7% of the yea+nay pool",
+   "fullChamberRecorded": 437,
+   "attributed": 116,
+   "rollSourceUrl": "https://clerk.house.gov/Votes/2025248",
+   "textVerifiedAt": "SEC. 599A of BILLS-119hr3838eh",
+   "textVerificationMethod": "the parent's engrossed text (BILLS-119hr{n}eh) diffed against its as-reported text (BILLS-119hr{n}rh)",
+   "mapped": true,
+   "decisiveWhy": "The amendment's own text is the whole question — it bars Defense Department forms and surveys from asking about gender identity or offering any sex or gender option other than male or female — and it was disposed of by its own recorded vote, not en bloc. The parent bill is a vehicle: its passage roll is a separate act on a separate subject and is not re-read here. This is the amendment exception under rule 8/12, admitted on the amendment's own subject.",
+   "parentNumber": "H.R. 3838",
+   "parentTitle": "Streamlining Procurement for Effective Execution and Delivery and National Defense Authorization Act for Fiscal Year 2026",
+   "parentIsAVehicle": "The parent already exists in the corpus and is not re-read, re-titled or re-mapped by this wave. No roll and no issue row is added to it. The amendment earns its own PRIMARY on its own subject; the parent keeps whatever it already had.",
+   "issues": [
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "SEC. 599A of the engrossed bill bars the Secretary of Defense from soliciting or obtaining any information about an individual's gender identity on a departmental form or survey, bars offering any sex or gender option other than male or female, requires a non-conforming answer to be rejected, and then writes male, female, gender and gender identity into statutory definitions that hold gender identity is not sex or gender. That is the affirmation limb of lgbtq_rights as issue-scope.js states it -- pronoun and affirmation duties, inside a key whose subject is legal recognition on the basis of gender identity. A statutory instruction that a person's answer about themselves must be rejected is a recognition question and it is the entire text, so the weight is 100 and the row is primary. A yea subtracts recognition, so it runs AGAINST the key's direction.",
+     "direction": "against"
+    }
+   ],
+   "declinedIssues": [
+    {
+     "issueKey": "privacy_rights",
+     "why": "privacy_rights covers who may collect, hold, move or act on data about a person, and this section does bar a collection. It is refused because the bar is not about the handling of the data at all: it forbids one CATEGORY of answer about the respondent's own identity and instructs that a non-conforming answer be rejected. The subject is recognition, which is lgbtq_rights, and a privacy row would tell the reader this vote was about data protection when the text protects nothing."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 89",
+   "shortTitle": "Mace amendment to H.R. 3838 restricting single-sex facilities on military installations to a person's sex",
+   "officialTitle": "An amendment numbered 17 printed in Part A of House Report 119-255 to prohibit individuals from accessing or using single-sex spaces on military installations which do not correspond to the biological sex of the individual.",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/89",
+   "sponsor": "Rep. Mace, Nancy [R-SC-1]",
+   "sponsorBioguide": "M000194",
+   "purpose": "Amendment prohibits individuals from accessing or using single-sex spaces on military installations which do not correspond to the biological sex of the individual.",
+   "roll": "119/1/249",
+   "question": "On Agreeing to the Amendment",
+   "admittedAs": "exception: amendment",
+   "result": "agreed",
+   "tally": "219-209",
+   "notVoting": 9,
+   "losingSharePct": 48.832,
+   "rule11": "cleared -- the losing side holds 48.8% of the yea+nay pool",
+   "fullChamberRecorded": 437,
+   "attributed": 116,
+   "rollSourceUrl": "https://clerk.house.gov/Votes/2025249",
+   "textVerifiedAt": "SEC. 2839 of BILLS-119hr3838eh",
+   "textVerificationMethod": "the parent's engrossed text (BILLS-119hr{n}eh) diffed against its as-reported text (BILLS-119hr{n}rh)",
+   "mapped": true,
+   "decisiveWhy": "The amendment's own text is the whole question — it bars any person from using a single-sex facility on a military installation that does not correspond to their sex — and it was disposed of by its own recorded vote, not en bloc. The parent bill is a vehicle: its passage roll is a separate act on a separate subject and is not re-read here. This is the amendment exception under rule 8/12, admitted on the amendment's own subject.",
+   "parentNumber": "H.R. 3838",
+   "parentTitle": "Streamlining Procurement for Effective Execution and Delivery and National Defense Authorization Act for Fiscal Year 2026",
+   "parentIsAVehicle": "The parent already exists in the corpus and is not re-read, re-titled or re-mapped by this wave. No roll and no issue row is added to it. The amendment earns its own PRIMARY on its own subject; the parent keeps whatever it already had.",
+   "issues": [
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "SEC. 2839 of the engrossed bill bars any person from accessing or using a single-sex facility on a military installation that does not correspond to their sex, with exceptions only for emergency medical personnel, law enforcement in active pursuit, and a case-by-case national security waiver, and defines male and female by reproductive anatomy. issue-scope.js lists custody and housing assignment and participation rules inside lgbtq_rights, and an access rule for single-sex facilities is that question on a military installation. The facility rule is the whole text, so the weight is 100 and the row is primary. A yea subtracts a protection, so it runs AGAINST the key's direction. The installation is the venue, not the subject -- the same rule written for any other federal facility would land on the same key.",
+     "direction": "against"
+    }
+   ],
+   "declinedIssues": [
+    {
+     "issueKey": "strong_defense",
+     "why": "The military installation is the venue and venue is not subject -- the same refusal F7 recorded for the District of Columbia bills, applied here to a base. Nothing in SEC. 2839 authorises, funds or equips anything."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 79",
+   "shortTitle": "Patronis amendment to H.R. 3838 repealing the Defense Department preference for electric and hybrid vehicles",
+   "officialTitle": "An amendment numbered 9 printed in House Report 119-255 to eliminate the preference for Motor Vehicles using Electric or Hybrid propulsion systems and related requirements of the Department of Defense.",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/79",
+   "sponsor": "Rep. Patronis, Jimmy [R-FL-1]",
+   "sponsorBioguide": "P000622",
+   "purpose": "Amendment eliminates the preference for motor vehicles using electric or hybrid propulsion systems and related requirements of the Department of Defense.",
+   "roll": "119/1/251",
+   "question": "On Agreeing to the Amendment",
+   "admittedAs": "exception: amendment",
+   "result": "agreed",
+   "tally": "224-208",
+   "notVoting": 4,
+   "losingSharePct": 48.148,
+   "rule11": "cleared -- the losing side holds 48.1% of the yea+nay pool",
+   "fullChamberRecorded": 437,
+   "attributed": 116,
+   "rollSourceUrl": "https://clerk.house.gov/Votes/2025251",
+   "textVerifiedAt": "SEC. 324 of BILLS-119hr3838eh",
+   "textVerificationMethod": "the parent's engrossed text (BILLS-119hr{n}eh) diffed against its as-reported text (BILLS-119hr{n}rh)",
+   "mapped": true,
+   "decisiveWhy": "The amendment's own text is the whole question — it repeals the Department of Defense's preference for electric and hybrid vehicles, striking 10 U.S.C. 2911(e)(4) and (10) and repealing section 2922g outright — and it was disposed of by its own recorded vote, not en bloc. The parent bill is a vehicle: its passage roll is a separate act on a separate subject and is not re-read here. This is the amendment exception under rule 8/12, admitted on the amendment's own subject.",
+   "parentNumber": "H.R. 3838",
+   "parentTitle": "Streamlining Procurement for Effective Execution and Delivery and National Defense Authorization Act for Fiscal Year 2026",
+   "parentIsAVehicle": "The parent already exists in the corpus and is not re-read, re-titled or re-mapped by this wave. No roll and no issue row is added to it. The amendment earns its own PRIMARY on its own subject; the parent keeps whatever it already had.",
+   "issues": [
+    {
+     "issueKey": "climate_action",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "SEC. 324 of the engrossed bill strikes paragraphs (4) and (10) of 10 U.S.C. 2911(e) and repeals section 2922g outright, eliminating the Department of Defense's preference for motor vehicles using electric or hybrid propulsion systems and the requirements attached to it. climate_action's written scope is programmes, subsidies and rules that cut emissions AND THEIR REPEAL, and it names emission-reducing equipment credits and procurement among the things inside. A statutory procurement preference for electric and hybrid vehicles is an emission-reducing procurement rule; this text repeals it. That is the whole of the section, so the weight is 100 and the row is primary, and a yea repealed an emissions-reducing rule, which the key's own polarity line calls AGAINST.",
+     "direction": "against"
+    }
+   ],
+   "declinedIssues": [
+    {
+     "issueKey": "energy_production",
+     "why": "energy_production's written scope is how much conventional SUPPLY and firm generating capacity exists and how hard it is to retire -- leasing, pipeline authorisation, emergency production authorities, dispatchable-resource policy, cost recovery, and closure determinations. The Department's own vehicle fleet is demand, not supply, and repealing a procurement preference for it neither expands conventional supply nor keeps a generator online. Its out clause also names emissions programmes and clean-energy subsidies as belonging to climate_action, which is where this row went."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 81",
+   "shortTitle": "Wilson amendment to H.R. 3838 raising the penalty for unlawful entry on a military installation to two years",
+   "officialTitle": "An amendment numbered 11 printed in House Report 119-255 to increase penalties for entering a military installation or violating national defense area security regulations.",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/81",
+   "sponsor": "Rep. Wilson, Joe [R-SC-2]",
+   "sponsorBioguide": "W000795",
+   "purpose": "Amendment increases penalties for entering a military installation or violating national defense area security regulations.",
+   "roll": "119/1/252",
+   "question": "On Agreeing to the Amendment",
+   "admittedAs": "exception: amendment",
+   "result": "agreed",
+   "tally": "228-205",
+   "notVoting": 4,
+   "losingSharePct": 47.344,
+   "rule11": "cleared -- the losing side holds 47.3% of the yea+nay pool",
+   "fullChamberRecorded": 437,
+   "attributed": 116,
+   "rollSourceUrl": "https://clerk.house.gov/Votes/2025252",
+   "textVerifiedAt": "SEC. 1733G of BILLS-119hr3838eh",
+   "textVerificationMethod": "the parent's engrossed text (BILLS-119hr{n}eh) diffed against its as-reported text (BILLS-119hr{n}rh)",
+   "mapped": true,
+   "decisiveWhy": "The amendment's own text is the whole question — it raises the maximum penalty for unlawful entry on a military installation under 18 U.S.C. 1382 from six months to two years, declares it a general intent crime, and creates a new two-year offense for violating a national defense area security regulation — and it was disposed of by its own recorded vote, not en bloc. The parent bill is a vehicle: its passage roll is a separate act on a separate subject and is not re-read here. This is the amendment exception under rule 8/12, admitted on the amendment's own subject.",
+   "parentNumber": "H.R. 3838",
+   "parentTitle": "Streamlining Procurement for Effective Execution and Delivery and National Defense Authorization Act for Fiscal Year 2026",
+   "parentIsAVehicle": "The parent already exists in the corpus and is not re-read, re-titled or re-mapped by this wave. No roll and no issue row is added to it. The amendment earns its own PRIMARY on its own subject; the parent keeps whatever it already had.",
+   "issues": [
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "SEC. 1733G of the engrossed bill does three things and all three are criminal exposure: it raises the maximum term under 18 U.S.C. 1382 for unlawful entry on a military installation from six months to two years, adds that the offense is a general intent crime, and creates a new offense at 50 U.S.C. 797(b) punishable by up to two years for violating a security regulation governing a national defense area. tough_on_crime's written scope is criminal exposure and time served, and it names offense elements and offense levels first. A general intent designation is an offense element; a six-months-to-two-years change is an offense level; a new two-year offense is both. There is nothing else in the section, so the weight is 100 and the row is primary, and a yea increased exposure to punishment, which is ADVANCED on this key -- the only direction any instrument on file for it runs.",
+     "direction": "advances"
+    }
+   ],
+   "declinedIssues": [
+    {
+     "issueKey": "strong_defense",
+     "why": "strong_defense's written scope is what the armed forces are authorised, funded and equipped to do -- authorisations and end strengths, procurement, military construction, national-security programmes, industrial base, servicemember pay. A criminal penalty for a civilian who walks onto a base is none of those. The military installation is where the offense happens, not what the section is about; the same two-year term written for any other federal property would read identically. Filing it on strong_defense because the vehicle is the NDAA is exactly the restuffing the brief forbids."
+    },
+    {
+     "issueKey": "border_security",
+     "why": "There is no immigration or border limb in the operative text. SEC. 1733G speaks of unlawful entry on a military installation and of security regulations governing a national defense area, both defined generically; it does not mention the border, aliens, entry into the United States, or any immigration authority. A key inferred from the political context in which an amendment was offered rather than from its words is a key inferred from the title, which this wave refuses to do."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 196",
+   "shortTitle": "Luna amendment to H.R. 7567 striking the bill's three pesticide preemption sections",
+   "officialTitle": "An amendment numbered 28 printed in Part B of House Report 119-628 to strike section 10205 (relating to uniformity of pesticide labeling), section 10206 (relating to authority of States), and section 10207 (relating to lawful use of authorized pesticides).",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/196",
+   "sponsor": "Rep. Luna, Anna Paulina [R-FL-13]",
+   "sponsorBioguide": "L000596",
+   "purpose": "Amendment strikes several sections relating to pesticide labeling requirements.",
+   "roll": "119/2/148",
+   "question": "On Agreeing to the Amendment",
+   "admittedAs": "exception: amendment",
+   "result": "agreed",
+   "tally": "280-142",
+   "notVoting": 13,
+   "losingSharePct": 33.649,
+   "rule11": "cleared -- the losing side holds 33.6% of the yea+nay pool",
+   "fullChamberRecorded": 435,
+   "attributed": 115,
+   "rollSourceUrl": "https://clerk.house.gov/Votes/2026148",
+   "textVerifiedAt": "SEC. 10205, SEC. 10206 and SEC. 10207 struck from BILLS-119hr7567rh, absent from BILLS-119hr7567eh",
+   "textVerificationMethod": "the parent's engrossed text (BILLS-119hr{n}eh) diffed against its as-reported text (BILLS-119hr{n}rh)",
+   "mapped": true,
+   "decisiveWhy": "The amendment's own text is the whole question — it strikes the bill's three pesticide preemption sections, so state and local authority over pesticide labelling and use is left where it stood instead of being displaced by the federal label — and it was disposed of by its own recorded vote, not en bloc. The parent bill is a vehicle: its passage roll is a separate act on a separate subject and is not re-read here. This is the amendment exception under rule 8/12, admitted on the amendment's own subject.",
+   "parentNumber": "H.R. 7567",
+   "parentTitle": "Farm, Food, and National Security Act of 2026",
+   "parentIsAVehicle": "The parent already exists in the corpus and is not re-read, re-titled or re-mapped by this wave. No roll and no issue row is added to it. The amendment earns its own PRIMARY on its own subject; the parent keeps whatever it already had.",
+   "issues": [
+    {
+     "issueKey": "states_federal_power",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "This amendment strikes text rather than inserting it, so it was read as a set difference: SEC. 10205 (uniformity of pesticide labeling requirements), SEC. 10206 (authority of states) and SEC. 10207 (lawful use of authorized pesticides) are present in the as-reported bill and absent from the engrossed bill. All three are preemption provisions. 10205 would have barred a state, a political subdivision or a court from imposing any pesticide labelling requirement in addition to or different from the EPA-approved label; 10206 would have barred a locality from regulating pesticide sale, distribution, labelling, application or use at all; 10207 would have declared label-consistent use lawful notwithstanding any other provision of law. Striking them leaves state and local authority where it stood. issue-scope.js defines states_federal_power as the preemption question ONLY -- when federal and state authority reach the same subject, whose rule governs -- and that is exactly and only what these three struck sections decided. The weight is 100 and the row is primary. states_federal_power sits in _RD_NO_POLE in stance-helpers.js and carries no pole field in issue-scope.js, so this row is INVENTORY: the reader is told the member voted on a preemption instrument and is told nothing about a direction, which is right, because wanting the state's rule to govern is a position held from both ends of the political field.",
+     "direction": "inventory"
+    }
+   ],
+   "declinedIssues": [
+    {
+     "issueKey": "gov_regulation",
+     "why": "Refused by gov_regulation's own out clause, verbatim: it excludes preemption fights over whether a STATE may set its own rule where a federal one exists -- that is a question about who decides, not about how heavy the rulebook is. Striking three federal preemption sections is precisely that fight, so the row belongs on states_federal_power and nowhere else."
+    },
+    {
+     "issueKey": "climate_action",
+     "why": "Pesticide labelling and application are not emissions. climate_action's scope is emissions-cutting programmes, subsidies and rules and their repeal; nothing in the three struck sections touches an emission standard, a clean-energy credit or a climate programme."
+    }
+   ]
+  },
+  {
+   "measureType": "amendment",
+   "congress": 119,
+   "chamber": "house",
+   "number": "H.Amdt. 207",
+   "shortTitle": "Spartz amendment to H.R. 7567 exempting farm equipment from Clean Air Act emission standards",
+   "officialTitle": "An amendment numbered 49 printed in Part B of House Report 119-628 to remove costly, overreaching emissions mandates on farm equipment that drives up expenses for farmers and consumers.",
+   "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/207",
+   "sponsor": "Rep. Spartz, Victoria [R-IN-5]",
+   "sponsorBioguide": "S000929",
+   "purpose": "Amendment removes certain emissions standards on farm equipment.",
+   "roll": "119/2/152",
+   "question": "On Agreeing to the Amendment",
+   "admittedAs": "exception: amendment",
+   "result": "agreed",
+   "tally": "215-213",
+   "notVoting": 8,
+   "losingSharePct": 49.766,
+   "rule11": "cleared -- the losing side holds 49.8% of the yea+nay pool",
+   "fullChamberRecorded": 436,
+   "attributed": 116,
+   "rollSourceUrl": "https://clerk.house.gov/Votes/2026152",
+   "textVerifiedAt": "SEC. 12422 of BILLS-119hr7567eh",
+   "textVerificationMethod": "the parent's engrossed text (BILLS-119hr{n}eh) diffed against its as-reported text (BILLS-119hr{n}rh)",
+   "mapped": true,
+   "decisiveWhy": "The amendment's own text is the whole question — it exempts agricultural tractors and self-propelled agricultural equipment from the Clean Air Act section 213 emission standards — and it was disposed of by its own recorded vote, not en bloc. The parent bill is a vehicle: its passage roll is a separate act on a separate subject and is not re-read here. This is the amendment exception under rule 8/12, admitted on the amendment's own subject.",
+   "parentNumber": "H.R. 7567",
+   "parentTitle": "Farm, Food, and National Security Act of 2026",
+   "parentIsAVehicle": "The parent already exists in the corpus and is not re-read, re-titled or re-mapped by this wave. No roll and no issue row is added to it. The amendment earns its own PRIMARY on its own subject; the parent keeps whatever it already had.",
+   "issues": [
+    {
+     "issueKey": "climate_action",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "SEC. 12422 of the engrossed bill amends section 213 of the Clean Air Act (42 U.S.C. 7547) to exempt agricultural tractors and self-propelled agricultural equipment used to spray, fertilize or harvest covered commodities from the emission standards that section sets, new and in use. climate_action's written scope opens with programmes, subsidies and RULES that cut emissions, and their repeal. A Clean Air Act emission standard is such a rule and this text switches it off for a class of equipment, so the weight is 100 and the row is primary. A yea narrowed an emissions-reducing rule, which the key's own polarity line calls AGAINST. The commodity the equipment is used on is not the subject: the operative words amend the Clean Air Act, not the farm programme.",
+     "direction": "against"
+    }
+   ],
+   "declinedIssues": [
+    {
+     "issueKey": "rural_ag",
+     "why": "rural_ag is a one-line ISSUE_MAP entry in alignment-tool.js with stanceKeys: [] and NO argued-out scope comment, so it has no entry in issue-scope.js -- and that file states its own constraint plainly: a key whose scope was never argued out in a comment has NO entry, and the reader is told exactly that. A key whose boundary cannot be stated cannot be used to tell a reader what a vote meant. Writing the scope note for it is a vocabulary decision this wave was not asked to make and would be making alone, on one amendment."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "why": "Refused by gov_regulation's out clause: an exemption from a Clean Air Act emission standard is a claim about what a particular rule should SAY for one sector, not about how many federal rules there are or how they are written and repealed. The out clause sends a sector claim to that sector's key, and the sector here is emissions."
+    }
+   ]
+  }
+ ],
+ "refusedThisWave": {
+  "_comment": "44 of the 51 contested rolls, refused in writing so a later wave can tell a decision from an oversight. The gates are in order: refusal-first, then the text gate, then the key.",
+  "refusalFirst": [
+   {
+    "roll": "house 119/1/188",
+    "hamdt": "H.Amdt. 40",
+    "tally": "220-212",
+    "gate": "refusal-first",
+    "reason": "parent is a resolution providing for consideration — rules-for-consideration is on the standing refusal list"
+   },
+   {
+    "roll": "house 119/1/180",
+    "hamdt": "H.Amdt. 35",
+    "tally": "219-206",
+    "gate": "refusal-first",
+    "reason": "parent is a named appropriations vehicle — on the standing refusal list"
+   },
+   {
+    "roll": "house 119/2/123",
+    "hamdt": "H.Amdt. 175",
+    "tally": "200-220",
+    "gate": "refusal-first",
+    "reason": "parent is a resolution providing for consideration — rules-for-consideration is on the standing refusal list"
+   }
+  ],
+  "textNotVerifiable": {
+   "count": 38,
+   "rule": "The brief: re-fetch amendment text; if text cannot be verified, refuse that roll in writing; never guess from the title. These are the refusals that rule produces.",
+   "whyEveryOneOfThemFails": "All 38 FAILED on the floor. A failed House amendment leaves no operative words in any published document: it is absent from the parent's engrossed text by definition, api.congress.gov returns textVersions: [] for House amendments of the 119th, the clerk's <vote-desc> is empty on every roll in this pool, BILLSTATUS and the committee reports carry a description rather than the text, the Rules Committee amendment prints are PDFs encrypted with the standard security handler (that protection was left in place rather than circumvented), and the CREC granule ids for the debate days do not resolve. What remains is the clerk's amendment-author line and the BILLSTATUS description -- which is the title, and the title is what the brief forbids reading from.",
+   "rolls": [
+    {
+     "roll": "house 119/1/80",
+     "hamdt": "H.Amdt. 13",
+     "parent": "H R 1048",
+     "tally": "92-321",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/79",
+     "hamdt": "H.Amdt. 12",
+     "parent": "H R 1048",
+     "tally": "199-214",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/32",
+     "hamdt": "H.Amdt. 5",
+     "parent": "H R 27",
+     "tally": "182-226",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/150",
+     "hamdt": "H.Amdt. 25",
+     "parent": "H R 2483",
+     "tally": "213-213",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/256",
+     "hamdt": "H.Amdt. 94",
+     "parent": "H R 3838",
+     "tally": "60-370",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/255",
+     "hamdt": "H.Amdt. 93",
+     "parent": "H R 3838",
+     "tally": "60-372",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/254",
+     "hamdt": "H.Amdt. 91",
+     "parent": "H R 3838",
+     "tally": "194-236",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/250",
+     "hamdt": "H.Amdt. 78",
+     "parent": "H R 3838",
+     "tally": "209-224",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/237",
+     "hamdt": "H.Amdt. 76",
+     "parent": "H R 4553",
+     "tally": "76-351",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/236",
+     "hamdt": "H.Amdt. 75",
+     "parent": "H R 4553",
+     "tally": "127-297",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/235",
+     "hamdt": "H.Amdt. 74",
+     "parent": "H R 4553",
+     "tally": "120-302",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/234",
+     "hamdt": "H.Amdt. 73",
+     "parent": "H R 4553",
+     "tally": "120-307",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/233",
+     "hamdt": "H.Amdt. 72",
+     "parent": "H R 4553",
+     "tally": "127-299",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/232",
+     "hamdt": "H.Amdt. 71",
+     "parent": "H R 4553",
+     "tally": "124-303",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/231",
+     "hamdt": "H.Amdt. 70",
+     "parent": "H R 4553",
+     "tally": "120-306",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/230",
+     "hamdt": "H.Amdt. 69",
+     "parent": "H R 4553",
+     "tally": "140-286",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/229",
+     "hamdt": "H.Amdt. 68",
+     "parent": "H R 4553",
+     "tally": "77-347",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/228",
+     "hamdt": "H.Amdt. 67",
+     "parent": "H R 4553",
+     "tally": "143-285",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/227",
+     "hamdt": "H.Amdt. 66",
+     "parent": "H R 4553",
+     "tally": "195-235",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/210",
+     "hamdt": "H.Amdt. 60",
+     "parent": "H R 4016",
+     "tally": "76-355",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/209",
+     "hamdt": "H.Amdt. 57",
+     "parent": "H R 4016",
+     "tally": "76-353",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/206",
+     "hamdt": "H.Amdt. 54",
+     "parent": "H R 4016",
+     "tally": "104-326",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/204",
+     "hamdt": "H.Amdt. 52",
+     "parent": "H R 4016",
+     "tally": "63-365",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/354",
+     "hamdt": "H.Amdt. 140",
+     "parent": "H R 4776",
+     "tally": "204-217",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/353",
+     "hamdt": "H.Amdt. 139",
+     "parent": "H R 4776",
+     "tally": "208-214",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/352",
+     "hamdt": "H.Amdt. 138",
+     "parent": "H R 4776",
+     "tally": "205-220",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/327",
+     "hamdt": "H.Amdt. 127",
+     "parent": "H R 3383",
+     "tally": "214-215",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/326",
+     "hamdt": "H.Amdt. 125",
+     "parent": "H R 3383",
+     "tally": "211-219",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/1/325",
+     "hamdt": "H.Amdt. 123",
+     "parent": "H R 3383",
+     "tally": "54-374",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/2/44",
+     "hamdt": "H.Amdt. 156",
+     "parent": "H R 7148",
+     "tally": "136-291",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/2/43",
+     "hamdt": "H.Amdt. 155",
+     "parent": "H R 7148",
+     "tally": "164-268",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/2/27",
+     "hamdt": "H.Amdt. 150",
+     "parent": "H R 7006",
+     "tally": "127-291",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/2/26",
+     "hamdt": "H.Amdt. 149",
+     "parent": "H R 7006",
+     "tally": "163-257",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/2/174",
+     "hamdt": "H.Amdt. 219",
+     "parent": "H R 8469",
+     "tally": "80-333",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/2/151",
+     "hamdt": "H.Amdt. 206",
+     "parent": "H R 7567",
+     "tally": "186-238",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/2/149",
+     "hamdt": "H.Amdt. 200",
+     "parent": "H R 7567",
+     "tally": "187-239",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/2/147",
+     "hamdt": "H.Amdt. 193",
+     "parent": "H R 7567",
+     "tally": "69-355",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    },
+    {
+     "roll": "house 119/2/144",
+     "hamdt": "H.Amdt. 181",
+     "parent": "H R 7567",
+     "tally": "210-216",
+     "gate": "text not verifiable",
+     "reason": "the amendment FAILED, so its words are in no published text: not in the engrossed bill, not in api.congress.gov (textVersions: []), not in the clerk's empty <vote-desc>, and the Rules Committee print is encrypted. Guessing the operative effect from the clerk's amendment-author line or the BILLSTATUS description is the one thing the brief forbids."
+    }
+   ]
+  },
+  "textReadNoKeyEarned": {
+   "count": 3,
+   "_comment": "Three amendments whose operative text WAS verified and which still earn no row. This is the harder kind of refusal and the reason each is written out at length.",
+   "rolls": [
+    {
+     "roll": "house 119/1/258",
+     "hamdt": "H.Amdt. 96",
+     "parent": "H R 3838",
+     "tally": "219-211",
+     "gate": "text read, no key earned",
+     "reason": "the operative text bars the Department from rating news sources for factual accuracy. free_speech is a one-line ISSUE_MAP entry with no argued-out scope note in issue-scope.js, so its boundary cannot be stated to a reader — F7's own rule refuses the mapping rather than inventing the boundary here."
+    },
+    {
+     "roll": "house 119/1/253",
+     "hamdt": "H.Amdt. 90",
+     "parent": "H R 3838",
+     "tally": "222-210",
+     "gate": "text read, no key earned",
+     "reason": "the operative text repeals a limit on which flags a commander may display. No key on any existing tree has that as its subject, and a new key for it fails vocab rule 1 (RECURRING) and rule 3 (NOT A COUSIN)."
+    },
+    {
+     "roll": "house 119/2/150",
+     "hamdt": "H.Amdt. 202",
+     "parent": "H R 7567",
+     "tally": "233-194",
+     "gate": "text read, no key earned",
+     "reason": "the operative text widens an agricultural research authority to cover precision agriculture. rural_ag has no argued-out scope note either, and climate_action's written boundary is emissions, which this text does not touch."
+    }
+   ]
+  },
+  "perKeyDeclines": {
+   "_comment": "Declines inside an admitted measure -- a second key that was considered on the same text and refused. Recorded per measure in measures[].declinedIssues and mirrored in the migration as comment blocks.",
+   "count": 10
+  },
+  "doNotReopen": [
+   "H.R. 1069, H.R. 973 and S. 2503 -- named on the standing list and untouched.",
+   "The F4 CRA / disapproval block -- untouched; no CRA instrument is in this pool.",
+   "Named appropriations vehicles as the parent -- H.Amdt. 35 on H.R. 3944 is refused on exactly this ground.",
+   "F6 study-and-report energy bills -- untouched.",
+   "Rules-for-consideration -- H.Amdt. 40 on H.Res. 566 and H.Amdt. 175 on H.Res. 1175 are refused on exactly this ground.",
+   "Nominations-as-policy -- untouched; the pool is amendment rolls only.",
+   "The parent NDAA and the farm bill stay vehicles. The amendments earned PRIMARY rows on their own subjects and the parents were not restuffed.",
+   "No discharge form was invented for a House amendment. All seven are admitted as the amendment exception and the generator raises rather than allow the discharge exception to match."
+  ]
+ },
+ "walls": {
+  "packGenerationComment": "Present on every one of the 7 new vr_measure_issues rows. The fingerprint moves with these rows, so the comment sits with them rather than in a header.",
+  "dosMechPairs": "7 judged acts, 7 curated did/why/more triples appended to _DOS_MECH in consistency.js -- one per act, keyed number|congress|issue_key. Append-only: no existing entry is edited and nothing above the _DOS_MECH literal changes.",
+  "cacheVersion": "BUMPED, v99 to v100, because _DOS_MECH is curated prose served from a cached script. A reader holding v99 would see seven new acts on a profile with no mechanism copy behind them.",
+  "verificationScoping": "The migration's verification block names only THIS WAVE'S roll ids -- house 119/1/{246,248,249,251,252} and house 119/2/{148,152} -- and this wave's seven measure numbers. It does not count the corpus, so it cannot pass or fail on somebody else's row.",
+  "noCreateTable": "No CREATE of any kind. The migration is data-only: measure inserts, roll-call inserts, member-vote inserts, issue-mapping inserts, and a verification block.",
+  "twinBoot": "Direction Match is unchanged. No stance row, no curator weight, no pole, no _RD_NO_POLE edit. The formal rows move only on the four keys this wave writes -- lgbtq_rights, climate_action, tough_on_crime, states_federal_power -- and only on the seven new amendment measures.",
+  "americanSpelling": "The new mechanism copy in consistency.js uses American spelling throughout (defense, not defense; labeling, not labelling; authorized, not authorised). issue-scope.js's existing British spellings were not touched.",
+  "strandedStoredCells": {
+   "reported": 1,
+   "detail": "H.Amdt. 99, written by F7 as measure 641, carries parent_id NULL and records its parent only in external_ids.parentBill. The seven measures this wave writes set parent_id to the vehicle's id, which is what the column is for. F7's row is REPORTED, not repaired: editing it is outside this wave's scope and scripts/vr-federal-fpi.mjs already resolves the parent from external_ids at read time, so nothing is broken by leaving it."
+  },
+  "overAttribution": "F8's pull rule is enforced in the generator: attributed yea+nay rows exceeding the document's own yea+nay pool raises and refuses the roll. On all seven the attributed pool is 115 or 116 against document pools of 422 to 433, so none came close.",
+  "supportMeaningDirection": "Every issue row carries an explicit `direction` beside its `supportMeaning`, and the two agree by construction. support_meaning is the resolver stance-helpers.js reads (_voteEffectiveSupport flips a yea when it is 'yea_opposes'), so a row whose prose argues AGAINST a key and whose field reads 'yea_supports' would publish the member's vote backwards on their own profile. Five of the seven rows are 'yea_opposes': three lgbtq_rights rows and two climate_action rows, each of which repeals or narrows a protection rather than adding one. H.Amdt. 81 is 'yea_supports' because raising an offense level is tough_on_crime's advanced direction. H.Amdt. 196 is 'yea_supports' and prints nothing: states_federal_power is in _RD_NO_POLE, but the stored value is still the honest one -- striking a federal preemption lets the state's rule stand, which is the chip's own wording -- so if that key ever leaves _RD_NO_POLE the row does not silently invert."
+ },
+ "readDisclosure": {
+  "_comment": "What a reader gains and what is still missing, stated by the wave rather than discovered later.",
+  "whatMoves": "Seven amendment acts appear for the first time on the profile of every House member the roster admits who was recorded on them -- 117 distinct slugs, 811 member x roll-call cells. Four folders gain rows: Civil Rights & Culture (three lgbtq_rights acts), Climate & Energy (two climate_action acts), Crime & Safety (one tough_on_crime act), Checks & Balances (one states_federal_power act, as inventory).",
+  "whatDoesNotMove": "No existing cell is written. H.R. 3838 and H.R. 7567 gain nothing: no roll, no issue row, no title change, no status change. Their existing passage roll and existing mappings are untouched, so no member's defense or agriculture folder thickens because of this wave. /p/lee cannot move on this wave at all: Mike Lee is a senator and every one of these seven acts is a House roll, so his profile gains nothing and should show nothing new. /p/bmoore does move — Blake Moore was recorded on all seven, yea on six and nay on H.Amdt. 196 — and that asymmetry is the smoke test.",
+  "theOfflineSnapshotThisWaveAlsoMoves": "db/share-index.json is regenerated in this wave and is the second shipped file. It carries personRecord, the up-to-six formal-record lines the share-preview edge injects as the crawl block on /p/<pid> before any JavaScript boots, and gen-crawl-record.mjs builds it by booting the real consistency.js over the migrations on disk -- so these seven acts re-rank that window whether or not anyone regenerates the snapshot. They move 100 of the 332 people who have one, all of them House members, and the lines they gain carry only the three chips this wave writes a direction on: Tough on Crime, Protect LGBTQ+ Rights, Climate Action & Clean Energy. The fourth key gains no line anywhere, which is the no-pole rule working: states_federal_power is inventory and prints no tier. Nobody loses a snapshot and no person is added to one. Concretely, /p/bmoore's block gains \"Strongly supports - Tough on Crime - 9 advanced - 0 against\" and drops \"Expand Voting Access\" out of the six, while /p/lee's six lines are byte-identical because a senator cannot move on a House-only wave. It is not a precached shell asset and no service worker version can invalidate it, which is why the CACHE_VERSION note names it alongside consistency.js rather than instead of it.",
+    "houseAttributionCeiling": "116 of 435. The roster in db/vr-roster-admitted.json admits 224 slugs across both chambers, of which 116 or 117 were recorded on any given roll here. That is the ceiling, not a failure of this ingest.",
+  "whatIsStillLost": "2245 recorded House votes across these seven rolls resolve to a Bioguide the roster does not carry, so they are skipped and counted rather than guessed. Averaged across the seven rolls that is roughly 321 members per roll whose vote exists in the clerk's document and not in this corpus. Widening the roster, not re-reading these rolls, is what recovers them. This wave does not close that loss and does not claim to; it reports the size of it.",
+  "theBiggerReadLoss": "38 of the 51 contested rolls in this pool -- three quarters of it -- are unreadable for a structural reason and not a lack of effort: a failed House amendment's operative text is not published anywhere this corpus can reach. Until a source for failed-amendment text exists, those 38 acts cannot be admitted without guessing from a title, and the wave says so rather than shipping them.",
+  "noPartyInReaderCopy": "is_party is stored per cell and derived from the full chamber tally in the clerk's own document. It is never surfaced in reader copy, and none of the seven rationales, seven mechanism triples, or any refusal reason names a party, a party split, or a percentage of a party."
+ },
+ "whatTheNextWaveInherits": {
+  "theUnreadable38": "38 contested House amendment rolls whose text cannot be verified from any source this corpus can reach, each named with its roll id, its H.Amdt. number, its parent and its tally in refusedThisWave.textNotVerifiable.rolls. They are REFUSED, not admitted, and not pending. The gate that would open them is a published source for failed-amendment text.",
+  "theThreeReadButUnmapped": "H.Amdt. 90 (flag display), H.Amdt. 96 (Defense Department news-source ratings) and H.Amdt. 202 (agricultural research authority). Their text is verified and quoted in the refusal. Two of the three wait on a vocabulary decision that is bigger than one amendment: free_speech and rural_ag need argued-out scope notes in issue-scope.js before anything can be filed on them.",
+  "theThreeZeroMappedOnFile": "H.Amdt. 244, H.Amdt. 245 and H.Amdt. 259 are already in vr_rollcalls with zero rows in vr_measure_issues. This wave did not touch them -- they are on file, so they were never in the not-on-file pool -- but they are the cheapest unread acts left in the House amendment corpus.",
+  "threeKeysWithNoWrittenScope": "free_speech and rural_ag are used by this wave's refusals as examples and both are one-line ISSUE_MAP entries with no scope note. Writing those notes is a vocabulary wave's job, not an ingest wave's.",
+  "theSenateSide": "Unchanged by this wave. F8's inheritance stands: four contested Senate amendment rolls on H.R. 1 the form gate cannot reach, and the Senate read loss F8 recorded.",
+  "theDistrictFive": "Five District measures F7 refused for want of a key. Still refused, still no venue key, untouched here."
+ },
+ "_counts": {
+  "measures": 7,
+  "rollCalls": 7,
+  "issueRows": 7,
+  "keysUsed": [
+   "climate_action",
+   "lgbtq_rights",
+   "states_federal_power",
+   "tough_on_crime"
+  ],
+  "newKeys": 0,
+  "primaryRows": 7,
+  "secondaryRows": 0,
+  "declinedIssueRows": 10,
+  "memberVoteCells": 811,
+  "distinctSlugsTouched": 117,
+  "unresolvedRecordedVotes": 2245,
+  "contestedPoolRebuilt": 51,
+  "f7ClaimedContestedPool": 54,
+  "admitted": 7,
+  "refusedInWriting": 44,
+  "dosMechPairs": 7,
+  "cacheVersionBumped": true,
+  "parentMeasuresTouched": 0,
+  "parentRollsWritten": 0
+ }
+}

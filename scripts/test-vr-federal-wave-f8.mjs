@@ -557,7 +557,32 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     try { return execFileSync("git", ["show", "HEAD:consistency.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }); }
     catch { return null; }
   })();
-  if (headMech !== null) eq(R("consistency.js"), headMech, "consistency.js changed — this wave adds no judged act and owes no mechanism prose");
+  // F8 asserted this file was byte-identical to HEAD, which was true of a wave that adds
+  // no judged act and stopped being checkable the moment a LATER wave added one: F9 ships
+  // seven amendment mappings and owes seven curated pairs, so consistency.js legitimately
+  // differs from HEAD in a tree that contains F9. The claim F8 actually needs is narrower
+  // and survives: F8 added no mechanism prose of its own. So the file is allowed to have
+  // GROWN inside _DOS_MECH and nowhere else, and none of the appended keys may name a
+  // measure F8 touched — which, since F8 writes no measure at all, means none of them may
+  // be a Senate instrument from F8's roll list.
+  if (headMech !== null) {
+    const cut = (src) => {
+      const i = src.indexOf("var _DOS_MECH = {");
+      const j = src.indexOf("\n  };", i);
+      return i === -1 || j === -1 ? null : { before: src.slice(0, i), map: src.slice(i, j), after: src.slice(j) };
+    };
+    const a = cut(headMech), b = cut(R("consistency.js"));
+    if (ok(!!a && !!b, "_DOS_MECH is not locatable in consistency.js on both sides")) {
+      eq(b.before, a.before, "consistency.js changed above _DOS_MECH — no wave's waiver reaches the engine");
+      eq(b.after, a.after, "consistency.js changed below _DOS_MECH — no wave's waiver reaches the renderer");
+      ok(b.map.startsWith(a.map.replace(/\n?$/, "")) || b.map === a.map,
+        "an existing _DOS_MECH entry was edited — rule 21 leaves a live rationale with its first writer");
+      const appended = [...b.map.slice(a.map.length).matchAll(/'([^'|]+)\|\d+\|([a-z_]+)':/g)].map((m) => m[1]);
+      const f8Measures = new Set(votes.votes.map((v) => v.measure && v.measure.number).filter(Boolean));
+      for (const n of appended)
+        ok(!f8Measures.has(n), `a mechanism pair was appended for ${n}, which F8 votes on — F8 maps nothing and owes no pair`);
+    }
+  }
 
   // CACHE_VERSION MOVED, and the note says what a warm device would otherwise show.
   const sw = R("sw.js");
@@ -721,8 +746,13 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
   // This wave writes its rows to the DATABASE and adds no key, so a twin boot of the
   // shipped files must come out IDENTICAL — there is no waiver to grant. F7 needed one
   // for consistency.js because it created judged acts; F8 creates none.
+  // consistency.js is waived for the same reason as above and on the same terms: section 7
+  // has already required its change to be an append inside _DOS_MECH carrying no key of
+  // F8's. Everything else must still be byte-identical.
+  const WAIVED = ["consistency.js"];
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== nowSrc(f); });
-  eq(touched.join(", "), "", `F8 changed a booted file (${touched.join(", ")}) — an attribution wave has no business editing the engine or the curated data`);
+  const strayBooted = touched.filter((f) => !WAIVED.includes(f));
+  eq(strayBooted.join(", "), "", `F8 changed a booted file (${strayBooted.join(", ")}) — an attribution wave has no business editing the engine or the curated data`);
 
   // And the engine still boots, so the harness is testing a working tree.
   const win = makeSandbox();
@@ -738,11 +768,37 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
   // true of a wave that admits nobody and cannot be true of one that does, so it now allows
   // additions belonging to a named later wave and still refuses a removal or a repointing.
   // No applied migration was edited and no earlier wave's admissions were rewritten.
-  const DECLARED = new Set(["compare-hub.js", "sw.js", "db/vr-member-map.json",
-    "db/vr-roster-admitted.json", GEN,
+  // consistency.js and db/vr-issue-seed.json are here for the later-wave reason above: a
+  // wave that ships judged acts appends to both, and F8's checks are written to survive
+  // that rather than to forbid it.
+  // sitemap.xml is here on the same later-wave terms. It is a generated whole document,
+  // not an edited one: gen-sitemap.mjs republishes every address from the migrations on
+  // disk, so any later wave that adds an openable measure dirties the file F8 last
+  // regenerated. What F8 still gets to require is that nothing of its own was dropped in
+  // the process, which is the additive-only check below — a removal fails here.
+  // db/share-index.json is here on those same terms and for the same reason: F8
+  // regenerated it, and any later wave that ships a judged act re-ranks the six-line
+  // window again. F8's own requirement survives that — no person may LOSE their snapshot.
+  const DECLARED = new Set(["compare-hub.js", "sw.js", "db/vr-member-map.json", "sitemap.xml",
+    "db/share-index.json",
+    "db/vr-roster-admitted.json", "consistency.js", "db/vr-issue-seed.json", GEN,
     "scripts/vr-gen-federal-wave-f2-migration.mjs",
     "scripts/vr-gen-federal-wave-f3-migration.mjs",
-    "scripts/test-vr-federal-wave-f7.mjs", "scripts/vr-record-corpus.mjs"]);
+    "scripts/test-vr-federal-wave-f7.mjs", "scripts/vr-record-corpus.mjs",
+    "scripts/test-vr-federal-wave-f8.mjs"]);
+  {
+    const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};
+    const snapHead = JSON.parse(headSrc("db/share-index.json") || "{}").personRecord || {};
+    const dropped = Object.keys(snapHead).filter((pid) => !snapNow[pid]);
+    eq(dropped.join(", "), "", `a person lost their crawl-block snapshot in a regeneration (${dropped.length})`);
+  }
+
+  {
+    let diff = "";
+    try { diff = execFileSync("git", ["diff", "--unified=0", "--", "sitemap.xml"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
+    const lost = diff.split("\n").filter((l) => l.startsWith("-") && !l.startsWith("---"));
+    eq(lost.join(" | "), "", `an address left the sitemap (${lost.length} removed) — a regeneration may add, never drop`);
+  }
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
   const modified = porcelain.split("\n").filter((l) => /^ ?M/.test(l)).map((l) => l.slice(3).trim());
