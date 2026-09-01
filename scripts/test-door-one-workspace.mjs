@@ -447,17 +447,21 @@ section("5 · The honest empties are quoted, not written");
   w.pdxDoor1Measure(pkg.number);
   has(paint(w), probe.PDXConsistency.vehicle.TAG, "a package measure carries no package mark on the desk");
 
-  // An issue key we hold no bundle for is refused, not folded into the nearest
-  // bundle. lands_preserve is a real ISSUE_MAP key that belongs to no core
-  // bundle, which is exactly the shape that must not be approximated.
-  eq(D._resolveIssue("lands_preserve"), null,
-    "a key outside every core bundle resolved to a bundle anyway — the desk would answer a\n" +
-    "    question nobody asked");
+  // An UNKNOWN issue key is refused, and refused without a bundle being guessed
+  // for it. The distinction this pins is the one that matters: a key ISSUE_MAP
+  // does not carry is not an issue, and must not be folded into the nearest
+  // bundle. A key ISSUE_MAP DOES carry is a real issue whether or not one of the
+  // curated bundles lists it — that case is scripts/test-door-one-collapse.mjs's,
+  // which pins lands_preserve opening as itself.
+  must(!probe.ISSUE_MAP["not_an_issue_key_at_all"], "probe: the fake key is somehow real");
+  eq(D._resolveIssue("not_an_issue_key_at_all"), null,
+    "a key the stance vocabulary does not carry resolved to a bundle anyway — the desk would\n" +
+    "    answer a question nobody asked");
   const lp = boot();
-  eq(lp.pdxDoor1Issue("lands_preserve"), false, "an unbundled key was accepted as a pick");
+  eq(lp.pdxDoor1Issue("not_an_issue_key_at_all"), false, "an unknown key was accepted as a pick");
   lp.pdxDoor1Open("issue");
   has(paint(lp), lp.PDXConsistency.menu.PHRASES.no_vehicle.note,
-    "an unbundled issue key printed something other than the honest empty");
+    "an unknown issue key printed something other than the honest empty");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

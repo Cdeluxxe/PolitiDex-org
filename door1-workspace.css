@@ -431,10 +431,18 @@
   font-family: 'Barlow', sans-serif; font-size: 0.8rem; font-weight: 400;
   color: #9fb4d4;
 }
-/* The way back to the desk. A real control at a real size, because a reader who
-   arrived on a deep link needs it — but outlined in steel, so it never
-   out-shouts the surface it sits on. */
-.d1-view-back {
+/* What the collapsed chapter was called. Sized like body text and not like a
+   heading: it is the section's own title quoted inside a label, and a title that
+   competed with the desk's would put the product back. */
+.d1-view-name {
+  flex: none; max-width: 100%; min-width: 0;
+  font-size: 0.9rem; font-weight: 700; letter-spacing: 0.005em;
+  color: #dbe6f7;
+}
+/* The one control. A real control at a real size, because on a collapsed section
+   it is the only thing a reader can do — but outlined in steel, so it never
+   out-shouts the desk it points at. */
+.d1-view-open {
   flex: none; min-height: 36px; display: inline-flex; align-items: center;
   padding: 0.35rem 0.65rem; border-radius: 0.6rem; cursor: pointer;
   font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
@@ -442,7 +450,50 @@
   color: #cbd5e1; background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
-.d1-view-back:hover { color: #fff; border-color: rgba(96, 165, 250, 0.5); }
+.d1-view-open:hover { color: #fff; border-color: rgba(96, 165, 250, 0.5); }
+.d1-view-open:focus-visible { outline: 2px solid #7fb4ff; outline-offset: 2px; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE COLLAPSE · a view is one line, once the desk exists
+   ────────────────────────────────────────────────────────────────────────────
+   THIS IS THE WHOLE MECHANISM. door1-workspace.js sets one attribute on each of
+   its four sections, and only after sync() has actually painted a desk. Nothing
+   is emptied, detached or re-parented: the bodies are still in the document,
+   still addressable by id, still paintable by the modules that own them, and a
+   reader who opens the section in devtools finds every word of it.
+
+   WHY AN ATTRIBUTE AND NOT A CLASS ON EACH ID. The four ids are not this
+   stylesheet's to know — index.html owns them and door1-workspace.js owns the
+   list. Keying off the attribute means the rule cannot drift out of step with
+   VIEWS, and it cannot reach anything VIEWS does not name.
+
+   WHY THIS IS SAFE WITH NO JS. No script, no attribute, no rule — the four
+   sections stand exactly as the static HTML ships them. Expanded-in-place is
+   the no-JS state, deliberately.
+
+   THE :not() IS THE CONTRACT. Everything except the stub slot goes. If a future
+   pass adds a second child that must survive the collapse, it has to say so
+   here, out loud, rather than by accident.
+   ═══════════════════════════════════════════════════════════════════════════ */
+[data-door1-collapsed="1"] > *:not(.d1-strip-slot) {
+  display: none !important;
+}
+/* The section's own frame collapses with its body. These four carry generous
+   chapter padding and, on two of them, a minimum height sized for a full
+   product; a one-line stub inside a 60vh box would read as a broken section
+   rather than a label. The strip already draws its own hairline, so the
+   section's bottom rule is the one that goes. */
+[data-door1-collapsed="1"] {
+  min-height: 0 !important;
+  padding-top: 0.85rem !important;
+  padding-bottom: 0.1rem !important;
+  margin-bottom: 0 !important;
+}
+/* Nothing below the strip, so nothing for the strip to be separated FROM. */
+[data-door1-collapsed="1"] .d1-view-strip {
+  margin-bottom: 0;
+  border-bottom: 0;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .d1-mode, .d1-next { transition: none; }

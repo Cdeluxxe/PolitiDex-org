@@ -54,9 +54,19 @@
      here. The desk orders by how many formal acts are on file, then by total
      documented evidence, then by name. Direction Match is not read at all.
    · IT DELETES NOTHING. The four old Door 1 surfaces keep their ids, their
-     modules, their self-gating and their place in the document, and every
-     WORK_ID still opens — now also selecting the desk mode it belongs to. What
-     changed is that each one says it is a view of this desk.
+     modules, their self-gating, their bodies and their place in the document,
+     and every WORK_ID still opens — now also selecting the desk mode it belongs
+     to. What changed is that each one says it is a view of this desk, and that
+     once the desk has actually painted, each one COLLAPSES to the line that says
+     it: title, "A VIEW of the Door 1 workspace", and one control back to the
+     desk. The collapse is one attribute and one CSS rule. Nothing is emptied,
+     nothing is re-parented, nothing is removed — with JS off, no attribute is
+     ever set and all four sections stand exactly as the static HTML ships them.
+   · IT COLLAPSES ONLY ITS OWN FOUR. Who Represents Me and the ballot workspace
+     are Door 2's; the person-file modal, the proof band and the politician
+     showcase are the homepage's; Voter Academy, Mandate, Community and finance
+     are their own doors. VIEWS is the whole list this file will touch, and it is
+     four ids long.
 
    THE THREE HONEST EMPTIES ARE QUOTED, NOT INVENTED
 
@@ -106,6 +116,11 @@
   // OF this desk: `job` is the reason to be on it at all, and `mode` is which
   // desk mode a deep link to it belongs to. Every id here is in index.html's
   // WORK_IDS, which is what keeps the inbound anchors alive.
+  // A cold homepage was: proof band → this desk → the same four products again,
+  // in full, below it. So each of these collapses to ONE LINE once the desk has
+  // painted. `label` is the fallback title; the stub prefers the section's own
+  // heading, read off the section, so the stub names the chapter the way the
+  // reader would have seen it named.
   var VIEWS = [
     { id: 'hero-receipt', mode: 'claim', label: 'One receipt',
       job: 'a single worked receipt, as an example of the format' },
@@ -236,12 +251,23 @@
   // (raw keys again). issue-view.js draws the same distinction and this keeps it:
   // a bundle key means rank the whole bundle, a raw key means rank that ONE
   // sub-issue rather than everything else filed beside it. A key that belongs to
-  // no bundle resolves to nothing, and the desk says so — it is not folded into
-  // the nearest bundle, which would answer a question nobody asked.
+  // no bundle at all still opens, scoped to itself, because a bundle is a curation
+  // choice and not a fact about the record — see the note inside resolveIssue.
+  // Does the site actually ship this issue key? ISSUE_MAP is alignment-tool.js's
+  // register of every issue key on the site — 100-odd of them. CORE_NATIONAL_ISSUES
+  // is a CURATED THIRTEEN that bundles most of them, and "most" is the whole point
+  // below: `lands_preserve` is a shipped key with a label, a chip and formal acts
+  // filed against it in the record lane, and no core bundle lists it.
+  function shippedIssue(key) {
+    try {
+      var m = window.ISSUE_MAP && window.ISSUE_MAP[key];
+      return !!(m && (m.label || m.chip));
+    } catch (e) { return false; }
+  }
   function resolveIssue(key) {
     if (!key) return null;
     var direct = coreOf(key);
-    if (direct) return { core: direct, focusKey: '' };
+    if (direct) return { core: direct, focusKey: '', standalone: false };
     var core = null;
     try {
       if (fn(window.coreIssueForKey)) core = window.coreIssueForKey(key) || null;
@@ -252,8 +278,29 @@
         if ((l[i].keys || []).indexOf(key) !== -1) { core = l[i]; break; }
       }
     }
-    if (!core) return null;
-    return { core: core, focusKey: key };
+    if (core) return { core: core, focusKey: key, standalone: false };
+    // ── IN NO BUNDLE, AND STILL REAL ────────────────────────────────────────
+    // Returning nothing here was a bug, and a bad kind: the desk then printed the
+    // record lane's OWN no-vehicle sentence, so a failure of this lookup came out
+    // wearing the floor's words and read as "the record holds nothing on public
+    // lands". It does hold something. What was missing was a bundle, and a bundle
+    // is a curation choice, not a fact about the record.
+    //
+    // So a shipped key opens AS ITSELF: one issue, ranked on its own record, with
+    // no bundle claimed for it. Nothing is invented to do this — buildRanking's
+    // contract is `keys` is the set to rank and `focusKey` narrows it to one, so a
+    // single-key target ranks exactly that key. The desk says on the surface that
+    // this issue sits inside none of the tracked bundles, because a reader who
+    // sees a shelf of thirteen and a list for a fourteenth is owed that sentence.
+    // A key ISSUE_MAP does not carry still resolves to nothing: that is an unknown
+    // key, not an uncurated one, and folding it into the nearest bundle would
+    // answer a question nobody asked.
+    if (!shippedIssue(key)) return null;
+    return {
+      core: { key: key, label: issueLabel(key), keys: [key], blurb: '' },
+      focusKey: key,
+      standalone: true
+    };
   }
 
   function measures() {
@@ -624,10 +671,17 @@
           '\')">open the full ' + esc(core.label) + ' ledger</button>.</p>'
         : '');
     }
-    var scope = focusKey
-      ? '<p class="d1-scope">Scoped to <b>' + esc(issueLabel(focusKey)) + '</b>, inside ' +
-        esc(core.label) + ' — not the whole bundle.</p>'
-      : '';
+    var scope = '';
+    if (focusKey && t.standalone) {
+      // No bundle to name, and no bundle invented for it. This is the sentence
+      // that keeps a fourteenth list from looking like a bug in the shelf.
+      scope = '<p class="d1-scope">Scoped to <b>' + esc(issueLabel(focusKey)) +
+        '</b> alone — it is not inside any of the tracked issues above, so only its own ' +
+        'record is ranked here.</p>';
+    } else if (focusKey) {
+      scope = '<p class="d1-scope">Scoped to <b>' + esc(issueLabel(focusKey)) + '</b>, inside ' +
+        esc(core.label) + ' — not the whole bundle.</p>';
+    }
     return head + shelf + scope +
       '<p class="d1-lead">Ordered by what is on the formal record — acts on file first, then total ' +
       'documented evidence, then name. Not by any match reading.</p>' + body;
@@ -750,12 +804,20 @@
     return false;
   }
 
+  // Did the last sync() actually paint a desk? The collapse below hangs on this
+  // and on nothing else: a section may only be reduced to "a view of the desk"
+  // once the desk it is a view of is on the page and filled. Every path that
+  // returns false from sync() clears it first, so a page that loses its mount
+  // stops collapsing on the next pass.
+  var _live = false;
+
   function sync() {
     var mount = el(AUTHORITY);
-    if (!mount) return false;
+    if (!mount) { _live = false; return false; }
     var host = el(BODY_ID);
-    if (!host) return false;
+    if (!host) { _live = false; return false; }
     if (!anyMode()) {
+      _live = false;
       host.innerHTML = '';
       try { mount.setAttribute('hidden', ''); } catch (e) {}
       return false;
@@ -771,6 +833,7 @@
         'or until the record says, in its own words, that it does not hold one.</p>' +
       '</div>' +
       '<div class="d1-body">' + railHtml(openKey) + deskHtml(openKey) + '</div>';
+    _live = true;
     views();
     return true;
   }
@@ -783,16 +846,49 @@
   // one desk read as five things that happen to agree. Nothing is moved, nothing
   // is deleted, no module is told about this — each surface gets one strip at its
   // top saying which desk it is a view of and which mode it belongs to.
-  function viewStrip(view) {
+  // The stub, and it is the whole of the collapsed section: what this chapter was
+  // called, that it is a view of the desk, and ONE control that puts it on the
+  // desk. Three facts and one button — a second control here would be the start
+  // of the section becoming a product again.
+  function viewStrip(view, title) {
+    var m = modeOf(view.mode) || {};
     return '' +
       '<div class="d1-view-strip">' +
         '<span class="d1-view-kick">A VIEW of the Door 1 workspace</span>' +
+        '<span class="d1-view-name">' + esc(title || view.label) + '</span>' +
         '<span class="d1-view-job">' + esc(view.job) + '</span>' +
-        '<button type="button" class="d1-view-back"' +
+        '<button type="button" class="d1-view-open"' +
           ' onclick="return window.PDXDoor1.toDesk(\'' + jsq(view.mode) + '\');"' +
-          ' title="Back to the desk — one mode at a time, without leaving the page">' +
-          '↑ ' + esc((modeOf(view.mode) || {}).label || 'Back to the desk') + '</button>' +
+          ' title="' + esc('Opens on the desk as ' + (m.label || 'one mode') +
+            ' — one mode at a time, without leaving the page') + '"' +
+          ' aria-label="' + esc('Open in Door 1: ' + (m.label || view.label)) + '">' +
+          'Open in Door 1 <span aria-hidden="true">↑</span></button>' +
       '</div>';
+  }
+  // The chapter's own title, read off the section rather than restated here, so
+  // the stub cannot end up naming something the section does not call itself.
+  // Three sources, strongest first, and no cache — all four of these sections
+  // ship EMPTY in index.html and are painted by their own modules on their own
+  // schedules, so a title captured on the first pass would be the fallback
+  // forever. Re-read on every paint, and the settle schedule upgrades it the
+  // moment the module has painted a heading. Hiding the body does not hide it
+  // from this: display:none changes nothing about textContent.
+  //
+  //   1. the heading the module painted — what a sighted reader saw
+  //   2. the section's aria-label — its own accessible name, in index.html
+  //   3. the short label in VIEWS — always available, never wrong
+  function titleOf(host, view) {
+    var t = '';
+    try {
+      var h = host.querySelector && host.querySelector('h1, h2, h3');
+      if (h) t = String(h.textContent || '').replace(/\s+/g, ' ').trim();
+    } catch (e) { t = ''; }
+    if (!t) {
+      try { t = String(host.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim(); }
+      catch (e) { t = ''; }
+    }
+    if (t.length > 90) t = '';
+    return t || view.label;
   }
   function paintView(view) {
     var host = el(view.id);
@@ -808,15 +904,23 @@
       slot.className = 'd1-strip-slot';
       host.insertBefore(slot, host.firstChild);
     }
-    slot.innerHTML = viewStrip(view);
+    slot.innerHTML = viewStrip(view, titleOf(host, view));
+    // ── THE COLLAPSE ────────────────────────────────────────────────────────
+    // One attribute, and door1-workspace.css hides every child of the section
+    // EXCEPT this slot. The body is not emptied, not detached and not moved: it
+    // is still in the document, still addressable, and the module that owns it
+    // can keep painting into it without knowing any of this happened. Deep links
+    // still land here — the router opens the layer and scrolls to the section,
+    // and the wrapper on it has already put the matching mode on the desk.
+    if (_live) host.setAttribute('data-door1-collapsed', '1');
     return true;
   }
   function views() {
     // Only once there is a desk for them to be views OF. Labelling a surface a
-    // view of something that never mounted would be the one lie this chrome
-    // exists to prevent.
+    // view of something that never mounted — or collapsing it in favour of a desk
+    // that is not there — would be the one lie this chrome exists to prevent.
     if (!el(AUTHORITY) || !el(BODY_ID)) return;
-    VIEWS.forEach(paintView);
+    VIEWS.forEach(function (v) { paintView(v); });
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -891,11 +995,24 @@
     if (!t) { sync(); return false; }
     note('issue', t.focusKey || t.core.key);
     // Ask the ledger for this issue's roll-call evidence before ranking it — the
-    // read is the ledger's own, and without it a cold page would read an
-    // unloaded record as an empty one. warmVotes takes either vocabulary and
-    // keeps the scope, exactly as buildRanking does.
+    // read is the ledger's own, and without it a cold page reads an UNLOADED
+    // record as an empty one and then prints the record lane's no-vehicle
+    // sentence over it.
+    //
+    // THE TARGET GOES IN, NOT THE KEY. PDXIssueView.warmVotes takes either, and the
+    // difference matters here and nowhere else: handed a key it resolves the bundle
+    // itself, and there is no bundle for a shipped issue key that none of the
+    // curated thirteen lists — so it would warm nothing for exactly the keys this
+    // desk had to resolve by hand. The target resolveIssue already built is the
+    // whole answer, so it is what gets handed over.
+    //
+    // No callback: the export does not take one, and the desk does not need one.
+    // The ledger fires 'pdx-issue-votes' once per batch and boot() re-syncs on it,
+    // which is one repaint for two surfaces instead of one repaint each.
     var V = issueView();
-    try { if (V && fn(V.warmVotes)) V.warmVotes(t.focusKey || t.core.key); } catch (e) {}
+    try {
+      if (V && fn(V.warmVotes)) V.warmVotes(t.core, t.focusKey || '');
+    } catch (e) {}
     if (readMode() !== 'issue') return window.pdxDoor1Open('issue');
     sync();
     return true;
@@ -968,7 +1085,10 @@
     _measures: measures,
     _emptyIssueNote: emptyIssueNote,
     _stowaway: stowawayNote,
-    _strip: viewStrip
+    _strip: viewStrip,
+    _title: titleOf,
+    // Is a desk painted right now — the single condition the collapse hangs on.
+    _live: function () { return _live; }
   };
 
   // ══════════════════════════════════════════════════════════════════════════

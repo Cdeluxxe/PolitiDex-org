@@ -1413,8 +1413,23 @@
     buildRanking: buildRanking,
     // Prefetch an issue's roll-call evidence without rendering anything — a surface
     // about to show a ranking can call this first, or listen for 'pdx-issue-votes'.
-    warmVotes: function (keyOrIssueKey, focusKey) {
-      var t = resolveTarget(keyOrIssueKey, focusKey);
+    //
+    // TWO CALL SHAPES, ONE JOB. Nearly every caller holds a key and wants the bundle
+    // behind it worked out here, which is what resolveTarget does. But a caller that
+    // has ALREADY resolved a target — Door 1's desk resolves one before it ranks —
+    // must be able to hand that target straight in, because re-resolving a key here
+    // would throw away the one case it resolved for: a shipped issue key that no
+    // curated bundle lists. resolveCore returns nothing for such a key, so the
+    // resolve-here path warms nothing, and an issue whose whole record is roll calls
+    // then ranks on receipts alone and reads as an issue with no record at all.
+    // Duck-typed on `keys` because that is the field the private warmVotes actually
+    // reads; a string has no `keys`, so the two shapes cannot be confused.
+    warmVotes: function (keyOrTarget, focusKey) {
+      if (keyOrTarget && typeof keyOrTarget === 'object' && Array.isArray(keyOrTarget.keys)) {
+        warmVotes(keyOrTarget, focusKey || '');
+        return;
+      }
+      var t = resolveTarget(keyOrTarget, focusKey);
       if (t) warmVotes(t.core, t.focusKey);
     },
     votesPending: votesPending,

@@ -774,7 +774,46 @@
 //
 // Nothing else moved: no floor, no count, no mapping, no roster row and no
 // figure of any kind. The desk reads the modules already on this list.
-const CACHE_VERSION = 'v105';
+// v106 - THE FOUR VIEWS COLLAPSE, and the reason is that the pair from v105 has
+// to move together a second time. v105 shipped the desk and left the four old
+// Door 1 chapters standing at full height underneath it, each wearing a label
+// saying it was a view. A cold homepage was therefore the proof band, then the
+// whole loop on one desk, then the same four products again — more stacked prose
+// than before, which is the shape the desk exists to remove.
+//
+// door1-workspace.js now sets one attribute on each of those four sections once
+// sync() has actually painted a desk, and door1-workspace.css is what turns that
+// attribute into a one-line stub: title, "A VIEW of the Door 1 workspace", one
+// control back to the desk. THE TWO FILES ARE USELESS APART IN OPPOSITE
+// DIRECTIONS. A device with the new script and the v105 sheet sets an attribute
+// no rule matches: nothing collapses, and the homepage is the stack again. A
+// device with the new sheet and the v105 script has a rule nothing triggers:
+// also the stack, harmlessly. Neither is wrong, but neither is the feature, and
+// the pairing is the only way a reader gets it. Both entries are already on the
+// manifest below under the same names, so this bump is the whole delivery
+// mechanism — there is no new file to add.
+//
+// The same bump carries a third file, issue-view.js, and a fix that needs all
+// three. An issue key that no curated bundle happens to list — public lands is
+// the live example, a real key with a label, a chip and formal acts filed against
+// it — used to resolve to nothing on this desk, and the desk then printed the
+// record lane's own no-vehicle sentence over what was actually a failed lookup.
+// A failure wearing the floor's words is the worst version of that bug, because
+// it reads as a finding. A shipped key now opens as itself.
+//
+// Making it open was only half of it. PDXIssueView.warmVotes took a key and
+// resolved the bundle behind it internally — and that resolve is exactly what
+// returns nothing for an unbundled key, so the roll-call record was never
+// requested for the one case the desk had resolved by hand, and the issue ranked
+// on receipts and stated positions alone. The export now also accepts an
+// already-resolved target, the desk hands over the one it built, and the repaint
+// rides the 'pdx-issue-votes' event the ledger already fires once per batch.
+// Every other caller still passes a bare key and still gets the old behaviour.
+// issue-view.js is on the manifest below already, under the same name.
+//
+// Nothing else moved. No floor, no mapping, no weight, no roster row, no slice
+// sentence and no figure of any kind; index.html is untouched by this pass.
+const CACHE_VERSION = 'v106';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
