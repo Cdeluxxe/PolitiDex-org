@@ -813,7 +813,43 @@
 //
 // Nothing else moved. No floor, no mapping, no weight, no roster row, no slice
 // sentence and no figure of any kind; index.html is untouched by this pass.
-const CACHE_VERSION = 'v106';
+//
+// v107 - Door 1's arrival: the hash and the stub now open the mode they name.
+// A cold #say-vs-do scrolled to the SECTION named say-vs-do — which, once the
+// desk has painted, is a one line stub sitting directly above Door 2's "There's
+// an election coming". So a reader who asked for the receipts library got a
+// label and somebody else's door. Tapping "Open in Door 1" on that same stub
+// did reach the desk and left it on "Open a measure / vehicle", so the URL read
+// #say-vs-do while the rail highlighted measure.
+//
+// One cause under both: the mode and the landing were decided in two places
+// that did not have to agree. index.html's fromHash opened the work layer and
+// scrolled to the section; the desk mode was set only as a side effect of a
+// wrapper on that same call, so on a cold boot the rail kept whatever
+// sessionStorage was last left on; and each stub carried a mode literal baked
+// into its own markup rather than reading the shared table. door1-workspace.js
+// now holds ONE arrival table (modeForWorkId) and ONE landing (scrollDesk, with
+// an explicit wall against Door 2's surfaces and against the four stubs), and
+// exports arrive(id) for the hash. index.html routes every WORK_ID entrance —
+// fromHash, hashchange and pdxOpenSurface — through one land() helper, and
+// openWork() honours an opts.noScroll so the desk can take the landing without
+// the router scrolling to the section first.
+//
+// THE TWO FILES HAVE TO MOVE TOGETHER, which is the whole reason for this bump.
+// The fix is a handshake: index.html supplies land() and the noScroll contract,
+// door1-workspace.js supplies arrive() and the desk-only landing. Both are in
+// the precache list below ('/' and '/door1-workspace.js'), so a device holding
+// one half from the old version and the other half from the new one gets a
+// broken arrival either way: an old index.html with a new desk never calls
+// arrive() and lands on the stub again, and a new index.html with an old desk
+// finds no arrive(), falls back to openWork(), and lands on the stub as well —
+// while pdxOpenSurface's noScroll path would go unanswered. door1-workspace.css
+// did NOT change in this pass — the stub's layout and the collapse rule are
+// exactly as v106 shipped them — but it is precached under the same key, so this
+// bump refetches it too, which is the honest cost of versioning a shell rather
+// than a file. Nothing else changed: no floor, no mapping, no weight, no figure,
+// and the collapse attribute is exactly as it shipped.
+const CACHE_VERSION = 'v107';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

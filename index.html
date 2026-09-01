@@ -5647,11 +5647,19 @@ window.PDXLazy = (function () {
       // the hash handler below on behalf of every inbound anchor that used to
       // point at a section sitting in the open.
       var _last = { id: '', t: 0 };
-      function openWork(targetId) {
+      function openWork(targetId, opts) {
         var work = document.getElementById('pdx-door-work');
         if (work) work.classList.add('is-open');
         if (!targetId) return true;
         if (PAINT[targetId]) paint(PAINT[targetId]);
+        // THE DESK CAN OWN THE LANDING, AND USUALLY SHOULD. Everything above this
+        // line is what an arrival needs either way — the layer open, the surface
+        // given its chance to paint — and everything below it is the scroll. Once
+        // door1-workspace.js has painted a desk, these four sections are ONE LINE
+        // each, so scrolling a reader to one lands them on a stub with Door 2's
+        // headline filling the rest of the screen. `noScroll` is how the desk asks
+        // for the first half only and takes the reader to itself instead.
+        if (opts && opts.noScroll) return true;
         // A click handler and the hashchange that same click causes are ONE
         // arrival, not two. Without this the second one restarts the scroll
         // mid-flight, which reads on a phone as a jump that changed its mind.
@@ -5663,6 +5671,25 @@ window.PDXLazy = (function () {
       }
       window.pdxDoorWork = openWork;
 
+      // ── One arrival rule for every way into this layer ──────────────────────
+      // A shared hash on load, a hashchange, a nav item and a homepage chip all
+      // name one of these four sections, and all four used to end up scrolling to
+      // it. With a desk on the page that is the wrong destination: the section is
+      // a one-line stub and the desk is where the work is, so door1-workspace.js
+      // takes the arrival, sets the mode that id maps to and lands on the desk.
+      // arrive() answers false when there is no desk to land on — an older cached
+      // index.html, or a page carrying the surfaces without the workspace — and
+      // then the section is standing at full height and IS the honest landing.
+      function land(id) {
+        var D = window.PDXDoor1;
+        if (D && typeof D.arrive === 'function') {
+          var took = false;
+          try { took = !!D.arrive(id); } catch (e) { took = false; }
+          if (took) return true;
+        }
+        return openWork(id);
+      }
+
       // ── window.pdxOpenSurface(id) · the one way in for an in-page jump ──────
       // A link whose href names a section inside this layer cannot simply be left
       // to the browser: any handler that preventDefault()s it and scrolls (the
@@ -5673,7 +5700,7 @@ window.PDXLazy = (function () {
       window.pdxOpenSurface = function (id) {
         id = String(id || '').replace(/^#/, '');
         if (WORK_IDS.indexOf(id) === -1) return false;
-        return openWork(id);
+        return land(id);
       };
 
       // ── window.pdxOpenBills() · the bill catalog ────────────────────────────
@@ -5790,9 +5817,14 @@ window.PDXLazy = (function () {
       // section that now starts closed; without this they would scroll to a
       // display:none element and appear to do nothing. Runs on load for a shared
       // deep link and on hashchange for an in-page one.
+      //
+      // A HASH THAT IS NOT ONE OF THE FOUR MUST NOT STEAL THE SCROLL. The guard
+      // below is the whole of that rule: anything else on this page — Door 2, a
+      // person file, the voter hub — keeps its own arrival, and nothing in this
+      // block or in the desk moves for it.
       function fromHash() {
         var h = String(location.hash || '').replace(/^#/, '');
-        if (WORK_IDS.indexOf(h) !== -1) openWork(h);
+        if (WORK_IDS.indexOf(h) !== -1) land(h);
       }
       window.addEventListener('hashchange', fromHash);
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fromHash);
