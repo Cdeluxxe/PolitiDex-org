@@ -909,7 +909,21 @@ const swNote = swWaveNote();
     "scripts/test-vr-federal-wave-f6.mjs",
     "scripts/test-person-crawl-block.mjs",
     "scripts/test-identity-integrity.mjs",
-    "scripts/test-depth-no-score-drift.mjs"]);
+    "scripts/test-depth-no-score-drift.mjs",
+    // federal_roster_r2_sep2026, on those same terms: twelve members whose votes already
+    // resolved through db/vr-member-map.json but whom the roster did not name, so
+    // gen-crawl-record skipped them. R1's harness carried the roster size as a literal and
+    // moved 1108 → 1120; hero-receipt-data.js is regenerated, and its existing selection
+    // rules picked up susie_lee's already-stored veterans receipt once she had a roster row
+    // to be selected from. Neither is a judgement and neither touches F9's rows.
+    "scripts/test-vr-federal-roster-r1.mjs",
+    "hero-receipt-data.js",
+    // scripts/test-who-represents-me.mjs on the same terms. It hard-stopped on its own
+    // instruction once R2 closed the last two partial-Senate states (MS, OH): its
+    // partial-coverage assertions had nothing left to measure. They were not deleted —
+    // the shipped-data count is now asserted as full coverage, and the one-seat behaviour
+    // is driven against a roster built from real records instead.
+    "scripts/test-who-represents-me.mjs"]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
   const modified = porcelain.split("\n").filter((l) => /^ ?M/.test(l)).map((l) => l.slice(3).trim());

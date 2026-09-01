@@ -180,25 +180,38 @@ const ADDED = {
 // over. Three hundred typed reason strings would be a worse document than the two committed
 // files this reads instead, so the allowance is SOURCED, and it is narrower than a typed line:
 //
-//   1. the pid must be in the named wave's slug list in db/vr-roster-admitted.json, which is
-//      the only admission path the map generator will honour in either direction;
-//   2. it must have a census entry in db/vr-federal-roster-r1-census.json carrying at least
-//      two independent verifiedBy sources (Clerk MemberData.xml and the legislators dataset),
-//      which is what "verified twice" means for a Bioguide↔slug pair; and
+//   1. the pid must already be on the roster CEILING — some wave's slug list in
+//      db/vr-roster-admitted.json — which is the only admission path the map generator will
+//      honour in either direction. Which wave admitted it does not matter and must not:
+//      federal_roster_r2_sep2026's twelve were admitted to the ceiling by f6, f8 and the
+//      Israel-support wave and had votes resolving through db/vr-member-map.json for waves,
+//      which is exactly why they needed a roster row and exactly why R2 wrote one.
+//   2. it must have a census entry in one of the federal roster censuses carrying at least
+//      two independent verifiedBy sources (the chamber's own roster and the legislators
+//      dataset), which is what "verified twice" means for a Bioguide↔slug pair; and
 //   3. the row it adds must be INERT — score null, kept/broken/pending 0, no issues. An
 //      admission that arrived carrying a score would fail here even though it is on the list.
 //
 // A pid that satisfies none of these is still an unnamed addition and still fails.
 const rosterWaveAdmissions = (() => {
   const out = new Map();
-  let waves, census;
+  let waves;
   try { waves = JSON.parse(readFileSync(join(ROOT, "db/vr-roster-admitted.json"), "utf8")).waves || {}; } catch { return out; }
-  try { census = JSON.parse(readFileSync(join(ROOT, "db/vr-federal-roster-r1-census.json"), "utf8")); } catch { return out; }
-  const bySlug = new Map((census.admitted || []).map((a) => [a.slug, a]));
-  for (const slug of waves.federal_roster_r1_sep2026 || []) {
-    const rec = bySlug.get(slug);
-    if (!rec || !Array.isArray(rec.verifiedBy) || rec.verifiedBy.length < 2) continue;
-    out.set(slug, `${rec.districtLabel} · Bioguide ${rec.bioguide} — House roll-call positions were parsed and skipped for want of a roster slug`);
+  const onCeiling = new Set();
+  for (const [k, list] of Object.entries(waves)) {
+    if (!Array.isArray(list)) continue;                       // _note is a string
+    for (const slug of list) onCeiling.add(slug);
+    void k;
+  }
+  for (const file of ["db/vr-federal-roster-r1-census.json", "db/vr-federal-roster-r2-census.json"]) {
+    let census;
+    try { census = JSON.parse(readFileSync(join(ROOT, file), "utf8")); } catch { continue; }
+    for (const rec of census.admitted || []) {
+      if (!onCeiling.has(rec.slug)) continue;
+      if (!Array.isArray(rec.verifiedBy) || rec.verifiedBy.length < 2) continue;
+      const seat = rec.districtLabel || rec.stateLabel || rec.state;
+      out.set(rec.slug, `${seat} · Bioguide ${rec.bioguide} — roll-call positions were parsed and skipped for want of a roster slug`);
+    }
   }
   return out;
 })();
