@@ -172,6 +172,37 @@ const ADDED = {
   jacob_anderegg:    "SD-22 seated 2023 only; heidi_balderree holds the seat — 2023GS committee votes were parsed and dropped for want of a roster record",
   quinn_kotter:      "HD-26 seated 2023 only; matt_macpherson holds the seat — 2023GS committee votes were parsed and dropped for want of a roster record",
 };
+// ── The same allowance, at roster-wave scale, sourced instead of typed ───────
+// ADDED above works because each entry is a line a reviewer reads. A FEDERAL roster wave
+// breaks that: federal_roster_r1_sep2026 admits 315 sitting House members at once, because
+// the House corpus held 7,298 recorded positions the fail-closed ingest had to skip for want
+// of a roster slug — the identical situation as the Utah entries above, three hundred times
+// over. Three hundred typed reason strings would be a worse document than the two committed
+// files this reads instead, so the allowance is SOURCED, and it is narrower than a typed line:
+//
+//   1. the pid must be in the named wave's slug list in db/vr-roster-admitted.json, which is
+//      the only admission path the map generator will honour in either direction;
+//   2. it must have a census entry in db/vr-federal-roster-r1-census.json carrying at least
+//      two independent verifiedBy sources (Clerk MemberData.xml and the legislators dataset),
+//      which is what "verified twice" means for a Bioguide↔slug pair; and
+//   3. the row it adds must be INERT — score null, kept/broken/pending 0, no issues. An
+//      admission that arrived carrying a score would fail here even though it is on the list.
+//
+// A pid that satisfies none of these is still an unnamed addition and still fails.
+const rosterWaveAdmissions = (() => {
+  const out = new Map();
+  let waves, census;
+  try { waves = JSON.parse(readFileSync(join(ROOT, "db/vr-roster-admitted.json"), "utf8")).waves || {}; } catch { return out; }
+  try { census = JSON.parse(readFileSync(join(ROOT, "db/vr-federal-roster-r1-census.json"), "utf8")); } catch { return out; }
+  const bySlug = new Map((census.admitted || []).map((a) => [a.slug, a]));
+  for (const slug of waves.federal_roster_r1_sep2026 || []) {
+    const rec = bySlug.get(slug);
+    if (!rec || !Array.isArray(rec.verifiedBy) || rec.verifiedBy.length < 2) continue;
+    out.set(slug, `${rec.districtLabel} · Bioguide ${rec.bioguide} — House roll-call positions were parsed and skipped for want of a roster slug`);
+  }
+  return out;
+})();
+
 {
   const now = Object.keys(after.CMP_DATA || {});
   const nowSet = new Set(now);
@@ -179,7 +210,17 @@ const ADDED = {
   eq(gone.join("|"), "", "the pass removed someone from the roster");
 
   const added = now.filter((p) => PIDS.indexOf(p) < 0);
-  const unnamed = added.filter((p) => !ADDED[p]);
+  const unnamed = added.filter((p) => !ADDED[p] && !rosterWaveAdmissions.has(p));
+
+  // Clause 3: every sourced admission is inert. Typed ADDED entries are not held to this —
+  // kstratton and the Utah waves predate the rule and are audited by their own line.
+  const notInert = added.filter((p) => rosterWaveAdmissions.has(p)).filter((p) => {
+    const r = (after.CMP_DATA || {})[p] || {};
+    return r.score !== null || r.kept !== 0 || r.broken !== 0 || r.pending !== 0
+      || !Array.isArray(r.issues) || r.issues.length !== 0;
+  });
+  eq(notInert.join("|"), "",
+    "a roster-wave admission arrived carrying a judged surface — admitting a member is identity, never a score");
   eq(unnamed.join("|"), "",
     "the pass added a profile that is not named in ADDED above");
 

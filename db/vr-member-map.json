@@ -1,91 +1,212 @@
 {
   "_comment": "bioguide -> roster slug for the Voting Record ingest. Regenerate with scripts/vr-gen-member-map.mjs. The ingest reads `map`; `members` is for human review only. Roster scope is db/vr-roster-admitted.json.",
-  "count": 224,
-  "serving119": 215,
+  "count": 539,
+  "serving119": 530,
   "annotated": true,
   "unadmittedPortraits": 0,
   "map": {
+    "A000055": "robert_aderholt",
     "A000148": "jake_auchincloss",
+    "A000369": "mark_amodei",
+    "A000370": "alma_adams",
     "A000371": "aguilar",
+    "A000372": "rick_allen",
     "A000375": "arrington",
+    "A000379": "mark_alford",
+    "A000380": "gabe_amo",
+    "A000381": "yassamin_ansari",
     "A000382": "alsobrooks",
     "A000383": "alan_armstrong",
+    "B000490": "sanford_bishop",
+    "B000668": "cliff_bentz",
     "B000740": "stephanie_bice",
     "B000825": "boebert",
     "B001230": "tammy_baldwin",
     "B001236": "boozman",
     "B001243": "blackburn",
+    "B001257": "gus_bilirakis",
+    "B001260": "vern_buchanan",
     "B001261": "barrasso",
     "B001267": "bennet",
     "B001277": "blumenthal",
+    "B001278": "suzanne_bonamici",
+    "B001281": "joyce_beatty",
+    "B001282": "andy_barr",
+    "B001285": "julia_brownley",
+    "B001287": "ami_bera",
     "B001288": "booker",
     "B001291": "brian_babin",
+    "B001292": "donald_beyer",
     "B001295": "mike_bost",
     "B001296": "brendan_boyle",
     "B001298": "don_bacon",
     "B001299": "banks",
+    "B001300": "nanette_barragan",
+    "B001301": "jack_bergman",
+    "B001302": "andy_biggs",
     "B001303": "blunt_rochester",
     "B001305": "ted_budd",
+    "B001306": "troy_balderson",
+    "B001307": "james_baird",
+    "B001309": "tim_burchett",
+    "B001313": "shontel_brown",
+    "B001314": "aaron_bean",
+    "B001315": "nicole_nikki_budzinski",
+    "B001316": "eric_burlison",
     "B001317": "josh_brecheen",
+    "B001318": "becca_balint",
     "B001319": "britt",
+    "B001321": "tom_barrett",
+    "B001322": "michael_baumgartner",
+    "B001323": "nicholas_begich",
+    "B001324": "wesley_bell",
+    "B001325": "sheri_biggs",
+    "B001326": "janelle_bynum",
     "B001327": "rob_bresnahan",
+    "C000059": "ken_calvert",
     "C000127": "cantwell",
     "C000537": "clyburn",
     "C000880": "crapo",
     "C001035": "collins",
+    "C001039": "kat_cammack",
     "C001047": "capito",
+    "C001051": "john_carter",
     "C001053": "tom_cole",
+    "C001055": "ed_case",
     "C001056": "john_cornyn",
+    "C001059": "jim_costa",
+    "C001061": "emanuel_cleaver",
+    "C001063": "henry_cuellar",
+    "C001066": "kathy_castor",
+    "C001067": "yvette_clarke",
+    "C001068": "steve_cohen",
+    "C001069": "joe_courtney",
+    "C001072": "andre_carson",
     "C001075": "cassidy",
+    "C001080": "judy_chu",
     "C001087": "rick_crawford",
     "C001088": "coons",
+    "C001091": "joaquin_castro",
     "C001095": "cotton",
     "C001096": "kevin_cramer",
     "C001098": "cruz",
     "C001101": "kclark",
+    "C001103": "buddy_carter",
     "C001108": "comer",
+    "C001110": "j_correa",
+    "C001112": "salud_carbajal",
     "C001113": "cortez_masto",
     "C001114": "curtis",
+    "C001115": "michael_cloud",
+    "C001116": "andrew_clyde",
+    "C001117": "sean_casten",
+    "C001118": "ben_cline",
     "C001119": "angie_craig",
     "C001120": "dan_crenshaw",
+    "C001121": "jason_crow",
+    "C001123": "gilbert_cisneros",
+    "C001125": "troy_carter",
+    "C001126": "mike_carey",
     "C001129": "mike_collins",
     "C001130": "crockett",
+    "C001131": "casar",
+    "C001132": "eli_crane",
+    "C001133": "juan_ciscomani",
+    "C001136": "herbert_conaway",
+    "C001137": "jeff_crank",
     "D000032": "donalds",
+    "D000096": "danny_davis",
     "D000197": "diana_degette",
     "D000216": "delauro",
     "D000230": "don_davis",
+    "D000399": "lloyd_doggett",
+    "D000530": "chris_deluzio",
     "D000563": "durbin",
+    "D000594": "monica_de_la_cruz",
+    "D000600": "mario_diaz_balart",
+    "D000616": "scott_desjarlais",
+    "D000617": "delbene",
     "D000618": "daines",
     "D000622": "duckworth",
+    "D000623": "mark_desaulnier",
     "D000624": "debbie_dingell",
+    "D000626": "warren_davidson",
+    "D000628": "neal_dunn",
+    "D000629": "sharice_davids",
+    "D000631": "madeleine_dean",
     "D000634": "troy_downing",
+    "D000635": "maxine_dexter",
+    "E000071": "jake_ellzey",
     "E000235": "mike_ezell",
+    "E000246": "charles_chuck_edwards",
     "E000294": "emmer",
     "E000295": "ernst",
+    "E000296": "dwight_evans",
+    "E000297": "adriano_espaillat",
+    "E000298": "ron_estes",
+    "E000299": "veronica_escobar",
+    "E000300": "gabe_evans",
+    "E000301": "sarah_elfreth",
+    "F000110": "cleo_fields",
+    "F000246": "pat_fallon",
+    "F000446": "randy_feenstra",
     "F000450": "foxx",
+    "F000454": "bill_foster",
+    "F000459": "chuck_fleischmann",
+    "F000462": "lois_frankel",
     "F000463": "deb_fischer",
     "F000466": "fitzpatrick",
+    "F000468": "lizzie_fletcher",
     "F000469": "russ_fulcher",
+    "F000470": "michelle_fischbach",
+    "F000471": "scott_fitzgerald",
+    "F000472": "c_franklin",
     "F000474": "mike_flood",
+    "F000475": "brad_finstad",
     "F000476": "maxwell_frost",
+    "F000477": "valerie_foushee",
+    "F000478": "russell_fry",
     "F000479": "fetterman",
+    "F000480": "vince_fong",
+    "F000481": "shomari_figures",
     "F000482": "julie_fedorchak",
+    "F000483": "laura_friedman",
+    "F000484": "rfine",
+    "F000485": "clay_fuller",
     "G000359": "graham",
     "G000386": "grassley",
     "G000546": "sam_graves",
+    "G000553": "al_green",
     "G000555": "gillibrand",
     "G000558": "guthrie",
+    "G000559": "john_garamendi",
+    "G000565": "paul_gosar",
+    "G000568": "h_griffith",
     "G000571": "tgabbard",
     "G000574": "gallego",
+    "G000576": "glenn_grothman",
     "G000578": "gaetz",
+    "G000581": "vicente_gonzalez",
     "G000583": "josh_gottheimer",
+    "G000585": "jimmy_gomez",
+    "G000586": "chuy_garcia",
+    "G000587": "sylvia_garcia",
+    "G000589": "lance_gooden",
     "G000591": "michael_guest",
     "G000592": "jared_golden",
+    "G000593": "carlos_gimenez",
     "G000596": "mtg",
     "G000597": "garbarino",
     "G000598": "robert_garcia",
     "G000599": "dan_goldman",
     "G000600": "marie_gluesenkamp_perez",
+    "G000601": "craig_goldman",
+    "G000602": "laura_gillen",
+    "G000603": "brandon_gill",
+    "G000604": "maggie_goodlander",
+    "G000605": "adam_gray",
+    "G000606": "adelita_grijalva",
+    "G000607": "james_gallagher",
     "H000273": "hickenlooper",
     "H000601": "hagerty",
     "H000874": "steny_hoyer",
@@ -93,150 +214,389 @@
     "H001046": "heinrich",
     "H001047": "jim_himes",
     "H001052": "andy_harris",
+    "H001058": "bill_huizenga",
     "H001061": "hoeven",
+    "H001066": "steven_horsford",
+    "H001067": "hudson",
     "H001068": "jared_huffman",
     "H001072": "french_hill",
     "H001076": "maggie_hassan",
+    "H001077": "clay_higgins",
     "H001079": "hyde_smith",
+    "H001081": "jahana_hayes",
     "H001082": "kevin_hern",
+    "H001085": "chrissy_houlahan",
+    "H001086": "diana_harshbarger",
     "H001089": "hawley",
+    "H001090": "josh_harder",
+    "H001091": "ashley_hinson",
+    "H001093": "erin_houchin",
+    "H001094": "valerie_hoyle",
+    "H001095": "wesley_hunt",
+    "H001096": "harriet_hageman",
+    "H001098": "abraham_hamadeh",
+    "H001099": "mike_haridopolos",
+    "H001100": "jeff_hurd",
+    "H001101": "pat_harrigan",
+    "H001102": "mark_harris",
     "H001104": "jon_husted",
+    "I000056": "darrell_issa",
+    "I000058": "glenn_ivey",
+    "J000288": "hank_johnson",
     "J000289": "jim_jordan",
     "J000293": "ron_johnson",
     "J000294": "jeffries",
+    "J000295": "david_joyce",
     "J000298": "jayapal",
     "J000299": "mike_johnson",
+    "J000301": "dusty_johnson",
+    "J000302": "john_joyce",
+    "J000304": "ronny_jackson",
+    "J000305": "sara_jacobs",
+    "J000307": "john_james",
+    "J000309": "jonathan_jackson",
+    "J000310": "julie_johnson",
+    "J000311": "brian_jack",
     "J000312": "jim_justice",
+    "K000009": "marcy_kaptur",
     "K000367": "klobuchar",
+    "K000375": "william_keating",
+    "K000376": "mike_kelly",
     "K000377": "mark_kelly",
     "K000383": "angus_king",
     "K000384": "kaine",
+    "K000385": "robin_kelly",
     "K000388": "trent_kelly",
     "K000389": "khanna",
     "K000391": "raja_krishnamoorthi",
+    "K000392": "david_kustoff",
     "K000393": "kennedy_john",
     "K000394": "andy_kim",
+    "K000397": "young_kim",
+    "K000398": "thomas_kean",
+    "K000399": "jennifer_kiggans",
+    "K000400": "sydney_kamlager_dove",
+    "K000401": "kevin_kiley",
+    "K000402": "timothy_kennedy",
     "K000403": "kennedy",
+    "K000405": "brad_knott",
     "L000273": "teresa_leger_fernandez",
     "L000397": "zoe_lofgren",
     "L000491": "frank_lucas",
+    "L000557": "john_larson",
     "L000560": "rick_larsen",
+    "L000562": "stephen_lynch",
+    "L000566": "robert_latta",
     "L000570": "lujan",
     "L000571": "lummis",
     "L000575": "lankford",
     "L000577": "lee",
     "L000582": "ted_lieu",
+    "L000583": "barry_loudermilk",
+    "L000585": "darin_lahood",
     "L000590": "susie_lee",
+    "L000593": "mike_levin",
+    "L000595": "julia_letlow",
     "L000596": "luna",
+    "L000597": "laurel_lee",
+    "L000598": "nicolas_lalota",
     "L000599": "mike_lawler",
+    "L000600": "nicholas_langworthy",
     "L000601": "greg_landsman",
     "L000602": "summer_lee",
+    "L000603": "morgan_luttrell",
+    "L000606": "george_latimer",
+    "L000607": "sam_liccardo",
     "M000133": "markey",
     "M000194": "nancy_mace",
     "M000312": "jim_mcgovern",
+    "M000317": "nicole_malliotakis",
     "M000355": "mcconnell",
+    "M000687": "kweisi_mfume",
+    "M000871": "tracey_mann",
     "M000934": "jerry_moran",
     "M001111": "murray",
     "M001136": "mcclain",
     "M001137": "meeks",
+    "M001143": "betty_mccollum",
     "M001153": "murkowski",
+    "M001157": "michael_mccaul",
+    "M001160": "gwen_moore",
+    "M001163": "doris_matsui",
     "M001169": "chris_murphy",
     "M001176": "merkley",
+    "M001177": "tom_mcclintock",
     "M001184": "massie",
+    "M001188": "grace_meng",
     "M001190": "mullin",
+    "M001194": "john_moolenaar",
     "M001196": "seth_moulton",
     "M001198": "roger_marshall",
     "M001199": "brian_mast",
+    "M001204": "daniel_meuser",
+    "M001205": "carol_miller",
+    "M001206": "joseph_morelle",
+    "M001208": "lucy_mcbath",
+    "M001210": "gregory_murphy",
+    "M001211": "mary_miller",
+    "M001212": "barry_moore",
     "M001213": "bmoore",
+    "M001214": "frank_mrvan",
     "M001215": "mariannette_miller_meeks",
+    "M001216": "cory_mills",
+    "M001217": "jared_moskowitz",
+    "M001218": "rich_mccormick",
+    "M001220": "morgan_mcgarvey",
+    "M001222": "max_miller",
+    "M001223": "seth_magaziner",
+    "M001224": "nathaniel_moran",
+    "M001225": "kevin_mullin",
+    "M001226": "robert_menendez",
+    "M001227": "jennifer_mcclellan",
     "M001228": "maloy",
+    "M001229": "lamonica_mciver",
     "M001230": "ryan_mackenzie",
+    "M001231": "john_mannion",
+    "M001232": "april_mcclain_delaney",
+    "M001233": "mark_messmer",
+    "M001234": "kelly_morrison",
+    "M001235": "riley_moore",
+    "M001236": "tim_moore",
+    "M001237": "kristen_mcdonald_rivet",
     "M001238": "sarah_mcbride",
+    "M001239": "john_mcguire",
+    "M001240": "addison_mcdowell",
+    "M001241": "dave_min",
     "M001242": "moreno",
     "M001243": "mccormick",
     "M001244": "ashley_moody",
+    "M001245": "christian_menefee",
+    "M001246": "analilia_mejia",
     "N000002": "nadler",
     "N000015": "neal",
+    "N000026": "troy_nehls",
+    "N000188": "donald_norcross",
+    "N000189": "dan_newhouse",
+    "N000190": "ralph_norman",
     "N000191": "neguse",
     "N000193": "zach_nunn",
+    "O000019": "jay_obernolte",
     "O000086": "owens",
     "O000172": "aoc",
     "O000173": "omar",
     "O000174": "jon_ossoff",
+    "O000175": "andrew_ogles",
+    "O000176": "johnny_olszewski",
+    "O000177": "robert_onder",
     "P000034": "pallone",
+    "P000048": "pfluger",
     "P000145": "padilla",
+    "P000197": "nancy_pelosi",
     "P000595": "peters",
     "P000597": "chellie_pingree",
     "P000603": "rand_paul",
     "P000605": "scott_perry",
+    "P000607": "mark_pocan",
+    "P000608": "scott_peters",
+    "P000609": "gary_palmer",
+    "P000613": "jimmy_panetta",
+    "P000614": "chris_pappas",
     "P000617": "ayanna_pressley",
+    "P000620": "brittany_pettersen",
+    "P000621": "nellie_pou",
+    "P000622": "jimmy_patronis",
+    "Q000023": "mike_quigley",
     "R000122": "reed",
+    "R000305": "deborah_ross",
+    "R000395": "hal_rogers",
+    "R000575": "mike_rogers_al",
+    "R000579": "patrick_ryan",
     "R000584": "risch",
     "R000595": "rubio",
+    "R000599": "raul_ruiz",
+    "R000603": "david_rouzer",
     "R000605": "mike_rounds",
     "R000606": "raskin",
     "R000608": "rosen",
+    "R000609": "john_rutherford",
+    "R000610": "guy_reschenthaler",
+    "R000612": "john_rose",
     "R000614": "chip_roy",
     "R000617": "delia_ramirez",
     "R000618": "ricketts",
+    "R000619": "michael_rulli",
+    "R000620": "luz_rivas",
+    "R000621": "emily_randall",
+    "R000622": "josh_riley",
     "S000033": "sanders",
     "S000148": "schumer",
+    "S000168": "maria_salazar",
+    "S000185": "bobby_scott",
+    "S000250": "pete_sessions",
+    "S000344": "brad_sherman",
     "S000510": "adam_smith",
+    "S000522": "chris_smith",
+    "S000929": "victoria_spartz",
     "S001145": "jan_schakowsky",
     "S001148": "mike_simpson",
     "S001150": "schiff",
+    "S001156": "linda_sanchez",
+    "S001159": "marilyn_strickland",
     "S001172": "adrian_smith",
     "S001176": "scalise",
     "S001181": "shaheen",
+    "S001183": "david_schweikert",
     "S001184": "tim_scott",
+    "S001185": "terri_sewell",
+    "S001188": "marlin_stutzman",
+    "S001189": "austin_scott",
+    "S001190": "brad_schneider",
     "S001192": "cstewart",
     "S001194": "schatz",
     "S001195": "jason_smith",
     "S001196": "stefanik",
     "S001198": "dan_sullivan",
+    "S001199": "lloyd_smucker",
+    "S001200": "darren_soto",
     "S001201": "tom_suozzi",
     "S001203": "tina_smith",
+    "S001205": "mary_scanlon",
     "S001208": "slotkin",
+    "S001211": "greg_stanton",
+    "S001212": "pete_stauber",
     "S001213": "bryan_steil",
+    "S001214": "w_steube",
     "S001215": "haley_stevens",
+    "S001216": "kim_schrier",
     "S001217": "rick_scott",
     "S001218": "melanie_stansbury",
+    "S001220": "dale_strong",
+    "S001221": "hillary_scholten",
+    "S001223": "emilia_sykes",
+    "S001224": "keith_self",
+    "S001225": "eric_sorensen",
+    "S001226": "andrea_salinas",
     "S001227": "schmitt",
+    "S001228": "derek_schmidt",
+    "S001229": "jefferson_shreve",
+    "S001230": "suhas_subramanyam",
+    "S001231": "lateefah_simon",
     "S001232": "sheehy",
+    "T000165": "thomas_tiffany",
     "T000193": "bennie_thompson",
     "T000250": "thune",
     "T000278": "tommy_tuberville",
+    "T000460": "mike_thompson",
+    "T000463": "michael_turner",
     "T000467": "glenn_thompson",
     "T000468": "dina_titus",
+    "T000469": "paul_tonko",
     "T000472": "takano",
+    "T000474": "norma_torres",
     "T000476": "tillis",
+    "T000478": "claudia_tenney",
+    "T000480": "william_timmons",
     "T000481": "tlaib",
+    "T000482": "lori_trahan",
     "T000486": "torres",
+    "T000487": "jill_tokuda",
+    "T000488": "shri_thanedar",
+    "T000490": "david_taylor",
+    "T000491": "derek_tran",
+    "U000040": "lauren_underwood",
+    "V000081": "nydia_velazquez",
     "V000128": "van_hollen",
+    "V000129": "david_valadao",
+    "V000130": "juan_vargas",
+    "V000131": "marc_veasey",
+    "V000133": "jefferson_van_drew",
+    "V000134": "beth_van_duyne",
+    "V000135": "derrick_van_orden",
     "V000136": "gabe_vasquez",
+    "V000138": "eugene_vindman",
+    "V000139": "matt_van_epps",
     "W000187": "maxine_waters",
     "W000437": "wicker",
     "W000779": "wyden",
+    "W000788": "nikema_williams",
     "W000790": "warnock",
+    "W000795": "joe_wilson",
+    "W000797": "debbie_wasserman_schultz",
     "W000798": "walberg",
     "W000800": "welch",
     "W000802": "whitehouse",
+    "W000804": "robert_wittman",
     "W000805": "warner",
+    "W000806": "daniel_webster",
+    "W000808": "frederica_wilson",
     "W000809": "steve_womack",
+    "W000812": "ann_wagner",
+    "W000814": "randy_weber",
     "W000816": "roger_williams",
     "W000817": "warren",
     "W000821": "bruce_westerman",
+    "W000822": "bonnie_watson_coleman",
     "W000823": "mike_waltz",
+    "W000829": "tony_wied",
+    "W000830": "george_whitesides",
+    "W000831": "james_walkinshaw",
     "Y000064": "todd_young",
-    "Z000017": "zeldin"
+    "Y000067": "rudy_yakym",
+    "Z000017": "zeldin",
+    "Z000018": "ryan_zinke"
   },
   "members": [
+    {
+      "bioguide": "B001314",
+      "slug": "aaron_bean",
+      "name": "Aaron Bean",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "H001098",
+      "slug": "abraham_hamadeh",
+      "name": "Abraham J. Hamadeh",
+      "chamber": "house",
+      "state": "AZ",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000605",
+      "slug": "adam_gray",
+      "name": "Adam Gray",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
     {
       "bioguide": "S000510",
       "slug": "adam_smith",
       "name": "Adam Smith",
       "chamber": "house",
       "state": "WA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001240",
+      "slug": "addison_mcdowell",
+      "name": "Addison P. McDowell",
+      "chamber": "house",
+      "state": "NC",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000606",
+      "slug": "adelita_grijalva",
+      "name": "Adelita S. Grijalva",
+      "chamber": "house",
+      "state": "AZ",
       "party": "Democrat",
       "serving119": true
     },
@@ -250,11 +610,29 @@
       "serving119": true
     },
     {
+      "bioguide": "E000297",
+      "slug": "adriano_espaillat",
+      "name": "Adriano Espaillat",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "A000371",
       "slug": "aguilar",
       "name": "Pete Aguilar",
       "chamber": "house",
       "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000553",
+      "slug": "al_green",
+      "name": "Al Green",
+      "chamber": "house",
+      "state": "TX",
       "party": "Democrat",
       "serving119": true
     },
@@ -268,12 +646,93 @@
       "serving119": true
     },
     {
+      "bioguide": "A000370",
+      "slug": "alma_adams",
+      "name": "Alma S. Adams",
+      "chamber": "house",
+      "state": "NC",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "A000382",
       "slug": "alsobrooks",
       "name": "Angela D. Alsobrooks",
       "chamber": "senate",
       "state": "MD",
       "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001287",
+      "slug": "ami_bera",
+      "name": "Ami Bera",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001246",
+      "slug": "analilia_mejia",
+      "name": "Analilia Mejia",
+      "chamber": "house",
+      "state": "NJ",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001072",
+      "slug": "andre_carson",
+      "name": "André Carson",
+      "chamber": "house",
+      "state": "IN",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001226",
+      "slug": "andrea_salinas",
+      "name": "Andrea Salinas",
+      "chamber": "house",
+      "state": "OR",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001116",
+      "slug": "andrew_clyde",
+      "name": "Andrew S. Clyde",
+      "chamber": "house",
+      "state": "GA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "O000175",
+      "slug": "andrew_ogles",
+      "name": "Andrew Ogles",
+      "chamber": "house",
+      "state": "TN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001282",
+      "slug": "andy_barr",
+      "name": "Andy Barr",
+      "chamber": "house",
+      "state": "KY",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001302",
+      "slug": "andy_biggs",
+      "name": "Andy Biggs",
+      "chamber": "house",
+      "state": "AZ",
+      "party": "Republican",
       "serving119": true
     },
     {
@@ -313,11 +772,29 @@
       "serving119": true
     },
     {
+      "bioguide": "W000812",
+      "slug": "ann_wagner",
+      "name": "Ann Wagner",
+      "chamber": "house",
+      "state": "MO",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "O000172",
       "slug": "aoc",
       "name": "Alexandria Ocasio-Cortez",
       "chamber": "house",
       "state": "NY",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001232",
+      "slug": "april_mcclain_delaney",
+      "name": "April McClain Delaney",
+      "chamber": "house",
+      "state": "MD",
       "party": "Democrat",
       "serving119": true
     },
@@ -331,11 +808,29 @@
       "serving119": true
     },
     {
+      "bioguide": "H001091",
+      "slug": "ashley_hinson",
+      "name": "Ashley Hinson",
+      "chamber": "house",
+      "state": "IA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "M001244",
       "slug": "ashley_moody",
       "name": "Ashley Moody",
       "chamber": "senate",
       "state": "FL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001189",
+      "slug": "austin_scott",
+      "name": "Austin Scott",
+      "chamber": "house",
+      "state": "GA",
       "party": "Republican",
       "serving119": true
     },
@@ -367,6 +862,42 @@
       "serving119": true
     },
     {
+      "bioguide": "L000583",
+      "slug": "barry_loudermilk",
+      "name": "Barry Loudermilk",
+      "chamber": "house",
+      "state": "GA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001212",
+      "slug": "barry_moore",
+      "name": "Barry Moore",
+      "chamber": "house",
+      "state": "AL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001318",
+      "slug": "becca_balint",
+      "name": "Becca Balint",
+      "chamber": "house",
+      "state": "VT",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001118",
+      "slug": "ben_cline",
+      "name": "Ben Cline",
+      "chamber": "house",
+      "state": "VA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "B001267",
       "slug": "bennet",
       "name": "Michael F. Bennet",
@@ -382,6 +913,42 @@
       "chamber": "house",
       "state": "MS",
       "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "V000134",
+      "slug": "beth_van_duyne",
+      "name": "Beth Van Duyne",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001143",
+      "slug": "betty_mccollum",
+      "name": "Betty McCollum",
+      "chamber": "house",
+      "state": "MN",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000454",
+      "slug": "bill_foster",
+      "name": "Bill Foster",
+      "chamber": "house",
+      "state": "IL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "H001058",
+      "slug": "bill_huizenga",
+      "name": "Bill Huizenga",
+      "chamber": "house",
+      "state": "MI",
+      "party": "Republican",
       "serving119": true
     },
     {
@@ -421,12 +988,30 @@
       "serving119": true
     },
     {
+      "bioguide": "S000185",
+      "slug": "bobby_scott",
+      "name": "Robert C. \"Bobby\" Scott",
+      "chamber": "house",
+      "state": "VA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "B000825",
       "slug": "boebert",
       "name": "Lauren Boebert",
       "chamber": "house",
       "state": "CO",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "W000822",
+      "slug": "bonnie_watson_coleman",
+      "name": "Bonnie Watson Coleman",
+      "chamber": "house",
+      "state": "NJ",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -444,6 +1029,51 @@
       "name": "John Boozman",
       "chamber": "senate",
       "state": "AR",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000475",
+      "slug": "brad_finstad",
+      "name": "Brad Finstad",
+      "chamber": "house",
+      "state": "MN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "K000405",
+      "slug": "brad_knott",
+      "name": "Brad Knott",
+      "chamber": "house",
+      "state": "NC",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001190",
+      "slug": "brad_schneider",
+      "name": "Bradley Scott Schneider",
+      "chamber": "house",
+      "state": "IL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S000344",
+      "slug": "brad_sherman",
+      "name": "Brad Sherman",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000603",
+      "slug": "brandon_gill",
+      "name": "Brandon Gill",
+      "chamber": "house",
+      "state": "TX",
       "party": "Republican",
       "serving119": true
     },
@@ -466,6 +1096,15 @@
       "serving119": true
     },
     {
+      "bioguide": "J000311",
+      "slug": "brian_jack",
+      "name": "Brian Jack",
+      "chamber": "house",
+      "state": "GA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "M001199",
       "slug": "brian_mast",
       "name": "Brian J. Mast",
@@ -484,6 +1123,15 @@
       "serving119": true
     },
     {
+      "bioguide": "P000620",
+      "slug": "brittany_pettersen",
+      "name": "Brittany Pettersen",
+      "chamber": "house",
+      "state": "CO",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "W000821",
       "slug": "bruce_westerman",
       "name": "Bruce Westerman",
@@ -498,6 +1146,24 @@
       "name": "Bryan Steil",
       "chamber": "house",
       "state": "WI",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001103",
+      "slug": "buddy_carter",
+      "name": "Earl L. \"Buddy\" Carter",
+      "chamber": "house",
+      "state": "GA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000472",
+      "slug": "c_franklin",
+      "name": "Scott Franklin",
+      "chamber": "house",
+      "state": "FL",
       "party": "Republican",
       "serving119": true
     },
@@ -520,11 +1186,47 @@
       "serving119": true
     },
     {
+      "bioguide": "G000593",
+      "slug": "carlos_gimenez",
+      "name": "Carlos A. Gimenez",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001205",
+      "slug": "carol_miller",
+      "name": "Carol D. Miller",
+      "chamber": "house",
+      "state": "WV",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001131",
+      "slug": "casar",
+      "name": "Greg Casar",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "C001075",
       "slug": "cassidy",
       "name": "Bill Cassidy",
       "chamber": "senate",
       "state": "LA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "E000246",
+      "slug": "charles_chuck_edwards",
+      "name": "Chuck Edwards",
+      "chamber": "house",
+      "state": "NC",
       "party": "Republican",
       "serving119": true
     },
@@ -547,12 +1249,120 @@
       "serving119": true
     },
     {
+      "bioguide": "D000530",
+      "slug": "chris_deluzio",
+      "name": "Christopher R. Deluzio",
+      "chamber": "house",
+      "state": "PA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "M001169",
       "slug": "chris_murphy",
       "name": "Christopher Murphy",
       "chamber": "senate",
       "state": "CT",
       "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "P000614",
+      "slug": "chris_pappas",
+      "name": "Chris Pappas",
+      "chamber": "house",
+      "state": "NH",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S000522",
+      "slug": "chris_smith",
+      "name": "Christopher H. Smith",
+      "chamber": "house",
+      "state": "NJ",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "H001085",
+      "slug": "chrissy_houlahan",
+      "name": "Chrissy Houlahan",
+      "chamber": "house",
+      "state": "PA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001245",
+      "slug": "christian_menefee",
+      "name": "Christian D. Menefee",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000459",
+      "slug": "chuck_fleischmann",
+      "name": "Charles J. \"Chuck\" Fleischmann",
+      "chamber": "house",
+      "state": "TN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000586",
+      "slug": "chuy_garcia",
+      "name": "Jesús G. \"Chuy\" García",
+      "chamber": "house",
+      "state": "IL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "T000478",
+      "slug": "claudia_tenney",
+      "name": "Claudia Tenney",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000485",
+      "slug": "clay_fuller",
+      "name": "Clay Fuller",
+      "chamber": "house",
+      "state": "GA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "H001077",
+      "slug": "clay_higgins",
+      "name": "Clay Higgins",
+      "chamber": "house",
+      "state": "LA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000110",
+      "slug": "cleo_fields",
+      "name": "Cleo Fields",
+      "chamber": "house",
+      "state": "LA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "B000668",
+      "slug": "cliff_bentz",
+      "name": "Cliff Bentz",
+      "chamber": "house",
+      "state": "OR",
+      "party": "Republican",
       "serving119": true
     },
     {
@@ -601,11 +1411,29 @@
       "serving119": true
     },
     {
+      "bioguide": "M001216",
+      "slug": "cory_mills",
+      "name": "Cory Mills",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "C001095",
       "slug": "cotton",
       "name": "Tom Cotton",
       "chamber": "senate",
       "state": "AR",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000601",
+      "slug": "craig_goldman",
+      "name": "Craig A. Goldman",
+      "chamber": "house",
+      "state": "TX",
       "party": "Republican",
       "serving119": true
     },
@@ -664,6 +1492,15 @@
       "serving119": true
     },
     {
+      "bioguide": "S001220",
+      "slug": "dale_strong",
+      "name": "Dale W. Strong",
+      "chamber": "house",
+      "state": "AL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "C001120",
       "slug": "dan_crenshaw",
       "name": "Dan Crenshaw",
@@ -682,11 +1519,137 @@
       "serving119": true
     },
     {
+      "bioguide": "N000189",
+      "slug": "dan_newhouse",
+      "name": "Dan Newhouse",
+      "chamber": "house",
+      "state": "WA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "S001198",
       "slug": "dan_sullivan",
       "name": "Dan Sullivan",
       "chamber": "senate",
       "state": "AK",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001204",
+      "slug": "daniel_meuser",
+      "name": "Daniel Meuser",
+      "chamber": "house",
+      "state": "PA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "W000806",
+      "slug": "daniel_webster",
+      "name": "Daniel Webster",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "D000096",
+      "slug": "danny_davis",
+      "name": "Danny K. Davis",
+      "chamber": "house",
+      "state": "IL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "L000585",
+      "slug": "darin_lahood",
+      "name": "Darin LaHood",
+      "chamber": "house",
+      "state": "IL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "I000056",
+      "slug": "darrell_issa",
+      "name": "Darrell Issa",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001200",
+      "slug": "darren_soto",
+      "name": "Darren Soto",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001241",
+      "slug": "dave_min",
+      "name": "Dave Min",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "J000295",
+      "slug": "david_joyce",
+      "name": "David P. Joyce",
+      "chamber": "house",
+      "state": "OH",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "K000392",
+      "slug": "david_kustoff",
+      "name": "David Kustoff",
+      "chamber": "house",
+      "state": "TN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "R000603",
+      "slug": "david_rouzer",
+      "name": "David Rouzer",
+      "chamber": "house",
+      "state": "NC",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001183",
+      "slug": "david_schweikert",
+      "name": "David Schweikert",
+      "chamber": "house",
+      "state": "AZ",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "T000490",
+      "slug": "david_taylor",
+      "name": "David J. Taylor",
+      "chamber": "house",
+      "state": "OH",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "V000129",
+      "slug": "david_valadao",
+      "name": "David G. Valadao",
+      "chamber": "house",
+      "state": "CA",
       "party": "Republican",
       "serving119": true
     },
@@ -709,11 +1672,38 @@
       "serving119": true
     },
     {
+      "bioguide": "W000797",
+      "slug": "debbie_wasserman_schultz",
+      "name": "Debbie Wasserman Schultz",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "R000305",
+      "slug": "deborah_ross",
+      "name": "Deborah K. Ross",
+      "chamber": "house",
+      "state": "NC",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "D000216",
       "slug": "delauro",
       "name": "Rosa L. DeLauro",
       "chamber": "house",
       "state": "CT",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "D000617",
+      "slug": "delbene",
+      "name": "Suzan K. DelBene",
+      "chamber": "house",
+      "state": "WA",
       "party": "Democrat",
       "serving119": true
     },
@@ -727,12 +1717,48 @@
       "serving119": true
     },
     {
+      "bioguide": "S001228",
+      "slug": "derek_schmidt",
+      "name": "Derek Schmidt",
+      "chamber": "house",
+      "state": "KS",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "T000491",
+      "slug": "derek_tran",
+      "name": "Derek Tran",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "V000135",
+      "slug": "derrick_van_orden",
+      "name": "Derrick Van Orden",
+      "chamber": "house",
+      "state": "WI",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "D000197",
       "slug": "diana_degette",
       "name": "Diana DeGette",
       "chamber": "house",
       "state": "CO",
       "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "H001086",
+      "slug": "diana_harshbarger",
+      "name": "Diana Harshbarger",
+      "chamber": "house",
+      "state": "TN",
+      "party": "Republican",
       "serving119": true
     },
     {
@@ -763,12 +1789,39 @@
       "serving119": true
     },
     {
+      "bioguide": "B001292",
+      "slug": "donald_beyer",
+      "name": "Donald S. Beyer, Jr.",
+      "chamber": "house",
+      "state": "VA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "N000188",
+      "slug": "donald_norcross",
+      "name": "Donald Norcross",
+      "chamber": "house",
+      "state": "NJ",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "D000032",
       "slug": "donalds",
       "name": "Byron Donalds",
       "chamber": "house",
       "state": "FL",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001163",
+      "slug": "doris_matsui",
+      "name": "Doris O. Matsui",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -790,11 +1843,101 @@
       "serving119": true
     },
     {
+      "bioguide": "J000301",
+      "slug": "dusty_johnson",
+      "name": "Dusty Johnson",
+      "chamber": "house",
+      "state": "SD",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "E000296",
+      "slug": "dwight_evans",
+      "name": "Dwight Evans",
+      "chamber": "house",
+      "state": "PA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001055",
+      "slug": "ed_case",
+      "name": "Ed Case",
+      "chamber": "house",
+      "state": "HI",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001132",
+      "slug": "eli_crane",
+      "name": "Elijah Crane",
+      "chamber": "house",
+      "state": "AZ",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001061",
+      "slug": "emanuel_cleaver",
+      "name": "Emanuel Cleaver",
+      "chamber": "house",
+      "state": "MO",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001223",
+      "slug": "emilia_sykes",
+      "name": "Emilia Strong Sykes",
+      "chamber": "house",
+      "state": "OH",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "R000621",
+      "slug": "emily_randall",
+      "name": "Emily Randall",
+      "chamber": "house",
+      "state": "WA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "E000294",
       "slug": "emmer",
       "name": "Tom Emmer",
       "chamber": "house",
       "state": "MN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001316",
+      "slug": "eric_burlison",
+      "name": "Eric Burlison",
+      "chamber": "house",
+      "state": "MO",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001225",
+      "slug": "eric_sorensen",
+      "name": "Eric Sorensen",
+      "chamber": "house",
+      "state": "IL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "H001093",
+      "slug": "erin_houchin",
+      "name": "Erin Houchin",
+      "chamber": "house",
+      "state": "IN",
       "party": "Republican",
       "serving119": true
     },
@@ -805,6 +1948,15 @@
       "chamber": "senate",
       "state": "IA",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "V000138",
+      "slug": "eugene_vindman",
+      "name": "Eugene Simon Vindman",
+      "chamber": "house",
+      "state": "VA",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -844,11 +1996,47 @@
       "serving119": true
     },
     {
+      "bioguide": "M001214",
+      "slug": "frank_mrvan",
+      "name": "Frank J. Mrvan",
+      "chamber": "house",
+      "state": "IN",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "W000808",
+      "slug": "frederica_wilson",
+      "name": "Frederica S. Wilson",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "H001072",
       "slug": "french_hill",
       "name": "J. French Hill",
       "chamber": "house",
       "state": "AR",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "A000380",
+      "slug": "gabe_amo",
+      "name": "Gabe Amo",
+      "chamber": "house",
+      "state": "RI",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "E000300",
+      "slug": "gabe_evans",
+      "name": "Gabe Evans",
+      "chamber": "house",
+      "state": "CO",
       "party": "Republican",
       "serving119": true
     },
@@ -889,11 +2077,65 @@
       "serving119": true
     },
     {
+      "bioguide": "P000609",
+      "slug": "gary_palmer",
+      "name": "Gary J. Palmer",
+      "chamber": "house",
+      "state": "AL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "L000606",
+      "slug": "george_latimer",
+      "name": "George Latimer",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "W000830",
+      "slug": "george_whitesides",
+      "name": "George Whitesides",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001123",
+      "slug": "gilbert_cisneros",
+      "name": "Gilbert Ray Cisneros, Jr.",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "G000555",
       "slug": "gillibrand",
       "name": "Kirsten E. Gillibrand",
       "chamber": "senate",
       "state": "NY",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000576",
+      "slug": "glenn_grothman",
+      "name": "Glenn Grothman",
+      "chamber": "house",
+      "state": "WI",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "I000058",
+      "slug": "glenn_ivey",
+      "name": "Glenn Ivey",
+      "chamber": "house",
+      "state": "MD",
       "party": "Democrat",
       "serving119": true
     },
@@ -904,6 +2146,15 @@
       "chamber": "house",
       "state": "PA",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001188",
+      "slug": "grace_meng",
+      "name": "Grace Meng",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -934,11 +2185,65 @@
       "serving119": true
     },
     {
+      "bioguide": "S001211",
+      "slug": "greg_stanton",
+      "name": "Greg Stanton",
+      "chamber": "house",
+      "state": "AZ",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001210",
+      "slug": "gregory_murphy",
+      "name": "Gregory F. Murphy",
+      "chamber": "house",
+      "state": "NC",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001257",
+      "slug": "gus_bilirakis",
+      "name": "Gus M. Bilirakis",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "G000558",
       "slug": "guthrie",
       "name": "Brett Guthrie",
       "chamber": "house",
       "state": "KY",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "R000610",
+      "slug": "guy_reschenthaler",
+      "name": "Guy Reschenthaler",
+      "chamber": "house",
+      "state": "PA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001160",
+      "slug": "gwen_moore",
+      "name": "Gwen Moore",
+      "chamber": "house",
+      "state": "WI",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000568",
+      "slug": "h_griffith",
+      "name": "H. Morgan Griffith",
+      "chamber": "house",
+      "state": "VA",
       "party": "Republican",
       "serving119": true
     },
@@ -952,12 +2257,39 @@
       "serving119": true
     },
     {
+      "bioguide": "R000395",
+      "slug": "hal_rogers",
+      "name": "Harold Rogers",
+      "chamber": "house",
+      "state": "KY",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "S001215",
       "slug": "haley_stevens",
       "name": "Haley M. Stevens",
       "chamber": "house",
       "state": "MI",
       "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "J000288",
+      "slug": "hank_johnson",
+      "name": "Henry C. \"Hank\" Johnson, Jr.",
+      "chamber": "house",
+      "state": "GA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "H001096",
+      "slug": "harriet_hageman",
+      "name": "Harriet M. Hageman",
+      "chamber": "house",
+      "state": "WY",
+      "party": "Republican",
       "serving119": true
     },
     {
@@ -979,11 +2311,38 @@
       "serving119": true
     },
     {
+      "bioguide": "C001063",
+      "slug": "henry_cuellar",
+      "name": "Henry Cuellar",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001136",
+      "slug": "herbert_conaway",
+      "name": "Herbert C. Conaway, Jr.",
+      "chamber": "house",
+      "state": "NJ",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "H000273",
       "slug": "hickenlooper",
       "name": "John W. Hickenlooper",
       "chamber": "senate",
       "state": "CO",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001221",
+      "slug": "hillary_scholten",
+      "name": "Hillary J. Scholten",
+      "chamber": "house",
+      "state": "MI",
       "party": "Democrat",
       "serving119": true
     },
@@ -1006,12 +2365,48 @@
       "serving119": true
     },
     {
+      "bioguide": "H001067",
+      "slug": "hudson",
+      "name": "Richard Hudson",
+      "chamber": "house",
+      "state": "NC",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "H001079",
       "slug": "hyde_smith",
       "name": "Cindy Hyde-Smith",
       "chamber": "senate",
       "state": "MS",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001110",
+      "slug": "j_correa",
+      "name": "J. Luis Correa",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001301",
+      "slug": "jack_bergman",
+      "name": "Jack Bergman",
+      "chamber": "house",
+      "state": "MI",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "H001081",
+      "slug": "jahana_hayes",
+      "name": "Jahana Hayes",
+      "chamber": "house",
+      "state": "CT",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -1024,11 +2419,56 @@
       "serving119": true
     },
     {
+      "bioguide": "E000071",
+      "slug": "jake_ellzey",
+      "name": "Jake Ellzey",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001307",
+      "slug": "james_baird",
+      "name": "James R. Baird",
+      "chamber": "house",
+      "state": "IN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000607",
+      "slug": "james_gallagher",
+      "name": "James Gallagher",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "W000831",
+      "slug": "james_walkinshaw",
+      "name": "James R. Walkinshaw",
+      "chamber": "house",
+      "state": "VA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "S001145",
       "slug": "jan_schakowsky",
       "name": "Janice D. Schakowsky",
       "chamber": "house",
       "state": "IL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001326",
+      "slug": "janelle_bynum",
+      "name": "Janelle S. Bynum",
+      "chamber": "house",
+      "state": "OR",
       "party": "Democrat",
       "serving119": true
     },
@@ -1051,11 +2491,38 @@
       "serving119": true
     },
     {
+      "bioguide": "M001217",
+      "slug": "jared_moskowitz",
+      "name": "Jared Moskowitz",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001121",
+      "slug": "jason_crow",
+      "name": "Jason Crow",
+      "chamber": "house",
+      "state": "CO",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "S001195",
       "slug": "jason_smith",
       "name": "Jason Smith",
       "chamber": "house",
       "state": "MO",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "O000019",
+      "slug": "jay_obernolte",
+      "name": "Jay Obernolte",
+      "chamber": "house",
+      "state": "CA",
       "party": "Republican",
       "serving119": true
     },
@@ -1069,11 +2536,65 @@
       "serving119": true
     },
     {
+      "bioguide": "C001137",
+      "slug": "jeff_crank",
+      "name": "Jeff Crank",
+      "chamber": "house",
+      "state": "CO",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "H001100",
+      "slug": "jeff_hurd",
+      "name": "Jeff Hurd",
+      "chamber": "house",
+      "state": "CO",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001229",
+      "slug": "jefferson_shreve",
+      "name": "Jefferson Shreve",
+      "chamber": "house",
+      "state": "IN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "V000133",
+      "slug": "jefferson_van_drew",
+      "name": "Jefferson Van Drew",
+      "chamber": "house",
+      "state": "NJ",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "J000294",
       "slug": "jeffries",
       "name": "Hakeem S. Jeffries",
       "chamber": "house",
       "state": "NY",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "K000399",
+      "slug": "jennifer_kiggans",
+      "name": "Jennifer A. Kiggans",
+      "chamber": "house",
+      "state": "VA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001227",
+      "slug": "jennifer_mcclellan",
+      "name": "Jennifer L. McClellan",
+      "chamber": "house",
+      "state": "VA",
       "party": "Democrat",
       "serving119": true
     },
@@ -1084,6 +2605,24 @@
       "chamber": "senate",
       "state": "KS",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "T000487",
+      "slug": "jill_tokuda",
+      "name": "Jill N. Tokuda",
+      "chamber": "house",
+      "state": "HI",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001059",
+      "slug": "jim_costa",
+      "name": "Jim Costa",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -1123,12 +2662,165 @@
       "serving119": true
     },
     {
+      "bioguide": "G000585",
+      "slug": "jimmy_gomez",
+      "name": "Jimmy Gomez",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "P000613",
+      "slug": "jimmy_panetta",
+      "name": "Jimmy Panetta",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "P000622",
+      "slug": "jimmy_patronis",
+      "name": "Jimmy Patronis",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001091",
+      "slug": "joaquin_castro",
+      "name": "Joaquin Castro",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001069",
+      "slug": "joe_courtney",
+      "name": "Joe Courtney",
+      "chamber": "house",
+      "state": "CT",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "W000795",
+      "slug": "joe_wilson",
+      "name": "Joe Wilson",
+      "chamber": "house",
+      "state": "SC",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001051",
+      "slug": "john_carter",
+      "name": "John R. Carter",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "C001056",
       "slug": "john_cornyn",
       "name": "John Cornyn",
       "chamber": "senate",
       "state": "TX",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000559",
+      "slug": "john_garamendi",
+      "name": "John Garamendi",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "J000307",
+      "slug": "john_james",
+      "name": "John James",
+      "chamber": "house",
+      "state": "MI",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "J000302",
+      "slug": "john_joyce",
+      "name": "John Joyce",
+      "chamber": "house",
+      "state": "PA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "L000557",
+      "slug": "john_larson",
+      "name": "John B. Larson",
+      "chamber": "house",
+      "state": "CT",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001231",
+      "slug": "john_mannion",
+      "name": "John W. Mannion",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001239",
+      "slug": "john_mcguire",
+      "name": "John J. McGuire III",
+      "chamber": "house",
+      "state": "VA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001194",
+      "slug": "john_moolenaar",
+      "name": "John R. Moolenaar",
+      "chamber": "house",
+      "state": "MI",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "R000612",
+      "slug": "john_rose",
+      "name": "John W. Rose",
+      "chamber": "house",
+      "state": "TN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "R000609",
+      "slug": "john_rutherford",
+      "name": "John H. Rutherford",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "O000176",
+      "slug": "johnny_olszewski",
+      "name": "Johnny Olszewski, Jr.",
+      "chamber": "house",
+      "state": "MD",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -1146,6 +2838,24 @@
       "name": "Jon Ossoff",
       "chamber": "senate",
       "state": "GA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "J000309",
+      "slug": "jonathan_jackson",
+      "name": "Jonathan L. Jackson",
+      "chamber": "house",
+      "state": "IL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001206",
+      "slug": "joseph_morelle",
+      "name": "Joseph D. Morelle",
+      "chamber": "house",
+      "state": "NY",
       "party": "Democrat",
       "serving119": true
     },
@@ -1168,12 +2878,93 @@
       "serving119": true
     },
     {
+      "bioguide": "H001090",
+      "slug": "josh_harder",
+      "name": "Josh Harder",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "R000622",
+      "slug": "josh_riley",
+      "name": "Josh Riley",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001281",
+      "slug": "joyce_beatty",
+      "name": "Joyce Beatty",
+      "chamber": "house",
+      "state": "OH",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001133",
+      "slug": "juan_ciscomani",
+      "name": "Juan Ciscomani",
+      "chamber": "house",
+      "state": "AZ",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "V000130",
+      "slug": "juan_vargas",
+      "name": "Juan Vargas",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001080",
+      "slug": "judy_chu",
+      "name": "Judy Chu",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001285",
+      "slug": "julia_brownley",
+      "name": "Julia Brownley",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "L000595",
+      "slug": "julia_letlow",
+      "name": "Julia Letlow",
+      "chamber": "house",
+      "state": "LA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "F000482",
       "slug": "julie_fedorchak",
       "name": "Julie Fedorchak",
       "chamber": "house",
       "state": "ND",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "J000310",
+      "slug": "julie_johnson",
+      "name": "Julie Johnson",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -1186,12 +2977,57 @@
       "serving119": true
     },
     {
+      "bioguide": "C001039",
+      "slug": "kat_cammack",
+      "name": "Kat Cammack",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001066",
+      "slug": "kathy_castor",
+      "name": "Kathy Castor",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "C001101",
       "slug": "kclark",
       "name": "Katherine M. Clark",
       "chamber": "house",
       "state": "MA",
       "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001224",
+      "slug": "keith_self",
+      "name": "Keith Self",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001234",
+      "slug": "kelly_morrison",
+      "name": "Kelly Morrison",
+      "chamber": "house",
+      "state": "MN",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "C000059",
+      "slug": "ken_calvert",
+      "name": "Ken Calvert",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Republican",
       "serving119": true
     },
     {
@@ -1231,11 +3067,38 @@
       "serving119": true
     },
     {
+      "bioguide": "K000401",
+      "slug": "kevin_kiley",
+      "name": "Kevin Kiley",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Independent",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001225",
+      "slug": "kevin_mullin",
+      "name": "Kevin Mullin",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "K000389",
       "slug": "khanna",
       "name": "Ro Khanna",
       "chamber": "house",
       "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001216",
+      "slug": "kim_schrier",
+      "name": "Kim Schrier",
+      "chamber": "house",
+      "state": "WA",
       "party": "Democrat",
       "serving119": true
     },
@@ -1249,6 +3112,42 @@
       "serving119": true
     },
     {
+      "bioguide": "M001237",
+      "slug": "kristen_mcdonald_rivet",
+      "name": "Kristen McDonald Rivet",
+      "chamber": "house",
+      "state": "MI",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M000687",
+      "slug": "kweisi_mfume",
+      "name": "Kweisi Mfume",
+      "chamber": "house",
+      "state": "MD",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001229",
+      "slug": "lamonica_mciver",
+      "name": "LaMonica McIver",
+      "chamber": "house",
+      "state": "NJ",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000589",
+      "slug": "lance_gooden",
+      "name": "Lance Gooden",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "L000575",
       "slug": "lankford",
       "name": "James Lankford",
@@ -1258,12 +3157,120 @@
       "serving119": true
     },
     {
+      "bioguide": "S001231",
+      "slug": "lateefah_simon",
+      "name": "Lateefah Simon",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000483",
+      "slug": "laura_friedman",
+      "name": "Laura Friedman",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000602",
+      "slug": "laura_gillen",
+      "name": "Laura Gillen",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "L000597",
+      "slug": "laurel_lee",
+      "name": "Laurel M. Lee",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "U000040",
+      "slug": "lauren_underwood",
+      "name": "Lauren Underwood",
+      "chamber": "house",
+      "state": "IL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "L000577",
       "slug": "lee",
       "name": "Mike Lee",
       "chamber": "senate",
       "state": "UT",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001156",
+      "slug": "linda_sanchez",
+      "name": "Linda T. Sánchez",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000468",
+      "slug": "lizzie_fletcher",
+      "name": "Lizzie Fletcher",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "D000399",
+      "slug": "lloyd_doggett",
+      "name": "Lloyd Doggett",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001199",
+      "slug": "lloyd_smucker",
+      "name": "Lloyd Smucker",
+      "chamber": "house",
+      "state": "PA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000462",
+      "slug": "lois_frankel",
+      "name": "Lois Frankel",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "T000482",
+      "slug": "lori_trahan",
+      "name": "Lori Trahan",
+      "chamber": "house",
+      "state": "MA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001208",
+      "slug": "lucy_mcbath",
+      "name": "Lucy McBath",
+      "chamber": "house",
+      "state": "GA",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -1294,6 +3301,33 @@
       "serving119": true
     },
     {
+      "bioguide": "R000620",
+      "slug": "luz_rivas",
+      "name": "Luz M. Rivas",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "D000631",
+      "slug": "madeleine_dean",
+      "name": "Madeleine Dean",
+      "chamber": "house",
+      "state": "PA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000604",
+      "slug": "maggie_goodlander",
+      "name": "Maggie Goodlander",
+      "chamber": "house",
+      "state": "NH",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "H001076",
       "slug": "maggie_hassan",
       "name": "Margaret Wood Hassan",
@@ -1308,6 +3342,33 @@
       "name": "Celeste Maloy",
       "chamber": "house",
       "state": "UT",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "V000131",
+      "slug": "marc_veasey",
+      "name": "Marc A. Veasey",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "K000009",
+      "slug": "marcy_kaptur",
+      "name": "Marcy Kaptur",
+      "chamber": "house",
+      "state": "OH",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S000168",
+      "slug": "maria_salazar",
+      "name": "Maria Elvira Salazar",
+      "chamber": "house",
+      "state": "FL",
       "party": "Republican",
       "serving119": true
     },
@@ -1330,11 +3391,83 @@
       "serving119": true
     },
     {
+      "bioguide": "S001159",
+      "slug": "marilyn_strickland",
+      "name": "Marilyn Strickland",
+      "chamber": "house",
+      "state": "WA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "D000600",
+      "slug": "mario_diaz_balart",
+      "name": "Mario Diaz-Balart",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "A000379",
+      "slug": "mark_alford",
+      "name": "Mark Alford",
+      "chamber": "house",
+      "state": "MO",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "A000369",
+      "slug": "mark_amodei",
+      "name": "Mark E. Amodei",
+      "chamber": "house",
+      "state": "NV",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "D000623",
+      "slug": "mark_desaulnier",
+      "name": "Mark DeSaulnier",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "H001102",
+      "slug": "mark_harris",
+      "name": "Mark Harris",
+      "chamber": "house",
+      "state": "NC",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "K000377",
       "slug": "mark_kelly",
       "name": "Mark Kelly",
       "chamber": "senate",
       "state": "AZ",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001233",
+      "slug": "mark_messmer",
+      "name": "Mark B. Messmer",
+      "chamber": "house",
+      "state": "IN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "P000607",
+      "slug": "mark_pocan",
+      "name": "Mark Pocan",
+      "chamber": "house",
+      "state": "WI",
       "party": "Democrat",
       "serving119": true
     },
@@ -1348,12 +3481,66 @@
       "serving119": true
     },
     {
+      "bioguide": "S001188",
+      "slug": "marlin_stutzman",
+      "name": "Marlin A. Stutzman",
+      "chamber": "house",
+      "state": "IN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001211",
+      "slug": "mary_miller",
+      "name": "Mary E. Miller",
+      "chamber": "house",
+      "state": "IL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001205",
+      "slug": "mary_scanlon",
+      "name": "Mary Gay Scanlon",
+      "chamber": "house",
+      "state": "PA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "M001184",
       "slug": "massie",
       "name": "Thomas Massie",
       "chamber": "house",
       "state": "KY",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "V000139",
+      "slug": "matt_van_epps",
+      "name": "Matt Van Epps",
+      "chamber": "house",
+      "state": "TN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001222",
+      "slug": "max_miller",
+      "name": "Max L. Miller",
+      "chamber": "house",
+      "state": "OH",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "D000635",
+      "slug": "maxine_dexter",
+      "name": "Maxine Dexter",
+      "chamber": "house",
+      "state": "OR",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -1429,6 +3616,24 @@
       "serving119": true
     },
     {
+      "bioguide": "B001322",
+      "slug": "michael_baumgartner",
+      "name": "Michael Baumgartner",
+      "chamber": "house",
+      "state": "WA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001115",
+      "slug": "michael_cloud",
+      "name": "Michael Cloud",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "G000591",
       "slug": "michael_guest",
       "name": "Michael Guest",
@@ -1438,11 +3643,56 @@
       "serving119": true
     },
     {
+      "bioguide": "M001157",
+      "slug": "michael_mccaul",
+      "name": "Michael T. McCaul",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "R000619",
+      "slug": "michael_rulli",
+      "name": "Michael A. Rulli",
+      "chamber": "house",
+      "state": "OH",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "T000463",
+      "slug": "michael_turner",
+      "name": "Michael R. Turner",
+      "chamber": "house",
+      "state": "OH",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000470",
+      "slug": "michelle_fischbach",
+      "name": "Michelle Fischbach",
+      "chamber": "house",
+      "state": "MN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "B001295",
       "slug": "mike_bost",
       "name": "Mike Bost",
       "chamber": "house",
       "state": "IL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001126",
+      "slug": "mike_carey",
+      "name": "Mike Carey",
+      "chamber": "house",
+      "state": "OH",
       "party": "Republican",
       "serving119": true
     },
@@ -1474,6 +3724,15 @@
       "serving119": true
     },
     {
+      "bioguide": "H001099",
+      "slug": "mike_haridopolos",
+      "name": "Mike Haridopolos",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "J000299",
       "slug": "mike_johnson",
       "name": "Mike Johnson",
@@ -1483,11 +3742,47 @@
       "serving119": true
     },
     {
+      "bioguide": "K000376",
+      "slug": "mike_kelly",
+      "name": "Mike Kelly",
+      "chamber": "house",
+      "state": "PA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "L000599",
       "slug": "mike_lawler",
       "name": "Michael Lawler",
       "chamber": "house",
       "state": "NY",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "L000593",
+      "slug": "mike_levin",
+      "name": "Mike Levin",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "Q000023",
+      "slug": "mike_quigley",
+      "name": "Mike Quigley",
+      "chamber": "house",
+      "state": "IL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "R000575",
+      "slug": "mike_rogers_al",
+      "name": "Mike Rogers",
+      "chamber": "house",
+      "state": "AL",
       "party": "Republican",
       "serving119": true
     },
@@ -1510,6 +3805,15 @@
       "serving119": true
     },
     {
+      "bioguide": "T000460",
+      "slug": "mike_thompson",
+      "name": "Mike Thompson",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "W000823",
       "slug": "mike_waltz",
       "name": "Michael Waltz",
@@ -1519,12 +3823,39 @@
       "serving119": false
     },
     {
+      "bioguide": "D000594",
+      "slug": "monica_de_la_cruz",
+      "name": "Monica De La Cruz",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "M001242",
       "slug": "moreno",
       "name": "Bernie Moreno",
       "chamber": "senate",
       "state": "OH",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "L000603",
+      "slug": "morgan_luttrell",
+      "name": "Morgan Luttrell",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001220",
+      "slug": "morgan_mcgarvey",
+      "name": "Morgan McGarvey",
+      "chamber": "house",
+      "state": "KY",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -1582,6 +3913,33 @@
       "serving119": true
     },
     {
+      "bioguide": "P000197",
+      "slug": "nancy_pelosi",
+      "name": "Nancy Pelosi",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001300",
+      "slug": "nanette_barragan",
+      "name": "Nanette Diaz Barragán",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001224",
+      "slug": "nathaniel_moran",
+      "name": "Nathaniel Moran",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "N000015",
       "slug": "neal",
       "name": "Richard E. Neal",
@@ -1591,11 +3949,101 @@
       "serving119": true
     },
     {
+      "bioguide": "D000628",
+      "slug": "neal_dunn",
+      "name": "Neal P. Dunn",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "N000191",
       "slug": "neguse",
       "name": "Joe Neguse",
       "chamber": "house",
       "state": "CO",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "P000621",
+      "slug": "nellie_pou",
+      "name": "Nellie Pou",
+      "chamber": "house",
+      "state": "NJ",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001323",
+      "slug": "nicholas_begich",
+      "name": "Nicholas J. Begich III",
+      "chamber": "house",
+      "state": "AK",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "L000600",
+      "slug": "nicholas_langworthy",
+      "name": "Nicholas A. Langworthy",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "L000598",
+      "slug": "nicolas_lalota",
+      "name": "Nick LaLota",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M000317",
+      "slug": "nicole_malliotakis",
+      "name": "Nicole Malliotakis",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001315",
+      "slug": "nicole_nikki_budzinski",
+      "name": "Nikki Budzinski",
+      "chamber": "house",
+      "state": "IL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "W000788",
+      "slug": "nikema_williams",
+      "name": "Nikema Williams",
+      "chamber": "house",
+      "state": "GA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "T000474",
+      "slug": "norma_torres",
+      "name": "Norma J. Torres",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "V000081",
+      "slug": "nydia_velazquez",
+      "name": "Nydia M. Velázquez",
+      "chamber": "house",
+      "state": "NY",
       "party": "Democrat",
       "serving119": true
     },
@@ -1636,12 +4084,84 @@
       "serving119": true
     },
     {
+      "bioguide": "F000246",
+      "slug": "pat_fallon",
+      "name": "Pat Fallon",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "H001101",
+      "slug": "pat_harrigan",
+      "name": "Pat Harrigan",
+      "chamber": "house",
+      "state": "NC",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "R000579",
+      "slug": "patrick_ryan",
+      "name": "Patrick Ryan",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000565",
+      "slug": "paul_gosar",
+      "name": "Paul A. Gosar",
+      "chamber": "house",
+      "state": "AZ",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "T000469",
+      "slug": "paul_tonko",
+      "name": "Paul Tonko",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S000250",
+      "slug": "pete_sessions",
+      "name": "Pete Sessions",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001212",
+      "slug": "pete_stauber",
+      "name": "Pete Stauber",
+      "chamber": "house",
+      "state": "MN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "P000595",
       "slug": "peters",
       "name": "Gary C. Peters",
       "chamber": "senate",
       "state": "MI",
       "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "P000048",
+      "slug": "pfluger",
+      "name": "August Pfluger",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Republican",
       "serving119": true
     },
     {
@@ -1654,11 +4174,38 @@
       "serving119": true
     },
     {
+      "bioguide": "N000190",
+      "slug": "ralph_norman",
+      "name": "Ralph Norman",
+      "chamber": "house",
+      "state": "SC",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "P000603",
       "slug": "rand_paul",
       "name": "Rand Paul",
       "chamber": "senate",
       "state": "KY",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000446",
+      "slug": "randy_feenstra",
+      "name": "Randy Feenstra",
+      "chamber": "house",
+      "state": "IA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "W000814",
+      "slug": "randy_weber",
+      "name": "Randy K. Weber, Sr.",
+      "chamber": "house",
+      "state": "TX",
       "party": "Republican",
       "serving119": true
     },
@@ -1672,12 +4219,48 @@
       "serving119": true
     },
     {
+      "bioguide": "R000599",
+      "slug": "raul_ruiz",
+      "name": "Raul Ruiz",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "R000122",
       "slug": "reed",
       "name": "Jack Reed",
       "chamber": "senate",
       "state": "RI",
       "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000484",
+      "slug": "rfine",
+      "name": "Randy Fine",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001218",
+      "slug": "rich_mccormick",
+      "name": "Richard McCormick",
+      "chamber": "house",
+      "state": "GA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "A000372",
+      "slug": "rick_allen",
+      "name": "Rick W. Allen",
+      "chamber": "house",
+      "state": "GA",
+      "party": "Republican",
       "serving119": true
     },
     {
@@ -1717,6 +4300,15 @@
       "serving119": true
     },
     {
+      "bioguide": "M001235",
+      "slug": "riley_moore",
+      "name": "Riley M. Moore",
+      "chamber": "house",
+      "state": "WV",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "R000584",
       "slug": "risch",
       "name": "James E. Risch",
@@ -1735,11 +4327,65 @@
       "serving119": true
     },
     {
+      "bioguide": "A000055",
+      "slug": "robert_aderholt",
+      "name": "Robert B. Aderholt",
+      "chamber": "house",
+      "state": "AL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "G000598",
       "slug": "robert_garcia",
       "name": "Robert Garcia",
       "chamber": "house",
       "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "L000566",
+      "slug": "robert_latta",
+      "name": "Robert E. Latta",
+      "chamber": "house",
+      "state": "OH",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001226",
+      "slug": "robert_menendez",
+      "name": "Robert Menendez",
+      "chamber": "house",
+      "state": "NJ",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "O000177",
+      "slug": "robert_onder",
+      "name": "Robert F. Onder, Jr.",
+      "chamber": "house",
+      "state": "MO",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "W000804",
+      "slug": "robert_wittman",
+      "name": "Robert J. Wittman",
+      "chamber": "house",
+      "state": "VA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "K000385",
+      "slug": "robin_kelly",
+      "name": "Robin L. Kelly",
+      "chamber": "house",
+      "state": "IL",
       "party": "Democrat",
       "serving119": true
     },
@@ -1762,11 +4408,29 @@
       "serving119": true
     },
     {
+      "bioguide": "E000298",
+      "slug": "ron_estes",
+      "name": "Ron Estes",
+      "chamber": "house",
+      "state": "KS",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "J000293",
       "slug": "ron_johnson",
       "name": "Ron Johnson",
       "chamber": "senate",
       "state": "WI",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "J000304",
+      "slug": "ronny_jackson",
+      "name": "Ronny Jackson",
+      "chamber": "house",
+      "state": "TX",
       "party": "Republican",
       "serving119": true
     },
@@ -1789,11 +4453,29 @@
       "serving119": false
     },
     {
+      "bioguide": "Y000067",
+      "slug": "rudy_yakym",
+      "name": "Rudy Yakym III",
+      "chamber": "house",
+      "state": "IN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "F000469",
       "slug": "russ_fulcher",
       "name": "Russ Fulcher",
       "chamber": "house",
       "state": "ID",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000478",
+      "slug": "russell_fry",
+      "name": "Russell Fry",
+      "chamber": "house",
+      "state": "SC",
       "party": "Republican",
       "serving119": true
     },
@@ -1807,6 +4489,24 @@
       "serving119": true
     },
     {
+      "bioguide": "Z000018",
+      "slug": "ryan_zinke",
+      "name": "Ryan K. Zinke",
+      "chamber": "house",
+      "state": "MT",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001112",
+      "slug": "salud_carbajal",
+      "name": "Salud O. Carbajal",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "G000546",
       "slug": "sam_graves",
       "name": "Sam Graves",
@@ -1816,12 +4516,48 @@
       "serving119": true
     },
     {
+      "bioguide": "L000607",
+      "slug": "sam_liccardo",
+      "name": "Sam T. Liccardo",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "S000033",
       "slug": "sanders",
       "name": "Bernard Sanders",
       "chamber": "senate",
       "state": "VT",
       "party": "Independent",
+      "serving119": true
+    },
+    {
+      "bioguide": "B000490",
+      "slug": "sanford_bishop",
+      "name": "Sanford D. Bishop, Jr.",
+      "chamber": "house",
+      "state": "GA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "J000305",
+      "slug": "sara_jacobs",
+      "name": "Sara Jacobs",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "E000301",
+      "slug": "sarah_elfreth",
+      "name": "Sarah Elfreth",
+      "chamber": "house",
+      "state": "MD",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -1879,12 +4615,57 @@
       "serving119": true
     },
     {
+      "bioguide": "D000616",
+      "slug": "scott_desjarlais",
+      "name": "Scott DesJarlais",
+      "chamber": "house",
+      "state": "TN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000471",
+      "slug": "scott_fitzgerald",
+      "name": "Scott Fitzgerald",
+      "chamber": "house",
+      "state": "WI",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "P000605",
       "slug": "scott_perry",
       "name": "Scott Perry",
       "chamber": "house",
       "state": "PA",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "P000608",
+      "slug": "scott_peters",
+      "name": "Scott H. Peters",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001117",
+      "slug": "sean_casten",
+      "name": "Sean Casten",
+      "chamber": "house",
+      "state": "IL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001223",
+      "slug": "seth_magaziner",
+      "name": "Seth Magaziner",
+      "chamber": "house",
+      "state": "RI",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -1906,12 +4687,57 @@
       "serving119": true
     },
     {
+      "bioguide": "D000629",
+      "slug": "sharice_davids",
+      "name": "Sharice Davids",
+      "chamber": "house",
+      "state": "KS",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "S001232",
       "slug": "sheehy",
       "name": "Tim Sheehy",
       "chamber": "senate",
       "state": "MT",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001325",
+      "slug": "sheri_biggs",
+      "name": "Sheri Biggs",
+      "chamber": "house",
+      "state": "SC",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000481",
+      "slug": "shomari_figures",
+      "name": "Shomari Figures",
+      "chamber": "house",
+      "state": "AL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001313",
+      "slug": "shontel_brown",
+      "name": "Shontel M. Brown",
+      "chamber": "house",
+      "state": "OH",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "T000488",
+      "slug": "shri_thanedar",
+      "name": "Shri Thanedar",
+      "chamber": "house",
+      "state": "MI",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -1951,12 +4777,48 @@
       "serving119": true
     },
     {
+      "bioguide": "L000562",
+      "slug": "stephen_lynch",
+      "name": "Stephen F. Lynch",
+      "chamber": "house",
+      "state": "MA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001068",
+      "slug": "steve_cohen",
+      "name": "Steve Cohen",
+      "chamber": "house",
+      "state": "TN",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "W000809",
       "slug": "steve_womack",
       "name": "Steve Womack",
       "chamber": "house",
       "state": "AR",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "H001066",
+      "slug": "steven_horsford",
+      "name": "Steven Horsford",
+      "chamber": "house",
+      "state": "NV",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001230",
+      "slug": "suhas_subramanyam",
+      "name": "Suhas Subramanyam",
+      "chamber": "house",
+      "state": "VA",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -1974,6 +4836,33 @@
       "name": "Susie Lee",
       "chamber": "house",
       "state": "NV",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001278",
+      "slug": "suzanne_bonamici",
+      "name": "Suzanne Bonamici",
+      "chamber": "house",
+      "state": "OR",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "K000400",
+      "slug": "sydney_kamlager_dove",
+      "name": "Sydney Kamlager-Dove",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000587",
+      "slug": "sylvia_garcia",
+      "name": "Sylvia R. Garcia",
+      "chamber": "house",
+      "state": "TX",
       "party": "Democrat",
       "serving119": true
     },
@@ -2023,6 +4912,15 @@
       "serving119": true
     },
     {
+      "bioguide": "S001185",
+      "slug": "terri_sewell",
+      "name": "Terri A. Sewell",
+      "chamber": "house",
+      "state": "AL",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "G000571",
       "slug": "tgabbard",
       "name": "Tulsi Gabbard",
@@ -2030,6 +4928,24 @@
       "state": "HI",
       "party": "Democrat",
       "serving119": false
+    },
+    {
+      "bioguide": "K000398",
+      "slug": "thomas_kean",
+      "name": "Thomas H. Kean, Jr.",
+      "chamber": "house",
+      "state": "NJ",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "T000165",
+      "slug": "thomas_tiffany",
+      "name": "Thomas P. Tiffany",
+      "chamber": "house",
+      "state": "WI",
+      "party": "Republican",
+      "serving119": true
     },
     {
       "bioguide": "T000250",
@@ -2050,12 +4966,39 @@
       "serving119": true
     },
     {
+      "bioguide": "B001309",
+      "slug": "tim_burchett",
+      "name": "Tim Burchett",
+      "chamber": "house",
+      "state": "TN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001236",
+      "slug": "tim_moore",
+      "name": "Tim Moore",
+      "chamber": "house",
+      "state": "NC",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "S001184",
       "slug": "tim_scott",
       "name": "Tim Scott",
       "chamber": "senate",
       "state": "SC",
       "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "K000402",
+      "slug": "timothy_kennedy",
+      "name": "Timothy M. Kennedy",
+      "chamber": "house",
+      "state": "NY",
+      "party": "Democrat",
       "serving119": true
     },
     {
@@ -2086,11 +5029,29 @@
       "serving119": true
     },
     {
+      "bioguide": "B001321",
+      "slug": "tom_barrett",
+      "name": "Tom Barrett",
+      "chamber": "house",
+      "state": "MI",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "C001053",
       "slug": "tom_cole",
       "name": "Tom Cole",
       "chamber": "house",
       "state": "OK",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "M001177",
+      "slug": "tom_mcclintock",
+      "name": "Tom McClintock",
+      "chamber": "house",
+      "state": "CA",
       "party": "Republican",
       "serving119": true
     },
@@ -2113,12 +5074,30 @@
       "serving119": true
     },
     {
+      "bioguide": "W000829",
+      "slug": "tony_wied",
+      "name": "Tony Wied",
+      "chamber": "house",
+      "state": "WI",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "T000486",
       "slug": "torres",
       "name": "Ritchie Torres",
       "chamber": "house",
       "state": "NY",
       "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "M000871",
+      "slug": "tracey_mann",
+      "name": "Tracey Mann",
+      "chamber": "house",
+      "state": "KS",
+      "party": "Republican",
       "serving119": true
     },
     {
@@ -2131,6 +5110,24 @@
       "serving119": true
     },
     {
+      "bioguide": "B001306",
+      "slug": "troy_balderson",
+      "name": "Troy Balderson",
+      "chamber": "house",
+      "state": "OH",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001125",
+      "slug": "troy_carter",
+      "name": "Troy A. Carter",
+      "chamber": "house",
+      "state": "LA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "D000634",
       "slug": "troy_downing",
       "name": "Troy Downing",
@@ -2140,12 +5137,93 @@
       "serving119": true
     },
     {
+      "bioguide": "N000026",
+      "slug": "troy_nehls",
+      "name": "Troy E. Nehls",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000477",
+      "slug": "valerie_foushee",
+      "name": "Valerie P. Foushee",
+      "chamber": "house",
+      "state": "NC",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "H001094",
+      "slug": "valerie_hoyle",
+      "name": "Val T. Hoyle",
+      "chamber": "house",
+      "state": "OR",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
       "bioguide": "V000128",
       "slug": "van_hollen",
       "name": "Chris Van Hollen",
       "chamber": "senate",
       "state": "MD",
       "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001260",
+      "slug": "vern_buchanan",
+      "name": "Vern Buchanan",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "E000299",
+      "slug": "veronica_escobar",
+      "name": "Veronica Escobar",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "G000581",
+      "slug": "vicente_gonzalez",
+      "name": "Vicente Gonzalez",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "S000929",
+      "slug": "victoria_spartz",
+      "name": "Victoria Spartz",
+      "chamber": "house",
+      "state": "IN",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "F000480",
+      "slug": "vince_fong",
+      "name": "Vince Fong",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "S001214",
+      "slug": "w_steube",
+      "name": "W. Gregory Steube",
+      "chamber": "house",
+      "state": "FL",
+      "party": "Republican",
       "serving119": true
     },
     {
@@ -2185,12 +5263,39 @@
       "serving119": true
     },
     {
+      "bioguide": "D000626",
+      "slug": "warren_davidson",
+      "name": "Warren Davidson",
+      "chamber": "house",
+      "state": "OH",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "W000800",
       "slug": "welch",
       "name": "Peter Welch",
       "chamber": "senate",
       "state": "VT",
       "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "B001324",
+      "slug": "wesley_bell",
+      "name": "Wesley Bell",
+      "chamber": "house",
+      "state": "MO",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "H001095",
+      "slug": "wesley_hunt",
+      "name": "Wesley Hunt",
+      "chamber": "house",
+      "state": "TX",
+      "party": "Republican",
       "serving119": true
     },
     {
@@ -2212,11 +5317,56 @@
       "serving119": true
     },
     {
+      "bioguide": "K000375",
+      "slug": "william_keating",
+      "name": "William R. Keating",
+      "chamber": "house",
+      "state": "MA",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "T000480",
+      "slug": "william_timmons",
+      "name": "William R. Timmons IV",
+      "chamber": "house",
+      "state": "SC",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
       "bioguide": "W000779",
       "slug": "wyden",
       "name": "Ron Wyden",
       "chamber": "senate",
       "state": "OR",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "A000381",
+      "slug": "yassamin_ansari",
+      "name": "Yassamin Ansari",
+      "chamber": "house",
+      "state": "AZ",
+      "party": "Democrat",
+      "serving119": true
+    },
+    {
+      "bioguide": "K000397",
+      "slug": "young_kim",
+      "name": "Young Kim",
+      "chamber": "house",
+      "state": "CA",
+      "party": "Republican",
+      "serving119": true
+    },
+    {
+      "bioguide": "C001067",
+      "slug": "yvette_clarke",
+      "name": "Yvette D. Clarke",
+      "chamber": "house",
+      "state": "NY",
       "party": "Democrat",
       "serving119": true
     },

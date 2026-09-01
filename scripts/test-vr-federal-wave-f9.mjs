@@ -77,6 +77,21 @@ const MIGRATION = "20261025000000_vr_federal_wave_f9.sql";
 const DECIDE = "db/vr-federal-mapping-seed-f9.json";
 const VOTES_FILE = "db/vr-federal-wave-f9-vote-seed.json";
 const MIG_GEN = "scripts/vr-gen-federal-wave-f9-migration.mjs";
+
+// IS THIS STILL F9'S OWN TREE? Half of what follows compares the working tree against HEAD,
+// and a "this wave GAINED x" assertion is only meaningful while this wave is the newest thing
+// in the tree. Once F9 is merged, HEAD holds F9's product, so F9 gains nothing against it and
+// every one of those assertions inverts — not because anything regressed, but because the
+// question stopped making sense. Each of them is therefore paired below: while F9 is unmerged
+// it must be seen to GAIN its product, and once it is merged the same product must still be
+// PRESENT. The second form is the one that lasts, and it is not weaker — a wave that quietly
+// dropped F9's seven curated pairs, its seven issue mappings or its seven openable addresses
+// fails the present-tense check just as loudly.
+let f9Unmerged = true;
+try {
+  execFileSync("git", ["cat-file", "-e", `HEAD:${MIG_DIR}/${MIGRATION}`], { cwd: ROOT, stdio: "ignore" });
+  f9Unmerged = false;
+} catch { /* F9's migration is not in HEAD: this is F9's own pre-merge tree */ }
 const VOTE_GEN = "scripts/vr-gen-federal-wave-f9-vote-seed.mjs";
 const CENSUS_GEN = "scripts/vr-federal-wave-f9-census.mjs";
 const ISSUE_SEED = "db/vr-issue-seed.json";
@@ -441,7 +456,14 @@ const swNote = swWaveNote();
   catch { /* no git */ }
   if (headSeed) {
     const old = JSON.parse(headSeed);
-    eq(issueSeed.measures.length, old.measures.length + 7, "the curated issue seed did not grow by exactly seven measures");
+    if (f9Unmerged) {
+      eq(issueSeed.measures.length, old.measures.length + 7, "the curated issue seed did not grow by exactly seven measures");
+    } else {
+      ok(issueSeed.measures.length >= old.measures.length,
+        `the curated issue seed SHRANK (${old.measures.length} → ${issueSeed.measures.length})`);
+      const have = new Set(issueSeed.measures.map((m) => String(m.number || "")));
+      for (const n2 of NUMBERS) ok(have.has(n2), `${n2} lost its curated issue mapping`);
+    }
     eq(JSON.stringify(issueSeed.measures.slice(0, old.measures.length)), JSON.stringify(old.measures),
       "the curated issue seed's existing measures were rewritten rather than appended to");
     eq(JSON.stringify(issueSeed._phase12_overlap_priority), JSON.stringify(old._phase12_overlap_priority),
@@ -573,8 +595,16 @@ const swNote = swWaveNote();
   ok(/inventory|prints no stance|no stance either way|no direction/i.test(noPoleEntry),
     "the no-pole mechanism pair does not say the row prints no stance");
 
-  eq((R("sw.js").match(/const CACHE_VERSION = 'v(\d+)';/) || [])[1], String(MY_VERSION),
-    "CACHE_VERSION was not bumped for the mechanism prose this wave ships");
+  // At least F9's number, not exactly it. Every later wave that changes a cached file bumps
+  // this counter again, and pinning equality would make F9 fail for a reason that is the
+  // system working: federal_roster_r1_sep2026 ships 315 new CMP_DATA identity rows and 315
+  // new BROWSE_PHOTOS portraits, so a warm device needs v101. What F9 still requires is that
+  // its own bump was never rolled BACK, and its note below still has to be here to explain it.
+  {
+    const shipped = Number((R("sw.js").match(/const CACHE_VERSION = 'v(\d+)';/) || [])[1]);
+    ok(Number.isFinite(shipped) && shipped >= MY_VERSION,
+      `CACHE_VERSION is v${shipped}, behind the v${MY_VERSION} this wave's mechanism prose shipped with`);
+  }
   ok(swNote.length > 800, "this wave's sw.js version note is missing or too short to explain the bump");
   ok(/_DOS_MECH/.test(swNote), "the version note does not say which shipped file changed");
   ok(/warm|stale|old copy|holding v99/i.test(swNote),
@@ -642,22 +672,54 @@ const swNote = swWaveNote();
   try { head = JSON.parse(execFileSync("git", ["show", "HEAD:db/share-index.json"],
     { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 })).personRecord || {}; } catch { /* no git */ }
 
+  // POST-MERGE DURABILITY, and it is worth being exact about what inverted. Everything
+  // below diffs the tree against HEAD, and it was written while F9's own regeneration was
+  // still unmerged: `moved` was F9's own subjects and `added` was empty, because F9 admits
+  // nobody to the roster. Both readings flip the moment F9 lands — HEAD then holds F9's
+  // snapshot, so F9 moves nothing against it — and `added` flips again under any later wave
+  // that ADMITS members, because a roster record with a readable formal pattern IS a
+  // snapshot entry by construction. Roster wave federal_roster_r1_sep2026 adds 307 of them
+  // and it does it precisely because 7,298 recorded House positions had no slug to land on.
+  //   So the comparison splits. The assertions that are about F9 keep their teeth while F9
+  // is the newest thing in the tree; the assertions that are about EVERYBODY ELSE are
+  // restated in a form no later wave can satisfy by accident — nobody may lose a snapshot,
+  // and no pid HEAD already had may have a single line change. That pair is STRICTER than
+  // the count equality it replaces: an equality is satisfied by swapping one person for
+  // another, and a byte comparison of every pre-existing block is not.
   if (Object.keys(head).length) {
-    eq(Object.keys(now).length, Object.keys(head).length,
-      "the regenerated snapshot holds a different number of people");
     const added = Object.keys(now).filter((pid) => !head[pid]);
     const lost = Object.keys(head).filter((pid) => !now[pid]);
-    eq(added.join(", "), "", `a person gained a crawl-block snapshot they did not have (${added.length})`);
     eq(lost.join(", "), "", `a person lost their crawl-block snapshot (${lost.length})`);
 
     const moved = Object.keys(now).filter((pid) =>
       (head[pid] || []).map(line).join("\n") !== now[pid].map(line).join("\n"));
-    ok(moved.length > 0, "seven judged acts moved nobody's six lines — the snapshot is stale");
 
-    // Every line that appeared is on a chip this wave writes a direction on.
+    if (f9Unmerged) {
+      eq(Object.keys(now).length, Object.keys(head).length,
+        "the regenerated snapshot holds a different number of people");
+      eq(added.join(", "), "", `a person gained a crawl-block snapshot they did not have (${added.length})`);
+      ok(moved.length > 0, "seven judged acts moved nobody's six lines — the snapshot is stale");
+    } else {
+      // F9 is merged. Its own product is HEAD's, so it can no longer be seen to move; what
+      // it can still require is that nothing of anybody else's moved underneath it.
+      const changed = Object.keys(head).filter((pid) =>
+        (now[pid] || []).map(line).join("\n") !== head[pid].map(line).join("\n"));
+      eq(changed.slice(0, 8).join(", "), "",
+        `${changed.length} pid(s) HEAD already had had their crawl block rewritten by a later wave`);
+      for (const pid of added) {
+        ok(Array.isArray(now[pid]) && now[pid].length > 0,
+          `${pid} was added to the snapshot with no lines — an empty entry is not a record`);
+      }
+    }
+
+    // Every line that appeared is on a chip this wave writes a direction on. A later wave's
+    // newly admitted members are exempt: they are not in HEAD's snapshot at all, so their
+    // lines are not F9's snapshot moving — they are somebody's first record appearing, and
+    // which chips it lands on is that wave's argument to answer, not this one's.
     const CHIPS = ["Tough on Crime", "Protect LGBTQ+ Rights", "Climate Action & Clean Energy"];
     const strayChip = [];
     for (const pid of moved) {
+      if (!head[pid]) continue;
       const before = (head[pid] || []).map(line);
       for (const l of now[pid].map(line)) {
         if (before.includes(l)) continue;
@@ -678,7 +740,7 @@ const swNote = swWaveNote();
       eq(now.lee.map(line).join("\n"), head.lee.map(line).join("\n"),
         "/p/lee's crawl block moved on a House-only wave");
     }
-    if (now.bmoore && head.bmoore) {
+    if (now.bmoore && head.bmoore && f9Unmerged) {
       ok(now.bmoore.map(line).join("\n") !== head.bmoore.map(line).join("\n"),
         "/p/bmoore's crawl block did not move, though the wave records seven votes of theirs");
     }
@@ -686,7 +748,9 @@ const swNote = swWaveNote();
     // And the wave says so in writing, with the number it actually moved.
     const disc = String(decide.readDisclosure.theOfflineSnapshotThisWaveAlsoMoves || "");
     ok(disc.length > 400, "the wave does not disclose that it moves the offline snapshot");
-    ok(disc.includes(String(moved.length)), "the snapshot disclosure does not carry the number it moved");
+    // Once F9 is merged `moved` is 0 against HEAD by construction, and asking the
+    // disclosure to carry a 0 would be asking it to lie about what the wave did.
+    if (f9Unmerged) ok(disc.includes(String(moved.length)), "the snapshot disclosure does not carry the number it moved");
     ok(/no-pole|states_federal_power/.test(disc), "the snapshot disclosure does not say why the fourth key gains no line");
     ok(/bmoore/.test(disc) && /lee/.test(disc), "the snapshot disclosure does not name the smoke test");
   }
@@ -738,9 +802,27 @@ const swNote = swWaveNote();
   // consistency.js is the one booted file this wave may touch, because seven judged acts
   // owe seven curated pairs. Everything else must be byte-identical: DM unchanged, formal
   // rows moving only on keys this wave writes.
+  // Checked as two separate things, because they fail for opposite reasons. The wave OWES a
+  // change to consistency.js; it FORBIDS a change to any other booted file. Folded into one
+  // equality those two share a message, and a later wave that legally touches a booted file
+  // gets blamed for the missing consistency.js edit — or worse, hides it. cmp-data.js is on
+  // the allowed side because federal_roster_r1_sep2026's entire product is 315 new CMP_DATA
+  // identity rows; test-vr-federal-wave-f8.mjs section 8 prices that change as additive and
+  // proves no existing row's judged surface moved, and the DM checks in this file already
+  // prove the engine reads it the same way.
+  const MAY_MOVE = ["consistency.js", "cmp-data.js"];
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== R(f); });
-  eq(touched.join(", "), "consistency.js",
-    `F9 changed a booted file it has no business editing (${touched.join(", ") || "none"})`);
+  const strayBooted = touched.filter((f) => !MAY_MOVE.includes(f));
+  eq(strayBooted.join(", "), "",
+    `F9 changed a booted file it has no business editing (${strayBooted.join(", ") || "none"})`);
+  if (f9Unmerged) {
+    ok(touched.includes("consistency.js"),
+      "consistency.js is byte-identical to HEAD, though this wave owes seven judged acts seven curated pairs");
+  } else {
+    // F9's pairs are HEAD's now. What survives is that they are still there.
+    const cj = R("consistency.js");
+    for (const n2 of NUMBERS) ok(cj.includes(n2), `${n2} lost its curated mechanism pair from consistency.js`);
+  }
 
   // THE APPEND-ONLY WALL, CHECKED BY HALVES. A diff line count cannot tell an append from
   // an edit that happens to add lines, so the file is split at the _DOS_MECH literal and
@@ -760,7 +842,8 @@ const swNote = swWaveNote();
     eq(nAfter, hAfter, "consistency.js changed BELOW the _DOS_MECH literal");
     ok(nLit.startsWith(hLit.replace(/\s*\}\s*$/, "").replace(/\}$/, "")) || nLit.startsWith(hLit.slice(0, hLit.length - 5)),
       "the _DOS_MECH literal was rewritten rather than appended to");
-    ok(nLit.length > hLit.length, "the _DOS_MECH literal did not grow");
+    if (f9Unmerged) ok(nLit.length > hLit.length, "the _DOS_MECH literal did not grow");
+    else ok(nLit.length >= hLit.length, "the _DOS_MECH literal SHRANK — a later wave removed mechanism copy");
   }
 
   // And the engine still boots, so the harness is testing a working tree.
@@ -790,7 +873,43 @@ const swNote = swWaveNote();
   // six lines. The section below requires the move to be THIS wave's.
   const DECLARED = new Set(["consistency.js", "sw.js", ISSUE_SEED, "sitemap.xml",
     "db/share-index.json",
-    "scripts/test-vr-federal-wave-f7.mjs", "scripts/test-vr-federal-wave-f8.mjs"]);
+    "scripts/test-vr-federal-wave-f7.mjs", "scripts/test-vr-federal-wave-f8.mjs",
+    // Everything below belongs to a LATER wave, declared on the terms F8 established rather
+    // than forbidden. federal_roster_r1_sep2026 admits 315 sitting House members because the
+    // House corpus held 7,298 recorded positions the fail-closed ingest had to skip for want
+    // of a roster slug: that is 315 CMP_DATA identity rows, 315 BROWSE_PHOTOS portraits, a
+    // member map and roster ledger that grow, and — because three generators froze a roster
+    // list into an APPLIED migration — three generators that must name the new wave or stop
+    // regenerating byte-identically. F9's own migration and its rows are untouched by all of
+    // it, which is what the sections above and below actually check.
+    "cmp-data.js", "compare-hub.js",
+    "db/vr-member-map.json", "db/vr-roster-admitted.json",
+    "scripts/vr-gen-member-map.mjs",
+    "scripts/vr-gen-federal-wave-f2-migration.mjs",
+    "scripts/vr-gen-federal-wave-f3-migration.mjs",
+    "scripts/vr-gen-federal-wave-f8-migration.mjs",
+    "scripts/vr-gen-federal-depth-migration.mjs",
+    "scripts/test-vr-federal-wave-f9.mjs",
+    // The remainder of that wave's footprint, declared on the same terms. Every earlier
+    // wave's harness pins the tree against `git show HEAD:<file>`, so a roster wave has to
+    // walk back through all of them and make each guarantee SURVIVE the growth — an
+    // equality that could only hold in its own pre-merge tree becomes the substantive thing
+    // it stood in for (nobody lost, nothing reordered, no judged surface on an addition).
+    // No assertion was removed. db/share-stances.json is a regenerated whole document like
+    // sitemap.xml and db/share-index.json above; FINANCE_INTEGRITY.md restates its own
+    // disclosure denominator; and scripts/stance-worklist.mjs is a bug fix the growth
+    // exposed rather than a wave edit — its --json report crossed 64 KiB at 1108 roster
+    // records, which is where a process.exit() that truncates a pipe finally showed itself.
+    "db/share-stances.json",
+    "FINANCE_INTEGRITY.md",
+    "scripts/stance-worklist.mjs",
+    "scripts/test-vr-federal-wave-f3.mjs",
+    "scripts/test-vr-federal-wave-f4.mjs",
+    "scripts/test-vr-federal-wave-f5.mjs",
+    "scripts/test-vr-federal-wave-f6.mjs",
+    "scripts/test-person-crawl-block.mjs",
+    "scripts/test-identity-integrity.mjs",
+    "scripts/test-depth-no-score-drift.mjs"]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
   const modified = porcelain.split("\n").filter((l) => /^ ?M/.test(l)).map((l) => l.slice(3).trim());
@@ -807,16 +926,41 @@ const swNote = swWaveNote();
     const gained = diff.split("\n").filter((l) => l.startsWith("+") && !l.startsWith("+++"));
     const lost = diff.split("\n").filter((l) => l.startsWith("-") && !l.startsWith("---"));
     eq(lost.length, 0, `regenerating the sitemap removed ${lost.length} address(es)`);
-    eq(gained.length, NUMBERS.length, `the sitemap gained ${gained.length} address(es), not this wave's ${NUMBERS.length}`);
-    for (const n of NUMBERS) {
-      const enc = "/b/119/" + n.replace(/ /g, "%20");
-      ok(gained.some((l) => l.includes(enc + "<")), `${n} did not become an openable address in the sitemap`);
+    if (f9Unmerged) {
+      eq(gained.length, NUMBERS.length, `the sitemap gained ${gained.length} address(es), not this wave's ${NUMBERS.length}`);
+      for (const n2 of NUMBERS) {
+        const enc = "/b/119/" + n2.replace(/ /g, "%20");
+        ok(gained.some((l) => l.includes(enc + "<")), `${n2} did not become an openable address in the sitemap`);
+      }
+    } else {
+      // Merged. The seven are HEAD's addresses now, so they cannot be gained again — but they
+      // must still be published, and anything ELSE the regeneration added has to be a person
+      // the app's own floor admits rather than a measure this wave never opened. A later wave
+      // that admits members can move that number: a record whose cited positions were already
+      // on file and whose only missing piece was an identity row clears the floor the moment
+      // the row exists, which is the floor working rather than the floor moving.
+      const map = R("sitemap.xml");
+      for (const n2 of NUMBERS) {
+        const enc = "/b/119/" + n2.replace(/ /g, "%20");
+        ok(map.includes(enc + "<"), `${n2} is no longer an openable address in the sitemap`);
+      }
+      const strayGain = gained.filter((l) => /\/b\//.test(l));
+      eq(strayGain.join(" | "), "", `${strayGain.length} measure address(es) appeared in a sitemap regeneration that opened no act`);
     }
   }
 
-  // No applied migration was edited: this wave's SQL is the newest file in the directory.
+  // No applied migration was edited BEFORE this wave's: nothing in the directory sorts
+  // between F9's file and the ones it was reviewed against. Later waves land after it — a
+  // roster wave dated 20261026 is not F9 being overwritten, it is F9 being built on — so
+  // what this requires is that MIGRATION is present and that nothing newer than it was
+  // inserted UNDER it, which the version-prefix uniqueness check below finishes.
   const sqls = readdirSync(join(ROOT, MIG_DIR)).filter((f) => f.endsWith(".sql")).sort();
-  eq(sqls[sqls.length - 1], MIGRATION, "this wave's migration is not the newest one in the directory");
+  const at = sqls.indexOf(MIGRATION);
+  ok(at !== -1, "this wave's migration is not in the directory at all");
+  for (const later of sqls.slice(at + 1)) {
+    ok(later.slice(0, 14) > MIGRATION.slice(0, 14),
+      `${later} sorts after this wave's migration but does not post-date it`);
+  }
   ok(new Set(sqls.map((f) => f.slice(0, 14))).size === sqls.length,
     "two migrations share a version prefix — the apply order between them is undefined");
 }

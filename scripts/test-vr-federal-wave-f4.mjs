@@ -546,7 +546,22 @@ function boot(get, label) {
       const gone = PIDS.filter((p) => !nowSet.has(p));
       const added = nowPids.filter((p) => !headSet.has(p));
       eq(gone.length, 0, `F4 removed ${gone.length} profile(s) from the roster: ${gone.slice(0, 8).join(", ")}`);
-      eq(added.length, 0, `F4 added ${added.length} profile(s) to the roster: ${added.slice(0, 8).join(", ")}`);
+      // ADDITIONS BELONG TO A LATER ROSTER WAVE, and the roster is where a wave admits a
+      // person: federal_roster_r1_sep2026 adds 308 records because the House corpus held
+      // 7,298 recorded positions the fail-closed ingest had to skip for want of a roster
+      // slug. What this check was protecting is a mapping LEAKING out of the database into
+      // a shipped file, and that is still refused — the additions must be inert (no score,
+      // no stance, no judged surface), so nothing this wave's own mapping work could produce
+      // can arrive this way. A removal or a reorder still fails, and every profile HEAD had
+      // is still held bit-for-bit by the Direction Match sweep.
+      const hot = added.filter((p) => {
+        const r = (work.CMP_DATA || {})[p] || {};
+        return r.score !== null || r.kept !== 0 || r.broken !== 0 || r.pending !== 0
+          || !Array.isArray(r.issues) || r.issues.length !== 0;
+      });
+      eq(hot.length, 0, `${hot.length} added profile(s) carry a judged surface: ${hot.slice(0, 8).join(", ")} — an admission is identity, never a mapping that leaked out of the database`);
+      const kept = nowPids.filter((p) => headSet.has(p));
+      eq(kept.join("|"), PIDS.join("|"), "F4 reordered the roster records HEAD already had");
     }
     const READ_KEYS = ["pct", "publishable", "word", "testedWeight"];
     const COV_KEYS = ["word", "scorable", "tested", "untested", "issueLinked",

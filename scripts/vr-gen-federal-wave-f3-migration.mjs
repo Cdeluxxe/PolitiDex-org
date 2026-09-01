@@ -106,7 +106,16 @@ const memberMap = J("db/vr-member-map.json");
 // admitted AFTER this migration are excluded by name. A later wave that adds roster
 // slugs adds its wave key here; a key that is not in the roster file is a typo and
 // throws rather than silently excluding nothing.
-const ROSTER_WAVES_ADMITTED_AFTER_THIS_MIGRATION = ["federal_wave_f6_aug2026", "federal_wave_f8_aug2026"];
+// federal_roster_r1_sep2026 is by far the largest entry this list will ever carry: 315
+// sitting House members admitted at once, because the House corpus held 7,298 recorded
+// positions the fail-closed ingest had to skip for want of a roster slug. Excluded here
+// for exactly the same reason as F6 and F8 — this migration has already run, and the
+// roster it was reviewed against did not contain them.
+const ROSTER_WAVES_ADMITTED_AFTER_THIS_MIGRATION = [
+  "federal_wave_f6_aug2026",
+  "federal_wave_f8_aug2026",
+  "federal_roster_r1_sep2026",
+];
 const ROSTER = (() => {
   const waves = J("db/vr-roster-admitted.json").waves || {};
   const later = new Set();

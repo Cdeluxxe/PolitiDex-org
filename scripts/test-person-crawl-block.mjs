@@ -1079,7 +1079,7 @@ section("9 · the engines did not move");
   const ENGINES = [
     "alignment-tool.js",
     "say-vs-do.js", "exec-record.js", "stance-helpers.js",
-    "publication-floor.js", "cmp-data.js", "issue-colors.js",
+    "publication-floor.js", "issue-colors.js",
     "netlify/lib/vr-pack.ts", "netlify/lib/vr-normalize.ts", "db/issue-keys.json",
   ];
   const sha = (s) => createHash("sha256").update(s).digest("hex").slice(0, 16);
@@ -1096,8 +1096,82 @@ section("9 · the engines did not move");
   if (!compared) {
     console.log("      (no git baseline available — engine byte-identity not checked in this environment)");
   } else {
-    ok(compared >= 9, `the engine set was read from HEAD (${compared} files)`);
-    eq(moved, [], "Direction Match, the formal-pattern engines, the packs and the roster are byte-identical to HEAD");
+    ok(compared >= 8, `the engine set was read from HEAD (${compared} files)`);
+    eq(moved, [], "Direction Match, the formal-pattern engines, the packs and the mappings are byte-identical to HEAD");
+  }
+
+  // ── cmp-data.js: CARVED OUT, ROW BY ROW, FOR THE SAME REASON AS _DOS_MECH ────
+  // A blanket hash on the roster forbids exactly the pass this check should survive:
+  // admitting a member. Roster wave federal_roster_r1_sep2026 adds 308 rows because the
+  // House corpus held 7,298 recorded positions the fail-closed ingest had to skip for want
+  // of a roster slug — a person with no file is a vote with nowhere to go, and the only
+  // repair is a file. So the roster is pinned STRUCTURALLY rather than by hash, which for
+  // this section's purpose is the stronger of the two: it is the ROWS that feed Direction
+  // Match and the formal-pattern engines, not the bytes around them.
+  //
+  //   · nobody HEAD had may be removed, and HEAD's order must survive;
+  //   · every row HEAD had must be identical field for field, EXCEPT the named
+  //     corrections below; and
+  //   · anything added must be inert — score null, kept/broken/pending 0, no issues.
+  //
+  // NAMED CORRECTIONS. rfine: Randy Fine's record still described him as a Florida state
+  // representative and candidate. He won the FL-06 special election in April 2025 and has
+  // been a sitting U.S. Representative since — he is in the Clerk's MemberData.xml at FL06
+  // and casts votes in this corpus. `office` and `state` were corrected to the seat he
+  // actually holds. His score, his kept/broken/pending counts and his stances were not
+  // touched, which is why this is a label correction and not a rescore.
+  const CMP_CORRECTIONS = {
+    rfine: new Set(["office", "state"]),
+  };
+  {
+    const bootCmp = (src) => {
+      const w = makeSandbox();
+      const c = vm.createContext(w);
+      try { vm.runInContext(src, c, { filename: "cmp-data.js" }); } catch { return null; }
+      return w.CMP_DATA || null;
+    };
+    let headSrcCmp = null;
+    try { headSrcCmp = execFileSync("git", ["show", "HEAD:cmp-data.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 }); }
+    catch { /* no baseline here */ }
+    const now = bootCmp(R("cmp-data.js"));
+    if (!ok(!!now, "cmp-data.js does not boot")) { /* nothing further to say */ }
+    else if (!headSrcCmp) console.log("      (no git baseline for cmp-data.js — the roster carve-out is unchecked)");
+    else {
+      const head = bootCmp(headSrcCmp);
+      if (ok(!!head, "HEAD's cmp-data.js does not boot — the roster carve-out is unchecked")) {
+        const headPids = Object.keys(head);
+        const gone = headPids.filter((pid) => !now[pid]);
+        eq(gone.join(", "), "", `the roster lost ${gone.length} record(s) — a pass may add a person, never drop one`);
+        eq(Object.keys(now).filter((pid) => head[pid]).join("|"), headPids.join("|"),
+          "the roster reordered the records HEAD already had");
+        const drifted = [];
+        for (const pid of headPids) {
+          const a = head[pid], b = now[pid]; if (!b) continue;
+          const allowed = CMP_CORRECTIONS[pid] || new Set();
+          for (const f of new Set([...Object.keys(a), ...Object.keys(b)])) {
+            if (allowed.has(f)) continue;
+            if (JSON.stringify(a[f]) !== JSON.stringify(b[f])) drifted.push(`${pid}.${f}`);
+          }
+        }
+        eq(drifted.join(", "), "", `${drifted.length} field(s) moved on a record HEAD already had, outside the named corrections`);
+        // A correction that quietly moved a judged number is not a correction.
+        for (const pid of Object.keys(CMP_CORRECTIONS)) {
+          if (!head[pid] || !now[pid]) continue;
+          for (const f of ["score", "kept", "broken", "pending", "issues"])
+            eq(JSON.stringify(now[pid][f]), JSON.stringify(head[pid][f]),
+              `${pid}.${f} moved — a label correction may not touch the judged surface`);
+        }
+        // And the additions are inert.
+        const added = Object.keys(now).filter((pid) => !head[pid]);
+        ok(added.length > 0 || headPids.length === Object.keys(now).length, "the addition count does not add up");
+        const hot = added.filter((pid) => {
+          const r = now[pid] || {};
+          return r.score !== null || r.kept !== 0 || r.broken !== 0 || r.pending !== 0
+            || !Array.isArray(r.issues) || r.issues.length !== 0;
+        });
+        eq(hot.join(", "), "", `${hot.length} added record(s) arrived carrying a judged surface — an admission is identity, never a score`);
+      }
+    }
   }
 
   // ── consistency.js: PINNED EVERYWHERE EXCEPT THE MECHANISM MAP ──────────────

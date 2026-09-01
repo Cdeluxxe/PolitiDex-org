@@ -9595,8 +9595,12 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "rfine": {
   "name": "Randy Fine",
-  "office": "FL State Rep / Candidate",
-  "state": "Florida",
+  // Federal roster wave R1: seated, not a candidate. Won the FL-06 special election on
+  // 2025-04-01 and has been the sitting member since; this file is about to start
+  // receiving House roll calls, so the office line is corrected to what he holds and
+  // the state line carries the district in the same form as every other House row.
+  "office": "U.S. Representative",
+  "state": "Florida · FL-06",
   "party": "R",
   "termStart": "2025-04",
   "score": null,
@@ -12319,5 +12323,2203 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
     "sources": [{ "label": "GovTrack", "url": "https://www.govtrack.us/congress/members/troy_downing/457000" }]
    }
   ]
+ },
+ // ══ Federal roster wave R1 — identity only ═══════════════════════════════════
+ // 308 sitting members of the 119th House who had no file here. They are here because
+ // the Voting Record needed somewhere to put their votes: the House corpus already on
+ // disk held 7,298 recorded positions the ingest had to skip, roughly 315 on every
+ // roll, for the single reason that the voter's Bioguide resolved to no roster slug.
+ //
+ // These rows are IDENTITY AND NOTHING ELSE — name, office, state with district, the
+ // party chip, and an empty issues list. No bio, no stance, no promise, no score. The
+ // score is null rather than 0 because we have not measured anything: a 0 is a claim
+ // and null is the absence of one. kept/broken/pending are 0 for the same reason and
+ // will move only when a cited act is written against them.
+ //
+ // So every one of these files sits BELOW the publication floor and will say "record
+ // still being built" until real cited content lands on it. That is the correct state
+ // and it must not be hand-waved past: nothing here is marked publishable, nothing here
+ // is in the share index because it cleared a bar, and a formal vote row appearing on
+ // one of these pids is the wave working, not the floor moving.
+ //
+ // Party is on the chip because it is identity — it is what the Clerk's roster and the
+ // legislators dataset both print next to the name. It is not a score, it is not a
+ // sort key, and no reader copy is generated from it.
+ //
+ // Districts come from clerk.house.gov's MemberData.xml <statedistrict>, in the
+ // "<Full State> · <ST>-<NN>" form the roster already uses for a House seat (see
+ // don_davis, trent_kelly); a single-district state reads <ST>-AL. None was inferred.
+ // The per-person admission ledger is db/vr-federal-roster-r1-census.json.
+ //
+ // Eight sitting members already had a file here or a SPOTLIGHTS row — Yvette Clarke,
+ // Bobby Scott, Suzan DelBene, Richard Hudson, August Pfluger, Greg Casar, Steven
+ // Horsford and Randy Fine. Seven of those files are left exactly as they are and the
+ // Bioguide is mapped onto the slug that already exists, because one person gets one
+ // current file. Horsford had a SPOTLIGHTS row and no card, so he gets a row below
+ // under that same slug rather than a parallel one. Randy Fine's existing file is
+ // corrected in place, above: it still described him as a Florida state
+ // representative and candidate, and he has been the seated member for FL-06 since the
+ // 2025-04-01 special election — a file that is about to start receiving House roll
+ // calls should not be labelled as a candidate for the seat.
+ //
+ // And one is deliberately NOT a merge: mike_rogers_al is Mike Rogers of Alabama's 3rd.
+ // The app's existing `mike_rogers` is the former Michigan congressman and House
+ // Intelligence chair — a different living person with the same name. Two files, on
+ // purpose, and this comment is where that decision is recorded.
+ // AK-AL · Bioguide B001323
+ "nicholas_begich": {
+  "name": "Nicholas J. Begich III", "office": "U.S. Representative",
+  "state": "Alaska · AK-AL",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AL-01 · Bioguide M001212
+ "barry_moore": {
+  "name": "Barry Moore", "office": "U.S. Representative",
+  "state": "Alabama · AL-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AL-02 · Bioguide F000481
+ "shomari_figures": {
+  "name": "Shomari Figures", "office": "U.S. Representative",
+  "state": "Alabama · AL-02",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AL-03 · Bioguide R000575
+ "mike_rogers_al": {
+  "name": "Mike Rogers", "office": "U.S. Representative",
+  "state": "Alabama · AL-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AL-04 · Bioguide A000055
+ "robert_aderholt": {
+  "name": "Robert B. Aderholt", "office": "U.S. Representative",
+  "state": "Alabama · AL-04",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AL-05 · Bioguide S001220
+ "dale_strong": {
+  "name": "Dale W. Strong", "office": "U.S. Representative",
+  "state": "Alabama · AL-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AL-06 · Bioguide P000609
+ "gary_palmer": {
+  "name": "Gary J. Palmer", "office": "U.S. Representative",
+  "state": "Alabama · AL-06",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AL-07 · Bioguide S001185
+ "terri_sewell": {
+  "name": "Terri A. Sewell", "office": "U.S. Representative",
+  "state": "Alabama · AL-07",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AZ-01 · Bioguide S001183
+ "david_schweikert": {
+  "name": "David Schweikert", "office": "U.S. Representative",
+  "state": "Arizona · AZ-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AZ-02 · Bioguide C001132
+ "eli_crane": {
+  "name": "Elijah Crane", "office": "U.S. Representative",
+  "state": "Arizona · AZ-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AZ-03 · Bioguide A000381
+ "yassamin_ansari": {
+  "name": "Yassamin Ansari", "office": "U.S. Representative",
+  "state": "Arizona · AZ-03",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AZ-04 · Bioguide S001211
+ "greg_stanton": {
+  "name": "Greg Stanton", "office": "U.S. Representative",
+  "state": "Arizona · AZ-04",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AZ-05 · Bioguide B001302
+ "andy_biggs": {
+  "name": "Andy Biggs", "office": "U.S. Representative",
+  "state": "Arizona · AZ-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AZ-06 · Bioguide C001133
+ "juan_ciscomani": {
+  "name": "Juan Ciscomani", "office": "U.S. Representative",
+  "state": "Arizona · AZ-06",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AZ-07 · Bioguide G000606
+ "adelita_grijalva": {
+  "name": "Adelita S. Grijalva", "office": "U.S. Representative",
+  "state": "Arizona · AZ-07",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AZ-08 · Bioguide H001098
+ "abraham_hamadeh": {
+  "name": "Abraham J. Hamadeh", "office": "U.S. Representative",
+  "state": "Arizona · AZ-08",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // AZ-09 · Bioguide G000565
+ "paul_gosar": {
+  "name": "Paul A. Gosar", "office": "U.S. Representative",
+  "state": "Arizona · AZ-09",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-01 · Bioguide G000607
+ "james_gallagher": {
+  "name": "James Gallagher", "office": "U.S. Representative",
+  "state": "California · CA-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-03 · Bioguide K000401
+ "kevin_kiley": {
+  "name": "Kevin Kiley", "office": "U.S. Representative",
+  "state": "California · CA-03",
+  "party": "I (R caucus)", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-04 · Bioguide T000460
+ "mike_thompson": {
+  "name": "Mike Thompson", "office": "U.S. Representative",
+  "state": "California · CA-04",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-05 · Bioguide M001177
+ "tom_mcclintock": {
+  "name": "Tom McClintock", "office": "U.S. Representative",
+  "state": "California · CA-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-06 · Bioguide B001287
+ "ami_bera": {
+  "name": "Ami Bera", "office": "U.S. Representative",
+  "state": "California · CA-06",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-07 · Bioguide M001163
+ "doris_matsui": {
+  "name": "Doris O. Matsui", "office": "U.S. Representative",
+  "state": "California · CA-07",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-08 · Bioguide G000559
+ "john_garamendi": {
+  "name": "John Garamendi", "office": "U.S. Representative",
+  "state": "California · CA-08",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-09 · Bioguide H001090
+ "josh_harder": {
+  "name": "Josh Harder", "office": "U.S. Representative",
+  "state": "California · CA-09",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-10 · Bioguide D000623
+ "mark_desaulnier": {
+  "name": "Mark DeSaulnier", "office": "U.S. Representative",
+  "state": "California · CA-10",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-11 · Bioguide P000197
+ "nancy_pelosi": {
+  "name": "Nancy Pelosi", "office": "U.S. Representative",
+  "state": "California · CA-11",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-12 · Bioguide S001231
+ "lateefah_simon": {
+  "name": "Lateefah Simon", "office": "U.S. Representative",
+  "state": "California · CA-12",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-13 · Bioguide G000605
+ "adam_gray": {
+  "name": "Adam Gray", "office": "U.S. Representative",
+  "state": "California · CA-13",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-15 · Bioguide M001225
+ "kevin_mullin": {
+  "name": "Kevin Mullin", "office": "U.S. Representative",
+  "state": "California · CA-15",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-16 · Bioguide L000607
+ "sam_liccardo": {
+  "name": "Sam T. Liccardo", "office": "U.S. Representative",
+  "state": "California · CA-16",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-19 · Bioguide P000613
+ "jimmy_panetta": {
+  "name": "Jimmy Panetta", "office": "U.S. Representative",
+  "state": "California · CA-19",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-20 · Bioguide F000480
+ "vince_fong": {
+  "name": "Vince Fong", "office": "U.S. Representative",
+  "state": "California · CA-20",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-21 · Bioguide C001059
+ "jim_costa": {
+  "name": "Jim Costa", "office": "U.S. Representative",
+  "state": "California · CA-21",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-22 · Bioguide V000129
+ "david_valadao": {
+  "name": "David G. Valadao", "office": "U.S. Representative",
+  "state": "California · CA-22",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-23 · Bioguide O000019
+ "jay_obernolte": {
+  "name": "Jay Obernolte", "office": "U.S. Representative",
+  "state": "California · CA-23",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-24 · Bioguide C001112
+ "salud_carbajal": {
+  "name": "Salud O. Carbajal", "office": "U.S. Representative",
+  "state": "California · CA-24",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-25 · Bioguide R000599
+ "raul_ruiz": {
+  "name": "Raul Ruiz", "office": "U.S. Representative",
+  "state": "California · CA-25",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-26 · Bioguide B001285
+ "julia_brownley": {
+  "name": "Julia Brownley", "office": "U.S. Representative",
+  "state": "California · CA-26",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-27 · Bioguide W000830
+ "george_whitesides": {
+  "name": "George Whitesides", "office": "U.S. Representative",
+  "state": "California · CA-27",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-28 · Bioguide C001080
+ "judy_chu": {
+  "name": "Judy Chu", "office": "U.S. Representative",
+  "state": "California · CA-28",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-29 · Bioguide R000620
+ "luz_rivas": {
+  "name": "Luz M. Rivas", "office": "U.S. Representative",
+  "state": "California · CA-29",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-30 · Bioguide F000483
+ "laura_friedman": {
+  "name": "Laura Friedman", "office": "U.S. Representative",
+  "state": "California · CA-30",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-31 · Bioguide C001123
+ "gilbert_cisneros": {
+  "name": "Gilbert Ray Cisneros, Jr.", "office": "U.S. Representative",
+  "state": "California · CA-31",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-32 · Bioguide S000344
+ "brad_sherman": {
+  "name": "Brad Sherman", "office": "U.S. Representative",
+  "state": "California · CA-32",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-34 · Bioguide G000585
+ "jimmy_gomez": {
+  "name": "Jimmy Gomez", "office": "U.S. Representative",
+  "state": "California · CA-34",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-35 · Bioguide T000474
+ "norma_torres": {
+  "name": "Norma J. Torres", "office": "U.S. Representative",
+  "state": "California · CA-35",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-37 · Bioguide K000400
+ "sydney_kamlager_dove": {
+  "name": "Sydney Kamlager-Dove", "office": "U.S. Representative",
+  "state": "California · CA-37",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-38 · Bioguide S001156
+ "linda_sanchez": {
+  "name": "Linda T. Sánchez", "office": "U.S. Representative",
+  "state": "California · CA-38",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-40 · Bioguide K000397
+ "young_kim": {
+  "name": "Young Kim", "office": "U.S. Representative",
+  "state": "California · CA-40",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-41 · Bioguide C000059
+ "ken_calvert": {
+  "name": "Ken Calvert", "office": "U.S. Representative",
+  "state": "California · CA-41",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-44 · Bioguide B001300
+ "nanette_barragan": {
+  "name": "Nanette Diaz Barragán", "office": "U.S. Representative",
+  "state": "California · CA-44",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-45 · Bioguide T000491
+ "derek_tran": {
+  "name": "Derek Tran", "office": "U.S. Representative",
+  "state": "California · CA-45",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-46 · Bioguide C001110
+ "j_correa": {
+  "name": "J. Luis Correa", "office": "U.S. Representative",
+  "state": "California · CA-46",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-47 · Bioguide M001241
+ "dave_min": {
+  "name": "Dave Min", "office": "U.S. Representative",
+  "state": "California · CA-47",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-48 · Bioguide I000056
+ "darrell_issa": {
+  "name": "Darrell Issa", "office": "U.S. Representative",
+  "state": "California · CA-48",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-49 · Bioguide L000593
+ "mike_levin": {
+  "name": "Mike Levin", "office": "U.S. Representative",
+  "state": "California · CA-49",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-50 · Bioguide P000608
+ "scott_peters": {
+  "name": "Scott H. Peters", "office": "U.S. Representative",
+  "state": "California · CA-50",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-51 · Bioguide J000305
+ "sara_jacobs": {
+  "name": "Sara Jacobs", "office": "U.S. Representative",
+  "state": "California · CA-51",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CA-52 · Bioguide V000130
+ "juan_vargas": {
+  "name": "Juan Vargas", "office": "U.S. Representative",
+  "state": "California · CA-52",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-03 · Bioguide H001100
+ "jeff_hurd": {
+  "name": "Jeff Hurd", "office": "U.S. Representative",
+  "state": "Colorado · CO-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-05 · Bioguide C001137
+ "jeff_crank": {
+  "name": "Jeff Crank", "office": "U.S. Representative",
+  "state": "Colorado · CO-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-06 · Bioguide C001121
+ "jason_crow": {
+  "name": "Jason Crow", "office": "U.S. Representative",
+  "state": "Colorado · CO-06",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-07 · Bioguide P000620
+ "brittany_pettersen": {
+  "name": "Brittany Pettersen", "office": "U.S. Representative",
+  "state": "Colorado · CO-07",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CO-08 · Bioguide E000300
+ "gabe_evans": {
+  "name": "Gabe Evans", "office": "U.S. Representative",
+  "state": "Colorado · CO-08",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CT-01 · Bioguide L000557
+ "john_larson": {
+  "name": "John B. Larson", "office": "U.S. Representative",
+  "state": "Connecticut · CT-01",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CT-02 · Bioguide C001069
+ "joe_courtney": {
+  "name": "Joe Courtney", "office": "U.S. Representative",
+  "state": "Connecticut · CT-02",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // CT-05 · Bioguide H001081
+ "jahana_hayes": {
+  "name": "Jahana Hayes", "office": "U.S. Representative",
+  "state": "Connecticut · CT-05",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-01 · Bioguide P000622
+ "jimmy_patronis": {
+  "name": "Jimmy Patronis", "office": "U.S. Representative",
+  "state": "Florida · FL-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-02 · Bioguide D000628
+ "neal_dunn": {
+  "name": "Neal P. Dunn", "office": "U.S. Representative",
+  "state": "Florida · FL-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-03 · Bioguide C001039
+ "kat_cammack": {
+  "name": "Kat Cammack", "office": "U.S. Representative",
+  "state": "Florida · FL-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-04 · Bioguide B001314
+ "aaron_bean": {
+  "name": "Aaron Bean", "office": "U.S. Representative",
+  "state": "Florida · FL-04",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-05 · Bioguide R000609
+ "john_rutherford": {
+  "name": "John H. Rutherford", "office": "U.S. Representative",
+  "state": "Florida · FL-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-07 · Bioguide M001216
+ "cory_mills": {
+  "name": "Cory Mills", "office": "U.S. Representative",
+  "state": "Florida · FL-07",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-08 · Bioguide H001099
+ "mike_haridopolos": {
+  "name": "Mike Haridopolos", "office": "U.S. Representative",
+  "state": "Florida · FL-08",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-09 · Bioguide S001200
+ "darren_soto": {
+  "name": "Darren Soto", "office": "U.S. Representative",
+  "state": "Florida · FL-09",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-11 · Bioguide W000806
+ "daniel_webster": {
+  "name": "Daniel Webster", "office": "U.S. Representative",
+  "state": "Florida · FL-11",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-12 · Bioguide B001257
+ "gus_bilirakis": {
+  "name": "Gus M. Bilirakis", "office": "U.S. Representative",
+  "state": "Florida · FL-12",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-14 · Bioguide C001066
+ "kathy_castor": {
+  "name": "Kathy Castor", "office": "U.S. Representative",
+  "state": "Florida · FL-14",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-15 · Bioguide L000597
+ "laurel_lee": {
+  "name": "Laurel M. Lee", "office": "U.S. Representative",
+  "state": "Florida · FL-15",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-16 · Bioguide B001260
+ "vern_buchanan": {
+  "name": "Vern Buchanan", "office": "U.S. Representative",
+  "state": "Florida · FL-16",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-17 · Bioguide S001214
+ "w_steube": {
+  "name": "W. Gregory Steube", "office": "U.S. Representative",
+  "state": "Florida · FL-17",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-18 · Bioguide F000472
+ "c_franklin": {
+  "name": "Scott Franklin", "office": "U.S. Representative",
+  "state": "Florida · FL-18",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-22 · Bioguide F000462
+ "lois_frankel": {
+  "name": "Lois Frankel", "office": "U.S. Representative",
+  "state": "Florida · FL-22",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-23 · Bioguide M001217
+ "jared_moskowitz": {
+  "name": "Jared Moskowitz", "office": "U.S. Representative",
+  "state": "Florida · FL-23",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-24 · Bioguide W000808
+ "frederica_wilson": {
+  "name": "Frederica S. Wilson", "office": "U.S. Representative",
+  "state": "Florida · FL-24",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-25 · Bioguide W000797
+ "debbie_wasserman_schultz": {
+  "name": "Debbie Wasserman Schultz", "office": "U.S. Representative",
+  "state": "Florida · FL-25",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-26 · Bioguide D000600
+ "mario_diaz_balart": {
+  "name": "Mario Diaz-Balart", "office": "U.S. Representative",
+  "state": "Florida · FL-26",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-27 · Bioguide S000168
+ "maria_salazar": {
+  "name": "Maria Elvira Salazar", "office": "U.S. Representative",
+  "state": "Florida · FL-27",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // FL-28 · Bioguide G000593
+ "carlos_gimenez": {
+  "name": "Carlos A. Gimenez", "office": "U.S. Representative",
+  "state": "Florida · FL-28",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-01 · Bioguide C001103
+ "buddy_carter": {
+  "name": "Earl L. \"Buddy\" Carter", "office": "U.S. Representative",
+  "state": "Georgia · GA-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-02 · Bioguide B000490
+ "sanford_bishop": {
+  "name": "Sanford D. Bishop, Jr.", "office": "U.S. Representative",
+  "state": "Georgia · GA-02",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-03 · Bioguide J000311
+ "brian_jack": {
+  "name": "Brian Jack", "office": "U.S. Representative",
+  "state": "Georgia · GA-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-04 · Bioguide J000288
+ "hank_johnson": {
+  "name": "Henry C. \"Hank\" Johnson, Jr.", "office": "U.S. Representative",
+  "state": "Georgia · GA-04",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-05 · Bioguide W000788
+ "nikema_williams": {
+  "name": "Nikema Williams", "office": "U.S. Representative",
+  "state": "Georgia · GA-05",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-06 · Bioguide M001208
+ "lucy_mcbath": {
+  "name": "Lucy McBath", "office": "U.S. Representative",
+  "state": "Georgia · GA-06",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-07 · Bioguide M001218
+ "rich_mccormick": {
+  "name": "Richard McCormick", "office": "U.S. Representative",
+  "state": "Georgia · GA-07",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-08 · Bioguide S001189
+ "austin_scott": {
+  "name": "Austin Scott", "office": "U.S. Representative",
+  "state": "Georgia · GA-08",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-09 · Bioguide C001116
+ "andrew_clyde": {
+  "name": "Andrew S. Clyde", "office": "U.S. Representative",
+  "state": "Georgia · GA-09",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-11 · Bioguide L000583
+ "barry_loudermilk": {
+  "name": "Barry Loudermilk", "office": "U.S. Representative",
+  "state": "Georgia · GA-11",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-12 · Bioguide A000372
+ "rick_allen": {
+  "name": "Rick W. Allen", "office": "U.S. Representative",
+  "state": "Georgia · GA-12",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // GA-14 · Bioguide F000485
+ "clay_fuller": {
+  "name": "Clay Fuller", "office": "U.S. Representative",
+  "state": "Georgia · GA-14",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HI-01 · Bioguide C001055
+ "ed_case": {
+  "name": "Ed Case", "office": "U.S. Representative",
+  "state": "Hawaii · HI-01",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // HI-02 · Bioguide T000487
+ "jill_tokuda": {
+  "name": "Jill N. Tokuda", "office": "U.S. Representative",
+  "state": "Hawaii · HI-02",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IA-02 · Bioguide H001091
+ "ashley_hinson": {
+  "name": "Ashley Hinson", "office": "U.S. Representative",
+  "state": "Iowa · IA-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IA-04 · Bioguide F000446
+ "randy_feenstra": {
+  "name": "Randy Feenstra", "office": "U.S. Representative",
+  "state": "Iowa · IA-04",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-01 · Bioguide J000309
+ "jonathan_jackson": {
+  "name": "Jonathan L. Jackson", "office": "U.S. Representative",
+  "state": "Illinois · IL-01",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-02 · Bioguide K000385
+ "robin_kelly": {
+  "name": "Robin L. Kelly", "office": "U.S. Representative",
+  "state": "Illinois · IL-02",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-04 · Bioguide G000586
+ "chuy_garcia": {
+  "name": "Jesús G. \"Chuy\" García", "office": "U.S. Representative",
+  "state": "Illinois · IL-04",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-05 · Bioguide Q000023
+ "mike_quigley": {
+  "name": "Mike Quigley", "office": "U.S. Representative",
+  "state": "Illinois · IL-05",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-06 · Bioguide C001117
+ "sean_casten": {
+  "name": "Sean Casten", "office": "U.S. Representative",
+  "state": "Illinois · IL-06",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-07 · Bioguide D000096
+ "danny_davis": {
+  "name": "Danny K. Davis", "office": "U.S. Representative",
+  "state": "Illinois · IL-07",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-10 · Bioguide S001190
+ "brad_schneider": {
+  "name": "Bradley Scott Schneider", "office": "U.S. Representative",
+  "state": "Illinois · IL-10",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-11 · Bioguide F000454
+ "bill_foster": {
+  "name": "Bill Foster", "office": "U.S. Representative",
+  "state": "Illinois · IL-11",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-13 · Bioguide B001315
+ "nicole_nikki_budzinski": {
+  "name": "Nikki Budzinski", "office": "U.S. Representative",
+  "state": "Illinois · IL-13",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-14 · Bioguide U000040
+ "lauren_underwood": {
+  "name": "Lauren Underwood", "office": "U.S. Representative",
+  "state": "Illinois · IL-14",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-15 · Bioguide M001211
+ "mary_miller": {
+  "name": "Mary E. Miller", "office": "U.S. Representative",
+  "state": "Illinois · IL-15",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-16 · Bioguide L000585
+ "darin_lahood": {
+  "name": "Darin LaHood", "office": "U.S. Representative",
+  "state": "Illinois · IL-16",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IL-17 · Bioguide S001225
+ "eric_sorensen": {
+  "name": "Eric Sorensen", "office": "U.S. Representative",
+  "state": "Illinois · IL-17",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-01 · Bioguide M001214
+ "frank_mrvan": {
+  "name": "Frank J. Mrvan", "office": "U.S. Representative",
+  "state": "Indiana · IN-01",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-02 · Bioguide Y000067
+ "rudy_yakym": {
+  "name": "Rudy Yakym III", "office": "U.S. Representative",
+  "state": "Indiana · IN-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-03 · Bioguide S001188
+ "marlin_stutzman": {
+  "name": "Marlin A. Stutzman", "office": "U.S. Representative",
+  "state": "Indiana · IN-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-04 · Bioguide B001307
+ "james_baird": {
+  "name": "James R. Baird", "office": "U.S. Representative",
+  "state": "Indiana · IN-04",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-05 · Bioguide S000929
+ "victoria_spartz": {
+  "name": "Victoria Spartz", "office": "U.S. Representative",
+  "state": "Indiana · IN-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-06 · Bioguide S001229
+ "jefferson_shreve": {
+  "name": "Jefferson Shreve", "office": "U.S. Representative",
+  "state": "Indiana · IN-06",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-07 · Bioguide C001072
+ "andre_carson": {
+  "name": "André Carson", "office": "U.S. Representative",
+  "state": "Indiana · IN-07",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-08 · Bioguide M001233
+ "mark_messmer": {
+  "name": "Mark B. Messmer", "office": "U.S. Representative",
+  "state": "Indiana · IN-08",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // IN-09 · Bioguide H001093
+ "erin_houchin": {
+  "name": "Erin Houchin", "office": "U.S. Representative",
+  "state": "Indiana · IN-09",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KS-01 · Bioguide M000871
+ "tracey_mann": {
+  "name": "Tracey Mann", "office": "U.S. Representative",
+  "state": "Kansas · KS-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KS-02 · Bioguide S001228
+ "derek_schmidt": {
+  "name": "Derek Schmidt", "office": "U.S. Representative",
+  "state": "Kansas · KS-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KS-03 · Bioguide D000629
+ "sharice_davids": {
+  "name": "Sharice Davids", "office": "U.S. Representative",
+  "state": "Kansas · KS-03",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KS-04 · Bioguide E000298
+ "ron_estes": {
+  "name": "Ron Estes", "office": "U.S. Representative",
+  "state": "Kansas · KS-04",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KY-03 · Bioguide M001220
+ "morgan_mcgarvey": {
+  "name": "Morgan McGarvey", "office": "U.S. Representative",
+  "state": "Kentucky · KY-03",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KY-05 · Bioguide R000395
+ "hal_rogers": {
+  "name": "Harold Rogers", "office": "U.S. Representative",
+  "state": "Kentucky · KY-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // KY-06 · Bioguide B001282
+ "andy_barr": {
+  "name": "Andy Barr", "office": "U.S. Representative",
+  "state": "Kentucky · KY-06",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-02 · Bioguide C001125
+ "troy_carter": {
+  "name": "Troy A. Carter", "office": "U.S. Representative",
+  "state": "Louisiana · LA-02",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-03 · Bioguide H001077
+ "clay_higgins": {
+  "name": "Clay Higgins", "office": "U.S. Representative",
+  "state": "Louisiana · LA-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-05 · Bioguide L000595
+ "julia_letlow": {
+  "name": "Julia Letlow", "office": "U.S. Representative",
+  "state": "Louisiana · LA-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // LA-06 · Bioguide F000110
+ "cleo_fields": {
+  "name": "Cleo Fields", "office": "U.S. Representative",
+  "state": "Louisiana · LA-06",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MA-03 · Bioguide T000482
+ "lori_trahan": {
+  "name": "Lori Trahan", "office": "U.S. Representative",
+  "state": "Massachusetts · MA-03",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MA-08 · Bioguide L000562
+ "stephen_lynch": {
+  "name": "Stephen F. Lynch", "office": "U.S. Representative",
+  "state": "Massachusetts · MA-08",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MA-09 · Bioguide K000375
+ "william_keating": {
+  "name": "William R. Keating", "office": "U.S. Representative",
+  "state": "Massachusetts · MA-09",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-02 · Bioguide O000176
+ "johnny_olszewski": {
+  "name": "Johnny Olszewski, Jr.", "office": "U.S. Representative",
+  "state": "Maryland · MD-02",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-03 · Bioguide E000301
+ "sarah_elfreth": {
+  "name": "Sarah Elfreth", "office": "U.S. Representative",
+  "state": "Maryland · MD-03",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-04 · Bioguide I000058
+ "glenn_ivey": {
+  "name": "Glenn Ivey", "office": "U.S. Representative",
+  "state": "Maryland · MD-04",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-06 · Bioguide M001232
+ "april_mcclain_delaney": {
+  "name": "April McClain Delaney", "office": "U.S. Representative",
+  "state": "Maryland · MD-06",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MD-07 · Bioguide M000687
+ "kweisi_mfume": {
+  "name": "Kweisi Mfume", "office": "U.S. Representative",
+  "state": "Maryland · MD-07",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-01 · Bioguide B001301
+ "jack_bergman": {
+  "name": "Jack Bergman", "office": "U.S. Representative",
+  "state": "Michigan · MI-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-02 · Bioguide M001194
+ "john_moolenaar": {
+  "name": "John R. Moolenaar", "office": "U.S. Representative",
+  "state": "Michigan · MI-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-03 · Bioguide S001221
+ "hillary_scholten": {
+  "name": "Hillary J. Scholten", "office": "U.S. Representative",
+  "state": "Michigan · MI-03",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-04 · Bioguide H001058
+ "bill_huizenga": {
+  "name": "Bill Huizenga", "office": "U.S. Representative",
+  "state": "Michigan · MI-04",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-07 · Bioguide B001321
+ "tom_barrett": {
+  "name": "Tom Barrett", "office": "U.S. Representative",
+  "state": "Michigan · MI-07",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-08 · Bioguide M001237
+ "kristen_mcdonald_rivet": {
+  "name": "Kristen McDonald Rivet", "office": "U.S. Representative",
+  "state": "Michigan · MI-08",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-10 · Bioguide J000307
+ "john_james": {
+  "name": "John James", "office": "U.S. Representative",
+  "state": "Michigan · MI-10",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-13 · Bioguide T000488
+ "shri_thanedar": {
+  "name": "Shri Thanedar", "office": "U.S. Representative",
+  "state": "Michigan · MI-13",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MN-01 · Bioguide F000475
+ "brad_finstad": {
+  "name": "Brad Finstad", "office": "U.S. Representative",
+  "state": "Minnesota · MN-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MN-03 · Bioguide M001234
+ "kelly_morrison": {
+  "name": "Kelly Morrison", "office": "U.S. Representative",
+  "state": "Minnesota · MN-03",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MN-04 · Bioguide M001143
+ "betty_mccollum": {
+  "name": "Betty McCollum", "office": "U.S. Representative",
+  "state": "Minnesota · MN-04",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MN-07 · Bioguide F000470
+ "michelle_fischbach": {
+  "name": "Michelle Fischbach", "office": "U.S. Representative",
+  "state": "Minnesota · MN-07",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MN-08 · Bioguide S001212
+ "pete_stauber": {
+  "name": "Pete Stauber", "office": "U.S. Representative",
+  "state": "Minnesota · MN-08",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-01 · Bioguide B001324
+ "wesley_bell": {
+  "name": "Wesley Bell", "office": "U.S. Representative",
+  "state": "Missouri · MO-01",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-02 · Bioguide W000812
+ "ann_wagner": {
+  "name": "Ann Wagner", "office": "U.S. Representative",
+  "state": "Missouri · MO-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-03 · Bioguide O000177
+ "robert_onder": {
+  "name": "Robert F. Onder, Jr.", "office": "U.S. Representative",
+  "state": "Missouri · MO-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-04 · Bioguide A000379
+ "mark_alford": {
+  "name": "Mark Alford", "office": "U.S. Representative",
+  "state": "Missouri · MO-04",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-05 · Bioguide C001061
+ "emanuel_cleaver": {
+  "name": "Emanuel Cleaver", "office": "U.S. Representative",
+  "state": "Missouri · MO-05",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MO-07 · Bioguide B001316
+ "eric_burlison": {
+  "name": "Eric Burlison", "office": "U.S. Representative",
+  "state": "Missouri · MO-07",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MT-01 · Bioguide Z000018
+ "ryan_zinke": {
+  "name": "Ryan K. Zinke", "office": "U.S. Representative",
+  "state": "Montana · MT-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-02 · Bioguide R000305
+ "deborah_ross": {
+  "name": "Deborah K. Ross", "office": "U.S. Representative",
+  "state": "North Carolina · NC-02",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-03 · Bioguide M001210
+ "gregory_murphy": {
+  "name": "Gregory F. Murphy", "office": "U.S. Representative",
+  "state": "North Carolina · NC-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-04 · Bioguide F000477
+ "valerie_foushee": {
+  "name": "Valerie P. Foushee", "office": "U.S. Representative",
+  "state": "North Carolina · NC-04",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-06 · Bioguide M001240
+ "addison_mcdowell": {
+  "name": "Addison P. McDowell", "office": "U.S. Representative",
+  "state": "North Carolina · NC-06",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-07 · Bioguide R000603
+ "david_rouzer": {
+  "name": "David Rouzer", "office": "U.S. Representative",
+  "state": "North Carolina · NC-07",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-08 · Bioguide H001102
+ "mark_harris": {
+  "name": "Mark Harris", "office": "U.S. Representative",
+  "state": "North Carolina · NC-08",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-10 · Bioguide H001101
+ "pat_harrigan": {
+  "name": "Pat Harrigan", "office": "U.S. Representative",
+  "state": "North Carolina · NC-10",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-11 · Bioguide E000246
+ "charles_chuck_edwards": {
+  "name": "Chuck Edwards", "office": "U.S. Representative",
+  "state": "North Carolina · NC-11",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-12 · Bioguide A000370
+ "alma_adams": {
+  "name": "Alma S. Adams", "office": "U.S. Representative",
+  "state": "North Carolina · NC-12",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-13 · Bioguide K000405
+ "brad_knott": {
+  "name": "Brad Knott", "office": "U.S. Representative",
+  "state": "North Carolina · NC-13",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NC-14 · Bioguide M001236
+ "tim_moore": {
+  "name": "Tim Moore", "office": "U.S. Representative",
+  "state": "North Carolina · NC-14",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NH-01 · Bioguide P000614
+ "chris_pappas": {
+  "name": "Chris Pappas", "office": "U.S. Representative",
+  "state": "New Hampshire · NH-01",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NH-02 · Bioguide G000604
+ "maggie_goodlander": {
+  "name": "Maggie Goodlander", "office": "U.S. Representative",
+  "state": "New Hampshire · NH-02",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-01 · Bioguide N000188
+ "donald_norcross": {
+  "name": "Donald Norcross", "office": "U.S. Representative",
+  "state": "New Jersey · NJ-01",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-02 · Bioguide V000133
+ "jefferson_van_drew": {
+  "name": "Jefferson Van Drew", "office": "U.S. Representative",
+  "state": "New Jersey · NJ-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-03 · Bioguide C001136
+ "herbert_conaway": {
+  "name": "Herbert C. Conaway, Jr.", "office": "U.S. Representative",
+  "state": "New Jersey · NJ-03",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-04 · Bioguide S000522
+ "chris_smith": {
+  "name": "Christopher H. Smith", "office": "U.S. Representative",
+  "state": "New Jersey · NJ-04",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-07 · Bioguide K000398
+ "thomas_kean": {
+  "name": "Thomas H. Kean, Jr.", "office": "U.S. Representative",
+  "state": "New Jersey · NJ-07",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-08 · Bioguide M001226
+ "robert_menendez": {
+  "name": "Robert Menendez", "office": "U.S. Representative",
+  "state": "New Jersey · NJ-08",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-09 · Bioguide P000621
+ "nellie_pou": {
+  "name": "Nellie Pou", "office": "U.S. Representative",
+  "state": "New Jersey · NJ-09",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-10 · Bioguide M001229
+ "lamonica_mciver": {
+  "name": "LaMonica McIver", "office": "U.S. Representative",
+  "state": "New Jersey · NJ-10",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-11 · Bioguide M001246
+ "analilia_mejia": {
+  "name": "Analilia Mejia", "office": "U.S. Representative",
+  "state": "New Jersey · NJ-11",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NJ-12 · Bioguide W000822
+ "bonnie_watson_coleman": {
+  "name": "Bonnie Watson Coleman", "office": "U.S. Representative",
+  "state": "New Jersey · NJ-12",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NV-02 · Bioguide A000369
+ "mark_amodei": {
+  "name": "Mark E. Amodei", "office": "U.S. Representative",
+  "state": "Nevada · NV-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NV-04 · Bioguide H001066
+ "steven_horsford": {
+  "name": "Steven Horsford", "office": "U.S. Representative",
+  "state": "Nevada · NV-04",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-01 · Bioguide L000598
+ "nicolas_lalota": {
+  "name": "Nick LaLota", "office": "U.S. Representative",
+  "state": "New York · NY-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-04 · Bioguide G000602
+ "laura_gillen": {
+  "name": "Laura Gillen", "office": "U.S. Representative",
+  "state": "New York · NY-04",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-06 · Bioguide M001188
+ "grace_meng": {
+  "name": "Grace Meng", "office": "U.S. Representative",
+  "state": "New York · NY-06",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-07 · Bioguide V000081
+ "nydia_velazquez": {
+  "name": "Nydia M. Velázquez", "office": "U.S. Representative",
+  "state": "New York · NY-07",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-11 · Bioguide M000317
+ "nicole_malliotakis": {
+  "name": "Nicole Malliotakis", "office": "U.S. Representative",
+  "state": "New York · NY-11",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-13 · Bioguide E000297
+ "adriano_espaillat": {
+  "name": "Adriano Espaillat", "office": "U.S. Representative",
+  "state": "New York · NY-13",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-16 · Bioguide L000606
+ "george_latimer": {
+  "name": "George Latimer", "office": "U.S. Representative",
+  "state": "New York · NY-16",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-18 · Bioguide R000579
+ "patrick_ryan": {
+  "name": "Patrick Ryan", "office": "U.S. Representative",
+  "state": "New York · NY-18",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-19 · Bioguide R000622
+ "josh_riley": {
+  "name": "Josh Riley", "office": "U.S. Representative",
+  "state": "New York · NY-19",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-20 · Bioguide T000469
+ "paul_tonko": {
+  "name": "Paul Tonko", "office": "U.S. Representative",
+  "state": "New York · NY-20",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-22 · Bioguide M001231
+ "john_mannion": {
+  "name": "John W. Mannion", "office": "U.S. Representative",
+  "state": "New York · NY-22",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-23 · Bioguide L000600
+ "nicholas_langworthy": {
+  "name": "Nicholas A. Langworthy", "office": "U.S. Representative",
+  "state": "New York · NY-23",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-24 · Bioguide T000478
+ "claudia_tenney": {
+  "name": "Claudia Tenney", "office": "U.S. Representative",
+  "state": "New York · NY-24",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-25 · Bioguide M001206
+ "joseph_morelle": {
+  "name": "Joseph D. Morelle", "office": "U.S. Representative",
+  "state": "New York · NY-25",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NY-26 · Bioguide K000402
+ "timothy_kennedy": {
+  "name": "Timothy M. Kennedy", "office": "U.S. Representative",
+  "state": "New York · NY-26",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OH-02 · Bioguide T000490
+ "david_taylor": {
+  "name": "David J. Taylor", "office": "U.S. Representative",
+  "state": "Ohio · OH-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OH-03 · Bioguide B001281
+ "joyce_beatty": {
+  "name": "Joyce Beatty", "office": "U.S. Representative",
+  "state": "Ohio · OH-03",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OH-05 · Bioguide L000566
+ "robert_latta": {
+  "name": "Robert E. Latta", "office": "U.S. Representative",
+  "state": "Ohio · OH-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OH-06 · Bioguide R000619
+ "michael_rulli": {
+  "name": "Michael A. Rulli", "office": "U.S. Representative",
+  "state": "Ohio · OH-06",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OH-07 · Bioguide M001222
+ "max_miller": {
+  "name": "Max L. Miller", "office": "U.S. Representative",
+  "state": "Ohio · OH-07",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OH-08 · Bioguide D000626
+ "warren_davidson": {
+  "name": "Warren Davidson", "office": "U.S. Representative",
+  "state": "Ohio · OH-08",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OH-09 · Bioguide K000009
+ "marcy_kaptur": {
+  "name": "Marcy Kaptur", "office": "U.S. Representative",
+  "state": "Ohio · OH-09",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OH-10 · Bioguide T000463
+ "michael_turner": {
+  "name": "Michael R. Turner", "office": "U.S. Representative",
+  "state": "Ohio · OH-10",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OH-11 · Bioguide B001313
+ "shontel_brown": {
+  "name": "Shontel M. Brown", "office": "U.S. Representative",
+  "state": "Ohio · OH-11",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OH-12 · Bioguide B001306
+ "troy_balderson": {
+  "name": "Troy Balderson", "office": "U.S. Representative",
+  "state": "Ohio · OH-12",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OH-13 · Bioguide S001223
+ "emilia_sykes": {
+  "name": "Emilia Strong Sykes", "office": "U.S. Representative",
+  "state": "Ohio · OH-13",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OH-14 · Bioguide J000295
+ "david_joyce": {
+  "name": "David P. Joyce", "office": "U.S. Representative",
+  "state": "Ohio · OH-14",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OH-15 · Bioguide C001126
+ "mike_carey": {
+  "name": "Mike Carey", "office": "U.S. Representative",
+  "state": "Ohio · OH-15",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OR-01 · Bioguide B001278
+ "suzanne_bonamici": {
+  "name": "Suzanne Bonamici", "office": "U.S. Representative",
+  "state": "Oregon · OR-01",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OR-02 · Bioguide B000668
+ "cliff_bentz": {
+  "name": "Cliff Bentz", "office": "U.S. Representative",
+  "state": "Oregon · OR-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OR-03 · Bioguide D000635
+ "maxine_dexter": {
+  "name": "Maxine Dexter", "office": "U.S. Representative",
+  "state": "Oregon · OR-03",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OR-04 · Bioguide H001094
+ "valerie_hoyle": {
+  "name": "Val T. Hoyle", "office": "U.S. Representative",
+  "state": "Oregon · OR-04",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OR-05 · Bioguide B001326
+ "janelle_bynum": {
+  "name": "Janelle S. Bynum", "office": "U.S. Representative",
+  "state": "Oregon · OR-05",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OR-06 · Bioguide S001226
+ "andrea_salinas": {
+  "name": "Andrea Salinas", "office": "U.S. Representative",
+  "state": "Oregon · OR-06",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // PA-03 · Bioguide E000296
+ "dwight_evans": {
+  "name": "Dwight Evans", "office": "U.S. Representative",
+  "state": "Pennsylvania · PA-03",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // PA-04 · Bioguide D000631
+ "madeleine_dean": {
+  "name": "Madeleine Dean", "office": "U.S. Representative",
+  "state": "Pennsylvania · PA-04",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // PA-05 · Bioguide S001205
+ "mary_scanlon": {
+  "name": "Mary Gay Scanlon", "office": "U.S. Representative",
+  "state": "Pennsylvania · PA-05",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // PA-06 · Bioguide H001085
+ "chrissy_houlahan": {
+  "name": "Chrissy Houlahan", "office": "U.S. Representative",
+  "state": "Pennsylvania · PA-06",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // PA-09 · Bioguide M001204
+ "daniel_meuser": {
+  "name": "Daniel Meuser", "office": "U.S. Representative",
+  "state": "Pennsylvania · PA-09",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // PA-11 · Bioguide S001199
+ "lloyd_smucker": {
+  "name": "Lloyd Smucker", "office": "U.S. Representative",
+  "state": "Pennsylvania · PA-11",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // PA-13 · Bioguide J000302
+ "john_joyce": {
+  "name": "John Joyce", "office": "U.S. Representative",
+  "state": "Pennsylvania · PA-13",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // PA-14 · Bioguide R000610
+ "guy_reschenthaler": {
+  "name": "Guy Reschenthaler", "office": "U.S. Representative",
+  "state": "Pennsylvania · PA-14",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // PA-16 · Bioguide K000376
+ "mike_kelly": {
+  "name": "Mike Kelly", "office": "U.S. Representative",
+  "state": "Pennsylvania · PA-16",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // PA-17 · Bioguide D000530
+ "chris_deluzio": {
+  "name": "Christopher R. Deluzio", "office": "U.S. Representative",
+  "state": "Pennsylvania · PA-17",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // RI-01 · Bioguide A000380
+ "gabe_amo": {
+  "name": "Gabe Amo", "office": "U.S. Representative",
+  "state": "Rhode Island · RI-01",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // RI-02 · Bioguide M001223
+ "seth_magaziner": {
+  "name": "Seth Magaziner", "office": "U.S. Representative",
+  "state": "Rhode Island · RI-02",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-02 · Bioguide W000795
+ "joe_wilson": {
+  "name": "Joe Wilson", "office": "U.S. Representative",
+  "state": "South Carolina · SC-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-03 · Bioguide B001325
+ "sheri_biggs": {
+  "name": "Sheri Biggs", "office": "U.S. Representative",
+  "state": "South Carolina · SC-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-04 · Bioguide T000480
+ "william_timmons": {
+  "name": "William R. Timmons IV", "office": "U.S. Representative",
+  "state": "South Carolina · SC-04",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-05 · Bioguide N000190
+ "ralph_norman": {
+  "name": "Ralph Norman", "office": "U.S. Representative",
+  "state": "South Carolina · SC-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SC-07 · Bioguide F000478
+ "russell_fry": {
+  "name": "Russell Fry", "office": "U.S. Representative",
+  "state": "South Carolina · SC-07",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // SD-AL · Bioguide J000301
+ "dusty_johnson": {
+  "name": "Dusty Johnson", "office": "U.S. Representative",
+  "state": "South Dakota · SD-AL",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-01 · Bioguide H001086
+ "diana_harshbarger": {
+  "name": "Diana Harshbarger", "office": "U.S. Representative",
+  "state": "Tennessee · TN-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-02 · Bioguide B001309
+ "tim_burchett": {
+  "name": "Tim Burchett", "office": "U.S. Representative",
+  "state": "Tennessee · TN-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-03 · Bioguide F000459
+ "chuck_fleischmann": {
+  "name": "Charles J. \"Chuck\" Fleischmann", "office": "U.S. Representative",
+  "state": "Tennessee · TN-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-04 · Bioguide D000616
+ "scott_desjarlais": {
+  "name": "Scott DesJarlais", "office": "U.S. Representative",
+  "state": "Tennessee · TN-04",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-05 · Bioguide O000175
+ "andrew_ogles": {
+  "name": "Andrew Ogles", "office": "U.S. Representative",
+  "state": "Tennessee · TN-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-06 · Bioguide R000612
+ "john_rose": {
+  "name": "John W. Rose", "office": "U.S. Representative",
+  "state": "Tennessee · TN-06",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-07 · Bioguide V000139
+ "matt_van_epps": {
+  "name": "Matt Van Epps", "office": "U.S. Representative",
+  "state": "Tennessee · TN-07",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-08 · Bioguide K000392
+ "david_kustoff": {
+  "name": "David Kustoff", "office": "U.S. Representative",
+  "state": "Tennessee · TN-08",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TN-09 · Bioguide C001068
+ "steve_cohen": {
+  "name": "Steve Cohen", "office": "U.S. Representative",
+  "state": "Tennessee · TN-09",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-01 · Bioguide M001224
+ "nathaniel_moran": {
+  "name": "Nathaniel Moran", "office": "U.S. Representative",
+  "state": "Texas · TX-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-03 · Bioguide S001224
+ "keith_self": {
+  "name": "Keith Self", "office": "U.S. Representative",
+  "state": "Texas · TX-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-04 · Bioguide F000246
+ "pat_fallon": {
+  "name": "Pat Fallon", "office": "U.S. Representative",
+  "state": "Texas · TX-04",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-05 · Bioguide G000589
+ "lance_gooden": {
+  "name": "Lance Gooden", "office": "U.S. Representative",
+  "state": "Texas · TX-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-06 · Bioguide E000071
+ "jake_ellzey": {
+  "name": "Jake Ellzey", "office": "U.S. Representative",
+  "state": "Texas · TX-06",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-07 · Bioguide F000468
+ "lizzie_fletcher": {
+  "name": "Lizzie Fletcher", "office": "U.S. Representative",
+  "state": "Texas · TX-07",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-08 · Bioguide L000603
+ "morgan_luttrell": {
+  "name": "Morgan Luttrell", "office": "U.S. Representative",
+  "state": "Texas · TX-08",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-09 · Bioguide G000553
+ "al_green": {
+  "name": "Al Green", "office": "U.S. Representative",
+  "state": "Texas · TX-09",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-10 · Bioguide M001157
+ "michael_mccaul": {
+  "name": "Michael T. McCaul", "office": "U.S. Representative",
+  "state": "Texas · TX-10",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-12 · Bioguide G000601
+ "craig_goldman": {
+  "name": "Craig A. Goldman", "office": "U.S. Representative",
+  "state": "Texas · TX-12",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-13 · Bioguide J000304
+ "ronny_jackson": {
+  "name": "Ronny Jackson", "office": "U.S. Representative",
+  "state": "Texas · TX-13",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-14 · Bioguide W000814
+ "randy_weber": {
+  "name": "Randy K. Weber, Sr.", "office": "U.S. Representative",
+  "state": "Texas · TX-14",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-15 · Bioguide D000594
+ "monica_de_la_cruz": {
+  "name": "Monica De La Cruz", "office": "U.S. Representative",
+  "state": "Texas · TX-15",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-16 · Bioguide E000299
+ "veronica_escobar": {
+  "name": "Veronica Escobar", "office": "U.S. Representative",
+  "state": "Texas · TX-16",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-17 · Bioguide S000250
+ "pete_sessions": {
+  "name": "Pete Sessions", "office": "U.S. Representative",
+  "state": "Texas · TX-17",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-18 · Bioguide M001245
+ "christian_menefee": {
+  "name": "Christian D. Menefee", "office": "U.S. Representative",
+  "state": "Texas · TX-18",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-20 · Bioguide C001091
+ "joaquin_castro": {
+  "name": "Joaquin Castro", "office": "U.S. Representative",
+  "state": "Texas · TX-20",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-22 · Bioguide N000026
+ "troy_nehls": {
+  "name": "Troy E. Nehls", "office": "U.S. Representative",
+  "state": "Texas · TX-22",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-24 · Bioguide V000134
+ "beth_van_duyne": {
+  "name": "Beth Van Duyne", "office": "U.S. Representative",
+  "state": "Texas · TX-24",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-26 · Bioguide G000603
+ "brandon_gill": {
+  "name": "Brandon Gill", "office": "U.S. Representative",
+  "state": "Texas · TX-26",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-27 · Bioguide C001115
+ "michael_cloud": {
+  "name": "Michael Cloud", "office": "U.S. Representative",
+  "state": "Texas · TX-27",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-28 · Bioguide C001063
+ "henry_cuellar": {
+  "name": "Henry Cuellar", "office": "U.S. Representative",
+  "state": "Texas · TX-28",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-29 · Bioguide G000587
+ "sylvia_garcia": {
+  "name": "Sylvia R. Garcia", "office": "U.S. Representative",
+  "state": "Texas · TX-29",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-31 · Bioguide C001051
+ "john_carter": {
+  "name": "John R. Carter", "office": "U.S. Representative",
+  "state": "Texas · TX-31",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-32 · Bioguide J000310
+ "julie_johnson": {
+  "name": "Julie Johnson", "office": "U.S. Representative",
+  "state": "Texas · TX-32",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-33 · Bioguide V000131
+ "marc_veasey": {
+  "name": "Marc A. Veasey", "office": "U.S. Representative",
+  "state": "Texas · TX-33",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-34 · Bioguide G000581
+ "vicente_gonzalez": {
+  "name": "Vicente Gonzalez", "office": "U.S. Representative",
+  "state": "Texas · TX-34",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-37 · Bioguide D000399
+ "lloyd_doggett": {
+  "name": "Lloyd Doggett", "office": "U.S. Representative",
+  "state": "Texas · TX-37",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // TX-38 · Bioguide H001095
+ "wesley_hunt": {
+  "name": "Wesley Hunt", "office": "U.S. Representative",
+  "state": "Texas · TX-38",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-01 · Bioguide W000804
+ "robert_wittman": {
+  "name": "Robert J. Wittman", "office": "U.S. Representative",
+  "state": "Virginia · VA-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-02 · Bioguide K000399
+ "jennifer_kiggans": {
+  "name": "Jennifer A. Kiggans", "office": "U.S. Representative",
+  "state": "Virginia · VA-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-04 · Bioguide M001227
+ "jennifer_mcclellan": {
+  "name": "Jennifer L. McClellan", "office": "U.S. Representative",
+  "state": "Virginia · VA-04",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-05 · Bioguide M001239
+ "john_mcguire": {
+  "name": "John J. McGuire III", "office": "U.S. Representative",
+  "state": "Virginia · VA-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-06 · Bioguide C001118
+ "ben_cline": {
+  "name": "Ben Cline", "office": "U.S. Representative",
+  "state": "Virginia · VA-06",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-07 · Bioguide V000138
+ "eugene_vindman": {
+  "name": "Eugene Simon Vindman", "office": "U.S. Representative",
+  "state": "Virginia · VA-07",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-08 · Bioguide B001292
+ "donald_beyer": {
+  "name": "Donald S. Beyer, Jr.", "office": "U.S. Representative",
+  "state": "Virginia · VA-08",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-09 · Bioguide G000568
+ "h_griffith": {
+  "name": "H. Morgan Griffith", "office": "U.S. Representative",
+  "state": "Virginia · VA-09",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-10 · Bioguide S001230
+ "suhas_subramanyam": {
+  "name": "Suhas Subramanyam", "office": "U.S. Representative",
+  "state": "Virginia · VA-10",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VA-11 · Bioguide W000831
+ "james_walkinshaw": {
+  "name": "James R. Walkinshaw", "office": "U.S. Representative",
+  "state": "Virginia · VA-11",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // VT-AL · Bioguide B001318
+ "becca_balint": {
+  "name": "Becca Balint", "office": "U.S. Representative",
+  "state": "Vermont · VT-AL",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WA-04 · Bioguide N000189
+ "dan_newhouse": {
+  "name": "Dan Newhouse", "office": "U.S. Representative",
+  "state": "Washington · WA-04",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WA-05 · Bioguide B001322
+ "michael_baumgartner": {
+  "name": "Michael Baumgartner", "office": "U.S. Representative",
+  "state": "Washington · WA-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WA-06 · Bioguide R000621
+ "emily_randall": {
+  "name": "Emily Randall", "office": "U.S. Representative",
+  "state": "Washington · WA-06",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WA-08 · Bioguide S001216
+ "kim_schrier": {
+  "name": "Kim Schrier", "office": "U.S. Representative",
+  "state": "Washington · WA-08",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WA-10 · Bioguide S001159
+ "marilyn_strickland": {
+  "name": "Marilyn Strickland", "office": "U.S. Representative",
+  "state": "Washington · WA-10",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-02 · Bioguide P000607
+ "mark_pocan": {
+  "name": "Mark Pocan", "office": "U.S. Representative",
+  "state": "Wisconsin · WI-02",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-03 · Bioguide V000135
+ "derrick_van_orden": {
+  "name": "Derrick Van Orden", "office": "U.S. Representative",
+  "state": "Wisconsin · WI-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-04 · Bioguide M001160
+ "gwen_moore": {
+  "name": "Gwen Moore", "office": "U.S. Representative",
+  "state": "Wisconsin · WI-04",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-05 · Bioguide F000471
+ "scott_fitzgerald": {
+  "name": "Scott Fitzgerald", "office": "U.S. Representative",
+  "state": "Wisconsin · WI-05",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-06 · Bioguide G000576
+ "glenn_grothman": {
+  "name": "Glenn Grothman", "office": "U.S. Representative",
+  "state": "Wisconsin · WI-06",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-07 · Bioguide T000165
+ "thomas_tiffany": {
+  "name": "Thomas P. Tiffany", "office": "U.S. Representative",
+  "state": "Wisconsin · WI-07",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WI-08 · Bioguide W000829
+ "tony_wied": {
+  "name": "Tony Wied", "office": "U.S. Representative",
+  "state": "Wisconsin · WI-08",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WV-01 · Bioguide M001205
+ "carol_miller": {
+  "name": "Carol D. Miller", "office": "U.S. Representative",
+  "state": "West Virginia · WV-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WV-02 · Bioguide M001235
+ "riley_moore": {
+  "name": "Riley M. Moore", "office": "U.S. Representative",
+  "state": "West Virginia · WV-02",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // WY-AL · Bioguide H001096
+ "harriet_hageman": {
+  "name": "Harriet M. Hageman", "office": "U.S. Representative",
+  "state": "Wyoming · WY-AL",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
  }
 });

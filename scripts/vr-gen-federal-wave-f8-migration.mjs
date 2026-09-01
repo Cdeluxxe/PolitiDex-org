@@ -104,7 +104,24 @@ for (const v of seed.votes) {
 // ── SQL ──
 const q = (s) => "'" + String(s).replace(/'/g, "''") + "'";
 const L = [];
-const rosterSlugs = [...new Set(Object.values(memberMap.map))].sort();
+// The "no cell outside the roster" verification below pins the roster this migration was
+// reviewed against. Later roster waves admit more slugs, and regenerating against the grown
+// map would rewrite the bytes of a file that has already run — which is exactly what the wave
+// harness compares. So waves admitted AFTER this migration are excluded by name, the same way
+// f2 and f3 exclude theirs. federal_roster_r1_sep2026 is the largest such entry this list will
+// ever carry: 315 sitting House members admitted at once, because the House corpus held 7,298
+// recorded positions the fail-closed ingest had to skip for want of a roster slug. None of them
+// is a Senator, so none could ever have appeared in an F8 cell.
+const ROSTER_WAVES_ADMITTED_AFTER_THIS_MIGRATION = [
+  "federal_roster_r1_sep2026",
+];
+const excludedSlugs = new Set();
+for (const wave of ROSTER_WAVES_ADMITTED_AFTER_THIS_MIGRATION) {
+  const slugs = admitted.waves?.[wave];
+  if (!Array.isArray(slugs)) fail(`roster wave '${wave}' is named as post-dating this migration but is not in db/vr-roster-admitted.json.`);
+  slugs.forEach((s) => excludedSlugs.add(s));
+}
+const rosterSlugs = [...new Set(Object.values(memberMap.map))].filter((s) => !excludedSlugs.has(s)).sort();
 const byCongress = {};
 seed.votes.forEach((v) => { const k = `${v.congress}/${v.session}`; byCongress[k] = (byCongress[k] || 0) + 1; });
 const energyRows = decisions.attribution.energyKeysGained.rows.filter((r) => r.gainedBy.length);

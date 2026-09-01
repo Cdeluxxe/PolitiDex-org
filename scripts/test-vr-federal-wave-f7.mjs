@@ -315,7 +315,15 @@ const roster = J("db/vr-roster-admitted.json");
   // grown. An addition belonging to a named later wave passes; a removal, a rewritten
   // earlier wave, or a bioguide repointed to a different slug still fails. A wave key that
   // is not in the roster file is a typo and fails rather than silently allowing everything.
-  const ROSTER_WAVES_ADMITTED_AFTER_THIS_WAVE = ["federal_wave_f8_aug2026"];
+  const ROSTER_WAVES_ADMITTED_AFTER_THIS_WAVE = [
+    "federal_wave_f8_aug2026",
+    // 315 sitting House members, admitted at once because the House corpus held 7,298
+    // recorded positions the fail-closed ingest had to skip for want of a roster slug. F7's
+    // own five rolls are among the 23 re-read against the widened roster, which is the
+    // mechanism working: F7 refused to guess a Bioguide, said so, and a later wave supplied
+    // the roster instead of the guess.
+    "federal_roster_r1_sep2026",
+  ];
   const head = (f) => { try { return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }); } catch (e) { return null; } };
   const laterSlugs = new Set();
   for (const key of ROSTER_WAVES_ADMITTED_AFTER_THIS_WAVE) {
@@ -336,8 +344,14 @@ const roster = J("db/vr-roster-admitted.json");
   if (headRoster !== null) {
     const was = JSON.parse(headRoster).waves || {};
     const now = roster.waves || {};
-    for (const [key, sl] of Object.entries(was))
+    // Underscore keys are the file's own documentation, not a wave of admissions. `_note`
+    // explains the convention to whoever opens the file next, and a wave that widens the
+    // roster by 315 people has something to add there — forbidding that would mean the
+    // largest wave in the file is the one the file cannot describe.
+    for (const [key, sl] of Object.entries(was)) {
+      if (key.startsWith("_")) continue;
       eq(JSON.stringify(now[key]), JSON.stringify(sl), `db/vr-roster-admitted.json rewrote wave "${key}" — an earlier wave's admissions are a closed record`);
+    }
     for (const key of Object.keys(now))
       if (!(key in was)) ok(ROSTER_WAVES_ADMITTED_AFTER_THIS_WAVE.includes(key),
         `db/vr-roster-admitted.json gained wave "${key}", which this harness was not told about`);
@@ -820,7 +834,15 @@ function boot(get, label) {
   // the waiver is one file and the shape of its change is checked: appended prose inside
   // _DOS_MECH, nothing above it, nothing below it, no existing entry edited (rule 21
   // leaves a live rationale with its first writer).
-  const WAIVED = ["consistency.js"];
+  // cmp-data.js joins the waiver because a ROSTER wave's whole product is new identity rows
+  // in it: federal_roster_r1_sep2026 admits 315 sitting House members, because the House
+  // corpus held 7,298 recorded positions the fail-closed ingest had to skip for want of a
+  // roster slug. Forbidding the file outright forbids the only legal way to admit anyone.
+  // The additive price is paid in scripts/test-person-crawl-block.mjs section 9, which pins
+  // the roster row by row against HEAD — nobody dropped, HEAD's order kept, no existing
+  // row's judged surface moved — and the Direction Match sweep below still holds every
+  // profile HEAD had bit-for-bit.
+  const WAIVED = ["consistency.js", "cmp-data.js"];
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== nowSrc(f); });
   const stray = touched.filter((f) => !WAIVED.includes(f));
   eq(stray.join(", "), "",
@@ -920,7 +942,12 @@ function boot(get, label) {
     && ok(!!(work && work.PDXWordAction && work.PDXWordAction.read), "the current engine booted")) {
     const PIDS = Object.keys(head.CMP_DATA || {});
     ok(PIDS.length > 100, `the roster booted (${PIDS.length} profiles)`);
-    eq(Object.keys(work.CMP_DATA || {}).length, PIDS.length, "the roster changed size");
+    // The roster GREW, and that is a later roster wave's product rather than this wave's
+    // drift: everyone HEAD had is still here (checked next), and every one of their Direction
+    // Match figures is held bit-for-bit below, which is what this equality was protecting.
+    // Pinning the count instead would forbid every future admission.
+    ok(Object.keys(work.CMP_DATA || {}).length >= PIDS.length, "the roster shrank");
+    eq(PIDS.filter((p) => !work.CMP_DATA[p]).length, 0, "a profile HEAD had is gone from the roster");
 
     const READ_KEYS = ["pct", "publishable", "word", "testedWeight"];
     const COV_KEYS = ["word", "scorable", "tested", "untested", "issueLinked", "notIssueLinked", "recordDerived", "warming"];

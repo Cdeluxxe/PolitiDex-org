@@ -926,6 +926,31 @@ const curatedVocab = new Set([
   ...Object.keys(ACCT_ALIAS), ...Object.values(ACCT_ALIAS), ...Object.keys(PROFILE_ALIAS),
   ...Object.keys(STANCES || {}),
 ]);
+// TWO LIVING PEOPLE, ONE DISPLAY NAME. The name-slug half of "discoverable" above is a
+// heuristic, and it is wrong in exactly one way: when two people who both hold office share
+// a full name, slugifying the roster's display name lands on the other one, and the guard
+// then demands an alias that would MERGE them. An alias is a claim of identity, so a false
+// positive here is not a wiring nit — it is one person's votes and stances appearing on
+// another person's profile, permanently, under a bridge nobody would think to question.
+//
+// So a pair only lands here with a document that distinguishes the two, and the entry states
+// it. This is not a waiver of the guard: the roster id side still has to exist, and any OTHER
+// candidate for the same curated id still fails.
+//
+//   mike_rogers → NOT mike_rogers_al. Two sitting Republicans named Mike Rogers. The curated
+//   `mike_rogers` block is Michigan's — its own stance cards cite
+//   ballotpedia.org/Mike_Rogers_(Michigan), and spotlights-data.js files him as "Former U.S.
+//   Representative · Intelligence" and "U.S. Senate candidate · Michigan" (he chaired House
+//   Intelligence and ran for the Michigan Senate seat). `mike_rogers_al` is Alabama's AL-03,
+//   Bioguide R000575, admitted by roster wave federal_roster_r1_sep2026 and verified twice —
+//   Clerk MemberData.xml AL03 and legislators-current AL-3 — plus his name-id on 23 rolls of
+//   the House corpus. Different state, different district, different chamber history. The
+//   Michigan Rogers holds no House record in this corpus and needs a roster record of his own,
+//   which is a content decision; aliasing him onto Alabama's file is not a substitute for one.
+const NOT_THE_SAME_PERSON = {
+  mike_rogers: "mike_rogers_al",
+};
+
 let profileChecked = 0;
 for (const id of curatedVocab) {
   const resolved = profilePid(id);
@@ -933,7 +958,7 @@ for (const id of curatedVocab) {
   const candidates = [
     ...(reverseAlias.get(id) || []),
     ...(rosterBySlug.has(id) ? [rosterBySlug.get(id)] : []),
-  ].filter((c) => ROSTER && ROSTER[c] && !RETIRED.has(c));
+  ].filter((c) => ROSTER && ROSTER[c] && !RETIRED.has(c) && NOT_THE_SAME_PERSON[id] !== c);
   ok(candidates.length === 0,
     `profile resolution: id '${id}' opens no profile, but '${candidates[0]}' is a live ` +
     `roster record for the same person — add PDX_PROFILE_ALIAS['${id}'] = ` +

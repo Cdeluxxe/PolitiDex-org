@@ -90,7 +90,29 @@ const seedFile = JSON.parse(fs.readFileSync(path.join(ROOT, SEED_PATH), "utf8"))
 const issueSeed = JSON.parse(fs.readFileSync(path.join(ROOT, "db/vr-issue-seed.json"), "utf8"));
 const decision = JSON.parse(fs.readFileSync(path.join(ROOT, DECISION_PATH), "utf8"));
 const memberMap = JSON.parse(fs.readFileSync(path.join(ROOT, "db/vr-member-map.json"), "utf8"));
-const ROSTER = [...new Set(Object.values(memberMap.map || {}))].sort();
+// The orphan-cell verification below pins the roster this migration was reviewed against.
+// Later roster waves admit more slugs, and regenerating against the grown map would rewrite
+// the bytes of a file that has already run. So waves admitted AFTER this migration are
+// excluded by name, the same way f2, f3 and f8 exclude theirs. Two of these (f6, f8) already
+// post-dated this file; federal_roster_r1_sep2026 admits 315 sitting House members at once,
+// because the House corpus held 7,298 recorded positions the fail-closed ingest had to skip
+// for want of a roster slug. This list restores byte-for-byte reproducibility — it does not
+// change the applied SQL, which is immutable.
+const ROSTER_WAVES_ADMITTED_AFTER_THIS_MIGRATION = [
+  "federal_wave_f6_aug2026",
+  "federal_wave_f8_aug2026",
+  "federal_roster_r1_sep2026",
+];
+const rosterAdmitted = JSON.parse(fs.readFileSync(path.join(ROOT, "db/vr-roster-admitted.json"), "utf8"));
+const excludedSlugs = new Set();
+for (const wave of ROSTER_WAVES_ADMITTED_AFTER_THIS_MIGRATION) {
+  const slugs = rosterAdmitted.waves?.[wave];
+  if (!Array.isArray(slugs)) {
+    throw new Error(`roster wave '${wave}' is named as post-dating this migration but is not an array in db/vr-roster-admitted.json.`);
+  }
+  slugs.forEach((x) => excludedSlugs.add(x));
+}
+const ROSTER = [...new Set(Object.values(memberMap.map || {}))].filter((x) => !excludedSlugs.has(x)).sort();
 
 // ── the five rolls, and which of them this pass CREATED ──────────────────────
 // `fresh: true` means the roll did not exist before this migration. It drives the
