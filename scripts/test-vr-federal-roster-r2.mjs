@@ -39,8 +39,8 @@ import vm from "node:vm";
 import { execFileSync } from "node:child_process";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCrawlRecord } from "./gen-crawl-record.mjs";
-import { CJ_SEAMS, SH_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam }
-  from "./v103-chrome-seams.mjs";
+import { CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
+  assertWordActionSeams } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -500,20 +500,29 @@ section("6 · no Direction Match or formal-brief drift — twin boot, HEAD vs th
   // and the spans are argued rather than excused. The Direction Match sweep below is
   // the real proof either way: it reads every profile HEAD had and requires the
   // numbers to be identical.
-  const V103 = ["consistency.js", "stance-helpers.js"];
+  // …and word-action.js joins them for the brief slice-line pass (v104), on exactly
+  // the same terms: three named spans — the slice gate and its two mounts — with the
+  // rest of the renderer compared byte for byte. A roster wave has the largest stake
+  // of any wave in that sentence and no stake at all in the span: R1's 7,138 cells
+  // across 23 House rolls are exactly why several hundred admitted files now open on
+  // the same three chips, and the sentence is the block saying which of "the slice we
+  // hold" and "who they are" the reader is looking at. It reads two counts already
+  // published for that person and computes nothing.
+  const SEAMED = ["consistency.js", "stance-helpers.js", "word-action.js"];
   const shHas = (x, n, m2) => ok(String(x).includes(n), `${m2} — missing ${JSON.stringify(n)}`);
   const seamCheck = (f, seams, argue) => {
     const h = HEAD(f);
     if (h === null || h === R(f)) return;
     const a = carveSeams(h, seams, "HEAD", f, ok), b = carveSeams(R(f), seams, "now", f, ok);
-    eq(b.pinned, a.pinned, `${f} changed outside its named v103 seam — a roster wave admits identity, and this pass touched copy`);
-    argue(b.bodies, { has: shHas, ok });
+    eq(b.pinned, a.pinned, `${f} changed outside its named copy-pass seam — a roster wave admits identity, and this pass touched copy`);
+    argue(b.bodies, { has: shHas, eq, ok });
   };
   const touched = FILES.filter((f) => { const h = HEAD(f); return h !== null && h !== R(f); });
-  eq(touched.filter((f) => !V103.includes(f)).join(", "), "cmp-data.js",
+  eq(touched.filter((f) => !SEAMED.includes(f)).join(", "), "cmp-data.js",
     "a roster wave changed a booted file other than the roster — identity is the only thing it admits");
   seamCheck("consistency.js", CJ_SEAMS, assertConsistencySeams);
   seamCheck("stance-helpers.js", SH_SEAMS, assertStanceHelpersSeam);
+  seamCheck("word-action.js", WA_SEAMS, assertWordActionSeams);
 
   if (ok(!!(head.PDXWordAction && head.PDXWordAction.read), "the pre-wave engine did not boot from HEAD (skipping the sweep)")
     && ok(!!(work.PDXWordAction && work.PDXWordAction.read), "the current engine did not boot")) {

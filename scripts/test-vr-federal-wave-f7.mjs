@@ -51,8 +51,8 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { CJ_SEAMS, SH_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam }
-  from "./v103-chrome-seams.mjs";
+import { CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
+  assertWordActionSeams } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -852,7 +852,7 @@ function boot(get, label) {
   // came to call a record "still being built" underneath a letterhead counting 23
   // acts. It now also reports the act count and whether the lane has answered.
   // No wave input is in there — no floor, no mapping, no weight, no score.
-  const WAIVED = ["consistency.js", "cmp-data.js", "stance-helpers.js"];
+  const WAIVED = ["consistency.js", "cmp-data.js", "stance-helpers.js", "word-action.js"];
   // The seam arguments below want a substring assertion; these suites carry ok/eq only.
   const has = (s, n, m) => ok(String(s).includes(n), `${m} — missing ${JSON.stringify(n)}`);
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== nowSrc(f); });
@@ -867,6 +867,17 @@ function boot(get, label) {
       "stance-helpers.js changed outside the record-CTA stats seam — the stance resolver this " +
       "whole profile is built from is not a chrome pass's to touch");
     assertStanceHelpersSeam(sb.bodies, { has, ok });
+  }
+  // word-action.js, the brief slice-line pass (v104), on the same seam terms: the
+  // renderer is compared byte for byte everywhere outside three named spans, and
+  // what is inside them is argued rather than excused. F7 has no stake in it: the span reads counts already published and names the documents behind them; it judges nothing and withholds nothing.
+  if (touched.includes("word-action.js")) {
+    const wa = carveSeams(headSrc("word-action.js"), WA_SEAMS, "HEAD", "word-action.js", ok);
+    const wb = carveSeams(nowSrc("word-action.js"), WA_SEAMS, "now", "word-action.js", ok);
+    eq(wb.pinned, wa.pinned,
+      "word-action.js changed outside the slice gate and its two mounts — the letterhead the " +
+      "whole formal read is rendered from is not a copy pass's to touch");
+    assertWordActionSeams(wb.bodies, { has: has, eq, ok });
   }
   if (touched.includes("consistency.js")) {
     const a = headSrc("consistency.js"), b = nowSrc("consistency.js");

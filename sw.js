@@ -739,7 +739,20 @@
 // of the next load, so the returning reader — the reader most likely to hit the
 // cold /p/ path from a bookmark — would still be told we do not carry a person
 // whose row is sitting in the very same cached cmp-data.js.
-const CACHE_VERSION = 'v103';
+// v104 - THE BRIEF'S SLICE LINE, and the reason is a renderer and its stylesheet
+// that have to land together. word-action.js prints one new sentence under the
+// pattern list on a file whose whole readable formal lane is a small set of House
+// rolls from one Congress — "Pattern from 23 House rolls on file — not a career
+// score." — and word-action.css sizes it as the muted note it is. Both are on the
+// precache list below. A device that takes the new renderer against v103's
+// stylesheet has an unstyled paragraph at body size sitting between the chips and
+// the route out, which is the one shape this sentence must not have: a full-size
+// line reading "not a career score" beside three one-sided chips reads as a
+// verdict on the record rather than a description of the file. A device that takes
+// the new stylesheet against the old renderer has a rule for a node nothing emits.
+// Nothing else moved — no count, no chip, no tier, no Direction Match figure — so
+// the bump exists purely so the pair arrives as a pair.
+const CACHE_VERSION = 'v104';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

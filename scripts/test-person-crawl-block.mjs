@@ -1625,9 +1625,24 @@ section("9 · the engines did not move");
         //   briefRecordOnHand  counts the header's rows unfiltered: a line the edge
         //                      wrote in a shape this file cannot DRAW is still formal
         //                      record on screen behind the modal
+        //
+        // …AND THE SIXTH ROUND (CACHE_VERSION v104), which is not about an absent
+        // record at all — it is about a present one being read as more than it is.
+        // Roster wave R1 attached 7,138 cells across 23 House rolls, so several
+        // hundred newly admitted files now open on the same three chips (permits
+        // 4–0, crime 4–0, energy 4–0). That is true of the 119th-Congress slice
+        // this repo holds and it reads as a career. The two functions that RENDER
+        // the strongest-patterns block gained one call each, directly under the
+        // list, and nothing else:
+        //   shapeHeroHtml   the letterhead, above the depth gate
+        //   briefBodyHtml   the brief itself
+        // Both are checked below by subtraction rather than waived: remove the one
+        // inserted call from the working copy's body and it must be HEAD's body,
+        // byte for byte.
         const TOUCHED = ["armBriefDeadline", "briefAbsenceCopy", "briefHeroHtml",
           "briefSeedHtml", "briefLiveN", "briefRecordOnHand", "formalKnown",
-          "bindHero", "shapeMatchHtml", "briefAsked"];
+          "bindHero", "shapeMatchHtml", "briefAsked",
+          "shapeHeroHtml", "briefBodyHtml"];
         // …and the readers the two passes added. Every one is a pure read of state
         // that already existed in the tab — the live member payload, the crawl
         // header's rows, the static formal index, the pattern index's shape, the
@@ -1677,7 +1692,19 @@ section("9 · the engines did not move");
           //                        positive knowledge that the wait is over
           //   emptyFileCopy        the one door: the only reader of EMPTY_FILE_COPY
           //                        in the file, and it is locked by the veto
-          "voteChipN", "briefEmptyForbidden", "briefEmptyLegal", "emptyFileCopy"];
+          "voteChipN", "briefEmptyForbidden", "briefEmptyLegal", "emptyFileCopy",
+          // …AND THE SIXTH ROUND's four, all pure reads of counts and fields this
+          // tab already publishes for that person. Not one of them computes a
+          // figure; the sentence they build re-prints a number the inventory line
+          // on the same brief already shows, or prints no number at all.
+          //   sliceHouseLane  is every judged act on this file a U.S. House roll
+          //                   from ONE Congress — the precondition for the
+          //                   sentence being true of the file
+          //   sliceCounts     the inventory's formal.acts and the record lane's
+          //                   own distinct-instrument count, read side by side
+          //   sliceLineN      the numbered form of the locked sentence
+          //   sliceNoteHtml   the gate: four legs, then one of two locked forms
+          "sliceHouseLane", "sliceCounts", "sliceLineN", "sliceNoteHtml"];
 
         const changed = [], added = [], removed = [];
         for (const [k, v] of A.fns) {
@@ -1691,6 +1718,50 @@ section("9 · the engines did not move");
           "…and the only function bodies that moved are the three brief-path functions this pass owns");
         eq(added.filter((f) => !ADDED.includes(f)).sort(), [],
           "…and the only functions it gained are the six named record readers");
+
+        // ── the two mounts, by subtraction ──────────────────────────────────────
+        // A named function in TOUCHED is a licence to change bytes, and on the two
+        // functions that draw the strongest-patterns block that licence is wider
+        // than the v104 pass needs: the same bodies hold the chip order and the
+        // characterisation the brief says not to touch. So the pass states its
+        // whole diff as a string and the string is subtracted — what is left must
+        // be HEAD, byte for byte. A reordered chip or a reworded pattern would
+        // survive TOUCHED and die here.
+        const MOUNT = " sliceNoteHtml(pid, sh) +";
+        for (const f of ["shapeHeroHtml", "briefBodyHtml"]) {
+          const now = B.fns.get(f) || "", was = A.fns.get(f) || "";
+          eq(now.split(MOUNT).length, 2,
+            `${f}() does not mount the slice note exactly once — one call, or the letterhead and the brief drift into two wordings`);
+          eq(sha(now.replace(MOUNT, "")), sha(was),
+            `${f}() moved something other than the slice-note call — the chip order, the characterisation and the counts in it are HEAD's`);
+        }
+
+        // ── and the sentence itself, locked ─────────────────────────────────────
+        // Two forms and no third, no party, no rate, and no verdict composed
+        // alongside them. The literals come out of the gate before the word walls
+        // run, because the sentence's own last word is "score" — that is the half
+        // doing the work.
+        {
+          const gate = [B.fns.get("sliceNoteHtml"), B.fns.get("sliceLineN"),
+            B.rest.match(/\n\s*var SLICE_LINE = [^\n]*\n/) ? RegExp.lastMatch : ""].join("\n");
+          has(gate, "Pattern from the House rolls on file — not a career score.",
+            "the slice sentence's no-number form is not the locked copy");
+          has(gate, "'Pattern from ' + n + ' House rolls on file — not a career score.'",
+            "the slice sentence's numbered form is not the locked copy");
+          has(B.rest, "var SLICE_CUTOFF = 32;",
+            "the slice gate's documented instrument cutoff moved — 32 is measured from the live corpus " +
+            "in scripts/test-brief-slice-disclosure.mjs, which also names the files it silences");
+          has(B.fns.get("sliceNoteHtml") || "", "(c.acts === c.rolls) ? sliceLineN(c.acts) : SLICE_LINE",
+            "the number is printed without the two published counts having to agree first");
+          const gcode = gate.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+          ok(!/toFixed|Math\.(round|max|min)|\/\s*100|\*\s*100/.test(gcode),
+            "the slice gate grew arithmetic of its own — every figure in it is a re-print");
+          ok(!/\bscore\b|\bweight\b|MIN_|FLOOR|publishable|PublicationFloor/.test(gcode),
+            "the slice gate reads a score, a weight or the publication floor");
+          ok(!/\.party\b|Republican|Democrat|GOP/i.test(gcode), "the slice gate reads a party");
+          ok(!/incomplete|limited record|early in term/i.test(gcode),
+            "the slice gate composes a verdict about the person alongside its sentence about the file");
+        }
         // Named individually as well as covered by the set above, because these are the
         // ones the brief said not to touch and a reader of this file should be able to
         // see them checked by name.
@@ -1766,6 +1837,14 @@ section("9 · the engines did not move");
           // CONSECUTIVE lines, and a /\n…\n/g pattern eats the next match's leading
           // newline and silently skips every other one.
           .replace(/^\s*(?:voteChipN|briefRecordOnHand|briefEmptyForbidden|briefEmptyLegal): [A-Za-z0-9_$]+,\n/gm, "")
+          // …and the sixth round's two: the documented instrument cutoff above
+          // which the file is no longer a small enough slice to name, and the
+          // no-number form of the sentence. Both are asserted by name above —
+          // SLICE_CUTOFF against the figure the slice harness measured from the
+          // live corpus, SLICE_LINE against the locked copy — so setting them aside
+          // here removes bytes that are checked, not bytes that are unchecked.
+          .replace(/\n\s*var SLICE_CUTOFF = [^\n]*\n/g, "\n")
+          .replace(/\n\s*var SLICE_LINE = [^\n]*\n/g, "\n")
           .replace(/\n\s*var FORMAL_DEEP_MIN = [^\n]*\n/g, "\n")
           .replace(/\n\s*var PAYLOAD_GRACE_MS = [^\n]*\n/g, "\n")
           .replace(/\n\s*var _liveAt = [^\n]*\n/g, "\n")

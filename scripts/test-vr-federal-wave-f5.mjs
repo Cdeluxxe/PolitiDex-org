@@ -57,8 +57,8 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { createHash } from "node:crypto";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { CJ_SEAMS, SH_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam }
-  from "./v103-chrome-seams.mjs";
+import { CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
+  assertWordActionSeams } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -492,6 +492,11 @@ function boot(get, label) {
     // reads a floor, a band, a mapping, a weight or a score — which is the whole of what
     // F5 has at stake in these two files.
     "stance-helpers.js": "the mid-page record card stopped calling a record 'still being built' over acts it had not finished reading",
+    // The brief slice-line pass (CACHE_VERSION v104), also a seam: one locked sentence
+    // under the pattern list on a file whose whole readable formal lane is a small set of
+    // House rolls from one Congress, and the four-leg gate that decides whether a file has
+    // earned it. No count, chip, tier or figure moved; section 8's twin boot still holds.
+    "word-action.js": "the formal brief names the slice it is reading instead of implying a career",
   };
   const F5_REFUSED = ["H.R. 1069", "H.R. 973", "H.R. 8800", "H.Amdt. 245"];
   let touched = [];
@@ -510,6 +515,17 @@ function boot(get, label) {
       "stance-helpers.js changed outside the record-CTA stats seam — the stance resolver the " +
       "whole profile is built from is not a chrome pass's to touch");
     assertStanceHelpersSeam(sb.bodies, { has, ok });
+  }
+  // word-action.js, the brief slice-line pass (v104), on the same seam terms: the
+  // renderer is compared byte for byte everywhere outside three named spans, and
+  // what is inside them is argued rather than excused. F5 has no stake in it: the span states no position, maps no measure and moves no floor — it prints one sentence about which documents the patterns above it came from.
+  if (touched.includes("word-action.js")) {
+    const wa = carveSeams(headSrc("word-action.js"), WA_SEAMS, "HEAD", "word-action.js", ok);
+    const wb = carveSeams(nowSrc("word-action.js"), WA_SEAMS, "now", "word-action.js", ok);
+    eq(wb.pinned, wa.pinned,
+      "word-action.js changed outside the slice gate and its two mounts — the letterhead the " +
+      "whole formal read is rendered from is not a copy pass's to touch");
+    assertWordActionSeams(wb.bodies, { has: has, eq, ok });
   }
   if (touched.includes("consistency.js")) {
     const A = "  var _DOS_MECH = {\n", B = "\n  };\n  // Fails closed in three places, on purpose:";

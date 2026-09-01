@@ -1,7 +1,11 @@
 /**
  * scripts/v103-chrome-seams.mjs
  *
- * ONE SPELLING OF THE v103 PERSON-FILE CHROME SEAMS.
+ * ONE SPELLING OF THE CHROME-PASS SEAMS — v103 (person-file chrome) and v104
+ * (the formal brief's slice line). The filename kept its original version
+ * because seven suites import it by name and a rename is a diff in all of them
+ * for no reader's benefit; what the module actually holds is every span a
+ * copy-only pass has cut into a byte-pinned file, and it says so here.
  *
  * Several suites in this repo pin a booted file BYTE FOR BYTE against HEAD —
  * the federal ingest waves (F5…F9, R1, R2) do it to prove a data wave never
@@ -34,7 +38,24 @@
  *     reports formalActs (the acts themselves) and formalRead (whether the
  *     lane has answered at all).
  *
- * None of the three is arithmetic. No floor, band, weight, mapping, score or
+ * The brief slice-line pass (CACHE_VERSION v104) edited three more, all in
+ * word-action.js and all of them copy:
+ *
+ *   word-action.js, seam A — the slice gate
+ *     A new block between shapeRowsHtml() and shapeHeroHtml(): one locked
+ *     sentence in two forms, and the four-leg gate that decides whether a file
+ *     has earned it. Every figure it reads is already published for that person
+ *     (the inventory's formal.acts, the record lane's own distinct-instrument
+ *     count, and the chamber / roll / congress fields on the warm records). It
+ *     computes nothing.
+ *
+ *   word-action.js, seams B and C — the two mounts
+ *     One call each, in the letterhead and in the brief, directly after the
+ *     pattern list and directly before the route out. Nothing else in either
+ *     return changed, which is what the twin boot in each suite then proves at
+ *     the rendered-HTML level.
+ *
+ * None of the six is arithmetic. No floor, band, weight, mapping, score or
  * party read or written inside any of them — which is what the assert helpers
  * below check, span by span, rather than excusing the diff.
  *
@@ -57,6 +78,19 @@ export const SH_SEAMS = [
   ["    var formal = 0;\n",
    "\n  window._pdxStanceRecordStats = _pdxStanceRecordStats;",
    "the record-CTA stats"],
+];
+
+// ── word-action.js: three spans — the gate, and the two mounts ───────────────
+export const WA_SEAMS = [
+  ["  function shapeRowsHtml(rows, pid, mount) {\n    return (rows || []).map(function (x) { return shapeRowHtml(x, pid, mount); }).join('');\n  }\n",
+   "  function shapeHeroHtml(pid, p) {\n",
+   "the slice gate and its locked copy"],
+  ["          '<p class=\"pdxwa-shape-depth\">' + depth + '</p>' +\n",
+   "          '<button type=\"button\" class=\"pdxwa-shape-all\"'",
+   "the letterhead's mount"],
+  ["    var total = opts.total || sh.issues;\n",
+   "        exploreAllHtml(total) +",
+   "the brief's mount"],
 ];
 
 /**
@@ -121,4 +155,53 @@ export function assertStanceHelpersSeam(bodies, api) {
     "the record-CTA stats reach for the publication floor — the floor is not what a mid-page label reads");
   ok(!/%|\b(Republican|Democrat|GOP|party)\b/i.test(body),
     "the record-CTA stats gained a percentage or a party — they count rows and answer yes/no");
+}
+
+/** Argue what is inside word-action.js's three spans. */
+export function assertWordActionSeams(bodies, api) {
+  const { has, eq, ok } = api;
+  // ── seam A: the gate ──────────────────────────────────────────────────────
+  // The copy is locked, in two forms and no third, and it carries no party, no
+  // rate and no verdict about the person.
+  const gate = bodies[0];
+  has(gate, "'Pattern from the House rolls on file — not a career score.'",
+    "the slice sentence's no-number form is not the locked copy");
+  has(gate, "'Pattern from ' + n + ' House rolls on file — not a career score.'",
+    "the slice sentence's numbered form is not the locked copy");
+  eq([...gate.matchAll(/Pattern from [^']*/g)].length, 2,
+    "the slice gate spells more or fewer than the two locked forms of the sentence");
+  // The four legs, each named. A missing leg is the sentence describing a file
+  // it is not true of.
+  has(gate, "var SLICE_CUTOFF = 32;", "the slice gate's documented instrument cutoff moved");
+  has(gate, "it.chamber !== 'house'", "the gate no longer requires the whole readable lane to be U.S. House rolls");
+  has(gate, "it.kind === 'position'", "…nor that every judged act on it is a ballot");
+  has(gate, "it.congress !== cong", "…nor that the file sits inside one Congress");
+  has(gate, "formal.acts", "the gate no longer reads the inventory's published act count");
+  has(gate, "_pdxRecordMappedCounts", "…nor cross-checks it against the record lane's distinct-instrument count");
+  has(gate, "(c.acts === c.rolls) ? sliceLineN(c.acts) : SLICE_LINE",
+    "the number is printed without the two published counts having to agree first");
+  // What it may not do. Strings come out first — the sentence itself contains
+  // the word "score", which is the half that does the work.
+  const code = gate.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+  ok(!/toFixed|Math\.round|Math\.max|Math\.min|\/\s*100|\*\s*100/.test(code),
+    "the slice gate grew arithmetic of its own — every figure in it is a re-print");
+  ok(!/\bpct\b|percent|\bscore\b|\bweight\b|MIN_|FLOOR|publishable|PublicationFloor/.test(code),
+    "the slice gate reads a score, a weight or the publication floor");
+  ok(!/\.party\b|Republican|Democrat|GOP/i.test(code), "the slice gate reads a party");
+  // The two locked forms are matched exactly above, so a verdict word smuggled
+  // into the copy is already caught; this checks the CODE, where a second
+  // sentence would have to be composed to carry one.
+  ok(!/incomplete|limited record|early in term/i.test(code),
+    "the slice gate composes a verdict about the person alongside its sentence about the file");
+  // ── seams B and C: the mounts ─────────────────────────────────────────────
+  // Under the pattern list in both, through the one function, so the letterhead
+  // and the brief cannot drift into two wordings.
+  has(bodies[1], "tops + splits + thin + sliceNoteHtml(pid, sh) +",
+    "the letterhead mounts the slice note somewhere other than under its pattern list");
+  has(bodies[2], "tops + splits + none + thin + sliceNoteHtml(pid, sh) +",
+    "the brief mounts the slice note somewhere other than under its pattern list");
+  for (const i of [1, 2]) {
+    ok(!/\d\s*%|toFixed/.test(bodies[i]), "a mount grew a figure of its own");
+    ok(bodies[i].split("sliceNoteHtml").length === 2, "a mount calls the slice note more than once");
+  }
 }

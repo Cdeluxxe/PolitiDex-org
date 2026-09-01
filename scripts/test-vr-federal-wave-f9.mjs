@@ -62,8 +62,8 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { CJ_SEAMS, SH_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam }
-  from "./v103-chrome-seams.mjs";
+import { CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
+  assertWordActionSeams } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -817,7 +817,7 @@ const swNote = swWaveNote();
   // _pdxStanceRecordStats, and what changed inside that span is argued below. F9 has no
   // stake in it — the span counts rows the record lane already holds and answers whether
   // the lane has answered at all. No floor, no mapping, no weight, no roll.
-  const MAY_MOVE = ["consistency.js", "cmp-data.js", "stance-helpers.js"];
+  const MAY_MOVE = ["consistency.js", "cmp-data.js", "stance-helpers.js", "word-action.js"];
   const has = (x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`);
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== R(f); });
   const strayBooted = touched.filter((f) => !MAY_MOVE.includes(f));
@@ -830,6 +830,17 @@ const swNote = swWaveNote();
       "stance-helpers.js changed outside the record-CTA stats seam — the stance resolver the " +
       "whole profile is built from is not a chrome pass's to touch");
     assertStanceHelpersSeam(sb.bodies, { has, ok });
+  }
+  // word-action.js, the brief slice-line pass (v104), on the same seam terms: the
+  // renderer is compared byte for byte everywhere outside three named spans, and
+  // what is inside them is argued rather than excused. F9 has no stake in it: the span reads no mechanism prose, no refusal and no mapping — it names the documents the patterns came from.
+  if (touched.includes("word-action.js")) {
+    const wa = carveSeams(headSrc("word-action.js"), WA_SEAMS, "HEAD", "word-action.js", ok);
+    const wb = carveSeams(R("word-action.js"), WA_SEAMS, "now", "word-action.js", ok);
+    eq(wb.pinned, wa.pinned,
+      "word-action.js changed outside the slice gate and its two mounts — the letterhead the " +
+      "whole formal read is rendered from is not a copy pass's to touch");
+    assertWordActionSeams(wb.bodies, { has: has, eq, ok });
   }
   if (f9Unmerged) {
     ok(touched.includes("consistency.js"),
@@ -967,6 +978,27 @@ const swNote = swWaveNote();
     "sw.js",
     "scripts/test-vr-federal-wave-f7.mjs",
     "scripts/test-vr-federal-wave-f8.mjs",
+    // The formal brief's slice-line pass (CACHE_VERSION v104), on those same
+    // later-wave terms. It writes no roll, no mapping, no key and no admission:
+    // word-action.js prints one locked sentence under the pattern list on a file
+    // whose whole readable formal lane is a small set of House rolls from one
+    // Congress — "Pattern from 23 House rolls on file — not a career score." —
+    // and word-action.css sizes it as the muted note it is. The reason a wave
+    // like this one is the file that has to declare it: R1 attached 7,138 cells
+    // across 23 House rolls, so several hundred new files now open on the same
+    // three chips off the same 23 documents, and nothing on the block said which
+    // of "this is the slice we hold" and "this is who they are" a reader was
+    // looking at. The shared seam module carries the three spans; the suites
+    // named here import it. Every count, chip, tier and Direction Match figure is
+    // byte-identical, which the twin boot above has just proved.
+    "word-action.js",
+    "word-action.css",
+    "scripts/v103-chrome-seams.mjs",
+    "scripts/test-brief-slice-disclosure.mjs",
+    "scripts/test-vr-federal-wave-f5.mjs",
+    "scripts/test-vr-federal-wave-f6.mjs",
+    "scripts/test-vr-federal-roster-r1.mjs",
+    "scripts/test-vr-federal-roster-r2.mjs",
     "scripts/test-person-file-perf.mjs",
     "scripts/test-seed-yields-to-record.mjs"]);
   let porcelain = "";
