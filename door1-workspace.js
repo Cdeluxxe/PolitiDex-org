@@ -132,6 +132,28 @@
       job: 'one measure taken apart, issue by issue' }
   ];
 
+  // ── ONE ARRIVAL TABLE, AND EVERY ENTRANCE READS IT ────────────────────────
+  // WORK_ID → the desk mode that id belongs to. This is the whole map, VIEWS is
+  // the whole of its source, and there are exactly three callers: the hash (on
+  // load and on hashchange), the stub's own "Open in Door 1" control, and the
+  // wrapper on index.html's router. They were three answers to one question
+  // before — the router wrapper read VIEWS, the stub read a mode literal baked
+  // into its own markup, and the hash read nothing at all and simply scrolled —
+  // which is how a reader could land on #say-vs-do with `measure` on the rail.
+  // One function, so the three cannot disagree again.
+  function modeForWorkId(id) {
+    id = String(id == null ? '' : id).replace(/^#/, '');
+    for (var i = 0; i < VIEWS.length; i++) if (VIEWS[i].id === id) return VIEWS[i].mode;
+    return '';
+  }
+  // The hash, as an id. A hash that names none of the four returns '' here and
+  // every arrival path below then does nothing with it — a hash aimed at Door 2,
+  // at a person file or at anything else on this page must not have its scroll
+  // taken away by this desk.
+  function hashId() {
+    try { return String(location.hash || '').replace(/^#/, ''); } catch (e) { return ''; }
+  }
+
   // ── Session state ─────────────────────────────────────────────────────────
   // Which mode is open, which modes this reader has used, and what they have
   // opened on each surface. All within-visit facts, so all sessionStorage: the
@@ -835,6 +857,12 @@
       '<div class="d1-body">' + railHtml(openKey) + deskHtml(openKey) + '</div>';
     _live = true;
     views();
+    // A remembered arrival is spent HERE and nowhere else — after _live, and
+    // after views() has painted the stubs. Both matter: before _live the desk is
+    // not on the page to be landed on, and before views() the section the reader
+    // came from is still standing at full height above it, which moves the ground
+    // the landing was measured against.
+    if (_pending) { var _p = _pending; _pending = ''; scrollDesk('h:' + _p); }
     return true;
   }
 
@@ -851,14 +879,21 @@
   // desk. Three facts and one button — a second control here would be the start
   // of the section becoming a product again.
   function viewStrip(view, title) {
-    var m = modeOf(view.mode) || {};
+    // THE MODE COMES FROM THE MAP, NOT FROM THE STRIP. modeForWorkId() is the
+    // same function the hash arrival uses, so the control on a stub and a deep
+    // link to the section under it cannot land on different modes. `view.mode`
+    // is only the fallback for a call that hands over a view this table does not
+    // list, which VIEWS itself never does.
+    var mode = modeForWorkId(view.id) || view.mode;
+    var m = modeOf(mode) || {};
     return '' +
       '<div class="d1-view-strip">' +
         '<span class="d1-view-kick">A VIEW of the Door 1 workspace</span>' +
         '<span class="d1-view-name">' + esc(title || view.label) + '</span>' +
         '<span class="d1-view-job">' + esc(view.job) + '</span>' +
         '<button type="button" class="d1-view-open"' +
-          ' onclick="return window.PDXDoor1.toDesk(\'' + jsq(view.mode) + '\');"' +
+          ' data-d1-view="' + esc(view.id) + '" data-d1-to="' + esc(mode) + '"' +
+          ' onclick="return window.PDXDoor1.toDesk(\'' + jsq(mode) + '\');"' +
           ' title="' + esc('Opens on the desk as ' + (m.label || 'one mode') +
             ' — one mode at a time, without leaving the page') + '"' +
           ' aria-label="' + esc('Open in Door 1: ' + (m.label || view.label)) + '">' +
@@ -926,13 +961,114 @@
   // ══════════════════════════════════════════════════════════════════════════
   // ACTIONS
   // ══════════════════════════════════════════════════════════════════════════
-  function scrollHere() {
+  // ── WHERE AN ARRIVAL LANDS ────────────────────────────────────────────────
+  // One node, and it is the desk's own mount. Stated as a function with a wall
+  // in it rather than as `el(AUTHORITY)` inline, because the two wrong answers
+  // are both live ids on this page and both were reachable before: a WORK_ID
+  // section, which is ONE LINE once the desk has painted and collapsed it, and
+  // Door 2's workspace, which belongs to the election loop and is nobody's
+  // Door 1 destination. Neither can be returned from here.
+  var NEVER = ['pdx-ballot-workspace', 'pdx-door2-spine',
+    'hero-receipt', 'say-vs-do', 'issue-front-door', 'hr1-showcase'];
+  function deskNode() {
+    if (NEVER.indexOf(AUTHORITY) >= 0) return null;   // unreachable by construction
     var mount = el(AUTHORITY);
-    if (mount && mount.scrollIntoView) {
-      try { mount.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-      catch (e) { mount.scrollIntoView(true); }
-    }
+    if (mount) return mount;
+    // No mount, but a painted desk card: land on the card itself rather than
+    // give up and leave the reader wherever the router put them.
+    var body = el(BODY_ID);
+    if (!body) return null;
+    try {
+      var card = body.querySelector && body.querySelector('.d1-desk');
+      if (card) return card;
+    } catch (e) {}
+    return body;
   }
+
+  // ── CLEARANCE FOR THE FIXED NAV ───────────────────────────────────────────
+  // app.css states html{scroll-padding-top: calc(var(--pdx-chrome) + 0.5rem)},
+  // and index.html MEASURES --pdx-chrome off the bottom of the nav's Eye row, so
+  // every scrollIntoView on this page already comes to rest below the fixed bar
+  // rather than under it. That is the primary path here, and reading the same
+  // property for the fallback is deliberate: one number for the whole page, so
+  // the desk cannot land at a different height from every other jump on it.
+  function chromePx() {
+    var raw = '';
+    try {
+      var root = document.documentElement;
+      if (root && root.style && root.style.getPropertyValue) raw = root.style.getPropertyValue('--pdx-chrome');
+      if (!raw && window.getComputedStyle) raw = window.getComputedStyle(root).getPropertyValue('--pdx-chrome');
+    } catch (e) { raw = ''; }
+    var n = parseFloat(String(raw || ''));
+    if (!isFinite(n) || n <= 0) return 0;
+    if (/r?em/.test(String(raw))) n = n * 16;     // the page's own root size
+    return n + 8;                                  // the +0.5rem the sheet adds
+  }
+  function landOn(node) {
+    if (!node) return;
+    var padded = true;
+    try { padded = !!(window.CSS && window.CSS.supports && window.CSS.supports('scroll-padding-top', '1px')); }
+    catch (e) { padded = true; }
+    if (!padded && node.getBoundingClientRect && window.scrollTo) {
+      var top = 0;
+      try {
+        top = node.getBoundingClientRect().top +
+          (window.pageYOffset || (document.documentElement && document.documentElement.scrollTop) || 0) -
+          chromePx();
+      } catch (e) { top = -1; }
+      if (top >= 0) {
+        try { window.scrollTo({ top: top, behavior: 'smooth' }); return; }
+        catch (e) { try { window.scrollTo(0, top); return; } catch (e2) {} }
+      }
+    }
+    if (!node.scrollIntoView) return;
+    try { node.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    catch (e) { try { node.scrollIntoView(true); } catch (e2) {} }
+  }
+
+  // The same settle pattern index.html's router uses, for the same reason: the
+  // four sections below the desk carry content-visibility:auto, so the browser
+  // measures them at a placeholder height on the first frame and the offset
+  // computed then can be far off once they render — and the desk's own body is
+  // being painted in the same tick. So the scroll is re-issued while the ground
+  // is still MOVING and stops the moment it holds still: at most three attempts
+  // inside a second, short enough never to fight a reader who has started
+  // scrolling somewhere else themselves.
+  //
+  // The dedupe below is keyed on WHICH arrival asked, not on the clock alone. It
+  // exists because one entrance can call in twice — index.html's land() and this
+  // file's own hashchange listener both answer the same hash — and a time-only
+  // guard also swallowed the next DIFFERENT arrival if it came fast, which is a
+  // reader tapping one stub and then another and watching the second do nothing.
+  var _land = { key: '', at: 0 };
+  function scrollDesk(key) {
+    key = String(key == null ? ('m:' + (sget(K_MODE) || '')) : key);
+    var now = Date.now ? Date.now() : +new Date();
+    if (_land.key === key && (now - _land.at) < 250) return;
+    _land.key = key; _land.at = now;
+    var tries = 0, prev = null;
+    function step() {
+      var node = deskNode();
+      if (!node) return;
+      if (!node.getBoundingClientRect) { landOn(node); return; }
+      var top;
+      try {
+        top = node.getBoundingClientRect().top +
+          (window.pageYOffset || (document.documentElement && document.documentElement.scrollTop) || 0);
+      } catch (e) { landOn(node); return; }
+      if (prev !== null && Math.abs(top - prev) < 24) return;   // settled
+      prev = top;
+      landOn(node);
+      if (++tries >= 3) return;
+      try { setTimeout(step, tries === 1 ? 320 : 700); } catch (e) {}
+    }
+    if (window.requestAnimationFrame) {
+      try { window.requestAnimationFrame(function () { setTimeout(step, 40); }); return; } catch (e) {}
+    }
+    try { setTimeout(step, 60); } catch (e) { step(); }
+  }
+  // The old name, kept because it is what every mode change on this desk calls.
+  function scrollHere() { scrollDesk(); }
 
   // Opening a mode repaints in place and never navigates. That is the point: the
   // loop's four steps used to be four sections with four headings.
@@ -944,6 +1080,83 @@
     if (!(opts && opts.quiet)) scrollHere();
     return true;
   };
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ARRIVAL · a WORK_ID hash lands on the desk, in the mode that hash means
+  // ══════════════════════════════════════════════════════════════════════════
+  // WHAT WAS WRONG. index.html's hash handler opened the work layer and scrolled
+  // to the SECTION the hash named. That was right while those sections were
+  // chapters; it stopped being right the moment the desk collapsed them, because
+  // the thing the reader then arrived at was a single line saying "a view of the
+  // Door 1 workspace" — sitting immediately above Door 2's headline, which is
+  // what filled their screen. Meanwhile the mode was set by a wrapper on the
+  // router, so whether the rail agreed with the URL depended on whether this
+  // deferred script had booted before that handler ran. Cold, it often had not,
+  // and the rail kept whatever mode the session was last left on.
+  //
+  // WHAT HAPPENS NOW. The hash is read here, on load and on every change, and
+  // one function does all four things in one order that cannot come apart:
+  // open the layer (so the section still paints, so the stub still has its own
+  // title to show), set the mapped mode, paint the desk, land on the desk.
+  //
+  // A hash that is not a WORK_ID leaves this function immediately and takes no
+  // scroll with it.
+  var _arr = { id: '', t: 0 };
+  var _pending = '';
+  function arrive(id, opts) {
+    id = String(id == null ? '' : id).replace(/^#/, '');
+    var mode = modeForWorkId(id);
+    if (!mode) return false;
+    // No mount means no desk on this page — an older cached index.html, or any
+    // page carrying the four surfaces without the desk. There the sections are
+    // standing at full height and the section IS the honest destination, so the
+    // shipped router keeps the arrival and this says so by answering false.
+    if (!el(AUTHORITY)) return false;
+    var now = Date.now ? Date.now() : +new Date();
+    // A click on an anchor and the hashchange that same click causes are ONE
+    // arrival. Without this the second one restarts the scroll mid-flight, and
+    // it would also cancel a still-pending first arrival.
+    if (_arr.id === id && (now - _arr.t) < 700) return true;
+    _arr.id = id; _arr.t = now;
+    // The layer opens and the surface gets its chance to paint — the stub reads
+    // its title off the section's own heading, and a section that never painted
+    // has no heading to read. `noScroll` is the whole of what changed on the
+    // router's side: it does everything it did except take the reader to a stub.
+    if (fn(window.pdxDoorWork)) {
+      try { window.pdxDoorWork(id, { noScroll: true }); } catch (e) {}
+    }
+    // The mode goes in whether or not a desk can paint yet, so the rail is
+    // already on the right item the first time one can.
+    sset(K_MODE, mode);
+    markUsed(mode);
+    _pending = id;
+    sync();          // consumes _pending and lands, if a desk actually painted
+    settle(0);       // and keeps the arrival alive while none has
+    return true;
+  }
+
+  // THE ARRIVAL IS REMEMBERED, NOT DROPPED. This desk is a deferred script
+  // reading five other deferred modules, so a cold hash can genuinely land
+  // before anyMode() is true and sync() has anything to paint — and that is the
+  // exact window in which the reader used to be parked on a section that then
+  // turned into a one-line stub underneath them. So the id is held and every
+  // later successful sync() takes it. Four passes inside two seconds; after that
+  // there is no desk coming, and the scroll goes back to the router that owns
+  // the full-height section.
+  var _wait = [120, 400, 900, 1600];
+  function settle(tries) {
+    if (!_pending) return;
+    if (_live) { var _p = _pending; _pending = ''; scrollDesk('h:' + _p); return; }
+    if (tries >= _wait.length) {
+      var id = _pending;
+      _pending = '';
+      if (fn(window.pdxDoorWork)) { try { window.pdxDoorWork(id); } catch (e) {} }
+      return;
+    }
+    try {
+      setTimeout(function () { sync(); settle(tries + 1); }, _wait[tries]);
+    } catch (e) {}
+  }
 
   window.pdxDoor1Next = function () {
     var nx = nextMode(readMode());
@@ -1067,11 +1280,21 @@
     open: window.pdxDoor1Open,
     next: window.pdxDoor1Next,
     // Back to the desk from a view, landing on the mode that view belongs to.
+    // The ONE handler behind every "Open in Door 1" control on the page, and the
+    // same landing the hash gets: set the mode, paint it, then scroll to the
+    // desk — never to the stub the reader just left, and never to Door 2.
     toDesk: function (mode) {
       if (modeOf(mode)) window.pdxDoor1Open(mode);
-      else scrollHere();
+      else scrollDesk();
       return false;
     },
+    // The hash arrival, exported so index.html's router can hand a WORK_ID over
+    // instead of scrolling to a stub. Answers false for a hash this desk does
+    // not own, which is what lets the router keep its own behaviour for it.
+    arrive: arrive,
+    _workMode: modeForWorkId,
+    _hashId: hashId,
+    _deskNode: deskNode,
     // Reads, for the harness and for the view chrome. Pure — nothing here
     // computes a score, a share or an order the desk does not already print.
     _mode: readMode,
@@ -1133,10 +1356,8 @@
     try { obj[name] = w; } catch (e) {}
   }
 
-  function modeForWorkId(id) {
-    for (var i = 0; i < VIEWS.length; i++) if (VIEWS[i].id === id) return VIEWS[i].mode;
-    return '';
-  }
+  // modeForWorkId() is declared once, up beside VIEWS, because it is the arrival
+  // table for the hash and the stubs as well as for this wrapper.
 
   function hook() {
     // WORK_ID → mode. `quiet` because the router is already scrolling the reader
@@ -1195,6 +1416,17 @@
     [400, 1200, 3000].forEach(function (ms) {
       setTimeout(function () { hook(); sync(); }, ms);
     });
+    // ── THE HASH, ON LOAD AND ON EVERY CHANGE ───────────────────────────────
+    // Owned here rather than left to index.html's handler alone, so the mode and
+    // the landing are decided by the same code that knows whether a desk exists
+    // and which mode a WORK_ID means. index.html delegates to arrive() as well;
+    // the two calls dedupe, so whichever runs first is the arrival and the other
+    // is a no-op. A hash naming anything else returns false from arrive() and
+    // nothing on this desk moves.
+    try {
+      window.addEventListener('hashchange', function () { arrive(hashId()); });
+    } catch (e) {}
+    arrive(hashId());
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
