@@ -1848,6 +1848,21 @@
 }
 .pdxwa-shape-thin { margin: 0 0 0.75rem; }
 .pdxwa-shape-thin b { color: #b9cae3; font-weight: 700; }
+/* ── What the file is, under what it shows ───────────────────────────────────
+   The slice line sits below the pattern list and above the route out, in the
+   same muted grey as the thin count beside it: it is a note about the documents
+   the list came from, not a fourth finding competing with the chips. No colour,
+   no weight, no border — a rule or a tint here would make it a banner, and a
+   banner reading "not a career score" beside three one-sided chips is a verdict
+   about the record rather than a description of the file. */
+.pdxwa-shape-slice {
+  margin: 0.15rem 0 0.75rem;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: #7596c0;
+  font-style: italic;
+  overflow-wrap: break-word;
+}
 .pdxwa-shape-all {
   display: inline-flex;
   align-items: center;

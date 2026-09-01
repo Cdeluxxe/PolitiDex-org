@@ -2340,7 +2340,30 @@
       // person-file kicker had. s.formal is the formal pattern index's own count
       // and it is already computed one line up; a record with issues on it is not
       // "being built" whatever the curated side holds.
-      var thinRecord = !s.tracked && !s.formal;
+      // ── AND "EMPTY" IS A CLAIM, SO IT NEEDS THE WHOLE RECORD AND THE CLOCK ──
+      // This read `!s.tracked && !s.formal`, and s.formal counts issue ROWS out
+      // of an index that is empty until the roll-call cache warms. So on a cold
+      // /p/aaron_bean the letterhead said "11 issues · 23 acts · 3
+      // characterized" and this button, one screen down and rendered one tick
+      // earlier, said the record was still being built. Both were drawn from the
+      // same record; only the second was drawn before it arrived.
+      //
+      // Three states now, and the middle one is the new one:
+      //   · ACTS ON FILE (rows, acts, or the edge's own first-byte brief) — the
+      //     record exists, so the phrase is simply unavailable. This is the
+      //     Bean case, and it does not depend on anything having warmed.
+      //   · NOT LOOKED YET (nothing curated, nothing formal, and the roll-call
+      //     lane has not answered for this person) — the neutral label. "Still
+      //     being built" would be a finding about a record nobody has read, and
+      //     the reader gets it back a second later when the lane answers and
+      //     this repaints.
+      //   · READ AND EMPTY — the phrase keeps its one honest job: no cited word,
+      //     and a formal lane that answered and had nothing. That is the Utah
+      //     empty-ten file, which is what the wording was written for.
+      // The publication floor is not consulted and not moved; this decides a
+      // label, not what publishes.
+      var hasFormal = (s.formal > 0) || (s.formalActs > 0);
+      var thinRecord = !s.tracked && !hasFormal && s.formalRead !== false;
       // Thin profiles still get the button — the label simply tells the honest
       // truth that the record is in progress (and the overlay shows the gaps).
       var title = thinRecord ? 'View Full Record — still being built' : 'View the Full Record on the Issues';

@@ -57,6 +57,8 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
+  assertWordActionSeams } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -637,7 +639,19 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     };
     const a = cut(headMech), b = cut(R("consistency.js"));
     if (ok(!!a && !!b, "_DOS_MECH is not locatable in consistency.js on both sides")) {
-      eq(b.before, a.before, "consistency.js changed above _DOS_MECH — no wave's waiver reaches the engine");
+      // ABOVE _DOS_MECH, WITH TWO NAMED SEAMS. The person-file chrome pass (v103)
+      // renamed the official scope's empty copy and split an empty key list from an
+      // empty voting record in the token ladder that chooses it. Both sit above the
+      // mechanism map, so a flat byte compare here would forbid a copy fix this suite
+      // has no stake in. The two spans are cut by anchors unique on both sides, the
+      // remainder is compared byte for byte, and the spans themselves are argued —
+      // no floor, no band, no weight, no score, no wave input inside either.
+      const has = (x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`);
+      const ca = carveSeams(a.before, CJ_SEAMS, "HEAD", "consistency.js", ok);
+      const cb = carveSeams(b.before, CJ_SEAMS, "now", "consistency.js", ok);
+      eq(cb.pinned, ca.pinned,
+        "consistency.js changed above _DOS_MECH outside the two named v103 copy seams — no wave's waiver reaches the engine");
+      assertConsistencySeams(cb.bodies, { has, ok });
       eq(b.after, a.after, "consistency.js changed below _DOS_MECH — no wave's waiver reaches the renderer");
       ok(b.map.startsWith(a.map.replace(/\n?$/, "")) || b.map === a.map,
         "an existing _DOS_MECH entry was edited — rule 21 leaves a live rationale with its first writer");
@@ -821,10 +835,36 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
   // legal way to admit anyone, so what F8 requires instead is stated below and is strictly
   // stronger than byte-identity would be for its own purposes: the change must be additive,
   // and no row F8 could have read may have had its judged surface moved.
-  const WAIVED = ["consistency.js", "cmp-data.js"];
+  // stance-helpers.js joins the waiver for the person-file chrome pass (v103), as a SEAM
+  // and not a licence: the file is compared byte for byte everywhere outside
+  // _pdxStanceRecordStats, and the span itself is argued below. F8 has no stake in it —
+  // it reads no floor, no mapping and no roll, it counts rows the record lane already
+  // holds and answers whether that lane has answered at all.
+  const WAIVED = ["consistency.js", "cmp-data.js", "stance-helpers.js", "word-action.js"];
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== nowSrc(f); });
   const strayBooted = touched.filter((f) => !WAIVED.includes(f));
   eq(strayBooted.join(", "), "", `F8 changed a booted file (${strayBooted.join(", ")}) — an attribution wave has no business editing the engine or the curated data`);
+  if (touched.includes("stance-helpers.js")) {
+    const shHas = (x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`);
+    const sa = carveSeams(headSrc("stance-helpers.js"), SH_SEAMS, "HEAD", "stance-helpers.js", ok);
+    const sb = carveSeams(nowSrc("stance-helpers.js"), SH_SEAMS, "now", "stance-helpers.js", ok);
+    eq(sb.pinned, sa.pinned,
+      "stance-helpers.js changed outside the record-CTA stats seam — the stance resolver the " +
+      "whole profile is built from is not a chrome pass's to touch");
+    assertStanceHelpersSeam(sb.bodies, { has: shHas, ok });
+  }
+  // word-action.js, the brief slice-line pass (v104), on the same seam terms: the
+  // renderer is compared byte for byte everywhere outside three named spans, and
+  // what is inside them is argued rather than excused. F8 has no stake in it: an attribution wave writes cells, and this span reads two counts off those cells' own published totals and prints one sentence.
+  if (touched.includes("word-action.js")) {
+    const wa = carveSeams(headSrc("word-action.js"), WA_SEAMS, "HEAD", "word-action.js", ok);
+    const wb = carveSeams(nowSrc("word-action.js"), WA_SEAMS, "now", "word-action.js", ok);
+    eq(wb.pinned, wa.pinned,
+      "word-action.js changed outside the slice gate and its two mounts — the letterhead the " +
+      "whole formal read is rendered from is not a copy pass's to touch");
+    const waHas = (x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`);
+    assertWordActionSeams(wb.bodies, { has: waHas, eq, ok });
+  }
 
   // The cmp-data.js waiver, priced. Boot HEAD's copy and the working tree's in two sandboxes
   // and compare CMP_DATA row by row: every pid F8 could have read must still be present, and
@@ -926,13 +966,51 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // already-stored veterans receipt over don_davis's once she had a roster row to be
     // selected from. No stance was harvested and no receipt text was written by hand.
     "scripts/test-vr-federal-roster-r1.mjs",
+    "scripts/test-vr-federal-roster-r2.mjs",
     "hero-receipt-data.js",
     // scripts/test-who-represents-me.mjs on the same terms. It hard-stopped on its own
     // instruction once R2 closed the last two partial-Senate states (MS, OH): its
     // partial-coverage assertions had nothing left to measure. They were not deleted —
     // the shipped-data count is now asserted as full coverage, and the one-seat behaviour
     // is driven against a roster built from real records instead.
-    "scripts/test-who-represents-me.mjs"]);
+    "scripts/test-who-represents-me.mjs",
+    // The person-file chrome pass (CACHE_VERSION v103), on those same later-wave terms.
+    // It changes no wave input: no floor, no mapping, no weight, no roll, no admission.
+    // What it changes is what the reader is TOLD while the roster is still loading —
+    // person-file.js stopped saying "we don't carry this person" about a pid whose row
+    // is in the very cmp-data.js it is reading, and started keeping document.title and
+    // the breadcrumb on the person whose file is open. profiles-full.js and
+    // stance-helpers.js stopped letting the mid-page card call a record "still being
+    // built" underneath a letterhead counting 23 mapped acts. The two harnesses named
+    // here pinned the poll's exit as a literal; that exit was funnelled through a
+    // single stopWait() so the notice could be gated on the wait, and both pins follow
+    // the spelling while keeping the behaviour they were guarding.
+    "person-file.js",
+    "profiles-full.js",
+    "stance-helpers.js",
+    // The formal brief's slice-line pass (CACHE_VERSION v104), on those same
+    // later-wave terms. It writes no roll, no mapping, no key and no admission:
+    // word-action.js prints one locked sentence under the pattern list on a file
+    // whose whole readable formal lane is a small set of House rolls from one
+    // Congress — "Pattern from 23 House rolls on file — not a career score." —
+    // and word-action.css sizes it as the muted note it is. The reason a wave
+    // like this one is the file that has to declare it: R1 attached 7,138 cells
+    // across 23 House rolls, so several hundred new files now open on the same
+    // three chips off the same 23 documents, and nothing on the block said which
+    // of "this is the slice we hold" and "this is who they are" a reader was
+    // looking at. The shared seam module carries the three spans; the suites
+    // named here import it. Every count, chip, tier and Direction Match figure is
+    // byte-identical, which the twin boot above has just proved.
+    "word-action.js",
+    "word-action.css",
+    "scripts/v103-chrome-seams.mjs",
+    "scripts/test-brief-slice-disclosure.mjs",
+    "scripts/test-vr-federal-wave-f5.mjs",
+    "scripts/test-vr-federal-wave-f6.mjs",
+    "scripts/test-vr-federal-roster-r1.mjs",
+    "scripts/test-vr-federal-roster-r2.mjs",
+    "scripts/test-person-file-perf.mjs",
+    "scripts/test-seed-yields-to-record.mjs"]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};
     const snapHead = JSON.parse(headSrc("db/share-index.json") || "{}").personRecord || {};

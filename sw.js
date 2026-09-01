@@ -727,7 +727,93 @@
 // It also carries the mullin office correction: an unbumped device would keep showing
 // "U.S. Senator · Oklahoma" for a seat Alan Armstrong now holds, i.e. three sitting
 // senators in one state, which is precisely the contradiction the wave fixed.
-const CACHE_VERSION = 'v102';
+// v103 - PERSON-FILE CHROME, and the reason is four shell modules at once. All
+// four are cached copies on a returning device:
+// person-file.js (the unknown-pid notice now waits for the roster wait it was
+// outrunning, and the tab + trail follow the person a file was opened for),
+// profiles-full.js and stance-helpers.js (the mid-page record CTA no longer
+// says "still being built" over a formal record it had not finished reading),
+// and consistency.js (an empty Official Record roll-up says "No stated position
+// to test" instead of borrowing the wording of missing votes). Without the bump
+// a warm device keeps serving the old copies from the shell cache for the whole
+// of the next load, so the returning reader — the reader most likely to hit the
+// cold /p/ path from a bookmark — would still be told we do not carry a person
+// whose row is sitting in the very same cached cmp-data.js.
+// v104 - THE BRIEF'S SLICE LINE, and the reason is a renderer and its stylesheet
+// that have to land together. word-action.js prints one new sentence under the
+// pattern list on a file whose whole readable formal lane is a small set of House
+// rolls from one Congress — "Pattern from 23 House rolls on file — not a career
+// score." — and word-action.css sizes it as the muted note it is. Both are on the
+// precache list below. A device that takes the new renderer against v103's
+// stylesheet has an unstyled paragraph at body size sitting between the chips and
+// the route out, which is the one shape this sentence must not have: a full-size
+// line reading "not a career score" beside three one-sided chips reads as a
+// verdict on the record rather than a description of the file. A device that takes
+// the new stylesheet against the old renderer has a rule for a node nothing emits.
+// Nothing else moved — no count, no chip, no tier, no Direction Match figure — so
+// the bump exists purely so the pair arrives as a pair.
+// v105 - THE DOOR 1 WORKSPACE, and the reason is a new pair plus the four
+// surfaces it relabels. door1-workspace.js and door1-workspace.css are both new
+// entries on the manifest below, and they are the same kind of pair as v104's:
+// the script paints a two-region desk — a mode rail beside one open mode — and
+// the stylesheet is what makes it two regions. A device that takes the script
+// without the sheet gets the rail, the desk, the shelves and the four view
+// strips as one undifferentiated column of buttons and paragraphs, which is
+// precisely the stacked-surfaces shape the feature exists to replace: the
+// reader would meet MORE stacked prose than before the change, not less.
+//
+// The bump also matters for the surfaces the script does not own. It writes a
+// one-line "a view of the Door 1 workspace" strip into #hero-receipt,
+// #say-vs-do, #issue-front-door and #hr1-showcase. On a warm device serving a
+// v104 index.html there is no #pdx-door1-workspace mount, so the script's own
+// gate keeps it silent and those four strips are never painted — correct, but it
+// means the whole feature is invisible until index.html itself refreshes, and
+// index.html is on this manifest too. One bump ships the mount, the script, the
+// stylesheet and the relabelling together, which is the only combination in
+// which a surface calling itself "a view" has a desk to be a view of.
+//
+// Nothing else moved: no floor, no count, no mapping, no roster row and no
+// figure of any kind. The desk reads the modules already on this list.
+// v106 - THE FOUR VIEWS COLLAPSE, and the reason is that the pair from v105 has
+// to move together a second time. v105 shipped the desk and left the four old
+// Door 1 chapters standing at full height underneath it, each wearing a label
+// saying it was a view. A cold homepage was therefore the proof band, then the
+// whole loop on one desk, then the same four products again — more stacked prose
+// than before, which is the shape the desk exists to remove.
+//
+// door1-workspace.js now sets one attribute on each of those four sections once
+// sync() has actually painted a desk, and door1-workspace.css is what turns that
+// attribute into a one-line stub: title, "A VIEW of the Door 1 workspace", one
+// control back to the desk. THE TWO FILES ARE USELESS APART IN OPPOSITE
+// DIRECTIONS. A device with the new script and the v105 sheet sets an attribute
+// no rule matches: nothing collapses, and the homepage is the stack again. A
+// device with the new sheet and the v105 script has a rule nothing triggers:
+// also the stack, harmlessly. Neither is wrong, but neither is the feature, and
+// the pairing is the only way a reader gets it. Both entries are already on the
+// manifest below under the same names, so this bump is the whole delivery
+// mechanism — there is no new file to add.
+//
+// The same bump carries a third file, issue-view.js, and a fix that needs all
+// three. An issue key that no curated bundle happens to list — public lands is
+// the live example, a real key with a label, a chip and formal acts filed against
+// it — used to resolve to nothing on this desk, and the desk then printed the
+// record lane's own no-vehicle sentence over what was actually a failed lookup.
+// A failure wearing the floor's words is the worst version of that bug, because
+// it reads as a finding. A shipped key now opens as itself.
+//
+// Making it open was only half of it. PDXIssueView.warmVotes took a key and
+// resolved the bundle behind it internally — and that resolve is exactly what
+// returns nothing for an unbundled key, so the roll-call record was never
+// requested for the one case the desk had resolved by hand, and the issue ranked
+// on receipts and stated positions alone. The export now also accepts an
+// already-resolved target, the desk hands over the one it built, and the repaint
+// rides the 'pdx-issue-votes' event the ledger already fires once per batch.
+// Every other caller still passes a bare key and still gets the old behaviour.
+// issue-view.js is on the manifest below already, under the same name.
+//
+// Nothing else moved. No floor, no mapping, no weight, no roster row, no slice
+// sentence and no figure of any kind; index.html is untouched by this pass.
+const CACHE_VERSION = 'v106';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -766,6 +852,10 @@ const SHELL_ASSETS = [
   // is a list of buttons with no rail and no sense of progress — which is the
   // exact failure the feature exists to fix. Shipped with its script below.
   '/ballot-workspace.css',
+  // The Door 1 workspace's stylesheet, for the reason the version log above
+  // gives at length: the sheet is what makes the desk two regions instead of a
+  // column. Shipped with its script below.
+  '/door1-workspace.css',
   // The two-axis elections lens (🔐 safeguards / 📩 access). Tiny, and it renders a
   // section inside the profile and a header inside the Stance Library — both of which
   // are precached — so leaving it to the runtime cache would mean the first offline
@@ -830,6 +920,14 @@ const SHELL_ASSETS = [
   // every fact it prints — offline with one and not the other, the mount paints
   // nothing at all.
   '/ballot-workspace.js',
+  // Door 1's workspace: the mode rail, the one open desk, and the view strips
+  // on the four older Door 1 surfaces. Precached with the modules it reads —
+  // claim-check.js, issue-view.js, consistency.js, bill-detail.js and
+  // person-file.js are all already on this list — because it prints no fact of
+  // its own: offline with the desk and without them, every mode paints its own
+  // honest "not loaded on this page" line and the reader gets a working rail
+  // over four empty modes.
+  '/door1-workspace.js',
   '/stance-library.js',
   '/ballot-axes.js',
   '/voting-record.js',

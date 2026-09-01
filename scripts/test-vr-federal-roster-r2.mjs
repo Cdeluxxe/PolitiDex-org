@@ -39,6 +39,8 @@ import vm from "node:vm";
 import { execFileSync } from "node:child_process";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCrawlRecord } from "./gen-crawl-record.mjs";
+import { CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
+  assertWordActionSeams } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -489,9 +491,38 @@ section("6 · no Direction Match or formal-brief drift — twin boot, HEAD vs th
   const work = boot((f) => R(f));
 
   // ONLY cmp-data.js may differ. A roster wave has no business in the engine.
+  // ── TWO SEAMED FILES, NOT TWO WAIVERS ──────────────────────────────────────
+  // The person-file chrome pass (CACHE_VERSION v103) edited consistency.js above
+  // _DOS_MECH and stance-helpers.js inside _pdxStanceRecordStats. A roster wave has no
+  // stake in either span — nothing inside them reads a floor, a mapping, a weight, a
+  // score or an admission — but it has every stake in the rest of both files, so each
+  // is cut at anchors unique on both sides, the remainder is compared byte for byte,
+  // and the spans are argued rather than excused. The Direction Match sweep below is
+  // the real proof either way: it reads every profile HEAD had and requires the
+  // numbers to be identical.
+  // …and word-action.js joins them for the brief slice-line pass (v104), on exactly
+  // the same terms: three named spans — the slice gate and its two mounts — with the
+  // rest of the renderer compared byte for byte. A roster wave has the largest stake
+  // of any wave in that sentence and no stake at all in the span: R1's 7,138 cells
+  // across 23 House rolls are exactly why several hundred admitted files now open on
+  // the same three chips, and the sentence is the block saying which of "the slice we
+  // hold" and "who they are" the reader is looking at. It reads two counts already
+  // published for that person and computes nothing.
+  const SEAMED = ["consistency.js", "stance-helpers.js", "word-action.js"];
+  const shHas = (x, n, m2) => ok(String(x).includes(n), `${m2} — missing ${JSON.stringify(n)}`);
+  const seamCheck = (f, seams, argue) => {
+    const h = HEAD(f);
+    if (h === null || h === R(f)) return;
+    const a = carveSeams(h, seams, "HEAD", f, ok), b = carveSeams(R(f), seams, "now", f, ok);
+    eq(b.pinned, a.pinned, `${f} changed outside its named copy-pass seam — a roster wave admits identity, and this pass touched copy`);
+    argue(b.bodies, { has: shHas, eq, ok });
+  };
   const touched = FILES.filter((f) => { const h = HEAD(f); return h !== null && h !== R(f); });
-  eq(touched.join(", "), "cmp-data.js",
+  eq(touched.filter((f) => !SEAMED.includes(f)).join(", "), "cmp-data.js",
     "a roster wave changed a booted file other than the roster — identity is the only thing it admits");
+  seamCheck("consistency.js", CJ_SEAMS, assertConsistencySeams);
+  seamCheck("stance-helpers.js", SH_SEAMS, assertStanceHelpersSeam);
+  seamCheck("word-action.js", WA_SEAMS, assertWordActionSeams);
 
   if (ok(!!(head.PDXWordAction && head.PDXWordAction.read), "the pre-wave engine did not boot from HEAD (skipping the sweep)")
     && ok(!!(work.PDXWordAction && work.PDXWordAction.read), "the current engine did not boot")) {
@@ -660,11 +691,25 @@ section("7 · ship discipline — cache, census, floor, and the identity wall");
   const untouched = ["formal-index.js", "db/vr-measure-identity.json", "db/vr-issue-seed.json",
     "db/issue-keys.json", "politician-stances-core.js", "politician-stances-ext.js",
     "db/vr-pid-aliases.json", "db/vr-roster-admitted.json", "db/vr-member-map.json",
-    "compare-hub.js", "publication-floor.js", "stance-helpers.js", "alignment-tool.js"];
+    // stance-helpers.js came off this list for the person-file chrome pass and is
+    // checked at a seam instead, immediately below: byte-identical to HEAD everywhere
+    // outside _pdxStanceRecordStats, and what changed inside that span argued. What R2
+    // needs from the file is that it harvests no stance and aliases nobody, and both
+    // of those are asserted directly elsewhere in this suite.
+    "compare-hub.js", "publication-floor.js", "alignment-tool.js"];
   for (const f of untouched) {
     const h = HEAD(f);
     if (!ok(h !== null, `${f} is not in HEAD, so "unchanged" could not be checked — if the file moved, fix this list`)) continue;
     eq(R(f), h, `${f} was modified — this wave admits identity and nothing else`);
+  }
+  {
+    const f = "stance-helpers.js", h = HEAD(f);
+    if (ok(h !== null, `${f} is not in HEAD, so its seam could not be checked`) && h !== R(f)) {
+      const shHas2 = (x, n, m2) => ok(String(x).includes(n), `${m2} — missing ${JSON.stringify(n)}`);
+      const a = carveSeams(h, SH_SEAMS, "HEAD", f, ok), b = carveSeams(R(f), SH_SEAMS, "now", f, ok);
+      eq(b.pinned, a.pinned, `${f} was modified outside its named v103 seam — this wave admits identity and nothing else`);
+      assertStanceHelpersSeam(b.bodies, { has: shHas2, ok });
+    }
   }
   // And no migration: this wave writes no SQL. The vote cells it makes readable were
   // already in the database, attributed, waiting for a roster row to name them.

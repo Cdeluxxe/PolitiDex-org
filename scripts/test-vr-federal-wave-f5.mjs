@@ -57,6 +57,8 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { createHash } from "node:crypto";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
+  assertWordActionSeams } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -484,6 +486,17 @@ function boot(get, label) {
     // want of a roster slug. The Direction Match sweep below still holds every profile HEAD
     // had bit-for-bit, which is what F5 — a wave that writes no row — actually needs.
     "cmp-data.js": "federal_roster_r1_sep2026 admitted 315 sitting House members as identity-only rows",
+    // The person-file chrome pass (CACHE_VERSION v103), and both entries are SEAMS, not
+    // licences: each file is still compared byte for byte everywhere outside one named
+    // span, and what is inside the span is argued below rather than excused. Neither span
+    // reads a floor, a band, a mapping, a weight or a score — which is the whole of what
+    // F5 has at stake in these two files.
+    "stance-helpers.js": "the mid-page record card stopped calling a record 'still being built' over acts it had not finished reading",
+    // The brief slice-line pass (CACHE_VERSION v104), also a seam: one locked sentence
+    // under the pattern list on a file whose whole readable formal lane is a small set of
+    // House rolls from one Congress, and the four-leg gate that decides whether a file has
+    // earned it. No count, chip, tier or figure moved; section 8's twin boot still holds.
+    "word-action.js": "the formal brief names the slice it is reading instead of implying a career",
   };
   const F5_REFUSED = ["H.R. 1069", "H.R. 973", "H.R. 8800", "H.Amdt. 245"];
   let touched = [];
@@ -494,6 +507,26 @@ function boot(get, label) {
   }
   const stray = touched.filter((f) => !LATER_WAVE_WAIVER[f]);
   eq(stray.length, 0, `F5 changed a booted file (${stray.join(", ")}) — a wave that writes no row has no business editing the engine`);
+  const has = (x, n, m2) => ok(String(x).includes(n), `${m2} — missing ${JSON.stringify(n)}`);
+  if (touched.includes("stance-helpers.js")) {
+    const sa = carveSeams(headSrc("stance-helpers.js"), SH_SEAMS, "HEAD", "stance-helpers.js", ok);
+    const sb = carveSeams(nowSrc("stance-helpers.js"), SH_SEAMS, "now", "stance-helpers.js", ok);
+    eq(sb.pinned, sa.pinned,
+      "stance-helpers.js changed outside the record-CTA stats seam — the stance resolver the " +
+      "whole profile is built from is not a chrome pass's to touch");
+    assertStanceHelpersSeam(sb.bodies, { has, ok });
+  }
+  // word-action.js, the brief slice-line pass (v104), on the same seam terms: the
+  // renderer is compared byte for byte everywhere outside three named spans, and
+  // what is inside them is argued rather than excused. F5 has no stake in it: the span states no position, maps no measure and moves no floor — it prints one sentence about which documents the patterns above it came from.
+  if (touched.includes("word-action.js")) {
+    const wa = carveSeams(headSrc("word-action.js"), WA_SEAMS, "HEAD", "word-action.js", ok);
+    const wb = carveSeams(nowSrc("word-action.js"), WA_SEAMS, "now", "word-action.js", ok);
+    eq(wb.pinned, wa.pinned,
+      "word-action.js changed outside the slice gate and its two mounts — the letterhead the " +
+      "whole formal read is rendered from is not a copy pass's to touch");
+    assertWordActionSeams(wb.bodies, { has: has, eq, ok });
+  }
   if (touched.includes("consistency.js")) {
     const A = "  var _DOS_MECH = {\n", B = "\n  };\n  // Fails closed in three places, on purpose:";
     const carve = (src, side) => {
@@ -508,8 +541,16 @@ function boot(get, label) {
       // Hashed rather than compared outright: a failure here should name the file, not
       // print a megabyte of engine into the log.
       const sha = (x) => createHash("sha256").update(x).digest("hex").slice(0, 16);
-      eq(sha(cb.pinned), sha(ca.pinned),
-        "consistency.js moved OUTSIDE the mechanism map — the arithmetic, the floors and the bands are not any wave's to edit under this waiver");
+      // TWO MORE NAMED SEAMS, for the same reason the mechanism map has one. The
+      // person-file chrome pass renamed the official scope's empty copy and split an
+      // empty key list from an empty voting record in the ladder that chooses it.
+      // Both spans are cut by anchors unique on both sides; the remainder is hashed
+      // as before, and the spans are argued below.
+      const va = carveSeams(ca.pinned, CJ_SEAMS, "HEAD", "consistency.js", ok);
+      const vb = carveSeams(cb.pinned, CJ_SEAMS, "now", "consistency.js", ok);
+      eq(sha(vb.pinned), sha(va.pinned),
+        "consistency.js moved OUTSIDE the mechanism map and the two named v103 copy seams — the arithmetic, the floors and the bands are not any wave's to edit under this waiver");
+      assertConsistencySeams(vb.bodies, { has, ok });
       ok(cb.map.startsWith(ca.map), "an existing mechanism entry was rewritten rather than appended to");
       const appended = cb.map.slice(ca.map.length);
       for (const num of F5_REFUSED)

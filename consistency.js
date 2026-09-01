@@ -155,7 +155,16 @@
       key: 'official', icon: '🏛️', label: 'Official Record',
       question: 'When they had to vote, did they stand by what they said?',
       blurb: 'The hard, institutional score — their votes and formal legislative actions checked against what they say they stand for.',
-      empty: { no_record: 'No qualifying votes on record yet', no_stance: 'No stated stance to check', limited: 'Limited voting record' },
+      // 'no_stance' USED TO SAY 'No stated stance to check', WHICH IS THE RIGHT
+      // FACT IN THE WRONG DIRECTION. On this scope the token means "nothing was
+      // paired": the formal record may be twenty-three acts deep and the missing
+      // half is the stated position. "To check" reads as though the stance is the
+      // thing we hold and the check is what is pending; "to test" names the two
+      // jobs the way every other surface in this lane names them — the record did
+      // something, and a stated position is what it would be tested against.
+      // 'no_record' keeps its wording, because at ISSUE level it is exactly true:
+      // they stated a position and no qualifying vote maps to it.
+      empty: { no_record: 'No qualifying votes on record yet', no_stance: 'No stated position to test', limited: 'Limited voting record' },
       // The ✒️ lane's wording for the same card. A president casts no votes, so every
       // noun above is false on their profile — and the Official Record SECTION below
       // the gateway already asks the executive question (see _orSectionNoun), which
@@ -1400,6 +1409,32 @@
     else if (counts.flag > 0) token = 'flag';
     else if (counts.limited > 0) token = 'limited';
     else if (anyPending) token = 'pending';
+    // ── ZERO KEYS IS NOT ZERO VOTES ─────────────────────────────────────────
+    // The ladder above can only reach the final rung with an EMPTY key list —
+    // every key produces some token — and on the official scope 'no_record' is
+    // spelled "No qualifying votes on record yet". On /p/aaron_bean that sentence
+    // printed on the Official Record strip of a file whose own letterhead, one
+    // screen up, counted 23 mapped acts. The strip was not describing votes; it
+    // was describing the fact that nothing had been PAIRED, and it borrowed the
+    // vocabulary of the missing votes to say so.
+    //
+    // An empty key list means one of exactly two things, and neither is "no
+    // votes". issuesWithSignal() built the list from stated stances and warm
+    // record mappings, so the same two inputs decide which:
+    //   · the roll-call lane has not answered for this person yet → 'pending',
+    //     which the shared vocabulary already renders as the loading state and
+    //     which repaints when the record warms. Same signal, same queueWarm and
+    //     same token officialIssue already uses one function up, so the strip and
+    //     its rows cannot disagree about whether the record has arrived;
+    //   · it has answered, and there is no stated position anywhere for the
+    //     formal record to be tested against → 'no_stance', whose copy on this
+    //     scope now names precisely that.
+    // No floor is read and none is moved: this chooses the word for an empty
+    // roll-up, not what publishes.
+    else if (!keys.length && scope !== 'saydo') {
+      if (recordsWarm(pid)) token = 'no_stance';
+      else { token = 'pending'; queueWarm(pid); }
+    }
     else token = 'no_record';
     // Phase 7: Say-vs-Do carries its OWN pooled public-record integrity % (supporting
     // ÷ directional evidence across every stance). It is NOT a blend of vote data and

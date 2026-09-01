@@ -4026,6 +4026,121 @@
   function shapeRowsHtml(rows, pid, mount) {
     return (rows || []).map(function (x) { return shapeRowHtml(x, pid, mount); }).join('');
   }
+
+  // ── 🏛 THE SLICE LINE — WHAT THIS FILE IS, UNDER WHAT IT SHOWS ───────────────
+  // WHAT WENT WRONG WITHOUT IT. The federal roster wave attached 7,138 member
+  // cells across 23 House roll calls, which is 23 rolls each for several hundred
+  // sitting Representatives who had no formal file at all the day before. Their
+  // briefs are correct and they are all the same: permits 4–0, crime 4–0, energy
+  // 4–0, three one-sided chips off the same 23 documents. Every number in that is
+  // true of THE SLICE WE HOLD, and a reader meeting it at the top of a person's
+  // file reads it as a description of the person. Nothing on the block said which
+  // of the two it was, so this sentence says it.
+  //
+  // IT IS A SENTENCE, NOT A VERDICT. It carries no party, no intent, no
+  // percentage, no "incomplete", no "limited record", no "early in term" — those
+  // are findings about a career and this layer has not read one. It names the
+  // DOCUMENTS the patterns above it came out of, in the reader's words, and stops.
+  // The chips, their order, their tiers and every count on the block are the
+  // engine's and are untouched by it.
+  //
+  // WHERE IT MAY PRINT, AND WHY EACH LEG IS THERE.
+  //   · THE WHOLE READABLE LANE IS U.S. HOUSE ROLL CALLS. Exact 'house' on every
+  //     warm record, every one of them a ballot with a roll number. This is the
+  //     leg that makes the WORD "House" true, and it is checked rather than
+  //     inferred from the office string: a file holding a Senate roll, a committee
+  //     position, a co-sponsorship or a 'utah house' row is not a file whose
+  //     patterns came from House rolls, and the sentence must not describe it.
+  //     (The brief allows the office instead — every pid that prints here is in
+  //     fact a U.S. Representative — but the office is the weaker test of the two
+  //     and cannot make the sentence honest on its own: bmoore is a U.S.
+  //     Representative with Senate rows and three Congresses on file.)
+  //   · ONE CONGRESS. A file whose judged acts span the 117th, 118th and 119th is
+  //     not a slice of one session's rolls; it is the beginning of a career
+  //     record, and telling its reader it is a slice would be the same overclaim
+  //     in the other direction.
+  //   · A SMALL INSTRUMENT SET, MEASURED AGAINST A CUTOFF OFF THE LIVE CORPUS.
+  //     SLICE_CUTOFF is 32. In the shipped corpus, every file that clears the two
+  //     legs above sits at 23 judged acts or fewer — 23 is the R1 slice and the
+  //     top bin, 225 members deep — and the nearest files above the cutoff are
+  //     sarah_mcbride at 150 (one Congress, House only, but 86 distinct rolls: a
+  //     file deep enough to read on its own terms) and lee at 126, curtis at 151
+  //     and bmoore at 225 across three Congresses. 32 leaves the rest of this
+  //     session's rolls room to land on the printing files without reaching any
+  //     file we hold that is deep enough to be read as a career.
+  //   · SOMETHING JUDGED IS ACTUALLY ON FILE. Zero judged acts is an absence, and
+  //     the block already has its own locked words for an absence. This sentence
+  //     is about where patterns came from; with no patterns it would be a
+  //     description of nothing.
+  //
+  // THE NUMBER IS A RE-PRINT OR IT IS NOT PRINTED. Two figures already published
+  // for this person answer "how many instruments": the inventory's `formal.acts`
+  // (the same count the census directly above this line prints as "N votes and
+  // formal actions read") and the record lane's own one-instrument-one-count
+  // figure, _pdxRecordMappedCounts().votes. Where they agree, that agreed number
+  // is N. Where they disagree — 98 of the 323 qualifying files in the corpus, where
+  // a roll maps onto an issue the pattern engine could not read — there is no
+  // number this layer is entitled to choose between them, so the sentence prints
+  // without one. No arithmetic happens here in either branch.
+  var SLICE_CUTOFF = 32;
+  // Locked copy. Two forms of one sentence; nothing composes a third.
+  var SLICE_LINE = 'Pattern from the House rolls on file — not a career score.';
+  function sliceLineN(n) {
+    return 'Pattern from ' + n + ' House rolls on file — not a career score.';
+  }
+  // Is every judged act on file a U.S. House roll call from a single Congress?
+  // Returns the congress on a yes and null on every other answer, including a
+  // cold record — a lane that has not arrived is not a lane we can describe.
+  function sliceHouseLane(pid) {
+    try {
+      var VR = window.PDXVotingRecord;
+      var recs = (VR && typeof VR.memberRecords === 'function') ? VR.memberRecords(pid) : null;
+      if (!recs || !recs.length) return null;
+      var cong = null;
+      for (var i = 0; i < recs.length; i++) {
+        var it = recs[i];
+        if (!it) return null;
+        if (it.kind === 'position') return null;      // not a ballot
+        if (it.chamber !== 'house') return null;      // 'senate', 'utah house', anything else
+        if (it.rollNumber == null || it.rollNumber === '') return null;
+        if (it.congress == null) return null;
+        if (cong === null) cong = it.congress;
+        else if (it.congress !== cong) return null;   // more than one Congress
+      }
+      return cong === null ? null : cong;
+    } catch (e) { return null; }
+  }
+  // The two already-published instrument counts, read where they are published.
+  function sliceCounts(pid, sh) {
+    var acts = null, rolls = null;
+    try {
+      var INV = window.PDXInventory;
+      var r = (INV && typeof INV.read === 'function') ? INV.read(pid) : null;
+      if (r && r.formal && typeof r.formal.acts === 'number') acts = r.formal.acts;
+    } catch (e) { acts = null; }
+    // The inventory is a guest on this page like every other reader here; where it
+    // is absent the census's own field is the same number from the same shape.
+    if (acts === null && sh && typeof sh.judged === 'number') acts = sh.judged;
+    try {
+      var mc = (typeof window._pdxRecordMappedCounts === 'function')
+        ? window._pdxRecordMappedCounts(pid) : null;
+      if (mc && typeof mc.votes === 'number') rolls = mc.votes;
+    } catch (e) { rolls = null; }
+    return { acts: acts, rolls: rolls };
+  }
+  // Both mounts call this one function, so the letterhead and the brief cannot
+  // drift into two wordings or two gates. Fails closed to '' everywhere.
+  function sliceNoteHtml(pid, sh) {
+    try {
+      if (!pid || !sh || !(sh.judged > 0)) return '';
+      if (sliceHouseLane(pid) === null) return '';
+      var c = sliceCounts(pid, sh);
+      if (!(c.acts > 0) || c.acts > SLICE_CUTOFF) return '';
+      if (!(c.rolls > 0) || c.rolls > SLICE_CUTOFF) return '';
+      var line = (c.acts === c.rolls) ? sliceLineN(c.acts) : SLICE_LINE;
+      return '<p class="pdxwa-shape-slice">' + esc(line) + '</p>';
+    } catch (e) { return ''; }
+  }
   function shapeHeroHtml(pid, p) {
     try {
       var sh = shapeRead(pid);
@@ -4091,7 +4206,7 @@
             '<span aria-hidden="true">🏛</span> The formal record — what it looks like' +
           '</div>' +
           '<p class="pdxwa-shape-depth">' + depth + '</p>' +
-          tops + splits + thin +
+          tops + splits + thin + sliceNoteHtml(pid, sh) +
           '<button type="button" class="pdxwa-shape-all"' + jumpAttr(SHAPE_JUMP) +
             ' aria-label="' + esc('Explore all ' + total + ' issues on the formal record, by topic') + '">' +
             'Explore all ' + total + ' issues by topic <span aria-hidden="true">↓</span>' +
@@ -4864,7 +4979,7 @@
     var wall = listed ? (sh.wall || window._PDX_RD_TIER_NOTE || '') : '';
     var total = opts.total || sh.issues;
     return '<div class="pdxwa-brief' + (opts.cls || '') + (listed ? '' : ' pdxwa-brief-thin') + '">' + head +
-        (opts.census || '') + tops + splits + none + thin +
+        (opts.census || '') + tops + splits + none + thin + sliceNoteHtml(pid, sh) +
         exploreAllHtml(total) +
         dmFor(true) +
         (wall ? '<p class="pdxwa-shape-wall">' + esc(wall) + '</p>' : '') +

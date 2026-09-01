@@ -2213,6 +2213,12 @@ window.PDXLazy = (function () {
        path as the workspace it labels. -->
   <link rel="stylesheet" href="/door2-spine.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/door2-spine.css" /></noscript>
+  <!-- The Door 1 workspace: the mode rail and the one open desk, plus the view
+       strip that labels the four older Door 1 surfaces as views of it. Same
+       low-priority load as Door 2's pair above, and for the same reason — the
+       desk is below the fold and must not block the first paint. -->
+  <link rel="stylesheet" href="/door1-workspace.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/door1-workspace.css" /></noscript>
   <!-- The two-scope statement — national archive vs the Utah-mapped ballot.
        Standing chrome rather than an alert, so it loads on the same low-priority
        path as the sections it labels. -->
@@ -5498,6 +5504,28 @@ window.PDXLazy = (function () {
        own CSS — so an empty strip costs the page nothing at all. -->
   <div id="live-proof" hidden></div>
   <script src="/live-proof.js" defer></script>
+
+  <!-- ── THE DOOR 1 WORKSPACE · one desk for the whole loop ────────────────
+       The four working surfaces below are unchanged. This is the one desk that
+       carries all four at once: a rail of the four ways in — a claim, a person,
+       an issue, a measure — and exactly one of them open at a time, so a reader
+       who arrives holding any one of the four can reach a receipt (or a plain
+       statement that the record holds none) without leaving this section.
+
+       door1-workspace.js owns the sequencing and nothing else. Every fact it
+       prints is read from the shipped surface that owns it — the claim resolver,
+       the issue ledger, the measure index, the person file — and it forks no
+       engine, computes no reading and states no verdict of its own.
+
+       A static mount, like the ballot workspace's, so the section exists before
+       the deferred script lands. It stays [hidden] until the script finds at
+       least one of those surfaces on this page: an empty two-region shell would
+       be chrome promising work it cannot host. Not a sixth door — the chooser
+       above is still Door 1's navigation, and the script hooks it rather than
+       replacing it. -->
+  <section id="pdx-door1-workspace" hidden>
+    <div id="pdx-d1-body"></div>
+  </section>
 
   <!-- ── THE WORK LAYER · what the doors open ─────────────────────────────────
        The four surfaces below were the mandatory middle of Door 1. They are byte
@@ -22367,6 +22395,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        demotes the in-content brochure CTAs that used to jump past the
        workspace. Must load after ballot-workspace.js, which owns the numbers. -->
   <script defer src="/door2-spine.js"></script>
+  <!-- Door 1 workspace. The one desk behind the four Door 1 surfaces: it reads
+       the claim resolver, the issue ledger, the measure index and the formal
+       pattern index rather than holding a second copy of any of them, wraps
+       pdxDoorWork/pdxDoor so every existing Door 1 entrance also selects the
+       desk mode it belongs to, and labels those four surfaces as views of the
+       desk. Loads after the modules it reads and after the Door 2 spine whose
+       demotion idiom it follows. -->
+  <script defer src="/door1-workspace.js"></script>
   <!-- Scope chrome. Reads pdxRepsForMe() for districtsResolvable and states both
        scopes in the chrome of Door 2 and of the archive header. Loads after the
        location resolver it reads; re-paints on _updateTeamPositionsForLocation. -->

@@ -615,6 +615,9 @@
   }
 
   function restore() {
+    // The tab goes home with the address. Same helper the open used, so there is
+    // exactly one spelling of "this tab is the front page" in the module.
+    try { chrome(''); } catch (e) {}
     try {
       var back = _return;
       _return = null;
@@ -626,6 +629,84 @@
       }
       history.replaceState(null, '', back + location.hash);
     } catch (e) {}
+  }
+
+  // ── The tab, and the trail ────────────────────────────────────────────────
+  // A person file is a modal, so the browser never navigates and nothing in the
+  // chrome moved when one opened over another. Opening Hyde-Smith out of a Lee
+  // session left the tab, the window list, the history entry and the breadcrumb
+  // all saying "Mike Lee" — the address bar was the only thing in the browser
+  // telling the truth about who was on screen, and it is the one part of the
+  // browser a reader with four tabs open is not looking at.
+  //
+  // ONE helper, both ends of a file's life: open() names the person, restore()
+  // (which closeModal already calls) puts the front page back. Two callers, one
+  // spelling, so the two can never drift into disagreeing about what the tab
+  // says.
+  //
+  // It states no finding, for the same reason kicker() does not: a title is the
+  // most-quoted string on the page — it is what a bookmark, a tab strip and a
+  // pasted link all show — and a verdict in it would be the headline everywhere
+  // the file itself is not. Name and product, nothing else.
+  var HOME_TITLE = 'PolitiDex | Bound by Truth';
+  var _homeTitle = (function () {
+    // NOT just document.title. On a cold /p/<pid> the edge
+    // (netlify/edge-functions/share-preview.ts) has ALREADY rewritten <title> to
+    // this person before a line of app code ran, so reading the live title at
+    // module evaluation would capture Aaron Bean as "home" and closing his file
+    // would leave the tab on him forever. When this document arrived on a person
+    // address, the shell's own title is the constant; index.html is where it is
+    // spelled, and this is the only other place.
+    try {
+      if (!ARRIVAL && document.title) return String(document.title);
+    } catch (e) {}
+    return HOME_TITLE;
+  })();
+
+  // The name to put in front of a reader, from whichever source already has it:
+  // the rosters first (the same two, in the same order, as record()), then the
+  // edge's first-byte header — which on a cold arrival is the ONLY thing that
+  // knows the name, and is the reason the tab can be right before the roster is.
+  function displayName(pid) {
+    if (!pid) return '';
+    var d = record(pid);
+    var n = d && (d.name || d.fullName || d.displayName);
+    if (n) return String(n).trim();
+    try {
+      var h = crawlHeader();
+      if (h && (h.pid === pid || canonId(h.pid) === canonId(pid))) {
+        var el = h.el.querySelector ? h.el.querySelector('h1') : null;
+        var t = el ? String(el.textContent || '').trim() : '';
+        if (t) return t;
+      }
+    } catch (e) {}
+    return '';
+  }
+
+  // pid → this person's tab and this person's crumb. '' → the front page's tab,
+  // and no crumb (closing a file does not add a step to the journey; it ends
+  // one). Never throws, and never blanks a good title for a pid it cannot name:
+  // a tab still reading the previous person is a bug, but a tab reading
+  // "undefined · PolitiDex" is a worse one.
+  function chrome(pid) {
+    pid = pid ? String(pid) : '';
+    var name = pid ? displayName(pid) : '';
+    try {
+      if (!pid) document.title = _homeTitle;
+      else if (name) document.title = name + ' · PolitiDex';
+    } catch (e) {}
+    if (!pid || !name) return name;
+    // The same crumb showProfile() records, through the same call. PDXJourney
+    // dedupes on kind:pid and refreshes the label in place, so the two callers
+    // cannot stack two steps for one person — and this one fires on the arrival
+    // path, where showProfile never ran.
+    try {
+      var J = window.PDXJourney;
+      if (J && fn(J.record)) {
+        J.record('profile', { label: name, icon: '\uD83D\uDC64', nav: { type: 'profile', pid: pid } });
+      }
+    } catch (e) {}
+    return name;
   }
 
   // ── "The file is on screen" ───────────────────────────────────────────────
@@ -818,6 +899,10 @@
     perf('person-open');
     try { stamp(pid); } catch (e) {}
     try { kicker(pid); } catch (e) {}
+    // The tab and the trail, on the same guard and for the same reason as the
+    // address above: chrome is worth getting right, and worth nothing if getting
+    // it wrong can close the file.
+    try { chrome(pid); } catch (e) {}
     // The edge's first-byte crawl header is superseded by the file — but only once
     // the file is actually THERE. openModal returns early on a loading shell
     // whenever the full profile document still has to be fetched, and hiding the
@@ -841,6 +926,74 @@
     return true;
   }
 
+  // ── THE ONE SENTENCE THIS MODULE MAY NOT SAY EARLY ───────────────────────
+  // "“aaron_bean” isn’t someone we currently carry a record for" is a claim about
+  // the ROSTER, and on a cold arrival the roster is still arriving: cmp-data.js
+  // can be served stale out of an old service-worker cache, PROFILES is a
+  // Firestore fetch behind an anonymous-sign-in wait, and the alias tables land
+  // with the scripts that own them. The live defect was exactly that ordering —
+  // /p/aaron_bean printed the crawl brief, then this toast, then opened his file.
+  // The app called itself a liar on the first paint of a record it holds.
+  //
+  // Two conditions now, both required, and NEITHER lengthens the wait:
+  //
+  //   · THE WAIT MUST HAVE ENDED. attempt() below owns the only clock here and
+  //     keeps every number it had (CEILING, MAX_TRIES, SETTLED_GRACE); this flag
+  //     is set while that loop is live and cleared the moment it stops. While it
+  //     is live the honest surface is the one already on screen — the skeleton's
+  //     "Loading the latest roster…" — and silence is what that sentence needs
+  //     to stay true.
+  //   · NOTHING ON THE PAGE MAY ALREADY DISPROVE IT. Three reads, all of them
+  //     things this module already consults, none of them a new source:
+  //       — PROFILES and CMP_DATA, re-asked at the moment of speaking rather
+  //         than trusted from the resolve one line earlier. A SECOND READ, not a
+  //         second roster;
+  //       — the same two under the id the address MEANS, not only the id it was
+  //         spelled with;
+  //       — THE EDGE'S OWN FIRST-BYTE HEADER. This is the read that closes the
+  //         Bean case. share-preview.ts resolved /p/aaron_bean server-side, off
+  //         db/share-index.json, and wrote his name, his seat and his formal
+  //         record into the document before a line of app code ran — so the
+  //         first paint the reader got is a standing disproof of the sentence
+  //         below it. crawlHeader() is identity-guarded to the address in the
+  //         bar and refuses a generic zero-row block, so it can only be truthy
+  //         when the edge named THIS person at THIS address; a stale bundled
+  //         roster on a warm device cannot make it lie.
+  //     If any of the three has the person, the sentence is false, and a false
+  //     sentence is not printed — the arrival falls through to the header and the
+  //     loading shell it already had, which are both true.
+  //
+  // Returns whether it spoke, so a caller (and the test) can tell "we said we
+  // don't carry them" from "we stayed quiet".
+  function knownHere(pid) {
+    if (!pid) return false;
+    if (record(pid)) return true;
+    try {
+      var canon = resolveArrival(pid);
+      if (canon && record(canon)) return true;
+    } catch (e) {}
+    try {
+      var h = crawlHeader();
+      if (h && h.pid) return true;
+    } catch (e) {}
+    return false;
+  }
+
+  function unresolvedNotice(asked) {
+    if (_waitOpen) return false;
+    if (knownHere(asked)) return false;
+    try {
+      var L = window.PDXShareLinks;
+      if (L && fn(L.notice)) {
+        L.notice('pdx-person-unresolved', 'Person file',
+          'We couldn’t open the record that link named. Rather than quietly show ' +
+          'you the front page, here’s the plain answer: “' + asked + '” isn’t ' +
+          'someone we currently carry a record for.');
+      }
+    } catch (e) {}
+    return true;
+  }
+
   // Open whatever person the current URL names. Returns the pid it opened, or
   // '' — including when the URL names someone the roster does not carry, which
   // is reported rather than swallowed, the same way _pdxOpenFromUrl reports it.
@@ -854,15 +1007,7 @@
     // left standing because it is then the only thing on the page that is true.
     var pid = resolveArrival(asked);
     if (!pid) {
-      try {
-        var L = window.PDXShareLinks;
-        if (L && fn(L.notice)) {
-          L.notice('pdx-person-unresolved', 'Person file',
-            'We couldn’t open the record that link named. Rather than quietly show ' +
-            'you the front page, here’s the plain answer: “' + asked + '” isn’t ' +
-            'someone we currently carry a record for.');
-        }
-      } catch (e) {}
+      unresolvedNotice(asked);
       return '';
     }
     // A hash on a cold arrival names a section INSIDE the file, so it is handed
@@ -883,6 +1028,12 @@
     stamp: stamp,
     restore: restore,
     kicker: kicker,
+    // The tab + trail helper open() and restore() share, and the name it puts in
+    // front of a reader. Exported so the chrome can be asserted on directly
+    // rather than inferred from a title string somebody else set.
+    chrome: chrome,
+    displayName: displayName,
+    HOME_TITLE: HOME_TITLE,
     kickerClick: kickerClick,
     fromPath: fromPath,
     fromUrl: fromUrl,
@@ -966,6 +1117,11 @@
   var STEP_GROW = 1.35;
   var MAX_TRIES = 40;
   var _adoptSettled = false;
+  // "The arrival wait is live." Set by bootAdopt when the poll starts, cleared
+  // the instant attempt() stops polling for any reason — resolved, out of time,
+  // abandoned. unresolvedNotice() above is the only reader: it is the gate that
+  // keeps "we don't carry this person" behind the wait that would disprove it.
+  var _waitOpen = false;
 
   // firebase-boot.js sets this to 'loading', then to 'done' or 'error' — every
   // one of its load paths reaches one of the two, including the no-Firebase and
@@ -977,19 +1133,21 @@
     return s === 'done' || s === 'error';
   }
 
+  function stopWait() { _adoptSettled = true; _waitOpen = false; }
+
   function attempt(pid, waited, settledAt, tries) {
     if (_adoptSettled) return;
     tries = tries || 0;
     // The reader moved on, or something else opened a file first. Either way the
     // arrival is no longer the thing deciding what is on screen.
-    if (fromPath() !== pid) { _adoptSettled = true; return; }
+    if (fromPath() !== pid) { stopWait(); return; }
     // THE FILE IS ALREADY NAMED. profiles-full.js sets this at the one point in
     // openModal where the built content is in the DOM (see mountedNow), so a
     // truthy value means a reader is looking at a file — this one, or one they
     // opened themselves while this was waiting. Either way there is nothing left
     // for the arrival to decide, and every further tick is pure cost on a tab
     // that is now doing real work.
-    if (window._pdxCurrentProfileId) { _adoptSettled = true; return; }
+    if (window._pdxCurrentProfileId) { stopWait(); return; }
 
     if (settledAt === null && rosterSettled()) { settledAt = waited; perf('roster'); }
 
@@ -1017,7 +1175,9 @@
       (settledAt !== null && waited - settledAt >= SETTLED_GRACE);
 
     if (canOpen || outOfTime) {
-      _adoptSettled = true;
+      // Cleared BEFORE adopt(), not after: this is the moment the wait ends, and
+      // adopt() is the call that may need to say we carry nobody by that name.
+      stopWait();
       try { adopt(); } catch (e) {}
       return;
     }
@@ -1086,6 +1246,7 @@
     dropStalePrefetch(target);
     try { warm(target); } catch (e) {}
     _adoptSettled = false;
+    _waitOpen = true;
     attempt(pid, 0, null, 0);
     return pid;
   }

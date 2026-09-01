@@ -1076,9 +1076,14 @@ section("9 · the engines did not move");
 // directory itself. If git is unavailable the section reports that rather than
 // passing quietly.
 {
+  // stance-helpers.js used to sit in this list. It is pinned at a SEAM further
+  // down instead — same discipline as voting-record.js and consistency.js: the
+  // one span a later pass touched is cut out by anchors unique on both sides and
+  // argued line by line, and the rest of the file is still compared byte for
+  // byte. Nothing was loosened; one span moved from "forbidden" to "stated".
   const ENGINES = [
     "alignment-tool.js",
-    "say-vs-do.js", "exec-record.js", "stance-helpers.js",
+    "say-vs-do.js", "exec-record.js",
     "publication-floor.js", "issue-colors.js",
     "netlify/lib/vr-pack.ts", "netlify/lib/vr-normalize.ts", "db/issue-keys.json",
   ];
@@ -1096,7 +1101,7 @@ section("9 · the engines did not move");
   if (!compared) {
     console.log("      (no git baseline available — engine byte-identity not checked in this environment)");
   } else {
-    ok(compared >= 8, `the engine set was read from HEAD (${compared} files)`);
+    ok(compared >= 7, `the engine set was read from HEAD (${compared} files)`);
     eq(moved, [], "Direction Match, the formal-pattern engines, the packs and the mappings are byte-identical to HEAD");
   }
 
@@ -1199,12 +1204,66 @@ section("9 · the engines did not move");
           `${side}: a mechanism-map anchor is no longer unique in consistency.js — widen it, do not loosen it`);
         return { pinned: src.slice(0, i + A.length) + src.slice(j), map: src.slice(i + A.length, j) };
       };
-      const ca = carveMech(headCJ, "HEAD"), cb = carveMech(CJ_NOW, "now");
+      // ── AND TWO NAMED SEAMS FOR THE OFFICIAL-RECORD EMPTY COPY ───────────
+      // The person-file chrome pass changed two spans in this file and nothing
+      // else. Both are the SAME defect in two places: an empty Official Record
+      // roll-up was spelled with the vocabulary of missing votes, and it printed
+      // that sentence on /p/aaron_bean directly under a letterhead counting 23
+      // mapped acts. Neither span is arithmetic — no floor, no band, no weight,
+      // no mapping and no score is read or written inside either — so both are
+      // cut out by anchors unique on both sides and argued below, exactly as the
+      // mechanism map above and voting-record.js's five seams below are.
+      const CJ_SEAMS = [
+        ["      blurb: 'The hard, institutional score — their votes and formal legislative actions checked against what they say they stand for.',\n",
+         "\n      // The ✒️ lane's wording for the same card.",
+         "the official scope's empty wording"],
+        ["    else if (counts.limited > 0) token = 'limited';\n",
+         "\n    // Phase 7: Say-vs-Do carries its OWN pooled public-record integrity %",
+         "the roll-up's empty-key token"],
+      ];
+      const carveCJ = (src, side) => {
+        let pinned = "", pos = 0;
+        const bodies = [];
+        for (const [a, b, why] of CJ_SEAMS) {
+          const i = src.indexOf(a, pos), j = src.indexOf(b, i < 0 ? 0 : i);
+          must(i >= 0 && j > i, `${side}: the seam for ${why} no longer reads as written in consistency.js`);
+          must(src.split(a).length === 2 && src.split(b).length === 2,
+            `${side}: a seam anchor for ${why} is no longer unique in consistency.js — widen it, do not loosen it`);
+          pinned += src.slice(pos, i + a.length);
+          bodies.push(src.slice(i, j));
+          pos = j;
+        }
+        return { pinned: pinned + src.slice(pos), bodies };
+      };
+      // Two cuts, in order: the mechanism map first (it is a whole span the seams
+      // below sit outside of), then the two empty-copy seams out of the remainder.
+      // `map` travels with the result so the append-only check further down still
+      // has the map it is about.
+      const mechA = carveMech(headCJ, "HEAD"), mechB = carveMech(CJ_NOW, "now");
+      const ca = Object.assign(carveCJ(mechA.pinned, "HEAD"), { map: mechA.map });
+      const cb = Object.assign(carveCJ(mechB.pinned, "now"), { map: mechB.map });
       eq(sha(ca.pinned), sha(cb.pinned),
-        "consistency.js is byte-identical to HEAD everywhere outside the mechanism map — the formal-pattern " +
-        "arithmetic, the floors, the bands and the row model did not move");
+        "consistency.js is byte-identical to HEAD everywhere outside the mechanism map and its two named " +
+        "empty-copy seams — the formal-pattern arithmetic, the floors, the bands and the row model did not move");
       ok(cb.pinned.length > CJ_NOW.length * 0.55,
         `the carve is a seam, not a hole: ${cb.pinned.length} of ${CJ_NOW.length} bytes are still pinned`);
+
+      // ── seam A: the copy table names the missing WORD, not missing votes ─────
+      has(cb.bodies[0], "no_stance: 'No stated position to test'",
+        "the official scope's no_stance copy no longer names the missing stated position");
+      has(cb.bodies[0], "no_record: 'No qualifying votes on record yet'",
+        "the issue-level no_record wording moved — a stated position with no vote mapped to it IS a missing vote");
+      ok(!/\d\s*%/.test(cb.bodies[0]), "a percentage appeared in the scope copy table");
+      // ── seam B: an empty key list is not an empty voting record ──────────────
+      const rollup = cb.bodies[1].replace(/^\s*\/\/.*$/gm, "");
+      has(rollup, "!keys.length", "the roll-up no longer distinguishes an empty key list from an empty record");
+      has(rollup, "recordsWarm(pid)",
+        "…and it decides that on something other than whether the record lane has answered");
+      has(rollup, "token = 'no_stance'", "…so the empty roll-up still borrows the wording of missing votes");
+      has(rollup, "token = 'pending'; queueWarm(pid)",
+        "…and an unread lane no longer says it is loading, or no longer asks for the read");
+      ok(!/MIN_|FLOOR|floor|publishable|score|Math\.round/.test(rollup),
+        "the empty-roll-up seam reads a floor, a score or a weight — it chooses one word for one empty case");
 
       // APPEND-ONLY. A live rationale belongs to whoever wrote it first (runbook rule
       // 21), so a pass may add entries and may not rewrite one a reader has already been
@@ -1232,6 +1291,59 @@ section("9 · the engines did not move");
         ok(!/\b(Republicans?|Democrats?|Democratic|GOP|partisan|bipartisan)\b/i.test(appended),
           "an appended mechanism entry names a party — the party split stays in the roll's totals, off the face");
       }
+    }
+  }
+
+  // ── stance-helpers.js: PINNED EVERYWHERE EXCEPT THE RECORD-CTA STATS ────────
+  // This file carries the stance resolver the whole profile is built from, so it
+  // is compared byte for byte — with one seam. `_pdxStanceRecordStats` is what
+  // the mid-page "View Full Record" card reads, and it counted formal ISSUE ROWS
+  // only. That is the right number for a label and the wrong number for the claim
+  // the card was making with it: on a file whose letterhead read "11 issues · 23
+  // acts · 3 characterized", the card one screen down said the record was still
+  // being built, because the row index is empty until the roll-call cache warms
+  // and the card renders before it does. The seam adds an act count, the edge's
+  // own first-byte brief as a pre-warm fallback, and a boolean for whether the
+  // lane has answered. No stance, no evidence tally and no floor inside it moved.
+  {
+    const SH_NOW = R("stance-helpers.js");
+    let headSH = null;
+    try {
+      headSH = execFileSync("git", ["show", "HEAD:stance-helpers.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
+    } catch { /* no baseline here */ }
+    if (!headSH) {
+      console.log("      (no git baseline available — stance-helpers.js shape not checked in this environment)");
+    } else {
+      const A = "    var formal = 0;\n", B = "\n  window._pdxStanceRecordStats = _pdxStanceRecordStats;";
+      const carveSH = (src, side) => {
+        const i = src.indexOf(A), j = src.indexOf(B, i < 0 ? 0 : i);
+        must(i >= 0 && j > i, `${side}: the record-CTA stats seam no longer reads as written in stance-helpers.js`);
+        must(src.split(A).length === 2 && src.split(B).length === 2,
+          `${side}: a record-CTA stats anchor is no longer unique in stance-helpers.js — widen it, do not loosen it`);
+        return { pinned: src.slice(0, i + A.length) + src.slice(j), body: src.slice(i, j) };
+      };
+      const sa = carveSH(headSH, "HEAD"), sb = carveSH(SH_NOW, "now");
+      eq(sha(sa.pinned), sha(sb.pinned),
+        "stance-helpers.js is byte-identical to HEAD everywhere outside the record-CTA stats — the stance " +
+        "resolver, the evidence map and the alias tables did not move");
+      ok(sb.pinned.length > SH_NOW.length * 0.97,
+        `the carve is a seam, not a hole: ${sb.pinned.length} of ${SH_NOW.length} bytes are still pinned`);
+
+      const stats = sb.body.replace(/^\s*\/\/.*$/gm, "");
+      // The four numbers HEAD returned still come back, under the same names.
+      for (const k of ["tracked:", "withEvidence:", "gaps:", "formal:"])
+        has(stats, k, `_pdxStanceRecordStats stopped returning ${k.slice(0, -1)} — its callers read it by name`);
+      has(stats, "formalActs:", "the stats no longer carry a count of ACTS, which is what the card's claim rests on");
+      has(stats, "formalRead:", "…or whether the record lane has answered, so \"nothing\" cannot be told from \"not looked\"");
+      has(stats, "FPI2.shape(id)", "the act count is not read from the formal index's own memoised shape");
+      has(stats, "PF.crawlRecord(id)",
+        "…and it has no pre-warm fallback, so a cold arrival still contradicts the brief printed above it");
+      has(stats, "VR.memberRecords(id)", "…and the load-state boolean is not read from the record cache");
+      // A count and a boolean. Not a verdict, not a floor, not a score.
+      ok(!/MIN_CITED|publishable|clears\(|PDXPublicationFloor/.test(stats),
+        "the record-CTA stats seam reads the publication floor — it counts material, it does not decide what publishes");
+      ok(!/\d\s*%/.test(stats) && !/\b(Republican|Democrat|GOP)\b/i.test(stats),
+        "the record-CTA stats seam grew a percentage or a party");
     }
   }
 
@@ -1513,9 +1625,24 @@ section("9 · the engines did not move");
         //   briefRecordOnHand  counts the header's rows unfiltered: a line the edge
         //                      wrote in a shape this file cannot DRAW is still formal
         //                      record on screen behind the modal
+        //
+        // …AND THE SIXTH ROUND (CACHE_VERSION v104), which is not about an absent
+        // record at all — it is about a present one being read as more than it is.
+        // Roster wave R1 attached 7,138 cells across 23 House rolls, so several
+        // hundred newly admitted files now open on the same three chips (permits
+        // 4–0, crime 4–0, energy 4–0). That is true of the 119th-Congress slice
+        // this repo holds and it reads as a career. The two functions that RENDER
+        // the strongest-patterns block gained one call each, directly under the
+        // list, and nothing else:
+        //   shapeHeroHtml   the letterhead, above the depth gate
+        //   briefBodyHtml   the brief itself
+        // Both are checked below by subtraction rather than waived: remove the one
+        // inserted call from the working copy's body and it must be HEAD's body,
+        // byte for byte.
         const TOUCHED = ["armBriefDeadline", "briefAbsenceCopy", "briefHeroHtml",
           "briefSeedHtml", "briefLiveN", "briefRecordOnHand", "formalKnown",
-          "bindHero", "shapeMatchHtml", "briefAsked"];
+          "bindHero", "shapeMatchHtml", "briefAsked",
+          "shapeHeroHtml", "briefBodyHtml"];
         // …and the readers the two passes added. Every one is a pure read of state
         // that already existed in the tab — the live member payload, the crawl
         // header's rows, the static formal index, the pattern index's shape, the
@@ -1565,7 +1692,19 @@ section("9 · the engines did not move");
           //                        positive knowledge that the wait is over
           //   emptyFileCopy        the one door: the only reader of EMPTY_FILE_COPY
           //                        in the file, and it is locked by the veto
-          "voteChipN", "briefEmptyForbidden", "briefEmptyLegal", "emptyFileCopy"];
+          "voteChipN", "briefEmptyForbidden", "briefEmptyLegal", "emptyFileCopy",
+          // …AND THE SIXTH ROUND's four, all pure reads of counts and fields this
+          // tab already publishes for that person. Not one of them computes a
+          // figure; the sentence they build re-prints a number the inventory line
+          // on the same brief already shows, or prints no number at all.
+          //   sliceHouseLane  is every judged act on this file a U.S. House roll
+          //                   from ONE Congress — the precondition for the
+          //                   sentence being true of the file
+          //   sliceCounts     the inventory's formal.acts and the record lane's
+          //                   own distinct-instrument count, read side by side
+          //   sliceLineN      the numbered form of the locked sentence
+          //   sliceNoteHtml   the gate: four legs, then one of two locked forms
+          "sliceHouseLane", "sliceCounts", "sliceLineN", "sliceNoteHtml"];
 
         const changed = [], added = [], removed = [];
         for (const [k, v] of A.fns) {
@@ -1579,6 +1718,50 @@ section("9 · the engines did not move");
           "…and the only function bodies that moved are the three brief-path functions this pass owns");
         eq(added.filter((f) => !ADDED.includes(f)).sort(), [],
           "…and the only functions it gained are the six named record readers");
+
+        // ── the two mounts, by subtraction ──────────────────────────────────────
+        // A named function in TOUCHED is a licence to change bytes, and on the two
+        // functions that draw the strongest-patterns block that licence is wider
+        // than the v104 pass needs: the same bodies hold the chip order and the
+        // characterisation the brief says not to touch. So the pass states its
+        // whole diff as a string and the string is subtracted — what is left must
+        // be HEAD, byte for byte. A reordered chip or a reworded pattern would
+        // survive TOUCHED and die here.
+        const MOUNT = " sliceNoteHtml(pid, sh) +";
+        for (const f of ["shapeHeroHtml", "briefBodyHtml"]) {
+          const now = B.fns.get(f) || "", was = A.fns.get(f) || "";
+          eq(now.split(MOUNT).length, 2,
+            `${f}() does not mount the slice note exactly once — one call, or the letterhead and the brief drift into two wordings`);
+          eq(sha(now.replace(MOUNT, "")), sha(was),
+            `${f}() moved something other than the slice-note call — the chip order, the characterisation and the counts in it are HEAD's`);
+        }
+
+        // ── and the sentence itself, locked ─────────────────────────────────────
+        // Two forms and no third, no party, no rate, and no verdict composed
+        // alongside them. The literals come out of the gate before the word walls
+        // run, because the sentence's own last word is "score" — that is the half
+        // doing the work.
+        {
+          const gate = [B.fns.get("sliceNoteHtml"), B.fns.get("sliceLineN"),
+            B.rest.match(/\n\s*var SLICE_LINE = [^\n]*\n/) ? RegExp.lastMatch : ""].join("\n");
+          has(gate, "Pattern from the House rolls on file — not a career score.",
+            "the slice sentence's no-number form is not the locked copy");
+          has(gate, "'Pattern from ' + n + ' House rolls on file — not a career score.'",
+            "the slice sentence's numbered form is not the locked copy");
+          has(B.rest, "var SLICE_CUTOFF = 32;",
+            "the slice gate's documented instrument cutoff moved — 32 is measured from the live corpus " +
+            "in scripts/test-brief-slice-disclosure.mjs, which also names the files it silences");
+          has(B.fns.get("sliceNoteHtml") || "", "(c.acts === c.rolls) ? sliceLineN(c.acts) : SLICE_LINE",
+            "the number is printed without the two published counts having to agree first");
+          const gcode = gate.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+          ok(!/toFixed|Math\.(round|max|min)|\/\s*100|\*\s*100/.test(gcode),
+            "the slice gate grew arithmetic of its own — every figure in it is a re-print");
+          ok(!/\bscore\b|\bweight\b|MIN_|FLOOR|publishable|PublicationFloor/.test(gcode),
+            "the slice gate reads a score, a weight or the publication floor");
+          ok(!/\.party\b|Republican|Democrat|GOP/i.test(gcode), "the slice gate reads a party");
+          ok(!/incomplete|limited record|early in term/i.test(gcode),
+            "the slice gate composes a verdict about the person alongside its sentence about the file");
+        }
         // Named individually as well as covered by the set above, because these are the
         // ones the brief said not to touch and a reader of this file should be able to
         // see them checked by name.
@@ -1654,6 +1837,14 @@ section("9 · the engines did not move");
           // CONSECUTIVE lines, and a /\n…\n/g pattern eats the next match's leading
           // newline and silently skips every other one.
           .replace(/^\s*(?:voteChipN|briefRecordOnHand|briefEmptyForbidden|briefEmptyLegal): [A-Za-z0-9_$]+,\n/gm, "")
+          // …and the sixth round's two: the documented instrument cutoff above
+          // which the file is no longer a small enough slice to name, and the
+          // no-number form of the sentence. Both are asserted by name above —
+          // SLICE_CUTOFF against the figure the slice harness measured from the
+          // live corpus, SLICE_LINE against the locked copy — so setting them aside
+          // here removes bytes that are checked, not bytes that are unchecked.
+          .replace(/\n\s*var SLICE_CUTOFF = [^\n]*\n/g, "\n")
+          .replace(/\n\s*var SLICE_LINE = [^\n]*\n/g, "\n")
           .replace(/\n\s*var FORMAL_DEEP_MIN = [^\n]*\n/g, "\n")
           .replace(/\n\s*var PAYLOAD_GRACE_MS = [^\n]*\n/g, "\n")
           .replace(/\n\s*var _liveAt = [^\n]*\n/g, "\n")

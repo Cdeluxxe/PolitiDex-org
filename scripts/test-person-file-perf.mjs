@@ -623,8 +623,16 @@ section("12 · an address already resolved opens now");
   ok(ticks <= 25, `…in ${ticks} wake-ups rather than 125`);
   ok(nums.MAX_TRIES > ticks, `MAX_TRIES (${nums.MAX_TRIES}) is a backstop, not the thing that ends the normal wait`);
   // And the loop stops dead the moment the file has a name, however it got one.
-  has(PF, "if (window._pdxCurrentProfileId) { _adoptSettled = true; return; }",
+  // v103 renamed the three exits of this poll: every one of them now goes through
+  // stopWait(), which sets the same _adoptSettled flag AND closes the "wait is live"
+  // flag the unknown-pid notice is gated on. The behaviour this line has always
+  // guarded is unchanged — a named file ends the poll — so the pin follows the
+  // spelling, and the next two lines prove stopWait is still that end.
+  has(PF, "if (window._pdxCurrentProfileId) { stopWait(); return; }",
     "a file that is already named ends the poll instead of polling beside it");
+  has(PF, "function stopWait()", "…through a single named exit");
+  ok(/function stopWait\(\)\s*\{[^}]*_adoptSettled = true/.test(PF),
+    "…and that exit is what settles the poll");
 
   // The edge's stamp is a resolve source, and only ever for its own address.
   const ra = PF.match(/function resolveArrival\(pid\) \{[\s\S]*?\n  \}/);
