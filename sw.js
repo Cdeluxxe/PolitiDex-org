@@ -849,7 +849,37 @@
 // bump refetches it too, which is the honest cost of versioning a shell rather
 // than a file. Nothing else changed: no floor, no mapping, no weight, no figure,
 // and the collapse attribute is exactly as it shipped.
-const CACHE_VERSION = 'v107';
+// v108 - The issue desk became a record ledger. Picking a key now prints what
+// the formal record on it DID — advanced it / cut against it / ran both ways /
+// thin / no side read — off the formal-pattern index's own published row, plus
+// the measures that map to the key. Four files move as one change and a stale
+// copy of any of them is a broken pane:
+//   · consistency.js       — one row of the formal-pattern index is now reachable
+//                            on its own (rowFor / band / LEDGER_BANDS / TAIL_MIN).
+//                            Extraction only: the row the ledger asks for is the
+//                            row the person file's list already contained.
+//   · door1-workspace.js   — the ledger itself, plus "Open any tracked key", the
+//                            typeahead over every shipped ISSUE_MAP key, so
+//                            lands_preserve opens as itself rather than being
+//                            unreachable behind a shelf of thirteen bundles.
+//   · door1-workspace.css  — the bands, the census, the seek control, the folded
+//                            tail. New classes; nothing existing restyled.
+//   · all-seeing-eye.js    — a query that resolves to a tracked key now leads with
+//                            that key's formal record and a door into the ledger,
+//                            and the consistency ranking does not run on that path.
+//                            NOT on the precache list: it is a RUNTIME entry, and
+//                            the runtime cache name carries CACHE_VERSION, so this
+//                            bump is what drops the stale copy. Without the bump a
+//                            warm device would serve the old Eye against the new
+//                            desk — the resolver it now calls (PDXDoor1.issueKeyFor)
+//                            would simply be absent and the key hit would silently
+//                            not appear.
+//   · index.html           — styling for that one Eye block (and it is precached
+//                            as the shell's own entry, '/', so it travels here).
+// No floor, no mapping, no weight, no roster row, no slice sentence and no figure
+// of any kind moved. Direction Match is untouched and reads byte-identically with
+// this pane loaded and without it.
+const CACHE_VERSION = 'v108';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

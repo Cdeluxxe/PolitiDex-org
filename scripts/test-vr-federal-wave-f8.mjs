@@ -57,7 +57,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
-import { CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
+import { CJ_SEAMS, CJ_SEAMS_BELOW, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
   assertWordActionSeams } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -650,9 +650,16 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
       const ca = carveSeams(a.before, CJ_SEAMS, "HEAD", "consistency.js", ok);
       const cb = carveSeams(b.before, CJ_SEAMS, "now", "consistency.js", ok);
       eq(cb.pinned, ca.pinned,
-        "consistency.js changed above _DOS_MECH outside the two named v103 copy seams — no wave's waiver reaches the engine");
-      assertConsistencySeams(cb.bodies, { has, ok });
-      eq(b.after, a.after, "consistency.js changed below _DOS_MECH — no wave's waiver reaches the renderer");
+        "consistency.js changed above _DOS_MECH outside the named copy seams in scripts/v103-chrome-seams.mjs — no wave's waiver reaches the engine");
+      // BELOW THE LITERAL, WITH THE TWO EXPORT SPANS CUT OUT. The issue-ledger pass
+      // (v108) added four export names to the formal-pattern index so the issue desk
+      // could read the index's own row instead of characterising the record twice.
+      // Names, not logic — argued span by span in scripts/v103-chrome-seams.mjs — and
+      // everything else below the literal is still compared byte for byte.
+      const da = carveSeams(a.after, CJ_SEAMS_BELOW, "HEAD", "consistency.js", ok);
+      const db = carveSeams(b.after, CJ_SEAMS_BELOW, "now", "consistency.js", ok);
+      eq(db.pinned, da.pinned, "consistency.js changed below _DOS_MECH outside the two named export spans — no wave's waiver reaches the renderer");
+      assertConsistencySeams(cb.bodies, { has, ok }, db.bodies);
       ok(b.map.startsWith(a.map.replace(/\n?$/, "")) || b.map === a.map,
         "an existing _DOS_MECH entry was edited — rule 21 leaves a live rationale with its first writer");
       const appended = [...b.map.slice(a.map.length).matchAll(/'([^'|]+)\|\d+\|([a-z_]+)':/g)].map((m) => m[1]);
@@ -1010,7 +1017,25 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "scripts/test-vr-federal-roster-r1.mjs",
     "scripts/test-vr-federal-roster-r2.mjs",
     "scripts/test-person-file-perf.mjs",
-    "scripts/test-seed-yields-to-record.mjs"]);
+    "scripts/test-seed-yields-to-record.mjs",
+    // The issue desk's record-ledger pass (CACHE_VERSION v108), on those same
+    // later-wave terms. It writes no roll, no mapping, no key and no admission: it
+    // changes what the ISSUE side of the desk prints once a key is picked. Where the
+    // pane used to answer a narrow key with an empty no-vehicle sentence — or rank
+    // the people on it by how well they back up their words — it now files them by
+    // what the formal record on that key did: advanced it, cut against it, ran both
+    // ways, thin, no side read. The band is read off the formal-pattern index's OWN
+    // row, so the desk and the person file cannot characterise one record two ways;
+    // consistency.js's five spans are the extraction and the export that made that
+    // possible, carved and argued in the shared seam module above. Every count, chip,
+    // tier and Direction Match figure is byte-identical, which the twin boot above
+    // has just proved.
+    "door1-workspace.js",
+    "door1-workspace.css",
+    "all-seeing-eye.js",
+    "index.html",
+    "scripts/test-door-one-workspace.mjs",
+    "scripts/test-door-one-collapse.mjs"]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};
     const snapHead = JSON.parse(headSrc("db/share-index.json") || "{}").personRecord || {};

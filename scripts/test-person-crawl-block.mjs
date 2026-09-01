@@ -1220,6 +1220,41 @@ section("9 · the engines did not move");
         ["    else if (counts.limited > 0) token = 'limited';\n",
          "\n    // Phase 7: Say-vs-Do carries its OWN pooled public-record integrity %",
          "the roll-up's empty-key token"],
+        // ── AND FIVE MORE, FOR THE ISSUE DESK'S RECORD LEDGER ───────────────
+        // The issue pane now prints one issue's PEOPLE in the same bands the person
+        // file prints one person's ISSUES in — advanced it / cut against it / ran
+        // both ways / thin / no side read — and the only honest way to do that was
+        // to let it read the formal-pattern index's OWN row rather than characterise
+        // the same record a second time on a second surface. That cost one
+        // extraction and one export, in five spans, and not one of them reads or
+        // writes a floor, a weight, a mapping, a tone or a count:
+        //   · the band table          five ids in a fixed order, two inputs, both
+        //                             lifted off a row this file already built
+        //   · the extracted builder   the per-row body, moved out of the loop whole
+        //   · the loop that calls it   two lines where the body used to be
+        //   · two export lines        rowFor / band / LEDGER_BANDS / TAIL_MIN
+        // THE EXTRACTION IS CHECKED BY RECONSTRUCTION, not excused: HEAD's inline
+        // body, re-indented and with its two exits reshaped from the loop's `return`
+        // and `out.push` to a function's `return null` and `return`, must be the new
+        // function's body line for line. A characterisation quietly rewritten while
+        // being moved would survive the seam and die there.
+        ["  var _FPI_TAIL_MIN = 4;\n",
+         "\n  // The one sentence that keeps this list out of the score,",
+         "the ledger's band table"],
+        ["  function _fpiPublishedRead(r) {\n    if (!r || r.lane === 'exec') return null;\n" +
+         "    var d = null;\n    try { d = _stDisplayTier(r); } catch (e) { d = null; }\n" +
+         "    return (d && d.tier && d.tier !== 'none') ? d : null;\n  }\n",
+         "\n  // \u2500\u2500 THE ROWS \u2500\u2500",
+         "the extracted single-row builder"],
+        ["    (issueRows(pid) || []).forEach(function (r) {\n",
+         "\n    // STRONGEST FIRST, THINNEST LAST",
+         "the loop that now calls it"],
+        ["    formalPatternIndex: {\n      rows: _fpiRows,\n",
+         "\n      html: formalPatternIndexHtml,",
+         "the single-row and band exports"],
+        ["      shape: _fpiShape,\n      TOPS_CAP: _FPI_TOPS_CAP,\n      SPLITS_CAP: _FPI_SPLITS_CAP,\n",
+         "\n      VIEWS: _FPI_VIEW_ORDER,",
+         "the exported fold length"],
       ];
       const carveCJ = (src, side) => {
         let pinned = "", pos = 0;
@@ -1264,6 +1299,64 @@ section("9 · the engines did not move");
         "…and an unread lane no longer says it is loading, or no longer asks for the read");
       ok(!/MIN_|FLOOR|floor|publishable|score|Math\.round/.test(rollup),
         "the empty-roll-up seam reads a floor, a score or a weight — it chooses one word for one empty case");
+
+      // ── seams C-G: the ledger reads the index; it does not read the record ──
+      {
+        const [bands, rowFn, loop, expA, expB] = cb.bodies.slice(2);
+        const strip = (t) => t.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+
+        // THE BAND TABLE IS A TABLE. Five ids, in the clearest-first order the person
+        // file already prints, and the two the reader is owed separately at the end.
+        eq([...bands.matchAll(/^\s*\{ id: '([a-z]+)'/gm)].map((m) => m[1]).join(","),
+          "advanced,against,both,thin,none",
+          "the ledger's bands are not the five names the formal brief already uses, clearest first");
+        eq([...bands.matchAll(/tail: (true|false)/g)].map((m) => m[1]).join(","),
+          "false,false,false,true,true",
+          "the folded tail is no longer exactly the thin and no-side bands");
+        // …and the function over it reads TWO fields of a row this file already built.
+        const fnBand = strip(bands.slice(bands.indexOf("function _fpiLedgerBand")));
+        eq([...new Set([...fnBand.matchAll(/\bx\.([A-Za-z]+)/g)].map((m) => m[1]))].sort().join(","),
+          "tier,tone",
+          "the band decision reads a field of the row other than tier and tone — that is a second characterisation");
+        ok(!/MIN_|FLOOR|floor|publishable|score|weight|Math\.|party|stance/.test(fnBand),
+          "the band decision reads a floor, a weight, a score, a party or a stated position");
+
+        // THE LOOP IS NOW A CALL. Two lines where 142 were, and the sort below it is
+        // outside the seam, so it is pinned by the hash above.
+        eq(strip(loop).split("\n").map((l) => l.trim()).filter(Boolean).join(" "),
+          "(issueRows(pid) || []).forEach(function (r) { var x = _fpiRowFor(r); if (x) out.push(x); });",
+          "the rows loop does something other than call the extracted builder and keep what it returns");
+
+        // AND THE EXTRACTION, BY RECONSTRUCTION. HEAD's inline body, re-indented,
+        // with the loop's two exits reshaped into a function's two exits, is the new
+        // function's body — line for line, comment for comment.
+        const between = (t, a, b) => {
+          const i = t.indexOf(a), j = t.indexOf(b, i < 0 ? 0 : i + a.length);
+          must(i >= 0 && j > i, "the extracted builder no longer reads as written");
+          return t.slice(i + a.length, j);
+        };
+        const flat = (t) => t.split("\n").map((l) => l.trim()).filter(Boolean).join("\n");
+        const wasBody = flat(between(ca.bodies[4], "(issueRows(pid) || []).forEach(function (r) {\n", "\n    });"))
+          .replace("if (!r || !r.key) return;", "if (!r || !r.key) return null;")
+          .replace("if (!t && !refused && held <= 0) return;", "if (!t && !refused && held <= 0) return null;")
+          .replace("out.push({", "return {")
+          .replace(/\}\);$/, "};");
+        const nowBody = flat(between(rowFn, "  function _fpiRowFor(r) {\n", "\n  }"));
+        eq(sha(nowBody), sha(wasBody),
+          "the single-row builder is not HEAD's loop body moved — something in the characterisation, " +
+          "the three rungs, the fail-closed gate or the row model was rewritten on the way out");
+
+        // THE EXPORTS ARE NAMES, not a second engine hung off the index.
+        eq([...expA.matchAll(/^\s*([A-Za-z_]+):/gm)].map((m) => m[1]).join(","),
+          "formalPatternIndex,rows,rowFor,band,LEDGER_BANDS",
+          "the formal-pattern index gained an export other than the single row and its band");
+        eq([...expB.matchAll(/^\s*([A-Za-z_]+):/gm)].map((m) => m[1]).join(","),
+          "shape,TOPS_CAP,SPLITS_CAP,TAIL_MIN",
+          "the second export span moved something other than the fold length");
+        for (const t of [expA, expB])
+          ok(!/function|=>|Math\.|MIN_|FLOOR/.test(strip(t)),
+            "an export line carries logic — these four are references to what the index already holds");
+      }
 
       // APPEND-ONLY. A live rationale belongs to whoever wrote it first (runbook rule
       // 21), so a pass may add entries and may not rewrite one a reader has already been
@@ -1727,13 +1820,22 @@ section("9 · the engines did not move");
         // whole diff as a string and the string is subtracted — what is left must
         // be HEAD, byte for byte. A reordered chip or a reworded pattern would
         // survive TOUCHED and die here.
+        // …AND THAT SUBTRACTION EXPIRED THE DAY THE v104 PASS LANDED. It said "the
+        // working copy is HEAD plus exactly this string", which is a true statement
+        // only while the string is uncommitted; once HEAD carries the mount, HEAD
+        // minus nothing is the working copy and subtracting the call can only
+        // produce a mismatch. The invariant it was protecting is stronger now and is
+        // stated directly: the mount is still there, exactly once, and the rest of
+        // both bodies — the chip order, the characterisation, the counts — is HEAD's
+        // byte for byte, with no licence to move at all. The next pass that needs to
+        // touch these two functions re-opens the subtraction against its own diff.
         const MOUNT = " sliceNoteHtml(pid, sh) +";
         for (const f of ["shapeHeroHtml", "briefBodyHtml"]) {
           const now = B.fns.get(f) || "", was = A.fns.get(f) || "";
           eq(now.split(MOUNT).length, 2,
             `${f}() does not mount the slice note exactly once — one call, or the letterhead and the brief drift into two wordings`);
-          eq(sha(now.replace(MOUNT, "")), sha(was),
-            `${f}() moved something other than the slice-note call — the chip order, the characterisation and the counts in it are HEAD's`);
+          eq(sha(now), sha(was),
+            `${f}() moved at all — the chip order, the characterisation, the counts and the slice mount in it are HEAD's`);
         }
 
         // ── and the sentence itself, locked ─────────────────────────────────────
