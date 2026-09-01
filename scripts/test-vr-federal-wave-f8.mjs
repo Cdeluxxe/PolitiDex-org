@@ -749,10 +749,44 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
   // consistency.js is waived for the same reason as above and on the same terms: section 7
   // has already required its change to be an append inside _DOS_MECH carrying no key of
   // F8's. Everything else must still be byte-identical.
-  const WAIVED = ["consistency.js"];
+  // cmp-data.js joins the waiver on the later-wave terms this file already uses elsewhere,
+  // and for a reason F8 could not have anticipated: a ROSTER wave's entire product is new
+  // identity rows in CMP_DATA. federal_roster_r1_sep2026 admits 315 sitting House members
+  // because the House corpus held 7,298 recorded positions the fail-closed ingest had to
+  // skip for want of a roster slug. Forbidding the file outright would forbid the only
+  // legal way to admit anyone, so what F8 requires instead is stated below and is strictly
+  // stronger than byte-identity would be for its own purposes: the change must be additive,
+  // and no row F8 could have read may have had its judged surface moved.
+  const WAIVED = ["consistency.js", "cmp-data.js"];
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== nowSrc(f); });
   const strayBooted = touched.filter((f) => !WAIVED.includes(f));
   eq(strayBooted.join(", "), "", `F8 changed a booted file (${strayBooted.join(", ")}) — an attribution wave has no business editing the engine or the curated data`);
+
+  // The cmp-data.js waiver, priced. Boot HEAD's copy and the working tree's in two sandboxes
+  // and compare CMP_DATA row by row: every pid F8 could have read must still be present, and
+  // the four judged-surface fields must be untouched. A roster wave may only ADD.
+  {
+    const bootCmp = (src) => {
+      if (src === null) return null;
+      const w = makeSandbox();
+      const c = vm.createContext(w);
+      try { vm.runInContext(src, c, { filename: "cmp-data.js" }); } catch { return null; }
+      return w.CMP_DATA || null;
+    };
+    const before = bootCmp(headSrc("cmp-data.js"));
+    const after = bootCmp(nowSrc("cmp-data.js"));
+    if (ok(!!after, "CMP_DATA does not boot out of the working tree's cmp-data.js")) {
+      if (before) {
+        const gone = Object.keys(before).filter((pid) => !after[pid]);
+        eq(gone.join(", "), "", `a roster wave removed ${gone.length} CMP_DATA row(s) — one person, one current file, but never zero`);
+        const moved = Object.keys(before).filter((pid) => after[pid] && ["score", "kept", "broken", "pending"]
+          .some((k) => JSON.stringify(before[pid][k]) !== JSON.stringify(after[pid][k])));
+        eq(moved.join(", "), "", `a roster wave moved the judged surface of ${moved.length} existing CMP_DATA row(s) — admitting a member is not a rescore`);
+        ok(Object.keys(after).length >= Object.keys(before).length,
+          `CMP_DATA shrank (${Object.keys(before).length} → ${Object.keys(after).length})`);
+      }
+    }
+  }
 
   // And the engine still boots, so the harness is testing a working tree.
   const win = makeSandbox();
@@ -785,7 +819,40 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "scripts/vr-gen-federal-wave-f2-migration.mjs",
     "scripts/vr-gen-federal-wave-f3-migration.mjs",
     "scripts/test-vr-federal-wave-f7.mjs", "scripts/vr-record-corpus.mjs",
-    "scripts/test-vr-federal-wave-f8.mjs"]);
+    "scripts/test-vr-federal-wave-f8.mjs",
+    // cmp-data.js and the two generators below are here on the same later-wave terms as
+    // everything above. A roster wave adds identity rows (priced by the additive check in
+    // section 8), and it grows the member map — which means every generator that froze a
+    // roster list into an APPLIED migration must name the new wave or stop regenerating
+    // byte-identically. F8's own generator is one of them; so is the F1 depth generator,
+    // whose list had already drifted for f6 and f8 before this wave found it. The bytes of
+    // 20261024000000_vr_federal_wave_f8.sql are unchanged, and section 6 proves it.
+    "cmp-data.js",
+    "scripts/vr-gen-federal-wave-f8-migration.mjs",
+    "scripts/vr-gen-federal-depth-migration.mjs",
+    // The rest of federal_roster_r1_sep2026's footprint, on the same later-wave terms and
+    // for the same reason F8 already declares test-vr-federal-wave-f7.mjs: a wave that
+    // widens the roster has to walk back through every earlier wave's harness and make its
+    // guarantee SURVIVE the growth rather than delete it. None of these edits removes an
+    // assertion — each one trades an equality that could only ever hold in its own
+    // pre-merge tree for the substantive thing that equality was standing in for (nobody
+    // lost, nothing reordered, no judged surface on an addition).
+    //   db/share-stances.json is a regenerated whole document like sitemap.xml and
+    // db/share-index.json above. scripts/stance-worklist.mjs is not a wave edit at all: its
+    // --json report crossed 64 KiB when the roster reached 1108 records, exposing a
+    // process.exit()-truncates-a-pipe bug that had been latent since the report existed.
+    // FINANCE_INTEGRITY.md restates its own disclosure denominator, 13-of-800 to 13-of-1108.
+    "db/share-stances.json",
+    "scripts/stance-worklist.mjs",
+    "FINANCE_INTEGRITY.md",
+    "scripts/test-vr-federal-wave-f3.mjs",
+    "scripts/test-vr-federal-wave-f4.mjs",
+    "scripts/test-vr-federal-wave-f5.mjs",
+    "scripts/test-vr-federal-wave-f6.mjs",
+    "scripts/test-vr-federal-wave-f9.mjs",
+    "scripts/test-person-crawl-block.mjs",
+    "scripts/test-identity-integrity.mjs",
+    "scripts/test-depth-no-score-drift.mjs"]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};
     const snapHead = JSON.parse(headSrc("db/share-index.json") || "{}").personRecord || {};

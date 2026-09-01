@@ -476,7 +476,15 @@ function boot(get, label) {
   // H.R. 1069, H.R. 973 or the Boebert amendment would mean a later wave quietly took a
   // wall F5 argued and left standing, which is failure mode 4 arriving through the engine
   // instead of through a migration. Section 8's twin boot below is unwaived either way.
-  const LATER_WAVE_WAIVER = { "consistency.js": "F6 appended eleven curated _DOS_MECH entries (rule 33)" };
+  const LATER_WAVE_WAIVER = {
+    "consistency.js": "F6 appended eleven curated _DOS_MECH entries (rule 33)",
+    // A roster wave admits people by writing identity rows into the roster, so forbidding the
+    // roster file forbids the admission. federal_roster_r1_sep2026 adds 308 of them because
+    // the House corpus held 7,298 recorded positions the fail-closed ingest had to skip for
+    // want of a roster slug. The Direction Match sweep below still holds every profile HEAD
+    // had bit-for-bit, which is what F5 — a wave that writes no row — actually needs.
+    "cmp-data.js": "federal_roster_r1_sep2026 admitted 315 sitting House members as identity-only rows",
+  };
   const F5_REFUSED = ["H.R. 1069", "H.R. 973", "H.R. 8800", "H.Amdt. 245"];
   let touched = [];
   for (const f of FILES) {
@@ -517,7 +525,10 @@ function boot(get, label) {
     const PIDS = Object.keys(head.CMP_DATA || {});
     ok(PIDS.length > 100, `the roster booted (${PIDS.length} profiles)`);
     const nowPids = Object.keys(work.CMP_DATA || {});
-    eq(nowPids.length, PIDS.length, "the roster changed size");
+    // The roster may grow for a later roster wave; it may never shrink, and nobody HEAD had
+    // may vanish. Pinning the count would forbid every future admission.
+    ok(nowPids.length >= PIDS.length, "the roster shrank");
+    eq(PIDS.filter((p) => !work.CMP_DATA[p]).length, 0, "a profile HEAD had is gone from the roster");
 
     // ── THE ATTRIBUTION CEILING ────────────────────────────────────────
     // This wave attributes no vote, so the ceiling is not "did we guess a member" but

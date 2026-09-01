@@ -495,6 +495,46 @@
 // '/' from the network, so the first thing the new worker does is throw the wrong
 // document away. index.html changed too (the guard is in it) and '/' is precached,
 // which is the ordinary reason for a bump as well.
+// v101 - FEDERAL ROSTER WAVE R1, and the reason is compare-hub.js again — this time
+// 315 faces, not two. R1 admits every sitting voting member of the 119th House the
+// roster did not already carry. It has to, because the House corpus already on disk
+// held 7,298 recorded positions with nowhere to go: present in the Clerk's XML, read
+// by the ingest, and dropped, because attribution is fail-closed through
+// db/vr-member-map.json and the map carried 116 of the House's 431 sitting members.
+// Roughly 315 rows on every one of 23 rolls. Widening the roster recovers 7,138 of
+// them; re-reading the documents recovers nothing.
+//   TWO SHIPPED FILES MOVE, AND BOTH ARE RUNTIME ENTRIES RATHER THAN PRECACHED ONES,
+// which is exactly why this bump exists rather than being skippable. compare-hub.js
+// carries BROWSE_PHOTOS and gained 315 portrait URLs. cmp-data.js carries CMP_DATA and
+// gained 308 identity rows — name, office, state with district, party chip, empty issues
+// list, and nothing else. The runtime cache NAME carries CACHE_VERSION, so without a
+// move a warm device keeps serving a photo map with no face for any of them AND a roster
+// with no row for any of them.
+//   The consequence on a warm device is specific and it is worse than a missing face.
+// A pid the app has no CMP_DATA row for is not a member with a blank card; it is a
+// member the browse and compare surfaces cannot name at all, while the database is
+// serving that same pid 7,138 freshly attributed roll-call cells. So a reader following
+// a vote row to a page would land on a formal record attached to nothing — the exact
+// shape of the "record still being built" state, but arrived at by staleness rather
+// than by the publication floor, which is a bug wearing the floor's clothes. With the
+// row present and no portrait, the card falls back to the monogram, which is honest but
+// wrong 315 times over on the two surfaces where faces are how people find anybody.
+//   WHAT THIS BUMP DOES NOT SHIP. No score, no package percentage, no stance, no floor
+// change, no new issue key and no new _DOS_MECH pair: no judged act newly became
+// readable in this wave, so there is no mechanism copy to write. consistency.js is
+// untouched. Direction Match is untouched. Every one of the 308 new files carries score
+// null rather than 0 — a 0 is a claim and null is the absence of one — and sits BELOW
+// the publication floor, so it reads "record still being built" until cited content
+// lands on it. Nothing was marked publishable by hand.
+//   Party is on the bio chip because it is identity: it is what the Clerk's roster and
+// the congress-legislators dataset both print next to the name. It is never a sort and
+// never a score, and no reader copy is generated from it.
+//   db/share-index.json and sitemap.xml are regenerated for the same arithmetic and are
+// neither precached nor versioned here — a formal row may now appear on a newly admitted
+// pid, which is the wave working. /p/lee is byte-identical: a senator cannot move on a
+// House-only wave. The per-person admission ledger, and the written refusals — four
+// vacant seats, six delegates, seven former members the rolls name — are in
+// db/vr-federal-roster-r1-census.json.
 // v100 - THE F9 MECHANISM LINES, and the one row that must never print a
 // direction. Federal wave F9 reads the pool F7 bridged and deliberately left
 // unread: the contested House amendment rolls of the 119th. The census was
@@ -676,7 +716,7 @@
 // saying there is nothing on file. person-file.css ships with its script for the
 // usual reason: the header and kicker it styles are hidden-by-default blocks, and
 // unstyled they are loose text above the fold.
-const CACHE_VERSION = 'v100';
+const CACHE_VERSION = 'v101';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

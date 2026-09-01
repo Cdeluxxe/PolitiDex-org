@@ -260,8 +260,17 @@ if (asJson) {
     unreadable: unreadable.map((r) => ({ pid: r.pid, why: r.unreadable })),
     worklist: work.slice(0, wantPid ? work.length : limit),
   }, null, 2));
-  process.exit(0);
+  // NOT process.exit(0). When stdout is a PIPE, Node's writes are asynchronous, and
+  // process.exit() discards whatever has not drained — so a caller reading this through
+  // execFileSync got a JSON document truncated at the 64 KiB pipe buffer while the same
+  // command redirected to a file looked perfectly fine. That is exactly the failure mode
+  // that hides until the output grows: this report crossed 64 KiB when roster wave
+  // federal_roster_r1_sep2026 admitted 315 sitting House members, and the harness that
+  // parses it started failing on a bug that had been latent all along. Falling off the end
+  // of the module lets the event loop flush the write first.
 }
+
+if (!asJson) {
 
 // ── Report ───────────────────────────────────────────────────────────────────
 const pad = (s, n) => String(s).padEnd(n).slice(0, n);
@@ -341,3 +350,4 @@ console.log("  This list names people and shortfalls. It does not name a positio
 console.log("  or suggest which issue anyone should have word on — picking the issue would be");
 console.log("  picking the answer. Every card that closes a line here needs a real citation.");
 console.log("");
+}

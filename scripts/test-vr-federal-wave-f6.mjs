@@ -667,7 +667,15 @@ function boot(get, label) {
   // OUTSIDE the waiver moved, and the shape of the change is checked only while there
   // is a change to read. The eleven entries themselves are asserted below against the
   // shipped file, which holds either way.
-  const WAIVED = ["consistency.js"];
+  // cmp-data.js joins the waiver because a ROSTER wave's whole product is new identity rows
+  // in it: federal_roster_r1_sep2026 admits 315 sitting House members, because the House
+  // corpus held 7,298 recorded positions the fail-closed ingest had to skip for want of a
+  // roster slug. Forbidding the file outright forbids the only legal way to admit anyone.
+  // The additive price is paid in scripts/test-person-crawl-block.mjs section 9, which pins
+  // the roster row by row against HEAD — nobody dropped, HEAD's order kept, no existing
+  // row's judged surface moved — and the Direction Match sweep below still holds every
+  // profile HEAD had bit-for-bit.
+  const WAIVED = ["consistency.js", "cmp-data.js"];
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== nowSrc(f); });
   const stray = touched.filter((f) => !WAIVED.includes(f));
   eq(stray.join(", "), "",
@@ -735,7 +743,12 @@ function boot(get, label) {
     && ok(!!(work && work.PDXWordAction && work.PDXWordAction.read), "the current engine booted")) {
     const PIDS = Object.keys(head.CMP_DATA || {});
     ok(PIDS.length > 100, `the roster booted (${PIDS.length} profiles)`);
-    eq(Object.keys(work.CMP_DATA || {}).length, PIDS.length, "the roster changed size");
+    // The roster GREW, and that is a later roster wave's product rather than this wave's
+    // drift: everyone HEAD had is still here (checked next), and every one of their Direction
+    // Match figures is held bit-for-bit below, which is what this equality was protecting.
+    // Pinning the count instead would forbid every future admission.
+    ok(Object.keys(work.CMP_DATA || {}).length >= PIDS.length, "the roster shrank");
+    eq(PIDS.filter((p) => !work.CMP_DATA[p]).length, 0, "a profile HEAD had is gone from the roster");
 
     const READ_KEYS = ["pct", "publishable", "word", "testedWeight"];
     const COV_KEYS = ["word", "scorable", "tested", "untested", "issueLinked", "notIssueLinked", "recordDerived", "warming"];
