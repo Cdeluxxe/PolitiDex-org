@@ -495,6 +495,59 @@
 // '/' from the network, so the first thing the new worker does is throw the wrong
 // document away. index.html changed too (the guard is in it) and '/' is precached,
 // which is the ordinary reason for a bump as well.
+// v100 - THE F9 MECHANISM LINES, and the one row that must never print a
+// direction. Federal wave F9 reads the pool F7 bridged and deliberately left
+// unread: the contested House amendment rolls of the 119th. The census was
+// rebuilt rather than inherited and came back at 51 rather than F7's 54; of
+// those, 38 are refused in writing because a FAILED House amendment's operative
+// text is published nowhere this corpus can reach, and seven are admitted on
+// text read out of the parent bill's engrossed copy section by section. The
+// ingest, the seven measures and the seven issue rows are database-side and bump
+// nothing on their own. What is client-side is consistency.js: _DOS_MECH gained
+// seven curated pairs, keyed 'H.Amdt. NN|119|<key>'.
+//   The warm-device combination worth avoiding is specific. Six of the seven
+// pairs sit on keys that print a direction (lgbtq_rights, climate_action,
+// tough_on_crime), and every one of those six reads AGAINST the key on a yea
+// while its parent bill is the annual defense authorization or the farm bill. On
+// a device holding v99's consistency.js those rows arrive with the derived
+// restatement beside them — "counted on this chip because that is the primary
+// subject of this measure" — on a face whose only other text is "On Agreeing to
+// the Amendment" and a number. A reader seeing an NDAA amendment counted against
+// a civil rights chip with no words explaining the reading has been handed the
+// restuffing question and no answer to it. The curated pairs answer it: each
+// 'did' names the vehicle, each 'why' argues from the amendment's own section,
+// and each 'more' records the engrossed section it was read at and the keys that
+// were considered and declined.
+//   The seventh is the reason a bump and not a note: H.Amdt. 196 is filed on
+// states_federal_power, which sits in _RD_NO_POLE, so the row is inventory and
+// renders no direction at all. Its curated pair is the only text on the face
+// saying so. A 280-142 vote showing up with no stance and no explanation reads
+// as a bug, and it is the widest margin in the wave — the row most likely to be
+// looked at.
+//   THE SECOND SHIPPED FILE IS NOT A SCRIPT, and no version here reaches it.
+// db/share-index.json is regenerated in this wave: it carries personRecord, the
+// up-to-six formal-record lines the share-preview edge injects as the crawl block
+// on /p/<pid> before any JavaScript boots, and gen-crawl-record.mjs builds it by
+// booting the real consistency.js over the migrations on disk. So seven new judged
+// acts re-rank that window whether or not anyone regenerates the file. They move
+// 100 of the 332 people who have a block, every one of them a House member, and
+// the lines gained carry only the three chips this wave argues a direction on —
+// /p/bmoore's block gains "Strongly supports · Tough on Crime · 9 advanced · 0
+// against" and drops Expand Voting Access out of the six, while /p/lee's six lines
+// are byte-identical because a senator cannot move on a House-only wave.
+// states_federal_power gains no line at all, which is _RD_NO_POLE working. It is
+// not a precached shell asset and no service worker version can invalidate it; it
+// is named here because this bump is the only place the two shipped artifacts are
+// listed together, and the mapping seed's theOfflineSnapshotThisWaveAlsoMoves says
+// what a stale copy would serve. sitemap.xml is regenerated for the same
+// arithmetic — seven openable /b/119/H.Amdt. addresses — and is neither cached nor
+// versioned here.
+//   No floor, tier, weight, score or verdict moved, and no existing cell was
+// rewritten. consistency.js and db/share-index.json are the shipped files:
+// everything else in the wave is a migration, a census script, two seeds, a
+// sitemap and a harness. The append is append-only and nothing above the
+// _DOS_MECH literal changed, which the wave harness asserts by diffing the file's
+// two halves separately.
 // v99 - FEDERAL WAVE F8, and the reason is compare-hub.js. It carries
 // BROWSE_PHOTOS and gained two portraits — Cindy Hyde-Smith and Alan Armstrong,
 // the senators the wave admitted so their Senate votes could be attributed at all.
@@ -623,7 +676,7 @@
 // saying there is nothing on file. person-file.css ships with its script for the
 // usual reason: the header and kicker it styles are hidden-by-default blocks, and
 // unstyled they are loose text above the fold.
-const CACHE_VERSION = 'v99';
+const CACHE_VERSION = 'v100';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

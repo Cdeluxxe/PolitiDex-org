@@ -838,9 +838,19 @@ function boot(get, label) {
       eq(mb.after, ma.after, "consistency.js changed below _DOS_MECH — the waiver is for curated prose, not for the renderer");
       ok(mb.map.startsWith(ma.map.replace(/\n?$/, "")),
         "an existing _DOS_MECH entry was edited — this wave only appends, because rule 21 leaves a live rationale with its first writer");
-      const added = [...mb.map.slice(ma.map.length).matchAll(/'((?:H\.R\.|S\.J\.Res\.|H\.Amdt\.) \d+)\|119\|([a-z_]+)':/g)]
+      // This counted F7's twenty-eight as the DIFF from HEAD, which was true while F7 was
+      // the uncommitted wave and became untrue the moment a later wave appended: F9 adds
+      // seven amendment pairs, so the diff is seven and F7's own twenty-eight are now
+      // inside HEAD's copy. The block below already requires all twenty-eight to be
+      // present in the shipped file without reference to HEAD, which is the claim that
+      // actually matters. What is checked here is the narrower thing the diff can still
+      // prove: whatever was appended after HEAD belongs to some OTHER wave, so nothing
+      // re-wrote or re-added one of F7's pairs.
+      const added = [...mb.map.slice(ma.map.length).matchAll(/'([^'|]+)\|119\|([a-z_]+)':/g)]
         .map((m) => `${m[1]}|${m[2]}`);
-      eq(added.length, 28, "the number of appended mechanism entries is not the twenty-eight judged acts this wave creates");
+      const mine = new Set((decide.measures || []).flatMap((m) => (m.issues || []).map((i) => `${m.number}|${i.issueKey}`)));
+      for (const a2 of added)
+        ok(!mine.has(a2), `${a2} is one of F7's own pairs and was appended again after HEAD — rule 21 leaves a live rationale with its first writer`);
     }
   }
   {

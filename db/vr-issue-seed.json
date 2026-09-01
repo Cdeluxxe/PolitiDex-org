@@ -3532,6 +3532,139 @@
           "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/99"
         }
       ]
+    },
+    {
+      "_comment": "Federal wave F9 · house 119/1/246 · On Agreeing to the Amendment · 221-207 · admitted as exception: amendment. Mirrors the issue rows in netlify/database/migrations/20261025000000_vr_federal_wave_f9.sql; the rebuilt 51-roll contested pool, the 44 refusals in writing, the ten keys declined inside admitted measures and the operative text each mapping was read at are in db/vr-federal-mapping-seed-f9.json. The parent bill is a vehicle and carries no row from this wave.",
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 86",
+      "shortTitle": "Mace amendment to H.R. 3838 barring TRICARE coverage of gender-related medical treatment",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/86",
+      "issues": [
+        {
+          "issueKey": "lgbtq_rights",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "The amendment's operative text is one section and one subject. SEC. 713 of the engrossed bill inserts a new section 1076g of title 10 barring coverage of gender-related medical treatment under TRICARE, with narrow exceptions for a disorder of sex development. issue-scope.js puts this inside lgbtq_rights in as many words: the key covers legal recognition and protection on the basis of sexual orientation and gender identity, and the first item on its own list of what is inside is transition-related care and coverage. Coverage is the whole of what this text changes, so the weight is 100 and the row is primary. The direction is read off the operative provision rather than off the sponsor's purpose, which is what the key's own note requires: the text subtracts a protection, so a yea runs AGAINST the key's direction. Nothing here is inferred from the amendment's title.",
+          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/86"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F9 · house 119/1/248 · On Agreeing to the Amendment · 221-210 · admitted as exception: amendment. Mirrors the issue rows in netlify/database/migrations/20261025000000_vr_federal_wave_f9.sql; the rebuilt 51-roll contested pool, the 44 refusals in writing, the ten keys declined inside admitted measures and the operative text each mapping was read at are in db/vr-federal-mapping-seed-f9.json. The parent bill is a vehicle and carries no row from this wave.",
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 88",
+      "shortTitle": "Mace amendment to H.R. 3838 barring gender identity questions on Defense Department forms and surveys",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/88",
+      "issues": [
+        {
+          "issueKey": "lgbtq_rights",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "SEC. 599A of the engrossed bill bars the Secretary of Defense from soliciting or obtaining any information about an individual's gender identity on a departmental form or survey, bars offering any sex or gender option other than male or female, requires a non-conforming answer to be rejected, and then writes male, female, gender and gender identity into statutory definitions that hold gender identity is not sex or gender. That is the affirmation limb of lgbtq_rights as issue-scope.js states it -- pronoun and affirmation duties, inside a key whose subject is legal recognition on the basis of gender identity. A statutory instruction that a person's answer about themselves must be rejected is a recognition question and it is the entire text, so the weight is 100 and the row is primary. A yea subtracts recognition, so it runs AGAINST the key's direction.",
+          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/88"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F9 · house 119/1/249 · On Agreeing to the Amendment · 219-209 · admitted as exception: amendment. Mirrors the issue rows in netlify/database/migrations/20261025000000_vr_federal_wave_f9.sql; the rebuilt 51-roll contested pool, the 44 refusals in writing, the ten keys declined inside admitted measures and the operative text each mapping was read at are in db/vr-federal-mapping-seed-f9.json. The parent bill is a vehicle and carries no row from this wave.",
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 89",
+      "shortTitle": "Mace amendment to H.R. 3838 restricting single-sex facilities on military installations to a person's sex",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/89",
+      "issues": [
+        {
+          "issueKey": "lgbtq_rights",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "SEC. 2839 of the engrossed bill bars any person from accessing or using a single-sex facility on a military installation that does not correspond to their sex, with exceptions only for emergency medical personnel, law enforcement in active pursuit, and a case-by-case national security waiver, and defines male and female by reproductive anatomy. issue-scope.js lists custody and housing assignment and participation rules inside lgbtq_rights, and an access rule for single-sex facilities is that question on a military installation. The facility rule is the whole text, so the weight is 100 and the row is primary. A yea subtracts a protection, so it runs AGAINST the key's direction. The installation is the venue, not the subject -- the same rule written for any other federal facility would land on the same key.",
+          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/89"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F9 · house 119/1/251 · On Agreeing to the Amendment · 224-208 · admitted as exception: amendment. Mirrors the issue rows in netlify/database/migrations/20261025000000_vr_federal_wave_f9.sql; the rebuilt 51-roll contested pool, the 44 refusals in writing, the ten keys declined inside admitted measures and the operative text each mapping was read at are in db/vr-federal-mapping-seed-f9.json. The parent bill is a vehicle and carries no row from this wave.",
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 79",
+      "shortTitle": "Patronis amendment to H.R. 3838 repealing the Defense Department preference for electric and hybrid vehicles",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/79",
+      "issues": [
+        {
+          "issueKey": "climate_action",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "SEC. 324 of the engrossed bill strikes paragraphs (4) and (10) of 10 U.S.C. 2911(e) and repeals section 2922g outright, eliminating the Department of Defense's preference for motor vehicles using electric or hybrid propulsion systems and the requirements attached to it. climate_action's written scope is programmes, subsidies and rules that cut emissions AND THEIR REPEAL, and it names emission-reducing equipment credits and procurement among the things inside. A statutory procurement preference for electric and hybrid vehicles is an emission-reducing procurement rule; this text repeals it. That is the whole of the section, so the weight is 100 and the row is primary, and a yea repealed an emissions-reducing rule, which the key's own polarity line calls AGAINST.",
+          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/79"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F9 · house 119/1/252 · On Agreeing to the Amendment · 228-205 · admitted as exception: amendment. Mirrors the issue rows in netlify/database/migrations/20261025000000_vr_federal_wave_f9.sql; the rebuilt 51-roll contested pool, the 44 refusals in writing, the ten keys declined inside admitted measures and the operative text each mapping was read at are in db/vr-federal-mapping-seed-f9.json. The parent bill is a vehicle and carries no row from this wave.",
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 81",
+      "shortTitle": "Wilson amendment to H.R. 3838 raising the penalty for unlawful entry on a military installation to two years",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/81",
+      "issues": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "SEC. 1733G of the engrossed bill does three things and all three are criminal exposure: it raises the maximum term under 18 U.S.C. 1382 for unlawful entry on a military installation from six months to two years, adds that the offense is a general intent crime, and creates a new offense at 50 U.S.C. 797(b) punishable by up to two years for violating a security regulation governing a national defense area. tough_on_crime's written scope is criminal exposure and time served, and it names offense elements and offense levels first. A general intent designation is an offense element; a six-months-to-two-years change is an offense level; a new two-year offense is both. There is nothing else in the section, so the weight is 100 and the row is primary, and a yea increased exposure to punishment, which is ADVANCED on this key -- the only direction any instrument on file for it runs.",
+          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/81"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F9 · house 119/2/148 · On Agreeing to the Amendment · 280-142 · admitted as exception: amendment. Mirrors the issue rows in netlify/database/migrations/20261025000000_vr_federal_wave_f9.sql; the rebuilt 51-roll contested pool, the 44 refusals in writing, the ten keys declined inside admitted measures and the operative text each mapping was read at are in db/vr-federal-mapping-seed-f9.json. The parent bill is a vehicle and carries no row from this wave.",
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 196",
+      "shortTitle": "Luna amendment to H.R. 7567 striking the bill's three pesticide preemption sections",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/196",
+      "issues": [
+        {
+          "issueKey": "states_federal_power",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports",
+          "rationale": "This amendment strikes text rather than inserting it, so it was read as a set difference: SEC. 10205 (uniformity of pesticide labeling requirements), SEC. 10206 (authority of states) and SEC. 10207 (lawful use of authorized pesticides) are present in the as-reported bill and absent from the engrossed bill. All three are preemption provisions. 10205 would have barred a state, a political subdivision or a court from imposing any pesticide labelling requirement in addition to or different from the EPA-approved label; 10206 would have barred a locality from regulating pesticide sale, distribution, labelling, application or use at all; 10207 would have declared label-consistent use lawful notwithstanding any other provision of law. Striking them leaves state and local authority where it stood. issue-scope.js defines states_federal_power as the preemption question ONLY -- when federal and state authority reach the same subject, whose rule governs -- and that is exactly and only what these three struck sections decided. The weight is 100 and the row is primary. states_federal_power sits in _RD_NO_POLE in stance-helpers.js and carries no pole field in issue-scope.js, so this row is INVENTORY: the reader is told the member voted on a preemption instrument and is told nothing about a direction, which is right, because wanting the state's rule to govern is a position held from both ends of the political field.",
+          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/196"
+        }
+      ]
+    },
+    {
+      "_comment": "Federal wave F9 · house 119/2/152 · On Agreeing to the Amendment · 215-213 · admitted as exception: amendment. Mirrors the issue rows in netlify/database/migrations/20261025000000_vr_federal_wave_f9.sql; the rebuilt 51-roll contested pool, the 44 refusals in writing, the ten keys declined inside admitted measures and the operative text each mapping was read at are in db/vr-federal-mapping-seed-f9.json. The parent bill is a vehicle and carries no row from this wave.",
+      "measureType": "amendment",
+      "congress": 119,
+      "chamber": "house",
+      "number": "H.Amdt. 207",
+      "shortTitle": "Spartz amendment to H.R. 7567 exempting farm equipment from Clean Air Act emission standards",
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/207",
+      "issues": [
+        {
+          "issueKey": "climate_action",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes",
+          "rationale": "SEC. 12422 of the engrossed bill amends section 213 of the Clean Air Act (42 U.S.C. 7547) to exempt agricultural tractors and self-propelled agricultural equipment used to spray, fertilize or harvest covered commodities from the emission standards that section sets, new and in use. climate_action's written scope opens with programmes, subsidies and RULES that cut emissions, and their repeal. A Clean Air Act emission standard is such a rule and this text switches it off for a class of equipment, so the weight is 100 and the row is primary. A yea narrowed an emissions-reducing rule, which the key's own polarity line calls AGAINST. The commodity the equipment is used on is not the subject: the operative words amend the Clean Air Act, not the farm programme.",
+          "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/207"
+        }
+      ]
     }
   ],
   "_phase12_overlap_priority": {
