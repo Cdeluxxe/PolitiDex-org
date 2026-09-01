@@ -727,7 +727,19 @@
 // It also carries the mullin office correction: an unbumped device would keep showing
 // "U.S. Senator · Oklahoma" for a seat Alan Armstrong now holds, i.e. three sitting
 // senators in one state, which is precisely the contradiction the wave fixed.
-const CACHE_VERSION = 'v102';
+// v103 - PERSON-FILE CHROME, and the reason is four shell modules at once. All
+// four are cached copies on a returning device:
+// person-file.js (the unknown-pid notice now waits for the roster wait it was
+// outrunning, and the tab + trail follow the person a file was opened for),
+// profiles-full.js and stance-helpers.js (the mid-page record CTA no longer
+// says "still being built" over a formal record it had not finished reading),
+// and consistency.js (an empty Official Record roll-up says "No stated position
+// to test" instead of borrowing the wording of missing votes). Without the bump
+// a warm device keeps serving the old copies from the shell cache for the whole
+// of the next load, so the returning reader — the reader most likely to hit the
+// cold /p/ path from a bookmark — would still be told we do not carry a person
+// whose row is sitting in the very same cached cmp-data.js.
+const CACHE_VERSION = 'v103';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

@@ -3776,7 +3776,53 @@
       var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
       if (FPI && typeof FPI.count === 'function') formal = FPI.count(id) || 0;
     } catch (e) { formal = 0; }
-    return { tracked: tracked, withEvidence: withEv, gaps: gaps, formal: formal };
+    // ── AND HOW MANY ACTS THOSE ISSUES ARE MADE OF ──────────────────────────
+    // `formal` counts ISSUE ROWS. That is the right number for a label, and the
+    // wrong number for the question "do we hold a formal record for this person
+    // at all" — which is the question the CTA above it answers with the words
+    // "still being built". A file whose own letterhead read "11 issues · 23 acts
+    // · 3 characterized" printed that phrase mid-page, because the CTA renders
+    // before the roll-call cache warms and the letterhead repaints after it, so
+    // the two surfaces were reading the same record at two different times and
+    // only one of them was honest about it. Three reads, cheapest first, none of
+    // them new work and none of them network:
+    //
+    //   · the index's own SHAPE (memoised beside the count it already asked for)
+    //     — acts, not issues;
+    //   · the EDGE'S FIRST-BYTE BRIEF, via PDXPerson.crawlRecord. On a cold
+    //     arrival this is the only place the formal record exists yet, and it is
+    //     the very surface the reader can see while the CTA is claiming there is
+    //     nothing to see. Identity-guarded and six-row capped at its source;
+    //   · whether the roll-call lane has ANSWERED for this person yet, so
+    //     "we hold nothing" can be told apart from "we have not looked".
+    //
+    // Nothing here is a tier, a score, a floor or a characterisation: it is a
+    // count of acts and a boolean about load state.
+    var formalActs = 0, formalRead = false;
+    try {
+      var FPI2 = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      if (FPI2 && typeof FPI2.shape === 'function') {
+        var shp = FPI2.shape(id);
+        if (shp) {
+          formalActs = shp.judged || 0;
+          if (!formal) formal = shp.issues || 0;
+        }
+      }
+    } catch (e) { formalActs = 0; }
+    try {
+      var PF = window.PDXPerson;
+      if (!formalActs && PF && typeof PF.crawlRecord === 'function') {
+        formalActs = (PF.crawlRecord(id) || []).length;
+      }
+    } catch (e) {}
+    try {
+      var VR = window.PDXVotingRecord;
+      formalRead = !!(VR && typeof VR.memberRecords === 'function' && VR.memberRecords(id));
+    } catch (e) { formalRead = false; }
+    return {
+      tracked: tracked, withEvidence: withEv, gaps: gaps, formal: formal,
+      formalActs: formalActs, formalRead: formalRead
+    };
   }
   window._pdxStanceRecordStats = _pdxStanceRecordStats;
 

@@ -51,6 +51,8 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { CJ_SEAMS, SH_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam }
+  from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -842,11 +844,30 @@ function boot(get, label) {
   // the roster row by row against HEAD — nobody dropped, HEAD's order kept, no existing
   // row's judged surface moved — and the Direction Match sweep below still holds every
   // profile HEAD had bit-for-bit.
-  const WAIVED = ["consistency.js", "cmp-data.js"];
+  // stance-helpers.js joins the waiver for the person-file chrome pass (v103), and it
+  // is a SEAM, not a licence: the file is still compared byte for byte everywhere
+  // outside _pdxStanceRecordStats, and what changed inside that span is argued below
+  // rather than excused. The span used to count formal ISSUE ROWS out of an index
+  // that is empty until the roll-call cache warms, which is how the mid-page card
+  // came to call a record "still being built" underneath a letterhead counting 23
+  // acts. It now also reports the act count and whether the lane has answered.
+  // No wave input is in there — no floor, no mapping, no weight, no score.
+  const WAIVED = ["consistency.js", "cmp-data.js", "stance-helpers.js"];
+  // The seam arguments below want a substring assertion; these suites carry ok/eq only.
+  const has = (s, n, m) => ok(String(s).includes(n), `${m} — missing ${JSON.stringify(n)}`);
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== nowSrc(f); });
   const stray = touched.filter((f) => !WAIVED.includes(f));
   eq(stray.join(", "), "",
     `F7 changed a booted file outside its declared waiver (${stray.join(", ")}) — a data wave has no business editing the engine`);
+
+  if (touched.includes("stance-helpers.js")) {
+    const sa = carveSeams(headSrc("stance-helpers.js"), SH_SEAMS, "HEAD", "stance-helpers.js", ok);
+    const sb = carveSeams(nowSrc("stance-helpers.js"), SH_SEAMS, "now", "stance-helpers.js", ok);
+    eq(sb.pinned, sa.pinned,
+      "stance-helpers.js changed outside the record-CTA stats seam — the stance resolver this " +
+      "whole profile is built from is not a chrome pass's to touch");
+    assertStanceHelpersSeam(sb.bodies, { has, ok });
+  }
   if (touched.includes("consistency.js")) {
     const a = headSrc("consistency.js"), b = nowSrc("consistency.js");
     const mech = (src) => {
@@ -856,7 +877,16 @@ function boot(get, label) {
     };
     const ma = mech(a), mb = mech(b);
     if (ok(!!ma && !!mb, "_DOS_MECH is not locatable in consistency.js on both sides")) {
-      eq(mb.before, ma.before, "consistency.js changed above _DOS_MECH — the waiver is for curated prose, not for the engine");
+      // ABOVE _DOS_MECH, WITH TWO NAMED SEAMS. The person-file chrome pass (v103)
+      // edited the official scope's empty COPY and the token ladder that chooses it,
+      // both of which sit above the mechanism map. A flat byte compare here would
+      // forbid a copy fix this suite has no stake in, so the two spans are cut by
+      // anchors unique on both sides, the remainder is compared byte for byte, and
+      // what is inside the spans is argued: no floor, no band, no weight, no score.
+      const ca = carveSeams(ma.before, CJ_SEAMS, "HEAD", "consistency.js", ok);
+      const cb = carveSeams(mb.before, CJ_SEAMS, "now", "consistency.js", ok);
+      eq(cb.pinned, ca.pinned, "consistency.js changed above _DOS_MECH outside the two named v103 copy seams — the waiver is for curated prose, not for the engine");
+      assertConsistencySeams(cb.bodies, { has, ok });
       eq(mb.after, ma.after, "consistency.js changed below _DOS_MECH — the waiver is for curated prose, not for the renderer");
       ok(mb.map.startsWith(ma.map.replace(/\n?$/, "")),
         "an existing _DOS_MECH entry was edited — this wave only appends, because rule 21 leaves a live rationale with its first writer");

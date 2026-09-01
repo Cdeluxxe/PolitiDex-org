@@ -62,6 +62,8 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { CJ_SEAMS, SH_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam }
+  from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -810,11 +812,25 @@ const swNote = swWaveNote();
   // identity rows; test-vr-federal-wave-f8.mjs section 8 prices that change as additive and
   // proves no existing row's judged surface moved, and the DM checks in this file already
   // prove the engine reads it the same way.
-  const MAY_MOVE = ["consistency.js", "cmp-data.js"];
+  // stance-helpers.js is on the allowed side for the person-file chrome pass (v103), as a
+  // SEAM and not a licence: the file is still compared byte for byte everywhere outside
+  // _pdxStanceRecordStats, and what changed inside that span is argued below. F9 has no
+  // stake in it — the span counts rows the record lane already holds and answers whether
+  // the lane has answered at all. No floor, no mapping, no weight, no roll.
+  const MAY_MOVE = ["consistency.js", "cmp-data.js", "stance-helpers.js"];
+  const has = (x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`);
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== R(f); });
   const strayBooted = touched.filter((f) => !MAY_MOVE.includes(f));
   eq(strayBooted.join(", "), "",
     `F9 changed a booted file it has no business editing (${strayBooted.join(", ") || "none"})`);
+  if (touched.includes("stance-helpers.js")) {
+    const sa = carveSeams(headSrc("stance-helpers.js"), SH_SEAMS, "HEAD", "stance-helpers.js", ok);
+    const sb = carveSeams(R("stance-helpers.js"), SH_SEAMS, "now", "stance-helpers.js", ok);
+    eq(sb.pinned, sa.pinned,
+      "stance-helpers.js changed outside the record-CTA stats seam — the stance resolver the " +
+      "whole profile is built from is not a chrome pass's to touch");
+    assertStanceHelpersSeam(sb.bodies, { has, ok });
+  }
   if (f9Unmerged) {
     ok(touched.includes("consistency.js"),
       "consistency.js is byte-identical to HEAD, though this wave owes seven judged acts seven curated pairs");
@@ -838,7 +854,17 @@ const swNote = swWaveNote();
     };
     const [hBefore, hLit, hAfter] = cut(head);
     const [nBefore, nLit, nAfter] = cut(R("consistency.js"));
-    eq(nBefore, hBefore, "consistency.js changed ABOVE the _DOS_MECH literal");
+    // ABOVE THE LITERAL, WITH TWO NAMED SEAMS. The person-file chrome pass renamed the
+    // official scope's empty copy and split an empty key list from an empty voting record
+    // in the ladder that chooses it — both above the literal, neither arithmetic. A flat
+    // byte compare would forbid a copy fix this wave has no stake in, so the two spans are
+    // cut by anchors unique on both sides, the remainder is compared byte for byte, and
+    // what is inside is argued: no floor, no band, no weight, no score, no key.
+    const ca = carveSeams(hBefore, CJ_SEAMS, "HEAD", "consistency.js", ok);
+    const cb = carveSeams(nBefore, CJ_SEAMS, "now", "consistency.js", ok);
+    eq(cb.pinned, ca.pinned,
+      "consistency.js changed ABOVE the _DOS_MECH literal outside the two named v103 copy seams");
+    assertConsistencySeams(cb.bodies, { has, ok });
     eq(nAfter, hAfter, "consistency.js changed BELOW the _DOS_MECH literal");
     ok(nLit.startsWith(hLit.replace(/\s*\}\s*$/, "").replace(/\}$/, "")) || nLit.startsWith(hLit.slice(0, hLit.length - 5)),
       "the _DOS_MECH literal was rewritten rather than appended to");
@@ -917,13 +943,32 @@ const swNote = swWaveNote();
     // rules picked up susie_lee's already-stored veterans receipt once she had a roster row
     // to be selected from. Neither is a judgement and neither touches F9's rows.
     "scripts/test-vr-federal-roster-r1.mjs",
+    "scripts/test-vr-federal-roster-r2.mjs",
     "hero-receipt-data.js",
     // scripts/test-who-represents-me.mjs on the same terms. It hard-stopped on its own
     // instruction once R2 closed the last two partial-Senate states (MS, OH): its
     // partial-coverage assertions had nothing left to measure. They were not deleted —
     // the shipped-data count is now asserted as full coverage, and the one-seat behaviour
     // is driven against a roster built from real records instead.
-    "scripts/test-who-represents-me.mjs"]);
+    "scripts/test-who-represents-me.mjs",
+    // The person-file chrome pass (CACHE_VERSION v103), on those same later-wave terms.
+    // It writes no roll, no mapping, no key and no admission — it changes what the
+    // reader is told while the roster is still loading. person-file.js stopped claiming
+    // we carry nobody by a name whose row is in the cmp-data.js it is reading, and kept
+    // document.title and the breadcrumb on the person whose file is open.
+    // profiles-full.js and stance-helpers.js stopped letting the mid-page card call a
+    // record "still being built" underneath a letterhead counting its acts. The two
+    // harnesses named here pinned the arrival poll's exit as a literal; that exit was
+    // funnelled through a single stopWait() so the unknown-pid notice could be gated on
+    // the wait, and both pins follow the spelling while keeping the behaviour.
+    "person-file.js",
+    "profiles-full.js",
+    "stance-helpers.js",
+    "sw.js",
+    "scripts/test-vr-federal-wave-f7.mjs",
+    "scripts/test-vr-federal-wave-f8.mjs",
+    "scripts/test-person-file-perf.mjs",
+    "scripts/test-seed-yields-to-record.mjs"]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
   const modified = porcelain.split("\n").filter((l) => /^ ?M/.test(l)).map((l) => l.slice(3).trim());

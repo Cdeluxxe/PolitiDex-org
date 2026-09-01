@@ -525,8 +525,13 @@ section("9 · the roster poll does not spin the tab");
   has(PF, "var MAX_TRIES", "person-file.js's roster poll has no retry cap");
   has(PF, "var STEP_MAX", "…and no ceiling on its backoff");
   has(PF, "Math.pow(STEP_GROW, tries)", "…and the gap between attempts does not grow");
-  has(PF, "if (window._pdxCurrentProfileId) { _adoptSettled = true; return; }",
+  // Same rename as in test-person-file-perf.mjs: the poll's exits were funnelled
+  // through stopWait() in v103 so the unknown-pid notice could be gated on the
+  // wait still being open. _adoptSettled is still what ends the poll.
+  has(PF, "if (window._pdxCurrentProfileId) { stopWait(); return; }",
     "…and it does not stop when a file is already named");
+  ok(/function stopWait\(\)\s*\{[^}]*_adoptSettled = true/.test(PF),
+    "…and its single exit no longer settles the poll");
   // The cached roster scan: bySlug walks both rosters and slugs every name in
   // them, which is what made each tick expensive.
   has(PF, "_slugCache", "bySlug is not memoised, so every poll tick rescans both rosters");

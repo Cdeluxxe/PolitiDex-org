@@ -32,6 +32,8 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { execFileSync } from "node:child_process";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { CJ_SEAMS, SH_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam }
+  from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -436,9 +438,29 @@ section("6 · no Direction Match drift — twin boot, HEAD against this tree");
   const work = boot((f) => R(f));
 
   // ONLY cmp-data.js may differ. A roster wave has no business in the engine.
+  // ── TWO SEAMED FILES, NOT TWO WAIVERS ──────────────────────────────────────
+  // The person-file chrome pass (CACHE_VERSION v103) edited consistency.js above
+  // _DOS_MECH and stance-helpers.js inside _pdxStanceRecordStats. A roster wave has
+  // no stake in either span — no floor, no mapping, no weight, no score, no
+  // admission is read or written inside them — but it has every stake in the rest of
+  // both files, so each is cut at anchors unique on both sides, the remainder is
+  // compared byte for byte, and the spans are argued rather than excused. The
+  // Direction Match sweep below is the real proof either way: it reads every profile
+  // HEAD had and requires the numbers to be identical.
+  const V103 = ["consistency.js", "stance-helpers.js"];
+  const has = (x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`);
+  const seamCheck = (f, seams, argue) => {
+    const h = headSrc(f);
+    if (h === null || h === R(f)) return;
+    const a = carveSeams(h, seams, "HEAD", f, ok), b = carveSeams(R(f), seams, "now", f, ok);
+    eq(b.pinned, a.pinned, `${f} changed outside its named v103 seam — a roster wave admits identity, and this pass touched copy`);
+    argue(b.bodies, { has, ok });
+  };
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== R(f); });
-  eq(touched.join(", "), "cmp-data.js",
+  eq(touched.filter((f) => !V103.includes(f)).join(", "), "cmp-data.js",
     "a roster wave changed a booted file other than the roster — identity is the only thing it admits");
+  seamCheck("consistency.js", CJ_SEAMS, assertConsistencySeams);
+  seamCheck("stance-helpers.js", SH_SEAMS, assertStanceHelpersSeam);
 
   if (ok(!!(head.PDXWordAction && head.PDXWordAction.read), "the pre-wave engine did not boot from HEAD (skipping the sweep)")
     && ok(!!(work.PDXWordAction && work.PDXWordAction.read), "the current engine did not boot")) {
