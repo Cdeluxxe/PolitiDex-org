@@ -831,18 +831,49 @@ eq(badSen.length, 0,
   '    strings contain the word "Senate", so the federal match only holds because it rules the state\n' +
   '    seats out first: ' + JSON.stringify(badSen));
 
-// Partial senate coverage is a real state of the shipped data, not a hypothetical.
-// It must resolve what it has and blank the rest — never pad to two.
+// Partial Senate coverage WAS a real state of the shipped data, and the resolver's job
+// there is to answer what it has and blank the rest — never pad to two, never call one
+// seat ambiguous. It is no longer a real state of the shipped data: federal roster wave
+// R2 admitted Mississippi's Hyde-Smith and Ohio's Husted, the last two states resolving
+// a single seat, so every state now resolves both.
+//
+// This harness used to hard-stop here and say so, with the instruction to delete the
+// assertions below rather than let them pass on nothing. Deleting them would retire the
+// behaviour instead of the vacuous measurement, and the behaviour is one roster gap away
+// from mattering again — a resignation, a death, a state whose first senator we admit.
+// So the shipped-data count is asserted as the good news it is, and the behaviour is
+// DRIVEN, against a one-seat roster built from real office strings lifted out of
+// cmp-data.js. That way the synthetic case cannot drift away from the shape the shipped
+// data would actually take, which is the failure mode of a hand-written fixture.
 const onlyOne = STATES.filter((s) => SW_BY_STATE[s].senators.length === 1);
-must(onlyOne.length > 0,
-  'no state has partial Senate coverage any more — the partial-coverage assertions below are vacuous\n' +
-  '    (this is good news; delete them rather than let them pass on nothing)');
-for (const s of onlyOne) {
-  eq(SW_BY_STATE[s].ambiguous, false,
-    `coverage: ${s} holds one senator and the resolver called that ambiguous, which throws away the\n` +
-    '    seat it does have — ambiguity is having too MANY claimants, not too few');
-  ok(!!SW_BY_STATE[s].governor,
-    `coverage: ${s} lost its Governor along with its second senator — the seats resolve independently`);
+eq(onlyOne.length, 0,
+  'coverage: a state resolves exactly one U.S. Senate seat. That is not a failure by itself — the\n' +
+  '    resolver is required (just below) to answer the seat it has — but it is a coverage gap the\n' +
+  '    roster closed, and it reopening is worth reading in a diff: ' + JSON.stringify(onlyOne));
+{
+  // One senator and one governor, both real records, filed under whatever office strings
+  // the shipped roster actually gives them.
+  const donor = 'Wyoming';
+  const keepSen = SW_BY_STATE[donor].senators[0];
+  const gov = SW_BY_STATE[donor].governor;
+  must(!!keepSen && !!gov && SW_BY_STATE[donor].senators.length === 2,
+    `${donor} no longer resolves two senators and a governor, so the one-seat case below is built\n` +
+    '    from nothing — pick another donor state');
+  const ctx = { console, Math, JSON, String, Array, Object, Number, Boolean, RegExp };
+  ctx.CMP_DATA = { [keepSen]: realCtx.CMP_DATA[keepSen], [gov]: realCtx.CMP_DATA[gov] };
+  ctx.window = ctx; ctx.globalThis = ctx;
+  vm.createContext(ctx);
+  vm.runInContext(RESOLVER, ctx, { filename: 'voter-hub-location.js[statewide:one-seat]' });
+  const one = ctx._pdxStatewideSeats(donor);
+  eq(one.senators.length, 1,
+    'coverage: a state holding one senator did not resolve exactly one — padding to two invents a\n' +
+    '    seat and dropping to zero throws away the seat we have: ' + JSON.stringify(one.senators));
+  eq(one.senators[0], keepSen, 'coverage: the one resolved Senate seat is not the senator on file');
+  eq(one.ambiguous, false,
+    'coverage: a state holding one senator came back ambiguous, which throws away the seat it does\n' +
+    '    have — ambiguity is having too MANY claimants, not too few');
+  ok(!!one.governor,
+    'coverage: the Governor was lost along with the second senator — the seats resolve independently');
 }
 
 // Over-claiming is the other failure. Three senators on file for one state means

@@ -245,11 +245,42 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
   eq(tomlHosts.length, 6, "netlify.toml's image allowlist is no longer exactly six hosts");
 
   // NO INVENTED PROFILE. The brief forbids a fabricated CMP_DATA bio, and the thing the
-  // identity check actually needed was a name — so a name is all that was declared.
-  const cmp = R("cmp-data.js");
-  for (const s of SLUGS)
-    ok(!new RegExp(`['"]${s}['"]\\s*:`).test(cmp),
-      `${s} has a CMP_DATA entry — this wave admits a roster slug and a portrait, not a score, an issue list or a biography`);
+  // identity check actually needed was a name — so a name is all F8 declared, and F8
+  // originally required these three to have NO CMP_DATA row at all.
+  //
+  // That equality expired, and it expired on the same later-wave terms as everything in
+  // DECLARED at the bottom of this file. Federal roster wave R2 gave all three an
+  // identity-only roster row, because the missing row was the reason gen-crawl-record
+  // skipped them and search could not find people whose Senate votes THIS wave had already
+  // attributed — a page the app publishes for a member the roster does not name.
+  //
+  // So the absence was never the guarantee. The guarantee was that F8 invents no profile,
+  // and that is what is checked now: the row exists, and it is identity and nothing else.
+  // score must be null rather than 0, because a 0 is a claim and null is the absence of one;
+  // the key set is pinned exactly, so a bio, a quote, a publishable flag or a stance list
+  // cannot arrive later without failing here. The name in the row must be the same name
+  // this wave's census verified against the official record and declared in SEED_NAMES,
+  // which ties the roster row to the identity F8 argued for instead of leaving them as two
+  // independent claims. scripts/test-vr-federal-roster-r2.mjs owns the rows themselves.
+  const IDENTITY_KEYS = "broken,icon,issues,kept,name,office,party,pending,score,state";
+  const cmpRoster = (() => {
+    const sb = { window: {}, document: {}, console: { log() {}, warn() {}, error() {} } };
+    vm.createContext(sb);
+    vm.runInContext(R("cmp-data.js"), sb, { filename: "cmp-data.js" });
+    return sb.window.CMP_DATA || {};
+  })();
+  const censusName = new Map(three.map((s) => [s.slug, s.name]));
+  for (const s of SLUGS) {
+    const rec = cmpRoster[s];
+    if (!ok(!!rec, `${s} has no CMP_DATA row — federal roster wave R2 admitted one and gen-crawl-record needs it`)) continue;
+    eq(Object.keys(rec).sort().join(","), IDENTITY_KEYS,
+      `${s}'s CMP_DATA row is not identity only — this wave admits a roster slug and a portrait, not a score, an issue list or a biography`);
+    eq(rec.score, null, `${s} carries a score — F8 attributed votes to this senator, it did not judge them`);
+    for (const k of ["kept", "broken", "pending"]) eq(rec[k], 0, `${s}'s ${k} counter is not 0`);
+    eq(Array.isArray(rec.issues) ? rec.issues.length : -1, 0, `${s} carries an issue list`);
+    eq(rec.office, "U.S. Senator", `${s}'s office is not the one this wave verified`);
+    eq(rec.name, censusName.get(s), `${s}'s roster row and this wave's census name a different person`);
+  }
   const namesBlock = /const SEED_NAMES = \{([\s\S]*?)\};/.exec(gen);
   if (ok(!!namesBlock, "SEED_NAMES is not in the generator")) {
     const lines = namesBlock[1].split("\n").filter((l) => /:/.test(l));
@@ -277,7 +308,19 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
   // its own: it is the check that the committed map is what the committed generator emits.
   const mapBefore = R(MAP);
   const restoreMap = () => { if (R(MAP) !== mapBefore) writeFileSync(join(ROOT, MAP), mapBefore); };
-  const run = (mutate, label) => {
+  // Some walls can no longer be reached by editing the generator alone, so run() takes an
+  // optional second mutation over real files in the tree. Those bytes are snapshotted and
+  // restored in the same finally that deletes the copy — including on the path where the
+  // generator wrongly SUCCEEDS, or a refused mutation would be left on disk.
+  const run = (mutate, label, alsoMutate = null) => {
+    const restore = [];
+    for (const [f, fn] of Object.entries(alsoMutate || {})) {
+      const before = R(f);
+      restore.push(() => { if (R(f) !== before) writeFileSync(join(ROOT, f), before); });
+      const after = fn(before);
+      if (after === before) failures.push(`${label}: the mutation of ${f} changed nothing, so the wall was never exercised`);
+      writeFileSync(join(ROOT, f), after);
+    }
     writeFileSync(TMP, mutate(gen));
     try {
       execFileSync(process.execPath, [TMP], { cwd: ROOT, encoding: "utf8", stdio: "pipe" });
@@ -295,7 +338,11 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
       }
       passed++;
       return out;
-    } finally { try { unlinkSync(TMP); } catch { /* already gone */ } restoreMap(); }
+    } finally {
+      try { unlinkSync(TMP); } catch { /* already gone */ }
+      for (const r of restore) r();
+      restoreMap();
+    }
   };
 
   const w1 = run((s) => s.replace('hyde_smith: "H001079"', 'hyde_smith: "H001104"'),
@@ -303,9 +350,26 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
   ok(/H001079|H001104|disagree|portrait/i.test(w1),
     "wall 1 fired but its message names neither Bioguide nor the disagreement — an operator cannot act on it");
 
-  const w2 = run((s) => s.replace(/^\s*alan_armstrong: "Alan Armstrong",\n/m, ""),
-    "wall 2 (an admitted slug with no name from any source)");
+  // Wall 2 needs a slug with NO name anywhere, and deleting the SEED_NAMES line was enough
+  // to produce that in F8's own tree, where the three senators had a portrait and a page and
+  // no roster row. Federal roster wave R2 closed that hole: cmp-data.js now publishes a name
+  // for all three, so the one-line deletion leaves rosterNames() still answering and the
+  // generator legitimately falls through to the surname compare. Weakening the check to
+  // match — or deleting it — would retire the only wall nobody has watched fire since.
+  //
+  // So the mutation reproduces the ACTUAL failure mode instead, which is also exactly the
+  // pre-R2 position of this slug: the declaration removed AND the roster row's key renamed
+  // so the app publishes no name for alan_armstrong. Both sources gone is the condition, and
+  // it is the condition a future wave re-creates the moment it admits a slug before writing
+  // its row. cmp-data.js's bytes are restored by run()'s finally, and section 8's
+  // git-status check would fail loudly if they were not.
+  const w2 = run(
+    (s) => s.replace(/^\s*alan_armstrong: "Alan Armstrong",\n/m, ""),
+    "wall 2 (an admitted slug with no name from any source)",
+    { "cmp-data.js": (c) => c.replace('"alan_armstrong": {', '"alan_armstrong_ROW_ABSENT_FOR_THIS_MUTATION": {') },
+  );
   ok(/alan_armstrong/.test(w2), "wall 2 fired but does not name the slug it fired for");
+  ok(/no published name|SEED_NAMES/i.test(w2), "wall 2 fired but does not say which of the two sources is missing");
 
   const w3 = run((s) => s.replace('alan_armstrong: "Alan Armstrong"', 'alan_armstrong: "Kelly Armstrong"'),
     "wall 3 (a declared name that is a different real person with the same surname)");
@@ -852,7 +916,23 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "scripts/test-vr-federal-wave-f9.mjs",
     "scripts/test-person-crawl-block.mjs",
     "scripts/test-identity-integrity.mjs",
-    "scripts/test-depth-no-score-drift.mjs"]);
+    "scripts/test-depth-no-score-drift.mjs",
+    // federal_roster_r2_sep2026's footprint, on those same later-wave terms.
+    //   scripts/test-vr-federal-roster-r1.mjs carried the roster size as a literal (1108).
+    // R2 admits twelve more, so the literal moved to 1120 with a comment handing that
+    // arithmetic to scripts/test-vr-federal-roster-r2.mjs. No assertion was dropped.
+    //   hero-receipt-data.js is not a wave edit at all: it is regenerated by
+    // scripts/gen-hero-receipt.mjs, whose existing selection rules picked susie_lee's
+    // already-stored veterans receipt over don_davis's once she had a roster row to be
+    // selected from. No stance was harvested and no receipt text was written by hand.
+    "scripts/test-vr-federal-roster-r1.mjs",
+    "hero-receipt-data.js",
+    // scripts/test-who-represents-me.mjs on the same terms. It hard-stopped on its own
+    // instruction once R2 closed the last two partial-Senate states (MS, OH): its
+    // partial-coverage assertions had nothing left to measure. They were not deleted —
+    // the shipped-data count is now asserted as full coverage, and the one-seat behaviour
+    // is driven against a roster built from real records instead.
+    "scripts/test-who-represents-me.mjs"]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};
     const snapHead = JSON.parse(headSrc("db/share-index.json") || "{}").personRecord || {};

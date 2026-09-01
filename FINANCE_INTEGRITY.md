@@ -436,12 +436,15 @@ lead on a document, not a replacement for reading it — a human verifies agains
 the filing and hand-updates the map, so nothing unverified ships. It touches no
 issue key, stated position, formal action, tier or publication floor: there is
 no finance → Direction Match path here either. And it cannot make the lane
-complete — refreshing the 13 filings we hold does not change the 13-of-1108
+complete — refreshing the 13 filings we hold does not change the 13-of-1120
 ratio, which the script prints, labelled incomplete, every run. The denominator
 moved when roster wave `federal_roster_r1_sep2026` admitted 315 sitting House
-members whose recorded votes had nowhere to land; none of them arrived with a
-filing, so the lane got wider without getting any less complete, which is the
-honest shape of it.
+members whose recorded votes had nowhere to land, and again when
+`federal_roster_r2_sep2026` added the twelve that wave had skipped — nine House
+members and three senators whose votes were already resolving through
+`db/vr-member-map.json` while the roster had no row to name them. None of the 327
+arrived with a filing, so the lane got wider without getting any less complete,
+which is the honest shape of it.
 
 **State and local.** `disclosures.utah.gov` publishes no open JSON API, so there
 is no live state refresh to wire. The script prints the committee-search URL for

@@ -716,7 +716,18 @@
 // saying there is nothing on file. person-file.css ships with its script for the
 // usual reason: the header and kicker it styles are hidden-by-default blocks, and
 // unstyled they are loose text above the fold.
-const CACHE_VERSION = 'v101';
+// v102 - FEDERAL ROSTER WAVE R2, and the reason is cmp-data.js. It is on the precache
+// manifest below and this wave adds twelve members to it: the nine House members and
+// three senators whose votes have been resolving through db/vr-member-map.json for waves
+// while the roster had no row to name them. On a warm device the shell copy is served
+// instantly and the network copy only lands for the NEXT load, so without this bump every
+// returning reader would keep a cmp-data.js with no row for /p/hyde_smith, /p/jon_husted,
+// /p/alan_armstrong or the nine House files — the person page would render the
+// unknown-pid state for people the source now names, and search would not find them.
+// It also carries the mullin office correction: an unbumped device would keep showing
+// "U.S. Senator · Oklahoma" for a seat Alan Armstrong now holds, i.e. three sitting
+// senators in one state, which is precisely the contradiction the wave fixed.
+const CACHE_VERSION = 'v102';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

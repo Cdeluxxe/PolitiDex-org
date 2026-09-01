@@ -170,27 +170,27 @@
       }
     },
     {
-      "pid": "don_davis",
-      "issueKey": "reform_balance",
-      "name": "Don Davis",
-      "sub": "U.S. Representative · North Carolina · NC-01",
+      "pid": "susie_lee",
+      "issueKey": "veterans",
+      "name": "Susie Lee",
+      "sub": "U.S. Representative · Nevada · NV-03",
       "party": {
         "label": "D",
         "color": "#60a5fa"
       },
       "issue": {
-        "icon": "⚖️",
-        "label": "Practical Government Reform"
+        "icon": "🎖",
+        "label": "Take Care of Veterans"
       },
       "said": {
-        "text": "Brands himself as an independent-minded, bipartisan legislator.",
+        "text": "Sponsored the Sgt. Dave Crete FORGOTTEN Veterans Act and the bipartisan PROTECT Act for veterans exposed to radiation at the Nevada Test and Training Range.",
         "word": "Supports"
       },
-      "did": "Independently rated among the most bipartisan members",
-      "date": "2024–2025",
+      "did": "Sponsored the Sgt. Dave Crete FORGOTTEN Veterans Act",
+      "date": "2026",
       "source": {
-        "label": "Ballotpedia",
-        "url": "https://ballotpedia.org/Donald_Davis"
+        "label": "GovTrack",
+        "url": "https://www.govtrack.us/congress/bills/119/hr9127"
       },
       "verdict": {
         "key": "consistent",

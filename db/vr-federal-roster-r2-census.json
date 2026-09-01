@@ -1,0 +1,661 @@
+{
+  "_comment": "Federal roster wave R2 census — the twelve slugs that were in db/vr-member-map.json (so their votes already attached) and had no CMP_DATA row (so nothing in the app could name them, and gen-crawl-record.mjs reported them as 'seeded pid on no roster record'). Identity only: name, office, seat, party chip. score is null because nothing has been measured — a 0 is a claim and null is the absence of one. Regenerate with scripts/vr-federal-roster-r2-census.mjs; scripts/test-vr-federal-roster-r2.mjs holds this file and the working tree to each other. Every admission is verified twice by documents that can disagree, and the written non-merges are the near-collisions this wave deliberately did NOT fold together.",
+  "wave": "federal_roster_r2_sep2026",
+  "congress": "119",
+  "builtBy": "scripts/vr-federal-roster-r2-census.mjs",
+  "source": {
+    "house": "https://clerk.house.gov/xml/lists/MemberData.xml",
+    "senate": "https://www.senate.gov/general/contact_information/senators_cfm.xml",
+    "legislators": "https://unitedstates.github.io/congress-legislators/legislators-current.json",
+    "legislatorsHistorical": "https://unitedstates.github.io/congress-legislators/legislators-historical.json",
+    "appRoster": "cmp-data.js + spotlights-data.js",
+    "slugClaim": "db/vr-member-map.json + BROWSE_PHOTOS (compare-hub.js) + SEED_SLUGS (scripts/vr-gen-member-map.mjs)"
+  },
+  "census": {
+    "scope": 12,
+    "admitted": 12,
+    "alreadyHadARow": 0,
+    "refused": 0,
+    "house": 9,
+    "senate": 3,
+    "withPhoto": 12,
+    "photoCarriesBioguide": 10,
+    "handTypedOnly": 2,
+    "writtenNonMerges": 5,
+    "labelCorrections": 1
+  },
+  "rosterSizeBefore": 1108,
+  "rosterSizeAfter": 1120,
+  "rosterSizeInTree": 1120,
+  "waveApplied": true,
+  "photoHosts": [
+    "commons.wikimedia.org",
+    "raw.githubusercontent.com",
+    "upload.wikimedia.org"
+  ],
+  "admitted": [
+    {
+      "slug": "haley_stevens",
+      "bioguide": "S001215",
+      "chamber": "house",
+      "name": "Haley Stevens",
+      "officialRecordName": "Haley M. Stevens",
+      "nameSource": "app (SPOTLIGHTS figure row)",
+      "office": "U.S. Representative",
+      "state": "MI",
+      "stateFull": "Michigan",
+      "district": "11",
+      "stateLabel": "Michigan · MI-11",
+      "party": "D",
+      "klass": null,
+      "sworn": "January 3, 2025",
+      "hadRosterRow": false,
+      "photo": {
+        "url": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001215.jpg",
+        "host": "raw.githubusercontent.com",
+        "carriesBioguide": true
+      },
+      "handTypedBioguide": null,
+      "portraitBioguide": "S001215",
+      "verifiedBy": [
+        "clerk MemberData.xml MI11 D \"Haley M. Stevens\"",
+        "legislators-current MI-11 Democrat \"Haley M. Stevens\"",
+        "db/vr-member-map.json resolves haley_stevens → S001215",
+        "BROWSE_PHOTOS portrait URL carries S001215"
+      ]
+    },
+    {
+      "slug": "adrian_smith",
+      "bioguide": "S001172",
+      "chamber": "house",
+      "name": "Adrian Smith",
+      "officialRecordName": "Adrian Smith",
+      "nameSource": "app (SPOTLIGHTS figure row)",
+      "office": "U.S. Representative",
+      "state": "NE",
+      "stateFull": "Nebraska",
+      "district": "03",
+      "stateLabel": "Nebraska · NE-03",
+      "party": "R",
+      "klass": null,
+      "sworn": "January 3, 2025",
+      "hadRosterRow": false,
+      "photo": {
+        "url": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001172.jpg",
+        "host": "raw.githubusercontent.com",
+        "carriesBioguide": true
+      },
+      "handTypedBioguide": "S001172",
+      "portraitBioguide": "S001172",
+      "verifiedBy": [
+        "clerk MemberData.xml NE03 R \"Adrian Smith\"",
+        "legislators-current NE-03 Republican \"Adrian Smith\"",
+        "db/vr-member-map.json resolves adrian_smith → S001172",
+        "SEED_SLUGS declares adrian_smith: \"S001172\"",
+        "BROWSE_PHOTOS portrait URL carries S001172"
+      ]
+    },
+    {
+      "slug": "dina_titus",
+      "bioguide": "T000468",
+      "chamber": "house",
+      "name": "Dina Titus",
+      "officialRecordName": "Dina Titus",
+      "nameSource": "app (SPOTLIGHTS figure row)",
+      "office": "U.S. Representative",
+      "state": "NV",
+      "stateFull": "Nevada",
+      "district": "01",
+      "stateLabel": "Nevada · NV-01",
+      "party": "D",
+      "klass": null,
+      "sworn": "January 3, 2025",
+      "hadRosterRow": false,
+      "photo": {
+        "url": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000468.jpg",
+        "host": "raw.githubusercontent.com",
+        "carriesBioguide": true
+      },
+      "handTypedBioguide": "T000468",
+      "portraitBioguide": "T000468",
+      "verifiedBy": [
+        "clerk MemberData.xml NV01 D \"Dina Titus\"",
+        "legislators-current NV-01 Democrat \"Dina Titus\"",
+        "db/vr-member-map.json resolves dina_titus → T000468",
+        "SEED_SLUGS declares dina_titus: \"T000468\"",
+        "BROWSE_PHOTOS portrait URL carries T000468"
+      ]
+    },
+    {
+      "slug": "gabe_vasquez",
+      "bioguide": "V000136",
+      "chamber": "house",
+      "name": "Gabe Vasquez",
+      "officialRecordName": "Gabe Vasquez",
+      "nameSource": "app (SPOTLIGHTS figure row)",
+      "office": "U.S. Representative",
+      "state": "NM",
+      "stateFull": "New Mexico",
+      "district": "02",
+      "stateLabel": "New Mexico · NM-02",
+      "party": "D",
+      "klass": null,
+      "sworn": "January 3, 2025",
+      "hadRosterRow": false,
+      "photo": {
+        "url": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/V000136.jpg",
+        "host": "raw.githubusercontent.com",
+        "carriesBioguide": true
+      },
+      "handTypedBioguide": "V000136",
+      "portraitBioguide": "V000136",
+      "verifiedBy": [
+        "clerk MemberData.xml NM02 D \"Gabe Vasquez\"",
+        "legislators-current NM-02 Democrat \"Gabe Vasquez\"",
+        "db/vr-member-map.json resolves gabe_vasquez → V000136",
+        "SEED_SLUGS declares gabe_vasquez: \"V000136\"",
+        "BROWSE_PHOTOS portrait URL carries V000136"
+      ]
+    },
+    {
+      "slug": "melanie_stansbury",
+      "bioguide": "S001218",
+      "chamber": "house",
+      "name": "Melanie Stansbury",
+      "officialRecordName": "Melanie A. Stansbury",
+      "nameSource": "app (SPOTLIGHTS figure row)",
+      "office": "U.S. Representative",
+      "state": "NM",
+      "stateFull": "New Mexico",
+      "district": "01",
+      "stateLabel": "New Mexico · NM-01",
+      "party": "D",
+      "klass": null,
+      "sworn": "January 3, 2025",
+      "hadRosterRow": false,
+      "photo": {
+        "url": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001218.jpg",
+        "host": "raw.githubusercontent.com",
+        "carriesBioguide": true
+      },
+      "handTypedBioguide": "S001218",
+      "portraitBioguide": "S001218",
+      "verifiedBy": [
+        "clerk MemberData.xml NM01 D \"Melanie A. Stansbury\"",
+        "legislators-current NM-01 Democrat \"Melanie A. Stansbury\"",
+        "db/vr-member-map.json resolves melanie_stansbury → S001218",
+        "SEED_SLUGS declares melanie_stansbury: \"S001218\"",
+        "BROWSE_PHOTOS portrait URL carries S001218"
+      ]
+    },
+    {
+      "slug": "russ_fulcher",
+      "bioguide": "F000469",
+      "chamber": "house",
+      "name": "Russ Fulcher",
+      "officialRecordName": "Russ Fulcher",
+      "nameSource": "app (SPOTLIGHTS figure row)",
+      "office": "U.S. Representative",
+      "state": "ID",
+      "stateFull": "Idaho",
+      "district": "01",
+      "stateLabel": "Idaho · ID-01",
+      "party": "R",
+      "klass": null,
+      "sworn": "January 3, 2025",
+      "hadRosterRow": false,
+      "photo": {
+        "url": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000469.jpg",
+        "host": "raw.githubusercontent.com",
+        "carriesBioguide": true
+      },
+      "handTypedBioguide": "F000469",
+      "portraitBioguide": "F000469",
+      "verifiedBy": [
+        "clerk MemberData.xml ID01 R \"Russ Fulcher\"",
+        "legislators-current ID-01 Republican \"Russ Fulcher\"",
+        "db/vr-member-map.json resolves russ_fulcher → F000469",
+        "SEED_SLUGS declares russ_fulcher: \"F000469\"",
+        "BROWSE_PHOTOS portrait URL carries F000469"
+      ]
+    },
+    {
+      "slug": "susie_lee",
+      "bioguide": "L000590",
+      "chamber": "house",
+      "name": "Susie Lee",
+      "officialRecordName": "Susie Lee",
+      "nameSource": "app (SPOTLIGHTS figure row)",
+      "office": "U.S. Representative",
+      "state": "NV",
+      "stateFull": "Nevada",
+      "district": "03",
+      "stateLabel": "Nevada · NV-03",
+      "party": "D",
+      "klass": null,
+      "sworn": "January 3, 2025",
+      "hadRosterRow": false,
+      "photo": {
+        "url": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000590.jpg",
+        "host": "raw.githubusercontent.com",
+        "carriesBioguide": true
+      },
+      "handTypedBioguide": "L000590",
+      "portraitBioguide": "L000590",
+      "verifiedBy": [
+        "clerk MemberData.xml NV03 D \"Susie Lee\"",
+        "legislators-current NV-03 Democrat \"Susie Lee\"",
+        "db/vr-member-map.json resolves susie_lee → L000590",
+        "SEED_SLUGS declares susie_lee: \"L000590\"",
+        "BROWSE_PHOTOS portrait URL carries L000590"
+      ]
+    },
+    {
+      "slug": "teresa_leger_fernandez",
+      "bioguide": "L000273",
+      "chamber": "house",
+      "name": "Teresa Leger Fernández",
+      "officialRecordName": "Teresa Leger Fernandez",
+      "nameSource": "app (SPOTLIGHTS figure row)",
+      "office": "U.S. Representative",
+      "state": "NM",
+      "stateFull": "New Mexico",
+      "district": "03",
+      "stateLabel": "New Mexico · NM-03",
+      "party": "D",
+      "klass": null,
+      "sworn": "January 3, 2025",
+      "hadRosterRow": false,
+      "photo": {
+        "url": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000273.jpg",
+        "host": "raw.githubusercontent.com",
+        "carriesBioguide": true
+      },
+      "handTypedBioguide": "L000273",
+      "portraitBioguide": "L000273",
+      "verifiedBy": [
+        "clerk MemberData.xml NM03 D \"Teresa Leger Fernandez\"",
+        "legislators-current NM-03 Democrat \"Teresa Leger Fernandez\"",
+        "db/vr-member-map.json resolves teresa_leger_fernandez → L000273",
+        "SEED_SLUGS declares teresa_leger_fernandez: \"L000273\"",
+        "BROWSE_PHOTOS portrait URL carries L000273"
+      ]
+    },
+    {
+      "slug": "zach_nunn",
+      "bioguide": "N000193",
+      "chamber": "house",
+      "name": "Zach Nunn",
+      "officialRecordName": "Zachary Nunn",
+      "nameSource": "app (SPOTLIGHTS figure row)",
+      "office": "U.S. Representative",
+      "state": "IA",
+      "stateFull": "Iowa",
+      "district": "03",
+      "stateLabel": "Iowa · IA-03",
+      "party": "R",
+      "klass": null,
+      "sworn": "January 3, 2025",
+      "hadRosterRow": false,
+      "photo": {
+        "url": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/N000193.jpg",
+        "host": "raw.githubusercontent.com",
+        "carriesBioguide": true
+      },
+      "handTypedBioguide": "N000193",
+      "portraitBioguide": "N000193",
+      "verifiedBy": [
+        "clerk MemberData.xml IA03 R \"Zachary Nunn\"",
+        "legislators-current IA-03 Republican \"Zachary Nunn\"",
+        "db/vr-member-map.json resolves zach_nunn → N000193",
+        "SEED_SLUGS declares zach_nunn: \"N000193\"",
+        "BROWSE_PHOTOS portrait URL carries N000193"
+      ]
+    },
+    {
+      "slug": "hyde_smith",
+      "bioguide": "H001079",
+      "chamber": "senate",
+      "name": "Cindy Hyde-Smith",
+      "officialRecordName": "Cindy Hyde-Smith",
+      "nameSource": "official record",
+      "office": "U.S. Senator",
+      "state": "MS",
+      "stateFull": "Mississippi",
+      "district": null,
+      "stateLabel": "Mississippi",
+      "party": "R",
+      "klass": "Class II",
+      "sworn": "2021-01-03",
+      "hadRosterRow": false,
+      "photo": {
+        "url": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001079.jpg",
+        "host": "raw.githubusercontent.com",
+        "carriesBioguide": true
+      },
+      "handTypedBioguide": "H001079",
+      "portraitBioguide": "H001079",
+      "verifiedBy": [
+        "senate.gov contact roster MS R Class II \"Hyde-Smith (R-MS)\"",
+        "legislators-current MS Republican \"Cindy Hyde-Smith\"",
+        "db/vr-member-map.json resolves hyde_smith → H001079",
+        "SEED_SLUGS declares hyde_smith: \"H001079\"",
+        "BROWSE_PHOTOS portrait URL carries H001079"
+      ]
+    },
+    {
+      "slug": "jon_husted",
+      "bioguide": "H001104",
+      "chamber": "senate",
+      "name": "Jon Husted",
+      "officialRecordName": "Jon Husted",
+      "nameSource": "official record",
+      "office": "U.S. Senator",
+      "state": "OH",
+      "stateFull": "Ohio",
+      "district": null,
+      "stateLabel": "Ohio",
+      "party": "R",
+      "klass": "Class III",
+      "sworn": "2025-01-21",
+      "hadRosterRow": false,
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Sen._Jon_Husted_official_portrait%2C_119th_Congress.jpg/500px-Sen._Jon_Husted_official_portrait%2C_119th_Congress.jpg",
+        "host": "upload.wikimedia.org",
+        "carriesBioguide": false
+      },
+      "handTypedBioguide": "H001104",
+      "portraitBioguide": null,
+      "verifiedBy": [
+        "senate.gov contact roster OH R Class III \"Husted (R-OH)\"",
+        "legislators-current OH Republican \"Jon Husted\"",
+        "db/vr-member-map.json resolves jon_husted → H001104",
+        "SEED_SLUGS declares jon_husted: \"H001104\""
+      ]
+    },
+    {
+      "slug": "alan_armstrong",
+      "bioguide": "A000383",
+      "chamber": "senate",
+      "name": "Alan Armstrong",
+      "officialRecordName": "Alan Armstrong",
+      "nameSource": "official record",
+      "office": "U.S. Senator",
+      "state": "OK",
+      "stateFull": "Oklahoma",
+      "district": null,
+      "stateLabel": "Oklahoma",
+      "party": "R",
+      "klass": "Class II",
+      "sworn": "2026-03-24",
+      "hadRosterRow": false,
+      "photo": {
+        "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Alan_S_Armstrong_official_portrait.jpg?width=500",
+        "host": "commons.wikimedia.org",
+        "carriesBioguide": false
+      },
+      "handTypedBioguide": "A000383",
+      "portraitBioguide": null,
+      "verifiedBy": [
+        "senate.gov contact roster OK R Class II \"Armstrong (R-OK)\"",
+        "legislators-current OK Republican \"Alan Armstrong\"",
+        "db/vr-member-map.json resolves alan_armstrong → A000383",
+        "SEED_SLUGS declares alan_armstrong: \"A000383\""
+      ]
+    }
+  ],
+  "alreadyHadARow": [],
+  "refused": [],
+  "nonMerges": [
+    {
+      "slug": "adrian_smith",
+      "bioguide": "S001172",
+      "who": "Adrian Smith",
+      "seat": "NE-03",
+      "notTheSamePersonAs": [
+        {
+          "pid": "kevin_smith_ivins",
+          "name": "Kevin Smith",
+          "office": "Mayor, Ivins",
+          "state": "Utah"
+        },
+        {
+          "pid": "jason_smith",
+          "name": "Jason Smith",
+          "office": "House Ways & Means Chair",
+          "state": "Missouri"
+        },
+        {
+          "pid": "adam_smith",
+          "name": "Adam Smith",
+          "office": "House Armed Services Ranking Member",
+          "state": "Washington"
+        },
+        {
+          "pid": "murrell_smith",
+          "name": "Murrell Smith",
+          "office": "State House Speaker",
+          "state": "South Carolina"
+        },
+        {
+          "pid": "tina_smith",
+          "name": "Tina Smith",
+          "office": "U.S. Senator",
+          "state": "Minnesota"
+        },
+        {
+          "pid": "mike_smith_sheriff",
+          "name": "Mike Smith",
+          "office": "Utah County Sheriff",
+          "state": "Utah · Utah County"
+        },
+        {
+          "pid": "chris_smith",
+          "name": "Christopher H. Smith",
+          "office": "U.S. Representative",
+          "state": "New Jersey · NJ-04"
+        }
+      ],
+      "reason": "Shares a surname element with 7 record(s) already on file and is a different living person from every one of them — different seat, different place, verified by clerk MemberData.xml and legislators-current.json. Recorded so a later wave cannot mistake the shared surname for a duplicate: this is the mike_rogers rule (R1 kept mike_rogers_al distinct from mike_rogers), and NO alias is written across any of these ids."
+    },
+    {
+      "slug": "dina_titus",
+      "bioguide": "T000468",
+      "who": "Dina Titus",
+      "seat": "NV-01",
+      "notTheSamePersonAs": [
+        {
+          "pid": "robin_titus",
+          "name": "Robin Titus",
+          "office": "Nevada State Senator",
+          "state": "Nevada"
+        }
+      ],
+      "reason": "Shares a surname element with 1 record(s) already on file and is a different living person from every one of them — different seat, different place, verified by clerk MemberData.xml and legislators-current.json. Recorded so a later wave cannot mistake the shared surname for a duplicate: this is the mike_rogers rule (R1 kept mike_rogers_al distinct from mike_rogers), and NO alias is written across any of these ids."
+    },
+    {
+      "slug": "susie_lee",
+      "bioguide": "L000590",
+      "who": "Susie Lee",
+      "seat": "NV-03",
+      "notTheSamePersonAs": [
+        {
+          "pid": "zeldin",
+          "name": "Lee Zeldin",
+          "office": "EPA Administrator",
+          "state": "New York"
+        },
+        {
+          "pid": "bill_lee",
+          "name": "Bill Lee",
+          "office": "Governor",
+          "state": "Tennessee"
+        },
+        {
+          "pid": "summer_lee",
+          "name": "Summer Lee",
+          "office": "U.S. Representative",
+          "state": "Pennsylvania"
+        },
+        {
+          "pid": "lee",
+          "name": "Mike Lee",
+          "office": "U.S. Senator",
+          "state": "Utah"
+        },
+        {
+          "pid": "tlee",
+          "name": "Trevor Lee",
+          "office": "UT State Representative",
+          "state": "UT District 16"
+        },
+        {
+          "pid": "susan_lee",
+          "name": "Susan Lee",
+          "office": "Davis County Commission candidate",
+          "state": "Utah · Davis County (Seat B)"
+        },
+        {
+          "pid": "michael_lee_nc",
+          "name": "Michael Lee",
+          "office": "North Carolina State Senator",
+          "state": "North Carolina"
+        },
+        {
+          "pid": "laurel_lee",
+          "name": "Laurel M. Lee",
+          "office": "U.S. Representative",
+          "state": "Florida · FL-15"
+        }
+      ],
+      "reason": "Shares a surname element with 8 record(s) already on file and is a different living person from every one of them — different seat, different place, verified by clerk MemberData.xml and legislators-current.json. Recorded so a later wave cannot mistake the shared surname for a duplicate: this is the mike_rogers rule (R1 kept mike_rogers_al distinct from mike_rogers), and NO alias is written across any of these ids."
+    },
+    {
+      "slug": "hyde_smith",
+      "bioguide": "H001079",
+      "who": "Cindy Hyde-Smith",
+      "seat": "MS U.S. Senate",
+      "notTheSamePersonAs": [
+        {
+          "pid": "kevin_smith_ivins",
+          "name": "Kevin Smith",
+          "office": "Mayor, Ivins",
+          "state": "Utah"
+        },
+        {
+          "pid": "jason_smith",
+          "name": "Jason Smith",
+          "office": "House Ways & Means Chair",
+          "state": "Missouri"
+        },
+        {
+          "pid": "adam_smith",
+          "name": "Adam Smith",
+          "office": "House Armed Services Ranking Member",
+          "state": "Washington"
+        },
+        {
+          "pid": "murrell_smith",
+          "name": "Murrell Smith",
+          "office": "State House Speaker",
+          "state": "South Carolina"
+        },
+        {
+          "pid": "tina_smith",
+          "name": "Tina Smith",
+          "office": "U.S. Senator",
+          "state": "Minnesota"
+        },
+        {
+          "pid": "mike_smith_sheriff",
+          "name": "Mike Smith",
+          "office": "Utah County Sheriff",
+          "state": "Utah · Utah County"
+        },
+        {
+          "pid": "chris_smith",
+          "name": "Christopher H. Smith",
+          "office": "U.S. Representative",
+          "state": "New Jersey · NJ-04"
+        }
+      ],
+      "reason": "Shares a surname element with 7 record(s) already on file and is a different living person from every one of them — different seat, different place, verified by senate.gov contact roster and legislators-current.json. Recorded so a later wave cannot mistake the shared surname for a duplicate: this is the mike_rogers rule (R1 kept mike_rogers_al distinct from mike_rogers), and NO alias is written across any of these ids."
+    },
+    {
+      "slug": "alan_armstrong",
+      "bioguide": "A000383",
+      "who": "Alan Armstrong",
+      "seat": "OK U.S. Senate",
+      "notTheSamePersonAs": [
+        {
+          "pid": "roger_armstrong_summit",
+          "name": "Roger Armstrong",
+          "office": "Summit County Council",
+          "state": "Utah"
+        },
+        {
+          "pid": "kelly_armstrong",
+          "name": "Kelly Armstrong",
+          "office": "Governor",
+          "state": "North Dakota"
+        }
+      ],
+      "reason": "Shares a surname element with 2 record(s) already on file and is a different living person from every one of them — different seat, different place, verified by senate.gov contact roster and legislators-current.json. Recorded so a later wave cannot mistake the shared surname for a duplicate: this is the mike_rogers rule (R1 kept mike_rogers_al distinct from mike_rogers), and NO alias is written across any of these ids."
+    }
+  ],
+  "labelCorrection": {
+    "slug": "mullin",
+    "bioguide": "M001190",
+    "chamber": "senate",
+    "state": "OK",
+    "succeededBy": "alan_armstrong",
+    "precedent": "rfine (federal_roster_r1_sep2026)",
+    "who": "Markwayne Mullin",
+    "kind": "identity_label_correction",
+    "isMerge": false,
+    "isDeletion": false,
+    "aliasWritten": false,
+    "termStart": "2023-01",
+    "termEnd": "2026-03",
+    "termEndedOn": "2026-03-23",
+    "klass": "Class II",
+    "from": {
+      "office": "U.S. Senator",
+      "state": "Oklahoma"
+    },
+    "to": {
+      "office": "Former U.S. Senator",
+      "state": "Oklahoma",
+      "termStart": "2023-01",
+      "termEnd": "2026-03",
+      "seatLabelNote": "Class II through 2026-03-23; carried by termEnd, not by the state label, because compare-hub.js groups a \"·\"-joined state label by its last segment."
+    },
+    "preserved": [
+      "score",
+      "kept",
+      "broken",
+      "pending",
+      "issues",
+      "icon",
+      "party",
+      "name",
+      "every stance row",
+      "every attributed vote"
+    ],
+    "applied": true,
+    "preservedInTree": {
+      "score": true,
+      "issues": true,
+      "name": true,
+      "party": true,
+      "icon": true,
+      "counters": true
+    },
+    "currentSeatFlag": "termEnd marks a former office (voter-hub-location.js) and is the field ballot-breakdown.js reads for \"is this an incumbent\" (!!termStart && !termEnd). Adding it makes CMP_DATA agree with db/vr-member-map.json, which has recorded serving119: false since the handover.",
+    "oklahomaCurrentSenateFiles": [
+      "A000383",
+      "L000575"
+    ],
+    "reason": "Admitting alan_armstrong to the OK Class II seat would otherwise leave Oklahoma the only state with three U.S. Senator files. Markwayne Mullin's Senate term ended 2026-03-23 (legislators-historical.json) and the Senate's own roster now seats his successor, so the \"U.S. Senator · Oklahoma\" label on his file is stale rather than contested. Corrected in place on R1's rfine (federal_roster_r1_sep2026) precedent — R1 fixed an existing file's office rather than minting a parallel one. NOT a merge: two different living people, two files, no alias between them, and nothing judged is touched."
+  }
+}

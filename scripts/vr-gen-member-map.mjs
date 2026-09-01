@@ -504,9 +504,21 @@ const SEED_SLUGS = {
 // generation fails — which is the failure the wall exists for, and which could not
 // be detected for these slugs at all before.
 //
-// An app-published name always wins over an entry here; these are consulted only
-// when the app has none. Delete a line the moment the app starts publishing that
-// name, so there is one source and not two.
+// A declaration here is NOT retired when the app starts publishing the name — it is
+// promoted to a second, stricter check. Federal roster wave R2 gave all three of these
+// slugs a CMP_DATA row, and the earlier rule ("app-published name wins; delete the line")
+// would have quietly turned the wall OFF for exactly the three slugs it was built for:
+// a published name is held only to its SURNAME, because the app publishes the name a
+// reader recognises and the dataset publishes the legal one ("Mike Simpson" against
+// "Michael K. Simpson" is agreement, not a mismatch). Surname-only cannot tell Alan
+// Armstrong (Sen, OK) from Kelly Armstrong (Gov, ND), and this app carries both.
+//
+// So while a line is here, checkNamesAgree() runs BOTH compares: the declaration must
+// equal the official record exactly, and the app's published name must still carry the
+// record's surname. Two sources is the point, not a defect. Remove a line only when the
+// slug's Bioguide is asserted by something other than a hand-typed table — a portrait URL
+// that carries the Bioguide, for instance, which is the position the other nine members
+// of that wave are in and the reason none of them needs a line here.
 const SEED_NAMES = {
   jon_husted: "Jon Husted",
   hyde_smith: "Cindy Hyde-Smith",
@@ -746,8 +758,10 @@ function checkNamesAgree(slugToBio, admitted, byBio, names) {
     // The app's published name wins; SEED_NAMES is consulted only for a slug the app
     // publishes no name for, so the wall has two names to compare instead of going
     // quiet on exactly the slug nobody has ever seen a name next to.
-    const app = names.get(slug) || SEED_NAMES[slug];
-    if (app && !names.has(slug)) declared++;
+    const published = names.get(slug) || null;
+    const handDeclared = SEED_NAMES[slug] || null;
+    const app = published || handDeclared;
+    if (handDeclared) declared++;
     if (!app && admitted.has(slug)) {
       unnamed.push(`${slug} → ${bio}`);
       continue;
@@ -759,17 +773,36 @@ function checkNamesAgree(slugToBio, admitted, byBio, names) {
       continue;
     }
     checked++;
-    // An app-published name is held to its surname, because the app publishes the name
-    // a reader would recognise and the dataset publishes the legal one — "Mike Simpson"
-    // against "Michael K. Simpson" is agreement, not a mismatch.
-    //   A SEED_NAMES entry is held to the whole name, because it was typed by hand off
-    // this same official record and has no reason to differ from it. That strictness is
-    // the point: a surname-only compare cannot tell Alan Armstrong (Sen, OK) from Kelly
+    // Two compares, and a slug with a SEED_NAMES line faces both.
+    //
+    // A SEED_NAMES entry is held to the WHOLE name, because it was typed by hand off this
+    // same official record and has no reason to differ from it. That strictness is the
+    // point: a surname-only compare cannot tell Alan Armstrong (Sen, OK) from Kelly
     // Armstrong (Gov, ND), and those two slugs both exist in this app.
-    if (!names.has(slug)) {
-      if (normName(app) === normName(auth.name)) continue;
-      errors.push(`${slug} → ${bio} is ${auth.name} (${auth.chamber}, ${auth.state}), but SEED_NAMES `
-        + `declares "${app}" — a hand-declared name must match the official record exactly`);
+    //
+    // An app-published name is held to its SURNAME, because the app publishes the name a
+    // reader would recognise and the dataset publishes the legal one — "Mike Simpson"
+    // against "Michael K. Simpson" is agreement, not a mismatch, and neguse and
+    // mike_simpson would both fail an exact compare today.
+    //
+    // Before R2 the strict branch ran only while the app published NO name, so publishing
+    // one downgraded the slug to surname-only — turning the wall off for the three slugs
+    // whose Bioguide is asserted by nothing but a hand-typed table. Now a declaration
+    // keeps its strict compare for as long as it exists, and the published name is checked
+    // on top of it, so the two sources have to keep agreeing with the record and with each
+    // other.
+    if (handDeclared) {
+      if (normName(handDeclared) !== normName(auth.name)) {
+        errors.push(`${slug} → ${bio} is ${auth.name} (${auth.chamber}, ${auth.state}), but SEED_NAMES `
+          + `declares "${handDeclared}" — a hand-declared name must match the official record exactly`);
+        continue;
+      }
+      if (published && !(auth.last && normName(published).includes(normName(auth.last)))) {
+        errors.push(`${slug} → ${bio} is ${auth.name} (${auth.chamber}, ${auth.state}) and SEED_NAMES agrees, `
+          + `but the app publishes "${published}", which does not carry the surname "${auth.last}" — `
+          + `the roster and the hand-declared identity have drifted onto two different people`);
+        continue;
+      }
       continue;
     }
     if (auth.last && normName(app).includes(normName(auth.last))) continue;
@@ -792,7 +825,7 @@ function checkNamesAgree(slugToBio, admitted, byBio, names) {
       `SEED_SLUGS entry) at the right Bioguide before regenerating:\n  ` + errors.join("\n  "));
   }
   console.log(`✓ portrait identity cross-check — ${checked} slug(s) agree with their Bioguide`
-    + (declared ? ` (${declared} named by SEED_NAMES, the app publishes no name for them)` : ""));
+    + (declared ? ` (${declared} also held to SEED_NAMES's exact official-record name)` : ""));
   if (warnings.length) {
     console.warn(`⚠ ${warnings.length} UNADMITTED portrait(s) name a different member. Nothing is attributed`);
     console.warn("  through them today, but admitting one as-is would misattribute that member's votes:");

@@ -137,7 +137,9 @@ let CMP = null;
   try { vm.runInContext(R("cmp-data.js"), ctx, { filename: "cmp-data.js" }); } catch (e) { failures.push(`cmp-data.js does not boot: ${e.message}`); }
   CMP = win.CMP_DATA || null;
   if (ok(!!CMP, "CMP_DATA did not boot")) {
-    eq(Object.keys(CMP).length, 1108, "the roster is not the size this wave leaves it");
+    // 1108 after R1; 1120 after R2 added the twelve mapped-but-rosterless members
+    // (scripts/test-vr-federal-roster-r2.mjs owns that count and its arithmetic).
+    eq(Object.keys(CMP).length, 1120, "the roster is not the size this wave leaves it");
 
     // Every admission has a file. The IDENTITY-ONLY rule binds the 307 rows this wave
     // CREATED — it cannot bind the 8 that reused a file that already existed and already

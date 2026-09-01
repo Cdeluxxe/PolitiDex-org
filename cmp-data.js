@@ -7141,11 +7141,40 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
    "Healthcare"
   ]
  },
+ // ══ Identity-only office correction — federal roster wave R2 ═════════════════
+ // Markwayne Mullin's Senate term ended 2026-03-23 (legislators-historical.json) and the
+ // Senate's own contact roster now seats Alan Armstrong in Oklahoma's Class II seat.
+ // This file still read "U.S. Senator · Oklahoma", which would have made Oklahoma the
+ // only state on the board with three sitting U.S. Senator files the moment R2 admitted
+ // armstrong. db/vr-member-map.json has carried serving119: false for him since the
+ // handover; CMP_DATA had simply not caught up.
+ //
+ // Corrected in place on R1's rfine precedent: R1 fixed Randy Fine's existing file
+ // rather than minting a parallel one, because a file that is about to start receiving
+ // House roll calls must not be labelled as a candidate for the seat. Same move in the
+ // opposite direction — a file that no longer holds the seat must not be labelled as
+ // holding it.
+ //
+ // THIS IS NOT A MERGE AND NOT A DELETION. Mullin and Armstrong are two different
+ // living people with two files, and NO alias is written between the two ids. Only the
+ // three identity fields below move: `office` gains "Former", which is what
+ // _pdxOfficeStatusFromText() reads to drop the incumbent chip, and termStart/termEnd
+ // give the tenure pill its "Served January 2023 – March 2026" and make
+ // _homeIsOfficeholder() false — the same two fields gaetz and cstewart already carry.
+ // The score, the issue chips, every stance row and every attributed vote are untouched.
+ //
+ // The seat label stays the bare state name, exactly as gaetz reads "Florida", rather
+ // than carrying the Class II end date: the browse tree groups a "·"-joined state label
+ // by its LAST segment (_getBrowseLocation), so writing the class into `state` would
+ // move this published file out of Oklahoma and into a group named after a date. The
+ // precise dates live in termStart/termEnd and in db/vr-federal-roster-r2-census.json.
  "mullin": {
   "name": "Markwayne Mullin",
-  "office": "U.S. Senator",
+  "office": "Former U.S. Senator",
   "state": "Oklahoma",
   "party": "R",
+  "termStart": "2023-01",
+  "termEnd": "2026-03",
   "score": 55,
   "kept": 0,
   "broken": 0,
@@ -14519,6 +14548,148 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "harriet_hageman": {
   "name": "Harriet M. Hageman", "office": "U.S. Representative",
   "state": "Wyoming · WY-AL",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ══ Federal roster wave R2 — identity only ═══════════════════════════════════
+ // The twelve members R1 named and did not fill in. R1's arithmetic was "candidates =
+ // sitting members MINUS the ones db/vr-member-map.json already carries", and it counted
+ // 116 in that second group. Those 116 were skipped as already-solved, which was true of
+ // the MAP and not true of the ROSTER: twelve of them had a Bioguide in the map — so
+ // their votes resolved, and have resolved for waves — and no row here at all.
+ //
+ // That is the worst of both halves. The ingest attributes real roll-call cells to the
+ // pid, and nothing in the app can name the person those cells belong to.
+ // scripts/gen-crawl-record.mjs printed the consequence on every run — "12 seeded pid(s)
+ // are on no roster record and were skipped" — and that line is this block's whole reason
+ // to exist. It should now read zero.
+ //
+ // IDENTITY AND NOTHING ELSE, on R1's terms: name, office, seat, the party chip, an
+ // empty issues list. No bio, no stance, no promise, no publishable flag. score is null
+ // rather than 0 because nothing has been measured — a 0 is a claim and null is the
+ // absence of one — and kept/broken/pending are 0 for the same reason.
+ //
+ // Where this wave differs from R1 in what a reader will SEE: these twelve have had
+ // votes attaching to them for waves already, so nine of them clear the publication
+ // floor the moment they have a name — on the ≥2 formal measures rule in
+ // publication-floor.js, unchanged, evaluated the same way it is for everyone else. That
+ // is the wave working, not the floor moving. Nothing here is marked publishable by
+ // hand; the three senators do not clear it and their files will say "record still being
+ // built" until cited content lands.
+ //
+ // Every one is verified twice by documents that can disagree — the chamber's own roster
+ // (clerk.house.gov MemberData.xml for the House, the Senate's contact roster for the
+ // Senate, which is the only Senate document carrying a Bioguide at all, since the
+ // roll-call XML keys on surname and state) and the congress-legislators dataset — and
+ // the slug's Bioguide claim is held against db/vr-member-map.json, SEED_SLUGS and the
+ // portrait URL. A wrong Bioguide re-homes one member's entire voting record onto
+ // another member's file and looks fine from both ends; see
+ // 20260815000000_vr_fix_kennedy_identity_collision.sql for the time that happened.
+ // The per-person ledger is db/vr-federal-roster-r2-census.json.
+ //
+ // Names are the ones the app ALREADY publishes where it publishes one. All nine House
+ // members have a SPOTLIGHTS row and no compare card — the Horsford position R1 named —
+ // and R1 gave Horsford a row under his SPOTLIGHTS name rather than the dataset's legal
+ // one, because two labels for one person on two surfaces is a search failure. The three
+ // senators have no published name, so they take the official record's.
+ //
+ // Districts come from <statedistrict> in the "<Full State> · <ST>-<NN>" form the roster
+ // already uses; a Senate seat carries the bare state name (see lee, curtis). None was
+ // inferred, and no state name in this block was typed by hand — they are read out of
+ // the Clerk's own <state-fullname>.
+ //
+ // Five deliberate NON-merges, recorded so a later wave cannot mistake a shared surname
+ // for a duplicate. susie_lee (Rep, NV-03) is not lee / bill_lee / summer_lee /
+ // susan_lee / laurel_lee / tlee / michael_lee_nc. alan_armstrong (Sen, OK) is not
+ // kelly_armstrong (Gov, ND) — a surname compare cannot tell those two apart, which is
+ // why scripts/vr-gen-member-map.mjs still holds his hand-typed slug to the official
+ // record by full name. adrian_smith (Rep, NE-03) and hyde_smith (Sen, MS) are neither
+ // each other nor any of the six Smiths already on file. dina_titus (Rep, NV-01) is not
+ // robin_titus (NV State Senator). No alias is written across any of them — the
+ // mike_rogers rule, applied forward.
+ // ── House (9) ───────────────────────────────────────────────────────────────,
+ // IA-03 · Bioguide N000193
+ "zach_nunn": {
+  "name": "Zach Nunn", "office": "U.S. Representative",
+  "state": "Iowa · IA-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ID-01 · Bioguide F000469
+ "russ_fulcher": {
+  "name": "Russ Fulcher", "office": "U.S. Representative",
+  "state": "Idaho · ID-01",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // MI-11 · Bioguide S001215
+ "haley_stevens": {
+  "name": "Haley Stevens", "office": "U.S. Representative",
+  "state": "Michigan · MI-11",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NE-03 · Bioguide S001172
+ "adrian_smith": {
+  "name": "Adrian Smith", "office": "U.S. Representative",
+  "state": "Nebraska · NE-03",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NM-01 · Bioguide S001218
+ "melanie_stansbury": {
+  "name": "Melanie Stansbury", "office": "U.S. Representative",
+  "state": "New Mexico · NM-01",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NM-02 · Bioguide V000136
+ "gabe_vasquez": {
+  "name": "Gabe Vasquez", "office": "U.S. Representative",
+  "state": "New Mexico · NM-02",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NM-03 · Bioguide L000273
+ "teresa_leger_fernandez": {
+  "name": "Teresa Leger Fernández", "office": "U.S. Representative",
+  "state": "New Mexico · NM-03",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NV-01 · Bioguide T000468
+ "dina_titus": {
+  "name": "Dina Titus", "office": "U.S. Representative",
+  "state": "Nevada · NV-01",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // NV-03 · Bioguide L000590
+ "susie_lee": {
+  "name": "Susie Lee", "office": "U.S. Representative",
+  "state": "Nevada · NV-03",
+  "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // ── Senate (3) ──────────────────────────────────────────────────────────────,
+ // MS · U.S. Senate Class II · Bioguide H001079
+ "hyde_smith": {
+  "name": "Cindy Hyde-Smith", "office": "U.S. Senator",
+  "state": "Mississippi",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OH · U.S. Senate Class III · Bioguide H001104
+ "jon_husted": {
+  "name": "Jon Husted", "office": "U.S. Senator",
+  "state": "Ohio",
+  "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
+  "issues": []
+ },
+ // OK · U.S. Senate Class II · Bioguide A000383
+ "alan_armstrong": {
+  "name": "Alan Armstrong", "office": "U.S. Senator",
+  "state": "Oklahoma",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
  }
