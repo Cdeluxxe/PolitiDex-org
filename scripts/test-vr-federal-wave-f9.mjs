@@ -1072,6 +1072,31 @@ const swNote = swWaveNote();
     "issue-colors.js",
     "scripts/test-hero-showcase.mjs",
     "scripts/test-homepage-card-lane.mjs",
+    // The issue file's ADDRESS (CACHE_VERSION v112), on the same later-wave terms
+    // again, and this one adds no surface at all. Door 1's issue mode has painted a
+    // child ledger for a long time — crumb, themed chips, census, five bands,
+    // measures, the honesty lines — and a chip tap, the typeahead and OPEN all
+    // mounted it. What did not exist was /i/<key>: no citation, so the Eye's own
+    // issue hit, a topic-tree leaf and a share sheet could point at a person, a
+    // bill or a roll call and never at THE ISSUE. The fix is an extraction, not a
+    // second page: door1-workspace.js's issueProfileHtml(key) is the ledger paint
+    // lifted out of issueDeskHtml() and exported as PDXDoor1.issueProfile, and the
+    // new module owns the address and paints nothing at all — it reads a key out of
+    // the path, resolves it through the desk's own resolver, and hands it to
+    // window.pdxDoor1Issue, the same entry point a chip tap uses. The reason a wave
+    // like this one declares it: R1 and R2 put 1,120 member files behind these
+    // keys, so "who advanced this and who cut against it" is now a reading over a
+    // real roster, and it was the one reading on the site a reader could not send
+    // to anybody. Every count, band, tier, measure and Direction Match figure is
+    // byte-identical, which the twin boot above has just proved; the address module
+    // touches no record at all.
+    "pdx-issue-profile.js",
+    "pdx-issue-family.js",
+    "stance-tree.js",
+    "stance-tree.css",
+    "netlify.toml",
+    "scripts/test-issue-file-address.mjs",
+    "scripts/test-issue-family.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }

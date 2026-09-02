@@ -1698,6 +1698,20 @@
     // real answer to a bundle-sized question and nothing else here replaces it.
     // `keyIsBundle` is how that decision reaches the assembly; it is set on every
     // call, so it can never describe a previous query.
+    // The issue file's address, asked of the module that owns it. A fallback of
+    // '#' rather than a path built here: a wrong address is worse than an inert
+    // one, and the click handler below opens the ledger either way.
+    function issueFileUrl(key) {
+      try {
+        var P = window.PDXIssueProfile;
+        if (P && typeof P.path === 'function') return P.path(key) || '#';
+      } catch (e) {}
+      try {
+        var F = window.PDXIssueFamily;
+        if (F && typeof F.profileUrl === 'function') return F.profileUrl(key) || '#';
+      } catch (e) {}
+      return '#';
+    }
     var keyIsBundle = false;
     function issueKeyBlock(q) {
       keyIsBundle = false;
@@ -1742,10 +1756,23 @@
         '</div>' +
         '<div class="pdx-eye-key-say">' + say + '</div>' +
         '<div class="pdx-eye-ans-foot">' +
-          '<button type="button" class="pdx-eye-ans-btn pdx-eye-ans-btn--primary" data-eye-key-go="' + esc(key) + '">' +
+          // ── AND NOW IT HAS AN ADDRESS ────────────────────────────────────
+          // An <a> rather than a <button>, on /i/<key>. The TAP is unchanged:
+          // the delegated handler still preventDefaults and opens in place
+          // through window.pdxDoor1Issue, so nothing about this control got
+          // slower or reloaded the page. What the element gains is the thing a
+          // button cannot have — a real destination. A reader can copy the
+          // link, open it in a new tab, or middle-click it, and the address they
+          // get is the issue's own file rather than "wherever the Eye was open".
+          // The address is asked of PDXIssueProfile so this file spells no path
+          // of its own; the bundle branch gets the same address, because
+          // /i/<coreKey> opens the desk's inventory and its key shelf, which is
+          // exactly what this button has always promised for one of the thirteen.
+          '<a class="pdx-eye-ans-btn pdx-eye-ans-btn--primary" href="' +
+            esc(issueFileUrl(key)) + '" data-eye-key-go="' + esc(key) + '">' +
             '<span aria-hidden="true">🏛</span>' +
             (keyIsBundle ? 'Open the issue desk' : 'Open the record ledger') +
-          '</button>' +
+          '</a>' +
         '</div>' +
       '</div>';
     }
@@ -2147,6 +2174,15 @@
         el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
         el.addEventListener('click', function (ev) {
           ev.stopPropagation();
+          // The control is an anchor on /i/<key> now, so the default action is a
+          // full navigation to that address. It is a correct destination and a
+          // deliberately unused one: the desk is already on this page and
+          // pdxDoor1Issue opens the same ledger without a reload. So the tap is
+          // consumed here and the href is left for copy, new-tab and middle-click
+          // — the three things a button could not offer. A modified click is NOT
+          // intercepted, because a reader holding ⌘ or ctrl has asked for the tab.
+          if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button) return;
+          ev.preventDefault();
           var key = el.getAttribute('data-eye-key-go') || '';
           close();
           try { if (typeof window.pdxDoor1Issue === 'function') window.pdxDoor1Issue(key); } catch (e) {}

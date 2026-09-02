@@ -880,6 +880,46 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v112 - /i/<key> IS THE ISSUE FILE. Door 1's issue mode has painted the child
+// ledger for a while — the Core → Child crumb, the census, the five formal-pattern
+// bands, the measures on file, the honesty lines — and seek, OPEN and a chip tap
+// all mount it. None of them produced a citation. There was no /i/lands_preserve,
+// so the Eye's own issue hit, the person file's topic tree and every share control
+// could point at a person, a bill or a roll call and never at THE ISSUE. This pass
+// gives that reading an address, and it does it by EXTRACTING the paint rather
+// than building a second one: one function, two doors.
+//   · pdx-issue-profile.js — NEW SHELL ASSET, and the reason the bump is not
+//                            optional. A warm device holding v111 would be served
+//                            /i/lands_preserve by the new rewrite (netlify.toml is
+//                            server-side and cannot be stale) with no module on
+//                            the page that reads the path — a 200 that shows the
+//                            homepage, which is the exact defect the /vote/*
+//                            rewrite shipped with and the one this closes.
+//   · door1-workspace.js   — issueProfileHtml(key) is the extraction: the scope
+//                            sentence, crumb, census, bands, tail, measures and
+//                            the formal lane's wall, lifted out of issueDeskHtml
+//                            unchanged and exported as PDXDoor1.issueProfile.
+//                            Stale here means the new module finds no builder and
+//                            mounts nothing at all.
+//   · pdx-issue-family.js   — profileUrl(key) stopped being a naming hook that
+//                            returned '#issue=' and became the child's address,
+//                            /i/<key>. It is now the one place that string is
+//                            spelled, and the tree's link is built from it.
+//   · stance-tree.js       — the person file's topic tree carries the new door.
+//                            The leaf's own tap still opens that person's issue
+//                            dossier; the issue file is a SEPARATE control beside
+//                            it, so nothing was stolen from the row.
+//   · stance-tree.css      — that one control. Nothing restyled.
+//   · all-seeing-eye.js    — the issue hit's primary button is now an anchor on
+//                            /i/<key>. The tap still opens in place through
+//                            pdxDoor1Issue (no reload); what changed is that the
+//                            address is now real, copyable and middle-clickable.
+//   · index.html           — the one new <script defer>, precached as '/'.
+// No new key, no reparent, no floor, no mapping, no weight and no figure moved.
+// The extraction is display-only and provably neutral: the desk's painted HTML
+// for a key is byte-identical to v111's, and every person brief and Direction
+// Match read is byte-identical with this module loaded and without it.
+//
 // v111 - THE HOMEPAGE RECORD CARD WEARS THE PERSON FILE'S FACE. Card N of 6 in
 // the carousel is the first person-file a stranger sees, and it was the last
 // surface still painting the old card language: three untyped issue rows and a
@@ -1008,7 +1048,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v111';
+const CACHE_VERSION = 'v112';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -1100,6 +1140,13 @@ const SHELL_ASSETS = [
   // both built from it, and a device that had one file and not the other would
   // quietly group issues two different ways.
   '/pdx-issue-family.js',
+  // The issue file's address, /i/<key>. Precached WITH pdx-issue-family.js
+  // because that module is where the address string is spelled (profileUrl) and
+  // this one is what reads it back off location.pathname: a device holding one
+  // and not the other would either paint a link to a path nothing adopts, or
+  // adopt a path no surface links. Tiny, and it paints nothing itself — the
+  // ledger it mounts is door1-workspace.js's, which is already on this list.
+  '/pdx-issue-profile.js',
   // Issue color tokens. Tiny, and precached with alignment-tool.js so an offline
   // repeat visit keeps issues colour-coded instead of falling back to slate
   // everywhere, which would read as "nothing is a core issue".

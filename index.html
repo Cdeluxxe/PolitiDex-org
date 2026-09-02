@@ -4026,7 +4026,7 @@ window.PDXLazy = (function () {
       .pdx-eye-ans-cov b{color:#e7eefb;font-weight:600;}
       .pdx-eye-ans-cov--none,.pdx-eye-ans-cov--stated-only{border-color:rgba(251,146,60,0.3);background:rgba(251,146,60,0.08);color:#f3cba4;}
       .pdx-eye-ans-foot{display:flex;flex-wrap:wrap;gap:0.35rem;margin:0.45rem 0.15rem 0.1rem;}
-      .pdx-eye-ans-btn{display:inline-flex;align-items:center;gap:0.32rem;padding:0.34rem 0.7rem;border-radius:9999px;border:1px solid rgba(148,163,184,0.28);background:rgba(148,163,184,0.06);color:#b8c6de;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.05em;cursor:pointer;transition:background .13s ease,border-color .13s ease,color .13s ease;}
+      .pdx-eye-ans-btn{display:inline-flex;align-items:center;gap:0.32rem;padding:0.34rem 0.7rem;border-radius:9999px;border:1px solid rgba(148,163,184,0.28);background:rgba(148,163,184,0.06);color:#b8c6de;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.05em;cursor:pointer;text-decoration:none;transition:background .13s ease,border-color .13s ease,color .13s ease;}
       .pdx-eye-ans-btn:hover{background:rgba(148,163,184,0.14);border-color:rgba(148,163,184,0.5);color:#eaf1fd;}
       .pdx-eye-ans-btn--primary{border-color:rgba(245,200,66,0.42);background:rgba(245,200,66,0.1);color:#f2d78b;}
       .pdx-eye-ans-btn--primary:hover{background:rgba(245,200,66,0.2);border-color:rgba(245,200,66,0.65);color:#ffe9a8;}
@@ -22512,6 +22512,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        desk. Loads after the modules it reads and after the Door 2 spine whose
        demotion idiom it follows. -->
   <script defer src="/door1-workspace.js"></script>
+  <!-- /i/<key> — the issue file's own address. Reads the key out of
+       location.pathname, resolves it through the desk's own resolver, and mounts
+       the SAME ledger a Door 1 chip tap mounts (PDXDoor1.issueProfile). Loaded
+       after door1-workspace.js because that is where the one builder lives; the
+       arrival itself is a macrotask, so the order is documentation rather than a
+       dependency. Paints nothing of its own. -->
+  <script defer src="/pdx-issue-profile.js"></script>
   <!-- Scope chrome. Reads pdxRepsForMe() for districtsResolvable and states both
        scopes in the chrome of Door 2 and of the archive header. Loads after the
        location resolver it reads; re-paints on _updateTeamPositionsForLocation. -->

@@ -904,7 +904,42 @@
           '</span>' +
           '<span class="pdxtree-go" aria-hidden="true">›</span>' +
         '</button>' +
+        issueFileHtml(lf) +
       '</div>';
+  }
+
+  // ── THE SECOND DOOR, AND IT TAKES NOTHING FROM THE FIRST ──────────────────
+  // A leaf's primary tap opens THIS PERSON'S dossier on this issue, and that has
+  // not changed: the door is data-pdxtree-dos on the face button, the delegated
+  // handler still reads it off closest(), and this anchor is a SIBLING of that
+  // button rather than anything inside it. So closest('[data-pdxtree-dos]') can
+  // never reach a door from a tap that landed here, and the row tap can never be
+  // stolen by the link. Two controls, two destinations, both named.
+  //
+  // WHAT THE SECOND ONE IS FOR. A leaf answers "what did they say and what did
+  // their record do" — one person, one key. The issue file answers the other
+  // half of the same question: on this key, across everyone with a readable
+  // formal row, who advanced it, who cut against it, who ran both ways. That
+  // reading has existed on Door 1's desk for a while and had no address until
+  // /i/<key>, which is why this control could not exist before now.
+  //
+  // A REAL LINK, ON A REAL PATH, and not intercepted here. This module navigates
+  // nowhere — that is a standing wall in this file — so the browser does the
+  // navigating: the app is served at /i/<key> by a 200 rewrite and
+  // pdx-issue-profile.js mounts the ledger on arrival. The address is asked of
+  // PDXIssueFamily, which owns the string; no path is spelled in this file, and a
+  // document served without that module gets no control at all rather than a
+  // link to a guess.
+  function issueFileHtml(lf) {
+    var F = window.PDXIssueFamily;
+    var href = '';
+    try { if (F && typeof F.profileUrl === 'function') href = F.profileUrl(lf.key) || ''; } catch (e) { href = ''; }
+    if (!href) return '';
+    return '<a class="pdxtree-file" href="' + escAttr(href) + '"' +
+      ' data-pdxtree-file="' + escAttr(lf.key) + '"' +
+      ' aria-label="' + escAttr('Open the issue file for ' + lf.label +
+        ' — the formal record on this key across everyone who has one') + '">' +
+      '🏛 Issue file<span class="pdxtree-filego" aria-hidden="true"> ›</span></a>';
   }
 
   // ── A BRANCH FACE ─────────────────────────────────────────────────────────
@@ -1532,7 +1567,14 @@
       // stance rows, the Official Record rows and the formal-pattern index all use,
       // so the deep dive a leaf reaches is the deep dive that issue already had. There is no second dossier, no
       // tree-only report surface and no new route: this module navigates nowhere.
-      // A leaf carries exactly one control, so nothing on it can steal that tap.
+      // A LEAF CARRIES TWO CONTROLS AND ONLY ONE OF THEM IS THIS ONE. The face is
+      // the dossier — this person on this issue — and the anchor beside it is the
+      // issue file at /i/<key>, everyone on that issue. Neither can steal the
+      // other's tap: the dossier is claimed by data-pdxtree-dos, which lives on
+      // the face and on nothing above it, so a tap that lands on the anchor
+      // cannot walk up to a door, and a tap that lands on the face never reaches
+      // the anchor at all. The link is left alone here so the browser navigates
+      // it; this module still navigates nowhere itself.
       // `origin` is the leaf's own id, which is how closing the dossier returns the
       // reader to the leaf they opened it from rather than the top of the profile.
       var dos = e.target.closest('[data-pdxtree-dos]');
