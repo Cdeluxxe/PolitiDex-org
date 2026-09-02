@@ -1058,7 +1058,55 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "all-seeing-eye.js",
     "index.html",
     "scripts/test-door-one-workspace.mjs",
-    "scripts/test-door-one-collapse.mjs"]);
+    "scripts/test-door-one-collapse.mjs",
+    // The record-first card pass (CACHE_VERSION v111), on those same later-wave
+    // terms. It writes no roll, no mapping, no key, no floor and no admission: it
+    // changes what the HOMEPAGE carousel card prints. Card N of 6 is the first
+    // person-file a stranger sees, and it was the last surface still painting the
+    // old card language — three untyped issue rows and a loud Word-vs-Action
+    // percent as the hero — on a site whose person file had moved to coloured issue
+    // rows, a 🏛 RECORD badge per characterised row and split counts spelled out.
+    // The reason a wave like this one is the file that has to declare it: R1 and R2
+    // between them put 1,120 files behind that carousel, so the card is now the way
+    // most readers meet the record at all, and it was making a stronger claim with
+    // a percentage than the rows underneath it were allowed to make with words.
+    // consistency.js's five spans and issue-colors.js's one are the NAMES that made
+    // the shared face possible — the badge's lane word and fill rule, the two row
+    // builders' published fields, and styleFor()+isCore() in one shape — all carved
+    // and argued in the shared seam module above. Every count, chip, tier, side word
+    // and Direction Match figure is byte-identical, which the twin boot above has
+    // just proved.
+    "hero-showcase.js",
+    "profile-card.js",
+    "issue-colors.js",
+    "scripts/test-hero-showcase.mjs",
+    "scripts/test-homepage-card-lane.mjs",
+    // The issue file's ADDRESS (CACHE_VERSION v112), on the same later-wave terms
+    // again, and this one adds no surface at all. Door 1's issue mode has painted a
+    // child ledger for a long time — crumb, themed chips, census, five bands,
+    // measures, the honesty lines — and a chip tap, the typeahead and OPEN all
+    // mounted it. What did not exist was /i/<key>: no citation, so the Eye's own
+    // issue hit, a topic-tree leaf and a share sheet could point at a person, a
+    // bill or a roll call and never at THE ISSUE. The fix is an extraction, not a
+    // second page: door1-workspace.js's issueProfileHtml(key) is the ledger paint
+    // lifted out of issueDeskHtml() and exported as PDXDoor1.issueProfile, and the
+    // new module owns the address and paints nothing at all — it reads a key out of
+    // the path, resolves it through the desk's own resolver, and hands it to
+    // window.pdxDoor1Issue, the same entry point a chip tap uses. The reason a wave
+    // like this one declares it: R1 and R2 put 1,120 member files behind these
+    // keys, so "who advanced this and who cut against it" is now a reading over a
+    // real roster, and it was the one reading on the site a reader could not send
+    // to anybody. Every count, band, tier, measure and Direction Match figure is
+    // byte-identical, which the twin boot above has just proved; the address module
+    // touches no record at all.
+    "pdx-issue-profile.js",
+    "pdx-issue-family.js",
+    "stance-tree.js",
+    "stance-tree.css",
+    "netlify.toml",
+    "scripts/test-issue-file-address.mjs",
+    "scripts/test-issue-family.mjs",
+  ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};
     const snapHead = JSON.parse(headSrc("db/share-index.json") || "{}").personRecord || {};

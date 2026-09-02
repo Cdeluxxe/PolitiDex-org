@@ -262,18 +262,55 @@
   // nouns because neither is composed here — PDXProfileCard.read() hands over
   // `formal`, which IS the profile's own recordStandout / execRecordSummary pick,
   // under the profile's own floors. Empty exactly when the profile's strip is.
+  // ── THE ROW'S ISSUE COLOUR, FROM THE ONE PLACE THAT OWNS THEM ─────────────
+  // The same ` data-ic="on" style="…"` fragment the profile brief's pattern rows
+  // and the topic tree carry for the same key, out of PDXIssueColors.skin() rather
+  // than retyped here: that shared helper is why a card row and a tree row for one
+  // issue are the same token byte for byte. No hex is chosen on this file.
+  // An unresolved key — or issue-colors.js not yet on the page — gets no attribute
+  // at all and the row renders exactly as it did before the treatment existed.
+  function icAttr(key) {
+    try {
+      var IC = window.PDXIssueColors;
+      if (!IC || typeof IC.skin !== 'function') return '';
+      return IC.skin(key).attr || '';
+    } catch (e) { return ''; }
+  }
+
+  // ── THE 🏛 RECORD BADGE ────────────────────────────────────────────────────
+  // Every word, every count and both colours arrive on `x.badge`, composed by
+  // PDXProfileCard out of the engine's published tier and recordPattern.paint().
+  // This decides nothing: it is markup for a badge the person file already prints in
+  // exactly these words. aria-hidden because its sentence is folded into the
+  // button's own label below — read as three fragments it loses the sentence.
+  function badgeHtml(b) {
+    if (!b || !b.label) return '';
+    return '<span class="pdx-hs-fm-b w-' + esc(b.weight || 'flat') + '"' +
+        ' style="--c:' + esc(b.c) + ';--bg:' + esc(b.bg) + '"' +
+        ' data-pdxst-pat="' + esc(b.tier || '') + '" aria-hidden="true">' +
+        (b.lane ? '<span class="pdx-hs-fm-b-lane">' + esc(b.lane) + '</span>' : '') +
+        '<span class="pdx-hs-fm-b-lb">' + esc(b.label) + '</span>' +
+        (b.counts ? '<span class="pdx-hs-fm-b-n">\u00b7 ' + esc(b.counts) + '</span>' : '') +
+      '</span>';
+  }
+
   function formalHtml(d) {
     var f = d && d.formal;
     if (!f) return '';
     var head = f.head || {};
     var chips = (f.chips || []).map(function (x) {
+      var b = x.badge || null;
+      // The door label carries the badge's sentence rather than dropping it, in the
+      // engine's wording and with the profile chip's own prefix.
+      var say = 'Open the ' + x.label + ' record for ' + (d.name || '') +
+        (b && b.label ? '. Formal record: ' + b.label + (b.counts ? ', ' + b.counts : '') : '');
       // Issue-scoped chip, issue-scoped door — see openIssue().
       return '<button type="button" class="pdx-hs-fm-chip" data-pid="' + esc(d.pid) + '" ' +
-          'data-iss="' + esc(x.key) + '" aria-label="' +
-          esc('Open the ' + x.label + ' record for ' + (d.name || '')) + '">' +
+          'data-iss="' + esc(x.key) + '"' + icAttr(x.key) + ' aria-label="' + esc(say) + '">' +
           '<span class="pdx-hs-fm-iss">' + esc(x.label) + '</span>' +
           '<span class="pdx-hs-fm-v">' + esc(x.word) + '</span>' +
           (x.depth ? '<span class="pdx-hs-fm-d">' + esc(x.depth) + '</span>' : '') +
+          badgeHtml(b) +
         '</button>';
     }).join('');
     var inv = (f.inventory || []).join(' · ');

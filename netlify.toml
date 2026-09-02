@@ -123,6 +123,41 @@
   to = "/index.html"
   status = 200
 
+# Issue-file deep-links. The third durable address, on exactly the terms /p/<pid>
+# got its own: /i/<key> SERVES this document (HTTP 200 rewrite, not a redirect) so
+# pdx-issue-profile.js can read the key out of location.pathname and mount the
+# issue ledger Door 1 already paints.
+#
+# WHY IT DID NOT EXIST BEFORE, AND WHY THAT WAS THE BUG. Door 1's issue mode has
+# painted the child ledger for a while — the Core → Child crumb, the census, the
+# five formal-pattern bands, the measures on file — and seek, OPEN and a chip tap
+# all mount it. None of them produced a citation. There was no /i/lands_preserve,
+# so the Eye's own issue hit, the person file's topic tree and every share control
+# could point at a person, a bill or a roll call and never at THE ISSUE. An
+# accountability app whose issue reading has no address is one nobody can cite.
+#
+# The key, not a label slug: `lands_preserve` is the identifier ISSUE_MAP, the
+# parent table in alignment-tool.js, the measure mappings and the formal-pattern
+# index all already agree on, and a prettier slug would be a second name for the
+# same thing. An address that spells the label instead still resolves — the
+# desk's own resolver reads it — and re-stamps the bar with the key, so one
+# reading declares one address.
+#
+# NO EDGE FUNCTION STANDS IN FRONT OF THIS ONE, unlike /p/*, /b/* and /vote/*.
+# That is a deliberate limit of this pass rather than an oversight: share-preview
+# gives those paths a record-specific title, card and honest 404, and doing the
+# same here means resolving a key server-side against the generated index. Until
+# that lands, the rewrite answers 200 for /i/<anything> — so the CLIENT is where
+# the honesty has to live, and pdx-issue-profile.js says out loud on arrival when
+# the register carries no key by that name instead of showing the front page to
+# someone who followed a link. Sitemap entries for the register's keys are left
+# to that same later pass, for the same reason: an address a crawler is invited
+# to should have a head written for it first.
+[[redirects]]
+  from = "/i/*"
+  to = "/index.html"
+  status = 200
+
 # Bill-profile deep-links. The third face of the archive gets the same treatment
 # the person file got: /b/<sitting>/<number> — /b/119/H.R.%201 for a federal
 # measure, /b/2024GS/H.B.%20257 for a state one — SERVES index.html (HTTP 200

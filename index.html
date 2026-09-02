@@ -2655,13 +2655,63 @@ window.PDXLazy = (function () {
     .pdx-hs-fm-chip:hover, .pdx-hs-fm-chip:focus-visible {
       border-color: rgba(245,200,66,.5); background: rgba(255,255,255,.09);
     }
+    /* ── THE ISSUE'S OWN COLOUR, THE WAY THE PERSON FILE WEARS IT ──────────
+       Identical treatment to .pdxwa-shape-row[data-ic] on the profile brief: a 4px
+       rail in the issue's colour and its wash fading out across the row. The
+       properties themselves (--pdx-ic and friends) are set inline by the renderer
+       out of PDXIssueColors, so a card row and the topic-tree row for the same key
+       carry the same token — nothing here names a colour. A key that did not resolve
+       has no [data-ic] and none of this applies. */
+    .pdx-hs-fm-chip[data-ic] {
+      border-left-width: 4px; border-left-color: var(--pdx-ic);
+      padding-left: .5rem;
+      background: linear-gradient(90deg, var(--pdx-ic-wash, var(--pdx-ic-soft, transparent)), transparent 66%);
+    }
+    /* The rail survives the hover state — hover recolours the frame, not the
+       issue's identity. */
+    .pdx-hs-fm-chip[data-ic]:hover, .pdx-hs-fm-chip[data-ic]:focus-visible {
+      border-left-color: var(--pdx-ic);
+      background: linear-gradient(90deg, var(--pdx-ic-soft, transparent), rgba(255,255,255,.09) 66%);
+    }
     .pdx-hs-fm-iss { font-weight: 700; color: #fff; flex: 0 1 auto; min-width: 0; }
+    /* The same dot the standout chips and the topic tree put in front of an issue
+       name, for the reader who cannot tell a 4px rail apart at a glance. */
+    .pdx-hs-fm-chip[data-ic] .pdx-hs-fm-iss::before {
+      content: ''; display: inline-block; width: .4rem; height: .4rem;
+      border-radius: 50%; background: var(--pdx-ic); margin-right: .34rem;
+    }
     /* The finding itself — the words the record's own lane chose. The depth trails
        at the far end so the chips line their denominators up under one another. */
     .pdx-hs-fm-v { color: #e7eefb; flex: none; }
     .pdx-hs-fm-d {
       color: #7f92ad; font-size: .68rem; flex: none; margin-left: auto;
       white-space: nowrap; font-variant-numeric: tabular-nums;
+    }
+
+    /* ── 🏛 THE RECORD BADGE, ON ITS OWN LINE UNDER THE ROW ────────────────
+       The same badge the profile brief prints beside a characterised row, in the
+       same sizes and under the same rules as .pdxst-pat in consistency.js: the tone
+       colour and the fill arrive inline as --c / --bg from
+       PDXConsistency.recordPattern.paint(), the two weak weights get a dashed or
+       dotted frame instead of a fill, and the lane marker is set smaller and
+       lighter than the label it prefixes. Full width so it never competes with the
+       issue name for the row's first line. */
+    .pdx-hs-fm-b {
+      display: inline-flex; align-items: center; gap: .24rem;
+      flex: 0 0 100%; margin-top: .2rem; align-self: flex-start;
+      width: fit-content; max-width: 100%; flex-wrap: wrap;
+      font-size: .63rem; font-weight: 800; letter-spacing: .01em;
+      padding: .08rem .45rem; border-radius: 999px;
+      color: var(--c); border: 1px solid var(--c); background: var(--bg);
+    }
+    .pdx-hs-fm-b-lane {
+      font-size: .55rem; font-weight: 700; letter-spacing: .04em;
+      text-transform: uppercase; opacity: .72;
+    }
+    .pdx-hs-fm-b-n { font-weight: 600; font-size: .6rem; opacity: .86; }
+    .pdx-hs-fm-b.w-thin { border-style: dashed; font-weight: 700; }
+    .pdx-hs-fm-b.w-flat {
+      border-style: dotted; border-color: rgba(159,180,212,.34); font-weight: 700;
     }
 
     /* ── ⚖️ WORD VS ACTION · THE SECONDARY CHECK ──────────────────────────
@@ -2691,11 +2741,17 @@ window.PDXLazy = (function () {
     .pdx-hs-sig-score {
       display: inline-flex; align-items: baseline; color: #9fb4d4; flex: none;
     }
+    /* SMALLER THAN THE RECORD BLOCK'S OWN TITLE, and that is the whole rule. The
+       figure sat at 1.1rem — larger than every issue row above it and larger than
+       the "WHAT THE RECORD POINTS TO" heading — which made the cross-check read as
+       the card's finding when it is the check ON the finding. It is a footer figure
+       now: .7rem against the heading's .72rem, at every width.
+       scripts/test-hero-showcase.mjs pins the comparison. */
     .pdx-hs-sig-pct {
       font-family: 'Barlow Condensed', system-ui, sans-serif;
-      font-size: 1.1rem; font-weight: 800; line-height: 1; letter-spacing: -.01em;
+      font-size: .7rem; font-weight: 800; line-height: 1; letter-spacing: -.01em;
     }
-    .pdx-hs-sig-pct-u { font-size: .74rem; font-weight: 700; margin-left: .05em; }
+    .pdx-hs-sig-pct-u { font-size: .58rem; font-weight: 700; margin-left: .05em; }
     .pdx-hs-sig-pct-k {
       font-family: 'Barlow Condensed', system-ui, sans-serif;
       font-size: .62rem; letter-spacing: .06em; text-transform: uppercase;
@@ -2725,12 +2781,14 @@ window.PDXLazy = (function () {
     .pdx-hs-sig-read {
       display: inline-flex; align-items: baseline; gap: .3rem; min-width: 0;
       font-family: 'Barlow Condensed', system-ui, sans-serif;
-      font-size: .9rem; font-weight: 700; line-height: 1.2; color: #9fb4d4;
+      font-size: .8rem; font-weight: 700; line-height: 1.2; color: #9fb4d4;
     }
     /* With no figure beside it the verdict words are the whole badge, so they get
-       the room the percentage would have taken. */
-    .pdx-hs-signal:not(.has-score) .pdx-hs-sig-read { font-size: .98rem; }
-    .pdx-hs-sig-ico { flex: none; font-size: .85rem; }
+       the room the percentage would have taken. Still under the issue rows above:
+       the honest empty sentence ("Nothing testable on file yet") is the footer
+       speaking plainly, not a second headline. */
+    .pdx-hs-signal:not(.has-score) .pdx-hs-sig-read { font-size: .86rem; }
+    .pdx-hs-sig-ico { flex: none; font-size: .78rem; }
     .pdx-hs-sig-label { min-width: 0; }
     .pdx-hs-sig-line {
       font-family: 'Barlow Condensed', system-ui, sans-serif;
@@ -2850,9 +2908,9 @@ window.PDXLazy = (function () {
       .pdx-hs-name { font-size: 1.6rem; }
       /* The badge steps up by a hair, never back into a headline: the formal
          chips below are what gains size on a wide card. */
-      .pdx-hs-sig-read { font-size: .98rem; }
-      .pdx-hs-sig-pct { font-size: 1.2rem; }
+      .pdx-hs-sig-read { font-size: .86rem; }
       .pdx-hs-fm-chip { font-size: .9rem; padding: .38rem .7rem; }
+      .pdx-hs-fm-chip[data-ic] { padding-left: .58rem; }
       .pdx-hs-sig-line, .pdx-hs-proof-txt { font-size: .84rem; }
       .pdx-hs-cov { font-size: .74rem; }
       .pdx-hs-bd-chip { font-size: .7rem; }
@@ -3968,7 +4026,7 @@ window.PDXLazy = (function () {
       .pdx-eye-ans-cov b{color:#e7eefb;font-weight:600;}
       .pdx-eye-ans-cov--none,.pdx-eye-ans-cov--stated-only{border-color:rgba(251,146,60,0.3);background:rgba(251,146,60,0.08);color:#f3cba4;}
       .pdx-eye-ans-foot{display:flex;flex-wrap:wrap;gap:0.35rem;margin:0.45rem 0.15rem 0.1rem;}
-      .pdx-eye-ans-btn{display:inline-flex;align-items:center;gap:0.32rem;padding:0.34rem 0.7rem;border-radius:9999px;border:1px solid rgba(148,163,184,0.28);background:rgba(148,163,184,0.06);color:#b8c6de;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.05em;cursor:pointer;transition:background .13s ease,border-color .13s ease,color .13s ease;}
+      .pdx-eye-ans-btn{display:inline-flex;align-items:center;gap:0.32rem;padding:0.34rem 0.7rem;border-radius:9999px;border:1px solid rgba(148,163,184,0.28);background:rgba(148,163,184,0.06);color:#b8c6de;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.05em;cursor:pointer;text-decoration:none;transition:background .13s ease,border-color .13s ease,color .13s ease;}
       .pdx-eye-ans-btn:hover{background:rgba(148,163,184,0.14);border-color:rgba(148,163,184,0.5);color:#eaf1fd;}
       .pdx-eye-ans-btn--primary{border-color:rgba(245,200,66,0.42);background:rgba(245,200,66,0.1);color:#f2d78b;}
       .pdx-eye-ans-btn--primary:hover{background:rgba(245,200,66,0.2);border-color:rgba(245,200,66,0.65);color:#ffe9a8;}
@@ -22454,6 +22512,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        desk. Loads after the modules it reads and after the Door 2 spine whose
        demotion idiom it follows. -->
   <script defer src="/door1-workspace.js"></script>
+  <!-- /i/<key> — the issue file's own address. Reads the key out of
+       location.pathname, resolves it through the desk's own resolver, and mounts
+       the SAME ledger a Door 1 chip tap mounts (PDXDoor1.issueProfile). Loaded
+       after door1-workspace.js because that is where the one builder lives; the
+       arrival itself is a macrotask, so the order is documentation rather than a
+       dependency. Paints nothing of its own. -->
+  <script defer src="/pdx-issue-profile.js"></script>
   <!-- Scope chrome. Reads pdxRepsForMe() for districtsResolvable and states both
        scopes in the chrome of Door 2 and of the archive header. Loads after the
        location resolver it reads; re-paints on _updateTeamPositionsForLocation. -->

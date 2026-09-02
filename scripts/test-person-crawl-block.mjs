@@ -72,7 +72,8 @@ import { execFileSync, spawnSync } from "node:child_process";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
-import { assertParentTableIsTheOnlyMove } from "./v103-chrome-seams.mjs";
+import { assertParentTableIsTheOnlyMove, CJ_SEAMS_ALL, IC_SEAMS, carveSeams,
+  assertIssueColorsSeams } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -1092,9 +1093,19 @@ section("9 · the engines did not move");
   // never reached the arithmetic, and every piece of the arithmetic — ISSUE_MAP, the
   // weights, the scope notes, the alignment engine — is in the half still compared byte
   // for byte. Nothing was loosened; one region moved from "forbidden" to "stated".
+  // issue-colors.js came off this list for the record-first card pass (v111) and is
+  // pinned at TWO SEAMS immediately below, on the same terms as the spans above. The
+  // reason is the same one that took stance-helpers.js off it: the file is the site's
+  // only issue-colour table, and the pass had to colour a homepage card row with the
+  // SAME token the person file's topic tree prints for that key. The brief did that by
+  // hand-assembling `isCore() ? styleFor() : ''` at its own mount, and two other
+  // surfaces had written the same three lines privately — so a fourth private copy was
+  // the alternative to naming it once, and four private copies cannot promise "byte for
+  // byte". The colour table itself, every hex in it, getIssueColor(), styleFor(),
+  // isCore() and cssText() are all in the half still compared byte for byte.
   const ENGINES = [
     "say-vs-do.js", "exec-record.js",
-    "publication-floor.js", "issue-colors.js",
+    "publication-floor.js",
     "netlify/lib/vr-pack.ts", "netlify/lib/vr-normalize.ts", "db/issue-keys.json",
   ];
   const sha = (s) => createHash("sha256").update(s).digest("hex").slice(0, 16);
@@ -1111,8 +1122,33 @@ section("9 · the engines did not move");
   if (!compared) {
     console.log("      (no git baseline available — engine byte-identity not checked in this environment)");
   } else {
-    ok(compared >= 6, `the engine set was read from HEAD (${compared} files)`);
+    ok(compared >= 5, `the engine set was read from HEAD (${compared} files)`);
     eq(moved, [], "Direction Match, the formal-pattern engines, the packs and the mappings are byte-identical to HEAD");
+  }
+  // ── issue-colors.js: PINNED EVERYWHERE EXCEPT THE SHARED CHIP SKIN ──────────
+  {
+    const IC_NOW = R("issue-colors.js");
+    let headIC = null;
+    try {
+      headIC = execFileSync("git", ["show", "HEAD:issue-colors.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
+    } catch { headIC = null; }
+    if (!headIC) {
+      console.log("      (no git baseline available — issue-colors.js shape not checked in this environment)");
+    } else {
+      const ia = carveSeams(headIC, IC_SEAMS, "HEAD", "issue-colors.js", must);
+      const ib = carveSeams(IC_NOW, IC_SEAMS, "now", "issue-colors.js", must);
+      eq(sha(ia.pinned), sha(ib.pinned),
+        "issue-colors.js is byte-identical to HEAD everywhere outside the shared chip skin and its export — " +
+        "CORE_ISSUE_COLORS, every hex in it, the alias resolution, styleFor(), isCore() and cssText() did not move");
+      ok(ib.pinned.length > IC_NOW.length * 0.9,
+        `the carve is a seam, not a hole: ${ib.pinned.length} of ${IC_NOW.length} bytes are still pinned`);
+      // The seam adds a name; it may not add a colour, a key or a second opinion
+      // about which keys are coloured at all.
+      assertIssueColorsSeams(ib.bodies, { has, ok });
+      eq([...ib.bodies[0].matchAll(/^  function ([A-Za-z_]+)\(/gm)].map((m) => m[1]).join(","),
+        "isCore,skin",
+        "the chip-skin seam declared a function other than the helper itself");
+    }
   }
   {
     let head = null;
@@ -1222,72 +1258,43 @@ section("9 · the engines did not move");
           `${side}: a mechanism-map anchor is no longer unique in consistency.js — widen it, do not loosen it`);
         return { pinned: src.slice(0, i + A.length) + src.slice(j), map: src.slice(i + A.length, j) };
       };
-      // ── AND TWO NAMED SEAMS FOR THE OFFICIAL-RECORD EMPTY COPY ───────────
-      // The person-file chrome pass changed two spans in this file and nothing
-      // else. Both are the SAME defect in two places: an empty Official Record
-      // roll-up was spelled with the vocabulary of missing votes, and it printed
-      // that sentence on /p/aaron_bean directly under a letterhead counting 23
-      // mapped acts. Neither span is arithmetic — no floor, no band, no weight,
-      // no mapping and no score is read or written inside either — so both are
-      // cut out by anchors unique on both sides and argued below, exactly as the
-      // mechanism map above and voting-record.js's five seams below are.
-      const CJ_SEAMS = [
-        ["      blurb: 'The hard, institutional score — their votes and formal legislative actions checked against what they say they stand for.',\n",
-         "\n      // The ✒️ lane's wording for the same card.",
-         "the official scope's empty wording"],
-        ["    else if (counts.limited > 0) token = 'limited';\n",
-         "\n    // Phase 7: Say-vs-Do carries its OWN pooled public-record integrity %",
-         "the roll-up's empty-key token"],
-        // ── AND FIVE MORE, FOR THE ISSUE DESK'S RECORD LEDGER ───────────────
-        // The issue pane now prints one issue's PEOPLE in the same bands the person
-        // file prints one person's ISSUES in — advanced it / cut against it / ran
-        // both ways / thin / no side read — and the only honest way to do that was
-        // to let it read the formal-pattern index's OWN row rather than characterise
-        // the same record a second time on a second surface. That cost one
-        // extraction and one export, in five spans, and not one of them reads or
-        // writes a floor, a weight, a mapping, a tone or a count:
-        //   · the band table          five ids in a fixed order, two inputs, both
-        //                             lifted off a row this file already built
-        //   · the extracted builder   the per-row body, moved out of the loop whole
-        //   · the loop that calls it   two lines where the body used to be
-        //   · two export lines        rowFor / band / LEDGER_BANDS / TAIL_MIN
-        // THE EXTRACTION IS CHECKED BY RECONSTRUCTION, not excused: HEAD's inline
-        // body, re-indented and with its two exits reshaped from the loop's `return`
-        // and `out.push` to a function's `return null` and `return`, must be the new
-        // function's body line for line. A characterisation quietly rewritten while
-        // being moved would survive the seam and die there.
-        ["  var _FPI_TAIL_MIN = 4;\n",
-         "\n  // The one sentence that keeps this list out of the score,",
-         "the ledger's band table"],
-        ["  function _fpiPublishedRead(r) {\n    if (!r || r.lane === 'exec') return null;\n" +
-         "    var d = null;\n    try { d = _stDisplayTier(r); } catch (e) { d = null; }\n" +
-         "    return (d && d.tier && d.tier !== 'none') ? d : null;\n  }\n",
-         "\n  // \u2500\u2500 THE ROWS \u2500\u2500",
-         "the extracted single-row builder"],
-        ["    (issueRows(pid) || []).forEach(function (r) {\n",
-         "\n    // STRONGEST FIRST, THINNEST LAST",
-         "the loop that now calls it"],
-        ["    formalPatternIndex: {\n      rows: _fpiRows,\n",
-         "\n      html: formalPatternIndexHtml,",
-         "the single-row and band exports"],
-        ["      shape: _fpiShape,\n      TOPS_CAP: _FPI_TOPS_CAP,\n      SPLITS_CAP: _FPI_SPLITS_CAP,\n",
-         "\n      VIEWS: _FPI_VIEW_ORDER,",
-         "the exported fold length"],
-      ];
-      const carveCJ = (src, side) => {
-        let pinned = "", pos = 0;
-        const bodies = [];
-        for (const [a, b, why] of CJ_SEAMS) {
-          const i = src.indexOf(a, pos), j = src.indexOf(b, i < 0 ? 0 : i);
-          must(i >= 0 && j > i, `${side}: the seam for ${why} no longer reads as written in consistency.js`);
-          must(src.split(a).length === 2 && src.split(b).length === 2,
-            `${side}: a seam anchor for ${why} is no longer unique in consistency.js — widen it, do not loosen it`);
-          pinned += src.slice(pos, i + a.length);
-          bodies.push(src.slice(i, j));
-          pos = j;
-        }
-        return { pinned: pinned + src.slice(pos), bodies };
+      // ── AND THE NAMED SEAMS THIS FILE HAS BEEN CUT AT SINCE ─────────────
+      // Three passes have legitimately edited spans of this file, and each one had
+      // to declare its spans in scripts/v103-chrome-seams.mjs before it could edit
+      // one — that module IS the declaration, and it is the list this suite carves
+      // with, so the two cannot drift into disagreeing about what is waived:
+      //
+      //   · v103, two spans — an empty Official Record roll-up was spelled with the
+      //     vocabulary of missing votes, and printed that sentence on /p/aaron_bean
+      //     directly under a letterhead counting 23 mapped acts.
+      //   · v108, five spans — the issue pane now prints one issue's PEOPLE in the
+      //     same bands the person file prints one person's ISSUES in, by reading the
+      //     formal-pattern index's OWN row rather than characterising the same
+      //     record a second time on a second surface. One extraction, one loop, two
+      //     export lines and a band table.
+      //   · v111, five spans — the homepage card wears the person file's 🏛 RECORD
+      //     badge, so the badge's lane word and fill rule became named instead of
+      //     inline, and two row builders publish the fields a caller needs to paint
+      //     it. Names, not arithmetic.
+      //
+      // Not one of the twelve reads or writes a floor, a weight, a mapping, a tone
+      // or a count, and the module's assert helpers argue each of them span by span.
+      // THE EXTRACTION IS CHECKED BY RECONSTRUCTION HERE, not excused: HEAD's inline
+      // body, re-indented and with its two exits reshaped from the loop's `return`
+      // and `out.push` to a function's `return null` and `return`, must be the new
+      // function's body line for line. That check needs BOTH sides, which is why it
+      // lives in this suite and not in the module.
+      const CJ_SEAMS = CJ_SEAMS_ALL;
+      // Spans are looked up BY NAME below, never by index: this list is in file
+      // order, so a later pass landing a span in the middle of it renumbers every
+      // span after it, and a position-indexed argument would then be quietly
+      // arguing about the wrong bytes — which passes, and is worse than failing.
+      const bodyOf = (carve, why) => {
+        const i = CJ_SEAMS.findIndex((x) => x[2] === why);
+        must(i >= 0, `no seam named "${why}" is declared in scripts/v103-chrome-seams.mjs`);
+        return carve.bodies[i] || "";
       };
+      const carveCJ = (src, side) => carveSeams(src, CJ_SEAMS, side, "consistency.js", must);
       // Two cuts, in order: the mechanism map first (it is a whole span the seams
       // below sit outside of), then the two empty-copy seams out of the remainder.
       // `map` travels with the result so the append-only check further down still
@@ -1302,13 +1309,14 @@ section("9 · the engines did not move");
         `the carve is a seam, not a hole: ${cb.pinned.length} of ${CJ_NOW.length} bytes are still pinned`);
 
       // ── seam A: the copy table names the missing WORD, not missing votes ─────
-      has(cb.bodies[0], "no_stance: 'No stated position to test'",
+      const scopes = bodyOf(cb, "the official scope's empty wording");
+      has(scopes, "no_stance: 'No stated position to test'",
         "the official scope's no_stance copy no longer names the missing stated position");
-      has(cb.bodies[0], "no_record: 'No qualifying votes on record yet'",
+      has(scopes, "no_record: 'No qualifying votes on record yet'",
         "the issue-level no_record wording moved — a stated position with no vote mapped to it IS a missing vote");
-      ok(!/\d\s*%/.test(cb.bodies[0]), "a percentage appeared in the scope copy table");
+      ok(!/\d\s*%/.test(scopes), "a percentage appeared in the scope copy table");
       // ── seam B: an empty key list is not an empty voting record ──────────────
-      const rollup = cb.bodies[1].replace(/^\s*\/\/.*$/gm, "");
+      const rollup = bodyOf(cb, "the roll-up's empty-key token").replace(/^\s*\/\/.*$/gm, "");
       has(rollup, "!keys.length", "the roll-up no longer distinguishes an empty key list from an empty record");
       has(rollup, "recordsWarm(pid)",
         "…and it decides that on something other than whether the record lane has answered");
@@ -1320,7 +1328,11 @@ section("9 · the engines did not move");
 
       // ── seams C-G: the ledger reads the index; it does not read the record ──
       {
-        const [bands, rowFn, loop, expA, expB] = cb.bodies.slice(2);
+        const bands = bodyOf(cb, "the ledger's band table");
+        const rowFn = bodyOf(cb, "the extracted single-row builder");
+        const loop = bodyOf(cb, "the loop that now calls it");
+        const expA = bodyOf(cb, "the single-row and band exports");
+        const expB = bodyOf(cb, "the exported fold length");
         const strip = (t) => t.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
 
         // THE BAND TABLE IS A TABLE. Five ids, in the clearest-first order the person
@@ -1354,7 +1366,8 @@ section("9 · the engines did not move");
           return t.slice(i + a.length, j);
         };
         const flat = (t) => t.split("\n").map((l) => l.trim()).filter(Boolean).join("\n");
-        const wasBody = flat(between(ca.bodies[4], "(issueRows(pid) || []).forEach(function (r) {\n", "\n    });"))
+        const wasBody = flat(between(bodyOf(ca, "the loop that now calls it"),
+          "(issueRows(pid) || []).forEach(function (r) {\n", "\n    });"))
           .replace("if (!r || !r.key) return;", "if (!r || !r.key) return null;")
           .replace("if (!t && !refused && held <= 0) return;", "if (!t && !refused && held <= 0) return null;")
           .replace("out.push({", "return {")
@@ -1374,6 +1387,80 @@ section("9 · the engines did not move");
         for (const t of [expA, expB])
           ok(!/function|=>|Math\.|MIN_|FLOOR/.test(strip(t)),
             "an export line carries logic — these four are references to what the index already holds");
+      }
+
+      // ── seams H1-H5: the 🏛 badge, on a card that is not this file's ─────────
+      // The homepage card had to print the SAME record badge the person file prints
+      // — not a second one that agrees today — so the badge's two words and its fill
+      // rule stopped being inline at the chip and became named beside the tone table
+      // they read. Everything below is checked with BOTH sides in hand, which is
+      // what this suite has and the wave suites do not: the extracted rule is HEAD's
+      // inline ladder reconstructed, and the two row builders are HEAD's rows with
+      // fields APPENDED and nothing removed, renamed or reordered.
+      {
+        const flatLines = (t) =>
+          t.replace(/^\s*\/\/.*$/gm, "").split("\n").map((l) => l.trim()).filter(Boolean);
+        const bare = (t) => t.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+        // A row builder's last field gains a comma, and its closing `};` moves down,
+        // when a field is appended after it. That punctuation is the ONLY edit
+        // permitted to a line HEAD already had, so it is normalised away and every
+        // other byte of every other line has to survive in order.
+        const reopened = (l) => l.replace(/\s*\};?$/, "").replace(/,$/, "");
+        const appendOnly = (headBody, nowBody, what) => {
+          const was = flatLines(headBody).map(reopened).filter(Boolean);
+          const now = flatLines(nowBody).map(reopened).filter(Boolean);
+          let i = 0;
+          for (const l of now) if (i < was.length && was[i] === l) i++;
+          eq(i, was.length,
+            `${what}: a line HEAD published was removed, renamed or reordered — this seam appends fields, ` +
+            "it does not edit the row");
+          ok(now.length > was.length, `${what}: the seam is declared but nothing was appended`);
+        };
+
+        // H1. THE FILL RULE IS HEAD'S, MOVED. HEAD spelled the tone lookup and the
+        // "only the two strong weights take their tone's fill" ladder inline in the
+        // chip. _stPatPaint() is those exact two statements with a null guard on the
+        // tier added — and the guard is the whole of the difference, spelled out here
+        // so a rule quietly rewritten on the way out dies at this line.
+        const wasChip = bodyOf(ca, "the chip reading that fill instead of spelling it");
+        const nowPaint = bodyOf(cb, "the badge's lane word and its fill rule, named");
+        const ladder = (t) => flatLines(t).filter((l) => /^var (tone|bg)\b|^: \(t/.test(l)).join(" ");
+        eq(ladder(nowPaint),
+          ladder(wasChip)
+            .replace("_ST_PAT_TONE[t.tone]", "_ST_PAT_TONE[(t && t.tone) || 'muted']")
+            .replace(/\(t\.weight ===/g, "(t && t.weight ==="),
+          "the extracted fill rule is not HEAD's inline ladder plus a null guard — which tiers get their " +
+          "tone's fill was rewritten while being moved, and the card and the person file would disagree");
+        has(nowPaint, "var _ST_PAT_LANE = '🏛 Record';",
+          "the badge's lane word is not the two words HEAD's chip prints in front of every label");
+        // H2. AND THE CHIP READS IT BACK. Two lines where the ladder was; the chip's
+        // markup, its label, its tally and its lane literal are outside the seam and
+        // therefore still in the hash above.
+        eq(flatLines(bodyOf(cb, "the chip reading that fill instead of spelling it")).slice(-2).join(" "),
+          "var tone = _stPatPaint(t); var bg = tone.bg;",
+          "the badge chip does something other than read its paint from the one named rule");
+        // H3 and H4. THE ROWS, APPEND-ONLY. Both add fields off a read this file
+        // already made; neither drops or rewrites a field a caller was reading.
+        appendOnly(bodyOf(ca, "the standout row's weight and two-sided phrase"),
+          bodyOf(cb, "the standout row's weight and two-sided phrase"), "the standout row");
+        appendOnly(bodyOf(ca, "the exec row's display tier, beside its verdict word"),
+          bodyOf(cb, "the exec row's display tier, beside its verdict word"), "the exec row");
+        // …and the exec row's tier is the read _xsShape() already makes, not a second
+        // characterisation of the same record on the same page.
+        has(bodyOf(cb, "the exec row's display tier, beside its verdict word"),
+          "_stDisplayTier(_xsSpineRow(p.pid, r).row, _XS_SCOPE)",
+          "the exec row characterises the record a second time instead of reading the display tier " +
+          "_xsShape() reads on the same spine row in the same scope");
+        // H5. TWO EXPORT NAMES, and nothing hung off them.
+        appendOnly(bodyOf(ca, "the badge's two exported tokens"),
+          bodyOf(cb, "the badge's two exported tokens"), "the badge's exports");
+        eq([...bodyOf(cb, "the badge's two exported tokens").matchAll(/^\s*([A-Za-z_]+):/gm)]
+          .map((m) => m[1]).join(","), "TONE,LANE,paint",
+          "the record-pattern export gained a name other than the badge's lane word and its paint");
+        // And not one of the five reads a floor, a score, a party or arithmetic.
+        for (const why of CJ_SEAMS.slice(2).map((x) => x[2]).filter((w) => /badge|standout row|exec row|chip reading/.test(w)))
+          ok(!/MIN_|FLOOR|publishable|PDXPublicationFloor|\bscore\b|Math\.|\bparty\b|\d\s*%/
+            .test(bare(bodyOf(cb, why))), `the seam for ${why} reads a floor, a score, a party or a percentage`);
       }
 
       // APPEND-ONLY. A live rationale belongs to whoever wrote it first (runbook rule

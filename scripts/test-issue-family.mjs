@@ -433,12 +433,34 @@ const LANDCORE = (() => {
   const globals = [...new Set([...CODE.matchAll(/window\.([A-Za-z_$][\w$]*)/g)].map((m) => m[1]))].sort();
   eq(globals.join(","), "CORE_NATIONAL_ISSUES,ISSUE_MAP,PDXIssueFamily",
     "pdx-issue-family.js touches a global other than the parent table and the register");
-  // The permalink hook is a NAME and nothing more: nothing in the repo routes it,
-  // and no chip, crumb or ledger waits on it.
-  eq(F.profileUrl(KEY), `#issue=${KEY}`, "profileUrl does not name the child's address");
+  // THE CHILD'S ADDRESS IS REAL NOW, and this is the one place that spells it.
+  // It was `#issue=<key>` for as long as nothing routed it; /i/* is a 200 rewrite
+  // in netlify.toml and pdx-issue-profile.js mounts the ledger on arrival, so the
+  // hook returns the path it will actually be served at. Root-anchored and
+  // host-free on purpose: the canonical origin is decided in one place and
+  // scripts/test-canonical-and-origin.mjs holds that line repo-wide.
+  eq(F.profileUrl(KEY), `/i/${KEY}`, "profileUrl does not name the child's address");
   eq(F.profileUrl(""), "", "profileUrl invented an address for no key");
-  no(DESK, "profileUrl", "the desk gated something on the permalink hook");
-  no(SRC.get("stance-tree.js"), "profileUrl", "the topic tree gated something on the permalink hook");
+  // The desk still does not gate on the hook — it paints from the key it already
+  // holds, and the address is somebody else's job. Read with comments stripped,
+  // because the prose above the extraction NAMES the hook to say who owns it.
+  no(DESK.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, ""), "profileUrl",
+    "the desk gated something on the permalink hook");
+  // THE TOPIC TREE MAY LINK IT, AND MAY NOT GATE ON IT. A leaf asks this module
+  // for the issue file's path and prints an anchor beside the face — a second
+  // destination, not a second dossier. What is still forbidden is the tree
+  // spelling the path itself, or the leaf's own door depending on the link
+  // resolving: data-pdxtree-dos lives on the face, the anchor is its sibling, and
+  // a document that loaded the tree without this module gets no link at all.
+  const TREE = SRC.get("stance-tree.js");
+  has(TREE, "PDXIssueFamily", "the topic tree does not ask this module for the address");
+  has(TREE, "F.profileUrl(lf.key)", "the topic tree does not read profileUrl for a leaf");
+  no(TREE, "'/i/'", "the topic tree spells the issue-file path itself instead of asking");
+  no(TREE, '"/i/"', "the topic tree spells the issue-file path itself instead of asking");
+  const face = TREE.indexOf("issueFileHtml(lf)");
+  const dosAt = TREE.indexOf("data-pdxtree-dos=");
+  must(dosAt > -1 && face > dosAt,
+    "the leaf's issue-file anchor is not printed after the face that carries the dossier door");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

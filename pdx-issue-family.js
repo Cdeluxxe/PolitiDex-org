@@ -38,9 +38,10 @@
      PDXIssueFamily.crumb(key)         → { coreLabel, childLabel, text } —
                                          "Core label → Child label"
    Plus the audit reads the tests hang on — orphans(), duplicates() — and
-   profileUrl(key), which is a NAMING HOOK ONLY: it returns the address a later
-   permalink pass would use and nothing in this repo routes it yet, so no chip,
-   crumb or ledger is gated on it.
+   profileUrl(key), which is the child's ADDRESS: /i/<key>, root-anchored and
+   host-free. It stopped being a naming hook in September 2026, when /i/* became a
+   served path — but it is still only an address. No chip, crumb or ledger is
+   gated on it, and this file routes nothing itself.
 
    THE TABLE IS READ LIVE, never copied. CORE_NATIONAL_ISSUES loads async on some
    entry points, so the index is built on first use and rebuilt if that array is
@@ -215,13 +216,28 @@
     return Object.keys(m).filter(published).sort();
   }
 
-  // A NAMING HOOK, AND NOTHING MORE. The child is the issue profile, and the
-  // profile is the ledger that already ships — not a new page skin. This returns
-  // the address a permalink pass would give that ledger; nothing in this repo
-  // routes it, no surface links it, and no chip waits on it.
+  // ── THE CHILD'S OWN ADDRESS, AND IT IS ROUTED NOW ─────────────────────────
+  // This used to return '#issue=<key>' and say, at length, that it was a naming
+  // hook nothing routed. It is routed: netlify.toml serves /i/* as this document
+  // (a 200 rewrite, the same arrangement /p/<pid> has), pdx-issue-profile.js
+  // reads the key out of location.pathname and mounts the ledger, and
+  // door1-workspace.js's issueProfileHtml(key) is the one builder both doors use.
+  //
+  // ROOT-ANCHORED, WITHOUT A HOST. The app is served from several paths that all
+  // rewrite to the same document, so an address built by pasting onto "wherever
+  // the reader happens to be" inherits a prefix that means something else — and a
+  // host written in here would be the wrong half of that decision anyway: the
+  // repo has exactly one public origin and one place that names it, which
+  // scripts/test-canonical-and-origin.mjs enforces. PDXIssueProfile.url(key)
+  // puts location.origin in front of this when an absolute form is wanted.
+  //
+  // THE KEY IS NOT RE-SPELT. norm() lower-cases and trims, which is what every
+  // other read in this file does; it does not stem, alias, guess or reparent. A
+  // key with no name in the register still gets its own address, because the
+  // register is what decides that and this file does not overrule it.
   function profileUrl(key) {
     var k = norm(key);
-    return k ? ('#issue=' + encodeURIComponent(k)) : '';
+    return k ? ('/i/' + encodeURIComponent(k)) : '';
   }
 
   window.PDXIssueFamily = {

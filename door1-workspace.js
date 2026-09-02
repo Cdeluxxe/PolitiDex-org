@@ -1223,6 +1223,68 @@
   }
 
   // ══════════════════════════════════════════════════════════════════════════
+  // THE ISSUE FILE · one function, two doors
+  // ══════════════════════════════════════════════════════════════════════════
+  // The person file is /p/<pid>. The issue file is /i/<key>. Until this pass the
+  // second address did not exist: the ledger above — crumb, census, bands, tail,
+  // measures — was reachable only from inside this desk, so the Eye, the person
+  // file's topic tree and a share sheet had nowhere to send a reader who wanted
+  // THE ISSUE rather than one person's row on it. PDXIssueFamily.profileUrl(key)
+  // named the address that ledger would have and said out loud that nothing
+  // routed it. This is the pass that routes it.
+  //
+  // The fix is NOT a second ledger, a second skin or an issue-shaped page. It is
+  // this function: the body the desk already painted, lifted out of
+  // issueDeskHtml() unchanged, so pdx-issue-profile.js can mount at /i/<key> the
+  // same string a chip tap mounts here. There is no visual fork available to
+  // drift, because there is only one builder.
+  //
+  // IN: one ISSUE_MAP key, exactly as given — resolveIssue does the parent lookup
+  // and nothing rounds a key to a cousin. OUT: the scope sentence, the crumb, the
+  // census, the bands, the folded tail, the measures on file and the formal
+  // lane's own wall, every one of them a call into the helpers this desk has
+  // always used. No percentage, no party token, no Direction Match, and nothing
+  // characterised here that the formal-pattern index did not publish.
+  //
+  // A BUNDLE KEY ANSWERS ''. One of the thirteen resolves to a core with no focus
+  // key, and a bundle has no single record to read — which key inside it a reader
+  // meant is theirs to say, on the sub-key shelf. The desk handles that case
+  // below (the bundle overview), and a caller that gets '' has been told honestly
+  // that there is no ONE ledger at that address rather than handed a merged one.
+  function issueProfileHtml(key) {
+    var t = null;
+    try { t = resolveIssue(key); } catch (e) { t = null; }
+    if (!t || !t.focusKey) return '';
+    var core = t.core, focusKey = t.focusKey;
+    var scope;
+    if (t.standalone) {
+      // No bundle to name, and no bundle invented for it. This is the sentence
+      // that keeps a fourteenth list from looking like a bug in the shelf.
+      scope = '<p class="d1-scope">Scoped to <b>' + esc(issueLabel(focusKey)) +
+        '</b> alone — it is not inside any of the tracked issues above, so only its own ' +
+        'record is read here.</p>';
+    } else {
+      scope = '<p class="d1-scope">Scoped to <b>' + esc(issueLabel(focusKey)) + '</b>, inside ' +
+        esc(core.label) + ' — not the whole bundle.</p>';
+    }
+    var led = issueLedger(core, focusKey);
+    if (!led) {
+      return scope +
+        '<p class="d1-empty">The formal-record index is not loaded on this page, so this desk cannot ' +
+        'read the bands. Nothing was characterised.</p>';
+    }
+    // The people the ledger is about to read, warmed in batches. Asked here
+    // rather than in pdxDoor1Issue because the field is only known once
+    // buildRanking has run, and it re-asks after each repaint for the pids a
+    // later batch added — once per person per visit, never per paint.
+    try {
+      var field = issuePeople(core, focusKey) || [];
+      warmLedger(field.map(function (p) { return p && p.id; }));
+    } catch (e) {}
+    return scope + ledgerHtml(led);
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
   // OPEN ANY TRACKED KEY
   // ══════════════════════════════════════════════════════════════════════════
   // The shelf stays thirteen cores, because thirteen is what a reader can scan.
@@ -1393,37 +1455,15 @@
       return head + shelf + '<p class="d1-lead">Pick an issue above.</p>';
     }
 
-    var scope = '';
-    if (focusKey && t.standalone) {
-      // No bundle to name, and no bundle invented for it. This is the sentence
-      // that keeps a fourteenth list from looking like a bug in the shelf.
-      scope = '<p class="d1-scope">Scoped to <b>' + esc(issueLabel(focusKey)) +
-        '</b> alone — it is not inside any of the tracked issues above, so only its own ' +
-        'record is read here.</p>';
-    } else if (focusKey) {
-      scope = '<p class="d1-scope">Scoped to <b>' + esc(issueLabel(focusKey)) + '</b>, inside ' +
-        esc(core.label) + ' — not the whole bundle.</p>';
-    }
     var keyShelf = subKeyShelf(core, focusKey);
 
-    // ── THE LEDGER, WHERE A KEY IS ACTUALLY SELECTED ────────────────────────
-    if (focusKey) {
-      var led = issueLedger(core, focusKey);
-      if (led) {
-        // The people the ledger is about to read, warmed in batches. Asked here
-        // rather than in pdxDoor1Issue because the field is only known once
-        // buildRanking has run, and it re-asks after each repaint for the pids a
-        // later batch added — once per person per visit, never per paint.
-        try {
-          var field = issuePeople(core, focusKey) || [];
-          warmLedger(field.map(function (p) { return p && p.id; }));
-        } catch (e) {}
-        return head + shelf + keyShelf + scope + ledgerHtml(led);
-      }
-      return head + shelf + keyShelf + scope +
-        '<p class="d1-empty">The formal-record index is not loaded on this page, so this desk cannot ' +
-        'read the bands. Nothing was characterised.</p>';
-    }
+    // ── THE ISSUE FILE, WHERE A KEY IS ACTUALLY SELECTED ────────────────────
+    // The scope sentence, the crumb, the census, the bands, the tail and the
+    // measures are ONE function now — issueProfileHtml(key), above — because that
+    // body also has an address of its own: /i/<key>. Two doors, one paint. What
+    // stays here is the DESK's own chrome: the head, the thirteen chips, the seek
+    // control and the sibling-key shelf. See the note over the function.
+    if (focusKey) return head + shelf + keyShelf + issueProfileHtml(focusKey);
 
     // ── THE BUNDLE OVERVIEW ─────────────────────────────────────────────────
     // No key selected yet, so no band set: what this can honestly report is the
@@ -1472,7 +1512,10 @@
           jsq(core.key) + '\')">open the full ' + esc(core.label) + ' ledger</button>.</p>'
         : '');
     }
-    return head + shelf + keyShelf + scope +
+    // (No scope sentence here, and there never was one: `scope` named a SELECTED
+    // key, which is exactly what this branch does not have. It now lives inside
+    // issueProfileHtml, where the key is known.)
+    return head + shelf + keyShelf +
       '<p class="d1-lead">Pick a key above to read what the record on it did. Until then this is the ' +
       'inventory: who holds something formal somewhere inside ' + esc(core.label) + ', deepest file ' +
       'first. Not a reading, and not a match score.</p>' + body;
@@ -2101,6 +2144,12 @@
     issueKeyFor: issueKeyFor,
     issueLabelFor: issueLabel,
     trackedKeys: trackedKeys,
+    // ── THE ISSUE FILE'S ONE BUILDER ──────────────────────────────────────
+    // Exported for the address at /i/<key>, and for nothing else. This is the
+    // SAME function issueDeskHtml() calls when a chip is tapped, which is what
+    // makes the two doors one paint rather than two surfaces that agree today.
+    // PDXIssueProfile.html(key) is a one-line delegation to it.
+    issueProfile: issueProfileHtml,
     // Measures whose curation maps them to a key, for a surface that wants to
     // say how much is on file without warming anybody's record.
     issueMeasures: function (key) {
