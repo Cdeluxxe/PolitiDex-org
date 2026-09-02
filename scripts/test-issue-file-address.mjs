@@ -1020,9 +1020,10 @@ const FILED = await (async () => {
   }
   const globals = [...new Set([...CODE.matchAll(/window\.([A-Za-z_$][\w$]*)/g)].map((m) => m[1]))].sort();
   eq(globals.join(","),
-    "MutationObserver,PDXDoor1,PDXIssueFamily,PDXIssueFile,PDXIssueProfile,PDXIssueScope,addEventListener",
-    "issue-file.js touches a global beyond the desk, the family table, the address, the scope card, " +
-    "the observer that watches the person overlay, and its own name");
+    "MutationObserver,PDXDoor1,PDXIssueColors,PDXIssueFamily,PDXIssueFile,PDXIssueProfile," +
+    "PDXIssueScope,addEventListener",
+    "issue-file.js touches a global beyond the desk, the family table, the palette, the address, " +
+    "the scope card, the observer that watches the person overlay, and its own name");
   // It never writes the address itself — one owner for /i/, and it is the module
   // that took it.
   for (const banned of ["location.href", "location.assign", "location.replace",
@@ -1035,6 +1036,87 @@ const FILED = await (async () => {
     no(CODE, banned, `issue-file.js writes ledger markup (${banned}) — there is one builder`);
   }
   console.log("      issue-file.js: 0 counts, 0 orders, 0 ledger markup, 0 address writes");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("11 · The file wears the family's colour");
+// ── ONE PALETTE, ONE STRING, TWO SURFACES ───────────────────────────────────
+// A reader taps a green chip on the desk and arrives at /i/lands_preserve. If
+// the file's letterhead is the panel's grey, the tap and the destination look
+// like two different subjects. The fix is not "make the bar green" — it is that
+// the bar asks the SAME function the chip asked, so the two strings are one
+// string and there is no second green to drift.
+{
+  const w = boot({ path: `/i/${KEY}` });
+  await arriveAt(w);
+  const C = w.PDXIssueColors;
+  must(C && typeof C.styleFor === "function", "issue-colors.js is not loaded in this boot");
+  const ch = String(w.document.getElementById("pdx-issue-file-chrome").innerHTML);
+  const bar = (ch.match(/<div class="pdxif-bar"[^>]*>/) || [""])[0];
+  must(bar, "the chrome has no .pdxif-bar identity block to theme");
+  has(bar, 'data-ic=', "the identity bar carries no data-ic, so nothing in it can spend the family vars");
+  const barStyle = (bar.match(/style="([^"]*)"/) || ["", ""])[1];
+
+  // THE NAMED TEST: the bar's token IS PDXIssueColors.styleFor(key).
+  eq(barStyle, C.styleFor(KEY), "the file's identity bar does not carry PDXIssueColors.styleFor(key)");
+  // …and it is the same string a Door 1 child chip carries for the same key.
+  // Two surfaces, one palette call, byte-for-byte — which is the whole claim.
+  const shelf = await tapKey(boot({ path: "/" }), KEY);
+  const chip = [...shelf.matchAll(/<button[^>]*class="d1-chip is-key[^>]*>/g)]
+    .map((m) => m[0]).find((c) => c.indexOf(`pdxDoor1Issue('${KEY}')`) >= 0);
+  must(chip, `the desk's sub-key shelf no longer paints a chip for ${KEY}`);
+  eq(barStyle, (chip.match(/style="([^"]*)"/) || ["", ""])[1],
+    "the file's bar and the desk's chip for the same key carry different colour tokens");
+  // The hue is the FAMILY's, not the leaf's own: a child and its core read the
+  // same, which is why the crumb above the title can be one colour story.
+  eq(barStyle, C.styleFor(w.PDXIssueFamily.coreOf(KEY)),
+    "the file's bar is not the core family's colour");
+  // All four properties, because the stylesheet spends more than one of them.
+  for (const v of ["--pdx-ic:", "--pdx-ic-soft:", "--pdx-ic-wash:", "--pdx-ic-ink:"]) {
+    has(barStyle, v, `the bar's token is missing ${v}`);
+  }
+  // Title, crumb, rail — the three things the work order asked for, spent on the
+  // vars and gated on the attribute.
+  const CSS = R("issue-file.css");
+  has(CSS, ".pdxif-bar[data-ic] .pdxif-title { color: var(--pdx-ic-ink); }",
+    "the title does not take the family ink");
+  has(CSS, ".pdxif-bar[data-ic] .pdxif-child { color: var(--pdx-ic-ink); }",
+    "the crumb's child half does not take the family ink");
+  has(CSS, ".pdxif-bar[data-ic] .pdxif-arrow { color: var(--pdx-ic); }",
+    "the crumb's separator does not take the family colour");
+  const rail = (CSS.match(/\.pdxif-bar\[data-ic\]::before\s*\{[^}]*\}/) || [""])[0];
+  must(rail, "there is no rail rule on the identity bar");
+  has(rail, "width: 4px;", "the rail is not the 4px the work order asked for");
+  has(rail, "background: var(--pdx-ic);", "the rail is not painted from the palette var");
+
+  // NO HEX AUTHORED IN EITHER FILE. Every #rrggbb the bar renders arrived through
+  // --pdx-ic*, so a `#` in these two files is a palette colour re-typed by hand —
+  // the one way the file and the chip could become two different greens.
+  for (const f of ["issue-file.js", "issue-file.css"]) {
+    const hexes = [...R(f).matchAll(/#[0-9a-fA-F]{3,8}\b/g)].map((m) => m[0]);
+    eq(hexes.join(","), "", `${f} authors a colour by hand: ${hexes.join(", ")}`);
+  }
+
+  // THE FALLBACK IS THE ABSENCE OF THE ATTRIBUTE. A key that lands on no family
+  // gets no token, no rail and no themed ink — the bar it always was, and never a
+  // grey invented to mean "unthemed".
+  eq(w.PDXIssueFile._skin(MISS).attr, "", "an unresolved key was given a colour anyway");
+  no(w.PDXIssueFile._chrome(MISS), "data-ic", "the chrome themed a key with no family colour");
+  no(w.PDXIssueFile._chrome(MISS), "--pdx-ic", "the chrome leaked palette vars onto an unresolved key");
+
+  // ── THE ⓘ ON THIS KEY IS A REAL BOUNDARY, NOT THE BLANK SENTENCE ───────────
+  const sc = w.PDXIssueScope;
+  const rd = sc.read(KEY);
+  must(rd, `issue-scope.js cannot read ${KEY} at all`);
+  ok(rd.defined, `${KEY} still has no entry in issue-scope.js's table`);
+  ok(rd.inn.length > 40 && rd.out.length > 40,
+    `${KEY}'s scope names no in/out boundary worth reading`);
+  const card = sc.cardHtml(KEY);
+  no(card, sc.NO_DEF, `the scope popover on ${KEY} is still the blank sentence`);
+  has(card, esc(rd.inn), "the popover does not print the boundary the table holds");
+  has(ch, sc.controlHtml(KEY), "the file's bar dropped the ⓘ for a key that now has prose");
+  console.log(`      /i/${KEY} bar === styleFor(${KEY}) === the desk's chip · ` +
+    `4px rail, ink title, ink child · 0 hex in issue-file.* · ⓘ has a boundary`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

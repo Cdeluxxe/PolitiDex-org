@@ -880,6 +880,91 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v114 - THE ISSUE FILE WEARS THE FAMILY'S COLOUR, AND TWO LABELS STOP OVERCLAIMING.
+// Three defects in one pass, and they share a cause: a surface printing something
+// it had not asked the owning module for. (1) v113 gave /i/<key> a stage, and the
+// stage's identity bar was the panel's own grey — so a reader who tapped a green
+// child chip on the desk arrived at a file that looked like a different subject.
+// (2) lands_preserve is an issue-file-first key whose boundary has been argued in
+// writing for a while — in the mapping rationales in consistency.js — while its ⓘ
+// still printed "No definition on file yet." (3) The issue overlay's "who the
+// record reads" block listed every published position under that heading, including
+// rows the formal-pattern index cannot read at all, which is the heading claiming a
+// formal read for a member who has none.
+//   · issue-file.js        - the identity bar now asks PDXIssueColors.skin(key)
+//                            with the family table as its lookup and emits the
+//                            shared [data-ic] gate plus the four inline custom
+//                            properties — the SAME call and the same string Door 1
+//                            already emits on a child chip, so the two surfaces
+//                            cannot become two different greens. It still computes
+//                            nothing and still holds no palette: a key that lands
+//                            on no Core National Issue gets no attribute and the
+//                            bar is exactly the bar v113 shipped.
+//   · issue-file.css       - spends those properties on three things and no more:
+//                            a 4px rail down the left of the block, the title's
+//                            ink, and the crumb's arrow and child half (the split
+//                            the live crumb under the census already uses). Every
+//                            rule is [data-ic]-gated, so the fallback is the
+//                            absence of the attribute rather than an "unthemed"
+//                            hue. NO HEX IS AUTHORED IN EITHER FILE — the chrome
+//                            greys are written in this sheet's own rgb() notation,
+//                            which makes a `#` here a palette colour re-typed by
+//                            hand. Stale in either file and the reader gets a bar
+//                            with a rail and no colour to paint it, or a colour
+//                            token nothing spends.
+//   · issue-scope.js       - three keys gained a locked entry, each TRANSCRIBED
+//                            from the mapping rationales that already argue its
+//                            boundary and from nowhere else. lands_preserve: what
+//                            a protection kept in place is, why the same acres
+//                            read on the resource-development key when they are
+//                            opened up instead, and why wildlife and wilderness
+//                            measures file here. lands_energy: the other half of
+//                            that mirror, and what separates it from Expand
+//                            Domestic Energy Production, which takes no view on
+//                            who owns the ground. restraint: an order removing
+//                            forces from an unauthorised engagement against an
+//                            appropriation that sustains one, and why the
+//                            who-decides half is war_powers and not this key.
+//                            The wall gained the clause that admits a
+//                            mapping-site rationale as a source — only where it
+//                            argues a boundary, and only with the rows it came
+//                            from named in a comment. Nothing else was filled in:
+//                            every scope comment over ISSUE_MAP was already
+//                            transcribed, and the keys still blank have only
+//                            single-measure rationales or nothing argued at all.
+//                            Inventing a scope for those is the thing this module
+//                            exists to refuse.
+//   · issue-page.js        - the "who the record reads" block now lists only rows
+//                            PDXConsistency.formalPatternIndex.rowFor(pid, key)
+//                            can actually read — one function, the same one the
+//                            bands above it are built from, asked directly. A row
+//                            still checking (the warm lane has not settled) stays,
+//                            because "still looking" is not a claim; a row with
+//                            nothing formal on file leaves, and the count of rows
+//                            held back is printed under the block in plain words
+//                            pointing at each member's own file. The inventory it
+//                            counts is unchanged and the warm repaint now repaints
+//                            the tally with the block, so the figure cannot go
+//                            stale a second behind the rows. Runtime-cached rather
+//                            than precached, and the runtime cache is keyed to this
+//                            version, so the bump is what retires the old copy.
+//   · issue-colors.js      - UNCHANGED, and named because it is the ONE palette
+//                            both surfaces now ask. Stale here and the file's bar
+//                            and the desk's chip would be answered by two
+//                            different tables.
+//   · consistency.js       - UNCHANGED, and named twice over: it is where the
+//                            transcribed boundary was argued, and formalPatternIndex
+//                            is the reader the overlay's heading now defers to.
+//   · door1-workspace.js   - UNCHANGED. Still the one builder of the census the
+//                            panel mounts, and still the surface the new bar is
+//                            asserted to MATCH byte-for-byte on colour.
+//   · pdx-issue-family.js  - UNCHANGED. coreOf(key) is the lookup the bar hands the
+//                            palette, so the file and the chip resolve one family.
+// No key, no reparent, no mapping, no floor, no weight and no figure of any kind
+// moved. No percentage, no party and no Direction Match entered any of these
+// surfaces. issueProfileHtml(key) is still the one census, and every person brief
+// reads byte-identically with these modules loaded and without them.
+//
 // v113 - /i/<key> OPENS A FILE, NOT THE HOMEPAGE DESK. v112 gave the child ledger
 // an address and it resolved correctly — /i/lands_preserve found the key, committed
 // the same pick a chip tap commits and painted the same census. What it had no
@@ -1107,7 +1192,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v113';
+const CACHE_VERSION = 'v114';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

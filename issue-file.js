@@ -40,6 +40,21 @@
      A figure in this bar would outrank the census two lines under it, which is
      the same reason person-file.js's kicker carries no Direction Match.
 
+   THE BAR WEARS THE FAMILY'S COLOUR, FROM THE ONE PALETTE
+     A child chip on Door 1's shelf is already painted in its family's hue, and
+     following that chip's own citation used to land the reader on a bar in the
+     desk's generic blue — the same file, in a different livery, which reads as a
+     different surface. So the identity block asks PDXIssueColors.skin(key) for
+     the treatment, exactly as the shelf does: `data-ic` plus the four --pdx-ic*
+     custom properties, and the family table (PDXIssueFamily.coreOf) handed in as
+     the lookup so the file's hue and the chip's hue come off ONE read and cannot
+     drift apart. skin() answers an empty attribute for a key that lands on no
+     Core National Issue, and an empty attribute is the whole fallback: with no
+     `data-ic` on the block, every rule in issue-file.css keyed to it drops out
+     and the bar is the chrome it has always been. No hex is authored in this
+     module or its stylesheet — a colour on this bar came from issue-colors.js or
+     it is not a family colour.
+
    THE DESK IS STILL PAINTED, BEHIND IT
      Deliberately. The arrival commits through pdxDoor1Issue, so the desk holds
      the same pick and paints the same ledger — which is what makes "the numbers
@@ -77,6 +92,10 @@
   function desk() { return window.PDXDoor1 || null; }
   function addr() { return window.PDXIssueProfile || null; }
   function family() { return window.PDXIssueFamily || null; }
+  function colors() {
+    var C = window.PDXIssueColors;
+    return (C && fn(C.skin) && fn(C.styleFor)) ? C : null;
+  }
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
       return c === '&' ? '&amp;' : c === '<' ? '&lt;' : c === '>' ? '&gt;' : '&quot;';
@@ -137,24 +156,51 @@
     try { return S.controlHtml(key) || ''; } catch (e) { return ''; }
   }
 
+  // ── The family's colour, off the one palette ──────────────────────────────
+  // The lookup Door 1 hands the palette for a chip, spelled the same way: a
+  // function over PDXIssueFamily.coreOf. undefined when the family table is not
+  // on the page, which is not a failure — the palette then falls back to its own
+  // globals (window.coreIssueForKey, CORE_NATIONAL_ISSUES) and usually resolves
+  // the key anyway.
+  function familyLookup() {
+    var F = family();
+    if (!F || !fn(F.coreOf)) return undefined;
+    return function (k) { try { return F.coreOf(k) || ''; } catch (e) { return ''; } };
+  }
+  // ' data-ic="on" style="--pdx-ic:…"' for a key that lands on a Core National
+  // Issue, and '' for every other case — no palette on the page, no resolution,
+  // a throw. '' is the fallback the stylesheet is written around: nothing to hook
+  // means the bar keeps the chrome it had before the treatment existed.
+  function skinAttr(key) {
+    var C = colors();
+    if (!C || !key) return '';
+    try { return (C.skin(key, familyLookup()) || {}).attr || ''; } catch (e) { return ''; }
+  }
+
   function chromeHtml(key) {
     var p = pathOf(key);
     var c = crumbOf(key);
-    return '<p class="pdxif-kick">' +
-        '<span class="pdxif-kick-what">Issue file</span>' +
-        (p ? '<a class="pdxif-kick-addr" href="' + esc(p) + '">' + esc(p) + '</a>' : '') +
-      '</p>' +
-      '<h2 class="pdxif-title" id="' + ID_TITLE + '">' +
-        '<span class="pdxif-name">' + esc(labelOf(key)) + '</span>' +
-        scopeControl(key) +
-      '</h2>' +
-      (c
-        ? '<p class="pdxif-crumb">' +
-            '<span class="pdxif-core">' + esc(c.coreLabel) + '</span>' +
-            '<span class="pdxif-arrow" aria-hidden="true">' + esc(arrow()) + '</span>' +
-            '<span class="pdxif-child">' + esc(c.childLabel) + '</span>' +
-          '</p>'
-        : '');
+    // ONE ELEMENT CARRIES THE TREATMENT. The four properties are set on the
+    // identity block and inherited by the title, the crumb and the rail beside
+    // them, so there is exactly one place in this file where a hue is applied
+    // and exactly one attribute a test has to read.
+    return '<div class="pdxif-bar"' + skinAttr(key) + '>' +
+        '<p class="pdxif-kick">' +
+          '<span class="pdxif-kick-what">Issue file</span>' +
+          (p ? '<a class="pdxif-kick-addr" href="' + esc(p) + '">' + esc(p) + '</a>' : '') +
+        '</p>' +
+        '<h2 class="pdxif-title" id="' + ID_TITLE + '">' +
+          '<span class="pdxif-name">' + esc(labelOf(key)) + '</span>' +
+          scopeControl(key) +
+        '</h2>' +
+        (c
+          ? '<p class="pdxif-crumb">' +
+              '<span class="pdxif-core">' + esc(c.coreLabel) + '</span>' +
+              '<span class="pdxif-arrow" aria-hidden="true">' + esc(arrow()) + '</span>' +
+              '<span class="pdxif-child">' + esc(c.childLabel) + '</span>' +
+            '</p>'
+          : '') +
+      '</div>';
   }
 
   // ── The stage ─────────────────────────────────────────────────────────────
@@ -418,6 +464,14 @@
     // cardHtml: the copy in it is part of the deliverable, and a test that can
     // only reach it through a real overlay is a test that does not read the copy.
     _chrome: chromeHtml,
+    // The bar's treatment on its own, so a test can compare the token this file
+    // would print against PDXIssueColors.styleFor(key) without parsing markup.
+    _skin: function (key) {
+      var C = colors();
+      if (!C || !key) return { on: false, style: '', attr: '' };
+      try { return C.skin(key, familyLookup()) || { on: false, style: '', attr: '' }; }
+      catch (e) { return { on: false, style: '', attr: '' }; }
+    },
     _relock: lock,
     _ledger: ledger,
     _node: function () { return el(ID); }

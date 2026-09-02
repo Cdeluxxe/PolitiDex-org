@@ -25,7 +25,11 @@
  *      sentence, and NOT a backfill from the inline paint index.
  *   6. THE MEMBER BLOCK IS PUBLISHED POSITIONS ONLY, folded, grouped by what
  *      they published, carrying the tree's own pattern line — and never the
- *      Direction Match percentage that lives on the same leaf.
+ *      Direction Match percentage that lives on the same leaf. AND EVERY ROW
+ *      UNDER "Who the record reads" IS A ROW THE FORMAL RECORD ACTUALLY READS:
+ *      the gate is PDXConsistency.formalPatternIndex.rowFor, the ledger's own,
+ *      and a published position with nothing formal behind it is disclosed as a
+ *      count instead of printed under a heading that would speak for it.
  *   7. THE WIRING. The bill chip, the person chip, the ⓘ card's door, the
  *      /issue/* router, and the browse route's last-roll field.
  *   8. MUTATION. Every fence above is driven against a deliberately broken
@@ -177,8 +181,8 @@ const C = IP.counts(ROWS, PEOPLE);
 eq(C.measures, PAYLOAD.length, "the measure count is not the number of rows on the page");
 eq(C.rolls, PAYLOAD.filter((m) => m.lastRoll || m.rollcallCount > 0).length,
   "the floor-roll count is not the number of rows carrying a roll");
-eq(C.people, PEOPLE.filter((p) => p.readable).length,
-  "the member count is not the number of READABLE member rows");
+eq(C.people, IP.readRows(PEOPLE).filter((p) => p.readable).length,
+  "the member count is not the number of READABLE member rows the block prints");
 has(HTML, IP.countsLine(C), "the counts line the page prints is not the one its own counter builds");
 // No percentage, anywhere, in any form.
 ok(!/\d\s*%/.test(HTML), "a percentage was printed on the page");
@@ -324,8 +328,24 @@ eq(IP.BUCKETS.filter((b) => b.readable).map((b) => b.key).join(","), "supports,o
   });
   ok(expect.size > 0, "no published housing position exists in the shipped stance data");
   eq(PEOPLE.length, expect.size,
-    "the member block is not every member with a published position on this key");
-  for (const p of PEOPLE) has(HTML, p.name, `${p.name} has a published position and is not named`);
+    "peopleRows is not every member with a published position on this key");
+  // …AND THE BLOCK IS THE SUBSET THE RECORD READS. Under this boot the roll-call
+  // lane never runs, so every shipped `housing` leaf settles on "no formal record"
+  // and the honest block names nobody — which is the case the heading used to get
+  // wrong. Both halves are asserted: the rows the record cannot read are absent,
+  // and the ones it can are present, whichever way the corpus falls tomorrow.
+  const SHOWN = IP.readRows(PEOPLE);
+  for (const p of PEOPLE) {
+    if (SHOWN.indexOf(p) > -1) has(HTML, p.name, `${p.name} is a formal read and is not named`);
+    else hasNot(HTML, p.name, `${p.name} has no formal record and is named under "${IP.PEOPLE_TITLE}"`);
+  }
+  const heldBack = PEOPLE.length - SHOWN.length;
+  if (heldBack) {
+    has(HTML, `${heldBack} published position`,
+      "the positions the record does not read were dropped without saying how many");
+    has(HTML, IP.NO_READS,
+      "a block the record reads nobody in does not say so");
+  }
 }
 // A synthetic roster: the four buckets, an off-key position, and the tree's line.
 {
@@ -345,6 +365,11 @@ eq(IP.BUCKETS.filter((b) => b.readable).map((b) => b.key).join(","), "supports,o
   w.PDXStanceTree = {
     leaf: () => ({ record: { onRecord: true, label: "Advanced it 4 of the 5 times", counts: "5 acts · 3 documents", pct: 80, state: "scored" } }),
   };
+  // THE GATE'S OWN DATA. The block prints a row only where the formal index can
+  // read it, so a synthetic roster has to come with a synthetic index — the real
+  // one has never heard of `a_yes`. Every one of these four is readable here, so
+  // what section 6 asserts below is the shape of the block and not the gate.
+  w.PDXConsistency = { formalPatternIndex: { rowFor: (pid, k) => ({ pid, key: k }) } };
   const rows = w.PDXIssuePage.peopleRows(KEY);
   eq(rows.map((r) => r.pid).join(","), "a_yes,b_no,c_mix,d_thin",
     "the member block is not the four published directions, in vocabulary order");
@@ -369,6 +394,126 @@ eq(IP.BUCKETS.filter((b) => b.readable).map((b) => b.key).join(","), "supports,o
     "a pattern-only member — record read, nothing published — was given a row");
   eq(w.PDXIssuePage.bodyHtml({ key: KEY, rows: [], people: [] }).includes("0 readable member-rows"), true,
     "an empty member block does not count zero out loud");
+}
+
+// ── 6b · THE HEADING AND THE ROW CONTRACT ───────────────────────────────────
+// One sentence, stated as a test: NOTHING under a title that says the record
+// reads a side may be a row whose own record slot says there is no formal record.
+// The shipped page is checked first, then the three cases a corpus cannot supply
+// on demand — a row the index reads, a row it does not, and a row still in
+// flight — are driven through a synthetic roster.
+section("the heading and the row contract: no denial under a claim");
+has(HTML, IP.PEOPLE_TITLE, "the member block lost its title");
+hasNot(HTML, IP.NO_FORMAL,
+  `"${IP.NO_FORMAL}" is printed on the page under "${IP.PEOPLE_TITLE}"`);
+{
+  const w = boot();
+  w.CMP_DATA = { r_read: { name: "Rae Read" }, n_none: { name: "Ned None" }, w_wait: { name: "Wu Wait" } };
+  w.PROFILES = {};
+  w.ISSUE_STANCE_DATA = {
+    r_read: [{ topic: "Housing", issueKey: KEY, issueStance: "support" }],
+    n_none: [{ topic: "Housing", issueKey: KEY, issueStance: "support" }],
+    w_wait: [{ topic: "Housing", issueKey: KEY, issueStance: "oppose" }],
+  };
+  // Three leaves, one per state, in consistency.js's own words for two of them.
+  w.PDXStanceTree = {
+    leaf: (pid) => ({
+      record: pid === "n_none"
+        ? { onRecord: false, state: "none", label: IP.NO_FORMAL, depth: "", counts: "" }
+        : pid === "w_wait"
+          ? { onRecord: false, state: "pending", label: IP.LANE_WARM, depth: "", counts: "" }
+          : { onRecord: true, state: "scored", label: "Advanced it 4 of the 5 times", counts: "5 acts" },
+    }),
+  };
+  // The index reads all three — so the ONLY thing keeping the denial off the page
+  // is the row's own record slot, which is the gate that has to hold when an index
+  // is generous.
+  w.PDXConsistency = { formalPatternIndex: { rowFor: (pid, k) => ({ pid, key: k }) } };
+  const P2 = w.PDXIssuePage;
+  const rows = P2.peopleRows(KEY);
+  eq(rows.length, 3, "the inventory is not all three published positions");
+  const shown = P2.readRows(rows).map((r) => r.pid).join(",");
+  eq(shown, "r_read,w_wait",
+    "the block is not exactly the read row and the row still in flight");
+  const h = P2.peopleHtml(rows, KEY);
+  hasNot(h, IP.NO_FORMAL, `"${IP.NO_FORMAL}" reached the block`);
+  hasNot(h, "Ned None", "a member with no formal record is named under the record heading");
+  has(h, "Rae Read", "the member the record does read was dropped from the block");
+  has(h, "Wu Wait", "a row whose formal lane is still in flight was dropped as a denial");
+  has(h, IP.LANE_WARM, "the row still in flight no longer says it is still looking");
+  has(h, "1 published position", "the one held-back position is not disclosed as a count");
+  // Two rows are printed and both carry a readable direction, so the tally is 2 —
+  // the row still in flight is counted because it is ON the page, and the warm
+  // repaint rewrites this line together with the block when it stops being.
+  eq(P2.counts([], rows).people, 2,
+    "the readable-row count is not the count of readable rows the block prints");
+  eq(P2.counts([], rows.filter((r) => r.pid === "n_none")).people, 0,
+    "a row the block does not print is still counted as a readable member-row");
+  // The warm repaint's gate reads the FULL list, so the pending row has to stay
+  // countable there whatever the display does with it.
+  eq(rows.filter((r) => r.pattern && r.pattern.pending).length, 1,
+    "the pending row is not countable in the inventory the warm repaint reads");
+  // ── AND EACH HALF OF THE GATE, MUTATED AWAY ──────────────────────────────
+  // Two gates hold this contract — the index's answer and the row's own record
+  // slot — so each has to be driven against the roster that ISOLATES it, or the
+  // other one covers for the mutation and the test passes on a broken build.
+  //   · drop the slot gate, with an index that reads everything: the denial
+  //     reappears, because nothing else was looking at the slot;
+  //   · drop the index gate, with a slot that denies nothing and pids the shipped
+  //     index has never heard of: a row nothing formal exists for reappears.
+  function drive(mutate, setup) {
+    const src2 = mutate(SRC);
+    if (src2 === SRC) return { changed: false };
+    const w2 = boot(src2);
+    w2.PROFILES = {};
+    setup(w2);
+    const rows2 = w2.PDXIssuePage.peopleRows(KEY);
+    return { changed: true, html: w2.PDXIssuePage.peopleHtml(rows2, KEY) };
+  }
+  {
+    const r = drive(
+      (x) => x.replace("    if (pat && pat.none) return false;\n", ""),
+      (w2) => {
+        w2.CMP_DATA = w.CMP_DATA;
+        w2.ISSUE_STANCE_DATA = w.ISSUE_STANCE_DATA;
+        w2.PDXStanceTree = w.PDXStanceTree;
+        w2.PDXConsistency = { formalPatternIndex: { rowFor: (pid, k) => ({ pid, key: k }) } };
+      });
+    if (!r.changed) failures.push('mutation "the `none` state stops gating the row" did not change the source');
+    else ok(r.html.includes(IP.NO_FORMAL) || r.html.includes("Ned None"),
+      "mutation survived: the `none` state stops gating the row");
+  }
+  {
+    // The shipped module first, on the same roster: a row nothing formal exists
+    // for is already off the block, which is what makes the mutation below a
+    // change and not a coincidence.
+    const wb = boot();
+    wb.PROFILES = {};
+    wb.CMP_DATA = { z_ghost: { name: "Zed Ghost" } };
+    wb.ISSUE_STANCE_DATA = { z_ghost: [{ topic: "Housing", issueKey: KEY, issueStance: "support" }] };
+    wb.PDXStanceTree = {
+      leaf: () => ({ record: { onRecord: true, state: "scored", label: "Advanced it 4 of the 5 times", counts: "5 acts" } }),
+    };
+    const rb = wb.PDXIssuePage.peopleRows(KEY);
+    eq(rb.length, 1, "the inventory dropped a published position instead of the block");
+    hasNot(wb.PDXIssuePage.peopleHtml(rb, KEY), "Zed Ghost",
+      "a member the formal index cannot read is printed under the record heading");
+    const r = drive(
+      (x) => x.replace("    return p.formal !== 'no';", "    return true;"),
+      (w2) => {
+        w2.CMP_DATA = { z_ghost: { name: "Zed Ghost" } };
+        w2.ISSUE_STANCE_DATA = { z_ghost: [{ topic: "Housing", issueKey: KEY, issueStance: "support" }] };
+        // A slot that denies nothing and is not in flight — so the index is the
+        // only thing that can keep this row off the block, and the shipped index
+        // has no `z_ghost`.
+        w2.PDXStanceTree = {
+          leaf: () => ({ record: { onRecord: true, state: "scored", label: "Advanced it 4 of the 5 times", counts: "5 acts" } }),
+        };
+      });
+    if (!r.changed) failures.push('mutation "the formal index stops gating the row" did not change the source');
+    else ok(r.html.includes("Zed Ghost"),
+      "mutation survived: the formal index stops gating the row");
+  }
 }
 
 // ── 7 · THE WIRING ──────────────────────────────────────────────────────────
@@ -494,6 +639,7 @@ for (const [name, mutate] of MUTANTS) {
       e_other: [{ topic: "Taxes", issueKey: "lower_taxes", issueStance: "support" }],
     };
     w.PDXStanceTree = { leaf: () => ({ record: { onRecord: true, label: "Advanced it 4 of the 5 times", counts: "5 acts", pct: 80 } }) };
+    w.PDXConsistency = { formalPatternIndex: { rowFor: (pid, k) => ({ pid, key: k }) } };
     const rows = w.PDXIssuePage.peopleRows(KEY);
     return { rows, html: w.PDXIssuePage.peopleHtml(rows, KEY), counts: w.PDXIssuePage.counts([], rows) };
   }
