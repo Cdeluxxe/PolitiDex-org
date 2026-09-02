@@ -558,10 +558,60 @@ section("8 · A shipped issue key opens as itself; an unknown one still refuses"
     eq(typeof "housing".keys, "undefined", "probe: a string somehow has a keys field");
   }
 
-  // AND WITH ROWS ON FILE, THE DESK LISTS PEOPLE. One function is stubbed — the
-  // ledger's own record read — so what is proved here is the desk's behaviour given
-  // roll-call evidence on this key: it prints a person, in the record's words, and
-  // not an empty. Everything between the stub and the markup is shipped code.
+  // AND WITH ROWS ON FILE, THE DESK READS THE RECORD OUT. Two reads are stubbed —
+  // the issue lane's own slice read, which is how a field is DISCOVERED, and that
+  // member's whole record, which is what the formal-pattern index characterises.
+  // Both matter and they are not the same read: the slice read deliberately never
+  // warms PDXVotingRecord._records, so a desk that only did the first one would
+  // discover a person and then have nothing to say about them. What is proved here
+  // is the desk's behaviour given roll-call evidence on this key: it prints that
+  // person, in the INDEX's words, and not an empty. Everything between the two
+  // stubs and the markup is shipped code.
+  {
+    const ACT = {
+      measureId: "hjres131-119", number: "H.J.Res. 131", title: "A resolution",
+      chamber: "senate", position: "Yea", date: "2025-05-01", kind: "vote",
+      issues: [{ issueKey: "lands_preserve" }],
+    };
+    const s = boot({
+      session: { pdx_d1_mode: "issue" },
+      records: () => Promise.resolve({ byPid: { lee: [ACT] } }),
+      beforeDesk: (w) => {
+        // The whole record, seeded the way a completed /api/voting-record read
+        // leaves it. Without this the row is honestly COLD rather than empty —
+        // which the next block checks — and the index has no file to read.
+        try { w.PDXVotingRecord.noteMember("lee", [ACT]); } catch { /* not a member surface */ }
+      },
+    });
+    s.pdxDoor1Issue("lands_preserve");
+    await new Promise((r) => setTimeout(r, 40));
+    const listed = paint(s);
+    has(listed, "d1-led-census",
+      "with roll-call rows on file the desk printed no ledger — the fix to the\n" +
+      "    resolver alone does not open the issue if the record is never asked for");
+    has(listed, 'href="/p/lee"', "the row on file is not attributed to the member who holds it");
+    has(listed, 'data-pdxst-dos="lands_preserve"',
+      "the row does not open that member's own acts on this key");
+    // The characterisation is the index's, not this desk's and not this file's.
+    const x = s.PDXConsistency.formalPatternIndex.rowFor("lee", "lands_preserve");
+    must(x, "the formal-pattern index publishes no row for a member with an act on this key");
+    has(listed, x.patLabel, "the printed chip is not the formal-pattern index's own label");
+    const band = s.PDXConsistency.formalPatternIndex.band(x);
+    has(listed, "is-" + band, `the row was not filed in the ${band} band the index puts it in`);
+    no(listed, s.PDXConsistency.menu.PHRASES.no_vehicle.note,
+      "the desk printed the record lane's no-vehicle sentence over a record it was holding");
+    // Nothing was invented to fill the row: no figure, and no caucus token outside
+    // the office's own name (see the office carve-out in test-door-one-workspace).
+    no(listed, "%", "a percentage arrived with the ledger");
+    const noOffice = listed.replace(/<span class="d1-led-o">[\s\S]*?<\/span>/g, "");
+    for (const tok of ["Republican", "(R)", "Democrat"]) {
+      no(noOffice, tok, `the ledger prints "${tok}"`);
+    }
+  }
+
+  // AND A ROW WHOSE FULL RECORD IS NOT IN YET SAYS SO. The slice read found the
+  // person; their file has not landed. That is not an empty record and must not be
+  // painted as one — the pane says it is still reading.
   {
     const s = boot({
       session: { pdx_d1_mode: "issue" },
@@ -575,19 +625,10 @@ section("8 · A shipped issue key opens as itself; an unknown one still refuses"
     });
     s.pdxDoor1Issue("lands_preserve");
     await new Promise((r) => setTimeout(r, 40));
-    const listed = paint(s);
-    has(listed, 'class="d1-people"',
-      "with roll-call rows on file the desk printed no people list — the fix to the\n" +
-      "    resolver alone does not open the issue if the record is never asked for");
-    has(listed, "1 formal act on file", "the listed row does not say what is on file");
-    has(listed, "Mike Lee", "the row on file is not attributed to the member who holds it");
-    no(listed, s.PDXConsistency.menu.PHRASES.no_vehicle.note,
-      "the desk printed the record lane's no-vehicle sentence over a record it was holding");
-    // Nothing was invented to fill the row: no party, no figure.
-    no(listed, "%", "a percentage arrived with the people list");
-    for (const tok of ["Republican", "(R)", "Democrat"]) {
-      no(listed, tok, `the people list prints "${tok}"`);
-    }
+    const cold = paint(s);
+    no(cold, s.PDXConsistency.menu.PHRASES.no_vehicle.note,
+      "a person whose full record has not arrived was painted as a record that holds nothing");
+    has(cold, "Reading the roll-call record", "the pane does not say it is still reading");
   }
 
   // AND THE NO-VEHICLE SENTENCE IS STILL THERE FOR A REAL EMPTY. Removing a false

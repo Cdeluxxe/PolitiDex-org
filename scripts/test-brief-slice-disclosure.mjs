@@ -471,7 +471,17 @@ section("7 · twin boot — one new node, nothing else");
   }
   eq(drifted.slice(0, 6).join(" "), "",
     `${drifted.length} formal brief(s) changed by more than the one new node`);
-  ok(identical > 0 && nodeOnly > 0, `twin boot saw no movement at all (identical=${identical}, nodeOnly=${nodeOnly})`);
+  // …AND `nodeOnly > 0` EXPIRED THE DAY THE RENDERER LANDED IN HEAD. It asked the
+  // twin boot to WATCH the new node arrive, which is a thing that can only be seen
+  // while word-action.js is uncommitted; against a HEAD that already ships the
+  // sentence, every brief comes out identical, and identical is the passing case
+  // here, not the failing one. The two facts still worth holding are kept: every
+  // brief in the corpus is accounted for by one of the two buckets and nothing
+  // drifted (above), and the sentence really is on the live corpus — section 5
+  // counts that directly, off the live boot, and requires more than 200 files.
+  eq(identical + nodeOnly, corpus.byMember.size,
+    "a brief fell out of both buckets — every file is either untouched or differs by the node alone");
+  ok(identical > 0, `twin boot rendered nothing at all (identical=${identical}, nodeOnly=${nodeOnly})`);
   console.log(`      ${identical} briefs byte-identical, ${nodeOnly} differ only by the new node`);
 
   // The three the brief pins are byte-identical, node included.

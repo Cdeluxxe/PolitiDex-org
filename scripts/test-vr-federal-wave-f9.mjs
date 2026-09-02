@@ -62,7 +62,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
+import { CJ_SEAMS, CJ_SEAMS_BELOW, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
   assertWordActionSeams } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -874,9 +874,16 @@ const swNote = swWaveNote();
     const ca = carveSeams(hBefore, CJ_SEAMS, "HEAD", "consistency.js", ok);
     const cb = carveSeams(nBefore, CJ_SEAMS, "now", "consistency.js", ok);
     eq(cb.pinned, ca.pinned,
-      "consistency.js changed ABOVE the _DOS_MECH literal outside the two named v103 copy seams");
-    assertConsistencySeams(cb.bodies, { has, ok });
-    eq(nAfter, hAfter, "consistency.js changed BELOW the _DOS_MECH literal");
+      "consistency.js changed ABOVE the _DOS_MECH literal outside the named copy seams in scripts/v103-chrome-seams.mjs");
+    // BELOW THE LITERAL, WITH THE TWO EXPORT SPANS CUT OUT. The issue-ledger pass
+    // (v108) added four export names to the formal-pattern index so the issue desk
+    // could read the index's own row instead of characterising the record twice.
+    // Names, not logic — argued span by span in scripts/v103-chrome-seams.mjs — and
+    // everything else below the literal is still compared byte for byte.
+    const da = carveSeams(hAfter, CJ_SEAMS_BELOW, "HEAD", "consistency.js", ok);
+    const db = carveSeams(nAfter, CJ_SEAMS_BELOW, "now", "consistency.js", ok);
+    assertConsistencySeams(cb.bodies, { has, ok }, db.bodies);
+    eq(db.pinned, da.pinned, "consistency.js changed BELOW the _DOS_MECH literal outside the two named export spans");
     ok(nLit.startsWith(hLit.replace(/\s*\}\s*$/, "").replace(/\}$/, "")) || nLit.startsWith(hLit.slice(0, hLit.length - 5)),
       "the _DOS_MECH literal was rewritten rather than appended to");
     if (f9Unmerged) ok(nLit.length > hLit.length, "the _DOS_MECH literal did not grow");
@@ -1000,7 +1007,26 @@ const swNote = swWaveNote();
     "scripts/test-vr-federal-roster-r1.mjs",
     "scripts/test-vr-federal-roster-r2.mjs",
     "scripts/test-person-file-perf.mjs",
-    "scripts/test-seed-yields-to-record.mjs"]);
+    "scripts/test-seed-yields-to-record.mjs",
+    // The issue desk's record-ledger pass (CACHE_VERSION v108), on those same
+    // later-wave terms. It writes no roll, no mapping, no key and no admission: it
+    // changes what the ISSUE side of the desk prints once a key is picked. The pane
+    // used to answer a narrow key with an empty no-vehicle sentence, or rank the
+    // people on it by how well they back up their words; it now files them by what
+    // the formal record on that key did — advanced it, cut against it, ran both
+    // ways, thin, no side read — reading the formal-pattern index's OWN row for the
+    // band so the desk and the person file cannot characterise one record two ways.
+    // consistency.js's five spans are the extraction and the export that made that
+    // possible and are carved and argued in the shared seam module above; the four
+    // files below are the pane, its stylesheet, the Eye's issue hit, and the one
+    // block of CSS that hit needs. Every count, chip, tier and Direction Match
+    // figure is byte-identical, which the twin boot above has just proved.
+    "door1-workspace.js",
+    "door1-workspace.css",
+    "all-seeing-eye.js",
+    "index.html",
+    "scripts/test-door-one-workspace.mjs",
+    "scripts/test-door-one-collapse.mjs"]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
   const modified = porcelain.split("\n").filter((l) => /^ ?M/.test(l)).map((l) => l.slice(3).trim());

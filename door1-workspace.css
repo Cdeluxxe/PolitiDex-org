@@ -362,6 +362,160 @@
   font: inherit; color: #93c5fd; text-decoration: underline;
 }
 
+/* ── Open any tracked key ─────────────────────────────────────────────────── */
+/* A second control on the same pane, not a second pane. The shelf above is the
+   curated thirteen; this reaches the rest of the register by name. */
+.d1-seek { margin: 0.7rem 0 0; }
+.d1-seek-l {
+  display: flex; align-items: baseline; gap: 0.45rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+  font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: #9fb2cc;
+}
+.d1-seek-n {
+  font-family: inherit; font-size: 0.6rem; letter-spacing: 0.08em;
+  color: #7d8ea8; text-transform: none;
+}
+.d1-seek-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.3rem; }
+.d1-seek-i {
+  flex: 1 1 14rem; min-width: 0; min-height: 40px;
+  padding: 0.45rem 0.7rem; border-radius: 0.7rem;
+  font: inherit; font-size: 0.82rem; color: #e8eefb;
+  background: rgba(255, 255, 255, 0.045); border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.d1-seek-i::placeholder { color: #6d7d95; }
+.d1-seek-i:focus { outline: 2px solid rgba(96, 165, 250, 0.55); outline-offset: 1px; }
+.d1-seek-go {
+  flex: none; min-height: 40px; padding: 0.45rem 0.9rem; border-radius: 0.7rem;
+  cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: #dbeafe;
+  background: rgba(96, 165, 250, 0.13); border: 1px solid rgba(96, 165, 250, 0.4);
+}
+.d1-seek-go:hover { background: rgba(96, 165, 250, 0.2); color: #fff; }
+.d1-seek-h { margin: 0.35rem 0 0; font-size: 0.7rem; color: #7d8ea8; }
+.d1-seek-miss { margin: 0.35rem 0 0; font-size: 0.74rem; line-height: 1.55; color: #fcd34d; }
+.d1-chip.is-key { border-style: dotted; font-size: 0.72rem; }
+
+/* ── The record ledger ────────────────────────────────────────────────────── */
+/* Counts, then bands. Every band is drawn identically apart from the tone of its
+   pattern chips, because a band that looked stronger than another would be a
+   ranking, and this is a partition. No bar, no fill, no percentage. */
+.d1-led-census {
+  margin: 0.8rem 0 0; padding: 0.7rem 0.8rem; border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.d1-led-n { margin: 0; font-size: 0.9rem; line-height: 1.5; color: #dbeafe; }
+.d1-led-n b { color: #fff; }
+.d1-led-split {
+  margin: 0.35rem 0 0; font-size: 0.78rem; line-height: 1.6; color: #a9bcd6;
+  font-variant-numeric: tabular-nums;
+}
+.d1-led-pkg { margin: 0.4rem 0 0; font-size: 0.74rem; line-height: 1.6; color: #d6c9a8; }
+.d1-led-pkg b { color: #fcd34d; }
+.d1-led-m { margin: 0.4rem 0 0; font-size: 0.76rem; color: #9fb2cc; }
+.d1-led-m b { color: #e8eefb; }
+
+.d1-led-band { margin-top: 1rem; }
+.d1-led-bh { display: flex; align-items: baseline; gap: 0.45rem; }
+.d1-led-bt {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+  font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase; color: #e8eefb;
+}
+.d1-led-bn {
+  font-size: 0.68rem; font-weight: 700; color: #a3b3c9;
+  padding: 0.1rem 0.4rem; border-radius: 99px;
+  background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.d1-led-bnote { margin: 0.2rem 0 0; font-size: 0.73rem; line-height: 1.55; color: #8fa2bd; }
+.d1-led-people { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.45rem; }
+.d1-led-p {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.55rem;
+  padding: 0.55rem 0.7rem; border-radius: 0.7rem;
+  background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.09);
+}
+.d1-led-hd { flex: 1 1 12rem; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.45rem; }
+.d1-led-a {
+  min-height: 32px; display: inline-flex; align-items: center;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.9rem; letter-spacing: 0.02em; color: #fff; text-decoration: none;
+  background: transparent; border: 0; cursor: pointer; padding: 0;
+}
+.d1-led-a:hover { color: #93c5fd; }
+.d1-led-o { font-size: 0.7rem; color: #8fa2bd; }
+/* The pattern chip. Its tone is the formal-pattern index's own tone for the row,
+   quoted, so the chip here and the chip on the person file read the same. */
+.d1-led-pat {
+  flex: none; font-size: 0.74rem; line-height: 1.4; font-weight: 600;
+  padding: 0.2rem 0.5rem; border-radius: 0.5rem;
+  color: #cbd5e1; background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.d1-led-pat.is-support { color: #bbf7d0; background: rgba(74, 222, 128, 0.1); border-color: rgba(74, 222, 128, 0.28); }
+.d1-led-pat.is-oppose  { color: #fecaca; background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.28); }
+.d1-led-pat.is-mixed   { color: #fde68a; background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.28); }
+.d1-led-t { font-weight: 400; font-variant-numeric: tabular-nums; opacity: 0.9; }
+.d1-led-say {
+  flex: none; font-size: 0.68rem; color: #a5b4fc;
+  padding: 0.16rem 0.4rem; border-radius: 0.45rem;
+  background: rgba(129, 140, 248, 0.1); border: 1px solid rgba(129, 140, 248, 0.26);
+}
+.d1-led-veh { flex: 1 1 100%; font-size: 0.7rem; line-height: 1.5; color: #d6c9a8; }
+.d1-led-go {
+  flex: none; min-height: 32px; padding: 0.25rem 0.55rem; border-radius: 0.55rem;
+  cursor: pointer; font-size: 0.7rem; color: #dbeafe;
+  background: transparent; border: 1px solid rgba(147, 197, 253, 0.35);
+}
+.d1-led-go:hover { background: rgba(96, 165, 250, 0.14); }
+
+/* The tail arrives closed and says what is inside it. Closed is not hidden: every
+   row is in the document, so a find-in-page and a deep link still land. */
+.d1-led-tail { margin-top: 1rem; }
+.d1-led-tsum {
+  cursor: pointer; list-style: none; padding: 0.5rem 0.7rem; border-radius: 0.7rem;
+  font-size: 0.76rem; color: #a9bcd6;
+  background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(255, 255, 255, 0.16);
+}
+.d1-led-tsum::-webkit-details-marker { display: none; }
+.d1-led-tsum b { color: #e8eefb; }
+
+/* The rest of one band. Quieter than the tail summary because it is not a
+   different reading — it is the same band, continued, in the same order. */
+.d1-led-more { margin: 0.4rem 0 0; }
+.d1-led-msum {
+  cursor: pointer; list-style: none; padding: 0.35rem 0.6rem; border-radius: 0.6rem;
+  font-size: 0.72rem; color: #92a6c2;
+  background: rgba(255, 255, 255, 0.025); border: 1px dashed rgba(255, 255, 255, 0.13);
+}
+.d1-led-msum::-webkit-details-marker { display: none; }
+.d1-led-more[open] .d1-led-msum { margin-bottom: 0.4rem; }
+
+.d1-led-meas { margin-top: 1.1rem; }
+.d1-led-bills { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.45rem; }
+.d1-led-b {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.55rem;
+  padding: 0.55rem 0.7rem; border-radius: 0.7rem;
+  background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.09);
+}
+.d1-led-bnum {
+  flex: none; font-family: 'Oswald', sans-serif; font-weight: 700;
+  font-size: 0.84rem; color: #fff; letter-spacing: 0.02em;
+}
+.d1-led-btitle { flex: 1 1 12rem; min-width: 0; font-size: 0.76rem; line-height: 1.45; color: #cbd5e1; }
+/* PRIMARY vs provision is a label on the bill. It is printed and it is read by
+   nothing — no count, band or order on this pane consults it. */
+.d1-led-btag {
+  flex: none; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase;
+  font-weight: 700; color: #a3b3c9;
+  padding: 0.16rem 0.38rem; border-radius: 0.4rem;
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.d1-led-btag.is-primary { color: #bfdbfe; background: rgba(96, 165, 250, 0.12); border-color: rgba(96, 165, 250, 0.32); }
+.d1-led-bwho { flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: 0.2rem 0.7rem; }
+.d1-led-w { font-size: 0.7rem; line-height: 1.5; color: #9fb2cc; }
+.d1-led-wall {
+  margin: 1rem 0 0; padding-top: 0.7rem; font-size: 0.7rem; line-height: 1.6; color: #7d8ea8;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 /* ── Measure mode ─────────────────────────────────────────────────────────── */
 .d1-meas { margin-top: 0.85rem; }
 .d1-meas-n {

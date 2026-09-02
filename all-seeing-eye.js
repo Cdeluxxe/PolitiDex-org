@@ -1656,6 +1656,100 @@
     // issue view uses, and hands back rows plus an honest read of how much data
     // there actually is. We render it above the name results, so the answer comes
     // before the list, and every row lands on the receipt itself in one tap.
+    // ── THE ISSUE KEY ITSELF, AS THE LEAD ─────────────────────────────────
+    // WHAT WAS WRONG. Typed "land preserve", the eye answered with an issue
+    // ranking for ⚖️ Practical Stewardship — because that bundle's curated
+    // keywords include 'land' — under the heading "ranked by consistency · who
+    // backs up their words first", plus a name hit for a member called Landsman.
+    // Three things were wrong at once and only one of them was the fuzzy match:
+    //   · `lands_preserve` IS a tracked key, with a label, a chip and formal acts
+    //     filed against it. It was unreachable as itself, because the issue search
+    //     only scans the thirteen bundles and their member keys and no bundle
+    //     lists it.
+    //   · the ranking that DID answer is the word-vs-action lane. A person with no
+    //     stated position on an issue cannot be inconsistent about it, so ordering
+    //     an issue by consistency sorts the formal record by whether we happen to
+    //     hold a quote — and it says so in the heading, on a query that asked
+    //     about a record.
+    //   · a person named Landsman is a fine result. It is not the answer to a
+    //     question about public lands, and it should not be the first one.
+    //
+    // WHAT THIS DOES. Asks PDXDoor1 — one resolver, shared with the issue desk's
+    // own typeahead, so a hit here opens exactly what the desk opens — whether the
+    // query names a tracked key. Where it does, the key leads: its own label, the
+    // bundle it does or does not sit inside, how many measures on file map to it,
+    // and one door into the record ledger. Person hits stay exactly where they
+    // were, below.
+    //
+    // AND THE CONSISTENCY RANKING DOES NOT RUN ON THIS PATH. Not relabelled —
+    // withheld. The block is a real answer to a different question, and a reader
+    // who asked what the record on a key did is not served by a second list
+    // ordered by something else directly beneath it. The ranking is one tap away
+    // through the ledger, which is where the ordering is named honestly.
+    // ── AND A WHOLE BUNDLE IS NOT A KEY ───────────────────────────────────
+    // One of the thirteen resolves here too — "guns" is a shipped key and a core
+    // bundle at once — and it must not be printed as though it were a narrow cut.
+    // Two things change on that branch. The lens says it is one of the thirteen
+    // instead of claiming it sits in none of them, which is the opposite of true.
+    // And the door says DESK, not ledger, because a bundle has no single record to
+    // read: the desk opens its inventory and its keys, and which key the reader
+    // meant is theirs to say — see the sub-key shelf in door1-workspace.js.
+    // The ranked answer below is left standing on that branch, because it is a
+    // real answer to a bundle-sized question and nothing else here replaces it.
+    // `keyIsBundle` is how that decision reaches the assembly; it is set on every
+    // call, so it can never describe a previous query.
+    var keyIsBundle = false;
+    function issueKeyBlock(q) {
+      keyIsBundle = false;
+      var D = window.PDXDoor1;
+      if (!D || typeof D.issueKeyFor !== 'function') return '';
+      var key = '';
+      try { key = D.issueKeyFor(q) || ''; } catch (e) { return ''; }
+      if (!key) return '';
+      var label = key;
+      try { if (typeof D.issueLabelFor === 'function') label = D.issueLabelFor(key) || key; } catch (e) {}
+      // Which bundle carries it, said honestly in all three cases: the key IS one
+      // of the thirteen, the key sits inside one of them, or the key sits inside
+      // none — and the last of those is not a gap in the record.
+      var parent = '', inside = 0;
+      try {
+        (window.CORE_NATIONAL_ISSUES || []).forEach(function (c) {
+          if (!c) return;
+          if (c.key === key) { keyIsBundle = true; inside = (c.keys || []).length; }
+          if (!parent && !keyIsBundle && (c.keys || []).indexOf(key) >= 0) parent = c.label || '';
+        });
+      } catch (e) {}
+      var m = 0;
+      try { m = (typeof D.issueMeasures === 'function' ? (D.issueMeasures(key) || []) : []).length; } catch (e) { m = 0; }
+      var lens = keyIsBundle
+        ? esc(key) + ' · one of the thirteen' + (inside ? ' · ' + inside + ' keys inside it' : '')
+        : esc(key) + (parent ? ' · inside ' + esc(parent) : ' · in none of the thirteen bundles');
+      var say = keyIsBundle
+        ? 'A bundle, not a single key. The desk opens its inventory and the keys ' +
+          'filed under it; pick one and the record on it is read out — who advanced ' +
+          'it, who cut against it, who ran both ways.'
+        : 'Who advanced it, who cut against it, who ran both ways, and who ' +
+          'only touched it inside a larger measure — read off the formal record only.' +
+          (m ? ' <b>' + m + '</b> measure' + (m === 1 ? '' : 's') + ' on file map here.' : '');
+      return '<div class="pdx-eye-ans pdx-eye-key" data-eye-key="' + esc(key) + '">' +
+        '<div class="pdx-eye-ans-h">' +
+          '<span class="pdx-eye-ans-ico" aria-hidden="true">🏛</span>' +
+          '<span class="pdx-eye-ans-ht">' +
+            '<span class="pdx-eye-ans-eyebrow">Tracked issue · the formal record</span>' +
+            '<span class="pdx-eye-ans-title">' + esc(label) + '</span>' +
+            '<span class="pdx-eye-ans-lens">' + lens + '</span>' +
+          '</span>' +
+        '</div>' +
+        '<div class="pdx-eye-key-say">' + say + '</div>' +
+        '<div class="pdx-eye-ans-foot">' +
+          '<button type="button" class="pdx-eye-ans-btn pdx-eye-ans-btn--primary" data-eye-key-go="' + esc(key) + '">' +
+            '<span aria-hidden="true">🏛</span>' +
+            (keyIsBundle ? 'Open the issue desk' : 'Open the record ledger') +
+          '</button>' +
+        '</div>' +
+      '</div>';
+    }
+
     var lastAnswer = null;
     function answerBlock(q) {
       lastAnswer = null;
@@ -1878,13 +1972,19 @@
       // The issue answer is computed first: a question phrased in words nobody is
       // named after ("who actually backs housing?") can answer even when the
       // name/stance/bill ranking finds nothing at all.
-      var ansHtml = answerBlock(q);
+      // The issue key leads where the query names one, and the consistency ranking
+      // stands down on that path rather than being relabelled. See the wall above.
+      var keyHtml = issueKeyBlock(q);
+      // The ranked answer is withheld only where the key block actually answered
+      // the same question — a narrow key, read off the record. A bundle hit keeps
+      // it: see AND A WHOLE BUNDLE IS NOT A KEY above.
+      var ansHtml = (keyHtml && !keyIsBundle) ? '' : answerBlock(q);
       // The claim block goes ABOVE both, and is also the reason the no-match
       // branch is no longer a dead end: a pasted claim frequently ranks nothing
       // (every term-in-hay check fails on a sentence) while still being the one
       // input this surface can now actually answer.
       var claimHtml = claimBlock(rawQ);
-      var nothingElse = !ansHtml && !pols.length && !sts.length && !bls.length && !iss.length;
+      var nothingElse = !keyHtml && !ansHtml && !pols.length && !sts.length && !bls.length && !iss.length;
 
       // THE ONE PLACE "FINDS NOTHING" IS ALLOWED. Nothing ranked, nothing was
       // asked as a claim, and no lane is still loading: every lane is ready and
@@ -1907,6 +2007,7 @@
           ? warmPanel(warm)
           : '<div class="pdx-eye-empty">Nothing else matched “<b>' + esc(q) + '</b>” as a search.<br>Try a name, an office, a state, an issue, or a bill number.</div>';
       }
+      html += keyHtml;
       html += ansHtml;
       html += catBlock('pol', 'Politicians', '#f5c842', pols, polItem, q, terms);
       html += catBlock('stance', 'Positions &amp; Receipts', '#5eead4', sts, stanceItem, q, terms);
@@ -2037,6 +2138,18 @@
         el.addEventListener('click', function (ev) {
           ev.stopPropagation();
           openAnswerRow(parseInt(el.getAttribute('data-ans-row'), 10) || 0);
+        });
+      });
+      // The issue-key door: into Door 1's issue mode on that key, through the
+      // desk's own entry point so the pick is recorded and the record warmed
+      // exactly as it is when the chip is tapped on the desk itself.
+      panel.querySelectorAll('[data-eye-key-go]').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          var key = el.getAttribute('data-eye-key-go') || '';
+          close();
+          try { if (typeof window.pdxDoor1Issue === 'function') window.pdxDoor1Issue(key); } catch (e) {}
         });
       });
       panel.querySelectorAll('[data-ans-act]').forEach(function (el) {

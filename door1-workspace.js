@@ -627,8 +627,611 @@
     return keep;
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // THE RECORD LEDGER · what an issue's formal file actually says, per person
+  // ══════════════════════════════════════════════════════════════════════════
+  // WHAT WAS WRONG. Picking an issue produced a list ordered by acts on file and
+  // captioned with two counts — "5 formal acts on file · 2 receipts" — and that is
+  // an inventory, not a reading. It told a reader HOW MUCH record each person has
+  // on the issue and refused to say WHAT IT DID. Which is the one question an issue
+  // desk exists to answer: who moved this, who cut against it, who ran both ways,
+  // and who only ever touched it folded inside something larger.
+  //   Worse, the surface that DOES characterise the same rows — the Eye's issue
+  // answer — leads with "ranked by consistency · who backs up their words first",
+  // which is the word-vs-action lane wearing the issue desk's clothes. A person
+  // with no stated position on an issue cannot be inconsistent about it, so that
+  // ordering silently sorts the formal record by whether we happen to hold a quote.
+  //
+  // WHAT THIS IS. One key at a time, the formal-pattern index's own read of every
+  // person who has a readable formal row on it, filed into the index's own bands in
+  // the index's own words — via PDXConsistency.formalPatternIndex.rowFor(pid, key),
+  // which is literally the builder the person file's 🏛 formal brief prints from.
+  // There is no second characterisation here and there must never be one: if the
+  // ledger and the person file ever disagree about a row, that is one bug upstream
+  // of both, not two surfaces to reconcile.
+  //
+  // WHAT IT IS NOT, and these are walls rather than preferences:
+  //   · NOT A RANKING. The bands are a partition — clearest formal pattern first,
+  //     the person file's fixed order. Inside a band the deeper record leads and
+  //     the name breaks the tie. Nothing sorts on party, on a stated position, on
+  //     "backs up their words", or on any number derived from those.
+  //   · NO PERCENTAGE, EVER. Every figure printed here is an integer a reader can
+  //     count for themselves off the rows below it.
+  //   · STATED POSITIONS DO NOT ENTER THE TALLIES. A stance may appear as a tag on
+  //     a row where a real stance card exists. It cannot order the list, cannot
+  //     head a section, and cannot change a band.
+  //   · THIN STAYS THIN, SPLIT STAYS SPLIT. The tail is folded when it is long, and
+  //     folded is not hidden: the census above says how many rows are in it and
+  //     what kind of nothing they hold.
+  //   · PACKAGE-BORNE IS DISCLOSED, NOT DEMOTED. A vote carried inside a larger
+  //     measure is a vote. It bands on what it did and wears the vehicle lane's
+  //     own sentence beside it, and it is counted ACROSS the bands rather than
+  //     pulled out of one. See the wall over _vehLine in consistency.js.
+  //   · DIRECTION MATCH IS NOT HERE AT ALL. Not as a headline, not as a column,
+  //     not as a sort term.
+
+  // The shipped /compare cap, and the reason this warms in batches at all — see
+  // WARMING THE FIELD below.
+  var COMPARE_CAP = 8;
+  var LEDGER_CAP = 24;    // people printed per band set, before the "more" line
+
+  function fpi() {
+    try {
+      var F = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      return (F && fn(F.rowFor) && fn(F.band) && F.LEDGER_BANDS) ? F : null;
+    } catch (e) { return null; }
+  }
+  // How long a tail has to be before folding it earns its tap. The person file's
+  // own threshold, read from the index rather than restated here, so the two
+  // surfaces fold at the same length.
+  function tailMin() {
+    var F = fpi();
+    var n = F && F.TAIL_MIN;
+    return (typeof n === 'number' && n > 0) ? n : 4;
+  }
+  function vehRead(pid, key) {
+    try {
+      var V = window.PDXConsistency && window.PDXConsistency.vehicle;
+      return (V && fn(V.read)) ? (V.read(pid, key) || null) : null;
+    } catch (e) { return null; }
+  }
+
+  // ── WARMING THE FIELD ─────────────────────────────────────────────────────
+  // THE MISMATCH THIS CLOSES. The issue desk discovers its field through the
+  // ISSUE-SCOPED read (PDXVotingRecord.fetchIssueRecords, one request for every
+  // tracked member on one key) and issue-view.js keeps those items in its own
+  // cache — deliberately, because a slice of one issue must never be mistaken for
+  // a member's whole record. But the formal-pattern index reads a member's WHOLE
+  // record, through PDXVotingRecord.memberRecords, and it has to: the coverage
+  // floor that stops two roll calls being read as a pattern is a fact about how
+  // much of that member's record we hold, and an issue slice cannot know it.
+  //   So asking rowFor() for a pid the issue read just discovered answers null,
+  // and the ledger would print an empty band set over a key that has formal acts
+  // on file. That is the same failure this pass exists to close, wearing a
+  // different sentence.
+  //
+  // THE FIX IS THE SHIPPED BATCH, NOT A NEW READ. /compare takes up to eight
+  // members in one request, returns each one's full record, and seeds the same
+  // per-member cache a profile visit would — it is what the comparison board
+  // already uses for exactly this reason. The ledger asks for the people it is
+  // about to print, in batches of eight, once per visit per person, and repaints
+  // when the batch lands. Nothing here derives a direction, and nothing here is
+  // stored: it makes the record warm and then asks the index the same question the
+  // person file asks.
+  //
+  // AND IT NEVER PRESENTS A COLD ROW AS AN EMPTY ONE. A person whose record has
+  // not landed yet is counted as still reading, out loud, above the bands. "No
+  // formal row on this key" is a finding, and a finding may not be produced by a
+  // request that has not come back.
+  var _warmAsked = {}, _warmWait = 0;
+  function recordWarm(pid) {
+    try {
+      var V = window.PDXVotingRecord;
+      return !!(V && fn(V.memberRecords) && V.memberRecords(pid));
+    } catch (e) { return false; }
+  }
+  function warmLedger(pids) {
+    var V = window.PDXVotingRecord;
+    if (!V || !fn(V.fetchCompare)) return;
+    var ask = [];
+    (pids || []).forEach(function (pid) {
+      if (!pid || _warmAsked[pid]) return;
+      _warmAsked[pid] = 1;
+      if (!recordWarm(pid)) ask.push(pid);
+    });
+    if (!ask.length) return;
+    for (var i = 0; i < ask.length; i += COMPARE_CAP) {
+      (function (batch) {
+        var p = null;
+        _warmWait++;
+        try { p = V.fetchCompare(batch); } catch (e) { p = null; }
+        if (!p || !fn(p.then)) { _warmWait--; return; }
+        p.then(done, done);
+      })(ask.slice(i, i + COMPARE_CAP));
+    }
+    // ONE REPAINT PER SETTLED FIELD, not one per batch: a three-batch ledger
+    // repainting three times is three reflows and two flashes of a shorter list.
+    function done() {
+      _warmWait--;
+      if (_warmWait > 0) return;
+      try { if (_live) sync(); } catch (e) {}
+    }
+  }
+  function ledgerPending() { return _warmWait > 0; }
+
+  // ── ONE ACT'S DIRECTION ON THIS KEY ───────────────────────────────────────
+  // For the measure rows only, and through the engine's own function — the same
+  // _voteEffectiveSupport the direction index uses, including its procedural
+  // inversion, so a Nay on a motion to table reads here exactly as it reads
+  // there. true → advanced it, false → cut against it, null → took no side.
+  // No second rule about what a vote means lives in this file.
+  function actSide(item, key) {
+    var m = null;
+    ((item && item.issues) || []).forEach(function (g) {
+      if (!m && g && g.issueKey === key) m = g;
+    });
+    if (!m) return undefined;
+    var eff;
+    try {
+      if (!fn(window._voteEffectiveSupport)) return undefined;
+      eff = window._voteEffectiveSupport(item, m.supportMeaning);
+    } catch (e) { return undefined; }
+    return (eff === null || typeof eff === 'undefined') ? null : !!eff;
+  }
+  function itemsOn(pid, key) {
+    try {
+      return fn(window._pdxRecordIssueItems) ? (window._pdxRecordIssueItems(pid, key) || []) : [];
+    } catch (e) { return []; }
+  }
+  // Instrument identity, in the same shape voting-record.js and stance-helpers.js
+  // both use, so "the same bill" means one thing across the three layers.
+  function measureKey(it) {
+    if (!it) return '';
+    if (it.measureId != null && it.measureId !== '') return 'm:' + it.measureId;
+    var n = String(it.number || it.title || '').trim().toLowerCase();
+    return n ? 'n:' + n : '';
+  }
+
+  // ── MEASURES ON FILE THAT MAP HERE ────────────────────────────────────────
+  // Two sources, unioned, because they answer two halves of the same question and
+  // neither is complete on its own. The measure index knows every measure whose
+  // curation maps it to this key — including the ones nobody in the printed slice
+  // has an act on — and the warm records know which acts the people on this ledger
+  // actually took. A measure in the index with no act beside it prints its number,
+  // its title and its PRIMARY-vs-provision label and says nothing about anyone.
+  //   PRIMARY vs PROVISION IS A LABEL ON THE BILL. It is printed because a reader
+  // deserves to know whether the measure was about this issue or merely carried it,
+  // and it is consulted by nothing: no count, band or order on this pane reads it.
+  function ledgerMeasures(rows, key) {
+    var byKey = {}, order = [];
+    function slot(id, number, title, primary) {
+      if (!id) return null;
+      if (!byKey[id]) {
+        byKey[id] = { id: id, number: number || '', title: title || '',
+          primary: !!primary, seen: false, adv: [], opp: [], none: [] };
+        order.push(id);
+      }
+      var s = byKey[id];
+      if (!s.number && number) s.number = number;
+      if (!s.title && title) s.title = title;
+      if (primary) s.primary = true;
+      return s;
+    }
+    measures().forEach(function (b) {
+      if (!b) return;
+      var keys = (b.issueKeys || []).filter(Boolean);
+      if (b.primaryIssue && keys.indexOf(b.primaryIssue) < 0) keys = keys.concat([b.primaryIssue]);
+      if (keys.indexOf(key) < 0) return;
+      slot(b.measureId != null && b.measureId !== '' ? 'm:' + b.measureId
+        : (b.number ? 'n:' + String(b.number).toLowerCase() : ''),
+        b.number, b.title || b.shortTitle || '', b.primaryIssue === key);
+    });
+    (rows || []).forEach(function (r) {
+      itemsOn(r.pid, key).forEach(function (it) {
+        var side = actSide(it, key);
+        if (typeof side === 'undefined') return;
+        var m = null;
+        (it.issues || []).forEach(function (g) { if (!m && g && g.issueKey === key) m = g; });
+        var s = slot(measureKey(it), it.number || '', it.title || '', !!(m && m.isPrimary));
+        if (!s) return;
+        s.seen = true;
+        (side === true ? s.adv : side === false ? s.opp : s.none).push(r.name);
+      });
+    });
+    return order.map(function (id) { return byKey[id]; });
+  }
+
+  // ── THE LEDGER MODEL ──────────────────────────────────────────────────────
+  // Pure apart from the warm-cache reads it delegates. Every integer below is a
+  // count of rows this pane prints, so the census and the bands cannot disagree.
+  function issueLedger(core, focusKey) {
+    var key = focusKey || '';
+    var F = fpi();
+    if (!F || !key) return null;
+    // The bundle is the caller's if it has one. It usually does — the pane hands
+    // over the target it already resolved. Where it does not, the key resolves
+    // itself, so a ledger can be asked for by key alone and answers the same way.
+    if (!core) { try { core = (resolveIssue(key) || {}).core || null; } catch (e) { core = null; } }
+    var people = issuePeople(core, key);
+    if (people === null) return null;
+    var BASE = '';
+    try { BASE = String(window._PDX_ALIGN_BASE_TAG || ''); } catch (e) { BASE = ''; }
+
+    var rows = [], cold = 0;
+    people.forEach(function (p) {
+      if (!p || !p.id) return;
+      if (!recordWarm(p.id)) { cold++; return; }
+      var x = null;
+      try { x = F.rowFor(p.id, key); } catch (e) { x = null; }
+      if (!x) return;
+      var band = '';
+      try { band = F.band(x) || ''; } catch (e) { band = ''; }
+      if (!band) return;
+      // The pattern chip, assembled exactly as the person file's formal brief
+      // assembles it: the index's label, then the tally it published, then the
+      // acts that took no side. `sideCounts` is the split brief's own field — a
+      // shallow split withholds `counts` on every chip, and a heading that has
+      // already said the record ran both ways is owed the two integers.
+      var pat = x.pat || null;
+      var n = (x.counts || (pat && pat.sideCounts) || '');
+      if (x.noSideCount) n += (n ? ' · ' : '') + x.noSideCount;
+      var veh = vehRead(p.id, key);
+      rows.push({
+        pid: p.id,
+        name: p.name || p.id,
+        office: p.sub || '',
+        band: band,
+        label: x.patLabel || '',
+        tally: n,
+        tone: x.tone || 'muted',
+        judged: x.judged || 0,
+        held: x.held || 0,
+        // The vehicle sentence, on the row that carries it, in the vehicle lane's
+        // own words. Presentation only — see the wall over the bands above.
+        veh: (veh && veh.line) ? veh.line : '',
+        vehNote: (veh && veh.note) ? veh.note : '',
+        pkgOnly: !!(x.vehicle && x.vehicle.only),
+        // A STATED POSITION, WHERE ONE REALLY EXISTS. A tag, and only a tag: it
+        // is appended after the pattern chip, it is not in any count above, and
+        // no band, order or figure on this pane reads it.
+        stance: (x.said && x.stance) ? String(x.stance) : '',
+        // …and its opposite, marked. A row whose read rests on the record with
+        // nothing stated to check it against wears the alignment lane's own
+        // record-derived tag. It still feeds nothing.
+        base: (!x.said && x.read && BASE) ? BASE : ''
+      });
+    });
+
+    // THE PARTITION, IN THE INDEX'S FIXED ORDER. Inside a band the deeper record
+    // leads, then the wider file, then the name — the person file's own tie-break
+    // chain, and every term an integer or a locale compare so two renders of the
+    // same data never disagree about the order.
+    var bands = [];
+    F.LEDGER_BANDS.forEach(function (b) {
+      var list = rows.filter(function (r) { return r.band === b.id; });
+      list.sort(function (a, c) {
+        if (a.judged !== c.judged) return c.judged - a.judged;
+        if (a.held !== c.held) return c.held - a.held;
+        return String(a.name || '').localeCompare(String(c.name || ''));
+      });
+      bands.push({ id: b.id, lb: b.lb, note: b.note, tail: !!b.tail, rows: list });
+    });
+
+    var pkg = rows.filter(function (r) { return r.pkgOnly; }).length;
+    var by = {};
+    bands.forEach(function (b) { by[b.id] = b.rows.length; });
+    var tail = bands.filter(function (b) { return b.tail; })
+      .reduce(function (n, b) { return n + b.rows.length; }, 0);
+    return {
+      key: key, label: issueLabel(key),
+      people: rows.length, cold: cold, pkg: pkg, tail: tail,
+      by: by, bands: bands,
+      measures: ledgerMeasures(rows, key),
+      pending: ledgerPending()
+    };
+  }
+
+  // ── THE CENSUS ────────────────────────────────────────────────────────────
+  // Counts, then the partition. No percentage, no share, no grade, and no party
+  // anywhere in it — the five band figures sum to the headline by construction,
+  // because each is the length of a list printed below.
+  function censusHtml(led) {
+    var b = led.by;
+    var parts = [];
+    if (b.advanced) parts.push(b.advanced + ' advanced');
+    if (b.against) parts.push(b.against + ' cut against');
+    if (b.both) parts.push(b.both + ' ran both ways');
+    if (b.thin) parts.push(b.thin + ' too thin to lean on');
+    if (b.none) parts.push(b.none + ' with no side read');
+    var m = led.measures.length;
+    return '<div class="d1-led-census">' +
+      '<p class="d1-led-n"><b>' + led.people + '</b> ' +
+        (led.people === 1 ? 'person has' : 'people have') +
+        ' a readable formal row on <b>' + esc(led.label) + '</b>.</p>' +
+      (parts.length ? '<p class="d1-led-split">' + esc(parts.join(' · ')) + '</p>' : '') +
+      (led.pkg
+        ? '<p class="d1-led-pkg">Of those, <b>' + led.pkg + '</b> touched it only inside a larger ' +
+          'measure. That is disclosed on the row, and it did not move anyone out of a band.</p>'
+        : '') +
+      '<p class="d1-led-m">' + (m ? '<b>' + m + '</b> measure' + (m === 1 ? '' : 's') +
+        ' on file map here.' : 'No measure on file is mapped to this key yet.') + '</p>' +
+      (led.cold
+        ? '<p class="d1-claim-busy" role="status">Reading the full record for ' + led.cold +
+          ' more ' + (led.cold === 1 ? 'person' : 'people') + ' on this key…</p>'
+        : '') +
+    '</div>';
+  }
+
+  function ledgerRowHtml(r, key) {
+    var chip = '<span class="d1-led-pat is-' + esc(r.tone) + '">' + esc(r.label) +
+      (r.tally ? ' <span class="d1-led-t">(' + esc(r.tally) + ')</span>' : '') + '</span>';
+    // ONE DOOR, AND IT IS THE SHIPPED ONE. The same delegated dossier gateway the
+    // person file's 🏛 formal brief uses, with the same four attributes in the same
+    // roles: `dos` is the ISSUE KEY, `pid` is whose file to open, `origin` is the id
+    // of the row to come back to, and `focus` asks the dossier to land on the record
+    // column rather than the top. So a tap lands on this person's own acts on this
+    // key, in the surface that already owns that view — nothing new was engined for
+    // it, and the return pill knows where the reader came from.
+    var rowId = 'd1-led-' + String(r.pid).replace(/[^a-zA-Z0-9_-]/g, '') + '-' +
+      String(key).replace(/[^a-zA-Z0-9_-]/g, '');
+    var go = '<button type="button" class="d1-led-go pdxst-open"' +
+      ' data-pdxst-dos="' + esc(key) + '" data-pdxst-pid="' + esc(r.pid) + '"' +
+      ' data-pdxst-origin="' + esc(rowId) + '" data-pdxst-focus="record"' +
+      ' aria-label="' + esc(r.name + ' — formal record: ' + (r.label || 'on file') +
+        (r.tally ? ' (' + r.tally + ')' : '') + '. Open the acts behind it.') +
+      '">Open the acts</button>';
+    return '<li class="d1-led-p" id="' + esc(rowId) + '" data-pdx-led-band="' + esc(r.band) + '">' +
+      '<span class="d1-led-hd">' +
+        personLink(r.pid, r.name, 'd1-led-a') +
+        (r.office ? '<span class="d1-led-o">' + esc(r.office) + '</span>' : '') +
+      '</span>' + chip +
+      (r.base ? '<span class="d1-base">' + esc(r.base) + '</span>' : '') +
+      (r.stance ? '<span class="d1-led-say">💬 Stated: ' + esc(r.stance) + '</span>' : '') +
+      (r.veh ? '<span class="d1-led-veh" title="' + esc(r.vehNote) + '">🚂 ' + esc(r.veh) + '</span>' : '') +
+      go +
+    '</li>';
+  }
+
+  function bandHtml(band, key) {
+    if (!band.rows.length) return '';
+    var head = '<div class="d1-led-bh"><span class="d1-led-bt">' + esc(band.lb) + '</span>' +
+      '<span class="d1-led-bn">' + band.rows.length + '</span></div>' +
+      '<p class="d1-led-bnote">' + esc(band.note) + '</p>';
+    // ── THE OVERFLOW STAYS IN THE BAND ────────────────────────────────────────
+    // A long band folds its remainder here rather than handing the reader off to
+    // the ranked overlay. That overlay orders by consistency — word against action
+    // — which is a real reading and the wrong one to inherit halfway down a band
+    // filed by formal pattern. Continuing a list must not silently re-sort it, so
+    // the rest of the band opens in place, in the same order, under a count.
+    var shown = band.rows.slice(0, LEDGER_CAP);
+    var rest = band.rows.slice(LEDGER_CAP);
+    var list = '<ul class="d1-led-people">' + shown.map(function (r) {
+      return ledgerRowHtml(r, key);
+    }).join('') + '</ul>' +
+      (rest.length
+        ? '<details class="d1-led-more"><summary class="d1-led-msum">' + rest.length +
+          ' more in this band — same reading, same order</summary>' +
+          '<ul class="d1-led-people">' + rest.map(function (r) {
+            return ledgerRowHtml(r, key);
+          }).join('') + '</ul></details>'
+        : '');
+    return '<section class="d1-led-band is-' + esc(band.id) + '">' + head + list + '</section>';
+  }
+
+  // The tail: thin reads and unread rows, under one control, with the census of
+  // what is inside it printed on the control itself. Folded only once it is long
+  // enough that folding saves more than the tap costs — the person file's own
+  // threshold — and never dropped, so a find-in-page and a deep link still land.
+  function tailHtml(led, key) {
+    var tails = led.bands.filter(function (b) { return b.tail && b.rows.length; });
+    if (!tails.length) return '';
+    var inner = tails.map(function (b) { return bandHtml(b, key); }).join('');
+    if (led.tail < tailMin()) return inner;
+    var say = tails.map(function (b) { return b.rows.length + ' ' + b.lb.toLowerCase(); }).join(' · ');
+    return '<details class="d1-led-tail"><summary class="d1-led-tsum">' +
+      '<b>' + led.tail + '</b> more on file — ' + esc(say) +
+      '</summary>' + inner + '</details>';
+  }
+
+  function measuresHtml(led) {
+    if (!led.measures.length) return '';
+    function who(lbl, names) {
+      if (!names.length) return '';
+      var head = names.slice(0, 3).join(', ');
+      var rest = names.length > 3 ? ' +' + (names.length - 3) + ' more' : '';
+      return '<span class="d1-led-w">' + esc(lbl) + ': ' + esc(head + rest) + '</span>';
+    }
+    return '<section class="d1-led-meas">' +
+      '<div class="d1-led-bh"><span class="d1-led-bt">Measures on file</span>' +
+        '<span class="d1-led-bn">' + led.measures.length + '</span></div>' +
+      '<p class="d1-led-bnote">PRIMARY means the measure was about this issue; a provision means it ' +
+        'carried it inside something larger. Either way the vote counts — the label is here so you ' +
+        'can see which it was.</p>' +
+      '<ul class="d1-led-bills">' + led.measures.slice(0, LIST_CAP).map(function (m) {
+        var sides = who('Advanced it', m.adv) + who('Cut against it', m.opp) + who('No side recorded', m.none);
+        return '<li class="d1-led-b">' +
+          '<span class="d1-led-bnum">' + esc(m.number || m.title || 'On file') + '</span>' +
+          // A record row often carries no title beyond its own number, and printing
+          // the number twice reads as a title nobody wrote. Withheld when it adds
+          // nothing; never substituted with a guess at what the measure was about.
+          (m.title && m.title !== m.number
+            ? '<span class="d1-led-btitle">' + esc(m.title) + '</span>' : '') +
+          '<span class="d1-led-btag' + (m.primary ? ' is-primary' : '') + '">' +
+            (m.primary ? 'PRIMARY' : 'provision') + '</span>' +
+          (sides ? '<span class="d1-led-bwho">' + sides + '</span>' : '') +
+          (m.number
+            ? '<button type="button" class="d1-cite" onclick="window.pdxDoor1Bill(\'' +
+              jsq(m.number) + '\')">Who voted on it</button>'
+            : '') +
+        '</li>';
+      }).join('') + '</ul>' +
+      (led.measures.length > LIST_CAP
+        ? '<p class="d1-more">' + (led.measures.length - LIST_CAP) + ' more mapped to this key.</p>'
+        : '') +
+    '</section>';
+  }
+
+  // The one sentence that keeps this pane out of the score — the formal-pattern
+  // index's own wall, printed once at the foot rather than on every row.
+  function ledgerWall() {
+    try {
+      var F = fpi();
+      if (F && F.WALL) return String(F.WALL);
+    } catch (e) {}
+    return '';
+  }
+
+  function ledgerHtml(led) {
+    var key = led.key;
+    var head = censusHtml(led);
+    if (!led.people) {
+      // NOT AN EMPTY RECORD WHILE A READ IS OUT. Only once every person the issue
+      // read discovered has a warm record may this pane say the key holds nothing.
+      var busy = led.cold || led.pending;
+      return head + (busy
+        ? '<p class="d1-claim-busy" role="status">Reading the roll-call record for this issue…</p>'
+        : '<p class="d1-empty">' + esc(emptyIssueNote()) + '</p>') + measuresHtml(led);
+    }
+    var open = led.bands.filter(function (b) { return !b.tail; })
+      .map(function (b) { return bandHtml(b, key); }).join('');
+    var wall = ledgerWall();
+    return head +
+      // The two orderings this list is NOT. Said without naming a caucus, because
+      // no token of that field is allowed into this desk's markup at all — see the
+      // header note. What the sentence promises is what the comparator does.
+      '<p class="d1-lead">Filed by what the formal record on this key did — clearest pattern first. ' +
+      'Not by which side of the aisle anyone sits on, and not by whether we hold a quote on it.</p>' +
+      open + tailHtml(led, key) + measuresHtml(led) +
+      (wall ? '<p class="d1-led-wall">' + esc(wall) + '</p>' : '');
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // OPEN ANY TRACKED KEY
+  // ══════════════════════════════════════════════════════════════════════════
+  // The shelf stays the curated thirteen, because thirteen is what a reader can
+  // scan and the bundles are how most of the site is organised. What it cannot be
+  // is the whole register: `lands_preserve` is a shipped key with a label, a chip
+  // and formal acts filed against it, and no bundle lists it — so on the shelf
+  // alone it does not exist as itself. The answer is not a fourteenth core, and it
+  // is certainly not restuffing cousins onto one to make the shelf look complete.
+  // It is a second control on the same pane that opens ANY tracked key by name.
+  //
+  // WHAT RESOLVES, IN ORDER, AND WHY EACH RUNG IS SAFE:
+  //   1 · the key exactly — `lands_preserve`.
+  //   2 · the key stemmed, so a reader who types words rather than a slug still
+  //       lands: "land preserve" and "lands preserve" both normalise to the same
+  //       thing `lands_preserve` does. This is the rung the smoke asks for.
+  //   3 · the label exactly, stemmed the same way — "Protect Public Lands".
+  //   4 · a core bundle's key or label, so the shelf's own names keep working.
+  //   5 · the label CONTAINING the query — "public lands" inside "Protect Public
+  //       Lands". Two keys can match that, so the shortest label wins (the most
+  //       specific match) and the key breaks the tie alphabetically. Deterministic,
+  //       and documented here because a resolver whose answer depends on object
+  //       key order is a resolver that changes answer when the register is edited.
+  //   6 · a curated keyword, exactly, and ONLY when exactly one key claims it.
+  //       Keywords overlap heavily by design — 'climate' is on four keys — so an
+  //       ambiguous keyword resolves to nothing rather than to a guess.
+  // Nothing here invents a key. A query that matches no rung resolves to null and
+  // the pane says so in its own words, which is the honest answer for a phrase the
+  // register does not carry.
+  function normKey(s) {
+    return String(s == null ? '' : s).toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ').trim().split(' ')
+      .map(function (w) { return w.replace(/ies$/, 'y').replace(/(?:es|s)$/, ''); })
+      .filter(Boolean).join('');
+  }
+  function issueMap() {
+    try {
+      var m = window.ISSUE_MAP;
+      return (m && typeof m === 'object') ? m : null;
+    } catch (e) { return null; }
+  }
+  function trackedKeys() {
+    var m = issueMap();
+    if (!m) return [];
+    var out = [];
+    Object.keys(m).forEach(function (k) { if (shippedIssue(k)) out.push(k); });
+    out.sort();
+    return out;
+  }
+  function issueKeyFor(query) {
+    var m = issueMap();
+    var raw = String(query == null ? '' : query).trim();
+    if (!raw) return '';
+    if (m && shippedIssue(raw)) return raw;                       // 1
+    var q = normKey(raw);
+    if (!q) return '';
+    var keys = trackedKeys(), i;
+    for (i = 0; i < keys.length; i++) if (normKey(keys[i]) === q) return keys[i];   // 2
+    for (i = 0; i < keys.length; i++) if (normKey(issueLabel(keys[i])) === q) return keys[i];  // 3
+    var cores = coreIssues();                                     // 4
+    for (i = 0; i < cores.length; i++) {
+      if (normKey(cores[i].key) === q || normKey(cores[i].label) === q) return cores[i].key;
+    }
+    var best = '', bestLen = 0;                                   // 5
+    for (i = 0; i < keys.length; i++) {
+      var lb = normKey(issueLabel(keys[i]));
+      if (!lb || lb.indexOf(q) < 0) continue;
+      if (!best || lb.length < bestLen) { best = keys[i]; bestLen = lb.length; }
+    }
+    if (best) return best;
+    var hit = '', many = false;                                   // 6
+    for (i = 0; i < keys.length; i++) {
+      var kws = (m && m[keys[i]] && m[keys[i]].keywords) || [];
+      for (var j = 0; j < kws.length; j++) {
+        if (normKey(kws[j]) !== q) continue;
+        if (hit && hit !== keys[i]) many = true;
+        else hit = keys[i];
+        break;
+      }
+    }
+    return (hit && !many) ? hit : '';
+  }
+
+  var K_SEEK = 'pdx_d1_seek';
+  function seekHtml() {
+    var keys = trackedKeys();
+    if (!keys.length) return '';
+    var miss = sget(K_SEEK);
+    var opts = keys.map(function (k) {
+      return '<option value="' + esc(k) + '" label="' + esc(issueLabel(k)) + '"></option>';
+    }).join('');
+    return '<form class="d1-seek" onsubmit="return window.pdxDoor1IssueSeek(this.elements.q.value);">' +
+      '<label class="d1-seek-l" for="d1-seek-q">Open any tracked key' +
+        '<span class="d1-seek-n">' + keys.length + ' on file</span></label>' +
+      '<span class="d1-seek-row">' +
+        '<input id="d1-seek-q" name="q" class="d1-seek-i" type="text" list="d1-seek-keys"' +
+          ' autocomplete="off" spellcheck="false"' +
+          ' placeholder="lands_preserve · Protect Public Lands · land preserve">' +
+        '<datalist id="d1-seek-keys">' + opts + '</datalist>' +
+        '<button type="submit" class="d1-seek-go">Open</button>' +
+      '</span>' +
+      (miss
+        ? '<p class="d1-seek-miss" role="status">The register carries no key for “' + esc(miss) +
+          '”. Nothing was approximated — try a key, its label, or pick from the list.</p>'
+        : '<p class="d1-seek-h">Keys outside the thirteen open as themselves, scoped to their own record.</p>') +
+    '</form>';
+  }
+
+  // ── THE SUB-KEY SHELF ─────────────────────────────────────────────────────
+  // A bundle is thirteen curated groups of keys, and the ledger reads ONE key: a
+  // person's formal record on `housing` and on `tariffs_china` are two different
+  // records and merging them into a bundle-level band would be a characterisation
+  // nothing in the engine produced. So a bundle prints its member keys and the
+  // reader picks the one they came for. Nothing is chosen for them — picking a
+  // default key would be this desk deciding which part of a bundle a reader meant.
+  function subKeyShelf(core, focusKey) {
+    var keys = ((core && core.keys) || []).filter(shippedIssue);
+    if (keys.length < 2) return '';
+    return '<div class="d1-shelf d1-shelf-keys" role="group" aria-label="Keys inside ' +
+      esc(core.label) + '">' + keys.map(function (k) {
+        return '<button type="button" class="d1-chip is-key' + (k === focusKey ? ' is-open' : '') + '"' +
+          ' onclick="window.pdxDoor1Issue(\'' + jsq(k) + '\')">' + esc(issueLabel(k)) + '</button>';
+      }).join('') + '</div>';
+  }
+
   function issueDeskHtml() {
-    var head = deskHead('Open an issue', 'Pick one. Then: who has a formal row on it.');
+    var head = deskHead('Open an issue', 'Pick one. Then: what the formal record on it did, and who did it.');
     var list = coreIssues();
     if (!list.length) {
       return head + '<p class="d1-empty">The issue set is not loaded on this page yet.</p>';
@@ -640,7 +1243,7 @@
     var shelf = '<div class="d1-shelf" role="group" aria-label="Tracked issues">' + list.map(function (c) {
       return '<button type="button" class="d1-chip' + (core && c.key === core.key ? ' is-open' : '') + '"' +
         ' onclick="window.pdxDoor1Issue(\'' + jsq(c.key) + '\')">' + esc(c.label) + '</button>';
-    }).join('') + '</div>';
+    }).join('') + '</div>' + seekHtml();
     if (!core) {
       if (picked) {
         // A key we hold no bundle for. Nothing is listed and nothing is
@@ -650,11 +1253,47 @@
       return head + shelf + '<p class="d1-lead">Pick an issue above.</p>';
     }
 
+    var scope = '';
+    if (focusKey && t.standalone) {
+      // No bundle to name, and no bundle invented for it. This is the sentence
+      // that keeps a fourteenth list from looking like a bug in the shelf.
+      scope = '<p class="d1-scope">Scoped to <b>' + esc(issueLabel(focusKey)) +
+        '</b> alone — it is not inside any of the tracked issues above, so only its own ' +
+        'record is read here.</p>';
+    } else if (focusKey) {
+      scope = '<p class="d1-scope">Scoped to <b>' + esc(issueLabel(focusKey)) + '</b>, inside ' +
+        esc(core.label) + ' — not the whole bundle.</p>';
+    }
+    var keyShelf = subKeyShelf(core, focusKey);
+
+    // ── THE LEDGER, WHERE A KEY IS ACTUALLY SELECTED ────────────────────────
+    if (focusKey) {
+      var led = issueLedger(core, focusKey);
+      if (led) {
+        // The people the ledger is about to read, warmed in batches. Asked here
+        // rather than in pdxDoor1Issue because the field is only known once
+        // buildRanking has run, and it re-asks after each repaint for the pids a
+        // later batch added — once per person per visit, never per paint.
+        try {
+          var field = issuePeople(core, focusKey) || [];
+          warmLedger(field.map(function (p) { return p && p.id; }));
+        } catch (e) {}
+        return head + shelf + keyShelf + scope + ledgerHtml(led);
+      }
+      return head + shelf + keyShelf + scope +
+        '<p class="d1-empty">The formal-record index is not loaded on this page, so this desk cannot ' +
+        'read the bands. Nothing was characterised.</p>';
+    }
+
+    // ── THE BUNDLE OVERVIEW ─────────────────────────────────────────────────
+    // No key selected yet, so no band set: what this can honestly report is the
+    // inventory — who holds something formal somewhere inside the bundle — and
+    // the way in to the reading, which is the key shelf above.
     var V = issueView();
     var pending = false;
     try { pending = !!(V && fn(V.votesPending) && V.votesPending()); } catch (e) { pending = false; }
 
-    var people = issuePeople(core, focusKey);
+    var people = issuePeople(core, '');
     var body;
     if (people === null) {
       body = '<p class="d1-empty">The issue ledger is not loaded on this page, so this desk cannot ' +
@@ -688,25 +1327,15 @@
         '</li>';
       }).join('') + '</ul>' +
       (people.length > LIST_CAP
-        ? '<p class="d1-more">' + (people.length - LIST_CAP) + ' more with a formal row on this issue — ' +
-          '<button type="button" class="d1-link" onclick="window.pdxDoor1IssueFace(\'' + jsq(focusKey || core.key) +
-          '\')">open the full ' + esc(core.label) + ' ledger</button>.</p>'
+        ? '<p class="d1-more">' + (people.length - LIST_CAP) + ' more with a formal row somewhere in ' +
+          'this bundle — <button type="button" class="d1-link" onclick="window.pdxDoor1IssueFace(\'' +
+          jsq(core.key) + '\')">open the full ' + esc(core.label) + ' ledger</button>.</p>'
         : '');
     }
-    var scope = '';
-    if (focusKey && t.standalone) {
-      // No bundle to name, and no bundle invented for it. This is the sentence
-      // that keeps a fourteenth list from looking like a bug in the shelf.
-      scope = '<p class="d1-scope">Scoped to <b>' + esc(issueLabel(focusKey)) +
-        '</b> alone — it is not inside any of the tracked issues above, so only its own ' +
-        'record is ranked here.</p>';
-    } else if (focusKey) {
-      scope = '<p class="d1-scope">Scoped to <b>' + esc(issueLabel(focusKey)) + '</b>, inside ' +
-        esc(core.label) + ' — not the whole bundle.</p>';
-    }
-    return head + shelf + scope +
-      '<p class="d1-lead">Ordered by what is on the formal record — acts on file first, then total ' +
-      'documented evidence, then name. Not by any match reading.</p>' + body;
+    return head + shelf + keyShelf + scope +
+      '<p class="d1-lead">Pick a key above to read what the record on it did. Until then this is the ' +
+      'inventory: who holds something formal somewhere inside ' + esc(core.label) + ', deepest file ' +
+      'first. Not a reading, and not a match score.</p>' + body;
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -1226,9 +1855,30 @@
     try {
       if (V && fn(V.warmVotes)) V.warmVotes(t.core, t.focusKey || '');
     } catch (e) {}
+    // …and, where a key is actually selected, the full record for the people that
+    // read has already discovered — the ledger reads the formal-pattern index,
+    // and the index reads a member's whole record. See WARMING THE FIELD.
+    if (t.focusKey) {
+      try {
+        warmLedger((issuePeople(t.core, t.focusKey) || []).map(function (p) { return p && p.id; }));
+      } catch (e) {}
+    }
     if (readMode() !== 'issue') return window.pdxDoor1Open('issue');
     sync();
     return true;
+  };
+
+  // The typeahead's submit. Resolves through issueKeyFor and then hands off to
+  // the ordinary pick, so a key opened by name is the same pick as a key opened
+  // from the shelf — same warm, same note, same ledger. A miss is recorded and
+  // said out loud rather than being folded into the nearest bundle.
+  window.pdxDoor1IssueSeek = function (text) {
+    var raw = String(text == null ? '' : text).trim();
+    var key = raw ? issueKeyFor(raw) : '';
+    if (!key) { sset(K_SEEK, raw); sync(); return false; }
+    sset(K_SEEK, '');
+    window.pdxDoor1Issue(key);
+    return false;
   };
 
   window.pdxDoor1Measure = function (num) {
@@ -1305,6 +1955,21 @@
     _note: note,
     _people: issuePeople,
     _resolveIssue: resolveIssue,
+    // ── THE ISSUE-KEY RESOLVER, SHARED ────────────────────────────────────
+    // The Eye asks the same question this desk's typeahead asks — "does this
+    // phrase name a tracked key?" — and it has to get the same answer, or a
+    // reader follows a search hit to a desk that opens something else. One
+    // resolver, one owner, exported rather than re-implemented.
+    issueKeyFor: issueKeyFor,
+    issueLabelFor: issueLabel,
+    trackedKeys: trackedKeys,
+    // Measures whose curation maps them to a key, for a surface that wants to
+    // say how much is on file without warming anybody's record.
+    issueMeasures: function (key) {
+      try { return ledgerMeasures([], key); } catch (e) { return []; }
+    },
+    _ledger: issueLedger,
+    _seek: window.pdxDoor1IssueSeek,
     _measures: measures,
     _emptyIssueNote: emptyIssueNote,
     _stowaway: stowawayNote,

@@ -55,7 +55,33 @@
  *     return changed, which is what the twin boot in each suite then proves at
  *     the rendered-HTML level.
  *
- * None of the six is arithmetic. No floor, band, weight, mapping, score or
+ * The issue-ledger pass (CACHE_VERSION v108) edited five more, all in
+ * consistency.js, and all of them one change: the issue desk now prints one
+ * issue's PEOPLE in the bands the person file prints one person's ISSUES in, and
+ * it reads the formal-pattern index's own row to do it rather than
+ * characterising the same record a second time on a second surface.
+ *
+ *   consistency.js, seam C — the ledger's band table
+ *     _FPI_LEDGER_BANDS and _fpiLedgerBand: five ids in a fixed clearest-first
+ *     order, and a function whose only two inputs are the `tier` and `tone` of a
+ *     row this file already built. It is a partition, not a ranking; nothing in
+ *     it sorts by party, by stated position or by any number.
+ *
+ *   consistency.js, seam D — the extracted single-row builder
+ *     _fpiRowFor(r), lifted whole out of the _fpiRows loop. The three-rung
+ *     ladder, both refusals and the fail-closed gate are byte-for-byte what they
+ *     were inside the loop; only the shape of the exit moved.
+ *
+ *   consistency.js, seam E — the loop that now calls it
+ *     Two lines where the body used to be. The sort below it is outside the seam
+ *     and therefore still pinned.
+ *
+ *   consistency.js, seams F and G — four export names
+ *     rowFor / band / LEDGER_BANDS on the index, and TAIL_MIN beside the caps it
+ *     belongs with, so a second surface folds its tail at the same length
+ *     instead of picking its own number. References, not logic.
+ *
+ * None of the eleven is arithmetic. No floor, band, weight, mapping, score or
  * party read or written inside any of them — which is what the assert helpers
  * below check, span by span, rather than excusing the diff.
  *
@@ -71,7 +97,38 @@ export const CJ_SEAMS = [
   ["    else if (counts.limited > 0) token = 'limited';\n",
    "\n    // Phase 7: Say-vs-Do carries its OWN pooled public-record integrity %",
    "the roll-up's empty-key token"],
+  // ── and three for the issue desk's record ledger (v108) ────────────────────
+  // The other two spans of that pass are its export lines, which sit BELOW the
+  // _DOS_MECH literal — see CJ_SEAMS_BELOW.
+  ["  var _FPI_TAIL_MIN = 4;\n",
+   "\n  // The one sentence that keeps this list out of the score,",
+   "the ledger's band table"],
+  ["  function _fpiPublishedRead(r) {\n    if (!r || r.lane === 'exec') return null;\n" +
+   "    var d = null;\n    try { d = _stDisplayTier(r); } catch (e) { d = null; }\n" +
+   "    return (d && d.tier && d.tier !== 'none') ? d : null;\n  }\n",
+   "\n  // \u2500\u2500 THE ROWS \u2500\u2500",
+   "the extracted single-row builder"],
+  ["    (issueRows(pid) || []).forEach(function (r) {\n",
+   "\n    // STRONGEST FIRST, THINNEST LAST",
+   "the loop that now calls it"],
 ];
+
+// ── consistency.js: two more spans, BELOW the _DOS_MECH literal ──────────────
+// The v108 export lines. Several suites cut this file at the literal and compare
+// the halves separately, so that a wave's mechanism-prose waiver provably does not
+// reach the renderer below it; those suites carve this list out of the lower half
+// and byte-compare what is left. Suites that carve the file whole use CJ_SEAMS_ALL.
+export const CJ_SEAMS_BELOW = [
+  ["    formalPatternIndex: {\n      rows: _fpiRows,\n",
+   "\n      html: formalPatternIndexHtml,",
+   "the single-row and band exports"],
+  ["      shape: _fpiShape,\n      TOPS_CAP: _FPI_TOPS_CAP,\n      SPLITS_CAP: _FPI_SPLITS_CAP,\n",
+   "\n      VIEWS: _FPI_VIEW_ORDER,",
+   "the exported fold length"],
+];
+
+/** Both halves, in file order, for a suite that carves consistency.js whole. */
+export const CJ_SEAMS_ALL = CJ_SEAMS.concat(CJ_SEAMS_BELOW);
 
 // ── stance-helpers.js: one span, the record-CTA stats ────────────────────────
 export const SH_SEAMS = [
@@ -122,7 +179,7 @@ export function carveSeams(src, seams, side, file, must) {
  * Argue what is inside consistency.js's two spans. `api` supplies the caller's
  * own has/ok assertions so the failures read in the caller's voice.
  */
-export function assertConsistencySeams(bodies, api) {
+export function assertConsistencySeams(bodies, api, below) {
   const { has, ok } = api;
   // seam A: the copy table names the missing WORD, not missing votes.
   has(bodies[0], "no_stance: 'No stated position to test'",
@@ -140,6 +197,58 @@ export function assertConsistencySeams(bodies, api) {
     "…and an unread lane no longer says it is loading, or no longer asks for the read");
   ok(!/MIN_|FLOOR|floor|publishable|score|Math\.round/.test(rollup),
     "the empty-roll-up seam reads a floor, a score or a weight — it chooses one word for one empty case");
+
+  // ── seams C-G: the ledger reads the index; it does not read the record ──────
+  // Everything below is decidable from the WORKING COPY alone, which is all a
+  // wave suite hands over. The stronger check on seam D — that the extracted
+  // builder is HEAD's loop body reconstructed line for line, not a
+  // characterisation quietly rewritten while being moved — needs both sides, so
+  // it lives in scripts/test-person-crawl-block.mjs, which owns the "the engines
+  // did not move" doctrine and already holds both.
+  const strip = (t) => t.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+  const bands = bodies[2] || "", loop = bodies[4] || "";
+  // The band table is a table: five names, fixed order, and the folded tail is
+  // exactly the two the reader is owed separately.
+  ok([...bands.matchAll(/^\s*\{ id: '([a-z]+)'/gm)].map((m) => m[1]).join(",") === "advanced,against,both,thin,none",
+    "the ledger's bands are not the five names the formal brief already uses, in clearest-first order");
+  ok([...bands.matchAll(/tail: (true|false)/g)].map((m) => m[1]).join(",") === "false,false,false,true,true",
+    "the folded tail is no longer exactly the thin and no-side bands");
+  // …and the decision over it reads two fields of a row this file already built.
+  const fnBand = strip(bands.slice(bands.indexOf("function _fpiLedgerBand")));
+  ok([...new Set([...fnBand.matchAll(/\bx\.([A-Za-z]+)/g)].map((m) => m[1]))].sort().join(",") === "tier,tone",
+    "the band decision reads a field of the row other than tier and tone — that is a second characterisation");
+  ok(!/MIN_|FLOOR|floor|publishable|score|weight|Math\.|party|stance/.test(fnBand),
+    "the band decision reads a floor, a weight, a score, a party or a stated position");
+  // The loop is now a call, and nothing else.
+  ok(strip(loop).split("\n").map((l) => l.trim()).filter(Boolean).join(" ") ===
+    "(issueRows(pid) || []).forEach(function (r) { var x = _fpiRowFor(r); if (x) out.push(x); });",
+    "the rows loop does something other than call the extracted builder and keep what it returns");
+  // The extracted builder still fails closed on a row with nothing formal on file.
+  has(bodies[3] || "", "if (!t && !refused && held <= 0) return null;",
+    "the extracted single-row builder no longer fails closed on a row with no formal signal");
+  has(bodies[3] || "", "function _fpiRowFor(r) {",
+    "the extracted single-row builder is not where the seam says it is");
+  // And the two export spans, wherever the caller cut them from.
+  assertConsistencyExportSeams(below || bodies.slice(5), api);
+}
+
+/**
+ * Argue what is inside consistency.js's two v108 export spans. Separate because
+ * they sit below the _DOS_MECH literal, and the suites that cut this file in half
+ * at that literal hand over the two halves' bodies as two arrays.
+ */
+export function assertConsistencyExportSeams(bodies, api) {
+  const { ok } = api;
+  const strip = (t) => t.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+  const expA = (bodies && bodies[0]) || "", expB = (bodies && bodies[1]) || "";
+  ok([...expA.matchAll(/^\s*([A-Za-z_]+):/gm)].map((m) => m[1]).join(",") ===
+    "formalPatternIndex,rows,rowFor,band,LEDGER_BANDS",
+    "the formal-pattern index gained an export other than the single row and its band");
+  ok([...expB.matchAll(/^\s*([A-Za-z_]+):/gm)].map((m) => m[1]).join(",") === "shape,TOPS_CAP,SPLITS_CAP,TAIL_MIN",
+    "the second export span moved something other than the fold length");
+  for (const t of [expA, expB])
+    ok(!/function|=>|Math\.|MIN_|FLOOR/.test(strip(t)),
+      "an export line carries logic — these four are references to what the index already holds");
 }
 
 /** Argue what is inside stance-helpers.js's one span. */

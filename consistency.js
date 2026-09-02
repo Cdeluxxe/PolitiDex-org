@@ -8471,6 +8471,71 @@
   // three rows; the fold earns its tap somewhere above that.
   var _FPI_TAIL_MIN = 4;
 
+  // ── THE SAME ROWS, TRANSPOSED: BANDS FOR A LIST OF PEOPLE ───────────────────
+  // The bands above sort one person's issues. The issue desk sorts one issue's
+  // PEOPLE, and it needs the same partition read the other way round: not "how
+  // clear is this person's record", but "which way did this person's record on
+  // this key come down". Same rows, same three rungs, same vocabulary — the only
+  // thing that changes is which axis is held still.
+  //
+  // IT IS A PARTITION, NOT A RANKING, and the difference matters enough to say in
+  // the code. There is no better and worse band here. A record that ran both ways
+  // is not a worse record than one that ran one way; it is a different finding
+  // about the same person, and a reader who came to see who moved an issue is owed
+  // both findings in the words that describe them. The band order below is fixed —
+  // clearest formal pattern first, which is the order the person file already
+  // prints — and nothing in this file will sort it by party, by stated position,
+  // by how well anyone backs up their words, or by any number derived from those.
+  //
+  // THE ONLY TWO INPUTS ARE `tier` AND `tone`, both lifted off the FPI row that
+  // _fpiRowFor already built. Nothing here re-reads the record, re-weighs an act
+  // or re-decides a side; if this function and the chip on the person file ever
+  // disagree, the bug is upstream of both and it is one bug, not two.
+  //
+  // WHY THE TAIL IS TWO IDS AND ONE SECTION. `thin` is "a direction, off too
+  // little to lean on"; `none` is "on file, no direction claimed at all". Those
+  // are different sentences and the reader is owed whichever is true — so they
+  // count separately, and the pane may still print them under one folded heading.
+  //
+  // PACKAGE-BORNE ROWS ARE NOT A BAND. A vote carried inside a package is a vote.
+  // The vehicle is a disclosure printed ON the row and counted ACROSS the bands,
+  // never a demotion out of one — see the wall over _vehLine, and the doctrine in
+  // test-clarity-before-depth.mjs, which owns the rule that `isPrimary` labels a
+  // bill and never caps, gates or discounts what the vote on it did.
+  var _FPI_LEDGER_BANDS = [
+    { id: 'advanced', tail: false, lb: 'Advanced it',
+      note: 'The formal record on this key ran their way, and this is the side it ran to.' },
+    { id: 'against', tail: false, lb: 'Cut against it',
+      note: 'The same reading, in the other direction.' },
+    { id: 'both', tail: false, lb: 'Ran both ways',
+      note: 'A real record on both sides of this key. That is a finding about the record, not a gap in it.' },
+    { id: 'thin', tail: true, lb: 'A direction, but too little to lean on',
+      note: 'Something formal on file pointing one way — not enough of it to call a pattern.' },
+    { id: 'none', tail: true, lb: 'On file, no side read',
+      note: 'Instruments on file and open in the dossier, with no direction claimed from them.' }
+  ];
+  // The band an index row belongs to, or '' for a row that is not on this key's
+  // ledger at all. Total over the five ids: every row _fpiRowFor returns lands in
+  // exactly one, which is what lets the census add up without a remainder.
+  function _fpiLedgerBand(x) {
+    if (!x) return '';
+    var tier = x.tier || '';
+    if (tier === 'strong' || tier === 'mostly') {
+      return x.tone === 'oppose' ? 'against' : x.tone === 'support' ? 'advanced' : 'both';
+    }
+    if (tier === 'split') return 'both';
+    if (tier === 'thin') return 'thin';
+    return 'none';
+  }
+  // ONE ISSUE, ONE PERSON, THE INDEX'S OWN READ OF IT. The issue desk's way in.
+  // It is issueRow → _fpiRowFor and nothing else, so a row printed on the ledger
+  // is the row the person file prints, object for object. Returns null where the
+  // index would have dropped the row: no key, or nothing formal on file at all.
+  function _fpiRowFor1(pid, issueKey) {
+    if (!pid || !issueKey) return null;
+    try { return _fpiRowFor(issueRow(pid, issueKey)); } catch (e) { return null; }
+  }
+
   // The one sentence that keeps this list out of the score, printed once at the
   // foot of the index rather than on sixty-four rows.
   var _FPI_WALL = 'Every issue here is drawn from the formal record only — roll-call votes and ' +
@@ -8617,6 +8682,160 @@
     return (d && d.tier && d.tier !== 'none') ? d : null;
   }
 
+  // ── ONE ROW OF THE INDEX, ON ITS OWN ────────────────────────────────────────
+  // Lifted whole out of _fpiRows, unchanged, because a second surface now needs
+  // the index's read of ONE issue. The issue desk's record ledger arrives holding
+  // a key and a field of people — the transpose of the person file, which holds a
+  // person and a field of keys — and it has to sort that field into the same four
+  // bands, in the same words, off the same three rungs. Extracting the builder is
+  // how that is guaranteed rather than hoped for: there is one characterisation of
+  // one row, and both surfaces print it. Writing a second one that agreed today is
+  // how two surfaces come to disagree about the same record next quarter.
+  //
+  // The ladder, both refusals and the fail-closed gate are byte-for-byte what they
+  // were inside the loop. Only the shape of the exit moved: a skipped row is null
+  // instead of a bare `return`, and the row is returned instead of pushed.
+  function _fpiRowFor(r) {
+    if (!r || !r.key) return null;
+    var res = _stResult(r);
+    var held = res.held || 0;
+    var t = _stPatternTier(r);
+    // THE UNIFORM-RUN SPLIT. Where the characterisation read declined and every
+    // judged item on the row went the same way, the index carries that side
+    // rather than the refusal — see _stThinDirRead above for the walls this does
+    // not lower. `single` still means exactly one judged item, so a surface can
+    // say "one item, not a pattern" in its own words; a two- or three-item run
+    // through the same door is a run and is not marked as one item.
+    var single = false;
+    if (!t || t.tier === 'none') {
+      var one = _stThinDirRead(r);
+      if (one) { t = one; single = (one.judged || 0) === 1; }
+    }
+    // …AND THE THIRD RUNG. A row both of those declined is offered the read the
+    // stance tree has already published for it — which is how a mixed record
+    // reaches this index as "Split · 2 advanced · 1 against" instead of as a
+    // refusal that contradicts the chip beside it. See _fpiPublishedRead for the
+    // four things it cannot do, and for why the two remaining refusals (no side
+    // on the issue, nothing judged on the row) are untouched by it.
+    var deferred = false;
+    if (!t || t.tier === 'none') {
+      var pub = _fpiPublishedRead(r);
+      if (pub) { t = pub; single = (pub.judged || 0) === 1; deferred = true; }
+    }
+    // A REFUSAL IS NOT A READ. The characterisation engine's `none` tier is a
+    // refusal wearing a chip: tone `muted`, no side, and the words "No clear
+    // pattern yet" over a ledger whose reason for being unreadable is knowable
+    // and specific. Every row that reaches here as `none` has already been
+    // offered the thin door above and declined by it, so what is left is genuinely
+    // unread — and it says WHY, in _fpiUnreadWhy's own vocabulary, through the
+    // same grey chip the other refusals use.
+    //   This also makes `read` mean what it says. It was `!!t`, and the `none`
+    // tier is a truthy object, so unreadable rows reported `read: true` and were
+    // kept out of the match only because tone `muted` has no entry in the side
+    // table — fail-closed by a missing key rather than by the flag that names the
+    // condition. Now the flag carries it.
+    var refused = !!(t && t.tier === 'none');
+    if (refused) t = null;
+    // FAIL CLOSED. No pattern and nothing formal on file means no formal signal,
+    // and an issue with no formal signal is not part of the formal record index.
+    if (!t && !refused && held <= 0) return null;
+    var why = t ? null : _fpiUnreadWhy(r);
+    var dtier = t ? '' : _fpiDisplayTier(r);
+    return {
+      pid: r.pid, key: r.key, label: r.label,
+      tier: t ? t.tier : 'unread',
+      weight: t ? t.weight : 'flat',
+      tone: t ? t.tone : 'muted',
+      patLabel: t ? t.label : why.lb,
+      why: why,
+      // WHAT THE BROWSE LANE SAYS ABOUT THIS SAME ROW, on the rows this index
+      // has no read of its own for. Presentation only, and carried here rather
+      // than re-asked downstream so that a summary counting these rows cannot
+      // call one of them unreadable while the stance tree beside it prints
+      // "Thin supports" or "Split" off the same engine on the same row.
+      //   EMPTY ON EVERY ROW THAT HAS A TIER. There the tier IS the answer, and
+      // a second opinion sitting next to it is just an invitation to consult the
+      // wrong one. It is not a tier, nothing sorts, filters or gates on it, and
+      // no count, weight, confidence or percentage is derived from it.
+      displayTier: dtier,
+      counts: t ? t.counts : '',
+      judged: t ? t.judged : 0,
+      // THE ACTS ON FILE THAT TOOK NO SIDE. Carried from the tier, which carries
+      // it from the index, which has always excluded them from `judged` and from
+      // both side counts. It is here so a surface printing the two integers can
+      // account for the rest of the list in the same breath — see the wall over
+      // `noSide` in _recordDirectionIndex. It is not a side, it is not summed
+      // into anything, and no row's tier, tone, weight or sort position reads it.
+      noSide: t ? (t.noSide || 0) : 0,
+      noSideCount: t ? (t.noSideCount || '') : '',
+      directional: !!(t && t.directional),
+      read: !!t,
+      // ── QUOTED, NOT CHARACTERISED ─────────────────────────────────────────
+      // TRUE on a row whose read came from the third rung — the browse lane's
+      // published tier, quoted here so the index cannot contradict the chip
+      // beside it. It is the difference between the two things `read` used to
+      // mean at once:
+      //   · THIS ROW HAS A PRINTABLE CHARACTERISATION. That is `read`, and the
+      //     brief is unambiguous about it: a row with judged formal acts always
+      //     gets one, whatever the primary flag says.
+      //   · THIS ROW HAS A SIDE THE MATCH MAY CONSULT. That is `read && !deferred`,
+      //     and it is unchanged. The characterisation engine and the uniform thin
+      //     door are still the only two doors into a score, on the same floors
+      //     they have always used. A 2–1 below the coverage floor prints "Split ·
+      //     2 advanced · 1 against" and is scored by nobody — see the gates in
+      //     _blEntry and _alignRecordSideMap, and the doctrine in
+      //     test-clarity-before-depth.mjs, which is where that rule is owned.
+      // Do not fold this back into `read`. Widening the score is a different
+      // change from widening the copy, and this brief asked for the second.
+      deferred: deferred,
+      single: single,
+      held: held,
+      noun: _stNoun(r),
+      said: _stSaid(r),
+      stance: (r.stance && r.stance.label) ? r.stance.label : '',
+      pat: t,
+      row: r,
+      // THE VEHICLE. Presentation only. Nothing above this line was computed
+      // from it, nothing below it reads it as a gate, and no tier, count,
+      // confidence or percentage changes because it is or is not set. See the
+      // wall over _vehLine for what it is allowed to say.
+      //   AND ONLY ON A ROW THAT READ SOMETHING. `t` is the gate, and it is the
+      // gate because the disclosure is a sentence about HOW this issue's formal
+      // support or opposition travelled — which presupposes there is some. The
+      // rows still left without a `t` are the poleless ones, and "No side to read
+      // on this issue" is the stronger, truer sentence there: hanging "carried as
+      // a provision inside H.R. 1319" under a row we have no side for at all
+      // would be this feature over-claiming on exactly the population it has
+      // least to say about.
+      //   THE GATE IS NO LONGER A PACKAGE FILTER, and that is the point. It used
+      // to swallow the disclosure on every row the primary lock had refused —
+      // which was disproportionately the package-borne rows, the exact population
+      // the sentence exists for. Now that a judged row always reads (see the third
+      // rung above), 994 rows across the shipped corpus carry the vehicle tag,
+      // 702 of them "nothing but". Those are findings with a disclosure beside
+      // them, which is what this field was for.
+      vehicle: t ? vehicleRead(r.pid, r.key) : null,
+      // THE ACT MIX. Presentation only, on exactly the same terms as the vehicle
+      // line above it, and for the same reason: it is a sentence about WHAT this
+      // row's formal signal is made of, not a quantity anything sorts, filters,
+      // gates or scores by. The tier was already decided — by the act layer in
+      // stance-helpers.js, which is the only thing that weighs these acts — and
+      // reading `mixNote` back out here changes none of it.
+      //   `mixNote` IS EMPTY ON A PURE FLOOR-VOTE ROW, which is most of them.
+      // Printing "4 floor votes" under a chip that already counts four votes
+      // would be noise, and noise is how a real disclosure gets learned as
+      // ignorable. It fills in as soon as the row holds a single non-vote act —
+      // which is also the moment the chip's countable becomes "formal acts" —
+      // and its wording grades the mix rather than merely reporting it.
+      mix: t ? (t.mix || null) : null,
+      mixNote: t ? (t.mixNote || '') : '',
+      floorLed: t ? (t.floorLed !== false) : true,
+      floorActs: t ? (t.floorActs || 0) : 0,
+      rank: t ? (_FPI_RANK.hasOwnProperty(t.tier) ? _FPI_RANK[t.tier] : _FPI_RANK.none)
+              : _FPI_UNREAD_RANK
+    };
+  }
+
   // ── THE ROWS ────────────────────────────────────────────────────────────────
   // Pure. Reads the shared row model and the shared pattern engine and derives
   // nothing of its own: `tier`, `tone`, `weight`, `label` and `counts` all arrive
@@ -8626,144 +8845,8 @@
     opts = opts || {};
     var out = [];
     (issueRows(pid) || []).forEach(function (r) {
-      if (!r || !r.key) return;
-      var res = _stResult(r);
-      var held = res.held || 0;
-      var t = _stPatternTier(r);
-      // THE UNIFORM-RUN SPLIT. Where the characterisation read declined and every
-      // judged item on the row went the same way, the index carries that side
-      // rather than the refusal — see _stThinDirRead above for the walls this does
-      // not lower. `single` still means exactly one judged item, so a surface can
-      // say "one item, not a pattern" in its own words; a two- or three-item run
-      // through the same door is a run and is not marked as one item.
-      var single = false;
-      if (!t || t.tier === 'none') {
-        var one = _stThinDirRead(r);
-        if (one) { t = one; single = (one.judged || 0) === 1; }
-      }
-      // …AND THE THIRD RUNG. A row both of those declined is offered the read the
-      // stance tree has already published for it — which is how a mixed record
-      // reaches this index as "Split · 2 advanced · 1 against" instead of as a
-      // refusal that contradicts the chip beside it. See _fpiPublishedRead for the
-      // four things it cannot do, and for why the two remaining refusals (no side
-      // on the issue, nothing judged on the row) are untouched by it.
-      var deferred = false;
-      if (!t || t.tier === 'none') {
-        var pub = _fpiPublishedRead(r);
-        if (pub) { t = pub; single = (pub.judged || 0) === 1; deferred = true; }
-      }
-      // A REFUSAL IS NOT A READ. The characterisation engine's `none` tier is a
-      // refusal wearing a chip: tone `muted`, no side, and the words "No clear
-      // pattern yet" over a ledger whose reason for being unreadable is knowable
-      // and specific. Every row that reaches here as `none` has already been
-      // offered the thin door above and declined by it, so what is left is genuinely
-      // unread — and it says WHY, in _fpiUnreadWhy's own vocabulary, through the
-      // same grey chip the other refusals use.
-      //   This also makes `read` mean what it says. It was `!!t`, and the `none`
-      // tier is a truthy object, so unreadable rows reported `read: true` and were
-      // kept out of the match only because tone `muted` has no entry in the side
-      // table — fail-closed by a missing key rather than by the flag that names the
-      // condition. Now the flag carries it.
-      var refused = !!(t && t.tier === 'none');
-      if (refused) t = null;
-      // FAIL CLOSED. No pattern and nothing formal on file means no formal signal,
-      // and an issue with no formal signal is not part of the formal record index.
-      if (!t && !refused && held <= 0) return;
-      var why = t ? null : _fpiUnreadWhy(r);
-      var dtier = t ? '' : _fpiDisplayTier(r);
-      out.push({
-        pid: r.pid, key: r.key, label: r.label,
-        tier: t ? t.tier : 'unread',
-        weight: t ? t.weight : 'flat',
-        tone: t ? t.tone : 'muted',
-        patLabel: t ? t.label : why.lb,
-        why: why,
-        // WHAT THE BROWSE LANE SAYS ABOUT THIS SAME ROW, on the rows this index
-        // has no read of its own for. Presentation only, and carried here rather
-        // than re-asked downstream so that a summary counting these rows cannot
-        // call one of them unreadable while the stance tree beside it prints
-        // "Thin supports" or "Split" off the same engine on the same row.
-        //   EMPTY ON EVERY ROW THAT HAS A TIER. There the tier IS the answer, and
-        // a second opinion sitting next to it is just an invitation to consult the
-        // wrong one. It is not a tier, nothing sorts, filters or gates on it, and
-        // no count, weight, confidence or percentage is derived from it.
-        displayTier: dtier,
-        counts: t ? t.counts : '',
-        judged: t ? t.judged : 0,
-        // THE ACTS ON FILE THAT TOOK NO SIDE. Carried from the tier, which carries
-        // it from the index, which has always excluded them from `judged` and from
-        // both side counts. It is here so a surface printing the two integers can
-        // account for the rest of the list in the same breath — see the wall over
-        // `noSide` in _recordDirectionIndex. It is not a side, it is not summed
-        // into anything, and no row's tier, tone, weight or sort position reads it.
-        noSide: t ? (t.noSide || 0) : 0,
-        noSideCount: t ? (t.noSideCount || '') : '',
-        directional: !!(t && t.directional),
-        read: !!t,
-        // ── QUOTED, NOT CHARACTERISED ─────────────────────────────────────────
-        // TRUE on a row whose read came from the third rung — the browse lane's
-        // published tier, quoted here so the index cannot contradict the chip
-        // beside it. It is the difference between the two things `read` used to
-        // mean at once:
-        //   · THIS ROW HAS A PRINTABLE CHARACTERISATION. That is `read`, and the
-        //     brief is unambiguous about it: a row with judged formal acts always
-        //     gets one, whatever the primary flag says.
-        //   · THIS ROW HAS A SIDE THE MATCH MAY CONSULT. That is `read && !deferred`,
-        //     and it is unchanged. The characterisation engine and the uniform thin
-        //     door are still the only two doors into a score, on the same floors
-        //     they have always used. A 2–1 below the coverage floor prints "Split ·
-        //     2 advanced · 1 against" and is scored by nobody — see the gates in
-        //     _blEntry and _alignRecordSideMap, and the doctrine in
-        //     test-clarity-before-depth.mjs, which is where that rule is owned.
-        // Do not fold this back into `read`. Widening the score is a different
-        // change from widening the copy, and this brief asked for the second.
-        deferred: deferred,
-        single: single,
-        held: held,
-        noun: _stNoun(r),
-        said: _stSaid(r),
-        stance: (r.stance && r.stance.label) ? r.stance.label : '',
-        pat: t,
-        row: r,
-        // THE VEHICLE. Presentation only. Nothing above this line was computed
-        // from it, nothing below it reads it as a gate, and no tier, count,
-        // confidence or percentage changes because it is or is not set. See the
-        // wall over _vehLine for what it is allowed to say.
-        //   AND ONLY ON A ROW THAT READ SOMETHING. `t` is the gate, and it is the
-        // gate because the disclosure is a sentence about HOW this issue's formal
-        // support or opposition travelled — which presupposes there is some. The
-        // rows still left without a `t` are the poleless ones, and "No side to read
-        // on this issue" is the stronger, truer sentence there: hanging "carried as
-        // a provision inside H.R. 1319" under a row we have no side for at all
-        // would be this feature over-claiming on exactly the population it has
-        // least to say about.
-        //   THE GATE IS NO LONGER A PACKAGE FILTER, and that is the point. It used
-        // to swallow the disclosure on every row the primary lock had refused —
-        // which was disproportionately the package-borne rows, the exact population
-        // the sentence exists for. Now that a judged row always reads (see the third
-        // rung above), 994 rows across the shipped corpus carry the vehicle tag,
-        // 702 of them "nothing but". Those are findings with a disclosure beside
-        // them, which is what this field was for.
-        vehicle: t ? vehicleRead(r.pid, r.key) : null,
-        // THE ACT MIX. Presentation only, on exactly the same terms as the vehicle
-        // line above it, and for the same reason: it is a sentence about WHAT this
-        // row's formal signal is made of, not a quantity anything sorts, filters,
-        // gates or scores by. The tier was already decided — by the act layer in
-        // stance-helpers.js, which is the only thing that weighs these acts — and
-        // reading `mixNote` back out here changes none of it.
-        //   `mixNote` IS EMPTY ON A PURE FLOOR-VOTE ROW, which is most of them.
-        // Printing "4 floor votes" under a chip that already counts four votes
-        // would be noise, and noise is how a real disclosure gets learned as
-        // ignorable. It fills in as soon as the row holds a single non-vote act —
-        // which is also the moment the chip's countable becomes "formal acts" —
-        // and its wording grades the mix rather than merely reporting it.
-        mix: t ? (t.mix || null) : null,
-        mixNote: t ? (t.mixNote || '') : '',
-        floorLed: t ? (t.floorLed !== false) : true,
-        floorActs: t ? (t.floorActs || 0) : 0,
-        rank: t ? (_FPI_RANK.hasOwnProperty(t.tier) ? _FPI_RANK[t.tier] : _FPI_RANK.none)
-                : _FPI_UNREAD_RANK
-      });
+      var x = _fpiRowFor(r);
+      if (x) out.push(x);
     });
     // STRONGEST FIRST, THINNEST LAST — the index's confidence ladder, which is the
     // pattern engine's own and not a second opinion about it. Inside a tier the
@@ -17042,6 +17125,12 @@
     },
     formalPatternIndex: {
       rows: _fpiRows,
+      // ONE ROW, FOR THE SURFACE THAT HOLDS THE KEY STILL INSTEAD OF THE PERSON.
+      // The issue desk's record ledger reads its bands through this, so its bands
+      // are this index's bands and not a second opinion about the same record.
+      rowFor: _fpiRowFor1,
+      band: _fpiLedgerBand,
+      LEDGER_BANDS: _FPI_LEDGER_BANDS,
       html: formalPatternIndexHtml,
       count: function (pid) { try { return _fpiRows(pid).length; } catch (e) { return 0; } },
       // The four-fact summary of the same rows — depth, tops, splits, thin —
@@ -17051,6 +17140,10 @@
       shape: _fpiShape,
       TOPS_CAP: _FPI_TOPS_CAP,
       SPLITS_CAP: _FPI_SPLITS_CAP,
+      // How long a tail has to be before folding it earns its tap. Exported so a
+      // second surface printing the same tail folds at the same length instead of
+      // picking its own number — see _FPI_TAIL_MIN.
+      TAIL_MIN: _FPI_TAIL_MIN,
       VIEWS: _FPI_VIEW_ORDER,
       WALL: _FPI_WALL
     },

@@ -485,10 +485,26 @@ section("6 · No party, no figure, no floor moved");
     p.pdxDoor1Measure(anyMeasure);
     painted.push(paint(p));
     for (const m of modes) { p.pdxDoor1Open(m); painted.push(paint(p)); }
+    // …and the record ledger, which is the issue desk's other face: a key inside
+    // a bundle paints bands of people rather than the bundle's inventory, and it
+    // is subject to every wall below. Painting only the inventory left the widest
+    // markup on this desk unmeasured.
+    const focus = (p.CORE_NATIONAL_ISSUES[0].keys || [])[0];
+    if (focus) { p.pdxDoor1Issue(focus); painted.push(paint(p)); }
   }
-  const ALL = painted.join("\n");
+  // ── ONE CARVE-OUT, AND IT IS THE OFFICE ───────────────────────────────────
+  // A ledger row prints the person's OFFICE, and some offices are named after a
+  // caucus: "House Republican Conference Chair", "Assistant House Democratic
+  // Leader". That is the office's own name, off the roster field, on a row that
+  // prints no caucus of its own — so those spans are removed before the sweep
+  // below rather than the sweep being weakened. Everything else on the desk is
+  // still measured for every token.
+  const ALL = painted.join("\n").replace(/<span class="d1-led-o">[\s\S]*?<\/span>/g, "");
   must(ALL.indexOf("d1-people") >= 0 && ALL.indexOf("d1-meas") >= 0,
     "the sweep never painted a full issue list and a full measure face, so its walls are vacuous");
+  must(ALL.indexOf("d1-led-") >= 0,
+    "the sweep never painted the record ledger, so its walls do not cover the pane that prints\n" +
+    "    the most markup on this desk");
   for (const wd of ["Republican", "Democrat", "GOP", "party", "partisan", "(R)", "(D)"]) {
     ok(ALL.toLowerCase().indexOf(wd.toLowerCase()) === -1,
       `"${wd}" reached the desk's markup. Party is never a group, a sort or a mark here`);
@@ -496,10 +512,25 @@ section("6 · No party, no figure, no floor moved");
   ok(ALL.indexOf("%") === -1,
     "a percentage reached the desk's markup. Every figure on this site carries its denominator on\n" +
     "    the surface that computes it, and this surface computes none");
-  for (const wd of ["Direction Match", "consistency score", "grade", "Mandate"]) {
+  for (const wd of ["consistency score", "grade", "Mandate"]) {
     ok(ALL.indexOf(wd) === -1,
       `"${wd}" reached the desk's markup. It states no verdict and hosts no second lane — it opens\n` +
       "      the surfaces that do, under those surfaces' own rules");
+  }
+  // "Direction Match" is allowed in exactly one shape: the formal-pattern index's
+  // own wall sentence, quoted whole, which exists to say the record lane does NOT
+  // feed the match. A wall that names the thing it walls off is not a leak — but
+  // any OTHER appearance is the desk hosting a second lane, so the phrase is only
+  // permitted inside that literal and is counted against it.
+  {
+    const wall = probe.PDXConsistency.formalPatternIndex.WALL;
+    must(wall && wall.indexOf("Direction Match") >= 0,
+      "the formal-pattern index's wall no longer names Direction Match, so this carve-out is stale");
+    const stripped = ALL.split(wall).join("");
+    ok(stripped.indexOf("Direction Match") === -1,
+      "\"Direction Match\" reached the desk's markup outside the formal lane's own wall sentence");
+    ok(ALL.indexOf(wall) >= 0 || ALL.indexOf("d1-led-band") === -1,
+      "the record ledger printed bands without the formal lane's wall under them");
   }
   // And at source level, the reads that would BE those walls coming down. The
   // desk must not touch the match brain, the party field, or buildRanking's own

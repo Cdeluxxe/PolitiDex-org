@@ -57,7 +57,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { createHash } from "node:crypto";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
+import { CJ_SEAMS_ALL as CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
   assertWordActionSeams } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -549,7 +549,7 @@ function boot(get, label) {
       const va = carveSeams(ca.pinned, CJ_SEAMS, "HEAD", "consistency.js", ok);
       const vb = carveSeams(cb.pinned, CJ_SEAMS, "now", "consistency.js", ok);
       eq(sha(vb.pinned), sha(va.pinned),
-        "consistency.js moved OUTSIDE the mechanism map and the two named v103 copy seams — the arithmetic, the floors and the bands are not any wave's to edit under this waiver");
+        "consistency.js moved OUTSIDE the mechanism map and the named copy seams in scripts/v103-chrome-seams.mjs — the arithmetic, the floors and the bands are not any wave's to edit under this waiver");
       assertConsistencySeams(vb.bodies, { has, ok });
       ok(cb.map.startsWith(ca.map), "an existing mechanism entry was rewritten rather than appended to");
       const appended = cb.map.slice(ca.map.length);

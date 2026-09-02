@@ -75,7 +75,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
+import { CJ_SEAMS, CJ_SEAMS_BELOW, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
   assertWordActionSeams } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -729,9 +729,16 @@ function boot(get, label) {
       // what is inside the spans is argued: no floor, no band, no weight, no score.
       const ca = carveSeams(ma.before, CJ_SEAMS, "HEAD", "consistency.js", ok);
       const cb = carveSeams(mb.before, CJ_SEAMS, "now", "consistency.js", ok);
-      eq(cb.pinned, ca.pinned, "consistency.js changed above _DOS_MECH outside the two named v103 copy seams — the waiver is for curated prose, not for the engine");
-      assertConsistencySeams(cb.bodies, { has, ok });
-      eq(mb.after, ma.after, "consistency.js changed below _DOS_MECH — the waiver is for curated prose, not for the renderer");
+      eq(cb.pinned, ca.pinned, "consistency.js changed above _DOS_MECH outside the named copy seams in scripts/v103-chrome-seams.mjs — the waiver is for curated prose, not for the engine");
+      // BELOW THE LITERAL, WITH THE TWO EXPORT SPANS CUT OUT. The issue-ledger pass
+      // (v108) added four export names to the formal-pattern index so the issue desk
+      // could read the index's own row instead of characterising the record twice.
+      // Names, not logic — argued span by span in scripts/v103-chrome-seams.mjs — and
+      // everything else below the literal is still compared byte for byte.
+      const da = carveSeams(ma.after, CJ_SEAMS_BELOW, "HEAD", "consistency.js", ok);
+      const db = carveSeams(mb.after, CJ_SEAMS_BELOW, "now", "consistency.js", ok);
+      assertConsistencySeams(cb.bodies, { has, ok }, db.bodies);
+      eq(db.pinned, da.pinned, "consistency.js changed below _DOS_MECH outside the two named export spans — the waiver is for curated prose, not for the renderer");
       ok(mb.map.startsWith(ma.map),
         "an existing _DOS_MECH entry was edited — this wave only appends, because rule 21 leaves a live rationale with its first writer");
       // WHOSE APPEND IS IT? While F6 was the newest wave the appended entries were F6's
