@@ -1157,43 +1157,75 @@
     // Evidence Locker's By-Politician view and gives future content passes a clear,
     // shared target list. The set is ordered by 2026 salience. Keys are validated
     // against ISSUE_MAP by scripts/define-core-national-issues-jun2026.mjs.
+    //
+    // ── THIS IS THE ONE PARENT TABLE (September 2026) ────────────────────────
+    // A CORE IS A TABLE OF CONTENTS; A CHILD IS THE ISSUE ITSELF. The keys below
+    // are not a curation of the interesting part of the register any more — they
+    // are the whole of it. EVERY PUBLISHED ISSUE_MAP KEY (one with a label) SITS
+    // UNDER EXACTLY ONE CORE. That invariant is a test, not an aspiration:
+    // scripts/test-issue-family.mjs fails on an orphan and fails on a key claimed
+    // by two cores, so a new key cannot be added to ISSUE_MAP without being given
+    // a parent here.
+    //
+    // WHY IT CHANGED. Three surfaces grouped issues into families and only one of
+    // them read this table: the Door 1 issue shelf, the person file's topic tree,
+    // and the record ledger. So `lands_preserve` — a shipped key with a label, a
+    // chip and 4 mapped measures — had a ledger you could open by name and no chip
+    // on any branch, because no core listed it. Twenty-four keys were in that
+    // position (the public-lands cluster, the reform cluster, the family, tech and
+    // infrastructure clusters, and five singletons). They are filed now, each
+    // under the one core that honestly owns it, and window.PDXIssueFamily
+    // (pdx-issue-family.js) is the single reader every surface asks.
+    //
+    // WHAT WAS NOT DONE, DELIBERATELY. No key was merged: `lands_preserve`,
+    // `lands_keep_public`, `lands_balance` and `lands_local` are four different
+    // questions about the public estate and each keeps its own key, its own chip
+    // and its own census. No key was invented, none was renamed, and no
+    // fourteenth core was added — every one of the twenty-four had an honest
+    // parent among the thirteen. Three LABELS were widened, in copy only, so that
+    // a core cannot deny what is filed under it: Climate now says Land (it is the
+    // parent of the lands_* cluster and of property_rights), Economy now says
+    // Infrastructure (roads, transit, broadband), and Checks & Balances now says
+    // Government Reform (term limits, ethics, disclosure, stock trading, money in
+    // politics and court structure — all of them rules about who may hold power
+    // and on what terms, which is what that core has always been about).
     var CORE_NATIONAL_ISSUES = [
-      { key: 'economy_cost_of_living', label: '💵 Economy, Inflation & Cost of Living',
-        blurb: 'Jobs, wages, inflation, taxes on households, and the price of everyday life.',
-        keys: ['cost_living','tax_middle_class','prop_tax','econ_growth','econ_smallbiz','econ_trade','econ_balance','econ_workers','econ_corp_account','rural_ag','housing','housing_build','housing_support','housing_first_time','homeless','property_tax','tariffs_china','tariffs_growth','tariffs_prices','tariffs_authority','crypto_cbdc'] },
+      { key: 'economy_cost_of_living', label: '💵 Economy, Cost of Living & Infrastructure',
+        blurb: 'Jobs, wages, inflation, taxes on households, housing, the cost of raising children, money and digital assets, the rules the tech and AI industries build under, and the public works — roads, transit, broadband — the rest of it runs on.',
+        keys: ['cost_living','tax_middle_class','prop_tax','econ_growth','econ_smallbiz','econ_trade','econ_balance','econ_workers','econ_corp_account','rural_ag','housing','housing_build','housing_support','housing_first_time','homeless','property_tax','tariffs_china','tariffs_growth','tariffs_prices','tariffs_authority','crypto_cbdc','sound_money','dev_district_finance','child_care','paid_leave','family_support','infrastructure','transit','broadband','tech_innovation','tech_balance'] },
       { key: 'immigration_border', label: '🛡 Immigration & Border Security',
         blurb: 'Border enforcement, legal immigration, asylum, and fentanyl trafficking.',
         keys: ['border_security','immig_legal','immig_balance','immigration_reform','immig_fentanyl','deportations'] },
       { key: 'healthcare', label: '🏥 Healthcare Costs & Access',
-        blurb: 'Coverage, premiums, drug prices, rural care, mental health, and senior benefits.',
-        keys: ['healthcare_market','health_drug_prices','health_balance','healthcare','health_mental','health_rural','medical_freedom','social_security','healthcare_costs'] },
+        blurb: 'Coverage, premiums, drug prices, rural care, mental health, senior benefits, and the rules on tobacco and nicotine products.',
+        keys: ['healthcare_market','health_drug_prices','health_balance','healthcare','health_mental','health_rural','medical_freedom','social_security','healthcare_costs','tobacco_nicotine'] },
       { key: 'spending_debt_waste', label: '🧾 Government Spending, Debt & Waste',
-        blurb: 'Federal spending, the national debt, balanced budgets, and rooting out waste.',
-        keys: ['lower_taxes','gov_waste','gov_balance','national_debt','audit_spending','gov_regulation','cut_spending'] },
+        blurb: 'Federal spending, the national debt, balanced budgets, rooting out waste, and the case for funding public services instead.',
+        keys: ['lower_taxes','gov_waste','gov_balance','national_debt','audit_spending','gov_regulation','cut_spending','gov_services'] },
       { key: 'abortion_repro', label: '🕊 Abortion / Reproductive Rights',
         blurb: 'Abortion access, limits and exceptions, and reproductive freedom.',
         keys: ['pro_life','repro_balance','pro_choice'] },
       { key: 'guns', label: '🔫 Gun Rights & Gun Control',
         blurb: 'Second Amendment rights, background checks, red-flag laws, and gun-safety measures.',
         keys: ['gun_rights','gun_balance','gun_safety'] },
-      { key: 'climate_energy', label: '🌱 Climate Change & Energy Policy',
-        blurb: 'Climate action, clean and domestic energy, water, and disaster resilience.',
-        keys: ['climate_action','enviro_energy','enviro_balance','lands_energy','datacenter_growth','datacenter_water','datacenter_power','disaster_resilience','water','water_storage','energy_production','permitting_reform'] },
+      { key: 'climate_energy', label: '🌱 Climate, Energy & Land',
+        blurb: 'Climate action, clean and domestic energy, water, disaster resilience, who owns and may use the public estate, and what a government may do to a parcel its owner holds.',
+        keys: ['climate_action','enviro_energy','enviro_balance','lands_energy','lands_preserve','lands_keep_public','lands_balance','lands_local','property_rights','datacenter_growth','datacenter_water','datacenter_power','disaster_resilience','water','water_storage','energy_production','permitting_reform'] },
       { key: 'crime_safety', label: '👮 Crime & Public Safety',
         blurb: 'Policing, violent crime, sentencing and justice reform, and public safety.',
         keys: ['back_police','justice_balance','justice_reform','cannabis_reform','tough_on_crime'] },
       { key: 'election_integrity', label: '🗳 Election Integrity',
         blurb: 'Election security, voter ID, ballot access, and the integrity of the vote.',
         keys: ['election_integrity','election_security','democracy_balance','voting_access','voter_id'] },
-      { key: 'checks_and_balances', label: '⚖️ Checks, Balances & Who Decides',
-        blurb: 'War powers, the power of the purse, congressional oversight, court orders, the line between federal and state authority, and control of the career civil service.',
-        keys: ['checks_balances','war_powers','judicial_check','power_of_purse','congress_oversight','states_federal_power','state_standing','guard_authority','civil_service_control'] },
+      { key: 'checks_and_balances', label: '⚖️ Checks, Balances & Government Reform',
+        blurb: 'War powers, the power of the purse, congressional oversight, court orders and court structure, the line between federal and state authority, control of the career civil service, and the rules that hold officeholders to account — term limits, ethics, disclosure, stock trading and money in politics.',
+        keys: ['checks_balances','war_powers','judicial_check','power_of_purse','congress_oversight','states_federal_power','state_standing','guard_authority','civil_service_control','scotus_reform','term_limits','stock_trading_ban','gov_transparency','campaign_finance','reform_balance'] },
       { key: 'education_parental', label: '🎓 Education & Parental Rights',
         blurb: 'Public schools, school choice, college and trade costs, and parents’ role in schools.',
         keys: ['school_choice','edu_balance','public_schools','edu_college_cost','edu_parental'] },
       { key: 'civil_rights_culture', label: '⚖️ Civil Rights, Culture & DEI',
-        blurb: 'Equal treatment and civil rights, religious liberty, free speech, and the debate over DEI.',
-        keys: ['religious_liberty','rights_balance','lgbtq_rights','free_speech','end_dei'] },
+        blurb: 'Equal treatment and civil rights, religious liberty, free speech, personal privacy and surveillance, and the debate over DEI.',
+        keys: ['religious_liberty','rights_balance','lgbtq_rights','free_speech','end_dei','privacy_rights'] },
       { key: 'foreign_policy_defense', label: '🦅 Foreign Policy & National Security',
         blurb: 'National defense, alliances and diplomacy, America First priorities, support for Israel, and support for veterans.',
         keys: ['strong_defense','foreign_balance','restraint','america_first','america_first_fp','israel_support','veterans'] },

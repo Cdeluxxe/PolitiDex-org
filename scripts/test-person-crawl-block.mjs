@@ -72,6 +72,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { assertParentTableIsTheOnlyMove } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -1081,8 +1082,17 @@ section("9 · the engines did not move");
   // one span a later pass touched is cut out by anchors unique on both sides and
   // argued line by line, and the rest of the file is still compared byte for
   // byte. Nothing was loosened; one span moved from "forbidden" to "stated".
+  // alignment-tool.js came off this list for the issue-family pass (v109) and is pinned
+  // as a REGION immediately below, on the same terms and for the same reason as the spans
+  // above: CORE_NATIONAL_ISSUES, the site's only issue taxonomy and declared in that file
+  // directly below ISSUE_MAP, named a parent for 97 of the 121 published keys and left 24
+  // with none — labels, chips and record ledgers with no branch to sit on. A blanket hash
+  // on the file forbids finishing the table, and the only other place to finish it would
+  // have been a second taxonomy. What THIS suite has at stake is that the crawl block
+  // never reached the arithmetic, and every piece of the arithmetic — ISSUE_MAP, the
+  // weights, the scope notes, the alignment engine — is in the half still compared byte
+  // for byte. Nothing was loosened; one region moved from "forbidden" to "stated".
   const ENGINES = [
-    "alignment-tool.js",
     "say-vs-do.js", "exec-record.js",
     "publication-floor.js", "issue-colors.js",
     "netlify/lib/vr-pack.ts", "netlify/lib/vr-normalize.ts", "db/issue-keys.json",
@@ -1101,8 +1111,16 @@ section("9 · the engines did not move");
   if (!compared) {
     console.log("      (no git baseline available — engine byte-identity not checked in this environment)");
   } else {
-    ok(compared >= 7, `the engine set was read from HEAD (${compared} files)`);
+    ok(compared >= 6, `the engine set was read from HEAD (${compared} files)`);
     eq(moved, [], "Direction Match, the formal-pattern engines, the packs and the mappings are byte-identical to HEAD");
+  }
+  {
+    let head = null;
+    try {
+      head = execFileSync("git", ["show", "HEAD:alignment-tool.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
+    } catch { head = null; }
+    if (head !== null) assertParentTableIsTheOnlyMove({ ok, eq }, head, R("alignment-tool.js"), "the crawl block");
+    else console.log("      (no git baseline available — the parent table was not checked in this environment)");
   }
 
   // ── cmp-data.js: CARVED OUT, ROW BY ROW, FOR THE SAME REASON AS _DOS_MECH ────

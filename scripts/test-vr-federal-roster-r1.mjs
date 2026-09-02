@@ -33,7 +33,7 @@ import vm from "node:vm";
 import { execFileSync } from "node:child_process";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { CJ_SEAMS_ALL as CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
-  assertWordActionSeams } from "./v103-chrome-seams.mjs";
+  assertWordActionSeams, assertParentTableIsTheOnlyMove } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -464,9 +464,21 @@ section("6 · no Direction Match drift — twin boot, HEAD against this tree");
     eq(b.pinned, a.pinned, `${f} changed outside its named copy-pass seam — a roster wave admits identity, and this pass touched copy`);
     argue(b.bodies, { has, eq, ok });
   };
+  // alignment-tool.js is on the same footing for the issue-family pass (v109) — a
+  // REGION rather than a copy span, and cut the same way: CORE_NATIONAL_ISSUES, the
+  // site's only issue taxonomy and declared in that file below ISSUE_MAP, named a parent
+  // for 97 of the 121 published keys and left 24 with none, so `lands_preserve` had a
+  // label, a chip, four mapped measures and no branch to sit on. Everything outside the
+  // block is compared byte for byte, so ISSUE_MAP itself, every scope note and the whole
+  // alignment engine stay pinned — and R1's stake, which is that a wave admitting
+  // identity moved no published boundary and no piece of the score, is entirely in the
+  // pinned half. The block lists which keys sit under which heading. It reads no member.
+  const REGIONED = ["alignment-tool.js"];
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== R(f); });
-  eq(touched.filter((f) => !SEAMED.includes(f)).join(", "), "cmp-data.js",
+  eq(touched.filter((f) => !SEAMED.includes(f) && !REGIONED.includes(f)).join(", "), "cmp-data.js",
     "a roster wave changed a booted file other than the roster — identity is the only thing it admits");
+  if (touched.includes("alignment-tool.js"))
+    assertParentTableIsTheOnlyMove({ ok, eq }, headSrc("alignment-tool.js"), R("alignment-tool.js"), "roster R1");
   seamCheck("consistency.js", CJ_SEAMS, assertConsistencySeams);
   seamCheck("stance-helpers.js", SH_SEAMS, assertStanceHelpersSeam);
   seamCheck("word-action.js", WA_SEAMS, assertWordActionSeams);

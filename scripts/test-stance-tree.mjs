@@ -9,9 +9,11 @@
 // stance at all. Everything below is the fence that makes that safe:
 //
 //   1. THE GROUPING MAP IS THE SHIPPED ONE. Thirteen core national issues in
-//      their declared order, plus exactly one explicit trailing node for the
-//      keys that belong to no core issue. No leaf is filed under a topic the
-//      shared reverse lookup disagrees with.
+//      their declared order, plus exactly one explicit trailing node for keys
+//      that belong to no core issue — a backstop that is expected to stay empty,
+//      because the parent table now gives every published ISSUE_MAP key exactly
+//      one core. No leaf is filed under a topic the shared reverse lookup
+//      disagrees with.
 //   2. EVERY LEAF STATE IS REACHABLE AND CORRECTLY WORDED. Four Said faces, four
 //      Record slot states (scored / direction / on-file / none), four alignment
 //      cues — and the cue appears ONLY where both halves of the line exist. ONE
@@ -71,6 +73,7 @@ const BASE = [
   "state-senate-stances.js",
   "stance-helpers.js",
   "alignment-tool.js",
+  "pdx-issue-family.js",
   "acct-spotlight-data.js",
   "say-vs-do.js",
   "exec-action-data.js",
@@ -274,7 +277,16 @@ section("1 · the grouping map is the shipped one");
     if (want) filed++; else other++;
   });
   ok(filed > 0, `the fixture files leaves under real core issues (${filed})`);
-  ok(other > 0, `…and exercises the trailing node too (${other})`);
+  // THE TRAILING NODE IS A BACKSTOP, NOT A BUCKET. It used to catch the keys no
+  // core listed — twenty-four of them, including `lands_preserve`, which had a
+  // record ledger and no chip on any branch. The parent table now assigns every
+  // published ISSUE_MAP key to exactly one core, so a tracked leaf landing in
+  // Other is a hole in that table, not a category. The node stays declared (the
+  // assertions above) for off-register data; it is expected to stay EMPTY.
+  eq(other, 0,
+    `${other} tracked leaves fell into Other — every published key has a parent, so this is a ` +
+    `gap in CORE_NATIONAL_ISSUES: ` +
+    LEAVES.filter((lf) => !lf.topic).map((lf) => lf.key).join(", "));
 
   const declared = new Set(topics.map((t) => t.key || "other"));
   GROUPS.forEach((g) => ok(declared.has(g.key), `${g.key}: is a declared topic, not an invented one`));
@@ -656,10 +668,18 @@ section("6 · colours come from PDXIssueColors");
       `${g.key}: …in the colour PDXIssueColors gives this topic`);
   });
   const core = GROUPS.filter((g) => g.topicKey);
-  const other = GROUPS.filter((g) => !g.topicKey)[0];
   ok(core.length > 0, "the fixture has core-coloured branches");
   core.forEach((g) => ok(g.skin.on, `${g.key}: is marked as a real core colour`));
-  must(!!other, "the fixture no longer exercises the trailing node");
+  eq(GROUPS.filter((g) => !g.topicKey).length, 0,
+    "a real profile paints no Other branch — every published key has a core parent");
+  // The trailing node's own skin, still pinned. Since no tracked key can reach it
+  // any more, it is exercised the only honest way left: one leaf, filed nowhere,
+  // handed to the same grouping call a filtered view uses. The branch a genuinely
+  // off-register key would land in still refuses to borrow a topic's colour.
+  const offRegister = Object.assign({}, LEAVES[0], { topic: "" });
+  const other = T.groups(PID, [offRegister]).filter((g) => !g.topicKey)[0];
+  must(!!other, "groups() no longer builds the trailing node even for a leaf filed nowhere");
+  eq(other.key, "other", "the trailing node is still keyed 'other' on the branch");
   eq(other.skin.on, false, "the trailing node is NOT marked as a core colour");
   has(other.skin.style, IC.FALLBACK.color,
     "…and takes the colour system's neutral fallback rather than borrowing a topic's");
@@ -1290,7 +1310,7 @@ section("13 · a handful of leaves renders flat");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("14 · the first screen is the 13 core issues and Other, and nothing else");
+section("14 · the first screen is the core issues this person has, and nothing else");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const CORE = A.CORE_NATIONAL_ISSUES || [];
@@ -1304,9 +1324,14 @@ section("14 · the first screen is the 13 core issues and Other, and nothing els
   ok(L0.length <= CORE.length + 1,
     `the first screen is at most 13 cores + Other (${L0.length} rows)`);
   visibleLeafCount(HTML, 0);
-  L0.slice(0, -1).forEach((k) =>
-    ok(CORE.some((c) => c.key === k), `${k}: an L0 row is a core national issue`));
-  eq(L0[L0.length - 1], "other", "…and the one row that is not a core is the trailing Other");
+  L0.forEach((k) =>
+    ok(CORE.some((c) => c.key === k) || k === "other",
+      `${k}: an L0 row is a core national issue (or the trailing Other)`));
+  // AND THE TRAILING OTHER DOES NOT PAINT. Every published ISSUE_MAP key has a
+  // core parent now, so there is nothing for it to hold on a real profile; the
+  // first screen is cores only. Section 6 exercises the node itself directly.
+  eq(L0.includes("other"), false,
+    "the first screen still paints an Other door — a tracked key is missing a parent");
 
   // THE CHOICE ON EMPTY BUCKETS, PINNED. A core issue this person has no tracked
   // row under does not get a door: `groups()` drops it, the same rule that drops

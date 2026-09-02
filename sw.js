@@ -879,7 +879,37 @@
 // No floor, no mapping, no weight, no roster row, no slice sentence and no figure
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
-const CACHE_VERSION = 'v108';
+//
+// v109 - ONE ISSUE FAMILY: CORES BROWSE, CHILDREN ARE THE PROFILE. The site had
+// three groupings of the same issue vocabulary and only one of them read the
+// parent table, so twenty-four published keys — the whole public-lands cluster
+// among them — had a record ledger you could open by typing its name and no chip
+// on any branch. The table in alignment-tool.js is now the whole register (every
+// published ISSUE_MAP key has exactly one core), and one new module is the single
+// reader of it. FIVE FILES MUST TRAVEL TOGETHER, which is what this bump is for:
+//   · pdx-issue-family.js  — NEW SHELL ASSET, and the reason the bump is not
+//                            optional: a warm device holding v108 would pair the
+//                            new desk and the new tree with no family module at
+//                            all. Both are guarded and would fall back, so the
+//                            failure would be silent — the lands_* chips simply
+//                            absent again — which is the exact bug this pass
+//                            closes.
+//   · alignment-tool.js    — the parent table itself: 24 keys given a parent,
+//                            three core LABELS widened in copy so a core cannot
+//                            deny what is filed under it (Climate now says Land).
+//                            Precached, and stale here means the new desk asks for
+//                            children the old table does not list.
+//   · door1-workspace.js   — the issue desk paints its child chips from the table
+//                            and prints the core → child crumb under the census.
+//   · door1-workspace.css  — that crumb. One new block; nothing restyled.
+//   · stance-tree.js       — the person file's topic tree groups by the same
+//                            coreOf() the desk uses, instead of reaching the
+//                            answer its own way.
+//   · index.html           — the one new <script defer>, and precached as '/'.
+// No floor, no mapping, no weight, no roster row and no figure of any kind moved.
+// Every person brief and every Direction Match read is byte-identical with this
+// table and without it — the table names families, it does not read records.
+const CACHE_VERSION = 'v109';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -965,6 +995,12 @@ const SHELL_ASSETS = [
   '/cmp-data.js',
   '/stance-helpers.js',
   '/alignment-tool.js',
+  // The issue family table. Tiny, and precached WITH alignment-tool.js rather
+  // than left to the runtime cache because it is that file's parent table with an
+  // API on it: the Door 1 child chips and the person file's topic branches are
+  // both built from it, and a device that had one file and not the other would
+  // quietly group issues two different ways.
+  '/pdx-issue-family.js',
   // Issue color tokens. Tiny, and precached with alignment-tool.js so an offline
   // repeat visit keeps issues colour-coded instead of falling back to slate
   // everywhere, which would read as "nothing is a core issue".

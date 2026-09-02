@@ -58,7 +58,7 @@ import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { CJ_SEAMS, CJ_SEAMS_BELOW, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
-  assertWordActionSeams } from "./v103-chrome-seams.mjs";
+  assertWordActionSeams, assertParentTableIsTheOnlyMove } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -847,10 +847,21 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
   // _pdxStanceRecordStats, and the span itself is argued below. F8 has no stake in it —
   // it reads no floor, no mapping and no roll, it counts rows the record lane already
   // holds and answers whether that lane has answered at all.
-  const WAIVED = ["consistency.js", "cmp-data.js", "stance-helpers.js", "word-action.js"];
+  // alignment-tool.js is on the allowed side for the issue-family pass (v109), as a
+  // REGION and not a licence: CORE_NATIONAL_ISSUES, the site's only issue taxonomy and
+  // declared in that file below ISSUE_MAP, named a parent for 97 of the 121 published
+  // keys and left 24 with none — labels, chips and ledgers with no branch to sit on.
+  // Finishing that table is the only thing in the file that moved, and the rest of it is
+  // still compared byte for byte, so ISSUE_MAP itself, every scope note and the whole
+  // alignment engine stay pinned. F8 has no stake in the block: it lists which keys
+  // belong under which heading and reads no roll, no floor and no member.
+  const WAIVED = ["consistency.js", "cmp-data.js", "stance-helpers.js", "word-action.js", "alignment-tool.js"];
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== nowSrc(f); });
   const strayBooted = touched.filter((f) => !WAIVED.includes(f));
   eq(strayBooted.join(", "), "", `F8 changed a booted file (${strayBooted.join(", ")}) — an attribution wave has no business editing the engine or the curated data`);
+  if (touched.includes("alignment-tool.js")) {
+    assertParentTableIsTheOnlyMove({ ok, eq }, headSrc("alignment-tool.js"), nowSrc("alignment-tool.js"), "F8");
+  }
   if (touched.includes("stance-helpers.js")) {
     const shHas = (x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`);
     const sa = carveSeams(headSrc("stance-helpers.js"), SH_SEAMS, "HEAD", "stance-helpers.js", ok);
@@ -924,7 +935,19 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
   // db/share-index.json is here on those same terms and for the same reason: F8
   // regenerated it, and any later wave that ships a judged act re-ranks the six-line
   // window again. F8's own requirement survives that — no person may LOSE their snapshot.
-  const DECLARED = new Set(["compare-hub.js", "sw.js", "db/vr-member-map.json", "sitemap.xml",
+  const DECLARED = new Set([
+    // The issue-family pass (v109) — the one parent table finished, the family module
+    // that reads it, the two surfaces that stopped grouping issues their own way, and the
+    // shell bump that ships them together. See the booted-file note above for why the
+    // taxonomy had to be finished in place rather than mirrored somewhere new.
+    "alignment-tool.js", "pdx-issue-family.js", "door1-workspace.js", "door1-workspace.css",
+    "stance-tree.js", "index.html", "CORE_NATIONAL_ISSUES.md",
+    "scripts/v103-chrome-seams.mjs", "scripts/test-issue-family.mjs",
+    "scripts/test-issue-record-ledger.mjs", "scripts/test-stance-tree.mjs",
+    "scripts/test-door-one-collapse.mjs", "scripts/test-vr-federal-wave-f5.mjs",
+    "scripts/test-vr-federal-wave-f6.mjs", "scripts/test-vr-federal-wave-f9.mjs",
+    "scripts/test-vr-federal-roster-r1.mjs", "scripts/test-vr-federal-roster-r2.mjs",
+    "scripts/test-person-crawl-block.mjs","compare-hub.js", "sw.js", "db/vr-member-map.json", "sitemap.xml",
     "db/share-index.json",
     "db/vr-roster-admitted.json", "consistency.js", "db/vr-issue-seed.json", GEN,
     "scripts/vr-gen-federal-wave-f2-migration.mjs",

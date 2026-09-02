@@ -40,7 +40,7 @@ import { execFileSync } from "node:child_process";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCrawlRecord } from "./gen-crawl-record.mjs";
 import { CJ_SEAMS_ALL as CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
-  assertWordActionSeams } from "./v103-chrome-seams.mjs";
+  assertWordActionSeams, assertParentTableIsTheOnlyMove } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -517,8 +517,12 @@ section("6 · no Direction Match or formal-brief drift — twin boot, HEAD vs th
     eq(b.pinned, a.pinned, `${f} changed outside its named copy-pass seam — a roster wave admits identity, and this pass touched copy`);
     argue(b.bodies, { has: shHas, eq, ok });
   };
+  // alignment-tool.js is off this wall for the issue-family pass and pinned as a REGION
+  // in the engine block below instead — the taxonomy it finished is declared in that file
+  // and nowhere else, and a second copy of it would have been a second taxonomy.
+  const REGIONED = ["alignment-tool.js"];
   const touched = FILES.filter((f) => { const h = HEAD(f); return h !== null && h !== R(f); });
-  eq(touched.filter((f) => !SEAMED.includes(f)).join(", "), "cmp-data.js",
+  eq(touched.filter((f) => !SEAMED.includes(f) && !REGIONED.includes(f)).join(", "), "cmp-data.js",
     "a roster wave changed a booted file other than the roster — identity is the only thing it admits");
   seamCheck("consistency.js", CJ_SEAMS, assertConsistencySeams);
   seamCheck("stance-helpers.js", SH_SEAMS, assertStanceHelpersSeam);
@@ -696,11 +700,22 @@ section("7 · ship discipline — cache, census, floor, and the identity wall");
     // outside _pdxStanceRecordStats, and what changed inside that span argued. What R2
     // needs from the file is that it harvests no stance and aliases nobody, and both
     // of those are asserted directly elsewhere in this suite.
-    "compare-hub.js", "publication-floor.js", "alignment-tool.js"];
+    // alignment-tool.js came off this list for the issue-family pass, on the same terms
+    // and checked as a REGION immediately below: byte-identical to HEAD everywhere
+    // outside the CORE NATIONAL ISSUES block, and the shape of the block argued. What R2
+    // needs from the file is that it publishes no new key and moves no scope — ISSUE_MAP
+    // and every scope note are in the pinned half, and "no key the table names is a key
+    // ISSUE_MAP does not already publish" is one of the five things asserted there.
+    "compare-hub.js", "publication-floor.js"];
   for (const f of untouched) {
     const h = HEAD(f);
     if (!ok(h !== null, `${f} is not in HEAD, so "unchanged" could not be checked — if the file moved, fix this list`)) continue;
     eq(R(f), h, `${f} was modified — this wave admits identity and nothing else`);
+  }
+  {
+    const f = "alignment-tool.js", h = HEAD(f);
+    if (ok(h !== null, `${f} is not in HEAD, so its parent table could not be checked`) && h !== R(f))
+      assertParentTableIsTheOnlyMove({ ok, eq }, h, R(f), "roster R2");
   }
   {
     const f = "stance-helpers.js", h = HEAD(f);

@@ -30,12 +30,17 @@
 //      Community and finance are never stamped.
 //   7. NO DESK, NO COLLAPSE. No mount, or no module behind any of the four
 //      modes, and nothing is labelled or reduced.
-//   8. A SHIPPED ISSUE KEY OPENS. public lands is a real ISSUE_MAP key with no
-//      curated bundle; it used to resolve to nothing and print the record lane's
-//      own no-vehicle sentence over a lookup failure. It now opens as itself,
-//      the ledger is asked for its roll-call rows with the signature the ledger
-//      publishes, and with rows present the desk lists people. An UNKNOWN key
-//      still refuses.
+//   8. A SHIPPED ISSUE KEY OPENS AS ITSELF. public lands is a real ISSUE_MAP key
+//      that used to belong to no curated bundle: it resolved to nothing and the
+//      desk printed the record lane's own no-vehicle sentence over a lookup
+//      failure. The parent table has since given every published key exactly one
+//      core, so it now resolves through the table as a CHILD of Climate, Energy
+//      & Land — and the thing this section has always been about is unchanged: the
+//      key opens as itself, the read is narrowed to that key, the ledger is asked
+//      with the signature the ledger publishes, and with rows present the desk
+//      lists people. The standalone branch survives as a backstop for a key that
+//      arrives from data older than the table, and is exercised as one. An
+//      UNKNOWN key still refuses.
 //   9. NO FLOOR MOVED. No party, no percentage, no publication floor, no slice
 //      sentence, and every named brief and Direction Match read byte-identical
 //      with the desk loaded and without it.
@@ -61,6 +66,7 @@ const FILES = [
   "state-senate-stances.js",
   "stance-helpers.js",
   "alignment-tool.js",
+  "pdx-issue-family.js",
   "acct-spotlight-data.js",
   "say-vs-do.js",
   "consistency.js",
@@ -473,23 +479,67 @@ section("8 · A shipped issue key opens as itself; an unknown one still refuses"
 
 {
   const D = probe.PDXDoor1;
-  // THE KEY IS REAL. It has a label and a chip in ISSUE_MAP, and no curated
-  // bundle lists it — which is the whole shape this fixes.
-  const bundled = probe.CORE_NATIONAL_ISSUES.some((c) => (c.keys || []).indexOf("lands_preserve") >= 0);
-  must(!bundled, "lands_preserve is now inside a curated bundle — pick another unbundled key");
+  // THE KEY IS REAL, AND IT NOW HAS A PARENT. It has a label and a chip in
+  // ISSUE_MAP, and as of the September 2026 parent-table pass exactly one core
+  // lists it — which is what put a chip for it on a branch instead of leaving it
+  // reachable only by typing its name. Read off the table rather than named here,
+  // because a literal copied into a test is a second taxonomy in miniature.
+  const PARENT = probe.CORE_NATIONAL_ISSUES
+    .filter((c) => (c.keys || []).indexOf("lands_preserve") >= 0)[0] || null;
+  must(PARENT, "lands_preserve is in no curated bundle — every published key is supposed to have " +
+    "exactly one parent (see scripts/test-issue-family.mjs)");
   const t = D._resolveIssue("lands_preserve");
   ok(t !== null, "a shipped ISSUE_MAP key still resolves to nothing, so the desk prints the\n" +
     "    record lane's no-vehicle sentence over a failure of its own lookup");
+  // THE THING THIS SECTION IS ACTUALLY ABOUT, and the part a parent does not move:
+  // the target is scoped to the ONE key that was asked for. What changed is only
+  // where the desk browses from.
   eq(t && t.focusKey, "lands_preserve", "the resolved target does not scope to the key that was asked for");
-  eq(t && t.standalone, true, "an unbundled key was resolved without being marked standalone");
-  eq(t && t.core && t.core.keys.join(","), "lands_preserve",
-    "the standalone target ranks something other than the one key asked for");
-  eq(t && t.core && t.core.label, probe.ISSUE_MAP.lands_preserve.label,
-    "the standalone target is not labelled with the key's own shipped label");
-  // NO MAPPING INVENTED. It is not folded into the nearest bundle, and it does
-  // not claim to be inside one.
-  ok(!probe.CORE_NATIONAL_ISSUES.some((c) => c.key === (t && t.core && t.core.key)),
-    "the unbundled key was folded into a curated bundle");
+  eq(t && t.standalone, false, "a key with a parent was resolved as if it had none");
+  eq(t && t.core && t.core.key, PARENT.key, "the key was filed under a core other than its parent");
+  ok(t && t.core && t.core.keys.indexOf("lands_preserve") >= 0,
+    "the resolved core does not list the key that resolved to it");
+  // NO MAPPING INVENTED. The parent is the one the table declares — not the
+  // nearest bundle by keyword, and not a bundle stood up for this key.
+  eq(probe.CORE_NATIONAL_ISSUES.filter((c) => (c.keys || []).indexOf("lands_preserve") >= 0).length, 1,
+    "more than one bundle claims this key, so which parent the desk names is a coin flip");
+
+  // THE STANDALONE BRANCH IS A BACKSTOP, AND STILL WORKS. Nothing the register
+  // publishes can reach it any more, so it is exercised the only honest way left:
+  // a booted desk whose table has been replaced by one that omits the key, which
+  // is exactly the shape "data older than the table" arrives in. The key still
+  // opens as itself, ranked on its own record, with no bundle invented for it.
+  // The desk asks three lookups in the order they shipped — the family table, then
+  // alignment-tool's own reverse lookup, then a scan of the shelf — so all three
+  // have to come back empty for this to be the "older than the table" case rather
+  // than a test that only silenced the first one.
+  {
+    const s = boot();
+    const without = s.CORE_NATIONAL_ISSUES.map((c) =>
+      Object.assign({}, c, { keys: (c.keys || []).filter((k) => k !== "lands_preserve") }));
+    s.CORE_NATIONAL_ISSUES = without;
+    const wasLookup = s.coreIssueForKey;
+    s.coreIssueForKey = (k) =>
+      (k === "lands_preserve" ? null : wasLookup && wasLookup(k)) || null;
+    must(!s.PDXIssueFamily || s.PDXIssueFamily.coreOf("lands_preserve") === "",
+      "the family table still parents the key after the table was replaced, so the backstop " +
+      "below is not being reached");
+    const u = s.PDXDoor1._resolveIssue("lands_preserve");
+    must(u, "the backstop no longer opens a shipped key that no core lists");
+    eq(u.standalone, true, "an unparented key was resolved without being marked standalone");
+    eq(u.focusKey, "lands_preserve", "the backstop does not scope to the key asked for");
+    eq(u.core.keys.join(","), "lands_preserve",
+      "the standalone target ranks something other than the one key asked for");
+    eq(u.core.label, probe.ISSUE_MAP.lands_preserve.label,
+      "the standalone target is not labelled with the key's own shipped label");
+    ok(!without.some((c) => c.key === u.core.key),
+      "the unparented key was folded into a curated bundle");
+    // …and the sentence that goes with it is still the one that names no bundle.
+    s.pdxDoor1Open("issue");
+    s.pdxDoor1Issue("lands_preserve");
+    has(paint(s), "is not inside any of the tracked issues above",
+      "the backstop lists a standalone issue without saying it is outside the shelf");
+  }
 
   // AN UNKNOWN KEY STILL REFUSES. The leniency is "shipped but uncurated", not
   // "anything a caller hands us".
@@ -498,14 +548,22 @@ section("8 · A shipped issue key opens as itself; an unknown one still refuses"
     "a key the stance vocabulary does not carry resolved anyway");
   eq(D._resolveIssue(""), null, "an empty key resolved to something");
 
-  // THE SCOPE SENTENCE. A fourteenth list under a shelf of thirteen needs the
-  // line that says why, and it must not name a bundle.
+  // THE SCOPE SENTENCE. A reader looking at a list for one key under a shelf of
+  // thirteen is owed the line that says which key, and — now that the key has a
+  // parent — which family, and that the read is the key and not the family.
+  const escq = (x) => String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const w = boot({ session: { pdx_d1_mode: "issue", pdx_d1_issue: "lands_preserve" } });
   const out = paint(w);
-  has(out, "is not inside any of the tracked issues above",
-    "the desk lists a standalone issue without saying it is outside the shelf");
+  has(out, `Scoped to <b>${escq(probe.ISSUE_MAP.lands_preserve.label)}</b>`,
+    "the desk lists one key's record without saying which key it is scoped to");
+  has(out, `inside ${escq(PARENT.label)}`,
+    "the desk does not name the family the key it is reading belongs to");
+  has(out, "not the whole bundle",
+    "the desk does not say the read is the key rather than its whole family");
+  no(out, "is not inside any of the tracked issues above",
+    "the desk still calls a parented key unparented");
   has(out, probe.ISSUE_MAP.lands_preserve.label,
-    "the standalone issue is not named on the desk in its own shipped words");
+    "the issue is not named on the desk in its own shipped words");
 
   // THE LEDGER IS ASKED THE WAY THE LEDGER ASKS TO BE ASKED, and for this key that
   // is the only way that works. PDXIssueView.warmVotes takes a key OR an already
@@ -532,8 +590,14 @@ section("8 · A shipped issue key opens as itself; an unknown one still refuses"
     ok(spy[0] && spy[0].a && typeof spy[0].a === "object" && Array.isArray(spy[0].a.keys),
       "the desk handed the ledger a bare key, which the ledger re-resolves — and there is\n" +
       "    no bundle to resolve for this key, so nothing is warmed and the record reads empty");
-    eq(spy[0] && spy[0].a && spy[0].a.keys.join(","), "lands_preserve",
-      "the desk asked the ledger about a key set other than the one the reader picked");
+    // The target's key set is its PARENT's, because a bundled key resolves to its
+    // bundle — and the narrowing is the second argument, which is what makes the
+    // read this key's own. That second argument is the thing that must never drift:
+    // it is what the ledger reads by, and a cousin's key here is a cousin's census.
+    ok(spy[0] && spy[0].a && spy[0].a.keys.indexOf("lands_preserve") >= 0,
+      "the desk asked the ledger about a key set that does not contain the key the reader picked");
+    eq(spy[0] && spy[0].a && spy[0].a.key, PARENT.key,
+      "the desk asked the ledger about a bundle other than the key's own parent");
     eq(spy[0] && spy[0].b, "lands_preserve", "the scope was dropped on the way to the ledger");
     // And no fourth-argument dependence: the export takes no callback, so a desk
     // that repainted from one would never repaint. It repaints on the event the

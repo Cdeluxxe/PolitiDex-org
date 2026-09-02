@@ -123,12 +123,20 @@
 
    ─────────────────────────────────────────────────────────────────────────────
    THE GROUPING MAP is CORE_NATIONAL_ISSUES (alignment-tool.js) in its own order,
-   plus ONE explicit trailing node. 21 ISSUE_MAP keys belong to no core issue
-   (campaign finance, privacy, government transparency, the public-lands cluster,
-   the family/infrastructure/tech/reform clusters). Filing them under the nearest
-   core colour would state a taxonomy relationship we do not have, so they get
-   their own node on PDXIssueColors.FALLBACK — the neutral grey the colour system
-   already reserves for exactly this.
+   read through window.PDXIssueFamily — the same parent table, and the same read,
+   that paints the child chips on the Door 1 issue desk. There is no second
+   grouping map here and there must never be one: a family this tree invents is a
+   family the rest of the site does not have.
+
+   THE TRAILING NODE stays, and is now expected to be EMPTY. It used to hold 21
+   real leaves — campaign finance, privacy, government transparency, the
+   public-lands cluster, the family/infrastructure/tech/reform clusters — because
+   no core issue listed those keys, and filing them under the nearest core colour
+   would have stated a taxonomy relationship we did not have. As of September 2026
+   the table itself was finished instead: every published ISSUE_MAP key has
+   exactly one parent, enforced by scripts/test-issue-family.mjs. So the node
+   survives for a leaf whose key the register does not carry at all — data older
+   than the table — and it renders, like any empty branch, not at all.
 
    COLOUR comes from PDXIssueColors.styleFor(issueKey), which resolves a leaf key
    to its core issue itself. Branch and leaf therefore paint from the same four
@@ -476,15 +484,33 @@
     } catch (e) { on = false; }
     return { style: ic.styleFor(key), on: !!on, color: color };
   }
+  // ── WHICH FAMILY A LEAF BELONGS TO ────────────────────────────────────────
+  // ONE TABLE, ASKED FIRST. window.PDXIssueFamily (pdx-issue-family.js) is the
+  // single reader of the single parent table, and it is the same read Door 1's
+  // issue desk makes for its chips. That is the whole point of asking it here:
+  // this tree used to reach the answer a different way (through the colour
+  // module's own resolution), which was correct only for as long as the two
+  // agreed — and they stopped agreeing for the twenty-four keys no core listed,
+  // where the tree filed a real leaf under "Other tracked issues" while the desk
+  // could open it by name. The two older lookups stay underneath as fallbacks in
+  // the order they shipped, so a page without the family module groups exactly as
+  // it did before it existed.
   function coreKeyOf(issueKey) {
+    var F = window.PDXIssueFamily;
+    try {
+      if (F && typeof F.coreOf === 'function') {
+        var id = F.coreOf(issueKey);
+        if (id) return id;
+      }
+    } catch (e) {}
     var ic = IC();
     try {
       if (ic && typeof ic.coreKeyFor === 'function') return ic.coreKeyFor(issueKey) || '';
-    } catch (e) {}
+    } catch (e2) {}
     try {
       var c = (typeof window.coreIssueForKey === 'function') ? window.coreIssueForKey(issueKey) : null;
       return (c && c.key) || '';
-    } catch (e2) { return ''; }
+    } catch (e3) { return ''; }
   }
 
   // The grouping map, read live so a new core issue appears here the moment it is
