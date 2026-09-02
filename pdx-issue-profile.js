@@ -17,7 +17,8 @@
      · it reads a key out of /i/<key>,
      · resolves it through the register the rest of the app resolves through
        (PDXDoor1.issueKeyFor — exact key, stemmed key, label, core, keyword),
-     · hands it to the door that already exists (window.pdxDoor1Issue), and
+     · hands it to the door that already exists (window.pdxDoor1Issue) and
+       mounts the result in the issue file's own panel (PDXIssueFile), and
      · publishes html(key) / mount(el, key), which delegate to the SAME builder
        the desk calls: PDXDoor1.issueProfile — door1-workspace.js's
        issueProfileHtml. One function, two doors. There is no second ledger here,
@@ -50,11 +51,33 @@
      shelf and the reader picks the key they came for. html('guns') answers ''
      for the same reason, rather than merging thirteen records into one.
 
-   NO SECOND HOME
-     Closing is not this file's business and it invents nothing for it. The desk
-     is where issues live; an /i/ arrival lands on it, and back/forward across
-     /i/<key> re-adopts through the same one door. Nothing here opens a modal,
-     hides the page or takes the document over.
+   AN ARRIVAL OPENS A FILE, NOT THE HOMEPAGE
+     This is the pass that gave /i/ a destination. Resolving the key was never
+     the defect: the arrival went through window.pdxDoor1Issue, stopped there,
+     and pdxDoor1Issue's job is to paint THE DESK — so a reader who followed a
+     citation was landed on the homepage, hero first, Door 1's whole chrome next,
+     and the ledger they were sent to somewhere below the fold. /p/<pid> hides
+     that shell and opens a file. /i/<key> does the same job now:
+
+       · the pick still goes through window.pdxDoor1Issue — same commitment,
+         same roll-call warm, same census, so the two doors are still one paint;
+       · the desk's mode is selected QUIETLY first, so the desk's own open()
+         cannot scroll the homepage into view. Landing on the desk was the bug;
+       · and the ledger is mounted in the issue file's panel — PDXIssueFile,
+         the same family as the person-file modal, covering the homepage.
+
+     Two cases still land on the desk, and both are honest: a BUNDLE key, which
+     has no single ledger to open (the reader picks a member key on the sub-key
+     shelf), and a document served without the panel module, which has no stage
+     to open one on. The panel says which by answering false, and this file
+     falls back rather than showing an empty file.
+
+   THE BAR, BOTH WAYS
+     What this module took, it gives back. stamp() records the surface the reader
+     was on before the file opened and restore() puts it back — the front door for
+     a cold arrival, exactly as person-file.js answers for /p/. The panel calls
+     restore() on close and never writes location itself, so there is one owner of
+     the address for one address.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -143,9 +166,38 @@
   }
 
   // ── The bar, and the one canonical ────────────────────────────────────────
+  // WHAT THE READER WAS ON BEFORE THE FILE OPENED. Captured once per open rather
+  // than per stamp, so an alias arrival that re-stamps itself with the exact key
+  // still returns to the surface it was opened from. Same shape, same reasoning
+  // and the same cold-arrival answer as person-file.js's own: re-capturing the
+  // /i/ path we are about to rewrite would make close a no-op that leaves a
+  // closed issue's address in the bar, so a cold arrival returns to the front
+  // door.
+  var _return = null;
+  // The tab's way home. index.html is where this string is spelled and
+  // person-file.js is the only other place; read live where that is safe, so the
+  // two cannot drift, and pinned to the literal when this document arrived on an
+  // issue address — reading the live title THERE would risk capturing a title
+  // written for the file as if it were the front page's, which is the defect
+  // person-file.js documents at length for /p/.
+  var HOME_TITLE = 'PolitiDex | Bound by Truth';
+  var _homeTitle = (function () {
+    try {
+      if (!fromPath(location.pathname) && document.title) return String(document.title);
+    } catch (e) {}
+    return HOME_TITLE;
+  })();
+
   function stamp(key) {
     var p = path(key);
     if (!p) return false;
+    try {
+      if (_return === null) {
+        _return = fromPath(location.pathname)
+          ? '/'
+          : location.pathname + (location.search || '');
+      }
+    } catch (e) {}
     try {
       if (location.pathname !== p) {
         history.replaceState(null, '', p + (location.search || '') + (location.hash || ''));
@@ -192,6 +244,29 @@
     return false;
   }
 
+  // ── Giving the bar back ───────────────────────────────────────────────────
+  // The panel's close calls this, and it is here rather than there for the same
+  // reason person-file.js owns /p/'s restore: this module is what changed the
+  // address, and /i/<key> is a PATH — "drop the query string" would leave the
+  // closed issue's address in the bar. The tab goes home with it, and the
+  // canonical stops claiming the front page is this ledger.
+  //
+  // Nothing captured means a cold deep link straight onto /i/<key>, and the
+  // honest destination for that is the front door — not an issue we just closed.
+  function restore() {
+    try { document.title = _homeTitle; } catch (e) {}
+    try {
+      var link = document.querySelector('link[rel="canonical"]');
+      if (link) link.setAttribute('href', origin() + '/');
+    } catch (e) {}
+    try {
+      var back = _return;
+      _return = null;
+      history.replaceState(null, '', (back == null ? '/' : back) + (location.hash || ''));
+    } catch (e) {}
+    return true;
+  }
+
   // ── The arrival ───────────────────────────────────────────────────────────
   // Returns the key it opened, or '' — including when the address names no key,
   // which is reported rather than swallowed. The open itself goes through
@@ -205,13 +280,32 @@
     var key = resolve(raw);
     if (!key) { missed(raw); return ''; }
     var opened = false;
-    try { opened = !!(fn(window.pdxDoor1Issue) && window.pdxDoor1Issue(key)); } catch (e) { opened = false; }
+    try {
+      // THE MODE, QUIETLY, FIRST. pdxDoor1Issue routes through the desk's own
+      // open() when the mode has to change, and that open() scrolls the desk
+      // into view — which is precisely how an /i/ arrival used to end up looking
+      // at the homepage. Selecting the mode with {quiet:true} beforehand means
+      // the pick below finds the mode already set and only re-syncs, so the
+      // commitment, the warm and the census are identical and the page does not
+      // move under the reader.
+      var D = desk();
+      if (D && fn(D.open)) D.open('issue', { quiet: true });
+      opened = !!(fn(window.pdxDoor1Issue) && window.pdxDoor1Issue(key));
+    } catch (e) { opened = false; }
     stamp(key);
     try { document.title = title(key); } catch (e) {}
-    // The desk paints where the desk lives. pdxDoor1Issue already lands the
-    // reader on it when the mode has to change; asking again is how a warm
-    // arrival (the mode was already 'issue') gets the same landing.
-    try { if (opened && desk() && fn(desk().toDesk)) desk().toDesk('issue'); } catch (e) {}
+    // THE FILE. The same string the desk just painted, mounted on a stage that
+    // covers the homepage — see AN ARRIVAL OPENS A FILE. The panel answers false
+    // for a bundle key and for a document served without it, and both of those
+    // land on the desk instead, which is the honest destination for each.
+    var filed = false;
+    try {
+      var P = window.PDXIssueFile;
+      filed = !!(P && fn(P.open) && P.open(key));
+    } catch (e) { filed = false; }
+    if (!filed) {
+      try { if (opened && desk() && fn(desk().toDesk)) desk().toDesk('issue'); } catch (e) {}
+    }
     return key;
   }
 
@@ -269,6 +363,7 @@
     html: html,
     mount: mount,
     stamp: stamp,
+    restore: restore,
     title: title,
     adopt: adopt,
     bootAdopt: bootAdopt,
@@ -282,13 +377,19 @@
     try { window.addEventListener('load', kick); } catch (e) {}
   }
 
-  // Back/forward across issue files. Popping to /i/<other> should read that
-  // other key; popping OFF an issue path is not an instruction to close anything
-  // — the desk is a section of the homepage, not an overlay, so there is nothing
-  // to dismiss and no second home to send anyone to.
+  // Back/forward across issue files. Popping to /i/<other> reads that other key
+  // through the one door; popping OFF an issue path now means something, because
+  // there is a file open over the page to dismiss — the same answer person-file.js
+  // gives when a pop leaves /p/. The address is left exactly where the reader's
+  // own navigation put it (keepAddress), because restoring it here would fight
+  // the button they just pressed.
   try {
     window.addEventListener('popstate', function () {
-      try { if (fromPath()) { _settled = true; adopt(); } } catch (e) {}
+      try {
+        if (fromPath()) { _settled = true; adopt(); return; }
+        var P = window.PDXIssueFile;
+        if (P && fn(P.isOpen) && P.isOpen()) P.close({ keepAddress: true });
+      } catch (e) {}
     });
   } catch (e) {}
 })();

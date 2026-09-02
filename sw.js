@@ -880,6 +880,65 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v113 - /i/<key> OPENS A FILE, NOT THE HOMEPAGE DESK. v112 gave the child ledger
+// an address and it resolved correctly — /i/lands_preserve found the key, committed
+// the same pick a chip tap commits and painted the same census. What it had no
+// destination for: the arrival went through window.pdxDoor1Issue and stopped, and
+// that function's job is to paint THE DESK. So a reader who followed a citation
+// landed on the homepage — the hero ("Live from the record"), the whole of Door 1's
+// chrome ("One desk…", the four ways in, the core shelf), the ledger they were sent
+// to below the fold, and a "Next in Door 1" footer under it. /p/<pid> hides that
+// shell and opens a file. This bump is the pass that makes /i/ do the same job.
+//   · issue-file.js        - NEW SHELL ASSET, and the reason the bump is not
+//                            optional. A warm device holding v112 would be served
+//                            the new document (index.html is precached as '/', and
+//                            the /i/* rewrite is server-side and cannot be stale)
+//                            with no panel module on the page — which is v112's
+//                            behaviour exactly: the homepage, silently. It is the
+//                            stage only: one overlay in the person modal's family
+//                            at z-index 50, inserted before #modal-overlay — the
+//                            number clears the homepage's own fixed z-50 nav, and
+//                            the position keeps the profile modal (also 50) above
+//                            it, so a person opened from a ledger row lands on top
+//                            and reveals the file again on close. One chrome bar
+//                            of identity, one body. It computes nothing.
+//   · issue-file.css       - that panel and that chrome bar. It styles NO ledger
+//                            markup: every .d1-* rule the body needs is
+//                            door1-workspace.css's, already precached, because the
+//                            body of the panel is byte-for-byte the string the desk
+//                            paints.
+//   · pdx-issue-profile.js - the arrival now selects the desk's mode QUIETLY (so
+//                            the desk's own open() cannot scroll the homepage into
+//                            view), commits the identical pick through
+//                            pdxDoor1Issue, and mounts the result in the panel. It
+//                            also gained the other half of the address it takes:
+//                            restore(), which puts back the surface the reader was
+//                            on — the front door for a cold arrival — exactly as
+//                            person-file.js answers for /p/. Stale here means the
+//                            panel ships with nothing that opens it.
+//   · door1-workspace.js   - UNCHANGED, and named because it is still the ONE
+//                            builder. issueProfileHtml(key) is what the panel
+//                            mounts; there is no second census, no issue-shaped
+//                            skin and no fork to drift. Stale here means the panel
+//                            finds no builder, answers false, and the arrival falls
+//                            back to the desk.
+//   · issue-scope.js       - UNCHANGED. The file's chrome carries its ⓘ, and only
+//                            where controlHtml() already holds prose for the key.
+//   · pdx-issue-family.js  - UNCHANGED. crumb(key) is where the chrome's core →
+//                            child caption comes from, and profileUrl(key) is still
+//                            the one place the address is spelled.
+//   · netlify.toml         - UNCHANGED. The /i/* → /index.html 200 rewrite is what
+//                            makes any of this reachable and is named here so a
+//                            reader of this note can see the whole path.
+//   · index.html           - the one new <script defer>, the one new stylesheet,
+//                            and precached as '/'.
+// A Door 1 chip tap on / is untouched and still opens the desk in place: that is a
+// VIEW of the file, and the desk is where views live. No key, no reparent, no
+// floor, no mapping, no weight and no figure moved. The panel's body is asserted
+// byte-equal to PDXIssueProfile.html(key), the census contract is asserted equal to
+// the desk's, and every person brief and Direction Match read is byte-identical
+// with this module loaded and without it.
+//
 // v112 - /i/<key> IS THE ISSUE FILE. Door 1's issue mode has painted the child
 // ledger for a while — the Core → Child crumb, the census, the five formal-pattern
 // bands, the measures on file, the honesty lines — and seek, OPEN and a chip tap
@@ -1048,7 +1107,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v112';
+const CACHE_VERSION = 'v113';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -1147,6 +1206,15 @@ const SHELL_ASSETS = [
   // adopt a path no surface links. Tiny, and it paints nothing itself — the
   // ledger it mounts is door1-workspace.js's, which is already on this list.
   '/pdx-issue-profile.js',
+  // The stage that address opens on, and its stylesheet. Both travel with the
+  // module above for the reason the note at the top of this file gives: a device
+  // holding the address module and not the panel is a device that resolves
+  // /i/<key> correctly and then lands the reader on the homepage — the exact
+  // defect the v113 pass closes. The sheet is on this list rather than left to
+  // the runtime cache because an unstyled overlay is a full-bleed block of loose
+  // text ON TOP of the page, which is worse than no overlay at all.
+  '/issue-file.js',
+  '/issue-file.css',
   // Issue color tokens. Tiny, and precached with alignment-tool.js so an offline
   // repeat visit keeps issues colour-coded instead of falling back to slate
   // everywhere, which would read as "nothing is a core issue".
