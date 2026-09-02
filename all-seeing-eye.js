@@ -201,15 +201,94 @@
     // Which lane answers which result category. Politicians and their receipts are
     // two categories over one lane, which is why the warming notice is printed per
     // LANE and not per category — one loading roster is one fact.
-    var CAT_LANE = { pol: 'people', stance: 'people', bill: 'bills', iss: 'issues' };
+    var CAT_LANE = {
+      pol: 'people', stance: 'people', bill: 'bills',
+      // Three categories over the issue library now, where there was one. The
+      // warming notice is still per LANE, so all three answer for 'issues'.
+      file: 'issues', fam: 'issues', spot: 'issues'
+    };
     var LANE_TITLES = { people: 'Politicians & Positions', bills: 'Legislation & Bills', issues: 'Issues & Hot Topics' };
     var LANE_DOTS = { people: '#f5c842', bills: '#9ff0bd', issues: '#fb923c' };
     var LANE_NOUNS = { people: 'the roster and its receipts', bills: 'the legislation index', issues: 'the issue library' };
 
+    // ── TWO MODES, ONE BOX ────────────────────────────────────────────────
+    // WHAT WAS WRONG. One list called "Issues & Hot Topics" held four different
+    // kinds of thing at once: /i/<key> issue files, the thirteen core bundles,
+    // Spotlights, and whatever names happened to fuzzy-match. Typed "land pres",
+    // a reader asking what the RECORD says about public lands got a wildfire
+    // Spotlight first, because a deep local investigation and a formal issue file
+    // were competing on one relevance number. They are not competing. They are
+    // answers to two different questions, read at two different moments, so they
+    // get two lists and the reader says which one they are in.
+    //
+    // FORMAL IS THE DEFAULT, because this site's claim is the record. It holds the
+    // issue files, the families they sit in, the roster (formal-row holders
+    // first) and the measures. A Spotlight does not appear in it — not demoted,
+    // ABSENT, including as a cross-link chip on a person row: in the formal lane
+    // a row's neighbours are formal too.
+    //
+    // PUBLIC is what was said and reported: Spotlights, quotes, stated positions.
+    // No /i/ file row appears in it, and neither does the file lead block.
+    //
+    // WHAT THE TOGGLE IS NOT. It is not a filter on the query — the string in the
+    // box is untouched, `curQ` never changes, and an expanded category stays
+    // expanded across a switch, because nothing about the reader's question
+    // changed. Only the ranking and the visible groups swap. It is not persisted
+    // either: a mode is a posture inside one search session, not a preference.
+    // And no party letter is a term in either mode's ordering — see rank().
+    var laneMode = 'formal';
+    var LANE_MODES = [
+      { id: 'formal', label: 'Formal record', ico: '🏛' },
+      { id: 'public', label: 'Public & spotlights', ico: '🔦' }
+    ];
+    // Each mode says what it holds AND what the other one holds, with a count, so
+    // neither lane can dead-end a reader who picked the wrong one. A bill number
+    // typed in Public mode is not "no results"; it is results in the other lane.
+    function laneModeBar(counts) {
+      var other = laneMode === 'formal' ? 'public' : 'formal';
+      var n = counts ? (counts[other] || 0) : 0;
+      var h = '<div class="pdx-eye-lane" role="group" aria-label="Which lane of the record to search">';
+      for (var i = 0; i < LANE_MODES.length; i++) {
+        var m = LANE_MODES[i], on = (m.id === laneMode);
+        h += '<button type="button" class="pdx-eye-lane-btn' + (on ? ' is-on' : '') +
+          '" data-eye-lane="' + m.id + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
+          '<span class="pdx-eye-lane-ico" aria-hidden="true">' + m.ico + '</span>' + esc(m.label) +
+          (counts ? '<span class="pdx-eye-lane-n">' + (counts[m.id] || 0) + '</span>' : '') +
+          '</button>';
+      }
+      h += '<span class="pdx-eye-lane-say">' + (laneMode === 'formal'
+        ? 'Issue files, the families they sit in, the roster and the measures. Spotlights and quotes are in the other lane'
+        : 'Spotlights, quotes and stated positions. Issue files and measures are in the other lane')
+        + (n ? ', which holds <b>' + n + '</b> for this search.' : '.') + '</span>';
+      return h + '</div>';
+    }
+    // Does this person have a formal row at all — a vote or a formal action on
+    // file? Asked of the shipped index, guarded, and used ONLY to partition an
+    // already-ranked list. It adds no score, so relevance order survives inside
+    // each half and a person with nothing on file is still findable by name.
+    function hasFormalRow(pid) {
+      try {
+        var C = window.PDXConsistency, F = C && C.formalPatternIndex;
+        if (!F || typeof F.count !== 'function') return false;
+        return (F.count(pid) || 0) > 0;
+      } catch (e) { return false; }
+    }
+    function formalFirst(list) {
+      var withRow = [], without = [];
+      for (var i = 0; i < list.length; i++) {
+        (hasFormalRow(list[i].id) ? withRow : without).push(list[i]);
+      }
+      return withRow.concat(without);
+    }
+
     // ── build the search index (people + issues), memoized ────────────
     var index = null, indexKey = '', relCache = {};
     function buildIndex() {
-      var people = [], issues = [];
+      // `issues` is Spotlights only now. The thirteen bundles are `families` and
+      // the register's own keys are `files`, because the toggle above renders
+      // them as three separate answers and one mixed array cannot be ordered
+      // three ways at once.
+      var people = [], issues = [], families = [], files = [];
 
       // Politicians — mirror the app's browse haystack so a nav search and the
       // "All Politicians" search surface the same records.
@@ -271,19 +350,71 @@
         }
       } catch (e) {}
 
-      // National issue categories — broad comparison topics (Hot Topics view).
+      // ── THE THIRTEEN, AS A TABLE OF CONTENTS ────────────────────────────
+      // A core is a place to browse from: it has no record of its own and nothing
+      // characterises a person "on" a core (see pdx-issue-family.js). So the row
+      // is `kind: 'family'`, not `kind: 'issue'`, and activating it opens
+      // /i/<coreKey> — the desk inventory and its key shelf — instead of the
+      // 882-person ranking that used to answer a bundle query as though the
+      // bundle itself had been read. The ranking still exists; it is one tap
+      // deeper, behind the key the reader actually meant.
       try {
         var core = window.CORE_NATIONAL_ISSUES || [];
         core.forEach(function (ci) {
           if (!ci || !ci.label) return;
           var parts = [ci.label, ci.blurb].concat(ci.keys || []);
-          issues.push({
-            kind: 'issue', issueKey: ci.key, keys: (ci.keys || []).slice(), title: stripEmoji(ci.label) || ci.label,
+          var kidN = (ci.keys || []).length;
+          families.push({
+            kind: 'family', issueKey: ci.key, keys: (ci.keys || []).slice(), title: stripEmoji(ci.label) || ci.label,
             titleLc: norm(stripEmoji(ci.label) || ci.label),
             tokens: norm(ci.label).split(/[^\p{L}\p{N}]+/u).filter(Boolean),
-            sub: 'National issue · compare where they stand',
+            sub: 'Issue family · ' + (kidN ? (kidN + ' key' + (kidN === 1 ? '' : 's') + ' filed under it') : 'no keys filed under it yet'),
             desc: ci.blurb || '', icon: leadEmoji(ci.label) || '🎯',
             hay: parts.filter(Boolean).join(' ').toLowerCase()
+          });
+        });
+      } catch (e) {}
+
+      // ── THE ISSUE FILES, REACHABLE AS THEMSELVES ────────────────────────
+      // `lands_preserve` is a published key with a label, a chip and mapped
+      // measures, and it had no row in this index at all: the eye only ever
+      // scanned the thirteen bundles, so a query that named a key got whichever
+      // bundle's curated keywords happened to contain the word. Every published
+      // ISSUE_MAP key is a row here, filed under `file`, and the row's address is
+      // the key's own /i/<key>.
+      //
+      // A CORE KEY IS NOT LISTED TWICE. Some keys are both — `guns` is a shipped
+      // key and one of the thirteen — and /i/<coreKey> opens the same desk either
+      // way, so the bundle keeps the family row and the file list skips it.
+      //
+      // THE KEY IS SPELT OUT ("lands preserve") beside its label, so a reader who
+      // types the slug and a reader who types the words both land on it. The key
+      // itself is never re-spelt, aliased or stemmed: PUBLISHED is the register's
+      // own test (a key with no label is scaffolding), asked of PDXIssueFamily.
+      try {
+        var IM = window.ISSUE_MAP || {};
+        var FAM = window.PDXIssueFamily;
+        var coreKeySet = {};
+        (window.CORE_NATIONAL_ISSUES || []).forEach(function (c) { if (c && c.key) coreKeySet[c.key] = 1; });
+        Object.keys(IM).forEach(function (k) {
+          var rec = IM[k];
+          if (!rec || !rec.label) return;   // unpublished scaffolding has no face to print
+          if (coreKeySet[k]) return;        // a bundle is a family row, not a file row
+          var lbl = stripEmoji(rec.label) || rec.label;
+          var coreKey = '', coreLbl = '';
+          try { if (FAM && typeof FAM.coreOf === 'function') coreKey = FAM.coreOf(k) || ''; } catch (fe) {}
+          try { if (coreKey && FAM && typeof FAM.label === 'function') coreLbl = stripEmoji(FAM.label(coreKey)) || ''; } catch (fe) {}
+          var spelled = k.replace(/_/g, ' ');
+          var fparts = [k, spelled, rec.label, rec.chip, coreLbl].concat(rec.keywords || []);
+          files.push({
+            kind: 'issuefile', issueKey: k, coreKey: coreKey, coreLabel: coreLbl,
+            keys: [k],
+            title: lbl,
+            titleLc: norm(lbl + ' ' + spelled),
+            tokens: norm(lbl + ' ' + spelled).split(/[^\p{L}\p{N}]+/u).filter(Boolean),
+            sub: coreLbl ? ('Issue file · in ' + coreLbl) : 'Issue file · the formal record',
+            desc: '', icon: leadEmoji(rec.label) || '🏛',
+            hay: fparts.filter(Boolean).join(' ').toLowerCase()
           });
         });
       } catch (e) {}
@@ -418,7 +549,7 @@
         });
       } catch (e) {}
 
-      index = { people: people, issues: issues, stances: stances, bills: bills };
+      index = { people: people, issues: issues, families: families, files: files, stances: stances, bills: bills };
       relCache = {};
       return index;
     }
@@ -428,6 +559,9 @@
       var key = polIdGroups().total + ':' +
         ((window.PDXSpotlight && window.PDXSpotlight.list) ? window.PDXSpotlight.list().length : 0) + ':' +
         ((window.CORE_NATIONAL_ISSUES || []).length) + ':' +
+        // The register itself is a lane now (the issue files), so its arrival has
+        // to invalidate the index the same way the roster's does.
+        (window.ISSUE_MAP ? Object.keys(window.ISSUE_MAP).length : 0) + ':' +
         (window.ISSUE_STANCE_DATA ? Object.keys(window.ISSUE_STANCE_DATA).length : 0) + ':' +
         (Array.isArray(window.__pdxEyeBillsLive) ? ('L' + window.__pdxEyeBillsLive.length)
           : ('I' + ((window.PDX_BILLS_INDEX || []).length)));
@@ -666,9 +800,19 @@
     // Render the little "related" chip row beneath a result (or '' when there's none).
     function relBlock(entry) {
       var hints = entry.kind === 'pol' ? relatedForPol(entry.id)
-        : (entry.kind === 'spotlight' || entry.kind === 'issue') ? relatedForIssue(entry)
+        : (entry.kind === 'spotlight' || entry.kind === 'issue' ||
+           entry.kind === 'family' || entry.kind === 'issuefile') ? relatedForIssue(entry)
         : [];
       if (!hints || !hints.length) return '';
+      // FORMAL MEANS FORMAL, DOWN TO THE CROSS-LINKS. A Spotlight is a good
+      // neighbour for a person — in the other lane. "Spotlights do not appear in
+      // this mode" is not a statement about rows only; a chip that says "Central
+      // to <investigation>" is a Spotlight appearing. Filtered here rather than in
+      // relatedForPol, because the cache it fills is shared with public mode.
+      if (laneMode === 'formal') {
+        hints = hints.filter(function (h) { return h.kind !== 'spotlight'; });
+        if (!hints.length) return '';
+      }
       var chips = hints.map(function (h) {
         var attr = h.kind === 'pol' ? 'data-kind="pol" data-id="' + esc(h.id) + '"'
           : h.kind === 'spotlight' ? 'data-kind="spotlight" data-slug="' + esc(h.slug) + '"'
@@ -905,6 +1049,20 @@
         else if (typeof window._pdxOpenEvidenceLocker === 'function' && data.key) window._pdxOpenEvidenceLocker({ issue: data.key });
         else { var ht = document.getElementById('hot-topics'); if (ht) ht.scrollIntoView({ behavior: 'smooth' }); }
       }
+      else if (kind === 'issuefile') {
+        // THE FILE, NOT THE RANKING. A key opens its own /i/<key> ledger; one of
+        // the thirteen opens /i/<coreKey>, which is the desk inventory and the key
+        // shelf under it — because a bundle has no single record to read and which
+        // key the reader meant is theirs to say. Routed through the desk's own
+        // entry point, so the pick is recorded and the record warmed exactly as it
+        // is when the chip is tapped on the desk itself.
+        var ik = data.key || '';
+        if (!ik) return;
+        try { if (typeof window.pdxDoor1Issue === 'function') { window.pdxDoor1Issue(ik); return; } } catch (e) {}
+        // No desk on the page: the address is real, so go to it rather than
+        // falling through to a view that answers a different question.
+        try { var u = issueFileUrl(ik); if (u && u !== '#') window.location.href = u; } catch (e) {}
+      }
       else if (kind === 'bill') {
         if (window.PDXBills && typeof window.PDXBills.open === 'function') window.PDXBills.open(data.number || data.id);
         else { var dl = document.getElementById('digital-library'); if (dl) dl.scrollIntoView({ behavior: 'smooth' }); }
@@ -926,6 +1084,7 @@
       if (e.kind === 'pol' || e.kind === 'stance') navigate('pol', { id: e.id });
       else if (e.kind === 'spotlight') navigate('spotlight', { slug: e.slug });
       else if (e.kind === 'issue') navigate('issue', { key: e.issueKey, focusKey: e._focus || '' });
+      else if (e.kind === 'family' || e.kind === 'issuefile') navigate('issuefile', { key: e.issueKey });
       else if (e.kind === 'bill') navigate('bill', { number: e.number, id: e.id });
     }
     // Run one command action for an entry. Saving toggles the shared collection
@@ -1172,6 +1331,45 @@
         '<span class="pdx-eye-body"><span class="pdx-eye-name">' + highlight(e.title, q, terms) + '</span>' +
         '<span class="pdx-eye-sub">' + esc(sub) + '</span></span>' +
         personalBadge(e) + tag + '</button>';
+    }
+    // ── AN ISSUE FILE ROW, AND A FAMILY ROW ───────────────────────────────
+    // One shape, two kinds, and both of them are ANCHORS. /i/<key> is a served
+    // path, so the row can carry a real destination the way a person row carries
+    // /p/<pid>: copyable, middle-clickable, openable in a new tab. A plain tap is
+    // still the eye's and opens the file in place (see navigate('issuefile')).
+    //
+    // THE COLOUR IS THE ISSUE'S OWN, taken from PDXIssueColors through the shared
+    // issueTint() — the same three tokens a bill letterhead chip and /issue/<key>
+    // take for the same key, so Climate, Energy & Land is the same green in a
+    // search result as it is on the desk. A key the colour table does not know
+    // gets no tint rather than a stand-in colour.
+    //
+    // NO COUNT, NO SHARE, NO ORDERING CLAIM in either row's sub-line. A family
+    // says how many keys are filed under it (a length, not a reading); a file says
+    // which family it sits in, or that it sits in none — which is not a gap.
+    function fileRowHtml(e, q, terms, idx, cls, chipText, chipKey) {
+      var url = issueFileUrl(e.issueKey || '');
+      var tint = issueTint(chipKey || e.issueKey || '');
+      var chip = chipText
+        ? '<span class="pdx-eye-topic"' + tint + '>' + esc(chipText) + '</span>'
+        : '';
+      return '<a role="option" class="pdx-eye-item ' + cls + '" data-i="' + idx + '"' +
+        ' href="' + esc(url) + '" data-kind="' + (e.kind === 'family' ? 'family' : 'issuefile') + '"' +
+        ' data-key="' + esc(e.issueKey || '') + '"' + tint + '>' +
+        '<span class="pdx-eye-thumb pdx-eye-thumb--issue">' + esc(e.icon) + '</span>' +
+        '<span class="pdx-eye-body">' +
+          '<span class="pdx-eye-name">' + highlight(e.title, q, terms) + '</span>' +
+          '<span class="pdx-eye-sub">' + esc(e.sub) + '</span>' +
+        '</span>' +
+        chip + personalBadge(e) +
+      '</a>';
+    }
+    function issueFileItem(e, q, terms, idx) {
+      return fileRowHtml(e, q, terms, idx, 'pdx-eye-item--file',
+        e.coreLabel || 'Unfiled key', e.coreKey || e.issueKey || '');
+    }
+    function familyItem(e, q, terms, idx) {
+      return fileRowHtml(e, q, terms, idx, 'pdx-eye-item--fam', 'Issue family', e.issueKey || '');
     }
     // A bill / measure from the Legislation library. Clicking opens the rich in-app
     // bill detail panel (PDXBills.open → PDXBillDetail), where the omnibus breakdown,
@@ -1967,7 +2165,10 @@
       // Which lanes have not finished loading. Read ONCE per paint, so the notice,
       // the per-lane rows and the recheck timer cannot disagree about it.
       var warm = warmingLanes();
-      if (q !== curQ) { expand = { pol: false, stance: false, iss: false, bill: false, saved: false, team: false }; curQ = q; }
+      // Reset on a NEW QUERY only. Switching lane re-renders the same string, so
+      // curQ matches and an expanded category survives the switch — the reader's
+      // question did not change, only which lane of it they are reading.
+      if (q !== curQ) { expand = { pol: false, stance: false, bill: false, file: false, fam: false, spot: false, saved: false, team: false }; curQ = q; }
 
       if (!q) {
         // Empty, focused state — a calm invitation, the visitor's saved
@@ -1995,37 +2196,72 @@
       var pols = rank(data.people, q, terms, LIM, curCtx);
       var sts  = rank(data.stances || [], q, terms, LIM, curCtx);
       var bls  = rank(data.bills || [], q, terms, LIM, curCtx);
-      var iss  = rank(data.issues, q, terms, LIM, curCtx);
+      // Three lists where there was one. Both modes are ranked on every paint,
+      // because the toggle prints the OTHER lane's count and a number nobody
+      // computed is a number that would be wrong.
+      var fils = rank(data.files || [], q, terms, LIM, curCtx);
+      var fams = rank(data.families || [], q, terms, LIM, curCtx);
+      var spots = rank(data.issues || [], q, terms, LIM, curCtx);
+      var formal = (laneMode === 'formal');
+      // FORMAL PUTS THE RECORD-HOLDERS FIRST, inside the roster's own relevance
+      // order. A stable partition, not a score and not a party term: a person
+      // with nothing on file keeps their place relative to the others and stays
+      // findable by name, which is why a name search never breaks in this mode.
+      if (formal) pols = formalFirst(pols);
       // The issue answer is computed first: a question phrased in words nobody is
       // named after ("who actually backs housing?") can answer even when the
       // name/stance/bill ranking finds nothing at all.
       // The issue key leads where the query names one, and the consistency ranking
       // stands down on that path rather than being relabelled. See the wall above.
       var keyHtml = issueKeyBlock(q);
+      // Computed either way, because `keyIsBundle` is what the gate below reads.
+      var keyFound = !!keyHtml;
+      // AN /i/ FILE ROW DOES NOT APPEAR IN PUBLIC MODE, and the lead block is one
+      // — the whole block is the issue's file, in the file's own words, with the
+      // file's own door. Withheld rather than reworded.
+      if (!formal) keyHtml = '';
       // The ranked answer is withheld only where the key block actually answered
       // the same question — a narrow key, read off the record. A bundle hit keeps
-      // it: see AND A WHOLE BUNDLE IS NOT A KEY above.
-      var ansHtml = (keyHtml && !keyIsBundle) ? '' : answerBlock(q);
+      // it: see AND A WHOLE BUNDLE IS NOT A KEY above. In public mode there is no
+      // key block to stand down for, and the ranking is a public-lane reading, so
+      // it runs.
+      var ansHtml = (formal && keyFound && !keyIsBundle) ? '' : answerBlock(q);
       // The claim block goes ABOVE both, and is also the reason the no-match
       // branch is no longer a dead end: a pasted claim frequently ranks nothing
       // (every term-in-hay check fails on a sentence) while still being the one
       // input this surface can now actually answer.
       var claimHtml = claimBlock(rawQ);
-      var nothingElse = !keyHtml && !ansHtml && !pols.length && !sts.length && !bls.length && !iss.length;
+      // What each lane holds for THIS query. The toggle prints both, so a reader
+      // in the wrong lane is told where their answer is instead of being told
+      // there isn't one. People are counted in both because a name is a name in
+      // either lane; the number is a reachability figure, not a share of anything.
+      var laneCounts = {
+        formal: fils.length + fams.length + pols.length + bls.length,
+        'public': spots.length + sts.length + pols.length
+      };
+      // "Nothing else" is now a claim about the VISIBLE lane. It has to be, or the
+      // panel would deny a query in public mode because the answer is formal.
+      var nothingElse = !keyHtml && !ansHtml && !pols.length &&
+        (formal ? (!fils.length && !fams.length && !bls.length)
+                : (!spots.length && !sts.length));
 
       // THE ONE PLACE "FINDS NOTHING" IS ALLOWED. Nothing ranked, nothing was
       // asked as a claim, and no lane is still loading: every lane is ready and
       // every lane came back empty, so the record genuinely does not hold this.
       // While ANY lane is warming the same zero is reported as what it actually is.
       if (!claimHtml && nothingElse) {
-        panel.innerHTML = warm.length
+        // The toggle survives an empty lane, and it is the whole reason this is not
+        // a dead end: a bill number typed in public mode lands here with "Formal
+        // record 1" printed an inch above the denial.
+        panel.innerHTML = laneModeBar(laneCounts) + (warm.length
           ? warmPanel(warm)
-          : '<div class="pdx-eye-empty">The eye finds nothing for “<b>' + esc(q) + '</b>”.<br>Try a name, an office, a state, an issue, or a bill number.</div>';
+          : '<div class="pdx-eye-empty">The eye finds nothing for “<b>' + esc(q) + '</b>”.<br>Try a name, an office, a state, an issue, or a bill number.</div>');
         wire();
         scheduleWarmRecheck(warm.length > 0);
         return 0;
       }
 
+      html += laneModeBar(laneCounts);
       html += claimHtml;
       // A claim that ranked nothing still gets the honest note under its block,
       // so the reader is not left wondering whether the search silently failed.
@@ -2036,14 +2272,31 @@
       }
       html += keyHtml;
       html += ansHtml;
-      html += catBlock('pol', 'Politicians', '#f5c842', pols, polItem, q, terms);
-      html += catBlock('stance', 'Positions &amp; Receipts', '#5eead4', sts, stanceItem, q, terms);
-      html += catBlock('bill', 'Legislation &amp; Bills', '#9ff0bd', bls, billItem, q, terms);
-      html += catBlock('iss', 'Issues &amp; Hot Topics', '#fb923c', iss, issueItem, q, terms);
+      // ── THE GROUPS, IN THE ORDER THE LANE ASKS FOR ──────────────────────
+      // Every group is LABELLED for what it is, which is the other half of the
+      // fix: "Issues & Hot Topics" was one heading over four kinds of record, so
+      // no label in it could be true. Formal reads files, then the families they
+      // sit in, then the roster, then the measures. Public reads the
+      // investigations, then what people said, then the people.
+      if (formal) {
+        html += catBlock('file', 'Issue files · the formal record', '#7dd3fc', fils, issueFileItem, q, terms);
+        html += catBlock('fam', 'Issue families · browse from here', '#fb923c', fams, familyItem, q, terms);
+        html += catBlock('pol', 'Politicians · formal record first', '#f5c842', pols, polItem, q, terms);
+        html += catBlock('bill', 'Legislation &amp; Bills', '#9ff0bd', bls, billItem, q, terms);
+      } else {
+        html += catBlock('spot', 'Issue Spotlights · sourced investigations', '#fb923c', spots, issueItem, q, terms);
+        html += catBlock('stance', 'Positions, Quotes &amp; Receipts', '#5eead4', sts, stanceItem, q, terms);
+        html += catBlock('pol', 'Politicians', '#f5c842', pols, polItem, q, terms);
+      }
       // A lane that is still loading AND has nothing to show says so, in the lane's
       // own slot. Without this a half-warm index reads as a complete answer: the one
       // person who matched "6644" would look like the whole of the record's reply.
-      html += warmStrip(warm, { pol: pols.length, stance: sts.length, bill: bls.length, iss: iss.length });
+      // Counted across BOTH modes: the question here is whether the source has
+      // arrived, and hiding a Spotlight is not the same as not having loaded one.
+      html += warmStrip(warm, {
+        pol: pols.length, stance: sts.length, bill: bls.length,
+        file: fils.length, fam: fams.length, spot: spots.length
+      });
       html += hintBar();
       panel.innerHTML = html;
       wire();
@@ -2121,6 +2374,7 @@
       if (kind === 'pol') navigate('pol', { id: el.getAttribute('data-id') });
       else if (kind === 'spotlight') navigate('spotlight', { slug: el.getAttribute('data-slug') });
       else if (kind === 'issue') navigate('issue', { key: el.getAttribute('data-key') });
+      else if (kind === 'family' || kind === 'issuefile') navigate('issuefile', { key: el.getAttribute('data-key') });
     }
     function entryAt(el) {
       var res = el && el.closest ? el.closest('.pdx-eye-res') : null;
@@ -2207,6 +2461,22 @@
       panel.querySelectorAll('.pdx-eye-rel-chip').forEach(function (el) {
         el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
         el.addEventListener('click', function (ev) { ev.stopPropagation(); activate(el); });
+      });
+      // ── THE LANE TOGGLE ──────────────────────────────────────────────
+      // The query string is NOT touched: input.value is re-rendered as it stands,
+      // so curQ matches, `expand` survives, and the box still says what the reader
+      // typed. Only laneMode moved.
+      panel.querySelectorAll('[data-eye-lane]').forEach(function (el) {
+        el.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
+        el.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          var m = el.getAttribute('data-eye-lane') || '';
+          if ((m !== 'formal' && m !== 'public') || m === laneMode) return;
+          laneMode = m;
+          render(input.value);
+          setActive(-1);
+          try { input.focus(); } catch (e) {}
+        });
       });
       // "See more" — expand that category in place, keeping the query and focus.
       panel.querySelectorAll('.pdx-eye-more').forEach(function (el) {
@@ -2448,6 +2718,12 @@
       focus: function () { input.focus(); },
       rebuild: function () { index = null; },
       render: render,
+      // The lane, read or set. Set does NOT re-render and does not touch the
+      // query: the caller decides when to paint, exactly as the toggle does.
+      lane: function (m) {
+        if (m === 'formal' || m === 'public') laneMode = m;
+        return laneMode;
+      },
       // Open the eye pre-filled with a query and run it — used by other panels
       // (e.g. the bill detail) to "link back" into the central discovery hub.
       search: function (q) {

@@ -3869,6 +3869,31 @@ window.PDXLazy = (function () {
       /* "See more" — a subtle, dashed expander that grows a category past its cap. */
       .pdx-eye-more{display:block;width:calc(100% - 0.5rem);margin:0.2rem 0.25rem 0.1rem;padding:0.42rem 0.6rem;border:1px dashed rgba(148,163,184,0.28);border-radius:0.6rem;background:none;color:#8aa0c0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:background .13s ease,border-color .13s ease,color .13s ease;}
       .pdx-eye-more:hover{background:rgba(245,200,66,0.06);border-color:rgba(245,200,66,0.4);color:#e7d9a8;}
+      /* == THE LANE TOGGLE - formal record | public & spotlights ==============
+         Two buttons and one sentence, above every result the panel prints. It is
+         not a filter chip row: there are exactly two states, one is always on,
+         and the query in the box is untouched by either - so it is a group of
+         aria-pressed buttons rather than tabs, and the sentence beside them names
+         what the OTHER lane holds so neither side can dead-end a reader.
+         The on state borrows the panel's gold, which everywhere else in the eye
+         means "this is where you are". The counts are the lane's own reachability
+         figure for this query, never a share of anything. */
+      .pdx-eye-lane{display:flex;flex-wrap:wrap;align-items:center;gap:0.35rem;margin:0.1rem 0.25rem 0.45rem;padding:0.3rem;border:1px solid rgba(148,163,184,0.2);border-radius:0.7rem;background:rgba(15,23,42,0.45);}
+      .pdx-eye-lane-btn{display:inline-flex;align-items:center;gap:0.3rem;padding:0.32rem 0.6rem;border:1px solid rgba(148,163,184,0.24);border-radius:9999px;background:none;color:#8aa0c0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:background .13s ease,border-color .13s ease,color .13s ease;}
+      .pdx-eye-lane-btn:hover{border-color:rgba(245,200,66,0.4);color:#e7d9a8;}
+      .pdx-eye-lane-btn.is-on{background:rgba(245,200,66,0.12);border-color:rgba(245,200,66,0.5);color:#ffe9a8;}
+      .pdx-eye-lane-ico{font-size:0.8rem;}
+      .pdx-eye-lane-n{min-width:1.1rem;padding:0 0.22rem;border-radius:9999px;background:rgba(148,163,184,0.16);color:#c3d0e0;font-size:0.62rem;line-height:1.5;text-align:center;}
+      .pdx-eye-lane-btn.is-on .pdx-eye-lane-n{background:rgba(245,200,66,0.22);color:#ffe9a8;}
+      /* The sentence takes the whole second line on a phone, because it is a
+         sentence and not a caption. */
+      .pdx-eye-lane-say{flex:1 1 100%;padding:0 0.25rem;color:#7e93b0;font-size:0.68rem;line-height:1.45;}
+      .pdx-eye-lane-say b{color:#c3d0e0;font-weight:700;}
+      /* An issue-file row and a family row wear the issue's own colour on their
+         spine, from the same PDXIssueColors tokens the chip inside them uses. A
+         key the colour table does not know carries no [data-ic] and no spine. */
+      .pdx-eye-item--file[data-ic],.pdx-eye-item--fam[data-ic]{box-shadow:inset 3px 0 0 0 var(--pdx-ic,rgba(148,163,184,0.4));}
+      .pdx-eye-item--file[data-ic]:hover,.pdx-eye-item--fam[data-ic]:hover{background:var(--pdx-ic-soft,rgba(59,130,246,0.12));}
       /* ── Phase 3 · inline command actions ────────────────────────────
          The eye doesn't just find a thing — hover or arrow onto a result and it
          "reveals" what you can do with it. The action strip stays hidden until a

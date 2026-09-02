@@ -470,6 +470,48 @@ for (const c of ["house", "senate", "joint", "court"]) {
     `the Function no longer accepts the pre-existing chamber "${c}"`);
 }
 
+// ──────────────────────────────────────────────────────────────────────────────
+// 8b · The bill sheet knows a solo instrument when it sees one
+// ──────────────────────────────────────────────────────────────────────────────
+// bill-detail.js cannot read this JSON at runtime — it renders in a browser with no
+// promise that exec-record.js loaded first — so it mirrors the two measure-level
+// lists in EXEC_MEASURE_TYPES and EXEC_CHAMBERS. A mirror nothing checks is a copy
+// waiting to go stale: widen measureTypes here and the sheet would go on telling a
+// reader that a newly-recognised solo instrument was still waiting for a vote.
+// These assertions are what makes the two copies one vocabulary.
+const detail = readFileSync(join(ROOT, "bill-detail.js"), "utf8");
+const execTypeBlock = (detail.match(/var EXEC_MEASURE_TYPES = \{[^}]*\}/) || [""])[0];
+const execChamberBlock = (detail.match(/var EXEC_CHAMBERS = \{[^}]*\}/) || [""])[0];
+ok(execTypeBlock, "bill-detail.js has no EXEC_MEASURE_TYPES — the sheet cannot tell a memorandum from a bill");
+for (const t of TYPES.measureTypes) {
+  ok(execTypeBlock.includes(t),
+    `bill-detail.js EXEC_MEASURE_TYPES omits "${t}" — that instrument would still be told it is missing a roll call`);
+}
+for (const c of TYPES.chambers) {
+  ok(execChamberBlock.includes(c), `bill-detail.js EXEC_CHAMBERS omits chamber "${c}"`);
+}
+// And the reverse: nothing that DOES reach a floor may be swept into the solo list.
+for (const t of ["bill", "resolution", "amendment", "nomination"]) {
+  ok(!execTypeBlock.includes(t),
+    `bill-detail.js treats "${t}" as an executive act — a measure that gets a floor vote would stop saying so`);
+}
+// The locked sentence, verbatim. It is the one piece of copy in this pass the brief
+// dictated word for word, and it names a process rather than describing one, so a
+// paraphrase is a different claim. Checked in fragments because the source wraps it
+// across three concatenated strings; the rendered whole is asserted in
+// scripts/test-exec-act-sheet.mjs, which actually runs the renderer.
+for (const frag of [
+  "This is an executive act. One official issued it; it does not go to a ",
+  "House or Senate roll call. The formal record here is the issuance (and any later ",
+  "revoke/supersede), not a yea/nay.",
+  "belongs to that ",
+  "measure and is counted there; it is not a floor tally for this instrument.",
+  "Standing describes the instrument, not its effect.",
+  "No plain-language summary on file yet"
+]) {
+  ok(detail.includes(frag), `bill-detail.js no longer carries the locked copy: "${frag.slice(0, 46)}"`);
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 9 · Wave-1 issue keys are real, and the blocked one stays blocked
 // ─────────────────────────────────────────────────────────────────────────────

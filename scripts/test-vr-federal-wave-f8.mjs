@@ -1106,6 +1106,38 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "netlify.toml",
     "scripts/test-issue-file-address.mjs",
     "scripts/test-issue-family.mjs",
+    // The Eye's two lanes, and an executive act that stops pretending it needed a
+    // vote (CACHE_VERSION v115), on those same later-wave terms once more. It
+    // writes no roll, no mapping, no key, no floor and no admission: it changes
+    // which of two questions a surface is answering. The All-Seeing Eye ranked
+    // issue files, core bundles, spotlights and name hits into one list called
+    // "Issues & Hot Topics", so a sourced investigation and a formal issue file
+    // competed on one score for one slot and `land pres` could put a wildfire
+    // spotlight above Protect Public Lands; the results now carry a Formal
+    // record | Public & spotlights control, the query string does not move when a
+    // reader flips it, and "people with a formal row first" is a stable partition
+    // read off consistency.js's own formalPatternIndex — no score, no party term,
+    // no percentage in either lane. bill-detail.js is the other half: a
+    // presidential memorandum was greeted with "No recorded roll-call votes for
+    // this measure yet", which tells a reader a vote was due and this archive has
+    // mislaid it, and the "yet" promises a tally that will never arrive. A
+    // measure-level isExecutiveAct(m), mirroring db/exec-action-types.json, now
+    // prints the process — one official issued it, it does not go to a roll call,
+    // the formal record is the issuance — and prints "No plain-language summary on
+    // file yet" where no such summary exists rather than manufacturing one from a
+    // title. A chamber measure whose roll-call file is genuinely empty still says
+    // so, which is the guard that keeps the fix from becoming a blanket excuse.
+    // The reason a wave like this one is the file that has to declare it: R1 and
+    // R2 put 1,120 member files behind these keys, so the Eye is how a reader
+    // reaches the formal record at all, and the executive acts already on file are
+    // the rows whose emptiness the old sentence was mischaracterising. Every
+    // count, band, tier, measure and Direction Match figure is byte-identical,
+    // which the twin boot above has just proved; all-seeing-eye.js, index.html and
+    // sw.js are declared above already.
+    "bill-detail.js",
+    "scripts/test-chew-identity.mjs",
+    "scripts/test-exec-vocab.mjs",
+    "scripts/test-person-links.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};
