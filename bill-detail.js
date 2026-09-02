@@ -540,6 +540,19 @@
 
   function rollcallsSection(m, issues, rollcalls) {
     if (!rollcalls || !rollcalls.length) {
+      // AN EXECUTIVE ACT IS NOT A MEASURE WITH A MISSING TALLY. Same position on the
+      // page, because a reader still comes here looking for votes; a different
+      // sentence, because what they find is a process fact and not a hole. The
+      // heading changes with it — "Roll-call votes" over a paragraph explaining
+      // that there are none by design is a promise the section cannot keep.
+      if (isExecutiveAct(m)) {
+        return '<section class="bd-sec bd-execact" data-bd-anchor="rolls">' +
+          '<h3 class="bd-h">✒️ Why there is no roll call</h3>' +
+          '<p class="bd-execact-say">' + esc(EXEC_ACT_SAY) + '</p>' +
+          '<p class="bd-execact-cra">' + esc(EXEC_ACT_CRA) + '</p>' +
+          '<p class="bd-execact-st">' + esc(EXEC_ACT_STANDING) + '</p>' +
+        '</section>';
+      }
       return '<section class="bd-sec" data-bd-anchor="rolls"><h3 class="bd-h">🗳️ Roll-call votes</h3><p class="bd-empty">No recorded roll-call votes for this measure yet.</p></section>';
     }
     var blocks = rollcalls.map(function (rc) {
@@ -653,6 +666,40 @@
   // Actions that belong to the executive lane rather than the member lane.
   var EXEC_ACTION_TYPES = { signed: 1, issued: 1, vetoed: 1 };
   function isExecAction(p) { return !!(p && EXEC_ACTION_TYPES[p.actionType]); }
+
+  // ── A SOLO INSTRUMENT DID NOT NEED A VOTE ─────────────────────────────
+  // EXEC_ACTION_TYPES above is a test on a POSITION row — what somebody did. This
+  // pair is a test on the MEASURE — what kind of instrument it is. A memorandum,
+  // a proclamation and an executive order are issued by one official and never
+  // reach a chamber floor, so the absence of a roll call on one of them is not a
+  // gap in this archive's record: it is the instrument working as designed.
+  //   Saying "No recorded roll-call votes for this measure yet" on such an act
+  // reads as Congress having forgotten to vote, and the "yet" promises a tally
+  // that will never arrive. Both are false. The three sentences below say what is
+  // actually true instead, and they are declared once here so the letterhead, the
+  // vote section and the fallback card cannot drift apart.
+  //   The type list is db/exec-action-types.json's `measureTypes` and `chambers`,
+  // mirrored rather than read at runtime because bill-detail loads without any
+  // guarantee that exec-record.js is present; scripts/test-exec-vocab.mjs holds
+  // the two copies to each other so a widened vocabulary cannot land in the data
+  // file alone.
+  var EXEC_MEASURE_TYPES = { executive_order: 1, proclamation: 1, memorandum: 1 };
+  var EXEC_CHAMBERS = { executive: 1 };
+  function isExecutiveAct(m) {
+    if (!m) return false;
+    return !!(EXEC_MEASURE_TYPES[String(m.measureType || '')] ||
+              EXEC_CHAMBERS[String(m.chamber || '')]);
+  }
+  var EXEC_ACT_SAY = 'This is an executive act. One official issued it; it does not go to a ' +
+    'House or Senate roll call. The formal record here is the issuance (and any later ' +
+    'revoke/supersede), not a yea/nay.';
+  // A CRA or disapproval resolution IS voted on — and it is a different measure with
+  // its own number, its own sheet and its own tally. Borrowing that tally to fill
+  // this instrument's empty vote strip would attribute a floor result to a document
+  // that never had one.
+  var EXEC_ACT_CRA = 'A later vote on a related disapproval resolution belongs to that ' +
+    'measure and is counted there; it is not a floor tally for this instrument.';
+  var EXEC_ACT_STANDING = 'Standing describes the instrument, not its effect.';
 
   // ── Axis B · standing ───────────────────────────────────────────────────────
   // What happened to a formal executive action AFTER it was signed or issued, from
@@ -1088,6 +1135,19 @@
         ? '<a class="bd-ident-text" href="' + escAttr(txt.url) + '" target="_blank" rel="noopener">\ud83d\udd17 ' + esc(txt.label) + ' \u2197</a>'
         : '<span class="bd-ident-gap">No link to the official text is on file for this measure yet.</span>') +
       '</dd></div>';
+    // ── AND WHERE THE PLAIN-LANGUAGE SUMMARY ISN'T ────────────────────────
+    // When we hold a summary it is printed in full a few inches below, in the fold,
+    // and a row here saying so would be a second copy of a pointer. When we hold
+    // none, the reader is looking at a title and a link and has no way to know
+    // which of the two the archive thinks is the description — so the gap is named
+    // in the identity block, beside the link that is the only real answer.
+    //   Nothing is generated to fill it. A title is what an act is called, not what
+    // its text does, and rewriting one into the other would put words in the
+    // record's mouth. The line stays until a curator writes a real summary.
+    if (!(m.summary && String(m.summary).trim())) {
+      out += '<div class="bd-ident-fact"><dt class="bd-ident-k">Summary</dt>' +
+        '<dd class="bd-ident-v"><span class="bd-ident-gap">No plain-language summary on file yet</span></dd></div>';
+    }
     return '<dl class="bd-ident">' + out + '</dl>';
   }
 
@@ -1207,19 +1267,29 @@
   // topic is not a bag, and saying so about a bag of one is noise.
   function letterheadTeach(m, issues, rollcalls) {
     var rcs = (rollcalls || []).length;
+    // THE LEAD SENTENCE ON AN EXECUTIVE ACT IS NOT AN ABSENCE. This line is the
+    // first prose a reader meets on the sheet, and on a memorandum or an order the
+    // no-vote wording made the page open on a failure of the record. It opens on
+    // the process instead; the mapping caveat that made the old sentence useful is
+    // kept, because the topics still are a mapping and still are not a vote.
+    var solo = isExecutiveAct(m);
     var votes = rcs === 1
       ? 'One recorded vote. It counts on every topic below.'
       : rcs > 1
         ? rcs + ' recorded votes. Each one counts in full on every topic below.'
-        : 'No recorded vote on file. The topics below are what this act was mapped to, not how anyone voted on it.';
+        : solo
+          ? EXEC_ACT_SAY + ' The topics below are what this act was mapped to.'
+          : 'No recorded vote on file. The topics below are what this act was mapped to, not how anyone voted on it.';
     if (!issues || issues.length < 2) return votes;
     var carried = rcs === 1
       ? 'One roll call decided every one of them: a member could take the whole bill or refuse the whole bill, and there was no separate vote on any single topic in it.'
       : rcs > 1
         ? 'Each of those roll calls decided every one of them at once. None of them was a vote on one topic.'
-        : (m && m.status === 'enacted')
-          ? 'They were signed into law as one instrument, so they arrived together or not at all.'
-          : 'They ride on one measure, so they move together for as long as it does.';
+        : solo
+          ? 'One official issued them together in one instrument, so no one was ever asked about any of them singly.'
+          : (m && m.status === 'enacted')
+            ? 'They were signed into law as one instrument, so they arrived together or not at all.'
+            : 'They ride on one measure, so they move together for as long as it does.';
     return votes + ' ' + carried;
   }
 
@@ -1550,12 +1620,26 @@
         '<div class="bd-head-top"><span class="bd-num">' + esc(card.number || 'Measure') + '</span>' + status + omni + '</div>' +
         '<h2 class="bd-title">' + esc(card.title || card.shortTitle || '') + '</h2>' +
         (meta ? '<div class="bd-meta">' + esc(meta) + '</div>' : '') +
-        (card.summary ? '<p class="bd-summary">' + esc(card.summary) + '</p>' : '') +
+        (card.summary && String(card.summary).trim()
+          ? '<p class="bd-summary">' + esc(card.summary) + '</p>'
+          // Same gap, same wording, printed against the same link — the fallback is
+          // not a lesser ledger, and a reader who lands here should be told the
+          // description is missing rather than left to read the title as one.
+          : '<p class="bd-summary bd-summary-gap">No plain-language summary on file yet</p>') +
         src +
       '</div>' +
       breakdown +
-      '<section class="bd-sec"><p class="bd-empty">Live roll-call votes and sponsors aren’t available right now. ' +
-        (card.source && card.source.url ? 'Open the official record above for the full text.' : 'Please try again in a moment.') + '</p></section>';
+      // A CARD FOR A SOLO INSTRUMENT IS NOT WAITING ON ANYTHING. "Live roll-call
+      // votes and sponsors aren't available right now" is true of a bill whose
+      // fetch failed and false of a memorandum, which has neither and never will.
+      (isExecutiveAct(card)
+        ? '<section class="bd-sec bd-execact"><h3 class="bd-h">✒️ Why there is no roll call</h3>' +
+            '<p class="bd-execact-say">' + esc(EXEC_ACT_SAY) + '</p>' +
+            '<p class="bd-execact-cra">' + esc(EXEC_ACT_CRA) + '</p>' +
+            '<p class="bd-execact-st">' + esc(EXEC_ACT_STANDING) + '</p>' +
+          '</section>'
+        : '<section class="bd-sec"><p class="bd-empty">Live roll-call votes and sponsors aren’t available right now. ' +
+            (card.source && card.source.url ? 'Open the official record above for the full text.' : 'Please try again in a moment.') + '</p></section>');
   }
   // Show the lite panel for a card (sets _current + hash). Returns true when it could.
   function showLite(card) {
@@ -1666,6 +1750,12 @@
       '.bd-ident-text{color:#7fb4ff;text-decoration:none;}' +
       '.bd-ident-text:hover{text-decoration:underline;}' +
       '.bd-ident-gap{color:#9fb4d4;font-style:italic;}' +
+      // The executive-act explainer. Reads as a process note, not an error state:
+      // the lead sentence in full ink, the two qualifiers quieter beneath it.
+      '.bd-execact-say{font:600 .95rem/1.6 "Barlow",sans-serif;color:#e6edf8;margin:0 0 .5rem;}' +
+      '.bd-execact-cra,.bd-execact-st{font:500 .86rem/1.55 "Barlow",sans-serif;color:#9fb4d4;margin:0 0 .35rem;}' +
+      '.bd-execact-st{color:#8ea6c6;font-style:italic;margin-bottom:0;}' +
+      '.bd-summary-gap{color:#9fb4d4;font-style:italic;}' +
       '.bd-lh-gap{font:500 .8rem/1.45 "Barlow",sans-serif;color:#8aa0c4;font-style:italic;}' +
       '.bd-lh-teach{font:700 .9rem/1.4 "Barlow",sans-serif;color:#f3d774;margin:.2rem 0 .6rem;}' +
       '.bd-lh-tally{font:700 .68rem/1.4 "Barlow Condensed",sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#bcd0f0;margin:0 0 .45rem;}' +

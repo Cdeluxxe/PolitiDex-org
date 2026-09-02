@@ -469,6 +469,11 @@ function eyePanel(opts) {
   vm.runInContext(R("all-seeing-eye.js"), sb, { filename: "all-seeing-eye.js" });
   return {
     ctx,
+    // The Eye searches one lane at a time now — the formal record by default,
+    // spotlights and quotes on the other setting. Identity is a property of both,
+    // so most of this file never touches it; the receipt block in section 10 is
+    // public-lane copy and has to ask for the lane it lives in.
+    lane(m) { return ctx.PDXEye.lane(m); },
     search(q) {
       ctx.PDXEye.render(q);
       return getEl("pdx-eye-panel").innerHTML || "";
@@ -546,6 +551,10 @@ function catSlice(html, cat) {
       }],
     },
   });
+  // A curated stance block is a QUOTE, so it answers in the public lane. Its pid
+  // tagging is the claim under test and is lane-independent; the lane switch here
+  // is only how the row gets on screen to be inspected.
+  withReceipt.lane("public");
   const receipts = withReceipt.search("carbon capture");
   const rIds = panelIds(catSlice(receipts, "stance"));
   ok(rIds.length > 0, "the receipt for the curated block is still reachable by its topic");
@@ -554,6 +563,12 @@ function catSlice(html, cat) {
   ok(rIds.indexOf(CANON) !== -1, "and the pid it is tagged to is the one the person file opens at");
   has(catSlice(receipts, "stance"), "Scott Chew",
     "the receipt row names the person from the roster record, not the slug read back as words");
+  withReceipt.lane("formal");
+  // AND THE FORMAL LANE DOES NOT CARRY IT. A quote is not a formal act, so the
+  // default lane holds no receipt row at all — which is the other half of the
+  // reason the switch above was needed.
+  eq(catSlice(withReceipt.search("carbon capture"), "stance"), "",
+    "a curated quote block answered in the formal lane, where only the record belongs");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

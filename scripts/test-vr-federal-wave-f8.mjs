@@ -1106,6 +1106,73 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "netlify.toml",
     "scripts/test-issue-file-address.mjs",
     "scripts/test-issue-family.mjs",
+    // The Eye's two lanes, and an executive act that stops pretending it needed a
+    // vote (CACHE_VERSION v115), on those same later-wave terms once more. It
+    // writes no roll, no mapping, no key, no floor and no admission: it changes
+    // which of two questions a surface is answering. The All-Seeing Eye ranked
+    // issue files, core bundles, spotlights and name hits into one list called
+    // "Issues & Hot Topics", so a sourced investigation and a formal issue file
+    // competed on one score for one slot and `land pres` could put a wildfire
+    // spotlight above Protect Public Lands; the results now carry a Formal
+    // record | Public & spotlights control, the query string does not move when a
+    // reader flips it, and "people with a formal row first" is a stable partition
+    // read off consistency.js's own formalPatternIndex — no score, no party term,
+    // no percentage in either lane. bill-detail.js is the other half: a
+    // presidential memorandum was greeted with "No recorded roll-call votes for
+    // this measure yet", which tells a reader a vote was due and this archive has
+    // mislaid it, and the "yet" promises a tally that will never arrive. A
+    // measure-level isExecutiveAct(m), mirroring db/exec-action-types.json, now
+    // prints the process — one official issued it, it does not go to a roll call,
+    // the formal record is the issuance — and prints "No plain-language summary on
+    // file yet" where no such summary exists rather than manufacturing one from a
+    // title. A chamber measure whose roll-call file is genuinely empty still says
+    // so, which is the guard that keeps the fix from becoming a blanket excuse.
+    // The reason a wave like this one is the file that has to declare it: R1 and
+    // R2 put 1,120 member files behind these keys, so the Eye is how a reader
+    // reaches the formal record at all, and the executive acts already on file are
+    // the rows whose emptiness the old sentence was mischaracterising. Every
+    // count, band, tier, measure and Direction Match figure is byte-identical,
+    // which the twin boot above has just proved; all-seeing-eye.js, index.html and
+    // sw.js are declared above already.
+    "bill-detail.js",
+    "scripts/test-chew-identity.mjs",
+    "scripts/test-exec-vocab.mjs",
+    "scripts/test-person-links.mjs",
+    // AND THE MANDATE LANE (CACHE_VERSION v116), the follow-on to that same pass
+    // and the same kind of change: no roll, no mapping, no key, no floor and no
+    // admission moves, only which question a surface is answering. Two lanes left
+    // the site's third kind of document with nowhere honest to sit. A People's
+    // Mandate item is a PROPOSED VEHICLE: in the public lane it reads as a quote,
+    // a thing somebody SAID, when a reform nobody has spoken about yet is not
+    // that; in the formal lane it reads as a measure, a thing that was VOTED ON,
+    // when a proposed vehicle has no tally at all. So the Eye's control is
+    // three-state now — Formal record | Public & spotlights | Mandate — the first
+    // two hold zero mandate rows, the third holds reforms and nothing else, and
+    // the mandate count sits in its own slot rather than in either of theirs, so
+    // no formal denominator grows by one because a reform was filed. A mandate row
+    // carries no formal pattern chip, no Word-vs-Action figure, no percentage, no
+    // party letter and no "backs it up", and its door is the mandate surface that
+    // already exists (_pdxMandateFocusReform, then #agenda) rather than anything
+    // invented here. An empty lane still ships, with the locked sentence "No
+    // mandate on file for this search. A mandate is a proposed vehicle — not a
+    // vote and not a quote." — because empty is the honest state and a hidden lane
+    // is not an answer. The reason a wave file declares it: R1 and R2 put 1,120
+    // member files behind these keys, the Eye is how a reader reaches any of them,
+    // and a mandate must never become a row in a formal count. It cannot: nothing
+    // in this pass touches formalPatternIndex, Direction Match or Word vs Action,
+    // and the twin boot above has just proved every figure byte-identical.
+    // all-seeing-eye.js, index.html and sw.js are declared above already.
+    "scripts/test-eye-lanes.mjs",
+    "scripts/test-eye-mandate-lane.mjs",
+    // Two neighbouring suites read the Eye's own source, and a third lane moved
+    // what they were anchored to: test-eye-warming.mjs mutates the empty branch to
+    // prove its readiness check is load-bearing (that branch now answers the
+    // mandate lane first, so the mutation is re-anchored through it, and the check
+    // it removes is unchanged), and test-person-links.mjs enumerates which rows may
+    // legitimately stay a <button> rather than carry an address (a proposed vehicle
+    // has no /i/ or /p/ file, so it is the third such row). Neither suite's claim
+    // was weakened: both still fail on the defect they were written for.
+    "scripts/test-eye-warming.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

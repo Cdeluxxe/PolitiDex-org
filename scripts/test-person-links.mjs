@@ -468,9 +468,14 @@ section("6 · the All-Seeing Eye: people rows and stance rows are links");
   vm.runInContext(EYE, ctx, { filename: "all-seeing-eye.js" });
   must(win.PDXEye && typeof win.PDXEye.render === "function", "PDXEye.render() is not exposed — section 6 is vacuous");
 
+  // THE DEFAULT LANE IS THE FORMAL ONE, and a person row is in both — a name is a
+  // name whichever lane you are reading. The match tolerates the highlight
+  // <mark> the row wraps the matched term in, because the row's own name span is
+  // the thing being checked and it has never been one flat string.
   win.PDXEye.render("Chew");
   const out = String(panel.innerHTML);
-  must(/Scott Chew/.test(out), "the eye found nobody for a roster it was handed — section 6 is vacuous");
+  must(/Scott <mark>Chew<\/mark>|Scott Chew/.test(out),
+    "the eye found nobody for a roster it was handed — section 6 is vacuous");
   has(out, 'href="/p/chew_h68"',
     "eye: a people row is not a link to the record it opens, so nothing in the panel can be opened in a\n" +
     "    new tab and no crawler can walk from the search into a file");
@@ -483,6 +488,12 @@ section("6 · the All-Seeing Eye: people rows and stance rows are links");
 
   // The stance answer names a person too, and it reaches the same row builder by
   // a different route (a topic query, not a name query), so it gets its own pass.
+  // A STANCE IS A QUOTE, so it lives in the Eye's public lane — a stated position
+  // is not a formal act, and the two lanes were split precisely so that one list
+  // stops pretending otherwise. The lane is set rather than clicked because the
+  // stub DOM has no event dispatch; PDXEye.lane() is the same state the toggle
+  // writes, and the query string is untouched by either.
+  eq(win.PDXEye.lane("public"), "public", "the Eye has no public lane to put a quote in");
   win.PDXEye.render("water");
   const stance = String(panel.innerHTML);
   must(/pdx-eye-item/.test(stance) && /Scott Chew|chew_h68/.test(stance),
@@ -490,6 +501,7 @@ section("6 · the All-Seeing Eye: people rows and stance rows are links");
     "    is vacuous, so it now fails instead of passing quietly");
   audit(stance, "eye stance rows");
   lacks(stance, 'href="/p/scott_chew"', "eye: a stance row advertises the retired alias");
+  eq(win.PDXEye.lane("formal"), "formal", "the Eye cannot be put back in its default lane");
 
   // The rows that are NOT a person keep their buttons: there is no address to
   // advertise for a bill, an issue lane or a saved search, and inventing one
@@ -503,8 +515,20 @@ section("6 · the All-Seeing Eye: people rows and stance rows are links");
   ok(rows.filter((r) => r.includes("rowOpen(")).length === 2,
     "eye: the person rows are no longer the ones built by rowOpen(), so either a person row lost its\n" +
     "    link or a non-person row gained an address it has no file for");
-  ok(rows.filter((r) => r.includes("<button")).every((r) => /data-kind="(bill|saved)"|idx \+ '" ' \+ attr/.test(r)),
-    "eye: a row that is neither a bill, a saved search nor an issue lane is still a bare <button>");
+  // A MANDATE ROW IS THE THIRD LEGITIMATE BUTTON. A People's Mandate item is a
+  // proposed vehicle: it has no /i/ file, no /p/ file and no address of any kind,
+  // so a button is the honest element for it and an href would be the invention
+  // this list exists to forbid.
+  ok(rows.filter((r) => r.includes("<button")).every((r) => /data-kind="(bill|saved|mandate)"|idx \+ '" ' \+ attr/.test(r)),
+    "eye: a row that is neither a bill, a saved search, a mandate nor an issue lane is still a bare <button>");
+  // AND THE THIRD KIND OF ROW THAT NOW HAS AN ADDRESS. /i/<key> is a served path,
+  // so the formal lane's issue-file and issue-family rows are anchors for the same
+  // reason a person row is: copy, new tab, middle click. Both come off one builder,
+  // so one assertion covers both.
+  has(EYE, "function fileRowHtml", "eye: the issue-file / family row builder is gone");
+  const fileRow = EYE.slice(EYE.indexOf("function fileRowHtml"), EYE.indexOf("function issueFileItem"));
+  has(fileRow, '<a role="option"', "eye: an issue-file row is a button, and /i/<key> is a real address");
+  has(fileRow, "issueFileUrl(", "eye: an issue-file row spells its own path instead of asking the address module");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

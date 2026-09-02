@@ -880,6 +880,167 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v116 - A MANDATE IS A THIRD LANE, NOT PUBLIC AND NOT FORMAL. v115 gave the
+// All-Seeing Eye two lanes, and that left the site's third kind of document with
+// nowhere honest to sit. A People's Mandate item is a PROPOSED VEHICLE. In the
+// public lane it reads as a quote — a thing somebody SAID — when a reform nobody
+// has spoken about yet is not that. In the formal lane it reads as a measure — a
+// thing that was VOTED ON — when a proposed vehicle has no tally at all, not even
+// a failed one. Both readings lend the document a standing it has not got, and
+// both are the same error in opposite directions, so the reform gets a lane of
+// its own with its own label and its own empty sentence.
+//   · all-seeing-eye.js    - the control is three-state now: Formal record
+//                            (default) | Public & spotlights | Mandate. FORMAL
+//                            and PUBLIC are unchanged in what they hold and how
+//                            they rank, and now hold ZERO mandate rows; MANDATE
+//                            holds People's Mandate reforms and nothing else — no
+//                            /i/ file row, no family row, no spotlight, no person.
+//                            The index gained a FOURTH category, read from the one
+//                            registry the bridge already publishes
+//                            (window._pdxMandateItems in index.html); no second
+//                            copy of the list and no key minted here. A mandate
+//                            row carries the reform, the word "proposed vehicle"
+//                            and the tracked issues it is filed against — and by
+//                            construction no formal pattern chip, no Word-vs-
+//                            Action figure, no percentage, no party letter, no
+//                            action strip and no "See who backs it up", because
+//                            relBlock(), actionsFor() and savedKeyFor() all
+//                            decline a kind they do not know. The row's door is
+//                            the mandate surface that ALREADY EXISTS —
+//                            _pdxMandateFocusReform(agendaId), then
+//                            _pdxMandateFocus(issueKey), then #agenda — so no new
+//                            workshop was invented this pass. The count under the
+//                            control now names the OTHER TWO lanes and how many
+//                            hits sit in each; the mandate count lives in its own
+//                            slot and is added to neither of the others, so no
+//                            formal denominator grew by one because a reform was
+//                            filed. Switching lanes still does not touch the query
+//                            string: input.value and curQ are untouched, and an
+//                            expanded group survives the switch.
+//   · index.html           — the third control's styling (a dashed violet spine,
+//                            the visual form of "proposed", against the solid
+//                            spine an issue file gets for a record that exists),
+//                            plus the empty state's own block. The mandate bridge
+//                            itself is UNCHANGED: MANDATE_ITEMS, _pdxMandateItems,
+//                            _pdxMandateFocus and _pdxMandateFocusReform are all
+//                            exactly as they were, and this pass only reads them.
+//                            Precached as '/', so it travels here.
+//   · sw.js                — this note and the bump. The Eye is a runtime entry
+//                            rather than a precached one, which is this file's own
+//                            long-standing choice for it; the bump renames both
+//                            buckets so a warm device cannot pair the new page
+//                            styling with the two-lane script or the reverse.
+// THE EMPTY LANE IS SHIPPED, NOT HIDDEN. A search no reform answers prints "No
+// mandate on file for this search. A mandate is a proposed vehicle — not a vote
+// and not a quote." and the lane stays in the control, because empty is the
+// honest state and a missing lane is not an answer. Sentence or cards; never both.
+// NOTHING ELSE MOVED. No score, no percentage, no tier and no pattern was added
+// or changed. A mandate cannot enter formalPatternIndex, Direction Match or Word
+// vs Action, and none of the three was touched: every person brief and every
+// Direction Match read is byte-identical across a twin boot. issueProfileHtml(key)
+// is still the one issue census. Finance is untouched, the DM floors did not move,
+// and linking a mandate to a later roll call is deliberately NOT in this pass.
+// v115 - ONE BOX, TWO LANES; AND AN EXECUTIVE ACT STOPS PRETENDING IT NEEDED A
+// VOTE. Two defects, one cause: a surface answering two different questions into
+// one shape. (1) The All-Seeing Eye ranked issue files, core bundles, spotlights
+// and name hits into a single list called "Issues & Hot Topics", where a sourced
+// investigation and a formal issue file competed on the same score for the same
+// slot — so "land pres" could put a wildfire spotlight above Protect Public Lands,
+// and a reader looking for the record got a story. (2) A presidential memorandum
+// was greeted with "No recorded roll-call votes for this measure yet", which tells
+// a reader a vote was due and that this archive is missing it. Both are false, and
+// the "yet" promises a tally that will never arrive.
+//   · all-seeing-eye.js    - the results carry a two-state control: Formal record
+//                            (default) | Public & spotlights. FORMAL holds issue
+//                            files and the families they sit in, then people with
+//                            a formal row first, then measures; PUBLIC holds
+//                            spotlights, quotes and stated positions. Neither lane
+//                            can paint the other's rows, cross-link chips
+//                            included, and every group is labelled. The index
+//                            gained a THIRD category over the issue library where
+//                            it had one: every published ISSUE_MAP key is now a
+//                            file row addressed at /i/<key>, a core is a FAMILY
+//                            row that opens the child shelf, and a spotlight is
+//                            neither. NO NEW SCORE: rank(), the comparator and the
+//                            personal boost are byte-for-byte v114's, the toggle
+//                            re-ranks what was already indexed, and switching lanes
+//                            does not touch the query string. NO PARTY SORT: the
+//                            party letter is a haystack term and an avatar chip and
+//                            is asserted inert by rotating every letter in the
+//                            roster and comparing the painted order. A runtime
+//                            entry rather than a precached one, and the runtime
+//                            cache is keyed to this version, so the bump is what
+//                            retires the old copy.
+//   · bill-detail.js       - a measure-level isExecutiveAct(m) (measure type
+//                            executive_order | proclamation | memorandum, or
+//                            chamber executive, mirroring
+//                            db/exec-action-types.json and held to it by
+//                            scripts/test-exec-vocab.mjs). On such an act the
+//                            letterhead's teaching line and the vote section print
+//                            the process instead of the absence: one official
+//                            issued it, it does not go to a House or Senate roll
+//                            call, the formal record is the issuance and any later
+//                            revoke/supersede rather than a yea/nay, a later vote
+//                            on a related disapproval resolution belongs to that
+//                            measure, and standing describes the instrument and not
+//                            its effect. The section heading changes with the copy,
+//                            because "Roll-call votes" over a paragraph saying
+//                            there are none is a promise it cannot keep. A BILL IS
+//                            STILL A BILL: a chamber measure whose roll-call file
+//                            is genuinely empty goes on saying so, which is the
+//                            guard that stops the fix becoming a blanket excuse for
+//                            every missing tally in the archive. And where no
+//                            plain-language description is on file, the identity
+//                            block says "No plain-language summary on file yet"
+//                            beside the official source link — nothing is
+//                            generated from the title, because a title is what an
+//                            act is called and not what its text does.
+//   · index.html           - the lane control's stylesheet: the two-button group,
+//                            the per-lane count, the sentence saying where the
+//                            other half went, and the [data-ic] rail on a file or
+//                            family row. Precached as the shell's '/', so it
+//                            travels here. STALE HERE IS THE WHOLE REASON FOR THE
+//                            BUMP: v114's stylesheet has no rule for
+//                            .pdx-eye-lane, so a warm device would receive two
+//                            unstyled buttons above the results with no indication
+//                            which lane is on — the one-list panel again, with a
+//                            control the reader cannot read.
+//   · issue-colors.js      - UNCHANGED, and named because the formal lane's file
+//                            and family rows now ask it for their tint through the
+//                            same styleFor(key, familyLookup) call Door 1's chips
+//                            already make. Stale here and the Eye's family row and
+//                            the desk's core chip would be answered by two
+//                            different tables.
+//   · pdx-issue-family.js  - UNCHANGED, and still the single reader of the single
+//                            parent table. coreOf(key) is what names a file row's
+//                            family, childrenOf(core) is what a family row counts,
+//                            and profileUrl(key) is still the one place /i/<key>
+//                            is spelled.
+//   · alignment-tool.js    - UNCHANGED. No key was added, moved, reparented or
+//                            relabelled; ISSUE_MAP is simply now enumerated by the
+//                            Eye as well as by the desk.
+//   · pdx-issue-profile.js - UNCHANGED. A file row is an address, and this is the
+//                            module that answers it.
+//   · issue-file.js        - UNCHANGED. The stage a file row opens onto.
+//   · issue-file.css       - UNCHANGED. That stage's chrome.
+//   · door1-workspace.js   - UNCHANGED, and still the ONE builder.
+//                            issueProfileHtml(key) is the one issue census; the
+//                            Eye gained no second one, and a family row opens the
+//                            child shelf through pdxDoor1Issue exactly as a chip
+//                            tap does.
+//   · door1-workspace.css  - UNCHANGED. No desk markup moved.
+//   · stance-tree.js       - UNCHANGED. The person file's topic tree still groups
+//                            by the same coreOf() the new family rows read.
+//   · netlify.toml         - UNCHANGED. The /i/* → /index.html 200 rewrite is what
+//                            makes a file row's address resolve, and is named here
+//                            so a reader of this note can see the whole path.
+// No key, no reparent, no mapping, no floor, no weight and no figure of any kind
+// moved. No percentage entered either lane, no party string is a sort key in
+// either, no new research was written for the summary hole, and Finance, Mandate
+// and Direction Match are untouched. issueProfileHtml(key) is still the one issue
+// census, and every person brief reads byte-identically with these modules loaded
+// and without them.
+//
 // v114 - THE ISSUE FILE WEARS THE FAMILY'S COLOUR, AND TWO LABELS STOP OVERCLAIMING.
 // Three defects in one pass, and they share a cause: a surface printing something
 // it had not asked the owning module for. (1) v113 gave /i/<key> a stage, and the
@@ -1192,7 +1353,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v114';
+const CACHE_VERSION = 'v116';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

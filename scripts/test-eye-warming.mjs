@@ -336,9 +336,13 @@ section("6 · the guards are load-bearing (mutations must break the claims)");
   // at least one assertion above fail; a mutation that passes means the assertion
   // it was aimed at is decoration.
   const MUTS = [
+    // Anchored through the mandate lane's own branch, which now sits above this
+    // one: the mandate list is inline and never warming, so its empty state is a
+    // locked sentence rather than a readiness check, and the readiness check this
+    // mutation removes is the one the OTHER two lanes still owe the reader.
     ["the empty branch stops checking readiness",
-      "warm.length\n          ? warmPanel(warm)",
-      "false\n          ? warmPanel(warm)"],
+      "? mandateEmptyHtml()\n          : (warm.length\n            ? warmPanel(warm)\n            : '<div class=\"pdx-eye-empty\">The eye finds nothing",
+      "? mandateEmptyHtml()\n          : (false\n            ? warmPanel(warm)\n            : '<div class=\"pdx-eye-empty\">The eye finds nothing"],
     ["the bills lane is declared ready before its fetch settles",
       "bills: function () { return billsSettled; }",
       "bills: function () { return true; }"],
