@@ -22,6 +22,19 @@
       not actually follow is worse than a blank: it is a rule the product does not
       obey, printed as though it did.
 
+      THE SECOND PLACE A SCOPE IS ARGUED, ADDED SEPTEMBER 2026. Some keys were
+      never given a comment over ISSUE_MAP and had their boundary argued out
+      instead in the per-mapping rationales in consistency.js — the `did` / `why`
+      / `more` lines a reader already opens on the measure row. That is the same
+      authority by wall item 2's own words ("the argument still lives at the
+      mapping site, and where the two could disagree the mapping wins"), so an
+      entry may be transcribed from it, under one extra condition: the rationales
+      have to argue a BOUNDARY and not just a filing. A single measure's `why`
+      says why THAT act landed on the key; it does not say where the key ends, and
+      printing it as though it did would be wall item 1's failure in a new place.
+      An entry sourced this way names its rows in a comment above it, so the next
+      editor can check the copy against the argument without hunting for it.
+
    2. IT IS NOT A SECOND DEFINITION. The prose is a copy of the argument, but the
       argument still lives at the mapping site, and where the two could disagree
       the mapping wins. That is why the entries are excerpts of scope and polarity
@@ -261,6 +274,39 @@
       pole: 'Advanced = the vote expanded conventional supply or kept generation online. Against = it withdrew an authority or an asset from production.',
       note: 'The mirror is enforced: terminating an energy emergency is filed against this key for exactly the authorities the declaration itself is filed as advancing.'
     },
+    // ── lands_energy ───────────────────────────────────────────────────────
+    // TRANSCRIBED FROM THE MAPPING SITE, same admission as lands_preserve above
+    // and the other half of the same mirror. This key has no comment over
+    // ISSUE_MAP either; the boundary is argued in consistency.js, in the
+    // rationales for 'H.R. 1|119|lands_energy', 'H.J.Res. 131|119|lands_energy',
+    // 'H.J.Res. 140|119|lands_energy', 'H.R. 1366|119|lands_energy' and
+    // 'H.R. 4090|119|lands_energy', which state the subject in the same words
+    // five times ("developing resources on federal land", "mining on the federal
+    // estate is the whole of what this chip covers"), state the support direction
+    // outright, and name the cousin key that reads the same acreage decision from
+    // the other side. No weight, no acreage and no roll count is carried across.
+    lands_energy: {
+      inn: 'Developing resources on the federal estate: leasing availability on federal acreage, acreage reopened to oil and gas leasing and exploration, royalty rates on it, hardrock mining and the ground a claimant may occupy to work a claim, and a duty on the department holding a mining permit to act on it.',
+      out: 'The same acreage decision read for the protection it removes, which is the conservation key — one act, two rows, running opposite ways on purpose. Also out: nullifying an agency rule as a mechanism, which is the red-tape key’s subject wherever striking the rule is the controlling act; how much conventional supply and firm generating capacity exists, which is Expand Domestic Energy Production and takes no view on who owns the ground; and who owns and may transfer the federal estate.',
+      pole: 'Advanced = a yea that opened federal acreage to extraction or widened what may be worked on it. Against = a yea that closed or withheld it.',
+      note: 'A leasing-availability decision is this key’s question in its most direct form; where the instrument acts on a protection order instead, the development gain is a consequence of striking it rather than the act itself, and the mappings say so in writing.'
+    },
+    // ── lands_preserve ─────────────────────────────────────────────────────
+    // TRANSCRIBED FROM THE MAPPING SITE, NOT FROM A COMMENT OVER ISSUE_MAP: this
+    // key has none. The argument is in consistency.js, in the rationales for
+    // 'H.J.Res. 78|119|lands_preserve', 'H.J.Res. 131|119|lands_preserve' and
+    // 'H.J.Res. 140|119|lands_preserve', which between them state the support
+    // direction in as many words, name the cousin key that reads the same acres
+    // from the other side, and give the reason a whole category of measure is
+    // filed here. Every clause below is a quotation or a close paraphrase of one
+    // of those three rows. No weight, no acreage figure and no roll count is
+    // carried across — see wall item 2.
+    lands_preserve: {
+      inn: 'Federal protection kept in place over wild country, and the instruments that remove one: a conservation withdrawal holding acreage back from leasing and exploration, a public land order withdrawing forest land from mineral and geothermal leasing to protect a watershed, an Endangered Species Act listing rule.',
+      out: 'The same acres read for what they are opened TO — acreage returned to mineral, geothermal or oil and gas leasing is read on the resource-development key, where the same yea runs the other way, and a reader who thinks one of the two rows must be wrong is reading a mirror pair working as intended. Also out: nullifying an agency rule as a mechanism, which is the red-tape key’s own subject wherever striking the rule is the instrument’s controlling act; emissions programmes and clean-energy subsidies, which name public lands as out of their own scope and point here; and who OWNS and may transfer or manage the federal estate — Keep Public Lands Public, the balance key and local control are three further questions about the public estate, and each keeps its own key, its own chip and its own census.',
+      pole: 'Advanced = a federal land or conservation protection kept in place. Against = a yea that strips one — a withdrawal nullified, a listing rule struck.',
+      note: 'Wildlife, endangered-species, wilderness and watershed measures are all filed here, and the mappings say why in writing: the issue vocabulary carries no dedicated key for any of them.'
+    },
     housing: {
       inn: 'Affordability as the whole subject — the cost of building and the cost of buying taken together, which is where a bill lands when its own general provisions name housing affordability generally as the subject: density traded for requirements, moderate income housing plans and reporting, parking-requirement limits, ownership-promotion zones, and state housing finance instruments.',
       out: 'Supply mechanics alone (Build More Housing) and subsidy and renter protection alone (Affordable Housing & Renters) — a bill that does two of the three carries a slice on each with different weights rather than one slice here. Also out: the household price basket, property tax, first purchase specifically, homelessness, the owner’s hand against government, and the district that finances a project.',
@@ -302,6 +348,25 @@
       out: 'Whether Congress must authorise the use of force, which is a who-decides claim held on both sides of the funding question (Congress and War Powers). Also out: foreign aid and commitments abroad, support for Israel, the restraint and alliance postures, and surveillance seen from the other side (Privacy & Big-Tech Accountability), which carries the mirrored slice.',
       pole: 'Advanced = the vote authorised, funded or equipped the armed forces.',
       note: 'An authorisation carrying unrelated social-policy riders is weighted below a clean one, because passage is then not a pure posture signal; an appropriations vehicle is weighted below an authorisation because it sets amounts for programmes authorised elsewhere and takes no position on force structure or posture.'
+    },
+    // ── restraint ──────────────────────────────────────────────────────────
+    // TRANSCRIBED FROM THE MAPPING SITE. No comment over ISSUE_MAP, and the
+    // boundary is argued twice over: in the twelve `restraint` rationales in
+    // consistency.js — 'H.Con.Res. 89|119|restraint', 'H.Con.Res. 108|119|restraint',
+    // the six Senate withdrawal resolutions of the 119th ('S.J.Res. 83', 90, 98,
+    // 104, 163, 184 and 185 on this key), 'H.Amdt. 99|119|restraint', and the
+    // appropriations rows 'H.R. 8035|118|restraint' and 'H.R. 815|118|restraint',
+    // which state the subject in the same words each time and code both
+    // directions of it —
+    // and in three entries already in this table, whose `out` lines name this key
+    // as the one that holds whether to intervene at all (war_powers,
+    // america_first_fp, strong_defense). Clauses below are quotations or close
+    // paraphrases of those rows. No weight and no roll count is carried across.
+    restraint: {
+      inn: 'Whether the United States steps back from military engagement: an order removing U.S. forces from hostilities Congress has not authorised, whether it names a theatre or reaches any of them, and the repeal of a standing authorisation for the use of military force. Read from the other direction, an appropriation that sustains a military engagement already under way.',
+      out: 'Whether a vote of CONGRESS is required before forces are committed, which is a claim about who decides and is held by members on both sides of this one (Congress and War Powers) — every withdrawal resolution on file carries a row on each. Also out: what the armed forces are authorised, funded and equipped to do; foreign aid levels and commitments abroad; and support for a specific partner or conflict, which have their own keys.',
+      pole: 'Advanced = a yea that ordered forces out of an unauthorised engagement, or narrowed what may be done without asking Congress again. Against = a yea that sustained or deepened one.',
+      note: 'A withdrawal order and a repealed authorisation are not the same act on this key: a repeal orders no withdrawal and reaches no engagement already under way, so it is read as one fewer basis for a future deployment rather than as a step back from one under way. A funding vote that arms an ally without committing U.S. forces to combat is read here just as narrowly, and the mapping says so on its face.'
     },
     privacy_rights: {
       inn: 'Who may collect, hold, move or act on data about a person: police use of genetic and third-party genomic data, government scoring of individuals, employer collection and device mandates, minors’ default settings and age verification, foreign-adversary limits on sequencing data, camera and tracking systems, and foreign intelligence collection authority.',

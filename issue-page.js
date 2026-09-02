@@ -70,6 +70,28 @@
   var PEOPLE_WALL = 'A published position on this issue, and the formal record behind it. ' +
     'This is not a ranking and it is not a match score.';
   var NO_PEOPLE = 'No member has a published position on this issue yet.';
+  // ── THE HEADING HAS TO BE TRUE OF EVERY ROW UNDER IT ────────────────────────
+  // "Who the record reads" is a claim about the FORMAL record, and this block used
+  // to print every published position under it — including the rows whose record
+  // slot says, in as many words, that there is no formal record on the issue at
+  // all. So a member with a press-release position and nothing on the floor sat
+  // under a title asserting the record read them a side, with the denial printed
+  // underneath in smaller type. The rows are gated now on the one function that
+  // already answers this question for the ledger's own bands
+  // (PDXConsistency.formalPatternIndex.rowFor, which returns null when nothing
+  // formal is on file), and what is left over is DISCLOSED rather than dropped
+  // silently: the count is printed, and the door to each one is the member's own
+  // file, which is where a stated position with no record behind it belongs.
+  var NO_READS = 'The formal record reads no member on this issue yet.';
+  var UNREAD_TAIL = ' on this issue has no formal record behind it yet, so it is not ' +
+    'listed under this heading — it is on that member’s own file.';
+  var UNREAD_TAIL_N = ' on this issue have no formal record behind them yet, so they are not ' +
+    'listed under this heading — each one is on that member’s own file.';
+  // consistency.js's sentence for a row with nothing formal on file, matched
+  // character for character for the same reason LANE_WARM below is: it is the
+  // backstop for a leaf assembled by something that fills the label without
+  // filling the state, and a paraphrase would silently stop matching.
+  var NO_FORMAL = 'No formal record on this issue yet';
   // The tree's own sentence for a formal-record lane still in flight, matched
   // character for character rather than paraphrased: the same member's tree may be
   // open in the next tab, and a second wording for one state would read as a
@@ -185,8 +207,13 @@
     rows = rows || []; people = people || [];
     var withRoll = 0;
     rows.forEach(function (r) { if (r.roll || r.rolls > 0) withRoll++; });
+    // READABLE MEANS BOTH THINGS IT SAYS. A row is counted here only if the
+    // published direction can be read against this key's chip AND the record
+    // heading may carry it at all — because this figure labels the block below,
+    // and a count of rows that block does not print is a count of nothing the
+    // reader can go and check.
     var readable = 0;
-    people.forEach(function (p) { if (p.readable) readable++; });
+    readRows(people).forEach(function (p) { if (p.readable) readable++; });
     return { measures: rows.length, rolls: withRoll, people: readable };
   }
   function countsLine(c) {
@@ -425,6 +452,10 @@
     // structural test; the label comparison is the backstop for a leaf assembled
     // by anything that fills the label without filling the state.
     var pending = (rc.state === 'pending') || (String(rc.label) === LANE_WARM);
+    // …AND NOTHING ON FILE IS A STATE TOO, carried for the same reason: the block
+    // below will not print this row under a heading that says the record read it,
+    // and `state` plus the label is how it knows without asking a second engine.
+    var none = (rc.state === 'none') || (String(rc.label) === NO_FORMAL);
     return {
       label: String(rc.label),
       // The tree prints `depth` beside this label ('6 votes on file') and this page
@@ -432,8 +463,48 @@
       // order, so the line reads the same in both places.
       depth: String(rc.depth || ''),
       counts: String(rc.counts || ''),
-      pending: pending
+      pending: pending,
+      none: none
     };
+  }
+
+  // ── THE ONE FUNCTION THAT DECIDES WHETHER THE RECORD READS A ROW ────────────
+  // formalPatternIndex.rowFor(pid, key) is the index's own read of one issue for
+  // one person, and it returns null exactly where the index would have dropped the
+  // row: no key, or nothing formal on file at all. The record ledger's bands are
+  // already drawn through it, so gating this block on it makes the two surfaces
+  // agree about the same record by construction rather than by agreement.
+  //
+  // UNAVAILABLE IS NOT THE SAME AS FALSE. A boot with no consistency.js on it has
+  // no formal index to ask, so there is nothing to gate ON — the gate answers
+  // 'unknown' and the row is judged by its own record slot instead, which is the
+  // pattern line the row was going to print anyway. This is what keeps the block
+  // rendering under a stubbed tree, and it is why `none` above is a second gate
+  // rather than a convenience.
+  function formalRead(pid, key) {
+    var C = G('PDXConsistency');
+    var fpi = C && C.formalPatternIndex;
+    if (!fpi || typeof fpi.rowFor !== 'function') return 'unknown';
+    try { return fpi.rowFor(pid, key) ? 'yes' : 'no'; } catch (e) { return 'unknown'; }
+  }
+  // WHETHER THIS ROW MAY SIT UNDER "WHO THE RECORD READS".
+  //   · a row the index carries — yes, and its own label says what it read;
+  //   · a row whose lane is still in flight — yes, and it says it is still
+  //     looking. "Checking the formal record…" is not a claim that the record
+  //     read a side, and dropping the row would make the warm repaint below fill
+  //     a block in rather than resolve it;
+  //   · a row with nothing on file — no. That is the whole point of the gate;
+  //   · a row nobody can adjudicate (no index on the page) — judged on its own
+  //     record slot, which is the only evidence available.
+  function reads(p) {
+    if (!p) return false;
+    var pat = p.pattern;
+    if (pat && pat.pending) return true;
+    if (pat && pat.none) return false;
+    return p.formal !== 'no';
+  }
+  function readRows(people) {
+    return (people || []).filter(reads);
   }
   function peopleRows(key) {
     if (!key) return [];
@@ -453,7 +524,14 @@
         pid: pid, name: polName(pid), bucket: bucket,
         bucketLabel: b ? b.label : 'Thin',
         readable: !!(b && b.readable),
-        pattern: patternOf(pid, key)
+        pattern: patternOf(pid, key),
+        // 'yes' / 'no' / 'unknown' — the index's answer, kept on the row rather
+        // than recomputed at paint. peopleRows() is still every member with a
+        // published position on the key, and stays that way: this list is the
+        // inventory, and which of it may sit under the record heading is a
+        // question the display asks (see reads()). The warm repaint depends on
+        // that separation — it counts pending rows in the FULL list.
+        formal: formalRead(pid, key)
       });
     });
     // GROUPED BY WHAT THEY PUBLISHED, ORDERED BY NAME INSIDE THE GROUP. The group
@@ -501,25 +579,43 @@
 
   function peopleHtml(people, key) {
     people = people || [];
+    // THE ROWS THE HEADING CAN CARRY, AND THE ONES IT CANNOT. Everything printed
+    // below is drawn from `shown`; `people` is used for exactly one thing after
+    // this line — counting what was held back, so the block can say so.
+    var shown = readRows(people);
+    var held = people.length - shown.length;
+    var heldNote = held
+      ? '<p class="pdxip-note pdxip-held">' +
+          esc(plural(held, 'published position') + (held === 1 ? UNREAD_TAIL : UNREAD_TAIL_N)) +
+        '</p>'
+      : '';
     var body;
     if (!people.length) {
       body = '<p class="pdxip-note">' + esc(NO_PEOPLE) + '</p>';
+    } else if (!shown.length) {
+      // Positions are on file and the record reads none of them yet. Said in one
+      // sentence, with the tally under it, rather than by printing the rows and
+      // letting the heading make the claim for them.
+      body = '<p class="pdxip-note">' + esc(NO_READS) + '</p>' + heldNote;
     } else {
       body = BUCKETS.map(function (b) {
-        var rows = people.filter(function (p) { return p.bucket === b.key; });
+        var rows = shown.filter(function (p) { return p.bucket === b.key; });
         if (!rows.length) return '';
         return '<div class="pdxip-grp" data-pdxip-grp="' + escAttr(b.key) + '">' +
           '<div class="pdxip-grp-h">' + esc(b.label) + ' · ' + rows.length + '</div>' +
           '<ul class="pdxip-ps">' + rows.map(function (p) { return personHtml(p, key); }).join('') + '</ul>' +
         '</div>';
-      }).join('') + '<p class="pdxip-note">' + esc(PEOPLE_WALL) + '</p>';
+      }).join('') + '<p class="pdxip-note">' + esc(PEOPLE_WALL) + '</p>' + heldNote;
     }
-    var gist = people.length
+    // The summary counts what the body shows, for the same reason: a gist reading
+    // "3 supports" over a block holding none of them is the summary contradicting
+    // the thing it is summarising.
+    var gist = shown.length
       ? BUCKETS.map(function (b) {
-          var n = people.filter(function (p) { return p.bucket === b.key; }).length;
+          var n = shown.filter(function (p) { return p.bucket === b.key; }).length;
           return n ? (n + ' ' + b.label.toLowerCase()) : '';
         }).filter(Boolean).join(' · ')
-      : 'Nothing published yet';
+      : (people.length ? 'None read yet' : 'Nothing published yet');
     // FOLDED, AND BELOW THE LIST. The measures are the point of the page; the
     // members are the second question, so they open on a tap rather than pushing
     // the list off the first screen.
@@ -698,6 +794,16 @@
         try { people = peopleRows(_state.key); } catch (e) { return; }
         _state.people = people;
         try { fold.outerHTML = peopleHtml(people, _state.key); } catch (e) { return; }
+        // THE TALLY IS REPAINTED WITH THE BLOCK IT LABELS. "N readable member-rows"
+        // counts the rows the block prints, and the block's membership is exactly
+        // what this event changes: a row whose lane lands on nothing formal leaves
+        // the block, and a count left behind above it would be a figure the reader
+        // cannot find anything to match. The line is written by textContent so the
+        // rest of the header is untouched.
+        try {
+          var cl = document.querySelector('#pdx-ip-scroll .pdxip-counts');
+          if (cl) cl.textContent = countsLine(counts(_state.rows || [], people));
+        } catch (e) {}
         // The fold survives the swap. A repaint that closed a block the reader had
         // opened would look like the block had collapsed on its own.
         var next = document.querySelector('#pdx-ip-scroll [data-pdxip-people="1"]');
@@ -926,6 +1032,9 @@
       '.pdxip-row[data-pdxip-lane="rode"] .pdxip-lane-t{color:#9fb4d4;background:none;',
         'border-color:rgba(159,180,212,0.24);}',
       '.pdxip-note{margin:0.6rem 0 0;font-size:0.72rem;line-height:1.5;color:#7596c0;}',
+      // The held-back tally sits under a rule so it reads as a note ABOUT the
+      // block rather than as another row in it.
+      '.pdxip-held{border-top:1px solid rgba(159,180,212,0.12);padding-top:0.5rem;}',
       '.pdxip-empty-h{margin:0;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:1rem;color:#eef4ff;}',
       '.pdxip-empty-b{margin:0.35rem 0 0;font-size:0.78rem;line-height:1.55;color:#b9cae3;}',
       '.pdxip-fold{margin-top:1.2rem;border-top:1px solid rgba(159,180,212,0.14);padding-top:0.8rem;}',
@@ -963,9 +1072,13 @@
     bodyHtml: bodyHtml, headHtml: headHtml, listHtml: listHtml, peopleHtml: peopleHtml,
     rowsFrom: rowsFrom, sortRows: sortRows, rowHtml: rowHtml, rollLine: rollLine,
     counts: counts, countsLine: countsLine, peopleRows: peopleRows,
+    // The display gate, published so a test can state the row contract without
+    // re-deriving it: readRows(peopleRows(key)) is exactly what the block prints.
+    reads: reads, readRows: readRows,
     load: load,
     // The copy, as data.
     EMPTY: EMPTY, SUBJECT: SUBJECT, RODE: RODE, BUCKETS: BUCKETS,
-    PKG_NOTE: PKG_NOTE, PEOPLE_TITLE: PEOPLE_TITLE, PEOPLE_WALL: PEOPLE_WALL
+    PKG_NOTE: PKG_NOTE, PEOPLE_TITLE: PEOPLE_TITLE, PEOPLE_WALL: PEOPLE_WALL,
+    NO_PEOPLE: NO_PEOPLE, NO_READS: NO_READS, NO_FORMAL: NO_FORMAL, LANE_WARM: LANE_WARM
   };
 })();

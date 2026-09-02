@@ -31,6 +31,28 @@
        this panel is byte-for-byte the string the desk paints. A rule in here
        that restyled a census would be the second surface this pass refuses to
        build.
+
+   THE IDENTITY BLOCK WEARS THE FAMILY'S COLOUR, AND OWNS NO COLOUR
+     `.pdxif-bar` is the block the module paints `data-ic` and the four --pdx-ic*
+     custom properties onto, through PDXIssueColors.skin() — the same contract
+     Door 1's child chips carry, so a reader who tapped a green chip arrives at a
+     green file. Three things spend the properties: a 4px rail down the left of
+     the block, the title's ink, and the crumb's arrow and child half (the same
+     ink/rule split .d1-led-crumb[data-ic] already uses under the census).
+
+     NO HEX IS AUTHORED IN THIS FILE. Not as a value and not as a var() fallback.
+     Every #rrggbb the bar renders arrived through --pdx-ic*, which means it came
+     out of issue-colors.js's palette, which means the file and the chip cannot
+     be two different greens. The chrome this bar has always had is still here as
+     the fallback and is written in rgb()/rgba() like the rest of the panel — a
+     grey scaffold in this stylesheet's own notation, so `#` in this file would
+     be a palette colour someone re-typed by hand.
+
+     THE FALLBACK IS THE ABSENCE OF THE ATTRIBUTE. skin() emits nothing at all
+     for a key that lands on no Core National Issue, so every rule below is
+     written `[data-ic]`-first: no attribute, no rail, no themed ink, and the bar
+     is exactly the bar it was before this pass. There is no "unthemed" hue and
+     nothing here goes grey to signal one.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 #pdx-issue-file {
@@ -69,7 +91,7 @@
   min-height: 0;
   background:
     linear-gradient(135deg, rgba(26, 58, 107, 0.22) 0%, rgba(8, 12, 24, 0.96) 46%, rgba(192, 21, 42, 0.1) 100%),
-    #080c18;
+    rgb(8, 12, 24);
   border: 0;
   overflow: hidden;
 }
@@ -90,7 +112,7 @@
   position: absolute;
   left: 0; right: 0; top: 0;
   height: 3px;
-  background: linear-gradient(90deg, transparent, #ef4444 20%, #fff 50%, #3b82f6 80%, transparent);
+  background: linear-gradient(90deg, transparent, rgb(239, 68, 68) 20%, rgb(255, 255, 255) 50%, rgb(59, 130, 246) 80%, transparent);
   opacity: 0.55;
   pointer-events: none;
   z-index: 2;
@@ -113,6 +135,30 @@
 }
 .pdxif-id { min-width: 0; }
 
+/* ── The identity block, and the family rail ─────────────────────────────────
+   Unthemed it is a plain wrapper and changes nothing: the kick, the title and
+   the crumb sit where they always sat. Given a family colour by the module it
+   grows the rail and the room for it. */
+.pdxif-bar { min-width: 0; }
+.pdxif-bar[data-ic] {
+  position: relative;
+  padding-left: 0.7rem;
+}
+/* The rail. 4px, the block's full height, in the family's own colour — the one
+   piece of this bar that is a colour and nothing else, which is why it is the
+   piece that can carry the family without saying anything about the record. */
+.pdxif-bar[data-ic]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.1rem;
+  bottom: 0.1rem;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--pdx-ic);
+  pointer-events: none;
+}
+
 /* "Issue file · /i/lands_preserve" — the person file's kicker, in its own
    words. Quietest thing in the bar, for the reason person-file.css gives: it
    answers a question the reader only asks when lost. */
@@ -129,12 +175,12 @@
   text-transform: uppercase;
   line-height: 1.1;
 }
-.pdxif-kick-what { color: #7f92b4; flex: none; }
+.pdxif-kick-what { color: rgb(127, 146, 180); flex: none; }
 .pdxif-kick-what::after { content: "·"; margin-left: 0.4rem; opacity: 0.55; }
 /* The citable address, lower-case because it is a URL and a URL you cannot
    retype is not a citation. Underlined on hover only. */
 .pdxif-kick-addr {
-  color: #9fb4d4;
+  color: rgb(159, 180, 212);
   text-transform: none;
   letter-spacing: 0.02em;
   font-weight: 600;
@@ -147,7 +193,7 @@
 }
 .pdxif-kick-addr:hover,
 .pdxif-kick-addr:focus-visible {
-  color: #dbe6f7;
+  color: rgb(219, 230, 247);
   text-decoration: underline;
   text-underline-offset: 0.15em;
 }
@@ -164,8 +210,13 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 1.2;
-  color: #fff;
+  color: rgb(255, 255, 255);
 }
+/* The letterhead in the family's ink. Ink rather than the raw colour because
+   this is the largest text on the bar and issue-colors.js lightens each hue
+   until it clears the text-contrast floor on this navy — the raw --pdx-ic is for
+   rules and fills. */
+.pdxif-bar[data-ic] .pdxif-title { color: var(--pdx-ic-ink); }
 .pdxif-name { min-width: 0; }
 
 /* Core → child. A caption, not a control: the tappable crumb is the ledger's
@@ -184,9 +235,16 @@
   text-transform: uppercase;
   line-height: 1.2;
 }
-.pdxif-core { color: #93c5fd; }
-.pdxif-arrow { color: #6b7f9c; }
-.pdxif-child { font-weight: 800; color: #e8eefb; }
+.pdxif-core { color: rgb(147, 197, 253); }
+.pdxif-arrow { color: rgb(107, 127, 156); }
+.pdxif-child { font-weight: 800; color: rgb(232, 238, 251); }
+/* The crumb's hue, split exactly as the live crumb under the census splits it:
+   the child half takes the ink, the separator takes the colour, and the FAMILY
+   half keeps its caption blue. The core label is the one word on this bar that
+   names something other than this file, and giving it the child's colour would
+   make one hue mean both. */
+.pdxif-bar[data-ic] .pdxif-child { color: var(--pdx-ic-ink); }
+.pdxif-bar[data-ic] .pdxif-arrow { color: var(--pdx-ic); }
 
 .pdxif-x {
   flex: none;
@@ -199,11 +257,11 @@
   border-radius: 0.75rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.05);
-  color: #cbd5e1;
+  color: rgb(203, 213, 225);
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
-.pdxif-x:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+.pdxif-x:hover { background: rgba(255, 255, 255, 0.12); color: rgb(255, 255, 255); }
 .pdxif-x:active { background: rgba(255, 255, 255, 0.18); }
 .pdxif-x svg { width: 1.15rem; height: 1.15rem; }
 

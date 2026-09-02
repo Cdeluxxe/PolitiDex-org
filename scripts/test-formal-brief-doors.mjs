@@ -422,6 +422,32 @@ const S = probe.PDXIssueScope;
       `"${phrase}" is not in alignment-tool.js — the scope note is not transcribed`);
   });
 
+  // THE SECOND ADMISSIBLE SOURCE, PINNED THE SAME WAY. Three keys were never
+  // given a comment over ISSUE_MAP and had their boundary argued out in the
+  // per-mapping rationales in consistency.js instead (issue-scope.js's wall item
+  // 1 admits that source and requires the rows to be named above the entry). They
+  // are traced to THAT file, and to the row list in their own comment, so a
+  // rationale that gets rewritten fails here rather than leaving a quotation of
+  // something nobody argues any more.
+  const CJ_SRC = R("consistency.js");
+  [["lands_preserve", "conservation withdrawal", "H.J.Res. 131|119|lands_preserve"],
+   ["lands_energy", "federal estate", "H.J.Res. 140|119|lands_energy"],
+   ["restraint", "steps back from military engagement", "H.Con.Res. 89|119|restraint"]]
+  .forEach(([k, phrase, row]) => {
+    const e = S.SCOPE[k];
+    ok(!!e, `${k} lost the entry transcribed from the mapping site`);
+    has(e.inn, phrase, `${k}'s locked scope no longer names "${phrase}"`);
+    ok(CJ_SRC.toLowerCase().indexOf(phrase.toLowerCase()) >= 0,
+      `"${phrase}" is not in consistency.js — the scope note is not transcribed from the argument`);
+    has(IS_SRC, row, `${k}'s entry does not name ${row} as the row it was transcribed from`);
+    ok(CJ_SRC.indexOf("'" + row + "'") >= 0,
+      `${row} is named as ${k}'s source and no longer exists in consistency.js`);
+    // Wall item 2: an excerpt of scope and polarity, never a weight or a count.
+    Object.keys(e).forEach((f) => {
+      lacks(String(e[f]), "weight", `${k}.${f} carries a weight — that lives at the mapping site`);
+    });
+  });
+
   // THE HONEST BLANK. `cost_living` is a real, polable key with no scope argument
   // on file — nothing in the shipped mapping evidence characterises it, so nothing
   // was argued out over it — and the card says exactly that instead of describing
