@@ -880,6 +880,57 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v111 - THE HOMEPAGE RECORD CARD WEARS THE PERSON FILE'S FACE. Card N of 6 in
+// the carousel is the first person-file a stranger sees, and it was the last
+// surface still painting the old card language: three untyped issue rows and a
+// loud Word-vs-Action percent as the hero. The person file had long since moved
+// on — coloured issue rows, a 🏛 RECORD badge per characterised row, split counts
+// spelled out — so a reader who learned that face on /p/lee arrived at the front
+// door and found an earlier version of the same claim, with the percent shouting
+// over the record it was derived from. The card now prints THAT face, and prints
+// it from the same tokens rather than a second copy of them. FOUR FILES CHANGED
+// AND MUST TRAVEL TOGETHER, which is what this bump is for:
+//   · hero-showcase.js     — the carousel renderer. Each "what the record points
+//                            to" row now carries the shared [data-ic] gate and
+//                            the four inline custom properties for its key, and
+//                            the badge under it prints the label, the lane word
+//                            and the tally the engine already published. It still
+//                            owns no judgement: it renders what profile-card.js
+//                            hands it and computes nothing.
+//   · profile-card.js      — the card's only judgement source. It now passes the
+//                            badge payload through beside the side word it always
+//                            passed. No pick, no cap and no order changed.
+//   · consistency.js       — five declared spans (see scripts/v103-chrome-seams.mjs).
+//                            The badge's lane word and its fill rule stopped being
+//                            inline at the person file's chip and became named
+//                            beside the tone table, and two row builders publish
+//                            the fields a caller needs to paint the badge — the
+//                            tier's weight, and the two-sided phrase a Split row
+//                            was withholding while both numbers sat one field
+//                            away. Nothing characterises anything twice.
+//   · index.html           — the card's own CSS: the coloured left rail and dot
+//                            per row, the badge block (mirroring .pdxst-pat), and
+//                            the Word-vs-Action figure demoted to footer type at
+//                            every width. Precached as the shell's '/', so it
+//                            travels here. STALE HERE IS THE WHOLE REASON FOR THE
+//                            BUMP: v110's stylesheet has no rule for the card's
+//                            [data-ic] rail or its badge, so a warm device would
+//                            receive rows carrying a correct hue that nothing
+//                            spends and a badge with no pill — the untyped row
+//                            again, silently, and the percent still shouting.
+//   · issue-colors.js      — one declared span. styleFor() + isCore() in the one
+//                            shape a renderer wants, because three surfaces had
+//                            already written that composition privately and the
+//                            card needed the SAME token the topic tree prints for
+//                            the same key, byte for byte. No fourteenth hue, no
+//                            hex, no key: every colour still comes from
+//                            CORE_ISSUE_COLORS through getIssueColor().
+// DISPLAY ONLY, and the walls are the reason: word-action.js's arithmetic and the
+// formal-pattern index are untouched, no new score exists, the carousel is not
+// sorted by party, the party letter stays identity on the avatar and colours
+// nothing, and a card with nothing to test still prints the honest empty sentence
+// instead of a percent. The six showcase cards' issues, side words and
+// Word-vs-Action figures are byte-identical across a twin boot.
 // v110 - DOOR 1'S ISSUE CHIPS WEAR THE ISSUE'S OWN HUE. v109 gave the issue desk
 // a chip for every child key; it painted them as untyped dark pills. Every other
 // surface that names an issue — the person file's topic tree, the formal brief
@@ -957,7 +1008,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v110';
+const CACHE_VERSION = 'v111';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

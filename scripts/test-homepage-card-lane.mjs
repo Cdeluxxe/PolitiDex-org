@@ -33,6 +33,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -61,6 +62,12 @@ const FILES = [
   // the card asks the same composer for the same clause. Without it on the page
   // both fall back, which would pass the mirror for the wrong reason.
   "inventory.js",
+  // 🎨 The issue colour tokens. Loaded because the card's record rows now wear the
+  // same token the profile brief and the topic tree wear for the same key, and the
+  // parity check below compares the two strings. Absent, PDXIssueColors.skin()
+  // is simply unavailable and both surfaces emit no attribute at all — which would
+  // pass the comparison for the wrong reason.
+  "issue-colors.js",
   "profile-card.js",
 ];
 const SRC = FILES.map((f) => [f, R(f)]);
@@ -171,6 +178,10 @@ function paint(engine, pid) {
     },
     addEventListener() {},
     PDXConsistency: { VERDICTS: engine.PDXConsistency.VERDICTS, recordSettled: () => true },
+    // The colour module, handed over as-is rather than stubbed: the parity check
+    // below compares the attribute the renderer emits against the attribute the
+    // profile surfaces emit, and a stub would make both sides agree about nothing.
+    PDXIssueColors: engine.PDXIssueColors,
     PDXLazyData: { loaded: () => true },
     PDXDataEpoch: () => 1,
     PDXProfileCard: { brief: () => brief, read: () => read, warm() {}, share() {} },
@@ -436,6 +447,235 @@ section("7 · the card opens on the record, and a chip opens the issue");
   for (const c of chips) {
     ok(/data-pid="[^"]+"/.test(c) && /data-iss="[^"]+"/.test(c),
       "door: a chip is missing the pid or the issue key it would open");
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 8. The card wears the person file's record-first face
+// ═════════════════════════════════════════════════════════════════════════════
+// THE CARD IS THE FIRST PERSON-FILE A STRANGER SEES, so it must speak the face
+// the person file speaks: coloured issue rows, the 🏛 record badge, and the
+// cross-check demoted to a footer. This section is the contract for the parts a
+// second surface could silently reinvent — the colour token and the badge's words.
+// Nothing here checks a number that is not already checked above: the card still
+// publishes exactly one figure and section 6 owns that.
+section("8 · the card wears the record-first face");
+{
+  const IC = warm.PDXIssueColors;
+  must(IC && typeof IC.skin === "function",
+    "PDXIssueColors.skin() is absent, so nothing below is testing the shared colour token");
+
+  // ── THE TOPIC TREE'S TOKEN IS THE SHARED HELPER'S TOKEN ─────────────────
+  // Every coloured stance row on a person file carries the four custom properties
+  // inline. Read them back off the rendered tree and compare to the helper the card
+  // goes through: if these ever diverge, "the card matches the tree" stops meaning
+  // anything and the rest of this section passes vacuously.
+  const treeTokens = (html) => {
+    const out = new Map();
+    const re = /class="pdxst-row pdxc-ic" style="([^"]*)"[^>]*data-pdxst-issue="([^"]+)"/g;
+    let m;
+    while ((m = re.exec(html))) out.set(m[2], m[1]);
+    return out;
+  };
+  // A profile whose tree actually holds a climate_action row, which is the row the
+  // brief for this pass names. `aoc` is shipped roster data, not a fixture.
+  const CLIMATE_PID = "aoc";
+  const tree = treeTokens(warm.PDXConsistency.stancesSectionHtml(CLIMATE_PID) || "");
+  must(tree.size > 0, `the ${CLIMATE_PID} topic tree painted no coloured rows, so the token comparison has no left-hand side`);
+  must(tree.has("climate_action"),
+    `the ${CLIMATE_PID} topic tree holds no climate_action row, so the named parity case is not being tested`);
+  for (const [key, style] of tree) {
+    eq(style, IC.styleFor(key),
+      `colour: the ${CLIMATE_PID} tree row for "${key}" does not carry PDXIssueColors' own token`);
+  }
+  // The named assert, stated on its own so a failure says which key broke.
+  eq(tree.get("climate_action"), IC.skin("climate_action").style,
+    "colour: the climate_action token on a topic tree is not the token the card's helper emits");
+
+  // ── AND THE CARD'S ROWS WEAR IT, KEY BY KEY ─────────────────────────────
+  // Byte-identical to the helper's attribute, which is byte-identical to the tree's
+  // (above). A key the helper declines carries no [data-ic] at all — a card of
+  // neutral-slate rails would look like the colour system was off rather than like
+  // three non-core issues.
+  for (const [who, r] of [["exec", prez], ["member", member]]) {
+    const tags = r.html.match(/<button[^>]*class="pdx-hs-fm-chip"[^>]*>/g) || [];
+    must(tags.length > 0, `the ${who} card painted no record rows, so the row face is not being tested`);
+    let tinted = 0;
+    for (const tag of tags) {
+      const key = (tag.match(/data-iss="([^"]+)"/) || [])[1] || "";
+      const skin = IC.skin(key);
+      if (skin.on) {
+        tinted++;
+        ok(tag.includes(skin.attr),
+          `${who}: the row for "${key}" does not carry the shared issue token`);
+      } else {
+        ok(!/data-ic=/.test(tag),
+          `${who}: the row for "${key}" was tinted with a token that key does not resolve to`);
+      }
+    }
+    ok(tinted > 0, `${who}: not one record row on the card resolved an issue colour`);
+  }
+
+  // ── THE BADGE IS THE ENGINE'S BADGE ─────────────────────────────────────
+  // Same words as the profile's own chip for the same row, and the lane marker in
+  // front of them: "supports" without it reads as a stance, and this badge is the
+  // record's rather than theirs.
+  const CS = warm.PDXConsistency;
+  const LANE = CS.recordPattern && CS.recordPattern.LANE;
+  must(LANE, "PDXConsistency.recordPattern.LANE is absent, so the card would be authoring its own lane marker");
+  // The person file's own stance rows, keyed by issue: same engine, same tier, and
+  // the surface whose badge this one is a copy of. Compared key by key rather than
+  // as a bag of labels, because two surfaces agreeing on the SET of words while
+  // disagreeing about which row wears which is the failure that matters.
+  const fileBadges = (() => {
+    const out = new Map();
+    const html = String(CS.stancesSectionHtml(MEMBER) || "");
+    for (const frag of html.split('class="pdxst-row ').slice(1)) {
+      const k = (frag.match(/data-pdxst-issue="([^"]+)"/) || [])[1];
+      const lb = (frag.match(/class="pdxst-pat-lb">([^<]*)</) || [])[1];
+      if (k && lb) out.set(k, lb);
+    }
+    return out;
+  })();
+  must(fileBadges.size > 0,
+    "the member's stance rows painted no record badges, so the badge comparison has no left-hand side");
+  const mStrip = warm.PDXProfileCard._formalStrip(MEMBER, "record");
+  must(mStrip && mStrip.chips.length,
+    "the member formal strip is empty, so the badge case is not being tested");
+  const badged = mStrip.chips.filter((c) => c.badge);
+  must(badged.length > 0,
+    "no member card row carried a record badge, so the badge case is not being tested");
+  for (const c of badged) {
+    const b = c.badge;
+    eq(b.lane, LANE, `badge: the row for "${c.key}" printed a lane marker of its own`);
+    ok(fileBadges.has(c.key), `badge: the person file prints no record badge on "${c.key}" at all`);
+    eq(b.label, fileBadges.get(c.key),
+      `badge: the card and the person file disagree about what the record says on "${c.key}"`);
+    ok(member.html.includes('class="pdx-hs-fm-b-lb">' + b.label + "<"),
+      `badge: "${b.label}" was composed but never painted onto the card`);
+    // The side word is the engine's, and it survives beside the badge rather than
+    // being replaced by it.
+    ok(member.html.includes('class="pdx-hs-fm-v">' + c.word + "<"),
+      `badge: the side word "${c.word}" left the row when the badge arrived`);
+  }
+  // No hex is chosen on the card: the tone colour and the fill are the profile
+  // chip's, off recordPattern.paint() and the same tone table the chip reads.
+  const TONE = (CS.recordPattern && CS.recordPattern.TONE) || {};
+  must(TONE.support && TONE.support.c,
+    "recordPattern.TONE is absent, so the badge's colours are not being checked against anything");
+  for (const c of badged) {
+    const t = TONE[c.badge.tone];
+    ok(t && c.badge.c === t.c,
+      `badge: the row for "${c.key}" painted tone "${c.badge.tone}" as ${c.badge.c}, which is not that tone in recordPattern.TONE`);
+    eq(c.badge.bg, CS.recordPattern.paint(c.badge).bg,
+      `badge: the fill on "${c.key}" is not the fill the profile chip's own rule gives its weight`);
+  }
+
+  // ── A SPLIT ROW PRINTS BOTH SIDES ───────────────────────────────────────
+  // The failure this exists for: a split row whose publication decision withheld
+  // its countable printed the bare word "Split" onto the first card a stranger
+  // sees, with the two integers sitting one field away on the same tier.
+  const split = badged.find((c) => c.badge.tier === "split");
+  must(split, "no member card row ran both ways, so the split case is not being tested");
+  ok(/^\d+ advanced · \d+ against$/.test(split.badge.counts),
+    `split: the row for "${split.key}" printed "${split.badge.counts}" instead of both sides`);
+  ok(member.html.includes("\u00b7 " + split.badge.counts) ||
+     member.html.includes("· " + split.badge.counts),
+    `split: the two sides of "${split.key}" were composed but never painted`);
+
+  // ── AND THE CROSS-CHECK IS A FOOTER ─────────────────────────────────────
+  // Order on the face, not just in the stylesheet: the record block opens the card
+  // body and the Word vs Action badge follows it.
+  for (const [who, r] of [["exec", prez], ["member", member]]) {
+    const fm = r.html.indexOf('class="pdx-hs-fm"');
+    const sig = r.html.indexOf('class="pdx-hs-signal');
+    must(fm >= 0 && sig >= 0, `the ${who} card is missing the record block or the signal badge`);
+    ok(fm < sig, `${who}: Word vs Action is painted above the record it is checking`);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+section("9 · twin boot — the six showcase cards say what HEAD said");
+// THE WALL THIS PASS WORKED UNDER, MEASURED. Colouring the rows, badging them and
+// demoting the percent is display; the ISSUES a card names, the SIDE WORD beside
+// each one and the WORD-VS-ACTION figure at the bottom are judgement, and not one
+// of them was this pass's to move. So the six pids the carousel actually opens on
+// are read twice — once out of HEAD's engines, once out of this tree's — and the
+// three judged fields are compared byte for byte.
+//
+// The badge is deliberately NOT in the comparison: it is what the pass adds, and it
+// is proved against the person file's own strip in section 8 rather than against a
+// HEAD that never printed it. Nothing else on the card is exempt.
+{
+  const SHOWCASE = ["trump", "bennie_thompson", "lee", "jayapal", "scalise", "khanna"];
+  let headSrc = null;
+  try {
+    headSrc = FILES.map((f) => [f, execFileSync("git", ["show", `HEAD:${f}`],
+      { cwd: ROOT, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 })]);
+  } catch { headSrc = null; }
+  if (!headSrc) {
+    console.log("      (no git baseline available — the twin boot did not run in this environment)");
+  } else {
+    // The judged surface of one card, in the shape the renderer reads it in. The
+    // strip is asked for on the card's OWN lane, which is what hero-showcase.js does.
+    const judged = (win, pid) => {
+      const PC = win.PDXProfileCard;
+      const b = PC.brief(pid) || {};
+      const rows = (PC._formalStrip(pid, b.lane) || { chips: [] }).chips || [];
+      return JSON.stringify({
+        lane: b.lane || "", score: b.score === null || b.score === undefined ? null : b.score,
+        read: b.read || "", label: b.label || "",
+        rows: rows.map((c) => ({ key: c.key, label: c.label, word: c.word, depth: c.depth })),
+      });
+    };
+    // EVERY MEMBER PID IS SEEDED, on both sides, with the same fixture. Five of the
+    // six carousel cards are on the record lane, and a member's characterised rows
+    // exist only once the roll-call cache is warm — so an unseeded twin boot compares
+    // five empty row lists to five empty row lists and passes without having read a
+    // single side word. The fixture is the suite's own WARM_VOTES, installed under
+    // each pid, which puts real rows on every card and makes the comparison mean what
+    // it says. Whether a given pid has stated positions on those keys is the shipped
+    // data's business; a card that produces no row on either side is refused below.
+    const bootFrom = (src) => {
+      const win = makeSandbox();
+      const ctx = vm.createContext(win);
+      win._pdxOfficeLine = () => "";
+      win._getPhotoUrl = () => "";
+      win.PROFILES = undefined;
+      for (const [f, t] of src) vm.runInContext(t, ctx, { filename: f });
+      win.PROFILES = win.CMP_DATA;
+      if (win.PDXVotingRecord && win.PDXVotingRecord._records) {
+        for (const pid of SHOWCASE) win.PDXVotingRecord._records[pid] = WARM_VOTES;
+        if (typeof win.PDXDataChanged === "function") win.PDXDataChanged();
+      }
+      return win;
+    };
+    // HEAD has no issue-colors.js seam and no card badge, but it has every file in
+    // FILES, so the two boots load the same list and differ only in its contents.
+    const was = bootFrom(headSrc), now = bootFrom(SRC);
+    let compared = 0, withRows = 0;
+    for (const pid of SHOWCASE) {
+      const a = judged(was, pid), b = judged(now, pid);
+      eq(b, a, `${pid}: the card's issues, side words or Word-vs-Action figure moved against HEAD`);
+      const rows = JSON.parse(b).rows;
+      if (rows.length) withRows++;
+      // A side word is the thing under comparison, so at least one has to be there.
+      for (const r of rows) must(r.word, `${pid}: the row for "${r.key}" carries no side word to compare`);
+      compared++;
+    }
+    ok(compared === 6, `all six showcase cards were read on both sides (${compared})`);
+    must(withRows === 6,
+      `only ${withRows} of the six showcase cards produced characterised rows — the rest of this ` +
+      "comparison would be six empty lists matching six empty lists");
+    ok(JSON.parse(judged(now, "trump")).rows.length > 0 &&
+       JSON.parse(judged(now, SHOWCASE[3])).rows.length > 0,
+      "the twin boot covered both card lanes — an exec card and a member card");
+    // And the list itself is the six the carousel opens on, in that order — a
+    // comparison over a rotation that quietly reordered proves nothing.
+    const pool = JSON.parse(R("hero-showcase-data.js").slice(
+      R("hero-showcase-data.js").indexOf("["), R("hero-showcase-data.js").lastIndexOf("]") + 1));
+    eq(pool.slice(0, 6).map((c) => c.pid).join(","), SHOWCASE.join(","),
+      "the six pids compared above are no longer the six the invitation list opens with");
   }
 }
 

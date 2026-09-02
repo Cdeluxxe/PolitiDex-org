@@ -193,9 +193,48 @@
   function formalStrip(pid, lane) {
     var cs = CS();
     if (!cs || !pid) return null;
-    var chip = function (key, label, word, depth) {
+    // ── THE 🏛 BADGE, AS THE ENGINE ALREADY PUBLISHES IT ──────────────────────
+    // WHAT IT IS. The same short badge the profile brief prints beside a
+    // characterised row — the lane marker, the tier's own label ("Strongly
+    // supports" / "Thin supports" / "Split") and its tally ("4 advanced · 0
+    // against") — reduced to fields, because the card cannot mount consistency.js's
+    // chip markup but must not author a second badge either.
+    //
+    // NOTHING IS COMPUTED. Every field is read off the published row: `patLabel`
+    // and `tier` and `weight` are the tier's, `counts` is the tier's countable and
+    // `sideCounts` its two-sided phrase (used only where the publication decision
+    // withheld the countable — see the note on _soRow). The colour and the fill come
+    // from PDXConsistency.recordPattern.paint(), which is the same table and the
+    // same weight rule the profile's chip goes through, so a badge here and the
+    // badge on the person file cannot end up two different greens.
+    //
+    // A ROW WITH NO TIER GETS NO BADGE. The card then prints the side word alone,
+    // exactly as it did before this existed — silence over an uncharacterised row is
+    // the honest state, and a neutral badge explaining an absence would be a claim
+    // about a record we have not earned.
+    var badgeOf = function (x) {
+      var lb = String((x && x.patLabel) || '');
+      if (!lb) return null;
+      var rp = cs.recordPattern || null;
+      var paint = null;
+      try {
+        paint = (rp && typeof rp.paint === 'function') ? rp.paint(x) : null;
+      } catch (e) { paint = null; }
+      if (!paint || !paint.c) return null;
+      return {
+        label: lb,
+        lane: String(paint.lane || (rp && rp.LANE) || ''),
+        counts: String((x && x.counts) || (x && x.sideCounts) || ''),
+        tier: String((x && x.tier) || ''),
+        tone: String((x && x.tone) || 'muted'),
+        weight: String((x && x.weight) || 'flat'),
+        c: String(paint.c), bg: String(paint.bg || '')
+      };
+    };
+    var chip = function (key, label, word, depth, badge) {
       if (!label || !word) return null;
-      return { key: String(key || ''), label: String(label), word: String(word), depth: String(depth || '') };
+      return { key: String(key || ''), label: String(label), word: String(word),
+               depth: String(depth || ''), badge: badge || null };
     };
     // THREE CHIPS, AND ONE OF THEM IS RESERVED. Straight `oneSided.concat(split)`
     // took the first two, which on anyone with two clean one-sided issues meant a
@@ -228,7 +267,8 @@
         thin: !!xs.thin,
         chips: take(xs.oneway, xs.both).map(function (r) {
           return chip(r.key, r.label, r.word,
-            (r.acts || 0) + ' act' + (r.acts === 1 ? '' : 's') + ' on file');
+            (r.acts || 0) + ' act' + (r.acts === 1 ? '' : 's') + ' on file',
+            badgeOf(r));
         }).filter(Boolean)
       };
     }
@@ -264,7 +304,8 @@
       chips: take(so.consistent, so.mixed).map(function (x) {
         var n = x.noun || {};
         return chip(x.key, x.label, x.saysLabel,
-          x.held ? (x.held + ' ' + (x.held === 1 ? (n.one || 'vote') : (n.many || 'votes')) + ' on file') : '');
+          x.held ? (x.held + ' ' + (x.held === 1 ? (n.one || 'vote') : (n.many || 'votes')) + ' on file') : '',
+          badgeOf(x));
       }).filter(Boolean)
     };
   }

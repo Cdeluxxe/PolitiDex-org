@@ -6121,6 +6121,26 @@
   // so neither gets its tone's fill — thin keeps the tone in its text and border
   // only, which is what "direction-coloured but visibly lighter" means here.
   var _ST_PAT_QUIET = 'rgba(10,15,30,0.32)';
+  // THE LANE MARKER, AS A CONSTANT. It is not decoration: "supports" without it
+  // reads as a stance, and this chip is the record's rather than theirs. A surface
+  // that cannot mount _stPatternHtml's markup but must print the same badge takes
+  // the two words from here rather than retyping them. The chip below still spells
+  // them inline — that line is byte-pinned by several ingest suites and is not this
+  // pass's to move — and scripts/test-homepage-card-lane.mjs asserts the rendered
+  // chip's marker IS this constant, so the two spellings cannot drift apart.
+  var _ST_PAT_LANE = '🏛 Record';
+  // THE TONE AND THE FILL FOR ONE TIER, in one place. _stPatternHtml() reads this
+  // and so does anything rendering the badge outside this file, so a badge on the
+  // homepage card and the same badge on the person file cannot end up with two
+  // different greens or two different rules about which tiers get a fill. The rule
+  // itself is unchanged and is documented over _ST_PAT_QUIET: only the two strong
+  // weights take their tone's fill.
+  function _stPatPaint(t) {
+    var tone = _ST_PAT_TONE[(t && t.tone) || 'muted'] || _ST_PAT_TONE.muted;
+    var bg = (t && t.weight === 'full') ? tone.full
+      : (t && t.weight === 'strong') ? tone.strong : _ST_PAT_QUIET;
+    return { c: tone.c, bg: bg, lane: _ST_PAT_LANE };
+  }
   function _stPatternTier(r) {
     try {
       if (typeof window._recordPatternTier !== 'function') return null;
@@ -6174,9 +6194,8 @@
       }
     }
     if (!t) return '';
-    var tone = _ST_PAT_TONE[t.tone] || _ST_PAT_TONE.muted;
-    var bg = (t.weight === 'full') ? tone.full
-      : (t.weight === 'strong') ? tone.strong : _ST_PAT_QUIET;
+    var tone = _stPatPaint(t);
+    var bg = tone.bg;
     // The lane marker is not decoration either: "supports" without it reads as a
     // stance, and this chip is the record's, not theirs. The title and the
     // screen-reader label carry the same one sentence the engine publishes.
@@ -9860,7 +9879,19 @@
       pid: x.pid, key: x.key, label: x.label, tier: x.tier, tone: x.tone,
       says: says ? says.key : null, saysLabel: says ? says.label : x.patLabel,
       patLabel: x.patLabel, counts: x.counts, judged: x.judged, held: x.held,
-      minority: _soMinority(x), noun: x.noun, said: !!x.said
+      minority: _soMinority(x), noun: x.noun, said: !!x.said,
+      // TWO FIELDS FOR A CALLER THAT RENDERS THE BADGE ITSELF, added for the same
+      // reason _fpiShapeRow carries them and under the same wall. `weight` is the
+      // tier's own weight, which is the only input the badge's fill rule takes.
+      // `sideCounts` is the two-sided phrase straight off the tier — it exists
+      // because a split row whose publication decision withheld its margin
+      // (`counts` empty, by the shallow-split rule in _RD_TOKENS) printed the bare
+      // word "Split" onto a card with the numbers sitting one field away. `counts`
+      // is untouched, every surface reading `counts` reads the string it read
+      // before, and no tier, floor, lead or direction is computed from either.
+      weight: (x.pat && x.pat.weight) || '',
+      sideCounts: (x.pat && x.pat.sideCounts) ||
+        (window._recordSidePhrase ? window._recordSidePhrase(x.pat) : '')
     };
   }
   function recordStandout(pid) {
@@ -10200,13 +10231,44 @@
   // could mistake for a rating.
   function execRecordSummary(pid) {
     var p = _xsPick(pid);
+    // ── AND THE ROW'S DISPLAY TIER, BESIDE ITS VERDICT WORD ───────────────────
+    // WHY BOTH. `token` / `word` are the exec verdict this strip has always picked
+    // on and printed — "Acted one way", "Acted both ways" — and nothing about them
+    // moves. What a caller rendering the 🏛 badge needs is the OTHER read: the
+    // display tier (_stDisplayTier over _stExecDisplayIndex), which is what the
+    // brief's exec rows and the stance rows further down the page already print,
+    // and which is where the badge's label, weight and tally come from.
+    //
+    // IT IS THE SAME CALL _xsShape() MAKES, on the same spine row and in the same
+    // all-terms scope, so an exec row's badge here and the same issue's badge in the
+    // brief are one read rather than two. Not a lookup into _xsShape()'s published
+    // buckets: those are capped and separately sorted, so a picked row can legally
+    // be absent from them (tariffs on /p/trump is exactly that row), and a per-key
+    // lookup would have silently dropped its badge.
+    //
+    // NOTHING IS SELECTED, SORTED OR COUNTED ON THESE FIELDS. The pick above is
+    // unchanged; a row whose display tier declines simply carries empty strings and
+    // the caller prints the side word alone, as it did before.
+    var tierOf = function (r) {
+      var t = null;
+      try { t = _stDisplayTier(_xsSpineRow(p.pid, r).row, _XS_SCOPE); } catch (e) { t = null; }
+      if (t && t.tier === 'none') t = null;
+      return t;
+    };
     var row = function (r) {
+      var t = tierOf(r);
       return { pid: p.pid, key: r.issueKey, label: _issueLabel(r.issueKey),
                token: r.token, word: (r.verdict && r.verdict.label) || '',
                acts: r.acts, advances: r.advances, opposes: r.opposes,
                minority: _xsMinority(r),
                standing: (r.standing && r.standing.key) || '',
-               contested: !!(r.standing && r.standing.contested) };
+               contested: !!(r.standing && r.standing.contested),
+               tier: t ? (t.tier || '') : '',
+               weight: t ? (t.weight || '') : '',
+               tone: t ? (t.tone || '') : '',
+               patLabel: t ? (t.label || '') : '',
+               counts: t ? (t.counts || '') : '',
+               sideCounts: t ? (t.sideCounts || '') : '' };
     };
     return { on: p.on, pid: p.pid, acts: p.acts, issues: p.issues, readable: p.readable,
              inventory: p.inventory.slice(), volume: p.volume,
@@ -16982,6 +17044,14 @@
       tier: _stPatternTier,
       html: _stPatternHtml,
       TONE: _ST_PAT_TONE,
+      // THE BADGE'S OWN TWO TOKENS, for a surface that cannot mount this file's
+      // chip markup but must not invent a second badge either. `LANE` is the two
+      // words the chip prints in front of every label; `paint(tier)` is the tone
+      // colour and the fill, off the same table and the same weight rule the chip
+      // uses. Both are display tokens: nothing here characterises, counts or scores,
+      // and a caller still has to get its tier from `tier` / `display` above.
+      LANE: _ST_PAT_LANE,
+      paint: _stPatPaint,
       // THE DISPLAY READ, and the accessor a browse surface should use. `tier`
       // above is the characterisation read and is unchanged — the cards and the
       // formal-pattern index still gate on it and still exclude what it declines.

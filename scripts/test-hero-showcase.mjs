@@ -829,10 +829,19 @@ for (const c of seed) {
   // and why a modified click is handed back to the browser. Nothing was added to
   // what the card computes or fetches. person-link.js itself is parser-blocking
   // too and carries its own budget, in test-person-links.mjs.
+  //
+  // BUDGET NOTE · raised to 15.5 KB / 17 KB when the record rows adopted the person
+  // file's own face. Two functions landed and neither computes anything: icAttr()
+  // asks PDXIssueColors.skin() for the issue's colour token — the same fragment the
+  // profile brief and the topic tree carry for that key — and badgeHtml() prints the
+  // 🏛 record badge out of fields PDXProfileCard composed from the engine's already
+  // published tier. ~350 B gzipped of code and prose. Nothing new is fetched,
+  // derived or judged on the critical path: both ride the `formal` payload the
+  // visible card's read() was already paying for.
   ok(dataGz < 3 * 1024, `payload: seed is ${dataGz} B gzipped (budget 3 KB)`);
-  ok(rendGz < 15 * 1024, `payload: renderer is ${rendGz} B gzipped (budget 15 KB)`);
-  ok(dataGz + rendGz < 16.5 * 1024,
-    `payload: ${dataGz + rendGz} B gzipped on the parser-blocking critical path (budget 16.5 KB)`);
+  ok(rendGz < 15.5 * 1024, `payload: renderer is ${rendGz} B gzipped (budget 15.5 KB)`);
+  ok(dataGz + rendGz < 17 * 1024,
+    `payload: ${dataGz + rendGz} B gzipped on the parser-blocking critical path (budget 17 KB)`);
   console.log(`  critical path: ${dataGz} B + ${rendGz} B = ${dataGz + rendGz} B gzipped`);
 }
 
@@ -995,6 +1004,34 @@ for (const c of seed) {
   ok(/#hero-showcase \{/.test(INDEX), "wiring: the card's critical CSS is inline in the head");
   ok(/\.pdx-hs-sig-read \{/.test(INDEX), "wiring: including the signal slot");
   ok(/\.pdx-hs-bar \{/.test(INDEX), "wiring: including the breakdown bar");
+  ok(/\.pdx-hs-fm-chip\[data-ic\] \{/.test(INDEX),
+    "wiring: including the issue-colour treatment on the record rows");
+  ok(/\.pdx-hs-fm-b \{/.test(INDEX), "wiring: including the record badge");
+
+  // ── THE CROSS-CHECK IS NOT THE HERO ──────────────────────────────────────
+  // The card leads with what the record points to; Word vs Action is the check ON
+  // that finding and sits under it at footnote scale. It used to open the card at
+  // 2rem, then sat at 1.1rem — larger than every issue row above it and larger
+  // than the record block's own heading, which made the cross-check read as the
+  // finding. The rule, enforced at every width the stylesheet declares: the
+  // percentage is never set larger than the record block title.
+  const sizesOf = (sel) => {
+    const out = [];
+    const re = new RegExp("\\" + "." + sel.slice(1).replace(/[-]/g, "\\-") +
+      "\\s*\\{[^}]*?font-size:\\s*([0-9.]+)rem", "g");
+    let m;
+    while ((m = re.exec(INDEX))) out.push(parseFloat(m[1]));
+    return out;
+  };
+  const titleSizes = sizesOf(".pdx-hs-fm-h");
+  const pctSizes = sizesOf(".pdx-hs-sig-pct");
+  ok(titleSizes.length > 0 && pctSizes.length > 0,
+    "type: the record block title or the percentage declares no font size, so the comparison is vacuous");
+  const titleMin = Math.min.apply(null, titleSizes);
+  for (const n of pctSizes) {
+    ok(n <= titleMin,
+      `type: the Word vs Action figure is set at ${n}rem against a record block title of ${titleMin}rem — the cross-check is larger than the finding`);
+  }
 
   const SW = readFileSync(join(ROOT, "sw.js"), "utf8");
   ok(/'\/hero-showcase-data\.js'/.test(SW) && /'\/hero-showcase\.js'/.test(SW),

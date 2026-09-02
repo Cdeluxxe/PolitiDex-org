@@ -349,6 +349,39 @@
     return !!getIssueColor(coreOrIssueKey, coreLookup).mapped;
   }
 
+  // ── THE SHARED CHIP SKIN ───────────────────────────────────────────────────
+  // WHAT IT IS. styleFor() + isCore() in the one shape a renderer actually wants:
+  // `on` (did the key land on a real Core National Issue), `style` (the four inline
+  // custom properties) and `attr` (the whole ` data-ic="on" style="…"` fragment,
+  // ready to drop inside an opening tag).
+  //
+  // WHY IT IS HERE RATHER THAN IN EACH SURFACE. The brief's pattern rows, the
+  // letterhead topic chips and the topic tree all reached the same conclusion
+  // independently — resolve the key, refuse the treatment when it did not resolve,
+  // emit `[data-ic]` plus the properties — and each wrote its own three-line copy of
+  // it. A fourth surface (the homepage record card) needed the SAME token as the
+  // person file prints for the same key, byte for byte, and "byte for byte" is not
+  // something four private copies can promise. One function, one spelling.
+  //
+  // AN UNRESOLVED KEY GETS NO ATTRIBUTE AT ALL, deliberately. styleFor() never
+  // fails — an unrecognised key comes back as neutral slate — so a row that quietly
+  // stopped resolving would carry slate properties and look identical to a row that
+  // resolved to slate on purpose, and a whole card of grey rows reads as "the colour
+  // system is off" rather than "these are not core issues". Empty `attr` means the
+  // row renders exactly as it did before the treatment existed and the stylesheet
+  // has nothing to hook.
+  //
+  // NO COLOUR IS DECIDED HERE. Every hex still comes from CORE_ISSUE_COLORS through
+  // getIssueColor(), which is the same road every other caller takes.
+  function skin(coreOrIssueKey, coreLookup) {
+    var on = false;
+    try { on = isCore(coreOrIssueKey, coreLookup); } catch (e) { on = false; }
+    var style = '';
+    try { style = styleFor(coreOrIssueKey, coreLookup) || ''; } catch (e) { style = ''; }
+    if (!on || !style) return { on: false, style: '', attr: '' };
+    return { on: true, style: style, attr: ' data-ic="on" style="' + style + '"' };
+  }
+
   // :root properties for the static case — a stylesheet that knows its issue at
   // author time (`var(--pdx-issue-healthcare)`) instead of receiving it inline.
   function cssText() {
@@ -390,6 +423,7 @@
     coreKeyFor: coreKeyFor,
     isCore: isCore,
     styleFor: styleFor,
+    skin: skin,
     cssText: cssText,
     injectVars: injectVars,
     all: all
