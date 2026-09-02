@@ -880,6 +880,66 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v116 - A MANDATE IS A THIRD LANE, NOT PUBLIC AND NOT FORMAL. v115 gave the
+// All-Seeing Eye two lanes, and that left the site's third kind of document with
+// nowhere honest to sit. A People's Mandate item is a PROPOSED VEHICLE. In the
+// public lane it reads as a quote — a thing somebody SAID — when a reform nobody
+// has spoken about yet is not that. In the formal lane it reads as a measure — a
+// thing that was VOTED ON — when a proposed vehicle has no tally at all, not even
+// a failed one. Both readings lend the document a standing it has not got, and
+// both are the same error in opposite directions, so the reform gets a lane of
+// its own with its own label and its own empty sentence.
+//   · all-seeing-eye.js    - the control is three-state now: Formal record
+//                            (default) | Public & spotlights | Mandate. FORMAL
+//                            and PUBLIC are unchanged in what they hold and how
+//                            they rank, and now hold ZERO mandate rows; MANDATE
+//                            holds People's Mandate reforms and nothing else — no
+//                            /i/ file row, no family row, no spotlight, no person.
+//                            The index gained a FOURTH category, read from the one
+//                            registry the bridge already publishes
+//                            (window._pdxMandateItems in index.html); no second
+//                            copy of the list and no key minted here. A mandate
+//                            row carries the reform, the word "proposed vehicle"
+//                            and the tracked issues it is filed against — and by
+//                            construction no formal pattern chip, no Word-vs-
+//                            Action figure, no percentage, no party letter, no
+//                            action strip and no "See who backs it up", because
+//                            relBlock(), actionsFor() and savedKeyFor() all
+//                            decline a kind they do not know. The row's door is
+//                            the mandate surface that ALREADY EXISTS —
+//                            _pdxMandateFocusReform(agendaId), then
+//                            _pdxMandateFocus(issueKey), then #agenda — so no new
+//                            workshop was invented this pass. The count under the
+//                            control now names the OTHER TWO lanes and how many
+//                            hits sit in each; the mandate count lives in its own
+//                            slot and is added to neither of the others, so no
+//                            formal denominator grew by one because a reform was
+//                            filed. Switching lanes still does not touch the query
+//                            string: input.value and curQ are untouched, and an
+//                            expanded group survives the switch.
+//   · index.html           — the third control's styling (a dashed violet spine,
+//                            the visual form of "proposed", against the solid
+//                            spine an issue file gets for a record that exists),
+//                            plus the empty state's own block. The mandate bridge
+//                            itself is UNCHANGED: MANDATE_ITEMS, _pdxMandateItems,
+//                            _pdxMandateFocus and _pdxMandateFocusReform are all
+//                            exactly as they were, and this pass only reads them.
+//                            Precached as '/', so it travels here.
+//   · sw.js                — this note and the bump. The Eye is a runtime entry
+//                            rather than a precached one, which is this file's own
+//                            long-standing choice for it; the bump renames both
+//                            buckets so a warm device cannot pair the new page
+//                            styling with the two-lane script or the reverse.
+// THE EMPTY LANE IS SHIPPED, NOT HIDDEN. A search no reform answers prints "No
+// mandate on file for this search. A mandate is a proposed vehicle — not a vote
+// and not a quote." and the lane stays in the control, because empty is the
+// honest state and a missing lane is not an answer. Sentence or cards; never both.
+// NOTHING ELSE MOVED. No score, no percentage, no tier and no pattern was added
+// or changed. A mandate cannot enter formalPatternIndex, Direction Match or Word
+// vs Action, and none of the three was touched: every person brief and every
+// Direction Match read is byte-identical across a twin boot. issueProfileHtml(key)
+// is still the one issue census. Finance is untouched, the DM floors did not move,
+// and linking a mandate to a later roll call is deliberately NOT in this pass.
 // v115 - ONE BOX, TWO LANES; AND AN EXECUTIVE ACT STOPS PRETENDING IT NEEDED A
 // VOTE. Two defects, one cause: a surface answering two different questions into
 // one shape. (1) The All-Seeing Eye ranked issue files, core bundles, spotlights
@@ -1293,7 +1353,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v115';
+const CACHE_VERSION = 'v116';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

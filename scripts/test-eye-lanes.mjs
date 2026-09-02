@@ -28,6 +28,11 @@
  *   6. NO PARTY STRING IS A SORT KEY. Permute every party letter in the roster
  *      and the order of the people rows does not move, in either mode.
  *
+ * The third lane — Mandate, which holds the People's Mandate reforms and is
+ * neither of these two — has its own file: scripts/test-eye-mandate-lane.mjs.
+ * What is pinned HERE is that formal and public still answer their own question,
+ * and section 4 below asserts the group labels of these two lanes only.
+ *
  * Real shipped modules in a node:vm sandbox, the real ISSUE_MAP, the real family
  * table and the real roster. The spotlight lane is the one fixture: a plausible
  * public-lands investigation, seeded precisely so it WOULD outrank the file if
@@ -419,4 +424,4 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(`\n✓ eye lanes: all ${passed} assertions passed`);
-console.log(`  2 lanes · ${QUERIES.length} queries · ${KEY} under ${CORE} · party rotation rejected`);
+console.log(`  2 of 3 lanes · ${QUERIES.length} queries · ${KEY} under ${CORE} · party rotation rejected`);

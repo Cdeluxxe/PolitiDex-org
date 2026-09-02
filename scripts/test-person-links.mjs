@@ -515,8 +515,12 @@ section("6 · the All-Seeing Eye: people rows and stance rows are links");
   ok(rows.filter((r) => r.includes("rowOpen(")).length === 2,
     "eye: the person rows are no longer the ones built by rowOpen(), so either a person row lost its\n" +
     "    link or a non-person row gained an address it has no file for");
-  ok(rows.filter((r) => r.includes("<button")).every((r) => /data-kind="(bill|saved)"|idx \+ '" ' \+ attr/.test(r)),
-    "eye: a row that is neither a bill, a saved search nor an issue lane is still a bare <button>");
+  // A MANDATE ROW IS THE THIRD LEGITIMATE BUTTON. A People's Mandate item is a
+  // proposed vehicle: it has no /i/ file, no /p/ file and no address of any kind,
+  // so a button is the honest element for it and an href would be the invention
+  // this list exists to forbid.
+  ok(rows.filter((r) => r.includes("<button")).every((r) => /data-kind="(bill|saved|mandate)"|idx \+ '" ' \+ attr/.test(r)),
+    "eye: a row that is neither a bill, a saved search, a mandate nor an issue lane is still a bare <button>");
   // AND THE THIRD KIND OF ROW THAT NOW HAS AN ADDRESS. /i/<key> is a served path,
   // so the formal lane's issue-file and issue-family rows are anchors for the same
   // reason a person row is: copy, new tab, middle click. Both come off one builder,

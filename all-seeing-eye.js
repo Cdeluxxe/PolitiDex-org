@@ -236,17 +236,50 @@
     // changed. Only the ranking and the visible groups swap. It is not persisted
     // either: a mode is a posture inside one search session, not a preference.
     // And no party letter is a term in either mode's ordering — see rank().
+    //
+    // AND A MANDATE IS A THIRD LANE — NOT PUBLIC, AND NOT FORMAL.
+    // The People's Mandate is the site's third kind of document, and with two
+    // lanes it had nowhere honest to sit. In PUBLIC it would read as a quote: a
+    // thing somebody SAID, when a proposed reform is a thing citizens are ASKING
+    // FOR and nobody may have said a word about it. In FORMAL it would read as a
+    // measure: a thing that was VOTED ON, when a proposed vehicle has no tally at
+    // all, not even a failed one. Both readings are wrong in the same direction —
+    // they lend the document a standing it has not got — so it gets a lane of its
+    // own, labelled for what it is, and the empty state says what it is too.
+    //
+    // WHAT THE MANDATE LANE MAY NOT CARRY. No formal pattern chip, no Word vs
+    // Action figure, no "backs it up" action, no percentage and no party term:
+    // every one of those is a reading of a RECORD, and this document has none.
+    // Nor does its count enter a formal denominator — laneCounts keeps mandate in
+    // its own slot, and formalPatternIndex, Direction Match and Word vs Action
+    // never see a mandate row. See mandateItem() and the laneCounts note below.
     var laneMode = 'formal';
     var LANE_MODES = [
       { id: 'formal', label: 'Formal record', ico: '🏛' },
-      { id: 'public', label: 'Public & spotlights', ico: '🔦' }
+      { id: 'public', label: 'Public & spotlights', ico: '🔦' },
+      { id: 'mandate', label: 'Mandate', ico: '📜' }
     ];
-    // Each mode says what it holds AND what the other one holds, with a count, so
-    // neither lane can dead-end a reader who picked the wrong one. A bill number
-    // typed in Public mode is not "no results"; it is results in the other lane.
+    // One list, asked instead of a hardcoded pair of strings, so a third lane
+    // cannot be half-added: the toggle, the click handler and PDXEye.lane() all
+    // read membership from here.
+    function isLaneMode(m) {
+      for (var i = 0; i < LANE_MODES.length; i++) { if (LANE_MODES[i].id === m) return true; }
+      return false;
+    }
+    // What each lane holds, in the lane's own words, and where the rest of the
+    // record went. The trailing clause is kept in the singular-friendly form
+    // "in the other lanes" so the sentence is true with three of them.
+    var LANE_SAY = {
+      formal: 'Issue files, the families they sit in, the roster and the measures. Spotlights, quotes and mandates are in the other lanes',
+      'public': 'Spotlights, quotes and stated positions. Issue files, measures and mandates are in the other lanes',
+      mandate: 'People\u2019s Mandate reforms only \u2014 a mandate is a proposed vehicle, not a vote and not a quote. Files, measures and spotlights are in the other lanes'
+    };
+    var LANE_SHORT = { formal: 'Formal record', 'public': 'Public & spotlights', mandate: 'Mandate' };
+    // Each mode says what it holds AND what the OTHER TWO hold, with a count
+    // each, so no lane can dead-end a reader who picked the wrong one. A bill
+    // number typed in the Mandate lane is not "no results"; it is results in the
+    // formal lane, and the sentence under the control names the number.
     function laneModeBar(counts) {
-      var other = laneMode === 'formal' ? 'public' : 'formal';
-      var n = counts ? (counts[other] || 0) : 0;
       var h = '<div class="pdx-eye-lane" role="group" aria-label="Which lane of the record to search">';
       for (var i = 0; i < LANE_MODES.length; i++) {
         var m = LANE_MODES[i], on = (m.id === laneMode);
@@ -256,11 +289,23 @@
           (counts ? '<span class="pdx-eye-lane-n">' + (counts[m.id] || 0) + '</span>' : '') +
           '</button>';
       }
-      h += '<span class="pdx-eye-lane-say">' + (laneMode === 'formal'
-        ? 'Issue files, the families they sit in, the roster and the measures. Spotlights and quotes are in the other lane'
-        : 'Spotlights, quotes and stated positions. Issue files and measures are in the other lane')
-        + (n ? ', which holds <b>' + n + '</b> for this search.' : '.') + '</span>';
+      var others = [];
+      for (var j = 0; j < LANE_MODES.length; j++) {
+        var oid = LANE_MODES[j].id;
+        if (oid === laneMode) continue;
+        others.push(esc(LANE_SHORT[oid] || oid) + ' holds <b>' + (counts ? (counts[oid] || 0) : 0) + '</b>');
+      }
+      h += '<span class="pdx-eye-lane-say">' + esc(LANE_SAY[laneMode] || '') +
+        (counts ? ': ' + others.join(' and ') + ' for this search.' : '.') + '</span>';
       return h + '</div>';
+    }
+    // THE EMPTY STATE IS THE HONEST STATE, so it is a locked sentence rather than
+    // a hidden lane. A search that no reform answers gets this, verbatim — the
+    // lane is never dropped from the control just because it came back empty, and
+    // the copy explains what the reader was looking for in the first place.
+    var MANDATE_EMPTY = 'No mandate on file for this search. A mandate is a proposed vehicle \u2014 not a vote and not a quote.';
+    function mandateEmptyHtml() {
+      return '<div class="pdx-eye-empty pdx-eye-mand-empty">' + esc(MANDATE_EMPTY) + '</div>';
     }
     // Does this person have a formal row at all — a vote or a formal action on
     // file? Asked of the shipped index, guarded, and used ONLY to partition an
@@ -549,7 +594,68 @@
         });
       } catch (e) {}
 
-      index = { people: people, issues: issues, families: families, files: files, stances: stances, bills: bills };
+      // ── THE MANDATE LANE'S OWN LIST ───────────────────────────────────
+      // READ FROM THE ONE REGISTRY. window._pdxMandateItems is the mandate
+      // bridge's own array (index.html) \u2014 the same list the Evidence Locker's
+      // per-reform filter and every mandate chip already read. No second copy is
+      // kept here and no key is minted here: a reform's issueKey is whatever the
+      // bridge filed it under, and a reform the bridge left unbridged simply has
+      // none. Guarded, because the bridge is inline script and this module can be
+      // booted (and tested) without it.
+      //
+      // The row carries the reform, the tracked issues it is filed against, and
+      // its agenda id \u2014 which is the address of the mandate surface that already
+      // exists. It carries no pid, no tally and no score, so nothing downstream
+      // can mistake it for a person or a measure.
+      var mandates = [];
+      try {
+        var MI = window._pdxMandateItems;
+        var mLabel = (typeof window._issueLabel === 'function') ? window._issueLabel : function () { return ''; };
+        if (Array.isArray(MI)) {
+          MI.forEach(function (m) {
+            if (!m || !m.agendaId) return;
+            var mname = String(m.name || m.title || m.agendaId);
+            var mkeys = (Array.isArray(m.issueKeys) && m.issueKeys.length)
+              ? m.issueKeys.slice() : (m.issueKey ? [m.issueKey] : []);
+            // The tracked issues, as labels. A label that is simply the reform's
+            // own name again is dropped rather than printed twice: several
+            // reforms are filed against the key they are named after, and a chip
+            // that repeats the row's title tells the reader nothing.
+            var mlbls = [], mchipKeys = [], mtitleLc = norm(stripEmoji(mname) || mname);
+            mkeys.forEach(function (k) {
+              var lb = '';
+              try { lb = stripEmoji(mLabel(k) || '') || ''; } catch (e) { lb = ''; }
+              if (!lb) return;
+              if (norm(lb) === mtitleLc) return;
+              mlbls.push(lb); mchipKeys.push(k);
+            });
+            // The haystack names the reform, its tracked issues and the words the
+            // document is called by, so "mandate", "reform" or "term limits" all
+            // reach it. It is searched in the mandate lane and nowhere else.
+            var mAllLbls = mkeys.map(function (k) {
+              try { return stripEmoji(mLabel(k) || '') || ''; } catch (e) { return ''; }
+            });
+            var mparts = [mname, m.title, String(m.agendaId).replace(/[-_]+/g, ' ')]
+              .concat(mkeys).concat(mAllLbls);
+            mparts.push('mandate peoples mandate proposed vehicle reform agenda');
+            mandates.push({
+              kind: 'mandate', agendaId: String(m.agendaId),
+              issueKey: mkeys[0] || '', issueKeys: mkeys,
+              // Paired index for index, exactly as a bill row's are: the label a
+              // chip prints and the vocabulary key it takes its colour from.
+              topics: mlbls, topicKeys: mchipKeys,
+              title: stripEmoji(mname) || mname,
+              titleLc: norm(mname),
+              tokens: norm(mname + ' ' + (m.title || '')).split(/[^\p{L}\p{N}]+/u).filter(Boolean),
+              sub: 'People\u2019s Mandate \u00b7 proposed vehicle',
+              icon: m.icon || '📜',
+              hay: mparts.filter(Boolean).join(' ').toLowerCase()
+            });
+          });
+        }
+      } catch (e) {}
+
+      index = { people: people, issues: issues, families: families, files: files, stances: stances, bills: bills, mandates: mandates };
       relCache = {};
       return index;
     }
@@ -564,7 +670,12 @@
         (window.ISSUE_MAP ? Object.keys(window.ISSUE_MAP).length : 0) + ':' +
         (window.ISSUE_STANCE_DATA ? Object.keys(window.ISSUE_STANCE_DATA).length : 0) + ':' +
         (Array.isArray(window.__pdxEyeBillsLive) ? ('L' + window.__pdxEyeBillsLive.length)
-          : ('I' + ((window.PDX_BILLS_INDEX || []).length)));
+          : ('I' + ((window.PDX_BILLS_INDEX || []).length))) + ':' +
+        // The mandate bridge is inline script and may register after this module
+        // boots, so its arrival invalidates the index exactly as the roster's and
+        // the register's do. Zero is a legitimate value here: the lane ships
+        // whether or not the bridge is on the page.
+        (Array.isArray(window._pdxMandateItems) ? window._pdxMandateItems.length : 0);
       if (!index || key !== indexKey) { indexKey = key; buildIndex(); }
       return index;
     }
@@ -1067,6 +1178,22 @@
         if (window.PDXBills && typeof window.PDXBills.open === 'function') window.PDXBills.open(data.number || data.id);
         else { var dl = document.getElementById('digital-library'); if (dl) dl.scrollIntoView({ behavior: 'smooth' }); }
       }
+      else if (kind === 'mandate') {
+        // THE EXISTING MANDATE SURFACE, not a new workshop. _pdxMandateFocusReform
+        // is the bridge's own per-reform opener \u2014 it dismisses whatever is open,
+        // scrolls to #agenda and flashes the card carrying this agenda id, which
+        // is exactly the address the row already holds. Its per-issue sibling is
+        // the fallback for a row the bridge filed under an issue but whose card is
+        // addressed some other way; the section itself is the last resort, because
+        // it exists whether or not the inline bridge loaded.
+        var aid = data.agendaId || '';
+        try {
+          if (aid && typeof window._pdxMandateFocusReform === 'function') { window._pdxMandateFocusReform(aid); return; }
+          if (data.key && typeof window._pdxMandateFocus === 'function') { window._pdxMandateFocus(data.key); return; }
+        } catch (e) {}
+        var ag = document.getElementById('agenda');
+        if (ag && ag.scrollIntoView) ag.scrollIntoView({ behavior: 'smooth' });
+      }
     }
     function openSaved(s) {
       close();
@@ -1086,6 +1213,10 @@
       else if (e.kind === 'issue') navigate('issue', { key: e.issueKey, focusKey: e._focus || '' });
       else if (e.kind === 'family' || e.kind === 'issuefile') navigate('issuefile', { key: e.issueKey });
       else if (e.kind === 'bill') navigate('bill', { number: e.number, id: e.id });
+      // A mandate row opens the mandate surface by the issue the bridge filed the
+      // reform under, with the agenda id alongside so the right card is flashed
+      // when one issue carries several reforms.
+      else if (e.kind === 'mandate') navigate('mandate', { key: e.issueKey, agendaId: e.agendaId });
     }
     // Run one command action for an entry. Saving toggles the shared collection
     // (which fires 'pdx-saved-change' → the panel re-renders to flip the label
@@ -1438,6 +1569,45 @@
         '<span class="pdx-eye-body"><span class="pdx-eye-name">' + highlight(e.title, q, terms) + '</span>' +
         '<span class="pdx-eye-sub">' + sub + '</span></span>' +
         personalBadge(e) + src + rowClose(e.id);
+    }
+    // A People's Mandate reform. The row is deliberately the plainest one in the
+    // panel, and that is the point of the whole pass:
+    //   \u00b7 NO ADDRESS IT HAS NOT GOT. It is a <button>, not an <a href="/i/\u2026">,
+    //     because a reform is not an issue file and printing a file address on it
+    //     would be the Formal lane's lie in a different font.
+    //   \u00b7 NO FORMAL PATTERN CHIP, NO WORD-VS-ACTION FIGURE, NO PERCENTAGE, and
+    //     no "See who backs it up" \u2014 there is no record here to read one off.
+    //     This is not special-cased away: relBlock(), actionsFor() and
+    //     savedKeyFor() all decline a kind they do not know, so a mandate row
+    //     inherits no chip, no action strip and no badge by construction.
+    //   \u00b7 NO PARTY LETTER anywhere, and nothing on the row is sortable by one.
+    // What it does carry is what the document actually is: the reform's name, the
+    // words "proposed vehicle", and the tracked issues it is filed against, tinted
+    // from the one colour table so the chip agrees with every other surface.
+    var MANDATE_TOPIC_CAP = 2;
+    function mandateTopicChips(e) {
+      var t = (e && e.topics) || [], tk = (e && e.topicKeys) || [], out = '';
+      for (var i = 0; i < t.length && i < MANDATE_TOPIC_CAP; i++) {
+        if (!t[i]) continue;
+        out += '<span class="pdx-eye-topic"' + issueTint(tk[i] || '') + '>' + esc(t[i]) + '</span>';
+      }
+      if (t.length > MANDATE_TOPIC_CAP) {
+        out += '<span class="pdx-eye-topic pdx-eye-topic--more">+' + (t.length - MANDATE_TOPIC_CAP) + '</span>';
+      }
+      return out;
+    }
+    function mandateItem(e, q, terms, idx) {
+      var meta = mandateTopicChips(e);
+      // The kind and the agenda id lead the tag, on the same line as the class, for
+      // the same reason a bill row's do: this is the row's identity, and the row
+      // audits that read the panel (and the source) read it from there.
+      return '<button type="button" role="option" class="pdx-eye-item pdx-eye-item--mand" data-kind="mandate"' +
+        ' data-key="' + esc(e.agendaId || '') + '" data-i="' + idx + '">' +
+        '<span class="pdx-eye-thumb pdx-eye-thumb--issue">' + esc(e.icon) + '</span>' +
+        '<span class="pdx-eye-body"><span class="pdx-eye-name">' + highlight(e.title, q, terms) + '</span>' +
+        '<span class="pdx-eye-sub">' + esc(e.sub) + '</span>' +
+        (meta ? '<span class="pdx-eye-meta">' + meta + '</span>' : '') +
+        '</span></button>';
     }
     // Wrap one rendered row so its related hints and its action strip live in a
     // single focus/hover container — this is what lets the eye reveal the action
@@ -2168,12 +2338,37 @@
       // Reset on a NEW QUERY only. Switching lane re-renders the same string, so
       // curQ matches and an expanded category survives the switch — the reader's
       // question did not change, only which lane of it they are reading.
-      if (q !== curQ) { expand = { pol: false, stance: false, bill: false, file: false, fam: false, spot: false, saved: false, team: false }; curQ = q; }
+      if (q !== curQ) { expand = { pol: false, stance: false, bill: false, file: false, fam: false, spot: false, mand: false, saved: false, team: false }; curQ = q; }
+      var isMandate = (laneMode === 'mandate');
 
       if (!q) {
         // Empty, focused state — a calm invitation, the visitor's saved
         // collection (retrievable any time the eye opens), then a few Hot Topics.
         var suggest = data.issues.filter(function (x) { return x.kind === 'spotlight'; }).slice(0, 4);
+        // THE CONTROL IS PRINTED BEFORE A WORD IS TYPED, because a lane the reader
+        // cannot see is a lane they cannot pick, and the Mandate lane is the one
+        // most likely to be what they came for. No counts: nothing has been
+        // searched yet, and a zero here would be a claim about a query that does
+        // not exist.
+        html += laneModeBar(null);
+        // THE MANDATE LANE'S OWN OPENING SHELF. It does NOT fall through to the
+        // shared invitation, and that is deliberate: every block below \u2014 the
+        // ask-a-question chips, the personal map, My Saved, From My Team, Explore
+        // Hot Topics \u2014 is built out of people, receipts and Spotlights, so
+        // showing any of them here would put formal and public rows in the mandate
+        // lane on the very first paint. Instead the lane opens with the reforms
+        // themselves, or, where the bridge indexed none, with the locked sentence.
+        if (isMandate) {
+          html += '<div class="pdx-eye-empty">The People\u2019s Mandate, as filed. <b>A mandate is a proposed vehicle</b> \u2014 not a vote and not a quote.</div>';
+          html += (data.mandates || []).length
+            ? catBlock('mand', 'People\u2019s Mandate \u00b7 proposed vehicles', '#c4b5fd', data.mandates || [], mandateItem, '', [])
+            : mandateEmptyHtml();
+          html += hintBar();
+          panel.innerHTML = html;
+          wire();
+          scheduleWarmRecheck(warm.length > 0);
+          return flat.length;
+        }
         html += '<div class="pdx-eye-empty">The eye is open. <b>Ask a question or search politicians, issues &amp; hot topics</b> — then save what matters.</div>';
         html += askBlock();
         html += connectionsBlock();
@@ -2202,6 +2397,10 @@
       var fils = rank(data.files || [], q, terms, LIM, curCtx);
       var fams = rank(data.families || [], q, terms, LIM, curCtx);
       var spots = rank(data.issues || [], q, terms, LIM, curCtx);
+      // Four lists now, and the mandate list is ranked on every paint for the same
+      // reason the other lanes are: the control prints the other lanes' counts,
+      // and a number nobody computed is a number that would be wrong.
+      var mands = rank(data.mandates || [], q, terms, LIM, curCtx);
       var formal = (laneMode === 'formal');
       // FORMAL PUTS THE RECORD-HOLDERS FIRST, inside the roster's own relevance
       // order. A stable partition, not a score and not a party term: a person
@@ -2225,7 +2424,10 @@
       // it: see AND A WHOLE BUNDLE IS NOT A KEY above. In public mode there is no
       // key block to stand down for, and the ranking is a public-lane reading, so
       // it runs.
-      var ansHtml = (formal && keyFound && !keyIsBundle) ? '' : answerBlock(q);
+      // AND NEITHER BLOCK APPEARS IN THE MANDATE LANE AT ALL. The key block is an
+      // /i/ file row; the ranked answer is a word-vs-action reading of the roster.
+      // Both are answers about a record, and this lane's document has none.
+      var ansHtml = isMandate ? '' : ((formal && keyFound && !keyIsBundle) ? '' : answerBlock(q));
       // The claim block goes ABOVE both, and is also the reason the no-match
       // branch is no longer a dead end: a pasted claim frequently ranks nothing
       // (every term-in-hay check fails on a sentence) while still being the one
@@ -2235,15 +2437,25 @@
       // in the wrong lane is told where their answer is instead of being told
       // there isn't one. People are counted in both because a name is a name in
       // either lane; the number is a reachability figure, not a share of anything.
+      // NO MANDATE HEADCOUNT IN A FORMAL DENOMINATOR: the mandate hits are their
+      // own slot and are added to neither of the other two, so nothing the formal
+      // lane counts \u2014 here, or in formalPatternIndex, Direction Match and Word
+      // vs Action \u2014 grows by one because a reform was filed.
       var laneCounts = {
         formal: fils.length + fams.length + pols.length + bls.length,
-        'public': spots.length + sts.length + pols.length
+        'public': spots.length + sts.length + pols.length,
+        mandate: mands.length
       };
       // "Nothing else" is now a claim about the VISIBLE lane. It has to be, or the
       // panel would deny a query in public mode because the answer is formal.
-      var nothingElse = !keyHtml && !ansHtml && !pols.length &&
-        (formal ? (!fils.length && !fams.length && !bls.length)
-                : (!spots.length && !sts.length));
+      // In the mandate lane the ONLY thing that can answer is a reform, so a
+      // person hit does not count as "something": a name that ranks no reform
+      // still prints the lane's own empty sentence.
+      var nothingElse = isMandate
+        ? !mands.length
+        : (!keyHtml && !ansHtml && !pols.length &&
+            (formal ? (!fils.length && !fams.length && !bls.length)
+                    : (!spots.length && !sts.length)));
 
       // THE ONE PLACE "FINDS NOTHING" IS ALLOWED. Nothing ranked, nothing was
       // asked as a claim, and no lane is still loading: every lane is ready and
@@ -2253,9 +2465,15 @@
         // The toggle survives an empty lane, and it is the whole reason this is not
         // a dead end: a bill number typed in public mode lands here with "Formal
         // record 1" printed an inch above the denial.
-        panel.innerHTML = laneModeBar(laneCounts) + (warm.length
-          ? warmPanel(warm)
-          : '<div class="pdx-eye-empty">The eye finds nothing for “<b>' + esc(q) + '</b>”.<br>Try a name, an office, a state, an issue, or a bill number.</div>');
+        // The mandate lane's empty state is its own locked sentence — not the
+        // panel's generic denial, and not a warming notice: the mandate list is
+        // inline and never fetched, so it is never "still loading". Empty here
+        // means the record genuinely holds no reform for this search.
+        panel.innerHTML = laneModeBar(laneCounts) + (isMandate
+          ? mandateEmptyHtml()
+          : (warm.length
+            ? warmPanel(warm)
+            : '<div class="pdx-eye-empty">The eye finds nothing for “<b>' + esc(q) + '</b>”.<br>Try a name, an office, a state, an issue, or a bill number.</div>'));
         wire();
         scheduleWarmRecheck(warm.length > 0);
         return 0;
@@ -2266,9 +2484,11 @@
       // A claim that ranked nothing still gets the honest note under its block,
       // so the reader is not left wondering whether the search silently failed.
       if (nothingElse) {
-        html += warm.length
-          ? warmPanel(warm)
-          : '<div class="pdx-eye-empty">Nothing else matched “<b>' + esc(q) + '</b>” as a search.<br>Try a name, an office, a state, an issue, or a bill number.</div>';
+        html += isMandate
+          ? mandateEmptyHtml()
+          : (warm.length
+            ? warmPanel(warm)
+            : '<div class="pdx-eye-empty">Nothing else matched “<b>' + esc(q) + '</b>” as a search.<br>Try a name, an office, a state, an issue, or a bill number.</div>');
       }
       html += keyHtml;
       html += ansHtml;
@@ -2278,7 +2498,13 @@
       // no label in it could be true. Formal reads files, then the families they
       // sit in, then the roster, then the measures. Public reads the
       // investigations, then what people said, then the people.
-      if (formal) {
+      // Mandate reads one group and only one, labelled for the document it holds.
+      // No people group in it: a person is a formal or a public row, and a reform
+      // is neither, so pairing them under one control state would put back the
+      // exact confusion this lane exists to end.
+      if (isMandate) {
+        html += catBlock('mand', 'People\u2019s Mandate \u00b7 proposed vehicles', '#c4b5fd', mands, mandateItem, q, terms);
+      } else if (formal) {
         html += catBlock('file', 'Issue files · the formal record', '#7dd3fc', fils, issueFileItem, q, terms);
         html += catBlock('fam', 'Issue families · browse from here', '#fb923c', fams, familyItem, q, terms);
         html += catBlock('pol', 'Politicians · formal record first', '#f5c842', pols, polItem, q, terms);
@@ -2293,10 +2519,16 @@
       // person who matched "6644" would look like the whole of the record's reply.
       // Counted across BOTH modes: the question here is whether the source has
       // arrived, and hiding a Spotlight is not the same as not having loaded one.
-      html += warmStrip(warm, {
-        pol: pols.length, stance: sts.length, bill: bls.length,
-        file: fils.length, fam: fams.length, spot: spots.length
-      });
+      // The warming strip is a formal/public instrument: it reports on the roster,
+      // the measures and the issue library, all of which arrive asynchronously.
+      // The mandate list is inline and complete on the first paint, so this lane
+      // has nothing to be waiting for and prints no notice about it.
+      if (!isMandate) {
+        html += warmStrip(warm, {
+          pol: pols.length, stance: sts.length, bill: bls.length,
+          file: fils.length, fam: fams.length, spot: spots.length
+        });
+      }
       html += hintBar();
       panel.innerHTML = html;
       wire();
@@ -2471,7 +2703,7 @@
         el.addEventListener('click', function (ev) {
           ev.stopPropagation();
           var m = el.getAttribute('data-eye-lane') || '';
-          if ((m !== 'formal' && m !== 'public') || m === laneMode) return;
+          if (!isLaneMode(m) || m === laneMode) return;
           laneMode = m;
           render(input.value);
           setActive(-1);
@@ -2721,7 +2953,7 @@
       // The lane, read or set. Set does NOT re-render and does not touch the
       // query: the caller decides when to paint, exactly as the toggle does.
       lane: function (m) {
-        if (m === 'formal' || m === 'public') laneMode = m;
+        if (isLaneMode(m)) laneMode = m;
         return laneMode;
       },
       // Open the eye pre-filled with a query and run it — used by other panels

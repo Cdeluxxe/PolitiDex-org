@@ -3874,7 +3874,10 @@ window.PDXLazy = (function () {
          not a filter chip row: there are exactly two states, one is always on,
          and the query in the box is untouched by either - so it is a group of
          aria-pressed buttons rather than tabs, and the sentence beside them names
-         what the OTHER lane holds so neither side can dead-end a reader.
+         what the OTHER lanes hold so no side can dead-end a reader. There are
+         three of them now - Formal, Public and Mandate - and the third is never
+         dropped from the control for being empty, because "no mandate on file"
+         is an answer and a missing lane is not.
          The on state borrows the panel's gold, which everywhere else in the eye
          means "this is where you are". The counts are the lane's own reachability
          figure for this query, never a share of anything. */
@@ -3889,6 +3892,18 @@ window.PDXLazy = (function () {
          sentence and not a caption. */
       .pdx-eye-lane-say{flex:1 1 100%;padding:0 0.25rem;color:#7e93b0;font-size:0.68rem;line-height:1.45;}
       .pdx-eye-lane-say b{color:#c3d0e0;font-weight:700;}
+      /* THE MANDATE LANE. A third lane, not a third filter: a People's Mandate
+         reform is neither a vote nor a quote, so it is not tinted like a formal
+         row (gold, the record's colour) and not like a public one (orange, the
+         reporting's). It takes the Mandate section's own violet, which is the
+         colour that reform already wears everywhere else on the site, and its
+         spine is dashed rather than solid - the visual form of "proposed", set
+         against the solid spine an issue file gets for a record that exists. */
+      .pdx-eye-item--mand{border-left:3px dashed rgba(196,181,253,0.55);}
+      .pdx-eye-item--mand .pdx-eye-thumb{background:rgba(196,181,253,0.14);}
+      /* The empty state is a sentence, not an error, and it stays legible: the
+         lane is never hidden for being empty, so this copy is load-bearing. */
+      .pdx-eye-mand-empty{border-left:3px dashed rgba(196,181,253,0.45);}
       /* An issue-file row and a family row wear the issue's own colour on their
          spine, from the same PDXIssueColors tokens the chip inside them uses. A
          key the colour table does not know carries no [data-ic] and no spine. */

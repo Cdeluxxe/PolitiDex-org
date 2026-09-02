@@ -1129,6 +1129,41 @@ const swNote = swWaveNote();
     "scripts/test-chew-identity.mjs",
     "scripts/test-exec-vocab.mjs",
     "scripts/test-person-links.mjs",
+    // AND THE MANDATE LANE (CACHE_VERSION v116), the follow-on to that same pass
+    // and the same kind of change: no roll, no mapping, no key, no floor and no
+    // admission moves, only which question a surface is answering. Two lanes left
+    // the site's third kind of document with nowhere honest to sit. A People's
+    // Mandate item is a PROPOSED VEHICLE: in the public lane it reads as a quote,
+    // a thing somebody SAID, when a reform nobody has spoken about yet is not
+    // that; in the formal lane it reads as a measure, a thing that was VOTED ON,
+    // when a proposed vehicle has no tally at all. So the Eye's control is
+    // three-state now — Formal record | Public & spotlights | Mandate — the first
+    // two hold zero mandate rows, the third holds reforms and nothing else, and
+    // the mandate count sits in its own slot rather than in either of theirs, so
+    // no formal denominator grows by one because a reform was filed. A mandate row
+    // carries no formal pattern chip, no Word-vs-Action figure, no percentage, no
+    // party letter and no "backs it up", and its door is the mandate surface that
+    // already exists (_pdxMandateFocusReform, then #agenda) rather than anything
+    // invented here. An empty lane still ships, with the locked sentence "No
+    // mandate on file for this search. A mandate is a proposed vehicle — not a
+    // vote and not a quote." — because empty is the honest state and a hidden lane
+    // is not an answer. The reason a wave file declares it: R1 and R2 put 1,120
+    // member files behind these keys, the Eye is how a reader reaches any of them,
+    // and a mandate must never become a row in a formal count. It cannot: nothing
+    // in this pass touches formalPatternIndex, Direction Match or Word vs Action,
+    // and the twin boot above has just proved every figure byte-identical.
+    // all-seeing-eye.js, index.html and sw.js are declared above already.
+    "scripts/test-eye-lanes.mjs",
+    "scripts/test-eye-mandate-lane.mjs",
+    // Two neighbouring suites read the Eye's own source, and a third lane moved
+    // what they were anchored to: test-eye-warming.mjs mutates the empty branch to
+    // prove its readiness check is load-bearing (that branch now answers the
+    // mandate lane first, so the mutation is re-anchored through it, and the check
+    // it removes is unchanged), and test-person-links.mjs enumerates which rows may
+    // legitimately stay a <button> rather than carry an address (a proposed vehicle
+    // has no /i/ or /p/ file, so it is the third such row). Neither suite's claim
+    // was weakened: both still fail on the defect they were written for.
+    "scripts/test-eye-warming.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
