@@ -1,0 +1,233 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   issue-file.css — the stage /i/<key> opens on
+   ────────────────────────────────────────────────────────────────────────────
+   THE FILE, NOT A VIEW OF IT.
+
+   /p/<pid> opens a file: an overlay covers the homepage, the hero and the
+   carousels stop being the thing on screen, and what fills the stage is one
+   person's record. /i/<key> resolved its key correctly and then landed the
+   reader on the homepage anyway — hero first, Door 1's four-way chooser next,
+   the ledger somewhere below the fold. This stylesheet is the other half of
+   fixing that: the panel the issue file mounts in.
+
+   It is deliberately the person file's family, not a new species:
+     · a fixed overlay at z-index 50, and inserted into the document immediately
+       BEFORE #modal-overlay. Both numbers matter and neither alone is enough.
+       The site's own top nav is `fixed z-50`, so a panel at 49 would have the
+       homepage's header floating over a file reached by citation — the page
+       showing through the thing meant to replace it. And the person modal is
+       also z-50, decided between equals by document order: this panel is built
+       at runtime and therefore lands last in <body> if simply appended, which
+       would put a file ABOVE the person file opened out of one of its own rows.
+       Inserting before that overlay restores the order the reader needs —
+       nav < issue file < person — with one rule and no !important on either;
+     · a near-opaque backdrop rather than a translucent one. A file reached by
+       citation is a destination, and hero cards reading through it would be the
+       exact confusion this pass exists to end;
+     · one sticky chrome bar carrying identity — surface, address, issue, family
+       — and one scrolling body carrying the ledger;
+     · nothing in here styles the ledger itself. Every .d1-* rule it needs is
+       door1-workspace.css's, unchanged and already loaded, because the body of
+       this panel is byte-for-byte the string the desk paints. A rule in here
+       that restyled a census would be the second surface this pass refuses to
+       build.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+#pdx-issue-file {
+  position: fixed;
+  inset: 0;
+  /* See the header: 50 clears the site's own fixed z-50 nav, and DOM order (the
+     module inserts this before #modal-overlay) keeps the person file above it. */
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  /* Near-opaque on purpose — see the header. The blur is what is left of the
+     "there is a page under here" cue. */
+  background: rgba(4, 7, 16, 0.96);
+  backdrop-filter: blur(10px);
+  overscroll-behavior: contain;
+}
+/* Two spellings of closed, because [hidden] loses to a display rule and the
+   module sets both. */
+#pdx-issue-file[hidden] { display: none !important; }
+
+@media (min-width: 640px) {
+  #pdx-issue-file { padding: 1.5rem; }
+}
+
+/* ── The panel ──────────────────────────────────────────────────────────────
+   Full-bleed on a phone (a file is the whole screen there, as the person modal
+   already decided) and a sheet with edges above it. */
+.pdxif-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background:
+    linear-gradient(135deg, rgba(26, 58, 107, 0.22) 0%, rgba(8, 12, 24, 0.96) 46%, rgba(192, 21, 42, 0.1) 100%),
+    #080c18;
+  border: 0;
+  overflow: hidden;
+}
+@media (min-width: 640px) {
+  .pdxif-panel {
+    width: min(56rem, 100%);
+    height: auto;
+    max-height: 92vh;
+    border-radius: 1.25rem;
+    border: 1px solid rgba(96, 165, 250, 0.22);
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+}
+/* The same tricolour hairline the desk carries, so a reader who has seen the
+   ledger in Door 1 recognises the surface it moved to. */
+.pdxif-panel::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #ef4444 20%, #fff 50%, #3b82f6 80%, transparent);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── The chrome ─────────────────────────────────────────────────────────────
+   Identity and one way out. It carries no count, no band, no share and no
+   verdict: the census is the first thing in the body, and chrome that printed a
+   figure would outrank the record it is labelling. */
+.pdxif-top {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.9rem;
+  padding: 1rem 1.1rem 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(6, 10, 20, 0.82);
+  backdrop-filter: blur(8px);
+}
+.pdxif-id { min-width: 0; }
+
+/* "Issue file · /i/lands_preserve" — the person file's kicker, in its own
+   words. Quietest thing in the bar, for the reason person-file.css gives: it
+   answers a question the reader only asks when lost. */
+.pdxif-kick {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  min-width: 0;
+  margin: 0 0 0.15rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+.pdxif-kick-what { color: #7f92b4; flex: none; }
+.pdxif-kick-what::after { content: "·"; margin-left: 0.4rem; opacity: 0.55; }
+/* The citable address, lower-case because it is a URL and a URL you cannot
+   retype is not a citation. Underlined on hover only. */
+.pdxif-kick-addr {
+  color: #9fb4d4;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  transition: color 0.15s ease;
+}
+.pdxif-kick-addr:hover,
+.pdxif-kick-addr:focus-visible {
+  color: #dbe6f7;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* The issue's own name — the letterhead of this file. */
+.pdxif-title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0;
+  font-family: 'Oswald', 'Barlow Condensed', sans-serif;
+  font-size: 1.12rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  color: #fff;
+}
+.pdxif-name { min-width: 0; }
+
+/* Core → child. A caption, not a control: the tappable crumb is the ledger's
+   own, printed above the census in the body, and two live copies of one
+   navigation in one file is one too many. */
+.pdxif-crumb {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0.28rem 0 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+.pdxif-core { color: #93c5fd; }
+.pdxif-arrow { color: #6b7f9c; }
+.pdxif-child { font-weight: 800; color: #e8eefb; }
+
+.pdxif-x {
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  min-height: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.pdxif-x:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+.pdxif-x:active { background: rgba(255, 255, 255, 0.18); }
+.pdxif-x svg { width: 1.15rem; height: 1.15rem; }
+
+/* ── The body ───────────────────────────────────────────────────────────────
+   The ledger, and nothing of this module's own inside it. */
+.pdxif-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.35rem 1.1rem 1.6rem;
+}
+/* The desk's own census block leads with a top margin that assumed a pane head
+   above it. Here it is the first thing in the file. */
+#pdx-issue-file-ledger > .d1-scope { margin-top: 0.9rem; }
+
+@media (max-width: 420px) {
+  .pdxif-top { padding: 0.85rem 0.9rem 0.7rem; }
+  .pdxif-body { padding: 0.35rem 0.9rem 1.4rem; }
+  .pdxif-title { font-size: 1rem; }
+  .pdxif-kick { font-size: 0.54rem; gap: 0.3rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pdxif-kick-addr, .pdxif-x { transition: none; }
+}

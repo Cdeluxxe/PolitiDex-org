@@ -91,6 +91,7 @@ const FILES = [
 ];
 const SRC = FILES.map((f) => [f, R(f)]);
 const DESK = R("door1-workspace.js");
+const PANEL = R("issue-file.js");
 const ADDR = R("pdx-issue-profile.js");
 const FAMILY = R("pdx-issue-family.js");
 const TREE = R("stance-tree.js");
@@ -155,7 +156,8 @@ function miniDom(win) {
   win.document.createElement = () => mk("");
   win.document.getElementById = (id) => byId[id] || null;
   win.document.body = mk("body");
-  win.document.body.appendChild = function (c) { if (c && c.id) byId[c.id] = c; return c; };
+  const bodyAppend = win.document.body.appendChild.bind(win.document.body);
+  win.document.body.appendChild = function (c) { if (c && c.id) byId[c.id] = c; return bodyAppend(c); };
   const canonical = mk("");
   canonical.attrs.href = ORIGIN + "/";
   win.__canonical = canonical;
@@ -237,7 +239,13 @@ function boot(opts) {
     win._issueLabel = (k) => (win.ISSUE_MAP[k] && win.ISSUE_MAP[k].label) || "";
     vm.runInContext(EYE, ctx, { filename: "all-seeing-eye.js" });
   }
-  if (!opts.withoutAddress) vm.runInContext(ADDR, ctx, { filename: "pdx-issue-profile.js" });
+  // The panel and the address travel together (sw.js precaches them as one pair
+  // and the note there says why), so the switch that drops one drops both — which
+  // is what makes the twin boot in section 9 a claim about this whole pass.
+  if (!opts.withoutAddress) {
+    vm.runInContext(PANEL, ctx, { filename: "issue-file.js" });
+    vm.runInContext(ADDR, ctx, { filename: "pdx-issue-profile.js" });
+  }
   win.__ctx = ctx;
   win.__byId = byId;
   return win;
@@ -274,6 +282,8 @@ must(probe.PDXIssueProfile && typeof probe.PDXIssueProfile.adopt === "function",
   "pdx-issue-profile.js did not publish PDXIssueProfile.adopt()");
 must(typeof probe.PDXDoor1.issueProfile === "function",
   "PDXDoor1.issueProfile is not published — the extraction this pass is about is gone");
+must(probe.PDXIssueFile && typeof probe.PDXIssueFile.open === "function",
+  "issue-file.js did not publish PDXIssueFile.open() — the arrival has no stage");
 must(probe.PDXIssueFamily && typeof probe.PDXIssueFamily.profileUrl === "function",
   "PDXIssueFamily.profileUrl is not published");
 must(probe.ISSUE_MAP && probe.ISSUE_MAP[KEY], `${KEY} is no longer a shipped ISSUE_MAP key`);
@@ -599,6 +609,18 @@ section("7 · No HTML served as JavaScript");
   const iAddr = HTML.indexOf('src="/pdx-issue-profile.js"');
   must(iDesk > 0 && iAddr > 0, "the two script tags are not both in index.html");
   ok(iAddr > iDesk, "the address module loads before the desk whose builder it borrows");
+  // AND THE STAGE THE ARRIVAL MOUNTS ON. defer keeps execution in document
+  // order, so the panel must be declared before the address module that calls
+  // PDXIssueFile.open() on arrival — otherwise a cold /i/<key> would find no
+  // stage on the very first paint and fall back to the desk it is fixing.
+  has(HTML, 'src="/issue-file.js"', "index.html does not load the file panel the arrival mounts on");
+  const iPanel = HTML.indexOf('src="/issue-file.js"');
+  must(iPanel > 0, "the file panel has no script tag");
+  ok(iPanel > iDesk, "the file panel loads before the desk whose one builder it mounts");
+  ok(iAddr > iPanel, "the address module loads before the stage it opens");
+  // …and its stylesheet, non-blocking like the person file's, because an
+  // unstyled full-screen overlay is a worse arrival than a styled desk.
+  has(HTML, 'href="/issue-file.css"', "index.html does not load the file panel's stylesheet");
   console.log(`      ${refs.length} asset refs in index.html, 0 relative`);
 }
 
@@ -619,6 +641,8 @@ section("8 · The files travel together");
   const ver = (SW.match(/CACHE_VERSION\s*=\s*'(v\d+)'/) || [])[1] || "";
   must(ver, "sw.js no longer names a CACHE_VERSION");
   has(SW, "'/pdx-issue-profile.js'", "the address module is not precached");
+  has(SW, "'/issue-file.js'", "the file panel is not precached");
+  has(SW, "'/issue-file.css'", "the file panel's stylesheet is not precached");
   has(SW, "'/pdx-issue-family.js'", "the family table is not precached");
   has(SW, "'/door1-workspace.js'", "the desk is not precached");
   has(SW, "'/stance-tree.js'", "the topic tree is not precached");
@@ -628,10 +652,11 @@ section("8 · The files travel together");
     `sw.js has no prose note for ${ver}`);
   const note = SW.slice(SW.search(new RegExp("^// " + ver + " [-\\u2014]", "m")));
   const noteEnd = note.indexOf("\nconst") > 0 ? note.slice(0, note.indexOf("\nconst")) : note;
-  for (const f of ["pdx-issue-profile.js", "door1-workspace.js", "netlify.toml"]) {
+  for (const f of ["pdx-issue-profile.js", "door1-workspace.js", "netlify.toml",
+                   "issue-file.js", "issue-file.css"]) {
     has(noteEnd, f, `the ${ver} note does not name ${f} as travelling with this pass`);
   }
-  console.log(`      ${ver} · /i/* → index.html 200 · address module precached`);
+  console.log(`      ${ver} · /i/* → index.html 200 · address, panel and stage precached`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -648,8 +673,10 @@ section("9 · Nothing was characterised here");
   }
   // The globals it may touch, and nothing else on the window.
   const globals = [...new Set([...CODE.matchAll(/window\.([A-Za-z_$][\w$]*)/g)].map((m) => m[1]))].sort();
-  eq(globals.join(","), "PDXDoor1,PDXIssueFamily,PDXIssueProfile,PDXShareLinks,addEventListener,pdxDoor1Issue",
-    "pdx-issue-profile.js touches a global beyond the desk, the family table, the notice and its own name");
+  eq(globals.join(","),
+    "PDXDoor1,PDXIssueFamily,PDXIssueFile,PDXIssueProfile,PDXShareLinks,addEventListener,pdxDoor1Issue",
+    "pdx-issue-profile.js touches a global beyond the desk, the family table, the file panel, " +
+    "the notice and its own name");
   // NO SECOND HOME. Closing is not this file's business.
   for (const banned of ["display = 'none'", "classList.add('pdx-modal", "location.href =",
                         "location.assign", "location.replace", "pushState"]) {
@@ -669,11 +696,345 @@ section("9 · Nothing was characterised here");
   eq(drift, 0, `${drift} of ${sample.length} formal rows changed when the address module loaded`);
   // …and a document that never visits an issue file is not touched by it.
   eq(without.PDXIssueProfile, undefined, "the address module loaded when it was not asked for");
+  // The stage is part of the same pair: a document that holds no /i/ address has
+  // no reason to carry the panel that address opens, and a document that holds
+  // the address must never be missing it.
+  eq(without.PDXIssueFile, undefined, "the file panel loaded when no address could open it");
+  eq(typeof withAddr.PDXIssueFile.open, "function", "the address shipped without its stage");
   eq(withAddr.PDXIssueProfile.fromPath(), "", "the front page was read as an issue file");
   eq((withAddr.__replaced || []).length, 0, "the address module rewrote the front page's address");
   eq(withAddr.__canonical.attrs.href, ORIGIN + "/",
     "the address module repointed the front page's canonical");
   console.log(`      ${sample.length} formal rows byte-identical with and without the address`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("10 · The arrival is a file, not the homepage desk");
+
+// THE DEFECT THIS SECTION OWNS. v112 resolved /i/lands_preserve correctly and
+// then handed the reader the homepage: the arrival went through
+// window.pdxDoor1Issue, that function paints THE DESK, and the desk is a section
+// a long way down the front page. So the first visible surface was the hero, the
+// second was Door 1's four-way chooser, and the ledger the citation named was
+// below the fold under both — with a "Next in Door 1" footer under IT. /p/<pid>
+// hides that shell and opens a file. What follows is the assertion that /i/ now
+// does the same job with the same one paint.
+const FILED = await (async () => {
+  const w = boot({ path: `/i/${KEY}` });
+  // "Do not scroll #door1 into view as the primary UX" is a claim about a CALL,
+  // so the call is watched rather than its absence assumed. toDesk() is the
+  // desk's own landing helper and the only thing in the arrival path that ever
+  // sent a reader down the page.
+  w.__toDesk = 0;
+  const realToDesk = w.PDXDoor1.toDesk;
+  w.PDXDoor1.toDesk = function (m) { w.__toDesk++; return realToDesk.call(w.PDXDoor1, m); };
+  const r = await arriveAt(w);
+  return { w, ...r };
+})();
+
+{
+  const { w, key, html } = FILED;
+  const F = w.PDXIssueFile;
+  eq(key, KEY, "arriving at the issue file did not open that key");
+
+  // ── THE FILE IS THE SURFACE ───────────────────────────────────────────────
+  const node = w.document.getElementById("pdx-issue-file");
+  must(node, "no #pdx-issue-file node was built, so nothing covered the homepage");
+  ok(F.isOpen(), "the arrival did not open the issue file panel");
+  eq(F.key(), KEY, "the panel is open on some other key than the one arrived at");
+  eq(node.hidden, false, "the panel was left hidden after an arrival");
+  eq(node.getAttribute("role"), "dialog", "the file panel is not a dialog");
+  eq(node.getAttribute("aria-modal"), "true",
+    "the file panel is not aria-modal, so a screen reader still reads the homepage under it");
+  eq(node.getAttribute("aria-hidden"), "false", "an open file panel is still aria-hidden");
+  eq(node.getAttribute("aria-labelledby"), "pdx-issue-file-title",
+    "the file panel is not labelled by its own title");
+  // The homepage cannot be scrolled behind an open file — openModal's own lock.
+  eq(w.document.body.style.overflow, "hidden",
+    "the page under the file still scrolls, so the homepage is still in play");
+  // …and the reader was NOT sent down the front page instead.
+  eq(w.__toDesk, 0,
+    "the arrival scrolled the Door 1 desk into view, which is landing on the homepage");
+
+  // ── THE CENSUS A READER SEES IS INSIDE THE FILE, NOT ON THE FRONT PAGE ────
+  const led = w.document.getElementById("pdx-issue-file-ledger");
+  must(led, "the panel has no ledger host");
+  ok(led !== w.document.getElementById("pdx-d1-body"),
+    "the panel mounts into the desk's own node, so the file IS the homepage section");
+  const censusLine = `readable formal row on <b>${esc(MAP[KEY].label)}</b>.`;
+  has(led.innerHTML, censusLine, "the open file panel does not contain the census heading");
+
+  // ── BYTE EQUALITY · THE PANEL BODY IS THE ONE BUILDER'S STRING ────────────
+  // Not "contains the same numbers": IS the string. A single character of this
+  // module's own inside the ledger host would be a second surface with an
+  // opinion, and this is the assertion that makes that impossible to ship.
+  eq(led.innerHTML, w.PDXIssueProfile.html(KEY),
+    "the panel body is not byte-identical to PDXIssueProfile.html(key)");
+  eq(led.innerHTML, w.PDXDoor1.issueProfile(KEY),
+    "the panel body is not byte-identical to the desk's one builder");
+  // …and that string is still what the desk paints, so the two doors are one
+  // paint even though only one of them is now the arrival's destination.
+  has(html, led.innerHTML,
+    "the desk no longer contains the file's own body, so the two doors have forked");
+  eq(html, TAP.html, "the arrival and the chip tap paint different desks for the same key");
+
+  // ── THE SAME CENSUS CONTRACT AS THE DESK ──────────────────────────────────
+  const ldg = w.PDXDoor1._ledger(null, KEY);
+  eq((ldg.measures || []).length, 4, `${KEY} no longer maps to the four measures the smoke counts`);
+  has(led.innerHTML, `<b>${ldg.people}</b>`, "the file does not print the census row count");
+  has(led.innerHTML, "<b>4</b> measures on file map here.",
+    "the file does not print the four measures the desk prints");
+
+  // ── THE CHROME · PERSON-FILE ANALOG, AND NOT A SECOND READING ─────────────
+  const chrome = w.document.getElementById("pdx-issue-file-chrome");
+  must(chrome, "the panel has no chrome host");
+  const ch = String(chrome.innerHTML);
+  has(ch, "Issue file", "the file chrome does not name the surface");
+  has(ch, `/i/${KEY}`, "the file chrome does not print the citable address");
+  has(ch, esc(MAP[KEY].label), "the file chrome does not carry the child label as its title");
+  has(ch, `id="pdx-issue-file-title"`, "the chrome's title is not the node the dialog is labelled by");
+  // The crumb, core → child, from the family table and not from a second lookup.
+  const crumb = w.PDXIssueFamily.crumb(KEY);
+  must(crumb && crumb.coreLabel, `no crumb for ${KEY}`);
+  has(ch, esc(crumb.coreLabel), "the file chrome does not name the core the key is filed under");
+  has(ch, esc(crumb.childLabel), "the file chrome does not name the child");
+  // Scope ⓘ, and ONLY where issue-scope.js already holds prose for the key.
+  const scope = w.PDXIssueScope.controlHtml(KEY) || "";
+  must(scope, `issue-scope.js holds no prose for ${KEY} — pick a key it does`);
+  has(ch, scope, "the file chrome drops the scope ⓘ for a key that has prose");
+  eq(w.PDXIssueFile._chrome("lands_no_prose_key_at_all").indexOf("pdxis-key") >= 0, false,
+    "the chrome invented a scope control for a key issue-scope.js holds nothing for");
+  // NO SECOND READING IN THE BAR. A figure in the chrome would outrank the census
+  // two lines under it — the same wall person-file.js's kicker keeps.
+  for (const banned of ["readable formal row", "advanced", "cut against", "%",
+                        "measures on file map here", "Direction Match"]) {
+    no(ch, banned, `the file chrome characterises the record ("${banned}") instead of naming it`);
+  }
+  console.log(`      /i/${KEY} → aria-modal file · ${led.innerHTML.length}B === html(key) · ` +
+    `${ldg.people} rows · 4 measures · desk not scrolled to`);
+}
+
+// ── THE EMPTY KEY IS A FILE TOO ─────────────────────────────────────────────
+// The requested contract, both keys: lands_preserve has four measures, and
+// lands_keep_public has none — and the second is the one an arrival is most
+// tempted to turn into "nothing here, have the homepage instead". It opens a
+// file, that file says 0 out loud, and it carries the menu's own calendar
+// sentence in the menu's own words. Same builder, same panel, same address.
+{
+  const w = boot({ path: `/i/${EMPTY}` });
+  const r = await arriveAt(w);
+  eq(r.key, EMPTY, `arriving at /i/${EMPTY} did not open that key`);
+  ok(w.PDXIssueFile.isOpen(), `/i/${EMPTY} did not open a file for a key with an empty record`);
+  const led = w.document.getElementById("pdx-issue-file-ledger");
+  must(led, "the empty key's file has no ledger host");
+  eq(led.innerHTML, w.PDXIssueProfile.html(EMPTY),
+    "the empty key's panel body is not byte-identical to the one builder's string");
+  const ldg = w.PDXDoor1._ledger(null, EMPTY);
+  eq(ldg.people, 0, `${EMPTY} is no longer the empty case this branch is about`);
+  eq((ldg.measures || []).length, 0, `${EMPTY} now has mapped measures — pick another empty key`);
+  has(led.innerHTML, `<b>0</b> people have a readable formal row on <b>${esc(MAP[EMPTY].label)}</b>.`,
+    "the empty key's file does not say 0 people on its own label");
+  has(led.innerHTML, "No measure on file is mapped to this key yet.",
+    "the empty key's file dropped the no-measure sentence");
+  const NOTE = (w.PDXConsistency.menu.PHRASES.no_vehicle || {}).note || "";
+  must(NOTE, "the menu's no_vehicle phrase is gone, so there is nothing to inherit");
+  has(led.innerHTML, esc(NOTE), "the empty key's file stopped carrying the menu/calendar sentence");
+  // NO COUSIN IN THE FILE EITHER, and no cousin in the bar above it.
+  no(led.innerHTML, esc(MAP[KEY].label) + "</b>.",
+    `${EMPTY}'s file printed a census about ${KEY}`);
+  const ch = String(w.document.getElementById("pdx-issue-file-chrome").innerHTML);
+  has(ch, esc(MAP[EMPTY].label), "the empty key's chrome does not name the key arrived at");
+  no(ch, esc(MAP[KEY].label), "the empty key's chrome names a sibling with a record");
+  console.log(`      /i/${EMPTY} → a file that says 0 · 0 measures · calendar sentence`);
+}
+
+// ── THE BATCHES STILL LAND IN THE FILE ──────────────────────────────────────
+// The ledger's roll-call read arrives in batches and fires 'pdx-issue-votes' per
+// batch. The desk re-syncs on it; so must the panel, through the same builder —
+// otherwise the file sits on the first batch's census while the desk behind it
+// counts the rest.
+{
+  const { w } = FILED;
+  const led = w.document.getElementById("pdx-issue-file-ledger");
+  const listeners = (w.__listeners["pdx-issue-votes"] || []);
+  must(listeners.length >= 2,
+    "nothing is listening for the vote batches — the desk and the panel should both be");
+  led.innerHTML = "<p>stale</p>";
+  for (const f of listeners) { try { f({ type: "pdx-issue-votes" }); } catch { /* desk sync */ } }
+  eq(led.innerHTML, w.PDXIssueProfile.html(KEY),
+    "a vote batch did not repaint the open file from the one builder");
+  console.log("      pdx-issue-votes repaints the file from the same builder");
+}
+
+// ── THE FILE COVERS THE HOMEPAGE, AND A PERSON COVERS THE FILE ──────────────
+// Two claims that a sandbox cannot see paint, so both are read where they are
+// decided. The homepage's own top bar is `fixed … z-50`: a panel at 49 would let
+// that bar float over a file reached by citation, which is the page showing
+// through the thing meant to replace it. And #modal-overlay is z-50 too, so the
+// winner between them is document order — a runtime-appended panel would land
+// last and put an issue file ABOVE the person opened from one of its own rows.
+{
+  const CSS = R("issue-file.css");
+  const panelCss = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+  const stage = panelCss.slice(panelCss.indexOf("#pdx-issue-file {"));
+  const z = (stage.match(/z-index:\s*(\d+)/) || [])[1] || "";
+  eq(z, "50", "the file panel does not sit at the layer the homepage's fixed nav sits at");
+  has(HTML, "fixed top-0 left-0 right-0 z-50",
+    "the homepage's nav is no longer the fixed z-50 bar this layer was chosen against");
+  has(panelCss, "#pdx-issue-file[hidden] { display: none !important; }",
+    "a hidden panel is not hidden hard enough to lose to its own display rule");
+  // …and the tie with the person modal is settled by where the node goes.
+  const panelCode = PANEL.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, "");
+  has(panelCode, "insertBefore(overlay, host)",
+    "the panel is appended after the person overlay, so a person would open under the file");
+  has(panelCode, "el('modal-overlay')", "the panel does not look for the overlay it must sit under");
+  // The fallback still puts the stage on the page when that overlay is absent —
+  // which is the case in this sandbox, and the panel opened anyway.
+  ok(FILED.w.PDXIssueFile._node(), "with no person overlay on the page the panel did not mount at all");
+  console.log("      z-50 over the fixed nav, before #modal-overlay so a person lands on top");
+}
+
+// ── A PERSON OPENED OUT OF THE FILE DOES NOT UNLOCK THE PAGE UNDER IT ───────
+// closeModal() clears document.body.style.overflow unconditionally, because
+// until this pass nothing could be underneath the person file. Opened from a
+// ledger row inside an issue file, that close would hand the homepage its scroll
+// back while the file is still over it. The panel watches the person overlay and
+// re-takes the lock rather than asking closeModal to behave differently.
+{
+  const { w } = FILED;
+  has(HTML, 'id="modal-overlay"', "the person modal's overlay is no longer in the document");
+  eq(w.document.body.style.overflow, "hidden", "the open file does not hold the page lock");
+  // What closeModal does to the page, done to the page.
+  w.document.body.style.overflow = "";
+  eq(w.PDXIssueFile._relock(), undefined, "the panel's lock helper is not callable");
+  eq(w.document.body.style.overflow, "hidden",
+    "the panel cannot re-take the lock a closing person modal drops");
+  const panelCode = PANEL.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, "");
+  has(panelCode, "modal-overlay",
+    "issue-file.js does not watch the one overlay that drops the lock while a file is open");
+  has(panelCode, "attributeFilter",
+    "the watch is not scoped to the attributes that carry the signal");
+  no(panelCode, "closeModal", "issue-file.js reaches into the person modal instead of watching it");
+  no(panelCode, "PDXPerson", "issue-file.js opens or closes the person file instead of noticing it");
+  console.log("      a person closed out of the file leaves the page under it locked");
+}
+
+// ── CLOSE RETURNS THE READER, AND THE BAR, TO / ─────────────────────────────
+{
+  const { w } = FILED;
+  const node = w.document.getElementById("pdx-issue-file");
+  const led = w.document.getElementById("pdx-issue-file-ledger");
+  eq(w.PDXIssueFile.close(), true, "close() did not report closing the file");
+  eq(w.PDXIssueFile.isOpen(), false, "the file is still open after close()");
+  eq(node.hidden, true, "the panel was not hidden on close");
+  eq(node.getAttribute("aria-hidden"), "true", "a closed file panel is not aria-hidden");
+  eq(led.innerHTML, "", "the closed file kept a ledger behind a hidden overlay");
+  eq(w.document.body.style.overflow, "", "the page under a closed file still cannot scroll");
+  // THE BAR, THE SAME WAY /p/ CLEARS. A cold arrival has no earlier surface, so
+  // the front door is the honest destination — not the issue we just closed.
+  eq(w.location.pathname, "/", "closing the issue file left /i/<key> in the address bar");
+  eq(w.__canonical.attrs.href, `${ORIGIN}/`,
+    "closing the issue file left rel=canonical pointing at the closed ledger");
+  eq(w.document.title, "PolitiDex | Bound by Truth",
+    "closing the issue file left the tab on the issue");
+  console.log("      close → / · canonical / · tab home · ledger dropped");
+}
+
+// ── A WARM CLOSE GOES BACK WHERE THE READER WAS ─────────────────────────────
+// Not every arrival is cold: an in-app open from the front page has a surface to
+// return to, and returning to "/" from a reader who was already at "/#door1"
+// would throw away their place. Same capture, same restore, as /p/.
+{
+  const w = boot({ path: "/" });
+  w.location.hash = "#door1";
+  const opened = w.PDXIssueProfile.stamp(KEY) && w.PDXIssueFile.open(KEY);
+  ok(opened, "the file panel would not open from the front page");
+  // The hash rides along in both directions — this harness's replaceState
+  // records the whole url it was handed, where a browser would split it — and
+  // that is the behaviour being asserted: the reader's place is not thrown away.
+  eq(w.location.pathname, `/i/${KEY}#door1`, "opening in place did not stamp the file's address");
+  w.PDXIssueFile.close();
+  eq(w.location.pathname, "/#door1",
+    "closing did not return the reader to the surface they came from");
+  console.log("      warm open → /i/<key> → close → the surface it opened from");
+}
+
+// ── THE DESK IS UNTOUCHED ON / ──────────────────────────────────────────────
+// A chip tap on the front page is a VIEW of the file, and the desk is where
+// views live. It must still open in place, and it must NOT open a file panel
+// over the page a reader is already reading.
+{
+  const w = boot({ path: "/" });
+  const html = await tapKey(w, KEY);
+  has(html, `readable formal row on <b>${esc(MAP[KEY].label)}</b>.`,
+    "a chip tap on / no longer paints the ledger in the desk");
+  eq(w.PDXDoor1._mode(), "issue", "a chip tap on / no longer leaves the desk in issue mode");
+  eq(w.PDXIssueFile.isOpen(), false, "a chip tap on / opened a file panel over the homepage");
+  eq(w.document.getElementById("pdx-issue-file"), null,
+    "a chip tap on / built the file panel, which the front page never asked for");
+  eq(w.location.pathname, "/", "a chip tap on / moved the address");
+  eq((w.__replaced || []).length, 0, "a chip tap on / rewrote the front page's address");
+  console.log("      chip tap on / → the desk, in place, no panel, no address change");
+}
+
+// ── A MISS AND A BUNDLE OPEN NO FILE ────────────────────────────────────────
+{
+  // An unresolved address must not open an empty file, and must not open
+  // somebody else's. Nothing is filed at all.
+  const w = boot({ path: `/i/${MISS}` });
+  const r = await arriveAt(w);
+  eq(r.key, "", `/i/${MISS} resolved to a key`);
+  eq(w.PDXIssueFile.isOpen(), false, `/i/${MISS} opened a file panel for a key that does not exist`);
+  eq(w.document.getElementById("pdx-issue-file"), null,
+    `/i/${MISS} built a file stage with nothing to put on it`);
+
+  // A BUNDLE IS NOT A FILE. One of the thirteen cores is also a shipped key, and
+  // it has no single ledger to open — the reader picks a member key on the desk's
+  // sub-key shelf. The panel says so by refusing, and the arrival falls back to
+  // the desk rather than showing an empty file.
+  const cores = (w.CORE_NATIONAL_ISSUES || []).map((c) => c && c.key).filter(Boolean);
+  const bundle = cores.filter((k) => !w.PDXDoor1.issueProfile(k))[0] || "";
+  must(bundle, "no bundle key answers '' any more — this branch has nothing to check");
+  const b = boot({ path: `/i/${bundle}` });
+  b.__toDesk = 0;
+  const realToDesk = b.PDXDoor1.toDesk;
+  b.PDXDoor1.toDesk = function (m) { b.__toDesk++; return realToDesk.call(b.PDXDoor1, m); };
+  const rb = await arriveAt(b);
+  eq(rb.key, bundle, `/i/${bundle} did not open the bundle`);
+  eq(b.PDXIssueFile.isOpen(), false, `/i/${bundle} opened a file for a bundle with no single ledger`);
+  eq(b.PDXIssueFile.open(bundle), false, "the panel opened a file whose body would be empty");
+  ok(b.__toDesk > 0, `/i/${bundle} did not fall back to the desk, so it landed nowhere`);
+  console.log(`      /i/${MISS} → no file · /i/${bundle} → the desk's sub-key shelf`);
+}
+
+// ── THE PANEL CHARACTERISES NOTHING EITHER ──────────────────────────────────
+{
+  // Same audit as section 9 makes of the address module, made of the stage: it
+  // holds a string it did not build and chrome that names things. There is no
+  // arithmetic in it.
+  const CODE = PANEL.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, "");
+  for (const banned of ["PDXConsistency", "PDXVotingRecord", "PDXWordAction", "buildRanking",
+                        "formalPatternIndex", "LEDGER_BANDS", "sort(", "%", "party", "score",
+                        "toFixed", ".length >", "Math."]) {
+    no(CODE, banned, `issue-file.js reaches for ${banned} — it owns a stage, not a reading`);
+  }
+  const globals = [...new Set([...CODE.matchAll(/window\.([A-Za-z_$][\w$]*)/g)].map((m) => m[1]))].sort();
+  eq(globals.join(","),
+    "MutationObserver,PDXDoor1,PDXIssueFamily,PDXIssueFile,PDXIssueProfile,PDXIssueScope,addEventListener",
+    "issue-file.js touches a global beyond the desk, the family table, the address, the scope card, " +
+    "the observer that watches the person overlay, and its own name");
+  // It never writes the address itself — one owner for /i/, and it is the module
+  // that took it.
+  for (const banned of ["location.href", "location.assign", "location.replace",
+                        "replaceState", "pushState"]) {
+    no(CODE, banned, `issue-file.js writes the address (${banned}) instead of asking the address module`);
+  }
+  has(CODE, "A.restore()", "issue-file.js does not hand the address back on close");
+  // …and it builds no census markup of its own: no band, no row, no measure.
+  for (const banned of ["d1-led-", "d1-scope", "d1-empty", "readable formal row"]) {
+    no(CODE, banned, `issue-file.js writes ledger markup (${banned}) — there is one builder`);
+  }
+  console.log("      issue-file.js: 0 counts, 0 orders, 0 ledger markup, 0 address writes");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

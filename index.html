@@ -2235,6 +2235,13 @@ window.PDXLazy = (function () {
        non-blocking path as the rest of the overlay CSS. -->
   <link rel="stylesheet" href="/person-file.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/person-file.css" /></noscript>
+  <!-- The issue file's stage — the overlay /i/<key> mounts the child ledger on,
+       the person modal's own family and deliberately below it in z-order. It
+       styles the panel and its chrome ONLY: every rule the ledger inside it
+       needs is door1-workspace.css's, because the body of that panel is the
+       string the desk paints. Same non-blocking path as the overlay CSS above. -->
+  <link rel="stylesheet" href="/issue-file.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/issue-file.css" /></noscript>
   <!-- ↩️ Against their own stated position — the gathered list of ⚖️ Word vs Action's
        own `contradicts` verdicts. Its own sheet because its whole visual argument is
        that it does NOT reuse the score section's red at list scale: a page of red
@@ -22512,12 +22519,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        desk. Loads after the modules it reads and after the Door 2 spine whose
        demotion idiom it follows. -->
   <script defer src="/door1-workspace.js"></script>
+  <!-- The issue file's panel — the stage an /i/<key> arrival opens on, in the
+       person-file modal's family: an overlay over the homepage, one chrome bar of
+       identity (surface, address, issue, core → child) and one body holding the
+       ledger. It builds no census of its own; it mounts PDXIssueProfile.html(key)
+       verbatim, which is PDXDoor1.issueProfile. Loaded before the address module
+       that calls it, though the arrival is a macrotask either way. -->
+  <script defer src="/issue-file.js"></script>
   <!-- /i/<key> — the issue file's own address. Reads the key out of
-       location.pathname, resolves it through the desk's own resolver, and mounts
-       the SAME ledger a Door 1 chip tap mounts (PDXDoor1.issueProfile). Loaded
+       location.pathname, resolves it through the desk's own resolver, commits the
+       pick through the desk's own entry point, and opens the SAME ledger a Door 1
+       chip tap mounts (PDXDoor1.issueProfile) in the file panel above. Loaded
        after door1-workspace.js because that is where the one builder lives; the
        arrival itself is a macrotask, so the order is documentation rather than a
-       dependency. Paints nothing of its own. -->
+       dependency. Characterises nothing of its own. -->
   <script defer src="/pdx-issue-profile.js"></script>
   <!-- Scope chrome. Reads pdxRepsForMe() for districtsResolvable and states both
        scopes in the chrome of Door 2 and of the archive header. Loads after the
