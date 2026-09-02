@@ -880,6 +880,54 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v110 - DOOR 1'S ISSUE CHIPS WEAR THE ISSUE'S OWN HUE. v109 gave the issue desk
+// a chip for every child key; it painted them as untyped dark pills. Every other
+// surface that names an issue — the person file's topic tree, the formal brief
+// rows, the compare table, the Eye's issue hits — had been colouring by
+// issue-colors.js for a long time, so a reader who had learned Climate, Energy &
+// Land as green on /p/lee arrived at Door 1 and found its children in no family
+// at all, and an empty child like Keep Public Lands Public read as a failed tap
+// rather than as an honest "nothing on file yet". The desk now asks the same
+// module they all ask and paints what it is handed. TWO FILES CHANGED AND MUST
+// TRAVEL TOGETHER, and three more are named because they are what the new hue is
+// asserted to MATCH:
+//   · door1-workspace.js   — asks PDXIssueColors.styleFor(key, familyLookup) for
+//                            the core chips, the child chips and the crumb, and
+//                            emits the shared [data-ic] gate with the four inline
+//                            custom properties. No palette, no hex, no per-issue
+//                            branch: the module never learns which issue it got.
+//   · door1-workspace.css  — spends var(--pdx-ic) / -soft / -wash / -ink. Unlit
+//                            is the quiet fill of that hue, lit is the loud one,
+//                            and the chips gained a visible keyboard focus ring
+//                            (hue-tinted where a hue is present). Stale here
+//                            against the new markup is the whole reason for the
+//                            bump: v109's stylesheet has no [data-ic] rule, so a
+//                            warm device would receive chips carrying a correct
+//                            hue that nothing spends — the untyped pill again,
+//                            silently.
+//   · issue-colors.js      — UNCHANGED. It already resolved a leaf key to its
+//                            core's colour, so there is no fourteenth hue and no
+//                            core-id lookup was added. Named here because it is
+//                            precached and it is now what Door 1's chips depend
+//                            on for their colour.
+//   · pdx-issue-family.js  — UNCHANGED, and still the single reader of the single
+//                            parent table. It is the lookup handed to styleFor(),
+//                            which is what guarantees a chip's hue and its place
+//                            on the shelf come off one read.
+//   · alignment-tool.js    — UNCHANGED. No key moved, no core was added or
+//                            merged, no label changed.
+//   · stance-tree.js       — UNCHANGED, and the surface the new chips are measured
+//                            against: the desk's chip for lands_preserve carries
+//                            the identical token the tree's leaf for that key
+//                            emits on /p/lee.
+//   · index.html           — UNCHANGED; precached as '/' and still loads both.
+// Copy is untouched. An empty child still says "0 people have a readable formal
+// row on <that key>" and "No measure on file is mapped to this key yet.", still
+// carries the menu's own blank-calendar sentence, and is still a themed, tappable
+// chip rather than a hidden one. No ledger was repointed: rowFor(pid, key) is
+// still the exact key. No percentage, no grade and no party colour reached a chip
+// or a crumb, and every person brief and every Direction Match read is
+// byte-identical across a twin boot.
 // v109 - ONE ISSUE FAMILY: CORES BROWSE, CHILDREN ARE THE PROFILE. The site had
 // three groupings of the same issue vocabulary and only one of them read the
 // parent table, so twenty-four published keys — the whole public-lands cluster
@@ -909,7 +957,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v109';
+const CACHE_VERSION = 'v110';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

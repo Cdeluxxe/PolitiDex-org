@@ -321,6 +321,60 @@
 }
 .d1-chip.is-issue { border-style: dashed; }
 
+/* ── THE ISSUE HUE ─────────────────────────────────────────────────────────── */
+/* THERE IS NO PALETTE IN THIS FILE. Not one issue hex, and not one per-issue
+   rule: a chip arrives carrying four inline custom properties from
+   PDXIssueColors.styleFor() (--pdx-ic, -soft, -wash, -ink) and these rules spend
+   them without ever knowing which issue they got. That is the same contract
+   stance-tree.css, issue-compare.css, ballot-axes.css and profile-spine.css all
+   work under, and `data-ic` is the same gate they use, so Door 1 stopped being
+   the one surface that named an issue and painted it an untyped dark pill. The
+   fallbacks in the var() calls are the pre-existing neutral chip, so a page
+   without issue-colors.js looks exactly as it did before.
+
+   STATE IS THE CONTRAST, NOT IDENTITY. Every child of one core shares that core's
+   hue — seventeen green chips on Climate, Energy & Land, because they are
+   seventeen questions in one family. So the lit chip is the LOUD step (`wash`,
+   full-strength border, white text) and the unlit ones the QUIET step (`soft`,
+   hue border, hue ink). That reads as one family with one member selected, which
+   is what it is, rather than as thirteen unrelated pills.
+
+   AND IT NEVER READS THE RECORD. There is no rule here keyed to a count, a band,
+   a tier or an emptiness. `lands_keep_public` holds no measure yet and paints
+   identically to `lands_preserve`, which holds four — because "no measure mapped
+   yet" is a fact about the corpus, not a property of the issue, and a chip that
+   went grey when its key was empty would be this stylesheet characterising it. */
+.d1-chip[data-ic] {
+  color: var(--pdx-ic-ink, #cbd5e1);
+  background: var(--pdx-ic-soft, rgba(255, 255, 255, 0.04));
+  border-color: var(--pdx-ic, rgba(255, 255, 255, 0.13));
+}
+.d1-chip[data-ic]:hover {
+  color: #fff;
+  background: var(--pdx-ic-wash, rgba(255, 255, 255, 0.07));
+  border-color: var(--pdx-ic, rgba(96, 165, 250, 0.45));
+}
+.d1-chip[data-ic].is-open {
+  color: #fff;
+  background: var(--pdx-ic-wash, rgba(96, 165, 250, 0.16));
+  border-color: var(--pdx-ic, rgba(96, 165, 250, 0.55));
+  box-shadow: inset 0 0 0 1px var(--pdx-ic, transparent);
+}
+/* KEYBOARD FOCUS, ON EVERY CHIP. This shelf had no focus ring at all, themed or
+   not — the browser default was being suppressed by the custom background with
+   nothing put back. The ring is drawn in the chip's own hue where it has one and
+   in the desk's blue where it does not, and `outline-offset` keeps it clear of
+   the pill's border so a focused unlit chip is not read as a selected one. */
+.d1-chip:focus-visible {
+  outline: 2px solid #7fb4ff; outline-offset: 2px;
+}
+.d1-chip[data-ic]:focus-visible {
+  outline-color: var(--pdx-ic-ink, #7fb4ff);
+}
+@media (prefers-contrast: more) {
+  .d1-chip[data-ic] { border-color: var(--pdx-ic-ink, rgba(255, 255, 255, 0.13)); }
+}
+
 /* ── The people on an issue ───────────────────────────────────────────────── */
 /* Every row is identical. There is no per-row accent, because a colour that
    varied row to row on this list could only be reading something the order
@@ -422,6 +476,11 @@
 .d1-crumb-a:hover { color: #bfdbfe; }
 .d1-crumb-s { color: #6b7f9c; }
 .d1-crumb-k { font-weight: 800; color: #e8eefb; }
+/* The crumb in its child's hue: the family name keeps its link blue, because it is
+   a link, and the child half takes the issue ink. Ink only — no fill and no rule,
+   because this is a caption under a census, not a third control. */
+.d1-led-crumb[data-ic] .d1-crumb-k { color: var(--pdx-ic-ink, #e8eefb); }
+.d1-led-crumb[data-ic] .d1-crumb-s { color: var(--pdx-ic, #6b7f9c); }
 .d1-led-n { margin: 0; font-size: 0.9rem; line-height: 1.5; color: #dbeafe; }
 .d1-led-n b { color: #fff; }
 .d1-led-split {

@@ -7,10 +7,13 @@
 // bundles. The person file's topic tree grouped the same keys its own way. The
 // seek control reached the whole register. Only one of the three read the parent
 // table, and the gap between them was visible to a reader: `lands_preserve` is a
-// published key with a label, a chip, four mapped measures and 527 readable
-// formal rows, and you could open its ledger by TYPING ITS NAME while no branch
-// anywhere on the site carried a chip for it. Twenty-four keys were in that
-// position, the whole public-lands cluster among them.
+// published key with a label, a chip, four mapped standalone measures and 210
+// people carrying a readable formal row (513 mapped records between them), and
+// you could open its ledger by TYPING ITS NAME while no branch anywhere on the
+// site carried a chip for it. Twenty-four keys were in that position, the whole
+// public-lands cluster among them. The figures are the ones section 4 prints, so
+// they are checked rather than remembered — the census counts PEOPLE, which is
+// why it is not the record total.
 //
 // The fix was not a second taxonomy. It was to finish the one that already had an
 // owner — CORE_NATIONAL_ISSUES, declared next to ISSUE_MAP — and to give every
@@ -39,12 +42,19 @@
 //   7. THE TOPIC TREE READS THE SAME TABLE. Every leaf on a real person file is
 //      filed under coreOf(key) — the identical answer Door 1 uses — and no leaf
 //      falls into the trailing Other, because nothing is unparented any more.
-//   8. NO FIGURE MOVED. Twin boot with the family module and without it: every
+//   8. ONE PALETTE. A chip wears the issue's own hue, asked of issue-colors.js
+//      exactly the way every other surface asks: Door 1's child chip for
+//      `lands_preserve` carries the IDENTICAL --pdx-ic token the topic tree emits
+//      for that key on /p/lee, the whole branch shares the core's hue because no
+//      leaf has a colour of its own, lit and unlit are two steps of that one hue,
+//      focus is visible, an empty child is themed like its siblings rather than
+//      hidden or greyed, and Door 1 hard-codes no colour anywhere.
+//   9. NO FIGURE MOVED. Twin boot with the family module and without it: every
 //      formal brief and every Direction Match read is byte-identical. The table
 //      names families; it does not read records.
-//   9. NO SECOND LANE IN THE COPY. No consistency-ranking heading on a child
+//  10. NO SECOND LANE IN THE COPY. No consistency-ranking heading on a child
 //      ledger, no percentage, no grade, no caucus token, no "most conservative".
-//  10. THE ASSETS TRAVEL TOGETHER, behind a CACHE_VERSION that moved with them.
+//  11. THE ASSETS TRAVEL TOGETHER, behind a CACHE_VERSION that moved with them.
 //
 //   node scripts/test-issue-family.mjs
 //
@@ -239,16 +249,42 @@ async function commit(w, key) {
   w.pdxDoor1Issue(key);
   return paint(w);
 }
-// The chips on a shelf, in paint order: [key, label, isOpen].
+// The chips on a shelf, in paint order: key, label, isOpen — and the issue skin
+// the chip carries. `ic` is the inline custom-property string the colour module
+// handed over and `themed` is whether the [data-ic] gate is on, which is the pair
+// the stylesheet actually reads; a chip painted with a hue but no gate, or a gate
+// with no hue, would render as an untyped pill and is caught here rather than
+// looked at. The attribute run between `class` and `onclick` is captured loosely
+// on purpose: this helper should not have to be rewritten the next time the desk
+// adds an aria hook to a chip.
 const chipsIn = (html, cls) =>
   [...String(html).matchAll(
-    new RegExp(`<button type="button" class="d1-chip${cls}([^"]*)"\\s+onclick="window\\.pdxDoor1Issue\\('([^']*)'\\)">([^<]*)<`, "g"))]
-    .map((m) => ({ key: m[2], label: m[3], open: /\bis-open\b/.test(m[1]) }));
+    new RegExp(`<button type="button" class="d1-chip${cls}([^"]*)"([^>]*?)\\s*onclick="window\\.pdxDoor1Issue\\('([^']*)'\\)">([^<]*)<`, "g"))]
+    .map((m) => ({
+      key: m[3],
+      label: m[4],
+      open: /\bis-open\b/.test(m[1]),
+      themed: /\bdata-ic="1"/.test(m[2]),
+      ic: (m[2].match(/\sstyle="([^"]*)"/) || [])[1] || "",
+    }));
 const keyChips = (html) => chipsIn(html, " is-key");
 // The crumb's own inner markup, isolated, so an assertion about the crumb cannot
-// pass on the census sentence underneath it (or on the "1" in its class name).
+// pass on the census sentence underneath it (or on the "1" in its class name) —
+// and the crumb's own skin, read the same way a chip's is.
 const crumbOf = (html) =>
-  (String(html).match(/<p class="d1-led-crumb">([\s\S]*?)<\/p>/) || [])[1] || "";
+  (String(html).match(/<p class="d1-led-crumb"[^>]*>([\s\S]*?)<\/p>/) || [])[1] || "";
+const crumbIc = (html) =>
+  (String(html).match(/<p class="d1-led-crumb"[^>]*\sstyle="([^"]*)"/) || [])[1] || "";
+// The same read, off the OTHER surface: the topic tree's leaf for one key on one
+// person file. Deliberately scraped from painted markup rather than asked of
+// skinFor(), because "these two surfaces agree" is a claim about what a reader
+// receives, not about what a helper returns.
+const treeIc = (html, key) =>
+  (String(html).match(
+    new RegExp(`<div class="pdxtree-leaf[^"]*"\\s+style="([^"]*)"\\s+data-pdxtree-issue="${key}"`)) || [])[1] || "";
+const treeBranchIc = (html, core) =>
+  (String(html).match(
+    new RegExp(`<div class="pdxtree-branch[^"]*"\\s+style="([^"]*)"\\s+data-pdxtree-branch="${core}"`)) || [])[1] || "";
 
 const probe = boot({ withTree: true });
 must(probe.__loadErrors.length === 0, `boot errors: ${probe.__loadErrors.join(" | ")}`);
@@ -636,7 +672,182 @@ section("7 · The topic tree reads the same table");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("8 · No figure moved");
+section("8 · One palette — the chips wear the issue's own hue");
+
+// The bug this section fences: the desk painted core and child chips as untyped
+// dark pills while every other surface that names an issue — the person file's
+// topic tree, the formal brief rows, the compare table, the Eye's issue hits —
+// already coloured by issue-colors.js. A reader who had learned Climate, Energy &
+// Land as green on /p/lee arrived at Door 1 and found its children in no family
+// at all.
+//
+// The fix is not a palette. It is the same request every other surface makes:
+// styleFor(key) hands back --pdx-ic / -soft / -wash / -ink, the surface emits it
+// with the [data-ic] gate, and the stylesheet spends the variables without ever
+// learning which issue it got. So the assertions below are about IDENTITY with a
+// surface that already shipped, not about any particular green.
+{
+  // Which hexes the colour module owns. A Door 1 rule naming one of these would
+  // be a second copy of the palette even on the day it happened to agree.
+  const ICS = SRC.get("issue-colors.js");
+  const PALETTE = [...new Set([...ICS.matchAll(/#[0-9A-Fa-f]{6}\b/g)].map((m) => m[0].toUpperCase()))];
+  must(PALETTE.length >= 13, `issue-colors.js declares only ${PALETTE.length} colours`);
+
+  const w = boot({ withTree: true });
+  const html = await commit(w, KEY);
+  const tree = String(w.PDXStanceTree.html(PEOPLE[0]) || "");
+  must(tree, `the topic tree painted nothing for /p/${PEOPLE[0]}`);
+
+  // ── THE ASSERT THE SMOKE NAMES ─────────────────────────────────────────────
+  // Door 1's child chip for lands_preserve carries the same token the topic tree
+  // uses for that key on /p/lee. Not the same-looking colour, not a hex compared
+  // by eye — the identical custom-property string, because both surfaces made the
+  // same one call. This is the assertion that fails the day someone gives the desk
+  // a palette of its own.
+  const chip = keyChips(html).find((c) => c.key === KEY);
+  must(chip, `${KEY} has no child chip to read a skin off`);
+  const leafIc = treeIc(tree, KEY);
+  must(leafIc, `/p/${PEOPLE[0]}'s tree has no leaf for ${KEY} to compare against`);
+  ok(chip.themed, `${KEY}: the chip carries no data-ic gate, so its hue cannot reach the CSS`);
+  eq(chip.ic, leafIc,
+    `${KEY}: the Door 1 chip is not the token the topic tree uses on /p/${PEOPLE[0]}`);
+  for (const step of ["--pdx-ic:", "--pdx-ic-soft:", "--pdx-ic-wash:", "--pdx-ic-ink:"])
+    has(chip.ic, step, `${KEY}: the chip's skin is missing ${step}`);
+  console.log(`      ${KEY}: desk chip === /p/${PEOPLE[0]} tree leaf === ${chip.ic.split(";")[0]}`);
+
+  // ── ONE HUE PER FAMILY, INCLUDING THE KEYS THAT HAVE NO COLOUR OF THEIR OWN ─
+  // No key below a core carries its own entry in the palette; every one of them
+  // resolves through the parent table to the core's hue. That is the "inherit the
+  // parent core's hue" clause, and it is why there is no fourteenth colour: the
+  // whole branch is one family to look at, exactly as the tree paints it.
+  const kids = keyChips(html);
+  must(kids.length >= 5, `only ${kids.length} child chips to compare`);
+  const offFamily = kids.filter((c) => c.ic !== leafIc).map((c) => c.key);
+  eq(offFamily.slice(0, 5).join(", "), "",
+    `${offFamily.length} child chip(s) on ${LANDCORE.key} wear a hue that is not the family's`);
+  const unthemed = kids.filter((c) => !c.themed).map((c) => c.key);
+  eq(unthemed.slice(0, 5).join(", "), "", `${unthemed.length} child chip(s) painted with no hue at all`);
+  // The lit core chip took the same hue its branch has on the person file.
+  const core = chipsIn(html, "").find((c) => c.key === LANDCORE.key);
+  must(core, "the lit core chip could not be read off the shelf");
+  eq(core.ic, treeBranchIc(tree, LANDCORE.key),
+    `${LANDCORE.key}: the core chip is not the token the tree's branch uses`);
+  // …and the crumb over the census carries it too, which is the third place a
+  // reader sees the family named on this pane.
+  eq(crumbIc(html), leafIc, "the crumb does not carry the family's hue");
+  // Every core on the shelf is themed, and thirteen cores means thirteen hues:
+  // no two families collapsed into one colour by an accident of the lookup.
+  const cores = chipsIn(html, "").filter((c) => F.isCore(c.key));
+  eq(cores.filter((c) => !c.themed).map((c) => c.key).join(", "), "", "a core chip painted with no hue");
+  const hues = new Set(cores.map((c) => (c.ic.match(/--pdx-ic:([^;]*)/) || [])[1]));
+  eq(hues.size, cores.length, `${cores.length} cores are sharing ${hues.size} hues`);
+
+  // ── LIT AND UNLIT ARE TWO STEPS OF THE ONE HUE ─────────────────────────────
+  // The state a reader can see is carried in the CSS, not in a second token: the
+  // same four variables reach both rules and the difference is which step they
+  // spend. So an unlit chip is the quiet fill and a lit one is the loud one, and
+  // nothing about that depends on which issue it is.
+  const ruleFor = (sel) => {
+    const i = CSS.indexOf(sel + " {");
+    return i < 0 ? "" : CSS.slice(i, CSS.indexOf("}", i) + 1);
+  };
+  const unlit = ruleFor(".d1-chip[data-ic]");
+  const lit = ruleFor(".d1-chip[data-ic].is-open");
+  must(unlit && lit, "the [data-ic] chip rules are not in door1-workspace.css");
+  has(unlit, "var(--pdx-ic-soft", "the unlit chip does not use the quiet step of the hue");
+  has(lit, "var(--pdx-ic-wash", "the lit chip does not use the loud step of the hue");
+  ok(unlit.indexOf("--pdx-ic-wash") < 0, "the unlit chip already spends the loud step, so lit reads the same");
+  has(unlit, "var(--pdx-ic,", "the unlit chip's border is not the hue");
+  has(lit, "var(--pdx-ic,", "the lit chip's border is not the hue");
+  has(unlit, "var(--pdx-ic-ink", "the unlit chip's label is not the readable step of the hue");
+  // KEYBOARD FOCUS IS VISIBLE. The chips were reachable by tab before this pass
+  // and drew the browser default over a dark pill; a hue-tinted ring is only an
+  // improvement if there is a ring at all, so both halves are asserted.
+  has(CSS, ".d1-chip:focus-visible", "a Door 1 chip has no focus ring");
+  has(ruleFor(".d1-chip:focus-visible"), "outline", "the chip's focus rule draws no outline");
+  has(ruleFor(".d1-chip[data-ic]:focus-visible"), "var(--pdx-ic-ink",
+    "the themed chip's focus ring is not tinted with the hue it belongs to");
+
+  // ── AN EMPTY CHILD IS STILL A REAL KEY ─────────────────────────────────────
+  // Keep Public Lands Public holds no readable row and no mapped measure. The
+  // honest answer to that is a census that says so — not a hidden chip, not a
+  // cousin's ledger painted under this key's name, and not a chip greyed out of
+  // its family so a reader reads "broken" where the site means "nothing yet".
+  const EMPTY = "lands_keep_public";
+  const eHtml = await commit(w, EMPTY);
+  const eChip = keyChips(eHtml).find((c) => c.key === EMPTY);
+  must(eChip, `${EMPTY}: the chip is gone once its own ledger is open`);
+  eq(eChip.ic, leafIc, `${EMPTY}: the empty child was painted outside its family's hue`);
+  ok(eChip.themed, `${EMPTY}: the empty child lost its hue gate`);
+  ok(eChip.open, `${EMPTY}: tapping the empty child did not light it`);
+  eq(treeIc(tree, EMPTY), leafIc,
+    `${EMPTY}: the tree and the desk disagree about the empty key's hue`);
+  const eLed = w.PDXDoor1._ledger(null, EMPTY);
+  must(eLed, `${EMPTY}: no ledger object at all`);
+  eq(eLed.people, 0, `${EMPTY} is no longer the empty case this section is about`);
+  eq((eLed.measures || []).length, 0, `${EMPTY} now has mapped measures — pick another empty key`);
+  has(eHtml, `<b>0</b> people have a readable formal row on <b>${esc(MAP[EMPTY].label)}</b>.`,
+    "the empty census does not say 0 people on this key's own label");
+  has(eHtml, "No measure on file is mapped to this key yet.",
+    "the empty census dropped the no-measure sentence");
+  // The blank-lane sentence is still the floor's own words, not this file's.
+  const NOTE = (w.PDXConsistency.menu.PHRASES.no_vehicle || {}).note || "";
+  must(NOTE, "the menu's no_vehicle phrase is gone, so there is nothing to inherit");
+  has(eHtml, esc(NOTE), "the empty pane stopped carrying the menu/calendar sentence");
+  eq(crumbIc(eHtml), leafIc, "the empty child's crumb lost the family hue");
+  has(crumbOf(eHtml), esc(MAP[EMPTY].label), "the empty child's crumb does not name it");
+  console.log(`      ${EMPTY}: themed, lit, 0 rows · 0 measures, census and calendar sentence intact`);
+
+  // ── NO SECOND PALETTE ANYWHERE IN THE PASS ─────────────────────────────────
+  // The desk names no colour of its own at all: every hue it emits arrived from
+  // styleFor(). A hex in this module would be a colour no other surface could be
+  // changed with.
+  const jsHex = [...DESK.matchAll(/#[0-9A-Fa-f]{3,8}\b/g)].map((m) => m[0]);
+  eq(jsHex.slice(0, 5).join(" "), "",
+    `door1-workspace.js hard-codes ${jsHex.length} colour(s) of its own`);
+  // …and it asks for a skin rather than reading the palette's tables. The whole
+  // surface it touches is the three read-only questions every other consumer
+  // asks; reaching CORE_ISSUE_COLORS or ALIASES directly would be re-deriving a
+  // resolution that already has one owner.
+  const ASKED = ["styleFor", "getIssueColor", "isCore"];
+  const iSkin = DESK.indexOf("function colors()");
+  must(iSkin > 0, "the desk's issue-skin helpers are not where this audit looks for them");
+  const SKIN = DESK.slice(iSkin, DESK.indexOf("function coreOf(", iSkin));
+  must(SKIN.indexOf("window.PDXIssueColors") > 0 && SKIN.indexOf("skinAttrs") > 0,
+    "the issue-skin block could not be isolated from door1-workspace.js");
+  const touchedIC = [...new Set([...SKIN.matchAll(/\bC\.([A-Za-z_$][\w$]*)/g)].map((m) => m[1]))];
+  must(touchedIC.length > 0, "the desk names no PDXIssueColors member at all");
+  const reached = touchedIC.filter((m) => ASKED.indexOf(m) < 0);
+  eq(reached.join(", "), "",
+    `the desk reaches ${reached.length} palette member(s) beyond ${ASKED.join("/")}`);
+  // And no chip or crumb rule in the stylesheet names a hex the palette owns. The
+  // hexes those rules DO carry are var() fallbacks in the neutral chrome range —
+  // what a chip looks like on a page where the colour module did not load — which
+  // is the same fallback discipline every other [data-ic] surface uses.
+  const chipRules = [...CSS.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+    .filter((m) => /d1-chip|d1-led-crumb|d1-crumb-/.test(m[1]));
+  must(chipRules.length >= 8, `only ${chipRules.length} chip/crumb rules found to audit`);
+  const stolen = [];
+  for (const r of chipRules)
+    for (const h of r[2].matchAll(/#[0-9A-Fa-f]{3,8}\b/g))
+      if (PALETTE.indexOf(h[0].toUpperCase()) >= 0) stolen.push(`${r[1].trim()} → ${h[0]}`);
+  eq(stolen.slice(0, 4).join(" | "), "",
+    `${stolen.length} Door 1 rule(s) hard-code a hex issue-colors.js owns`);
+  // Every themed rule reads the hue through the variables, so the palette stays
+  // the one place a colour changes.
+  const themedRules = chipRules.filter((m) => m[1].indexOf("[data-ic]") >= 0);
+  must(themedRules.length >= 4, `only ${themedRules.length} [data-ic] rules to audit`);
+  const mute = themedRules.filter((m) => m[2].indexOf("var(--pdx-ic") < 0).map((m) => m[1].trim());
+  eq(mute.join(" | "), "", `${mute.length} [data-ic] rule(s) do not spend the hue variables`);
+  // The gate spelling is the shared one. issue-compare.css and app.css already
+  // read [data-ic]; a private attribute here would need a private stylesheet.
+  has(DESK, 'data-ic="1"', "the desk does not emit the shared [data-ic] gate");
+  console.log(`      ${PALETTE.length} palette colours, 0 copied into Door 1; ` +
+    `${themedRules.length} themed rules, all through var(--pdx-ic*)`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("9 · No figure moved");
 
 {
   const A = boot({ withoutFamily: true, withoutDesk: true });
@@ -677,7 +888,7 @@ section("8 · No figure moved");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("9 · No second lane in the copy");
+section("10 · No second lane in the copy");
 
 {
   const panes = [CHILD.html, SHELF.html];
@@ -700,7 +911,7 @@ section("9 · No second lane in the copy");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("10 · The assets travel together");
+section("11 · The assets travel together");
 
 {
   // The family module is a SHELL asset: a warm device holding the previous
@@ -712,6 +923,13 @@ section("10 · The assets travel together");
                    "'/door1-workspace.css'", "'/stance-tree.js'"]) {
     has(SW, f, `${f} is not precached, so it can go stale against the table`);
   }
+  // AND THE PALETTE, for the same reason in the other direction: the desk's chips
+  // now get their colour from it, and a stylesheet that spends var(--pdx-ic*)
+  // paired with a page whose colour module never loaded is a chip with a gate and
+  // no hue. Both halves are guarded — the fallbacks in the CSS are what a reader
+  // sees — but the pairing should not be left to a cache.
+  has(SW, "'/issue-colors.js'", "the colour module is not precached, so a chip's hue can go stale");
+  has(PAGE, "/issue-colors.js", "the colour module is not wired into index.html");
   const m = SW.match(/CACHE_VERSION\s*=\s*'v(\d+)'/);
   must(m, "sw.js no longer carries a CACHE_VERSION this file can read");
   const v = Number(m[1]);
@@ -721,7 +939,7 @@ section("10 · The assets travel together");
   const entry = SW.slice(iLog, SW.indexOf("const CACHE_VERSION", iLog));
   must(entry.length > 200, `the v${v} entry is too short to be naming anything`);
   for (const f of ["pdx-issue-family.js", "alignment-tool.js", "door1-workspace.js",
-                   "door1-workspace.css", "stance-tree.js", "index.html"]) {
+                   "door1-workspace.css", "stance-tree.js", "index.html", "issue-colors.js"]) {
     has(entry, f, `the v${v} entry does not name ${f} among the files that must travel together`);
   }
   has(entry, "Direction Match", `the v${v} entry does not say what did NOT move`);

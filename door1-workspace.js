@@ -272,6 +272,71 @@
     var F = window.PDXIssueFamily;
     return (F && fn(F.coreOf) && fn(F.childrenOf)) ? F : null;
   }
+  // ── THE ISSUE HUE, ASKED OF THE ONE PALETTE ───────────────────────────────
+  // A chip on this desk is the same issue a reader has already met on /p/<slug>,
+  // in the topic tree, on a Word-vs-Action row and in the Eye's issue hits — and
+  // until now it was the only one of those that painted it as an untyped dark
+  // pill. So it asks the same module they all ask, window.PDXIssueColors
+  // (issue-colors.js), and paints what it is handed. There is no palette in this
+  // file, no per-issue rule in its stylesheet, and no hex anywhere in either: the
+  // token arrives as four inline custom properties (--pdx-ic, -soft, -wash, -ink)
+  // and the CSS below consumes them without knowing which issue it got. Change a
+  // hue in issue-colors.js and it changes here, which is the point.
+  //
+  // THE LOOKUP IS THE FAMILY TABLE, NOT A SECOND ANSWER. A leaf key has no colour
+  // of its own — it inherits its core's, which is exactly the behaviour asked for
+  // ("if a key has no colour, inherit the parent core's hue"). getIssueColor()
+  // would resolve that itself through window.coreIssueForKey, but this desk hands
+  // it PDXIssueFamily.coreOf instead, so the hue a chip carries comes off the SAME
+  // read that decided which branch the chip sits on. A child therefore cannot be
+  // painted one family while being filed under another; the two answers are one
+  // answer. The older reverse lookup stays underneath as the fallback, so a page
+  // without the family module colours exactly as it did before it existed.
+  //
+  // ALL OF ONE CORE'S CHILDREN SHARE ONE HUE, DELIBERATELY. Seventeen green chips
+  // on the Climate, Energy & Land branch is the honest reading: they are seventeen
+  // questions in one family, and a per-child hue would be this desk inventing a
+  // taxonomy the palette does not have. What separates them is STATE, not
+  // identity — see `is-open` in door1-workspace.css: the lit chip takes the loud
+  // step of its hue and the unlit ones the quiet step. Nothing here reads a
+  // record, a count or a band, so an empty child is painted exactly like a full
+  // one. A colour that went grey when a key held nothing would be this desk
+  // characterising the key, and 'no measure mapped yet' is a fact about the
+  // corpus, not a property of the issue.
+  function colors() {
+    var C = window.PDXIssueColors;
+    return (C && fn(C.styleFor) && fn(C.getIssueColor)) ? C : null;
+  }
+  function familyLookup() {
+    var F = family();
+    if (!F) return undefined;
+    return function (k) { try { return F.coreOf(k) || ''; } catch (e) { return ''; } };
+  }
+  // { style, on } — the inline custom properties, and whether the key landed on a
+  // real core issue. `on` gates the treatment rather than the colour: an
+  // off-register key still gets the palette's own neutral (that is what FALLBACK
+  // is for) but does not get the themed chip, so an unknown key reads as unknown
+  // instead of borrowing the hue of whatever it was filed near.
+  function issueSkin(key) {
+    var C = colors();
+    if (!C || !key) return { style: '', on: false };
+    var lu = familyLookup();
+    var on = false, style = '';
+    try {
+      style = C.styleFor(key, lu) || '';
+      on = fn(C.isCore) ? !!C.isCore(key, lu) : !!(C.getIssueColor(key, lu) || {}).mapped;
+    } catch (e) { return { style: '', on: false }; }
+    return { style: style, on: !!on };
+  }
+  // The two attributes, spelled once. `data-ic` is the gate the stylesheet keys
+  // off — the same attribute name app.css and issue-compare.css already use for
+  // exactly this job — so there is one spelling of "this element is themed".
+  function skinAttrs(key) {
+    var sk = issueSkin(key);
+    if (!sk.on || !sk.style) return '';
+    return ' data-ic="1" style="' + esc(sk.style) + '"';
+  }
+
   function coreOf(key) {
     var F = family();
     if (F) {
@@ -975,7 +1040,10 @@
     var c = null;
     try { c = F.crumb(key); } catch (e) { c = null; }
     if (!c || !c.coreLabel) return '';
-    return '<p class="d1-led-crumb">' +
+    // The crumb takes the child's hue on the whole line, so the family a reader is
+    // inside is legible from the colour as well as from the words. Ink only — no
+    // fill, because this is a caption under a census and not another control.
+    return '<p class="d1-led-crumb"' + skinAttrs(key) + '>' +
       '<button type="button" class="d1-crumb-a" onclick="window.pdxDoor1Issue(\'' +
         jsq(c.core) + '\')">' + esc(c.coreLabel) + '</button>' +
       '<span class="d1-crumb-s" aria-hidden="true">' + esc(F.ARROW || ' \u2192 ') + '</span>' +
@@ -1293,6 +1361,7 @@
     return '<div class="d1-shelf d1-shelf-keys" role="group" aria-label="Keys inside ' +
       esc(core.label) + '">' + keys.map(function (k) {
         return '<button type="button" class="d1-chip is-key' + (k === focusKey ? ' is-open' : '') + '"' +
+          skinAttrs(k) +
           ' onclick="window.pdxDoor1Issue(\'' + jsq(k) + '\')">' + esc(issueLabel(k)) + '</button>';
       }).join('') + '</div>';
   }
@@ -1307,8 +1376,12 @@
     var t = resolveIssue(picked);
     var core = t && t.core;
     var focusKey = (t && t.focusKey) || '';
+    // The cores carry their own hue too — CORE_ISSUE_COLORS is keyed by core id, so
+    // the same skinAttrs() call answers for a bundle and for a leaf and no core-id
+    // branch was needed here or in issue-colors.js.
     var shelf = '<div class="d1-shelf" role="group" aria-label="Tracked issues">' + list.map(function (c) {
       return '<button type="button" class="d1-chip' + (core && c.key === core.key ? ' is-open' : '') + '"' +
+        skinAttrs(c.key) +
         ' onclick="window.pdxDoor1Issue(\'' + jsq(c.key) + '\')">' + esc(c.label) + '</button>';
     }).join('') + '</div>' + seekHtml();
     if (!core) {
