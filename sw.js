@@ -879,7 +879,85 @@
 // No floor, no mapping, no weight, no roster row, no slice sentence and no figure
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
-const CACHE_VERSION = 'v108';
+//
+// v110 - DOOR 1'S ISSUE CHIPS WEAR THE ISSUE'S OWN HUE. v109 gave the issue desk
+// a chip for every child key; it painted them as untyped dark pills. Every other
+// surface that names an issue — the person file's topic tree, the formal brief
+// rows, the compare table, the Eye's issue hits — had been colouring by
+// issue-colors.js for a long time, so a reader who had learned Climate, Energy &
+// Land as green on /p/lee arrived at Door 1 and found its children in no family
+// at all, and an empty child like Keep Public Lands Public read as a failed tap
+// rather than as an honest "nothing on file yet". The desk now asks the same
+// module they all ask and paints what it is handed. TWO FILES CHANGED AND MUST
+// TRAVEL TOGETHER, and three more are named because they are what the new hue is
+// asserted to MATCH:
+//   · door1-workspace.js   — asks PDXIssueColors.styleFor(key, familyLookup) for
+//                            the core chips, the child chips and the crumb, and
+//                            emits the shared [data-ic] gate with the four inline
+//                            custom properties. No palette, no hex, no per-issue
+//                            branch: the module never learns which issue it got.
+//   · door1-workspace.css  — spends var(--pdx-ic) / -soft / -wash / -ink. Unlit
+//                            is the quiet fill of that hue, lit is the loud one,
+//                            and the chips gained a visible keyboard focus ring
+//                            (hue-tinted where a hue is present). Stale here
+//                            against the new markup is the whole reason for the
+//                            bump: v109's stylesheet has no [data-ic] rule, so a
+//                            warm device would receive chips carrying a correct
+//                            hue that nothing spends — the untyped pill again,
+//                            silently.
+//   · issue-colors.js      — UNCHANGED. It already resolved a leaf key to its
+//                            core's colour, so there is no fourteenth hue and no
+//                            core-id lookup was added. Named here because it is
+//                            precached and it is now what Door 1's chips depend
+//                            on for their colour.
+//   · pdx-issue-family.js  — UNCHANGED, and still the single reader of the single
+//                            parent table. It is the lookup handed to styleFor(),
+//                            which is what guarantees a chip's hue and its place
+//                            on the shelf come off one read.
+//   · alignment-tool.js    — UNCHANGED. No key moved, no core was added or
+//                            merged, no label changed.
+//   · stance-tree.js       — UNCHANGED, and the surface the new chips are measured
+//                            against: the desk's chip for lands_preserve carries
+//                            the identical token the tree's leaf for that key
+//                            emits on /p/lee.
+//   · index.html           — UNCHANGED; precached as '/' and still loads both.
+// Copy is untouched. An empty child still says "0 people have a readable formal
+// row on <that key>" and "No measure on file is mapped to this key yet.", still
+// carries the menu's own blank-calendar sentence, and is still a themed, tappable
+// chip rather than a hidden one. No ledger was repointed: rowFor(pid, key) is
+// still the exact key. No percentage, no grade and no party colour reached a chip
+// or a crumb, and every person brief and every Direction Match read is
+// byte-identical across a twin boot.
+// v109 - ONE ISSUE FAMILY: CORES BROWSE, CHILDREN ARE THE PROFILE. The site had
+// three groupings of the same issue vocabulary and only one of them read the
+// parent table, so twenty-four published keys — the whole public-lands cluster
+// among them — had a record ledger you could open by typing its name and no chip
+// on any branch. The table in alignment-tool.js is now the whole register (every
+// published ISSUE_MAP key has exactly one core), and one new module is the single
+// reader of it. FIVE FILES MUST TRAVEL TOGETHER, which is what this bump is for:
+//   · pdx-issue-family.js  — NEW SHELL ASSET, and the reason the bump is not
+//                            optional: a warm device holding v108 would pair the
+//                            new desk and the new tree with no family module at
+//                            all. Both are guarded and would fall back, so the
+//                            failure would be silent — the lands_* chips simply
+//                            absent again — which is the exact bug this pass
+//                            closes.
+//   · alignment-tool.js    — the parent table itself: 24 keys given a parent,
+//                            three core LABELS widened in copy so a core cannot
+//                            deny what is filed under it (Climate now says Land).
+//                            Precached, and stale here means the new desk asks for
+//                            children the old table does not list.
+//   · door1-workspace.js   — the issue desk paints its child chips from the table
+//                            and prints the core → child crumb under the census.
+//   · door1-workspace.css  — that crumb. One new block; nothing restyled.
+//   · stance-tree.js       — the person file's topic tree groups by the same
+//                            coreOf() the desk uses, instead of reaching the
+//                            answer its own way.
+//   · index.html           — the one new <script defer>, and precached as '/'.
+// No floor, no mapping, no weight, no roster row and no figure of any kind moved.
+// Every person brief and every Direction Match read is byte-identical with this
+// table and without it — the table names families, it does not read records.
+const CACHE_VERSION = 'v110';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -965,6 +1043,12 @@ const SHELL_ASSETS = [
   '/cmp-data.js',
   '/stance-helpers.js',
   '/alignment-tool.js',
+  // The issue family table. Tiny, and precached WITH alignment-tool.js rather
+  // than left to the runtime cache because it is that file's parent table with an
+  // API on it: the Door 1 child chips and the person file's topic branches are
+  // both built from it, and a device that had one file and not the other would
+  // quietly group issues two different ways.
+  '/pdx-issue-family.js',
   // Issue color tokens. Tiny, and precached with alignment-tool.js so an offline
   // repeat visit keeps issues colour-coded instead of falling back to slate
   // everywhere, which would read as "nothing is a core issue".

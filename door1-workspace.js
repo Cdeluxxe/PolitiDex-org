@@ -262,7 +262,86 @@
       return (Object.prototype.toString.call(l) === '[object Array]') ? l : [];
     } catch (e) { return []; }
   }
+  // ── THE FAMILY TABLE, AND WHY THIS DESK ASKS IT RATHER THAN THE ARRAY ──────
+  // window.PDXIssueFamily (pdx-issue-family.js) is the one reader of the one
+  // parent table — the same table the person file's topic tree groups by, so a
+  // core here and a branch there cannot disagree about which family a key is in.
+  // Every call below falls back to the shipped array, so a page that loads the
+  // desk without the family module renders exactly as it did before it existed.
+  function family() {
+    var F = window.PDXIssueFamily;
+    return (F && fn(F.coreOf) && fn(F.childrenOf)) ? F : null;
+  }
+  // ── THE ISSUE HUE, ASKED OF THE ONE PALETTE ───────────────────────────────
+  // A chip on this desk is the same issue a reader has already met on /p/<slug>,
+  // in the topic tree, on a Word-vs-Action row and in the Eye's issue hits — and
+  // until now it was the only one of those that painted it as an untyped dark
+  // pill. So it asks the same module they all ask, window.PDXIssueColors
+  // (issue-colors.js), and paints what it is handed. There is no palette in this
+  // file, no per-issue rule in its stylesheet, and no hex anywhere in either: the
+  // token arrives as four inline custom properties (--pdx-ic, -soft, -wash, -ink)
+  // and the CSS below consumes them without knowing which issue it got. Change a
+  // hue in issue-colors.js and it changes here, which is the point.
+  //
+  // THE LOOKUP IS THE FAMILY TABLE, NOT A SECOND ANSWER. A leaf key has no colour
+  // of its own — it inherits its core's, which is exactly the behaviour asked for
+  // ("if a key has no colour, inherit the parent core's hue"). getIssueColor()
+  // would resolve that itself through window.coreIssueForKey, but this desk hands
+  // it PDXIssueFamily.coreOf instead, so the hue a chip carries comes off the SAME
+  // read that decided which branch the chip sits on. A child therefore cannot be
+  // painted one family while being filed under another; the two answers are one
+  // answer. The older reverse lookup stays underneath as the fallback, so a page
+  // without the family module colours exactly as it did before it existed.
+  //
+  // ALL OF ONE CORE'S CHILDREN SHARE ONE HUE, DELIBERATELY. Seventeen green chips
+  // on the Climate, Energy & Land branch is the honest reading: they are seventeen
+  // questions in one family, and a per-child hue would be this desk inventing a
+  // taxonomy the palette does not have. What separates them is STATE, not
+  // identity — see `is-open` in door1-workspace.css: the lit chip takes the loud
+  // step of its hue and the unlit ones the quiet step. Nothing here reads a
+  // record, a count or a band, so an empty child is painted exactly like a full
+  // one. A colour that went grey when a key held nothing would be this desk
+  // characterising the key, and 'no measure mapped yet' is a fact about the
+  // corpus, not a property of the issue.
+  function colors() {
+    var C = window.PDXIssueColors;
+    return (C && fn(C.styleFor) && fn(C.getIssueColor)) ? C : null;
+  }
+  function familyLookup() {
+    var F = family();
+    if (!F) return undefined;
+    return function (k) { try { return F.coreOf(k) || ''; } catch (e) { return ''; } };
+  }
+  // { style, on } — the inline custom properties, and whether the key landed on a
+  // real core issue. `on` gates the treatment rather than the colour: an
+  // off-register key still gets the palette's own neutral (that is what FALLBACK
+  // is for) but does not get the themed chip, so an unknown key reads as unknown
+  // instead of borrowing the hue of whatever it was filed near.
+  function issueSkin(key) {
+    var C = colors();
+    if (!C || !key) return { style: '', on: false };
+    var lu = familyLookup();
+    var on = false, style = '';
+    try {
+      style = C.styleFor(key, lu) || '';
+      on = fn(C.isCore) ? !!C.isCore(key, lu) : !!(C.getIssueColor(key, lu) || {}).mapped;
+    } catch (e) { return { style: '', on: false }; }
+    return { style: style, on: !!on };
+  }
+  // The two attributes, spelled once. `data-ic` is the gate the stylesheet keys
+  // off — the same attribute name app.css and issue-compare.css already use for
+  // exactly this job — so there is one spelling of "this element is themed".
+  function skinAttrs(key) {
+    var sk = issueSkin(key);
+    if (!sk.on || !sk.style) return '';
+    return ' data-ic="1" style="' + esc(sk.style) + '"';
+  }
+
   function coreOf(key) {
+    var F = family();
+    if (F) {
+      try { if (F.isCore(key)) return F.coreObject(key); } catch (e) {}
+    }
     var l = coreIssues();
     for (var i = 0; i < l.length; i++) if (l[i].key === key) return l[i];
     return null;
@@ -276,10 +355,12 @@
   // no bundle at all still opens, scoped to itself, because a bundle is a curation
   // choice and not a fact about the record — see the note inside resolveIssue.
   // Does the site actually ship this issue key? ISSUE_MAP is alignment-tool.js's
-  // register of every issue key on the site — 100-odd of them. CORE_NATIONAL_ISSUES
-  // is a CURATED THIRTEEN that bundles most of them, and "most" is the whole point
-  // below: `lands_preserve` is a shipped key with a label, a chip and formal acts
-  // filed against it in the record lane, and no core bundle lists it.
+  // register of every issue key on the site — 121 of them. CORE_NATIONAL_ISSUES is
+  // the THIRTEEN CORES those keys are filed under, and since September 2026 it is
+  // the whole register rather than a curation of it: every published key has
+  // exactly one parent, so `lands_preserve` — a shipped key with a label, a chip
+  // and four mapped measures — is a child chip on the Climate, Energy & Land
+  // branch as well as a key you can open by name.
   function shippedIssue(key) {
     try {
       var m = window.ISSUE_MAP && window.ISSUE_MAP[key];
@@ -291,9 +372,19 @@
     var direct = coreOf(key);
     if (direct) return { core: direct, focusKey: '', standalone: false };
     var core = null;
+    // THE TABLE FIRST. One question — "which core is this key's parent?" — asked
+    // of the module that owns the answer. The two older lookups stay underneath
+    // it as fallbacks, in the order they shipped.
+    var F = family();
+    if (F) {
+      try {
+        var pid = F.coreOf(key);
+        if (pid) core = coreOf(pid);
+      } catch (e) { core = null; }
+    }
     try {
-      if (fn(window.coreIssueForKey)) core = window.coreIssueForKey(key) || null;
-    } catch (e) { core = null; }
+      if (!core && fn(window.coreIssueForKey)) core = window.coreIssueForKey(key) || null;
+    } catch (e) { core = core || null; }
     if (!core) {
       var l = coreIssues();
       for (var i = 0; i < l.length; i++) {
@@ -301,12 +392,15 @@
       }
     }
     if (core) return { core: core, focusKey: key, standalone: false };
-    // ── IN NO BUNDLE, AND STILL REAL ────────────────────────────────────────
-    // Returning nothing here was a bug, and a bad kind: the desk then printed the
-    // record lane's OWN no-vehicle sentence, so a failure of this lookup came out
-    // wearing the floor's words and read as "the record holds nothing on public
-    // lands". It does hold something. What was missing was a bundle, and a bundle
-    // is a curation choice, not a fact about the record.
+    // ── UNDER NO CORE, AND STILL REAL ───────────────────────────────────────
+    // A BACKSTOP, NOT A LANE ANY MORE. Returning nothing here was once a bug of
+    // the worst kind: the desk printed the record lane's OWN no-vehicle sentence,
+    // so a failure of this lookup came out wearing the floor's words and read as
+    // "the record holds nothing on public lands". It does hold something. What was
+    // missing was a parent — and as of September 2026 every published key has one,
+    // which scripts/test-issue-family.mjs enforces. So this branch is unreachable
+    // for anything the register publishes; it survives for the case it was always
+    // right about, a key that arrives from data older than the table.
     //
     // So a shipped key opens AS ITSELF: one issue, ranked on its own record, with
     // no bundle claimed for it. Nothing is invented to do this — buildRanking's
@@ -935,6 +1029,28 @@
   // Counts, then the partition. No percentage, no share, no grade, and no party
   // anywhere in it — the five band figures sum to the headline by construction,
   // because each is the length of a list printed below.
+  // ── THE CRUMB ─────────────────────────────────────────────────────────────
+  // Core label → child label, from the family table, printed under the census.
+  // It is the sentence that tells a reader where they are: this ledger is one
+  // issue, and that issue is filed under one family. Copy only — no count, no
+  // share, no order, and it never renames the key it describes.
+  function crumbHtml(key) {
+    var F = family();
+    if (!F || !key) return '';
+    var c = null;
+    try { c = F.crumb(key); } catch (e) { c = null; }
+    if (!c || !c.coreLabel) return '';
+    // The crumb takes the child's hue on the whole line, so the family a reader is
+    // inside is legible from the colour as well as from the words. Ink only — no
+    // fill, because this is a caption under a census and not another control.
+    return '<p class="d1-led-crumb"' + skinAttrs(key) + '>' +
+      '<button type="button" class="d1-crumb-a" onclick="window.pdxDoor1Issue(\'' +
+        jsq(c.core) + '\')">' + esc(c.coreLabel) + '</button>' +
+      '<span class="d1-crumb-s" aria-hidden="true">' + esc(F.ARROW || ' \u2192 ') + '</span>' +
+      '<span class="d1-crumb-k">' + esc(c.childLabel) + '</span>' +
+    '</p>';
+  }
+
   function censusHtml(led) {
     var b = led.by;
     var parts = [];
@@ -945,6 +1061,7 @@
     if (b.none) parts.push(b.none + ' with no side read');
     var m = led.measures.length;
     return '<div class="d1-led-census">' +
+      crumbHtml(led.key) +
       '<p class="d1-led-n"><b>' + led.people + '</b> ' +
         (led.people === 1 ? 'person has' : 'people have') +
         ' a readable formal row on <b>' + esc(led.label) + '</b>.</p>' +
@@ -1108,13 +1225,13 @@
   // ══════════════════════════════════════════════════════════════════════════
   // OPEN ANY TRACKED KEY
   // ══════════════════════════════════════════════════════════════════════════
-  // The shelf stays the curated thirteen, because thirteen is what a reader can
-  // scan and the bundles are how most of the site is organised. What it cannot be
-  // is the whole register: `lands_preserve` is a shipped key with a label, a chip
-  // and formal acts filed against it, and no bundle lists it — so on the shelf
-  // alone it does not exist as itself. The answer is not a fourteenth core, and it
-  // is certainly not restuffing cousins onto one to make the shelf look complete.
-  // It is a second control on the same pane that opens ANY tracked key by name.
+  // The shelf stays thirteen cores, because thirteen is what a reader can scan.
+  // What thirteen chips cannot be is the whole register — 121 keys — so the desk
+  // also carries a control that opens ANY tracked key by name. Every published key
+  // now also sits under exactly one core (see the parent table in
+  // alignment-tool.js), so seek and the chips are two ways to the same child: the
+  // shelf is the browse path, this is the direct one, and both commit the exact
+  // key. Nothing here rounds a query to a cousin key to make an answer.
   //
   // WHAT RESOLVES, IN ORDER, AND WHY EACH RUNG IS SAFE:
   //   1 · the key exactly — `lands_preserve`.
@@ -1209,7 +1326,8 @@
       (miss
         ? '<p class="d1-seek-miss" role="status">The register carries no key for “' + esc(miss) +
           '”. Nothing was approximated — try a key, its label, or pick from the list.</p>'
-        : '<p class="d1-seek-h">Keys outside the thirteen open as themselves, scoped to their own record.</p>') +
+        : '<p class="d1-seek-h">Every tracked key sits under one of the thirteen. Opening one by name ' +
+          'commits that exact key and names the family it belongs to.</p>') +
     '</form>';
   }
 
@@ -1220,12 +1338,30 @@
   // nothing in the engine produced. So a bundle prints its member keys and the
   // reader picks the one they came for. Nothing is chosen for them — picking a
   // default key would be this desk deciding which part of a bundle a reader meant.
+  // THE CHILDREN COME FROM THE TABLE, IN THE TABLE'S ORDER. Asked of
+  // PDXIssueFamily rather than read off the core object, so the chips a core
+  // paints are exactly the keys the parent table files under it — that is what
+  // put `lands_preserve`, `lands_keep_public`, `lands_balance` and `lands_local`
+  // on the Climate, Energy & Land branch, each as its own chip. Four questions
+  // about the public estate, four keys, four chips: nothing is merged onto one
+  // chip and no chip stands for two poles.
+  function childKeys(core) {
+    var F = family();
+    if (F && core && core.key) {
+      try {
+        var kids = F.childrenOf(core.key) || [];
+        if (kids.length) return kids.filter(shippedIssue);
+      } catch (e) {}
+    }
+    return ((core && core.keys) || []).filter(shippedIssue);
+  }
   function subKeyShelf(core, focusKey) {
-    var keys = ((core && core.keys) || []).filter(shippedIssue);
+    var keys = childKeys(core);
     if (keys.length < 2) return '';
     return '<div class="d1-shelf d1-shelf-keys" role="group" aria-label="Keys inside ' +
       esc(core.label) + '">' + keys.map(function (k) {
         return '<button type="button" class="d1-chip is-key' + (k === focusKey ? ' is-open' : '') + '"' +
+          skinAttrs(k) +
           ' onclick="window.pdxDoor1Issue(\'' + jsq(k) + '\')">' + esc(issueLabel(k)) + '</button>';
       }).join('') + '</div>';
   }
@@ -1240,8 +1376,12 @@
     var t = resolveIssue(picked);
     var core = t && t.core;
     var focusKey = (t && t.focusKey) || '';
+    // The cores carry their own hue too — CORE_ISSUE_COLORS is keyed by core id, so
+    // the same skinAttrs() call answers for a bundle and for a leaf and no core-id
+    // branch was needed here or in issue-colors.js.
     var shelf = '<div class="d1-shelf" role="group" aria-label="Tracked issues">' + list.map(function (c) {
       return '<button type="button" class="d1-chip' + (core && c.key === core.key ? ' is-open' : '') + '"' +
+        skinAttrs(c.key) +
         ' onclick="window.pdxDoor1Issue(\'' + jsq(c.key) + '\')">' + esc(c.label) + '</button>';
     }).join('') + '</div>' + seekHtml();
     if (!core) {
@@ -1841,12 +1981,10 @@
     // record as an empty one and then prints the record lane's no-vehicle
     // sentence over it.
     //
-    // THE TARGET GOES IN, NOT THE KEY. PDXIssueView.warmVotes takes either, and the
-    // difference matters here and nowhere else: handed a key it resolves the bundle
-    // itself, and there is no bundle for a shipped issue key that none of the
-    // curated thirteen lists — so it would warm nothing for exactly the keys this
-    // desk had to resolve by hand. The target resolveIssue already built is the
-    // whole answer, so it is what gets handed over.
+    // THE TARGET GOES IN, NOT THE KEY. PDXIssueView.warmVotes takes either, and
+    // the target resolveIssue already built is the whole answer — the exact key
+    // plus the core the parent table files it under — so it is what gets handed
+    // over rather than making a second module resolve the same question again.
     //
     // No callback: the export does not take one, and the desk does not need one.
     // The ledger fires 'pdx-issue-votes' once per batch and boot() re-syncs on it,

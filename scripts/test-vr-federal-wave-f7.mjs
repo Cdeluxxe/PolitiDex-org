@@ -52,7 +52,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { CJ_SEAMS, CJ_SEAMS_BELOW, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
-  assertWordActionSeams } from "./v103-chrome-seams.mjs";
+  assertWordActionSeams, assertParentTableIsTheOnlyMove } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -455,9 +455,30 @@ const roster = J("db/vr-roster-admitted.json");
 
   // NO NEW KEY MEANS NO PUBLISHED BOUNDARY MOVED.
   const head = (f) => { try { return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }); } catch (e) { return null; } };
-  for (const f of ["issue-scope.js", "alignment-tool.js"]) {
-    const h = head(f);
-    if (ok(h !== null, `could not read HEAD:${f}`)) eq(R(f), h, `${f} changed, but this wave adds no key, so no published boundary moved`);
+  // issue-scope.js still answers with a hash, because nothing has ever needed to move
+  // in it. alignment-tool.js answers on the five terms that hash stood in for: the
+  // v109 issue-family pass had to finish CORE_NATIONAL_ISSUES, which is declared in
+  // this file below ISSUE_MAP and is the site's only issue taxonomy — 24 published keys
+  // had no parent, so they had labels, chips and ledgers and no branch to sit on.
+  // Everything outside that block is still compared byte for byte, and ISSUE_MAP, every
+  // scope note and the alignment engine are all inside the pinned half. What
+  // F7 needs is that no key was added and no boundary widened, and that is
+  // exactly what is asserted; a wave that widens one still fails, now with the reason.
+  {
+    const h = head("issue-scope.js");
+    if (ok(h !== null, "could not read HEAD:issue-scope.js"))
+      eq(R("issue-scope.js"), h, "issue-scope.js changed, but this wave adds no key, so no published boundary moved");
+  }
+  {
+    const h = head("alignment-tool.js");
+    if (ok(h !== null, "could not read HEAD:alignment-tool.js"))
+      assertParentTableIsTheOnlyMove({ ok, eq }, h, R("alignment-tool.js"), "F7");
+    // And the entries for the keys this wave actually used are HEAD's, line for line —
+    // the label, chip, cat, lean and keyword list each admission was judged against.
+    for (const k of KEYS)
+      eq((R("alignment-tool.js").match(new RegExp(`^\\s{6}${k}:\\s*\\{[^\\n]*`, "m")) || [""])[0],
+         ((h || "").match(new RegExp(`^\\s{6}${k}:\\s*\\{[^\\n]*`, "m")) || [""])[0],
+         `the ISSUE_MAP entry for ${k} is not HEAD's — this wave keyed rows to it, so its published scope is what those rows were judged against`);
   }
   // AND THE SHELL BUMPED, for a reason that is not the SQL: the twenty-eight curated
   // mechanism pairs live in consistency.js, a precached asset. Commit-invariant, the
@@ -852,7 +873,18 @@ function boot(get, label) {
   // came to call a record "still being built" underneath a letterhead counting 23
   // acts. It now also reports the act count and whether the lane has answered.
   // No wave input is in there — no floor, no mapping, no weight, no score.
-  const WAIVED = ["consistency.js", "cmp-data.js", "stance-helpers.js", "word-action.js"];
+  // alignment-tool.js joins the waiver for the issue-family pass (v109), and it is a
+  // REGION rather than a span: CORE_NATIONAL_ISSUES — the site's only issue taxonomy,
+  // declared in that file directly below ISSUE_MAP — named a parent for 97 of the 121
+  // published keys and left 24 with none, so `lands_preserve` had a label, a chip, four
+  // mapped measures and a ledger reachable only by typing its name, and no branch to sit
+  // on. Finishing that table is the only thing in the file that moved. Building the
+  // missing half anywhere else would have been a second taxonomy, which is the one move
+  // that pass was forbidden. Everything outside the block is still byte-identical, so
+  // ISSUE_MAP itself, every scope note and the whole alignment engine are still pinned —
+  // and section 5 above asserts the shape of the block against HEAD's on five terms, one
+  // of which is that no key the table names is a key ISSUE_MAP does not already publish.
+  const WAIVED = ["consistency.js", "cmp-data.js", "stance-helpers.js", "word-action.js", "alignment-tool.js"];
   // The seam arguments below want a substring assertion; these suites carry ok/eq only.
   const has = (s, n, m) => ok(String(s).includes(n), `${m} — missing ${JSON.stringify(n)}`);
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== nowSrc(f); });

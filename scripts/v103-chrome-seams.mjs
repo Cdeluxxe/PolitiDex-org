@@ -81,6 +81,41 @@
  *     belongs with, so a second surface folds its tail at the same length
  *     instead of picking its own number. References, not logic.
  *
+ * The issue-family pass (CACHE_VERSION v109) is the first entry here that is not
+ * a span in a booted engine file, and it is declared on the same terms. It had to
+ * move alignment-tool.js, which F5, F6, F7 and test-person-crawl-block.mjs all pin
+ * byte for byte. The reason is structural: CORE_NATIONAL_ISSUES — the site's ONLY
+ * issue taxonomy, declared directly below ISSUE_MAP — named a parent for 97 of the
+ * 121 published keys and left 24 with none, so `lands_preserve` had a label, a chip
+ * and four mapped measures, and a ledger you could reach only by typing its name.
+ * Finishing that table was the fix. Building the missing half anywhere else would
+ * have been a second taxonomy, which is the one move that pass was forbidden.
+ *
+ * So the equality becomes the substantive thing it stood in for, written once here
+ * instead of waived in four files. What those suites are protecting is a PUBLISHED
+ * BOUNDARY: no key added, no key renamed, no scope note widened to admit a row the
+ * wave's own rules refused. assertParentTableIsTheOnlyMove() checks exactly that,
+ * in five statements:
+ *
+ *   · alignment-tool.js is byte-identical to HEAD everywhere OUTSIDE the CORE
+ *     NATIONAL ISSUES block — which pins ISSUE_MAP itself, every key, label, chip,
+ *     cat, lean and keyword list in it, every scope note, the alignment engine, the
+ *     evidence helpers and the team-alignment renderer.
+ *   · Inside the block: the same thirteen core ids, in the same declared order. No
+ *     fourteenth core, none dropped, none re-keyed.
+ *   · No core lost a key or reordered the keys it already had — HEAD's key list for
+ *     each core is a SUBSEQUENCE of the working tree's. Additions only, because a
+ *     key leaving a core takes a chip and a crumb with it.
+ *   · Every key the table names is a key ISSUE_MAP already publishes. The pass
+ *     added parents, not vocabulary.
+ *   · A core's label may differ from HEAD ONLY if that core gained keys — the
+ *     honesty rule that pass worked under, that a core which parents land has to
+ *     say land. A label that moves on its own is a rename, and a rename is refused.
+ *
+ * No assertion was removed in any of the four suites. A wave that touches
+ * alignment-tool.js and cannot satisfy those five still fails, and now it fails
+ * with the reason instead of with a hash.
+ *
  * None of the eleven is arithmetic. No floor, band, weight, mapping, score or
  * party read or written inside any of them — which is what the assert helpers
  * below check, span by span, rather than excusing the diff.
@@ -313,4 +348,134 @@ export function assertWordActionSeams(bodies, api) {
     ok(!/\d\s*%|toFixed/.test(bodies[i]), "a mount grew a figure of its own");
     ok(bodies[i].split("sliceNoteHtml").length === 2, "a mount calls the slice note more than once");
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// alignment-tool.js: ONE REGION, the parent table (v109)
+// ─────────────────────────────────────────────────────────────────────────────
+// Not a copy seam, so it is not in a SEAMS list and carveSeams() does not cut it.
+// It is a whole declared data region, and what is argued about it is its SHAPE
+// against HEAD's — see the v109 paragraph in the header for why that is the
+// stronger statement here than a hash.
+
+/** The banner that opens the block, unchanged since the table was declared. */
+export const PARENT_TABLE_MARK = "    // CORE NATIONAL ISSUES — the priority framework (2026)\n";
+const PARENT_TABLE_END = "\n    ];\n";
+
+/**
+ * Cut alignment-tool.js into { before, seam, after }, or null if the banner has
+ * moved. `before` and `after` are the byte-pinned halves; `seam` is the table.
+ */
+export function carveParentTable(src) {
+  const s = String(src);
+  const i = s.indexOf(PARENT_TABLE_MARK);
+  if (i < 0) return null;
+  const j = s.indexOf(PARENT_TABLE_END, i);
+  if (j < 0) return null;
+  return {
+    before: s.slice(0, i),
+    seam: s.slice(i, j + PARENT_TABLE_END.length),
+    after: s.slice(j + PARENT_TABLE_END.length),
+  };
+}
+
+/**
+ * The declared cores, read out of the block's own SOURCE. Parsed rather than
+ * evaluated on purpose: a check that boots the file to learn what the file says
+ * can be talked into anything by the file.
+ */
+export function parseParentTable(seam) {
+  const out = [];
+  const re = /\{\s*key:\s*'([^']+)',\s*label:\s*'((?:[^'\\]|\\.)*)',[\s\S]*?keys:\s*\[([^\]]*)\]\s*\}/g;
+  let m;
+  while ((m = re.exec(String(seam)))) {
+    out.push({
+      key: m[1],
+      label: m[2],
+      keys: m[3].split(",").map((x) => x.trim().replace(/^'|'$/g, "")).filter(Boolean),
+    });
+  }
+  return out;
+}
+
+/**
+ * Every key ISSUE_MAP publishes, read out of the region carveParentTable proves
+ * unchanged — so "no key was invented" is decided by bytes this helper has
+ * already pinned, not by the same edit under review.
+ */
+export function publishedIssueKeys(src) {
+  const c = carveParentTable(src);
+  const region = c ? c.before : String(src);
+  const i = region.indexOf("var ISSUE_MAP = {");
+  if (i < 0) return [];
+  return [...new Set([...region.slice(i).matchAll(/^\s{6}([a-z0-9_]+):\s*\{\s*label:/gm)].map((m) => m[1]))];
+}
+
+const isSubsequence = (small, big) => {
+  let i = 0;
+  for (const x of big) if (x === small[i]) i++;
+  return i === small.length;
+};
+
+/**
+ * The five statements, asserted with the CALLER's own ok/eq so a failure reads in
+ * the voice of the suite that found it. `wave` names that suite in the messages.
+ *
+ * A tree that has not moved the file at all takes the short path and says so, so
+ * this stays a byte equality for every wave that adds no parent — which is all of
+ * them but one.
+ */
+export function assertParentTableIsTheOnlyMove(api, headSrc, treeSrc, wave) {
+  const { ok, eq } = api;
+  const tag = wave ? `${wave}: ` : "";
+  const A = carveParentTable(headSrc), B = carveParentTable(treeSrc);
+  if (!ok(!!A && !!B, `${tag}alignment-tool.js no longer carries the CORE NATIONAL ISSUES banner this region is cut at — widen the anchor here, do not loosen the check`)) return null;
+
+  // 1 · everything outside the table, byte for byte. ISSUE_MAP is in here, and so
+  //     is every scope note a wave could have widened to admit a refused row.
+  eq(B.before, A.before,
+    `${tag}alignment-tool.js changed ABOVE the parent table — ISSUE_MAP itself, the alignment ` +
+    `engine and every scope note live there, and a wave that adds no key moves none of them`);
+  eq(B.after, A.after,
+    `${tag}alignment-tool.js changed BELOW the parent table — the reverse lookup, the evidence ` +
+    `helpers and the team-alignment renderer live there`);
+  if (B.before === A.before && B.after === A.after && B.seam === A.seam) {
+    ok(true, `${tag}alignment-tool.js is byte-identical to HEAD`);
+    return { renamed: [], grew: [], identical: true };
+  }
+
+  const a = parseParentTable(A.seam), b = parseParentTable(B.seam);
+  ok(a.length > 0 && b.length > 0,
+    `${tag}the parent table could not be read out of the block (${a.length} cores at HEAD, ${b.length} in the tree)`);
+  // 2 · the same cores, in the same declared order.
+  eq(b.map((c) => c.key).join(","), a.map((c) => c.key).join(","),
+    `${tag}the set or the order of the core national issues changed — this region admits parents, ` +
+    `not a fourteenth core and not a re-keyed one`);
+  const atHead = {};
+  a.forEach((c) => { atHead[c.key] = c; });
+  // 4 · no key invented, judged against the pinned half of the file.
+  const known = new Set(publishedIssueKeys(treeSrc));
+  ok(known.size > 50, `${tag}the published ISSUE_MAP key set could not be read (${known.size} keys)`);
+  const lost = [], ghost = [];
+  for (const c of b) {
+    const was = atHead[c.key];
+    if (!was) continue;
+    // 3 · additions only, in place: nothing removed, nothing reordered.
+    if (!isSubsequence(was.keys, c.keys)) lost.push(c.key);
+    for (const k of c.keys) if (!known.has(k)) ghost.push(`${c.key}/${k}`);
+  }
+  eq(lost.join(", "), "",
+    `${tag}${lost.length} core(s) dropped or reordered a key they already had — this region is ` +
+    `additive, and a key leaving a core takes a chip and a crumb with it`);
+  eq(ghost.join(", "), "",
+    `${tag}${ghost.length} core entr(ies) name a key ISSUE_MAP does not publish — the pass added ` +
+    `parents, not vocabulary`);
+  // 5 · a label may only widen where the child set widened.
+  const renamed = b.filter((c) => atHead[c.key] && atHead[c.key].label !== c.label);
+  const grew = new Set(b.filter((c) => atHead[c.key] && c.keys.length > atHead[c.key].keys.length).map((c) => c.key));
+  const bare = renamed.filter((c) => !grew.has(c.key)).map((c) => c.key);
+  eq(bare.join(", "), "",
+    `${tag}${bare.length} core label(s) changed without the core gaining a key — that is a rename, ` +
+    `and a rename is refused; a label may only widen to name what has been filed under it`);
+  return { renamed: renamed.map((c) => c.key), grew: [...grew], identical: false };
 }

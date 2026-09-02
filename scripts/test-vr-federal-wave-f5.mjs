@@ -58,7 +58,8 @@ import vm from "node:vm";
 import { createHash } from "node:crypto";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { CJ_SEAMS_ALL as CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
-  assertWordActionSeams } from "./v103-chrome-seams.mjs";
+  assertWordActionSeams, assertParentTableIsTheOnlyMove,
+  PARENT_TABLE_MARK as TABLE_MARK } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -353,9 +354,22 @@ const CANDIDATES = {
   // THE SCOPE NOTES ARE UNTOUCHED. The tempting move, once a wall is found, is to widen
   // the published boundary until the row fits. That is rule 5's restuffing wearing a scope
   // note, and it moves a boundary every already-shipped row on the key was decided against.
+  // Byte identity against HEAD was the first spelling of this, and for every wave
+  // that writes only rows it still is — assertParentTableIsTheOnlyMove() takes the
+  // short path and says so when the file has not moved at all. The v109 issue-family
+  // pass had to finish CORE_NATIONAL_ISSUES, which lives in this file below ISSUE_MAP,
+  // so the hash is replaced by the five statements it stood in for: nothing outside
+  // the parent table moved a byte (ISSUE_MAP and every scope note are in there), the
+  // same thirteen cores in the same order, additions only, no key invented, and a core
+  // label may widen only where the core gained a child. F5 adds no key and bends no
+  // scope note, and a boundary widened to admit a refused row still fails here.
   const at = R("alignment-tool.js");
   const head = execFileSync("git", ["show", "HEAD:alignment-tool.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
-  eq(at, head, "alignment-tool.js changed — F5 adds no key and bends no scope note; widening a published boundary to admit a refused row is restuffing");
+  assertParentTableIsTheOnlyMove({ ok, eq }, head, at, "F5");
+  for (const k of Object.values(CANDIDATES).map((c) => c.key))
+    eq((head.match(new RegExp(`^\\s{6}${k}:\\s*\\{[^\\n]*`, "m")) || [""])[0],
+       (at.match(new RegExp(`^\\s{6}${k}:\\s*\\{[^\\n]*`, "m")) || [""])[0],
+       `the ISSUE_MAP entry for ${k} is not HEAD's — F5 uses that key, and its label, chip and scope are what the wave was judged against`);
   ok(String(decide.vocab.noKeyRenamedNoScopeNarrowed || "").length > 40,
     "the vocabulary section must state that no key was renamed and no scope narrowed (rule 32)");
   ok(/scope note/i.test(JSON.stringify(decide.standingWallsFound || {})),
@@ -497,6 +511,14 @@ function boot(get, label) {
     // House rolls from one Congress, and the four-leg gate that decides whether a file has
     // earned it. No count, chip, tier or figure moved; section 8's twin boot still holds.
     "word-action.js": "the formal brief names the slice it is reading instead of implying a career",
+    // The issue-family pass (CACHE_VERSION v109), and this one is a REGION rather than a
+    // span: CORE_NATIONAL_ISSUES, the site's only issue taxonomy, named a parent for 97 of
+    // the 121 published keys and left 24 with none — so `lands_preserve` had a label, a
+    // chip, four mapped measures and no branch to sit on. Finishing that table is the only
+    // thing in the file that moved; putting the missing half anywhere else would have been
+    // a second taxonomy. F5's stake is the published boundary, and the boundary is checked
+    // below on the five terms the hash stood in for, not excused by this line.
+    "alignment-tool.js": "CORE_NATIONAL_ISSUES gained a parent for the 24 published keys that had none",
   };
   const F5_REFUSED = ["H.R. 1069", "H.R. 973", "H.R. 8800", "H.Amdt. 245"];
   let touched = [];
@@ -526,6 +548,16 @@ function boot(get, label) {
       "word-action.js changed outside the slice gate and its two mounts — the letterhead the " +
       "whole formal read is rendered from is not a copy pass's to touch");
     assertWordActionSeams(wb.bodies, { has: has, eq, ok });
+  }
+  // alignment-tool.js, the issue-family pass (v109), on the same terms: the file is
+  // compared byte for byte everywhere outside the CORE NATIONAL ISSUES block, and the
+  // shape of the block itself is argued against HEAD's. What F5 needs from this file is
+  // that no key was added, none renamed and no scope note widened — all three of which
+  // live in the pinned half, and the third is the shortcut F5 states it declined to take.
+  if (touched.includes("alignment-tool.js")) {
+    assertParentTableIsTheOnlyMove({ ok, eq }, headSrc("alignment-tool.js"), nowSrc("alignment-tool.js"), "F5");
+    ok(!nowSrc("alignment-tool.js").split(TABLE_MARK)[0].includes("H.R. 1069"),
+      "a refused F5 instrument is named in the published vocabulary above the parent table");
   }
   if (touched.includes("consistency.js")) {
     const A = "  var _DOS_MECH = {\n", B = "\n  };\n  // Fails closed in three places, on purpose:";
@@ -702,4 +734,4 @@ console.log(`  F5: NOTHING SHIPPED, on purpose · ${c.unmappedPoolSwept} unmappe
   + `${c.candidatePromotesSimulated} Senate promotes simulated, all +0/-0 · ${c.standingWallsFound} standing walls found and quoted · `
   + `${c.rowsDraftedAndRefusedAsDoctrineReversals} drafted rows refused as declined reversals, kept with their measured cost · `
   + `keysAdded ${c.keysAdded} · floors unmoved · not one row or key written, and no engine byte outside `
-  + `the mechanism prose a later wave appends for its own acts\n`);
+  + `the spans and the one parent-table region later passes declare here for their own work\n`);

@@ -10,7 +10,14 @@
 // person with no stated position on an issue cannot be inconsistent about it, so
 // that ordering sorted a formal record by whether we happen to hold a quote. And
 // `lands_preserve` — a shipped key with a label, a chip and formal acts filed
-// against it — was reachable from neither, because no bundle lists it.
+// against it — was reachable from neither, because no bundle listed it.
+//
+// THE PARENT TABLE HAS SINCE CLOSED THAT GAP: every published ISSUE_MAP key now
+// sits under exactly one of the thirteen cores, so `lands_preserve` is a child
+// chip on Climate, Energy & Land and the desk prints a Core → Child crumb over
+// its census. That moves where the key is REACHED FROM. It must not move what is
+// READ: the assertions below are all about the ledger being this key's own record,
+// by exact key, and every one of them still holds with a parent overhead.
 //
 // What this file pins:
 //
@@ -66,6 +73,7 @@ const FILES = [
   "state-senate-stances.js",
   "stance-helpers.js",
   "alignment-tool.js",
+  "pdx-issue-family.js",
   "acct-spotlight-data.js",
   "say-vs-do.js",
   "exec-action-data.js",
@@ -107,6 +115,9 @@ const has = (hay, needle, msg) =>
 const no = (hay, needle, msg) =>
   ok(String(hay).indexOf(needle) < 0, `${msg} — "${needle}" present and must not be`);
 const section = (t) => console.log(`\n   ── ${t}`);
+// The modules' own escaping, so a core label with an ampersand in it (Climate,
+// Energy & Land) is matched against the markup rather than asserted around.
+const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 // A probe that finds nothing fails loudly, rather than turning this file into a
 // very fast, very green no-op.
 const must = (cond, msg) => {
@@ -265,8 +276,14 @@ must(FPI && typeof FPI.rowFor === "function" && typeof FPI.band === "function" &
   "the formal-pattern index does not publish rowFor / band / LEDGER_BANDS, so this pane would be\n" +
   "    reading a characterisation of its own");
 must(probe.ISSUE_MAP && probe.ISSUE_MAP[KEY], `${KEY} is no longer a shipped ISSUE_MAP key`);
-must(!(probe.CORE_NATIONAL_ISSUES || []).some((c) => c && (c.key === KEY || (c.keys || []).indexOf(KEY) >= 0)),
-  `${KEY} is now inside one of the thirteen bundles — this file's whole premise is that it is not`);
+// The key's parent, read off the shipped table rather than named here, because a
+// literal copied into a test is a second taxonomy in miniature.
+const PARENT = (probe.CORE_NATIONAL_ISSUES || [])
+  .filter((c) => c && (c.keys || []).indexOf(KEY) >= 0)[0] || null;
+must(!!PARENT,
+  `${KEY} is in none of the thirteen bundles — every published key is supposed to have exactly ` +
+  `one parent, so this is an orphan (see scripts/test-issue-family.mjs)`);
+must(PARENT.key !== KEY, `${KEY} is a core, not a child — this file reads a child's ledger`);
 must(corpus.byMember.has("lee") && corpus.byMember.has("curtis"),
   "the corpus no longer carries lee and curtis");
 
@@ -292,9 +309,24 @@ const LEDGER = await (async () => {
   no(html, EMPTY, `${KEY} printed the no-vehicle sentence over a record that has rows on file`);
   has(html, "d1-led-census", "the ledger printed no census");
   has(html, "d1-led-band", "the ledger printed no bands");
-  // The desk says out loud that this key sits in none of the thirteen.
-  has(html, "not inside any of the tracked issues above",
-    "a standalone key did not say that no bundle carries it");
+  // The desk says out loud WHERE this key sits — one family, named — and it says
+  // it about the key rather than about the family: the scope line and the crumb
+  // both print the child's own label, and neither promises a bundle reading.
+  has(html, `inside ${esc(PARENT.label)}`,
+    `the desk did not place ${KEY} under its parent core`);
+  has(html, `Scoped to <b>${esc(w.ISSUE_MAP[KEY].label)}</b>`,
+    "the desk did not scope the pane to this key alone");
+  has(html, "not the whole bundle", "the desk did not say the read is the key, not its family");
+  no(html, "not inside any of the tracked issues above",
+    `${KEY} has a parent now and the desk still calls it unparented`);
+  // THE CRUMB, under the census: Core label → Child label.
+  const CRUMB = `${PARENT.label} → ${w.ISSUE_MAP[KEY].label}`;
+  has(html, "d1-led-crumb", "the census printed no Core → Child crumb");
+  const crumbBlock = html.slice(html.indexOf("d1-led-crumb"));
+  for (const bit of [esc(PARENT.label), "→", esc(w.ISSUE_MAP[KEY].label)]) {
+    has(crumbBlock.slice(0, crumbBlock.indexOf("</p>")), bit,
+      `the crumb is missing "${bit}" (wanted ${CRUMB})`);
+  }
 
   const led = w.PDXDoor1._ledger(null, KEY);
   must(led && led.people > 20,
@@ -505,8 +537,11 @@ section("5 · The Eye leads with the record, and the ranking does not run");
     no(h, "Ranked by consistency", `"${q}": the consistency heading ran on an issue-key query`);
     no(h, 'data-ans="1"', `"${q}": the ranked issue answer block ran on an issue-key query`);
     no(h, "%", `"${q}": a percentage reached the Eye's issue block`);
-    // The lens tells the truth about a key no bundle carries.
-    has(h, "in none of the thirteen bundles", `"${q}": the lens does not place the key honestly`);
+    // The lens tells the truth about where the key sits: one named family, and
+    // not a claim that the family itself has been read.
+    has(h, `inside ${esc(PARENT.label)}`, `"${q}": the lens does not place the key honestly`);
+    no(h, "in none of the thirteen bundles",
+      `"${q}": the lens still calls a parented key unparented`);
   }
   // A person whose NAME merely contains the word is still a result — just not the
   // answer to a question about public lands.
@@ -729,8 +764,20 @@ section("8 · The assets travel together");
   const iLog = SW.indexOf(`// v${v} - `);
   const entry = SW.slice(iLog, SW.indexOf("const CACHE_VERSION", iLog));
   must(entry.length > 200, `the v${v} entry is too short to be naming anything`);
+  // THE LOG IS THE RECORD OF WHY EACH SHELL FILE MOVED. A bump renames both cache
+  // buckets, so it invalidates every one of these files at once whether or not
+  // this particular pass touched them; what the log owes a reader is the version
+  // at which each of them last changed under this pane. Asserted over the whole
+  // log rather than the newest entry, because a later pass that moves only the
+  // desk must not be forced to claim it moved consistency.js too.
+  const LOG = SW.slice(0, SW.indexOf("const CACHE_VERSION"));
   for (const f of ["door1-workspace.js", "door1-workspace.css", "consistency.js",
                    "all-seeing-eye.js", "index.html"]) {
+    has(LOG, f, `the version log never names ${f} among the files this pane travels with`);
+  }
+  // The NEWEST entry still has to name the desk, its stylesheet and the page —
+  // any bump that reaches this pane reaches those three.
+  for (const f of ["door1-workspace.js", "door1-workspace.css", "index.html"]) {
     has(entry, f, `the v${v} entry does not name ${f} among the files that must travel together`);
   }
   has(entry, "Direction Match", `the v${v} entry does not say what did NOT move`);

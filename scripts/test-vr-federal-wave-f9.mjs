@@ -63,7 +63,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { CJ_SEAMS, CJ_SEAMS_BELOW, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
-  assertWordActionSeams } from "./v103-chrome-seams.mjs";
+  assertWordActionSeams, assertParentTableIsTheOnlyMove } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -817,12 +817,23 @@ const swNote = swWaveNote();
   // _pdxStanceRecordStats, and what changed inside that span is argued below. F9 has no
   // stake in it — the span counts rows the record lane already holds and answers whether
   // the lane has answered at all. No floor, no mapping, no weight, no roll.
-  const MAY_MOVE = ["consistency.js", "cmp-data.js", "stance-helpers.js", "word-action.js"];
+  // alignment-tool.js is on the allowed side for the issue-family pass (v109), as a
+  // REGION and not a licence: CORE_NATIONAL_ISSUES, the site's only issue taxonomy and
+  // declared in that file below ISSUE_MAP, named a parent for 97 of the 121 published
+  // keys and left 24 with none — labels, chips and ledgers with no branch to sit on.
+  // Finishing that table is the only thing in the file that moved, and the rest of it is
+  // still compared byte for byte, so ISSUE_MAP itself, every scope note and the whole
+  // alignment engine stay pinned. F9 has no stake in the block: it lists which keys
+  // belong under which heading and reads no roll, no floor and no member.
+  const MAY_MOVE = ["consistency.js", "cmp-data.js", "stance-helpers.js", "word-action.js", "alignment-tool.js"];
   const has = (x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`);
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== R(f); });
   const strayBooted = touched.filter((f) => !MAY_MOVE.includes(f));
   eq(strayBooted.join(", "), "",
     `F9 changed a booted file it has no business editing (${strayBooted.join(", ") || "none"})`);
+  if (touched.includes("alignment-tool.js")) {
+    assertParentTableIsTheOnlyMove({ ok, eq }, headSrc("alignment-tool.js"), R("alignment-tool.js"), "F9");
+  }
   if (touched.includes("stance-helpers.js")) {
     const sa = carveSeams(headSrc("stance-helpers.js"), SH_SEAMS, "HEAD", "stance-helpers.js", ok);
     const sb = carveSeams(R("stance-helpers.js"), SH_SEAMS, "now", "stance-helpers.js", ok);
@@ -915,7 +926,19 @@ const swNote = swWaveNote();
   // migrations on disk, so seven new judged acts re-rank the six-line window whether or
   // not anyone regenerates it — a device holding the old copy would serve a person's old
   // six lines. The section below requires the move to be THIS wave's.
-  const DECLARED = new Set(["consistency.js", "sw.js", ISSUE_SEED, "sitemap.xml",
+  const DECLARED = new Set([
+    // The issue-family pass (v109) — the one parent table finished, the family module
+    // that reads it, the two surfaces that stopped grouping issues their own way, and the
+    // shell bump that ships them together. See the booted-file note above for why the
+    // taxonomy had to be finished in place rather than mirrored somewhere new.
+    "alignment-tool.js", "pdx-issue-family.js", "door1-workspace.js", "door1-workspace.css",
+    "stance-tree.js", "index.html", "CORE_NATIONAL_ISSUES.md",
+    "scripts/v103-chrome-seams.mjs", "scripts/test-issue-family.mjs",
+    "scripts/test-issue-record-ledger.mjs", "scripts/test-stance-tree.mjs",
+    "scripts/test-door-one-collapse.mjs", "scripts/test-vr-federal-wave-f5.mjs",
+    "scripts/test-vr-federal-wave-f6.mjs", "scripts/test-vr-federal-wave-f9.mjs",
+    "scripts/test-vr-federal-roster-r1.mjs", "scripts/test-vr-federal-roster-r2.mjs",
+    "scripts/test-person-crawl-block.mjs","consistency.js", "sw.js", ISSUE_SEED, "sitemap.xml",
     "db/share-index.json",
     "scripts/test-vr-federal-wave-f7.mjs", "scripts/test-vr-federal-wave-f8.mjs",
     // Everything below belongs to a LATER wave, declared on the terms F8 established rather

@@ -19895,7 +19895,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             <div class="bg-navy-900/50 border border-white/6 rounded-lg px-3 py-2 text-xs text-steel-300"><span class="text-gold-400 font-700">11.</span> Civil Rights &amp; Culture</div>
             <div class="bg-navy-900/50 border border-white/6 rounded-lg px-3 py-2 text-xs text-steel-300"><span class="text-gold-400 font-700">12.</span> Foreign Policy &amp; Security</div>
           </div>
-          <p class="text-xs text-steel-500 leading-relaxed mt-3">Source of truth: <code class="text-xs bg-black/30 px-1 rounded">CORE_NATIONAL_ISSUES</code> in <code class="text-xs bg-black/30 px-1 rounded">alignment-tool.js</code>. The Evidence Locker shows each federal profile an <span class="text-steel-300">X/12 core issues</span> footprint.</p>
+          <p class="text-xs text-steel-500 leading-relaxed mt-3">Source of truth: <code class="text-xs bg-black/30 px-1 rounded">CORE_NATIONAL_ISSUES</code> in <code class="text-xs bg-black/30 px-1 rounded">alignment-tool.js</code>. The Evidence Locker shows each federal profile an <span class="text-steel-300">X/13 core issues</span> footprint.</p>
         </div>
       </div>
 
@@ -22074,6 +22074,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        exactly as it did before the education layer existed. -->
   <script defer src="/pdx-learn.js"></script>
   <script defer src="/alignment-tool.js"></script>
+  <!-- The issue family table (window.PDXIssueFamily). ONE parent table for the
+       whole site: a core is a table of contents, a child is an ISSUE_MAP key, and
+       the child is the issue profile. Loaded straight after alignment-tool.js
+       because it reads that file's CORE_NATIONAL_ISSUES / ISSUE_MAP and nothing
+       else — no roster, no record, no score. The Door 1 issue desk paints its
+       child chips from it and the person file's topic tree groups by it, so the
+       two can never disagree about which family an issue belongs to. Every
+       consumer is guarded: without this file both surfaces fall back to the
+       lookups they shipped with. -->
+  <script defer src="/pdx-issue-family.js"></script>
   <!-- Core National Issue colors (window.PDXIssueColors). One source of truth for
        "what color is this issue", so a stance chip, a Word vs Action row, a
        Spotlight card and a coverage gap that all name healthcare are all the same
