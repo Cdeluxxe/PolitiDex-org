@@ -398,11 +398,16 @@
       // ── THE THIRTEEN, AS A TABLE OF CONTENTS ────────────────────────────
       // A core is a place to browse from: it has no record of its own and nothing
       // characterises a person "on" a core (see pdx-issue-family.js). So the row
-      // is `kind: 'family'`, not `kind: 'issue'`, and activating it opens
-      // /i/<coreKey> — the desk inventory and its key shelf — instead of the
-      // 882-person ranking that used to answer a bundle query as though the
-      // bundle itself had been read. The ranking still exists; it is one tap
-      // deeper, behind the key the reader actually meant.
+      // is `kind: 'family'`, not `kind: 'issue'`, and activating it opens the
+      // desk's own family shelf — the inventory and the child chips under it —
+      // instead of the 882-person ranking that used to answer a bundle query as
+      // though the bundle itself had been read. The ranking still exists; it is
+      // one tap deeper, behind the key the reader actually meant.
+      //
+      // AND THE ROW IS NOT AN ADDRESS. It used to be an anchor on the core's own
+      // path, which resolved to no file and left the reader looking at nothing —
+      // see issueFileHref() and navigate('family') below. A family is a door on
+      // this page, not a document with a citation.
       try {
         var core = window.CORE_NATIONAL_ISSUES || [];
         core.forEach(function (ci) {
@@ -413,7 +418,9 @@
             kind: 'family', issueKey: ci.key, keys: (ci.keys || []).slice(), title: stripEmoji(ci.label) || ci.label,
             titleLc: norm(stripEmoji(ci.label) || ci.label),
             tokens: norm(ci.label).split(/[^\p{L}\p{N}]+/u).filter(Boolean),
-            sub: 'Issue family · ' + (kidN ? (kidN + ' key' + (kidN === 1 ? '' : 's') + ' filed under it') : 'no keys filed under it yet'),
+            sub: 'Issue family · ' + (kidN
+              ? (kidN + ' key' + (kidN === 1 ? '' : 's') + ' filed under it · opens the issue desk')
+              : 'no keys filed under it yet'),
             desc: ci.blurb || '', icon: leadEmoji(ci.label) || '🎯',
             hay: parts.filter(Boolean).join(' ').toLowerCase()
           });
@@ -1161,18 +1168,38 @@
         else { var ht = document.getElementById('hot-topics'); if (ht) ht.scrollIntoView({ behavior: 'smooth' }); }
       }
       else if (kind === 'issuefile') {
-        // THE FILE, NOT THE RANKING. A key opens its own /i/<key> ledger; one of
-        // the thirteen opens /i/<coreKey>, which is the desk inventory and the key
-        // shelf under it — because a bundle has no single record to read and which
-        // key the reader meant is theirs to say. Routed through the desk's own
-        // entry point, so the pick is recorded and the record warmed exactly as it
-        // is when the chip is tapped on the desk itself.
+        // THE FILE, NOT THE RANKING. A published leaf opens its own ledger at its
+        // own address. Routed through the desk's own entry point, so the pick is
+        // recorded and the record warmed exactly as it is when the chip is tapped
+        // on the desk itself.
         var ik = data.key || '';
         if (!ik) return;
         try { if (typeof window.pdxDoor1Issue === 'function') { window.pdxDoor1Issue(ik); return; } } catch (e) {}
-        // No desk on the page: the address is real, so go to it rather than
+        // No desk on the page: a leaf's address is real, so go to it rather than
         // falling through to a view that answers a different question.
-        try { var u = issueFileUrl(ik); if (u && u !== '#') window.location.href = u; } catch (e) {}
+        try { var u = issueFileHref(ik); if (u) window.location.href = u; } catch (e) {}
+      }
+      else if (kind === 'family') {
+        // ── A FAMILY ROW OPENS THE FAMILY SHELF ─────────────────────────────
+        // NOT the consistency ranking (that characterises people, and this row is
+        // about an issue), and NOT an issue file (a core has none — see
+        // issueFileHref). What it opens is the door that already exists: Door 1's
+        // "Open an issue" desk, with this family selected and its child keys
+        // painted as chips, so the reader picks the key they actually meant. One
+        // entry point — window.pdxDoor1Issue — which is the same call the desk's
+        // own chip makes, so the pick is recorded and the record warmed
+        // identically whether the tap happened here or there.
+        var ck = data.key || '';
+        if (!ck) return;
+        try { if (typeof window.pdxDoor1Issue === 'function' && window.pdxDoor1Issue(ck)) return; } catch (e) {}
+        // No desk painted on this page. The honest fallback is the desk's own
+        // landing, never the ranking and never an address with no file behind it.
+        try {
+          var D = window.PDXDoor1;
+          if (D && typeof D.toDesk === 'function') { D.toDesk('issue'); return; }
+        } catch (e) {}
+        var ht = document.getElementById('hot-topics');
+        if (ht && ht.scrollIntoView) ht.scrollIntoView({ behavior: 'smooth' });
       }
       else if (kind === 'bill') {
         if (window.PDXBills && typeof window.PDXBills.open === 'function') window.PDXBills.open(data.number || data.id);
@@ -1211,7 +1238,8 @@
       if (e.kind === 'pol' || e.kind === 'stance') navigate('pol', { id: e.id });
       else if (e.kind === 'spotlight') navigate('spotlight', { slug: e.slug });
       else if (e.kind === 'issue') navigate('issue', { key: e.issueKey, focusKey: e._focus || '' });
-      else if (e.kind === 'family' || e.kind === 'issuefile') navigate('issuefile', { key: e.issueKey });
+      else if (e.kind === 'family') navigate('family', { key: e.issueKey });
+      else if (e.kind === 'issuefile') navigate('issuefile', { key: e.issueKey });
       else if (e.kind === 'bill') navigate('bill', { number: e.number, id: e.id });
       // A mandate row opens the mandate surface by the issue the bridge filed the
       // reform under, with the agenda id alongside so the right card is flashed
@@ -1479,13 +1507,21 @@
     // says how many keys are filed under it (a length, not a reading); a file says
     // which family it sits in, or that it sits in none — which is not a gap.
     function fileRowHtml(e, q, terms, idx, cls, chipText, chipKey) {
-      var url = issueFileUrl(e.issueKey || '');
+      var href = issueFileHref(e.issueKey || '');
       var tint = issueTint(chipKey || e.issueKey || '');
       var chip = chipText
         ? '<span class="pdx-eye-topic"' + tint + '>' + esc(chipText) + '</span>'
         : '';
-      return '<a role="option" class="pdx-eye-item ' + cls + '" data-i="' + idx + '"' +
-        ' href="' + esc(url) + '" data-kind="' + (e.kind === 'family' ? 'family' : 'issuefile') + '"' +
+      // ONE SHAPE, TWO ELEMENTS, AND THE ADDRESS DECIDES WHICH. A leaf file has
+      // a served path, so its row is an anchor. A family has no file at that
+      // address, so its row is a button — the same body, the same tint, the same
+      // tap, minus a destination it cannot honour. See issueFileHref() above.
+      var open = href
+        ? '<a role="option" class="pdx-eye-item ' + cls + '" data-i="' + idx + '"' +
+          ' href="' + esc(href) + '"'
+        : '<button type="button" role="option" class="pdx-eye-item ' + cls + '" data-i="' + idx + '"';
+      return open +
+        ' data-kind="' + (e.kind === 'family' ? 'family' : 'issuefile') + '"' +
         ' data-key="' + esc(e.issueKey || '') + '"' + tint + '>' +
         '<span class="pdx-eye-thumb pdx-eye-thumb--issue">' + esc(e.icon) + '</span>' +
         '<span class="pdx-eye-body">' +
@@ -1493,12 +1529,15 @@
           '<span class="pdx-eye-sub">' + esc(e.sub) + '</span>' +
         '</span>' +
         chip + personalBadge(e) +
-      '</a>';
+      (href ? '</a>' : '</button>');
     }
     function issueFileItem(e, q, terms, idx) {
       return fileRowHtml(e, q, terms, idx, 'pdx-eye-item--file',
         e.coreLabel || 'Unfiled key', e.coreKey || e.issueKey || '');
     }
+    // A FAMILY ROW SAYS WHAT IT OPENS. A length ("17 keys filed under it") and a
+    // destination ("opens the issue desk") — no count of people, no share, no
+    // ordering claim, and no promise of a file this key has not got.
     function familyItem(e, q, terms, idx) {
       return fileRowHtml(e, q, terms, idx, 'pdx-eye-item--fam', 'Issue family', e.issueKey || '');
     }
@@ -2080,6 +2119,53 @@
       } catch (e) {}
       return '#';
     }
+    // ── WHICH KEYS HAVE A FILE AT THAT ADDRESS, AND WHICH DO NOT ──────────
+    // WHAT WAS WRONG. Every issue-class row was an anchor on the issue file's
+    // own path, family rows included — so tapping Climate, Energy & Land went to
+    // /i/climate_energy and nothing usable opened there. The row was promising a
+    // destination that does not exist: `climate_energy` is a CORE FAMILY, not a
+    // leaf, and the file at that address is a leaf's census.
+    //
+    // WHAT DECIDES IT NOW, read off the register rather than guessed:
+    //   · PUBLISHED. ISSUE_MAP carries a label for the key. Unpublished
+    //     scaffolding has no face to print and no file to open.
+    //   · NOT ONE OF THE THIRTEEN. A core is a family: its records ARE its member
+    //     keys, issueProfileHtml() answers '' for it because there is no single
+    //     key to scope a census to, and a core address therefore lands on the
+    //     desk's family shelf rather than on a file. Eleven of the thirteen are
+    //     not published keys at all; `healthcare` and `election_integrity` are —
+    //     and still have no file, because what gives a key a census is having a
+    //     parent to be scoped inside, not being published. So coreness is asked
+    //     as its own question rather than inferred from publication.
+    // A key that fails either test gets NO href and its row is a <button>. A
+    // copyable address is a promise about a destination; where there is none the
+    // honest control is the one that cannot be copied. The tap is unchanged in
+    // both shapes — see navigate('family') and navigate('issuefile').
+    function issueFileHref(key) {
+      var k = String(key == null ? '' : key).trim();
+      if (!k) return '';
+      try {
+        var IM = window.ISSUE_MAP || {};
+        if (!IM[k] || !IM[k].label) return '';
+      } catch (e) { return ''; }
+      if (isCoreKey(k)) return '';
+      var u = issueFileUrl(k);
+      return (u && u !== '#') ? u : '';
+    }
+    // One of the thirteen? The family table owns the answer; the array scan is
+    // the fallback for a document served without it, and it reads the same array
+    // that table is built from.
+    function isCoreKey(k) {
+      try {
+        var F = window.PDXIssueFamily;
+        if (F && typeof F.isCore === 'function') return !!F.isCore(k);
+      } catch (e) {}
+      try {
+        var core = window.CORE_NATIONAL_ISSUES || [];
+        for (var i = 0; i < core.length; i++) if (core[i] && core[i].key === k) return true;
+      } catch (e) {}
+      return false;
+    }
     var keyIsBundle = false;
     function issueKeyBlock(q) {
       keyIsBundle = false;
@@ -2136,6 +2222,13 @@
           // of its own; the bundle branch gets the same address, because
           // /i/<coreKey> opens the desk's inventory and its key shelf, which is
           // exactly what this button has always promised for one of the thirteen.
+          // That last clause is only true because pdx-issue-profile.js's arrival
+          // now HANDLES a core id — it mounts no empty file, opens the desk on
+          // the family and says it is a family of N keys rather than a file. This
+          // control keeps its address for copy, new-tab and middle-click; the
+          // family ROW below has no address, because a row is a destination and
+          // there is no file at /i/<coreKey> to be one. See WHICH KEYS HAVE A
+          // FILE AT THAT ADDRESS, AND WHICH DO NOT.
           '<a class="pdx-eye-ans-btn pdx-eye-ans-btn--primary" href="' +
             esc(issueFileUrl(key)) + '" data-eye-key-go="' + esc(key) + '">' +
             '<span aria-hidden="true">🏛</span>' +
@@ -2413,21 +2506,37 @@
       // The issue key leads where the query names one, and the consistency ranking
       // stands down on that path rather than being relabelled. See the wall above.
       var keyHtml = issueKeyBlock(q);
-      // Computed either way, because `keyIsBundle` is what the gate below reads.
-      var keyFound = !!keyHtml;
+      // `keyIsBundle` no longer gates anything in the assembly — it decides the
+      // key block's OWN lens and door copy, and the ranking it used to keep alive
+      // on a bundle query is gone from this lane entirely (see below), so there
+      // is nothing left for a "was a key found" flag to stand down for.
       // AN /i/ FILE ROW DOES NOT APPEAR IN PUBLIC MODE, and the lead block is one
       // — the whole block is the issue's file, in the file's own words, with the
       // file's own door. Withheld rather than reworded.
       if (!formal) keyHtml = '';
-      // The ranked answer is withheld only where the key block actually answered
-      // the same question — a narrow key, read off the record. A bundle hit keeps
-      // it: see AND A WHOLE BUNDLE IS NOT A KEY above. In public mode there is no
-      // key block to stand down for, and the ranking is a public-lane reading, so
-      // it runs.
+      // ── THE CONSISTENCY RANKING IS NOT A FORMAL ANSWER ───────────────────
+      // WHAT WAS WRONG. Formal led with the Issue Answer — "Climate, Energy &
+      // Land · Ranked by consistency · who backs up their words first", party
+      // letters down the rows and "See all 882 people ranked" under them — on a
+      // query that asked what the record did. That block is the WORD-VS-ACTION
+      // lane: a person with no stated position on an issue cannot be inconsistent
+      // about it, so ordering an issue by consistency sorts the formal record by
+      // whether we happen to hold a quote. It was withheld on a narrow key already
+      // and KEPT on a bundle, which is how a family query ended up answered by a
+      // ranking of people.
+      //
+      // It is withheld in this lane outright now. Not relabelled, not reordered,
+      // not conditioned on what the query resolved to: the formal lane's order is
+      // issue files → the families they sit in → people with a formal row →
+      // measures, and a reading of who backs up their words is not one of those
+      // four. The ranking still exists and is still one tap away — through the key
+      // block's own door, and through the Public lane, where the heading names its
+      // ordering honestly and the reader chose that lane.
+      //
       // AND NEITHER BLOCK APPEARS IN THE MANDATE LANE AT ALL. The key block is an
-      // /i/ file row; the ranked answer is a word-vs-action reading of the roster.
-      // Both are answers about a record, and this lane's document has none.
-      var ansHtml = isMandate ? '' : ((formal && keyFound && !keyIsBundle) ? '' : answerBlock(q));
+      // issue file row; the ranked answer is a word-vs-action reading of the
+      // roster. Both are answers about a record, and this lane's document has none.
+      var ansHtml = (isMandate || formal) ? '' : answerBlock(q);
       // The claim block goes ABOVE both, and is also the reason the no-match
       // branch is no longer a dead end: a pasted claim frequently ranks nothing
       // (every term-in-hay check fails on a sentence) while still being the one
@@ -2606,7 +2715,8 @@
       if (kind === 'pol') navigate('pol', { id: el.getAttribute('data-id') });
       else if (kind === 'spotlight') navigate('spotlight', { slug: el.getAttribute('data-slug') });
       else if (kind === 'issue') navigate('issue', { key: el.getAttribute('data-key') });
-      else if (kind === 'family' || kind === 'issuefile') navigate('issuefile', { key: el.getAttribute('data-key') });
+      else if (kind === 'family') navigate('family', { key: el.getAttribute('data-key') });
+      else if (kind === 'issuefile') navigate('issuefile', { key: el.getAttribute('data-key') });
     }
     function entryAt(el) {
       var res = el && el.closest ? el.closest('.pdx-eye-res') : null;

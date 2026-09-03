@@ -880,6 +880,66 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v117 - A FAMILY IS A DOOR, NOT AN ADDRESS; AND A RANKING IS NOT A FORMAL
+// ANSWER. Two defects with one shape: a surface promising a document that does
+// not exist. (1) The All-Seeing Eye painted a core issue row — "Climate, Energy
+// & Land" — as <a href="/i/climate_energy">. A core is a FAMILY of keys, not a
+// key: resolveIssue() gives a core an empty focusKey and issueProfileHtml()
+// scopes a census to ONE key, so there is no file at that path to mount. Tapping
+// the row navigated, the panel refused the empty body, and the reader was left on
+// the front page having been told a file was there. (2) In the FORMAL lane the
+// Eye led with the Word-vs-Action ranking — "Climate, Energy & Land · Ranked by
+// consistency · who backs up their words first", party letters down the rows and
+// "See all 882 people ranked" beneath it — which is a characterisation of 882
+// people and not the formal file the query asked for.
+//   · all-seeing-eye.js    - a family row is a <button> now, not an anchor: same
+//                            body, same family tint, same tap, no citation. The
+//                            new issueFileHref() answers "is there a file at this
+//                            address" — published ISSUE_MAP leaf AND not one of
+//                            the thirteen cores — and a row only becomes an <a>
+//                            when it says yes, so a leaf row (Protect Public
+//                            Lands) still carries href="/i/lands_preserve"
+//                            exactly as before. Activating a family row calls the
+//                            desk's one issue entry point, window.pdxDoor1Issue
+//                            (core), which is the same pick the desk's own chip
+//                            makes — the family shelf with its child keys visible
+//                            — and never PDXIssueView. The consistency ranking
+//                            block does not render in FORMAL at all now (it was
+//                            already absent from MANDATE); PUBLIC still holds it,
+//                            unchanged, because that lane is where a reading of
+//                            who backs up their words belongs. Formal's order is
+//                            untouched otherwise: issue files, then families,
+//                            then people with a formal row, then measures. The
+//                            key card keeps its address for copy and new-tab —
+//                            see pdx-issue-profile.js, which is what makes that
+//                            address honest for a core.
+//   · pdx-issue-profile.js - the cold arrival at /i/<coreKey> stops pretending.
+//                            Before the stamp, before the title and before the
+//                            canonical, a core id opens the desk on that family
+//                            and raises the app's own honest notice: "<label> is
+//                            a family of N keys, not a single file — its records
+//                            are the keys filed under it." Nothing about that
+//                            address claims a file exists at it: no replaceState,
+//                            no canonical rewrite, no document title, no empty
+//                            panel. A leaf address is completely unchanged and
+//                            still stamps, titles and mounts the one census.
+//   · door1-workspace.js   - the desk says the same sentence the notice does,
+//                            above the bundle inventory, so a reader who arrived
+//                            by tap and a reader who arrived by link are told the
+//                            same thing. issueProfileHtml(key) is UNTOUCHED and
+//                            is still the one leaf census; no key was minted.
+//   · door1-workspace.css  - one small note style for that sentence.
+//   · sw.js                - this note and the bump. The desk, the address module
+//                            and the desk's stylesheet are precached and the Eye
+//                            is a runtime entry, so the bump renames both buckets
+//                            and a warm device cannot pair the new arrival with
+//                            the old rows or the reverse.
+// NOTHING ELSE MOVED. No score, no percentage, no tier, no party sort, no new
+// ISSUE_MAP key and no Direction Match change: every person brief and every DM
+// read is byte-identical across a twin boot. The Mandate lane is exactly as v116
+// left it, the executive-act copy is untouched, and /i/<leaf> files render the
+// same markup they did before this pass.
+//
 // v116 - A MANDATE IS A THIRD LANE, NOT PUBLIC AND NOT FORMAL. v115 gave the
 // All-Seeing Eye two lanes, and that left the site's third kind of document with
 // nowhere honest to sit. A People's Mandate item is a PROPOSED VEHICLE. In the
@@ -1353,7 +1413,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v116';
+const CACHE_VERSION = 'v117';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

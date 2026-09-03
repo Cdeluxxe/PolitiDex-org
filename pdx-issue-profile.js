@@ -228,6 +228,69 @@
   // not carry, so it is asked to say it rather than paraphrased here; the notice
   // exists because the desk is a long way down the page and a reader who
   // followed a citation is owed the answer where they landed.
+  // ── A FAMILY IS NOT A FILE ────────────────────────────────────────────────
+  // WHAT WAS WRONG. /i/climate_energy resolved — `climate_energy` is one of the
+  // thirteen and the desk's resolver knows it — and then the arrival behaved as
+  // though a file had been found: the address was stamped as a citation, the tab
+  // was retitled "… — the formal record", rel=canonical was repointed at it, and
+  // the panel refused to open because there was nothing to put in it. The reader
+  // got the homepage under a file's address and no sentence saying why.
+  //
+  // A CORE HAS NO FILE AT THIS ADDRESS, AND THAT IS STRUCTURAL, not a gap in the
+  // data: issueProfileHtml() scopes a census to ONE key, a core is the set its
+  // member keys are filed under, and which of them a reader meant is theirs to
+  // say. Eleven of the thirteen are not published ISSUE_MAP keys at all;
+  // `healthcare` and `election_integrity` are, and still have no file, because
+  // what earns a key a census is having a parent to be scoped inside.
+  //
+  // SO THE ARRIVAL ANSWERS THE QUESTION IT CAN. The family shelf — Door 1's
+  // "Open an issue" with this core selected and its child chips painted, which is
+  // exactly what the Eye's family row opens — and the count said out loud, in the
+  // desk's own words and the notice's, because the desk is a long way down a
+  // single-page document. Nothing is stamped: the address is left exactly as the
+  // reader typed it, the tab keeps the front page's title and the canonical keeps
+  // pointing at the front page, because none of the three may claim there is a
+  // file here. Same shape as missed(), for the same reason.
+  //
+  // BOTH QUESTIONS GO TO THE FAMILY TABLE and nowhere else. PDXIssueFamily owns
+  // "is this one of the thirteen" and "which keys are filed under it", the desk's
+  // own child shelf reads the same two answers, and this module is not allowed a
+  // second opinion — a core list of its own here is how two surfaces end up
+  // disagreeing about what a family contains. A document served without the table
+  // answers false and the arrival behaves exactly as it did before this pass:
+  // the panel refuses an empty body and the reader lands on the desk.
+  function isFamily(key) {
+    var F = family();
+    try { if (F && fn(F.isCore)) return !!F.isCore(key); } catch (e) {}
+    return false;
+  }
+  function familyKids(key) {
+    var F = family();
+    try { if (F && fn(F.childrenOf)) return (F.childrenOf(key) || []).length; } catch (e) {}
+    return 0;
+  }
+  function familyLanding(key, opened) {
+    var D = desk();
+    var label = key;
+    try { if (D && fn(D.issueLabelFor)) label = D.issueLabelFor(key) || key; } catch (e) {}
+    var n = familyKids(key);
+    // The shelf, through the desk's own landing — the same destination a chip tap
+    // and the Eye's family row reach. Never PDXIssueView: a ranking of people is
+    // not what an address naming an issue family asked for.
+    try { if (D && fn(D.toDesk)) D.toDesk('issue'); } catch (e) {}
+    try {
+      var L = window.PDXShareLinks;
+      if (L && fn(L.notice)) {
+        L.notice('pdx-issue-family', 'Issue family',
+          label + ' is a family of ' + n + ' key' + (n === 1 ? '' : 's') + ', not a single ' +
+          'file — its records are the keys filed under it. The issue desk is open on it ' +
+          'below, with those keys as chips: pick the one you meant and the record on it is ' +
+          'read out. Nothing was approximated.');
+      }
+    } catch (e) {}
+    return !!opened;
+  }
+
   function missed(raw) {
     var D = desk();
     try { if (D && fn(D._seek)) D._seek(raw); } catch (e) {}
@@ -292,6 +355,10 @@
       if (D && fn(D.open)) D.open('issue', { quiet: true });
       opened = !!(fn(window.pdxDoor1Issue) && window.pdxDoor1Issue(key));
     } catch (e) { opened = false; }
+    // ONE OF THE THIRTEEN IS A FAMILY, AND STOPS HERE. Before the stamp, before
+    // the title and before the panel: nothing about this address may claim a file
+    // exists at it. See A FAMILY IS NOT A FILE above.
+    if (isFamily(key)) { familyLanding(key, opened); return key; }
     stamp(key);
     try { document.title = title(key); } catch (e) {}
     // THE FILE. The same string the desk just painted, mounted on a stage that

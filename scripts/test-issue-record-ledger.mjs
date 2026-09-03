@@ -37,8 +37,10 @@
 //      nothing rather than to the nearest bundle.
 //   5. THE EYE LEADS WITH THE RECORD. On a query that resolves to a tracked key,
 //      the formal-record block is the first block, the consistency heading does not
-//      run at all, and the person hits stay below. A whole bundle is not a key: it
-//      keeps its ranked answer and says "desk", not "ledger".
+//      run at all, and the person hits stay below. A whole bundle is not a key: its
+//      door says "desk", not "ledger" — and its ranked answer, which used to print
+//      here in the default lane, is the PUBLIC lane's now. Moved, not deleted: the
+//      branch below proves it still runs one lane over.
 //   6. NO SECOND LANE IN THE NEW COPY. No percentage, no score, no grade, no
 //      caucus token; the wall under the bands is the formal lane's own literal.
 //   7. TWIN BOOT, BOTH WAYS. With this pane loaded and without it, every formal
@@ -551,20 +553,28 @@ section("5 · The Eye leads with the record, and the ranking does not run");
     "a person name resolved to an issue key");
   has(nh, 'data-kind="pol"', "the person hit stopped working");
 
-  // A WHOLE BUNDLE IS NOT A KEY. It keeps the ranked answer it has always had —
-  // there is no single record to read for thirteen keys at once — and its door
-  // says desk, not ledger.
+  // A WHOLE BUNDLE IS NOT A KEY. Its door says desk, not ledger — there is no
+  // single record to read for thirteen keys at once.
   // Queried the way a reader types a bundle — a word, not a slug — because the
-  // ranked answer this branch must KEEP is parsed from plain language.
+  // ranked answer this branch is about is parsed from plain language.
   const CORE_WORD = "guns";
   must(probe.CORE_NATIONAL_ISSUES.some((c) => c && c.key === CORE_WORD),
     `${CORE_WORD} is no longer one of the thirteen, so this branch is testing nothing`);
   eq(probe.PDXDoor1.issueKeyFor(CORE_WORD), CORE_WORD, `${CORE_WORD} stopped resolving to itself`);
+  // AND THE BUNDLE'S RANKED ANSWER MOVED LANES. It used to print in the default
+  // lane, where a bundle query led with "Ranked by consistency · who backs up
+  // their words first" over party letters and "See all N people ranked" — a
+  // characterisation of the whole roster standing in for the formal file the
+  // query asked for. It is not gone: it is PUBLIC now, which is the lane that
+  // answers what has been said about an issue. So the probe that proves this
+  // branch is live renders it in that lane.
   const bare = boot({ withEye: true });
+  bare.PDXEye.lane("public");
   bare.PDXEye.render(CORE_WORD);
   const ansAlone = String(bare.document.getElementById("pdx-eye-panel").innerHTML || "");
   must(ansAlone.indexOf('data-ans="1"') >= 0,
-    `the Eye has no ranked answer for "${CORE_WORD}" at all, so this branch cannot show it was kept`);
+    `the Eye has no ranked answer for "${CORE_WORD}" in the public lane at all, so this ` +
+    `branch cannot show which lane holds it`);
   w.PDXEye.render(CORE_WORD);
   const bh = panel();
   has(bh, `data-eye-key="${CORE_WORD}"`, "a bundle query printed no record door");
@@ -572,10 +582,20 @@ section("5 · The Eye leads with the record, and the ranking does not run");
   has(bh, "Open the issue desk", "a bundle's door claimed to open a single key's ledger");
   no(bh, "in none of the thirteen bundles", "a bundle was said to be in none of the thirteen");
   no(bh, "Open the record ledger", "a bundle's door claimed a single key's ledger");
-  ok(bh.indexOf('data-ans="1"') >= 0,
-    "a bundle lost the ranked answer it has always had — nothing else here replaces it");
-  ok(bh.indexOf(`data-eye-key="${CORE_WORD}"`) < bh.indexOf('data-ans="1"'),
-    "the ranked answer printed above the record door on a bundle query");
+  ok(bh.indexOf('data-ans="1"') < 0,
+    "the ranked answer still runs in the formal lane on a bundle query");
+  no(bh, "Ranked by consistency", "the consistency heading ran in the formal lane on a bundle query");
+  no(bh, "backs up their words", "the consistency heading ran in the formal lane on a bundle query");
+  ok(!/See all \d+ (?:person|people) ranked/.test(bh),
+    "the formal lane printed a \"See all N people ranked\" footer on a bundle query");
+  // The reading is one lane away, not deleted — and the record door is what the
+  // formal lane leads with instead.
+  w.PDXEye.lane("public");
+  w.PDXEye.render(CORE_WORD);
+  const ph = panel();
+  ok(ph.indexOf('data-ans="1"') >= 0,
+    "a bundle lost the ranked answer in the public lane too — it was deleted, not moved");
+  w.PDXEye.lane("formal");
 
   // The Eye's door and the desk's shelf go through ONE resolver, so a hit in the
   // Eye opens exactly what the desk opens.
