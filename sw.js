@@ -880,6 +880,44 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v120 - THE MEASURES SLICE IS NOT GOVERNED BY A CLOCK. 8245 was still denied in
+// preview: typing it painted "Formal 0" and "The eye finds nothing for 8245", and
+// then the same query painted Legislation & Bills · Emergency price relief
+// memorandum. The first frame was a denial of a record already on the wire.
+//   · all-seeing-eye.js — v119 moved the warming ceiling's clock to
+//                         DOMContentLoaded, which was right and not enough. The
+//                         memo lives ONLY in the paged /measures list, a hundred
+//                         rows a request, and on a cold function that walk runs
+//                         well past eight seconds — so the deadline expired while
+//                         the pages were still landing and the panel reported an
+//                         index it had not finished reading. The measures lane is
+//                         off the clock now: it is warm when its own request has
+//                         ENDED (rows, none, or a failure) and cold until then,
+//                         and a cold slice gets a loading line in the measures
+//                         group instead of a zero. Two facts about the request can
+//                         still end the wait — it went quiet for thirty seconds,
+//                         or bills.js never executed at all — and neither is a
+//                         parse clock: the window is stamped when the request goes
+//                         out and re-stamped by every page that lands, so a long
+//                         walk that is still delivering never trips it. The ceiling
+//                         is unchanged for the three lanes that need it (the
+//                         roster, the register, the issue library wait on passive
+//                         globals that never announce their own absence). Also:
+//                         PDXBills.list() swallows a failed request and hands back
+//                         the INLINE marquee index, which the eye stored as the
+//                         live measures list and then reported on — a silent
+//                         permanent denial of every measure that lives only in the
+//                         database. A fallback is no longer mistaken for a
+//                         response; it is asked once more, then settled. And the
+//                         lane control's count reads "…" rather than 0 while a
+//                         lane feeding it is still loading, because "Formal 0" is
+//                         the denial sentence printed as a number.
+//   · index.html        — one class for that count's waiting state. Nothing else
+//                         restyled, and it is precached as the shell's own '/'.
+// No floor, no mapping, no weight, no roster row and no figure moved. Readiness
+// governs WHEN a zero may be published, never what ranks: the same query against a
+// loaded index returns the same rows in the same order as before this bump.
+//
 // v119 - THE EYE DOES NOT DENY A RECORD THAT HAS NOT ARRIVED, AND AN ISSUE ROW
 // WAITS FOR ITS DOOR. Three files travel together, and the bump is the only way a
 // warm device gets any of it:
@@ -1499,7 +1537,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v119';
+const CACHE_VERSION = 'v120';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
