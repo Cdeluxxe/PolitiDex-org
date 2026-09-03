@@ -164,7 +164,34 @@
     var LANE_DEADLINE_MS = 8000;
     var bootAt = Date.now();
     var billsSettled = false;
-    function pastDeadline() { return (Date.now() - bootAt) > LANE_DEADLINE_MS; }
+    // ── AND THE CEILING'S CLOCK STARTS WHEN A LANE COULD HAVE ARRIVED ────
+    // WHAT WAS WRONG. bootAt was stamped the moment this file ran, and this file
+    // is a plain synchronous tag partway down a very large document. Every
+    // source a lane waits on is behind `defer`: the roster, the register and the
+    // measures fetch cannot execute until the parse finishes. So at bootAt none
+    // of them had been given a chance yet — and on a slow load the parse alone
+    // outruns eight seconds. The ceiling then expired while the page was still
+    // loading, laneReady() answered true on a technicality, and the eye printed
+    // "finds nothing" for a query the record answers. 8245 typed on a cold load
+    // was denied that way.
+    //
+    // The ceiling is still a ceiling — the deadline is unchanged and nothing
+    // warms forever. What moved is where its clock starts: the first instant a
+    // deferred script could have run, which is DOMContentLoaded. While the
+    // document is still parsing, no lane is past anything, because no lane has
+    // been offered a turn.
+    function docReady() {
+      try { return String(document.readyState || '') !== 'loading'; } catch (e) { return true; }
+    }
+    try {
+      if (!docReady() && document.addEventListener) {
+        document.addEventListener('DOMContentLoaded', function () { bootAt = Date.now(); });
+      }
+    } catch (e) {}
+    function pastDeadline() {
+      if (!docReady()) return false;
+      return (Date.now() - bootAt) > LANE_DEADLINE_MS;
+    }
     function stanceCount() {
       try { return Object.keys(window.ISSUE_STANCE_DATA || {}).length; } catch (e) { return 0; }
     }
@@ -180,10 +207,23 @@
     function lazyDone(key) {
       try { return !!(window.PDXLazyData && window.PDXLazyData.loaded(key)); } catch (e) { return false; }
     }
-    var LANE_ORDER = ['people', 'bills', 'issues'];
+    // The issue REGISTER — the map every issue file is built from. It arrives with
+    // alignment-tool.js, which is deferred like everything else here.
+    function registerCount() {
+      try { return Object.keys(window.ISSUE_MAP || {}).length; } catch (e) { return 0; }
+    }
+    var LANE_ORDER = ['people', 'bills', 'files', 'issues'];
     var LANE_TESTS = {
       people: function () { return polIdGroups().total > 0 && stanceCount() > 0; },
       bills: function () { return billsSettled; },
+      // THE REGISTER IS ITS OWN LANE. The formal lane's first group — the issue
+      // files — is built from ISSUE_MAP. The families and the spotlights are
+      // not, and neither of them says anything about whether the register has
+      // landed. Asking one question for all three meant a cold register could be
+      // reported ready on the strength of a core list that ships inline, and a
+      // query a file answers got the panel's denial instead of a loading line.
+      // One source, one question, one notice.
+      files: function () { return registerCount() > 0; },
       issues: function () {
         return (window.CORE_NATIONAL_ISSUES || []).length > 0 && (lazyDone('spotlights') || spotlightCount() > 0);
       }
@@ -203,13 +243,19 @@
     // LANE and not per category — one loading roster is one fact.
     var CAT_LANE = {
       pol: 'people', stance: 'people', bill: 'bills',
-      // Three categories over the issue library now, where there was one. The
-      // warming notice is still per LANE, so all three answer for 'issues'.
-      file: 'issues', fam: 'issues', spot: 'issues'
+      // Files come from the register; families and spotlights come from the core
+      // list and the spotlight bundle. Two sources, so two lanes.
+      file: 'files', fam: 'issues', spot: 'issues'
     };
-    var LANE_TITLES = { people: 'Politicians & Positions', bills: 'Legislation & Bills', issues: 'Issues & Hot Topics' };
-    var LANE_DOTS = { people: '#f5c842', bills: '#9ff0bd', issues: '#fb923c' };
-    var LANE_NOUNS = { people: 'the roster and its receipts', bills: 'the legislation index', issues: 'the issue library' };
+    var LANE_TITLES = {
+      people: 'Politicians & Positions', bills: 'Legislation & Bills',
+      files: 'Issue files \u00b7 the formal record', issues: 'Issues & Hot Topics'
+    };
+    var LANE_DOTS = { people: '#f5c842', bills: '#9ff0bd', files: '#7dd3fc', issues: '#fb923c' };
+    var LANE_NOUNS = {
+      people: 'the roster and its receipts', bills: 'the legislation index',
+      files: 'the issue register', issues: 'the issue library'
+    };
 
     // ── TWO MODES, ONE BOX ────────────────────────────────────────────────
     // WHAT WAS WRONG. One list called "Issues & Hot Topics" held four different
@@ -1150,6 +1196,67 @@
       return '<div class="pdx-eye-actions" role="group" aria-label="Actions for this result">' + btns + '</div>';
     }
 
+    // ── A DOOR THAT HAS NOT BOOTED YET IS NOT A DEAD ROW ────────────────────
+    // WHAT WAS WRONG. Both issue-class rows opened through modules that arrive
+    // LATER than this file does. all-seeing-eye.js is a synchronous tag; the
+    // desk (door1-workspace.js), the file's address book (pdx-issue-profile.js)
+    // and the family table (pdx-issue-family.js) are all deferred. Tap a family
+    // row or a leaf row in the seconds before those execute and every branch
+    // missed: no window.pdxDoor1Issue, no window.PDXDoor1, no address — so a
+    // family tap fell through to a scroll and a leaf tap did nothing at all. The
+    // handler was on the shipped eye the whole time; what it reached for was not
+    // on the page yet. That is exactly the report from production, and a row that
+    // does nothing when tapped is indistinguishable from a broken one.
+    //
+    // So the door WAITS for its own opener, on the same cold-arrival schedule
+    // door1-workspace.js already uses for its own late arrivals. No path is
+    // spelled out here: the address is still asked of the module that owns it,
+    // and the last resort is still the section itself.
+    var ISSUE_DOOR_WAIT = [120, 400, 900, 1600];
+    function issueDoorTry(key, isFam) {
+      // The desk's own entry point, for either shape — the same call the desk's
+      // chip makes, so the pick is recorded and the record warmed identically.
+      try { if (typeof window.pdxDoor1Issue === 'function' && window.pdxDoor1Issue(key)) return true; } catch (e) {}
+      if (isFam) {
+        // A core has no file of its own, so the desk's landing is the answer:
+        // never the consistency ranking, and never an address with no document.
+        try {
+          var D = window.PDXDoor1;
+          if (D && typeof D.toDesk === 'function') { D.toDesk('issue'); return true; }
+        } catch (e) {}
+        return false;
+      }
+      // A published leaf's own ledger at its own address, which issueFileHref
+      // only answers for once the register has actually landed.
+      try { var h = issueFileHref(key); if (h) { window.location.href = h; return true; } } catch (e) {}
+      return false;
+    }
+    function issueDoorLast(key) {
+      // The ladder ran out: nothing on this page is going to open. The key's own
+      // address is asked of the module that owns it and taken as-is — a leaf's is
+      // its census, a core's is the family shelf that /i/ paints for a core (no
+      // census, its own notice, pinned by scripts/test-eye-formal-family.mjs), so
+      // neither shape can land on an empty file.
+      try { var u = issueFileUrl(key); if (u && u !== '#') { window.location.href = u; return; } } catch (e) {}
+      try {
+        var ht = document.getElementById('hot-topics');
+        if (ht && ht.scrollIntoView) ht.scrollIntoView({ behavior: 'smooth' });
+      } catch (e) {}
+    }
+    function issueDoor(key, isFam, tries) {
+      var k = String(key == null ? '' : key).trim();
+      if (!k) return;
+      if (issueDoorTry(k, isFam)) return;
+      var t = tries || 0;
+      if (t < ISSUE_DOOR_WAIT.length) {
+        try {
+          setTimeout(function () { issueDoor(k, isFam, t + 1); }, ISSUE_DOOR_WAIT[t]);
+          return;
+        } catch (e) {}
+      }
+      issueDoorLast(k);
+    }
+
     // Navigate to a result (the default open) — shared by clicks, Enter, and the
     // related-connection chips, so every path lands in the same place.
     function navigate(kind, data) {
@@ -1172,12 +1279,11 @@
         // own address. Routed through the desk's own entry point, so the pick is
         // recorded and the record warmed exactly as it is when the chip is tapped
         // on the desk itself.
-        var ik = data.key || '';
-        if (!ik) return;
-        try { if (typeof window.pdxDoor1Issue === 'function') { window.pdxDoor1Issue(ik); return; } } catch (e) {}
-        // No desk on the page: a leaf's address is real, so go to it rather than
-        // falling through to a view that answers a different question.
-        try { var u = issueFileHref(ik); if (u) window.location.href = u; } catch (e) {}
+        // No desk on the page YET: a leaf's address is real, so go to it rather
+        // than falling through to a view that answers a different question — and
+        // if neither the desk nor the address has arrived, wait for one instead
+        // of leaving the tap unanswered.
+        issueDoor(data.key || '', false, 0);
       }
       else if (kind === 'family') {
         // ── A FAMILY ROW OPENS THE FAMILY SHELF ─────────────────────────────
@@ -1189,17 +1295,11 @@
         // entry point — window.pdxDoor1Issue — which is the same call the desk's
         // own chip makes, so the pick is recorded and the record warmed
         // identically whether the tap happened here or there.
-        var ck = data.key || '';
-        if (!ck) return;
-        try { if (typeof window.pdxDoor1Issue === 'function' && window.pdxDoor1Issue(ck)) return; } catch (e) {}
-        // No desk painted on this page. The honest fallback is the desk's own
-        // landing, never the ranking and never an address with no file behind it.
-        try {
-          var D = window.PDXDoor1;
-          if (D && typeof D.toDesk === 'function') { D.toDesk('issue'); return; }
-        } catch (e) {}
-        var ht = document.getElementById('hot-topics');
-        if (ht && ht.scrollIntoView) ht.scrollIntoView({ behavior: 'smooth' });
+        // No desk painted on this page YET. The honest fallback is the desk's own
+        // landing, never the ranking and never an address with no file behind it
+        // — and a desk that is merely still deferred is waited for rather than
+        // treated as absent.
+        issueDoor(data.key || '', true, 0);
       }
       else if (kind === 'bill') {
         if (window.PDXBills && typeof window.PDXBills.open === 'function') window.PDXBills.open(data.number || data.id);
@@ -2578,10 +2678,17 @@
         // panel's generic denial, and not a warming notice: the mandate list is
         // inline and never fetched, so it is never "still loading". Empty here
         // means the record genuinely holds no reform for this search.
+        // AND THE NOTICE NAMES THE CATEGORY, NOT JUST THE WAIT. A reader who
+        // typed a measure number wants to know that the MEASURES are still
+        // loading; a reader who typed an issue wants to know that about the
+        // register. The panel sentence lists the lanes in prose, and under it
+        // each warming category this lane prints gets the same titled row it
+        // gets when something else ranked — so the group the answer will appear
+        // in is already on screen, holding a loading line instead of a zero.
         panel.innerHTML = laneModeBar(laneCounts) + (isMandate
           ? mandateEmptyHtml()
           : (warm.length
-            ? warmPanel(warm)
+            ? warmPanel(warm) + warmStrip(warm, {})
             : '<div class="pdx-eye-empty">The eye finds nothing for “<b>' + esc(q) + '</b>”.<br>Try a name, an office, a state, an issue, or a bill number.</div>'));
         wire();
         scheduleWarmRecheck(warm.length > 0);
@@ -2675,11 +2782,25 @@
         '</div>' +
       '</div>';
     }
+    // Which result categories the VISIBLE lane can print. A warming row for a
+    // category this lane does not render would report a wait the reader is not
+    // on: a cold measures index is no part of what the Public lane answers with.
+    var MODE_CATS = {
+      formal: ['file', 'fam', 'pol', 'bill'],
+      'public': ['spot', 'stance', 'pol'],
+      mandate: []
+    };
+    function laneShown(lane) {
+      var cats = MODE_CATS[laneMode] || [];
+      for (var i = 0; i < cats.length; i++) { if (CAT_LANE[cats[i]] === lane) return true; }
+      return false;
+    }
     // The warming rows for the lanes that are BOTH still loading and currently
     // empty. A lane that already produced hits does not get a row: the hits are a
-    // better report on that lane than a spinner is.
+    // better report on that lane than a spinner is. A lane this mode does not
+    // print does not get one either.
     function warmStrip(lanes, hits) {
-      return lanes.filter(function (l) {
+      return lanes.filter(laneShown).filter(function (l) {
         var n = 0;
         for (var cat in CAT_LANE) { if (CAT_LANE[cat] === l) n += (hits[cat] || 0); }
         return n === 0;

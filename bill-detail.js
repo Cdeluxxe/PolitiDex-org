@@ -416,6 +416,22 @@
     try { return fn(raw) || ''; } catch (e) { return ''; }
   }
 
+  // ── AN EXECUTIVE MEASURE IS NOT VOTED ON ────────────────────────────────────
+  // WHAT WAS WRONG. The topic chips on an executive order said "A Yea advances
+  // this". There is no Yea. Nobody voted on it, the sheet's own letterhead says
+  // exactly that an inch above, and the strip that would hold the roll call is
+  // withheld for the same reason. The DIRECTION is real — the act does advance or
+  // cut against the topic — so only the actor changes: the issuance did it, not a
+  // vote that never happened. The class either way is the same
+  // bd-eff-adv/bd-eff-opp the colour and every row count already read, so this is
+  // the sentence and nothing else.
+  function effectChip(m, opposes) {
+    var txt = isExecutiveAct(m)
+      ? (opposes ? 'As issued, cuts against this' : 'As issued, advances this')
+      : (opposes ? 'A Yea cuts against this' : 'A Yea advances this');
+    return '<span class="bd-eff ' + (opposes ? 'bd-eff-opp' : 'bd-eff-adv') + '">' + txt + '</span>';
+  }
+
   function omnibusSection(m, issues) {
     if (!issues || !issues.length) return '';
     var ordered = bigPictureOrder(issues);
@@ -424,11 +440,10 @@
     // disclaimer, plus a direction tally — all three of which the letterhead
     // directly above already says, in fewer words, before the reader scrolls. What
     // is left is the thing only this section can give: for each topic, what the act
-    // did on it and which way a Yea cuts.
+    // did on it and which way it cuts — as a Yea on a measure that was voted on,
+    // as the issuance itself on one that was not.
     var rows = ordered.map(function (it) {
       var opposes = it.supportMeaning === 'yea_opposes';
-      var effCls = opposes ? 'bd-eff-opp' : 'bd-eff-adv';
-      var effTxt = opposes ? 'A Yea cuts against this' : 'A Yea advances this';
       // The scope sentence is the curators' own words about what the act did here,
       // with their notes to each other taken out. Never rewritten, never
       // summarised, and never composed — a row with nothing publishable left says
@@ -443,7 +458,7 @@
         '<div class="bd-omni-head">' +
           '<button type="button" class="bd-omni-issue bd-omni-link" data-issue="' + escAttr(it.issueKey) + '" title="See the ' + escAttr(issueLabel(it.issueKey)) + ' spotlight">' + esc(issueLabel(it.issueKey)) + '</button>' +
           '<span class="bd-omni-lane-l">' + esc(laneLabel(it.isPrimary)) + '</span>' +
-          '<span class="bd-eff ' + effCls + '">' + effTxt + '</span>' +
+          effectChip(m, opposes) +
         '</div>' +
         (why ? '<div class="bd-omni-why">' + esc(why) + '</div>' : '') +
       '</div>';
@@ -861,12 +876,12 @@
   }
 
   // Named omnibus provisions (vr_measure_provisions) — one level finer than the
-  // component issues, each with which way a Yea cuts and a source.
+  // component issues, each with which way the act cuts and a source.
   function provisionsSection(m, provisions) {
     if (!provisions || !provisions.length) return '';
     var rows = provisions.map(function (p) {
       var opposes = p.supportMeaning === 'yea_opposes';
-      var eff = '<span class="bd-eff ' + (opposes ? 'bd-eff-opp' : 'bd-eff-adv') + '">' + (opposes ? 'A Yea cuts against this' : 'A Yea advances this') + '</span>';
+      var eff = effectChip(m, opposes);
       var tag = p.issueKey ? '<span class="bd-prov-tag">' + esc(issueLabel(p.issueKey)) + '</span>' : '';
       var src = (p.source && p.source.url) ? '<a class="bd-src" href="' + escAttr(p.source.url) + '" target="_blank" rel="noopener">🔗 source</a>' : '';
       return '<div class="bd-omni-row">' +
@@ -875,7 +890,9 @@
       '</div>';
     }).join('');
     return '<section class="bd-sec"><h3 class="bd-h">🧩 Key provisions</h3>' +
-      '<p class="bd-lead">The named pieces bundled into this measure, and which way a Yea cuts on each.</p>' + rows + '</section>';
+      '<p class="bd-lead">' + esc(isExecutiveAct(m)
+        ? 'The named pieces bundled into this measure, and which way it cuts on each as issued.'
+        : 'The named pieces bundled into this measure, and which way a Yea cuts on each.') + '</p>' + rows + '</section>';
   }
 
   // Distributional Impact Ledger ("Who It Affects"). Fully delegated to the standalone

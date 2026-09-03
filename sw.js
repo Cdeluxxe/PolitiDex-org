@@ -880,6 +880,35 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v119 - THE EYE DOES NOT DENY A RECORD THAT HAS NOT ARRIVED, AND AN ISSUE ROW
+// WAITS FOR ITS DOOR. Three files travel together, and the bump is the only way a
+// warm device gets any of it:
+//   · all-seeing-eye.js — the warming ceiling was measured from a mid-parse boot
+//                         while every source it waits on is deferred, so on a slow
+//                         load it expired before any lane had a turn and the panel
+//                         printed "The eye finds nothing" for a measure the record
+//                         holds (8245 was denied that way). The clock now starts at
+//                         DOMContentLoaded; the deadline itself is unchanged. The
+//                         issue REGISTER became its own lane — every issue FILE row
+//                         is built from ISSUE_MAP, which no other lane's readiness
+//                         spoke for — so a cold register gets its own loading line
+//                         in the group the answer will appear in, and the all-empty
+//                         panel now prints one such line per warming category
+//                         instead of a bare sentence. And the family/leaf rows wait
+//                         for the deferred desk and address book on the same
+//                         cold-arrival schedule door1-workspace.js already uses,
+//                         because a tap that reached for a module the page had not
+//                         executed yet did nothing at all.
+//   · bill-detail.js    — the topic and provision chips on an EXECUTIVE measure
+//                         said "A Yea advances this". Nobody voted on an executive
+//                         order; the sheet's own letterhead says so an inch above.
+//                         The direction is unchanged and so are the classes every
+//                         count and colour reads — only the actor: "As issued,
+//                         advances this".
+// No floor, no mapping, no weight, no roster row and no figure moved. Nothing that
+// ranks, scores or counts was touched: the eye's readiness governs WHEN a zero may
+// be published, never what ranks, and the chips restate a direction the curators
+// already recorded.
 // v118 - THE TITLE STOPS DOING THE TALKING. A measure sheet opened on a number,
 // a title, a date and a link, and on a presidential memorandum the title is
 // "Delivering Emergency Price Relief for American Families and Defeating the
@@ -1470,7 +1499,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v118';
+const CACHE_VERSION = 'v119';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
