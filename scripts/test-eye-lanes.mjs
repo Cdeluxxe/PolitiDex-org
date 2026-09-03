@@ -23,8 +23,9 @@
  *      rows, zero family rows.
  *   4. EVERY GROUP IS LABELLED, in both modes.
  *   5. A BUNDLE CHIP IS A FAMILY, NOT A LEADERBOARD. The Climate, Energy & Land
- *      row opens the family — the child shelf and /i/ — rather than the
- *      882-person consistency ranking.
+ *      row opens the family — the desk's child shelf — rather than the 882-person
+ *      consistency ranking, and it carries no /i/ address, because a core mounts
+ *      no file there.
  *   6. NO PARTY STRING IS A SORT KEY. Permute every party letter in the roster
  *      and the order of the people rows does not move, in either mode.
  *
@@ -348,7 +349,7 @@ section("5 · a bundle chip is a family, not a leaderboard");
 // The core row used to be the door to a ranked list of every person in the
 // archive who has ever touched the bundle — "882 politicians, ranked by
 // consistency". That is a characterisation of people, and this is a row about an
-// issue: it opens the family, which is the child shelf and the /i/ file.
+// issue: it opens the family, which is the desk's child shelf.
 {
   const B = boot();
   const html = B.search("climate energy");
@@ -356,9 +357,18 @@ section("5 · a bundle chip is a family, not a leaderboard");
   ok(fam, "no family row answered a bundle query at all");
   if (fam) {
     has(html, `data-kind="family" data-key="${fam.key}"`, "the family row carries no key to open");
-    has(html, `/i/${fam.key}`, "the family row does not address the family's own file");
     ok(probe.win.PDXIssueFamily.isCore(fam.key),
       `the family row's key ${JSON.stringify(fam.key)} is not one of the thirteen cores`);
+    // AND IT IS NOT AN ADDRESS. A core has no issue file — issueProfileHtml()
+    // scopes a census to one key and a family is the set, which is asserted just
+    // below — so an anchor on the core's own path promises a destination that
+    // opens nothing. The row is a button: same body, same tint, same tap, no
+    // citation. The full claim (every core, both elements, the door that is
+    // called) lives in scripts/test-eye-formal-family.mjs.
+    no(html, `href="/i/${fam.key}"`,
+      "the family row is still an anchor on a core path that mounts no file");
+    has(html, `<button type="button" role="option" class="pdx-eye-item pdx-eye-item--fam"`,
+      "the family row is not a button");
   }
   // The row says what the family IS — how many keys are filed under it — and not
   // how many people can be ranked inside it.

@@ -566,10 +566,26 @@ section("7 · the migration as a document, and the next pull");
     "the migration writes a position outside the closed vocabulary");
   ok(positions.has("yea") && positions.has("nay"), "the migration writes no judged positions");
 
-  // It is the newest migration, and no applied file was edited to make room for it.
+  // It is applied ahead of every migration it depends on, and no applied file was
+  // edited to make room for it.
+  //
+  // AN EARLIER REVISION OF THIS CHECK REQUIRED THE WAVE'S MIGRATION TO BE THE
+  // NEWEST FILE IN THE TREE. That was true on the day R1 shipped and false the
+  // moment anything landed behind it, so it failed on a correct change — the same
+  // trap scripts/test-exec-vocab.mjs documents and got out of the same way. What
+  // is permanent is DEPENDENCY ORDER: this wave inserts member votes against
+  // roll calls and politicians, so it has to sort after the migrations that
+  // create them, and no two files may share a version, because a tie has no
+  // defined apply order. A later data-only migration sorting behind this one is
+  // the normal state of a live tree and says nothing about whether R1 is intact.
   const sqls = readdirSync(join(ROOT, MIG_DIR)).filter((f) => f.endsWith(".sql")).sort();
-  eq(sqls[sqls.length - 1], MIGRATION, "this wave's migration is not the newest in the directory");
+  ok(sqls.includes(MIGRATION), "this wave's migration is not in the directory at all");
   ok(new Set(sqls.map((f) => f.slice(0, 14))).size === sqls.length, "two migrations share a version prefix");
+  const version = (f) => f.slice(0, 14);
+  for (const dep of sqls.filter((f) => /vr_(schema|init|measures|rollcalls|member_votes|politicians)/.test(f))) {
+    ok(version(dep) < version(MIGRATION),
+      `${dep} creates something this wave writes into but sorts after it — the insert would run before the table exists`);
+  }
 
   // THE NEXT PULL ATTACHES THESE SLUGS. This is the deliverable the brief asked a harness
   // to prove, and it is proved the only way that means anything: replay the fail-closed

@@ -1085,6 +1085,55 @@
   // Where the record is thin the letterhead says which fact is missing. It never
   // fills a gap with a guess and never hides the gap to look complete.
 
+  // ── ONE SUMMARY FIELD, TWO PLACES, NEVER BOTH ───────────────────────────────
+  // THE HOLE THIS CLOSES. A sheet used to open on a title and a link and nothing
+  // else: "Delivering Emergency Price Relief for American Families and Defeating
+  // the Cost-of-Living Crisis" is what a memorandum is CALLED, and a reader who
+  // takes it as a description has been handed a slogan as a finding. The archive
+  // already holds a description for a measure — vr_measures.summary, filled by the
+  // BILLSTATUS/CRS text through db/vr-measure-identity.json for floor bills and by
+  // a curator who read the official text for an executive instrument. It was being
+  // rendered only as a footnote in a closed fold below the census, which is where
+  // a reader looks last. It now leads the identity block, above the topic chips,
+  // where the question "what does this text do" is actually asked.
+  //   THERE IS STILL ONE FIELD. This is not a second census: the fold and the
+  // identity row read the same column, and exactly one of them prints it. Where
+  // the description is short enough to read as a list of levers it goes up; where
+  // it is the ingested section-by-section wall of an omnibus it stays folded,
+  // verbatim, because promoting 2,600 characters into the identity block would
+  // bury the five facts the block exists to state. identSummary() is the one place
+  // that decides, and foldSection() asks it rather than deciding again.
+  //   AND NOTHING IS GENERATED. No summary is ever derived from the title: a
+  // measure whose only description is a restatement of its own name is treated as
+  // having none, so the locked empty line prints instead of a title wearing a
+  // summary's label. What the archive does not hold, this face does not say.
+  // The gate is about SHAPE, not about taste: a lever list for a real instrument
+  // runs to a paragraph (the two seeded here are 1,004 and 1,191 characters), and
+  // the ingested description of an omnibus runs to two or three thousand. 1,400 is
+  // above the first and below the second, so the block keeps what reads as a
+  // summary and the fold keeps what reads as a chapter.
+  var IDENT_SUMMARY_MAX = 1400;
+  function flatText(t) { return String(t == null ? '' : t).replace(/\s+/g, ' ').trim().toLowerCase(); }
+  // WHAT THE ARCHIVE HOLDS AS A DESCRIPTION, or '' if it holds none. A field whose
+  // whole content is the measure's own name is none: somewhere upstream a title was
+  // copied into a description column, and printing it under the heading "Summary"
+  // would make this face assert that the name explains the text. Read as empty, so
+  // the locked gap line prints and neither surface repeats the title.
+  function descriptionOf(m) {
+    var s = (m && m.summary != null) ? String(m.summary).trim() : '';
+    if (!s) return '';
+    var f = flatText(s);
+    if (f === flatText(m && m.title) || f === flatText(officialTitleOf(m)) || f === flatText(m && m.shortTitle)) return '';
+    return s;
+  }
+  // The description as it will read in the identity block, or '' when the block is
+  // not its place — the ingested section-by-section text of an omnibus is longer
+  // than any identity row should be and stays in the fold below.
+  function identSummary(m) {
+    var s = descriptionOf(m);
+    return (s && s.length <= IDENT_SUMMARY_MAX) ? s : '';
+  }
+
   // ── IDENTITY SITS WITH THE TITLE ────────────────────────────────────────────
   // Which act is this? Number, official title, chamber and sitting, the dates we
   // hold, and the document the mapping was read from. Those five facts answer one
@@ -1135,16 +1184,38 @@
         ? '<a class="bd-ident-text" href="' + escAttr(txt.url) + '" target="_blank" rel="noopener">\ud83d\udd17 ' + esc(txt.label) + ' \u2197</a>'
         : '<span class="bd-ident-gap">No link to the official text is on file for this measure yet.</span>') +
       '</dd></div>';
-    // ── AND WHERE THE PLAIN-LANGUAGE SUMMARY ISN'T ────────────────────────
-    // When we hold a summary it is printed in full a few inches below, in the fold,
-    // and a row here saying so would be a second copy of a pointer. When we hold
-    // none, the reader is looking at a title and a link and has no way to know
-    // which of the two the archive thinks is the description — so the gap is named
-    // in the identity block, beside the link that is the only real answer.
-    //   Nothing is generated to fill it. A title is what an act is called, not what
-    // its text does, and rewriting one into the other would put words in the
-    // record's mouth. The line stays until a curator writes a real summary.
-    if (!(m.summary && String(m.summary).trim())) {
+    // ── WHAT THE TEXT DOES, AND WHERE THAT READING CAME FROM ────────────────
+    // The description prints here, immediately under the link it was read from and
+    // above the topic chips, because a chip is a mapping and a mapping only means
+    // something once a reader knows what was mapped. It is printed VERBATIM: this
+    // face never trims, re-orders or re-words a description, so what a reader sees
+    // is what a curator wrote and what a citation can be checked against.
+    //   THE CITATION TRAVELS WITH THE PROSE. A plain-language summary is a reading
+    // of a document, and a reading with no document beside it is just an assertion
+    // in a nicer font — so the official URL is repeated in this row rather than
+    // left three rows up. Where we hold no link the prose still prints and no
+    // citation is faked; the Text row above has already named that absence.
+    //   AND WHERE THE PLAIN-LANGUAGE SUMMARY ISN'T. With nothing on file the reader
+    // is looking at a title and a link and has no way to know which of the two the
+    // archive thinks is the description, so the gap is named in its place. Nothing
+    // is generated to fill it. A title is what an act is called, not what its text
+    // does, and rewriting one into the other would put words in the record's mouth.
+    // The line stays until a curator writes a real summary.
+    var isum = identSummary(m);
+    if (isum) {
+      out += '<div class="bd-ident-fact bd-ident-sumfact"><dt class="bd-ident-k">Summary</dt>' +
+        '<dd class="bd-ident-v"><span class="bd-ident-sum">' + esc(isum) + '</span>' +
+        (txt
+          // The citation names the RECORD, not the stage of the text: "Read from
+          // Federal Register" is a place a reader can go, where the Text row's own
+          // "as issued" is a description of which printing was read and reads as a
+          // fragment when a verb is put in front of it.
+          ? '<span class="bd-ident-cite">Read from ' +
+            '<a class="bd-ident-text" href="' + escAttr(txt.url) + '" target="_blank" rel="noopener">' +
+            esc((m && m.source && m.source.label) || txt.label) + ' \u2197</a></span>'
+          : '') +
+        '</dd></div>';
+    } else if (!descriptionOf(m)) {
       out += '<div class="bd-ident-fact"><dt class="bd-ident-k">Summary</dt>' +
         '<dd class="bd-ident-v"><span class="bd-ident-gap">No plain-language summary on file yet</span></dd></div>';
     }
@@ -1337,8 +1408,11 @@
     // thing that genuinely is a footnote — the ingested section-by-section
     // description, whole and verbatim. With no description on file there is nothing
     // to disclose and no fold is drawn.
-    var summary = m.summary ? String(m.summary) : '';
-    if (!summary) return '';
+    //   AND IT IS NOT PRINTED TWICE. A description short enough to read as a list
+    // of levers is up in the identity block now, above the chips; only what is too
+    // long for that block is left down here to fold. One field, one printing.
+    var summary = descriptionOf(m);
+    if (!summary || identSummary(m)) return '';
     var label = 'What’s in this act';
     var hint = 'the full description on file';
     var body = '<p class="bd-fold-body">' + esc(summary) + '</p>';
@@ -1620,8 +1694,10 @@
         '<div class="bd-head-top"><span class="bd-num">' + esc(card.number || 'Measure') + '</span>' + status + omni + '</div>' +
         '<h2 class="bd-title">' + esc(card.title || card.shortTitle || '') + '</h2>' +
         (meta ? '<div class="bd-meta">' + esc(meta) + '</div>' : '') +
-        (card.summary && String(card.summary).trim()
-          ? '<p class="bd-summary">' + esc(card.summary) + '</p>'
+        (descriptionOf(card)
+          // One rule for what counts as a description, on both paths: a field that
+          // is only the measure's name again is read as none here too.
+          ? '<p class="bd-summary">' + esc(descriptionOf(card)) + '</p>'
           // Same gap, same wording, printed against the same link — the fallback is
           // not a lesser ledger, and a reader who lands here should be told the
           // description is missing rather than left to read the title as one.
@@ -1750,6 +1826,8 @@
       '.bd-ident-text{color:#7fb4ff;text-decoration:none;}' +
       '.bd-ident-text:hover{text-decoration:underline;}' +
       '.bd-ident-gap{color:#9fb4d4;font-style:italic;}' +
+      '.bd-ident-sum{display:block;font:500 .84rem/1.5 "Barlow",sans-serif;color:#dce6f7;white-space:pre-line;}' +
+      '.bd-ident-cite{display:block;margin-top:.2rem;font:600 .66rem/1.4 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;}' +
       // The executive-act explainer. Reads as a process note, not an error state:
       // the lead sentence in full ink, the two qualifiers quieter beneath it.
       '.bd-execact-say{font:600 .95rem/1.6 "Barlow",sans-serif;color:#e6edf8;margin:0 0 .5rem;}' +

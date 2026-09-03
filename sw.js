@@ -880,6 +880,123 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v118 - THE TITLE STOPS DOING THE TALKING. A measure sheet opened on a number,
+// a title, a date and a link, and on a presidential memorandum the title is
+// "Delivering Emergency Price Relief for American Families and Defeating the
+// Cost-of-Living Crisis" — a name that lists no lever at all: no rule, no
+// deadline, no dollar, nothing a reader could check. The archive's own
+// description was on the page the whole time, printed only inside a closed
+// disclosure BELOW the census, which is where a reader looks last. A reader who
+// took the title as the description was handed a slogan and told it was a
+// finding.
+//   · bill-detail.js       - the description now leads the identity block, above
+//                            the topic chips, printed verbatim with the official
+//                            URL repeated beside the prose ("Read from Federal
+//                            Register ↗") — because a plain-language summary is a
+//                            reading of a document and a reading with no document
+//                            next to it is an assertion in a nicer font. ONE
+//                            FIELD, ONE PRINTING: the identity row and the prose
+//                            fold read the same vr_measures.summary column and
+//                            exactly one of them renders it. A description short
+//                            enough to read as a list of levers goes up; the
+//                            ingested section-by-section wall of an omnibus stays
+//                            folded, verbatim, because promoting two thousand
+//                            characters into an identity row would bury the five
+//                            facts that block exists to state. NOTHING IS
+//                            GENERATED: no summary is ever derived from a title,
+//                            and a description column holding nothing but the
+//                            measure's own name is read as EMPTY, so the locked
+//                            line "No plain-language summary on file yet" prints
+//                            instead of a title wearing a summary's label. That
+//                            line, the executive-act copy, the disapproval-measure
+//                            clarifier and "Standing describes the instrument, not
+//                            its effect." are all untouched, and a floor bill with
+//                            an empty chamber file still says no vote is on file.
+//   · index.html           — UNCHANGED, and precached as '/', so a warm shell
+//                            pairs the new sheet with the same page it always did.
+//   · door1-workspace.js  — UNCHANGED. The desk did not move for this pass, but
+//                            it is named here because it is re-fetched anyway:
+//                            the bump renames both cache buckets, so every
+//                            precached shell asset travels together whether or
+//                            not its bytes changed.
+//   · door1-workspace.css — UNCHANGED, and travels for the same reason. A desk
+//                            served from the old bucket beside a sheet served
+//                            from the new one is the one mismatch a version
+//                            bump exists to prevent.
+// The prose itself is data, not code: one migration
+// (20261027000000_vr_instrument_lever_summaries_w1) fills vr_measures.summary for
+// exactly two already-mapped executive instruments — Presidential Memorandum,
+// 90 FR 8245 and Executive Order 14162 — written from the Federal Register text
+// each sheet already cites, levers only, with the document URL recorded beside
+// the prose in the migration. A stale shell here would show the new summaries in
+// the old place (folded) rather than show anything false, which is why the bump
+// is small; it is still a bump because bill-detail.js is a precached shell asset
+// and the reader who benefits from the fix is the one who never re-fetches it.
+// No floor, no mapping, no weight, no roster row, no issue key and no figure of
+// any kind moved. No percentage, no party and no effect claim entered any copy:
+// standing describes the writing, not its effect. Every person brief and every
+// Direction Match read is byte-identical across a twin boot.
+//
+// v117 - A FAMILY IS A DOOR, NOT AN ADDRESS; AND A RANKING IS NOT A FORMAL
+// ANSWER. Two defects with one shape: a surface promising a document that does
+// not exist. (1) The All-Seeing Eye painted a core issue row — "Climate, Energy
+// & Land" — as <a href="/i/climate_energy">. A core is a FAMILY of keys, not a
+// key: resolveIssue() gives a core an empty focusKey and issueProfileHtml()
+// scopes a census to ONE key, so there is no file at that path to mount. Tapping
+// the row navigated, the panel refused the empty body, and the reader was left on
+// the front page having been told a file was there. (2) In the FORMAL lane the
+// Eye led with the Word-vs-Action ranking — "Climate, Energy & Land · Ranked by
+// consistency · who backs up their words first", party letters down the rows and
+// "See all 882 people ranked" beneath it — which is a characterisation of 882
+// people and not the formal file the query asked for.
+//   · all-seeing-eye.js    - a family row is a <button> now, not an anchor: same
+//                            body, same family tint, same tap, no citation. The
+//                            new issueFileHref() answers "is there a file at this
+//                            address" — published ISSUE_MAP leaf AND not one of
+//                            the thirteen cores — and a row only becomes an <a>
+//                            when it says yes, so a leaf row (Protect Public
+//                            Lands) still carries href="/i/lands_preserve"
+//                            exactly as before. Activating a family row calls the
+//                            desk's one issue entry point, window.pdxDoor1Issue
+//                            (core), which is the same pick the desk's own chip
+//                            makes — the family shelf with its child keys visible
+//                            — and never PDXIssueView. The consistency ranking
+//                            block does not render in FORMAL at all now (it was
+//                            already absent from MANDATE); PUBLIC still holds it,
+//                            unchanged, because that lane is where a reading of
+//                            who backs up their words belongs. Formal's order is
+//                            untouched otherwise: issue files, then families,
+//                            then people with a formal row, then measures. The
+//                            key card keeps its address for copy and new-tab —
+//                            see pdx-issue-profile.js, which is what makes that
+//                            address honest for a core.
+//   · pdx-issue-profile.js - the cold arrival at /i/<coreKey> stops pretending.
+//                            Before the stamp, before the title and before the
+//                            canonical, a core id opens the desk on that family
+//                            and raises the app's own honest notice: "<label> is
+//                            a family of N keys, not a single file — its records
+//                            are the keys filed under it." Nothing about that
+//                            address claims a file exists at it: no replaceState,
+//                            no canonical rewrite, no document title, no empty
+//                            panel. A leaf address is completely unchanged and
+//                            still stamps, titles and mounts the one census.
+//   · door1-workspace.js   - the desk says the same sentence the notice does,
+//                            above the bundle inventory, so a reader who arrived
+//                            by tap and a reader who arrived by link are told the
+//                            same thing. issueProfileHtml(key) is UNTOUCHED and
+//                            is still the one leaf census; no key was minted.
+//   · door1-workspace.css  - one small note style for that sentence.
+//   · sw.js                - this note and the bump. The desk, the address module
+//                            and the desk's stylesheet are precached and the Eye
+//                            is a runtime entry, so the bump renames both buckets
+//                            and a warm device cannot pair the new arrival with
+//                            the old rows or the reverse.
+// NOTHING ELSE MOVED. No score, no percentage, no tier, no party sort, no new
+// ISSUE_MAP key and no Direction Match change: every person brief and every DM
+// read is byte-identical across a twin boot. The Mandate lane is exactly as v116
+// left it, the executive-act copy is untouched, and /i/<leaf> files render the
+// same markup they did before this pass.
+//
 // v116 - A MANDATE IS A THIRD LANE, NOT PUBLIC AND NOT FORMAL. v115 gave the
 // All-Seeing Eye two lanes, and that left the site's third kind of document with
 // nowhere honest to sit. A People's Mandate item is a PROPOSED VEHICLE. In the
@@ -1353,7 +1470,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v116';
+const CACHE_VERSION = 'v118';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

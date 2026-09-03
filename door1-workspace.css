@@ -173,6 +173,16 @@
 }
 .d1-scope b { color: #dbeafe; }
 
+/* "X is a family of N keys, not a single file." Printed where a bundle is
+   selected and no key is, directly under the child shelf it points at — so it
+   reads as a caption on those chips rather than as a finding of its own. Quieter
+   than .d1-lead, which names what ordered a list; this names what the surface
+   IS. No colour of its own: a family's hue lives on its chips. */
+.d1-fam-note {
+  margin: 0.75rem 0 0; font-size: 0.76rem; line-height: 1.55; color: #9fb2cb;
+}
+.d1-fam-note b { color: #e8eefb; }
+
 /* An honest empty. The quietest block on the surface, on purpose: it reports
    what the record holds, and nothing about the person who was asked about. */
 .d1-empty {

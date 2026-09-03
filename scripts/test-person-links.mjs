@@ -521,14 +521,27 @@ section("6 · the All-Seeing Eye: people rows and stance rows are links");
   // this list exists to forbid.
   ok(rows.filter((r) => r.includes("<button")).every((r) => /data-kind="(bill|saved|mandate)"|idx \+ '" ' \+ attr/.test(r)),
     "eye: a row that is neither a bill, a saved search, a mandate nor an issue lane is still a bare <button>");
-  // AND THE THIRD KIND OF ROW THAT NOW HAS AN ADDRESS. /i/<key> is a served path,
-  // so the formal lane's issue-file and issue-family rows are anchors for the same
-  // reason a person row is: copy, new tab, middle click. Both come off one builder,
-  // so one assertion covers both.
+  // AND THE THIRD KIND OF ROW THAT NOW HAS AN ADDRESS — WHERE THERE IS ONE. /i/<key>
+  // is a served path, so a LEAF issue-file row is an anchor for the same reason a
+  // person row is: copy, new tab, middle click. A FAMILY row is not, and that is not
+  // an oversight: a core is the set of keys filed under it, issueProfileHtml() paints
+  // a census for one key, and there is nothing at /i/<coreKey> for an anchor to open.
+  // Both rows come off one builder, so the builder decides its own element — which is
+  // the thing this section is really about, since inventing an address for a row that
+  // has no file is the exact failure it forbids everywhere else.
   has(EYE, "function fileRowHtml", "eye: the issue-file / family row builder is gone");
   const fileRow = EYE.slice(EYE.indexOf("function fileRowHtml"), EYE.indexOf("function issueFileItem"));
   has(fileRow, '<a role="option"', "eye: an issue-file row is a button, and /i/<key> is a real address");
-  has(fileRow, "issueFileUrl(", "eye: an issue-file row spells its own path instead of asking the address module");
+  has(fileRow, '<button type="button" role="option"',
+    "eye: the row builder has only one element, so a family with no file is still an anchor");
+  // The path is still asked for rather than spelled: issueFileHref() is the gate —
+  // published key, and not one of the thirteen cores — and issueFileUrl() behind it
+  // is what asks the address module for the spelling.
+  has(fileRow, "issueFileHref(", "eye: the row builder no longer asks whether there is a file at that address");
+  has(EYE, "function issueFileHref", "eye: the gate that answers 'is there a file here' is gone");
+  const gate = EYE.slice(EYE.indexOf("function issueFileHref"), EYE.indexOf("function isCoreKey"));
+  has(gate, "issueFileUrl(", "eye: an issue-file row spells its own path instead of asking the address module");
+  has(gate, "isCoreKey(", "eye: the gate no longer refuses a core, so a family row can address a file again");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

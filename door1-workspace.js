@@ -1515,8 +1515,21 @@
     // (No scope sentence here, and there never was one: `scope` named a SELECTED
     // key, which is exactly what this branch does not have. It now lives inside
     // issueProfileHtml, where the key is known.)
-    return head + shelf + keyShelf +
-      '<p class="d1-lead">Pick a key above to read what the record on it did. Until then this is the ' +
+    // ── A FAMILY OF KEYS, NOT A SINGLE FILE ─────────────────────────────────
+    // Said out loud, on the shelf, in a length rather than a reading. A reader
+    // who followed a family row in the Eye or an address naming one of the
+    // thirteen arrives here, and what they are owed first is why there is no
+    // single census on the screen: this core is a FAMILY, its records are the
+    // keys filed under it, and which of them they meant is theirs to say. The
+    // number is childKeys().length — the same chips painted an inch above — so
+    // the sentence cannot claim a shelf that is not there.
+    var kidN = childKeys(core).length;
+    var famNote = '<p class="d1-fam-note"><b>' + esc(core.label) + '</b> is a family of ' +
+      kidN + ' key' + (kidN === 1 ? '' : 's') + ', not a single file. ' +
+      (kidN ? 'Pick one above to read what the record on it did.'
+            : 'No key is filed under it yet, so there is nothing to read here.') + '</p>';
+    return head + shelf + keyShelf + famNote +
+      '<p class="d1-lead">Until then this is the ' +
       'inventory: who holds something formal somewhere inside ' + esc(core.label) + ', deepest file ' +
       'first. Not a reading, and not a match score.</p>' + body;
   }
