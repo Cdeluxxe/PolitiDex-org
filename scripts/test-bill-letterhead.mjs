@@ -64,9 +64,16 @@ const HR6644 = {
     id: 6644, number: "H.R. 6644", congress: 119, chamber: "house", status: "passed_house",
     title: "Housing Supply and Permitting Act",
     introducedAt: "2025-12-04",
-    // The ingested description, at the length the real ones run to. It is the
-    // reason this pass exists: printed above the letterhead it pushed the chips
-    // and the vote strip off a phone screen entirely.
+    // The ingested description, at the length the real ones run to — a section-
+    // by-section wall, which is the reason this pass exists: printed above the
+    // letterhead it pushed the chips and the vote strip off a phone screen
+    // entirely, and it is long enough that no identity row could hold it.
+    //   THE SHORT CASE IS NOT THIS CASE. A description that reads as a list of
+    // levers — the seeded summaries on 90 FR 8245 and EO 14162 run to a
+    // paragraph — now renders in the identity block above the chips instead of
+    // folding, and scripts/test-instrument-summaries.mjs owns that half. This
+    // fixture holds the half that still folds, so both surfaces stay tested and
+    // neither one ever prints the other one’s text.
     summary:
       "Title I establishes a Federal housing supply block grant and conditions a portion of surface " +
       "transportation formula funds on the adoption of by-right approval near fixed-guideway transit. " +
@@ -74,7 +81,16 @@ const HR6644 = {
       "deadlines for agency action on permit applications. Title III expands the low-income housing tax " +
       "credit allocation and makes the small-state minimum permanent. Title IV directs the Comptroller " +
       "General to report on local approval timelines. Title V bars a Federal Reserve central bank digital " +
-      "currency issued directly to individuals.",
+      "currency issued directly to individuals. " +
+      "Title VI reauthorizes the rural housing preservation program through fiscal year 2031 and sets " +
+      "aside a portion of its funds for manufactured housing. Title VII requires the Secretary of " +
+      "Housing and Urban Development to publish a model by-right zoning code within one year and to " +
+      "report annually on the jurisdictions that adopt it. Title VIII amends the Interstate Land Sales " +
+      "Full Disclosure Act to exempt certain small subdivisions from registration. Title IX establishes " +
+      "a revolving loan fund for the water and sewer connections serving new residential construction, " +
+      "and authorizes appropriations for it through fiscal year 2030. Title X contains technical and " +
+      "conforming amendments, sets the effective date of each title, and provides that no provision " +
+      "takes effect until the Comptroller General certifies the baseline data required under Title IV.",
     externalIds: {
       congressGovUrl: "https://www.congress.gov/bill/119th-congress/house-bill/6644",
       mappingReadFrom: "engrossed",
@@ -494,6 +510,32 @@ section("6 · the census is first, and the prose is folded under it");
   // A bill with nothing to fold gets no fold. An empty disclosure is a promise
   // with nothing behind it.
   hasNot(EMPTY, 'class="bd-fold"', "a measure with no prose on file grew an empty fold");
+
+  // AND A DESCRIPTION SHORT ENOUGH TO READ AS LEVERS DOES NOT FOLD AT ALL. The
+  // fold's reason for existing is length: two thousand characters of Titles is a
+  // footnote and belongs under the census. A paragraph that says who must do what
+  // by when is the answer to the first question a reader asks, and it is printed
+  // in the identity block above the chips instead — one field, one printing,
+  // never both. scripts/test-instrument-summaries.mjs owns that surface in full;
+  // this is the seam, asserted here so neither pass can move it without the other
+  // noticing.
+  const SHORT = await render(win, capture, {
+    ...HR6644,
+    measure: {
+      ...HR6644.measure,
+      summary: "Requires the Secretary of Housing and Urban Development to publish a model " +
+        "by-right zoning code within one year. Directs the Comptroller General to report on " +
+        "local approval timelines. Authorizes appropriations through fiscal year 2031.",
+    },
+  });
+  hasNot(SHORT, 'class="bd-fold"', "a description short enough for the identity block was folded as well");
+  has(SHORT.slice(SHORT.indexOf('<dl class="bd-ident">'), SHORT.indexOf("</dl>")),
+    "Requires the Secretary of Housing and Urban Development to publish a model",
+    "a description short enough for the identity block was not printed there");
+  ok(SHORT.indexOf('class="bd-ident-sum"') < SHORT.indexOf('class="bd-lh-chips"'),
+    "the short description is printed below the topic chips it is supposed to explain");
+  eq(count(SHORT, /Directs the Comptroller General to report on local approval timelines/g), 1,
+    "the short description is printed more than once on the face");
 
   // The roll list is behind its own door, and the door says how many names.
   has(FED, 'data-bd-anchor="rolls"', "the roll-call section lost its anchor");

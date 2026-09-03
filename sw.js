@@ -880,6 +880,63 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v118 - THE TITLE STOPS DOING THE TALKING. A measure sheet opened on a number,
+// a title, a date and a link, and on a presidential memorandum the title is
+// "Delivering Emergency Price Relief for American Families and Defeating the
+// Cost-of-Living Crisis" — a name that lists no lever at all: no rule, no
+// deadline, no dollar, nothing a reader could check. The archive's own
+// description was on the page the whole time, printed only inside a closed
+// disclosure BELOW the census, which is where a reader looks last. A reader who
+// took the title as the description was handed a slogan and told it was a
+// finding.
+//   · bill-detail.js       - the description now leads the identity block, above
+//                            the topic chips, printed verbatim with the official
+//                            URL repeated beside the prose ("Read from Federal
+//                            Register ↗") — because a plain-language summary is a
+//                            reading of a document and a reading with no document
+//                            next to it is an assertion in a nicer font. ONE
+//                            FIELD, ONE PRINTING: the identity row and the prose
+//                            fold read the same vr_measures.summary column and
+//                            exactly one of them renders it. A description short
+//                            enough to read as a list of levers goes up; the
+//                            ingested section-by-section wall of an omnibus stays
+//                            folded, verbatim, because promoting two thousand
+//                            characters into an identity row would bury the five
+//                            facts that block exists to state. NOTHING IS
+//                            GENERATED: no summary is ever derived from a title,
+//                            and a description column holding nothing but the
+//                            measure's own name is read as EMPTY, so the locked
+//                            line "No plain-language summary on file yet" prints
+//                            instead of a title wearing a summary's label. That
+//                            line, the executive-act copy, the disapproval-measure
+//                            clarifier and "Standing describes the instrument, not
+//                            its effect." are all untouched, and a floor bill with
+//                            an empty chamber file still says no vote is on file.
+//   · index.html           — UNCHANGED, and precached as '/', so a warm shell
+//                            pairs the new sheet with the same page it always did.
+//   · door1-workspace.js  — UNCHANGED. The desk did not move for this pass, but
+//                            it is named here because it is re-fetched anyway:
+//                            the bump renames both cache buckets, so every
+//                            precached shell asset travels together whether or
+//                            not its bytes changed.
+//   · door1-workspace.css — UNCHANGED, and travels for the same reason. A desk
+//                            served from the old bucket beside a sheet served
+//                            from the new one is the one mismatch a version
+//                            bump exists to prevent.
+// The prose itself is data, not code: one migration
+// (20261027000000_vr_instrument_lever_summaries_w1) fills vr_measures.summary for
+// exactly two already-mapped executive instruments — Presidential Memorandum,
+// 90 FR 8245 and Executive Order 14162 — written from the Federal Register text
+// each sheet already cites, levers only, with the document URL recorded beside
+// the prose in the migration. A stale shell here would show the new summaries in
+// the old place (folded) rather than show anything false, which is why the bump
+// is small; it is still a bump because bill-detail.js is a precached shell asset
+// and the reader who benefits from the fix is the one who never re-fetches it.
+// No floor, no mapping, no weight, no roster row, no issue key and no figure of
+// any kind moved. No percentage, no party and no effect claim entered any copy:
+// standing describes the writing, not its effect. Every person brief and every
+// Direction Match read is byte-identical across a twin boot.
+//
 // v117 - A FAMILY IS A DOOR, NOT AN ADDRESS; AND A RANKING IS NOT A FORMAL
 // ANSWER. Two defects with one shape: a surface promising a document that does
 // not exist. (1) The All-Seeing Eye painted a core issue row — "Climate, Energy
@@ -1413,7 +1470,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v117';
+const CACHE_VERSION = 'v118';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

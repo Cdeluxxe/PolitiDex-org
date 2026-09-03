@@ -1173,6 +1173,44 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // has no /i/ or /p/ file, so it is the third such row). Neither suite's claim
     // was weakened: both still fail on the defect they were written for.
     "scripts/test-eye-warming.mjs",
+    // AND THE INSTRUMENT SUMMARIES (CACHE_VERSION v118), the third pass of that
+    // same shape on this file's terms: no roll, no mapping, no key, no floor and
+    // no admission moves, only where an already-stored sentence is printed. A
+    // measure sheet stated "No plain-language summary on file yet" honestly and
+    // then let the title do the explaining, so a presidential memorandum whose
+    // name is "Delivering Emergency Price Relief for American Families and
+    // Defeating the Cost-of-Living Crisis" described itself to a reader in words
+    // that name no rule, no deadline and no dollar. The archive's own description
+    // column was on the page the whole time, printed only inside a closed
+    // disclosure below the census. bill-detail.js now reads vr_measures.summary
+    // through ONE helper and prints it in ONE place: a lever-length description
+    // leads the identity block above the topic chips with the official Federal
+    // Register URL repeated beside the prose, an ingested section-by-section wall
+    // stays folded where it was, and a column holding nothing but the measure's
+    // own title is read as empty so the locked line prints instead of a slogan
+    // wearing a summary's label. Nothing is generated from a title. The prose
+    // itself is data — one migration fills the column for two already-mapped
+    // executive instruments from the Federal Register text those sheets already
+    // cite, levers only, with the document URL recorded beside it — so no engine
+    // file learned to write copy. The reason this file declares it: R1 and R2 put
+    // 1,120 member files behind these keys, and the executive acts already on
+    // file are the rows a reader reaches with no tally to read, which makes the
+    // description the only thing on the sheet that says what the instrument does.
+    // Two neighbouring suites were anchored to the old placement and are
+    // re-anchored, not weakened: test-bill-letterhead.mjs and
+    // test-bill-noise-pass.mjs both used a mid-length fixture summary as their
+    // "below the fold" landmark, which this pass promotes into the identity
+    // block, so each fixture was lengthened to the omnibus wall its own comment
+    // describes and the letterhead suite gained a seam assertion that a SHORT
+    // summary does not fold — neither suite's claim was softened, and both still
+    // fail on the defect they were written for. isExecutiveAct copy, the
+    // disapproval clarifier and "Standing describes the instrument, not its
+    // effect." are byte-identical, a chamber measure with a genuinely empty
+    // roll-call file still says so, and every count, band, tier, measure and
+    // Direction Match figure is unchanged, which the twin boot above has just
+    // proved. bill-detail.js, index.html and sw.js are declared above already.
+    "scripts/test-bill-letterhead.mjs",
+    "scripts/test-bill-noise-pass.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

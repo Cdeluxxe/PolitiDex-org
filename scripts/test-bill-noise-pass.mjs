@@ -111,10 +111,28 @@ const MEASURE = {
   id: 88, number: "H.R. 6644", congress: 119, chamber: "house", status: "passed_house",
   title: "21st Century ROAD to Housing Act",
   introducedAt: "2025-12-04",
+  // The ingested section-by-section description, at the length the real ones run
+  // to. Length is load-bearing here: this suite uses the prose fold as the
+  // landmark for "above the fold", and a description short enough to read as a
+  // list of levers is printed in the identity block instead of folding (see
+  // scripts/test-instrument-summaries.mjs). A wall of Titles is what folds.
   summary:
     "Title I establishes a Federal housing supply block grant and conditions a portion of surface " +
     "transportation formula funds on the adoption of by-right approval near fixed-guideway transit. " +
-    "Title II shortens the environmental review window for qualifying residential projects.",
+    "Title II shortens the environmental review window for qualifying residential projects and sets " +
+    "deadlines for agency action on permit applications. Title III expands the low-income housing " +
+    "tax credit allocation and makes the small-state minimum permanent. Title IV directs the " +
+    "Comptroller General to report on local approval timelines. Title V bars a Federal Reserve " +
+    "central bank digital currency issued directly to individuals. Title VI reauthorizes the rural " +
+    "housing preservation program through fiscal year 2031. Title VII requires the Secretary of " +
+    "Housing and Urban Development to publish a model by-right zoning code within one year and to " +
+    "report annually on the jurisdictions that adopt it. Title VIII amends the Interstate Land Sales " +
+    "Full Disclosure Act to exempt certain small subdivisions from registration. Title IX establishes " +
+    "a revolving loan fund for the water and sewer connections serving new residential construction. " +
+    "Title X contains technical and conforming amendments, sets the effective date of each title, and " +
+    "provides that no provision takes effect until the Comptroller General certifies the baseline data " +
+    "required under Title IV. Title XI authorizes appropriations for each of fiscal years 2027 through " +
+    "2031 and rescinds the unobligated balances of two predecessor grant programs.",
   externalIds: {
     congressGovUrl: "https://www.congress.gov/bill/119th-congress/house-bill/6644",
     mappingReadFrom: "engrossed",
