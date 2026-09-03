@@ -1492,17 +1492,33 @@ section("9 · the engines did not move");
     }
   }
 
-  // ── stance-helpers.js: PINNED EVERYWHERE EXCEPT THE RECORD-CTA STATS ────────
+  // ── stance-helpers.js: PINNED EVERYWHERE EXCEPT ITS TWO NAMED SEAMS ────────
   // This file carries the stance resolver the whole profile is built from, so it
-  // is compared byte for byte — with one seam. `_pdxStanceRecordStats` is what
-  // the mid-page "View Full Record" card reads, and it counted formal ISSUE ROWS
-  // only. That is the right number for a label and the wrong number for the claim
-  // the card was making with it: on a file whose letterhead read "11 issues · 23
-  // acts · 3 characterized", the card one screen down said the record was still
-  // being built, because the row index is empty until the roll-call cache warms
-  // and the card renders before it does. The seam adds an act count, the edge's
-  // own first-byte brief as a pre-warm fallback, and a boolean for whether the
-  // lane has answered. No stance, no evidence tally and no floor inside it moved.
+  // is compared byte for byte — with two seams, cut the way voting-record.js is
+  // cut below, and argued line by line rather than excused by a hash.
+  //
+  // SEAM 1 · the record-CTA stats. `_pdxStanceRecordStats` is what the mid-page
+  // "View Full Record" card reads, and it counted formal ISSUE ROWS only. That is
+  // the right number for a label and the wrong number for the claim the card was
+  // making with it: on a file whose letterhead read "11 issues · 23 acts · 3
+  // characterized", the card one screen down said the record was still being
+  // built, because the row index is empty until the roll-call cache warms and the
+  // card renders before it does. The seam adds an act count, the edge's own
+  // first-byte brief as a pre-warm fallback, and a boolean for whether the lane
+  // has answered.
+  //
+  // SEAM 2 · the topic chip. It read the key's
+  // CORE, printed the FAMILY's label — "Where all stand: Climate, Energy & Land"
+  // — and then handed the ranked consistency overlay the LEAF key. Three
+  // different things in one control: a family named, a league table of people
+  // opened, a single key ranked. A chip on a PERSON that opens a characterisation
+  // of every other person answers a question nobody asked, which is the finding
+  // that already moved bill-detail.js's and profile-spine.js's topic chips off
+  // that overlay. It prints the key's own label now and opens that key's record
+  // on the desk's one issue door.
+  //
+  // No stance, no evidence tally, no alias table and no floor inside either seam
+  // moved, and everything this wall exists for is outside both of them.
   {
     const SH_NOW = R("stance-helpers.js");
     let headSH = null;
@@ -1512,22 +1528,38 @@ section("9 · the engines did not move");
     if (!headSH) {
       console.log("      (no git baseline available — stance-helpers.js shape not checked in this environment)");
     } else {
-      const A = "    var formal = 0;\n", B = "\n  window._pdxStanceRecordStats = _pdxStanceRecordStats;";
+      // [start, end, what the seam is for] — in file order, both anchors present
+      // exactly once in BOTH versions, so the harness cannot silently widen.
+      const SH_SEAMS = [
+        ["    var formal = 0;\n",
+         "\n  window._pdxStanceRecordStats = _pdxStanceRecordStats;",
+         "the record-CTA stats"],
+        ["      var chips = [];\n",
+         "      var sp = _pdxSpotlightForStance(id, key);",
+         "the topic chip: its label and where it goes"],
+      ];
       const carveSH = (src, side) => {
-        const i = src.indexOf(A), j = src.indexOf(B, i < 0 ? 0 : i);
-        must(i >= 0 && j > i, `${side}: the record-CTA stats seam no longer reads as written in stance-helpers.js`);
-        must(src.split(A).length === 2 && src.split(B).length === 2,
-          `${side}: a record-CTA stats anchor is no longer unique in stance-helpers.js — widen it, do not loosen it`);
-        return { pinned: src.slice(0, i + A.length) + src.slice(j), body: src.slice(i, j) };
+        let pinned = "", pos = 0;
+        const bodies = [];
+        for (const [a, b, why] of SH_SEAMS) {
+          const i = src.indexOf(a, pos), j = src.indexOf(b, i < 0 ? 0 : i);
+          must(i >= 0 && j > i, `${side}: the seam for ${why} no longer reads as written in stance-helpers.js`);
+          must(src.split(a).length === 2 && src.split(b).length === 2,
+            `${side}: a seam anchor for ${why} is no longer unique in stance-helpers.js — widen it, do not loosen it`);
+          pinned += src.slice(pos, i + a.length);
+          bodies.push(src.slice(i, j));
+          pos = j;
+        }
+        return { pinned: pinned + src.slice(pos), bodies };
       };
       const sa = carveSH(headSH, "HEAD"), sb = carveSH(SH_NOW, "now");
       eq(sha(sa.pinned), sha(sb.pinned),
-        "stance-helpers.js is byte-identical to HEAD everywhere outside the record-CTA stats — the stance " +
+        "stance-helpers.js is byte-identical to HEAD everywhere outside its two named seams — the stance " +
         "resolver, the evidence map and the alias tables did not move");
       ok(sb.pinned.length > SH_NOW.length * 0.97,
-        `the carve is a seam, not a hole: ${sb.pinned.length} of ${SH_NOW.length} bytes are still pinned`);
+        `the seams are seams, not a hole: ${sb.pinned.length} of ${SH_NOW.length} bytes are still pinned`);
 
-      const stats = sb.body.replace(/^\s*\/\/.*$/gm, "");
+      const stats = sb.bodies[0].replace(/^\s*\/\/.*$/gm, "");
       // The four numbers HEAD returned still come back, under the same names.
       for (const k of ["tracked:", "withEvidence:", "gaps:", "formal:"])
         has(stats, k, `_pdxStanceRecordStats stopped returning ${k.slice(0, -1)} — its callers read it by name`);
@@ -1542,6 +1574,22 @@ section("9 · the engines did not move");
         "the record-CTA stats seam reads the publication floor — it counts material, it does not decide what publishes");
       ok(!/\d\s*%/.test(stats) && !/\b(Republican|Democrat|GOP)\b/i.test(stats),
         "the record-CTA stats seam grew a percentage or a party");
+
+      // ── seam 2: the topic chip opens the record on the key it holds ──────────
+      const row = sb.bodies[1].replace(/^\s*\/\/.*$/gm, "");
+      has(row, "window.pdxDoor1Issue('", "the topic chip no longer opens its key on the desk's one issue door");
+      has(row, "window.location.href='/i/",
+        "…and has no address to fall back on for a page where the desk has not booted");
+      ok(row.indexOf("PDXIssueView") === -1,
+        "the topic chip reaches the ranked consistency overlay again — a chip on a person must not open a " +
+        "league table of persons");
+      has(row, "IM[key].label",
+        "the chip prints something other than the key's own label — a parent's name standing in for a child's " +
+        "is what named a family and opened a ranking");
+      has(row, "window._issueLabel(key)", "…with no fall back to the app's own labeller for a key ISSUE_MAP misses");
+      ok(row.indexOf("Where all stand") === -1, "the chip promises where everyone stands again");
+      ok(!/\d\s*%/.test(row) && !/\b(Republican|Democrat|GOP)\b/i.test(row),
+        "the connect-row seam grew a percentage or a party");
     }
   }
 

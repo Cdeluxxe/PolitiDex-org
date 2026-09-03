@@ -3935,20 +3935,50 @@
       var jsKey = String(key).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
       var chips = [];
 
-      // 1) Topic → the issue-first ranked view ("who actually backs this up?"),
-      //    but only when the issue maps to a curated Core National Issue. Without
-      //    that guard PDXIssueView.open() would silently fall back to an
-      //    unrelated issue, so we simply omit the link instead.
+      // 1) TOPIC → THE RECORD ON THIS KEY, ON THE DESK.
+      //    WHAT WAS WRONG. This chip read the key's CORE, printed the core's
+      //    label — "Where all stand: Climate, Energy & Land" — and then handed
+      //    PDXIssueView the LEAF key. So it promised a family, opened a ranked
+      //    league table of people, and named a third thing: the overlay titles
+      //    itself with whichever of the two it was given. A chip on a person that
+      //    opens a characterisation of every other person answers a question
+      //    nobody asked, which is the same finding that already moved
+      //    bill-detail.js's and profile-spine.js's topic chips off this overlay.
+      //
+      //    It now opens the key it holds, on the desk that reads that key's
+      //    formal record — window.pdxDoor1Issue, the one issue entry point, with
+      //    the key's own file at /i/<key> as the fallback for a page where the
+      //    desk has not booted. The core is still asked for, because a key no
+      //    bundle claims is a key this file will not send anywhere; what changed
+      //    is that the core's label no longer stands in for the key's.
       var core = (typeof window.coreIssueForKey === 'function') ? window.coreIssueForKey(key) : null;
-      if (core && window.PDXIssueView && typeof window.PDXIssueView.open === 'function') {
-        var coreTxt = _pdxConnectLabel(core.label);
-        var openIV = "event.stopPropagation();event.preventDefault();window.PDXIssueView&&window.PDXIssueView.open('" + jsKey + "');";
+      if (core) {
+        //    THE KEY'S OWN LABEL, from the register that owns it: ISSUE_MAP
+        //    first, then the app's shared labeller, then the key itself. Never a
+        //    parent's label standing in for a child's — that substitution is
+        //    what let this chip say "Climate, Energy & Land" over a control that
+        //    opened one key inside it.
+        var keyLab = '';
+        try {
+          var IM = window.ISSUE_MAP || {};
+          if (IM[key] && IM[key].label) keyLab = IM[key].label;
+        } catch (e) { keyLab = ''; }
+        if (!keyLab) {
+          try {
+            if (typeof window._issueLabel === 'function') keyLab = window._issueLabel(key) || '';
+          } catch (e) { keyLab = ''; }
+        }
+        var keyTxt = _pdxConnectLabel(keyLab || key);
+        var openKey = "event.stopPropagation();event.preventDefault();" +
+          "if(window.pdxDoor1Issue&&window.pdxDoor1Issue('" + jsKey + "')){}" +
+          "else{window.location.href='/i/" + encodeURIComponent(key) + "';}";
         chips.push('<span class="pdx-connect-chip is-topic" role="link" tabindex="0" ' +
-          'title="' + _pdxMandateEsc('See where every tracked politician stands on ' + coreTxt) + '" ' +
-          'aria-label="' + _pdxMandateEsc('Where everyone stands on ' + coreTxt) + '" ' +
-          'onclick="' + openIV + '" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){' + openIV + '}">' +
-          '<span class="pdx-connect-chip-ico" aria-hidden="true">🧭</span>' +
-          '<span class="pdx-connect-chip-txt">Where all stand: ' + _pdxMandateEsc(_pdxConnectTrim(coreTxt, 30)) + '</span></span>');
+          'title="' + _pdxMandateEsc('Open the formal record on ' + keyTxt +
+            ' — who advanced it, who cut against it, who ran both ways') + '" ' +
+          'aria-label="' + _pdxMandateEsc('The record on ' + keyTxt) + '" ' +
+          'onclick="' + openKey + '" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){' + openKey + '}">' +
+          '<span class="pdx-connect-chip-ico" aria-hidden="true">🏛</span>' +
+          '<span class="pdx-connect-chip-txt">The record on: ' + _pdxMandateEsc(_pdxConnectTrim(keyTxt, 30)) + '</span></span>');
       }
 
       // 2) Issue Spotlight → a neutral, sourced deep-dive on this issue, opened as

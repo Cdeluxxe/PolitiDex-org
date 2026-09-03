@@ -1473,6 +1473,10 @@
     var pending = false;
     try { pending = !!(V && fn(V.votesPending) && V.votesPending()); } catch (e) { pending = false; }
 
+    // The length of the shelf painted an inch above, read once and used by both
+    // the footer sentence and the family note below, so the two cannot disagree
+    // about how many keys this family holds.
+    var kidN = childKeys(core).length;
     var people = issuePeople(core, '');
     var body;
     if (people === null) {
@@ -1506,10 +1510,25 @@
           '<span class="d1-person-m">' + esc(facts.join(' · ')) + '</span>' + cite +
         '</li>';
       }).join('') + '</ul>' +
+      // ── THE FOOTER PROMISES WHAT THE FAMILY HAS ───────────────────────
+      // WHAT WAS WRONG. This sentence offered to "open the full <core> ledger"
+      // and routed through pdxDoor1IssueFace, whose second branch is
+      // PDXIssueView.open — so the reader who tapped it got the consistency
+      // ranking of every tracked politician, party pills across the top, filed
+      // under the family's name. Two wrong things at once: a family has no
+      // ledger (a census is scoped to ONE key — see issueProfileHtml), and a
+      // ranking of people is not the record on an issue.
+      //
+      // So it names what is actually there — the family's keys — and opens them
+      // through the desk's one issue entry point, pdxDoor1Issue(core), which is
+      // the same call the chip an inch above makes and the same landing
+      // /i/<core> and the Eye's family row reach.
       (people.length > LIST_CAP
         ? '<p class="d1-more">' + (people.length - LIST_CAP) + ' more with a formal row somewhere in ' +
-          'this bundle — <button type="button" class="d1-link" onclick="window.pdxDoor1IssueFace(\'' +
-          jsq(core.key) + '\')">open the full ' + esc(core.label) + ' ledger</button>.</p>'
+          'this bundle. ' + esc(core.label) + ' has no ledger of its own — ' +
+          '<button type="button" class="d1-link" onclick="window.pdxDoor1Issue(\'' +
+          jsq(core.key) + '\')">open its ' + kidN + ' key' + (kidN === 1 ? '' : 's') +
+          '</button> and the record on the one you meant is read out.</p>'
         : '');
     }
     // (No scope sentence here, and there never was one: `scope` named a SELECTED
@@ -1523,7 +1542,6 @@
     // keys filed under it, and which of them they meant is theirs to say. The
     // number is childKeys().length — the same chips painted an inch above — so
     // the sentence cannot claim a shelf that is not there.
-    var kidN = childKeys(core).length;
     var famNote = '<p class="d1-fam-note"><b>' + esc(core.label) + '</b> is a family of ' +
       kidN + ' key' + (kidN === 1 ? '' : 's') + ', not a single file. ' +
       (kidN ? 'Pick one above to read what the record on it did.'
@@ -2087,23 +2105,14 @@
     return true;
   };
 
-  // The issue face, through the same cascade bill-detail.js uses: the issue page
-  // if it holds this key, then the ledger view, then the library filtered to it.
-  window.pdxDoor1IssueFace = function (key) {
-    if (!key) return false;
-    try {
-      var IP = window.PDXIssuePage;
-      if (IP && fn(IP.has) && IP.has(key) && IP.open(key)) return true;
-    } catch (e) {}
-    try { if (window.PDXIssueView && fn(window.PDXIssueView.open)) { window.PDXIssueView.open(key); return true; } } catch (e) {}
-    try {
-      if (window.PDXDigitalLibrary && fn(window.PDXDigitalLibrary.focus)) {
-        window.PDXDigitalLibrary.focus({ mode: 'library', issue: key });
-        return true;
-      }
-    } catch (e) {}
-    return false;
-  };
+  // ── THERE IS NO SECOND ISSUE DOOR ON THIS DESK ────────────────────────────
+  // window.pdxDoor1IssueFace used to live here: a three-branch cascade whose
+  // middle branch was PDXIssueView.open(key), and the desk's bundle footer was
+  // its only caller. That footer now calls pdxDoor1Issue, so the cascade had no
+  // caller left and its middle branch was a standing invitation to hand a core
+  // key to the ranking again. The desk has ONE issue entry point —
+  // window.pdxDoor1Issue — and bill-detail.js keeps its own /issue/<key>
+  // cascade for the surface that actually wants an issue page.
 
   window.pdxDoor1Bill = function (num) {
     try {

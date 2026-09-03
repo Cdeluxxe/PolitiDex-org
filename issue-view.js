@@ -684,7 +684,61 @@
   }
 
   // ── overlay state ─────────────────────────────────────────────────────────────
-  var _open = false, _coreKey = '', _focusKey = '', _fMode = 'all', _fParty = '', _fScope = 'all', _lastFocus = null;
+  var _open = false, _coreKey = '', _focusKey = '', _fMode = 'all', _fScope = 'all', _lastFocus = null;
+
+  // ── A FAMILY IS A DOOR, NOT A RANKING OF PEOPLE ─────────────────────────
+  // WHAT WAS WRONG. #issue=climate_energy — and the "open the full Climate,
+  // Energy & Land ledger" link in the desk's own bundle footer — mounted THIS
+  // overlay on a core key: "Ranked by consistency · who backs up their words
+  // first", party pills across the top, every tracked politician characterised
+  // under the name of a FAMILY. Two different claims collided in one frame. A
+  // core is not a file: resolveTarget gives it an empty focusKey because its
+  // records ARE the keys filed under it, and which of them a reader meant is
+  // theirs to say. And a ranking of PEOPLE is not what an address naming an
+  // issue asked for — the same reason bill-detail.js and profile-spine.js
+  // already stopped sending a topic chip here.
+  //
+  // SO A CORE KEY NEVER PAINTS HERE. It goes to the door that already exists:
+  // window.pdxDoor1Issue, the desk's one issue entry point, which paints the
+  // family shelf — one chip per child key — plus the sentence saying this is a
+  // family of N keys rather than a single file. Same call the desk's own chip
+  // makes, the same landing /i/<core> and the Eye's family row reach, so the
+  // pick is recorded and the record warmed identically wherever the tap
+  // happened. A leaf keeps every route it had.
+  //
+  // The desk is deferred and this file is not, so the door is WAITED for on the
+  // same bounded ladder the Eye uses for the same reason, and the last resort is
+  // the core's own address — never this overlay, and never nothing at all.
+  var DESK_WAIT = [120, 400, 900, 1600];
+  function deskDoor(key, tries) {
+    var k = String(key == null ? '' : key).trim();
+    if (!k) return;
+    if (_open) close();
+    try { if (typeof window.pdxDoor1Issue === 'function' && window.pdxDoor1Issue(k)) return; } catch (e) {}
+    var t = tries || 0;
+    if (t < DESK_WAIT.length) {
+      try { setTimeout(function () { deskDoor(k, t + 1); }, DESK_WAIT[t]); return; } catch (e) {}
+    }
+    deskLast(k);
+  }
+  // WHEN THE DOOR NEVER ARRIVES. Not a second door — the desk has exactly one
+  // entry point and it is the call above. What is left is the family's own
+  // ADDRESS, which resolves to the same shelf on a fresh document, and failing
+  // that the front door on this page, which asks the reader which issue they
+  // mean. Deliberately no reference to the desk module by name: the desk reads
+  // the shipped modules and never the other way round, so this file knows one
+  // function name and nothing about who provides it.
+  function deskLast(k) {
+    try {
+      var F = G('PDXIssueFamily');
+      if (F && typeof F.profileUrl === 'function') {
+        var u = F.profileUrl(k);
+        if (u) { window.location.href = u; return; }
+      }
+    } catch (e) {}
+    var fd = el('issue-front-door');
+    if (fd && fd.scrollIntoView) { try { fd.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} }
+  }
 
   function meterHTML(r) {
     return '<div class="iv-meter" aria-hidden="true"><span class="iv-meter-fill ' +
@@ -778,6 +832,10 @@
       '</li>';
   }
 
+  // Browse chips. Each one names a FAMILY, so each one leaves this overlay for
+  // the desk that holds that family's keys — see A FAMILY IS A DOOR. The count
+  // is what is documented inside the bundle, which is the same figure the desk's
+  // own inventory prints; it is not an offer to rank the bundle here.
   function switcherHTML(activeKey) {
     var c = counts();
     return coreIssues().map(function (ci) {
@@ -795,7 +853,6 @@
     var st = _fScope === 'mine' ? userState() : '';
     return rows.filter(function (r) {
       if (st && !inUserScope(r, st)) return false;
-      if (_fParty && (!r.party || r.party.key !== _fParty)) return false;
       if (_fMode === 'consistent') return r.tierKey === 'consistent' || r.tierKey === 'mixed';
       if (_fMode === 'contradiction') return r.tierKey === 'contradiction' || r.tierKey === 'flag';
       return true;
@@ -904,6 +961,12 @@
     var iss = activeIssue();
     var ov = el('pdx-issue-overlay');
     if (!iss || !ov) return;
+    // THE WALL, not a second opinion. open() routes a family to the desk before
+    // anything is painted; this refuses to paint one even if some other path
+    // ever sets the state directly. A ranking with no key under it is a
+    // characterisation of a whole bundle of people, which is the thing that
+    // stopped being a destination.
+    if (!_focusKey) { deskDoor(_coreKey, 0); return; }
     var st = userState();
 
     // When the ranking is narrowed to one sub-issue, say which bundle it sits in
@@ -912,7 +975,8 @@
       ? '<div class="iv-focus">' +
           '<span class="iv-focus-tag">Narrowed to one issue</span>' +
           '<span class="iv-focus-txt">Part of ' + esc(iss.parent) + '</span>' +
-          '<button type="button" class="iv-focus-btn" data-widen="1">Widen to all of ' + esc(iss.parent) + ' →</button>' +
+          '<button type="button" class="iv-focus-btn" data-widen="1">Open the ' + esc(iss.parent) +
+            ' desk · all its keys →</button>' +
         '</div>'
       : '';
 
@@ -940,7 +1004,7 @@
         '</div>' +
       '</header>' +
       focusBar +
-      '<div class="iv-switcher-wrap"><div class="iv-switcher" role="tablist" aria-label="Choose an issue">' +
+      '<div class="iv-switcher-wrap"><div class="iv-switcher" role="group" aria-label="Open an issue family on the desk">' +
         switcherHTML(_coreKey) + '</div></div>' +
       '<div class="iv-filters" role="group" aria-label="Filter the ranking">' +
         '<div class="iv-filter-set">' +
@@ -948,12 +1012,17 @@
           '<button type="button" class="iv-fbtn' + (_fMode === 'consistent' ? ' is-on' : '') + '" data-fmode="consistent">✓ Backs it up</button>' +
           '<button type="button" class="iv-fbtn' + (_fMode === 'contradiction' ? ' is-on' : '') + '" data-fmode="contradiction">⚠ Contradictions</button>' +
         '</div>' +
-        '<div class="iv-filter-set">' +
-          '<button type="button" class="iv-fbtn' + (_fParty === '' ? ' is-on' : '') + '" data-fparty="">Any party</button>' +
-          '<button type="button" class="iv-fbtn iv-fbtn--R' + (_fParty === 'R' ? ' is-on' : '') + '" data-fparty="R">R</button>' +
-          '<button type="button" class="iv-fbtn iv-fbtn--D' + (_fParty === 'D' ? ' is-on' : '') + '" data-fparty="D">D</button>' +
-          '<button type="button" class="iv-fbtn iv-fbtn--I' + (_fParty === 'I' ? ' is-on' : '') + '" data-fparty="I">Ind</button>' +
-        '</div>' +
+        // ── NO PARTY CONTROL HERE ────────────────────────────────────────
+        // "Any party / R / D / Ind" used to sit on this line, and it argued with
+        // the reading it filtered: this list characterises a PERSON against their
+        // own words, and a caucus letter has nothing to do with whether they kept
+        // them. Filtering it by party turns a say-vs-do read into a partisan
+        // scoreboard — the reader is invited to see the record of one side and
+        // not the other, which is the one thing a consistency read cannot
+        // survive. Nothing here sorts, filters or scores on party; the letter
+        // beside a name is identity, printed the way every other surface prints
+        // it. The lens filters (kept / broken) and the location scope stay,
+        // because both are facts about the record being read.
         scopeSet +
       '</div>' +
       '<div class="iv-body" id="iv-body"></div>';
@@ -978,15 +1047,17 @@
       if (t === ov || (t.closest && t.closest('.iv-close'))) { close(); return; }
       var sh = t.closest && t.closest('[data-share]');
       if (sh) { e.stopPropagation(); shareRanking(); return; }
+      // WIDENING IS LEAVING. Dropping the sub-issue focus used to rank the whole
+      // bundle right here, which is the family ranking this overlay no longer
+      // paints. The bundle's own surface is the desk, so that is where widening
+      // goes — and a browse chip, which names a family and nothing else, goes to
+      // the same place.
       var wd = t.closest && t.closest('[data-widen]');
-      // Widening drops the sub-issue focus but keeps the lens and scope the voter set.
-      if (wd) { _focusKey = ''; _syncHash(); renderChrome(); scrollTop(); return; }
+      if (wd) { deskDoor(_coreKey, 0); return; }
       var chip = t.closest && t.closest('.iv-chip');
-      if (chip) { _coreKey = chip.getAttribute('data-core'); _focusKey = ''; _syncHash(); renderChrome(); scrollTop(); return; }
+      if (chip) { deskDoor(chip.getAttribute('data-core'), 0); return; }
       var fm = t.closest && t.closest('[data-fmode]');
       if (fm) { _fMode = fm.getAttribute('data-fmode'); _syncHash(); renderChrome(); return; }
-      var fp = t.closest && t.closest('[data-fparty]');
-      if (fp) { _fParty = fp.getAttribute('data-fparty'); renderChrome(); return; }
       var fs = t.closest && t.closest('[data-fscope]');
       if (fs) { _fScope = fs.getAttribute('data-fscope'); _syncHash(); renderChrome(); return; }
       var rc = t.closest && t.closest('[data-receipt]');
@@ -1020,11 +1091,25 @@
   function open(keyOrIssueKey, opts) {
     opts = opts || {};
     var t = resolveTarget(keyOrIssueKey, opts.focusKey);
-    if (!t) { var first = coreIssues()[0]; if (!first) return; t = { core: first, focusKey: '' }; }
+    // ── THE ONE GATE ───────────────────────────────────────────────────────
+    // An empty focusKey is resolveTarget's own way of saying "the caller named
+    // one of the thirteen", and a family has no census to paint — see A FAMILY
+    // IS A DOOR above. Every route in: the #issue=<core> deep link, the desk's
+    // bundle footer, the front-door grid, the Eye's "widen to the bundle", a
+    // topic chip's fallback. All of them land on the desk instead, and none of
+    // them lands here.
+    //
+    // AND A KEY NO BUNDLE CLAIMS IS NOT REPARENTED. This used to fall back to
+    // coreIssues()[0] and rank an unrelated issue under the label of the one
+    // that was asked for — silently, which is worse than refusing. The key goes
+    // to the desk's own resolver, which either knows it or says it does not.
+    if (!t || !t.focusKey) {
+      deskDoor(t ? t.core.key : String(keyOrIssueKey == null ? '' : keyOrIssueKey), 0);
+      return;
+    }
     _coreKey = t.core.key;
     _focusKey = t.focusKey || '';
     _fMode = (opts.mode === 'consistent' || opts.mode === 'contradiction') ? opts.mode : 'all';
-    _fParty = (opts.party === 'R' || opts.party === 'D' || opts.party === 'I') ? opts.party : '';
     // A local scope is only honoured when we actually know the visitor's state.
     _fScope = (opts.scope === 'mine' && userState()) ? 'mine' : 'all';
     _lastFocus = document.activeElement;
@@ -1325,6 +1410,18 @@
   }
 
   // ── front door ────────────────────────────────────────────────────────────────
+  // How many keys are filed under a family — asked of the family table, which
+  // owns that answer, and falling back to the bundle's own declared list.
+  function kid(ci) {
+    try {
+      var F = G('PDXIssueFamily');
+      if (F && typeof F.childrenOf === 'function') {
+        var n = (F.childrenOf(ci.key) || []).length;
+        if (n) return n;
+      }
+    } catch (e) {}
+    return ((ci && ci.keys) || []).length;
+  }
   function mountFrontDoor() {
     var host = el('issue-front-door');
     if (!host) return;
@@ -1343,7 +1440,8 @@
         '<span class="ifd-txt">' +
           '<span class="ifd-label">' + esc(lab.text) + '</span>' +
           '<span class="ifd-blurb">' + esc(ci.blurb || '') + '</span>' +
-          '<span class="ifd-meta">' + n + ' ranked' + (rec ? ' · ' + rec + ' with receipts' : '') +
+          '<span class="ifd-meta">' + kid(ci) + ' key' + (kid(ci) === 1 ? '' : 's') + ' · ' +
+            n + ' documented' + (rec ? ' · ' + rec + ' with receipts' : '') +
             (vot ? ' · ' + vot + ' with votes' : '') + '</span>' +
         '</span>' +
         '<span class="ifd-go" aria-hidden="true">→</span>' +
@@ -1354,13 +1452,21 @@
       '<div class="ifd-inner">' +
         '<div class="ifd-head">' +
           '<div class="ifd-eyebrow">🧭 Start with an issue</div>' +
-          '<h2 class="ifd-title">Where does <em>everyone</em> stand?</h2>' +
-          '<p class="ifd-lead">Pick an issue and see every tracked politician ranked by <strong>consistency</strong> — ' +
-            'who backs up their words, and who says one thing and does another. The receipt is one tap away.</p>' +
+          '<h2 class="ifd-title">Which issue do you mean?</h2>' +
+          // WHAT A CARD OPENS, in the words of the thing it opens. Each of these
+          // thirteen is a FAMILY of tracked keys, and a card hands its family to
+          // the issue desk — the keys as chips, and the record on the one that is
+          // picked. It used to promise "every tracked politician ranked by
+          // consistency" and mount that ranking on the family, which is a
+          // characterisation of a bundle of people rather than the record on an
+          // issue. See A FAMILY IS A DOOR.
+          '<p class="ifd-lead">Each of these is a <strong>family of tracked keys</strong>, not one file. ' +
+            'Pick one and its keys open on the issue desk — then the record on the key you meant: ' +
+            'who advanced it, who cut against it, who ran both ways.</p>' +
         '</div>' +
         '<div class="ifd-grid">' + cards + '</div>' +
-        '<p class="ifd-foot">' + total + ' politicians tracked · rankings are built from sourced say-vs-do receipts, ' +
-          'roll-call votes and stated positions · nonpartisan.</p>' +
+        '<p class="ifd-foot">' + total + ' politicians tracked · read from sourced say-vs-do receipts, ' +
+          'roll-call votes and stated positions · nothing here sorts or filters by party.</p>' +
       '</div>';
     host.hidden = false;
 

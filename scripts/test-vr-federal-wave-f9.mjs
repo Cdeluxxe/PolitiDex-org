@@ -1231,6 +1231,33 @@ const swNote = swWaveNote();
     // already.
     "scripts/test-eye-formal-family.mjs",
     "scripts/test-exec-act-sheet.mjs",
+    // AND THE FAMILY DOOR (CACHE_VERSION v121), the next pass on those same
+    // terms: no roll, no mapping, no key, no floor, no admission and no score
+    // moves — only which surface a topic destination lands on. A CORE key is a
+    // heading over its children and not a leaf file, but the ledger link in a
+    // formal bundle footer, the family tag, `#issue=<core>` and the bundle's "N
+    // more in this family" all handed that heading to PDXIssueView, which holds no
+    // shelf to paint for it and answered instead with a ranked list of PEOPLE —
+    // ordered by consistency, filtered R / D / Ind, promising that someone "backs
+    // up their words" — where the reader had asked for the record on an issue.
+    // Every family destination now calls the desk's one issue door,
+    // pdxDoor1Issue(core), which mounts that family's own shelf; a leaf key still
+    // opens the leaf census it names; and the party pills are gone from the
+    // ranking that remains, which is Public Eye's alone and is linked from no
+    // formal footer. The reason a wave like this one declares it: R1 and R2 put
+    // 1,120 member files behind these keys and the family shelf is how a reader
+    // reaches more than one of them at once, so a footer that promised a ledger
+    // and opened a league table sorted by party is this wave's own product handed
+    // back misread. Nothing that ranks, scores, counts or admits was touched — no
+    // percentage, no Direction Match change, no new key, no roster row, and every
+    // band, tier, measure and figure is byte-identical, which the twin boot above
+    // has just proved. door1-workspace.js, stance-helpers.js, index.html, sw.js,
+    // scripts/v103-chrome-seams.mjs, scripts/test-door-one-collapse.mjs and
+    // scripts/test-person-crawl-block.mjs are declared above already.
+    "issue-view.js",
+    "issue-view.css",
+    "scripts/test-door-one-arrival.mjs",
+    "scripts/test-issue-family-door.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }

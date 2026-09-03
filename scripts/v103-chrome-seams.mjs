@@ -246,11 +246,26 @@ export const CJ_SEAMS_BELOW = [
 /** Both halves, in file order, for a suite that carves consistency.js whole. */
 export const CJ_SEAMS_ALL = CJ_SEAMS.concat(CJ_SEAMS_BELOW);
 
-// ── stance-helpers.js: one span, the record-CTA stats ────────────────────────
+// ── stance-helpers.js: two spans — the record-CTA stats, and the topic chip ──
+// The second span is the v121 issue-door pass. The topic chip on a stance read the
+// key's CORE, printed the FAMILY's label — "Where all stand: Climate, Energy &
+// Land" — and then handed the ranked consistency overlay the LEAF key: a family
+// named, a league table of people opened, one key ranked, three different things
+// in one control. A chip on a PERSON that opens a characterisation of every other
+// person is the finding that already moved bill-detail.js's and profile-spine.js's
+// topic chips off that overlay. It prints the key's own label now and opens that
+// key's record on the desk's one issue door.
+//
+// A wave has no stake in the span: no floor, no mapping, no weight, no score and
+// no admission is read or written inside it — it is a label and a destination —
+// and every stake in the rest of the file, which is compared byte for byte.
 export const SH_SEAMS = [
   ["    var formal = 0;\n",
    "\n  window._pdxStanceRecordStats = _pdxStanceRecordStats;",
    "the record-CTA stats"],
+  ["      var chips = [];\n",
+   "      var sp = _pdxSpotlightForStance(id, key);",
+   "the topic chip: its label and where it goes"],
 ];
 
 // ── issue-colors.js: two spans — the shared chip helper, and its export ──────
@@ -521,6 +536,25 @@ export function assertIssueColorsSeams(bodies, api) {
 export function assertStanceHelpersSeam(bodies, api) {
   const { has, ok } = api;
   const body = bodies[0];
+  // Seam 2 · the topic chip names the key it holds and opens that key's record.
+  // Comments come out first, as everywhere else in this file: the prose over the
+  // chip NAMES what it stopped doing — the ranked overlay, the family label it
+  // used to print — and that is the half a reader needs and the half a regex
+  // would trip on. What is argued below is the code.
+  const chip = bodies[1] === undefined ? undefined : bodies[1].replace(/^\s*\/\/.*$/gm, "");
+  if (chip !== undefined) {
+    has(chip, "window.pdxDoor1Issue('", "the topic chip no longer opens its key on the desk's one issue door");
+    has(chip, "window.location.href='/i/", "…and has no address to fall back on when the desk has not booted");
+    ok(chip.indexOf("PDXIssueView") === -1,
+      "the topic chip reaches the ranked consistency overlay again — a chip on a person must not open a " +
+      "league table of persons");
+    has(chip, "IM[key].label",
+      "the chip prints something other than the key's own label — a parent's name standing in for a child's " +
+      "is the substitution that named a family and opened a ranking");
+    ok(chip.indexOf("Where all stand") === -1, "the chip promises where everyone stands again");
+    ok(!/%|\b(Republican|Democrat|GOP)\b/i.test(chip),
+      "the topic-chip seam gained a percentage or a party — it carries a label and a destination");
+  }
   has(body, "formalActs:", "the record-CTA stats no longer report the act count");
   has(body, "formalRead:", "…or whether the record lane has answered at all");
   has(body, "FPI2.shape(id)", "…and no longer read the act count out of the index's own shape");

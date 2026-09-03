@@ -880,6 +880,48 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v121 - A FAMILY IS A DOOR, NOT A LEAGUE TABLE OF PEOPLE. "open the full Climate,
+// Energy & Land ledger" and the topic chip on a person's file both mounted the
+// consistency overlay: politicians ranked head to head, with Any party / R / D /
+// Ind pills over the list. A family holds seventeen tracked keys and is not a leaf
+// file, so the ranking was person-vs-record on a question nobody asked, and the
+// party pills sorted the people answering it by caucus.
+//   · issue-view.js      - ONE GATE, in open(): a key that resolves to a family
+//                          (empty focusKey) never paints a ranking. It hands the
+//                          key to window.pdxDoor1Issue() and the desk reads out
+//                          that family's keys; a deferred desk is waited for on
+//                          the same ladder the Eye uses, and the last resort is
+//                          the family's own address, never a substitute ranking.
+//                          renderChrome() carries the same wall, so a view that
+//                          got there another way still leaves. The old fallback
+//                          that re-parented an unclaimed key into coreIssues()[0]
+//                          is gone — a stranger's family is not an answer. The
+//                          overlay's own switcher chips and its widen control now
+//                          open the desk instead of clearing focusKey in place.
+//                          Every party control is deleted: the four pills, their
+//                          handler, and the party clause in applyFilter(). The
+//                          front door names what it opens — families of tracked
+//                          keys, with each card's key count and documented count.
+//   · issue-view.css     - the three caucus-tinted pill rules removed; nothing in
+//                          this file paints a party any more.
+//   · door1-workspace.js - the bundle footer's ledger link calls pdxDoor1Issue()
+//                          with the family key and says what is behind it ("open
+//                          its 17 keys"), counted off the same childKeys() the
+//                          family note reads. window.pdxDoor1IssueFace, whose
+//                          middle branch was the ranked overlay, had no caller
+//                          left and is gone: this desk has one issue door.
+//   · stance-helpers.js  - the topic chip on a person's file printed the FAMILY
+//                          label and handed the LEAF key to the overlay. It now
+//                          reads out the key's own label and opens the desk on it.
+//   · index.html         - the front door's label, the quick-jump chip and the
+//                          three nav entries said "Issues Ranked"; they name the
+//                          record now. Precached as the shell's own '/'.
+// Consistency ranking still exists and still computes the same way — Door 1 reads
+// buildRanking(core, '') for its family inventory, unchanged — it is simply no
+// longer a destination a formal bundle footer or a person's chip can open. No
+// percentage, no Direction Match change, no new key, no roster row and no figure
+// moved, and Eye Formal still paints no 882 block.
+//
 // v120 - THE MEASURES SLICE IS NOT GOVERNED BY A CLOCK. 8245 was still denied in
 // preview: typing it painted "Formal 0" and "The eye finds nothing for 8245", and
 // then the same query painted Legislation & Bills · Emergency price relief
@@ -1537,7 +1579,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v120';
+const CACHE_VERSION = 'v121';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
