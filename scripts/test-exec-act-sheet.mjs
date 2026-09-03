@@ -269,6 +269,45 @@ section("4 · the rest of the record survives the copy change");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+section("4b · the topic chips do not describe a vote nobody held");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // WHAT WAS WRONG. Every topic chip on the sheet read "A Yea advances this" —
+  // including on this memorandum, three inches under a letterhead that says in so
+  // many words that there was no vote to cast. The direction is the curators' own
+  // and is unchanged; the ACTOR is what was wrong, because an executive measure
+  // is issued rather than voted.
+  has(MEMO, "As issued, advances this", "the memorandum's topic chip does not use issuance language");
+  hasNot(MEMO, "A Yea advances this", "the memorandum's topic chip still describes a vote nobody held");
+  hasNot(MEMO, "A Yea cuts against this", "the memorandum's topic chip still describes a vote nobody held");
+  has(ORDER, "As issued, advances this", "the executive order's topic chip does not use issuance language");
+  hasNot(ORDER, "A Yea", "the executive order's sheet still puts a Yea on a topic chip");
+  // THE DIRECTION SURVIVES, and so does everything that counts on it: the class
+  // is what the colour and every row count read, and it is untouched.
+  has(MEMO, 'class="bd-eff bd-eff-adv"', "the memorandum's chip lost the class the colour and the counts read");
+  const rowN = (String(MEMO).match(/class="bd-omni-row/g) || []).length;
+  ok(rowN === 2, `the memorandum's topic rows changed in number — got ${rowN}, want 2`);
+  // A VOTED MEASURE IS UNTOUCHED. The disapproval resolution had a roll call, so a
+  // Yea is exactly what its chip is about.
+  has(DISAPPROVAL, "A Yea cuts against this", "a voted resolution lost the Yea its chip is actually about");
+  hasNot(DISAPPROVAL, "As issued", "a voted resolution's chip now talks about issuance");
+  // And the provisions strip says it the same way, lead sentence included.
+  const PROV = await render(win, capture, {
+    ...FR8245,
+    provisions: [{ label: "Emergency price relief directive", supportMeaning: "yea_supports", issueKey: "cost_living", description: "Directs agency heads." }],
+  });
+  has(PROV, "Key provisions", "the provisions strip did not render for the memorandum");
+  has(PROV, "which way it cuts on each as issued", "the provisions lead still asks which way a Yea cuts on an issued measure");
+  hasNot(PROV, "which way a Yea cuts on each", "the provisions lead still puts a Yea on an issued measure");
+  const PROVBILL = await render(win, capture, {
+    ...CRA_RES,
+    provisions: [{ label: "A named piece", supportMeaning: "yea_supports", issueKey: "cost_living", description: "" }],
+  });
+  has(PROVBILL, "which way a Yea cuts on each", "a voted measure's provisions lead lost the Yea it is about");
+  has(PROVBILL, "A Yea advances this", "a voted measure's provision chip lost the Yea it is about");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 section("5 · a bill with an empty chamber file still says so");
 // ═════════════════════════════════════════════════════════════════════════════
 // THE GUARD THAT KEEPS THE FIX HONEST. Everything above is a licence to stop
@@ -328,6 +367,9 @@ section("7 · the guards are load-bearing (mutations must break the claims)");
   for (const [label, mutated, fixture, want] of [
     ["(a) predicate returns false", noPred, FR8245, ROLLGAP],
     ["(b) predicate returns true", allExec, BILL, SAY],
+    // (c) with the predicate off, the memorandum's chips go back to describing a
+    //     vote nobody held — which is what makes section 4b load-bearing.
+    ["(c) predicate returns false, topic chip", noPred, FR8245, "A Yea advances this"],
   ]) {
     const w = makeSandbox();
     const cap = { innerHTML: "", scrollTop: 0 };
@@ -351,4 +393,4 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(`\n✓ exec act sheet: all ${passed} assertions passed`);
-console.log("  4 fixtures · memorandum · executive order · senate bill · disapproval resolution · 2 mutations rejected");
+console.log("  4 fixtures · memorandum · executive order · senate bill · disapproval resolution · 3 mutations rejected");

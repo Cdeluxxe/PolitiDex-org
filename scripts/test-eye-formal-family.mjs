@@ -33,6 +33,13 @@
  *   4. A LEAF IS STILL AN ADDRESS. /i/lands_preserve opens the leaf file, stamped;
  *      /i/climate_energy mounts no census, stamps nothing, and lands on the family
  *      shelf with that same sentence and an honest notice.
+ *   5. AND A ROW TAPPED BEFORE ITS DOOR HAS BOOTED WAITS FOR THE DOOR. The eye is
+ *      a sync script and both doors are deferred, so there is a real window in
+ *      which a painted row's opener does not exist yet — and the tap used to die
+ *      in it. Driven through a captured timer queue: nothing happens on the first
+ *      attempt, the wait is scheduled, the desk's script runs, and the tap opens
+ *      on the key the reader tapped. Bounded, and never an address with no
+ *      document behind it.
  *
  * Real shipped modules in a node:vm sandbox: the real ISSUE_MAP, the real family
  * table, the real roster, the real record corpus, and issue-view.js LOADED — so
@@ -527,10 +534,105 @@ section("4 · a leaf is still an address; a family is not");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+section("5 · a row tapped before its door has booted waits for the door");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // WHAT WAS WRONG, AND IT WAS THE PRODUCTION REPORT. all-seeing-eye.js is a
+  // plain sync <script>; the desk (door1-workspace.js) and the file's address
+  // book (pdx-issue-profile.js) are deferred and execute later. The register
+  // lands with alignment-tool.js — earlier in that same deferred queue — so there
+  // is a real window in which the eye paints file and family rows whose doors do
+  // not exist yet. Every branch in the activation missed, and the tap did
+  // NOTHING: no desk, no address, no scroll worth the name. The handler was on
+  // the shipped eye the whole time; what it reached for had not run.
+  //
+  // The row now waits for its own opener, and these assertions drive that wait
+  // through a captured timer queue rather than reading the schedule off the file.
+  const B = boot();
+  const html = search(B, "climate", "formal");
+  const fam = ROWS(html).filter((r) => r.kind === "family" && r.key === CORE)[0];
+  const leaf = ROWS(html).filter((r) => r.kind === "issuefile")[0];
+  ok(!!fam, `no ${CORE} family row was painted for "climate"`);
+  ok(!!leaf, 'no issue file row was painted for "climate"');
+
+  // The deferred modules have not run yet. Nothing else about the page changes.
+  const savedIssue = B.pdxDoor1Issue, savedDesk = B.PDXDoor1, savedProf = B.PDXIssueProfile;
+  const savedProfileUrl = B.PDXIssueFamily.profileUrl;
+  const q = [];
+  B.setTimeout = (fn) => { q.push(fn); return q.length; };
+  const flush = () => { const batch = q.splice(0); batch.forEach((f) => { try { f(); } catch (e) {} }); return batch.length; };
+  // Assigned away rather than `delete`d: a vm context's global does not always
+  // see a deletion on the sandbox object, and a fixture that silently left the
+  // desk in place would make every claim below vacuous.
+  B.pdxDoor1Issue = undefined;
+  B.PDXDoor1 = undefined;
+  B.PDXIssueProfile = undefined;
+  B.PDXIssueFamily.profileUrl = undefined;
+  const href0 = B.location.href;
+
+  ok(clickRow(B, fam.idx), "the family row could not be activated");
+  eq(B.location.href, href0, "a family tap navigated while the desk was still loading");
+  ok(q.length > 0, "a family tap with no desk on the page scheduled nothing — the tap did nothing at all");
+
+  // The desk's script executes, as it does a moment later in a browser, and the
+  // waiting tap opens on the key the reader actually tapped.
+  const picks = [];
+  B.pdxDoor1Issue = function (k) { picks.push(k); return true; };
+  flush();
+  // The tap is wired twice on purpose — the row's own handler and the panel's
+  // delegated one — so what is pinned is WHICH key the wait opened on, not how
+  // many times, exactly as section 3 pins it.
+  ok(picks.length >= 1, "the waiting family tap never reached the desk that had just booted");
+  eq(picks.filter((k) => k !== CORE).join(","), "",
+    `the waiting family tap opened ${JSON.stringify(picks)} instead of ${CORE}`);
+  eq(B.location.href, href0, "the family tap went to an address instead of the desk that had just booted");
+  eq(q.length, 0, "the family tap is still scheduling work after its door opened");
+
+  // THE LEAF, THE SAME WAY. With neither the desk nor the address book on the
+  // page there is nothing to open; when the address book lands, the file's own
+  // address is where the tap goes.
+  B.pdxDoor1Issue = undefined;
+  ok(clickRow(B, leaf.idx), "the leaf row could not be activated");
+  eq(B.location.href, href0, "a leaf tap navigated with no address book on the page");
+  ok(q.length > 0, "a leaf tap with no door on the page scheduled nothing — the tap did nothing at all");
+  B.PDXIssueProfile = savedProf;
+  flush();
+  // The address is whatever the module that owns it answers — a path, which is
+  // what the shipped anchor on that row carries too. Nothing here spells it.
+  eq(B.location.href, savedProf.path(leaf.key),
+    "the waiting leaf tap did not open the file's own address");
+  has(String(B.location.href), `/i/${leaf.key}`, "the leaf tap landed somewhere other than the file's own /i/ address");
+
+  // AND THE WAIT IS BOUNDED. A page where the door never arrives must not queue
+  // work forever, and it may not land on an address with no document behind it.
+  const C = boot();
+  const chtml = search(C, "climate", "formal");
+  const cfam = ROWS(chtml).filter((r) => r.kind === "family" && r.key === CORE)[0];
+  const cq = [];
+  C.setTimeout = (fn) => { cq.push(fn); return cq.length; };
+  C.pdxDoor1Issue = undefined;
+  C.PDXDoor1 = undefined;
+  C.PDXIssueProfile = undefined;
+  C.PDXIssueFamily.profileUrl = undefined;
+  const chref = C.location.href;
+  clickRow(C, cfam.idx);
+  let rounds = 0;
+  while (cq.length && rounds < 20) { rounds++; cq.splice(0).forEach((f) => { try { f(); } catch (e) {} }); }
+  ok(rounds >= 1 && rounds <= 6, `the retry ladder ran ${rounds} rounds — it is unbounded`);
+  eq(cq.length, 0, "the retry ladder never stops scheduling");
+  eq(C.location.href, chref, "a family tap on a page with no desk at all navigated to an /i/ address anyway");
+
+  // Nothing was left mutated for anyone downstream.
+  B.pdxDoor1Issue = savedIssue; B.PDXDoor1 = savedDesk; B.PDXIssueProfile = savedProf;
+  B.PDXIssueFamily.profileUrl = savedProfileUrl;
+  console.log(`      no desk → the tap waits · desk arrives → pdxDoor1Issue(${CORE}) · never a dead tap`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 if (failures.length) {
   console.error(`\n✗ eye formal family: ${failures.length} failure(s), ${passed} passed`);
   for (const f of failures) console.error(`  ✗ ${f}`);
   process.exit(1);
 }
 console.log(`\n✓ eye formal family: all ${passed} assertions passed`);
-console.log(`  formal answers with files · ${CORE} opens the desk · /i/${LEAF} still opens`);
+console.log(`  formal answers with files · ${CORE} opens the desk · a cold tap waits for its door`);

@@ -34,10 +34,16 @@
  *      four ways people write a bill number all reach it.
  *   3. HALF WARM: a lane with hits reports hits, a lane still loading says so in
  *      its own slot, and the page never mixes a verdict with a spinner.
+ *  3b. THE REGISTER IS ITS OWN LANE: the issue FILES come from ISSUE_MAP, which
+ *      no other lane's readiness says anything about, so a cold register gets its
+ *      own loading line in the group the answer will appear in.
  *   4. READY AND EMPTY: the one place "finds nothing" is allowed, and it is still
  *      there — this pass must not have made the eye unable to say no.
  *   5. THE CEILING: a lane whose source never arrives is not warming forever. A
  *      permanent "Searching the record…" is a worse lie than a momentary nothing.
+ *  5b. AND ITS CLOCK STARTS WHEN A LANE COULD HAVE ARRIVED: everything the eye
+ *      searches is deferred, so a ceiling measured from a mid-parse boot expired
+ *      before any source had a turn — and denied a record that was still coming.
  *   6. THE GUARDS ARE LOAD-BEARING: mutations that put the old behaviour back.
  *
  *   node scripts/test-eye-warming.mjs
@@ -64,6 +70,11 @@ const section = (t) => console.log(`\n  · ${t}`);
 const die = (msg) => { console.error(`\n✗ eye warming: STALE HARNESS — ${msg}\n`); process.exit(2); };
 
 const WARM = "Searching the record…";
+// The PANEL's own sentence, as distinct from the per-category loading row that
+// carries the same three words in a lane's own slot. Both matter and they are
+// checked separately, so losing either one is a failure rather than something the
+// other covers up.
+const WARM_PANEL = "<b>Searching the record…</b>";
 const NOTHING = "The eye finds nothing";
 
 // ── the fixture ──────────────────────────────────────────────────────────────
@@ -93,6 +104,14 @@ const STANCES = {
   test_person: [{ topic: "Closed-loop cooling", text: "Backed the data-centre water rule.", issueKey: "housing", pos: "supports" }],
 };
 const ISSUE_CATS = [{ key: "housing", label: "🏠 Housing", blurb: "Where they stand on housing.", keys: ["housing", "housing_build"] }];
+// The issue REGISTER — the map every issue FILE row is built from, and its own
+// lane. It arrives with the deferred alignment-tool.js, so at eye boot it is as
+// absent as the roster is. The key is deliberately unrelated to every query in
+// this suite: a register that answered "housing" or "6644" would change what the
+// other lanes are being measured on.
+const ISSUE_MAP_FIX = {
+  water_reuse: { label: "💧 Water Reuse", chip: "Water reuse", keywords: ["greywater"] },
+};
 
 // ── a DOM small enough to read and real enough to drive the module ───────────
 function stubNode(cls) {
@@ -127,6 +146,12 @@ function boot(state, src) {
   if (state.people) { win.CMP_DATA = ROSTER; win.PROFILES = ROSTER; }
   if (state.stances) win.ISSUE_STANCE_DATA = STANCES;
   if (state.issues) win.CORE_NATIONAL_ISSUES = ISSUE_CATS;
+  if (state.register) win.ISSUE_MAP = ISSUE_MAP_FIX;
+  // A DOCUMENT STILL BEING PARSED. Every source above is behind `defer` in the
+  // shipped page and cannot execute until the parse ends, so a boot with
+  // readyState "loading" is the state a reader who types into the eye during a
+  // slow load is actually in. `settleParse()` is that parse finishing.
+  if (state.parsing) win.document.readyState = "loading";
   if (state.spotlights) win.PDXSpotlight = { list: () => [] };
   // pdx-lazy-data.js's own witness for "the file has executed", which is the only
   // honest signal for a bundle that is legitimately empty.
@@ -175,14 +200,17 @@ function boot(state, src) {
     // The lane clock lives inside the sandbox, so the sandbox's Date is the one to
     // wind: patching the host's would prove nothing about the shipped ceiling.
     travel(ms) { vm.runInContext(`(function(){var _n=Date.now;Date.now=function(){return _n()+${ms};};})()`, ctx); },
+    // The parse finishes: from here the deferred sources could have run, so the
+    // ceiling's clock is allowed to mean something.
+    settleParse() { win.document.readyState = "complete"; return this; },
   };
 }
 
-const ALL_READY = { people: 1, stances: 1, issues: 1, spotlights: 1,
+const ALL_READY = { people: 1, stances: 1, issues: 1, spotlights: 1, register: 1,
   // A loaded bundle may honestly be empty, so "the file executed" is the signal.
   lazy: { spotlights: true, bills: true }, bills: "live" };
 
-console.log(`\n👁️  eye warming — ${SEEDED.number}, three lanes, three states each`);
+console.log(`\n👁️  eye warming — ${SEEDED.number}, four lanes, three states each`);
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("1 · cold: every lane warming, and not one query denied");
@@ -192,6 +220,7 @@ section("1 · cold: every lane warming, and not one query denied");
   for (const q of ["6644", "H.R. 6644", "mike lee", "housing", "zzzzzznotathing"]) {
     const html = B.search(q);
     has(html, WARM, `a cold index does not say it is searching for ${JSON.stringify(q)}`);
+    has(html, WARM_PANEL, `the cold panel's own warming sentence is missing for ${JSON.stringify(q)}`);
     hasNot(html, NOTHING, `a cold index denies ${JSON.stringify(q)} instead of saying it is still loading`);
   }
   // Half a second later it is still loading and still says so. The reported flash
@@ -253,7 +282,7 @@ section("3 · half warm: hits are hits, and the loading lane says so in its slot
 {
   // People and issues loaded, bills still paging. "housing" matches a person, a
   // receipt and an issue category — and the bill lane has an answer coming.
-  const B = boot({ people: 1, stances: 1, issues: 1, spotlights: 1,
+  const B = boot({ people: 1, stances: 1, issues: 1, spotlights: 1, register: 1,
     lazy: { spotlights: true }, bills: "pending" });
   const html = B.search("housing");
   has(html, "Ada Testerly", "the loaded people lane is not answering while another lane warms");
@@ -268,6 +297,44 @@ section("3 · half warm: hits are hits, and the loading lane says so in its slot
   // A lane with hits gets no spinner: the hits are the better report on it.
   hasNot(html, 'data-warm-lane="people"', "the people lane has answered and is still being reported as loading");
   hasNot(html, 'data-warm-lane="issues"', "the issues lane has answered and is still being reported as loading");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("3b · a cold REGISTER is its own lane, and its own loading line");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // WHAT WAS WRONG. The formal lane's first group is the issue FILES, and every
+  // one of them is built from ISSUE_MAP — which ships with the deferred
+  // alignment-tool.js. Readiness was asked once for "issues" and answered out of
+  // the core list (inline) and the spotlight bundle, neither of which says
+  // anything about the register. So a formal query a file answers could be denied
+  // while the register was still on the wire, which is the 6644 defect wearing a
+  // different lane's clothes.
+  const B = await boot({ people: 1, stances: 1, issues: 1, spotlights: 1,
+    lazy: { spotlights: true, bills: true }, bills: "live" }).ready();  // no register
+  const html = B.search("water reuse");
+  has(html, WARM, "a cold register does not say the issue files are still loading");
+  hasNot(html, NOTHING, "a query the register answers is denied while the register is still loading");
+  has(html, 'data-cat="warm" data-warm-lane="files"',
+    "the loading line is not filed under the register's own lane");
+  has(html, "Issue files", "the register's loading line does not name the group the answer will appear in");
+  has(html, "the issue register", "the warming sentence does not name the register as what is still loading");
+  // And the lanes that DID answer are not reported as loading, register or no.
+  hasNot(html, 'data-warm-lane="bills"', "the settled bills lane is being reported as loading");
+  hasNot(html, 'data-warm-lane="people"', "the loaded people lane is being reported as loading");
+
+  // The register lands: same query, same boot shape, and now the file answers.
+  const R = await boot({ ...ALL_READY }).ready();
+  const hot = R.search("water reuse");
+  has(hot, "Water Reuse", "with the register loaded the issue file does not rank");
+  hasNot(hot, WARM, "with every lane loaded the eye still claims to be searching");
+  // A MEASURE'S OWN SLICE, TOO: the register is warm and the bill fetch is not,
+  // so the measure lane — not the whole panel — is what says it is loading.
+  const M = boot({ ...ALL_READY, bills: "pending" });
+  const cold = M.search("6644");
+  hasNot(cold, NOTHING, "a measure number is denied while the measures are still paging");
+  has(cold, 'data-warm-lane="bills"', "the measures lane does not print its own loading line");
+  hasNot(cold, 'data-warm-lane="files"', "the loaded register is being reported as loading");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -329,6 +396,33 @@ section("5 · the ceiling — nothing warms forever");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+section("5b · the ceiling's clock cannot start before a lane could arrive");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // WHAT WAS WRONG. The ceiling was measured from the moment this file executed —
+  // and this file is a plain sync tag partway down a very large document, while
+  // every source it waits on is deferred and cannot run until the parse ends. On
+  // a slow load the parse alone outran eight seconds, so the ceiling expired
+  // before any lane had been offered a turn and the panel printed "finds nothing"
+  // for a record that had not arrived. The ceiling still exists; its clock starts
+  // when a deferred script could have run.
+  has(SRC, "readyState", "the ceiling does not consult document readiness, so a slow parse denies");
+  const P = boot({ bills: "pending", parsing: 1 });
+  has(P.search("6644"), WARM, "a boot mid-parse is not warming to begin with");
+  P.travel(60000);
+  const late = P.search("6644");
+  has(late, WARM, "the ceiling expired while the document was still parsing");
+  hasNot(late, NOTHING, "a query is denied while the page is still being parsed and no lane could have loaded");
+  // And it is still a ceiling: once the parse is done, a source that never
+  // arrives resolves to an honest answer rather than a permanent spinner.
+  P.settleParse();
+  P.travel(60000);
+  const done = P.search("6644");
+  hasNot(done, WARM, "past the parse and past the deadline the eye is still saying it is searching");
+  has(done, NOTHING, "after the parse finished and the ceiling passed the eye will not answer");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 section("6 · the guards are load-bearing (mutations must break the claims)");
 // ═════════════════════════════════════════════════════════════════════════════
 {
@@ -341,8 +435,8 @@ section("6 · the guards are load-bearing (mutations must break the claims)");
     // locked sentence rather than a readiness check, and the readiness check this
     // mutation removes is the one the OTHER two lanes still owe the reader.
     ["the empty branch stops checking readiness",
-      "? mandateEmptyHtml()\n          : (warm.length\n            ? warmPanel(warm)\n            : '<div class=\"pdx-eye-empty\">The eye finds nothing",
-      "? mandateEmptyHtml()\n          : (false\n            ? warmPanel(warm)\n            : '<div class=\"pdx-eye-empty\">The eye finds nothing"],
+      "? mandateEmptyHtml()\n          : (warm.length\n            ? warmPanel(warm) + warmStrip(warm, {})\n            : '<div class=\"pdx-eye-empty\">The eye finds nothing",
+      "? mandateEmptyHtml()\n          : (false\n            ? warmPanel(warm) + warmStrip(warm, {})\n            : '<div class=\"pdx-eye-empty\">The eye finds nothing"],
     ["the bills lane is declared ready before its fetch settles",
       "bills: function () { return billsSettled; }",
       "bills: function () { return true; }"],
@@ -358,24 +452,30 @@ section("6 · the guards are load-bearing (mutations must break the claims)");
     ["the per-lane warming rows are dropped",
       "html += warmStrip(warm,",
       "html += '' && warmStrip(warm,"],
+    ["the register lane is declared ready before ISSUE_MAP lands",
+      "files: function () { return registerCount() > 0; }",
+      "files: function () { return true; }"],
+    ["the ceiling stops waiting for the document to be parseable",
+      "if (!docReady()) return false;\n      return (Date.now() - bootAt) > LANE_DEADLINE_MS;",
+      "return (Date.now() - bootAt) > LANE_DEADLINE_MS;"],
     ["a failed bills fetch no longer clears the lane",
       ".then(billsDone, billsDone);",
       ".then(function () {}, function () {});"],
   ];
-  // Five probes, one per claim this suite makes. A mutation has to survive all
-  // five to count as surviving, which is what makes the claims load-bearing
+  // Seven probes, one per claim this suite makes. A mutation has to survive all
+  // seven to count as surviving, which is what makes the claims load-bearing
   // rather than decorative.
   const probe = async (src) => {
     // a · COLD WARMS, AND NEVER DENIES — on the first paint and on the paints
     //     just after it, which is where the reported flash actually lived.
     const coldBoot = boot({ bills: "pending" }, src);
     const cold = coldBoot.search("6644");
-    if (!cold.includes(WARM) || cold.includes(NOTHING)) return true;
+    if (!cold.includes(WARM) || !cold.includes(WARM_PANEL) || cold.includes(NOTHING)) return true;
     coldBoot.travel(500);
     const stillCold = coldBoot.search("6644");
     if (!stillCold.includes(WARM) || stillCold.includes(NOTHING)) return true;
     // b · A LOADING LANE SAYS SO IN ITS OWN SLOT.
-    const half = boot({ people: 1, stances: 1, issues: 1, spotlights: 1,
+    const half = boot({ people: 1, stances: 1, issues: 1, spotlights: 1, register: 1,
       lazy: { spotlights: true }, bills: "pending" }, src).search("housing");
     if (!half.includes('data-warm-lane="bills"')) return true;
     // c · A FAILED REQUEST HAS SETTLED, SO THE EYE ANSWERS.
@@ -390,6 +490,15 @@ section("6 · the guards are load-bearing (mutations must break the claims)");
     // e · AND A LOADED INDEX STILL ANSWERS 6644.
     const hot = (await boot(ALL_READY, src).ready()).search("6644");
     if (!hot.includes("21st Century ROAD to Housing Act") || hot.includes(WARM)) return true;
+    // f · A COLD REGISTER IS A LOADING FILE LANE, NOT A DENIAL.
+    const noReg = (await boot({ people: 1, stances: 1, issues: 1, spotlights: 1,
+      lazy: { spotlights: true, bills: true }, bills: "live" }, src).ready()).search("water reuse");
+    if (noReg.includes(NOTHING) || !noReg.includes('data-warm-lane="files"')) return true;
+    // g · A DOCUMENT STILL PARSING HAS NOT HAD ITS CHANCE, DEADLINE OR NO.
+    const parsing = boot({ bills: "pending", parsing: 1 }, src);
+    parsing.search("6644");
+    parsing.travel(60000);
+    if (parsing.search("6644").includes(NOTHING)) return true;
     return false;
   };
   ok(!(await probe(SRC)), "the probes reject the SHIPPED file — the harness itself is broken");
@@ -409,4 +518,4 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(`\n✓ eye warming: all ${passed} assertions passed`);
-console.log(`  3 lanes · 4 bill-number spellings · 1 ceiling · mutations rejected`);
+console.log(`  4 lanes · 4 bill-number spellings · 1 ceiling · 1 parse gate · mutations rejected`);

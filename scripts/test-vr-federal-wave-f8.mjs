@@ -1211,6 +1211,33 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // proved. bill-detail.js, index.html and sw.js are declared above already.
     "scripts/test-bill-letterhead.mjs",
     "scripts/test-bill-noise-pass.mjs",
+    // AND THE COLD EYE (CACHE_VERSION v119), the next pass on those same terms:
+    // no roll, no mapping, no key, no floor, no admission and no score moves,
+    // only what a surface may claim before its own sources have arrived. The Eye
+    // is a plain synchronous script while every index it searches is deferred, so
+    // its 8-second readiness ceiling was timed from a moment when no lane could
+    // have loaded; on a slow device the ceiling expired first and a search for a
+    // measure this archive holds was answered "The eye finds nothing." The clock
+    // now starts when the document is parsed, the issue register is a lane of its
+    // own instead of riding on the cores, and a category still loading prints its
+    // own waiting line, so that denial is reachable only from a warm slice that is
+    // genuinely empty. The other half is the door: a family or leaf row tapped in
+    // the same cold window found neither pdxDoor1Issue nor the desk nor a profile
+    // path and did nothing at all, and now waits on a bounded ladder for the door
+    // it needs before falling back to the key's own address. bill-detail.js
+    // carries the topic chip, which told a reader of a presidential memorandum how
+    // "A Yea" would cut on each provision of an instrument that never went to a
+    // vote; behind the same measure-level isExecutiveAct(m) predicate it now
+    // speaks of issuance. The reason a wave like this one declares it: R1 and R2
+    // put 1,120 member files behind these keys, the Eye is how a reader reaches
+    // them, and an empty answer while the index is cold reads as an archive that
+    // does not hold the row. Nothing that ranks, scores, counts or admits was
+    // touched — every band, tier, measure and Direction Match figure is
+    // byte-identical, which the twin boot above has just proved. all-seeing-eye.js,
+    // bill-detail.js, sw.js and scripts/test-eye-warming.mjs are declared above
+    // already.
+    "scripts/test-eye-formal-family.mjs",
+    "scripts/test-exec-act-sheet.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};
