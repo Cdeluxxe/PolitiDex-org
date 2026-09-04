@@ -23,22 +23,46 @@
      BYTE EQUALITY between what the panel shows and what the builder returns. No
      count, no order, no band, no percentage and no party token is computed,
      re-ordered or re-worded here. Search this file: there is no arithmetic in it.
+     The letterhead above the host does not change that. Its integers arrive from
+     the desk's own census (PDXDoor1.issueCensus) already counted, and are printed
+     in the order and with the labels that census hands over.
 
    WHAT THE CHROME AROUND IT MAY SAY
      The person file's answer, in the issue file's words. Four things, all of them
      identity, none of them a finding:
        · the surface and its citable address — "Issue file · /i/lands_preserve",
          the pf-kick line's own idea;
-       · the issue's label, which is the letterhead;
+       · the issue's label, which is the file's name;
        · the ⓘ that opens what the key covers — and ONLY when issue-scope.js
          already holds prose for it, because controlHtml() answers '' otherwise
          and a control that explains nothing is worse than no control;
-       · the crumb, core → child, as a caption. The LIVE crumb (the one whose
-         core half opens the bundle on the desk) is the ledger's own and is
-         printed above the census in the body; this one is text, because a file
-         should say where it is filed without offering to leave.
-     A figure in this bar would outrank the census two lines under it, which is
-     the same reason person-file.js's kicker carries no Direction Match.
+       · the crumb, core → child. The CHILD half is text — it is this file, so
+         there is nowhere for it to go — and the CORE half is a button, because a
+         core is a family and a family has no file: tapping it closes this panel
+         and opens the desk on that shelf, which is the only honest destination.
+         Never an anchor on /i/<core>; pdx-issue-profile.js refuses that address
+         and this module does not offer a second opinion.
+     A FIGURE in this bar is still out of the question. It would outrank the
+     census two lines under it, which is the same reason person-file.js's kicker
+     carries no Direction Match. The inventory lives under the bar, inside the
+     scroll, in the letterhead — see below.
+
+   THE LETTERHEAD, AND WHY IT IS THE ONLY NEW COPY HERE
+     Identity then census left one question unanswered on a page whose whole job
+     is to be citable: what does this key MEAN, and how much is filed under it?
+     So the first block inside the scrolling body — above the builder's string,
+     never inside it — prints the key's own chip, the locked scope prose out of
+     issue-scope.js (or that module's own "no definition on file yet", which is
+     the honest blank and not a paraphrase), an inventory line of integers, and
+     two jumps: the desk scoped to this key, and this file's address.
+     Every one of those already existed somewhere on the site. The integers come
+     from PDXDoor1.issueCensus — the desk publishing the read it already ran, so
+     the line at the top and the prose in the middle are one census and not two.
+     And while that read is still out, the line publishes NO integer: it says it
+     is reading and it says the rows below are what is on file so far, because a
+     headline count that is about to change is worse than no headline at all.
+     What is NOT up there: no percentage, no ranking, no grade, no caucus token,
+     no "backs up their words", and no stance inferred from the pattern below.
 
    THE BAR WEARS THE FAMILY'S COLOUR, FROM THE ONE PALETTE
      A child chip on Door 1's shelf is already painted in its family's hue, and
@@ -83,9 +107,11 @@
 
   var ID = 'pdx-issue-file';
   var ID_CHROME = 'pdx-issue-file-chrome';
+  var ID_HEAD = 'pdx-issue-file-head';
   var ID_LEDGER = 'pdx-issue-file-ledger';
   var ID_TITLE = 'pdx-issue-file-title';
   var ARROW = ' → ';
+  var SEP = ' · ';
 
   function fn(x) { return typeof x === 'function'; }
   function el(id) { try { return document.getElementById(id); } catch (e) { return null; } }
@@ -100,6 +126,12 @@
     return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
       return c === '&' ? '&amp;' : c === '<' ? '&lt;' : c === '>' ? '&gt;' : '&quot;';
     });
+  }
+  // A key inside a single-quoted JS string inside a double-quoted attribute. The
+  // desk's own jsq(), spelled the same way, because both doors paint the same keys
+  // into the same shape of inline handler.
+  function jsq(s) {
+    return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
   }
 
   // ── THE ONE LEDGER PAINT ──────────────────────────────────────────────────
@@ -156,6 +188,148 @@
     try { return S.controlHtml(key) || ''; } catch (e) { return ''; }
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // THE LETTERHEAD  ·  what this file is, before what the record did
+  // ══════════════════════════════════════════════════════════════════════════
+  // WHAT WAS MISSING. The panel had identity (surface, address, label, ⓘ, crumb)
+  // and then the ledger. So a reader who followed a citation to /i/climate_action
+  // was told the key's NAME and then handed a census — and never told what the
+  // key MEANS, how much is filed under it, or how to get back to the shelf it
+  // came off. Every one of those answers already existed somewhere on the site;
+  // none of them was on the file.
+  //
+  // So the letterhead prints them, and it is the only new copy in this pass:
+  //   · the KEY CHIP — the register's own one-line statement of the key, out of
+  //     ISSUE_MAP, read through PDXIssueScope.read() because that module already
+  //     owns that read and a second reader of ISSUE_MAP is a second vocabulary;
+  //   · the LOCKED SCOPE PROSE — issue-scope.js's `inn`, the argued boundary, and
+  //     its own NO_DEF sentence when the key's scope was never written down. Not
+  //     paraphrased, not summarised, and never invented from the pattern below;
+  //   · the INVENTORY — integers, from the desk's published census and nowhere
+  //     else (PDXDoor1.issueCensus, which is issueLedger, which is what the body
+  //     prints two inches down). Counts only: no percentage, no share, no grade,
+  //     no ranking, no caucus token, and nothing about whether anybody backed up
+  //     their words — that is a different lane and it is not on this page;
+  //   · TWO JUMPS — the desk scoped to this key, and the link. No third.
+  //
+  // THE BUSY GATE. The ledger below says "Reading the full record for N more…"
+  // while the roll-call read is still arriving, and its census moves under that
+  // sentence. A letterhead that published an inventory at the same moment would
+  // be printing a headline figure it is about to change, at the top of the page,
+  // where it outranks everything. So while a read is out this block publishes NO
+  // integer at all: it says it is reading, and it says the rows underneath are
+  // what is on file so far. repaint() runs on every batch, so the inventory
+  // appears when — and only when — that sentence is gone.
+  //
+  // STILL NO ARITHMETIC. Every integer here arrived from the desk's census as an
+  // integer and is printed as it arrived. This module adds nothing, divides
+  // nothing, sorts nothing and compares nothing.
+  var NO_DEF = 'No definition on file yet.';
+  var BUSY = 'Reading the record on this key…';
+  var SO_FAR = 'The rows below are what is on file so far — not the final count.';
+  // The formal-record index's five band ids, and the shortest honest word for
+  // each on a single line. The ids and the ORDER are the index's own — they
+  // arrive on the census, they are not listed here — and a band this table has no
+  // word for falls back to the index's own label rather than being dropped, so a
+  // sixth band cannot go missing from the inventory by omission.
+  var BAND_WORD = {
+    advanced: 'advanced',
+    against: 'cut against',
+    both: 'ran both ways',
+    thin: 'too thin',
+    none: 'no side'
+  };
+
+  function census(key) {
+    var D = desk();
+    if (!D || !fn(D.issueCensus)) return null;
+    try { return D.issueCensus(key) || null; } catch (e) { return null; }
+  }
+  // A read is still out — the ledger below is saying so in its own words, and
+  // nothing up here may publish a figure until it stops.
+  function reading(c) { return !!(c && (c.cold || c.pending));  }
+
+  // The register's own line about the key. '' when issue-scope.js is not on the
+  // page or does not carry the key, because a chip this file wrote itself would
+  // be a definition nobody argued.
+  function chipOf(key) {
+    var S = window.PDXIssueScope;
+    if (!S || !fn(S.read)) return '';
+    try {
+      var r = S.read(key);
+      return (r && r.chip) ? String(r.chip) : '';
+    } catch (e) { return ''; }
+  }
+  // The boundary, or the honest blank in issue-scope.js's own words. The literal
+  // below is the fallback for a document served without that module and is the
+  // same sentence it publishes — read live where that is possible so the two
+  // cannot drift.
+  function scopeProse(key) {
+    var S = window.PDXIssueScope;
+    var blank = NO_DEF;
+    try { if (S && S.NO_DEF) blank = String(S.NO_DEF); } catch (e) {}
+    var r = null;
+    try { if (S && fn(S.read)) r = S.read(key); } catch (e) { r = null; }
+    if (r && r.defined && r.inn) return { defined: true, text: String(r.inn) };
+    return { defined: false, text: blank };
+  }
+
+  // Counts, joined. A bucket that is zero is DROPPED rather than printed as a 0 —
+  // the ledger below already says what an empty band means, and a row of noughts
+  // on a letterhead reads as a verdict.
+  function inventoryLine(c) {
+    if (!c) return '';
+    var parts = [];
+    if (c.people) {
+      parts.push(c.people + ' ' + (c.people === 1 ? 'person' : 'people') + ' with a readable row');
+    }
+    (c.bands || []).forEach(function (b) {
+      if (!b || !b.n) return;
+      parts.push(b.n + ' ' + (BAND_WORD[b.id] || String(b.lb || b.id).toLowerCase()));
+    });
+    if (c.measures) {
+      parts.push(c.measures + ' measure' + (c.measures === 1 ? '' : 's') + ' mapped');
+    }
+    return parts.join(SEP);
+  }
+
+  // ── THE TWO JUMPS ─────────────────────────────────────────────────────────
+  // The desk, scoped to this key — the surface this body also lives on, reached
+  // through the desk's ONE issue door — and the link, which is this file's own
+  // address. There is no "add to team" and no third control: a file is a
+  // citation, and the two things a reader wants from one are the shelf it came
+  // off and the string they can paste.
+  function jumpsHtml(key) {
+    var p = pathOf(key);
+    return '<p class="pdxif-jumps">' +
+        '<button type="button" class="pdxif-jump" ' +
+          'onclick="return window.PDXIssueFile.deskJump(\'' + jsq(key) + '\')" ' +
+          'aria-label="' + esc('Open the issue desk on ' + labelOf(key)) + '">' +
+          'Desk<span class="pdxif-jump-h">scoped to this key</span></button>' +
+        '<button type="button" class="pdxif-jump" ' +
+          'onclick="return window.PDXIssueFile.share(\'' + jsq(key) + '\')" ' +
+          'aria-label="' + esc('Copy the link to this issue file') + '">' +
+          'Share<span class="pdxif-jump-h">' + esc(p ? 'copy ' + p : 'copy the link') +
+          '</span></button>' +
+      '</p>';
+  }
+
+  function headHtml(key) {
+    var c = census(key);
+    var chip = chipOf(key);
+    var sc = scopeProse(key);
+    var inv = reading(c) ? '' : inventoryLine(c);
+    return '<div class="pdxif-head"' + skinAttr(key) + '>' +
+        (chip ? '<p class="pdxif-chip">' + esc(chip) + '</p>' : '') +
+        '<p class="pdxif-scope' + (sc.defined ? '' : ' is-blank') + '">' + esc(sc.text) + '</p>' +
+        (reading(c)
+          ? '<p class="pdxif-busy" role="status">' + esc(BUSY) +
+              '<span class="pdxif-sofar">' + esc(SO_FAR) + '</span></p>'
+          : (inv ? '<p class="pdxif-inv">' + esc(inv) + '</p>' : '')) +
+        jumpsHtml(key) +
+      '</div>';
+  }
+
   // ── The family's colour, off the one palette ──────────────────────────────
   // The lookup Door 1 hands the palette for a chip, spelled the same way: a
   // function over PDXIssueFamily.coreOf. undefined when the family table is not
@@ -195,7 +369,21 @@
         '</h2>' +
         (c
           ? '<p class="pdxif-crumb">' +
-              '<span class="pdxif-core">' + esc(c.coreLabel) + '</span>' +
+              // ── THE FAMILY CRUMB IS A DOOR NOW, AND IT OPENS THE DESK ─────
+              // It was a caption on the grounds that the ledger's own crumb (in
+              // the body, from the one builder) was the live one. On a file that
+              // is the whole screen that reasoning fails: the desk's crumb is
+              // below the fold on a phone, and the family shelf is the one place
+              // a reader who arrived at the wrong key has to get to. So the core
+              // half is a control — window.pdxDoor1Issue, the desk's ONE issue
+              // door, the same call the shelf's chips and the ledger's own crumb
+              // make. Never an anchor on /i/<core>: a core is a family, it has no
+              // file at that address, and this pass is not the one that invents
+              // one. The child half stays text, because that is this file.
+              '<button type="button" class="pdxif-core"' +
+                ' onclick="return window.PDXIssueFile.familyJump(\'' + jsq(c.core) + '\')"' +
+                ' aria-label="' + esc('Open the issue desk on ' + c.coreLabel) + '">' +
+                esc(c.coreLabel) + '</button>' +
               '<span class="pdxif-arrow" aria-hidden="true">' + esc(arrow()) + '</span>' +
               '<span class="pdxif-child">' + esc(c.childLabel) + '</span>' +
             '</p>'
@@ -256,11 +444,19 @@
     var body = d.createElement('div');
     body.className = 'pdxif-body';
 
+    // The letterhead, and the ledger under it. Two hosts rather than one, for the
+    // same reason the chrome is its own host: the ledger host holds the builder's
+    // string and NOTHING else, so byte equality with PDXDoor1.issueProfile(key)
+    // stays assertable. Every word this module writes is outside that node.
+    var head = d.createElement('div');
+    head.id = ID_HEAD;
+    head.className = 'pdxif-headhost';
+
     var led = d.createElement('div');
     led.id = ID_LEDGER;
     led.className = 'pdxif-led';
 
-    try { body.appendChild(led); } catch (e) {}
+    try { body.appendChild(head); body.appendChild(led); } catch (e) {}
     try { top.appendChild(idHost); top.appendChild(x); } catch (e) {}
     try { panel.appendChild(top); panel.appendChild(body); } catch (e) {}
     try { overlay.appendChild(panel); } catch (e) {}
@@ -317,6 +513,10 @@
     // THE BODY IS THE BUILDER'S STRING AND NOTHING ELSE. Every piece of chrome
     // this module adds is outside this node.
     try { host.innerHTML = body; } catch (e) { return false; }
+    // The letterhead reports on the body, so it is painted after it — same tick,
+    // same warm record, same census the string above was built from.
+    var headHost = el(ID_HEAD);
+    if (headHost) { try { headHost.innerHTML = headHtml(k); } catch (e) {} }
 
     _key = k;
     _open = true;
@@ -432,6 +632,13 @@
     var host = el(ID_LEDGER);
     if (!host) return false;
     try { host.innerHTML = body; } catch (e) { return false; }
+    // AND THE LETTERHEAD, ON THE SAME BATCH. This is what lifts the busy gate:
+    // the inventory is withheld while the ledger is still saying it is reading,
+    // so the paint that removes that sentence is the paint that has to publish
+    // the integers. Withholding them and never coming back would be the worse
+    // half of an honest gate.
+    var headHost = el(ID_HEAD);
+    if (headHost) { try { headHost.innerHTML = headHtml(_key); } catch (e) {} }
     return true;
   }
 
@@ -456,6 +663,8 @@
     // the next open is a worse first paint than an empty node.
     var host = el(ID_LEDGER);
     if (host) { try { host.innerHTML = ''; } catch (e) {} }
+    var headHost = el(ID_HEAD);
+    if (headHost) { try { headHost.innerHTML = ''; } catch (e) {} }
     _key = '';
     _open = false;
     unwatchModal();
@@ -465,6 +674,69 @@
       try { if (A && fn(A.restore)) A.restore(); } catch (e) {}
     }
     return true;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // THE THREE CONTROLS THIS MODULE OWNS
+  // ══════════════════════════════════════════════════════════════════════════
+  // All three are inline handlers in the markup above, all three answer FALSE so
+  // the control they are on does nothing else, and none of them writes the
+  // document's address — the file closes through close(), which hands /i/ back to
+  // the module that took it.
+  //
+  // familyJump(core) · the crumb. A core is a FAMILY: its records are the keys filed
+  // under it, and which one the reader meant is theirs to say on the shelf. So
+  // this closes the file and lands the desk on the family through the desk's one
+  // issue door, which is the same call the shelf's own chips make. It does not
+  // navigate to /i/<core>, because there is no file at that address and
+  // pdx-issue-profile.js refuses to pretend otherwise.
+  //
+  // deskJump(key) · the same body, on the desk, scoped to this key. The desk
+  // behind this panel already holds the pick (the arrival committed it through
+  // the same door), so this is a re-sync and a landing rather than a new reading.
+  //
+  // share(key) · the link. There is no issue lane in the share-card pipelines —
+  // those cards are about a person's own act — so what a reader gets is the one
+  // thing that is unambiguously theirs to paste: this file's address, from the
+  // module that owns it. Copied where the platform allows it and printed in the
+  // toast where it does not, so the answer is never "nothing happened".
+  function familyJump(core) {
+    var k = String(core == null ? '' : core).trim();
+    if (!k) return false;
+    close();
+    try { if (fn(window.pdxDoor1Issue)) window.pdxDoor1Issue(k); } catch (e) {}
+    var D = desk();
+    try { if (D && fn(D.toDesk)) D.toDesk('issue'); } catch (e) {}
+    return false;
+  }
+  function deskJump(key) {
+    var k = String(key == null ? '' : key).trim();
+    if (!k) return false;
+    close();
+    try { if (fn(window.pdxDoor1Issue)) window.pdxDoor1Issue(k); } catch (e) {}
+    var D = desk();
+    try { if (D && fn(D.toDesk)) D.toDesk('issue'); } catch (e) {}
+    return false;
+  }
+  function said(msg) {
+    try { if (fn(window._showToast)) window._showToast(msg); } catch (e) {}
+  }
+  function share(key) {
+    var A = addr();
+    var u = '';
+    try { if (A && fn(A.url)) u = A.url(key) || ''; } catch (e) { u = ''; }
+    if (!u) return false;
+    try {
+      var c = navigator && navigator.clipboard;
+      if (c && fn(c.writeText)) {
+        c.writeText(u).then(function () {
+          said('Link copied — it opens this issue file ✓');
+        }, function () { said(u); });
+        return false;
+      }
+    } catch (e) {}
+    said(u);
+    return false;
   }
 
   // ── The keyboard, and the batches ─────────────────────────────────────────
@@ -494,16 +766,32 @@
     ID_CHROME: ID_CHROME,
     ID_LEDGER: ID_LEDGER,
     ID_TITLE: ID_TITLE,
+    ID_HEAD: ID_HEAD,
     open: open,
     focus: focus,
     close: close,
     repaint: repaint,
+    // The letterhead's three controls, reached from the inline handlers in the
+    // markup this module paints. Named on the module rather than as three new
+    // lowercase globals, because one name for one door is the rule /i/ is built
+    // on and the module's own name is already on the window.
+    familyJump: familyJump,
+    deskJump: deskJump,
+    share: share,
     isOpen: function () { return !!_open; },
     key: function () { return _key; },
     // The chrome's markup, published for the same reason issue-scope.js publishes
     // cardHtml: the copy in it is part of the deliverable, and a test that can
     // only reach it through a real overlay is a test that does not read the copy.
     _chrome: chromeHtml,
+    // The letterhead's markup, published for exactly the same reason: the copy in
+    // it — the scope sentence, the inventory line, the busy gate's words — is the
+    // deliverable of this pass, and a test that can only reach it through a live
+    // overlay is a test that does not read the copy.
+    _head: headHtml,
+    // The census this letterhead printed from, so a test can compare the integers
+    // on the line against the desk's own published read without parsing prose.
+    _census: census,
     // The bar's treatment on its own, so a test can compare the token this file
     // would print against PDXIssueColors.styleFor(key) without parsing markup.
     _skin: function (key) {

@@ -43,6 +43,8 @@
  *      key and reads out its record; PDXIssueView.open(leaf) still opens the
  *      consistency overlay, because the ranking was never the defect — being the
  *      thing a family's name opened was.
+ *      And the leaf's own file agrees: /i/<leaf>'s crumb names the family and
+ *      opens the DESK on it, never PDXIssueView and never /i/<core>.
  *   6. NOTHING SORTS OR FILTERS BY PARTY. No party control in the overlay's
  *      chrome, none in its stylesheet, none in its filter, and the ranked rows
  *      themselves are not grouped by caucus — checked on the live rows, not on
@@ -94,6 +96,7 @@ const FILES = [
 const SRC = FILES.map((f) => [f, R(f)]);
 const VIEW_SRC = R("issue-view.js");
 const DESK_SRC = R("door1-workspace.js");
+const FILE_SRC = R("issue-file.js");
 const VIEW_CSS = R("issue-view.css");
 const HELPERS_SRC = R("stance-helpers.js");
 
@@ -411,6 +414,26 @@ w6.__sess["pdx_d1_issue"] = "";
 w6.PDXIssueView.open(CORE);
 eq(w6.__sess["pdx_d1_issue"], CORE, "widening from a leaf goes to the family's desk");
 eq(overlayOpen(w6), false, "and closes the ranking behind it");
+
+// ── AND THE LEAF'S OWN FILE SENDS THE FAMILY TO THE SAME PLACE ──────────────
+// /i/<leaf> grew a letterhead and a live crumb, and the crumb names the FAMILY.
+// A core is not a file — pdx-issue-profile.js refuses /i/<core> — so the crumb
+// had exactly two places it could go: the desk's one issue door, or the ranked
+// overlay this whole file exists to keep families out of. The behaviour is
+// asserted on a painted panel in scripts/test-issue-file-address.mjs; what is
+// asserted HERE is the wall, on the source, in this file's own terms.
+no(FILE_SRC, "PDXIssueView", "issue-file.js reaches for the ranked overlay — a family crumb is a desk door");
+no(FILE_SRC, "pdxDoor1IssueFace", "issue-file.js reaches for the second issue door that no longer exists");
+has(FILE_SRC, "window.pdxDoor1Issue", "issue-file.js's crumb does not use the desk's one issue door");
+for (const pill of ["data-fparty", "Any party", "iv-fbtn--"]) {
+  no(FILE_SRC, pill, `issue-file.js paints a party control (${pill}) on the file's letterhead`);
+}
+// Comments stripped for these two: the file's own header names both phrases in
+// the course of saying it does not print them, and a note is not a paint.
+const FILE_CODE = FILE_SRC.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, "");
+for (const rank of ["ranked by consistency", "backs up their words", "Direction Match"]) {
+  no(FILE_CODE, rank, `issue-file.js's letterhead prints "${rank}" — that is the overlay's reading, not a file's`);
+}
 
 // ══════════════════════════════════════════════════════════════════════════
 section("6 · nothing sorts or filters by party");

@@ -1285,6 +1285,53 @@
   }
 
   // ══════════════════════════════════════════════════════════════════════════
+  // THE SAME CENSUS, AS INTEGERS  ·  issueCensus(key)
+  // ══════════════════════════════════════════════════════════════════════════
+  // /i/<key>'s letterhead prints an inventory line — how many people hold a
+  // readable formal row, the five band figures under it, and how many measures
+  // map here. Those integers already exist: censusHtml() prints them an inch
+  // below, out of issueLedger(). So the desk PUBLISHES them rather than letting
+  // the file panel count anybody, because the alternative is a second census
+  // engine and two surfaces that agree until the day they do not.
+  //
+  // It is the same two calls issueProfileHtml() makes, in the same order, and
+  // nothing is derived on top of them: no percentage, no share, no sum, no
+  // ordering, no party token, and not one figure this desk does not already
+  // print. `bands` carries the formal-pattern index's OWN ids and labels in the
+  // index's own fixed order, so a caller cannot invent a sixth band and cannot
+  // silently drop a new one.
+  //
+  // null — not a zeroed shape — for a key with no single ledger: a bundle (whose
+  // records are the keys filed under it) or a page without the formal-record
+  // index. That is the same refusal issueProfileHtml answers '' with, and the
+  // caller's cue to print no figures at all rather than a census of nothing.
+  //
+  // `cold` and `pending` are handed over for one reason: a read is still out, and
+  // a letterhead that published N while the ledger below it was still saying
+  // "Reading the full record for N more…" would be publishing a count it is
+  // about to change. See the busy gate in issue-file.js.
+  function issueCensus(key) {
+    var t = null;
+    try { t = resolveIssue(key); } catch (e) { t = null; }
+    if (!t || !t.focusKey) return null;
+    var led = null;
+    try { led = issueLedger(t.core, t.focusKey); } catch (e) { led = null; }
+    if (!led) return null;
+    return {
+      key: led.key,
+      label: led.label,
+      people: led.people,
+      measures: (led.measures || []).length,
+      pkg: led.pkg,
+      cold: led.cold,
+      pending: !!led.pending,
+      bands: (led.bands || []).map(function (b) {
+        return { id: b.id, lb: b.lb, n: b.rows.length };
+      })
+    };
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
   // OPEN ANY TRACKED KEY
   // ══════════════════════════════════════════════════════════════════════════
   // The shelf stays thirteen cores, because thirteen is what a reader can scan.
@@ -2223,6 +2270,10 @@
     // makes the two doors one paint rather than two surfaces that agree today.
     // PDXIssueProfile.html(key) is a one-line delegation to it.
     issueProfile: issueProfileHtml,
+    // The same census as integers, for the file's letterhead — see the note over
+    // the function. One engine, two readers: the desk prints them as prose, /i/
+    // prints them as an inventory line, and neither counts anybody twice.
+    issueCensus: issueCensus,
     // The lede's file control, for the inline handler in the markup above. It
     // decides one thing — whether the file's own door answered the tap — and
     // hands the click back to the anchor when it did not.

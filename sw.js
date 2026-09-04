@@ -880,6 +880,31 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v123 - THE ISSUE FILE GREW A LETTERHEAD. /i/climate_action printed the key's
+// NAME and then went straight into the census: a reader who followed a citation
+// to that address was never told what the key MEANS, how much is filed under it,
+// or how to get back to the shelf it came off - and the family half of the crumb
+// on the bar was a caption, so the one control that would have answered the last
+// question was not a control. The record below it is unchanged and is still the
+// desk's own builder, byte for byte.
+//   · door1-workspace.js   - publishes the census it already computed as integers
+//                            (PDXDoor1.issueCensus) so the file's inventory line
+//                            is the same read as the prose two inches below it.
+//                            Stale here means the letterhead finds no census and
+//                            prints no figures at all, which is the refusal it is
+//                            written around - but the new file panel would then
+//                            be shipping without the one line this pass is for.
+//   · issue-file.js        - the letterhead itself: key chip, the locked scope
+//                            prose (or issue-scope.js's own "no definition on
+//                            file yet"), the inventory, and two jumps. Plus the
+//                            family crumb, which is now a button onto the desk.
+//   · issue-file.css       - those blocks, and the crumb's core half restyled
+//                            from caption to control. No hex, same as before.
+// No floor, no mapping, no weight, no roster row and no percentage of any kind
+// appeared. Every integer on the new line arrived from the desk's census as an
+// integer, and while the roll-call read is still out the line prints no figure at
+// all - it says it is reading, exactly as the ledger under it does.
+//
 // v122 - TWO DOORS THAT DID NOT OPEN, AND A FILE WITH NO WAY IN. The Eye's
 // answer to "climate" paints a family row and its leaf rows, and on a page with
 // the desk already mounted neither one did what it said. The family row called
@@ -1634,7 +1659,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v122';
+const CACHE_VERSION = 'v123';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
