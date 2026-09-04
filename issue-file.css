@@ -443,6 +443,26 @@
   cursor: pointer;
 }
 .pdxif-see:hover { color: rgb(191, 219, 254); }
+/* A figure that is also a door. Same ink and underline as .pdxif-see, because
+   it does the same job — down to a section of this file — and two controls with
+   one job must not read as two kinds of control. The figure keeps the row's
+   tabular numerals, so the measures row still reads down the column with the
+   three under it. */
+.pdxif-pjump {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0;
+  min-height: unset;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  color: rgb(147, 197, 253);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+}
+.pdxif-pjump:hover { color: rgb(191, 219, 254); }
 /* The locked menu sentence, where one applies. It is context for the counts
    above it and never a verdict, so it gets the record lane's amber ink and no
    fill, no icon and no rule of its own. */

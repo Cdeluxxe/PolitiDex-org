@@ -880,6 +880,61 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v125 - ONE LONG COLUMN OF MEASURES, AND THE SAME BILL TWICE IN IT. v124 gave
+// the PEOPLE on an issue a filter row and left the MEASURES as they were: on
+// /i/climate_action, thirteen cards down one column, H.R. 1 appearing twice
+// because the bills index and the roll-call record each contributed a row for
+// it, PRIMARY disapproval resolutions and floor amendments interleaved with no
+// order a reader could see. Nothing was wrong on any single card; the SHAPE was
+// unreadable, which on this pane is the same problem as a wrong figure.
+//   The list is now filed into the bands its own cards were already labelled
+// with - PRIMARY, provision, and machinery-only - each band showing its first
+// four cards over its own "N more measures - same label" fold, and one row per
+// instrument, because one row opens one measure. No new reading: the bands are a
+// partition of the measures the census had already mapped, and the body the desk
+// builds is byte-identical whether or not a fold is open, because a fold is a
+// <details> and not a rebuild.
+//   · door1-workspace.js   - the fold on the face (one card per instrument, keyed
+//                            on the number the card's own door takes, with the
+//                            better of the titles the two sources published), the
+//                            three bands and their per-band cap, the machinery
+//                            pill on a card that had a motion as well as a vote,
+//                            and the band anchors published on
+//                            PDXDoor1.issueCensus(key).proc.measures.bands. The
+//                            procedural TALLY got stricter with them: it counts
+//                            measures whose every act on file was machinery,
+//                            where it used to count measures carrying any
+//                            procedural act at all. Stale here means the file
+//                            panel asks for `bands` that are not there and the
+//                            measures row on the letterhead prints nothing.
+//   · door1-workspace.css  - the measure bands and their folds. Deliberately
+//                            quieter than a people band and under their own
+//                            class names, which is also what keeps the people
+//                            slice's walk from ever reaching a measure card.
+//                            Stale here means the fold summary paints as an
+//                            unstyled list marker.
+//   · issue-file.js        - the measures row on the letterhead is now three
+//                            doors rather than three words: each figure jumps to
+//                            the band that holds exactly that many cards, using
+//                            the anchors the desk published. Same busy gate - no
+//                            integer while the record is still being read - and
+//                            the note under it now says the three figures SUM to
+//                            the total, because they do.
+//   · issue-file.css       - those figures, inked and underlined like the "see
+//                            the measures" control beside them, because they do
+//                            the same job. No hex, same as before.
+//   · netlify.toml         - UNCHANGED. Same /i/* → /index.html 200 rewrite.
+//   · index.html           - UNCHANGED. No new module and no new script tag.
+// No floor, no mapping, no weight, no roster row and no percentage of any kind
+// appeared, and no share of a package is printed anywhere. A provision's vote
+// still counts and still says so on the card. The slice chips above the people
+// do not touch the measure list, because a slice of the people is not a slice of
+// the bills. One consequence worth naming: the stricter procedural tally means
+// the consistency module's locked "procedural gate" sentence now prints on no
+// key at all - it used to print on stock_trading_ban, whose one measure carries
+// 37 procedural acts and 179 substantive ones. The phrase stays wired and
+// quotable; the record simply no longer meets it.
+//
 // v124 - A PHONE BOOK, AND NO WORD ON HOW THE ISSUE MOVED. A settled key files
 // hundreds of people across five direction bands, and /i/climate_action handed a
 // reader all of them in one column with no way to open a slice of it. The file
@@ -1702,7 +1757,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v124';
+const CACHE_VERSION = 'v125';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

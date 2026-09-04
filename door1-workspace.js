@@ -166,7 +166,10 @@
   var K_MEAS = 'pdx_d1_measure';
   var K_CLAIM = 'pdx_d1_claim';
 
-  var LIST_CAP = 12;   // people on an issue, measures on the shelf
+  var LIST_CAP = 12;   // people on an issue, measures on the measure-mode shelf
+  // The measure list on the record ledger caps per BAND instead — see MEAS_CAP
+  // over MEAS_BANDS. A single cap over a banded list would truncate a band
+  // silently, and this pane's rule is that folded is not hidden.
   var ROW_CAP = 3;     // strongest formal rows named on the person strip
 
   function esc(s) {
@@ -957,25 +960,75 @@
   //   PRIMARY vs PROVISION IS A LABEL ON THE BILL. It is printed because a reader
   // deserves to know whether the measure was about this issue or merely carried it,
   // and it is consulted by nothing: no count, band or order on this pane reads it.
+  // ── ONE INSTRUMENT, ONE ROW ON THE FACE ───────────────────────────────────
+  // WHAT WAS WRONG. The union slotted a measure under whatever identity its source
+  // gave it — the index's measureId, or a warm record's bill number — so one bill
+  // could print twice on one key: once as the index's row, once as the row a
+  // member's act arrived on. H.R. 1 did exactly that on climate_action, and
+  // H.J.Res. 88 and H.J.Res. 89 did it too. Two cards, one instrument, and the tap
+  // on each opened the SAME door, because a measure card opens
+  // pdxDoor1Bill(number) and nothing else. A twin row is not a distinction; it is
+  // the same bill asked twice.
+  //   SO THE FACE IS KEYED ON THE NUMBER — the identity that door already takes.
+  // Both appearances fold into one row: the acts unite, the strongest label wins,
+  // the more informative of the two titles is kept, and where the two appearances
+  // DISAGREE about the label the surviving card says so on itself ("also on file as
+  // a provision") rather than standing a second row up beside it.
+  //   A NUMBER-LESS SLOT FOLDS WITH NOTHING. "No number" is not an identity two
+  // rows can share, and a card with no number carries no door either — so it keeps
+  // its own row-level id and is never merged into a neighbour on a guess.
+  function faceKey(id, number) {
+    var n = String(number || '').trim().toLowerCase();
+    return n ? 'f:' + n : id;
+  }
+  // The more informative of the titles an instrument arrived with. A record row
+  // often carries no title beyond its own number while the index carries the real
+  // one, so a fold must not let "H.J.Res. 88" win over "Congressional disapproval
+  // of the EPA waiver…". Nothing is composed here: every candidate is a string one
+  // of the two sources published.
+  function faceTitle(s) {
+    var n = String(s.number || '');
+    for (var i = 0; i < s.titles.length; i++) {
+      if (s.titles[i] && s.titles[i] !== n) return s.titles[i];
+    }
+    return s.titles.length ? s.titles[0] : '';
+  }
   function ledgerMeasures(rows, key) {
     var byKey = {}, order = [];
     function slot(id, number, title, primary) {
       if (!id) return null;
-      if (!byKey[id]) {
-        byKey[id] = { id: id, number: number || '', title: title || '',
+      var fid = faceKey(id, number);
+      if (!byKey[fid]) {
+        byKey[fid] = { id: fid, number: number || '', title: '', titles: [],
+          // THE LABEL, AND HOW MANY TIMES EACH WAS CLAIMED. `primary` is still the
+          // strongest of the appearances — a measure curated as being ABOUT this
+          // issue anywhere is about it — and `lab` keeps both tallies so a folded
+          // card can DISCLOSE a disagreement instead of swallowing one.
+          primary: !!primary, lab: { P: 0, p: 0 }, apps: 0, alt: '',
           // PROCEDURAL IS THE ITEM'S OWN FLAG, not a reading of the title. It is
           // set from `isProcedural` on the acts on file — the same flag that puts
-          // the "Procedural" pill on a dossier row and the same one the direction
-          // index tallies — and it gates nothing: a procedural measure bands its
-          // voters exactly as any other measure does.
-          primary: !!primary, proc: false, seen: false, adv: [], opp: [], none: [] };
-        order.push(id);
+          // the "Procedural" pill on a dossier row — and `subst` is its opposite,
+          // off the same acts. Neither gates a vote: a procedural measure bands
+          // its voters exactly as any other measure does and keeps its own label.
+          proc: false, subst: false, procOnly: false,
+          seen: false, adv: [], opp: [], none: [] };
+        order.push(fid);
       }
-      var s = byKey[id];
+      var s = byKey[fid];
+      s.apps++;
+      s.lab[primary ? 'P' : 'p']++;
       if (!s.number && number) s.number = number;
-      if (!s.title && title) s.title = title;
+      if (title && s.titles.indexOf(title) < 0) s.titles.push(title);
       if (primary) s.primary = true;
       return s;
+    }
+    // ONE NAME PER SIDE PER INSTRUMENT. Two rolls on one bill are two acts and one
+    // person, and a "who voted on it" line that named them twice would read as two
+    // people. Nothing is dropped by this: both acts are still in that person's
+    // dossier, which is where the tap on their row goes.
+    function addName(list, name) {
+      if (!name || list.indexOf(name) >= 0) return;
+      list.push(name);
     }
     measures().forEach(function (b) {
       if (!b) return;
@@ -995,11 +1048,83 @@
         var s = slot(measureKey(it), it.number || '', it.title || '', !!(m && m.isPrimary));
         if (!s) return;
         s.seen = true;
-        if (it.isProcedural) s.proc = true;
-        (side === true ? s.adv : side === false ? s.opp : s.none).push(r.name);
+        if (it.isProcedural) s.proc = true; else s.subst = true;
+        addName(side === true ? s.adv : side === false ? s.opp : s.none, r.name);
       });
     });
-    return order.map(function (id) { return byKey[id]; });
+    return order.map(function (id) {
+      var s = byKey[id];
+      s.title = faceTitle(s);
+      // The disclosure, and only where the two appearances really disagree: the
+      // face says PRIMARY and one of the folded appearances said provision.
+      s.alt = (s.lab.P > 0 && s.lab.p > 0) ? 'provision' : '';
+      // FLOOR MACHINERY ONLY, AND THE TEST IS "EVERY ACT", NOT "ANY ACT". A bill
+      // with a substantive floor vote AND a motion to table is not a procedural
+      // measure — it is a measure that also had machinery on it, and filing it
+      // under machinery would demote a vote that counted. So this is true only
+      // where every act on file for the instrument was machinery, which is the
+      // same comparison the locked procedural_gate sentence makes one level up. A
+      // measure nobody on this ledger acted on has no acts to classify and is
+      // never called procedural.
+      s.procOnly = !!(s.seen && s.proc && !s.subst);
+      return s;
+    });
+  }
+
+  // ── THE MEASURE LIST IS BANDED BY THE LABEL ON THE CARD ───────────────────
+  // WHAT WAS WRONG. One long column. climate_action files the CRA disapprovals,
+  // the amendments, the two packages and the standalone bills into a single list,
+  // so a reader who wants to know WHAT WAS ON THE TABLE has to read every card to
+  // discover that most of them were the same kind of thing. The people list above
+  // had exactly this problem and was given bands; this is that fix, on the other
+  // half of the same pane.
+  //
+  // THE BANDS ARE THE LABEL THE CARD ALREADY WORE, and they PARTITION: every
+  // instrument is in exactly one of them, so the three counts on the headings add
+  // up to the headline the census prints and a reader can check them by counting
+  // cards. That is the whole reason the procedural band tests "every act was
+  // machinery" rather than "any act was" — see the wall over procOnly. A card in
+  // the procedural band still wears its own PRIMARY or provision tag, because the
+  // label is a fact about the bill and a band is only where the list files it.
+  //
+  // AND NO BAND IS A STRONGER READING THAN ANOTHER. The order inside a band is
+  // the order the union produced — the index first, then the ones an act
+  // discovered — and nothing here re-sorts, re-labels or re-reads a measure.
+  // Every vote in every band counts.
+  var MEAS_CAP = 4;      // cards shown per band before the remainder folds
+  var MEAS_BANDS = [
+    { id: 'primary', lb: 'PRIMARY',
+      note: 'The measure was about this issue. That is all the PRIMARY label means, ' +
+        'and it is curation’s answer rather than a reading of anybody’s vote.' },
+    { id: 'provision', lb: 'provision',
+      note: 'The measure carried this issue inside something larger. The vote still ' +
+        'counts, and the label is here so you can see which it was.' },
+    { id: 'procedural', lb: 'procedural',
+      note: 'Everything on file for these was floor machinery — a motion, a cloture ' +
+        'vote, an amendment call. The vote still counts, and each card keeps the ' +
+        'PRIMARY or provision label it came with.' }
+  ];
+  function measBandOf(m) {
+    if (!m) return '';
+    if (m.procOnly) return 'procedural';
+    return m.primary ? 'primary' : 'provision';
+  }
+  function measBandAnchor(key, id) {
+    var a = measAnchor(key);
+    return (a && id) ? a + '-' + id : '';
+  }
+  function measureBands(ms) {
+    var out = [], at = {};
+    MEAS_BANDS.forEach(function (b) {
+      at[b.id] = out.length;
+      out.push({ id: b.id, lb: b.lb, note: b.note, rows: [] });
+    });
+    (ms || []).forEach(function (m) {
+      var id = measBandOf(m);
+      if (!id) return;
+      out[at[id]].rows.push(m);
+    });
+    return out.filter(function (b) { return b.rows.length > 0; });
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -1074,7 +1199,12 @@
     try { M = window.PDXConsistency && window.PDXConsistency.menu; } catch (e) { M = null; }
     if (!M) return null;
     var want = '';
-    if (t.mTotal > 0 && !t.mPrimary) want = 'provision_only';
+    // THE LABEL TALLY, NOT THE BAND ONE. Whether curation ever called a measure
+    // on this key PRIMARY is a question about the bills; which band the list
+    // filed them in is a question about the acts. A PRIMARY measure whose only
+    // acts were machinery bands under `procedural` and must still stop this
+    // sentence, because "only tested as a provision" would then be untrue.
+    if (t.mTotal > 0 && !t.mLabPrimary) want = 'provision_only';
     else if (t.mSeen > 0 && t.mProc >= t.mSeen) want = 'procedural_gate';
     if (!want) return null;
     var order = M.ORDER || [];
@@ -1086,14 +1216,24 @@
     return { key: want, lb: String(say.lb), note: String(say.note || '') };
   }
   function ledgerProcess(rows, ms, key) {
-    var t = { mTotal: 0, mPrimary: 0, mProvision: 0, mProc: 0, mSeen: 0 };
+    // TWO TALLIES OF THE SAME LIST, AND THEY ANSWER TWO QUESTIONS. `mLab*` counts
+    // the LABEL on each measure, which is what the locked menu sentence reads.
+    // `mPrimary`/`mProvision`/`mProc` are the BANDS the list below files those
+    // measures into, and those three partition — every measure is in exactly one,
+    // so they add up to `mTotal` and a reader can check them by counting cards.
+    var t = { mTotal: 0, mPrimary: 0, mProvision: 0, mProc: 0, mSeen: 0,
+              mLabPrimary: 0, mLabProvision: 0 };
     (ms || []).forEach(function (m) {
       if (!m) return;
       t.mTotal++;
-      if (m.primary) t.mPrimary++; else t.mProvision++;
-      if (m.proc) t.mProc++;
+      if (m.primary) t.mLabPrimary++; else t.mLabProvision++;
+      var bid = measBandOf(m);
+      if (bid === 'procedural') t.mProc++;
+      else if (bid === 'primary') t.mPrimary++;
+      else t.mProvision++;
       if (m.seen) t.mSeen++;
     });
+    var mb = measureBands(ms);
     var veh = { primary: 0, 'package': 0, mixed: 0 };
     var mix = { floor: 0, committee_vote: 0, sponsor: 0 };
     var said = 0, crossed = 0;
@@ -1112,7 +1252,16 @@
     });
     return {
       measures: { total: t.mTotal, primary: t.mPrimary, provision: t.mProvision,
-                  procedural: t.mProc, id: measAnchor(key) },
+                  procedural: t.mProc, id: measAnchor(key),
+                  // THE BANDS, AS THE HEADINGS PRINT THEM, each with the anchor it
+                  // wears. Published rather than spelled out by the reader for the
+                  // same reason the section's own id is: the file's letterhead must
+                  // be able to hand a reader to the band a figure is about without
+                  // ever naming this desk's markup.
+                  bands: mb.map(function (b) {
+                    return { id: b.id, lb: b.lb, n: b.rows.length,
+                             at: measBandAnchor(key, b.id) };
+                  }) },
       people: { primary: veh.primary, 'package': veh['package'], mixed: veh.mixed },
       acts: acts,
       menu: ledgerMenu(t),
@@ -1603,6 +1752,18 @@
       '</summary>' + inner + '</details>';
   }
 
+  // ── THE FACE OF THE MEASURE LIST ──────────────────────────────────────────
+  // One card per instrument, filed into the label's own band, four cards deep
+  // before the rest of that band folds. Each band's fold is its own control, so
+  // opening one leaves the others exactly as the reader left them — the same rule
+  // the people bands above are written under.
+  //   THE SLICE DOES NOT REACH ANY OF THIS, on purpose. The filter row is a view
+  // of the PEOPLE list — direction, vehicle, chamber, name — and a measure is not
+  // a person: narrowing to "Cut against it" is a question about who, and answering
+  // it by also hiding measures would tell a reader that fewer bills are on file
+  // than there are. Every class name below is its own (`d1-led-mband`,
+  // `d1-led-bmore`), which is what keeps sliceBox's walk over `d1-led-band` and
+  // `d1-led-p` from ever touching a card here.
   function measuresHtml(led) {
     if (!led.measures.length) return '';
     function who(lbl, names) {
@@ -1611,33 +1772,65 @@
       var rest = names.length > 3 ? ' +' + (names.length - 3) + ' more' : '';
       return '<span class="d1-led-w">' + esc(lbl) + ': ' + esc(head + rest) + '</span>';
     }
+    function card(m) {
+      var sides = who('Advanced it', m.adv) + who('Cut against it', m.opp) + who('No side recorded', m.none);
+      return '<li class="d1-led-b">' +
+        '<span class="d1-led-bnum">' + esc(m.number || m.title || 'On file') + '</span>' +
+        // A record row often carries no title beyond its own number, and printing
+        // the number twice reads as a title nobody wrote. Withheld when it adds
+        // nothing; never substituted with a guess at what the measure was about.
+        (m.title && m.title !== m.number
+          ? '<span class="d1-led-btitle">' + esc(m.title) + '</span>' : '') +
+        '<span class="d1-led-btag' + (m.primary ? ' is-primary' : '') + '">' +
+          (m.primary ? 'PRIMARY' : 'provision') + '</span>' +
+        // FLOOR MACHINERY, MARKED ON THE CARD RATHER THAN ONLY IN A BAND. A bill
+        // that had a substantive vote AND a motion on it bands with its label and
+        // wears this pill, so the fact does not disappear when the band does not
+        // claim it.
+        (m.proc ? '<span class="d1-led-btag is-proc">procedural</span>' : '') +
+        // THE FOLDED TWIN, DISCLOSED INSIDE THE CARD. Two appearances of one
+        // instrument that disagreed about the label are one row and one door; the
+        // reader is told the other appearance exists instead of being shown it as
+        // a second card that opens the same thing.
+        (m.alt
+          ? '<span class="d1-led-balt">Also on file as a ' + esc(m.alt) +
+            ' mapping of this key — the same instrument, folded into this row.</span>'
+          : '') +
+        (sides ? '<span class="d1-led-bwho">' + sides + '</span>' : '') +
+        (m.number
+          ? '<button type="button" class="d1-cite" onclick="window.pdxDoor1Bill(\'' +
+            jsq(m.number) + '\')">Who voted on it</button>'
+          : '') +
+      '</li>';
+    }
+    function bandOf(b, key) {
+      var shown = b.rows.slice(0, MEAS_CAP);
+      var rest = b.rows.slice(MEAS_CAP);
+      return '<section class="d1-led-mband is-' + esc(b.id) + '" id="' +
+          esc(measBandAnchor(key, b.id)) + '">' +
+        '<div class="d1-led-bh"><span class="d1-led-bt">' + esc(b.lb) + '</span>' +
+          '<span class="d1-led-bn">' + b.rows.length + '</span></div>' +
+        '<p class="d1-led-bnote">' + esc(b.note) + '</p>' +
+        '<ul class="d1-led-bills">' + shown.map(card).join('') + '</ul>' +
+        (rest.length
+          ? '<details class="d1-led-bmore"><summary class="d1-led-bmsum">' + rest.length +
+            ' more measure' + (rest.length === 1 ? '' : 's') + ' — same label</summary>' +
+            '<ul class="d1-led-bills">' + rest.map(card).join('') + '</ul></details>'
+          : '') +
+      '</section>';
+    }
     return '<section class="d1-led-meas" id="' + esc(measAnchor(led.key)) + '">' +
       '<div class="d1-led-bh"><span class="d1-led-bt">Measures on file</span>' +
         '<span class="d1-led-bn">' + led.measures.length + '</span></div>' +
       '<p class="d1-led-bnote">PRIMARY means the measure was about this issue; a provision means it ' +
         'carried it inside something larger. Either way the vote counts — the label is here so you ' +
         'can see which it was.</p>' +
-      '<ul class="d1-led-bills">' + led.measures.slice(0, LIST_CAP).map(function (m) {
-        var sides = who('Advanced it', m.adv) + who('Cut against it', m.opp) + who('No side recorded', m.none);
-        return '<li class="d1-led-b">' +
-          '<span class="d1-led-bnum">' + esc(m.number || m.title || 'On file') + '</span>' +
-          // A record row often carries no title beyond its own number, and printing
-          // the number twice reads as a title nobody wrote. Withheld when it adds
-          // nothing; never substituted with a guess at what the measure was about.
-          (m.title && m.title !== m.number
-            ? '<span class="d1-led-btitle">' + esc(m.title) + '</span>' : '') +
-          '<span class="d1-led-btag' + (m.primary ? ' is-primary' : '') + '">' +
-            (m.primary ? 'PRIMARY' : 'provision') + '</span>' +
-          (sides ? '<span class="d1-led-bwho">' + sides + '</span>' : '') +
-          (m.number
-            ? '<button type="button" class="d1-cite" onclick="window.pdxDoor1Bill(\'' +
-              jsq(m.number) + '\')">Who voted on it</button>'
-            : '') +
-        '</li>';
-      }).join('') + '</ul>' +
-      (led.measures.length > LIST_CAP
-        ? '<p class="d1-more">' + (led.measures.length - LIST_CAP) + ' more mapped to this key.</p>'
-        : '') +
+      '<p class="d1-led-bnote">Banded by that label, and the bands add up: every measure below is in ' +
+        'exactly one of them, and each band opens its own remainder without opening the others. ' +
+        'One row per instrument, because one row opens one measure — a bill that reached this key ' +
+        'more than once is a single card, and a card whose appearances disagreed about the label ' +
+        'says so on itself.</p>' +
+      measureBands(led.measures).map(function (b) { return bandOf(b, led.key); }).join('') +
     '</section>';
   }
 

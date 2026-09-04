@@ -2154,7 +2154,8 @@ section("14 · How this issue was tested");
 // roll-call read is still out is a claim about a record we have not finished
 // looking at. What this section pins:
 //
-//   · the three measure figures OVERLAP by design and the note says so;
+//   · the three measure figures PARTITION the measure total — each measure is in
+//     exactly one of them — which is what lets each figure be a door to a band;
 //   · a sponsorship is never called a vote;
 //   · the locked menu sentence is quoted from PDXConsistency.menu, in the
 //     menu's own order, and only where it applies;
@@ -2184,28 +2185,40 @@ section("14 · How this issue was tested");
   has(blk, "How this issue was tested", "the process block has no heading saying what it is");
 
   // ── THE MEASURES LINE IS THE CENSUS'S OWN THREE FIGURES ───────────────────
+  // The people, acts and stances rows are plain text; the measures row is three
+  // figures that are also doors, so it is read with the tags stripped rather than
+  // by refusing to match anything containing a tag.
   const rowOf = (lb) => {
-    const m = blk.match(new RegExp(`<span class="pdxif-plb">${lb}</span><span class="pdxif-pv">([^<]*)</span>`));
+    const m = blk.match(new RegExp(`<span class="pdxif-plb">${lb}</span><span class="pdxif-pv">([\\s\\S]*?)</span></p>`));
     return m ? m[1] : "";
   };
+  const flat = (t) => String(t).replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
   const M = pr.measures || {};
-  const mLine = rowOf("Measures");
-  must(mLine, "there is no measures row in the process block");
-  const wantM = [M.primary ? `${M.primary} PRIMARY` : "", M.provision ? `${M.provision} provision` : "",
-                 M.procedural ? `${M.procedural} procedural` : ""].filter(Boolean).join(" · ");
-  eq(mLine, wantM, "the measures line is not the census's own PRIMARY/provision/procedural figures");
-  // …and the first two of them account for every measure the inventory counted,
-  // which is the guarantee that this line is a split of that figure and not a
-  // second inventory. The third overlaps both, by design.
-  eq(M.primary + M.provision, c.measures,
-    "PRIMARY + provision does not account for every measure the census mapped to this key");
+  const mRaw = rowOf("Measures");
+  must(mRaw, "there is no measures row in the process block");
+  const mLine = flat(mRaw);
+  const BANDS = M.bands || [];
+  must(BANDS.length > 1, `${LKEY} files measures in one band only — this section needs a key with more`);
+  const wantM = BANDS.filter((b) => b.n).map((b) => `${b.n} ${b.lb}`).join(" · ");
+  eq(mLine, wantM, "the measures line is not the census's own per-band figures");
+  // THE THREE FIGURES PARTITION THE TOTAL. This is stronger than the split it
+  // replaced: every measure the inventory counted is in exactly one band, which
+  // is what lets each figure be a door — a figure that jumped to a band holding
+  // a different number of cards would be a count of nothing a reader can check.
+  eq(M.primary + M.provision + M.procedural, c.measures,
+    "the three band figures do not account for every measure the census mapped to this key");
   eq(M.total, c.measures, "the process block counted a different number of measures than the inventory");
+  eq(BANDS.reduce((n, b) => n + b.n, 0), M.total,
+    "the published bands do not hold every measure the process block counted");
   ok(M.procedural <= M.total, "more measures were called procedural than exist");
-  // THE OVERLAP IS SAID OUT LOUD. Three figures that do not sum to the headline
-  // read as arithmetic somebody got wrong unless the note explains them.
-  has(blk, "procedural counts the same measures again",
-    "the note does not say the three measure figures overlap, so they read as a failed sum");
-  has(blk, "do not add up to the first", "the note does not warn that the three do not sum");
+  // AND THE SUM IS SAID OUT LOUD, because three figures printed over a fourth are
+  // read as arithmetic somebody got wrong unless the note says which way it goes.
+  has(blk, "they add up to the number of measures mapped here",
+    "the note does not say the three measure figures sum to the total");
+  has(blk, "each measure is in exactly one of them",
+    "the note does not say the three bands are a partition, so a reader cannot check any of them");
+  no(blk, "procedural counts the same measures again",
+    "the note still describes the old overlapping figures, which now partition");
 
   // ── THE PEOPLE LINE, AND THE ZEROES DROPPED ───────────────────────────────
   const P = pr.people || {};
@@ -2282,6 +2295,20 @@ section("14 · How this issue was tested");
   has(body, `id="${M.id}"`, "the ledger's measure list does not wear the anchor the census published");
   eq((body.match(new RegExp(`id="${M.id}"`, "g")) || []).length, 1,
     "the measure anchor appears more than once on the page");
+  // …AND SO DOES EACH FIGURE, TO ITS OWN BAND. Same rule as the section anchor:
+  // published by the desk, never spelled here, on the page exactly once, and the
+  // count on the letterhead is the count on the heading it lands on.
+  for (const b of BANDS) {
+    must(b.at, `the census publishes no anchor for the ${b.id} band`);
+    has(blk, `window.PDXIssueFile.seeMeasures('${b.at}')`,
+      `the ${b.id} figure on the letterhead is not a door to the ${b.id} band`);
+    has(blk, esc(`See the ${b.n} ${b.lb} measures on the list below`),
+      `the ${b.id} figure does not say where it goes to somebody who cannot see it`);
+    eq((body.match(new RegExp(`id="${b.at}"`, "g")) || []).length, 1,
+      `the ${b.id} band's anchor is not on the ledger exactly once`);
+    const sec = (body.match(new RegExp(`<section class="d1-led-mband is-${b.id}" id="${b.at}">[\\s\\S]*?<div class="d1-led-bh">[\\s\\S]*?<span class="d1-led-bn">(\\d+)</span>`)) || [])[1];
+    eq(Number(sec), b.n, `the ${b.id} band's own heading counts a different number than the letterhead sent a reader to find`);
+  }
   // …and the block does not reprint one measure card: no number, no title, no
   // PRIMARY pill. Naming a measure here would be a second measure list.
   for (const t of ["H.R. ", "H.J.Res", "S. ", "d1-led-b", "Who voted on it"]) {
@@ -2333,18 +2360,31 @@ section("14 · How this issue was tested");
 }
 
 // ── THE LOCKED MENU SENTENCE, WHERE IT APPLIES AND ONLY THERE ───────────────
-// Two of PDXConsistency.menu's three phrases can be true of a whole key, and
-// both are quoted rather than written: the module owns this vocabulary because
-// it is the wording most likely to slide into blame. The third — no vehicle at
-// all — stays unwired, because nothing on this page holds a denominator of what
-// a chamber declined to schedule.
+// One of PDXConsistency.menu's three phrases is true of a whole key today, and
+// it is quoted rather than written: the module owns this vocabulary because it
+// is the wording most likely to slide into blame. The other two stay wired and
+// silent, for two different reasons, and both silences are asserted below —
+// no_vehicle because nothing on this page holds a denominator of what a chamber
+// declined to schedule, and procedural_gate because no key in the record we hold
+// actually meets it.
+//
+//   THE PROCEDURAL GATE GOT STRICTER, AND WENT QUIET. It used to fire when every
+// measure on a key carried A procedural act, and stock_trading_ban was the key
+// that proved it: one measure, H.R. 7008, with 37 procedural acts on file — and
+// 179 substantive ones. The letterhead told a reader "what came up here was
+// floor machinery rather than a vote on the substance" about a bill the chamber
+// had voted on the substance of, 179 times. The measure bands made that visible
+// (a band that claimed H.R. 7008 would hold a card whose own voters had voted on
+// the thing), and the tally the sentence reads now asks what it says: every act
+// on file for the measure was machinery. Nothing meets that on today's record,
+// so the sentence prints nowhere and the wall below asserts the silence rather
+// than deleting the phrase.
 {
   const w = warmAll(boot({ path: "/" }));
   const MENU = w.PDXConsistency.menu;
   const seen = {};
-  // A key whose every mapped measure was a provision, and a key whose measures
-  // were reached only through floor machinery.
-  for (const [k, want] of [["health_drug_prices", "provision_only"], ["stock_trading_ban", "procedural_gate"]]) {
+  // A key whose every mapped measure was a provision.
+  for (const [k, want] of [["health_drug_prices", "provision_only"]]) {
     await tapKey(w, k);
     await tick(); await tick(); await tick();
     const c = w.PDXDoor1.issueCensus(k);
@@ -2367,11 +2407,72 @@ section("14 · How this issue was tested");
     eq(JSON.stringify(MENU.scan(blk)), "[]", `${k}'s process block trips the menu's own wall`);
     console.log(`      /i/${k} · "${say.lb}"`);
   }
-  eq(Object.keys(seen).sort().join(","), "procedural_gate,provision_only",
-    "the two menu phrases a whole key can trigger were not both reached");
-  // climate_action triggers neither — it holds PRIMARY measures and substantive
-  // acts — and a block that printed one anyway would be saying something untrue
-  // about a record that had its own vote.
+  eq(Object.keys(seen).sort().join(","), "provision_only",
+    "the one menu phrase a whole key triggers today was not reached");
+  // ── AND THE PHRASE THAT WENT QUIET IS QUIET FOR A CHECKABLE REASON ────────
+  // Not deleted, not paraphrased, not loosened back: still in the module, still
+  // ordered, still reachable from the desk — and printed on no key, because the
+  // key it used to print on holds substantive votes.
+  const gate = MENU.say("procedural_gate");
+  must(gate && gate.lb, "PDXConsistency.menu no longer holds the procedural-gate phrase");
+  ok((MENU.ORDER || []).indexOf("procedural_gate") >= 0,
+    "the procedural-gate phrase was dropped from the menu's order instead of going quiet");
+  has(gate.note, "rather than a vote on the substance",
+    "the procedural-gate phrase no longer claims what the tally below gates on");
+  {
+    const GK = "stock_trading_ban";
+    await tapKey(w, GK);
+    await tick(); await tick(); await tick();
+    const gc = w.PDXDoor1.issueCensus(GK);
+    must(gc && !gc.cold && gc.people, `${GK} did not settle in this harness`);
+    eq(gc.proc.menu, null,
+      `${GK} still prints the procedural-gate sentence over a measure the chamber voted the substance of`);
+    no(String(w.PDXIssueFile._proc(gc)), "pdxif-pmenu",
+      `${GK}'s letterhead prints a locked sentence its own record contradicts`);
+    // THE RECORD THAT CONTRADICTED IT, COUNTED HERE RATHER THAN ASSERTED FROM
+    // MEMORY: if the substantive acts ever leave this key, this claim goes stale
+    // loudly instead of quietly blessing a sentence that became true again.
+    const P = w.CMP_DATA || [];
+    const ids = Array.isArray(P) ? P.map((x) => x && x.id) : Object.keys(P);
+    let proc = 0, subst = 0;
+    for (const pid of ids) {
+      if (!pid) continue;
+      let items = [];
+      try { items = w._pdxRecordIssueItems(pid, GK) || []; } catch { items = []; }
+      for (const it of items) { if (it.isProcedural) proc++; else subst++; }
+    }
+    ok(proc > 0, `${GK} holds no procedural acts — it is no longer the key that proved the loose gate wrong`);
+    ok(subst > 0, `${GK} holds no substantive acts, so the procedural-gate sentence would be TRUE of it ` +
+      `and the desk is now refusing to print a sentence that applies`);
+    // …and the band the list files that measure into is a substantive one, which
+    // is the same fact stated where a reader can see it.
+    eq(gc.proc.measures.procedural, 0,
+      `${GK} files a machinery-only band over a measure with ${subst} substantive acts on file`);
+    console.log(`      /i/${GK} · ${proc} procedural + ${subst} substantive acts · no locked sentence`);
+  }
+  // Every key the desk files, swept for the same shape: the sentence prints only
+  // where the whole key really was machinery, so it prints nowhere.
+  {
+    const ks = Object.keys(w.ISSUE_MAP);
+    let gated = 0, wrong = [];
+    for (const k of ks) {
+      await tapKey(w, k);
+      await tick(); await tick();
+      const cc = w.PDXDoor1.issueCensus(k);
+      if (!cc || cc.cold || !cc.people || !cc.proc) continue;
+      if (!cc.proc.menu || cc.proc.menu.key !== "procedural_gate") continue;
+      gated++;
+      // If it ever fires again, it must fire on a key whose every mapped measure
+      // banded as machinery-only. Anything else is the loose gate come back.
+      if (cc.proc.measures.procedural !== cc.proc.measures.total) wrong.push(k);
+    }
+    eq(wrong.join(","), "",
+      `the procedural-gate sentence printed on a key holding substantive measures: ${wrong.join(", ")}`);
+    console.log(`      procedural_gate wired, ordered, quotable · fires on ${gated} keys today`);
+  }
+  // climate_action triggers none of the three — it holds PRIMARY measures and
+  // substantive acts — and a block that printed one anyway would be saying
+  // something untrue about a record that had its own vote.
   await tapKey(w, LKEY);
   await tick(); await tick(); await tick();
   const cc = w.PDXDoor1.issueCensus(LKEY);
@@ -2415,9 +2516,15 @@ section("14 · How this issue was tested");
     if (!p) { ok(false, `${k}: the census publishes people but no proc`); continue; }
     eq(p.people.package, c.pkg, `${k}: the package-only figure is not the census's own pkg`);
     eq(p.measures.total, c.measures, `${k}: the process block counts a different measure total`);
-    eq(p.measures.primary + p.measures.provision, c.measures,
-      `${k}: PRIMARY + provision does not account for every mapped measure`);
+    eq(p.measures.primary + p.measures.provision + p.measures.procedural, c.measures,
+      `${k}: the three band figures do not account for every mapped measure`);
     ok(p.measures.procedural <= p.measures.total, `${k}: more measures are procedural than exist`);
+    // …and the bands the desk PUBLISHED are the same partition, with no empty
+    // band offered as a door to nothing.
+    eq((p.measures.bands || []).reduce((n, b) => n + b.n, 0), p.measures.total,
+      `${k}: the published bands hold a different number of measures than the total`);
+    ok((p.measures.bands || []).every((b) => b.n > 0 && b.id && b.lb && b.at),
+      `${k}: a published measure band is empty or unaddressable`);
     ok(p.people.primary + p.people.package + p.people.mixed <= c.people,
       `${k}: the vehicle figures claim more people than the census filed`);
     ok(p.stances.said <= c.people, `${k}: more sourced stances than people on file`);
@@ -2592,6 +2699,441 @@ section("14 · How this issue was tested");
         return head.indexOf("Reading the record on this key") >= 0 &&
                head.indexOf("pdxif-proc") >= 0 &&
                /\d/.test(head.replace(/<[^>]*>/g, " "));
+      },
+    },
+  ];
+  for (const pr of probes) {
+    const caught = await pr.run();
+    ok(caught, `LOAD-BEARING PROBE NOT CAUGHT — ${pr.name}`);
+    console.log(`      · ${pr.name} → ${caught ? "caught" : "NOT CAUGHT"}`);
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("15 · The measures, in bands, one row per instrument");
+// ── A LIST NOBODY COULD SEE THE SHAPE OF ────────────────────────────────────
+// Section 14 pins the FIGURES over the measure list. This one pins the list. The
+// state it replaced was not wrong on any single card: /i/climate_action printed
+// thirteen of them down one column, two of which were the same instrument twice
+// over — once as the bills index knew it and once as the roll-call record did —
+// with PRIMARY disapproval resolutions and floor amendments interleaved in no
+// order a reader could name. A pane whose shape is unreadable is making a reader
+// guess, and a guess about a record is the thing this project refuses to invite.
+//
+// So the list is filed into the bands its own cards were already labelled with,
+// and what this section pins is that the filing claims nothing new:
+//
+//   · THE BANDS ARE A PARTITION of the measures the census mapped, in the desk's
+//     own order, and every card is inside exactly one of them;
+//   · A FOLD IS NOT A CUT. Each band shows its first few and puts the rest behind
+//     its own <details> — in the DOM, in the string, one instrument per row —
+//     and opening one band's remainder does not open another's;
+//   · ONE ROW PER INSTRUMENT, because one row opens one measure. Two appearances
+//     of one number are one card, and a card whose appearances disagreed about
+//     the label says so on itself rather than becoming a twin;
+//   · "WHO VOTED ON IT" SURVIVED THE FOLD, on every card including the folded
+//     ones, because a measure a reader cannot open is a measure they must take
+//     this pane's word about;
+//   · THE PEOPLE SLICE DOES NOT REACH A MEASURE. A slice of the people is not a
+//     slice of the bills, and the two lists share no class name that would let
+//     one narrow the other;
+//   · AND THE WALLS HELD: a provision's vote still counts and still says so, the
+//     PRIMARY-vs-provision sentence is untouched, and no share of a package is
+//     printed anywhere.
+{
+  const w = warmAll(boot({ path: `/i/${LKEY}` }));
+  await arriveAt(w);
+  await tick(); await tick(); await tick();
+  w.PDXIssueFile.repaint();
+  const body = ledgerOf(w);
+  const c = w.PDXDoor1.issueCensus(LKEY);
+  must(c && !c.cold && c.measures > 0, `${LKEY} files no measures — this section has nothing to band`);
+  const M = c.proc.measures;
+  // BOUNDED AT THE WALL. The formal lane's own WALL sentence is printed after the
+  // measure section and is the one place on this pane allowed to say "Direction
+  // Match", so a read of "the measure section" that ran to the end of the body
+  // would be checking the walls below over the wrong markup.
+  const cutAt = (h) => {
+    const at = h.indexOf('<section class="d1-led-meas"');
+    if (at < 0) return "";
+    const end = h.indexOf('<p class="d1-led-wall">', at);
+    return end < 0 ? h.slice(at) : h.slice(at, end);
+  };
+  const sect = cutAt(body);
+  must(sect, "there is no measure section on the ledger at all");
+  no(sect, "d1-led-wall", "the measure section read here still contains the formal lane's wall sentence");
+  has(sect, "Measures on file", "the measure section lost the heading that says what it is");
+
+  // ── THE BANDS, AND NOTHING OUTSIDE ONE ────────────────────────────────────
+  const bandTags = sect.match(/<section class="d1-led-mband is-([a-z]+)" id="([^"]+)">/g) || [];
+  const bandIds = bandTags.map((t) => (t.match(/is-([a-z]+)/) || [])[1]);
+  eq(bandIds.join(","), (M.bands || []).map((b) => b.id).join(","),
+    "the bands painted on the ledger are not the bands the census published, in that order");
+  ok(bandIds.length > 1, `${LKEY} painted one band — this section needs a key whose measures split`);
+  // THE PARTITION, COUNTED OFF THE MARKUP rather than off the model: every card
+  // in the section is inside a band, and no card is in two.
+  const cards = (sect.match(/<li class="d1-led-b">/g) || []).length;
+  eq(cards, M.total, "the measure section paints a different number of cards than the census counted");
+  const inBands = sect.slice(sect.indexOf(bandTags[0]));
+  eq((inBands.match(/<li class="d1-led-b">/g) || []).length, cards,
+    "a measure card was painted outside every band, so it is in the list and in no band");
+  let tally = 0;
+  for (const b of M.bands || []) {
+    const at = sect.indexOf(`id="${b.at}"`);
+    must(at > 0, `the ${b.id} band is not on the ledger`);
+    const next = (M.bands || []).map((x) => sect.indexOf(`id="${x.at}"`)).filter((i) => i > at);
+    const chunk = sect.slice(at, next.length ? Math.min(...next) : sect.length);
+    const n = (chunk.match(/<li class="d1-led-b">/g) || []).length;
+    eq(n, b.n, `the ${b.id} band paints ${n} cards under a heading that says ${b.n}`);
+    tally += n;
+    // ── THE CAP IS PER BAND, AND THE REST IS FOLDED, NOT DROPPED ───────────
+    const cut = chunk.indexOf('<details class="d1-led-bmore">');
+    const face = cut < 0 ? chunk : chunk.slice(0, cut);
+    const shown = (face.match(/<li class="d1-led-b">/g) || []).length;
+    ok(shown <= 4, `the ${b.id} band shows ${shown} cards on the face — the default is the first three or four`);
+    eq(shown, Math.min(b.n, 4), `the ${b.id} band shows ${shown} of its ${b.n} cards on the face`);
+    if (b.n > 4) {
+      must(cut > 0, `the ${b.id} band holds ${b.n} cards and offers no fold for the ones it did not show`);
+      const rest = b.n - shown;
+      has(chunk, `>${rest} more measure${rest === 1 ? "" : "s"} — same label<`,
+        `the ${b.id} band's fold does not say how many measures are behind it, or does not say they share its label`);
+      // FOLDED IS NOT HIDDEN. Every one of them is in the string the desk built.
+      eq((chunk.slice(cut).match(/<li class="d1-led-b">/g) || []).length, rest,
+        `the ${b.id} band's fold does not contain every card it did not show`);
+    } else {
+      eq(cut, -1, `the ${b.id} band offers a fold over nothing`);
+    }
+    // ONE BAND'S FOLD IS ITS OWN. Not a shared <details name>, not nested inside
+    // another band's, and none of them shipped open — so opening one leaves the
+    // others exactly where the reader left them.
+    ok((chunk.match(/<details/g) || []).length <= 1,
+      `the ${b.id} band holds more than one fold, so one summary claims another's cards`);
+    no(chunk, "<details name=", `the ${b.id} band's fold is grouped with another band's, so opening one shuts that one`);
+    no(chunk, "<details class=\"d1-led-bmore\" open", `the ${b.id} band shipped its remainder already open`);
+  }
+  eq(tally, M.total, "the bands do not between them paint every measure the census counted");
+  eq((sect.match(/<details/g) || []).length, (M.bands || []).filter((b) => b.n > 4).length,
+    "the measure section paints a fold for a band that did not need one, or skipped one that did");
+
+  // ── ONE ROW PER INSTRUMENT ────────────────────────────────────────────────
+  // The face is deduped on the NUMBER, which is exactly what the card's own door
+  // takes: pdxDoor1Bill(number). Two cards with one number were never two doors.
+  const nums = (sect.match(/<span class="d1-led-bnum">([^<]*)</g) || [])
+    .map((t) => t.replace(/^<span class="d1-led-bnum">/, "").replace(/<$/, ""));
+  eq(nums.length, cards, "a measure card was painted without a number line");
+  const dupes = nums.filter((n, i) => nums.indexOf(n) !== i);
+  eq(dupes.join(","), "", `the same instrument is on the face twice: ${dupes.join(", ")}`);
+  // …AND THE CLAIM IS NOT VACUOUS. The record really does hold this key's twins,
+  // which is asserted by building the same key with the fold's one line removed:
+  // if the sources ever stop disagreeing this goes stale loudly rather than
+  // quietly passing over a list that had nothing to dedupe.
+  {
+    const flatSrc = DESK.replace("    return n ? 'f:' + n : id;", "    return id;");
+    must(flatSrc !== DESK, "the face's fold key was reworded — this claim cannot be checked");
+    const fw = warmAll(boot({ path: `/i/${LKEY}`, desk: flatSrc }));
+    await arriveAt(fw);
+    await tick(); await tick(); await tick();
+    const flat = fw.PDXDoor1.issueProfile(LKEY);
+    const fnums = (flat.match(/<span class="d1-led-bnum">([^<]*)</g) || [])
+      .map((t) => t.replace(/^<span class="d1-led-bnum">/, "").replace(/<$/, ""));
+    const twins = [...new Set(fnums.filter((n, i) => fnums.indexOf(n) !== i))].sort();
+    ok(twins.length > 0, `${LKEY} has no instrument on file twice — the fold has nothing to fold`);
+    ok(fnums.length > nums.length,
+      `the fold removed no card at all: ${fnums.length} unfolded, ${nums.length} folded`);
+    for (const t of twins) {
+      eq(nums.filter((n) => n === t).length, 1,
+        `${t} appears on this key twice in the record and is not one card on the face`);
+    }
+    console.log(`      /i/${LKEY} · ${fnums.length} appearances → ${nums.length} rows · ` +
+      `folded: ${twins.join(", ")}`);
+  }
+  // H.R. 1 IS THE ONE THE WORK ORDER NAMED, and it is on two other keys twice.
+  for (const k of ["cut_spending", "lands_energy"]) {
+    await tapKey(w, k);
+    await tick(); await tick(); await tick();
+    const kh = w.PDXDoor1.issueProfile(k);
+    const kn = (kh.match(/<span class="d1-led-bnum">([^<]*)</g) || [])
+      .map((t) => t.replace(/^<span class="d1-led-bnum">/, "").replace(/<$/, ""));
+    ok(kn.indexOf("H.R. 1") >= 0, `${k} no longer files H.R. 1 — the work order's own example is gone`);
+    eq(kn.filter((n) => n === "H.R. 1").length, 1, `${k} still paints H.R. 1 as two rows`);
+    const kd = kn.filter((n, i) => kn.indexOf(n) !== i);
+    eq(kd.join(","), "", `${k} paints a twin row: ${kd.join(", ")}`);
+  }
+
+  // One card, read out of the painted string by the number on its own first line.
+  const cardOf = (h, n) => {
+    const at = h.indexOf(`<span class="d1-led-bnum">${n}<`);
+    return at < 0 ? "" : h.slice(h.lastIndexOf('<li class="d1-led-b">', at), h.indexOf("</li>", at));
+  };
+
+  // ── A DISAGREEMENT IS DISCLOSED, NOT SWALLOWED ────────────────────────────
+  // The one thing a fold could hide that a reader would want: two appearances of
+  // one instrument that disagreed about the label. No key on today's record does
+  // this, so the disagreement is INTRODUCED as data — one extra index entry for a
+  // number the record already carries, mapped the other way — and the card must
+  // absorb it without becoming a twin and must say on itself that it did.
+  {
+    const dw = warmAll(boot({ path: `/i/${LKEY}` }));
+    const real = dw.PDXBills.listSync;
+    must(typeof real === "function", "PDXBills.listSync is gone — the index-side union has no source to perturb");
+    const base = real.call(dw.PDXBills);
+    const items = (base.items || []).slice();
+    // A number this key already files as PRIMARY, offered a second time as a
+    // provision of the same key. Same instrument, one door, two labels — which is
+    // the only disagreement a fold could swallow that a reader would want back.
+    const provNum = "H.J.Res. 88";
+    ok(items.some((b) => String(b && b.number) === provNum),
+      `${provNum} is no longer in the bills index — this probe needs a number both sources know`);
+    ok(cardOf(body, provNum).indexOf(">PRIMARY<") >= 0,
+      `${provNum} is not PRIMARY on this key, so a provision copy of it disagrees with nothing`);
+    dw.PDXBills.listSync = () => ({
+      items: items.concat([{ measureId: "probe-mixed-label", number: provNum,
+        title: "Congressional disapproval — index copy",
+        primaryIssue: "energy_production", issueKeys: [LKEY] }]),
+    });
+    await arriveAt(dw);
+    await tick(); await tick(); await tick();
+    const dh = dw.PDXDoor1.issueProfile(LKEY);
+    const dn = (dh.match(/<span class="d1-led-bnum">([^<]*)</g) || [])
+      .map((t) => t.replace(/^<span class="d1-led-bnum">/, "").replace(/<$/, ""));
+    eq(dn.filter((n) => n === provNum).length, 1,
+      `${provNum} became two rows once its two appearances disagreed about the label`);
+    eq((dh.match(/class="d1-led-balt"/g) || []).length, 1,
+      "the card that folded a label disagreement does not disclose it, or discloses it more than once");
+    has(dh, "Also on file as a provision mapping of this key",
+      "the folded card does not name the other label its instrument arrived under");
+    has(dh, "the same instrument, folded into this row",
+      "the folded card does not say that the second appearance is the same instrument");
+    // AND THE STRONGEST LABEL WINS THE FACE, so the disclosure is never the only
+    // place a PRIMARY mapping is mentioned.
+    has(cardOf(dh, provNum), ">PRIMARY<", "the folded card dropped the PRIMARY label one of its appearances carried");
+    dw.PDXBills.listSync = real;
+    console.log(`      a label disagreement on ${provNum} → 1 row, disclosed inside the card`);
+  }
+
+  // ── "WHO VOTED ON IT" SURVIVED THE FOLD ───────────────────────────────────
+  await tapKey(w, LKEY);
+  await tick(); await tick(); await tick();
+  const body2 = w.PDXDoor1.issueProfile(LKEY);
+  const sect2 = cutAt(body2);
+  const doors = (sect2.match(/window\.pdxDoor1Bill\('|pdxDoor1Bill\('/g) || []).length;
+  eq(doors, nums.filter(Boolean).length,
+    "a measure card lost its way in — every card with a number opens the roll call on it");
+  has(sect2, ">Who voted on it<", "the cards lost the control the work order says stays");
+  // Including the folded ones: the fold is a <details>, so the door is in the
+  // string whether or not it is on screen.
+  for (const b of M.bands || []) {
+    if (b.n <= 4) continue;
+    const at = sect2.indexOf(`id="${b.at}"`);
+    const chunk = sect2.slice(at);
+    const cut = chunk.indexOf('<details class="d1-led-bmore">');
+    const folded = chunk.slice(cut, chunk.indexOf("</details>", cut));
+    eq((folded.match(/<li class="d1-led-b">/g) || []).length,
+      (folded.match(/Who voted on it/g) || []).length,
+      `a card behind the ${b.id} band's fold cannot be opened`);
+  }
+
+  // ── THE PEOPLE SLICE DOES NOT REACH A MEASURE ─────────────────────────────
+  // Asserted twice, because the two ways this could break are different. First on
+  // the CLASS NAMES: the slice narrows by walking .d1-led-p and restating
+  // .d1-led-band, and a measure card that shared either name would be narrowed by
+  // a chip about people.
+  const SL = DESK.slice(DESK.indexOf("function sliceApply"), DESK.indexOf("function sliceSoon"));
+  must(SL.length > 400, "the slice's DOM pass could not be isolated from the desk's source");
+  for (const cls of ["d1-led-b'", "d1-led-b\"", "d1-led-mband", "d1-led-bills", "d1-led-bmore"]) {
+    no(SL, cls, `the slice's DOM pass reaches for ${cls} — a chip about people would narrow the bills`);
+  }
+  // EVERY CLASS TOKEN, not the first on each element: a card that had the people
+  // list's class ADDED to it would keep d1-led-b as its first and the narrower
+  // read would sail past exactly the collision this claim is about.
+  const clsTokens = (h) => [...new Set([...h.matchAll(/class="([^"]*)"/g)]
+    .flatMap((m) => m[1].split(/\s+/)).filter(Boolean))];
+  const measCls = clsTokens(sect);
+  for (const cls of ["d1-led-p", "d1-led-band", "d1-led-tail", "d1-led-more"]) {
+    ok(measCls.indexOf(cls) < 0, `a measure card wears ${cls}, which is a class the people slice walks`);
+  }
+  // Second on the PASS ITSELF, driven over a tree holding one person row and one
+  // measure card, with every chip pressed in turn: the row hides, the card never
+  // does, and the measure band's own heading is never restated.
+  {
+    const mk = (cls, attrs) => Object.assign(Object.create(null), {
+      cls: String(cls).split(" "), attrs: attrs || {}, kids: [], hidden: false,
+      textContent: "", value: "",
+      getAttribute(k) { return this.attrs[k] === undefined ? null : this.attrs[k]; },
+      setAttribute(k, v) { this.attrs[k] = String(v); },
+      classList: { add() {}, remove() {}, contains() { return false; } },
+      querySelector(sel) { return this.querySelectorAll(sel)[0] || null; },
+      querySelectorAll(sel) { return this.getElementsByClassName(sel.slice(1)); },
+      getElementsByClassName(want) {
+        const out = [];
+        const go = (n) => { for (const k of n.kids) { if (k.cls.indexOf(want) >= 0) out.push(k); go(k); } };
+        go(this);
+        return out;
+      },
+    });
+    const root = mk("host");
+    const box = mk("d1-led-slice", { "data-pdx-slice": LKEY });
+    const pband = mk("d1-led-band");
+    const phead = mk("d1-led-bn");
+    phead.textContent = "1";
+    const person = mk("d1-led-p", { "data-pdx-led-band": "advanced", "data-pdx-led-veh": "primary",
+      "data-pdx-led-ch": "representative", "data-pdx-led-nm": "someone" });
+    pband.kids.push(phead, person);
+    const mband = mk("d1-led-mband");
+    const mhead = mk("d1-led-bn");
+    mhead.textContent = "7";
+    const cardEl = mk("d1-led-b");
+    mband.kids.push(mhead, cardEl);
+    root.kids.push(box, pband, mband);
+    box.parentNode = root;
+    const realGet = w.document.getElementById;
+    w.document.getElementById = (id) =>
+      (id === "pdx-issue-file-ledger" ? root : realGet.call(w.document, id));
+    for (const [kind, val] of [["dir", "against"], ["veh", "package"], ["ch", "senator"], ["q", "nobody"]]) {
+      w.pdxDoor1Slice("clear", "");
+      w.PDXDoor1._sliceApply();
+      w.pdxDoor1Slice(kind, val);
+      w.PDXDoor1._sliceApply();
+      ok(person.hidden, `the ${kind} chip did not narrow the people list, so this claim proves nothing`);
+      ok(!cardEl.hidden, `the ${kind} chip hid a measure card — a slice of the people is not a slice of the bills`);
+      eq(mhead.textContent, "7", `the ${kind} chip restated a measure band's count`);
+    }
+    w.pdxDoor1Slice("clear", "");
+    w.PDXDoor1._sliceApply();
+    ok(!person.hidden && !cardEl.hidden, "clearing the slice did not restore the list");
+    w.document.getElementById = realGet;
+    console.log("      4 chips pressed · 0 measure cards hidden · 0 measure headings restated");
+  }
+  // …and the builder still emits one string whatever the slice says, which is the
+  // claim the whole file rests on and the one a banded list could most easily
+  // break by rendering the bands from slice state.
+  {
+    const clean = w.PDXDoor1.issueProfile(LKEY);
+    w.pdxDoor1Slice("dir", "against");
+    eq(w.PDXDoor1.issueProfile(LKEY), clean, "pressing a chip changed the string the builder paints");
+    w.pdxDoor1Slice("clear", "");
+  }
+
+  // ── THE WALLS, OVER THE MEASURE SECTION ───────────────────────────────────
+  // THE VOTE STILL COUNTS, and the sentence that says so is the one that shipped.
+  has(sect, "PRIMARY means the measure was about this issue; a provision means it carried it inside " +
+    "something larger. Either way the vote counts — the label is here so you can see which it was.",
+    "the PRIMARY-vs-provision sentence was reworded by the banding");
+  // …and each band says it again in its own terms, because a reader who folded
+  // straight to the provision band never read the sentence above it.
+  const notes = [...sect.matchAll(/<p class="d1-led-bnote">([\s\S]*?)<\/p>/g)].map((m) => m[1]);
+  ok(notes.length >= 2 + bandIds.length, "a measure band was painted with no note saying what its label means");
+  for (const id of bandIds) {
+    const at = sect.indexOf(`is-${id}" id=`);
+    const note = (sect.slice(at).match(/<p class="d1-led-bnote">([\s\S]*?)<\/p>/) || [])[1] || "";
+    must(note, `the ${id} band has no note`);
+    if (id !== "primary") {
+      has(note, "vote still counts",
+        `the ${id} band's note does not say the vote counts, which is the wall this label exists under`);
+    }
+  }
+  // NO PACKAGE SHARE, ANYWHERE IN IT. Not a percentage, not a percentage in words.
+  no(sect, "%", "the measure section prints a share");
+  for (const t of ["out of", " of the package", "share of", "proportion"]) {
+    no(sect, t, `the measure section prints a denominator ("${t}"), which is a percentage in words`);
+  }
+  for (const t of ["Direction Match", "consistency", "Republican", "Democrat", "party", "score",
+                   "snuck", "obstructed", "buried", "refused to schedule", "grade"]) {
+    no(sect, t, `the measure section says "${t}" — it is an inventory of what was on the table`);
+  }
+  const MENU = w.PDXConsistency.menu;
+  eq(JSON.stringify(MENU.scan(sect)), "[]",
+    `the menu's own wall scanner objects to the measure section: ${JSON.stringify(MENU.scan(sect))}`);
+  // THE CAP IS THE DESK'S, AND IT IS PER BAND. A single cap over a banded list
+  // would truncate one band and leave the others short, which is the shape the
+  // work order's "expanding one band doesn't expand another" rules out.
+  const CODE = DESK.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, "");
+  has(CODE, "var MEAS_CAP = 4;", "the per-band cap is no longer a named constant on the desk");
+  const mh = CODE.slice(CODE.indexOf("function measuresHtml"), CODE.indexOf("function ledgerWall"));
+  must(mh.length > 400, "the measure list's markup could not be isolated from the desk's source");
+  no(mh, "LIST_CAP", "the measure list is capped by the people cap, which would truncate a band");
+  has(mh, "MEAS_CAP", "the measure list does not cap per band");
+  console.log(`      /i/${LKEY} · ${bandIds.join(" · ")} · ${cards} cards, ` +
+    `${(sect.match(/<details/g) || []).length} fold(s) · walls held`);
+}
+
+// ── AND THIS PASS'S OWN FIXES ARE LOAD-BEARING ──────────────────────────────
+// Four probes, each removing one of the four things the banding added, each
+// expected to be CAUGHT by the claims in section 15.
+{
+  const probes = [
+    {
+      name: "the face stops folding and the same instrument is two rows again",
+      run: async () => {
+        // The state the work order names: H.R. 1 twice, as two cards that open
+        // the same bill. The fold keys the face on the number precisely because
+        // the number is what the card's door takes.
+        const src = DESK.replace("    return n ? 'f:' + n : id;", "    return id;");
+        must(src !== DESK, "probe 1 matched nothing — the face's fold key was reworded");
+        const w = warmAll(boot({ path: `/i/${LKEY}`, desk: src }));
+        await arriveAt(w);
+        await tick(); await tick(); await tick();
+        const html = w.PDXDoor1.issueProfile(LKEY);
+        const nums = (html.match(/<span class="d1-led-bnum">([^<]*)</g) || []);
+        return nums.length > new Set(nums).size;
+      },
+    },
+    {
+      name: "the per-band cap is dropped and one band prints the whole column",
+      run: async () => {
+        // The original complaint, restated: a band that shows everything is the
+        // long column with a heading on it.
+        const src = DESK.replace("      var shown = b.rows.slice(0, MEAS_CAP);",
+                                 "      var shown = b.rows.slice(0);");
+        must(src !== DESK, "probe 2 matched nothing — the per-band cap was reworded");
+        const w = warmAll(boot({ path: `/i/${LKEY}`, desk: src }));
+        await arriveAt(w);
+        await tick(); await tick(); await tick();
+        const html = w.PDXDoor1.issueProfile(LKEY);
+        const at = html.indexOf('class="d1-led-mband');
+        const face = html.slice(at, html.indexOf("</section>", at));
+        const cut = face.indexOf("<details");
+        const shown = ((cut < 0 ? face : face.slice(0, cut)).match(/<li class="d1-led-b">/g) || []).length;
+        return shown > 4;
+      },
+    },
+    {
+      name: "a measure card takes the people list's class and a chip hides a bill",
+      run: async () => {
+        // Why the bands have their own names at all. The slice narrows by walking
+        // .d1-led-p; a measure card wearing that class is a bill filtered by a
+        // chip about people, which is the one thing the work order rules out.
+        const src = DESK.replace("      return '<li class=\"d1-led-b\">' +",
+                                 "      return '<li class=\"d1-led-b d1-led-p\">' +");
+        must(src !== DESK, "probe 3 matched nothing — the measure card's class was reworded");
+        const w = warmAll(boot({ path: `/i/${LKEY}`, desk: src }));
+        await arriveAt(w);
+        await tick(); await tick(); await tick();
+        const html = w.PDXDoor1.issueProfile(LKEY);
+        const at = html.indexOf('<section class="d1-led-meas"');
+        const sect = html.slice(at);
+        const measCls = [...new Set([...sect.matchAll(/class="([^"]*)"/g)]
+          .flatMap((m) => m[1].split(/\s+/)).filter(Boolean))];
+        return measCls.indexOf("d1-led-p") >= 0;
+      },
+    },
+    {
+      name: "a band figure on the letterhead is published without an anchor to land on",
+      run: async () => {
+        // A figure that is a door and lands nowhere is worse than a figure that
+        // is not a door: the reader taps it, nothing moves, and they conclude the
+        // number was decoration.
+        const src = DESK.replace("    return (a && id) ? a + '-' + id : '';", "    return '';");
+        must(src !== DESK, "probe 4 matched nothing — the band anchor was reworded");
+        const w = warmAll(boot({ path: `/i/${LKEY}`, desk: src }));
+        await arriveAt(w);
+        await tick(); await tick(); await tick();
+        w.PDXIssueFile.repaint();
+        const head = headOf(w);
+        const c = w.PDXDoor1.issueCensus(LKEY);
+        const bands = (c.proc.measures.bands || []);
+        return bands.length > 0 && bands.every((b) => !b.at) &&
+               head.indexOf("pdxif-pjump") < 0;
       },
     },
   ];

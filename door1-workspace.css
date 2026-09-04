@@ -655,6 +655,25 @@
 .d1-led-more[open] .d1-led-msum { margin-bottom: 0.4rem; }
 
 .d1-led-meas { margin-top: 1.1rem; }
+/* ── The measure list, banded by the label on the card ──────────────────────
+   Same heading furniture as a people band, deliberately: one pane, one idea of
+   what a band looks like. Quieter than the people bands above it — this is an
+   inventory of what was on the table rather than a reading of who did what with
+   it — so a measure band gets no tone, no colour and no state. Its own class
+   name is what keeps the people slice's walk (over .d1-led-band and .d1-led-p)
+   from ever reaching a card in here. */
+.d1-led-mband { margin-top: 0.9rem; }
+/* The rest of one band. Same control as the people bands' overflow, and each
+   band carries its own — opening one leaves the others where the reader left
+   them, because they are separate <details> and always were. */
+.d1-led-bmore { margin: 0.4rem 0 0; }
+.d1-led-bmsum {
+  cursor: pointer; list-style: none; padding: 0.35rem 0.6rem; border-radius: 0.6rem;
+  font-size: 0.72rem; color: #92a6c2;
+  background: rgba(255, 255, 255, 0.025); border: 1px dashed rgba(255, 255, 255, 0.13);
+}
+.d1-led-bmsum::-webkit-details-marker { display: none; }
+.d1-led-bmore[open] .d1-led-bmsum { margin-bottom: 0.4rem; }
 .d1-led-bills { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.45rem; }
 .d1-led-b {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.55rem;
@@ -675,6 +694,15 @@
   background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12);
 }
 .d1-led-btag.is-primary { color: #bfdbfe; background: rgba(96, 165, 250, 0.12); border-color: rgba(96, 165, 250, 0.32); }
+/* Floor machinery, marked. Amber is the vehicle lane's ink on this desk (see
+   .d1-led-veh) and this is the same kind of fact: what the act was ON, never a
+   judgement of the act. It sits beside the PRIMARY-or-provision tag rather than
+   replacing it, because a measure's label does not change when machinery is
+   what reached it. */
+.d1-led-btag.is-proc { color: #fde68a; background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.3); }
+/* The folded twin's disclosure. Full width under the tags, because it is a
+   sentence about the row and not another pill on it. */
+.d1-led-balt { flex: 1 1 100%; font-size: 0.68rem; line-height: 1.5; color: #9fb2cc; }
 .d1-led-bwho { flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: 0.2rem 0.7rem; }
 .d1-led-w { font-size: 0.7rem; line-height: 1.5; color: #9fb2cc; }
 .d1-led-wall {
