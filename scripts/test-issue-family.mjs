@@ -273,6 +273,14 @@ const keyChips = (html) => chipsIn(html, " is-key");
 // and the crumb's own skin, read the same way a chip's is.
 const crumbOf = (html) =>
   (String(html).match(/<p class="d1-led-crumb"[^>]*>([\s\S]*?)<\/p>/) || [])[1] || "";
+// THE CENSUS SENTENCE, WHOEVER IT IS ABOUT. Read as its own paragraph rather
+// than by quoting one of its two wordings: the desk's people lede says "N people
+// have a readable formal row on <label>" once the roll-call read has settled and
+// "N readable so far - still reading M on <label>" while any of it is still out,
+// and every claim below is about WHICH KEY the sentence names, not about which of
+// those two states this fixture happens to be in.
+const censusLine = (html) =>
+  (String(html).match(/<p class="d1-led-n[^"]*">([\s\S]*?)<\/p>/) || [])[1] || "";
 const crumbIc = (html) =>
   (String(html).match(/<p class="d1-led-crumb"[^>]*\sstyle="([^"]*)"/) || [])[1] || "";
 // The same read, off the OTHER surface: the topic tree's leaf for one key on one
@@ -514,7 +522,7 @@ const CHILD = await (async () => {
   // The read is for this key, by name.
   ok(w.__askedIssue.some((a) => a.split(",").indexOf(KEY) >= 0), `${KEY} was never asked for as itself`);
   // THE HEADING is this child's own label, and the crumb over it names the family.
-  has(html, `readable formal row on <b>${esc(MAP[KEY].label)}</b>`,
+  has(censusLine(html), `<b>${esc(MAP[KEY].label)}</b>`,
     "the census does not name the child it is about");
   has(html, "d1-led-crumb", "the census printed no Core → Child crumb");
   const crumb = crumbOf(html);
@@ -596,11 +604,13 @@ section("5 · A sibling is a different ledger");
     must(led, `${k} produced no ledger at all`);
     eq(led.key, k, `${k}: the ledger is keyed to something else`);
     // The census is about THIS key, by its own label.
-    has(html, `readable formal row on <b>${esc(MAP[k].label)}</b>`,
+    has(censusLine(html), `<b>${esc(MAP[k].label)}</b>`,
       `${k}: the census names some other issue`);
     for (const other of [...LANDS, SIBLING].filter((x) => x !== k)) {
+      no(censusLine(html), `<b>${esc(MAP[other].label)}</b>`,
+        `${k}: the census sentence names ${other}`);
       no(html, `readable formal row on <b>${esc(MAP[other].label)}</b>`,
-        `${k}: the census printed ${other}'s label`);
+        `${k}: the page printed ${other}'s census as well`);
     }
     // Same family, named the same way, and the crumb still says which child.
     const cr = crumbOf(html);
@@ -644,7 +654,7 @@ section("6 · Seek still works, and now agrees with the shelf");
   await tick(); await tick();
   const html = paint(w);
   has(html, "d1-led-census", "seek did not open the ledger");
-  has(html, `readable formal row on <b>${esc(MAP[KEY].label)}</b>`, "seek opened somebody else's key");
+  has(censusLine(html), `<b>${esc(MAP[KEY].label)}</b>`, "seek opened somebody else's key");
   const lit = chipsIn(html, "").filter((c) => c.open && F.isCore(c.key));
   eq(lit.length, 1, "seek left no core lit, or lit more than one");
   eq(lit[0].key, LANDCORE.key, "seek did not switch the lit core to the key's parent");

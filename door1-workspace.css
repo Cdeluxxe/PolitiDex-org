@@ -526,6 +526,27 @@
 .d1-led-m { margin: 0.4rem 0 0; font-size: 0.76rem; color: #9fb2cc; }
 .d1-led-m b { color: #e8eefb; }
 
+/* ── THE CENSUS WHILE THE READ IS STILL OUT ────────────────────────────────
+   A partial count is drawn as one: the box takes the same amber the rest of this
+   desk uses for "we are telling you something about our own certainty", and the
+   two disclosure lines sit under the headline in the same weight as the headline
+   so neither can be skimmed past. No bar, no spinner and no share — the reader is
+   being told what the number is a count of, not shown a progress meter. */
+.d1-led-census.is-partial {
+  border-color: rgba(252, 211, 77, 0.28); background: rgba(252, 211, 77, 0.05);
+}
+.d1-led-n.is-partial { color: #f4e4bd; }
+.d1-led-n.is-partial b { color: #fde68a; }
+.d1-led-part {
+  margin: 0.35rem 0 0; font-size: 0.76rem; line-height: 1.6; color: #d6c9a8;
+}
+/* The bands nobody has come back for yet. Quieter than the split above it,
+   because it is a statement about what is missing rather than a count. */
+.d1-led-soon {
+  margin: 0.35rem 0 0; font-size: 0.74rem; line-height: 1.6; color: #9fb2cc;
+}
+.d1-led-sofar { color: #d6c9a8; }
+
 /* ── THE FILTER ROW ────────────────────────────────────────────────────────
    Above the bands, and deliberately quieter than they are: chips read as a way
    to ask this list a question, not as a second heading competing with the band
@@ -538,6 +559,11 @@
   display: grid; gap: 0.45rem;
 }
 .d1-led-sl { margin: 0; font-size: 0.71rem; line-height: 1.55; color: #8fa2bd; }
+/* The chips' own disclosure while the read is out: the same amber the partial
+   census wears, so a reader who has read the headline recognises the claim. */
+.d1-led-slpart {
+  margin: 0; font-size: 0.71rem; line-height: 1.55; color: #d6c9a8;
+}
 .d1-led-cg { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.4rem; }
 .d1-led-cgl, .d1-led-nml {
   flex: none; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;

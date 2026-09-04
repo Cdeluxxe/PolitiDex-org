@@ -880,6 +880,50 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v126 - A THIRD OF A REQUEST, WEARING THE GRAMMAR OF A FINISHED CENSUS. On a
+// cold /i/climate_action the ledger opened with "3 people have a readable formal
+// row on Climate action - 3 cut against", one band on the page, and slice chips
+// that matched those same three rows. Every figure was true and the whole page
+// was false: the reader had been taught that this issue IS three senators who
+// cut against it, while five hundred and sixty records were still on the wire.
+// The letterhead already refused to publish an integer under a live read; the
+// people line underneath it did not, and a finished heading over a partial
+// inventory is the same lie as a thin file wearing a finished one.
+//   The gate is now the read, on every block of the pane at once. While any row
+// is cold or any batch is in flight the headline names the settled count AND
+// says what it is - "3 readable so far - still reading 560", followed by one
+// sentence that it is not the count for this key - the split is marked as being
+// of the rows back so far, the bands nobody has come back for are NAMED as
+// closed rather than dropped as zeroes, and the chip row says its counts are of
+// the rows on screen and that a direction with no chip is not a finding that
+// nobody advanced it. When the rest lands, warmLedger's one settle repaint
+// rebuilds the whole string from the settled ledger, so there is no order of
+// arrival in which bands appear under a heading that still says three. Once cold
+// and pending are both 0 the settled wording returns unhedged: a key that really
+// does hold one band keeps that heading, because an empty band after a finished
+// read is a finding and findings are printed straight.
+//   · door1-workspace.js   - one ledgerBusy() predicate for the whole pane (the
+//                            same cold-or-pending test the file panel's gate is
+//                            written on), the partial headline and its
+//                            disclosure line, the bands-still-closed sentence,
+//                            the measure line's partial wording, the chip row's
+//                            "counts the rows on screen" note, and the
+//                            data-pdx-slice-part flag the DOM caption reads so
+//                            "3 of 3 rows" says "on screen". Stale here means a
+//                            warm device paints the old finished-inventory
+//                            headline over a partial read.
+//   · door1-workspace.css  - the partial census in amber, its two disclosure
+//                            lines, and the chip row's matching note. Stale here
+//                            means the disclosure paints as body text and the
+//                            partial box looks exactly like a settled one, which
+//                            is the whole defect back again.
+// Nothing else moved: pdx-issue-profile.js, issue-file.js, issue-file.css and
+// netlify.toml are unchanged this pass and travel behind the same version, the
+// letterhead's busy gate and the measure banding are exactly as v125 shipped,
+// and no second census, party token, floor, percentage or Direction Match read
+// was added anywhere. Direction Match and the formal tiers read byte-identically
+// with this pane loaded and without it.
+//
 // v125 - ONE LONG COLUMN OF MEASURES, AND THE SAME BILL TWICE IN IT. v124 gave
 // the PEOPLE on an issue a filter row and left the MEASURES as they were: on
 // /i/climate_action, thirteen cards down one column, H.R. 1 appearing twice
@@ -1757,7 +1801,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v125';
+const CACHE_VERSION = 'v126';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

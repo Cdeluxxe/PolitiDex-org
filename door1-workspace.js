@@ -1378,9 +1378,31 @@
     if (!groups) return '';
     sliceFor(led.key);
     sliceSoon();
-    return '<div class="d1-led-slice" data-pdx-slice="' + esc(led.key) + '">' +
+    var busy = ledgerBusy(led);
+    return '<div class="d1-led-slice" data-pdx-slice="' + esc(led.key) + '"' +
+      // ONE FLAG, READ ONLY BY THE CAPTION. `sliceBox` runs over the DOM a tick
+      // after the mount and has no ledger to ask, so the paint tells it whether
+      // the rows it is counting were the whole readable set or the arrived part
+      // of one. It carries no figure of its own — the denominator the caption
+      // prints is still the number of rows on screen, counted off the screen.
+      (busy ? ' data-pdx-slice-part="1"' : '') + '>' +
       '<p class="d1-led-sl">Open a slice of this list. The counts are the lists below — ' +
         'nothing here re-reads a record, re-orders a band or changes a reading.</p>' +
+      // ── WHILE THE READ IS OUT, A CHIP COUNTS THE SCREEN ───────────────
+      // Chips are built from the rows this pane printed, and a direction with
+      // nobody behind it gets no chip at all — which is right, because a chip
+      // that filters to an empty list is a control that lies. But while the read
+      // is out, "no chip" would teach the reader a finding it is not entitled to:
+      // that nobody advanced this. So the absence is explained here rather than
+      // papered over with a zero-count chip nobody can press.
+      (busy
+        ? '<p class="d1-led-slpart">These chips count the rows on screen' +
+            (led.people ? ' — ' + led.people + ' of them' : '') + ', not the key' +
+            (led.cold ? ': ' + led.cold + ' more ' +
+              (led.cold === 1 ? 'record has' : 'records have') + ' not come back yet' : '') +
+            '. A direction with no chip is one no arrived row is in — not a finding ' +
+            'that nobody advanced it.</p>'
+        : '') +
       groups +
       '<div class="d1-led-cg">' +
         '<label class="d1-led-nml" for="d1-led-nm">Name</label>' +
@@ -1470,9 +1492,17 @@
     if (nm && nm.value !== s.q && document.activeElement !== nm) nm.value = s.q;
     var say = box.querySelector('.d1-led-sn');
     if (say) {
+      // "Of the rows on screen", pinned. `all` is the number of rows this pane
+      // printed — never the number of people on the key — and while a read is
+      // out those two are different numbers, so the denominator names itself.
+      var part = box.getAttribute('data-pdx-slice-part');
       say.textContent = on
         ? (sliceWords() + ' — ' + shown + ' of ' + all + ' ' +
-           (all === 1 ? 'row' : 'rows') + ' shown. Everything else is still on file.')
+           (all === 1 ? 'row' : 'rows') +
+           (part
+             ? ' on screen. The rest of the record is still being read; everything ' +
+               'else is still on file.'
+             : ' shown. Everything else is still on file.'))
         : '';
     }
   }
@@ -1644,8 +1674,65 @@
     '</p>';
   }
 
+  // ── IS A READ STILL OUT? ────────────────────────────────────────────
+  // One predicate for the whole pane, and the same one the letterhead's busy
+  // gate is written on: `cold` is the people whose record has not come back yet,
+  // `pending` is a batch still on the wire. Either one means every figure below
+  // is a count of what has ARRIVED, and not a census of the key.
+  function ledgerBusy(led) { return !!(led && (led.cold || led.pending)); }
+
+  // ── THE PARTIAL COUNT SAYS SO IN ITS OWN SENTENCE ───────────────────
+  // THE DEFECT THIS OWNS. A reader arriving on a cold /i/climate_action was
+  // handed "3 people have a readable formal row · 3 cut against" — the grammar
+  // of a finished inventory, over a third of one request. The bands under it
+  // then read as the shape of the whole key: this issue is three senators who
+  // cut against it. That is the same lie as a thin file wearing a finished
+  // heading, and the letterhead already refuses to tell it by going integer-free
+  // for its process figures while a read is out. This is the people line keeping
+  // the same rule: while the read is out the headline may NAME the settled count,
+  // and must say in the same breath that it is not the file.
+  //   THE GATE IS THE READ, NOT THE SIZE OF THE NUMBER. Once `cold` and
+  // `pending` are both 0 the settled wording returns unhedged — including on a
+  // key that genuinely holds nobody, or genuinely holds one band. An empty file
+  // after a finished read is a finding, and findings are printed straight.
+  function censusHeadHtml(led) {
+    if (!ledgerBusy(led)) {
+      return '<p class="d1-led-n"><b>' + led.people + '</b> ' +
+        (led.people === 1 ? 'person has' : 'people have') +
+        ' a readable formal row on <b>' + esc(led.label) + '</b>.</p>';
+    }
+    var n = led.people, c = led.cold;
+    return '<p class="d1-led-n is-partial">' +
+        (n ? '<b>' + n + '</b> readable so far' : 'Nothing readable yet') +
+        (c ? ' · still reading <b>' + c + '</b>' : ' · still reading') +
+        ' on <b>' + esc(led.label) + '</b>.</p>' +
+      '<p class="d1-led-part">Not the count for this key. It is what has come back so far' +
+        (c ? ', with ' + c + ' more ' + (c === 1 ? 'record' : 'records') + ' still being read'
+           : '') + ' — every figure and every band below is a read of ' +
+        (n === 1 ? 'that one row' : n ? 'those ' + n + ' rows' : 'the rows back so far') +
+        ' and of nothing else.</p>';
+  }
+
+  // ── AN EMPTY BAND WHILE A READ IS OUT IS NOT A ZERO ────────────────
+  // The split drops a band nobody is in, which is right once the read has
+  // settled: an empty band is then a finding about the key. While the read is
+  // out it is a finding about nothing — it is a band nobody has come back for
+  // yet. So the missing ones are NAMED, in the index's own fixed order, as
+  // closed rather than as nought. Nothing here paints a row, a chip or a count:
+  // it is one sentence, and it is what stops Cut against from being read as the
+  // only shape this key has.
+  function bandsSoonHtml(led) {
+    var miss = (led.bands || []).filter(function (b) { return !b.rows.length; })
+      .map(function (b) { return b.lb; });
+    if (!miss.length) return '';
+    return '<p class="d1-led-soon">' + esc(miss.join(' · ')) + ' — no rows here yet, ' +
+      'and that is not zero: ' + (miss.length === 1 ? 'that band opens' : 'those bands open') +
+      ' when the rest of the record lands.</p>';
+  }
+
   function censusHtml(led) {
     var b = led.by;
+    var busy = ledgerBusy(led);
     var parts = [];
     if (b.advanced) parts.push(b.advanced + ' advanced');
     if (b.against) parts.push(b.against + ' cut against');
@@ -1653,18 +1740,26 @@
     if (b.thin) parts.push(b.thin + ' too thin to lean on');
     if (b.none) parts.push(b.none + ' with no side read');
     var m = led.measures.length;
-    return '<div class="d1-led-census">' +
+    return '<div class="d1-led-census' + (busy ? ' is-partial' : '') + '">' +
       crumbHtml(led.key) +
-      '<p class="d1-led-n"><b>' + led.people + '</b> ' +
-        (led.people === 1 ? 'person has' : 'people have') +
-        ' a readable formal row on <b>' + esc(led.label) + '</b>.</p>' +
-      (parts.length ? '<p class="d1-led-split">' + esc(parts.join(' · ')) + '</p>' : '') +
+      censusHeadHtml(led) +
+      (parts.length
+        ? '<p class="d1-led-split">' + esc(parts.join(' · ')) +
+          (busy ? ' <span class="d1-led-sofar">— of the rows back so far</span>' : '') + '</p>'
+        : '') +
+      (busy ? bandsSoonHtml(led) : '') +
       (led.pkg
         ? '<p class="d1-led-pkg">Of those, <b>' + led.pkg + '</b> touched it only inside a larger ' +
           'measure. That is disclosed on the row, and it did not move anyone out of a band.</p>'
         : '') +
-      '<p class="d1-led-m">' + (m ? '<b>' + m + '</b> measure' + (m === 1 ? '' : 's') +
-        ' on file map here.' : 'No measure on file is mapped to this key yet.') + '</p>' +
+      // The measure line is a read of the rows above it, so it is partial for
+      // exactly as long as they are, and says which of the two it is.
+      '<p class="d1-led-m">' + (busy
+        ? (m ? '<b>' + m + '</b> measure' + (m === 1 ? '' : 's') +
+            ' on file map to the rows back so far. The list grows with the read.'
+          : 'No measure on file has come back for this key yet.')
+        : (m ? '<b>' + m + '</b> measure' + (m === 1 ? '' : 's') +
+            ' on file map here.' : 'No measure on file is mapped to this key yet.')) + '</p>' +
       (led.cold
         ? '<p class="d1-claim-busy" role="status">Reading the full record for ' + led.cold +
           ' more ' + (led.cold === 1 ? 'person' : 'people') + ' on this key…</p>'
@@ -1844,13 +1939,20 @@
     return '';
   }
 
+  // ── ONE PAINT, WHATEVER STATE THE READ IS IN ────────────────────────
+  // Every block below comes out of the ONE ledger handed in: the headline, the
+  // split, the bands-still-closed line, the slice chips and the measure list are
+  // all reads of `led.bands`, so there is no order of arrival in which bands
+  // appear under a heading that still says three. When the rest of the record
+  // lands, warmLedger's settle calls sync() once and this whole string is built
+  // again from the settled ledger — a rebuild, not a patch.
   function ledgerHtml(led) {
     var key = led.key;
     var head = censusHtml(led);
     if (!led.people) {
       // NOT AN EMPTY RECORD WHILE A READ IS OUT. Only once every person the issue
       // read discovered has a warm record may this pane say the key holds nothing.
-      var busy = led.cold || led.pending;
+      var busy = ledgerBusy(led);
       return head + (busy
         ? '<p class="d1-claim-busy" role="status">Reading the roll-call record for this issue…</p>'
         : '<p class="d1-empty">' + esc(emptyIssueNote()) + '</p>') + measuresHtml(led);

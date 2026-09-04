@@ -63,6 +63,15 @@
 //      sentence where it applies — all of it one more field on the census the
 //      desk already computed, behind the same busy gate as the inventory, and a
 //      sponsorship is never called a vote.
+//  14. A PARTIAL CENSUS DOES NOT WEAR A FINISHED HEADING. While any row is cold
+//      or any batch is in flight, the people lede names the settled count and
+//      says in the same sentence that it is not the count for the key, the split
+//      is marked as being of the arrived rows, the bands nobody has come back for
+//      are NAMED as still closed rather than dropped as zeroes, and the chip row
+//      says its counts are of the rows on screen — so a missing chip is not read
+//      as a finding that nobody advanced it. The gate is the read, not a rule
+//      that five bands must always show: once cold and pending are 0 the settled
+//      wording returns unhedged, including on a key that holds one band or none.
 //
 //   node scripts/test-issue-file-address.mjs
 //
@@ -3134,6 +3143,479 @@ section("15 · The measures, in bands, one row per instrument");
         const bands = (c.proc.measures.bands || []);
         return bands.length > 0 && bands.every((b) => !b.at) &&
                head.indexOf("pdxif-pjump") < 0;
+      },
+    },
+  ];
+  for (const pr of probes) {
+    const caught = await pr.run();
+    ok(caught, `LOAD-BEARING PROBE NOT CAUGHT — ${pr.name}`);
+    console.log(`      · ${pr.name} → ${caught ? "caught" : "NOT CAUGHT"}`);
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("16 · A partial census does not wear a finished heading");
+// ═════════════════════════════════════════════════════════════════════════════
+// THE DEFECT THIS SECTION OWNS. On a cold /i/climate_action the ledger opened
+// with "3 people have a readable formal row on Climate action · 3 cut against ·
+// Reading the full record for 560 more". Every figure was a true count of a
+// printed row, and the page was still false: the only band on it was Cut
+// against, the slice chips matched those same three rows, and a reader arriving
+// there learned that this issue IS three senators who cut against it. That is
+// the same lie as a thin file wearing a finished heading — the letterhead
+// already refuses to tell it by publishing no integer under a live read, and
+// this section is the people line under it keeping the same rule.
+//
+// THE FIXTURE. `boot()` seeds every member the corpus holds, so a settled key is
+// the harness's easy state and the partial one has to be built. It is built the
+// way the shipped code decides the question: `recordWarm(pid)` asks
+// PDXVotingRecord.memberRecords, so narrowing that one read to three members
+// leaves the discovered field exactly as wide as it was and the READABLE part of
+// it three rows deep. Nothing about the ledger is stubbed, and no census figure
+// below is written by this harness.
+{
+  const nd = (cls, attrs, text) => {
+    const n = {
+      cls: String(cls || "").split(" ").filter(Boolean),
+      attrs: Object.assign({}, attrs || {}),
+      kids: [], hidden: false, textContent: text == null ? "" : String(text), value: "",
+      parentNode: null,
+      getAttribute(k) { return Object.prototype.hasOwnProperty.call(this.attrs, k) ? this.attrs[k] : null; },
+      setAttribute(k, v) { this.attrs[k] = String(v); },
+      add(...kids) { for (const k of kids) if (k) { k.parentNode = this; this.kids.push(k); } return this; },
+      walk() { const out = []; const go = (x) => { for (const k of x.kids) { out.push(k); go(k); } }; go(this); return out; },
+      is(sel) { return sel[0] === "." ? this.cls.indexOf(sel.slice(1)) >= 0 : false; },
+      querySelectorAll(sel) { return this.walk().filter((x) => x.is(sel)); },
+      querySelector(sel) { return this.querySelectorAll(sel)[0] || null; },
+      getElementsByClassName(c) { return this.walk().filter((x) => x.is("." + c)); },
+    };
+    n.classList = {
+      add(c) { if (n.cls.indexOf(c) < 0) n.cls.push(c); },
+      remove(c) { const i = n.cls.indexOf(c); if (i >= 0) n.cls.splice(i, 1); },
+      contains(c) { return n.cls.indexOf(c) >= 0; },
+    };
+    return n;
+  };
+  // The bands this pane painted, with the figure each heading is carrying — read
+  // off the string, because the claim is about the string a reader gets.
+  const bandsIn = (html) =>
+    [...html.matchAll(/<section class="d1-led-band is-([a-z]+)">[\s\S]*?<span class="d1-led-bn">(\d+)<\/span>/g)]
+      .map((m) => `${m[1]}:${m[2]}`);
+  const chipsIn = (html) => [...new Set([...html.matchAll(/data-pdx-sv="([a-z]+)"/g)].map((m) => m[1]))];
+  const ledeOf = (html) => ((html.match(/<p class="d1-led-n[^"]*">([\s\S]*?)<\/p>/) || [])[1] || "")
+    .replace(/<[^>]*>/g, "");
+  // The grammar of a finished inventory, in both its numbers. Not one form of it
+  // may appear over a read that is still out.
+  const FINISHED = ["people have a readable formal row", "person has a readable formal row"];
+
+  const w = warmAll(boot({ path: `/i/${LKEY}` }));
+  await arriveAt(w);
+  await tick(); await tick(); await tick();
+  const settled = w.PDXDoor1.issueCensus(LKEY);
+  must(settled && !settled.cold && !settled.pending && settled.people > 100,
+    `${LKEY} did not settle in this harness — the partial state below has nothing to be partial of`);
+  const led0 = w.PDXDoor1._ledger(null, LKEY);
+  const against = (led0.bands || []).find((b) => b.id === "against");
+  must(against && against.rows.length >= 3,
+    `${LKEY} no longer files three people who cut against it — the work order's own fixture is gone`);
+  const KEEP = against.rows.slice(0, 3).map((r) => r.pid);
+  const realMR = w.PDXVotingRecord.memberRecords.bind(w.PDXVotingRecord);
+  const narrow = (miss) => {
+    w.PDXVotingRecord.memberRecords = (pid) => (KEEP.indexOf(pid) >= 0 ? realMR(pid) : miss);
+  };
+
+  // ── THE READ IS OUT · THREE ROWS BACK, ONE BAND, HUNDREDS STILL COMING ────
+  narrow(null);
+  w.PDXDoor1.sync();
+  await tick();
+  w.PDXIssueFile.repaint();
+  const c = w.PDXDoor1.issueCensus(LKEY);
+  const body = ledgerOf(w);
+  const head = headOf(w);
+  must(c && c.people === 3 && c.cold > 0,
+    `the partial fixture did not narrow to three readable rows (people ${c && c.people}, cold ${c && c.cold})`);
+  const live = (c.bands || []).filter((b) => b.n);
+  eq(live.map((b) => b.id).join(","), "against",
+    "the partial fixture is not the work order's one-band page any more");
+
+  // THE LEDE. It may name what came back. It may not be the grammar of an
+  // inventory, in either number, because that is the sentence a reader reads as
+  // the whole key.
+  for (const f of FINISHED) {
+    no(body, f, `the lede reads as a finished inventory ("${f}") while ${c.cold} records are still being read`);
+  }
+  has(body, "readable so far", "the lede does not say the count is what has come back so far");
+  has(body, `still reading <b>${c.cold}</b>`,
+    "the lede does not name how much of the record is still out");
+  has(body, `<b>${c.people}</b> readable so far`,
+    "the lede does not name the settled count it is entitled to name");
+  has(body, "Not the count for this key",
+    "nothing on the pane says the headline is not the count for this key");
+  has(body, "is-partial", "the partial census is not marked as partial for the stylesheet");
+  ok(/readable so far[\s\S]{0,80}still reading/.test(ledeOf(body)),
+    `the settled count and the outstanding read are not in one sentence: "${ledeOf(body)}"`);
+
+  // THE SPLIT. One band's figure, said to be of the rows back so far — not of
+  // the key, which is what "3 cut against" under a finished heading claimed.
+  has(body, "of the rows back so far", "the band split is not marked as being of the arrived rows");
+  eq(bandsIn(body).join(","), `against:3`,
+    "the partial page paints a band the census does not have rows for");
+
+  // THE BANDS NOBODY HAS COME BACK FOR ARE NAMED, NOT ZEROED. Four of the five
+  // are empty here, and an empty band under a live read is a finding about
+  // nothing. So each is named — in the index's own fixed order — as closed.
+  const soon = (body.match(/<p class="d1-led-soon">([\s\S]*?)<\/p>/) || [])[1] || "";
+  must(soon, "the bands-still-closed line is not on the partial page at all");
+  const missing = (c.bands || []).filter((b) => !b.n);
+  eq(missing.length, 4, "the partial fixture no longer has four bands waiting on the read");
+  for (const b of missing) {
+    has(soon, esc(b.lb), `the ${b.id} band is dropped silently rather than named as still closed`);
+  }
+  eq(missing.map((b) => soon.indexOf(esc(b.lb))).join(",") ===
+     missing.map((b) => soon.indexOf(esc(b.lb))).sort((x, y) => x - y).join(","), true,
+    "the closed bands are not named in the index's own fixed order");
+  has(soon, "not zero", "the closed bands are not distinguished from bands that hold nobody");
+  has(soon, "when the rest of the record lands",
+    "nothing says the closed bands open when the read finishes");
+  // …and naming them is NOT painting them: no row, no heading and no chip.
+  no(body, 'class="d1-led-band is-advanced"',
+    "a band with nobody in it was painted as a band to make the page look complete");
+  no(body, '<span class="d1-led-bn">0</span>', "a band heading is carrying a zero");
+
+  // THE CHIPS ARE OF THE ROWS ON SCREEN. A direction with nobody behind it still
+  // gets no chip — a control that filters to an empty list is a lie of its own —
+  // so the absence is EXPLAINED rather than papered over with a dead chip.
+  const partChips = chipsIn(body);
+  eq(partChips.indexOf("advanced"), -1,
+    "a chip was painted for a direction no arrived row is in");
+  has(body, "count the rows on screen", "the chip row does not say what its counts are of");
+  has(body, `${c.people} of them`, "the chip row does not name the painted set it counts");
+  has(body, "not a finding that nobody advanced it",
+    "a missing direction chip is left to read as nobody having advanced this");
+  has(body, 'data-pdx-slice-part="1"',
+    "the paint does not tell the slice pass that the rows it counts are a partial set");
+
+  // THE LETTERHEAD IS STILL WHAT IT WAS. Integer-free under a live read, and
+  // this pass did not loosen it.
+  const figures = (head.replace(/<[^>]*>/g, " ").match(/\d+/g) || []);
+  eq(figures.join(","), "", `the letterhead published figures (${figures.join(", ")}) while the read was out`);
+  no(head, "pdxif-inv", "the letterhead printed an inventory line under a live read");
+  no(head, "pdxif-proc", "the process block printed under a live read");
+  has(head, "on file so far", "the letterhead stopped saying the rows below it are partial");
+
+  // AND NO WALL MOVED TO SAY ANY OF IT. No share, no party, no second reading.
+  for (const banned of ["%", "Direction Match", "Republican", "Democrat", "party", "score",
+                        "likely", "expected", "projected", "on track"]) {
+    no(body.slice(0, body.indexOf('class="d1-led-slice"')), banned,
+      `the partial census reaches for "${banned}" to describe what it does not know yet`);
+  }
+  console.log(`      partial · ${ledeOf(body).replace(/\s+/g, " ").slice(0, 72)} · ` +
+    `${live.length} band painted, ${missing.length} named as closed, chips ${partChips.length}`);
+
+  // ── THE GATE IS THE READ, NOT THE FETCH ──────────────────────────────────
+  // `pending` is a batch on the wire; `cold` is a person whose record never came
+  // back. Either one means the figures are partial, so the honesty may not be
+  // wired to the in-flight flag alone — a fetch that answered without the record
+  // it was asked for would otherwise publish a finished heading over three rows.
+  ok(!c.pending || c.cold > 0, "the fixture cannot separate the two halves of the gate");
+  const inflight = boot({ path: `/i/${LKEY}` });
+  const iMR = inflight.PDXVotingRecord.memberRecords.bind(inflight.PDXVotingRecord);
+  inflight.PDXVotingRecord.memberRecords = (pid) => (KEEP.indexOf(pid) >= 0 ? iMR(pid) : null);
+  inflight.PDXVotingRecord.fetchCompare = () => new Promise(() => {});
+  await arriveAt(inflight);
+  await tick(); await tick();
+  const ic = inflight.PDXDoor1.issueCensus(LKEY);
+  const ibody = ledgerOf(inflight);
+  must(ic && ic.pending === true, "the never-answering batch did not leave a read pending");
+  for (const f of FINISHED) no(ibody, f, `a pending batch still paints "${f}"`);
+  has(ibody, "readable so far", "a pending batch does not put the lede in its partial form");
+  console.log(`      pending ${ic.pending} · cold ${ic.cold} · both halves of the gate hold the lede`);
+
+  // ── THE CAPTION SAYS WHICH ROWS IT COUNTED ───────────────────────────────
+  // The slice's status line is written by the DOM pass, a tick after the mount,
+  // and it has no ledger to ask — so the paint flags the box and the caption
+  // names its own denominator. "3 of 3 rows" is true either way; "on screen" is
+  // what stops it being read as three of the people on this key.
+  {
+    const mk = (flag) => {
+      const root = nd("host");
+      const attrs = { "data-pdx-slice": LKEY };
+      if (flag) attrs["data-pdx-slice-part"] = "1";
+      const box = nd("d1-led-slice", attrs);
+      const chip = nd("d1-led-chip", { "data-pdx-sl": "dir", "data-pdx-sv": "against", "aria-pressed": "false" });
+      const say = nd("d1-led-sn");
+      box.add(chip, nd("d1-led-clear"), say);
+      root.add(box);
+      const sec = nd("d1-led-band is-against");
+      sec.add(nd("d1-led-bh").add(nd("d1-led-bt", null, "Cut against it"), nd("d1-led-bn", null, "3")));
+      const list = nd("d1-led-people");
+      for (let i = 0; i < 3; i++) {
+        list.add(nd("d1-led-p", { "data-pdx-led-band": "against", "data-pdx-led-veh": "primary",
+                                  "data-pdx-led-ch": "house", "data-pdx-led-nm": "x" }));
+      }
+      sec.add(list);
+      root.add(sec);
+      return { root, say };
+    };
+    const realGet = w.document.getElementById;
+    const drive = (tree) => {
+      w.document.getElementById = (id) =>
+        (id === "pdx-issue-file-ledger" ? tree.root : realGet.call(w.document, id));
+      // Chips toggle, so the axis is cleared before it is pressed — otherwise the
+      // second tree in this pair would be measuring a slice being turned OFF.
+      w.pdxDoor1Slice("clear", "");
+      w.pdxDoor1Slice("dir", "against");
+      w.PDXDoor1._sliceApply();
+      w.document.getElementById = realGet;
+      return tree.say.textContent;
+    };
+    const partSay = drive(mk(true));
+    const doneSay = drive(mk(false));
+    w.pdxDoor1Slice("clear", "");
+    eq(partSay, "Cut against — 3 of 3 rows on screen. The rest of the record is still being " +
+      "read; everything else is still on file.",
+      "the caption over a partial list does not say its rows are the ones on screen");
+    eq(doneSay, "Cut against — 3 of 3 rows shown. Everything else is still on file.",
+      "the settled caption's shipped wording moved");
+    console.log(`      caption · partial: "…3 of 3 rows on screen" · settled: "…3 of 3 rows shown"`);
+  }
+
+  // ── ONE SETTLE PAINT ─────────────────────────────────────────────────────
+  // The heading and the bands are two reads of ONE ledger in ONE string, so
+  // there is no order of arrival in which bands appear under a heading that
+  // still says three. Asserted on both paints: the figure in the lede and the
+  // figures on the band headings are the same census, before and after.
+  const sumOf = (html) => bandsIn(html).reduce((n, s) => n + Number(s.split(":")[1]), 0);
+  eq(sumOf(body), c.people,
+    "the partial paint's band headings do not add up to the count in its own lede");
+
+  w.PDXVotingRecord.memberRecords = realMR;
+  w.PDXDoor1.sync();
+  await tick();
+  w.PDXIssueFile.repaint();
+  const c2 = w.PDXDoor1.issueCensus(LKEY);
+  const body2 = ledgerOf(w);
+  const head2 = headOf(w);
+  must(c2 && !c2.cold && !c2.pending && c2.people > 100,
+    `the record never settled again (cold ${c2 && c2.cold}) — the settled half cannot be checked`);
+  eq(sumOf(body2), c2.people,
+    "the settled paint's band headings do not add up to the count in its own lede");
+
+  // THE LEDE IS THE FULL READABLE COUNT, UNHEDGED.
+  has(body2, `<b>${c2.people}</b> people have a readable formal row`,
+    "the settled lede is not the full readable count");
+  for (const gone of ["readable so far", "Not the count for this key", "d1-led-soon",
+                      "of the rows back so far", "d1-led-slpart", "data-pdx-slice-part",
+                      "is-partial", "count the rows on screen"]) {
+    no(body2, gone, `the pane is still hedging ("${gone}") after the record settled`);
+  }
+  // THE BANDS MATCH THE CENSUS, and every band that has rows is on the page.
+  eq(bandsIn(body2).join(","), (c2.bands || []).filter((b) => b.n).map((b) => `${b.id}:${b.n}`).join(","),
+    "the settled page's bands are not the census's bands");
+  // THE CHIPS GREW, and the direction the partial page could not offer is there.
+  const chips2 = chipsIn(body2);
+  ok(chips2.length > partChips.length,
+    `the chip row did not grow on the settle (${partChips.length} → ${chips2.length})`);
+  has(body2, 'data-pdx-sv="advanced"', "the advanced chip never appeared once rows landed in that band");
+  // THE PROCESS BLOCK IS BACK, WITH ITS JUMPS.
+  has(head2, "pdxif-inv", "the letterhead's inventory never returned after the settle");
+  has(head2, "How this issue was tested", "the process block never returned after the settle");
+  has(head2, "pdxif-pjump", "the process figures stopped being doors into the measure bands");
+  has(head2, "PRIMARY", "the process line lost its PRIMARY figure");
+  has(head2, "provision", "the process line lost its provision figure");
+  console.log(`      settled · ${ledeOf(body2).replace(/\s+/g, " ").slice(0, 60)} · ` +
+    `bands ${bandsIn(body2).join(" ")} · chips ${chips2.length} · process jumps present`);
+
+  // ── EMPTY AFTER SETTLE IS STILL EMPTY ────────────────────────────────────
+  // The gate is the read, not a rule that five bands must always show. A key
+  // whose record really does land on one band keeps that heading, with no
+  // hedge — and so does a key that lands on nobody at all. Both are findings,
+  // and a finding is printed straight.
+  narrow([]);
+  w.PDXDoor1.sync();
+  await tick();
+  const oneBand = w.PDXDoor1.issueCensus(LKEY);
+  const obBody = ledgerOf(w);
+  must(oneBand && !oneBand.cold && !oneBand.pending,
+    "the settled-but-narrow fixture is still reading — an empty record is a settled record");
+  has(obBody, "people have a readable formal row",
+    "a settled key with one band is hedged as if its read were still out");
+  for (const gone of ["readable so far", "d1-led-soon", "not zero", "d1-led-slpart"]) {
+    no(obBody, gone, `a settled key with few bands still hedges ("${gone}")`);
+  }
+  w.PDXVotingRecord.memberRecords = realMR;
+  w.PDXDoor1.sync();
+  await tick();
+
+  const ew = warmAll(boot({ path: `/i/${EMPTY}` }));
+  await arriveAt(ew);
+  await tick(); await tick(); await tick();
+  const ec = ew.PDXDoor1.issueCensus(EMPTY);
+  must(ec && !ec.cold && !ec.pending && !ec.people,
+    `${EMPTY} is not an empty settled key in this harness any more`);
+  const eBody = ledgerOf(ew);
+  has(eBody, `<b>0</b> people have a readable formal row on <b>${esc(MAP[EMPTY].label)}</b>.`,
+    "an empty key that has finished reading no longer says so straight");
+  for (const gone of ["readable so far", "Not the count for this key", "d1-led-soon"]) {
+    no(eBody, gone, `the empty settled key hedges ("${gone}") instead of reporting a finding`);
+  }
+  console.log(`      empty after settle · "0 people have a readable formal row" · no hedge`);
+
+  // ── TWIN BOOT · NOTHING HERE IS A READING ────────────────────────────────
+  // This pass added copy and one predicate over figures the desk already had. So
+  // Direction Match, its state, its verdict, its tier and the formal-pattern
+  // index's own rows are byte-identical with the panel and the address loaded
+  // and without them.
+  const withPanel = boot({ path: "/" });
+  const withoutPanel = boot({ path: "/", withoutAddress: true });
+  const sample = [...corpus.byMember.keys()].slice(0, 40);
+  let dmDrift = 0, tierDrift = 0;
+  for (const pid of sample) {
+    const rowsA = withPanel.PDXConsistency.issueRows(pid) || [];
+    const rowsB = withoutPanel.PDXConsistency.issueRows(pid) || [];
+    const shape = (W, rs) => rs.map((r) => {
+      const res = W.PDXConsistency.rowResult(r) || {};
+      return `${r.key}|${res.pct}|${res.state}|${r.verdict && r.verdict.token}|${r.tier}`;
+    }).join(";");
+    if (shape(withPanel, rowsA) !== shape(withoutPanel, rowsB)) dmDrift++;
+    const fa = JSON.stringify(withPanel.PDXConsistency.formalPatternIndex.rowFor(pid, LKEY) || null);
+    const fb = JSON.stringify(withoutPanel.PDXConsistency.formalPatternIndex.rowFor(pid, LKEY) || null);
+    if (fa !== fb) tierDrift++;
+  }
+  eq(dmDrift, 0, `${dmDrift} of ${sample.length} Direction Match reads moved with this pane loaded`);
+  eq(tierDrift, 0, `${tierDrift} of ${sample.length} formal rows moved with this pane loaded`);
+  // …and the copy this pass added lives in the desk and nowhere near a reading:
+  // the three new functions are pure reads of the ledger handed to them.
+  const NEW = DESK.slice(DESK.indexOf("function ledgerBusy"), DESK.indexOf("function censusHtml"));
+  must(NEW.length > 400, "the partial-census block could not be isolated in the desk's source");
+  for (const banned of ["PDXVotingRecord", "PDXConsistency", "fetchCompare", "rowFor(",
+                        "%", "toFixed", "Math."]) {
+    no(NEW, banned, `the partial-census copy reaches for ${banned} — it is copy over figures, not a read`);
+  }
+  console.log(`      ${sample.length} members swept: no drift in Direction Match, state, verdict or tier`);
+}
+
+// ── THE FIXES ARE LOAD-BEARING ──────────────────────────────────────────────
+// Four probes, each removing one line of what this pass added, each expected to
+// be CAUGHT by the claims above. A probe that returns false means the harness
+// would not have noticed the regression.
+{
+  const KEEPN = 3;
+  const partialBoot = async (src) => {
+    const w = warmAll(boot({ path: `/i/${LKEY}`, desk: src }));
+    await arriveAt(w);
+    await tick(); await tick(); await tick();
+    const led = w.PDXDoor1._ledger(null, LKEY);
+    const ag = (led.bands || []).find((b) => b.id === "against");
+    must(ag && ag.rows.length >= KEEPN, "the probe's fixture lost its three cut-against rows");
+    const keep = ag.rows.slice(0, KEEPN).map((r) => r.pid);
+    const real = w.PDXVotingRecord.memberRecords.bind(w.PDXVotingRecord);
+    w.PDXVotingRecord.memberRecords = (pid) => (keep.indexOf(pid) >= 0 ? real(pid) : null);
+    w.PDXDoor1.sync();
+    await tick();
+    // The panel is the surface being read, so it is repainted too — otherwise
+    // every probe below would be inspecting the settled paint that came before.
+    w.PDXIssueFile.repaint();
+    return { w, body: ledgerOf(w), c: w.PDXDoor1.issueCensus(LKEY) };
+  };
+  const probes = [
+    {
+      name: "the lede stops asking whether a read is out",
+      run: async () => {
+        // The defect itself, restored: one predicate returning false and the
+        // partial count is back to wearing the grammar of an inventory.
+        const src = DESK.replace(
+          "  function ledgerBusy(led) { return !!(led && (led.cold || led.pending)); }",
+          "  function ledgerBusy(led) { return !!(led && false); }");
+        must(src !== DESK, "probe 1 matched nothing — the busy predicate was reworded");
+        const { body, c } = await partialBoot(src);
+        return c.cold > 0 && body.indexOf("people have a readable formal row") >= 0 &&
+               body.indexOf("readable so far") < 0;
+      },
+    },
+    {
+      name: "the bands nobody came back for are dropped as zeroes",
+      run: async () => {
+        // A page showing Cut against and nothing else, with no word that four
+        // more bands are still coming — which is the reading the work order
+        // names: this issue is three senators who cut against it.
+        const src = DESK.replace("  function bandsSoonHtml(led) {",
+                                 "  function bandsSoonHtml(led) {\n    if (led) return '';");
+        must(src !== DESK, "probe 2 matched nothing — the closed-bands line was reworded");
+        const { body, c } = await partialBoot(src);
+        const missing = (c.bands || []).filter((b) => !b.n);
+        // Read over the census block only: a band label can appear further down
+        // the page for a reason of its own, and the claim is about the heading.
+        const census = body.slice(0, body.indexOf('class="d1-led-slice"'));
+        return c.cold > 0 && missing.length > 0 &&
+               census.indexOf("d1-led-soon") < 0 &&
+               census.indexOf("not zero") < 0 &&
+               missing.every((b) => census.indexOf(esc(b.lb)) < 0);
+      },
+    },
+    {
+      name: "the chip row lets a missing chip read as a finding",
+      run: async () => {
+        // The chips are built from the rows on screen and a direction with
+        // nobody behind it gets none. Without the note, "no Advanced chip" is
+        // read as "nobody advanced it" — a finding nobody made.
+        const src = DESK.replace(
+          "      (busy\n        ? '<p class=\"d1-led-slpart\">These chips count the rows on screen'",
+          "      (false\n        ? '<p class=\"d1-led-slpart\">These chips count the rows on screen'");
+        must(src !== DESK, "probe 3 matched nothing — the chip note was reworded");
+        const { body, c } = await partialBoot(src);
+        return c.cold > 0 && body.indexOf('data-pdx-sv="advanced"') < 0 &&
+               body.indexOf("count the rows on screen") < 0;
+      },
+    },
+    {
+      name: "the caption counts the screen and calls it the key",
+      run: async () => {
+        // "3 of 3 rows shown" over a partial list, with nothing saying which
+        // three — the figure a reader would take away as the size of the key.
+        const src = DESK.replace("      var part = box.getAttribute('data-pdx-slice-part');",
+                                 "      var part = null;");
+        must(src !== DESK, "probe 4 matched nothing — the caption's flag was reworded");
+        const w = warmAll(boot({ path: `/i/${LKEY}`, desk: src }));
+        // The slice is dropped the moment the key changes, so the pane has to
+        // have been painted for this key before a chip on it means anything.
+        await arriveAt(w);
+        await tick(); await tick();
+        const root = { cls: ["host"], kids: [] };
+        // Only the caption is being asked about here, so the tree is the
+        // smallest one sliceBox can walk: a flagged box, one chip, three rows.
+        const mk = (cls, attrs) => ({
+          cls: cls.split(" "), attrs: attrs || {}, kids: [], hidden: false, textContent: "", value: "",
+          parentNode: null,
+          getAttribute(k) { return Object.prototype.hasOwnProperty.call(this.attrs, k) ? this.attrs[k] : null; },
+          setAttribute(k, v) { this.attrs[k] = String(v); },
+          add(...kk) { for (const x of kk) { x.parentNode = this; this.kids.push(x); } return this; },
+          walk() { const out = []; const go = (x) => { for (const k of x.kids) { out.push(k); go(k); } }; go(this); return out; },
+          is(sel) { return sel[0] === "." ? this.cls.indexOf(sel.slice(1)) >= 0 : false; },
+          querySelectorAll(sel) { return this.walk().filter((x) => x.is(sel)); },
+          querySelector(sel) { return this.querySelectorAll(sel)[0] || null; },
+          getElementsByClassName(c) { return this.walk().filter((x) => x.is("." + c)); },
+          classList: { add() {}, remove() {}, contains() { return false; } },
+        });
+        const host = mk("host");
+        const box = mk("d1-led-slice", { "data-pdx-slice": LKEY, "data-pdx-slice-part": "1" });
+        const say = mk("d1-led-sn");
+        box.add(mk("d1-led-chip", { "data-pdx-sl": "dir", "data-pdx-sv": "against" }), say);
+        host.add(box);
+        const sec = mk("d1-led-band is-against");
+        for (let i = 0; i < 3; i++) {
+          sec.add(mk("d1-led-p", { "data-pdx-led-band": "against", "data-pdx-led-veh": "primary",
+                                   "data-pdx-led-ch": "house", "data-pdx-led-nm": "x" }));
+        }
+        host.add(sec);
+        const realGet = w.document.getElementById;
+        w.document.getElementById = (id) =>
+          (id === "pdx-issue-file-ledger" ? host : realGet.call(w.document, id));
+        w.pdxDoor1Slice("dir", "against");
+        w.PDXDoor1._sliceApply();
+        w.document.getElementById = realGet;
+        void root;
+        return say.textContent.indexOf("on screen") < 0 && say.textContent.indexOf("3 of 3") >= 0;
       },
     },
   ];
