@@ -1428,6 +1428,55 @@
       }).join('') + '</div>';
   }
 
+  // ── THE WAY OUT OF THE DESK, INTO THE FILE ────────────────────────────────
+  // The desk and the issue file paint the same body from the same function, and
+  // until this pass that was the whole relationship: no control anywhere on the
+  // desk said the body it was showing ALSO had an address. A reader scoped to
+  // Climate Action & Clean Energy could see its census and had nothing to copy,
+  // share or open in a tab — the URL existed and was unreachable from the one
+  // screen most likely to want it.
+  //
+  // So: one control, on the lede of a leaf scope, and NOTHING for a family scope
+  // — a core has no single ledger and therefore no file (issueProfileHtml answers
+  // '' for one), and a control that promised otherwise would be the same broken
+  // promise this pass came to fix. The key shelf is what a family scope offers.
+  //
+  // A REAL ANCHOR ON THE REAL ADDRESS, ASKED FOR AND NEVER SPELLED. One module
+  // owns /i/ — pdx-issue-profile.js — and it is the only thing asked here, so
+  // this desk cannot invent a path shape and a page without that module paints no
+  // control at all rather than a link to nowhere. (The family table's permalink
+  // hook is deliberately not consulted either: scripts/test-issue-family.mjs
+  // holds the line that this desk paints from the key it already holds and gates
+  // on no address, and one asker for one address is the same rule.)
+  //
+  // A plain click is answered in place by the file's own door, which is faster and
+  // keeps the desk underneath; a modified click, a middle click and a document
+  // where that door refuses all fall through to the anchor, which is what an
+  // anchor is for. Nothing is nested inside anything clickable here.
+  function issueFileAddr(key) {
+    var A = window.PDXIssueProfile;
+    try { if (A && fn(A.path)) { var p = A.path(key); if (p) return p; } } catch (e) {}
+    return '';
+  }
+  function fileDoorClick(ev, key) {
+    try {
+      if (ev && (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button === 1)) return true;
+      var A = window.PDXIssueProfile;
+      if (A && fn(A.open) && A.open(key)) {
+        if (ev && ev.preventDefault) ev.preventDefault();
+        return false;
+      }
+    } catch (e) {}
+    return true;
+  }
+  function fileDoorHtml(key) {
+    var u = issueFileAddr(key);
+    if (!u) return '';
+    return '<p class="d1-filedoor"><a class="d1-filedoor-go" href="' + esc(u) +
+      '" onclick="return window.PDXDoor1.fileDoorClick(event, \'' + jsq(key) + '\');">' +
+      'Open issue file<span class="d1-filedoor-at">' + esc(u) + '</span></a></p>';
+  }
+
   function issueDeskHtml() {
     var head = deskHead('Open an issue', 'Pick one. Then: what the formal record on it did, and who did it.');
     var list = coreIssues();
@@ -1463,7 +1512,9 @@
     // body also has an address of its own: /i/<key>. Two doors, one paint. What
     // stays here is the DESK's own chrome: the head, the thirteen chips, the seek
     // control and the sibling-key shelf. See the note over the function.
-    if (focusKey) return head + shelf + keyShelf + issueProfileHtml(focusKey);
+    // The file door sits between the desk's own chrome and the shared body, so
+    // the body below it stays byte-for-byte what /i/<key> serves.
+    if (focusKey) return head + shelf + keyShelf + fileDoorHtml(focusKey) + issueProfileHtml(focusKey);
 
     // ── THE BUNDLE OVERVIEW ─────────────────────────────────────────────────
     // No key selected yet, so no band set: what this can honestly report is the
@@ -1473,6 +1524,10 @@
     var pending = false;
     try { pending = !!(V && fn(V.votesPending) && V.votesPending()); } catch (e) { pending = false; }
 
+    // The length of the shelf painted an inch above, read once and used by both
+    // the footer sentence and the family note below, so the two cannot disagree
+    // about how many keys this family holds.
+    var kidN = childKeys(core).length;
     var people = issuePeople(core, '');
     var body;
     if (people === null) {
@@ -1506,10 +1561,25 @@
           '<span class="d1-person-m">' + esc(facts.join(' · ')) + '</span>' + cite +
         '</li>';
       }).join('') + '</ul>' +
+      // ── THE FOOTER PROMISES WHAT THE FAMILY HAS ───────────────────────
+      // WHAT WAS WRONG. This sentence offered to "open the full <core> ledger"
+      // and routed through pdxDoor1IssueFace, whose second branch is
+      // PDXIssueView.open — so the reader who tapped it got the consistency
+      // ranking of every tracked politician, party pills across the top, filed
+      // under the family's name. Two wrong things at once: a family has no
+      // ledger (a census is scoped to ONE key — see issueProfileHtml), and a
+      // ranking of people is not the record on an issue.
+      //
+      // So it names what is actually there — the family's keys — and opens them
+      // through the desk's one issue entry point, pdxDoor1Issue(core), which is
+      // the same call the chip an inch above makes and the same landing
+      // /i/<core> and the Eye's family row reach.
       (people.length > LIST_CAP
         ? '<p class="d1-more">' + (people.length - LIST_CAP) + ' more with a formal row somewhere in ' +
-          'this bundle — <button type="button" class="d1-link" onclick="window.pdxDoor1IssueFace(\'' +
-          jsq(core.key) + '\')">open the full ' + esc(core.label) + ' ledger</button>.</p>'
+          'this bundle. ' + esc(core.label) + ' has no ledger of its own — ' +
+          '<button type="button" class="d1-link" onclick="window.pdxDoor1Issue(\'' +
+          jsq(core.key) + '\')">open its ' + kidN + ' key' + (kidN === 1 ? '' : 's') +
+          '</button> and the record on the one you meant is read out.</p>'
         : '');
     }
     // (No scope sentence here, and there never was one: `scope` named a SELECTED
@@ -1523,7 +1593,6 @@
     // keys filed under it, and which of them they meant is theirs to say. The
     // number is childKeys().length — the same chips painted an inch above — so
     // the sentence cannot claim a shelf that is not there.
-    var kidN = childKeys(core).length;
     var famNote = '<p class="d1-fam-note"><b>' + esc(core.label) + '</b> is a family of ' +
       kidN + ' key' + (kidN === 1 ? '' : 's') + ', not a single file. ' +
       (kidN ? 'Pick one above to read what the record on it did.'
@@ -2087,23 +2156,14 @@
     return true;
   };
 
-  // The issue face, through the same cascade bill-detail.js uses: the issue page
-  // if it holds this key, then the ledger view, then the library filtered to it.
-  window.pdxDoor1IssueFace = function (key) {
-    if (!key) return false;
-    try {
-      var IP = window.PDXIssuePage;
-      if (IP && fn(IP.has) && IP.has(key) && IP.open(key)) return true;
-    } catch (e) {}
-    try { if (window.PDXIssueView && fn(window.PDXIssueView.open)) { window.PDXIssueView.open(key); return true; } } catch (e) {}
-    try {
-      if (window.PDXDigitalLibrary && fn(window.PDXDigitalLibrary.focus)) {
-        window.PDXDigitalLibrary.focus({ mode: 'library', issue: key });
-        return true;
-      }
-    } catch (e) {}
-    return false;
-  };
+  // ── THERE IS NO SECOND ISSUE DOOR ON THIS DESK ────────────────────────────
+  // window.pdxDoor1IssueFace used to live here: a three-branch cascade whose
+  // middle branch was PDXIssueView.open(key), and the desk's bundle footer was
+  // its only caller. That footer now calls pdxDoor1Issue, so the cascade had no
+  // caller left and its middle branch was a standing invitation to hand a core
+  // key to the ranking again. The desk has ONE issue entry point —
+  // window.pdxDoor1Issue — and bill-detail.js keeps its own /issue/<key>
+  // cascade for the surface that actually wants an issue page.
 
   window.pdxDoor1Bill = function (num) {
     try {
@@ -2163,6 +2223,10 @@
     // makes the two doors one paint rather than two surfaces that agree today.
     // PDXIssueProfile.html(key) is a one-line delegation to it.
     issueProfile: issueProfileHtml,
+    // The lede's file control, for the inline handler in the markup above. It
+    // decides one thing — whether the file's own door answered the tap — and
+    // hands the click back to the anchor when it did not.
+    fileDoorClick: fileDoorClick,
     // Measures whose curation maps them to a key, for a surface that wants to
     // say how much is on file without warming anybody's record.
     issueMeasures: function (key) {

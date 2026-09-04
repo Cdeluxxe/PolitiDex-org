@@ -173,6 +173,30 @@
 }
 .d1-scope b { color: #dbeafe; }
 
+/* THE FILE DOOR, on the lede of a leaf scope. The same body has an address of
+   its own, /i/<key>, and this is the only control on the desk that says so. Sized
+   and coloured as a quiet link rather than a chip, deliberately: the chips above
+   it change WHAT the desk is scoped to, and this one does not change the scope at
+   all — it opens the file for the scope already chosen. The address is printed
+   beside the label because a reader who wants this control usually wants the
+   string, and a link that shows where it goes needs no tooltip. */
+.d1-filedoor { margin: 0.55rem 0 0; }
+.d1-filedoor-go {
+  display: inline-flex; align-items: baseline; gap: 0.4rem; flex-wrap: wrap;
+  padding: 0.3rem 0.6rem; border-radius: 0.6rem;
+  font-family: 'Oswald', sans-serif; font-size: 0.7rem; letter-spacing: 0.04em;
+  text-transform: uppercase; text-decoration: none; color: #dbeafe;
+  background: rgba(96, 165, 250, 0.1); border: 1px solid rgba(96, 165, 250, 0.28);
+}
+.d1-filedoor-go:hover, .d1-filedoor-go:focus-visible {
+  background: rgba(96, 165, 250, 0.18); border-color: rgba(147, 197, 253, 0.5);
+  color: #fff;
+}
+.d1-filedoor-at {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.66rem; letter-spacing: 0; text-transform: none; color: #8fa2bd;
+}
+
 /* "X is a family of N keys, not a single file." Printed where a bundle is
    selected and no key is, directly under the child shelf it points at — so it
    reads as a caption on those chips rather than as a finding of its own. Quieter

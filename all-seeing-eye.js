@@ -164,6 +164,44 @@
     var LANE_DEADLINE_MS = 8000;
     var bootAt = Date.now();
     var billsSettled = false;
+    // ── THE MEASURES SLICE IS NOT GOVERNED BY A CLOCK ────────────────────
+    // WHAT WAS WRONG, AGAIN, AND WITH A DIFFERENT MEASURE. 8245 — the emergency
+    // price relief memorandum — was still being denied on a cold load: the panel
+    // painted "Formal 0" and "The eye finds nothing for 8245", and a moment later
+    // the same query painted the memo under Legislation & Bills. The first frame
+    // was a denial of a record that was already on the wire.
+    //
+    // The clock is why. The memo lives ONLY in the paged /measures list, which is
+    // pulled a hundred rows at a time and can take far longer than eight seconds
+    // to walk on a cold function and a cold branch. The ceiling expired while the
+    // pages were still landing, laneReady() answered true on the strength of a
+    // deadline, and the eye reported an index it had not finished reading.
+    //
+    // So the measures lane is taken off the clock. It is not like the other three:
+    // the roster, the register and the issue library are passive globals — nothing
+    // ever announces that a bundle is not coming, which is exactly why they need a
+    // ceiling. THIS lane owns its request and is told how it ended, so its wait
+    // ends on that outcome and on nothing else. A slice that has not been fetched
+    // is cold no matter what the clock says, and a cold slice gets a loading line
+    // in the measures group rather than a zero in the Formal count.
+    //
+    // Two things still end the wait without a response, and neither is a parse
+    // clock — both are facts about the REQUEST:
+    //   · IT STALLED. Nothing has landed for MEASURES_STALL_MS. The window is
+    //     stamped when the request goes out and re-stamped by every page that
+    //     arrives, so a long walk that is still making progress never trips it;
+    //     only a walk that has gone quiet does.
+    //   · IT WAS NEVER ISSUED. bills.js itself never executed, so there is no
+    //     request to wait on. A deferred module that has not run half a minute
+    //     after the parse ended is absent rather than late.
+    var MEASURES_STALL_MS = 30000;
+    var measuresAt = 0;        // when the paged request last made progress
+    function measuresWarm() {
+      if (billsSettled) return true;               // a terminal outcome: rows, none, or a failure
+      if (!docReady()) return false;               // nothing deferred has had a turn yet
+      if (measuresAt) return (Date.now() - measuresAt) > MEASURES_STALL_MS;
+      return (Date.now() - bootAt) > MEASURES_STALL_MS;
+    }
     // ── AND THE CEILING'S CLOCK STARTS WHEN A LANE COULD HAVE ARRIVED ────
     // WHAT WAS WRONG. bootAt was stamped the moment this file ran, and this file
     // is a plain synchronous tag partway down a very large document. Every
@@ -215,7 +253,7 @@
     var LANE_ORDER = ['people', 'bills', 'files', 'issues'];
     var LANE_TESTS = {
       people: function () { return polIdGroups().total > 0 && stanceCount() > 0; },
-      bills: function () { return billsSettled; },
+      bills: function () { return measuresWarm(); },
       // THE REGISTER IS ITS OWN LANE. The formal lane's first group — the issue
       // files — is built from ISSUE_MAP. The families and the spotlights are
       // not, and neither of them says anything about whether the register has
@@ -228,12 +266,19 @@
         return (window.CORE_NATIONAL_ISSUES || []).length > 0 && (lazyDone('spotlights') || spotlightCount() > 0);
       }
     };
+    // WHICH LANES THE CEILING SPEAKS FOR. The roster, the register and the issue
+    // library wait on globals that never announce their own absence, so a clock is
+    // the only thing that can end their wait. The measures lane is told how its
+    // request ended — see measuresWarm() — and a deadline that fired while the
+    // pages were still landing is what denied 8245, so the ceiling does not get a
+    // vote on that lane.
+    function clockGoverned(lane) { return lane !== 'bills'; }
     function laneReady(lane) {
       var t = LANE_TESTS[lane];
       if (!t) return true;
       var r = false;
       try { r = !!t(); } catch (e) { r = false; }
-      return r || pastDeadline();
+      return r || (clockGoverned(lane) && pastDeadline());
     }
     function warmingLanes() {
       return LANE_ORDER.filter(function (l) { return !laneReady(l); });
@@ -325,25 +370,52 @@
     // each, so no lane can dead-end a reader who picked the wrong one. A bill
     // number typed in the Mandate lane is not "no results"; it is results in the
     // formal lane, and the sentence under the control names the number.
-    function laneModeBar(counts) {
+    function laneModeBar(counts, warm) {
       var h = '<div class="pdx-eye-lane" role="group" aria-label="Which lane of the record to search">';
       for (var i = 0; i < LANE_MODES.length; i++) {
         var m = LANE_MODES[i], on = (m.id === laneMode);
+        var nHtml = '';
+        if (counts) {
+          var cold = laneCountCold(m.id, counts, warm);
+          var nAttrs = cold ? ' class="pdx-eye-lane-n is-warm" title="Still loading"' : ' class="pdx-eye-lane-n"';
+          nHtml = '<span' + nAttrs + '>' + laneCountText(m.id, counts, warm) + '</span>';
+        }
         h += '<button type="button" class="pdx-eye-lane-btn' + (on ? ' is-on' : '') +
           '" data-eye-lane="' + m.id + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
           '<span class="pdx-eye-lane-ico" aria-hidden="true">' + m.ico + '</span>' + esc(m.label) +
-          (counts ? '<span class="pdx-eye-lane-n">' + (counts[m.id] || 0) + '</span>' : '') +
+          nHtml +
           '</button>';
       }
       var others = [];
       for (var j = 0; j < LANE_MODES.length; j++) {
         var oid = LANE_MODES[j].id;
         if (oid === laneMode) continue;
-        others.push(esc(LANE_SHORT[oid] || oid) + ' holds <b>' + (counts ? (counts[oid] || 0) : 0) + '</b>');
+        others.push(esc(LANE_SHORT[oid] || oid) + ' holds <b>' + (counts ? laneCountText(oid, counts, warm) : 0) + '</b>');
       }
       h += '<span class="pdx-eye-lane-say">' + esc(LANE_SAY[laneMode] || '') +
         (counts ? ': ' + others.join(' and ') + ' for this search.' : '.') + '</span>';
       return h + '</div>';
+    }
+    // ── A ZERO IS A COUNT OF A RECORD THAT ARRIVED ────────────────────────
+    // "Formal 0" is the same claim as "the eye finds nothing", printed as a
+    // number, and 8245 was denied in both fonts at once: the memo lives only in
+    // the paged /measures list, so while that slice is cold the formal lane's
+    // total is not zero — it is unknown. A lane whose count is nothing AND one of
+    // whose sources is still loading prints the wait instead of the figure. A lane
+    // with hits prints the hits: a number that is short by a lane still coming is
+    // a floor, not a lie, and the loading line in that lane's own group says which
+    // group is still to be added to.
+    function laneCountCold(mode, counts, warm) {
+      if (!warm || !warm.length) return false;
+      if ((counts && counts[mode]) > 0) return false;
+      var cats = MODE_CATS[mode] || [];
+      for (var i = 0; i < cats.length; i++) {
+        if (warm.indexOf(CAT_LANE[cats[i]]) !== -1) return true;
+      }
+      return false;
+    }
+    function laneCountText(mode, counts, warm) {
+      return laneCountCold(mode, counts, warm) ? '…' : ((counts && counts[mode]) || 0);
     }
     // THE EMPTY STATE IS THE HONEST STATE, so it is a locked sentence rather than
     // a hidden lane. A search that no reform answers gets this, verbatim — the
@@ -737,6 +809,15 @@
     // marquee inline set — is discoverable in the eye. Guarded so it runs at most once
     // and only after PDXBills is present; failures leave the inline set in place.
     var billsFetchStarted = false, billsLazyAsked = false;
+    // HOW MANY TIMES THE MEASURES LIST MAY BE ASKED FOR. PDXBills.list() swallows a
+    // failed request and hands back the INLINE marquee index instead (`_inline`),
+    // which the eye used to store as `__pdxEyeBillsLive` and then report on as
+    // though the record had answered — a permanent, silent denial of every measure
+    // that lives only in the database. A papered-over failure is not a response, so
+    // it does not settle the lane on the first attempt: the warming recheck asks
+    // once more. Bounded, because a second refusal is an answer too.
+    var MEASURES_TRIES = 2;
+    var measuresTries = 0;
     // The bills lane clears here, and it clears on EVERY terminal path — the list
     // arrived, the list came back empty, the request failed. A lane that only
     // clears on success is a lane that says "Searching the record…" forever the
@@ -771,22 +852,47 @@
       if (billsFetchStarted) return;
       if (!(window.PDXBills && typeof window.PDXBills.list === 'function')) return;
       billsFetchStarted = true;
+      measuresTries++;
+      // THE STALL WINDOW OPENS HERE, not at boot: it measures the request, and a
+      // request that has not been issued cannot have gone quiet. Every page that
+      // lands re-stamps it, so the walk may take as long as it takes.
+      measuresAt = Date.now();
       try { if (typeof window.PDXBills.ensureIndex === 'function') window.PDXBills.ensureIndex().then(refreshOpenPanel).catch(function () {}); } catch (e) {}
       try {
         // Page through the full list (the API caps pageSize at 100) so EVERY measure
         // is indexed, not just the first page — then rebuild once at the end.
-        var acc = [];
+        var acc = [], fellBack = false;
         var pull = function (page) {
           return window.PDXBills.list({ pageSize: 100, page: page, sort: 'number' }).then(function (d) {
             if (!d || !Array.isArray(d.items)) return;
+            // The client's own fallback, not the record's answer. Flagged rather
+            // than accumulated: storing the marquee subset as the live measures
+            // list is how a failed request came to look like a fetched one.
+            if (d._inline) { fellBack = true; return; }
+            measuresAt = Date.now();   // progress: the walk is alive
             acc = acc.concat(d.items);
             var total = (typeof d.total === 'number') ? d.total : acc.length;
             if (acc.length < total && d.items.length > 0 && page < 25) return pull(page + 1);
           });
         };
-        pull(1).then(function () {
+        // EVERY TERMINAL PATH SETTLES THE LANE — the rows arrived, the list came
+        // back empty, the request failed, the handler threw. The ONE path that does
+        // not is the deliberate re-arm below, and it leaves the lane warm on
+        // purpose: the request is going out again.
+        var settleOrRetry = function () {
           if (acc.length) window.__pdxEyeBillsLive = acc;
-        }).catch(function () {}).then(billsDone, billsDone);
+          // Nothing but a fallback came back, and there is another ask left. Re-arm
+          // instead of settling: the lane stays warm, the measures group keeps its
+          // loading line, and the warming recheck issues the next attempt.
+          if (fellBack && !acc.length && measuresTries < MEASURES_TRIES) {
+            billsFetchStarted = false;
+            measuresAt = 0;
+            refreshOpenPanel();
+            return;
+          }
+          billsDone();
+        };
+        pull(1).then(settleOrRetry, billsDone).catch(billsDone);
       } catch (e) { billsDone(); }
     }
 
@@ -1213,22 +1319,67 @@
     // spelled out here: the address is still asked of the module that owns it,
     // and the last resort is still the section itself.
     var ISSUE_DOOR_WAIT = [120, 400, 900, 1600];
+    // ── AND A DOOR THAT IS ALREADY OPEN IS NOT AN ANSWER EITHER ─────────────
+    // THE SECOND HALF OF THE SAME DEFECT, and it was worse because it looked
+    // like the door was missing when it was in fact already there. Both rows
+    // opened through pdxDoor1Issue, the DESK's issue entry point, and that
+    // function answers true after re-syncing in place when the desk is already in
+    // issue mode — no mode change, so no landing, so no scroll. A reader who
+    // searched from the top of the page with the desk scoped to a key somewhere
+    // below the fold therefore got: the panel closed, the desk repainted where
+    // they could not see it, and nothing else. Reported as "the rows do not
+    // navigate", and the row was right: nothing about the screen changed.
+    //
+    // So a family tap now LANDS on the desk it opened — through the desk's own
+    // lander, PDXDoor1.toDesk, which is what /i/<core> and the file panel's own
+    // fallback already use, so no path or offset is computed here. And the Eye
+    // gets out of the way on the way past: close() is called again on success
+    // because a tap can be answered a second and a half later off the wait
+    // ladder below, by which time the reader may have reopened the panel over
+    // the very desk they asked for.
+    function deskLand() {
+      try {
+        var D = window.PDXDoor1;
+        if (D && typeof D.toDesk === 'function') { D.toDesk('issue'); return true; }
+      } catch (e) {}
+      return false;
+    }
     function issueDoorTry(key, isFam) {
-      // The desk's own entry point, for either shape — the same call the desk's
-      // chip makes, so the pick is recorded and the record warmed identically.
-      try { if (typeof window.pdxDoor1Issue === 'function' && window.pdxDoor1Issue(key)) return true; } catch (e) {}
       if (isFam) {
-        // A core has no file of its own, so the desk's landing is the answer:
-        // never the consistency ranking, and never an address with no document.
+        // A core has no file of its own, so the desk IS the answer: never the
+        // consistency ranking, and never an address with no document behind it.
+        // The pick first — the same call the desk's own chip makes, so the record
+        // is warmed identically — and then the landing, which is the half that
+        // was missing. Either one alone is a real answer; the pick without the
+        // landing is what read as a dead row.
+        var picked = false;
         try {
-          var D = window.PDXDoor1;
-          if (D && typeof D.toDesk === 'function') { D.toDesk('issue'); return true; }
-        } catch (e) {}
+          picked = !!(typeof window.pdxDoor1Issue === 'function' && window.pdxDoor1Issue(key));
+        } catch (e) { picked = false; }
+        var landed = deskLand();
+        if (picked || landed) { close(); return true; }
         return false;
       }
-      // A published leaf's own ledger at its own address, which issueFileHref
-      // only answers for once the register has actually landed.
-      try { var h = issueFileHref(key); if (h) { window.location.href = h; return true; } } catch (e) {}
+      // ── A LEAF OPENS THE FILE, NOT THE DESK ───────────────────────────────
+      // WHAT WAS WRONG. This branch asked pdxDoor1Issue first, so a page with the
+      // desk on it never reached the file at all: the desk scoped itself to the
+      // key, painted no file, and (already being in issue mode) did not even
+      // move. The row's own href said /i/<key> while the tap opened something
+      // else, which is the one thing a row carrying an address may not do.
+      //
+      // The file's own door is what a leaf row opens now — PDXIssueProfile.open,
+      // pdx-issue-profile.js's, which resolves the key, commits the same pick,
+      // stamps the address and mounts the panel, and RAISES a file already open on
+      // that key rather than swallowing the tap. It answers false rather than
+      // navigating (that module owns /i/ and does not write the document's
+      // address), which is exactly the hand-off this branch already had: the row
+      // carries the href, so the row answers for it. issueFileHref is asked for
+      // the string as before, and answers only once the register has landed.
+      try {
+        var A = window.PDXIssueProfile;
+        if (A && typeof A.open === 'function' && A.open(key)) { close(); return true; }
+      } catch (e) {}
+      try { var h = issueFileHref(key); if (h) { close(); window.location.href = h; return true; } } catch (e) {}
       return false;
     }
     function issueDoorLast(key) {
@@ -2685,7 +2836,7 @@
         // each warming category this lane prints gets the same titled row it
         // gets when something else ranked — so the group the answer will appear
         // in is already on screen, holding a loading line instead of a zero.
-        panel.innerHTML = laneModeBar(laneCounts) + (isMandate
+        panel.innerHTML = laneModeBar(laneCounts, warm) + (isMandate
           ? mandateEmptyHtml()
           : (warm.length
             ? warmPanel(warm) + warmStrip(warm, {})
@@ -2695,7 +2846,7 @@
         return 0;
       }
 
-      html += laneModeBar(laneCounts);
+      html += laneModeBar(laneCounts, warm);
       html += claimHtml;
       // A claim that ranked nothing still gets the honest note under its block,
       // so the reader is not left wondering whether the search silently failed.

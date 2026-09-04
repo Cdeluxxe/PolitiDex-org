@@ -127,7 +127,7 @@ const PROTECTED = [
 // against a real accessible name rather than against the module's fallback.
 const ARIA = {
   "say-vs-do": "Say vs. Do — sourced receipts",
-  "issue-front-door": "Start with an issue — politicians ranked by consistency",
+  "issue-front-door": "Start with an issue — the tracked record on each issue family",
   "hr1-showcase": "H.R.1 Showcase — the contradiction engine",
 };
 

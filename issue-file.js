@@ -341,6 +341,45 @@
     return true;
   }
 
+  // ── RAISING A FILE THAT IS ALREADY OPEN ───────────────────────────────────
+  // A reader can ask for a file they are already looking at: the Eye's leaf row
+  // tapped from /i/<key>, or tapped twice. Answering "already open" with nothing
+  // is indistinguishable from a broken row, so the file is RAISED instead — the
+  // display and aria state re-asserted (a surface that hid this overlay without
+  // closing it is exactly the case that reads as a dead tap), and the keyboard
+  // put inside the panel rather than left wherever the tap came from, which is
+  // what makes the raise reach a reader who is not looking at the screen.
+  //
+  // Nothing is repainted and nothing scrolls back to the top: the ledger under
+  // this chrome is where the reader left it, and losing their place would be a
+  // worse answer than none. Answers false when there is no open file to raise,
+  // so a caller can tell a raise from an open.
+  function focus() {
+    if (!_open) return false;
+    var overlay = el(ID);
+    if (!overlay) return false;
+    try { overlay.hidden = false; } catch (e) {}
+    try { overlay.setAttribute('aria-hidden', 'false'); } catch (e) {}
+    try {
+      overlay.style.setProperty('display', 'flex', 'important');
+    } catch (e) {
+      try { overlay.style.display = 'flex'; } catch (e2) {}
+    }
+    lock();
+    // The panel itself, not the close button: focusing the one control in this
+    // chrome would put Escape and Enter on "dismiss the thing you just asked
+    // for". tabindex is set here rather than in build() because it exists for
+    // this call and nothing else.
+    try {
+      var panel = overlay.querySelector ? overlay.querySelector('.pdxif-panel') : null;
+      if (panel) {
+        try { panel.setAttribute('tabindex', '-1'); } catch (e) {}
+        if (fn(panel.focus)) panel.focus();
+      }
+    } catch (e) {}
+    return true;
+  }
+
   // ── THE LOCK, AND THE ONE THING THAT DROPS IT ─────────────────────────────
   // A ledger row opens a person, and the person file is the modal that has
   // always owned this page: it takes the same body lock on open and CLEARS it on
@@ -456,6 +495,7 @@
     ID_LEDGER: ID_LEDGER,
     ID_TITLE: ID_TITLE,
     open: open,
+    focus: focus,
     close: close,
     repaint: repaint,
     isOpen: function () { return !!_open; },

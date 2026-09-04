@@ -32,6 +32,15 @@
  *   1. COLD: nothing loaded at all. Every query warms; none of them denies.
  *   2. THE 6644 WALK: cold → warming, bills land → exactly one bill row, and the
  *      four ways people write a bill number all reach it.
+ *  2b. THE 8245 WALK: the same denial, one clock later. The emergency price relief
+ *      memorandum lives only in the paged /measures list, and that walk outran the
+ *      eight-second ceiling — so the panel printed "Formal 0" and "finds nothing"
+ *      for a row that arrived a moment later. The measures slice is off the clock:
+ *      cold until its own request ends, a loading line while it is cold, and never
+ *      a zero in the Formal count.
+ *  2c. A PAPERED-OVER FAILURE IS NOT A FETCHED SLICE: the client hands back the
+ *      inline marquee index when a request fails, and that is not the record's
+ *      answer to store or to report on.
  *   3. HALF WARM: a lane with hits reports hits, a lane still loading says so in
  *      its own slot, and the page never mixes a verdict with a spinner.
  *  3b. THE REGISTER IS ITS OWN LANE: the issue FILES come from ISSUE_MAP, which
@@ -45,6 +54,8 @@
  *      searches is deferred, so a ceiling measured from a mid-parse boot expired
  *      before any source had a turn — and denied a record that was still coming.
  *   6. THE GUARDS ARE LOAD-BEARING: mutations that put the old behaviour back.
+ *   7. AND IT SHIPS: the eye is a runtime cache entry, so a warm device only gets
+ *      any of this behind a CACHE_VERSION that moved.
  *
  *   node scripts/test-eye-warming.mjs
  */
@@ -66,6 +77,14 @@ const eq = (a, b, msg) => ok(a === b, `${msg} — got ${JSON.stringify(a)}, want
 const has = (hay, needle, msg) => ok(String(hay).includes(needle), `${msg} — missing ${JSON.stringify(needle)}`);
 const hasNot = (hay, needle, msg) => ok(!String(hay).includes(needle), `${msg} — found ${JSON.stringify(needle)}`);
 const count = (hay, re) => (String(hay).match(re) || []).length;
+// The figure printed on one lane's button — "0", "3", or the wait mark that
+// stands in for a total the eye does not know yet.
+const laneN = (html, id) => {
+  const m = String(html).match(
+    new RegExp(`data-eye-lane="${id}"[\\s\\S]*?<span class="pdx-eye-lane-n[^"]*"[^>]*>([^<]*)</span>`)
+  );
+  return m ? m[1] : null;
+};
 const section = (t) => console.log(`\n  · ${t}`);
 const die = (msg) => { console.error(`\n✗ eye warming: STALE HARNESS — ${msg}\n`); process.exit(2); };
 
@@ -96,6 +115,28 @@ const LIVE_BILL = {
 const OTHER_BILL = {
   id: 91, number: "S. 12", congress: 119, chamber: "senate", measureType: "bill",
   status: "introduced", title: "A totally unrelated measure", primaryIssue: "healthcare", issueKeys: ["healthcare"],
+};
+// ── THE SECOND MEASURE THIS SUITE IS ABOUT: 8245 ────────────────────────────
+// The emergency price relief memorandum. Like 6644 it lives ONLY in the paged
+// /measures list — it is a database row seeded by a migration, it is not in the
+// inline index, and "8245" reaches it through the digits of its number. Unlike
+// 6644 the walk to it is long: the memo denial was not a cold-boot flash but a
+// DEADLINE, expiring while the pages were still landing. Read out of the shipped
+// record so this suite tests the eye against the row the defect was reported on.
+const MEMO_SQL = R("netlify/database/migrations/20260826000000_seed_exec_actions_wave4.sql");
+const MEMO_SEED = Object.values(JSON.parse(R("db/exec-action-seed.json")).actions || {})
+  .flat()
+  .find((a) => a && /90 FR 8245/.test(String(a.documentId || "")));
+if (!MEMO_SEED) die("the 90 FR 8245 memorandum is no longer in db/exec-action-seed.json");
+const MEMO_NUMBER = "Presidential Memorandum, 90 FR 8245";
+const MEMO_SHORT = "Emergency price relief memorandum";
+if (!MEMO_SQL.includes(`'${MEMO_NUMBER}'`)) die(`the migration no longer files a vr_measures row numbered ${MEMO_NUMBER}`);
+if (!MEMO_SQL.includes(`'${MEMO_SHORT}'`)) die(`the memorandum's short title is no longer ${JSON.stringify(MEMO_SHORT)}`);
+if (/8245/.test(INLINE)) die("8245 is now in the inline bills index, so it no longer needs the measures fetch");
+const MEMO_BILL = {
+  id: 4102, number: MEMO_NUMBER, congress: null, chamber: "executive", measureType: "memorandum",
+  status: "enacted", title: MEMO_SEED.title, shortTitle: MEMO_SHORT,
+  primaryIssue: "cost_living", issueKeys: ["cost_living"],
 };
 const ROSTER = {
   test_person: { name: "Ada Testerly", office: "U.S. Senator", state: "Utah", party: "R", issues: ["housing"] },
@@ -167,17 +208,33 @@ function boot(state, src) {
   // would have searched.
   if (state.bills) {
     win.PDX_BILLS_INDEX = [];      // bills-index.js is a marquee subset; 6644 is not in it
+    win.__billsCalls = 0;
+    const answer = (d) => { win.__billsCalls++; return d; };
     win.PDXBills = {
       live: {
-        list: () => Promise.resolve({ items: [LIVE_BILL, OTHER_BILL], total: 2 }),
+        list: () => Promise.resolve(answer({ items: [LIVE_BILL, OTHER_BILL], total: 2 })),
+        ensureIndex: () => Promise.resolve(true),
+      },
+      // The measures list with the memo in it — the state the reader reaches a
+      // moment after the denial they should never have been shown.
+      memo: {
+        list: () => Promise.resolve(answer({ items: [LIVE_BILL, OTHER_BILL, MEMO_BILL], total: 3 })),
         ensureIndex: () => Promise.resolve(true),
       },
       reject: {
-        list: () => Promise.reject(new Error("offline")),
+        list: () => { answer(null); return Promise.reject(new Error("offline")); },
         ensureIndex: () => Promise.reject(new Error("offline")),
       },
+      // PDXBills.list() swallows a failed request and returns the INLINE index
+      // instead, flagged `_inline`. It is the client's fallback, not the record's
+      // answer, and treating it as one is a silent permanent denial of every
+      // measure that lives only in the database.
+      fallback: {
+        list: () => Promise.resolve(answer({ items: [OTHER_BILL], _inline: true })),
+        ensureIndex: () => Promise.resolve(true),
+      },
       pending: {
-        list: () => new Promise(() => {}),   // never settles
+        list: () => { answer(null); return new Promise(() => {}); },   // never settles
         ensureIndex: () => new Promise(() => {}),
       },
     }[state.bills];
@@ -277,6 +334,83 @@ section("2 · the 6644 walk: warming, then exactly one bill row");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+section("2b · the 8245 walk: a cold measures slice is a loading line, not a zero");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // WHAT WAS WRONG, IN THE PREVIEW, AFTER THE CLOCK WAS MOVED TO THE PARSE. The
+  // eye still painted "Formal 0" and "The eye finds nothing for 8245", and then
+  // the same query painted the memorandum under Legislation & Bills. The memo is
+  // a database row reachable only through the paged /measures walk, and that walk
+  // is long — a hundred rows a request, on a cold function and a cold branch. The
+  // eight-second ceiling expired while the pages were still landing, so the panel
+  // reported an index it had not finished reading.
+  //
+  // The measures slice is off the clock now. It is warm when its request has ended
+  // — with rows, with none, or in failure — and cold until then, whatever the
+  // clock says. Two cold shapes, one query, and neither may deny it:
+  //
+  //   · ABSENT: bills.js has not executed, so there is no request to wait on and
+  //     nothing to search.
+  //   · EMPTY, UNFETCHED: the inline index is [] and the /measures walk is still
+  //     in flight. A search over that is a search over nothing.
+  for (const [label, state] of [
+    ["absent", { people: 1, stances: 1, issues: 1, spotlights: 1, register: 1, lazy: { spotlights: true } }],
+    ["empty and unfetched", { ...ALL_READY, bills: "pending" }],
+  ]) {
+    const B = boot(state);
+    const html = B.search("8245");
+    hasNot(html, NOTHING, `a ${label} measures slice denies 8245 — this is the defect`);
+    has(html, WARM, `a ${label} measures slice does not say the measures are still loading`);
+    // The loading line is in the group the answer will appear in, so the reader is
+    // looking at the measures group while it fills rather than at a verdict.
+    has(html, 'data-cat="warm" data-warm-lane="bills"',
+      `a ${label} measures slice prints no loading line in the measures group`);
+    has(html, "Legislation &amp; Bills", `a ${label} measures slice does not name the group 8245 will land in`);
+    // AND THE COUNT IS NOT A ZERO. "Formal 0" is the denial sentence printed as a
+    // number, and it was printed an inch above the sentence itself.
+    hasNot(laneN(html, "formal"), "0", `the Formal count reads zero while the measures slice is ${label}`);
+    has(html, 'class="pdx-eye-lane-n is-warm"', `the Formal count does not report the wait while the slice is ${label}`);
+    // Half a second on, and a full minute on, it is the same answer: the walk is
+    // still delivering, so the eye is still reading.
+    B.travel(500);
+    hasNot(B.search("8245"), NOTHING, `a ${label} measures slice denies 8245 half a second in`);
+    B.travel(10000);
+    hasNot(B.search("8245"), NOTHING, `a ${label} measures slice denies 8245 once the old parse ceiling would have expired`);
+  }
+
+  // THE MEMO LANDS. Same query, the real row inserted into the measures list the
+  // eye's own fetch installs: one bill row, the memorandum's own short title, no
+  // loading line anywhere, and a Formal count that is a figure again.
+  const HOT = await boot({ ...ALL_READY, bills: "memo" }).ready();
+  const hot = HOT.search("8245");
+  hasNot(hot, NOTHING, "8245 finds nothing with the memorandum in the measures list");
+  hasNot(hot, WARM, "the measures lane is still warming after the list arrived");
+  hasNot(hot, "pdx-eye-warmrow", "a loading line survives into the answer");
+  has(hot, "Legislation &amp; Bills", "the memorandum is not filed under the legislation group");
+  has(hot, MEMO_SHORT, "8245 is in the measures list but the memorandum is not in the answer");
+  eq(count(hot, /class="pdx-eye-cat-n">1</g), 1, "8245 does not resolve to exactly one measure");
+  hasNot(hot, "A totally unrelated measure", "8245 dragged in a measure it has nothing to do with");
+  eq(laneN(hot, "formal"), "1", "the Formal count does not report the one measure 8245 reaches");
+  // And the canonical number reaches it too, not just the digits a reader types.
+  has(HOT.search(MEMO_NUMBER), MEMO_SHORT, "the memorandum's own number does not reach it");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("2c · a papered-over failure is not a fetched measures slice");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // PDXBills.list() catches a failed request and hands back the inline marquee
+  // index, flagged `_inline`. The eye stored that as the live measures list and
+  // then reported on it as though the record had answered — which is the 8245
+  // denial with no second frame to correct it. A fallback is not a response: it
+  // does not become the measures slice, and it does not settle the lane on the
+  // first attempt.
+  const B = await boot({ ...ALL_READY, bills: "fallback" }).ready();
+  ok(!B.win.__pdxEyeBillsLive, "the client's inline fallback was stored as the live measures list");
+  eq(B.win.__billsCalls, 2, "a papered-over failure was not asked again (or was asked without end)");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 section("3 · half warm: hits are hits, and the loading lane says so in its slot");
 // ═════════════════════════════════════════════════════════════════════════════
 {
@@ -322,6 +456,12 @@ section("3b · a cold REGISTER is its own lane, and its own loading line");
   // And the lanes that DID answer are not reported as loading, register or no.
   hasNot(html, 'data-warm-lane="bills"', "the settled bills lane is being reported as loading");
   hasNot(html, 'data-warm-lane="people"', "the loaded people lane is being reported as loading");
+  // And a second later, because a ceiling wound down to nothing reports every
+  // clock lane as ready the instant it is asked.
+  B.travel(1000);
+  const later = B.search("water reuse");
+  hasNot(later, NOTHING, "a cold register starts denying a second in");
+  has(later, 'data-warm-lane="files"', "the register's loading line is dropped a second in");
 
   // The register lands: same query, same boot shape, and now the file answers.
   const R = await boot({ ...ALL_READY }).ready();
@@ -365,7 +505,16 @@ section("5 · the ceiling — nothing warms forever");
   const dl = SRC.match(/var LANE_DEADLINE_MS = (\d+);/);
   ok(dl && Number(dl[1]) > 0 && Number(dl[1]) <= 15000,
     `the warming ceiling is missing or unreasonable: ${dl && dl[1]}`);
-  has(SRC, "return r || pastDeadline();", "laneReady does not fall through to the ceiling");
+  has(SRC, "return r || (clockGoverned(lane) && pastDeadline());", "laneReady does not fall through to the ceiling");
+  // AND THE CEILING DOES NOT SPEAK FOR THE MEASURES LANE. The roster, the register
+  // and the issue library wait on passive globals that never announce their own
+  // absence, so only a clock can end their wait. The measures lane is told how its
+  // request ended, and a deadline that expired mid-walk is exactly what denied
+  // 8245 — so its wait ends on the request's own outcome. See section 2b.
+  has(SRC, "function clockGoverned(lane) { return lane !== 'bills'; }",
+    "the measures lane is back on the parse clock, which is how 8245 was denied");
+  const sw = SRC.match(/var MEASURES_STALL_MS = (\d+);/);
+  ok(sw && Number(sw[1]) >= 20000, `the measures stall window is missing or too short to outlast a paged walk: ${sw && sw[1]}`);
 
   // Driven, not read: the same cold boot with the clock wound past the deadline
   // reports honestly on whatever it did manage to load.
@@ -375,6 +524,18 @@ section("5 · the ceiling — nothing warms forever");
   const late = B.search("6644");
   hasNot(late, WARM, "a lane whose source never arrived is still saying it is searching a minute later");
   has(late, NOTHING, "past the ceiling the eye neither warms nor answers");
+  // The MEASURES lane's version of the same guarantee, and the reason it is not the
+  // parse clock: a request that has gone quiet has stalled, and a stall is an
+  // outcome. Under the window the walk is still alive and nothing is denied; past
+  // it the eye answers with what it has. The window is stamped by the request and
+  // re-stamped by every page that lands, so a long walk that is still delivering
+  // never reaches it.
+  const S = boot({ ...ALL_READY, bills: "pending" });
+  S.search("8245");
+  S.travel(20000);
+  hasNot(S.search("8245"), NOTHING, "a measures walk still inside its stall window is being denied");
+  S.travel(60000);
+  hasNot(S.search("8245"), WARM, "a measures request that went quiet is still said to be loading a minute later");
 
   // A request that came back as a FAILURE has also settled: the eye knows as much
   // as it is ever going to know, and owes the reader a straight answer rather than
@@ -387,7 +548,8 @@ section("5 · the ceiling — nothing warms forever");
   // And every terminal path of the bills fetch clears the lane, not just success.
   const FETCH = SRC.slice(SRC.indexOf("function ensureEyeBills"), SRC.indexOf("// ── fuzzy scoring"));
   ok(FETCH.length > 200, "ensureEyeBills could not be sliced out — this probe has gone stale");
-  has(FETCH, ".then(billsDone, billsDone)", "the bills lane clears on success only, so one failed request warms forever");
+  has(FETCH, "pull(1).then(settleOrRetry, billsDone).catch(billsDone);",
+    "the bills lane clears on success only, so one failed request warms forever");
   has(FETCH, "catch (e) { billsDone(); }", "a throw inside the fetch setup leaves the bills lane warming forever");
   // And it ASKS for the file it searches, rather than waiting for another part of
   // the page to want bills-index.js first.
@@ -420,6 +582,16 @@ section("5b · the ceiling's clock cannot start before a lane could arrive");
   const done = P.search("6644");
   hasNot(done, WARM, "past the parse and past the deadline the eye is still saying it is searching");
   has(done, NOTHING, "after the parse finished and the ceiling passed the eye will not answer");
+
+  // AND THE GATE IS THE CLOCK'S OWN, not something the measures lane covers for it.
+  // With the measures list already in hand, the roster, the register and the issue
+  // library are the only lanes left waiting — and while the document is still
+  // parsing not one of them has been offered a turn, deadline or no.
+  const C = await boot({ bills: "live", parsing: 1 }).ready();
+  C.travel(60000);
+  const still = C.search("qwertyuiopnothinghere");
+  has(still, WARM, "the clock lanes expired while the document was still parsing");
+  hasNot(still, NOTHING, "a query is denied mid-parse on the strength of a deadline alone");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -438,13 +610,28 @@ section("6 · the guards are load-bearing (mutations must break the claims)");
       "? mandateEmptyHtml()\n          : (warm.length\n            ? warmPanel(warm) + warmStrip(warm, {})\n            : '<div class=\"pdx-eye-empty\">The eye finds nothing",
       "? mandateEmptyHtml()\n          : (false\n            ? warmPanel(warm) + warmStrip(warm, {})\n            : '<div class=\"pdx-eye-empty\">The eye finds nothing"],
     ["the bills lane is declared ready before its fetch settles",
-      "bills: function () { return billsSettled; }",
+      "bills: function () { return measuresWarm(); }",
       "bills: function () { return true; }"],
+    // THE 8245 MUTATION. The measures lane put back on the parse clock, which is
+    // the shape the defect shipped in: the deadline expires while the pages are
+    // still landing and the panel reports an index it has not finished reading.
+    ["the measures lane is put back on the parse clock",
+      "function clockGoverned(lane) { return lane !== 'bills'; }",
+      "function clockGoverned(lane) { return true; }"],
+    ["the measures stall window is stretched past any wait, so a dead request never settles",
+      "var MEASURES_STALL_MS = 30000;",
+      "var MEASURES_STALL_MS = 9000000;"],
+    ["the client's inline fallback is accepted as the fetched measures list",
+      "if (d._inline) { fellBack = true; return; }",
+      "if (d._inline) { }"],
+    ["a cold lane's count is printed as a zero",
+      "return laneCountCold(mode, counts, warm) ? '…' : ((counts && counts[mode]) || 0);",
+      "return ((counts && counts[mode]) || 0);"],
     ["the warming notice loses its words",
       "'<b>Searching the record…</b>'",
       "'<b>Loading</b>'"],
     ["the ceiling is removed so a dead source warms forever",
-      "return r || pastDeadline();",
+      "return r || (clockGoverned(lane) && pastDeadline());",
       "return r;"],
     ["the ceiling is made instant so nothing ever warms",
       "var LANE_DEADLINE_MS = 8000;",
@@ -459,12 +646,12 @@ section("6 · the guards are load-bearing (mutations must break the claims)");
       "if (!docReady()) return false;\n      return (Date.now() - bootAt) > LANE_DEADLINE_MS;",
       "return (Date.now() - bootAt) > LANE_DEADLINE_MS;"],
     ["a failed bills fetch no longer clears the lane",
-      ".then(billsDone, billsDone);",
-      ".then(function () {}, function () {});"],
+      "pull(1).then(settleOrRetry, billsDone).catch(billsDone);",
+      "pull(1).then(settleOrRetry, function () {}).catch(function () {});"],
   ];
-  // Seven probes, one per claim this suite makes. A mutation has to survive all
-  // seven to count as surviving, which is what makes the claims load-bearing
-  // rather than decorative.
+  // One probe per claim this suite makes. A mutation has to survive every one of
+  // them to count as surviving, which is what makes the claims load-bearing rather
+  // than decorative.
   const probe = async (src) => {
     // a · COLD WARMS, AND NEVER DENIES — on the first paint and on the paints
     //     just after it, which is where the reported flash actually lived.
@@ -482,23 +669,55 @@ section("6 · the guards are load-bearing (mutations must break the claims)");
     const failed = (await boot({ ...ALL_READY, bills: "reject" }, src).ready())
       .search("qwertyuiopnothinghere");
     if (failed.includes(WARM) || !failed.includes(NOTHING)) return true;
-    // d · A SOURCE THAT NEVER ARRIVES HITS THE CEILING.
-    const dead = boot({ ...ALL_READY, bills: "pending" }, src);
-    dead.search("6644");
+    // d · A SOURCE THAT NEVER ARRIVES HITS THE CEILING. Asked of a CLOCK lane — the
+    //     roster, the register, the issue library — because those are the ones the
+    //     ceiling exists for: nothing ever announces that their bundle is not
+    //     coming. The measures lane has its own terminal signal; see probe h.
+    const dead = await boot({ bills: "live" }, src).ready();
     dead.travel(60000);
     if (dead.search("qwertyuiopnothinghere").includes(WARM)) return true;
+    const deadFetch = boot({ ...ALL_READY, bills: "pending" }, src);
+    deadFetch.search("6644");
+    deadFetch.travel(60000);
+    if (deadFetch.search("qwertyuiopnothinghere").includes(WARM)) return true;
     // e · AND A LOADED INDEX STILL ANSWERS 6644.
     const hot = (await boot(ALL_READY, src).ready()).search("6644");
     if (!hot.includes("21st Century ROAD to Housing Act") || hot.includes(WARM)) return true;
-    // f · A COLD REGISTER IS A LOADING FILE LANE, NOT A DENIAL.
-    const noReg = (await boot({ people: 1, stances: 1, issues: 1, spotlights: 1,
-      lazy: { spotlights: true, bills: true }, bills: "live" }, src).ready()).search("water reuse");
+    // f · A COLD REGISTER IS A LOADING FILE LANE, NOT A DENIAL — on the first paint
+    //     and a second later, which is where a ceiling wound down to nothing shows
+    //     up: an instant deadline reports every clock lane as ready on arrival.
+    const regBoot = await boot({ people: 1, stances: 1, issues: 1, spotlights: 1,
+      lazy: { spotlights: true, bills: true }, bills: "live" }, src).ready();
+    const noReg = regBoot.search("water reuse");
     if (noReg.includes(NOTHING) || !noReg.includes('data-warm-lane="files"')) return true;
-    // g · A DOCUMENT STILL PARSING HAS NOT HAD ITS CHANCE, DEADLINE OR NO.
+    regBoot.travel(1000);
+    const noRegLater = regBoot.search("water reuse");
+    if (noRegLater.includes(NOTHING) || !noRegLater.includes('data-warm-lane="files"')) return true;
+    // g · A DOCUMENT STILL PARSING HAS NOT HAD ITS CHANCE, DEADLINE OR NO. Asked
+    //     with the measures list already in hand, so it is the CLOCK lanes' own
+    //     parse gate being measured and not something the measures lane covers for.
     const parsing = boot({ bills: "pending", parsing: 1 }, src);
     parsing.search("6644");
     parsing.travel(60000);
     if (parsing.search("6644").includes(NOTHING)) return true;
+    const parsedClock = await boot({ bills: "live", parsing: 1 }, src).ready();
+    parsedClock.travel(60000);
+    if (parsedClock.search("qwertyuiopnothinghere").includes(NOTHING)) return true;
+    // h · THE 8245 WALK. The measures request is still going, the old eight-second
+    //     ceiling has long since passed, and the memo is still coming: a loading
+    //     line in the measures group, a Formal count that is not a zero, and not a
+    //     word of denial.
+    const walking = boot({ ...ALL_READY, bills: "pending" }, src);
+    walking.search("8245");
+    walking.travel(10000);
+    const mid = walking.search("8245");
+    if (mid.includes(NOTHING) || !mid.includes('data-warm-lane="bills"')) return true;
+    if (String(laneN(mid, "formal")).includes("0")) return true;
+    const memo = (await boot({ ...ALL_READY, bills: "memo" }, src).ready()).search("8245");
+    if (!memo.includes(MEMO_SHORT) || memo.includes(WARM)) return true;
+    // i · A PAPERED-OVER FAILURE IS NOT A FETCHED SLICE, and it is asked again once.
+    const fb = await boot({ ...ALL_READY, bills: "fallback" }, src).ready();
+    if (fb.win.__pdxEyeBillsLive || fb.win.__billsCalls !== 2) return true;
     return false;
   };
   ok(!(await probe(SRC)), "the probes reject the SHIPPED file — the harness itself is broken");
@@ -511,6 +730,20 @@ section("6 · the guards are load-bearing (mutations must break the claims)");
   }
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
+section("7 · the fix ships to a warm device");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // all-seeing-eye.js is a RUNTIME cache entry, and the runtime cache name carries
+  // CACHE_VERSION — so without a bump a returning reader keeps the copy of the eye
+  // that denies 8245, and every claim above is true only of a first-time visit.
+  const SW = R("sw.js");
+  const v = Number(String((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1] || 0));
+  ok(v >= 120, `sw.js CACHE_VERSION is v${v || "?"} — the eye changed and a warm device would keep the old one`);
+  has(SW, "const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`",
+    "the runtime cache name no longer carries CACHE_VERSION, so a bump does not drop the stale eye");
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 if (failures.length) {
   console.error(`\n✗ eye warming: ${failures.length} failed, ${passed} passed`);
@@ -518,4 +751,4 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(`\n✓ eye warming: all ${passed} assertions passed`);
-console.log(`  4 lanes · 4 bill-number spellings · 1 ceiling · 1 parse gate · mutations rejected`);
+console.log(`  4 lanes · 2 measures (6644, 8245) · 1 ceiling · 1 stall window · 1 parse gate · mutations rejected`);

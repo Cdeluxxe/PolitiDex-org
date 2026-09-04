@@ -880,6 +880,141 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v122 - TWO DOORS THAT DID NOT OPEN, AND A FILE WITH NO WAY IN. The Eye's
+// answer to "climate" paints a family row and its leaf rows, and on a page with
+// the desk already mounted neither one did what it said. The family row called
+// pdxDoor1Issue(core), which re-syncs the desk in place and does NOT scroll when
+// the desk is already in issue mode - so the panel closed, the desk repainted
+// below the fold, and the reader saw nothing change. The leaf row called that
+// same desk door FIRST, so it never reached its own file: the desk scoped itself
+// to the key while the row's own href said /i/<key>. And a reader already scoped
+// to a leaf on the desk was looking at the file's body with no control anywhere
+// that said it had an address.
+//   · pdx-issue-profile.js - the sequence adopt() runs was reachable only from
+//                            the path, so every surface that wanted to send a
+//                            reader to a file had to reassemble it. It is one
+//                            named door now, PDXIssueProfile.open(key): resolve,
+//                            refuse a family (a core has no single ledger), raise
+//                            an already-open file rather than swallowing the tap,
+//                            else commit the pick quietly, mount the panel, stamp
+//                            the address and title the tab. It answers false and
+//                            never writes location - this module hands the
+//                            address out, it does not take the document over -
+//                            so a caller whose page has no stage still owns its
+//                            own <a href>.
+//   · issue-file.js        - focus(), for a tap on a file that is already open:
+//                            re-assert hidden/display, re-take the body lock and
+//                            focus the panel. Nothing repainted, nothing scrolled
+//                            back to the top, no census built here as ever.
+//   · all-seeing-eye.js    - issueDoorTry() splits by shape properly. A family
+//                            picks AND lands: pdxDoor1Issue(core) then the desk's
+//                            own lander, PDXDoor1.toDesk('issue'), with the Eye
+//                            panel lowered on the way past so the desk it opened
+//                            is the thing on screen. A leaf goes to the file's
+//                            door first and to its /i/ address second, which is
+//                            the string the row already carried. The bounded cold
+//                            ladder is unchanged.
+//   · door1-workspace.js   - one control on the lede of a LEAF scope, "Open issue
+//                            file", a real anchor on the path asked of the module
+//                            that owns /i/ (never spelled here), answered in place
+//                            by the same opener the Eye's leaf row uses and handed
+//                            back to the browser on a modified or middle click.
+//                            A family scope gets none: the child shelf is the way
+//                            in, and a control promising a file for a core would
+//                            be the same broken promise this pass came to fix.
+//                            The control sits ABOVE the shared body, so what the
+//                            desk paints below it is still byte-for-byte what
+//                            /i/<key> serves.
+//   · door1-workspace.css  - .d1-filedoor, that control: a quiet link with the
+//                            address printed beside the label, deliberately not a
+//                            chip - the chips change the scope, this one opens the
+//                            scope already chosen.
+// netlify.toml's /i/* rewrite and issue-file.css are unchanged by this pass and
+// still carry that address; they are named here because the address, its stage
+// and its stylesheet ship together or not at all. No percentage, no Direction
+// Match change, no new key, no roster row, no party control anywhere, and no
+// PDXIssueView for a family. 8245 warming and the Mandate lane were not touched.
+//
+// v121 - A FAMILY IS A DOOR, NOT A LEAGUE TABLE OF PEOPLE. "open the full Climate,
+// Energy & Land ledger" and the topic chip on a person's file both mounted the
+// consistency overlay: politicians ranked head to head, with Any party / R / D /
+// Ind pills over the list. A family holds seventeen tracked keys and is not a leaf
+// file, so the ranking was person-vs-record on a question nobody asked, and the
+// party pills sorted the people answering it by caucus.
+//   · issue-view.js      - ONE GATE, in open(): a key that resolves to a family
+//                          (empty focusKey) never paints a ranking. It hands the
+//                          key to window.pdxDoor1Issue() and the desk reads out
+//                          that family's keys; a deferred desk is waited for on
+//                          the same ladder the Eye uses, and the last resort is
+//                          the family's own address, never a substitute ranking.
+//                          renderChrome() carries the same wall, so a view that
+//                          got there another way still leaves. The old fallback
+//                          that re-parented an unclaimed key into coreIssues()[0]
+//                          is gone — a stranger's family is not an answer. The
+//                          overlay's own switcher chips and its widen control now
+//                          open the desk instead of clearing focusKey in place.
+//                          Every party control is deleted: the four pills, their
+//                          handler, and the party clause in applyFilter(). The
+//                          front door names what it opens — families of tracked
+//                          keys, with each card's key count and documented count.
+//   · issue-view.css     - the three caucus-tinted pill rules removed; nothing in
+//                          this file paints a party any more.
+//   · door1-workspace.js - the bundle footer's ledger link calls pdxDoor1Issue()
+//                          with the family key and says what is behind it ("open
+//                          its 17 keys"), counted off the same childKeys() the
+//                          family note reads. window.pdxDoor1IssueFace, whose
+//                          middle branch was the ranked overlay, had no caller
+//                          left and is gone: this desk has one issue door.
+//   · stance-helpers.js  - the topic chip on a person's file printed the FAMILY
+//                          label and handed the LEAF key to the overlay. It now
+//                          reads out the key's own label and opens the desk on it.
+//   · index.html         - the front door's label, the quick-jump chip and the
+//                          three nav entries said "Issues Ranked"; they name the
+//                          record now. Precached as the shell's own '/'.
+// Consistency ranking still exists and still computes the same way — Door 1 reads
+// buildRanking(core, '') for its family inventory, unchanged — it is simply no
+// longer a destination a formal bundle footer or a person's chip can open. No
+// percentage, no Direction Match change, no new key, no roster row and no figure
+// moved, and Eye Formal still paints no 882 block.
+//
+// v120 - THE MEASURES SLICE IS NOT GOVERNED BY A CLOCK. 8245 was still denied in
+// preview: typing it painted "Formal 0" and "The eye finds nothing for 8245", and
+// then the same query painted Legislation & Bills · Emergency price relief
+// memorandum. The first frame was a denial of a record already on the wire.
+//   · all-seeing-eye.js — v119 moved the warming ceiling's clock to
+//                         DOMContentLoaded, which was right and not enough. The
+//                         memo lives ONLY in the paged /measures list, a hundred
+//                         rows a request, and on a cold function that walk runs
+//                         well past eight seconds — so the deadline expired while
+//                         the pages were still landing and the panel reported an
+//                         index it had not finished reading. The measures lane is
+//                         off the clock now: it is warm when its own request has
+//                         ENDED (rows, none, or a failure) and cold until then,
+//                         and a cold slice gets a loading line in the measures
+//                         group instead of a zero. Two facts about the request can
+//                         still end the wait — it went quiet for thirty seconds,
+//                         or bills.js never executed at all — and neither is a
+//                         parse clock: the window is stamped when the request goes
+//                         out and re-stamped by every page that lands, so a long
+//                         walk that is still delivering never trips it. The ceiling
+//                         is unchanged for the three lanes that need it (the
+//                         roster, the register, the issue library wait on passive
+//                         globals that never announce their own absence). Also:
+//                         PDXBills.list() swallows a failed request and hands back
+//                         the INLINE marquee index, which the eye stored as the
+//                         live measures list and then reported on — a silent
+//                         permanent denial of every measure that lives only in the
+//                         database. A fallback is no longer mistaken for a
+//                         response; it is asked once more, then settled. And the
+//                         lane control's count reads "…" rather than 0 while a
+//                         lane feeding it is still loading, because "Formal 0" is
+//                         the denial sentence printed as a number.
+//   · index.html        — one class for that count's waiting state. Nothing else
+//                         restyled, and it is precached as the shell's own '/'.
+// No floor, no mapping, no weight, no roster row and no figure moved. Readiness
+// governs WHEN a zero may be published, never what ranks: the same query against a
+// loaded index returns the same rows in the same order as before this bump.
+//
 // v119 - THE EYE DOES NOT DENY A RECORD THAT HAS NOT ARRIVED, AND AN ISSUE ROW
 // WAITS FOR ITS DOOR. Three files travel together, and the bump is the only way a
 // warm device gets any of it:
@@ -1499,7 +1634,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v119';
+const CACHE_VERSION = 'v122';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
