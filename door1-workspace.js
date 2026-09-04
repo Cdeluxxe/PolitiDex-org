@@ -790,6 +790,43 @@
     } catch (e) { return null; }
   }
 
+  // ── HOW THIS PERSON'S ACTS ON THIS KEY TRAVELLED ──────────────────────────
+  // Three words for one already-published tally, and NOT a fourth test of what
+  // a package is. `_recordVehicleStats` counted the instruments long before this
+  // pass — `standalone` is the measures that were about the issue, `provision` is
+  // the ones that carried it inside something larger — and this reads those two
+  // integers and names the shape they make. Nothing here is a threshold: the
+  // stowaway share, the `only` flag and the disclosure sentence on the row all
+  // stay exactly where they were, and none of them is consulted here.
+  //   `''` FOR A ROW WITH NO VEHICLE READ, which is the same gate the row's own
+  // disclosure uses (see the wall over `vehicle:` in _fpiRowFor): a row we have
+  // no side for gets no sentence about how the side travelled, so it joins no
+  // vehicle slice either. `package` is the same population the census already
+  // prints as `pkg`, by construction rather than by a second count.
+  function vehClassOf(v) {
+    if (!v) return '';
+    var st = v.standalone || 0, pr = v.provision || 0;
+    if (st > 0 && pr > 0) return 'mixed';
+    if (pr > 0) return 'package';
+    if (st > 0) return 'primary';
+    return '';
+  }
+  // ── WHICH CHAMBER, THROUGH THE ROSTER'S OWN CLASSIFIER ────────────────────
+  // window._pdxBrowseType is the shipped office classifier — the one the archive
+  // browser slices its chamber+state listings with, exported by compare-hub.js
+  // for exactly this reason. Its buckets are folded to the three the filter row
+  // offers, and everything else answers '' and joins no chamber slice: a governor
+  // or an attorney general holds no seat in a chamber, and inventing a fourth
+  // chip for them would file an executive under a legislature.
+  var _CHAMBER = { senator: 'senate', representative: 'house',
+                   state_senator: 'state', state_rep: 'state' };
+  function chamberOf(pid) {
+    if (!pid || !fn(window._pdxBrowseType)) return '';
+    var t = '';
+    try { t = window._pdxBrowseType(pid) || ''; } catch (e) { t = ''; }
+    return _CHAMBER[t] || '';
+  }
+
   // ── WARMING THE FIELD ─────────────────────────────────────────────────────
   // THE MISMATCH THIS CLOSES. The issue desk discovers its field through the
   // ISSUE-SCOPED read (PDXVotingRecord.fetchIssueRecords, one request for every
@@ -872,6 +909,30 @@
     } catch (e) { return undefined; }
     return (eff === null || typeof eff === 'undefined') ? null : !!eff;
   }
+  // ── A STATED POSITION AGAINST THE BAND IT LANDED IN ───────────────────────
+  // `direction` is the curated stance's own number, minted in consistency.js's
+  // row model off the stance key: +1 supports, -1 opposes, 0 stated as mixed,
+  // null nothing stated. This compares it to the index's own tone and returns
+  // true only when the two are on file and disagree. It infers nothing in either
+  // direction: no stance is read out of a record, and no record is re-read from a
+  // stance. A 0 or a null answers false, because "no direction stated" is not a
+  // disagreement.
+  //   THE TONE, NOT THE BAND, and the difference matters. A thin one-sided run
+  // bands as `thin` — it is too little to lean on — while the chip on the row
+  // still reads "Thin opposes", because the index does publish a side for it. A
+  // stated Supports over that chip is a disagreement a reader can see with their
+  // own eyes, and counting only the two deep bands would have reported it as
+  // nothing at all. `directional` is the gate instead: a split read has no side
+  // to disagree with, and neither does an unread row.
+  function crossRead(x) {
+    if (!x || !x.said || !x.directional) return false;
+    var st = x.row && x.row.stance;
+    var d = (st && typeof st.direction === 'number') ? st.direction : null;
+    if (d === null || d === 0) return false;
+    if (x.tone === 'support') return d < 0;
+    if (x.tone === 'oppose') return d > 0;
+    return false;
+  }
   function itemsOn(pid, key) {
     try {
       return fn(window._pdxRecordIssueItems) ? (window._pdxRecordIssueItems(pid, key) || []) : [];
@@ -902,7 +963,12 @@
       if (!id) return null;
       if (!byKey[id]) {
         byKey[id] = { id: id, number: number || '', title: title || '',
-          primary: !!primary, seen: false, adv: [], opp: [], none: [] };
+          // PROCEDURAL IS THE ITEM'S OWN FLAG, not a reading of the title. It is
+          // set from `isProcedural` on the acts on file — the same flag that puts
+          // the "Procedural" pill on a dossier row and the same one the direction
+          // index tallies — and it gates nothing: a procedural measure bands its
+          // voters exactly as any other measure does.
+          primary: !!primary, proc: false, seen: false, adv: [], opp: [], none: [] };
         order.push(id);
       }
       var s = byKey[id];
@@ -929,10 +995,366 @@
         var s = slot(measureKey(it), it.number || '', it.title || '', !!(m && m.isPrimary));
         if (!s) return;
         s.seen = true;
+        if (it.isProcedural) s.proc = true;
         (side === true ? s.adv : side === false ? s.opp : s.none).push(r.name);
       });
     });
     return order.map(function (id) { return byKey[id]; });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // HOW THIS ISSUE WAS TESTED  ·  the process behind the bands
+  // ══════════════════════════════════════════════════════════════════════════
+  // WHAT WAS MISSING. A settled key prints five bands and a measure list, and
+  // between them they answer "who moved this" without ever answering "what was
+  // there to move". Two keys with identical band figures can have arrived there
+  // by completely different routes — one tested by four standalone resolutions on
+  // the floor, the other by a single provision buried in an appropriations
+  // package — and a reader given only the bands cannot tell those two files
+  // apart. That difference is not a nuance; it is most of what the file means.
+  //
+  // WHAT THIS IS. Counts of things this pane already prints, sorted into the four
+  // questions a reader actually has, and NOT A SCORE. Every integer below is the
+  // length of something on file:
+  //   · MEASURES. PRIMARY vs provision is the label already on each measure card.
+  //     `procedural` is the acts' own isProcedural flag, counted per measure — the
+  //     same flag the dossier prints a pill from. It overlaps the first two by
+  //     design: a procedural vote on a provision is both, and pretending the three
+  //     numbers partition would be the arithmetic lie this block exists to avoid.
+  //   · PEOPLE. The three vehicle shapes from vehClassOf, which is two integers
+  //     _recordVehicleStats had already counted. `package` is the census's own
+  //     `pkg` population.
+  //   · ACTS. The act mix the formal-pattern index publishes on the row, worded
+  //     out of _PDX_ACT_CLASSES so a sponsorship is called a sponsorship. There is
+  //     no weight, no strength and no total here — those live in the act layer and
+  //     stay there.
+  //   · STANCES. How many rows carry a sourced stated position on this key, and
+  //     how many of those point the opposite way from the band the record put them
+  //     in. Both are comparisons of two facts already on the row — the curated
+  //     stance's own `direction` and the index's own band — and neither is a
+  //     percentage, a verdict or a re-read. Direction Match is not here, the
+  //     word-versus-action verdict is not here, and no stance is inferred from a
+  //     record or read out of one.
+  //
+  // AND THE MENU SENTENCE IS QUOTED, NEVER COMPOSED. Where the whole file was only
+  // ever tested inside larger measures, or only ever as floor machinery, the words
+  // for saying so are locked in consistency.js's _MENU table and are asked for by
+  // key. Nothing here may author a sentence about the calendar: the banned list
+  // over _MENU_AVOID — evasion verbs, party framing, named scheduling offices —
+  // is the reason that vocabulary is locked, and reaching it through say() is how
+  // this surface inherits the ban instead of re-earning it.
+  // The id the measure list wears, so the letterhead's summary can hand a reader
+  // down to the cards instead of reprinting them. Keyed, because two ledgers on
+  // one document must not share an id — and published on the census rather than
+  // spelled out by the caller, so /i/'s panel never has to know this desk's class
+  // names to find the section it is pointing at.
+  function measAnchor(key) {
+    var k = String(key || '').replace(/[^a-zA-Z0-9_-]/g, '');
+    return k ? 'd1-led-meas-' + k : '';
+  }
+  function actWord(k, n) {
+    var C = null;
+    try { C = window._PDX_ACT_CLASSES || null; } catch (e) { C = null; }
+    var c = C && C[k];
+    if (!c) return '';
+    return n + ' ' + (n === 1 ? c.one : c.many);
+  }
+  var _PROC_ACTS = ['floor', 'committee_vote', 'sponsor'];
+  // The locked phrasing for a whole key, or null. Two conditions, in the menu's
+  // own ORDER, each one a comparison of counts printed above it:
+  //   · provision_only — measures on file, and not one of them was about this
+  //     issue. The locked phrase says "Only tested as a provision", and that is
+  //     exactly what an empty PRIMARY column means.
+  //   · procedural_gate — every measure anyone on this ledger has an act on was
+  //     floor machinery. Same comparison the row-level refusal uses, one level up.
+  // no_vehicle stays unwired here for the reason it is unwired everywhere else:
+  // it is a claim about a chamber's calendar, and nothing here counts a chamber.
+  function ledgerMenu(t) {
+    var M = null;
+    try { M = window.PDXConsistency && window.PDXConsistency.menu; } catch (e) { M = null; }
+    if (!M) return null;
+    var want = '';
+    if (t.mTotal > 0 && !t.mPrimary) want = 'provision_only';
+    else if (t.mSeen > 0 && t.mProc >= t.mSeen) want = 'procedural_gate';
+    if (!want) return null;
+    var order = M.ORDER || [];
+    if (order.length && order.indexOf(want) < 0) return null;
+    var say = null;
+    try { if (fn(M.say)) say = M.say(want); } catch (e) { say = null; }
+    if (!say) say = (M.PHRASES || {})[want] || null;
+    if (!say || !say.lb) return null;
+    return { key: want, lb: String(say.lb), note: String(say.note || '') };
+  }
+  function ledgerProcess(rows, ms, key) {
+    var t = { mTotal: 0, mPrimary: 0, mProvision: 0, mProc: 0, mSeen: 0 };
+    (ms || []).forEach(function (m) {
+      if (!m) return;
+      t.mTotal++;
+      if (m.primary) t.mPrimary++; else t.mProvision++;
+      if (m.proc) t.mProc++;
+      if (m.seen) t.mSeen++;
+    });
+    var veh = { primary: 0, 'package': 0, mixed: 0 };
+    var mix = { floor: 0, committee_vote: 0, sponsor: 0 };
+    var said = 0, crossed = 0;
+    (rows || []).forEach(function (r) {
+      if (r.vehClass && veh.hasOwnProperty(r.vehClass)) veh[r.vehClass]++;
+      var m = r.mix || null;
+      if (m) _PROC_ACTS.forEach(function (k) { mix[k] += (m[k] || 0); });
+      if (r.said) said++;
+      if (r.cross) crossed++;
+    });
+    var acts = [];
+    _PROC_ACTS.forEach(function (k) {
+      if (!mix[k]) return;
+      var lb = actWord(k, mix[k]);
+      if (lb) acts.push({ k: k, n: mix[k], lb: lb });
+    });
+    return {
+      measures: { total: t.mTotal, primary: t.mPrimary, provision: t.mProvision,
+                  procedural: t.mProc, id: measAnchor(key) },
+      people: { primary: veh.primary, 'package': veh['package'], mixed: veh.mixed },
+      acts: acts,
+      menu: ledgerMenu(t),
+      stances: { said: said, crossed: crossed }
+    };
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // OPENING A SLICE  ·  the filter row above the bands
+  // ══════════════════════════════════════════════════════════════════════════
+  // WHAT WAS WRONG. A settled key is a phone book. climate_action files 528
+  // readable rows into five bands, and the honest ones — the 49 who advanced it,
+  // the 55 who cut against it — are findings a reader cannot reach without
+  // scrolling past 392 rows that are on file and too thin to lean on. The bands
+  // are the right partition and the previews are the right default; what was
+  // missing is a way to ASK the list a question.
+  //
+  // WHAT THIS IS, AND WHAT IT REFUSES TO BE:
+  //   · IT IS A VIEW, NOT A SECOND CENSUS. Every chip's integer is the length of
+  //     a list this pane already printed, counted off the same rows in the same
+  //     bands. A chip at zero is not printed at all, because a chip that filters
+  //     to an empty list is an invitation to a dead end.
+  //   · IT DOES NOT RE-SORT, RE-BAND OR RE-READ. Direction narrows to one band
+  //     and the other bands close in place; vehicle, chamber and name narrow
+  //     inside whatever is open. The order inside a band never changes, because
+  //     continuing or narrowing a list must not silently re-sort it — the same
+  //     rule the band overflow was written under.
+  //   · THE ROWS STAY IN THE DOM. Narrowing hides; it does not rebuild. So a
+  //     find-in-page still lands, a deep link to a row id still resolves, an
+  //     open dossier's return pill still finds the row it came from, and the
+  //     builder's output is byte-for-byte the same string with a slice active as
+  //     without one. There is no filtered build to drift from the desk's build,
+  //     because there is no filtered build.
+  //   · NO PARTY CHIP. NO SORT CONTROL. Not by Direction Match, not by a
+  //     word-versus-action ranking, not by donations and not by likes. This desk
+  //     files by what the formal record did, and a control that re-files it by
+  //     anything else is the framing the whole pane exists to refuse.
+  //   · AND EACH BAND KEEPS ITS OWN FOLD. Opening one band's remainder leaves
+  //     every other band folded, because they are separate controls and always
+  //     were.
+  var SLICE_DIR = { advanced: 'Advanced', against: 'Cut against', both: 'Ran both ways',
+                    thin: 'Too thin', none: 'No side' };
+  var SLICE_VEH = [{ v: 'primary', lb: 'Primary-only' },
+                   { v: 'package', lb: 'Package-only' },
+                   { v: 'mixed',   lb: 'Mixed' }];
+  var SLICE_CH  = [{ v: 'senate', lb: 'U.S. Senate' },
+                   { v: 'house',  lb: 'U.S. House' },
+                   { v: 'state',  lb: 'State' }];
+  function sliceCounts(rows, bands) {
+    var dir = [];
+    (bands || []).forEach(function (b) {
+      if (!b || !b.rows.length) return;
+      dir.push({ v: b.id, lb: SLICE_DIR[b.id] || b.lb, n: b.rows.length });
+    });
+    function tally(list, field) {
+      var out = [];
+      list.forEach(function (o) {
+        var n = 0;
+        (rows || []).forEach(function (r) { if (r[field] === o.v) n++; });
+        if (n) out.push({ v: o.v, lb: o.lb, n: n });
+      });
+      return out;
+    }
+    return { dir: dir, veh: tally(SLICE_VEH, 'vehClass'), ch: tally(SLICE_CH, 'ch') };
+  }
+
+  // The live slice: one key's, one axis each, and DROPPED the moment the key
+  // changes — so leaving climate_action and opening lands_preserve does not
+  // arrive pre-filtered by a chip the reader pressed on a different issue. Not
+  // remembered per key, which would be the same trap with a longer fuse: a
+  // reader who comes back to a file they sliced last week and finds two thirds
+  // of it missing has been shown a smaller record without being told.
+  //   State, not markup: nothing below is read by any builder, which is what
+  // keeps the two doors one paint.
+  var _sl = { key: '', dir: '', veh: '', ch: '', q: '' };
+  function sliceOn() { return !!(_sl.dir || _sl.veh || _sl.ch || _sl.q); }
+  function sliceFor(key) {
+    var k = String(key || '');
+    if (_sl.key !== k) { _sl.key = k; _sl.dir = ''; _sl.veh = ''; _sl.ch = ''; _sl.q = ''; }
+    return _sl;
+  }
+  function sliceWords() {
+    var w = [];
+    if (_sl.dir) w.push(SLICE_DIR[_sl.dir] || _sl.dir);
+    SLICE_VEH.forEach(function (o) { if (o.v === _sl.veh) w.push(o.lb); });
+    SLICE_CH.forEach(function (o) { if (o.v === _sl.ch) w.push(o.lb); });
+    if (_sl.q) w.push('name contains \u201c' + _sl.q + '\u201d');
+    return w.join(' · ');
+  }
+  function chipHtml(kind, o, on) {
+    return '<button type="button" class="d1-led-chip' + (on ? ' is-on' : '') + '"' +
+      ' data-pdx-sl="' + esc(kind) + '" data-pdx-sv="' + esc(o.v) + '"' +
+      ' aria-pressed="' + (on ? 'true' : 'false') + '"' +
+      ' onclick="return window.pdxDoor1Slice(\'' + jsq(kind) + '\',\'' + jsq(o.v) + '\')">' +
+      esc(o.lb) + ' <span class="d1-led-cn">' + o.n + '</span></button>';
+  }
+  function chipGroup(kind, label, list) {
+    if (!list.length) return '';
+    return '<div class="d1-led-cg" role="group" aria-label="' + esc(label) + '">' +
+      '<span class="d1-led-cgl">' + esc(label) + '</span>' +
+      list.map(function (o) { return chipHtml(kind, o, false); }).join('') +
+    '</div>';
+  }
+  // EVERY CHIP PAINTS UNPRESSED. The pressed state is put on by applySlice on the
+  // tick after the mount, off the same state the rows are narrowed by, so the
+  // chips and the list cannot report different slices — and so this string does
+  // not change when a chip is pressed.
+  function sliceHtml(led) {
+    var c = led.slice || null;
+    if (!c) return '';
+    var groups = chipGroup('dir', 'Direction', c.dir) +
+                 chipGroup('veh', 'Vehicle', c.veh) +
+                 chipGroup('ch', 'Chamber', c.ch);
+    if (!groups) return '';
+    sliceFor(led.key);
+    sliceSoon();
+    return '<div class="d1-led-slice" data-pdx-slice="' + esc(led.key) + '">' +
+      '<p class="d1-led-sl">Open a slice of this list. The counts are the lists below — ' +
+        'nothing here re-reads a record, re-orders a band or changes a reading.</p>' +
+      groups +
+      '<div class="d1-led-cg">' +
+        '<label class="d1-led-nml" for="d1-led-nm">Name</label>' +
+        '<input type="search" class="d1-led-nm" id="d1-led-nm" autocomplete="off"' +
+          ' placeholder="Filter by name" data-pdx-sl="q"' +
+          ' oninput="return window.pdxDoor1Slice(\'q\', this.value)">' +
+        '<button type="button" class="d1-led-clear" hidden' +
+          ' onclick="return window.pdxDoor1Slice(\'clear\', \'\')">Clear the slice</button>' +
+      '</div>' +
+      '<p class="d1-led-sn" role="status" aria-live="polite"></p>' +
+    '</div>';
+  }
+
+  // ── APPLYING IT · hide, never rebuild ─────────────────────────────────────
+  // The whole slice is this function. It walks the rows the builder printed,
+  // hides the ones outside the slice, closes a band whose rows are all hidden,
+  // and restates each band's own count so a heading never claims rows the reader
+  // cannot see. Every original figure is stashed on the element the first time it
+  // is touched, so clearing the slice restores the desk's own wording exactly
+  // rather than recomputing a second version of it.
+  //   NAMED HOSTS, NOT A DOCUMENT SWEEP. This module is not allowed to reach the
+  // document by selector: it owns four surfaces and collapses nothing else, and
+  // scripts/test-door-one-collapse.mjs holds that wall on this file's source
+  // rather than on a paint. The slice needs no exception to it. One builder's
+  // string is mounted in exactly two places — the desk's own body and the file
+  // panel's ledger at /i/<key> — so both are named by id here and every walk
+  // below starts inside whichever of them this page has. A third mount would
+  // have to be added to this list, on purpose, in the open.
+  var SLICE_HOSTS = [BODY_ID, 'pdx-issue-file-ledger'];
+  function sliceApply() {
+    for (var h = 0; h < SLICE_HOSTS.length; h++) {
+      var host = null;
+      try { host = document.getElementById(SLICE_HOSTS[h]); } catch (e) { host = null; }
+      if (!host || !host.getElementsByClassName) continue;
+      var boxes = host.getElementsByClassName('d1-led-slice');
+      // getElementsByClassName is live and sliceBox does touch a class (the chips'
+      // is-on), so the boxes are copied out before any of them is walked.
+      var list = [];
+      for (var i = 0; i < boxes.length; i++) list.push(boxes[i]);
+      for (var j = 0; j < list.length; j++) sliceBox(list[j]);
+    }
+  }
+  function keep0(el, attr, txt) {
+    if (!el) return '';
+    var v = el.getAttribute(attr);
+    if (v === null) { v = txt; el.setAttribute(attr, v); }
+    return v;
+  }
+  function sliceBox(box) {
+    var root = box.parentNode;
+    if (!root) return;
+    var s = sliceFor(box.getAttribute('data-pdx-slice') || '');
+    var on = sliceOn();
+    var rows = root.getElementsByClassName('d1-led-p');
+    var shown = 0, all = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var li = rows[i];
+      all++;
+      var ok = (!s.dir || (li.getAttribute('data-pdx-led-band') || '') === s.dir) &&
+               (!s.veh || (li.getAttribute('data-pdx-led-veh') || '') === s.veh) &&
+               (!s.ch  || (li.getAttribute('data-pdx-led-ch')   || '') === s.ch) &&
+               (!s.q   || (li.getAttribute('data-pdx-led-nm')   || '').indexOf(s.q) >= 0);
+      li.hidden = !ok;
+      if (ok) shown++;
+    }
+    // Each band restates its own count, and closes when nothing in it survives.
+    var bands = root.getElementsByClassName('d1-led-band');
+    for (var b = 0; b < bands.length; b++) sliceBand(bands[b], on);
+    // …and so does the fold over the thin end, which is a band of bands.
+    var tails = root.getElementsByClassName('d1-led-tail');
+    for (var t = 0; t < tails.length; t++) {
+      var inner = tails[t].getElementsByClassName('d1-led-band'), live = 0;
+      for (var j = 0; j < inner.length; j++) if (!inner[j].hidden) live++;
+      tails[t].hidden = (inner.length > 0 && !live);
+    }
+    // The chips, off the same state the rows were narrowed by.
+    var chips = box.getElementsByClassName('d1-led-chip');
+    for (var c = 0; c < chips.length; c++) {
+      var k = chips[c].getAttribute('data-pdx-sl') || '';
+      var hit = !!(s[k] && s[k] === chips[c].getAttribute('data-pdx-sv'));
+      chips[c].setAttribute('aria-pressed', hit ? 'true' : 'false');
+      if (hit) chips[c].classList.add('is-on'); else chips[c].classList.remove('is-on');
+    }
+    var clr = box.querySelector('.d1-led-clear');
+    if (clr) clr.hidden = !on;
+    var nm = box.querySelector('.d1-led-nm');
+    if (nm && nm.value !== s.q && document.activeElement !== nm) nm.value = s.q;
+    var say = box.querySelector('.d1-led-sn');
+    if (say) {
+      say.textContent = on
+        ? (sliceWords() + ' — ' + shown + ' of ' + all + ' ' +
+           (all === 1 ? 'row' : 'rows') + ' shown. Everything else is still on file.')
+        : '';
+    }
+  }
+  function sliceBand(sec, on) {
+    var live = 0, more = 0;
+    var rows = sec.getElementsByClassName('d1-led-p');
+    for (var i = 0; i < rows.length; i++) if (!rows[i].hidden) live++;
+    var det = sec.querySelector('.d1-led-more');
+    if (det) {
+      var hid = det.getElementsByClassName('d1-led-p');
+      for (var j = 0; j < hid.length; j++) if (!hid[j].hidden) more++;
+      var sum = det.querySelector('.d1-led-msum');
+      var t0 = keep0(sum, 'data-pdx-t0', sum ? sum.textContent : '');
+      if (sum) sum.textContent = on ? (more + ' more in this band — same reading, same order') : t0;
+      det.hidden = (hid.length > 0 && !more);
+    }
+    var bn = sec.querySelector('.d1-led-bn');
+    var n0 = keep0(bn, 'data-pdx-n0', bn ? bn.textContent : '');
+    if (bn) bn.textContent = on ? String(live) : n0;
+    sec.hidden = (rows.length > 0 && !live);
+  }
+  // ONE PASS PER PAINT, on the tick after the mount. The builder hands back a
+  // string; the string is in the DOM one turn later, whichever door mounted it.
+  // Deduped, so three repaints in one turn are one pass.
+  var _slSoon = 0;
+  function sliceSoon() {
+    if (_slSoon) return;
+    _slSoon = 1;
+    try {
+      setTimeout(function () { _slSoon = 0; try { sliceApply(); } catch (e) {} }, 0);
+    } catch (e) { _slSoon = 0; }
   }
 
   // ── THE LEDGER MODEL ──────────────────────────────────────────────────────
@@ -985,6 +1407,22 @@
         veh: (veh && veh.line) ? veh.line : '',
         vehNote: (veh && veh.note) ? veh.note : '',
         pkgOnly: !!(x.vehicle && x.vehicle.only),
+        // THE THREE FIELDS THE FILTER ROW IS A VIEW OF, and all three are reads
+        // rather than derivations: the vehicle shape is vehClassOf over the two
+        // integers _recordVehicleStats already published, the chamber is the
+        // roster's own classifier, and the act mix is the index's own field. No
+        // count, band, order or sentence above this line reads any of them.
+        vehClass: vehClassOf(x.vehicle),
+        ch: chamberOf(p.id),
+        mix: x.mix || null,
+        said: !!x.said,
+        // A SOURCED STANCE POINTING THE OTHER WAY, and only where both halves are
+        // on file: the curated stance's own +1/-1 direction against the side the
+        // index published for the record. Not a verdict, not a percentage, and
+        // not the word-versus-action lane — a row with no stated position, a
+        // stance curated as explicitly mixed, and a record with no side read all
+        // answer false rather than guessing.
+        cross: crossRead(x),
         // A STATED POSITION, WHERE ONE REALLY EXISTS. A tag, and only a tag: it
         // is appended after the pattern chip, it is not in any count above, and
         // no band, order or figure on this pane reads it.
@@ -1011,6 +1449,7 @@
       bands.push({ id: b.id, lb: b.lb, note: b.note, tail: !!b.tail, rows: list });
     });
 
+    var ms = ledgerMeasures(rows, key);
     var pkg = rows.filter(function (r) { return r.pkgOnly; }).length;
     var by = {};
     bands.forEach(function (b) { by[b.id] = b.rows.length; });
@@ -1020,7 +1459,12 @@
       key: key, label: issueLabel(key),
       people: rows.length, cold: cold, pkg: pkg, tail: tail,
       by: by, bands: bands,
-      measures: ledgerMeasures(rows, key),
+      measures: ms,
+      // Two views of the rows above, both of them counts of rows this pane
+      // prints: `slice` is what the filter row offers, `proc` is how the key was
+      // tested. Neither is consulted by a band, an order or a sentence.
+      slice: sliceCounts(rows, bands),
+      proc: ledgerProcess(rows, ms, key),
       pending: ledgerPending()
     };
   }
@@ -1097,7 +1541,16 @@
       ' aria-label="' + esc(r.name + ' — formal record: ' + (r.label || 'on file') +
         (r.tally ? ' (' + r.tally + ')' : '') + '. Open the acts behind it.') +
       '">Open the acts</button>';
-    return '<li class="d1-led-p" id="' + esc(rowId) + '" data-pdx-led-band="' + esc(r.band) + '">' +
+    // THE FOUR THINGS THE FILTER ROW READS, on the row, as attributes. They are
+    // here rather than in a filtered rebuild because narrowing this list must
+    // hide rows and never remove them: a row outside the current slice is still
+    // findable, still deep-linkable, and still where an open dossier's return
+    // pill expects it. The name is lower-cased once here so the name filter is a
+    // substring test and not a second normaliser.
+    return '<li class="d1-led-p" id="' + esc(rowId) + '" data-pdx-led-band="' + esc(r.band) + '"' +
+      ' data-pdx-led-veh="' + esc(r.vehClass || '') + '"' +
+      ' data-pdx-led-ch="' + esc(r.ch || '') + '"' +
+      ' data-pdx-led-nm="' + esc(String(r.name || '').toLowerCase()) + '">' +
       '<span class="d1-led-hd">' +
         personLink(r.pid, r.name, 'd1-led-a') +
         (r.office ? '<span class="d1-led-o">' + esc(r.office) + '</span>' : '') +
@@ -1158,7 +1611,7 @@
       var rest = names.length > 3 ? ' +' + (names.length - 3) + ' more' : '';
       return '<span class="d1-led-w">' + esc(lbl) + ': ' + esc(head + rest) + '</span>';
     }
-    return '<section class="d1-led-meas">' +
+    return '<section class="d1-led-meas" id="' + esc(measAnchor(led.key)) + '">' +
       '<div class="d1-led-bh"><span class="d1-led-bt">Measures on file</span>' +
         '<span class="d1-led-bn">' + led.measures.length + '</span></div>' +
       '<p class="d1-led-bnote">PRIMARY means the measure was about this issue; a provision means it ' +
@@ -1218,6 +1671,7 @@
       // header note. What the sentence promises is what the comparator does.
       '<p class="d1-lead">Filed by what the formal record on this key did — clearest pattern first. ' +
       'Not by which side of the aisle anyone sits on, and not by whether we hold a quote on it.</p>' +
+      sliceHtml(led) +
       open + tailHtml(led, key) + measuresHtml(led) +
       (wall ? '<p class="d1-led-wall">' + esc(wall) + '</p>' : '');
   }
@@ -1325,6 +1779,16 @@
       pkg: led.pkg,
       cold: led.cold,
       pending: !!led.pending,
+      // ── HOW THIS KEY WAS TESTED, AS INTEGERS AND QUOTED WORDS ────────────
+      // Handed over whole, for the same reason the band figures are: the file's
+      // letterhead has to say measures, people and acts without counting anybody,
+      // and the alternative is a second engine that agrees until it does not. The
+      // wording that could go wrong is already resolved here — the act names come
+      // out of the act layer's own vocabulary, and `menu` is a locked phrase asked
+      // for by key — so a reader of this object prints strings and joins them.
+      // `measures.id` is the anchor on the measure list below, so a summary can
+      // send a reader to the cards instead of reprinting them.
+      proc: led.proc || null,
       bands: (led.bands || []).map(function (b) {
         return { id: b.id, lb: b.lb, n: b.rows.length };
       })
@@ -2212,6 +2676,22 @@
   // window.pdxDoor1Issue — and bill-detail.js keeps its own /issue/<key>
   // cascade for the surface that actually wants an issue page.
 
+  // ── THE SLICE CONTROL ─────────────────────────────────────────────────────
+  // One handler for every chip and the name box, in the same idiom as this
+  // desk's other inline controls. It sets state and re-applies the hide pass; it
+  // never repaints, which is what keeps a half-typed name in the box and the
+  // focus ring on it. A chip pressed twice clears itself, because the way out of
+  // a slice has to be the same tap that got in.
+  window.pdxDoor1Slice = function (kind, val) {
+    var k = String(kind || ''), v = String(val == null ? '' : val);
+    if (k === 'clear') { _sl.dir = ''; _sl.veh = ''; _sl.ch = ''; _sl.q = ''; }
+    else if (k === 'q') { _sl.q = v.trim().toLowerCase(); }
+    else if (k === 'dir' || k === 'veh' || k === 'ch') { _sl[k] = (_sl[k] === v) ? '' : v; }
+    else return false;
+    try { sliceApply(); } catch (e) {}
+    return false;
+  };
+
   window.pdxDoor1Bill = function (num) {
     try {
       if (window.PDXBillDetail && fn(window.PDXBillDetail.open)) { window.PDXBillDetail.open(num); return true; }
@@ -2274,6 +2754,12 @@
     // the function. One engine, two readers: the desk prints them as prose, /i/
     // prints them as an inventory line, and neither counts anybody twice.
     issueCensus: issueCensus,
+    // The filter row's one control, and the state behind it — exported for the
+    // inline handlers in the markup above and for a harness that has to prove the
+    // builder's string does not change when a chip is pressed.
+    issueSlice: window.pdxDoor1Slice,
+    _slice: function () { return { key: _sl.key, dir: _sl.dir, veh: _sl.veh, ch: _sl.ch, q: _sl.q }; },
+    _sliceApply: sliceApply,
     // The lede's file control, for the inline handler in the markup above. It
     // decides one thing — whether the file's own door answered the tap — and
     // hands the click back to the anchor when it did not.

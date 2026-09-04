@@ -370,6 +370,99 @@
   font-size: 0.72rem;
   color: rgb(148, 163, 184);
 }
+/* ── HOW THIS ISSUE WAS TESTED ─────────────────────────────────────────────
+   Under the inventory and inside the letterhead's rule, because it is the same
+   kind of statement: counts of what is on file. Ruled off at the top rather
+   than boxed, so it reads as a continuation of the inventory and not as a
+   second panel arguing with it. Tabular figures throughout — these are integers
+   in a column of integers, and a proportional numeral makes them look
+   approximate. */
+.pdxif-proc {
+  margin: 0.7rem 0 0;
+  padding: 0.6rem 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: grid;
+  gap: 0.2rem;
+}
+.pdxif-ph {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin: 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: rgb(148, 163, 184);
+}
+.pdxif-head[data-ic] .pdxif-ph { color: var(--pdx-ic-ink); }
+/* One label, one value. The label column is fixed so four rows read down as a
+   list rather than as four unrelated sentences. */
+.pdxif-prow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1rem 0.5rem;
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+.pdxif-plb {
+  flex: none;
+  min-width: 4.6rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgb(107, 124, 148);
+}
+.pdxif-pv {
+  flex: 1 1 12rem;
+  min-width: 0;
+  color: rgb(203, 213, 225);
+}
+/* Down to the cards. A quiet inline control, not a jump button: the two jumps
+   below are about leaving this file, and this one is about a section of it. */
+.pdxif-see {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0;
+  min-height: unset;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: rgb(147, 197, 253);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+}
+.pdxif-see:hover { color: rgb(191, 219, 254); }
+/* The locked menu sentence, where one applies. It is context for the counts
+   above it and never a verdict, so it gets the record lane's amber ink and no
+   fill, no icon and no rule of its own. */
+.pdxif-pmenu {
+  margin: 0.35rem 0 0;
+  font-size: 0.73rem;
+  line-height: 1.55;
+  color: rgb(214, 201, 168);
+}
+.pdxif-pmenu b { color: rgb(252, 211, 77); }
+.pdxif-pmn { color: rgb(148, 163, 184); }
+/* Why the three measure figures do not add up. Smallest type on the block,
+   because it is a caveat on one line and not a finding. */
+.pdxif-pn {
+  margin: 0.35rem 0 0;
+  font-size: 0.7rem;
+  line-height: 1.55;
+  color: rgb(126, 143, 168);
+}
+
 /* The two jumps. Wrap rather than shrink — the hint under each label is the
    half that says what the control does, and a squeezed one is worse than a
    second row. */

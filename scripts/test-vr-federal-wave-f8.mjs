@@ -1306,6 +1306,28 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // issue-file.js, sw.js and scripts/test-issue-family-door.mjs are declared
     // above already.
     "issue-file.css",
+    // AND THE SLICE, AND HOW THE ISSUE WAS TESTED (CACHE_VERSION v124), the pass
+    // after that one, on the same later-wave terms: no roll, no mapping, no key,
+    // no floor, no admission and no score moves. A settled key files hundreds of
+    // people across five direction bands, and the file handed a reader all of
+    // them in one column with no way to open a slice of it; it also never said
+    // how the issue was TESTED — which measures were PRIMARY, which were a
+    // provision folded inside something larger, which act on file was floor
+    // machinery. The filter row above the bands offers four axes (direction from
+    // the index's own bands, vehicle from the standalone and provision counts
+    // already on each row, chamber from the office, name typed) and narrows by
+    // HIDING rows the builder printed — the builder emits the same string and the
+    // chips paint unpressed either way, which is what keeps /i/<key> and the desk
+    // one paint. The process block is counts and named measures read off
+    // PDXDoor1.issueCensus(key).proc, behind the same busy gate as the inventory,
+    // and a sponsorship is never called a vote. No party chip, no sort, no
+    // package-borne percentage, no inferred stance, and one census still. The
+    // reason a wave like this one declares it: R1 and R2 put 1,120 member files
+    // behind these keys, and on a settled key the bands ARE that product — a
+    // reader who cannot open a slice of them has been handed a phone book.
+    // door1-workspace.js, door1-workspace.css, issue-file.js, issue-file.css,
+    // sw.js, scripts/test-issue-file-address.mjs and
+    // scripts/test-issue-family-door.mjs are declared above already.
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

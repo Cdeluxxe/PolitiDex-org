@@ -293,6 +293,124 @@
     return parts.join(SEP);
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // HOW THIS ISSUE WAS TESTED
+  // ══════════════════════════════════════════════════════════════════════════
+  // WHAT WAS MISSING. The inventory above says how BIG the file is. It does not
+  // say how the issue MOVED — whether the record on this key is four standalone
+  // resolutions the floor voted on directly or one line folded inside an
+  // appropriations package, whether the acts behind it are votes or
+  // sponsorships, and whether anybody who stated a position on it has a formal
+  // row pointing the other way. Two keys can have the same band figures and
+  // completely different answers to all three, and the difference is most of
+  // what the file means.
+  //
+  // NONE OF IT IS COMPUTED HERE. `c.proc` arrives off the desk's published
+  // census, already resolved — the act names come out of the act layer's own
+  // vocabulary, so a sponsorship is called a lead sponsorship and never a vote,
+  // and the menu sentence is a phrase locked in the record lane and asked for by
+  // key. This block chooses which of those strings to print, drops the ones that
+  // are zero, and joins them. It adds nothing, divides nothing and compares
+  // nothing.
+  //
+  // IT DOES NOT REPRINT THE MEASURES. The cards are two inches down, with their
+  // numbers, their titles, their PRIMARY-vs-provision labels and the names on
+  // each side. So the measure line summarises and hands the reader down to them
+  // through the anchor the desk published — one list of measures on this page.
+  //
+  // SAME BUSY GATE AS THE INVENTORY, and for the same reason: a process line is
+  // made of the same counts, so publishing one while the read is out would put a
+  // figure at the top of the page that is about to change. headHtml() gates both
+  // blocks on one call, so the two can never disagree about whether the file has
+  // settled.
+  //
+  // AND THE THREE MEASURE FIGURES DO NOT PARTITION. A procedural vote on a
+  // provision is both, so `procedural` overlaps the first two by construction.
+  // The note under the line says so, because three integers on one line read as a
+  // breakdown unless something says otherwise, and a breakdown that does not sum
+  // is the arithmetic lie this whole pane is written against.
+  var PROC_H = 'How this issue was tested';
+  // ── TWO LINES, TWO DIFFERENT QUESTIONS, AND THE NOTE SAYS SO ──────────────
+  // The measures line's PRIMARY is a label on the BILL: curation decided the
+  // measure was about this issue rather than merely carrying it. The people
+  // line's "primary-only" is a shape in one PERSON's record: every mapped act
+  // they took on this key was a vote on the measure itself rather than a narrow
+  // slice inside something larger. Those are separate reads of separate things
+  // — a key can hold no PRIMARY measure at all and still have people whose acts
+  // on it were all standalone votes — so the two lines genuinely can disagree,
+  // and a reader who is not told that will read the disagreement as an error.
+  // Said here, in the note, rather than by renaming either line: both sets of
+  // words are the ones the surfaces above and below this block already use.
+  var PROC_NOTE = 'Counts of what is on file, not a reading of it. PRIMARY and provision ' +
+    'are the labels on the measures; procedural counts the same measures again where ' +
+    'the act on file was floor machinery, so the three do not add up to the first ' +
+    'number and are not meant to. The people line asks a different question — how ' +
+    'each person\'s own acts on this key travelled, a vote on the measure itself or ' +
+    'one folded inside something larger — so it can read differently from the label ' +
+    'on the bill.';
+  var PROC_SEE = 'See the measures';
+
+  function procRow(lb, text) {
+    if (!text) return '';
+    return '<p class="pdxif-prow"><span class="pdxif-plb">' + esc(lb) + '</span>' +
+      '<span class="pdxif-pv">' + esc(text) + '</span></p>';
+  }
+  function measLine(m) {
+    if (!m || !m.total) return '';
+    var parts = [];
+    if (m.primary) parts.push(m.primary + ' PRIMARY');
+    if (m.provision) parts.push(m.provision + ' provision');
+    if (m.procedural) parts.push(m.procedural + ' procedural');
+    return parts.join(SEP);
+  }
+  function peopleLine(o) {
+    if (!o) return '';
+    var parts = [];
+    if (o.primary) parts.push(o.primary + ' primary-only');
+    if (o['package']) parts.push(o['package'] + ' package-only');
+    if (o.mixed) parts.push(o.mixed + ' mixed');
+    return parts.join(SEP);
+  }
+  function actLine(list) {
+    var parts = [];
+    (list || []).forEach(function (a) { if (a && a.lb) parts.push(String(a.lb)); });
+    return parts.join(SEP);
+  }
+  function stanceLine(o) {
+    if (!o || !o.said) return '';
+    var parts = [o.said + ' sourced stance' + (o.said === 1 ? '' : 's') + ' on this key'];
+    if (o.crossed) {
+      parts.push(o.crossed + ' whose formal row runs the other way');
+    }
+    return parts.join(SEP);
+  }
+  function seeHtml(id) {
+    if (!id) return '';
+    return '<button type="button" class="pdxif-see" ' +
+      'onclick="return window.PDXIssueFile.seeMeasures(\'' + jsq(id) + '\')">' +
+      esc(PROC_SEE) + '</button>';
+  }
+  function procHtml(c) {
+    var pr = c && c.proc;
+    if (!pr) return '';
+    var m = measLine(pr.measures);
+    var body = procRow('Measures', m) +
+      procRow('People', peopleLine(pr.people)) +
+      procRow('Acts', actLine(pr.acts)) +
+      procRow('Stances', stanceLine(pr.stances));
+    if (!body) return '';
+    var mu = pr.menu || null;
+    return '<div class="pdxif-proc">' +
+        '<p class="pdxif-ph">' + esc(PROC_H) + (m ? seeHtml(pr.measures && pr.measures.id) : '') + '</p>' +
+        body +
+        (mu && mu.lb
+          ? '<p class="pdxif-pmenu"><b>' + esc(mu.lb) + '</b>' +
+            (mu.note ? ' <span class="pdxif-pmn">' + esc(mu.note) + '</span>' : '') + '</p>'
+          : '') +
+        (m ? '<p class="pdxif-pn">' + esc(PROC_NOTE) + '</p>' : '') +
+      '</div>';
+  }
+
   // ── THE TWO JUMPS ─────────────────────────────────────────────────────────
   // The desk, scoped to this key — the surface this body also lives on, reached
   // through the desk's ONE issue door — and the link, which is this file's own
@@ -326,6 +444,7 @@
           ? '<p class="pdxif-busy" role="status">' + esc(BUSY) +
               '<span class="pdxif-sofar">' + esc(SO_FAR) + '</span></p>'
           : (inv ? '<p class="pdxif-inv">' + esc(inv) + '</p>' : '')) +
+        (reading(c) ? '' : procHtml(c)) +
         jumpsHtml(key) +
       '</div>';
   }
@@ -718,6 +837,21 @@
     try { if (D && fn(D.toDesk)) D.toDesk('issue'); } catch (e) {}
     return false;
   }
+  // ── DOWN TO THE CARDS, NOT A SECOND COPY OF THEM ──────────────────────────
+  // The id comes off the census — the desk publishes the anchor its own measure
+  // list wears — so this panel never has to know one class name inside the body
+  // it mounts. It scrolls and it focuses; it does not open, close, filter or
+  // re-render anything, and a missing anchor is a no-op rather than a jump to the
+  // top of the page.
+  function seeMeasures(id) {
+    var n = null;
+    try { n = document.getElementById(String(id == null ? '' : id)); } catch (e) { n = null; }
+    if (!n) return false;
+    try { n.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {
+      try { n.scrollIntoView(); } catch (e2) {}
+    }
+    return false;
+  }
   function said(msg) {
     try { if (fn(window._showToast)) window._showToast(msg); } catch (e) {}
   }
@@ -777,6 +911,7 @@
     // on and the module's own name is already on the window.
     familyJump: familyJump,
     deskJump: deskJump,
+    seeMeasures: seeMeasures,
     share: share,
     isOpen: function () { return !!_open; },
     key: function () { return _key; },
@@ -792,6 +927,7 @@
     // The census this letterhead printed from, so a test can compare the integers
     // on the line against the desk's own published read without parsing prose.
     _census: census,
+    _proc: procHtml,
     // The bar's treatment on its own, so a test can compare the token this file
     // would print against PDXIssueColors.styleFor(key) without parsing markup.
     _skin: function (key) {
