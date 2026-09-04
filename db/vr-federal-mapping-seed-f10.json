@@ -1,0 +1,696 @@
+{
+ "_comment": "Federal wave F10 — the wave briefed as \"F5: standalone PRIMARYs for the remaining chamber gap\", renamed because F5 already shipped and four suites cite its record. Read scripts/test-vr-federal-wave-f10.mjs beside this file. This is a mapping seed with an empty measures[] on purpose: the census the brief ordered rebuilt refuted the brief's premise with numbers, the corpus was then swept measure-by-measure for an admissible standalone instrument, and every candidate was refused on its own text. Forty-one measures screened, 0 rows shipped, 0 migrations written.",
+ "_status": "DECIDED, AND THE DECISION IS NO MAPPING ROW. Nothing here is UNDECIDED and nothing was silently dropped. 41 measures with a roll call and no issue mapping were enumerated from the corpus and each one has a written verdict below. 7 Senate-reachable instruments refused (declinedRollCalls). 26 House-reachable instruments refused (declinedMappings). 7 procedural rules and 1 unnumbered organisational vote excluded as non-instruments with the reason stated. 2 issue keys proposed and refused on the six vocab rules. 0 promotes, 0 retractions, 0 rows shipped, 0 migrations.",
+ "_decidedBy": "scripts/vr-federal-fpi.mjs --set all --waves f1,f2,f3,f4,f5,f6,f7 with --chambers, --why, --band and the new --reach; plus engrossed bill text read from govinfo.gov (BILLS-119*eh) for every candidate whose short title made a key look plausible.",
+ "_doctrine": "A refusal is only auditable if its price is written down and measured. Every decline below carries (a) a reason resting on the instrument's own enacted text, and (b) the number of reader-visible rows the admit would have moved. Where both a textual and an engine reason exist, the text is stated FIRST and the engine second — runbook rule 42 — so that the day a configuration array changes, the refusal is still readable.",
+ "_fpiTarget": "node scripts/vr-federal-fpi.mjs --set all --waves f1,f2,f3,f4,f5,f6,f7,f10 — must report byte-identical formal tiers, Direction Match and unread counts to the same command without f10, because f10 adds no row.",
+ "_renameNote": "The brief names this wave F5. F5 is taken: db/vr-federal-mapping-seed-f5.json and scripts/test-vr-federal-wave-f5.mjs shipped as the no-write wave whose audit record is cited by name in the F6, F7, F8 and F9 suites (F7 keys a whole assertion group off D.f5sBlockedOnClosedHere; F8 and F9 list the F5 files in their DECLARED sets). Overwriting them would delete a record four suites depend on and would contradict the repo's own rule that a refusal whose price is deleted is a refusal nobody can audit. The wave therefore ships as F10 and is registered as f10 in the WAVES map of scripts/vr-federal-fpi.mjs. f8 and f9 are absent from that map for reasons recorded there: f8 shipped an attribution seed rather than a mapping seed, and f9's rows live in its migration.",
+ "measures": [],
+ "_measuresNote": "Empty, and the emptiness is the measurement. See declinedRollCalls and declinedMappings for the 33 instruments considered and the reason each was refused.",
+ "census": {
+  "rebuiltNotReused": "Rebuilt from the deployed corpus before any candidate was looked at, as the brief required. F4's leftover list was not consulted; the pool below was re-derived by querying vr_measures for every measure holding a roll call and no row in vr_measure_issues.",
+  "senate": {
+   "members": 102,
+   "keysInCorpus": 106,
+   "keysInChambersView": 98,
+   "keysWithASenatePrimary": {
+    "before": 38,
+    "after": 38
+   },
+   "unreadRows": {
+    "before": 1025,
+    "after": 1025
+   },
+   "unreadByReason": {
+    "no_pole_read": 793,
+    "no_side": 213,
+    "no_side_taken": 19
+   },
+   "vehicle_only": {
+    "before": 0,
+    "after": 0
+   },
+   "incidental": {
+    "before": 0,
+    "after": 0
+   },
+   "mixed_thin": {
+    "before": 0,
+    "after": 0
+   },
+   "keysInPlayForReach": 78,
+   "keysANewSenatePrimaryCanMove": 60,
+   "keysWithUnreadVolumeAndACeilingOfZero": 10,
+   "rowsOnThoseTenKeys": 1003
+  },
+  "house": {
+   "members": 435,
+   "unreadRows": {
+    "before": 2326,
+    "after": 2326
+   },
+   "vehicle_only": {
+    "before": 0,
+    "after": 0
+   },
+   "incidental": {
+    "before": 0,
+    "after": 0
+   },
+   "mixed_thin": {
+    "before": 0,
+    "after": 0
+   },
+   "keysInPlayForReach": 77,
+   "keysANewHousePrimaryCanMove": 59,
+   "keysWithUnreadVolumeAndACeilingOfZero": 11,
+   "rowsOnThoseElevenKeys": 2161
+  },
+  "roster": {
+   "unreadRows": {
+    "before": 3874,
+    "after": 3874
+   },
+   "unreadByReason": {
+    "no_pole_read": 2362,
+    "no_side": 1250,
+    "no_side_taken": 255,
+    "no_rollcall": 7
+   },
+   "reasonsTheCorpusNoLongerProduces": [
+    "vehicle_only",
+    "incidental",
+    "mixed_thin"
+   ]
+  },
+  "theBriefsPremiseMeasured": [
+   "The brief's stated cause — 'most senator rows on many keys are still unread because the only PRIMARY on that key is a House instrument or a provision inside a vehicle' — is not the cause of a single unread row in the corpus, and three independent measurements say so.",
+   "ONE. The vehicle_only and incidental columns read 0 / 0 on every one of the 98 keys in the chamber census, in both chambers. Those two reasons, and mixed_thin with them, are legacy strings the shipped corpus no longer emits. The class of hole this wave was chartered to close was closed by earlier waves.",
+   "TWO. no_side is 1250 rows over 18 keys and every one of the 18 is structurally suppressed before any primary wall is consulted: 1215 rows on ten *_balance keys (_rdSuppressedKey returns balance_key) and 35 on eight _RD_NO_POLE keys. no_pole_read is a further 2362 rows on poleless keys by definition. That is 3612 of the roster's 3874 unread rows that no mapping of any weight, lane or chamber can convert. Counted only over the two federal chambers, the same fact appears as the 3164 rows --reach measured at a ceiling of zero (1003 Senate + 2161 House) — the same wall seen through a narrower window, not a second finding.",
+   "THREE. The 255 no_side_taken rows are the member's own Present or Not-Voting on an act that IS mapped and IS read for everyone else — gov_transparency's 49 are 49 members all recorded not_voting on House roll #71. A new instrument cannot make a member have voted, and _RD_THIN_MIN = 2 means converting one of those rows needs two judged acts, not one.",
+   "A note on which population each number counts, because the two are easy to add together by mistake. The roster figure of 3874 is every member the app publishes, and it includes 523 unread rows belonging to Utah state legislators, who hold no federal roll call at all and were never in this wave's reach. The two federal chambers account for the other 3351: 1025 Senate + 2326 House. A federal mapping can only ever address the 3351, and of those, 3164 have a measured ceiling of zero.",
+   "The residue after those three is 7 no_rollcall rows: a mapped measure with no roll to attribute. Those need a roll, not a mapping.",
+   "So: REACHABLE UNREAD, defined the way the brief defines it — rows that would become readable if this key gained a chamber-reachable PRIMARY — MEASURES ZERO IN BOTH CHAMBERS. Every --reach row reports -read 0 as well, so there was no regression to trade against either."
+  ],
+  "whatIsActuallyReachable": [
+   "--reach found something real, and it is not unread conversion. 60 Senate keys and 59 House keys can be moved by a new act, and every row of that movement is EMPTY becoming READABLE: 26 Senate keys and 19 House keys hold no instrument at all, so a first act there is worth +102 and +435 members respectively.",
+   "n=1 and n=2 return identical numbers on every key in both chambers. One act at strength 1.00 already clears _RD_THIN_MIN, so the binding constraint on an empty key is the FIRST act, not the second. This refines F5's --band footer ('they need a second act, not a lane change'): what they need is a first act on a POLED key.",
+   "+other measured 0 on every key in both chambers, so no synthetic instrument moved a member's coverage floor onto a different key. Collateral gain is not available as an argument for any admit.",
+   "Attribution ceiling held at chamber headcount on every key in both chambers: 102 of 102 senators, 435 of 435 representatives, never one more."
+  ],
+  "primaryFlagIsNotAGate": [
+   "The doctrinal fact that governs every candidate below, and the reason no reordering of this wave could have produced row conversions. _RD_MIN_PRIMARY is no longer consulted by anything in stance-helpers.js. Both consumers were removed by an earlier pass; the constant survives on two lines and both only word the pkgNote disclosure sentence. The source says it in its own words — 'This is the last of the primary locks. isPrimary is now what it was always documented to be: a label on the bill, printable everywhere and consultable by nothing. Do not put it back' — and scripts/test-characterise-every-act.mjs carries the brief that forbids restoring it.",
+   "Therefore 'the only PRIMARY on that key is a House instrument' cannot be the reason any row is unread, by design. A wave promising row conversions from a flag would be promising something the engine deliberately cannot deliver, and F5's --band pass already measured all 28 promotable acts across 17 keys at +0 / -0 one at a time.",
+   "F4's comment at the promotes loop in scripts/vr-federal-fpi.mjs still asserted the wall had a consumer. It is corrected in this wave rather than left to mislead the next curator."
+  ],
+  "whichPopulationEachNumberCounts": {
+   "roster": "3874 unread rows over every published member, federal and state.",
+   "federalChambersOnly": "3351 = 1025 Senate + 2326 House. This is the only population a federal instrument can reach.",
+   "stateLegislators": "523 rows. Utah legislators hold no congressional roll call, so no federal mapping of any kind converts one. They are counted here so the roster total is not silently smaller than its parts.",
+   "suppressedRoster": "3612 = no_pole_read 2362 + no_side 1250. Every one of those rows is refused a direction by _rdSuppressedKey before is_primary, weight or lane is consulted.",
+   "federalCeilingOfZero": "3164 = 1003 Senate + 2161 House, measured by --reach rather than derived: the rows sitting on keys where a synthetic instrument voted Yea by every member still converts nothing.",
+   "whyBothAreQuoted": "The suppression figure is derived from the reason column; the ceiling figure is measured by simulation. They agree, and quoting only one of them would hide the fact that two independent methods reached the same wall."
+  }
+ },
+ "promotes": [],
+ "_promotesNote": "None. A promote changes is_primary and nothing else, and is_primary is consulted by nothing (see census.primaryFlagIsNotAGate). F5 measured every promotable act in the corpus at +0 / -0. Shipping one this wave would have moved a label and called it a reading.",
+ "retractions": [],
+ "_retractionsNote": "None. No standing PRIMARY was found stale. The brief permits a retraction only with a guarded statement and a reason, and no candidate produced either: every live PRIMARY reviewed against the pool below still rests on the reason its own wave wrote.",
+ "declinedRollCalls": [
+  {
+   "measures": [
+    "S.J.Res. 114",
+    "S.J.Res. 116",
+    "S.J.Res. 118",
+    "S.J.Res. 123",
+    "S.J.Res. 172",
+    "S.J.Res. 180",
+    "S.J.Res. 181"
+   ],
+   "congress": 119,
+   "session": 2,
+   "chamber": "senate",
+   "rolls": [
+    88,
+    69,
+    58,
+    79,
+    174,
+    207,
+    216
+   ],
+   "title": "A joint resolution to direct the removal of United States Armed Forces from hostilities within or against the Islamic Republic of Iran that have not been authorized by Congress.",
+   "form": "Each carries exactly one roll call, all seven of the same form: On the Motion to Discharge, action_type motion, all seven rejected, all seven with 100 member votes recorded and a senate.gov roll-call source.",
+   "whyThisMatters": "These seven are the ONLY Senate-reachable instruments in the entire corpus that hold a roll call and no issue mapping. 641 measures were checked; exactly seven qualify, and all seven are this one subject. Every other measure a senator has ever voted on in this corpus is already mapped. That single number is the wave's central finding: there was no unmapped Senate instrument left to admit.",
+   "declinedBecause": [
+    "ON THE TEXT FIRST. The only vote on each resolution is a motion to discharge the Committee on Foreign Relations, not a vote on enacting the policy. The corpus already holds eight siblings of exactly this form — S.J.Res. 59, 83, 90, 98, 104, 163, 184, 185 — and every one of them is mapped war_powers at weight 70 with is_primary false, on a rationale that says why in the seed's own words: the resolution 'reached the floor only because the Foreign Relations Committee was discharged'. F7's vote seed makes the same argument for admitting the form at all. That precedent is a SECONDARY weight, and this wave was chartered for standalone PRIMARYs whose weight is earned by the text. A discharge motion cannot earn PRIMARY weight without overturning the reason eight live rows were written at 70.",
+    "AND ON RECURRENCE. Seven near-identical resolutions on one hostilities question in one session, mapped onto one key that already holds eight of them, is restuffing cousins — which this wave's brief bans by name. Fifteen rows would say what eight already say.",
+    "THE ENGINE SECOND, and only to record that nothing was lost. war_powers sits in _RD_NO_POLE in stance-helpers.js, so _rdSuppressedKey returns no_pole and the key is muted before any wall is reached. --reach measured the key's ceiling directly: a synthetic w100 PRIMARY passage instrument with every senator voting Yea moves the key +0 at n=1, +0 at n=2, +other 0 and -read 0, against 101 unread rows of which 101 are no_pole_read. The best instrument that could ever exist on this key converts nothing, so neither does this one.",
+    "Also: action_type motion is a member of PROCEDURAL_TYPES in the pack, so all seven acts would arrive flagged isProcedural. Seven procedural acts do not make a record read."
+   ],
+   "measuredCost": "0 unread rows left unconverted, in both chambers, at both floors. The refusal costs the reader nothing and was measured before it was written.",
+   "notRefusedFor": "Not refused for party line, not refused because the majority was one way, and not refused for being politically awkward. The tallies are recorded in the corpus (46-51, 47-53, 47-53, 47-52, 47-48, 47-49, 49-50) and played no part in the decision.",
+   "ifTheKeyEverGainsAPole": "If war_powers is ever given a curated pole, revisit all fifteen resolutions together as one subject at one weight — not this wave's seven bolted onto F7's eight."
+  }
+ ],
+ "declinedMappings": [
+  {
+   "measure": "H.R. 3106",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 234,
+   "shortTitle": "Weatherizing Infrastructure in the North and Terrorism Emergency Readiness Act of 2025",
+   "keysConsidered": [
+    "disaster_resilience",
+    "infrastructure",
+    "enviro_energy"
+   ],
+   "declinedBecause": "The engrossed text weatherizes nothing. Section 2 requires the Secretary of Homeland Security to 'develop and conduct a collective response to terrorism exercise' with a polar-vortex scenario, and Section 2(c) requires an after-action report within 60 days. One tabletop exercise and one report. No infrastructure is hardened, funded, required or inspected. This is the cleanest instance in the pool of runbook rule 4 — the name is not the instrument — and it is transcribed into the runbook for the next curator.",
+   "measuredCost": "0 unread rows. disaster_resilience holds 1 House PRIMARY and 0 House unread; its only Senate unread row is no_side_taken."
+  },
+  {
+   "measure": "H.R. 1676",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 316,
+   "shortTitle": "Make SWAPs Efficient Act of 2025",
+   "keysConsidered": [
+    "gov_regulation",
+    "permitting_reform",
+    "lands_preserve"
+   ],
+   "declinedBecause": "SWAPs here are State Wildlife Action Plans, not financial swaps. The text amends section 4(e)(3) of the Pittman-Robertson Wildlife Restoration Act to put a 180-day clock on the Secretary of the Interior approving a State's wildlife conservation and restoration programme, with a report to two committees if the clock is missed. It is an agency review deadline on a State conservation plan: not the size of the federal rulebook (gov_regulation), not a permit or a NEPA review (permitting_reform, whose subject runbook rule 3 assigns), and not a land protection or withdrawal (lands_preserve). No chip in the shipped vocabulary is this instrument's subject, and refusing it is the honest outcome. Recorded at length because the short title reads like a derivatives bill and a title-driven mapper files it under financial regulation.",
+   "measuredCost": "0 unread rows."
+  },
+  {
+   "measure": "H.R. 3424",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 240,
+   "shortTitle": "SPACE Act of 2025",
+   "keysConsidered": [
+    "permitting_reform",
+    "tech_innovation",
+    "gov_waste"
+   ],
+   "declinedBecause": "SPACE here is Shared Property Agency Collaboration and Engagement. The text directs the GSA Administrator to collaborate with federal tenants on shared-space arrangements, develop criteria for collocation, set measurable objectives and brief two committees within six months. Federal office space, not spaceflight; and a duty to collaborate and brief is not a permitting reform, a technology policy or a recovery of an improper payment. Recorded for the same reason as H.R. 1676: the acronym invites a wrong key.",
+   "measuredCost": "0 unread rows."
+  },
+  {
+   "measure": "H.R. 3425",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 241,
+   "shortTitle": "Personnel Oversight and Shift Tracking Act of 2025 (POST Act)",
+   "keysConsidered": [
+    "congress_oversight",
+    "back_police",
+    "gov_waste"
+   ],
+   "declinedBecause": "The text directs the Federal Protective Service to strengthen oversight of its own CONTRACT security personnel: covert-testing data standards, quarterly analytical reviews, contractor corrective-training plans, an evaluation of the personnel tracking system, and annual reports to two committees. Congress's own oversight power is neither created nor exercised — a statutory reporting clause is not an oversight instrument, which is the same reason F4 refused H.R. 1069 on gov_transparency (its only publication sat inside an opt-in waiver). And contract guards at GSA buildings are not policing, so back_police is a keyword reach on the word security.",
+   "measuredCost": "0 unread rows. Recorded because congress_oversight holds 0 House PRIMARY and --reach prices a first House act there at +331 readable members — a large number that is exactly why the text had to decide it and not the number. Weight is earned by the text, not by coverage hunger."
+  },
+  {
+   "measure": "H.R. 8897",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 235,
+   "shortTitle": "Improving Travel for American Families Act",
+   "keysConsidered": [
+    "cost_living",
+    "econ_corp_account"
+   ],
+   "declinedBecause": "Every operative verb is permissive and the whole thing sunsets. The Administrator of the TSA 'may establish a pilot program' expediting screening for adults travelling with children twelve and under, 'if the Administrator establishes' it there are security conditions and a briefing, and subsection (e) runs it for two years. No fee is banned, no price is changed, no entitlement is created. cost_living goes the way F4 sent H.R. 3628: the name is not the instrument. A discretionary two-year pilot is not a policy a reader can be given a side on.",
+   "measuredCost": "0 unread rows. cost_living holds no act in either chamber and --reach prices a first House act at +313 — again a large number that the text refused."
+  },
+  {
+   "measure": "H.R. 1402",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 107,
+   "shortTitle": "TICKET Act",
+   "keysConsidered": [
+    "econ_corp_account",
+    "cost_living"
+   ],
+   "declinedBecause": "The strongest candidate in the pool on its text, and still a refusal on the precedent's own written reason. It makes it unlawful to offer an event ticket without displaying the total price and itemising each fee, and bans speculative ticketing. That is a disclosure and inventory mandate on sellers. F4 refused H.R. 973 on this same key with the reason written down — 'consumer protection keyword only; a UL cell-pack test standard is neither antitrust nor price-gouging' — and a hidden-fee disclosure rule is likewise neither antitrust nor gouging: the total price is unchanged, it is merely shown earlier. Runbook rule 41 settles cousin refusals on the precedent measure's own reason, not on adjacency, and that reason excludes this instrument too. cost_living fails for the same reason as H.R. 8897: disclosing a price is not lowering one.",
+   "measuredCost": "0 unread rows; +9 readable House members forgone on econ_corp_account, which is coverage growth on a key already readable in both chambers, not a conversion."
+  },
+  {
+   "measure": "H.R. 8823",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 251,
+   "shortTitle": "Putting Patients First by Strengthening Provider Accountability in FECA Act",
+   "keysConsidered": [
+    "gov_waste",
+    "healthcare"
+   ],
+   "declinedBecause": "Admissible on subject and refused on the wave's charter. The text adds 5 U.S.C. 8103(c), letting the Secretary of Labor suspend FECA payments to a provider convicted of fraud against this subchapter, any federal health care benefit programme, or a similar state programme. Stopping payments to convicted fraudsters is squarely gov_waste's subject and the instrument is standalone. But this wave was chartered to close a CHAMBER gap, and the roll is a House roll: gov_waste already holds a House PRIMARY and 0 House unread rows, so the admit reaches the chamber that is already covered and cannot reach the one that is not. Measured, it moves nothing anywhere. Admitting it would be densification wearing a gap-closing label, which the brief refuses in the words 'would help the pattern look fuller' is not a reason.",
+   "measuredCost": "0 unread rows, 0 readable members, in both chambers.",
+   "ifARealSenateWaveEverOpens": "This is the first instrument to reconsider if a later wave is chartered for House densification rather than chamber gaps. Its text holds up; only this wave's charter excludes it."
+  },
+  {
+   "measure": "H.R. 915",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 226,
+   "shortTitle": "Small Business Technological Advancement Act",
+   "keysConsidered": [
+    "econ_smallbiz",
+    "tech_innovation"
+   ],
+   "declinedBecause": "The text adds paragraph (38) to section 7(a) of the Small Business Act so SBA business loans may finance business software, cloud services and AI business tools, with a rule of construction excluding research and development. Genuinely econ_smallbiz's subject. Refused on the same charter ground as H.R. 8823: econ_smallbiz already holds 2 House PRIMARY acts and its only Senate unread row is no_side_taken, so a third House act converts nothing and reaches no senator. tech_innovation is refused on the text — the instrument finances a small firm's purchase of existing software, it develops no technology.",
+   "measuredCost": "0 unread rows, 0 readable members."
+  },
+  {
+   "measure": "H.R. 7401",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 225,
+   "shortTitle": "Small Business Lending Fraud Prevention Act",
+   "keysConsidered": [
+    "gov_waste",
+    "gov_transparency",
+    "econ_smallbiz"
+   ],
+   "declinedBecause": "The text requires an SBA employee who will participate substantially in originating, reviewing or approving a loan to certify IN WRITING TO THE ADMINISTRATOR that they hold no conflict prohibited by 18 U.S.C. 208, to disclose one later discovered to their supervisor, and to recuse. An internal certification to an agency head with no public filing is not disclosure — F4's H.R. 1069 refusal on gov_transparency turned on exactly that distinction. It recovers no improper payment either, so gov_waste is not its subject: it is an ethics-screening step. And the instrument regulates SBA employees, not small businesses, so econ_smallbiz is a title reach.",
+   "measuredCost": "0 unread rows."
+  },
+  {
+   "measure": "H.R. 1118",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 252,
+   "shortTitle": "Value Over Cost Act of 2026",
+   "keysConsidered": [
+    "gov_waste",
+    "audit_spending",
+    "cut_spending"
+   ],
+   "declinedBecause": "The whole operative text is one substitution in 41 U.S.C. 152(3)(B): 'lowest overall cost alternative' becomes 'best value'. A procurement evaluation standard, and one that permits paying MORE for a better award, so it is not a waste recovery, not an audit, and not a spending cut. No chip's subject, and no polarity a reader could be shown a side on.",
+   "measuredCost": "0 unread rows."
+  },
+  {
+   "measure": "H.R. 530",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 115,
+   "shortTitle": "ACES Act",
+   "keysConsidered": [
+    "veterans",
+    "healthcare"
+   ],
+   "declinedBecause": "The text directs the Secretary of Veterans Affairs to seek an agreement with the National Academies for a STUDY of cancer prevalence and mortality among former active-duty aircrew, with reporting deadlines if the agreement slips. A commissioned study creates no benefit, presumption or eligibility. Same class as H.R. 3106: the act performed is research, and the key's subject is what veterans receive.",
+   "measuredCost": "0 unread rows. veterans holds 1 Senate and 2 House PRIMARY acts; its 2 Senate unread rows are both no_side_taken."
+  },
+  {
+   "measure": "S. 356",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 315,
+   "shortTitle": "Secure Rural Schools Reauthorization Act of 2025",
+   "keysConsidered": [
+    "rural_ag",
+    "public_schools",
+    "lands_local",
+    "edu_balance"
+   ],
+   "declinedBecause": "The text extends Secure Rural Schools payments to states and counties containing federal land through 2026, reconciles them against 25-percent and 50-percent payments already made for FY2024 and FY2025, and orders Treasury to pay within 45 days. It is federal-land revenue sharing to county governments; the money is usable for roads as well as schools and no education policy is set, so public_schools is not its subject and would in any case land behind the 0c wall F1 and the runbook put there. rural_ag is refused on runbook rule 41 by name: that key's keyword array contains 'rural broadband', 'grazing' and 'water right', the word rural in a short title is a coincidence in a data structure, and this instrument names no farm, ranch or commodity interest. lands_local is a local-government key whose entire ledger is county officials' informal stances on federal-land friction, and a federal payments formula is not that subject. edu_balance is a *_balance key and permanently unread.",
+   "measuredCost": "0 unread rows."
+  },
+  {
+   "measure": "H.R. 5348",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 306,
+   "shortTitle": "Social Security Child Protection Act of 2025",
+   "keysConsidered": [
+    "social_security",
+    "privacy_rights"
+   ],
+   "declinedBecause": "Reissuing a Social Security number to a child whose number was compromised is SSA account administration, not the retirement programme's benefits or solvency, which is social_security's subject — the name is not the instrument. privacy_rights already holds 1 Senate and 4 House PRIMARY acts and this identity-reissuance step is a narrow administrative remedy rather than the key's subject, so it would be densification either way.",
+   "measuredCost": "0 unread rows. social_security's 3 unread rows are all no_side_taken."
+  },
+  {
+   "measure": "H.R. 1503",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 119,
+   "shortTitle": "Stop Forced Organ Harvesting Act of 2025",
+   "keysConsidered": [
+    "strong_defense",
+    "america_first_fp",
+    "restraint",
+    "NEW KEY: human_rights_sanctions"
+   ],
+   "declinedBecause": "Sanctions and reporting against forced organ harvesting authorise, fund and equip nothing, which is the test the census applied to refuse a China keyword reach on strong_defense this sequence. america_first_fp's August 2026 scope note routes adversary POSTURE to strong_defense, and that route now closes on the same test. restraint is about limiting United States military engagement and this instrument commits no force. The honest reading is that no shipped chip is this instrument's subject — which is why a new key was proposed for it, and refused below on polarity.",
+   "measuredCost": "0 unread rows."
+  },
+  {
+   "measure": "H.R. 4423",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 307,
+   "shortTitle": "No New Burma Funds Act",
+   "keysConsidered": [
+    "restraint",
+    "america_first_fp",
+    "cut_spending",
+    "NEW KEY: human_rights_sanctions"
+   ],
+   "declinedBecause": "A prohibition on funds to a foreign military regime restrains a payment, not a deployment: restraint's subject is United States force commitment. cut_spending is refused on the reason the census already wrote for national_debt — every spending measure has a fiscal consequence and that is not what makes an instrument a spending-cut instrument. Same missing chip as H.R. 1503, and the same refused key proposal.",
+   "measuredCost": "0 unread rows."
+  },
+  {
+   "measure": "H.R. 2478",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 227,
+   "shortTitle": "Financial Exploitation Prevention Act of 2025",
+   "keysConsidered": [
+    "econ_corp_account",
+    "justice_reform"
+   ],
+   "declinedBecause": "Letting a registered fund delay a redemption it suspects is elder financial exploitation is an investor-protection mechanic inside securities law. Neither antitrust nor price-gouging (the econ_corp_account reason F4 wrote), and not criminal justice policy.",
+   "measuredCost": "0 unread rows."
+  },
+  {
+   "measure": "H.R. 7128",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 229,
+   "shortTitle": "TRIA Program Reauthorization Act of 2026",
+   "keysConsidered": [
+    "econ_corp_account",
+    "disaster_resilience",
+    "gov_waste"
+   ],
+   "declinedBecause": "A terrorism risk insurance backstop reauthorisation. No shipped chip covers federal reinsurance; it prices no consumer good, hardens no infrastructure and recovers no payment. Refused for a missing chip, and no key was proposed because a reinsurance backstop recurs once in this corpus and carries no polarity.",
+   "measuredCost": "0 unread rows."
+  },
+  {
+   "measure": "H.R. 4541",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 250,
+   "shortTitle": "To reauthorize the Young Women's Breast Health Education and Awareness Requires Learning Young Act of 2009",
+   "keysConsidered": [
+    "healthcare",
+    "health_rural",
+    "health_mental"
+   ],
+   "declinedBecause": "Reauthorising a CDC education and awareness programme is neither coverage nor cost, which is healthcare's subject, and it is neither rural delivery nor mental health. A programme reauthorisation with no coverage or price effect has no chip here.",
+   "measuredCost": "0 unread rows."
+  },
+  {
+   "measure": "H.R. 139",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 238,
+   "shortTitle": "Sunshine Protection Act of 2025",
+   "keysConsidered": [
+    "NEW KEY: daylight_saving"
+   ],
+   "declinedBecause": "Making daylight saving time permanent has no chip and earns none: it appears once in the corpus (no recurrence) and has no left-right pole (no polarity). It fails two of the six vocab rules on its own, and a key with no pole is a key that lands in _RD_NO_POLE and reads as nothing.",
+   "measuredCost": "0 unread rows."
+  },
+  {
+   "measure": "H.R. 5362",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 248,
+   "shortTitle": "To name the Department of Veterans Affairs multispecialty clinic in Marietta, Georgia",
+   "keysConsidered": [
+    "veterans"
+   ],
+   "declinedBecause": "A commemorative naming, and the engrossed text is one operative sentence: the multispecialty clinic at 240 South Marietta Parkway is to be known as the Sergeant Jerome Cheatham VA Clinic, plus a rule of construction that every other reference to it now means that name. It changes no eligibility, no benefit, no appropriation, no staffing requirement and no standard of care, so there is no veterans-policy position for a Yea or a Nay to take. Admitting it would put a member's vote on a building's name into the same column as a vote on a benefit, and yea_supports would then mean two different things on one key — the exact failure the brief forbids when it says yea_supports must mean one thing. It is refused on the text, and it would still be refused if veterans had unread volume to gain, which it does not.",
+   "measuredCost": "0 unread rows. veterans holds a Senate PRIMARY already and its 2 unread Senate rows are both no_side_taken, which no instrument converts."
+  },
+  {
+   "measure": "H.R. 1069",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 313,
+   "shortTitle": "PROTECT Our Kids Act",
+   "keysConsidered": [
+    "edu_parental",
+    "gov_transparency",
+    "school_choice",
+    "public_schools"
+   ],
+   "declinedBecause": "Already screened and refused across all four keys in the F4 record, each with its own written reason: no parent-facing provision (its Sec. 2(d) notice runs to state agencies), no compelled disclosure (its only publication sits inside an opt-in waiver), no money follows any student, and the public_schools mapping was drafted at w90 PRIMARY, measured at +73 clear rows and refused anyway because the F1 and runbook 0c wall stands. Re-listed here so the pool sweep is complete, and not re-argued: nothing about the instrument or the walls changed.",
+   "measuredCost": "73 clear rows on public_schools, unchanged from F4, and still blocked on 0c rather than on this wave."
+  },
+  {
+   "measure": "H.R. 973",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 103,
+   "shortTitle": "Setting Consumer Standards for Lithium-Ion Batteries Act",
+   "keysConsidered": [
+    "econ_smallbiz",
+    "econ_corp_account",
+    "tech_innovation",
+    "gov_regulation"
+   ],
+   "declinedBecause": "Screened and refused in the F4 record on all four keys: its text is not scoped by small-business burden, a UL cell-pack test standard is neither antitrust nor price-gouging, and mapping it to tech_innovation would make the same claim as its gov_regulation row twice — one instrument, one act. Re-listed for pool completeness, not re-argued.",
+   "measuredCost": "0 unread rows."
+  },
+  {
+   "measure": "S. 2503",
+   "congress": 119,
+   "chamber": "house",
+   "roll": 72,
+   "shortTitle": "ROTOR Act",
+   "keysConsidered": [
+    "infrastructure"
+   ],
+   "declinedBecause": "Screened and refused in the F4 record with the measurement written down: 0 clear rows, +16 split, +2 UNREAD, and an aviation equipage mandate builds no road or grid. Re-listed for pool completeness. Note also that the House rejected it, so the roll is a failed passage.",
+   "measuredCost": "0 clear rows, and the admit would have pushed 2 rows INTO unread."
+  },
+  {
+   "measures": [
+    "H.Amdt. 244",
+    "H.Amdt. 245",
+    "H.Amdt. 259"
+   ],
+   "congress": 119,
+   "chamber": "house",
+   "rolls": [
+    257,
+    258,
+    274
+   ],
+   "parent": "H.R. 8800",
+   "keysConsidered": [
+    "privacy_rights",
+    "strong_defense",
+    "econ_corp_account"
+   ],
+   "declinedBecause": "All three are floor amendments inside H.R. 8800, a must-pass authorisation vehicle, and this wave's first admission rule is standalone or the amendment IS the policy. None is: 244 strikes a cadet service-obligation limit, 245 strikes a voice-based drug-testing pilot, 259 widens an investor approval. F4 already drafted 245 onto privacy_rights and measured it at MINUS 9 clear rows with 10 members weakened by the rule 30 wall, then wrote the block instead of the mapping. Nothing has changed.",
+   "measuredCost": "H.Amdt. 245 on privacy_rights: -9 clear rows. The other two were never drafted because the vehicle rule excludes them before weight is discussed."
+  }
+ ],
+ "_nonInstrumentsExcluded": {
+  "count": 8,
+  "whatTheyAre": "7 special rules (H.Res. 377, 682, 916, 1075, 1398, 1423, 1438 — each 'providing for consideration of' a named bill, each carrying a procedural roll and a passage roll) and 1 unnumbered organisational vote (Election of the Speaker, House roll under a null measure number).",
+  "whyExcluded": "A special rule sets the terms of debate on someone else's bill and takes no position on its subject; the Speaker election is the House organising itself. Both are the vehicle, never the policy. Listed rather than dropped so the 41-measure pool reconciles: 7 Senate + 26 House instruments considered above, 8 non-instruments here."
+ },
+ "blockedOn": [
+  {
+   "what": "3612 roster unread rows on structurally suppressed keys — 3164 of them federal",
+   "senate": 1003,
+   "house": 2161,
+   "keys": [
+    "foreign_balance",
+    "tech_balance",
+    "enviro_balance",
+    "lands_balance",
+    "reform_balance",
+    "edu_balance",
+    "democracy_balance",
+    "justice_balance",
+    "rights_balance",
+    "gov_balance",
+    "states_federal_power",
+    "war_powers",
+    "crypto_cbdc",
+    "guard_authority",
+    "homeless",
+    "tariffs_authority",
+    "tariffs_prices",
+    "state_standing",
+    "medical_freedom"
+   ],
+   "blockedOn": "A curated directional pole, or the retirement of the *_balance keys. _rdSuppressedKey() returns balance_key on ten of these and no_pole on the other nine, and the mute happens before any wall, weight or lane is consulted. --reach measured the ceiling on all 21 key-chamber pairs (10 Senate keys, 11 House) at +0 / +0 / -0 with the best instrument that could exist. This is a written blocked-on and not a mapping, exactly as the brief instructed.",
+   "notThisWave": "Adding a pole is a doctrine change to stance-helpers.js, not a mapping wave, and _RD_NO_POLE was declared byte-identical for this pass.",
+   "roster": 3612,
+   "stateLegislators": 448,
+   "howTheTwoFiguresRelate": "3612 is derived from the reason column over every published member (no_pole_read 2362 + no_side 1250). 3164 is the subset --reach measured directly over the two federal chambers (1003 Senate + 2161 House), and is therefore the only part of it a federal instrument could ever have been aimed at. The remaining 448 belong to Utah legislators, who hold no congressional roll.",
+   "distinctKeys": 19,
+   "keyChamberPairsMeasuredAtZero": 21
+  },
+  {
+   "what": "255 no_side_taken rows",
+   "largest": "gov_transparency 49 — all 49 members recorded not_voting on House roll #71, H.R. 6329, On Motion to Suspend the Rules and Pass",
+   "blockedOn": "The member's own attendance, which no mapping can supply. And _RD_THIN_MIN = 2 means converting one of these rows needs TWO judged acts on that key for that member, so even a perfect new instrument the member voted on converts none of them alone."
+  },
+  {
+   "what": "7 no_rollcall rows",
+   "blockedOn": "A roll call for a mapped measure. Needs an ingest, not a mapping."
+  },
+  {
+   "what": "45 keys with no instrument at all — 26 Senate-empty, 19 House-empty",
+   "examples": [
+    "cannabis_reform",
+    "checks_balances",
+    "pro_choice",
+    "paid_leave",
+    "prop_tax",
+    "property_rights",
+    "sound_money",
+    "tariffs_china",
+    "tobacco_nicotine",
+    "voter_id",
+    "water_storage",
+    "justice_reform",
+    "dev_district_finance",
+    "lands_local",
+    "rural_ag",
+    "housing_first_time",
+    "housing_support",
+    "back_police",
+    "end_dei"
+   ],
+   "priced": "+102 readable senators each on the Senate side, +435 representatives each on the House side, at n=1, with n=2 adding nothing.",
+   "blockedOn": "An instrument. The corpus contains none: every Senate-reachable measure with a roll is already mapped except the seven Iran resolutions, and not one of the 26 unmapped House instruments has a text whose subject is any of these keys. This is the largest reachable number in the wave and it is blocked on ingest, not on curation.",
+   "howToUnblockIt": "A future wave that ingests rolls for instruments the corpus does not yet hold — the shipped candidates being S. 146 (free_speech, passed by unanimous consent, 0 rolls), S. 2683 (health_rural, 0 Senate rolls), S. 1101 (scotus_reform, 0 of 890 Senate rolls) — all three already written as blocked-on in F4 and F5 and unchanged here."
+  },
+  {
+   "what": "The brief's mutation test as specified",
+   "spec": "'Mutation: flipping one PRIMARY off must move the unread census.'",
+   "blockedOn": "The engine, deliberately. is_primary is consulted by nothing that decides a tier, a read, a direction or a floor, so flipping one off moves no census row — F5 measured all 28 promotable acts across 17 keys at +0 / -0 one at a time, and scripts/test-characterise-every-act.mjs carries a brief forbidding the lock's restoration. The test as written would fail against a correct engine.",
+   "shippedInstead": "scripts/test-vr-federal-wave-f10.mjs asserts the true property in both directions: flipping a PRIMARY must NOT move the census, and the pinned reason is the decommissioned wall. The requirement is answered, inverted, with the reason stated."
+  }
+ ],
+ "chamberGapSweep": {
+  "question": "Which keys gained a Senate PRIMARY this wave?",
+  "answer": "None. 38 of 98 keys held a Senate PRIMARY before F10 and 38 of 98 hold one after.",
+  "whyNoneCould": "The sweep found exactly 7 Senate-reachable instruments in the corpus holding a roll and no mapping, all seven the same Iran war-powers subject on a key measured at a ceiling of zero. There was no second candidate to weigh.",
+  "wasAnyKeyDeclinedBecauseTheOnlyRollWasAPackage": {
+   "answer": "No — and the brief asks the question, so it gets a precise answer rather than a convenient one.",
+   "detail": "No key was declined this wave because its only available roll sat inside a package. One key, war_powers, was declined because the only available roll on each of its seven candidates was a PROCEDURAL MOTION TO DISCHARGE — a narrower and different fact, and one the corpus already handles at secondary weight. Three keys were declined in earlier waves for the package reason and those refusals stand unchanged here: health_drug_prices (H.R. 5376 w90 is one title of a reconciliation act), healthcare_costs (both candidates reconciliation), tax_middle_class (H.R. 1 w60 is reconciliation and none of the 63 passage-form rolls is a standalone rate bill). This wave re-derived its pool from the corpus and found no new instance."
+  },
+  "vehicleOnlyBeforeAfter": {
+   "senate": {
+    "before": 0,
+    "after": 0
+   },
+   "house": {
+    "before": 0,
+    "after": 0
+   },
+   "note": "Reported as the brief requires, and the answer is that the reason string is extinct in this corpus. The same is true of incidental and mixed_thin."
+  }
+ },
+ "vocab": {
+  "keysAdded": [],
+  "refusedProposals": [
+   {
+    "proposed": "human_rights_sanctions",
+    "wouldHaveServed": [
+     "H.R. 1503 Stop Forced Organ Harvesting Act",
+     "H.R. 4423 No New Burma Funds Act"
+    ],
+    "refusedOn": "POLARITY. Both instruments were refused for a missing chip and nothing else, which is the only condition under which this wave may propose a key — but the proposal then has to clear all six vocab rules and it fails the third. Sanctioning a foreign state's abuses is not a contested left-right axis in this vocabulary: there is no pole a reader could be shown a side on, so the key would be born into _RD_NO_POLE and read as nothing on every row it ever held. Recurrence is also thin at two instruments in one Congress. A key that cannot be characterised is a key that makes a record look fuller without making it readable."
+   },
+   {
+    "proposed": "daylight_saving",
+    "wouldHaveServed": [
+     "H.R. 139 Sunshine Protection Act of 2025"
+    ],
+    "refusedOn": "RECURRENCE AND POLARITY, and it fails both outright. RECURRENCE: one instrument in the entire corpus of 641 measures — H.R. 139, on which the House holds a single roll. A key that can only ever hold one act cannot rank weights, cannot reach _RD_MIN_JUDGED = 4, and would publish as a permanent one-item key, which is the thing coverage_floor exists to refuse. POLARITY: permanent daylight time has no left-right pole; its sponsors and opponents in the 119th do not sort, and the six rules require that a key's two ends be nameable before it is created, not after an act needs somewhere to go. It is also arguably a synonym problem in waiting, since the only durable framing of the subject is a scheduling preference rather than a policy direction. Two rules failed and a third at risk is three reasons not to mint a chip for one bill."
+   }
+  ],
+  "_note": "No sloppy chips were shipped and no key was widened, renamed or re-scoped. CORE_NATIONAL_ISSUES.md is untouched."
+ },
+ "_counts": {
+  "measuresInCorpus": 641,
+  "measuresWithARollAndNoMapping": 41,
+  "senateReachableInstrumentsConsidered": 7,
+  "houseReachableInstrumentsConsidered": 26,
+  "nonInstrumentsExcluded": 8,
+  "engrossedTextsReadFromGovinfo": 11,
+  "keysConsideredAcrossAllCandidates": 46,
+  "keysAdmitted": 0,
+  "keysThatGainedASenatePrimary": 0,
+  "keysThatGainedAHousePrimary": 0,
+  "rowsShipped": 0,
+  "promotesShipped": 0,
+  "retractionsShipped": 0,
+  "migrationsWritten": 0,
+  "voteSeedsWritten": 0,
+  "issueKeysAdded": 0,
+  "issueKeysProposedAndRefused": 2,
+  "declinedRollCallEntries": 1,
+  "declinedRollCallMeasures": 7,
+  "declinedMappingEntries": 24,
+  "declinedMappingMeasures": 26,
+  "blockedOnEntries": 5,
+  "senateUnreadBefore": 1025,
+  "senateUnreadAfter": 1025,
+  "houseUnreadBefore": 2326,
+  "houseUnreadAfter": 2326,
+  "rosterUnreadBefore": 3874,
+  "rosterUnreadAfter": 3874,
+  "rowsConverted": 0,
+  "rowsThatStillCannotConvert": 3874,
+  "federalUnreadBefore": 3351,
+  "federalUnreadAfter": 3351,
+  "stateLegislatureUnreadRows": 523,
+  "structurallySuppressedRowsRoster": 3612,
+  "federalRowsWithAMeasuredCeilingOfZero": 3164,
+  "memberAbsenceRows": 255,
+  "missingRollcallRows": 7,
+  "reachableUnreadSenate": 0,
+  "reachableUnreadHouse": 0,
+  "readableMembersForgoneSenate": 0,
+  "readableMembersForgoneHouse": 9,
+  "senatePrimaryKeysBefore": 38,
+  "senatePrimaryKeysAfter": 38,
+  "attributionCeilingSenate": 102,
+  "attributionCeilingHouse": 435
+ },
+ "acceptanceFaces": {
+  "noVoteSeedWasNeeded": "The brief asks for a vote seed built from chamber XML rather than a tracker. No vote seed exists in this wave and none was needed: all 41 candidate measures already hold their roll calls in the corpus, ingested by earlier waves from senate.gov LIS XML and clerk.house.gov EVS XML. A wave that admits no measure that lacks a roll writes no vote seed. Bill TEXT was read from govinfo.gov engrossed prints (BILLS-119hr*eh), which is the primary text and not a tracker.",
+  "noMigration": "No migration file was written, and the tail of netlify/database/migrations/ is unchanged at 20261027000000_vr_instrument_lever_summaries_w1.sql. The hand-set prefix a shipping F10 would have used, 20261028000000, is recorded here and not consumed, so the next wave takes it. Writing an empty migration to satisfy the shape of the brief would have bumped the pack key for no mapping change, which is the one thing the runbook's new no-write subsection tells a curator not to do.",
+  "packKeyUnmoved": "A no-write wave records the mapping version it started at and ended at and the observation that they are the SAME. Verified with scripts/test-vr-pack-key-version.mjs. A no-write wave that moved the key wrote something it did not declare.",
+  "floorsByteIdentical": "_RD_MIN_PRIMARY, _RD_MIN_JUDGED, _RD_THIN_MIN, _RD_THIN_MIN_STRENGTH, the split floors, the member floor and _RD_NO_POLE are all untouched. stance-helpers.js was read and not written this wave.",
+  "theWall": "Nothing judicial was read or written. No judge file, no retention data, no JPEC anything.",
+  "noPartyAnywhere": "No refusal above rests on a party line, a majority, or a whip count, and no reader-facing rationale was written at all this wave because no row shipped. Roll tallies appear once, in the Iran entry, explicitly marked as having played no part in the decision.",
+  "outOfScopeUntouched": "No Utah committee PDFs, no judges, no sitemap /p/ or /i/ work, no DM input, no LLM-written summaries. The two sitemap items remain owed and are not this wave's."
+ },
+ "whatShipsThisWave": {
+  "0": "No mapping row, no migration, no vote seed, no new key, no moved floor.",
+  "1": "scripts/vr-federal-fpi.mjs — a new --reach census that answers the brief's ranking question. --band could only flip an act that already exists; a standalone-PRIMARY wave adds an instrument that is not in the corpus yet, so --reach synthesises the best instrument that could ever exist on a key (w100, PRIMARY, passage, every member Yea, at one floor and at two) and reports what it would convert. It prices every in-play key in both chambers, separates unread conversion from empty-to-readable coverage, reports collateral gain on other keys without ever adding it in, and asserts the attribution ceiling at chamber headcount.",
+  "2": "The correction of F4's stale comment at the promotes loop, which still told the next curator that is_primary has a live consumer.",
+  "3": "db/vr-ingest-runbook.md — the no-write wave subsection the brief asked for on pack lag, plus the rules this wave earned.",
+  "4": "This seed: 41 measures enumerated, 33 instruments refused in writing with their texts quoted, 8 non-instruments listed, 2 key proposals refused, 5 blocked-ons priced.",
+  "5": "scripts/test-vr-federal-wave-f10.mjs."
+ },
+ "standingWallsFound": {
+  "primaryFlagIsALabel": "The wave's most important finding and the one that governs every other. _RD_MIN_PRIMARY gates nothing; is_primary ranks nothing; a promote moves a label. Everything the brief expected a PRIMARY to convert was already unreachable by a PRIMARY.",
+  "suppressionPrecedesEverything": "_rdSuppressedKey() runs before the primary wall, the weight sort and the floors, so 3164 of 3874 unread rows are decided by a configuration array in stance-helpers.js and not by the mapping table at all.",
+  "oneActClearsTheThinFloor": "n=1 and n=2 are identical on every key in both chambers. A first act at strength 1.00 clears _RD_THIN_MIN by itself, so the shape of the remaining work is first acts on poled keys — not deeper stacks on keys that already read.",
+  "theCorpusIsMappedOut": "641 measures, 41 with a roll and no mapping, 7 of them Senate-reachable, all 7 on a poleless key. There is no Senate mapping work left in this corpus; the next Senate gain has to come from an ingest.",
+  "the0cWall": "H.R. 1069 to public_schools still measures +73 clear rows and is still refused. That refusal is F1's and the runbook's, it was not re-litigated here, and it remains the single largest priced item any future wave could unblock."
+ },
+ "measuredCostOfTheRefusedRows": {
+  "unreadRowsLeftUnconvertedByTheseRefusals": 0,
+  "readableMembersLeftOnTheTable": 9,
+  "whereThoseNineAre": "econ_corp_account, House side, had H.R. 1402's disclosure mandate been admitted. Nine members currently hold no act on that key. The key already reads in both chambers, so those nine are coverage growth and not one unread row.",
+  "regressionAvoided": "Two candidates would have made the record WORSE and both were already refused before this wave: S. 2503 pushes 2 rows into unread on infrastructure, and H.Amdt. 245 costs 9 clear rows on privacy_rights.",
+  "theHonestSummary": "This wave could have shipped between one and eight defensible-looking mapping rows and converted zero unread rows with all of them. It shipped none and said why, one instrument at a time, and it shipped the instrument that will let the next curator ask the question in one command instead of re-deriving it."
+ }
+}

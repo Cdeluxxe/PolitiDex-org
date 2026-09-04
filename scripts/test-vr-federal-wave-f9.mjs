@@ -1350,6 +1350,20 @@ const swNote = swWaveNote();
     "judicial-retention.css",
     "firebase-boot.js",
     "scripts/test-judicial-retention.mjs",
+    // Federal wave F10 — the wave briefed as "F5: standalone PRIMARYs for the remaining
+    // chamber gap", which after rebuilding the census admitted nothing and wrote its
+    // reasons instead. Two files change and neither is booted by anything: the read-only
+    // census tool gained a `--reach` mode (what a key's ceiling would be if the best
+    // possible instrument existed) and had F4's stale comment about the primary wall
+    // corrected, and the runbook gained rules 43-46. The seed and its suite are new
+    // files, declared here so they stay declared once they are tracked.
+    // No migration, no mapping row, no vote seed, no key, no floor — so F8's and F9's
+    // own subjects are untouched by construction, and scripts/test-vr-federal-wave-f10.mjs
+    // asserts that separately against HEAD.
+    "scripts/vr-federal-fpi.mjs",
+    "db/vr-ingest-runbook.md",
+    "db/vr-federal-mapping-seed-f10.json",
+    "scripts/test-vr-federal-wave-f10.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
