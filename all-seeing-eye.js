@@ -105,6 +105,31 @@
       try { if (typeof window._getPhotoUrl === 'function') return window._getPhotoUrl(id) || ''; } catch (e) {}
       return '';
     }
+    // ── THE JUDICIAL REGISTRY, AS A SEARCHABLE LANE ─────────────────────
+    // A judge is not in CMP_DATA and is not in PROFILES, on purpose and
+    // permanently (judicial-retention.js, THE WALL). Both of the rosters above
+    // are therefore the wrong place to look for one, which is why "Pohlman"
+    // used to come back as "the eye finds nothing" over a file that renders
+    // completely at /p/jill_pohlman: the only door into a judge file was the
+    // Door 2 retention band, i.e. only for a Utah reader whose county the
+    // district map places.
+    //
+    // So the registry is its OWN lane, read through its own owner. Nothing
+    // here decides a retention fact — PDXJudicial.searchRows() hands over the
+    // rows, the words and the status sentence, and this module renders them.
+    // Guarded because judicial-data.js is a deferred script and this one is a
+    // sync tag: an absent registry is an empty lane, not an exception, and
+    // getIndex()'s cache key below moves when it arrives.
+    function judgeRows() {
+      try {
+        var J = window.PDXJudicial;
+        if (J && typeof J.searchRows === 'function') {
+          var rows = J.searchRows();
+          if (Array.isArray(rows)) return rows;
+        }
+      } catch (e) {}
+      return [];
+    }
     // The searchable text of ONE record. Lifted out of the people loop below so
     // the same fields are harvested from a retired document as from the record it
     // resolves into — collapsing two rows into one must not make a person harder
@@ -451,7 +476,7 @@
       // the register's own keys are `files`, because the toggle above renders
       // them as three separate answers and one mixed array cannot be ordered
       // three ways at once.
-      var people = [], issues = [], families = [], files = [];
+      var people = [], issues = [], families = [], files = [], judges = [];
 
       // Politicians — mirror the app's browse haystack so a nav search and the
       // "All Politicians" search surface the same records.
@@ -486,6 +511,38 @@
           tokens: norm(d.name).split(/[^\p{L}\p{N}]+/u).filter(Boolean),
           sub: sub, icon: d.icon || '🏛', party: pc,
           hay: parts.filter(Boolean).join(' ').toLowerCase()
+        });
+      });
+
+      // ── JUDICIAL RETENTION SEATS ─────────────────────────────────────────
+      // A SEPARATE LANE, AND EVERY FIELD IN IT IS AN IDENTITY FIELD. Name, the
+      // court, the unit that tells two trial judges apart, the word a reader
+      // types when they know no name ("retention"), and the pid — because a
+      // citation and a share link both spell a judge by id and both should
+      // reach the file.
+      //
+      // WHAT IS DELIBERATELY ABSENT. No `party` key, so polItem's party chip
+      // cannot be painted from this row and rank() has no party string to see.
+      // No office/state/bio/stance text, so nothing here can be mistaken for a
+      // legislator's haystack. The row's kind is 'judge' and not 'pol', which
+      // is what keeps it out of entryPolId(), out of relBlock(), out of
+      // actionsFor() and out of the formal-record partition in formalFirst() —
+      // four surfaces that would each have read a legislator's apparatus onto a
+      // court seat.
+      judgeRows().forEach(function (j) {
+        if (!j || !j.pid || !j.name) return;
+        var unit = (j.unitLabel && j.unitLabel !== 'Statewide') ? j.unitLabel : '';
+        judges.push({
+          kind: 'judge', id: j.pid, title: j.name,
+          titleLc: norm(j.name),
+          tokens: norm(j.name).split(/[^\p{L}\p{N}]+/u).filter(Boolean),
+          // name · court · status, which is the whole row. The unit rides with
+          // the court for a trial seat and is dropped for a statewide one,
+          // where "Statewide" next to "Utah Supreme Court" says nothing twice.
+          sub: [j.court, unit, j.status].filter(Boolean).join(' \u00b7 '),
+          icon: '\u2696',
+          hay: [j.name, j.court, j.courtShort, j.courtSeat, j.districtLabel,
+                j.unitLabel, j.term, j.pid].filter(Boolean).join(' ').toLowerCase()
         });
       });
 
@@ -780,7 +837,7 @@
         }
       } catch (e) {}
 
-      index = { people: people, issues: issues, families: families, files: files, stances: stances, bills: bills, mandates: mandates };
+      index = { people: people, issues: issues, families: families, files: files, stances: stances, bills: bills, mandates: mandates, judges: judges };
       relCache = {};
       return index;
     }
@@ -800,7 +857,13 @@
         // boots, so its arrival invalidates the index exactly as the roster's and
         // the register's do. Zero is a legitimate value here: the lane ships
         // whether or not the bridge is on the page.
-        (Array.isArray(window._pdxMandateItems) ? window._pdxMandateItems.length : 0);
+        (Array.isArray(window._pdxMandateItems) ? window._pdxMandateItems.length : 0) + ':' +
+        // The judicial registry is a DEFERRED script and this module is a sync
+        // tag, so on every page the index is first built without it. Its arrival
+        // invalidates the index exactly as the roster's and the register's do —
+        // without this line the judge lane is permanently empty on any page
+        // where somebody searched before the deferred chain ran.
+        ('J' + judgeRows().length);
       if (!index || key !== indexKey) { indexKey = key; buildIndex(); }
       return index;
     }
@@ -1413,6 +1476,23 @@
     function navigate(kind, data) {
       close();
       if (kind === 'pol') { if (typeof window.showProfile === 'function') window.showProfile(data.id); }
+      // ── A JUDGE FILE IS A PERSON FILE ────────────────────────────────────
+      // One address (/p/<pid>), one funnel. PDXPerson.open is preferred because
+      // it is the module that OWNS the address — stamp, kicker, tab, trail —
+      // and judge-file.js intercepts the openModal call it makes, so the roster
+      // renderer is never reached. showProfile is the fallback for the same
+      // reason it is anywhere else: it routes into PDXPerson.open itself, and
+      // on a page where person-file.js has not arrived it still opens the file.
+      // Nothing here re-implements the judge file; if neither door is on the
+      // page the tap is left unanswered rather than answered wrongly.
+      else if (kind === 'judge') {
+        try {
+          if (window.PDXPerson && typeof window.PDXPerson.open === 'function') {
+            if (window.PDXPerson.open(data.id)) return;
+          }
+        } catch (e) {}
+        if (typeof window.showProfile === 'function') window.showProfile(data.id);
+      }
       else if (kind === 'spotlight') { if (window.PDXSpotlight && typeof window.PDXSpotlight.open === 'function') window.PDXSpotlight.open(data.slug); }
       else if (kind === 'issue') {
         // Issue-first: an issue result opens the RANKED view of that issue — every
@@ -1487,6 +1567,11 @@
       if (!e) return;
       if (e.kind === 'saved') { openSaved(e.saved); return; }
       if (e.kind === 'pol' || e.kind === 'stance') navigate('pol', { id: e.id });
+      // A judge opens /p/<pid> through the SAME funnel a senator does. It is
+      // routed as its own kind rather than folded into 'pol' so the two can
+      // never be confused upstream of here — but there is only one door, and
+      // judge-file.js's openModal intercept is what answers behind it.
+      else if (e.kind === 'judge') navigate('judge', { id: e.id });
       else if (e.kind === 'spotlight') navigate('spotlight', { slug: e.slug });
       else if (e.kind === 'issue') navigate('issue', { key: e.issueKey, focusKey: e._focus || '' });
       else if (e.kind === 'family') navigate('family', { key: e.issueKey });
@@ -1599,7 +1684,7 @@
     var curQ = null;    // last-rendered query (to reset per-category expansion)
     var curCtx = null;  // personal context (saved + team) for the current render
     var badgeOff = false; // suppress the personal badge inside sections that already imply it
-    var expand = { pol: false, stance: false, iss: false, saved: false, team: false }; // "see more" per category
+    var expand = { pol: false, stance: false, iss: false, judge: false, saved: false, team: false }; // "see more" per category
 
     function highlight(text, q, terms) {
       var lc = norm(text), at = -1, len = 0;
@@ -1694,6 +1779,41 @@
         '<span class="pdx-eye-body"><span class="pdx-eye-name">' + highlight(e.title, q, terms) + '</span>' +
         (e.sub ? '<span class="pdx-eye-sub">' + esc(e.sub) + '</span>' : '') + '</span>' +
         personalBadge(e) + receipt + tag + rowClose(e.id);
+    }
+    // ── A JUDICIAL RETENTION ROW ────────────────────────────────────────────
+    // Deliberately the plainest person-shaped row in the panel, and every
+    // omission is the point.
+    //
+    // NO PARTY CHIP. There is no party on a judicial retention ballot, so there
+    // is nothing to chip. polItem's `tag` is absent rather than empty.
+    //
+    // NO WORD-VS-ACTION RING, NO FORMAL-ACT COUNT, NO RECEIPT VERDICT, NO
+    // COVERAGE BADGE. polItem asks PDXWordAction, then PDXReceipts, then
+    // PDXCoverage, and the third of those answers "not yet documented" for
+    // anybody it holds nothing on — which over a court seat is the whole
+    // legislator apparatus reporting a gap where there is no gap to report. A
+    // retention seat has no promise to weigh an action against and casts no roll
+    // calls, so all three are not asked. This row asks nothing about a record
+    // because it is not about a record; it is about an office and a ballot.
+    //
+    // NO "THIN VOTING RECORD" AND NO PUBLICATION-FLOOR NOTICE, for the same
+    // reason: an empty roll-call lane on a judge is the CORRECT lane, and the
+    // judge file says so in words (PDXJudicial.NO_FORMAL).
+    //
+    // WHAT IT DOES CARRY. The ⚖ mark, the name with the query highlighted, and
+    // one sub-line — court · unit · status — read off the registry's own
+    // searchRows(). The row is an anchor on /p/<pid> through the same rowOpen /
+    // rowClose pair a person row uses, so it is copyable, middle-clickable and
+    // crawlable; a plain tap is the eye's and goes through the judge-file
+    // intercept on openModal. No photo lookup: _getPhotoUrl is keyed to the
+    // roster, and a judge is not in it.
+    function judgeItem(e, q, terms, idx) {
+      return rowOpen(e.id, 'pdx-eye-item pdx-eye-item--judge',
+          'data-i="' + idx + '" data-kind="judge" data-id="' + esc(e.id) + '"') +
+        '<span class="pdx-eye-thumb">' + esc(e.icon) + '</span>' +
+        '<span class="pdx-eye-body"><span class="pdx-eye-name">' + highlight(e.title, q, terms) + '</span>' +
+        (e.sub ? '<span class="pdx-eye-sub">' + esc(e.sub) + '</span>' : '') + '</span>' +
+        rowClose(e.id);
     }
     // Which single sub-issue (an ISSUE_MAP key) the current query is really about,
     // if any — so "housing" reaches housing instead of the whole economy bundle.
@@ -2294,16 +2414,48 @@
     }
     // hints and its action strip), and a "See more" expander when the ranked
     // list runs deeper.
-    function catBlock(catKey, title, color, listAll, renderItem, q, terms) {
+    // `note` is an OPTIONAL sentence under the heading, for a group whose rows
+    // need a standing clarification that the heading alone cannot carry. One
+    // caller uses it (judgeBlock), every other passes nothing and gets exactly
+    // the block it always got.
+    function catBlock(catKey, title, color, listAll, renderItem, q, terms, note) {
       if (!listAll || !listAll.length) return '';
       var cap = expand[catKey] ? listAll.length : 6;
       var shown = listAll.slice(0, cap);
-      var h = '<div class="pdx-eye-cat" data-cat="' + catKey + '"><div class="pdx-eye-cat-h"><span class="pdx-eye-cat-dot" style="background:' + color + ';"></span>' + title + '<span class="pdx-eye-cat-n">' + listAll.length + '</span></div>';
+      var h = '<div class="pdx-eye-cat" data-cat="' + catKey + '"><div class="pdx-eye-cat-h"><span class="pdx-eye-cat-dot" style="background:' + color + ';"></span>' + title + '<span class="pdx-eye-cat-n">' + listAll.length + '</span></div>' +
+        (note ? '<p class="pdx-eye-cat-note">' + esc(note) + '</p>' : '');
       shown.forEach(function (e) { var i = flat.length; flat.push(e); h += wrapRes(i, renderItem(e, q, terms, i), e, q, terms); });
       if (listAll.length > cap) {
         h += '<button type="button" class="pdx-eye-more" data-more="' + catKey + '">See ' + (listAll.length - cap) + ' more ▾</button>';
       }
       return h + '</div>';
+    }
+
+    // ── THE JUDICIAL RETENTION GROUP ──────────────────────────────────
+    // WHY IT PRINTS IN BOTH LANES AND IS COUNTED IN NEITHER. A retention seat
+    // is a third kind of office, the way a mandate is a third kind of document
+    // — but unlike a mandate it does not get a lane button of its own, because
+    // a lane the reader has to FIND is a lane a name search still dead-ends in,
+    // and dead-ending a name search is the exact defect this fixes. So the
+    // group renders wherever the reader already is (formal or public), and its
+    // count stays out of both denominators (see laneCounts above).
+    //
+    // THE HEADING IS THE DISCLAIMER. It names the office class and then says,
+    // in the group's own words, what a row here is not — so a judge sitting a
+    // few pixels under "Politicians · formal record first" cannot be read as a
+    // legislator with a thin record. This is the same job the Mandate lane's
+    // locked empty sentence does for a proposed vehicle.
+    //
+    // Slate colour, not the roster's gold and not an issue tint: the judge file
+    // and the Door 2 retention band already use the neutral slate, and a colour
+    // is a category claim on this panel.
+    function judgeBlock(rows, q, terms) {
+      return catBlock('judge',
+        'Judicial retention \u00b7 an office on a ballot, not a voting record',
+        '#94a3b8', rows, judgeItem, q, terms,
+        'A retention question is a yes/no on one name. These seats carry no party, ' +
+        'no score and no roll-call file, they appear in the formal and public lanes ' +
+        'alike, and they are counted in neither.');
     }
 
     // ── the issue answer ──────────────────────────────────────────────
@@ -2682,7 +2834,7 @@
       // Reset on a NEW QUERY only. Switching lane re-renders the same string, so
       // curQ matches and an expanded category survives the switch — the reader's
       // question did not change, only which lane of it they are reading.
-      if (q !== curQ) { expand = { pol: false, stance: false, bill: false, file: false, fam: false, spot: false, mand: false, saved: false, team: false }; curQ = q; }
+      if (q !== curQ) { expand = { pol: false, stance: false, bill: false, file: false, fam: false, spot: false, mand: false, judge: false, saved: false, team: false }; curQ = q; }
       var isMandate = (laneMode === 'mandate');
 
       if (!q) {
@@ -2745,6 +2897,13 @@
       // reason the other lanes are: the control prints the other lanes' counts,
       // and a number nobody computed is a number that would be wrong.
       var mands = rank(data.mandates || [], q, terms, LIM, curCtx);
+      // The judicial registry, ranked on every paint like every other lane —
+      // and ranked with NO personal context passed. `curCtx` is the saved/team
+      // nudge, and both of those are collections of POLITICIANS: a judge cannot
+      // be on My Team, so there is no personal signal to boost by and nothing
+      // to reorder. Passing it would be harmless and meaningless; not passing
+      // it is the honest spelling.
+      var jdgs = rank(data.judges || [], q, terms, LIM, null);
       var formal = (laneMode === 'formal');
       // FORMAL PUTS THE RECORD-HOLDERS FIRST, inside the roster's own relevance
       // order. A stable partition, not a score and not a party term: a person
@@ -2801,19 +2960,34 @@
       // own slot and are added to neither of the other two, so nothing the formal
       // lane counts \u2014 here, or in formalPatternIndex, Direction Match and Word
       // vs Action \u2014 grows by one because a reform was filed.
+      // AND NO JUDGE ENTERS ANY OF THE THREE. A retention seat is not a
+      // legislative record, not a quote and not a proposed vehicle, so adding
+      // one to `formal` would publish a legislator's row count that does not
+      // exist, and a reader who found Jill M. Pohlman would read "Formal record
+      // 1" as a claim that we hold roll calls for her. The lane keeps its own
+      // slot, is added to none of the others, and the three counters above stay
+      // at zero unless those lanes really do hold something for this query —
+      // which is the difference between "no legislative record here" and "the
+      // eye finds nothing", the two sentences this whole pass is about.
       var laneCounts = {
         formal: fils.length + fams.length + pols.length + bls.length,
         'public': spots.length + sts.length + pols.length,
-        mandate: mands.length
+        mandate: mands.length,
+        judge: jdgs.length
       };
       // "Nothing else" is now a claim about the VISIBLE lane. It has to be, or the
       // panel would deny a query in public mode because the answer is formal.
       // In the mandate lane the ONLY thing that can answer is a reform, so a
       // person hit does not count as "something": a name that ranks no reform
       // still prints the lane's own empty sentence.
+      // A JUDGE HIT IS SOMETHING. The lane prints in both non-mandate modes, so
+      // a ranked judge is a visible answer and the panel may not deny the query
+      // over the top of it. It is NOT something in the mandate lane, where the
+      // only document that can answer is a reform — same rule already applied
+      // to a person hit there, and for the same reason.
       var nothingElse = isMandate
         ? !mands.length
-        : (!keyHtml && !ansHtml && !pols.length &&
+        : (!keyHtml && !ansHtml && !pols.length && !jdgs.length &&
             (formal ? (!fils.length && !fams.length && !bls.length)
                     : (!spots.length && !sts.length)));
 
@@ -2876,10 +3050,12 @@
         html += catBlock('fam', 'Issue families · browse from here', '#fb923c', fams, familyItem, q, terms);
         html += catBlock('pol', 'Politicians · formal record first', '#f5c842', pols, polItem, q, terms);
         html += catBlock('bill', 'Legislation &amp; Bills', '#9ff0bd', bls, billItem, q, terms);
+        html += judgeBlock(jdgs, q, terms);
       } else {
         html += catBlock('spot', 'Issue Spotlights · sourced investigations', '#fb923c', spots, issueItem, q, terms);
         html += catBlock('stance', 'Positions, Quotes &amp; Receipts', '#5eead4', sts, stanceItem, q, terms);
         html += catBlock('pol', 'Politicians', '#f5c842', pols, polItem, q, terms);
+        html += judgeBlock(jdgs, q, terms);
       }
       // A lane that is still loading AND has nothing to show says so, in the lane's
       // own slot. Without this a half-warm index reads as a complete answer: the one
@@ -2985,6 +3161,7 @@
       if (!el) return;
       var kind = el.getAttribute('data-kind');
       if (kind === 'pol') navigate('pol', { id: el.getAttribute('data-id') });
+      else if (kind === 'judge') navigate('judge', { id: el.getAttribute('data-id') });
       else if (kind === 'spotlight') navigate('spotlight', { slug: el.getAttribute('data-slug') });
       else if (kind === 'issue') navigate('issue', { key: el.getAttribute('data-key') });
       else if (kind === 'family') navigate('family', { key: el.getAttribute('data-key') });

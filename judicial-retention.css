@@ -402,6 +402,25 @@
 
 .jf-what { flex: 1 1 12rem; }
 
+/* The court strip. Same block furniture, but framed and inset so it reads as a
+   note pinned beside the file rather than another chapter of it: the rows
+   inside belong to the court, and every judge on that court sees the same ones.
+   The lede sits above the list because the rule has to arrive before the
+   quotes, not after a reader has already assigned them to a name. */
+.jf-court-strip {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.05);
+  padding: 0.75rem 0.85rem;
+}
+
+.jf-court-strip .jf-h2 { color: #b6c6dd; }
+
+/* Keyed off the strip rather than a class of its own, so the paragraph stays a
+   plain .jf-note — that class is the file's marker for a sentence that NEGATES a
+   claim rather than making one, and the retention tests read it as such. */
+.jf-court-strip .jf-note:first-of-type { margin-top: 0; }
+
 /* Two official sources disagreeing, on the seat it affects. Same treatment as
    the band's conflict line, because it is the same statement. */
 .jf-conflict {

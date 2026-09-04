@@ -505,16 +505,23 @@ section("6 · the All-Seeing Eye: people rows and stance rows are links");
 
   // The rows that are NOT a person keep their buttons: there is no address to
   // advertise for a bill, an issue lane or a saved search, and inventing one
-  // would be worse than a button. Stated as an invariant over the source's five
-  // row builders rather than over one fixture's output, because a fixture that
+  // would be worse than a button. Stated as an invariant over the source's row
+  // builders rather than over one fixture's output, because a fixture that
   // happens to yield no bill row would make an output check say nothing.
   const rows = EYE.match(/^ *return (?:rowOpen\(|'<button type="button" role="option" class=")[^\n]*pdx-eye-item[^\n]*$/gm) || [];
-  ok(rows.length >= 5,
-    `eye: found ${rows.length} row builders, expected the five the panel has — this invariant is\n` +
+  ok(rows.length >= 6,
+    `eye: found ${rows.length} row builders, expected the six the panel has — this invariant is\n` +
     "    reading the wrong thing");
-  ok(rows.filter((r) => r.includes("rowOpen(")).length === 2,
-    "eye: the person rows are no longer the ones built by rowOpen(), so either a person row lost its\n" +
-    "    link or a non-person row gained an address it has no file for");
+  // rowOpen() is the builder that asks PDXPersonLink for an address and falls
+  // back to a button when there is none, so the count of its callers is the count
+  // of row kinds that live at /p/<pid>. There are three: the roster row, the
+  // stance row, and — since the Eye grew a judicial lane — the judge row. A
+  // retention seat is not in CMP_DATA and never will be, but /p/<judge> is a
+  // served path with a complete file behind it, so an anchor is the honest
+  // element for it and a button would be the one hiding a real address.
+  ok(rows.filter((r) => r.includes("rowOpen(")).length === 3,
+    "eye: the rows built by rowOpen() are no longer the three kinds that have a /p/ file, so either\n" +
+    "    one of them lost its link or a row gained an address it has no file for");
   // A MANDATE ROW IS THE THIRD LEGITIMATE BUTTON. A People's Mandate item is a
   // proposed vehicle: it has no /i/ file, no /p/ file and no address of any kind,
   // so a button is the honest element for it and an href would be the invention

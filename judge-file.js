@@ -220,19 +220,31 @@
     return block('Prior retention', '📜', out);
   }
 
+  // The public lane, hoisted into a strip about the COURT. The rows here were
+  // never about the judge whose file this is — publicLane() is keyed on
+  // courtKey, so every judge on a court sees the same rows — and a section
+  // sitting in the ordinary run of blocks under her letterhead reads as hers no
+  // matter what the note underneath says. So the strip names the court in its
+  // heading, states the rule before the rows rather than after them, and wears
+  // its own frame. Data-gated as before: a court with nothing on file gets no
+  // strip, which today means this appears on Supreme Court files only.
   function publicBlock(j) {
     var rows = J().publicLane(j.courtKey);
     if (!rows.length) return '';
-    var out = '<ul class="jf-pub">';
+    var court = j.courtLabel || j.courtShort || 'this court';
+    var out = '<p class="jf-note">These are things people said in public about ' +
+      esc(court) + ', carried with a cite and attached to the court rather than to a judge. ' +
+      'They are quoted, never scored, and they are not ' + esc(j.name) + '\u2019s record.</p>';
+    out += '<ul class="jf-pub">';
     rows.forEach(function (p) {
       out += '<li><span class="jf-what">' + esc(p.what) + '</span>' +
         (p.url ? '<a class="jf-a" href="' + esc(p.url) + '" target="_blank" rel="noopener">' +
           esc(p.cite || 'source') + '</a>' : '') + '</li>';
     });
     out += '</ul>';
-    out += '<p class="jf-note">These are things people said in public, carried with a cite and ' +
-      'attached to the court rather than to a judge. They are quoted, never scored.</p>';
-    return block('Public lane · what people said', '💬', out);
+    return '<section class="jf-block jf-court-strip">' +
+      '<h2 class="jf-h2"><span class="jf-ico">\ud83d\udcac</span>' +
+      esc('About the court \u00b7 ' + court) + '</h2>' + out + '</section>';
   }
 
   function block(title, icon, body) {
@@ -304,6 +316,18 @@
 
     window._pdxCurrentProfileId = pid;
 
+    // Nothing on this file is waiting on the legislator roster, so the boot
+    // pill's promise of one is retired the moment the address becomes a judge's.
+    // The renderer re-decides from the pid rather than being told, so this is
+    // also what puts the pill back if the next file is a legislator's.
+    try {
+      if (fn(window._pdxRenderRosterStatus)) window._pdxRenderRosterStatus();
+      else {
+        var rp = document.getElementById('pdx-roster-status');
+        if (rp && rp.className.indexOf('is-error') < 0 && rp.parentNode) rp.parentNode.removeChild(rp);
+      }
+    } catch (e) {}
+
     var P = window.PDXPerson;
     if (P) {
       try { if (fn(P.mounted)) P.mounted(pid); } catch (e) {}
@@ -368,7 +392,12 @@
     // a few settle attempts cost nothing and are the same idiom the other late
     // hooks in this app use.
     [0, 400, 1200, 3000].forEach(function (ms) {
-      setTimeout(function () { hookOpen(); hookClose(); }, ms);
+      setTimeout(function () {
+        hookOpen(); hookClose();
+        // firebase-boot's pill and the judicial registry both arrive late and
+        // in either order, so the decision is re-run on the same settle beats.
+        try { if (fn(window._pdxRenderRosterStatus)) window._pdxRenderRosterStatus(); } catch (e) {}
+      }, ms);
     });
   }
 

@@ -1328,6 +1328,35 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // door1-workspace.js, door1-workspace.css, issue-file.js, issue-file.css,
     // sw.js, scripts/test-issue-file-address.mjs and
     // scripts/test-issue-family-door.mjs are declared above already.
+    // THE EYE'S JUDICIAL LANE (CACHE_VERSION v129), on those same later-wave
+    // terms. It writes no roll, no mapping, no key, no floor, no admission and no
+    // score: it adds a fourth RESULT KIND to the All-Seeing Eye, for an office
+    // this wave's arithmetic has never touched and never will. PolitiDex carries
+    // 126 complete Utah judge files at /p/<pid>, and the Eye could not find one —
+    // its people haystack is the union of CMP_DATA and PROFILES, and a judge is
+    // deliberately in neither, because a judge inside CMP_DATA is a judge inside
+    // Direction Match, inside a formal-pattern tier and inside the publication
+    // floor. So the registry became its own lane rather than a tenant of the
+    // roster: judicial-retention.js publishes the locked search vocabulary and
+    // the rows, all-seeing-eye.js renders them with no party chip, no ring, no
+    // percentage and no formal-act count, and the judge headcount sits in a
+    // FOURTH lane-count slot that no denominator reads — so a judge-only query
+    // prints Formal 0, Public 0, Mandate 0 and still answers. firebase-boot.js
+    // stops promising a roster load over a file that waits on no roster, and
+    // judge-file.js hoists the court-keyed public lane into a strip that names
+    // the court instead of reading as one judge's record. The reason a wave like
+    // this one is the file that has to declare it: R1 and R2 put 1,120 member
+    // files behind this search box, and the guarantee that matters here is that
+    // none of them moved — every Direction Match read, every lane count and every
+    // painted legislative row is byte-identical with this lane and without it,
+    // which scripts/test-eye-judge-lane.mjs proves as a twin boot. No judge was
+    // added to cmp-data.js, to the publication floor or to compare-the-field.
+    // all-seeing-eye.js, index.html and sw.js are declared above already.
+    "judicial-retention.js",
+    "judge-file.js",
+    "judicial-retention.css",
+    "firebase-boot.js",
+    "scripts/test-judicial-retention.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

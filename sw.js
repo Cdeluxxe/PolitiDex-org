@@ -880,6 +880,70 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v129 - THE EYE FOUND A JUDGE'S FILE ONLY IF YOU ALREADY KNEW HER NAME. v128
+// built 126 complete judge files and gave them real addresses - /p/jill_pohlman
+// renders a letterhead, a retention question, a JPEC line, a seat, an honest
+// empty formal record and a prior-retention history - and then left exactly one
+// door to them: the Door 2 ballot band, on a ballot page, for a voter whose
+// county the map could place. Type "Pohlman" into the All-Seeing Eye and it said
+// the eye finds nothing. That is because the Eye's people haystack is the union
+// of CMP_DATA and PROFILES, and judges are deliberately in neither - which is
+// the right call for the arithmetic and the wrong outcome for a search box. So
+// the Eye now has a fourth kind, and it is a lane rather than a tenant.
+//   · judicial-retention.js  the retention FACT for a search row, from the one
+//                            module that owns it: SEARCH (three locked strings)
+//                            and searchRows(), which walks all() and reports
+//                            name, court, seat, district, unit, pid and one
+//                            status - "retention election" if the Lieutenant
+//                            Governor's filed slate carries the question, "not
+//                            on the 2026 slate" if it does not, and "no longer
+//                            on the court" for the one former justice on file,
+//                            because "not on the slate" is true of her and
+//                            still leaves a reader thinking she sits. The Eye
+//                            asks; it does not infer.
+//   · all-seeing-eye.js      kind: 'judge'. That one word is most of the safety:
+//                            a judge row is not a 'pol', so it never reaches the
+//                            saved/team badge, the cross-link chips, the Add to
+//                            My Team / Compare / Share strip, or the formal
+//                            partition, and judgeItem() additionally never asks
+//                            Word-vs-Action, Receipts or Coverage for a badge.
+//                            No party chip, no ring, no score, no photo, no
+//                            "thin voting record". The count is a FOURTH slot in
+//                            laneCounts that no denominator reads, so Formal,
+//                            Public and Mandate genuinely print 0 on a
+//                            judge-only search - a judge is not a legislator
+//                            miss - while the group still answers the query, so
+//                            the panel no longer says nothing was found. The
+//                            group prints in the formal and public lanes alike
+//                            with a note saying it is counted in neither. The
+//                            index memo key gained the registry's row count,
+//                            because the Eye is a sync script and the judicial
+//                            files are deferred, so the first index is always
+//                            built before they exist.
+//   · firebase-boot.js       the roster pill stops promising a record that is
+//                            not coming. A judge file is served from data that
+//                            ships with the page, so "Loading the latest
+//                            roster…" over one reads as a half-built file whose
+//                            missing half is a voting history. Suppressed while
+//                            a judicial pid is open, decided from the pid rather
+//                            than a flag, and the error pill is untouched -
+//                            "couldn't load the roster" is a true report about
+//                            the rest of the app.
+//   · judge-file.js          the public lane is hoisted into a court strip.
+//                            publicLane() is keyed on courtKey, so every judge
+//                            on a court sees the same rows; a section under her
+//                            letterhead read as hers whatever the note said.
+//                            The strip names the court in its heading and states
+//                            the rule above the quotes instead of below them.
+//                            Still data-gated, which today means Supreme Court
+//                            files only.
+//   · judicial-retention.css the court strip's frame.
+//   · index.html             the judge row's neutral spine and the group note.
+// Judges are still absent from CMP_DATA, from the sitemap publication floor and
+// from compare-the-field. No floor, no mapping, no weight, no Direction Match
+// input, no Mandate term and no formal tier moved. Legislative search and every
+// Direction Match read are byte-identical with this lane and without it.
+//
 // v128 - ONE JUDGE NAMED, AND FOUR COURTS TOLD TO CHECK ELSEWHERE. v127 added
 // judicial retention as an office class and shipped it half-blind: it could name
 // one Supreme Court question and then tell a Davis County voter that the Court of
@@ -1962,7 +2026,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v128';
+const CACHE_VERSION = 'v129';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
