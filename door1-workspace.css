@@ -526,6 +526,60 @@
 .d1-led-m { margin: 0.4rem 0 0; font-size: 0.76rem; color: #9fb2cc; }
 .d1-led-m b { color: #e8eefb; }
 
+/* ── THE FILTER ROW ────────────────────────────────────────────────────────
+   Above the bands, and deliberately quieter than they are: chips read as a way
+   to ask this list a question, not as a second heading competing with the band
+   that answers it. A pressed chip takes the blue the rest of this desk gives to
+   controls a reader has turned on. No chip here is coloured by side, by tone or
+   by team — the chips are counts, and a count has no side. */
+.d1-led-slice {
+  margin-top: 0.9rem; padding: 0.6rem 0.7rem; border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.025); border: 1px solid rgba(255, 255, 255, 0.09);
+  display: grid; gap: 0.45rem;
+}
+.d1-led-sl { margin: 0; font-size: 0.71rem; line-height: 1.55; color: #8fa2bd; }
+.d1-led-cg { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.4rem; }
+.d1-led-cgl, .d1-led-nml {
+  flex: none; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.66rem; letter-spacing: 0.11em; text-transform: uppercase;
+  color: #7f93b0; min-width: 4.4rem;
+}
+.d1-led-chip {
+  min-height: 30px; cursor: pointer; padding: 0.18rem 0.5rem; border-radius: 99px;
+  font-size: 0.72rem; color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.13);
+}
+.d1-led-chip:hover { background: rgba(255, 255, 255, 0.08); color: #e8eefb; }
+.d1-led-chip.is-on {
+  color: #dbeafe; background: rgba(96, 165, 250, 0.16); border-color: rgba(147, 197, 253, 0.45);
+}
+.d1-led-cn { font-variant-numeric: tabular-nums; font-weight: 700; opacity: 0.8; }
+.d1-led-chip.is-on .d1-led-cn { opacity: 1; }
+.d1-led-nm {
+  flex: 1 1 9rem; min-width: 0; min-height: 30px;
+  padding: 0.2rem 0.5rem; border-radius: 0.5rem; font-size: 0.76rem; color: #e8eefb;
+  background: rgba(0, 0, 0, 0.22); border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.d1-led-nm::placeholder { color: #7f93b0; }
+.d1-led-clear {
+  flex: none; min-height: 30px; cursor: pointer; padding: 0.18rem 0.5rem;
+  border-radius: 0.5rem; font-size: 0.7rem; color: #dbeafe;
+  background: transparent; border: 1px solid rgba(147, 197, 253, 0.35);
+}
+.d1-led-clear:hover { background: rgba(96, 165, 250, 0.14); }
+.d1-led-sn {
+  margin: 0; font-size: 0.72rem; line-height: 1.55; color: #a9bcd6;
+  font-variant-numeric: tabular-nums;
+}
+.d1-led-sn:empty { display: none; }
+/* A row outside the slice is HIDDEN, never removed — see the wall over
+   sliceApply. The flex display on .d1-led-p wins over the attribute on its own,
+   so the attribute is given the last word here. A band whose rows are all
+   hidden closes the same way, and its rows are still in the document. */
+.d1-led-p[hidden], .d1-led-band[hidden], .d1-led-tail[hidden], .d1-led-more[hidden] {
+  display: none !important;
+}
+
 .d1-led-band { margin-top: 1rem; }
 .d1-led-bh { display: flex; align-items: baseline; gap: 0.45rem; }
 .d1-led-bt {

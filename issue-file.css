@@ -219,9 +219,11 @@
 .pdxif-bar[data-ic] .pdxif-title { color: var(--pdx-ic-ink); }
 .pdxif-name { min-width: 0; }
 
-/* Core → child. A caption, not a control: the tappable crumb is the ledger's
-   own, printed above the census in the body, and two live copies of one
-   navigation in one file is one too many. */
+/* Core → child. The CORE half is a door and the child half is not, which is the
+   only shape that is true here: the child IS this file, so there is nowhere for
+   it to go, and the core is a family, which has no file of its own — tapping it
+   closes this panel and opens the desk on that shelf. The ledger below prints
+   its own crumb too; that one is the body's and this module does not touch it. */
 .pdxif-crumb {
   display: flex;
   align-items: baseline;
@@ -235,7 +237,30 @@
   text-transform: uppercase;
   line-height: 1.2;
 }
-.pdxif-core { color: rgb(147, 197, 253); }
+/* A button, dressed as the caption it replaced — no chrome of its own, the
+   crumb's own type inherited whole, and the underline only on the hover and the
+   focus, so the line reads as a breadcrumb rather than as a pair of buttons. */
+.pdxif-core {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0;
+  border: 0;
+  min-height: unset;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: rgb(147, 197, 253);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.pdxif-core:hover { color: rgb(191, 219, 254); text-decoration: underline; }
+.pdxif-core:focus-visible {
+  outline: 2px solid rgb(147, 197, 253);
+  outline-offset: 2px;
+  border-radius: 0.2rem;
+}
 .pdxif-arrow { color: rgb(107, 127, 156); }
 .pdxif-child { font-weight: 800; color: rgb(232, 238, 251); }
 /* The crumb's hue, split exactly as the live crumb under the census splits it:
@@ -275,17 +300,229 @@
   -webkit-overflow-scrolling: touch;
   padding: 0.35rem 1.1rem 1.6rem;
 }
+
+/* ── The letterhead ─────────────────────────────────────────────────────────
+   What the key means and how much is filed under it, above the record and
+   inside the scroll — the chrome bar above is fixed and identity-only, and the
+   ledger host below holds the desk's builder string and nothing else, so this
+   is the one place new copy on this page can live without touching either. */
+.pdxif-head {
+  margin: 0.9rem 0 0;
+  padding: 0.85rem 0.95rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-left: 4px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.035);
+}
+/* The family's colour on the same two properties the bar uses it for — the rail
+   and a wash — and only where the palette resolved the key. */
+.pdxif-head[data-ic] {
+  border-left-color: var(--pdx-ic);
+  background: var(--pdx-ic-wash);
+}
+/* The register's one-line statement of the key. */
+.pdxif-chip {
+  margin: 0 0 0.4rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.25;
+  color: rgb(203, 213, 225);
+}
+.pdxif-head[data-ic] .pdxif-chip { color: var(--pdx-ic-ink); }
+/* The argued boundary, verbatim. Reading size, because it is the sentence the
+   rest of the page is filed against. */
+.pdxif-scope {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: rgb(226, 232, 240);
+}
+/* No scope on file. Italic and quieter, so the blank cannot be mistaken for a
+   definition somebody wrote. */
+.pdxif-scope.is-blank {
+  font-style: italic;
+  color: rgb(148, 163, 184);
+}
+/* The inventory. Counts only — tabular figures so the numerals line up, and
+   monospace nowhere, because this is a sentence and not a table. */
+.pdxif-inv {
+  margin: 0.6rem 0 0;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  color: rgb(148, 163, 184);
+}
+/* The busy gate, in the inventory's own slot: while the roll-call read is out
+   this is what stands where the integers will be, so nothing moves down the
+   page when they arrive and no figure is published early. */
+.pdxif-busy {
+  margin: 0.6rem 0 0;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: rgb(203, 213, 225);
+}
+.pdxif-sofar {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  color: rgb(148, 163, 184);
+}
+/* ── HOW THIS ISSUE WAS TESTED ─────────────────────────────────────────────
+   Under the inventory and inside the letterhead's rule, because it is the same
+   kind of statement: counts of what is on file. Ruled off at the top rather
+   than boxed, so it reads as a continuation of the inventory and not as a
+   second panel arguing with it. Tabular figures throughout — these are integers
+   in a column of integers, and a proportional numeral makes them look
+   approximate. */
+.pdxif-proc {
+  margin: 0.7rem 0 0;
+  padding: 0.6rem 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: grid;
+  gap: 0.2rem;
+}
+.pdxif-ph {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem;
+  margin: 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: rgb(148, 163, 184);
+}
+.pdxif-head[data-ic] .pdxif-ph { color: var(--pdx-ic-ink); }
+/* One label, one value. The label column is fixed so four rows read down as a
+   list rather than as four unrelated sentences. */
+.pdxif-prow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1rem 0.5rem;
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+.pdxif-plb {
+  flex: none;
+  min-width: 4.6rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgb(107, 124, 148);
+}
+.pdxif-pv {
+  flex: 1 1 12rem;
+  min-width: 0;
+  color: rgb(203, 213, 225);
+}
+/* Down to the cards. A quiet inline control, not a jump button: the two jumps
+   below are about leaving this file, and this one is about a section of it. */
+.pdxif-see {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0;
+  min-height: unset;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: rgb(147, 197, 253);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+}
+.pdxif-see:hover { color: rgb(191, 219, 254); }
+/* The locked menu sentence, where one applies. It is context for the counts
+   above it and never a verdict, so it gets the record lane's amber ink and no
+   fill, no icon and no rule of its own. */
+.pdxif-pmenu {
+  margin: 0.35rem 0 0;
+  font-size: 0.73rem;
+  line-height: 1.55;
+  color: rgb(214, 201, 168);
+}
+.pdxif-pmenu b { color: rgb(252, 211, 77); }
+.pdxif-pmn { color: rgb(148, 163, 184); }
+/* Why the three measure figures do not add up. Smallest type on the block,
+   because it is a caveat on one line and not a finding. */
+.pdxif-pn {
+  margin: 0.35rem 0 0;
+  font-size: 0.7rem;
+  line-height: 1.55;
+  color: rgb(126, 143, 168);
+}
+
+/* The two jumps. Wrap rather than shrink — the hint under each label is the
+   half that says what the control does, and a squeezed one is worse than a
+   second row. */
+.pdxif-jumps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.75rem 0 0;
+}
+.pdxif-jump {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.05rem;
+  padding: 0.4rem 0.7rem;
+  min-height: unset;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.05);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgb(226, 232, 240);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.pdxif-jump:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.pdxif-jump:active { background: rgba(255, 255, 255, 0.16); }
+.pdxif-head[data-ic] .pdxif-jump:hover { border-color: var(--pdx-ic); }
+/* The hint. Lower-case and unspaced, because it is prose about the control and
+   not a second label on it. */
+.pdxif-jump-h {
+  font-family: inherit;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: rgb(148, 163, 184);
+}
+
 /* The desk's own census block leads with a top margin that assumed a pane head
-   above it. Here it is the first thing in the file. */
-#pdx-issue-file-ledger > .d1-scope { margin-top: 0.9rem; }
+   above it. Under the letterhead it needs less, not more. */
+#pdx-issue-file-ledger > .d1-scope { margin-top: 0.55rem; }
 
 @media (max-width: 420px) {
   .pdxif-top { padding: 0.85rem 0.9rem 0.7rem; }
   .pdxif-body { padding: 0.35rem 0.9rem 1.4rem; }
+  .pdxif-head { padding: 0.75rem 0.8rem 0.7rem; }
+  .pdxif-jump { flex: 1 1 8rem; }
   .pdxif-title { font-size: 1rem; }
   .pdxif-kick { font-size: 0.54rem; gap: 0.3rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pdxif-kick-addr, .pdxif-x { transition: none; }
+  .pdxif-kick-addr, .pdxif-x, .pdxif-core, .pdxif-jump { transition: none; }
 }

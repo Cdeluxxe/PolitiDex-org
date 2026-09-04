@@ -43,12 +43,25 @@
  *      key and reads out its record; PDXIssueView.open(leaf) still opens the
  *      consistency overlay, because the ranking was never the defect — being the
  *      thing a family's name opened was.
+ *      And the leaf's own file agrees: /i/<leaf>'s crumb names the family and
+ *      opens the DESK on it, never PDXIssueView and never /i/<core>. Its
+ *      letterhead's "how this issue was tested" block is a summary of the desk's
+ *      census and nothing else: it never spells the desk's ledger markup, never
+ *      reads caucus, and never orders anybody.
  *   6. NOTHING SORTS OR FILTERS BY PARTY. No party control in the overlay's
  *      chrome, none in its stylesheet, none in its filter, and the ranked rows
  *      themselves are not grouped by caucus — checked on the live rows, not on
  *      the markup that would have listed the pills.
- *   7. THE FIXES ARE LOAD-BEARING. Six source mutations that put each defect
- *      back; every one of them has to break something above.
+ *      The desk's own bands of people now carry a filter row, which is the same
+ *      temptation on a second surface: direction, vehicle, chamber and name are
+ *      the four axes it offers, and the one it does not is swept for on the
+ *      isolated source of the block that builds the chips. The process line
+ *      beside it gets the same sweep. Both are cut from one census, and that
+ *      census comes back byte-identical with every caucus letter on the roster
+ *      swapped.
+ *   7. THE FIXES ARE LOAD-BEARING. Eight source mutations that put each defect
+ *      back — including a fourth chip group, keyed on caucus, beside the filter
+ *      row's three; every one of them has to break something above.
  *
  * Real shipped modules in a node:vm sandbox: the real family table, the real
  * ISSUE_MAP, the real roster, the real record corpus, and both doors LOADED —
@@ -94,6 +107,7 @@ const FILES = [
 const SRC = FILES.map((f) => [f, R(f)]);
 const VIEW_SRC = R("issue-view.js");
 const DESK_SRC = R("door1-workspace.js");
+const FILE_SRC = R("issue-file.js");
 const VIEW_CSS = R("issue-view.css");
 const HELPERS_SRC = R("stance-helpers.js");
 
@@ -412,6 +426,43 @@ w6.PDXIssueView.open(CORE);
 eq(w6.__sess["pdx_d1_issue"], CORE, "widening from a leaf goes to the family's desk");
 eq(overlayOpen(w6), false, "and closes the ranking behind it");
 
+// ── AND THE LEAF'S OWN FILE SENDS THE FAMILY TO THE SAME PLACE ──────────────
+// /i/<leaf> grew a letterhead and a live crumb, and the crumb names the FAMILY.
+// A core is not a file — pdx-issue-profile.js refuses /i/<core> — so the crumb
+// had exactly two places it could go: the desk's one issue door, or the ranked
+// overlay this whole file exists to keep families out of. The behaviour is
+// asserted on a painted panel in scripts/test-issue-file-address.mjs; what is
+// asserted HERE is the wall, on the source, in this file's own terms.
+no(FILE_SRC, "PDXIssueView", "issue-file.js reaches for the ranked overlay — a family crumb is a desk door");
+no(FILE_SRC, "pdxDoor1IssueFace", "issue-file.js reaches for the second issue door that no longer exists");
+has(FILE_SRC, "window.pdxDoor1Issue", "issue-file.js's crumb does not use the desk's one issue door");
+for (const pill of ["data-fparty", "Any party", "iv-fbtn--"]) {
+  no(FILE_SRC, pill, `issue-file.js paints a party control (${pill}) on the file's letterhead`);
+}
+// Comments stripped for these two: the file's own header names both phrases in
+// the course of saying it does not print them, and a note is not a paint.
+const FILE_CODE = FILE_SRC.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, "");
+for (const rank of ["ranked by consistency", "backs up their words", "Direction Match"]) {
+  no(FILE_CODE, rank, `issue-file.js's letterhead prints "${rank}" — that is the overlay's reading, not a file's`);
+}
+
+// ── AND THE LETTERHEAD'S PROCESS BLOCK IS A SUMMARY, NOT A SECOND DESK ──────
+// The file grew a "how this issue was tested" block: PRIMARY against provision
+// against procedural, primary-only against package-only against mixed, and the
+// acts by class. Counts, all of them, and every one read off the census the desk
+// already computed — which is the only reason a question this shaped belongs on
+// a leaf's letterhead at all. Were the panel to spell the desk's ledger markup
+// itself, two builders would be painting one issue again and these family walls
+// would have a second surface to hold. It jumps by the id the census hands it.
+no(FILE_CODE, "d1-led", "issue-file.js spells the desk's ledger markup — the panel summarises, it does not rebuild");
+has(FILE_SRC, "pr.measures && pr.measures.id", "the panel's jump is not taken from the census's own anchor id");
+for (const axis of ["party", "caucus", "Republican", "Democrat"]) {
+  no(FILE_CODE, axis, `issue-file.js's process block reads caucus (${axis}) — no count on this file is by party`);
+}
+for (const rankish of ["sort", "Sort", "rank", "Rank"]) {
+  no(FILE_CODE, rankish, `issue-file.js orders something (${rankish}) — the letterhead counts, it does not rank`);
+}
+
 // ══════════════════════════════════════════════════════════════════════════
 section("6 · nothing sorts or filters by party");
 // ══════════════════════════════════════════════════════════════════════════
@@ -450,6 +501,55 @@ eq(roll(openBundle(wFlip, CORE)), invStraight,
   "and the desk's family inventory is byte-identical with every caucus letter swapped");
 // Belt and braces on the doctrine the desk already wrote down for itself.
 has(DESK_SRC, "NO PARTY, EVER", "the desk still declares its own party rule");
+
+// ── AND THE NEW FILTER ROW FILTERS ON EVERYTHING BUT CAUCUS ─────────────────
+// The bands of people above grew a slice: direction, vehicle, chamber, name.
+// Four axes, and the axis a reader arriving from the old ranking would most
+// expect to find beside them is the one that is not there. Swept on the two
+// source regions themselves rather than on a paint, because the slice is a view
+// of one census and its interesting failure is a field it should never have
+// read. Comments stripped both times: the slice block's own header names the
+// pills it refuses and lists the sorts it will not offer, and a note is not a
+// control.
+const deskRegion = (a, b) => DESK_SRC.slice(DESK_SRC.indexOf(a), DESK_SRC.indexOf(b))
+  .replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, "");
+const SLICE_CODE = deskRegion("// OPENING A SLICE", "THE LEDGER MODEL");
+const PROC_CODE = deskRegion("function ledgerMenu", "// OPENING A SLICE");
+ok(SLICE_CODE.length > 2000, `the filter row isolated ${SLICE_CODE.length} bytes of code to sweep`);
+ok(PROC_CODE.length > 500, `the process line isolated ${PROC_CODE.length} bytes of code to sweep`);
+for (const [what, code] of [["the filter row", SLICE_CODE], ["the process line", PROC_CODE]]) {
+  for (const axis of ["party", "Party", "caucus", "Republican", "Democrat", "data-fparty", "Any party", "iv-fbtn--"]) {
+    no(code, axis, `${what} reads or paints caucus (${axis})`);
+  }
+  for (const order of [".sort(", "reverse(", "WVA", "Direction Match", "Your Match", "donat"]) {
+    no(code, order, `${what} reorders the list (${order}) — a slice narrows, it never re-sorts`);
+  }
+}
+// The four axes it does offer, named, so the sweep above cannot pass by deleting
+// the row: direction from the index's own bands, vehicle from the standalone and
+// provision counts already on each row, chamber from the office, name typed.
+for (const axis of ["Advanced", "Primary-only", "U.S. Senate", 'type="search"']) {
+  has(SLICE_CODE, axis, `the filter row no longer offers its ${axis} axis`);
+}
+// And the process line still asks the consistency module for its locked sentence
+// instead of keeping a copy of the wording.
+has(PROC_CODE, "M.say", "the process line stopped quoting PDXConsistency.menu for its locked sentence");
+
+// ── AN EMPTY LEAF GETS NO CHIPS AND NO FIGURES ──────────────────────────────
+// Nothing awaited the leaf's record read in this file's synchronous pass, so its
+// ledger holds no rows — the same state a reader sees for the moment the desk is
+// still reading. A list with no rows has no slice to open and no process figure
+// to publish, and the desk paints neither. This is the busy gate seen from the
+// desk's side; the panel's side of it is asserted on a warmed key in
+// scripts/test-issue-file-address.mjs.
+const leafCensus = w4.PDXDoor1.issueCensus(LEAF);
+eq(leafCensus && leafCensus.people, 0, "the leaf's ledger unexpectedly holds rows in this pass");
+no(leafDesk, "d1-led-slice", "an empty leaf desk paints a filter row over nothing");
+no(leafDesk, "d1-led-chip", "an empty leaf desk paints a chip with nobody behind it");
+// The census a slice and a process line are both cut from, under substitution.
+openBundle(wFlip, LEAF);
+eq(JSON.stringify(wFlip.PDXDoor1.issueCensus(LEAF)), JSON.stringify(leafCensus),
+  "the census the slice and the process line are cut from moves when caucus letters are swapped");
 
 // ══════════════════════════════════════════════════════════════════════════
 section("7 · the topic chip on a person's file opens the record on its own key");
@@ -548,6 +648,24 @@ const probes = [
       must(src !== DESK_SRC, "probe 5 matched nothing — the key shelf was reworded");
       const w = boot({ desk: src });
       return keyChips(openBundle(w, CORE)).filter((c) => c.attrs.indexOf(HUE) >= 0).length !== KIDS;
+    },
+  },
+  {
+    name: "the filter row grows a caucus chip",
+    run: () => {
+      // Section 6 sweeps a region of the desk's source rather than a paint, so
+      // it owes a demonstration that the region it isolated is the region the
+      // chips are actually built in. A fourth chip group goes in beside the
+      // three, keyed on caucus, and the same isolation and the same token list
+      // have to come back with a hit.
+      const src = DESK_SRC.replace(
+        "                 chipGroup('ch', 'Chamber', c.ch);",
+        "                 chipGroup('ch', 'Chamber', c.ch) +\n" +
+        "                 chipGroup('party', 'Party', c.party || []);");
+      must(src !== DESK_SRC, "probe 8 matched nothing — the filter row's chip groups were reworded");
+      const code = src.slice(src.indexOf("// OPENING A SLICE"), src.indexOf("THE LEDGER MODEL"))
+        .replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, "");
+      return ["party", "Party", "caucus", "Republican", "Democrat"].some((a) => code.indexOf(a) >= 0);
     },
   },
   {

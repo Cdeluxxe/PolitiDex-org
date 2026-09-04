@@ -43,6 +43,26 @@
 //      netlify.toml.
 //   9. NOTHING WAS CHARACTERISED HERE. The address module contains no count, no
 //      order, no percentage and no party token: it reads a key and delegates.
+//  10. THE LETTERHEAD IS THE SAME CENSUS, NOT A SECOND ONE. The inventory line
+//      above the record is PDXDoor1.issueCensus — the desk publishing integers it
+//      already computed — so every figure at the top of /i/<key> is the figure
+//      the prose two inches below it prints. And it publishes NOTHING while the
+//      ledger under it is still saying it is reading, which is asserted the only
+//      way that claim can be asserted: on both blocks of one painted panel.
+//  11. THE CRUMB GOES TO THE SHELF, NOT TO A FILE THAT DOES NOT EXIST. A core is
+//      a family; /i/<core> refuses. The crumb opens the desk on that core through
+//      the desk's own issue door and never links to the address.
+//  12. A SLICE OF THE LIST IS A VIEW, NOT A SECOND READING. A settled key files
+//      hundreds of people across five bands; the filter row above them narrows
+//      the list by direction, vehicle, chamber and name — every axis a field
+//      somebody else already published — by HIDING rows the builder printed. The
+//      builder's string does not change when a chip is pressed, which is the
+//      only way claim 2 survives a filter at all. No party chip, no sort.
+//  13. HOW THE ISSUE MOVED, IN COUNTS. PRIMARY vs provision vs procedural,
+//      primary-only vs package-only vs mixed, the acts by class, the locked menu
+//      sentence where it applies — all of it one more field on the census the
+//      desk already computed, behind the same busy gate as the inventory, and a
+//      sponsorship is never called a vote.
 //
 //   node scripts/test-issue-file-address.mjs
 //
@@ -189,6 +209,33 @@ function stubReads(win) {
   win.PDXVotingRecord.fetchCompare = function () { return Promise.resolve({ byPid: {} }); };
 }
 
+// ── THE ROSTER'S OWN CHAMBER CLASSIFIER, STUBBED IN ─────────────────────────
+// compare-hub.js publishes window._pdxBrowseType — the one function that turns a
+// pid into a chamber bucket — and it is NOT in this harness's load order: that
+// module wants the compare workspace's own globals, and adding it here aborts
+// its IIFE partway through, which would take the export down with it and leave
+// every row answering "no chamber" instead of failing loudly. The chamber chips
+// on the slice read that export, so this boot stubs it exactly the way
+// scripts/test-archive-browse.mjs stubs it for the same reason, and the source
+// audit in section 13 asserts that compare-hub.js still publishes it and that
+// the desk still ASKS for it rather than keeping a second office classifier.
+// On the real page the order is not in doubt: index.html loads compare-hub.js as
+// a plain sync script, before the deferred desk.
+function browseTypeStub(win) {
+  win._pdxBrowseType = function (pid) {
+    const d = (win.CMP_DATA || {})[pid];
+    const o = String((d && d.office) || "").toLowerCase();
+    if (!o) return "other";
+    if (o.indexOf("u.s. senat") >= 0) return "senator";
+    if (o.indexOf("u.s. rep") >= 0 || o.indexOf("u.s. house") >= 0 ||
+        o.indexOf("congress") >= 0) return "representative";
+    if (o.indexOf("state sen") >= 0 || o.indexOf("senate president") >= 0) return "state_senator";
+    if (o.indexOf("state rep") >= 0 || o.indexOf("state house") >= 0 ||
+        o.indexOf("house speaker") >= 0) return "state_rep";
+    return "other";
+  };
+}
+
 function boot(opts) {
   opts = opts || {};
   const win = makeSandbox();
@@ -234,7 +281,10 @@ function boot(opts) {
   win.__routed = [];
   win.pdxDoorWork = (id) => { win.__routed.push("work:" + id); return true; };
   win.pdxDoor = (mode) => { win.__routed.push("door:" + mode); return true; };
-  vm.runInContext(DESK, ctx, { filename: "door1-workspace.js" });
+  if (!opts.withoutBrowseType) browseTypeStub(win);
+  // opts.desk is the desk-side load-bearing hook, the twin of opts.panel below:
+  // the same boot, with one line of the shipped builder taken out.
+  vm.runInContext(opts.desk || DESK, ctx, { filename: "door1-workspace.js" });
   if (opts.withEye) {
     win._issueLabel = (k) => (win.ISSUE_MAP[k] && win.ISSUE_MAP[k].label) || "";
     vm.runInContext(EYE, ctx, { filename: "all-seeing-eye.js" });
@@ -243,7 +293,9 @@ function boot(opts) {
   // and the note there says why), so the switch that drops one drops both — which
   // is what makes the twin boot in section 9 a claim about this whole pass.
   if (!opts.withoutAddress) {
-    vm.runInContext(PANEL, ctx, { filename: "issue-file.js" });
+    // opts.panel is the load-bearing probes' hook: the same boot, with one line
+    // of the shipped panel taken out.
+    vm.runInContext(opts.panel || PANEL, ctx, { filename: "issue-file.js" });
     vm.runInContext(ADDR, ctx, { filename: "pdx-issue-profile.js" });
   }
   win.__ctx = ctx;
@@ -645,6 +697,7 @@ section("8 · The files travel together");
   has(SW, "'/issue-file.css'", "the file panel's stylesheet is not precached");
   has(SW, "'/pdx-issue-family.js'", "the family table is not precached");
   has(SW, "'/door1-workspace.js'", "the desk is not precached");
+  has(SW, "'/door1-workspace.css'", "the desk's stylesheet is not precached — the slice hides rows with it");
   has(SW, "'/stance-tree.js'", "the topic tree is not precached");
   // (all-seeing-eye.js is a runtime entry rather than a precached one, which is
   // sw.js's own long-standing choice for it — so it is not asserted here.)
@@ -1019,11 +1072,23 @@ const FILED = await (async () => {
     no(CODE, banned, `issue-file.js reaches for ${banned} — it owns a stage, not a reading`);
   }
   const globals = [...new Set([...CODE.matchAll(/window\.([A-Za-z_$][\w$]*)/g)].map((m) => m[1]))].sort();
+  // TWO NAMES JOINED THIS LIST WITH THE LETTERHEAD, and both are doors rather
+  // than readings: pdxDoor1Issue is the desk's ONE issue door — the same call the
+  // shelf's own chips make, and the only honest destination for a family crumb,
+  // because a core has no file — and _showToast is the site's notice primitive,
+  // which is what the Share jump says "copied" with. Neither one can answer a
+  // question about the record, which is what this allowlist is guarding.
   eq(globals.join(","),
     "MutationObserver,PDXDoor1,PDXIssueColors,PDXIssueFamily,PDXIssueFile,PDXIssueProfile," +
-    "PDXIssueScope,addEventListener",
-    "issue-file.js touches a global beyond the desk, the family table, the palette, the address, " +
-    "the scope card, the observer that watches the person overlay, and its own name");
+    "PDXIssueScope,_showToast,addEventListener,pdxDoor1Issue",
+    "issue-file.js touches a global beyond the desk and its one issue door, the family table, " +
+    "the palette, the address, the scope card, the notice primitive, the observer that watches " +
+    "the person overlay, and its own name");
+  // The letterhead's copy is prose about a key, never a verdict about a person.
+  for (const banned of ["backs up their words", "Direction Match", "consistency",
+                        "ranked", "Add to team"]) {
+    no(CODE, banned, `issue-file.js's letterhead says "${banned}" — that is a different lane`);
+  }
   // It never writes the address itself — one owner for /i/, and it is the module
   // that took it.
   for (const banned of ["location.href", "location.assign", "location.replace",
@@ -1120,10 +1185,1539 @@ section("11 · The file wears the family's colour");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+section("12 · The letterhead: what the key means, and how much is filed");
+// ── ONE CENSUS, TWO READERS ─────────────────────────────────────────────────
+// The file used to print the key's NAME and then the record. A reader who
+// followed a citation to /i/climate_action was never told what the key MEANS,
+// how much was filed under it, or how to get back to the shelf. The letterhead
+// answers those three, and the trap it has to avoid is the same trap this whole
+// harness exists for: counting anybody a second time. So the integers on the
+// line come from PDXDoor1.issueCensus — the desk publishing the read it already
+// ran — and this section asserts them against that census, against the prose in
+// the body, and against the busy line that outranks both.
+const LKEY = "climate_action";
+const LCORE = "climate_energy";
+must(MAP[LKEY], `${LKEY} is no longer a shipped ISSUE_MAP key`);
+// A FAMILY, and deliberately one that is NOT in ISSUE_MAP: climate_energy is the
+// shelf climate_action is filed on, it has no entry of its own in the register,
+// and so /i/climate_energy is the purest form of an address with no file behind
+// it. (Section 10 checks the other shape — a core that IS also a shipped key.)
+must((probe.CORE_NATIONAL_ISSUES || []).some((c) => c && c.key === LCORE),
+  `${LCORE} is no longer a Core National Issue — this section needs a family to point the crumb at`);
+must(probe.PDXIssueFamily.coreOf(LKEY) === LCORE,
+  `${LKEY} is no longer filed under ${LCORE} — the crumb this section reads points somewhere else`);
+must(typeof probe.PDXDoor1.issueCensus === "function",
+  "PDXDoor1.issueCensus is not published — the letterhead has no census to print and would have to count");
+must(typeof probe.PDXIssueFile._head === "function",
+  "issue-file.js does not publish _head() — the letterhead's copy is unreadable from here");
+
+// THE FIELD ACTUALLY SETTLES. boot() notes every member the corpus holds, which
+// leaves the handful with no record at all permanently COLD — and stubReads'
+// fetchCompare answers an empty batch, so warmLedger never closes the gap. That
+// is right for every section above (they are about markup, not warming), but a
+// permanently cold ledger can never be asked what it prints when the reading is
+// DONE, which is half of the busy gate's claim. So this notes what the shipped
+// fetch notes for the rest of the roster: the member, with whatever the corpus
+// holds for them, INCLUDING NOTHING — an empty record is a settled record, and
+// that is exactly the distinction `cold` is counting.
+function warmAll(w) {
+  const P = w.CMP_DATA || [];
+  const ids = Array.isArray(P) ? P.map((x) => x && x.id) : Object.keys(P);
+  must(ids.length > 100, "the roster did not load, so nothing can be warmed");
+  for (const pid of ids) {
+    if (!pid) continue;
+    try { w.PDXVotingRecord.noteMember(pid, corpus.byMember.get(pid) || []); } catch { /* not a member */ }
+  }
+  return w;
+}
+const headOf = (w) => {
+  const h = w.document.getElementById("pdx-issue-file-head");
+  return h ? String(h.innerHTML) : "";
+};
+const ledgerOf = (w) => {
+  const h = w.document.getElementById("pdx-issue-file-ledger");
+  return h ? String(h.innerHTML) : "";
+};
+
+{
+  const w = warmAll(boot({ path: `/i/${LKEY}` }));
+  const arrival = await arriveAt(w);
+  eq(arrival.key, LKEY, `/i/${LKEY} did not resolve to its own key`);
+  // Two more drains and the batch's own repaint, which is what a reader waiting
+  // three hundred milliseconds gets.
+  await tick(); await tick(); await tick();
+  w.PDXIssueFile.repaint();
+  const head = headOf(w);
+  const body = ledgerOf(w);
+  const c = w.PDXDoor1.issueCensus(LKEY);
+  must(c, `the desk publishes no census for ${LKEY}`);
+  // THE PANEL READS THE DESK'S CENSUS AND NOT ITS OWN. Asserted as the whole
+  // shape rather than figure by figure: a panel that had started keeping its own
+  // people count, its own band order or its own measure total would differ here
+  // before it differed on the line.
+  eq(JSON.stringify(w.PDXIssueFile._census(LKEY)), JSON.stringify(c),
+    "the letterhead's census is not PDXDoor1.issueCensus — there are two counts on this page");
+  must(!c.cold && !c.pending,
+    `the record on ${LKEY} never settled in this harness (cold ${c.cold}) — the inventory below cannot be reached`);
+
+  // ── THE DEFINITION, VERBATIM ──────────────────────────────────────────────
+  const rd = w.PDXIssueScope.read(LKEY);
+  must(rd && rd.defined, `issue-scope.js holds no scope for ${LKEY} — pick a key it defines`);
+  has(head, esc(rd.chip), "the letterhead does not print the register's own chip for the key");
+  has(head, esc(rd.inn), "the letterhead does not print the locked scope prose");
+  no(head, w.PDXIssueScope.NO_DEF, "the letterhead printed the no-definition blank over a key that has one");
+  no(head, "is-blank", "the scope paragraph was styled as a blank on a key with prose");
+  // Verbatim means verbatim: not a lead, not a summary, not the first sentence.
+  ok(esc(rd.inn).length > 200 && head.indexOf(esc(rd.inn)) >= 0,
+    "the scope prose on the letterhead is not the whole of what the table holds");
+
+  // ── THE INVENTORY IS THE CENSUS ───────────────────────────────────────────
+  const inv = (head.match(/<p class="pdxif-inv">([\s\S]*?)<\/p>/) || ["", ""])[1];
+  must(inv, "there is no inventory line on the letterhead at all");
+  has(inv, `${c.people} people with a readable row`,
+    "the inventory's headline figure is not the census's own people count");
+  has(inv, `${c.measures} measures mapped`,
+    "the inventory's measure count is not the census's own");
+  // Every band the index published, in the index's own order, with the index's
+  // own arithmetic — which is to say none: each figure is b.n as it arrived.
+  const bands = (c.bands || []);
+  must(bands.length === 5, `the formal index publishes ${bands.length} bands, not the five this line names`);
+  let cursor = 0;
+  for (const b of bands) {
+    if (!b.n) {
+      // A ZERO IS DROPPED, not printed as a 0. A row of noughts on a letterhead
+      // reads as a verdict about the people rather than about the record.
+      no(inv, ` 0 `, "the inventory printed a zero bucket instead of dropping it");
+      continue;
+    }
+    const at = inv.indexOf(`${b.n} `, cursor);
+    ok(at >= 0, `the inventory drops the ${b.id} band (${b.n}) the index published`);
+    if (at >= 0) cursor = at + 1;
+  }
+  // …and the bands sum to the people count, which is the index's guarantee and
+  // not this line's: asserted here so a band silently missing from the inventory
+  // cannot pass as a smaller census.
+  eq(bands.reduce((n, b) => n + b.n, 0), c.people,
+    "the published bands do not account for every person the census counted");
+  // THE NO-SIDE BAND IS NOT HIDDEN. People with a row and no readable direction
+  // are the least flattering figure on the line, which is exactly why the work
+  // order says to keep them.
+  const noneBand = bands.find((b) => b.id === "none");
+  must(noneBand && noneBand.n > 0,
+    `${LKEY} has nobody in the no-side band any more — this claim has nothing to check`);
+  has(inv, `${noneBand.n} no side`, "the no-side band was dropped from the inventory to make it prettier");
+
+  // ── AND IT IS COUNTS ONLY ─────────────────────────────────────────────────
+  no(head, "%", "there is a percentage on the letterhead");
+  no(head, "backs up their words", "the letterhead reached for the say-vs-do lane");
+  for (const w2 of ["Direction Match", "consistency", "ranked", "Republican", "Democrat",
+                    "data-fparty", "Add to team"]) {
+    no(head, w2, `the letterhead says "${w2}" — it is an inventory, not a verdict`);
+  }
+  // No party as an axis, spelled the way the family-door harness spells it: not
+  // one pill, not one chip, not one letter used as a filter.
+  eq((head.match(/pdxif-[a-z-]*part/g) || []).length, 0, "the letterhead grew a party control");
+
+  // ── TWO JUMPS. NO THIRD. ──────────────────────────────────────────────────
+  const jumps = [...head.matchAll(/<button[^>]*class="pdxif-jump"[^>]*>/g)].map((m) => m[0]);
+  eq(jumps.length, 2, "the letterhead does not carry exactly the two jumps the work order names");
+  has(jumps[0], `window.PDXIssueFile.deskJump('${LKEY}')`, "the first jump is not the desk, scoped to this key");
+  has(jumps[1], `window.PDXIssueFile.share('${LKEY}')`, "the second jump is not the share");
+  has(head, `copy /i/${LKEY}`, "the share jump does not say what it copies");
+
+  // ── THE BODY IS STILL THE DESK'S, BYTE FOR BYTE ───────────────────────────
+  // The letterhead is a SIBLING of the ledger host, never a wrapper and never a
+  // rebuild. This is claim 2 of this file, re-asserted on the key this section
+  // is about and against the desk painted to the same key in its own window.
+  eq(body, w.PDXDoor1.issueProfile(LKEY),
+    "the file's body is no longer the builder's string — the letterhead rebuilt the ledger");
+  const desk = warmAll(boot({ path: "/" }));
+  const deskHtml = await tapKey(desk, LKEY);
+  await tick(); await tick(); await tick();
+  const deskHtml2 = paint(desk);
+  ok(deskHtml2.indexOf(desk.PDXDoor1.issueProfile(LKEY)) >= 0,
+    "the desk scoped to this key does not contain the builder's string, so the two doors are not one builder");
+  // The four things the work order names as already shipping, found in the body
+  // and NOT in the letterhead — one builder, and it is the one below.
+  for (const mark of ["d1-led-band", "Open the acts", "Measures on file", "Who voted on it"]) {
+    has(body, mark, `the body lost "${mark}" — the leaf ledger is not the desk's any more`);
+    no(head, mark, `the letterhead rebuilt "${mark}" instead of leaving it to the one builder`);
+  }
+  console.log(`      /i/${LKEY} · scope prose verbatim · ${inv.replace(/\s+/g, " ")}`);
+}
+
+// ── THE BUSY GATE, ON BOTH BLOCKS OF ONE PANEL ──────────────────────────────
+// The rule is not "wait a bit". It is that no integer may be published while the
+// ledger below is still saying it is reading — so the assertion is made on the
+// two blocks together, in the same paint, twice: cold, then settled.
+{
+  const w = boot({ path: `/i/${LKEY}` });  // NOT settled: the field stays out
+  await arriveAt(w);
+  const head = headOf(w);
+  const body = ledgerOf(w);
+  const c = w.PDXDoor1.issueCensus(LKEY);
+  must(c && c.cold, "the un-settled boot warmed anyway — this branch has no cold state to check");
+  has(body, "Reading the full record for", "the ledger dropped its own honesty line, so there is nothing to gate on");
+  has(head, "Reading the record on this key", "the letterhead published while the record was still being read");
+  no(head, "pdxif-inv", "the letterhead printed an inventory line under a live read");
+  // Not one integer, anywhere in the block — not the people count, not a band,
+  // not the measure count, which is the figure most tempting to publish early
+  // because it does not move.
+  const figures = (head.replace(/<[^>]*>/g, " ").match(/\d+/g) || []);
+  eq(figures.join(","), "", `the letterhead published figures (${figures.join(", ")}) while the read was out`);
+  // …and it says what the rows underneath are, so the partial list is not read as
+  // the official N.
+  has(head, "on file so far", "the letterhead does not say the rows below it are partial");
+
+  // THE SAME PANEL, AFTER. One repaint on the batch event and the line appears —
+  // which is what makes the gate a gate rather than a permanent silence.
+  warmAll(w);
+  w.PDXDoor1.sync();
+  await tick(); await tick(); await tick();
+  w.PDXIssueFile.repaint();
+  const head2 = headOf(w);
+  const body2 = ledgerOf(w);
+  no(body2, "Reading the full record for", "the record never settled, so the lift below cannot be checked");
+  no(head2, "Reading the record on this key", "the letterhead is still saying it is reading after the record settled");
+  has(head2, "people with a readable row", "the inventory never appeared once the read was done");
+  console.log("      cold: 0 figures, 'on file so far' · settled: the inventory appears on the same paint");
+}
+
+// ── A KEY WITH NO SCOPE ON FILE SAYS SO, IN ISSUE-SCOPE'S OWN WORDS ─────────
+{
+  const bare = Object.keys(MAP).find((k) => {
+    const r = probe.PDXIssueScope.read(k);
+    return r && !r.defined && probe.PDXDoor1.issueProfile(k);
+  }) || "";
+  must(bare, "every shipped key now has scope prose — this branch has nothing to check");
+  const h = probe.PDXIssueFile._head(bare);
+  has(h, esc(probe.PDXIssueScope.NO_DEF), "a key with no scope on file got no sentence saying so");
+  has(h, "is-blank", "the honest blank is not marked as one, so it can be read as a definition");
+  eq(probe.PDXIssueScope.NO_DEF, "No definition on file yet.",
+    "issue-scope.js's blank sentence changed and the letterhead's fallback literal did not follow");
+  console.log(`      /i/${bare} · "${probe.PDXIssueScope.NO_DEF}"`);
+}
+
+// ── 0 MEASURES: THE LOCKED SENTENCE, PRINTED ONCE ───────────────────────────
+{
+  const w = warmAll(boot({ path: `/i/${EMPTY}` }));
+  await arriveAt(w);
+  await tick(); await tick();
+  w.PDXIssueFile.repaint();
+  const head = headOf(w);
+  const body = ledgerOf(w);
+  const c = w.PDXDoor1.issueCensus(EMPTY);
+  must(c && !c.measures, `${EMPTY} now has measures mapped — pick a key with none`);
+  no(head, "measure", `the letterhead printed a measures bucket for a key with ${c.measures}`);
+  no(head, " 0 ", "the letterhead printed a zero on a key with nothing filed");
+  // The menu sentence is the BODY's, and there is exactly one of it on the page.
+  const locked = ["No clean vehicle", "No measure on file is mapped to this key yet"]
+    .filter((t) => body.indexOf(t) >= 0);
+  must(locked.length, `the body's locked empty sentence for ${EMPTY} was reworded`);
+  for (const t of locked) {
+    eq(body.split(t).length - 1, 1, `the body prints "${t}" more than once`);
+    no(head, t, `the letterhead reprinted "${t}" — the body's copy is the one`);
+  }
+  console.log(`      /i/${EMPTY} · no zero buckets · the empty sentence printed once, in the body`);
+}
+
+// ── THE CRUMB IS A DOOR ONTO THE SHELF, AND THE CORE IS STILL NOT A FILE ────
+{
+  const w = warmAll(boot({ path: `/i/${LKEY}` }));
+  await arriveAt(w);
+  const ch = String(w.document.getElementById("pdx-issue-file-chrome").innerHTML);
+  const crumb = (ch.match(/<p class="pdxif-crumb">[\s\S]*?<\/p>/) || [""])[0];
+  must(crumb, "the chrome has no crumb any more");
+  // The core half is a control onto the desk. NEVER an anchor at /i/<core>.
+  has(crumb, `window.PDXIssueFile.familyJump('${LCORE}')`,
+    "the crumb's family half does not open the desk on the core");
+  no(crumb, `/i/${LCORE}`, "the crumb links to /i/<core> — an address that refuses to be a file");
+  no(crumb, "<a ", "the crumb's family half is an anchor rather than a control");
+  // The child half is this file, so it is text: nowhere to go.
+  const child = (crumb.match(/<span class="pdxif-child">[\s\S]*?<\/span>/) || [""])[0];
+  must(child, "the crumb lost its child half");
+  no(child, "onclick", "the crumb's child half offers to navigate to the file it already is");
+
+  // AND IT WORKS: the panel closes, the desk takes the core through its one issue
+  // door, and the reader lands on the desk rather than on a file that refuses.
+  const asked = [];
+  const realDoor = w.pdxDoor1Issue;
+  w.pdxDoor1Issue = (k) => { asked.push(k); return realDoor(k); };
+  const modes = [];
+  const realToDesk = w.PDXDoor1.toDesk;
+  w.PDXDoor1.toDesk = function (m) { modes.push(m); return realToDesk.call(w.PDXDoor1, m); };
+  eq(w.PDXIssueFile.familyJump(LCORE), false, "the crumb does not answer false, so the control does something else too");
+  eq(w.PDXIssueFile.isOpen(), false, "the crumb left the file panel open over the desk it just opened");
+  eq(asked.join(","), LCORE, "the crumb did not hand the core to the desk's issue door");
+  has(modes.join(","), "issue", "the crumb did not land the reader on the issue desk");
+
+  // …and the file the crumb points AT still refuses to exist, which is the whole
+  // reason the crumb is a desk door and not a link.
+  eq(w.PDXDoor1.issueProfile(LCORE), "", `${LCORE} grew a single ledger — a family is not a file`);
+  eq(w.PDXIssueFile.open(LCORE), false, `the panel opened a family file for ${LCORE}`);
+  const b = warmAll(boot({ path: `/i/${LCORE}` }));
+  b.__toDesk = 0;
+  const rt = b.PDXDoor1.toDesk;
+  b.PDXDoor1.toDesk = function (m) { b.__toDesk++; return rt.call(b.PDXDoor1, m); };
+  await arriveAt(b);
+  eq(b.PDXIssueFile.isOpen(), false, `/i/${LCORE} mounted a file for a family`);
+  eq(b.document.getElementById("pdx-issue-file-head"), null,
+    `/i/${LCORE} built a letterhead for a family with no census`);
+  ok(b.__toDesk > 0, `/i/${LCORE} did not fall back to the desk`);
+  eq(b.PDXDoor1.issueCensus(LCORE), null,
+    "the desk published a census for a family — a zeroed shape would let the letterhead print a census of nothing");
+  eq(String(b.PDXIssueFile._head(LCORE)).indexOf("pdxif-inv"), -1,
+    "the letterhead would print an inventory for a family if it were ever asked");
+  console.log(`      crumb → the ${LCORE} desk · /i/${LCORE} is not a file, and has no letterhead`);
+}
+
+// ── THE SHARE JUMP COPIES THIS FILE'S ADDRESS, FROM THE MODULE THAT OWNS IT ─
+{
+  const w = boot({ path: `/i/${LKEY}` });
+  await arriveAt(w);
+  const copied = [];
+  const said = [];
+  w.navigator = { clipboard: { writeText: (u) => { copied.push(u); return Promise.resolve(); } } };
+  w._showToast = (m) => { said.push(String(m)); };
+  eq(w.PDXIssueFile.share(LKEY), false, "the share jump does not answer false");
+  await tick(); await tick();
+  eq(copied.join(","), w.PDXIssueProfile.url(LKEY), "the share jump copied something other than this file's address");
+  eq(copied[0], `${ORIGIN}/i/${LKEY}`, "the copied link is not the public address of this file");
+  ok(said.length === 1 && said[0].indexOf("copied") >= 0, "the reader was not told the link was copied");
+  eq(w.PDXIssueFile.isOpen(), true, "the share jump closed the file it was sharing");
+
+  // NO CLIPBOARD, NO SILENCE. The address is printed in the notice instead, so
+  // the answer to the tap is never "nothing happened".
+  const dry = boot({ path: `/i/${LKEY}` });
+  await arriveAt(dry);
+  const toldDry = [];
+  dry.navigator = {};
+  dry._showToast = (m) => { toldDry.push(String(m)); };
+  eq(dry.PDXIssueFile.share(LKEY), false, "the clipboard-less share jump does not answer false");
+  eq(toldDry.join(","), `${ORIGIN}/i/${LKEY}`, "a reader with no clipboard was told nothing");
+  console.log(`      share → ${ORIGIN}/i/${LKEY} · no clipboard → the address in the notice`);
+}
+
+// ── THE DESK JUMP IS THE DESK'S ONE ISSUE DOOR, SCOPED TO THIS KEY ──────────
+{
+  const w = warmAll(boot({ path: `/i/${LKEY}` }));
+  await arriveAt(w);
+  const asked = [];
+  const realDoor = w.pdxDoor1Issue;
+  w.pdxDoor1Issue = (k) => { asked.push(k); return realDoor(k); };
+  const modes = [];
+  const realToDesk = w.PDXDoor1.toDesk;
+  w.PDXDoor1.toDesk = function (m) { modes.push(m); return realToDesk.call(w.PDXDoor1, m); };
+  eq(w.PDXIssueFile.deskJump(LKEY), false, "the desk jump does not answer false");
+  eq(w.PDXIssueFile.isOpen(), false, "the desk jump left the panel over the desk");
+  eq(asked.join(","), LKEY, "the desk jump did not scope the desk to this key");
+  has(modes.join(","), "issue", "the desk jump did not land on the issue desk");
+  // It does not write the address itself — close() hands /i/ back, exactly as the
+  // X does, and the two are indistinguishable from outside.
+  ok(w.__replaced.length > 0, "the desk jump left the bar on /i/<key> with no file under it");
+  console.log(`      desk jump → pdxDoor1Issue('${LKEY}') → the issue desk · the address went back`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("13 · Opening a slice of the list");
+// ── A VIEW OF ONE CENSUS, NOT A SECOND ONE ──────────────────────────────────
+// A settled key can file hundreds of people across five direction bands. That is
+// a phone book, and the honest fix — let a reader open one slice of it — is also
+// the fix most likely to grow a second reading: a filtered BUILD, with its own
+// people count, its own band arithmetic and its own idea of what a package is,
+// drifting from the desk's build the first time either changed.
+//
+// So the slice is not a build at all. The builder emits the same string whether
+// a chip is pressed or not (every chip paints unpressed), and a DOM pass on the
+// tick after the mount hides rows, closes bands whose rows are all hidden, and
+// restates each band's own count from a figure stashed on the element. What this
+// section pins:
+//
+//   · the filter row sits ABOVE the bands and its integers are the census's own
+//     — direction from PDXDoor1.issueCensus's bands, vehicle from the vehicle
+//     read the census already prints as `pkg`, chamber from the roster's own
+//     office classifier;
+//   · a chip with nothing behind it is not painted at all, which is why a key
+//     with no package-only people has no package-only chip to press;
+//   · pressing a chip does not change one byte of the builder's output, and the
+//     crumb, the letterhead, the desk jump and the share jump are untouched;
+//   · the rows STAY IN THE DOM — hidden, so a find-in-page and a deep link still
+//     land, and so "everything else is still on file" is literally true;
+//   · no party chip, and no sort control of any kind.
+{
+  // The chips and the row hooks, read back out of the markup the builder painted.
+  const chipsOf = (html) =>
+    [...String(html).matchAll(/<button[^>]*class="d1-led-chip[^"]*"[^>]*>([\s\S]*?)<\/button>/g)]
+      .map((m) => {
+        const tag = m[0].slice(0, m[0].indexOf(">") + 1);
+        const at = (k) => (tag.match(new RegExp(k + '="([^"]*)"')) || ["", ""])[1];
+        return {
+          tag,
+          kind: at("data-pdx-sl"),
+          val: at("data-pdx-sv"),
+          pressed: at("aria-pressed"),
+          n: Number((m[1].match(/<span class="d1-led-cn">(\d+)<\/span>/) || ["", "0"])[1]),
+          label: m[1].replace(/<span class="d1-led-cn">[\s\S]*?<\/span>/, "").trim(),
+        };
+      });
+  const rowsOf = (html) =>
+    [...String(html).matchAll(/<li class="d1-led-p"[^>]*>/g)].map((m) => {
+      const at = (k) => (m[0].match(new RegExp(k + '="([^"]*)"')) || ["", ""])[1];
+      return { band: at("data-pdx-led-band"), veh: at("data-pdx-led-veh"),
+               ch: at("data-pdx-led-ch"), nm: at("data-pdx-led-nm") };
+    });
+  // The filter row runs from its own opening tag to the first band the builder
+  // printed, because ledgerHtml emits it immediately before them.
+  const rowMarkupOf = (html) => {
+    const a = html.indexOf('<div class="d1-led-slice"');
+    const ends = ['<section class="d1-led-band', '<details class="d1-led-tail"']
+      .map((t) => html.indexOf(t)).filter((i) => i > a);
+    return a < 0 || !ends.length ? "" : html.slice(a, Math.min(...ends));
+  };
+
+  const w = warmAll(boot({ path: `/i/${LKEY}` }));
+  await arriveAt(w);
+  await tick(); await tick(); await tick();
+  w.PDXIssueFile.repaint();
+  const body = ledgerOf(w);
+  const c = w.PDXDoor1.issueCensus(LKEY);
+  must(c && !c.cold && !c.pending,
+    `the record on ${LKEY} never settled in this harness — there is no list to slice`);
+  must(c.people > 100, `${LKEY} files ${c.people} people — this section is about a list too long to read`);
+
+  // ── ABOVE THE BANDS, SCOPED TO THIS KEY ───────────────────────────────────
+  const atSlice = body.indexOf('<div class="d1-led-slice"');
+  const atBand = body.indexOf('<section class="d1-led-band');
+  ok(atSlice >= 0, "the ledger paints no filter row at all");
+  ok(atBand >= 0, `${LKEY} paints no open band — this section has no list to narrow`);
+  ok(atSlice >= 0 && atBand >= 0 && atSlice < atBand,
+    "the filter row is painted below the bands it filters");
+  has(body, `data-pdx-slice="${LKEY}"`,
+    "the filter row is not stamped with the key it belongs to, so a slice could survive the wrong file");
+  const rowMarkup = rowMarkupOf(body);
+  must(rowMarkup, "the filter row could not be isolated from the markup around it");
+
+  // ── DIRECTION: THE CENSUS'S BANDS, THE CENSUS'S ORDER, THE CENSUS'S COUNTS ─
+  const chips = chipsOf(rowMarkup);
+  const dir = chips.filter((x) => x.kind === "dir");
+  const live = (c.bands || []).filter((b) => b.n > 0);
+  eq(dir.map((x) => x.val).join(","), live.map((b) => b.id).join(","),
+    "the direction chips are not the census's own bands, in the census's own order");
+  for (const b of live) {
+    const chip = dir.find((x) => x.val === b.id);
+    if (!chip) continue;
+    eq(chip.n, b.n, `the ${b.id} chip's count is not the ${b.n} the census published`);
+  }
+  // The five words the work order names. Short on purpose: the band's own label
+  // is a sentence ("A direction, but too little to lean on") and a chip is not.
+  eq(dir.map((x) => x.label).join(" · "),
+    "Advanced · Cut against · Ran both ways · Too thin · No side",
+    "the direction chips are not the five words the work order names");
+  // A band the index published with nobody in it gets no chip — an unpressable
+  // 0 on a filter row reads as a verdict about the people rather than the record.
+  for (const b of (c.bands || [])) {
+    if (b.n) continue;
+    eq(dir.filter((x) => x.val === b.id).length, 0,
+      `the ${b.id} chip was painted with 0 people behind it`);
+  }
+
+  // ── VEHICLE: THE SAME TWO INTEGERS THE ROW'S OWN DISCLOSURE READS ─────────
+  const veh = chips.filter((x) => x.kind === "veh");
+  const P = (c.proc || {}).people || null;
+  must(P, "the census publishes no proc.people — the vehicle chips have nothing to agree with");
+  // THE WALL THAT MATTERS: package-only is not a fourth test of what a package
+  // is. It is `pkg` — the figure the census has printed since the ledger shipped
+  // — reached by naming the shape of two integers `_recordVehicleStats` already
+  // published, so the two cannot disagree by construction rather than by luck.
+  eq(P.package, c.pkg,
+    "the vehicle read's package-only count and the census's own pkg figure disagree — there are two package tests");
+  must(P.package === 0,
+    `${LKEY} now files ${P.package} package-only people — the omit-at-0 branch needs a key with none`);
+  eq(veh.filter((x) => x.val === "package").length, 0,
+    "the package-only chip was painted on a key with no package-only people");
+  eq(veh.map((x) => `${x.val}:${x.n}`).join(","), `primary:${P.primary},mixed:${P.mixed}`,
+    "the vehicle chips are not the census's own primary/mixed figures, in the row's order");
+  eq(veh.map((x) => x.label).join(" · "), "Primary-only · Mixed",
+    "the vehicle chips are not the words the work order names");
+
+  // ── CHAMBER: THE ROSTER'S OWN CLASSIFIER, FOLDED TO THREE ────────────────
+  const cham = chips.filter((x) => x.kind === "ch");
+  ok(cham.length > 0, "no chamber chips were painted, so window._pdxBrowseType was never reached");
+  ok(cham.every((x) => ["senate", "house", "state"].indexOf(x.val) >= 0),
+    "a chamber chip was painted for a bucket that is not one of the three");
+  eq(cham.map((x) => x.label).join(" · "),
+    cham.map((x) => ({ senate: "U.S. Senate", house: "U.S. House", state: "State" })[x.val]).join(" · "),
+    "a chamber chip is not labelled with the chamber it filters");
+  ok(cham.every((x) => x.n > 0), "a chamber chip was painted with nobody behind it");
+  // The three chambers do NOT have to account for everybody, and this asserts the
+  // gap rather than papering over it: a ranking-committee title, a governor and
+  // an attorney general hold no seat in a chamber, so they answer '' and join no
+  // chamber slice. A fourth chip for them would file an executive under a
+  // legislature; a chip that silently swept them into "State" would be worse.
+  const chamTotal = cham.reduce((n, x) => n + x.n, 0);
+  ok(chamTotal > 0 && chamTotal <= c.people,
+    `the chamber chips claim ${chamTotal} of ${c.people} people — more than the census filed`);
+
+  // ── THE NAME BOX, AND A CLEAR THAT IS NOT OFFERED BEFORE THERE IS ANYTHING ─
+  has(rowMarkup, 'class="d1-led-nm"', "the filter row has no name box");
+  has(rowMarkup, `oninput="return window.pdxDoor1Slice('q', this.value)"`,
+    "the name box does not hand its own value to the one slice handler");
+  has(rowMarkup, 'type="search"', "the name box is not a search input");
+  const clr = (rowMarkup.match(/<button[^>]*class="d1-led-clear"[^>]*>/) || [""])[0];
+  must(clr, "the filter row has no clear control");
+  has(clr, "hidden", "the clear control is offered before anything has been sliced");
+  has(rowMarkup, 'class="d1-led-sn" role="status"',
+    "the filter row has no live region, so a slice narrows the list in silence");
+
+  // ── NO PARTY. NO SORT. ────────────────────────────────────────────────────
+  // Spelled the way the family-door harness spells it: not one pill, not one
+  // chip, not one letter used as an axis — and not one control that would reorder
+  // a band filed by formal pattern into a ranking by anything else.
+  for (const t of ["party", "Party", "fparty", "Republican", "Democrat", "caucus",
+                   "sort", "Sort", "order by", "WVA", "Direction Match", "Your Match",
+                   "donation", "Donation", "likes", "Likes", "%", "score", "rank"]) {
+    no(rowMarkup, t, `the filter row says "${t}" — it slices one census, it does not re-read or re-order it`);
+  }
+  eq((rowMarkup.match(/data-pdx-sl="([a-z]+)"/g) || [])
+    .map((s) => s.slice(13, -1)).filter((v, i, a) => a.indexOf(v) === i).sort().join(","),
+    "ch,dir,q,veh", "the filter row offers an axis that is not one of the four the work order names");
+  console.log(`      /i/${LKEY} · ${dir.length} direction · ${veh.length} vehicle · ${cham.length} chamber · ` +
+    `name box · 0 party · 0 sort`);
+}
+
+// ── THE STATE IS STATE, AND THE BUILDER NEVER HEARS ABOUT IT ────────────────
+// The load-bearing claim of this whole file is that /i/<key> mounts the string
+// the desk builds, byte for byte. A slice implemented as a filtered build would
+// break that the moment a chip was pressed — the address would be showing a
+// string the desk never painted — so the slice is held OUTSIDE the builder and
+// asserted here as byte equality across every combination of the four axes.
+{
+  const w = warmAll(boot({ path: `/i/${LKEY}` }));
+  await arriveAt(w);
+  await tick(); await tick(); await tick();
+  w.PDXIssueFile.repaint();
+  const body0 = ledgerOf(w);
+  const head0 = w.PDXIssueFile._head(LKEY);
+  const chrome0 = w.PDXIssueFile._chrome(LKEY);
+  const built0 = w.PDXDoor1.issueProfile(LKEY);
+  eq(body0, built0, "the mounted body is not the builder's string before a chip is touched");
+  must(typeof w.PDXDoor1._slice === "function" && typeof w.PDXDoor1._sliceApply === "function",
+    "the desk does not publish _slice/_sliceApply — the slice cannot be driven from here");
+  must(typeof w.pdxDoor1Slice === "function", "window.pdxDoor1Slice is not published");
+  const st = () => JSON.stringify(w.PDXDoor1._slice());
+  eq(st(), JSON.stringify({ key: LKEY, dir: "", veh: "", ch: "", q: "" }),
+    "the file arrived pre-filtered by something");
+
+  // ONE TAP ON, A SECOND TAP OFF. A filter row with no way back to the whole
+  // list is a trap, and the toggle is the way back that costs no extra control.
+  eq(w.pdxDoor1Slice("dir", "against"), false, "the chip handler does not answer false, so the tap does something else too");
+  eq(w.PDXDoor1._slice().dir, "against", "the direction chip did not take");
+  w.pdxDoor1Slice("dir", "against");
+  eq(w.PDXDoor1._slice().dir, "", "a second tap on the same chip did not clear it");
+  // ONE DIRECTION AT A TIME — the bands are a partition, so two of them is just
+  // a shorter way of saying "no direction filter".
+  w.pdxDoor1Slice("dir", "against");
+  w.pdxDoor1Slice("dir", "advanced");
+  eq(w.PDXDoor1._slice().dir, "advanced", "two direction chips were held down at once");
+  // …and vehicle, chamber and name COMPOSE with it, trimmed and folded so a
+  // reader who types a capital letter is not told there is nobody by that name.
+  w.pdxDoor1Slice("veh", "mixed");
+  w.pdxDoor1Slice("ch", "house");
+  w.pdxDoor1Slice("q", "  CuRTiS  ");
+  eq(st(), JSON.stringify({ key: LKEY, dir: "advanced", veh: "mixed", ch: "house", q: "curtis" }),
+    "the four axes do not compose into one slice");
+  // A KIND THAT IS NOT ONE OF THE FOUR IS REFUSED, not stored. This is the wall
+  // against the chip the work order forbids arriving through the handler instead
+  // of through the markup.
+  const before = st();
+  eq(w.pdxDoor1Slice("party", "R"), false, "an unknown filter kind did not answer false");
+  eq(w.pdxDoor1Slice("sort", "wva"), false, "an unknown filter kind did not answer false");
+  eq(st(), before, "the handler stored an axis it does not offer");
+  w.pdxDoor1Slice("clear", "");
+  eq(st(), JSON.stringify({ key: LKEY, dir: "", veh: "", ch: "", q: "" }),
+    "clearing the slice did not clear all four axes");
+
+  // THE BUILDER'S STRING IS THE SAME STRING, EVERY TIME, UNDER EVERY SLICE.
+  const combos = [["dir", "against"], ["veh", "mixed"], ["ch", "senate"], ["q", "curtis"]];
+  for (const [k, v] of combos) {
+    w.pdxDoor1Slice(k, v);
+    eq(w.PDXDoor1.issueProfile(LKEY), built0,
+      `the builder's string changed when the ${k} filter was set — the slice reached the builder`);
+  }
+  eq(w.PDXDoor1.issueProfile(LKEY), built0,
+    "the builder's string changed under all four filters at once");
+  // …and so are the crumb, the letterhead and the two jumps. The slice is a view
+  // of the list; it is not allowed to touch the address, the inventory or either
+  // door out of the file.
+  eq(w.PDXIssueFile._head(LKEY), head0, "the letterhead changed under a slice");
+  eq(w.PDXIssueFile._chrome(LKEY), chrome0, "the crumb changed under a slice");
+  has(head0, `window.PDXIssueFile.deskJump('${LKEY}')`, "the desk jump is not on the letterhead this section compared");
+  has(head0, `window.PDXIssueFile.share('${LKEY}')`, "the share jump is not on the letterhead this section compared");
+  // Every chip is painted UNPRESSED, which is what makes the string above
+  // constant: the pressed state is put on by the DOM pass, off the same state the
+  // rows are narrowed by, so the chips and the list cannot report two slices.
+  eq((built0.match(/aria-pressed="true"/g) || []).length, 0,
+    "the builder painted a pressed chip, so its output depends on the slice after all");
+
+  w.pdxDoor1Slice("clear", "");
+  console.log(`      the slice is state, not markup · ${combos.length + 1} combinations, ` +
+    `${built0.length}B of builder output, unchanged`);
+}
+
+// ── A SLICE BELONGS TO ONE KEY, AND IS NOT REMEMBERED ───────────────────────
+// Pressing "Cut against" on climate_action and then opening lands_preserve must
+// not arrive pre-filtered by a chip the reader pressed on a different issue —
+// and the reset is the BUILDER's own, so it happens whichever door mounted the
+// next key. Nor is it remembered and restored on the way back: a reader who
+// returns to a file they once sliced and finds two thirds of it missing has been
+// shown a smaller record without being told.
+{
+  const w = warmAll(boot({ path: "/" }));
+  await tapKey(w, LKEY); await tick(); await tick();
+  await tapKey(w, KEY); await tick(); await tick();
+  const st = () => JSON.stringify(w.PDXDoor1._slice());
+  must(w.PDXDoor1.issueProfile(LKEY) && w.PDXDoor1.issueProfile(KEY),
+    "one of the two keys did not build a ledger in this window");
+  w.PDXDoor1.issueProfile(LKEY);
+  w.pdxDoor1Slice("dir", "against");
+  eq(w.PDXDoor1._slice().dir, "against", "the slice did not take on the first key");
+  w.PDXDoor1.issueProfile(KEY);
+  eq(st(), JSON.stringify({ key: KEY, dir: "", veh: "", ch: "", q: "" }),
+    `the ${LKEY} slice survived into ${KEY}`);
+  w.PDXDoor1.issueProfile(LKEY);
+  eq(st(), JSON.stringify({ key: LKEY, dir: "", veh: "", ch: "", q: "" }),
+    `the ${LKEY} slice was remembered and restored on the way back`);
+  console.log(`      ${LKEY} → ${KEY} → ${LKEY} · the slice does not travel and is not remembered`);
+}
+
+// ── THE VEHICLE CHIPS, ON A KEY THAT HAS ALL THREE AND A KEY THAT HAS ONE ───
+// climate_action files nobody as package-only, which is the omit-at-0 branch and
+// only half the claim. These two keys are the other half: the chips are painted
+// exactly where the census's own figures are non-zero, and the package-only chip
+// is `pkg` wherever it appears.
+{
+  const w = warmAll(boot({ path: "/" }));
+  for (const k of ["health_drug_prices", "health_rural"]) {
+    await tapKey(w, k);
+    await tick(); await tick(); await tick();
+    const c = w.PDXDoor1.issueCensus(k);
+    must(c && !c.cold && c.people, `${k} did not settle in this harness`);
+    const P = (c.proc || {}).people || null;
+    must(P, `${k} publishes no proc.people`);
+    eq(P.package, c.pkg, `${k}: the vehicle read and the census's pkg figure disagree`);
+    const html = w.PDXDoor1.issueProfile(k);
+    const want = [["primary", "Primary-only"], ["package", "Package-only"], ["mixed", "Mixed"]]
+      .filter(([v]) => P[v] > 0);
+    const got = [...html.matchAll(/data-pdx-sl="veh" data-pdx-sv="([a-z]+)"[^>]*>([^<]*)<span class="d1-led-cn">(\d+)</g)]
+      .map((m) => [m[1], m[2].trim(), Number(m[3])]);
+    eq(got.map((g) => g[0]).join(","), want.map((x) => x[0]).join(","),
+      `${k}: the vehicle chips painted are not exactly the non-zero ones`);
+    for (const [v, lb] of want) {
+      const g = got.find((x) => x[0] === v);
+      if (!g) continue;
+      eq(g[1], lb, `${k}: the ${v} chip is mislabelled`);
+      eq(g[2], P[v], `${k}: the ${v} chip's count is not the census's own`);
+    }
+    console.log(`      /i/${k} · ${got.map((g) => `${g[1]} ${g[2]}`).join(" · ")}` +
+      ` · pkg ${c.pkg}`);
+  }
+}
+
+// ── THE PASS ITSELF: HIDE, CLOSE, RESTATE, RESTORE ──────────────────────────
+// The builder's string is constant, so everything a reader actually sees when
+// they press a chip is done by one function over the nodes already in the page.
+// This drives that function over a tree built from the ROWS THE BUILDER PAINTED
+// — real bands, real vehicle and chamber hooks, real names, in the real order —
+// and asserts the four things the work order asks of it: the rows stay in the
+// DOM, one band's fold does not open another's, a heading never claims rows the
+// reader cannot see, and clearing restores the desk's own wording rather than a
+// recomputed second version of it.
+{
+  const LEDGER_CAP = 24;   // the builder's own per-band preview, read back below
+  // A node with just enough of the DOM to be walked by class: the pass uses
+  // getElementsByClassName, an element-scoped querySelector, getAttribute and
+  // setAttribute, hidden, textContent, value and classList, and nothing else.
+  const nd = (cls, attrs, text) => {
+    const n = {
+      cls: String(cls || "").split(" ").filter(Boolean),
+      attrs: Object.assign({}, attrs || {}),
+      kids: [], hidden: false, textContent: text == null ? "" : String(text), value: "",
+      parentNode: null,
+      getAttribute(k) { return Object.prototype.hasOwnProperty.call(this.attrs, k) ? this.attrs[k] : null; },
+      setAttribute(k, v) { this.attrs[k] = String(v); },
+      add(...kids) { for (const k of kids) if (k) { k.parentNode = this; this.kids.push(k); } return this; },
+      walk() { const out = []; const go = (x) => { for (const k of x.kids) { out.push(k); go(k); } }; go(this); return out; },
+      is(sel) {
+        return sel[0] === "." ? this.cls.indexOf(sel.slice(1)) >= 0
+          : sel[0] === "[" ? Object.prototype.hasOwnProperty.call(this.attrs, sel.slice(1, -1))
+          : false;
+      },
+      querySelectorAll(sel) { return this.walk().filter((x) => x.is(sel)); },
+      querySelector(sel) { return this.querySelectorAll(sel)[0] || null; },
+      getElementsByClassName(c) { return this.walk().filter((x) => x.is("." + c)); },
+    };
+    n.classList = {
+      add(c) { if (n.cls.indexOf(c) < 0) n.cls.push(c); },
+      remove(c) { const i = n.cls.indexOf(c); if (i >= 0) n.cls.splice(i, 1); },
+      contains(c) { return n.cls.indexOf(c) >= 0; },
+      toggle(c, on) { if (on) this.add(c); else this.remove(c); },
+    };
+    return n;
+  };
+
+  const w = warmAll(boot({ path: `/i/${LKEY}` }));
+  await arriveAt(w);
+  await tick(); await tick(); await tick();
+  w.PDXIssueFile.repaint();
+  const body = ledgerOf(w);
+  const c = w.PDXDoor1.issueCensus(LKEY);
+  must(c && !c.cold, `${LKEY} did not settle`);
+
+  // The rows, and the fold they were painted inside, read back out of the markup.
+  const rows = [...body.matchAll(/<li class="d1-led-p"[^>]*>/g)].map((m) => {
+    const at = (k) => (m[0].match(new RegExp(k + '="([^"]*)"')) || ["", ""])[1];
+    return { band: at("data-pdx-led-band"), veh: at("data-pdx-led-veh"),
+             ch: at("data-pdx-led-ch"), nm: at("data-pdx-led-nm") };
+  });
+  eq(rows.length, c.people, "the painted rows are not the census's own people count");
+  ok(rows.every((r) => r.band && r.nm), "a painted row is missing its band or its name hook");
+  // Which bands the builder folded into the tail, taken from the markup rather
+  // than assumed: the tail runs from its own tag to the measures section.
+  const tailAt = body.indexOf('<details class="d1-led-tail"');
+  const measAt = body.indexOf('<section class="d1-led-meas"');
+  must(tailAt > 0 && measAt > tailAt, "the ledger has no folded tail before the measures section");
+  const tailMarkup = body.slice(tailAt, measAt);
+  const tailIds = (c.bands || []).map((b) => b.id)
+    .filter((id) => tailMarkup.indexOf(`d1-led-band is-${id}`) >= 0);
+  must(tailIds.length, "no band was found inside the folded tail");
+
+  // The tree: the filter row, then one section per band in the census's order,
+  // each with its heading count, its preview and its own fold over the rest.
+  const root = nd("host");
+  const box = nd("d1-led-slice", { "data-pdx-slice": LKEY });
+  const chipNodes = [];
+  for (const [kind, vals] of [["dir", (c.bands || []).filter((b) => b.n).map((b) => b.id)],
+                              ["veh", ["primary", "mixed"]], ["ch", ["senate", "house", "state"]]]) {
+    for (const v of vals) {
+      const chip = nd("d1-led-chip", { "data-pdx-sl": kind, "data-pdx-sv": v, "aria-pressed": "false" });
+      chipNodes.push(chip);
+      box.add(chip);
+    }
+  }
+  const nameBox = nd("d1-led-nm", { "data-pdx-sl": "q" });
+  const clearBtn = nd("d1-led-clear");
+  clearBtn.hidden = true;
+  const sayNode = nd("d1-led-sn");
+  box.add(nameBox, clearBtn, sayNode);
+  root.add(box);
+  const secs = {}, bns = {}, mores = {}, msums = {};
+  const tail = nd("d1-led-tail");
+  for (const b of (c.bands || [])) {
+    if (!b.n) continue;
+    const mine = rows.filter((r) => r.band === b.id);
+    const sec = nd(`d1-led-band is-${b.id}`);
+    const bn = nd("d1-led-bn", null, String(mine.length));
+    sec.add(nd("d1-led-bh").add(nd("d1-led-bt", null, b.lb), bn));
+    const li = (r) => nd("d1-led-p", { "data-pdx-led-band": r.band, "data-pdx-led-veh": r.veh,
+                                       "data-pdx-led-ch": r.ch, "data-pdx-led-nm": r.nm });
+    const list = nd("d1-led-people");
+    mine.slice(0, LEDGER_CAP).forEach((r) => list.add(li(r)));
+    sec.add(list);
+    const rest = mine.slice(LEDGER_CAP);
+    if (rest.length) {
+      const msum = nd("d1-led-msum", null, `${rest.length} more in this band — same reading, same order`);
+      const more = nd("d1-led-more").add(msum);
+      const inner = nd("d1-led-people");
+      rest.forEach((r) => inner.add(li(r)));
+      more.add(inner);
+      sec.add(more);
+      mores[b.id] = more; msums[b.id] = msum;
+    }
+    secs[b.id] = sec; bns[b.id] = bn;
+    if (tailIds.indexOf(b.id) >= 0) tail.add(sec); else root.add(sec);
+  }
+  root.add(tail);
+  const allRows = root.querySelectorAll(".d1-led-p");
+  eq(allRows.length, rows.length, "the tree this section drives does not hold every painted row");
+  // The pass does not sweep the document: it names the two hosts the builder's
+  // string is ever mounted in and starts inside whichever one this page has. So
+  // the one thing stubbed is getElementById for the file panel's own ledger id,
+  // which is the host /i/<key> mounts into — everything else still answers from
+  // the real registry, including the desk's body, which this tree is not in.
+  const realGet = w.document.getElementById;
+  w.document.getElementById = (id) =>
+    (id === "pdx-issue-file-ledger" ? root : realGet.call(w.document, id));
+  ok(String(DESK).indexOf("'pdx-issue-file-ledger'") >= 0,
+    "the desk no longer names the file panel's ledger as a mount for the slice pass");
+  const shown = () => allRows.filter((r) => !r.hidden);
+  const apply = () => { w.PDXDoor1._sliceApply(); };
+  const nOf = (f) => rows.filter(f).length;
+
+  // ── NO SLICE: NOTHING HIDDEN, NOTHING RESTATED, NOTHING SAID ──────────────
+  w.pdxDoor1Slice("clear", "");
+  apply();
+  eq(shown().length, rows.length, "the pass hid rows with no slice active");
+  eq(Object.keys(secs).filter((id) => secs[id].hidden).join(","), "",
+    "the pass closed a band with no slice active");
+  eq(sayNode.textContent, "", "the live region announced a slice that is not on");
+  eq(clearBtn.hidden, true, "the clear control is offered with nothing to clear");
+  eq(chipNodes.filter((x) => x.getAttribute("aria-pressed") === "true").length, 0,
+    "a chip reads as pressed with no slice active");
+  const bn0 = Object.keys(bns).map((id) => `${id}:${bns[id].textContent}`).join(",");
+  eq(bn0, (c.bands || []).filter((b) => b.n).map((b) => `${b.id}:${b.n}`).join(","),
+    "a band heading does not carry the census's own count before anything is sliced");
+
+  // ── ONE DIRECTION: THE OTHERS COLLAPSE IN PLACE, THE ROWS STAY IN THE DOM ─
+  w.pdxDoor1Slice("dir", "against");
+  apply();
+  eq(shown().length, nOf((r) => r.band === "against"),
+    "a direction slice does not show exactly that band's rows");
+  ok(shown().every((r) => r.getAttribute("data-pdx-led-band") === "against"),
+    "a row from another band survived the direction slice");
+  eq(root.querySelectorAll(".d1-led-p").length, rows.length,
+    "rows LEFT THE DOM instead of being hidden — a find-in-page and a deep link would miss them");
+  for (const id of Object.keys(secs)) {
+    eq(secs[id].hidden, id !== "against",
+      `the ${id} band ${id === "against" ? "closed under its own slice" : "stayed open with nothing in it"}`);
+  }
+  // The fold over the thin end closes too, because every band inside it did.
+  eq(tail.hidden, true, "the folded tail stayed open with no live band inside it");
+  // EXPANDING ONE BAND DOES NOT EXPAND THE OTHERS: each fold is decided by its
+  // own live rows, and a fold with nothing live in it closes rather than
+  // offering a reader a control onto an empty list.
+  for (const id of Object.keys(mores)) {
+    eq(mores[id].hidden, id !== "against",
+      `the ${id} band's fold ${id === "against" ? "closed under its own slice" : "stayed open with nothing in it"}`);
+  }
+  eq(sayNode.textContent,
+    `Cut against — ${nOf((r) => r.band === "against")} of ${rows.length} rows shown. Everything else is still on file.`,
+    "the live region does not say what was sliced, how much is shown, and that the rest is still on file");
+  eq(clearBtn.hidden, false, "the clear control is still hidden under a live slice");
+  const on = chipNodes.filter((x) => x.getAttribute("aria-pressed") === "true");
+  eq(on.length, 1, "the pressed chips do not match the one live axis");
+  eq(on[0].getAttribute("data-pdx-sv"), "against", "the wrong chip reads as pressed");
+  ok(on[0].classList.contains("is-on"), "the pressed chip did not take its own class");
+
+  // ── COMPOSED: DIRECTION + VEHICLE + CHAMBER + NAME ────────────────────────
+  w.pdxDoor1Slice("veh", "mixed");
+  w.pdxDoor1Slice("ch", "house");
+  apply();
+  const want = (r) => r.band === "against" && r.veh === "mixed" && r.ch === "house";
+  eq(shown().length, nOf(want), "the three axes do not narrow the list together");
+  ok(nOf(want) < nOf((r) => r.band === "against"),
+    "the composed slice is not narrower than the direction alone — this claim has nothing to check");
+  // A heading never claims rows the reader cannot see.
+  eq(bns.against.textContent, String(nOf(want)),
+    "the band heading still claims the whole band under a composed slice");
+  // …and so does its fold, which counts the rows still live INSIDE it rather
+  // than the whole remainder the builder printed. Computed here from the row
+  // list and the builder's own preview cap, so this is not the pass checking
+  // its own arithmetic.
+  const againstRows = rows.filter((r) => r.band === "against");
+  const inFold = againstRows.slice(LEDGER_CAP).filter(want).length;
+  ok(inFold > 0, "the composed slice left nothing in the fold — this claim has nothing to check");
+  eq(msums.against.textContent, `${inFold} more in this band — same reading, same order`,
+    "the band's fold still counts rows the slice hid");
+  eq(againstRows.slice(0, LEDGER_CAP).filter(want).length + inFold, nOf(want),
+    "the preview and the fold do not account for every row the slice left live");
+  // …and the name filter is a substring of the painted name, nothing cleverer.
+  const nm = shown()[0].getAttribute("data-pdx-led-nm").split(" ").pop();
+  w.pdxDoor1Slice("q", nm.toUpperCase());
+  apply();
+  eq(shown().length, nOf((r) => want(r) && r.nm.indexOf(nm) >= 0),
+    "the name filter is not a plain substring of the painted name");
+  ok(shown().length > 0, `the name filter on "${nm}" emptied a slice it was taken from`);
+  has(sayNode.textContent, `name contains “${nm}”`,
+    "the live region does not name the string it filtered on");
+  eq(nameBox.value, nm, "the name box was not synced to the live filter");
+
+  // ── CLEARING RESTORES THE DESK'S OWN WORDING, NOT A RECOMPUTED ONE ────────
+  w.pdxDoor1Slice("clear", "");
+  apply();
+  eq(shown().length, rows.length, "clearing the slice did not bring every row back");
+  eq(Object.keys(bns).map((id) => `${id}:${bns[id].textContent}`).join(","), bn0,
+    "clearing the slice did not restore the band headings the builder printed");
+  eq(sayNode.textContent, "", "the live region still announces a slice that was cleared");
+  eq(clearBtn.hidden, true, "the clear control is still offered after clearing");
+  eq(chipNodes.filter((x) => x.getAttribute("aria-pressed") === "true").length, 0,
+    "a chip still reads as pressed after clearing");
+  eq(Object.keys(secs).filter((id) => secs[id].hidden).join(","), "",
+    "a band stayed closed after clearing");
+  eq(tail.hidden, false, "the folded tail stayed closed after clearing");
+  console.log(`      ${rows.length} rows · one band → ${nOf((r) => r.band === "against")} · ` +
+    `+ vehicle + chamber → ${nOf(want)} · rows never left the DOM · headings restored`);
+}
+
+// ── THE SOURCES ARE THE SHIPPED ONES, AND "OPEN THE ACTS" STILL OPENS ───────
+// Every axis on the filter row is a field somebody else already published. This
+// asserts that at the source, because a filter that quietly grew its own reader
+// of the record would agree with the census today and drift tomorrow.
+{
+  const HUB = R("compare-hub.js");
+  const CODE = DESK.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, "");
+  // CHAMBER: the roster's own office classifier, exported for exactly this.
+  has(HUB, "window._pdxBrowseType = _classifyBrowseType;",
+    "compare-hub.js no longer publishes _pdxBrowseType — the chamber chips have no classifier to ask");
+  has(CODE, "window._pdxBrowseType",
+    "the desk no longer asks the roster's classifier which chamber a person sits in");
+  has(HTML, "compare-hub.js",
+    "index.html no longer loads compare-hub.js, so the chamber chips would find no classifier on the real page");
+  // …and the fold is a fixed table of that classifier's OWN bucket names, with
+  // no office text read anywhere in it. An office string lowercased and
+  // substring-tested here would be the second copy of that doctrine — the exact
+  // thing the export exists to prevent — so the block is isolated and swept.
+  const cham = CODE.slice(CODE.indexOf("var _CHAMBER"), CODE.indexOf("function crossRead"));
+  must(cham.length > 100, "the chamber read could not be isolated from the desk's source");
+  for (const t of ["office", "toLowerCase", "indexOf(", "u.s.", "attorney general", "school board"]) {
+    no(cham.toLowerCase(), t.toLowerCase(),
+      `the chamber read looks at office text itself ("${t}") instead of folding _pdxBrowseType's buckets`);
+  }
+  // VEHICLE: the two integers _recordVehicleStats published, named — not a
+  // fourth test of what a package is. The block reads standalone/provision and
+  // nothing else on that object, and no threshold of its own.
+  const vehSrc = CODE.slice(CODE.indexOf("function vehClassOf"), CODE.indexOf("var _CHAMBER"));
+  must(vehSrc.length > 100, "the vehicle class could not be isolated from the desk's source");
+  has(vehSrc, "v.standalone", "the vehicle class no longer reads the published standalone count");
+  has(vehSrc, "v.provision", "the vehicle class no longer reads the published provision count");
+  for (const t of ["_rdIsProvision", "isProvision", "stowaway", "threshold", "_RD_NARROW_AT",
+                   "share", "issues", "total"]) {
+    no(vehSrc, t, `the vehicle class re-derives what a package is ("${t}") instead of naming the shape of two published integers`);
+  }
+  // DIRECTION: the formal index's own band ids, and one census.
+  has(CODE, "SLICE_DIR", "the direction chips no longer come from one table of the index's band ids");
+  eq((CODE.match(/function issueCensus/g) || []).length, 1,
+    "there is more than one census function in the desk");
+  // NO SECOND SORT. The slice hides rows; it never reorders them, which is why
+  // there is no comparator anywhere in it.
+  const slice = CODE.slice(CODE.indexOf("function sliceCounts"), CODE.indexOf("function issueLedger"));
+  must(slice.length > 500, "the slice block could not be isolated from the desk's source");
+  for (const t of [".sort(", "reverse(", "localeCompare", "buildRanking", "PDXWordAction",
+                   "directionMatch", "Math.round", "%"]) {
+    no(slice, t, `the slice re-orders or re-reads the list ("${t}") instead of hiding rows`);
+  }
+  // AND IT NEVER SWEEPS THE DOCUMENT. The desk owns four surfaces and collapses
+  // nothing else, so it is not allowed to reach the page by selector; the pass
+  // names the two hosts the one builder's string is ever mounted in — the desk's
+  // own body and this file panel's ledger — and walks inside whichever of them
+  // this page has. The wall is scripts/test-door-one-collapse.mjs's and it holds
+  // over the whole file; it is re-asserted here, on the slice's own region,
+  // because the slice is the code that had a reason to want an exception to it.
+  no(slice, "querySelectorAll", "the slice pass sweeps the document by selector");
+  no(slice, "document.querySelector(", "the slice pass selects a surface the desk has not named");
+  has(slice, "SLICE_HOSTS", "the slice pass no longer names the hosts it walks inside");
+  has(slice, "[BODY_ID, 'pdx-issue-file-ledger']",
+    "the slice pass no longer names the desk's own body and the file panel's ledger as its two mounts");
+  has(CODE, "var BODY_ID = 'pdx-d1-body'",
+    "the desk's body id is no longer the constant the slice pass walks inside");
+
+  // AND THE ROW'S ONE DOOR IS UNTOUCHED: the four filter hooks were added to the
+  // <li> the dossier gateway already lived on, so a sliced list still opens the
+  // same dossier on the same key through the same shipped control.
+  const w = warmAll(boot({ path: `/i/${LKEY}` }));
+  await arriveAt(w);
+  await tick(); await tick(); await tick();
+  w.PDXIssueFile.repaint();
+  const body = ledgerOf(w);
+  const li = (body.match(/<li class="d1-led-p"[^>]*>[\s\S]*?<\/li>/) || [""])[0];
+  must(li, "no row could be read back out of the painted ledger");
+  for (const t in { "data-pdx-led-band": 1, "data-pdx-led-veh": 1, "data-pdx-led-ch": 1, "data-pdx-led-nm": 1 }) {
+    has(li, t, `the row is missing the ${t} hook the filter row reads`);
+  }
+  has(li, "pdxst-open", "the row lost the shipped dossier gateway");
+  has(li, `data-pdxst-dos="${LKEY}"`, "the row's dossier control is no longer scoped to this key");
+  has(li, "Open the acts", "the row lost its own door onto the acts behind the reading");
+  has(li, 'data-pdxst-focus="record"', "the dossier no longer lands on the record column");
+  // The hooks are attributes on the row, not a class the stylesheet could hide:
+  // the pass sets `hidden`, and only these four rules act on it.
+  const CSS = R("door1-workspace.css");
+  has(CSS, ".d1-led-p[hidden], .d1-led-band[hidden], .d1-led-tail[hidden], .d1-led-more[hidden] {",
+    "the stylesheet has no rule that actually hides a sliced row");
+  has(CSS, ".d1-led-chip", "the stylesheet has no chip rule, so the filter row would paint unstyled");
+  console.log("      chamber ← _pdxBrowseType · vehicle ← standalone/provision · direction ← the index's bands · " +
+    "1 census · 0 comparators · 2 named hosts, 0 document sweeps · Open the acts intact");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("14 · How this issue was tested");
+// ── A PROCESS LINE, NOT A NEW SCORE ─────────────────────────────────────────
+// The inventory says how MUCH is filed under a key. It does not say how the
+// issue MOVED — whether the chamber ever voted on it as itself, whether it only
+// ever rode inside something larger, whether the only thing on file was floor
+// machinery. That gap is where a reader supplies their own answer, and the
+// answers readers supply are the ones this project refuses to publish: somebody
+// snuck it in, somebody obstructed it, somebody scheduled it to fail.
+//
+// So the block says what is on file and stops. Counts and named measures only,
+// every figure lifted from PDXDoor1.issueCensus's own `proc` — one more field on
+// the census the desk already computed, never a second read — and the same busy
+// gate as the inventory above it, because a process line published while the
+// roll-call read is still out is a claim about a record we have not finished
+// looking at. What this section pins:
+//
+//   · the three measure figures OVERLAP by design and the note says so;
+//   · a sponsorship is never called a vote;
+//   · the locked menu sentence is quoted from PDXConsistency.menu, in the
+//     menu's own order, and only where it applies;
+//   · "See the measures" jumps to the measure list the ledger already prints
+//     rather than duplicating one card of it;
+//   · no percentage, no Direction Match, no inferred stance, and nothing the
+//     menu's own wall scanner objects to.
+{
+  const w = warmAll(boot({ path: `/i/${LKEY}` }));
+  await arriveAt(w);
+  await tick(); await tick(); await tick();
+  w.PDXIssueFile.repaint();
+  const head = headOf(w);
+  const body = ledgerOf(w);
+  const c = w.PDXDoor1.issueCensus(LKEY);
+  must(c && !c.cold && !c.pending, `${LKEY} never settled — the process block cannot be reached`);
+  const pr = c.proc || null;
+  must(pr, "the census publishes no `proc` — the letterhead has nothing to print and would have to count");
+  must(typeof w.PDXIssueFile._proc === "function", "issue-file.js does not publish _proc()");
+  const blk = (head.match(/<div class="pdxif-proc">[\s\S]*?<\/div>(?=<p class="pdxif-jumps">)/) || [""])[0];
+  must(blk, "there is no process block on the letterhead at all");
+  // UNDER THE INVENTORY, ABOVE THE JUMPS — the order the work order names.
+  ok(head.indexOf('class="pdxif-inv"') < head.indexOf('class="pdxif-proc"'),
+    "the process block was printed above the inventory it elaborates");
+  ok(head.indexOf('class="pdxif-proc"') < head.indexOf('class="pdxif-jumps"'),
+    "the process block was printed below the two jumps");
+  has(blk, "How this issue was tested", "the process block has no heading saying what it is");
+
+  // ── THE MEASURES LINE IS THE CENSUS'S OWN THREE FIGURES ───────────────────
+  const rowOf = (lb) => {
+    const m = blk.match(new RegExp(`<span class="pdxif-plb">${lb}</span><span class="pdxif-pv">([^<]*)</span>`));
+    return m ? m[1] : "";
+  };
+  const M = pr.measures || {};
+  const mLine = rowOf("Measures");
+  must(mLine, "there is no measures row in the process block");
+  const wantM = [M.primary ? `${M.primary} PRIMARY` : "", M.provision ? `${M.provision} provision` : "",
+                 M.procedural ? `${M.procedural} procedural` : ""].filter(Boolean).join(" · ");
+  eq(mLine, wantM, "the measures line is not the census's own PRIMARY/provision/procedural figures");
+  // …and the first two of them account for every measure the inventory counted,
+  // which is the guarantee that this line is a split of that figure and not a
+  // second inventory. The third overlaps both, by design.
+  eq(M.primary + M.provision, c.measures,
+    "PRIMARY + provision does not account for every measure the census mapped to this key");
+  eq(M.total, c.measures, "the process block counted a different number of measures than the inventory");
+  ok(M.procedural <= M.total, "more measures were called procedural than exist");
+  // THE OVERLAP IS SAID OUT LOUD. Three figures that do not sum to the headline
+  // read as arithmetic somebody got wrong unless the note explains them.
+  has(blk, "procedural counts the same measures again",
+    "the note does not say the three measure figures overlap, so they read as a failed sum");
+  has(blk, "do not add up to the first", "the note does not warn that the three do not sum");
+
+  // ── THE PEOPLE LINE, AND THE ZEROES DROPPED ───────────────────────────────
+  const P = pr.people || {};
+  const pLine = rowOf("People");
+  const wantP = [["primary", "primary-only"], ["package", "package-only"], ["mixed", "mixed"]]
+    .filter(([k]) => P[k] > 0).map(([k, lb]) => `${P[k]} ${lb}`).join(" · ");
+  eq(pLine, wantP, "the people line is not the census's own vehicle figures with the zeroes dropped");
+  must(P.package === 0, `${LKEY} now files package-only people — the omit-at-0 branch needs a key with none`);
+  no(pLine, "package-only", "the people line printed a 0 bucket instead of dropping it");
+  no(pLine, " 0 ", "the people line printed a zero");
+  // AND THE TWO LINES ARE ALLOWED TO DISAGREE, because they answer different
+  // questions — the label on the bill, and the shape of one person's own acts.
+  // A reader not told that reads the disagreement as an error, so the note says it.
+  has(blk, "The people line asks a different question",
+    "the note does not distinguish the measure label from the shape of a person's own acts");
+
+  // ── ACTS: NAMED IN stance-helpers' OWN WORDS, AND A SPONSOR IS NOT A VOTE ─
+  const A = pr.acts || [];
+  const aLine = rowOf("Acts");
+  const CLS = w._PDX_ACT_CLASSES || null;
+  must(CLS && CLS.floor && CLS.sponsor, "_PDX_ACT_CLASSES is not published — the acts line would have to invent nouns");
+  eq(aLine, A.map((a) => a.lb).join(" · "), "the acts line is not the census's own pre-worded act counts");
+  ok(A.length > 0, `${LKEY} has no acts on file — this claim has nothing to check`);
+  ok(A.every((a) => ["floor", "committee_vote", "sponsor"].indexOf(a.k) >= 0),
+    "the acts line counted an act class the work order does not name");
+  for (const a of A) {
+    const cls = CLS[a.k];
+    eq(a.lb, `${a.n} ${a.n === 1 ? cls.one : cls.many}`,
+      `the ${a.k} count is not worded from stance-helpers' own act class`);
+  }
+  // A SPONSORSHIP IS NEVER CALLED A VOTE. Asserted on the vocabulary rather than
+  // on today's data: the noun for a lead sponsorship must not contain "vote",
+  // and the acts line must never put the two words together.
+  no(String(CLS.sponsor.one) + String(CLS.sponsor.many), "vote",
+    "stance-helpers now calls a lead sponsorship a vote");
+  no(aLine, "sponsor vote", "the acts line called a sponsorship a vote");
+  no(aLine, "sponsorship vote", "the acts line called a sponsorship a vote");
+
+  // ── THE OPTIONAL LAST LINE: COUNTS, NEVER A SHARE ─────────────────────────
+  const S = pr.stances || {};
+  const sLine = rowOf("Stances");
+  ok(S.said > 0, `${LKEY} holds no sourced stances — this claim has nothing to check`);
+  has(sLine, `${S.said} sourced stance`, "the stances line is not the census's own sourced-stance count");
+  if (S.crossed) {
+    has(sLine, `${S.crossed} whose formal row runs the other way`,
+      "the stances line does not say how many formal rows run against the words");
+  }
+  no(sLine, "%", "the stances line printed a share");
+  no(sLine, "of ", "the stances line printed a denominator, which is a percentage in words");
+
+  // ── COUNTS ONLY, AND NOTHING THE MENU'S OWN WALL OBJECTS TO ───────────────
+  no(blk, "%", "there is a percentage in the process block");
+  for (const t of ["Direction Match", "consistency", "backs up their words", "ranked",
+                   "Republican", "Democrat", "party", "snuck", "obstructed", "blocked",
+                   "refused to schedule", "buried", "score", "Add to team"]) {
+    no(blk, t, `the process block says "${t}" — it is a count of what is on file, not a verdict`);
+  }
+  // The menu module's own scanner, run over the block: it holds the phrasing wall
+  // for this whole subject, so a sentence it objects to is one this block may not
+  // print regardless of what the list above happens to name.
+  const MENU = w.PDXConsistency && w.PDXConsistency.menu;
+  must(MENU && typeof MENU.scan === "function", "PDXConsistency.menu.scan is not published");
+  eq(JSON.stringify(MENU.scan(blk)), "[]",
+    `the menu's own wall scanner objects to the process block: ${JSON.stringify(MENU.scan(blk))}`);
+  // No inferred stance: the block never says what anybody's position IS.
+  for (const t of ["supports", "opposes", "in favour", "in favor", "against it"]) {
+    no(blk, t, `the process block reads a position ("${t}") off a count`);
+  }
+
+  // ── "SEE THE MEASURES" JUMPS TO THE ONE LIST, AND DOES NOT COPY IT ────────
+  must(M.id, "the census publishes no anchor for the measure list");
+  has(blk, `window.PDXIssueFile.seeMeasures('${M.id}')`,
+    "the process block does not offer a jump to the measure list the ledger already prints");
+  has(body, `id="${M.id}"`, "the ledger's measure list does not wear the anchor the census published");
+  eq((body.match(new RegExp(`id="${M.id}"`, "g")) || []).length, 1,
+    "the measure anchor appears more than once on the page");
+  // …and the block does not reprint one measure card: no number, no title, no
+  // PRIMARY pill. Naming a measure here would be a second measure list.
+  for (const t of ["H.R. ", "H.J.Res", "S. ", "d1-led-b", "Who voted on it"]) {
+    no(blk, t, `the process block reprints the measure list ("${t}") instead of jumping to it`);
+  }
+  // The jump is a control, and it lands: a missing anchor is a no-op, never a
+  // thrown error over a reader's tap.
+  const scrolled = [];
+  const real = w.document.getElementById;
+  w.document.getElementById = (id) => {
+    if (id === M.id) return { scrollIntoView: (o) => scrolled.push(`${id}:${o && o.block}`) };
+    return real.call(w.document, id);
+  };
+  eq(w.PDXIssueFile.seeMeasures(M.id), false, "the see-the-measures jump does not answer false");
+  eq(scrolled.join(","), `${M.id}:start`, "the jump did not scroll the measure list into view");
+  eq(w.PDXIssueFile.seeMeasures("d1-led-meas-not_a_key"), false,
+    "the jump throws rather than answering false on an anchor that is not on the page");
+  w.document.getElementById = real;
+  console.log(`      /i/${LKEY} · ${mLine} · ${pLine} · ${aLine} · ${sLine}`);
+}
+
+// ── THE BUSY GATE, ON THE PROCESS BLOCK TOO ─────────────────────────────────
+// Same rule as the inventory, asserted the same way: not one integer while the
+// ledger below is still saying it is reading. A measure total is the figure most
+// tempting to publish early because it does not move with the roll-call read —
+// and publishing it early is exactly how a reader learns to trust a number that
+// was not ready.
+{
+  const w = boot({ path: `/i/${LKEY}` });   // NOT settled: the field stays out
+  await arriveAt(w);
+  const head = headOf(w);
+  has(ledgerOf(w), "Reading the full record for", "the ledger dropped its own honesty line");
+  has(head, "Reading the record on this key", "the letterhead published while the read was out");
+  no(head, "pdxif-proc", "the process block printed under a live read");
+  no(head, "How this issue was tested", "the process heading printed under a live read");
+  no(head, "PRIMARY", "the letterhead published a measure label while the read was out");
+  const figures = (head.replace(/<[^>]*>/g, " ").match(/\d+/g) || []);
+  eq(figures.join(","), "", `the letterhead published figures (${figures.join(", ")}) while the read was out`);
+  // …and it appears on the same paint the inventory does, off one repaint.
+  warmAll(w);
+  w.PDXDoor1.sync();
+  await tick(); await tick(); await tick();
+  w.PDXIssueFile.repaint();
+  const head2 = headOf(w);
+  has(head2, "people with a readable row", "the inventory never appeared once the read was done");
+  has(head2, "How this issue was tested", "the process block never appeared once the read was done");
+  has(head2, "See the measures", "the jump to the measure list never appeared");
+  console.log("      cold: 0 figures, no process block · settled: inventory and process line on one paint");
+}
+
+// ── THE LOCKED MENU SENTENCE, WHERE IT APPLIES AND ONLY THERE ───────────────
+// Two of PDXConsistency.menu's three phrases can be true of a whole key, and
+// both are quoted rather than written: the module owns this vocabulary because
+// it is the wording most likely to slide into blame. The third — no vehicle at
+// all — stays unwired, because nothing on this page holds a denominator of what
+// a chamber declined to schedule.
+{
+  const w = warmAll(boot({ path: "/" }));
+  const MENU = w.PDXConsistency.menu;
+  const seen = {};
+  // A key whose every mapped measure was a provision, and a key whose measures
+  // were reached only through floor machinery.
+  for (const [k, want] of [["health_drug_prices", "provision_only"], ["stock_trading_ban", "procedural_gate"]]) {
+    await tapKey(w, k);
+    await tick(); await tick(); await tick();
+    const c = w.PDXDoor1.issueCensus(k);
+    must(c && !c.cold && c.people, `${k} did not settle in this harness`);
+    const m = (c.proc || {}).menu || null;
+    must(m, `${k} no longer triggers a menu sentence — this branch needs a key that does`);
+    eq(m.key, want, `${k} triggers the wrong menu phrase`);
+    seen[m.key] = 1;
+    // VERBATIM FROM THE MODULE. Not paraphrased, not shortened, not re-toned.
+    const say = MENU.say(m.key);
+    must(say && say.lb, `PDXConsistency.menu.say('${m.key}') no longer answers`);
+    eq(m.lb, say.lb, `${k}'s menu label is not the module's own`);
+    eq(m.note, say.note, `${k}'s menu note is not the module's own`);
+    ok((MENU.ORDER || []).indexOf(m.key) >= 0, `${k}'s menu phrase is not one the module orders`);
+    // …and it prints on the letterhead, marked as the locked sentence it is.
+    const blk = String(w.PDXIssueFile._proc(c));
+    has(blk, "pdxif-pmenu", `${k}'s letterhead does not mark the menu sentence as one`);
+    has(blk, esc(say.lb), `${k}'s letterhead does not print the module's own label`);
+    has(blk, esc(say.note), `${k}'s letterhead does not print the module's own note`);
+    eq(JSON.stringify(MENU.scan(blk)), "[]", `${k}'s process block trips the menu's own wall`);
+    console.log(`      /i/${k} · "${say.lb}"`);
+  }
+  eq(Object.keys(seen).sort().join(","), "procedural_gate,provision_only",
+    "the two menu phrases a whole key can trigger were not both reached");
+  // climate_action triggers neither — it holds PRIMARY measures and substantive
+  // acts — and a block that printed one anyway would be saying something untrue
+  // about a record that had its own vote.
+  await tapKey(w, LKEY);
+  await tick(); await tick(); await tick();
+  const cc = w.PDXDoor1.issueCensus(LKEY);
+  must(cc && cc.proc, `${LKEY} lost its census`);
+  eq(cc.proc.menu, null, `${LKEY} triggers a menu sentence it has no grounds for`);
+  no(String(w.PDXIssueFile._proc(cc)), "pdxif-pmenu",
+    `${LKEY}'s process block printed a locked sentence that does not apply to it`);
+  // The unwired third phrase stays unwired: no scheduling claim, from anywhere.
+  const CODE = DESK.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, "");
+  const menuSrc = CODE.slice(CODE.indexOf("function ledgerMenu"), CODE.indexOf("function ledgerProcess"));
+  must(menuSrc.length > 200, "the process block's menu read could not be isolated from the desk's source");
+  no(menuSrc, "no_vehicle",
+    "the process block wired the no-vehicle phrase, which needs a denominator of what a chamber declined to schedule");
+  // It ASKS the module for the words rather than holding a copy of them, and it
+  // refuses a phrase the module does not order.
+  has(menuSrc, "M.say(want)", "the process block writes the locked sentence instead of quoting it");
+  has(menuSrc, "order.indexOf(want)", "the process block prints a phrase the menu module does not order");
+  for (const t of ["'The only chances", "'What came up here", "floor machinery'"]) {
+    no(menuSrc, t, `the process block holds its own copy of the locked wording (${t})`);
+  }
+  console.log(`      /i/${LKEY} · no locked sentence · no_vehicle unwired`);
+}
+
+// ── THE PROCESS FIGURES ARE THE CENSUS'S, ON EVERY KEY THE DESK FILES ───────
+// Asserted as a shape rather than key by key: `proc` is one more field on the
+// census the desk already computed, so a panel that had started deriving any of
+// it would differ here before it differed on a line — and the package-only
+// figure is `pkg`, everywhere, which is the wall against a second package test.
+{
+  const w = warmAll(boot({ path: "/" }));
+  const keys = Object.keys(w.ISSUE_MAP);
+  must(keys.length > 50, "the register did not load enough keys to sweep");
+  let filed = 0, withMenu = 0, withActs = 0;
+  for (const k of keys) {
+    await tapKey(w, k);
+    await tick(); await tick();
+    const c = w.PDXDoor1.issueCensus(k);
+    if (!c || c.cold || !c.people) continue;
+    filed++;
+    const p = c.proc;
+    if (!p) { ok(false, `${k}: the census publishes people but no proc`); continue; }
+    eq(p.people.package, c.pkg, `${k}: the package-only figure is not the census's own pkg`);
+    eq(p.measures.total, c.measures, `${k}: the process block counts a different measure total`);
+    eq(p.measures.primary + p.measures.provision, c.measures,
+      `${k}: PRIMARY + provision does not account for every mapped measure`);
+    ok(p.measures.procedural <= p.measures.total, `${k}: more measures are procedural than exist`);
+    ok(p.people.primary + p.people.package + p.people.mixed <= c.people,
+      `${k}: the vehicle figures claim more people than the census filed`);
+    ok(p.stances.said <= c.people, `${k}: more sourced stances than people on file`);
+    ok(p.stances.crossed <= p.stances.said,
+      `${k}: more formal rows run the other way than there are stances to run against`);
+    if (p.menu) withMenu++;
+    if (p.acts.length) withActs++;
+    // The panel prints this census and never one of its own.
+    eq(JSON.stringify(w.PDXIssueFile._census(k).proc), JSON.stringify(p),
+      `${k}: the letterhead's proc is not the desk's`);
+  }
+  ok(filed > 40, `only ${filed} keys settled with people on file — the sweep is too thin to mean anything`);
+  console.log(`      ${filed} keys swept · ${withActs} with acts · ${withMenu} with a locked sentence · ` +
+    "package-only === pkg on every one");
+}
+
+// ── THE PROCESS BLOCK IS THE PANEL'S, AND IT STILL COUNTS NOTHING ───────────
+// issue-file.js has been audited since it shipped for arithmetic, orders and
+// ledger markup, because the one way this panel becomes a second reading is by
+// starting to work out a figure for itself. The process block is the largest
+// thing added to it since, so the audit is re-run over just that block.
+{
+  const CODE = PANEL.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, "");
+  const at = CODE.indexOf("function procRow");
+  const to = CODE.indexOf("function jumpsHtml");
+  must(at > 0 && to > at, "the process block could not be isolated from issue-file.js");
+  const blk = CODE.slice(at, to);
+  // forEach over a list of PRE-WORDED strings is not arithmetic and is allowed;
+  // anything that would produce a figure this panel did not receive is not.
+  for (const t of ["Math.", "reduce(", ".sort(", "%", "toFixed", "+ 1", "- 1", ".length >",
+                   "PDXConsistency", "PDXVotingRecord", "formalPatternIndex", "_recordVehicleStats",
+                   "d1-led-", "party", "score"]) {
+    no(blk, t, `the process block in issue-file.js does "${t}" — it prints the census, it does not compute one`);
+  }
+  // Every integer it prints arrives on the object it was handed.
+  ok((blk.match(/\bo\.|\bm\.|\bc\.proc|\ba\.lb/g) || []).length > 8,
+    "the process block does not read its figures off the census it was handed");
+  // The anchor it jumps to is PUBLISHED, not spelled: this file may not name the
+  // desk's markup, which is why the id travels on the census.
+  has(CODE, "seeMeasures", "the panel lost the jump to the measure list");
+  has(blk, "pr.measures && pr.measures.id",
+    "the panel spells the measure anchor itself instead of reading the published one");
+  no(blk, "d1-led-meas", "the panel spells the desk's own anchor id, which it may not name");
+  const CSS = R("issue-file.css");
+  has(CSS, ".pdxif-proc", "the stylesheet has no rule for the process block");
+  has(CSS, ".pdxif-pmenu", "the stylesheet has no rule for the locked sentence");
+  eq([...CSS.matchAll(/#[0-9a-fA-F]{3,8}\b/g)].map((m) => m[0]).join(","), "",
+    "issue-file.css authors a colour by hand");
+  console.log("      issue-file.js process block: 0 arithmetic, 0 record reads, 0 ledger markup, 0 hex");
+}
+
+// ── THIS PASS'S FIXES ARE LOAD-BEARING TOO ──────────────────────────────────
+// Five probes, each removing one of the five things this pass added, each
+// expected to be CAUGHT by the claims in sections 13 and 14. A probe that
+// returns false means the harness would not have noticed.
+{
+  const settle = async (w) => {
+    await arriveAt(w);
+    await tick(); await tick(); await tick();
+    w.PDXIssueFile.repaint();
+    return w;
+  };
+  const probes = [
+    {
+      name: "the slice reaches the builder and the two doors paint two strings",
+      run: async () => {
+        // The shape this pass exists to prevent: a FILTERED BUILD. Every chip is
+        // painted unpressed for exactly this reason — the moment the builder
+        // reads the slice, /i/<key> is mounting a string the desk never painted
+        // and the byte equality this whole file rests on is gone.
+        const src = DESK.replace(
+          "    list.map(function (o) { return chipHtml(kind, o, false); }).join('') +",
+          "    list.map(function (o) { return chipHtml(kind, o, _sl[kind] === o.v); }).join('') +");
+        must(src !== DESK, "probe 1 matched nothing — chipGroup was reworded");
+        const w = await settle(warmAll(boot({ path: `/i/${LKEY}`, desk: src })));
+        const clean = w.PDXDoor1.issueProfile(LKEY);
+        w.pdxDoor1Slice("dir", "against");
+        return w.PDXDoor1.issueProfile(LKEY) !== clean;
+      },
+    },
+    {
+      name: "a band heading keeps claiming rows the slice hid",
+      run: async () => {
+        // The quiet version of lying with a count: "Cut against it · 55" over a
+        // list of nine, because the slice narrowed the rows and left the heading
+        // alone. The restated figure and the stash that restores it are the fix.
+        const src = DESK.replace(
+          "    if (bn) bn.textContent = on ? String(live) : n0;",
+          "    if (bn) bn.textContent = n0;");
+        must(src !== DESK, "probe 2 matched nothing — the band restate was reworded");
+        const w = await settle(warmAll(boot({ path: `/i/${LKEY}`, desk: src })));
+        // One band, one heading, driven through the pass over a two-row tree.
+        const mk = (cls, attrs) => Object.assign(Object.create(null), {
+          cls: cls.split(" "), attrs: attrs || {}, kids: [], hidden: false, textContent: "", value: "",
+          getAttribute(k) { return this.attrs[k] === undefined ? null : this.attrs[k]; },
+          setAttribute(k, v) { this.attrs[k] = String(v); },
+          classList: { add() {}, remove() {}, contains() { return false; } },
+          querySelector(sel) { return this.querySelectorAll(sel)[0] || null; },
+          querySelectorAll(sel) { return this.getElementsByClassName(sel.slice(1)); },
+          getElementsByClassName(want) {
+            const out = [];
+            const go = (n) => { for (const k of n.kids) { if (k.cls.indexOf(want) >= 0) out.push(k); go(k); } };
+            go(this);
+            return out;
+          },
+        });
+        const root = mk("host");
+        const box = mk("d1-led-slice", { "data-pdx-slice": LKEY });
+        const sec = mk("d1-led-band");
+        const head = mk("d1-led-bn");
+        head.textContent = "2";
+        const a = mk("d1-led-p", { "data-pdx-led-band": "against" });
+        const b = mk("d1-led-p", { "data-pdx-led-band": "advanced" });
+        sec.kids.push(head, a, b);
+        root.kids.push(box, sec);
+        box.parentNode = root;
+        const realGet2 = w.document.getElementById;
+        w.document.getElementById = (id) =>
+          (id === "pdx-issue-file-ledger" ? root : realGet2.call(w.document, id));
+        w.pdxDoor1Slice("clear", "");
+        w.PDXDoor1._sliceApply();
+        w.pdxDoor1Slice("dir", "against");
+        w.PDXDoor1._sliceApply();
+        // One row live, and the heading still says two.
+        return !a.hidden && b.hidden && head.textContent === "2";
+      },
+    },
+    {
+      name: "package-only becomes a second test of what a package is",
+      run: async () => {
+        // The whole reason the vehicle class names the shape of two published
+        // integers instead of re-reading the record: any second rule, however
+        // reasonable, gives the chip a population the census's own pkg figure
+        // does not have — and then two surfaces disagree about the same people.
+        const src = DESK.replace(
+          "    if (st > 0 && pr > 0) return 'mixed';\n    if (pr > 0) return 'package';",
+          "    if (pr >= st) return 'package';\n    if (st > 0 && pr > 0) return 'mixed';");
+        must(src !== DESK, "probe 3 matched nothing — vehClassOf was reworded");
+        const w = await settle(warmAll(boot({ path: `/i/${LKEY}`, desk: src })));
+        const c = w.PDXDoor1.issueCensus(LKEY);
+        return !!(c && c.proc && c.proc.people.package !== c.pkg);
+      },
+    },
+    {
+      name: "a chip is painted with nobody behind it",
+      run: async () => {
+        // A row of unpressable noughts on a filter row reads as a verdict about
+        // the people rather than about the record, which is the same reason the
+        // inventory drops a zero bucket.
+        const src = DESK.replace("        if (n) out.push({ v: o.v, lb: o.lb, n: n });",
+                                 "        out.push({ v: o.v, lb: o.lb, n: n });");
+        must(src !== DESK, "probe 4 matched nothing — the chip tally was reworded");
+        const w = await settle(warmAll(boot({ path: `/i/${LKEY}`, desk: src })));
+        const html = w.PDXDoor1.issueProfile(LKEY);
+        const c = w.PDXDoor1.issueCensus(LKEY);
+        return c.proc.people.package === 0 &&
+               html.indexOf('data-pdx-sv="package"') >= 0;
+      },
+    },
+    {
+      name: "the process block publishes its integers while the read is still out",
+      run: async () => {
+        // Same gate as the inventory, and the same reason: a measure total is
+        // the figure most tempting to publish early because it does not move
+        // with the roll-call read, and publishing it early is how a reader
+        // learns to trust a number that was not ready.
+        const src = PANEL.replace("        (reading(c) ? '' : procHtml(c)) +", "        procHtml(c) +");
+        must(src !== PANEL, "probe 5 matched nothing — the process block's gate was reworded");
+        const w = boot({ path: `/i/${LKEY}`, panel: src });   // NOT settled
+        await arriveAt(w);
+        const head = headOf(w);
+        return head.indexOf("Reading the record on this key") >= 0 &&
+               head.indexOf("pdxif-proc") >= 0 &&
+               /\d/.test(head.replace(/<[^>]*>/g, " "));
+      },
+    },
+  ];
+  for (const pr of probes) {
+    const caught = await pr.run();
+    ok(caught, `LOAD-BEARING PROBE NOT CAUGHT — ${pr.name}`);
+    console.log(`      · ${pr.name} → ${caught ? "caught" : "NOT CAUGHT"}`);
+  }
+}
+
+// ── THE PASS SHIPS BEHIND A BUMP ────────────────────────────────────────────
+{
+  const v = Number(String((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1] || 0));
+  must(v > 0, "CACHE_VERSION is not readable from sw.js any more");
+  ok(v >= 124, `sw.js CACHE_VERSION is v${v} — this pass changed issue-file.js, issue-file.css, ` +
+    `door1-workspace.js AND door1-workspace.css, all four precached. The stylesheet is the loud one: ` +
+    `without the bump a warm device paints the filter row, accepts a press, and then shows every row ` +
+    `the slice just hid, because the old sheet has no [hidden] rule for a person row`);
+  has(SW, "const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`",
+    "the shell cache name no longer carries CACHE_VERSION, so a bump does not drop the stale panel");
+  console.log(`      v${v} · panel, stylesheet and desk travel together`);
+}
+
+// ── THE FIXES ARE LOAD-BEARING ──────────────────────────────────────────────
+// Four probes, each removing one of the four things this pass added, each
+// expected to be CAUGHT by the claims above. A probe that returns false means
+// the harness would not have noticed.
+{
+  const probes = [
+    {
+      name: "the letterhead counts for itself instead of asking the desk",
+      run: () => {
+        // The one shape this pass exists to prevent: a second census engine. If
+        // the panel derived the people count from the census's bands rather than
+        // printing the count the desk published, the two would agree today and
+        // drift the first time a band changed. The probe substitutes a locally
+        // summed figure and the source audit's ban on arithmetic must catch it.
+        const src = PANEL.replace(
+          "    if (c.people) {",
+          "    var own = 0; (c.bands || []).forEach(function (b) { own += Math.max(0, b.n); });\n    if (own) {");
+        must(src !== PANEL, "probe 1 matched nothing — the inventory line was reworded");
+        const CODE = src.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, "");
+        return CODE.indexOf("Math.") >= 0;
+      },
+    },
+    {
+      name: "the busy gate is removed and the inventory publishes early",
+      run: async () => {
+        const src = PANEL.replace(
+          "  function reading(c) { return !!(c && (c.cold || c.pending));  }",
+          "  function reading(c) { return !!(c && false && c.pending);  }");
+        must(src !== PANEL, "probe 2 matched nothing — the busy gate was reworded");
+        const w = boot({ path: `/i/${LKEY}`, panel: src });
+        await arriveAt(w);
+        const head = headOf(w);
+        const body = ledgerOf(w);
+        // The body is still reading and the head has published integers anyway.
+        return body.indexOf("Reading the full record for") >= 0 &&
+               head.indexOf("pdxif-inv") >= 0 &&
+               /\d/.test(head.replace(/<[^>]*>/g, " "));
+      },
+    },
+    {
+      name: "the crumb goes back to being a link at /i/<core>",
+      run: async () => {
+        const src = PANEL.replace(
+          "' onclick=\"return window.PDXIssueFile.familyJump(\\'' + jsq(c.core) + '\\')\"' +",
+          "' href=\"/i/' + esc(c.core) + '\"' +");
+        must(src !== PANEL, "probe 3 matched nothing — the crumb's family half was reworded");
+        const w = boot({ path: `/i/${LKEY}`, panel: src });
+        await arriveAt(w);
+        const ch = String(w.document.getElementById("pdx-issue-file-chrome").innerHTML);
+        return ch.indexOf(`/i/${LCORE}`) >= 0 ||
+               ch.indexOf(`familyJump('${LCORE}')`) < 0;
+      },
+    },
+    {
+      name: "the no-side band is dropped to make the inventory prettier",
+      run: async () => {
+        const src = PANEL.replace(
+          "      if (!b || !b.n) return;",
+          "      if (!b || !b.n || b.id === 'none') return;");
+        must(src !== PANEL, "probe 4 matched nothing — the band loop was reworded");
+        const w = warmAll(boot({ path: `/i/${LKEY}`, panel: src }));
+        await arriveAt(w);
+        await tick(); await tick(); await tick();
+        w.PDXIssueFile.repaint();
+        const head = headOf(w);
+        const c = w.PDXDoor1.issueCensus(LKEY);
+        const nb = (c.bands || []).find((b) => b.id === "none");
+        return !!(nb && nb.n) && head.indexOf(`${nb.n} no side`) < 0;
+      },
+    },
+    {
+      name: "the letterhead rebuilds the ledger instead of sitting above it",
+      run: async () => {
+        // The body's byte equality is the load-bearing claim of this whole file.
+        // A letterhead that WRAPPED the host would break it, which is why the
+        // head is a sibling appended before it.
+        const src = PANEL.replace(
+          "    try { host.innerHTML = body; } catch (e) { return false; }",
+          "    try { host.innerHTML = headHtml(k) + body; } catch (e) { return false; }");
+        must(src !== PANEL, "probe 5 matched nothing — the body's one assignment was reworded");
+        const w = warmAll(boot({ path: `/i/${LKEY}`, panel: src }));
+        await arriveAt(w);
+        const afterArrival = ledgerOf(w) !== w.PDXDoor1.issueProfile(LKEY);
+        // …and on a warm open too, which is the sequence the Eye's leaf row and
+        // the desk's own "open issue file" control cause.
+        w.PDXIssueFile.close();
+        w.PDXIssueFile.open(LKEY);
+        return afterArrival && ledgerOf(w) !== w.PDXDoor1.issueProfile(LKEY);
+      },
+    },
+  ];
+  for (const pr of probes) {
+    const caught = await pr.run();
+    ok(caught, `LOAD-BEARING PROBE NOT CAUGHT — ${pr.name}`);
+    console.log(`      · ${pr.name} → ${caught ? "caught" : "NOT CAUGHT"}`);
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 if (failures.length) {
   console.error(`\n✗ issue file address: ${failures.length} failure(s), ${passed} passed\n`);
   for (const f of failures) console.error(`   · ${f}`);
   process.exit(1);
 }
 console.log(`\n✓ issue file address: all ${passed} assertions passed — ` +
-  `1 address, 1 builder, 2 doors, 0 second ledgers\n`);
+  `1 address, 1 builder, 2 doors, 1 census, 0 second ledgers\n`);

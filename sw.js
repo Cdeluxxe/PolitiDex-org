@@ -880,6 +880,74 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v124 - A PHONE BOOK, AND NO WORD ON HOW THE ISSUE MOVED. A settled key files
+// hundreds of people across five direction bands, and /i/climate_action handed a
+// reader all of them in one column with no way to open a slice of it. The file
+// also never said how the issue was TESTED - which measures were PRIMARY, which
+// were a provision folded inside something larger, which act on file was floor
+// machinery - so a reader could count the record without ever learning its shape.
+// Both are views of the census the desk already computed. No new score, no second
+// ledger, and the body the desk builds is byte-identical when no chip is pressed.
+//   · door1-workspace.js   - the filter row above the bands (direction, vehicle,
+//                            chamber, name) and the process figures published on
+//                            PDXDoor1.issueCensus(key).proc. The slice is a DOM
+//                            decoration, not a filtered build: the builder always
+//                            emits the same string and the chips always paint
+//                            unpressed, which is what keeps the desk and the file
+//                            one paint. Stale here means the file panel asks for
+//                            a .proc that is not there and prints no process
+//                            block at all - the refusal it is written around, but
+//                            also the whole point of this bump.
+//   · door1-workspace.css  - that row: the chip groups, the pressed state, the
+//                            name box, and the [hidden] rules the slice hides
+//                            rows with. Stale here is the loud failure of this
+//                            pass: v123's stylesheet has no rule for [hidden] on
+//                            a person row, so a warm device would paint the chips,
+//                            accept a press, and then show every row the slice
+//                            had just excluded - a filter that visibly does
+//                            nothing.
+//   · issue-file.js        - the "how this issue was tested" block on the
+//                            letterhead, under the inventory and behind the same
+//                            busy gate: measures, people, acts by class, the
+//                            consistency module's own locked sentence where it
+//                            applies, and a jump to the measure cards rather than
+//                            a second copy of them.
+//   · issue-file.css       - that block. No hex, same as before.
+//   · index.html           - UNCHANGED. No new module and no new script tag; the
+//                            filter row and the process block are both built by
+//                            files the page already loads.
+// No floor, no mapping, no weight, no roster row and no percentage of any kind
+// appeared. The slice offers no party chip and no sort - not by consistency, not
+// by Direction Match, not by donations and not by likes - and it re-reads no
+// record: every axis is a field somebody else already published on the row. A
+// sponsorship is never called a vote. While the roll-call read is still out the
+// process block prints nothing at all, exactly as the inventory above it does.
+//
+// v123 - THE ISSUE FILE GREW A LETTERHEAD. /i/climate_action printed the key's
+// NAME and then went straight into the census: a reader who followed a citation
+// to that address was never told what the key MEANS, how much is filed under it,
+// or how to get back to the shelf it came off - and the family half of the crumb
+// on the bar was a caption, so the one control that would have answered the last
+// question was not a control. The record below it is unchanged and is still the
+// desk's own builder, byte for byte.
+//   · door1-workspace.js   - publishes the census it already computed as integers
+//                            (PDXDoor1.issueCensus) so the file's inventory line
+//                            is the same read as the prose two inches below it.
+//                            Stale here means the letterhead finds no census and
+//                            prints no figures at all, which is the refusal it is
+//                            written around - but the new file panel would then
+//                            be shipping without the one line this pass is for.
+//   · issue-file.js        - the letterhead itself: key chip, the locked scope
+//                            prose (or issue-scope.js's own "no definition on
+//                            file yet"), the inventory, and two jumps. Plus the
+//                            family crumb, which is now a button onto the desk.
+//   · issue-file.css       - those blocks, and the crumb's core half restyled
+//                            from caption to control. No hex, same as before.
+// No floor, no mapping, no weight, no roster row and no percentage of any kind
+// appeared. Every integer on the new line arrived from the desk's census as an
+// integer, and while the roll-call read is still out the line prints no figure at
+// all - it says it is reading, exactly as the ledger under it does.
+//
 // v122 - TWO DOORS THAT DID NOT OPEN, AND A FILE WITH NO WAY IN. The Eye's
 // answer to "climate" paints a family row and its leaf rows, and on a page with
 // the desk already mounted neither one did what it said. The family row called
@@ -1634,7 +1702,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v122';
+const CACHE_VERSION = 'v124';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

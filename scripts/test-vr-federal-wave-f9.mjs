@@ -1276,6 +1276,51 @@ const swNote = swWaveNote();
     // pdx-issue-profile.js, sw.js and scripts/test-eye-formal-family.mjs are
     // declared above already.
     "issue-file.js",
+    // AND THE ISSUE FILE'S LETTERHEAD (CACHE_VERSION v123), the pass after that
+    // one, and the same terms again: no roll, no mapping, no key, no floor, no
+    // admission and no score moves — only what a citable page says about itself
+    // before it prints the record. /i/<key> gave the reader the key's NAME and
+    // then the census, so a citation landed on a page that never said what the
+    // key MEANS, how much was filed under it, or which shelf it came off. The
+    // letterhead prints the register's own chip, issue-scope.js's locked boundary
+    // (or that module's own "no definition on file yet"), an inventory line of
+    // integers, and two jumps; the crumb's family half became a control onto the
+    // desk, because a core has no file. The integers are the desk PUBLISHING the
+    // census it already ran (PDXDoor1.issueCensus), not a second count, and while
+    // the roll-call read is still out the line publishes no figure at all. The
+    // body below is byte-for-byte the same builder's string it was before. The
+    // reason a wave like this one declares it: R1 and R2 put 1,120 member files
+    // behind these keys and /i/<key> is the address a reader cites them from, so a
+    // file with no definition on it is this wave's own product handed over
+    // unlabelled. Nothing that ranks, scores, counts or admits was touched — no
+    // percentage, no Direction Match, no consistency read, no party axis, no new
+    // key and no roster row — and every band, tier, measure and figure is
+    // byte-identical, which the twin boot above has just proved. door1-workspace.js,
+    // issue-file.js, sw.js and scripts/test-issue-family-door.mjs are declared
+    // above already.
+    "issue-file.css",
+    // AND THE SLICE, AND HOW THE ISSUE WAS TESTED (CACHE_VERSION v124), the pass
+    // after that one, on the same later-wave terms: no roll, no mapping, no key,
+    // no floor, no admission and no score moves. A settled key files hundreds of
+    // people across five direction bands, and the file handed a reader all of
+    // them in one column with no way to open a slice of it; it also never said
+    // how the issue was TESTED — which measures were PRIMARY, which were a
+    // provision folded inside something larger, which act on file was floor
+    // machinery. The filter row above the bands offers four axes (direction from
+    // the index's own bands, vehicle from the standalone and provision counts
+    // already on each row, chamber from the office, name typed) and narrows by
+    // HIDING rows the builder printed — the builder emits the same string and the
+    // chips paint unpressed either way, which is what keeps /i/<key> and the desk
+    // one paint. The process block is counts and named measures read off
+    // PDXDoor1.issueCensus(key).proc, behind the same busy gate as the inventory,
+    // and a sponsorship is never called a vote. No party chip, no sort, no
+    // package-borne percentage, no inferred stance, and one census still. The
+    // reason a wave like this one declares it: R1 and R2 put 1,120 member files
+    // behind these keys, and on a settled key the bands ARE that product — a
+    // reader who cannot open a slice of them has been handed a phone book.
+    // door1-workspace.js, door1-workspace.css, issue-file.js, issue-file.css,
+    // sw.js, scripts/test-issue-file-address.mjs and
+    // scripts/test-issue-family-door.mjs are declared above already.
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
