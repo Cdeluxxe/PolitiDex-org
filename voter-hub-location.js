@@ -1389,6 +1389,15 @@
       state: state,
       area: (matched && krd && krd.label) ? krd.label : (loc.city || loc.county || state || ''),
       redrawn: redrawn,
+      // The county the curated area already resolved to, published because a
+      // caller that needs it should read it from the module that resolved the
+      // location rather than reach for `_currentVoterLocation` and get a
+      // second answer. Utah-only and match-gated: outside a matched Utah area
+      // there is no county to publish, and an empty string is a caller's cue
+      // to fail closed rather than guess. Judicial retention is the current
+      // reader — trial-court seats are drawn by county — and it is a label
+      // here, never a geometry claim.
+      county: (matched && krd && krd.county) ? String(krd.county) : '',
       // Whether this visitor's location has curated district geometry at all. It
       // is what separates "we hold no record for your state senator" from "we do
       // not map your state's legislative districts", and it also gates the handoff

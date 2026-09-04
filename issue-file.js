@@ -316,7 +316,10 @@
   // IT DOES NOT REPRINT THE MEASURES. The cards are two inches down, with their
   // numbers, their titles, their PRIMARY-vs-provision labels and the names on
   // each side. So the measure line summarises and hands the reader down to them
-  // through the anchor the desk published — one list of measures on this page.
+  // through the anchors the desk published — the section's own, on the heading's
+  // "See the measures", and one per band, on each figure in the measures row.
+  // One list of measures on this page, and now several ways into the part of it
+  // a given figure is about.
   //
   // SAME BUSY GATE AS THE INVENTORY, and for the same reason: a process line is
   // made of the same counts, so publishing one while the read is out would put a
@@ -324,11 +327,16 @@
   // blocks on one call, so the two can never disagree about whether the file has
   // settled.
   //
-  // AND THE THREE MEASURE FIGURES DO NOT PARTITION. A procedural vote on a
-  // provision is both, so `procedural` overlaps the first two by construction.
-  // The note under the line says so, because three integers on one line read as a
-  // breakdown unless something says otherwise, and a breakdown that does not sum
-  // is the arithmetic lie this whole pane is written against.
+  // AND THE THREE MEASURE FIGURES NOW PARTITION, which is what lets each of them
+  // be a door. They are the bands the measure list below is filed into — the
+  // label on the card, with floor-machinery-only instruments in their own band —
+  // so every measure is in exactly one, the three sum to the total, and a reader
+  // can check the arithmetic by counting cards. The note says they sum, because
+  // three integers on one line read as a breakdown either way and a breakdown
+  // whose behaviour is not stated is the arithmetic lie this whole pane is
+  // written against. Earlier this line counted `procedural` a second time inside
+  // the first two and the note existed to excuse the non-sum; the count moved
+  // when the list gained bands, so the excuse went with it.
   var PROC_H = 'How this issue was tested';
   // ── TWO LINES, TWO DIFFERENT QUESTIONS, AND THE NOTE SAYS SO ──────────────
   // The measures line's PRIMARY is a label on the BILL: curation decided the
@@ -342,9 +350,10 @@
   // Said here, in the note, rather than by renaming either line: both sets of
   // words are the ones the surfaces above and below this block already use.
   var PROC_NOTE = 'Counts of what is on file, not a reading of it. PRIMARY and provision ' +
-    'are the labels on the measures; procedural counts the same measures again where ' +
-    'the act on file was floor machinery, so the three do not add up to the first ' +
-    'number and are not meant to. The people line asks a different question — how ' +
+    'are the labels on the measures, and procedural means every act on file for that ' +
+    'measure was floor machinery — the three are the bands the list below is filed ' +
+    'into, so they add up to the number of measures mapped here and each measure is ' +
+    'in exactly one of them. The people line asks a different question — how ' +
     'each person\'s own acts on this key travelled, a vote on the measure itself or ' +
     'one folded inside something larger — so it can read differently from the label ' +
     'on the bill.';
@@ -355,13 +364,37 @@
     return '<p class="pdxif-prow"><span class="pdxif-plb">' + esc(lb) + '</span>' +
       '<span class="pdxif-pv">' + esc(text) + '</span></p>';
   }
-  function measLine(m) {
-    if (!m || !m.total) return '';
-    var parts = [];
-    if (m.primary) parts.push(m.primary + ' PRIMARY');
-    if (m.provision) parts.push(m.provision + ' provision');
-    if (m.procedural) parts.push(m.procedural + ' procedural');
-    return parts.join(SEP);
+  // ── THE MEASURES ROW IS THREE DOORS, NOT THREE WORDS ──────────────────────
+  // WHAT WAS MISSING. "8 PRIMARY · 2 provision" told a reader the shape of the
+  // list and then left them to scroll and find the shape for themselves. The
+  // cards are now filed into those same bands, so each figure has somewhere to
+  // land: tapping it puts the reader on that band's heading rather than at the
+  // top of a list they have to scan.
+  //   THE FIGURES AND THE ANCHORS BOTH ARRIVE ON THE CENSUS. `bands` is the
+  // desk's own list of what it printed — id, label, count, and the id that band
+  // wears — so this row joins strings and adds nothing. The ids are published
+  // for the same reason the section's own id is: this file may not spell the
+  // desk's markup, and an anchor it composed itself would break the first time
+  // the desk renamed one.
+  //   AND THEY ADD UP. The three are a partition of the measure list, so the
+  // note under this block says they sum to the total instead of excusing a
+  // breakdown that does not.
+  function measBandRow(m) {
+    var bands = (m && m.bands) || [];
+    var out = [];
+    bands.forEach(function (b) {
+      if (!b || !b.n) return;
+      var lb = b.n + ' ' + String(b.lb || b.id);
+      out.push(b.at
+        ? '<button type="button" class="pdxif-pjump" ' +
+            'onclick="return window.PDXIssueFile.seeMeasures(\'' + jsq(b.at) + '\')" ' +
+            'aria-label="' + esc('See the ' + lb + ' measures on the list below') + '">' +
+            esc(lb) + '</button>'
+        : esc(lb));
+    });
+    if (!out.length) return '';
+    return '<p class="pdxif-prow"><span class="pdxif-plb">Measures</span>' +
+      '<span class="pdxif-pv">' + out.join(SEP) + '</span></p>';
   }
   function peopleLine(o) {
     if (!o) return '';
@@ -393,8 +426,8 @@
   function procHtml(c) {
     var pr = c && c.proc;
     if (!pr) return '';
-    var m = measLine(pr.measures);
-    var body = procRow('Measures', m) +
+    var m = measBandRow(pr.measures);
+    var body = m +
       procRow('People', peopleLine(pr.people)) +
       procRow('Acts', actLine(pr.acts)) +
       procRow('Stances', stanceLine(pr.stances));

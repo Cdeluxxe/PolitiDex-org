@@ -141,6 +141,23 @@
     try {
       if (window.CMP_DATA && window.CMP_DATA[pid]) return window.CMP_DATA[pid];
     } catch (e) {}
+    // THIRD SOURCE: the judicial registry. A retention seat is a person file
+    // with an address, so /p/<pid> has to resolve for a judge the same way it
+    // resolves for a senator. But a judge is deliberately NOT written into
+    // either roster above, because a record in one of those inherits a party
+    // chip, a score ring, promise counts and the publication floor's "record
+    // still being built" notice — and every one of those would say something
+    // false about an office that has no party line, no pledge ledger and no
+    // roll call. judicial-retention.js owns that shape; this is the only line
+    // in this file that reads it. Consulted LAST, so a pid that somehow exists
+    // in both places keeps the roster's answer.
+    try {
+      var Jd = window.PDXJudicial;
+      if (Jd && typeof Jd.personRecord === 'function') {
+        var jr = Jd.personRecord(pid);
+        if (jr) return jr;
+      }
+    } catch (e) {}
     return null;
   }
 
@@ -751,6 +768,25 @@
     if (!pid || !d) { host.innerHTML = ''; host.removeAttribute('data-pid'); return; }
     host.setAttribute('data-pid', pid);
 
+    // A JUDGE IS A DIFFERENT FILE CLASS, NOT A THINNER PERSON. The floor read
+    // below asks "does this record carry two cited positions, or two measures
+    // with a sourced formal act" — the right question for a legislator, and a
+    // meaningless one for an office that does not vote bills. Asking it anyway
+    // would stamp "record still being built" across a record that is complete
+    // for what this office actually does, which is the single most misleading
+    // thing this chrome could say about a retention seat. So the judicial
+    // branch answers first and returns, and the floor is not moved an inch.
+    if (d && d.judicial) {
+      host.innerHTML = '<span class="pf-kick-what">Judge file</span>' +
+        '<a class="pf-kick-addr" href="' + esc(path(pid)) + '"' +
+        ' title="A judicial retention seat. This file carries the court, the retention' +
+        ' question and the official performance evaluation. PolitiDex publishes no figure' +
+        ' of its own for this office."' +
+        ' onclick="return window.PDXPerson.kickerClick(event);">' +
+        esc(String(url(pid)).replace(/^https?:\/\//, '')) + '</a>';
+      return;
+    }
+
     var F = floor();
     var ok = F && fn(F.clears) ? F.clears(pid) : false;
     var addr = String(url(pid)).replace(/^https?:\/\//, '');
@@ -832,6 +868,12 @@
   var _warmed = {};
   function warm(pid) {
     if (!pid || _warmed[pid]) return;
+    // A retention seat casts no roll calls. There is no member record to warm
+    // for a judge, so the fetch below would be a guaranteed miss — and, worse,
+    // it would be the vote-pattern apparatus reaching for an office that has no
+    // votes. Guarded here rather than in the caller because this is the
+    // function that knows what it is about to ask for.
+    try { var jd = record(pid); if (jd && jd.judicial) return; } catch (e) {}
     var VR = window.PDXVotingRecord;
     if (!VR || !fn(VR.fetchMember)) return;
     // Already resolved by an earlier open, a compare, or an issue-first read.

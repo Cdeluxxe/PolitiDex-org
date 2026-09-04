@@ -2230,6 +2230,14 @@ window.PDXLazy = (function () {
        never mistaken for a resolved seat. Non-blocking, same as scope chrome. -->
   <link rel="stylesheet" href="/archive-browse.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/archive-browse.css" /></noscript>
+  <!-- Judicial retention — the Door 2 retention band, the Utah-courts archive
+       listing and the /p/<pid> judge file. Styled to look like it has no figure
+       on it, because it has no figure on it: no ring, no bar, no chip that could
+       be read as a party badge, and the Retain / Do not retain pair is drawn as
+       two inert ballot boxes rather than buttons. Non-blocking, same as archive
+       browse. -->
+  <link rel="stylesheet" href="/judicial-retention.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/judicial-retention.css" /></noscript>
   <!-- The person-file kicker — one line in the profile modal's top bar naming
        the surface and its citable address. Modal chrome, so it loads on the same
        non-blocking path as the rest of the overlay CSS. -->
@@ -22596,6 +22604,42 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        Door 1's browse tree group people identically; renders nothing at all if
        those are missing rather than guessing at chambers. -->
   <script defer src="/archive-browse.js"></script>
+  <!-- ── Judicial retention ────────────────────────────────────────────────
+       A Utah ballot in an even year carries yes/no judicial retention, and Door 2
+       used to resolve six legislative seats and go silent on the third branch.
+       These four files close that hole and add no fourth opinion to the app:
+
+         judicial-data.js       the roster, as identity rows only. No party, no
+                                score, no Direction Match input, and no judge
+                                written into CMP_DATA — a record in that roster
+                                inherits the whole legislator apparatus (party
+                                chip, score ring, promise ledger, publication
+                                floor) and every piece of it would say something
+                                false about a court.
+         judicial-retention.js  the ONE owner of "what does retention say":
+                                locked vocabulary, the banned list, the wall, and
+                                the ballot(reps) answer. No DOM. Every surface
+                                below reads this and computes nothing itself.
+         judge-file.js          /p/<pid> for a retention seat. Intercepts the one
+                                openModal funnel so a judge never reaches the
+                                roster renderer, and leaves the address to
+                                PDXPerson, which owns it.
+         judicial-ballot.js     the Door 2 band and the archive listing. The band
+                                is a SIBLING of #bw-body (sync() owns that
+                                element's innerHTML outright) and never joins
+                                seats(), because a retention question is a yes/no
+                                on one name and not a field to pick a winner
+                                from — putting it in that denominator would make
+                                the "N of 6 decided" counter measure two
+                                different acts.
+
+       Loads after archive-browse.js, whose mount host the archive listing shares,
+       and after person-file.js and profiles-full.js, which own the address and
+       the modal the judge file writes into. -->
+  <script defer src="/judicial-data.js"></script>
+  <script defer src="/judicial-retention.js"></script>
+  <script defer src="/judge-file.js"></script>
+  <script defer src="/judicial-ballot.js"></script>
   <!-- First run. Owns the answer to "has this visitor finished one meaningful
        task yet", runs the two ranked cold-start paths behind the hero CTAs, and
        flips one attribute on <html> that defers the second tier until they have

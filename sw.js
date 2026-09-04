@@ -880,6 +880,266 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v128 - ONE JUDGE NAMED, AND FOUR COURTS TOLD TO CHECK ELSEWHERE. v127 added
+// judicial retention as an office class and shipped it half-blind: it could name
+// one Supreme Court question and then tell a Davis County voter that the Court of
+// Appeals had no certified list and that district, juvenile and justice courts had
+// no map at all. Honest, and unfinished - a real Utah ballot carries a statewide
+// Court of Appeals question and trial-court judges drawn by county, so "your
+// actual ballot" was still missing most of the third branch. Two official sources
+// the last pass could not reach are now reachable, and this is what they say.
+//   · judicial-data.js         the whole roster, generated from official sources
+//                              rather than typed: 124 judges from the state courts
+//                              directory's own biography pages (6 Supreme Court, 7
+//                              Court of Appeals, 78 district, 33 juvenile; court
+//                              commissioners deliberately absent, because a
+//                              commissioner is not a judge and does not stand for
+//                              retention), plus the two rows no reachable source
+//                              lists, both flagged and neither on a ballot. New
+//                              DISTRICTS: the eight geographical divisions of Utah
+//                              Code 78A-1-102, all 29 counties, each once - one map
+//                              for the district AND juvenile courts, because that
+//                              is how the statute writes it. SLATES[2026] is now
+//                              certified: 32 retention questions read verbatim off
+//                              the Lieutenant Governor's 2026 candidate filings
+//                              (asOf 8/31/2026), each with the office it was filed
+//                              under and its filing status. The uncertified caveat
+//                              is retired for the courts that list names. Still no
+//                              score, no party, no ruling, no holding, no PAC
+//                              money, and every jpec is null because the
+//                              commission's own site answers 401 on every report
+//                              path - "no report on file" is the true answer, not a
+//                              placeholder for an invented one.
+//   · judicial-retention.js    owns the reading of that map and nothing else owns a
+//                              copy: countyIndex() is built from DISTRICTS on first
+//                              use, districtForCounty() returns null for anything
+//                              the statute does not list, and ballot() now resolves
+//                              the voter's district from the county the location
+//                              owner publishes. A Utah voter gets the two statewide
+//                              courts plus the trial-court judges of THEIR OWN
+//                              division and no other. A county the map cannot place
+//                              gets the missing-map sentence naming the county; the
+//                              justice courts get a missing-ROSTER sentence naming
+//                              the county, because that is the different thing that
+//                              is missing there. slateQuestion() hands a surface the
+//                              state's own wording; filedFor() lets a court with no
+//                              rows say that a question WAS filed under it and that
+//                              the courts directory places that judge elsewhere.
+//                              Both fail-closed drops from v127 are unchanged: an
+//                              ambiguous name is dropped and reported, and a judge
+//                              with no retention date is not on any ballot.
+//   · judicial-ballot.js       each row now says which unit put it there -
+//                              "Statewide" or the named judicial district - and the
+//                              band names the county and district the trial rows
+//                              were resolved from, above them. A source conflict
+//                              prints on the row it affects.
+//   · judge-file.js            prints the retention question as the state filed it
+//                              rather than a composed paraphrase, links the official
+//                              biography every identity fact was read off, and
+//                              carries the source-conflict and source-typo notes.
+//   · judicial-retention.css   four new classes for those labels. Nothing restyled.
+//   · voter-hub-location.js    pdxRepsForMe() publishes `county` off the curated
+//                              area it already resolved, gated on matched && Utah.
+//                              THE HANDSHAKE, and the whole reason for this bump:
+//                              the band reads the county from the location owner and
+//                              resolves nothing itself, so a device holding one half
+//                              of this pair from the old version gets no county and
+//                              every trial court reports its map as missing. Wrong
+//                              in the safe direction, and still wrong.
+//                              NOT on the precache list: it is a RUNTIME entry, and
+//                              the runtime cache name carries CACHE_VERSION, so this
+//                              bump is what drops the stale copy. Without it a warm
+//                              device would serve the old resolver - which publishes
+//                              no county at all - against the new band, and every
+//                              trial court would report its map as missing on a
+//                              ballot the map can actually place.
+// The four judicial files and the stylesheet ARE precached ('/judicial-data.js',
+// '/judicial-retention.js', '/judge-file.js', '/judicial-ballot.js',
+// '/judicial-retention.css'), so the rename is what replaces them together rather
+// than one at a time.
+// The band is still a SIBLING of #bw-body, still absent from seats(), and still
+// not in "N of 6 decided": a yes/no on one name is not a field of candidates and
+// has no pick to save. No floor, no mapping, no weight, no Direction Match input,
+// no Mandate term and no formal tier moved. The legislative read is byte-identical
+// with these files loaded and without them.
+//
+// v127 - A BALLOT THAT NAMED SIX SEATS AND SKIPPED A BRANCH. A Utah ballot in an
+// even year carries yes/no judicial retention - "Shall Justice X be retained?",
+// unopposed, no party on the line - and November 3, 2026 is live. Door 2
+// resolved two Senate seats, a House seat, a governor and two state chambers,
+// called that "your ballot workspace", and said nothing at all about the third
+// branch. That is not a missing feature; it is a completeness claim over a hole.
+// This version adds retention as a new OFFICE CLASS and adds no scoring engine
+// whatsoever.
+//   · judicial-data.js         the Utah judicial roster as identity rows only:
+//                              name, court, appointing governor, appointment and
+//                              confirmation dates, next retention date, pid. No
+//                              party, because party is not on the judicial
+//                              ballot. No score, because a judge has no promise
+//                              ledger to weigh an action against. No judge
+//                              written into CMP_DATA, because a record in that
+//                              roster inherits a party chip, a score ring, a
+//                              promise count and the publication floor's "record
+//                              still being built" notice, and every one of those
+//                              would say something false about a court. The 2026
+//                              slates are marked certified:false and every
+//                              surface says the official list is not on file -
+//                              one row is verifiable as standing for retention on
+//                              that date and only that row claims it. Court of
+//                              Appeals, District, Juvenile and Justice courts
+//                              carry no rows at all rather than guessed ones.
+//   · judicial-retention.js    the one owner of "what does retention say": six
+//                              locked phrases (retained / not retained / stands
+//                              for retention / JPEC recommends retain / JPEC does
+//                              not recommend / no JPEC report on file), the
+//                              banned list, the wall, and ballot(reps). No DOM.
+//                              Outside Utah it returns before any row is built,
+//                              so there is no code path that can put a Utah judge
+//                              on an Ohio ballot; inside Utah the district,
+//                              juvenile and justice courts report WHICH MAP IS
+//                              MISSING instead of offering the nearest judge.
+//                              Fails closed on a name collision: both records are
+//                              dropped from the ballot and the drop is reported.
+//   · judge-file.js            /p/<pid> for a retention seat. Intercepts the one
+//                              openModal funnel so a judge never reaches the
+//                              roster renderer - the letterhead is the court and
+//                              the retention election, not Word vs Action, and
+//                              there is nowhere on the surface for a figure. The
+//                              formal lane says in words that this office does
+//                              not vote bills; the JPEC block either quotes the
+//                              commission with its source URL or says no report
+//                              on file and points at judges.utah.gov. The address
+//                              stays PDXPerson's, which owns it.
+//   · judicial-ballot.js       the Door 2 retention band and the Utah-courts
+//                              archive listing. The band is a SIBLING of #bw-body
+//                              because sync() assigns that element's innerHTML in
+//                              one write, and it never joins seats(): a retention
+//                              question is a yes/no on one name, not a field to
+//                              pick a winner from, so putting it in the "N of 6
+//                              decided" denominator would make one counter measure
+//                              two different acts.
+//   · judicial-retention.css   both surfaces. Flat rules, no fill, no status
+//                              colour, no ring and no chip that could read as a
+//                              party badge; Retain / Do not retain is drawn as two
+//                              inert ballot boxes, because the answer is the
+//                              reader's to give at the polls.
+//   · person-file.js           two guarded lines. record() consults the judicial
+//                              registry LAST, after both rosters, so /p/<judge>
+//                              resolves instead of answering a real address with
+//                              "isn't someone we currently carry a record for";
+//                              and the kicker branches on the file class first, so
+//                              a floor built to ask "two cited positions or two
+//                              sourced formal acts" cannot stamp "record still
+//                              being built" across a record that is complete for
+//                              what this office does.
+//   · index.html               the four new <script defer> tags, the non-blocking
+//                              stylesheet link, and precached as '/'.
+// No Direction Match input, no baseline from opinions, no finance figure, no
+// Mandate arithmetic and no summary of a holding. No ruling is read as a kept or
+// broken promise. The publication floor did not move, the legislative DM and
+// formal tiers read byte-identically with these files loaded and without them,
+// and the appointing governor stays a fact about the appointment rather than a
+// description of the appointee.
+//
+// v126 - A THIRD OF A REQUEST, WEARING THE GRAMMAR OF A FINISHED CENSUS. On a
+// cold /i/climate_action the ledger opened with "3 people have a readable formal
+// row on Climate action - 3 cut against", one band on the page, and slice chips
+// that matched those same three rows. Every figure was true and the whole page
+// was false: the reader had been taught that this issue IS three senators who
+// cut against it, while five hundred and sixty records were still on the wire.
+// The letterhead already refused to publish an integer under a live read; the
+// people line underneath it did not, and a finished heading over a partial
+// inventory is the same lie as a thin file wearing a finished one.
+//   The gate is now the read, on every block of the pane at once. While any row
+// is cold or any batch is in flight the headline names the settled count AND
+// says what it is - "3 readable so far - still reading 560", followed by one
+// sentence that it is not the count for this key - the split is marked as being
+// of the rows back so far, the bands nobody has come back for are NAMED as
+// closed rather than dropped as zeroes, and the chip row says its counts are of
+// the rows on screen and that a direction with no chip is not a finding that
+// nobody advanced it. When the rest lands, warmLedger's one settle repaint
+// rebuilds the whole string from the settled ledger, so there is no order of
+// arrival in which bands appear under a heading that still says three. Once cold
+// and pending are both 0 the settled wording returns unhedged: a key that really
+// does hold one band keeps that heading, because an empty band after a finished
+// read is a finding and findings are printed straight.
+//   · door1-workspace.js   - one ledgerBusy() predicate for the whole pane (the
+//                            same cold-or-pending test the file panel's gate is
+//                            written on), the partial headline and its
+//                            disclosure line, the bands-still-closed sentence,
+//                            the measure line's partial wording, the chip row's
+//                            "counts the rows on screen" note, and the
+//                            data-pdx-slice-part flag the DOM caption reads so
+//                            "3 of 3 rows" says "on screen". Stale here means a
+//                            warm device paints the old finished-inventory
+//                            headline over a partial read.
+//   · door1-workspace.css  - the partial census in amber, its two disclosure
+//                            lines, and the chip row's matching note. Stale here
+//                            means the disclosure paints as body text and the
+//                            partial box looks exactly like a settled one, which
+//                            is the whole defect back again.
+// Nothing else moved: pdx-issue-profile.js, issue-file.js, issue-file.css and
+// netlify.toml are unchanged this pass and travel behind the same version, the
+// letterhead's busy gate and the measure banding are exactly as v125 shipped,
+// and no second census, party token, floor, percentage or Direction Match read
+// was added anywhere. Direction Match and the formal tiers read byte-identically
+// with this pane loaded and without it.
+//
+// v125 - ONE LONG COLUMN OF MEASURES, AND THE SAME BILL TWICE IN IT. v124 gave
+// the PEOPLE on an issue a filter row and left the MEASURES as they were: on
+// /i/climate_action, thirteen cards down one column, H.R. 1 appearing twice
+// because the bills index and the roll-call record each contributed a row for
+// it, PRIMARY disapproval resolutions and floor amendments interleaved with no
+// order a reader could see. Nothing was wrong on any single card; the SHAPE was
+// unreadable, which on this pane is the same problem as a wrong figure.
+//   The list is now filed into the bands its own cards were already labelled
+// with - PRIMARY, provision, and machinery-only - each band showing its first
+// four cards over its own "N more measures - same label" fold, and one row per
+// instrument, because one row opens one measure. No new reading: the bands are a
+// partition of the measures the census had already mapped, and the body the desk
+// builds is byte-identical whether or not a fold is open, because a fold is a
+// <details> and not a rebuild.
+//   · door1-workspace.js   - the fold on the face (one card per instrument, keyed
+//                            on the number the card's own door takes, with the
+//                            better of the titles the two sources published), the
+//                            three bands and their per-band cap, the machinery
+//                            pill on a card that had a motion as well as a vote,
+//                            and the band anchors published on
+//                            PDXDoor1.issueCensus(key).proc.measures.bands. The
+//                            procedural TALLY got stricter with them: it counts
+//                            measures whose every act on file was machinery,
+//                            where it used to count measures carrying any
+//                            procedural act at all. Stale here means the file
+//                            panel asks for `bands` that are not there and the
+//                            measures row on the letterhead prints nothing.
+//   · door1-workspace.css  - the measure bands and their folds. Deliberately
+//                            quieter than a people band and under their own
+//                            class names, which is also what keeps the people
+//                            slice's walk from ever reaching a measure card.
+//                            Stale here means the fold summary paints as an
+//                            unstyled list marker.
+//   · issue-file.js        - the measures row on the letterhead is now three
+//                            doors rather than three words: each figure jumps to
+//                            the band that holds exactly that many cards, using
+//                            the anchors the desk published. Same busy gate - no
+//                            integer while the record is still being read - and
+//                            the note under it now says the three figures SUM to
+//                            the total, because they do.
+//   · issue-file.css       - those figures, inked and underlined like the "see
+//                            the measures" control beside them, because they do
+//                            the same job. No hex, same as before.
+//   · netlify.toml         - UNCHANGED. Same /i/* → /index.html 200 rewrite.
+//   · index.html           - UNCHANGED. No new module and no new script tag.
+// No floor, no mapping, no weight, no roster row and no percentage of any kind
+// appeared, and no share of a package is printed anywhere. A provision's vote
+// still counts and still says so on the card. The slice chips above the people
+// do not touch the measure list, because a slice of the people is not a slice of
+// the bills. One consequence worth naming: the stricter procedural tally means
+// the consistency module's locked "procedural gate" sentence now prints on no
+// key at all - it used to print on stock_trading_ban, whose one measure carries
+// 37 procedural acts and 179 substantive ones. The phrase stays wired and
+// quotable; the record simply no longer meets it.
+//
 // v124 - A PHONE BOOK, AND NO WORD ON HOW THE ISSUE MOVED. A settled key files
 // hundreds of people across five direction bands, and /i/climate_action handed a
 // reader all of them in one column with no way to open a slice of it. The file
@@ -1702,7 +1962,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v124';
+const CACHE_VERSION = 'v128';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -1943,6 +2203,25 @@ const SHELL_ASSETS = [
   // opened in a new tab, cannot be copied as an address, and — for the retired
   // handful — would have no canonical id to advertise at all.
   '/person-link.js',
+  // ⚖ Judicial retention — the third branch, on both doors. Precached as a set
+  // of four plus a stylesheet because they are only ever useful together and
+  // because two of them are modules a reader arrives THROUGH: a shared
+  // /p/<judge_pid> link resolves through judge-file.js, and if judge-file.js is
+  // missing the pid falls to the roster renderer, which holds no record for a
+  // judge and would answer a real address with "isn't someone we currently
+  // carry a record for". judicial-data.js and judicial-retention.js are its
+  // inputs — the roster rows and the locked vocabulary — so a version skew
+  // between them is a file that renders with no court and no retention date.
+  // judicial-ballot.js is the Door 2 band, which is the surface that tells a
+  // Utah voter their ballot has judges on it at all. The stylesheet ships with
+  // them because unstyled, the Retain / Do not retain pair loses the framing
+  // that makes it read as the ballot's own inert question rather than two
+  // buttons the reader is being asked to press.
+  '/judicial-data.js',
+  '/judicial-retention.js',
+  '/judge-file.js',
+  '/judicial-ballot.js',
+  '/judicial-retention.css',
   '/manifest.json',
   '/assets/icon.svg',
   '/assets/icon-maskable.svg'

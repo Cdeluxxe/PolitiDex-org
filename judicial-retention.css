@@ -1,0 +1,433 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   JUDICIAL RETENTION  ·  styles
+   ═══════════════════════════════════════════════════════════════════════════
+
+   Two surfaces share this sheet: the Door 2 retention band under the ballot
+   workspace, and the judge file at /p/<pid>.
+
+   The visual job is the same on both, and it is restraint. Everywhere else in
+   this product a name in a card sits next to a figure — a match percentage, a
+   kept/broken split, a formal-record tier. A retention question has no figure,
+   and the surface has to LOOK like it has no figure, or a reader will go
+   hunting for the number they have been trained to expect and read the JPEC
+   phrase as a grade in its place.
+
+   So: flat rules, no fills, no status colour, no ring, no bar, no chip that
+   could be mistaken for a party badge. The one accent is slate — the colour
+   the app uses for archival, non-scored material — and it is never green,
+   amber or red, because "retain" is a ballot option and not a good outcome.
+
+   The Retain / Do not retain pair is drawn as two INERT ballot boxes. They are
+   not buttons and they have no hover, active or selected state, because there
+   is nothing to click: the band shows the reader the question that will be on
+   their ballot, and the answer is theirs to give at the polls.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.jr-band {
+  max-width: 47rem;
+  margin: 1.4rem auto 0;
+  padding: 1rem 1.05rem 0.9rem;
+  text-align: left;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 1.1rem;
+  background: rgba(8, 13, 28, 0.5);
+}
+
+.jr-band[hidden] { display: none; }
+
+.jr-band--arch { margin-top: 1.6rem; }
+
+.jr-kicker {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7d90ad;
+  margin: 0 0 0.3rem;
+}
+
+.jr-lead {
+  font-family: 'Oswald', 'Barlow Condensed', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  color: #e6eefb;
+  margin: 0 0 0.4rem;
+}
+
+.jr-note,
+.jr-empty,
+.jr-missing {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: #8296b4;
+  margin: 0.55rem 0 0;
+}
+
+/* The "official list is not on file" line. It is a caveat about coverage, so
+   it is set apart with a hairline rather than a warning colour — an incomplete
+   list is not an alarm. */
+.jr-warn {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: #9fb0cb;
+  margin: 0 0 0.6rem;
+  padding: 0.45rem 0.6rem;
+  border-left: 2px solid rgba(148, 163, 184, 0.35);
+  background: rgba(148, 163, 184, 0.07);
+  border-radius: 0 0.4rem 0.4rem 0;
+}
+
+.jr-rows,
+.jr-courts,
+.jr-list {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+}
+
+.jr-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.6rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.jr-office {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #7d90ad;
+  flex: 0 0 100%;
+}
+
+/* The unit a seat is retained by, riding the court label: "Statewide" on an
+   appellate row, the named judicial district on a trial row. Dimmer and
+   un-condensed against the court name so the two read as label and qualifier
+   rather than as two labels. */
+.jr-unit {
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #6d7f9c;
+  margin-left: 0.45rem;
+}
+.jr-unit::before {
+  content: '·';
+  margin-right: 0.45rem;
+  color: #4d5c74;
+}
+
+/* Which county the trial-court rows were resolved from, above them. */
+.jr-where {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8fa2c0;
+  margin: 0.15rem 0 0.5rem;
+}
+
+/* A disagreement between two official sources, printed on the row it affects.
+   Bordered like the warn line because it is one: it tells the reader the page
+   declined to resolve something on their behalf. */
+.jr-conflict {
+  flex: 1 1 100%;
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: #9fb0cb;
+  margin-top: 0.3rem;
+  padding: 0.35rem 0.5rem;
+  border-left: 2px solid rgba(148, 163, 184, 0.3);
+  background: rgba(148, 163, 184, 0.06);
+  border-radius: 0 0.35rem 0.35rem 0;
+}
+
+.jr-q {
+  font-family: 'Oswald', 'Barlow Condensed', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  color: #eef4ff;
+  flex: 1 1 100%;
+}
+
+.jr-who,
+.jr-jpec,
+.jr-when {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.75rem;
+  color: #9fb0cb;
+}
+
+.jr-role,
+.jr-tail { color: #71839f; }
+
+/* Inert. No cursor, no hover, no selected state — see the header. */
+.jr-yn {
+  display: inline-flex;
+  gap: 0.4rem;
+  flex: 0 0 auto;
+}
+
+.jr-box {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-style: normal;
+  color: #8fa2c0;
+  padding: 0.16rem 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 0.3rem;
+  background: transparent;
+}
+
+.jr-court {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.45rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.jr-court-l {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #a9bad6;
+}
+
+.jr-court-n {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.73rem;
+  line-height: 1.45;
+  color: #8296b4;
+}
+
+/* An unmapped court is dimmer than one with rows, and that is the only visual
+   difference between them. It is not marked with a warning. */
+.jr-court--unmapped .jr-court-l { color: #8296b4; }
+
+.jr-group { margin-top: 0.9rem; }
+
+.jr-group-h {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #a9bad6;
+  margin: 0 0 0.25rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.jr-term {
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: #71839f;
+  text-transform: none;
+}
+
+.jr-li {
+  padding: 0.3rem 0;
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.82rem;
+  color: #cfdcf0;
+}
+
+.jr-plink { color: #cfe0fb; text-decoration: none; border-bottom: 1px solid rgba(207, 224, 251, 0.28); }
+.jr-plink:hover { color: #fff; border-bottom-color: rgba(255, 255, 255, 0.6); }
+
+/* ── The judge file ──────────────────────────────────────────────────────── */
+
+.jf { text-align: left; }
+
+.jf-head {
+  padding-bottom: 0.85rem;
+  margin-bottom: 0.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.jf-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8fa2c0;
+  margin: 0 0 0.3rem;
+}
+
+/* The letterhead is the office and the name. There is deliberately no slot
+   here for a figure, a ring or a tier badge. */
+.jf-name {
+  font-family: 'Oswald', 'Barlow Condensed', sans-serif;
+  font-size: 1.75rem;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  color: #fff;
+  margin: 0;
+}
+
+.jf-sub {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.82rem;
+  color: #9fb0cb;
+  margin: 0.25rem 0 0;
+}
+
+.jf-wall {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: #7d90ad;
+  margin: 0.55rem 0 0;
+}
+
+.jf-block { margin-top: 1.1rem; }
+
+.jf-h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #a9bad6;
+  margin: 0 0 0.4rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.jf-ico { font-size: 0.9rem; }
+
+.jf-stat {
+  font-family: 'Oswald', 'Barlow Condensed', sans-serif;
+  font-size: 1.02rem;
+  letter-spacing: 0.03em;
+  color: #eef4ff;
+  margin: 0;
+}
+
+/* The locked phrases. Weight and letter-spacing only — no colour that could
+   read as a verdict, in either direction. */
+.jf-locked {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #dce8fb;
+}
+
+.jf-q {
+  font-family: 'Oswald', 'Barlow Condensed', sans-serif;
+  font-size: 0.95rem;
+  color: #cfdcf0;
+  margin: 0.3rem 0 0;
+}
+
+.jf-note,
+.jf-empty,
+.jf-src {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: #8296b4;
+  margin: 0.4rem 0 0;
+}
+
+.jf-empty { color: #93a6c2; }
+
+.jf-a { color: #cfe0fb; text-decoration: underline; text-underline-offset: 2px; }
+
+.jf-scores {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+}
+
+.jf-scores li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.3rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.78rem;
+  color: #9fb0cb;
+}
+
+.jf-scores li b { color: #dce8fb; }
+
+.jf-rows,
+.jf-pub {
+  list-style: none;
+  margin: 0.35rem 0 0;
+  padding: 0;
+}
+
+.jf-rows li,
+.jf-pub li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.6rem;
+  padding: 0.42rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.79rem;
+  line-height: 1.45;
+  color: #cfdcf0;
+}
+
+.jf-when {
+  flex: 0 0 8.5rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7d90ad;
+}
+
+.jf-what { flex: 1 1 12rem; }
+
+/* Two official sources disagreeing, on the seat it affects. Same treatment as
+   the band's conflict line, because it is the same statement. */
+.jf-conflict {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: #9fb0cb;
+  margin: 0.5rem 0 0;
+  padding: 0.4rem 0.55rem;
+  border-left: 2px solid rgba(148, 163, 184, 0.3);
+  background: rgba(148, 163, 184, 0.06);
+  border-radius: 0 0.35rem 0.35rem 0;
+}
+
+.jf-plink { color: #cfe0fb; text-decoration: none; border-bottom: 1px solid rgba(207, 224, 251, 0.28); }
+.jf-plink:hover { color: #fff; border-bottom-color: rgba(255, 255, 255, 0.6); }
+
+/* A judge file has no team pick and no evidence submission: both act on a
+   roster record with a score, and a retention seat has neither. The footer is
+   hidden by the mark judge-file.js sets on the panel, so the next non-judge
+   file that opens gets it back by having the mark removed. */
+#modal-panel[data-pdx-judge] #modal-footer { display: none; }
+#modal-panel[data-pdx-judge] #modal-share-btn { display: inline-flex; }
+
+@media (max-width: 640px) {
+  .jr-band { margin-left: 0.6rem; margin-right: 0.6rem; padding: 0.85rem 0.8rem; }
+  .jf-name { font-size: 1.45rem; }
+  .jf-when { flex: 0 0 100%; }
+}
