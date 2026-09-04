@@ -1258,6 +1258,24 @@ const swNote = swWaveNote();
     "issue-view.css",
     "scripts/test-door-one-arrival.mjs",
     "scripts/test-issue-family-door.mjs",
+    // AND THE TWO ROWS IN THE EYE THAT DID NOT OPEN (CACHE_VERSION v122), the
+    // pass after that one. The family row picked the desk without landing on it
+    // and the leaf row opened the desk instead of its own file, so both taps read
+    // as dead on a page that already had a desk; and a reader scoped to a leaf had
+    // no control saying that body has an address. What moved is doors, not
+    // readings: pdx-issue-profile.js gained ONE named opener (resolve, refuse a
+    // family, raise an already-open file, else commit the same pick and mount the
+    // same panel at the same address) and issue-file.js gained focus(), which
+    // re-asserts its own overlay and repaints nothing. all-seeing-eye.js splits
+    // the two shapes properly and lowers its panel on the way past;
+    // door1-workspace.js paints one anchor above the shared body, on the path the
+    // address module answers, so the body below it is still byte-for-byte what
+    // /i/<key> serves. No band, no tier, no census count, no measure and no figure
+    // is reachable from any of it, which is what the twin boot above proves.
+    // all-seeing-eye.js, door1-workspace.js, door1-workspace.css,
+    // pdx-issue-profile.js, sw.js and scripts/test-eye-formal-family.mjs are
+    // declared above already.
+    "issue-file.js",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }

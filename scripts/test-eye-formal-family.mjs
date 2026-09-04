@@ -40,6 +40,18 @@
  *      attempt, the wait is scheduled, the desk's script runs, and the tap opens
  *      on the key the reader tapped. Bounded, and never an address with no
  *      document behind it.
+ *   6. AND A ROW TAPPED WITH THE DESK ALREADY THERE OPENS SOMETHING VISIBLE. The
+ *      case the cold ladder hid, and both rows were broken on it: the family row
+ *      picked without landing (pdxDoor1Issue re-syncs in place when the desk is
+ *      already in issue mode, so the desk repainted below the fold) and the leaf
+ *      row reached the DESK instead of its own file. Driven in exactly that state
+ *      — desk mounted, issue mode, scoped to a leaf — with both schedulers
+ *      captured: the queues are drained to empty and the landing must then be in
+ *      the log, because a tap that schedules and never fires is the defect.
+ *   7. THE DESK'S OWN LEDE OPENS THE SAME FILE. One control on a leaf scope, on
+ *      the real path, answered by the same opener the Eye's leaf row uses; a
+ *      modified click is the browser's; a family scope gets no control at all and
+ *      the opener itself refuses a core.
  *
  * Real shipped modules in a node:vm sandbox: the real ISSUE_MAP, the real family
  * table, the real roster, the real record corpus, and issue-view.js LOADED — so
@@ -97,6 +109,9 @@ const ADDR = R("pdx-issue-profile.js");
 
 const LEAF = "lands_preserve";
 const CORE = "climate_energy";
+// The leaf the smoke taps by name — "Climate Action & Clean Energy", the first
+// child row "climate" paints — and the one the desk is scoped to in section 6.
+const FILE = "climate_action";
 const ORIGIN = "https://www.politidex.fyi";
 // The two queries the smoke names, plus the family's own words.
 const QUERIES = ["land pres", "lands preserve", "climate", "climate energy"];
@@ -626,6 +641,294 @@ section("5 · a row tapped before its door has booted waits for the door");
   B.pdxDoor1Issue = savedIssue; B.PDXDoor1 = savedDesk; B.PDXIssueProfile = savedProf;
   B.PDXIssueFamily.profileUrl = savedProfileUrl;
   console.log(`      no desk → the tap waits · desk arrives → pdxDoor1Issue(${CORE}) · never a dead tap`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("6 · both rows work with the desk already on the page");
+// ═════════════════════════════════════════════════════════════════════════════
+// WHAT WAS WRONG, AND IT WAS THE SECOND PRODUCTION REPORT. Section 5 pinned the
+// cold page — no desk yet, the tap waits. The page with the desk ALREADY on it
+// was the case nobody drove, and both rows were broken on it, in opposite ways:
+//
+//   THE FAMILY ROW answered true and did nothing visible. It called
+//   pdxDoor1Issue(core), which re-syncs in place and does NOT land when the desk
+//   is already in issue mode — so a reader who searched from the top of the page
+//   got the panel closed, the desk repainted below the fold, and no reason to
+//   believe the row had worked.
+//
+//   THE LEAF ROW opened the DESK. pdxDoor1Issue came first for both shapes, so
+//   the leaf never reached its own file: the desk scoped itself to the key, the
+//   file never mounted, and the row's own href said /i/<key> the whole time.
+//
+// So this section drives the two taps in the exact state the report describes —
+// desk mounted, in issue mode, scoped to a leaf — and then again with the desk
+// absent. Every scheduled landing is FLUSHED and then required to have actually
+// happened, because a tap that schedules and never fires is the defect, not the
+// fix: the queue is drained to empty and the scroll must be in the log.
+{
+  const B = boot();
+  B.pdxDoor1Open("issue");
+  B.pdxDoor1Issue(FILE);
+  eq(B.PDXDoor1._mode(), "issue", "the desk fixture is not in issue mode, so this section proves nothing");
+  const html = search(B, "climate", "formal");
+  const fam = ROWS(html).filter((r) => r.kind === "family" && r.key === CORE)[0];
+  const leaf = ROWS(html).filter((r) => r.kind === "issuefile" && r.key === FILE)[0];
+  ok(!!fam, `no ${CORE} family row was painted for "climate"`);
+  ok(!!leaf, `no ${FILE} file row was painted for "climate"`);
+
+  // THE INSTRUMENTS. Both schedulers are captured, because the desk's landing
+  // goes out through requestAnimationFrame and settles through setTimeout, and a
+  // fixture that ran neither would let the old no-op pass.
+  const q = [];
+  const raf = [];
+  B.setTimeout = (fn) => { q.push(fn); return q.length; };
+  B.requestAnimationFrame = (fn) => { raf.push(fn); return raf.length; };
+  const pending = () => q.length + raf.length;
+  const flush = () => {
+    let rounds = 0;
+    while (pending() && rounds < 12) {
+      rounds++;
+      raf.splice(0).forEach((f) => { try { f(); } catch (e) {} });
+      q.splice(0).forEach((f) => { try { f(); } catch (e) {} });
+    }
+    return rounds;
+  };
+  // Where the page came to rest. landOn() prefers scrollIntoView on the desk's
+  // own mount and falls back to window.scrollTo, so both are logged and the
+  // claim below is that ONE of them named the desk.
+  const lands = [];
+  B.scrollTo = () => { lands.push("window"); };
+  for (const id of Object.keys(B.__byId)) {
+    const n = B.__byId[id];
+    n.scrollIntoView = () => { lands.push(id); };
+  }
+  const DESK_NODES = ["pdx-door1-workspace", "pdx-d1-body", "window"];
+
+  // ── THE FAMILY ROW, WITH THE DESK ALREADY THERE ─────────────────────────
+  const picks = [];
+  const realIssue = B.pdxDoor1Issue;
+  B.pdxDoor1Issue = function (k) { picks.push(k); return realIssue.call(B, k); };
+  const viewCalls = [];
+  for (const m of ["open", "answer", "coverage"]) {
+    const real = B.PDXIssueView[m];
+    B.PDXIssueView[m] = function () { viewCalls.push(m); return real.apply(B.PDXIssueView, arguments); };
+  }
+  B.__eye.classList.add("is-open");
+  const famHref = B.location.href;
+  ok(clickRow(B, fam.idx), "the family row could not be activated with the desk on the page");
+  ok(picks.length >= 1, "the family row did not call the desk's issue entry point");
+  eq(picks.filter((k) => k !== CORE).join(","), "",
+    `the family row opened the desk on ${JSON.stringify(picks)} — ${CORE} was expected`);
+  eq(viewCalls.join(","), "", `the family row reached PDXIssueView (${viewCalls.join(",")}) for a family`);
+  eq(B.location.href, famHref, "the family row navigated to an address instead of opening the desk");
+  // THE EYE GETS OUT OF THE WAY. The panel is fixed over the page; leaving it up
+  // is the same defect as not scrolling, because the desk is behind it.
+  ok(!B.__eye.classList.contains("is-open"),
+    "the Eye panel is still open over the desk the family row just opened");
+  // AND THE DESK IS LANDED ON. Scheduled is not landed: the queues are drained
+  // to empty first and then the log has to name the desk.
+  ok(pending() > 0 || lands.length > 0,
+    "the family tap neither landed on the desk nor scheduled a landing — it was a no-op");
+  flush();
+  eq(pending(), 0, "the family tap is still scheduling work after the desk has landed");
+  ok(lands.length >= 1, "the family tap never scrolled to the desk it opened");
+  ok(lands.some((id) => DESK_NODES.indexOf(id) >= 0),
+    `the family tap scrolled to ${JSON.stringify(lands)} rather than the desk`);
+  // What it landed on is the family shelf: every child key, and the sentence.
+  const famDesk = deskPaint(B);
+  let chips = 0;
+  for (const k of KIDS) if (famDesk.indexOf(k) >= 0) chips++;
+  eq(chips, KIDS.length, `the desk painted ${chips} of ${KIDS.length} child keys after the family tap`);
+  has(famDesk, `is a family of ${KIDS.length} keys, not a single file`,
+    "the desk does not say the core is a family rather than a file");
+  for (const phrase of RANKING) no(famDesk, phrase, "the family tap painted the consistency ranking");
+  // A FAMILY SCOPE OFFERS NO FILE CONTROL. There is no single ledger behind a
+  // core, so a control promising one would be the broken promise this pass came
+  // to fix — the child shelf above is the way in.
+  no(famDesk, "d1-filedoor", "the desk offered a file control for a family scope");
+  no(famDesk, "Open issue file", "the desk offered to open an issue file for a whole family");
+
+  // ── THE LEAF ROW, WITH THE DESK ALREADY THERE ───────────────────────────
+  // The row carries /i/<key>. What it opens has to be that, and not the desk it
+  // is sitting on top of.
+  const opened = [];
+  const realFileOpen = B.PDXIssueFile.open;
+  B.PDXIssueFile.open = function (k) { opened.push(k); return realFileOpen.call(B.PDXIssueFile, k); };
+  const focused = [];
+  const realFocus = B.PDXIssueFile.focus;
+  B.PDXIssueFile.focus = function () { focused.push(1); return realFocus.call(B.PDXIssueFile); };
+  picks.length = 0;
+  lands.length = 0;
+  B.__eye.classList.add("is-open");
+  ok(clickRow(B, leaf.idx), "the leaf row could not be activated with the desk on the page");
+  flush();
+  eq(opened.filter((k) => k !== FILE).join(","), "",
+    `the leaf row opened the file panel on ${JSON.stringify(opened)} instead of ${FILE}`);
+  ok(B.PDXIssueFile.isOpen(), "the leaf row left no file open — the tap was swallowed by the desk");
+  eq(B.PDXIssueFile.key(), FILE, "the file that opened is not the key the row carried");
+  const fbody = B.document.getElementById("pdx-issue-file-ledger");
+  ok(!!fbody && String(fbody.innerHTML) === B.PDXIssueProfile.html(FILE),
+    "the panel body is not the one builder's output for the tapped key");
+  // …at that key's own address, asked of the module that owns it.
+  eq(B.PDXIssueProfile.path(FILE), `/i/${FILE}`, "the address module answers a different path for the leaf");
+  has(B.__replaced.join(" "), `/i/${FILE}`, "the leaf row opened a file without stamping its address");
+  ok(!B.__eye.classList.contains("is-open"), "the Eye panel is still open over the file it just opened");
+  // NEVER THE DESK ALONE. The pick is committed so the desk underneath agrees,
+  // which is what the file's own door does — but a pick with no file is exactly
+  // the reported defect, so the two claims are made together.
+  eq(picks.filter((k) => k !== FILE).join(","), "",
+    `the leaf row picked ${JSON.stringify(picks)} on the desk`);
+
+  // TAPPED TWICE. The file is already open on that key, which used to be a
+  // silent true; now it is a raise, because a reader who tapped a row is owed a
+  // change on screen.
+  focused.length = 0;
+  B.__eye.classList.add("is-open");
+  ok(clickRow(B, leaf.idx), "the leaf row could not be activated a second time");
+  flush();
+  ok(focused.length >= 1, "a second tap on the row for the file already open did nothing at all");
+  ok(B.PDXIssueFile.isOpen(), "the second tap closed the file instead of raising it");
+  eq(B.PDXIssueFile.key(), FILE, "the second tap changed which file was open");
+  B.PDXIssueFile.open = realFileOpen;
+  B.PDXIssueFile.focus = realFocus;
+  console.log(`      desk mounted · family → pdxDoor1Issue(${CORE}) + a real landing · leaf → /i/${FILE} open`);
+}
+
+{
+  // ── AND WITH THE DESK ABSENT, THE SAME TWO TAPS ─────────────────────────
+  // The mirror of the case above, and the reason the leaf branch may not lean on
+  // the file panel alone: with no desk there is no builder, so the panel refuses
+  // the body — and the honest answer is the row's own address, served fresh.
+  const B = boot();
+  const html = search(B, "climate", "formal");
+  const fam = ROWS(html).filter((r) => r.kind === "family" && r.key === CORE)[0];
+  const leaf = ROWS(html).filter((r) => r.kind === "issuefile" && r.key === FILE)[0];
+  const savedIssue = B.pdxDoor1Issue, savedDesk = B.PDXDoor1;
+  const q = [];
+  const raf = [];
+  B.setTimeout = (fn) => { q.push(fn); return q.length; };
+  B.requestAnimationFrame = (fn) => { raf.push(fn); return raf.length; };
+  const pending = () => q.length + raf.length;
+  const flush = () => {
+    let rounds = 0;
+    while (pending() && rounds < 12) {
+      rounds++;
+      raf.splice(0).forEach((f) => { try { f(); } catch (e) {} });
+      q.splice(0).forEach((f) => { try { f(); } catch (e) {} });
+    }
+    return rounds;
+  };
+  const lands = [];
+  B.scrollTo = () => { lands.push("window"); };
+  for (const id of Object.keys(B.__byId)) {
+    const n = B.__byId[id];
+    n.scrollIntoView = () => { lands.push(id); };
+  }
+  B.pdxDoor1Issue = undefined;
+  B.PDXDoor1 = undefined;
+
+  // THE LEAF, with the address book present and no desk: straight to /i/<key>.
+  const href0 = B.location.href;
+  ok(clickRow(B, leaf.idx), "the leaf row could not be activated with no desk on the page");
+  flush();
+  ok(!B.PDXIssueFile.isOpen(), "the panel mounted a body with no builder on the page");
+  eq(B.location.href, B.PDXIssueProfile.path(FILE),
+    "with no desk the leaf row did not fall through to the file's own address");
+  ok(!B.__eye.classList.contains("is-open"), "the Eye panel stayed open over the navigation");
+
+  // THE FAMILY, same page: nothing to open, so it waits — and when the desk's
+  // script runs, it picks AND lands. The wait is what section 5 pins; that the
+  // landing survives the wait is what this pass added.
+  const picks = [];
+  ok(clickRow(B, fam.idx), "the family row could not be activated with no desk on the page");
+  ok(pending() > 0, "a family tap with no desk on the page scheduled nothing");
+  lands.length = 0;
+  B.PDXDoor1 = savedDesk;
+  B.pdxDoor1Issue = function (k) { picks.push(k); return savedIssue.call(B, k); };
+  flush();
+  eq(pending(), 0, "the family tap is still scheduling after the desk arrived");
+  ok(picks.length >= 1, "the waiting family tap never reached the desk that had just booted");
+  eq(picks.filter((k) => k !== CORE).join(","), "",
+    `the waiting family tap opened ${JSON.stringify(picks)} instead of ${CORE}`);
+  ok(lands.length >= 1, "the waiting family tap opened the desk and never scrolled to it");
+  B.pdxDoor1Issue = savedIssue;
+  console.log(`      desk absent · leaf → /i/${FILE} served · family → waits, then picks and lands`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("7 · the desk's own lede opens the same file");
+// ═════════════════════════════════════════════════════════════════════════════
+// The third door in the report, and the one that did not exist: a reader already
+// scoped to a leaf on the desk was looking at the file's body with no way to
+// reach the file's ADDRESS. One control, on a leaf scope only, on the real path,
+// answered by the same opener the Eye's leaf row uses.
+{
+  const B = boot();
+  B.pdxDoor1Open("issue");
+  B.pdxDoor1Issue(FILE);
+  const desk = deskPaint(B);
+  const addr = B.PDXIssueProfile.path(FILE);
+  eq(addr, `/i/${FILE}`, "the address module answers a different path for the scoped leaf");
+  has(desk, "d1-filedoor", "the desk's leaf scope offers no way into the issue file");
+  has(desk, "Open issue file", "the desk's file control is not the one the smoke names");
+  has(desk, `href="${addr}"`, "the desk's file control does not carry the file's own address");
+  // A REAL ANCHOR, AND NOT INSIDE ANYTHING CLICKABLE. Nested interactive markup
+  // is unusable with a keyboard and undefined in a browser; the chips above this
+  // control are buttons, so the count is checked rather than assumed.
+  const at = desk.indexOf('class="d1-filedoor"');
+  ok(at > 0, "the file control is not in the painted desk at all");
+  const before = desk.slice(0, at);
+  eq((before.match(/<button\b/g) || []).length, (before.match(/<\/button>/g) || []).length,
+    "the desk's file control is painted inside an unclosed <button>");
+  const tag = /<a\b[^>]*class="d1-filedoor-go"[^>]*>/.exec(desk);
+  ok(!!tag, "the file control is not an anchor");
+  if (tag) {
+    no(tag[0], "<button", "the file control nests a button inside its anchor");
+    has(tag[0], "PDXDoor1.fileDoorClick", "the file control has no handler of its own");
+  }
+  // The desk's own body below the control is still byte-for-byte the one builder's
+  // output, so nothing about this control forked the two doors.
+  has(desk, B.PDXIssueProfile.html(FILE), "the desk stopped painting the one builder's body");
+
+  // ACTIVATED, IT OPENS THE FILE — the same panel, the same key, the same stamp.
+  const opened = [];
+  const realFileOpen = B.PDXIssueFile.open;
+  B.PDXIssueFile.open = function (k) { opened.push(k); return realFileOpen.call(B.PDXIssueFile, k); };
+  let prevented = 0;
+  const ev = { button: 0, metaKey: false, ctrlKey: false, shiftKey: false, altKey: false,
+    preventDefault() { prevented++; } };
+  eq(B.PDXDoor1.fileDoorClick(ev, FILE), false, "the file control let the browser reload the page");
+  ok(prevented >= 1, "the file control did not take the click it answered");
+  eq(opened.join(","), FILE, `the file control opened ${JSON.stringify(opened)} instead of ${FILE}`);
+  ok(B.PDXIssueFile.isOpen(), "the file control opened no file");
+  eq(B.PDXIssueFile.key(), FILE, "the file control opened a file for another key");
+  has(B.__replaced.join(" "), `/i/${FILE}`, "the file control opened a file without stamping its address");
+
+  // A MODIFIED CLICK IS THE BROWSER'S. New tab, new window, middle click: the
+  // control hands the click back and opens nothing here.
+  B.PDXIssueFile.close();
+  opened.length = 0;
+  for (const mod of ["metaKey", "ctrlKey", "shiftKey", "altKey"]) {
+    const m = { button: 0, metaKey: false, ctrlKey: false, shiftKey: false, altKey: false,
+      preventDefault() { prevented++; } };
+    m[mod] = true;
+    eq(B.PDXDoor1.fileDoorClick(m, FILE), true, `a ${mod} click was swallowed instead of opening a tab`);
+  }
+  eq(B.PDXDoor1.fileDoorClick({ button: 1, preventDefault() {} }, FILE), true,
+    "a middle click was swallowed instead of opening a tab");
+  eq(opened.join(","), "", "a modified click opened the file panel as well as a new tab");
+  ok(!B.PDXIssueFile.isOpen(), "a modified click left a file open on the page it was leaving");
+  B.PDXIssueFile.open = realFileOpen;
+
+  // A FAMILY KEY GETS NOTHING, from either end: no control painted, and the
+  // opener itself refuses a core rather than mounting an empty panel.
+  B.pdxDoor1Issue(CORE);
+  const fdesk = deskPaint(B);
+  no(fdesk, "d1-filedoor", "the desk painted a file control for a family scope");
+  eq(B.PDXIssueProfile.open(CORE), false, "the file's own door opened a family as a file");
+  eq(B.PDXIssueProfile.open("no_such_key_at_all"), false, "the file's own door opened a key that does not exist");
+  ok(!B.PDXIssueFile.isOpen(), "a family scope left a file panel open");
+  console.log(`      leaf scope → ${addr} · family scope → no control · modified clicks fall through`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

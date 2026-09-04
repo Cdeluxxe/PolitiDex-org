@@ -376,6 +376,73 @@
     return key;
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // ONE OPENER FOR THE FILE, WHEREVER THE TAP HAPPENED  ·  PDXIssueProfile.open
+  // ══════════════════════════════════════════════════════════════════════════
+  // WHAT WAS WRONG. adopt() is the whole sequence a file needs — resolve the key,
+  // commit the pick so the desk behind it agrees, stamp the address, title the
+  // tab, mount the panel — and it was reachable ONLY from the path. So every
+  // surface that wanted to send a reader to an issue file had to assemble that
+  // sequence itself or send them to something else, and both happened: the Eye's
+  // leaf row called the DESK's issue door (which scopes the desk to the key and
+  // paints no file, so a reader who tapped "Climate Action & Clean Energy" got no
+  // file and, with the desk already in issue mode, no visible answer at all), and
+  // the desk scoped to a leaf offered no way into the file at all.
+  //
+  // So the sequence gets a name and one owner. This is the file's door, the
+  // counterpart of the desk's window.pdxDoor1Issue: a key in, the file open at
+  // its own address, and true/false out. What it may not do is invent a
+  // destination — a key the register does not carry, and a key that names a
+  // FAMILY, both answer false and leave the caller to say something honest.
+  //
+  // THE TAP IS NEVER SWALLOWED. Two cases used to end in nothing happening: the
+  // file already open on this key, and the document already sitting on /i/<key>.
+  // Both are now a RAISE — PDXIssueFile.focus(), which is that module's own — and
+  // not a silent true, because a reader who tapped a row is owed a change on
+  // screen either way.
+  function openKey(key) {
+    var raw = String(key == null ? '' : key).trim();
+    if (!raw) return false;
+    var k = resolve(raw);
+    if (!k) return false;
+    // A FAMILY IS THE DESK'S DOOR, NOT THIS ONE. issueProfileHtml answers '' for a
+    // core, so the panel would refuse the body and the reader would be left on
+    // whatever was underneath. The family shelf is where a core belongs and
+    // familyLanding()/the Eye's family row are what take it there.
+    if (isFamily(k)) return false;
+    var P = window.PDXIssueFile;
+    try {
+      if (P && fn(P.isOpen) && P.isOpen() && fn(P.key) && P.key() === k) {
+        if (fn(P.focus)) P.focus();
+        return true;
+      }
+    } catch (e) {}
+    // The pick, exactly as adopt() commits it: the mode quietly first (so the
+    // desk's own open() does not scroll the page out from under the file that is
+    // about to cover it), then the desk's one issue door, which records the pick
+    // and warms the roll-call read the census is built from.
+    var D = desk();
+    try { if (D && fn(D.open)) D.open('issue', { quiet: true }); } catch (e) {}
+    try { if (fn(window.pdxDoor1Issue)) window.pdxDoor1Issue(k); } catch (e) {}
+    var filed = false;
+    try { filed = !!(P && fn(P.open) && P.open(k)); } catch (e) { filed = false; }
+    if (filed) {
+      stamp(k);
+      try { document.title = title(k); } catch (e) {}
+      return true;
+    }
+    // NO STAGE ON THIS DOCUMENT, so FALSE — and deliberately not a navigation.
+    // The panel answers false when issue-file.js is not on the page or the one
+    // builder has not landed yet, and the honest destination then is the address
+    // itself, /i/<key>, served fresh. But this module does not write the
+    // document's address: it OWNS /i/ and hands the string out (path(), url()),
+    // and every caller of this door already holds that string on the control the
+    // reader tapped — the Eye's leaf row is an <a href>, the desk's lede control
+    // is an <a href>. False here means "you still own the tap", and a real
+    // anchor answers it by simply doing what an anchor does.
+    return false;
+  }
+
   // ── THE WAIT ──────────────────────────────────────────────────────────────
   // ISSUE_MAP and CORE_NATIONAL_ISSUES come from alignment-tool.js, a deferred
   // script, and PDXDoor1 from another one. A macrotask scheduled here cannot run
@@ -433,6 +500,12 @@
     restore: restore,
     title: title,
     adopt: adopt,
+    // The file's door, for a caller that already holds a key — the counterpart of
+    // the desk's window.pdxDoor1Issue, and reached the same way from an inline
+    // handler in painted markup: window.PDXIssueProfile.open('<key>'). No second
+    // lowercase global was published for it, because the module's own name is
+    // already on the window and one name for one door is the whole point.
+    open: openKey,
     bootAdopt: bootAdopt,
     _ready: ready
   };

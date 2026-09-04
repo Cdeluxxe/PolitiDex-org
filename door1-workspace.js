@@ -1428,6 +1428,55 @@
       }).join('') + '</div>';
   }
 
+  // ── THE WAY OUT OF THE DESK, INTO THE FILE ────────────────────────────────
+  // The desk and the issue file paint the same body from the same function, and
+  // until this pass that was the whole relationship: no control anywhere on the
+  // desk said the body it was showing ALSO had an address. A reader scoped to
+  // Climate Action & Clean Energy could see its census and had nothing to copy,
+  // share or open in a tab — the URL existed and was unreachable from the one
+  // screen most likely to want it.
+  //
+  // So: one control, on the lede of a leaf scope, and NOTHING for a family scope
+  // — a core has no single ledger and therefore no file (issueProfileHtml answers
+  // '' for one), and a control that promised otherwise would be the same broken
+  // promise this pass came to fix. The key shelf is what a family scope offers.
+  //
+  // A REAL ANCHOR ON THE REAL ADDRESS, ASKED FOR AND NEVER SPELLED. One module
+  // owns /i/ — pdx-issue-profile.js — and it is the only thing asked here, so
+  // this desk cannot invent a path shape and a page without that module paints no
+  // control at all rather than a link to nowhere. (The family table's permalink
+  // hook is deliberately not consulted either: scripts/test-issue-family.mjs
+  // holds the line that this desk paints from the key it already holds and gates
+  // on no address, and one asker for one address is the same rule.)
+  //
+  // A plain click is answered in place by the file's own door, which is faster and
+  // keeps the desk underneath; a modified click, a middle click and a document
+  // where that door refuses all fall through to the anchor, which is what an
+  // anchor is for. Nothing is nested inside anything clickable here.
+  function issueFileAddr(key) {
+    var A = window.PDXIssueProfile;
+    try { if (A && fn(A.path)) { var p = A.path(key); if (p) return p; } } catch (e) {}
+    return '';
+  }
+  function fileDoorClick(ev, key) {
+    try {
+      if (ev && (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.button === 1)) return true;
+      var A = window.PDXIssueProfile;
+      if (A && fn(A.open) && A.open(key)) {
+        if (ev && ev.preventDefault) ev.preventDefault();
+        return false;
+      }
+    } catch (e) {}
+    return true;
+  }
+  function fileDoorHtml(key) {
+    var u = issueFileAddr(key);
+    if (!u) return '';
+    return '<p class="d1-filedoor"><a class="d1-filedoor-go" href="' + esc(u) +
+      '" onclick="return window.PDXDoor1.fileDoorClick(event, \'' + jsq(key) + '\');">' +
+      'Open issue file<span class="d1-filedoor-at">' + esc(u) + '</span></a></p>';
+  }
+
   function issueDeskHtml() {
     var head = deskHead('Open an issue', 'Pick one. Then: what the formal record on it did, and who did it.');
     var list = coreIssues();
@@ -1463,7 +1512,9 @@
     // body also has an address of its own: /i/<key>. Two doors, one paint. What
     // stays here is the DESK's own chrome: the head, the thirteen chips, the seek
     // control and the sibling-key shelf. See the note over the function.
-    if (focusKey) return head + shelf + keyShelf + issueProfileHtml(focusKey);
+    // The file door sits between the desk's own chrome and the shared body, so
+    // the body below it stays byte-for-byte what /i/<key> serves.
+    if (focusKey) return head + shelf + keyShelf + fileDoorHtml(focusKey) + issueProfileHtml(focusKey);
 
     // ── THE BUNDLE OVERVIEW ─────────────────────────────────────────────────
     // No key selected yet, so no band set: what this can honestly report is the
@@ -2172,6 +2223,10 @@
     // makes the two doors one paint rather than two surfaces that agree today.
     // PDXIssueProfile.html(key) is a one-line delegation to it.
     issueProfile: issueProfileHtml,
+    // The lede's file control, for the inline handler in the markup above. It
+    // decides one thing — whether the file's own door answered the tap — and
+    // hands the click back to the anchor when it did not.
+    fileDoorClick: fileDoorClick,
     // Measures whose curation maps them to a key, for a surface that wants to
     // say how much is on file without warming anybody's record.
     issueMeasures: function (key) {

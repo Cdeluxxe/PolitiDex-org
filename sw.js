@@ -880,6 +880,61 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v122 - TWO DOORS THAT DID NOT OPEN, AND A FILE WITH NO WAY IN. The Eye's
+// answer to "climate" paints a family row and its leaf rows, and on a page with
+// the desk already mounted neither one did what it said. The family row called
+// pdxDoor1Issue(core), which re-syncs the desk in place and does NOT scroll when
+// the desk is already in issue mode - so the panel closed, the desk repainted
+// below the fold, and the reader saw nothing change. The leaf row called that
+// same desk door FIRST, so it never reached its own file: the desk scoped itself
+// to the key while the row's own href said /i/<key>. And a reader already scoped
+// to a leaf on the desk was looking at the file's body with no control anywhere
+// that said it had an address.
+//   · pdx-issue-profile.js - the sequence adopt() runs was reachable only from
+//                            the path, so every surface that wanted to send a
+//                            reader to a file had to reassemble it. It is one
+//                            named door now, PDXIssueProfile.open(key): resolve,
+//                            refuse a family (a core has no single ledger), raise
+//                            an already-open file rather than swallowing the tap,
+//                            else commit the pick quietly, mount the panel, stamp
+//                            the address and title the tab. It answers false and
+//                            never writes location - this module hands the
+//                            address out, it does not take the document over -
+//                            so a caller whose page has no stage still owns its
+//                            own <a href>.
+//   · issue-file.js        - focus(), for a tap on a file that is already open:
+//                            re-assert hidden/display, re-take the body lock and
+//                            focus the panel. Nothing repainted, nothing scrolled
+//                            back to the top, no census built here as ever.
+//   · all-seeing-eye.js    - issueDoorTry() splits by shape properly. A family
+//                            picks AND lands: pdxDoor1Issue(core) then the desk's
+//                            own lander, PDXDoor1.toDesk('issue'), with the Eye
+//                            panel lowered on the way past so the desk it opened
+//                            is the thing on screen. A leaf goes to the file's
+//                            door first and to its /i/ address second, which is
+//                            the string the row already carried. The bounded cold
+//                            ladder is unchanged.
+//   · door1-workspace.js   - one control on the lede of a LEAF scope, "Open issue
+//                            file", a real anchor on the path asked of the module
+//                            that owns /i/ (never spelled here), answered in place
+//                            by the same opener the Eye's leaf row uses and handed
+//                            back to the browser on a modified or middle click.
+//                            A family scope gets none: the child shelf is the way
+//                            in, and a control promising a file for a core would
+//                            be the same broken promise this pass came to fix.
+//                            The control sits ABOVE the shared body, so what the
+//                            desk paints below it is still byte-for-byte what
+//                            /i/<key> serves.
+//   · door1-workspace.css  - .d1-filedoor, that control: a quiet link with the
+//                            address printed beside the label, deliberately not a
+//                            chip - the chips change the scope, this one opens the
+//                            scope already chosen.
+// netlify.toml's /i/* rewrite and issue-file.css are unchanged by this pass and
+// still carry that address; they are named here because the address, its stage
+// and its stylesheet ship together or not at all. No percentage, no Direction
+// Match change, no new key, no roster row, no party control anywhere, and no
+// PDXIssueView for a family. 8245 warming and the Mandate lane were not touched.
+//
 // v121 - A FAMILY IS A DOOR, NOT A LEAGUE TABLE OF PEOPLE. "open the full Climate,
 // Energy & Land ledger" and the topic chip on a person's file both mounted the
 // consistency overlay: politicians ranked head to head, with Any party / R / D /
@@ -1579,7 +1634,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v121';
+const CACHE_VERSION = 'v122';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

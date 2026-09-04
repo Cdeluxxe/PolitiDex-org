@@ -1319,22 +1319,67 @@
     // spelled out here: the address is still asked of the module that owns it,
     // and the last resort is still the section itself.
     var ISSUE_DOOR_WAIT = [120, 400, 900, 1600];
+    // ── AND A DOOR THAT IS ALREADY OPEN IS NOT AN ANSWER EITHER ─────────────
+    // THE SECOND HALF OF THE SAME DEFECT, and it was worse because it looked
+    // like the door was missing when it was in fact already there. Both rows
+    // opened through pdxDoor1Issue, the DESK's issue entry point, and that
+    // function answers true after re-syncing in place when the desk is already in
+    // issue mode — no mode change, so no landing, so no scroll. A reader who
+    // searched from the top of the page with the desk scoped to a key somewhere
+    // below the fold therefore got: the panel closed, the desk repainted where
+    // they could not see it, and nothing else. Reported as "the rows do not
+    // navigate", and the row was right: nothing about the screen changed.
+    //
+    // So a family tap now LANDS on the desk it opened — through the desk's own
+    // lander, PDXDoor1.toDesk, which is what /i/<core> and the file panel's own
+    // fallback already use, so no path or offset is computed here. And the Eye
+    // gets out of the way on the way past: close() is called again on success
+    // because a tap can be answered a second and a half later off the wait
+    // ladder below, by which time the reader may have reopened the panel over
+    // the very desk they asked for.
+    function deskLand() {
+      try {
+        var D = window.PDXDoor1;
+        if (D && typeof D.toDesk === 'function') { D.toDesk('issue'); return true; }
+      } catch (e) {}
+      return false;
+    }
     function issueDoorTry(key, isFam) {
-      // The desk's own entry point, for either shape — the same call the desk's
-      // chip makes, so the pick is recorded and the record warmed identically.
-      try { if (typeof window.pdxDoor1Issue === 'function' && window.pdxDoor1Issue(key)) return true; } catch (e) {}
       if (isFam) {
-        // A core has no file of its own, so the desk's landing is the answer:
-        // never the consistency ranking, and never an address with no document.
+        // A core has no file of its own, so the desk IS the answer: never the
+        // consistency ranking, and never an address with no document behind it.
+        // The pick first — the same call the desk's own chip makes, so the record
+        // is warmed identically — and then the landing, which is the half that
+        // was missing. Either one alone is a real answer; the pick without the
+        // landing is what read as a dead row.
+        var picked = false;
         try {
-          var D = window.PDXDoor1;
-          if (D && typeof D.toDesk === 'function') { D.toDesk('issue'); return true; }
-        } catch (e) {}
+          picked = !!(typeof window.pdxDoor1Issue === 'function' && window.pdxDoor1Issue(key));
+        } catch (e) { picked = false; }
+        var landed = deskLand();
+        if (picked || landed) { close(); return true; }
         return false;
       }
-      // A published leaf's own ledger at its own address, which issueFileHref
-      // only answers for once the register has actually landed.
-      try { var h = issueFileHref(key); if (h) { window.location.href = h; return true; } } catch (e) {}
+      // ── A LEAF OPENS THE FILE, NOT THE DESK ───────────────────────────────
+      // WHAT WAS WRONG. This branch asked pdxDoor1Issue first, so a page with the
+      // desk on it never reached the file at all: the desk scoped itself to the
+      // key, painted no file, and (already being in issue mode) did not even
+      // move. The row's own href said /i/<key> while the tap opened something
+      // else, which is the one thing a row carrying an address may not do.
+      //
+      // The file's own door is what a leaf row opens now — PDXIssueProfile.open,
+      // pdx-issue-profile.js's, which resolves the key, commits the same pick,
+      // stamps the address and mounts the panel, and RAISES a file already open on
+      // that key rather than swallowing the tap. It answers false rather than
+      // navigating (that module owns /i/ and does not write the document's
+      // address), which is exactly the hand-off this branch already had: the row
+      // carries the href, so the row answers for it. issueFileHref is asked for
+      // the string as before, and answers only once the register has landed.
+      try {
+        var A = window.PDXIssueProfile;
+        if (A && typeof A.open === 'function' && A.open(key)) { close(); return true; }
+      } catch (e) {}
+      try { var h = issueFileHref(key); if (h) { close(); window.location.href = h; return true; } } catch (e) {}
       return false;
     }
     function issueDoorLast(key) {
