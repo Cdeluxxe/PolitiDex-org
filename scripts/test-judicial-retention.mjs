@@ -24,6 +24,14 @@
 //      unmapped courts name WHICH MAP IS MISSING rather than offering the
 //      nearest judge on file. And the band is a sibling of #bw-body that never
 //      joins seats(), so the "N of 6 decided" counter still counts one act.
+//  3b. THE GEOGRAPHY IS THE STATUTE'S. Utah Code § 78A-1-102 divides the
+//      district and juvenile courts into eight divisions covering twenty-nine
+//      counties. A voter gets the statewide courts plus their OWN division and
+//      no other, the map exists in exactly one place, and a county the map
+//      cannot place gets the missing-map sentence rather than the nearest
+//      judge. Seated is not standing: the 2026 slate is a separate structure
+//      naming the Lieutenant Governor's filed questions verbatim, and a judge
+//      who left the court is on no ballot anywhere.
 //   4. THE JUDGE FILE PAINTS NO FIGURE. No ring, no percentage, no Direction
 //      Match, and no "no clear voting pattern" said over an office that does
 //      not vote. The formal lane says so in words.
@@ -167,13 +175,32 @@ function sandbox(opts) {
   return win;
 }
 
+// The location owner publishes `county`, and the retention band reads it from
+// there. These fixtures are the resolver's output shape, not a location the
+// band went and found for itself.
 const UTAH = {
   located: true, national: false, state: "Utah", area: "Davis County",
-  districtsResolvable: true, levels: [],
+  county: "Davis County", districtsResolvable: true, levels: [],
 };
+const BOXELDER = {
+  located: true, national: false, state: "Utah", area: "Box Elder County",
+  county: "Box Elder County", districtsResolvable: true, levels: [],
+};
+// Utah, and no county came back from the resolver.
+const UTAH_NOCOUNTY = {
+  located: true, national: false, state: "Utah", area: "Utah",
+  county: "", districtsResolvable: true, levels: [],
+};
+// Utah, and a county the statute's map does not contain. Not a Utah county at
+// all, which is exactly the shape of a resolver answer we must not place.
+const UTAH_OFFMAP = {
+  located: true, national: false, state: "Utah", area: "Elsewhere",
+  county: "Beaverhead County", districtsResolvable: true, levels: [],
+};
+// A county name on a non-Utah location must not open any door on its own.
 const OHIO = {
   located: true, national: false, state: "Ohio", area: "Columbus",
-  districtsResolvable: false, levels: [],
+  county: "Franklin County", districtsResolvable: false, levels: [],
 };
 const NOWHERE = { located: false, national: false, state: "", area: "", levels: [] };
 
@@ -191,6 +218,38 @@ const STANDING = Object.keys(W.PDX_JUDICIAL.JUDGES)
   .filter((pid) => W.PDX_JUDICIAL.JUDGES[pid].retention)
   .sort();
 must(STANDING.length >= 1, "no judge in the roster stands for retention — this probe is stale");
+
+// What SHOULD be on one county's ballot, computed here from the roster and the
+// statute's district table rather than from ballot() — otherwise the test would
+// be asking the code under test whether it agrees with itself. Statewide courts
+// are on every Utah ballot; a trial court is on the ballot of the counties in
+// its own division and no others.
+const DISTRICTS = W.PDX_JUDICIAL.DISTRICTS;
+must(DISTRICTS && DISTRICTS.length === 8,
+     "the eight geographical divisions are not on file — this probe is stale");
+const STATEWIDE = W.PDX_JUDICIAL.COURTS
+  .filter((c) => c.scope === "statewide").map((c) => c.key);
+function districtOfCounty(county) {
+  const key = (s) => String(s).toLowerCase().replace(/county/g, "").replace(/[^a-z]+/g, "");
+  const hit = DISTRICTS.find((d) => d.counties.some((c) => key(c) === key(county)));
+  return hit ? hit.n : null;
+}
+function expectedRows(county) {
+  const n = districtOfCounty(county);
+  return Object.keys(W.PDX_JUDICIAL.JUDGES)
+    .filter((pid) => {
+      const j = W.PDX_JUDICIAL.JUDGES[pid];
+      if (!j.retention) return false;
+      if (STATEWIDE.indexOf(j.court) > -1) return true;
+      return n != null && j.district === n;
+    })
+    .sort();
+}
+// The judge whose file carries the court-level public lane, so the copy probes
+// downstream have something to read. Named by court, not by position in a sorted
+// list, because that list is now thirty-two rows long.
+const PID = STANDING.find((pid) => W.PDX_JUDICIAL.JUDGES[pid].court === "supreme");
+must(PID, "no Supreme Court judge stands for retention — this probe is stale");
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1 · Identity only. No party, no score, no Direction Match input.
@@ -268,30 +327,146 @@ lacks(RET_SRC, "document.", "judicial-retention.js touches the DOM — it is sup
 // ─────────────────────────────────────────────────────────────────────────────
 section("3 · Utah gets the rows on file or an honest blank; nowhere else gets a judge");
 
-// A Utah location with a known county: the rows are exactly the slate rows that
-// carry a retention date, and nothing else.
-{
-  const b = J.ballot(UTAH);
-  eq(b.utah, true, "a Utah location was not recognised as Utah");
-  eq(b.rows.map((r) => r.pid).sort().join(","), STANDING.join(","),
-     "the retention rows for a Utah ballot are not the roster's standing-for-retention rows");
-  b.rows.forEach((r) => {
-    has(r.question, "be retained?", "a retention row is not phrased as the ballot's yes/no question");
-    eq(r.certified, false,
-       "a retention row claims the official list is certified — it is not on file for 2026");
-  });
-  ok(!b.certified, "the ballot claims a certified 2026 retention list");
-  has(b.note, "not on file", "the ballot does not say the official list is missing");
+// Two real counties in two different divisions. Each one gets the statewide
+// courts plus the trial-court judges of ITS OWN division, and no judge from
+// anybody else's.
+[["Davis County", UTAH, 2], ["Box Elder County", BOXELDER, 1]].forEach(([label, reps, n]) => {
+  const b = J.ballot(reps);
+  eq(b.utah, true, `${label} was not recognised as Utah`);
+  eq(b.county, label, `${label} did not survive from the resolver onto the ballot answer`);
+  eq(b.district, n, `${label} was not placed in the ${n}th judicial district`);
+  eq(b.rows.map((r) => r.pid).sort().join(","), expectedRows(label).join(","),
+     `the retention rows for ${label} are not the statewide judges plus that county's own division`);
+  ok(b.rows.length > 1,
+     `${label} got one row or none, which is the silent hole this pass exists to close`);
 
-  // The unmapped courts are PRESENT and say which map is missing. A court that
-  // is simply absent reads as a court with no question on the ballot.
-  const unmapped = b.courts.filter((c) => c.status === "unmapped").map((c) => c.key).sort();
-  eq(unmapped.join(","), "district,justice,juvenile",
-     "the courts PolitiDex cannot place a voter inside are not reported as unmapped");
-  ok(b.missing.length >= 3, "the missing judicial-district maps are not reported at all");
-  b.courts.filter((c) => c.status === "unmapped").forEach((c) => {
-    has(c.note, "does not map", `the ${c.key} court does not say the map is missing`);
-    eq(c.count, 0, `the ${c.key} court produced rows from geography we do not hold`);
+  // The order's own test: no judge from a different district, ever.
+  b.rows.forEach((r) => {
+    if (r.district == null) return;
+    eq(r.district, n,
+       `${label} was shown a judge from the ${r.district}th district, whose voters are not this voter`);
+  });
+  // And the statewide rows really are statewide, not district rows with a
+  // missing number.
+  const sw = b.rows.filter((r) => STATEWIDE.indexOf(r.courtKey) > -1);
+  ok(sw.length >= 2, `${label} lost the statewide retention questions`);
+  sw.forEach((r) => {
+    eq(r.unitLabel, "Statewide", `a statewide row on ${label} does not say it is statewide`);
+    eq(r.district, null, `a statewide row on ${label} carries a judicial district it does not have`);
+  });
+
+  b.rows.forEach((r) => {
+    // The state's own wording, which is "be retained in the office of ...?" —
+    // not a sentence this codebase composes. What is asserted is that it IS the
+    // yes/no retention question and that it is a question.
+    has(r.question, "be retained", "a retention row is not phrased as the ballot's retention question");
+    ok(/\?$/.test(String(r.question)), "a retention row is not phrased as a question");
+    eq(r.certified, true,
+       "a retention row does not carry the certification of the list it came from");
+    has(String(r.date), "2026-11-03", "a retention row is not dated to the 2026 election");
+  });
+  ok(b.certified, "the ballot does not report the official 2026 list as certified");
+  eq(b.note, "", "the ballot still carries the uncertified-list warning");
+  lacks(b.note, "not on file", "the ballot says the official list is missing when it is on file");
+
+  // The Court of Appeals stands statewide, so it is on this ballot exactly as
+  // the Supreme Court is.
+  const coa = b.courts.find((c) => c.key === "appeals");
+  must(coa, "the Court of Appeals is not reported on a Utah ballot at all — this probe is stale");
+  eq(coa.status, "rows", `${label} was told the Court of Appeals has no question`);
+  ok(coa.count >= 1, `${label} got no Court of Appeals rows`);
+
+  // Justice courts are still unmapped, and now the sentence names the county.
+  const jc = b.courts.find((c) => c.key === "justice");
+  eq(jc.status, "unmapped", "the justice court claims a map it does not have");
+  eq(jc.count, 0, "the justice court produced rows from a roster we do not hold");
+  has(jc.note, label, "the justice court's missing-roster sentence does not name the county");
+  has(jc.note, "no Justice Court roster",
+      "the justice court does not say the roster is what is missing");
+  ok(b.missing.some((m) => m.indexOf("Justice Court") > -1),
+     "the missing justice court roster is not reported at all");
+});
+
+// Two different counties are two different ballots. A district judge on one is
+// not on the other, which is the whole point of the map.
+{
+  const trial = (reps) => J.ballot(reps).rows
+    .filter((r) => r.district != null).map((r) => r.pid);
+  const davis = trial(UTAH);
+  const box = trial(BOXELDER);
+  ok(davis.length > 0 && box.length > 0,
+     "one of the two probe counties produced no trial-court rows — this probe is stale");
+  eq(davis.filter((p) => box.indexOf(p) > -1).length, 0,
+     "a trial-court judge appears on the ballots of two different judicial districts");
+}
+
+// A county the map does not contain, and no county at all: the same fail-closed
+// answer this pass shipped when there was no map for anybody. A missing map is
+// reported as a missing map, and nothing is invented to fill the row.
+[["off the map", UTAH_OFFMAP, "Beaverhead County"], ["with no county", UTAH_NOCOUNTY, ""]]
+  .forEach(([what, reps, county]) => {
+    const b = J.ballot(reps);
+    eq(b.utah, true, `a Utah location ${what} was not recognised as Utah`);
+    eq(b.district, null, `a Utah location ${what} was placed in a judicial district anyway`);
+    eq(b.rows.filter((r) => r.district != null).length, 0,
+       `a Utah location ${what} was handed trial-court rows from geography we cannot place`);
+    // The statewide questions still stand: they resolve from the STATE, and the
+    // county has nothing to do with them.
+    ok(b.rows.length >= 2,
+       `a Utah location ${what} lost the statewide retention questions, which do not need a county`);
+
+    const unmapped = b.courts.filter((c) => c.status === "unmapped").map((c) => c.key).sort();
+    eq(unmapped.join(","), "district,justice,juvenile",
+       `the courts PolitiDex cannot place a voter ${what} inside are not reported as unmapped`);
+    b.courts.filter((c) => c.status === "unmapped").forEach((c) => {
+      eq(c.count, 0, `the ${c.key} court produced rows from geography we do not hold`);
+      has(c.note, "is claimed for your ballot",
+          `the ${c.key} court does not say that no question is claimed`);
+      if (c.key === "justice") return;
+      // Two different failures, two different sentences. "We hold no map for
+      // your county" and "we could not work out your county" are not the same
+      // news, and a reader can act on the difference.
+      if (county) {
+        has(c.note, "no " + c.unit + " map",
+            `the ${c.key} court does not say the ${c.unit} map is what is missing`);
+        has(c.note, county, `the ${c.key} court does not name the county it cannot place`);
+      } else {
+        has(c.note, "could not resolve your county",
+            `the ${c.key} court does not say that the county is what could not be resolved`);
+      }
+      has(c.note, "decided by the voters of each " + c.unit,
+          `the ${c.key} court does not say whose question it is`);
+    });
+    ok(b.missing.length >= 3, "the missing judicial-district maps are not reported at all");
+    // No judge name reaches the rendered band from an unplaceable trial court.
+    const w = sandbox({ reps: reps });
+    const band = w.PDXJudicialBallot._band();
+    Object.keys(w.PDX_JUDICIAL.JUDGES)
+      .filter((pid) => w.PDX_JUDICIAL.JUDGES[pid].district != null)
+      .forEach((pid) => {
+        lacks(band, w.PDX_JUDICIAL.JUDGES[pid].name,
+              `a trial-court judge was named on a ballot ${what} (${pid})`);
+      });
+  });
+
+// Where two official sources disagree about which court a seat sits on, the
+// ballot says so and resolves neither.
+{
+  const conflicted = Object.keys(W.PDX_JUDICIAL.JUDGES)
+    .filter((pid) => W.PDX_JUDICIAL.JUDGES[pid].slateConflict);
+  ok(conflicted.length > 0,
+     "no source conflict is on file, so the name-both-resolve-neither path cannot be tested");
+  conflicted.forEach((pid) => {
+    const j = J.judge(pid);
+    const b = J.ballot({ located: true, state: "Utah", county: J.district(j.district).counties[0] });
+    const row = b.rows.find((r) => r.pid === pid);
+    must(row, `the conflicted judge ${pid} is not on their own district's ballot — this probe is stale`);
+    has(row.conflict, "official", `the conflict on ${pid}'s row does not name the sources as official`);
+    ok(row.filedOffice.length > 0,
+       `${pid}'s row does not carry the office the state filed the question under`);
+    // The verbatim filed question, typo and all, is what renders.
+    eq(row.question, J.slateQuestion(pid).question,
+       `${pid}'s row paraphrases the filed retention question instead of printing it`);
   });
 }
 
@@ -308,7 +483,13 @@ section("3 · Utah gets the rows on file or an honest blank; nowhere else gets a
           `the Door 2 band names a Utah judge on an Ohio ballot (${pid})`);
   });
   lacks(band, "District Court", "an Ohio ballot was offered a Utah district court row");
-  lacks(band, "be retained?", "an Ohio ballot was asked a Utah retention question");
+  lacks(band, "be retained", "an Ohio ballot was asked a Utah retention question");
+  lacks(band, "Judicial District",
+        "an Ohio ballot was offered a Utah judicial district");
+  ["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth"].forEach((o) => {
+    lacks(band, o + " Judicial District",
+          `an Ohio ballot named the ${o} Judicial District of Utah`);
+  });
 }
 
 // No location: no claim of any kind.
@@ -335,7 +516,12 @@ section("3 · Utah gets the rows on file or an honest blank; nowhere else gets a
   w.PDXJudicialBallot.sync();
   eq(ws.children.filter((c) => c.id === "jr-band").length, 1,
      "a repaint mounted a second retention band");
-  has(band.innerHTML, "be retained?", "the mounted band does not carry the retention question");
+  has(band.innerHTML, "be retained", "the mounted band does not carry the retention question");
+  // The unit each row was resolved by, on the row. On a ballot that now runs
+  // five courts, "why is this judge on MY ballot" is answered by that label.
+  has(band.innerHTML, "Statewide", "the mounted band does not say which rows stand statewide");
+  has(band.innerHTML, "Judicial District",
+      "the mounted band does not name the judicial district its trial-court rows came from");
 }
 
 // seats() — the denominator door2-spine counts — is untouched.
@@ -353,11 +539,121 @@ section("3 · Utah gets the rows on file or an honest blank; nowhere else gets a
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 3b · The map is the statute's, it is complete, and there is only one of it
+// ─────────────────────────────────────────────────────────────────────────────
+section("3b · the county map is the statute's eight divisions, once");
+
+{
+  // Utah Code § 78A-1-102 divides the district and juvenile courts into eight
+  // geographical divisions covering all twenty-nine counties. Every county
+  // appears exactly once: a county in two divisions would put a voter on two
+  // ballots, and a missing county would read as "we do not map Utah" to
+  // somebody who lives there.
+  const counties = [];
+  DISTRICTS.forEach((d) => d.counties.forEach((c) => counties.push(c)));
+  eq(counties.length, 29, "the eight divisions do not cover twenty-nine counties");
+  eq(new Set(counties.map((c) => c.toLowerCase())).size, 29,
+     "a county appears in more than one judicial district");
+  eq(DISTRICTS.map((d) => d.n).join(","), "1,2,3,4,5,6,7,8",
+     "the judicial districts are not the statute's eight, numbered one through eight");
+  DISTRICTS.forEach((d) => {
+    ok(d.counties.length > 0, `the ${d.n}th judicial district has no counties`);
+    has(d.label, "Judicial District", `the ${d.n}th district's label does not name it as one`);
+    ok(!!d.juvenileLabel, `the ${d.n}th district carries no juvenile court label`);
+  });
+  // Every county resolves, from every spelling a resolver might hand over.
+  counties.forEach((c) => {
+    [c, c + " County", c.toLowerCase(), c.toUpperCase() + " COUNTY"].forEach((spelling) => {
+      const hit = J.districtForCounty(spelling);
+      ok(hit && hit.n === districtOfCounty(c),
+         `"${spelling}" does not resolve to the district the statute puts it in`);
+    });
+  });
+  // And a county that is not Utah's resolves to nothing rather than to district one.
+  ["", null, undefined, "Beaverhead County", "Cook County", "0", "County"].forEach((bad) => {
+    eq(J.districtForCounty(bad), null,
+       `"${bad}" was placed inside a Utah judicial district`);
+  });
+
+  // The map exists once. A second copy of the county list anywhere else is a
+  // second doctrine, and this is the file that would drift first.
+  ["Box Elder", "Sanpete", "Daggett"].forEach((county) => {
+    lacks(RET_SRC, "'" + county + "'",
+          `judicial-retention.js keeps its own copy of the county map (${county})`);
+    lacks(JB_SRC, county, `judicial-ballot.js resolves counties for itself (${county})`);
+    lacks(JF_SRC, county, `judge-file.js resolves counties for itself (${county})`);
+  });
+  has(DATA_SRC, "78A-1-102", "the county map does not cite the statute it came from");
+  has(DATA_SRC, "vote.utah.gov", "the 2026 slate does not cite the official list it came from");
+  has(DATA_SRC, "utcourts.gov", "the roster does not cite the official directory it came from");
+}
+
+// The roster and the slate are separate things, and seated is not standing.
+{
+  const JUD = W.PDX_JUDICIAL.JUDGES;
+  const S = W.PDX_JUDICIAL.SLATES["2026"];
+  let filed = 0;
+  Object.keys(S).forEach((courtKey) => {
+    const sl = S[courtKey];
+    ok(sl.certified === true, `the 2026 ${courtKey} slate is not marked certified`);
+    ok(/^https:\/\//.test(String(sl.source)), `the 2026 ${courtKey} slate carries no https source`);
+    eq(sl.pids.length, sl.questions.length,
+       `the 2026 ${courtKey} slate's pid list and question list are different lengths`);
+    sl.questions.forEach((q) => {
+      filed++;
+      const j = JUD[q.pid];
+      must(j, `the 2026 slate names ${q.pid}, who is not in the roster — this probe is stale`);
+      eq(j.court, courtKey,
+         `${q.pid} is filed under ${courtKey} but the roster puts them on another court`);
+      eq(j.retention, "2026-11-03", `${q.pid} is on the 2026 slate with no retention date`);
+      has(q.question, "be retained", `${q.pid}'s filed question is not a retention question`);
+      ok(!!q.status, `${q.pid}'s filing carries no status`);
+      // A judge the roster places on a trial court is filed for that judge's
+      // own district. The map is what decides who votes on the question, so a
+      // mismatch here would put the question in front of the wrong counties.
+      if (j.district != null) {
+        eq(q.district, j.district,
+           `${q.pid} is filed for the ${q.district}th district but sits in the ${j.district}th`);
+      }
+    });
+  });
+  ok(filed > 20, "the 2026 slate holds fewer questions than a Utah ballot carries");
+
+  // Seated is not standing. Most of the bench is not on this ballot, and the
+  // roster says so by leaving `retention` null rather than by omitting them.
+  const seated = Object.keys(JUD).filter((pid) => JUD[pid].seated !== false && !JUD[pid].former);
+  ok(seated.length > filed,
+     "every seated judge is on the 2026 ballot, which is not how a staggered retention cycle works");
+  Object.keys(JUD).forEach((pid) => {
+    const j = JUD[pid];
+    if (j.former || j.seated === false) {
+      eq(j.retention, null,
+         `${pid} has left the court or is unconfirmed and is still standing for retention`);
+    }
+    // A trial-court judge without a district cannot be placed on any ballot,
+    // and an appellate judge with one would imply a boundary that does not exist.
+    if (j.court === "district" || j.court === "juvenile") {
+      ok(j.district >= 1 && j.district <= 8, `${pid} sits on a trial court with no judicial district`);
+    } else {
+      eq(j.district || null, null, `${pid} stands statewide and carries a judicial district`);
+    }
+  });
+  // Departed justices stay off the band, wherever the reader is standing.
+  const gone = Object.keys(JUD).filter((pid) => JUD[pid].former);
+  ok(gone.length > 0, "no departed judge is on file, so the off-the-band path cannot be tested");
+  gone.forEach((pid) => {
+    [UTAH, BOXELDER, UTAH_NOCOUNTY].forEach((reps) => {
+      lacks(sandbox({ reps }).PDXJudicialBallot._band(), JUD[pid].name,
+            `a judge who left the court is on the retention band (${pid})`);
+    });
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // 4 · The judge file paints no figure
 // ─────────────────────────────────────────────────────────────────────────────
 section("4 · the judge file leads with the court, and carries no score of any kind");
 
-const PID = STANDING[0];
 const FILE_HTML = W.PDXJudgeFile._html(J.judge(PID));
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -478,7 +774,9 @@ eq(Object.keys(J.VOCAB).length, LOCKED.length,
 // declaration.
 const SURFACES = {
   "judge file": FILE_HTML,
-  "Door 2 band (Utah)": sandbox({ reps: UTAH }).PDXJudicialBallot._band(),
+  "Door 2 band (Davis County)": sandbox({ reps: UTAH }).PDXJudicialBallot._band(),
+  "Door 2 band (Box Elder County)": sandbox({ reps: BOXELDER }).PDXJudicialBallot._band(),
+  "Door 2 band (Utah, county unresolved)": sandbox({ reps: UTAH_NOCOUNTY }).PDXJudicialBallot._band(),
   "Door 2 band (Ohio)": sandbox({ reps: OHIO }).PDXJudicialBallot._band(),
   "archive listing": W.PDXJudicialBallot._arch(),
 };
@@ -510,6 +808,16 @@ J.BANNED.forEach((word) => {
   // Attached to the COURT, so a named campaign is never pinned to a guessed name.
   lacks(DATA_SRC, "PUBLIC = {\n    jill_pohlman",
         "the public lane has been attached to a judge rather than to the court");
+  // And it stays on the court it was reported about. The campaign note is
+  // Supreme Court reporting; a district judge's file must not inherit it, which
+  // is what "invented onto a judge" would look like in rendered output.
+  const claim = rows[0].what.slice(0, 60);
+  Object.keys(W.PDX_JUDICIAL.JUDGES)
+    .filter((pid) => W.PDX_JUDICIAL.JUDGES[pid].court !== "supreme")
+    .forEach((pid) => {
+      lacks(W.PDXJudgeFile._html(J.judge(pid)), claim,
+            `a Supreme Court campaign note was printed on a ${W.PDX_JUDICIAL.JUDGES[pid].court} judge's file (${pid})`);
+    });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -605,7 +913,14 @@ eq(J.collisions().length, 0, "the shipped roster already has a name collision in
   const Jt = w.PDXJudicial;
   eq(Jt.collisions().length, 1, "a duplicated name on one court was not detected as a collision");
   const b = Jt.ballot(UTAH);
-  eq(b.rows.length, 0, "a name the roster cannot tell apart was still printed as a ballot question");
+  // The twin and the judge it duplicates are BOTH dropped — neither can be
+  // named honestly — while every row the roster can still tell apart survives.
+  // Asserting an empty ballot would pass for the wrong reason on a ballot that
+  // now carries a dozen rows.
+  eq(b.rows.filter((r) => r.pid === PID || r.pid === "twin_probe").length, 0,
+     "a name the roster cannot tell apart was still printed as a ballot question");
+  ok(b.rows.length > 0,
+     "the collision took the whole ballot down with it instead of dropping the two rows it affects");
   ok(b.missing.some((m) => m.indexOf("share this name") > -1),
      "the dropped collision was swallowed rather than reported");
   has(w.PDXJudgeFile._html(Jt.judge(PID)), "share this name",
@@ -675,13 +990,26 @@ has(INDEX, '<noscript><link rel="stylesheet" href="/judicial-retention.css" /></
 {
   const m = /const CACHE_VERSION = '(v\d+)'/.exec(SW);
   must(m, "sw.js no longer declares a cache version — this probe is stale");
-  eq(m[1], "v127", "the cache version was not bumped for this pass");
-  const note = SW.slice(SW.indexOf("// v127"), SW.indexOf("\n//\n// v126"));
-  must(note.length > 400, "the v127 note could not be sliced — this probe is stale");
+  eq(m[1], "v128", "the cache version was not bumped for this pass");
+  const note = SW.slice(SW.indexOf("// v128"), SW.indexOf("\n// v127 - A BALLOT"));
+  must(note.length > 400, "the v128 note could not be sliced — this probe is stale");
+  // Every file this pass changed, named in the note. voter-hub-location.js is
+  // the one that is NOT precached, and the note has to say so — a runtime asset
+  // whose stale copy the rename drops is a different mechanism from a shell
+  // asset the rename replaces, and a reader upgrading a warm device needs the
+  // difference.
   ["judicial-data.js", "judicial-retention.js", "judge-file.js", "judicial-ballot.js",
-   "judicial-retention.css", "person-file.js", "index.html"].forEach((f) => {
-    has(note, f, `the v127 note does not name ${f}, which this pass changed and the shell precaches`);
+   "judicial-retention.css", "voter-hub-location.js"].forEach((f) => {
+    has(note, f, `the v128 note does not name ${f}, which this pass changed`);
   });
+  has(note, "78A-1-102", "the v128 note does not cite the statute the new map came from");
+  has(note, "RUNTIME entry",
+      "the v128 note does not say that the changed location owner is a runtime asset rather than a precached one");
+  has(note, "seats()", "the v128 note no longer says the band stays out of the seat denominator");
+  // And the v127 note is still below it, unedited. Notes are newest-first and a
+  // note is a record of what shipped, not a document to be revised.
+  ok(SW.indexOf("// v128") < SW.indexOf("// v127 - A BALLOT THAT NAMED SIX SEATS"),
+     "the v128 note was filed below the v127 note it follows");
   FILES.forEach((f) => {
     has(SW, `'/${f}'`, `${f} is not precached, so a shared /p/<judge> link would open a file with no renderer`);
   });
@@ -728,8 +1056,11 @@ function mutant(file, from, to) {
     `  SLATES[2026].supreme.pids.push('${DATELESS}');
   window.PDX_JUDICIAL = {`);
   const shipped = sandbox({ reps: UTAH, src: { "judicial-data.js": data } });
-  eq(shipped.PDXJudicial.ballot(UTAH).rows.map((r) => r.pid).join(","), PID,
+  const shippedRows = shipped.PDXJudicial.ballot(UTAH).rows.map((r) => r.pid);
+  eq(shippedRows.indexOf(DATELESS), -1,
      "a judge whose next retention date is not on file was printed as a question on the ballot");
+  ok(shippedRows.indexOf(PID) > -1,
+     "the date gate took a dated judge off the ballot along with the dateless one");
   const broken = sandbox({
     reps: UTAH,
     src: {
@@ -756,6 +1087,81 @@ function mutant(file, from, to) {
   const w = sandbox({ reps: UTAH, src: { "judicial-data.js": src, "judicial-retention.js": broken } });
   ok(w.PDXJudicial.ballot(UTAH).rows.length > 0,
      "CAUGHT NOTHING: removing the collision drop still produced no rows, so fail-closed is not what suppresses a duplicated name");
+}
+
+// The district filter. Break it and a Davis County voter is handed the judges
+// of all eight divisions — the single most plausible way this pass could ship a
+// wrong answer that still looks like an answer.
+{
+  const w = mutant("judicial-retention.js",
+                   "var tr = rowsFor(c, function (j) { return j.district === dd.n; });",
+                   "var tr = rowsFor(c, function (j) { return !!j.district; });");
+  const rows = w.PDXJudicial.ballot(UTAH).rows;
+  ok(rows.some((r) => r.district != null && r.district !== 2),
+     "CAUGHT NOTHING: removing the district filter did not put another division's judge on a Davis County ballot, so the filter is not what keeps them off it");
+}
+
+// The fail-closed branch for a county the map cannot place. Break it and an
+// unplaceable county falls through to whatever the next branch does.
+{
+  const w = mutant("judicial-retention.js", "if (!dd) {", "if (false) {");
+  // A throw counts as caught: with the branch gone the code walks straight into
+  // the district it could not resolve. What must NOT happen is a clean answer
+  // that quietly stops reporting the missing map.
+  let threw = false;
+  let b = null;
+  try { b = w.PDXJudicial.ballot(UTAH_OFFMAP); } catch (e) { threw = true; }
+  ok(threw || b.courts.filter((c) => c.status === "unmapped")
+       .map((c) => c.key).indexOf("district") === -1,
+     "CAUGHT NOTHING: removing the unplaceable-county branch still reported the district map as missing, so the branch is not what reports it");
+}
+
+// The county the location owner publishes. voter-hub-location.js needs far more
+// DOM than this harness builds, so it is NOT loaded in the sandbox and this is
+// not a mutation probe — it is two assertions with no pretence otherwise:
+// the field still exists in the owner and is still match-and-Utah gated, and
+// the shape it hands over without a county fails closed here.
+{
+  const VHL = R("voter-hub-location.js");
+  const from = "county: (matched && krd && krd.county) ? String(krd.county) : '',";
+  ok(VHL.includes(from),
+     "the location owner no longer publishes the county the retention band reads, or publishes it ungated by `matched`");
+  // The county comes off the curated area the resolver already matched. A
+  // second reader of the raw location would be a second answer to where the
+  // voter lives, which is the thing one-owner exists to prevent.
+  lacks(RET_SRC, "_currentVoterLocation",
+        "judicial-retention.js reads the voter's location itself");
+  lacks(RET_SRC, "keyRacesRelevantData",
+        "judicial-retention.js resolves the county itself instead of reading the resolver's answer");
+
+  const noCounty = {};
+  Object.keys(UTAH).forEach((k) => { if (k !== "county") noCounty[k] = UTAH[k]; });
+  const b = J.ballot(noCounty);
+  eq(b.rows.filter((r) => r.district != null).length, 0,
+     "a resolver answer with no county in it still produced trial-court rows, so something other than the published county is placing this voter");
+  eq(b.district, null, "a voter with no published county was placed in a judicial district anyway");
+}
+
+// The filed-elsewhere note. Two official sources disagree about which court
+// holds one seat; remove the note and the court the question was FILED under
+// goes quiet about it, which is the page resolving the conflict silently.
+{
+  const conflicted = Object.keys(W.PDX_JUDICIAL.JUDGES)
+    .find((pid) => W.PDX_JUDICIAL.JUDGES[pid].slateConflict);
+  must(conflicted, "no source conflict is on file — this probe is stale");
+  const county = J.district(J.judge(conflicted).district).counties[0];
+  const reps = { located: true, state: "Utah", county: county, levels: [] };
+  const filedKey = J.slateQuestion(conflicted).filedCourt;
+  const shippedNote = J.ballot(reps).courts.find((c) => c.key === filedKey).note;
+  has(shippedNote, "resolves neither",
+      "the court the question was filed under does not say the conflict is unresolved");
+  const w = mutant("judicial-retention.js",
+                   "var elsewhere = tr.rows.length ? [] : filedFor(c.key, dd.n, ELECTION.year)\n" +
+                   "          .filter(function (q) { return q.rosterCourt !== c.key; });",
+                   "var elsewhere = [];");
+  const note = w.PDXJudicial.ballot(reps).courts.find((c) => c.key === filedKey).note;
+  ok(note.indexOf("resolves neither") === -1,
+     "CAUGHT NOTHING: removing the filed-elsewhere lookup left the conflict reported anyway, so the lookup is not what reports it");
 }
 
 // The judge intercept in openModal.

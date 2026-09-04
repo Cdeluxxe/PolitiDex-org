@@ -880,6 +880,89 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v128 - ONE JUDGE NAMED, AND FOUR COURTS TOLD TO CHECK ELSEWHERE. v127 added
+// judicial retention as an office class and shipped it half-blind: it could name
+// one Supreme Court question and then tell a Davis County voter that the Court of
+// Appeals had no certified list and that district, juvenile and justice courts had
+// no map at all. Honest, and unfinished - a real Utah ballot carries a statewide
+// Court of Appeals question and trial-court judges drawn by county, so "your
+// actual ballot" was still missing most of the third branch. Two official sources
+// the last pass could not reach are now reachable, and this is what they say.
+//   · judicial-data.js         the whole roster, generated from official sources
+//                              rather than typed: 124 judges from the state courts
+//                              directory's own biography pages (6 Supreme Court, 7
+//                              Court of Appeals, 78 district, 33 juvenile; court
+//                              commissioners deliberately absent, because a
+//                              commissioner is not a judge and does not stand for
+//                              retention), plus the two rows no reachable source
+//                              lists, both flagged and neither on a ballot. New
+//                              DISTRICTS: the eight geographical divisions of Utah
+//                              Code 78A-1-102, all 29 counties, each once - one map
+//                              for the district AND juvenile courts, because that
+//                              is how the statute writes it. SLATES[2026] is now
+//                              certified: 32 retention questions read verbatim off
+//                              the Lieutenant Governor's 2026 candidate filings
+//                              (asOf 8/31/2026), each with the office it was filed
+//                              under and its filing status. The uncertified caveat
+//                              is retired for the courts that list names. Still no
+//                              score, no party, no ruling, no holding, no PAC
+//                              money, and every jpec is null because the
+//                              commission's own site answers 401 on every report
+//                              path - "no report on file" is the true answer, not a
+//                              placeholder for an invented one.
+//   · judicial-retention.js    owns the reading of that map and nothing else owns a
+//                              copy: countyIndex() is built from DISTRICTS on first
+//                              use, districtForCounty() returns null for anything
+//                              the statute does not list, and ballot() now resolves
+//                              the voter's district from the county the location
+//                              owner publishes. A Utah voter gets the two statewide
+//                              courts plus the trial-court judges of THEIR OWN
+//                              division and no other. A county the map cannot place
+//                              gets the missing-map sentence naming the county; the
+//                              justice courts get a missing-ROSTER sentence naming
+//                              the county, because that is the different thing that
+//                              is missing there. slateQuestion() hands a surface the
+//                              state's own wording; filedFor() lets a court with no
+//                              rows say that a question WAS filed under it and that
+//                              the courts directory places that judge elsewhere.
+//                              Both fail-closed drops from v127 are unchanged: an
+//                              ambiguous name is dropped and reported, and a judge
+//                              with no retention date is not on any ballot.
+//   · judicial-ballot.js       each row now says which unit put it there -
+//                              "Statewide" or the named judicial district - and the
+//                              band names the county and district the trial rows
+//                              were resolved from, above them. A source conflict
+//                              prints on the row it affects.
+//   · judge-file.js            prints the retention question as the state filed it
+//                              rather than a composed paraphrase, links the official
+//                              biography every identity fact was read off, and
+//                              carries the source-conflict and source-typo notes.
+//   · judicial-retention.css   four new classes for those labels. Nothing restyled.
+//   · voter-hub-location.js    pdxRepsForMe() publishes `county` off the curated
+//                              area it already resolved, gated on matched && Utah.
+//                              THE HANDSHAKE, and the whole reason for this bump:
+//                              the band reads the county from the location owner and
+//                              resolves nothing itself, so a device holding one half
+//                              of this pair from the old version gets no county and
+//                              every trial court reports its map as missing. Wrong
+//                              in the safe direction, and still wrong.
+//                              NOT on the precache list: it is a RUNTIME entry, and
+//                              the runtime cache name carries CACHE_VERSION, so this
+//                              bump is what drops the stale copy. Without it a warm
+//                              device would serve the old resolver - which publishes
+//                              no county at all - against the new band, and every
+//                              trial court would report its map as missing on a
+//                              ballot the map can actually place.
+// The four judicial files and the stylesheet ARE precached ('/judicial-data.js',
+// '/judicial-retention.js', '/judge-file.js', '/judicial-ballot.js',
+// '/judicial-retention.css'), so the rename is what replaces them together rather
+// than one at a time.
+// The band is still a SIBLING of #bw-body, still absent from seats(), and still
+// not in "N of 6 decided": a yes/no on one name is not a field of candidates and
+// has no pick to save. No floor, no mapping, no weight, no Direction Match input,
+// no Mandate term and no formal tier moved. The legislative read is byte-identical
+// with these files loaded and without them.
+//
 // v127 - A BALLOT THAT NAMED SIX SEATS AND SKIPPED A BRANCH. A Utah ballot in an
 // even year carries yes/no judicial retention - "Shall Justice X be retained?",
 // unopposed, no party on the line - and November 3, 2026 is live. Door 2
@@ -1879,7 +1962,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v127';
+const CACHE_VERSION = 'v128';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

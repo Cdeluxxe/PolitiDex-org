@@ -82,6 +82,15 @@
       '<p class="jf-eyebrow">' + eyebrow + '</p>' +
       '<h1 class="jf-name">' + esc(j.name) + '</h1>' +
       (sub.length ? '<p class="jf-sub">' + sub.join(' · ') + '</p>' : '') +
+      // The state courts directory's own page for this judge. Every identity
+      // fact above was read off it, so the reader gets the source rather than
+      // our word for it.
+      (j.bio
+        ? '<p class="jf-src">Official biography: <a class="jf-a" href="' + esc(j.bio) +
+          '" target="_blank" rel="noopener">' +
+          esc(String(j.bio).replace(/^https?:\/\//, '').split('/')[0]) + '</a></p>'
+        : '') +
+      (j.sourceNote ? '<p class="jf-note">' + esc(j.sourceNote) + '</p>' : '') +
       '<p class="jf-wall">' + esc(Jj.WALL) + '</p>' +
       '</header>';
   }
@@ -91,11 +100,25 @@
     var rt = Jj.retention(j.pid);
     var body;
     if (rt.stands) {
+      // The question as the state filed it, where the official list carries the
+      // wording. A retention question is a sentence on a filing, not a sentence
+      // this file writes, and printing our own version next to a citation to
+      // theirs would be a paraphrase presented as a ballot.
+      var q = fn(Jj.slateQuestion) ? Jj.slateQuestion(j.pid) : null;
+      var qt = (q && q.question) ? q.question : ('Shall ' + j.title + ' ' + j.name + ' be retained?');
       body = '<p class="jf-stat"><b class="jf-locked">' + esc(rt.label) + '</b> · ' +
         esc(rt.when) + '</p>' +
-        '<p class="jf-q">' + esc('Shall ' + j.title + ' ' + j.name + ' be retained?') + '</p>' +
+        '<p class="jf-q">' + esc(qt) + '</p>' +
+        (q && q.filedOffice
+          ? '<p class="jf-src">Filed as: ' + esc(q.filedOffice) + '</p>'
+          : '') +
         '<p class="jf-note">A retention question is unopposed and carries no party. ' +
         'The ballot asks yes or no.</p>';
+      // Two official sources disagreeing about which court holds the seat is
+      // stated here, on the seat, and left unresolved.
+      if (j.slateConflict) {
+        body += '<p class="jf-conflict">' + esc(j.slateConflict) + '</p>';
+      }
     } else {
       body = '<p class="jf-empty">' + esc(rt.why) + '</p>';
     }

@@ -107,6 +107,50 @@
   flex: 0 0 100%;
 }
 
+/* The unit a seat is retained by, riding the court label: "Statewide" on an
+   appellate row, the named judicial district on a trial row. Dimmer and
+   un-condensed against the court name so the two read as label and qualifier
+   rather than as two labels. */
+.jr-unit {
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #6d7f9c;
+  margin-left: 0.45rem;
+}
+.jr-unit::before {
+  content: '·';
+  margin-right: 0.45rem;
+  color: #4d5c74;
+}
+
+/* Which county the trial-court rows were resolved from, above them. */
+.jr-where {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8fa2c0;
+  margin: 0.15rem 0 0.5rem;
+}
+
+/* A disagreement between two official sources, printed on the row it affects.
+   Bordered like the warn line because it is one: it tells the reader the page
+   declined to resolve something on their behalf. */
+.jr-conflict {
+  flex: 1 1 100%;
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: #9fb0cb;
+  margin-top: 0.3rem;
+  padding: 0.35rem 0.5rem;
+  border-left: 2px solid rgba(148, 163, 184, 0.3);
+  background: rgba(148, 163, 184, 0.06);
+  border-radius: 0 0.35rem 0.35rem 0;
+}
+
 .jr-q {
   font-family: 'Oswald', 'Barlow Condensed', sans-serif;
   font-size: 0.95rem;
@@ -357,6 +401,20 @@
 }
 
 .jf-what { flex: 1 1 12rem; }
+
+/* Two official sources disagreeing, on the seat it affects. Same treatment as
+   the band's conflict line, because it is the same statement. */
+.jf-conflict {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: #9fb0cb;
+  margin: 0.5rem 0 0;
+  padding: 0.4rem 0.55rem;
+  border-left: 2px solid rgba(148, 163, 184, 0.3);
+  background: rgba(148, 163, 184, 0.06);
+  border-radius: 0 0.35rem 0.35rem 0;
+}
 
 .jf-plink { color: #cfe0fb; text-decoration: none; border-bottom: 1px solid rgba(207, 224, 251, 0.28); }
 .jf-plink:hover { color: #fff; border-bottom-color: rgba(255, 255, 255, 0.6); }

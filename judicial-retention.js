@@ -97,6 +97,67 @@
   }
 
   // ── Judges ─────────────────────────────────────────────────────────────
+  // ── The eight geographical divisions ───────────────────────────────────
+  // Utah Code § 78A-1-102 divides the district AND juvenile courts into the
+  // same eight geographical divisions, so one map answers both courts. This
+  // module owns the reading of that map and nothing else owns a copy of it:
+  // `countyIndex()` is built from judicial-data.js's DISTRICTS array on first
+  // use, which is the only place the county-to-number mapping exists.
+  function districts() {
+    var d = D();
+    var rows = (d && d.DISTRICTS) ? d.DISTRICTS : [];
+    return rows.map(function (r) {
+      var out = {};
+      Object.keys(r).forEach(function (k) { out[k] = r[k]; });
+      out.counties = (r.counties || []).slice();
+      return out;
+    });
+  }
+  function district(n) {
+    var num = parseInt(n, 10);
+    if (!num) return null;
+    var hit = null;
+    districts().forEach(function (r) { if (r.n === num) hit = r; });
+    return hit;
+  }
+
+  // A county name arrives from the location resolver as a label a human typed
+  // or a curated area carries — "Davis County", "davis", "Box Elder County".
+  // Normalising away case, punctuation and the word "county" is what makes all
+  // three the same key, and it is done here so no caller has to guess the
+  // spelling the map was written in.
+  function countyKey(name) {
+    return String(name || '').toLowerCase().replace(/county/g, '').replace(/[^a-z]+/g, '');
+  }
+  var _cty = null;
+  function countyIndex() {
+    if (_cty) return _cty;
+    var idx = {};
+    districts().forEach(function (r) {
+      (r.counties || []).forEach(function (c) {
+        var k = countyKey(c);
+        if (k) idx[k] = r.n;
+      });
+    });
+    _cty = idx;
+    return idx;
+  }
+  // Fail closed: an unrecognised county returns null, and every caller treats
+  // null as "PolitiDex cannot place this voter" rather than as district one.
+  function districtForCounty(name) {
+    var k = countyKey(name);
+    if (!k) return null;
+    var n = countyIndex()[k];
+    return n ? district(n) : null;
+  }
+  // The counties whose voters answer one trial-court judge's question. Read
+  // off the same map, so a row can name its own electorate without a surface
+  // assembling the list.
+  function countiesOf(n) {
+    var r = district(n);
+    return r ? r.counties.slice() : [];
+  }
+
   // `all()` is alphabetical by the name a reader sees, because the archive
   // listing is alphabetical and sorting it in two places is how two orders
   // appear on one page.
@@ -177,6 +238,17 @@
     out.former = !!j.former;
     out.ambiguous = ambiguous(pid);
     out.title = /justice/i.test(String(j.role || '')) ? 'Justice' : 'Judge';
+    // The unit a reader needs to see next to the name: "Statewide" for an
+    // appellate seat, the named judicial district for a trial one. Derived
+    // here so a row, a card and a person file cannot disagree about it.
+    var dr = j.district ? district(j.district) : null;
+    out.district = j.district || null;
+    out.districtLabel = dr ? dr.label : '';
+    out.counties = dr ? dr.counties.slice() : [];
+    out.unitLabel = c.scope === 'statewide' ? 'Statewide' : (dr ? dr.label : (j.area || ''));
+    out.courtSeat = c.scope === 'statewide'
+      ? c.label
+      : (dr ? (j.court === 'juvenile' ? dr.juvenileLabel : dr.districtLabel) : c.label);
     return out;
   }
   function isJudge(pid) { return !!raw(pid); }
@@ -196,6 +268,53 @@
     var byYear = (d && d.SLATES && d.SLATES[y]) ? d.SLATES[y] : null;
     if (!byYear) return null;
     return byYear[String(courtKey || '')] || null;
+  }
+
+  // The question as the STATE filed it. A retention question is not a sentence
+  // PolitiDex composes — it is a sentence on a filing, typos and all — so
+  // where the official list carries the wording, that wording is what renders.
+  // The composed fallback exists only for a row the list does not name, which
+  // by construction never reaches a ballot.
+  function slateQuestion(pid, year) {
+    var j = raw(pid);
+    if (!j) return null;
+    var sl = slate(j.court, year);
+    var hit = null;
+    ((sl && sl.questions) ? sl.questions : []).forEach(function (q) {
+      if (q && String(q.pid) === String(pid)) hit = q;
+    });
+    return hit;
+  }
+
+  // Questions the state FILED for a court and district, wherever this roster
+  // ended up placing the judge. This is how an empty court can still tell the
+  // truth: if a 2026 question was filed as a District Court question and the
+  // courts directory puts that judge on the juvenile bench, the District Court
+  // line has to say so rather than report nothing on file. Scans every court's
+  // slate, because the filed label and the roster label are exactly what
+  // disagree here.
+  function filedFor(courtKey, districtN, year) {
+    var d = D();
+    var y = String(year || ELECTION.year);
+    var byYear = (d && d.SLATES && d.SLATES[y]) ? d.SLATES[y] : null;
+    var out = [];
+    if (!byYear) return out;
+    Object.keys(byYear).forEach(function (k) {
+      ((byYear[k] && byYear[k].questions) ? byYear[k].questions : []).forEach(function (q) {
+        if (!q || String(q.filedCourt || '') !== String(courtKey || '')) return;
+        if (districtN != null && q.district !== districtN) return;
+        var j = judge(q.pid);
+        out.push({
+          pid: q.pid,
+          rosterCourt: k,
+          rosterLabel: j ? j.courtLabel : '',
+          district: q.district,
+          filedOffice: q.filedOffice || '',
+          question: q.question || ''
+        });
+      });
+    });
+    return out;
   }
 
   // ── The JPEC card ──────────────────────────────────────────────────────
@@ -319,6 +438,9 @@
       located: !!r.located,
       state: r.state || '',
       utah: false,
+      county: '',
+      district: null,
+      districtLabel: '',
       election: ELECTION,
       rows: [],
       courts: [],
@@ -337,61 +459,139 @@
     }
     out.utah = true;
 
+    // The county is published by the location owner, which is the module that
+    // resolved it. This function reads it and maps it; it does not go looking
+    // for a location of its own, because a second reader of the voter's
+    // location is a second answer to where the voter lives.
+    var cty = String(r.county || '').trim();
+    var dd = districtForCounty(cty);
+    out.county = cty;
+    out.district = dd ? dd.n : null;
+    out.districtLabel = dd ? dd.label : '';
+
     var dropped = [];
-    courts().forEach(function (c) {
-      if (c.scope === 'statewide') {
-        var sl = slate(c.key, ELECTION.year);
-        var rows = [];
-        (sl && sl.pids ? sl.pids : []).forEach(function (pid) {
-          var j = judge(pid);
-          if (!j) return;
-          // Fail closed. An ambiguous name is dropped from the ballot and
-          // named in `missing`, never printed as a question.
-          if (j.ambiguous) { dropped.push(j.courtLabel + ' — two records share this name'); return; }
-          var rt = retention(pid);
-          if (!rt.stands) return;
-          rows.push({
-            courtKey: c.key,
-            courtLabel: c.label,
-            courtShort: c.short,
-            pid: j.pid,
-            name: j.name,
-            title: j.title,
-            role: j.role || '',
-            question: 'Shall ' + j.title + ' ' + j.name + ' be retained?',
-            date: rt.date,
-            when: rt.when,
-            certified: !!(sl && sl.certified),
-            jpec: jpec(pid)
-          });
-        });
-        rows.forEach(function (row) { out.rows.push(row); });
-        out.courts.push({
-          key: c.key, label: c.label, short: c.short, scope: c.scope,
-          status: rows.length ? 'rows' : 'empty',
-          count: rows.length,
+
+    // One row builder for every court. A statewide seat and a trial seat
+    // differ only in which judges qualify, so the row shape — and every
+    // fail-closed check on the way to it — is written once.
+    function rowsFor(c, qualifies) {
+      var sl = slate(c.key, ELECTION.year);
+      var rows = [];
+      ((sl && sl.pids) ? sl.pids : []).forEach(function (pid) {
+        var j = judge(pid);
+        if (!j) return;
+        if (!qualifies(j)) return;
+        // Fail closed. An ambiguous name is dropped from the ballot and
+        // named in `missing`, never printed as a question.
+        if (j.ambiguous) { dropped.push(j.courtLabel + ' — two records share this name'); return; }
+        var rt = retention(pid);
+        if (!rt.stands) return;
+        var q = slateQuestion(pid, ELECTION.year);
+        rows.push({
+          courtKey: c.key,
+          courtLabel: c.label,
+          courtShort: c.short,
+          pid: j.pid,
+          name: j.name,
+          title: j.title,
+          role: j.role || '',
+          district: j.district || null,
+          unitLabel: j.unitLabel || '',
+          counties: (j.counties || []).slice(),
+          question: q && q.question ? q.question : ('Shall ' + j.title + ' ' + j.name + ' be retained?'),
+          filedOffice: q ? (q.filedOffice || '') : '',
+          filedStatus: q ? (q.status || '') : '',
+          conflict: j.slateConflict || '',
+          date: rt.date,
+          when: rt.when,
           certified: !!(sl && sl.certified),
-          note: rows.length
-            ? (sl && sl.note ? sl.note : '')
-            : ((sl && sl.note) ? sl.note : 'No ' + c.short + ' retention question on file for ' + ELECTION.year + '.')
+          jpec: jpec(pid)
         });
-      } else {
-        // The unmapped branch. It names the geography it would need, which is
-        // the same shape of answer the House district rows give outside Utah.
-        out.courts.push({
-          key: c.key, label: c.label, short: c.short, scope: c.scope,
-          status: 'unmapped', count: 0, certified: false,
-          note: c.short + ' retention is decided by the voters of each ' + c.unit +
-            '. PolitiDex does not map ' + (c.units || c.unit) + ' yet, so no ' + c.short +
-            ' question is claimed for your ballot.'
-        });
-        out.missing.push(c.label + ' — no ' + c.unit + ' map on file');
+      });
+      rows.sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
+      return { rows: rows, slate: sl };
+    }
+    function pushCourt(c, rows, sl, status, note) {
+      out.courts.push({
+        key: c.key, label: c.label, short: c.short, scope: c.scope,
+        unit: c.unit || '', units: c.units || c.unit || '',
+        district: (c.scope === 'district' && dd) ? dd.n : null,
+        unitLabel: c.scope === 'statewide' ? 'Statewide' : (dd ? dd.label : ''),
+        status: status, count: rows.length,
+        certified: !!(sl && sl.certified),
+        note: note
+      });
+    }
+
+    courts().forEach(function (c) {
+      // ── Statewide: if they stand statewide they are on every Utah ballot ──
+      if (c.scope === 'statewide') {
+        var st = rowsFor(c, function () { return true; });
+        st.rows.forEach(function (row) { out.rows.push(row); });
+        pushCourt(c, st.rows, st.slate, st.rows.length ? 'rows' : 'empty',
+          st.rows.length
+            ? ((st.slate && st.slate.note) ? st.slate.note : '')
+            : ((st.slate && st.slate.note) ? st.slate.note
+              : 'No ' + c.short + ' retention question on file for ' + ELECTION.year + '.'));
+        return;
       }
+
+      // ── Trial courts of record: mapped by county, and only by county ──────
+      if (c.scope === 'district' && c.map) {
+        if (!dd) {
+          // The fail-closed branch, unchanged in shape from the pass that had
+          // no map at all: it names the geography it would need and claims
+          // nothing. Which sentence depends on whether the county is unknown
+          // or known-and-unplaceable, because those are different failures and
+          // a reader can act on the difference.
+          pushCourt(c, [], null, 'unmapped',
+            c.short + ' retention is decided by the voters of each ' + c.unit + '. ' +
+            (cty
+              ? ('PolitiDex holds no ' + c.unit + ' map for ' + cty + ', so no ' + c.short +
+                 ' question is claimed for your ballot.')
+              : ('PolitiDex could not resolve your county, so no ' + c.short +
+                 ' question is claimed for your ballot.')));
+          out.missing.push(c.label + ' — no ' + c.unit + ' map on file for ' +
+            (cty || 'your location'));
+          return;
+        }
+        var tr = rowsFor(c, function (j) { return j.district === dd.n; });
+        tr.rows.forEach(function (row) { out.rows.push(row); });
+        var elsewhere = tr.rows.length ? [] : filedFor(c.key, dd.n, ELECTION.year)
+          .filter(function (q) { return q.rosterCourt !== c.key; });
+        pushCourt(c, tr.rows, tr.slate, tr.rows.length ? 'rows' : 'empty',
+          tr.rows.length
+            ? ''
+            : (elsewhere.length
+              ? (elsewhere.length + ' ' + ELECTION.year + ' question' +
+                 (elsewhere.length === 1 ? ' was' : 's were') + ' filed as a ' + c.short +
+                 ' question for the ' + dd.label + '. The state courts directory lists ' +
+                 (elsewhere.length === 1 ? 'that judge' : 'those judges') + ' on the ' +
+                 elsewhere[0].rosterLabel + ', where the question appears above. PolitiDex ' +
+                 'names both official sources and resolves neither.')
+              : 'No ' + c.short + ' retention question on file for the ' + dd.label +
+                ' in ' + ELECTION.year + '.'));
+        return;
+      }
+
+      // ── Everything still unmapped: the justice courts ─────────────────────
+      // A justice court seat is municipal or county, and no public roster
+      // naming those seats is on file. Now that the county is known the
+      // sentence can at least name it, which turns a generic gap into a
+      // specific one a reader can go and check.
+      pushCourt(c, [], null, 'unmapped',
+        c.short + ' retention is decided by the voters of each ' + c.unit + '. ' +
+        'PolitiDex holds no ' + c.short + ' roster for ' + (cty || 'your location') +
+        ', so no ' + c.short + ' question is claimed for your ballot.');
+      out.missing.push(c.label + ' — no roster on file for ' + (cty || 'your location'));
     });
     dropped.forEach(function (m) { out.missing.push(m); });
 
+    // Certification is a property of every list a row came from. One
+    // uncertified court that produced rows makes the whole answer uncertified,
+    // because a reader cannot tell which row came from which list.
     var anyUncertified = false;
-    out.courts.forEach(function (c) { if (c.scope === 'statewide' && !c.certified) anyUncertified = true; });
+    out.courts.forEach(function (c) { if (c.status === 'rows' && !c.certified) anyUncertified = true; });
     out.certified = !anyUncertified;
     out.note = out.certified
       ? ''
@@ -412,10 +612,22 @@
         var jj = judge(j.pid);
         return {
           pid: jj.pid, name: jj.name, role: jj.role || '',
-          area: jj.area || '', former: jj.former, seated: jj.seated,
+          area: jj.area || '', district: jj.district || null,
+          unitLabel: jj.unitLabel || '',
+          former: jj.former, seated: jj.seated,
           ambiguous: jj.ambiguous
         };
       });
+      // Alphabetical inside a statewide court, district-then-alphabetical
+      // inside a trial court — because "District Court" is seventy-odd rows
+      // and a reader looking for their own district should not have to scan
+      // all of them.
+      if (c.scope === 'district') {
+        rows.sort(function (a, b) {
+          return (a.district || 0) - (b.district || 0) ||
+            String(a.name).localeCompare(String(b.name));
+        });
+      }
       return {
         key: c.key,
         label: st + ' · ' + c.short,
@@ -461,6 +673,12 @@
     judge: judge,
     isJudge: isJudge,
     slate: slate,
+    slateQuestion: slateQuestion,
+    filedFor: filedFor,
+    districts: districts,
+    district: district,
+    districtForCounty: districtForCounty,
+    countiesOf: countiesOf,
     jpec: jpec,
     retention: retention,
     history: history,

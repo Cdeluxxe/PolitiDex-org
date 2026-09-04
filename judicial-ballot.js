@@ -24,12 +24,16 @@
    is no pick to save.
 
    ── WHAT IT REFUSES TO DO ────────────────────────────────────────────────
-   Outside Utah it prints no judge. Statewide retention resolves from a STATE,
-   which is a claim the resolver's own output supports; district, juvenile and
-   justice-court retention resolves from geography PolitiDex does not hold, so
-   those courts report WHICH MAP IS MISSING rather than offering the nearest
-   judge on file. That is the same honesty the U.S. House row already practices
-   for a voter in Ohio, applied to a Utah voter in a county we cannot place.
+   Outside Utah it prints no judge. Statewide retention — Supreme Court and
+   Court of Appeals — resolves from a STATE, which is a claim the resolver's own
+   output supports. District and juvenile retention resolves from the county the
+   location owner publishes, through the eight geographical divisions of Utah
+   Code § 78A-1-102, and prints the judges of THAT division and no other: a
+   Davis County voter does not see a Box Elder judge. A county the resolver
+   cannot place, and the justice courts, report WHICH MAP OR ROSTER IS MISSING
+   rather than offering the nearest judge on file. That is the same honesty the
+   U.S. House row already practices for a voter in Ohio, applied to a Utah voter
+   in a county we cannot place.
 
    ── DOOR 1: the archive listing ──────────────────────────────────────────
    Chamber-and-state shaped, exactly like archive-browse.js: "Utah · Supreme
@@ -82,16 +86,26 @@
 
   // ── Door 2 markup ───────────────────────────────────────────────────────
 
+  // The unit label is load-bearing on a ballot that now carries five courts:
+  // two statewide and, for a placed voter, the trial-court seats of exactly one
+  // judicial district. "Statewide" and "Second Judicial District" next to the
+  // court name is what tells a reader why THIS judge is on THEIR ballot, and it
+  // is read from the row rather than recomputed here.
   function rowHtml(row) {
     var jp = row.jpec || {};
     return '<li class="jr-row">' +
-      '<span class="jr-office">' + esc(row.courtShort) + '</span>' +
+      '<span class="jr-office">' + esc(row.courtShort) +
+        (row.unitLabel ? '<i class="jr-unit">' + esc(row.unitLabel) + '</i>' : '') + '</span>' +
       '<span class="jr-q">' + esc(row.question) + '</span>' +
       '<span class="jr-who">' + plink(row.pid, row.name) +
         (row.role ? '<span class="jr-role"> · ' + esc(row.role) + '</span>' : '') + '</span>' +
       '<span class="jr-yn"><i class="jr-box">Retain</i><i class="jr-box">Do not retain</i></span>' +
       '<span class="jr-jpec">' + esc(jp.label || '') + '</span>' +
       (row.when ? '<span class="jr-when">' + esc(row.when) + '</span>' : '') +
+      // Where two official sources disagree about which court a seat sits on,
+      // the row says so on the row. A conflict a reader cannot see is a
+      // conflict the page resolved on their behalf.
+      (row.conflict ? '<span class="jr-conflict">' + esc(row.conflict) + '</span>' : '') +
       '</li>';
   }
 
@@ -113,6 +127,14 @@
     }
 
     var out = head + '<p class="jr-lead">' + esc(LEAD) + '</p>';
+    // Which geography the rows below were resolved from, stated before them.
+    // A trial-court question is on this ballot because of the county, so the
+    // county and the district it maps to are named where the reader can check
+    // them against their own address.
+    if (b.district && b.districtLabel) {
+      out += '<p class="jr-where">' + esc((b.county ? b.county + ' · ' : '') + b.districtLabel) +
+        '</p>';
+    }
     if (b.note) out += '<p class="jr-warn">' + esc(b.note) + '</p>';
 
     if (b.rows.length) {
@@ -131,7 +153,8 @@
     out += '<ul class="jr-courts">';
     b.courts.forEach(function (c) {
       out += '<li class="jr-court jr-court--' + esc(c.status) + '">' +
-        '<span class="jr-court-l">' + esc(c.label) + '</span>' +
+        '<span class="jr-court-l">' + esc(c.label) +
+          (c.unitLabel ? '<i class="jr-unit">' + esc(c.unitLabel) + '</i>' : '') + '</span>' +
         '<span class="jr-court-n">' + esc(c.note) + '</span>' +
         '</li>';
     });
