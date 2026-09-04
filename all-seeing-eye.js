@@ -974,6 +974,32 @@
       var span = last - first + 1;
       return q.length / span; // 1 = contiguous run
     }
+    // THE FALLBACK RESPECTS A WORD BOUNDARY.
+    //
+    // Typing "Rawson" used to rank Brad Wilson above Judge Rawson, because
+    // "rawson" is a subsequence of "brad wilson" — b-R-A-d W-il-SON — and the
+    // fuzzy gate below let a name in on that alone. "Hagen" reached Hoang
+    // Nguyen the same way. Neither legislator's own fields hold the query
+    // anywhere: not the name, not the office, not the district, not the bio.
+    // The letters were scavenged across a space.
+    //
+    // A typo is a property of ONE word being mistyped ("massie", "healthcre"),
+    // so the fallback is measured one token at a time and the best token wins.
+    // A query that only matches by crossing from one word into the next is not
+    // a near-miss on a name, it is a coincidence, and it now scores nothing.
+    // A query that itself spans a boundary ("thomas massie") is still measured
+    // against the whole name, because there is no single token for it to be a
+    // typo of. Nothing here knows any name: the rule is the boundary.
+    function subseqName(entry, q) {
+      var toks = entry.tokens;
+      if (!toks || !toks.length || /[^\p{L}\p{N}]/u.test(q)) return subseq(String(entry.titleLc || ''), q);
+      var best = -1;
+      for (var i = 0; i < toks.length; i++) {
+        var v = subseq(toks[i], q);
+        if (v > best) best = v;
+      }
+      return best;
+    }
     function tokenPrefix(tokens, t) {
       for (var i = 0; i < tokens.length; i++) { if (tokens[i].indexOf(t) === 0) return true; }
       return false;
@@ -997,8 +1023,8 @@
         if (hay.indexOf(t) !== -1) s += 9; else allInHay = false;
       }
 
-      // fuzzy subsequence fallback on the name (typo tolerance)
-      var fq = subseq(name, q);
+      // fuzzy subsequence fallback on the name (typo tolerance), token-wise
+      var fq = subseqName(entry, q);
       if (fq > 0) { s += Math.round(18 * fq); if (fq >= 0.999) s += 6; }
 
       // gate: keep only genuinely relevant entries

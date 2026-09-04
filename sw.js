@@ -880,6 +880,71 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v130 - A DEPARTED JUSTICE'S FILE STILL WORE A LIVE BALLOT. v129 put judges in
+// the All-Seeing Eye, and the search row for Diana Hagen said the right thing
+// from the first day it shipped: no longer on the court. Tap it and the file
+// that opened read UTAH - SUPREME COURT - RETENTION ELECTION across the top,
+// over a justice who left the court in May 2026 and does not stand. Two
+// surfaces, one fact, two answers - and the wrong one was the louder, in caps,
+// above the name. A departed file wearing a live-ballot hero is the same class
+// of lie as a partial census wearing a finished heading.
+//
+// The cause was that the two surfaces asked different questions. The search row
+// asked the Lieutenant Governor's filed list whether it named this seat. The
+// letterhead asked what court the judge sits on - and every judge on this
+// roster sits on a Utah court, so every letterhead said retention election.
+// That was wrong for ninety-four of the hundred and twenty-six: the one who
+// left, and the ninety-three who sit and are simply not on this year's list.
+// Thirty-two stand. Ninety-three do not. One is gone. The letterhead knew none
+// of it.
+//
+// v130 makes the status a single reader. judicial-retention.js now publishes
+// standing(pid), which returns exactly one of three locked sentences computed
+// once from the filed slate - retention election, not on the 2026 slate, no
+// longer on the court - and searchRows() was rewritten to call it rather than
+// re-derive the same thing. There is no fourth status and a caller cannot mint
+// one: a surface that wants to say anything about a retention seat has to ask
+// which of the three it is looking at.
+//
+// judge-file.js reads that one call and branches the whole hero on it. A seat on
+// the filed list is unchanged in every particular - Utah - Supreme Court -
+// retention election, "stands for retention", November 3 2026, and the state's
+// own filed question verbatim. A sitting judge who is not on the list gets the
+// court and the seat and nothing else: no election line, no "stands for
+// retention", no "Shall ... be retained?" printed as though a voter will see it
+// this November, and a paragraph saying plainly that Utah does not put every
+// judge on the same ballot and this seat is not among the names filed. A judge
+// who has left gets "Utah Supreme Court - former justice", the roster's own
+// leaving sentence, and no ballot chrome at all - the modal's top bar says
+// former too, because "Utah Supreme Court - Justice" is a present-tense
+// sentence about someone who no longer holds the seat. Her file, her seat
+// history and her prior retention results all stay. What she loses is a hero
+// that was never hers.
+//
+// The three states are visibly different rather than only textually different:
+// the live eyebrow keeps the brighter ink and its rule, the other two are held
+// at the muted weight the rest of the file already uses. Nothing in that colour
+// scores a judge - brightness is about whether a ballot is live, and there is no
+// direction in which it could read as approval.
+//
+// One more thing went out with it. Typing "Rawson" into the Eye ranked Brad
+// Wilson above Judge Rawson, because "rawson" is a subsequence of "brad wilson"
+// - b-R-A-d W-il-SON - and the fuzzy fallback let a name in on that alone.
+// "Hagen" reached Hoang Nguyen the same way. Neither legislator's own fields
+// hold the query anywhere: not the name, not the office, not the district, not
+// the bio. The letters were scavenged across a space. A typo is a property of
+// one word being mistyped, so the fallback is now measured one token at a time
+// and the best token wins; a match that only exists by crossing from one word
+// into the next scores nothing. No name is special-cased - the rule is the word
+// boundary. "Massie" still finds Thomas Massie and "healthcre" still finds
+// Healthcare.
+//
+// Judges are still not in CMP_DATA. Nothing here feeds Direction Match, Word vs
+// Action, a formal-record tier, the publication floor or any score, no JPEC
+// figure was invented, no legislative profile moved, and Hagen is still off the
+// Door 2 band. Touched: judicial-retention.js, judge-file.js,
+// judicial-retention.css, all-seeing-eye.js.
+//
 // v129 - THE EYE FOUND A JUDGE'S FILE ONLY IF YOU ALREADY KNEW HER NAME. v128
 // built 126 complete judge files and gave them real addresses - /p/jill_pohlman
 // renders a letterhead, a retention question, a JPEC line, a seat, an honest
@@ -2026,7 +2091,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v129';
+const CACHE_VERSION = 'v130';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

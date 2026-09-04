@@ -672,11 +672,51 @@
     offSlate: 'not on the ' + ELECTION.year + ' slate',
     former: 'no longer on the court'
   };
+
+  // ── THE ONE READER ──────────────────────────────────────────────────────
+  // Three statuses, one function, and every surface reads it here.
+  //
+  // A search row and a person file used to answer this question separately: the
+  // row asked whether the Lieutenant Governor filed a question, and the file
+  // asked what court the seat was on. That is how /p/diana_hagen came to wear
+  // UTAH · SUPREME COURT · RETENTION ELECTION over a justice who left the
+  // court in May 2026 while the search row two taps away said, correctly, that
+  // she is no longer on it. Two readers of one fact will eventually disagree,
+  // and the disagreement lands on the reader as a live ballot for a seat that
+  // is not on the ballot.
+  //
+  // So the status is computed once, in one place, from the filed list — and it
+  // is one of exactly three sentences. There is no fourth, and a caller cannot
+  // manufacture one: a surface that wants to say something about a retention
+  // seat must first ask which of the three it is looking at.
+  //
+  //   retention election      — the LG filed a question for this seat this year.
+  //   not on the 2026 slate   — sitting, and not among the names filed.
+  //   no longer on the court  — departed. Not a ballot line at all.
+  //
+  // `sitting` is the pair of the last one rather than an inference from the
+  // seat: a departed judge is not sitting, and everyone else on this roster is.
+  function standing(pid) {
+    var j = judge(pid);
+    if (!j) return null;
+    var onSlate = !!slateQuestion(j.pid, ELECTION.year);
+    var key = onSlate ? 'onSlate' : (j.former ? 'former' : 'offSlate');
+    return {
+      pid: j.pid,
+      key: key,
+      status: SEARCH[key],
+      onSlate: onSlate,
+      former: !!j.former,
+      sitting: !j.former
+    };
+  }
+
   function searchRows() {
     return all().map(function (row) {
       var j = judge(row.pid);
       if (!j) return null;
-      var onSlate = !!slateQuestion(j.pid, ELECTION.year);
+      var st = standing(j.pid);
+      var onSlate = st.onSlate;
       return {
         pid: j.pid,
         name: j.name,
@@ -691,7 +731,9 @@
         onSlate: onSlate,
         former: !!j.former,
         // One of three, and never a fourth: the row has no room for a hedge.
-        status: onSlate ? SEARCH.onSlate : (j.former ? SEARCH.former : SEARCH.offSlate),
+        // Read from standing() rather than re-derived, so the row and the
+        // person file cannot describe the same seat differently.
+        status: st.status,
         // The word a reader types when they are looking for this and know no
         // name. Carried as data so the haystack has one spelling of it.
         term: 'retention'
@@ -746,6 +788,7 @@
     ballot: ballot,
     archive: archive,
     SEARCH: SEARCH,
+    standing: standing,
     searchRows: searchRows,
     personRecord: personRecord,
     collisions: collisions,

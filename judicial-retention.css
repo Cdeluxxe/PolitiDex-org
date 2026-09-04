@@ -270,6 +270,23 @@
   margin: 0 0 0.3rem;
 }
 
+/* THE ELECTION HERO IS NOT THE DEFAULT.
+   Thirty-two of the judges on this roster are on the filed 2026 list; ninety-
+   three sit and are not on it, and one has left the court. All three keep a
+   letterhead, and only the first is allowed to look like a ballot: the live
+   eyebrow gets the brighter ink and a rule under it in the same tone, and the
+   other two are held at the muted weight the rest of the file uses. The
+   difference is deliberately small and deliberately real — the words already
+   say which is which, and this stops a reader who is skimming from reading a
+   sitting judge's file as a November question. No colour anywhere in here
+   scores a judge; brightness is about whether a ballot is live, and there is
+   no direction in which it could be read as approval. */
+.jf-eyebrow--onSlate { color: #cfe0fb; }
+.jf-head--onSlate { border-bottom-color: rgba(207, 224, 251, 0.2); }
+.jf-eyebrow--offSlate,
+.jf-eyebrow--former { color: #7d90ad; letter-spacing: 0.15em; }
+.jf-head--former .jf-name { color: #dfe8f5; }
+
 /* The letterhead is the office and the name. There is deliberately no slot
    here for a figure, a ring or a tier badge. */
 .jf-name {
