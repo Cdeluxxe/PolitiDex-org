@@ -880,6 +880,84 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v127 - A BALLOT THAT NAMED SIX SEATS AND SKIPPED A BRANCH. A Utah ballot in an
+// even year carries yes/no judicial retention - "Shall Justice X be retained?",
+// unopposed, no party on the line - and November 3, 2026 is live. Door 2
+// resolved two Senate seats, a House seat, a governor and two state chambers,
+// called that "your ballot workspace", and said nothing at all about the third
+// branch. That is not a missing feature; it is a completeness claim over a hole.
+// This version adds retention as a new OFFICE CLASS and adds no scoring engine
+// whatsoever.
+//   · judicial-data.js         the Utah judicial roster as identity rows only:
+//                              name, court, appointing governor, appointment and
+//                              confirmation dates, next retention date, pid. No
+//                              party, because party is not on the judicial
+//                              ballot. No score, because a judge has no promise
+//                              ledger to weigh an action against. No judge
+//                              written into CMP_DATA, because a record in that
+//                              roster inherits a party chip, a score ring, a
+//                              promise count and the publication floor's "record
+//                              still being built" notice, and every one of those
+//                              would say something false about a court. The 2026
+//                              slates are marked certified:false and every
+//                              surface says the official list is not on file -
+//                              one row is verifiable as standing for retention on
+//                              that date and only that row claims it. Court of
+//                              Appeals, District, Juvenile and Justice courts
+//                              carry no rows at all rather than guessed ones.
+//   · judicial-retention.js    the one owner of "what does retention say": six
+//                              locked phrases (retained / not retained / stands
+//                              for retention / JPEC recommends retain / JPEC does
+//                              not recommend / no JPEC report on file), the
+//                              banned list, the wall, and ballot(reps). No DOM.
+//                              Outside Utah it returns before any row is built,
+//                              so there is no code path that can put a Utah judge
+//                              on an Ohio ballot; inside Utah the district,
+//                              juvenile and justice courts report WHICH MAP IS
+//                              MISSING instead of offering the nearest judge.
+//                              Fails closed on a name collision: both records are
+//                              dropped from the ballot and the drop is reported.
+//   · judge-file.js            /p/<pid> for a retention seat. Intercepts the one
+//                              openModal funnel so a judge never reaches the
+//                              roster renderer - the letterhead is the court and
+//                              the retention election, not Word vs Action, and
+//                              there is nowhere on the surface for a figure. The
+//                              formal lane says in words that this office does
+//                              not vote bills; the JPEC block either quotes the
+//                              commission with its source URL or says no report
+//                              on file and points at judges.utah.gov. The address
+//                              stays PDXPerson's, which owns it.
+//   · judicial-ballot.js       the Door 2 retention band and the Utah-courts
+//                              archive listing. The band is a SIBLING of #bw-body
+//                              because sync() assigns that element's innerHTML in
+//                              one write, and it never joins seats(): a retention
+//                              question is a yes/no on one name, not a field to
+//                              pick a winner from, so putting it in the "N of 6
+//                              decided" denominator would make one counter measure
+//                              two different acts.
+//   · judicial-retention.css   both surfaces. Flat rules, no fill, no status
+//                              colour, no ring and no chip that could read as a
+//                              party badge; Retain / Do not retain is drawn as two
+//                              inert ballot boxes, because the answer is the
+//                              reader's to give at the polls.
+//   · person-file.js           two guarded lines. record() consults the judicial
+//                              registry LAST, after both rosters, so /p/<judge>
+//                              resolves instead of answering a real address with
+//                              "isn't someone we currently carry a record for";
+//                              and the kicker branches on the file class first, so
+//                              a floor built to ask "two cited positions or two
+//                              sourced formal acts" cannot stamp "record still
+//                              being built" across a record that is complete for
+//                              what this office does.
+//   · index.html               the four new <script defer> tags, the non-blocking
+//                              stylesheet link, and precached as '/'.
+// No Direction Match input, no baseline from opinions, no finance figure, no
+// Mandate arithmetic and no summary of a holding. No ruling is read as a kept or
+// broken promise. The publication floor did not move, the legislative DM and
+// formal tiers read byte-identically with these files loaded and without them,
+// and the appointing governor stays a fact about the appointment rather than a
+// description of the appointee.
+//
 // v126 - A THIRD OF A REQUEST, WEARING THE GRAMMAR OF A FINISHED CENSUS. On a
 // cold /i/climate_action the ledger opened with "3 people have a readable formal
 // row on Climate action - 3 cut against", one band on the page, and slice chips
@@ -1801,7 +1879,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v126';
+const CACHE_VERSION = 'v127';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -2042,6 +2120,25 @@ const SHELL_ASSETS = [
   // opened in a new tab, cannot be copied as an address, and — for the retired
   // handful — would have no canonical id to advertise at all.
   '/person-link.js',
+  // ⚖ Judicial retention — the third branch, on both doors. Precached as a set
+  // of four plus a stylesheet because they are only ever useful together and
+  // because two of them are modules a reader arrives THROUGH: a shared
+  // /p/<judge_pid> link resolves through judge-file.js, and if judge-file.js is
+  // missing the pid falls to the roster renderer, which holds no record for a
+  // judge and would answer a real address with "isn't someone we currently
+  // carry a record for". judicial-data.js and judicial-retention.js are its
+  // inputs — the roster rows and the locked vocabulary — so a version skew
+  // between them is a file that renders with no court and no retention date.
+  // judicial-ballot.js is the Door 2 band, which is the surface that tells a
+  // Utah voter their ballot has judges on it at all. The stylesheet ships with
+  // them because unstyled, the Retain / Do not retain pair loses the framing
+  // that makes it read as the ballot's own inert question rather than two
+  // buttons the reader is being asked to press.
+  '/judicial-data.js',
+  '/judicial-retention.js',
+  '/judge-file.js',
+  '/judicial-ballot.js',
+  '/judicial-retention.css',
   '/manifest.json',
   '/assets/icon.svg',
   '/assets/icon-maskable.svg'
