@@ -336,13 +336,38 @@
     };
   }
 
-  // Which pids currently hold this seat. Read from the two resolvers that
-  // already answer it — never inferred from a title string — so "incumbent" on
-  // this sheet means the same person the Voter Hub and the homepage front door
-  // named. Used for the incumbent tag and as the stable tie-break, never as a
-  // rank bonus.
+  // Which pids currently hold this seat FOR THIS READER. One function owns that
+  // question — window.pdxSeatHolders(), over the resolver's own levels — and this
+  // reads it rather than deriving a second answer. Used for the "Holds this seat
+  // now" tag and as the stable tie-break, never as a rank bonus.
+  //
+  // WHY THE UNION OF TWO SOURCES HAD TO GO
+  // ──────────────────────────────────────
+  // This used to take pdxRepsForMe()'s pids AND _pdxVoterBallot()'s byOffice
+  // incumbents and merge them. Those two disagree on purpose in a redrawn area:
+  // Utah's congressional lines were redrawn by court order for 2026, so a Layton
+  // voter's 2026 ballot is the new UT-2 (sitting member Celeste Maloy) while the
+  // member who represents them TODAY is UT-1's Blake Moore. The resolver applies
+  // that correction; the curated ballot deliberately does not. Merging them tagged
+  // BOTH, and the reader met the result on the U.S. House desk card: "Celeste
+  // Maloy · HOLDS THIS SEAT", under a list and a map pin that both said Blake
+  // Moore. Two names for one seat, one of them a member of a district that reader
+  // is not in.
+  //
+  // "Holds this seat" is a claim about the reader's CURRENT representation, so the
+  // resolver is the only authority for it, and its answer stands even when it is
+  // empty — a seat it named nobody for gets no tag rather than borrowing one. The
+  // curated-ballot read survives only as a fallback for the two cases where there
+  // is no resolver answer to respect: the module is not loaded (an older cached
+  // build), or there is no location yet and therefore no reader to answer for.
   function incumbents(rk) {
     var out = {};
+    var h = null;
+    try { h = fn('pdxSeatHolders') ? window.pdxSeatHolders(rk) : null; } catch (e) { h = null; }
+    if (h && h.located) {
+      (h.pids || []).forEach(function (pid) { out[pid] = 1; });
+      return out;
+    }
     try {
       var reps = fn('pdxRepsForMe') ? window.pdxRepsForMe() : null;
       if (reps && reps.levels) reps.levels.forEach(function (lv) {

@@ -196,7 +196,20 @@
   // The levels of the resolver that map onto one ballot slot. U.S. Senate maps
   // TWO (both of a state's seats), which is why this returns a list rather than
   // a level — and why the seat head names both holders instead of picking one.
+  //
+  // window.pdxSeatHolders() is the one owner of "who holds this seat for this
+  // voter" and does exactly this projection over the resolver's own levels, so
+  // this asks it rather than walking the levels through the sheet's alias table
+  // a second time. The local walk survives only for a page where that function
+  // has not loaded — a stale service-worker build of voter-hub-location.js —
+  // because a rail that cannot say who holds a seat is worse than a slow one.
   function holdersFor(rk, r) {
+    try {
+      if (fn('pdxSeatHolders')) {
+        var h = window.pdxSeatHolders(rk);
+        if (h && h.levels) return h.levels;
+      }
+    } catch (e) {}
     var R = rs();
     if (!r || !r.levels || !R || typeof R._seat !== 'function') return [];
     var out = [];
@@ -273,9 +286,25 @@
   }
 
   // ── The seat head: who holds it, and what you decided ─────────────────────
+  // THREE STATES, AND THE HEADER MUST AGREE WITH THE PANE UNDER IT.
+  // The Senate pane shipped saying "No record on file for the current holder"
+  // directly above a field listing John Curtis and Mike Lee, because this
+  // function treated "the light roster has no DISPLAY record for that pid" as
+  // "there is no holder". Those are different facts, and only one of them is a
+  // statement about a person's file:
+  //
+  //   pid + display record → name them. This is the normal case, and it is the
+  //                          same pid Who Represents Me prints for the seat.
+  //   pid, no display record → the resolver named somebody this app holds
+  //                          nothing on. That, and only that, is what "no record
+  //                          on file for the current holder" describes.
+  //   no pid at all         → nobody is resolved. Saying a holder's record is
+  //                          empty would assert a holder we never resolved, so
+  //                          the sentence names the actual gap instead.
   function holderFact(seat, r, gate) {
     var hold = holdersFor(seat.key, r);
-    var named = hold.filter(function (lv) { return lv.pid && personOf(lv.pid); });
+    var withPid = hold.filter(function (lv) { return !!lv.pid; });
+    var named = withPid.filter(function (lv) { return !!personOf(lv.pid); });
     if (named.length) {
       var who = named.map(function (lv) {
         return '<b>' + candOpen(lv.pid, ' style="font-size:0.8rem;"' +
@@ -284,6 +313,10 @@
       }).join(' · ');
       return '<span class="bw-fact"><span aria-hidden="true">\u{1F3DB}</span>' +
         '<span>Holds this seat now: ' + who + '</span></span>';
+    }
+    if (withPid.length) {
+      return '<span class="bw-fact"><span aria-hidden="true">\u{1F3DB}</span>' +
+        '<span>No record on file for the current holder</span></span>';
     }
     if (gate === 'district') {
       return '<span class="bw-fact"><span aria-hidden="true">\u{1F5FA}</span>' +
@@ -299,7 +332,7 @@
       return '';
     }
     return '<span class="bw-fact"><span aria-hidden="true">\u{1F3DB}</span>' +
-      '<span>No record on file for the current holder</span></span>';
+      '<span>No current officeholder resolved for this seat</span></span>';
   }
 
   function pickFact(seat) {
