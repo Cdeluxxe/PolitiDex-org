@@ -1497,6 +1497,25 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // measure mapped to it — so the sentence it replaces is stronger than the one
     // it stood in for, not weaker.
     "scripts/test-sitemap-bills.mjs",
+    // The bill-door pass (CACHE_VERSION v138), on those same later-wave terms. It
+    // writes no roll, no mapping, no key, no floor and no admission: it turns every
+    // measure identity the app already PRINTS — the dossier's Official Record cards,
+    // the "which measures" roll-up, the issue desk's ledger rows, the formal brief's
+    // proof lines — into a door on the one bill file that was already there. No new
+    // address shape: the door hands its number and its sitting to the same
+    // PDXBillDetail.open the in-app #bill/<sitting>/<number> link has always called.
+    // consistency.js's fourteen spans are that pass, carved and argued in the shared
+    // seam module above.
+    //   The one file below is the file this wave has to declare, and the reason is
+    // narrow: its allowlist pinned the exact text of the desk's slot(...) call, and
+    // that call gained the sitting the number was printed with. A number alone is
+    // not an identity — H.B. 400 is a different instrument in a different Utah
+    // session, and H.R. 6644 in a different Congress — so a door built on the number
+    // by itself would open the wrong bill and look like it worked. The pin is
+    // repaired to the new call, not relaxed off it: it still quotes the call through
+    // the isPrimary flag it exists to guard, so a desk that went back to labelling
+    // cards off anything else still fails there.
+    "scripts/test-primary-label-not-gate.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

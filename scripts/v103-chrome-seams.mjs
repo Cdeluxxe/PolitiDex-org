@@ -162,6 +162,65 @@
  * Word-vs-Action arithmetic — the display-only wall it worked under. What moved on
  * the card is CSS and markup, in files nothing here pins.
  *
+ * The bill-door pass (CACHE_VERSION v138) edited fourteen more spans in
+ * consistency.js — seven above the mechanism literal and seven below it — and
+ * every one of them exists because four surfaces printed a measure identity as
+ * TEXT. The dossier's Official Record card, the "which measures this came from"
+ * roll-up, the formal proof line and the issue desk's ledger all named H.B. 400
+ * or H.R. 6644 in a place a reader could see it and not open it: the instrument
+ * itself — all of its members, all of its mappings, its vehicle and its
+ * stowaways, its roll calls — had no door anywhere on the person file. The
+ * education path stopped at the person-issue pair.
+ *
+ *   consistency.js, seams K1-K3 — three spans of paint
+ *     The proof line's number marked as its own door (dotted underline, and only
+ *     where the door attribute is actually on it), the door's own reset, and the
+ *     focus ring moved off the roll-up ROW and onto the two controls that can
+ *     actually take focus. The reset is declared one class deep, above the slots
+ *     it lands in, precisely so the slot rules keep owning the weight, size and
+ *     colour of their own text: a number that changed colour on becoming a door
+ *     would be a restyle wearing a feature's clothes.
+ *
+ *   consistency.js, seams K4-K6 — precedence in the two delegated listeners
+ *     Every measure identity is printed INSIDE something that is already a door,
+ *     and closest() walks outward — so the branch tested first wins the tap. The
+ *     bill branch is now tested first in the click gateway (K4), the branch that
+ *     used to be tested last is gone from that spot (K5), and the keydown
+ *     listener repeats the same precedence with the one guard that keeps a real
+ *     <button> from opening the panel twice (K6).
+ *
+ *   consistency.js, seam K7 — the proof line's number
+ *     Pointer only, and that is the line's own existing rule rather than a new
+ *     exception: the proof line lives inside a <summary> that deliberately takes
+ *     no focus. Suppressed on a stated position, which is not cast on an
+ *     instrument.
+ *
+ *   consistency.js, seam L1 — one owner of "which sitting is this number in"
+ *     window.pdxBillSit, published because the issue desk prints the same numbers
+ *     as doors onto the same panel. A number without its sitting is not an
+ *     address, and a second copy of that precedence is a second chance for two
+ *     surfaces to address different sessions from the same printed number.
+ *
+ *   consistency.js, seams L2-L4 — the door itself, emitted in one place
+ *     The card's number and its title become real <button>s onto the bill file
+ *     (legal there: it is a <summary> whose other control has been a button since
+ *     it shipped), and both go through ONE emitter — which also owns the honest
+ *     refusal. No number, no door; no bill page on file, and the control says so
+ *     on itself, once, instead of eating the tap or dumping an index.
+ *
+ *   consistency.js, seams L5-L7 — the roll-up row, which cannot hold a button
+ *     A <button> inside the row's door would make the parser close the row early
+ *     and drop every span after it. So the row keeps its door attribute and stays
+ *     a POINTER target, and role, tabindex and the accessible name move onto the
+ *     two spans that are the real controls: the identity (the bill file) and the
+ *     arrow (the explainer, exactly as before). The group carries the measure's
+ *     own address off the same item its explainer opens.
+ *
+ * None of the fourteen is arithmetic either, and none of them is a destination
+ * this file invents: every door hands a number and a sitting to bill-detail.js,
+ * which owns the one bill panel, and no span below spells an address shape of its
+ * own.
+ *
  * None of the eighteen is arithmetic. No floor, band, weight, mapping, score or
  * party read or written inside any of them — which is what the assert helpers
  * below check, span by span, rather than excusing the diff.
@@ -185,6 +244,14 @@ export const CJ_SEAMS = [
   ["    else if (counts.limited > 0) token = 'limited';\n",
    "\n    // Phase 7: Say-vs-Do carries its OWN pooled public-record integrity %",
    "the roll-up's empty-key token"],
+  // ── and seven for the bill door (v138): first, three of paint ─────────────
+  // K1. The proof line's number, marked as a door only where it IS one: the
+  // unconditional rule keeps the weight and colour it always had, and the dotted
+  // underline is attached to the door attribute. A line whose measure has no
+  // number is not dressed as a control.
+  ["      '.pdxor-proof-bill{color:#e8eefc;font-weight:700;letter-spacing:0.01em;}' +\n",
+   "      '.pdxor-proof-txt b{color:#e8eefc;font-weight:700;}' +\n",
+   "the proof line's number, marked as its own door"],
   // ── and three for the issue file's doors on the dossier (v133) ─────────────
   // The person×issue dossier named an issue and taught neither the key nor the
   // measure: the title was an inert <div>, there was no ⓘ, and the bill line was
@@ -196,12 +263,52 @@ export const CJ_SEAMS = [
    "        'background:linear-gradient(90deg,var(--pdx-ic-wash,transparent),transparent 58%);}' +\n",
    "      '@media (max-width:380px){.pdxgap-title{font-size:1.3rem;}",
    "the title row's paint, and the link's"],
+  // K2. The door's own reset, and the refusal note. Declared one class deep and
+  // ABOVE the slots it lands in so .pdxdos-rec-id and .pdxdos-rec-ttl keep
+  // ownership of their own type: this span undoes button chrome and nothing else.
+  ["      '.pdxgap-drv-l{list-style:none;margin:0.35rem 0 0;padding:0;display:grid;gap:0.3rem;}' +\n",
+   "      '.pdxgap-drv-r{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.2rem 0.4rem;' +\n",
+   "the measure door's paint, and the refusal note's"],
+  // K3. The focus ring, moved off the row and onto the two controls. The row is a
+  // pointer target that never takes focus, so a ring drawn on it could not be
+  // reached by the keyboard it was drawn for.
+  ["      '.pdxgap-drv-r.is-door:hover{border-color:rgba(127,180,255,0.5);background:rgba(127,180,255,0.08);}' +\n",
+   "      '.pdxgap-drv-r.is-door:hover .pdxgap-drv-go{opacity:1;}' +\n",
+   "the focus ring, moved onto the two controls"],
   ["      '.pdxgap-drv-t{flex:1 0 100%;font-size:0.63rem;color:#93a6c4;line-height:1.35;}' +\n",
    "      '.pdxgap-drv-p{flex:1 0 100%;",
    "the one-measure summary line's paint"],
+  // ── and three more for the bill door (v138): who wins the tap ─────────────
+  // K4/K5. THE SAME BRANCH, MOVED TO THE FRONT. Every bill number is printed
+  // inside a door already — a card face, a roll-up row, a proof line — and
+  // closest() walks outward, so the branch tested first is the one that answers.
+  // K4 is the branch in its new place, ahead of the L3 mount as well (a reader
+  // asking for the bill file is not asking for a card body); K5 is the spot it
+  // used to sit in, kept as a seam so its absence is checkable rather than
+  // implied. Everything between the two — the L3 mount, the insight door, the
+  // roll-up's own door — is outside both spans and still pinned.
+  ["      _stBackSweep();\n",
+   "      // ── L3, mounted on demand ─────────────────────────────────────────────\n",
+   "the bill branch, first in the click gateway"],
+  ["      var drv = e.target.closest && e.target.closest('[data-pdxdrv-open]');\n      if (drv) {\n        e.preventDefault();\n        _drvOpen(drv);\n        return;\n      }\n",
+   "      // The stance row's primary tap: the issue name opens that issue's dossier and\n",
+   "where that branch used to sit, last"],
+  // K6. The same precedence on the keyboard, with the one guard that matters: a
+  // real <button> already receives Enter and Space from the browser AS a click,
+  // so handling them here too would open the same panel twice.
+  ["      if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar' && e.keyCode !== 13 && e.keyCode !== 32) return;\n",
+   "      var drv = e.target && e.target.closest && e.target.closest('[data-pdxdrv-open]');\n",
+   "the same precedence on the keyboard"],
   ["    return { style: IC.styleFor(key), cls: on ? ' pdxc-ic' : '', on: on };\n  }\n",
    "  // The dot repeats the row's colour next to the issue name, where the eye",
    "the title door and the ⓘ beside it"],
+  // K7. The proof line's number, as the door. Pointer only — the line sits in a
+  // <summary> that takes no focus on purpose, because a second tab stop per row
+  // would compete with the row's own expand control — and suppressed on a stated
+  // position, which is not cast on an instrument anything could open.
+  ["      var multi = _orRowMultiNote(p.item, issueKey);\n      var b = _orProofBits(p.item);\n",
+   "      var restBits = [];\n",
+   "the proof line's number, as the door"],
   // ── and two for the record badge the homepage card now wears (v111) ───────
   // The homepage card lane had to print the SAME 🏛 RECORD badge the person file
   // prints, and it could do that in exactly one of three ways: mount this file's
@@ -249,6 +356,29 @@ export const CJ_SEAMS = [
 // suites carve this list out of the lower half and byte-compare what is left.
 // Suites that carve the file whole use CJ_SEAMS_ALL.
 export const CJ_SEAMS_BELOW = [
+  // ── the bill door's lower half (v138): one owner, one emitter, one refusal ─
+  // L1. WHICH SITTING A NUMBER IS IN, published under one name. "H.R. 22" names
+  // one bill in the 119th and a different one in every other congress, and
+  // "H.B. 208" names a different bill in every Utah general session, so a number
+  // alone is not an address. The issue desk prints the same numbers as doors onto
+  // the same panel and asks this rather than keeping a second copy of the
+  // precedence — which is the only thing that stops two surfaces from addressing
+  // different sessions from the same printed number.
+  ["    return (typeof c === 'number' && isFinite(c) && c > 0) ? String(c) : '';\n  }\n",
+   "  function _dosCongressLabel(n) {\n",
+   "one owner of which sitting a number is in"],
+  // L2/L3. THE CARD'S NUMBER AND ITS TITLE, as real <button>s. Legal here where
+  // it is not legal in the roll-up row: this is a <summary>, whose other control
+  // — "See all N readings" — has been a real button since it shipped. Both slots
+  // call the one emitter, and both keep the class the layout already styles, so a
+  // <span> becoming a <button> changes what the element DOES and nothing about
+  // where it sits.
+  ["      (nos ? '<span class=\"pdxdos-rec-nosl\">' + esc(nos) + '</span>' : '') +\n",
+   "      // The sitting sits with the number because it is part of the number's meaning:\n",
+   "the card's number, as the door"],
+  ["      // bill number the ident falls back to the title.\n",
+   "      (d.question ? '<span class=\"pdxdos-rec-act\">' + esc(d.question) + '</span>' : '') +\n",
+   "the card's title, as the same door"],
   // ── the one-measure roll-up, and the sentence splitter under it (v133) ─────
   // The dossier's "Which measures this came from" roll-up bailed below two items,
   // so the thinnest possible record — one vote on one bill, which is most of a
@@ -268,12 +398,30 @@ export const CJ_SEAMS_BELOW = [
   ["  // fold at the bottom, which still holds the paragraph in full.\n",
    "  // Slot 2's read: WHOSE sentence is about to be printed",
    "the bill-aware sentence boundary"],
+  // L4. THE EMITTER, AND THE HONEST REFUSAL. Four surfaces print an identity and
+  // all four open the same panel, so the attributes the delegated gateway reads
+  // are written once here instead of four times. NO NUMBER, NO DOOR: a record row
+  // filed without a bill number has no measure to open and its identity IS its
+  // headline. And when there is no bill file behind a number the control says so,
+  // on itself, once — it does not eat the tap in silence, and it does not hand
+  // back an index or a homepage the reader did not ask for.
+  ["      var num = el && el.getAttribute ? (el.getAttribute('data-pdxbill-num') || '') : '';\n      if (!num) return;\n",
+   "  function _drvOpen(el) {\n",
+   "the door emitter, and the honest refusal"],
   ["  var _DOS_DRV_H = 'Which measures this came from';\n",
    "  function _dosDrivers(pid, issueKey, ov) {\n",
    "the singular heading, as a constant"],
   ["          n: 0, adv: 0, opp: 0, held: 0, pkg: !!pkg[k], cls: '',\n",
    "          // WHERE THIS MEASURE'S OWN SCREEN IS.",
    "the group's rationale field"],
+  // L5. THE GROUP'S OWN ADDRESS, off the same first item its explainer opens. A
+  // group is one instrument seen from one to six roll calls, so the number is the
+  // same on every member of it — and reading the sitting off the item the door
+  // already opens is what stops the row from linking to a different session than
+  // the explainer it is anchored to.
+  ["          // lose the correspondence entirely.\n",
+   "        };\n        order.push(k);\n",
+   "the group's own address"],
   ["  function _dosDriversHtml(pid, issueKey, ov) {\n    var d = _dosDrivers(pid, issueKey, ov);\n",
    "    var rows = d.rows.map(function (g) {\n",
    "the one-measure gate"],
@@ -287,9 +435,26 @@ export const CJ_SEAMS_BELOW = [
   ["      if (g.held) bits.push(g.held + ' not scorable');\n",
    "      var ttl = g.title && g.title.toLowerCase() !== g.ident.toLowerCase() ? g.title : '';\n",
    "the clipped rationale, and its budget"],
+  // L6. THE ROLL-UP IDENTITY, AND WHERE THE ROW'S NAME WENT. This line now
+  // carries two destinations — the bill file on the identity, this issue's
+  // explainer on everything else — and a row that announces itself as one control
+  // cannot hold the other. A <button> is impossible here (the parser would close
+  // the row early and drop every span after it), so the <li> keeps its door
+  // attribute and stays a POINTER target while role, tabindex and the accessible
+  // name move onto the two spans that are the actual controls. Where the group
+  // carries no number the identity stays the plain text it has always been.
+  ["      if (ttl.length > 78) ttl = ttl.slice(0, 78).replace(/\\s+\\S*$/, '') + '…';\n",
+   "        '<span class=\"pdxgap-drv-n\">' + esc(g.n + ' ' + (g.n === 1 ? 'item' : 'items')) + '</span>' +\n",
+   "the roll-up identity, and where the row's name went"],
   ["        (ttl ? '<span class=\"pdxgap-drv-t\">' + esc(ttl) + '</span>' : '') +\n",
    "        (g.pkg ? '<span class=\"pdxgap-drv-p\">",
    "the rationale's own span on the row"],
+  // L7. THE EXPLAINER'S OWN FOCUS STOP, and the reason the row no longer needs
+  // one. The arrow was an affordance and nothing else; it is now the keyboard twin
+  // of the pointer tap the whole row still answers.
+  ["          '</span>' : '') +\n",
+   "      '</li>';\n",
+   "the explainer's own focus stop"],
   ["    return '<div class=\"pdxgap-drv\" data-pdxgap-drv=\"' + escAttr(String(d.docs)) + '\">' +\n",
    "        // BOTH NUMBERS, BECAUSE THEY ARE DIFFERENT NUMBERS.",
    "the heading chosen by the count"],
@@ -610,6 +775,66 @@ export function assertConsistencySeams(bodies, api, below) {
     "the title door emits more than one anchor, or a button inside it — the ⓘ is issue-scope.js's " +
     "own sibling control and this span may not grow a second interactive element of its own");
 
+  // ── seams K1-K7: the measure identity is a door onto the bill file (v138) ──
+  // Three spans of paint and four of precedence. What none of them may do is
+  // decide anything: the destination is a number and a sitting handed to
+  // bill-detail.js, which owns the one bill panel, so no span here spells an
+  // address, reads a roll, a mapping, a floor, a weight, a party or a member.
+  const proofPaint = cut("the proof line's number, marked as its own door");
+  has(proofPaint, ".pdxor-proof-bill[data-pdxbill-open]{cursor:pointer",
+    "the proof line's number is not marked as a door where it is one");
+  ok(!/\.pdxor-proof-bill\{[^}]*cursor:pointer/.test(proofPaint),
+    "the unconditional rule dressed every proof-line number as a control — a line whose measure has no " +
+    "number would then look like a door onto nothing");
+  const doorPaint = cut("the measure door's paint, and the refusal note's");
+  has(doorPaint, ".pdxbill-door{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;",
+    "the door's reset no longer inherits the type of the slot it lands in");
+  ok(!/\.pdxbill-door\{[^}]*font-(size|weight):/.test(doorPaint),
+    "the door's reset spells a size or a weight of its own — the slot rules own the type of their own text, " +
+    "and a number that changed face on becoming a door is a restyle wearing a feature's clothes");
+  has(doorPaint, ".pdxbill-door:focus-visible{outline:2px solid #7fb4ff",
+    "the door has no focus ring, so the keyboard cannot see where it is");
+  has(doorPaint, ".pdxbill-nofile{display:inline-block",
+    "the honest refusal has no paint, so it would print unstyled beside the number it explains");
+  const ring = cut("the focus ring, moved onto the two controls");
+  has(ring, ".pdxgap-drv-id:focus-visible,.pdxgap-drv-go:focus-visible{outline:2px solid #7fb4ff",
+    "the roll-up's two controls have no focus ring between them");
+  ok(!/\.pdxgap-drv-r\.is-door:focus-visible/.test(ring),
+    "the ring is drawn on the row again — the row is a pointer target that never takes focus, so a ring " +
+    "there is a ring the keyboard cannot reach");
+  // K4/K5. THE INNERMOST DOOR IS TESTED FIRST, which is the whole mechanism: a
+  // delegated closest() walks OUTWARD, so the branch tested first is the one that
+  // answers a tap on the number inside a row that is itself a door.
+  const first = cut("the bill branch, first in the click gateway");
+  has(first, "var bopen = e.target.closest && e.target.closest('[data-pdxbill-open]');",
+    "the click gateway no longer looks for a bill door first");
+  has(first, "_billOpen(bopen);", "…or no longer opens the bill when it finds one");
+  has(first, "e.preventDefault();", "…or lets the document's own default run underneath the panel it just opened");
+  ok(!/data-pdxdos-i|data-pdxdrv-open/.test(first),
+    "the bill branch absorbed the card mount or the row's own door — those branches are outside this span " +
+    "and still pinned");
+  const wasLast = cut("where that branch used to sit, last");
+  ok(!/data-pdxbill-open/.test(wasLast),
+    "the bill door is still tested after the roll-up row's door as well — a door tested outward-last never " +
+    "wins the tap, which is the bug this pass exists to fix");
+  const kb = cut("the same precedence on the keyboard");
+  has(kb, "e.target.closest('[data-pdxbill-open]')", "Enter and Space no longer reach the bill door at all");
+  has(kb, "if (kbt !== 'button' && kbt !== 'a') { e.preventDefault(); _billOpen(kb); }",
+    "the keyboard branch lost the guard that keeps a real <button> from opening the same panel twice — the " +
+    "browser already delivers Enter and Space to a button AS a click");
+  const proofDoor = cut("the proof line's number, as the door");
+  has(proofDoor, "_billDoorAttrs(b.bill, _dosSittingKey(p.item), b.bill)",
+    "the proof line assembles a bill address by hand instead of asking the one emitter for it");
+  has(proofDoor, "b.isPosition ? ''",
+    "a stated position now offers a bill door — a position is not cast on an instrument this door could open");
+  ok(!/role=|tabindex/.test(proofDoor),
+    "the proof line's number took a focus stop, which competes with the expand control of the <summary> it " +
+    "sits inside — the dossier card's real buttons are how the keyboard reaches the same file");
+  ok(!/<a\b|<button\b/.test(proofDoor), "the proof line grew an interactive element inside a <summary>");
+  for (const t of [proofPaint, doorPaint, ring, first, wasLast, kb, proofDoor])
+    ok(!/MIN_|FLOOR|floor|publishable|score|weight:|Math\.|party|\d\s*%/.test(strip(t)),
+      "a bill-door span reads a floor, a weight, a score, a party or a percentage");
+
   // And the export spans, wherever the caller cut them from.
   ok(!below || below.length === CJ_SEAMS_BELOW.length,
     `the lower half of consistency.js was carved into ${(below || []).length} spans, which is not ` +
@@ -692,6 +917,90 @@ export function assertConsistencyExportSeams(bodies, api) {
   const mount = cut("the dossier title's mount");
   has(mount, "_issueTitleHtml(issueKey, lbl, _titleAttr)", "the dossier header mounts something other than the title door");
   ok(mount.split("_issueTitleHtml").length === 2, "the dossier header mounts the title door more than once");
+
+  // ── seams L1-L7: the lower half of the bill door (v138) ───────────────────
+  // L1. ONE OWNER OF THE SITTING. Published, not copied: the issue desk asks this
+  // rather than keeping its own precedence, which is the only thing that stops one
+  // printed number from opening two different sessions on two surfaces.
+  const sit = cut("one owner of which sitting a number is in");
+  has(sit, "window.pdxBillSit = function (item) {", "the sitting reader is not published under the one name");
+  has(sit, "return _dosSittingKey(item);",
+    "the published reader re-implements the precedence instead of delegating to the function that owns it");
+  ok(!/utahSession|externalIds/.test(sit),
+    "the record's sitting reader reaches for the bills-index spelling of the field — two shapes, two owners, " +
+    "and this one owns the record's");
+  // L2/L3. THE CARD'S TWO SLOTS. Both call the one emitter, both keep their class,
+  // and the title keeps the condition that suppressed it when it only repeated the
+  // identity — the door did not become a reason to print a title twice.
+  const cardNum = cut("the card's number, as the door");
+  has(cardNum, "_billDoor('pdxdos-rec-id', d.billNum, d.billSit, d.ident, esc(d.ident))",
+    "the card's number is not the one emitter's door, or it no longer carries the pair the panel needs");
+  ok(!/'<span class="pdxdos-rec-id">'/.test(cardNum), "the card's number is an inert span again");
+  const cardTtl = cut("the card's title, as the same door");
+  has(cardTtl, "_billDoor('pdxdos-rec-ttl', d.billNum, d.billSit, d.ident, esc(_faceTtl))",
+    "the card's title is not the same door as its number");
+  has(cardTtl, "(_faceTtl ?",
+    "the title lost the condition that skips it when it would only repeat the identity");
+  // L4. THE EMITTER, AND THE REFUSAL. One place writes the attributes; no number
+  // means no door; and a number with no bill page behind it is said on the control
+  // itself rather than answered with an index, a homepage or silence.
+  const emit = cut("the door emitter, and the honest refusal");
+  const emitCode = emit.replace(/^\s*\/\/.*$/gm, "");
+  has(emit, "function _billDoor(cls, num, sit, ident, inner) {", "the door emitter is not where the seam says it is");
+  has(emit, "function _billDoorAttrs(num, sit, ident) {", "…or the attributes are not written in one place");
+  has(emit, "if (!n) return '';",
+    "a measure with no number is dressed as a door — its identity IS its headline, and there is no file to promise");
+  has(emit, "var _BILL_NOFILE = 'No bill page on file';", "the refusal has no words of its own");
+  has(emit, "el.setAttribute('aria-disabled', 'true');", "the refused control does not say it is refused");
+  has(emit, "if (el.querySelector && el.querySelector('.pdxbill-nofile')) return;",
+    "the refusal is appended again on every tap — one control, one note");
+  has(emit, "B.open(num, sit) !== false",
+    "the emitter decides for itself whether a bill file exists instead of letting the panel that owns bills answer");
+  ok(!/location\.|\.href|window\.open|pdxOpenBills/.test(emitCode),
+    "a bill door navigates or dumps an index — a missing bill page is said on the control, not answered with " +
+    "a different screen");
+  ok(!/'#bill\/|'\/b\//.test(emitCode),
+    "the emitter spells an address shape of its own — share-links.js owns the hash and the shareable path, " +
+    "and a second spelling is a second address for one bill");
+  // L5. THE GROUP'S ADDRESS, off the item its own explainer opens. Two fields, and
+  // nothing selects, sorts or counts on either.
+  const groupAddr = cut("the group's own address");
+  has(groupAddr, "num: String((dItem && dItem.billNum) || '').trim(),",
+    "the roll-up group carries no measure number, so its identity could not be a door");
+  has(groupAddr, "sit: String((dItem && dItem.billSit) || '').trim()",
+    "…or carries a number with no sitting, which is not an address");
+  ok([...strip(groupAddr).matchAll(/^\s*([a-z][A-Za-z]*):/gm)].map((m) => m[1]).join(",") === "idx,num,sit",
+    "the roll-up group gained a field other than the measure's own address");
+  // L6/L7. THE ROW THAT CANNOT HOLD A BUTTON. The identity and the arrow are the
+  // two controls; the row keeps its door attribute and gives up its own role, and
+  // no <a> or <button> appears anywhere in the line.
+  const rollId = cut("the roll-up identity, and where the row's name went");
+  has(rollId, "var idAt = _billDoorAttrs(g.num, g.sit, g.ident);",
+    "the roll-up identity does not ask the one emitter for its door");
+  has(rollId, 'class="pdxgap-drv-id pdxbill-door" role="button" tabindex="0"',
+    "the roll-up identity is not reachable as a control of its own");
+  has(rollId, ': \'<span class="pdxgap-drv-id">\' + esc(g.ident) + \'</span>\')',
+    "a group with no number no longer falls back to plain text — it would promise a file nobody claimed");
+  // Comment-stripped, because the span's own note SAYS "no <a> and no <button>"
+  // — the doctrine is written next to the markup it constrains, and a sweep that
+  // read the note would fail on the sentence explaining why it cannot fail.
+  const rollIdCode = rollId.replace(/^\s*\/\/.*$/gm, "");
+  ok(!/<a\b|<button\b/.test(rollIdCode),
+    "the roll-up row nested an anchor or a button inside its door — the parser closes the outer element on " +
+    "the inner start tag and drops every span after it out of the row");
+  const doorAttr = rollIdCode.slice(rollIdCode.indexOf("var door ="), rollIdCode.indexOf("var idAt"));
+  ok(!/role=|tabindex/.test(doorAttr),
+    "the row announces itself as a control again while holding two destinations — one of the two would be " +
+    "the lie a screen reader repeats");
+  const goStop = cut("the explainer's own focus stop");
+  has(goStop, '\'<span class="pdxgap-drv-go" role="button" tabindex="0"\'',
+    "the explainer has no focus stop of its own, so the keyboard could reach the bill file and not the reading");
+  has(goStop, '\'<span aria-hidden="true">→</span></span>\'',
+    "the arrow is announced as text beside the name it duplicates");
+  ok(!/<a\b|<button\b/.test(goStop), "the row's second control is an anchor or a button, nested in the row's door");
+  for (const t of [sit, cardNum, cardTtl, emit, groupAddr, rollId, goStop])
+    ok(!/MIN_|FLOOR|floor|publishable|score|Math\.|party|\d\s*%/.test(strip(t)),
+      "a bill-door span in the lower half reads a floor, a score, a party or a percentage");
 }
 
 /**

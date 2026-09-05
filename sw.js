@@ -880,6 +880,50 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v138 - THE BILL TITLE IS A DOOR TO THE BILL FILE. Four surfaces printed a
+// measure identity as text and only as text: the issue dossier's Official Record
+// cards, its "which measures this came from" roll-up, the Official Record proof
+// line on a person file, and the ledger's measure cards on /i/<key>. A reader who
+// had just been told what H.B. 400 did on school absenteeism could see "H.B. 400"
+// and had no way to open it — the whole instrument, all of its members, all of its
+// mappings, the vehicle and the stowaway, the roll calls. The education path ended
+// at the person-issue pair.
+//   So every one of those identities is now the door, and the door is the SHIPPED
+// one: data-pdxbill-open → PDXBillDetail.open(number, sitting) on the person file,
+// window.pdxDoor1Bill(number, sitting) on the issue desk. No new address shape, no
+// new nav item, no new score and no new fetch on the person-file critical path —
+// the panel these open is the same panel #bill/<sitting>/<number> and /b/<sitting>/
+// <number> have always resolved to.
+//   THE SITTING NOW TRAVELS WITH THE NUMBER, which was a real defect on the state
+// half of the record rather than a tidiness point: "H.B. 208" names a different
+// bill in every Utah general session and "H.R. 22" names a different one in every
+// congress, and the issue desk was handing the panel a bare number. Two readers
+// own the two shapes the sitting arrives in — window.pdxBillSit for a voting-record
+// item (consistency.js), PDXBillDetail.sittingOf for an index card — and the desk
+// asks them rather than copying either.
+//   THE ROW AROUND THE IDENTITY STILL MEANS WHAT IT MEANT. Tapping a dossier card
+// face opens the measure explainer; tapping a roll-up line opens the same
+// explainer; tapping a proof line opens that one roll call. Only the number and
+// the title changed destination. The delegated gateway therefore tests the bill
+// door FIRST — closest() walks outward, so the innermost control has to be checked
+// first or the row would keep winning every tap on its own title.
+//   AND NOTHING INTERACTIVE IS NESTED. Where a real <button> is legal it is one
+// (the dossier card's <summary>, which already held "See all N readings"; the
+// ledger card's <li>, which already held "Who voted on it"). The roll-up row could
+// not hold one — an interactive element inside another makes the parser close the
+// outer one early and drops every following span out of the row — so that row
+// follows the shape the stance rows already use: the <li> keeps the door attribute
+// and stays a pointer target, while role, tabindex and the accessible name move
+// onto the two spans that are the actual controls, the identity and the ↗.
+//   A MISSING BILL FILE IS SAID, NOT SUBSTITUTED. The old issue-desk fallback
+// opened the bills INDEX when the panel was absent, so a reader who asked for one
+// measure got a list of all of them. Both openers now mark the control itself —
+// "No bill page on file", once, in place — and navigate nowhere.
+// Bumped because the doors are in precached shell files (consistency.js,
+// door1-workspace.js, door1-workspace.css) and a warm device would otherwise keep
+// serving identities that are not doors. No floor, mapping, weight, verdict,
+// Direction Match read or Door 2 holder moved; the twin boot is byte-identical.
+//
 // v137 - DOOR 2 NAMES THE RIGHT HUMANS. A Layton / Davis County reader resolved
 // three of six seats: both "U.S. Senate · Utah" rows and "Governor · Utah"
 // printed "No record on file yet — we'd rather leave this blank than name the
@@ -2401,7 +2445,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v137';
+const CACHE_VERSION = 'v138';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

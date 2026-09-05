@@ -147,8 +147,8 @@ const ALLOW = {
   "door1-workspace.js": [
     ["if (primary) s.primary = true;",
      "the desk's measure card label"],  // door1-workspace.js:1022
-    ["var s = slot(measureKey(it), it.number || '', it.title || '', !!(m && m.isPrimary));",
-     "the desk reads the flag off the act to label the card"],  // door1-workspace.js:1048
+    ["var s = slot(measureKey(it), it.number || '', it.title || '', !!(m && m.isPrimary),",
+     "the desk reads the flag off the act to label the card"],  // door1-workspace.js:1091
     ["return m.primary ? 'primary' : 'provision';",
      "the desk's measure band id"],  // door1-workspace.js:1110
     ["if (m.primary) t.mLabPrimary++; else t.mLabProvision++;",

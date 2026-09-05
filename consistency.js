@@ -1767,6 +1767,12 @@
       '.pdxor-proof-ico{flex-shrink:0;font-size:0.72rem;}' +
       '.pdxor-proof-txt{min-width:0;}' +
       '.pdxor-proof-bill{color:#e8eefc;font-weight:700;letter-spacing:0.01em;}' +
+      // Marked as its own door, faintly: the line is already a tap target, so what
+      // this says is "this part of it goes somewhere else", not "this is tappable".
+      '.pdxor-proof-bill[data-pdxbill-open]{cursor:pointer;text-decoration:underline;' +
+        'text-decoration-style:dotted;text-decoration-color:rgba(159,180,212,0.45);' +
+        'text-underline-offset:2px;}' +
+      '.pdxor-proof-bill[data-pdxbill-open]:hover{color:#bcd8ff;text-decoration-color:#7fb4ff;}' +
       '.pdxor-proof-txt b{color:#e8eefc;font-weight:700;}' +
       // The multi-issue slice, e.g. "Yea counted for Lower Taxes / against Health
       // Care". Its own line so a long pairing never squeezes the bill name.
@@ -2081,6 +2087,24 @@
         'font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#9fb4d4;}' +
       '.pdxgap-drv-hn{font-weight:600;letter-spacing:0.02em;text-transform:none;font-size:0.63rem;color:#7e93b3;}' +
       '.pdxgap-drv-l{list-style:none;margin:0.35rem 0 0;padding:0;display:grid;gap:0.3rem;}' +
+      // ── THE MEASURE IDENTITY, DRESSED AS THE TEXT IT REPLACED ───────────────
+      // Declared BEFORE the slots it lands in, on purpose: it is one class deep,
+      // exactly as .pdxdos-rec-id and .pdxdos-rec-ttl are, so the later rule keeps
+      // ownership of the weight, size and colour of its own slot and this rule only
+      // undoes the browser's button chrome. A number that changed colour on becoming
+      // a door would be a restyle wearing a feature's clothes.
+      '.pdxbill-door{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;' +
+        'cursor:pointer;text-align:left;text-decoration:underline;text-decoration-style:dotted;' +
+        'text-decoration-color:rgba(159,180,212,0.45);text-underline-offset:2px;}' +
+      '.pdxbill-door:hover{color:#bcd8ff;text-decoration-color:#7fb4ff;}' +
+      '.pdxbill-door:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;border-radius:0.25rem;}' +
+      '.pdxbill-door[data-pdxbill-none]{cursor:default;text-decoration:none;}' +
+      // The honest refusal, written onto the control the reader tapped rather than
+      // anywhere else. Amber because it is a coverage gap and not a verdict, and
+      // inline because the number it explains has to stay beside it.
+      '.pdxbill-nofile{display:inline-block;margin-left:0.35rem;font-size:0.6rem;font-weight:600;' +
+        'letter-spacing:0.02em;color:#f0cd8c;border:1px solid rgba(240,205,140,0.3);' +
+        'border-radius:0.35rem;padding:0.02rem 0.3rem;white-space:nowrap;}' +
       '.pdxgap-drv-r{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.2rem 0.4rem;' +
         'padding:0.3rem 0.42rem;border-radius:0.45rem;border:1px solid rgba(255,255,255,0.09);' +
         'background:rgba(10,15,30,0.45);}' +
@@ -2092,8 +2116,11 @@
       // gets on top.
       '.pdxgap-drv-r.is-door{cursor:pointer;transition:border-color 0.12s,background 0.12s;}' +
       '.pdxgap-drv-r.is-door:hover{border-color:rgba(127,180,255,0.5);background:rgba(127,180,255,0.08);}' +
-      '.pdxgap-drv-r.is-door:focus-visible{outline:2px solid #7fb4ff;outline-offset:1px;}' +
-      '.pdxgap-drv-go{margin-left:auto;font-size:0.72rem;color:#7fb4ff;opacity:0.7;}' +
+      // The ring is on the two controls now, not on the row: the row is a pointer
+      // target and never takes focus, so a ring drawn on it could not be reached.
+      '.pdxgap-drv-id:focus-visible,.pdxgap-drv-go:focus-visible{outline:2px solid #7fb4ff;' +
+        'outline-offset:2px;border-radius:0.25rem;}' +
+      '.pdxgap-drv-go{margin-left:auto;font-size:0.72rem;color:#7fb4ff;opacity:0.7;cursor:pointer;}' +
       '.pdxgap-drv-r.is-door:hover .pdxgap-drv-go{opacity:1;}' +
       '.pdxgap-drv-id{font-weight:700;font-size:0.72rem;color:#e8eefc;}' +
       '.pdxgap-drv-n{font-size:0.61rem;color:#7e93b3;padding:0.02rem 0.3rem;border-radius:999px;' +
@@ -3195,6 +3222,26 @@
       // back to is gone — the modal closed, or a different profile was opened — and
       // take it down before it becomes a button to nowhere.
       _stBackSweep();
+      // ── THE MEASURE IDENTITY IS THE INNERMOST DOOR, SO IT IS CHECKED FIRST ──
+      // Every surface that prints a bill number prints it INSIDE something else
+      // that is already a door: the number sits in a dossier card whose face opens
+      // the measure explainer, in a roll-up row that opens the same explainer, in a
+      // proof line that opens that one roll call. All of those doors are matched by
+      // closest(), which walks outward — so whichever branch is tested first wins
+      // the tap, and testing this one first is the whole reason the title can mean
+      // "open the bill" while the row around it keeps meaning what it meant.
+      //   Ahead of the L3 mount below as well, and deliberately: a reader asking
+      // for the bill file is not asking for the card body, and building a body
+      // nobody opened is work done for a screen that is about to be covered.
+      // Checked here rather than left to bill-detail.js because the panel's own
+      // delegate only listens inside its overlay, and these controls are on the
+      // person file.
+      var bopen = e.target.closest && e.target.closest('[data-pdxbill-open]');
+      if (bopen) {
+        e.preventDefault();
+        _billOpen(bopen);
+        return;
+      }
       // ── L3, mounted on demand ─────────────────────────────────────────────
       // Deliberately no preventDefault and no return: the <details> keeps its own
       // native toggle, and every branch below still gets the click. All this does is
@@ -3223,18 +3270,6 @@
       if (drv) {
         e.preventDefault();
         _drvOpen(drv);
-        return;
-      }
-      // ── Tap the measure's own profile, get the whole bill ─────────────────
-      // The other direction of the same trip: the roll-up row above opens this
-      // measure's explainer inside the person file, and this opens the measure's own
-      // face — every topic it was mapped to, and the roll list. Checked here rather
-      // than left to bill-detail.js because the panel's own delegate only listens
-      // inside its overlay, and this button is on the person file.
-      var bopen = e.target.closest && e.target.closest('[data-pdxbill-open]');
-      if (bopen) {
-        e.preventDefault();
-        _billOpen(bopen);
         return;
       }
       // The stance row's primary tap: the issue name opens that issue's dossier and
@@ -3354,6 +3389,19 @@
     // would move the sheet out from under the row the reader just opened.
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar' && e.keyCode !== 13 && e.keyCode !== 32) return;
+      // Same precedence as the click listener above, for the same reason: the
+      // measure identity is the innermost control, so a keyboard landing on it asks
+      // for the bill file and not for the explainer the row around it opens.
+      var kb = e.target && e.target.closest && e.target.closest('[data-pdxbill-open]');
+      if (kb) {
+        // A real <button> already receives Enter and Space from the browser AS a
+        // click, and handling them here as well would open the same panel twice.
+        // The keys are supplied only for the doors that cannot legally be buttons
+        // — the roll-up line, whose row would be closed early by a nested control.
+        var kbt = String(kb.tagName || '').toLowerCase();
+        if (kbt !== 'button' && kbt !== 'a') { e.preventDefault(); _billOpen(kb); }
+        return;
+      }
       var drv = e.target && e.target.closest && e.target.closest('[data-pdxdrv-open]');
       if (!drv) return;
       e.preventDefault();
@@ -4391,7 +4439,24 @@
       if (!txt) return '';
       var multi = _orRowMultiNote(p.item, issueKey);
       var b = _orProofBits(p.item);
-      var bill = b.bill ? '<b class="pdxor-proof-bill">' + esc(b.bill) + '</b>' : '';
+      // ── THE NUMBER ON THE PROOF LINE IS THE DOOR TO THE BILL ────────────────
+      // The line around it opens this one roll call in the full Voting Record,
+      // which is the right destination for "how did they vote on this" and the
+      // wrong one for "what is this bill". Both questions are asked of the same
+      // line, so the number answers the second and everything else on the line
+      // keeps answering the first — the delegated gateway tests the bill door
+      // first precisely so the innermost control wins the tap.
+      //   POINTER ONLY, and that is this line's own existing rule rather than a
+      // new exception: the proof line lives inside a <summary> and deliberately
+      // takes no focus, because a second tab stop per row would compete with the
+      // row's expand control. Keyboard and screen-reader users reach the same bill
+      // file from the real buttons on the dossier card face.
+      //   Suppressed on a stated position for the same reason the dossier row
+      // suppresses it: `isPosition` here means "not a ballot", and a position is
+      // not cast on an instrument this door could open.
+      var billAt = b.isPosition ? '' : _billDoorAttrs(b.bill, _dosSittingKey(p.item), b.bill);
+      var bill = b.bill
+        ? '<b class="pdxor-proof-bill"' + billAt + '>' + esc(b.bill) + '</b>' : '';
       var restBits = [];
       if (!b.bill && b.title) restBits.push(esc(b.title));
       if (b.question) restBits.push(esc(b.question));
@@ -13507,6 +13572,14 @@
     var c = item.congress;
     return (typeof c === 'number' && isFinite(c) && c > 0) ? String(c) : '';
   }
+  // ONE OWNER OF "WHICH SITTING IS THIS NUMBER IN". Published because the issue
+  // desk on /i/<key> prints the same bill numbers as doors onto the same panel,
+  // and a second copy of this precedence — measureIdent.session, else the congress
+  // — is a second chance for the two surfaces to address different sessions from
+  // the same printed number. Pure, and safe to call with anything.
+  window.pdxBillSit = function (item) {
+    try { return _dosSittingKey(item); } catch (e) { return ''; }
+  };
   function _dosCongressLabel(n) {
     if (typeof n !== 'number' || !isFinite(n) || n <= 0) return '';
     var t = n % 100, u = n % 10;
@@ -14446,7 +14519,17 @@
         : ledRow ? '<span class="pdxdos-rec-ico" aria-hidden="true">' + _LED.ico + '</span>'
         : '<span class="pdxdos-rec-ico" style="color:' + v.color + '" aria-hidden="true">' + v.ico + '</span>') +
       (nos ? '<span class="pdxdos-rec-nosl">' + esc(nos) + '</span>' : '') +
-      '<span class="pdxdos-rec-id">' + esc(d.ident) + '</span>' +
+      // ── THE IDENTITY IS THE DOOR TO THE INSTRUMENT ────────────────────────
+      // Everything else on this card is one issue's view of the measure: what it
+      // did here, which way it cut here, how this member voted. The number is not
+      // — it is the measure itself, and until now it was the one thing on the card
+      // a reader could see and not open. So the number and the title are a real
+      // <button> onto the bill file (every member, every mapping, vehicle and
+      // stowaway, the roll calls) and the rest of the card face still toggles the
+      // explainer it always toggled. A <button> is legal here where it is not
+      // legal in the roll-up row: this is a <summary>, whose other control —
+      // "See all N readings" — has been a real button since it shipped.
+      _billDoor('pdxdos-rec-id', d.billNum, d.billSit, d.ident, esc(d.ident)) +
       // The sitting sits with the number because it is part of the number's meaning:
       // "H.R. 22" names one bill in the 119th and a different one in every other,
       // and "H.B. 208" names a different bill in every Utah general session. Reads
@@ -14469,7 +14552,7 @@
       //   Skipped when it would only repeat the identity: on the migrated formal
       // lane the ident IS the headline sentence, and on a record row filed without a
       // bill number the ident falls back to the title.
-      (_faceTtl ? '<span class="pdxdos-rec-ttl">' + esc(_faceTtl) + '</span>' : '') +
+      (_faceTtl ? _billDoor('pdxdos-rec-ttl', d.billNum, d.billSit, d.ident, esc(_faceTtl)) : '') +
       (d.question ? '<span class="pdxdos-rec-act">' + esc(d.question) + '</span>' : '') +
       (d.act && !nosBallot ? '<span class="pdxdos-rec-act">' + esc(d.act) + '</span>' : '') +
       (dir && !d.held ? '<span class="pdxdos-rec-dir">' + esc(_ledDirShort(dir)) + '</span>' : '') +
@@ -15191,10 +15274,68 @@
     try {
       var num = el && el.getAttribute ? (el.getAttribute('data-pdxbill-num') || '') : '';
       if (!num) return;
+      if (el.getAttribute('data-pdxbill-none')) return;
       var sit = el.getAttribute('data-pdxbill-sit') || '';
       var B = window.PDXBillDetail;
-      if (B && typeof B.open === 'function') B.open(num, sit);
+      if (B && typeof B.open === 'function' && B.open(num, sit) !== false) return;
+      _billDoorNone(el, num);
     } catch (e) {}
+  }
+  // ── WHEN THERE IS NO BILL FILE BEHIND THE NUMBER ────────────────────────────
+  // Three things a door onto a missing file must not do, and this is the one that
+  // does none of them: it must not sit there eating taps in silence, it must not
+  // hand the reader the bill index or the front page instead of the bill they
+  // asked for, and it must not lie about the reason. The panel itself handles the
+  // case where the measure is addressable but momentarily unfetchable — it has a
+  // whole lite fallback for that — so the only way through to here is the panel
+  // being absent from the page altogether, which is a fact about this build and
+  // not about the measure. So the control says so, on itself, once, and stays
+  // where it is: the number is still readable, still copyable, still the thing a
+  // reader takes to the clerk's own site.
+  var _BILL_NOFILE = 'No bill page on file';
+  function _billDoorNone(el, num) {
+    try {
+      if (!el || !el.setAttribute) return;
+      el.setAttribute('data-pdxbill-none', '1');
+      el.setAttribute('aria-disabled', 'true');
+      el.setAttribute('title', _BILL_NOFILE + (num ? ' for ' + num : ''));
+      if (el.querySelector && el.querySelector('.pdxbill-nofile')) return;
+      var note = document.createElement('span');
+      note.className = 'pdxbill-nofile';
+      note.textContent = _BILL_NOFILE;
+      el.appendChild(note);
+    } catch (e) {}
+  }
+  // ── THE DOOR ITSELF, EMITTED IN ONE PLACE ───────────────────────────────────
+  // Four surfaces print a measure identity as text — the dossier card face, the
+  // "which measures" roll-up, the Official Record proof line and the issue desk's
+  // ledger — and every one of them now opens the same bill file from that
+  // identity. The attributes are what the delegated gateway reads, so they are
+  // written once here rather than four times: a number without its sitting is not
+  // an address (see _dosSittingKey), and a surface that assembled the pair by hand
+  // could address a different session than the one printed beside it.
+  //   NO NUMBER, NO DOOR. A record row filed without a bill number has no measure
+  // to open — its identity IS its headline — and dressing that as a control would
+  // promise a file that was never claimed to exist.
+  // The same door as a control, for the surfaces that can hold a real button. One
+  // slot in, one slot out: the class the layout already styles stays the class,
+  // so a <span> becoming a <button> changes what the element DOES and nothing
+  // about where it sits. Falls back to the span it replaced when there is no
+  // number to address, which is the honest shape for a row that names no measure.
+  function _billDoor(cls, num, sit, ident, inner) {
+    var at = _billDoorAttrs(num, sit, ident);
+    if (!at) return '<span class="' + cls + '">' + inner + '</span>';
+    return '<button type="button" class="' + cls + ' pdxbill-door"' + at +
+      ' aria-label="' + escAttr('Open the bill file for ' + (ident || num)) + '">' +
+      inner + '</button>';
+  }
+  function _billDoorAttrs(num, sit, ident) {
+    var n = String(num == null ? '' : num).trim();
+    if (!n) return '';
+    return ' data-pdxbill-open data-pdxbill-num="' + escAttr(n) + '"' +
+      ' data-pdxbill-sit="' + escAttr(String(sit == null ? '' : sit)) + '"' +
+      ' title="' + escAttr('Open the bill file for ' + (ident || n) +
+        ' \u2014 every member, every mapping, the roll calls') + '"';
   }
 
   function _drvOpen(el) {
@@ -15914,7 +16055,16 @@
           // grouping time because that is the only place the two orderings are
           // both in hand; the sort below reorders the roll-up and would otherwise
           // lose the correspondence entirely.
-          idx: idxOf
+          idx: idxOf,
+          // THE MEASURE'S OWN ADDRESS, off the same first item `idx` points at.
+          // A group is one instrument seen from one to six roll calls, so the
+          // number is the same on every member of it and the sitting is read from
+          // the item the door already opens — which is what stops a row from
+          // linking to a different session than the explainer it is anchored to.
+          // Empty on a group with no bill number (a stated position, a migrated
+          // formal action), and an empty number is what suppresses the door.
+          num: String((dItem && dItem.billNum) || '').trim(),
+          sit: String((dItem && dItem.billSit) || '').trim()
         };
         order.push(k);
       }
@@ -16008,19 +16158,35 @@
       // door wherever inside the row a tap lands, and an interactive element
       // nested inside another makes the HTML parser close the outer one early —
       // which drops every span after the nested one out of the row entirely.
-      // So: role and tabindex rather than a <button>, and no <a> or <button>
-      // anywhere in the line.
+      // So: no <a> and no <button> anywhere in the line.
       //
-      // The accessible name is the whole line's text, which the browser assembles
-      // from the spans; the title says what tapping does, because a row that
-      // opens something should say so before it is tapped.
+      // AND NOW THE LINE CARRIES TWO DESTINATIONS, WHICH IS WHY THE ROW ITSELF IS
+      // NO LONGER THE ANNOUNCED CONTROL. The measure identity opens the bill file
+      // — the instrument, all of its members, all of its mappings — and the rest
+      // of the line opens this issue's explainer for it, exactly as before. Two
+      // things to reach means two focus stops, and putting one inside a
+      // role="button" row would nest an interactive element inside another: the
+      // parser tolerates it where <button> is not involved, but a screen reader
+      // then announces a button inside a button and a keyboard cannot reach the
+      // inner one. So the row follows the shape the stance rows already use (see
+      // the note in scripts/test-row-tap-dossier.mjs): the <li> keeps the door
+      // attribute and stays a POINTER target — a tap anywhere on it still opens
+      // the explainer through the delegated closest() — while role, tabindex and
+      // the accessible name move onto the two spans that are the actual controls.
       var door = ' data-pdxdrv-open="' + escAttr(String(g.idx)) + '"' +
         ' data-pdxdrv-pid="' + escAttr(pid) + '"' +
         ' data-pdxdrv-key="' + escAttr(issueKey) + '"' +
-        ' role="button" tabindex="0"' +
         ' title="' + escAttr('Open ' + g.ident + ' — what it did and how they voted') + '"';
+      // The identity, as a span rather than a button, for the parser reason above.
+      // Where the group carries no number there is no bill file to promise, so the
+      // span stays the plain text it has always been.
+      var idAt = _billDoorAttrs(g.num, g.sit, g.ident);
       return '<li class="pdxgap-drv-r is-door' + (g.pkg ? ' is-pkg' : '') + '"' + door + '>' +
-        '<span class="pdxgap-drv-id">' + esc(g.ident) + '</span>' +
+        (idAt
+          ? '<span class="pdxgap-drv-id pdxbill-door" role="button" tabindex="0"' + idAt +
+            ' aria-label="' + escAttr('Open the bill file for ' + g.ident) + '">' +
+            esc(g.ident) + '</span>'
+          : '<span class="pdxgap-drv-id">' + esc(g.ident) + '</span>') +
         '<span class="pdxgap-drv-n">' + esc(g.n + ' ' + (g.n === 1 ? 'item' : 'items')) + '</span>' +
         (bits.length ? '<span class="pdxgap-drv-c">' + esc(bits.join(' · ')) + '</span>' : '') +
         (ttl ? '<span class="pdxgap-drv-t">' + esc(ttl) + '</span>' : '') +
@@ -16031,7 +16197,12 @@
         (g.pkg ? '<span class="pdxgap-drv-p"><span aria-hidden="true">🚂</span> ' +
           esc('this issue rode inside it as a provision' + (g.cls ? ' — ' + g.cls : '')) +
           '</span>' : '') +
-        '<span class="pdxgap-drv-go" aria-hidden="true">→</span>' +
+        // The explainer's own focus stop, and the reason the row does not need one.
+        // It was the ↗ affordance and nothing else; it is now the keyboard twin of
+        // the pointer tap that the whole row still answers.
+        '<span class="pdxgap-drv-go" role="button" tabindex="0"' +
+          ' aria-label="' + escAttr('Open ' + g.ident + ' — what it did and how they voted') + '">' +
+          '<span aria-hidden="true">→</span></span>' +
       '</li>';
     }).join('');
     var more = d.more

@@ -640,8 +640,9 @@
           jsq(card.issueKey) + '\')">The ' + esc(issueLabel(card.issueKey)) + ' dossier</button>';
       }
       if (card.measureNumber) {
-        doors += '<button type="button" class="d1-door is-lead" onclick="window.pdxDoor1Bill(\'' +
-          jsq(card.measureNumber) + '\')">' + esc(card.measureNumber) + ' — who voted</button>';
+        doors += '<button type="button" class="d1-door is-lead" onclick="return window.pdxDoor1Bill(\'' +
+          jsq(card.measureNumber) + '\',\'' + jsq(billSitOf(card)) + '\',this)">' +
+          esc(card.measureNumber) + ' — who voted</button>';
       }
       return '<div class="d1-out d1-out-hit">' +
         '<p class="d1-out-k">A formal act on file matches this claim’s person and issue.</p>' +
@@ -1002,8 +1003,8 @@
   // member's act arrived on. H.R. 1 did exactly that on climate_action, and
   // H.J.Res. 88 and H.J.Res. 89 did it too. Two cards, one instrument, and the tap
   // on each opened the SAME door, because a measure card opens
-  // pdxDoor1Bill(number) and nothing else. A twin row is not a distinction; it is
-  // the same bill asked twice.
+  // pdxDoor1Bill(number, sitting) and nothing else. A twin row is not a
+  // distinction; it is the same bill asked twice.
   //   SO THE FACE IS KEYED ON THE NUMBER — the identity that door already takes.
   // Both appearances fold into one row: the acts unite, the strongest label wins,
   // the more informative of the two titles is kept, and where the two appearances
@@ -1030,11 +1031,17 @@
   }
   function ledgerMeasures(rows, key) {
     var byKey = {}, order = [];
-    function slot(id, number, title, primary) {
+    function slot(id, number, title, primary, sit) {
       if (!id) return null;
       var fid = faceKey(id, number);
       if (!byKey[fid]) {
-        byKey[fid] = { id: fid, number: number || '', title: '', titles: [],
+        // `sit` is the sitting the number is an address IN. Carried on the folded
+        // face because the two appearances of one instrument are the same
+        // instrument in the same sitting — the fold is keyed on the number — and a
+        // card that dropped it would hand the panel a number that repeats every
+        // session. First non-empty wins: the index card and the record row spell
+        // it in different fields and only one of them may be present.
+        byKey[fid] = { id: fid, number: number || '', title: '', titles: [], sit: sit || '',
           // THE LABEL, AND HOW MANY TIMES EACH WAS CLAIMED. `primary` is still the
           // strongest of the appearances — a measure curated as being ABOUT this
           // issue anywhere is about it — and `lab` keeps both tallies so a folded
@@ -1053,6 +1060,7 @@
       s.apps++;
       s.lab[primary ? 'P' : 'p']++;
       if (!s.number && number) s.number = number;
+      if (!s.sit && sit) s.sit = sit;
       if (title && s.titles.indexOf(title) < 0) s.titles.push(title);
       if (primary) s.primary = true;
       return s;
@@ -1072,7 +1080,7 @@
       if (keys.indexOf(key) < 0) return;
       slot(b.measureId != null && b.measureId !== '' ? 'm:' + b.measureId
         : (b.number ? 'n:' + String(b.number).toLowerCase() : ''),
-        b.number, b.title || b.shortTitle || '', b.primaryIssue === key);
+        b.number, b.title || b.shortTitle || '', b.primaryIssue === key, billSitOf(b));
     });
     (rows || []).forEach(function (r) {
       itemsOn(r.pid, key).forEach(function (it) {
@@ -1080,7 +1088,8 @@
         if (typeof side === 'undefined') return;
         var m = null;
         (it.issues || []).forEach(function (g) { if (!m && g && g.issueKey === key) m = g; });
-        var s = slot(measureKey(it), it.number || '', it.title || '', !!(m && m.isPrimary));
+        var s = slot(measureKey(it), it.number || '', it.title || '', !!(m && m.isPrimary),
+          billSitOf(it));
         if (!s) return;
         s.seen = true;
         if (it.isProcedural) s.proc = true; else s.subst = true;
@@ -1985,13 +1994,41 @@
     }
     function card(m) {
       var sides = who('Advanced it', m.adv) + who('Cut against it', m.opp) + who('No side recorded', m.none);
+      // ── THE IDENTITY IS THE DOOR TO THE INSTRUMENT ────────────────────────
+      // This card already had one door — "Who voted on it", which opens the same
+      // panel — and the number above it was text. That is the wrong way round for
+      // a reader scanning a list of measures: the thing they read is the thing
+      // they tap. So the number and the title open the bill file and the button
+      // stays exactly where it was, because it says something the identity does
+      // not. A real <button> is legal here: the card is an <li>, not a control,
+      // and it already holds one.
+      //   The slot keeps its class so the layout is untouched, and a card with no
+      // number keeps the plain span it always had — "On file" addresses nothing.
+      //   THE SLOT STAYS THE SLOT. The door WRAPS the span rather than replacing
+      // it: the span is what carries the type and what every reader of this
+      // markup — the layout, and the harness that reads the numbers back out of
+      // it — already looks for, and a control that renamed the thing it makes
+      // tappable would be two changes where one was asked for. What the button
+      // needs from the flex row it now sits in is declared beside it in
+      // door1-workspace.css.
+      function bdoor(cls, mod, inner) {
+        var span = '<span class="' + cls + '">' + inner + '</span>';
+        if (!m.number) return span;
+        return '<button type="button" class="d1-bdoor ' + mod + '"' +
+          ' onclick="return window.pdxDoor1Bill(\'' + jsq(m.number) + '\',\'' +
+            jsq(m.sit || '') + '\',this)"' +
+          ' title="' + esc('Open the bill file for ' + m.number +
+            ' \u2014 every member, every mapping, the roll calls') + '"' +
+          ' aria-label="' + esc('Open the bill file for ' + m.number) + '">' +
+          span + '</button>';
+      }
       return '<li class="d1-led-b">' +
-        '<span class="d1-led-bnum">' + esc(m.number || m.title || 'On file') + '</span>' +
+        bdoor('d1-led-bnum', 'is-num', esc(m.number || m.title || 'On file')) +
         // A record row often carries no title beyond its own number, and printing
         // the number twice reads as a title nobody wrote. Withheld when it adds
         // nothing; never substituted with a guess at what the measure was about.
         (m.title && m.title !== m.number
-          ? '<span class="d1-led-btitle">' + esc(m.title) + '</span>' : '') +
+          ? bdoor('d1-led-btitle', 'is-ttl', esc(m.title)) : '') +
         '<span class="d1-led-btag' + (m.primary ? ' is-primary' : '') + '">' +
           (m.primary ? 'PRIMARY' : 'provision') + '</span>' +
         // FLOOR MACHINERY, MARKED ON THE CARD RATHER THAN ONLY IN A BAND. A bill
@@ -2009,8 +2046,8 @@
           : '') +
         (sides ? '<span class="d1-led-bwho">' + sides + '</span>' : '') +
         (m.number
-          ? '<button type="button" class="d1-cite" onclick="window.pdxDoor1Bill(\'' +
-            jsq(m.number) + '\')">Who voted on it</button>'
+          ? '<button type="button" class="d1-cite" onclick="return window.pdxDoor1Bill(\'' +
+            jsq(m.number) + '\',\'' + jsq(m.sit || '') + '\',this)">Who voted on it</button>'
           : '') +
       '</li>';
     }
@@ -2504,9 +2541,13 @@
         // record baseline. The tag is the alignment lane's own.
         var base = (r.tierKey === 'voted' && BASE)
           ? '<span class="d1-base">' + esc(BASE) + '</span>' : '';
+        // The row's own citation, whose LABEL is the bill number — so it was
+        // already the door this pass is about, and all it needed was the sitting
+        // that makes a repeated number an address.
         var cite = (r.voteCite && r.voteCite.number)
-          ? '<button type="button" class="d1-cite" onclick="window.pdxDoor1Bill(\'' +
-            jsq(r.voteCite.number) + '\')">' + esc(r.voteCite.number) + '</button>' : '';
+          ? '<button type="button" class="d1-cite" onclick="return window.pdxDoor1Bill(\'' +
+            jsq(r.voteCite.number) + '\',\'' + jsq(billSitOf(r.voteCite)) + '\',this)">' +
+            esc(r.voteCite.number) + '</button>' : '';
         return '<li class="d1-person">' +
           personLink(r.id, r.name || r.id, 'd1-person-a') + base +
           '<span class="d1-person-m">' + esc(facts.join(' · ')) + '</span>' + cite +
@@ -2602,8 +2643,8 @@
         '<p class="d1-meas-t">' + esc(card.title || card.shortTitle || '') + '</p>' +
         (meta ? '<p class="d1-out-meta">' + meta + '</p>' : '') +
         '<div class="d1-doors">' +
-          '<button type="button" class="d1-door is-lead" onclick="window.pdxDoor1Bill(\'' +
-            jsq(card.number) + '\')">Who voted on it</button>' +
+          '<button type="button" class="d1-door is-lead" onclick="return window.pdxDoor1Bill(\'' +
+            jsq(card.number) + '\',\'' + jsq(billSitOf(card)) + '\',this)">Who voted on it</button>' +
           (card.source && card.source.url
             ? '<a class="d1-src" href="' + esc(card.source.url) + '" target="_blank" rel="noopener">🔗 ' +
               esc((card.source && card.source.label) || 'Official record') + '</a>' : '') +
@@ -3132,12 +3173,64 @@
     return false;
   };
 
-  window.pdxDoor1Bill = function (num) {
+  // ── THE ONE BILL DOOR THIS DESK OWNS ────────────────────────────────────────
+  // Every measure identity printed on /i/<key> — the ledger's measure cards, the
+  // bill number beside a person's row, the measure desk's own headline — opens the
+  // shipped bill panel through this one function, and nothing here invents a
+  // second address shape for it.
+  //
+  // THE SITTING TRAVELS WITH THE NUMBER NOW. It did not, and that was a real
+  // defect on the state half of the record rather than a tidiness point: "H.B.
+  // 208" names a different bill in every Utah general session and "H.R. 22" names
+  // a different one in every congress, so a number handed over alone let the panel
+  // resolve whichever sitting it happened to see first. `window.pdxBillSit` is
+  // consistency.js's own reader for that field and is used rather than copied, so
+  // the two surfaces cannot address different sessions from the same number.
+  //
+  // AND A MISSING BILL FILE IS SAID, NOT SUBSTITUTED. The old fallback opened the
+  // bills INDEX when the panel was absent — a reader who asked for H.B. 400 got a
+  // list of every measure instead, which looks like the app ignoring the tap. The
+  // control now says what is true about it, on itself, and stays put.
+  var D1_NOFILE = 'No bill page on file';
+  // TWO SHAPES, TWO OWNERS, NO THIRD COPY. A voting-record item spells the sitting
+  // as measureIdent.session-or-congress (consistency.js's window.pdxBillSit); a
+  // bills-index card spells it as externalIds.utahSession-or-congress
+  // (PDXBillDetail.sittingOf). Both are asked, in that order, and nothing here
+  // re-implements either — a desk that guessed at the field would be the one place
+  // a printed number could open a different session than the one printed with it.
+  function billSitOf(o) {
+    if (!o) return '';
+    try { if (fn(window.pdxBillSit)) { var a = window.pdxBillSit(o); if (a) return a; } } catch (e) {}
     try {
-      if (window.PDXBillDetail && fn(window.PDXBillDetail.open)) { window.PDXBillDetail.open(num); return true; }
+      var B = window.PDXBillDetail;
+      if (B && fn(B.sittingOf)) return B.sittingOf(o) || '';
     } catch (e) {}
-    try { if (fn(window.pdxOpenBills)) return window.pdxOpenBills(); } catch (e) {}
+    return '';
+  }
+  function billDeny(el, num) {
+    try {
+      if (!el || !el.setAttribute) return false;
+      el.setAttribute('data-d1-nofile', '1');
+      el.setAttribute('aria-disabled', 'true');
+      el.setAttribute('title', D1_NOFILE + (num ? ' for ' + num : ''));
+      if (el.querySelector && el.querySelector('.d1-nofile')) return false;
+      var note = document.createElement('span');
+      note.className = 'd1-nofile';
+      note.textContent = D1_NOFILE;
+      el.appendChild(note);
+    } catch (e) {}
     return false;
+  }
+  window.pdxDoor1Bill = function (num, sit, el) {
+    if (!num) return false;
+    try {
+      if (el && el.getAttribute && el.getAttribute('data-d1-nofile')) return false;
+    } catch (e) {}
+    try {
+      if (window.PDXBillDetail && fn(window.PDXBillDetail.open) &&
+          window.PDXBillDetail.open(num, String(sit == null ? '' : sit)) !== false) return true;
+    } catch (e) {}
+    return billDeny(el, num);
   };
 
   window.PDXDoor1 = {

@@ -2103,7 +2103,12 @@
     document.head.appendChild(st);
   }
 
-  window.PDXBillDetail = { open: open, close: close };
+  // `sittingOf` is exported for the surfaces that hold an INDEX CARD rather than a
+  // voting-record item: consistency.js owns the record-item reader (window.pdxBillSit
+  // — measureIdent.session, else the congress) and this owns the card one, because
+  // the two shapes spell the same fact differently and a caller guessing which is
+  // which is how a door ends up addressing the wrong session.
+  window.PDXBillDetail = { open: open, close: close, sittingOf: sittingKeyOfCard };
 
   // ── Deep-link routing ───────────────────────────────────────────────────────
   // In-app state is #bill/<sitting>/<number>; the shareable, server-visible form of

@@ -1531,6 +1531,25 @@ const swNote = swWaveNote();
     // measure mapped to it — so the sentence it replaces is stronger than the one
     // it stood in for, not weaker.
     "scripts/test-sitemap-bills.mjs",
+    // The bill-door pass (CACHE_VERSION v138), on those same later-wave terms. It
+    // writes no roll, no mapping, no key, no floor and no admission: every measure
+    // identity the app already prints becomes a door on the bill file that was
+    // already there — the dossier's Official Record cards and its "which measures"
+    // roll-up, the issue desk's ledger rows on /i/<key>, and the formal brief's
+    // proof lines where they print a number. It invents no second address for that
+    // file: the door hands the number and the sitting it was printed with to the
+    // same PDXBillDetail.open that the in-app #bill/<sitting>/<number> link has
+    // always called, and a measure with no page on file says so on the control
+    // instead of dead-clicking or dumping the index. consistency.js's fourteen
+    // spans are that pass, carved and argued in the shared seam module above.
+    //   The single file below moved for one reason. Its allowlist pinned the exact
+    // text of the desk's slot(...) call, and that call gained the sitting the number
+    // came with, because a bare number is not an identity: H.B. 400 names a
+    // different instrument in a different Utah session, and H.R. 6644 in a
+    // different Congress. The pin was repaired to the new call rather than loosened
+    // off it — it still quotes the call through the isPrimary flag it was written to
+    // guard — so the rule it enforces is the same rule, read at the same place.
+    "scripts/test-primary-label-not-gate.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
