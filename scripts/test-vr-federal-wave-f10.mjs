@@ -249,8 +249,25 @@ const C = decide._counts || {};
 
   const strays = MIGS.filter((f) => /f10|wave_f10|federal_wave_10/i.test(f));
   eq(strays.length, 0, `F10 wrote a migration (${strays.join(", ")}) — this wave ships no row, so a migration for it is a row nobody argued`);
-  eq(MIGS.filter((f) => f.startsWith("20261028")).length, 0,
-    "the 20261028000000 prefix is recorded in the seed as reserved-and-unconsumed; a file at that stamp means the wave shipped something the seed does not declare");
+  // The reserved stamp. F10's own seed says 20261028000000 is "recorded here and not
+  // consumed, so the next wave takes it", so a file appearing there is the sentence coming
+  // true and not a breach. What F10 still has to be able to say is that the file is not
+  // F10's — that nothing was slipped in under a stamp F10 reserved and disowned. So the
+  // check moved from "the stamp is empty" to "the stamp is empty, or it belongs to a wave
+  // that declares it in its own seed". F11 consumed it.
+  {
+    const at28 = MIGS.filter((f) => f.startsWith("20261028"));
+    ok(at28.length <= 1, `more than one migration at the reserved stamp (${at28.join(", ")})`);
+    for (const f of at28) {
+      ok(!/f10/i.test(f), `${f} sits at the stamp F10 reserved and carries F10's name — this wave ships no row`);
+      const seeds = readdirSync(join(ROOT, "db")).filter((x) => /^vr-federal-mapping-seed-.*\.json$/.test(x));
+      const owner = seeds.find((x) => R(join("db", x)).includes(f));
+      ok(!!owner,
+        `${f} consumed the prefix F10 reserved, and no db/vr-federal-mapping-seed-*.json declares it `
+        + "— a migration at a reserved stamp that no wave owns is a row nobody argued");
+      if (owner) ok(!/f10/.test(owner), `${f} is declared by ${owner}, which is F10's own seed`);
+    }
+  }
   ok(!existsSync(join(ROOT, "db/vr-federal-wave-f10-vote-seed.json")),
     "no vote seed: every candidate already held its roll call in the corpus, so there was nothing to ingest");
 

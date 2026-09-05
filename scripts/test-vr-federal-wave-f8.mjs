@@ -1371,6 +1371,45 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "db/vr-ingest-runbook.md",
     "db/vr-federal-mapping-seed-f10.json",
     "scripts/test-vr-federal-wave-f10.mjs",
+    // Federal wave F11 — "first acts on empty poled keys": a COVERAGE wave. One roll
+    // call (House 119/2/154, On Passage of H.R. 7567) lands on a bill F9 curated and
+    // could not read, and one secondary mapping row lands H.R. 6644 on housing_support,
+    // whose two passage rolls were already on file. Two keys that read empty for every
+    // member of Congress start reading; twenty more are refused in writing with a
+    // measured reason each. Landing the roll also made F9's two H.R. 7567 rows sourced
+    // to sections struck by H.Amdt. 196 publishable, so both are retracted rather than
+    // shipped — measured at zero existing reads lost.
+    // Nothing booted changes. The only tracked file this wave edits is the read-only
+    // census tool, which gained an in-memory `--seed-override <wave>=<path>` flag so the
+    // F11 suite can answer its mutation clause ("drop one admitted mapping and those
+    // members return to empty") without rewriting a seed on disk — which is this
+    // suite's own pattern and the reason runbook rule 47 exists. The flag discloses
+    // itself on stderr, in the --json payload and in the table header, so an overridden
+    // run can never be quoted as a measurement.
+    // Two gates of earlier waves changed, both because F11 is the first wave whose
+    // shape they had not seen, and neither by loosening what they check:
+    //   * scripts/test-vr-vote-seed.mjs read "mapped" out of db/vr-issue-seed.json alone.
+    //     That file is a deliberately partial mirror (runbook rule 20 — omitting a key is
+    //     not a removal), and H.R. 7567's five rows were written by 20260721100000 and
+    //     never mirrored, so the first roll to land on it looked like an unmapped measure.
+    //     The check now reads the migrations for the same fact, per file and per
+    //     (measure, key) pair, minus the pairs a later migration deletes. Measured, not
+    //     assumed: across all seventeen vote seeds it admits H.R. 7567 and nothing else,
+    //     and the eight measures behind the declinedFacets door — H.R. 1069 and F7's
+    //     seven Iran resolutions, all ingested with no issue rows at all — stay behind it.
+    //   * scripts/test-vr-federal-wave-f10.mjs asserted the 20261028000000 prefix was
+    //     empty. F10's own seed says that stamp is "recorded here and not consumed, so
+    //     the next wave takes it", so F11 taking it is the sentence coming true. The check
+    //     now allows one file there provided it is not F10's and some mapping seed
+    //     declares it — which is the thing F10 actually needs to be able to say.
+    // scripts/vr-federal-fpi.mjs and db/vr-ingest-runbook.md are declared above already.
+    "scripts/test-vr-vote-seed.mjs",
+    "db/vr-federal-mapping-seed-f11.json",
+    "db/vr-federal-wave-f11-vote-seed.json",
+    "scripts/vr-gen-federal-wave-f11-vote-seed.mjs",
+    "scripts/vr-gen-federal-wave-f11-migration.mjs",
+    "scripts/test-vr-federal-wave-f11.mjs",
+    "netlify/database/migrations/20261028000000_vr_federal_wave_f11.sql",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

@@ -15,6 +15,7 @@
 //   node scripts/vr-federal-fpi.mjs --set touched        # every pid the seed moves
 //   node scripts/vr-federal-fpi.mjs --set all            # every pid in the corpus
 //   node scripts/vr-federal-fpi.mjs --member lee         # one member, both reads
+//   node scripts/vr-federal-fpi.mjs --member lee --rows  # one member, every issue row, before/after
 //   node scripts/vr-federal-fpi.mjs --json               # machine-readable
 //   node scripts/vr-federal-fpi.mjs --drift              # per-issue tier changes
 //   node scripts/vr-federal-fpi.mjs --set all --chambers # PRIMARY by chamber + Senate unread
@@ -59,7 +60,7 @@ import { makeSandbox } from "./gen-hero-showcase.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
-const J = (f) => JSON.parse(R(f));
+const J = (f) => JSON.parse(f.startsWith("/") ? readFileSync(f, "utf8") : R(f));
 // ── WHICH WAVES ARE PROJECTED ────────────────────────────────────────────────
 // One entry per federal wave, in the order its migration applies. Each wave is a
 // mapping seed (issue rows, and any row it RETRACTS) plus a vote seed (measures,
@@ -87,6 +88,13 @@ const WAVES = {
   // because it carries a mapping seed whose row count the harness has to be able to read
   // — even when, as this wave, that count is zero.
   f10: { mapping: "db/vr-federal-mapping-seed-f10.json", votes: "db/vr-federal-wave-f10-vote-seed.json" },
+  // F11 is the mirror of F10. F10 carried a mapping seed and no vote seed because it
+  // admitted nothing; F11 carries both, and its vote seed is the smaller half of the
+  // wave by row count and the larger half by consequence: one House passage roll on a
+  // measure F9 had already curated and left actless. Its mapping seed writes ONE row
+  // and RETRACTS two, so the overlay's `added`, `retracted` and `skipped` counters all
+  // move here and the before/after table is the wave's own cost disclosure.
+  f11: { mapping: "db/vr-federal-mapping-seed-f11.json", votes: "db/vr-federal-wave-f11-vote-seed.json" },
 };
 
 const FILES = [
@@ -114,8 +122,40 @@ const WAVE_KEYS = (argOf("waves") || Object.keys(WAVES).join(",")).split(",").ma
 for (const w of WAVE_KEYS) if (!WAVES[w]) throw new Error(`unknown wave '${w}' — known waves: ${Object.keys(WAVES).join(", ")}`);
 // Only files that exist are projected, so a wave whose seeds have been retired
 // degrades to "nothing to add" rather than crashing a measurement run.
-const SEED_FILES = WAVE_KEYS.map((w) => WAVES[w].mapping).filter((f) => existsSync(join(ROOT, f)));
+// ── ONE SEED SWAPPED FOR ANOTHER, WITHOUT TOUCHING THE TREE ─────────────────
+// `--seed-override f11=/tmp/f11-minus-one-row.json` projects a DIFFERENT mapping
+// seed in a wave's slot for the duration of one run. It exists for one specific
+// job: a wave test's MUTATION clause — "drop one admitted mapping and the members
+// who gained a read on that key must return to empty" — which has to be answered
+// against the real engine and the real corpus, on a seed that is one row lighter.
+//
+// The alternative is what scripts/test-vr-federal-wave-f8.mjs does for its identity
+// walls: rewrite the shipped file on disk, run, and restore it in a finally. That is
+// the exact pattern runbook rule 47 exists because of — every twin-boot suite in this
+// tree reads the working copy FROM DISK, so any audit booting inside that window sees
+// a mutated tree and blames the record for a fault three processes away. A flag that
+// swaps a path in memory cannot do that to a sibling, and the override is REPORTED in
+// the header of every mode so a run made under one can never be mistaken for a
+// measurement of the shipped seed.
+const SEED_OVERRIDES = new Map();
+for (let i = 0; i < process.argv.length; i++) {
+  if (process.argv[i] !== "--seed-override") continue;
+  const spec = process.argv[i + 1] || "";
+  const at = spec.indexOf("=");
+  if (at <= 0) throw new Error(`--seed-override wants <wave>=<path>, got '${spec}'`);
+  const w = spec.slice(0, at).trim(), p = spec.slice(at + 1).trim();
+  if (!WAVES[w]) throw new Error(`--seed-override names unknown wave '${w}'`);
+  if (!existsSync(p)) throw new Error(`--seed-override path does not exist: ${p}`);
+  SEED_OVERRIDES.set(w, p);
+}
+const mappingOf = (w) => SEED_OVERRIDES.get(w) || WAVES[w].mapping;
+const SEED_FILES = WAVE_KEYS.map(mappingOf).filter((f) => existsSync(f.startsWith("/") ? f : join(ROOT, f)));
 const VOTE_SEED_FILES = WAVE_KEYS.map((w) => WAVES[w].votes).filter((f) => existsSync(join(ROOT, f)));
+if (SEED_OVERRIDES.size) {
+  // Loud, on stderr, every mode, before any number. A number produced under an
+  // override is not a measurement of the shipped seed and must never be quoted as one.
+  for (const [w, p] of SEED_OVERRIDES) console.error(`  ⚠ SEED OVERRIDE — wave ${w} projected from ${p} instead of ${WAVES[w].mapping}. This run does not measure the shipped seed.`);
+}
 
 // ── THE DENOMINATOR ─────────────────────────────────────────────────────────
 // "empty" is a count of PEOPLE, so it needs a roster, and the roster cannot be
@@ -1223,6 +1263,7 @@ if (argOf("row")) {
   const strip = (m) => ({ empty: m.empty, thin: m.thin, readable: m.readable, members: m.members,
     withRecord: m.withRecord, rows: m.rows, strongN: m.strongN, splitN: m.splitN, thinN: m.thinN });
   console.log(JSON.stringify({ set: SET, waves: WAVE_KEYS,
+    seedOverrides: Object.fromEntries(SEED_OVERRIDES),
     seed: { added: O.added, skipped: O.skipped, retracted: O.retracted, retractionsAlreadyGone: O.retractionsAlreadyGone,
             promoted: O.promoted, promotesAlreadyDone: O.promotesAlreadyDone, promoteMismatch: O.promoteMismatch },
     voteSeed: { measures: V.addedMeasures, rolls: V.addedRolls, memberVotes: V.addedVotes, rollsAlreadyLive: V.skippedRolls },
@@ -1231,6 +1272,64 @@ if (argOf("row")) {
     issueDrift: DRIFT_ROWS, lost: LOST, newlySplit: NEWSPLIT,
     lostReads: LOST_READS, gainedReads: GAINED_READS,
     per: Object.fromEntries([...A.per].map(([p, a]) => [p, { before: B.per.get(p), after: a }])) }, null, 1));
+} else if (process.argv.includes("--rows")) {
+  // ── ONE MEMBER, EVERY ISSUE ROW, BEFORE AND AFTER ─────────────────────────
+  // `--member` prints a member's shape COUNTERS, which is the right summary and
+  // the wrong instrument for a smoke. A coverage wave's promise to a reader is not
+  // "your counters moved"; it is "this key now names this measure and the side you
+  // actually cast". Two of the buckets make that invisible: a row that publishes a
+  // thin side lands in `readThinN`, which `--member` does not print, so a member
+  // who moves from nothing to "Thin supports" shows identical `characterised` and
+  // `thinN` and looks unchanged. F11's Senate smoke is exactly that shape.
+  //
+  // So this prints the rows themselves, before and after, with the tier the engine
+  // put on each and the measures behind it — including the member's own position on
+  // each backing measure, which is the thing a reader can check against the Clerk.
+  // Rows whose tier did not move are folded into one line unless --all is passed.
+  //
+  //   node scripts/vr-federal-fpi.mjs --member maloy --rows --waves f1,f2,f3,f4,f10,f11
+  //   node scripts/vr-federal-fpi.mjs --member lee --rows --key housing_support
+  //
+  // READ-ONLY, like everything else here, and it asserts nothing: it prints what
+  // the engine says so a person can compare it with the record by hand.
+  if (!ONE) { console.error("--rows needs --member <pid>"); process.exit(2); }
+  const KEY_FILTER = argOf("key") ? new Set(argOf("key").split(",").map((x) => x.trim()).filter(Boolean)) : null;
+  const rowsOf = (win, l) => {
+    const items = l.byMember.get(ONE) || [];
+    if (!items.length) return { rows: new Map(), items: [] };
+    win.PDXVotingRecord.noteMember(ONE, JSON.parse(JSON.stringify(items)));
+    const m = new Map();
+    for (const r of win.PDXConsistency.formalPatternIndex.rows(ONE) || [])
+      m.set(r.key, { read: !!r.read, tier: r.tier || null, why: (r.why && r.why.id) || null, judged: r.judged || 0 });
+    return { rows: m, items };
+  };
+  const rb = rowsOf(winB, before), ra = rowsOf(winA, after);
+  // The acts behind a key, from the member's own item list, with their position.
+  const actsFor = (items, key) => (items || [])
+    .filter((it) => (it.issues || []).some((i) => i.issueKey === key))
+    .map((it) => {
+      const iss = (it.issues || []).find((i) => i.issueKey === key) || {};
+      return `${(it.number || "?").padEnd(11)} ${(it.chamber || "").padEnd(7)}`
+        + `${it.rollNumber != null ? `roll ${String(it.rollNumber).padEnd(4)}` : "".padEnd(9)} `
+        + `${String(it.position || it.action || "?").toUpperCase().padEnd(11)} `
+        + `w${String(iss.weight).padEnd(3)}${iss.isPrimary ? "PRIMARY " : "        "}${iss.supportMeaning || "?"}`
+        + `   ${it.title ? String(it.title).slice(0, 46) : ""}`;
+    });
+  const keys = [...new Set([...rb.rows.keys(), ...ra.rows.keys()])].filter((k) => !KEY_FILTER || KEY_FILTER.has(k)).sort();
+  const fmt = (e) => !e ? "ABSENT" : `${e.read ? "read" : "unread"} ${e.tier || (e.why ? `(${e.why})` : "-")}`;
+  console.log(`\n  ISSUE ROWS — ${ONE} — waves ${WAVE_KEYS.join("+")}`);
+  console.log(`  ${rb.items.length} acts before, ${ra.items.length} after · ${rb.rows.size} rows before, ${ra.rows.size} after`
+    + `${KEY_FILTER ? ` · filtered to ${[...KEY_FILTER].join(", ")}` : ""}\n`);
+  let same = 0;
+  for (const k of keys) {
+    const b = rb.rows.get(k), a = ra.rows.get(k);
+    const moved = fmt(b) !== fmt(a);
+    if (!moved && !process.argv.includes("--all") && !KEY_FILTER) { same++; continue; }
+    console.log(`  ${k.padEnd(26)} ${fmt(b).padEnd(28)} → ${fmt(a)}`);
+    for (const line of actsFor(ra.items, k)) console.log(`      ${line}`);
+  }
+  if (same) console.log(`\n  ${same} row(s) unchanged and not printed — pass --all for the whole set.`);
+  console.log("");
 } else if (ONE) {
   console.log(`${ONE}\n  before  ${JSON.stringify(B.per.get(ONE))}\n  after   ${JSON.stringify(A.per.get(ONE))}`);
 } else {
@@ -1239,6 +1338,7 @@ if (argOf("row")) {
     `   │ ${String(m.members).padStart(4)} on roster, ${String(m.withRecord).padStart(4)} with a record · ${String(m.rows).padStart(5)} issue rows · ` +
     `${m.strongN} clear / ${m.splitN} split / ${m.thinN} unread   │ ${st.votes} votes + ${st.positions} positions`);
   console.log(`\n  FEDERAL FORMAL PATTERN INDEX — set "${SET}" — waves ${WAVE_KEYS.join("+")} — shipped tiers, no floor moved\n`);
+  if (SEED_OVERRIDES.size) console.log(`  SEED OVERRIDE ACTIVE: ${[...SEED_OVERRIDES].map(([w, p]) => `${w}=${p}`).join(", ")}\n`);
   console.log(`           empty  thin  readable`);
   row("before", B, before.stats);
   row("after", A, after.stats);

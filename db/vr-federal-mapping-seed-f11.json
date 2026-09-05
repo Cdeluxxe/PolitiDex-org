@@ -1,0 +1,591 @@
+{
+  "_comment": "Federal wave F11 — first acts on empty poled keys. Coverage, not a flag flip. The census asked one question: which curated, directionally poled issue key holds no attributable federal act at all, and does a real 119th-Congress passage-form floor roll exist that would give it one? Twenty-two keys are empty and poled: twenty hold no federal act anywhere and two hold a Senate act and no House one. Two of the twenty are filled here. The other twenty, and both House-empty keys, are refused in writing below — twenty-two refusals, each with the measured reason.",
+  "_status": "DECIDED",
+  "_decidedBy": "Federal wave F11, read against the Clerk's own paginated EVS indexes for 2025 and 2026 (657 House rolls), the Senate LIS vote menus for both sessions of the 119th (890 votes, 453 of them legislative), and the govinfo bill prints for every candidate that survived the title scan.",
+  "_doctrine": [
+    "Formal record only. One instrument, one act. Fail-closed attribution. No party score, no package percentage, no invented stance, no floor moved.",
+    "Poleless and *_balance keys stay unread. That is doctrine, not a hole to patch: _rdSuppressedKey() runs before every wall, weight, lane and chamber check, and F11 adds no pole and proposes no *_balance pole. Twenty-eight keys are excluded as suppressed before the census ranks anything — the list is census.suppressedExcluded — and several of them hold no federal act anywhere either (civil_service_control, medical_freedom, tariffs_growth and immig_balance among them). None is a candidate here, and their emptiness is not counted as a gap: a suppressed key reads nothing whatever an act says about it.",
+    "A key with zero mapping rows cannot be priced by --reach at all: its KEY_UNIVERSE is the set of keys that already hold a mapping row. So the ranking had to come from the corpus and the chamber indexes together, and the seed records both sides of that join."
+  ],
+  "_fpiTarget": "node scripts/vr-federal-fpi.mjs --set all --waves f1,f2,f3,f4,f10,f11 --reach",
+  "rankingMetric": {
+    "asked": "Rank the empty poled keys by how many members would become thin-readable from one full-weight passage-form floor vote.",
+    "measured": "--reach prices every fully-empty poled key at +102 in the Senate and +435 in the House, at n=1, with n=2 adding nothing. The ranking is therefore FLAT across all twenty-two: every one of them is worth an entire chamber and no more.",
+    "consequence": "So the ranking could not choose between them, and pretending it did would have been a fiction. What chooses is admissibility: does a real passage-form roll exist on an instrument whose text is that key's subject. Twenty-two candidates, two admissible, and the ordering among the twenty-two refusals is meaningless because they are all worth the same and all blocked on the same thing.",
+    "whyOneActIsEnough": "_rdLeanAllowed() returns true whenever floorActs > 0, so a single floor vote does not trip 'single_weak_act' and the row resolves as record_thin rather than staying empty. F10 measured n=1 equal to n=2 on all 78 in-play Senate keys and all 77 House keys. This wave does not require a second cousin to make a pattern, and did not look for one."
+  },
+  "admitted": [
+    {
+      "id": "A1",
+      "kind": "act",
+      "what": "House roll 154 of the 119th Congress, 2nd session — On Passage of H.R. 7567, the Farm, Food, and National Security Act (the 2026 Farm Bill). 30 April 2026. Passed 224-200, 0 Present, 6 Not Voting.",
+      "fillsKey": "rural_ag",
+      "chamberFilled": "house",
+      "keyStateBefore": "empty of federal acts. rural_ag held six mapping rows and no attributable federal act: five are Utah state bills (one of which, H.B. 114, carries a Utah roll that reaches state legislators only) and the sixth is H.R. 7567 itself, curated by wave F9 at w100 PRIMARY with no roll call attached. For every member of Congress the key read empty.",
+      "whyTheKeyWasEmpty": "Not because the curation was missing. Because the ACT was. F9 read the bill, wrote five mapping rows including a w100 PRIMARY, and had no roll to hang them on — the House had not voted yet when F9 ran. F11 is the wave that supplies the vote.",
+      "instrumentIsStandalonePolicy": "H.R. 7567 is the twelve-title farm bill reauthorization. It is not a continuing resolution, not an appropriations act, not an NDAA rider used as a proxy, not a special rule, not a Speaker election and not a discharge motion read as if it were passage. The question on roll 154 is On Passage of the bill itself.",
+      "textReadFromTheChamber": {
+        "print": "https://www.govinfo.gov/content/pkg/BILLS-119hr7567eh/html/BILLS-119hr7567eh.htm",
+        "longTitle": "To provide for the reform and continuation of agricultural and other programs of the Department of Agriculture through fiscal year 2031, and for other purposes.",
+        "titles": "I COMMODITIES · II CONSERVATION · III TRADE · IV NUTRITION · V CREDIT · VI RURAL DEVELOPMENT · VII RESEARCH, EXTENSION, AND RELATED MATTERS · VIII FORESTRY · IX ENERGY · X HORTICULTURE, MARKETING, AND REGULATORY REFORM · XI CROP INSURANCE · XII MISCELLANEOUS PROVISIONS",
+        "notATitleTrap": "F10's four title traps were bills whose operative text pointed somewhere other than their names — weatherization that weatherized nothing, SWAPs that turned out to be State Wildlife Action Plans, SPACE that turned out to be shared federal office space, a screening 'mandate' that was a permissive sunset pilot. The test they yield is: search the print for the noun in its own name. This print says 'agricultur' 1,045 times, 'farm' 507, 'rural' 357, 'conservation' 289, 'forestry' 139, 'crop insurance' 43. Titles I, V, VI and XI are commodity supports, farm credit, rural development and crop insurance. The name and the instrument agree."
+      },
+      "polarityFromTheText": "yea_supports, already on file from F9 and unchanged here. The bill continues and reauthorizes commodity programs, farm credit, crop insurance and rural development through FY2031 — the rural_ag pole is 'Support family farms, ranchers and rural communities with fair prices and access', and continuing the programs that set reference prices and underwrite crop insurance is that. A nay is recorded as opposition to this bill, which is what a nay was.",
+      "weightEarnedByTheText": "w100 PRIMARY, F9's weight, not revisited. Rule 25 asks why two similar instruments get different weights; the answer here is that there is no second instrument on this key to be inconsistent with. Four of twelve titles are the key's own subject and the long title names the Department of Agriculture. If a farm bill is not w100 on rural_ag then nothing is.",
+      "attribution": {
+        "chamberRecorded": 430,
+        "attributed": 430,
+        "attributedSides": 424,
+        "poolYeaNay": 424,
+        "unresolved": 0,
+        "ceiling": "430 recorded of 435 seats; 430 resolved through db/vr-member-map.json with zero unresolved. 424 members took a side. The 6 Not Voting are carried as position 'not_voting' with isParty null and are never read as a direction."
+      },
+      "membersNewlyReadable": "424 representatives who cast a side move from empty to record_thin on rural_ag. The 6 Not Voting do not, and that is correct: an absence is not a position.",
+      "voteSeed": "db/vr-federal-wave-f11-vote-seed.json"
+    },
+    {
+      "id": "A2",
+      "kind": "mapping",
+      "congress": 119,
+      "number": "H.R. 6644",
+      "measureId": 88,
+      "issueKey": "housing_support",
+      "what": "H.R. 6644, the 21st Century ROAD to Housing Act — add housing_support w65 secondary yea_supports.",
+      "fillsKey": "housing_support",
+      "chamberFilled": "both",
+      "keyStateBefore": "empty of federal acts. housing_support held nine mapping rows, all nine Utah state bills, four of which carry Utah rolls. For every member of Congress the key read empty.",
+      "whyTheActAlreadyExists": "H.R. 6644 already carries both of its passage-form rolls in the corpus: house 119/2/224, rollcall id 179, 'On Motion to Suspend the Rules and Concur in Senate Adt to House Adt to Senate Adt', action_type 'passage', passed, 108 members attributed of whom 96 cast a side; and senate 119/2/53, rollcall id 2574, 'On Passage of the Bill', action_type 'passage', passed, 100 members attributed of whom 99 cast a side. This admit ingests no roll and writes no vote. It writes one mapping row, and two acts already on file start being read on a key that had none.",
+      "textReadFromTheChamber": {
+        "print": "https://www.govinfo.gov/content/pkg/BILLS-119hr6644enr/html/BILLS-119hr6644enr.htm",
+        "operativeSections": [
+          "Sec. 204 — adds the new construction of affordable housing as an eligible CDBG activity, amending section 105(a) of the Housing and Community Development Act of 1974 (42 U.S.C. 5305(a)), capped at 20 percent of a recipient's allocation, and extends the low- and moderate-income requirement to new construction.",
+          "Sec. 212 — makes the Rental Assistance Demonstration permanent by striking 'until September 30, 2029' and inserting 'for fiscal year 2012 and each fiscal year thereafter', raises the unit cap from 455,000 to 555,000, and adds a mandatory tenant lease and management plan addendum for converted properties.",
+          "Sec. 405 (Choice in Affordable Housing Act) — amends section 8(o)(8) of the United States Housing Act of 1937 so that units in LIHTC-financed buildings satisfy Housing Choice Voucher inspection requirements, which is the operative barrier to landlord participation the bill's own title names.",
+          "Sec. 501 — reauthorizes the HOME Investment Partnerships Program and broadens income eligibility from 'low-income families' to households at or below 100 percent of area median family income.",
+          "Sec. 503 — gives McKinney-Vento homeless assistance recipients waiver authority over the section 415(b) expenditure limit for FY2027-2030."
+        ],
+        "counts": "'affordable housing' 77 · 'public housing' 95 · 'rental assistance' 40 · 'renter' 39 · 'voucher' 38 · 'tenant' 34 · 'section 8' 24 · 'low-income' 24",
+        "titleI": "TITLE I--OPPORTUNITIES FOR HOUSING, one of twelve titles.",
+        "shortTitle": "21st Century ROAD to Housing Act (Sec. 1(a) of the enrolled bill).",
+        "longTitle": "To increase the supply of housing in America, and for other purposes."
+      },
+      "polarityFromTheText": "yea_supports. The housing_support pole is 'Fund affordable housing and protect renters with assistance and limits on evictions'. Every section above funds affordable housing or extends renter assistance; a yea enacted them.",
+      "weightEarnedByTheText": "w65, secondary, and the discount is the argument. Five operative sections amending permanent law plus one of twelve titles is real weight, not a mention. But the pole is a conjunction and the text only satisfies its first half: 'eviction' appears exactly twice in 442KB — once as an eligible use of manufactured-housing community grant funds ('eviction prevention') and once as a reporting metric in a data table — and neither is a limit on evictions. So the row is weighted for assistance and discounted for the half of the pole the text does not reach. w65 sits deliberately between this measure's permitting_reform w60 and its housing w80.",
+      "isPrimary": false,
+      "notRestuffing": "The measure's existing rows are housing_build w100 PRIMARY ('loosen zoning and permitting so more homes can be built'), housing w80 PRIMARY ('boost supply and lower the cost to build and buy'), permitting_reform w60 and crypto_cbdc w40. Every one of those is the supply-and-zoning lane. housing_support is the subsidy-and-renter lane, and the vocabulary keeps them apart on purpose — a user can pick one without the other. The five sections named above are not the sections that earn housing_build its w100; they amend CDBG eligibility, the Rental Assistance Demonstration, section 8(o)(8) voucher inspections, the HOME program and McKinney-Vento. This is a subject the measure carries and no existing row reads, not a second reading of a subject already read.",
+      "howThisKeyNEARLYGOTREFUSED": "The title-level census refused it. The enrolled short title is '21st Century ROAD to Housing Act' and the long title is 'To increase the supply of housing in America, and for other purposes' — neither contains 'affordable', 'renter', 'tenant', 'voucher' or 'rental assistance', and neither does the Clerk's title for House roll 224 or the Senate's for roll 53. A keyword scan of all 657 House rolls and 453 Senate legislative rolls of the 119th therefore returned ZERO candidates for housing_support and would have shipped a refusal. Only the enrolled print found the instrument. Runbook rule 43 — the name is not the instrument — cuts in the direction nobody had written down: a title scan can refuse a key that has an act.",
+      "rows": [
+        {
+          "issueKey": "housing_support",
+          "weight": 65,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "decision": "DECIDED"
+        }
+      ],
+      "membersNewlyReadable": "195 distinct members of Congress — 96 representatives and 99 senators — move from empty to record_thin on housing_support. Measured against the attributed rolls, not against the chamber headcount: the House roll carries 108 attributed members, not 435, so 96 is the honest figure and 435 would have been a fiction."
+    }
+  ],
+  "measures": [
+    {
+      "congress": 119,
+      "chamber": "house",
+      "measureType": "bill",
+      "number": "H.R. 6644",
+      "title": "21st Century ROAD to Housing Act",
+      "issues": [
+        {
+          "issueKey": "housing_support",
+          "weight": 65,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "decision": "DECIDED",
+          "rationale": "Title I and five operative sections of the enrolled text are affordable-housing and renter assistance rather than supply: Sec. 204 adds new construction of affordable housing as an eligible CDBG activity (42 U.S.C. 5305(a)); Sec. 212 makes the Rental Assistance Demonstration permanent and raises its cap from 455,000 to 555,000 units with a mandatory tenant lease addendum; Sec. 405 amends section 8(o)(8) so LIHTC-financed units satisfy Housing Choice Voucher inspection, the operative barrier to landlord participation; Sec. 501 reauthorizes HOME and raises its income ceiling to 100 percent of area median; Sec. 503 gives McKinney-Vento recipients waiver authority over the expenditure limit. Weighted secondary at 65 rather than higher because the pole also asks for limits on evictions and the text has none — 'eviction' appears twice in the whole print, once as an eligible use of grant funds and once as a reporting metric. The measure's supply and zoning provisions are already read at housing_build w100 and housing w80; these sections are not those sections.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-119hr6644enr/html/BILLS-119hr6644enr.htm"
+        }
+      ]
+    }
+  ],
+  "promotes": [],
+  "retractions": [
+    {
+      "congress": 119,
+      "number": "H.R. 7567",
+      "measureId": 31,
+      "issueKey": "econ_corp_account",
+      "decision": "RETRACTED",
+      "was": {
+        "weight": 45,
+        "isPrimary": false,
+        "supportMeaning": "yea_opposes",
+        "rationale": "The bill's Sec. 10205 would have shielded pesticide makers from failure-to-warn suits; a bipartisan amendment struck it, so the enacted text does not include the shield."
+      },
+      "why": "The row's own rationale says the provision is not in the text, and the row's polarity says a yea opposes corporate accountability. Both cannot be true of the same vote. F9 wrote this as a note about what the bill WOULD have done, which was harmless while the measure had no roll call: with zero acts on the measure the row was inert and read to nobody. F11 lands the passage roll. The moment it lands, this row attributes to all 424 members who cast a side on roll 154 a position on a pesticide liability shield that the text they passed does not contain.",
+      "textBasis": "Section-by-section diff of the two House prints. BILLS-119hr7567rh runs SEC. 10201 · 10202 · 10203 · 10204 · 10205 · 10206 · 10207 · 10211; BILLS-119hr7567eh — the print the House actually passed on roll 154 — runs SEC. 10201 · 10202 · 10203 · 10204 · 10211. Sections 10205 (pesticide-labeling uniformity), 10206 (authority of States) and 10207 (lawful use of authorized pesticides) are present in rh and absent from eh. The striking vote is H.Amdt. 196, House 119/2/148, adopted 280-142, which wave F9 ingested separately and recorded in its own migration header: 'H.Amdt. 196  119/2/148  280-142  states_federal_power  SEC. 10205, SEC. 10206 and SEC. 10207 struck from BILLS-119hr7567rh, absent from BILLS-119hr7567eh'. F9 found the same fact; it just had no roll on the parent, so nothing turned on it.",
+      "whyItIsSafeToRemove": "econ_corp_account keeps ten mapping rows after the DELETE, four of them federal and three of those carrying acts: H.R. 6955 (w60, 2 rolls), H.R. 5376 (w60, 2 rolls) and S.J.Res. 18 (w75 PRIMARY, 2 rolls). The key does not go empty, does not lose its PRIMARY and does not lose an act. What it loses is a row that has never been read by anyone and, left in place, would be read wrongly by 424 people.",
+      "costDisclosed": "MEASURED. Before the retraction, with roll 154 not yet ingested: 0 members read econ_corp_account through H.R. 7567, because measure 31 has no rollcall. After the retraction, with roll 154 ingested: still 0. The retraction costs exactly zero existing reads. Not retracting would have created 424 new reads on a provision that is not in the passed text — 209 Republican yeas plus 14 Democratic yeas recorded as opposing corporate accountability, and 197 Democratic nays plus 3 Republican nays recorded as supporting it, on the strength of three struck sections. That is the whole cost of this wave's retraction column: nothing lost, 424 wrong reads not published."
+    },
+    {
+      "congress": 119,
+      "number": "H.R. 7567",
+      "measureId": 31,
+      "issueKey": "property_rights",
+      "decision": "RETRACTED",
+      "was": {
+        "weight": 40,
+        "isPrimary": false,
+        "supportMeaning": "yea_opposes",
+        "rationale": "Secs. 10206–10207 would have limited state label authority and preempted local pesticide rules; both were struck by the same bipartisan amendment."
+      },
+      "why": "The same defect, named in the row's own words: 'would have', 'both were struck'. The two sections this row reads are SEC. 10206 and SEC. 10207, and the passed print does not contain either. Landing roll 154 would tell 424 members they took a position on state label authority and local pesticide preemption in a bill whose text is silent on both.",
+      "textBasis": "The same eh-versus-rh section diff and the same H.Amdt. 196 (119/2/148, 280-142) recorded above.",
+      "whyItIsSafeToRemove": "This one is NOT free, and the seed says so rather than burying it. H.R. 7567 is property_rights' only federal mapping row; the other seven are Utah state bills. After the DELETE property_rights holds no federal instrument at all, so it moves out of the 37 poled keys that have a House instrument and no Senate one and into the group that has neither — the count of poled keys with no federal instrument anywhere goes 20 -> 21. Its Utah PRIMARY (H.B. 289, w55) and its four Utah rolls are untouched, so no state legislator loses a read. The trade is stated plainly: F11 makes one federal coverage number worse in order not to publish 424 attributions the text cannot support. A key that reads empty is honest; a key that reads a struck section is not.",
+      "costDisclosed": "MEASURED. Before: 0 members of Congress read property_rights through H.R. 7567 (measure 31 has no rollcall) and 0 read it through any other federal measure — the key has zero federal acts either way. After: still 0, and the key now also has zero federal instruments. Zero existing reads lost. 424 wrong reads not published. The coverage census below carries the 20 -> 21 line in its own after column so the cost is not recoverable only from this note."
+    }
+  ],
+  "statusCorrections": [
+    {
+      "congress": 119,
+      "number": "H.R. 7567",
+      "measureId": 31,
+      "from": "introduced",
+      "to": "passed_house",
+      "why": "The corpus row says 'introduced' because F9 curated the bill before the House voted. Roll 154 passed it 224-200. Leaving the status at 'introduced' next to a passage roll would publish a contradiction on the bill's own detail page.",
+      "consumersChecked": "Every reader of 'passed_house' was located before the UPDATE was written, because a status string that feeds a score is a different object from one that feeds a label. All of them are labels or progress indicators: bill-detail.js:63 and :832, all-seeing-eye.js:1945, digital-library.js:729, :739, :758, :926, :953, and bills-index.js. Nothing in stance-helpers.js reads measure status, so no tier, weight, direction, floor or Mandate figure moves. This is a display correction and is reported as one."
+    }
+  ],
+  "arrivalsDisclosed": {
+    "_why": "Landing an act on a measure makes EVERY live mapping row on that measure readable, not just the row the wave is arguing for. F9 wrote five rows on H.R. 7567. Two are retracted above. The other three arrive with roll 154 and are listed here so the wave's footprint is not understated.",
+    "rows": [
+      {
+        "issueKey": "rural_ag",
+        "weight": 100,
+        "isPrimary": true,
+        "supportMeaning": "yea_supports",
+        "status": "ARRIVES — this is the admit. Fills a key that had no federal act. 424 members become readable."
+      },
+      {
+        "issueKey": "family_support",
+        "weight": 70,
+        "isPrimary": false,
+        "supportMeaning": "yea_supports",
+        "status": "ARRIVES as a side effect, and is left alone under runbook rule 21 — the live rationale is the first writer's.",
+        "reviewed": "Checked rather than waved through, because F11 is the wave that makes it read. Its rationale is 'Reauthorizes SNAP and nutrition programs, the largest share of farm-bill spending', and Title IV NUTRITION is in the passed print, so unlike the two retracted rows its textual basis survives passage. family_support is NOT an empty key and gains no coverage from this: it already holds three federal measures with acts (H.R. 1 with 3 rolls, H.R. 2483 with 1, H.R. 1319 with 2 at w100 PRIMARY), and the corpus already reads food assistance on this key at the state level (Utah H.B. 100, Food Security Amendments, w50 PRIMARY). Consistent with what is on file, so it stands. It is disclosed rather than claimed: this wave takes no coverage credit for it."
+      },
+      {
+        "issueKey": "enviro_balance",
+        "weight": 60,
+        "isPrimary": false,
+        "supportMeaning": "yea_supports",
+        "status": "STAYS UNREAD. enviro_balance matches /_balance$/, so _rdSuppressedKey() returns 'balance_key' and suppression runs before every wall, weight, lane and chamber check. The row exists on file, the act now exists, and the key still publishes nothing — which is doctrine working, not a hole. This is the balance key the smoke test checks is unchanged."
+      }
+    ]
+  },
+  "census": {
+    "_method": "Two metrics, measured against the live corpus, not recalled from F10's table. METRIC A is the brief's own phrasing — a poled key with no federal mapping row at all in that chamber. METRIC B is the one that decides whether a member can read anything — a poled key with no federal ROLL in that chamber, since a mapping row with no act attached reads to nobody. The two differ by exactly the rows F9 left actless. 93 of the 121 vocabulary keys are poled; 28 are excluded up front by _rdSuppressedKey() as poleless or *_balance and are not candidates for anything.",
+    "poledVocabKeys": 93,
+    "suppressedExcluded": "civil_service_control, crypto_cbdc, datacenter_power, datacenter_water, democracy_balance, econ_balance, edu_balance, enviro_balance, foreign_balance, gov_balance, guard_authority, gun_balance, health_balance, homeless, immig_balance, justice_balance, lands_balance, medical_freedom, reform_balance, repro_balance, rights_balance, state_standing, states_federal_power, tariffs_authority, tariffs_growth, tariffs_prices, tech_balance, war_powers",
+    "metricA_noFederalInstrument": {
+      "beforeNoneAnywhere": 20,
+      "beforeNoneAnywhereKeys": [
+        "cannabis_reform",
+        "checks_balances",
+        "datacenter_growth",
+        "dev_district_finance",
+        "end_dei",
+        "housing_first_time",
+        "housing_support",
+        "immig_legal",
+        "justice_reform",
+        "lands_keep_public",
+        "lands_local",
+        "paid_leave",
+        "pro_choice",
+        "prop_tax",
+        "property_tax",
+        "sound_money",
+        "tariffs_china",
+        "term_limits",
+        "tobacco_nicotine",
+        "water_storage"
+      ],
+      "afterNoneAnywhere": 20,
+      "afterNoneAnywhereChange": "housing_support LEAVES the group (it gains its first federal instrument). property_rights JOINS it (the retraction removes its only federal instrument). 20 out, 20 in — the count is unchanged and the membership is not, which is why this seed lists both keys rather than reporting a flat number.",
+      "beforeNoHouseInstrument": 2,
+      "beforeNoHouseInstrumentKeys": [
+        "back_police",
+        "immigration_reform"
+      ],
+      "afterNoHouseInstrument": 2,
+      "beforeNoSenateInstrument": 37,
+      "afterNoSenateInstrument": 37,
+      "afterNoSenateNote": "housing_support gains a Senate instrument and property_rights loses its House one, so housing_support does not enter this group and property_rights leaves it for the none-anywhere group. Net 37."
+    },
+    "metricB_noFederalAct": {
+      "beforeNoneAnywhere": 22,
+      "beforeNoneAnywhereKeys": [
+        "cannabis_reform",
+        "checks_balances",
+        "datacenter_growth",
+        "dev_district_finance",
+        "end_dei",
+        "housing_first_time",
+        "housing_support",
+        "immig_legal",
+        "justice_reform",
+        "lands_keep_public",
+        "lands_local",
+        "paid_leave",
+        "pro_choice",
+        "prop_tax",
+        "property_rights",
+        "property_tax",
+        "rural_ag",
+        "sound_money",
+        "tariffs_china",
+        "term_limits",
+        "tobacco_nicotine",
+        "water_storage"
+      ],
+      "afterNoneAnywhere": 20,
+      "afterNoneAnywhereKeys": [
+        "cannabis_reform",
+        "checks_balances",
+        "datacenter_growth",
+        "dev_district_finance",
+        "end_dei",
+        "housing_first_time",
+        "immig_legal",
+        "justice_reform",
+        "lands_keep_public",
+        "lands_local",
+        "paid_leave",
+        "pro_choice",
+        "prop_tax",
+        "property_rights",
+        "property_tax",
+        "sound_money",
+        "tariffs_china",
+        "term_limits",
+        "tobacco_nicotine",
+        "water_storage"
+      ],
+      "filled": [
+        "rural_ag (House, 424 members)",
+        "housing_support (both chambers, 96 House + 99 Senate = 195 members)"
+      ],
+      "beforeNoHouseAct": 2,
+      "afterNoHouseAct": 2,
+      "noHouseActKeys": [
+        "back_police",
+        "immigration_reform"
+      ],
+      "beforeNoSenateAct": 38,
+      "afterNoSenateAct": 37,
+      "afterNoSenateActNote": "rural_ag stays Senate-empty — roll 154 is a House roll and no senator reads it. housing_support leaves the group outright because H.R. 6644 carries a Senate passage roll as well as a House one."
+    },
+    "membersNewlyThinReadable": {
+      "rural_ag_house": 424,
+      "housing_support_house": 96,
+      "housing_support_senate": 99,
+      "onBothFilledKeys": 95,
+      "distinctMembersGainingAtLeastOneKey": 524,
+      "_note": "524 distinct members of Congress gain a read on at least one key that read empty for them before this wave. 95 of them gain both. The 6 Not Voting on roll 154, the 12 Not Voting on House roll 224 and the 1 Not Voting on Senate roll 53 gain nothing, which is correct: Present and Not Voting are carried as their own positions with isParty null and are never read as a direction.",
+      "_fpiCrossCheck": "The FPI reports 530 members whose shape moved against this seed's 524 who gain a read on one of the two FILLED keys. The 6-member difference is family_support: landing roll 154 makes F9's family_support row readable too, and a handful of members had no other family_support act. Those 6 are counted by the FPI and deliberately NOT counted as this wave's coverage, because family_support was never an empty key. 524 is the coverage figure; 530 is the footprint."
+    },
+    "reachAfterState": {
+      "command": "node scripts/vr-federal-fpi.mjs --set all --waves f1,f2,f3,f4,f10,f11 --reach",
+      "senate": "102 members, 1025 unread rows, 106 keys in the corpus, 78 in play. 60 of 78 keys movable by a new synthetic PRIMARY; 10 with unread volume and a ceiling of zero, all 10 structurally suppressed (_RD_NO_POLE or *_balance).",
+      "house": "435 members, 2326 unread rows, 106 keys in the corpus, 77 in play. 59 of 77 movable; 11 with unread volume and a ceiling of zero, all 11 structurally suppressed.",
+      "attributionCeiling": "holds at chamber headcount on every key in both chambers: 102 senate members / max attributed 102, 435 house members / max attributed 435. No synthetic instrument, given every member of the chamber Yea, exceeds the headcount.",
+      "identicalToBefore": "yes — byte-identical to the pre-F11 run except the two header lines naming the wave list. See _findings[4]; this is the flag reading `before` by construction, and is the reason the movement figures in this seed come from --json rather than from here.",
+      "zeroCeilingKeysAreAllSuppressed": "the only keys with unread volume that no instrument can move are the poleless and *_balance ones — foreign_balance, tech_balance, states_federal_power, war_powers, crypto_cbdc, guard_authority, homeless, tariffs_authority, tariffs_prices, state_standing. That is doctrine holding, not coverage missing, and F11 proposes no pole for any of them."
+    }
+  },
+  "refusals": [
+    {
+      "issueKey": "dev_district_finance",
+      "class": "no instrument in the 119th",
+      "measured": "0 House rolls and 0 Senate rolls of the 119th touch the subject, of 657 House and 453 Senate legislative rolls scanned.",
+      "why": "Refused because nothing exists to admit. The key is curated — it carries Utah rows and a directional pole — and Congress has taken no passage-form floor vote on its subject in either chamber this Congress. This is not a curation gap and no amount of reading fixes it. 'Would fill the pattern' is not a reason and is not offered as one.",
+      "blockedOn": "a floor vote that does not exist yet"
+    },
+    {
+      "issueKey": "end_dei",
+      "class": "no instrument in the 119th",
+      "measured": "0 House, 0 Senate.",
+      "why": "Refused because nothing exists to admit. The key is curated — it carries Utah rows and a directional pole — and Congress has taken no passage-form floor vote on its subject in either chamber this Congress. This is not a curation gap and no amount of reading fixes it. 'Would fill the pattern' is not a reason and is not offered as one.",
+      "blockedOn": "a floor vote that does not exist yet"
+    },
+    {
+      "issueKey": "paid_leave",
+      "class": "no instrument in the 119th",
+      "measured": "0 House, 0 Senate.",
+      "why": "Refused because nothing exists to admit. The key is curated — it carries Utah rows and a directional pole — and Congress has taken no passage-form floor vote on its subject in either chamber this Congress. This is not a curation gap and no amount of reading fixes it. 'Would fill the pattern' is not a reason and is not offered as one.",
+      "blockedOn": "a floor vote that does not exist yet"
+    },
+    {
+      "issueKey": "prop_tax",
+      "class": "no instrument in the 119th",
+      "measured": "0 House, 0 Senate.",
+      "why": "Refused because nothing exists to admit. The key is curated — it carries Utah rows and a directional pole — and Congress has taken no passage-form floor vote on its subject in either chamber this Congress. This is not a curation gap and no amount of reading fixes it. 'Would fill the pattern' is not a reason and is not offered as one.",
+      "blockedOn": "a floor vote that does not exist yet"
+    },
+    {
+      "issueKey": "tobacco_nicotine",
+      "class": "no instrument in the 119th",
+      "measured": "0 House, 0 Senate.",
+      "why": "Refused because nothing exists to admit. The key is curated — it carries Utah rows and a directional pole — and Congress has taken no passage-form floor vote on its subject in either chamber this Congress. This is not a curation gap and no amount of reading fixes it. 'Would fill the pattern' is not a reason and is not offered as one.",
+      "blockedOn": "a floor vote that does not exist yet"
+    },
+    {
+      "issueKey": "water_storage",
+      "class": "no instrument in the 119th",
+      "measured": "0 House, 0 Senate.",
+      "why": "Refused because nothing exists to admit. The key is curated — it carries Utah rows and a directional pole — and Congress has taken no passage-form floor vote on its subject in either chamber this Congress. This is not a curation gap and no amount of reading fixes it. 'Would fill the pattern' is not a reason and is not offered as one.",
+      "blockedOn": "a floor vote that does not exist yet"
+    },
+    {
+      "issueKey": "cannabis_reform",
+      "class": "no passage-form instrument",
+      "measured": "1 Senate roll touches the subject; 0 of the 119th's Senate rolls on it are passage-form. 0 House rolls.",
+      "why": "The single Senate roll is not a passage-form vote, and the brief's admit list refuses procedural and discharge-as-if-passage vehicles. Refused on the instrument, not the subject.",
+      "blockedOn": "a passage-form floor vote on a standalone cannabis instrument"
+    },
+    {
+      "issueKey": "immigration_reform",
+      "class": "no House instrument",
+      "measured": "House 0 rolls touching the subject, 0 passage-form. Senate 6 rolls touching the subject, 0 passage-form. The key already holds one Senate instrument with one act.",
+      "why": "The gap is the House side and the House has held no passage-form vote on an earned-pathway instrument this Congress. The six Senate rolls that touch the subject are all procedural. No candidate.",
+      "blockedOn": "a House passage-form vote on an earned-pathway instrument"
+    },
+    {
+      "issueKey": "tariffs_china",
+      "class": "candidates fail the text test",
+      "measured": "House 6 rolls touching the subject, 3 passage-form; Senate 6 touching, 2 passage-form. Every one read.",
+      "why": "H.R. 692 (China Exchange Rate Transparency Act) directs the United States Executive Director at the IMF to advocate for exchange-rate transparency — it imposes no tariff and changes no rate. H.R. 881 (DHS Restrictions on Confucius Institutes and Chinese Entities of Concern Act) is a federal contracting and grant restriction. H.R. 747 (Stop Chinese Fentanyl Act) directs a strategy and a report. None of the three is a tariff, and the pole is 'Use tariffs to counter China and unfair trade practices' — the instrument has to be a tariff. The two Senate passage-form candidates, S.J.Res. 49 and S.J.Res. 88, ARE tariff instruments, but they terminate a national emergency under which global tariffs were imposed; their operative subject is the President's emergency authority and their scope is global, not China. Mapping them here would require yea_opposes on a resolution about who may impose a tariff rather than about whom a tariff counters. The axis those two actually belong to is tariffs_authority, which the corpus deliberately holds at no pole, and F11 adds no pole — that fact is stated second, after the textual reason, per runbook rule 42.",
+      "blockedOn": "a passage-form vote on an instrument that actually imposes or removes a China-specific tariff"
+    },
+    {
+      "issueKey": "justice_reform",
+      "class": "candidates fail the text test / already read",
+      "measured": "House 2 rolls touching the subject, both passage-form; Senate 0.",
+      "why": "H.R. 5214 (District of Columbia Cash Bail Reform Act) is already in the corpus at tough_on_crime w90 PRIMARY yea_supports, id 640, with its roll. Its text ends cashless bail in the District, so reading it on justice_reform would require yea_opposes — an inverse mapping of a subject the vocabulary already reads with a direction, on a key that already holds its PRIMARY. That is restuffing a subject that has siblings, which the brief refuses. H.R. 5625 (Cashless Bail Reporting Act) is not in the corpus and its operative text is a reporting mandate — the same shape as F10's fourth title trap, a mandate that turns out to be a report. Neither reforms sentencing nor reduces incarceration, which is what the pole says.",
+      "blockedOn": "a passage-form vote on a sentencing or decarceration instrument"
+    },
+    {
+      "issueKey": "lands_local",
+      "class": "candidates fail the text test",
+      "measured": "House 6 rolls touching the subject, all 6 passage-form; Senate 12 touching, 5 passage-form. Read all of them.",
+      "why": "Five of the six House candidates and all five Senate ones are Congressional Review Act disapprovals of Bureau of Land Management resource management plans (H.J.Res. 104, 105, 106, 130, 140). A CRA disapproval nullifies a federal agency's plan and leaves the decision with Congress and the agency; it transfers nothing to a state or a county. The pole is 'Transfer more federal land decisions to states and county governments', and Congress overriding its own executive branch is not that transfer — it is the federal government deciding twice. H.J.Res. 140 is already in the corpus at lands_preserve w90 PRIMARY yea_opposes and lands_energy w75, which is the reading its text supports. The sixth House candidate, H.R. 3187, conveys one named parcel of Forest Service property; a single property transaction is not a transfer of land decision-making authority.",
+      "blockedOn": "a passage-form vote on an instrument that moves federal land decision authority to states or counties"
+    },
+    {
+      "issueKey": "checks_balances",
+      "class": "candidates fail the text test / already read",
+      "measured": "House 12 rolls touching the subject, 1 passage-form; Senate 11 touching, 2 passage-form.",
+      "why": "H.R. 1526 (No Rogue Rulings Act) is already in the corpus at judicial_check w100 PRIMARY yea_opposes and reform_balance w60, id 42, with its roll. judicial_check and checks_balances are the same subject read at two grains — 'Let federal courts halt unlawful executive action' versus 'Keep Congress and the courts as a real check on executive power' — and the vocabulary gives the narrower one the PRIMARY on purpose. Adding checks_balances would read one vote twice. H.R. 4, the rescissions package, already carries eight mapping rows led by cut_spending w100 PRIMARY; its text rescinds appropriated budget authority, which is Congress exercising the purse rather than checking an executive, and the corpus reads it that way. The Senate's H.Con.Res. 86 is not in the corpus; its operative text directs the President to remove United States Armed Forces from hostilities against Iran, which is a troop-deployment command, not a structural rule about executive power — mapping it here would read a policy vote as a structural one. Secondarily, the axis its text does belong to is war_powers, which the corpus holds at no pole and F11 does not change.",
+      "blockedOn": "a passage-form vote on a standalone instrument that changes the structural balance between the branches"
+    },
+    {
+      "issueKey": "back_police",
+      "class": "candidates fail the text test / already read",
+      "measured": "House 12 rolls touching the subject, 5 passage-form; Senate 9 touching, 1 passage-form. The key already holds two Senate instruments with acts, so only the House side is in play.",
+      "why": "H.R. 27 and its Senate twin S. 331 (HALT Fentanyl Act) are both already in the corpus — immig_fentanyl w100 PRIMARY plus tough_on_crime w70 and w75 — and their text permanently schedules fentanyl analogues under the Controlled Substances Act. That is a drug-scheduling instrument the corpus already reads at secondary on the penalties axis; adding back_police would be restuffing a subject that has siblings. H.R. 747 (Stop Chinese Fentanyl Act) directs a strategy and a report. The two remaining House candidates are not in the corpus and fail on their own text: H.R. 2240 (Improving Law Enforcement Officer Safety and Wellness Through Data Act) establishes a data collection, and H.R. 2255 (Federal Law Enforcement Officer Service Weapon Purchase Act) lets retiring federal officers buy their service weapon. The pole is 'Fund police and impose tougher penalties for violent crime'. A data program funds no police force and a retirement purchase authorization toughens no penalty.",
+      "blockedOn": "a House passage-form vote on an instrument that appropriates police funding or raises violent-crime penalties"
+    },
+    {
+      "issueKey": "pro_choice",
+      "class": "candidate fails the text test / already read",
+      "measured": "House 2 rolls touching the subject, 1 passage-form; Senate 6 touching, 0 passage-form.",
+      "why": "The single House passage-form candidate is H.R. 21 (Born-Alive Abortion Survivors Protection Act), already in the corpus at pro_life w100 PRIMARY yea_supports, id 9, with its roll. The corpus already reads this vote with a direction on the key its text argues for; reading it again on pro_choice as yea_opposes would publish one vote twice on two poles of the same axis. The vocabulary keeps pro_life and pro_choice as separate directional keys precisely so a member's own framing is not inverted for them. None of the six Senate rolls is passage-form.",
+      "blockedOn": "a passage-form vote on an instrument whose own text protects or expands abortion access"
+    },
+    {
+      "issueKey": "sound_money",
+      "class": "candidate is a scan false positive",
+      "measured": "House 1 roll matched, 1 passage-form; Senate 0.",
+      "why": "The single match is H.J.Res. 78, which disapproves a United States Fish and Wildlife Service rule. It is already in the corpus at lands_preserve w90 PRIMARY yea_opposes and gov_regulation w70 — its subject is wildlife, not currency, and the match is an artifact of the Congressional Review Act's boilerplate title. This is the title trap in miniature and is refused on the same ground as F10's four.",
+      "blockedOn": "a passage-form vote on a currency, specie or monetary-standard instrument"
+    },
+    {
+      "issueKey": "housing_first_time",
+      "class": "candidates fail the text test",
+      "measured": "0 rolls matched by title scan in either chamber. Refused on the ENROLLED TEXT of the one instrument that would otherwise have been the candidate, H.R. 6644, because that is where this wave's other admit came from and the same print had to answer both questions.",
+      "why": "H.R. 6644 is the instrument F11 read line by line, and it does not earn this key. Sec. 105 (FHA Small-Dollar Mortgages) reads 'the Secretary of Housing and Urban Development ... MAY establish a PILOT PROGRAM'. Sec. 404 (Helping More Families Save Act) establishes an 'Escrow Expansion Pilot Program' for families already receiving section 8 or section 9 assistance — assisted renters, not first-time buyers. Sec. 402 directs the Bureau of Consumer Financial Protection to EVALUATE the impact of existing points-and-fees thresholds. The phrase 'first-time' appears once in a 442 KB print. A permissive pilot, a second permissive pilot for a different population, and an evaluation are precisely F10's fourth title trap — a mandate that is a sunset pilot — appearing in a new bill. Admitting it would have been the easy symmetry: the same measure, the same rolls, one more key, and the census would have shown three keys filled instead of two. Refused. Rule 43 cuts both ways, and this seed's two housing findings are the same rule pointing in opposite directions on one print.",
+      "blockedOn": "a passage-form vote on an instrument that operatively assists first-time or young buyers, not a pilot the Secretary may establish"
+    },
+    {
+      "issueKey": "property_rights",
+      "class": "the wave's own cost, not a candidate",
+      "measured": "0 federal acts before and after. 1 federal instrument before, 0 after.",
+      "why": "Not a refused candidate — a key this wave makes emptier on purpose. Its only federal mapping row read three sections that the passed text does not contain, so it is retracted above rather than published to 424 members. Recorded here so the leftover-empty list is complete and the cost is visible from the census as well as from the retraction note.",
+      "blockedOn": "a passage-form vote on an eminent-domain or takings instrument"
+    },
+    {
+      "issueKey": "datacenter_growth",
+      "class": "unpopulated vocabulary",
+      "measured": "0 mapping rows anywhere — federal or state.",
+      "why": "Refused at a stage earlier than the text test: these five poled keys hold no curated instrument at all, in any chamber or any state, so there was no curated subject to scan candidate rolls against and no candidate surfaced. They are blocked on curation before they are blocked on an act, and a coverage wave cannot fix that by finding a vote — someone has to read a bill onto the key first. Listed rather than omitted, because a leftover-empty list that silently drops the keys with no rows would understate what is unread.",
+      "blockedOn": "a first curated instrument on the key, then an act"
+    },
+    {
+      "issueKey": "immig_legal",
+      "class": "unpopulated vocabulary",
+      "measured": "0 mapping rows anywhere.",
+      "why": "Refused at a stage earlier than the text test: these five poled keys hold no curated instrument at all, in any chamber or any state, so there was no curated subject to scan candidate rolls against and no candidate surfaced. They are blocked on curation before they are blocked on an act, and a coverage wave cannot fix that by finding a vote — someone has to read a bill onto the key first. Listed rather than omitted, because a leftover-empty list that silently drops the keys with no rows would understate what is unread.",
+      "blockedOn": "a first curated instrument on the key, then an act"
+    },
+    {
+      "issueKey": "lands_keep_public",
+      "class": "unpopulated vocabulary",
+      "measured": "0 mapping rows anywhere.",
+      "why": "Refused at a stage earlier than the text test: these five poled keys hold no curated instrument at all, in any chamber or any state, so there was no curated subject to scan candidate rolls against and no candidate surfaced. They are blocked on curation before they are blocked on an act, and a coverage wave cannot fix that by finding a vote — someone has to read a bill onto the key first. Listed rather than omitted, because a leftover-empty list that silently drops the keys with no rows would understate what is unread.",
+      "blockedOn": "a first curated instrument on the key, then an act"
+    },
+    {
+      "issueKey": "property_tax",
+      "class": "unpopulated vocabulary",
+      "measured": "0 mapping rows anywhere.",
+      "why": "Refused at a stage earlier than the text test: these five poled keys hold no curated instrument at all, in any chamber or any state, so there was no curated subject to scan candidate rolls against and no candidate surfaced. They are blocked on curation before they are blocked on an act, and a coverage wave cannot fix that by finding a vote — someone has to read a bill onto the key first. Listed rather than omitted, because a leftover-empty list that silently drops the keys with no rows would understate what is unread.",
+      "blockedOn": "a first curated instrument on the key, then an act"
+    },
+    {
+      "issueKey": "term_limits",
+      "class": "unpopulated vocabulary",
+      "measured": "0 mapping rows anywhere.",
+      "why": "Refused at a stage earlier than the text test: these five poled keys hold no curated instrument at all, in any chamber or any state, so there was no curated subject to scan candidate rolls against and no candidate surfaced. They are blocked on curation before they are blocked on an act, and a coverage wave cannot fix that by finding a vote — someone has to read a bill onto the key first. Listed rather than omitted, because a leftover-empty list that silently drops the keys with no rows would understate what is unread.",
+      "blockedOn": "a first curated instrument on the key, then an act"
+    }
+  ],
+  "senateGapNote": "37 poled keys hold a House instrument and no Senate one, and 37 still do after this wave. That is the chamber gap, and F10 closed the hunt for it: reachable unread from a new PRIMARY on an existing mapped key measured zero, because _rdLeanAllowed() already returns true on any key with a floor act and promoting a row changes a label and no tier, read, direction or floor. Closing a Senate gap needs a SENATE ACT on a measure that carries the key, which is a different instrument, not a different flag. F11 did not reopen that hunt and reports the 37 as unchanged rather than as unexamined. The one Senate gap this wave does close, housing_support, closes because H.R. 6644 carried a Senate passage roll all along and nobody had written the mapping row that reads it.",
+  "blockedOnPriced": {
+    "_method": "Priced with --reach's own unit. --reach cannot price a key with zero mapping rows at all — its KEY_UNIVERSE is the set of keys that already hold a row — so the price is stated as the reach a single full-weight passage-form floor vote would buy, which --reach measures at +435 for a House roll and +102 for a Senate one at n=1, with n=2 adding nothing. Where a specific candidate roll exists its ACTUAL attributed headcount is quoted instead, because the theoretical figure would be a fiction: House roll 224 on H.R. 6644 carries 108 attributed members, not 435.",
+    "flatnessFinding": "Every one of the 22 leftover keys prices identically. There is no ranking to report and reporting one would have been invented. What separates them is the CLASS of blockage, so they are grouped by that instead.",
+    "byClass": [
+      {
+        "class": "no instrument in the 119th",
+        "keys": [
+          "dev_district_finance",
+          "end_dei",
+          "paid_leave",
+          "prop_tax",
+          "tobacco_nicotine",
+          "water_storage"
+        ],
+        "price": "+435 House and/or +102 Senate each, unlockable by nobody in this Congress so far.",
+        "unblockedBy": "a floor vote. Not by reading, not by curation, not by a wave. Recheck when the 120th convenes."
+      },
+      {
+        "class": "no passage-form instrument",
+        "keys": [
+          "cannabis_reform",
+          "immigration_reform"
+        ],
+        "price": "+102 Senate (cannabis_reform) / +435 House (immigration_reform).",
+        "unblockedBy": "a passage-form vote. Procedural rolls on the subject exist and are refused by the admit list."
+      },
+      {
+        "class": "candidates exist and fail the text test",
+        "keys": [
+          "tariffs_china",
+          "justice_reform",
+          "lands_local",
+          "checks_balances",
+          "back_police",
+          "pro_choice",
+          "sound_money",
+          "housing_first_time"
+        ],
+        "price": "+435 House each where a House candidate exists; tariffs_china's two Senate candidates would be +102.",
+        "unblockedBy": "a different instrument, not a different reading. Each refusal above names the specific text the pole needs and the specific text the candidate has. Re-scan when a bill with that text gets a roll."
+      },
+      {
+        "class": "unpopulated vocabulary",
+        "keys": [
+          "datacenter_growth",
+          "immig_legal",
+          "lands_keep_public",
+          "property_tax",
+          "term_limits"
+        ],
+        "price": "unpriceable — with zero mapping rows they are outside --reach's KEY_UNIVERSE entirely, so the honest figure is 'not measurable', not 0 and not +435.",
+        "unblockedBy": "a curation wave that reads a first instrument onto each key. Only then can a coverage wave find it an act."
+      },
+      {
+        "class": "this wave's own cost",
+        "keys": [
+          "property_rights"
+        ],
+        "price": "0 reads lost, 424 wrong reads not published, one federal instrument removed.",
+        "unblockedBy": "an eminent-domain or takings instrument with a roll. The struck-sections row was never going to be it."
+      }
+    ]
+  },
+  "vocab": {
+    "newKeysProposed": 0,
+    "newKeysAdmitted": 0,
+    "newPolesAdded": 0,
+    "newBalancePolesProposed": 0,
+    "statement": "F11 adds no issue key, proposes no new pole, and proposes no *_balance pole. The six vocabulary rules were not exercised because no candidate needed a key that does not exist: both admits landed on keys the vocabulary already carries with a curated directional chip, which is the whole point of a coverage wave. The brief's second condition — at least two instruments would use it this wave — could not have been met by anything here in any case, since the wave admits two instruments in total.",
+    "observationForALaterWave": {
+      "what": "prop_tax and property_tax are two poled vocabulary keys for what looks like one subject.",
+      "measured": "prop_tax holds 5 Utah rows and 0 acts. property_tax holds 0 rows anywhere. Neither has a federal instrument.",
+      "notActedOn": "Documented and refused, in that order. A merge is not a coverage move: it would rewrite five live mapping rows and change what is published about the Utah members who read them, which is outside a wave whose mandate is 'no floor moved'. It also is not free — deciding which of the two slugs survives changes URLs and chip text. Recorded here so the next vocabulary wave does not have to rediscover it, and explicitly NOT done here."
+    }
+  },
+  "packNote": {
+    "rowsWritten": true,
+    "decision": "bump — pack-generation: derived",
+    "why": "This wave writes one mapping row and deletes two, so mappingVersion() in netlify/lib/vr-pack.ts moves on its own: it is m<count>-<md5 of the ordered measure_id/issue_key/weight/is_primary/support_meaning/rationale tuples>, and both the count and the digest change. The pack key member:<pid>@m<count>-<hash> therefore bumps for every member and the six-hour PACK_TTL_MS cannot serve a pre-F11 blob past the deploy. This is exactly the Curtis/Lee failure the brief names, and it is avoided by the fingerprint moving rather than by a purge step someone has to remember.",
+    "mappingVersionStart": "m941-11954c943297",
+    "mappingVersionStartMeasured": "941 rows in vr_measure_issues, max id 12044, measured against the live corpus before the migration.",
+    "mappingVersionEndRowCount": 940,
+    "mappingVersionEndNote": "941 - 2 retracted + 1 added = 940 rows. The end digest was COMPUTED rather than left unstated: mappingVersion() orders by id and the new row lands last, so the digest is a deterministic function of the exact rationale text this seed carries and does not depend on which id the sequence hands out. Simulated against the live table with the two retracted rows excluded and the new row appended: m940-da41abc2f46d. scripts/test-vr-federal-wave-f11.mjs asserts the live value equals this after the migration applies — if the rationale text is edited by so much as a comma the assertion fires, which is the point.",
+    "migrationComment": "-- pack-generation: derived",
+    "mappingVersionEnd": "m940-da41abc2f46d",
+    "measuredByFpi": "The FPI projection over f1,f2,f3,f4,f10,f11 confirms the shape before the deploy: 1 seed row overlaid, 2 retracted, 1 roll call and 430 member votes projected, 0 measures created. Rows that STOPPED being characterised: 0 — the retractions cost zero existing reads, which is the claim both retraction notes make and is now measured rather than argued. Rows that STARTED being characterised: 936. Members whose shape moved: 530. Tier weakening (readable to not, or fewer clear issues): 0. Members gaining a split row: 0. Member-level empty/thin/readable: 0/6/653 before and 0/6/653 after, delta 0/0/0 — no member's overall tier moves and no floor moves, which is what a coverage wave should look like at the member level."
+  },
+  "migration": {
+    "file": "netlify/database/migrations/20261028000000_vr_federal_wave_f11.sql",
+    "stamp": "20261028000000",
+    "stampProvenance": "F10's RESERVED STAMP, consumed here. F10 recorded 20261028000000 as reserved-and-unconsumed because it shipped no migration; F11 takes it rather than hand-setting a new tail. The directory's current tail is 20261027000000_vr_instrument_lever_summaries_w1.sql, so 20261028000000 is still last in the tree and no applied migration is touched.",
+    "does": [
+      "INSERT vr_rollcalls: house 119/2/154, question 'On Passage', action_type 'passage', result 'passed', measure 31, source https://clerk.house.gov/Votes/2026154.",
+      "INSERT 430 vr_member_votes rows from db/vr-federal-wave-f11-vote-seed.json — 224 yea, 200 nay, 6 not_voting, is_party null for the six.",
+      "INSERT one vr_measure_issues row: measure 88 (H.R. 6644) housing_support weight 65 is_primary false yea_supports.",
+      "DELETE two vr_measure_issues rows, each guarded on measure_id AND issue_key AND weight AND is_primary AND support_meaning AND the exact rationale string, so a row that has drifted is not silently removed.",
+      "UPDATE vr_measures.status for measure 31 from 'introduced' to 'passed_house', guarded on the from-value.",
+      "A verification block that RAISEs if either retracted row survives, if the new housing_support row is missing or carries a different polarity, if the roll's member-vote count is not 430, or if the status did not move."
+    ]
+  },
+  "_counts": {
+    "actsAdmitted": 1,
+    "mappingRowsAdded": 1,
+    "mappingRowsRetracted": 2,
+    "statusCorrections": 1,
+    "keysFilled": 2,
+    "keysRefused": 22,
+    "newIssueKeys": 0,
+    "newPoles": 0,
+    "votesIngested": 1,
+    "memberVotesIngested": 430,
+    "membersNewlyThinReadable": 524,
+    "mappingRowsBefore": 941,
+    "mappingRowsAfter": 940,
+    "fpiMembersWhoseShapeMoved": 530,
+    "fpiRowsStartedCharacterised": 936,
+    "fpiRowsStoppedCharacterised": 0,
+    "mappingVersionStart": "m941-11954c943297",
+    "mappingVersionEnd": "m940-da41abc2f46d"
+  },
+  "_findings": [
+    "RULE 43 CUTS BOTH WAYS. The name is not the instrument, and F10 wrote that rule to catch bills whose titles promise more than their text delivers. F11 found the inverse on the same day: a title scan of all 657 House and 453 Senate legislative rolls of the 119th returned ZERO candidates for housing_support, and the key had an act the whole time. Both of this wave's housing findings come from one print — H.R. 6644 earns housing_support on five operative sections and is refused for housing_first_time on three permissive pilots — which is the cleanest available demonstration that the test is the text and never the title, in either direction.",
+    "A ROLL IS NOT FREE. Landing one act made five pre-existing mapping rows readable, not one. Two of them read sections that the passed text does not contain and had to be retracted; one arrives correctly and is disclosed rather than claimed; one stays suppressed because it is a *_balance key. A coverage wave that counts only the row it argued for understates its own footprint by four rows.",
+    "THE RANKING WAS INERT. The brief asked for the empty poled keys ranked by members newly thin-readable from one full-weight passage-form vote. --reach prices every one of them identically (+435 House, +102 Senate, n=1 equal to n=2), so the ranking is a flat tie across all 22 and the real discriminator is whether an admissible instrument exists. Reported as a flat tie instead of as an ordering.",
+    "--reach CANNOT SEE AN EMPTY KEY. Its KEY_UNIVERSE is the set of keys that already hold at least one mapping row, so the five poled keys with zero rows anywhere are outside the instrument that was supposed to price them. The census had to be built from direct SQL against vr_measure_issues and vr_rollcalls cross-matched against the scraped chamber indexes. Recorded as a limitation of the tool, not worked around silently.",
+    "--reach IS A PRE-WAVE INSTRUMENT AND CANNOT MEASURE THE WAVE THAT PASSES IT. The brief asked for `--reach` on the poled empty keys, and the honest answer is that the flag's own numbers are identical before and after this wave. Measured: `--set all --waves f1,f2,f3,f4,f10 --reach` and `--set all --waves f1,f2,f3,f4,f10,f11 --reach` produce output that differs in exactly two lines, both of them the header naming the wave list. Not one figure moves. The cause is structural rather than a bug: the --reach branch of scripts/vr-federal-fpi.mjs builds every count from `winB` and `before` (the database as it stands) and from `lane`, and never touches `V.lane` / `after`, which is where a wave's projected rows live. So the wave list argument reaches the header and nothing else. Two consequences worth writing down. First, --reach prices a hypothetical: what the best instrument that could ever exist would convert against the current corpus, which is a planning number and not a result. Second, it counts UNREAD ROWS — rows that exist and are suppressed — so a wave like this one, which creates READS rather than unread rows, is invisible to it by construction: rural_ag and housing_support both still print unread 0 with a ceiling of a whole chamber, before and after. The wave's actual movement had to be measured with `--json` gainedReads/lostReads, which is a genuine before/after pair over the same engine. Recorded so the next wave does not quote a --reach table as evidence that it shipped something.",
+    "A MIRROR IS NOT THE MAPPING — THE GATE THAT FAILED WAS READING HALF ITS SOURCE. scripts/test-vr-vote-seed.mjs refused this wave's vote seed with 'measure H.R. 7567 (119th) has no mapping in db/vr-issue-seed.json and is not declared in measuresDeliberatelyUnmapped'. The bill is mapped: five rows written by netlify/database/migrations/20260721100000_seed_farm_bill_2026.sql, of which three survive this wave, including the rural_ag w100 PRIMARY that is the entire product here. What is true is only that none of the five was ever mirrored into db/vr-issue-seed.json — which runbook rule 20 says is not a defect, because applyCuratedIssueSeed() upserts only the keys the mirror carries and an omitted key is a live row left alone. Three doors were open and two of them were refused. Declaring the bill in measuresDeliberatelyUnmapped would have put a false sentence in the permanent record — that door exists for a measure read in full and refused every candidate key, which is H.R. 1069 and F7's seven Iran resolutions, all of them carrying no issue rows at all. Mirroring the bill's three surviving rows would have been true but wrong-shaped: rule 20 makes a mirrored key owe its live rationale byte for byte, and these three sit alongside two rows this very migration deletes, so the mirror would have been written against text in motion; and scripts/test-vr-federal-roster-r2.mjs pins db/vr-issue-seed.json unchanged, so a coverage wave would have broken an identity wave's discipline list to pass its own gate. The third door was to fix the gate's source, and that is what shipped: it now reads the migrations for the same fact, per file (variable names repeat across files, and the concatenated blob would let one file's m_farm satisfy another's insert) and per (measure, key) pair minus the pairs a later migration DELETEs. The widening is measured, not asserted: across all seventeen vote seeds it admits H.R. 7567 and nothing else, the eight measures behind the declinedFacets door stay behind it, the mirror is still consulted first, and a variable the parser cannot bind is credited to nothing. Recorded as runbook rule 51, and pinned in section 10b of scripts/test-vr-federal-wave-f11.mjs against the source so a later widening fails loudly.",
+    "F10 RESERVED THE STAMP AND ITS SUITE ASSERTED THE STAMP WAS EMPTY. F10's seed says 20261028000000 is 'recorded here and not consumed, so the next wave takes it'; its suite then required MIGS.filter(f => f.startsWith('20261028')).length === 0. Both sentences were right on the day F10 shipped and they cannot both survive the wave that accepts the offer. F11 consumed the stamp, as this brief directs, and F10's suite failed on it. The assertion was narrowed rather than removed, to what F10 can still honestly claim: at most one file at that stamp, not carrying F10's name, and declared by some db/vr-federal-mapping-seed-*.json. Every one of F10's no-write claims is untouched — rowsShipped 0, migrationsWritten 0, voteSeedsWritten 0, measures[] empty, promotes[] empty, retractions[] empty — and the suite passes at 250 checks. Recorded as runbook rule 52."
+  ]
+}

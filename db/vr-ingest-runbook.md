@@ -1362,6 +1362,93 @@ depth — 428 more judged votes standing behind positions that previously rested
    profile really is absent it prints the arrivals alongside the departures so a renamed key cannot
    be mistaken for a lost one.
 
+48. **A ROLL IS NOT FREE: before ingesting a vote, read every mapping row already on that
+   measure, because the vote publishes all of them at once.** F11's charter was one act on one
+   empty key. Landing House roll 154 on H.R. 7567 made **five** pre-existing rows readable — the
+   `rural_ag` w100 PRIMARY the wave wanted, `family_support` w70, `enviro_balance` w60 (suppressed
+   by `/_balance$/`, so it stayed unread), and two rows that could not survive being read:
+   `econ_corp_account` w45 and `property_rights` w40, both sourced to SEC. 10205, SEC. 10206 and
+   SEC. 10207 — sections **struck by H.Amdt. 196** (119/2 roll 148, 280-142) and absent from the
+   engrossed text. F9 had *already written that down* in both rationales ("so the enacted text does
+   not include the shield") and left the polarity at `yea_opposes` anyway, which is harmless while
+   the measure has no roll and becomes 424 wrong attributions the moment it has one. So the
+   sequence is: diff the chamber print against the referred print, list the measure's whole row set,
+   and decide each row *before* the vote seed exists — not the one row the wave is about.
+   The retraction is not always free either, and the cost is disclosed rather than netted:
+   `econ_corp_account` keeps ten rows and loses nothing, while `property_rights` loses its only
+   federal row, so the no-federal-instrument-anywhere count went 20 → 21. A key that reads empty is
+   honest; a key that reads a struck section is not.
+
+49. **`--reach` is a PRE-WAVE instrument. It cannot measure the wave whose name you pass it, and
+   quoting its table as a result is a category error.** Measured on F11: `--set all --waves
+   f1,f2,f3,f4,f10 --reach` and `--set all --waves f1,f2,f3,f4,f10,f11 --reach` differ in exactly
+   two lines, both of them the header naming the wave list. Not one figure moves. Two structural
+   causes, both worth knowing before chartering a wave on its numbers. First, the `--reach` branch
+   builds every count from `winB` / `before` and from `lane` — the database as it stands — and
+   never touches `V.lane` / `after`, where a wave's projected rows live. Second, it counts **unread
+   rows**: rows that exist and are suppressed. A coverage wave creates **reads**, not unread rows,
+   so `rural_ag` and `housing_support` print `unread 0` with a ceiling of a whole chamber both
+   before *and* after F11 filled them. What `--reach` is genuinely for is planning — what the best
+   instrument that could ever exist would convert — plus two facts it states honestly: the
+   attribution ceiling holds at chamber headcount on every key (102/102 Senate, 435/435 House), and
+   every key with unread volume and a ceiling of zero is one of the poleless or `*_balance` keys.
+   Movement is measured with `--json` `gainedReads` / `lostReads`, which is a real before/after
+   pair over one engine. `scripts/test-vr-federal-wave-f11.mjs` asserts the cause against the
+   source, so the day someone wires `after` into `--reach` this rule fails loudly instead of
+   ageing into folklore.
+
+50. **Rule 43 cuts both ways: a title scan produces false negatives as freely as false positives,
+   and the false negative is the one that leaves a key empty for a year.** F10 wrote rule 43 for
+   titles that promise more than the text delivers. F11 found the inverse on the same print. A
+   title scan of all 657 House and 453 Senate legislative rolls of the 119th returned **zero**
+   candidates for `housing_support` — and the key had an admissible act the whole time, because
+   H.R. 6644's short title ("21st Century ROAD to Housing Act") and long title ("To increase the
+   supply of housing in America") contain none of *affordable*, *renter*, *tenant*, *voucher* or
+   *rental assistance*, while Secs. 204, 212, 405, 501 and 503 of the enrolled text are exactly
+   that. The same print, read the same way, also **refuses** `housing_first_time`: Sec. 105 "may
+   establish a pilot program", Sec. 404 is an escrow pilot for families already in section 8 or 9
+   housing, Sec. 402 is an evaluation, and "first-time" appears once in 442 KB. One print, one
+   rule, two opposite answers — which is what it looks like when the text is doing the deciding.
+   Operationally: a title scan may be used to *rank* candidates and never to *close* a key. A key
+   is only empty once its subject has been searched in the enacted prints of the measures the
+   corpus already holds.
+51. **`db/vr-issue-seed.json` is a mirror, not the mapping — and a gate that treats it as the
+   mapping fails the first wave that puts a roll on a migration-mapped bill.** Rule 20 already
+   says the mirror is partial by design: `applyCuratedIssueSeed()` upserts only the keys the
+   seed carries, so a key left out is a live row left alone. The consequence nobody had hit
+   until F11 is what happens *downstream* of that. `scripts/test-vr-vote-seed.mjs` read "is
+   this measure mapped?" out of the mirror alone, so the moment House roll 154 landed on
+   H.R. 7567 — five rows written by `20260721100000`, none of them mirrored — a fully mapped
+   twelve-title farm bill came out the far end of the gate looking like an unmapped measure,
+   with the gate offering the `measuresDeliberatelyUnmapped` door as the remedy. Taking that
+   door would have been a lie in the record: the whole product of the wave is that bill's
+   `rural_ag` **w100 PRIMARY**. Mirroring the bill instead would have been true but wrong-shaped
+   — it drags rule 20's byte-for-byte obligation onto three rationales this very migration is
+   editing, and it trips the pinned-file list in `scripts/test-vr-federal-roster-r2.mjs`, which
+   holds `db/vr-issue-seed.json` unchanged. So the gate was fixed instead of worked around: it
+   now reads the migrations for the same fact, **per file** (variable names repeat, and the
+   concatenated blob would let one file's `m_farm` satisfy another file's insert) and **per
+   (measure, key) pair minus the pairs a later migration DELETEs** (so a measure whose rows were
+   all retracted goes back to owing its refusal in writing). Three things make that an addition
+   rather than a loosening, and all three are asserted: the mirror is still consulted first, the
+   `declinedFacets` door is still the only other way through, and the widening was **measured** —
+   across all seventeen vote seeds it admits H.R. 7567 and nothing else, while the eight measures
+   that use the door (H.R. 1069 and F7's seven Iran resolutions, every one ingested with no issue
+   rows at all) stay behind it. General form: when a discipline gate fails a wave, ask whether the
+   gate is reading the *whole* source of the fact it checks before you ask what the wave should
+   declare. A partial source produces false failures, and a false failure answered with a
+   declaration puts a false sentence in the permanent record.
+52. **A reserved stamp is a promise to a later wave, so the suite that reserved it has to allow
+   the promise to be kept.** F10 shipped no migration and recorded `20261028000000` as reserved,
+   its seed saying in as many words "recorded here and not consumed, so the next wave takes it".
+   Its suite then asserted the prefix was **empty** — which is the right check on the day F10
+   ships and a booby trap for the wave that accepts the offer. F11 consumed the stamp and F10's
+   suite failed. The fix is not to delete the assertion but to narrow it to what F10 can still
+   honestly claim: at most one file at that stamp, it does not carry F10's name, and some
+   `db/vr-federal-mapping-seed-*.json` declares it. F10's own no-write claims — `rowsShipped`,
+   `migrationsWritten`, `voteSeedsWritten`, the empty `measures[]` — are all untouched. When you
+   reserve a stamp, write the check as "empty, or owned by a wave that declares it".
+
 ### Best remaining follow-ups after this pass
 
 0. *(Closed August 2026.)* **H.R. 6955** (119/2 roll 271) and **H.R. 2670** (118/1 roll 723) were
