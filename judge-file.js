@@ -218,7 +218,7 @@
       body += '<p class="jf-empty">Two records on this court share this name. ' +
         'Until the roster can tell them apart, no retention question is claimed for either.</p>';
     }
-    return block('Retention', '🗳', body);
+    return block('Retention', '🗳', body, 'pdxjf-retention');
   }
 
   function jpecBlock(j) {
@@ -259,7 +259,7 @@
         '<a class="jf-a" href="' + esc(c.priorUrl) + '" target="_blank" rel="noopener">' +
         esc(String(c.priorUrl).replace(/^https?:\/\//, '')) + '</a></p>';
     }
-    return block('Judicial performance evaluation', '📋', out);
+    return block('Judicial performance evaluation', '📋', out, 'pdxjf-jpec');
   }
 
   function seatBlock(j) {
@@ -286,14 +286,15 @@
       'stands unopposed for retention at the first general election more than three years later. ' +
       'Who appointed a judge is a fact about the appointment and the appointing governor’s own ' +
       'record — it is not a description of the judge.</p>';
-    return block('How this seat was filled', '🖋', out);
+    return block('How this seat was filled', '🖋', out, 'pdxjf-seat');
   }
 
   function formalBlock() {
     return block('Formal record', '🏛',
       '<p class="jf-empty">' + esc(J().NO_FORMAL) + '</p>' +
       '<p class="jf-note">Rulings are not promises. PolitiDex does not read a holding as a ' +
-      'kept or broken pledge, and does not build a voting pattern out of case outcomes.</p>');
+      'kept or broken pledge, and does not build a voting pattern out of case outcomes.</p>',
+      'pdxjf-formal');
   }
 
   function historyBlock(j) {
@@ -309,7 +310,7 @@
     } else {
       out = '<p class="jf-empty">No prior retention result on file.</p>';
     }
-    return block('Prior retention', '📜', out);
+    return block('Prior retention', '📜', out, 'pdxjf-history');
   }
 
   // The public lane, hoisted into a strip about the COURT. The rows here were
@@ -334,13 +335,18 @@
           esc(p.cite || 'source') + '</a>' : '') + '</li>';
     });
     out += '</ul>';
-    return '<section class="jf-block jf-court-strip">' +
+    return '<section class="jf-block jf-court-strip" id="pdxjf-court">' +
       '<h2 class="jf-h2"><span class="jf-ico">\ud83d\udcac</span>' +
       esc('About the court \u00b7 ' + court) + '</h2>' + out + '</section>';
   }
 
-  function block(title, icon, body) {
-    return '<section class="jf-block">' +
+  // `id` is optional and exists so the file outline (person-outline.js) has a
+  // stable destination per section. It is the section element's own id rather
+  // than a separate anchor span: these blocks are top-level children of .jf
+  // with nothing collapsed above them, so there is no chain to open and no
+  // reason for the extra node.
+  function block(title, icon, body, id) {
+    return '<section class="jf-block"' + (id ? ' id="' + esc(id) + '"' : '') + '>' +
       '<h2 class="jf-h2"><span class="jf-ico">' + icon + '</span>' + esc(title) + '</h2>' +
       body + '</section>';
   }
@@ -431,6 +437,11 @@
         if (rp && rp.className.indexOf('is-error') < 0 && rp.parentNode) rp.parentNode.removeChild(rp);
       }
     } catch (e) {}
+
+    // The file outline: a named list of THIS file's sections. Judge files never
+    // called _pdxInitProfileNav — the pill rail's figures are a legislator's —
+    // so the outline is armed here directly, off the ids the blocks above carry.
+    try { if (window.PDXPersonOutline) window.PDXPersonOutline.mount(pid); } catch (e) {}
 
     var P = window.PDXPerson;
     if (P) {

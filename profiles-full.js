@@ -7869,6 +7869,10 @@
     // Arm the quick-jump nav (smooth-scroll + scroll-spy) now that the content
     // is in the DOM and the body has been scrolled back to the top.
     if (typeof window._pdxInitProfileNav === 'function') window._pdxInitProfileNav();
+    // The file outline — the section NAMES, derived from which spine stages
+    // actually mounted. After the rail, because it rides the rail's re-arm
+    // signal when a deferred drawer appears later.
+    if (window.PDXPersonOutline) { try { window.PDXPersonOutline.mount(id); } catch (e) {} }
     // Voting Record — lazily fetch /api/voting-record and reveal the section if
     // this member has any record (self-gating; no-ops quietly otherwise).
     if (typeof window._pdxInitVotingRecord === 'function') window._pdxInitVotingRecord();

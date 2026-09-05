@@ -2243,6 +2243,12 @@ window.PDXLazy = (function () {
        non-blocking path as the rest of the overlay CSS. -->
   <link rel="stylesheet" href="/person-file.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/person-file.css" /></noscript>
+  <!-- The person-file section outline — the sticky desktop rail and the phone
+       chip row that name the sections of whichever file is open. Same
+       non-blocking path as the rest of the modal chrome; the outline is built by
+       script, so a stylesheet arriving late costs nothing. -->
+  <link rel="stylesheet" href="/person-outline.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/person-outline.css" /></noscript>
   <!-- The issue file's stage — the overlay /i/<key> mounts the child ledger on,
        the person modal's own family and deliberately below it in z-order. It
        styles the panel and its chrome ONLY: every rule the ledger inside it
@@ -22392,6 +22398,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        open on user interaction, long after this defer script has run, and the
        modal falls back to its previous unordered body if it is ever missing. -->
   <script defer src="/profile-spine.js"></script>
+  <!-- The file outline — a named jump list for the person file, derived from
+       which spine stages actually mounted. After profile-spine.js because it
+       probes the containers that assembler emits, and it reads the DOM only when
+       a file opens, long after every defer script has run. -->
+  <script defer src="/person-outline.js"></script>
   <!-- ✒️ Executive Enactment Record — the second record lane, for figures who cast
        no congressional floor votes (window.EXEC_ACTIONS → PDXExecRecord →
        PDXExecRecordUI). Three files, loaded in dependency order:
