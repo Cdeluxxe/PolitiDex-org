@@ -1328,6 +1328,88 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // door1-workspace.js, door1-workspace.css, issue-file.js, issue-file.css,
     // sw.js, scripts/test-issue-file-address.mjs and
     // scripts/test-issue-family-door.mjs are declared above already.
+    // THE EYE'S JUDICIAL LANE (CACHE_VERSION v129), on those same later-wave
+    // terms. It writes no roll, no mapping, no key, no floor, no admission and no
+    // score: it adds a fourth RESULT KIND to the All-Seeing Eye, for an office
+    // this wave's arithmetic has never touched and never will. PolitiDex carries
+    // 126 complete Utah judge files at /p/<pid>, and the Eye could not find one —
+    // its people haystack is the union of CMP_DATA and PROFILES, and a judge is
+    // deliberately in neither, because a judge inside CMP_DATA is a judge inside
+    // Direction Match, inside a formal-pattern tier and inside the publication
+    // floor. So the registry became its own lane rather than a tenant of the
+    // roster: judicial-retention.js publishes the locked search vocabulary and
+    // the rows, all-seeing-eye.js renders them with no party chip, no ring, no
+    // percentage and no formal-act count, and the judge headcount sits in a
+    // FOURTH lane-count slot that no denominator reads — so a judge-only query
+    // prints Formal 0, Public 0, Mandate 0 and still answers. firebase-boot.js
+    // stops promising a roster load over a file that waits on no roster, and
+    // judge-file.js hoists the court-keyed public lane into a strip that names
+    // the court instead of reading as one judge's record. The reason a wave like
+    // this one is the file that has to declare it: R1 and R2 put 1,120 member
+    // files behind this search box, and the guarantee that matters here is that
+    // none of them moved — every Direction Match read, every lane count and every
+    // painted legislative row is byte-identical with this lane and without it,
+    // which scripts/test-eye-judge-lane.mjs proves as a twin boot. No judge was
+    // added to cmp-data.js, to the publication floor or to compare-the-field.
+    // all-seeing-eye.js, index.html and sw.js are declared above already.
+    "judicial-retention.js",
+    "judge-file.js",
+    "judicial-retention.css",
+    "firebase-boot.js",
+    "scripts/test-judicial-retention.mjs",
+    // Federal wave F10 — the wave briefed as "F5: standalone PRIMARYs for the remaining
+    // chamber gap", which after rebuilding the census admitted nothing and wrote its
+    // reasons instead. Two files change and neither is booted by anything: the read-only
+    // census tool gained a `--reach` mode (what a key's ceiling would be if the best
+    // possible instrument existed) and had F4's stale comment about the primary wall
+    // corrected, and the runbook gained rules 43-46. The seed and its suite are new
+    // files, declared here so they stay declared once they are tracked.
+    // No migration, no mapping row, no vote seed, no key, no floor — so F8's and F9's
+    // own subjects are untouched by construction, and scripts/test-vr-federal-wave-f10.mjs
+    // asserts that separately against HEAD.
+    "scripts/vr-federal-fpi.mjs",
+    "db/vr-ingest-runbook.md",
+    "db/vr-federal-mapping-seed-f10.json",
+    "scripts/test-vr-federal-wave-f10.mjs",
+    // Federal wave F11 — "first acts on empty poled keys": a COVERAGE wave. One roll
+    // call (House 119/2/154, On Passage of H.R. 7567) lands on a bill F9 curated and
+    // could not read, and one secondary mapping row lands H.R. 6644 on housing_support,
+    // whose two passage rolls were already on file. Two keys that read empty for every
+    // member of Congress start reading; twenty more are refused in writing with a
+    // measured reason each. Landing the roll also made F9's two H.R. 7567 rows sourced
+    // to sections struck by H.Amdt. 196 publishable, so both are retracted rather than
+    // shipped — measured at zero existing reads lost.
+    // Nothing booted changes. The only tracked file this wave edits is the read-only
+    // census tool, which gained an in-memory `--seed-override <wave>=<path>` flag so the
+    // F11 suite can answer its mutation clause ("drop one admitted mapping and those
+    // members return to empty") without rewriting a seed on disk — which is this
+    // suite's own pattern and the reason runbook rule 47 exists. The flag discloses
+    // itself on stderr, in the --json payload and in the table header, so an overridden
+    // run can never be quoted as a measurement.
+    // Two gates of earlier waves changed, both because F11 is the first wave whose
+    // shape they had not seen, and neither by loosening what they check:
+    //   * scripts/test-vr-vote-seed.mjs read "mapped" out of db/vr-issue-seed.json alone.
+    //     That file is a deliberately partial mirror (runbook rule 20 — omitting a key is
+    //     not a removal), and H.R. 7567's five rows were written by 20260721100000 and
+    //     never mirrored, so the first roll to land on it looked like an unmapped measure.
+    //     The check now reads the migrations for the same fact, per file and per
+    //     (measure, key) pair, minus the pairs a later migration deletes. Measured, not
+    //     assumed: across all seventeen vote seeds it admits H.R. 7567 and nothing else,
+    //     and the eight measures behind the declinedFacets door — H.R. 1069 and F7's
+    //     seven Iran resolutions, all ingested with no issue rows at all — stay behind it.
+    //   * scripts/test-vr-federal-wave-f10.mjs asserted the 20261028000000 prefix was
+    //     empty. F10's own seed says that stamp is "recorded here and not consumed, so
+    //     the next wave takes it", so F11 taking it is the sentence coming true. The check
+    //     now allows one file there provided it is not F10's and some mapping seed
+    //     declares it — which is the thing F10 actually needs to be able to say.
+    // scripts/vr-federal-fpi.mjs and db/vr-ingest-runbook.md are declared above already.
+    "scripts/test-vr-vote-seed.mjs",
+    "db/vr-federal-mapping-seed-f11.json",
+    "db/vr-federal-wave-f11-vote-seed.json",
+    "scripts/vr-gen-federal-wave-f11-vote-seed.mjs",
+    "scripts/vr-gen-federal-wave-f11-migration.mjs",
+    "scripts/test-vr-federal-wave-f11.mjs",
+    "netlify/database/migrations/20261028000000_vr_federal_wave_f11.sql",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

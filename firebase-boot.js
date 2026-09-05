@@ -288,10 +288,36 @@
   // renders lazily once <body> is available; the loader and the real
   // DOMContentLoaded both call the renderer, whichever wins.
   window._pdxRosterState = 'loading';
+  // One exception to the pill, and it is about honesty rather than polish. A
+  // judge file is served entirely from judicial-data.js, which ships with the
+  // page: nothing on /p/<a judge> is waiting on the legislator roster, so a
+  // "Loading the latest roster…" spinner over it is a promise of a record that
+  // is never coming. Worse, it reads as though the file is half-built and the
+  // missing half is a voting history — the exact inference the whole judicial
+  // surface exists to prevent. So the loading pill is suppressed while a
+  // judicial pid is open. The error pill is NOT: "couldn't load the roster" is
+  // a true report about the rest of the app, and its Retry button still works.
+  function _pdxJudicialFileOpen() {
+    try {
+      var pid = '';
+      var m = String(location.pathname || '').match(/^\/p\/([^\/?#]+)/);
+      if (m) pid = decodeURIComponent(m[1]);
+      if (!pid) pid = String(window._pdxCurrentProfileId || '');
+      if (!pid) return false;
+      var J = window.PDXJudicial;
+      if (J && typeof J.isJudge === 'function') return !!J.isJudge(pid);
+      var raw = window.PDX_JUDICIAL && window.PDX_JUDICIAL.JUDGES;
+      return !!(raw && raw[pid]);
+    } catch (e) { return false; }
+  }
   function _pdxRenderRosterStatus() {
     if (!document || !document.body) return;
     var el = document.getElementById('pdx-roster-status');
     var st = window._pdxRosterState;
+    if (st === 'loading' && _pdxJudicialFileOpen()) {
+      if (el && el.parentNode) el.parentNode.removeChild(el);
+      return;
+    }
     if (st === 'loading') {
       if (!el) {
         el = document.createElement('div');
@@ -314,6 +340,11 @@
       if (el && el.parentNode) el.parentNode.removeChild(el);
     }
   }
+  // Exposed so the judge file can re-run the decision after it takes over the
+  // address: the pill may already be on screen from the boot path, and the
+  // judicial registry is deferred, so the first call can happen before either
+  // the pid or PDXJudicial exists.
+  window._pdxRenderRosterStatus = _pdxRenderRosterStatus;
   window._pdxRetryRoster = function () {
     window._pdxRosterState = 'loading';
     _pdxRenderRosterStatus();

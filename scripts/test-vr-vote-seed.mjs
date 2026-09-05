@@ -21,8 +21,11 @@
 //   * The roster is the ceiling, not the chamber. `totals` must be the FULL chamber
 //     tally, so it always exceeds the attributed count — if a 220-211 vote were stored
 //     as 33-0 the margin shown to a reader would be a fiction.
-//   * Every measure a seed votes on is mapped in `db/vr-issue-seed.json`, or the votes
-//     land unrankable and the ingest moved nothing.
+//   * Every measure a seed votes on carries an issue mapping — mirrored in
+//     `db/vr-issue-seed.json` or written by a migration, since both write the table —
+//     or the votes land unrankable and the ingest moved nothing. A measure read in full
+//     and refused every candidate key is the one exemption, and it costs a
+//     `measuresDeliberatelyUnmapped` declaration plus a reasoned `declinedFacets` row.
 //   * Roll calls are unique on the key `vr_rollcalls` is itself unique on, so the
 //     migration's ON CONFLICT DO NOTHING cannot be hiding a collision inside one pass.
 //   * Every seeded roll call is actually written by a migration. The seed is a mirror,
@@ -146,6 +149,60 @@ const MIGRATIONS = fs.existsSync(MIG_DIR)
   : '';
 ok(MIGRATIONS.length > 0, 'no migrations found — cannot check that seeded rolls are written anywhere');
 
+// ── the OTHER writer of vr_measure_issues ────────────────────────────────────
+// db/vr-issue-seed.json is a mirror, and a deliberately partial one: runbook rule 20
+// is that omitting a key from it is not a removal, because applyCuratedIssueSeed()
+// upserts only the keys the seed carries. So the mirror is not the definition of
+// "mapped" — migrations write issue rows too, and most live rows came from one. Read
+// as the definition, the mirror fails any roll whose measure was mapped by SQL and
+// never mirrored, which is not a hole in the record; it is a hole in this test's
+// source. H.R. 7567 is that case: five rows written by 20260721100000, none mirrored.
+//
+// So this reads the migrations for the same fact, per file (variable names repeat
+// across files, and the concatenated blob would let one file's m_farm satisfy
+// another's insert), and pairwise rather than per measure:
+//
+//   * bind a PL/pgSQL variable to a (congress, number) — either looked up out of
+//     vr_measures, or RETURNING id from the insert that creates the measure;
+//   * count a (measure, key) pair only where that variable leads a VALUES tuple
+//     inside an INSERT INTO vr_measure_issues;
+//   * subtract the pairs a later migration DELETEs, so a measure whose rows were all
+//     retracted goes back to needing its refusal written down.
+//
+// Fail-closed in both directions. A variable this cannot bind never counts as mapped
+// (95 of them, mostly executive orders and state cases created by other SQL shapes),
+// and a pair it cannot tie to a number is not credited to any measure. What it must
+// not do is widen into an escape from the declinedFacets door below, so that is
+// measured, not assumed: of the measures the vote seeds actually roll on, this admits
+// H.R. 7567 alone. The eight measures that use the door — H.R. 1069 and F7's seven
+// Iran resolutions — are ingested with no issue rows at all and stay behind it.
+const MAPPED_BY_MIGRATION = (() => {
+  const pairs = new Set();
+  if (!fs.existsSync(MIG_DIR)) return new Set();
+  for (const f of fs.readdirSync(MIG_DIR).filter(x => x.endsWith('.sql')).sort()) {
+    const src = fs.readFileSync(path.join(MIG_DIR, f), 'utf8');
+    const bind = new Map();
+    for (const m of src.matchAll(/INTO\s+([a-z_][a-z0-9_]*)\s+FROM\s+vr_measures\s+WHERE[^;]*?number\s*=\s*'([^']+)'[^;]*?congress\s*=\s*(\d+)/gi))
+      bind.set(m[1], mkey(Number(m[3]), m[2]));
+    for (const m of src.matchAll(/INTO\s+([a-z_][a-z0-9_]*)\s+FROM\s+vr_measures\s+WHERE[^;]*?congress\s*=\s*(\d+)[^;]*?number\s*=\s*'([^']+)'/gi))
+      bind.set(m[1], mkey(Number(m[2]), m[3]));
+    for (const m of src.matchAll(/VALUES\s*\(\s*'[a-z_]+'\s*,\s*(\d+)\s*,\s*'[a-z]+'\s*,\s*'([^']+)'[\s\S]{0,600}?RETURNING\s+id\s+INTO\s+([a-z_][a-z0-9_]*)/gi))
+      bind.set(m[3], mkey(Number(m[1]), m[2]));
+    for (const blk of src.matchAll(/INSERT\s+INTO\s+vr_measure_issues[\s\S]*?;/gi))
+      for (const r of blk[0].matchAll(/\(\s*([a-z_][a-z0-9_]*)\s*,\s*'([a-z_]+)'\s*,/g))
+        if (bind.has(r[1])) pairs.add(bind.get(r[1]) + '::' + r[2]);
+    for (const blk of src.matchAll(/DELETE\s+FROM\s+vr_measure_issues[\s\S]*?;/gi)) {
+      const v = /measure_id\s*=\s*([a-z_][a-z0-9_]*)/i.exec(blk[0]);
+      const k = /issue_key\s*=\s*'([a-z_]+)'/i.exec(blk[0]);
+      if (v && k && bind.has(v[1])) pairs.delete(bind.get(v[1]) + '::' + k[1]);
+    }
+  }
+  return new Set([...pairs].map(p => p.split('::')[0]));
+})();
+ok(MAPPED_BY_MIGRATION.size > 0,
+  'no measure resolves to a migration-written issue row — the binding patterns stopped '
+  + 'matching, and every migration-mapped measure is about to look like a hole');
+
 let totalRolls = 0;
 let totalMv = 0;
 
@@ -245,13 +302,14 @@ for (const file of seedFiles) {
     const facetsRefused = (seed.declinedFacets || [])
       .filter((d) => String(d.measure || '').includes(String(m.number)))
       .filter((d) => typeof d.why === 'string' && d.why.trim().length >= 24);
-    if (MAPPED.has(mkey(m.congress, m.number))) {
+    if (MAPPED.has(mkey(m.congress, m.number)) || MAPPED_BY_MIGRATION.has(mkey(m.congress, m.number))) {
       pass++;
     } else {
       ok(declaredUnmapped && facetsRefused.length > 0,
-        `${at}: measure ${m.number} (${m.congress}th) has no mapping in db/vr-issue-seed.json `
-        + 'and is not declared in measuresDeliberatelyUnmapped with a reasoned declinedFacets '
-        + 'entry behind it — an unmapped measure is either a refusal on the record or a hole');
+        `${at}: measure ${m.number} (${m.congress}th) has no issue mapping — none in `
+        + 'db/vr-issue-seed.json and none written by a migration — and is not declared in '
+        + 'measuresDeliberatelyUnmapped with a reasoned declinedFacets entry behind it: an '
+        + 'unmapped measure is either a refusal on the record or a hole');
     }
 
     // ── runbook rule 8: decisive questions only ───────────────────────────

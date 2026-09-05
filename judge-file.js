@@ -13,9 +13,18 @@
    invention is case holdings — which is exactly the thing this pass refuses
    to grade. One decision is not a broken pledge.
 
-   So the hero is the OFFICE: court, seat, retention election. It carries no
+   So the hero is the OFFICE: court, seat, and — for the seats the state
+   actually filed a question for — the retention election. It carries no
    percentage and no ring. There is nowhere on this surface for a figure to
    appear, which is not an oversight to be corrected later.
+
+   WHICH office, though, is a fact with three answers, and the letterhead reads
+   all three off judicial-retention.js's standing(): a seat on this year's filed
+   list, a sitting seat that is not on it, and a judge who has left the court.
+   Only the first names an election. The Eye's search row is painted from the
+   same call, so the line above the name and the row a reader tapped to get here
+   are the same sentence — a file cannot promise a November ballot that the row
+   that opened it already said was over.
 
    ── WHY THIS INTERCEPTS openModal INSTEAD OF RENDERING A PROFILE ─────────
    openModal renders from the roster: party chip, score ring, promise ledger,
@@ -67,19 +76,76 @@
     return '<span>' + esc(label) + '</span>';
   }
 
+  // ── Status ──────────────────────────────────────────────────────────────
+  // The letterhead is the OFFICE, and which office a reader is looking at is a
+  // question this file does not answer for itself. judicial-retention.js's
+  // standing() answers it — from the Lieutenant Governor's filed list, in one
+  // of three locked sentences — and the search row a reader tapped to get here
+  // was painted from that same call. So the hero and the row cannot disagree.
+  //
+  // The fallback is deliberately the quiet one. A file that cannot reach the
+  // reader assumes the seat is NOT on a ballot, because "we could not check"
+  // and "she stands on November 3" are not close enough to guess between.
+  function statusOf(j) {
+    var Jj = J();
+    try {
+      if (Jj && fn(Jj.standing)) {
+        var st = Jj.standing(j.pid);
+        if (st && st.key) return st;
+      }
+    } catch (e) {}
+    var key = j.former ? 'former' : 'offSlate';
+    var say = (Jj && Jj.SEARCH) ? Jj.SEARCH[key] : '';
+    return { pid: j.pid, key: key, status: say, onSlate: false, former: !!j.former, sitting: !j.former };
+  }
+
   // ── Blocks ──────────────────────────────────────────────────────────────
 
-  function letterhead(j) {
+  // THE EYEBROW IS THE STATUS, NOT THE COURT.
+  //
+  // Thirty-two of the judges on this roster stand for retention this year.
+  // Ninety-three sit and are not on the filed list. One left the court in May
+  // 2026. Painting the same "RETENTION ELECTION" line over all three because
+  // all three sit on a Utah court makes the letterhead a claim about a ballot
+  // that is false for ninety-four of them — and it was false in the loudest
+  // possible place, in caps, above the name.
+  //
+  // So each status gets its own line and only the first one names an election:
+  //
+  //   onSlate  — Utah · Supreme Court · retention election
+  //   offSlate — Utah · District Court · Second Judicial District   (court and seat)
+  //   former   — Utah Supreme Court · former justice
+  //
+  // The judge who left keeps her file, her seat history and her prior results.
+  // What she loses is the hero of a live ballot, which was never hers.
+  function eyebrowFor(j, st) {
+    var unit = (j.unitLabel && j.unitLabel !== 'Statewide') ? j.unitLabel : '';
+    if (st.key === 'former') {
+      // "former justice" / "former judge", off the title the roster already
+      // derives from the role, so an appellate seat is not called a judgeship.
+      return j.courtLabel + ' · former ' + String(j.title || 'judge').toLowerCase();
+    }
+    if (st.key === 'onSlate') return j.state + ' · ' + j.courtShort + ' · ' + st.status;
+    return [j.state, j.courtShort, unit].filter(Boolean).join(' · ');
+  }
+
+  function letterhead(j, st) {
     var Jj = J();
-    var eyebrow = esc(j.state + ' · ' + j.courtShort + ' · retention election');
+    var eyebrow = esc(eyebrowFor(j, st));
     var role = j.role ? esc(j.role) : '';
     var seat = j.area ? esc(j.area) : '';
     var sub = [];
-    if (role) sub.push(role);
-    if (seat) sub.push(seat);
-    if (j.term) sub.push(j.term + '-year term');
-    return '<header class="jf-head">' +
-      '<p class="jf-eyebrow">' + eyebrow + '</p>' +
+    // A departed justice's sub-line is the seat and nothing else. "Justice" and
+    // "10-year term" are present-tense facts about someone who holds the seat.
+    if (st.key === 'former') {
+      if (seat) sub.push(seat);
+    } else {
+      if (role) sub.push(role);
+      if (seat) sub.push(seat);
+      if (j.term) sub.push(j.term + '-year term');
+    }
+    return '<header class="jf-head jf-head--' + esc(st.key) + '">' +
+      '<p class="jf-eyebrow jf-eyebrow--' + esc(st.key) + '">' + eyebrow + '</p>' +
       '<h1 class="jf-name">' + esc(j.name) + '</h1>' +
       (sub.length ? '<p class="jf-sub">' + sub.join(' · ') + '</p>' : '') +
       // The state courts directory's own page for this judge. Every identity
@@ -95,19 +161,35 @@
       '</header>';
   }
 
-  function retentionBlock(j) {
+  // Three statuses, three blocks, and only one of them prints a ballot question.
+  //
+  // The question is the loudest thing on this file, and until this pass it was
+  // printed whenever a retention DATE happened to sit in the roster row — which
+  // is a different fact from being on the filed list, and a fact that says
+  // nothing at all about a judge who has left. Now the branch is the status,
+  // read once by statusOf(): a departed justice gets the roster's own leaving
+  // sentence and no chrome, a sitting judge who is not on the list is told so
+  // plainly, and the November question renders for the seats it was filed for.
+  function retentionBlock(j, st) {
     var Jj = J();
     var rt = Jj.retention(j.pid);
     var body;
-    if (rt.stands) {
+    if (st.key === 'former') {
+      // The leaving sentence the roster already carries, alone. No date, no
+      // question, no "stands for retention" — a former justice is not a ballot
+      // line, and there is nothing here for a yes/no to attach to.
+      body = '<p class="jf-empty">' + esc(rt.why || st.status) + '</p>';
+    } else if (st.key === 'onSlate') {
       // The question as the state filed it, where the official list carries the
       // wording. A retention question is a sentence on a filing, not a sentence
       // this file writes, and printing our own version next to a citation to
       // theirs would be a paraphrase presented as a ballot.
       var q = fn(Jj.slateQuestion) ? Jj.slateQuestion(j.pid) : null;
       var qt = (q && q.question) ? q.question : ('Shall ' + j.title + ' ' + j.name + ' be retained?');
-      body = '<p class="jf-stat"><b class="jf-locked">' + esc(rt.label) + '</b> · ' +
-        esc(rt.when) + '</p>' +
+      var when = rt.when || (Jj.ELECTION ? Jj.ELECTION.label : '');
+      body = '<p class="jf-stat"><b class="jf-locked">' +
+        esc(rt.label || (Jj.VOCAB ? Jj.VOCAB.stands : '')) + '</b>' +
+        (when ? ' · ' + esc(when) : '') + '</p>' +
         '<p class="jf-q">' + esc(qt) + '</p>' +
         (q && q.filedOffice
           ? '<p class="jf-src">Filed as: ' + esc(q.filedOffice) + '</p>'
@@ -120,7 +202,17 @@
         body += '<p class="jf-conflict">' + esc(j.slateConflict) + '</p>';
       }
     } else {
-      body = '<p class="jf-empty">' + esc(rt.why) + '</p>';
+      // Sitting, and not on this year's list. Both halves are said out loud:
+      // the seat is not on the filed slate, and whether we hold the year of its
+      // next question is a separate thing we either know or do not.
+      body = '<p class="jf-stat"><b class="jf-locked">' + esc(st.status) + '</b></p>' +
+        '<p class="jf-empty">' + esc(rt.why) + '</p>' +
+        '<p class="jf-note">Utah does not put every judge on the same ballot. A judge ' +
+        'stands unopposed at the first general election more than three years after ' +
+        'appointment and then once a term, so most sitting judges are absent from any one ' +
+        'year’s list. This seat is not among the names filed for ' +
+        esc(Jj.ELECTION ? Jj.ELECTION.label : 'this year') + ', and nothing on this file ' +
+        'is a question a voter will be asked this November.</p>';
     }
     if (j.ambiguous) {
       body += '<p class="jf-empty">Two records on this court share this name. ' +
@@ -220,19 +312,31 @@
     return block('Prior retention', '📜', out);
   }
 
+  // The public lane, hoisted into a strip about the COURT. The rows here were
+  // never about the judge whose file this is — publicLane() is keyed on
+  // courtKey, so every judge on a court sees the same rows — and a section
+  // sitting in the ordinary run of blocks under her letterhead reads as hers no
+  // matter what the note underneath says. So the strip names the court in its
+  // heading, states the rule before the rows rather than after them, and wears
+  // its own frame. Data-gated as before: a court with nothing on file gets no
+  // strip, which today means this appears on Supreme Court files only.
   function publicBlock(j) {
     var rows = J().publicLane(j.courtKey);
     if (!rows.length) return '';
-    var out = '<ul class="jf-pub">';
+    var court = j.courtLabel || j.courtShort || 'this court';
+    var out = '<p class="jf-note">These are things people said in public about ' +
+      esc(court) + ', carried with a cite and attached to the court rather than to a judge. ' +
+      'They are quoted, never scored, and they are not ' + esc(j.name) + '\u2019s record.</p>';
+    out += '<ul class="jf-pub">';
     rows.forEach(function (p) {
       out += '<li><span class="jf-what">' + esc(p.what) + '</span>' +
         (p.url ? '<a class="jf-a" href="' + esc(p.url) + '" target="_blank" rel="noopener">' +
           esc(p.cite || 'source') + '</a>' : '') + '</li>';
     });
     out += '</ul>';
-    out += '<p class="jf-note">These are things people said in public, carried with a cite and ' +
-      'attached to the court rather than to a judge. They are quoted, never scored.</p>';
-    return block('Public lane · what people said', '💬', out);
+    return '<section class="jf-block jf-court-strip">' +
+      '<h2 class="jf-h2"><span class="jf-ico">\ud83d\udcac</span>' +
+      esc('About the court \u00b7 ' + court) + '</h2>' + out + '</section>';
   }
 
   function block(title, icon, body) {
@@ -241,10 +345,14 @@
       body + '</section>';
   }
 
-  function html(j) {
-    return '<div class="jf" data-jf-pid="' + esc(j.pid) + '">' +
-      letterhead(j) +
-      retentionBlock(j) +
+  // One status, read once, and handed to every block that could otherwise
+  // re-derive it. `st` is optional so _html(j) stays callable with a judge
+  // alone; when it is absent the file asks the same reader anyway.
+  function html(j, st) {
+    st = st || statusOf(j);
+    return '<div class="jf" data-jf-pid="' + esc(j.pid) + '" data-jf-status="' + esc(st.key) + '">' +
+      letterhead(j, st) +
+      retentionBlock(j, st) +
       jpecBlock(j) +
       seatBlock(j) +
       formalBlock() +
@@ -266,7 +374,8 @@
     var host = document.getElementById('modal-content');
     if (!host) return false;
 
-    host.innerHTML = html(j);
+    var st = statusOf(j);
+    host.innerHTML = html(j, st);
 
     var ico = document.getElementById('modal-icon');
     if (ico) {
@@ -280,8 +389,15 @@
     if (nm) nm.textContent = j.name;
     var of = document.getElementById('modal-office-small');
     // The court label already carries the state ("Utah Supreme Court"), so the
-    // top bar names the court and the seat rather than repeating the state.
-    if (of) of.textContent = j.courtLabel + (j.role ? ' · ' + j.role : '');
+    // top bar names the court and the seat rather than repeating the state. A
+    // departed justice's bar says former, because "Utah Supreme Court · Justice"
+    // is a present-tense sentence and the whole point of this pass is that the
+    // chrome stops making one.
+    if (of) {
+      of.textContent = st.key === 'former'
+        ? eyebrowFor(j, st)
+        : j.courtLabel + (j.role ? ' · ' + j.role : '');
+    }
 
     // The footer's "Add to My Team" and "Evidence" buttons act on a roster
     // record — team scoring, a submission form keyed to a politician. Neither
@@ -303,6 +419,18 @@
     try { document.body.style.overflow = 'hidden'; } catch (e) {}
 
     window._pdxCurrentProfileId = pid;
+
+    // Nothing on this file is waiting on the legislator roster, so the boot
+    // pill's promise of one is retired the moment the address becomes a judge's.
+    // The renderer re-decides from the pid rather than being told, so this is
+    // also what puts the pill back if the next file is a legislator's.
+    try {
+      if (fn(window._pdxRenderRosterStatus)) window._pdxRenderRosterStatus();
+      else {
+        var rp = document.getElementById('pdx-roster-status');
+        if (rp && rp.className.indexOf('is-error') < 0 && rp.parentNode) rp.parentNode.removeChild(rp);
+      }
+    } catch (e) {}
 
     var P = window.PDXPerson;
     if (P) {
@@ -368,7 +496,12 @@
     // a few settle attempts cost nothing and are the same idiom the other late
     // hooks in this app use.
     [0, 400, 1200, 3000].forEach(function (ms) {
-      setTimeout(function () { hookOpen(); hookClose(); }, ms);
+      setTimeout(function () {
+        hookOpen(); hookClose();
+        // firebase-boot's pill and the judicial registry both arrive late and
+        // in either order, so the decision is re-run on the same settle beats.
+        try { if (fn(window._pdxRenderRosterStatus)) window._pdxRenderRosterStatus(); } catch (e) {}
+      }, ms);
     });
   }
 

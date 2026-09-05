@@ -639,6 +639,108 @@
     });
   }
 
+  // ── What a typeahead needs ─────────────────────────────────────────────
+  // THE EYE COULD NOT FIND A JUDGE, AND THE BALLOT BAND WAS THE ONLY DOOR.
+  // /p/jill_pohlman resolved and rendered a complete file, and a reader who
+  // typed "Pohlman" into the All-Seeing Eye was told the eye finds nothing —
+  // because the eye's people haystack is the union of CMP_DATA and PROFILES,
+  // and a judge is deliberately in neither (see THE WALL above). So the only
+  // way to reach a judge file was to already be a Utah voter whose county the
+  // district map places, on Door 2, with the retention band painted. Everybody
+  // else was told the record does not exist.
+  //
+  // This is the search answer, and it lives HERE for the same reason every
+  // other retention sentence does: the eye must not decide for itself whether
+  // a judge stands for retention. It gets the rows, the words and the fields
+  // to match on, and it renders them.
+  //
+  // WHAT A ROW MAY CARRY, AND WHAT IT MAY NOT. Name, court, the unit a reader
+  // needs to tell two trial judges apart, and one status sentence out of the
+  // three locked below. No party — there is none. No score, no percentage, no
+  // formal-act count, no Word vs Action reading, no "thin voting record": every
+  // one of those is an artefact of the legislator apparatus this office is not
+  // in, and a search row is exactly where one would sneak back in as a badge.
+  //
+  // THE STATUS IS READ, NOT GUESSED. `onSlate` is the presence of a FILED
+  // question on the live slate — the Lieutenant Governor's own list, through
+  // slateQuestion() — and not an inference from a date sitting in a roster
+  // field. A judge who left the court gets the third sentence rather than the
+  // second, because "not on the 2026 slate" is true of a departed justice and
+  // still leaves a reader thinking she sits.
+  var SEARCH = {
+    onSlate: 'retention election',
+    offSlate: 'not on the ' + ELECTION.year + ' slate',
+    former: 'no longer on the court'
+  };
+
+  // ── THE ONE READER ──────────────────────────────────────────────────────
+  // Three statuses, one function, and every surface reads it here.
+  //
+  // A search row and a person file used to answer this question separately: the
+  // row asked whether the Lieutenant Governor filed a question, and the file
+  // asked what court the seat was on. That is how /p/diana_hagen came to wear
+  // UTAH · SUPREME COURT · RETENTION ELECTION over a justice who left the
+  // court in May 2026 while the search row two taps away said, correctly, that
+  // she is no longer on it. Two readers of one fact will eventually disagree,
+  // and the disagreement lands on the reader as a live ballot for a seat that
+  // is not on the ballot.
+  //
+  // So the status is computed once, in one place, from the filed list — and it
+  // is one of exactly three sentences. There is no fourth, and a caller cannot
+  // manufacture one: a surface that wants to say something about a retention
+  // seat must first ask which of the three it is looking at.
+  //
+  //   retention election      — the LG filed a question for this seat this year.
+  //   not on the 2026 slate   — sitting, and not among the names filed.
+  //   no longer on the court  — departed. Not a ballot line at all.
+  //
+  // `sitting` is the pair of the last one rather than an inference from the
+  // seat: a departed judge is not sitting, and everyone else on this roster is.
+  function standing(pid) {
+    var j = judge(pid);
+    if (!j) return null;
+    var onSlate = !!slateQuestion(j.pid, ELECTION.year);
+    var key = onSlate ? 'onSlate' : (j.former ? 'former' : 'offSlate');
+    return {
+      pid: j.pid,
+      key: key,
+      status: SEARCH[key],
+      onSlate: onSlate,
+      former: !!j.former,
+      sitting: !j.former
+    };
+  }
+
+  function searchRows() {
+    return all().map(function (row) {
+      var j = judge(row.pid);
+      if (!j) return null;
+      var st = standing(j.pid);
+      var onSlate = st.onSlate;
+      return {
+        pid: j.pid,
+        name: j.name,
+        // The court as a reader sees it ("Utah Supreme Court"), and the unit
+        // that tells two district judges apart ("Second Judicial District").
+        // Both, because "District Court" alone is seventy-odd rows.
+        court: j.courtLabel,
+        courtShort: j.courtShort,
+        courtSeat: j.courtSeat,
+        districtLabel: j.districtLabel || '',
+        unitLabel: j.unitLabel || '',
+        onSlate: onSlate,
+        former: !!j.former,
+        // One of three, and never a fourth: the row has no room for a hedge.
+        // Read from standing() rather than re-derived, so the row and the
+        // person file cannot describe the same seat differently.
+        status: st.status,
+        // The word a reader types when they are looking for this and know no
+        // name. Carried as data so the haystack has one spelling of it.
+        term: 'retention'
+      };
+    }).filter(Boolean);
+  }
+
   // ── What person-file.js needs ──────────────────────────────────────────
   // A judge is a person with a file, so /p/<pid> has to resolve. This is the
   // identity shape person-file.js's record() can accept: enough to name the
@@ -685,6 +787,9 @@
     publicLane: publicLane,
     ballot: ballot,
     archive: archive,
+    SEARCH: SEARCH,
+    standing: standing,
+    searchRows: searchRows,
     personRecord: personRecord,
     collisions: collisions,
     dateLabel: dateLabel,

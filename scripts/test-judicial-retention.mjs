@@ -990,25 +990,54 @@ has(INDEX, '<noscript><link rel="stylesheet" href="/judicial-retention.css" /></
 {
   const m = /const CACHE_VERSION = '(v\d+)'/.exec(SW);
   must(m, "sw.js no longer declares a cache version — this probe is stale");
-  eq(m[1], "v128", "the cache version was not bumped for this pass");
-  const note = SW.slice(SW.indexOf("// v128"), SW.indexOf("\n// v127 - A BALLOT"));
+  eq(m[1], "v130", "the cache version was not bumped for this pass");
+  // v130 took the live-ballot hero off the files that are not on a ballot. The
+  // note names the modules that moved and says the two things a reader
+  // upgrading a warm device needs: which surface changed, and that the judge
+  // who left keeps her file.
+  const note130 = SW.slice(SW.indexOf("// v130"), SW.indexOf("\n// v129 - THE EYE FOUND"));
+  must(note130.length > 400, "the v130 note could not be sliced — this probe is stale");
+  ["judicial-retention.js", "judge-file.js", "judicial-retention.css",
+   "all-seeing-eye.js"].forEach((f) => {
+    has(note130, f, `the v130 note does not name ${f}, which this pass changed`);
+  });
+  has(note130, "standing(", "the v130 note does not name the one status reader this pass added");
+  has(note130, "CMP_DATA", "the v130 note does not say judges stayed out of CMP_DATA");
+  has(note130, "Direction Match", "the v130 note does not say Direction Match is untouched");
+  ok(SW.indexOf("// v130") < SW.indexOf("// v129 - THE EYE FOUND"),
+     "the v130 note was filed below the v129 note it follows");
+  // v129 opened the Eye onto the judge files v128 built. The note names the
+  // judicial modules it touched, and says the two things a reader upgrading a
+  // warm device most needs to hear: that the arithmetic did not move, and that
+  // judges are still out of the roster the arithmetic reads.
+  const note129 = SW.slice(SW.indexOf("// v129 - THE EYE FOUND"), SW.indexOf("\n// v128 - ONE JUDGE"));
+  must(note129.length > 400, "the v129 note could not be sliced — this probe is stale");
+  ["judicial-retention.js", "all-seeing-eye.js", "judge-file.js", "firebase-boot.js",
+   "judicial-retention.css"].forEach((f) => {
+    has(note129, f, `the v129 note does not name ${f}, which this pass changed`);
+  });
+  has(note129, "CMP_DATA", "the v129 note does not say judges stayed out of CMP_DATA");
+  has(note129, "Direction Match", "the v129 note does not say Direction Match is untouched");
+  // The v128 note is still below it, unedited: notes are newest-first, and a
+  // note is a record of what shipped rather than a document to be revised.
+  const note = SW.slice(SW.indexOf("// v128 - ONE JUDGE"), SW.indexOf("\n// v127 - A BALLOT"));
   must(note.length > 400, "the v128 note could not be sliced — this probe is stale");
-  // Every file this pass changed, named in the note. voter-hub-location.js is
-  // the one that is NOT precached, and the note has to say so — a runtime asset
+  // Every file the v128 pass changed, still named in its note. voter-hub-location.js
+  // is the one that is NOT precached, and the note has to say so — a runtime asset
   // whose stale copy the rename drops is a different mechanism from a shell
   // asset the rename replaces, and a reader upgrading a warm device needs the
   // difference.
   ["judicial-data.js", "judicial-retention.js", "judge-file.js", "judicial-ballot.js",
    "judicial-retention.css", "voter-hub-location.js"].forEach((f) => {
-    has(note, f, `the v128 note does not name ${f}, which this pass changed`);
+    has(note, f, `the v128 note does not name ${f}, which that pass changed`);
   });
   has(note, "78A-1-102", "the v128 note does not cite the statute the new map came from");
   has(note, "RUNTIME entry",
       "the v128 note does not say that the changed location owner is a runtime asset rather than a precached one");
   has(note, "seats()", "the v128 note no longer says the band stays out of the seat denominator");
-  // And the v127 note is still below it, unedited. Notes are newest-first and a
-  // note is a record of what shipped, not a document to be revised.
-  ok(SW.indexOf("// v128") < SW.indexOf("// v127 - A BALLOT THAT NAMED SIX SEATS"),
+  ok(SW.indexOf("// v129 - THE EYE FOUND") < SW.indexOf("// v128 - ONE JUDGE"),
+     "the v129 note was filed below the v128 note it follows");
+  ok(SW.indexOf("// v128 - ONE JUDGE") < SW.indexOf("// v127 - A BALLOT THAT NAMED SIX SEATS"),
      "the v128 note was filed below the v127 note it follows");
   FILES.forEach((f) => {
     has(SW, `'/${f}'`, `${f} is not precached, so a shared /p/<judge> link would open a file with no renderer`);

@@ -15,10 +15,12 @@
 //   node scripts/vr-federal-fpi.mjs --set touched        # every pid the seed moves
 //   node scripts/vr-federal-fpi.mjs --set all            # every pid in the corpus
 //   node scripts/vr-federal-fpi.mjs --member lee         # one member, both reads
+//   node scripts/vr-federal-fpi.mjs --member lee --rows  # one member, every issue row, before/after
 //   node scripts/vr-federal-fpi.mjs --json               # machine-readable
 //   node scripts/vr-federal-fpi.mjs --drift              # per-issue tier changes
 //   node scripts/vr-federal-fpi.mjs --set all --chambers # PRIMARY by chamber + Senate unread
 //   node scripts/vr-federal-fpi.mjs --set all --band     # the promotable band: 0-primary keys by judged depth
+//   node scripts/vr-federal-fpi.mjs --set all --reach    # reachable unread: what a NEW primary could convert
 //
 // "AFTER" INCLUDES ROWS THE DATABASE DOES NOT HOLD YET. The wave's migration is
 // applied by the platform at build, and the build cannot be run from here, so the
@@ -58,7 +60,7 @@ import { makeSandbox } from "./gen-hero-showcase.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
-const J = (f) => JSON.parse(R(f));
+const J = (f) => JSON.parse(f.startsWith("/") ? readFileSync(f, "utf8") : R(f));
 // ── WHICH WAVES ARE PROJECTED ────────────────────────────────────────────────
 // One entry per federal wave, in the order its migration applies. Each wave is a
 // mapping seed (issue rows, and any row it RETRACTS) plus a vote seed (measures,
@@ -80,6 +82,19 @@ const WAVES = {
   f5: { mapping: "db/vr-federal-mapping-seed-f5.json", votes: "db/vr-federal-wave-f5-vote-seed.json" },
   f6: { mapping: "db/vr-federal-mapping-seed-f6.json", votes: "db/vr-federal-wave-f6-vote-seed.json" },
   f7: { mapping: "db/vr-federal-mapping-seed-f7.json", votes: "db/vr-federal-wave-f7-vote-seed.json" },
+  // F8 and F9 are absent on purpose: F8 shipped an ATTRIBUTION seed (member votes onto
+  // rolls the database already held, no measure and no mapping) and F9's rows are in its
+  // migration, so neither has anything for these two overlays to project. F10 is here
+  // because it carries a mapping seed whose row count the harness has to be able to read
+  // — even when, as this wave, that count is zero.
+  f10: { mapping: "db/vr-federal-mapping-seed-f10.json", votes: "db/vr-federal-wave-f10-vote-seed.json" },
+  // F11 is the mirror of F10. F10 carried a mapping seed and no vote seed because it
+  // admitted nothing; F11 carries both, and its vote seed is the smaller half of the
+  // wave by row count and the larger half by consequence: one House passage roll on a
+  // measure F9 had already curated and left actless. Its mapping seed writes ONE row
+  // and RETRACTS two, so the overlay's `added`, `retracted` and `skipped` counters all
+  // move here and the before/after table is the wave's own cost disclosure.
+  f11: { mapping: "db/vr-federal-mapping-seed-f11.json", votes: "db/vr-federal-wave-f11-vote-seed.json" },
 };
 
 const FILES = [
@@ -107,8 +122,40 @@ const WAVE_KEYS = (argOf("waves") || Object.keys(WAVES).join(",")).split(",").ma
 for (const w of WAVE_KEYS) if (!WAVES[w]) throw new Error(`unknown wave '${w}' — known waves: ${Object.keys(WAVES).join(", ")}`);
 // Only files that exist are projected, so a wave whose seeds have been retired
 // degrades to "nothing to add" rather than crashing a measurement run.
-const SEED_FILES = WAVE_KEYS.map((w) => WAVES[w].mapping).filter((f) => existsSync(join(ROOT, f)));
+// ── ONE SEED SWAPPED FOR ANOTHER, WITHOUT TOUCHING THE TREE ─────────────────
+// `--seed-override f11=/tmp/f11-minus-one-row.json` projects a DIFFERENT mapping
+// seed in a wave's slot for the duration of one run. It exists for one specific
+// job: a wave test's MUTATION clause — "drop one admitted mapping and the members
+// who gained a read on that key must return to empty" — which has to be answered
+// against the real engine and the real corpus, on a seed that is one row lighter.
+//
+// The alternative is what scripts/test-vr-federal-wave-f8.mjs does for its identity
+// walls: rewrite the shipped file on disk, run, and restore it in a finally. That is
+// the exact pattern runbook rule 47 exists because of — every twin-boot suite in this
+// tree reads the working copy FROM DISK, so any audit booting inside that window sees
+// a mutated tree and blames the record for a fault three processes away. A flag that
+// swaps a path in memory cannot do that to a sibling, and the override is REPORTED in
+// the header of every mode so a run made under one can never be mistaken for a
+// measurement of the shipped seed.
+const SEED_OVERRIDES = new Map();
+for (let i = 0; i < process.argv.length; i++) {
+  if (process.argv[i] !== "--seed-override") continue;
+  const spec = process.argv[i + 1] || "";
+  const at = spec.indexOf("=");
+  if (at <= 0) throw new Error(`--seed-override wants <wave>=<path>, got '${spec}'`);
+  const w = spec.slice(0, at).trim(), p = spec.slice(at + 1).trim();
+  if (!WAVES[w]) throw new Error(`--seed-override names unknown wave '${w}'`);
+  if (!existsSync(p)) throw new Error(`--seed-override path does not exist: ${p}`);
+  SEED_OVERRIDES.set(w, p);
+}
+const mappingOf = (w) => SEED_OVERRIDES.get(w) || WAVES[w].mapping;
+const SEED_FILES = WAVE_KEYS.map(mappingOf).filter((f) => existsSync(f.startsWith("/") ? f : join(ROOT, f)));
 const VOTE_SEED_FILES = WAVE_KEYS.map((w) => WAVES[w].votes).filter((f) => existsSync(join(ROOT, f)));
+if (SEED_OVERRIDES.size) {
+  // Loud, on stderr, every mode, before any number. A number produced under an
+  // override is not a measurement of the shipped seed and must never be quoted as one.
+  for (const [w, p] of SEED_OVERRIDES) console.error(`  ⚠ SEED OVERRIDE — wave ${w} projected from ${p} instead of ${WAVES[w].mapping}. This run does not measure the shipped seed.`);
+}
 
 // ── THE DENOMINATOR ─────────────────────────────────────────────────────────
 // "empty" is a count of PEOPLE, so it needs a roster, and the roster cannot be
@@ -299,10 +346,18 @@ function overlay(issues, measures) {
   }
   // PROMOTES. The third thing a wave can do to a mapping, and the one this overlay
   // could not project until F4 needed it: change the LANE of a row that is already
-  // live. `is_primary` has one consumer — the primary wall at _RD_MIN_PRIMARY — so a
-  // wave that supplies a key's first Senate-reachable PRIMARY by promoting an
-  // existing secondary moves exactly the same number the wall reads, and the loop
-  // above would have skipped the row as "already live" and reported no change at all.
+  // live. F4 wrote this comment when `is_primary` still had a consumer — the primary
+  // wall at _RD_MIN_PRIMARY — and it is now WRONG, so it is corrected here rather
+  // than left to mislead the next curator: BOTH consumers of that wall have since
+  // been removed from stance-helpers.js, the constant is read on two lines and both
+  // only word the pkgNote disclosure sentence, and test-characterise-every-act.mjs
+  // carries the brief forbidding its restoration. A promote therefore changes the
+  // LABEL on a row and no tier, read, direction or floor — which is exactly why the
+  // F10 census could measure every promotable act in the corpus at +0/-0 and why
+  // --reach had to be written to answer the question --band structurally cannot.
+  // The projection stays because a wave still has to be able to SAY it promoted a
+  // row, and because the loop above would skip the row as "already live" and report
+  // no change at all.
   // Matched on the same (congress, number, issue_key) identity the migration's UPDATE
   // uses, and FAIL-CLOSED on the pre-state: a promote whose `from` block does not
   // describe the row on file is COUNTED as a mismatch and not applied, because a seed
@@ -851,6 +906,146 @@ if (argOf("row")) {
     + `   ·   need ACTS first: ${rows.length - reachable.length}`);
   console.log("  A wave that wants to move this band has to add votes to the named members,");
   console.log("  not rows to the corpus. Check a candidate roll's roster against this list.\n");
+} else if (process.argv.includes("--reach")) {
+  // ── REACHABLE UNREAD, MEASURED AGAINST A PERFECT INSTRUMENT ───────────────
+  // --band answers "which EXISTING act, if promoted, converts a row". That is a
+  // lane change, and its own table already closed the question: 17 of 17 candidate
+  // keys measured +0/-0, and the footer says out loud that those keys "need a
+  // second act, not a lane change — which is a different wave". This is the
+  // different wave's question, and --band cannot ask it, because the instrument a
+  // standalone-PRIMARY wave would add IS NOT IN THE CORPUS YET. There is no row to
+  // flip. So the candidate is SYNTHESISED instead, and deliberately synthesised as
+  // the best one that could ever exist:
+  //
+  //   · a floor roll in the target chamber, non-procedural, sourced, on passage,
+  //   · mapped PRIMARY at w100 on the target key, one instrument one act,
+  //   · with EVERY member of that chamber on the roster recorded Yea — the
+  //     attribution CEILING, which is chamber headcount and cannot be exceeded by
+  //     a real roll where anyone was absent, paired or opposed.
+  //
+  // Run at n=1 and n=2 because the floors are two, not one: `_RD_THIN_MIN` (2
+  // judged acts) is the lowest bar at which a uniform run may be worded at all,
+  // and `_RD_MIN_JUDGED` (4) is the characterisation floor. A key whose members
+  // each hold one act cannot be moved by one more, whatever its lane — so a
+  // one-instrument ceiling of 0 and a two-instrument ceiling of 0 are two
+  // different refusals and the wave has to be able to tell them apart.
+  //
+  // WHAT A NUMBER HERE IS AND IS NOT. `+read(key)` is the count of (member, target
+  // key) rows that start being characterised. `+read(other)` is collateral: adding
+  // acts also raises a member's total record, which can carry a DIFFERENT key over
+  // the member coverage floor, and that gain belongs to no argument about this key
+  // — it is printed separately and never added in. A key whose ceiling is 0 is a
+  // written blocked-on: no instrument, however clean, however heavy, however
+  // unanimously voted, converts a row there, so no reading of any bill's text can
+  // make one admissible. NOTHING HERE IS A RECOMMENDATION. A positive ceiling says
+  // only that a real instrument on that key COULD move a number; whether one may
+  // be mapped is still decided on the enrolled text, at the weight the text earns.
+  //
+  //   node scripts/vr-federal-fpi.mjs --set all --reach
+  const CHAMBERS = ["senate", "house"];
+  const CP = chamberPrimary(lane, lane.issues);
+  const sp = (m, k) => ((m.get(k) || {}).primary || {});
+  const KEY_UNIVERSE = [...new Set(lane.issues.map((r) => r.issue_key))].sort();
+  const win2 = boot();
+  const SUPPRESSED = winB._pdxRecordSuppressedKey || (() => null);
+
+  // n synthetic instruments on `key`, every member of `pids` Yea on each.
+  const synth = (key, chamber, pids, n) => {
+    let id = -1000000;
+    const votes = lane.votes.slice(), measures = lane.measures.slice();
+    const issues = lane.issues.slice();
+    for (let i = 0; i < n; i++) {
+      const mid = id--, rcId = id--;
+      measures.push({ id: mid, congress: 119, chamber, measure_type: "bill",
+        number: `CEILING ${i + 1}`, title: `synthetic ceiling instrument ${i + 1}`,
+        status: "passed", parent_id: null });
+      issues.push({ measure_id: mid, issue_key: key, weight: 100, is_primary: true,
+        support_meaning: "yea_supports", rationale: null });
+      for (const pid of pids) {
+        votes.push({ pid, position: "yea", is_party: null, measure_id: mid,
+          measure_type: "bill", number: `CEILING ${i + 1}`, title: `synthetic ceiling instrument ${i + 1}`,
+          parent_id: null, status: "passed", rollcall_id: rcId, chamber, congress: 119,
+          session: 2, roll_number: 90000 + i, vote_date: `2026-0${i + 1}-15`,
+          question: "On Passage of the Bill", action_type: "passage", result: "Passed",
+          source_url: "synthetic://ceiling", source_label: "synthetic ceiling" });
+      }
+    }
+    return itemsFor({ ...lane, votes, measures }, issues);
+  };
+
+  const out = {};
+  for (const ch of CHAMBERS) {
+    const pids = [...ROSTER].filter((p) => MEMBER_CHAMBER.get(p) === ch).sort();
+    if (!pids.length) continue;
+    const baseUnread = whyRows(winB, before, pids);
+    const baseRead = readSets(winB, before, pids);
+    const perKey = new Map();
+    for (const r of baseUnread) {
+      const e = perKey.get(r.key) || { unread: 0, why: new Map() };
+      e.unread++; e.why.set(r.why, (e.why.get(r.why) || 0) + 1); perKey.set(r.key, e);
+    }
+    // THE KEYS IN PLAY FOR THIS CHAMBER, AND NOT ALL 98. A key with no unread row
+    // here has nothing to convert, and a key that already holds a PRIMARY in this
+    // chamber is not the gap this wave was chartered against — both are printed as
+    // held/0 rather than simulated 392 times for a number that is arithmetically
+    // fixed. The union is the brief's own framing: every key that either has unread
+    // volume in this chamber, or has no instrument mapped PRIMARY here at all.
+    const inPlay = KEY_UNIVERSE.filter((k) =>
+      (perKey.get(k) || { unread: 0 }).unread > 0 || !(sp(CP, k)[ch] || new Set()).size);
+    const rows = [];
+    for (const key of inPlay) {
+      const e = perKey.get(key) || { unread: 0, why: new Map() };
+      const held = (sp(CP, key)[ch] || new Set()).size;
+      const ceil = {};
+      for (const n of [1, 2]) {
+        const l2 = synth(key, ch, pids, n);
+        const after2 = readSets(win2, l2, pids);
+        let gk = 0, go = 0, lost = 0, attributed = 0;
+        for (const pid of pids) {
+          const b = baseRead.get(pid) || new Map(), a = after2.get(pid) || new Map();
+          for (const k2 of a.keys()) if (!b.has(k2)) (k2 === key ? gk++ : go++);
+          for (const k2 of b.keys()) if (!a.has(k2)) lost++;
+        }
+        for (const pid of pids) if ((l2.byMember.get(pid) || []).some((it) => it.number === "CEILING 1")) attributed++;
+        ceil[n] = { gainKey: gk, gainOther: go, lost, attributed };
+      }
+      const top = [...e.why].sort((a, b) => b[1] - a[1])[0];
+      rows.push({ key, unread: e.unread, held, suppressed: SUPPRESSED(key) || null,
+        why: top ? `${top[0]} ${top[1]}` : "-", c1: ceil[1], c2: ceil[2] });
+    }
+    rows.sort((a, b) => (b.c2.gainKey - a.c2.gainKey) || (b.unread - a.unread) || a.key.localeCompare(b.key));
+    out[ch] = { pids: pids.length, unread: baseUnread.length, rows };
+    console.log(`\n  REACHABLE UNREAD — ${ch.toUpperCase()} — set "${SET}" — waves ${WAVE_KEYS.join("+")}`);
+    console.log(`  ${pids.length} members on the roster, ${baseUnread.length} unread rows,`
+      + ` ${KEY_UNIVERSE.length} keys in the corpus, ${inPlay.length} in play here`
+      + ` (unread volume in this chamber, or no PRIMARY mapped in it).`);
+    console.log(`  Each key given 1 then 2 synthetic PRIMARY w100 instruments with every member Yea.\n`);
+    console.log(`  ${"key".padEnd(24)} ${"P".padStart(2)} ${"unread".padStart(6)}`
+      + ` ${"n=1 +key".padStart(8)} ${"n=2 +key".padStart(8)} ${"+other".padStart(6)} ${"-read".padStart(5)}`
+      + ` ${"attrib".padStart(6)}  suppressed / top unread reason`);
+    console.log(`  ${"-".repeat(24)} ${"-".repeat(2)} ${"-".repeat(6)} ${"-".repeat(8)} ${"-".repeat(8)} ${"-".repeat(6)} ${"-".repeat(5)} ${"-".repeat(6)}  ${"-".repeat(34)}`);
+    for (const r of rows) {
+      if (!r.unread && !r.c2.gainKey) continue;      // nothing to convert and nothing convertible
+      console.log(`  ${r.key.padEnd(24)} ${String(r.held).padStart(2)} ${String(r.unread).padStart(6)}`
+        + ` ${String(r.c1.gainKey).padStart(8)} ${String(r.c2.gainKey).padStart(8)}`
+        + ` ${String(r.c2.gainOther).padStart(6)} ${String(r.c2.lost).padStart(5)} ${String(r.c2.attributed).padStart(6)}`
+        + `  ${r.suppressed ? r.suppressed : ""}${r.suppressed ? " · " : ""}${r.why}`);
+    }
+    const movable = rows.filter((r) => r.c1.gainKey > 0 || r.c2.gainKey > 0);
+    const dead = rows.filter((r) => r.unread > 0 && r.c1.gainKey === 0 && r.c2.gainKey === 0);
+    const deadSup = dead.filter((r) => r.suppressed);
+    console.log(`\n  KEYS A NEW ${ch.toUpperCase()} PRIMARY CAN MOVE: ${movable.length} of ${inPlay.length}`
+      + (movable.length ? ` — ${movable.map((r) => `${r.key} (+${r.c1.gainKey}/+${r.c2.gainKey})`).join(", ")}` : ""));
+    console.log(`  KEYS WITH UNREAD VOLUME AND A CEILING OF ZERO: ${dead.length}`
+      + `   (${deadSup.length} of them structurally suppressed: _RD_NO_POLE or *_balance)`);
+    const rest = dead.filter((r) => !r.suppressed);
+    if (rest.length) console.log(`  the rest: ${rest.map((r) => `${r.key} (${r.unread}, ${r.why})`).join(", ")}`);
+    const ceilingOk = rows.every((r) => r.c2.attributed === pids.length);
+    console.log(`  attribution ceiling holds at chamber headcount on every key: ${ceilingOk ? "yes" : "NO"}`
+      + ` (${pids.length} ${ch} members, max attributed ${Math.max(...rows.map((r) => r.c2.attributed))})`);
+  }
+  if (AS_JSON) console.log("\n" + JSON.stringify(out, null, 2));
+  console.log("");
 } else if (process.argv.includes("--band")) {
   // ── THE PROMOTABLE BAND, MEASURED BY SIMULATION ──────────────────────────
   // --chambers answers "which keys have no Senate-reachable PRIMARY". That is the
@@ -1068,6 +1263,7 @@ if (argOf("row")) {
   const strip = (m) => ({ empty: m.empty, thin: m.thin, readable: m.readable, members: m.members,
     withRecord: m.withRecord, rows: m.rows, strongN: m.strongN, splitN: m.splitN, thinN: m.thinN });
   console.log(JSON.stringify({ set: SET, waves: WAVE_KEYS,
+    seedOverrides: Object.fromEntries(SEED_OVERRIDES),
     seed: { added: O.added, skipped: O.skipped, retracted: O.retracted, retractionsAlreadyGone: O.retractionsAlreadyGone,
             promoted: O.promoted, promotesAlreadyDone: O.promotesAlreadyDone, promoteMismatch: O.promoteMismatch },
     voteSeed: { measures: V.addedMeasures, rolls: V.addedRolls, memberVotes: V.addedVotes, rollsAlreadyLive: V.skippedRolls },
@@ -1076,6 +1272,64 @@ if (argOf("row")) {
     issueDrift: DRIFT_ROWS, lost: LOST, newlySplit: NEWSPLIT,
     lostReads: LOST_READS, gainedReads: GAINED_READS,
     per: Object.fromEntries([...A.per].map(([p, a]) => [p, { before: B.per.get(p), after: a }])) }, null, 1));
+} else if (process.argv.includes("--rows")) {
+  // ── ONE MEMBER, EVERY ISSUE ROW, BEFORE AND AFTER ─────────────────────────
+  // `--member` prints a member's shape COUNTERS, which is the right summary and
+  // the wrong instrument for a smoke. A coverage wave's promise to a reader is not
+  // "your counters moved"; it is "this key now names this measure and the side you
+  // actually cast". Two of the buckets make that invisible: a row that publishes a
+  // thin side lands in `readThinN`, which `--member` does not print, so a member
+  // who moves from nothing to "Thin supports" shows identical `characterised` and
+  // `thinN` and looks unchanged. F11's Senate smoke is exactly that shape.
+  //
+  // So this prints the rows themselves, before and after, with the tier the engine
+  // put on each and the measures behind it — including the member's own position on
+  // each backing measure, which is the thing a reader can check against the Clerk.
+  // Rows whose tier did not move are folded into one line unless --all is passed.
+  //
+  //   node scripts/vr-federal-fpi.mjs --member maloy --rows --waves f1,f2,f3,f4,f10,f11
+  //   node scripts/vr-federal-fpi.mjs --member lee --rows --key housing_support
+  //
+  // READ-ONLY, like everything else here, and it asserts nothing: it prints what
+  // the engine says so a person can compare it with the record by hand.
+  if (!ONE) { console.error("--rows needs --member <pid>"); process.exit(2); }
+  const KEY_FILTER = argOf("key") ? new Set(argOf("key").split(",").map((x) => x.trim()).filter(Boolean)) : null;
+  const rowsOf = (win, l) => {
+    const items = l.byMember.get(ONE) || [];
+    if (!items.length) return { rows: new Map(), items: [] };
+    win.PDXVotingRecord.noteMember(ONE, JSON.parse(JSON.stringify(items)));
+    const m = new Map();
+    for (const r of win.PDXConsistency.formalPatternIndex.rows(ONE) || [])
+      m.set(r.key, { read: !!r.read, tier: r.tier || null, why: (r.why && r.why.id) || null, judged: r.judged || 0 });
+    return { rows: m, items };
+  };
+  const rb = rowsOf(winB, before), ra = rowsOf(winA, after);
+  // The acts behind a key, from the member's own item list, with their position.
+  const actsFor = (items, key) => (items || [])
+    .filter((it) => (it.issues || []).some((i) => i.issueKey === key))
+    .map((it) => {
+      const iss = (it.issues || []).find((i) => i.issueKey === key) || {};
+      return `${(it.number || "?").padEnd(11)} ${(it.chamber || "").padEnd(7)}`
+        + `${it.rollNumber != null ? `roll ${String(it.rollNumber).padEnd(4)}` : "".padEnd(9)} `
+        + `${String(it.position || it.action || "?").toUpperCase().padEnd(11)} `
+        + `w${String(iss.weight).padEnd(3)}${iss.isPrimary ? "PRIMARY " : "        "}${iss.supportMeaning || "?"}`
+        + `   ${it.title ? String(it.title).slice(0, 46) : ""}`;
+    });
+  const keys = [...new Set([...rb.rows.keys(), ...ra.rows.keys()])].filter((k) => !KEY_FILTER || KEY_FILTER.has(k)).sort();
+  const fmt = (e) => !e ? "ABSENT" : `${e.read ? "read" : "unread"} ${e.tier || (e.why ? `(${e.why})` : "-")}`;
+  console.log(`\n  ISSUE ROWS — ${ONE} — waves ${WAVE_KEYS.join("+")}`);
+  console.log(`  ${rb.items.length} acts before, ${ra.items.length} after · ${rb.rows.size} rows before, ${ra.rows.size} after`
+    + `${KEY_FILTER ? ` · filtered to ${[...KEY_FILTER].join(", ")}` : ""}\n`);
+  let same = 0;
+  for (const k of keys) {
+    const b = rb.rows.get(k), a = ra.rows.get(k);
+    const moved = fmt(b) !== fmt(a);
+    if (!moved && !process.argv.includes("--all") && !KEY_FILTER) { same++; continue; }
+    console.log(`  ${k.padEnd(26)} ${fmt(b).padEnd(28)} → ${fmt(a)}`);
+    for (const line of actsFor(ra.items, k)) console.log(`      ${line}`);
+  }
+  if (same) console.log(`\n  ${same} row(s) unchanged and not printed — pass --all for the whole set.`);
+  console.log("");
 } else if (ONE) {
   console.log(`${ONE}\n  before  ${JSON.stringify(B.per.get(ONE))}\n  after   ${JSON.stringify(A.per.get(ONE))}`);
 } else {
@@ -1084,6 +1338,7 @@ if (argOf("row")) {
     `   │ ${String(m.members).padStart(4)} on roster, ${String(m.withRecord).padStart(4)} with a record · ${String(m.rows).padStart(5)} issue rows · ` +
     `${m.strongN} clear / ${m.splitN} split / ${m.thinN} unread   │ ${st.votes} votes + ${st.positions} positions`);
   console.log(`\n  FEDERAL FORMAL PATTERN INDEX — set "${SET}" — waves ${WAVE_KEYS.join("+")} — shipped tiers, no floor moved\n`);
+  if (SEED_OVERRIDES.size) console.log(`  SEED OVERRIDE ACTIVE: ${[...SEED_OVERRIDES].map(([w, p]) => `${w}=${p}`).join(", ")}\n`);
   console.log(`           empty  thin  readable`);
   row("before", B, before.stats);
   row("after", A, after.stats);

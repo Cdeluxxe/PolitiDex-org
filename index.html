@@ -3916,6 +3916,19 @@ window.PDXLazy = (function () {
       /* The empty state is a sentence, not an error, and it stays legible: the
          lane is never hidden for being empty, so this copy is load-bearing. */
       .pdx-eye-mand-empty{border-left:3px dashed rgba(196,181,253,0.45);}
+      /* THE JUDGE LANE. A retention seat is not a party, not a score and not a
+         record, so it gets the one colour on this page that asserts nothing:
+         the neutral slate the judge file and the ballot's Door 2 band already
+         wear. Solid spine, because the seat is real and on the ballot - the
+         dashed spine above means "proposed", and a judge standing for retention
+         is not a proposal. No party tint, no ring, no badge well: there is
+         nothing here for those to be about. */
+      .pdx-eye-item--judge{border-left:3px solid rgba(148,163,184,0.5);}
+      .pdx-eye-item--judge .pdx-eye-thumb{background:rgba(148,163,184,0.14);}
+      /* A standing clarification under a group heading, for the one group whose
+         rows are counted in no lane. Sentence-sized and quiet, so it reads as
+         the ground rule it is rather than as a warning about the names below. */
+      .pdx-eye-cat-note{margin:0.1rem 0 0.4rem;padding:0 0.25rem;color:#7e93b0;font-size:0.66rem;line-height:1.45;}
       /* An issue-file row and a family row wear the issue's own colour on their
          spine, from the same PDXIssueColors tokens the chip inside them uses. A
          key the colour table does not know carries no [data-ic] and no spine. */

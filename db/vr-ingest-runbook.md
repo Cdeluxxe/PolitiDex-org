@@ -122,6 +122,33 @@ What "you did not defeat it" means, concretely:
   must then agree about that member and that issue. It needs no database, so it
   runs in CI on every commit and not only at the end of a wave.
 
+### The no-write wave, and the six hours it still owes the reader
+
+A wave that ships no row in `vr_measure_issues` does **not** move the pack key, and
+that is correct rather than a gap: the fingerprint is of the mapping table, and the
+mapping table did not change. But it leaves one lag standing that a shipping wave
+hides behind its own key bump, so a census-only or refusal-only wave has to say it
+out loud in its own notes:
+
+- **`PACK_TTL_MS` is six hours, and it is about roll-call freshness.** A member's
+  blob built before a wave's *ingest* step can therefore be served for up to six
+  hours after it, even though the wave wrote no mapping. The reader sees a record
+  that is complete as of six hours ago, never a record with the wrong mapping
+  attached — the two staleness questions are separate and only the second one is
+  what the fingerprint answers.
+- **Do not build pack versioning to close that window inside a wave whose product
+  is a measurement.** The eviction path already exists for the case that needs it
+  (`deletePack`, declared as `pack-generation: purge` above, with the reason
+  written down). A half-built eviction is worse than a documented six hours,
+  because the next wave inherits a mechanism nobody measured. If a future wave
+  genuinely needs the key to move without a mapping write, that is a deliberate
+  change to `mappingVersion()`'s inputs with its own test — not a line added at
+  the end of a census.
+- **What a no-write wave records instead:** the mapping version it started at and
+  the mapping version it ended at, printed by
+  `node scripts/test-vr-pack-key-version.mjs`, and the observation that they are
+  the SAME. A no-write wave that moved the key wrote something it did not declare.
+
 If the mapping table cannot be read at all, `mappingVersion()` returns
 `m0-unknown` and the pack **fails closed**: nothing is read from the blob store
 under that version, nothing is written to it, the response is `no-store`, and the
@@ -1247,6 +1274,180 @@ depth — 428 more judged votes standing behind positions that previously rested
    nothing was lost by refusing. Getting that order backwards would let the record refuse a true
    mapping because a config array happens to exclude the key, and the day the array changes the
    refusal becomes unreadable. Refuse on the document; note the engine second.
+
+43. **The name is not the instrument, and F10 is the wave that priced how often the name lies.**
+   Rule 4 has been in this file since the beginning; what it lacked was a count. F10 read eleven
+   engrossed prints off govinfo.gov before refusing anything, and **four of the eleven pointed at a
+   different key than their short title did** — a 36% miss rate on titles alone, in a sample chosen
+   because the titles looked mappable. Transcribed, because the next curator will meet these exact
+   traps: **H.R. 3106** reads as weatherization and grid hardening; its text authorises one DHS
+   preparedness *exercise* and weatherizes nothing. **H.R. 1676**'s "SWAPs" are not derivatives —
+   they are **State Wildlife Action Plans**, so a `econ_corp_account` reading of it is a homonym.
+   **H.R. 3424**'s "SPACE Act" is about **shared federal office space**, not launch or orbit.
+   **H.R. 8897** announces a TSA screening mandate and enacts a *permissive* pilot ("may establish")
+   with a sunset, which is not a mandate and not durable enough to earn a PRIMARY weight. The rule
+   that follows is procedural, not interpretive: **read the operative sections before you write down
+   which key a bill is about, and if you have only read the title, you have not yet formed a view.**
+   The cheapest form of this discipline is to open the print and search it for the noun in its own
+   name; when the noun is absent from the text, the title is marketing.
+
+44. **On an empty key, one act is enough — so the thing to hunt is a FIRST act on a POLED key, not a
+   second act anywhere.** F5's `--band` footer said keys "need a second act, not a lane change,"
+   and F10's `--reach` simulation refined it by measuring the difference: with a synthetic
+   instrument at act strength 1.00, **n=1 and n=2 return identical numbers on every key in both
+   chambers.** One floor vote at full strength already clears `_RD_THIN_MIN = 2`, so the binding
+   constraint on an `empty` key is the first act and the second buys nothing. `+other` measured 0
+   everywhere too, which kills the other tempting argument: **no instrument moves a member's
+   coverage floor onto a neighbouring key, so collateral gain is never available as a reason to
+   admit.** And the constraint that dominates both: **suppression precedes everything.**
+   `_rdSuppressedKey()` returns `balance_key` or `no_pole` before `is_primary`, weight, lane or
+   chamber is consulted, so an act on one of those keys converts nothing no matter how good it is.
+   Practical consequence for ranking candidates: **intersect the unread census with the poled key
+   set before you sort it.** F10's roster census held 3874 unread rows and 3612 of them sat behind
+   that mute — rank without the intersection and the top of your list is the part of the corpus you
+   cannot move.
+
+45. **Two figures, two methods, one wall — and never add the populations together.** F10's seed
+   shipped with a real arithmetic bug for exactly one revision, and it is the kind that survives
+   review because both numbers are true. The unread census over `--set all` is **3874 rows across
+   every published member**; the two federal chambers account for **3351** (1025 Senate + 2326
+   House) and the remaining **523 belong to Utah state legislators, who hold no congressional roll
+   call and were never reachable by a federal mapping at all.** Separately, the suppressed volume
+   has two correct sizes depending on how it is obtained: **3612 derived** from the reason column
+   over the roster (`no_pole_read` + `no_side`), and **3164 measured** by `--reach` over the two
+   chambers (1003 + 2161). Those are the same wall through a narrower window, not two walls, and
+   the seed briefly decomposed the roster total using the federal figure — which balanced against
+   nothing and hid 448 rows. So: **label every count with the population it counts, make the
+   identity close three ways when state members are in the set, and when a derived figure and a
+   measured figure agree, say that they are one finding seen twice.** The
+   `whichPopulationEachNumberCounts` block in `db/vr-federal-mapping-seed-f10.json` is the shape to
+   copy, and `scripts/test-vr-federal-wave-f10.mjs` asserts the measured figure is a strict subset
+   of the derived one, which is what caught it.
+
+46. **Before chartering a wave on a flag, check whether the flag still has a consumer.** F10 was
+   briefed to close a chamber gap caused by "the only PRIMARY on that key is a House instrument,"
+   and that cause explains **zero** unread rows, because `_RD_MIN_PRIMARY` no longer gates anything:
+   both of its consumers were removed by an earlier pass, the constant survives on two lines in
+   `stance-helpers.js` and both only word the `pkgNote` disclosure sentence, and
+   `scripts/test-characterise-every-act.mjs` carries the brief that forbids restoring it. The
+   corroborating measurement is that F5 promoted all 28 promotable acts across 17 keys, one at a
+   time, at **+0 / -0**. Two lessons, and the second is the one that cost time. First: `is_primary`
+   is a label — printable everywhere, consultable by nothing — so a wave promising row conversions
+   from a promote is promising something the engine deliberately cannot deliver. Second: **F4's
+   comment at the promotes loop in `scripts/vr-federal-fpi.mjs` still asserted the wall was live**,
+   and a stale comment about a decommissioned wall is how a wrong premise gets inherited. It is
+   corrected in place rather than deleted, with the reason it was wrong, because the next curator
+   needs to know the wall existed and was removed — not merely that it is absent today.
+
+47. **The wave audits must be run one at a time. They mutate shipped files in place, and two of
+   them running at once produce a failure that names the record for a fault in a test harness.**
+   This one cost a wrong diagnosis before it cost a right one, so the whole chain is written down.
+   `scripts/test-vr-federal-wave-f8.mjs` proves its three identity walls by **rewriting
+   `cmp-data.js` on disk** — wall 2 renames the roster key `alan_armstrong` to
+   `alan_armstrong_ROW_ABSENT_FOR_THIS_MUTATION`, runs the member-map generator against the
+   mutated tree, and restores the bytes in a `finally`, with its own `git status` section guarding
+   the restore. That is correct in isolation. But **every twin-boot suite in this tree reads the
+   working copy from disk**, so a suite that boots during that window sees a roster with one person
+   renamed and reports *"a profile HEAD had is gone from the roster."* F5's audit fails that way,
+   F10's did too, and it reproduces at HEAD — because the cause was never in the tree.
+   The trail worth remembering: the failure named a person, the first hypothesis was a boot
+   truncated by memory pressure, and **the fix that found the truth was widening the assertion's
+   own error message** to report how many profiles each side loaded and how many exceptions each
+   threw. It answered 1120 of 1120 and zero of zero, which refuted the hypothesis in one line and
+   pointed at a rename rather than a loss. Two operational rules follow. **Run the audits
+   sequentially.** And **never write `catch (e) {}` around a sandbox boot in a comparison suite** —
+   a half-booted sandbox is otherwise indistinguishable from a real regression, and the suite will
+   blame the record. `scripts/test-vr-federal-wave-f10.mjs` carries both guards: it refuses to
+   compare at all when any booted file on disk contains the marker `_FOR_THIS_MUTATION`, and if a
+   profile really is absent it prints the arrivals alongside the departures so a renamed key cannot
+   be mistaken for a lost one.
+
+48. **A ROLL IS NOT FREE: before ingesting a vote, read every mapping row already on that
+   measure, because the vote publishes all of them at once.** F11's charter was one act on one
+   empty key. Landing House roll 154 on H.R. 7567 made **five** pre-existing rows readable — the
+   `rural_ag` w100 PRIMARY the wave wanted, `family_support` w70, `enviro_balance` w60 (suppressed
+   by `/_balance$/`, so it stayed unread), and two rows that could not survive being read:
+   `econ_corp_account` w45 and `property_rights` w40, both sourced to SEC. 10205, SEC. 10206 and
+   SEC. 10207 — sections **struck by H.Amdt. 196** (119/2 roll 148, 280-142) and absent from the
+   engrossed text. F9 had *already written that down* in both rationales ("so the enacted text does
+   not include the shield") and left the polarity at `yea_opposes` anyway, which is harmless while
+   the measure has no roll and becomes 424 wrong attributions the moment it has one. So the
+   sequence is: diff the chamber print against the referred print, list the measure's whole row set,
+   and decide each row *before* the vote seed exists — not the one row the wave is about.
+   The retraction is not always free either, and the cost is disclosed rather than netted:
+   `econ_corp_account` keeps ten rows and loses nothing, while `property_rights` loses its only
+   federal row, so the no-federal-instrument-anywhere count went 20 → 21. A key that reads empty is
+   honest; a key that reads a struck section is not.
+
+49. **`--reach` is a PRE-WAVE instrument. It cannot measure the wave whose name you pass it, and
+   quoting its table as a result is a category error.** Measured on F11: `--set all --waves
+   f1,f2,f3,f4,f10 --reach` and `--set all --waves f1,f2,f3,f4,f10,f11 --reach` differ in exactly
+   two lines, both of them the header naming the wave list. Not one figure moves. Two structural
+   causes, both worth knowing before chartering a wave on its numbers. First, the `--reach` branch
+   builds every count from `winB` / `before` and from `lane` — the database as it stands — and
+   never touches `V.lane` / `after`, where a wave's projected rows live. Second, it counts **unread
+   rows**: rows that exist and are suppressed. A coverage wave creates **reads**, not unread rows,
+   so `rural_ag` and `housing_support` print `unread 0` with a ceiling of a whole chamber both
+   before *and* after F11 filled them. What `--reach` is genuinely for is planning — what the best
+   instrument that could ever exist would convert — plus two facts it states honestly: the
+   attribution ceiling holds at chamber headcount on every key (102/102 Senate, 435/435 House), and
+   every key with unread volume and a ceiling of zero is one of the poleless or `*_balance` keys.
+   Movement is measured with `--json` `gainedReads` / `lostReads`, which is a real before/after
+   pair over one engine. `scripts/test-vr-federal-wave-f11.mjs` asserts the cause against the
+   source, so the day someone wires `after` into `--reach` this rule fails loudly instead of
+   ageing into folklore.
+
+50. **Rule 43 cuts both ways: a title scan produces false negatives as freely as false positives,
+   and the false negative is the one that leaves a key empty for a year.** F10 wrote rule 43 for
+   titles that promise more than the text delivers. F11 found the inverse on the same print. A
+   title scan of all 657 House and 453 Senate legislative rolls of the 119th returned **zero**
+   candidates for `housing_support` — and the key had an admissible act the whole time, because
+   H.R. 6644's short title ("21st Century ROAD to Housing Act") and long title ("To increase the
+   supply of housing in America") contain none of *affordable*, *renter*, *tenant*, *voucher* or
+   *rental assistance*, while Secs. 204, 212, 405, 501 and 503 of the enrolled text are exactly
+   that. The same print, read the same way, also **refuses** `housing_first_time`: Sec. 105 "may
+   establish a pilot program", Sec. 404 is an escrow pilot for families already in section 8 or 9
+   housing, Sec. 402 is an evaluation, and "first-time" appears once in 442 KB. One print, one
+   rule, two opposite answers — which is what it looks like when the text is doing the deciding.
+   Operationally: a title scan may be used to *rank* candidates and never to *close* a key. A key
+   is only empty once its subject has been searched in the enacted prints of the measures the
+   corpus already holds.
+51. **`db/vr-issue-seed.json` is a mirror, not the mapping — and a gate that treats it as the
+   mapping fails the first wave that puts a roll on a migration-mapped bill.** Rule 20 already
+   says the mirror is partial by design: `applyCuratedIssueSeed()` upserts only the keys the
+   seed carries, so a key left out is a live row left alone. The consequence nobody had hit
+   until F11 is what happens *downstream* of that. `scripts/test-vr-vote-seed.mjs` read "is
+   this measure mapped?" out of the mirror alone, so the moment House roll 154 landed on
+   H.R. 7567 — five rows written by `20260721100000`, none of them mirrored — a fully mapped
+   twelve-title farm bill came out the far end of the gate looking like an unmapped measure,
+   with the gate offering the `measuresDeliberatelyUnmapped` door as the remedy. Taking that
+   door would have been a lie in the record: the whole product of the wave is that bill's
+   `rural_ag` **w100 PRIMARY**. Mirroring the bill instead would have been true but wrong-shaped
+   — it drags rule 20's byte-for-byte obligation onto three rationales this very migration is
+   editing, and it trips the pinned-file list in `scripts/test-vr-federal-roster-r2.mjs`, which
+   holds `db/vr-issue-seed.json` unchanged. So the gate was fixed instead of worked around: it
+   now reads the migrations for the same fact, **per file** (variable names repeat, and the
+   concatenated blob would let one file's `m_farm` satisfy another file's insert) and **per
+   (measure, key) pair minus the pairs a later migration DELETEs** (so a measure whose rows were
+   all retracted goes back to owing its refusal in writing). Three things make that an addition
+   rather than a loosening, and all three are asserted: the mirror is still consulted first, the
+   `declinedFacets` door is still the only other way through, and the widening was **measured** —
+   across all seventeen vote seeds it admits H.R. 7567 and nothing else, while the eight measures
+   that use the door (H.R. 1069 and F7's seven Iran resolutions, every one ingested with no issue
+   rows at all) stay behind it. General form: when a discipline gate fails a wave, ask whether the
+   gate is reading the *whole* source of the fact it checks before you ask what the wave should
+   declare. A partial source produces false failures, and a false failure answered with a
+   declaration puts a false sentence in the permanent record.
+52. **A reserved stamp is a promise to a later wave, so the suite that reserved it has to allow
+   the promise to be kept.** F10 shipped no migration and recorded `20261028000000` as reserved,
+   its seed saying in as many words "recorded here and not consumed, so the next wave takes it".
+   Its suite then asserted the prefix was **empty** — which is the right check on the day F10
+   ships and a booby trap for the wave that accepts the offer. F11 consumed the stamp and F10's
+   suite failed. The fix is not to delete the assertion but to narrow it to what F10 can still
+   honestly claim: at most one file at that stamp, it does not carry F10's name, and some
+   `db/vr-federal-mapping-seed-*.json` declares it. F10's own no-write claims — `rowsShipped`,
+   `migrationsWritten`, `voteSeedsWritten`, the empty `measures[]` — are all untouched. When you
+   reserve a stamp, write the check as "empty, or owned by a wave that declares it".
 
 ### Best remaining follow-ups after this pass
 
