@@ -880,6 +880,54 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v139 - THE EYE FOUND THE RIGHT PERSON TWICE. A reader who typed "chew" got two
+// rows for one representative, and the pass that collapsed them landed in the two
+// lanes that mint rows: the people lane and the receipt lane both resolve through
+// PDXCanonIds. But the panel has six other emitters that carry a person's id, and
+// none of them asked whose id it was - the related chips under a row, the
+// Connections map's teammate nodes and its "people near your saved work" siblings,
+// the ranked rows of an issue answer, and the polId stored inside a saved receipt.
+// Eighteen retired ids are ISSUE_STANCE_DATA keys, so the panel could still print
+// `scott_chew` beside the one Chew row it had just kept - and the collapse had
+// quietly taken that row's only chip with it, because his curated stance block is
+// filed under the stub's name slug and the chip builder read the table by raw key.
+//   So the panel now asks the same question at every edge, and asks it of the
+// modules that already own the answer.
+//   . canonPid()        - PDXPersonLink.pid, then PDXProfilePid: the id a row
+//                         PRINTS is the id its handler OPENS, at every emitter,
+//                         and it fails open on a page where neither module ran.
+//   . stanceListFor()   - _resolveStanceList (stance-helpers.js), the app's own
+//                         owner of "whose curated block is this", rather than a
+//                         second copy of the alias walk living here.
+//   . personDoor()      - ONE person door for the whole panel: PDXPersonLink.open
+//                         then PDXPerson.open then showProfile, with the id
+//                         resolved BEFORE the hop. A people row, a judge row, a
+//                         related chip, a ranked row and a saved receipt all go
+//                         through it, so a click and an Enter can no longer
+//                         disagree about who they meant.
+//   A PERSON HIT OPENS THE PERSON FILE. Not a medium card, not a summary that has
+// to be tapped again: /p/<pid>, through the same funnel the row's own href hands
+// its clicks to. Issue and bill hits keep the doors they already had - /i/<key>
+// and /b/<sitting>/<number> - and no third address shape was invented. The
+// overlay's chrome is unchanged: query, results, one clear close. It still paints
+// no scrim and takes no scroll lock, so it stays a finder rather than a second
+// Door 1 stack behind itself.
+//   THE VISITOR'S OWN LISTS ARE READ, NOT REWRITTEN. My Team and the saved-people
+// list hold whatever id the surface that made the pick happened to spell,
+// including a retired one, and they are resolved on the way out instead of
+// migrated in place - so the map is of people while the store stays the reader's,
+// and the "on your team" badge and the "Add to My Team" label cannot start
+// disagreeing. Canonicalisation happens where this panel prints or opens an id.
+// Bumped because all-seeing-eye.js is a RUNTIME cache entry rather than a
+// precached one, and the runtime cache NAME carries CACHE_VERSION: without a move
+// a returning reader keeps the copy of the eye that prints the retired id, and
+// every sentence above is true only of a first-time visit. The eye is the only
+// shipped file this pass moves, so a warm device that has not taken the new one
+// simply behaves as it did before - there is no half-landed state to ship. No new score, no
+// party sort, no floor, mapping, weight, verdict or pack TTL moved, nothing
+// interactive is nested, and the twin boot is byte-identical on Direction Match
+// and on every formal-record tier.
+//
 // v138 - THE BILL TITLE IS A DOOR TO THE BILL FILE. Four surfaces printed a
 // measure identity as text and only as text: the issue dossier's Official Record
 // cards, its "which measures this came from" roll-up, the Official Record proof
@@ -2445,7 +2493,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v138';
+const CACHE_VERSION = 'v139';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

@@ -425,11 +425,25 @@ section("6 · locked vocabulary, no hardcoded judge, no banned words");
 // ── 7 · the door is the intercept that already exists ───────────────────────
 section("7 · the row opens the judge file through openModal, not a second path");
 {
-  const arm = (EYE_SRC.match(/else if \(kind === 'judge'\) \{[\s\S]*?\n      \}/) || [""])[0];
+  // THE ARM IS NOW ONE CALL, AND THAT IS THE POINT OF THE PASS THAT MOVED IT.
+  // The claim here has never been about how many lines the arm has; it is that a
+  // judge row reaches the person-file opener, that it has a fallback for a page
+  // where person-file.js has not executed, and that it does NOT call the judge
+  // renderer itself and bypass judge-file.js's openModal intercept. All three used
+  // to be readable inside the arm because the arm spelled the funnel out. It now
+  // delegates to personDoor(), the eye's single person door — the same one a
+  // people row, a receipt row, a related chip and a teammate chip go through — so
+  // the claim is checked one indirection deeper, where there is exactly one copy
+  // of it to check.
+  const arm = (EYE_SRC.match(/else if \(kind === 'judge'\) \{[\s\S]*?\}/) || [""])[0];
   ok(arm.length > 0, "all-seeing-eye.js has no navigate() arm for a judge row");
-  has(arm, "PDXPerson", "the judge row does not hand the pid to the person-file opener");
-  has(arm, "showProfile", "the judge row has no fallback opener");
+  has(arm, "personDoor", "the judge row no longer goes through the eye's one person door");
+  const door = (EYE_SRC.match(/function personDoor\(raw\) \{[\s\S]*?\n    \}/) || [""])[0];
+  ok(door.length > 0, "all-seeing-eye.js has no personDoor() — the judge arm delegates to nothing");
+  has(door, "PDXPerson", "the person door does not hand the pid to the person-file opener");
+  has(door, "showProfile", "the person door has no fallback opener");
   no(arm, "PDXJudgeFile", "the judge row calls the judge renderer directly, bypassing the intercept");
+  no(door, "PDXJudgeFile", "the person door calls the judge renderer directly, bypassing the intercept");
   // The intercept it relies on is still the single funnel.
   has(JF_SRC, "window.openModal.__jfOpen", "judge-file.js no longer guards its openModal wrapper");
   has(JF_SRC, "if (isJudge(id))", "judge-file.js no longer intercepts a judicial pid");

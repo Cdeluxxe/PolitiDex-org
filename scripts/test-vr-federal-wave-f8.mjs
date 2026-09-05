@@ -1516,6 +1516,40 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // the isPrimary flag it exists to guard, so a desk that went back to labelling
     // cards off anything else still fails there.
     "scripts/test-primary-label-not-gate.mjs",
+    // The one-person-per-office pass (CACHE_VERSION v139), on those same later-wave
+    // terms. It writes no roll, no mapping, no key, no floor, no admission and no
+    // score: it makes every person-shaped thing the All-Seeing Eye prints or opens
+    // agree on WHICH PERSON it means. The people lane and the receipt lane already
+    // resolved their rows through PDXCanonIds, so the duplicate row a reader saw on
+    // a phone was fixed there - but the panel has six other emitters that carry a
+    // pid and none of them asked: the related chips under a row, the Connections
+    // map's teammate and sibling nodes, the ranked rows of an issue answer, and a
+    // saved receipt's stored polId. Eighteen retired ids are ISSUE_STANCE_DATA
+    // keys, so the panel could print `scott_chew` beside the one Chew row the
+    // collapse had kept, and the collapse itself had taken that row's only chip
+    // with it - the curated block is filed under the stub's name slug. canonPid()
+    // asks PDXPersonLink and PDXProfilePid the same question at every edge;
+    // stanceListFor() routes "whose block is this" to _resolveStanceList, the app's
+    // own owner of it; and personDoor() is now the panel's single person door, so
+    // the id a row's href prints and the id its handler opens can no longer be two
+    // people. All three fail open.
+    //   The reason a wave like this one is the file that has to declare it: R1 and
+    // R2 put 1,120 files behind these rows, and the eye is how most readers reach
+    // any of them - a pile of near-duplicate rows is the difference between a
+    // finder and a second homepage. Every count, chip, tier, band, side word and
+    // Direction Match figure is byte-identical, which the twin boot above has just
+    // proved; all-seeing-eye.js, sw.js and index.html are declared above already.
+    //   The one file below is the file this wave has to declare, and the reason is
+    // narrow: its section 7 pinned the exact text of the judge navigate() arm,
+    // which spelled the person funnel out inline. That arm now delegates to
+    // personDoor, so the pin is repaired to read the same claim one indirection
+    // deeper - the arm must reach the eye's one person door, and that door must
+    // hold the person-file opener AND a fallback AND never call the judge renderer
+    // directly, which would bypass judge-file.js's openModal intercept. It is
+    // strictly stronger than the pin it replaces: the same three rules, checked at
+    // the single place there is now one copy of them, and checked on both the arm
+    // and the door.
+    "scripts/test-eye-judge-lane.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};
