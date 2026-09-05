@@ -260,11 +260,14 @@
   // THE CITIZEN BIG PICTURE IGNORES `isPrimary` AS A VISIBILITY RULE. A mapping's
   // primary flag and its curated `weight` decide nothing on this face: not whether
   // a topic appears, not where it appears, not how loudly. Both still travel in the
-  // payload and both are still read by the INTERNAL anti-noise machinery that
-  // already depends on them — _recordDirectionIndex()'s not-incidental floor in
-  // stance-helpers.js, the strongest-citable-example pick in receipt-cards.js — and
-  // that is the only use either flag has until a later engine decision retires or
-  // repurposes them. Nothing in this file may reintroduce them as a rank.
+  // payload. `weight` is still read by the internal anti-noise machinery that
+  // depends on it — the strongest-citable-example pick in receipt-cards.js. As of
+  // August 2026 `isPrimary` is read by nothing that decides a read anywhere in the
+  // stack: _RD_MIN_PRIMARY words the "mainly about something else" sentence beside a
+  // finding and gates no tier, so a provision-borne act is characterised in full and
+  // discloses how it arrived. THE ONLY THING EITHER FLAG BUYS ON THIS FACE IS A
+  // PRINTED LABEL (see laneLabel below). Nothing in this file may reintroduce either
+  // as a rank, and nothing anywhere may reintroduce `isPrimary` as a gate.
   //   WHAT ORDERS THE LIST INSTEAD, in order of preference:
   //     1. the reader's own picked issues (window._alignIssues). The one legitimate
   //        reason to move a row up the page is that this reader asked for it.

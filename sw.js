@@ -880,6 +880,39 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v135 - PRIMARY IS A LABEL, AND NOW THERE IS A WALL SAYING SO. The engine had
+// already been changed: a mapped act that reached an issue as a provision inside
+// a larger measure is characterised in full, on the same depth, strength and
+// dominance floors a flagged one is held to, and how it arrived is disclosed in a
+// sentence beside the finding instead of subtracted from it. What was missing was
+// anything stopping that from being undone. The one existing guard proves the
+// rule by setting _RD_MIN_PRIMARY to 99 and watching nothing move, which catches
+// a gate spelled with the constant and cannot see one spelled `(idx.primary || 0)
+// < 1` - and there is a line shaped exactly like that live in consistency.js
+// today, wording a sentence, legitimately.
+//   So scripts/test-primary-label-not-gate.mjs now names every reference to the
+// flag across the sixteen files of the record stack with what each one is for -
+// thirty-six of them, of which exactly three ask a question of the primary count
+// and all three answer it with a sentence - audits all 5,321 provision-only rows
+// that hold a judged act on every surface that prints them, and then puts the
+// gate back four times, in the four shapes it historically had, requiring the
+// file to fail on each - and it forbids any file in the stack from describing the
+// constant as refusing a read unless the sentence around the mention says so in
+// the past tense, because a stale comment is a specification to the next author.
+// One shipped comment that still described the retired gate as current was
+// corrected. A second, in netlify/lib/vr-pack.ts, is knowingly left standing and
+// named in the test: three guards freeze that file byte for byte, and the
+// reader-facing copy of the same explanation in voting-record.js is correct.
+//   · bill-detail.js       — the Big Picture note no longer credits
+//                            _recordDirectionIndex with a not-incidental floor
+//                            it has not had since August 2026, and says what the
+//                            flag buys on that face instead: a printed label.
+// NOTHING EXECUTABLE CHANGED: the only edit to a shipped file is the comment
+// above. No floor, no mapping, no weight and no roster row moved, and
+// the Direction Match ledger is byte-identical across all four mutated boots as
+// well as this one - the record lane is not a Direction Match input and none of
+// this may make it one.
+//
 // v134 - EMPTY WHILE LOADING IS A LIE, AND THE ISSUE DESK WAS TELLING IT. On a
 // cold /i/rural_ag the page painted H.R. 7567 as the PRIMARY measure on the key
 // and, three inches above the card, said "Nothing readable yet" and printed the
@@ -2265,7 +2298,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v134';
+const CACHE_VERSION = 'v135';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
