@@ -1695,6 +1695,45 @@
   // `pending` are both 0 the settled wording returns unhedged — including on a
   // key that genuinely holds nobody, or genuinely holds one band. An empty file
   // after a finished read is a finding, and findings are printed straight.
+  // ── A MEASURE ALREADY ON THE PAGE OUTRANKS AN ABSENCE ───────────────
+  // THE DEFECT THIS OWNS, AND IT WAS LIVE. /i/rural_ag painted "Nothing readable
+  // yet · still reading 463" at the top of a page whose own measure list, two
+  // inches below and in the SAME frame, printed H.R. 7567 under PRIMARY. The
+  // headline reported an emptiness the page itself disproved, because the two
+  // halves of this pane are fed by two different reads: the measure list comes off
+  // the measure index the moment it is on the document, and the people rows come
+  // off a per-member record read that takes hundreds of requests to settle. A
+  // count of PEOPLE ROWS STILL IN FLIGHT is not a census of the key, and it may
+  // not be spelled as one.
+  //   THE RULE IS ONE LINE. With at least one mapped measure on file the headline
+  // leads with THAT — the integer ledgerMeasures() already built and the cards
+  // below already print — and never with the word for nothing. With no measure on
+  // file either, the headline says it is reading and claims nothing at all: the
+  // key is not called empty by a read that has not come back.
+  //   NOTHING HERE COUNTS ANYTHING. `people`, `cold` and `measures` all arrive on
+  // the ledger; this chooses which of them the sentence is about.
+  function censusLeadHtml(led) {
+    var n = led.people, m = (led.measures || []).length;
+    if (n) return '<b>' + n + '</b> readable so far';
+    if (m) {
+      return '<b>' + m + '</b> measure' + (m === 1 ? '' : 's') +
+        ' on file map' + (m === 1 ? 's' : '') + ' here';
+    }
+    return 'Still reading the record';
+  }
+
+  // ── PENDING ROWS ARE A FACT ABOUT THE READ ──────────────────────────
+  // One sentence, one wording, and it is about the REQUEST: N people rows have not
+  // been fetched, so nothing below is a finding about the issue yet. It replaces
+  // the old "Nothing readable yet" reading of the same integer, which put the
+  // subject of the sentence on the key instead of on the fetch.
+  function pendingRowsHtml(led) {
+    var c = led.cold;
+    return '<p class="d1-led-pend">People rows still loading — ' +
+      (c ? '<b>' + c + '</b> not fetched yet' : 'the batch has not come back yet') +
+      '. That is a fact about this read, not a finding about this issue.</p>';
+  }
+
   function censusHeadHtml(led) {
     if (!ledgerBusy(led)) {
       return '<p class="d1-led-n"><b>' + led.people + '</b> ' +
@@ -1702,14 +1741,15 @@
         ' a readable formal row on <b>' + esc(led.label) + '</b>.</p>';
     }
     var n = led.people, c = led.cold;
-    return '<p class="d1-led-n is-partial">' +
-        (n ? '<b>' + n + '</b> readable so far' : 'Nothing readable yet') +
+    return '<p class="d1-led-n is-partial">' + censusLeadHtml(led) +
         (c ? ' · still reading <b>' + c + '</b>' : ' · still reading') +
         ' on <b>' + esc(led.label) + '</b>.</p>' +
+      pendingRowsHtml(led) +
       '<p class="d1-led-part">Not the count for this key. It is what has come back so far' +
         (c ? ', with ' + c + ' more ' + (c === 1 ? 'record' : 'records') + ' still being read'
            : '') + ' — every figure and every band below is a read of ' +
-        (n === 1 ? 'that one row' : n ? 'those ' + n + ' rows' : 'the rows back so far') +
+        (n === 1 ? 'that one row' : n ? 'those ' + n + ' rows' :
+          'the measures on file and of the rows back so far') +
         ' and of nothing else.</p>';
   }
 
@@ -1755,8 +1795,9 @@
       // The measure line is a read of the rows above it, so it is partial for
       // exactly as long as they are, and says which of the two it is.
       '<p class="d1-led-m">' + (busy
-        ? (m ? '<b>' + m + '</b> measure' + (m === 1 ? '' : 's') +
-            ' on file map to the rows back so far. The list grows with the read.'
+        ? (m ? '<b>' + m + '</b> measure' + (m === 1 ? ' on file maps' : 's on file map') +
+            ' to this key already — off the measure index, not off anybody\u2019s row. ' +
+            'The list can still grow as the people rows land.'
           : 'No measure on file has come back for this key yet.')
         : (m ? '<b>' + m + '</b> measure' + (m === 1 ? '' : 's') +
             ' on file map here.' : 'No measure on file is mapped to this key yet.')) + '</p>' +
@@ -1953,9 +1994,26 @@
       // NOT AN EMPTY RECORD WHILE A READ IS OUT. Only once every person the issue
       // read discovered has a warm record may this pane say the key holds nothing.
       var busy = ledgerBusy(led);
+      // …AND NOT AN EMPTY LANE OVER A MEASURE THIS PAGE IS ABOUT TO PRINT. The
+      // floor's inherited sentence is a claim about the CALENDAR — "no standalone
+      // measure on this issue came up for a recorded vote" — and printing it above
+      // a PRIMARY card for a measure mapped to this key contradicts the page a
+      // reader is looking at. So it prints where it is true, over a key with no
+      // mapped instrument at all, and a key that has instruments and no readable
+      // row says the narrower true thing instead: the measures are on file and
+      // nobody in the tracked field has a readable act on them. Neither sentence
+      // is characterised here, and no floor moved: the measure cards below are
+      // unchanged, and nobody's row was invented to fill this space.
+      var mapped = (led.measures || []).length;
       return head + (busy
         ? '<p class="d1-claim-busy" role="status">Reading the roll-call record for this issue…</p>'
-        : '<p class="d1-empty">' + esc(emptyIssueNote()) + '</p>') + measuresHtml(led);
+        : mapped
+          ? '<p class="d1-empty">' + mapped + ' measure' + (mapped === 1 ? '' : 's') +
+            ' on file map' + (mapped === 1 ? 's' : '') + ' to this key, and nobody tracked here has ' +
+            'a readable formal act on ' + (mapped === 1 ? 'it' : 'them') + ' yet. The ' +
+            (mapped === 1 ? 'card' : 'cards') + ' below ' + (mapped === 1 ? 'is' : 'are') +
+            ' what is filed; the absence is of acts, not of the issue.</p>'
+          : '<p class="d1-empty">' + esc(emptyIssueNote()) + '</p>') + measuresHtml(led);
     }
     var open = led.bands.filter(function (b) { return !b.tail; })
       .map(function (b) { return bandHtml(b, key); }).join('');

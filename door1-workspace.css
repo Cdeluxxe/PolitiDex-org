@@ -540,6 +540,13 @@
 .d1-led-part {
   margin: 0.35rem 0 0; font-size: 0.76rem; line-height: 1.6; color: #d6c9a8;
 }
+/* The unfetched people rows, in the same weight as the disclosure above them: it
+   is a sentence about the REQUEST, so it reads as the same kind of thing as
+   "not the count for this key" and not as a finding about the issue. */
+.d1-led-pend {
+  margin: 0.35rem 0 0; font-size: 0.78rem; line-height: 1.6; color: #e3d6b4;
+}
+.d1-led-pend b { color: #fde68a; }
 /* The bands nobody has come back for yet. Quieter than the split above it,
    because it is a statement about what is missing rather than a count. */
 .d1-led-soon {

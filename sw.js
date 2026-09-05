@@ -880,6 +880,41 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v134 - EMPTY WHILE LOADING IS A LIE, AND THE ISSUE DESK WAS TELLING IT. On a
+// cold /i/rural_ag the page painted H.R. 7567 as the PRIMARY measure on the key
+// and, three inches above the card, said "Nothing readable yet" and printed the
+// menu's blank-calendar sentence. Both halves came from the same builder. They
+// disagreed because they read different things: the measure list comes off the
+// static index and is there at the first frame, while the census counts people
+// whose formal rows are still in flight, and the busy census had been written as
+// if a zero it had not finished earning were a finding about the issue.
+//   The rule now is that the desk may not deny what is already on the page. The
+// partial census leads with the mapped-measure count whenever no person row has
+// landed yet ("1 measure on file maps here"), never with a word for nothing; the
+// unfetched rows get their own sentence in their own voice — "People rows still
+// loading — N not fetched yet. That is a fact about this read, not a finding
+// about this issue." — so the pending read is described as a property of the
+// request instead of a property of the key. The busy measure line no longer
+// credits index-sourced measures to "the rows back so far", and a SETTLED key
+// that holds mapped measures but no readable act says that in those words rather
+// than reprinting the empty-calendar floor over a visible card.
+//   TWO FILES MUST TRAVEL TOGETHER, which is what this bump is for:
+//   · door1-workspace.js   — the census head, the pending-rows sentence and the
+//                            measure-aware settled floor. A warm device holding
+//                            v133 would keep printing the denial.
+//   · door1-workspace.css  — the one new block that sets the pending sentence in
+//                            the same weight as the disclosure above it, so it
+//                            reads as the same kind of claim. Nothing restyled.
+// No band, no floor, no mapping, no weight and no figure moved. The settled
+// census HEADLINE is byte-identical to v133's — the only settled string that
+// moved is the empty-lane sentence, and only over a key that holds mapped
+// measures, where the calendar sentence was false. The bands still come from
+// PDXConsistency.formalPatternIndex and nowhere else, the letterhead still
+// publishes no integer while a read is out, a key with no mapped instrument at
+// all still gets the menu's own blank-calendar sentence verbatim, and every
+// person brief and every Direction Match read is byte-identical across a twin
+// boot.
+//
 // v133 - THE ISSUE NAME WAS THE ONE WORD ON THE ROW THAT LED NOWHERE. A reader
 // who opened Celeste Maloy on Farmers & Rural Communities got her thin read and
 // the number of the bill behind it, H.R. 7567, and no way from there to either
@@ -2230,7 +2265,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v133';
+const CACHE_VERSION = 'v134';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
