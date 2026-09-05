@@ -2437,6 +2437,10 @@
 .pdxwa-cbadge:focus-visible { outline: 2px solid rgba(96, 165, 250, 0.8); outline-offset: 2px; }
 .pdxwa-cbadge-pct { font-size: 0.74rem; letter-spacing: 0.02em; }
 .pdxwa-cbadge-sep { opacity: 0.45; }
+/* The denominator that travels with the figure. Quieter than the verdict word it
+   sits beside and much quieter than the numeral, because it is what SIZES the
+   percentage rather than a second finding about it. */
+.pdxwa-cbadge-den { opacity: 0.72; font-weight: 600; letter-spacing: 0.05em; }
 @media (hover: none), (pointer: coarse) {
   .pdxwa-cbadge { min-height: 1.9rem; padding: 0.22rem 0.6rem; }
 }

@@ -1885,10 +1885,31 @@ section("9 · the engines did not move");
         // Both are checked below by subtraction rather than waived: remove the one
         // inserted call from the working copy's body and it must be HEAD's body,
         // byte for byte.
+        // …AND THE SEVENTH ROUND (CACHE_VERSION v136), which is the first one to
+        // touch a function on this file's SHALLOW path, and not about an absent
+        // record at all. The compact Word vs Action chip in the identity block —
+        // high on every person file, a screen above the section it is a door to —
+        // printed the figure and the verdict word and nothing else:
+        //
+        //     100% · Backs it up
+        //
+        // beside the person's name, on a page that also carries a hundred formal
+        // acts. 102 of the 187 chips this corpus paints stand on exactly
+        // MIN_TESTED_ITEMS tested items, which is the publication floor and not one
+        // item more, so most of the time that percentage was standing on three
+        // statements. A figure with nothing to size it, in that position, is read as
+        // a grade. The chip now prints the ⚖️ section's own fraction — "3 of 6
+        // tested" — in the visible text and in the accessible name.
+        //   compactBadgeHtml   the chip's markup, and nothing else
+        // Subtracted below rather than waived, in the form the note under the two
+        // mounts asks the next pass to use: the three strings this pass added come
+        // out of the working body and what is left must be HEAD's, byte for byte.
+        // The arithmetic behind the figure is not in that function and read() is
+        // pinned to HEAD by name further down this same block.
         const TOUCHED = ["armBriefDeadline", "briefAbsenceCopy", "briefHeroHtml",
           "briefSeedHtml", "briefLiveN", "briefRecordOnHand", "formalKnown",
           "bindHero", "shapeMatchHtml", "briefAsked",
-          "shapeHeroHtml", "briefBodyHtml"];
+          "shapeHeroHtml", "briefBodyHtml", "compactBadgeHtml"];
         // …and the readers the two passes added. Every one is a pure read of state
         // that already existed in the tab — the live member payload, the crawl
         // header's rows, the static formal index, the pattern index's shape, the
@@ -1989,6 +2010,44 @@ section("9 · the engines did not move");
             `${f}() does not mount the slice note exactly once — one call, or the letterhead and the brief drift into two wordings`);
           eq(sha(now), sha(was),
             `${f}() moved at all — the chip order, the characterisation, the counts and the slice mount in it are HEAD's`);
+        }
+
+        // ── and the v136 chip, by subtraction ───────────────────────────────────
+        // The licence taken above is exactly three strings wide. Take them out and
+        // the chip is HEAD's chip: same button, same jump target, same percentage,
+        // same verdict word, same colour, same fail-closed catch. What the pass
+        // added is a denominator in the markup and the same denominator in the
+        // accessible name; what it did not add is a second count — both integers
+        // arrive on the read() this block pins to HEAD by name below.
+        {
+          const now = B.fns.get("compactBadgeHtml") || "", was = A.fns.get("compactBadgeHtml") || "";
+          ok(!!now && !!was, "compactBadgeHtml() is defined on both sides");
+          const DEN_DECL = "      var c = r.coverage || {};\n" +
+            "      // '' is unreachable above the floor — a published percentage has at least\n" +
+            "      // MIN_TESTED_ITEMS tested items behind it, so both integers are positive.\n" +
+            "      // It is here so a read handed in without a coverage block cannot print the\n" +
+            "      // one fraction that would be worse than no fraction: \"0 of 0 tested\".\n" +
+            "      var den = (c.tested && c.scorable) ? (c.tested + ' of ' + c.scorable + ' tested') : '';\n";
+          const DEN_SPAN = "          (den\n" +
+            "            ? '<span class=\"pdxwa-cbadge-den\">' + esc(den) + '</span>' +\n" +
+            "              '<span class=\"pdxwa-cbadge-sep\" aria-hidden=\"true\">·</span>'\n" +
+            "            : '') +\n";
+          const ARIA_NEW = "        ' aria-label=\"' + esc(r.pct + '% ' + FRAME.metric + (den ? ', ' + den : '') + ' — ' +\n" +
+            "          label + '. Open ' + FRAME.label + '.') + '\">' +";
+          const ARIA_OLD = "        ' aria-label=\"' + esc(r.pct + '% ' + FRAME.metric + ' — ' + label + '. Open ' + FRAME.label + '.') + '\">' +";
+          let cut = now;
+          for (const [str, why] of [[DEN_DECL, "the fraction's declaration"], [DEN_SPAN, "the visible fraction"]]) {
+            eq(cut.split(str).length, 2, `the chip does not carry ${why} exactly once, as this pass wrote it`);
+            cut = cut.replace(str, "");
+          }
+          eq(cut.split(ARIA_NEW).length, 2,
+            "the chip's accessible name is not the one this pass wrote — a screen reader hearing the " +
+            "percentage without the fraction has been handed the exact impression the visible chip was " +
+            "fixed to stop giving");
+          cut = cut.replace(ARIA_NEW, ARIA_OLD);
+          eq(sha(cut), sha(was),
+            "the chip minus its denominator is not HEAD's chip — something other than the fraction moved " +
+            "in a builder that sits inches from Direction Match");
         }
 
         // ── and the sentence itself, locked ─────────────────────────────────────

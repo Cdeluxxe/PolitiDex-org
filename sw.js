@@ -880,6 +880,68 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v136 - THE WORD-VS-ACTION CHIP CARRIES ITS DENOMINATOR, AND THE ISSUE DESK
+// STATES ITS PENDING COUNT ONCE. Three defects, all of them a figure printed
+// without the thing that sizes it or printed more times than it is true.
+//   THE CHIP. The identity-block Word vs Action badge said "100% · Backs it up"
+// beside a person's name, on a page that also carries a hundred formal acts, and
+// most of the time it was standing on three statements: of the 187 chips this
+// corpus can paint, 102 sit on exactly MIN_TESTED_ITEMS tested items — the
+// publication floor and not one item more. The two integers that size the
+// percentage were printed only in the section a screen below, which is the
+// section the chip is a door to. It now says them in the same words the
+// apparatus lid and the Official Record feed row already use for the same
+// fraction: "84% · 5 of 14 tested · Backs it up", and the aria-label carries
+// the fraction too. ANNOTATED, NOT SUPPRESSED: no new floor was invented, the
+// fail-closed gate below MIN_TESTED_ITEMS is untouched, a three-of-three read is
+// labelled rather than hidden, and two integers do not make the chip sortable —
+// nothing reads them back, nothing orders on them, and it does not stand in for
+// the formal record brief.
+//   THE PENDING COUNT. A cold /i/rural_ag printed the same outstanding-rows
+// integer four times in one frame: on the headline, in the people-rows sentence,
+// in the partial note under it, and in the announced status line at the foot.
+// One fact, four numerals, and a reader either reads a page anxious about its own
+// fetch or hunts for the difference between four figures that are the same. The
+// count is now stated once, in the sentence whose whole subject is the fetch;
+// the other three still say a read is out, in the countless branch each of them
+// already shipped, so no new copy was written. The v134 rule holds: the measure
+// lede still leads with a mapped measure where there is one, and no pane says
+// "nothing readable" over a card that lists H.R. 7567.
+//   ONE MEASURE COUNT. The Eye's key card read measures off the static index
+// while the pane's badge and /i/<key>'s letterhead both read the ledger's union
+// of index-mapped and act-discovered measures. They disagreed out loud: warm
+// on 29 of the 119 tracked keys the two readers gave different answers, and by
+// a lot: climate_action 3 from the Eye against 10 from the ledger,
+// border_security 2 against 6, broadband 0 against 2. There is now one
+// reader, and it is the union.
+//   AND A CLIPPED READ NO LONGER LOOKS COMPLETE. A truncated roll-call batch is
+// the one failure of that fetch that arrives looking like a success: nothing is
+// pending, nobody is cold, and both surfaces switch to the settled grammar over
+// a record the data layer cut off at a row cap. The ranking's existing sentence
+// about that cap is now a named constant, readable through the module that made
+// the request, and both the desk pane and the file's letterhead print THAT
+// sentence rather than a second wording of the same limit.
+// FILES IN THIS BUMP:
+//   · word-action.js        — compactBadgeHtml prints and announces the
+//                              fraction; read(), the floors and the fail-closed
+//                              gate are byte-identical.
+//   · word-action.css       — .pdxwa-cbadge-den, quieter than the verdict word.
+//   · door1-workspace.js    — the pending integer in one sentence; ledgerTrunc()
+//                              and `trunc` on the ledger and the census; the
+//                              issueMeasures export switched to the ledger union.
+//   · door1-workspace.css   — .d1-led-trunc.
+//   · issue-file.js         — clipped() and the letterhead's qualifying line,
+//                              outside the busy gate that cannot express it.
+//   · issue-file.css        — .pdxif-clip.
+//   · issue-view.js         — TRUNC_NOTE hoisted to one const; votesTruncated()
+//                              and truncNote() exported. The ranking's own markup
+//                              is unchanged, character for character.
+// ALL OF THESE ARE PRECACHED SHELL ENTRIES, so a warm device keeps serving the
+// old chip and the old four-integer pane until CACHE_VERSION moves — which is
+// what this line is. No floor, no mapping, no weight, no stance, no party score
+// and no roster row moved, and PRIMARY is still a label (see
+// test-primary-label-not-gate.mjs).
+//
 // v135 - PRIMARY IS A LABEL, AND NOW THERE IS A WALL SAYING SO. The engine had
 // already been changed: a mapped act that reached an issue as a provision inside
 // a larger measure is characterised in full, on the same depth, strength and
@@ -2298,7 +2360,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v135';
+const CACHE_VERSION = 'v136';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

@@ -2553,6 +2553,34 @@
   // against the same ledger, so the three cannot disagree by construction. Below
   // the tested floor read() returns a null pct, and a chip reading "—%" beside a
   // person's name is worse than no chip at all — so nothing renders.
+  //
+  // …AND THE DENOMINATOR TRAVELS WITH THE FIGURE. "100% · Backs it up" beside a
+  // person's name, on a page that also carries a hundred formal acts, reads as a
+  // product grade — and most of the time it is standing on three statements. Of
+  // the chips this app can currently paint, 102 of 187 sit on exactly
+  // MIN_TESTED_ITEMS tested items: the publication floor, and not one item more.
+  // The two facts a reader needs in order to size that percentage — how many
+  // statements were tested, and how many were on offer to test — were printed
+  // only in the section a screen below, which is the section this chip is a door
+  // to. So the chip says them, in the same words the apparatus label and the
+  // Official Record feed row already use for the same fraction, both of which are
+  // built exactly this way ("15 of 26 tested"). No new sentence was written for
+  // this and no figure is assembled here: `tested` and `scorable` arrive on the
+  // same read() the percentage does.
+  //
+  // ANNOTATED, NOT SUPPRESSED, AND NO NEW FLOOR. Below MIN_TESTED_ITEMS read()
+  // still returns a null pct and this still renders nothing — that gate is
+  // untouched. Above it, every read that painted a chip yesterday paints one
+  // today: a three-of-three read is not hidden here, it is LABELLED, which is the
+  // honest treatment of a figure that is true and thin. Suppressing above the
+  // publication floor would be this one surface inventing a second, higher floor
+  // that nothing else in the stack agrees with, and a reader who saw a chip on one
+  // profile and none on the next would have no way to know why.
+  //
+  // AND IT IS STILL NOT A RANK. Two integers do not make the chip sortable: no
+  // surface reads them back, nothing orders on them, and the chip remains one
+  // door to one section. It does not replace the formal record brief — that is a
+  // different lane, about a different question, and this says nothing about it.
   function compactBadgeHtml(pid, p) {
     try {
       var r = read(pid, p);
@@ -2560,11 +2588,22 @@
       var v = r.verdict;
       var label = (v && v.label) ? v.label : FRAME.metric;
       var col = (v && v.color) || '#9fb4d4';
+      var c = r.coverage || {};
+      // '' is unreachable above the floor — a published percentage has at least
+      // MIN_TESTED_ITEMS tested items behind it, so both integers are positive.
+      // It is here so a read handed in without a coverage block cannot print the
+      // one fraction that would be worse than no fraction: "0 of 0 tested".
+      var den = (c.tested && c.scorable) ? (c.tested + ' of ' + c.scorable + ' tested') : '';
       return '<button type="button" class="pdxwa-cbadge" data-pdxwa-cbadge="' + esc(String(pid)) + '"' +
         jumpAttr('pdxsec-wordaction') +
-        ' aria-label="' + esc(r.pct + '% ' + FRAME.metric + ' — ' + label + '. Open ' + FRAME.label + '.') + '">' +
+        ' aria-label="' + esc(r.pct + '% ' + FRAME.metric + (den ? ', ' + den : '') + ' — ' +
+          label + '. Open ' + FRAME.label + '.') + '">' +
           '<span class="pdxwa-cbadge-pct" style="color:' + col + ';">' + r.pct + '%</span>' +
           '<span class="pdxwa-cbadge-sep" aria-hidden="true">·</span>' +
+          (den
+            ? '<span class="pdxwa-cbadge-den">' + esc(den) + '</span>' +
+              '<span class="pdxwa-cbadge-sep" aria-hidden="true">·</span>'
+            : '') +
           '<span class="pdxwa-cbadge-lbl">' + esc(label) + '</span>' +
         '</button>';
     } catch (e) { return ''; }

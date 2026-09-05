@@ -370,6 +370,21 @@
   font-size: 0.72rem;
   color: rgb(148, 163, 184);
 }
+/* The clipped read. It sits directly under the inventory it qualifies, and it is
+   the one line on this letterhead that carries any warmth in it — amber ink and a
+   rule down the edge — because it is the only statement here that a reader must
+   carry down the page with them. Everything else up here resolves itself: the
+   busy line becomes integers, the integers become the record. A row cap does not,
+   so it is marked rather than blended in. No fill and no box: this qualifies the
+   figures above it and is not a warning about the issue. */
+.pdxif-clip {
+  margin: 0.4rem 0 0;
+  padding-left: 0.5rem;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: rgb(226, 213, 178);
+  border-left: 2px solid rgba(252, 211, 77, 0.4);
+}
 /* ── HOW THIS ISSUE WAS TESTED ─────────────────────────────────────────────
    Under the inventory and inside the letterhead's rule, because it is the same
    kind of statement: counts of what is on file. Ruled off at the top rather
