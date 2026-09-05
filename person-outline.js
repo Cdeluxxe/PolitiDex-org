@@ -23,6 +23,8 @@
      PDXPersonOutline.jump(key)    scroll to a section and focus its heading
      PDXPersonOutline.teardown()   remove the node and the observers
      PDXPersonOutline.items(k, p)  the resolved list, for tests
+     PDXPersonOutline.spyPlan(l)   the flat element-per-row watch list
+     PDXPersonOutline.activeAt(f)  which watch entry the reading line is in
 
    Desktop (>=1024) it is a sticky list in the left column of the person-file
    panel — inside the panel, not in the site header, because it names sections
@@ -44,6 +46,29 @@
    The one thing it does declare is which names to look for and in what order —
    and that order is the spine's, restated, not re-decided. Nothing here can
    reorder the file.
+
+   ONE JUMP TO THE TOP
+
+   The letterhead and the record brief were two rows, and on every member file
+   they were two names for one screen: the brief renders immediately under the
+   photo and the office, so "Letterhead" and "Formal record" scrolled a reader
+   to positions a thumb-width apart. Two rows that go to the same place are not
+   a finer-grained outline, they are a choice a reader has to make and cannot
+   win. They are now one row, "Top of file", and its destination is the top of
+   the identity stage — the first paint of the file, photo and office, with the
+   brief the next thing under it.
+
+   It resolves to the STAGE, never to the hub inside it. The pill rail carries
+   figures and the share controls carry actions; both are chrome that happens
+   to live in the identity stage, and a jump that parked a reader on either
+   would answer "take me to the top of this file" with a toolbar. The hub stays
+   in the scroll where it already is. It is not a destination, and no heading
+   inside it is ever handed focus.
+
+   The fold is conditional, not hardcoded: the brief row is dropped only when
+   the top row actually resolved. A file that somehow mounted a brief with no
+   letterhead keeps one "Formal record" row, on the brief heading, because then
+   the brief IS the top of the file and no other row reaches it.
 
    WHAT IT DELIBERATELY IS NOT
 
@@ -73,11 +98,20 @@
   // the spine's internal stage keys — and it is never sorted afterwards,
   // because the spine's order is the file's order and nothing may change it.
   var MEMBER = [
-    { key: 'identity', label: 'Letterhead',         targets: ['.pdxsp-stage-identity'] },
-    // The brief FIRST, then the strongest/both-ways block. Both are the formal
-    // record; the brief is where it is stated in a sentence, so a reader asking
-    // for the formal record lands on the sentence, not on the tree.
-    { key: 'brief',    label: 'Formal record',      targets: ['.pdxsp-stage-brief', '#pdxsec-standout'] },
+    // The one top row. `focus` names what a keyboard reader is handed on
+    // arrival: the person's name, which is the first thing in the stage — not
+    // whatever heading happens to come first in source order, and never
+    // anything inside the hub.
+    { key: 'identity', label: 'Top of file',        targets: ['.pdxsp-stage-identity'],
+      focus: '.profile-name' },
+    // `foldsInto` is the whole merge. This row is emitted ONLY when the top row
+    // did not resolve; the rest of the time it hands its element to that row's
+    // spy and takes no line of its own, because the brief is already on screen
+    // when the top of the file is. Its single candidate is the brief stage:
+    // "Formal record" as a visible row exists only as the top of a file that
+    // has no letterhead, and then it has to be the brief heading itself.
+    { key: 'brief',    label: 'Formal record',      targets: ['.pdxsp-stage-brief'],
+      foldsInto: 'identity' },
     { key: 'explore',  label: 'All issues by topic', targets: ['#pdxsec-stancetree', '.pdxsp-stage-explore'] },
     { key: 'verdict',  label: 'Word vs Action',     targets: ['#pdxsec-wordaction'] },
     // The public lane, under the name it actually ships with, and in the place
@@ -134,16 +168,53 @@
   // rendered HTML string without a browser. The DOM version below is the one
   // that ships.
   function items(kind, present) {
-    var list = specs(kind), out = [], i, j;
+    var list = specs(kind), out = [], at = {}, i, j;
     for (i = 0; i < list.length; i++) {
-      for (j = 0; j < list[i].targets.length; j++) {
-        if (present(list[i].targets[j])) {
-          out.push({ key: list[i].key, label: list[i].label, target: list[i].targets[j] });
-          break;
-        }
+      var sp = list[i], hit = '';
+      for (j = 0; j < sp.targets.length; j++) {
+        if (present(sp.targets[j])) { hit = sp.targets[j]; break; }
       }
+      if (!hit) continue;
+      // A folded row whose parent is on the list is not a row. It still gets
+      // watched, under the parent's key, so the parent stays lit while the
+      // folded stage is the one on screen.
+      if (sp.foldsInto && at[sp.foldsInto]) {
+        out[at[sp.foldsInto] - 1].spy.push(hit);
+        continue;
+      }
+      at[sp.key] = out.push({
+        key: sp.key,
+        label: sp.label,
+        target: hit,
+        focus: sp.focus || '',
+        spy: [hit]
+      });
     }
     return out;
+  }
+
+  // The watch list, flattened: one entry per element, in the order the reader
+  // meets them, each tagged with the ROW it lights. Rows come out of items() in
+  // spine order and a folded stage always follows its parent, so this list is
+  // in document order and "the last entry the reading line has passed" is the
+  // section a reader is in. Pure, so the spy's decision is testable without a
+  // browser — arm() only turns targets into elements.
+  function spyPlan(list) {
+    var out = [], i, j;
+    for (i = 0; i < list.length; i++) {
+      var tl = (list[i].spy && list[i].spy.length) ? list[i].spy : [list[i].target];
+      for (j = 0; j < tl.length; j++) out.push({ key: list[i].key, target: tl[j] });
+    }
+    return out;
+  }
+
+  // `flags[k]` is "entry k has crossed the reading line". The last one that has
+  // is where the reader is; index 0 is the answer before anything has, which is
+  // the top of the file.
+  function activeAt(flags, n) {
+    var idx = 0;
+    for (var k = 0; k < n; k++) if (flags[k]) idx = k;
+    return idx;
   }
 
   // A destination inside a closed deferred drawer has no element yet but is
@@ -186,19 +257,43 @@
     return el.id;
   }
 
+  // The hub: the sticky pill rail with its figures and the share controls. The
+  // rail really does sit inside the identity stage, between the letterhead and
+  // the banners, and the share sheet is an overlay that can be over it — both
+  // are chrome rather than sections of the record, so neither is an outline
+  // destination and no heading inside either is handed focus. They are
+  // otherwise untouched: the rail keeps its place in the scroll and keeps its
+  // own scroll-spy. The outline simply does not point at it.
+  var HUB = '#pdx-profile-nav,.pdx-pnav,.pdx-share-overlay,.pdx-share-sheet';
+
+  function inHub(el) {
+    try { return !!(el && el.closest && el.closest(HUB)); } catch (e) { return false; }
+  }
+
   // The heading, not the container — a jump that leaves focus on the panel
   // hands a keyboard or screen-reader user a scroll position and no place in
   // the document. tabindex="-1" so it is focusable without joining tab order.
-  function headingOf(el) {
+  // `prefer` lets a row name its own landmark: the top row wants the person's
+  // name, which is what a reader sees first, rather than the first heading in
+  // source order.
+  function headingOf(el, prefer) {
     if (!el) return null;
     if (/^H[1-6]$/.test(el.tagName || '')) return el;
     var scope = el;
     if (el.classList && el.classList.contains('pdx-nav-anchor')) {
       scope = el.nextElementSibling || el.parentElement || el;
     }
-    var h = null;
-    try { h = scope.querySelector('h1,h2,h3,h4,[role="heading"]'); } catch (e) {}
-    return h || (scope.nodeType === 1 ? scope : null);
+    if (prefer) {
+      try {
+        var pf = scope.querySelector(prefer);
+        if (pf && !inHub(pf)) return pf;
+      } catch (e) {}
+    }
+    try {
+      var hs = scope.querySelectorAll('h1,h2,h3,h4,[role="heading"]');
+      for (var i = 0; i < hs.length; i++) if (!inHub(hs[i])) return hs[i];
+    } catch (e) {}
+    return scope.nodeType === 1 ? scope : null;
   }
 
   function jump(key, btn) {
@@ -214,7 +309,7 @@
       if (el) { try { el.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (e) {} }
     }
     if (btn) paintActive(key);
-    var h = headingOf(document.getElementById(id));
+    var h = headingOf(document.getElementById(id), item.focus);
     if (h) {
       try {
         if (!h.hasAttribute('tabindex')) h.setAttribute('tabindex', '-1');
@@ -290,10 +385,13 @@
     teardownObs();
     var body = document.getElementById('modal-body');
     if (!body || !state.nav) return;
-    var spy = [], i;
-    for (i = 0; i < state.items.length; i++) {
-      var el = elFor(state.items[i].target);
-      if (el) spy.push({ key: state.items[i].key, el: el });
+    var plan = spyPlan(state.items), spy = [], i, j;
+    for (i = 0; i < plan.length; i++) {
+      var el = elFor(plan[i].target);
+      if (!el) continue;
+      var dup = false;
+      for (j = 0; j < spy.length; j++) if (spy[j].el === el) { dup = true; break; }
+      if (!dup) spy.push({ key: plan[i].key, el: el });
     }
     if (!spy.length) return;
     var nav = document.getElementById('pdx-profile-nav');
@@ -301,16 +399,14 @@
     var above = [];
 
     function paint() {
-      var idx = 0;
-      for (var k = 0; k < spy.length; k++) if (above[k]) idx = k;
-      paintActive(spy[idx].key);
+      paintActive(spy[activeAt(above, spy.length)].key);
     }
 
     if (typeof window.IntersectionObserver !== 'function') { paint(); return; }
     var obs = new IntersectionObserver(function (entries) {
       for (var e = 0; e < entries.length; e++) {
         var en = entries[e], k = -1;
-        for (var j = 0; j < spy.length; j++) if (spy[j].el === en.target) { k = j; break; }
+        for (var q = 0; q < spy.length; q++) if (spy[q].el === en.target) { k = q; break; }
         if (k === -1) continue;
         var ref = en.rootBounds ? en.rootBounds.top : null;
         if (ref === null) { above[k] = !en.isIntersecting; continue; }
@@ -421,7 +517,10 @@
     for (i = 0; same && i < list.length; i++) {
       if (list[i].key !== state.items[i].key || list[i].target !== state.items[i].target) same = false;
     }
-    if (same) { place(); arm(); return; }
+    // Same rows, but a folded stage may have mounted since — the row list is
+    // identical and the watch list is not, so the resolved list is adopted
+    // before re-arming rather than after.
+    if (same) { state.items = list; place(); arm(); return; }
     if (list.length < MIN_ITEMS) { teardown(); return; }
     var current = state.nav.querySelector('.pdxol-item.is-current');
     var keep = current ? current.getAttribute('data-pdxol') : '';
@@ -444,6 +543,8 @@
     teardown: teardown,
     items: items,
     specs: specs,
+    spyPlan: spyPlan,
+    activeAt: activeAt,
     kindOf: kindOf,
     MIN_ITEMS: MIN_ITEMS
   };

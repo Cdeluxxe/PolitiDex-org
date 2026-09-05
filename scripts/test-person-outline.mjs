@@ -9,7 +9,7 @@
 // sections got named: one control, two skins — a sticky column in the panel at
 // 1024 and up, a wrapping chip row under the letterhead below that.
 //
-// Five properties carry that change, and every one of them fails quietly:
+// Six properties carry that change, and every one of them fails quietly:
 //
 //   1. THE ORDER IS THE SPINE'S, RESTATED. The outline's rows are a subsequence
 //      of profile-spine.js's STAGES, in STAGES order. If they were not, the
@@ -31,7 +31,16 @@
 //      percentage, no party, no Direction Match, and nothing on a judge that a
 //      retention seat cannot answer — no Word vs Action row, no money row.
 //
-//   5. IT DOES NOT TAKE ANYTHING AWAY. The gutter scrollbar rules are untouched,
+//   5. THE TOP OF THE FILE IS ONE ROW, AND IT IS NOT THE HUB. The letterhead and
+//      the record brief are one screen on a member file — the brief renders
+//      immediately under the photo — so they are one row, "Top of file", and it
+//      resolves to the identity stage rather than to the pill rail or the share
+//      controls that live inside it. It stays lit while either the letterhead or
+//      the brief is the section on screen and releases the moment the topic tree
+//      is. The brief keeps a row of its own in exactly one case: a file with a
+//      brief and no letterhead, where the brief IS the top.
+//
+//   6. IT DOES NOT TAKE ANYTHING AWAY. The gutter scrollbar rules are untouched,
 //      the phone skin never leaves the flow (position:fixed over #modal-footer
 //      would sit on the Add-to-team button), and formal tiers and Direction Match
 //      are byte-identical to HEAD.
@@ -150,6 +159,15 @@ section("1 · the order is the spine's, restated — not a second table of conte
   ok(new Set(MEMBER_SPECS.map((s) => s.key)).size === MEMBER_SPECS.length,
     "a member stage is listed twice");
 
+  // The merged top row still names a stage — the identity stage, which is where
+  // it goes. A label is free to differ from the spine's internal key; a KEY is
+  // not, because the key is what proves the row sits in the file's own order.
+  const top = MEMBER_SPECS[0];
+  eq(top.key, "identity", "the top row no longer names the identity stage");
+  eq(top.label, "Top of file", "the top row was renamed");
+  no(MEMBER_SPECS.map((x) => x.label).join(" | "), "Letterhead",
+    "\"Letterhead\" came back as a row of its own — it is the same screen as the brief");
+
   // And the file does not keep its own copy of the order to drift from.
   no(OL_SRC, "PDXProfileSpine.STAGES",
     "person-outline.js reads STAGES at runtime — it probes the DOM instead, on purpose, so a stage that did not mount has no row");
@@ -208,10 +226,34 @@ section("2 · no dead jumps — every destination is one the app actually emits"
     // (a) every row resolves to something present
     for (const r of rows) if (!present.has(r.target)) bad.push(`mask ${mask}: ${r.key} → absent ${r.target}`);
     // (b) a section with a present candidate has a row, and one without has none
+    //     — unless it folds into a row that IS listed, in which case it has no
+    //     line of its own and is watched under that row instead. Both halves are
+    //     checked: a folded stage must lose its row AND keep its watch entry,
+    //     because a fold that dropped the watch would leave the merged row dark
+    //     while the folded stage was the thing on screen.
     for (const s of MEMBER_SPECS) {
       const reachable = s.targets.some((t) => present.has(t));
       const listed = rows.some((r) => r.key === s.key);
-      if (reachable !== listed) bad.push(`mask ${mask}: ${s.key} reachable=${reachable} listed=${listed}`);
+      const parent = s.foldsInto ? rows.find((r) => r.key === s.foldsInto) : null;
+      const want = reachable && !parent;
+      if (want !== listed) bad.push(`mask ${mask}: ${s.key} reachable=${reachable} listed=${listed} folded=${!!parent}`);
+      if (reachable && parent) {
+        const hit = s.targets.find((t) => present.has(t));
+        if (parent.spy.indexOf(hit) < 0) {
+          bad.push(`mask ${mask}: ${s.key} folded into ${s.foldsInto} but ${hit} is not watched`);
+        }
+      }
+    }
+    // (b2) never two rows for the top of the file
+    if (rows.filter((r) => r.key === "identity" || r.key === "brief").length > 1) {
+      bad.push(`mask ${mask}: the letterhead and the brief are two rows again`);
+    }
+    // (b3) every watch entry belongs to a row that exists, and points somewhere
+    //      present — a watch on an absent element would pin the spy to a stage
+    //      the reader can never be in.
+    for (const w of OL.spyPlan(rows)) {
+      if (!rows.some((r) => r.key === w.key)) bad.push(`mask ${mask}: watch ${w.target} has no row`);
+      if (!present.has(w.target)) bad.push(`mask ${mask}: watch ${w.target} is not in the DOM`);
     }
     // (c) order never changes
     const order = rows.map((r) => stageOrder.indexOf(r.key));
@@ -258,9 +300,15 @@ section("3 · the mount list equals the rendered stages");
   for (const pid of [MALOY, LEE, THIN]) {
     const present = emitted(pid);
     const rows = OL.items("member", (c) => present.has(c));
-    // Exactly the sections that rendered, and nothing else.
-    const expected = MEMBER_SPECS.filter((s) => s.targets.some((t) => present.has(t))).map((s) => s.label);
-    eq(rows.map((r) => r.label).join(" / "), expected.join(" / "),
+    // Exactly the sections that rendered, and nothing else — with the top of the
+    // file counted once, the way a reader meets it.
+    const expected = [];
+    for (const sp of MEMBER_SPECS) {
+      if (!sp.targets.some((t) => present.has(t))) continue;
+      if (sp.foldsInto && expected.some((e) => e.key === sp.foldsInto)) continue;
+      expected.push({ key: sp.key, label: sp.label });
+    }
+    eq(rows.map((r) => r.label).join(" / "), expected.map((e) => e.label).join(" / "),
       `${pid}: the outline does not name exactly the sections that rendered`);
     for (const r of rows) ok(present.has(r.target), `${pid}: row "${r.label}" points at ${r.target}, which did not render`);
     console.log(`      ${pid}: ${rows.map((r) => r.label).join(" · ")}`);
@@ -272,9 +320,16 @@ section("3 · the mount list equals the rendered stages");
   const maloy = emitted(MALOY);
   ok(maloy.has(".pdxsp-stage-brief"), `${MALOY}: the brief did not render — section 3 is testing the wrong file`);
   ok(maloy.has("#pdxsec-stancetree"), `${MALOY}: the topic tree did not render — section 3 is testing the wrong file`);
-  const maloyRows = OL.items("member", (c) => maloy.has(c)).map((r) => r.label);
-  has(maloyRows.join("|"), "Formal record", `${MALOY}: no formal-record row`);
+  const maloyList = OL.items("member", (c) => maloy.has(c));
+  const maloyRows = maloyList.map((r) => r.label);
+  has(maloyRows.join("|"), "Top of file", `${MALOY}: no top-of-file row`);
+  no(maloyRows.join("|"), "Formal record",
+    `${MALOY}: the brief still gets a row of its own, and it lands a thumb-width from the letterhead row`);
   has(maloyRows.join("|"), "All issues by topic", `${MALOY}: no topic-tree row`);
+  eq(maloyList[0].target, ".pdxsp-stage-identity",
+    `${MALOY}: the first row does not go to the top of the file`);
+  eq(maloyList[0].spy.join(" "), ".pdxsp-stage-identity .pdxsp-stage-brief",
+    `${MALOY}: the top row does not watch both the letterhead and the brief`);
 
   // Lee is the deep file: strictly more rows than the thin one.
   const deep = OL.items("member", (c) => emitted(LEE).has(c)).length;
@@ -303,29 +358,111 @@ section("3 · the mount list equals the rendered stages");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-section("4 · formal record reaches the brief, not the tree");
+section("4 · one jump to the top — the stage, not the hub, and one spy for both");
 // ═══════════════════════════════════════════════════════════════════════════════
 {
-  const brief = MEMBER_SPECS.find((s) => s.key === "brief");
-  must(brief, "the formal-record row is gone");
-  eq(brief.label, "Formal record", "the formal-record row was renamed");
-  eq(brief.targets[0], ".pdxsp-stage-brief",
-    "the formal-record row does not aim at the brief first — the brief is where the formal record is stated in a sentence");
-  no(brief.targets.join(" "), "pdxsec-stancetree",
-    "the formal-record row can resolve to the topic tree");
+  const top = MEMBER_SPECS.find((x) => x.key === "identity");
+  const brief = MEMBER_SPECS.find((x) => x.key === "brief");
+  must(top && brief, "the top row or the brief spec is gone");
 
-  // With both the brief and the strongest-patterns strip in the DOM, the brief wins.
-  const both = new Set([".pdxsp-stage-brief", "#pdxsec-standout"]);
-  eq(OL.items("member", (c) => both.has(c))[0].target, ".pdxsp-stage-brief",
-    "with both mounted the formal-record row went to the strongest-patterns strip instead of the brief");
-  // With only the strip, it still goes somewhere rather than disappearing.
-  const stripOnly = new Set(["#pdxsec-standout"]);
-  eq(OL.items("member", (c) => stripOnly.has(c))[0].target, "#pdxsec-standout",
-    "with the brief absent the formal-record row lost its fallback");
+  // ── the merge ────────────────────────────────────────────────────────────
+  // The destination is the identity STAGE: the first paint of the file, photo
+  // and office, with the brief the next thing under it. Not an id inside it,
+  // because every id inside it belongs to one part of that screen.
+  eq(top.targets.join(" "), ".pdxsp-stage-identity",
+    "the top row aims at something other than the identity stage container");
+  eq(brief.foldsInto, "identity",
+    "the brief no longer folds into the top row — a member file would show two rows for one screen");
+
+  // With both mounted: one row, labelled for the top, watching both.
+  const both = new Set([".pdxsp-stage-identity", ".pdxsp-stage-brief"]);
+  const merged = OL.items("member", (c) => both.has(c));
+  eq(merged.length, 1, "the letterhead and the brief still resolve to two rows");
+  eq(merged[0].label, "Top of file", "the merged row is not named for the top of the file");
+  eq(merged[0].target, ".pdxsp-stage-identity", "the merged row does not go to the letterhead");
+  eq(merged[0].spy.join(" "), ".pdxsp-stage-identity .pdxsp-stage-brief",
+    "the merged row does not watch the brief as well as the letterhead");
+
+  // A brief with no letterhead keeps ONE row, named for what it is, on the brief.
+  const briefOnly = OL.items("member", (c) => c === ".pdxsp-stage-brief");
+  eq(briefOnly.length, 1, "a file with a brief and no letterhead lost its top row entirely");
+  eq(briefOnly[0].label, "Formal record", "the brief-only fallback is not named for the formal record");
+  eq(briefOnly[0].target, ".pdxsp-stage-brief", "the brief-only fallback does not land on the brief");
+  // …and never on the tree, in any arrangement.
+  no(brief.targets.join(" "), "pdxsec-stancetree", "the formal-record row can resolve to the topic tree");
+  const letterOnly = OL.items("member", (c) => c === ".pdxsp-stage-identity");
+  eq(letterOnly.map((r) => r.label).join(" "), "Top of file",
+    "a letterhead with no brief does not produce the single top row");
+
+  // ── it is not the hub ────────────────────────────────────────────────────
+  // The pill rail sits INSIDE the identity stage, between the letterhead and the
+  // banners, and it carries figures. It stays exactly where it is — the outline
+  // just never points at it, and never hands it focus.
+  const HUBSEL = ["#pdx-profile-nav", ".pdx-pnav", ".pdx-share-overlay", "pdxsec-match", "pdx-pnav-pill"];
+  const everyTarget = [...MEMBER_SPECS, ...JUDGE_SPECS].flatMap((x) => x.targets);
+  for (const h of HUBSEL) {
+    ok(!everyTarget.some((t) => t.indexOf(h.replace(/^[#.]/, "")) >= 0),
+      `an outline row resolves into the hub (${h}) — a jump to the top of the file would park a reader on a toolbar`);
+  }
+  has(OL_SRC, "#pdx-profile-nav,.pdx-pnav",
+    "the outline no longer knows which nodes are hub chrome, so a heading inside the rail can take focus");
+  has(OL_SRC, "function inHub(", "the hub exclusion is gone from person-outline.js");
+  has(OL_SRC, "if (!inHub(hs[i])) return hs[i];",
+    "headingOf() focuses the first heading it finds again, hub or not");
+  // The reader lands on the name, which is what they see first — named by the
+  // row rather than left to source order.
+  eq(top.focus, ".profile-name", "the top row no longer names the heading it hands focus");
+  has(R("profiles-full.js"), 'h2 class="profile-name"',
+    "the letterhead no longer carries .profile-name, so the top row focuses nothing");
+  has(OL_SRC, "headingOf(document.getElementById(id), item.focus)",
+    "the jump stopped passing the row's preferred heading");
 
   // The topic tree is its own row, and it is the tree's own id.
-  const tree = MEMBER_SPECS.find((s) => s.key === "explore");
+  const tree = MEMBER_SPECS.find((x) => x.key === "explore");
   eq(tree.targets[0], "#pdxsec-stancetree", "the topic-tree row does not aim at the tree");
+
+  // ── the spy ──────────────────────────────────────────────────────────────
+  // One entry per watched element, in reading order, each tagged with the row it
+  // lights. The decision is pure — "the last entry the reading line has passed" —
+  // so it is driven here directly instead of through a browser.
+  const maloyish = OL.items("member", (c) =>
+    [".pdxsp-stage-identity", ".pdxsp-stage-brief", "#pdxsec-stancetree", "#pdxsec-evidence"].indexOf(c) >= 0);
+  const plan = OL.spyPlan(maloyish);
+  eq(plan.map((w) => w.key).join(" "), "identity identity explore receipts",
+    "the watch list is not one entry per stage, tagged with the row it lights");
+  const at = (n) => {
+    const flags = [];
+    for (let i = 0; i < plan.length; i++) flags[i] = i < n;
+    return plan[OL.activeAt(flags, plan.length)].key;
+  };
+  eq(at(0), "identity", "before anything has scrolled past, the top row is not the active one");
+  eq(at(1), "identity", "with the letterhead on screen the top row is not active");
+  eq(at(2), "identity", "with the BRIEF on screen the top row went dark — it is one row for both");
+  eq(at(3), "explore", "the top row stayed active once the topic tree was the heading on screen");
+  eq(at(4), "receipts", "the spy does not follow the reader past the tree");
+  // The watch order is the file's order: a folded stage is watched after its
+  // parent, never before, or "the last one passed" would name the wrong row.
+  const stageOrder = W.PDXProfileSpine.STAGES.map((x) => x.key);
+  ok(stageOrder.indexOf("brief") > stageOrder.indexOf("identity"),
+    "the spine no longer puts the brief under the letterhead, so this merge is describing a file that does not exist");
+  ok(stageOrder.indexOf("explore") > stageOrder.indexOf("brief"),
+    "the topic tree no longer comes after the brief, so releasing the top row at the tree is the wrong release point");
+  has(OL_SRC, "spyPlan(state.items)", "arm() no longer builds its watch list from the resolved rows");
+  has(OL_SRC, "activeAt(above, spy.length)", "the spy no longer uses the shared active-entry rule");
+
+  // A judge file was not touched by the merge: no letterhead row was ever on it,
+  // and its formal row is its own section, not a fold of anything.
+  eq(JUDGE_SPECS.filter((x) => x.foldsInto).length, 0, "a judicial row started folding into another");
+  eq(JUDGE_SPECS.map((x) => x.key).join(" "), "retention jpec seat formal history court",
+    "the judicial rows changed — the merge was a member-file change only");
+  const jHead = HEAD("person-outline.js");
+  if (jHead) {
+    const cut = (t) => {
+      const i = t.indexOf("var JUDGE = ["), j = t.indexOf("];", i);
+      return i < 0 ? "" : t.slice(i, j);
+    };
+    eq(cut(OL_SRC), cut(jHead), "the JUDGE spec list is not byte-identical to HEAD");
+  }
 
   // The jump goes through the shared chrome-aware scroll, so a destination inside
   // a closed drawer is mounted and every lid above it opened before the scroll —

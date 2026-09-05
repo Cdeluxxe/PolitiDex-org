@@ -880,6 +880,51 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v132 - THE OUTLINE OFFERED TWO WAYS TO GO TO THE SAME PLACE. The file outline
+// shipped with "Letterhead" and "Formal record" as separate rows, which is how
+// the spine names those two stages - and on a member file they are one screen.
+// The record brief renders immediately under the photo and the office, so the
+// two rows scrolled a reader to positions a thumb-width apart, and a reader who
+// wanted the top of the file had to guess which of two rows meant it. Two rows
+// that go to the same place are not a finer-grained outline; they are a choice
+// nobody can win.
+//
+// They are now ONE row, "Top of file", and it goes to the identity stage: the
+// first paint of the file, the photo and the office, with the brief the next
+// thing under it. On the phone chip row it is likewise one chip, because the
+// chip row and the desktop rail have always been the same node in two skins and
+// there is no way for them to disagree.
+//
+// It resolves to the STAGE and never to the hub inside it. The sticky pill rail
+// sits between the letterhead and the status banners and carries figures; the
+// share sheet can be over it. Both are chrome, and a jump that answered "take me
+// to the top of this file" by parking a reader on a toolbar would be a worse
+// answer than no row at all. The hub keeps its place in the scroll and keeps its
+// own scroll-spy - the outline simply does not point at it, and headingOf() now
+// skips any heading inside it rather than handing it focus. The top row names
+// the heading it wants instead of taking the first one in source order: the
+// person's name, which is what a reader sees first.
+//
+// The merged row is lit while EITHER the letterhead or the brief is the section
+// on screen, and it releases the moment "All issues by topic" is the heading at
+// the reading line. That took the spy from one watched element per row to one
+// per stage, each tagged with the row it lights, so a folded stage keeps its
+// watch even though it lost its line. The rule that picks the active row is
+// unchanged and is still read off rects the IntersectionObserver already
+// measured; nothing sweeps layout.
+//
+// The fold is conditional, not hardcoded. "Formal record" is dropped only when
+// the top row actually resolved. A file that somehow mounted a brief with no
+// letterhead keeps one "Formal record" row, on the brief heading, because then
+// the brief IS the top of the file and no other row reaches it. Judge files are
+// untouched: the judicial rows are byte-identical, they never had a letterhead
+// row, and their formal section is a section rather than a fold.
+//
+// person-outline.js, scripts/test-person-outline.mjs. No section was added or
+// removed, no score, percentage, party or Direction Match reached the outline
+// copy, no stage order changed, the gutter scrollbar is untouched and formal
+// tiers and Direction Match read byte-identically.
+//
 // v131 - THE FILE GOT LONG AND NOTHING NAMED ITS PARTS. A person file now runs
 // letterhead, brief, strongest patterns, the whole topic tree, Word vs Action,
 // money, the public lane and the evidence locker, and the only thing that told a
@@ -2154,7 +2199,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v131';
+const CACHE_VERSION = 'v132';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

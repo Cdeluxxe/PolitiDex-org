@@ -1403,6 +1403,28 @@ const swNote = swWaveNote();
     "scripts/vr-gen-federal-wave-f11-migration.mjs",
     "scripts/test-vr-federal-wave-f11.mjs",
     "netlify/database/migrations/20261028000000_vr_federal_wave_f11.sql",
+    // THE PERSON FILE'S SECTION OUTLINE, on those same later-wave terms. The
+    // outline shipped at CACHE_VERSION v131 as two new files, so it was untracked
+    // when this guard last ran and nothing here had to name it; it is tracked now,
+    // and v132 edits it. What it does is name the sections of ONE open person file
+    // and scroll to them — a sticky column beside the file on a wide screen, the
+    // same list as a chip row under the letterhead on a phone. v132 merges the
+    // "Letterhead" and "Formal record" rows into one "Top of file" row, because on
+    // a member file the record brief renders immediately under the photo and the
+    // two rows went to the same screen. The reason a wave like this one is the file
+    // that has to declare it: R1 and R2 put 1,120 member files behind these
+    // sections, and the guarantee that matters here is that none of them moved. The
+    // outline writes no roll, no mapping, no key, no floor, no admission and no
+    // score; it derives its rows by probing the DOM the profile spine already
+    // assembled, so a section that did not mount has no row and nothing it does can
+    // reorder the file. Its copy is section names only — no figure, no percentage,
+    // no party, no Direction Match — and scripts/test-person-outline.mjs proves as a
+    // twin boot that every formal-pattern tier and every Direction Match read across
+    // 537 member files and all 126 judge files is byte-identical with it and without
+    // it. sw.js and index.html are declared above already.
+    "person-outline.js",
+    "person-outline.css",
+    "scripts/test-person-outline.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
