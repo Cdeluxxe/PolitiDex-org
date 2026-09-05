@@ -72,6 +72,7 @@ import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { WA_SEAMS, carveSeams } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -311,7 +312,32 @@ const NO_POLE = (() => {
     catch { return null; }
   };
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== nowSrc(f); });
-  eq(touched.length, 0, `F11 changed a booted engine file (${touched.join(", ")}) — a coverage wave writes mapping rows and no engine`);
+
+  // THE WAIVER THE NOTE ABOVE ASKS FOR, WRITTEN DOWN, AND NARROWED TO ONE SPAN.
+  // word-action.js moved after this wave landed, for a reason that has nothing to
+  // do with coverage rows: the compact Word vs Action chip in the identity block
+  // printed "100% · Backs it up" beside a person's name with no denominator, and
+  // 102 of the 187 chips this corpus paints stand on exactly MIN_TESTED_ITEMS
+  // tested items. A percentage with nothing to size it, in that position, reads as
+  // a grade. The chip now carries the ⚖️ section's own fraction.
+  //
+  // A bare waiver would say the file no longer matters to this wave, which is
+  // false — Direction Match, the tier weights, every floor and the whole formal
+  // read are in it, and the twin boot below compares every read this wave admitted
+  // rows for. So the waiver is granted at the same seam scripts/test-vr-federal-
+  // wave-f5.mjs and its siblings grant it at: the chip's own span is carved out of
+  // both trees and everything else in eighty-odd kilobytes is compared byte for
+  // byte. Anything outside the chip fails here exactly as it did before.
+  const WAIVED = ["word-action.js"];
+  eq(touched.filter((f) => !WAIVED.includes(f)).length, 0,
+    `F11 changed a booted engine file (${touched.join(", ")}) — a coverage wave writes mapping rows and no engine`);
+  if (touched.includes("word-action.js")) {
+    const wa = carveSeams(headSrc("word-action.js"), WA_SEAMS, "HEAD", "word-action.js", ok);
+    const wb = carveSeams(nowSrc("word-action.js"), WA_SEAMS, "now", "word-action.js", ok);
+    eq(wa.pinned, wb.pinned,
+      "word-action.js changed outside the identity chip and the three spans below it — the module the " +
+      "whole formal read is rendered from is not a coverage wave's to touch");
+  }
 
   // RUNBOOK RULE 47. scripts/test-vr-federal-wave-f8.mjs rewrites cmp-data.js on
   // disk for its identity walls and restores it in a finally. Every twin-boot suite

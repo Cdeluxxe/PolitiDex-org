@@ -3245,8 +3245,36 @@ section("16 · A partial census does not wear a finished heading");
     no(body, f, `the lede reads as a finished inventory ("${f}") while ${c.cold} records are still being read`);
   }
   has(body, "readable so far", "the lede does not say the count is what has come back so far");
-  has(body, `still reading <b>${c.cold}</b>`,
-    "the lede does not name how much of the record is still out");
+  // ── REVERSED IN v136: THE LEDE NO LONGER CARRIES THE COUNT ────────────────
+  // This asserted `still reading <b>${c.cold}</b>` on the lede, and it was right
+  // that the pane must name how much of the record is still out. It was wrong
+  // about where. Four sentences in this one frame carried that integer — the lede,
+  // the people-rows line, the partial note under it and the announced status line
+  // at the foot — so a cold /i/rural_ag printed "463" four times about one fact.
+  // A reader either reads a page anxious about its own fetch, or reads four
+  // figures and starts hunting for the difference between them.
+  //   The requirement is unchanged and it is now checked where it belongs: the
+  // count is named ONCE, in the sentence whose entire subject is the fetch. The
+  // lede still says a read is out; it just no longer says how many.
+  no(body, "still reading <b>",
+    "the lede is carrying the outstanding count again. It belongs to the people-rows sentence,\n" +
+    "    which is the one sentence on this pane about the fetch rather than about the issue");
+  has(body, `People rows still loading — <b>${c.cold}</b> not fetched yet`,
+    "the pane does not name how much of the record is still out. Dropping the count from the\n" +
+    "    lede was a de-duplication, not a suppression — the figure has to survive somewhere");
+  has(body, "still reading",
+    "the lede stopped saying a read is out at all");
+  // AND THE OTHER TWO COPIES ARE GONE TOO, each checked in its own wording so a
+  // revert of any one of them fails here rather than in a count that could be
+  // satisfied by a coincidence of two equal integers.
+  no(body, `, with ${c.cold} more`,
+    "the partial note is reprinting the outstanding count a third time");
+  no(body, `Reading the full record for ${c.cold}`,
+    "the announced status line is reprinting the outstanding count a fourth time — and read aloud,\n" +
+    "    a number heard four times in one region is worse than one seen four times");
+  has(body, "Reading the full record for",
+    "the announced status line is gone. It was the count inside it that was the duplicate; the\n" +
+    "    sentence is how a reader who is not watching the pane learns a read is still out");
   has(body, `<b>${c.people}</b> readable so far`,
     "the lede does not name the settled count it is entitled to name");
   has(body, "Not the count for this key",

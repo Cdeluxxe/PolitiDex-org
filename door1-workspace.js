@@ -893,6 +893,41 @@
   }
   function ledgerPending() { return _warmWait > 0; }
 
+  // ── WAS THE ROLL-CALL READ CLIPPED? ─────────────────────────────────
+  // The one honest failure of this fetch that arrives looking like a success.
+  // `pending` covers a read still on the wire and `cold` covers members not asked
+  // for yet, but a TRUNCATED batch is neither: it came back, it came back clean,
+  // and it came back short because the read hit a row cap. Every figure built from
+  // it is a real count of real rows, and every one of them is low — with nothing
+  // in the payload the pane sees to say so.
+  //   BORROWED, NOT DERIVED. The flag belongs to the module that made the request,
+  // and it is read back off that module rather than re-inferred from row counts
+  // here, because a count cannot tell a clipped read from a quiet key: an issue
+  // with four roll calls and an issue clipped at four look identical from this
+  // side. Guarded and optional so an old cached issue-view, or none at all, reads
+  // false and the pane simply says nothing extra.
+  function ledgerTrunc() {
+    var V = window.PDXIssueView;
+    try {
+      if (V && fn(V.votesTruncated)) return !!V.votesTruncated();
+    } catch (e) { /* fall through */ }
+    return false;
+  }
+  // …and its sentence, which is the ranking's own. See the note over TRUNC_NOTE in
+  // issue-view.js: one condition, one wording, so the desk and the ranking cannot
+  // end up describing the same cap in two ways a reader has to reconcile. The
+  // fallback is the same sentence, for the case where the export is missing.
+  function truncNote() {
+    var V = window.PDXIssueView;
+    try {
+      if (V && fn(V.truncNote)) {
+        var t = V.truncNote();
+        if (t) return String(t);
+      }
+    } catch (e) { /* fall through */ }
+    return 'The vote read hit its row limit, so some roll calls are not counted here yet.';
+  }
+
   // ── ONE ACT'S DIRECTION ON THIS KEY ───────────────────────────────────────
   // For the measure rows only, and through the engine's own function — the same
   // _voteEffectiveSupport the direction index uses, including its procedural
@@ -1644,7 +1679,11 @@
       // tested. Neither is consulted by a band, an order or a sentence.
       slice: sliceCounts(rows, bands),
       proc: ledgerProcess(rows, ms, key),
-      pending: ledgerPending()
+      pending: ledgerPending(),
+      // A read that came back SHORT rather than late. Carried beside `pending` and
+      // `cold` because it is the third way this pane's figures can be incomplete,
+      // and the only one of the three a reader could not otherwise tell.
+      trunc: ledgerTrunc()
     };
   }
 
@@ -1695,21 +1734,82 @@
   // `pending` are both 0 the settled wording returns unhedged — including on a
   // key that genuinely holds nobody, or genuinely holds one band. An empty file
   // after a finished read is a finding, and findings are printed straight.
+  // ── A MEASURE ALREADY ON THE PAGE OUTRANKS AN ABSENCE ───────────────
+  // THE DEFECT THIS OWNS, AND IT WAS LIVE. /i/rural_ag painted "Nothing readable
+  // yet · still reading 463" at the top of a page whose own measure list, two
+  // inches below and in the SAME frame, printed H.R. 7567 under PRIMARY. The
+  // headline reported an emptiness the page itself disproved, because the two
+  // halves of this pane are fed by two different reads: the measure list comes off
+  // the measure index the moment it is on the document, and the people rows come
+  // off a per-member record read that takes hundreds of requests to settle. A
+  // count of PEOPLE ROWS STILL IN FLIGHT is not a census of the key, and it may
+  // not be spelled as one.
+  //   THE RULE IS ONE LINE. With at least one mapped measure on file the headline
+  // leads with THAT — the integer ledgerMeasures() already built and the cards
+  // below already print — and never with the word for nothing. With no measure on
+  // file either, the headline says it is reading and claims nothing at all: the
+  // key is not called empty by a read that has not come back.
+  //   NOTHING HERE COUNTS ANYTHING. `people`, `cold` and `measures` all arrive on
+  // the ledger; this chooses which of them the sentence is about.
+  function censusLeadHtml(led) {
+    var n = led.people, m = (led.measures || []).length;
+    if (n) return '<b>' + n + '</b> readable so far';
+    if (m) {
+      return '<b>' + m + '</b> measure' + (m === 1 ? '' : 's') +
+        ' on file map' + (m === 1 ? 's' : '') + ' here';
+    }
+    return 'Still reading the record';
+  }
+
+  // ── PENDING ROWS ARE A FACT ABOUT THE READ ──────────────────────────
+  // One sentence, one wording, and it is about the REQUEST: N people rows have not
+  // been fetched, so nothing below is a finding about the issue yet. It replaces
+  // the old "Nothing readable yet" reading of the same integer, which put the
+  // subject of the sentence on the key instead of on the fetch.
+  //   THIS IS NOW THE ONLY SENTENCE ON THE PANE THAT CARRIES THAT INTEGER, and
+  // the defect that buys is one this app was shipping. A cold /i/rural_ag printed
+  // the same outstanding count four times in a single frame: "· still reading
+  // 463" on the headline, "463 not fetched yet" here, ", with 463 more records
+  // still being read" in the partial note directly under it, and "Reading the full
+  // record for 463 more people" in the status line at the foot. Four integers, one
+  // fact. A reader who notices them is either reading a page that is anxious about
+  // its own fetch, or — worse — reading them as four different figures and
+  // hunting for the difference between them. Repetition is also how a number
+  // becomes the subject of a page: 463 was the loudest thing on a file about farm
+  // policy, louder than the farm bill listed under it.
+  //   So the count is stated HERE, once, in the sentence whose entire subject is
+  // the fetch. The other three still say a read is out — the honesty they were
+  // added for is not what was wrong with them — they simply stop re-printing the
+  // figure. Each of those wordings already carried a countless branch for the case
+  // where `cold` is 0 and a batch is merely in flight; this pass makes that branch
+  // the only branch, so not one word of new copy was written for any of them.
+  function pendingRowsHtml(led) {
+    var c = led.cold;
+    return '<p class="d1-led-pend">People rows still loading — ' +
+      (c ? '<b>' + c + '</b> not fetched yet' : 'the batch has not come back yet') +
+      '. That is a fact about this read, not a finding about this issue.</p>';
+  }
+
   function censusHeadHtml(led) {
     if (!ledgerBusy(led)) {
       return '<p class="d1-led-n"><b>' + led.people + '</b> ' +
         (led.people === 1 ? 'person has' : 'people have') +
         ' a readable formal row on <b>' + esc(led.label) + '</b>.</p>';
     }
-    var n = led.people, c = led.cold;
-    return '<p class="d1-led-n is-partial">' +
-        (n ? '<b>' + n + '</b> readable so far' : 'Nothing readable yet') +
-        (c ? ' · still reading <b>' + c + '</b>' : ' · still reading') +
+    var n = led.people;
+    // NEITHER OF THESE TWO SENTENCES CARRIES THE COUNT. The headline says a read
+    // is out; the note says the figures under it are not the key's count. Both are
+    // the shipped countless branch, word for word. The count of what is out is
+    // pendingRowsHtml's, because that is the one sentence whose subject is the
+    // fetch — and it sits between these two, so a reader loses nothing.
+    return '<p class="d1-led-n is-partial">' + censusLeadHtml(led) +
+        ' · still reading' +
         ' on <b>' + esc(led.label) + '</b>.</p>' +
+      pendingRowsHtml(led) +
       '<p class="d1-led-part">Not the count for this key. It is what has come back so far' +
-        (c ? ', with ' + c + ' more ' + (c === 1 ? 'record' : 'records') + ' still being read'
-           : '') + ' — every figure and every band below is a read of ' +
-        (n === 1 ? 'that one row' : n ? 'those ' + n + ' rows' : 'the rows back so far') +
+        ' — every figure and every band below is a read of ' +
+        (n === 1 ? 'that one row' : n ? 'those ' + n + ' rows' :
+          'the measures on file and of the rows back so far') +
         ' and of nothing else.</p>';
   }
 
@@ -1755,15 +1855,31 @@
       // The measure line is a read of the rows above it, so it is partial for
       // exactly as long as they are, and says which of the two it is.
       '<p class="d1-led-m">' + (busy
-        ? (m ? '<b>' + m + '</b> measure' + (m === 1 ? '' : 's') +
-            ' on file map to the rows back so far. The list grows with the read.'
+        ? (m ? '<b>' + m + '</b> measure' + (m === 1 ? ' on file maps' : 's on file map') +
+            ' to this key already — off the measure index, not off anybody\u2019s row. ' +
+            'The list can still grow as the people rows land.'
           : 'No measure on file has come back for this key yet.')
         : (m ? '<b>' + m + '</b> measure' + (m === 1 ? '' : 's') +
             ' on file map here.' : 'No measure on file is mapped to this key yet.')) + '</p>' +
+      // THE STATUS LINE, MINUS THE FOURTH COPY. This paragraph exists to be
+      // ANNOUNCED: role="status" is how a reader who is not looking at the pane
+      // learns a read is still out, and that job needs no integer. Hearing the
+      // same number four times in one region is the same defect as seeing it four
+      // times, and read aloud it is worse.
       (led.cold
-        ? '<p class="d1-claim-busy" role="status">Reading the full record for ' + led.cold +
-          ' more ' + (led.cold === 1 ? 'person' : 'people') + ' on this key…</p>'
+        ? '<p class="d1-claim-busy" role="status">Reading the full record for the ' +
+          'people on this key who are still out…</p>'
         : '') +
+      // ── AND IF THE READ WAS CLIPPED, SAY SO IN EITHER STATE ───────────
+      // Not inside the busy branch. A clipped read is the case where the pane has
+      // stopped waiting and every sentence above has switched to the finished
+      // grammar — "N people have a readable formal row", full stop — over a
+      // record the fetch never finished handing over. That is exactly the frame a
+      // reader has no way to question, so it is the frame that most needs the
+      // caveat. It also prints while busy, where it stacks under the two waiting
+      // lines and adds the one thing they do not cover: those will resolve, this
+      // will not.
+      (led.trunc ? '<p class="d1-led-trunc">' + esc(truncNote()) + '</p>' : '') +
     '</div>';
   }
 
@@ -1953,9 +2069,26 @@
       // NOT AN EMPTY RECORD WHILE A READ IS OUT. Only once every person the issue
       // read discovered has a warm record may this pane say the key holds nothing.
       var busy = ledgerBusy(led);
+      // …AND NOT AN EMPTY LANE OVER A MEASURE THIS PAGE IS ABOUT TO PRINT. The
+      // floor's inherited sentence is a claim about the CALENDAR — "no standalone
+      // measure on this issue came up for a recorded vote" — and printing it above
+      // a PRIMARY card for a measure mapped to this key contradicts the page a
+      // reader is looking at. So it prints where it is true, over a key with no
+      // mapped instrument at all, and a key that has instruments and no readable
+      // row says the narrower true thing instead: the measures are on file and
+      // nobody in the tracked field has a readable act on them. Neither sentence
+      // is characterised here, and no floor moved: the measure cards below are
+      // unchanged, and nobody's row was invented to fill this space.
+      var mapped = (led.measures || []).length;
       return head + (busy
         ? '<p class="d1-claim-busy" role="status">Reading the roll-call record for this issue…</p>'
-        : '<p class="d1-empty">' + esc(emptyIssueNote()) + '</p>') + measuresHtml(led);
+        : mapped
+          ? '<p class="d1-empty">' + mapped + ' measure' + (mapped === 1 ? '' : 's') +
+            ' on file map' + (mapped === 1 ? 's' : '') + ' to this key, and nobody tracked here has ' +
+            'a readable formal act on ' + (mapped === 1 ? 'it' : 'them') + ' yet. The ' +
+            (mapped === 1 ? 'card' : 'cards') + ' below ' + (mapped === 1 ? 'is' : 'are') +
+            ' what is filed; the absence is of acts, not of the issue.</p>'
+          : '<p class="d1-empty">' + esc(emptyIssueNote()) + '</p>') + measuresHtml(led);
     }
     var open = led.bands.filter(function (b) { return !b.tail; })
       .map(function (b) { return bandHtml(b, key); }).join('');
@@ -2074,6 +2207,18 @@
       pkg: led.pkg,
       cold: led.cold,
       pending: !!led.pending,
+      // The third incompleteness, for the letterhead's own gate. `pending` and
+      // `cold` tell /i/<key> to hold its integers back until a read lands; `trunc`
+      // tells it that the read it is about to print integers from LANDED SHORT,
+      // which the busy gate cannot express because nothing is still coming.
+      //   THE SENTENCE TRAVELS WITH THE FLAG, for the same reason the process
+      // wording and the band labels do: the letterhead's whole contract is that it
+      // prints strings this census resolved and reaches for no engine of its own.
+      // It is the ranking's wording, fetched here — where the ledger is already
+      // reading that module — rather than there, so /i/<key> gains no new global
+      // and the two surfaces still cannot describe one row cap two ways.
+      trunc: !!led.trunc,
+      truncNote: led.trunc ? truncNote() : '',
       // ── HOW THIS KEY WAS TESTED, AS INTEGERS AND QUOTED WORDS ────────────
       // Handed over whole, for the same reason the band figures are: the file's
       // letterhead has to say measures, people and acts without counting anybody,
@@ -3059,10 +3204,29 @@
     // decides one thing — whether the file's own door answered the tap — and
     // hands the click back to the anchor when it did not.
     fileDoorClick: fileDoorClick,
-    // Measures whose curation maps them to a key, for a surface that wants to
-    // say how much is on file without warming anybody's record.
+    // ── ONE MEASURE COUNT, AND IT IS THE LEDGER'S ──────────────────────
+    // This is the reader every surface OUTSIDE the pane uses to say how many
+    // measures a key has — today that is the Eye's key card. It used to call
+    // ledgerMeasures with no rows, which is the static index and only the static
+    // index, while the pane's own badge and /i/<key>'s letterhead both read the
+    // ledger's union of index-mapped and act-discovered measures. Two readers,
+    // two answers, and they were not close: warm `climate_action` came back 5
+    // from the ledger and 3 from here; `cost_living` 9 and 2.
+    //   A reader who saw "2 measures on file map here" on the Eye card and
+    //   "9 measures mapped" on the file it opens has no way to decide which
+    // number the app means, and both surfaces are the app talking. So there is
+    // now one reader: the ledger's, which is the larger and the honest one,
+    // because a measure discovered from a member's own act IS on file for this
+    // key — the static index simply had not been curated to say so.
+    //   The empty-row fallback is kept, not as a second answer but as the answer
+    // when the ledger cannot be built at all. It is a floor under a thrown
+    // error, and it can only ever undercount.
     issueMeasures: function (key) {
-      try { return ledgerMeasures([], key); } catch (e) { return []; }
+      try {
+        var led = issueLedger(null, key);
+        if (led && led.measures) return led.measures;
+      } catch (e) { /* fall through to the index-only floor */ }
+      try { return ledgerMeasures([], key); } catch (e2) { return []; }
     },
     _ledger: issueLedger,
     _seek: window.pdxDoor1IssueSeek,

@@ -350,8 +350,37 @@ export const IC_SEAMS = [
    "the chip helper's export line"],
 ];
 
-// ── word-action.js: three spans — the gate, and the two mounts ───────────────
+// ── word-action.js: four spans — the chip, the gate, and the two mounts ───────────────
 export const WA_SEAMS = [
+  // ── the identity chip's denominator (v136) ─────────────────────────
+  // A wave has no stake in this span and every stake in the file around it, so it
+  // is carved out by name rather than the file being waived whole. The span is the
+  // markup of ONE control: the compact Word vs Action chip that sits in the
+  // identity block, high on a person file, and jumps to the ⚖ section a screen
+  // below. It printed the figure and the verdict word and nothing else —
+  //
+  //     100% · Backs it up
+  //
+  // — beside the person's name, on a page that also carries a hundred formal
+  // acts. 102 of the 187 chips this corpus paints stand on exactly
+  // MIN_TESTED_ITEMS tested items, which is the publication floor and not one item
+  // more; a percentage with nothing to size it, in that position, is read as a
+  // grade. The span now prints the denominator the ⚖ section already prints, in
+  // the section's own words, in the visible text and in the accessible name.
+  //
+  // The arithmetic is NOT in here. Both integers are read()'s own coverage block,
+  // and read() — with Direction Match, the tier weights and every floor — is
+  // outside the seam and compared byte for byte, on this file's usual terms. What
+  // the span may not do is argued below: no count of its own, no threshold of its
+  // own, no second control, no rank.
+  //
+  // The span opens on the note above the function, not on the function, because the
+  // argument for a change of this kind belongs beside the change — and because a
+  // seam whose body is markup only would leave that note pinned to HEAD, where it
+  // could not be written at all.
+  ["  // person's name is worse than no chip at all — so nothing renders.\n",
+   "    } catch (e) { return ''; }\n  }\n\n  // Same host discipline as the two strips above",
+   "the identity chip's denominator"],
   // ── the issue file beside the pattern row (v133) ───────────────────────────
   // The brief's pattern rows are the third surface a reader meets an issue name
   // on, and the name was the one part of the row that led nowhere. The label
@@ -730,7 +759,7 @@ export function assertStanceHelpersSeam(bodies, api) {
     "the record-CTA stats gained a percentage or a party — they count rows and answer yes/no");
 }
 
-/** Argue what is inside word-action.js's three spans. */
+/** Argue what is inside word-action.js's four spans. */
 export function assertWordActionSeams(bodies, api) {
   const { has, eq, ok } = api;
   // BY NAME, FOR THE REASON CONSISTENCY.JS'S SPANS ARE. This read bodies[0..2]
@@ -746,6 +775,43 @@ export function assertWordActionSeams(bodies, api) {
     ok(byName.has(why), `the seam named "${why}" is not among the spans this suite carved out of word-action.js`);
     return byName.get(why) || "";
   };
+
+  // ── the identity chip's denominator (v136) ─────────────────────────
+  // One control, one door, one fraction, and both of its integers read out of the
+  // read this same file already published. The chip is allowed to ANNOTATE the
+  // figure it prints; it is not allowed to compute one, to gate one, or to become
+  // a second surface anything can rank people by.
+  const chip = wa("the identity chip's denominator");
+  has(chip, "var c = r.coverage || {};",
+    "the chip no longer sizes its figure from read()'s own coverage block");
+  has(chip, "(c.tested + ' of ' + c.scorable + ' tested')",
+    "the chip's denominator is not the ⚖ section's own wording, character for character — a door " +
+    "that paraphrases what is behind it is a second finding");
+  has(chip, "(den ? ', ' + den : '')",
+    "the accessible name dropped the fraction: a screen reader hearing \"90 per cent, Backs it up\" has " +
+    "been handed the exact impression the visible chip was fixed to stop giving");
+  has(chip, "'<span class=\"pdxwa-cbadge-den\">' + esc(den) + '</span>'",
+    "the visible chip dropped the fraction");
+  has(chip, "jumpAttr('pdxsec-wordaction')",
+    "the chip no longer jumps to the section it is a door to");
+  eq([...chip.matchAll(/<button/g)].length, 1, "the chip is more than one control");
+  // What it may not do. Strings and comments come out first: the comment in the
+  // span names MIN_TESTED_ITEMS in order to explain why the empty case is
+  // unreachable, and the markup itself contains a literal per-cent sign.
+  const chipCode = chip.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+  ok(!/toFixed|Math\.(round|max|min)|\/\s*100|\*\s*100|\+\+|reduce\(/.test(chipCode),
+    "the chip grew arithmetic of its own — every figure on it is a re-print of read()'s");
+  ok(!/MIN_|FLOOR|publishable|PublicationFloor|SHAPE_MIN|>=|<=/.test(chipCode),
+    "the chip tests a threshold of its own. Below the publication floor read() returns no percentage " +
+    "and the chip already renders nothing; a second, higher floor here would hide a thin figure " +
+    "instead of labelling it, and leave a reader no way to know why one profile has a chip and the " +
+    "next does not");
+  ok(!/\.sort\(|localeCompare|rank|\.filter\(|Object\.keys/.test(chipCode),
+    "the chip sorts, ranks or sweeps — two integers on a chip are an annotation until something " +
+    "reads them back");
+  ok(!/\.party\b|Republican|Democrat|GOP/i.test(chipCode), "the chip reads a party");
+  ok(!/incomplete|limited record|too early|unproven/i.test(chip),
+    "the chip composes a verdict of its own alongside read()'s label");
   // ── the issue file beside the pattern row (v133) ───────────────────────────
   // A sibling anchor after the door, not a link wrapped around the label: the
   // label IS the dossier button on this row, and nesting one interactive element

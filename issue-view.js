@@ -247,6 +247,22 @@
   var _voteItems = {}, _voteLoaded = {}, _votePending = {}, _voteVer = 0;
   var _voteTruncated = false, _voteWaiting = 0;
 
+  // ── THE ROW-LIMIT SENTENCE, WRITTEN ONCE ────────────────────────────────────
+  // A truncated read is the one failure mode of this fetch that LOOKS like a
+  // finished one: rows came back, nothing errored, and every count below is real
+  // — it is just short. The ranking has said so in this wording since the flag
+  // existed, and the wording is the careful part: the limit is the READ's, the
+  // missing rows are "not counted here YET", and no claim is made about which
+  // rolls they are or which way they went.
+  //   It is a const now because it is no longer only this surface's sentence.
+  // Door 1's issue pane runs the same fetch through the same module and had no way
+  // to say the same thing, so a clipped read reached /i/<key> looking complete. The
+  // desk prints THIS string rather than a second sentence about the same limit,
+  // because two wordings for one condition is how two surfaces start disagreeing
+  // about how bad it is.
+  var TRUNC_NOTE = 'The vote read hit its row limit, so some roll calls are ' +
+    'not counted here yet.';
+
   function votesFor(id) { return _voteItems[id] || null; }
   // True while at least one batch is in flight — the surfaces say so out loud rather
   // than presenting an incomplete read as final.
@@ -939,8 +955,7 @@
         ' · consistency is measured from ' + basis + '.' +
         // Never let an in-flight or clipped read pass for a finished one.
         (cov.pending ? ' <span class="iv-cov-thin">Checking the voting record…</span>' : '') +
-        (cov.truncated ? ' <span class="iv-cov-thin">The vote read hit its row limit, so some roll calls are ' +
-          'not counted here yet.</span>' : '') +
+        (cov.truncated ? ' <span class="iv-cov-thin">' + TRUNC_NOTE + '</span>' : '') +
         '</div>';
     }
 
@@ -1539,6 +1554,19 @@
       if (t) warmVotes(t.core, t.focusKey);
     },
     votesPending: votesPending,
+    // ── WAS THE ROLL-CALL READ CLIPPED, AND WHAT TO SAY ───────────────────
+    // coverage() already reports `truncated`, but getting it costs a full
+    // buildRanking() for the target — which is the wrong price for a surface
+    // that only wants to know whether to add a caveat to a paragraph it has
+    // already built. This is the flag on its own, and the sentence that goes
+    // with it, so the desk cannot drift into its own wording.
+    //   STICKY AND PROCESS-WIDE, which is deliberate: the flag is set by the
+    // batch that came back short and never cleared, because the rows it did not
+    // return do not arrive later. Once any key's read has been clipped, every
+    // surface built from this module's evidence in this page's life is reading a
+    // short record, and all of them should say so.
+    votesTruncated: function () { return _voteTruncated; },
+    truncNote: function () { return TRUNC_NOTE; },
     refresh: refresh
   };
 

@@ -1069,6 +1069,25 @@ const swNote = swWaveNote();
     "word-action.css",
     "scripts/v103-chrome-seams.mjs",
     "scripts/test-brief-slice-disclosure.mjs",
+    // THE IDENTITY CHIP'S DENOMINATOR (CACHE_VERSION v136), on those same
+    // later-wave terms, and this wave has the same direct stake in it as in the
+    // slice line above. It writes no roll, no mapping, no key, no floor and no
+    // admission: the compact Word vs Action chip in the identity block printed the
+    // figure and the verdict word and nothing else — "100% · Backs it up" — beside
+    // a person's name, on a page that also carries a hundred formal acts, and it
+    // now prints the ⚖️ section's own fraction beside the figure ("3 of 6 tested")
+    // in the visible text and in the accessible name. The reason a wave like this
+    // one is the file that has to declare it: 102 of the 187 chips this corpus
+    // paints stand on exactly MIN_TESTED_ITEMS tested items, and a great many of
+    // those files are the ones R1 and R2 admitted — a percentage off three
+    // statements, unlabelled and beside a name, reads as a career grade. The chip
+    // is annotated and not suppressed, so the set of people who get one is
+    // unchanged; the seam module above carries the span, and every count, chip,
+    // tier and Direction Match figure is byte-identical, which the twin boot above
+    // has just proved. scripts/test-wordaction-badge.mjs held the chip to exactly
+    // one number and now requires three, with the reversal argued where the old
+    // pin stood.
+    "scripts/test-wordaction-badge.mjs",
     "scripts/test-vr-federal-wave-f5.mjs",
     "scripts/test-vr-federal-wave-f6.mjs",
     "scripts/test-vr-federal-roster-r1.mjs",

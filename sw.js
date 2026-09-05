@@ -880,6 +880,136 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v136 - THE WORD-VS-ACTION CHIP CARRIES ITS DENOMINATOR, AND THE ISSUE DESK
+// STATES ITS PENDING COUNT ONCE. Three defects, all of them a figure printed
+// without the thing that sizes it or printed more times than it is true.
+//   THE CHIP. The identity-block Word vs Action badge said "100% · Backs it up"
+// beside a person's name, on a page that also carries a hundred formal acts, and
+// most of the time it was standing on three statements: of the 187 chips this
+// corpus can paint, 102 sit on exactly MIN_TESTED_ITEMS tested items — the
+// publication floor and not one item more. The two integers that size the
+// percentage were printed only in the section a screen below, which is the
+// section the chip is a door to. It now says them in the same words the
+// apparatus lid and the Official Record feed row already use for the same
+// fraction: "84% · 5 of 14 tested · Backs it up", and the aria-label carries
+// the fraction too. ANNOTATED, NOT SUPPRESSED: no new floor was invented, the
+// fail-closed gate below MIN_TESTED_ITEMS is untouched, a three-of-three read is
+// labelled rather than hidden, and two integers do not make the chip sortable —
+// nothing reads them back, nothing orders on them, and it does not stand in for
+// the formal record brief.
+//   THE PENDING COUNT. A cold /i/rural_ag printed the same outstanding-rows
+// integer four times in one frame: on the headline, in the people-rows sentence,
+// in the partial note under it, and in the announced status line at the foot.
+// One fact, four numerals, and a reader either reads a page anxious about its own
+// fetch or hunts for the difference between four figures that are the same. The
+// count is now stated once, in the sentence whose whole subject is the fetch;
+// the other three still say a read is out, in the countless branch each of them
+// already shipped, so no new copy was written. The v134 rule holds: the measure
+// lede still leads with a mapped measure where there is one, and no pane says
+// "nothing readable" over a card that lists H.R. 7567.
+//   ONE MEASURE COUNT. The Eye's key card read measures off the static index
+// while the pane's badge and /i/<key>'s letterhead both read the ledger's union
+// of index-mapped and act-discovered measures. They disagreed out loud: warm
+// on 29 of the 119 tracked keys the two readers gave different answers, and by
+// a lot: climate_action 3 from the Eye against 10 from the ledger,
+// border_security 2 against 6, broadband 0 against 2. There is now one
+// reader, and it is the union.
+//   AND A CLIPPED READ NO LONGER LOOKS COMPLETE. A truncated roll-call batch is
+// the one failure of that fetch that arrives looking like a success: nothing is
+// pending, nobody is cold, and both surfaces switch to the settled grammar over
+// a record the data layer cut off at a row cap. The ranking's existing sentence
+// about that cap is now a named constant, readable through the module that made
+// the request, and both the desk pane and the file's letterhead print THAT
+// sentence rather than a second wording of the same limit.
+// FILES IN THIS BUMP:
+//   · word-action.js        — compactBadgeHtml prints and announces the
+//                              fraction; read(), the floors and the fail-closed
+//                              gate are byte-identical.
+//   · word-action.css       — .pdxwa-cbadge-den, quieter than the verdict word.
+//   · door1-workspace.js    — the pending integer in one sentence; ledgerTrunc()
+//                              and `trunc` on the ledger and the census; the
+//                              issueMeasures export switched to the ledger union.
+//   · door1-workspace.css   — .d1-led-trunc.
+//   · issue-file.js         — clipped() and the letterhead's qualifying line,
+//                              outside the busy gate that cannot express it.
+//   · issue-file.css        — .pdxif-clip.
+//   · issue-view.js         — TRUNC_NOTE hoisted to one const; votesTruncated()
+//                              and truncNote() exported. The ranking's own markup
+//                              is unchanged, character for character.
+// ALL OF THESE ARE PRECACHED SHELL ENTRIES, so a warm device keeps serving the
+// old chip and the old four-integer pane until CACHE_VERSION moves — which is
+// what this line is. No floor, no mapping, no weight, no stance, no party score
+// and no roster row moved, and PRIMARY is still a label (see
+// test-primary-label-not-gate.mjs).
+//
+// v135 - PRIMARY IS A LABEL, AND NOW THERE IS A WALL SAYING SO. The engine had
+// already been changed: a mapped act that reached an issue as a provision inside
+// a larger measure is characterised in full, on the same depth, strength and
+// dominance floors a flagged one is held to, and how it arrived is disclosed in a
+// sentence beside the finding instead of subtracted from it. What was missing was
+// anything stopping that from being undone. The one existing guard proves the
+// rule by setting _RD_MIN_PRIMARY to 99 and watching nothing move, which catches
+// a gate spelled with the constant and cannot see one spelled `(idx.primary || 0)
+// < 1` - and there is a line shaped exactly like that live in consistency.js
+// today, wording a sentence, legitimately.
+//   So scripts/test-primary-label-not-gate.mjs now names every reference to the
+// flag across the sixteen files of the record stack with what each one is for -
+// thirty-six of them, of which exactly three ask a question of the primary count
+// and all three answer it with a sentence - audits all 5,321 provision-only rows
+// that hold a judged act on every surface that prints them, and then puts the
+// gate back four times, in the four shapes it historically had, requiring the
+// file to fail on each - and it forbids any file in the stack from describing the
+// constant as refusing a read unless the sentence around the mention says so in
+// the past tense, because a stale comment is a specification to the next author.
+// One shipped comment that still described the retired gate as current was
+// corrected. A second, in netlify/lib/vr-pack.ts, is knowingly left standing and
+// named in the test: three guards freeze that file byte for byte, and the
+// reader-facing copy of the same explanation in voting-record.js is correct.
+//   · bill-detail.js       — the Big Picture note no longer credits
+//                            _recordDirectionIndex with a not-incidental floor
+//                            it has not had since August 2026, and says what the
+//                            flag buys on that face instead: a printed label.
+// NOTHING EXECUTABLE CHANGED: the only edit to a shipped file is the comment
+// above. No floor, no mapping, no weight and no roster row moved, and
+// the Direction Match ledger is byte-identical across all four mutated boots as
+// well as this one - the record lane is not a Direction Match input and none of
+// this may make it one.
+//
+// v134 - EMPTY WHILE LOADING IS A LIE, AND THE ISSUE DESK WAS TELLING IT. On a
+// cold /i/rural_ag the page painted H.R. 7567 as the PRIMARY measure on the key
+// and, three inches above the card, said "Nothing readable yet" and printed the
+// menu's blank-calendar sentence. Both halves came from the same builder. They
+// disagreed because they read different things: the measure list comes off the
+// static index and is there at the first frame, while the census counts people
+// whose formal rows are still in flight, and the busy census had been written as
+// if a zero it had not finished earning were a finding about the issue.
+//   The rule now is that the desk may not deny what is already on the page. The
+// partial census leads with the mapped-measure count whenever no person row has
+// landed yet ("1 measure on file maps here"), never with a word for nothing; the
+// unfetched rows get their own sentence in their own voice — "People rows still
+// loading — N not fetched yet. That is a fact about this read, not a finding
+// about this issue." — so the pending read is described as a property of the
+// request instead of a property of the key. The busy measure line no longer
+// credits index-sourced measures to "the rows back so far", and a SETTLED key
+// that holds mapped measures but no readable act says that in those words rather
+// than reprinting the empty-calendar floor over a visible card.
+//   TWO FILES MUST TRAVEL TOGETHER, which is what this bump is for:
+//   · door1-workspace.js   — the census head, the pending-rows sentence and the
+//                            measure-aware settled floor. A warm device holding
+//                            v133 would keep printing the denial.
+//   · door1-workspace.css  — the one new block that sets the pending sentence in
+//                            the same weight as the disclosure above it, so it
+//                            reads as the same kind of claim. Nothing restyled.
+// No band, no floor, no mapping, no weight and no figure moved. The settled
+// census HEADLINE is byte-identical to v133's — the only settled string that
+// moved is the empty-lane sentence, and only over a key that holds mapped
+// measures, where the calendar sentence was false. The bands still come from
+// PDXConsistency.formalPatternIndex and nowhere else, the letterhead still
+// publishes no integer while a read is out, a key with no mapped instrument at
+// all still gets the menu's own blank-calendar sentence verbatim, and every
+// person brief and every Direction Match read is byte-identical across a twin
+// boot.
+//
 // v133 - THE ISSUE NAME WAS THE ONE WORD ON THE ROW THAT LED NOWHERE. A reader
 // who opened Celeste Maloy on Farmers & Rural Communities got her thin read and
 // the number of the bill behind it, H.R. 7567, and no way from there to either
@@ -2230,7 +2360,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v133';
+const CACHE_VERSION = 'v136';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

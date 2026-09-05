@@ -540,12 +540,29 @@
 .d1-led-part {
   margin: 0.35rem 0 0; font-size: 0.76rem; line-height: 1.6; color: #d6c9a8;
 }
+/* The unfetched people rows, in the same weight as the disclosure above them: it
+   is a sentence about the REQUEST, so it reads as the same kind of thing as
+   "not the count for this key" and not as a finding about the issue. */
+.d1-led-pend {
+  margin: 0.35rem 0 0; font-size: 0.78rem; line-height: 1.6; color: #e3d6b4;
+}
+.d1-led-pend b { color: #fde68a; }
 /* The bands nobody has come back for yet. Quieter than the split above it,
    because it is a statement about what is missing rather than a count. */
 .d1-led-soon {
   margin: 0.35rem 0 0; font-size: 0.74rem; line-height: 1.6; color: #9fb2cc;
 }
 .d1-led-sofar { color: #d6c9a8; }
+/* A read that landed SHORT. Amber like the waiting copy above it, because it is
+   the same class of statement — a fact about the fetch rather than a finding
+   about the issue — but with a rule down its edge, because it is the one of the
+   three that does not resolve on its own. Left-marked and not tinted or boxed: it
+   qualifies the census it sits under, and a filled panel would read as a warning
+   about the ISSUE. */
+.d1-led-trunc {
+  margin: 0.4rem 0 0; padding: 0 0 0 0.55rem; font-size: 0.76rem; line-height: 1.6;
+  color: #e3d6b4; border-left: 2px solid rgba(252, 211, 77, 0.4);
+}
 
 /* ── THE FILTER ROW ────────────────────────────────────────────────────────
    Above the bands, and deliberately quieter than they are: chips read as a way

@@ -188,22 +188,52 @@ has(CHIP, X.verdict.label,
 has(CHIP, "color:" + X.verdict.color,
   "the chip's figure does not carry the verdict colour, so green and red read identically at a glance");
 
-// ONE number. A chip carrying a second integer — a count, a denominator, a span —
-// is the strip this pass removed, folded onto one line.
+// ── REVERSED, AND ON PURPOSE: THE DENOMINATOR IS NOW REQUIRED ──────────────
+// This block asserted the OPPOSITE until v136. It read "ONE number. A chip
+// carrying a second integer — a count, a denominator, a span — is the strip this
+// pass removed, folded onto one line", and pinned the visible text to exactly
+// "71% · Backs it up". The reasoning was sound about the strip it was written
+// against: a chip that reprints the section's shape, depth and span is the
+// section badly, and those figures belong where they are explained.
+//   WHAT IT GOT WRONG was treating the denominator as one of those figures. It
+// is not a second finding about the percentage; it is what makes the percentage
+// a quantity rather than a grade. "100% · Backs it up" beside a person's name,
+// on a page carrying a hundred formal acts, reads as a product rating — and 102
+// of the 187 chips this corpus can paint stand on exactly MIN_TESTED_ITEMS
+// tested items, the publication floor and not one item more. A reader could only
+// discover that by opening the section the chip is a door to, which is to say
+// after the impression had already been made.
+//   So the rule inverts, and the useful half of the old rule is kept below: the
+// chip prints the figure, the fraction that sizes it, and the verdict word, and
+// it prints NO OTHER INTEGER. The set is pinned exactly, so the strip this suite
+// was written to keep off the chip still cannot come back one figure at a time.
 const chipText = text(CHIP);
 const numbers = chipText.match(/\d+/g) || [];
-eq(numbers.length, 1,
-  `the chip prints ${numbers.length} numbers (${JSON.stringify(chipText)}). It is the compact form of a\n` +
-  "    section, not a compressed copy of it — the shape, the depth and the span are read where\n" +
-  "    they are explained");
-eq(chipText, X.pct + "% · " + X.verdict.label,
-  "the chip's visible text is no longer exactly the figure, a separator and the verdict word");
+eq(numbers.join(","), [X.pct, X.coverage.tested, X.coverage.scorable].join(","),
+  `the chip prints the numbers ${JSON.stringify(numbers)} (${JSON.stringify(chipText)}). It may print\n` +
+  "    exactly three, in this order: the percentage, the tested count and the scorable count. It is\n" +
+  "    the compact form of a section, not a compressed copy of it — the shape, the depth and the\n" +
+  "    span are still read where they are explained");
+eq(chipText,
+  X.pct + "% · " + X.coverage.tested + " of " + X.coverage.scorable + " tested · " + X.verdict.label,
+  "the chip's visible text is not exactly the figure, the fraction that sizes it and the verdict word");
+// AND THE FRACTION IS THE ONE THE SECTION USES, character for character — the
+// same construction as the apparatus lid and the Official Record feed row, so a
+// reader who scrolls down meets the same words rather than a paraphrase.
+has(CHIP, X.coverage.tested + " of " + X.coverage.scorable + " tested",
+  "the chip spells the fraction differently from the section it opens");
 
 // The accessible name has to carry what the pill's typography implies and a
 // screen reader cannot see: what the number measures, and that this goes somewhere.
 const aria = (/aria-label="([^"]*)"/.exec(CHIP) || [])[1] || "";
 has(aria, X.pct + "%", "the chip's accessible name omits the figure");
 has(aria, X.verdict.label, "the chip's accessible name omits the verdict");
+// THE FRACTION IS PART OF THE ACCESSIBLE NAME, not decoration around it. A
+// screen reader that hears "71 per cent, Backs it up" has been handed the exact
+// impression the visible chip was fixed to stop giving.
+has(aria, X.coverage.tested + " of " + X.coverage.scorable + " tested",
+  "the chip's accessible name omits the fraction that sizes the percentage, so the figure\n" +
+  "    announces as a grade");
 has(aria, "Direction match",
   "the chip's accessible name does not say what the percentage measures. Sighted readers get that\n" +
   "    from the section it sits above; a screen reader gets a bare number beside a name");

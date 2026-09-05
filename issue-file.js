@@ -249,6 +249,31 @@
   // nothing up here may publish a figure until it stops.
   function reading(c) { return !!(c && (c.cold || c.pending));  }
 
+  // ── AND THE CASE THE BUSY GATE CANNOT COVER ─────────────────────────────
+  // `reading()` withholds every integer while a read is in flight, on the rule
+  // that a partial count wearing a finished letterhead is a lie. A CLIPPED read
+  // slips straight through it: the fetch is not pending and nobody is cold, so
+  // this file publishes its inventory in the settled grammar — "3 people with a
+  // readable row · 5 measures mapped" — off a batch the data layer cut off at a
+  // row cap. Suppressing the inventory instead would be wrong twice: those
+  // figures are true counts of real rows, and hiding them would leave the file
+  // with nothing where the record is merely short.
+  //   So the letterhead publishes and QUALIFIES, in the ranking's own sentence,
+  // handed up the same way every other figure on this line is: on the census.
+  function clipped(c) { return !!(c && c.trunc); }
+  // The sentence itself is the ranking's, and it arrives ON THE CENSUS — see the
+  // note beside `truncNote` in door1-workspace.js's issueCensus. This file reads
+  // the desk and nothing else for record facts, which is a wall a test keeps, so
+  // it does not reach for the ranking module directly even though that is where
+  // the wording lives. The literal below is the fallback for a document served
+  // without the desk's newer census, spelled exactly as issue-view.js spells it,
+  // so the two cannot drift into two descriptions of one row cap.
+  function truncNote(c) {
+    var t = c && c.truncNote;
+    if (t) return String(t);
+    return 'The vote read hit its row limit, so some roll calls are not counted here yet.';
+  }
+
   // The register's own line about the key. '' when issue-scope.js is not on the
   // page or does not carry the key, because a chip this file wrote itself would
   // be a definition nobody argued.
@@ -470,6 +495,12 @@
     var chip = chipOf(key);
     var sc = scopeProse(key);
     var inv = reading(c) ? '' : inventoryLine(c);
+    // Printed in EITHER state, and outside the gate above: while a read is out it
+    // is the one caveat the waiting line does not imply, and once the read has
+    // settled it is the only thing on the letterhead that says the settled figures
+    // are low. The wording is issue-view's, read live off the desk so this file
+    // cannot drift into a second sentence about one row cap.
+    var clip = clipped(c) ? truncNote(c) : '';
     return '<div class="pdxif-head"' + skinAttr(key) + '>' +
         (chip ? '<p class="pdxif-chip">' + esc(chip) + '</p>' : '') +
         '<p class="pdxif-scope' + (sc.defined ? '' : ' is-blank') + '">' + esc(sc.text) + '</p>' +
@@ -477,6 +508,7 @@
           ? '<p class="pdxif-busy" role="status">' + esc(BUSY) +
               '<span class="pdxif-sofar">' + esc(SO_FAR) + '</span></p>'
           : (inv ? '<p class="pdxif-inv">' + esc(inv) + '</p>' : '')) +
+        (clip ? '<p class="pdxif-clip">' + esc(clip) + '</p>' : '') +
         (reading(c) ? '' : procHtml(c)) +
         jumpsHtml(key) +
       '</div>';
