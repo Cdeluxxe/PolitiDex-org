@@ -3993,7 +3993,37 @@
       body +
       // The key, last and outside the door — see the wall above.
       (door ? scopeControlHtml(key) : '') +
+      // And the issue file, on the same footing and for the same reason.
+      (door ? issueFileHtml(key, x.label) : '') +
       '</li>';
+  }
+  // ── THE TITLE IS A DOOR, AND HERE THAT DOOR IS A SIBLING ──────────────────
+  // The brief's pattern rows are the third surface where a reader meets an issue
+  // name, and until now the name was the one part of the row that led nowhere.
+  // /i/<key> is where the key's own file lives: what it covers, and who has a
+  // formal record on it.
+  //   WHY NOT THE LABEL ITSELF. On this row the label IS the dossier button —
+  // wrapping it in an <a> would nest an anchor inside a button, which makes the
+  // HTML parser close the button early and drops the tally span out of the row
+  // entirely. It would also take the row's primary tap away from the person's own
+  // record, which is what a reader on a person file asked for. So the row keeps
+  // its one primary tap and the file gets a small named sibling — the pattern
+  // stance-tree.js already ships on its leaves, for the same reasons.
+  //   THE ADDRESS IS ASKED, NOT SPELLED. pdx-issue-family.js owns the string; no
+  // module writes '/i/' inline, and a page served without that module renders no
+  // control rather than a link to a guess.
+  function issueFileHtml(key, label) {
+    var href = '';
+    try {
+      var F = window.PDXIssueFamily;
+      if (F && typeof F.profileUrl === 'function') href = F.profileUrl(key) || '';
+    } catch (e) { href = ''; }
+    if (!href) return '';
+    return '<a class="pdxwa-shape-file" href="' + esc(href) + '"' +
+      ' data-pdxwa-file="' + esc(key) + '"' +
+      ' aria-label="' + esc('Open the issue file for ' + (label || key) +
+        ' — what this key covers and who has a formal record on it') + '">' +
+      '🏛 Issue file<span aria-hidden="true"> ›</span></a>';
   }
   // THE KEY GLOSSARY IS A GUEST, NOT A DEPENDENCY. issue-scope.js publishes the
   // shipped scope prose for an issue key; if it is not on the page, the row loses

@@ -497,6 +497,43 @@
       econ_balance:       { label: '⚖️ Balanced Prosperity', chip: 'Support business growth but keep worker protections, overtime and benefit rules in place', cat: 'econ', stanceKeys: [], keywords: ['economy','jobs','small business','workers','wage','cost of living','middle class','manufacturing','affordable','growth','opportunity'] },
       econ_workers:       { label: '🛠 Raise Wages & Protect Workers', chip: 'Raise the minimum wage and protect workers from exploitation', cat: 'econ', lean: 'D', stanceKeys: [], keywords: ['worker','workers','wage','minimum wage','union','labor','paid leave','overtime','collective bargaining','cost of living','affordable','middle class','jobs'] },
       econ_corp_account:  { label: '🏦 Corporate Accountability', chip: 'Use antitrust and anti-price-gouging enforcement to check large corporations', cat: 'econ', lean: 'D', stanceKeys: [], keywords: ['corporate accountability','price gouging','monopoly','antitrust','big corporation','wall street','profiteering','consumer protection','fair competition','executive pay'] },
+      // SCOPE (rural_ag), argued out September 2026. This key shipped as a one-line
+      // entry with no boundary, and two federal waves refused to USE it in writing for
+      // exactly that reason: F9 declined H.Amdt. 202 and H.Amdt. 207 on it ("rural_ag
+      // has no argued-out scope note either"), and F3 refused it on a keyword collision
+      // with the literal string 'rural broadband' in the list below. Those refusals
+      // stand. What follows is the boundary they were missing, read off the instruments
+      // already mapped here rather than off the label.
+      //   THE INSTRUMENTS ON FILE, which are what the boundary is drawn from: the 2026
+      //   farm bill (H.R. 7567 — commodity programs, crop insurance and reference prices
+      //   for producers), Utah S.B. 269 (access to the data, software and parts needed to
+      //   repair agricultural equipment), Utah H.B. 187 (a veterinary-licensure exemption
+      //   for bovine pregnancy testing, an operating cost carried by producers), Utah
+      //   H.B. 371 (the LeRay McAllister Working Farm and Ranch Fund and county rollback
+      //   revenue pointed at keeping working farms in production), Utah S.B. 113 (local
+      //   ordinances barred from prohibiting an animal enterprise or a working animal),
+      //   and Utah H.B. 114 (livestock theft, filed secondary because the mechanism is
+      //   criminal-defence law).
+      //   IN:  the operating economics of farming and ranching as a business — commodity
+      //        programmes, crop insurance and reference prices, the cost and legality of
+      //        running a herd or repairing the equipment, working-farm and working-animal
+      //        land kept in production, and farm and ranch water rights, which the
+      //        private-property and water-conservation comments in this file both send
+      //        here by name.
+      //   OUT: rural broadband and rural infrastructure as public works (broadband,
+      //        infrastructure). The keyword list below carries the phrase and a keyword
+      //        match is not a mapping — that is F3's refusal in one line. Also OUT: an
+      //        emissions rule that happens to name farm equipment (climate_action, whose
+      //        written boundary is emissions, and whose own refusal says the commodity the
+      //        equipment is used on is not the subject); reducing or pricing water DEMAND
+      //        (water) and building water SUPPLY (water_storage); a data centre's
+      //        agricultural water purchases (datacenter_water); what a government may take
+      //        from a parcel (property_rights); rural health facilities (health_rural);
+      //        and the all-of-the-above stewardship framing (enviro_balance).
+      // POLARITY: 'support' = the vote favoured the working farm or ranch — funded it, cut
+      // a cost it carries, or removed a restriction on it. 'oppose' = it ran the other
+      // way. Every instrument on file to date is coded yea_supports; nothing here promises
+      // the next one will be.
       rural_ag:           { label: '🌾 Farmers & Rural Communities', chip: 'Support family farms, ranchers and rural communities with fair prices and access', cat: 'econ', stanceKeys: [], keywords: ['agriculture','farm','farmer','farming','ranch','rancher','rural','crop','livestock','farm bill','rural broadband','rural community','grazing','drought','water right'] },
 
       // SCOPE (dev_district_finance): the special-purpose district and its money. A single

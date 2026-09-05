@@ -888,19 +888,38 @@ section("9 · No figure moved");
     "word-action.js did not boot without the family module");
   must(!A.PDXIssueFamily, "the family module loaded on the boot that is supposed to omit it");
   const prof = (w, pid) => (w.PROFILES && w.PROFILES[pid]) || null;
-  const drifted = [], dm = [];
+  // THE ONE THING THE FAMILY TABLE IS NOW ALLOWED TO ADD, AND NOTHING ELSE. The
+  // issue-file doors pass (v133) made every pattern row carry a small sibling
+  // anchor to /i/<key>, and the address for it is ASKED OF THIS MODULE rather than
+  // spelled at the row — which is the wall that keeps one spelling of the address
+  // in one file, and which means a brief rendered without the module renders no
+  // anchor rather than a link to a guess. So the two boots genuinely differ now,
+  // and a flat equality here would forbid the fail-closed behaviour instead of the
+  // drift it was written to catch. The anchor comes out of both sides and the rest
+  // must still match byte for byte; separately, some brief has to have gained one,
+  // or the door quietly stopped rendering and this check would pass on silence.
+  const stripFile = (h) => String(h).replace(/<a class="pdxwa-shape-file"[\s\S]*?<\/a>/g, "");
+  const drifted = [], gained = [], dm = [];
   for (const [pid] of corpus.byMember) {
-    if (String(B.PDXWordAction.heroHtml(pid, prof(B, pid)) || "") !==
-        String(A.PDXWordAction.heroHtml(pid, prof(A, pid)) || "")) drifted.push(pid);
+    const b = String(B.PDXWordAction.heroHtml(pid, prof(B, pid)) || "");
+    const a = String(A.PDXWordAction.heroHtml(pid, prof(A, pid)) || "");
+    if (stripFile(b) !== stripFile(a)) drifted.push(pid);
+    else if (b !== a) gained.push(pid);
     for (const sc of Object.keys(A.PDXConsistency.SCOPES)) {
       if (JSON.stringify(B.PDXConsistency.scopedOverall(sc, pid)) !==
           JSON.stringify(A.PDXConsistency.scopedOverall(sc, pid))) dm.push(`${pid}/${sc}`);
     }
   }
   eq(drifted.slice(0, 6).join(" "), "",
-    `${drifted.length} formal brief(s) moved when the family table loaded`);
+    `${drifted.length} formal brief(s) moved when the family table loaded, outside the issue-file anchor`);
+  ok(gained.length > 0,
+    "not one brief gained an issue-file anchor when the family table loaded — the row's door to /i/<key> " +
+    "is either gone or no longer asking this module for the address");
+  ok(!/pdxwa-shape-file/.test(String(A.PDXWordAction.heroHtml("maloy", prof(A, "maloy")) || "")),
+    "a brief rendered WITHOUT the family module still emits an issue-file anchor — the address would be a guess");
   eq(dm.slice(0, 6).join(" "), "", `Direction Match drifted on ${dm.length} reads`);
-  console.log(`      ${corpus.byMember.size} members swept: no drift in any brief or Direction Match read`);
+  console.log(`      ${corpus.byMember.size} members swept: no drift in any brief or Direction Match read ` +
+    `(${gained.length} briefs differ only by the issue-file anchor)`);
 
   // …and painting a child ledger does not move them either.
   const C = boot();

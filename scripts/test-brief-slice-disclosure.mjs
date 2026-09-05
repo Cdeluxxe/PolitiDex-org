@@ -431,6 +431,22 @@ section("6 · the gate reads published counts, and moves nothing");
     if (h === null) continue;
     // stance-helpers.js and consistency.js carry the previous pass's seams; what
     // matters here is that THIS pass added nothing to them.
+    // sitemap.xml is a GENERATED WHOLE DOCUMENT, and a later pass that publishes a
+    // new class of address republishes it. The equality below could only ever hold
+    // in this pass's own tree, so what it stood in for is checked instead: no
+    // address this pass's sitemap carried has left, and nothing the document gained
+    // mentions the slice sentence. The slice line is a rendered note on a person
+    // file; it has no address, so a sitemap that grew is not this pass growing.
+    if (f === "sitemap.xml") {
+      const now = R(f);
+      const lost = h.split("\n").filter((l) => l.trim() && !now.includes(l));
+      eq(lost.slice(0, 3).join(" | "), "",
+        `${lost.length} line(s) left sitemap.xml — a regeneration may add addresses, never drop them`);
+      const grew = now.split("\n").filter((l) => !h.includes(l));
+      ok(!grew.some((l) => /House rolls|career score|SLICE_/.test(l)),
+        "sitemap.xml gained a line of the slice pass — the sentence is a rendered note, not an address");
+      continue;
+    }
     if (f === "stance-helpers.js" || f === "consistency.js") {
       const gained = R(f).split("\n").filter((l) => !h.includes(l));
       ok(!gained.some((l) => /House rolls|career score|SLICE_/.test(l)),

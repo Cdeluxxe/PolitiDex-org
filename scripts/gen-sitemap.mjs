@@ -5,9 +5,10 @@
 // WHAT THIS WRITES
 //
 //   sitemap.xml   the front door, the Issue Spotlights, one /p/<pid> entry per
-//                 person file that clears the publication floor, and one
+//                 person file that clears the publication floor, one
 //                 /b/<sitting>/<number> entry per bill that has an address the
-//                 app can actually open
+//                 app can actually open, and one /i/<key> entry per issue key
+//                 that has something on file to read
 //   robots.txt    points crawlers at that sitemap and at nothing else — one
 //                 Sitemap: line, which is why the bills ride in this file rather
 //                 than in a second one nothing links to
@@ -82,6 +83,7 @@ import path from "node:path";
 import url from "node:url";
 import vm from "node:vm";
 import { measureAddresses, billPath } from "./vr-measure-addresses.mjs";
+import { makeSandbox } from "./gen-hero-showcase.mjs";
 
 const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), "..");
 const CHECK = process.argv.includes("--check");
@@ -152,6 +154,88 @@ function loadApp() {
   return { floor: F, roster: sandbox.window.CMP_DATA || {}, stances: sandbox.window.ISSUE_STANCE_DATA || {} };
 }
 
+// ── The issue keys, and which of them have an address worth advertising ─────
+// /i/<key> is the issue file: what the key covers, and who has a formal record
+// on it. Two independent things can put content on that page, and a key needs
+// only one of them to be worth a crawl:
+//
+//   · A LOCKED BOUNDARY. issue-scope.js carries the scope the curators argued
+//     out for the key — what is in, what is out, what a count on it means —
+//     transcribed from the comment block over the key in alignment-tool.js. A
+//     key with no argued boundary reads "No definition on file yet.", which is
+//     an honest thing for a reader who arrived to see and a thin thing to invite
+//     a crawler to. So `defined` is the test, not mere presence in the table.
+//   · AT LEAST ONE FORMAL MAPPING. A key that some measure in the migrations is
+//     mapped to has a record to show even with no boundary written yet, because
+//     the page's second half is the roll of who advanced it and who cut against.
+//
+// AND THE KEY MUST RESOLVE. Both lists are filtered through the app's own test
+// for a shipped issue — present in ISSUE_MAP with a label or a chip, which is
+// exactly what door1-workspace.js's shippedIssue() asks before it will open one.
+// Two keys the migrations map ('crypto', 'defense') are legacy spellings that no
+// longer resolve, and publishing them would be this file recommending a page
+// that greets the reader with nothing. Same rule as the person floor: the
+// sitemap advertises what opens.
+//
+// THE ADDRESS IS ASKED, NOT SPELLED. pdx-issue-family.js owns the /i/ string for
+// every module in the product, and this generator is not an exception to that —
+// it loads the module and calls profileUrl(), so a change to the address shape
+// cannot leave the sitemap behind pointing at the old one.
+//
+// A HEAVIER SANDBOX THAN loadApp()'s, AND ONLY HERE. alignment-tool.js is a UI
+// module that touches `document` while it registers ISSUE_MAP, so this list
+// borrows makeSandbox() — the same browser-shaped stub the test suite boots the
+// app in — rather than teaching loadApp()'s bare `window` to fake a DOM. Still
+// offline, still deterministic, still no network: --check keeps meaning "the
+// committed file matches the repo".
+const ISSUE_FILES = [
+  "cmp-data.js",
+  "politician-stances-core.js",
+  "politician-stances-ext.js",
+  "state-senate-stances.js",
+  "stance-helpers.js",
+  "alignment-tool.js",
+  "pdx-issue-family.js",
+  "issue-scope.js",
+];
+function loadIssueWorld() {
+  const win = makeSandbox();
+  const ctx = vm.createContext(win);
+  for (const f of ISSUE_FILES) {
+    const p = path.join(ROOT, f);
+    if (!fs.existsSync(p)) throw new Error(`gen-sitemap: missing ${f}`);
+    new vm.Script(fs.readFileSync(p, "utf8"), { filename: f }).runInContext(ctx);
+  }
+  const map = win.ISSUE_MAP;
+  const scope = win.PDXIssueScope;
+  const family = win.PDXIssueFamily;
+  if (!map) throw new Error("gen-sitemap: alignment-tool.js did not register ISSUE_MAP");
+  if (!scope) throw new Error("gen-sitemap: issue-scope.js did not export PDXIssueScope");
+  if (!family || typeof family.profileUrl !== "function") {
+    throw new Error("gen-sitemap: pdx-issue-family.js did not export profileUrl");
+  }
+  return { map, scope, family };
+}
+function issueAddresses(mappedKeys) {
+  const { map, scope, family } = loadIssueWorld();
+  const shipped = (k) => !!(map[k] && (map[k].label || map[k].chip));
+  const scoped = Object.keys(scope.SCOPE || {})
+    .filter((k) => { const r = scope.read(k); return !!(r && r.defined); });
+  const mapped = (mappedKeys || []);
+  const listed = [];
+  const refused = [];
+  for (const k of [...new Set([...scoped, ...mapped])].sort()) {
+    if (!shipped(k)) { refused.push(k); continue; }
+    listed.push({
+      key: k,
+      url: family.profileUrl(k),
+      scope: scoped.indexOf(k) !== -1,
+      formal: mapped.indexOf(k) !== -1,
+    });
+  }
+  return { listed, refused, scoped: scoped.length, mapped: mapped.length };
+}
+
 // ── Issue Spotlight slugs ───────────────────────────────────────────────────
 // These live in the repo, in spotlights-data.js, which is a single
 // Object.assign of `'<slug>': { slug: '<slug>', … }` entries. Read by pattern
@@ -196,6 +280,19 @@ function buildSitemap(urls) {
     "     tidier slug would be an address that 404s. A bill is listed only if the",
     "     migrations that created it give it a number, a sitting, a citable source",
     "     and something to read: a real title, an issue mapping, or a formal act. -->",
+    "",
+    // A SECOND COMMENT, NOT A LONGER ONE. The paragraph above ended with the
+    // closing marker, and moving that marker down to make room here would show up
+    // as a REMOVED line in the generated document — which is what the federal
+    // waves' sitemap check reads to prove a regeneration only ever adds addresses.
+    // The floor below is a new thing to say, so it says it in its own comment.
+    "<!-- Issue files appear as /i/<key> for every issue key that has either a",
+    "     boundary on file — the scope the curators argued out for it, transcribed",
+    "     into issue-scope.js — or at least one measure in the migrations mapped to",
+    "     it. A key with neither would open onto a definition that does not exist",
+    "     yet and a record of nobody, so it is not advertised. Keys are listed in",
+    "     their canonical spelling only; an alias resolves to the same page and is",
+    "     not a second address. -->",
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
   ];
   for (const u of urls) lines.push(`  <url><loc>${xmlEscape(ORIGIN + u)}</loc></url>`);
@@ -236,12 +333,18 @@ const publishable = floor.publishable();
 const excluded = ids.filter((id) => !floor.clears(id));
 
 const bills = measureAddresses(ROOT);
+const issues = issueAddresses(bills.issueKeys);
 
+// PERSON URLS ARE UNTOUCHED BY THIS. The issue entries are appended after the
+// bills rather than interleaved anywhere, so adding them cannot move, rename or
+// drop a single /p/<pid> line — the person half of this file is the same list in
+// the same order it was before issue files had an address.
 const urls = [
   "/",
   ...spotlightSlugs().map((s) => `/issue/${s}`),
   ...publishable.map((pid) => `/p/${pid}`),
   ...bills.published.map(billPath),
+  ...issues.listed.map((i) => i.url),
 ];
 
 // Two addresses reaching the same page would be this file recommending a record
@@ -291,6 +394,12 @@ if (REPORT) {
   console.log(`  cleared via       ${JSON.stringify(byVia)}`);
   console.log(`bills refused     ${bills.refused.length}  ${JSON.stringify(byReason)}`);
   console.log(`migrations read   ${bills.stats.files} files, ${bills.stats.inserts} measure inserts, ${bills.stats.unparsed} unparsed`);
+  console.log("");
+  console.log(`issue files       ${issues.listed.length} listed`);
+  console.log(`  boundary on file  ${issues.listed.filter((i) => i.scope).length}`);
+  console.log(`  formal mapping    ${issues.listed.filter((i) => i.formal).length}`);
+  console.log(`  both              ${issues.listed.filter((i) => i.scope && i.formal).length}`);
+  console.log(`  keys refused      ${issues.refused.length}  ${JSON.stringify(issues.refused)}`);
   console.log(`limits            ${urls.length}/${MAX_URLS} urls, ${Buffer.byteLength(sitemap)}/${MAX_BYTES} bytes`);
 }
 

@@ -1997,6 +1997,15 @@
       // spine rather than a neutral one that looks like a colour that failed.
       '.pdxgap-title.pdxc-ic{border-left:4px solid var(--pdx-ic);padding-left:0.5rem;' +
         'background:linear-gradient(90deg,var(--pdx-ic-wash,transparent),transparent 58%);}' +
+      // The title and the key control share one line. The right margin that used to
+      // clear the sheet's close button moves onto the row, so the title keeps its own
+      // metrics and the \u24D8 sits beside it rather than under it.
+      '.pdxgap-titlerow{display:flex;align-items:center;gap:0.45rem;margin:0 2.1rem 0.4rem 0;}' +
+      '.pdxgap-titlerow>.pdxgap-title{margin:0;min-width:0;}' +
+      // A link, and it says so: same colour and same face as the inert title it
+      // replaced, with the underline a reader needs to know it goes somewhere.
+      'a.pdxgap-title{text-decoration:none;color:#e8eefc;border-bottom:1px solid rgba(232,238,252,0.3);}' +
+      'a.pdxgap-title:hover,a.pdxgap-title:focus-visible{border-bottom-color:#e8eefc;}' +
       '@media (max-width:380px){.pdxgap-title{font-size:1.3rem;}.pdxgap-face{width:1.65rem;height:1.65rem;}}' +
       '.pdxgap-meta{display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;}' +
       // The verdict, sized so it is the thing the eye lands on. Same colour and
@@ -2091,6 +2100,10 @@
         'border:1px solid rgba(255,255,255,0.12);}' +
       '.pdxgap-drv-c{font-size:0.63rem;color:#9fb4d4;}' +
       '.pdxgap-drv-t{flex:1 0 100%;font-size:0.63rem;color:#93a6c4;line-height:1.35;}' +
+      // The curator's clipped sentence, on the one-measure row. Recessed a step
+      // below the title line so it reads as the reason and not as a second title.
+      '.pdxgap-drv-w{flex:1 0 100%;font-size:0.62rem;color:#8fa2c0;line-height:1.4;' +
+        'border-left:2px solid rgba(127,180,255,0.28);padding-left:0.4rem;}' +
       '.pdxgap-drv-p{flex:1 0 100%;font-size:0.62rem;color:#e2c98a;line-height:1.35;}' +
       '.pdxgap-drv-m{font-size:0.62rem;color:#8fa2c0;line-height:1.4;margin-top:0.32rem;}' +
       // The institutional half, framed as such. Recessed rather than hidden: the
@@ -3567,6 +3580,59 @@
       on = (typeof IC.isCore === 'function') ? IC.isCore(key) : !!IC.getIssueColor(key).mapped;
     } catch (e) { on = false; }
     return { style: IC.styleFor(key), cls: on ? ' pdxc-ic' : '', on: on };
+  }
+  // ── THE TITLE IS A DOOR, AND THE \u24D8 BESIDE IT IS THE OTHER ONE ──────────────
+  // A dossier answers "what did THIS PERSON'S record do on this issue". Two
+  // questions a reader arrives with are not that, and until now this sheet
+  // answered neither: what the chip itself covers, and who else has a record on
+  // it. Both already had a surface. The issue file lives at /i/<key> and the
+  // scope prose lives in issue-scope.js, and every other place in the product
+  // that names an issue offers one or both.
+  //
+  // NO THIRD PRODUCT. Neither of these builds a screen. The title becomes a link
+  // to the address PDXIssueFamily owns \u2014 no path is spelled here, and a
+  // document served without that module keeps the inert <div> it always had
+  // rather than getting a link to a guess \u2014 and the \u24D8 is issue-scope.js's own
+  // control, mounted as a SIBLING of the title exactly as it is on the formal
+  // brief's rows.
+  //
+  // WHY THE TITLE MAY BE AN <a> HERE AND MAY NOT BE ON A TREE LEAF OR A BRIEF
+  // ROW. On those two surfaces the issue name sits INSIDE the element that opens
+  // this dossier, and an interactive element nested in another is the pattern
+  // scripts/test-row-tap-dossier.mjs exists to forbid \u2014 the parser closes the
+  // outer one early and drops everything after it. Here the title is inside
+  // nothing: it is the first line of the sheet the reader already opened, and it
+  // has never carried a handler. So the door lands on the title itself, and on
+  // the other two surfaces it is a sibling control instead.
+  //
+  // href FIRST, class SECOND, and that is not cosmetic: _titleAttr is the class
+  // attribute the issue colour is painted through, and three suites match the
+  // exact string `class="pdxgap-title...">` immediately followed by the label.
+  function _issueFileHref(key) {
+    try {
+      var F = window.PDXIssueFamily;
+      if (!F || typeof F.profileUrl !== 'function' || !key) return '';
+      return F.profileUrl(key) || '';
+    } catch (e) { return ''; }
+  }
+  function _issueScopeCtl(key) {
+    try {
+      var S = window.PDXIssueScope;
+      if (!S || typeof S.controlHtml !== 'function' || !key) return '';
+      return S.controlHtml(key) || '';
+    } catch (e) { return ''; }
+  }
+  function _issueTitleHtml(key, lbl, attr) {
+    var href = _issueFileHref(key);
+    var el = href
+      ? '<a href="' + escAttr(href) + '"' + attr +
+          ' data-pdxgap-file="' + escAttr(key) + '"' +
+          ' title="' + escAttr('Open the issue file for ' + lbl +
+            ' \u2014 what this key covers and who has a formal record on it') + '">' +
+          esc(lbl) + '</a>'
+      : '<div' + attr + '>' + esc(lbl) + '</div>';
+    var ctl = _issueScopeCtl(key);
+    return ctl ? '<div class="pdxgap-titlerow">' + el + ctl + '</div>' : el;
   }
   // The dot repeats the row's colour next to the issue name, where the eye
   // actually lands. Only ever emitted when the colour is real.
@@ -14667,11 +14733,67 @@
   // the top of a card. Cutting mid-sentence would put a truncated claim in a
   // curator's mouth, so this keeps whole sentences and hands the remainder to the
   // fold at the bottom, which still holds the paragraph in full.
+  // ── WHERE A SENTENCE ENDS, WHEN THE SENTENCES ARE ABOUT BILLS ───────────
+  // A split on /[.!?]\s/ is wrong on THIS corpus in a way that is not a near
+  // miss. The curators' rationales are dense with H.R., H.Amdt., S.B., U.S.,
+  // Pub. L. and Sec., so the first full stop in
+  //     'McDowell amendment to H.R. 8800 (FY2027 NDAA) would authorize…'
+  // is the one inside H.R — and clipping to the first sentence there returns the
+  // string 'R.'. A card that prints the curator's own words WRONGLY is worse
+  // than one that prints none, so the boundary is decided by rule rather than by
+  // the nearest dot.
+  //   A full stop closes a sentence only when the token it ends is not an
+  // abbreviation: not a single letter (Pub. L.), not a token that already
+  // contains a dot (H.R, H.Amdt, U.S), and not one of the short forms this
+  // corpus actually uses. The list is deliberately conservative in the safe
+  // direction — an abbreviation nobody listed runs two sentences together, which
+  // reads long, while a false boundary truncates a curator mid-clause, which
+  // reads wrong. Long is recoverable; wrong is not.
+  //   Everything here is boundaries only. No token is rewritten, and the pieces
+  // concatenate back to the input exactly, which is what lets a caller print a
+  // clip and still promise it is verbatim.
+  var _DOS_ABBR = {
+    sec: 1, secs: 1, no: 1, nos: 1, pub: 1, stat: 1, art: 1, amdt: 1, amend: 1,
+    res: 1, cir: 1, ch: 1, pt: 1, vs: 1, inc: 1, corp: 1, co: 1, st: 1, ft: 1,
+    mr: 1, ms: 1, mrs: 1, dr: 1, gov: 1, sen: 1, rep: 1, jr: 1, sr: 1, dept: 1,
+    approx: 1, est: 1, fig: 1, al: 1, cf: 1, ed: 1, eds: 1, div: 1, tit: 1
+  };
+  function _dosIsAbbr(seg) {
+    var m = String(seg).match(/([A-Za-z.]+)$/);
+    if (!m) return false;
+    var tok = m[1];
+    if (tok.indexOf('.') >= 0) return true;
+    if (tok.length === 1) return true;
+    return !!_DOS_ABBR[tok.toLowerCase()];
+  }
+  // The input, cut into sentences. join('') rebuilds the original byte for byte.
+  function _dosSentences(text) {
+    var t = String(text == null ? '' : text).trim();
+    if (!t) return [];
+    var out = [], start = 0, i = 0;
+    while (i < t.length) {
+      var c = t.charAt(i);
+      if (c !== '.' && c !== '!' && c !== '?') { i++; continue; }
+      var j = i;
+      while (j + 1 < t.length && '.!?'.indexOf(t.charAt(j + 1)) >= 0) j++;
+      var after = j + 1 >= t.length ? '' : t.charAt(j + 1);
+      var ends = (!after || /\s/.test(after)) &&
+        (c !== '.' || j > i || !_dosIsAbbr(t.slice(start, i)));
+      if (!ends) { i = j + 1; continue; }
+      var end = j + 1;
+      while (end < t.length && /\s/.test(t.charAt(end))) end++;
+      out.push(t.slice(start, end));
+      start = end;
+      i = end;
+    }
+    if (start < t.length) out.push(t.slice(start));
+    return out;
+  }
   function _dosClipSentences(text, n) {
     var t = String(text || '').trim();
     if (!t) return '';
-    var m = t.match(/[^.!?]+[.!?]+(\s|$)/g);
-    if (!m || m.length <= n) return t;
+    var m = _dosSentences(t);
+    if (!m.length || m.length <= n) return t;
     return m.slice(0, n).join('').trim();
   }
   // Slot 2's read: WHOSE sentence is about to be printed, and what it says.
@@ -15754,6 +15876,7 @@
   // clips them says how many were dropped and where all of them are.
   var _DOS_DRV_MAX = 6;
   var _DOS_DRV_H = 'Which measures this came from';
+  var _DOS_DRV_H1 = 'Which measure this came from';
   function _dosDrivers(pid, issueKey, ov) {
     var out = { rows: [], docs: 0, more: 0, pkg: 0, items: 0 };
     var items = [];
@@ -15777,6 +15900,13 @@
         by[k] = {
           ident: id, title: String((dItem && dItem.title) || '').trim(),
           n: 0, adv: 0, opp: 0, held: 0, pkg: !!pkg[k], cls: '',
+          // WHY THIS MEASURE IS FILED ON THIS ISSUE, in the curator's own words.
+          // It is the mapping's `rationale`, carried from the first item of the
+          // group and never rewritten \u2014 the same field the row's own L4 fold
+          // prints in full. Read only by the one-measure roll-up below, which is
+          // the case with no second row to compare against and therefore nothing
+          // on screen saying why the single act counted on this issue at all.
+          why: String((dItem && dItem.rationale) || '').trim(),
           // WHERE THIS MEASURE'S OWN SCREEN IS. The roll-up groups by instrument
           // identity, so a measure with three roll calls is one row here and three
           // rows in the list below it. This is the index of the FIRST of those —
@@ -15821,16 +15951,47 @@
   }
   function _dosDriversHtml(pid, issueKey, ov) {
     var d = _dosDrivers(pid, issueKey, ov);
-    // One item is already named on the card directly below it, and a roll-up of
-    // one row is a heading with nothing under it.
-    if (!d || d.items < 2 || !d.rows.length) return '';
+    // \u2500\u2500 ONE MEASURE IS THE CASE THAT NEEDED THIS MOST \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+    // This used to bail below two items, on the reasoning that "one item is
+    // already named on the card directly below it, and a roll-up of one row is a
+    // heading with nothing under it". The card below does name it \u2014 and that is
+    // the whole of the reader problem, because printing a bill number is not
+    // teaching a measure. A thin record whose entire formal basis is one vote on
+    // one bill is exactly where "what was it, which way did they go, and why does
+    // it count on this issue" has to be answerable in one line, and it was the
+    // only depth of record where the explainer door did not exist at all.
+    //   So the roll-up now renders at one, with three differences and no new
+    // screen: the heading is singular, the side is stated in words instead of as
+    // a count of one, and one clipped sentence of the curator's own mapping
+    // rationale rides along \u2014 because with no second row to compare against,
+    // "1 advanced" says nothing a reader could not already see.
+    if (!d || !d.rows.length) return '';
+    var solo = d.items === 1 && d.docs === 1;
     var rows = d.rows.map(function (g) {
       var bits = [];
+      if (solo) {
+        // The member's side, said rather than counted. Same four states and the
+        // same words as the tallies below; only the leading "1 " goes.
+        bits.push(g.held ? 'not scorable'
+          : g.adv ? 'advanced'
+          : g.opp ? 'against'
+          : 'took no side');
+      } else {
       if (g.adv) bits.push(g.adv + ' advanced');
       if (g.opp) bits.push(g.opp + ' against');
       var neutral = g.n - g.held - g.adv - g.opp;
       if (neutral > 0) bits.push(neutral + ' took no side');
       if (g.held) bits.push(g.held + ' not scorable');
+      }
+      // ONE SENTENCE, AND A LENGTH THE CARD CAN CARRY. A handful of rationales
+      // are a single 500-character sentence that lists the sections of a
+      // division; on a summary line that is a paragraph, and the full text is
+      // already two folds down where there is room for it. So a sentence longer
+      // than the budget is cut on a word boundary and says so with an ellipsis.
+      // Nothing is reworded either way — what prints is always a prefix of what
+      // the curator wrote.
+      var why = solo ? _dosClipSentences(g.why, 1) : '';
+      if (why.length > 220) why = why.slice(0, 220).replace(/\s+\S*$/, '') + '…';
       var ttl = g.title && g.title.toLowerCase() !== g.ident.toLowerCase() ? g.title : '';
       if (ttl.length > 78) ttl = ttl.slice(0, 78).replace(/\s+\S*$/, '') + '…';
       // ── THE ROLL-UP ROW IS THE DOOR ───────────────────────────────────────
@@ -15863,6 +16024,10 @@
         '<span class="pdxgap-drv-n">' + esc(g.n + ' ' + (g.n === 1 ? 'item' : 'items')) + '</span>' +
         (bits.length ? '<span class="pdxgap-drv-c">' + esc(bits.join(' · ')) + '</span>' : '') +
         (ttl ? '<span class="pdxgap-drv-t">' + esc(ttl) + '</span>' : '') +
+        // ONE SENTENCE, CLIPPED, NOT SUMMARISED. _dosClipSentences cuts on a
+        // sentence boundary and nothing rewrites the words; where the mapping
+        // carries no rationale the line simply is not there.
+        (why ? '<span class="pdxgap-drv-w">' + esc(why) + '</span>' : '') +
         (g.pkg ? '<span class="pdxgap-drv-p"><span aria-hidden="true">🚂</span> ' +
           esc('this issue rode inside it as a provision' + (g.cls ? ' — ' + g.cls : '')) +
           '</span>' : '') +
@@ -15874,7 +16039,7 @@
           (d.more === 1 ? '' : 's') + '. Every one of them is listed in full below.') + '</div>'
       : '';
     return '<div class="pdxgap-drv" data-pdxgap-drv="' + escAttr(String(d.docs)) + '">' +
-      '<div class="pdxgap-drv-h">' + esc(_DOS_DRV_H) +
+      '<div class="pdxgap-drv-h">' + esc(d.docs === 1 ? _DOS_DRV_H1 : _DOS_DRV_H) +
         // BOTH NUMBERS, BECAUSE THEY ARE DIFFERENT NUMBERS. The read above counts
         // instruments on file; this counts the distinct measures they are spread
         // across, and "1 measure" beside "2 votes on file" is only confusing if
@@ -16230,7 +16395,7 @@
     // a re-sizing, not a removal.
     var head =
       '<div class="pdxgap-h">' +
-        '<div' + _titleAttr + '>' + esc(lbl) + '</div>' +
+        _issueTitleHtml(issueKey, lbl, _titleAttr) +
         _dosBucketHtml(_dosRow) +
         // Verdict first, stated position second. The verdict is what the reader came
         // to check; the stance is the thing it was checked against.

@@ -13,6 +13,14 @@
      tidier slug would be an address that 404s. A bill is listed only if the
      migrations that created it give it a number, a sitting, a citable source
      and something to read: a real title, an issue mapping, or a formal act. -->
+
+<!-- Issue files appear as /i/<key> for every issue key that has either a
+     boundary on file — the scope the curators argued out for it, transcribed
+     into issue-scope.js — or at least one measure in the migrations mapped to
+     it. A key with neither would open onto a definition that does not exist
+     yet and a record of nobody, so it is not advertised. Keys are listed in
+     their canonical spelling only; an alias resolves to the same page and is
+     not a second address. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://www.politidex.fyi/</loc></url>
   <url><loc>https://www.politidex.fyi/issue/abortion-rights-state-vs-federal-2026</loc></url>
@@ -1288,4 +1296,115 @@
   <url><loc>https://www.politidex.fyi/b/2025GS/S.B.%20329</loc></url>
   <url><loc>https://www.politidex.fyi/b/2025GS/S.B.%20330</loc></url>
   <url><loc>https://www.politidex.fyi/b/2025GS/S.B.%20336</loc></url>
+  <url><loc>https://www.politidex.fyi/i/america_first</loc></url>
+  <url><loc>https://www.politidex.fyi/i/america_first_fp</loc></url>
+  <url><loc>https://www.politidex.fyi/i/audit_spending</loc></url>
+  <url><loc>https://www.politidex.fyi/i/back_police</loc></url>
+  <url><loc>https://www.politidex.fyi/i/border_security</loc></url>
+  <url><loc>https://www.politidex.fyi/i/broadband</loc></url>
+  <url><loc>https://www.politidex.fyi/i/cannabis_reform</loc></url>
+  <url><loc>https://www.politidex.fyi/i/checks_balances</loc></url>
+  <url><loc>https://www.politidex.fyi/i/child_care</loc></url>
+  <url><loc>https://www.politidex.fyi/i/civil_service_control</loc></url>
+  <url><loc>https://www.politidex.fyi/i/climate_action</loc></url>
+  <url><loc>https://www.politidex.fyi/i/congress_oversight</loc></url>
+  <url><loc>https://www.politidex.fyi/i/cost_living</loc></url>
+  <url><loc>https://www.politidex.fyi/i/crypto_cbdc</loc></url>
+  <url><loc>https://www.politidex.fyi/i/cut_spending</loc></url>
+  <url><loc>https://www.politidex.fyi/i/datacenter_growth</loc></url>
+  <url><loc>https://www.politidex.fyi/i/datacenter_power</loc></url>
+  <url><loc>https://www.politidex.fyi/i/datacenter_water</loc></url>
+  <url><loc>https://www.politidex.fyi/i/democracy_balance</loc></url>
+  <url><loc>https://www.politidex.fyi/i/deportations</loc></url>
+  <url><loc>https://www.politidex.fyi/i/dev_district_finance</loc></url>
+  <url><loc>https://www.politidex.fyi/i/disaster_resilience</loc></url>
+  <url><loc>https://www.politidex.fyi/i/econ_corp_account</loc></url>
+  <url><loc>https://www.politidex.fyi/i/econ_growth</loc></url>
+  <url><loc>https://www.politidex.fyi/i/econ_smallbiz</loc></url>
+  <url><loc>https://www.politidex.fyi/i/econ_trade</loc></url>
+  <url><loc>https://www.politidex.fyi/i/econ_workers</loc></url>
+  <url><loc>https://www.politidex.fyi/i/edu_balance</loc></url>
+  <url><loc>https://www.politidex.fyi/i/edu_college_cost</loc></url>
+  <url><loc>https://www.politidex.fyi/i/edu_parental</loc></url>
+  <url><loc>https://www.politidex.fyi/i/election_integrity</loc></url>
+  <url><loc>https://www.politidex.fyi/i/election_security</loc></url>
+  <url><loc>https://www.politidex.fyi/i/end_dei</loc></url>
+  <url><loc>https://www.politidex.fyi/i/energy_production</loc></url>
+  <url><loc>https://www.politidex.fyi/i/enviro_balance</loc></url>
+  <url><loc>https://www.politidex.fyi/i/enviro_energy</loc></url>
+  <url><loc>https://www.politidex.fyi/i/family_support</loc></url>
+  <url><loc>https://www.politidex.fyi/i/foreign_balance</loc></url>
+  <url><loc>https://www.politidex.fyi/i/free_speech</loc></url>
+  <url><loc>https://www.politidex.fyi/i/gov_balance</loc></url>
+  <url><loc>https://www.politidex.fyi/i/gov_regulation</loc></url>
+  <url><loc>https://www.politidex.fyi/i/gov_services</loc></url>
+  <url><loc>https://www.politidex.fyi/i/gov_transparency</loc></url>
+  <url><loc>https://www.politidex.fyi/i/gov_waste</loc></url>
+  <url><loc>https://www.politidex.fyi/i/guard_authority</loc></url>
+  <url><loc>https://www.politidex.fyi/i/gun_balance</loc></url>
+  <url><loc>https://www.politidex.fyi/i/gun_rights</loc></url>
+  <url><loc>https://www.politidex.fyi/i/gun_safety</loc></url>
+  <url><loc>https://www.politidex.fyi/i/health_drug_prices</loc></url>
+  <url><loc>https://www.politidex.fyi/i/health_mental</loc></url>
+  <url><loc>https://www.politidex.fyi/i/health_rural</loc></url>
+  <url><loc>https://www.politidex.fyi/i/healthcare</loc></url>
+  <url><loc>https://www.politidex.fyi/i/healthcare_costs</loc></url>
+  <url><loc>https://www.politidex.fyi/i/healthcare_market</loc></url>
+  <url><loc>https://www.politidex.fyi/i/homeless</loc></url>
+  <url><loc>https://www.politidex.fyi/i/housing</loc></url>
+  <url><loc>https://www.politidex.fyi/i/housing_build</loc></url>
+  <url><loc>https://www.politidex.fyi/i/housing_first_time</loc></url>
+  <url><loc>https://www.politidex.fyi/i/housing_support</loc></url>
+  <url><loc>https://www.politidex.fyi/i/immig_balance</loc></url>
+  <url><loc>https://www.politidex.fyi/i/immig_fentanyl</loc></url>
+  <url><loc>https://www.politidex.fyi/i/immigration_reform</loc></url>
+  <url><loc>https://www.politidex.fyi/i/infrastructure</loc></url>
+  <url><loc>https://www.politidex.fyi/i/israel_support</loc></url>
+  <url><loc>https://www.politidex.fyi/i/judicial_check</loc></url>
+  <url><loc>https://www.politidex.fyi/i/justice_reform</loc></url>
+  <url><loc>https://www.politidex.fyi/i/lands_balance</loc></url>
+  <url><loc>https://www.politidex.fyi/i/lands_energy</loc></url>
+  <url><loc>https://www.politidex.fyi/i/lands_local</loc></url>
+  <url><loc>https://www.politidex.fyi/i/lands_preserve</loc></url>
+  <url><loc>https://www.politidex.fyi/i/lgbtq_rights</loc></url>
+  <url><loc>https://www.politidex.fyi/i/lower_taxes</loc></url>
+  <url><loc>https://www.politidex.fyi/i/medical_freedom</loc></url>
+  <url><loc>https://www.politidex.fyi/i/national_debt</loc></url>
+  <url><loc>https://www.politidex.fyi/i/paid_leave</loc></url>
+  <url><loc>https://www.politidex.fyi/i/permitting_reform</loc></url>
+  <url><loc>https://www.politidex.fyi/i/power_of_purse</loc></url>
+  <url><loc>https://www.politidex.fyi/i/privacy_rights</loc></url>
+  <url><loc>https://www.politidex.fyi/i/pro_choice</loc></url>
+  <url><loc>https://www.politidex.fyi/i/pro_life</loc></url>
+  <url><loc>https://www.politidex.fyi/i/prop_tax</loc></url>
+  <url><loc>https://www.politidex.fyi/i/property_rights</loc></url>
+  <url><loc>https://www.politidex.fyi/i/property_tax</loc></url>
+  <url><loc>https://www.politidex.fyi/i/public_schools</loc></url>
+  <url><loc>https://www.politidex.fyi/i/reform_balance</loc></url>
+  <url><loc>https://www.politidex.fyi/i/religious_liberty</loc></url>
+  <url><loc>https://www.politidex.fyi/i/restraint</loc></url>
+  <url><loc>https://www.politidex.fyi/i/rural_ag</loc></url>
+  <url><loc>https://www.politidex.fyi/i/school_choice</loc></url>
+  <url><loc>https://www.politidex.fyi/i/social_security</loc></url>
+  <url><loc>https://www.politidex.fyi/i/sound_money</loc></url>
+  <url><loc>https://www.politidex.fyi/i/state_standing</loc></url>
+  <url><loc>https://www.politidex.fyi/i/states_federal_power</loc></url>
+  <url><loc>https://www.politidex.fyi/i/stock_trading_ban</loc></url>
+  <url><loc>https://www.politidex.fyi/i/strong_defense</loc></url>
+  <url><loc>https://www.politidex.fyi/i/tariffs_authority</loc></url>
+  <url><loc>https://www.politidex.fyi/i/tariffs_china</loc></url>
+  <url><loc>https://www.politidex.fyi/i/tariffs_growth</loc></url>
+  <url><loc>https://www.politidex.fyi/i/tariffs_prices</loc></url>
+  <url><loc>https://www.politidex.fyi/i/tax_middle_class</loc></url>
+  <url><loc>https://www.politidex.fyi/i/tech_balance</loc></url>
+  <url><loc>https://www.politidex.fyi/i/tech_innovation</loc></url>
+  <url><loc>https://www.politidex.fyi/i/tobacco_nicotine</loc></url>
+  <url><loc>https://www.politidex.fyi/i/tough_on_crime</loc></url>
+  <url><loc>https://www.politidex.fyi/i/transit</loc></url>
+  <url><loc>https://www.politidex.fyi/i/veterans</loc></url>
+  <url><loc>https://www.politidex.fyi/i/voter_id</loc></url>
+  <url><loc>https://www.politidex.fyi/i/voting_access</loc></url>
+  <url><loc>https://www.politidex.fyi/i/war_powers</loc></url>
+  <url><loc>https://www.politidex.fyi/i/water</loc></url>
+  <url><loc>https://www.politidex.fyi/i/water_storage</loc></url>
 </urlset>

@@ -904,8 +904,31 @@
           '</span>' +
           '<span class="pdxtree-go" aria-hidden="true">›</span>' +
         '</button>' +
+        scopeCtlHtml(lf) +
         issueFileHtml(lf) +
       '</div>';
+  }
+
+  // ── WHAT THE KEY MEANS, BEFORE THE FILE THAT USES IT ──────────────────────
+  // The leaf prints a chip name — "Farmers & Rural Communities" — and a side, and
+  // a reader who has not met the key has no way to learn what it covers from the
+  // row itself. That definition exists: issue-scope.js carries the boundary the
+  // curators argued out for each key, transcribed from the comment block over the
+  // key rather than written here. Where a key has none, the module says so in one
+  // honest line instead of inventing one.
+  //   THIRD SIBLING, SAME RULE AS THE SECOND. Like the issue-file anchor above,
+  // this control sits OUTSIDE the face button and never inside it, so
+  // closest('[data-pdxtree-dos]') cannot reach the row door from a tap on ⓘ, and
+  // the parser cannot be handed a button inside a button. issue-scope.js opens its
+  // own sheet from a delegated listener it binds itself; nothing here navigates,
+  // nothing here stops propagation, and a document served without the module gets
+  // no control rather than a dead one.
+  function scopeCtlHtml(lf) {
+    var S = window.PDXIssueScope;
+    try {
+      if (S && typeof S.controlHtml === 'function') return S.controlHtml(lf.key) || '';
+    } catch (e) {}
+    return '';
   }
 
   // ── THE SECOND DOOR, AND IT TAKES NOTHING FROM THE FIRST ──────────────────

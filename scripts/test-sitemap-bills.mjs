@@ -33,6 +33,7 @@
 //   node scripts/test-sitemap-bills.mjs
 
 import { readFileSync } from "node:fs";
+import vm from "node:vm";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { measureAddresses, billPath } from "./vr-measure-addresses.mjs";
@@ -176,11 +177,54 @@ ok(!locs.some((u) => u.startsWith(ORIGIN + "/locker")),
 ok(locs.some((u) => u.startsWith(ORIGIN + "/p/")), "the person files vanished from the sitemap");
 ok(locs.some((u) => u.startsWith(ORIGIN + "/issue/")), "the Issue Spotlights vanished from the sitemap");
 eq(locs.length, 1 + locs.filter((u) => u !== ORIGIN + "/").length, "the site root is listed exactly once");
-// Bills are additive: the file is people + spotlights + bills + root, nothing else.
+// Bills are additive: the file is people + spotlights + bills + issue files + root,
+// nothing else. THE FOURTH KIND IS NAMED, NOT WAIVED. /i/<key> is the issue file —
+// what a key covers and who has a formal record on it — and the issue-file doors
+// pass (v133) started advertising it because the issue title on a person's file
+// became a link to it. The point of this check is that nothing arrives in the
+// sitemap unexamined, so the kind is listed here and examined below: every /i/
+// address has to be a bare key in the vocabulary's own spelling, listed once, and
+// carrying either a boundary on file or a measure mapped to it — a key with
+// neither would open onto a definition that does not exist and a record of nobody.
+const issueFiles = locs.filter((u) => u.startsWith(ORIGIN + "/i/"));
 const unaccounted = locs.filter((u) =>
   u !== ORIGIN + "/" && !u.startsWith(ORIGIN + "/p/") &&
-  !u.startsWith(ORIGIN + "/issue/") && !u.startsWith(ORIGIN + "/b/"));
+  !u.startsWith(ORIGIN + "/issue/") && !u.startsWith(ORIGIN + "/b/") &&
+  !u.startsWith(ORIGIN + "/i/"));
 eq(unaccounted.length, 0, `the sitemap carries ${unaccounted.length} address(es) of an unaccounted kind (e.g. ${unaccounted.slice(0, 3).join(", ")})`);
+
+ok(issueFiles.length > 0, "the issue files vanished from the sitemap");
+const ifKeys = issueFiles.map((u) => u.slice((ORIGIN + "/i/").length));
+const misshaped = ifKeys.filter((k) => !/^[a-z0-9_]+$/.test(k));
+eq(misshaped.length, 0,
+  `${misshaped.length} issue-file address(es) are not a bare key (e.g. ${misshaped.slice(0, 3).join(", ")}) — ` +
+  `/i/ is resolved by the key, so a slug, an escape or a query string opens nothing`);
+const dupIf = ifKeys.filter((k, i) => ifKeys.indexOf(k) !== i);
+eq(dupIf.length, 0, `${dupIf.length} issue file(s) are listed more than once (e.g. ${dupIf.slice(0, 3).join(", ")})`);
+// The two things that make a key worth advertising, read out of the repo: a
+// boundary transcribed into issue-scope.js, or a mapping in the migrations.
+// THE SCOPE TABLE IS RUN, NOT SCANNED. Six of its keys — the three data-center
+// keys and the three tariff keys — were argued as FAMILIES and get their entry
+// stamped on by a loop at the bottom of the module rather than typed out at the
+// top, so a regular expression over the source misses exactly the keys whose
+// treatment was most deliberate. The generator boots the module for the same
+// reason; so does this. The module is an IIFE that hangs one object off window
+// and returns early if it is already there.
+const SCOPE_KEYS = (() => {
+  const win = { location: { pathname: "/" } };
+  win.window = win;
+  vm.runInNewContext(R("issue-scope.js"), win, { filename: "issue-scope.js" });
+  const S = (win.PDXIssueScope || {}).SCOPE || {};
+  return new Set(Object.keys(S));
+})();
+const MAPPED = new Set(index.issueKeys || []);
+must(SCOPE_KEYS.size > 10 && MAPPED.size > 10,
+  `the two sources for an issue file parsed (${SCOPE_KEYS.size} bounded keys, ${MAPPED.size} mapped keys)`);
+const hollow = ifKeys.filter((k) => !SCOPE_KEYS.has(k) && !MAPPED.has(k));
+eq(hollow.length, 0,
+  `${hollow.length} issue file(s) are advertised with neither a boundary on file nor a measure mapped to them ` +
+  `(e.g. ${hollow.slice(0, 3).join(", ")}) — that address opens onto an empty definition and a record of nobody`);
+console.log(`      ${issueFiles.length} issue files advertised, every one bounded or mapped`);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 5 · One file, inside the protocol's limits, one Sitemap: line

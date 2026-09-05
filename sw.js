@@ -880,6 +880,37 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v133 - THE ISSUE NAME WAS THE ONE WORD ON THE ROW THAT LED NOWHERE. A reader
+// who opened Celeste Maloy on Farmers & Rural Communities got her thin read and
+// the number of the bill behind it, H.R. 7567, and no way from there to either
+// of the two things they would ask next: what does this key actually cover, and
+// what did that measure do. Both answers already existed - the issue file at
+// /i/<key> and the measure explainer inside the dossier row - and neither had a
+// door on the surface where the question gets asked.
+//   Three doors, no new product. The issue title on the dossier header is now a
+// link to /i/<key>; the brief's pattern rows and the topic tree's leaves get the
+// same file as a small named sibling, because on those two the name IS the
+// button that opens the person's own record and an anchor inside a button drops
+// the rest of the row on the floor. Every one of them asks pdx-issue-family.js
+// for the address rather than spelling a path.
+//   The ⓘ glossary now rides the tree leaf and the dossier header as well as the
+// brief row, and rural_ag finally has a boundary behind it: two federal waves
+// refused to map amendments to that key IN WRITING because it had none, so the
+// scope was argued out in alignment-tool.js from the six instruments and three
+// refusals on file, then transcribed into issue-scope.js. Not generated - a key
+// with no argued boundary still says "No definition on file yet."
+//   And the one-measure roll-up. A lane whose whole formal basis is a single
+// vote used to render no roll-up at all, on the reasoning that the card below
+// already names the bill; naming a bill is not teaching it, and that was the
+// exact depth of record where the explainer door did not exist. It now renders
+// at one, with a singular heading, the side said in words instead of counted as
+// "1 advanced", and one clipped sentence of the curator's own mapping rationale.
+// Clipping it required fixing the sentence splitter, which read the stop inside
+// "H.R." as the end of a sentence and would have printed the string "R.".
+//   sitemap.xml now lists /i/<key> for every key with a locked boundary or a
+// formal mapping. No new score, no percentage anywhere new, no party framing, and
+// the public lane still stays out of the formal figure.
+//
 // v132 - THE OUTLINE OFFERED TWO WAYS TO GO TO THE SAME PLACE. The file outline
 // shipped with "Letterhead" and "Formal record" as separate rows, which is how
 // the spine names those two stages - and on a member file they are one screen.
@@ -2199,7 +2230,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v132';
+const CACHE_VERSION = 'v133';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

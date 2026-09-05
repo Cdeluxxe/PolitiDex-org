@@ -1432,6 +1432,52 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "person-outline.js",
     "person-outline.css",
     "scripts/test-person-outline.mjs",
+    // THE ISSUE FILE'S DOORS (CACHE_VERSION v133), on those same later-wave terms.
+    // It writes no roll, no mapping row, no key, no floor, no admission and no
+    // score; it opens doors onto surfaces that already exist. A person×issue
+    // dossier named an issue — "Farmers & Rural Communities" — and taught neither
+    // the key nor the measure: the title was an inert <div>, there was no ⓘ, and
+    // the formal line was a bill number. The issue title on all three
+    // person×issue surfaces now links to /i/<key>, the address pdx-issue-family.js
+    // already owned; the ⓘ mounts issue-scope.js's own copy, or its honest blank
+    // where no boundary is on file; and the one-measure roll-up renders at one
+    // instead of two, so the thinnest possible record — one vote on one bill —
+    // reaches the measure explainer that every deeper file already reached. The
+    // sentence on that row is a clipped prefix of the curator's own mapping
+    // rationale; nothing is generated.
+    //   The reason a wave like this one is the file that has to declare it: R1 and
+    // R2 put 1,120 member files behind these keys, and a thin file is now the
+    // common case rather than the exception. Every count, chip, tier, band, side
+    // word and Direction Match figure is byte-identical, which the twin boot above
+    // has just proved; consistency.js's twelve new spans and word-action.js's one
+    // are carved and argued in the shared seam module.
+    //   issue-scope.js gains one entry: the boundary for rural_ag, transcribed from
+    // the argued note the same pass wrote over that key in alignment-tool.js — the
+    // key two federal waves refused to map an instrument on for want of one. No
+    // pole was invented and no scope prose was generated.
+    //   scripts/gen-sitemap.mjs lists /i/<key> for every key with a boundary on
+    // file or at least one mapping in the migrations, reading the app's own module
+    // for both; scripts/vr-measure-addresses.mjs, which it reads, now reports WHICH
+    // issue keys the migrations map rather than only how many mappings there are.
+    // Person addresses are untouched, and sitemap.xml gained addresses and dropped
+    // none, which the check above measures.
+    //   scripts/test-dossier-read.mjs had its one-item rule reversed with the
+    // renderer, and swept positively instead: the single-item lanes are now
+    // required to teach the measure. Its rationale-quoting strip list gained the
+    // new span for the same reason it already held two — a quoted committee name is
+    // not prose this layer composed.
+    "issue-scope.js",
+    "scripts/gen-sitemap.mjs",
+    "scripts/vr-measure-addresses.mjs",
+    "scripts/test-dossier-read.mjs",
+    "scripts/test-issue-file-doors.mjs",
+    // The sitemap's own suite is declared for the same reason the generator is: it
+    // held the rule "the file is people, spotlights, bills and the root, nothing
+    // else", and this wave advertises a fourth kind. The kind is named there and
+    // then examined — bare key, listed once, and either a boundary on file or a
+    // measure mapped to it — so the sentence it replaces is stronger than the one
+    // it stood in for, not weaker.
+    "scripts/test-sitemap-bills.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

@@ -71,15 +71,31 @@ const has = (hay, needle, msg) =>
   ok(String(hay).indexOf(needle) >= 0, `${msg} — "${needle}" missing`);
 const section = (t) => console.log(`\n   ── ${t}`);
 const visible = (h) => String(h).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+// Escaped entities back to the characters the curator typed, so a printed
+// sentence can be compared byte-for-byte against the rationale on file.
+const unesc = (h) => String(h)
+  .replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+  .replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+  .replace(/&amp;/g, "&");
 // The word-wall polices PROSE THIS LAYER COMPOSED. A measure's own short title is
 // quoted data — "Bipartisan Safer Communities Act" is what Congress called it, and
 // a test that reads the substring "partisan" out of a statute's name and calls it
 // party framing would force the roll-up to paraphrase bill titles, which is the
-// one thing it must never do. The two spans that carry quoted names come out
+// one thing it must never do. The spans that carry quoted names come out
 // before the scan; everything this layer wrote stays in.
+//   THE THIRD SPAN, ADDED WITH THE ONE-MEASURE ROLL-UP. `pdxgap-drv-w` prints one
+// clipped sentence of the CURATOR'S OWN mapping rationale, verbatim — the same
+// text the row's L4 fold prints in full. It is quoted data by the same rule as a
+// bill title, and for the same demonstrated reason: the child-care mappings name
+// the "Child Care and Development Block Grant", and reading "block" out of a
+// statutory programme name would force this span to paraphrase the curator, which
+// is precisely what it must never do. It is not left unchecked — section 2 proves
+// the printed sentence is a verbatim prefix of the rationale on file, which is a
+// stronger promise about this content than the word wall could make.
 const prose = (h) => visible(String(h)
   .replace(/<span class="pdxgap-drv-id">[\s\S]*?<\/span>/g, " ")
-  .replace(/<span class="pdxgap-drv-t">[\s\S]*?<\/span>/g, " "));
+  .replace(/<span class="pdxgap-drv-t">[\s\S]*?<\/span>/g, " ")
+  .replace(/<span class="pdxgap-drv-w">[\s\S]*?<\/span>/g, " "));
 // A probe that finds nothing must fail loudly. A renamed symbol otherwise turns
 // this whole file into a very fast, very green no-op.
 const must = (cond, msg) => {
@@ -250,12 +266,66 @@ for (const key of KEYS.slice(0, 12)) {
   if (COLD.PDXConsistency.dossierReadHtml(PIDS[0], key)) coldHtml++;
 }
 eq(coldHtml, 0, "a member whose record has not arrived renders no read at all");
-// …and a single-item lane gets no roll-up, because the card below it already
-// names the measure.
-const solos = READS.filter((x) => x.drv && x.drv.items < 2);
-must(solos.length > 0, "no single-item lanes swept to check the drivers gate");
-eq(solos.filter((x) => x.drvHtml !== "").length, 0,
-  "a one-item lane renders no measures roll-up");
+// ── ONE MEASURE: THE RULE HERE USED TO RUN THE OTHER WAY ────────────────────
+// This section once asserted that a single-item lane renders NO roll-up, on the
+// reasoning that the card below already names the bill. It does name it — and
+// that was the reader problem, because a bill number is not an explanation. The
+// thinnest record on the site is precisely where "what was it, which way did they
+// go, why does it count here" needs an answer, and it was the only depth at which
+// the explainer door did not exist. So the gate is gone and the promises move
+// here, stated positively: a lane of one renders the roll-up, and everything that
+// makes it honest is checked rather than assumed.
+const solos = READS.filter((x) => x.drv && x.drv.items === 1 && x.drv.docs === 1);
+must(solos.length > 0, "no single-item lanes swept to check the one-measure roll-up");
+const soloBad = [];
+for (const x of solos) {
+  const h = x.drvHtml;
+  const say = (m) => soloBad.push(`${x.pid}/${x.key}: ${m}`);
+  if (!h) { say("renders no roll-up at all"); continue; }
+  // The heading is singular, and the plural is nowhere on the card.
+  if (!h.includes("Which measure this came from")) say("plural or missing heading");
+  if (h.includes("Which measures this came from")) say("counts one measure as measures");
+  // The side is a word from the locked set, and never a count of one.
+  const bits = /<span class="pdxgap-drv-c">([\s\S]*?)<\/span>/.exec(h);
+  if (!bits) say("no side stated on the only row");
+  else {
+    const w = visible(bits[1]).trim();
+    if (!["not scorable", "advanced", "against", "took no side"].includes(w)) {
+      say(`side word outside the locked set: "${w}"`);
+    }
+  }
+  if (/\b1 (advanced|against|took no side|not scorable)\b/.test(visible(h))) {
+    say("states the side as a count of one");
+  }
+  // The row is still the door, and still has nothing interactive inside it.
+  if (!/<li class="pdxgap-drv-r[^"]*" data-pdxdrv-open=/.test(h)) {
+    say("the door attribute left the outermost <li>");
+  }
+  if (/<a\b|<button\b/.test(h)) say("nested an <a> or <button> inside the row");
+  // And the one sentence of rationale is the curator's own words, not a rewrite:
+  // a verbatim prefix of the mapping on file, clipped on a sentence boundary.
+  const wsp = /<span class="pdxgap-drv-w">([\s\S]*?)<\/span>/.exec(h);
+  if (wsp) {
+    const shown = unesc(wsp[1]);
+    const cut = shown.endsWith("…");
+    const base = cut ? shown.slice(0, -1) : shown;
+    const items = CS.dossierItems(x.pid, x.key) || [];
+    const why = String((items[0] && items[0].rationale) || "").trim();
+    if (!why) say("printed a rationale sentence for a mapping that carries none");
+    else if (!why.startsWith(base)) say("the printed sentence is not verbatim");
+    else if (!cut && !/[.!?]$/.test(base) && base !== why) say("clipped mid-sentence");
+    // 'R.' — the string an abbreviation-blind splitter returns for a rationale
+    // that opens 'McDowell amendment to H.R. 8800 …'. A clip this short is not a
+    // sentence at all, and printing it would put words in the curator's mouth.
+    if (base.length < 24 && why.length > 40) say(`clipped to a fragment: "${shown}"`);
+    if (shown.length > 224) say(`the summary line is a paragraph (${shown.length} chars)`);
+  }
+}
+eq(soloBad.length, 0, `a one-measure lane teaches the measure — ` +
+  soloBad.slice(0, 4).join(" | "));
+// The rationale line is not a theoretical branch: it prints on real records.
+eq(solos.filter((x) => x.drvHtml.includes('class="pdxgap-drv-w"')).length > 0, true,
+  "no one-measure lane printed a rationale sentence at all");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("3 · no score, no share, no ranking");

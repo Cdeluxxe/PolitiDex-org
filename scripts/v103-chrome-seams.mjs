@@ -185,6 +185,23 @@ export const CJ_SEAMS = [
   ["    else if (counts.limited > 0) token = 'limited';\n",
    "\n    // Phase 7: Say-vs-Do carries its OWN pooled public-record integrity %",
    "the roll-up's empty-key token"],
+  // ── and three for the issue file's doors on the dossier (v133) ─────────────
+  // The person×issue dossier named an issue and taught neither the key nor the
+  // measure: the title was an inert <div>, there was no ⓘ, and the bill line was
+  // the number and nothing else. All three spans below are that sheet's own header
+  // and its own paint. Nothing in them reads a roll, a floor, a mapping, a weight
+  // or a member; the address is asked of pdx-issue-family.js and the scope prose is
+  // asked of issue-scope.js, so neither string is written here.
+  ["      '.pdxgap-title.pdxc-ic{border-left:4px solid var(--pdx-ic);padding-left:0.5rem;' +\n" +
+   "        'background:linear-gradient(90deg,var(--pdx-ic-wash,transparent),transparent 58%);}' +\n",
+   "      '@media (max-width:380px){.pdxgap-title{font-size:1.3rem;}",
+   "the title row's paint, and the link's"],
+  ["      '.pdxgap-drv-t{flex:1 0 100%;font-size:0.63rem;color:#93a6c4;line-height:1.35;}' +\n",
+   "      '.pdxgap-drv-p{flex:1 0 100%;",
+   "the one-measure summary line's paint"],
+  ["    return { style: IC.styleFor(key), cls: on ? ' pdxc-ic' : '', on: on };\n  }\n",
+   "  // The dot repeats the row's colour next to the issue name, where the eye",
+   "the title door and the ⓘ beside it"],
   // ── and two for the record badge the homepage card now wears (v111) ───────
   // The homepage card lane had to print the SAME 🏛 RECORD badge the person file
   // prints, and it could do that in exactly one of three ways: mount this file's
@@ -232,6 +249,53 @@ export const CJ_SEAMS = [
 // suites carve this list out of the lower half and byte-compare what is left.
 // Suites that carve the file whole use CJ_SEAMS_ALL.
 export const CJ_SEAMS_BELOW = [
+  // ── the one-measure roll-up, and the sentence splitter under it (v133) ─────
+  // The dossier's "Which measures this came from" roll-up bailed below two items,
+  // so the thinnest possible record — one vote on one bill, which is most of a
+  // first-term file — was the one depth where the measure explainer's door did not
+  // exist at all. It renders at one now: singular heading, the member's side in
+  // the same four words the tallies use instead of "1 advanced", and one clipped
+  // sentence of the curator's own mapping rationale. The clip needed a sentence
+  // boundary that survives H.R., H.Amdt. and Pub. L. — the old split returned the
+  // string "R." out of "H.R. 8800" — so the splitter is rewritten here too and its
+  // pieces still concatenate back to the input byte for byte, which is what lets
+  // the card promise the words are the curator's own.
+  //   No wave has a stake in any of it: nothing below reads a roll, a floor, a
+  // mapping, a weight, a party or a member, and nothing generates prose. Every
+  // sentence printed is a prefix of a string already on the mapping row, and the
+  // multi-measure roll-up every earlier wave was written against renders the same
+  // bytes it always did.
+  ["  // fold at the bottom, which still holds the paragraph in full.\n",
+   "  // Slot 2's read: WHOSE sentence is about to be printed",
+   "the bill-aware sentence boundary"],
+  ["  var _DOS_DRV_H = 'Which measures this came from';\n",
+   "  function _dosDrivers(pid, issueKey, ov) {\n",
+   "the singular heading, as a constant"],
+  ["          n: 0, adv: 0, opp: 0, held: 0, pkg: !!pkg[k], cls: '',\n",
+   "          // WHERE THIS MEASURE'S OWN SCREEN IS.",
+   "the group's rationale field"],
+  ["  function _dosDriversHtml(pid, issueKey, ov) {\n    var d = _dosDrivers(pid, issueKey, ov);\n",
+   "    var rows = d.rows.map(function (g) {\n",
+   "the one-measure gate"],
+  // The gate's closing line rides along at the head of this anchor because
+  // "      var bits = [];" alone is NOT unique in consistency.js: the record
+  // proof-line builder opens with the same statement two indents deeper, and a
+  // six-space needle matches inside its eight-space line. Widened, not loosened.
+  ["    var rows = d.rows.map(function (g) {\n      var bits = [];\n",
+   "      if (g.adv) bits.push(g.adv + ' advanced');\n",
+   "the side said in words, not counted"],
+  ["      if (g.held) bits.push(g.held + ' not scorable');\n",
+   "      var ttl = g.title && g.title.toLowerCase() !== g.ident.toLowerCase() ? g.title : '';\n",
+   "the clipped rationale, and its budget"],
+  ["        (ttl ? '<span class=\"pdxgap-drv-t\">' + esc(ttl) + '</span>' : '') +\n",
+   "        (g.pkg ? '<span class=\"pdxgap-drv-p\">",
+   "the rationale's own span on the row"],
+  ["    return '<div class=\"pdxgap-drv\" data-pdxgap-drv=\"' + escAttr(String(d.docs)) + '\">' +\n",
+   "        // BOTH NUMBERS, BECAUSE THEY ARE DIFFERENT NUMBERS.",
+   "the heading chosen by the count"],
+  ["      '<div class=\"pdxgap-h\">' +\n",
+   "        _dosBucketHtml(_dosRow) +\n",
+   "the dossier title's mount"],
   ["      TONE: _ST_PAT_TONE,\n",
    "      display: _stRecordDisplay,\n",
    "the badge's two exported tokens"],
@@ -288,6 +352,19 @@ export const IC_SEAMS = [
 
 // ── word-action.js: three spans — the gate, and the two mounts ───────────────
 export const WA_SEAMS = [
+  // ── the issue file beside the pattern row (v133) ───────────────────────────
+  // The brief's pattern rows are the third surface a reader meets an issue name
+  // on, and the name was the one part of the row that led nowhere. The label
+  // itself may not become the link here — on this row the label IS the dossier
+  // button, and an <a> inside a <button> makes the parser close the button early
+  // and drop the tally span, which is the defect scripts/test-row-tap-dossier.mjs
+  // exists to catch — so the file is a small named sibling after the door, which
+  // is the shape stance-tree.js already ships on its leaves. The address is asked
+  // of pdx-issue-family.js; no path is spelled in this file, and without that
+  // module the row renders no control rather than a link to a guess.
+  ["      // The key, last and outside the door — see the wall above.\n      (door ? scopeControlHtml(key) : '') +\n",
+   "  // THE KEY GLOSSARY IS A GUEST, NOT A DEPENDENCY.",
+   "the issue file beside the pattern row"],
   ["  function shapeRowsHtml(rows, pid, mount) {\n    return (rows || []).map(function (x) { return shapeRowHtml(x, pid, mount); }).join('');\n  }\n",
    "  function shapeHeroHtml(pid, p) {\n",
    "the slice gate and its locked copy"],
@@ -334,20 +411,22 @@ export function carveSeams(src, seams, side, file, must) {
  * arguing about the wrong bytes — which is worse than a failure, because it
  * passes. Names do not move, so the arguments name them.
  *
- * Which list a body array came from is decided by its length: the three lists are
- * distinct lengths and a suite hands over exactly one of them. If that ever stops
- * being true, pass the list rather than guessing it — do not relax the lookup.
+ * WHICH LIST A BODY ARRAY CAME FROM IS NOW PASSED, NOT GUESSED. It used to be
+ * inferred from the array's LENGTH, on the grounds that the three lists were
+ * distinct lengths — and the previous note here said, in as many words, that a
+ * pass which broke that should hand the list over rather than loosen the lookup.
+ * The issue-file doors pass (v133) broke it: three new spans above the _DOS_MECH
+ * literal and nine below left both halves the same length. So the caller says
+ * which list it carved with, and a mismatched length is a failure instead of a
+ * silent re-index. Only two callers exist and both already know the answer:
+ * assertConsistencySeams was handed the upper half whenever it was also handed a
+ * lower half, and the whole file otherwise.
  */
-function seamListFor(bodies) {
+function byWhy(bodies, api, list) {
   const n = (bodies || []).length;
-  const lists = [CJ_SEAMS_ALL, CJ_SEAMS, CJ_SEAMS_BELOW];
-  const hit = lists.filter((l) => l.length === n);
-  return hit.length === 1 ? hit[0] : null;
-}
-function byWhy(bodies, api) {
-  const list = seamListFor(bodies);
-  api.ok(!!list, `consistency.js was carved into ${(bodies || []).length} spans, which is not one of the ` +
-    "declared seam lists in scripts/v103-chrome-seams.mjs — a seam was added to the module and not to the caller");
+  api.ok(!!list && n === list.length,
+    `consistency.js was carved into ${n} spans and argued against a list of ` +
+    `${(list || []).length} — a seam was added to scripts/v103-chrome-seams.mjs and not to the caller`);
   const m = new Map();
   (bodies || []).forEach((b, k) => { if (list && list[k]) m.set(list[k][2], b); });
   return (why) => {
@@ -362,7 +441,9 @@ function byWhy(bodies, api) {
  */
 export function assertConsistencySeams(bodies, api, below) {
   const { has, ok } = api;
-  const cut = byWhy(bodies, api);
+  // A caller that hands over a lower half carved this file in two at the literal,
+  // so what it has here is the upper list; a caller that does not carved it whole.
+  const cut = byWhy(bodies, api, below ? CJ_SEAMS : CJ_SEAMS_ALL);
   const strip = (t) => t.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
   const flat = (t) => strip(t).split("\n").map((l) => l.trim()).filter(Boolean).join(" ");
 
@@ -471,9 +552,39 @@ export function assertConsistencySeams(bodies, api, below) {
   ok(!/\.sort\(|\.filter\(|\.slice\(0,/.test(strip(xs).slice(strip(xs).indexOf("tier:"))),
     "the exec pick now sorts, filters or caps on the display tier — the pick above it is unchanged");
 
+  // ── seams I1-I3: the dossier's title is a door, and the ⓘ is the other ────
+  // I1/I2 are paint. What the paint may not do is invent a state: the link wears
+  // the colour and the face the inert title already had, and the summary line is
+  // recessed a step below it rather than given a second title's weight.
+  const titlePaint = cut("the title row's paint, and the link's");
+  has(titlePaint, ".pdxgap-titlerow{display:flex", "the title and its ⓘ no longer share one line");
+  has(titlePaint, "a.pdxgap-title{text-decoration:none", "the title link is painted as something other than the title it replaced");
+  const whyPaint = cut("the one-measure summary line's paint");
+  has(whyPaint, ".pdxgap-drv-w{flex:1 0 100%", "the one-measure summary line has no paint of its own");
+  for (const t of [titlePaint, whyPaint])
+    ok(!/\d\s*%|toFixed|Math\.|party/i.test(strip(t)), "a paint span carries a figure, arithmetic or a party term");
+  // I3. THE TWO DOORS. Both destinations are ASKED FOR rather than spelled: the
+  // address comes from pdx-issue-family.js, which owns it, and the scope prose from
+  // issue-scope.js, which refuses to invent a boundary that is not on file. Both
+  // fail closed — a document served without either module keeps the inert <div>
+  // this sheet has always had, which is why neither is a dependency.
+  const doors = cut("the title door and the ⓘ beside it");
+  has(doors, "function _issueTitleHtml(key, lbl, attr) {", "the title door is not where the seam says it is");
+  has(doors, "F.profileUrl(key)", "the dossier composes the issue address instead of asking the module that owns it");
+  has(doors, "S.controlHtml(key)", "the ⓘ is not issue-scope.js's own control");
+  has(doors, "'<div' + attr + '>' + esc(lbl) + '</div>'",
+    "the title no longer falls back to the inert heading when the family module is absent");
+  ok(!/'\/i\//.test(strip(doors)), "the dossier spells the issue-file prefix inline");
+  ok(!/MIN_|FLOOR|floor|publishable|score|weight|Math\.|party|\d\s*%/.test(strip(doors)),
+    "the title door reads a floor, a weight, a score, a party or a percentage");
+  ok(doors.split("'<a ").length === 2 && doors.indexOf("<button") < 0,
+    "the title door emits more than one anchor, or a button inside it — the ⓘ is issue-scope.js's " +
+    "own sibling control and this span may not grow a second interactive element of its own");
+
   // And the export spans, wherever the caller cut them from.
-  ok(!below || seamListFor(below) === CJ_SEAMS_BELOW,
-    "the lower half of consistency.js was carved with something other than CJ_SEAMS_BELOW");
+  ok(!below || below.length === CJ_SEAMS_BELOW.length,
+    `the lower half of consistency.js was carved into ${(below || []).length} spans, which is not ` +
+    "CJ_SEAMS_BELOW — a seam was added to the module and not to the caller");
   assertConsistencyExportSeams(below || CJ_SEAMS_BELOW.map(([, , why]) => cut(why)), api);
 }
 
@@ -484,8 +595,9 @@ export function assertConsistencySeams(bodies, api, below) {
  */
 export function assertConsistencyExportSeams(bodies, api) {
   const { ok } = api;
+  const has = api.has || ((x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`));
   const strip = (t) => t.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
-  const cut = byWhy(bodies, api);
+  const cut = byWhy(bodies, api, CJ_SEAMS_BELOW);
   const badge = cut("the badge's two exported tokens");
   const expA = cut("the single-row and band exports"), expB = cut("the exported fold length");
   // The badge's tokens, beside the tier read they belong with. Two names.
@@ -499,6 +611,58 @@ export function assertConsistencyExportSeams(bodies, api) {
   for (const t of [badge, expA, expB])
     ok(!/function|=>|Math\.|MIN_|FLOOR/.test(strip(t)),
       "an export line carries logic — these are references to what the file already holds");
+
+  // ── the one-measure roll-up (v133), nine spans in the same lower half ──────
+  // J1. THE BOUNDARY. Boundaries only: no token is rewritten anywhere in the span,
+  // which is checkable — nothing in it calls .replace() — and that is exactly what
+  // lets the card print a clip and still promise the words are the curator's.
+  const bound = cut("the bill-aware sentence boundary");
+  has(bound, "var _DOS_ABBR = {", "the abbreviation list the splitter turns on is gone");
+  has(bound, "function _dosSentences(text) {", "the sentence boundary is not where the seam says it is");
+  has(bound, "!_dosIsAbbr(t.slice(start, i))", "a full stop closes a sentence again without asking what it ended");
+  has(bound, "return m.slice(0, n).join('').trim();", "the clip stopped rebuilding the curator's own bytes");
+  ok(!/\.replace\(/.test(strip(bound)), "the splitter rewrites a token — it decides boundaries and nothing else");
+  ok(!/MIN_|FLOOR|score|weight|party/.test(strip(bound)), "the splitter reads a floor, a score, a weight or a party");
+  // J2/J3. The singular heading, and the field the sentence is read from — which is
+  // the mapping's own `rationale`, carried and never rewritten.
+  has(cut("the singular heading, as a constant"), "var _DOS_DRV_H1 = 'Which measure this came from';",
+    "the singular heading is not the plural one with the 's' taken off");
+  const field = cut("the group's rationale field");
+  has(field, "why: String((dItem && dItem.rationale) || '').trim(),",
+    "the roll-up group reads its sentence from something other than the mapping's rationale");
+  // carveSeams hands the body back WITH its opening anchor, which is the line the
+  // group's counters are declared on — hence "n" ahead of the one added field.
+  ok([...strip(field).matchAll(/^\s*([a-z][A-Za-z]*):/gm)].map((m) => m[1]).join(",") === "n,why",
+    "the roll-up group gained a field other than the curator's sentence");
+  // J4. THE GATE. One row is enough now; nothing else about which rows exist moved.
+  const gate = cut("the one-measure gate");
+  has(gate, "if (!d || !d.rows.length) return '';", "the roll-up no longer renders for a record with exactly one measure");
+  has(gate, "var solo = d.items === 1 && d.docs === 1;", "the one-measure case is decided on something other than the two counts");
+  ok(!/MIN_|FLOOR|floor|publishable|score|weight|Math\.|party|\.sort\(/.test(strip(gate)),
+    "the gate reads a floor, a score, a weight, a party, or reorders the rows");
+  // J5. THE SIDE, IN WORDS. The same four states the tallies below spell, and no
+  // fifth — a word here is the tally's word with the leading "1 " taken off.
+  const side = cut("the side said in words, not counted");
+  const sideCode = side.replace(/^\s*\/\/.*$/gm, "");
+  ok([...sideCode.matchAll(/'([^']+)'/g)].map((m) => m[1]).join("|") === "not scorable|advanced|against|took no side",
+    "the one-measure row states a side outside the four words the tallies already use");
+  ok(!/\d/.test(strip(side)), "the side is stated as a number again");
+  // J6/J7. THE SENTENCE. One sentence, clipped on a word boundary at a fixed
+  // budget, printed in its own span. Nothing composes prose: what reaches the card
+  // is always a prefix of the string on the mapping row, and the ellipsis says so.
+  const clip = cut("the clipped rationale, and its budget");
+  has(clip, "_dosClipSentences(g.why, 1)", "the summary line is no longer one clipped sentence of the curator's own");
+  has(clip, "why.slice(0, 220).replace(/\\s+\\S*$/, '') + '…'", "the length budget or its word boundary moved");
+  ok(!/toFixed|Math\.|MIN_|FLOOR|score|party/.test(strip(clip)), "the clip grew arithmetic, a floor, a score or a party");
+  const span = cut("the rationale's own span on the row");
+  has(span, 'class="pdxgap-drv-w"', "the clipped sentence has no span of its own on the row");
+  ok(!/<a\b|<button\b/.test(span), "the roll-up row nested an anchor or a button inside its door");
+  // J8/J9. The heading picked by the count, and the title mounted once.
+  has(cut("the heading chosen by the count"), "esc(d.docs === 1 ? _DOS_DRV_H1 : _DOS_DRV_H)",
+    "the roll-up picks its heading on something other than how many measures it holds");
+  const mount = cut("the dossier title's mount");
+  has(mount, "_issueTitleHtml(issueKey, lbl, _titleAttr)", "the dossier header mounts something other than the title door");
+  ok(mount.split("_issueTitleHtml").length === 2, "the dossier header mounts the title door more than once");
 }
 
 /**
@@ -569,10 +733,39 @@ export function assertStanceHelpersSeam(bodies, api) {
 /** Argue what is inside word-action.js's three spans. */
 export function assertWordActionSeams(bodies, api) {
   const { has, eq, ok } = api;
+  // BY NAME, FOR THE REASON CONSISTENCY.JS'S SPANS ARE. This read bodies[0..2]
+  // until the issue-file doors pass (v133) landed a fourth span ABOVE all three of
+  // them — the seam lists are in file order, so positional arguments would have
+  // silently begun arguing about the wrong bytes, which passes instead of failing.
+  const byName = new Map();
+  bodies.forEach((b, k) => { if (WA_SEAMS[k]) byName.set(WA_SEAMS[k][2], b); });
+  ok(bodies.length === WA_SEAMS.length,
+    `word-action.js was carved into ${bodies.length} spans and argued against ${WA_SEAMS.length} — ` +
+    "a seam was added to scripts/v103-chrome-seams.mjs and not to the caller");
+  const wa = (why) => {
+    ok(byName.has(why), `the seam named "${why}" is not among the spans this suite carved out of word-action.js`);
+    return byName.get(why) || "";
+  };
+  // ── the issue file beside the pattern row (v133) ───────────────────────────
+  // A sibling anchor after the door, not a link wrapped around the label: the
+  // label IS the dossier button on this row, and nesting one interactive element
+  // in another drops every span after it out of the row. The address is asked for,
+  // not spelled, and the row keeps its primary tap on the person's own record.
+  const file = wa("the issue file beside the pattern row");
+  has(file, "F.profileUrl(key)", "the brief composes the issue address instead of asking the module that owns it");
+  has(file, "if (!href) return '';", "the row no longer renders nothing when the family module is absent");
+  has(file, "(door ? issueFileHtml(key, x.label) : '') +", "the issue file is mounted somewhere other than after the row's door");
+  ok(!/'\/i\//.test(file.replace(/^\s*\/\/.*$/gm, "")), "the brief spells the issue-file prefix inline");
+  ok(file.indexOf("scopeControlHtml(key) : '') +\n      // And the issue file") > 0 ||
+    file.indexOf("(door ? scopeControlHtml(key) : '') +") === 0 ||
+    /scopeControlHtml\(key\)[\s\S]*issueFileHtml\(key/.test(file),
+    "the ⓘ and the issue file are no longer both outside the door, in that order");
+  ok(!/pct|percent|\bscore\b|\bweight\b|MIN_|FLOOR|party|Republican|Democrat/i.test(file.replace(/^\s*\/\/.*$/gm, "")),
+    "the issue-file control reads a score, a weight, a floor or a party");
   // ── seam A: the gate ──────────────────────────────────────────────────────
   // The copy is locked, in two forms and no third, and it carries no party, no
   // rate and no verdict about the person.
-  const gate = bodies[0];
+  const gate = wa("the slice gate and its locked copy");
   has(gate, "'Pattern from the House rolls on file — not a career score.'",
     "the slice sentence's no-number form is not the locked copy");
   has(gate, "'Pattern from ' + n + ' House rolls on file — not a career score.'",
@@ -605,13 +798,14 @@ export function assertWordActionSeams(bodies, api) {
   // ── seams B and C: the mounts ─────────────────────────────────────────────
   // Under the pattern list in both, through the one function, so the letterhead
   // and the brief cannot drift into two wordings.
-  has(bodies[1], "tops + splits + thin + sliceNoteHtml(pid, sh) +",
+  has(wa("the letterhead's mount"), "tops + splits + thin + sliceNoteHtml(pid, sh) +",
     "the letterhead mounts the slice note somewhere other than under its pattern list");
-  has(bodies[2], "tops + splits + none + thin + sliceNoteHtml(pid, sh) +",
+  has(wa("the brief's mount"), "tops + splits + none + thin + sliceNoteHtml(pid, sh) +",
     "the brief mounts the slice note somewhere other than under its pattern list");
-  for (const i of [1, 2]) {
-    ok(!/\d\s*%|toFixed/.test(bodies[i]), "a mount grew a figure of its own");
-    ok(bodies[i].split("sliceNoteHtml").length === 2, "a mount calls the slice note more than once");
+  for (const why of ["the letterhead's mount", "the brief's mount"]) {
+    const m = wa(why);
+    ok(!/\d\s*%|toFixed/.test(m), "a mount grew a figure of its own");
+    ok(m.split("sliceNoteHtml").length === 2, "a mount calls the slice note more than once");
   }
 }
 
@@ -698,9 +892,39 @@ export function assertParentTableIsTheOnlyMove(api, headSrc, treeSrc, wave) {
 
   // 1 · everything outside the table, byte for byte. ISSUE_MAP is in here, and so
   //     is every scope note a wave could have widened to admit a refused row.
-  eq(B.before, A.before,
-    `${tag}alignment-tool.js changed ABOVE the parent table — ISSUE_MAP itself, the alignment ` +
-    `engine and every scope note live there, and a wave that adds no key moves none of them`);
+  //
+  //     WITH ONE EXCEPTION, AND IT IS NOT A WAVE'S: a WRITTEN scope note may be
+  //     ADDED. The scope notes live above the table as line comments over the key
+  //     they bound, and writing one is how a key stops being a label with no
+  //     boundary — the state two waves have already refused to map an instrument on
+  //     ("rural_ag has no argued-out scope note either", F9 on H.Amdt. 202). Under a
+  //     flat byte equality the only way to answer that refusal is to edit this file,
+  //     which no pass may do; the boundary would have to be written somewhere else,
+  //     and a boundary kept away from the keyword list it bounds is how the two
+  //     disagree. So an addition of whole-line comments is allowed and everything
+  //     else is not: every line HEAD has must still be here, in HEAD's order, with
+  //     HEAD's bytes, and every inserted line must be a comment. That leaves a
+  //     wave's actual stake exactly where it was — no key, no keyword, no lean, no
+  //     category and no line of the alignment engine can move through this door,
+  //     because a line comment is inert and nothing existing may change.
+  if (B.before !== A.before) {
+    const hl = A.before.split("\n"), nl = B.before.split("\n");
+    const kept = isSubsequence(hl, nl);
+    const added = [];
+    { // which lines are the insertions: walk both, in order.
+      let i = 0;
+      for (const l of nl) { if (i < hl.length && l === hl[i]) { i++; continue; } added.push(l); }
+    }
+    const notComment = added.filter((l) => l.trim() && !/^\s*\/\//.test(l));
+    ok(kept,
+      `${tag}alignment-tool.js changed ABOVE the parent table — ISSUE_MAP itself, the alignment ` +
+      `engine and every scope note live there, and a line of them was edited or removed, not added to`);
+    eq(notComment.slice(0, 3).join(" | "), "",
+      `${tag}${notComment.length} line(s) added above the parent table are not comments — this region ` +
+      `admits a written scope note and nothing else`);
+  } else {
+    ok(true, `${tag}alignment-tool.js is byte-identical above the parent table`);
+  }
   eq(B.after, A.after,
     `${tag}alignment-tool.js changed BELOW the parent table — the reverse lookup, the evidence ` +
     `helpers and the team-alignment renderer live there`);

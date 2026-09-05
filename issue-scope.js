@@ -380,6 +380,16 @@
       pole: 'Advanced = the vote required more disclosure. Against = it required less.',
       note: 'A disclosure duty covering one programme’s provider reports sits at the narrow-link floor rather than reading as a transparency record.'
     },
+    // Argued out in alignment-tool.js in September 2026 and transcribed here in the
+    // same pass. It is the ordinary source — the comment block over the key — and it
+    // was written because the key had none: two federal waves declined to map a
+    // measure onto rural_ag in writing, each saying the boundary was not on file.
+    rural_ag: {
+      inn: 'The operating economics of farming and ranching as a business: commodity programmes, crop insurance and reference prices, the cost and legality of running a herd or repairing the equipment, working-farm and working-animal land kept in production, and farm and ranch water rights, which the private-property and water-conservation comments both send here by name.',
+      out: 'Rural broadband and rural infrastructure as public works \u2014 the keyword list carries the phrase, and a keyword match is not a mapping. Also out: an emissions rule that happens to name farm equipment (Climate Action, whose written boundary is emissions, and whose own refusal says the commodity the equipment is used on is not the subject); reducing or pricing water demand (Water Conservation) and building water supply (Water Storage & Infrastructure); a data centre\u2019s agricultural water purchases (Data Centers & Water); what a government may take from a parcel (Private Property Rights); and rural health facilities.',
+      pole: 'Advanced = the vote favoured the working farm or ranch \u2014 funded it, cut a cost it carries, or removed a restriction on it. Against = it ran the other way.',
+      note: 'The boundary was written down in September 2026, after two federal waves refused to use the key because it had none. Every instrument mapped to it so far runs the same way; nothing here promises the next one will.'
+    },
     cut_spending: {
       inn: 'Taking money back or holding it down, line by line: rescissions of unobligated balances, instructions to find net spending reductions, account-level reduction amendments, eligibility and work-requirement tightening recorded as the reductions they are, and offsets that cancel an existing appropriation.',
       out: 'The fiscal total and whether the deficit moved (Tackle the National Debt), auditing and waste as a process question, the balanced-budget framing, tax rates, and what the money buys — a Medicaid title is filed here for the reduction and on the programme’s own key for the contraction, and the reader is shown both.',
