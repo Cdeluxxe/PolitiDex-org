@@ -119,12 +119,30 @@
   // the person in it. A district seat blank means the seat could not be placed at
   // all. Reading "not resolved for your area" against a U.S. Senate row would be
   // simply untrue: the area is the state, and we have it.
+  //
+  // WHAT COUNTS AS RESOLVED IS THE PID, AND ONLY THE PID
+  // ────────────────────────────────────────────────────
+  // This row used to blank on `!person` — on the light roster failing to return a
+  // DISPLAY record — which is a completely different fact from the seat resolver
+  // failing to name a holder. A Layton reader met the consequence: both U.S.
+  // Senate rows and the Governor row printed "NO RECORD ON FILE YET / we'd rather
+  // leave this blank than name the wrong person" while Mike Lee, John Curtis and
+  // Spencer Cox each had a full file one tap away at /p/lee, /p/curtis and
+  // /p/cox. That sentence is an admission about OUR coverage; printing it over
+  // somebody we hold a file for is simply a false statement about the app.
+  //
+  // So the gate is `lv.pid`. A pid means a person and a record address, and the
+  // row is painted as resolved — with the display record where the roster has one
+  // and with the id itself where it has not yet merged, because a name we have not
+  // loaded is a loading problem and never a coverage claim. The blank copy is
+  // reachable only where the resolver returned nothing at all.
   function row(lv) {
-    var person = (lv.pid && typeof window._pdxPersonById === 'function')
-      ? window._pdxPersonById(lv.pid) : null;
+    var pid = lv.pid || null;
+    var person = (pid && typeof window._pdxPersonById === 'function')
+      ? window._pdxPersonById(pid) : null;
     var color = lv.color || '#60a5fa';
 
-    if (!person) {
+    if (!pid) {
       var headline = lv.statewide ? 'No record on file yet' : 'Not resolved for your area yet';
       var sub = lv.statewide
         ? 'We&rsquo;d rather leave this blank than name the wrong person.'
@@ -139,10 +157,11 @@
       '</div>' + seatCompare(lv);
     }
 
-    var photo = (typeof window._getPhotoUrl === 'function') ? (window._getPhotoUrl(lv.pid) || '') : '';
-    var party = partyMark(person.party);
-    var pid = jsq(lv.pid);
-    var go = 'window.showProfile&&window.showProfile(\'' + pid + '\')';
+    var name = (person && person.name) || pid;
+    var photo = (typeof window._getPhotoUrl === 'function') ? (window._getPhotoUrl(pid) || '') : '';
+    var party = partyMark(person && person.party);
+    var pidJs = jsq(pid);
+    var go = 'window.showProfile&&window.showProfile(\'' + pidJs + '\')';
     var avatar = photo
       ? '<span class="wrm-avatar" style="border-color:' + color + ';"><img src="' + esc(photo) + '" alt="" loading="lazy"></span>'
       : '<span class="wrm-avatar wrm-avatar--empty" style="border-color:' + color + '99;" aria-hidden="true">🏛</span>';
@@ -164,21 +183,21 @@
     // Falls back to the previous role="button" markup when person-link.js has not
     // loaded, so a seat row is never left without a way to open.
     var PL = window.PDXPersonLink;
-    var plAttrs = (PL && typeof PL.attrs === 'function') ? PL.attrs(lv.pid) : '';
+    var plAttrs = (PL && typeof PL.attrs === 'function') ? PL.attrs(pid) : '';
     var rowOpen = plAttrs
       ? '<a class="wrm-row" ' + plAttrs + ' data-rk="' + esc(rkOf(lv)) + '" style="border-left-color:' + color + ';"' +
-          ' title="See ' + esc(person.name) + '&rsquo;s full record">'
+          ' title="See ' + esc(name) + '&rsquo;s full record">'
       : '<div class="wrm-row" role="button" tabindex="0" data-rk="' + esc(rkOf(lv)) + '" style="border-left-color:' + color + ';"' +
           ' onclick="' + go + '"' +
           ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();' + go + '}"' +
-          ' title="See ' + esc(person.name) + '&rsquo;s full record">';
+          ' title="See ' + esc(name) + '&rsquo;s full record">';
 
     return rowOpen +
       avatar +
       '<span class="wrm-rowtext">' +
         '<span class="wrm-rowlevel" style="color:' + color + ';">' + esc(lv.distLabel) + '</span>' +
-        '<span class="wrm-rowname">' + esc(person.name) + party + '</span>' +
-        '<span class="wrm-rowsub">' + esc(person.office || lv.tierLabel) + '</span>' +
+        '<span class="wrm-rowname">' + esc(name) + party + '</span>' +
+        '<span class="wrm-rowsub">' + esc((person && person.office) || lv.tierLabel) + '</span>' +
       '</span>' +
       '<span class="wrm-rowgo" style="color:' + color + ';">See their record ›</span>' +
     (plAttrs ? '</a>' : '</div>') + seatCompare(lv);

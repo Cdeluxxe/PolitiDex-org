@@ -880,6 +880,47 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v137 - DOOR 2 NAMES THE RIGHT HUMANS. A Layton / Davis County reader resolved
+// three of six seats: both "U.S. Senate · Utah" rows and "Governor · Utah"
+// printed "No record on file yet — we'd rather leave this blank than name the
+// wrong person" over Mike Lee, John Curtis and Spencer Cox, three people with
+// full files one tap away at /p/lee, /p/curtis and /p/cox. That sentence is an
+// admission about OUR coverage, and printing it over somebody we hold a file for
+// is a false statement about the app. Cause: voter-hub-location.js is a SYNC
+// script and cmp-data.js is DEFERRED, so the first pdxRepsForMe() of a page ran
+// with no roster in the window — and the statewide memo then cached that
+// emptiness for the life of the page. The memo is now keyed on the roster it was
+// computed against and refuses to store an answer the roster was absent to give.
+//   Two more disagreements, both of them the same shape — three surfaces each
+// deriving "who holds this seat" for themselves. "Work this seat" on the U.S.
+// House tagged Celeste Maloy (UT-2) as HOLDS THIS SEAT for a reader pinned to
+// UT-1, because the sheet unioned the resolver with the 2026 ballot's office row
+// and Davis County's 2026 district is the one Maloy runs in. And the Senate
+// workspace header said "No record on file for the current holder" directly
+// above a field listing Curtis and Lee. There is now ONE owner —
+// window.pdxSeatHolders(seat) in voter-hub-location.js — and the band, the sheet
+// and the workspace all read its pid list. The workspace's three cases are now
+// distinct: a resolved pid with a record is named, a resolved pid with no record
+// is the only thing "no record on file for the current holder" describes, and no
+// pid at all says so instead of asserting a holder whose file is empty.
+//   NOTHING MOVED THAT RANKS. The formal record is still the ruler, Direction
+// Match is still printed and still orders nothing, no party field is read on any
+// of the three surfaces (the owner reads none), no challenger was invented — the
+// House field kept every candidate and lost only a false incumbency tag — and a
+// non-Utah reader still blanks their House and statehouse seats rather than
+// borrowing Utah's district map, while their statewide seats resolve from their
+// own state's roster.
+//   The bump matters because the halves sit on opposite sides of the precache
+// boundary. race-sheet.js and ballot-workspace.js ARE shell assets;
+// voter-hub-location.js and who-represents-me.js are not and arrive fresh. A
+// shell holding v136 would serve the fresh resolver — which now publishes
+// pdxSeatHolders — beside a cached sheet and workspace that never call it. Both
+// fall back rather than break, so nothing would throw: the desk would simply go
+// on tagging the wrong member as this reader's House seat and the Senate header
+// would go on contradicting the pane under it, which is the whole defect.
+// scripts/test-door2-holders.mjs pins all three surfaces against the Layton
+// fixture.
+
 // v136 - THE WORD-VS-ACTION CHIP CARRIES ITS DENOMINATOR, AND THE ISSUE DESK
 // STATES ITS PENDING COUNT ONCE. Three defects, all of them a figure printed
 // without the thing that sizes it or printed more times than it is true.
@@ -2360,7 +2401,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v136';
+const CACHE_VERSION = 'v137';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
