@@ -880,6 +880,145 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v133 - THE ISSUE NAME WAS THE ONE WORD ON THE ROW THAT LED NOWHERE. A reader
+// who opened Celeste Maloy on Farmers & Rural Communities got her thin read and
+// the number of the bill behind it, H.R. 7567, and no way from there to either
+// of the two things they would ask next: what does this key actually cover, and
+// what did that measure do. Both answers already existed - the issue file at
+// /i/<key> and the measure explainer inside the dossier row - and neither had a
+// door on the surface where the question gets asked.
+//   Three doors, no new product. The issue title on the dossier header is now a
+// link to /i/<key>; the brief's pattern rows and the topic tree's leaves get the
+// same file as a small named sibling, because on those two the name IS the
+// button that opens the person's own record and an anchor inside a button drops
+// the rest of the row on the floor. Every one of them asks pdx-issue-family.js
+// for the address rather than spelling a path.
+//   The ⓘ glossary now rides the tree leaf and the dossier header as well as the
+// brief row, and rural_ag finally has a boundary behind it: two federal waves
+// refused to map amendments to that key IN WRITING because it had none, so the
+// scope was argued out in alignment-tool.js from the six instruments and three
+// refusals on file, then transcribed into issue-scope.js. Not generated - a key
+// with no argued boundary still says "No definition on file yet."
+//   And the one-measure roll-up. A lane whose whole formal basis is a single
+// vote used to render no roll-up at all, on the reasoning that the card below
+// already names the bill; naming a bill is not teaching it, and that was the
+// exact depth of record where the explainer door did not exist. It now renders
+// at one, with a singular heading, the side said in words instead of counted as
+// "1 advanced", and one clipped sentence of the curator's own mapping rationale.
+// Clipping it required fixing the sentence splitter, which read the stop inside
+// "H.R." as the end of a sentence and would have printed the string "R.".
+//   sitemap.xml now lists /i/<key> for every key with a locked boundary or a
+// formal mapping. No new score, no percentage anywhere new, no party framing, and
+// the public lane still stays out of the formal figure.
+//
+// v132 - THE OUTLINE OFFERED TWO WAYS TO GO TO THE SAME PLACE. The file outline
+// shipped with "Letterhead" and "Formal record" as separate rows, which is how
+// the spine names those two stages - and on a member file they are one screen.
+// The record brief renders immediately under the photo and the office, so the
+// two rows scrolled a reader to positions a thumb-width apart, and a reader who
+// wanted the top of the file had to guess which of two rows meant it. Two rows
+// that go to the same place are not a finer-grained outline; they are a choice
+// nobody can win.
+//
+// They are now ONE row, "Top of file", and it goes to the identity stage: the
+// first paint of the file, the photo and the office, with the brief the next
+// thing under it. On the phone chip row it is likewise one chip, because the
+// chip row and the desktop rail have always been the same node in two skins and
+// there is no way for them to disagree.
+//
+// It resolves to the STAGE and never to the hub inside it. The sticky pill rail
+// sits between the letterhead and the status banners and carries figures; the
+// share sheet can be over it. Both are chrome, and a jump that answered "take me
+// to the top of this file" by parking a reader on a toolbar would be a worse
+// answer than no row at all. The hub keeps its place in the scroll and keeps its
+// own scroll-spy - the outline simply does not point at it, and headingOf() now
+// skips any heading inside it rather than handing it focus. The top row names
+// the heading it wants instead of taking the first one in source order: the
+// person's name, which is what a reader sees first.
+//
+// The merged row is lit while EITHER the letterhead or the brief is the section
+// on screen, and it releases the moment "All issues by topic" is the heading at
+// the reading line. That took the spy from one watched element per row to one
+// per stage, each tagged with the row it lights, so a folded stage keeps its
+// watch even though it lost its line. The rule that picks the active row is
+// unchanged and is still read off rects the IntersectionObserver already
+// measured; nothing sweeps layout.
+//
+// The fold is conditional, not hardcoded. "Formal record" is dropped only when
+// the top row actually resolved. A file that somehow mounted a brief with no
+// letterhead keeps one "Formal record" row, on the brief heading, because then
+// the brief IS the top of the file and no other row reaches it. Judge files are
+// untouched: the judicial rows are byte-identical, they never had a letterhead
+// row, and their formal section is a section rather than a fold.
+//
+// person-outline.js, scripts/test-person-outline.mjs. No section was added or
+// removed, no score, percentage, party or Direction Match reached the outline
+// copy, no stage order changed, the gutter scrollbar is untouched and formal
+// tiers and Direction Match read byte-identically.
+//
+// v131 - THE FILE GOT LONG AND NOTHING NAMED ITS PARTS. A person file now runs
+// letterhead, brief, strongest patterns, the whole topic tree, Word vs Action,
+// money, the public lane and the evidence locker, and the only thing that told a
+// reader where they were in it was the gutter ticks on the modal scroller. A
+// scrollbar reports a fraction. It has no vocabulary, so it cannot say that a
+// topic tree exists three screens down, and the thin rows that only live in the
+// tree - Maloy - Farmers & Rural Communities sits under Economy, not in
+// Strongest Patterns - were reachable only by scrolling until you recognised
+// them. Long files bury thin rows, and the indicator that was supposed to help
+// could not name a single one.
+//
+// So the sections got named. One control, two skins, built once per open from
+// the DOM the spine assembler already left behind: at 1024 and up a sticky list
+// in the person-file panel's own left column, below that the same rows as a
+// wrapping chip row under the letterhead, beneath the status banners and above
+// the first claim. The list is DERIVED, never declared twice - it probes for the
+// .pdxsp-stage-<key> containers and the #pdxsec-<name> anchors that mounted, so
+// a stage the file does not have has no row. Every row goes somewhere; there are
+// no dead jumps. The member public lane is listed under the name it ships with -
+// nothing has mounted #pdxsec-saydo since the gap sheet moved inside Word vs
+// Action, so the row that exists says Flashpoints and lands on the Flashpoints
+// heading. A judge file gets the judicial stages off the ids judge-file.js
+// now puts on its own blocks - retention, JPEC, how the seat was filled, the
+// honest empty formal record, prior retention, about the court - and gets no Word
+// vs Action row and no money row, because a retention seat has neither and an
+// empty row is a question the file cannot answer. Asking for the formal record
+// lands on the brief, where it is stated in a sentence, not on the tree.
+//
+//   · person-outline.js    — new. The resolver, the two placements, the jump, and
+//                            an IntersectionObserver scroll-spy rooted on
+//                            #modal-body. Reuses window._pdxNavJump so a
+//                            destination inside a deferred drawer is mounted and
+//                            every closed lid above it opened before the scroll,
+//                            then focuses the section's heading.
+//   · person-outline.css   — new. Chip row and rail. The desktop panel grows by
+//                            exactly the rail's width, gated with :has() on the
+//                            rail being in the DOM, so the reading column keeps
+//                            its 48rem and a file with no outline is unchanged.
+//                            No position:fixed in the phone rules: the bottom of
+//                            that viewport belongs to #modal-footer and the
+//                            Add-to-team button in it.
+//   · judge-file.js        — block() takes an optional id, the court strip carries
+//                            one, and render() arms the outline. Judge files never
+//                            called _pdxInitProfileNav, so they needed their own
+//                            call. No copy, no gate and no status read changed.
+//   · profiles-full.js     — one mount call in openModal's tail, after the pill
+//                            rail. The outline rides that rail's existing re-arm
+//                            signal, so a drawer mounting late gains its row.
+//   · index.html           — the stylesheet on the same non-blocking path as the
+//                            rest of the modal chrome, and the one new
+//                            <script defer>. Precached as the shell's '/'.
+//
+// The gutter scrollbar is untouched - the ::-webkit-scrollbar rules on
+// #modal-body are exactly what they were, and the outline is additive next to
+// them. The pill rail above the hero, which is allowed to carry figures, also
+// stays. The outline carries none: its copy is section names and the words "in
+// this file", and the current row changes weight and gains an underline rather
+// than a colour, because colour on this site means a rating. No score, no
+// percentage, no party, no Direction Match promotion, no new site-wide nav
+// destination, no stage reordered and no floor, mapping, weight or roster row
+// moved. Every formal-record tier and every Direction Match read is
+// byte-identical with this outline and without it.
+//
 // v130 - A DEPARTED JUSTICE'S FILE STILL WORE A LIVE BALLOT. v129 put judges in
 // the All-Seeing Eye, and the search row for Diana Hagen said the right thing
 // from the first day it shipped: no longer on the court. Tap it and the file
@@ -2091,7 +2230,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v130';
+const CACHE_VERSION = 'v133';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -2285,6 +2424,8 @@ const SHELL_ASSETS = [
   '/formal-index.js',
   '/person-file.js',
   '/person-file.css',
+  '/person-outline.js',
+  '/person-outline.css',
   // 🌳 The topic tree of stances (window.PDXStanceTree) and its stylesheet — the
   // profile's browse-all-stances surface, mounted directly under Word vs Action.
   // Precached with it for the same reason: without the script the profile loses

@@ -990,7 +990,13 @@ has(INDEX, '<noscript><link rel="stylesheet" href="/judicial-retention.css" /></
 {
   const m = /const CACHE_VERSION = '(v\d+)'/.exec(SW);
   must(m, "sw.js no longer declares a cache version — this probe is stale");
-  eq(m[1], "v130", "the cache version was not bumped for this pass");
+  // v130 is this pass's floor, not its ceiling. The assertion was written the
+  // day v130 shipped and read as an equality; later passes bump the shell for
+  // their own reasons, and a warm device is only ever wrong if the version goes
+  // BACKWARDS past the pass that needed it. So the floor is what is checked, and
+  // the v130 note below is still required to be present and intact.
+  ok(Number(m[1].slice(1)) >= 130,
+     `the cache version fell below v130, the pass that took the live-ballot hero off files that are not on a ballot — got ${m[1]}`);
   // v130 took the live-ballot hero off the files that are not on a ballot. The
   // note names the modules that moved and says the two things a reader
   // upgrading a warm device needs: which surface changed, and that the judge

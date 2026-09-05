@@ -466,8 +466,33 @@ const roster = J("db/vr-roster-admitted.json");
   // exactly what is asserted; a wave that widens one still fails, now with the reason.
   {
     const h = head("issue-scope.js");
-    if (ok(h !== null, "could not read HEAD:issue-scope.js"))
-      eq(R("issue-scope.js"), h, "issue-scope.js changed, but this wave adds no key, so no published boundary moved");
+    // WHAT F7 NEEDS, ONCE THE FILE IS ALLOWED TO GROW. The hash above stood in for
+    // "no key was added and no boundary widened" on the grounds that nothing had
+    // ever needed to move in this file. Something has: the issue-file doors pass
+    // (v133) put an ⓘ next to the issue title everywhere a person's file names a
+    // key, which made the missing boundary on rural_ag readable, and wrote one.
+    // A boundary being ADDED is not a boundary being widened, and the difference is
+    // measurable rather than a matter of trust: every line HEAD published must still
+    // be present, in HEAD's order, with HEAD's bytes. A pass that loosens an
+    // existing inn/out/pole drops or rewrites one of those lines and still fails
+    // here, now with the reason. And nothing gained may carry a key this wave's own
+    // refusals ruled out, or a venue key, which is checked above against the file.
+    if (ok(h !== null, "could not read HEAD:issue-scope.js")) {
+      const now = R("issue-scope.js"), hl = h.split("\n"), nl = now.split("\n");
+      let kept = 0;
+      for (const l of nl) if (kept < hl.length && l === hl[kept]) kept++;
+      eq(kept, hl.length,
+        `issue-scope.js dropped or rewrote ${hl.length - kept} published line(s) — a boundary may be ` +
+        `written where there was none, never widened where one already stood`);
+      const keysOf = (src) => [...src.matchAll(/^ {4}([a-z0-9_]+): \{$/gm)].map((m) => m[1]);
+      const before = new Set(keysOf(h));
+      const gained = keysOf(now).filter((k) => !before.has(k));
+      for (const k of gained)
+        ok(KEYS.indexOf(k) < 0 && ["gov_regulation", "public_schools", "states_federal_power",
+          "enviro_balance", "foreign_balance"].indexOf(k) < 0,
+          `${k} gained a published boundary, and it is a key this wave used or refused — that is F7's ` +
+          `argument being rewritten after the fact, not a later pass defining a word`);
+    }
   }
   {
     const h = head("alignment-tool.js");

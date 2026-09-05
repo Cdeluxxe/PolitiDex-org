@@ -246,6 +246,10 @@ export function measureAddresses(ROOT) {
   // the archive itself was built in.
   const rows = new Map();
   const stats = { files: 0, inserts: 0, unparsed: 0, renames: 0, mappings: 0, acts: 0 };
+  // Every issue key the migrations map at least one measure to, in no particular
+  // order and with no weight, side or count attached. It is a membership set and
+  // nothing more — "this key has a formal record somewhere on file".
+  const issueKeys = new Set();
 
   const touch = (k, patch) => {
     const r = rows.get(k);
@@ -313,6 +317,7 @@ export function measureAddresses(ROOT) {
                 source: valueAt(col(t, "source_url"), decls, m.index) || "",
                 mappings: 0,
                 acts: 0,
+                issueKeys: [],
                 files: [file],
               });
             } else {
@@ -343,7 +348,19 @@ export function measureAddresses(ROOT) {
           if (!k) k = null;
           if (!k || !rows.has(k)) continue;
           const r = rows.get(k);
-          if (table === "vr_measure_issues") { r.mappings++; stats.mappings++; }
+          if (table === "vr_measure_issues") {
+            r.mappings++; stats.mappings++;
+            // WHICH KEY, NOT JUST HOW MANY. The count above answers "does this
+            // measure open onto anything", which is all the bill address needed.
+            // The issue file at /i/<key> asks the same question from the other
+            // end — "does this KEY have a formal record on file" — and the answer
+            // is in the same tuples, so it is read here rather than by a second
+            // walk of the same 200 migrations. Literals only: a mapping whose
+            // issue_key is a bound variable is not resolved, and an unresolved
+            // key must never become a published address.
+            const ik = literal(col(t, "issue_key"));
+            if (ik) { issueKeys.add(ik); r.issueKeys.push(ik); }
+          }
           else { r.acts++; stats.acts++; }
         }
         continue;
@@ -428,7 +445,7 @@ export function measureAddresses(ROOT) {
     a.number.localeCompare(b.number, undefined, { numeric: true })
   );
 
-  return { published, refused, stats };
+  return { published, refused, stats, issueKeys: [...issueKeys].sort() };
 }
 
 // ── the address ─────────────────────────────────────────────────────────────

@@ -1792,6 +1792,35 @@
 .pdxwa-shape-door:focus-within {
   background: rgba(127, 180, 255, 0.09);
 }
+/* ── THE ISSUE FILE, THIRD ON THE ROW AND QUIETEST ───────────────────────────
+   A small named link to /i/<key>, sitting outside .pdxwa-shape-door beside the ⓘ.
+   It is deliberately the least prominent thing on the line: the row's primary tap
+   is this person's record on this issue, and a second destination that competes
+   for the eye would make the reader choose before they have read anything. Small
+   caps, no tint, no --pdx-ic — like the ⓘ it is a control about the key, not a
+   state of it. On a narrow row it wraps to its own line rather than squeezing the
+   pattern bar, because the bar carries the counts. */
+.pdxwa-shape-file {
+  flex: 0 0 auto;
+  margin-left: auto;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #7f96b6;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+.pdxwa-shape-file:hover,
+.pdxwa-shape-file:focus-visible {
+  color: #9fdbff;
+  text-decoration: underline;
+}
+.pdxwa-shape-file:focus-visible {
+  outline: 2px solid rgba(127, 180, 255, 0.7);
+  outline-offset: 2px;
+  border-radius: 5px;
+}
 /* Same type as the inert name it replaced — a door that changes the row's
    typography reads as a new kind of claim rather than the same fact, tappable. */
 .pdxwa-shape-lbl {

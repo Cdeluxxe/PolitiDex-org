@@ -133,8 +133,17 @@
    the rail where every leaf's meaning starts. A reader scanning the person's
    record never has to look at it. A reader who wants "everyone on this issue"
    finds it exactly where they are already looking. */
+/* THE LEAF'S FOOTER LINE. The leaf became a wrapping flex row when the scope
+   control (ⓘ) joined the issue-file link: the face still takes the full width
+   and keeps its own line, and the two quiet controls share the line under it —
+   ⓘ pinned left, the file link filling the rest and staying right-aligned. Both
+   are siblings of the face, never children of it, which is what keeps a tap on
+   either from reaching the row's dossier door. */
+.pdxtree-leaf { display: flex; flex-wrap: wrap; align-items: center; }
+.pdxtree-face { flex: 1 1 100%; }
+.pdxtree-leaf > .pdxis-key { margin: 0 0 .3rem .35rem; }
 .pdxtree-file {
-  display: block; width: 100%; box-sizing: border-box;
+  display: block; flex: 1 1 auto; min-width: 0; box-sizing: border-box;
   padding: 0 .5rem .38rem; text-align: right;
   font-size: .64rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
   color: #7f96b6; text-decoration: none; touch-action: manipulation;

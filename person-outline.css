@@ -1,0 +1,183 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   person-outline.css — two skins for one list of section names
+   ────────────────────────────────────────────────────────────────────────────
+   The markup is a <nav class="pdxol"> holding a kicker and a <ul> of buttons,
+   built once by person-outline.js and MOVED between two homes at the 1024px
+   breakpoint. So this file is not two components — it is one component's two
+   shapes, and neither can carry a row the other does not have.
+
+   Both skins are deliberately quiet. Steel labels, no rules, no counts, no
+   colour that means anything: on this site colour is a rating, so a coloured
+   outline row would read as a score for the section it names. The current row
+   is heavier and underlined instead. Weight is a position, not a verdict.
+
+   THE DESKTOP COLUMN
+
+   The panel is capped at 48rem of reading width, and 48rem is the right width
+   for the record. So rather than take a column out of the content, the panel
+   grows by exactly the width of the rail — and only when a rail is actually
+   mounted, which is what the :has() gate is for. A file with no outline is
+   pixel-identical to what shipped before this file existed.
+
+   THE PHONE ROW
+
+   A wrapping row in the content flow, directly under the letterhead. It
+   scrolls away with the letterhead on purpose. There is no position:fixed
+   anywhere in the phone rules, because the bottom of that viewport belongs to
+   #modal-footer and the Add-to-team button in it — a floating chip row would
+   sit on top of the one control the reader came to press.
+
+   #modal-body's gutter ticks are not styled here and are not touched.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.pdxol {
+  min-width: 0;
+}
+
+/* "In this file" — the only word in the control that is not a section name. It
+   says what the list is so the first row is not mistaken for a heading of the
+   record itself. */
+.pdxol-kick {
+  margin: 0 0 0.45rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #5d6f92;
+}
+
+.pdxol-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.pdxol-item {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: #93a4c4;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.12s ease;
+}
+.pdxol-item:hover {
+  color: #e8eefc;
+}
+.pdxol-item:focus-visible {
+  outline: 2px solid rgba(147, 164, 196, 0.7);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Current section: weight and an underline. No fill, no bar, no colour step
+   beyond going from steel to plain white text. */
+.pdxol-item.is-current {
+  color: #f2f6ff;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+/* ── PHONE / TABLET: a wrapping chip row under the letterhead ─────────────
+   One line when it fits, wrapped when it does not. Nothing here positions
+   itself out of the flow. */
+@media (max-width: 1023.98px) {
+  .pdxol--chips {
+    margin: 0.15rem 0 1.15rem;
+  }
+  .pdxol--chips .pdxol-kick {
+    margin-bottom: 0.4rem;
+  }
+  .pdxol--chips .pdxol-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.4rem;
+  }
+  .pdxol--chips .pdxol-li {
+    min-width: 0;
+  }
+  .pdxol--chips .pdxol-item {
+    display: block;
+    padding: 0.26rem 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 0.72rem;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+  .pdxol--chips .pdxol-item.is-current {
+    border-color: rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.07);
+  }
+}
+
+/* ── DESKTOP: a sticky column inside the panel ────────────────────────────── */
+@media (min-width: 1024px) {
+  /* The panel grows by the rail's width so the reading column keeps its 48rem.
+     Gated on the rail actually being in the DOM: no rail, no change. */
+  #modal-panel:has(> #modal-body > .pdxol--rail) {
+    max-width: 59.5rem;
+  }
+
+  #modal-body:has(> .pdxol--rail) {
+    display: grid;
+    grid-template-columns: 11.5rem minmax(0, 1fr);
+    align-items: start;
+  }
+  #modal-body:has(> .pdxol--rail) > #modal-content {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+  }
+  /* The bottom-of-scroll marker the pill rail parks at the end of the body is
+     a grid item too; keep it in the reading column so it cannot open a row. */
+  #modal-body:has(> .pdxol--rail) > #pdxsp-nav-end {
+    grid-column: 2;
+  }
+
+  .pdxol--rail {
+    grid-column: 1;
+    grid-row: 1;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    padding: 1.5rem 0.9rem 1.5rem 1.5rem;
+    /* Opaque: the hero's sticky pill rail bleeds 1.5rem past the left edge of
+       the reading column by design, and it must pass BEHIND this. */
+    background: #0d1526;
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  .pdxol--rail .pdxol-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .pdxol--rail .pdxol-item {
+    display: block;
+    width: 100%;
+    padding: 0.3rem 0 0.3rem 0.55rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.09);
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+  .pdxol--rail .pdxol-item.is-current {
+    border-left-color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* Reduced motion: the jump itself is smooth-scrolled by _pdxNavJump, which the
+   browser already honours. Nothing here animates position. */
+@media (prefers-reduced-motion: reduce) {
+  .pdxol-item {
+    transition: none;
+  }
+}

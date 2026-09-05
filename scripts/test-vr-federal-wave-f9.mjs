@@ -825,7 +825,17 @@ const swNote = swWaveNote();
   // still compared byte for byte, so ISSUE_MAP itself, every scope note and the whole
   // alignment engine stay pinned. F9 has no stake in the block: it lists which keys
   // belong under which heading and reads no roll, no floor and no member.
-  const MAY_MOVE = ["consistency.js", "cmp-data.js", "stance-helpers.js", "word-action.js", "alignment-tool.js"];
+  // issue-scope.js is on the allowed side for the issue-file doors pass (v133), as an
+  // ADDITION and not a licence. F9 has the strongest possible stake in this file and
+  // the least to fear from an addition to it: this wave REFUSED two amendments on
+  // rural_ag in writing, and the reason it wrote down was that the key had no argued
+  // boundary. Writing that boundary is the refusal being answered, not overturned —
+  // the two amendments are still refused, on file, by number. What the check below
+  // requires is that the file is additive: every line HEAD has is still here, in
+  // HEAD's order and with HEAD's bytes, so no boundary already shipped can be widened
+  // to admit a row a wave declined, and the honest blank stays the honest blank.
+  const MAY_MOVE = ["consistency.js", "cmp-data.js", "stance-helpers.js", "word-action.js",
+    "alignment-tool.js", "issue-scope.js"];
   const has = (x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`);
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== R(f); });
   const strayBooted = touched.filter((f) => !MAY_MOVE.includes(f));
@@ -833,6 +843,40 @@ const swNote = swWaveNote();
     `F9 changed a booted file it has no business editing (${strayBooted.join(", ") || "none"})`);
   if (touched.includes("alignment-tool.js")) {
     assertParentTableIsTheOnlyMove({ ok, eq }, headSrc("alignment-tool.js"), R("alignment-tool.js"), "F9");
+  }
+  if (touched.includes("issue-scope.js")) {
+    // ADDITIVE, AND THE ADDITION IS A TRANSCRIPTION. Line by line against HEAD: an
+    // edit or a removal anywhere fails, which is what keeps a shipped boundary from
+    // being widened to admit an instrument some wave refused. Then the new keys are
+    // named, and each one is required to carry all four parts a scope entry has —
+    // what is in, what is out, which way the pole runs, and the note that says when
+    // it was written — because a half-written boundary is the state this pass exists
+    // to end. The prose itself is a curator's, transcribed from the argued comment
+    // over the same key in alignment-tool.js, so the two cannot disagree; nothing
+    // here generates a definition and F9's own refusals are unaffected either way.
+    const hs = headSrc("issue-scope.js"), ns = R("issue-scope.js");
+    const hl = hs.split("\n"), nl = ns.split("\n");
+    let kept = 0;
+    for (const l of nl) if (kept < hl.length && l === hl[kept]) kept++;
+    eq(kept, hl.length,
+      "issue-scope.js edited or dropped a line — a boundary already on file is not a later pass's to " +
+      "rewrite, and widening one is how a refused instrument gets admitted without a wave");
+    const keysOf = (src) => [...src.matchAll(/^ {4}([a-z0-9_]+): \{$/gm)].map((m) => m[1]);
+    const before = keysOf(hs), after = keysOf(ns);
+    eq(before.filter((k) => after.indexOf(k) < 0).join(", "), "", "a key lost its boundary");
+    const gained = after.filter((k) => before.indexOf(k) < 0);
+    ok(gained.length > 0, "issue-scope.js changed without any key gaining a boundary");
+    for (const k of gained) {
+      const body = ns.slice(ns.indexOf(`\n    ${k}: {`)).split("\n    },")[0];
+      for (const part of ["inn:", "out:", "pole:", "note:"])
+        has(body, part, `the boundary written for ${k} has no ${part.slice(0, -1)}`);
+      ok(!/\d\s*%|score|floor|MIN_/i.test(body), `${k}'s boundary carries a figure, a score or a floor`);
+      ok(!/republican|democrat|partisan|\bGOP\b/i.test(body), `${k}'s boundary frames the key by party`);
+    }
+    ok(ns.includes("var NO_DEF = 'No definition on file yet.';"),
+      "the honest blank's copy moved — a key with no boundary must still say so in those words");
+    for (const n2 of ["H.Amdt. 202", "H.Amdt. 207"])
+      ok(!ns.includes(n2), `issue-scope.js names ${n2} — a boundary is not the place a wave's refusal is re-litigated`);
   }
   if (touched.includes("stance-helpers.js")) {
     const sa = carveSeams(headSrc("stance-helpers.js"), SH_SEAMS, "HEAD", "stance-helpers.js", ok);
@@ -1403,6 +1447,71 @@ const swNote = swWaveNote();
     "scripts/vr-gen-federal-wave-f11-migration.mjs",
     "scripts/test-vr-federal-wave-f11.mjs",
     "netlify/database/migrations/20261028000000_vr_federal_wave_f11.sql",
+    // THE PERSON FILE'S SECTION OUTLINE, on those same later-wave terms. The
+    // outline shipped at CACHE_VERSION v131 as two new files, so it was untracked
+    // when this guard last ran and nothing here had to name it; it is tracked now,
+    // and v132 edits it. What it does is name the sections of ONE open person file
+    // and scroll to them — a sticky column beside the file on a wide screen, the
+    // same list as a chip row under the letterhead on a phone. v132 merges the
+    // "Letterhead" and "Formal record" rows into one "Top of file" row, because on
+    // a member file the record brief renders immediately under the photo and the
+    // two rows went to the same screen. The reason a wave like this one is the file
+    // that has to declare it: R1 and R2 put 1,120 member files behind these
+    // sections, and the guarantee that matters here is that none of them moved. The
+    // outline writes no roll, no mapping, no key, no floor, no admission and no
+    // score; it derives its rows by probing the DOM the profile spine already
+    // assembled, so a section that did not mount has no row and nothing it does can
+    // reorder the file. Its copy is section names only — no figure, no percentage,
+    // no party, no Direction Match — and scripts/test-person-outline.mjs proves as a
+    // twin boot that every formal-pattern tier and every Direction Match read across
+    // 537 member files and all 126 judge files is byte-identical with it and without
+    // it. sw.js and index.html are declared above already.
+    "person-outline.js",
+    "person-outline.css",
+    "scripts/test-person-outline.mjs",
+    // THE ISSUE FILE'S DOORS (CACHE_VERSION v133), on those same later-wave terms,
+    // and this wave has a direct stake in one part of it. It writes no roll, no
+    // mapping row, no key, no floor, no admission and no score: it opens doors onto
+    // surfaces that already exist. The issue title on all three person×issue
+    // surfaces now links to /i/<key>, the address pdx-issue-family.js already
+    // owned; the ⓘ beside it mounts issue-scope.js's own copy, or that module's
+    // honest blank where no boundary is on file; and the dossier's roll-up renders
+    // at one measure instead of two, so the thinnest possible record — one vote on
+    // one bill — reaches the measure explainer every deeper file already reached.
+    // The sentence on that row is a clipped prefix of the curator's own mapping
+    // rationale, never a generated summary.
+    //   THE PART F9 HAS A STAKE IN: this wave declined H.Amdt. 202 and H.Amdt. 207
+    // on rural_ag, in writing, because the key had no argued-out boundary. That
+    // boundary is now written — as a curator's note over the key in
+    // alignment-tool.js, transcribed into issue-scope.js — which answers the
+    // refusal rather than overturning it. Both amendments are still refused, by
+    // number, and section 10 checks that the file only ever gained: no boundary
+    // already shipped could be widened to admit a row a wave declined.
+    //   Every count, chip, tier, band, side word and Direction Match figure is
+    // byte-identical, which the twin boot above has just proved; consistency.js's
+    // twelve new spans and word-action.js's one are carved and argued in the shared
+    // seam module, and scripts/v103-chrome-seams.mjs now indexes those spans by the
+    // name each seam declares rather than by its position in the list.
+    //   scripts/gen-sitemap.mjs lists /i/<key> for every key with a boundary on file
+    // or at least one mapping in the migrations, reading the app's own modules for
+    // both; scripts/vr-measure-addresses.mjs, which it reads, now reports WHICH
+    // issue keys the migrations map rather than only how many mappings exist. Person
+    // addresses are untouched and sitemap.xml gained addresses without dropping one.
+    //   scripts/test-dossier-read.mjs had its one-item rule reversed alongside the
+    // renderer and now sweeps the single-item lanes positively: each one is required
+    // to teach its measure.
+    "issue-scope.js",
+    "scripts/gen-sitemap.mjs",
+    "scripts/vr-measure-addresses.mjs",
+    "scripts/test-dossier-read.mjs",
+    "scripts/test-issue-file-doors.mjs",
+    // The sitemap's own suite is declared for the same reason the generator is: it
+    // held the rule "the file is people, spotlights, bills and the root, nothing
+    // else", and this wave advertises a fourth kind. The kind is named there and
+    // then examined — bare key, listed once, and either a boundary on file or a
+    // measure mapped to it — so the sentence it replaces is stronger than the one
+    // it stood in for, not weaker.
+    "scripts/test-sitemap-bills.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
