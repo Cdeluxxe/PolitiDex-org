@@ -544,6 +544,38 @@ export const WA_SEAMS = [
   ["    if (typeof a === 'number' && typeof b === 'number') out.delta = b - a;\n    return out;\n  }\n",
    "  // ── CONNECTING THE DOTS",
    "the shared figure and the shared repaint"],
+  // ── the apparatus lid's label (v141) ──────────────────────────────
+  // The lid label is the third face of one figure and it built the pair by hand:
+  // r.coverage.tested + ' of ' + r.coverage.scorable + ' tested', a screen below
+  // the number block it is sizing and inside the very section it opens onto. Two
+  // spellings of one number agree only until somebody edits one of them, and this
+  // one is on a control a reader has to TAP — a label that promises a set and then
+  // shows a different one spends the tap and breaks the promise.
+  //
+  // The span prints figureOf(pid, r)'s fraction and nothing else, off the read
+  // this builder is already holding, so no second scoring pass is bought for a
+  // string the section already has. Where the set cannot be said the CLAUSE goes
+  // and the label keeps its subject: the label may never become a bare "See
+  // more", and it may never read "0 of 0 tested".
+  //
+  // The span opens on the line that assembles `inner` so the note arguing the
+  // change sits inside the seam with it; `inner` itself, the sentinel markup and
+  // the lid's <div> are outside and still pinned.
+  ["                  feedsHtml(pid, p, r) + methodHtml(r, pid);\n      if (!inner) return '';\n",
+   "      return '<div class=\"pdxwa-how\">' +",
+   "the apparatus lid's label"],
+  // ── the Official Record feed row (v141) ───────────────────────────
+  // The row that NAMES THE TEST, disagreeing with the figure it is the test for.
+  // The feeds panel prints one row per input with a count on the right, and this
+  // row's count was the fourth hand-built copy of the same two integers. It sizes
+  // the same span the number block above it and the lid below it size — all three
+  // inside one section — so this row is where a drift would be least visible and
+  // most damning. It reads the owner off the read the panel already has. Every
+  // OTHER row in the panel is outside this seam: those counts size their own
+  // tiers, not the tested set, and none of them moved.
+  ["      rows.push({ ico: '🏛️', name: 'Official Record', target: 'pdxsec-official-record', counted: true,\n",
+   "      // THE \"🧾 SAY-VS-DO RECEIPTS → #pdxsec-saydo\" ROW IS GONE.",
+   "the Official Record feed row"],
   // ── the identity chip's denominator (v136, v140) ───────────────────
   // A wave has no stake in this span and every stake in the file around it, so it
   // is carved out by name rather than the file being waived whole. The span is the
@@ -607,6 +639,28 @@ export const WA_SEAMS = [
   ["        }, 0);\n      } catch (e) {}\n",
    "  // Mountable wrapper: emit the section AND arm its refresh.",
    "the section's repaint, closed"],
+  // ── the hero ring's sub-line (v141) ───────────────────────────────────────
+  // The profile's LOUDEST figure, and the last face still sizing itself by hand.
+  // The ring is the first number a reader meets and its sub-line spelled the
+  // section's fraction a fourth time out of its own coverage block, above the fold
+  // and a full section away from the figure it has to agree with. It prints
+  // figure()'s object now, taken off the scopedRead this read already holds.
+  //
+  // And the gate becomes the owner's `shows`, which is the chip's rule applied to
+  // the ring: no percentage without the set that sizes it. On every read this
+  // engine can take those are the same question — the publication floor needs
+  // three tested items before pct is a number at all — so this changes no output;
+  // asking the object means the ring FAILS CLOSED to its own waiting mark if that
+  // ever stops being true, instead of publishing the biggest number on the page
+  // over nothing.
+  //
+  // The span ends before the waiting ladder, which is outside it and pinned: the
+  // below-floor sentence names the FLOOR ("2 of 3 tested needed"), not the tested
+  // set, and folding that into the fraction would be a floor change wearing a
+  // copy pass's clothes.
+  ["      var c = r.coverage, v = r.verdict;\n",
+   "      // One phrase for this wait, shared with the Voting Record Highlights",
+   "the hero ring's sub-line"],
   // ── the issue file beside the pattern row (v133) ───────────────────────────
   // The brief's pattern rows are the third surface a reader meets an issue name
   // on, and the name was the one part of the row that led nowhere. The label
@@ -1201,6 +1255,62 @@ export function assertWordActionSeams(bodies, api) {
   ok(!/incomplete|limited record|too early|unproven/i.test(own),
     "the owner composes a verdict of its own alongside read()'s label");
 
+  // ── the apparatus lid's label (v141) ──────────────────────────────
+  // A lid label has to name what opening it shows, WITH a count, and that count
+  // has to be the one the section around it prints. It may not build the pair, it
+  // may not take a read of its own, and it may not print a fraction that sizes
+  // nothing onto a control a reader is being asked to tap.
+  const lid = wa("the apparatus lid's label");
+  has(lid, "var lidFig = figureOf(pid, r);",
+    "the apparatus lid sizes its own figure again instead of printing the owner's — the label sits " +
+    "INSIDE the ⚖ section, a screen under the number block it is sizing, so a second spelling here " +
+    "disagrees with the very thing tapping it opens");
+  has(lid, "(lidFig.fraction ? ' · ' + lidFig.fraction : '')",
+    "the lid prints the fraction ungated, so a set that cannot be said becomes \"0 of 0 tested\" on " +
+    "a control a reader has to spend a tap on");
+  has(lid, "'How this score is built · basis, method and sources'",
+    "the lid label stopped naming its payload — a label a reader has to tap may not be a bare " +
+    "\"See more\"");
+  // Two readings of the span: `lidBare` keeps the string literals, because the
+  // hand-built pair this pass removed IS a string literal, and `lidCode` drops
+  // them, because the label's own copy legitimately contains a word like "sources".
+  const lidBare = lid.replace(/^\s*\/\/.*$/gm, "");
+  const lidCode = lidBare.replace(/'[^']*'/g, "''");
+  ok(!/coverage\.tested \+ ' of '|coverage\.tested \+ ' \/ '/.test(lidBare),
+    "the lid assembles N of M by hand beside the owner's copy of it");
+  ok(!/coverage\.tested|coverage\.scorable/.test(lidCode),
+    "the lid reaches into the coverage block rather than asking the owner");
+  ok(!/toFixed|\/\s*100|\*\s*100|Math\.|reduce\(/.test(lidCode),
+    "the lid grew arithmetic of its own — the count on it is a re-print of read()'s");
+  ok(!/MIN_|FLOOR|publishable|>=|<=/.test(lidCode),
+    "the lid tests a threshold of its own, which would hide a thin figure on the one control that " +
+    "explains how the figure was built");
+  ok(!/\bread\(pid, p\)|scopedRead\(/.test(lidCode),
+    "the lid reads the engine directly rather than the read it was handed");
+  ok(!/\.party\b|Republican|Democrat|GOP/i.test(lidCode), "the lid reads a party");
+
+  // ── the Official Record feed row (v141) ───────────────────────────
+  // The row that names the test prints the test's own size, from the owner, off
+  // the read the panel already holds. Its role sentence and its target are the
+  // row's, unchanged; what is argued here is that the count is not built twice.
+  const frow = wa("the Official Record feed row");
+  has(frow, "n: figureOf(pid, r).fraction });",
+    "the Official Record row sizes the tested set in its own hand again — the row that NAMES the " +
+    "test, disagreeing with the figure it is the test for, inside the same section");
+  has(frow, "target: 'pdxsec-official-record'", "the row stopped pointing at the record it names");
+  has(frow, "isExecLane(pid)",
+    "the row's role sentence stopped answering which lane this member's record is in");
+  const frowCode = frow.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+  ok(!/coverage\.tested|coverage\.scorable/.test(frowCode),
+    "the feed row reaches into the coverage block to spell the pair a second time");
+  ok(!/toFixed|Math\.|\/\s*100|\*\s*100|\+\+|reduce\(/.test(frowCode),
+    "the feed row grew arithmetic of its own");
+  ok(!/MIN_|FLOOR|publishable|>=|<=/.test(frowCode),
+    "the feed row tests a threshold of its own");
+  ok(!/\bread\(pid, p\)|scopedRead\(/.test(frowCode),
+    "the feed row takes a read of its own instead of the one the panel is holding");
+  ok(frow.split("figureOf").length === 2, "the feed row asks the owner more than once for one string");
+
   // ── the identity chip's denominator (v136, v140) ───────────────────
   // One control, one door, one fraction, and every figure on it read out of the
   // object above. The chip is allowed to ANNOTATE the figure it prints; it is not
@@ -1298,6 +1408,40 @@ export function assertWordActionSeams(bodies, api) {
     "the section subscribes and matches on its own again instead of through the shared contract");
   has(wa("the section's repaint, closed"), "});",
     "the section's repaint is no longer closed as a call into the shared contract");
+
+  // ── the hero ring's sub-line (v141) ───────────────────────────────────────
+  // One object, one gate. The ring prints the owner's fraction and gates the
+  // percentage on the owner's `shows`, so the loudest number on the profile is
+  // held to the rule the smallest chip on it is held to. The waiting ladder below
+  // the seam is the FLOOR's sentence and is outside it.
+  const hero = wa("the hero ring's sub-line");
+  has(hero, "var fig = figure(pid, p, sr);",
+    "the hero sizes its own figure again — the first number on the profile, spelling the section's " +
+    "fraction a fourth time out of its own coverage block");
+  has(hero, "var hasPct = fig.shows;",
+    "the ring gates its percentage on something other than the owner's both-halves rule — the ring " +
+    "is where publishing a percentage with no set to size it costs the most, because it is the " +
+    "first thing read and the only figure above the fold");
+  has(hero, "if (hasPct) sub = fig.fraction;",
+    "the ring's sub-line is not the owner's fraction, character for character");
+  const heroBare = hero.replace(/^\s*\/\/.*$/gm, "");
+  const heroCode = heroBare.replace(/'[^']*'/g, "''");
+  ok(!/c\.tested \+ ' of ' \+ c\.scorable/.test(heroBare),
+    "the ring assembles N of M by hand again beside the owner's copy of it");
+  ok(!/c\.scorable|coverage\.scorable/.test(heroCode),
+    "the ring sizes itself out of the coverage block rather than off the owner's object");
+  ok(!/toFixed|Math\.|\/\s*100|\*\s*100|reduce\(/.test(heroCode),
+    "the ring grew arithmetic of its own — its percentage is read()'s and its fraction is the " +
+    "owner's");
+  ok(!/MIN_|FLOOR|floors\.|publishable|>=|<=/.test(heroCode),
+    "the ring tests a floor inside this span. The publication floor is read()'s, and the ring's " +
+    "below-floor sentence — which names the floor, not the tested set — is deliberately OUTSIDE " +
+    "this seam and still pinned");
+  ok(!/scopedRead\(pid, p\)/.test(heroCode),
+    "the hero's own read moved inside the span that prints the figure taken off it");
+  ok(!/\.party\b|Republican|Democrat|GOP/i.test(heroCode), "the ring reads a party");
+  ok(!/incomplete|limited record|too early|unproven/i.test(hero),
+    "the ring composes a verdict of its own alongside read()'s label");
 
   // ── the issue file beside the pattern row (v133) ───────────────────────────
   // A sibling anchor after the door, not a link wrapped around the label: the

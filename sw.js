@@ -2526,7 +2526,29 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v140';
+// v141 - ONE FRACTION BUILDER ON EVERY WORD-VS-ACTION FACE. The letterhead chip
+// and the ⚖️ section already printed their "N of M tested" from one owner; three
+// other faces of the same reading still spelled it out by hand — the apparatus
+// lid label, the Official Record row in the feeds panel, and the hero sub-line.
+// Three hand-built spellings of one number are three chances to disagree, and on
+// a phone all five sit within a screen of each other. All three now print the
+// owner's string and nothing else, under the same rule the chip follows: no
+// percentage without the set that sizes it. TWO FILES ARE THE PRECACHED PAIR
+// BEHIND THIS BUMP:
+//   · word-action.js  — the changed file. figureOf(pid, r) is the owner for a
+//                       surface that already holds a read, so the lid, the feed
+//                       row and the hero print the section's fraction without
+//                       paying for a second scoring pass. No arithmetic, no
+//                       floor, no mapping and no weight moved; the hero's
+//                       below-floor sentence still names the floor, not the set.
+//   · word-action.css — unchanged by this pass, and named here because it is the
+//                       other half of the precached pair: the fraction's skin
+//                       (the quietened denominator) already shipped, and a warm
+//                       device must not hold one of these two files at v140 and
+//                       the other at v141.
+// Every person brief, every Direction Match read and every formal tier is
+// byte-identical across a twin boot — the same number, said once.
+const CACHE_VERSION = 'v141';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

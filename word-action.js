@@ -780,24 +780,49 @@
     return (t && m) ? (t + ' of ' + m + ' tested') : '';
   }
 
-  function figure(pid, p, pre) {
-    // `pre` is an already-taken scopedRead, so the section does not pay for a
-    // second scoring pass to print the object it is already holding.
-    var sr = pre || scopedRead(pid, p);
-    var r = (sr && sr.main) || null;
+  // ── …AND THE OWNER TAKES A READ, NOT ONLY A PID ───────────────────────────
+  // The chip and the section were the first two surfaces to print this pair. They
+  // were not the only ones: the apparatus lid's own label, the Official Record
+  // feed row and the hero's sub-line each spelled "N of M tested" for themselves,
+  // out of a `coverage` block they were already holding — four spellings of one
+  // sentence in one file, which is four places for it to rot and three places for
+  // it to disagree with the section it sits on the same page as.
+  //
+  // Those three are all HOLDING A READ when they need the fraction, and asking
+  // figure() by pid would have made them score a second time to print an object
+  // they already have the ingredients for — which is the cost the section's `pre`
+  // argument exists to avoid. So the assembly moved down one rung: figureOf() is
+  // the object, built from whichever read the caller is publishing, and figure()
+  // is the same call for a caller that has only a pid and needs scopedRead() to
+  // get there first.
+  //
+  // ONE PLACE STILL, WHICH IS THE ENTIRE POINT. The two integers are put beside
+  // each other here and nowhere else; `shows` is decided here and nowhere else;
+  // the stamp is joined here and nowhere else. Nothing below computes, gates or
+  // rounds anything — every face prints this object, so "the lid, the feed row,
+  // the sub-line, the chip and the section agree" is a property of construction
+  // rather than a habit five surfaces have to keep.
+  function figureOf(pid, r, sr) {
     var c = (r && r.coverage) || {};
     var pct = (r && typeof r.pct === 'number') ? r.pct : null;
     var tested = (typeof c.tested === 'number') ? c.tested : 0;
     var eligible = (typeof c.scorable === 'number') ? c.scorable : 0;
     var fraction = fractionOf(tested, eligible);
     return {
-      pid: String(pid), read: r, scoped: sr,
+      pid: String(pid), read: r || null, scoped: sr || null,
       pct: pct, tested: tested, eligible: eligible,
       token: (r && r.token) || null, verdict: (r && r.verdict) || null,
       fraction: fraction,
       shows: pct !== null && !!fraction,
       stamp: [(pct === null ? '' : pct), tested, eligible, ((r && r.token) || '')].join('|')
     };
+  }
+
+  function figure(pid, p, pre) {
+    // `pre` is an already-taken scopedRead, so the section does not pay for a
+    // second scoring pass to print the object it is already holding.
+    var sr = pre || scopedRead(pid, p);
+    return figureOf(pid, (sr && sr.main) || null, sr);
   }
 
   // ── …AND ONE REPAINT CONTRACT, SO THE TWO CANNOT BE DIFFERENT AGES ────────
@@ -1194,8 +1219,17 @@
       // the one the basis lid used to carry in its own label — it is the honest
       // promise of what opening this shows, and it is the reason the control is
       // worth a tap.
-      var label = 'How this score is built · basis, method and sources · ' +
-        r.coverage.tested + ' of ' + r.coverage.scorable + ' tested';
+      // …AND IT IS THE SECTION'S FRACTION, NOT A SECOND SPELLING OF IT. This label
+      // sits inside the ⚖️ section, a screen below the number block it is sizing,
+      // and it built the pair itself out of the same coverage block — so it agreed
+      // with the section only for as long as nobody edited one of the two. It
+      // prints the owner's object now, off the read the section already handed
+      // this builder, which costs no second scoring pass. Where the set cannot be
+      // said the CLAUSE goes rather than the label: "0 of 0 tested" on a control a
+      // reader has to tap is the promise the fraction exists to keep, broken.
+      var lidFig = figureOf(pid, r);
+      var label = 'How this score is built · basis, method and sources' +
+        (lidFig.fraction ? ' · ' + lidFig.fraction : '');
       return '<div class="pdxwa-how">' +
           '<!--PDXSP:lid id="wa-how" label="' + label + '"-->' + inner + '<!--PDXSP:/lid-->' +
         '</div>';
@@ -1301,7 +1335,11 @@
         role: isExecLane(pid)
           ? 'The test — laws signed or vetoed, orders and directives, judged issue by issue'
           : 'The test — roll-call votes and formal acts, judged issue by issue',
-        n: c.tested + ' of ' + c.scorable + ' tested' });
+        // The same fraction the number block above and the lid below print, from
+        // the same owner, off the read this panel is already holding. It said the
+        // pair in its own hand until now — the row that names the test, disagreeing
+        // with the figure it is the test for, is the drift this pass ends.
+        n: figureOf(pid, r).fraction });
       // THE "🧾 SAY-VS-DO RECEIPTS → #pdxsec-saydo" ROW IS GONE. It pointed at a
       // section that no longer exists: the public record is an input to the issue rows
       // in THIS section now (PDXConsistency.issueRow resolves it), not a feed sitting
@@ -3792,9 +3830,24 @@
       var sr = scopedRead(pid, p);
       var r = sr.main;
       var c = r.coverage, v = r.verdict;
-      var hasPct = r.pct !== null;
+      // THE PROFILE'S LOUDEST FIGURE, SIZED BY THE OWNER'S SENTENCE. The ring is
+      // the first number on a profile and its sub-line was the fourth hand-built
+      // spelling of the section's fraction: same two integers, same words, no
+      // shared owner, so the ring could size itself against one set while the
+      // section a screen below sized itself against another. It prints figure()'s
+      // object now, taken off the scopedRead this read already has in hand.
+      //
+      // AND `shows` IS THE GATE, so the rule the chip is held to is the rule here:
+      // no percentage without the set that sizes it. On every read this engine can
+      // take the two are the same question — the publication floor needs three
+      // tested items before pct is a number at all, so a percentage always has a
+      // set — and asking the object rather than `pct !== null` means the ring fails
+      // closed to its own waiting mark if that ever stops being true, instead of
+      // publishing the profile's biggest number over nothing.
+      var fig = figure(pid, p, sr);
+      var hasPct = fig.shows;
       var sub;
-      if (hasPct) sub = c.tested + ' of ' + c.scorable + ' tested';
+      if (hasPct) sub = fig.fraction;
       // One phrase for this wait, shared with the Voting Record Highlights
       // placeholder in profiles-full.js. Both are waiting on the same roll-call
       // fetch and can be on screen together on a cold open, so two wordings read

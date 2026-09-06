@@ -1626,6 +1626,37 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // assertion was relaxed and none was dropped; the suite went from a hard
     // STALE HARNESS stop to 165 passing checks.
     "scripts/test-wva-chip-denominator.mjs",
+    // ── One fraction builder on every Word-vs-Action face (CACHE_VERSION v141) ─
+    // The same terms again, and the same wall: no roll, no mapping, no key, no
+    // floor and no admission. The pass that gave the chip a denominator left three
+    // other faces of that one figure building "N of M tested" in their own hands —
+    // the apparatus lid's label, the Official Record row in the feeds panel, and
+    // the ring's sub-line at the top of the profile. All four sit within a screen
+    // of each other on a phone, and three hand-built spellings of one number are
+    // three chances to disagree with the section they are describing. All three now
+    // print the owner's string and nothing else, under the chip's own rule: no
+    // percentage without the set that sizes it. The lid and the feed row read the
+    // owner off the read their builder already holds, so no surface pays for a
+    // second scoring pass, and the ring's below-floor sentence still names the
+    // FLOOR rather than the tested set — the one place the two are different
+    // questions.
+    //   The reason a wave like this one is the file that has to declare it: R1 and
+    // R2 put 1,120 member files behind this figure, and every one of them carried
+    // all four faces. word-action.js, scripts/v103-chrome-seams.mjs and sw.js are
+    // declared above already — the three new spans are declared in the seam module
+    // beside the two the denominator pass cut, and read(), scopedRead(), Direction
+    // Match, the tier weights and both floors are outside all five and read
+    // byte-identically, which the twin boot above has just proved for the ledger
+    // and the DM figure.
+    //   The one file below is not, and it is a re-statement rather than a
+    // relaxation. Its spine assertion pinned the lid's label by the arithmetic the
+    // label used to spell — /r\.coverage\.tested \+ ' of ' \+ r\.coverage\.scorable/ —
+    // which was the only vocabulary for "the label names its payload with a count"
+    // that existed when it was written. The invariant is unchanged and now asks for
+    // the owner: the label must print figureOf(pid, r)'s fraction, and a second
+    // assertion beside it refuses the hand-built pair coming back. Strictly
+    // stronger, and nothing was dropped.
+    "scripts/test-profile-spine.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};
