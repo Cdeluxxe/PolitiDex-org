@@ -111,6 +111,20 @@ What "you did not defeat it" means, concretely:
   packs does not ship.** Migrations timestamped before `20261022000000` are
   grandfathered: they are already applied, and an applied migration may never be
   edited. There is no exemption list — an exemption list is a place to hide.
+- **The rule is jurisdiction-neutral, and the generators carry it.** The
+  fingerprint is of `vr_measure_issues`, and that table has no idea which
+  jurisdiction wrote a row: a Utah committee wave retires packs exactly the way a
+  federal promote does, and the Utah checklists say so. So the declaration is
+  emitted by the generator rather than left to whoever writes the header —
+  `scripts/vr-utah-committee-mapping.mjs --sql` prints it, and
+  `scripts/vr-mapping-draft.mjs` puts it in the skeleton every future wave starts
+  from, alongside the federal wave generators that already did (F6, F7, F9, F11).
+  `test-vr-mapping-migration-pack-step.mjs` sweeps the generators too: every
+  script that emits a mapping write is either on its active list, and must emit
+  the line, or on its named retired list with the reason — a new generator that is
+  on neither fails CI, which is the only way "we forgot to classify it" is not
+  silent. The retired ones are not edited: their output is an applied migration,
+  and some of it is byte-compared against what shipped.
 - **Confirm it moved.** `node scripts/test-vr-pack-key-version.mjs` prints the
   current version and fails if the fingerprint is insensitive to any of the five
   mutation shapes. Run it after the migration lands; the printed version must
@@ -2247,6 +2261,12 @@ node scripts/vr-utah-committee-mapping.mjs --dropped --session 2024GS
 
 # What the PDF reader actually sees, for one document.
 node scripts/vr-pdf-text.mjs /tmp/vr-utah-committee-cache/2025GS/pdf/19683.pdf
+
+# If the session's pass ends in a mapping migration — vr-utah-committee-mapping.mjs
+# --sql does — it ends on the pack key line too. See "pack key must change" above:
+# the fingerprint is of vr_measure_issues and knows nothing about jurisdictions.
+node scripts/test-vr-pack-key-version.mjs
+node scripts/test-vr-mapping-migration-pack-step.mjs
 ```
 
 ### Parser limitations
@@ -2917,12 +2937,211 @@ node scripts/vr-utah-committee-mapping.mjs --verify --session 2023GS
 node scripts/vr-utah-committee-mapping.mjs --seed --session 2023GS
 node scripts/vr-utah-committee-mapping.mjs --dropped --session 2023GS
 
-# the migration
+# the migration. --sql emits the `-- pack-generation: derived` declaration in the
+# header; it is not decoration and it is not federal-only — do not delete it.
 node scripts/vr-utah-committee-mapping.mjs --sql --session 2023GS --out /tmp/vr-utah-drafts
+
+# PACK KEY MUST CHANGE — the same line the federal wave ends on. This wave writes
+# vr_measure_issues, so every affected member's pack is retired by its key moving.
+# Record the version before and after in the wave's notes; they must differ.
+node scripts/test-vr-pack-key-version.mjs
+node scripts/test-vr-mapping-migration-pack-step.mjs
+node scripts/test-vr-pack-rebuild-on-flip.mjs
 
 # the reader-facing delta
 node scripts/vr-utah-fpi.mjs
 
 # 68 new bill addresses — do not skip this
 node scripts/gen-sitemap.mjs
+```
+
+### Wave 10 — 2023GS re-derived from the published minutes a second time, after the name admit
+
+Wave 7 had already run this session cold once. Wave 10 ran it again for a different
+reason: **wave 9's name admit changed what the floor seeds say**, and the committee
+lane's most load-bearing per-row field — whether a member's floor vote on the same bill
+already speaks for them — is derived from those seeds. A lane that reproduced from its
+sources in wave 7 is not thereby a lane that still reproduces after a wave changed the
+other half of the join. So the question this pass answered is narrow and worth naming:
+*does the published record still say what the applied migration says it says, now that
+the floor record has grown?*
+
+**The path, cold.** `/tmp/vr-utah-committee-cache` was empty. `--survey --session
+2023GS` re-fetched the committee list, all 25 standing committees' meeting lists, all
+**285 meetings**, all 285 minutes records and all **249 published PDFs** over the
+network — 83 committees listed, 25 of them standing, and 36 meetings publishing no PDF
+at all. `--collect` re-read them: **240 meetings APPROVED** (36 Summary, 9 Draft, none
+admitted), **240 PDFs published, fetched, readable, zero UNREADABLE**, **2 471 motions
+parsed, 2 364 with a recorded roll**. The seven admission rules then returned **40 acts
+on 27 bills, 303 positions, 33 refused as near-unanimous, 9 later reprints dropped, 89
+printed forms resolved, 0 unmapped, 4 refused withholding 19 positions**, and the same
+three acts on the renamed-committee door's short name. Every figure wave 6 reported and
+wave 7 confirmed came back a third time, from the network rather than from a seed.
+
+**Nothing shipped, because there was no delta.** `buildSql("2023GS")` regenerated
+`20261012000000` byte-for-byte (121 420 bytes, `cmp` clean), and the freshly derived
+seed's `measures` block — every bill, act, vote, printed form and per-row supersede flag
+— is byte-identical to the committed file's. A delta of zero rows is still not a
+migration.
+
+#### The reproduction claim has two halves now, and wave 7 stated it with one
+
+Wave 7 wrote that `db/vr-utah-committee-seed-2023GS.json` "regenerated byte-identical to
+the committed file." That was true when it was written. It is not true today, and the
+reason is a deliberate edit rather than a rot. Wave 9 attributed floor votes this session
+had parsed and dropped for want of a roster id, so a fresh derivation now supersedes
+**252** rows where the applied migration's prose says 207 — and wave 9 froze the
+migration's pair (`supersededByFloorVote: 207` / `notOnAnyFloorRoll: 96`) and wrote the
+re-derived pair beside it (`…Now: 252` / `…Now: 51`) with a `_nowNote` explaining which
+is which. Today's cold run lands on 252 / 51 exactly, which is the committed `*Now` pair.
+
+So the claim to make from here on is the split one:
+
+- **`measures` is what a cold run reproduces**, and it reproduced byte-identically.
+- **`counts` differs in exactly the two figures the seed carries twice on purpose**, and
+  a fresh derivation must equal the `*Now` half, never the frozen half.
+
+The frozen half survives a re-run for a mechanical reason worth knowing: `buildSql()`
+opens the committed seed (`const seed = readJson(comSeedFile(session));`) rather than the
+ingest cache, so the header of an applied file quotes the arithmetic that file shipped
+with and cannot be quietly re-derived into something else. A later wave that "corrects"
+the frozen pair to match a fresh run would rewrite the prose of a file that is already in
+the database. Don't. `test-vr-utah-committee.mjs` § 13 now fails if either half of this
+is dropped.
+
+#### Two ledgers that were prose only, and are now pinned
+
+Both are things the brief for this session asked for by name — the refusals counted in
+votes, and the printed-name collisions listed rather than guessed — and both lived in a
+JSON annotation that no test read:
+
+- **What the four refusals cost, in votes.** `_refusalNotes` states 19 positions across
+  the 40 acts and breaks them down as Kennedy 8, D. Johnson 7, Lyman 3, Judkins 1. § 14
+  now parses those five figures out of the prose and asserts they add up, and asserts
+  each of the four printed forms holds *zero* rows in the seed — a refusal that leaked
+  one row would otherwise still read as a refusal.
+- **The near-collision ledger.** `_nearCollisions` records King, Pulsipher and Owens as
+  the three surnames checked for a same-chamber twin before the roster door was used,
+  and states that no printed form matched two members of the same chamber. That field is
+  the *only* record that the check happened — a map with no near-collision ledger reads
+  exactly like a map where nobody looked — so its absence now fails. The three are
+  asserted into a third state that is neither ledger: attributed in the seed, and in
+  neither `unmapped` nor `_refusedNames`. Owens is asserted the hard way, because 2023
+  seats one in each chamber: two printed forms, two distinct politician ids.
+
+And the survey's own shape is pinned to this paragraph, because no shipped file holds it
+— a seed carries what was *admitted*, so a parser that silently stopped reading half the
+minutes would leave every seed-derived assertion green and leave no other trace.
+
+#### What the index says about 2023GS now, and why the number went to nothing
+
+Wave 7 measured this lane's tier contribution as **seven members off `empty`, nobody
+onto `readable`**. Wave 10 re-measured it the same way — `vr-utah-fpi.mjs`'s
+floor-plus-committee lane, booted once with `db/vr-utah-committee-seed-2023GS.json`'s
+`measures` emptied and once whole, so the wave-4/8 mapping positions cannot be mistaken
+for this lane's work — and the answer is now **zero on all three tiers**:
+
+| lane | empty | thin | readable |
+|---|---|---|---|
+| floor + 2025/2024 committee (2023GS withheld) | 10 | 4 | 118 |
+| + 2023GS committee acts (303 positions) | 10 | 4 | 118 |
+| delta attributable to 2023GS | **0** | **0** | **0** |
+
+All 132 Utah members sit in the same band either way — not the same counts, the same
+*names*, checked band by band. **And the reason is wave 9, not a regression here.** All
+24 members who hold one of this session's 51 rows that no floor vote speaks for are
+already off `empty` without the lane — 22 of them readable, 2 thin — because wave 9's
+name admit put 878 floor votes on file, and a floor vote is the stronger act. Wave 7's
+seven movers were moved again by a better instrument, and this lane's *unique*
+contribution to the tiers went with them.
+
+That is the honest null the brief expected, and the row-level reading is where the depth
+actually shows. The lane still buys 15 (member, issue) rows that would not exist at all
+(4 581 → 4 596), turns **5 rows from thin into a split read** (thin 491 → 486, split 569
+→ 573) and changes **no** strong characterisation (627 → 627). Fifty-one rows where the
+committee record is the only record, held by 24 members across 27 bills, is depth; it is
+not a pattern, and it was never going to buy one.
+
+#### The mapping harness was already red, and wave 9 is why
+
+`test-vr-utah-committee-mapping.mjs` was failing 16 of 892 assertions before this pass
+touched anything — confirmed by running it from a HEAD-only copy of the tree, which fails
+the same 16. All sixteen are in its section 6, which measures the mapping lane's effect
+through the shipped index, and all sixteen have one cause: **wave 9 moved the control.**
+Wave 8 wrote the section against a before-lane triple of 10 empty / 20 thin / 102
+readable; wave 9 then admitted 878 floor votes, and a floor vote is the strongest act the
+engine reads, so exactly the 16 members it reached crossed thin→readable and the triple
+became **10 / 4 / 118**. Fourteen of the sixteen wave-6 identity rows now read *before*
+the mapping lane is applied at all.
+
+The section was repaired rather than re-baselined, and the difference matters:
+
+- **The history is written into the file, not overwritten.** The three triples — waves
+  1–3, wave 6, wave 9 — sit in a table in the comment above the assertion, with the
+  reason each one moved. A number with no history is indistinguishable from a silent edit.
+- **Wave 8's finding is kept where it can still be checked.** Its claim was that
+  `kera_birkeland`, `steven_lund` and `susan_pulsipher` crossed thin→readable on committee
+  acts alone, each holding zero characterised issues before the wave. That is no longer
+  measurable from live data — wave 9 characterised all three from the floor — so asserting
+  it against the index would be asserting a state that no longer exists. The three are now
+  asserted only to *still read*, and how they came to read is recorded as history, here
+  and in the comment.
+- **The fence was restated in the two forms that survive a later wave.** No identity row
+  may land on `empty` in either state, and the mapping lane may never weaken one of them —
+  both checked by band membership by name. Which rows cross is now *derived* from the
+  index rather than typed in, so the next wave that moves one is measured rather than
+  tripped over.
+
+**One assertion was genuinely relaxed, and it is named because it was.** Wave 8 required a
+crossing to be on a clear issue (`eq(a.splitN, b.splitN)` — a member could not become
+readable by gaining a split). `david_buxton` now crosses on **two split reads and no clear
+one** (characterised 0 → 2, `strongN` 0 on both sides, 33 → 43 acts). That is stricter than
+the shipped rule: `consistency.js` bands a member `readable` on any characterised issue,
+and a split — "votes both ways on this key" — is characterised. The harness had a choice
+between contradicting the engine it is measuring and naming what happened. It names it,
+which is the call this same section already makes for tier weakening: **the fence exists so
+that no crossing is unnameable, not so that the number stays small.** A crossing must still
+gain a characterised issue of some kind, on strictly more acts, from zero.
+
+The row-level weakening bound went 12 → **13**: `susan_pulsipher/edu_parental` joined the
+list when wave 9's floor votes gave her a one-sided read on that key for a 2023 committee
+vote to run against. Same shape, same doctrine, one more name.
+
+With that, the harness runs end to end for the first time in this environment — it
+recomputes each session's bucket through the shipped ingest, so it needs a warm cache for
+all three sessions, and this pass rebuilt all three (2023GS to the documented 135 bills,
+2024GS to 140, 2025GS to 170). **886 assertions, 0 failed.**
+
+#### What it cost the reader
+
+Nothing, which is the expected answer and the honest one. This pass wrote no migration,
+no seed and no issue mapping. The mapping version was **`m940-da41abc2f46d` (940 rows in
+`vr_measure_issues`) before and after** — unchanged, as the no-write-wave rule requires,
+since a pack key that moved without a mapping row moving would be a cache eviction
+charged to nobody. Direction Match and the formal tiers are byte-identical across a twin
+boot for the same reason: the only files this pass changed are a test harness and this
+runbook, and no shipped surface reads either at runtime.
+
+#### Run it
+
+```bash
+# the whole path, from an empty cache — this is the point of the wave
+rm -rf /tmp/vr-utah-committee-cache
+node scripts/vr-utah-committee-ingest.mjs --survey  --session 2023GS
+node scripts/vr-utah-committee-ingest.mjs --collect --session 2023GS
+
+# the two comparisons: the migration whole, the seed by half
+node scripts/vr-utah-committee-ingest.mjs --sql  --session 2023GS --out /tmp/cold
+cmp /tmp/cold/vr_utah_2023gs_committee_votes.sql \
+    netlify/database/migrations/20261012000000_vr_utah_2023gs_committee_votes.sql
+node scripts/vr-utah-committee-ingest.mjs --seed --session 2023GS --out /tmp/cold
+#   `measures` byte-identical; `counts` differs only in the frozen/`*Now` pair
+
+# PACK STEP — a wave that writes no vr_measure_issues row must NOT move the version.
+# Record it before and after anyway; a move here is the bug, not the confirmation.
+node scripts/test-vr-pack-key-version.mjs
+node scripts/test-vr-mapping-migration-pack-step.mjs
+
+node scripts/test-vr-utah-committee.mjs
+node scripts/test-depth-no-score-drift.mjs
 ```

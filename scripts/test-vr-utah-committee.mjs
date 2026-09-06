@@ -1319,6 +1319,176 @@ has(R("db/vr-ingest-runbook.md"), "2023GS",
   }
 }
 
+// ── 13. WAVE 10 — THE SECOND COLD RE-DERIVATION, AND THE LEDGERS PROSE HELD ALONE
+// Wave 10 ran 2023GS's whole path from an empty cache a second time, a session after
+// wave 9's name admit changed what the floor seeds say. Everything the sources still
+// say came back the same, and two things came out of it that belong in a test rather
+// than in a paragraph.
+//
+// THE FIRST IS THAT THE SURVEY'S OWN SHAPE IS HELD BY NOTHING ELSE. 285 meetings, 240
+// of them APPROVED, 249 published PDFs, 2 471 motions: none of those numbers appears
+// in a shipped seed or migration, because the seed only carries what was ADMITTED. A
+// parser that quietly stopped reading half the minutes would leave every seed-derived
+// assertion above green — the admitted rows would still be internally consistent —
+// and the only trace would be a paragraph nobody re-reads. So the paragraph is pinned.
+//
+// THE SECOND IS THAT THE SEED'S REPRODUCTION CLAIM HAS TWO HALVES NOW, AND WAVE 7
+// STATED IT WITH ONE. See the block below.
+{
+  const RB = R("db/vr-ingest-runbook.md");
+
+  // The survey half: how much was fetched, and how much of it was allowed to speak.
+  has(RB, "`--survey` cached 285 meetings, 240 of",
+    "wave 10: the runbook states how many 2023 meetings were surveyed and how many were APPROVED");
+  has(RB, "all **249 published PDFs**",
+    "wave 10: … and how many PDFs the survey pulled");
+  has(RB, "**240 meetings APPROVED** (36 Summary, 9\nDraft, none admitted)",
+    "wave 10: … and that the 45 non-approved split into Summary and Draft, neither admitted");
+  has(RB, "**240 PDFs published, fetched, readable, zero UNREADABLE**",
+    "wave 10: … and that no approved minute failed closed as unreadable");
+  has(RB, "**2 471 motions parsed, 2 364 with a recorded roll**",
+    "wave 10: … and how many motions were read and how many carried a roll");
+  has(RB, "all 25 standing committees",
+    "wave 10: … and how many standing committees the session's meetings came from");
+  // The admitted half of the same ledger is checked against the seed rather than the
+  // prose, because there the seed is the authority — but the two have to agree, so the
+  // prose's figures are the seed's figures and are asserted as such above.
+  eq(SEED23.counts.nearUnanimousRefused, 33,
+    "wave 10: the 33 near-unanimous refusals are the seed's own count, not a remembered one");
+
+  // THE REPRODUCTION CLAIM, RESTATED. Wave 7 wrote that the committed seed regenerated
+  // byte-identical from a cold cache. That was true when it was written and is not true
+  // now, and the reason is a deliberate edit rather than a rot: wave 9 attributed floor
+  // votes this session had dropped, so a fresh derivation supersedes 252 rows where the
+  // applied migration's prose says 207, and wave 9 froze the migration's pair and added
+  // the re-derived pair beside it. What a cold run reproduces today is the `measures`
+  // block — every bill, act, vote, printed form and per-row supersede flag — while the
+  // `counts` block differs in exactly the two figures the seed carries twice on purpose.
+  // A later wave that "fixes" the frozen pair to match a fresh run would silently
+  // rewrite the arithmetic of an applied file, so the two halves are named here.
+  has(RB, "`measures` is what a cold run reproduces",
+    "wave 10: the runbook says which half of the seed a cold run reproduces");
+  has(RB, "252", "wave 10: … and what a fresh derivation supersedes today");
+  const nowNote = String(SEED23.counts._nowNote || "");
+  ok(nowNote.length > 0, "wave 10: the seed's counts block explains its own doubled pair");
+  has(nowNote, "frozen", "wave 10: … and says the bare pair is frozen");
+  eq(SEED23.counts.supersededByFloorVote + SEED23.counts.notOnAnyFloorRoll,
+     SEED23.counts.supersededByFloorVoteNow + SEED23.counts.notOnAnyFloorRollNow,
+    "wave 10: the frozen pair and the re-derived pair describe the same rows");
+  eq(SEED23.counts.positions,
+     SEED23.counts.supersededByFloorVoteNow + SEED23.counts.notOnAnyFloorRollNow,
+    "wave 10: … and that is every position the seed holds");
+
+  // THE TIER CONTRIBUTION WENT TO NOTHING, AND THE RUNBOOK SAYS WHY. Wave 7 measured
+  // seven members off `empty`; wave 10 re-measured zero on all three tiers, because
+  // wave 9's name admit had already moved those seven with floor votes. A null result
+  // that is not written down as a null is indistinguishable from a wave that never
+  // measured, and a null that does not say WHICH wave absorbed it invites the next
+  // reader to conclude the lane was pointless. Both halves are pinned, and so is the
+  // row-level reading that is where this lane's depth actually shows.
+  has(RB, "**zero on all three tiers**",
+    "wave 10: the runbook states this lane's re-measured tier contribution");
+  has(RB, "the same\n*names*, checked band by band",
+    "wave 10: … and that the null was checked by member, not by count");
+  has(RB, "the reason is wave 9, not a regression here",
+    "wave 10: … and names the wave that absorbed wave 7's seven movers");
+  has(RB, "4 581 → 4 596", "wave 10: … and the rows the lane still buys");
+  has(RB, "thin 491 → 486, split 569\n→ 573", "wave 10: … and the five thin rows it turns into split reads");
+  has(RB, "627 → 627", "wave 10: … and that it buys no strong characterisation");
+  // The claim above rests on one seed-checkable fact: this session's fresh rows are
+  // held by 24 members, which is the figure the runbook quotes for them.
+  {
+    const freshMembers = new Set();
+    for (const { v } of r23) if (!v.supersededByFloorVote) freshMembers.add(v.politicianId);
+    eq(freshMembers.size, 24,
+      "wave 10: 24 members hold the 51 rows no floor vote speaks for — the number the runbook quotes");
+    has(RB, "24 members who hold one of this session's 51 rows",
+      "wave 10: … and the runbook quotes it");
+  }
+
+  // THE MIGRATION IS THE HALF THAT STILL REGENERATES WHOLE, AND IT DOES SO BECAUSE IT
+  // READS THE COMMITTED SEED. Asserted here as a property of the generator rather than
+  // of a cache: buildSql opens the seed file, so the frozen pair is what reaches the
+  // header, which is the mechanism that makes an applied file's prose unfalsifiable.
+  has(R("scripts/vr-utah-committee-ingest.mjs"), "const seed = readJson(comSeedFile(session));",
+    "wave 10: buildSql reads the committed seed, which is why the frozen pair survives a re-run");
+}
+
+// ── 14. THE TWO 2023 LEDGERS NO TEST WAS WATCHING ────────────────────────────
+// Section 10 checks that four names are refused and that two of them are absent from
+// the seed. Two ledgers beside that one were prose only.
+{
+  // WHAT THE REFUSALS COST, IN VOTES. `_refusalNotes` states a total and four
+  // per-name figures, and its own doctrine sentence is that "distinct names and
+  // refused votes are two different numbers" — which is exactly the kind of claim
+  // that goes wrong when someone edits one number and not the other four. Read the
+  // five figures out of the prose and make them add up.
+  const notes = String(CMAP23._refusalNotes || "");
+  const total = Number((/(\d+) committee positions/.exec(notes) || [])[1]);
+  eq(total, 19, "2023: the refusal note states the number of positions the four refusals withhold");
+  const per = {};
+  for (const [, name, n] of notes.matchAll(
+    /(Sen\. M\. Kennedy|Rep\. D\. Johnson|Rep\. P\. Lyman|Rep\. M\. Judkins) (?:is )?(\d+)/g)) {
+    per[name] = Number(n);
+  }
+  eq(Object.keys(per).length, 4, `2023: the note breaks the refusal down by all four names, got ${JSON.stringify(per)}`);
+  eq(Object.values(per).reduce((a, b) => a + b, 0), total,
+    `2023: the four per-name refusal counts add up to the stated total, got ${JSON.stringify(per)}`);
+  // And every one of the four is absent from the seed in votes, not just in names —
+  // section 10 asserted this for Judkins and Lyman; a refusal that leaked a single
+  // row would be a refusal in prose only.
+  const printed23 = new Set(r23.map((r) => String(r.v.printedAs || "")));
+  for (const name of Object.values(CMAP23._refusedNames || {}).flat()) {
+    ok(!printed23.has(String(name)),
+      `2023: "${name}" is refused and holds no row in the seed`);
+  }
+
+  // THE NEAR-COLLISION LEDGER. The brief's rule is that a printed-name collision is
+  // listed rather than guessed, and the three surnames that needed a same-chamber
+  // check before the roster door opened are listed in `_nearCollisions`. The field is
+  // the only record that the check happened, so its absence has to fail: a map with no
+  // near-collision ledger reads identically to a map where nobody looked.
+  const near = String(CMAP23._nearCollisions || "");
+  ok(near.length > 0, "2023: the map carries the ledger of surnames it checked for a same-chamber twin");
+  for (const surname of ["King", "Pulsipher", "Owens"]) {
+    has(near, surname, `2023: the near-collision ledger names ${surname}`);
+  }
+  has(near, "No printed form matched two members of the same chamber",
+    "2023: … and states the outcome of the checks rather than implying it");
+  // Checked-and-cleared is a third state, and it is not either ledger: these three are
+  // attributed in the seed AND absent from both the unmapped and the refused lists.
+  const refusedSur = new Set(Object.values(CMAP23._refusedNames || {}).flat().map(sur));
+  const unmappedSur = new Set(Object.values(CMAP23.unmapped || {}).flat().map(sur));
+  const attributedSur = new Set(r23.map((r) => sur(r.v.printedAs)));
+  for (const surname of ["king", "pulsipher", "owens"]) {
+    ok(attributedSur.has(surname),
+      `2023: ${surname} was resolved and holds rows — the check cleared it rather than closing the door`);
+    ok(!refusedSur.has(surname) && !unmappedSur.has(surname),
+      `2023: ${surname} is in neither the refused nor the unmapped ledger`);
+  }
+  // Owens is the one the ledger defers to the attendance door, and the door is
+  // per-chamber for exactly this reason: 2023 seats an Owens in each chamber. Both are
+  // attributed, to two different people, which is the checkable form of that claim.
+  const owens = [...new Set(r23.filter((r) => sur(r.v.printedAs) === "owens")
+    .map((r) => `${String(r.v.printedAs).slice(0, 4)}|${r.v.politicianId}`))].sort();
+  eq(owens.length, 2, `2023: the two chambers' Owenses resolve to two people, got ${JSON.stringify(owens)}`);
+  ok(new Set(owens.map((o) => o.split("|")[1])).size === 2,
+    `2023: … and to two distinct politician ids, got ${JSON.stringify(owens)}`);
+
+  // THE THREE DOORS ARE THE WHOLE MAP. 65 + 9 + 15 is asserted door by door in
+  // section 10; that they leave nothing over is what makes "nobody is guessed" a
+  // closed statement rather than three counts and a remainder.
+  const hows = {};
+  for (const ch of Object.keys(CMAP23.printedForms || {})) {
+    for (const rec of Object.values(CMAP23.printedForms[ch] || {})) {
+      hows[rec.how] = (hows[rec.how] || 0) + 1;
+    }
+  }
+  eq(Object.values(hows).reduce((a, b) => a + b, 0), 89,
+    `2023: the three doors account for all 89 printed forms with nothing left over, got ${JSON.stringify(hows)}`);
+  eq(Object.keys(hows).length, 3, `2023: and there are three of them, got ${JSON.stringify(Object.keys(hows))}`);
+}
+
 // ── Report ───────────────────────────────────────────────────────────────────
 console.log(`\n   ${passed} checks passed`);
 if (failures.length) {
