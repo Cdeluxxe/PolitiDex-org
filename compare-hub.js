@@ -1813,8 +1813,8 @@
       var compareAct = function() { if (window.myteamCompareAll) window.myteamCompareAll(); else _scrollToTeamWorkspace(); };
 
       if (complete) {
-        if (filled >= 2) actions.push({ label: '⚖️ Compare your team', kind: 'primary', act: compareAct });
-        actions.push({ label: '↑ My Voting Team', kind: 'secondary', act: _scrollToTeamWorkspace });
+        if (filled >= 2) actions.push({ label: '⚖️ Compare your picks', kind: 'primary', act: compareAct });
+        actions.push({ label: '↑ Your ballot', kind: 'secondary', act: _scrollToTeamWorkspace });
       } else if (nextOpen) {
         actions.push({
           label: '➕ Add your ' + nextOpen.label,
@@ -1826,7 +1826,7 @@
         });
         actions.push(filled >= 2
           ? { label: '⚖️ Compare', kind: 'secondary', act: compareAct }
-          : { label: '↑ My Voting Team', kind: 'secondary', act: _scrollToTeamWorkspace });
+          : { label: '↑ Your ballot', kind: 'secondary', act: _scrollToTeamWorkspace });
       }
       return { count: filled, total: total, complete: complete, actions: actions };
     }
@@ -1929,7 +1929,7 @@
       // The breathing green halo only fires for a strong, not-yet-added match.
       btn.classList.toggle('match-strong', strong && !on);
 
-      btn.innerHTML = on ? '✓ On Your Team' : '⭐ Add to My Team';
+      btn.innerHTML = on ? '✓ Your pick' : '⭐ Add to ballot';
 
       var hint = document.getElementById('modal-addteam-hint');
       if (!hint) return;
@@ -1939,8 +1939,8 @@
         // voter flows straight from one pick into building the rest of their ballot.
         var next = _pdxNextOpenSeat();
         hint.innerHTML = next
-          ? '✓ Saved to <strong style="color:#86efac;">My Team</strong>. Keep going — your <strong style="color:#cbd9ee;">' + next.label + '</strong> seat is still open. Browse that race next.'
-          : '🎉 Saved — that fills <strong style="color:#86efac;">every seat</strong> PolitiDex tracks for you. Compare your team to lock it in.';
+          ? '✓ Saved to <strong style="color:#86efac;">your ballot</strong>. Keep going — your <strong style="color:#cbd9ee;">' + next.label + '</strong> seat is still open. Browse that race next.'
+          : '🎉 Saved — that fills <strong style="color:#86efac;">every seat</strong> PolitiDex tracks for you. Compare your picks to lock it in.';
         return;
       }
 
@@ -1948,7 +1948,7 @@
         var mc = (typeof _alignScoreColor === 'function') ? _alignScoreColor(match) : '#86efac';
         var pct = '<strong style="color:' + mc + ';">' + match + '%</strong>';
         if (match >= 70) {
-          hint.innerHTML = '🎯 Looks like a strong match — they\'re with you on ' + pct + ' of your issues. Add them to your team?';
+          hint.innerHTML = '🎯 Looks like a strong match — they\'re with you on ' + pct + ' of your issues. Add them to your ballot?';
         } else if (match >= 50) {
           hint.innerHTML = '🎯 A solid match at ' + pct + ' on your issues. Add them to claim this seat — swap your pick anytime.';
         } else {
@@ -2329,7 +2329,7 @@
       return (typeof _pdxIsLocalToUser === 'function' && _pdxIsLocalToUser(pid)) ? '<span class="chub-your-badge">📍 Local</span>' : '';
     }
     function _pdxTeamBadge(pid) {
-      return ((typeof _myPoliticians !== 'undefined') && _myPoliticians.has(pid)) ? '<span class="chub-team-badge">✓ On Team</span>' : '';
+      return ((typeof _myPoliticians !== 'undefined') && _myPoliticians.has(pid)) ? '<span class="chub-team-badge">✓ Your pick</span>' : '';
     }
     // Formerly flagged cards saved in the separate "Home Team" base with a green
     // "🏠 Home Team" pill. With the unified single-team experience that badge was
@@ -2371,13 +2371,13 @@
         strongMatch = (_ms !== null && _ms >= 70);
       }
       var addBtnClass = isMy ? 'myteam-add-btn on-team' : ('myteam-add-btn' + (strongMatch ? ' match-strong' : ''));
-      var addBtnText = isMy ? '✓ On Your Team' : '⭐ Add to My Team';
-      var addBtnHover = isMy ? ' onmouseover="this.innerHTML=\'✕ Remove from Team\'" onmouseout="this.innerHTML=\'✓ On Your Team\'"' : '';
+      var addBtnText = isMy ? '✓ Your pick' : '⭐ Add to ballot';
+      var addBtnHover = isMy ? ' onmouseover="this.innerHTML=\'✕ Remove pick\'" onmouseout="this.innerHTML=\'✓ Your pick\'"' : '';
       // Light, contextual guidance on each action so a browsing voter knows the
       // good next step without extra on-card clutter: add fills a ballot seat,
       // compare weighs them against the others in the race, profile reads the
       // full record first.
-      var addTitle = isMy ? 'On your team — click to remove' : (strongMatch ? 'Strong match for your values — add them to claim this seat' : 'Add to your voting team — fills their seat in My Voting Team');
+      var addTitle = isMy ? 'Your pick for this seat — click to remove' : (strongMatch ? 'Strong match for your values — add them to claim this seat' : 'Add to your ballot — fills their seat in your picks');
       var cmpTitle = isMy ? 'Compare them against the others in this race' : 'Not sure yet? Compare with others in this race first';
       return '<div class="mypol-card-actions" style="width:100%;">' +
           '<button class="' + addBtnClass + ' mypol-act-add" title="' + addTitle + '" onclick="event.stopPropagation();mypolToggleAnimated(this,\'' + pid + '\')"' + addBtnHover + '>' + addBtnText + '</button>' +
@@ -2831,7 +2831,7 @@
           '<div style="display:flex;align-items:center;gap:0.9rem;flex-wrap:wrap;background:linear-gradient(135deg, rgba(88,28,135,0.30) 0%, rgba(139,92,246,0.08) 100%);border:1px solid rgba(139,92,246,0.42);border-radius:1rem;padding:0.9rem 1.1rem;margin-bottom:1.5rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.04), 0 0 24px rgba(139,92,246,0.08);">' +
             '<div style="width:42px;height:42px;border-radius:0.75rem;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;box-shadow:0 0 16px rgba(139,92,246,0.4);">🎯</div>' +
             '<div style="flex:1;min-width:200px;">' +
-              '<div class="font-condensed" style="font-weight:700;letter-spacing:0.04em;color:#d8b4fe;font-size:0.95rem;text-transform:uppercase;">Build your team by values, not party</div>' +
+              '<div class="font-condensed" style="font-weight:700;letter-spacing:0.04em;color:#d8b4fe;font-size:0.95rem;text-transform:uppercase;">Work your ballot by values, not party</div>' +
               '<div class="font-condensed" style="color:#c4b5fd;font-size:0.82rem;line-height:1.42;margin-top:0.15rem;">Set up your <strong style="color:#e9d5ff;">Alignment Signature</strong> to see <strong style="color:#e9d5ff;">Your Match&nbsp;%</strong> on every candidate we can read on your issues — and fill your ballot based on who actually fits your values, regardless of party.</div>' +
             '</div>' +
             '<button type="button" onclick="if(window._krAlignGuideToPicker)window._krAlignGuideToPicker();" class="font-condensed" style="white-space:nowrap;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:0.78rem;color:#fff;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:1px solid rgba(167,139,250,0.5);border-radius:0.75rem;padding:0.6rem 1.1rem;cursor:pointer;box-shadow:0 4px 16px rgba(139,92,246,0.3);transition:transform 0.15s ease, box-shadow 0.2s ease;" onmouseover="this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 6px 22px rgba(139,92,246,0.45)\'" onmouseout="this.style.transform=\'\';this.style.boxShadow=\'0 4px 16px rgba(139,92,246,0.3)\'">🎯 Set Up Match</button>' +
@@ -2927,7 +2927,7 @@
       // own keys and stop propagation) from double-firing the card's own open.
       var _slotAria = _medEsc((d.name || 'This pick') + ' — your ' + (pos.label || 'ballot') + ' pick. Open summary.');
       return '<div class="myteam-slot' + (window._pdxJustFilledPid === pid ? ' myteam-slot--just-filled' : '') + '" data-pid="' + pid + '" role="button" tabindex="0" aria-label="' + _slotAria + '" style="--slot-color:' + pos.color + ';animation-delay:' + (TEAM_POSITIONS.indexOf(pos) * 0.07) + 's" onclick="openMediumModal(\'' + pid + '\')" onkeydown="if((event.key===\'Enter\'||event.key===\' \')&&event.target===this){event.preventDefault();openMediumModal(\'' + pid + '\')}">' +
-        '<button class="myteam-slot-clear-btn" aria-label="Remove ' + _slotAria.split(' — ')[0] + ' from your team" onclick="event.stopPropagation();myteamClearSlot(\'' + pos.key + '\', this)" title="Remove from your team">&times;</button>' +
+        '<button class="myteam-slot-clear-btn" aria-label="Remove ' + _slotAria.split(' — ')[0] + ' from your ballot" onclick="event.stopPropagation();myteamClearSlot(\'' + pos.key + '\', this)" title="Remove this pick">&times;</button>' +
         '<div class="myteam-slot-tier" style="color:' + pos.color + ';">' + _slotTier(pos.key) + '</div>' +
         '<div class="myteam-slot-position" title="' + _slotBlurb(pos.key) + '" style="background:' + pos.color + '1a;border:1px solid ' + pos.color + '45;color:' + pos.color + ';">' + pos.icon + ' ' + pos.label + '</div>' +
         '<div class="myteam-slot-scope">' + (typeof _myteamSeatScope === 'function' ? _myteamSeatScope(pos.key) : '') + '</div>' +
@@ -3361,12 +3361,44 @@
       return '<div class="pdx-med-status-strip">' + chips.join('') + '</div>';
     };
 
+    // ── ONE PERSON DOOR ────────────────────────────────────────────────────────
+    // Every surface that NAMES a politician — a Relevant to Me card, a search
+    // row, a compare cell, a district peek — called openMediumModal, and what
+    // opened was this file's compact quick-view: a Scores / Evidence / Actions
+    // nav over Kept / Broken / Pending counts. The person's actual record lives
+    // at /p/<pid> and is served by person-file.js. So tapping Carolin Gleich in
+    // Relevant to Me opened a card ABOUT the record instead of the record, with
+    // no address, nothing to link to, and a second, thinner version of numbers
+    // the file states properly. One person, two documents, and the shallower one
+    // was the one with the door.
+    //
+    // The door now goes to the file. openMediumModal keeps its name because
+    // dozens of onclick attributes across the app spell it, but it is a door,
+    // not a view: it hands the id to PDXPerson.open — the same funnel /p/<pid>,
+    // PDXPersonLink and the person-file boot path all use — and the compact
+    // card is only what a reader gets when that funnel is not there to answer
+    // (an older cached shell, person-file.js still loading). Fail open, never
+    // fail wrong: a tap always opens something, and when the file can open it is
+    // always the file.
     window.openMediumModal = function(id, ev) {
       if (ev && ev.stopPropagation) ev.stopPropagation();
       if (!id) return;
-      // The Compare My Team overlay sits above this quick-view modal — close it
-      // first so the card the voter tapped isn't hidden behind it.
+      // The Compare overlay sits above whatever opens next — close it first so
+      // the record the voter asked for isn't hidden behind it.
       if (typeof window.homeCompareClose === 'function') { try { window.homeCompareClose(); } catch (e) {} }
+      try {
+        if (window.PDXPerson && typeof window.PDXPerson.open === 'function') {
+          if (window.PDXPerson.open(id)) return;
+        }
+      } catch (e) {}
+      return window._pdxMediumCompact(id);
+    };
+
+    // The compact quick-view, kept as the fallback the door above falls through
+    // to. Unchanged in every respect except that it is no longer the thing a
+    // person's name opens.
+    window._pdxMediumCompact = function(id) {
+      if (!id) return;
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[id] : null;
       // No compact record for this id — fall back to the full profile so the tap
       // is never a dead end.
@@ -3409,8 +3441,8 @@
       // (Promise Track Record, Accountability Spotlight, bio, stances) need the
       // full document. If we only have a lite stub for this id, show the header +
       // a body skeleton immediately, fetch the full doc, then re-render. Re-
-      // calling openMediumModal once the data is cached skips this branch and
-      // renders the complete modal.
+      // calling this renderer once the data is cached skips this branch and
+      // renders the complete card.
       if (window._pdxFullIds && typeof window._pdxEnsureFullProfile === 'function' && !window._pdxFullIds.has(id)) {
         var skelEl = document.getElementById('pdx-medium-content');
         if (skelEl) {
@@ -3430,7 +3462,10 @@
         window._medSyncCmpBtn(id);
         window._pdxEnsureFullProfile(id).then(function () {
           // Only re-render if this is still the modal the visitor is looking at.
-          if (window._pdxMediumId === id) window.openMediumModal(id);
+          // Re-enter the RENDERER, not the door above it — openMediumModal now
+          // opens the person file, so recursing through it would replace the
+          // half-painted fallback with a different document mid-fetch.
+          if (window._pdxMediumId === id) window._pdxMediumCompact(id);
         });
         return;
       }
@@ -3674,7 +3709,7 @@
       if (!btn) return;
       var on = (typeof _myPoliticians !== 'undefined') && _myPoliticians.has(id);
       btn.classList.toggle('on-team', on);
-      btn.innerHTML = on ? '✓ On Your Team' : '⭐ Add to My Team';
+      btn.innerHTML = on ? '✓ Your pick' : '⭐ Add to ballot';
     };
     window._medSyncCmpBtn = function(id) {
       var btn = document.getElementById('pdx-med-cmp-btn');
@@ -3825,7 +3860,7 @@
               '<span class="moc-ico">' + ico + '</span>' +
               '<span class="moc-text"><span class="moc-office">' + pos.label + '</span>' +
               '<span class="moc-name">' + name + '</span></span>' +
-              '<button class="moc-remove" title="Remove ' + name + ' from your team" ' +
+              '<button class="moc-remove" title="Remove ' + name + ' from your ballot" ' +
                 'onclick="event.stopPropagation();window.myteamClearSlot(\'' + pos.key + '\', this)">✕</button>' +
             '</span>';
         }
@@ -3965,7 +4000,7 @@
           cta: 'Set location' },
         { key: 'pick', icon: '⭐', go: 'pick', done: pickDone,
           label: 'Add your first pick',
-          desc: 'Find a candidate who earns it and tap <strong>➕ Add to My Team</strong>.',
+          desc: 'Find a candidate who earns it and tap <strong>➕ Add to ballot</strong>.',
           cta: 'Add a pick' },
         { key: 'align', icon: '🎯', go: 'align', done: alignDone,
           label: 'Match your values',
@@ -3991,7 +4026,7 @@
             '<div class="myteam-guide-steps">' +
               '<div class="myteam-guide-step is-active"><span class="myteam-guide-marker">📋</span><span class="myteam-guide-txt"><span class="myteam-guide-label">See your finished slate</span><span class="myteam-guide-desc">Your whole slate on one card — print it or copy it to take to the polls.</span></span><button type="button" class="myteam-guide-go" onclick="window.openBallotSummary && window.openBallotSummary()">📋 My Ballot</button></div>' +
               (filledCount >= 2
-                ? '<div class="myteam-guide-step is-active"><span class="myteam-guide-marker">✓</span><span class="myteam-guide-txt"><span class="myteam-guide-label">Compare your team</span><span class="myteam-guide-desc">See all your picks head-to-head on record &amp; values.</span></span><button type="button" class="myteam-guide-go" onclick="window._myteamGuideGo(\'compare\')">⚖️ Compare</button></div>'
+                ? '<div class="myteam-guide-step is-active"><span class="myteam-guide-marker">✓</span><span class="myteam-guide-txt"><span class="myteam-guide-label">Compare your picks</span><span class="myteam-guide-desc">See all your picks head-to-head on record &amp; values.</span></span><button type="button" class="myteam-guide-go" onclick="window._myteamGuideGo(\'compare\')">⚖️ Compare</button></div>'
                 : '') +
             '</div>' +
           '</div>';
@@ -4053,7 +4088,7 @@
       box.innerHTML =
         '<details class="myteam-guide myteam-guide-collapsible">' +
           '<summary class="myteam-guide-head myteam-guide-summary">' +
-            '<span class="myteam-guide-title">🧭 While building your team</span>' +
+            '<span class="myteam-guide-title">🧭 While working your ballot</span>' +
             '<span class="myteam-guide-count">' + doneCount + '/' + steps.length + ' done</span>' +
             '<span class="myteam-guide-chev" aria-hidden="true">⌄</span>' +
           '</summary>' +
@@ -4363,6 +4398,28 @@
     // count degrades gracefully to TEAM_POSITIONS.length. This is the single source
     // of truth the seat-count surfaces read from, so they can never disagree.
     // Returns { total, filled, pids, seats:[{ key, label, color, on }] }.
+    // ── THE PICKS VIEW IS A VIEW, NOT A SECOND BUILDER ────────────────────────
+    // This surface used to start its own pick loop: its "next gap" guide sent a
+    // reader to the Relevant-to-Me accordion to add a pick, and offered a
+    // separate overlay to compare the field first. Both of those are the ballot
+    // workspace's job, and doing them here is what made Door 2 read as two
+    // products — one of them keeping a second count on a second seat list.
+    //
+    // Every seat control on the picks view now opens THAT SEAT in the workspace,
+    // where the field, the ruler and the pick control already live together.
+    // PDXDoor2.toWorkspace does the scroll and the open; the older jump survives
+    // only for a page where door2-spine.js has not loaded.
+    window._pdxWorkSeat = function (key) {
+      try {
+        if (window.PDXDoor2 && typeof window.PDXDoor2.toWorkspace === 'function') {
+          window.PDXDoor2.toWorkspace(key);
+          return false;
+        }
+      } catch (e) {}
+      try { if (typeof window.jumpToRelevantAccordion === 'function') window.jumpToRelevantAccordion(key); } catch (e) {}
+      return false;
+    };
+
     function _myteamBallotCounts(sel) {
       sel = sel || _getTeamBallotSelections();
       var positions = window.TEAM_POSITIONS || [];
@@ -4863,7 +4920,7 @@
         var isDistrict = !!_MYTEAM_DISTRICT_KEYS[pos.key];
         var scope = _myteamSeatScope(pos.key);
         var cls = on ? 'is-covered' : (isDistrict ? 'is-open is-missing' : 'is-open');
-        var nm = on ? (d.name || 'On your team').replace(/"/g, '&quot;') : '';
+        var nm = on ? (d.name || 'Your pick').replace(/"/g, '&quot;') : '';
         var badge = on
           ? '<span class="myteam-dcov-badge is-covered">✓ Covered</span>'
           : (isDistrict
@@ -4993,10 +5050,11 @@
           var scope = _myteamSeatScope(pos.key);
           var fc = _fieldCount(pos.key);
           var meta = scope + (fc > 0 ? ' · ' + fc + ' candidate' + (fc === 1 ? '' : 's') + ' running' : ' · field still forming');
-          var add = '<button type="button" class="myteam-dcov-cta dcov-move-btn" onclick="window.jumpToRelevantAccordion(\'' + pos.key + '\')">➕ Add</button>';
-          var cmp = fc > 1
-            ? '<button type="button" class="myteam-dcov-cta is-compare dcov-move-btn" onclick="window._relevantCompareOffice && window._relevantCompareOffice(\'' + pos.key + '\')">⚖️ Compare ' + fc + '</button>'
-            : '';
+          // One control per seat, and it opens the seat in the workspace. The old
+          // pair — "Add" into the accordion, "Compare N" into an overlay — was
+          // two entrances to a loop that already exists one section up.
+          var add = '<button type="button" class="myteam-dcov-cta dcov-move-btn" onclick="return window._pdxWorkSeat(\'' + pos.key + '\')">\u2699 Work this seat</button>';
+          var cmp = '';
           return '<div class="myteam-dcov-move">' +
               '<span class="myteam-dcov-ico">' + (pos.icon || '\u{1F3DB}') + '</span>' +
               '<span class="dcov-move-body">' +
@@ -5052,24 +5110,19 @@
         } else {
           lead = (praise ? 'next, add your ' : '<strong>' + covered + ' of ' + total + '</strong> seats covered — add your ') + '<span class="dcov-open">' + _openLabel(firstOpen) + '</span>' + (praise ? '.' : ' next.');
         }
-        msg = praise + lead + (openCount > 1 ? ' <span class="myteam-dcov-msg-more">' + (openCount - 1) + ' more after that.</span>' : '') + ' Tap the seat to compare the field and add your pick — it saves as you go.';
-        // Two clear next actions on the central hub: jump straight to the open race
-        // to add a pick, or — when that seat actually has a field — weigh everyone
-        // running side-by-side first. The second button mirrors the "Relevant to Me"
-        // coverage strip so "compare before you commit" is offered consistently in
-        // both the discovery and team-management views.
-        var _foField = [];
-        try { _foField = (window._relevantLastOfficeGroups && window._relevantLastOfficeGroups[firstOpen.key]) || []; } catch (e) {}
-        var _foHasField = _foField.filter(function(pid) { return CMP_DATA[pid]; }).length > 1;
+        msg = praise + lead + (openCount > 1 ? ' <span class="myteam-dcov-msg-more">' + (openCount - 1) + ' more after that.</span>' : '') + ' Work the seat in the ballot workspace above — the field, the record and the pick are all on one screen, and it saves as you go.';
+        // ONE next action on this view, and it is the workspace. There used to be
+        // two here — an "Add" that jumped to the discovery accordion and a
+        // "Compare the field first" that opened an overlay — which is the same
+        // second loop the per-district rows above just stopped offering.
         // When the next gap is one of the voter's own districts, the focused
-        // "finish your districts" list above already offers per-district Add /
-        // Compare actions — so we skip this duplicate bottom CTA and let the
+        // "finish your districts" list above already offers a per-district
+        // control — so we skip this duplicate bottom CTA and let the
         // narrative line stand alone. The bottom CTA is reserved for the case where
         // every district is covered and only a statewide/local seat remains.
         if (!openDistrictSeats.length) {
           cta = '<div class="myteam-dcov-cta-row">' +
-              '<button type="button" class="myteam-dcov-cta" onclick="window.jumpToRelevantAccordion(\'' + firstOpen.key + '\')">➕ Add your ' + firstOpen.label + ' pick</button>' +
-              (_foHasField ? '<button type="button" class="myteam-dcov-cta is-compare" onclick="window._relevantCompareOffice && window._relevantCompareOffice(\'' + firstOpen.key + '\')">⚖️ Compare the field first</button>' : '') +
+              '<button type="button" class="myteam-dcov-cta" onclick="return window._pdxWorkSeat(\'' + firstOpen.key + '\')">\u2699 Work your ' + firstOpen.label + ' seat</button>' +
             '</div>';
         }
       }
@@ -5157,11 +5210,11 @@
         if (complete) {
           next.innerHTML = '🎉 <strong>All ' + total + ' seats filled.</strong> Head up to review, compare &amp; finalize your slate.';
         } else if (filled === 0) {
-          next.innerHTML = 'No picks yet — add your first candidate below and it lands in your team up top.';
+          next.innerHTML = 'No picks yet — add your first candidate below and it lands on your ballot up top.';
         } else if (nextOpen) {
-          next.innerHTML = '<strong>' + filled + ' of ' + total + ' picked.</strong> Next open seat: <strong>' + nextOpen.label + '</strong> — add a pick below, or manage your team up top.';
+          next.innerHTML = '<strong>' + filled + ' of ' + total + ' picked.</strong> Next open seat: <strong>' + nextOpen.label + '</strong> — add a pick below, or manage your ballot up top.';
         } else {
-          next.innerHTML = '<strong>' + filled + ' of ' + total + ' picked.</strong> Manage your team up top.';
+          next.innerHTML = '<strong>' + filled + ' of ' + total + ' picked.</strong> Manage your ballot up top.';
         }
       }
 
@@ -5326,7 +5379,7 @@
       }
       if (progressLabel) {
         progressLabel.textContent = filledCount >= _teamTotal
-          ? '★ Your team is set — all ' + _teamTotal + ' seats filled'
+          ? '★ Your ballot is set — all ' + _teamTotal + ' seats filled'
           : filledCount + ' of ' + _teamTotal + ' seats filled';
         progressLabel.style.color = filledCount >= _teamTotal ? '#4ade80' : 'rgba(251,191,36,0.92)';
       }
@@ -5432,7 +5485,7 @@
           summaryLine.innerHTML = '<span style="font-size:1.05rem;">🗳️</span><span>Build a <strong class="myteam-summary-strong">team of ' + _tot + '</strong> who actually represent you — each card below is an office you get to decide. Tap any open office to add the candidate who matches your <strong class="myteam-summary-strong">values</strong>; everything saves automatically as you go.</span>';
         } else if (filledCount >= _tot) {
           summaryLine.classList.add('is-complete');
-          summaryLine.innerHTML = '<span style="font-size:1.05rem;">🎉</span><span>Your team is complete — all <strong class="myteam-summary-strong">' + _tot + '/' + _tot + '</strong> picks reflect your values. <button type="button" onclick="window.openBallotSummary && window.openBallotSummary()" style="background:none;border:none;padding:0;font:inherit;color:#fcd34d;font-weight:800;text-decoration:underline;cursor:pointer;">See, print &amp; share your ballot →</button></span>';
+          summaryLine.innerHTML = '<span style="font-size:1.05rem;">🎉</span><span>Your ballot is complete — all <strong class="myteam-summary-strong">' + _tot + '/' + _tot + '</strong> picks reflect your values. <button type="button" onclick="window.openBallotSummary && window.openBallotSummary()" style="background:none;border:none;padding:0;font:inherit;color:#fcd34d;font-weight:800;text-decoration:underline;cursor:pointer;">See, print &amp; share your ballot →</button></span>';
         } else {
           var _open = _tot - filledCount;
           summaryLine.innerHTML = '<span style="font-size:1.05rem;">⭐</span><span><strong class="myteam-summary-strong">' + filledCount + '/' + _tot + '</strong> seats filled — just <strong class="myteam-summary-strong">' + _open + '</strong> to go. Tap an open office below to add whoever best represents what you believe.</span>';
@@ -5779,7 +5832,7 @@
               '<div class="bs-head-top">' +
                 '<span class="bs-ring' + (complete ? ' is-complete' : '') + '" style="--pct:' + pct + ';"><span class="bs-ring-num">' + filled + '/' + total + '</span></span>' +
                 '<span class="bs-title-wrap">' +
-                  '<span class="bs-eyebrow">' + (complete ? '✓ Ballot Complete' : 'Your Voting Team') + '</span>' +
+                  '<span class="bs-eyebrow">' + (complete ? '✓ Ballot Complete' : 'Your ballot') + '</span>' +
                   '<h2 class="bs-title">My Ballot</h2>' +
                   (place ? '<div class="bs-loc">📍 <b>' + _bsEsc(place) + '</b></div>' : '<div class="bs-loc">Set your location to label each seat with your real district.</div>') +
                 '</span>' +
@@ -5890,7 +5943,7 @@
               (typeof window._pdxDepthBadge === 'function' ? window._pdxDepthBadge(d, { size: 'sm' }) : '') +
               (typeof window._pdxIsUnopposed === 'function' && window._pdxIsUnopposed(d) ? window._pdxUnopposedBadge({ size: 'sm' }) : '') +
               localBadge +
-              '<span style="display:inline-flex;align-items:center;gap:0.2rem;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);color:#fbbf24;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.15rem 0.5rem;border-radius:999px;">⭐ On Your Team</span>' +
+              '<span style="display:inline-flex;align-items:center;gap:0.2rem;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);color:#fbbf24;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.15rem 0.5rem;border-radius:999px;">⭐ Your pick</span>' +
               '<button class="potential-star-btn ' + (isPotential ? 'potential-saved' : '') + '" onclick="event.stopPropagation();potentialToggle(\'' + pid + '\')" title="' + (isPotential ? 'Remove from potential candidates' : 'Add to potential candidates') + '">🌟</button>' +
               heartHtml +
             '</div>' +
@@ -6789,7 +6842,7 @@
       var n = _myteamCovOnTeamPids(distPids).length;
       // Covered seats always get the green pill so coverage reads while scanning.
       if (n > 0) {
-        return '<span class="myteam-cov-pill is-filled" title="' + n + ' from this race on your team">✓ On your team</span>';
+        return '<span class="myteam-cov-pill is-filled" title="' + n + ' from this race on your ballot">✓ Your pick</span>';
       }
       // An OPEN seat that is one of the voter's own ballot districts gets an amber
       // "your district" flag so the gaps they personally need to fill stand out
@@ -6801,7 +6854,7 @@
       return '';
     }
     function _myteamCovNoteHTML(distPids) {
-      var jump = '<button type="button" class="myteam-cov-link" onclick="window._relevantScrollToTeam && window._relevantScrollToTeam()">View My Team ↑</button>';
+      var jump = '<button type="button" class="myteam-cov-link" onclick="window._relevantScrollToTeam && window._relevantScrollToTeam()">View your ballot ↑</button>';
       var onTeam = _myteamCovOnTeamPids(distPids);
       if (onTeam.length) {
         var names = onTeam.map(function(pid) {
@@ -6811,7 +6864,7 @@
         if (names.length > 2) shown += ' +' + (names.length - 2) + ' more';
         var verb = (onTeam.length === 1) ? 'is' : 'are';
         return '<div class="myteam-cov-note is-filled"><span class="myteam-cov-note-ico">✓</span>' +
-          '<span><strong>' + _myteamCovEsc(shown) + '</strong> ' + verb + ' on your team from this race. ' + jump + '</span></div>';
+          '<span><strong>' + _myteamCovEsc(shown) + '</strong> ' + verb + ' on your ballot from this race. ' + jump + '</span></div>';
       }
       // Open seat. When it's the voter's OWN district, the prompt is stronger and
       // amber-emphasized — this is a gap in THEIR coverage and the cards to fix it
@@ -7806,7 +7859,7 @@
                             'high': 'Has pledge receipts', 'mid': 'Has pledge receipts', 'low': 'Has pledge receipts', 'na': 'No pledge record yet' };
         var partyLabels = { 'R': 'Republican', 'D': 'Democrat', 'I': 'Independent / Other' };
         var statusLabels = { 'office': 'Current Officeholder', 'candidate': '2026 Candidate' };
-        var showLabels = { 'not-on-team': 'Not on My Team', 'on-team': 'On My Team Only' };
+        var showLabels = { 'not-on-team': 'Not on my ballot', 'on-team': 'My picks only' };
 
         if (search) chips.push('<span class="browse-chip" onclick="document.getElementById(\'myteam-browse-search\').value=\'\';myteamBrowseFilter();">🔍 &ldquo;' + search.replace(/</g,'&lt;').substring(0,20) + (search.length > 20 ? '…' : '') + '&rdquo;<span class="chip-x">&times;</span></span>');
         if (office) chips.push('<span class="browse-chip" onclick="document.getElementById(\'myteam-browse-office\').value=\'\';myteamBrowseFilter();">🏛 ' + (filterLabels[office] || office) + '<span class="chip-x">&times;</span></span>');
@@ -8038,10 +8091,10 @@
       var n = pids.length;
       if (desc) {
         titleEl.textContent = 'Rank these ' + n + ' by my values';
-        subEl.textContent = 'Score your filtered list (' + desc + ') on the issues you care about, best match first — then add your top fits to your team.';
+        subEl.textContent = 'Score your filtered list (' + desc + ') on the issues you care about, best match first — then add your top fits to your ballot.';
       } else {
         titleEl.textContent = 'Rank these ' + (n ? n + ' ' : '') + 'politicians by my values';
-        subEl.textContent = 'Compare everyone on the issues you care about and add your best matches to your team — no profiles to open.';
+        subEl.textContent = 'Compare everyone on the issues you care about and add your best matches to your ballot — no profiles to open.';
       }
     };
 
@@ -8871,7 +8924,7 @@
             '<div class="relevant-compare-cta-ico" aria-hidden="true">🎯</div>' +
             '<div class="relevant-compare-cta-body">' +
               '<div class="relevant-compare-cta-title">See which of these ' + n + ' best matches your values</div>' +
-              '<div class="relevant-compare-cta-sub">' + lead + ' Pick the issues you care about and the Alignment Tool ranks them by how well each matches you — then add your top pick to your team.</div>' +
+              '<div class="relevant-compare-cta-sub">' + lead + ' Pick the issues you care about and the Alignment Tool ranks them by how well each matches you — then add your top pick to your ballot.</div>' +
             '</div>' +
             '<button type="button" class="relevant-compare-cta-btn" onclick="if(window._krAlignGuideToPicker)window._krAlignGuideToPicker();">Compare on the Issues →</button>' +
           '</div>';
@@ -8893,11 +8946,11 @@
       var bestOnTeam = best && (typeof _myPoliticians !== 'undefined') && _myPoliticians.has(best.pid);
       var line;
       if (best && best.name && bestOnTeam) {
-        line = '<b style="color:#86efac;">' + best.name + '</b> is your strongest fit here at <b style="color:' + col + ';">' + best.score + '%</b> — and they\'re on your team. ✓';
+        line = '<b style="color:#86efac;">' + best.name + '</b> is your strongest fit here at <b style="color:' + col + ';">' + best.score + '%</b> — and they\'re on your ballot. ✓';
       } else if (best && best.name) {
-        line = 'Strongest fit: <b style="color:' + col + ';">' + best.name + '</b> at <b style="color:' + col + ';">' + best.score + '%</b>. One tap adds them to your team.';
+        line = 'Strongest fit: <b style="color:' + col + ';">' + best.name + '</b> at <b style="color:' + col + ';">' + best.score + '%</b>. One tap adds them to your ballot.';
       } else {
-        line = 'These cards are ranked by how well each matches the issues you chose — add your top pick to your team below.';
+        line = 'These cards are ranked by how well each matches the issues you chose — add your top pick to your ballot below.';
       }
       // When we can name a strongest fit who isn't already picked, lead with a
       // one-tap "Add" for that exact person — turning the comparison's conclusion
@@ -9117,9 +9170,9 @@
       var addBtn = '';
       if (best && !bestOnTeam && best.score >= 50) {
         var firstName = (best.d.name || '').split(/\s+/)[0];
-        addBtn = '<button type="button" class="pdx-amatch-add" onclick="event.stopPropagation();if(window.mypolToggleAnimated)window.mypolToggleAnimated(this,\'' + best.pid + '\');">⭐ Add ' + esc(firstName) + ' to your team</button>';
+        addBtn = '<button type="button" class="pdx-amatch-add" onclick="event.stopPropagation();if(window.mypolToggleAnimated)window.mypolToggleAnimated(this,\'' + best.pid + '\');">⭐ Add ' + esc(firstName) + ' to your ballot</button>';
       } else if (best && bestOnTeam) {
-        addBtn = '<div class="pdx-amatch-onteam">✓ Your top match in this district is on your team</div>';
+        addBtn = '<div class="pdx-amatch-onteam">✓ Your top match in this district is on your ballot</div>';
       }
 
       return '<div class="pdx-amatch is-ranked" onclick="event.stopPropagation();">' +
@@ -9587,7 +9640,7 @@
         var _covPill = '';
         if (_cov.tracked) {
           _covPill = _cov.filled
-            ? '<span class="relevant-cov-pill is-filled">✓ On your team</span>'
+            ? '<span class="relevant-cov-pill is-filled">✓ Your pick</span>'
             : '<span class="relevant-cov-pill is-open">➕ Add your pick</span>';
         }
         if (subtitle || _whyPill || _covPill) {
@@ -9629,8 +9682,8 @@
           if (_cov.tracked && !_cov.filled) {
             var _yours = _RELEVANT_OFFICE_YOURS[groupKey] || 'your representative';
             var _addMsg = officePids.length > 1
-              ? 'Compare the candidates in your district, then tap <strong>⭐ Add to My Team</strong> on the one who earns your vote. This seat is still <strong>open</strong> on your team.'
-              : 'Tap <strong>⭐ Add to My Team</strong> to put ' + _relTxt(_yours) + ' on your team. This seat is still <strong>open</strong>.';
+              ? 'Compare the candidates in your district, then tap <strong>⭐ Add to ballot</strong> on the one who earns your vote. This seat is still <strong>open</strong> on your ballot.'
+              : 'Tap <strong>⭐ Add to ballot</strong> to put ' + _relTxt(_yours) + ' on your ballot. This seat is still <strong>open</strong>.';
             // When there's a real field, give the voter a one-tap way to weigh
             // everyone running side by side before they commit a pick. Suppressed
             // for the statewide bucket, where the field spans several different
@@ -9727,6 +9780,14 @@
       // Final fallback: the resolved "District N (County)" display label.
       return _pdxDistNumFromStr(_getPoliticianDistrictOrCounty(pid));
     }
+
+    // Exposed for the same reason _pdxBrowseType and _pdxBrowseStateOf are: the
+    // seat field (seat-field.js) keys the roster on office + state + DISTRICT,
+    // and a second copy of "how a district number is read off a record" is a
+    // second answer to which district a person is in. This is the one parser,
+    // with its one source order, and every surface that needs a district number
+    // now reads it here.
+    window._pdxRelevantDistNum = _relevantDistNum;
 
     // Collapsible "explore every district" browser for one state chamber. Keeps
     // the full 29-seat Senate / 75-seat House navigable by reusing the shared
@@ -10018,6 +10079,57 @@
           return dn === want;
         });
         if (!officeGroups[gk].length) delete officeGroups[gk];
+      });
+    }
+
+    // ── ONE FIELD FUNCTION OWNS THE KEYED SEATS ──────────────────────────────
+    // Relevant to Me used to assemble each seat's field itself — a curated
+    // roster merge, then a district-number pass, then the enforcement above.
+    // The ballot workspace derived the same field a second way and the district
+    // strip a third, which is how a Layton voter could be shown Celeste Maloy
+    // under a header that named District 1: two derivations, two answers, one
+    // seat. seat-field.js is now the single answer to "who is on this key",
+    // and this pass hands the five keyed seats over to it.
+    //
+    // A DISTRICT SEAT IS REPLACED, A STATEWIDE ONE IS UNIONED. For house /
+    // state senate / state house the field function knows the whole answer:
+    // office + state + district over the roster, holders repaired in, nobody on
+    // the key omitted. Its list replaces whatever the tiers above guessed. The
+    // statewide buckets are different — `senator` holds both Senate seats and
+    // `governor` also carries the Lt. Governor, AG, treasurer and auditor, so
+    // there the field is added to the bucket rather than substituted for it,
+    // and the statewide-executive grouping downstream keeps splitting it by
+    // office. Nothing here ranks or scores: order comes from the field function
+    // (holders first, then in office, running, former) and the alignment sort
+    // downstream still re-ranks by the voter's own issues.
+    var _RELEVANT_SEAT_OF = {
+      representative: { seat: 'house',       replace: true  },
+      state_senator:  { seat: 'statesenate', replace: true  },
+      state_rep:      { seat: 'statehouse',  replace: true  },
+      senator:        { seat: 'senate',      replace: false },
+      governor:       { seat: 'governor',    replace: false }
+    };
+    function _relevantSeatFields(officeGroups) {
+      if (typeof window.pdxSeatField !== 'function') return;
+      Object.keys(_RELEVANT_SEAT_OF).forEach(function(gk) {
+        var def = _RELEVANT_SEAT_OF[gk];
+        var sf = null;
+        try { sf = window.pdxSeatField(def.seat); } catch (e) { sf = null; }
+        // Not answerable = we could not draw this seat for this voter (no
+        // location, no district, a state we hold no roster for). Leave the
+        // group exactly as the tiers above left it; refusing is not a reason to
+        // empty a list that already had names in it.
+        if (!sf || !sf.answerable || !sf.pids || !sf.pids.length) return;
+        if (def.replace) {
+          officeGroups[gk] = sf.pids.slice();
+          return;
+        }
+        var have = officeGroups[gk] || [];
+        var seen = {};
+        have.forEach(function(p) { seen[p] = 1; });
+        var merged = have.slice();
+        sf.pids.forEach(function(p) { if (!seen[p]) { seen[p] = 1; merged.push(p); } });
+        if (merged.length) officeGroups[gk] = merged;
       });
     }
 
@@ -10662,6 +10774,11 @@
         };
       })());
 
+      // Hand the five keyed seats to the one field function (see above): the
+      // district groups become exactly its answer, the statewide buckets absorb
+      // anyone it knows about that the tiers above missed.
+      _relevantSeatFields(officeGroups);
+
       // Recompute the count from the ENFORCED groups so the badge and the
       // zero-result guard below reflect exactly what is shown.
       var total = 0;
@@ -10815,7 +10932,7 @@
           var _sub = _dn ? ('District ' + _relTxt(_dn)) : 'Your district';
           var _stat;
           if (_c.filled) {
-            var _nm = (CMP_DATA[_c.pid] && CMP_DATA[_c.pid].name) ? _relTxt(CMP_DATA[_c.pid].name) : 'On your team';
+            var _nm = (CMP_DATA[_c.pid] && CMP_DATA[_c.pid].name) ? _relTxt(CMP_DATA[_c.pid].name) : 'Your pick';
             _stat = '✓ ' + _nm;
           } else {
             _stat = '➕ Needs a pick';
@@ -10847,13 +10964,13 @@
           });
           if (_gIsDistrict && _gCoveredDist.length) {
             var _gDone = _relTxt(_RELEVANT_OFFICE_SHORT[_gCoveredDist[0]] || 'a district');
-            _gNextLine = 'You’ve covered your <strong>' + _gDone + '</strong> district — next, add <span class="rgn-open">' + _gYours + '</span> to your team.';
+            _gNextLine = 'You’ve covered your <strong>' + _gDone + '</strong> district — next, add <span class="rgn-open">' + _gYours + '</span> to your ballot.';
           } else if (_gIsDistrict) {
-            _gNextLine = 'Your next voting district to cover: add <span class="rgn-open">' + _gYours + '</span> to your team.';
+            _gNextLine = 'Your next voting district to cover: add <span class="rgn-open">' + _gYours + '</span> to your ballot.';
           } else if (_covDistTotal > 0 && _covDistOpen.length === 0) {
-            _gNextLine = '🎉 <strong>All your voting districts are covered.</strong> Round out your team by adding <span class="rgn-open">' + _gYours + '</span>.';
+            _gNextLine = '🎉 <strong>All your voting districts are covered.</strong> Round out your ballot by adding <span class="rgn-open">' + _gYours + '</span>.';
           } else {
-            _gNextLine = 'Start your team: add <span class="rgn-open">' + _gYours + '</span>.';
+            _gNextLine = 'Start your ballot: add <span class="rgn-open">' + _gYours + '</span>.';
           }
           _gPrimaryBtn = '<button type="button" class="rel-guide-btn is-primary" onclick="_relevantJump(\'' + _gLvl + '\',\'' + _gNext + '\')">➕ Add ' + _gShort + '</button>';
         }
@@ -10868,21 +10985,21 @@
         var _gFracLabel = _gUseDist
           ? (_covDistFilled + ' of ' + _covDistTotal + ' voting district' + (_covDistTotal === 1 ? '' : 's'))
           : (_covFilled + ' of ' + _covTotal + ' seat' + (_covTotal === 1 ? '' : 's'));
-        var _gEyebrow = _guidedComplete ? '✓ Your Team Is Taking Shape' : '🧭 Start Here · Build Your Team';
+        var _gEyebrow = _guidedComplete ? '✓ Your Ballot Is Taking Shape' : '🧭 Start Here · Work Your Ballot';
         var _gTitle = _guidedComplete
-          ? (_gUseDist ? 'Your Districts Are Covered' : 'Your Team Is Set')
-          : (_gUseDist ? 'Cover Your Districts' : 'Build Your Team');
+          ? (_gUseDist ? 'Your Districts Are Covered' : 'Your Ballot Is Set')
+          : (_gUseDist ? 'Cover Your Districts' : 'Work Your Ballot');
 
         var _gActions = _gPrimaryBtn;
         if (!_guidedComplete) {
-          _gActions += '<button type="button" class="rel-guide-btn is-team" onclick="window._relevantScrollToTeam && window._relevantScrollToTeam()">🗳️ My Voting Team ' + _covFilled + '/' + _covTotal + ' ↑</button>';
+          _gActions += '<button type="button" class="rel-guide-btn is-team" onclick="window._relevantScrollToTeam && window._relevantScrollToTeam()">🗳️ Your ballot ' + _covFilled + '/' + _covTotal + ' ↑</button>';
         }
 
         _guidedHtml =
           '<div class="rel-guide-eyebrow">' + _gEyebrow + '</div>' +
           '<div class="rel-guide-head">' +
             '<span class="rel-guide-title">' + _gTitle + '</span>' +
-            '<span class="rel-guide-frac">' + _gFracLabel + ' on your team</span>' +
+            '<span class="rel-guide-frac">' + _gFracLabel + ' on your ballot</span>' +
           '</div>' +
           '<div class="rel-guide-bar"><div class="rel-guide-fill" style="width:' + _gPct + '%;"></div></div>' +
           (_gChips ? '<div class="rel-guide-chips">' + _gChips + '</div>' : '') +
@@ -11039,6 +11156,10 @@
           };
         })());
       } catch (e) {}
+      // Same handover as the main path: the one field function answers the five
+      // keyed seats here too, so the fallback view and the full tree can never
+      // disagree about who is on a district.
+      try { _relevantSeatFields(officeGroups); } catch (e) {}
       var _fbTotal = 0;
       Object.keys(officeGroups).forEach(function(g) { _fbTotal += officeGroups[g].length; });
       if (relevantCountBadge) relevantCountBadge.textContent = _fbTotal;

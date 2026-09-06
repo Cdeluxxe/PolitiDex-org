@@ -320,7 +320,48 @@
   }
 
   // ── Seat ───────────────────────────────────────────────────────────────────
+  // The voter's own local seats, keyed the way the ballot store keys them
+  // (local_<raceKey>). Local offices follow city and county lines rather than
+  // legislative districts, so there is no key to derive them from and the
+  // curated roster _pdxVoterBallot() resolves is the only source. Returns {}
+  // for an area we hold no local slate for, which is what keeps a generic
+  // "Local Office" slot generic.
+  function localSeatMap() {
+    var out = {};
+    try {
+      var vb = fn('_pdxVoterBallot') ? window._pdxVoterBallot() : null;
+      if (!vb || !vb.matched || !vb.local || !vb.local.seats) return out;
+      var meta = {};
+      try {
+        var lr = (vb.locId && window.KEY_RACES_LOCAL_BY_LOCATION && window.KEY_RACES_LOCAL_BY_LOCATION[vb.locId])
+          ? window.KEY_RACES_LOCAL_BY_LOCATION[vb.locId] : [];
+        lr.forEach(function (r) { if (r && r.raceKey) meta[r.raceKey] = r; });
+      } catch (e) {}
+      vb.local.seats.forEach(function (sq) {
+        if (!sq || !sq.raceKey) return;
+        var m = meta[sq.raceKey] || {};
+        out['local_' + String(sq.raceKey).toLowerCase()] = {
+          seat: sq,
+          label: m.short || sq.short || 'Local Office',
+          color: m.color || '#c084fc',
+          area: vb.label || vb.city || vb.county || ''
+        };
+      });
+    } catch (e) {}
+    return out;
+  }
+
   function seatMeta(seatKey) {
+    // A per-seat local key is its own seat, not an alias of the generic one:
+    // 'local_mayor' and 'local_school_board' are two seats a voter decides
+    // separately, and collapsing them onto 'local' is how the workspace ended
+    // up counting one local seat over a grid that showed six.
+    var lk = String(seatKey || '').toLowerCase();
+    if (lk.indexOf('local_') === 0) {
+      var lm = localSeatMap()[lk];
+      if (lm) return { key: lk, label: lm.label, icon: '\u{1F3D9}', color: lm.color, local: true };
+      return null;
+    }
     var rk = SEAT_ALIAS[String(seatKey || '').toLowerCase()];
     if (!rk) return null;
     var m = null;
@@ -1288,12 +1329,12 @@
   }
   function teamBtn(rk, c, picked, someoneElse) {
     var on = picked === c.pid;
-    var lbl = on ? '✓ On my team'
-      : (someoneElse ? 'Replace my pick' : '➕ Add to my team');
+    var lbl = on ? '✓ Your pick'
+      : (someoneElse ? 'Replace my pick' : '➕ Add to ballot');
     var aria = on
-      ? 'Remove ' + c.name + ' from My Voting Team'
+      ? 'Remove ' + c.name + ' from your ballot'
       : (someoneElse ? 'Replace your ' + (seatMeta(rk) || {}).label + ' pick with ' + c.name
-                     : 'Add ' + c.name + ' to My Voting Team');
+                     : 'Add ' + c.name + ' to your ballot');
     return '<button type="button" class="rs-team' + (on ? ' is-on' : '') + '"' +
       ' onclick="window.pdxRaceSheetPick(\'' + jsq(rk) + '\',\'' + jsq(c.pid) + '\')"' +
       ' aria-label="' + esc(aria) + '">' + esc(lbl) + '</button>';
@@ -1468,7 +1509,28 @@
     // as the sender's own districts — naming the state would overclaim the reach
     // of a single House or legislative seat.
     if (rk === 'senate' || rk === 'governor' || rk === 'president') return st;
-    return reps.districtsResolvable ? 'your districts' : st;
+    // A local seat is named by the place that elects it — the city or county,
+    // never a district number and never the whole state.
+    if (String(rk || '').toLowerCase().indexOf('local') === 0) {
+      var lm2 = localSeatMap()[String(rk).toLowerCase()];
+      if (lm2 && lm2.area) return lm2.area;
+      var cov = null;
+      try { cov = fn('pdxLocalSeatsForMe') ? window.pdxLocalSeatsForMe() : null; } catch (e) { cov = null; }
+      if (cov && cov.area) return cov.area;
+      return st;
+    }
+    // A DISTRICT SEAT IS NAMED BY ITS DISTRICT. This line used to read "your
+    // districts" — plural, possessive, and a description of no seat on the page:
+    // the reader is looking at ONE seat, and the fact they need is which district
+    // it is. The seat field publishes that number (from the resolver's own level,
+    // so it is the district in force today rather than the curated ballot's), and
+    // it is the same number the field beside this label was keyed on. Falls back
+    // to the state only when the seat is not answerable, which is where the
+    // surfaces already say the district could not be drawn.
+    var sf = null;
+    try { sf = fn('pdxSeatField') ? window.pdxSeatField(rk) : null; } catch (e) { sf = null; }
+    if (sf && sf.answerable && sf.scope) return sf.scope;
+    return st;
   }
 
   // The composed payload, or null when there is no open sheet to describe.
@@ -2046,7 +2108,7 @@
     var nm = pid ? nameOf(pid) : '';
     var team = pid
       ? '<span class="rs-seat-team is-on"><span class="rs-seat-team-ic" aria-hidden="true">\u2b50</span>' +
-          '<span>On your team: <b>' + esc(nm || pid) + '</b></span></span>'
+          '<span>Your pick: <b>' + esc(nm || pid) + '</b></span></span>'
       : '<span class="rs-seat-team"><span class="rs-seat-team-ic" aria-hidden="true">\u2606</span>' +
           '<span>No pick yet</span></span>';
 

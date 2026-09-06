@@ -1519,9 +1519,9 @@
       : (promiseBlock + alignBlock + moneyBlock + focusBlock + standBlock);
 
     rows += sectionRow('🔗 Actions');
-    rows += row('Add to My Team', pids.map(pid => {
+    rows += row('Add to ballot', pids.map(pid => {
       const onTeam = (typeof window._pdxIsOnTeam === 'function') && window._pdxIsOnTeam(pid);
-      return `<button class="cmp-btn-team${onTeam ? ' on-team' : ''}" onclick="_cmpToggleTeam('${pid}', this)">${onTeam ? '✓ On Your Team' : '⭐ Add to Team'}</button>`;
+      return `<button class="cmp-btn-team${onTeam ? ' on-team' : ''}" onclick="_cmpToggleTeam('${pid}', this)">${onTeam ? '✓ Your pick' : '⭐ Add to ballot'}</button>`;
     }), '');
     rows += row('Full Profile', pids.map(pid => {
       return `<button class="cmp-btn-profile" onclick="closeCompare();setTimeout(()=>openModal('${pid}'),280)">
@@ -1843,7 +1843,7 @@
     let actions = '';
     if (standout) {
       actions += standout.onTeam
-        ? `<button class="cmp-btn-team on-team" onclick="_cmpToggleTeam('${standout.pid}', this)">✓ ${standout.short} on your team</button>`
+        ? `<button class="cmp-btn-team on-team" onclick="_cmpToggleTeam('${standout.pid}', this)">✓ ${standout.short} is your pick</button>`
         : `<button class="cmp-btn-team" onclick="_cmpToggleTeam('${standout.pid}', this)">⭐ Add ${standout.short} to Team</button>`;
     }
     if (!hasAlignment) {
@@ -1898,20 +1898,20 @@
     let ico, msg;
     if (onTeamCount > 0) {
       ico = '✅';
-      msg = `<strong>${onTeamCount} of these ${pids.length} ${onTeamCount === 1 ? 'is' : 'are'} on your team.</strong> Keep comparing, or head to My Voting Team to lock in the rest of your ballot.`;
+      msg = `<strong>${onTeamCount} of these ${pids.length} ${onTeamCount === 1 ? 'is' : 'are'} on your ballot.</strong> Keep comparing, or head to your ballot to lock in the rest of it.`;
     } else if (!hasAlignment) {
       ico = '🎯';
       msg = `<strong>Not sure who fits you best?</strong> Set your positions in the Alignment Tool — every politician then shows a personal match score right here.`;
     } else {
       ico = '⭐';
-      msg = `<strong>Found your pick?</strong> Tap <strong>Add to Team</strong> in the Actions row above to claim their seat on your 2026 ballot.`;
+      msg = `<strong>Found your pick?</strong> Tap <strong>Add to ballot</strong> in the Actions row above to claim their seat on your 2026 ballot.`;
     }
 
     const alignBtn = (!hasAlignment)
       ? `<button class="cmp-footer-btn cmp-footer-btn-ghost" onclick="closeCompare();setTimeout(function(){var a=document.getElementById('alignment-panel');if(a){a.scrollIntoView({behavior:'smooth',block:'center'});if(typeof alignTogglePanel==='function')alignTogglePanel(true);}},320)">🎯 Set Your Alignment</button>`
       : '';
     const teamBtn = (onTeamCount > 0)
-      ? `<button class="cmp-footer-btn cmp-footer-btn-primary" onclick="closeCompare();setTimeout(function(){var t=document.getElementById('myteam-summary-box')||document.getElementById('my-politicians');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});},320)">⭐ View My Team</button>`
+      ? `<button class="cmp-footer-btn cmp-footer-btn-primary" onclick="closeCompare();setTimeout(function(){var t=document.getElementById('myteam-summary-box')||document.getElementById('my-politicians');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});},320)">⭐ View your ballot</button>`
       : '';
 
     f.innerHTML =
@@ -2066,7 +2066,7 @@
 
     c.innerHTML =
       `<div class="cmp-coach-head"><span class="cmp-coach-ico">⚖️</span> Add one more to compare</div>`
-      + `<div class="cmp-coach-body">A side-by-side needs <strong>2 or more</strong> picks. Put <strong>${name}</strong> next to ${inlinePhrase} to weigh their <strong>records</strong>, <strong>accountability</strong> and policy positions together — the clearest way to decide a seat <em>before</em> you add anyone to your team.</div>`
+      + `<div class="cmp-coach-body">A side-by-side needs <strong>2 or more</strong> picks. Put <strong>${name}</strong> next to ${inlinePhrase} to weigh their <strong>records</strong>, <strong>accountability</strong> and policy positions together — the clearest way to decide a seat <em>before</em> you add anyone to your ballot.</div>`
       + `<div class="cmp-coach-actions">${rivalBtn}${browseBtn}</div>`;
     c.style.display = '';
   }

@@ -13,7 +13,7 @@
    stack, and — the sharp part — its own progress readout:
 
      · Your Ballot (#your-ballot)        every contest we track, listed
-     · My Voting Team (#my-politicians)  the picks, all seats at once, with a
+     · Your picks (#my-politicians)      the picks, all seats at once, with a
                                          "0 of 6 seats filled" meter of its own
      · Your finished slate (#ballot-breakdown)  the print/share view
 
@@ -51,7 +51,7 @@
         surface that is no longer the place the work happens, and an entry point
         that lands past the tool is how a reader ends up scrolling for the thing
         they were just offered. Nav and footer links are deliberately untouched:
-        those are navigation, and a reader who asks for My Voting Team by name
+        those are navigation, and a reader who asks for their picks by name
         should get it.
 
    WHAT IT REFUSES TO DO
@@ -90,7 +90,12 @@
     },
     {
       id: 'my-politicians',
-      label: 'My Voting Team',
+      // "My Voting Team" was the old name for this view and it was the wrong
+      // word twice over: a team is something you join and stay loyal to, and
+      // these are ballot picks a reader is meant to change their mind about.
+      // The store keeps its name (window.TEAM_POSITIONS) — renaming it is a
+      // separate, riskier pass — but nothing a reader sees says "team".
+      label: 'Your picks',
       job: 'the picks you have made, side by side, with the tools to change them'
     },
     {

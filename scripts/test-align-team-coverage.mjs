@@ -344,7 +344,7 @@ section("5 · 'not enough on file' never reads as mild agreement");
   ok(split, "opposite records on the same issue register as a split");
   if (split) {
     ok(split.spread >= 35, "…a real one, not a rounding difference");
-    has(html, "Where your team splits", "…and the overview names it");
+    has(html, "Where your picks split", "…and the overview names it");
     has(html, split.low + "–" + split.high + "%", "…with the range the average was hiding");
   }
   ok(ta.splits.every((i) => i.readable),

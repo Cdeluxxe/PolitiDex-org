@@ -20,7 +20,7 @@
  *
  * WHAT WAS WRONG. The desktop bar's left group carried six items — three pills
  * and three ballot text links — where three of the six (Voter Hub, Your Ballot,
- * Local Issues) are VIEWS of the same ballot workspace that ⭐ My Voting Team
+ * Local Issues) are VIEWS of the same ballot workspace that ⭐ Your Ballot
  * already opens. door2-spine.js says so in the product itself: it paints a
  * "this is a view of that workspace" header onto each of them. Four top-level
  * slots for one workspace is how a two-door product reads as a ten-module one.
@@ -233,7 +233,14 @@ eq((HTML.match(/👁️ Find the Record<\/a>/g) || []).length, 2,
   'in both the bar and the drawer, and nowhere else');
 ok(!/Check a Claim<\/a>/.test(VISIBLE),
   'the retired "Check a Claim" label — which named a verdict the eye does not deliver — stays retired');
-ok(/⭐ My Voting Team/.test(VISIBLE), 'Door 2 is still labelled "My Voting Team"');
+// Door 2's own name. It used to read "My Voting Team", which named a loyalty
+// the picks do not carry — these are ballot picks, so the door says so. Two
+// occurrences, the bar and the drawer, the same shape as Door 1 above.
+ok(/⭐ Your Ballot<\/a>/.test(VISIBLE), 'Door 2 is still labelled "Your Ballot"');
+eq((VISIBLE.match(/⭐ Your Ballot<\/a>/g) || []).length, 2,
+  'in both the bar and the drawer, and nowhere else');
+ok(!/My Voting Team<\/a>/.test(VISIBLE),
+  'the retired "My Voting Team" label — which called a ballot a team — stays retired');
 
 /* The hero is the first thing a stranger reads, and it may not promise coverage
    the record does not have. These are the exact shapes the welcome copy was

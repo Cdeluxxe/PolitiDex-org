@@ -60,6 +60,7 @@ const FILES = [
   "my-stances.js",
   "voter-hub-location.js",
   "compare-hub.js",
+  "seat-field.js",
   "ballot-breakdown.js",
 ];
 const SRC = FILES.map((f) => [f, R(f)]);
@@ -448,7 +449,7 @@ section("8 · the cards are never dead");
   ok(peeks.length >= 2, `the cards carry topic peeks into the dossier (${peeks.length})`);
   ok((OVHTML.match(/class="rs-peek"[\s\S]*?<\/button>/g) || []).length <= FIELD0.length * 3,
     "…capped at three per card");
-  has(OVHTML, "➕ Add to my team", "the team action is live with no positions set");
+  has(OVHTML, "➕ Add to ballot", "the pick action is live with no positions set");
   has(OVHTML, "Open profile ›", "…and so is the profile action");
   // A candidate with no formal file at all still gets a card that says why.
   const bare = boot();

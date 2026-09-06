@@ -137,7 +137,40 @@
     { key: 'statehouse', label: 'State House Rep', icon: '\u{1F3DB}', color: '#2dd4bf' },
     { key: 'local', label: 'Local Office', icon: '\u{1F3D9}', color: '#fbbf24' }
   ];
+  // ── ONE SEAT LIST, AND THEREFORE ONE COUNT ────────────────────────────────
+  // This used to project TEAM_POSITIONS directly, which is six slots with a
+  // single generic "Local Office" among them. The picks grid does not: it
+  // expands that one slot into the voter's REAL local seats (Layton: mayor,
+  // city council, county commission, sheriff, school board …) because those are
+  // separate decisions stored under separate keys. So the two surfaces counted
+  // two different ballots — the rail said "0 of 6" while the grid three sections
+  // down said "Build your team 0/11" — and a reader had no way to know which of
+  // them was keeping score.
+  //
+  // _myteamBallotCounts() is the function that does that expansion, and it is
+  // now the only thing that decides what the seats of this ballot are. The rail,
+  // the rail's count, the picks grid's meter, the dock line and the Voter Hub
+  // path tracker all read it, so there is one total and one filled figure on the
+  // page. TEAM_POSITIONS is still where it comes from — the counter projects it
+  // — this file just stopped projecting it a second, shorter way.
   function seats() {
+    var C = null;
+    try { if (fn('_myteamBallotCounts')) C = window._myteamBallotCounts(); } catch (e) { C = null; }
+    if (C && C.seats && C.seats.length) {
+      var ico = {};
+      try {
+        (window.TEAM_POSITIONS || []).forEach(function (p) { if (p && p.key) ico[p.key] = p.icon; });
+      } catch (e) {}
+      return C.seats.map(function (sq) {
+        var k = String(sq.key);
+        return {
+          key: k,
+          label: sq.label || k,
+          icon: ico[k] || (k.indexOf('local') === 0 ? '\u{1F3D9}' : '\u{1F3DB}'),
+          color: sq.color || '#9fb4d4'
+        };
+      });
+    }
     var out = [];
     try {
       (window.TEAM_POSITIONS || []).forEach(function (p) {
@@ -240,10 +273,16 @@
   // senators and a governor, so those resolve from a state alone, everywhere.
   function fieldGate(seat, r) {
     if (!located(r)) return 'nolocation';
-    if (seat.key === 'local') {
+    if (seat.key === 'local' || String(seat.key).indexOf('local_') === 0) {
       var cov = localCov();
       if (!cov || !cov.resolved) return 'nolocation';
-      return cov.ok ? 'ok' : 'localgap';
+      if (!cov.ok) return 'localgap';
+      // A specific local seat also has to have a field of its own on file. It
+      // came from the curated roster, so it normally does; a seat whose roster
+      // holds nobody we can resolve says so rather than painting an empty list
+      // under a heading that promises a race.
+      if (String(seat.key).indexOf('local_') === 0 && !fieldFor(seat.key).length) return 'localgap';
+      return 'ok';
     }
     var hold = holdersFor(seat.key, r);
     if (!hold.length) return 'ok';
@@ -407,6 +446,24 @@
       return '<span class="bw-fact"><span aria-hidden="true">\u{1F5FA}</span>' +
         '<span>District not mapped for your area</span></span>';
     }
+    // A SPECIFIC LOCAL SEAT. pdxSeatHolders has no local levels — the resolver
+    // answers federal and state seats only — so there is no resolver answer to
+    // respect or to refuse here. The curated roster does name a current holder,
+    // and this says so IN THOSE WORDS: "on file as" is a claim about our file,
+    // not the resolver's claim about the reader's representation, and the two
+    // are not allowed to sound alike.
+    if (String(seat.key).indexOf('local_') === 0) {
+      var lf = fieldFor(seat.key);
+      var lh = null;
+      lf.forEach(function (c) { if (!lh && c && c.incumbent) lh = c.pid; });
+      if (lh) {
+        return '<span class="bw-fact"><span aria-hidden="true">\u{1F3D9}</span>' +
+          '<span>On file as holding this seat: <b>' +
+          candOpen(lh, ' style="font-size:0.8rem;" aria-label="Open ' + esc(nameOf(lh)) + '\u2019s full record"') +
+          esc(nameOf(lh)) + candClose(lh) + '</b></span></span>';
+      }
+      return '';
+    }
     if (seat.key === 'local') {
       var cov = localCov();
       var n = (cov && cov.pids && cov.pids.length) || 0;
@@ -426,7 +483,7 @@
       return '<span class="bw-fact"><span aria-hidden="true">☆</span><span>No pick yet for this seat</span></span>';
     }
     return '<span class="bw-fact is-team"><span aria-hidden="true">⭐</span>' +
-      '<span>On your team: <b>' + esc(nameOf(pid)) + '</b></span></span>';
+      '<span>Your pick: <b>' + esc(nameOf(pid)) + '</b></span></span>';
   }
 
   function scopeFact(seat) {
@@ -557,14 +614,27 @@
                   : 'No formal record on your issues yet'
         ) + '</span>'
       : '';
+    // THREE DIFFERENT FACTS, THREE DIFFERENT WORDS. A field is a mix of the
+    // person sitting in the seat, people running for it, and people who once
+    // held an office and are on file for reference — and printing them as one
+    // undifferentiated list invites the reader to assume the whole list is on
+    // the ballot. "Holds this seat" is the resolver's answer for THIS seat
+    // (pdxSeatHolders, never a scan of the row's own office text); "In office"
+    // is someone whose record says they hold an office that is not this one;
+    // "Running" is a filing; "Former" is neither of those and must never be
+    // read as either. The status vocabulary is the app's one status vocabulary
+    // (window._pdxOfficeStatus), travelling on the row.
     var tags = '';
     if (c.incumbent) tags += '<span class="bw-tag is-inc">Holds this seat</span>';
-    if (mine) tags += '<span class="bw-tag is-mine">⭐ On your team</span>';
+    else if (c.status === 'former') tags += '<span class="bw-tag is-former">Former · not in office</span>';
+    else if (c.status === 'office') tags += '<span class="bw-tag is-inc">In office</span>';
+    else if (c.status === 'candidate') tags += '<span class="bw-tag is-cand">Running</span>';
+    if (mine) tags += '<span class="bw-tag is-mine">⭐ Your pick</span>';
 
-    var lbl = mine ? '✓ On my team' : (picked ? 'Replace my pick' : '➕ Add to my team');
-    var aria = mine ? 'Remove ' + c.name + ' from your voting team'
+    var lbl = mine ? '✓ Your pick' : (picked ? 'Replace my pick' : '➕ Add to ballot');
+    var aria = mine ? 'Remove ' + c.name + ' from your ballot'
       : (picked ? 'Replace your pick for this seat with ' + c.name
-                : 'Add ' + c.name + ' to your voting team');
+                : 'Add ' + c.name + ' to your ballot');
 
     return '<li class="bw-cand' + (mine ? ' is-mine' : '') + (banded ? ' is-gap' : '') + '">' +
       head +
@@ -613,10 +683,25 @@
       '</div>';
     }
     if (kind === 'one') {
+      // WHAT A FIELD OF ONE IS, AND WHAT IT IS NOT. It is a statement about
+      // PolitiDex's files for one district number, and nothing else. It is NOT
+      // "unopposed", it is NOT "no one else filed", and it is NOT a finding
+      // about the race — this app does not hold certified filing lists, so it
+      // cannot know either way, and the older copy above ("nobody else has a
+      // certified filing here yet") claimed it did. The district number is named
+      // out loud because that is the scope of the claim: someone else may well
+      // be running here, and if they are, the gap is ours.
+      var one = '';
+      try {
+        var sf1 = (typeof window.pdxSeatField === 'function') ? window.pdxSeatField(seat.key) : null;
+        if (sf1 && sf1.answerable && sf1.district != null) one = 'District ' + sf1.district;
+      } catch (e) {}
       return '<div class="bw-honest">' +
-        '<p><b>Only one person is on file for this seat so far</b> — so there is no field to compare.</p>' +
-        '<p>A field of one is not a finding about the seat. It means nobody else has a certified ' +
-        'filing here yet. Their own record still stands on its own, and you can still pick them.</p>' +
+        '<p><b>No other person on file' + (one ? ' for ' + esc(one) : ' for this seat') +
+        '</b> — so there is no field to compare here yet.</p>' +
+        '<p>That is what PolitiDex holds, not a finding about the race: we do not carry certified ' +
+        'filing lists, so this is not a claim that the seat is unopposed. Their own record still ' +
+        'stands on its own, and you can still pick them.</p>' +
       '</div>';
     }
     return '';
@@ -653,10 +738,33 @@
     } else {
       bits += '<button type="button" class="bw-go is-next"' +
         ' onclick="var e=document.getElementById(\'my-politicians\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});"' +
-        ' aria-label="Every seat has a pick — review your full team">' +
-        'Every seat decided · review my team <span aria-hidden="true">›</span></button>';
+        ' aria-label="Every seat we track has a pick — review your picks">' +
+        'Every seat decided · review your ballot <span aria-hidden="true">›</span></button>';
     }
     return '<div class="bw-foot">' + bits + '</div>';
+  }
+
+  // ── "The lines may still move" ────────────────────────────────────────────
+  // Utah's congressional map was redrawn by court order and the legislative maps
+  // are litigated on the same record, so for the three DISTRICT seats there are
+  // two defensible answers to "which district am I in" and this app resolves one
+  // of them. Every other surface in Door 2 now agrees on that answer (the seat
+  // field keys on it), which makes it MORE important to say out loud that it is a
+  // resolution and not a certification: an internally consistent app is exactly
+  // the one a reader stops questioning. Three sentences, no colour of alarm, and
+  // only where lines exist — a statewide seat has none to move.
+  function linesNote(seat, r) {
+    if (seat.key !== 'house' && seat.key !== 'statesenate' && seat.key !== 'statehouse') return '';
+    if (!r || !r.districtsResolvable) return '';
+    var d = '';
+    try {
+      var sf = (typeof window.pdxSeatField === 'function') ? window.pdxSeatField(seat.key) : null;
+      if (sf && sf.answerable && sf.district != null) d = 'District ' + sf.district;
+    } catch (e) {}
+    return '<p class="bw-lines"><b>Utah’s district lines may still move.</b> ' +
+      'This is who PolitiDex has on file for ' + (d ? esc(d) : 'this seat') +
+      ' under the map in force today — not the official ballot. ' +
+      'Check with your county clerk before you vote.</p>';
   }
 
   function deskHtml(seat, list, r) {
@@ -698,10 +806,11 @@
           '<span class="bw-deskhd-ic" style="--bw-accent:' + esc(seat.color) + ';" aria-hidden="true">' + seat.icon + '</span>' +
           '<div style="min-width:0;">' +
             '<h4 class="bw-deskhd-t">' + esc(seat.label) + '</h4>' +
-            '<p class="bw-deskhd-s">Compare the field on the formal record, then pick for your team.</p>' +
+            '<p class="bw-deskhd-s">Compare the field on the formal record, then pick for your ballot.</p>' +
           '</div>' +
         '</div>' +
         '<div class="bw-facts">' + facts + '</div>' +
+        linesNote(seat, r) +
         body +
         footHtml(seat, list, canCompare) +
       '</div>';
@@ -884,6 +993,15 @@
     // is "do not move".
     _railTarget: railTarget, _reveal: revealSeat,
     _decided: function () {
+      // Same function the seat list comes from, so "3 of 11" is one read of one
+      // store rather than two reads that happen to agree. The local walk below
+      // survives only for a page where the counter has not loaded.
+      try {
+        if (fn('_myteamBallotCounts')) {
+          var C = window._myteamBallotCounts();
+          if (C && typeof C.filled === 'number' && C.seats && C.seats.length) return C.filled;
+        }
+      } catch (e) {}
       var n = 0; seats().forEach(function (s) { if (pickedFor(s.key)) n++; }); return n;
     }
   };

@@ -2063,7 +2063,7 @@
             '<span class="el-mandate-filter-txt">' +
               (hasRel
                 ? 'Showing evidence for your saved team + representatives'
-                : 'No saved team or confirmed location yet — showing the full library. Add picks to My Team or set your area to focus this filter.') +
+                : 'No saved picks or confirmed location yet — showing the full library. Add picks to your ballot or set your area to focus this filter.') +
             '</span>' +
             '<button type="button" class="el-mandate-filter-clear" onclick="window._pdxEvidenceClearRelevant&&window._pdxEvidenceClearRelevant()">Clear ✕</button>';
         } else {

@@ -2692,7 +2692,46 @@
 // read moved, and no new score was computed: every number the row prints is a
 // count some other module already published. A twin boot leaves every formal tier
 // and every Direction Match read byte-identical.
-const CACHE_VERSION = 'v144';
+// v145 - ONE DOOR 2, ONE PERSON DOOR, AND THE PICKS ARE NOT A "TEAM". Three
+// surfaces disagreed for a Layton reader: Compare Field on the U.S. House seat
+// named the UT-2 candidate over the UT-1 member who actually holds it, the state
+// seats painted only the holder while Where they stand already listed the rest
+// of the field, and a tap on a person in Relevant to Me opened a compact
+// Kept/Broken card instead of that person's file. One new function now answers
+// "who is on this seat" (seat-field.js) and every field surface reads it; every
+// list row, peek and search hit opens /p/<pid>; the picks counter and the
+// workspace read one store; and the user-visible "team" vocabulary is gone from
+// Door 2's faces in favour of ballot/picks.
+//   PRECACHED SHELL FILES CHANGED — ALL OF THEM ARE THE REASON FOR THE BUMP:
+//   · '/' (index.html)     - the renamed Door 2 chrome (nav pills, builder
+//                            header, dock, saved-slate UI, tour, onboarding) and
+//                            the new <script src="/seat-field.js">. A warm shell
+//                            keeps the old markup AND never requests the new
+//                            file, so the field fix would look unshipped.
+//   · seat-field.js        - NEW. Added to the precache list above.
+//   · compare-hub.js       - the field handover for Relevant to Me, the person
+//                            door, one CTA per seat, the renamed copy.
+//   · ballot-breakdown.js  - the field delegation and the per-local-seat field.
+//   · race-sheet.js        - the district-named scope label and local seat meta.
+//   · ballot-workspace.js  - seats and the decided count read the one store; the
+//                            redistricting note; the honest one-pid line.
+//   · door2-spine.js       - the picks view's label.
+//   · ballot-workspace.css - the status tags and the quiet lines note.
+//   · alignment-tool.js    - label only: the match rail's pick button, its
+//                            aria-labels and the "where your picks split" rows.
+//                            A warm shell would print "Add to my team" beside a
+//                            page that everywhere else says ballot.
+// ALSO CHANGED BUT RUNTIME-CACHED, SO THEY ARRIVE FRESH WITHOUT THIS BUMP:
+// all-seeing-eye.js, compare-table.js, evidence-locker.js, hr1-showcase.js,
+// impact-tracker.js, issue-compare.js, my-profile.js, my-stances.js,
+// voter-hub-location.js, who-represents-me.js - each carried reader-facing
+// "team" copy and now says pick/ballot. Label only; no logic moved in any of
+// them.
+// No new score, no party sort, no ranking by Direction Match, and no news-scraped
+// challengers: every pid the field prints is a roster row that was already on
+// file. A twin boot leaves every formal tier and every Direction Match read
+// byte-identical.
+const CACHE_VERSION = 'v145';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -2814,6 +2853,13 @@ const SHELL_ASSETS = [
   // alignment-tool.js because it is that engine's ballot-side surface: the entry
   // button its three hosts render returns nothing at all when this file is
   // missing, so an offline repeat visit would lose the feature without a trace.
+  // The one field function: office + state + district -> every roster pid on
+  // that seat key, with the holders taken from pdxSeatHolders and nobody on the
+  // key omitted. Precached ahead of race-sheet.js / ballot-breakdown.js because
+  // those two now ASK it who is on a seat before falling back to their own
+  // keying — offline without this file the Compare Field of a redistricted seat
+  // reverts to the curated ballot's district and names the wrong member.
+  '/seat-field.js',
   '/race-sheet.js',
   // Door 2's ballot workspace: the seat rail, the running "N of 6 decided"
   // count, and the one-seat-at-a-time panel that carries the field and the pick.

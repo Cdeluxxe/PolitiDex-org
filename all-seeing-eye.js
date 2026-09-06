@@ -1676,7 +1676,7 @@
       if (badgeOff) return '';
       var sig = personalOf(e, curCtx);
       if (sig.saved) return '<span class="pdx-eye-tag pdx-eye-tag--saved" title="In your saved collection">Saved</span>';
-      if (sig.team)  return '<span class="pdx-eye-tag pdx-eye-tag--team" title="From a politician on My Team">★ My Team</span>';
+      if (sig.team)  return '<span class="pdx-eye-tag pdx-eye-tag--team" title="From a politician on your ballot">★ Your pick</span>';
       return '';
     }
 
@@ -1708,7 +1708,7 @@
       var acts = [];
       if (e.kind === 'pol') {
         var on = (typeof window._pdxIsOnTeam === 'function') && window._pdxIsOnTeam(e.id);
-        acts.push({ id: 'team', ico: on ? '★' : '＋', label: on ? 'On My Team' : 'Add to My Team', primary: !on, on: on });
+        acts.push({ id: 'team', ico: on ? '★' : '＋', label: on ? 'Your pick' : 'Add to ballot', primary: !on, on: on });
         acts.push({ id: 'compare', ico: '⚖', label: 'Compare' });
         acts.push({ id: 'profile', ico: '👤', label: 'View full profile' });
         acts.push(shareAct(e.id, ''));
@@ -2510,7 +2510,7 @@
       ids.forEach(function (id) { if (byId[id]) entries.push(byId[id]); });
       if (!entries.length) return '';
       var cap = expand.team ? entries.length : 6;
-      var h = '<div class="pdx-eye-cat" data-cat="team"><div class="pdx-eye-cat-h"><span class="pdx-eye-cat-dot" style="background:#f5c842;"></span>From My Team<span class="pdx-eye-cat-n">' + entries.length + '</span></div>';
+      var h = '<div class="pdx-eye-cat" data-cat="team"><div class="pdx-eye-cat-h"><span class="pdx-eye-cat-dot" style="background:#f5c842;"></span>From Your Ballot<span class="pdx-eye-cat-n">' + entries.length + '</span></div>';
       badgeOff = true; // every row here is a teammate — the section header already says so
       entries.slice(0, cap).forEach(function (e) {
         var i = flat.length; flat.push(e);
@@ -2749,7 +2749,7 @@
       if (nTag) parts.push(nTag + ' of your tag' + (nTag === 1 ? '' : 's'));
       if (nIss) parts.push(nIss + ' theme' + (nIss === 1 ? '' : 's'));
       var sum = parts.join(' · ');
-      if (data.teamActive) sum += ' · ' + data.teamActive + ' on My Team active';
+      if (data.teamActive) sum += ' · ' + data.teamActive + ' on your ballot active';
       var collapsed = !connOpen;
       var h = '<div class="pdx-eye-conn' + (collapsed ? ' is-collapsed' : '') + '" data-cat="conn">' +
         '<button type="button" class="pdx-eye-conn-h" data-conn-toggle aria-expanded="' + (collapsed ? 'false' : 'true') + '">' +
@@ -2782,7 +2782,7 @@
     function clusterHtml(t, isOpen, isLinked) {
       var isTag = t.kind === 'tag';
       var meta = t.savedCount + ' saved';
-      if (t.teamCount) meta += ' · ' + t.teamCount + ' on My Team';
+      if (t.teamCount) meta += ' · ' + t.teamCount + ' on your ballot';
       var scopeIk = isTag ? (t.topIssue || '') : t.key;
       var cls = 'pdx-eye-conn-cl' + (isOpen ? ' is-open' : '') + (isLinked ? ' is-linked' : '');
       var tip = isOpen ? 'Collapse this cluster' : (isTag ? ('Open your “' + t.label + '” tag cluster') : ('Open the ' + t.label + ' cluster'));

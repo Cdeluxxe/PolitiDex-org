@@ -74,7 +74,7 @@ const FILES = [
   "acct-spotlight-data.js", "say-vs-do.js", "exec-action-data.js", "exec-record.js",
   "exec-record-ui.js", "consistency.js", "voting-record.js", "word-action.js",
   "profile-spine.js", "issue-colors.js", "my-stances.js", "voter-hub-location.js",
-  "compare-hub.js", "ballot-breakdown.js", "race-sheet.js",
+  "compare-hub.js", "seat-field.js", "ballot-breakdown.js", "race-sheet.js",
 ];
 
 // A DOM small enough to reason about and real enough to render into: an id

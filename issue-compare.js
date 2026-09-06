@@ -506,7 +506,7 @@
         + '<span class="ic-seg-lbl">' + label + '</span><span class="ic-seg-sub">' + sub + '</span></button>';
     }
     var segs = '<div class="ic-segs" role="tablist">'
-      + seg('team', '⭐ My Team', tCount + ' on team')
+      + seg('team', '⭐ Your ballot', tCount + ' picked')
       + seg('relevant', '📍 Relevant to me', rCount + ' near you')
       + seg('all', '🗂 All tracked', 'with a position')
       + '</div>';
@@ -588,7 +588,7 @@
       ? '<img class="ic-photo" src="' + esc(r.photo) + '" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement(\'div\'),{className:\'ic-photo\',textContent:\'' + jsAttr(initials(r.name)) + '\'}))">'
       : '<div class="ic-photo">' + esc(r.photo && !/^https?:/.test(r.photo) ? r.photo : initials(r.name)) + '</div>';
     var posPill = '<span class="ic-pos" style="--c:' + (sm.color || '#9fb4d4') + '">' + (sm.ico || '') + ' ' + esc(sm.pill || sm.label || 'No stated position') + '</span>';
-    var teamBtn = '<button type="button" class="ic-act ' + (r.onTeam ? 'is-on' : '') + '" onclick="window.PDXIssueCompare.toggleTeam(this,\'' + jsAttr(r.pid) + '\')">' + (r.onTeam ? '✓ On team' : '＋ Team') + '</button>';
+    var teamBtn = '<button type="button" class="ic-act ' + (r.onTeam ? 'is-on' : '') + '" onclick="window.PDXIssueCompare.toggleTeam(this,\'' + jsAttr(r.pid) + '\')">' + (r.onTeam ? '✓ Your pick' : '＋ Ballot') + '</button>';
     // THE ORDER OF THE CARD IS THE ARGUMENT. Record first, under its own heading;
     // stated position second, under its own heading; and the two are never merged
     // into one chip, because a reader who cannot tell which half is the voting

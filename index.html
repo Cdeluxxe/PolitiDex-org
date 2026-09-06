@@ -3635,7 +3635,7 @@ window.PDXLazy = (function () {
                focuses the eye in place — no scroll, because the eye is already on
                screen at every scroll position. -->
           <a href="#say-vs-do" title="Paste a claim, or look anyone up — the All-Seeing Eye finds the voting record behind it" onclick="if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#eaf3ff;background:linear-gradient(135deg,#1e51a8,#2f6fd0);border:1.5px solid rgba(127,180,255,0.85);box-shadow:0 0 16px rgba(59,130,246,0.45),inset 0 1px 0 rgba(255,255,255,0.22);text-shadow:0 1px 2px rgba(0,0,0,0.45);">👁️ Find the Record</a>
-          <a href="#my-politicians" title="Your voting team — the slate of politicians you're building and finalizing" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border:1.5px solid rgba(245,200,66,0.9);box-shadow:0 0 16px rgba(245,200,66,0.45),inset 0 1px 0 rgba(255,255,255,0.35);text-shadow:0 1px 1px rgba(255,255,255,0.25);">⭐ My Voting Team</a>
+          <a href="#my-politicians" title="Your ballot — the picks you are working and finalizing" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border:1.5px solid rgba(245,200,66,0.9);box-shadow:0 0 16px rgba(245,200,66,0.45),inset 0 1px 0 rgba(255,255,255,0.35);text-shadow:0 1px 1px rgba(255,255,255,0.25);">⭐ Your Ballot</a>
           <!-- Voter Hub, 🗳️ Your Ballot and 🔦 Local Issues used to sit here, at
                the same rank as the two doors. They are Door 2 VIEWS, so they moved
                into the EXPLORE & DISCOVER panel below under "Your Vote · Door 2".
@@ -4298,7 +4298,7 @@ window.PDXLazy = (function () {
       <div class="mnav-group-label">Start Here · Two Doors</div>
       <a href="#who-represents-me" title="Your seats &amp; races — who holds power over you, and who else is running for each seat" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#a8d4ff;">🏛️ Who Represents Me</a>
       <a href="#say-vs-do" title="Paste a claim, or look anyone up — the All-Seeing Eye finds the voting record behind it" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ec8ff;">👁️ Find the Record</a>
-      <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-mypol flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⭐ My Voting Team</a>
+      <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-mypol flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⭐ Your Ballot</a>
       <!-- ── SECONDARY · rooms inside Door 2, plus the personal surfaces ──
            These are views of the ballot workspace and the reader's own account
            pages. They came off the DESKTOP row in Phase 3 (Voter Hub, Your
@@ -5020,7 +5020,7 @@ window.PDXLazy = (function () {
            onclick="if(window.PDXFirstRun&&window.PDXFirstRun.pathB){event.preventDefault();window.PDXFirstRun.pathB();}"
            class="btn-tap inline-flex items-center justify-center gap-2.5 font-condensed font-700 text-sm sm:text-base tracking-widest uppercase px-7 py-4 rounded-2xl transition-all duration-300 hover:scale-105 no-underline"
            style="color:#cfe0f5;background:rgba(255,255,255,0.05);border:1.5px solid rgba(148,163,184,0.4);">
-          <span aria-hidden="true">🗳️</span> Build my voting team
+          <span aria-hidden="true">🗳️</span> Work your ballot
         </a>
       </div>
 
@@ -5093,7 +5093,7 @@ window.PDXLazy = (function () {
         <!-- Why it matters — short, empowering, not preachy. Ends on the second door,
              which is where the election-season half of the product now lives. -->
         <p class="hero-body max-w-2xl mx-auto mb-9 px-6 text-steel-300 text-base sm:text-lg leading-relaxed font-body">
-          Checking the receipts yourself takes hours, so most of us end up voting on party or gut feeling. PolitiDex does that homework year-round — and when an election comes, it turns the record into a <span class="text-white font-700">voting team</span> of the people who earned it.
+          Checking the receipts yourself takes hours, so most of us end up voting on party or gut feeling. PolitiDex does that homework year-round — and when an election comes, it turns the record into a <span class="text-white font-700">ballot</span> of the people who earned it.
         </p>
 
         <!-- ── Beyond-Party Alignment Banner ──────────────────────────────
@@ -5229,7 +5229,7 @@ window.PDXLazy = (function () {
       <a href="#myteam-browse-panel" class="pulse-chip" style="--c:#60a5fa;"><span class="pc-ico">🔎</span><span class="pc-text"><span class="pc-label">Look Up a Politician</span><span class="pc-value">Search the record</span></span></a>
       <a href="#evidence-locker" class="pulse-chip" style="--c:#4ade80;"><span class="pc-ico">📑</span><span class="pc-text"><span class="pc-label">Evidence Library</span><span class="pc-value">Sourced receipts</span></span></a>
       <a href="#follow-the-money" class="pulse-chip" style="--c:#34d399;"><span class="pc-ico">💰</span><span class="pc-text"><span class="pc-label">Follow the Money</span><span class="pc-value">Who funds them</span></span></a>
-      <a href="#my-politicians" class="pulse-chip" style="--c:#fbbf24;"><span class="pc-ico">⭐</span><span class="pc-text"><span class="pc-label">Build Your Team</span><span class="pc-value">Your ballot, your values</span></span></a>
+      <a href="#my-politicians" class="pulse-chip" style="--c:#fbbf24;"><span class="pc-ico">⭐</span><span class="pc-text"><span class="pc-label">Work Your Ballot</span><span class="pc-value">One seat at a time</span></span></a>
     </div>
   </div>
   <script>
@@ -5529,7 +5529,7 @@ window.PDXLazy = (function () {
           </div>
           <div class="wrm-step">
             <span class="wrm-stepno">③</span>
-            <span class="wrm-steptext"><strong>Build your team</strong><em>Optional &mdash; only if you want a slate.</em></span>
+            <span class="wrm-steptext"><strong>Work your ballot</strong><em>Optional &mdash; only if you want a slate.</em></span>
           </div>
         </div>
 
@@ -6176,12 +6176,12 @@ window.PDXLazy = (function () {
     <div class="relative max-w-3xl mx-auto z-10 text-center">
       <div class="sh-eyebrow"><span>🗳️ Election tools · 30 seconds to set up</span></div>
       <h2 class="sh-title">SEE WHO <span class="sh-accent">REPRESENTS YOU</span></h2>
-      <p class="sh-lead">The record above is the year-round half, and it needs nothing from you. This is the election half: set your location once and PolitiDex names the officials with power over you and the seats you actually decide &mdash; so you can read their records first, and pick a team on <strong>receipts rather than party lines</strong> if you want one.</p>
+      <p class="sh-lead">The record above is the year-round half, and it needs nothing from you. This is the election half: set your location once and PolitiDex names the officials with power over you and the seats you actually decide &mdash; so you can read their records first, and pick on <strong>receipts rather than party lines</strong> if you want to.</p>
 
       <!-- The path in six words, on the block that starts it. It is the same
            sentence the seat lists carry, so the promise made here is the one the
            visitor recognises two taps later. -->
-      <p class="sh-spine">Your seats → compare the field → pick for your team.</p>
+      <p class="sh-spine">Your seats → compare the field → pick for your ballot.</p>
 
       <div class="sh-cta-row">
         <button type="button" class="sh-cta-primary btn-tap" onclick="pdxStartHereGo()">📍 See who represents me</button>
@@ -6600,10 +6600,10 @@ window.PDXLazy = (function () {
        and turns it into a decision. It is unchanged in function and one scroll from
        the top; only its billing has moved, from the single core of the product to
        the strong second entrance. -->
-  <div class="pdx-chapter-bridge" role="separator" aria-label="Door 2 — your ballot: turn the record into a voting team">
+  <div class="pdx-chapter-bridge" role="separator" aria-label="Door 2 — your ballot: turn the record into your picks">
     <div class="pcb-eyebrow"><span class="pcb-line l"></span><span class="pcb-kicker">Door 2 · Your Ballot</span><span class="pcb-line r"></span></div>
     <h2 class="pcb-title">There's an election coming. Turn the record into a <span class="pcb-accent-cool">ballot</span>.</h2>
-    <p class="pcb-sub">Set your location, see the seats you actually decide, and build a <strong>voting team</strong> — one office at a time, on record rather than party. Saved for election day.</p>
+    <p class="pcb-sub">Set your location, see the seats you actually decide, and pick <strong>one seat at a time</strong>, on record rather than party. Saved for election day.</p>
   </div>
 
   <!-- ═══════════════════════ VOTER EMPOWERMENT HUB ════════ -->
@@ -6768,11 +6768,11 @@ window.PDXLazy = (function () {
                a ballot. The hub does exactly what it always did; it is simply named
                for what it is, the election-time door, the place the record turns
                into a decision. Nothing below this paragraph changed. -->
-          <span class="font-condensed text-xs tracking-widest uppercase text-crimson-400">🗳️ Election Tools · Build Your Team</span>
+          <span class="font-condensed text-xs tracking-widest uppercase text-crimson-400">🗳️ Election Tools · Work Your Ballot</span>
         </div>
-        <h2 class="section-title font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">BUILD YOUR VOTING <span class="text-crimson-400">TEAM</span></h2>
+        <h2 class="section-title font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">WORK YOUR <span class="text-crimson-400">BALLOT</span></h2>
         <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
-          This is where the record becomes a ballot. Your ballot has more than one seat — <strong class="text-white">U.S. Senate, U.S. House, Governor, your statehouse, and local offices</strong>. For each seat PolitiDex can resolve for you, it opens the field on the formal record so you can pick the candidate who actually <strong class="text-white">shares your values</strong> and <strong class="text-white">follows through</strong> — then saves your team so it's ready on election day. Where a seat needs district lines we don't draw yet, it says so instead of filling in a stranger.
+          This is where the record becomes a ballot. Your ballot has more than one seat — <strong class="text-white">U.S. Senate, U.S. House, Governor, your statehouse, and local offices</strong>. For each seat PolitiDex can resolve for you, it opens the field on the formal record so you can pick the candidate who actually <strong class="text-white">shares your values</strong> and <strong class="text-white">follows through</strong> — then saves your picks so they are ready on election day. Where a seat needs district lines we don't draw yet, it says so instead of filling in a stranger.
         </p>
 
         <!-- The difference: party-first voting vs. person-first voting.
@@ -6827,7 +6827,7 @@ window.PDXLazy = (function () {
               <span class="vh-step-status">Up next</span>
               <span class="vh-step-n">3</span>
               <span class="vh-step-ico">⭐</span>
-              <div class="vh-step-t">Build your team</div>
+              <div class="vh-step-t">Work your ballot</div>
               <p class="vh-step-d">Add the person who earns each seat. Your slate <strong>saves automatically</strong> for election day.</p>
             </div>
           </div>
@@ -6836,10 +6836,10 @@ window.PDXLazy = (function () {
         <!-- Clear, prioritized calls to action -->
         <div class="vh-cta-row">
           <button type="button" class="vh-cta-primary" onclick="window.toggleChangeLocation && window.toggleChangeLocation()">📍 Start — set my location</button>
-          <button type="button" class="vh-cta-secondary" onclick="window.jumpToRelevantAccordion && window.jumpToRelevantAccordion('senate')">⭐ Jump to my team</button>
+          <button type="button" class="vh-cta-secondary" onclick="window.jumpToRelevantAccordion && window.jumpToRelevantAccordion('senate')">⭐ Jump to your ballot</button>
         </div>
         <div>
-          <span class="vh-reassure">🔒 <strong>Free &amp; non-partisan.</strong>&nbsp;No sign-up needed — your team saves right here on this device.</span>
+          <span class="vh-reassure">🔒 <strong>Free &amp; non-partisan.</strong>&nbsp;No sign-up needed — your picks save right here on this device.</span>
         </div>
       </div>
 
@@ -8049,7 +8049,7 @@ window.PDXLazy = (function () {
             </div>
             <span class="ko-chev" aria-hidden="true">⌄</span>
           </summary>
-          <p class="ko-lead">Before you fill your team, know what you're voting for. Your ballot isn't just names — it's a stack of <strong>offices</strong>, each with different powers over your life. Tap any office below for a plain-English explainer: what it does, its term, and why your vote for it matters. The same explainers open from the <strong>“ⓘ Learn more”</strong> links on your Power Map.</p>
+          <p class="ko-lead">Before you fill your ballot, know what you're voting for. Your ballot isn't just names — it's a stack of <strong>offices</strong>, each with different powers over your life. Tap any office below for a plain-English explainer: what it does, its term, and why your vote for it matters. The same explainers open from the <strong>“ⓘ Learn more”</strong> links on your Power Map.</p>
           <div class="ko-grid">
             <button type="button" class="ko-btn" style="--ko-color:#ef4444;" onclick="openOfficeModal('president')"><span class="ko-ico">🦅</span><span class="ko-txt"><span class="ko-name">U.S. President</span><span class="ko-meta">Federal · 4-yr term</span></span><span class="ko-arrow">→</span></button>
             <button type="button" class="ko-btn" style="--ko-color:#818cf8;" onclick="openOfficeModal('us-senate')"><span class="ko-ico">🏛</span><span class="ko-txt"><span class="ko-name">U.S. Senator</span><span class="ko-meta">Federal · 6-yr term</span></span><span class="ko-arrow">→</span></button>
@@ -8069,7 +8069,7 @@ window.PDXLazy = (function () {
            clear top-to-bottom progression. Presentational only. -->
       <div class="myteam-feeder-divider" aria-hidden="true">
         <span class="myteam-feeder-divider__line"></span>
-        <span class="myteam-feeder-divider__label">↓ Build your team from these seats</span>
+        <span class="myteam-feeder-divider__label">↓ Work your ballot from these seats</span>
         <span class="myteam-feeder-divider__line"></span>
       </div>
 
@@ -8088,7 +8088,7 @@ window.PDXLazy = (function () {
           <span class="myteam-findreps-ico" aria-hidden="true">🏛️</span>
           <span class="myteam-findreps-text">
             <strong>New here? Start one step earlier.</strong>
-            Find the officials with power over you, see their records, and build a team from there &mdash; if you want one.
+            Find the officials with power over you, see their records, and pick from there &mdash; if you want to.
           </span>
           <button type="button" class="myteam-findreps-btn btn-tap" onclick="window.pdxFindMyReps&amp;&amp;window.pdxFindMyReps()">📍 See who represents me</button>
         </div>
@@ -8156,7 +8156,7 @@ window.PDXLazy = (function () {
                 <div class="myteam-hub-star w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700/60 flex items-center justify-center text-2xl shadow-lg" style="box-shadow:0 0 32px rgba(245,158,11,0.35);">⭐</div>
                 <div>
                 <div class="inline-flex items-center gap-1.5 font-condensed font-700 text-xs uppercase rounded-full px-3 py-1 mb-2" style="letter-spacing:0.16em;color:#1a1206;background:linear-gradient(135deg,#ffe486,#e7b53e);box-shadow:0 4px 14px rgba(245,200,66,0.3);">★ Build &amp; Finalize Your Slate</div>
-                  <h3 class="font-display text-4xl md:text-5xl tracking-wider text-amber-300 uppercase" style="line-height:1.05;text-shadow:0 0 36px rgba(245,158,11,0.4);">MY VOTING TEAM <span id="myteam-count-badge" class="font-condensed text-base font-bold tracking-wider text-amber-400 bg-amber-500/18 border border-amber-500/35 rounded-full px-4 py-1 ml-3">0/6</span></h3>
+                  <h3 class="font-display text-4xl md:text-5xl tracking-wider text-amber-300 uppercase" style="line-height:1.05;text-shadow:0 0 36px rgba(245,158,11,0.4);">YOUR PICKS <span id="myteam-count-badge" class="font-condensed text-base font-bold tracking-wider text-amber-400 bg-amber-500/18 border border-amber-500/35 rounded-full px-4 py-1 ml-3">0/6</span></h3>
                   <!-- Compact picks-set meter — glanceable goal (dots + "X of N picks
                        set") sitting directly under the title. Populated live by
                        _mypolBuildGrid() from the same seat-pick count as the bar. -->
@@ -8176,14 +8176,14 @@ window.PDXLazy = (function () {
                     <span class="myteam-journey__arrow">→</span>
                     <span class="myteam-journey__step">② Relevant to Me</span>
                     <span class="myteam-journey__arrow">→</span>
-                    <span class="myteam-journey__step is-here">★ My Voting Team <em>you're here</em></span>
+                    <span class="myteam-journey__step is-here">★ Your picks <em>you're here</em></span>
                   </div>
                 </div>
               </div>
               <div class="flex gap-2 items-center flex-wrap">
                 <button onclick="window._myteamGuideGo && window._myteamGuideGo('pick')" class="font-condensed text-xs text-amber-300 hover:text-amber-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-amber-500/12 border border-amber-500/30 hover:border-amber-400/55" style="background:rgba(245,158,11,0.07);" title="Jump to your next open race and keep building">➕ Add more picks</button>
                 <button onclick="window.openBallotSummary && window.openBallotSummary()" id="myteam-ballot-top-btn" class="font-condensed text-xs text-amber-200 hover:text-white tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg border border-amber-400/45 hover:border-amber-300/70" style="background:linear-gradient(135deg,rgba(245,200,66,0.16),rgba(230,184,0,0.08));display:none;" title="See, print, or copy the slate you’ve built">📋 My Ballot</button>
-                <button onclick="myteamCompareAll()" id="myteam-compare-top-btn" class="font-condensed text-xs text-blue-300 hover:text-blue-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-blue-500/12 border border-blue-500/25 hover:border-blue-400/50" style="background:rgba(59,130,246,0.06);display:none;">⚖️ Compare Team</button>
+                <button onclick="myteamCompareAll()" id="myteam-compare-top-btn" class="font-condensed text-xs text-blue-300 hover:text-blue-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-blue-500/12 border border-blue-500/25 hover:border-blue-400/50" style="background:rgba(59,130,246,0.06);display:none;">⚖️ Compare picks</button>
                 <button onclick="mypolClearAll()" class="font-condensed text-xs text-red-400/75 hover:text-red-300 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg border border-red-500/25 hover:border-red-400/50 hover:bg-red-500/12" style="background:rgba(239,68,68,0.06);">🗑 Clear All</button>
               </div>
             </div>
@@ -8234,7 +8234,7 @@ window.PDXLazy = (function () {
             <div id="myteam-compare-bar" class="myteam-compare-all-bar" style="display:none;">
               <button id="myteam-compare-all-btn" onclick="myteamCompareAll()" class="flex items-center gap-2 bg-blue-600/80 hover:bg-blue-500 border border-blue-400/40 text-white font-condensed font-700 text-xs tracking-widest uppercase px-5 py-3 rounded-lg transition-all cursor-pointer" style="white-space:nowrap;box-shadow:0 4px 16px rgba(59,130,246,0.2);">
                 <svg style="width:1.1rem;height:1.1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                ⚖️ Compare All Team Members Side-by-Side
+                ⚖️ Compare All Your Picks Side-by-Side
               </button>
               <span id="myteam-compare-bar-hint" class="font-condensed text-xs text-steel-500 tracking-wide"></span>
             </div>
@@ -8264,7 +8264,7 @@ window.PDXLazy = (function () {
                 </div>
                 <div class="bg-navy-900/70 border border-amber-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
                   <div id="myteam-stat-count" class="font-display text-3xl text-amber-400">0</div>
-                  <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Team Members</div>
+                  <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Your Picks</div>
                 </div>
                 <div class="bg-navy-900/70 border border-blue-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
                   <div id="myteam-stat-offices" class="font-display text-3xl text-blue-400">0</div>
@@ -8272,13 +8272,13 @@ window.PDXLazy = (function () {
                 </div>
                 <div class="bg-navy-900/70 border border-purple-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
                   <div id="myteam-stat-align" class="font-display text-3xl text-purple-400" style="text-shadow:0 0 16px rgba(139,92,246,0.25);">—</div>
-                  <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Team Alignment</div>
+                  <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Pick Alignment</div>
                 </div>
               </div>
               <div id="myteam-compare-team-cta" class="text-center" style="display:none;">
                 <button onclick="myteamCompareAll()" class="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 border border-blue-400/40 text-white font-condensed font-700 text-sm tracking-widest uppercase px-7 py-3.5 rounded-xl transition-all cursor-pointer" style="box-shadow:0 6px 24px rgba(59,130,246,0.25), 0 0 20px rgba(59,130,246,0.1);">
                   <svg style="width:1.25rem;height:1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                  Compare My Team
+                  Compare my picks
                 </button>
               </div>
             </div>
@@ -8305,9 +8305,9 @@ window.PDXLazy = (function () {
             <!-- Empty state for team -->
             <div id="myteam-empty" class="text-center py-16" style="display:none;">
               <div class="text-7xl mb-6" style="filter:drop-shadow(0 0 30px rgba(245,158,11,0.35));animation:float 3s ease-in-out infinite;">🗳️</div>
-              <div class="font-display text-4xl md:text-5xl tracking-wider text-steel-300 mb-4" style="text-shadow:0 2px 12px rgba(0,0,0,0.3);">BUILD YOUR TEAM</div>
-              <p class="text-steel-300 text-base md:text-lg mb-3 max-w-lg mx-auto leading-relaxed">Build a team of politicians who actually represent what you believe in. Each office below — from the U.S. Senate down to your local government — goes to the candidate who earns it on <strong class="text-white">record and values</strong>, not the letter after their name.</p>
-              <p class="text-steel-500 text-sm max-w-md mx-auto mb-6">Your team saves automatically on this device as you build it — come back anytime and it's still here. Sign in to also sync it across your devices.</p>
+              <div class="font-display text-4xl md:text-5xl tracking-wider text-steel-300 mb-4" style="text-shadow:0 2px 12px rgba(0,0,0,0.3);">WORK YOUR BALLOT</div>
+              <p class="text-steel-300 text-base md:text-lg mb-3 max-w-lg mx-auto leading-relaxed">Pick the politicians who actually represent what you believe in. Each office below — from the U.S. Senate down to your local government — goes to the candidate who earns it on <strong class="text-white">record and values</strong>, not the letter after their name.</p>
+              <p class="text-steel-500 text-sm max-w-md mx-auto mb-6">Your picks save automatically on this device as you work — come back anytime and they are still here. Sign in to also sync it across your devices.</p>
               <button onclick="window.jumpToRelevantAccordion('senate')" class="inline-flex items-center gap-2.5 bg-gradient-to-r from-amber-600/30 to-amber-500/20 border-2 border-amber-500/50 hover:border-amber-400/80 text-amber-300 hover:text-amber-200 font-condensed font-700 text-base tracking-widest uppercase px-8 py-4 rounded-xl transition-all hover:shadow-lg" style="text-decoration:none;box-shadow:0 4px 20px rgba(245,158,11,0.15);">
                 <svg style="width:1.2rem;height:1.2rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
                 Find Candidates Who Match You
@@ -8441,7 +8441,7 @@ window.PDXLazy = (function () {
           <!-- Light top guidance — sets expectations for the section in one line. -->
           <div class="rel-research-guide">
             <span aria-hidden="true">🔬</span>
-            <span><strong>Research candidates here</strong>, then build &amp; manage your full team above in <strong class="rel-research-guide__team">My Voting Team</strong>.</span>
+            <span><strong>Research candidates here</strong>, then work your seats above in <strong class="rel-research-guide__team">Your picks</strong>.</span>
           </div>
           <!-- The minimized "Your Voting Team" progress pill that used to sit here
                was removed: it duplicated the primary My Voting Team panel up top
@@ -8502,10 +8502,10 @@ window.PDXLazy = (function () {
             <span aria-hidden="true" style="color:#6ee7b7;">→</span>
             <span><strong style="color:#fff;">② Relevant to Me</strong> = research &amp; compare <em style="color:#6ee7b7;font-style:normal;">(you're here)</em></span>
             <span aria-hidden="true" style="color:#fcd34d;">→</span>
-            <span><strong style="color:#fcd34d;">★ My Voting Team</strong> = build &amp; finalize your slate (above)</span>
+            <span><strong style="color:#fcd34d;">★ Your picks</strong> = review &amp; finalize your slate (above)</span>
           </div>
           <p class="font-condensed text-xs text-steel-500 tracking-wide" style="margin-top:0.5rem;margin-bottom:0;">Looking for someone outside your districts? <strong style="color:#cbd5e1;">All Politicians</strong> is the complete, unfiltered database.</p>
-          <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="pdx-back-to-team pdx-back-to-team--strong" style="margin-top:0.85rem;">↑ Manage full team in My Voting Team</button>
+          <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="pdx-back-to-team pdx-back-to-team--strong" style="margin-top:0.85rem;">↑ Manage your picks up top</button>
           <!-- The "Cover Your Districts / Build Your Team" guided banner that used to
                render here was removed: it was a second team-builder inside the
                research section, duplicating the primary My Voting Team panel up top.
@@ -8522,7 +8522,7 @@ window.PDXLazy = (function () {
               <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-lg shadow-md" style="box-shadow: 0 0 15px rgba(139,92,246,0.35);">🎯</div>
               <div>
                 <h4 class="font-display text-lg tracking-wider text-purple-300 uppercase leading-none m-0">My Key Alignments</h4>
-                <p class="font-condensed text-xs text-purple-400 mt-1 mb-0">Pick the positions you agree with on each issue — then every race below ranks its candidates by how well they match you, so you can see who best fits your values before adding them to your team</p>
+                <p class="font-condensed text-xs text-purple-400 mt-1 mb-0">Pick the positions you agree with on each issue — then every race below ranks its candidates by how well they match you, so you can see who best fits your values before adding them to your ballot</p>
               </div>
             </div>
             <div id="relevant-alignments-chevron" class="w-6 h-6 flex items-center justify-center rounded-full bg-purple-900/20 text-purple-300 border border-purple-500/20 transition-transform duration-300">
@@ -8578,7 +8578,7 @@ window.PDXLazy = (function () {
           <span class="flex-none text-2xl" aria-hidden="true">🏆</span>
           <span class="flex-1 min-w-0">
             <span class="block font-condensed font-800 text-white tracking-wide uppercase text-sm sm:text-base leading-tight">Rank your ballot by your values</span>
-            <span class="block font-condensed text-purple-200/90 text-xs sm:text-sm leading-snug mt-0.5">See who on your ballot best matches the issues you care about — current officeholders and 2026 candidates alike — then add your top fits to your team.</span>
+            <span class="block font-condensed text-purple-200/90 text-xs sm:text-sm leading-snug mt-0.5">See who on your ballot best matches the issues you care about — current officeholders and 2026 candidates alike — then add your top fits to your ballot.</span>
           </span>
           <span class="flex-none text-purple-300 text-xl" aria-hidden="true">›</span>
         </button>
@@ -8588,7 +8588,7 @@ window.PDXLazy = (function () {
              location is set (handled in JS) so it never shows above an empty grid. -->
         <div id="relevant-grid-hint" class="pdx-hint mb-5" style="display:none;">
           <span class="pdx-hint-ico" aria-hidden="true">🧭</span>
-          <p class="pdx-hint-text"><strong>Why you're seeing these:</strong> everyone below either represents you today or is running to in 2026 — grouped by the office they hold or seek. Open an office, see how each person scores, then tap <strong>➕ Add to My Team</strong> on the one who earns your vote. New 2026 candidates won't have a record yet — compare their positions instead.</p>
+          <p class="pdx-hint-text"><strong>Why you're seeing these:</strong> everyone below either represents you today or is running to in 2026 — grouped by the office they hold or seek. Open an office, see how each person scores, then tap <strong>➕ Add to ballot</strong> on the one who earns your vote. New 2026 candidates won't have a record yet — compare their positions instead.</p>
         </div>
 
         <!-- Relevant cards — grouped by type & location -->
@@ -8601,10 +8601,10 @@ window.PDXLazy = (function () {
           <span class="rel-done-cta__icon" aria-hidden="true">⭐</span>
           <div class="rel-done-cta__body">
             <span class="rel-done-cta__eyebrow">Done researching?</span>
-            <span class="rel-done-cta__title">Go build &amp; finalize your full team</span>
-            <span class="rel-done-cta__sub">Every candidate you add lands in <strong>My Voting Team</strong> up top — head back to fill any open seats and review your complete 2026 slate.</span>
+            <span class="rel-done-cta__title">Go finalize your picks</span>
+            <span class="rel-done-cta__sub">Every candidate you add lands on <strong>your ballot</strong> up top — head back to fill any open seats and review your complete 2026 slate.</span>
           </div>
-          <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="rel-done-cta__btn" aria-label="Go up to My Voting Team to build and finalize your team">↑ Go to My Voting Team</button>
+          <button type="button" onclick="window._relevantScrollToTeam ? window._relevantScrollToTeam() : (document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'}))" class="rel-done-cta__btn" aria-label="Go up to your picks to review and finalize your ballot">↑ Go to your ballot</button>
         </div>
       </div>
 
@@ -8805,7 +8805,7 @@ window.PDXLazy = (function () {
               <div class="efmv-hero-copy">
                 <div class="efmv-eyebrow"><span class="efmv-eyebrow-dot"></span>Targeted Research · Your Ballot</div>
                 <h2 class="efmv-title">Evidence for <b>My Vote</b></h2>
-                <p class="efmv-sub"><b>Personal, relevant evidence</b> tied to the politicians on your ballot and in your My Voting Team — the promises, money and receipts that actually shape your vote, gathered in one calm place.</p>
+                <p class="efmv-sub"><b>Personal, relevant evidence</b> tied to the politicians on your ballot — the promises, money and receipts that actually shape your vote, gathered in one calm place.</p>
               </div>
             </div>
           </div>
@@ -9495,7 +9495,7 @@ window.PDXLazy = (function () {
             });
           }
           if (items.length) return '<div class="efmv-signals">' + items.map(sigRow).join('') + '</div>';
-          return '<p class="efmv-note">No active spotlights on your team yet. As you add politicians and save receipts, the ones that matter most will surface here.</p>';
+          return '<p class="efmv-note">No active spotlights on your ballot yet. As you add politicians and save receipts, the ones that matter most will surface here.</p>';
         }
         function signalsCard(pids) {
           var MAX_POLS = 3, PER_POL = 3;
@@ -9517,7 +9517,7 @@ window.PDXLazy = (function () {
             body = '<div class="efmv-sigpols">' + shown.map(function (b) { return polSignalGroup(b.pid, b.sigs); }).join('') + '</div>';
             var remaining = pids.length - shown.length;
             if (remaining > 0) {
-              body += '<button type="button" class="efmv-sigmore" data-efmv="see-ballot">+' + remaining + ' more on your team →</button>';
+              body += '<button type="button" class="efmv-sigmore" data-efmv="see-ballot">+' + remaining + ' more on your ballot →</button>';
             }
             sub = '<p class="efmv-card-d">The money, promise verdicts and spotlights on record for each politician on your ballot.</p>';
           } else {
@@ -9587,7 +9587,7 @@ window.PDXLazy = (function () {
               eye +
               '<div class="efmv-empty-loc">📍 Location set' + (area ? ' · ' + esc(area) : '') + '</div>' +
               '<h3 class="efmv-empty-h">You\'re set up — now add the people on your ballot</h3>' +
-              '<p class="efmv-empty-p">Your <b>location</b> is set, so we know which races are yours. Add the politicians from your area to your <b>My Voting Team</b> and this page fills with the receipts, promises and spotlights tied to your actual ballot.</p>' +
+              '<p class="efmv-empty-p">Your <b>location</b> is set, so we know which races are yours. Add the politicians from your area to <b>your ballot</b> and this page fills with the receipts, promises and spotlights tied to your actual ballot.</p>' +
               '<div class="efmv-empty-why"><span class="efmv-empty-why-ico">🎯</span><p class="efmv-empty-why-t">We know <b>where</b> you vote — the last step is telling us <b>who</b> you\'re weighing, so every receipt and spotlight here is personalized to your vote.</p></div>' +
               '<div class="efmv-empty-actions">' +
                 '<a href="#voter-hub" class="efmv-btn efmv-btn--primary">⭐ Add politicians from my area</a>' +
@@ -9619,7 +9619,7 @@ window.PDXLazy = (function () {
           var pids = teamPids();
           if (!pids.length) { host.innerHTML = emptyState(); return; }
           var stats = '<div class="efmv-stats">' +
-            statTile(pids.length, pids.length === 1 ? 'Politician on your team' : 'Politicians on your team') +
+            statTile(pids.length, pids.length === 1 ? 'Politician on your ballot' : 'Politicians on your ballot') +
             statTile(relevantEvidenceCount(pids), 'Evidence relevant to you') +
             statTile(teamSpotlights(pids).length, 'Active spotlights') +
             statTile(receipts().length, receipts().length === 1 ? 'Saved receipt' : 'Saved receipts') +
@@ -10083,8 +10083,8 @@ window.PDXLazy = (function () {
           if (!pids.length && !interestIssues().length) {
             body = '<div class="wc-empty"><div class="wc-empty-ico">🧭</div>' +
               '<div class="wc-empty-t">Follow people and issues to see what changes</div>' +
-              '<div class="wc-empty-d">Add politicians to your team and save the issues you care about — this digest will then quietly track new evidence, promise updates and discussion about them.</div>' +
-              '<div style="margin-top:14px;"><button type="button" class="wc-btn wc-btn--gold" data-wc="go" data-href="my-politicians">⭐ Build my team</button></div></div>';
+              '<div class="wc-empty-d">Add politicians to your ballot and save the issues you care about — this digest will then quietly track new evidence, promise updates and discussion about them.</div>' +
+              '<div style="margin-top:14px;"><button type="button" class="wc-btn wc-btn--gold" data-wc="go" data-href="my-politicians">⭐ Work my ballot</button></div></div>';
           } else if (c.total === 0) {
             body = '<div class="wc-empty"><div class="wc-empty-ico">✓</div>' +
               '<div class="wc-empty-t">You\'re all caught up</div>' +
@@ -10179,7 +10179,7 @@ window.PDXLazy = (function () {
             // Team changes (client)
             if (p.topicTeam && _teamChanges.length) {
               var trows = _teamChanges.slice(0, 8).map(function (pid) {
-                return itemRow({ cls: 'is-team', ico: '⭐', k: 'Added to your team', title: polName(pid), data: { wc: 'profile', pid: pid } });
+                return itemRow({ cls: 'is-team', ico: '⭐', k: 'Added to your ballot', title: polName(pid), data: { wc: 'profile', pid: pid } });
               }).join('');
               groups += group('Team Changes', '⭐', _teamChanges.length, trows);
             }
@@ -10370,7 +10370,7 @@ window.PDXLazy = (function () {
       <div id="account-save-toast" class="account-save-toast">💾 Saved to your account</div>
       <div id="vote-save-toast" class="account-save-toast">✅ Vote saved to your account</div>
       <div id="signin-prompt-toast" class="signin-prompt-toast">
-        <span>Sign in to sync your team across your devices</span>
+        <span>Sign in to sync your ballot across your devices</span>
         <button class="signin-prompt-btn" onclick="if(typeof openAuthModal==='function')openAuthModal();_hideSigninPrompt();">Sign In</button>
       </div>
       <div id="vote-signin-nudge" class="signin-prompt-toast">
@@ -10383,7 +10383,7 @@ window.PDXLazy = (function () {
         <div class="team-add-toast-main">
           <div id="team-add-toast-avatar" class="team-add-toast-avatar">🏛</div>
           <div class="team-add-toast-body">
-            <div id="team-add-toast-title" class="team-add-toast-title">Added to your team</div>
+            <div id="team-add-toast-title" class="team-add-toast-title">Added to your ballot</div>
             <div id="team-add-toast-sub" class="team-add-toast-sub"></div>
           </div>
           <div id="team-add-toast-check" class="team-add-toast-check">✓</div>
@@ -10442,7 +10442,7 @@ window.PDXLazy = (function () {
           <p class="ht-topic-desc">A surge of new AI data centers is straining Utah's power supply and water — and raising questions about who pays for it. See where your candidates stand before you vote.</p>
           <div class="ht-topic-actions">
             <a class="ht-topic-btn ht-topic-btn-primary" href="#voter-hub">⚡ View Candidates</a>
-            <button type="button" class="ht-topic-btn" onclick="window.mypolToggleAnimated(this,'cox')">＋ Add to My Team</button>
+            <button type="button" class="ht-topic-btn" onclick="window.mypolToggleAnimated(this,'cox')">＋ Add to ballot</button>
           </div>
         </div>
 
@@ -10455,7 +10455,7 @@ window.PDXLazy = (function () {
           <p class="ht-topic-desc">From federal land transfers to a shrinking Great Salt Lake, the fight over Utah's land and water is on the ballot. Know who's protecting it and who isn't.</p>
           <div class="ht-topic-actions">
             <a class="ht-topic-btn ht-topic-btn-primary" href="#voter-hub">🏔️ View Candidates</a>
-            <button type="button" class="ht-topic-btn" onclick="window.mypolToggleAnimated(this,'maloy')">＋ Add to My Team</button>
+            <button type="button" class="ht-topic-btn" onclick="window.mypolToggleAnimated(this,'maloy')">＋ Add to ballot</button>
           </div>
         </div>
 
@@ -10465,9 +10465,9 @@ window.PDXLazy = (function () {
             <span class="ht-topic-tag">2026 Election</span>
           </div>
           <h3 class="ht-topic-title">Your 2026 Ballot</h3>
-          <p class="ht-topic-desc">Governor, Congress, and the Legislature are all up this November. Build your voting team now and walk into the booth knowing exactly who's earned your vote.</p>
+          <p class="ht-topic-desc">Governor, Congress, and the Legislature are all up this November. Work your ballot now and walk into the booth knowing exactly who's earned your vote.</p>
           <div class="ht-topic-actions">
-            <a class="ht-topic-btn ht-topic-btn-primary" href="#my-politicians">⭐ Build My Team</a>
+            <a class="ht-topic-btn ht-topic-btn-primary" href="#my-politicians">⭐ Work My Ballot</a>
             <a class="ht-topic-btn" href="#key-dates">📅 Key Dates</a>
           </div>
         </div>
@@ -13295,7 +13295,7 @@ window.PDXLazy = (function () {
             <span class="el-legend-item is-limited" title="A social-media post or short clip with little verifying detail.">
               <span class="el-legend-bars" aria-hidden="true">●○○</span>Limited</span>
           </div>
-          <button type="button" class="el-chip el-relevant-toggle" id="el-relevant-toggle" aria-pressed="false" title="Show only evidence for your saved team & representatives">⭐ Relevant to Me</button>
+          <button type="button" class="el-chip el-relevant-toggle" id="el-relevant-toggle" aria-pressed="false" title="Show only evidence for your picks &amp; representatives">⭐ Relevant to Me</button>
           <div class="el-density" role="group" aria-label="Card density">
             <button type="button" class="el-density-btn is-active" data-density="comfortable" aria-pressed="true" title="Roomier cards">☰ Comfortable</button>
             <button type="button" class="el-density-btn" data-density="compact" aria-pressed="false" title="Denser cards — see more per screen">▦ Compact</button>
@@ -13473,7 +13473,7 @@ window.PDXLazy = (function () {
       <div class="mp-head">
         <span class="mp-eyebrow">👤 Your page</span>
         <h2 class="mp-title" id="mp-heading">MY <span>PROFILE</span></h2>
-        <p class="mp-lede">Everything you've built in one place: <strong>what you stand for</strong>, <strong>your voting team</strong>, your civic footprint, the receipts tied to the officials you follow — and the first look at the <strong>money that follows them</strong>.</p>
+        <p class="mp-lede">Everything you've built in one place: <strong>what you stand for</strong>, <strong>your ballot</strong>, your civic footprint, the receipts tied to the officials you follow — and the first look at the <strong>money that follows them</strong>.</p>
       </div>
       <div id="mp-body"><div class="mp-status">Loading your profile…</div></div>
     </div>
@@ -13484,7 +13484,7 @@ window.PDXLazy = (function () {
       <div class="ms-head">
         <span class="ms-eyebrow">🎯 What you stand for</span>
         <h2 class="ms-title" id="ms-heading">MY <span>STANCES</span></h2>
-        <p class="ms-lede">This is <strong>what you stand for</strong> — take a <strong>Support</strong>, <strong>Oppose</strong> or <strong>Mixed</strong> position on the issues you care about, using the same issue vocabulary PolitiDex uses for every politician. It's step one of a loop: your stances power the <strong>Alignment Tool</strong>, which shows <strong>who matches what you stand for — and whether their record backs it up</strong>. Set them here, then see your matches and build your team. <strong>Private by default</strong>, yours to control.</p>
+        <p class="ms-lede">This is <strong>what you stand for</strong> — take a <strong>Support</strong>, <strong>Oppose</strong> or <strong>Mixed</strong> position on the issues you care about, using the same issue vocabulary PolitiDex uses for every politician. It's step one of a loop: your stances power the <strong>Alignment Tool</strong>, which shows <strong>who matches what you stand for — and whether their record backs it up</strong>. Set them here, then see your matches and work your ballot. <strong>Private by default</strong>, yours to control.</p>
       </div>
       <div id="ms-body"><div class="ms-status">Loading the issues…</div></div>
     </div>
@@ -13724,11 +13724,11 @@ window.PDXLazy = (function () {
         <div id="myteam-import-banner" class="myteam-import-banner" style="display:none;">
           <div class="myteam-import-ico">🔗</div>
           <div class="myteam-import-body">
-            <div id="myteam-import-title" class="myteam-import-title">A team was shared with you</div>
+            <div id="myteam-import-title" class="myteam-import-title">A ballot was shared with you</div>
             <div id="myteam-import-sub" class="myteam-import-sub"></div>
           </div>
           <div class="myteam-import-actions">
-            <button id="myteam-import-load" class="myteam-import-load" onclick="myteamImportShared(false)">Load This Team</button>
+            <button id="myteam-import-load" class="myteam-import-load" onclick="myteamImportShared(false)">Load This Ballot</button>
             <button id="myteam-import-merge" class="myteam-import-merge" onclick="myteamImportShared(true)">Merge With Mine</button>
             <button class="myteam-import-dismiss" onclick="myteamDismissImport()" aria-label="Dismiss">✕</button>
           </div>
@@ -13740,15 +13740,15 @@ window.PDXLazy = (function () {
             <div class="myteam-summary-title-group">
               <div class="myteam-summary-icon">⭐</div>
               <div>
-                <div class="font-display text-base tracking-wider text-white uppercase" style="line-height:1.1;">MY 2026 VOTING TEAM</div>
+                <div class="font-display text-base tracking-wider text-white uppercase" style="line-height:1.1;">MY 2026 BALLOT</div>
                 <div class="font-condensed text-xs text-steel-400 tracking-wide" style="margin-top:2px;">Your personal slate — saved automatically between visits</div>
               </div>
               <div id="myteam-saved-badge" class="myteam-saved-badge">&#10003; Saved</div>
             </div>
             <div class="myteam-summary-actions" id="myteam-summary-actions">
-              <button id="myteam-share-btn" class="myteam-share-btn myteam-share-btn-primary" onclick="ballotShareTeamLink()" title="Share a link that opens this exact team — offices and names, no scores">
+              <button id="myteam-share-btn" class="myteam-share-btn myteam-share-btn-primary" onclick="ballotShareTeamLink()" title="Share a link that opens this exact ballot — offices and names, no scores">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                Share Team
+                Share ballot
               </button>
               <button id="myteam-sharetext-btn" class="myteam-share-btn myteam-share-btn-text" onclick="ballotShareTeam()" title="Copy your picks as plain text to paste anywhere">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -13761,7 +13761,7 @@ window.PDXLazy = (function () {
                builder up top: a clear round-trip link plus a "this mirrors your
                main team" line so it never reads as a second place to build. -->
           <div style="margin:-0.2rem 0 0.95rem;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
-            <button type="button" onclick="document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'})" class="pdx-back-to-team pdx-back-to-team--strong">↑ Manage your full team in My Voting Team</button>
+            <button type="button" onclick="document.getElementById('my-politicians') && document.getElementById('my-politicians').scrollIntoView({behavior:'smooth',block:'start'})" class="pdx-back-to-team pdx-back-to-team--strong">↑ Manage your picks up top</button>
             <span class="font-condensed text-xs text-steel-500 tracking-wide">A quick-reference &amp; share view of the slate you build above.</span>
           </div>
           <!-- Empty state prompt - shown when no picks made -->
@@ -13770,8 +13770,8 @@ window.PDXLazy = (function () {
               <div class="myteam-empty-icons">
                 <span>🏛</span><span>🦅</span><span>🏙</span>
               </div>
-              <div class="font-display text-sm tracking-wider text-white uppercase" style="margin-bottom:0.25rem;">Your Team Summary</div>
-              <div class="font-condensed text-xs" style="color:#7596c0;max-width:28rem;line-height:1.5;">Choose the candidates who match your values in the Voter Hub above. Your team is <strong style="color:#4ade80;">saved automatically</strong> and gathered here as a quick reference panel.</div>
+              <div class="font-display text-sm tracking-wider text-white uppercase" style="margin-bottom:0.25rem;">Your Ballot Summary</div>
+              <div class="font-condensed text-xs" style="color:#7596c0;max-width:28rem;line-height:1.5;">Choose the candidates who match your values in the Voter Hub above. Your ballot is <strong style="color:#4ade80;">saved automatically</strong> and gathered here as a quick reference panel.</div>
             </div>
           </div>
           <div id="myteam-summary-grid" class="myteam-summary-grid"></div>
@@ -13791,13 +13791,13 @@ window.PDXLazy = (function () {
             <span id="myteam-saved-count" class="myteam-saved-count-badge"></span>
           </div>
           <div id="myteam-editing-bar" class="myteam-editing-bar">
-            <span class="myteam-editing-text">✏️ You’re editing <strong id="myteam-editing-name">your saved team</strong> — your changes aren’t kept until you update it.</span>
-            <button class="myteam-update-btn" onclick="myteamUpdateActive()" title="Save your current picks back into this team">⟳ Update This Team</button>
-            <button class="myteam-editing-clear" onclick="myteamClearActive()" title="Stop editing this saved team and save your picks as a brand-new team instead">Save as new instead</button>
+            <span class="myteam-editing-text">✏️ You’re editing <strong id="myteam-editing-name">your saved ballot</strong> — your changes aren’t kept until you update it.</span>
+            <button class="myteam-update-btn" onclick="myteamUpdateActive()" title="Save your current picks back into this saved ballot">⟳ Update This Ballot</button>
+            <button class="myteam-editing-clear" onclick="myteamClearActive()" title="Stop editing this saved ballot and save your picks as a brand-new one instead">Save as new instead</button>
           </div>
           <div class="myteam-saved-form">
-            <input id="myteam-name-input" type="text" maxlength="60" class="myteam-name-input" placeholder="Name this team — e.g. “My Utah Team”, “Presidential Picks”…" onkeydown="if(event.key==='Enter'){event.preventDefault();myteamSaveCurrent();}" aria-label="Team name" autocomplete="off" />
-            <button class="myteam-save-btn" onclick="myteamSaveCurrent()">＋ Save Team</button>
+            <input id="myteam-name-input" type="text" maxlength="60" class="myteam-name-input" placeholder="Name this ballot — e.g. “My Utah picks”, “Presidential picks”…" onkeydown="if(event.key==='Enter'){event.preventDefault();myteamSaveCurrent();}" aria-label="Ballot name" autocomplete="off" />
+            <button class="myteam-save-btn" onclick="myteamSaveCurrent()">＋ Save ballot</button>
           </div>
           <div id="myteam-saved-list" class="myteam-saved-list"></div>
         </div>
@@ -13827,7 +13827,7 @@ window.PDXLazy = (function () {
             <div class="align-compact-info">
               <span class="align-compact-status" id="align-compact-status">No stances set yet</span>
               <span class="align-compact-mode" id="align-compact-mode" data-align-mode="stated">💬 Matching on <b>stated positions</b></span>
-              <span class="align-compact-tagline" id="align-compact-tagline">Set your stances — what you stand for — and this shows who matches, plus whether their record backs it up. Add your best matches to your team.</span>
+              <span class="align-compact-tagline" id="align-compact-tagline">Set your stances — what you stand for — and this shows who matches, plus whether their record backs it up. Add your best matches to your ballot.</span>
             </div>
             <div class="align-compact-actions">
               <button type="button" class="align-compact-btn" onclick="alignTogglePanel(true)">
@@ -13848,7 +13848,7 @@ window.PDXLazy = (function () {
                    steps, no tutorial. -->
               <div class="pdx-hint pdx-hint-purple" style="margin-bottom:1rem;">
                 <span class="pdx-hint-ico" aria-hidden="true">🎯</span>
-                <p class="pdx-hint-text"><strong>Stances → matches → team.</strong> ① Set the positions you actually believe in below — these are your <strong>stances</strong> (also saved in My Stances). ② Every politician instantly gets a <strong>🎯 Your Match %</strong> (how their stated positions fit yours) paired with <strong>⚖️ Say-vs-Do</strong> (whether their voting record backs those positions up). ③ Compare the candidates in your district and add your strongest matches to your team. Change your stances anytime.<br><span style="display:inline-block;margin-top:0.5rem;color:#c4b5fd;">🌱 <strong>New or 2026 candidate?</strong> Even without a long voting record, your match is built from their <strong>stated positions</strong> — and each candidate&rsquo;s profile tells you exactly how much of the score rests on a documented record versus an early read, so you always know what you&rsquo;re looking at.</span></p>
+                <p class="pdx-hint-text"><strong>Stances → matches → ballot.</strong> ① Set the positions you actually believe in below — these are your <strong>stances</strong> (also saved in My Stances). ② Every politician instantly gets a <strong>🎯 Your Match %</strong> (how their stated positions fit yours) paired with <strong>⚖️ Say-vs-Do</strong> (whether their voting record backs those positions up). ③ Compare the candidates in your district and add your strongest matches to your ballot. Change your stances anytime.<br><span style="display:inline-block;margin-top:0.5rem;color:#c4b5fd;">🌱 <strong>New or 2026 candidate?</strong> Even without a long voting record, your match is built from their <strong>stated positions</strong> — and each candidate&rsquo;s profile tells you exactly how much of the score rests on a documented record versus an early read, so you always know what you&rsquo;re looking at.</span></p>
               </div>
 
               <!-- MATCH INPUT MODE — stated positions vs formal-record patterns.
@@ -13917,7 +13917,7 @@ window.PDXLazy = (function () {
         <div class="chub-flow animate-on-scroll" style="transition-delay:0.04s;">
           <div class="chub-flow-head">
             <span class="chub-flow-kicker">How it works</span>
-            <span>Discover → Compare → Build your team</span>
+            <span>Discover → Compare → Work your ballot</span>
           </div>
           <div class="chub-flow-steps">
             <div class="chub-flow-step">
@@ -13941,8 +13941,8 @@ window.PDXLazy = (function () {
             <div class="chub-flow-arrow" aria-hidden="true">→</div>
             <div class="chub-flow-step">
               <span class="chub-flow-step-num"><span class="chub-flow-dot">3</span> Decide</span>
-              <span class="chub-flow-step-title">Add your pick to your team</span>
-              <span class="chub-flow-step-desc">Right inside the comparison, hit <strong style="color:#fbbf24;">⭐ Add to Team</strong> to claim that seat on your saved 2026 ballot.</span>
+              <span class="chub-flow-step-title">Add your pick to your ballot</span>
+              <span class="chub-flow-step-desc">Right inside the comparison, hit <strong style="color:#fbbf24;">⭐ Add to ballot</strong> to claim that seat on your saved 2026 ballot.</span>
             </div>
           </div>
           <div class="chub-flow-foot">
@@ -13958,7 +13958,7 @@ window.PDXLazy = (function () {
              toward the same goal: narrow down, compare, then claim a seat. -->
         <div class="pdx-hint pdx-hint-amber mb-4">
           <span class="pdx-hint-ico" aria-hidden="true">🧭</span>
-          <p class="pdx-hint-text"><strong>Not sure where to start?</strong> This is everyone — <button type="button" onclick="if(window.toggleChangeLocation)window.toggleChangeLocation();" style="background:none;border:none;padding:0;margin:0;font:inherit;color:#fbbf24;font-weight:700;text-decoration:underline;cursor:pointer;">set your location</button> or switch to <strong>Relevant To Me</strong> to see just the races on your ballot. Open any office to compare the field side by side, then tap <strong>⭐ Add to My Team</strong> on your pick — it fills that seat in <strong>My Voting Team</strong> above.</p>
+          <p class="pdx-hint-text"><strong>Not sure where to start?</strong> This is everyone — <button type="button" onclick="if(window.toggleChangeLocation)window.toggleChangeLocation();" style="background:none;border:none;padding:0;margin:0;font:inherit;color:#fbbf24;font-weight:700;text-decoration:underline;cursor:pointer;">set your location</button> or switch to <strong>Relevant To Me</strong> to see just the races on your ballot. Open any office to compare the field side by side, then tap <strong>⭐ Add to ballot</strong> on your pick — it fills that seat in <strong>Your Ballot</strong> above.</p>
         </div>
 
         <!-- Sentinel for sticky toolbar collapsing to avoid layout loops -->
@@ -14076,7 +14076,7 @@ window.PDXLazy = (function () {
             <span class="flex-none text-xl" aria-hidden="true">🏆</span>
             <span class="flex-1 min-w-0">
               <span id="myteam-board-launch-title" class="block font-condensed font-800 text-white tracking-wide uppercase text-sm leading-tight">Rank these politicians by my values</span>
-              <span id="myteam-board-launch-sub" class="block font-condensed text-purple-200/90 text-xs leading-snug mt-0.5">Compare everyone on the issues you care about and add your best matches to your team — no profiles to open.</span>
+              <span id="myteam-board-launch-sub" class="block font-condensed text-purple-200/90 text-xs leading-snug mt-0.5">Compare everyone on the issues you care about and add your best matches to your ballot — no profiles to open.</span>
             </span>
             <span class="flex-none text-purple-300 text-lg" aria-hidden="true">›</span>
           </button>
@@ -16121,7 +16121,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             <button type="button" class="pp-sort-btn" data-sort="new" onclick="setProposalSort('new')">✨ Newest</button>
           </div>
           <button type="button" class="pp-team-btn" id="pp-team-toggle" style="display:none;" aria-pressed="false" title="Show only proposals that involve your representatives or the people you follow" onclick="toggleProposalTeamFilter(this)">
-            🎯 <span id="pp-team-toggle-label">Involves my team</span>
+            🎯 <span id="pp-team-toggle-label">Involves my picks</span>
           </button>
           <button type="button" class="pp-propose-btn" onclick="openAgendaSubmit()">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
@@ -17015,7 +17015,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     function _teamEmptyHTML() {
       return '<div class="pp-team-empty">' +
         '<div style="font-size:2rem;margin-bottom:0.4rem;">🎯</div>' +
-        '<p style="max-width:26rem;margin:0 auto;line-height:1.5;">No proposals yet mention anyone on your team. ' +
+        '<p style="max-width:26rem;margin:0 auto;line-height:1.5;">No proposals yet mention anyone on your ballot. ' +
         '<button type="button" class="pp-team-empty-cta" onclick="toggleProposalTeamFilter(document.getElementById(\'pp-team-toggle\'))">Show all proposals</button></p>' +
         '</div>';
     }
@@ -17040,7 +17040,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var onTeam = !!(team && (team.reps[String(id)] || team.tracked[String(id)]));
         return '<button type="button" class="pp-link-chip' + (onTeam ? ' is-team' : '') + '" ' +
           'onclick="event.stopPropagation(); if(typeof openModal===\'function\') openModal(\'' + esc(safeId) + '\')" ' +
-          'title="' + (onTeam ? 'On your team — view profile' : 'View profile') + '">' +
+          'title="' + (onTeam ? 'On your ballot — view profile' : 'View profile') + '">' +
           (onTeam ? '⭐ ' : '👤 ') + esc(nameOf(id)) + '</button>';
       }).join('');
       if (extra > 0) chips += '<span class="pp-link-more" title="' + extra + ' more linked">+' + extra + '</span>';
@@ -17056,8 +17056,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       // politician earns a gold pill and card accent.
       var teamBadge = link
         ? '<span class="pp-team-badge' + (link.rep ? ' is-rep' : '') + '" title="' +
-            (link.rep ? 'Involves one of your representatives' : 'Involves someone on your team') + '">🎯 ' +
-            (link.rep ? 'Your rep' : 'On your team') + '</span>'
+            (link.rep ? 'Involves one of your representatives' : 'Involves someone on your ballot') + '">🎯 ' +
+            (link.rep ? 'Your rep' : 'Your pick') + '</span>'
         : '';
       var count = Math.max(0, p.supportCount || 0);
       return '' +
@@ -18777,8 +18777,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       <div class="text-center mb-2 animate-on-scroll">
         <div class="va-eyebrow"><span>🎓 Voter Academy · The Deep Dive</span></div>
         <h2 class="section-title font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">EDUCATIONAL <span class="text-crimson-400">LIBRARY</span></h2>
-        <p class="va-tagline">The full deep dive: learn how the system really works — <span style="color:#fff;">then go build your team.</span></p>
-        <div class="mt-4"><a href="#my-politicians" class="inline-flex items-center gap-2 font-condensed text-xs tracking-widest uppercase text-amber-300 hover:text-white transition-colors" style="text-decoration:none;">← Back to building your Voting Team</a></div>
+        <p class="va-tagline">The full deep dive: learn how the system really works — <span style="color:#fff;">then go work your ballot.</span></p>
+        <div class="mt-4"><a href="#my-politicians" class="inline-flex items-center gap-2 font-condensed text-xs tracking-widest uppercase text-amber-300 hover:text-white transition-colors" style="text-decoration:none;">← Back to working your ballot</a></div>
         <div class="w-32 h-1 bg-gradient-to-r from-crimson-600 via-white to-blue-700 mx-auto rounded-full mt-6"></div>
 
         <!-- Academy stat chips -->
@@ -19202,7 +19202,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <p class="font-condensed text-sm tracking-widest uppercase text-steel-400 mb-3">Now take what you've learned and put it to work</p>
           <div class="flex items-center justify-center gap-4 flex-wrap">
             <a href="#voter-hub" class="inline-flex items-center gap-2 bg-crimson-600/25 hover:bg-crimson-600/40 border border-crimson-500/40 hover:border-crimson-400/60 rounded-lg px-5 py-2.5 font-condensed text-xs tracking-widest uppercase text-crimson-300 hover:text-white transition-all" style="text-decoration:none;">🗳️ See Your Reps</a>
-            <a href="#my-politicians" class="inline-flex items-center gap-2 bg-blue-600/20 hover:bg-blue-600/35 border border-blue-500/35 hover:border-blue-400/55 rounded-lg px-5 py-2.5 font-condensed text-xs tracking-widest uppercase text-blue-300 hover:text-white transition-all" style="text-decoration:none;">⭐ Build Your Team</a>
+            <a href="#my-politicians" class="inline-flex items-center gap-2 bg-blue-600/20 hover:bg-blue-600/35 border border-blue-500/35 hover:border-blue-400/55 rounded-lg px-5 py-2.5 font-condensed text-xs tracking-widest uppercase text-blue-300 hover:text-white transition-all" style="text-decoration:none;">⭐ Work Your Ballot</a>
           </div>
         </div>
       </div>
@@ -20318,7 +20318,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               <div class="text-white font-700 mb-3 text-xs flex items-center gap-1.5"><span class="text-blue-400">&#9670;</span> Features</div>
               <div class="flex flex-col gap-2.5 text-steel-400">
                 <a href="#voter-hub" class="hover:text-white transition-colors">Voter Hub</a>
-                <a href="#my-politicians" class="hover:text-white transition-colors">Build Your Team</a>
+                <a href="#my-politicians" class="hover:text-white transition-colors">Work Your Ballot</a>
                 <a href="#compare-hub" class="hover:text-white transition-colors">Compare Tool</a>
                 <a href="#wealth-leaderboard" class="hover:text-white transition-colors">Wealth Tracker</a>
                 <a href="#follow-the-money" class="hover:text-white transition-colors">Follow the Money</a>
@@ -20351,7 +20351,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         <div class="flex flex-wrap items-center justify-center gap-3 text-steel-400 text-xs font-condensed tracking-widest uppercase">
           <a href="#voter-hub" class="hover:text-white transition-colors">Voter Hub</a>
           <span class="text-steel-600">&#9733;</span>
-          <a href="#my-politicians" class="hover:text-white transition-colors">My Voting Team</a>
+          <a href="#my-politicians" class="hover:text-white transition-colors">Your Ballot</a>
           <span class="text-steel-600">&#9733;</span>
           <a href="#follow-the-money" class="hover:text-white transition-colors">Follow the Money</a>
           <span class="text-steel-600">&#9733;</span>
@@ -20410,7 +20410,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
            header ✕, which keeps a whole row of buttons out of the footer. -->
       <div id="modal-footer" class="flex-shrink-0 border-t border-white/8 bg-navy-900/70" style="backdrop-filter:blur(10px);">
         <div class="px-4 sm:px-5 pt-2.5 pb-1.5">
-          <button id="modal-addteam-btn" type="button" onclick="pdxModalToggleTeam(this)" class="myteam-add-btn" style="width:100%;justify-content:center;min-height:40px;">⭐ Add to My Team</button>
+          <button id="modal-addteam-btn" type="button" onclick="pdxModalToggleTeam(this)" class="myteam-add-btn" style="width:100%;justify-content:center;min-height:40px;">⭐ Add to ballot</button>
           <p id="modal-addteam-hint" class="font-condensed text-xs text-steel-400 tracking-wide text-center" style="margin-top:0.3rem;margin-bottom:0;line-height:1.35;"></p>
         </div>
         <!-- Compact engagement strip: react, save, comment and submit evidence,
@@ -20455,7 +20455,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       </div>
       <div id="pdx-medium-content" class="pdx-med-content"></div>
       <div class="pdx-med-foot">
-        <button id="pdx-med-team-btn" type="button" class="pdx-med-act pdx-med-act-team" onclick="window._mediumToggleTeam(this)">⭐ Add to My Team</button>
+        <button id="pdx-med-team-btn" type="button" class="pdx-med-act pdx-med-act-team" onclick="window._mediumToggleTeam(this)">⭐ Add to ballot</button>
         <div class="pdx-med-foot-row">
           <button id="pdx-med-cmp-btn" type="button" class="pdx-med-act pdx-med-act-cmp" onclick="window._mediumToggleCompare(this)">⚖️ Compare</button>
           <button type="button" class="pdx-med-act pdx-med-act-full" onclick="window._mediumViewFull()">📋 View Full Profile</button>
@@ -20629,13 +20629,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     <button type="button" class="team-dock-main" id="team-dock-main" onclick="window._teamDockNext && window._teamDockNext()" aria-label="Go to your next open ballot seat">
       <span class="team-dock-ring" id="team-dock-ring" style="--pct:0;"><span class="team-dock-ring-num" id="team-dock-ring-num">0/6</span></span>
       <span class="team-dock-text">
-        <span class="team-dock-line1" id="team-dock-line1">Build your team</span>
+        <span class="team-dock-line1" id="team-dock-line1">Work your ballot</span>
         <span class="team-dock-line2" id="team-dock-line2">Start: U.S. Senate →</span>
       </span>
     </button>
-    <button type="button" class="team-dock-up" id="team-dock-up" onclick="window._relevantScrollToTeam && window._relevantScrollToTeam()" title="Back to My Voting Team" aria-label="Back to My Voting Team">
+    <button type="button" class="team-dock-up" id="team-dock-up" onclick="window._relevantScrollToTeam && window._relevantScrollToTeam()" title="Back to your ballot" aria-label="Back to your ballot">
       <span class="team-dock-up-ico" aria-hidden="true">🗳️</span>
-      <span class="team-dock-up-txt">My Team</span>
+      <span class="team-dock-up-txt">Your ballot</span>
     </button>
   </div>
 
@@ -21123,7 +21123,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         <div class="flex items-start gap-3 bg-navy-900/50 border border-white/5 rounded-xl px-3.5 py-3">
           <span class="text-xl leading-none mt-0.5">👥</span>
           <div>
-            <div class="font-condensed text-xs tracking-wide uppercase text-white">My Voting Team</div>
+            <div class="font-condensed text-xs tracking-wide uppercase text-white">Your Ballot</div>
             <p class="text-steel-400 text-xs font-body leading-snug mt-0.5">Pick one politician per race and build a personal ballot that saves to your account.</p>
           </div>
         </div>
@@ -21158,7 +21158,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <span class="text-2xl leading-none mt-0.5" aria-hidden="true">⭐</span>
           <div>
             <div class="font-condensed text-sm tracking-wide uppercase" style="color:#86efac;font-weight:800;">PolitiDex works best when it knows where you actually live</div>
-            <p class="text-steel-300 text-xs sm:text-sm font-body leading-snug mt-1">Set your location and we'll find your exact <strong class="text-white">U.S. House</strong>, <strong class="text-white">State Senate</strong> and <strong class="text-white">State House</strong> representatives — the starting lineup for your <strong style="color:#bbf7d0;">Voting Team</strong>, built automatically.</p>
+            <p class="text-steel-300 text-xs sm:text-sm font-body leading-snug mt-1">Set your location and we'll find your exact <strong class="text-white">U.S. House</strong>, <strong class="text-white">State Senate</strong> and <strong class="text-white">State House</strong> representatives — the first seats on <strong style="color:#bbf7d0;">your ballot</strong>, resolved automatically.</p>
           </div>
         </div>
       </div>
@@ -21175,14 +21175,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           </li>
           <li class="flex items-center gap-2.5">
             <span class="flex-none w-5 h-5 rounded-full bg-crimson-600/25 border border-crimson-600/40 text-crimson-400 font-condensed font-700 text-[0.65rem] flex items-center justify-center">2</span>
-            <span class="text-steel-300 text-xs sm:text-sm font-body"><strong class="text-white">Build your Voting Team</strong> in one tap — the real people who represent you</span>
+            <span class="text-steel-300 text-xs sm:text-sm font-body"><strong class="text-white">Work your ballot</strong> in one tap — the real people who represent you</span>
           </li>
           <li class="flex items-center gap-2.5">
             <span class="flex-none w-5 h-5 rounded-full bg-crimson-600/25 border border-crimson-600/40 text-crimson-400 font-condensed font-700 text-[0.65rem] flex items-center justify-center">3</span>
             <span class="text-steel-300 text-xs sm:text-sm font-body"><strong class="text-white">See their record</strong> — promises, votes and evidence behind each one</span>
           </li>
         </ol>
-        <p class="text-steel-400 text-[0.7rem] sm:text-xs font-body leading-snug mt-3">Your team is just the people you'd vote for — chosen by <strong class="text-steel-200">your values</strong> and the <strong class="text-steel-200">districts you live in</strong>, not by party. No rush — everything saves as you go.</p>
+        <p class="text-steel-400 text-[0.7rem] sm:text-xs font-body leading-snug mt-3">Your ballot is just the people you'd vote for — chosen by <strong class="text-steel-200">your values</strong> and the <strong class="text-steel-200">districts you live in</strong>, not by party. No rush — everything saves as you go.</p>
       </div>
 
       <!-- Actions — lead with the real first step (set location → see your ballot)
@@ -21224,9 +21224,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       <div class="pdx-ob-head">
         <div class="pdx-ob-ico" aria-hidden="true">⭐</div>
         <div class="pdx-ob-eyebrow">✓ Your districts are set</div>
-        <h2 class="pdx-ob-title">Start your <span>Voting Team</span></h2>
+        <h2 class="pdx-ob-title">Start your <span>ballot</span></h2>
         <p class="pdx-ob-loc-line">📍 <span id="pdx-onboard-loc">Your area</span></p>
-        <p class="pdx-ob-lead">These are the real people who represent <strong>where you live</strong> — your U.S. House member, your State Senator and Representative, and more. Add them to <strong>My Voting Team</strong> and PolitiDex keeps their record and receipts one tap away.</p>
+        <p class="pdx-ob-lead">These are the real people who represent <strong>where you live</strong> — your U.S. House member, your State Senator and Representative, and more. Add them to <strong>your ballot</strong> and PolitiDex keeps their record and receipts one tap away.</p>
       </div>
 
       <!-- Resolved representative preview (filled by pdxOpenHomeTeamOnboard) -->
@@ -21235,18 +21235,18 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       <!-- One-glance explainer for the unified team experience -->
       <div class="pdx-ob-explain">
         <div class="pdx-ob-explain-card is-home">
-          <div class="pdx-ob-explain-h">⭐ My Voting Team</div>
+          <div class="pdx-ob-explain-h">⭐ Your ballot</div>
           <p>Your personal slate for the 2026 ballot. Start it from the real people who represent you, then swap in whoever earns your vote — it's yours to build and it stays saved.</p>
         </div>
         <div class="pdx-ob-explain-card is-research">
           <div class="pdx-ob-explain-h">🔬 Explore anyone</div>
-          <p>Browse, compare and dig into <strong>anyone</strong> — other districts, other states — without ever changing the team you're building.</p>
+          <p>Browse, compare and dig into <strong>anyone</strong> — other districts, other states — without ever changing the ballot you're working.</p>
         </div>
       </div>
 
       <!-- Actions -->
       <div class="pdx-ob-actions">
-        <button type="button" class="pdx-ob-btn-primary" onclick="window.pdxOnboardConfirmHomeTeam()">⭐ Build My Voting Team</button>
+        <button type="button" class="pdx-ob-btn-primary" onclick="window.pdxOnboardConfirmHomeTeam()">⭐ Start my ballot</button>
         <button type="button" class="pdx-ob-btn-ghost" onclick="window.pdxOnboardSkip()">🔬 Skip — just explore for now</button>
       </div>
 
@@ -22170,6 +22170,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        the original inline position: same execution order, same global scope.
        The preload scanner fetches it in parallel long before the parser gets here. -->
   <script src="/compare-hub.js"></script>
+
+  <!-- The one field function: office + state + district -> every roster pid on
+       that seat's key, holders from pdxSeatHolders only. Loaded after
+       compare-hub.js because it reads that file's roster keyers, and before
+       ballot-breakdown.js / race-sheet.js / ballot-workspace.js, which all ask
+       it rather than deriving a field of their own. -->
+  <script src="/seat-field.js"></script>
 
   <!-- Your 2026 Ballot Breakdown / My Team slate — extracted to /ballot-breakdown.js (first-paint pass). Plain sync script at
        the original inline position: same execution order, same global scope.
@@ -23297,8 +23304,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       {
         sel: '#my-politicians',
         emoji: '👥',
-        title: 'Build Your Voting Team',
-        body: 'These are your ballot slots — one pick per race. Choose the people you trust on record and values, not party, and PolitiDex builds your personal voting team. It saves automatically, and signing in syncs it across your devices.'
+        title: 'Work Your Ballot',
+        body: 'These are your ballot slots — one pick per race. Choose the people you trust on record and values, not party, and PolitiDex keeps your ballot together. It saves automatically, and signing in syncs it across your devices.'
       },
       {
         sel: '#tracker',
@@ -23705,7 +23712,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         : '<div class="rf-card__photo-fb">👤</div>';
       var pills = (tags || []).map(function (t) { return '<span class="rf-tag ' + t.cls + '">' + _rfEsc(t.label) + '</span>'; }).join('');
       var onTeam = _rfIsOnTeam(raceKey, person.pid);
-      var addLabel = onTeam ? '✓ On My Team' : '＋ Add to My Team';
+      var addLabel = onTeam ? '✓ Your pick' : '＋ Add to ballot';
       var jsPid = _rfEsc(person.pid).replace(/'/g, "\\'");
       var jsRace = _rfEsc(raceKey).replace(/'/g, "\\'");
       return '<div class="rf-card is-' + variant + '">' +
@@ -24196,10 +24203,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var scope = (st.nextScope && st.nextScope.indexOf('District') === 0) ? ' · ' + st.nextScope : '';
       var nm = st.nextLabel || '';
       if (st.complete) {
-        if (l1) l1.textContent = '🎉 Team complete';
+        if (l1) l1.textContent = '🎉 Ballot complete';
         if (l2) l2.textContent = 'See your ballot →';
       } else if (st.filled === 0) {
-        if (l1) l1.textContent = 'Build your team';
+        if (l1) l1.textContent = 'Work your ballot';
         if (l2) l2.textContent = 'Start: ' + nm + scope + ' →';
       } else {
         if (l1) l1.textContent = st.filled + ' of ' + st.total + ' seats';
@@ -24378,7 +24385,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       if (el('pdx-fr-kicker')) el('pdx-fr-kicker').innerHTML = proposal ? '🎉 Your voice is counted' : '🎉 Nice — you\'re rolling';
       if (el('pdx-fr-stepof')) el('pdx-fr-stepof').textContent = '';
       if (el('pdx-fr-ico')) el('pdx-fr-ico').textContent = proposal ? '📜' : '⭐';
-      if (el('pdx-fr-title')) el('pdx-fr-title').textContent = proposal ? 'You backed your first reform' : 'Your team has its first pick';
+      if (el('pdx-fr-title')) el('pdx-fr-title').textContent = proposal ? 'You backed your first reform' : 'Your ballot has its first pick';
       if (el('pdx-fr-desc')) el('pdx-fr-desc').innerHTML = proposal
         ? 'That\'s real participation — your support is counted in <strong>The People\'s Mandate</strong>. Add the reps who earn your vote whenever you\'re ready.'
         : 'That\'s how it works — one race at a time, saved as you go. Keep filling the rest of your ballot whenever you\'re ready.';
@@ -24834,7 +24841,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       }
       var rankBadge = rank<=3 ? ['🥇','🥈','🥉'][rank-1] : '#'+rank;
       var ot=onTeam(pid);
-      var teamBtn='<button type="button" class="amb-add'+(ot?' on':'')+'" onclick="event.stopPropagation();ambToggleTeam(\''+pid+'\')" aria-label="'+(ot?'Remove '+_e(d.name)+' from your team':'Add '+_e(d.name)+' to your team')+'">'+(ot?'✓ On team':'⭐ Add')+'</button>';
+      var teamBtn='<button type="button" class="amb-add'+(ot?' on':'')+'" onclick="event.stopPropagation();ambToggleTeam(\''+pid+'\')" aria-label="'+(ot?'Remove '+_e(d.name)+' from your ballot':'Add '+_e(d.name)+' to your ballot')+'">'+(ot?'✓ Your pick':'⭐ Add')+'</button>';
       var bigNum=(s==null)?'<span class="amb-na">—</span>':'<span class="amb-pct" style="color:'+c+';">'+s+'<i>%</i></span>';
       var meter=(s==null)?'':'<div class="amb-meter"><div style="width:'+s+'%;background:linear-gradient(90deg,'+c+'88,'+c+');"></div></div>';
       var matchLine=(s==null)
@@ -24873,7 +24880,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var s=scoreOf(pid); var c=col(s==null?0:s); var ot=onTeam(pid);
       var pm=party(d.party); var office=(d.office||'');
       var sub=(pm.l?'<span style="color:'+pm.c+';">'+pm.l+'</span>':'')+(office?(pm.l?' · ':'')+_e(office):'');
-      var addBtn='<button type="button" class="amb-hero-add'+(ot?' on':'')+'" onclick="event.stopPropagation();ambToggleTeam(\''+pid+'\')" aria-label="'+(ot?'Remove '+_e(d.name)+' from your team':'Add '+_e(d.name)+' to your team')+'">'+(ot?'✓ On team':'⭐ Add to team')+'</button>';
+      var addBtn='<button type="button" class="amb-hero-add'+(ot?' on':'')+'" onclick="event.stopPropagation();ambToggleTeam(\''+pid+'\')" aria-label="'+(ot?'Remove '+_e(d.name)+' from your ballot':'Add '+_e(d.name)+' to your ballot')+'">'+(ot?'✓ Your pick':'⭐ Add to ballot')+'</button>';
       var pct=(s==null)?'—':s+'<i>%</i>';
       return '<div class="amb-hero" style="border-color:'+c+'66;box-shadow:0 0 24px '+c+'22, inset 0 1px 0 rgba(255,255,255,0.04);" onclick="ambBreakdown(\''+pid+'\')">'+
           '<span class="amb-hero-tag">🏆 Your top match</span>'+
@@ -24907,7 +24914,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         host.innerHTML='<div class="amb-summary"><div class="amb-sum-row"><span class="amb-sum-t">Pick the issues you care about</span></div></div>'+
           '<div class="amb-empty"><div class="amb-empty-ico">🎯</div>'+
             '<div class="amb-empty-t">Compare everyone by what <i>you</i> believe</div>'+
-            '<div class="amb-empty-s">Pick a few issues and we’ll rank these politicians by how well their record matches yours — then add your best matches to your team. No party labels.</div>'+
+            '<div class="amb-empty-s">Pick a few issues and we’ll rank these politicians by how well their record matches yours — then add your best matches to your ballot. No party labels.</div>'+
             pickerHtml()+
           '</div>';
         return;
@@ -24986,13 +24993,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           '<div class="amb-head">'+
             '<div class="amb-eyebrow">🏆 Values Match</div>'+
             '<h2 class="amb-title">Your Best Matches</h2>'+
-            '<p class="amb-tagline">Rank these politicians by how their record lines up with the issues <em>you</em> care about — then add your top fits to your team.</p>'+
+            '<p class="amb-tagline">Rank these politicians by how their record lines up with the issues <em>you</em> care about — then add your top fits to your ballot.</p>'+
             '<button type="button" class="amb-x" onclick="closeAlignBoard()" aria-label="Close">✕</button>'+
             '<div class="amb-tabs" id="amb-tabs"></div>'+
           '</div>'+
           '<div class="amb-body" id="amb-body"></div>'+
           '<div class="amb-foot">'+
-            '<span class="amb-foot-note">Your picks save to <b style="color:#cbd9ec;">My Voting Team</b> and your match shows on every card.</span>'+
+            '<span class="amb-foot-note">Your picks save to <b style="color:#cbd9ec;">your ballot</b> and your match shows on every card.</span>'+
             '<button type="button" class="amb-done" onclick="ambDone()">Done</button>'+
           '</div>'+
         '</div>';
@@ -26933,9 +26940,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // mandate section, then scroll it into the modal's own scroll container and
     // flash it so the visitor lands on exactly the connected-reforms cue the
     // chip promised, instead of the top of the modal.
+    // NOT a person door. Every surface that opens a PERSON now opens the person
+    // file at /p/<pid>; this chip opens a SECTION — the People's Mandate
+    // connections for one politician — which only the compact card renders, and
+    // it scrolls the reader to exactly that section. So it addresses the compact
+    // renderer directly rather than going through openMediumModal, which is now
+    // the door to the file.
     window._pdxMandateOpenCard = function (id) {
-      if (!id || typeof window.openMediumModal !== 'function') return;
-      window.openMediumModal(id);
+      if (!id || typeof window._pdxMediumCompact !== 'function') return;
+      window._pdxMediumCompact(id);
       var tries = 0;
       (function focus() {
         if (window._pdxMediumId !== id) return;   // visitor moved on
@@ -31727,7 +31740,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var meta = metaBits.join(' · ');
 
       var pills = '<div class="msv-pill-row">' +
-        (onTeam ? '<span class="msv-tag msv-tag--team" title="This receipt belongs to someone on your team — a representative or a politician you track">⭐ On your team</span>' : '') +
+        (onTeam ? '<span class="msv-tag msv-tag--team" title="This receipt belongs to someone on your ballot — a representative or a politician you track">⭐ Your pick</span>' : '') +
         stancePillHtml(s) +
         (s.pledge ? '<span class="msv-tag msv-tag--pledge">Pledge</span>' : '') +
         (s.sourceLabel ? '<span class="msv-tag msv-tag--src">' + esc(s.sourceLabel) + '</span>' : '') + '</div>';
@@ -31869,7 +31882,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         '<div class="msv-acts">' +
           act('profile', '👤', 'View profile', 'data-pol="' + esc(id) + '"', 'msv-act--primary') +
           act('evidence', '🗄', 'Evidence Locker', 'data-pol="' + esc(id) + '" data-issue=""') +
-          act('remove-pol', '✕', 'Remove from team', 'data-pol="' + esc(id) + '"', 'msv-act--danger') +
+          act('remove-pol', '✕', 'Remove from ballot', 'data-pol="' + esc(id) + '"', 'msv-act--danger') +
         '</div>' +
       '</div>';
     }
@@ -31919,7 +31932,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // The team-level "Clear my team" control. Reused in the summary strip and the
     // Politicians tab header. Rendered only when there's actually a team to clear.
     function clearTeamBtn() {
-      return act('clear-team', '🗑', 'Clear my team', 'aria-label="Clear my team — removes everyone from My Voting Team"', 'msv-act--danger');
+      return act('clear-team', '🗑', 'Clear my ballot', 'aria-label="Clear my ballot — removes every pick from your ballot"', 'msv-act--danger');
     }
 
     // Live-count summary strip pinned to the top of the panel. Pluralizes cleanly
@@ -32072,7 +32085,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       var body = '';
       if (counts.all === 0) {
         body = emptyBlock('🔖', 'Nothing saved yet',
-          'Open <button type="button" class="msv-eye-link" data-msv-act="focus-eye">the All-Seeing Eye</button> and hit <b>Save</b> on any receipt, issue or Spotlight — or add a politician to <b>My Team</b>. Everything you keep lands right here.');
+          'Open <button type="button" class="msv-eye-link" data-msv-act="focus-eye">the All-Seeing Eye</button> and hit <b>Save</b> on any receipt, issue or Spotlight — or add a politician to <b>your ballot</b>. Everything you keep lands right here.');
       } else if (activeTab === 'evidence') {
         body = renderEvidence(rc);
       } else if (activeTab === 'issues') {
@@ -32083,15 +32096,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           ? '<div class="msv-summary" style="margin-bottom:0.9rem;">' +
               '<div class="msv-summary-counts">' +
                 '<span class="msv-summary-stat"><b>' + team.length + '</b> ' +
-                  (team.length === 1 ? 'politician' : 'politicians') + ' on your team</span>' +
+                  (team.length === 1 ? 'politician' : 'politicians') + ' on your ballot</span>' +
               '</div>' + clearTeamBtn() +
             '</div>' + grid(team.map(polCard))
-          : emptyBlock('🏛', 'Your team is empty', 'Add representatives to <b>My Team</b> from any profile or the All-Seeing Eye, and they will appear here.');
+          : emptyBlock('🏛', 'Your ballot is empty', 'Add representatives to <b>your ballot</b> from any profile or the All-Seeing Eye, and they will appear here.');
       } else {
         // All Saved — a compact overview of every group, newest surfaces first.
         body = groupBlock('My Evidence — Receipts', '#5eead4', 'evidence', teamFirst(rc).map(receiptCard), 4) +
           groupBlock('Issues & Spotlights', '#fb923c', 'issues', iss.map(issueCard), 4) +
-          groupBlock('Politicians · My Team', '#f5c842', 'pols', team.map(polCard), 6);
+          groupBlock('Politicians · Your Ballot', '#f5c842', 'pols', team.map(polCard), 6);
       }
 
       host.innerHTML =
@@ -32100,7 +32113,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             '<div>' +
               '<div class="msv-eyebrow"><span class="msv-eyebrow-dot"></span>My Workspace</div>' +
               '<h2 class="msv-title">My <b>Saved</b></h2>' +
-              '<div class="msv-sub">Everything you\'ve kept from the All-Seeing Eye — your <b>evidence receipts</b>, the issues and Spotlights you\'re tracking, and your team — in one place.</div>' +
+              '<div class="msv-sub">Everything you\'ve kept from the All-Seeing Eye — your <b>evidence receipts</b>, the issues and Spotlights you\'re tracking, and your ballot — in one place.</div>' +
             '</div>' +
           '</div>' +
           (counts.all > 0 ? summaryHtml(counts) : '') +
@@ -32222,10 +32235,10 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           // (mypolClearAll → roster + active ballot) and the protected saved
           // Home Team (homeBaseClearAll → politidex_home_base). Neither helper
           // emits a same-tab pdx-saved-change, so re-render + recount locally.
-          if (!window.confirm('Clear your team? This removes everyone from My Voting Team. Your evidence receipts and saved issues are kept.')) return;
+          if (!window.confirm('Clear your ballot? This removes every pick from your ballot. Your evidence receipts and saved issues are kept.')) return;
           if (typeof window.mypolClearAll === 'function') window.mypolClearAll();
           if (typeof window.homeBaseClearAll === 'function') window.homeBaseClearAll();
-          toast('Team cleared');
+          toast('Ballot cleared');
           render(); updateNavCount();
           return;
         }
@@ -32376,7 +32389,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       el.innerHTML =
         '<span aria-hidden="true" style="font-size:1.05rem">📡</span>' +
         '<span><strong style="color:#fff">You’re offline</strong> — some features are limited. ' +
-        'Your saved team &amp; evidence are still available.</span>';
+        'Your saved ballot &amp; evidence are still available.</span>';
       (document.body || document.documentElement).appendChild(el);
       return el;
     }

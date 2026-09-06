@@ -77,6 +77,7 @@ const FILES = [
   "my-stances.js",
   "voter-hub-location.js",
   "compare-hub.js",
+  "seat-field.js",
   "ballot-breakdown.js",
   "who-represents-me.js",
 ];
@@ -384,7 +385,7 @@ section("6 · A pick from the sheet reaches the seat row and the team store");
   const pick = fld[0];
 
   has(w.pdxSeatStrip(rk, {}), "No pick yet", "an empty team slot does not say so");
-  lacks(w.pdxSeatStrip(rk, {}), "On your team", "an empty slot claims a pick");
+  lacks(w.pdxSeatStrip(rk, {}), "Your pick", "an empty slot claims a pick");
 
   sheetHtml(w, rk);
   w.pdxRaceSheetPick(rk, pick.pid);
@@ -397,13 +398,13 @@ section("6 · A pick from the sheet reaches the seat row and the team store");
     "the pick created a second team store");
 
   const strip = w.pdxSeatStrip(rk, {});
-  has(strip, "On your team", "the seat strip does not reflect the pick");
+  has(strip, "Your pick", "the seat strip does not reflect the pick");
   has(strip, pick.name, "the seat strip does not name the pick");
   lacks(strip, "No pick yet", "the seat strip still shows the slot as empty");
 
   // And it reaches the painted seat lists without anything else being touched.
-  has(wrmHtml(w), "On your team", "the homepage seat list did not learn about the pick");
-  has(vhHtml(w), "On your team", "the Voter Hub seat list did not learn about the pick");
+  has(wrmHtml(w), "Your pick", "the homepage seat list did not learn about the pick");
+  has(vhHtml(w), "Your pick", "the Voter Hub seat list did not learn about the pick");
 
   // One pick per office: a second add to the same seat replaces, never stacks.
   if (fld.length >= 2) {
@@ -437,7 +438,7 @@ section("7 · The spine comes first, and no headline sells browse-by-score");
   // The Door-2 election block leads with the seat path, not a roster.
   const sh = HTML.slice(iStart, iStart + 12000);
   has(sh, "See who represents me", "the Door-2 block lost its primary seat CTA");
-  has(sh, "Your seats → compare the field → pick for your team.",
+  has(sh, "Your seats → compare the field → pick for your ballot.",
     "the Door-2 block does not state the spine");
 
   // The compare hub is a research tool now, and says so.
@@ -456,7 +457,7 @@ section("7 · The spine comes first, and no headline sells browse-by-score");
     "My Voting Team is no longer in the same nav row");
 
   // The spine line reads the same everywhere it is stated.
-  const SPINE = "Your seats → compare the field → pick for your team.";
+  const SPINE = "Your seats → compare the field → pick for your ballot.";
   ok(HTML.indexOf(SPINE) >= 0, "the spine line is not in index.html");
   ok(R("who-represents-me.js").indexOf("compare the field") >= 0,
     "the homepage seat list does not carry the spine line");

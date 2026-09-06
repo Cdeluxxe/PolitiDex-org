@@ -905,7 +905,7 @@
     if (!n) {
       return '<div class="ms-summary is-empty">' +
         '<div class="ms-sum-emptytitle">You haven’t taken any positions yet</div>' +
-        '<div class="ms-sum-emptybody">Pick an issue below and choose <strong>Support</strong>, <strong>Oppose</strong> or <strong>Mixed</strong> — this is <strong>what you stand for</strong>. As you do, the <strong>Alignment Tool</strong> shows <em>who matches</em> you — and, where their formal record is deep enough to test, whether it backs them up. Set stances → see matches → build your team.</div>' +
+        '<div class="ms-sum-emptybody">Pick an issue below and choose <strong>Support</strong>, <strong>Oppose</strong> or <strong>Mixed</strong> — this is <strong>what you stand for</strong>. As you do, the <strong>Alignment Tool</strong> shows <em>who matches</em> you — and, where their formal record is deep enough to test, whether it backs them up. Set stances → see matches → work your ballot.</div>' +
         '</div>';
     }
     var chips = items.map(function (r) {
@@ -952,7 +952,7 @@
     var actions = '';
     if (live) {
       actions =
-        '<button type="button" class="ms-pow-btn" data-ms-act="team">⚖️ Compare my team by match</button>' +
+        '<button type="button" class="ms-pow-btn" data-ms-act="team">⚖️ Compare my picks by match</button>' +
         '<button type="button" class="ms-pow-btn" data-ms-act="align">🎯 Open the Alignment Tool</button>' +
         '<button type="button" class="ms-pow-btn" data-ms-act="library">📚 See where politicians stand</button>';
     }

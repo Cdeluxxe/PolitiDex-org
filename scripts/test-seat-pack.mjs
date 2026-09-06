@@ -71,6 +71,7 @@ const FILES = [
   "my-stances.js",
   "voter-hub-location.js",
   "compare-hub.js",
+  "seat-field.js",
   "ballot-breakdown.js",
   "who-represents-me.js",
 ];
@@ -367,14 +368,40 @@ section("4 · Officeholder-only copy requires an officeholder");
 {
   const LINE = "Only the officeholder is on file";
 
-  // A real one-person field where the one IS the incumbent. SD-24 is that case
-  // for this fixture: the roster carries exactly the sitting senator.
+  // A one-person field where the one IS the incumbent. This used to be SD-24
+  // as the roster shipped it — the sitting senator and nobody else. It is not
+  // any more: the seat's field is now every roster row on that office + state +
+  // district key, and SD-24 also carries a FORMER senator for the same
+  // district. Two people on the seat is the honest answer (the sheet labels the
+  // second one as out of office), so the one-person case is forced here the same
+  // way the lone-challenger case below it already was — at _ballotCandidates,
+  // the hook the sheet actually reads.
   const wInc = boot();
+  const INCUMBENT = "kstratton";
+  const incReal = wInc._ballotCandidates;
+  wInc._ballotCandidates = function (rk) {
+    if (rk !== "statesenate") return incReal.call(wInc, rk);
+    return [{ pid: INCUMBENT, name: wInc.CMP_DATA[INCUMBENT].name }];
+  };
   const incField = wInc.PDXRaceSheet._field("statesenate");
-  eq(incField.length, 1, "SD-24's field is no longer exactly one person");
+  eq(incField.length, 1, "the forced one-person field is not exactly one person");
   eq(incField[0].incumbent, true, "SD-24's one candidate is not marked as the officeholder");
   has(sheetHtml(wInc, "statesenate"), LINE,
     "a lone officeholder did not get the officeholder-only line");
+  wInc._ballotCandidates = incReal;
+
+  // And the unforced field really does carry more than the officeholder, so the
+  // comment above is a statement about the roster rather than an excuse.
+  const wReal = boot();
+  const realField = wReal.PDXRaceSheet._field("statesenate");
+  ok(realField.length >= 2,
+    "SD-24's field is one person again — the seat field stopped carrying every roster row on the key");
+  ok(realField.some((c) => c.pid === INCUMBENT && c.incumbent),
+    "SD-24's sitting senator is not in, or not marked in, the seat's own field");
+  ok(realField.filter((c) => c.incumbent).length === 1,
+    "more than one person on SD-24 is marked as holding it");
+  lacks(sheetHtml(wReal, "statesenate"), LINE,
+    "a field with more than one person on file still claims only the officeholder is on file");
 
   // …and the same seat with ONE person on file who is NOT the officeholder — a
   // filing certified before the incumbent's, or a seat whose holder the roster

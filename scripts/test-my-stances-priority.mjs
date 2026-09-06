@@ -63,6 +63,7 @@ const FILES = [
   "my-stances.js",
   "voter-hub-location.js",
   "compare-hub.js",
+  "seat-field.js",
   "ballot-breakdown.js",
   "race-sheet.js",
 ];

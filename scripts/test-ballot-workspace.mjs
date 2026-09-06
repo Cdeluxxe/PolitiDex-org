@@ -69,6 +69,7 @@ const FILES = [
   "my-stances.js",
   "voter-hub-location.js",
   "compare-hub.js",
+  "seat-field.js",
   "ballot-breakdown.js",
   "who-represents-me.js",
 ];
@@ -270,7 +271,7 @@ section("3 · The seat is the working surface");
   has(html, "bw-field", "the field is not on the seat panel");
   const picks = (html.match(/pdxBallotWorkspacePick\('/g) || []).length;
   ok(picks >= 2, `the panel offers ${picks} pick controls for a field of 2+`);
-  has(html, "Add to my team", "the panel offers no way to take a pick");
+  has(html, "Add to ballot", "the panel offers no way to take a pick");
   // And the full side-by-side is still one tap away, for a reader who wants it.
   has(html, `pdxOpenRaceSheet('${sm.key}')`, "the panel cannot hand off to the full sheet");
 }
@@ -456,16 +457,16 @@ section("6 · A pick stays on the surface and reaches every host");
 
   // Rail, count and panel all move — that is the persistence the old surface
   // lost every time the reader changed seats.
-  has(html, "On your team", "the panel does not reflect the pick");
+  has(html, "Your pick", "the panel does not reflect the pick");
   has(html, pick.name, "the surface does not name the pick");
   has(html, "is-picked", "the rail chip does not show the seat as decided");
-  has(html, "On my team", "the pick button did not become the on-team state");
+  has(html, "\u2713 Your pick", "the pick button did not become the picked state");
   has(html, "1<small>", "the progress figure did not count the pick");
 
   // And it reaches the OTHER hosts, because ballotPickCard is still the writer.
   w.PDXWhoRepresentsMe.sync();
   const wrm = String(w.document.getElementById("wrm-reps").innerHTML || "");
-  has(wrm, "On your team", "the seat list did not learn about the pick");
+  has(wrm, "Your pick", "the seat list did not learn about the pick");
 
   // Replacing swaps rather than stacking: one pick per seat is the store's rule.
   if (all.length >= 2) {
@@ -533,8 +534,8 @@ section("8 · Thin, empty and unmapped are four different sentences");
   if (one) {
     w1.pdxBallotWorkspaceOpen(one.key);
     const html = paint(w1);
-    has(html, "Only one person is on file", "a field of one is presented as a comparison");
-    has(html, "not a finding about the seat", "a field of one reads as a finding about the seat");
+    has(html, "No other person on file", "a field of one is presented as a comparison");
+    has(html, "not a claim that the seat is unopposed", "a field of one reads as a finding about the seat");
     has(html, "pdxBallotWorkspacePick", "a field of one cannot be picked");
     lacks(html, "Ordered by", "a field of one claims to have been ordered");
   } else { passed += 4; }
@@ -673,7 +674,7 @@ section("11 · Degrades without the workspace, and never double-hooks");
   const wrm = String(w.document.getElementById("wrm-reps").innerHTML || "");
   has(wrm, "rs-seat-strip", "the seat strip broke without the workspace");
   lacks(wrm, "rs-seat-work", "the strip paints a workspace control the page cannot honour");
-  has(wrm, "Build my voting team", "the seat list has no fallback way on");
+  has(wrm, "Work your ballot", "the seat list has no fallback way on");
   ok(typeof w.pdxOpenRaceSheet === "function", "the race sheet broke without the workspace");
 
   // The pick writer is wrapped, not replaced, and wrapping is idempotent — a

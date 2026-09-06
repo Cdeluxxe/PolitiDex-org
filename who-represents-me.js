@@ -356,7 +356,7 @@
           '\u2696\ufe0f Compare them on an issue</button>' +
         '<button type="button" class="wrm-next-btn' + subCls + '"' +
           ' onclick="var e=document.getElementById(\'my-politicians\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});">' +
-          '\u2b50 Build my voting team <em>(optional)</em></button>' +
+          '\u2b50 Work your ballot <em>(optional)</em></button>' +
         localButton(cov) +
       '</div>' +
       localGapNote(cov) +
@@ -432,7 +432,7 @@
         // The whole election path in six words, above the rows it describes.
         // Every seat below carries the same three-part strip, so this line is a
         // legend for the list rather than a slogan.
-        '<p class="wrm-spine">Your seats \u2192 compare the field \u2192 pick for your team.</p>' +
+        '<p class="wrm-spine">Your seats \u2192 compare the field \u2192 pick for your ballot.</p>' +
         '<div class="wrm-rows">' + rows + '</div>' +
         (reps.redrawn
           ? '<p class="wrm-redrawn">Your U.S. House district was redrawn for 2026. The name above is who represents you <strong>right now</strong>; the Voter Hub shows the district you&rsquo;ll actually vote in.</p>'

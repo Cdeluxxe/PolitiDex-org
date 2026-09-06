@@ -1617,8 +1617,8 @@
       // and reveal the forward actions that jump to their best-match candidates.
       var ct = document.getElementById('align-compact-tagline');
       if (ct) ct.textContent = (n === 0)
-        ? 'Set your stances — what you stand for — then this shows who matches, plus whether their record backs it up. Add your best matches to your team.'
-        : '🎯 Your Match and 🏛️ Official Record now show on every candidate — see who fits, then tap “Add to my team” or “See the receipts” right on each card.';
+        ? 'Set your stances — what you stand for — then this shows who matches, plus whether their record backs it up. Add your best matches to your ballot.'
+        : '🎯 Your Match and 🏛️ Official Record now show on every candidate — see who fits, then tap “Add to ballot” or “See the receipts” right on each card.';
       var cm = document.getElementById('align-compact-matches');
       if (cm) cm.style.display = (n === 0) ? 'none' : 'inline-flex';
       _alignRenderModeRow();
@@ -3549,7 +3549,7 @@
           drivers.map(function(i) { return issueChip(i, 'good'); }).join('') + '</div>';
       }
       if (weak.length) {
-        driversHtml += '<div class="myteam-ao-drow"><span class="myteam-ao-drow-lab" style="color:#fca5a5;">▼ Where your team falls short</span>' +
+        driversHtml += '<div class="myteam-ao-drow"><span class="myteam-ao-drow-lab" style="color:#fca5a5;">▼ Where your picks fall short</span>' +
           weak.map(function(i) { return issueChip(i, 'bad'); }).join('') + '</div>';
       }
       if (!driversHtml) {
@@ -3565,7 +3565,7 @@
       var splitHtml = '';
       var _splits = (ta.splits || []).slice(0, 2);
       if (_splits.length) {
-        splitHtml = '<div class="myteam-ao-drow is-split"><span class="myteam-ao-drow-lab" style="color:#fcd34d;">⚖ Where your team splits</span>' +
+        splitHtml = '<div class="myteam-ao-drow is-split"><span class="myteam-ao-drow-lab" style="color:#fcd34d;">⚖ Where your picks split</span>' +
           _splits.map(function (i) {
             return '<span class="myteam-ao-issue split" title="Your picks range from ' + i.low + '% to ' + i.high +
                 '% here — the ' + i.score + '% average hides that" style="border-color:#fcd34d4d;">' +
@@ -3632,7 +3632,7 @@
           '<div class="myteam-ao-score" style="color:' + col + ';text-shadow:0 0 22px ' + col + '55;">' + ta.overall + '<span>%</span></div>' +
           '<div class="myteam-ao-head">' +
             '<div class="myteam-ao-title">🎯 Team Alignment Overview</div>' +
-            '<div class="myteam-ao-sentence">Your team is <b style="color:' + col + ';">' + ta.overall + '% ' + word + '</b> with your values' +
+            '<div class="myteam-ao-sentence">Your ballot is <b style="color:' + col + ';">' + ta.overall + '% ' + word + '</b> with your values' +
               '<span class="myteam-ao-sub"> · averaged across ' + ta.members.length + ' pick' + (ta.members.length === 1 ? '' : 's') + ' &amp; your ' + nIssues + ' issue' + (nIssues === 1 ? '' : 's') + '</span></div>' +
             '<div class="myteam-ao-track"><span style="width:' + ta.overall + '%;background:linear-gradient(90deg,' + col + '88,' + col + ');"></span></div>' +
           '</div>' +
@@ -3716,8 +3716,8 @@
       var html = '<div class="myteam-ev-head">' +
           '<span class="myteam-ev-ico" aria-hidden="true">📂</span>' +
           '<div class="myteam-ev-head-tx">' +
-            '<div class="myteam-ev-title">My Team’s Evidence</div>' +
-            '<div class="myteam-ev-sub">Go straight from your team to what the record actually shows — every link opens the receipts in the Evidence Locker.</div>' +
+            '<div class="myteam-ev-title">Your Ballot’s Evidence</div>' +
+            '<div class="myteam-ev-sub">Go straight from your picks to what the record actually shows — every link opens the receipts in the Evidence Locker.</div>' +
           '</div>' +
         '</div>';
 
@@ -3849,9 +3849,9 @@
       if (!btn) return;
       btn.classList.toggle('is-on', on);
       btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-      btn.setAttribute('aria-label', on ? 'On your team — tap to remove' : 'Add to your team');
+      btn.setAttribute('aria-label', on ? 'Your pick — tap to remove' : 'Add to your ballot');
       btn.innerHTML = '<span aria-hidden="true">' + (on ? '✓' : '＋') + '</span>' +
-        '<span class="align-ma-lb">' + (on ? 'On my team' : 'Add to my team') + '</span>';
+        '<span class="align-ma-lb">' + (on ? 'Your pick' : 'Add to ballot') + '</span>';
       if (on) { btn.classList.remove('just-added'); void btn.offsetWidth; btn.classList.add('just-added'); setTimeout(function () { try { btn.classList.remove('just-added'); } catch (e) {} }, 520); }
     }
 
@@ -3917,10 +3917,10 @@
       var teamBtn = opts.receiptsOnly ? '' :
         '<button type="button" class="align-ma-btn align-ma-team' + (onTeam ? ' is-on' : '') + '" ' +
           'aria-pressed="' + (onTeam ? 'true' : 'false') + '" ' +
-          'aria-label="' + (onTeam ? 'On your team — tap to remove' : 'Add to your team') + '" ' +
+          'aria-label="' + (onTeam ? 'Your pick — tap to remove' : 'Add to your ballot') + '" ' +
           'onclick="event.stopPropagation();if(window.alignTeamToggle)window.alignTeamToggle(this,\'' + pidA + '\')">' +
           '<span aria-hidden="true">' + (onTeam ? '✓' : '＋') + '</span>' +
-          '<span class="align-ma-lb">' + (onTeam ? 'On my team' : 'Add to my team') + '</span></button>';
+          '<span class="align-ma-lb">' + (onTeam ? 'Your pick' : 'Add to ballot') + '</span></button>';
 
       var recBtn =
         '<button type="button" class="align-ma-btn align-ma-receipts" ' +

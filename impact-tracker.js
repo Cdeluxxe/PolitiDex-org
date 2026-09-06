@@ -58,7 +58,7 @@
     { key: 'reforms',    icon: '📢', label: 'Reforms supported',      blurb: 'community reforms you backed' },
     { key: 'shared',     icon: '🗣️', label: 'Contributions shared',   blurb: 'evidence, leads & threads you started' },
     { key: 'discussed',  icon: '💬', label: 'Discussions joined',     blurb: 'comments & replies you posted' },
-    { key: 'picks',      icon: '🗳️', label: 'Ballot picks saved',     blurb: 'candidates on your voting team' }
+    { key: 'picks',      icon: '🗳️', label: 'Ballot picks saved',     blurb: 'candidates on your ballot' }
   ];
   var UNIQUE = { researched: true, reviewed: true, issues: true, picks: true };
   var METRIC_KEYS = METRICS.map(function (m) { return m.key; });

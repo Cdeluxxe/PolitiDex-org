@@ -612,7 +612,7 @@
         // ── Foot ──
         '<div class="hr1-foot">' +
           '<a class="hr1-foot-btn is-primary" href="#say-vs-do">🧾 See more Say-vs-Do receipts</a>' +
-          '<a class="hr1-foot-btn" href="#my-politicians">⭐ Build your voting team</a>' +
+          '<a class="hr1-foot-btn" href="#my-politicians">⭐ Work your ballot</a>' +
           '<button type="button" class="hr1-foot-btn" onclick="if(window.PDXConsistency&amp;&amp;window.PDXConsistency.openMethodology)window.PDXConsistency.openMethodology()">🧩 How multi-issue votes are scored</button>' +
         '</div>' +
       '</div>';

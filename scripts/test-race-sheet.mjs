@@ -70,6 +70,7 @@ const FILES = [
   "my-stances.js",
   "voter-hub-location.js",
   "compare-hub.js",
+  "seat-field.js",
   "ballot-breakdown.js",
 ];
 const SRC = FILES.map((f) => [f, R(f)]);
@@ -465,12 +466,12 @@ section("8 · one pick per office, added or replaced from the sheet");
   const store = {};
   const w = withPicks(seeded({ store }));
   sheetHtml(w);
-  has(sheetHtml(w), "➕ Add to my team", "an unfilled seat offers the add");
+  has(sheetHtml(w), "➕ Add to ballot", "an unfilled seat offers the add");
 
   w.pdxRaceSheetPick(SEAT, A_PID);
   const afterAdd = JSON.parse(store.politidex_my_team || "{}");
   eq(afterAdd[SEAT], A_PID, "the pick lands in the ballot store My Voting Team reads");
-  has(sheetHtml(w), "✓ On my team", "…and the sheet shows it as picked");
+  has(sheetHtml(w), "✓ Your pick", "…and the sheet shows it as picked");
   has(sheetHtml(w), "Replace my pick", "…while the rival now offers a replace");
 
   w.pdxRaceSheetPick(SEAT, B_PID);
