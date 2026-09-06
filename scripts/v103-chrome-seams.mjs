@@ -1572,9 +1572,44 @@ export function assertWordActionSeams(bodies, api) {
     "the one-line finding paraphrases the pattern row instead of printing the row's own sentence");
   has(oneLine, "briefRecordOnHand(pid)",
     "the one-line finding decides a candidate has no record without asking whether one is on hand");
-  has(oneLine, "if (!briefWaitOver(pid))",
+  has(oneLine, "if (recordLineWaiting(pid))",
     "the one-line finding calls a record absent while it may still be arriving — the default is " +
     "\"still loading\", the same as the brief's");
+  // AND THAT WAIT IS BOUNDED. It used to be `!briefWaitOver(pid)` alone, and
+  // briefWaitOver only ends when briefNoted files a record or briefGaveUp fires —
+  // and briefGaveUp is set by armBriefDeadline, which only the brief's own
+  // paragraph arms. A list card arms nothing, so on a request that was started and
+  // never filed the sentence was permanent: five cards read "Formal record still
+  // loading…" for the whole life of the page about people whose record was empty.
+  has(oneLine, "function recordLineWaiting(pid) {",
+    "the wait has no owner of its own again, so whatever gates the loading sentence has no deadline");
+  has(oneLine, "briefSettled(pid)",
+    "the bounded wait no longer asks the lane's own settled answer (consistency.js publishes it with " +
+    "a deadline of its own), so a started-and-never-filed request never ends the sentence");
+  has(oneLine, "RECORD_LINE_WAIT_MS",
+    "the bounded wait lost its own wall clock, so it is back to trusting two predicates that can both " +
+    "stay false forever");
+  {
+    const w = oneLine.slice(oneLine.indexOf("function recordLineWaiting(pid) {"));
+    const body = w.slice(0, w.indexOf("\n  }"));
+    ok(/Date\.now\(\)/.test(body),
+      "recordLineWaiting no longer reads a clock, so its wall-clock bound cannot expire");
+    ok(!/setTimeout|setInterval|requestAnimationFrame|repaint|render/i.test(body),
+      "recordLineWaiting arms a timer or schedules a paint — it is read-only by design, because a " +
+      "list arms one per row and the card's warm listener is what brings it back");
+  }
+  // AND THE ROW'S RENDERED CHIP DOES NOT COME BACK OUT OF HERE. The shape rows
+  // this reads carry `chip`, which is _stPatternHtml's .pdxst-pat span — HTML —
+  // and a card that printed the object's fields as text painted the tag source.
+  {
+    const c = oneLine.replace(/^\s*\/\/.*$/gm, "");
+    ok(!/\bout\.chip\b|chip:\s*row|chip:\s*x\.|\.chip\b/.test(c),
+      "the one-line finding carries the shape row's `chip` again. That field is the characterisation " +
+      "engine's RENDERED span, and every field on this object is documented as text — a caller that " +
+      "escapes it prints the markup, a caller that does not mounts a node it never authored");
+    ok(!/outerHTML|shapeRowHtml|<span/.test(c),
+      "the one-line finding grew markup of its own — it returns a sentence, not a node");
+  }
   {
     const c = oneLine.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
     ok(!/toFixed|\bpct\b|percent|\bscore\b|\bgrade\b|MIN_|FLOOR/i.test(c),

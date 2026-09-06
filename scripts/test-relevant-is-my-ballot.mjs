@@ -29,6 +29,19 @@
 // titled "relevant to me" that omits the President is answering a narrower
 // question than the one it asks.
 //
+// AND THEN THE CARDS THEMSELVES SPOKE MARKUP. With the scope right, five cards
+// on a live Layton ballot — Lee, Curtis, Moore, Trump, Rubio — printed one good
+// record sentence and then the source of an HTML tag under it, beginning `<span
+// class="pdxst-pat w-full" style="--c:#4ade80;…"`. The shared reader handed the
+// card the shape row's `chip` field alongside the sentence, and that field is not
+// a token: it is the characterisation engine's already-rendered .pdxst-pat span.
+// The card escaped everything it printed, correctly, and the escaping turned the
+// node into words. Two smaller things travelled with it: senators wore a 📍 Local
+// pin over a seat that is the whole state, and a card that had asked for a member
+// payload and never been handed one read "Formal record still loading…" for the
+// life of the page, because the only deadline that ends that wait is armed by the
+// person file's own paragraph and never by a list.
+//
 // SO THERE ARE TWO RULES, NOT ONE, AND THE SECOND IS NOT A HOLE IN THE FIRST:
 //   · WHAT THIS READER VOTES ON — the seat kinds their own slate names, and
 //     inside those, only their own state's people (with the seat field's answer
@@ -62,7 +75,9 @@
 //   H. THE CARD MATCHES THE PERSON FILE. Office and status, then the same
 //      formal-record one-liner /p/<pid> prints, then Word vs Action as a small
 //      secondary chip. No kept/broken strip. No in-office voting pattern claimed
-//      for someone with no record. The lost-primary banner survives.
+//      for someone with no record. The lost-primary banner survives. AND THAT
+//      ONE-LINER IS PROSE: nothing on it is a tag, no statewide or national
+//      office wears the 📍 Local pin, and "still loading" is a wait that ends.
 //   I. NOTHING ON THE DO-NOT LIST WAS TOUCHED.
 //   J. TWIN BOOT. Direction Match and the formal tiers are byte-identical to
 //      HEAD's, because this pass changed scope and presentation, not one reading.
@@ -772,6 +787,194 @@ section("H · the card matches the person file");
     // reading the same render they were written against.
     try { w.renderRelevantToMe(); } catch { /* the twin below is independent */ }
   }
+
+  // ── THE RECORD LINE IS PROSE, AND NOTHING IN IT IS A TAG ──
+  // WHAT SHIPPED: five cards on a live Layton ballot — Lee, Curtis, Moore, Trump,
+  // Rubio — printed one good sentence and then the source of an HTML tag beneath
+  // it, starting `<span class="pdxst-pat w-full" style="--c:#4ade80;…"`. The two
+  // record lanes publish their rows through _fpiShapeRow, and one of that row's
+  // fields is `chip`: not a token, but _stPatternHtml's ALREADY-RENDERED
+  // .pdxst-pat span, tone variable and aria-label included. recordLine() handed
+  // it out beside the sentence; the card escaped everything it printed — which is
+  // right, because "Strong Border & Enforcement" has to survive its ampersand —
+  // and the escaping painted the markup as words.
+  //
+  // So this asserts the property in both directions: nothing the reader can see
+  // is a serialized tag, AND nothing on the object the card reads is markup in the
+  // first place. The second is the one that holds: a card cannot print a tag it
+  // was never given, whether it escapes or not.
+  {
+    // 1. The painted section, whole. The escaped form is what a serialized node
+    // looks like once a prose block has been through esc(); the raw form is what
+    // it looks like if some future caller stops escaping. Neither is acceptable.
+    ["pdxst-pat", "data-pdxst", "&lt;span", 'style="--c:'].forEach((n) => {
+      lacks(layton.html, n,
+            `the Relevant-to-Me grid prints ${JSON.stringify(n)} — the characterisation engine's rendered\n` +
+            "    chip reached a card. If a tier bar is wanted there it mounts as a sibling node from the\n" +
+            "    engine's own helper, not through the record sentence");
+    });
+
+    // 2. Every record block on every card, read on its own, so a count over the
+    // whole grid cannot be diluted by the rest of the markup.
+    {
+      const blocks = layton.html.split('class="rel-rec ').slice(1);
+      ok(blocks.length > 20, `only ${blocks.length} record blocks painted — this check may be vacuous`);
+      let bad = [];
+      blocks.forEach((b) => {
+        const line = b.slice(0, b.indexOf("</div>", b.indexOf("rel-rec-line")) + 6);
+        if (/&lt;|&gt;|pdxst/.test(line)) bad.push(line.slice(0, 90));
+      });
+      eq(bad.slice(0, 2).join(" | "), "",
+         `${bad.length} record line(s) contain an escaped angle bracket or an engine class name. The line\n` +
+         "    is a sentence; a sentence about a politician has no tags in it");
+    }
+
+    // 3. AND THE OBJECT ITSELF IS TEXT. Every string field recordLine returns, for
+    // everyone on this ballot — because the doctrine the card relies on is that
+    // there is nothing on this object a caller has to know the type of.
+    {
+      let n = 0, bad = [];
+      filled.forEach((g) => (layton.groups[g] || []).forEach((pid) => {
+        const d = layton.win.CMP_DATA[pid];
+        if (!d) return;
+        let r = null;
+        try { r = wa.recordLine(pid, d); } catch { r = null; }
+        if (!r) return;
+        n++;
+        Object.keys(r).forEach((k) => {
+          if (typeof r[k] !== "string") return;
+          if (/[<>]|pdxst/.test(r[k])) bad.push(`${pid}.${k}`);
+        });
+        if ("chip" in r) bad.push(`${pid}.chip exists`);
+      }));
+      ok(n > 20, `only ${n} record reads checked — this check may be vacuous`);
+      eq(bad.slice(0, 4).join(" | "), "",
+         `${bad.length} field(s) on the shared record object hold markup or the row's rendered chip. Every\n` +
+         "    field here is documented as a plain sentence or a token, and the card prints them as such");
+    }
+
+    // 4. AND THE SENTENCE IS THE ROW'S OWN SENTENCE — shapeRowSay's, byte for
+    // byte, not a paraphrase of it and not it plus something appended. This is the
+    // check the brief names: the line for a pattern equals shapeRowSay(row).
+    {
+      const CS = layton.win.PDXConsistency;
+      must(CS && CS.execRecordSummary && CS.formalPatternIndex,
+           "the two record lanes are no longer both published — this probe is stale");
+      let pats = 0, bad = [];
+      filled.forEach((g) => (layton.groups[g] || []).forEach((pid) => {
+        const d = layton.win.CMP_DATA[pid];
+        if (!d) return;
+        let r = null;
+        try { r = wa.recordLine(pid, d); } catch { r = null; }
+        if (!r || r.kind !== "pattern") return;
+        pats++;
+        const lane = r.lane === "exec" ? CS.execRecordSummary : CS.formalPatternIndex;
+        let sh = null;
+        try { sh = lane.shape(pid); } catch { sh = null; }
+        const row = sh && ((sh.tops || [])[0] || (sh.splits || [])[0]);
+        if (!row) { bad.push(`${pid}/no-row`); return; }
+        if (r.text !== wa.shapeRowSay(row)) bad.push(`${pid}: ${JSON.stringify(r.text.slice(0, 60))}`);
+        // The row DID carry a chip, and it IS markup — which is the whole reason
+        // this property exists. If that stops being true the reported bug is no
+        // longer reproducible and these checks are guarding a shape that changed.
+        must(typeof row.chip === "string" && row.chip.indexOf("<span") === 0,
+             `the shape row for ${pid} no longer carries a rendered chip, so the field this pass removed\n` +
+             "    from recordLine() is not the field that painted a tag — re-derive this section");
+      }));
+      ok(pats > 0,
+         "nobody on this ballot reads as a formal pattern, so the sentence-equality check above is\n" +
+         "    untested. In this sandbox the roll-call payload is network-loaded and the executive lane is\n" +
+         "    the one that answers — re-derive this check");
+      eq(bad.slice(0, 3).join(" | "), "",
+         `${bad.length} pattern line(s) are not shapeRowSay's sentence. The row publishes its own words so\n` +
+         "    the card and the profile row have one author");
+    }
+  }
+
+  // ── A STATEWIDE FEDERAL OFFICE DOES NOT WEAR THE 📍 LOCAL PIN ──
+  // The badge means "one of your own local seats". _pdxIsLocalToUser already
+  // refused it to the presidency and the federal executive on the ground that
+  // they affect every American, so nothing about them is local to one place — but
+  // a U.S. Senator was still getting it, because a senator genuinely does
+  // represent the reader's state and that is the question the badge's other caller
+  // asks. A statewide seat is the opposite of local: there is no district.
+  {
+    const fedGroups = ["senator", "president", "fed_cabinet"];
+    let n = 0, pinned = [];
+    fedGroups.forEach((g) => (layton.groups[g] || []).forEach((pid) => {
+      const i = layton.html.indexOf('data-pid="' + pid + '"');
+      if (i === -1) return;
+      n++;
+      const card = layton.html.slice(i, i + 14000);
+      if (card.indexOf("📍 Local") !== -1) pinned.push(`${g}/${pid}`);
+    }));
+    ok(n > 3, `only ${n} statewide-federal cards painted — this check may be vacuous`);
+    eq(pinned.slice(0, 4).join(" | "), "",
+       `${pinned.length} statewide or national office(s) wear the 📍 Local pin. A U.S. Senator's seat is the\n` +
+       "    whole state and the President's is the whole country");
+    // POSITIVE CONTROL: the badge still exists and still reaches the reader's
+    // actual local seats. Deleting it outright would pass the check above.
+    {
+      let local = 0;
+      ["local", "state_rep", "state_senator", "representative", "governor"].forEach((g) =>
+        (layton.groups[g] || []).forEach((pid) => {
+          const i = layton.html.indexOf('data-pid="' + pid + '"');
+          if (i !== -1 && layton.html.slice(i, i + 14000).indexOf("📍 Local") !== -1) local++;
+        }));
+      ok(local > 3,
+         `only ${local} of the reader's own state and local cards carry the 📍 Local pin. The badge was not\n` +
+         "    supposed to be removed, only refused to statewide federal offices");
+      console.log(`      ${n} statewide-federal cards, none pinned local; ${local} of the reader's own, pinned`);
+    }
+  }
+
+  // ── "STILL LOADING" IS A WAIT, NOT A STATE ──
+  // WHAT SHIPPED: the loading sentence was gated on the brief's briefWaitOver
+  // alone. That predicate ends three ways — the payload is filed, nobody ever
+  // asked, or the brief's own 6s deadline fires — and the third is armed by
+  // armBriefDeadline, which only the brief's paragraph calls. A list card arms
+  // nothing. So for anyone whose member request was started and never filed, the
+  // card read "Formal record still loading…" for the whole life of the page, about
+  // a person whose formal record was simply empty. Vance was the reported one.
+  //
+  // The wait now ends on any of three answers, and this proves the middle one: the
+  // lane's own settled answer, which consistency.js publishes with a deadline of
+  // its own. The clock is the third and is not exercised here — a probe cannot
+  // move this sandbox's Date — but the seam file asserts it is read.
+  {
+    const w = layton.win, CS = w.PDXConsistency;
+    const stuck = (layton.groups.president || []).concat(layton.groups.fed_cabinet || [])
+      .filter((pid) => w.CMP_DATA[pid] && wa.recordLine(pid, w.CMP_DATA[pid]).kind !== "pattern")[0];
+    must(stuck, "no empty-record federal card to test the wait against — this probe is stale");
+    const keepBox = w.__pdxVRPrefetch, keepSettled = CS.recordSettled;
+
+    // A request is outstanding and the lane has not settled: the card waits, and
+    // says so rather than claiming the file is empty.
+    w.__pdxVRPrefetch = { pid: stuck };
+    CS.recordSettled = () => false;
+    const waiting = wa.recordLine(stuck, w.CMP_DATA[stuck]);
+    eq(waiting.text, "Formal record still loading…",
+       `with a member request outstanding, ${stuck}'s card does not say the record is still coming — a\n` +
+       "    list card may not call a file empty while it is being fetched");
+
+    // The lane settles — with the same request still outstanding and unfiled, and
+    // the brief's own deadline still unarmed, because no card arms it. The sentence
+    // has to resolve to the real reading anyway.
+    CS.recordSettled = () => true;
+    const settled = wa.recordLine(stuck, w.CMP_DATA[stuck]);
+    lacks(settled.text, "still loading",
+          `${stuck}'s card is STILL loading after the record lane published that it has settled. That is the\n` +
+          "    permanent spinner: the brief's deadline is never armed from a list, so briefWaitOver alone\n" +
+          "    never ends this wait");
+    ok(/^(No formal pattern yet|Record begins in office)/.test(settled.text),
+       `${stuck}'s settled card reads ${JSON.stringify(settled.text.slice(0, 60))} — a settled empty record\n` +
+       "    reads as the pre-office or no-pattern sentence, which are the two honest ones");
+
+    CS.recordSettled = keepSettled;
+    w.__pdxVRPrefetch = keepBox;
+    try { w.renderRelevantToMe(); } catch { /* the sections below re-read the groups, not this paint */ }
+    console.log(`      ${stuck}: waits while outstanding, settles to ${JSON.stringify(settled.text.slice(0, 40))}`);
+  }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -910,7 +1113,11 @@ section("K · every added guard is load-bearing");
 // So one deletion is enough to prove both halves of the doctrine, and it is
 // asked on both pages.
 {
-  const bootBroken = (src, loc) => {
+  // ONE BROKEN BOOT, ANY FILE. `subs` maps a shipped filename to the source that
+  // replaces it, so a counterfactual can revert a guard in compare-hub.js, in
+  // word-action.js, or in both at once — the last two bugs this pass fixed live in
+  // word-action.js and are only visible once the section has painted.
+  const bootBroken = (subs, loc) => {
     const w = makeSandbox();
     const store = {};
     w.localStorage = { getItem: (k) => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: (k) => { delete store[k]; } };
@@ -922,14 +1129,18 @@ section("K · every added guard is load-bearing");
     w.PROFILES = w.CMP_DATA;
     w._pdxDisplayScore = () => null;
     for (const f of FILES) {
-      try { vm.runInContext(f === "compare-hub.js" ? src : R(f), ctx, { filename: f }); } catch (e) { /* same guards as the real boot */ }
+      try { vm.runInContext(Object.prototype.hasOwnProperty.call(subs, f) ? subs[f] : R(f), ctx, { filename: f }); } catch (e) { /* same guards as the real boot */ }
     }
     w.PROFILES = w.CMP_DATA;
     w._hasUserLocation = true;
     w._currentVoterLocation = loc;
     try { w._updateTeamPositionsForLocation(); } catch (e) {}
     try { w.renderRelevantToMe(); } catch (e) {}
-    return { w, groups: w._relevantLastOfficeGroups || {} };
+    return {
+      w,
+      groups: w._relevantLastOfficeGroups || {},
+      html: String((w.document.getElementById("relevant-browse-grid") || {}).innerHTML || ""),
+    };
   };
 
   // ── 1. The federal split, removed ──
@@ -941,7 +1152,7 @@ section("K · every added guard is load-bearing");
   const noSplit = CH_SRC.replace(SPLIT_CALL, "      var allowed = _relevantBallotGroupKeys();");
 
   {
-    const b = bootBroken(noSplit, LAYTON);
+    const b = bootBroken({ "compare-hub.js": noSplit }, LAYTON);
     must(Object.keys(b.groups).length > 0,
          "the unsplit build rendered no groups at all, so it is not reproducing anything — this probe is stale");
     ok((b.groups.fed_cabinet || []).length === 0,
@@ -959,7 +1170,7 @@ section("K · every added guard is load-bearing");
        "the out-of-state gate is not where this probe reverts it — this probe is stale");
   const noGate = CH_SRC.replace(GATE, "        return;\n");
   {
-    const b = bootBroken(noGate, { state: "Colorado", city: "Denver", county: "Denver County", district: "" });
+    const b = bootBroken({ "compare-hub.js": noGate }, { state: "Colorado", city: "Denver", county: "Denver County", district: "" });
     const cab = b.groups.cabinet || [];
     must(cab.length > 0, "the ungated Colorado build kept no appointed group at all — this probe is stale");
     ok(cab.some((pid) => String(b.w._pdxBrowseStateOf(pid) || "").toLowerCase() !== "colorado"),
@@ -977,7 +1188,7 @@ section("K · every added guard is load-bearing");
     "        officeGroups.president = officeGroups.president.filter(function(p) { return !!p; });");
   must(noPres !== CH_SRC, "the presidency filter could not be reverted — this probe is stale");
   {
-    const b = bootBroken(noPres, LAYTON);
+    const b = bootBroken({ "compare-hub.js": noPres }, LAYTON);
     const pres = b.groups.president || [];
     ok(pres.length > (layton.groups.president || []).length,
        "removing the presidency's present-tense filter changed nothing, so property A's occupant check is\n" +
@@ -996,7 +1207,7 @@ section("K · every added guard is load-bearing");
     "var cmpTitle = isMy ? 'Compare them against the others in this race' : 'Not sure yet? Compare with others in this race first';");
   must(raced !== CH_SRC, "the card tooltip could not be re-raced — this probe is stale");
   {
-    const b = bootBroken(raced, LAYTON);
+    const b = bootBroken({ "compare-hub.js": raced }, LAYTON);
     const html = String(b.w.document.getElementById("relevant-browse-grid").innerHTML || "");
     const i = html.indexOf('id="relevant-browse-group-fed_cabinet"');
     must(i !== -1, "the re-raced build painted no federal-cabinet accordion — this probe is stale");
@@ -1006,6 +1217,54 @@ section("K · every added guard is load-bearing");
        "re-racing the per-card tooltip puts no race claim inside the federal-cabinet accordion, so\n" +
        "    property C's slice is guarding nothing — re-derive it");
     console.log(`      re-raced tooltip: ${(body.match(/in this race/g) || []).length} race claim(s) back inside the cabinet accordion`);
+  }
+
+  // ── 4. The rendered chip, put back into the sentence ──
+  // The reported bug, exactly as it shipped: the shape row's `chip` concatenated
+  // onto the row's sentence and handed out of recordLine() as text. Nothing else
+  // changes — the card still escapes what it prints, which is correct — and that
+  // is the point: the tag paints as words because a prose block was given a node.
+  const WA_SRC = R("word-action.js");
+  const SAY = "      out.text = shapeRowSay(row);\n";
+  must(WA_SRC.split(SAY).length === 2,
+       "the one-line finding no longer prints the row's sentence at a single site — this probe is stale");
+  const chipped = WA_SRC.replace(SAY, "      out.text = shapeRowSay(row) + (row.chip || '');\n");
+  {
+    const b = bootBroken({ "word-action.js": chipped }, LAYTON);
+    must(b.html.indexOf('class="rel-rec ') !== -1,
+         "the chipped build painted no record line at all, so it is not reproducing anything — this probe is stale");
+    ok(b.html.indexOf("pdxst-pat") !== -1 || b.html.indexOf("&lt;span") !== -1,
+       "putting the engine's rendered chip back into the record sentence puts no tag on any card, so the\n" +
+       "    prose property in section H is guarding nothing — re-derive it");
+    const raw = (b.html.match(/&lt;span/g) || []).length;
+    console.log(`      chip back in the sentence: ${raw} serialized <span> painted as text on the cards`);
+  }
+
+  // ── 5. The unbounded wait, put back ──
+  // `!briefWaitOver(pid)` on its own, which is how it shipped. The lane is asked
+  // to publish that it has settled and the sentence has to be shown ignoring it —
+  // because briefWaitOver waits for a filed payload or for a deadline no list card
+  // arms, and neither is ever going to arrive for this person on this page.
+  const WAIT = "    if (recordLineWaiting(pid)) {\n";
+  must(WA_SRC.split(WAIT).length === 2,
+       "the loading sentence is no longer gated by the bounded wait — this probe is stale");
+  const unbounded = WA_SRC.replace(WAIT, "    if (!briefWaitOver(pid)) {\n");
+  {
+    const b = bootBroken({ "word-action.js": unbounded }, LAYTON);
+    const w = b.w, CS = w.PDXConsistency, wa = w.PDXWordAction;
+    must(wa && typeof wa.recordLine === "function" && CS,
+         "the unbounded build published no record reader — this probe is stale");
+    const stuck = (b.groups.president || []).concat(b.groups.fed_cabinet || [])
+      .filter((pid) => w.CMP_DATA[pid] && wa.recordLine(pid, w.CMP_DATA[pid]).kind !== "pattern")[0];
+    must(stuck, "no empty-record federal card in the unbounded build — this probe is stale");
+    w.__pdxVRPrefetch = { pid: stuck };
+    CS.recordSettled = () => true;
+    const r = wa.recordLine(stuck, w.CMP_DATA[stuck]);
+    ok(r.text.indexOf("still loading") !== -1,
+       "gating the loading sentence on briefWaitOver alone resolves anyway once the lane settles, so the\n" +
+       "    bounded wait in section H is guarding nothing. The reported symptom was a card that read\n" +
+       "    \"Formal record still loading…\" for the life of the page — re-derive this check");
+    console.log(`      unbounded wait, lane settled: ${stuck} still reads ${JSON.stringify(r.text)}`);
   }
 }
 

@@ -2783,6 +2783,52 @@
 // nested interactives, no store renamed, and the local seat count is untouched -
 // the rail and the grid stay one expanded ballot. A twin boot leaves every
 // Direction Match read and every formal tier byte-identical.
+// v148 - THE RECORD LINE ON A CARD IS PROSE, NOT MARKUP. v147 gave every
+// Relevant-to-Me card the same one-line finding the person file's brief prints,
+// and on a live Layton ballot five of them - Lee, Curtis, Moore, Trump, Rubio -
+// read one good sentence and then the source of an HTML tag underneath it. The
+// two record lanes publish their rows with a `chip` field, and that field is not
+// a token: it is the characterisation engine's already-rendered .pdxst-pat span,
+// tone variable, role and aria-label included. recordLine() passed it out with
+// the sentence, the card escaped everything it printed - correctly, because a
+// sentence about "Strong Border & Enforcement" has to survive the ampersand -
+// and the escaping painted the tag as text.
+//   The fix is not to stop escaping. recordLine() no longer carries the chip at
+// all: every field on the object it returns is now documented and asserted to be
+// a plain sentence or a token, so a caller cannot get markup out of it by
+// accident, and the card's record block is prose end to end. If that tier's
+// visual bar is ever wanted on a card it mounts as a SIBLING node from the
+// engine's own helper, with its own innerHTML - not inside the sentence.
+//   Two smaller corrections travel with it. A U.S. Senator, the President and the
+// federal executive no longer wear the 📍 Local pin: that badge means one of the
+// reader's OWN local seats, and a statewide or national office is the opposite of
+// local - _pdxIsLocalToUser already refused it to the presidency on exactly that
+// ground, and the ballot page's own federal grouping now decides it for the rest.
+// And "Formal record still loading…" is bounded. It was gated on the brief's
+// briefWaitOver alone, which only ends when a record is filed or when the brief's
+// own 6s deadline fires - and a list card arms no deadline, so on a request that
+// was started and never filed the sentence was permanent: a spinner for the whole
+// life of the page about a person whose record was simply empty. It now ends on
+// any of three answers - the brief's, consistency.js's published settled answer
+// with its own deadline, or a wall clock this line owns - and then prints the real
+// pre-office or empty-record sentence instead.
+//   PRECACHED SHELL FILE CHANGED - IT IS THE REASON FOR THE BUMP:
+//   · '/word-action.js'        - recordLine() returns text only (no `chip`), and
+//                                recordLineWaiting() bounds the loading sentence.
+//                                A warm shell has the old export, so the chip
+//                                comes back out and the card paints the tag
+//                                source again, and its spinner never resolves.
+// ALSO CHANGED BUT RUNTIME-CACHED, SO IT ARRIVES FRESH WITHOUT THIS BUMP:
+// compare-hub.js (the prose-only record block, and the statewide-federal gate on
+// the 📍 Local badge).
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it. Unchanged here and last moved at v146:
+// index.html, door1-workspace.js and door1-workspace.css - the Door 1 desk and
+// its stylesheet are re-fetched by this bump and are byte-identical. app.css is
+// unchanged since v147, which is where the .rel-rec* rules landed.
+// No scope gate moved, no seat-field math, no TEAM store, no Word vs Action
+// arithmetic and no change to the cabinet split. A twin boot leaves every
+// Direction Match read and every formal tier byte-identical.
 // v147 - RELEVANT TO ME IS THE CIVIC STACK, AND A CARD READS RECORD-FIRST. The
 // v146 scope gate above was too tight in one direction and the cards inside it
 // led with the wrong thing. A Layton reader IS governed by the President and by
@@ -2829,7 +2875,7 @@
 // no party sort, no ranking by Direction Match, no nested interactives, no store
 // renamed, and no seat-field district math touched. A twin boot leaves every
 // Direction Match read and every formal tier byte-identical.
-const CACHE_VERSION = 'v147';
+const CACHE_VERSION = 'v148';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

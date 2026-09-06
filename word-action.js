@@ -5428,14 +5428,53 @@
   // roll-call lane's formalPatternIndex.shape. Both lanes publish the same shape
   // fields, so one code path reads a president and a freshman member.
   //
+  // IT RETURNS TEXT, NOT MARKUP. Every field on the object is a plain sentence or
+  // a token. The shape rows this reads carry a `chip` that is the characterisation
+  // engine's RENDERED .pdxst-pat span — HTML, built by _stPatternHtml — and a card
+  // that passed it on printed the tag source into a text node: five cards on a
+  // live Layton ballot read "Strongly supports" and then a serialized <span
+  // class="pdxst-pat …" beneath it. So the row's chip is not carried here at all,
+  // and the one sentence this returns is shapeRowSay's, which composes nothing but
+  // the label, the tier's published words and the counts. A caller that wants the
+  // engine's visual chip mounts it as its own sibling node from the engine's own
+  // helper; it may not come through this object, where the only safe assumption a
+  // caller can make is that everything is text.
+  //
   // WHAT IT REFUSES. No percentage, no grade, no verdict, and — on a candidate
   // with no file — no sentence that could be read as an in-office voting pattern.
   // It also never prints the empty-file claim ("nothing on file"): that sentence
   // has a wall of its own around it in briefAbsenceCopy and it is not this
   // surface's to make. Where the shape is missing, still arriving, or empty, the
   // honest card line is the pattern refusal, which is true in all three.
+  // ── IS ANYTHING ACTUALLY STILL COMING ─────────────────────────────────────
+  // THREE CONDITIONS, ALL OF THEM, because this is the one surface here that arms
+  // nothing. briefAbsenceCopy owns the brief's 6s deadline and the repaint that
+  // clears it; a list card that called it would arm a timer per row, and it is not
+  // this surface's paragraph to print anyway. Without a deadline of its own,
+  // `!briefWaitOver` is PERMANENT on a request that was started and never filed —
+  // which is what shipped: a card that read "Formal record still loading…" for the
+  // whole life of the page, on a person whose record was simply empty.
+  //   · briefWaitOver  — the brief's own answer, so the card and the file agree
+  //                      about the same second.
+  //   · briefSettled   — consistency.js's published answer for the whole lane. It
+  //                      has a deadline of its own (WARM_DEADLINE_MS) and flips to
+  //                      settled when a request expires, so "outstanding" ends.
+  //   · and a wall clock this line owns, from its own first read of the page, so
+  //     the sentence cannot outlive the wait even if neither answer above ever
+  //     arrives. Read-only: no timer is armed and no repaint is scheduled here —
+  //     the card's own warm listener is what brings it back to repaint.
+  // Any one of them saying "settled" ends the wait, which is the safe direction:
+  // the sentence below it is a refusal about the file, not a claim about the person.
+  var RECORD_LINE_WAIT_MS = 12000;
+  var _rlFirstRead = 0;
+  function recordLineWaiting(pid) {
+    if (!_rlFirstRead) _rlFirstRead = Date.now();
+    if (Date.now() - _rlFirstRead > RECORD_LINE_WAIT_MS) return false;
+    return !briefWaitOver(pid) && !briefSettled(pid);
+  }
+
   function recordLine(pid, p) {
-    var out = { kind: 'none', text: 'No formal pattern yet.', issue: '', chip: '', lane: '' };
+    var out = { kind: 'none', text: 'No formal pattern yet.', issue: '', lane: '' };
     try {
       if (!pid) return out;
       var d = p || (window.CMP_DATA ? window.CMP_DATA[pid] : null) || null;
@@ -5466,9 +5505,11 @@
               : ((sh && sh.splits && sh.splits.length) ? sh.splits[0] : null);
       if (row) {
         out.kind = 'pattern';
+        // shapeRowSay, and nothing appended: the row's `chip` beside it is the
+        // engine's rendered span and `tier` is its token, so the sentence is the
+        // only field here a caller may print without knowing what it holds.
         out.text = shapeRowSay(row);
         out.issue = row.label || '';
-        out.chip = row.chip || '';
         out.tier = row.tier || '';
         out.more = Math.max(0, ((sh.strongN || 0) + (sh.splitN || 0)) - 1);
         return out;
@@ -5499,13 +5540,13 @@
         out.text = 'Record begins in office — no votes or formal actions on file yet.';
         return out;
       }
-      // AND THE DEFAULT IS "STILL LOADING", THE SAME WAY THE BRIEF'S IS. On a cold
-      // arrival the roll-call lane has not answered yet, and a card reading "no
-      // formal pattern yet" beside a file reading "still loading the roll-call
-      // record" is the two surfaces disagreeing about the same second. briefWaitOver
-      // is the brief's own positive knowledge that the wait is over; without it,
-      // the card says what the file says.
-      if (!briefWaitOver(pid)) {
+      // AND THE DEFAULT IS "STILL LOADING", THE SAME WAY THE BRIEF'S IS — BUT ONLY
+      // WHILE SOMETHING IS ACTUALLY IN FLIGHT. On a cold arrival the roll-call lane
+      // has not answered yet, and a card reading "no formal pattern yet" beside a
+      // file reading "still loading the roll-call record" is the two surfaces
+      // disagreeing about the same second. What that must not become is a line that
+      // never resolves; see recordLineWaiting() for the three conditions it takes.
+      if (recordLineWaiting(pid)) {
         out.text = 'Formal record still loading…';
         return out;
       }

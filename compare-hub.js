@@ -2324,8 +2324,31 @@
       var isP = (typeof _potentialPoliticians !== 'undefined') && _potentialPoliticians.has(pid);
       return '<button class="potential-star-btn ' + (isP ? 'potential-saved' : '') + '" onclick="event.stopPropagation();potentialToggle(\'' + pid + '\')" title="' + (isP ? 'Remove from potential candidates' : 'Add to potential candidates') + '">🌟</button>';
     }
+    // ── A STATEWIDE FEDERAL OFFICE IS NOT "LOCAL" ANYWHERE ───────────────────
+    // The 📍 Local badge marks somebody as one of the reader's OWN local seats,
+    // and _pdxIsLocalToUser already refuses it to the President and the federal
+    // executive on exactly that ground: they affect every American, so nothing
+    // about them is local to one place. A U.S. Senator is the same category — the
+    // seat is the whole state, there is no district — and the badge was reaching
+    // them because they DO represent the reader's state, which is the question
+    // _isRelevantToUser answers. So the group the ballot page already uses to
+    // decide who is federal decides this too, and Lee and Curtis stop wearing a
+    // pin that says the opposite of "statewide".
+    //   This is a chip, not an ordering: _pdxIsLocalToUser keeps its answer, so
+    // every caller that puts the reader's own people first still does.
+    function _pdxIsStatewideFederal(pid) {
+      var t = '';
+      try { if (typeof window._pdxBrowseType === 'function') t = String(window._pdxBrowseType(pid) || ''); } catch (e) { t = ''; }
+      if (t === 'senator' || t === 'president') return true;
+      try {
+        if (typeof window._relevantIsNationalOfficer === 'function' &&
+            window._relevantIsNationalOfficer(pid)) return true;
+      } catch (e) {}
+      return false;
+    }
     // Section badges shared across listings.
     function _pdxLocalBadge(pid) {
+      if (_pdxIsStatewideFederal(pid)) return '';
       return (typeof _pdxIsLocalToUser === 'function' && _pdxIsLocalToUser(pid)) ? '<span class="chub-your-badge">📍 Local</span>' : '';
     }
     function _pdxTeamBadge(pid) {
@@ -8839,25 +8862,36 @@
       var r = null;
       try { r = wa.recordLine(pid, d); } catch (e) { r = null; }
       if (!r || !r.text) return '';
-      // The chip is the tier's own chip, rendered by the record engine and printed
-      // here rather than re-worded. Where the line is a refusal there is no tier,
-      // so there is no chip — a card may not wear a direction it did not read.
-      // The engine hands back a sentence, not markup, and the person file escapes
-      // the same sentence before printing it — an issue named "Strong Border &
-      // Enforcement" reaches the brief as "&amp;". The card has to escape it the
-      // same way or the two surfaces disagree over a bare ampersand.
+      // ── THIS BLOCK IS PROSE, AND EVERYTHING IN IT IS ESCAPED ────────────────
+      // The line is a sentence, and the person file escapes the same sentence
+      // before printing it — an issue named "Strong Border & Enforcement" reaches
+      // the brief as "&amp;" — so the card escapes it the same way or the two
+      // surfaces disagree over a bare ampersand.
+      //
+      // AND NOTHING FROM THE ENGINE IS MOUNTED AS MARKUP HERE. The shape row this
+      // sentence comes from also carries a `chip`, and that chip is the
+      // characterisation engine's RENDERED span (_stPatternHtml, .pdxst-pat, with
+      // its own tone variables and aria-label). This block printed it, and because
+      // everything in here is escaped, five live cards read a good first sentence
+      // and then the tag source underneath it. recordLine() no longer returns the
+      // chip at all — see its note — and the fix is not to stop escaping: it is
+      // that a prose block has no business holding a node built somewhere else.
+      // If the tier's visual chip is wanted on these cards, it mounts as a SIBLING
+      // of this block, from the engine's own helper, with its own unescaped
+      // innerHTML — not inside the sentence, and not through recordLine().
       var recEsc = (typeof window._slEsc === 'function') ? window._slEsc : function(v) {
         return String(v == null ? '' : v)
           .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
       };
-      var chip = (r.kind === 'pattern' && r.chip) ? '<span class="rel-rec-chip">' + recEsc(r.chip) + '</span>' : '';
+      // The one thing under the sentence is a count of the rest of their file, and
+      // this surface composes it from an integer — no engine string reaches it.
       var more = (r.kind === 'pattern' && r.more > 0)
         ? '<span class="rel-rec-more">+' + r.more + ' more on their file</span>' : '';
       return '<div class="rel-rec rel-rec-' + r.kind + '">' +
           '<div class="rel-rec-hd"><span aria-hidden="true">🏛</span> The formal record</div>' +
           '<div class="rel-rec-line">' + recEsc(r.text) + '</div>' +
-          (chip || more ? '<div class="rel-rec-foot">' + chip + more + '</div>' : '') +
+          (more ? '<div class="rel-rec-foot">' + more + '</div>' : '') +
         '</div>';
     }
     window._relevantRecordLine = _relevantRecordLine;
