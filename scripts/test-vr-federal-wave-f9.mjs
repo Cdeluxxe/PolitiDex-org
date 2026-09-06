@@ -1584,6 +1584,33 @@ const swNote = swWaveNote();
     // the single place there is now one copy of them, and checked on both the arm
     // and the door.
     "scripts/test-eye-judge-lane.mjs",
+    // The finance-letterhead pass (no CACHE_VERSION move, because no shipped file
+    // moved). The money door on the person letterhead was already built and already
+    // mounted - finance-lane.js owns chipRead / chipSegments / letterheadChipMount /
+    // openSection, profiles-full.js calls the mount in the identity block, and the
+    // three states, the counts-only vocabulary and the scroll-to-this-page jump are
+    // all shipped. What that pass added was the contract for the four claims the
+    // report asked to be TESTED and that nothing yet tested: that the on-file chip
+    // carries no rating vocabulary in its accessible name as well as its visible
+    // text, that the click reaches the money block on the profile when CALLED rather
+    // than when read off an onclick attribute, that an absent filing puts no digit in
+    // the figure slot, and that Direction Match and the formal pattern index are
+    // byte-identical with the control mounted and without. All of that lives in a new
+    // untracked suite, which needs no declaration.
+    //   The one file below does. It is the one-person-per-office harness declared
+    // immediately above, and its section 4 built its counterfactual with
+    // `git show HEAD:all-seeing-eye.js`: true exactly once, because the moment that
+    // pass was committed HEAD carried the fix, the two revisions became one file and
+    // three vacuity guards fired on a tree where nothing was wrong. The counterfactual
+    // is now built from the shipped source instead - canonPid folded back to the
+    // identity it replaced and stanceListFor folded back to the raw ISSUE_STANCE_DATA
+    // dip it replaced, each substitution asserted to apply exactly once or the section
+    // refuses to claim anything. That is stricter than the revision diff it replaces:
+    // it isolates the two functions the claim is about rather than every difference
+    // between two commits, it still measures 2 chips before to 1 after and the HD-68
+    // row's chip absent before to present after, and it cannot go stale, because what
+    // it removes is what it claims. No assertion was relaxed and none was dropped.
+    "scripts/test-eye-one-person-per-office.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }

@@ -363,11 +363,40 @@ section("3 · the stub does not outrank the canonical file");
 section("4 · every person-shaped emitter asks the same table (counterfactual)");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  const headEye = HEAD("all-seeing-eye.js");
-  must(headEye, "the previous revision of all-seeing-eye.js is unreachable, so this section has no counterfactual");
+  // THE COUNTERFACTUAL IS BUILT OUT OF THE SHIPPED SOURCE, NOT OUT OF A GIT
+  // REVISION. It used to be `git show HEAD:all-seeing-eye.js`, which was true
+  // exactly once: the moment this pass was committed, HEAD carried the fix, the
+  // two revisions became the same file, and the three vacuity guards below fired
+  // on a tree where nothing was wrong — a harness that reports a defect the day
+  // its own fix ships is a harness nobody will believe the second time.
+  //
+  // So the "before" is now the live file with the two functions this pass added
+  // neutered in place: canonPid folded back to the identity it replaced, and
+  // stanceListFor folded back to the raw ISSUE_STANCE_DATA dip it replaced. That
+  // is a stricter counterfactual than the revision diff ever was — it isolates
+  // these two functions rather than every difference between two commits — and
+  // it cannot go stale, because the thing it removes is the thing being claimed.
+  const NEUTER = [
+    // canonPid: hand back whatever was passed in, the way every call site read
+    // its id before there was one place to ask.
+    ["    function canonPid(raw) {\n      if (!raw) return '';",
+     "    function canonPid(raw) {\n      if (!raw) return '';\n      if (true) return String(raw);"],
+    // stanceListFor: the raw table dip, which misses a block filed under a
+    // retired id because the roster key and the library key are not the same key.
+    ["    function stanceListFor(id) {\n      if (!id) return [];",
+     "    function stanceListFor(id) {\n      if (!id) return [];\n      if (true) return (window.ISSUE_STANCE_DATA || {})[id] || [];"],
+  ];
+  let beforeEye = EYE_SRC;
+  for (const [from, to] of NEUTER) {
+    must(beforeEye.split(from).length === 2,
+      `all-seeing-eye.js no longer opens with ${JSON.stringify(from.slice(0, 40))} exactly once — ` +
+      "the counterfactual cannot be built and this section is claiming nothing");
+    beforeEye = beforeEye.replace(from, to);
+  }
+  must(beforeEye !== EYE_SRC, "neutering the two functions changed nothing, so they are not what this pass added");
 
   const now = boot();
-  const then = boot({ get: (f) => (f === "all-seeing-eye.js" ? headEye : R(f)) });
+  const then = boot({ get: (f) => (f === "all-seeing-eye.js" ? beforeEye : R(f)) });
 
   // (a) THE SPOTLIGHT'S CHIPS. One person named twice by a curator.
   now.lane("public"); then.lane("public");
@@ -375,21 +404,23 @@ section("4 · every person-shaped emitter asks the same table (counterfactual)")
   const cNow = CHIPS(hNow), cThen = CHIPS(hThen);
   must(cThen.length > 0, "the previous revision printed no related chips for the seeded Spotlight — the fixture missed");
   ok(cThen.length > cNow.length || cThen.some((c) => c.id === RETIRED),
-    "the previous revision already printed one chip per person at the canonical id, so this pass is not the change " +
-    "it says it is");
+    "the build with canonPid neutered already printed one chip per person at the canonical id, so canonPid is " +
+    "not what collapses them");
   eq(cNow.length, 1, `${cNow.length} chips for one officeholder (${cNow.map((c) => c.id).join(", ")})`);
   eq(cNow[0].id, PID, "the surviving chip does not carry the canonical pid — a tap on it opens the retired document");
   has(cNow[0].label, (now.win.CMP_DATA[PID] || {}).name || "Chew",
     "the chip is labelled from the curator's spelling rather than the record's own name");
   no(hNow, RETIRED, "the retired id still reaches the markup through the Spotlight's chips");
-  has(hThen, RETIRED, "the previous revision did not leak the retired id either — the fixture is not load-bearing");
+  has(hThen, RETIRED,
+    "the build with canonPid neutered does not leak the retired id either — the fixture is not load-bearing");
 
   // (b) THE CANONICAL ROW'S OWN CHIP. The collapse fixed the duplicate and took
   // his only "On record" chip with it, because the block is filed under the slug.
   now.lane("formal"); then.lane("formal");
   const relOf = (h) => (String(h).match(/<div class="pdx-eye-rel">[\s\S]*?<\/div>/) || [""])[0];
   const relNow = relOf(now.search("chew")), relThen = relOf(then.search("chew"));
-  eq(relThen, "", "the previous revision already carried a chip on the HD-68 row — the stranded-block case is vacuous");
+  eq(relThen, "",
+    "the build with stanceListFor neutered already carried a chip on the HD-68 row — the stranded-block case is vacuous");
   ok(relNow.length > 0,
     `the canonical HD-68 row carries no related chip, though ${RETIRED} holds ` +
     `${(now.win.ISSUE_STANCE_DATA[RETIRED] || []).length} curated stances that are his`);
