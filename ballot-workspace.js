@@ -267,6 +267,7 @@
       var sub = pid ? nameOf(pid) : 'No pick yet';
       return '<button type="button" class="bw-seat' +
           (s.key === openKey ? ' is-open' : '') + (pid ? ' is-picked' : '') + '"' +
+        ' data-sk="' + esc(s.key) + '"' +
         ' style="--bw-accent:' + esc(s.color) + ';"' +
         ' aria-current="' + (s.key === openKey ? 'true' : 'false') + '"' +
         ' onclick="window.pdxBallotWorkspaceOpen(\'' + jsq(s.key) + '\')"' +
@@ -285,38 +286,122 @@
       '</div>';
   }
 
+  // ── THE RAIL STAYS WHERE THE READER LEFT IT ───────────────────────────────
+  // On a phone .bw-seats is the horizontal scroller (see ballot-workspace.css;
+  // on desktop the same element is a static column and never scrolls). Opening a
+  // seat repaints this whole surface by replacing #bw-body's innerHTML, which
+  // destroys that scroller and rebuilds it at scrollLeft 0 — so every seat change
+  // threw the chips back to the left edge, and picking the sixth seat left the
+  // chip you had just chosen off the right of the screen with no sign that it was
+  // selected.
+  //
+  // Two facts to preserve, and neither of them is "scroll to the beginning":
+  //   1. the reader's own scroll position, restored onto the rebuilt rail, so a
+  //      repaint is invisible;
+  //   2. the SELECTED chip on screen, which after a seat change may be outside
+  //      that restored position.
+  //
+  // WHY ARITHMETIC AND NOT scrollIntoView(). The chip's nearest scrollable
+  // ancestor is the rail, but its nearest scrollable ancestor VERTICALLY is the
+  // document — and scrollIntoView moves both. The seat rail is a strip inside a
+  // page the reader has already positioned (pdxBallotWorkspaceOpen scrolls the
+  // mount to the top of the viewport on purpose), so a horizontal reveal that
+  // also drags the page is a worse bug than the one being fixed. Setting
+  // scrollLeft moves exactly the one axis that has to move.
+  function railOf(host) {
+    try { return (host && host.querySelector) ? host.querySelector('.bw-seats') : null; }
+    catch (e) { return null; }
+  }
+  function railScroll(host) {
+    var rail = railOf(host);
+    var at = rail ? rail.scrollLeft : 0;
+    return (typeof at === 'number' && isFinite(at) && at > 0) ? at : 0;
+  }
+  // Where the chip is, measured inside the scroll content. Rects rather than
+  // offsetLeft because offsetLeft is relative to the nearest POSITIONED ancestor,
+  // which is a fact about the stylesheet and not about this rail; offsetLeft is
+  // the fallback for anything that cannot measure.
+  function chipLeft(rail, chip) {
+    try {
+      if (rail.getBoundingClientRect && chip.getBoundingClientRect) {
+        var rr = rail.getBoundingClientRect(), cr = chip.getBoundingClientRect();
+        return (cr.left - rr.left) + (rail.scrollLeft || 0);
+      }
+    } catch (e) {}
+    return chip.offsetLeft || 0;
+  }
+  function chipWidth(rail, chip) {
+    try {
+      if (chip.getBoundingClientRect) {
+        var cr = chip.getBoundingClientRect();
+        if (cr.width) return cr.width;
+      }
+    } catch (e) {}
+    return chip.offsetWidth || 0;
+  }
+  // -1 means "leave the rail alone": either this element is not a scroller at all
+  // (the desktop column) or the chip is already fully on screen, and a reveal
+  // that re-centres a visible chip is a jump the reader did not ask for.
+  function railTarget(rail, chip) {
+    var view = rail.clientWidth || 0;
+    var over = (rail.scrollWidth || 0) - view;
+    if (over <= 4) return -1;
+    var at = rail.scrollLeft || 0;
+    var left = chipLeft(rail, chip);
+    var w = chipWidth(rail, chip);
+    if (left >= at && (left + w) <= (at + view)) return -1;
+    var want = left - ((view - w) / 2);
+    if (want < 0) want = 0;
+    if (want > over) want = over;
+    return Math.round(want);
+  }
+  function revealSeat(host, key, keep) {
+    var rail = railOf(host);
+    if (!rail) return;
+    if (keep) { try { rail.scrollLeft = keep; } catch (e) {} }
+    var chip = null;
+    try {
+      if (key && rail.querySelector) chip = rail.querySelector('.bw-seat[data-sk="' + key + '"]');
+    } catch (e) { chip = null; }
+    if (!chip) return;
+    var to = railTarget(rail, chip);
+    if (to < 0) return;
+    try { rail.scrollLeft = to; } catch (e) {}
+  }
+
   // ── The seat head: who holds it, and what you decided ─────────────────────
-  // THREE STATES, AND THE HEADER MUST AGREE WITH THE PANE UNDER IT.
+  // TWO STATES, AND THE PID IS THE ONLY THING THAT DECIDES WHICH.
   // The Senate pane shipped saying "No record on file for the current holder"
   // directly above a field listing John Curtis and Mike Lee, because this
   // function treated "the light roster has no DISPLAY record for that pid" as
-  // "there is no holder". Those are different facts, and only one of them is a
-  // statement about a person's file:
+  // "there is no holder". Those are different facts, and the second one is the
+  // only one this header is entitled to report:
   //
-  //   pid + display record → name them. This is the normal case, and it is the
-  //                          same pid Who Represents Me prints for the seat.
-  //   pid, no display record → the resolver named somebody this app holds
-  //                          nothing on. That, and only that, is what "no record
-  //                          on file for the current holder" describes.
-  //   no pid at all         → nobody is resolved. Saying a holder's record is
-  //                          empty would assert a holder we never resolved, so
-  //                          the sentence names the actual gap instead.
+  //   the owner returned a pid → NAME THEM, and link the name to /p/<pid>. A pid
+  //                          is a person and a record address; whether the light
+  //                          roster has merged their display row yet is a loading
+  //                          state of this tab and never a claim about the app's
+  //                          coverage. Where the row has not landed the id itself
+  //                          is printed, exactly as Who Represents Me does it, so
+  //                          the header and the band cannot disagree about who
+  //                          holds a seat while one of them waits on a parse.
+  //   no pid at all         → nobody is resolved, and the sentence names that
+  //                          gap. Saying a holder's record is empty would assert
+  //                          a holder we never resolved.
+  //
+  // There is no third branch, which is the point: the sentence about our coverage
+  // is unreachable over anybody the owner named.
   function holderFact(seat, r, gate) {
     var hold = holdersFor(seat.key, r);
     var withPid = hold.filter(function (lv) { return !!lv.pid; });
-    var named = withPid.filter(function (lv) { return !!personOf(lv.pid); });
-    if (named.length) {
-      var who = named.map(function (lv) {
+    if (withPid.length) {
+      var who = withPid.map(function (lv) {
         return '<b>' + candOpen(lv.pid, ' style="font-size:0.8rem;"' +
           ' aria-label="Open ' + esc(nameOf(lv.pid)) + '’s full record"') +
           esc(nameOf(lv.pid)) + candClose(lv.pid) + '</b>';
       }).join(' · ');
       return '<span class="bw-fact"><span aria-hidden="true">\u{1F3DB}</span>' +
         '<span>Holds this seat now: ' + who + '</span></span>';
-    }
-    if (withPid.length) {
-      return '<span class="bw-fact"><span aria-hidden="true">\u{1F3DB}</span>' +
-        '<span>No record on file for the current holder</span></span>';
     }
     if (gate === 'district') {
       return '<span class="bw-fact"><span aria-hidden="true">\u{1F5FA}</span>' +
@@ -707,6 +792,9 @@
     if (!host) return;
     var r = reps();
     var list = seats();
+    // Read before the markup is replaced: the element holding it is about to be
+    // destroyed, and this is the reader's own position on it.
+    var railWas = railScroll(host);
 
     if (!located(r)) {
       markHub(false);
@@ -742,6 +830,7 @@
       '</div>' +
       '<div class="bw-body">' + railHtml(list, seat ? seat.key : '') +
         (seat ? deskHtml(seat, list, r) : '') + '</div>';
+    revealSeat(host, seat ? seat.key : '', railWas);
     try { mount.setAttribute('data-located', '1'); } catch (e) {}
   }
 
@@ -790,6 +879,10 @@
     // Exposed for the harness: the seat list, the gate that decides whether a
     // seat may show a field, and the running count. Pure reads.
     _seats: seats, _gate: fieldGate, _picked: pickedFor,
+    // The rail's two rules, exposed so a harness can assert them without a
+    // browser: where a chip has to put the scroller, and -1 wherever the answer
+    // is "do not move".
+    _railTarget: railTarget, _reveal: revealSeat,
     _decided: function () {
       var n = 0; seats().forEach(function (s) { if (pickedFor(s.key)) n++; }); return n;
     }
@@ -828,6 +921,14 @@
     [400, 1200, 3000].forEach(function (ms) {
       setTimeout(function () { hook(); sync(); }, ms);
     });
+    // …and the arrival itself, from the module that owns the resolution. The
+    // statewide seat heads resolve from the roster, so a first paint that beat
+    // cmp-data.js said "No current officeholder resolved for this seat" over a
+    // pane listing that state's two sitting senators. A schedule of timeouts is a
+    // guess about a network; this is the resolver telling us its input landed.
+    try {
+      if (typeof window.pdxRosterReady === 'function') window.pdxRosterReady(sync);
+    } catch (e) {}
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();

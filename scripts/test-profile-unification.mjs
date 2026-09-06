@@ -1167,9 +1167,47 @@ section("15 · one verdict engine, and a narrow Mixed");
   // read came to look like two products to anyone comparing them.
   eq(b.metric, (r.frame && r.frame.metric) || "",
     "the card brief drops the metric name, so the card has to invent a caption for a number it did not name");
+  // …AND THE CARD NOW TAKES THAT FIGURE WHOLE. It used to compose the percentage
+  // and its tested set out of brief()'s two integers, which is how it came to
+  // paint 88% over 5 tested and then settle to 72% over 15 for one person on one
+  // load. It prints PDXWordAction.figure() — the object the letterhead chip and
+  // the ⚖️ section print — under the metric name the brief still carries. That is
+  // the same number this section exists to protect, so it is checked as a number
+  // and not only as a spelling: the figure's percentage IS the brief's, for the
+  // president and for every warm person in the corpus.
+  const fg = WA.figure(PRES, PP);
+  must(fg, "the shared figure did not build for the president");
+  eq(b.pct, fg.pct,
+    "the homepage card's figure and the card brief disagree about the president's percentage —\n" +
+    "    one read, and the card is meant to be printing it, not recomputing it");
   const HS = R("hero-showcase.js");
-  ok(/d\.pct/.test(HS) && /d\.metric/.test(HS),
-    "the homepage card no longer paints brief().pct under the metric name the engine publishes for it");
+  ok(/fig\.pct/.test(HS) && /d\.metric/.test(HS),
+    "the homepage card no longer paints the shared figure's percentage under the metric name\n" +
+    "    the engine publishes for it");
+  ok(!/d\.pct/.test(HS),
+    "the homepage card reads brief().pct again — the percentage and the tested set beside it\n" +
+    "    come from one object or they are two numbers waiting to disagree");
+  // …and not only for the president. Every person the bundled roster gives a card
+  // percentage to is swept, so the day a roll-call pack lands and a hundred more
+  // briefs carry a figure, this is the assertion that notices if the card and the
+  // brief started answering differently. It is small on the offline corpus — the
+  // count is printed rather than assumed — because most tested sets arrive with
+  // the record pack.
+  {
+    let swept = 0;
+    const apart = [];
+    Object.keys(win.CMP_DATA).forEach((pid) => {
+      const br = PC.brief(pid, win.CMP_DATA[pid]);
+      if (!br || typeof br.pct !== "number") return;
+      const f = WA.figure(pid);
+      if (!f || typeof f.pct !== "number") return;
+      swept++;
+      if (f.pct !== br.pct) apart.push(`${pid} (card ${f.pct} vs brief ${br.pct})`);
+    });
+    eq(apart.join(", "), "",
+      "a person's homepage figure and their card brief disagree about the same percentage");
+    console.log(`      ${swept} card briefs carry a percentage; every one of them is the shared figure's`);
+  }
   ok(/Word vs Action/.test(HS) && !/Kept word|Promise Receipts|Say vs\. ?Do/i.test(HS),
     "a retired integrity product is named on the homepage card — Word vs Action is the only score language");
 }

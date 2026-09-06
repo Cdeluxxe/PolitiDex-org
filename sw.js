@@ -2548,7 +2548,68 @@
 //                       the other at v141.
 // Every person brief, every Direction Match read and every formal tier is
 // byte-identical across a twin boot — the same number, said once.
-const CACHE_VERSION = 'v141';
+// v142 - DOOR 2 ON A PHONE: ONE OWNER, ONE FIGURE, AND A RAIL THAT STAYS PUT.
+// Four surfaces were each answering a question they do not own, on one screen.
+// WHO REPRESENTS ME said "3 of 6" with "No record on file yet — we'd rather leave
+// this blank than name the wrong person" printed over Mike Lee, John Curtis and
+// Spencer Cox; the WORKSPACE HEADER said "No current officeholder resolved" above
+// a pane listing those same people. Both were right about the roster they could
+// see: cmp-data.js is deferred, the first paint of a cold phone happens before it
+// lands, and the only thing standing between that paint and the truth was a
+// stopwatch (600/1800/4000 ms in the band, 400/1200/3000 ms in the workspace). The
+// resolver now announces its own input — window.pdxRosterReady(cb), one owner, one
+// moment, immediate when the roster is already there — and both surfaces listen to
+// that instead of guessing about somebody's network. The workspace header also
+// lost its third branch entirely: every pid the owner returns is NAMED and linked,
+// and a display row that has not merged yet is a loading state of one tab, never a
+// claim about this app's coverage.
+//   THE SEAT RAIL stopped jumping back left. sync() replaces the whole of #bw-body
+// and a replaced scroller starts at scrollLeft 0, so the seat the reader had just
+// tapped scrolled off the side of the phone. The reader's position is now carried
+// across the repaint and the selected chip is revealed only when it is genuinely
+// off screen — by scrollLeft arithmetic, not scrollIntoView, which would drag the
+// page's vertical scroll with it. A desktop seat column is not a scroller and is
+// left completely alone.
+//   THE HOMEPAGE RECORD CARD stopped printing two figures for one person. It
+// painted 88% over 5 tested and then settled to 72% over 15, because the
+// publication floor clears while the roll-call record is still landing and the card
+// was composing that pair itself. It now prints PDXWordAction.figure() — the same
+// object the letterhead chip and the ⚖️ section print — and withholds the
+// percentage until that object says the ledger under it stopped growing. The
+// inventory line still says what is on file, so withholding the figure is not
+// going blank. FOUR PRECACHED SHELL FILES CHANGED, AND ONE UNCHANGED FILE
+// TRAVELS WITH THEM:
+//   · word-action.js      — figureOf() gained `warming` and `ready`. Additive: the
+//                           chip and the section still gate on `shows`, and their
+//                           contract is untouched. figure() also resolves the
+//                           person for a pid-only caller, which is all the home
+//                           card has, so the two cannot answer differently.
+//   · word-action.css     — unchanged by this pass, and named here for the reason
+//                           v141 named it: it is the other half of a precached
+//                           pair. The chip's skin (the quietened denominator)
+//                           already shipped, and a warm device must not hold one
+//                           of these two files at v141 and the other at v142.
+//   · hero-showcase.js    — the ⚖️ block on the record card prints that figure and
+//                           composes nothing: the percentage, the denominator
+//                           beside it and the coverage line's tested set are one
+//                           object, cached on the same derivation epoch as the
+//                           card's read and armed on the engine's own published
+//                           repaint list.
+//   · ballot-workspace.js — the header reads the owner's pid list only; the rail
+//                           keeps its scroll and reveals the selected chip.
+//   · ballot-workspace.css— .bw-seats is position:relative so the offsetLeft
+//                           fallback measures inside the rail. Named here because
+//                           it is the other half of a precached pair: a warm device
+//                           must not hold one of these two at v141.
+// Two changed files are NOT shell assets and arrive fresh: voter-hub-location.js
+// (which now publishes pdxRosterReady) and who-represents-me.js. That split is why
+// the bump matters — a shell holding v141 would serve the fresh resolver beside a
+// cached workspace that never subscribes to it, which fails back to exactly the
+// defect: a header contradicting the pane under it.
+// No floor, mapping, weight, verdict, roster row or Direction Match read moved.
+// Every person brief, every DM ledger entry and every formal tier is byte-identical
+// across a twin boot; what changed is who prints a number and when.
+const CACHE_VERSION = 'v142';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

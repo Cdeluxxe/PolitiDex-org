@@ -802,25 +802,59 @@
   // rounds anything — every face prints this object, so "the lid, the feed row,
   // the sub-line, the chip and the section agree" is a property of construction
   // rather than a habit five surfaces have to keep.
+  //
+  // TWO GATES, BECAUSE TWO KINDS OF SURFACE PUBLISH THIS OBJECT.
+  // `shows` is "both halves or neither", and it is the whole rule for a surface
+  // that sits beside the set it is describing: the letterhead chip and the ⚖️
+  // section print what is tested so far, next to the ledger that says so, and
+  // repaint in place as it grows. That is the person file's contract and it is
+  // unchanged.
+  //
+  // `ready` adds one more clause for a surface where the reader has no ledger to
+  // check the figure against and no way to tell one tick from another. The
+  // homepage record card is that surface: it painted Mike Lee at 88% over five
+  // tested and then settled to 72% over fifteen, because `pct` clears the
+  // publication floor while the roll-call record is still arriving — two numbers
+  // on one card, and the reader carries the wrong one to the file. So a card with
+  // no set on screen publishes only a figure whose ledger has stopped growing
+  // under it, and prints no percentage at all until then.
+  //
+  // NOT A NEW FLOOR AND NOT A SECOND JUDGEMENT. `warming` is read()'s own
+  // coverage flag, unmodified, released by briefGaveUp() at the same 6s deadline
+  // every other loading sentence in this file is released by — so a request that
+  // failed cannot hold a card's figure back forever.
   function figureOf(pid, r, sr) {
     var c = (r && r.coverage) || {};
     var pct = (r && typeof r.pct === 'number') ? r.pct : null;
     var tested = (typeof c.tested === 'number') ? c.tested : 0;
     var eligible = (typeof c.scorable === 'number') ? c.scorable : 0;
     var fraction = fractionOf(tested, eligible);
+    var warming = !!c.warming && !briefGaveUp(String(pid));
     return {
       pid: String(pid), read: r || null, scoped: sr || null,
       pct: pct, tested: tested, eligible: eligible,
       token: (r && r.token) || null, verdict: (r && r.verdict) || null,
       fraction: fraction,
       shows: pct !== null && !!fraction,
+      warming: warming,
+      ready: pct !== null && !!fraction && !warming,
       stamp: [(pct === null ? '' : pct), tested, eligible, ((r && r.token) || '')].join('|')
     };
   }
 
+  // A CALLER WITH ONLY A PID GETS THE SAME LEDGER. The homepage card holds no
+  // person record — it carries a pid and a name from its own seed list — and
+  // scoring a pid with `p` left undefined drops every tracked pledge off the
+  // ledger, which is a different tested set, and therefore a different fraction,
+  // than the letterhead prints for the same person. briefPerson() is the engine's
+  // own resolver for exactly that ("use what I was handed, else the roster"), so
+  // the two surfaces score the same word. It resolves into `p`, above the read,
+  // because the read this owner takes is the term-scoped one the ring and the ⚖️
+  // section take — never a bare read() at whatever scope the engine was left in.
   function figure(pid, p, pre) {
     // `pre` is an already-taken scopedRead, so the section does not pay for a
     // second scoring pass to print the object it is already holding.
+    p = briefPerson(pid, p);
     var sr = pre || scopedRead(pid, p);
     return figureOf(pid, (sr && sr.main) || null, sr);
   }
@@ -5738,6 +5772,15 @@
     // carry two different "tested" counts for one person. See the wall over it.
     figure: figure,
     fractionOf: fractionOf,
+    // 📏 …AND THE REPAINT LIST THE FIGURE TRAVELS ON. Two surfaces printing one
+    // object still hold different ages of it if they hear about the arrival at
+    // different times. HERO_REPAINT is the four moments a record can land (see
+    // the wall over it), and the homepage record card used to subscribe to two of
+    // them — so a card whose rows arrived by any of the other two paths kept a
+    // figure the profile behind it had already replaced. Exported as a call
+    // rather than a copy of the array, so there is one list and arming reads it
+    // at arm time.
+    repaintEvents: figureEvents,
     dots: dots,
     brandingIssueKey: brandingIssueKey,
     isIndependentWord: isIndependentWord,

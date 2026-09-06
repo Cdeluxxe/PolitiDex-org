@@ -78,6 +78,7 @@
   }
 
   function PC() { return window.PDXProfileCard || null; }
+  function WA() { return window.PDXWordAction || null; }
 
   // "Has this member's record lane finished asking?" Owned by consistency.js, which
   // runs the fetch; absent means nothing is being waited on.
@@ -133,12 +134,37 @@
     if (d) readCache[pid] = d;
     return d;
   }
-  function bustReads() { readCache = {}; }
+
+  // ── THE FIGURE, FROM THE ONE OWNER OF IT ───────────────────────────────────
+  // Composing the ⚖️ pair here painted Mike Lee at 88% over five tested and then
+  // settled to 72% over fifteen: the publication floor clears while the roll-call
+  // record is still landing. figure() is the object the letterhead chip and the
+  // ⚖️ section print, so this card prints that object and composes nothing, and
+  // `fig.ready` withholds the percentage until the ledger under it stops growing
+  // (figureOf(), word-action.js). Keyed and dropped on the read cache's epoch.
+  var figCache = {};
+  function liveFig(pid) {
+    var ep = dataEpoch();
+    if (ep !== readEpoch) { readCache = {}; figCache = {}; readEpoch = ep; }
+    if (Object.prototype.hasOwnProperty.call(figCache, pid)) return figCache[pid];
+    var f = null;
+    try {
+      var w = WA();
+      if (w && typeof w.figure === 'function') f = w.figure(pid);
+    } catch (e) { f = null; }
+    if (f) figCache[pid] = f;
+    return f;
+  }
+  function bustReads() { readCache = {}; figCache = {}; }
   // A warm event names ONE member, and a read is per-pid, so only that member's
   // answer can have changed. Throwing the whole cache away on every arrival made
   // the painted card pay for a full PDXProfileCard.read() eight times over a cold
   // load — seven of them recomputing an answer nothing had touched.
-  function dropRead(pid) { if (pid) delete readCache[pid]; else bustReads(); }
+  function dropRead(pid) {
+    if (!pid) { bustReads(); return; }
+    delete readCache[pid];
+    delete figCache[pid];
+  }
 
   // ── CARD · PDXProfileCard's output, in HTML instead of on a canvas ──────────
 
@@ -170,34 +196,31 @@
   }
 
   // The one signal — and the same number the profile leads with. The card and the
-  // profile are one product, so a reader who taps through from here must land on the
-  // figure they just read, not a second summary of the same person. The percentage
-  // is the Word vs Action score straight off PDXProfileCard.brief(); when it is null
-  // the card shows the verdict words alone rather than inventing a number.
+  // profile are one product, so a reader who taps through must land on the figure
+  // they just read. Percentage and tested set are both fig's; while fig is not
+  // ready the badge prints the verdict words and no percentage, and the inventory
+  // line below still names what is on file.
   //
   // Glyph, words and colour are the verdict's own, never re-picked here. The waiting
   // state uses VERDICTS.pending because consistency.js keeps ONE phrase for one
   // wait: this card, Voting Record Highlights and word-action.js can all be waiting
   // on the same fetch.
-  function signalHtml(d) {
+  function signalHtml(d, fig) {
     var CS = window.PDXConsistency;
     var pend = (CS && CS.VERDICTS && CS.VERDICTS.pending) || null;
     var v = (d && d.verdict) || pend;
     var ico = (v && v.ico) || '⏳';
     var label = (v && v.label) || 'Loading the record…';
     var tint = d && d.publishable && d.accent ? d.accent : '';
-    var pct = (d && typeof d.pct === 'number') ? d.pct : null;
+    var pct = (fig && fig.ready && typeof fig.pct === 'number') ? fig.pct : null;
     // The engine's own name for the figure, carried through brief(). A caption
     // hardcoded here is how the card came to label this number one way while the
-    // profile labelled the same number another.
+    // profile labelled the same number another — and the denominator beside it is
+    // the figure's own sentence, because the homepage is the one surface where a
+    // bare "100%" reaches a reader with nothing on screen to check it against.
     var kicker = (d && d.metric) ? d.metric : '';
-    // …AND ITS DENOMINATOR, carried through brief() exactly as the kicker is. The
-    // homepage is the one surface where a bare "100%" reaches a reader who has no
-    // way yet to check it, so the caption is unconditional whenever there is a
-    // percentage. The renderer never reaches PDXWordAction for the wording (the
-    // one-language rule in scripts/test-hero-showcase.mjs): brief() phrases it once.
-    var depth = (pct === null) ? '' : String((d && d.testedSay) || '');
-    var tested = (d && d.coverage && typeof d.coverage.tested === 'number') ? d.coverage.tested : 0;
+    var depth = (pct === null) ? '' : String((fig && fig.fraction) || '');
+    var tested = (fig && typeof fig.tested === 'number') ? fig.tested : 0;
     var tintAttr = tint ? ' style="color:' + esc(tint) + ';"' : '';
     var scoreHtml = (pct === null) ? '' :
       '<span class="pdx-hs-sig-score"' + tintAttr + '>' +
@@ -331,7 +354,11 @@
 
   // Same words the shared image's caption uses, so a reader who sees both cannot
   // find two accounts of the same profile.
-  function coverageHtml(d) {
+  //
+  // THE TESTED SET HERE IS THE BADGE'S. This line used to end with its own "N of M
+  // testable" out of brief()'s coverage — a second spelling of the badge's two
+  // integers, on one card. It prints fig.fraction, and nothing where there is none.
+  function coverageHtml(d, fig) {
     var cov = d && d.coverage;
     if (!cov) return '';
     var bits = [cov.stances + ' stance' + (cov.stances === 1 ? '' : 's')];
@@ -339,7 +366,7 @@
     if (cov.votes !== null && cov.votes !== undefined) {
       bits.push(cov.votes + ' mapped vote' + (cov.votes === 1 ? '' : 's') + ' on record');
     }
-    bits.push(cov.tested + ' of ' + cov.scorable + ' testable');
+    if (fig && fig.fraction) bits.push(fig.fraction);
     return '<p class="pdx-hs-cov"><span class="pdx-hs-cov-k">Coverage</span>' + esc(bits.join(' · ')) + '</p>';
   }
 
@@ -420,7 +447,7 @@
   // read. "Pulling their voting record" over a president asserted the wrong one
   // before it had looked.
   function pendingCard(c) {
-    return headHtml(c, null) + signalHtml(null) +
+    return headHtml(c, null) + signalHtml(null, null) +
       '<p class="pdx-hs-cov pdx-hs-cov-wait">Reading their formal record to test what they have said.</p>';
   }
 
@@ -430,8 +457,11 @@
   // it was — the card opened on a 2rem percentage, which read as the finding
   // rather than as the cross-check on the finding.
   function fullCard(c, d) {
+    // ONE ASK PER PAINT, and both faces of the pair read it. Asking twice is how a
+    // badge and the line under it end up a tick apart.
+    var fig = liveFig(c.pid);
     return headHtml(c, d) + formalHtml(d) + proofHtml(d) +
-           signalHtml(d) + coverageHtml(d);
+           signalHtml(d, fig) + coverageHtml(d, fig);
   }
 
   // ── FRAME · chrome that does not change between slides ─────────────────────
@@ -837,14 +867,34 @@
     // name the member in detail.pid (consistency.js flushWarm, voting-record.js
     // _openVoting), so the common path costs one brief. An event with no pid falls
     // back to the full sweep, which is why the sweep must stay cheap.
+    // BOTH IDS ARE ACCEPTED: 'pdx-record-noted' names the caller's pid AND the
+    // canonical one the rows are stored under, and the two differ for exactly the
+    // members whose record was hardest to find. An id we do not hold is a no-op.
     var onWarm = function (ev) {
-      var pid = ev && ev.detail && ev.detail.pid;
-      if (pid) { settleOne(pid); return; }
-      settleAll();
+      var det = (ev && ev.detail) || null;
+      var ids = [];
+      if (det && det.pid) ids.push(String(det.pid));
+      if (det && det.canon && ids.indexOf(String(det.canon)) === -1) ids.push(String(det.canon));
+      if (!ids.length) { settleAll(); return; }
+      ids.forEach(function (id) { settleOne(id); });
     };
+    // ── THE SAME ARRIVAL LIST THE FIGURE'S OWN SURFACES ARM ON ────────────────
+    // Printing the letterhead's object means hearing about arrivals at the
+    // letterhead's moments, or holding an older age of it. Two of the four were
+    // missing here: 'pdx-record-noted' is the arrival itself (anything that puts
+    // rows in memory), and 'pdx-brief-timeout' is the wait being declared over —
+    // exactly when a withheld percentage must be released. Read at arm time
+    // rather than copied, so there is one list.
+    var evs = ['pdx-consistency-warm', 'pdx-voting-warm'];
     try {
-      window.addEventListener('pdx-consistency-warm', onWarm);
-      window.addEventListener('pdx-voting-warm', onWarm);
+      var w = WA();
+      if (w && typeof w.repaintEvents === 'function') {
+        var got = w.repaintEvents();
+        if (got && got.length) evs = got;
+      }
+    } catch (e) {}
+    try {
+      evs.forEach(function (n) { window.addEventListener(n, onWarm); });
     } catch (e) {}
 
     // Publish-only pass. A returning visitor whose record is already cached gets a

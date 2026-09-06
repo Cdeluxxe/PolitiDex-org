@@ -1691,6 +1691,66 @@ const swNote = swWaveNote();
     // assertion beside it refuses the hand-built pair coming back. Strictly
     // stronger, and nothing was dropped.
     "scripts/test-profile-spine.mjs",
+    // ── Door 2 on a phone: one owner, one figure, and a rail that stays put
+    //    (CACHE_VERSION v142) ────────────────────────────────────────────────
+    // The same terms once more, and the same wall: no roll, no mapping, no key, no
+    // floor and no admission. Four surfaces on one homepage screen were each
+    // answering a question they do not own. WHO REPRESENTS ME painted "3 of 6 seats
+    // resolved" with both U.S. Senate rows and the Governor row reading "No record
+    // on file yet — we'd rather leave this blank than name the wrong person" over
+    // Mike Lee, John Curtis and Spencer Cox; the ballot WORKSPACE HEADER said "No
+    // current officeholder resolved" above a pane listing those same people. Both
+    // were right about the roster they could see — cmp-data.js is deferred and both
+    // of these surfaces are synchronous — and the only thing correcting either of
+    // them was a stopwatch (600/1800/4000 ms in the band, 400/1200/3000 ms in the
+    // workspace). voter-hub-location.js owns the resolution, so it now announces its
+    // own input arriving: window.pdxRosterReady(cb), one moment, fired immediately
+    // for a subscriber that loaded after the roster landed, with the statewide memo
+    // dropped at that moment so the repaint cannot be served the answer it is
+    // replacing. Both surfaces subscribe instead of growing polls of their own, and
+    // the workspace header NAMES every pid pdxSeatHolders() returns rather than
+    // reading "the light roster has no display row for that pid yet" as "there is no
+    // holder". The seat rail keeps the reader's scroll across the repaint that
+    // destroys it and reveals the selected chip by scrollLeft arithmetic — not
+    // scrollIntoView, which would drag the page's vertical scroll with it — and
+    // .bw-seats gained position:relative so the fallback measurement is taken inside
+    // the rail. The homepage record card's second figure is closed in the same pass:
+    // it painted 88% over 5 tested and settled to 72% over 15, and now prints the
+    // shared figure and withholds the percentage until the record under it has
+    // stopped growing. word-action.js, hero-showcase.js, sw.js,
+    // scripts/test-hero-showcase.mjs and scripts/test-homepage-card-lane.mjs are all
+    // declared above already.
+    //   The reason a wave like this one is the file that has to declare it: R1 and R2
+    // put 1,120 member files behind these seats, and this band and this workspace are
+    // how a reader in a real county reaches any of them — a header denying a holder
+    // the pane beneath it is listing is a claim about this app's coverage of that
+    // roster, made from a fact about one loading tab. Nothing this wave measures
+    // moves: no roster row, no admission, no floor, no weight, no verdict and no
+    // Direction Match read, which the twin boot above has just proved for the ledger
+    // and the DM figure.
+    "ballot-workspace.js",
+    "ballot-workspace.css",
+    "voter-hub-location.js",
+    "who-represents-me.js",
+    //   The four harnesses below are re-statements rather than relaxations.
+    // test-door2-holders.mjs pinned the header's third branch — the sentence that is
+    // now unreachable — and asks for the named holder in its place, with every pid a
+    // header prints required to be one the owner returned, swept across all five
+    // mapped seats. test-ballot-workspace.mjs widened one alternation to the two
+    // states that header now has. test-score-depth.mjs pinned the card's caption by
+    // the phrase the card used to compose (d.testedSay) and now requires the shared
+    // figure's own sentence, which is the stronger form of the rule that section
+    // exists for: the figure publishes both halves or neither, so a percentage
+    // reaching that card without its set is unconstructible rather than merely
+    // forbidden. test-profile-unification.mjs pinned "the homepage card paints
+    // brief().pct" by that spelling; the card prints PDXWordAction.figure() now, so
+    // the same claim is asserted as a NUMBER — the figure's percentage IS the
+    // brief's, for the president — with the old spelling refused beside it. No
+    // assertion was dropped and every counterfactual still holds.
+    "scripts/test-door2-holders.mjs",
+    "scripts/test-ballot-workspace.mjs",
+    "scripts/test-score-depth.mjs",
+    "scripts/test-profile-unification.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
