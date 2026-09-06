@@ -9871,6 +9871,93 @@
       return out;
     }
 
+    // ── THE PAINTED GROUP IS THE SEAT FIELD, CHECKED WHERE IT IS PAINTED ─────
+    // A Layton reader's U.S. House block printed "🏛 Currently holds this seat
+    // (2)" over Blake Moore (U.S. Representative · UT-1) AND Thomas W. Peterson
+    // (Utah State Representative · House District 1). Two chambers, two seats,
+    // one green rail claiming both people sit in the seat the reader votes on.
+    //
+    // These two cards are emitted as siblings by _renderRelevantStatusSplit,
+    // from one line:
+    //
+    //     _sortInOfficeFirst(inOffice).forEach(function(pid) { out += _renderRelevantPersonCard(pid); });
+    //
+    // and `inOffice` is nothing but the in-office partition of the pid list that
+    // function was HANDED — officeGroups[groupKey], straight off
+    // _renderOfficeAccordion's first line. So the renderer was never the bug and
+    // neither was pdxSeatField: the field answers ["bmoore"] for this reader and
+    // always did. The bug is that the list being painted was not required to BE
+    // that answer at the moment it was painted. _relevantSeatFields hands the
+    // field over upstream, once, in an assembly pass that (a) returns early when
+    // seat-field.js has not loaded yet — a real state on a deferred-script page
+    // whose first paint can beat it — and (b) is one of several passes, any of
+    // which is an additive tier that can put a record in a seat group after it.
+    // An upstream handover is a claim about assembly order; the reader is looking
+    // at the DOM.
+    //
+    // So the seat's own list is resolved HERE, in the one function that turns a
+    // group key into cards, on every render path, whatever ran before it:
+    //
+    //   1. THE OFFICE HALF OF THE SEAT KEY, ENFORCED. A seat is an office AND a
+    //      state AND a district. Peterson and Moore share exactly one of the
+    //      three — the numeral 1 — so any list that groups on the district
+    //      number alone contains both. The chamber classifier has already placed
+    //      every record (window._pdxBrowseType, the same one the browse tree,
+    //      the archive and seat-field.js read), and a record it puts in another
+    //      chamber cannot be in this chamber's seat. This half needs no location
+    //      and no field, so it holds even where step 2 cannot answer.
+    //   2. THE FIELD IS THE ANSWER WHEN IT HAS ONE. seat-field.js keys the roster
+    //      on office + state + district and repairs the resolver's own holders
+    //      in, so when it can answer for this reader its list — in its order — IS
+    //      the group. Refusal (no location, no district, a state we hold no
+    //      roster for) leaves step 1's list rather than emptying a populated one.
+    //
+    // Applies to the three DISTRICT seats only. `senator` carries both Senate
+    // seats and `governor` carries every statewide executive by design, so
+    // substituting one seat's field for either bucket would delete real rows;
+    // those two keep the union _relevantSeatFields already gives them. Nothing
+    // here ranks, scores, or drops a record from the roster — a record this
+    // removes from a seat group is in the wrong seat, and still has its own.
+    var _RELEVANT_DISTRICT_SEAT_GK = { representative: 1, state_senator: 1, state_rep: 1 };
+    function _relevantChamberOf(pid) {
+      try {
+        if (typeof window._pdxBrowseType === 'function') return String(window._pdxBrowseType(pid) || '');
+      } catch (e) {}
+      try {
+        if (typeof _classifyBrowseType === 'function') return String(_classifyBrowseType(pid) || '');
+      } catch (e) {}
+      return '';
+    }
+    function _relevantSeatGroupPids(groupKey, pids) {
+      pids = (pids || []).slice();
+      if (!_RELEVANT_DISTRICT_SEAT_GK[groupKey]) return pids;
+
+      // 1. One chamber per seat.
+      var kept = pids.filter(function(pid) {
+        if (!CMP_DATA[pid]) return false;
+        var t = _relevantChamberOf(pid);
+        return !t || t === groupKey;
+      });
+
+      // 2. The seat field, when it can answer for this reader.
+      var def = _RELEVANT_SEAT_OF[groupKey];
+      var sf = null;
+      if (def && typeof window.pdxSeatField === 'function') {
+        try { sf = window.pdxSeatField(def.seat); } catch (e) { sf = null; }
+      }
+      if (sf && sf.answerable && sf.pids && sf.pids.length) {
+        var field = sf.pids.filter(function(pid) {
+          return CMP_DATA[pid] && _relevantChamberOf(pid) !== 'other';
+        });
+        if (field.length) return field;
+      }
+      return kept;
+    }
+    // Exposed for the same reason _pdxRelevantDistNum is: the seat groups this
+    // resolves are what the section paints, and a probe that re-derives them
+    // would be checking its own copy rather than the one on the page.
+    window._relevantSeatGroupPids = _relevantSeatGroupPids;
+
     // Renders the Federal → State → Local accordion tree for a set of office
     // groups (shared by both the focused ballot view and the legacy fallback).
     // ctx carries focus metadata + optional extra HTML appended inside a level
@@ -9879,7 +9966,9 @@
       ctx = ctx || {};
 
       function _renderOfficeAccordion(groupKey) {
-        var officePids = officeGroups[groupKey] || [];
+        // The seat's own list, resolved at paint time (see above) rather than
+        // trusted from whatever the assembly tiers left in the bucket.
+        var officePids = _relevantSeatGroupPids(groupKey, officeGroups[groupKey] || []);
         var tDef = _RELEVANT_OFFICE_DEFS[groupKey];
         if (!tDef) return '';
         var isOfficeOpen = _browseGroupState['relevant-office-' + groupKey] !== undefined
@@ -10392,9 +10481,23 @@
       governor:       { seat: 'governor',    replace: false }
     };
     function _relevantSeatFields(officeGroups) {
+      // The three district seats resolve through the same function the tree
+      // paints from, so the published groups (the count badge, "Compare the
+      // field", "Rank these N by my values", the coverage pills) and the cards
+      // cannot disagree about who is in a seat. It runs whether or not
+      // seat-field.js has loaded: the office half of the seat key is enforced
+      // either way, and the field takes over as soon as it can answer.
+      Object.keys(_RELEVANT_SEAT_OF).forEach(function(gk) {
+        if (!_RELEVANT_DISTRICT_SEAT_GK[gk]) return;
+        var had = (officeGroups[gk] || []).length;
+        var resolved = _relevantSeatGroupPids(gk, officeGroups[gk] || []);
+        if (resolved.length) officeGroups[gk] = resolved;
+        else if (had) delete officeGroups[gk];
+      });
       if (typeof window.pdxSeatField !== 'function') return;
       Object.keys(_RELEVANT_SEAT_OF).forEach(function(gk) {
         var def = _RELEVANT_SEAT_OF[gk];
+        if (def.replace) return;                 // handled above, at paint parity
         var sf = null;
         try { sf = window.pdxSeatField(def.seat); } catch (e) { sf = null; }
         // Not answerable = we could not draw this seat for this voter (no
@@ -10402,10 +10505,6 @@
         // group exactly as the tiers above left it; refusing is not a reason to
         // empty a list that already had names in it.
         if (!sf || !sf.answerable || !sf.pids || !sf.pids.length) return;
-        if (def.replace) {
-          officeGroups[gk] = sf.pids.slice();
-          return;
-        }
         var have = officeGroups[gk] || [];
         var seen = {};
         have.forEach(function(p) { seen[p] = 1; });

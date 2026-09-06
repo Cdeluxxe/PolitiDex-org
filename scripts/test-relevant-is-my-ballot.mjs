@@ -99,7 +99,12 @@
 //      other U.S. House UT-01 records — never a Utah House member who happens to
 //      sit in a district numbered 1. Thomas Peterson stays on State House
 //      District 1, and nobody's chamber is decided by an office STRING when the
-//      classifier has already named their chamber.
+//      classifier has already named their chamber. ASKED OF THE PAINTED CARDS,
+//      not only of the lists: the group container the accordion writes, the
+//      cards' own data-pid, and the "🏛 Currently holds this seat (N)" rail's own
+//      N. Peterson's card exists for the reader whose district his is, under
+//      State House and under no other header. Section M reverses it and the
+//      reported pair comes back.
 //   J. THE ⚖️ CHIP PRINTS A FIGURE IT OWNS, OR NO NUMBER AT ALL. Not the verdict
 //      word "Backs it up" — a percentage and the set that sizes it, straight off
 //      PDXWordAction.figure(), and only once that set has stopped growing.
@@ -281,6 +286,40 @@ function render(loc, opts) {
     stateOf: (pid) => String(r.win._pdxBrowseStateOf(pid) || ""),
     typeOf: (pid) => String(r.win._pdxBrowseType(pid) || ""),
   };
+}
+
+// THE PAINTED GROUP, READ OFF THE DOM. _renderOfficeAccordion writes one
+// container per seat with id="relevant-browse-group-<groupKey>", and every card
+// inside it carries data-pid, so "which cards are siblings under this seat's
+// header" is a read of the markup rather than a second derivation of it. The
+// slice runs to the next container id, so it holds exactly one seat.
+function groupSlice(html, gk) {
+  const a = String(html).indexOf('id="relevant-browse-group-' + gk + '"');
+  if (a === -1) return "";
+  const b = String(html).indexOf('id="relevant-browse-group-', a + 12);
+  return b === -1 ? String(html).slice(a) : String(html).slice(a, b);
+}
+// The cards in a slice, in paint order. Cards are the only markup in the
+// section that carries data-pid, so a stance tooltip that happens to name
+// another politician is not mistaken for a card of theirs.
+function cardPids(slice) {
+  const out = [];
+  const re = /data-pid="([^"]+)"/g;
+  let m;
+  while ((m = re.exec(String(slice))) !== null) { if (out.indexOf(m[1]) === -1) out.push(m[1]); }
+  return out;
+}
+// The "🏛 Currently holds this seat (N)" rail's own N, and the run of markup it
+// heads — from that divider to the next role divider ("🗳️ Running for this
+// seat") or the end of the group.
+function holdsRail(slice) {
+  const i = String(slice).indexOf('pdx-field-role-divider is-office');
+  if (i === -1) return { found: false, n: null, block: "" };
+  const rest = String(slice).slice(i);
+  const j = rest.indexOf('pdx-field-role-divider', 24);
+  const block = j === -1 ? rest : rest.slice(0, j);
+  const m = block.match(/pdx-field-role-n">\((\d+)\)/);
+  return { found: true, n: m ? Number(m[1]) : null, block: block };
 }
 
 const LAYTON = { state: "Utah", city: "Layton", county: "Davis County", district: "1" };
@@ -1128,6 +1167,186 @@ section("I · a district number alone is not a seat");
     console.log(`      U.S. House group: ${house.join(", ")} — all representative/Utah/1`);
   }
 
+  // ── THE CARDS THAT ACTUALLY PAINT, SLICED OUT OF THE TREE ──────────────────
+  // The report was not about a list, it was about two cards side by side under
+  // one header: "🏛 Currently holds this seat (2)", Blake Moore and Thomas
+  // Peterson. The group above is what the assembly published; this is what the
+  // renderer drew from it. One line built that pair —
+  //
+  //     _sortInOfficeFirst(inOffice).forEach(function(pid) { out += _renderRelevantPersonCard(pid); });
+  //
+  // inside _renderRelevantStatusSplit, where `inOffice` is the in-office half of
+  // whatever pid list the function was handed. It draws the list; it does not
+  // decide it. So the seat's list is now resolved at the one place a group key
+  // turns into cards — _renderOfficeAccordion's first statement — and this block
+  // asks the DOM, not the resolver.
+  {
+    const slice = groupSlice(layton.html, "representative");
+    must(slice.length > 400,
+         "no U.S. House group container painted for a Layton reader — this probe is stale");
+    has(slice, w.CMP_DATA.bmoore.name,
+        "the U.S. House group paints no Blake Moore card for a Layton reader");
+    lacks(slice, w.CMP_DATA[PET].name,
+          `${PET} is painted inside the U.S. House group container. He holds a Utah House seat: two\n` +
+          "    offices under one seat header is the reported bug");
+
+    // Every card in the container, by pid — and each one is a U.S. House record.
+    const painted = cardPids(slice);
+    ok(painted.indexOf("bmoore") !== -1, "Blake Moore has no card in the U.S. House group container");
+    ok(painted.indexOf(PET) === -1, `${PET} has a card in the U.S. House group container`);
+    painted.forEach((pid) => {
+      eq(layton.typeOf(pid), "representative",
+         `the U.S. House group paints a card for ${pid}, whom the archive classifies as\n` +
+         `    ${JSON.stringify(layton.typeOf(pid))}`);
+    });
+    // The cards ARE the group. Not a subset, not a superset — the count badge,
+    // "Compare the field" and "Rank these N by my values" all read the published
+    // group, and a reader who counts the cards has to get the same number.
+    eq(painted.slice().sort().join(","), (layton.groups.representative || []).slice().sort().join(","),
+       "the U.S. House cards on the page are not the U.S. House group the section published. The badge,\n" +
+       "    the compare sheet and the cards would be describing different fields");
+
+    // ── THE RAIL'S OWN NUMBER ──
+    const rail = holdsRail(slice);
+    must(rail.found, "the U.S. House group paints no 'Currently holds this seat' rail — this probe is stale");
+    const holders = (layton.groups.representative || []).filter((pid) => layton.typeOf(pid) === "representative" &&
+      String(w._pdxOfficeStatus(w.CMP_DATA[pid]) || "") === "office");
+    eq(rail.n, holders.length,
+       `the U.S. House rail claims ${rail.n} record(s) hold this seat and the seat's own field has\n` +
+       `    ${holders.length}. The reported header read (2)`);
+    eq(rail.n, 1, "Utah's 1st congressional district is not being drawn with a single holder");
+    has(rail.block, w.CMP_DATA.bmoore.name,
+        "the 'Currently holds this seat' rail on the U.S. House group does not head Blake Moore's card");
+    lacks(rail.block, w.CMP_DATA[PET].name,
+          `${PET} is under the "Currently holds this seat" rail of the U.S. House group — the exact\n` +
+          "    sibling pair in the report");
+    cardPids(rail.block).forEach((pid) => {
+      eq(layton.typeOf(pid), "representative",
+         `${pid} is carded under the U.S. House "holds this seat" rail and classifies as\n` +
+         `    ${JSON.stringify(layton.typeOf(pid))}`);
+    });
+
+    // ── "WHERE THEY STAND" IS THE SAME PID LIST ──
+    // The stance board is emitted inside the same status split, from the same
+    // list, so a name on it and a card above it cannot disagree. It is asked by
+    // pid: every politician the board names is in the group.
+    const bIdx = slice.indexOf("Where they stand");
+    const boardTitle = bIdx !== -1;
+    ok(boardTitle || slice.indexOf("What their records did") !== -1,
+       "the U.S. House group paints no stance board at all — this probe is stale");
+    const board = boardTitle ? slice.slice(bIdx) : "";
+    if (board) {
+      const strayed = Object.keys(w.CMP_DATA).filter((pid) =>
+        (layton.groups.representative || []).indexOf(pid) === -1 &&
+        board.indexOf('data-pid="' + pid + '"') !== -1);
+      eq(strayed.join(" | "), "",
+         "the U.S. House 'Where they stand' board carries pids that are not in the seat's group");
+      lacks(board, w.CMP_DATA[PET].name,
+            `${PET} is named on the U.S. House race's "Where they stand" board`);
+    }
+    console.log(`      painted U.S. House cards: ${painted.join(", ")} — rail says (${rail.n})`);
+  }
+
+  // ── PETERSON'S CARD EXISTS, UNDER STATE HOUSE, FOR THE READER WHOSE IT IS ──
+  // The Layton half above is "he is not on this page". That is only half the
+  // doctrine: he holds a real seat and a reader in it must see him — under State
+  // House, and nowhere else on their page either. Box Elder County, Utah House
+  // district 1: his district, and a congressional district numbered 1 as well,
+  // so both numerals still collide for this reader.
+  {
+    const box = render({ state: "Utah", city: "Brigham City", county: "Box Elder County",
+                         district: "1", stateHouseDistrict: "1" });
+    ok(!box.threw, `renderRelevantToMe threw for a Box Elder reader — ${box.threw && box.threw.message}`);
+    const sh = box.groups.state_rep || [];
+    must(sh.length > 0, "the Box Elder reader got no state-house group — this probe is stale");
+    ok(sh.indexOf(PET) !== -1,
+       `${PET} is missing from the state-house group of a reader in his own district. The fix must key\n` +
+       "    the seat on the office, not delete him from the archive");
+    ok((box.groups.representative || []).indexOf(PET) === -1,
+       `${PET} is in the U.S. House group of a Box Elder reader — the same collision, one county over`);
+
+    const shSlice = groupSlice(box.html, "state_rep");
+    const repSlice = groupSlice(box.html, "representative");
+    has(shSlice, box.win.CMP_DATA[PET].name,
+        `${PET} has no card under State House for a reader in his own district`);
+    lacks(repSlice, box.win.CMP_DATA[PET].name,
+          `${PET} is painted inside the U.S. House group container for a Box Elder reader`);
+    has(repSlice, box.win.CMP_DATA.bmoore.name,
+        "the Box Elder reader's U.S. House group paints no Blake Moore card — this probe is stale");
+    // And his card is under that one header only: every container that paints
+    // him is the state-house one.
+    Object.keys(box.groups).forEach((gk) => {
+      if (gk === "state_rep") return;
+      lacks(groupSlice(box.html, gk), box.win.CMP_DATA[PET].name,
+            `${PET} is painted inside the ${gk} group container. His seat is Utah House district 1 and\n` +
+            "    that is the only header he belongs under");
+    });
+    cardPids(shSlice).forEach((pid) => {
+      eq(box.typeOf(pid), "state_rep",
+         `the Box Elder state-house group paints a card for ${pid}, classified\n` +
+         `    ${JSON.stringify(box.typeOf(pid))}`);
+    });
+    console.log(`      Box Elder state house: ${sh.join(", ")} — U.S. House: ${(box.groups.representative || []).join(", ")}`);
+  }
+
+  // ── THE COUNTERFACTUAL, AS A FUNCTION: A DISTRICT NUMBER ALONE BRINGS HIM ──
+  // window._relevantSeatGroupPids is the resolver the paint calls. Hand it the
+  // list the reported DOM was built from — every Utah record whose district
+  // number is the reader's, chamber ignored — and it must hand back one
+  // chamber's seat. The input is asserted to CONTAIN Peterson first, because a
+  // counterfactual whose input is already clean proves nothing.
+  {
+    must(typeof w._relevantSeatGroupPids === "function",
+         "_relevantSeatGroupPids is not exported — the paint-time seat resolver has no probe door");
+    const distOnly = Object.keys(w.CMP_DATA).filter((pid) =>
+      layton.distOf(pid) === 1 && layton.stateOf(pid) === "Utah");
+    ok(distOnly.indexOf(PET) !== -1,
+       "grouping Utah records on the district number alone no longer picks up Thomas Peterson, so this\n" +
+       "    counterfactual is vacuous — re-derive the collision");
+    ok(distOnly.indexOf("bmoore") !== -1,
+       "grouping on the district number alone does not pick up Blake Moore either — re-derive this");
+    ok(distOnly.length > 3,
+       `only ${distOnly.length} record(s) share the numeral 1 in Utah — this counterfactual is thin`);
+
+    const asHouse = w._relevantSeatGroupPids("representative", distOnly);
+    ok(asHouse.indexOf(PET) === -1,
+       `the paint-time resolver keeps ${PET} in a U.S. House group when handed a district-number-only\n` +
+       "    list. That list is the reported DOM");
+    ok(asHouse.indexOf("bmoore") !== -1,
+       "the paint-time resolver drops Blake Moore from his own seat when handed a wider list");
+    asHouse.forEach((pid) => eq(layton.typeOf(pid), "representative",
+      `the resolver returned ${pid} for the U.S. House seat and the archive classifies them as\n` +
+      `    ${JSON.stringify(layton.typeOf(pid))}`));
+    // The same wide list, asked for the OTHER chamber, answers with that
+    // chamber — the resolver keys on the office, it does not simply prefer
+    // Congress.
+    const asStateHouse = w._relevantSeatGroupPids("state_rep", distOnly);
+    ok(asStateHouse.length > 0, "the resolver empties the state-house seat when handed a wide list");
+    asStateHouse.forEach((pid) => eq(layton.typeOf(pid), "state_rep",
+      `the resolver returned ${pid} for the state-house seat and the archive classifies them as\n` +
+      `    ${JSON.stringify(layton.typeOf(pid))}`));
+
+    // AND WITH THE FIELD FUNCTION ABSENT. seat-field.js is a deferred script; a
+    // first paint can beat it, and that is the state in which the reported DOM
+    // is most likely to have been drawn. The office half of the seat key needs
+    // neither the field nor a location, so it holds without it.
+    const bare = boot(LAYTON);
+    must(typeof bare.win._relevantSeatGroupPids === "function",
+         "the second boot exposes no seat resolver — this probe is stale");
+    delete bare.win.pdxSeatField;
+    eq(typeof bare.win.pdxSeatField, "undefined",
+       "pdxSeatField could not be removed for the load-order probe — this probe is stale");
+    const noField = bare.win._relevantSeatGroupPids("representative", distOnly);
+    ok(noField.indexOf(PET) === -1,
+       `with seat-field.js not yet loaded, ${PET} survives in a U.S. House group. A deferred script is\n` +
+       "    a real state of a first paint, and the office half of the seat key must not depend on it");
+    ok(noField.indexOf("bmoore") !== -1,
+       "with seat-field.js absent the resolver also loses Blake Moore, so it is failing closed on a\n" +
+       "    load order the browser really produces");
+    console.log(`      district-1-only list (${distOnly.length}) → house ${JSON.stringify(asHouse)}, ` +
+      `no field ${JSON.stringify(noField)}, state house ${JSON.stringify(asStateHouse)}`);
+  }
+
   // ── THE 📍 LOCAL BADGE KEYS ON THE OFFICE TOO ──
   // _pdxIsLocalToUser is the exported door onto the reader's own relevance test,
   // and it is the surface where a bare district number does the most damage: the
@@ -1831,6 +2050,79 @@ section("M · every added guard is load-bearing");
         "    section J's smoke check is guarding nothing. The reported symptom was Lee's and Curtis's\n" +
         "    cards reading \"Backs it up\" with no figure and no tested set — re-derive it");
     console.log(`      verdict word back on the chip: ${(b.html.match(/Backs it up/g) || []).length} card(s) graded instead of measured`);
+  }
+
+  // ── 9. THE SEAT GROUPED ON THE DISTRICT NUMBER ALONE ──
+  // The reported DOM, rebuilt: "🏛 Currently holds this seat (2)" heading Blake
+  // Moore and Thomas Peterson. Two mutations, in the order the bug happens.
+  //
+  //   · SEEDING. _relevantEnforceDistricts is where a district number meets a
+  //     group, and it meets it per office bucket. Reverted here to a bucket that
+  //     admits every Utah record carrying the reader's number, chamber ignored —
+  //     which is the only list both Moore and Peterson are on.
+  //   · THE PAINT-TIME RESOLVER. _relevantSeatGroupPids, the first statement of
+  //     _renderOfficeAccordion, reverted to the pass-through it replaced: draw
+  //     whatever list you were handed.
+  //
+  // Seeding alone must change NOTHING on the page — that is the whole claim of
+  // moving the guarantee to the paint. Both together must put Peterson's card
+  // back beside Moore's, or section I's DOM assertions are guarding nothing.
+  {
+    // Section I's names, re-bound: this section is its own scope.
+    const LW = layton.win, PET = "thomas_peterson";
+    const SEED = "        var pids = officeGroups[gk];\n        if (!pids || !pids.length) return;\n";
+    must(CH_SRC.split(SEED).length === 2,
+         "the district pass no longer reads its group at a single site — this probe is stale");
+    const distOnly = CH_SRC.replace(SEED,
+      "        var pids = (officeGroups[gk] || []).slice();\n" +
+      "        Object.keys(CMP_DATA).forEach(function(p) {\n" +
+      "          if (pids.indexOf(p) === -1 && _relevantDistNum(p) === want &&\n" +
+      "              String(window._pdxBrowseStateOf(p) || '') === 'Utah') pids.push(p);\n" +
+      "        });\n" +
+      "        if (!pids.length) return;\n");
+
+    const GATE = "      if (!_RELEVANT_DISTRICT_SEAT_GK[groupKey]) return pids;\n";
+    must(CH_SRC.split(GATE).length === 2,
+         "the paint-time seat resolver no longer gates the district seats at a single site — this probe\n" +
+         "    is stale");
+    const noResolver = distOnly.replace(GATE, "      return pids;\n");
+
+    // Seeding on its own: the seat resolver eats it.
+    {
+      const seeded = bootBroken({ "compare-hub.js": distOnly }, LAYTON);
+      must((seeded.groups.representative || []).length > 0,
+           "the district-only build painted no U.S. House group — this probe is stale");
+      eq((seeded.groups.representative || []).join(","), (layton.groups.representative || []).join(","),
+         "seeding the U.S. House bucket with every Utah record numbered 1 CHANGED the published group, so\n" +
+         "    the paint-time resolver is not the thing holding this seat together");
+      lacks(groupSlice(seeded.html, "representative"), LW.CMP_DATA[PET].name,
+            `${PET} paints inside the U.S. House group as soon as the bucket is seeded by district number.\n` +
+            "    The resolver at the paint is supposed to absorb exactly this");
+    }
+
+    // Both reverted: the report, reproduced.
+    {
+      const bad = bootBroken({ "compare-hub.js": noResolver }, LAYTON);
+      const rep = bad.groups.representative || [];
+      must(rep.length > 0, "the fully reverted build painted no U.S. House group — this probe is stale");
+      ok(rep.indexOf(PET) !== -1,
+         `reverting both the district pass and the paint-time resolver does NOT put ${PET} back in the\n` +
+         "    U.S. House group, so section I is passing for some reason other than this pass — re-derive it");
+      const slice = groupSlice(bad.html, "representative");
+      ok(slice.indexOf(LW.CMP_DATA[PET].name) !== -1,
+         "the reverted build does not paint Thomas Peterson's card inside the U.S. House group container,\n" +
+         "    so section I's DOM read is not pinning the reported sibling pair");
+      ok(slice.indexOf(LW.CMP_DATA.bmoore.name) !== -1,
+         "the reverted build paints no Blake Moore card either, so it is not reproducing the report");
+      const rail = holdsRail(slice);
+      ok(rail.found && rail.n !== null && rail.n > 1,
+         `the reverted build's "Currently holds this seat" rail reads (${rail.n}). The report read (2), so\n` +
+         "    this counterfactual is not rebuilding the header that was filed");
+      ok(cardPids(rail.block).some((pid) => String(bad.w._pdxBrowseType(pid) || "") === "state_rep"),
+         "the reverted build's holds-this-seat rail carries no state legislator, so the two-offices-under-\n" +
+         "    one-header shape is not what section I is guarding against");
+      console.log(`      district number alone: U.S. House group ${rep.join(", ")} — rail says (${rail.n})`);
+    }
   }
 }
 
