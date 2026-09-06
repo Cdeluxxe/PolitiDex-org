@@ -254,8 +254,11 @@
           // Updating an id that IS already in CMP_DATA is untouched — that branch
           // is a live roster record receiving its own full document, which is the
           // whole point of this function.
-          if (CMP_DATA[id]) Object.assign(CMP_DATA[id], full);
-          else if (!(typeof window.PDXRetiredPid === 'function' && window.PDXRetiredPid(id))) {
+          // A blank never overwrites a curated field; see _pdxMergeRosterRecord.
+          if (CMP_DATA[id]) {
+            if (typeof _pdxMergeRosterRecord === 'function') _pdxMergeRosterRecord(CMP_DATA[id], full);
+            else Object.assign(CMP_DATA[id], full);
+          } else if (!(typeof window.PDXRetiredPid === 'function' && window.PDXRetiredPid(id))) {
             CMP_DATA[id] = merged;
           }
         }

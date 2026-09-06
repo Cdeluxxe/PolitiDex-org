@@ -1622,6 +1622,43 @@
     return t.tracked + (t.tracked === 1 ? ' Promise' : ' Promises');
   };
 
+  // ── A BLANK IS NOT AN ANSWER, AND NEVER OVERWRITES ONE ────────────────────
+  // This merge used to be Object.assign(CMP_DATA[id], p), and it is where a live
+  // phone lost three officeholders. `p` is the LIGHT Firestore stub, and the loop
+  // above defaults every essential field on it before the merge — so a document
+  // that simply does not carry `office` or `state` arrives here carrying
+  // office:'' and state:'', and Object.assign wrote those two empty strings over
+  // the bundled roster's "U.S. Senator" / "Utah".
+  //
+  // Statewide seats are resolved from exactly those two strings (see
+  // _pdxStatewideSeats in voter-hub-location.js), so the consequence was not a
+  // cosmetic gap: Who Represents Me painted six of six for a Layton reader with
+  // John Curtis, Mike Lee and Spencer Cox, the roster pill finished, this merge
+  // ran, and the same three rows became "No record on file yet — we'd rather
+  // leave this blank than name the wrong person" with the count at three of six.
+  //
+  // So the rule is the obvious one: a live document still wins every field it
+  // actually has, and an absent field loses to whatever the bundle already knew.
+  // Empty string, null, undefined and an empty array are all "the payload did not
+  // carry this", because after the defaulting above they are literally
+  // indistinguishable from it — a deliberately-cleared field in Firestore reaches
+  // this line looking exactly like a missing one, and of the two readings only
+  // this one can be wrong in the direction of deleting a sitting senator.
+  function _pdxMergeRosterRecord(dst, src) {
+    if (!dst || !src) return dst;
+    Object.keys(src).forEach(function (k) {
+      var v = src[k];
+      var blank = (v === '' || v === null || v === undefined ||
+                   (Array.isArray(v) && !v.length));
+      if (blank && !_pdxIsBlankValue(dst[k])) return;
+      dst[k] = v;
+    });
+    return dst;
+  }
+  function _pdxIsBlankValue(v) {
+    return v === '' || v === null || v === undefined || (Array.isArray(v) && !v.length);
+  }
+
   function _checkAndTrigger() {
     if (_firestoreLoaded && _domContentLoaded) {
       console.log("⚡ BOTH Firestore and DOMContentLoaded are ready. Syncing data and running deferred events.");
@@ -1664,7 +1701,7 @@
           if (!CMP_DATA[id]) {
             CMP_DATA[id] = p;
           } else {
-            Object.assign(CMP_DATA[id], p);
+            _pdxMergeRosterRecord(CMP_DATA[id], p);
           }
         });
       }
