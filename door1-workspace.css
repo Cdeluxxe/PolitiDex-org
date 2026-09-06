@@ -723,6 +723,37 @@
   padding: 0.55rem 0.7rem; border-radius: 0.7rem;
   background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.09);
 }
+/* ── A MEASURE IDENTITY THAT IS A DOOR ──────────────────────────────────────
+   Declared ABOVE the slots that use it, at the same one-class depth, so each
+   slot keeps ownership of its own type: this rule only removes the browser's
+   button chrome. The dotted underline is the whole of the visual change — a
+   number that changed weight or colour on becoming tappable would be a restyle
+   dressed as a feature. */
+.d1-bdoor {
+  background: none; border: 0; padding: 0; margin: 0; font: inherit; color: inherit;
+  cursor: pointer; text-align: left;
+  text-decoration: underline; text-decoration-style: dotted;
+  text-decoration-color: rgba(147, 197, 253, 0.5); text-underline-offset: 2px;
+}
+.d1-bdoor:hover { color: #bfdbfe; text-decoration-color: #93c5fd; }
+.d1-bdoor:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; border-radius: 0.25rem; }
+.d1-bdoor[data-d1-nofile] { cursor: default; text-decoration: none; }
+/* The button is the flex item the span used to be, so it takes the span's own
+   flex terms: the number never shrinks, the title takes the rest of the line and
+   is allowed to wrap. Stated here rather than left to inheritance, because flex
+   properties do not inherit and a title that lost `flex: 1 1 12rem` would sit on
+   its own line under every card. */
+.d1-led-b > .d1-bdoor.is-num { flex: none; }
+.d1-led-b > .d1-bdoor.is-ttl { flex: 1 1 12rem; min-width: 0; }
+/* The honest refusal, on the control the reader tapped and nowhere else. Amber
+   because it is a coverage gap, not a verdict; inline because the number it is
+   about has to stay beside it. */
+.d1-nofile {
+  display: inline-block; margin-left: 0.35rem;
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap;
+  color: #fde68a; padding: 0.02rem 0.3rem; border-radius: 0.35rem;
+  background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3);
+}
 .d1-led-bnum {
   flex: none; font-family: 'Oswald', sans-serif; font-weight: 700;
   font-size: 0.84rem; color: #fff; letter-spacing: 0.02em;

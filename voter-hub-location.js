@@ -1178,7 +1178,33 @@
   //
   // Memoized per state: the two callers below run on every location change and on
   // several deferred re-syncs, and this walks the whole roster.
+  //
+  // THE CACHE IS KEYED ON THE ROSTER, NOT JUST THE STATE, AND THAT IS THE WHOLE
+  // POINT OF THE `n` FIELD. This file is a PLAIN script in the middle of the
+  // document; cmp-data.js is DEFERRED. So the first resolution of a returning
+  // visitor's seats runs while window.CMP_DATA does not exist yet, finds no
+  // senators and no governor, and — before this pass — wrote that emptiness into
+  // the cache permanently. Every later re-sync, long after the roster had landed,
+  // read the poisoned entry back. That is exactly the live failure this fixes: a
+  // Layton voter read "3 of 6 seats resolved" with both U.S. Senate rows and the
+  // Governor row printing "no record on file yet" over Mike Lee, John Curtis and
+  // Spencer Cox — three people this app holds full files for at /p/lee, /p/curtis
+  // and /p/cox. A memo that outlives the reason its answer was empty is not a
+  // cache, it is a wrong answer with a long lease.
+  //
+  // So an entry records the roster size it was computed from and is reused only
+  // while that size holds, and an empty roster is never cached at all. Both
+  // clauses matter: the second stops the pre-load blank from being stored, the
+  // first re-resolves after profiles-full.js and the expansion controller merge
+  // more records into the same global.
   var _pdxStatewideCache = {};
+
+  function _pdxRosterSize() {
+    try {
+      var r = window.CMP_DATA;
+      return r ? Object.keys(r).length : 0;
+    } catch (e) { return 0; }
+  }
 
   function _pdxStateName(v) {
     // Roster `state` fields are not uniformly clean — a U.S. Representative reads
@@ -1213,11 +1239,13 @@
   window._pdxStatewideSeats = function (stateName) {
     var st = _pdxStateName(stateName);
     if (!st || st === 'national') return { senators: [], governor: null, ambiguous: false };
-    if (_pdxStatewideCache[st]) return _pdxStatewideCache[st];
+    var rn = _pdxRosterSize();
+    var hit = _pdxStatewideCache[st];
+    if (hit && hit.n === rn) return hit.val;
 
     var out = { senators: [], governor: null, ambiguous: false };
     try {
-      var roster = window.CMP_DATA;
+      var roster = rn ? window.CMP_DATA : null;
       if (roster) {
         var sens = [], govs = [];
         for (var pid in roster) {
@@ -1235,7 +1263,8 @@
       }
     } catch (e) {}
 
-    _pdxStatewideCache[st] = out;
+    // Only ever cache an answer the roster was actually present to give.
+    if (rn) _pdxStatewideCache[st] = { n: rn, val: out };
     return out;
   };
 
@@ -1341,8 +1370,21 @@
       var hr = (utah && typeof window._pdxHouseRedistrict === 'function') ? window._pdxHouseRedistrict() : null;
       if (hr && hr.changed) {
         redrawn = true;
-        hp = hr.currentPid || hp;
-        if (hr.currentDistrict != null) hd = hr.currentDistrict;
+        // THE NAME AND THE DISTRICT NUMBER MOVE TOGETHER OR NOT AT ALL. Taking the
+        // current-map district while leaving the 2026 ballot district's incumbent
+        // in place produces a row that is internally false — "U.S. House ·
+        // District 1 → Celeste Maloy" for a Layton voter, pairing UT-1's number
+        // with UT-2's member. That happens whenever the bridge resolves the
+        // district but holds no record for the member who sits in it, so the pid
+        // is taken from the bridge unconditionally: no record for the current-map
+        // member means a BLANK House seat, which the surfaces already know how to
+        // say honestly, rather than a real person under the wrong district.
+        if (hr.currentDistrict != null) {
+          hd = hr.currentDistrict;
+          hp = hr.currentPid || null;
+        } else {
+          hp = hr.currentPid || hp;
+        }
       }
     } catch (e) {}
 
@@ -1352,10 +1394,18 @@
     var stateLabel = national ? '' : String(state || '').trim();
 
     var num = function (v) { return String(v == null ? '' : v).replace(/[^0-9]/g, ''); };
-    var level = function (key, label, tierLabel, color, d, pid) {
+    // Every level also carries the BALLOT seat key it belongs to (the
+    // TEAM_POSITIONS dialect: senate / house / governor / statesenate /
+    // statehouse), because two of these levels are one ballot seat. That mapping
+    // used to live only in race-sheet.js's alias table, which meant a caller
+    // asking "who holds the U.S. Senate seat for this voter" had to own a second
+    // copy of it — and a second copy is a second answer. It is emitted here, by
+    // the function that emits the levels, and read back by pdxSeatHolders() below.
+    var level = function (key, seat, label, tierLabel, color, d, pid) {
       var n = num(d);
       return {
         key: key,
+        seat: seat,
         label: label,
         tierLabel: tierLabel,
         color: color,
@@ -1369,9 +1419,10 @@
     // A statewide row carries no district and must never look like it does. Its
     // heading names the state instead, which is the honest scope of the seat and
     // also what tells the two Senate rows apart from each other.
-    var swLevel = function (key, label, tierLabel, color, pid) {
+    var swLevel = function (key, seat, label, tierLabel, color, pid) {
       return {
         key: key,
+        seat: seat,
         label: label,
         tierLabel: tierLabel,
         color: color,
@@ -1408,14 +1459,89 @@
         // Both Senate seats are always listed. Every state has two, and that is a
         // fact about the Senate rather than a claim about our coverage — so a
         // state we hold one senator for shows one name and one honest blank.
-        swLevel('ussenate1', 'U.S. Senate', 'U.S. Senate', '#f0abfc', sw.senators[0]),
-        swLevel('ussenate2', 'U.S. Senate', 'U.S. Senate', '#f0abfc', sw.senators[1]),
-        level('house', 'U.S. House', 'U.S. House of Representatives', '#60a5fa', hd, hp),
-        swLevel('governor', 'Governor', 'Governor', '#fbbf24', sw.governor),
-        level('statesenate', 'State Senate', 'State Senate', '#a78bfa', sd, sp),
-        level('statehouse', 'State House', 'State House', '#2dd4bf', ld, lp)
+        swLevel('ussenate1', 'senate', 'U.S. Senate', 'U.S. Senate', '#f0abfc', sw.senators[0]),
+        swLevel('ussenate2', 'senate', 'U.S. Senate', 'U.S. Senate', '#f0abfc', sw.senators[1]),
+        level('house', 'house', 'U.S. House', 'U.S. House of Representatives', '#60a5fa', hd, hp),
+        swLevel('governor', 'governor', 'Governor', 'Governor', '#fbbf24', sw.governor),
+        level('statesenate', 'statesenate', 'State Senate', 'State Senate', '#a78bfa', sd, sp),
+        level('statehouse', 'statehouse', 'State House', 'State House', '#2dd4bf', ld, lp)
       ]
     };
+  };
+
+  // ── window.pdxSeatHolders(seatKey) — ONE owner of "who holds this seat" ─────
+  // pdxRepsForMe() answers "who represents me" as a LIST OF LEVELS. Three
+  // surfaces need the same answer as a LIST OF PIDS FOR ONE BALLOT SEAT, and
+  // before this pass each of them derived it separately:
+  //
+  //   · Who Represents Me   walked the levels itself.
+  //   · Work this seat      took the union of the resolver's pids AND the curated
+  //                         ballot's byOffice incumbents, so a redrawn area got
+  //                         BOTH members tagged — a Layton voter's U.S. House
+  //                         card read "Celeste Maloy · HOLDS THIS SEAT" (she
+  //                         holds UT-2) beside a list and a map pin that both
+  //                         said Blake Moore (UT-1, the district that voter is
+  //                         actually in today).
+  //   · The workspace desk  mapped level keys through race-sheet.js's alias table
+  //                         and treated "no display record" as "no holder", which
+  //                         is how a Senate pane came to print "No record on file
+  //                         for the current holder" directly above a field
+  //                         listing Curtis and Lee.
+  //
+  // Three derivations of one fact is three chances to name the wrong human, and
+  // every one of those failures was that. So this is the only place that question
+  // is answered, it answers it from the resolver's own levels, and the three
+  // surfaces read it rather than re-deriving it.
+  //
+  // WHAT IT RETURNS, AND WHY EACH FIELD EXISTS
+  //   ok          true only when at least one pid was resolved. This is the flag
+  //               that gates the "we would rather leave this blank" copy: blank
+  //               when the resolver returns no pid, never over a person who has
+  //               a /p/<pid> of their own.
+  //   pids        the holders, in level order. Two for U.S. Senate.
+  //   levels      the resolver's own level objects, for callers that also need
+  //               the district label or the statewide flag.
+  //   statewide   every level for this seat is elected by the whole state, so it
+  //               resolves from the state ROSTER and never from the district map.
+  //   districtGap a district level for this seat resolved no pid — the honest
+  //               "we do not draw this line" case, which is a different sentence
+  //               from "we hold no record for this person".
+  //   located     whether there is a voter to answer for at all. A caller with
+  //               no location must not fall back to a curated default area.
+  var _PDX_SEAT_OF = {
+    ussenate1: 'senate', ussenate2: 'senate', ussenate: 'senate', senate: 'senate',
+    house: 'house', representative: 'house',
+    governor: 'governor', president: 'president',
+    statesenate: 'statesenate', state_senator: 'statesenate',
+    statehouse: 'statehouse', state_rep: 'statehouse',
+    local: 'local'
+  };
+
+  // Every seat dialect in the app onto the ballot key. Published so a caller
+  // never has to keep its own copy of this table to ask the question above.
+  window.pdxSeatKey = function (k) {
+    return _PDX_SEAT_OF[String(k == null ? '' : k).trim().toLowerCase()] || '';
+  };
+
+  window.pdxSeatHolders = function (seatKey) {
+    var rk = window.pdxSeatKey(seatKey);
+    var out = { ok: false, seat: rk, located: false, statewide: false,
+                districtGap: false, pids: [], levels: [] };
+    if (!rk) return out;
+    var reps = null;
+    try { reps = window.pdxRepsForMe(); } catch (e) { reps = null; }
+    if (!reps) return out;
+    out.located = !!reps.located;
+    if (!reps.levels) return out;
+
+    var lv = reps.levels.filter(function (l) { return l && l.seat === rk; });
+    out.levels = lv;
+    if (!lv.length) return out;
+    out.statewide = lv.every(function (l) { return !!l.statewide; });
+    out.districtGap = lv.some(function (l) { return !l.statewide && !l.pid; });
+    lv.forEach(function (l) { if (l.pid && out.pids.indexOf(l.pid) === -1) out.pids.push(l.pid); });
+    out.ok = out.pids.length > 0;
+    return out;
   };
 
   // ── "YOUR VOTING DISTRICTS" strip (inside the prominent location card) ──────
@@ -1525,11 +1651,17 @@
       var avatar = photo
         ? '<span style="width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid ' + color + ';background:#0a0f1e;box-shadow:0 0 0 2px ' + color + '26;display:block;"><img src="' + _wrEsc(photo) + '" alt="" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.parentElement.innerHTML=\'<span style=&quot;display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.15rem;color:#9fb4d4&quot;>🏛</span>\'"></span>'
         : '<span style="width:44px;height:44px;border-radius:50%;flex-shrink:0;border:2px solid ' + color + '99;background:rgba(30,53,96,0.35);display:flex;align-items:center;justify-content:center;font-size:1.15rem;color:#9fb4d4;">🏛</span>';
-      var nameHtml, subLine, clickable = !!person;
-      if (person) {
-        var pm = _wrParty(person.party);
-        nameHtml = _wrEsc(person.name) + (pm ? ' <span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;font-weight:800;color:' + pm.c + ';">(' + pm.l + ')</span>' : '');
-        subLine = _wrEsc(person.office || cfg.tierLabel);
+      // THE GATE IS THE PID, NOT THE DISPLAY RECORD. A resolved seat has a person
+      // in it and that person has a file at /p/<pid>; if the light roster has not
+      // merged their display record yet, the honest row is their id with a link to
+      // the file, never the sentence "no record on file yet" printed over a
+      // sitting senator. Same rule as the homepage band, which reads the same
+      // resolver — see the row() comment in who-represents-me.js.
+      var nameHtml, subLine, clickable = !!pid;
+      if (pid) {
+        var pm = person ? _wrParty(person.party) : null;
+        nameHtml = _wrEsc((person && person.name) || pid) + (pm ? ' <span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;font-weight:800;color:' + pm.c + ';">(' + pm.l + ')</span>' : '');
+        subLine = _wrEsc((person && person.office) || cfg.tierLabel);
       } else {
         // "Being confirmed" implied we knew the seat and were checking the name.
         // Outside Utah we do not know the seat at all, and inside it we may simply

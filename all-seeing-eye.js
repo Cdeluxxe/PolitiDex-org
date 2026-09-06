@@ -95,6 +95,74 @@
       g.total = raw.length;
       return g;
     }
+    // ── ONE PID PER PERSON, AT EVERY EDGE OF THIS PANEL ─────────────────
+    // polIdGroups above answers the question for the PEOPLE LANE, and the receipt
+    // lane resolves its own rows (see `var pid = rawPid` in buildIndex). Neither
+    // covered the rest of the panel, and the rest of the panel names people too:
+    // a related-connection chip, a teammate chip in the Connections map, a ranked
+    // row in the issue answer and a saved receipt's stored polId each carry an id
+    // straight out of the store that minted it — a Spotlight roster, an
+    // ISSUE_STANCE_DATA key, a localStorage team list. EIGHTEEN of the retired ids
+    // are exactly such a key (PDX_PROFILE_ALIAS, profile-evidence.js), so a panel
+    // whose people lane had correctly collapsed to one Chew could still print
+    // `scott_chew` in a chip beside it and hand that id to navigate() on a tap.
+    //
+    // This asks the same table the same way; it is not a second ruling about
+    // anybody. It asks THROUGH PDXPersonLink when that module is on the page,
+    // because the href a row prints and the id its handler opens must never be two
+    // different people — and person-link.js is the file that owns that agreement.
+    //
+    // FAILS OPEN TO THE CALLER'S OWN ID, for the reason polIdGroups states at
+    // length: an id nobody has ruled on must survive, because printing a duplicate
+    // is a cosmetic defect and dropping a real officeholder is a factual one.
+    function canonPid(raw) {
+      if (!raw) return '';
+      var id = String(raw);
+      try {
+        var PL = window.PDXPersonLink;
+        if (PL && typeof PL.pid === 'function') { var p = PL.pid(id); if (p) return p; }
+      } catch (e) {}
+      try {
+        if (typeof window.PDXProfilePid === 'function') return window.PDXProfilePid(id) || id;
+      } catch (e) {}
+      return id;
+    }
+    // ── THE ONE PERSON DOOR THIS PANEL KNOWS ────────────────────────────
+    // Every person-shaped activation in this file — a people row, a receipt row, a
+    // judge row, a related chip, a teammate chip, an issue-answer row that has no
+    // receipt and no vote to lead with — ends here, and here reaches for the app's
+    // one funnel rather than re-deciding anything.
+    //
+    // WHAT WAS WRONG. navigate('pol') called window.showProfile and nothing else.
+    // showProfile does route back into PDXPerson.open, so the address usually came
+    // out right; what it does not do is resolve the id BEFORE the hop, and it is not
+    // the funnel person-link.js hands its own clicks to. So the eye had two person
+    // doors that agreed by coincidence — one for a row the reader clicked (the
+    // anchor's delegated listener, through PDXPersonLink.open) and one for the same
+    // row reached with Enter (showProfile). One of them canonicalised, one did not.
+    //
+    // Now there is one, and the order is the app's own: PDXPersonLink.open (which
+    // resolves the pid and calls PDXPerson.open), then PDXPerson.open directly for
+    // a page where person-link.js has not arrived, then showProfile last — the same
+    // last resort every other surface uses, and the only one that works before
+    // person-file.js executes. Returns false when no door was on the page, so a
+    // caller can leave the tap unanswered rather than answer it wrongly.
+    function personDoor(raw) {
+      var id = canonPid(raw);
+      if (!id) return false;
+      try {
+        var PL = window.PDXPersonLink;
+        if (PL && typeof PL.open === 'function' && PL.open(id)) return true;
+      } catch (e) {}
+      try {
+        if (window.PDXPerson && typeof window.PDXPerson.open === 'function' &&
+            window.PDXPerson.open(id)) return true;
+      } catch (e) {}
+      try {
+        if (typeof window.showProfile === 'function') { window.showProfile(id); return true; }
+      } catch (e) {}
+      return false;
+    }
     function polRec(id) {
       var p = null;
       try { if (window.PROFILES && window.PROFILES[id]) p = window.PROFILES[id]; } catch (e) {}
@@ -104,6 +172,32 @@
     function photoFor(id) {
       try { if (typeof window._getPhotoUrl === 'function') return window._getPhotoUrl(id) || ''; } catch (e) {}
       return '';
+    }
+    // ── THE STANCE BLOCK THAT BELONGS TO THIS PERSON ────────────────────
+    // ISSUE_STANCE_DATA is keyed by the documented stance convention — a slug of
+    // the record's own DISPLAY NAME — so eighteen of the blocks in it are filed
+    // under an id PDX_PROFILE_ALIAS has already retired: `ISSUE_STANCE_DATA
+    // ['scott_chew']` holds eight cards while `ISSUE_STANCE_DATA['chew_h68']` is
+    // empty. Three surfaces in this panel read that table by raw key, and each of
+    // them therefore read nothing for the one row the collapse kept — the "On
+    // record" chip vanished with the duplicate, and a teammate stored under the
+    // canonical id was never counted active on any cluster of the Connections map.
+    //
+    // _resolveStanceList (stance-helpers.js) is the app's own answer to this
+    // question and already walks id → STANCE_ALIASES → name slug. It is asked
+    // rather than re-implemented, so the eye cannot come to hold a fourth opinion
+    // about whose block is whose. The raw read is the fallback for a page where
+    // stance-helpers.js has not executed, which is exactly what every caller did
+    // before this existed.
+    function stanceListFor(id) {
+      if (!id) return [];
+      try {
+        if (typeof window._resolveStanceList === 'function') {
+          var l = window._resolveStanceList(id, polRec(id));
+          if (l && l.length) return l;
+        }
+      } catch (e) {}
+      return (window.ISSUE_STANCE_DATA || {})[id] || [];
     }
     // ── THE JUDICIAL REGISTRY, AS A SEARCHABLE LANE ─────────────────────
     // A judge is not in CMP_DATA and is not in PROFILES, on purpose and
@@ -1085,10 +1179,13 @@
         Object.keys(reg).forEach(function (slug) {
           var sp = reg[slug];
           (sp.groups || []).forEach(function (g) {
-            (g.people || []).forEach(function (p) { if (p && p.id && p.topic && p.strength === 'strong') { (m[p.id] = m[p.id] || {})[p.topic] = 1; } });
+            // Keyed by the person, not by whichever id the Spotlight roster
+            // happened to spell them with: relatedForPol asks this map with the
+            // id the ROW carries, which polIdGroups has already collapsed.
+            (g.people || []).forEach(function (p) { if (p && p.id && p.topic && p.strength === 'strong') { var pk = canonPid(p.id); (m[pk] = m[pk] || {})[p.topic] = 1; } });
           });
           (sp.evidence || []).forEach(function (ev) {
-            (ev.items || []).forEach(function (it) { if (it && it.id && it.topic && it.strength === 'strong') { (m[it.id] = m[it.id] || {})[it.topic] = 1; } });
+            (ev.items || []).forEach(function (it) { if (it && it.id && it.topic && it.strength === 'strong') { var ik = canonPid(it.id); (m[ik] = m[ik] || {})[it.topic] = 1; } });
           });
         });
       } catch (e) {}
@@ -1110,7 +1207,12 @@
       } catch (e) {}
       if (out.length < 2) {
         try {
-          var list = (window.ISSUE_STANCE_DATA || {})[id] || [];
+          // THE STUB'S MATERIAL BELONGS TO THE CANONICAL ROW. This used to read
+          // ISSUE_STANCE_DATA[id] directly, which is empty for every person whose
+          // curated block is filed under their display-name slug — so the collapse
+          // that fixed the duplicate Chew quietly took his only chip with it. See
+          // stanceListFor above for whose question this is.
+          var list = stanceListFor(id);
           var strongTopics = strongTopicMap()[id] || {};
           var pick = null, isStrong = false, i;
           // prefer a base stance the Spotlights grade "strong"
@@ -1137,7 +1239,21 @@
             var people = [];
             sp.groups.forEach(function (g) { (g.people || []).forEach(function (pp) { people.push(pp); }); });
             people.sort(function (a, b) { return (b.strength === 'strong' ? 1 : 0) - (a.strength === 'strong' ? 1 : 0); });
-            people.forEach(function (pp) { if (out.length < 2 && pp.id && !seen[pp.id]) { seen[pp.id] = 1; out.push({ kind: 'pol', id: pp.id, ico: '👤', label: pp.name }); } });
+            // ONE CHIP PER PERSON, AT THE ID THE CHIP WILL OPEN. `seen` used to be
+            // keyed on the roster's raw id, so a Spotlight that names the same
+            // officeholder under two spellings earned two chips — the duplicate the
+            // people lane no longer prints, printed underneath it. The label prefers
+            // the canonical record's own name for the same reason a people row does:
+            // a retired key is a slug of that name, and a chip that reads
+            // "scott chew" is the stub's document talking.
+            people.forEach(function (pp) {
+              if (out.length >= 2 || !pp.id) return;
+              var cid = canonPid(pp.id);
+              if (!cid || seen[cid]) return;
+              seen[cid] = 1;
+              var cd = polRec(cid);
+              out.push({ kind: 'pol', id: cid, ico: '👤', label: (cd && cd.name) || pp.name });
+            });
           }
         } else {
           var keys = entry.keys || [], SD = window.ISSUE_STANCE_DATA || {}, strong = [], other = [];
@@ -1148,8 +1264,19 @@
               else if (st.pos === 'support' || st.pos === 'oppose') other.push(pid);
             });
           });
-          strong.concat(other).forEach(function (pid) {
-            if (out.length < 2 && !seen[pid]) { var d = polRec(pid); if (d && d.name) { seen[pid] = 1; out.push({ kind: 'pol', id: pid, ico: '👤', label: d.name }); } }
+          strong.concat(other).forEach(function (rawPid) {
+            if (out.length >= 2) return;
+            // The block is filed under the person's name slug, which for eighteen
+            // people is a retired id with no record of its own — so `polRec(rawPid)`
+            // came back empty and the chip was DROPPED. The person was not missing;
+            // the id was. Resolved first, then looked up, so the chip both appears
+            // and opens the file it names.
+            var pid = canonPid(rawPid);
+            if (!pid || seen[pid]) return;
+            var d = polRec(pid);
+            if (!d || !d.name) return;
+            seen[pid] = 1;
+            out.push({ kind: 'pol', id: pid, ico: '👤', label: d.name });
           });
         }
       } catch (e) {}
@@ -1501,24 +1628,21 @@
     // related-connection chips, so every path lands in the same place.
     function navigate(kind, data) {
       close();
-      if (kind === 'pol') { if (typeof window.showProfile === 'function') window.showProfile(data.id); }
+      // A PERSON HIT OPENS THE PERSON FILE. Not a summary, not a preview, not a
+      // second card that has to be tapped again — the same document /p/<pid>
+      // serves, through the same funnel the row's own href hands its clicks to.
+      // personDoor owns the order and resolves the id before the hop.
+      if (kind === 'pol') { personDoor(data.id); }
       // ── A JUDGE FILE IS A PERSON FILE ────────────────────────────────────
-      // One address (/p/<pid>), one funnel. PDXPerson.open is preferred because
-      // it is the module that OWNS the address — stamp, kicker, tab, trail —
-      // and judge-file.js intercepts the openModal call it makes, so the roster
-      // renderer is never reached. showProfile is the fallback for the same
-      // reason it is anywhere else: it routes into PDXPerson.open itself, and
-      // on a page where person-file.js has not arrived it still opens the file.
-      // Nothing here re-implements the judge file; if neither door is on the
-      // page the tap is left unanswered rather than answered wrongly.
-      else if (kind === 'judge') {
-        try {
-          if (window.PDXPerson && typeof window.PDXPerson.open === 'function') {
-            if (window.PDXPerson.open(data.id)) return;
-          }
-        } catch (e) {}
-        if (typeof window.showProfile === 'function') window.showProfile(data.id);
-      }
+      // One address (/p/<pid>), one funnel — literally the same one, now that
+      // personDoor exists. PDXPerson.open is the module that OWNS the address
+      // (stamp, kicker, tab, trail) and judge-file.js intercepts the openModal
+      // call it makes, so the roster renderer is never reached. It is still
+      // routed as its own kind rather than folded into 'pol' so the two can
+      // never be confused upstream of here. Nothing re-implements the judge
+      // file; if no door is on the page the tap is left unanswered rather than
+      // answered wrongly.
+      else if (kind === 'judge') { personDoor(data.id); }
       else if (kind === 'spotlight') { if (window.PDXSpotlight && typeof window.PDXSpotlight.open === 'function') window.PDXSpotlight.open(data.slug); }
       else if (kind === 'issue') {
         // Issue-first: an issue result opens the RANKED view of that issue — every
@@ -1584,8 +1708,14 @@
       var nav = s.nav || {};
       if (s.type === 'spotlight' && nav.slug) { navigate('spotlight', { slug: nav.slug }); return; }
       if (s.type === 'receipt') {
-        if (typeof window._pdxOpenEvidenceLocker === 'function') { window._pdxOpenEvidenceLocker({ pol: nav.polId, issue: nav.issueKey || '' }); return; }
-        if (typeof window.showProfile === 'function') window.showProfile(nav.polId); return;
+        // A save is a record of what the visitor kept, written whenever they kept
+        // it — possibly under an id that has since been retired. It is read
+        // through the same resolver as everything else here rather than migrated,
+        // because rewriting somebody's collection to fix a link is not this
+        // panel's business.
+        var rpid = canonPid(nav.polId);
+        if (typeof window._pdxOpenEvidenceLocker === 'function') { window._pdxOpenEvidenceLocker({ pol: rpid, issue: nav.issueKey || '' }); return; }
+        personDoor(rpid); return;
       }
       if (s.type === 'issue') { navigate('issue', { key: nav.issueKey }); }
     }
@@ -2179,13 +2309,23 @@
       //   · an issue cluster matches a teammate with a stance in that core theme
       //   · a tag cluster matches a teammate active on ANY theme that tag spans —
       //     i.e. the people already working the issues the visitor tags heavily.
-      var teamIds = Object.keys(ctx.team);
-      var SD = window.ISSUE_STANCE_DATA || {};
+      // THE MAP IS OF PEOPLE, SO IT IS INDEXED BY PERSON. ctx.team is read
+      // straight out of two localStorage lists and those lists hold whatever id
+      // the surface that made the pick happened to spell — including a retired
+      // one. Left raw, the same teammate could occupy two nodes of the map, and a
+      // chip printed from one of them would carry a retired id into the markup and
+      // hand it to personDoor on a tap. The STORE is not rewritten here: only the
+      // map derived from it is keyed by person. See canonPid.
+      var teamIds = [], teamSeen = {};
+      Object.keys(ctx.team).forEach(function (raw) {
+        var c = canonPid(raw);
+        if (c && !teamSeen[c]) { teamSeen[c] = 1; teamIds.push(c); }
+      });
       var activeAll = {};
       var teamCores = {}; // pid -> { coreKey:1 } — each teammate's themes, indexed once
       teamIds.forEach(function (pid) {
         var cs = {};
-        (SD[pid] || []).forEach(function (st) {
+        stanceListFor(pid).forEach(function (st) {
           if (!st || !st.issueKey) return;
           cs[coreKeyForIssue(st.issueKey) || st.issueKey] = 1;
         });
@@ -2225,6 +2365,13 @@
       try {
         var reg = (window.PDXSpotlight && window.PDXSpotlight.registry) || {};
         var seenSib = {};
+        // "Already in their world" has to be asked about the PERSON. Both stores
+        // and the Spotlight roster spell people independently, so a raw
+        // three-way comparison could offer the visitor a teammate they already
+        // have as a stranger to discover.
+        var known = {};
+        Object.keys(ctx.team).forEach(function (k) { var c = canonPid(k); if (c) known[c] = 1; });
+        Object.keys(ctx.savedPolIds).forEach(function (k) { var c = canonPid(k); if (c) known[c] = 1; });
         items.forEach(function (s) {
           if (s.type !== 'spotlight') return;
           var slug = s.slug || (s.nav && s.nav.slug) || s.key;
@@ -2233,11 +2380,13 @@
           var stags = normTags(s.tags);
           sp.groups.forEach(function (g) {
             (g.people || []).forEach(function (pp) {
-              if (!pp || !pp.id || seenSib[pp.id]) return;
-              if (ctx.team[pp.id] || ctx.savedPolIds[pp.id]) return; // already in their world
-              var d = polRec(pp.id); if (!d || !d.name) return;
-              seenSib[pp.id] = 1;
-              out.siblings.push({ id: pp.id, name: d.name, from: stripThe(sp.title || 'a Spotlight you saved'), tag: stags[0] || '' });
+              if (!pp || !pp.id) return;
+              var cid = canonPid(pp.id);
+              if (!cid || seenSib[cid]) return;
+              if (known[cid]) return; // already in their world
+              var d = polRec(cid); if (!d || !d.name) return;
+              seenSib[cid] = 1;
+              out.siblings.push({ id: cid, name: d.name, from: stripThe(sp.title || 'a Spotlight you saved'), tag: stags[0] || '' });
             });
           });
         });
@@ -2840,6 +2989,10 @@
         window.PDXBillDetail.open(String(r.voteCite.measureId));
         return;
       }
+      // No receipt and no roll call to lead with, so the row falls back to the
+      // person. The ranking's rows are minted from the stance table, whose keys
+      // are display-name slugs, so this id needs resolving like any other — which
+      // navigate('pol') now does.
       navigate('pol', { id: r.id });
     }
 

@@ -2826,7 +2826,8 @@ section("15 · The measures, in bands, one row per instrument");
 
   // ── ONE ROW PER INSTRUMENT ────────────────────────────────────────────────
   // The face is deduped on the NUMBER, which is exactly what the card's own door
-  // takes: pdxDoor1Bill(number). Two cards with one number were never two doors.
+  // takes: pdxDoor1Bill(number, sitting). Two cards with one number were never two
+  // doors.
   const nums = (sect.match(/<span class="d1-led-bnum">([^<]*)</g) || [])
     .map((t) => t.replace(/^<span class="d1-led-bnum">/, "").replace(/<$/, ""));
   eq(nums.length, cards, "a measure card was painted without a number line");
@@ -2925,7 +2926,12 @@ section("15 · The measures, in bands, one row per instrument");
   await tick(); await tick(); await tick();
   const body2 = w.PDXDoor1.issueProfile(LKEY);
   const sect2 = cutAt(body2);
-  const doors = (sect2.match(/window\.pdxDoor1Bill\('|pdxDoor1Bill\('/g) || []).length;
+  // COUNTED PER CARD, NOT PER CONTROL. A numbered card carries more than one way
+  // in now — the number and the title open the bill file, "Who voted on it" opens
+  // the roll call, all three through the same one opener — and the promise being
+  // held here is the one it always was: no numbered card is left without a way in.
+  const cards2 = sect2.split('<li class="d1-led-b">').slice(1);
+  const doors = cards2.filter((c) => c.indexOf("pdxDoor1Bill('") >= 0).length;
   eq(doors, nums.filter(Boolean).length,
     "a measure card lost its way in — every card with a number opens the roll call on it");
   has(sect2, ">Who voted on it<", "the cards lost the control the work order says stays");

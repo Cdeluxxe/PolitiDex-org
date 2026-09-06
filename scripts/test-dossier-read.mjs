@@ -93,7 +93,11 @@ const unesc = (h) => String(h)
 // the printed sentence is a verbatim prefix of the rationale on file, which is a
 // stronger promise about this content than the word wall could make.
 const prose = (h) => visible(String(h)
-  .replace(/<span class="pdxgap-drv-id">[\s\S]*?<\/span>/g, " ")
+  // The identity span carries the bill door's attributes now (role, tabindex, the
+  // data-pdxbill-* address), so the class is matched as a prefix rather than as the
+  // whole attribute — otherwise the strip silently stops stripping and a bill
+  // number starts being read as prose this layer composed.
+  .replace(/<span class="pdxgap-drv-id[^"]*"[^>]*>[\s\S]*?<\/span>/g, " ")
   .replace(/<span class="pdxgap-drv-t">[\s\S]*?<\/span>/g, " ")
   .replace(/<span class="pdxgap-drv-w">[\s\S]*?<\/span>/g, " "));
 // A probe that finds nothing must fail loudly. A renamed symbol otherwise turns

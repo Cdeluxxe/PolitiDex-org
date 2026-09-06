@@ -681,7 +681,13 @@ section("7 · A claim miss does not invent a vote");
     "the desk did not use the shipped receipt renderer — it is re-drawing a card it does not own");
   has(r, "/p/lee", "the hit does not open the person's file");
   has(r, "pdxDoor1Issue('climate_action')", "the hit does not open the issue dossier");
-  has(r, "pdxDoor1Bill('H.R. 1')", "the hit does not open the measure the act was cast on");
+  // The measure door takes the number AND the sitting that number was printed
+  // with, then its own control, so a bill with no page on file can be said on the
+  // control instead of dead-clicking. The pin is the number plus the argument that
+  // follows it: a door that dropped back to a bare number would open a measure
+  // addressed by number alone.
+  has(r, "pdxDoor1Bill('H.R. 1','", "the hit does not open the measure the act was cast on");
+  has(r, "',this)", "the measure door does not hand over its own control, so a missing bill page could not be said on it");
   no(r, "[object Object]", "the desk printed a structured field as text");
   no(r, hit.PDXDoor1.CLAIM_MISS, "a hit printed the no-record sentence");
 }

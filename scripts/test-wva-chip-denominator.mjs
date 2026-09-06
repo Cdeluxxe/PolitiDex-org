@@ -260,28 +260,32 @@ section("3 · no new floor — and still fails closed below the old one");
     `${leaked.length} person(s) below the publication floor paint a chip (${leaked.slice(0, 3).map((b) => b.pid).join(", ")}).\n` +
     "    read() returns a null percentage there and the chip has nothing honest to print");
 
-  // ABOVE IT, EXACTLY THE SAME PEOPLE AS BEFORE. Proved against the builder that
-  // actually shipped rather than a transcription of it: the previous revision's
-  // own chip span is lifted out of git and swapped into the live module, so this
-  // counterfactual boots the bare chip as it was written, not as this file
-  // remembers it.
-  const SPAN_A = "      var label = (v && v.label) ? v.label : FRAME.metric;";
-  const SPAN_B = "    } catch (e) { return ''; }";
-  const chipSpan = (src, side) => {
-    const i = src.indexOf(SPAN_A), j = src.indexOf(SPAN_B, i < 0 ? 0 : i);
-    must(i > 0 && j > i, `the chip span no longer reads as written in ${side}'s word-action.js`);
-    return src.slice(i, j);
-  };
-  const headWA = HEAD("word-action.js");
-  must(headWA, "no previous revision of word-action.js is reachable, so the identical-set half of this " +
-    "section has nothing to compare against");
-  const NEW_BODY = chipSpan(WA_SRC, "the working tree");
-  const OLD_BODY = chipSpan(headWA, "the previous revision");
-  must(NEW_BODY.indexOf("pdxwa-cbadge-den") >= 0,
-    "the located span does not build the denominator — this probe is reading the wrong lines");
-  must(OLD_BODY.indexOf("pdxwa-cbadge-den") < 0,
-    "the previous revision already built a denominator, so this pass is not the change it says it is");
-  const before = boot({ warm: true, mutants: { "word-action.js": [[NEW_BODY, OLD_BODY]] } });
+  // ABOVE IT, EXACTLY THE SAME PEOPLE AS BEFORE. This used to lift the previous
+  // revision's chip span out of `git show HEAD:word-action.js` and swap it into the
+  // live module. That was true exactly once: the moment the denominator pass was
+  // committed HEAD carried the fix, the two revisions became one file, and the
+  // vacuity guard below fired on a tree where nothing was wrong — the same way F8
+  // records it happening to test-eye-one-person-per-office.mjs. So the bare builder
+  // is now BUILT, from the shipped source, by removing exactly the three things
+  // this pass added and nothing else: the both-halves gate in the shared figure,
+  // the fraction the chip prints, and the span it prints it in. Each substitution
+  // is asserted to apply exactly once, so what is removed is what is claimed.
+  const BARE = [
+    // The gate goes back to "is there a percentage" alone…
+    ["      shows: pct !== null && !!fraction,", "      shows: pct !== null,"],
+    // …the chip's fraction goes back to nothing…
+    ["      var den = f.fraction;", "      var den = '';"],
+    // …and the span it sits in, with the separator that spaces it, comes out.
+    ["          '<span class=\"pdxwa-cbadge-den\">' + esc(den) + '</span>' +\n" +
+     "          '<span class=\"pdxwa-cbadge-sep\" aria-hidden=\"true\">·</span>' +\n",
+     ""],
+  ];
+  for (const [from] of BARE) {
+    eq(WA_SRC.split(from).length, 2,
+      `the bare-chip substitution ${JSON.stringify(from.slice(0, 48))} does not apply exactly once to ` +
+      "the shipped word-action.js, so this counterfactual is not the builder it says it is");
+  }
+  const before = boot({ warm: true, mutants: { "word-action.js": BARE } });
   const WB = before.PDXWordAction;
   const painted = (w) => {
     const out = [];
@@ -299,11 +303,14 @@ section("3 · no new floor — and still fails closed below the old one");
     "    This pass annotates a figure; it may not become a second, higher floor that nothing else in\n" +
     "    the stack agrees with, leaving a reader to wonder why one profile has a chip and the next\n" +
     "    does not");
-  // AND THE OLD CHIP REALLY WAS THE BARE ONE, so the comparison above is not
-  // between two identical builders.
+  // AND THE BARE CHIP REALLY WAS BARE, so the comparison above is not between two
+  // identical builders. This is also the substantive half of the claim: above the
+  // publication floor a percentage cannot exist without the two integers it was
+  // computed from, so requiring BOTH halves removed nobody — it only removed the
+  // case where a figure could be printed with nothing sizing it.
   const oldChip = WB.compactBadgeHtml(CHIPS[0].pid, before.CMP_DATA[CHIPS[0].pid]);
-  no(oldChip, "tested", "the restored builder already printed a denominator — the mutant is not the old chip");
-  console.log(`      ${now.length} chips painted, the same ${then.length} people as the bare builder; ` +
+  no(oldChip, "tested", "the built bare builder still printed a denominator — the mutant is not the bare chip");
+  console.log(`      ${now.length} chips painted, the same ${then.length} people as the built bare builder; ` +
     `${BELOW.length} below the floor still print nothing`);
 }
 
@@ -508,11 +515,9 @@ section("10 · the fix is load-bearing");
       warm: true,
       mutants: {
         "word-action.js": [[
-          "          (den\n" +
-          "            ? '<span class=\"pdxwa-cbadge-den\">' + esc(den) + '</span>' +\n" +
-          "              '<span class=\"pdxwa-cbadge-sep\" aria-hidden=\"true\">·</span>'\n" +
-          "            : '') +",
-          "          '' +",
+          "          '<span class=\"pdxwa-cbadge-den\">' + esc(den) + '</span>' +\n" +
+          "          '<span class=\"pdxwa-cbadge-sep\" aria-hidden=\"true\">·</span>' +\n",
+          "",
         ]],
       },
     });
@@ -531,9 +536,9 @@ section("10 · the fix is load-bearing");
       warm: true,
       mutants: {
         "word-action.js": [[
-          "        ' aria-label=\"' + esc(r.pct + '% ' + FRAME.metric + (den ? ', ' + den : '') + ' — ' +\n" +
+          "        ' aria-label=\"' + esc(f.pct + '% ' + FRAME.metric + ', ' + den + ' — ' +\n" +
           "          label + '. Open ' + FRAME.label + '.') + '\">' +",
-          "        ' aria-label=\"' + esc(r.pct + '% ' + FRAME.metric + ' — ' +\n" +
+          "        ' aria-label=\"' + esc(f.pct + '% ' + FRAME.metric + ' — ' +\n" +
           "          label + '. Open ' + FRAME.label + '.') + '\">' +",
         ]],
       },
@@ -555,9 +560,8 @@ section("10 · the fix is load-bearing");
       warm: true,
       mutants: {
         "word-action.js": [[
-          "      var den = (c.tested && c.scorable) ? (c.tested + ' of ' + c.scorable + ' tested') : '';",
-          "      var den = (c.tested && c.scorable) ? (c.tested + ' of ' + c.scorable + ' tested') : '';\n" +
-          "      if (c.tested < 5) return '';",
+          "      var den = f.fraction;",
+          "      var den = f.fraction;\n      if (f.tested < 5) return '';",
         ]],
       },
     });

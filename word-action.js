@@ -734,6 +734,115 @@
     return out;
   }
 
+  // ── ONE TESTED SET, ONE OWNER ──────────────────────────────────────────
+  // The letterhead chip and the ⚖️ section report the same finding about the same
+  // person, a screen apart. For a while they reported two different SIZES of it:
+  // the chip on /p/lee read "84% · 5 of 14 tested" beside the name while the section
+  // below it read 72% over 15 of 26. Neither figure was invented — each was a
+  // faithful print of a read taken at a different moment, and this ledger grows
+  // during a page's life as the roll-call record and the lazy data bundles land.
+  // That is exactly what made the pair a lie: a reader cannot see which tick a
+  // number came from, and two "tested" counts on one page is a worse defect than
+  // the missing denominator the chip was given one for.
+  //
+  // So the figure is a THING now, and not a habit repeated at each surface.
+  // figure() answers, for one pid: the percentage, the tested count, the eligible
+  // count, the outcome token, and the one fraction sentence those two integers
+  // make. Every surface that publishes the pair prints THAT OBJECT. There is no
+  // second place where the two integers are put beside each other, so there is no
+  // second place for them to drift.
+  //
+  // IT IS THE SECTION'S READ, NOT A SECOND ONE. Both scopes come from
+  // scopedRead(), which is what the section and the ring already call. The chip
+  // used to call read() bare — at whatever term scope the engine happened to be
+  // left in, which on the executive lane is a second way for one page to hold two
+  // numbers with nothing on screen saying which is which. scopedRead itself is
+  // untouched; this stops asking it a different question than the section asks.
+  //
+  // BOTH HALVES OR NEITHER — that is what `shows` is. A percentage with no set to
+  // size it is the grade the denominator was added to stop printing, and a set
+  // with no percentage is a count nobody asked for. Where both cannot be said the
+  // surface says NOTHING: the chip is absent below the floor, never a smaller
+  // secret set with a percentage still sitting on it.
+  //
+  // NO FLOOR OF ITS OWN AND NO SECOND ARITHMETIC. `pct` is read()'s pct, and it is
+  // null below the publication floor — that gate, its two constants and every
+  // weight behind them are outside this block and unchanged. Nothing here
+  // compares, sums, rounds a score or ranks anybody; the only integers it handles
+  // are two it was handed. `stamp` is the four fields joined, so a surface can be
+  // asserted to be printing this object rather than a transcription of it that
+  // happens to agree today.
+  function fractionOf(tested, eligible) {
+    var t = (typeof tested === 'number' && isFinite(tested) && tested > 0) ? Math.round(tested) : 0;
+    var m = (typeof eligible === 'number' && isFinite(eligible) && eligible > 0) ? Math.round(eligible) : 0;
+    // "0 of 0 tested" is worse than no fraction at all, so the empty string is the
+    // answer and every caller reads it as "say nothing".
+    return (t && m) ? (t + ' of ' + m + ' tested') : '';
+  }
+
+  function figure(pid, p, pre) {
+    // `pre` is an already-taken scopedRead, so the section does not pay for a
+    // second scoring pass to print the object it is already holding.
+    var sr = pre || scopedRead(pid, p);
+    var r = (sr && sr.main) || null;
+    var c = (r && r.coverage) || {};
+    var pct = (r && typeof r.pct === 'number') ? r.pct : null;
+    var tested = (typeof c.tested === 'number') ? c.tested : 0;
+    var eligible = (typeof c.scorable === 'number') ? c.scorable : 0;
+    var fraction = fractionOf(tested, eligible);
+    return {
+      pid: String(pid), read: r, scoped: sr,
+      pct: pct, tested: tested, eligible: eligible,
+      token: (r && r.token) || null, verdict: (r && r.verdict) || null,
+      fraction: fraction,
+      shows: pct !== null && !!fraction,
+      stamp: [(pct === null ? '' : pct), tested, eligible, ((r && r.token) || '')].join('|')
+    };
+  }
+
+  // ── …AND ONE REPAINT CONTRACT, SO THE TWO CANNOT BE DIFFERENT AGES ────────
+  // Two surfaces printing one object still drift if they hear about the arrival at
+  // different times. The chip listened for 'pdx-consistency-warm' and nothing
+  // else, tested `detail.pid` strictly, and unbound itself the first time its host
+  // was not in the document — three ways to go deaf, all three of which the ring
+  // stopped having when bindHero was written. The section's own repaint had the
+  // same three. So the ring's contract is now the ONLY contract, reused by
+  // reference rather than copied:
+  //   · every event in HERO_REPAINT, which is where the arrivals are argued
+  //   · evForPid, so an aliased pid is not dropped on exactly the members whose
+  //     record was hardest to find
+  //   · a `seen` guard, because a mount armed beside a template string the caller
+  //     is still assembling can be asked before its host exists, and unbinding
+  //     there is permanent deafness on the file that needed the repaint most
+  //   · one reconciling paint on the next tick, because the record can already be
+  //     in memory and the event that would have repainted us was dispatched to
+  //     nobody
+  // HERO_REPAINT is read at arm time rather than copied at load time, so there is
+  // one list and no chance of a second one drifting from it.
+  function figureEvents() {
+    return (typeof HERO_REPAINT !== 'undefined' && HERO_REPAINT && HERO_REPAINT.length)
+      ? HERO_REPAINT : ['pdx-consistency-warm'];
+  }
+
+  function armFigureRepaint(find, pid, paint) {
+    if (!window.addEventListener) return;
+    var evs = figureEvents();
+    var seen = false;
+    var handler = function (ev) {
+      var host = null;
+      try { host = find(); } catch (e) { host = null; }
+      if (!host) {
+        if (seen) evs.forEach(function (n) { window.removeEventListener(n, handler); });
+        return;
+      }
+      seen = true;
+      if (!evForPid(ev, pid)) return;
+      try { paint(host); } catch (e) {}
+    };
+    evs.forEach(function (n) { window.addEventListener(n, handler); });
+    try { setTimeout(function () { handler(null); }, 0); } catch (e) {}
+  }
+
   // ── CONNECTING THE DOTS ────────────────────────────────────────────────────
   // The actual thread, per issue: what they SAID → the formal ACTIONS on that
   // issue, named → the OUTCOME. Sorted so a reader meets the most consequential
@@ -2581,29 +2690,39 @@
   // surface reads them back, nothing orders on them, and the chip remains one
   // door to one section. It does not replace the formal record brief — that is a
   // different lane, about a different question, and this says nothing about it.
+  //
+  // …AND THE FIGURE IS THE SECTION'S, NOT A SECOND READING OF THE SAME LEDGER.
+  // The percentage and both integers now arrive as ONE OBJECT from figure() — the
+  // owner the ⚖️ section prints from — rather than from a read() this builder took
+  // for itself. They had already come apart in the wild: the chip on /p/lee read
+  // "84% · 5 of 14 tested" while the section a screen below read 72% over 15 of
+  // 26. Two honest prints of two different moments, which on one page is a lie,
+  // and the denominator made it a louder one, because now there were two sets.
+  //
+  // AND WHERE BOTH CANNOT BE SAID, NOTHING IS. `shows` is the whole gate: a
+  // percentage AND a set to size it, or no chip. A figure with a smaller, quieter
+  // set behind it is the exact impression the fraction was added to remove, and it
+  // is not one this control is allowed to give by falling back.
   function compactBadgeHtml(pid, p) {
     try {
-      var r = read(pid, p);
-      if (!r || r.pct === null || r.pct === undefined) return '';
-      var v = r.verdict;
+      var f = figure(pid, p);
+      if (!f.shows) return '';
+      var v = f.verdict;
       var label = (v && v.label) ? v.label : FRAME.metric;
       var col = (v && v.color) || '#9fb4d4';
-      var c = r.coverage || {};
-      // '' is unreachable above the floor — a published percentage has at least
-      // MIN_TESTED_ITEMS tested items behind it, so both integers are positive.
-      // It is here so a read handed in without a coverage block cannot print the
-      // one fraction that would be worse than no fraction: "0 of 0 tested".
-      var den = (c.tested && c.scorable) ? (c.tested + ' of ' + c.scorable + ' tested') : '';
+      // The section's own words for the same two integers, built once, in the
+      // owner, and printed here — in the visible text and in the accessible name,
+      // which is the same sentence and not a shortened one.
+      var den = f.fraction;
       return '<button type="button" class="pdxwa-cbadge" data-pdxwa-cbadge="' + esc(String(pid)) + '"' +
         jumpAttr('pdxsec-wordaction') +
-        ' aria-label="' + esc(r.pct + '% ' + FRAME.metric + (den ? ', ' + den : '') + ' — ' +
+        ' data-pdxwa-fig="' + esc(f.stamp) + '"' +
+        ' aria-label="' + esc(f.pct + '% ' + FRAME.metric + ', ' + den + ' — ' +
           label + '. Open ' + FRAME.label + '.') + '">' +
-          '<span class="pdxwa-cbadge-pct" style="color:' + col + ';">' + r.pct + '%</span>' +
+          '<span class="pdxwa-cbadge-pct" style="color:' + col + ';">' + f.pct + '%</span>' +
           '<span class="pdxwa-cbadge-sep" aria-hidden="true">·</span>' +
-          (den
-            ? '<span class="pdxwa-cbadge-den">' + esc(den) + '</span>' +
-              '<span class="pdxwa-cbadge-sep" aria-hidden="true">·</span>'
-            : '') +
+          '<span class="pdxwa-cbadge-den">' + esc(den) + '</span>' +
+          '<span class="pdxwa-cbadge-sep" aria-hidden="true">·</span>' +
           '<span class="pdxwa-cbadge-lbl">' + esc(label) + '</span>' +
         '</button>';
     } catch (e) { return ''; }
@@ -2617,15 +2736,18 @@
   // the chip would be a thing that only ever appeared on profiles whose record was
   // already warm. Empty host, no chrome — `.pdxwa-cbadge-host:empty` collapses it
   // so a cold letterhead carries no stray gap between its badges.
+  // …AND IT REPAINTS ON THE SAME CONTRACT THE SECTION AND THE RING USE. This
+  // listened for one event, matched `detail.pid` strictly, and dropped its
+  // subscription the first time the host was missing — so a chip could hold its
+  // first-paint read for the life of the page while the section beside it showed a
+  // later one. That is the drift, and it is fixed by not having a second contract:
+  // armFigureRepaint is the ring's, reused. See the wall beside it.
   function bindCompactBadge(uid, pid, p) {
-    if (!window.addEventListener) return;
-    var handler = function (ev) {
-      var host = document.querySelector('[data-pdxwa-cbadge-host="' + uid + '"]');
-      if (!host) { window.removeEventListener('pdx-consistency-warm', handler); return; }
-      if (ev && ev.detail && ev.detail.pid && String(ev.detail.pid) !== String(pid)) return;
-      try { host.innerHTML = compactBadgeHtml(pid, p); } catch (e) {}
-    };
-    window.addEventListener('pdx-consistency-warm', handler);
+    armFigureRepaint(function () {
+      return document.querySelector('[data-pdxwa-cbadge-host="' + uid + '"]');
+    }, pid, function (host) {
+      host.innerHTML = compactBadgeHtml(pid, p);
+    });
   }
 
   function compactBadgeMount(pid, p) {
@@ -3421,6 +3543,13 @@
       // slice would not mean anything for.
       var sr = scopedRead(pid, p);
       var r = sr.main;
+      // …AND THE FIGURE THE LETTERHEAD CHIP PRINTS IS THIS ONE. `fig` is the owner's
+      // object for this pid, taken off the read already in hand rather than by
+      // scoring a second time, and the chip a screen above is built from the same
+      // call. The number block stamps it so the pair can be checked rather than
+      // trusted: same percentage, same tested count, same eligible count, same
+      // token, or the harness says which surface is stale.
+      var fig = figure(pid, p, sr);
       // Nothing said and nothing tracked. There is no read to print — a number and
       // a verdict over zero documented word would be an empty frame implying the
       // record should be here. But "we hold no word" is itself a fact about OUR
@@ -3464,7 +3593,9 @@
       // depthCaption(): no gate, no threshold, and read off the same `r` the
       // percentage above came from so the two always describe the same tested set.
       var depthTag = hasPct
-        ? '<div class="pdxwa-num-n" data-pdxwa-tested="' + testedOf(r) + '">' +
+        ? '<div class="pdxwa-num-n" data-pdxwa-tested="' + testedOf(r) + '"' +
+            ' data-pdxwa-set="' + esc(fig.fraction) + '"' +
+            ' data-pdxwa-fig="' + esc(fig.stamp) + '">' +
             esc(depthCaption(testedOf(r))) + '</div>'
         : '';
 
@@ -3556,12 +3687,16 @@
     } catch (e) {}
     return html;
   }
+  // ONE CONTRACT, THE SAME ONE THE CHIP AND THE RING ARE ON. This had the chip's
+  // three weaknesses — one event, a strict `detail.pid`, and an unbind the first
+  // time the host was missing — and a section that stops listening while the chip
+  // above it keeps listening is the other direction of the same drift. What it
+  // does INSIDE the repaint is unchanged: the open lids, the picked bucket and
+  // flat mode all still survive it.
   function bind(uid, pid, p) {
-    if (!window.addEventListener) return;
-    var handler = function (ev) {
-      var host = document.querySelector('[data-pdxwa="' + uid + '"]');
-      if (!host) { window.removeEventListener('pdx-consistency-warm', handler); return; }
-      if (ev && ev.detail && ev.detail.pid && String(ev.detail.pid) !== String(pid)) return;
+    armFigureRepaint(function () {
+      return document.querySelector('[data-pdxwa="' + uid + '"]');
+    }, pid, function (host) {
       try {
         var fresh = headlineHtml(pid, p);
         if (!fresh) return;
@@ -3627,8 +3762,7 @@
           restoreSel();
         }, 0);
       } catch (e) {}
-    };
-    window.addEventListener('pdx-consistency-warm', handler);
+    });
   }
 
   // Mountable wrapper: emit the section AND arm its refresh. Call sites render the
@@ -5543,6 +5677,14 @@
     testedOf: testedOf,
     depthCaption: depthCaption,
     DEPTH_NOTE: DEPTH_NOTE,
+    // 📏 …AND THE TESTED SET ITSELF, OWNED IN ONE PLACE. figure(pid, p) is the
+    // object the letterhead chip and the ⚖️ section both print: the percentage, the
+    // tested count, the eligible count, the token, and fractionOf() applied to the
+    // two integers. Published so a surface never has to put those integers beside
+    // each other itself — the way the chip once did, which is how one page came to
+    // carry two different "tested" counts for one person. See the wall over it.
+    figure: figure,
+    fractionOf: fractionOf,
     dots: dots,
     brandingIssueKey: brandingIssueKey,
     isIndependentWord: isIndependentWord,

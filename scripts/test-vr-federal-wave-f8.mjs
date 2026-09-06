@@ -1497,6 +1497,135 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // measure mapped to it — so the sentence it replaces is stronger than the one
     // it stood in for, not weaker.
     "scripts/test-sitemap-bills.mjs",
+    // The bill-door pass (CACHE_VERSION v138), on those same later-wave terms. It
+    // writes no roll, no mapping, no key, no floor and no admission: it turns every
+    // measure identity the app already PRINTS — the dossier's Official Record cards,
+    // the "which measures" roll-up, the issue desk's ledger rows, the formal brief's
+    // proof lines — into a door on the one bill file that was already there. No new
+    // address shape: the door hands its number and its sitting to the same
+    // PDXBillDetail.open the in-app #bill/<sitting>/<number> link has always called.
+    // consistency.js's fourteen spans are that pass, carved and argued in the shared
+    // seam module above.
+    //   The one file below is the file this wave has to declare, and the reason is
+    // narrow: its allowlist pinned the exact text of the desk's slot(...) call, and
+    // that call gained the sitting the number was printed with. A number alone is
+    // not an identity — H.B. 400 is a different instrument in a different Utah
+    // session, and H.R. 6644 in a different Congress — so a door built on the number
+    // by itself would open the wrong bill and look like it worked. The pin is
+    // repaired to the new call, not relaxed off it: it still quotes the call through
+    // the isPrimary flag it exists to guard, so a desk that went back to labelling
+    // cards off anything else still fails there.
+    "scripts/test-primary-label-not-gate.mjs",
+    // The one-person-per-office pass (CACHE_VERSION v139), on those same later-wave
+    // terms. It writes no roll, no mapping, no key, no floor, no admission and no
+    // score: it makes every person-shaped thing the All-Seeing Eye prints or opens
+    // agree on WHICH PERSON it means. The people lane and the receipt lane already
+    // resolved their rows through PDXCanonIds, so the duplicate row a reader saw on
+    // a phone was fixed there - but the panel has six other emitters that carry a
+    // pid and none of them asked: the related chips under a row, the Connections
+    // map's teammate and sibling nodes, the ranked rows of an issue answer, and a
+    // saved receipt's stored polId. Eighteen retired ids are ISSUE_STANCE_DATA
+    // keys, so the panel could print `scott_chew` beside the one Chew row the
+    // collapse had kept, and the collapse itself had taken that row's only chip
+    // with it - the curated block is filed under the stub's name slug. canonPid()
+    // asks PDXPersonLink and PDXProfilePid the same question at every edge;
+    // stanceListFor() routes "whose block is this" to _resolveStanceList, the app's
+    // own owner of it; and personDoor() is now the panel's single person door, so
+    // the id a row's href prints and the id its handler opens can no longer be two
+    // people. All three fail open.
+    //   The reason a wave like this one is the file that has to declare it: R1 and
+    // R2 put 1,120 files behind these rows, and the eye is how most readers reach
+    // any of them - a pile of near-duplicate rows is the difference between a
+    // finder and a second homepage. Every count, chip, tier, band, side word and
+    // Direction Match figure is byte-identical, which the twin boot above has just
+    // proved; all-seeing-eye.js, sw.js and index.html are declared above already.
+    //   The one file below is the file this wave has to declare, and the reason is
+    // narrow: its section 7 pinned the exact text of the judge navigate() arm,
+    // which spelled the person funnel out inline. That arm now delegates to
+    // personDoor, so the pin is repaired to read the same claim one indirection
+    // deeper - the arm must reach the eye's one person door, and that door must
+    // hold the person-file opener AND a fallback AND never call the judge renderer
+    // directly, which would bypass judge-file.js's openModal intercept. It is
+    // strictly stronger than the pin it replaces: the same three rules, checked at
+    // the single place there is now one copy of them, and checked on both the arm
+    // and the door.
+    "scripts/test-eye-judge-lane.mjs",
+    // The finance-letterhead pass (no CACHE_VERSION move, because no shipped file
+    // moved). The money door on the person letterhead was already built and already
+    // mounted - finance-lane.js owns chipRead / chipSegments / letterheadChipMount /
+    // openSection, profiles-full.js calls the mount in the identity block, and the
+    // three states, the counts-only vocabulary and the scroll-to-this-page jump are
+    // all shipped. What that pass added was the contract for the four claims the
+    // report asked to be TESTED and that nothing yet tested: that the on-file chip
+    // carries no rating vocabulary in its accessible name as well as its visible
+    // text, that the click reaches the money block on the profile when CALLED rather
+    // than when read off an onclick attribute, that an absent filing puts no digit in
+    // the figure slot, and that Direction Match and the formal pattern index are
+    // byte-identical with the control mounted and without. All of that lives in a new
+    // untracked suite, which needs no declaration.
+    //   The one file below does. It is the one-person-per-office harness declared
+    // immediately above, and its section 4 built its counterfactual with
+    // `git show HEAD:all-seeing-eye.js`: true exactly once, because the moment that
+    // pass was committed HEAD carried the fix, the two revisions became one file and
+    // three vacuity guards fired on a tree where nothing was wrong. The counterfactual
+    // is now built from the shipped source instead - canonPid folded back to the
+    // identity it replaced and stanceListFor folded back to the raw ISSUE_STANCE_DATA
+    // dip it replaced, each substitution asserted to apply exactly once or the section
+    // refuses to claim anything. That is stricter than the revision diff it replaces:
+    // it isolates the two functions the claim is about rather than every difference
+    // between two commits, it still measures 2 chips before to 1 after and the HD-68
+    // row's chip absent before to present after, and it cannot go stale, because what
+    // it removes is what it claims. No assertion was relaxed and none was dropped.
+    "scripts/test-eye-one-person-per-office.mjs",
+    // ── One tested set for the chip and the section (CACHE_VERSION v140) ──────
+    // On those same later-wave terms, and this one writes no roll, no mapping, no
+    // key, no floor and no admission. The letterhead chip and the mid-page Word vs
+    // Action section report the same finding about the same person, a screen apart,
+    // and they were reporting two different SIZES of it: on /p/lee the chip read
+    // "84% · 5 of 14 tested" beside the name while the section below read 72% over
+    // 15 of 26. Neither figure was invented — each was a faithful print of a read
+    // taken at a different tick, and this ledger grows during a page's life as the
+    // roll-call record and the lazy data bundles land. That is what made the pair a
+    // lie: a reader cannot see which tick a number came from, and two "tested"
+    // counts on one page is a worse defect than the missing denominator the chip was
+    // given one for. One function now owns { pct, tested, eligible, token } and the
+    // one fraction sentence those integers make; both surfaces print that object, in
+    // the visible text and in the accessible name; and where both halves cannot be
+    // said the chip is ABSENT rather than a smaller, secret set with a percentage
+    // still on it. Both also moved onto the consistency ring's repaint contract, so
+    // they cannot be different ages either.
+    //   The reason a wave like this one is the file that has to declare it: R1 and R2
+    // put 1,120 member files behind this figure, so the chip beside the name is how a
+    // reader meets the formal read at all, and every one of those files carried the
+    // pair. read(), scopedRead(), Direction Match, the tier weights and both floors
+    // are outside the declared seams and read byte-identically — the twin boot above
+    // has just proved the ledger and the DM figure are unchanged for every member.
+    //   word-action.js, scripts/v103-chrome-seams.mjs, sw.js and
+    // scripts/test-wordaction-badge.mjs are declared above already. The two below are
+    // not, and both are re-statements rather than relaxations: each pinned the chip's
+    // source with /\bread\(pid, p\)/ and /r\.pct === null/, which said "the chip goes
+    // through the engine and fails closed" in the only vocabulary that existed when
+    // they were written. The chip now goes through the shared figure instead, so the
+    // same two claims are asserted against figure(pid, p) and !f.shows — and
+    // test-score-consistency.mjs additionally requires that the owner take
+    // scopedRead(), which is the substantive half the old regex could not see. No
+    // assertion was dropped and the counterfactuals in both files still hold.
+    "scripts/test-score-consistency.mjs",
+    "scripts/test-mobile-profile-hierarchy.mjs",
+    //   scripts/test-wva-chip-denominator.mjs is here on the same terms, and it is a
+    // repair of exactly the failure mode f8 records above for
+    // test-eye-one-person-per-office.mjs. Its section 3 built the pre-denominator
+    // chip by lifting a span out of `git show HEAD:word-action.js`: true exactly
+    // once, because the moment that pass was committed HEAD carried the fix, the two
+    // revisions became one file, and its vacuity guard fired on a tree where nothing
+    // was wrong. The bare builder is now BUILT from the shipped source by removing
+    // the three things the denominator pass added — the both-halves gate, the
+    // fraction, the span it prints in — each substitution asserted to apply exactly
+    // once, so what it removes is what it claims. Its three load-bearing
+    // counterfactuals were re-aimed at the same markup for the same reason. No
+    // assertion was relaxed and none was dropped; the suite went from a hard
+    // STALE HARNESS stop to 165 passing checks.
+    "scripts/test-wva-chip-denominator.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

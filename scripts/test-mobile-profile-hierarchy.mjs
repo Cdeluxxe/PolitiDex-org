@@ -527,22 +527,26 @@ ok(/@media \(hover: none\), \(pointer: coarse\) \{[^@]*\.pdxwa-cbadge \{[^}]*min
   'header: the chip has no thumb target on a coarse pointer. It is a door — a word-wide door on a\n' +
   '    phone is a door that misses');
 
-// IT SAYS THE NUMBER; IT DOES NOT WORK IT OUT. Same read() as the ring and the
-// section, so the letterhead cannot come to disagree with what it links to. And
+// IT SAYS THE NUMBER; IT DOES NOT WORK IT OUT. It prints figure()'s object — the
+// same one the ⚖️ section prints, off the same scopedRead() the ring takes — so the
+// letterhead cannot come to disagree with what it links to, in the figure or in the
+// size of the set behind it. And
 // it must lead somewhere: a summary with no way to the working is a figure the
 // reader has to take on trust.
 const cbAt = WA.indexOf('function compactBadgeHtml');
 must(cbAt !== -1, 'word-action.js no longer has compactBadgeHtml');
 const cbSrc = WA.slice(cbAt, cbAt + 1400);
-ok(/\bread\(pid, p\)/.test(cbSrc) && !/outcomeBuckets\(/.test(cbSrc),
-  'header: the chip derives a figure of its own instead of running the read the ring and the\n' +
-  '    section run — which is how a letterhead comes to print a number its own section denies');
+ok(/\bfigure\(pid, p\)/.test(cbSrc) && !/outcomeBuckets\(/.test(cbSrc),
+  'header: the chip sizes a figure of its own instead of printing the object the ring and the\n' +
+  '    section print — which is how a letterhead comes to print a number, and a tested count,\n' +
+  '    that its own section denies');
 ok(/pdxsec-wordaction/.test(cbSrc),
   'header: the chip does not lead to ⚖️ Word vs Action. It is the whole reason a strip could be\n' +
   '    replaced by a chip — the detail is one tap away rather than in the way');
-ok(/r\.pct === null/.test(cbSrc),
-  'header: the chip does not fail closed on a null read. Below the tested floor there is no\n' +
-  '    percentage, and a chip beside a name saying so in dashes is a finding the engine has not made');
+ok(/if \(!f\.shows\) return '';/.test(cbSrc),
+  'header: the chip does not fail closed on a figure it cannot fully state. Below the tested floor\n' +
+  '    there is no percentage, and a chip beside a name saying so in dashes — or showing a\n' +
+  '    percentage with no set under it — is a finding the engine has not made');
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 12. …and the strips' own skins stay dormant, not deleted

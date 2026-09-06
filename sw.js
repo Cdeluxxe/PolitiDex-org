@@ -880,6 +880,172 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v140 - ONE TESTED SET, PRINTED TWICE OR NOT AT ALL. The letterhead chip and the
+// mid-page Word vs Action section report the same finding about the same person, a
+// screen apart, and they were reporting two different sizes of it: on /p/lee the
+// chip read "84% - 5 of 14 tested" beside the name while the section below read 72%
+// over 15 of 26. Neither figure was invented. Each was a faithful print of a read
+// taken at a different moment - this ledger grows during a page's life as the
+// roll-call record and the lazy data bundles land - and that is exactly what made
+// the pair a lie, because a reader cannot see which tick a number came from. Two
+// "tested" counts on one page is a worse defect than the missing denominator the
+// chip was given one for.
+//
+// So the figure is a thing now and not a habit repeated at each surface. One
+// function answers, for one pid: the percentage, the tested count, the eligible
+// count, the outcome token, and the one fraction sentence those two integers make.
+// The chip and the section both print THAT object, in the visible text and in the
+// accessible name, which is the same sentence and not a shortened one. Where both
+// halves cannot be said the chip is absent - never a smaller, secret set with a
+// percentage still sitting on top of it. And both surfaces now share the repaint
+// contract the consistency ring already had (every arrival event, an alias-tolerant
+// pid match, one reconciling paint), because two surfaces printing one object still
+// drift if they hear about the arrival at different times.
+//   · word-action.js       - the shared figure and the shared repaint, the chip, and
+//                            three narrow spans in the section that read and stamp
+//                            them. Both files' new spans are declared seams, so
+//                            everything outside them is still compared byte for byte.
+//   · word-action.css      - unchanged this pass; the chip's own skin already had a
+//                            slot for the denominator.
+// No floor moved. read(), scopedRead(), Direction Match, the tier weights, the
+// publication floor and the pair rules are all outside the seams and read
+// byte-identically: a twin boot over the whole corpus returns the same ledger and
+// the same DM figure for every member. The public lane, finance, the Eye, Door 2
+// and the corpus sweep were not touched.
+//
+// v139 - THE EYE FOUND THE RIGHT PERSON TWICE. A reader who typed "chew" got two
+// rows for one representative, and the pass that collapsed them landed in the two
+// lanes that mint rows: the people lane and the receipt lane both resolve through
+// PDXCanonIds. But the panel has six other emitters that carry a person's id, and
+// none of them asked whose id it was - the related chips under a row, the
+// Connections map's teammate nodes and its "people near your saved work" siblings,
+// the ranked rows of an issue answer, and the polId stored inside a saved receipt.
+// Eighteen retired ids are ISSUE_STANCE_DATA keys, so the panel could still print
+// `scott_chew` beside the one Chew row it had just kept - and the collapse had
+// quietly taken that row's only chip with it, because his curated stance block is
+// filed under the stub's name slug and the chip builder read the table by raw key.
+//   So the panel now asks the same question at every edge, and asks it of the
+// modules that already own the answer.
+//   . canonPid()        - PDXPersonLink.pid, then PDXProfilePid: the id a row
+//                         PRINTS is the id its handler OPENS, at every emitter,
+//                         and it fails open on a page where neither module ran.
+//   . stanceListFor()   - _resolveStanceList (stance-helpers.js), the app's own
+//                         owner of "whose curated block is this", rather than a
+//                         second copy of the alias walk living here.
+//   . personDoor()      - ONE person door for the whole panel: PDXPersonLink.open
+//                         then PDXPerson.open then showProfile, with the id
+//                         resolved BEFORE the hop. A people row, a judge row, a
+//                         related chip, a ranked row and a saved receipt all go
+//                         through it, so a click and an Enter can no longer
+//                         disagree about who they meant.
+//   A PERSON HIT OPENS THE PERSON FILE. Not a medium card, not a summary that has
+// to be tapped again: /p/<pid>, through the same funnel the row's own href hands
+// its clicks to. Issue and bill hits keep the doors they already had - /i/<key>
+// and /b/<sitting>/<number> - and no third address shape was invented. The
+// overlay's chrome is unchanged: query, results, one clear close. It still paints
+// no scrim and takes no scroll lock, so it stays a finder rather than a second
+// Door 1 stack behind itself.
+//   THE VISITOR'S OWN LISTS ARE READ, NOT REWRITTEN. My Team and the saved-people
+// list hold whatever id the surface that made the pick happened to spell,
+// including a retired one, and they are resolved on the way out instead of
+// migrated in place - so the map is of people while the store stays the reader's,
+// and the "on your team" badge and the "Add to My Team" label cannot start
+// disagreeing. Canonicalisation happens where this panel prints or opens an id.
+// Bumped because all-seeing-eye.js is a RUNTIME cache entry rather than a
+// precached one, and the runtime cache NAME carries CACHE_VERSION: without a move
+// a returning reader keeps the copy of the eye that prints the retired id, and
+// every sentence above is true only of a first-time visit. The eye is the only
+// shipped file this pass moves, so a warm device that has not taken the new one
+// simply behaves as it did before - there is no half-landed state to ship. No new score, no
+// party sort, no floor, mapping, weight, verdict or pack TTL moved, nothing
+// interactive is nested, and the twin boot is byte-identical on Direction Match
+// and on every formal-record tier.
+//
+// v138 - THE BILL TITLE IS A DOOR TO THE BILL FILE. Four surfaces printed a
+// measure identity as text and only as text: the issue dossier's Official Record
+// cards, its "which measures this came from" roll-up, the Official Record proof
+// line on a person file, and the ledger's measure cards on /i/<key>. A reader who
+// had just been told what H.B. 400 did on school absenteeism could see "H.B. 400"
+// and had no way to open it — the whole instrument, all of its members, all of its
+// mappings, the vehicle and the stowaway, the roll calls. The education path ended
+// at the person-issue pair.
+//   So every one of those identities is now the door, and the door is the SHIPPED
+// one: data-pdxbill-open → PDXBillDetail.open(number, sitting) on the person file,
+// window.pdxDoor1Bill(number, sitting) on the issue desk. No new address shape, no
+// new nav item, no new score and no new fetch on the person-file critical path —
+// the panel these open is the same panel #bill/<sitting>/<number> and /b/<sitting>/
+// <number> have always resolved to.
+//   THE SITTING NOW TRAVELS WITH THE NUMBER, which was a real defect on the state
+// half of the record rather than a tidiness point: "H.B. 208" names a different
+// bill in every Utah general session and "H.R. 22" names a different one in every
+// congress, and the issue desk was handing the panel a bare number. Two readers
+// own the two shapes the sitting arrives in — window.pdxBillSit for a voting-record
+// item (consistency.js), PDXBillDetail.sittingOf for an index card — and the desk
+// asks them rather than copying either.
+//   THE ROW AROUND THE IDENTITY STILL MEANS WHAT IT MEANT. Tapping a dossier card
+// face opens the measure explainer; tapping a roll-up line opens the same
+// explainer; tapping a proof line opens that one roll call. Only the number and
+// the title changed destination. The delegated gateway therefore tests the bill
+// door FIRST — closest() walks outward, so the innermost control has to be checked
+// first or the row would keep winning every tap on its own title.
+//   AND NOTHING INTERACTIVE IS NESTED. Where a real <button> is legal it is one
+// (the dossier card's <summary>, which already held "See all N readings"; the
+// ledger card's <li>, which already held "Who voted on it"). The roll-up row could
+// not hold one — an interactive element inside another makes the parser close the
+// outer one early and drops every following span out of the row — so that row
+// follows the shape the stance rows already use: the <li> keeps the door attribute
+// and stays a pointer target, while role, tabindex and the accessible name move
+// onto the two spans that are the actual controls, the identity and the ↗.
+//   A MISSING BILL FILE IS SAID, NOT SUBSTITUTED. The old issue-desk fallback
+// opened the bills INDEX when the panel was absent, so a reader who asked for one
+// measure got a list of all of them. Both openers now mark the control itself —
+// "No bill page on file", once, in place — and navigate nowhere.
+// Bumped because the doors are in precached shell files (consistency.js,
+// door1-workspace.js, door1-workspace.css) and a warm device would otherwise keep
+// serving identities that are not doors. No floor, mapping, weight, verdict,
+// Direction Match read or Door 2 holder moved; the twin boot is byte-identical.
+//
+// v137 - DOOR 2 NAMES THE RIGHT HUMANS. A Layton / Davis County reader resolved
+// three of six seats: both "U.S. Senate · Utah" rows and "Governor · Utah"
+// printed "No record on file yet — we'd rather leave this blank than name the
+// wrong person" over Mike Lee, John Curtis and Spencer Cox, three people with
+// full files one tap away at /p/lee, /p/curtis and /p/cox. That sentence is an
+// admission about OUR coverage, and printing it over somebody we hold a file for
+// is a false statement about the app. Cause: voter-hub-location.js is a SYNC
+// script and cmp-data.js is DEFERRED, so the first pdxRepsForMe() of a page ran
+// with no roster in the window — and the statewide memo then cached that
+// emptiness for the life of the page. The memo is now keyed on the roster it was
+// computed against and refuses to store an answer the roster was absent to give.
+//   Two more disagreements, both of them the same shape — three surfaces each
+// deriving "who holds this seat" for themselves. "Work this seat" on the U.S.
+// House tagged Celeste Maloy (UT-2) as HOLDS THIS SEAT for a reader pinned to
+// UT-1, because the sheet unioned the resolver with the 2026 ballot's office row
+// and Davis County's 2026 district is the one Maloy runs in. And the Senate
+// workspace header said "No record on file for the current holder" directly
+// above a field listing Curtis and Lee. There is now ONE owner —
+// window.pdxSeatHolders(seat) in voter-hub-location.js — and the band, the sheet
+// and the workspace all read its pid list. The workspace's three cases are now
+// distinct: a resolved pid with a record is named, a resolved pid with no record
+// is the only thing "no record on file for the current holder" describes, and no
+// pid at all says so instead of asserting a holder whose file is empty.
+//   NOTHING MOVED THAT RANKS. The formal record is still the ruler, Direction
+// Match is still printed and still orders nothing, no party field is read on any
+// of the three surfaces (the owner reads none), no challenger was invented — the
+// House field kept every candidate and lost only a false incumbency tag — and a
+// non-Utah reader still blanks their House and statehouse seats rather than
+// borrowing Utah's district map, while their statewide seats resolve from their
+// own state's roster.
+//   The bump matters because the halves sit on opposite sides of the precache
+// boundary. race-sheet.js and ballot-workspace.js ARE shell assets;
+// voter-hub-location.js and who-represents-me.js are not and arrive fresh. A
+// shell holding v136 would serve the fresh resolver — which now publishes
+// pdxSeatHolders — beside a cached sheet and workspace that never call it. Both
+// fall back rather than break, so nothing would throw: the desk would simply go
+// on tagging the wrong member as this reader's House seat and the Senate header
+// would go on contradicting the pane under it, which is the whole defect.
+// scripts/test-door2-holders.mjs pins all three surfaces against the Layton
+// fixture.
+
 // v136 - THE WORD-VS-ACTION CHIP CARRIES ITS DENOMINATOR, AND THE ISSUE DESK
 // STATES ITS PENDING COUNT ONCE. Three defects, all of them a figure printed
 // without the thing that sizes it or printed more times than it is true.
@@ -2360,7 +2526,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v136';
+const CACHE_VERSION = 'v140';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

@@ -72,7 +72,8 @@ import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { WA_SEAMS, carveSeams } from "./v103-chrome-seams.mjs";
+import { createHash } from "node:crypto";
+import { WA_SEAMS, CJ_SEAMS_ALL, carveSeams, assertConsistencySeams } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -328,7 +329,26 @@ const NO_POLE = (() => {
   // wave-f5.mjs and its siblings grant it at: the chip's own span is carved out of
   // both trees and everything else in eighty-odd kilobytes is compared byte for
   // byte. Anything outside the chip fails here exactly as it did before.
-  const WAIVED = ["word-action.js"];
+  // THE SECOND WAIVER, ON THE SAME TERMS AND NARROWED THE SAME WAY.
+  // consistency.js moved after this wave landed, and again for a reason that has
+  // nothing to do with coverage rows: the bill-door pass (CACHE_VERSION v138). The
+  // dossier's Official Record cards, its "which measures" roll-up, the issue desk's
+  // ledger rows and the formal brief's proof lines all PRINT a measure identity —
+  // H.B. 400, H.R. 6644, S.B. 102 — and none of them opened the instrument. The
+  // reader could be told what a vote did and still had no way to reach the bill it
+  // was cast on. Those identities are now doors on the bill file that already
+  // existed, addressed the one way the app already addresses it.
+  //
+  // The same objection applies with the same force: Direction Match, the tier
+  // weights, every floor, the bands and the whole formal read live in this file,
+  // and the twin boot below compares every read this wave admitted rows for. So the
+  // waiver is granted the way word-action.js's is. The pass's fourteen spans are
+  // carved out of both trees by anchors unique on both sides, everything else in
+  // six hundred-odd kilobytes is compared byte for byte, and the spans themselves
+  // are argued span by span in the shared seam module rather than excused. A door
+  // that reached for a floor, a weight, a score, a party word or a percentage fails
+  // there; anything outside the fourteen fails here, exactly as it did before.
+  const WAIVED = ["word-action.js", "consistency.js"];
   eq(touched.filter((f) => !WAIVED.includes(f)).length, 0,
     `F11 changed a booted engine file (${touched.join(", ")}) — a coverage wave writes mapping rows and no engine`);
   if (touched.includes("word-action.js")) {
@@ -337,6 +357,18 @@ const NO_POLE = (() => {
     eq(wa.pinned, wb.pinned,
       "word-action.js changed outside the identity chip and the three spans below it — the module the " +
       "whole formal read is rendered from is not a coverage wave's to touch");
+  }
+  if (touched.includes("consistency.js")) {
+    const has = (x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`);
+    const ca = carveSeams(headSrc("consistency.js"), CJ_SEAMS_ALL, "HEAD", "consistency.js", ok);
+    const cb = carveSeams(nowSrc("consistency.js"), CJ_SEAMS_ALL, "now", "consistency.js", ok);
+    // Hashed rather than compared outright: a failure here should name the file, not
+    // print six hundred kilobytes of engine into the log.
+    const sha = (x) => createHash("sha256").update(x).digest("hex").slice(0, 16);
+    eq(sha(cb.pinned), sha(ca.pinned),
+      "consistency.js changed outside the spans named in scripts/v103-chrome-seams.mjs — the arithmetic, " +
+      "the floors and the bands are not a coverage wave's to touch under this waiver");
+    assertConsistencySeams(cb.bodies, { has, ok });
   }
 
   // RUNBOOK RULE 47. scripts/test-vr-federal-wave-f8.mjs rewrites cmp-data.js on

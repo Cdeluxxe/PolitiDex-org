@@ -479,8 +479,9 @@ const [displayScore, promiseState] = (() => {
   // THE COMPACT CHIP. The letterhead also carries a one-line ⚖️ Word vs Action chip
   // among the status pills — the figure and the verdict word, and a scroll down to
   // the section. It is allowed to name the number the ring names because it does not
-  // work one out: compactBadgeHtml() runs the same read(), so a chip that disagreed
-  // with the ring beside it is not reachable. The rule above is unchanged and still
+  // work one out: compactBadgeHtml() prints figure()'s object, which is taken off the
+  // same scopedRead() the ring and the section take, so a chip that disagreed with the
+  // ring beside it is not reachable. The rule above is unchanged and still
   // binding — profiles-full.js may not assemble a percentage in the header itself,
   // which is why the chip is a mount and not markup.
   eq(countOf(PROFILES, "PDXWordAction.compactBadgeMount("), 1,
@@ -493,14 +494,21 @@ const [displayScore, promiseState] = (() => {
   const cbAt = wa0.indexOf("function compactBadgeHtml");
   must(cbAt !== -1, "word-action.js no longer has compactBadgeHtml");
   const cbSrc = wa0.slice(cbAt, cbAt + 1400);
-  ok(/\bread\(pid, p\)/.test(cbSrc),
-    "the compact chip does not go through read() — it is deriving a headline figure of its\n" +
+  ok(/\bfigure\(pid, p\)/.test(cbSrc),
+    "the compact chip does not go through figure() — it is sizing a headline figure of its\n" +
     "    own beside the ring, which is exactly how the header and the section come to\n" +
     "    print different findings");
-  ok(/r\.pct === null/.test(cbSrc),
-    "the compact chip does not fail closed on a null read. Below the tested floor there is\n" +
-    "    no percentage, and a chip beside a person's name saying so in dashes is a finding\n" +
-    "    about them that the engine has not made");
+  const figAt = wa0.indexOf("function figure(pid, p, pre)");
+  must(figAt !== -1, "word-action.js no longer owns the shared figure");
+  ok(/var sr = pre \|\| scopedRead\(pid, p\);/.test(wa0.slice(figAt, figAt + 700)),
+    "the shared figure takes a bare read() rather than the scopedRead() the ring and the\n" +
+    "    section take. Same object, different term scope, and nothing on screen says which\n" +
+    "    one a reader is looking at");
+  ok(/if \(!f\.shows\) return '';/.test(cbSrc),
+    "the compact chip does not fail closed on a figure it cannot fully state. Below the\n" +
+    "    tested floor there is no percentage, and a chip beside a person's name saying so in\n" +
+    "    dashes — or saying a percentage with no set under it — is a finding about them that\n" +
+    "    the engine has not made");
   ok(/pdxsec-wordaction/.test(cbSrc),
     "the compact chip does not lead to ⚖️ Word vs Action. A summary with no way to the\n" +
     "    working is a number a reader has to take on trust");
