@@ -467,9 +467,24 @@
   // The Voter Hub calls sync() directly from _vhSyncBanner on every location
   // change; these are only for the first paint and for anything that sets a
   // location before this file has loaded.
+  //
+  // …AND ONE REPAINT THAT IS NOT ON A CLOCK. The statewide rows resolve from the
+  // roster, and the roster is a deferred script: a cold phone can paint this band
+  // before window.CMP_DATA has a single row in it, which is "3 of 6 seats
+  // resolved" with both Senate rows and the Governor row blank over three people
+  // we hold full files for. The three timeouts below were the only thing standing
+  // between that paint and the truth, and a timeout is a guess about a network.
+  // pdxRosterReady() is the resolver's own announcement that its input landed —
+  // one owner, one moment, and it fires immediately if the roster was already
+  // there, so the warm path costs one extra sync() and the cold path stops being
+  // wrong. The count and every row are recomputed from the resolver, so nothing
+  // here has to know WHICH seats were blank.
   function boot() {
     sync();
     [600, 1800, 4000].forEach(function (ms) { setTimeout(sync, ms); });
+    try {
+      if (typeof window.pdxRosterReady === 'function') window.pdxRosterReady(sync);
+    } catch (e) {}
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();

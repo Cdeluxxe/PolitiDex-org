@@ -1823,6 +1823,37 @@ section("9 · the engines did not move");
       return { fns, rest: rest + src.slice(at) };
     };
 
+    // ONE SHAPE FOR "REPLACE WHAT THIS PASS WROTE WITH WHAT IT REPLACED", AND
+    // ONE THAT DOES NOT EXPIRE. A pass that argues its change in a comment beside
+    // the change cannot state its diff as a literal here without pasting the prose
+    // into this file, where it would rot — so the note is cut by its FIRST LINE,
+    // the code inside the cut is checked line by line against what the pass says
+    // it added (a second statement smuggled in under the note fails on that list),
+    // and only then is the region swapped for the line it replaced.
+    //   And the swap is skipped once the pass has landed. "The working copy is
+    // HEAD plus exactly this string" is true only while the string is uncommitted;
+    // the day it lands, HEAD carries it too and the subtraction can only produce a
+    // mismatch — which is the trap the v104 note further down records paying for,
+    // and the reason five older proofs in this file now fail on a tree where
+    // nothing is wrong. So the exact form runs while it can be stated, the durable
+    // half — the call is there, exactly once, and the hand-built pair is not —
+    // runs always, and the caller says which is which by reading the return: the
+    // reassembled body, or null once the two revisions are one file.
+    const proveFace = (what, now, was, mark, wrote, lines, replaced) => {
+      ok(!!now && !!was, `${what}: the builder is defined on both sides`);
+      eq(now.split(wrote).length, 2, `${what}: what this pass wrote is not in the body exactly once`);
+      if (sha(now) === sha(was)) {
+        console.log(`      (${what}: landed — the exact subtraction is spent, the durable half stands)`);
+        return null;
+      }
+      const i = now.indexOf(mark), j = now.indexOf(wrote, i);
+      must(i > 0 && j >= i, `${what}: the note this pass wrote no longer opens where it did`);
+      const inside = now.slice(i, j + wrote.length).split("\n")
+        .filter((l) => l.trim() && !/^\s*\/\//.test(l));
+      eq(inside, lines, `${what}: something other than the lines this pass declares came in with its note`);
+      return now.slice(0, i) + replaced + now.slice(j + wrote.length);
+    };
+
     let headWA = null;
     try {
       headWA = execFileSync("git", ["show", "HEAD:word-action.js"], { cwd: ROOT, encoding: "utf8" });
@@ -1906,10 +1937,36 @@ section("9 · the engines did not move");
         // out of the working body and what is left must be HEAD's, byte for byte.
         // The arithmetic behind the figure is not in that function and read() is
         // pinned to HEAD by name further down this same block.
+        // …AND THE EIGHTH ROUND (CACHE_VERSION v141), which finishes the round
+        // above rather than opening a new subject. The chip got the ⚖️ section's
+        // fraction; three other faces of that one figure were still building "N of
+        // M tested" in their own hands, out of the same coverage block, on the same
+        // screen:
+        //   apparatusHtml   the lid label a reader has to TAP to see the basis —
+        //                   and it sits INSIDE the section it was sizing itself
+        //                   against
+        //   feedsHtml       the Official Record row: the row that NAMES the test,
+        //                   printing a different size for it than the number block
+        //                   two inches above
+        //   heroRead        the ring's sub-line, the profile's loudest figure and
+        //                   the only one above the fold
+        // Each prints the owner's string now and nothing else, and the ring's
+        // percentage is gated on the owner's both-halves answer rather than on
+        // `pct !== null` — the same rule the chip is held to, which on every read
+        // this engine can take is the same question, so no output moved.
+        //   figure          delegates to the new owner below; its arithmetic was
+        //                   LIFTED, not rewritten
+        // All four are subtracted below rather than waived. The floors, read(),
+        // scopedRead() and Direction Match are untouched and still pinned by name
+        // further down — the ring's below-floor sentence still names the FLOOR
+        // ("2 of 3 tested needed"), which is the one place the floor and the tested
+        // set are different questions and the one line this pass deliberately left
+        // alone.
         const TOUCHED = ["armBriefDeadline", "briefAbsenceCopy", "briefHeroHtml",
           "briefSeedHtml", "briefLiveN", "briefRecordOnHand", "formalKnown",
           "bindHero", "shapeMatchHtml", "briefAsked",
-          "shapeHeroHtml", "briefBodyHtml", "compactBadgeHtml"];
+          "shapeHeroHtml", "briefBodyHtml", "compactBadgeHtml",
+          "figure", "apparatusHtml", "feedsHtml", "heroRead"];
         // …and the readers the two passes added. Every one is a pure read of state
         // that already existed in the tab — the live member payload, the crawl
         // header's rows, the static formal index, the pattern index's shape, the
@@ -1971,7 +2028,16 @@ section("9 · the engines did not move");
           //                   own distinct-instrument count, read side by side
           //   sliceLineN      the numbered form of the locked sentence
           //   sliceNoteHtml   the gate: four legs, then one of two locked forms
-          "sliceHouseLane", "sliceCounts", "sliceLineN", "sliceNoteHtml"];
+          "sliceHouseLane", "sliceCounts", "sliceLineN", "sliceNoteHtml",
+          // …AND THE EIGHTH ROUND's one. figureOf() is figure()'s own body with the
+          // read-taking line taken off the front, so a surface that is ALREADY
+          // holding the read can print the owner's object without buying a second
+          // scoring pass for a string the section already has. It is the same
+          // owner, reachable two ways; it is not a second owner.
+          //   figureOf   the object — pct, tested, eligible, token, the one
+          //              fraction sentence, the both-halves answer and the stamp —
+          //              for a read the caller hands in
+          "figureOf"];
 
         const changed = [], added = [], removed = [];
         for (const [k, v] of A.fns) {
@@ -2012,42 +2078,153 @@ section("9 · the engines did not move");
             `${f}() moved at all — the chip order, the characterisation, the counts and the slice mount in it are HEAD's`);
         }
 
-        // ── and the v136 chip, by subtraction ───────────────────────────────────
-        // The licence taken above is exactly three strings wide. Take them out and
-        // the chip is HEAD's chip: same button, same jump target, same percentage,
-        // same verdict word, same colour, same fail-closed catch. What the pass
-        // added is a denominator in the markup and the same denominator in the
-        // accessible name; what it did not add is a second count — both integers
-        // arrive on the read() this block pins to HEAD by name below.
+        // ── and the v136 chip, restated ─────────────────────────────────────────
+        // THIS PROOF WAS A SUBTRACTION AND THE SUBTRACTION EXPIRED, in exactly the
+        // way the v104 note below records: it said "the working copy is HEAD plus
+        // these three strings", which stops being sayable the day the strings are
+        // committed and HEAD carries them too — and then, worse, it also went stale
+        // against the pass that followed, because the v140 owner took the two
+        // integers off figure() and the literals this block quoted are not in the
+        // file at all any more. A proof that fails on a tree where nothing is wrong
+        // proves nothing.
+        //   The claim it was protecting is stronger stated directly, and it does
+        // not rot: the chip prints the OWNER's object — one read, the both-halves
+        // gate, one fraction — in the visible text and in the accessible name, it
+        // builds no count of its own, and everything else about it is HEAD's byte
+        // for byte with no licence to move at all. The next pass that needs to
+        // touch this builder re-opens the subtraction against its own diff, through
+        // proveFace() above.
         {
           const now = B.fns.get("compactBadgeHtml") || "", was = A.fns.get("compactBadgeHtml") || "";
           ok(!!now && !!was, "compactBadgeHtml() is defined on both sides");
-          const DEN_DECL = "      var c = r.coverage || {};\n" +
-            "      // '' is unreachable above the floor — a published percentage has at least\n" +
-            "      // MIN_TESTED_ITEMS tested items behind it, so both integers are positive.\n" +
-            "      // It is here so a read handed in without a coverage block cannot print the\n" +
-            "      // one fraction that would be worse than no fraction: \"0 of 0 tested\".\n" +
-            "      var den = (c.tested && c.scorable) ? (c.tested + ' of ' + c.scorable + ' tested') : '';\n";
-          const DEN_SPAN = "          (den\n" +
-            "            ? '<span class=\"pdxwa-cbadge-den\">' + esc(den) + '</span>' +\n" +
-            "              '<span class=\"pdxwa-cbadge-sep\" aria-hidden=\"true\">·</span>'\n" +
-            "            : '') +\n";
-          const ARIA_NEW = "        ' aria-label=\"' + esc(r.pct + '% ' + FRAME.metric + (den ? ', ' + den : '') + ' — ' +\n" +
-            "          label + '. Open ' + FRAME.label + '.') + '\">' +";
-          const ARIA_OLD = "        ' aria-label=\"' + esc(r.pct + '% ' + FRAME.metric + ' — ' + label + '. Open ' + FRAME.label + '.') + '\">' +";
-          let cut = now;
-          for (const [str, why] of [[DEN_DECL, "the fraction's declaration"], [DEN_SPAN, "the visible fraction"]]) {
-            eq(cut.split(str).length, 2, `the chip does not carry ${why} exactly once, as this pass wrote it`);
-            cut = cut.replace(str, "");
+          for (const [str, why] of [
+            ["      var f = figure(pid, p);\n", "one read of the shared owner"],
+            ["      if (!f.shows) return '';\n", "the both-halves gate: no percentage without the set that sizes it"],
+            ["      var den = f.fraction;\n", "the owner's own fraction sentence, not a second spelling of it"],
+            ["'<span class=\"pdxwa-cbadge-den\">' + esc(den) + '</span>' +", "the visible fraction"],
+            ["esc(f.pct + '% ' + FRAME.metric + ', ' + den + ' — ' +", "the same fraction in the accessible name"],
+          ]) {
+            eq(now.split(str).length, 2, `the chip does not carry ${why}, exactly once`);
           }
-          eq(cut.split(ARIA_NEW).length, 2,
-            "the chip's accessible name is not the one this pass wrote — a screen reader hearing the " +
-            "percentage without the fraction has been handed the exact impression the visible chip was " +
-            "fixed to stop giving");
-          cut = cut.replace(ARIA_NEW, ARIA_OLD);
-          eq(sha(cut), sha(was),
-            "the chip minus its denominator is not HEAD's chip — something other than the fraction moved " +
-            "in a builder that sits inches from Direction Match");
+          ok(!/c\.tested \+ ' of ' \+ c\.scorable|coverage\.tested/.test(now),
+            "the chip assembles N of M by hand again beside the owner's copy of it");
+          eq(sha(now), sha(was),
+            "the chip moved at all — the button, the jump target, the percentage, the verdict word, " +
+            "the colour and the fail-closed catch in it are HEAD's, and this pass took no licence " +
+            "on a builder that sits inches from Direction Match");
+        }
+
+        // ── and the v141 faces, by subtraction ──────────────────────────────────
+        // Four licences taken in TOUCHED above, four diffs stated here. The three
+        // faces sit inside builders this file otherwise has no business moving —
+        // the lid holds the basis, the method note and the whole feed map; the
+        // feeds panel holds a row per tier with a count on each; the hero holds the
+        // floors, the waiting ladder and the scope suffix — so the licence is spent
+        // down to what the pass wrote and the remainder must be HEAD's. A reordered
+        // feed row, a reworded lid or a moved floor would survive TOUCHED and die
+        // here. See proveFace() above for why each proof has an exact half and a
+        // durable half.
+        {
+          // The lid label: the owner's fraction, and the CLAUSE dropped rather than
+          // the label where the set cannot be said.
+          const now = B.fns.get("apparatusHtml") || "", was = A.fns.get("apparatusHtml") || "";
+          const cut = proveFace("the lid label", now, was,
+            "      // …AND IT IS THE SECTION'S FRACTION",
+            "      var lidFig = figureOf(pid, r);\n" +
+            "      var label = 'How this score is built · basis, method and sources' +\n" +
+            "        (lidFig.fraction ? ' · ' + lidFig.fraction : '');\n",
+            ["      var lidFig = figureOf(pid, r);",
+             "      var label = 'How this score is built · basis, method and sources' +",
+             "        (lidFig.fraction ? ' · ' + lidFig.fraction : '');"],
+            "      var label = 'How this score is built · basis, method and sources · ' +\n" +
+            "        r.coverage.tested + ' of ' + r.coverage.scorable + ' tested';\n");
+          if (cut !== null) eq(sha(cut), sha(was),
+            "the lid minus the owner's fraction is not HEAD's lid — the basis, the method note and " +
+            "the feed map hang off this builder, and something other than the label moved");
+          ok(!/coverage\.tested \+ ' of '/.test(now),
+            "the lid assembles N of M by hand beside the owner's copy of it");
+        }
+        {
+          // The Official Record row. Every other row in the panel is HEAD's, which
+          // is the half of this subtraction that matters: those counts size their
+          // own tiers, not the tested set.
+          const now = B.fns.get("feedsHtml") || "", was = A.fns.get("feedsHtml") || "";
+          const cut = proveFace("the Official Record row", now, was,
+            "        // The same fraction the number block above",
+            "        n: figureOf(pid, r).fraction });\n",
+            ["        n: figureOf(pid, r).fraction });"],
+            "        n: c.tested + ' of ' + c.scorable + ' tested' });\n");
+          if (cut !== null) eq(sha(cut), sha(was),
+            "the feeds panel minus the Official Record row's fraction is not HEAD's panel — a row " +
+            "was reordered, reworded or recounted alongside the one this pass owns");
+          ok(!/c\.tested \+ ' of ' \+ c\.scorable/.test(now),
+            "a feed row assembles the tested set by hand again");
+        }
+        {
+          // The ring. Two substitutions: the gate becomes the owner's both-halves
+          // answer, and the sub-line becomes the owner's sentence. The waiting
+          // ladder below them is in neither string and must come through untouched
+          // — it names the FLOOR, and folding that into the fraction would be a
+          // floor change wearing a copy pass's clothes.
+          const now = B.fns.get("heroRead") || "", was = A.fns.get("heroRead") || "";
+          let cut = proveFace("the ring's sub-line", now, was,
+            "      // THE PROFILE'S LOUDEST FIGURE",
+            "      var fig = figure(pid, p, sr);\n      var hasPct = fig.shows;\n",
+            ["      var fig = figure(pid, p, sr);", "      var hasPct = fig.shows;"],
+            "      var hasPct = r.pct !== null;\n");
+          const SUB_NEW = "      if (hasPct) sub = fig.fraction;\n";
+          const SUB_OLD = "      if (hasPct) sub = c.tested + ' of ' + c.scorable + ' tested';\n";
+          eq(now.split(SUB_NEW).length, 2, "the ring's sub-line is not the owner's fraction, printed once");
+          has(now, "else sub = c.tested + ' of ' + r.floors.items + ' tested needed';",
+            "the ring's below-floor sentence stopped naming the floor — that denominator is " +
+            "r.floors.items, not the tested set, and this is the one place the two are different " +
+            "questions");
+          if (cut !== null) {
+            cut = cut.replace(SUB_NEW, SUB_OLD);
+            eq(sha(cut), sha(was),
+              "the ring minus the owner is not HEAD's ring — the floors, the waiting ladder, the " +
+              "scope suffix or a returned field moved in the builder that draws the profile's " +
+              "loudest number");
+          }
+        }
+        {
+          // figure() itself: its body was LIFTED into the owner, not rewritten. The
+          // delegation is subtracted like the three above, and then every line of
+          // arithmetic HEAD's figure() held is required to be present in figureOf(),
+          // once, unchanged — so "moved whole" is checked rather than trusted, and
+          // that half holds whether or not the pass has landed.
+          const now = B.fns.get("figure") || "", was = A.fns.get("figure") || "";
+          const own = B.fns.get("figureOf") || "";
+          ok(!!now && !!was && !!own, "figure() and figureOf() are both defined");
+          const HOLD = "    var sr = pre || scopedRead(pid, p);\n";
+          has(now, HOLD, "the owner takes a read other than the one the section and the ring take");
+          const HAND = "    return figureOf(pid, (sr && sr.main) || null, sr);\n";
+          eq(now.split(HAND).length, 2, "figure() no longer hands its read to the one owner, once");
+          const i = was.indexOf(HOLD), j = was.lastIndexOf("    };\n");
+          must(i > 0 && j > i, "HEAD's figure() no longer reads as this subtraction was written");
+          const lifted = was.slice(i + HOLD.length, j + "    };\n".length);
+          if (sha(now) !== sha(was)) {
+            eq(sha(now.replace(HAND, lifted)), sha(was),
+              "figure() is not HEAD's figure() with its body handed to the owner — the entry point " +
+              "every surface calls grew or lost something on the way");
+          }
+          for (const line of lifted.split("\n")) {
+            const t = line.trim();
+            if (!t || t === "return {" || t === "};") continue;
+            // The two fields the owner is HANDED rather than derives are softened
+            // with `|| null`, because a caller may hand it a read that is not there.
+            // Named, not skipped in silence.
+            if (/^pid: String\(pid\), read: r, scoped: sr,$/.test(t)) {
+              has(own, "pid: String(pid), read: r || null, scoped: sr || null,",
+                "the owner does not fail soft on a read handed in as null");
+              continue;
+            }
+            if (/^var r = \(sr && sr\.main\)/.test(t)) continue;   // the read is a parameter now
+            eq(own.split(t).length, 2, `figureOf() does not hold HEAD's figure() line "${t}" exactly once`);
+          }
+          ok(!/scopedRead\(|\bread\(pid/.test(own.replace(/^\s*\/\/.*$/gm, "")),
+            "figureOf() takes a read of its own — it exists so a surface already holding one pays " +
+            "for no second scoring pass");
         }
 
         // ── and the sentence itself, locked ─────────────────────────────────────
@@ -2093,7 +2270,16 @@ section("9 · the engines did not move");
         // the working copy and compares the rendered Direction Match block for every
         // roster member whose read is warming — the only state these lines are
         // reachable in.
-        for (const f of ["read", "scopedRead", "issueRead", "heroRead", "ringDash",
+        // heroRead IS NO LONGER IN THIS LIST EITHER, on the same terms and for a
+        // narrower reason. Its sub-line spelled the ⚖️ section's fraction a fourth
+        // time — c.tested + ' of ' + c.scorable + ' tested' — and its percentage
+        // gate asked `r.pct !== null` directly. Both now go through the shared
+        // owner, so the ring cannot size itself against one set while the section a
+        // screen below sizes itself against another. Nothing else in it moved: the
+        // floors it reads, the waiting ladder under the fraction, the scope suffix,
+        // the ⏳/— fallbacks and every field it returns are HEAD's, which the
+        // subtraction directly above proves byte for byte rather than asserts.
+        for (const f of ["read", "scopedRead", "issueRead", "ringDash",
           "shapeRead", "recordDepth", "mappedUnits", "judgedOf"]) {
           if (!A.fns.has(f)) { ok(false, `word-action.js still defines ${f}()`); continue; }
           eq(sha(A.fns.get(f)), sha(B.fns.get(f) || ""),

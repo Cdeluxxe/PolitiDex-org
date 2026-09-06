@@ -182,6 +182,12 @@ function paint(engine, pid) {
     // below compares the attribute the renderer emits against the attribute the
     // profile surfaces emit, and a stub would make both sides agree about nothing.
     PDXIssueColors: engine.PDXIssueColors,
+    // The ⚖️ figure's owner, likewise handed over whole rather than stubbed. The
+    // card's percentage, its caption's denominator and the coverage line's tested
+    // set are all one object now — figure() — and the point of this lane is that
+    // it is the SAME object the person file prints. A stub here would let the two
+    // agree about a fiction.
+    PDXWordAction: engine.PDXWordAction,
     PDXLazyData: { loaded: () => true },
     PDXDataEpoch: () => 1,
     PDXProfileCard: { brief: () => brief, read: () => read, warm() {}, share() {} },

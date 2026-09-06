@@ -240,11 +240,18 @@ section("4 · every other publisher of the same % carries the same depth");
   ok(heroChecked > 0, "at least one hero-card brief was checked");
   const hs = CODE("hero-showcase.js");
   has(hs, "pdx-hs-sig-pct-n", "the hero signal has a slot for the depth caption");
-  // The card renderer is held to one integrity language and may not reach the
-  // engine itself (pinned in scripts/test-hero-showcase.mjs), so the wording comes
-  // through brief() — the same route the metric name already takes.
-  has(hs, "d.testedSay", "…filled from brief(), not from a second read");
-  lacks(hs, "PDXWordAction", "…without the renderer reaching the engine directly");
+  // …AND THE CARD NO LONGER PHRASES IT. It prints PDXWordAction.figure() — the
+  // same object the letterhead chip and the ⚖️ section print — so the depth beside
+  // the percentage is that object's own sentence rather than a second phrasing of
+  // the two integers it is made of. This is a stronger form of the rule this
+  // section exists for: figure() publishes both halves or neither, so a figure
+  // reaching this card without its set is not something a renderer has to
+  // remember, it is unconstructible. (The one-language rule in
+  // scripts/test-hero-showcase.mjs now reads the same way: exactly one thing is
+  // asked of the engine, and it is the figure.)
+  has(hs, "fig.fraction", "…the depth beside the figure is the figure's own sentence");
+  has(hs, "w.figure(pid)", "…asked of the one owner of it, not composed here");
+  lacks(hs, "d.testedSay", "…and the card composes no caption of its own");
   has(CODE("profile-card.js"), "wa.depthCaption(r.coverage.tested)",
     "brief() phrases the caption once, off the read that produced the figure");
   // Same gate as the headline: a percentage, and nothing else.

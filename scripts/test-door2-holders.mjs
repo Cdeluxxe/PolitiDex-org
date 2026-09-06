@@ -26,9 +26,9 @@
 //      resolved row; the blank sentence on none of them.
 //   5. THE DESK AGREES WITH THE PIN. HOLDS THIS SEAT is exactly the owner's pid
 //      list — so the 2026 UT-2 candidate is not tagged as this reader's member.
-//   6. HEADER AND BODY AGREE. "No record on file for the current holder" is
-//      reachable only for a pid whose display record is genuinely absent, and
-//      never over a person the pane itself is listing.
+//   6. HEADER AND BODY AGREE. The header reads the owner's pid list and nothing
+//      else: every pid it returns is NAMED and linked, and the blank sentence is
+//      reachable only where the owner returned no pid at all.
 //   7. A NON-UTAH READER KEEPS THE GAPS. House and statehouse blank, no Utah
 //      names, and the statewide seats still resolve from that state's roster.
 //   8. TWIN BOOT. The formal record still rules the field and Direction Match
@@ -431,7 +431,7 @@ section("6 · The workspace header agrees with the pane under it");
   has(ST, "Holds this seat now", "the Senate pane does not say who holds the seat");
   has(ST, W.CMP_DATA.curtis.name, "the Senate header does not name Curtis");
   has(ST, W.CMP_DATA.lee.name, "the Senate header does not name Lee");
-  lacks(ST, "No record on file for the current holder",
+  lacks(ST, "No record on file",
     "the Senate header still claims no record over the holders its own field lists");
   lacks(ST, "District not mapped",
     "a statewide seat is described as an unmapped district");
@@ -445,31 +445,38 @@ section("6 · The workspace header agrees with the pane under it");
     "the House header does not name the same member the band pinned");
   lacks(HT, "Holds this seat now: " + W.CMP_DATA.maloy.name,
     "the House header names the UT-2 member as the holder");
-  lacks(HT, "No record on file for the current holder",
+  lacks(HT, "No record on file",
     "the House header claims no record over a member with a file");
 
   const gov = strip(pane(W, "governor"));
   has(gov, "Holds this seat now", "the Governor pane does not say who holds the seat");
   has(gov, W.CMP_DATA.cox.name, "the Governor header does not name Cox");
-  lacks(gov, "No record on file for the current holder",
+  lacks(gov, "No record on file",
     "the Governor header claims no record over a governor with a file");
 
-  // The two remaining sentences exist, and each is now guarded by the fact it
-  // states. "No record on file for the current holder" sits behind a resolved
-  // pid; the no-holder case says so instead of describing an empty file.
+  // ONE OWNER, TWO STATES. The header is entitled to report exactly one fact —
+  // did the owner return a pid — so the sentence that describes OUR coverage
+  // ("no record on file for the current holder") is gone from the file rather
+  // than merely unreached. A pid the light roster has not merged yet is a loading
+  // state of this tab, not a hole in the app's coverage.
   const iNamed = WORK.indexOf("'<span>Holds this seat now: '");
-  const iNoRec = WORK.indexOf("'<span>No record on file for the current holder</span></span>'");
   const iGuard = WORK.indexOf("if (withPid.length)");
   const iNone = WORK.indexOf("'<span>No current officeholder resolved for this seat</span></span>'");
-  ok(iNoRec > 0, "the workspace lost the no-record-on-file sentence entirely");
-  // ...and the sentence is still reachable, for the one fact it describes: the
-  // owner resolved a pid this app holds nothing on. Asked through the owner, so
-  // this exercises the branch rather than asserting its source.
+  ok(iNamed > 0, "the workspace lost the sentence that names the holder");
+  ok(iGuard > 0 && iGuard < iNamed, "the naming sentence is not guarded by a resolved pid");
+  ok(iNone > iNamed, "the no-holder case has no sentence of its own");
+  ok(!/No record on file for the current holder<\/span>/.test(WORK),
+    "the header can still print a claim about our coverage over somebody the owner named");
+
+  // The one branch that used to reach it: a pid the owner resolved whose display
+  // row has not landed. It is named — by the only handle we have, the id — and
+  // linked, because a pid IS a record address. Asked through the owner, so this
+  // exercises the branch rather than asserting its source.
   {
     const w = boot({ location: LAYTON });
     const real = w.pdxSeatHolders;
     const ghost = "pdx_unmerged_holder";
-    ok(!w.CMP_DATA[ghost], "the fixture pid for an unheld record is on the roster");
+    ok(!w.CMP_DATA[ghost], "the fixture pid for an unmerged display row is on the roster");
     w.pdxSeatHolders = (k) => (w.pdxSeatKey(k) !== "senate" ? real(k) : {
       ok: true, seat: "senate", located: true, statewide: true, districtGap: false,
       pids: [ghost],
@@ -477,18 +484,53 @@ section("6 · The workspace header agrees with the pane under it");
         tierLabel: "U.S. Senate", statewide: true, district: null,
         distLabel: "U.S. Senate · Utah", pid: ghost, resolved: true }],
     });
-    const g = strip(pane(w, "senate"));
-    has(g, "No record on file for the current holder",
-      "a resolved pid with no record on file does not produce the sentence that describes it");
-    lacks(g, "Holds this seat now",
-      "a pid with no record is named as a holder anyway");
+    const raw = pane(w, "senate");
+    const g = strip(raw);
+    // Tag-stripped, so the name's own anchor collapses to whitespace.
+    has(g.replace(/\s+/g, " "), "Holds this seat now: " + ghost,
+      "a pid whose display row has not landed is dropped from the header instead of named");
+    has(raw, ghost, "the unmerged holder's name is not addressable as a record");
+    lacks(g, "No record on file",
+      "an unmerged display row is reported as a hole in the app's coverage");
     lacks(g, "No current officeholder resolved",
       "a resolved pid is reported as no officeholder at all");
     w.pdxSeatHolders = real;
   }
-  ok(iGuard > 0 && iGuard < iNoRec && iGuard > iNamed,
-    "the no-record sentence is not guarded by a resolved pid");
-  ok(iNone > iNoRec, "the no-holder case has no sentence of its own");
+
+  // AND THE HEADER INVENTS NOBODY. Every pid the header names for a seat is one
+  // the owner returned for that seat — the containment Request B asks for, in the
+  // direction that matters: the header is a subset of the owner's answer.
+  ["senate", "house", "governor", "statesenate", "statehouse"].forEach((rk) => {
+    const owned = (W.pdxSeatHolders(rk).pids || []).map(String);
+    const html = pane(W, rk);
+    const line = /Holds this seat now:([\s\S]*?)<\/span>\s*<\/span>/.exec(html);
+    if (!owned.length) {
+      ok(!line, `${rk}: the header names a holder the owner never resolved`);
+      return;
+    }
+    ok(!!line, `${rk}: the owner resolved a holder the header does not name`);
+    // PDXPersonLink turns the name into <a href="/p/<pid>">; with that module
+    // absent from this boot the same builder falls back to a showProfile button,
+    // so both spellings of "this name addresses that record" count.
+    const named = (line[1].match(/\/p\/([A-Za-z0-9_.-]+)|showProfile\('([^']+)'\)/g) || [])
+      .map((m) => m.replace(/^\/p\//, "").replace(/^showProfile\('/, "").replace(/'\)$/, ""));
+    ok(named.length > 0, `${rk}: the named holder is not addressable as a record`);
+    named.forEach((pid) => {
+      ok(owned.indexOf(pid) >= 0,
+        `${rk}: the header names ${pid}, who is not one of the owner's holders (${owned.join(",")})`);
+    });
+  });
+
+  // The specific regression, stated as the reader met it: with Curtis and Lee in
+  // the pane, the Senate header never says nobody holds the seat.
+  ok((W.pdxSeatHolders("senate").pids || []).length === 2,
+    "the Layton fixture stopped resolving both senators");
+  lacks(ST, "No current officeholder resolved",
+    "the Senate header reports no officeholder while the pane lists Curtis and Lee");
+  lacks(strip(pane(W, "house")), "No current officeholder resolved",
+    "the House header reports no officeholder while the pane lists Blake Moore");
+  lacks(gov, "No current officeholder resolved",
+    "the Governor header reports no officeholder while the pane lists Cox");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -526,7 +568,7 @@ section("7 · A non-Utah reader keeps their gaps and gets no Utah names");
   const oHouse = strip(pane(oh, "house"));
   has(oHouse, "District not mapped", "the Ohio House pane does not name the gap");
   lacks(oHouse, "Holds this seat now", "the Ohio House pane names a holder it never resolved");
-  lacks(oHouse, "No record on file for the current holder",
+  lacks(oHouse, "No record on file",
     "an unmapped district is reported as an officeholder with an empty file");
 }
 

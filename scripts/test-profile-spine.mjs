@@ -1003,10 +1003,19 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
      "lid: inside the apparatus fold the basis no longer comes before the feed map and the\n" +
      "    method note — the order a reader asks these in is what is built, what feeds it, how\n" +
      "    it is counted");
-  ok(/r\.coverage\.tested \+ ' of ' \+ r\.coverage\.scorable \+ ' tested'/.test(ap) &&
+  // The count in the label used to be spelled out here — tested + ' of ' + scorable.
+  // It is the same number the ⚖️ section and the letterhead chip print, so the lid
+  // now asks the one owner for the string instead of rebuilding it: a second
+  // spelling is a second chance to disagree with the section it opens onto. The
+  // invariant is unchanged — a lid label still has to name its payload with a
+  // count — so the assertion asks for the owner's fraction, not for arithmetic.
+  ok(/figureOf\(pid, r\)/.test(ap) && /lidFig\.fraction/.test(ap) &&
      /label="' \+ label \+ '"/.test(ap),
-     "lid: the apparatus label stopped naming its payload — a lid label must say what opening\n" +
-     "    it shows, with a count, never a bare 'See more'");
+     "lid: the apparatus label stopped naming its payload from the one fraction owner — a lid\n" +
+     "    label must say what opening it shows, with a count, never a bare 'See more', and that\n" +
+     "    count is figureOf()'s fraction rather than a spelling of its own");
+  ok(!/coverage\.tested \+ ' of '/.test(ap),
+     "lid: the apparatus label builds 'N of M' by hand again beside the owner's copy");
   const bh = WAL.slice(WAL.indexOf("function basisHtml"), WAL.indexOf("function basisHtml") + 2600);
   ok(bh.indexOf("pdxwa-basis-d") !== -1 && bh.indexOf("pdxwa-basis-d") < bh.indexOf("pdxwa-tiers") &&
      bh.indexOf("pdxwa-tiers") < bh.indexOf("pdxwa-cov"),

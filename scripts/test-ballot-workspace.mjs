@@ -263,7 +263,7 @@ section("3 · The seat is the working surface");
   has(html, "bw-desk", "the open seat has no panel");
   has(html, sm.label, "the panel does not name the seat it is showing");
   // Who holds it, or an honest statement that nobody resolvable does.
-  ok(/Holds this seat now|No record on file for the current holder|District not mapped/.test(html),
+  ok(/Holds this seat now|No current officeholder resolved|District not mapped/.test(html),
     "the panel does not say who holds this seat");
   // The field, on the panel, with a pick control per candidate — not behind an
   // overlay and not two thousand lines down the document.

@@ -128,6 +128,14 @@ function thinRead(over = {}) {
   return warmingRead({ coverage: { ...pubRead().coverage, tested: 1, warming: false }, ...over });
 }
 
+// The arm the person file repaints on. Read out of the shipped engine rather than
+// retyped, so a fifth arrival event added there is one this harness fires too.
+const HERO_REPAINT = (() => {
+  const src = readFileSync(join(ROOT, "word-action.js"), "utf8");
+  const m = /HERO_REPAINT\s*=\s*\[([^\]]+)\]/.exec(src);
+  return m ? m[1].match(/'([^']+)'/g).map((q) => q.slice(1, -1)) : [];
+})();
+
 const VERDICTS = {
   pending: { key: "pending", ico: "⏳", label: "Loading the record…", tone: "muted", color: "#9fb4d4" },
   consistent: { key: "consistent", ico: "✓", label: "Backs it up", tone: "good", color: "#6ee7a0" },
@@ -145,6 +153,7 @@ function harness(opts = {}) {
   const host = makeHost();
   const calls = {
     warm: [], share: [], showProfile: [], ensure: [], whenReady: [], brief: [], read: [],
+    figure: [],
   };
   const timers = [];   // {fn, ms}
   const intervals = [];
@@ -193,6 +202,33 @@ function harness(opts = {}) {
       whenReady: (k) => { calls.whenReady.push(k); },
     },
     PDXDataEpoch: () => derivEpoch,
+    // The ⚖️ figure's one owner. figureOf() (word-action.js) builds this object
+    // for the letterhead chip, the ⚖️ section and now this card; the stub rebuilds
+    // it from the same fixture read so a case can move `warming` and watch the
+    // card obey. That the SHIPPED builder still returns these fields is not taken
+    // on trust here — test-wva-one-fraction-every-face.mjs boots the real engine
+    // and pins the card's string against the person file's, for a real pid.
+    PDXWordAction: opts.noEngine ? undefined : {
+      repaintEvents: () => HERO_REPAINT.slice(),
+      figure: (pid) => {
+        calls.figure.push(pid);
+        const d = answer(pid, pass);
+        if (!d) return null;
+        const c = d.coverage || {};
+        const pct = typeof d.pct === "number" ? d.pct : null;
+        const t = c.tested || 0;
+        const m = c.scorable || 0;
+        const fraction = (t && m) ? `${t} of ${m} tested` : "";
+        const warming = !!c.warming;
+        return {
+          pid: String(pid), pct, tested: t, eligible: m, fraction,
+          shows: pct !== null && !!fraction,
+          warming,
+          ready: pct !== null && !!fraction && !warming,
+          stamp: [pct === null ? "" : pct, t, m, (d.verdict && d.verdict.key) || ""].join("|"),
+        };
+      },
+    },
     PDXProfileCard: opts.noEngine ? undefined : {
       brief: (pid) => { calls.brief.push(pid); return answer(pid, pass); },
       read: (pid) => { calls.read.push(pid); return readAnswer(pid, pass); },
@@ -365,7 +401,9 @@ for (const c of seed) {
   ok(/9 stances/.test(html), "phase 2: coverage names the stance count");
   ok(/2 tracked pledges/.test(html), "phase 2: a pledge appears as one form of \"said\", inside coverage");
   ok(/14 mapped votes on record/.test(html), "phase 2: coverage names the mapped-vote count");
-  ok(/10 of 12 testable/.test(html), "phase 2: coverage states how much of the record could be tested");
+  // In the figure's own words, not the card's: "N of M tested" is fractionOf()'s
+  // sentence, and the coverage line prints the string rather than the numbers.
+  ok(/10 of 12 tested/.test(html), "phase 2: coverage states how much of the record could be tested");
   ok(/Record backs them/.test(html) && /Border security/.test(html), "phase 2: a highlight is printed");
   ok(/Record contradicts them/.test(html) && /Farm subsidies/.test(html), "phase 2: a lowlight is printed");
   ok(/H\.R\. 2 · Voted Yea/.test(html), "phase 2: the highlight names the formal action that tested it");
@@ -641,8 +679,20 @@ for (const c of seed) {
   }
   // The renderer may read VERDICTS.pending — that is the deliberate single source
   // for the one waiting phrase. It must not reach any FINDING out of the engine.
-  ok(!/PDXWordAction/.test(RENDERER_CODE),
-    "one language: the renderer does not call the Word vs Action engine directly");
+  // The renderer may reach the Word vs Action engine for exactly ONE thing: the
+  // figure object, whole. Reading a raw field out of it — a pct, a tested count, a
+  // coverage block — is how a second percentage gets composed on this card, which
+  // is what printed Lee at 88% here and 72% on his own file.
+  const engineReads = (RENDERER_CODE.match(/\bw\.[A-Za-z_]+|PDXWordAction\.[A-Za-z_]+/g) || [])
+    .map((r) => r.replace(/^.*\./, ""));
+  const allowed = ["figure", "repaintEvents"];
+  ok(engineReads.every((r) => allowed.indexOf(r) !== -1),
+    `one language: the renderer asks the engine for figure() and nothing else — got ${
+      [...new Set(engineReads)].join(", ") || "nothing"}`);
+  ok(/w\.figure\(pid\)/.test(RENDERER_CODE),
+    "one language: and the ⚖️ figure it prints is that object, not one it composed");
+  ok(!/\bfig\.(pct|tested)\b[^]]*[+*\/-]\s*fig\./.test(RENDERER_CODE),
+    "one language: the card does no arithmetic of its own on the figure");
   ok(!/VERDICTS\.(consistent|contradicts|mixed|limited|flag)\b/.test(RENDERER_CODE),
     "one language: the renderer never picks a verdict itself — only PDXProfileCard does");
   ok(/VERDICTS\.pending/.test(RENDERER_CODE),
@@ -838,10 +888,22 @@ for (const c of seed) {
   // published tier. ~350 B gzipped of code and prose. Nothing new is fetched,
   // derived or judged on the critical path: both ride the `formal` payload the
   // visible card's read() was already paying for.
+  // BUDGET NOTE · raised to 16.5 KB / 18 KB when the ⚖️ block stopped composing its
+  // own pair and started printing PDXWordAction.figure(). What landed is one cache
+  // (liveFig, keyed on the same derivation epoch as liveRead and dropped by the
+  // same dropRead) and a read of the engine's own repaintEvents() list; the card
+  // now prints FEWER of its own numbers than before, since the percentage, its
+  // caption's denominator and the coverage line's tested set all come out of that
+  // one object. The rest of the ~900 B is the prose recording why: composing the
+  // pair here painted Mike Lee at 88% over five tested and then settled him to 72%
+  // over fifteen, in front of the reader, because the publication floor clears
+  // while the roll-call record is still landing. No new fetch, parse or derivation
+  // on the critical path — figure() reads the same warm record the card's read()
+  // was already paying for, and word-action.js is not parser-blocking.
   ok(dataGz < 3 * 1024, `payload: seed is ${dataGz} B gzipped (budget 3 KB)`);
-  ok(rendGz < 15.5 * 1024, `payload: renderer is ${rendGz} B gzipped (budget 15.5 KB)`);
-  ok(dataGz + rendGz < 17 * 1024,
-    `payload: ${dataGz + rendGz} B gzipped on the parser-blocking critical path (budget 17 KB)`);
+  ok(rendGz < 16.5 * 1024, `payload: renderer is ${rendGz} B gzipped (budget 16.5 KB)`);
+  ok(dataGz + rendGz < 18 * 1024,
+    `payload: ${dataGz + rendGz} B gzipped on the parser-blocking critical path (budget 18 KB)`);
   console.log(`  critical path: ${dataGz} B + ${rendGz} B = ${dataGz + rendGz} B gzipped`);
 }
 

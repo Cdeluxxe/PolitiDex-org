@@ -1268,6 +1268,75 @@
     return out;
   };
 
+  // ── window.pdxRosterReady(cb) — "THE ROSTER IS HERE", ANNOUNCED ONCE ────────
+  // The memo above already refuses to cache an empty roster, so a statewide read
+  // taken before cmp-data.js executes is never remembered as the answer. But a
+  // SURFACE that painted from that read does remember it, and nothing ever told it
+  // to ask again — which is the second half of the Layton blank. On a phone,
+  // who-represents-me.js painted "3 of 6 seats resolved" with both U.S. Senate
+  // rows and the Governor row reading "No record on file yet" over Mike Lee, John
+  // Curtis and Spencer Cox, and its only other triggers were three fixed timeouts
+  // and a location change. Finish the roster after the last of those and "3 of 6"
+  // is what the reader keeps for the rest of the visit.
+  //
+  // WHY THE ANNOUNCEMENT LIVES HERE. voter-hub-location.js is a SYNC script and
+  // cmp-data.js is DEFERRED, so this module is guaranteed to be running before its
+  // own most important input exists. The module that owns the resolution therefore
+  // owns the announcement of its input arriving, and every surface that projects
+  // these levels subscribes instead of growing a poll of its own — three polls
+  // would be three different moments to repaint one answer.
+  //
+  // WHAT IT PROMISES. The callback runs exactly once, when window.CMP_DATA first
+  // has rows in it; a callback registered after that runs immediately, so a
+  // subscriber that loaded late is never waiting for an event that has already
+  // happened. The statewide memo is dropped at that moment too — belt and braces
+  // beside the size key it is already stamped with — so the repaint cannot be
+  // served the pre-roster answer it is repainting to replace.
+  //
+  // WHAT IT DOES NOT DO. It never fetches the roster and never asks anybody to:
+  // cmp-data.js is already on its way as a deferred script on every page. This is
+  // a watcher on an arrival, not a second loader for it, and every timer it arms
+  // is dropped the moment the roster is seen.
+  var _pdxRosterCbs = [];
+  var _pdxRosterFired = false;
+  var _pdxRosterWatching = false;
+  function _pdxRosterFlush() {
+    if (_pdxRosterFired) return true;
+    if (!_pdxRosterSize()) return false;
+    _pdxRosterFired = true;
+    _pdxStatewideCache = {};
+    var cbs = _pdxRosterCbs;
+    _pdxRosterCbs = [];
+    cbs.forEach(function (cb) { try { cb(); } catch (e) {} });
+    return true;
+  }
+  // Backing off rather than polling on an interval: the roster is one deferred
+  // script, so the answer almost always arrives in the first two checks, and the
+  // tail is there for a cold cache on a slow connection. The last check is past
+  // every other deadline this page waits on, and nothing reschedules after it —
+  // an absent roster is a page with no names to print, which is a different
+  // problem than a stale paint.
+  var _PDX_ROSTER_WAIT = [0, 120, 350, 800, 1600, 3200, 6400, 12000];
+  function _pdxRosterWatch() {
+    if (_pdxRosterWatching || _pdxRosterFired) return;
+    _pdxRosterWatching = true;
+    _PDX_ROSTER_WAIT.forEach(function (ms) {
+      try { setTimeout(_pdxRosterFlush, ms); } catch (e) {}
+    });
+    // And the arrival the loader does announce: the detail split merges into the
+    // same roster global, so a page whose light index was empty at first paint can
+    // be answered by the bundle instead of by a timer.
+    try {
+      if (document.addEventListener) document.addEventListener('pdx:data:cmpDetail', _pdxRosterFlush);
+    } catch (e) {}
+  }
+  window.pdxRosterReady = function (cb) {
+    if (typeof cb !== 'function') return;
+    if (_pdxRosterFired) { try { cb(); } catch (e) {} return; }
+    _pdxRosterCbs.push(cb);
+    if (!_pdxRosterFlush()) _pdxRosterWatch();
+  };
+
   // ── window.pdxRepsForMe() — the ONE resolution of "who represents me" ───────
   // Two surfaces now answer this question: the Voter Hub's "Who Represents You
   // Now" strip (below) and the homepage front door (who-represents-me.js), which
