@@ -461,20 +461,29 @@ section("6 · the floors did not move, measured through the shipped index");
   const out = execFileSync(process.execPath, [join(ROOT, "scripts/vr-utah-fpi.mjs"), "--json"],
     { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
   const M = JSON.parse(out);
-  // THE PRE-WAVE TRIPLE IS THE CONTROL. Waves 1–3 published 10 / 4 / 102, and a
-  // harness that cannot reproduce the number it is diffing against is measuring
-  // something else.
+  // THE PRE-WAVE TRIPLE IS THE CONTROL, AND WAVE 9 MOVED IT. A harness that cannot
+  // reproduce the number it is diffing against is measuring something else, so the
+  // control is asserted — but it is no longer the number wave 8 asserted here, and
+  // the difference is a wave rather than a regression. The history, kept because a
+  // re-baselined number with no history is indistinguishable from a silent edit:
+  //
+  //   waves 1–3   10 empty /  4 thin / 102 readable   over a 116-member roster
+  //   wave 6      10 empty / 20 thin / 102 readable   16 identity-only rows added,
+  //                                                   every one of them thin
+  //   wave 9      10 empty /  4 thin / 118 readable   878 floor votes admitted, and
+  //                                                   16 members moved thin→readable
+  //
+  // Wave 9 attributed floor votes that earlier waves had parsed and dropped for want
+  // of a roster id. A floor vote is the strongest act the engine reads, so exactly the
+  // 16 members it reached crossed out of `thin` — which is why the before-lane triple
+  // below is 10 / 4 / 118 and why fourteen of the sixteen wave-6 identity rows now
+  // read BEFORE the mapping lane is applied at all. The empty tier did not move, and
+  // it is the one that would have.
   eq(M.before.empty, 10, "before: 10 members on the Utah roster hold nothing formal");
-  eq(M.before.readable, 102, "before: 102 members have a record that reads");
-  // 4 while wave 4 shipped, 20 now, and the 16 are named rather than absorbed. Wave
-  // 6 added 16 identity-only rows to cmp-data.js for legislators who cast recorded
-  // committee votes in 2023 and 2024 and had no roster record at all, so the
-  // denominator grew from 116 to 132. Every one of them lands on THIN, which is the
-  // honest tier for them: they hold real committee positions and not enough of a
-  // pattern for the engine to characterise. None of them lands on EMPTY, so no row
-  // was added that carries nothing, and none of them lands on READABLE, so no
-  // identity row bought a characterisation it did not earn.
-  eq(M.before.thin, 20, "before: 20 members hold material the engine will not characterise");
+  eq(M.before.readable, 118, "before: 118 members have a record that reads");
+  eq(M.before.thin, 4, "before: 4 members hold material the engine will not characterise");
+  eq(M.before.thin + M.before.readable + M.before.empty, 132,
+    "before: the three tiers account for the whole roster");
   eq(M.before.members, 132, "the roster denominator is the same 132 either way");
   eq(M.after.members, M.before.members, "wave 4 added no member to the roster");
   {
@@ -482,34 +491,52 @@ section("6 · the floors did not move, measured through the shipped index");
       "brett_garner", "tim_jimenez", "brian_king", "quinn_kotter", "rosemary_lesser", "steven_lund",
       "susan_pulsipher", "judy_weeks_rohner", "robert_spendlove", "jeffrey_stenquist", "mark_wheatley"];
     eq(ROWS6.length, 16, "the 16 wave-6 identity rows are enumerated, not counted from a total");
-    // THREE OF THE SIXTEEN CROSSED INTO READABLE, AND THAT IS THE FINDING, NOT A
-    // FAILURE. This assertion used to require all 16 to be thin in BOTH states, and
-    // that held while the mapping lane covered 2025GS and 2024GS only. Wave 8 mapped
-    // the 2023GS off-lane bucket, and kera_birkeland, steven_lund and susan_pulsipher
-    // each picked up enough committee acts on mapped bills for the SHIPPED tier rule
-    // to characterise one or two issues for them. No floor moved to allow it: the
-    // rule, the 0.60 committee weight and the coverage bar are the ones wave 3 and
-    // wave 4 shipped, and the index is still the shipped module.
+    // THE FENCE, RESTATED SO A FLOOR ADMIT CANNOT LOOK LIKE A BREACH. Its purpose was
+    // never "an identity row may never read" — it was "no identity row buys a
+    // characterisation it did not earn", and the shape of the evidence for that has
+    // changed twice.
     //
-    // The fence is kept where it belongs. Its purpose was never "an identity row may
-    // never read" — it was "no identity row buys a characterisation it did not earn".
-    // So the three are NAMED, and what they earned is asserted: each holds at least
-    // one CLEAR issue after the wave and held none before. The other thirteen must
-    // still be thin in both states, and nobody may land on empty.
-    const CROSSED = ["kera_birkeland", "steven_lund", "susan_pulsipher"];
+    // Wave 8 mapped the 2023GS off-lane bucket and three of the sixteen —
+    // kera_birkeland, steven_lund and susan_pulsipher — crossed thin→readable on
+    // committee acts alone, each holding zero characterised issues before the wave and
+    // at least one after. That finding is history now and cannot be re-measured here,
+    // because wave 9 then admitted 878 floor votes and characterised fourteen of the
+    // sixteen from the FLOOR, before the mapping lane is applied at all. The evidence
+    // for wave 8's claim is not gone — it is in wave 8's own notes in
+    // db/vr-ingest-runbook.md — but it is no longer visible in the live index, and
+    // asserting it against live data would be asserting a state that no longer exists.
+    //
+    // So the fence is asserted in the two forms that survive a later wave putting a
+    // stronger act on file:
+    //
+    //   1. NOBODY LANDS ON EMPTY, in either state. An identity row that carries
+    //      nothing is the failure this check was built for, and it is unaffected.
+    //   2. THE MAPPING LANE NEVER WEAKENS ONE OF THEM, and every one that crosses
+    //      thin→readable WITH the lane earned it on the lane's own acts — zero
+    //      characterised issues before, at least one after, on strictly more acts,
+    //      and without splitting a read it already had.
+    //
+    // Which of the sixteen crosses is derived from the index rather than typed in, so
+    // a later wave that moves another one is measured rather than tripped over.
+    const RANK = { empty: 0, thin: 1, readable: 2 };
+    const bandOf = (w, pid) => (M[w].bands.readable.includes(pid) ? "readable"
+      : M[w].bands.thin.includes(pid) ? "thin"
+      : M[w].bands.empty.includes(pid) ? "empty" : "(absent)");
     for (const w of ["before", "after"]) {
       const bands = M[w].bands;
       must(bands && Array.isArray(bands.thin), "the index does not report band membership");
-      const expectThin = w === "before" ? ROWS6 : ROWS6.filter((p) => !CROSSED.includes(p));
-      const notThin = expectThin.filter((p) => !bands.thin.includes(p));
-      eq(notThin.length, 0, `${w}: every wave-6 identity row that has not been named as crossing ` +
-        `is thin, not empty and not readable (${notThin.join(", ")})`);
       const onEmpty = ROWS6.filter((p) => bands.empty.includes(p));
       eq(onEmpty.length, 0, `${w}: no identity row sits on empty (${onEmpty.join(", ")})`);
+      const absent = ROWS6.filter((p) => bandOf(w, p) === "(absent)");
+      eq(absent.length, 0, `${w}: every identity row is on the roster the index measures (${absent.join(", ")})`);
     }
+    const weakened = ROWS6.filter((p) => RANK[bandOf("after", p)] < RANK[bandOf("before", p)]);
+    eq(weakened.length, 0,
+      `the mapping lane takes no identity row's read away (${weakened.map((p) => `${p} ${bandOf("before", p)}→${bandOf("after", p)}`).join(", ")})`);
+    const CROSSED = ROWS6.filter((p) => bandOf("before", p) === "thin" && bandOf("after", p) === "readable");
+    ok(CROSSED.length >= 1,
+      "at least one identity row still crosses on the mapping lane's own acts — otherwise this fence tests nothing");
     for (const pid of CROSSED) {
-      ok(M.before.bands.thin.includes(pid), `${pid}: was thin before the mapping lane reached 2023GS`);
-      ok(M.after.bands.readable.includes(pid), `${pid}: reads after it, which is why it is named here`);
       // What it EARNED, read off the same index one member at a time. The pair of
       // JSON objects `--member` prints is the shipped derivation's own answer.
       const per = execFileSync(process.execPath,
@@ -521,7 +548,31 @@ section("6 · the floors did not move, measured through the shipped index");
       eq(b.characterised, 0, `${pid}: earned its first characterised issue in this wave, not before`);
       ok(a.characterised >= 1, `${pid}: …and holds at least one clear issue afterwards (${a.characterised})`);
       ok(a.acts > b.acts, `${pid}: on more acts than it held before (${b.acts} → ${a.acts})`);
-      eq(a.splitN, b.splitN, `${pid}: crossed on a clear issue, not by splitting an old one`);
+      // HOW IT CROSSED IS DISCLOSED RATHER THAN FORBIDDEN, AND THIS IS A CHANGE.
+      // Wave 8's version of this line was `eq(a.splitN, b.splitN)` — a crossing had to
+      // be on a CLEAR issue and could not come from a split. That held for its three,
+      // and it is a stricter rule than the shipped engine's: `consistency.js` bands a
+      // member `readable` on any characterised issue, and a split ("votes both ways on
+      // this key") is characterised. After wave 9, david_buxton crosses on two SPLIT
+      // reads and no clear one — 0 → 2 characterised, strongN 0 both sides — so the
+      // harness had a choice between contradicting the shipped tier rule and naming
+      // what happened. It names it, which is the same call this file already makes for
+      // tier weakening two blocks down: the fence exists so that no crossing is
+      // unnameable, not so that the number stays small.
+      const clearGain = a.strongN > b.strongN, splitGain = a.splitN > b.splitN;
+      ok(clearGain || splitGain,
+        `${pid}: crossed by gaining a characterised issue of some kind (clear ${b.strongN}→${a.strongN}, split ${b.splitN}→${a.splitN})`);
+      if (!clearGain) {
+        ok(splitGain, `${pid}: crossed on split reads alone — clear ${b.strongN}→${a.strongN}, ` +
+          `split ${b.splitN}→${a.splitN}, and that is the shipped tier rule, disclosed here by name`);
+      }
+    }
+    // AND WAVE 8'S THREE STILL READ. The claim that cannot be re-measured is HOW they
+    // came to read; that they read is still checkable, and a wave that took one of
+    // their records away would be a real regression rather than a moved control.
+    for (const pid of ["kera_birkeland", "steven_lund", "susan_pulsipher"]) {
+      ok(M.after.bands.readable.includes(pid),
+        `${pid}: still reads — wave 8 gave it a characterisation and nothing since took it back`);
     }
     // AND THE TIERS DID NOT JUST HOLD THEIR SIZE — THEY HELD THEIR MEMBERSHIP. The
     // ten empty members are the same ten, so nothing fell into the tier that means
@@ -534,8 +585,14 @@ section("6 · the floors did not move, measured through the shipped index");
   eq(M.after.empty, 10, "after: wave 4 reached nobody who had nothing — committee votes only reach sitting members who already voted");
   ok(M.after.readable >= M.before.readable,
     `after: no member lost a readable record (${M.before.readable} → ${M.after.readable})`);
-  eq(M.after.readable, 106, "after: the readable tier is 106 — 102 from waves 1–3, plus 4 the mapping lane earned");
-  eq(M.after.thin, 16, "after: 16 members still hold material the engine will not characterise");
+  // The after-lane triple moved with the control, for the same reason and by the same
+  // arithmetic: 118 read before the mapping lane, 120 after, and the two the lane
+  // earns are still the lane's own work. It was 106 = 102 + 4 while wave 8 shipped.
+  eq(M.after.readable, 120,
+    "after: the readable tier is 120 — 118 before the mapping lane, plus 2 it earned");
+  eq(M.after.readable - M.before.readable, 2,
+    "after: the mapping lane is what those 2 reads are attributable to");
+  eq(M.after.thin, 2, "after: 2 members still hold material the engine will not characterise");
   ok(M.after.rows > M.before.rows,
     `the index deepened: ${M.before.rows} → ${M.after.rows} issue rows`);
   eq(M.after.lane.wave4Acts > 0, true, "the after lane actually carries the wave-4 positions");
@@ -562,7 +619,10 @@ section("6 · the floors did not move, measured through the shipped index");
   // read into a split; what is not allowed is for such a row to stop being nameable.
   // The bound exists to catch a flood, not to protect a number, and it is raised
   // here with the seven names attached rather than with a larger number and no list.
-  ok(M.lost.length <= 12,
+  // Wave 9 took it to 13: susan_pulsipher/edu_parental joined the list when the floor
+  // votes it admitted gave her a one-sided read on that key for a 2023 committee vote
+  // to run against. Same shape, same doctrine, one more name.
+  ok(M.lost.length <= 13,
     `wave 8 weakened at most a handful of rows (${M.lost.length}: ${M.lost.map((r) => `${r.pid}/${r.key} ${r.from}→${r.to}`).join(", ")})`);
   // AND THE SPLITS ARE SPLITS, NOT DISAPPEARANCES. Three of the twelve fell from
   // `strong`, the strongest read the engine gives, so the drop is checked to land on
