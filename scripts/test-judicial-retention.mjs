@@ -90,12 +90,30 @@ function stubEl(tag, byId) {
   const el = {
     tagName: (tag || "div").toUpperCase(),
     id: "", className: "", innerHTML: "", textContent: "",
-    children: [], attrs: {}, listeners: {}, parentNode: null,
+    children: [], attrs: {}, listeners: {}, parentNode: null, scrolled: 0,
     appendChild(c) {
       c.parentNode = el; el.children.push(c);
       if (byId && c.id) byId[c.id] = c;
       return c;
     },
+    // The judicial lane is static markup on the real page, but the module can
+    // also create it after the sections it must follow. That path only means
+    // anything if the harness can observe ORDER, so the stub keeps children in
+    // sequence and answers nextSibling from it.
+    insertBefore(c, ref) {
+      c.parentNode = el;
+      const i = ref ? el.children.indexOf(ref) : -1;
+      if (i === -1) el.children.push(c); else el.children.splice(i, 0, c);
+      if (byId && c.id) byId[c.id] = c;
+      return c;
+    },
+    get nextSibling() {
+      const p = el.parentNode;
+      if (!p) return null;
+      const i = p.children.indexOf(el);
+      return i === -1 ? null : (p.children[i + 1] || null);
+    },
+    scrollIntoView() { el.scrolled++; },
     setAttribute(k, v) { el.attrs[k] = String(v); },
     getAttribute(k) { return el.attrs[k] === undefined ? null : el.attrs[k]; },
     removeAttribute(k) { delete el.attrs[k]; },
@@ -117,8 +135,16 @@ function sandbox(opts) {
   const mk = (tag) => stubEl(tag, byId);
   const put = (id) => { const e = mk(); e.id = id; byId[id] = e; return e; };
 
+  const page = mk();
   const workspace = put("ballot-workspace");
   workspace.appendChild(put("bw-body"));
+  // Real document order: workspace → picks → Relevant to Me → judicial lane.
+  // The lane is static markup in index.html; `noLane` drops it so the module's
+  // own "create it after the sections it must follow" path can be probed.
+  page.appendChild(workspace);
+  page.appendChild(put("my-politicians"));
+  page.appendChild(put("relevant-section"));
+  if (!opts.noLane) page.appendChild(put("judicial-lane"));
   const wrm = mk();
   put("modal-content"); put("modal-icon"); put("modal-name-small");
   put("modal-office-small"); put("modal-overlay"); put("modal-body");
@@ -159,6 +185,7 @@ function sandbox(opts) {
     },
     __roster: [],
     __wrm: wrm,
+    __page: page,
     __byId: byId,
   };
   // The roster renderer this pass must never hand a judge to.
@@ -500,28 +527,85 @@ section("3 · Utah gets the rows on file or an honest blank; nowhere else gets a
   eq(w.PDXJudicialBallot._band(), "", "the band rendered before a location was set");
 }
 
-// The band is a SIBLING of #bw-body, and it is not a seat.
+// Judges are in a LANE OF THEIR OWN, below the workspace and below the picks —
+// and Door 2 keeps exactly one line about them.
+//
+// The regression this pins: the band mounted inside #ballot-workspace and the
+// courts archive mounted into #who-represents-me .wrm-inner, which put a long
+// list of judges directly between the reader's seat list and the workspace
+// where they choose candidates. A retention question is a yes/no on one name
+// with no opponent and no pick to save, so it does not belong in the pick flow
+// at all — it belongs after it.
 {
   const w = sandbox({ reps: UTAH, runTimers: true });
   const ws = w.__byId["ballot-workspace"];
+  const lane = w.__byId["judicial-lane"];
   const band = w.__byId["jr-band"];
+  const arch = w.__byId["jr-arch"];
+  const line = w.__byId["jr-line"];
   must(band, "the retention band did not mount — this probe is stale");
-  eq(band.parentNode === ws, true,
-     "the band mounted somewhere other than #ballot-workspace");
-  eq(band.parentNode.id, "ballot-workspace",
-     "the band is not a child of the workspace section");
+  must(lane, "#judicial-lane is gone from the harness — this probe is stale");
+
+  eq(band.parentNode === lane, true,
+     "the retention band mounted outside #judicial-lane");
+  eq(arch ? arch.parentNode === lane : false, true,
+     "the courts archive mounted outside #judicial-lane");
   ok(band.parentNode.id !== "bw-body",
      "the band mounted INSIDE #bw-body, whose innerHTML sync() overwrites in one write — it would vanish on the next repaint");
-  // A second paint does not mount a second band.
+
+  // Nothing judicial is inside the workspace except the one line, and nothing
+  // judicial is in the Who-Represents-Me host at all.
+  const wsJud = ws.children.filter((c) => /^jr-/.test(c.id || "")).map((c) => c.id);
+  eq(JSON.stringify(wsJud), JSON.stringify(["jr-line"]),
+     "the ballot workspace carries judicial markup other than the single line");
+  eq(w.__wrm.children.length, 0,
+     "something judicial mounted into #who-represents-me .wrm-inner — that is the wall of judges between the seat list and the picks");
+
+  // The lane follows the workspace and the picks in document order.
+  const order = w.__page.children.map((c) => c.id);
+  ok(order.indexOf("judicial-lane") > order.indexOf("ballot-workspace"),
+     "the judicial lane is not below the ballot workspace");
+  ok(order.indexOf("judicial-lane") > order.indexOf("my-politicians"),
+     "the judicial lane is not below the reader's picks");
+
+  // The line: one sentence and a jump, and the jump lands on the lane.
+  must(line, "the Door 2 judicial line did not mount — this probe is stale");
+  has(line.innerHTML, "separate from this ballot builder",
+      "the Door 2 line does not say retention is separate from the builder");
+  lacks(line.innerHTML, "be retained",
+        "the Door 2 line is asking retention questions instead of pointing at them");
+  w.PDXJudicialBallot.jump();
+  eq(lane.scrolled, 1, "the Door 2 jump does not scroll to the judicial lane");
+
+  // A second paint does not mount a second band, archive or line.
   w.PDXJudicialBallot.sync();
-  eq(ws.children.filter((c) => c.id === "jr-band").length, 1,
-     "a repaint mounted a second retention band");
+  ["jr-band", "jr-arch", "jr-line"].forEach((id) => {
+    const n = lane.children.filter((c) => c.id === id).length +
+              ws.children.filter((c) => c.id === id).length;
+    eq(n, 1, `a repaint mounted a second ${id}`);
+  });
+
   has(band.innerHTML, "be retained", "the mounted band does not carry the retention question");
   // The unit each row was resolved by, on the row. On a ballot that now runs
   // five courts, "why is this judge on MY ballot" is answered by that label.
   has(band.innerHTML, "Statewide", "the mounted band does not say which rows stand statewide");
   has(band.innerHTML, "Judicial District",
       "the mounted band does not name the judicial district its trial-court rows came from");
+}
+
+// No lane in the markup: the module builds one AFTER the sections it must
+// follow, and never falls back to a host inside the pick flow.
+{
+  const w = sandbox({ reps: UTAH, runTimers: true, noLane: true });
+  const lane = w.__byId["judicial-lane"];
+  must(lane, "with #judicial-lane absent the module mounted nothing at all");
+  const order = w.__page.children.map((c) => c.id);
+  ok(order.indexOf("judicial-lane") > order.indexOf("relevant-section"),
+     "the self-created judicial lane did not land after Relevant to Me");
+  eq(w.__byId["jr-band"].parentNode === lane, true,
+     "the band mounted outside the self-created lane");
+  eq(w.__wrm.children.length, 0,
+     "with no lane in the markup, judicial content fell back into the Who-Represents-Me host");
 }
 
 // seats() — the denominator door2-spine counts — is untouched.

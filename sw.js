@@ -2731,7 +2731,59 @@
 // challengers: every pid the field prints is a roster row that was already on
 // file. A twin boot leaves every formal tier and every Direction Match read
 // byte-identical.
-const CACHE_VERSION = 'v145';
+// v146 - RELEVANT TO ME IS THE READER'S BALLOT, NOT THE NATIONAL DIRECTORY. A
+// Layton reader opened Door 2 and found, above the ballot workspace, a CABINET /
+// APPOINTED accordion mounted as a race - "Compare the field · 38 in this race" -
+// whose members included the secretaries of state of California, Colorado,
+// Washington and Texas. Nobody in Layton asked for Jena Griswold. Beneath it sat
+// a five-way "race" between Trump, Vance, Biden, Obama and G.W. Bush, and beneath
+// THAT a long list of Utah judges wedged between the reader's seat list and the
+// workspace where they choose candidates.
+//   Three separate causes, one shape: a surface that sits above the picks was
+// making seat claims about the reader that no resolver had answered. The cabinet
+// bucket is whatever Door 1's classifier files under secretary/director/
+// ambassador, which is the federal cabinet AND 34 state officers drawn from 26
+// states, and it was added to the reader's slate BEFORE the state check.
+//   The fix is scope, not deletion. Relevant to Me now keeps only the seat kinds
+// the reader's own slate can name - window.TEAM_POSITIONS, the same per-state
+// ballot definition the workspace and the seat counts read - and inside those,
+// only their own state's people, with the seat field's answer exempt so it stays
+// authoritative about who fills a seat. Utah's slate is six seats, so cabinet and
+// president fall away there; Colorado's slate names a Secretary of State, so a
+// Colorado reader keeps that group, filtered to Colorado. Every cabinet and
+// appointed record is still on file and still readable - it now lives in archive
+// browse, under two new chambers, where the kicker says "Archive · not a ballot"
+// and a chamber-and-state listing makes no claim about the reader. And judicial
+// retention moved out of the pick flow into #judicial-lane, a section of its own
+// below the workspace and below the picks; Door 2 keeps one line about it and a
+// jump.
+//   PRECACHED SHELL FILES CHANGED — ALL OF THEM ARE THE REASON FOR THE BUMP:
+//   · '/' (index.html)         - the new #judicial-lane section. Its POSITION is
+//                                static markup on purpose, so no module can
+//                                decide at runtime to put judges back above the
+//                                workspace. A warm shell has no lane, and the
+//                                module would fall back to creating one - the
+//                                markup, the heading and the copy would all be
+//                                missing.
+//   · judicial-ballot.js       - both mounts moved into the lane and the Door 2
+//                                footprint became one line (#jr-line) plus a
+//                                jump. A warm shell keeps the old file, which
+//                                appends the courts archive into
+//                                #who-represents-me .wrm-inner: the exact wall of
+//                                judges between the seat list and the picks that
+//                                this pass removed.
+//   · judicial-retention.css   - the .jr-line rule and the .jl-* lane header.
+//                                Without them the new line and section render
+//                                unstyled.
+// ALSO CHANGED BUT RUNTIME-CACHED, SO THEY ARRIVE FRESH WITHOUT THIS BUMP:
+// compare-hub.js (the ballot-scope gate on all three render paths and the honest
+// cabinet subtitle), archive-browse.js + archive-browse.css (the two new
+// chambers and the reader-initiated widen-out for an empty slice).
+// No cabinet record deleted, no party sort, no ranking by Direction Match, no
+// nested interactives, no store renamed, and the local seat count is untouched -
+// the rail and the grid stay one expanded ballot. A twin boot leaves every
+// Direction Match read and every formal tier byte-identical.
+const CACHE_VERSION = 'v146';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

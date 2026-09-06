@@ -8675,8 +8675,13 @@
           return 'Every State House seat in ' + state + ' — set your area to narrow';
         case 'senator':        return 'Statewide — represents every ' + state + ' voter';
         case 'governor':       return 'Statewide — represents every ' + state + ' voter';
-        case 'president':
-        case 'cabinet':        return 'Federal — represents every American';
+        case 'president':      return 'Federal — represents every American';
+        // A `cabinet` group only reaches a ballot page when the reader's own
+        // slate has an appointed/statewide-exec slot (Colorado's Secretary of
+        // State, Florida's Attorney General), and it is state-filtered by then.
+        // "Represents every American" was true of the federal cabinet and false
+        // of every officer actually left standing here.
+        case 'cabinet':        return 'Appointed or statewide office · ' + state;
         case 'local':          return county ? 'Your community · ' + county : 'Your community';
         default: return '';
       }
@@ -9936,7 +9941,13 @@
       var BALLOT = { senator: 1, governor: 1, representative: 1, state_senator: 1, state_rep: 1, local: 1 };
       Object.keys(CMP_DATA).forEach(function(pid) {
         var t = _classifyBrowseType(pid);
-        if (t === 'president' || t === 'cabinet') { add(pid, t); return; }
+        // The header on this view promises "every Utah race — federal, statewide
+        // & state legislature". Appointed officers are not a race, and the
+        // `cabinet` bucket is mostly OTHER states' secretaries of state, so
+        // sweeping it in contradicted the copy directly above it. They live in
+        // archive browse instead.
+        if (t === 'president') { add(pid, t); return; }
+        if (t === 'cabinet') return;
         if (_getPoliticianState(pid).toLowerCase() !== 'utah') return;
         if (BALLOT[t]) add(pid, t);
       });
@@ -10130,6 +10141,100 @@
         var merged = have.slice();
         sf.pids.forEach(function(p) { if (!seen[p]) { seen[p] = 1; merged.push(p); } });
         if (merged.length) officeGroups[gk] = merged;
+      });
+    }
+
+    // ══ THE BALLOT IS NOT THE NATIONAL DIRECTORY ══════════════════════════════
+    // Relevant to Me sits directly above the ballot workspace, so every group it
+    // prints is read as "a seat you vote on". Two families of record used to leak
+    // in and break that promise for, say, a Layton reader:
+    //
+    //   • CABINET / APPOINTED, mounted as a race — "38 in this race". That bucket
+    //     is whatever _classifyBrowseType files under `cabinet`, which is any
+    //     office containing secretary/director/ambassador: the federal cabinet
+    //     AND 34 state officers from 26 states. So a Utah ballot page
+    //     offered Shirley Weber (CA) and Jena Griswold (CO) as this reader's own
+    //     officials. Nobody in Layton asked for Jena Griswold.
+    //   • PRESIDENT as a five-way field — Trump, Vance, Biden, Obama, G.W. Bush.
+    //     That is a roster slice, not a race, and it is on no one's ballot.
+    //
+    // Neither record is deleted. Both keep a home in archive browse, where the
+    // frame is "chamber · state · not a ballot" and no seat claim is made about
+    // the reader. What this function does is keep only the seat kinds the
+    // reader's OWN slate can name for their location, and inside those, only
+    // people from their own state.
+    //
+    // "What their slate can name" is not a hardcoded list here — it is
+    // window.TEAM_POSITIONS, the same per-state ballot definition the workspace
+    // and the 11-count read. Utah's slate is six seats (U.S. Senate, U.S. House,
+    // Governor, State Senate, State House, Local), so cabinet and president fall
+    // away. Colorado's slate names a Secretary of State, so a Colorado reader
+    // keeps that group — filtered to Colorado, which is the honest version of it.
+    // One ballot definition, one answer, everywhere.
+    var _RELEVANT_GK_OF_SLOT = {
+      senate: 'senator', house: 'representative', governor: 'governor',
+      statesenate: 'state_senator', statehouse: 'state_rep', local: 'local',
+      president: 'president',
+      // Appointed / statewide-exec slots all classify as `cabinet` upstream.
+      secstate: 'cabinet', secretaryofstate: 'cabinet', attorneygeneral: 'cabinet',
+      chiefjustice: 'cabinet', ltgovernor: 'cabinet'
+    };
+    // Seat kinds that are never a slot in TEAM_POSITIONS but still belong on the
+    // ballot: challengers for the slots above, and the in-office people the tiers
+    // could not slot precisely. Both are already state-gated where they are added.
+    var _RELEVANT_BALLOT_EXTRA_GK = { candidate: 1 };
+    function _relevantBallotGroupKeys() {
+      var allowed = {};
+      Object.keys(_RELEVANT_BALLOT_EXTRA_GK).forEach(function(k) { allowed[k] = 1; });
+      var slots = window.TEAM_POSITIONS;
+      if (!slots || !slots.length) {
+        // No slate resolved yet: fall back to the six seats every state's slate
+        // starts from, rather than to "everything".
+        return { senator: 1, representative: 1, governor: 1, state_senator: 1, state_rep: 1, local: 1, candidate: 1 };
+      }
+      slots.forEach(function(s) {
+        var gk = _RELEVANT_GK_OF_SLOT[String((s && s.key) || '').toLowerCase()];
+        if (gk) allowed[gk] = 1;
+      });
+      return allowed;
+    }
+    // Groups whose members are legitimately not from the reader's state: a U.S.
+    // Senator record may carry no state or an odd normalization, and a President
+    // represents every state by definition. Every other group on a ballot page is
+    // a claim about this state, so an out-of-state record in it is a bug.
+    var _RELEVANT_STATE_EXEMPT_GK = { senator: 1, president: 1 };
+    function _relevantEnforceBallotScope(officeGroups, stateName) {
+      if (!officeGroups) return;
+      var allowed = _relevantBallotGroupKeys();
+
+      // 1. Drop whole groups that are not seats on this reader's ballot at all.
+      Object.keys(officeGroups).forEach(function(gk) {
+        if (!allowed[gk]) delete officeGroups[gk];
+      });
+
+      // 2. Inside what survives, drop out-of-state records. The seat field's own
+      //    answer is exempt: it answered for THIS location, so if it named
+      //    someone they belong here whatever their record's state string says.
+      //    Running after _relevantSeatFields keeps the field authoritative.
+      var stLower = String(stateName || '').trim().toLowerCase();
+      if (!stLower) return;
+      var fromField = {};
+      if (typeof window.pdxSeatField === 'function') {
+        Object.keys(_RELEVANT_SEAT_OF).forEach(function(gk) {
+          var sf = null;
+          try { sf = window.pdxSeatField(_RELEVANT_SEAT_OF[gk].seat); } catch (e) { sf = null; }
+          if (sf && sf.answerable && sf.pids) sf.pids.forEach(function(p) { fromField[p] = 1; });
+        });
+      }
+      Object.keys(officeGroups).forEach(function(gk) {
+        if (_RELEVANT_STATE_EXEMPT_GK[gk]) return;
+        officeGroups[gk] = (officeGroups[gk] || []).filter(function(pid) {
+          if (fromField[pid]) return true;
+          var ps = '';
+          try { ps = String(_getPoliticianState(pid) || '').toLowerCase(); } catch (e) { ps = ''; }
+          return ps === stLower;
+        });
+        if (!officeGroups[gk].length) delete officeGroups[gk];
       });
     }
 
@@ -10523,15 +10628,24 @@
         houseDist = userDistrict;
       }
 
+      // Which seat kinds this reader's slate can actually name (TEAM_POSITIONS
+      // for their state). Resolved once, outside the per-record loop.
+      var _ballotScopeGks = _relevantBallotGroupKeys();
+
       // Dynamic matching logic to connect location/districts to politicians
       Object.keys(CMP_DATA).forEach(function(pid) {
         var d = CMP_DATA[pid];
         var t = _classifyBrowseType(pid);
         var pState = _getPoliticianState(pid);
 
-        // Federal executives are always relevant
+        // Federal executives and appointed officers are relevant ONLY where the
+        // reader's own slate has a slot for them (see _relevantBallotGroupKeys).
+        // This used to be an unconditional add ahead of the state check, which is
+        // how 26 other states' secretaries of state became "38 in this race"
+        // on a Utah ballot page. They are still in the archive; they are not this
+        // reader's officials.
         if (t === 'president' || t === 'cabinet') {
-          add(pid, t);
+          if (_ballotScopeGks[t]) add(pid, t);
           return;
         }
 
@@ -10778,6 +10892,12 @@
       // district groups become exactly its answer, the statewide buckets absorb
       // anyone it knows about that the tiers above missed.
       _relevantSeatFields(officeGroups);
+
+      // Last gate before the badge: this section is the reader's ballot, so it
+      // holds only seats their slate can name, and only their own state's people
+      // inside those seats. Runs AFTER the field handover so the field stays the
+      // authority on who fills a seat.
+      _relevantEnforceBallotScope(officeGroups, stateName);
 
       // Recompute the count from the ENFORCED groups so the badge and the
       // zero-result guard below reflect exactly what is shown.
@@ -11160,6 +11280,9 @@
       // keyed seats here too, so the fallback view and the full tree can never
       // disagree about who is on a district.
       try { _relevantSeatFields(officeGroups); } catch (e) {}
+      // Same ballot-scope gate as the main path — a fallback view is still the
+      // reader's ballot, not the national directory.
+      try { _relevantEnforceBallotScope(officeGroups, ((window._currentVoterLocation || {}).state || '')); } catch (e) {}
       var _fbTotal = 0;
       Object.keys(officeGroups).forEach(function(g) { _fbTotal += officeGroups[g].length; });
       if (relevantCountBadge) relevantCountBadge.textContent = _fbTotal;
