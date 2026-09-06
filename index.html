@@ -8608,6 +8608,35 @@ window.PDXLazy = (function () {
         </div>
       </div>
 
+      <!-- ── JUDICIAL LANE — the third branch, in its own lane ─────────────
+           Judicial retention used to be mounted twice at the TOP of Door 2:
+           the retention band inside #ballot-workspace and, worse, the whole
+           Utah-courts archive listing appended into #who-represents-me
+           .wrm-inner — a long card list wedged between the reader's seat list
+           and the ballot workspace. A reader scrolling from "here are your
+           reps" to "make your picks" hit a wall of judges in between.
+
+           A retention question is a yes/no on one name with no opponent and no
+           pick to save, so it is not a seat and it does not belong in the pick
+           flow at all. It gets a lane of its own, here, BELOW the workspace and
+           below the picks. #ballot-workspace keeps exactly one line about it
+           plus a jump (painted as #jr-line by judicial-ballot.js).
+
+           Both #jr-band (the reader's own retention questions, Utah + located
+           only) and #jr-arch (the courts archive, everyone, no ballot claim)
+           are painted into this section by judicial-ballot.js. The section is
+           static markup so its POSITION in the document is not something a
+           module decides at runtime. -->
+      <section id="judicial-lane" class="mb-14 md:mb-16 animate-on-scroll" aria-labelledby="jl-heading" style="transition-delay:0.11s;">
+        <div class="jl-inner">
+          <p class="jl-eyebrow">⚖️ The third branch</p>
+          <h2 id="jl-heading" class="jl-title">Judicial retention</h2>
+          <p class="jl-sub">Separate from the ballot builder above. Retention is a
+            yes-or-no question on one judge's name — no opponent, no party, and
+            nothing for PolitiDex to rate.</p>
+        </div>
+      </section>
+
       <!-- ── MY SAVED / MY EVIDENCE — a first-class home for everything saved ──
            A dedicated workspace for the politicians (My Team), the issues &
            Spotlights, and the evidence / receipts a voter has saved — chiefly via

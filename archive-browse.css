@@ -180,6 +180,24 @@
 
 .ab-empty strong { color: #b9c9e2; font-weight: 600; }
 
+/* Explicit widen-out for an empty slice. Reader-initiated, never automatic:
+   the panel does not swap a state that has nobody in it for one that does. */
+.ab-widen {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #b9c9e2;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  min-height: 30px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ab-widen:hover { color: #e6eefb; border-color: rgba(255, 255, 255, 0.28); }
+
 /* ── Door 1 chamber shortcut row ─────────────────────────────────────────── */
 .ab-d1 {
   display: flex;

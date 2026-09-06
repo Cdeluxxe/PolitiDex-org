@@ -62,19 +62,32 @@
   'use strict';
 
   // ── Chambers, federal first ────────────────────────────────────────────
-  // The five seat families a ballot has, in the order the archive has depth.
+  // The five seat families a ballot has, in the order the archive has depth,
+  // then the two families that are NOT ballot seats and belong here instead.
   // `d1` is Door 1's own office-filter value, so the chip row wired into the
   // browse toolbar speaks Door 1's vocabulary instead of inventing a second
   // set of labels for the same buckets. Note `governor`: Door 1 files Governor
   // together with Lt. Governor, Attorney General, Treasurer and Auditor under
   // one statewide-executive bucket, so the label here says "Statewide exec" —
   // calling that chip "Governor" would misdescribe what it lists.
+  //
+  // The last two entries are why this panel needed to grow. `president` and
+  // `cabinet` used to be mounted on the reader's BALLOT — Relevant to Me
+  // printed "CABINET / APPOINTED · 38 in this race" above the ballot workspace,
+  // and because Door 1 files any secretary/director/ambassador under `cabinet`,
+  // that list handed a Layton reader sixteen other states' secretaries of state
+  // as if they were her own officials. The records are not the problem; the seat
+  // claim was. Here the same people are a roster slice — "Appointed & exec
+  // officers · Texas" — under a kicker that says "Archive · not a ballot", which
+  // is a true statement about the archive and a claim about nobody.
   var CHAMBERS = [
     { key: 'senator',       label: 'U.S. Senate',    d1: 'senator',        tier: 'federal' },
     { key: 'representative',label: 'U.S. House',     d1: 'representative', tier: 'federal' },
     { key: 'governor',      label: 'Statewide exec', d1: 'governor',       tier: 'state' },
     { key: 'state_senator', label: 'State Senate',   d1: 'state',          tier: 'state' },
-    { key: 'state_rep',     label: 'State House',    d1: 'state',          tier: 'state' }
+    { key: 'state_rep',     label: 'State House',    d1: 'state',          tier: 'state' },
+    { key: 'president',     label: 'Presidency',     d1: 'president',      tier: 'federal' },
+    { key: 'cabinet',       label: 'Appointed & exec officers', d1: 'cabinet', tier: 'federal' }
   ];
 
   var ALL = '';                 // the "every rostered state" state value
@@ -277,8 +290,20 @@
   function rows() {
     var list = roster(sel.chamber, sel.state);
     if (!list.length) {
+      // An empty slice is still never silently swapped for a different state
+      // (see select()). But the reader can be told, out loud, that the chamber
+      // is not empty everywhere and offered the one click that widens it. That
+      // matters most for the two chambers added last: the appointed/exec bucket
+      // has nobody filed under many states, so a reader who lands on it from a
+      // seeded state would otherwise see only an empty.
+      var elsewhere = sel.state ? roster(sel.chamber, ALL).length : 0;
+      var widen = elsewhere
+        ? ' <button type="button" class="ab-widen" data-ab-allstates="1">Show all ' +
+          elsewhere + ' in this chamber, every state</button>'
+        : '';
       return '<p class="ab-empty">No one in the archive is filed under <strong>' +
-             esc(label(sel.chamber, sel.state)) + '</strong> yet. ' + esc(GROWTH) + '</p>';
+             esc(label(sel.chamber, sel.state)) + '</strong> yet. ' + esc(GROWTH) +
+             widen + '</p>';
     }
     var shown = list.slice(0, CAP), out = '';
     for (var i = 0; i < shown.length; i++) {
@@ -323,6 +348,7 @@
         if (t.getAttribute) {
           var ch = t.getAttribute('data-ab-chamber');
           if (ch) { select(ch, sel.state); return; }
+          if (t.getAttribute('data-ab-allstates')) { select(sel.chamber, ALL, true); return; }
           var pid = t.getAttribute('data-ab-pid');
           if (pid) { open(pid); return; }
         }

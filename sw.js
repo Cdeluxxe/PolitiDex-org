@@ -2731,7 +2731,210 @@
 // challengers: every pid the field prints is a roster row that was already on
 // file. A twin boot leaves every formal tier and every Direction Match read
 // byte-identical.
-const CACHE_VERSION = 'v145';
+// v146 - RELEVANT TO ME IS THE READER'S BALLOT, NOT THE NATIONAL DIRECTORY. A
+// Layton reader opened Door 2 and found, above the ballot workspace, a CABINET /
+// APPOINTED accordion mounted as a race - "Compare the field · 38 in this race" -
+// whose members included the secretaries of state of California, Colorado,
+// Washington and Texas. Nobody in Layton asked for Jena Griswold. Beneath it sat
+// a five-way "race" between Trump, Vance, Biden, Obama and G.W. Bush, and beneath
+// THAT a long list of Utah judges wedged between the reader's seat list and the
+// workspace where they choose candidates.
+//   Three separate causes, one shape: a surface that sits above the picks was
+// making seat claims about the reader that no resolver had answered. The cabinet
+// bucket is whatever Door 1's classifier files under secretary/director/
+// ambassador, which is the federal cabinet AND 34 state officers drawn from 26
+// states, and it was added to the reader's slate BEFORE the state check.
+//   The fix is scope, not deletion. Relevant to Me now keeps only the seat kinds
+// the reader's own slate can name - window.TEAM_POSITIONS, the same per-state
+// ballot definition the workspace and the seat counts read - and inside those,
+// only their own state's people, with the seat field's answer exempt so it stays
+// authoritative about who fills a seat. Utah's slate is six seats, so cabinet and
+// president fall away there; Colorado's slate names a Secretary of State, so a
+// Colorado reader keeps that group, filtered to Colorado. Every cabinet and
+// appointed record is still on file and still readable - it now lives in archive
+// browse, under two new chambers, where the kicker says "Archive · not a ballot"
+// and a chamber-and-state listing makes no claim about the reader. And judicial
+// retention moved out of the pick flow into #judicial-lane, a section of its own
+// below the workspace and below the picks; Door 2 keeps one line about it and a
+// jump.
+//   PRECACHED SHELL FILES CHANGED — ALL OF THEM ARE THE REASON FOR THE BUMP:
+//   · '/' (index.html)         - the new #judicial-lane section. Its POSITION is
+//                                static markup on purpose, so no module can
+//                                decide at runtime to put judges back above the
+//                                workspace. A warm shell has no lane, and the
+//                                module would fall back to creating one - the
+//                                markup, the heading and the copy would all be
+//                                missing.
+//   · judicial-ballot.js       - both mounts moved into the lane and the Door 2
+//                                footprint became one line (#jr-line) plus a
+//                                jump. A warm shell keeps the old file, which
+//                                appends the courts archive into
+//                                #who-represents-me .wrm-inner: the exact wall of
+//                                judges between the seat list and the picks that
+//                                this pass removed.
+//   · judicial-retention.css   - the .jr-line rule and the .jl-* lane header.
+//                                Without them the new line and section render
+//                                unstyled.
+// ALSO CHANGED BUT RUNTIME-CACHED, SO THEY ARRIVE FRESH WITHOUT THIS BUMP:
+// compare-hub.js (the ballot-scope gate on all three render paths and the honest
+// cabinet subtitle), archive-browse.js + archive-browse.css (the two new
+// chambers and the reader-initiated widen-out for an empty slice).
+// No cabinet record deleted, no party sort, no ranking by Direction Match, no
+// nested interactives, no store renamed, and the local seat count is untouched -
+// the rail and the grid stay one expanded ballot. A twin boot leaves every
+// Direction Match read and every formal tier byte-identical.
+// v149 - A SEAT IS AN OFFICE PLUS A DISTRICT, AND THE ⚖️ CHIP SAYS THE FIGURE
+// OR SAYS NO NUMBER. Two things on the Relevant-to-Me section, both of them a
+// surface saying more than it could show.
+//   THE SEAT KEY. "Currently holds this seat" for the U.S. House on a Layton
+// ballot was reported to name a Utah HOUSE member - Box Elder / Cache County -
+// beside Blake Moore, because the two records share the numeral 1: Moore holds
+// Utah's 1st congressional district and the other holds Utah House District 1.
+// Every link in the chain that answers who fills a seat - pdxSeatField, the
+// seat's holder list, the browse group, the curated ballot - was audited end to
+// end and every one of them already keys on office AND state AND district, and
+// the reported symptom does not reproduce on this tree. What the audit did find
+// was one latent path: the relevance test that decides which district number a
+// record is measured against let a GUESS taken off the office string override the
+// chamber classifier that had already placed the record. No shipped record trips
+// it today - all 393 records that guess fires on are genuine U.S. House records -
+// but a Utah House record whose office read "Utah State House Candidate" would
+// have been measured against the reader's congressional district and worn the
+// 📍 Local badge four hours from home. The classifier is now decisive and the
+// office string survives only as a fallback for a record nothing else could
+// place. No classification changed, no district math moved, and the archive
+// still files that member under the chamber they actually sit in.
+//   THE ⚖️ CHIP. Under the record line, the Word vs Action chip printed the
+// verdict's own word - "Backs it up" - on a card in a list, with neither integer
+// that sizes it. Mike Lee's read is 84% standing on five tested statements out of
+// fourteen on offer, and the card published the grade and withheld the set. The
+// chip now prints PDXWordAction.figure()'s own percentage and its own
+// "K of M tested", the same object the person file's letterhead chip prints, and
+// carries that figure's stamp so the two surfaces cannot drift into two
+// arithmetics. It publishes ONLY once figure() reports the tested set has stopped
+// growing: a list card has no ledger beside it for a reader to check a figure
+// against, so a read that is still warming prints no number at all - a quiet
+// "Reading the record…" or "Not tested yet" - and the section's existing warm
+// repaint brings the figure in when it is real. Every coverage sentence the
+// shared ledger slot already owned prints unchanged, in its own words. The formal
+// record line stays ABOVE the chip as the card's claim; nothing sorts, filters or
+// thresholds on the two integers, and the chip is still one door to the
+// explainer.
+//   PRECACHED SHELL FILES CHANGED - THEY ARE THE REASON FOR THE BUMP:
+//   · '/app.css'               - the new .rel-sig-den rule, the quieter sibling
+//                                span that carries "5 of 14 tested" beside the
+//                                percentage. A warm shell has no rule for it, so
+//                                the denominator paints at the value span's
+//                                weight and colour and reads as a second figure
+//                                rather than as what sizes the first.
+// ALSO CHANGED BUT RUNTIME-CACHED, SO IT ARRIVES FRESH WITHOUT THIS BUMP:
+// compare-hub.js (the office-key ordering in the relevance test, and the ⚖️ chip
+// now printing the shared figure behind its settled gate).
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it. Unchanged here and last moved at v146:
+// index.html, door1-workspace.js and door1-workspace.css - the Door 1 desk and
+// its stylesheet are re-fetched by this bump and are byte-identical. word-action.js
+// is unchanged too: this pass reads figure() and consistency.js behind it, and
+// wrote neither.
+// No scope gate moved, no cabinet split changed, no record-line prose reworded,
+// no TEAM store renamed, no Direction Match floor touched, no party sort, no
+// ranking by Direction Match, no nested interactives, and no seat-field district
+// math changed. A twin boot leaves every Direction Match read and every formal
+// tier byte-identical.
+//
+// v148 - THE RECORD LINE ON A CARD IS PROSE, NOT MARKUP. v147 gave every
+// Relevant-to-Me card the same one-line finding the person file's brief prints,
+// and on a live Layton ballot five of them - Lee, Curtis, Moore, Trump, Rubio -
+// read one good sentence and then the source of an HTML tag underneath it. The
+// two record lanes publish their rows with a `chip` field, and that field is not
+// a token: it is the characterisation engine's already-rendered .pdxst-pat span,
+// tone variable, role and aria-label included. recordLine() passed it out with
+// the sentence, the card escaped everything it printed - correctly, because a
+// sentence about "Strong Border & Enforcement" has to survive the ampersand -
+// and the escaping painted the tag as text.
+//   The fix is not to stop escaping. recordLine() no longer carries the chip at
+// all: every field on the object it returns is now documented and asserted to be
+// a plain sentence or a token, so a caller cannot get markup out of it by
+// accident, and the card's record block is prose end to end. If that tier's
+// visual bar is ever wanted on a card it mounts as a SIBLING node from the
+// engine's own helper, with its own innerHTML - not inside the sentence.
+//   Two smaller corrections travel with it. A U.S. Senator, the President and the
+// federal executive no longer wear the 📍 Local pin: that badge means one of the
+// reader's OWN local seats, and a statewide or national office is the opposite of
+// local - _pdxIsLocalToUser already refused it to the presidency on exactly that
+// ground, and the ballot page's own federal grouping now decides it for the rest.
+// And "Formal record still loading…" is bounded. It was gated on the brief's
+// briefWaitOver alone, which only ends when a record is filed or when the brief's
+// own 6s deadline fires - and a list card arms no deadline, so on a request that
+// was started and never filed the sentence was permanent: a spinner for the whole
+// life of the page about a person whose record was simply empty. It now ends on
+// any of three answers - the brief's, consistency.js's published settled answer
+// with its own deadline, or a wall clock this line owns - and then prints the real
+// pre-office or empty-record sentence instead.
+//   PRECACHED SHELL FILE CHANGED - IT IS THE REASON FOR THE BUMP:
+//   · '/word-action.js'        - recordLine() returns text only (no `chip`), and
+//                                recordLineWaiting() bounds the loading sentence.
+//                                A warm shell has the old export, so the chip
+//                                comes back out and the card paints the tag
+//                                source again, and its spinner never resolves.
+// ALSO CHANGED BUT RUNTIME-CACHED, SO IT ARRIVES FRESH WITHOUT THIS BUMP:
+// compare-hub.js (the prose-only record block, and the statewide-federal gate on
+// the 📍 Local badge).
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it. Unchanged here and last moved at v146:
+// index.html, door1-workspace.js and door1-workspace.css - the Door 1 desk and
+// its stylesheet are re-fetched by this bump and are byte-identical. app.css is
+// unchanged since v147, which is where the .rel-rec* rules landed.
+// No scope gate moved, no seat-field math, no TEAM store, no Word vs Action
+// arithmetic and no change to the cabinet split. A twin boot leaves every
+// Direction Match read and every formal tier byte-identical.
+// v147 - RELEVANT TO ME IS THE CIVIC STACK, AND A CARD READS RECORD-FIRST. The
+// v146 scope gate above was too tight in one direction and the cards inside it
+// led with the wrong thing. A Layton reader IS governed by the President and by
+// the federal executive; they are simply not governed by another state's
+// Secretary of State. So the section now answers two questions instead of one:
+// what this reader votes on - the seat kinds their own slate names, and inside
+// those only their own state's people, with the seat field's answer exempt - and
+// what governs every reader: the presidency, held to its current occupant and
+// anyone on file running this cycle, and the federal executive, split out of
+// Door 1's secretary/director/ambassador bucket into its own group with the
+// sixteen state secretaries left behind in the state one. Neither federal group
+// is ever a race, ever state-filtered, or ever a pick slot: the ballot is still
+// 0 of 11 with fourteen local seats. Judges stay below the workspace, where v146
+// put them.
+//   And the cards in that section now lead with the formal record. They used to
+// open with a headed two-cell scorecard - a reading of the record - above the
+// record itself. Each card now prints the same one-line finding the person file's
+// brief prints, from the same two lanes in the same precedence, in the row's own
+// published words; Word vs Action and the reader's-issues read are demoted to
+// two small chips beneath it. A candidate with nothing in office reads "Record
+// begins in office", never a voting pattern, and the ⚖️ chip is suppressed there
+// rather than repeating that sentence. Nothing on a card claims an empty file:
+// the default is "still loading", and the line repaints when the record warms.
+//   PRECACHED SHELL FILES CHANGED - THEY ARE THE REASON FOR THE BUMP:
+//   · '/app.css'               - the .rel-rec* record line and the .rel-sig*
+//                                chip row that replace the retired .rel-dual*
+//                                scorecard. A warm shell has the old rules and
+//                                none of the new ones, so the record line paints
+//                                unstyled under a stylesheet still reserving
+//                                space for a two-cell grid.
+//   · '/word-action.js'        - recordLine(), the one-line form of the brief's
+//                                finding, and shapeRowSay(), the row sentence
+//                                extracted so the card and the profile row have
+//                                one author. A warm shell has neither export and
+//                                the card falls back to no record line at all.
+// ALSO CHANGED BUT RUNTIME-CACHED, SO IT ARRIVES FRESH WITHOUT THIS BUMP:
+// compare-hub.js (the federal stack, the two new groups, the record-first card
+// and the warm repaint).
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it. Unchanged here and last moved at v146:
+// index.html, door1-workspace.js and door1-workspace.css - the Door 1 desk and
+// its stylesheet are re-fetched by this bump and are byte-identical.
+// No cabinet record deleted, no state officer re-merged into the federal group,
+// no party sort, no ranking by Direction Match, no nested interactives, no store
+// renamed, and no seat-field district math touched. A twin boot leaves every
+// Direction Match read and every formal tier byte-identical.
+const CACHE_VERSION = 'v149';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

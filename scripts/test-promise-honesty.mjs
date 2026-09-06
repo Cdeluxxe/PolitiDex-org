@@ -823,8 +823,16 @@ const EMPTY = { name: "Empty", score: null };
     "the Relevant-to-Me dual signal offers a '🤝 Pledge receipts' cell again — equal weight,\n" +
     "    equal size, directly beside the consistency read, under a header asking the one\n" +
     "    question both cells now answer at different scopes");
-  ok(/rel-dual-ico">⚖️<\/span> Word vs Action/.test(dual),
-    "the Relevant-to-Me dual signal's left cell no longer carries the ⚖️ Word vs Action read");
+  // The cell became a chip — the scorecard was demoted so the card could lead
+  // with the formal record instead of with a reading of it — so this asks for the
+  // READ, not for the old markup: the ⚖️ glyph, the metric's name, and the
+  // ledger slot it is drawn from, wherever they sit.
+  ok(/⚖️/.test(dual) && /Word vs Action/.test(dual) && /_pdxLedgerSlot/.test(dual),
+    "the Relevant-to-Me dual signal no longer carries the ⚖️ Word vs Action read off\n" +
+    "    window._pdxLedgerSlot");
+  ok(!/rel-dual-head-txt/.test(dual),
+    "the Relevant-to-Me signal pair is a headed two-cell scorecard again — the card is\n" +
+    "    supposed to lead with the formal record line, with these two demoted to chips");
 
   // ── The CSS ──
   ok(/\.pdx-snap-score-wa\b/.test(CSS),

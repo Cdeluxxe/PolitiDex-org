@@ -971,6 +971,12 @@ const swNote = swWaveNote();
   // not anyone regenerates it — a device holding the old copy would serve a person's old
   // six lines. The section below requires the move to be THIS wave's.
   const DECLARED = new Set([
+    // The record-first Relevant-to-Me pass (v147), on the same later-wave terms: it
+    // repainted a Door 2 section and the cards inside it, and touched no wave artefact.
+    // app.css carries the record line's rules; the two harnesses below are the ones whose
+    // own assertions were pinned to the retired scorecard markup.
+    "app.css", "scripts/test-promise-honesty.mjs",
+    "scripts/test-relevant-is-my-ballot.mjs",
     // The issue-family pass (v109) — the one parent table finished, the family module
     // that reads it, the two surfaces that stopped grouping issues their own way, and the
     // shell bump that ships them together. See the booted-file note above for why the
@@ -1751,6 +1757,31 @@ const swNote = swWaveNote();
     "scripts/test-ballot-workspace.mjs",
     "scripts/test-score-depth.mjs",
     "scripts/test-profile-unification.mjs",
+    // RELEVANT TO ME IS THE READER'S BALLOT (CACHE_VERSION v146), on those same
+    // later-wave terms, and this wave has the same direct stake in it as in the
+    // two passes above. It writes no roll, no mapping, no key, no floor and no
+    // admission: the section above the ballot workspace was listing every group
+    // Door 1's classifier can name, so a Layton reader's "relevant to me" carried
+    // a CABINET / APPOINTED accordion — other states' secretaries of state
+    // mixed in with the federal cabinet — under "Compare the field · 38 in this
+    // race", plus a five-way presidential "race" and a wall of judges between the
+    // seat list and the picks. The reason a roster wave is the file that has to
+    // declare it: R1 and R2 admitted several hundred identity rows, and the
+    // classifier files every secretary/director/ambassador office under one
+    // `cabinet` bucket, so each admission made that accordion wider — the defect
+    // grew with the roster this wave was built to grow. compare-hub.js now derives
+    // the allowed groups from window.TEAM_POSITIONS, the same per-state slate the
+    // workspace and the seat counts read, and filters what is left to the reader's
+    // own state with the one seat resolver's answer exempt; archive-browse.js and
+    // archive-browse.css give the appointed and executive officers two chambers
+    // under the archive's existing "not a ballot" kicker, so not one record was
+    // deleted; judicial-ballot.js moved both of its mounts out of the pick flow
+    // into a lane of its own and left one line behind. No count, chip, tier or
+    // Direction Match figure moved, which the twin boot above has just proved.
+    "archive-browse.js",
+    "archive-browse.css",
+    "judicial-ballot.js",
+    "scripts/test-local-officials-routing.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }

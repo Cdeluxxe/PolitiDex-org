@@ -37,6 +37,89 @@
 
 .jr-band--arch { margin-top: 1.6rem; }
 
+/* ── The Door 2 line ──────────────────────────────────────────────────────
+   The entire footprint judicial retention has inside the ballot workspace:
+   one sentence and a jump. Styled as a quiet rule, not a card, because a card
+   here would compete with the seat rail it sits under — and the reason this
+   exists at all is that a wall of judges used to sit between the reader's
+   seats and their picks. */
+.jr-line {
+  max-width: 47rem;
+  margin: 1.1rem auto 0;
+  padding: 0.6rem 0.2rem 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+  text-align: center;
+}
+
+.jr-line[hidden] { display: none; }
+
+.jr-line-t {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #8296b4;
+}
+
+.jr-line-b {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #b9c9e2;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(185, 201, 226, 0.4);
+  padding: 0 0 0.05rem;
+  min-height: 30px;
+  cursor: pointer;
+}
+
+.jr-line-b:hover { color: #e6eefb; border-bottom-color: #e6eefb; }
+
+/* ── The lane ─────────────────────────────────────────────────────────────
+   #judicial-lane is static markup in index.html (see the comment there): a
+   section of its own, below the workspace and below the picks, holding the
+   retention band and the courts archive. The header here is intentionally
+   plain — the lane is a place to read, not a scoreboard. */
+.jl-inner {
+  max-width: 47rem;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.jl-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8296b4;
+  margin: 0 0 0.3rem;
+}
+
+.jl-title {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: 1.9rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: #e6eefb;
+  margin: 0;
+}
+
+.jl-sub {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: #8296b4;
+  margin: 0.5rem 0 0;
+  max-width: 42rem;
+}
+
 .jr-kicker {
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.66rem;
@@ -464,6 +547,9 @@
 
 @media (max-width: 640px) {
   .jr-band { margin-left: 0.6rem; margin-right: 0.6rem; padding: 0.85rem 0.8rem; }
+  .jr-line { margin-left: 0.6rem; margin-right: 0.6rem; }
+  .jl-inner { padding: 0 0.6rem; }
+  .jl-title { font-size: 1.6rem; }
   .jf-name { font-size: 1.45rem; }
   .jf-when { flex: 0 0 100%; }
 }

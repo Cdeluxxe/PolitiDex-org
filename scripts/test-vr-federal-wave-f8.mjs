@@ -936,6 +936,12 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
   // regenerated it, and any later wave that ships a judged act re-ranks the six-line
   // window again. F8's own requirement survives that — no person may LOSE their snapshot.
   const DECLARED = new Set([
+    // The record-first Relevant-to-Me pass (v147), on the same later-wave terms: it
+    // repainted a Door 2 section and the cards inside it, and touched no wave artefact.
+    // app.css carries the record line's rules; the two harnesses below are the ones whose
+    // own assertions were pinned to the retired scorecard markup.
+    "app.css", "scripts/test-promise-honesty.mjs",
+    "scripts/test-relevant-is-my-ballot.mjs",
     // The issue-family pass (v109) — the one parent table finished, the family module
     // that reads it, the two surfaces that stopped grouping issues their own way, and the
     // shell bump that ships them together. See the booted-file note above for why the
@@ -1717,6 +1723,28 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "scripts/test-ballot-workspace.mjs",
     "scripts/test-score-depth.mjs",
     "scripts/test-profile-unification.mjs",
+    // RELEVANT TO ME IS THE READER'S BALLOT (CACHE_VERSION v146), on those same
+    // later-wave terms. It writes no roll, no mapping, no key, no floor and no
+    // admission. The section above the ballot workspace listed every group Door 1's
+    // classifier can name, so a Utah reader's "relevant to me" carried a CABINET /
+    // APPOINTED accordion — other states' secretaries of state beside the
+    // federal cabinet — under "Compare the field · 38 in this race", a five-way
+    // presidential "race", and a wall of judges between the seat list and the picks.
+    // A roster wave has to declare it because the defect grew with the roster: every
+    // secretary/director/ambassador office this wave and R1/R2 admitted landed in
+    // that one `cabinet` bucket and made the accordion wider. compare-hub.js now
+    // derives the allowed groups from window.TEAM_POSITIONS — the same per-state
+    // slate the workspace and the seat counts read — and filters what remains to the
+    // reader's own state, exempting the pids the one seat resolver named so it stays
+    // authoritative. archive-browse.js and archive-browse.css give the appointed and
+    // executive officers two chambers under the archive's existing "not a ballot"
+    // kicker, so no record was deleted; judicial-ballot.js moved both mounts into a
+    // lane below the picks and left one line behind. Every count, chip, tier and
+    // Direction Match figure is byte-identical, which the twin boot above proves.
+    "archive-browse.js",
+    "archive-browse.css",
+    "judicial-ballot.js",
+    "scripts/test-local-officials-routing.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

@@ -17,9 +17,12 @@
 //   2. compare-hub's local classifier returns nothing when it cannot place the
 //      visitor in a county, so those areas render no `local` group.
 //   3. jumpToRelevantAccordion() falls back to scrolling #relevant-section when
-//      the group it wants is missing — and that section's FIRST groups are
-//      president and cabinet, which are added before the state check and are
-//      therefore national for every visitor in every state.
+//      the group it wants is missing — and that section's FIRST groups were
+//      president and cabinet, added before the state check and therefore
+//      national for every visitor in every state. (Those two groups are gone
+//      from a reader's ballot now; see the control at the end of this file for
+//      what property D guards today. The fallback is still wrong: it answers
+//      "my local officials" with whatever group happens to be first.)
 //
 // So a promise nobody could keep, a silent empty set, and a helpful fallback
 // composed into the single worst answer this site can give: other people's
@@ -40,7 +43,7 @@
 //      coverage does not scroll #relevant-section. This is the assertion that
 //      would have caught the shipped bug on its own.
 //
-// And one control: #relevant-section really does contain national figures, so
+// And one control: #relevant-section really does render non-local groups, so
 // property D is guarding something rather than passing vacuously.
 //
 //   node scripts/test-local-officials-routing.mjs
@@ -315,13 +318,40 @@ jumpRuns.forEach((j) => {
     `${j.label}: the message does not say what is missing — got ${JSON.stringify(j.run.win.__toast)}`);
 });
 
-// The control. If #relevant-section did NOT contain national figures, property D
-// would be guarding nothing and could be deleted. It does, so it cannot.
+// The control, re-derived. It used to read "#relevant-section really does contain
+// national figures", because the section's first groups were President and
+// Cabinet — added ahead of the state check, so national for everybody. That is no
+// longer true and must not be asserted: Relevant to Me is now scoped to the seats
+// the reader's own slate can name, so an Ohio visitor's section holds Ohio
+// statewide offices and nothing appointed or out-of-state.
+//
+// Property D still guards something, and this is the honest statement of what:
+// the section leads with groups that are NOT local. Scrolling a visitor there in
+// answer to "my local officials" still answers a question they did not ask — with
+// their U.S. Senators and Governor instead of the federal Cabinet. Less wrong,
+// still wrong, still worth pinning.
 const ctrl = byLabel("Ohio (outside coverage)");
 const ctrlHtml = ctrl.byId["relevant-browse-grid"].innerHTML || "";
-ok((ctrl.groups.president || []).length > 0 && (ctrl.groups.cabinet || []).length > 0,
-  "control: the ballot no longer renders president/cabinet groups for an out-of-coverage visitor, so\n" +
-  "    the scroll-fallback property above may be guarding nothing. Re-derive it before deleting");
+const ctrlGroups = Object.keys(ctrl.groups || {}).filter((g) => (ctrl.groups[g] || []).length);
+ok(ctrlGroups.length > 0,
+  "control: the ballot renders no groups at all for an out-of-coverage visitor, so the\n" +
+  "    scroll-fallback property above may be guarding nothing. Re-derive it before deleting");
+ok(ctrlGroups.some((g) => g !== "local"),
+  "control: every group #relevant-section renders for this visitor is already local, so scrolling\n" +
+  "    there would be harmless and property D would be guarding nothing. Re-derive it before deleting");
+// And the scope this section now keeps: nothing appointed, nothing from another
+// state. This is the Layton reader's complaint, asserted from Ohio.
+ok(ctrlGroups.indexOf("cabinet") === -1,
+  "control: an out-of-coverage visitor is still shown a CABINET / APPOINTED group on their ballot");
+ctrlGroups.forEach((g) => {
+  if (g === "senator" || g === "president") return;   // see _RELEVANT_STATE_EXEMPT_GK
+  (ctrl.groups[g] || []).forEach((pid) => {
+    const st = String((ctrl.win._pdxBrowseStateOf && ctrl.win._pdxBrowseStateOf(pid)) || "").toLowerCase();
+    eq(st, "ohio",
+       `control: the Ohio visitor's ${g} group carries ${pid}, who is filed under ${JSON.stringify(st)} —\n` +
+       "    Relevant to Me is the reader's ballot, not the national directory");
+  });
+});
 ok(ctrlHtml.indexOf("relevant-browse-group-local") === -1,
   "control: an area with no local seats still emitted a local group container. The jump would find\n" +
   "    it, expand it, and present an empty list as the visitor's local government");

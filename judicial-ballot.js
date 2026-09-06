@@ -4,14 +4,28 @@
    Two surfaces, one owner. Both read judicial-retention.js and neither one
    decides anything for itself.
 
-   ── DOOR 2: the retention band ───────────────────────────────────────────
+   ── DOOR 2: one line, and a lane of its own ──────────────────────────────
    A Utah ballot in an even year carries judicial retention questions. Door 2
    resolved six legislative seats and said nothing about them, which meant the
    workspace called itself "your ballot" while a whole branch of government was
    missing from it.
 
-   The band is a SIBLING of #bw-body inside #ballot-workspace, not a child of
-   it. ballot-workspace.js's sync() assigns #bw-body.innerHTML in a single
+   The first fix over-corrected. The retention band went inside
+   #ballot-workspace and the courts archive went into #who-represents-me
+   .wrm-inner — which put a long list of judges directly between the reader's
+   seat list and the workspace where they make their picks. Someone scrolling
+   from "here are your reps" to "choose your candidates" had to scroll past a
+   wall of judges to get there, and the archive listing in particular is not
+   about their ballot at all.
+
+   So both surfaces now paint into #judicial-lane, a static section in
+   index.html that sits BELOW the workspace and below the picks. What is left
+   inside #ballot-workspace is one line — #jr-line — that says retention is
+   separate from the builder and offers a jump down to the lane. One line is
+   the whole Door 2 footprint.
+
+   Both mounts are SIBLINGS of the elements another module owns, never children
+   of them: ballot-workspace.js's sync() assigns #bw-body.innerHTML in a single
    write, so anything appended inside that element is destroyed on the next
    repaint — the same reason issue-file.js mounts its letterhead as a sibling.
 
@@ -19,7 +33,7 @@
    door2-spine.js counts to say "3 of 6 decided": a retention question is a
    yes/no on one name, not a field of candidates to choose between, so adding
    it to that denominator would make the progress counter measure two different
-   acts at once and the spine has no pick engine for the second one. The rail
+   acts at once and the spine has no pick engine for the second one. The lane
    shows the question. It does not ask the reader to pick a winner, and there
    is no pick to save.
 
@@ -42,6 +56,10 @@
    about the archive no matter where the reader is standing — and it is the
    answer to "the ballot can't help me here, is there anything to read".
 
+   It renders in the lane, under the reader's own questions. It never renders
+   above the workspace, because a listing that makes no claim about the reader
+   has no business interrupting the one flow that does.
+
    States. Does not gate. This module appends; it never blocks a click, never
    rewrites another module's DOM, and is safe to no-op.
    ══════════════════════════════════════════════════════════════════════════ */
@@ -50,6 +68,8 @@
 
   var BAND_ID = 'jr-band';
   var ARCH_ID = 'jr-arch';
+  var LINE_ID = 'jr-line';
+  var LANE_ID = 'judicial-lane';
   var MOUNT_ID = 'ballot-workspace';
 
   // Reader-facing copy. "Also on your ballot" is the only ballot claim in this
@@ -66,6 +86,12 @@
   // marked as one. A claim and a denial that read alike are how a listing turns
   // into a seat assignment.
   var ARCH_NOTE = 'A listing here is not a claim that these questions are on your ballot.';
+
+  // The entire Door 2 footprint. Deliberately one sentence: it tells a reader
+  // that the thing missing from the builder is not missing from the site, and
+  // then gets out of the way of the picks.
+  var LINE_TEXT = 'Judicial retention is separate from this ballot builder.';
+  var LINE_CTA = 'See the judicial questions ↓';
 
   function fn(x) { return typeof x === 'function'; }
   function J() { return window.PDXJudicial || null; }
@@ -204,31 +230,80 @@
     return out;
   }
 
+  // ── Door 2: the one line ────────────────────────────────────────────────
+
+  function lineHtml() {
+    return '<span class="jr-line-t">' + esc(LINE_TEXT) + '</span>' +
+      '<button type="button" class="jr-line-b" data-jr-jump="1">' + esc(LINE_CTA) + '</button>';
+  }
+
+  // Scroll, not navigate: the lane is on this page, so a jump that changed the
+  // URL would put a back-button step between the reader and their half-built
+  // ballot. Falls back to no-op rather than guessing at another target.
+  function jump() {
+    var lane = document.getElementById(LANE_ID);
+    if (!lane || !fn(lane.scrollIntoView)) return;
+    try { lane.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    catch (e) { try { lane.scrollIntoView(); } catch (_) {} }
+  }
+
   // ── Mounts ──────────────────────────────────────────────────────────────
-  // The band goes INTO #ballot-workspace and NEXT TO #bw-body, never inside
+  // The line goes INTO #ballot-workspace and NEXT TO #bw-body, never inside
   // it. See the header: sync() owns that element's innerHTML outright.
-  function bandSlot() {
+  function lineSlot() {
     var mount = document.getElementById(MOUNT_ID);
     if (!mount) return null;
-    var el = document.getElementById(BAND_ID);
+    var el = document.getElementById(LINE_ID);
     if (el) return el;
     el = document.createElement('div');
-    el.id = BAND_ID;
-    el.className = 'jr-band';
+    el.id = LINE_ID;
+    el.className = 'jr-line';
+    el.addEventListener('click', function (ev) {
+      var t = ev.target;
+      while (t && t !== el) {
+        if (t.getAttribute && t.getAttribute('data-jr-jump')) { jump(); return; }
+        t = t.parentNode;
+      }
+    });
     try { mount.appendChild(el); } catch (e) { return null; }
     return el;
   }
-  function archSlot() {
-    var host = document.querySelector('#who-represents-me .wrm-inner');
+
+  // Both judicial surfaces live in one lane, and the lane's POSITION is static
+  // markup in index.html — deliberately, so no module can decide at runtime to
+  // put judges back above the workspace. If the section is missing (a stripped
+  // page, a partial), we create it after the sections it must follow rather
+  // than fall back to a host inside the pick flow; the whole point of this file
+  // changing was that the pick flow is not where this belongs.
+  function lane() {
+    var el = document.getElementById(LANE_ID);
+    if (el) return el;
+    var after = document.getElementById('relevant-section') ||
+                document.getElementById('my-politicians') ||
+                document.getElementById(MOUNT_ID);
+    if (!after || !after.parentNode) return null;
+    el = document.createElement('section');
+    el.id = LANE_ID;
+    try {
+      if (after.nextSibling) after.parentNode.insertBefore(el, after.nextSibling);
+      else after.parentNode.appendChild(el);
+    } catch (e) { return null; }
+    return el;
+  }
+
+  function laneSlot(id, cls) {
+    var host = lane();
     if (!host) return null;
-    var el = document.getElementById(ARCH_ID);
+    var el = document.getElementById(id);
     if (el) return el;
     el = document.createElement('div');
-    el.id = ARCH_ID;
-    el.className = 'jr-band jr-band--arch';
+    el.id = id;
+    el.className = cls;
     try { host.appendChild(el); } catch (e) { return null; }
     return el;
   }
+  function bandSlot() { return laneSlot(BAND_ID, 'jr-band'); }
+  function archSlot() { return laneSlot(ARCH_ID, 'jr-band jr-band--arch'); }
 
   function paint() {
     var band = bandSlot();
@@ -241,7 +316,20 @@
       } catch (e) {}
     }
     var arch = archSlot();
-    if (arch) arch.innerHTML = archHtml();
+    var ah = '';
+    if (arch) { ah = archHtml(); arch.innerHTML = ah; }
+
+    // The line is only worth a reader's attention if the lane has something in
+    // it. An empty lane with a signpost pointing at it is worse than silence.
+    var line = lineSlot();
+    if (line) {
+      var show = !!((band && band.innerHTML) || ah);
+      line.innerHTML = show ? lineHtml() : '';
+      try {
+        if (show) line.removeAttribute('hidden');
+        else line.setAttribute('hidden', 'hidden');
+      } catch (e) {}
+    }
   }
 
   function sync() { try { paint(); } catch (e) {} }
@@ -281,10 +369,16 @@
 
   window.PDXJudicialBallot = {
     sync: sync,
+    jump: jump,
     _band: bandHtml,
     _arch: archHtml,
+    _line: lineHtml,
     _boot: boot,
     BAND_ID: BAND_ID,
-    ARCH_ID: ARCH_ID
+    ARCH_ID: ARCH_ID,
+    LINE_ID: LINE_ID,
+    LANE_ID: LANE_ID,
+    LINE_TEXT: LINE_TEXT,
+    LINE_CTA: LINE_CTA
   };
 })();

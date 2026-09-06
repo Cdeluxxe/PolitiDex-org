@@ -2324,8 +2324,31 @@
       var isP = (typeof _potentialPoliticians !== 'undefined') && _potentialPoliticians.has(pid);
       return '<button class="potential-star-btn ' + (isP ? 'potential-saved' : '') + '" onclick="event.stopPropagation();potentialToggle(\'' + pid + '\')" title="' + (isP ? 'Remove from potential candidates' : 'Add to potential candidates') + '">🌟</button>';
     }
+    // ── A STATEWIDE FEDERAL OFFICE IS NOT "LOCAL" ANYWHERE ───────────────────
+    // The 📍 Local badge marks somebody as one of the reader's OWN local seats,
+    // and _pdxIsLocalToUser already refuses it to the President and the federal
+    // executive on exactly that ground: they affect every American, so nothing
+    // about them is local to one place. A U.S. Senator is the same category — the
+    // seat is the whole state, there is no district — and the badge was reaching
+    // them because they DO represent the reader's state, which is the question
+    // _isRelevantToUser answers. So the group the ballot page already uses to
+    // decide who is federal decides this too, and Lee and Curtis stop wearing a
+    // pin that says the opposite of "statewide".
+    //   This is a chip, not an ordering: _pdxIsLocalToUser keeps its answer, so
+    // every caller that puts the reader's own people first still does.
+    function _pdxIsStatewideFederal(pid) {
+      var t = '';
+      try { if (typeof window._pdxBrowseType === 'function') t = String(window._pdxBrowseType(pid) || ''); } catch (e) { t = ''; }
+      if (t === 'senator' || t === 'president') return true;
+      try {
+        if (typeof window._relevantIsNationalOfficer === 'function' &&
+            window._relevantIsNationalOfficer(pid)) return true;
+      } catch (e) {}
+      return false;
+    }
     // Section badges shared across listings.
     function _pdxLocalBadge(pid) {
+      if (_pdxIsStatewideFederal(pid)) return '';
       return (typeof _pdxIsLocalToUser === 'function' && _pdxIsLocalToUser(pid)) ? '<span class="chub-your-badge">📍 Local</span>' : '';
     }
     function _pdxTeamBadge(pid) {
@@ -2378,7 +2401,14 @@
       // compare weighs them against the others in the race, profile reads the
       // full record first.
       var addTitle = isMy ? 'Your pick for this seat — click to remove' : (strongMatch ? 'Strong match for your values — add them to claim this seat' : 'Add to your ballot — fills their seat in your picks');
-      var cmpTitle = isMy ? 'Compare them against the others in this race' : 'Not sure yet? Compare with others in this race first';
+      // NOT "the others in this race". This helper renders the action row on every
+      // card on every surface, and on a great many of them the person is not in a
+      // race at all: a cabinet secretary, a sitting judge, an officeholder up in
+      // four years. On the Relevant-to-Me federal groups it was the reason a
+      // reader hovering a Secretary of Commerce was told about "this race" — 22
+      // times, once per card — under a header that says nobody votes for them.
+      // The tooltip is about the action, so it now describes the action.
+      var cmpTitle = isMy ? 'Compare them side by side with others' : 'Not sure yet? Compare them with others first';
       return '<div class="mypol-card-actions" style="width:100%;">' +
           '<button class="' + addBtnClass + ' mypol-act-add" title="' + addTitle + '" onclick="event.stopPropagation();mypolToggleAnimated(this,\'' + pid + '\')"' + addBtnHover + '>' + addBtnText + '</button>' +
           '<div class="mypol-card-actions-secondary">' +
@@ -7316,10 +7346,29 @@
       var _isUSHouse = (polOffice.indexOf('u.s. rep') !== -1 || polOffice.indexOf('u.s. house') !== -1 ||
                         polOffice.indexOf('us house') !== -1 || polOffice.indexOf('house candidate') !== -1 ||
                         (polOffice.indexOf('representative') !== -1 && polOffice.indexOf('state') === -1));
+      // ── THE CHAMBER IS THE OFFICE KEY'S, NEVER THE DISTRICT NUMBER'S ────────
+      // Which office key this record is tested under decides WHICH district
+      // number it is tested against, so getting the chamber wrong is how a
+      // district number ends up deciding a seat on its own. `_isUSHouse` is an
+      // office-STRING guess ("says representative, does not say state"), and it
+      // used to be OR'd in front of the classifier's answer — so any state-house
+      // record whose office line omits the word "state" ("Utah House of
+      // Representatives", "Speaker of the House") was routed to the CONGRESSIONAL
+      // key and then matched against the reader's U.S. House district. A Utah
+      // House District 1 member would come back relevant as a UT-1 reader's
+      // congressman: the same district number, a different chamber, and nothing
+      // in the comparison to notice the difference.
+      //
+      // _classifyBrowseType is the app's one doctrine for "which chamber is this"
+      // — it is what the browse tree, seat-field.js and pdxSeatField all key on —
+      // so its answer is decisive here too, and the string test survives only as
+      // the fallback for a record it could not place at all. Office + state +
+      // district, in that order, with the office first.
       var _btype = (typeof _classifyBrowseType === 'function') ? _classifyBrowseType(pid) : '';
-      var _officeKey = (_btype === 'representative' || _isUSHouse) ? 'representative'
+      var _officeKey = (_btype === 'representative') ? 'representative'
                      : (_btype === 'state_senator') ? 'state_senator'
-                     : (_btype === 'state_rep') ? 'state_rep' : null;
+                     : (_btype === 'state_rep') ? 'state_rep'
+                     : (!_btype && _isUSHouse) ? 'representative' : null;
       if (_officeKey) {
         // Resolve the voter's OWN seat + authoritative roster for this office from
         // the single source of truth every location-aware surface now shares
@@ -8485,10 +8534,25 @@
       }
     };
 
+    // The two groups on this page that are CONTEXT rather than seats: the reader
+    // is governed by them and votes for neither. Named once, because four
+    // different places have to make the same exception for them — the roster
+    // renderer, the rank-by-values button, the coverage pill (via their absence
+    // from _RELEVANT_OFFICE_TO_RACE) and the ballot-scope gate.
+    var _RELEVANT_FEDERAL_CONTEXT_GK = { president: 1, fed_cabinet: 1 };
+
     // Office-type card definitions (icon, color, label) for each Relevant accordion.
     var _RELEVANT_OFFICE_DEFS = {
-      president:      { label: 'PRESIDENT / EXECUTIVE', icon: '🦅', bg: 'linear-gradient(135deg, rgba(192,21,42,0.25), rgba(30,53,96,0.3))' },
-      cabinet:        { label: 'CABINET / APPOINTED', icon: '🦅', bg: 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(30,53,96,0.3))' },
+      president:      { label: 'PRESIDENCY', icon: '🦅', bg: 'linear-gradient(135deg, rgba(192,21,42,0.25), rgba(30,53,96,0.3))' },
+      // TWO GROUPS, NOT ONE BUCKET. Door 1's classifier files any office with
+      // secretary/director/ambassador under `cabinet`, which is the federal
+      // cabinet AND sixteen states' secretaries of state in one pile. On a
+      // reader's own page those are two different claims — one is "the federal
+      // executive, which governs you", the other is "an office your state
+      // elects" — so they are two groups here, on two different levels, and
+      // _relevantFederalStack is the one place that splits them.
+      fed_cabinet:    { label: 'FEDERAL CABINET / APPOINTED', icon: '🦅', bg: 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(30,53,96,0.3))' },
+      cabinet:        { label: 'APPOINTED & STATEWIDE OFFICES', icon: '⭐', bg: 'linear-gradient(135deg, rgba(168,85,247,0.16), rgba(30,53,96,0.3))' },
       senator:        { label: 'U.S. SENATE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(30,53,96,0.3))' },
       representative: { label: 'U.S. HOUSE', icon: '🏛', bg: 'linear-gradient(135deg, rgba(34,197,94,0.15), rgba(30,53,96,0.3))' },
       governor:       { label: 'STATEWIDE EXECUTIVE OFFICES', icon: '⭐', bg: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(30,53,96,0.3))' },
@@ -8500,9 +8564,15 @@
     };
 
     // Top-level branches grouping office accordions into a Federal → State → Local tree.
+    // The seats the reader VOTES ON lead each level; the offices they are governed
+    // by but do not elect follow. So Federal Level reads Senate · House ·
+    // Presidency · Federal Cabinet, and the state-scoped appointed/statewide
+    // bucket sits under STATE LEVEL where it belongs — a Colorado Secretary of
+    // State is a Colorado office, and printing it under "Federal" beside the
+    // federal cabinet was the confusion that let the two piles read as one.
     var _RELEVANT_LEVEL_DEFS = [
-      { key: 'federal', label: 'FEDERAL LEVEL', icon: '🦅', offices: ['president', 'cabinet', 'senator', 'representative'] },
-      { key: 'state',   label: 'STATE LEVEL',   icon: '🏛', offices: ['governor', 'state_senator', 'state_rep'] },
+      { key: 'federal', label: 'FEDERAL LEVEL', icon: '🦅', offices: ['senator', 'representative', 'president', 'fed_cabinet'] },
+      { key: 'state',   label: 'STATE LEVEL',   icon: '🏛', offices: ['governor', 'cabinet', 'state_senator', 'state_rep'] },
       { key: 'local',   label: 'LOCAL LEVEL',   icon: '🏙', offices: ['local'] },
       { key: 'other',   label: 'CANDIDATES & OTHER', icon: '🗳', offices: ['candidate', 'other'] }
     ];
@@ -8675,8 +8745,21 @@
           return 'Every State House seat in ' + state + ' — set your area to narrow';
         case 'senator':        return 'Statewide — represents every ' + state + ' voter';
         case 'governor':       return 'Statewide — represents every ' + state + ' voter';
-        case 'president':
-        case 'cabinet':        return 'Federal — represents every American';
+        // The presidency is one seat and it governs everybody, so it says so.
+        // What it must NOT do is print a five-way field of former presidents as
+        // though they were running: _relevantFederalStack keeps this group to the
+        // current occupant and anyone on file as running this cycle.
+        case 'president':      return 'Federal — represents every American';
+        // The federal executive. Not a race, not a seat anyone votes on directly,
+        // and not a state office — it is the layer of government a reader is
+        // governed by between their own ballot and nothing at all.
+        case 'fed_cabinet':    return 'Federal executive · serves every American';
+        // The OTHER half of Door 1's cabinet bucket: offices a single state
+        // elects or appoints, which only reach a reader's page when their own
+        // slate names such a slot (Colorado's Secretary of State, Florida's
+        // Attorney General) and which are state-filtered by then. "Serves every
+        // American" is true of the group above and false of this one.
+        case 'cabinet':        return 'Appointed or statewide office · ' + state;
         case 'local':          return county ? 'Your community · ' + county : 'Your community';
         default: return '';
       }
@@ -8700,8 +8783,12 @@
         case 'governor':
           return 'statewide';
         case 'president':
-        case 'cabinet':
+        case 'fed_cabinet':
           return 'federal';
+        // State-scoped now (see _RELEVANT_LEVEL_DEFS): whatever is left in the
+        // `cabinet` bucket after the federal split is an office of one state.
+        case 'cabinet':
+          return 'statewide';
         case 'local':
           return 'local';
         default: return '';
@@ -8732,7 +8819,7 @@
     // it never explains a category the voter cannot see.
     function _relevantMatchLegend(officeGroups, ctx) {
       var present = {};
-      ['representative', 'state_senator', 'state_rep', 'senator', 'governor', 'president', 'cabinet', 'local'].forEach(function(gk) {
+      ['representative', 'state_senator', 'state_rep', 'senator', 'governor', 'president', 'fed_cabinet', 'cabinet', 'local'].forEach(function(gk) {
         if (officeGroups[gk] && officeGroups[gk].length) {
           var kind = _relevantPrecisionKind(gk, ctx);
           if (_RELEVANT_PRECISION_DEFS[kind]) present[kind] = true;
@@ -8767,86 +8854,208 @@
     // Profile) so this section stays focused on assembling the voter's own slate.
     // The matching #relevant-browse-grid CSS gives both tiers the full premium
     // chrome. My Team's _renderBrowseTeamCard is intentionally left untouched.
-    // ── "Two ways to judge them" dual-signal scorecard (Relevant to Me) ──────────
-    // The Relevant section is where a voter weighs the field, so it answers one
-    // question — "does what they say match what they do?" — at two scopes, side by
-    // side. The LEFT cell is the OVERALL ⚖️ Word vs Action read, across every
-    // position the politician has stated. The RIGHT cell is that same read narrowed
-    // to the visitor's chosen issues (_calcConsistencyScore, sourced from the same
-    // PDXConsistency.officialRecord feed — a scope of the one system, not a rival).
-    // Both cells tap through to their own explainer; thin records degrade to honest
-    // neutral states ("Not enough record yet" / "Limited record") rather than
-    // looking broken. It used to pair a pledge lane against a consistency lane at
-    // equal weight, which is exactly the two-ranking-systems read this frame is
-    // supposed to resolve.
-    function _relevantDualSignal(pid) {
+    // ── THE CARD LEADS WITH THE RECORD ──────────────────────────────────────
+    // WHAT CHANGED, AND WHY. This block used to be the card's hero: a headline
+    // asking "Does what they say match what they do?" over two big equal-weight
+    // cells, one of them a ⚖️ Word vs Action figure. So a reader met a person on
+    // this list through a metric, then opened /p/<pid> and met them through their
+    // formal record — two different headlines about one person, and the list's was
+    // the one that came first. The person file is right: what the record DID is
+    // the finding, and Word vs Action is a reading of it.
+    //
+    // So the card is now record-first. _relevantRecordLine prints the brief's own
+    // finding at card length (PDXWordAction.recordLine — same lanes, same
+    // precedence, same words as /p/<pid>), and the two cells are demoted to the
+    // small secondary chip row below it. Both doors survive: the ⚖️ chip still
+    // opens _pdxScoreCompareInfo and the 🎯 chip still opens the issue-by-issue
+    // quick view. Nothing is deleted, and nothing new is computed here.
+    //
+    // NEITHER CHIP IS A RANK, AND THE ROW IS NOT A SCORECARD. No sort, filter or
+    // ordering anywhere reads them, and the row carries no heading claiming the
+    // two together answer a question — the record line above it is the claim.
+    function _relevantRecordLine(pid) {
+      var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+      if (!d) return '';
+      var wa = window.PDXWordAction;
+      if (!wa || typeof wa.recordLine !== 'function') return '';
+      var r = null;
+      try { r = wa.recordLine(pid, d); } catch (e) { r = null; }
+      if (!r || !r.text) return '';
+      // ── THIS BLOCK IS PROSE, AND EVERYTHING IN IT IS ESCAPED ────────────────
+      // The line is a sentence, and the person file escapes the same sentence
+      // before printing it — an issue named "Strong Border & Enforcement" reaches
+      // the brief as "&amp;" — so the card escapes it the same way or the two
+      // surfaces disagree over a bare ampersand.
+      //
+      // AND NOTHING FROM THE ENGINE IS MOUNTED AS MARKUP HERE. The shape row this
+      // sentence comes from also carries a `chip`, and that chip is the
+      // characterisation engine's RENDERED span (_stPatternHtml, .pdxst-pat, with
+      // its own tone variables and aria-label). This block printed it, and because
+      // everything in here is escaped, five live cards read a good first sentence
+      // and then the tag source underneath it. recordLine() no longer returns the
+      // chip at all — see its note — and the fix is not to stop escaping: it is
+      // that a prose block has no business holding a node built somewhere else.
+      // If the tier's visual chip is wanted on these cards, it mounts as a SIBLING
+      // of this block, from the engine's own helper, with its own unescaped
+      // innerHTML — not inside the sentence, and not through recordLine().
+      var recEsc = (typeof window._slEsc === 'function') ? window._slEsc : function(v) {
+        return String(v == null ? '' : v)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      };
+      // The one thing under the sentence is a count of the rest of their file, and
+      // this surface composes it from an integer — no engine string reaches it.
+      var more = (r.kind === 'pattern' && r.more > 0)
+        ? '<span class="rel-rec-more">+' + r.more + ' more on their file</span>' : '';
+      return '<div class="rel-rec rel-rec-' + r.kind + '">' +
+          '<div class="rel-rec-hd"><span aria-hidden="true">🏛</span> The formal record</div>' +
+          '<div class="rel-rec-line">' + recEsc(r.text) + '</div>' +
+          (more ? '<div class="rel-rec-foot">' + more + '</div>' : '') +
+        '</div>';
+    }
+    window._relevantRecordLine = _relevantRecordLine;
+
+    // The one escape for everything this row prints. The values below are the
+    // figure owner's own strings and integers, but they land in an attribute as
+    // well as in text, and a title attribute is the shortest path from a stray
+    // quote to a broken node.
+    function _relSigEsc(v) {
+      if (typeof window._slEsc === 'function') return window._slEsc(v);
+      return String(v == null ? '' : v)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // The demoted pair. Same two reads, same two doors, one line of small chips.
+    // The LEFT chip is the OVERALL ⚖️ Word vs Action read across every position the
+    // politician has stated: PDXWordAction.figure() for the published figure, with
+    // window._pdxLedgerSlot behind it for every state where there is no figure to
+    // publish (it fails closed to coverage prose and never invents one). The RIGHT
+    // chip is that same read narrowed to the visitor's chosen issues
+    // (_calcConsistencyScore, off the same PDXConsistency.officialRecord feed — a
+    // scope of the one system, not a rival).
+    //
+    // `recKind` is the record line's own state, passed in so the two cannot say the
+    // same sentence twice: on a candidate with no file the line already reads
+    // "Record begins in office", and the ⚖️ chip's word for that state is the same
+    // sentence, so the chip stands down and the 🎯 chip carries the row alone.
+    function _relevantDualSignal(pid, recKind) {
       var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
       if (!d) return '';
       var status = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
-      var isCand = (status === 'candidate');
 
-      // ── Left cell: the OVERALL ⚖️ Word vs Action read ──
-      // RETIRED: the pledge side. This cell was "🤝 Pledge receipts", and it made
-      // this the most literal two-systems surface in the app: a "Does what they
-      // say match what they do?" header over two equal-weight cells, one of them a
-      // pledge ledger. First the pledge rate went (a rate beside a rate, with
-      // nothing saying which was the integrity signal), then the receipts — but
-      // receipts at equal weight are still a second answer to the header's one
-      // question. Both cells now show the SAME read: this one across every stated
-      // position, the right one narrowed to the visitor's chosen issues. Campaign
-      // pledges are inside both, tested against their sourced resolution.
+      var waChip = '';
       var slot = window._pdxLedgerSlot(d, { pid: pid, status: status });
-      var promiseCell =
-        '<div class="rel-dual-num rel-dual-num-na" style="color:' + (slot.tint || (slot.state === 'candidate' ? '#93c5fd' : '#9fb4d4')) + ';">' + slot.glyph + '</div>' +
-        '<div class="rel-dual-rate" style="color:' + (slot.tint || '#9fb4d4') + ';">' + slot.sub + '</div>';
+      // ── THE ⚖️ CHIP SAYS THE FIGURE, OR IT SAYS NOTHING NUMERIC ──────────────
+      // WHAT IT SAID BEFORE. `slot.sub` on the publishable branch is the verdict's
+      // own word — "Backs it up", "Says one thing…" — and a verdict word with no
+      // figure and no set behind it is the loosest thing this row can print. On a
+      // card in a list, "Backs it up" reads as a grade on the person, and the
+      // reader has no way to see that it is standing on three tested statements
+      // out of a file of ninety. The person file solved exactly this for the
+      // letterhead chip: it prints the percentage AND the set that sizes it, both
+      // halves or neither.
+      //
+      // ONE OWNER, NOT A SECOND READING. PDXWordAction.figure(pid, d) is that
+      // owner — the same object the letterhead chip, the ⚖️ section, the search
+      // row and the homepage card print — carrying the percentage, the tested
+      // count, the eligible count and the ONE sentence those two integers make
+      // (`fraction`, "15 of 26 tested"). This chip prints that object. It composes
+      // no fraction of its own, applies no floor of its own and rounds nothing:
+      // `f.stamp` rides along on the node so a test can assert this surface is
+      // printing the owner's object rather than a transcription that happens to
+      // agree today.
+      //
+      // AND ONLY WHEN THE TESTED SET HAS STOPPED GROWING. `f.ready` is figure()'s
+      // own settled flag — a percentage, both halves of the fraction, and a
+      // coverage read that has stopped warming. This ledger GROWS during a page's
+      // life as the roll-call record and the lazy bundles land, and a card in a
+      // list is the surface the gate was written for: there is no ledger beside it
+      // to check the figure against, so an unsettled read would paint 88% over
+      // five tested and then settle to 72% over fifteen under a reader who has
+      // already carried the first one away. Unsettled prints NO NUMBER — a quiet
+      // line instead — and the section's warm repaint above brings the figure in
+      // when it is real.
+      //
+      // BELOW THE FLOOR NOTHING CHANGES. Every branch of _pdxLedgerSlot that
+      // already returns coverage prose ("Record begins in office", "Not enough
+      // record yet", "No matched votes yet") still prints exactly that prose, in
+      // exactly its own words: this replaces the VERDICT branch, which is the only
+      // branch that was saying more than it could show.
+      //
+      // IT IS STILL NOT A SCORE. Nothing sorts, filters, ranks or thresholds on
+      // these two integers — no surface reads them back — the chip remains one
+      // door to _pdxScoreCompareInfo, and the formal record line stays ABOVE it as
+      // the card's claim. A percentage under a finding is a size, not a grade.
+      var _waFig = null;
+      try {
+        var _waF = window.PDXWordAction;
+        if (_waF && typeof _waF.figure === 'function') _waFig = _waF.figure(pid, d);
+      } catch (e) { _waFig = null; }
+      var _figShown = !!(_waFig && _waFig.ready);
+      var waVal, waDen = '', waCol, waTitle, waStamp = '';
+      if (_figShown) {
+        waVal = _waFig.pct + '%';
+        waDen = _waFig.fraction;
+        waCol = (_waFig.verdict && _waFig.verdict.color) || slot.tint || '#9fb4d4';
+        waStamp = _waFig.stamp;
+        waTitle = '⚖️ Word vs Action — ' + _waFig.pct + '% over ' + _waFig.fraction +
+          '. The same figure their profile prints, published only once the tested set stopped ' +
+          'growing. Tap for how it works.';
+      } else if (slot.pct !== null) {
+        // Publishable, but the set under it is still arriving (or has no eligible
+        // total to size it against). No number, no verdict word, no colour.
+        waVal = (_waFig && _waFig.fraction) ? 'Reading the record…' : 'Not tested yet';
+        waCol = '';
+        waTitle = '⚖️ Word vs Action — their tested set is still being counted, so no figure is ' +
+          'published here yet. Tap for how it works.';
+      } else {
+        waVal = slot.sub;
+        waCol = slot.tint;
+        waTitle = '⚖️ Word vs Action — across every position they have stated, how often the record ' +
+          'backs it up. Campaign pledges are measured inside this read. Tap for how it works.';
+      }
+      if (!(recKind === 'preoffice' && slot.state === 'candidate')) {
+        waChip = '<button type="button" class="rel-sig-chip rel-sig-wa" ' +
+            'onclick="event.stopPropagation();window._pdxScoreCompareInfo(event,\'' + pid + '\')" ' +
+            (waStamp ? 'data-rel-wva-fig="' + _relSigEsc(waStamp) + '" ' : '') +
+            'title="' + _relSigEsc(waTitle) + '">' +
+            '<span class="rel-sig-ico" aria-hidden="true">⚖️</span>' +
+            '<span class="rel-sig-lbl">Word vs Action</span>' +
+            '<span class="rel-sig-val" style="color:' + (waCol || '#9fb4d4') + ';">' + _relSigEsc(waVal) + '</span>' +
+            (waDen ? '<span class="rel-sig-den">' + _relSigEsc(waDen) + '</span>' : '') +
+          '</button>';
+      }
 
-      // ── Say-vs-Do side (does their record back up their own words?) ──
-      // SCORING CLEANUP: the retired Accountability composite is replaced here by
-      // the real per-vote Say-vs-Do consistency score, pairing it with Promise
-      // Follow-Through under one "Do they keep their word?" frame. Honest states:
-      // needs the user's stances (else invite), warms records, never fakes a number.
+      // ── The reader's own issues, same read, narrower scope ──
       var svd = (typeof window._calcConsistencyScore === 'function') ? window._calcConsistencyScore(pid) : null;
-      var svdCell, svdClick, svdTitle;
+      var svdVal, svdCol = '#93c5fd', svdClick, svdTitle;
       if (svd && typeof svd.score === 'number') {
-        var vCol = (typeof window._alignScoreColor === 'function') ? window._alignScoreColor(svd.score) : '#93c5fd';
-        var vFlag = svd.contradictions > 0 ? ' · ⚑' + svd.contradictions : '';
-        svdCell =
-          '<div class="rel-dual-num" style="color:' + vCol + ';text-shadow:0 0 12px ' + vCol + '40;">' + svd.score + '<span class="rel-dual-pct">%</span></div>' +
-          '<div class="rel-dual-rate" style="color:' + vCol + ';"><span class="rel-dual-dot" style="background:' + vCol + ';box-shadow:0 0 6px ' + vCol + ';"></span>Votes back words' + vFlag + '</div>';
+        svdCol = (typeof window._alignScoreColor === 'function') ? window._alignScoreColor(svd.score) : '#93c5fd';
+        svdVal = svd.score + '% votes back words' + (svd.contradictions > 0 ? ' · ⚑' + svd.contradictions : '');
         svdClick = 'if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\')';
         svdTitle = 'Say-vs-Do — how well their voting record backs up their own stated positions. Tap for the issue-by-issue breakdown.';
       } else if (svd && svd.pending) {
-        svdCell = '<div class="rel-dual-num rel-dual-num-na">◷</div><div class="rel-dual-rate" style="color:#7d97bd;">Checking record…</div>';
+        svdVal = 'Checking record…'; svdCol = '#7d97bd';
         svdClick = 'if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\')';
         svdTitle = 'Say-vs-Do — checking their voting record.';
       } else if (svd && svd.stated > 0) {
-        svdCell = '<div class="rel-dual-num rel-dual-num-na">◷</div><div class="rel-dual-rate" style="color:#7d97bd;">Limited record</div>';
+        svdVal = 'Limited record'; svdCol = '#7d97bd';
         svdClick = 'if(window.keyRacesAlignQuickView)window.keyRacesAlignQuickView(\'' + pid + '\')';
         svdTitle = 'Say-vs-Do — they’ve stated positions, but there’s little or no voting record to verify against yet.';
       } else {
-        svdCell = '<div class="rel-dual-num rel-dual-num-na" style="color:#93c5fd;">🎯</div><div class="rel-dual-rate" style="color:#93c5fd;">Set stances to see</div>';
+        svdVal = 'Set stances to see';
         svdClick = "location.hash='#alignment-panel'";
         svdTitle = 'Set your stances to unlock Say-vs-Do consistency for the issues you care about.';
       }
+      var issChip = '<button type="button" class="rel-sig-chip rel-sig-iss" ' +
+          'onclick="event.stopPropagation();' + svdClick + '" title="' + svdTitle + '">' +
+          '<span class="rel-sig-ico" aria-hidden="true">🎯</span>' +
+          '<span class="rel-sig-lbl">On your issues</span>' +
+          '<span class="rel-sig-val" style="color:' + svdCol + ';">' + svdVal + '</span>' +
+        '</button>';
 
-      var pid_ = pid;
-      return '<div class="rel-dual">' +
-          '<div class="rel-dual-head">' +
-            '<span class="rel-dual-head-txt">Does what they say match what they do?</span>' +
-          '</div>' +
-          '<div class="rel-dual-grid">' +
-            '<button type="button" class="rel-dual-cell rel-dual-promise" onclick="event.stopPropagation();window._pdxScoreCompareInfo(event,\'' + pid_ + '\')" title="⚖️ Word vs Action — across every position they have stated, how often the record backs it up. Campaign pledges are measured inside this read. Tap for how it works.">' +
-              '<div class="rel-dual-eyebrow"><span class="rel-dual-ico">⚖️</span> Word vs Action</div>' +
-              promiseCell +
-              '<div class="rel-dual-meaning">Across all their positions</div>' +
-            '</button>' +
-            '<button type="button" class="rel-dual-cell rel-dual-acct" onclick="event.stopPropagation();' + svdClick + '" title="' + svdTitle + '">' +
-              '<div class="rel-dual-eyebrow"><span class="rel-dual-ico">🎯</span> On your issues</div>' +
-              svdCell +
-              '<div class="rel-dual-meaning">The same read, your issues only</div>' +
-            '</button>' +
-          '</div>' +
-        '</div>';
+      return '<div class="rel-sig-row">' + waChip + issChip + '</div>';
     }
     window._relevantDualSignal = _relevantDualSignal;
 
@@ -8869,6 +9078,17 @@
       // have no voting record to ground it yet), matching the best All-Politicians
       // candidate card. The personalized match bar only shows once the voter has
       // chosen issues, so the lighter card stays minimal by default.
+      // THE RECORD LINE IS ON BOTH TIERS, because "what does their formal record
+      // show" is a question with a true answer for a first-time candidate too, and
+      // that answer is "record begins in office". Leaving the line off the lighter
+      // card is what let a candidate's card be read as a quieter version of an
+      // officeholder's rather than as a different kind of file. hideScore drops the
+      // ⚖️ rail from the card corner on both tiers: the read is in the chip row.
+      var rec = _relevantRecordLine(pid);
+      var recKind = (rec.indexOf('rel-rec-preoffice') !== -1) ? 'preoffice'
+                  : (rec.indexOf('rel-rec-pattern') !== -1 ? 'pattern' : 'none');
+      var sig = (typeof _relevantDualSignal === 'function') ? _relevantDualSignal(pid, recKind) : '';
+
       if (!isInOffice) {
         var candAlign = (alignBar && typeof _alignIssues !== 'undefined' && _alignIssues && _alignIssues.size > 0) ? alignBar : '';
         return window._pdxCardShell(pid, {
@@ -8877,8 +9097,10 @@
           controls: _pdxHeartCtrl(pid),
           badges: badges,
           maxIssues: 2,
+          hideScore: true,
           statusEmphasis: 'high',
-          extra: candAlign,
+          topExtra: rec,
+          extra: sig + candAlign,
           actions: actions
         });
       }
@@ -8888,7 +9110,6 @@
       // (This used to pair the record against an Accountability composite as an
       // "equal-weight scorecard"; that second number is retired, so the record is
       // simply the read.) hideScore suppresses the old lopsided corner score.
-      var dual = (typeof _relevantDualSignal === 'function') ? _relevantDualSignal(pid) : '';
       // Explicit "holds this seat now" marker so the sitting officeholder reads
       // instantly on the Relevant-to-Me ballot, not just via the green card color.
       var incBadge = '<span class="chub-office-badge">✓ Current officeholder</span>';
@@ -8898,8 +9119,8 @@
         badges: incBadge + badges,
         hideScore: true,
         statusEmphasis: 'high',
-        topExtra: dual,
-        extra: alignBar,
+        topExtra: rec,
+        extra: sig + alignBar,
         actions: actions
       });
     }
@@ -9609,6 +9830,47 @@
       return html;
     }
 
+    // ── A ROSTER, NOT A FIELD ────────────────────────────────────────────────
+    // The federal layer (the presidency, the federal cabinet) is a list of
+    // offices with one holder each. _renderRelevantStatusSplit is the wrong
+    // renderer for it in every particular: it computes a "live race" from
+    // incumbents plus challengers, prints _pdxSeatFieldHead over them, mounts
+    // "Compare the field · N in this race", ranks the whole set against the
+    // reader's issues and lays their stances out side by side. Every one of those
+    // is a statement that these people are running against each other for one
+    // seat, and none of them is true of a cabinet.
+    //
+    // So this prints the cards, and above them one line of frame and — where
+    // there is more than one officer — one action. The action is BROWSING, not
+    // comparing a race: same overlay, because reading two records side by side is
+    // a real thing a reader wants here, but the button says what it does.
+    function _renderRelevantFederalRoster(officePids, groupKey) {
+      var pids = (officePids || []).filter(function(pid) { return !!CMP_DATA[pid]; });
+      if (!pids.length) return '';
+      var n = pids.length;
+      var isPres = (groupKey === 'president');
+      var note = isPres
+        ? 'The federal executive seat and who holds it now. This is context for your ballot, not a seat on it — your picks below are unchanged by it.'
+        : 'These officers serve the whole country and no one votes for them directly. They are here because they govern you, not because they are on your ballot.';
+      var out = '<div class="relevant-open-note"><span style="flex-shrink:0;">🦅</span><span>' + note + '</span></div>';
+      if (n > 1) {
+        out += '<button type="button" class="kr-race-compare pdx-field-compare" style="margin-bottom:0.85rem;" ' +
+            'onclick="event.stopPropagation();window.pdxCompareField(\'' + pids.join(',') + '\')" ' +
+            'aria-label="Browse these ' + n + ' federal officers side by side">' +
+            '<span class="kr-race-compare-ico" aria-hidden="true">📖</span>' +
+            '<span class="kr-race-compare-text">' +
+              '<span class="kr-race-compare-title">Browse these officers</span>' +
+              '<span class="kr-race-compare-sub">Read all ' + n + ' records side by side — separate offices, not a contest between them</span>' +
+            '</span>' +
+            '<span class="kr-race-compare-go" aria-hidden="true">›</span>' +
+          '</button>';
+      }
+      out += '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-start relevant-federal-roster" style="margin-bottom:1rem;">' +
+        pids.map(function(pid) { return _renderRelevantPersonCard(pid); }).join('') +
+      '</div>';
+      return out;
+    }
+
     // Renders the Federal → State → Local accordion tree for a set of office
     // groups (shared by both the focused ballot view and the legacy fallback).
     // ctx carries focus metadata + optional extra HTML appended inside a level
@@ -9699,12 +9961,17 @@
           // Skipped for the statewide bucket: ranking a Governor against an
           // Attorney General as one list is meaningless, so each statewide
           // sub-office renders its own per-race ranking instead.
-          if (officePids.length >= 2 && groupKey !== 'governor') {
+          // Not over the federal layer: ranking a Secretary of Defense against a
+          // Secretary of Agriculture by how well each matches your issues implies
+          // you are choosing between them, and you are not.
+          if (officePids.length >= 2 && groupKey !== 'governor' && !_RELEVANT_FEDERAL_CONTEXT_GK[groupKey]) {
             h += '<div class="relevant-rankrow">' +
               '<button type="button" class="relevant-rank-btn" onclick="window._alignBoardFromOffice && window._alignBoardFromOffice(\'' + groupKey + '\')">🎯 Rank these ' + officePids.length + ' by my values</button>' +
             '</div>';
           }
-          if (groupKey === 'state_senator' || groupKey === 'state_rep') {
+          if (_RELEVANT_FEDERAL_CONTEXT_GK[groupKey]) {
+            h += _renderRelevantFederalRoster(officePids, groupKey);
+          } else if (groupKey === 'state_senator' || groupKey === 'state_rep') {
             h += _renderRelevantGroupedChamber(officePids, groupKey, 'relevant-');
           } else if (groupKey === 'governor') {
             h += _renderRelevantStatewideGrouped(officePids, 'relevant-');
@@ -9936,6 +10203,13 @@
       var BALLOT = { senator: 1, governor: 1, representative: 1, state_senator: 1, state_rep: 1, local: 1 };
       Object.keys(CMP_DATA).forEach(function(pid) {
         var t = _classifyBrowseType(pid);
+        // The federal layer, on the unlocated preview too — a reader without a
+        // saved area is still governed by the President and the federal cabinet.
+        // Both buckets go in raw and _relevantFederalStack below sorts them, so
+        // this view cannot disagree with the located one about who is federal.
+        // What it does NOT get is the state half of Door 1's cabinet bucket:
+        // sixteen other states' secretaries of state under a header promising
+        // "every Utah race" contradicted the copy directly above it.
         if (t === 'president' || t === 'cabinet') { add(pid, t); return; }
         if (_getPoliticianState(pid).toLowerCase() !== 'utah') return;
         if (BALLOT[t]) add(pid, t);
@@ -9943,7 +10217,15 @@
 
       var officeGroups = {};
       Object.keys(picked).forEach(function(pid) { var g = picked[pid]; (officeGroups[g] = officeGroups[g] || []).push(pid); });
-      var total = Object.keys(picked).length;
+      // Split the federal executive out of Door 1's bucket, hold the presidency
+      // to its current occupant, and drop the state-scoped remainder — this view
+      // has no reader location and so no slate to judge a state office against.
+      try {
+        _relevantFederalStack(officeGroups);
+        delete officeGroups.cabinet;
+      } catch (e) {}
+      var total = 0;
+      Object.keys(officeGroups).forEach(function(g) { total += (officeGroups[g] || []).length; });
       if (relevantCountBadge) relevantCountBadge.textContent = total;
       window._relevantLastOfficeGroups = officeGroups;
 
@@ -10130,6 +10412,244 @@
         var merged = have.slice();
         sf.pids.forEach(function(p) { if (!seen[p]) { seen[p] = 1; merged.push(p); } });
         if (merged.length) officeGroups[gk] = merged;
+      });
+    }
+
+    // ══ RELEVANT TO ME IS THE CIVIC STACK, NOT ONLY THE BALLOT ════════════════
+    // Relevant to Me sits directly above the ballot workspace, so every group it
+    // prints is read as a claim about the reader. There are two ways to get that
+    // claim wrong, and this file has now made both mistakes:
+    //
+    //   TOO LOOSE (the original defect). CABINET / APPOINTED was mounted as a
+    //   race — "38 in this race" — over whatever _classifyBrowseType files under
+    //   `cabinet`, which is any office containing secretary/director/ambassador:
+    //   the federal cabinet AND sixteen states' secretaries of state, in one
+    //   pile. So a Layton reader's page offered Shirley Weber (CA) and Jena
+    //   Griswold (CO) as their own officials. Alongside it, PRESIDENT ran as a
+    //   five-way field: Trump, Vance, Biden, Obama, G.W. Bush.
+    //
+    //   TOO TIGHT (the over-correction). The fix for that was to keep only the
+    //   seat kinds the reader's own slate can NAME — window.TEAM_POSITIONS —
+    //   which dropped the presidency and the whole federal cabinet from a Utah
+    //   page, because Utah's slate is six state and congressional seats. But a
+    //   Layton reader IS governed by the President and by the federal cabinet.
+    //   They are simply not governed by another state's Secretary of State.
+    //
+    // So the scope is TWO rules, not one, and which rule applies is a question
+    // about the office, not about the ballot:
+    //
+    //   1. WHAT THIS READER VOTES ON — U.S. Senate, U.S. House, Governor, State
+    //      Senate, State House, Local, plus whatever else their own slate names
+    //      (a Colorado Secretary of State, a Kentucky Attorney General). Gated
+    //      by TEAM_POSITIONS and filtered to their own state.
+    //   2. WHAT GOVERNS EVERY READER — the presidency and the federal executive.
+    //      On every located reader, in every state, never state-filtered, and
+    //      never counted as a pick slot on their ballot.
+    //
+    // Rule 2's two groups are CONTEXT, not seats. They carry no coverage pill, no
+    // "add your pick" nudge, no rank-by-values button and no race claim: see
+    // _RELEVANT_OFFICE_TO_RACE (they are absent from it, so nothing tracks them)
+    // and _renderRelevantFederalRoster (which prints them as a roster, not a
+    // field). The 11-count is untouched by them.
+    //
+    // Nothing is deleted by any of this. Every record dropped by rule 1 keeps its
+    // home in archive browse, where the frame is "chamber · state · not a ballot".
+    var _RELEVANT_GK_OF_SLOT = {
+      senate: 'senator', house: 'representative', governor: 'governor',
+      statesenate: 'state_senator', statehouse: 'state_rep', local: 'local',
+      president: 'president',
+      // Appointed / statewide-exec slots all classify as `cabinet` upstream.
+      secstate: 'cabinet', secretaryofstate: 'cabinet', attorneygeneral: 'cabinet',
+      chiefjustice: 'cabinet', ltgovernor: 'cabinet'
+    };
+    // Groups that are never a slot in TEAM_POSITIONS and still belong on the
+    // page. Two kinds, for two different reasons:
+    //   candidate            — challengers for the slots above, and in-office
+    //                          people the tiers could not slot precisely. Already
+    //                          state-gated where they are added.
+    //   president / fed_cabinet — rule 2 above: the federal layer that governs
+    //                          every reader whatever their state's slate says.
+    var _RELEVANT_BALLOT_EXTRA_GK = { candidate: 1, president: 1, fed_cabinet: 1 };
+    function _relevantBallotGroupKeys() {
+      var allowed = {};
+      Object.keys(_RELEVANT_BALLOT_EXTRA_GK).forEach(function(k) { allowed[k] = 1; });
+      var slots = window.TEAM_POSITIONS;
+      if (!slots || !slots.length) {
+        // No slate resolved yet: fall back to the six seats every state's slate
+        // starts from, plus the federal layer, rather than to "everything".
+        return { senator: 1, representative: 1, governor: 1, state_senator: 1, state_rep: 1, local: 1,
+                 candidate: 1, president: 1, fed_cabinet: 1 };
+      }
+      slots.forEach(function(s) {
+        var gk = _RELEVANT_GK_OF_SLOT[String((s && s.key) || '').toLowerCase()];
+        if (gk) allowed[gk] = 1;
+      });
+      return allowed;
+    }
+    // Groups whose members are legitimately not from the reader's state: a U.S.
+    // Senator record may carry no state or an odd normalization, and the federal
+    // executive serves every state by definition — a cabinet secretary's `state`
+    // is their HOME state (Bessent's is South Carolina), which is not a claim
+    // about who they serve. Every other group on this page is a claim about this
+    // state, so an out-of-state record in it is a bug.
+    var _RELEVANT_STATE_EXEMPT_GK = { senator: 1, president: 1, fed_cabinet: 1 };
+
+    // ── WHICH HALF OF DOOR 1'S CABINET BUCKET IS THIS? ───────────────────────
+    // `state` cannot answer it: every one of these records carries a HOME state,
+    // so Rubio reads Florida and Bessent reads South Carolina exactly as Griswold
+    // reads Colorado. The office string is the signal, and it is unambiguous in
+    // both directions:
+    //
+    //   FEDERAL — "U.S. Secretary of the Treasury", "Secretary of Homeland
+    //     Security", "Secretary of Defense", "Secretary of Commerce", "HHS
+    //     Secretary", "Director, OMB", "FBI Director", "CIA Director", "Director
+    //     of Nat. Intel.", "Director, National Economic Council", "NIH Director",
+    //     "U.S. Ambassador to the United Nations". Named by the jurisdiction
+    //     prefix, or by an agency that exists once in the country.
+    //   STATE — "Secretary of State", bare and unqualified, sixteen times over.
+    //     A state officer's title names a portfolio and leaves the jurisdiction
+    //     to the `state` field; a federal one names the jurisdiction.
+    //
+    // Fails CLOSED, which here means "state": an office string this cannot place
+    // stays in the state-scoped bucket, where the slate gate and the state filter
+    // will judge it. A misfiled record therefore disappears from a page it does
+    // not belong on rather than appearing on every page in the country.
+    var _RELEVANT_FED_HOME = { 'federal': 1, 'national': 1, 'u.s.': 1, 'us': 1, 'usa': 1, 'united states': 1 };
+    var _RELEVANT_FED_AGENCY_RE = new RegExp('\\b(?:FBI|CIA|NSA|OMB|NIH|CDC|DHS|HHS|DOJ|DOD|EPA|NASA|USAID|' +
+      'Nat\\.?\\s*Intel|National Intelligence|National Economic Council|National Security Council|' +
+      'United Nations|UN Ambassador|Homeland Security|Surgeon General|White House|Solicitor General)\\b', 'i');
+    function _relevantIsNationalOfficer(pid) {
+      var d = CMP_DATA[pid];
+      if (!d) return false;
+      var office = String(d.office || '');
+      if (!office) return false;
+      if (/^(?:U\.S\.|United States)\s/i.test(office)) return true;
+      if (_RELEVANT_FED_AGENCY_RE.test(office)) return true;
+      // A federal cabinet department whose title omits the jurisdiction prefix.
+      // Named explicitly rather than by keyword: "Secretary of Education" is a
+      // federal department AND a portfolio several states appoint, so only the
+      // departments whose bare title is unambiguous in this roster are listed,
+      // and anything else falls through to the state-scoped bucket.
+      if (/^Secretary of (?:Defense|Commerce|War|the Treasury|the Interior|Homeland Security|Veterans Affairs)\b/i.test(office)) return true;
+      var home = String(d.state || '').trim().toLowerCase().replace(/\s+/g, ' ');
+      return !!_RELEVANT_FED_HOME[home];
+    }
+
+    // Serving now, for a group whose subtitle says "serves every American" in the
+    // present tense. Reads the office text the one status resolver reads, so a
+    // record labelled "Former UN Ambassador" is out of the federal executive for
+    // the same reason it is out of every other in-office list on the site.
+    function _relevantServingNow(pid) {
+      var d = CMP_DATA[pid];
+      if (!d) return false;
+      var st = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
+      return st !== 'former';
+    }
+
+    // ── THE PRESIDENCY IS AN OCCUPANT AND A FIELD, NOT AN ARCHIVE ────────────
+    // The `president` bucket holds five records: the sitting President, the
+    // sitting Vice President, and three former presidents. All five are correctly
+    // filed and correctly labelled; what was false was printing them as one group
+    // of five under a reader's own page. So the group keeps whoever holds a
+    // federal executive seat NOW plus anyone on file as running this cycle, and
+    // the former presidents keep their home in the archive.
+    //
+    // `termEnd` is the discriminator, not office status: _pdxOfficeStatus reads
+    // the office TEXT, and "46th President" carries no word that marks it past —
+    // which is exactly right for the archive, where Biden's file is a president's
+    // file, and wrong here, where the question is who is in the job today.
+    function _relevantPresidencyNow(pid) {
+      var d = CMP_DATA[pid];
+      if (!d) return false;
+      var st = (typeof window._pdxOfficeStatus === 'function') ? window._pdxOfficeStatus(d) : 'office';
+      if (st === 'candidate') return true;   // on file as running for the current cycle
+      if (st === 'former') return false;
+      var te = String(d.termEnd || '').trim();
+      if (!te) return true;                  // no end on file = still in the job
+      var m = te.match(/^(\d{4})(?:-(\d{1,2}))?/);
+      if (!m) return true;
+      var now = new Date();
+      var y = parseInt(m[1], 10), mo = m[2] ? parseInt(m[2], 10) : 12;
+      var ny = now.getFullYear(), nm = now.getMonth() + 1;
+      return (y > ny) || (y === ny && mo >= nm);
+    }
+
+    // ── THE FEDERAL LAYER, IN ONE PLACE ──────────────────────────────────────
+    // Called from inside _relevantEnforceBallotScope so every render path gets
+    // the same answer: the located tree, the safe fallback, the flat grid and the
+    // unlocated default slate all reach it through that one gate. Each of the
+    // four used to decide for itself which of president/cabinet to sweep in, and
+    // that is how the two families leaked in on some paths and vanished on others.
+    function _relevantFederalStack(officeGroups) {
+      if (!officeGroups) return;
+      // 1. Split Door 1's one bucket into the federal executive and the
+      //    state-scoped remainder. Nothing is merged and nothing is dropped here
+      //    — the state half stays in `cabinet` for the slate gate below to judge.
+      var raw = officeGroups.cabinet || [];
+      if (raw.length) {
+        var fed = [], st = [];
+        raw.forEach(function(pid) { (_relevantIsNationalOfficer(pid) ? fed : st).push(pid); });
+        if (fed.length) {
+          var have = officeGroups.fed_cabinet || [];
+          var seen = {};
+          have.forEach(function(p) { seen[p] = 1; });
+          fed.forEach(function(p) { if (!seen[p]) { seen[p] = 1; have.push(p); } });
+          officeGroups.fed_cabinet = have;
+        }
+        if (st.length) officeGroups.cabinet = st; else delete officeGroups.cabinet;
+      }
+      // 2. Present tense on both federal groups.
+      if (officeGroups.fed_cabinet) {
+        officeGroups.fed_cabinet = officeGroups.fed_cabinet.filter(_relevantServingNow);
+        if (!officeGroups.fed_cabinet.length) delete officeGroups.fed_cabinet;
+      }
+      if (officeGroups.president) {
+        officeGroups.president = officeGroups.president.filter(_relevantPresidencyNow);
+        if (!officeGroups.president.length) delete officeGroups.president;
+      }
+    }
+    window._relevantFederalStack = _relevantFederalStack;
+    window._relevantIsNationalOfficer = _relevantIsNationalOfficer;
+    function _relevantEnforceBallotScope(officeGroups, stateName) {
+      if (!officeGroups) return;
+
+      // 0. Resolve the federal layer FIRST, so the two rules below judge the
+      //    groups this reader should actually have rather than Door 1's raw
+      //    buckets. Splitting after the drop would delete the federal cabinet
+      //    along with the state secretaries it was still mixed in with.
+      _relevantFederalStack(officeGroups);
+
+      var allowed = _relevantBallotGroupKeys();
+
+      // 1. Drop whole groups that are neither a seat on this reader's ballot nor
+      //    part of the federal layer that governs every reader.
+      Object.keys(officeGroups).forEach(function(gk) {
+        if (!allowed[gk]) delete officeGroups[gk];
+      });
+
+      // 2. Inside what survives, drop out-of-state records. The seat field's own
+      //    answer is exempt: it answered for THIS location, so if it named
+      //    someone they belong here whatever their record's state string says.
+      //    Running after _relevantSeatFields keeps the field authoritative.
+      var stLower = String(stateName || '').trim().toLowerCase();
+      if (!stLower) return;
+      var fromField = {};
+      if (typeof window.pdxSeatField === 'function') {
+        Object.keys(_RELEVANT_SEAT_OF).forEach(function(gk) {
+          var sf = null;
+          try { sf = window.pdxSeatField(_RELEVANT_SEAT_OF[gk].seat); } catch (e) { sf = null; }
+          if (sf && sf.answerable && sf.pids) sf.pids.forEach(function(p) { fromField[p] = 1; });
+        });
+      }
+      Object.keys(officeGroups).forEach(function(gk) {
+        if (_RELEVANT_STATE_EXEMPT_GK[gk]) return;
+        officeGroups[gk] = (officeGroups[gk] || []).filter(function(pid) {
+          if (fromField[pid]) return true;
+          var ps = '';
+          try { ps = String(_getPoliticianState(pid) || '').toLowerCase(); } catch (e) { ps = ''; }
+          return ps === stLower;
+        });
+        if (!officeGroups[gk].length) delete officeGroups[gk];
       });
     }
 
@@ -10529,11 +11049,15 @@
         var t = _classifyBrowseType(pid);
         var pState = _getPoliticianState(pid);
 
-        // Federal executives are always relevant
-        if (t === 'president' || t === 'cabinet') {
-          add(pid, t);
-          return;
-        }
+        // Federal executives and appointed officers skip the state check, because
+        // for half of them the state field is not the question being asked: a
+        // cabinet secretary's `state` is where they are from, not who they serve.
+        // Both buckets go to _relevantEnforceBallotScope raw, and it decides —
+        // splitting the federal executive out of Door 1's mixed bucket, holding
+        // the presidency to its current occupant, and handing the remaining state
+        // secretaries to the slate gate and the state filter. Sorting them here
+        // would put the decision in the one path of four that runs this loop.
+        if (t === 'president' || t === 'cabinet') { add(pid, t); return; }
 
         // For other offices, state must match user's selected state
         if (pState.toLowerCase() !== stateName.toLowerCase()) {
@@ -10778,6 +11302,12 @@
       // district groups become exactly its answer, the statewide buckets absorb
       // anyone it knows about that the tiers above missed.
       _relevantSeatFields(officeGroups);
+
+      // Last gate before the badge: this section is the reader's ballot, so it
+      // holds only seats their slate can name, and only their own state's people
+      // inside those seats. Runs AFTER the field handover so the field stays the
+      // authority on who fills a seat.
+      _relevantEnforceBallotScope(officeGroups, stateName);
 
       // Recompute the count from the ENFORCED groups so the badge and the
       // zero-result guard below reflect exactly what is shown.
@@ -11086,6 +11616,47 @@
       if (typeof window._homeRenderRelevantTag === 'function') { try { window._homeRenderRelevantTag(); } catch (_) {} }
     };
 
+    // ── AND THE RECORD PROSE ON THESE CARDS MAY NOT FREEZE AT FIRST PAINT ──────
+    // WHY THIS EXISTS NOW. The cards on this surface lead with the formal record
+    // (_relevantRecordLine, off PDXWordAction.recordLine). That read is drawn
+    // synchronously while the roll-call lane may still be in flight, so on a cold
+    // arrival a card can honestly print "No formal pattern yet" over a file that
+    // is about to publish four patterns — and, with no repaint anywhere on this
+    // surface, that sentence was the last word. Every OTHER surface that prints
+    // record prose already listens for these three (the profile hero, the stance
+    // tree, the compact ⚖️ chip); this one did not, and it is the surface a reader
+    // meets a politician on FIRST.
+    //
+    // WHY A FULL RE-RENDER IS SAFE HERE. Accordion open/closed state lives in
+    // _browseGroupState — a store, not the DOM — so a rebuild restores the same
+    // opened seats, and the grid is rebuilt from officeGroups on every location or
+    // team change already. Nothing about the ballot, the 11-count, the slate or the
+    // out-of-state gate is touched: this repaints the same render with a warmer
+    // record underneath it.
+    //
+    // IT IS RATE-LIMITED AND IT NEVER RUNS ON A COLD SECTION. One rebuild per
+    // animation-frame batch at most, and only where the grid is already showing
+    // cards — a warm event that arrives while the reader has never opened the voter
+    // hub does no work at all.
+    var _relWarmPend = 0;
+    function _relevantWarmRepaint() {
+      if (_relWarmPend) return;
+      var grid = document.getElementById('relevant-browse-grid');
+      if (!grid || !grid.innerHTML || grid.innerHTML.indexOf('pdx-card') === -1) return;
+      _relWarmPend = setTimeout(function() {
+        _relWarmPend = 0;
+        try {
+          var g = document.getElementById('relevant-browse-grid');
+          if (g && g.innerHTML && g.innerHTML.indexOf('pdx-card') !== -1) window.renderRelevantToMe();
+        } catch (e) {}
+      }, 400);
+    }
+    try {
+      ['pdx-consistency-warm', 'pdx-voting-warm', 'pdx-record-noted'].forEach(function(ev) {
+        window.addEventListener(ev, _relevantWarmRepaint);
+      });
+    } catch (e) {}
+
     // Last-resort renderer. Builds the slate straight from the curated Key Races
     // rosters, which reference politicians BY ID and therefore never depend on
     // any mutable `state` formatting or district-matching heuristic. Invoked only
@@ -11160,6 +11731,9 @@
       // keyed seats here too, so the fallback view and the full tree can never
       // disagree about who is on a district.
       try { _relevantSeatFields(officeGroups); } catch (e) {}
+      // Same ballot-scope gate as the main path — a fallback view is still the
+      // reader's ballot, not the national directory.
+      try { _relevantEnforceBallotScope(officeGroups, ((window._currentVoterLocation || {}).state || '')); } catch (e) {}
       var _fbTotal = 0;
       Object.keys(officeGroups).forEach(function(g) { _fbTotal += officeGroups[g].length; });
       if (relevantCountBadge) relevantCountBadge.textContent = _fbTotal;
@@ -11180,7 +11754,7 @@
     // shared person-card shell, with every card wrapped so one bad record can't take
     // the grid down. Guarantees the section is never left blank for a located voter.
     function _renderRelevantFlatGrid(officeGroups) {
-      var order = ['president', 'cabinet', 'senator', 'representative', 'governor', 'state_senator', 'state_rep', 'local', 'candidate', 'other'];
+      var order = ['senator', 'representative', 'president', 'fed_cabinet', 'governor', 'cabinet', 'state_senator', 'state_rep', 'local', 'candidate', 'other'];
       var keys = Object.keys(officeGroups || {});
       keys.sort(function(a, b) {
         var ia = order.indexOf(a), ib = order.indexOf(b);

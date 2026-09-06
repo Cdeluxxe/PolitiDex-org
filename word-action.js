@@ -4198,6 +4198,21 @@
     if (t) return '<span class="pdxwa-shape-n">· ' + esc(t) + '</span>' + none;
     return '<span class="pdxwa-shape-n pdxwa-shape-n-off">· no count on file yet</span>' + none;
   }
+  // ── ONE ROW, IN WORDS, ONCE ───────────────────────────────────────
+  // The row's own sentence: the issue, the tier's published label, and the counts
+  // it is allowed to print — no verb, no direction and no figure invented here.
+  // It was inline in the row's aria-label, which was fine while the row was the
+  // only surface that said it out loud. recordLine() below now prints the same
+  // sentence onto a list card, and a card that reads "Health care — formal record:
+  // every vote one way" over a profile row phrased any other way is two
+  // vocabularies for one row. So the phrase moves here and both callers read it.
+  function shapeRowSay(x) {
+    if (!x) return '';
+    var sayN = (x.counts || x.sideCounts || '') +
+      (x.noSideCount ? ((x.counts || x.sideCounts) ? ' · ' : '') + x.noSideCount : '');
+    return x.label + ' — formal record: ' + (x.patLabel || 'on file') +
+      (sayN ? ' (' + sayN + ')' : '');
+  }
   function shapeRowHtml(x, pid, mount) {
     var key = x.key || '';
     var owner = x.pid || pid || '';
@@ -4210,11 +4225,7 @@
     // The same three facts the face carries, in the same order, so the announced
     // row and the seen row are one claim — including the leftover, which is the
     // fact a screen-reader user has least other way of reaching.
-    var sayN = (x.counts || x.sideCounts || '') +
-      (x.noSideCount ? ((x.counts || x.sideCounts) ? ' · ' : '') + x.noSideCount : '');
-    var say = x.label + ' — formal record: ' + (x.patLabel || 'on file') +
-      (sayN ? ' (' + sayN + ')' : '') +
-      '. Open the acts behind it.';
+    var say = shapeRowSay(x) + '. Open the acts behind it.';
     var name = '<span class="pdxwa-shape-iss">' + esc(x.label) + '</span>';
     var bar = (x.chip || '') + tally;
     var body = door
@@ -5394,6 +5405,155 @@
     } catch (e) { return ''; }
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // 🏛 THE RECORD LINE — THE BRIEF'S FINDING, ON ONE LINE, FOR A LIST CARD
+  // ══════════════════════════════════════════════════════════════════════════
+  // WHAT IT IS. One short read of the formal record for a person, in the same
+  // three states the brief above resolves to and in the brief's own words:
+  //   'pattern'   — the record ran a way on an issue, named with that row's tier
+  //                 and counts (shapeRowSay, the row's own sentence).
+  //   'none'      — there is a file and no pattern in it yet.
+  //   'preoffice' — they have never held the office, so there is no formal record
+  //                 to read: "Record begins in office".
+  //
+  // WHY IT EXISTS. A list card used to lead with a metric — a ⚖️ Word vs Action
+  // rail, sometimes a kept/broken tally — while the person's own file led with the
+  // formal record. Two surfaces, two headlines, and the card's was the one a
+  // reader met first. So the card now prints THIS, and the person file's brief and
+  // the card are one finding at two lengths.
+  //
+  // IT IS THE SAME PRECEDENCE, NOT A SECOND ONE. Exec lane first, asked the way
+  // briefHeroHtml asks it (execRecordSummary.pick(pid).on — the lane publishes
+  // whether it is in play; the office string is never guessed from), then the
+  // roll-call lane's formalPatternIndex.shape. Both lanes publish the same shape
+  // fields, so one code path reads a president and a freshman member.
+  //
+  // IT RETURNS TEXT, NOT MARKUP. Every field on the object is a plain sentence or
+  // a token. The shape rows this reads carry a `chip` that is the characterisation
+  // engine's RENDERED .pdxst-pat span — HTML, built by _stPatternHtml — and a card
+  // that passed it on printed the tag source into a text node: five cards on a
+  // live Layton ballot read "Strongly supports" and then a serialized <span
+  // class="pdxst-pat …" beneath it. So the row's chip is not carried here at all,
+  // and the one sentence this returns is shapeRowSay's, which composes nothing but
+  // the label, the tier's published words and the counts. A caller that wants the
+  // engine's visual chip mounts it as its own sibling node from the engine's own
+  // helper; it may not come through this object, where the only safe assumption a
+  // caller can make is that everything is text.
+  //
+  // WHAT IT REFUSES. No percentage, no grade, no verdict, and — on a candidate
+  // with no file — no sentence that could be read as an in-office voting pattern.
+  // It also never prints the empty-file claim ("nothing on file"): that sentence
+  // has a wall of its own around it in briefAbsenceCopy and it is not this
+  // surface's to make. Where the shape is missing, still arriving, or empty, the
+  // honest card line is the pattern refusal, which is true in all three.
+  // ── IS ANYTHING ACTUALLY STILL COMING ─────────────────────────────────────
+  // THREE CONDITIONS, ALL OF THEM, because this is the one surface here that arms
+  // nothing. briefAbsenceCopy owns the brief's 6s deadline and the repaint that
+  // clears it; a list card that called it would arm a timer per row, and it is not
+  // this surface's paragraph to print anyway. Without a deadline of its own,
+  // `!briefWaitOver` is PERMANENT on a request that was started and never filed —
+  // which is what shipped: a card that read "Formal record still loading…" for the
+  // whole life of the page, on a person whose record was simply empty.
+  //   · briefWaitOver  — the brief's own answer, so the card and the file agree
+  //                      about the same second.
+  //   · briefSettled   — consistency.js's published answer for the whole lane. It
+  //                      has a deadline of its own (WARM_DEADLINE_MS) and flips to
+  //                      settled when a request expires, so "outstanding" ends.
+  //   · and a wall clock this line owns, from its own first read of the page, so
+  //     the sentence cannot outlive the wait even if neither answer above ever
+  //     arrives. Read-only: no timer is armed and no repaint is scheduled here —
+  //     the card's own warm listener is what brings it back to repaint.
+  // Any one of them saying "settled" ends the wait, which is the safe direction:
+  // the sentence below it is a refusal about the file, not a claim about the person.
+  var RECORD_LINE_WAIT_MS = 12000;
+  var _rlFirstRead = 0;
+  function recordLineWaiting(pid) {
+    if (!_rlFirstRead) _rlFirstRead = Date.now();
+    if (Date.now() - _rlFirstRead > RECORD_LINE_WAIT_MS) return false;
+    return !briefWaitOver(pid) && !briefSettled(pid);
+  }
+
+  function recordLine(pid, p) {
+    var out = { kind: 'none', text: 'No formal pattern yet.', issue: '', lane: '' };
+    try {
+      if (!pid) return out;
+      var d = p || (window.CMP_DATA ? window.CMP_DATA[pid] : null) || null;
+      var status = '';
+      try {
+        if (typeof window._pdxOfficeStatus === 'function' && d) status = window._pdxOfficeStatus(d);
+      } catch (e) { status = ''; }
+
+      var sh = null, lane = 'member', acts = null;
+      var XS = window.PDXConsistency && window.PDXConsistency.execRecordSummary;
+      if (XS && typeof XS.pick === 'function') {
+        var xp = null;
+        try { xp = XS.pick(pid); } catch (e) { xp = null; }
+        if (xp && xp.on) {
+          lane = 'exec';
+          acts = xp.acts || 0;
+          try { sh = (typeof XS.shape === 'function') ? XS.shape(pid) : null; } catch (e) { sh = null; }
+        }
+      }
+      if (lane === 'member') {
+        var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+        try { sh = (FPI && typeof FPI.shape === 'function') ? FPI.shape(pid) : null; } catch (e) { sh = null; }
+      }
+      out.lane = lane;
+
+      // ── The pattern, where there is one ──
+      var row = (sh && sh.tops && sh.tops.length) ? sh.tops[0]
+              : ((sh && sh.splits && sh.splits.length) ? sh.splits[0] : null);
+      if (row) {
+        out.kind = 'pattern';
+        // shapeRowSay, and nothing appended: the row's `chip` beside it is the
+        // engine's rendered span and `tier` is its token, so the sentence is the
+        // only field here a caller may print without knowing what it holds.
+        out.text = shapeRowSay(row);
+        out.issue = row.label || '';
+        out.tier = row.tier || '';
+        out.more = Math.max(0, ((sh.strongN || 0) + (sh.splitN || 0)) - 1);
+        return out;
+      }
+
+      // ── No pattern. Which absence is it ──
+      // A file's worth of issues with nothing characterised is the brief's own
+      // refusal, and the count behind it is the one number this line may print
+      // (it is an inventory, not a score).
+      var issues = (sh && sh.issues) || 0;
+      if (lane === 'exec' && acts) {
+        out.text = 'No formal pattern yet — ' + acts + ' formal action' + (acts === 1 ? '' : 's') +
+          ' on file' + (issues ? ' across ' + issues + ' issue' + (issues === 1 ? '' : 's') : '') + '.';
+        return out;
+      }
+      if (issues) {
+        out.text = 'No formal pattern yet — ' + issues + ' issue' + (issues === 1 ? '' : 's') +
+          ' on the formal record, none deep enough to characterise.';
+        return out;
+      }
+      // Nothing in either lane. A person who has never held the office has no
+      // in-office record to be missing, and saying "no pattern yet" about them
+      // reads as a finding about a ledger they do not have. This is the ledger
+      // slot's own sentence for the same state, so the card and the ⚖️ chip
+      // beside it cannot phrase one candidacy two ways.
+      if (status === 'candidate' && !briefRecordOnHand(pid)) {
+        out.kind = 'preoffice';
+        out.text = 'Record begins in office — no votes or formal actions on file yet.';
+        return out;
+      }
+      // AND THE DEFAULT IS "STILL LOADING", THE SAME WAY THE BRIEF'S IS — BUT ONLY
+      // WHILE SOMETHING IS ACTUALLY IN FLIGHT. On a cold arrival the roll-call lane
+      // has not answered yet, and a card reading "no formal pattern yet" beside a
+      // file reading "still loading the roll-call record" is the two surfaces
+      // disagreeing about the same second. What that must not become is a line that
+      // never resolves; see recordLineWaiting() for the three conditions it takes.
+      if (recordLineWaiting(pid)) {
+        out.text = 'Formal record still loading…';
+        return out;
+      }
+      return out;
+    } catch (e) { return out; }
+  }
+
   function briefHeroHtml(pid, p) {
     try {
       if (!pid) return '';
@@ -5754,6 +5914,14 @@
     // does above the gate, one rung wider.
     briefHtml: briefHeroHtml,
     heroNamesPatterns: heroNamesPatterns,
+    // 🏛 And the one-line form of the same finding, for a list card. Same lanes,
+    // same precedence, same words — three kinds ('pattern' / 'none' /
+    // 'preoffice'), no figure. See recordLine(): a card that prints this and a
+    // profile that prints briefHtml are one record read at two lengths.
+    recordLine: recordLine,
+    // Published with it because the card and the brief's own rows print the same
+    // sentence about the same row, and it may only be written down once.
+    shapeRowSay: shapeRowSay,
     // 📏 THE DENOMINATOR, IN ONE VOCABULARY. Every surface that publishes the
     // engine's percentage prints the tested count beside it, and they all print it
     // in these words — a caption that reads "32 issues tested" here and "over 32"
