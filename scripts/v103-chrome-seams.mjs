@@ -515,9 +515,36 @@ export const IC_SEAMS = [
    "the chip helper's export line"],
 ];
 
-// ── word-action.js: four spans — the chip, the gate, and the two mounts ───────────────
+// ── word-action.js: the shared figure, the chip, the section, the gate, the mounts ────
 export const WA_SEAMS = [
-  // ── the identity chip's denominator (v136) ─────────────────────────
+  // ── the shared figure and the shared repaint (v140) ────────────────
+  // The letterhead chip and the ⚖️ section print one finding about one person, a
+  // screen apart, and they were printing two SIZES of it: "84% · 5 of 14 tested"
+  // beside the name on /p/lee while the section below read 72% over 15 of 26.
+  // Neither figure was invented — each was a faithful print of a read taken at a
+  // different tick, and this ledger grows as the roll-call record and the lazy
+  // data bundles land. That is what made the pair a lie: a reader cannot see
+  // which tick a number came from, and two "tested" counts on one page is a worse
+  // defect than the missing denominator the chip was given one for.
+  //
+  // This span is the OWNER. figure(pid, p) answers, for one pid, the percentage,
+  // the tested count, the eligible count, the outcome token and the one fraction
+  // sentence those two integers make; the surfaces below print that object. The
+  // arithmetic is NOT in here — scopedRead, read, Direction Match, the tier
+  // weights and both floors are outside the seam and compared on this file's
+  // usual terms. What the span does is stop the chip asking read() a different
+  // question than the section asks, and refuse to publish a percentage with no
+  // set to size it.
+  //
+  // It also holds the one repaint contract: bindHero's — every event in
+  // HERO_REPAINT, the alias-tolerant matcher, the seen guard, one reconciling
+  // paint — reused BY REFERENCE by the chip and the section, because two surfaces
+  // printing one object still drift if they hear about the arrival at different
+  // times.
+  ["    if (typeof a === 'number' && typeof b === 'number') out.delta = b - a;\n    return out;\n  }\n",
+   "  // ── CONNECTING THE DOTS",
+   "the shared figure and the shared repaint"],
+  // ── the identity chip's denominator (v136, v140) ───────────────────
   // A wave has no stake in this span and every stake in the file around it, so it
   // is carved out by name rather than the file being waived whole. The span is the
   // markup of ONE control: the compact Word vs Action chip that sits in the
@@ -546,6 +573,40 @@ export const WA_SEAMS = [
   ["  // person's name is worse than no chip at all — so nothing renders.\n",
    "    } catch (e) { return ''; }\n  }\n\n  // Same host discipline as the two strips above",
    "the identity chip's denominator"],
+  // ── the letterhead chip's repaint (v140) ──────────────────────────────────
+  // The chip listened for one event, tested `detail.pid` strictly, and dropped
+  // its subscription the first time its host was not in the document — so it
+  // could hold its first-paint read for the life of the page while the section
+  // beside it showed a later one. That is the same drift from the other end. The
+  // span is the binder only: it delegates to the contract carved above, and the
+  // mount beside it is outside the seam and unchanged.
+  ["  // so a cold letterhead carries no stray gap between its badges.\n",
+   "  function compactBadgeMount(pid, p) {\n",
+   "the letterhead chip's repaint"],
+  // ── the ⚖️ section prints the same object (v140) ───────────────────────────
+  // Four narrow spans rather than one wide one, so the section's own body — the
+  // no-word stub, the verdict line, the tally, the buckets, the restore order —
+  // stays pinned between them. First: the read acquisition, where the section
+  // takes the owner's object off the scopedRead it is already holding rather than
+  // scoring a second time.
+  ["      // slice would not mean anything for.\n",
+   "      // Nothing said and nothing tracked.",
+   "the section reads the shared figure"],
+  // Second: the number block stamps the tuple as data, so "the chip's N of M
+  // equals the section's" is a claim a harness can CHECK rather than trust. The
+  // visible caption is unchanged and the tag is still gated on `hasPct` alone.
+  ["      var depthTag = hasPct\n",
+   "      var body = '' +\n",
+   "the section stamps the shared figure"],
+  // Third and fourth: the head and the tail of the section's repaint. The body
+  // between them — the open lids, the picked bucket, flat mode, the order they are
+  // restored in — is outside the seam and byte-identical.
+  ["      if (SP && typeof SP.applyLids === 'function') return SP.applyLids(html, true);\n    } catch (e) {}\n    return html;\n  }\n",
+   "      try {\n        var fresh = headlineHtml(pid, p);\n",
+   "the section's repaint"],
+  ["        }, 0);\n      } catch (e) {}\n",
+   "  // Mountable wrapper: emit the section AND arm its refresh.",
+   "the section's repaint, closed"],
   // ── the issue file beside the pattern row (v133) ───────────────────────────
   // The brief's pattern rows are the third surface a reader meets an issue name
   // on, and the name was the one part of the row that led nowhere. The label
@@ -568,6 +629,15 @@ export const WA_SEAMS = [
   ["    var total = opts.total || sh.issues;\n",
    "        exploreAllHtml(total) +",
    "the brief's mount"],
+  // ── the owner, published (v140) ───────────────────────────────────────────
+  // Two lines on the public surface, so a harness can hold the object the chip
+  // and the section print rather than infer it from two rendered strings that
+  // happen to agree. It publishes no new arithmetic: figure() hands on read()'s
+  // percentage and two of read()'s integers, and fractionOf() joins two integers
+  // into one sentence.
+  ["    DEPTH_NOTE: DEPTH_NOTE,\n",
+   "    dots: dots,\n",
+   "the owner, published"],
 ];
 
 /**
@@ -1068,7 +1138,7 @@ export function assertStanceHelpersSeam(bodies, api) {
     "the record-CTA stats gained a percentage or a party — they count rows and answer yes/no");
 }
 
-/** Argue what is inside word-action.js's four spans. */
+/** Argue what is inside word-action.js's declared spans. */
 export function assertWordActionSeams(bodies, api) {
   const { has, eq, ok } = api;
   // BY NAME, FOR THE REASON CONSISTENCY.JS'S SPANS ARE. This read bodies[0..2]
@@ -1085,22 +1155,76 @@ export function assertWordActionSeams(bodies, api) {
     return byName.get(why) || "";
   };
 
-  // ── the identity chip's denominator (v136) ─────────────────────────
-  // One control, one door, one fraction, and both of its integers read out of the
-  // read this same file already published. The chip is allowed to ANNOTATE the
-  // figure it prints; it is not allowed to compute one, to gate one, or to become
+  // ── the shared figure and the shared repaint (v140) ────────────────
+  // ONE OWNER for { pct, tested, eligible, token }, and one repaint contract, so
+  // the two surfaces can be neither different arithmetic nor different ages.
+  const own = wa("the shared figure and the shared repaint");
+  has(own, "function figure(pid, p, pre) {",
+    "the owner of the tested set is gone from word-action.js, so each surface sizes its own figure again");
+  has(own, "var sr = pre || scopedRead(pid, p);",
+    "the owner takes a read other than the one the section and the ring take — a bare read() at " +
+    "whatever term scope the engine was left in is how one page comes to hold two numbers with " +
+    "nothing on screen saying which is which");
+  has(own, "function fractionOf(tested, eligible) {",
+    "the one fraction sentence has no single builder, so every surface spells it again");
+  has(own, "return (t && m) ? (t + ' of ' + m + ' tested') : '';",
+    "the fraction is not the ⚖ section's own wording, character for character, or it prints " +
+    "\"0 of 0 tested\" — a fraction that sizes nothing is worse than no fraction at all");
+  has(own, "shows: pct !== null && !!fraction,",
+    "the object no longer says when BOTH halves can be said. A percentage with no set to size it is " +
+    "the grade the denominator was added to stop printing, and a surface that falls back to it is " +
+    "publishing a smaller, secret set with a figure still sitting on top of it");
+  has(own, "stamp: [(pct === null ? '' : pct), tested, eligible, ((r && r.token) || '')].join('|')",
+    "the tuple is no longer stampable, so a surface can only be TRUSTED to print the object rather " +
+    "than asserted to");
+  has(own, "return (typeof HERO_REPAINT !== 'undefined' && HERO_REPAINT && HERO_REPAINT.length)",
+    "the shared repaint spells its own event list instead of reading HERO_REPAINT — a second list is " +
+    "a list that drifts, and the surface left on the older one goes quietly deaf");
+  has(own, "if (!evForPid(ev, pid)) return;",
+    "the shared repaint matches the pid strictly again, which drops the repaint on exactly the " +
+    "members whose record was hardest to find");
+  has(own, "if (seen) evs.forEach(function (n) { window.removeEventListener(n, handler); });",
+    "the shared repaint unbinds before its host has ever been seen — permanent deafness on a mount " +
+    "armed beside a template string the caller is still assembling");
+  has(own, "setTimeout(function () { handler(null); }, 0);",
+    "the shared repaint has no reconciling paint, so a record already in memory repaints nobody");
+  const ownCode = own.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+  ok(!/toFixed|\/\s*100|\*\s*100|reduce\(|Math\.(max|min)/.test(ownCode),
+    "the owner grew arithmetic of its own — it hands on read()'s percentage and two of read()'s " +
+    "integers and computes no figure");
+  ok(!/MIN_|FLOOR|publishable|PublicationFloor|SHAPE_MIN/.test(ownCode),
+    "the owner tests a floor. The publication floor is read()'s, it is outside this seam, and a " +
+    "second one here would hide a thin figure instead of labelling it");
+  ok(!/\.sort\(|localeCompare|\brank\b|Object\.keys/.test(ownCode),
+    "the owner sorts, ranks or sweeps — the tested set is an annotation until something reads it back");
+  ok(!/\.party\b|Republican|Democrat|GOP/i.test(ownCode), "the owner reads a party");
+  ok(!/incomplete|limited record|too early|unproven/i.test(own),
+    "the owner composes a verdict of its own alongside read()'s label");
+
+  // ── the identity chip's denominator (v136, v140) ───────────────────
+  // One control, one door, one fraction, and every figure on it read out of the
+  // object above. The chip is allowed to ANNOTATE the figure it prints; it is not
+  // allowed to compute one, to gate one, to take a read of its own, or to become
   // a second surface anything can rank people by.
   const chip = wa("the identity chip's denominator");
-  has(chip, "var c = r.coverage || {};",
-    "the chip no longer sizes its figure from read()'s own coverage block");
-  has(chip, "(c.tested + ' of ' + c.scorable + ' tested')",
-    "the chip's denominator is not the ⚖ section's own wording, character for character — a door " +
-    "that paraphrases what is behind it is a second finding");
-  has(chip, "(den ? ', ' + den : '')",
-    "the accessible name dropped the fraction: a screen reader hearing \"90 per cent, Backs it up\" has " +
-    "been handed the exact impression the visible chip was fixed to stop giving");
-  has(chip, "'<span class=\"pdxwa-cbadge-den\">' + esc(den) + '</span>'",
+  has(chip, "var f = figure(pid, p);",
+    "the chip sizes its own figure again instead of printing the owner's object — which is how " +
+    "\"84% · 5 of 14 tested\" came to sit a screen above a section reading 72% over 15 of 26");
+  has(chip, "if (!f.shows) return '';",
+    "the chip publishes a percentage without the set that sizes it. Where both cannot be said the " +
+    "chip is ABSENT — never a smaller secret set with a figure still on it");
+  has(chip, "var den = f.fraction;",
+    "the chip's denominator is not the owner's fraction, character for character — a door that " +
+    "paraphrases what is behind it is a second finding");
+  has(chip, "esc(f.pct + '% ' + FRAME.metric + ', ' + den + ' — ' +",
+    "the accessible name is not the same N of M as the visible chip: a screen reader hearing " +
+    "\"90 per cent, Backs it up\" has been handed the exact impression the visible chip was fixed " +
+    "to stop giving");
+  has(chip, "'<span class=\"pdxwa-cbadge-den\">' + esc(den) + '</span>' +",
     "the visible chip dropped the fraction");
+  has(chip, "' data-pdxwa-fig=\"' + esc(f.stamp) + '\"' +",
+    "the chip no longer stamps the tuple it printed, so the section below it can only be trusted " +
+    "to agree");
   has(chip, "jumpAttr('pdxsec-wordaction')",
     "the chip no longer jumps to the section it is a door to");
   eq([...chip.matchAll(/<button/g)].length, 1, "the chip is more than one control");
@@ -1121,6 +1245,60 @@ export function assertWordActionSeams(bodies, api) {
   ok(!/\.party\b|Republican|Democrat|GOP/i.test(chipCode), "the chip reads a party");
   ok(!/incomplete|limited record|too early|unproven/i.test(chip),
     "the chip composes a verdict of its own alongside read()'s label");
+  ok(!/\bread\(pid, p\)|scopedRead\(/.test(chipCode),
+    "the chip reads the engine directly again. One surface, one object: it prints figure()'s, and " +
+    "figure() is the one place the question \"at which scope, as of when\" is answered");
+
+  // ── the letterhead chip's repaint (v140) ──────────────────────────────────
+  const cbind = wa("the letterhead chip's repaint");
+  has(cbind, "armFigureRepaint(function () {",
+    "the chip has a repaint contract of its own again — one event, a strict pid and an unbind on a " +
+    "host that has not landed yet are three ways to go deaf, and the ring stopped having all three");
+  has(cbind, "host.innerHTML = compactBadgeHtml(pid, p);",
+    "the chip's repaint paints something other than the chip");
+  const cbindCode = cbind.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+  ok(!/addEventListener|removeEventListener|pdx-consistency-warm|pdx-voting-warm/.test(cbindCode),
+    "the chip subscribes to events itself rather than through the shared contract, which is where " +
+    "the event list, the alias hop, the seen guard and the reconciling paint are argued");
+  ok(!/detail\.pid/.test(cbindCode),
+    "the chip matches the event's pid itself again — evForPid does that, on both ids, with one " +
+    "alias hop on each side");
+
+  // ── the ⚖️ section prints the same object (v140) ───────────────────────────
+  const secRead = wa("the section reads the shared figure");
+  has(secRead, "var fig = figure(pid, p, sr);",
+    "the ⚖ section no longer takes the owner's object, so the chip above it is printing a figure " +
+    "the section cannot be checked against");
+  has(secRead, "var sr = scopedRead(pid, p);",
+    "the section's own read moved out from under the figure it hands to the owner");
+  ok(!/scopedRead\(pid, p\)[\s\S]*scopedRead\(pid, p\)/.test(secRead),
+    "the section scores twice to print one figure");
+  const stamp = wa("the section stamps the shared figure");
+  has(stamp, "var depthTag = hasPct",
+    "the depth tag is gated on something other than there being a percentage to size");
+  has(stamp, "' data-pdxwa-set=\"' + esc(fig.fraction) + '\"' +",
+    "the number block no longer carries the owner's fraction, so \"the chip's N of M equals the " +
+    "section's\" stops being a claim anything can check");
+  has(stamp, "' data-pdxwa-fig=\"' + esc(fig.stamp) + '\">' +",
+    "the number block no longer stamps the same tuple the chip stamps");
+  has(stamp, "esc(depthCaption(testedOf(r))) + '</div>'",
+    "the visible depth caption moved — this pass added data beside it and changed no copy");
+  const stampCode = stamp.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+  ok(!/MIN_|FLOOR|isThin|>=|<=/.test(stampCode),
+    "the depth tag grew a threshold of its own, which would drop the set exactly where the size of " +
+    "it matters most");
+  const sbind = wa("the section's repaint");
+  has(sbind, "armFigureRepaint(function () {",
+    "the ⚖ section has a repaint contract of its own again — a section that stops listening while " +
+    "the chip above it keeps listening is the same drift, from the other end");
+  has(sbind, "return document.querySelector('[data-pdxwa=\"' + uid + '\"]');",
+    "the section's repaint no longer finds the panel it owns by that panel's instance id");
+  ok(!/addEventListener|pdx-consistency-warm|detail\.pid/.test(
+       sbind.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''")),
+    "the section subscribes and matches on its own again instead of through the shared contract");
+  has(wa("the section's repaint, closed"), "});",
+    "the section's repaint is no longer closed as a call into the shared contract");
+
   // ── the issue file beside the pattern row (v133) ───────────────────────────
   // A sibling anchor after the door, not a link wrapped around the label: the
   // label IS the dossier button on this row, and nesting one interactive element
@@ -1182,6 +1360,17 @@ export function assertWordActionSeams(bodies, api) {
     ok(!/\d\s*%|toFixed/.test(m), "a mount grew a figure of its own");
     ok(m.split("sliceNoteHtml").length === 2, "a mount calls the slice note more than once");
   }
+  // ── the owner, published (v140) ───────────────────────────────────────────
+  const pub = wa("the owner, published");
+  has(pub, "figure: figure,",
+    "the shared figure is no longer published, so \"the chip and the section print one object\" can " +
+    "only be inferred from two rendered strings that happen to agree");
+  has(pub, "fractionOf: fractionOf,", "the one fraction builder is no longer published");
+  const pubCode = pub.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+  ok(!/[(){}]/.test(pubCode),
+    "the export seam grew something other than name-to-name export lines");
+  ok(!/MIN_|FLOOR|publishable|pct|percent|party/i.test(pubCode),
+    "the export seam publishes a floor, a percentage or a party alongside the two names it added");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -1611,6 +1611,55 @@ const swNote = swWaveNote();
     // row's chip absent before to present after, and it cannot go stale, because what
     // it removes is what it claims. No assertion was relaxed and none was dropped.
     "scripts/test-eye-one-person-per-office.mjs",
+    // ── One tested set for the chip and the section (CACHE_VERSION v140) ──────
+    // On those same later-wave terms, and this one writes no roll, no mapping, no
+    // key, no floor and no admission. The letterhead chip and the mid-page Word vs
+    // Action section report the same finding about the same person, a screen apart,
+    // and they were reporting two different SIZES of it: on /p/lee the chip read
+    // "84% · 5 of 14 tested" beside the name while the section below read 72% over
+    // 15 of 26. Neither figure was invented — each was a faithful print of a read
+    // taken at a different tick, and this ledger grows during a page's life as the
+    // roll-call record and the lazy data bundles land. That is what made the pair a
+    // lie: a reader cannot see which tick a number came from, and two "tested"
+    // counts on one page is a worse defect than the missing denominator the chip was
+    // given one for. One function now owns { pct, tested, eligible, token } and the
+    // one fraction sentence those integers make; both surfaces print that object, in
+    // the visible text and in the accessible name; and where both halves cannot be
+    // said the chip is ABSENT rather than a smaller, secret set with a percentage
+    // still on it. Both also moved onto the consistency ring's repaint contract, so
+    // they cannot be different ages either.
+    //   The reason a wave like this one is the file that has to declare it: R1 and R2
+    // put 1,120 member files behind this figure, so the chip beside the name is how a
+    // reader meets the formal read at all, and every one of those files carried the
+    // pair. read(), scopedRead(), Direction Match, the tier weights and both floors
+    // are outside the declared seams and read byte-identically — the twin boot above
+    // has just proved the ledger and the DM figure are unchanged for every member.
+    //   word-action.js, scripts/v103-chrome-seams.mjs, sw.js and
+    // scripts/test-wordaction-badge.mjs are declared above already. The two below are
+    // not, and both are re-statements rather than relaxations: each pinned the chip's
+    // source with /\bread\(pid, p\)/ and /r\.pct === null/, which said "the chip goes
+    // through the engine and fails closed" in the only vocabulary that existed when
+    // they were written. The chip now goes through the shared figure instead, so the
+    // same two claims are asserted against figure(pid, p) and !f.shows — and
+    // test-score-consistency.mjs additionally requires that the owner take
+    // scopedRead(), which is the substantive half the old regex could not see. No
+    // assertion was dropped and the counterfactuals in both files still hold.
+    "scripts/test-score-consistency.mjs",
+    "scripts/test-mobile-profile-hierarchy.mjs",
+    //   scripts/test-wva-chip-denominator.mjs is here on the same terms, and it is a
+    // repair of exactly the failure mode f8 records above for
+    // test-eye-one-person-per-office.mjs. Its section 3 built the pre-denominator
+    // chip by lifting a span out of `git show HEAD:word-action.js`: true exactly
+    // once, because the moment that pass was committed HEAD carried the fix, the two
+    // revisions became one file, and its vacuity guard fired on a tree where nothing
+    // was wrong. The bare builder is now BUILT from the shipped source by removing
+    // the three things the denominator pass added — the both-halves gate, the
+    // fraction, the span it prints in — each substitution asserted to apply exactly
+    // once, so what it removes is what it claims. Its three load-bearing
+    // counterfactuals were re-aimed at the same markup for the same reason. No
+    // assertion was relaxed and none was dropped; the suite went from a hard
+    // STALE HARNESS stop to 165 passing checks.
+    "scripts/test-wva-chip-denominator.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }

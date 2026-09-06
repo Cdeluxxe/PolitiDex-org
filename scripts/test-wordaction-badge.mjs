@@ -464,24 +464,30 @@ const cf = (label, mutants, probe) => {
 // M1 — the door points somewhere else. Renders identically; goes nowhere useful.
 cf("M1 (the jump target drifts to another section)", {
   "word-action.js": [[
-    "        jumpAttr('pdxsec-wordaction') +\n        ' aria-label=\"'",
-    "        jumpAttr('pdxsec-stancetree') +\n        ' aria-label=\"'",
+    "        jumpAttr('pdxsec-wordaction') +\n        ' data-pdxwa-fig=\"'",
+    "        jumpAttr('pdxsec-stancetree') +\n        ' data-pdxwa-fig=\"'",
   ]],
 }, (w) => w.PDXWordAction.compactBadgeHtml(EXEC, w.CMP_DATA[EXEC]).indexOf("pdxsec-wordaction") === -1);
 
-// M2 — it stops failing closed. Every cold profile grows a chip with no figure in it.
-cf("M2 (the null-read guard is dropped)", {
+// M2 — it stops failing closed. Every cold profile grows a chip with no figure in
+// it. The guard is now the shared figure's own `shows`, which is true only when BOTH
+// halves can be said — a percentage AND the set it is sized against — so dropping it
+// back to "did the read return anything" is the same defect it always was, plus the
+// newer one: a figure with no denominator under it.
+cf("M2 (the both-halves guard is dropped)", {
   "word-action.js": [[
-    "      if (!r || r.pct === null || r.pct === undefined) return '';",
-    "      if (!r) return '';",
+    "      if (!f.shows) return '';",
+    "      if (!f.read) return '';",
   ]],
 }, (w) => w.PDXWordAction.compactBadgeHtml(COLD, w.CMP_DATA[COLD]) !== "");
 
-// M3 — the figure stops coming from the read. Agrees with the section until it doesn't.
+// M3 — the figure stops coming from the shared object. Agrees with the section
+// until it doesn't, which is precisely the pair of numbers this file's chip was
+// re-pointed at one owner to prevent.
 cf("M3 (the chip derives its own percentage)", {
   "word-action.js": [[
-    "      var r = read(pid, p);\n      if (!r || r.pct === null",
-    "      var r = read(pid, p);\n      if (r && r.pct !== null) { r = { pct: 99, verdict: r.verdict }; }\n      if (!r || r.pct === null",
+    "      var f = figure(pid, p);\n      if (!f.shows) return '';",
+    "      var f = figure(pid, p);\n      if (f.shows) { f = { shows: true, pct: 99, fraction: f.fraction, verdict: f.verdict, stamp: f.stamp }; }\n      if (!f.shows) return '';",
   ]],
 }, (w) => w.PDXWordAction.compactBadgeHtml(EXEC, w.CMP_DATA[EXEC]).indexOf(X.pct + "%") === -1);
 

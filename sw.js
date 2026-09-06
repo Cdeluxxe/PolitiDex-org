@@ -880,6 +880,39 @@
 // of any kind moved. Direction Match is untouched and reads byte-identically with
 // this pane loaded and without it.
 //
+// v140 - ONE TESTED SET, PRINTED TWICE OR NOT AT ALL. The letterhead chip and the
+// mid-page Word vs Action section report the same finding about the same person, a
+// screen apart, and they were reporting two different sizes of it: on /p/lee the
+// chip read "84% - 5 of 14 tested" beside the name while the section below read 72%
+// over 15 of 26. Neither figure was invented. Each was a faithful print of a read
+// taken at a different moment - this ledger grows during a page's life as the
+// roll-call record and the lazy data bundles land - and that is exactly what made
+// the pair a lie, because a reader cannot see which tick a number came from. Two
+// "tested" counts on one page is a worse defect than the missing denominator the
+// chip was given one for.
+//
+// So the figure is a thing now and not a habit repeated at each surface. One
+// function answers, for one pid: the percentage, the tested count, the eligible
+// count, the outcome token, and the one fraction sentence those two integers make.
+// The chip and the section both print THAT object, in the visible text and in the
+// accessible name, which is the same sentence and not a shortened one. Where both
+// halves cannot be said the chip is absent - never a smaller, secret set with a
+// percentage still sitting on top of it. And both surfaces now share the repaint
+// contract the consistency ring already had (every arrival event, an alias-tolerant
+// pid match, one reconciling paint), because two surfaces printing one object still
+// drift if they hear about the arrival at different times.
+//   · word-action.js       - the shared figure and the shared repaint, the chip, and
+//                            three narrow spans in the section that read and stamp
+//                            them. Both files' new spans are declared seams, so
+//                            everything outside them is still compared byte for byte.
+//   · word-action.css      - unchanged this pass; the chip's own skin already had a
+//                            slot for the denominator.
+// No floor moved. read(), scopedRead(), Direction Match, the tier weights, the
+// publication floor and the pair rules are all outside the seams and read
+// byte-identically: a twin boot over the whole corpus returns the same ledger and
+// the same DM figure for every member. The public lane, finance, the Eye, Door 2
+// and the corpus sweep were not touched.
+//
 // v139 - THE EYE FOUND THE RIGHT PERSON TWICE. A reader who typed "chew" got two
 // rows for one representative, and the pass that collapsed them landed in the two
 // lanes that mint rows: the people lane and the receipt lane both resolve through
@@ -2493,7 +2526,7 @@
 // No floor, no mapping, no weight, no roster row and no figure of any kind moved.
 // Every person brief and every Direction Match read is byte-identical with this
 // table and without it — the table names families, it does not read records.
-const CACHE_VERSION = 'v139';
+const CACHE_VERSION = 'v140';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
