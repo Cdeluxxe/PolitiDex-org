@@ -775,6 +775,20 @@ function sqlDraft(session) {
   L.push(`-- db/${path.basename(seedFile(session))}. Review, then promote into`);
   L.push("-- netlify/database/migrations/<timestamp>_<name>.sql with a header that says");
   L.push("-- what it is for. The tool does not write there.");
+  L.push("--");
+  // THE PACK STEP, DECLARED IN THE DRAFT so the promoted migration carries it. The
+  // pack key is a fingerprint of vr_measure_issues and knows nothing about
+  // jurisdictions: a Utah session's mapping rows retire packs exactly the way a
+  // federal promote does. scripts/test-vr-mapping-migration-pack-step.mjs is the gate.
+  L.push("-- pack-generation: derived — this draft writes vr_measure_issues rows (each");
+  L.push("--   guarded by IF NOT EXISTS, so a re-state is a no-op). Every row that lands");
+  L.push("--   moves mappingVersion() in netlify/lib/vr-pack.ts: the row count and the md5");
+  L.push("--   over the ordered (measure_id, issue_key, weight, is_primary,");
+  L.push("--   support_meaning, rationale) tuples both change, so the pack key");
+  L.push("--   member:<pid>@m<count>-<hash> bumps for every member and no blob built before");
+  L.push("--   the deploy is reachable after it. The six-hour PACK_TTL_MS is not what does");
+  L.push("--   the retiring. KEEP THIS LINE when promoting, and confirm the version moved");
+  L.push("--   with scripts/test-vr-pack-key-version.mjs once the migration lands.");
   L.push("");
   // ── THE TWO INDEXES, AND WHY THEY ARE PARTIAL ─────────────────────────────
   // vr_rollcalls_unique is (chamber, congress, session, roll_number). Congress is

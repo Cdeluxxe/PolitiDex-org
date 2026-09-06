@@ -66,6 +66,10 @@
 //      discloses that those acts reached the issue inside measures mainly about
 //      something else, and takes a side over a two-sided ledger only where the
 //      dominance floor allows any record to be led.
+//   5. THE KEY IS THE EVICTION, and the client guard is its last line rather than
+//      the whole of it. Blob and URL both NAME the mapping version they were built
+//      from, so a promote makes the old pack unreachable instead of merely stale —
+//      no shortened TTL, no rebuild per request, still one cache.
 //
 //   node scripts/test-record-pack-no-downgrade.mjs
 //
@@ -661,6 +665,139 @@ section("5 · a pack of another generation may not apply over a noted live read"
   eq(V3.noteMember("curtis", packPayload("curtis", GEN_OLD).items, GEN_OLD), true,
     "so a pack may seed an offline open again after a cache clear");
   console.log("      live wins · offline still seeds · a later live read takes over");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("6 · the server half: the pack's own key names the mapping it was built from");
+// ═════════════════════════════════════════════════════════════════════════════
+// Sections 2 and 5 hold the CLIENT guard, and the client guard is the LAST line
+// of this fix, not the fix. It decides what a payload in hand may do to the cache;
+// it has nothing to say about what the network hands over. With only the guard in
+// place, a promote still leaves a blob that lies — to the offline reader, whose
+// pack IS the answer and who has no live read to be guarded against, and to the
+// first pack hit on a cold profile — for as long as the six-hour TTL takes to
+// expire it. That is the hole this section pins shut, in the file whose subject is
+// the downgrade, so neither half can be removed while the other still passes.
+//
+// The mechanism is not a shorter TTL and not a rebuild-per-request. The pack is
+// stored under a key that NAMES the mapping it was built from, so a mapping change
+// does not make the old blob stale — it makes it UNREACHABLE. The next read asks
+// for a key nobody has written, misses, and rebuilds from the live rows.
+//
+// Everything below is read out of the shipped sources by extraction rather than
+// retyped here, so a passing test cannot be a test of its own copy of the recipe.
+{
+  const PACK_TS = readFileSync(join(ROOT, "netlify/lib/vr-pack.ts"), "utf8");
+  const FN_MTS = readFileSync(join(ROOT, "netlify/functions/voting-record.mts"), "utf8");
+
+  section("   · the key: one member, two mappings, two keys");
+  // packKey lifted from the module and run, not paraphrased. If the version ever
+  // stops reaching the key — a default, a dropped argument, an interpolation
+  // deleted — this stops producing two different strings and the section fails.
+  const keyBody = (PACK_TS.match(
+    /export function packKey\(politicianId: string, mv: string\): string \{([\s\S]*?)\n\}/) || [])[1];
+  must(keyBody, "could not read packKey out of netlify/lib/vr-pack.ts");
+  const packKey = new Function("politicianId", "mv", keyBody);
+  const kOld = packKey("curtis", GEN_OLD);
+  const kNew = packKey("curtis", GEN_NEW);
+  has(kOld, "curtis", "the key names the member");
+  has(kOld, GEN_OLD, "…and the mapping version it was built under");
+  has(kNew, GEN_NEW, "a pack built after the promote names the new version");
+  ok(kOld !== kNew,
+    `THE ACCEPTANCE: one member under two mappings is two keys (${kOld} ≠ ${kNew})`);
+  eq(kOld.slice(0, kOld.indexOf(GEN_OLD)), kNew.slice(0, kNew.indexOf(GEN_NEW)),
+    "the version is the only thing that differs — same member, same prefix");
+  ok(kOld.indexOf(GEN_OLD) > "member:".length,
+    "the version is a suffix on the member's key, not a store of its own");
+
+  // ONE CACHE, NOT TWO. The pack lives in a single Netlify Blobs store and the
+  // live path has no store at all; a second record cache would show up here as a
+  // second store name in the module that owns the blob.
+  const stores = [...new Set(
+    [...PACK_TS.matchAll(/getStore\(\s*([A-Za-z_$][\w$]*)\s*\)/g)].map((m) => m[1]))];
+  eq(stores.join(","), "PACK_STORE", "every blob call goes through the one store constant");
+  eq(((PACK_TS.match(/export const PACK_STORE = "([^"]+)"/) || [])[1]), "vr-packs",
+    "…which is the pack store, and the only one");
+
+  section("   · the version: what moves it, and what a mapping change is");
+  // The fingerprint is over the mapping table's contents. is_primary is in it by
+  // name — the one field the whole reported bug was one field wide of — so an
+  // incidental→PRIMARY promote cannot leave the version where it was.
+  const fp = (PACK_TS.match(/select count\(\*\)::int as n,[\s\S]*?from vr_measure_issues/) || [])[0];
+  must(fp, "could not read the mapping fingerprint query out of netlify/lib/vr-pack.ts");
+  for (const col of ["measure_id", "issue_key", "weight", "is_primary", "support_meaning", "rationale"])
+    has(fp, col, `the fingerprint covers ${col}`);
+  has(fp, "count(*)", "…and the row count, so an added or deleted row moves it too");
+  has(fp, "order by id", "…in a fixed order, so the same table always fingerprints the same");
+  no(fp, "source_url", "and not source_url — a citation edit is not a mapping change");
+
+  // THE SENTINEL, both ends. An unreadable mapping table is not a mapping: it may
+  // be served and must never be kept, or the unversioned blob this scheme exists
+  // to make unreachable comes back for six hours.
+  const SENT = (PACK_TS.match(/export const MAPPING_VERSION_UNKNOWN = "([^"]+)"/) || [])[1];
+  eq(SENT, "m0-unknown", "the unknown-mapping sentinel is the token the client also refuses");
+  const readFn = (PACK_TS.match(/export async function getCachedPack\([\s\S]*?\n\}/) || [])[0];
+  const writeFn = (PACK_TS.match(/export async function writeMemberPack\([\s\S]*?\n\}/) || [])[0];
+  must(readFn && writeFn, "could not read the pack read/write functions out of netlify/lib/vr-pack.ts");
+  ok(/if \(mv === MAPPING_VERSION_UNKNOWN\) return null;/.test(readFn),
+    "getCachedPack refuses to READ under the sentinel");
+  ok(readFn.indexOf("MAPPING_VERSION_UNKNOWN") < readFn.indexOf("store.get"),
+    "…before it touches the store, so the miss is unconditional");
+  ok(/mv: string\)/.test(readFn.split("\n")[0]) || /mv: string,/.test(readFn),
+    "…and the version is a required argument on the read, never defaulted");
+  ok(/if \(version !== MAPPING_VERSION_UNKNOWN\) \{[\s\S]*?setJSON/.test(writeFn),
+    "writeMemberPack refuses to WRITE under the sentinel — it serves fresh and keeps nothing");
+  has(writeFn, "mappingVersion: version",
+    "…and stamps the version it wrote under onto the pack, which is what _payloadGen reads");
+
+  // The fixtures this file has been using all along are in the server's own
+  // vocabulary, not a shape invented for the test.
+  const VRE = new Function("return " + (FN_MTS.match(/const PACK_VERSION_RE = (\/.*\/);/) || [])[1])();
+  ok(VRE.test(GEN_OLD) && VRE.test(GEN_NEW),
+    "the two fixture generations are version-shaped by the Function's own regex");
+
+  section("   · the URL: the service worker's copy is keyed on it too");
+  // Versioning the blob key closes the server hole. It says nothing about the copy
+  // the service worker holds, which is keyed on the request URL — so the version
+  // has to reach the URL as well, and the server is what puts it there.
+  const route = (FN_MTS.match(/const packMatch = path\.match\((\/[^\n]*?\/)\);/) || [])[1];
+  must(route, "could not read the pack route regex out of netlify/functions/voting-record.mts");
+  const RRE = new Function("return " + route)();
+  ok(RRE.test("/member/curtis/pack"), "the unversioned URL the client asks for still routes");
+  ok(RRE.test("/member/curtis/pack/" + GEN_NEW), "…and so does the versioned URL it is sent to");
+  eq((("/member/curtis/pack/" + GEN_OLD).match(RRE) || [])[2], GEN_OLD,
+    "…with the requested version handed to the handler rather than ignored");
+  const handler = (FN_MTS.match(/async function getMemberPack\([\s\S]*?\n\}\n/) || [])[0];
+  must(handler, "could not read getMemberPack out of netlify/functions/voting-record.mts");
+  ok(/if \(requestedVersion !== mv\) \{/.test(handler),
+    "a request for any version but the current one is answered with a redirect, not a body");
+  ok(handler.indexOf("requestedVersion !== mv") < handler.indexOf("PACK_TTL_MS"),
+    "THE ORDER THAT MATTERS: the version decides before the clock is ever consulted");
+  // The sentinel is deliberately a LEGAL URL segment rather than a 404: an
+  // unreadable mapping table must still be answerable. What it is refused is
+  // durability — at every layer, not just the blob.
+  ok(VRE.test(SENT), "the sentinel is version-shaped, so an unreadable mapping is still answerable");
+  has(handler, "const versionKnown = mv !== MAPPING_VERSION_UNKNOWN",
+    "…and the handler knows when it is serving under it");
+  has(handler, 'versionKnown ? "public, max-age=300" : "no-store"',
+    "…so that body is cached by nobody, at any layer, while the condition lasts");
+  has(handler, "status: 302", "…a 302, so the next wave can move what current means");
+  has(handler, '"cache-control": "no-store"', "…and the indirection itself is cached by nobody");
+  ok(/location =\s*\n?\s*`\/api\/voting-record\/member\/\$\{encodeURIComponent\(politicianId\)\}\/pack\/\$\{mv\}`/
+    .test(handler), "the redirect points at the member's pack under the CURRENT version");
+  has(handler, "vrpack-${politicianId}-${mv}-", "the ETag carries the version as well");
+
+  section("   · what was NOT done: the TTL, and the rebuild");
+  // The three non-fixes, asserted absent. A shorter TTL would have been a smaller
+  // hole of the same kind; a rebuild per request would have been correct and
+  // unaffordable.
+  const TTL = Number(new Function("return " + (FN_MTS.match(/const PACK_TTL_MS = ([^;]+);/) || [])[1])());
+  eq(TTL, 6 * 60 * 60 * 1000, "PACK_TTL_MS is still six hours — it was never the eviction mechanism");
+  ok(handler.indexOf("await getCachedPack(") < handler.indexOf("await writeMemberPack("),
+    "the cache is still consulted first — the pack is not rebuilt on every request");
+  ok(/if \(!pack \|\| !pack\.generatedAt \|\|/.test(handler),
+    "…and the rebuild stays conditional on a miss or a stale blob");
+  console.log(`      key ${kOld} → ${kNew}: a promote makes the old blob unreachable, not stale`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

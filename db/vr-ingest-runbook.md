@@ -111,6 +111,20 @@ What "you did not defeat it" means, concretely:
   packs does not ship.** Migrations timestamped before `20261022000000` are
   grandfathered: they are already applied, and an applied migration may never be
   edited. There is no exemption list — an exemption list is a place to hide.
+- **The rule is jurisdiction-neutral, and the generators carry it.** The
+  fingerprint is of `vr_measure_issues`, and that table has no idea which
+  jurisdiction wrote a row: a Utah committee wave retires packs exactly the way a
+  federal promote does, and the Utah checklists say so. So the declaration is
+  emitted by the generator rather than left to whoever writes the header —
+  `scripts/vr-utah-committee-mapping.mjs --sql` prints it, and
+  `scripts/vr-mapping-draft.mjs` puts it in the skeleton every future wave starts
+  from, alongside the federal wave generators that already did (F6, F7, F9, F11).
+  `test-vr-mapping-migration-pack-step.mjs` sweeps the generators too: every
+  script that emits a mapping write is either on its active list, and must emit
+  the line, or on its named retired list with the reason — a new generator that is
+  on neither fails CI, which is the only way "we forgot to classify it" is not
+  silent. The retired ones are not edited: their output is an applied migration,
+  and some of it is byte-compared against what shipped.
 - **Confirm it moved.** `node scripts/test-vr-pack-key-version.mjs` prints the
   current version and fails if the fingerprint is insensitive to any of the five
   mutation shapes. Run it after the migration lands; the printed version must
@@ -2247,6 +2261,12 @@ node scripts/vr-utah-committee-mapping.mjs --dropped --session 2024GS
 
 # What the PDF reader actually sees, for one document.
 node scripts/vr-pdf-text.mjs /tmp/vr-utah-committee-cache/2025GS/pdf/19683.pdf
+
+# If the session's pass ends in a mapping migration — vr-utah-committee-mapping.mjs
+# --sql does — it ends on the pack key line too. See "pack key must change" above:
+# the fingerprint is of vr_measure_issues and knows nothing about jurisdictions.
+node scripts/test-vr-pack-key-version.mjs
+node scripts/test-vr-mapping-migration-pack-step.mjs
 ```
 
 ### Parser limitations
@@ -2917,8 +2937,16 @@ node scripts/vr-utah-committee-mapping.mjs --verify --session 2023GS
 node scripts/vr-utah-committee-mapping.mjs --seed --session 2023GS
 node scripts/vr-utah-committee-mapping.mjs --dropped --session 2023GS
 
-# the migration
+# the migration. --sql emits the `-- pack-generation: derived` declaration in the
+# header; it is not decoration and it is not federal-only — do not delete it.
 node scripts/vr-utah-committee-mapping.mjs --sql --session 2023GS --out /tmp/vr-utah-drafts
+
+# PACK KEY MUST CHANGE — the same line the federal wave ends on. This wave writes
+# vr_measure_issues, so every affected member's pack is retired by its key moving.
+# Record the version before and after in the wave's notes; they must differ.
+node scripts/test-vr-pack-key-version.mjs
+node scripts/test-vr-mapping-migration-pack-step.mjs
+node scripts/test-vr-pack-rebuild-on-flip.mjs
 
 # the reader-facing delta
 node scripts/vr-utah-fpi.mjs

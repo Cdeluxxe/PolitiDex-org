@@ -454,6 +454,22 @@ function skeletonSql(m, cands, stampArg) {
   L.push("-- Refused this pass:");
   L.push("--   TODO(curator): key · why the backwards read failed");
   L.push("--");
+  // THE PACK STEP, IN THE SKELETON, so a wave that starts here starts with it. The
+  // draft is not a migration, but this line is what the curator promotes with it,
+  // and it is written at header level (one `--`) rather than inside the commented
+  // statement block so that it still reads as a declaration once the INSERTs are
+  // uncommented. scripts/test-vr-mapping-migration-pack-step.mjs is the gate.
+  L.push("-- pack-generation: derived — every row below is a vr_measure_issues write, so");
+  L.push("--   mappingVersion() in netlify/lib/vr-pack.ts moves the moment this lands: the");
+  L.push("--   row count and the md5 over the ordered (measure_id, issue_key, weight,");
+  L.push("--   is_primary, support_meaning, rationale) tuples both change, the pack key");
+  L.push("--   member:<pid>@m<count>-<hash> bumps for every member, and no blob built before");
+  L.push("--   the deploy can be served after it — the six-hour PACK_TTL_MS is not what does");
+  L.push("--   the retiring. KEEP THIS LINE: it is the declaration CI requires of every");
+  L.push("--   mapping migration. Confirm the version moved with");
+  L.push("--   scripts/test-vr-pack-key-version.mjs once the wave lands. If this draft is");
+  L.push("--   edited down to no mapping rows at all, delete this line along with them.");
+  L.push("--");
   L.push(`-- Candidates proposed by keyword evidence: ${cands.length}`);
   L.push(`-- Candidates accepted by a human: 0 (nothing here has been accepted)`);
   L.push("");
