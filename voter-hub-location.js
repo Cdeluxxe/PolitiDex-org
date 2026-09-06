@@ -1199,11 +1199,78 @@
   // more records into the same global.
   var _pdxStatewideCache = {};
 
+  // ── AND A LEDGER THE MEMO CANNOT UNDO: ONCE NAMED, NEVER UN-NAMED ──────────
+  // The size key above fixes a memo that remembered an emptiness. It does not fix
+  // the opposite direction, which is the failure a Layton reader met on a live
+  // phone: the band painted SIX of six with John Curtis and Mike Lee, and then a
+  // second roster payload landed and the same rows became "No record on file yet
+  // — we'd rather leave this blank than name the wrong person", with the count
+  // dropping to three. The names were not wrong and then corrected. They were
+  // right, and then deleted.
+  //
+  // A second payload is a MERGE into the same global, so it can only ever add
+  // records or overwrite fields of records already there — and the fields that
+  // decide a statewide seat are two strings, `office` and `state`. A payload that
+  // arrives without them (a light Firestore stub for a record the bundle already
+  // described in full) blanks the very metadata this walk matches on, the walk
+  // finds no senators and no governor for Utah, and every surface downstream
+  // faithfully repaints that as a coverage admission over three people with full
+  // files at /p/curtis, /p/lee and /p/cox.
+  //
+  // Growing the roster invalidates the memo by design, so the size key does not
+  // protect against this. Nothing does, unless the resolver keeps its own record
+  // of what it has already answered — so it does:
+  //
+  //   `_pdxStatewideBest[state]` holds the last NON-EMPTY statewide answer for a
+  //   state. It is only ever written by a walk that found somebody, it is never
+  //   cleared by a roster arrival (the pill that says "Loading the latest roster…"
+  //   is a toast, and a toast may not delete a human), and an empty walk is
+  //   carried back to it seat by seat rather than overwriting it.
+  //
+  // WHAT RELEASES A REMEMBERED HOLDER, because "sticky forever" would be its own
+  // kind of lie. Exactly two things:
+  //
+  //   · A DIFFERENT PID. A walk that resolves somebody wins outright and is
+  //     recorded in their place — the ledger never competes with an answer.
+  //   · THE PERSON LEAVING THE ROSTER. A pid still on file whose office string a
+  //     partial payload flattened is a loading state; a pid the roster no longer
+  //     holds at all is the roster genuinely no longer knowing them, and that
+  //     empty is honoured. `_pdxRosterKeeps()` is the whole test, and it declines
+  //     to answer at all while the roster is empty — a page with no roster in the
+  //     window yet has no opinion about who left office.
+  //
+  // The ledger lives for one page load and is never persisted, so a real change
+  // of officeholder is picked up on the next visit rather than being cached into
+  // the reader's browser — and within a session a fresh answer always beats it.
+  var _pdxStatewideBest = {};
+
   function _pdxRosterSize() {
     try {
       var r = window.CMP_DATA;
       return r ? Object.keys(r).length : 0;
     } catch (e) { return 0; }
+  }
+
+  // Is this pid still a record in the roster at all? The one question that
+  // separates "a payload flattened their office string" from "we no longer hold
+  // this person" — and therefore the one thing that may un-name a seat.
+  function _pdxRosterHas(pid) {
+    if (!pid) return false;
+    try {
+      var r = window.CMP_DATA;
+      return !!(r && r[pid]);
+    } catch (e) { return false; }
+  }
+
+  // …AND THE ROSTER ONLY GETS A VOTE WHILE IT HAS ROWS. An empty window.CMP_DATA
+  // is a page mid-load, not a page whose officeholders resigned, so "is this pid
+  // gone?" is a question it is not entitled to answer yet. Every carry-forward
+  // below asks THIS, not the raw lookup: absence of a roster is never evidence of
+  // absence of a person.
+  function _pdxRosterKeeps(pid) {
+    if (!pid) return false;
+    if (!_pdxRosterSize()) return true;
+    return _pdxRosterHas(pid);
   }
 
   function _pdxStateName(v) {
@@ -1263,6 +1330,59 @@
       }
     } catch (e) {}
 
+    // ── CARRY A NAMED SEAT FORWARD OVER AN EMPTY WALK ───────────────────────
+    // Applied seat by seat, so one flattened record cannot take the other two
+    // seats down with it, and only over people the roster still holds. An
+    // ambiguity is deliberately NOT carried: three senators on file for one state
+    // is the roster contradicting itself, which is a refusal we mean rather than
+    // a payload we are waiting on.
+    var best = _pdxStatewideBest[st];
+    if (best && !out.ambiguous) {
+      if (best.senators.length) {
+        // Slot by slot rather than all-or-nothing: a payload that flattens ONE
+        // senator's office string must not cost the reader that senator, and a
+        // state has two seats, so the remembered holder the walk did not find is
+        // added beside the one it did. Capped at two — the seat count is a fact
+        // about the Senate, not something a ledger gets to grow.
+        best.senators.forEach(function (pid) {
+          if (out.senators.length >= 2) return;
+          if (out.senators.indexOf(pid) !== -1) return;
+          if (_pdxRosterKeeps(pid)) out.senators.push(pid);
+        });
+      }
+      if (!out.governor && best.governor && _pdxRosterKeeps(best.governor)) {
+        out.governor = best.governor;
+      }
+      // And the two Senate rows keep the order the reader has already read them
+      // in. Which senator is "ussenate1" is not a ranking of any kind (see the
+      // level builder), but two rows silently swapping names on a repaint reads
+      // as the page changing its mind, so a remembered pair holds its order and
+      // anything new is appended.
+      if (best.senators.length && out.senators.length > 1) {
+        var ordered = [];
+        best.senators.forEach(function (pid) {
+          if (out.senators.indexOf(pid) !== -1) ordered.push(pid);
+        });
+        out.senators.forEach(function (pid) {
+          if (ordered.indexOf(pid) === -1) ordered.push(pid);
+        });
+        out.senators = ordered;
+      }
+    }
+
+    // The ledger records answers, never emptiness — an entry is only written
+    // where this walk (or the carry-forward above) actually named somebody, and
+    // an all-blank result leaves the previous entry standing. A remembered pid
+    // the roster no longer holds is pruned on the way through, so the ledger
+    // cannot accumulate people the app has stopped knowing.
+    if (out.senators.length || out.governor) {
+      var prev = _pdxStatewideBest[st] || { senators: [], governor: null };
+      _pdxStatewideBest[st] = {
+        senators: out.senators.length ? out.senators.slice() : prev.senators.filter(_pdxRosterKeeps),
+        governor: out.governor || (_pdxRosterKeeps(prev.governor) ? prev.governor : null)
+      };
+    }
+
     // Only ever cache an answer the roster was actually present to give.
     if (rn) _pdxStatewideCache[st] = { n: rn, val: out };
     return out;
@@ -1304,6 +1424,12 @@
     if (_pdxRosterFired) return true;
     if (!_pdxRosterSize()) return false;
     _pdxRosterFired = true;
+    // The MEMO is dropped, and only the memo. `_pdxStatewideBest` and the seat
+    // ledger below it survive every roster arrival on purpose: an arrival is new
+    // information about who holds a seat, never an instruction to forget an
+    // officeholder this page has already named. Wiping them here would hand the
+    // next walk a clean slate and let a payload without `office`/`state` repaint
+    // Curtis, Lee and Cox as blanks — which is the whole failure this guards.
     _pdxStatewideCache = {};
     var cbs = _pdxRosterCbs;
     _pdxRosterCbs = [];
@@ -1335,6 +1461,105 @@
     if (_pdxRosterFired) { try { cb(); } catch (e) {} return; }
     _pdxRosterCbs.push(cb);
     if (!_pdxRosterFlush()) _pdxRosterWatch();
+  };
+
+  // ── _pdxStickLevels() — A SEAT THAT HAS BEEN NAMED IS NEVER UN-NAMED ────────
+  // The statewide ledger above protects the two seats that resolve from roster
+  // metadata. This protects the SEAT LIST, which is what every surface actually
+  // paints, and it protects all six the same way — because the rule a reader
+  // needs is not "statewide seats are sticky", it is "the app does not delete a
+  // representative it has already shown you".
+  //
+  // WHAT THE READER SAW, one more time, because it is the specification. Layton /
+  // Davis County, live phone: six of six, Curtis and Lee named with photos and
+  // "See their record". Then the "Loading the latest roster…" pill fired, a
+  // second payload merged, and the same rows became "No record on file yet — we'd
+  // rather leave this blank than name the wrong person" with the count at three
+  // of six. That sentence is an admission about OUR coverage. Printing it over
+  // somebody the same page named ninety seconds earlier is not a cautious blank;
+  // it is the app calling its own true answer a mistake.
+  //
+  // THE RULE, per seat slot:
+  //   · a fresh pid            → it wins, outright, and is what gets remembered.
+  //     Including a DIFFERENT pid from the one on file: an answer replacing an
+  //     answer is the system working, and nothing here competes with it.
+  //   · no fresh pid, remembered pid still on the roster → RESTORE it, flagged
+  //     `sticky`. A record whose `office`/`state` a partial payload flattened is
+  //     mid-load, and mid-load is not a coverage claim.
+  //   · no fresh pid, remembered pid gone from the roster → let the blank stand
+  //     and forget them. This is the explicit empty, and it is honoured.
+  //
+  // AND IT IS SCOPED TO ONE READER IN ONE PLACE. The ledger is keyed on the
+  // location signature, so changing location wipes it: a reader who looks up
+  // Layton and then Columbus must NOT keep Utah's senators, and the moment their
+  // address changes there is no memory left to restore from. It is memory, not
+  // storage — nothing is persisted, so a reload re-resolves from scratch.
+  //
+  // A DISTRICT SEAT CARRIES ITS DISTRICT OR IT IS NOT RESTORED. This file's
+  // standing rule is that the name and the district number move together: pairing
+  // a remembered member with a district the resolver has since changed (a redrawn
+  // U.S. House seat) would produce exactly the internally-false row documented
+  // under _pdxHouseRedistrict(). So a district level is only refilled where the
+  // fresh district is absent or unchanged, and the remembered district label
+  // comes back with the pid.
+  var _pdxSeatLedger = {};
+  var _pdxSeatLedgerSig = null;
+
+  function _pdxLocSig(loc, state) {
+    var l = loc || {};
+    return [String(state || ''), String(l.city || ''), String(l.county || ''),
+            String(l.district || '')].join('|').toLowerCase();
+  }
+
+  function _pdxStickLevels(levels, loc, state) {
+    var sig = _pdxLocSig(loc, state);
+    if (sig !== _pdxSeatLedgerSig) { _pdxSeatLedgerSig = sig; _pdxSeatLedger = {}; }
+
+    // NOBODY IS NAMED TWICE. A restore fills a slot the current walk left empty,
+    // and a person already standing in another slot of this ballot is not
+    // available to fill it — otherwise a payload that flattened one of two
+    // senators would print the surviving one on both Senate rows.
+    var taken = {};
+    levels.forEach(function (lv) { if (lv && lv.pid) taken[lv.pid] = true; });
+
+    return levels.map(function (lv) {
+      if (!lv || !lv.key) return lv;
+      var mem = _pdxSeatLedger[lv.key];
+
+      if (lv.pid) {
+        _pdxSeatLedger[lv.key] = { pid: lv.pid, district: lv.district, distLabel: lv.distLabel };
+        return lv;
+      }
+      if (!mem || !mem.pid) return lv;
+      if (taken[mem.pid]) return lv;
+      if (!_pdxRosterKeeps(mem.pid)) { delete _pdxSeatLedger[lv.key]; return lv; }
+      // A statewide seat has no district to disagree about. A district seat that
+      // has since resolved a DIFFERENT district is a different seat, and the
+      // remembered member does not belong to it.
+      if (!lv.statewide && lv.district != null && String(lv.district) !== String(mem.district)) return lv;
+
+      var out = {};
+      for (var k in lv) if (Object.prototype.hasOwnProperty.call(lv, k)) out[k] = lv[k];
+      out.pid = mem.pid;
+      out.resolved = true;
+      out.sticky = true;
+      if (!lv.statewide && lv.district == null && mem.district != null) {
+        out.district = mem.district;
+        out.distLabel = mem.distLabel;
+      }
+      taken[mem.pid] = true;
+      return out;
+    });
+  }
+
+  // One owner for "forget this reader's seats". Nothing on the roster path calls
+  // it and nothing should: a roster arriving is new information about who holds a
+  // seat, never an instruction to drop an officeholder already on screen. It
+  // exists so a future caller with a real reason to reset (and the diagnostics
+  // that check this rule) has a single door instead of reaching into the ledger.
+  window._pdxForgetSeatHolders = function () {
+    _pdxSeatLedger = {};
+    _pdxSeatLedgerSig = null;
   };
 
   // ── window.pdxRepsForMe() — the ONE resolution of "who represents me" ───────
@@ -1503,6 +1728,26 @@
       };
     };
 
+    // The six seats as this walk resolved them, THEN passed through the ledger
+    // that refuses to un-name a seat this page has already named (see
+    // _pdxStickLevels below). The ledger is applied here, in the resolver, rather
+    // than in any one surface: Who Represents Me, the workspace header, the race
+    // sheet's HOLDS THIS SEAT tag and pdxSeatHolders() all project these same
+    // levels, and a rule that lives in one of them is a rule the other three can
+    // break.
+    var levels = [
+      // Both Senate seats are always listed. Every state has two, and that is a
+      // fact about the Senate rather than a claim about our coverage — so a
+      // state we hold one senator for shows one name and one honest blank.
+      swLevel('ussenate1', 'senate', 'U.S. Senate', 'U.S. Senate', '#f0abfc', sw.senators[0]),
+      swLevel('ussenate2', 'senate', 'U.S. Senate', 'U.S. Senate', '#f0abfc', sw.senators[1]),
+      level('house', 'house', 'U.S. House', 'U.S. House of Representatives', '#60a5fa', hd, hp),
+      swLevel('governor', 'governor', 'Governor', 'Governor', '#fbbf24', sw.governor),
+      level('statesenate', 'statesenate', 'State Senate', 'State Senate', '#a78bfa', sd, sp),
+      level('statehouse', 'statehouse', 'State House', 'State House', '#2dd4bf', ld, lp)
+    ];
+    if (located && !national) levels = _pdxStickLevels(levels, loc, state);
+
     return {
       located: located,
       national: national,
@@ -1524,17 +1769,7 @@
       // to local offices, which are curated for the same areas.
       districtsResolvable: utah,
       statewideAmbiguous: !!sw.ambiguous,
-      levels: [
-        // Both Senate seats are always listed. Every state has two, and that is a
-        // fact about the Senate rather than a claim about our coverage — so a
-        // state we hold one senator for shows one name and one honest blank.
-        swLevel('ussenate1', 'senate', 'U.S. Senate', 'U.S. Senate', '#f0abfc', sw.senators[0]),
-        swLevel('ussenate2', 'senate', 'U.S. Senate', 'U.S. Senate', '#f0abfc', sw.senators[1]),
-        level('house', 'house', 'U.S. House', 'U.S. House of Representatives', '#60a5fa', hd, hp),
-        swLevel('governor', 'governor', 'Governor', 'Governor', '#fbbf24', sw.governor),
-        level('statesenate', 'statesenate', 'State Senate', 'State Senate', '#a78bfa', sd, sp),
-        level('statehouse', 'statehouse', 'State House', 'State House', '#2dd4bf', ld, lp)
-      ]
+      levels: levels
     };
   };
 
@@ -1577,6 +1812,13 @@
   //               from "we hold no record for this person".
   //   located     whether there is a voter to answer for at all. A caller with
   //               no location must not fall back to a curated default area.
+  //   sticky      at least one holder on this seat is being carried forward from
+  //               an earlier answer on this page because the current walk lost
+  //               them to a partial roster payload (see _pdxStickLevels). It is
+  //               published for diagnostics only: a sticky holder is a resolved
+  //               holder, no copy anywhere hedges on it, and no surface may treat
+  //               it as a weaker fact than a freshly-walked one — the pid is the
+  //               same pid and the record address is the same address.
   var _PDX_SEAT_OF = {
     ussenate1: 'senate', ussenate2: 'senate', ussenate: 'senate', senate: 'senate',
     house: 'house', representative: 'house',
@@ -1595,7 +1837,7 @@
   window.pdxSeatHolders = function (seatKey) {
     var rk = window.pdxSeatKey(seatKey);
     var out = { ok: false, seat: rk, located: false, statewide: false,
-                districtGap: false, pids: [], levels: [] };
+                districtGap: false, sticky: false, pids: [], levels: [] };
     if (!rk) return out;
     var reps = null;
     try { reps = window.pdxRepsForMe(); } catch (e) { reps = null; }
@@ -1608,6 +1850,7 @@
     if (!lv.length) return out;
     out.statewide = lv.every(function (l) { return !!l.statewide; });
     out.districtGap = lv.some(function (l) { return !l.statewide && !l.pid; });
+    out.sticky = lv.some(function (l) { return !!l.sticky; });
     lv.forEach(function (l) { if (l.pid && out.pids.indexOf(l.pid) === -1) out.pids.push(l.pid); });
     out.ok = out.pids.length > 0;
     return out;

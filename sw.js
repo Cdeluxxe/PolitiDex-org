@@ -2609,7 +2609,54 @@
 // No floor, mapping, weight, verdict, roster row or Direction Match read moved.
 // Every person brief, every DM ledger entry and every formal tier is byte-identical
 // across a twin boot; what changed is who prints a number and when.
-const CACHE_VERSION = 'v142';
+// v143 - A SEAT THAT HAS BEEN NAMED IS NEVER UN-NAMED. Layton / Davis County, on a
+// phone: Who Represents Me painted six of six, with John Curtis and Mike Lee on the
+// two U.S. Senate rows and Spencer Cox on the Governor row — photos, "See their
+// record" — and then the "Loading the latest roster..." pill fired and those same
+// three rows became "No record on file yet - we'd rather leave this blank than name
+// the wrong person", with the count down to three of six. The blank sentence is an
+// admission about OUR coverage, and printing it over three people who each have a
+// file is the app calling its own true answer a mistake. It is strictly worse than
+// never having answered: the reader had their senators and watched the site take
+// them away.
+//   THE CAUSE WAS A MERGE, and it is in the precached document. The light Firestore
+// index carries only the fields its documents have; the bulk merge in index.html
+// defaults the essentials before assigning, so a document with no office and no
+// state arrived as office:'' state:'' and Object.assign wrote those two empty
+// strings over the bundled roster's "U.S. Senator" and "Utah". Statewide seats
+// resolve from exactly those two strings, which is how one merge deleted three
+// officeholders. A blank is not an answer and no longer overwrites one: both roster
+// merges now go through _pdxMergeRosterRecord, which drops '', null, undefined and
+// [] onto a field that is already empty and nowhere else. An arriving VALUE still
+// wins, including one that moves somebody out of a seat.
+//   AND THE RESOLVER NOW REMEMBERS WHAT IT HAS ANSWERED, so no future payload can
+// find another way to do this. pdxRepsForMe() keeps a ledger, per reader location,
+// of the seats it has already named; a seat loses its holder only to a DIFFERENT
+// pid or to that person leaving the roster outright. An empty window.CMP_DATA is a
+// page mid-load, not a page whose officeholders resigned, so it takes nothing away.
+// Because the rule lives in the resolver, the band, the workspace header, the race
+// sheet's incumbent tag and pdxSeatHolders() all inherit it: the Senate header
+// cannot say "no officeholder" over holders the band named a moment earlier.
+// Moving to a new address still forgets everything, which is the one way remembering
+// could name the wrong human.
+//   ONE PRECACHED SHELL FILE CHANGED, AND TWO CHANGED FILES ARRIVE FRESH:
+//   · '/' (index.html)      - the bulk roster merge stopped defaulting a field into
+//                             existence and then writing it over a curated one.
+//                             This is the precached half, and the reason for the
+//                             bump: a warm device holding v142's document would
+//                             keep the merge that un-named the senators.
+//   · voter-hub-location.js - the statewide walk and pdxRepsForMe() carry a named
+//                             seat forward; pdxSeatHolders() publishes `sticky` for
+//                             diagnostics. Not a shell asset; arrives fresh.
+//   · firebase-boot.js      - the full-profile merge follows the same rule. Not a
+//                             shell asset; arrives fresh. The retired-pid guard on
+//                             the other branch is untouched.
+// No floor, mapping, weight, verdict, roster row or Direction Match read moved. No
+// score is computed here and no name is guessed: the only pid a seat can carry is
+// one this resolver already produced for this reader. A twin boot leaves every
+// formal tier and every DM ledger entry byte-identical; what changed is that a row
+// which has named somebody keeps them.
+const CACHE_VERSION = 'v143';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
