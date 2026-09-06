@@ -2656,7 +2656,43 @@
 // one this resolver already produced for this reader. A twin boot leaves every
 // formal tier and every DM ledger entry byte-identical; what changed is that a row
 // which has named somebody keeps them.
-const CACHE_VERSION = 'v143';
+// v144 - THE FORMAL FILE OUTRANKS A NAME STUB, AND A CITATION IS A DESTINATION.
+// The All-Seeing Eye's formal lane put a lightweight row — a PROFILES stub with a
+// photo and a paragraph of bio, a thin roster row, a name a query merely brushed
+// — above the person holding the voting file. The lane used to partition people
+// on one boolean (does the pattern index hold a row) and that boolean reads "no"
+// for both a stub and a member whose lane has not landed, so the two tied and
+// relevance broke the tie. The people group now orders on the record: is there a
+// formal record at all, then the name the query actually named, then the office it
+// named, then the record's own depth (acts on file, then characterised issues).
+// score() and rank() are byte-identical — relevance did not move, the tie-break
+// did — and nothing in the ordering reads a party letter, a Word-vs-Action
+// percentage or a dollar.
+//   THE ROW SAYS WHAT IS ON FILE. Office + "N acts · M issues", or "record still
+// landing" while the lane is still answering — which is a different sentence from
+// "nothing on file" and is now spelled differently. The row's badge chain (an
+// outcome word, else a Say-vs-Do verdict, else a coverage chip) is gone: at most
+// ONE figure is printed and only when PDXWordAction.figure() reports ready, so the
+// row cannot flash a thin percentage and then settle to the live one — the same
+// rule the homepage card took in v143.
+//   AND A BILL NUMBER OPENS THE BILL. "S. 129" ranked as prose: the digits landed
+// in eight legislators' haystacks and the measures group renders last in the lane,
+// so the measure sat ninth and Enter opened a person nobody asked about. A query
+// that IS a citation — H.R. 6644, H.B. 400, S. 129, H.J.Res. 88, with or without
+// the dots, plus a bare number that reaches exactly one measure — now leads the
+// lane with that measure's own row. Every other query is unchanged.
+//   ONE PRECACHED SHELL FILE CHANGED, AND ONE CHANGED FILE ARRIVES FRESH:
+//   · '/' (index.html)     - the person row's one figure chip (.pdx-eye-wva) has
+//                            styles, and it carries its tested set beside it. This
+//                            is the precached half and the reason for the bump.
+//   · all-seeing-eye.js    - the ordering, the row copy and the citation lead. A
+//                            runtime cache entry, so a warm device would keep
+//                            serving v143's panel without this bump.
+// No floor, mapping, weight, verdict, roster row, seat holder or Direction Match
+// read moved, and no new score was computed: every number the row prints is a
+// count some other module already published. A twin boot leaves every formal tier
+// and every Direction Match read byte-identical.
+const CACHE_VERSION = 'v144';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

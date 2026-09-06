@@ -544,23 +544,259 @@
     function mandateEmptyHtml() {
       return '<div class="pdx-eye-empty pdx-eye-mand-empty">' + esc(MANDATE_EMPTY) + '</div>';
     }
-    // Does this person have a formal row at all — a vote or a formal action on
-    // file? Asked of the shipped index, guarded, and used ONLY to partition an
-    // already-ranked list. It adds no score, so relevance order survives inside
-    // each half and a person with nothing on file is still findable by name.
-    function hasFormalRow(pid) {
+    // ── HOW MUCH FORMAL RECORD IS ON FILE, FOR ONE PERSON ─────────────────
+    // WHAT WAS WRONG. `hasFormalRow` asked one boolean question — does the
+    // pattern index hold a row — and the answer partitioned the people lane into
+    // two halves. That was enough while the only competitor was a person with
+    // nothing at all. It is not enough against the three rows this pass is about:
+    //
+    //   · A STUB. A PROFILES document with a photo, an office string and a
+    //     paragraph of bio, and no act on file anywhere. `hasFormalRow` reads it
+    //     as "no", which was right, but only tied it with everybody else who read
+    //     "no" — including a member whose file simply had not landed yet.
+    //   · A RETIRED ALIAS. Folded into one row upstream (polIdGroups), so it no
+    //     longer competes. Kept named here because the id still reaches this
+    //     function through a chip and a saved receipt, and the answer must be the
+    //     canonical person's, not the retired document's.
+    //   · A THIN ROSTER ROW. A candidate or a just-seated member: a real record
+    //     with a real office and genuinely nothing formal to count. It read "no"
+    //     as well, so a query that touched its bio sat wherever relevance put it —
+    //     which on a surname query is frequently above the officeholder with a
+    //     hundred and twenty-five acts on the same surname.
+    //
+    // So the question is now HOW MUCH, in the two units the record itself is kept
+    // in, and it is asked of every source that can answer synchronously:
+    //
+    //   · THE PATTERN INDEX'S OWN SHAPE (PDXConsistency.formalPatternIndex.shape)
+    //     — acts judged, issues touched, and how many of those the index could
+    //     read a pattern on. This is the live lane and it warms in.
+    //   · THE SHIPPED FORMAL INDEX (PDXFormalIndex, formal-index.js) — sourced
+    //     acts and distinct measures per pid, generated and shipped, so it answers
+    //     on the first keystroke of a cold load and never moves. Taken as a FLOOR
+    //     rather than a replacement: the live lane is broader (it holds the
+    //     federal record too) and the shipped one is earlier.
+    //   · THE EDGE'S FIRST-BYTE BRIEF (PDXPerson.crawlRecord) — the only place a
+    //     federal record exists before the roll-call cache lands.
+    //
+    // AND WHETHER THE LANE HAS ANSWERED AT ALL, which is a different fact from
+    // "it answered nothing". A row whose lane has not spoken says "record still
+    // landing" (see polItem); a row whose lane answered and held nothing says
+    // nothing about a record, and the coverage chip keeps its own honest words.
+    //
+    // NOTHING HERE IS A SCORE. Every field is a count lifted off a source that
+    // already published it, or a boolean about load state. No weight, no
+    // threshold, no percentage, no party, no finance, and no comparison with
+    // anybody else's record. Memoized on the derivation epoch, like every other
+    // read of this row model, because a browse list asks for thirty of these
+    // while one keystroke paints.
+    var _rdCache = {}, _rdEpoch = -1;
+    function recordDepth(pid) {
+      var id = String(pid == null ? '' : pid);
+      if (!id) return { acts: 0, issues: 0, chars: 0, answered: false };
+      var ep = 0;
+      try { ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0; } catch (e) { ep = 0; }
+      // The measures lane and the roster arrive outside the epoch's knowledge, so
+      // the index key rides with it: a rebuild is exactly when a cached zero has
+      // to be re-asked.
+      var ck = id + '||' + ep + '||' + indexKey;
+      if (_rdEpoch !== ep) { _rdCache = {}; _rdEpoch = ep; }
+      if (_rdCache[ck]) return _rdCache[ck];
+      var out = { acts: 0, issues: 0, chars: 0, answered: false };
       try {
-        var C = window.PDXConsistency, F = C && C.formalPatternIndex;
-        if (!F || typeof F.count !== 'function') return false;
-        return (F.count(pid) || 0) > 0;
-      } catch (e) { return false; }
+        var F = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+        if (F && typeof F.shape === 'function') {
+          var shp = F.shape(id);
+          if (shp) {
+            out.acts = shp.judged || 0;
+            out.issues = shp.issues || 0;
+            out.chars = shp.characterised || 0;
+            if (out.issues || out.acts) out.answered = true;
+          }
+        }
+      } catch (e) {}
+      try {
+        var FI = window.PDXFormalIndex;
+        if (FI && typeof FI.acts === 'function') {
+          var sa = FI.acts(id) || 0, sm = (typeof FI.measures === 'function' ? FI.measures(id) : 0) || 0;
+          if (sa > out.acts) out.acts = sa;
+          if (sa || sm) out.answered = true;
+          // A REVIEWED EMPTY FILE IS AN ANSWER. The shipped index carries a
+          // one-line reason for the files it holds nothing for — seated after the
+          // last session, left before the first — and a row with one of those is
+          // not waiting on anything.
+          if (!out.answered && typeof FI.emptyNote === 'function' && FI.emptyNote(id)) out.answered = true;
+        }
+      } catch (e) {}
+      try {
+        var PF = window.PDXPerson;
+        if (!out.acts && PF && typeof PF.crawlRecord === 'function') {
+          var crawl = PF.crawlRecord(id) || [];
+          if (crawl.length) { out.acts = crawl.length; out.answered = true; }
+        }
+      } catch (e) {}
+      try {
+        var VR = window.PDXVotingRecord;
+        if (VR && typeof VR.memberRecords === 'function' && VR.memberRecords(id)) out.answered = true;
+      } catch (e) {}
+      _rdCache[ck] = out;
+      return out;
     }
-    function formalFirst(list) {
-      var withRow = [], without = [];
+    // ── THE FIRST KEY: IS THERE A FORMAL RECORD HERE AT ALL ───────────────
+    // The claim the report makes, in one boolean: a pid with a formal index
+    // outranks a pid holding only a photo, a bio, a retired alias or a thin
+    // roster row. Presence, not magnitude — a member with three acts and a
+    // member with a hundred and twenty-five are the same answer to this
+    // question, and the keys below decide between them.
+    function hasRecord(pid) {
+      var d = recordDepth(pid);
+      return (d.acts > 0 || d.issues > 0 || d.chars > 0) ? 1 : 0;
+    }
+    // ── THE LAST KEY: HOW MUCH OF IT, IN THE RECORD'S OWN TWO UNITS ───────
+    // Acts on file first, then the issues the index could characterise. Weights
+    // 2/1 so the two read strictly in that order rather than summing their way
+    // past each other; this is a lexicographic band, not a score.
+    //
+    // WHY IT IS THE LAST KEY AND NOT THE FIRST. Sorting on magnitude ahead of
+    // the name demotes the person the reader named. "mike lee" put Mike Kohler,
+    // Mike McKell and Mike Schultz — three Utah legislators with a shipped
+    // formal index and a hundred acts each — above Senator Mike Lee, whose
+    // federal record is real, is deeper than all three, and simply had not
+    // finished loading on the keystroke being painted. That is the reported bug
+    // wearing the other coat: a cold file losing to a warm one, decided by which
+    // lane happened to arrive first rather than by what the reader asked for.
+    //
+    // So depth decides between people the query does NOT distinguish — a bare
+    // surname where four Lees all match equally — and the name decides when it
+    // does. Nothing here can promote a deep file that merely mentions the query
+    // above the person the query names.
+    function depthTier(pid) {
+      var d = recordDepth(pid);
+      return (d.acts > 0 ? 2 : 0) + (d.chars > 0 ? 1 : 0);
+    }
+    // Is the query the person's NAME, rather than a word that happens to be in
+    // their file? Two strengths: the whole name typed out, and one whole token of
+    // it ("chew", "schultz"). A substring, a fuzzy near-miss and a bio hit are all
+    // zero here — they are what the tier exists to sit above.
+    function exactNameRank(e, q) {
+      var name = String(e.titleLc || '');
+      if (!q) return 0;
+      if (name === q) return 2;
+      var toks = e.tokens || [];
+      for (var i = 0; i < toks.length; i++) { if (toks[i] === q) return 1; }
+      return 0;
+    }
+    // Did the query name the OFFICE — "senator", "utah state representative",
+    // "governor"? Read off the row's own sub line, which is office · district ·
+    // state and nothing else, so a bio cannot reach it.
+    function officeHit(e, terms) {
+      var sub = norm(e.sub || '');
+      if (!sub || !terms || !terms.length) return 0;
+      for (var i = 0; i < terms.length; i++) { if (sub.indexOf(terms[i]) === -1) return 0; }
+      return 1;
+    }
+    // ── THE FORMAL LANE'S PEOPLE ORDER ────────────────────────────────────
+    // A STABLE RE-ORDER OF AN ALREADY-RANKED LIST, exactly as the binary
+    // partition it replaces was. score() and rank() are untouched: what enters
+    // here has already passed the relevance gate, so this decides the order of
+    // the answer and never what counts as an answer. A person with nothing on
+    // file keeps their place relative to the others and stays findable by name.
+    //
+    // THREE KEYS, IN THE ORDER THE BRIEF NAMES THEM: how much formal record is on
+    // file, then whether the query is the name, then whether it is the office.
+    // Ties fall through to the relevance order the list arrived in, which is what
+    // makes this stable — `i` is the original index and it is the last term.
+    //
+    // WHAT IS NOT A TERM, AND CANNOT BECOME ONE: party, any Direction Match or
+    // Word-vs-Action percentage, and anything from the finance lane. None of the
+    // three is read by any function this one calls.
+    function recordFirst(list, q, terms) {
+      var keyed = [];
       for (var i = 0; i < list.length; i++) {
-        (hasFormalRow(list[i].id) ? withRow : without).push(list[i]);
+        keyed.push({
+          e: list[i], i: i,
+          f: hasRecord(list[i].id),
+          n: exactNameRank(list[i], q),
+          o: officeHit(list[i], terms),
+          t: depthTier(list[i].id)
+        });
       }
-      return withRow.concat(without);
+      keyed.sort(function (a, b) {
+        return (b.f - a.f) || (b.n - a.n) || (b.o - a.o) || (b.t - a.t) || (a.i - b.i);
+      });
+      return keyed.map(function (r) { return r.e; });
+    }
+
+    // ── A CITATION IS A DESTINATION, NOT A SEARCH TERM ────────────────────
+    // WHAT WAS WRONG. "S. 129" is not a description of anything a reader wants
+    // ranked: it is the name of one document, and there is exactly one measure it
+    // can mean. The panel scored it as prose — the digits landed in eight
+    // legislators' haystacks before the measure's own row, and the measures group
+    // renders last in this lane, so S. 129 sat ninth and Enter opened a person
+    // nobody had asked about. "H.R. 1" was the same defect from the other side:
+    // the exact measure ranked fifth behind H.R. 1919, H.R. 1048 and H.R. 1968,
+    // because a longer number contains the shorter one as a substring.
+    //
+    // So a query that IS a citation is answered with that citation's measure, at
+    // the top, above the roster. This is not a boost and not a new score: it is
+    // the recognition that the query already named its answer. Everything else in
+    // the panel is untouched, including the measure's own group, its cap and the
+    // relevance order of everything below the promoted row.
+    //
+    // WHAT COUNTS AS A CITATION. The federal and Utah shapes the record actually
+    // holds, with or without the dots and the space — "H.R. 6644", "hr6644",
+    // "H.B. 400", "S. 129", "H.J.Res. 88", "S.Con.Res. 7" — and nothing else. A
+    // phrase with a citation buried in it ("who voted for H.R. 1") is prose and
+    // stays prose: the reader is asking a question, not naming a document.
+    var CITE_RE = /^\s*(h|s)\s*\.?\s*(r|b|j\s*\.?\s*res|con\s*\.?\s*res|res)?\s*\.?\s*(\d{1,6})\s*$/i;
+    function citeOf(str) {
+      var m = CITE_RE.exec(String(str == null ? '' : str));
+      if (!m) return null;
+      // "S. 129" has no second letter and IS a citation; "H. 129" is not a shape
+      // either chamber prints, so a bare "h" is refused.
+      var kind = (m[2] || '').replace(/[^a-z]/gi, '').toLowerCase();
+      var chamber = m[1].toLowerCase();
+      if (!kind && chamber !== 's') return null;
+      return { cite: chamber + kind, n: String(parseInt(m[3], 10)) };
+    }
+    // A BARE NUMBER IS A CITATION ONLY WHEN IT IS UNAMBIGUOUS. "6644" names one
+    // measure in the whole index, so a reader who types it has named a document;
+    // "1" names seven, so they have not, and the ranking keeps its answer.
+    var DIGITS_RE = /^\s*(\d{1,6})\s*$/;
+    function citeMatches(list, q) {
+      var c = citeOf(q), out = [];
+      var digits = c ? null : (DIGITS_RE.exec(String(q || '')) || [])[1];
+      if (!c && !digits) return out;
+      for (var i = 0; i < list.length; i++) {
+        var e = list[i];
+        if (!e || e.kind !== 'bill' || !e.number) continue;
+        var ec = citeOf(e.number);
+        if (!ec) continue;
+        if (c ? (ec.cite === c.cite && ec.n === c.n) : (ec.n === String(parseInt(digits, 10)))) out.push(e);
+      }
+      // Two measures can legitimately share a citation — "H.B. 400" names a
+      // different bill in every Utah general session — and both are the answer,
+      // in the order the ranking already put them in. A bare number that reaches
+      // more than one measure is not a citation at all.
+      if (!c && out.length !== 1) return [];
+      return out;
+    }
+    // The ranked list with the cited measure(s) at its head. The measure is taken
+    // from the FULL index when the ranking never reached it — a citation the
+    // panel holds and did not surface is the reported bug, not a ranking opinion
+    // — and the cap is respected, so the group's length does not move.
+    function citeFirst(ranked, all, q) {
+      var hits = citeMatches(ranked, q);
+      if (!hits.length) {
+        var deep = citeMatches(all || [], q);
+        if (!deep.length) return { list: ranked, lead: false };
+        hits = deep;
+      }
+      var head = [], tail = [];
+      for (var i = 0; i < ranked.length; i++) {
+        if (hits.indexOf(ranked[i]) === -1) tail.push(ranked[i]);
+      }
+      for (var j = 0; j < hits.length; j++) head.push(hits[j]);
+      return { list: head.concat(tail).slice(0, ranked.length || head.length), lead: true };
     }
 
     // ── build the search index (people + issues), memoized ────────────
@@ -620,7 +856,7 @@
       // No office/state/bio/stance text, so nothing here can be mistaken for a
       // legislator's haystack. The row's kind is 'judge' and not 'pol', which
       // is what keeps it out of entryPolId(), out of relBlock(), out of
-      // actionsFor() and out of the formal-record partition in formalFirst() —
+      // actionsFor() and out of the formal-record ordering in recordFirst() —
       // four surfaces that would each have read a legislator's apparatus onto a
       // court seat.
       judgeRows().forEach(function (j) {
@@ -1879,44 +2115,95 @@
       return a ? '</a>' : '</button>';
     }
 
+    // ── THE RECORD CLAUSE ON A PERSON ROW ─────────────────────────────────
+    // WHAT THE ROW SAYS ABOUT THE RECORD, in the record's own two units and in
+    // this order: the acts on file, then the issues they are filed across. It is
+    // the sentence a reader needs to tell an officeholder from a stub, and it was
+    // the one thing the row did not carry — the sub line was office · district ·
+    // state, which a stub has as well.
+    //
+    // THREE STATES, AND THE MIDDLE ONE IS WHY THIS IS NOT A COUNT WITH A ZERO IN IT:
+    //   · ON FILE           "125 acts · 42 issues" — both integers, off recordDepth.
+    //   · STILL LANDING     the lane has not answered for this person yet, so the
+    //                       row says so rather than printing a zero that a reader
+    //                       would take as a finding. Same rule the warming lanes
+    //                       above follow: "nothing found" and "nothing loaded" are
+    //                       different answers.
+    //   · ANSWERED, EMPTY   nothing at all. Not "0 acts", which reads as a verdict
+    //                       on the person, and not "still landing", which would be
+    //                       a lie: the lane spoke. The row stays at office ·
+    //                       district · state and the coverage chip keeps its own
+    //                       reviewed words ("Not yet documented").
+    //
+    // NO PERCENTAGE AND NO DIRECTION. Two counts, which is the size of a record
+    // rather than a reading of it — the same rule PDXWordAction.recordBadgeHTML
+    // is written under, and the reason a count is safe to print before a figure is.
+    var RECORD_LANDING = 'record still landing';
+    function recordClause(pid) {
+      var d = recordDepth(pid);
+      if (d.acts > 0 || d.issues > 0) {
+        var bits = [];
+        if (d.acts > 0) bits.push(d.acts + ' act' + (d.acts === 1 ? '' : 's'));
+        if (d.issues > 0) bits.push(d.issues + ' issue' + (d.issues === 1 ? '' : 's'));
+        return bits.join(' · ');
+      }
+      return d.answered ? '' : RECORD_LANDING;
+    }
+    // ── ONE WORD-VS-ACTION FIGURE, OR NONE ────────────────────────────────
+    // WHAT WAS WRONG, AND IT IS THE SAME DEFECT THE HOMEPAGE CARD FIXED. This slot
+    // held up to three different readings, tried in order: the issue index's
+    // strongest outcome word (PDXWordAction.searchBadgeHTML), then the curated
+    // Say-vs-Do verdict (PDXReceipts.rowBadge), then coverage. The first two are
+    // both Word-vs-Action findings off two different evidence bases, so a row could
+    // print one of them while the file it opened printed the other — and neither
+    // was gated on the ledger having stopped growing, which is how a member reads
+    // as one thing on the first paint and another a second later.
+    //
+    // ONE FIGURE, FROM THE ONE OWNER. PDXWordAction.figure(pid) is the object every
+    // other face of this number prints — the letterhead chip, the ⚖️ section, the
+    // homepage card — carrying the percentage, the tested count and the one sentence
+    // those two integers make. This row prints THAT OBJECT or nothing.
+    //
+    // AND ONLY WHEN `ready`. A search row is the surface the ready gate was written
+    // for: the reader has no ledger next to it to check the figure against and no
+    // way to tell one tick from another, so a percentage that clears the publication
+    // floor while the roll-call record is still arriving would settle to a different
+    // number under them. `ready` is figure()'s own flag — pct, both halves of the
+    // fraction, and a coverage read that has stopped warming — and nothing here
+    // adds a floor, a rounding or a second judgement to it.
+    //
+    // NO SECOND WVA ON THE ROW. The outcome word and the receipt verdict are gone
+    // from this slot rather than reordered: the record clause in the sub line above
+    // already says how large the file is, and one figure is the most this row may
+    // say about how it reads.
+    function wvaFigureChip(pid) {
+      try {
+        var WA = window.PDXWordAction;
+        if (!WA || typeof WA.figure !== 'function') return '';
+        var f = WA.figure(pid);
+        if (!f || !f.ready) return '';
+        var tip = 'Word vs Action: ' + f.pct + '% over ' + f.fraction +
+          '. The same figure the profile prints, published only once the tested set stopped growing.';
+        return '<span class="pdx-eye-wva" data-eye-wva="' + esc(f.token || 'read') + '" title="' + esc(tip) + '">' +
+          esc(f.pct + '%') + '<span class="pdx-eye-wva-n">' + esc(f.fraction) + '</span></span>';
+      } catch (e) { return ''; }
+    }
     function polItem(e, q, terms, idx) {
       var url = photoFor(e.id);
       var thumb = url
         ? '<span class="pdx-eye-thumb"><img src="' + esc(url) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(e.icon) + '\'"></span>'
         : '<span class="pdx-eye-thumb">' + esc(e.icon) + '</span>';
       var tag = e.party ? '<span class="pdx-eye-tag" style="color:' + e.party.color + ';background:' + e.party.color + '22;border:1px solid ' + e.party.color + '55;">' + esc(e.party.label) + '</span>' : '';
-      // THE RESULT CHIP — one meaning, and it is the profile's own.
-      //
-      // First choice is the issue index: the strongest bucket that has rows, in the
-      // index's word and colour (PDXWordAction.searchBadgeHTML). A reader who taps
-      // through then finds that same word at the top of the profile. This used to
-      // lead with the curated Say-vs-Do receipt verdict instead, which answers a
-      // different question off a different evidence base — and answers it in the
-      // index's hardest words, so a record the index reads as Mixed was announced
-      // in search as "Says One Thing · Does Another".
-      //
-      // Where the index has no result to name, searchBadgeHTML answers with the size
-      // of the formal record instead of with nothing — a count of issues with votes
-      // or formal actions on file, no score and no direction. Silence about an issue
-      // is not absence of a record, and this row is where that used to be published
-      // as though it were.
-      //
-      // The receipt verdict is still the next fallback, and it is a real one: it
-      // covers people the formal lane cannot reach — a record that is public rather
-      // than legislative. It is only ever shown where there is no formal answer to
-      // disagree with. Coverage is the last resort, and now genuinely last: a person
-      // we know, hold no formal record for and have not documented reads as "not yet
-      // documented" rather than as silence.
-      var receipt = '';
-      try {
-        if (window.PDXWordAction && window.PDXWordAction.searchBadgeHTML) {
-          receipt = window.PDXWordAction.searchBadgeHTML(e.id) || '';
-        }
-      } catch (ierr) {}
-      if (!receipt) {
-        try { if (window.PDXReceipts && window.PDXReceipts.rowBadge) receipt = window.PDXReceipts.rowBadge(e.id) || ''; } catch (rerr) {}
-      }
-      if (!receipt) {
+      // RECORD-FIRST COPY. The office line is the row's identity and the record
+      // clause is the row's substance, joined with the same separator the office
+      // line already uses so it reads as one sentence rather than as a badge.
+      var clause = recordClause(e.id);
+      var sub = [e.sub, clause].filter(Boolean).join(' · ');
+      // The one figure, ready-gated, and the coverage chip only where there is no
+      // record and no figure to show — which is the one case its words were
+      // written for and the only case they are true in.
+      var receipt = wvaFigureChip(e.id);
+      if (!receipt && !clause) {
         try { if (window.PDXCoverage && window.PDXCoverage.badgeHTML) receipt = window.PDXCoverage.badgeHTML(e.id) || ''; } catch (cerr) {}
       }
       // THE ROW IS A LINK, not a button. Everything inside it — thumb, name, sub
@@ -1933,7 +2220,7 @@
       return rowOpen(e.id, 'pdx-eye-item', 'data-i="' + idx + '" data-kind="pol" data-id="' + esc(e.id) + '"') +
         thumb +
         '<span class="pdx-eye-body"><span class="pdx-eye-name">' + highlight(e.title, q, terms) + '</span>' +
-        (e.sub ? '<span class="pdx-eye-sub">' + esc(e.sub) + '</span>' : '') + '</span>' +
+        (sub ? '<span class="pdx-eye-sub">' + esc(sub) + '</span>' : '') + '</span>' +
         personalBadge(e) + receipt + tag + rowClose(e.id);
     }
     // ── A JUDICIAL RETENTION ROW ────────────────────────────────────────────
@@ -3085,10 +3372,27 @@
       var jdgs = rank(data.judges || [], q, terms, LIM, null);
       var formal = (laneMode === 'formal');
       // FORMAL PUTS THE RECORD-HOLDERS FIRST, inside the roster's own relevance
-      // order. A stable partition, not a score and not a party term: a person
-      // with nothing on file keeps their place relative to the others and stays
-      // findable by name, which is why a name search never breaks in this mode.
-      if (formal) pols = formalFirst(pols);
+      // order. Three keys, in this order and no other: formal-record depth
+      // (acts on file, then characterised issues), then an exact name match,
+      // then an office the query actually named. Ties keep the relevance order
+      // `rank()` already produced, so a person with nothing on file stays
+      // exactly as findable by name as they were -- a name search never breaks
+      // in this mode, it just stops putting the empty file first.
+      //
+      // Nothing here is a score, and nothing here reads party, Word-vs-Action
+      // percentage, or money. `rank()` and `score()` are untouched: this is a
+      // stable re-order of what relevance already chose.
+      if (formal) pols = recordFirst(pols, q, terms);
+      // AND A CITATION LEADS THE WHOLE LANE. "H.B. 400" is the name of a
+      // document, so the document answers — above the roster, not ninth behind
+      // eight legislators whose bios happen to contain the digits. `citeLead` is
+      // false for every other query in the app, so nothing about a name search,
+      // an issue search or a cold measures lane changes shape.
+      var citeLead = false;
+      if (formal) {
+        var cl = citeFirst(bls, data.bills || [], q);
+        bls = cl.list; citeLead = cl.lead;
+      }
       // The issue answer is computed first: a question phrased in words nobody is
       // named after ("who actually backs housing?") can answer even when the
       // name/stance/bill ranking finds nothing at all.
@@ -3225,10 +3529,17 @@
       if (isMandate) {
         html += catBlock('mand', 'People\u2019s Mandate \u00b7 proposed vehicles', '#c4b5fd', mands, mandateItem, q, terms);
       } else if (formal) {
+        // The measures group moves ahead of the files, the families and the
+        // roster for a citation query and for nothing else — the reader named
+        // one document, and the row they named is the row `flat[0]` opens on
+        // Enter. Same group, same label, same cap, same renderer; only its
+        // position in the lane depends on the query having been a citation.
+        var billBlock = catBlock('bill', 'Legislation &amp; Bills', '#9ff0bd', bls, billItem, q, terms);
+        if (citeLead) html += billBlock;
         html += catBlock('file', 'Issue files · the formal record', '#7dd3fc', fils, issueFileItem, q, terms);
         html += catBlock('fam', 'Issue families · browse from here', '#fb923c', fams, familyItem, q, terms);
         html += catBlock('pol', 'Politicians · formal record first', '#f5c842', pols, polItem, q, terms);
-        html += catBlock('bill', 'Legislation &amp; Bills', '#9ff0bd', bls, billItem, q, terms);
+        if (!citeLead) html += billBlock;
         html += judgeBlock(jdgs, q, terms);
       } else {
         html += catBlock('spot', 'Issue Spotlights · sourced investigations', '#fb923c', spots, issueItem, q, terms);

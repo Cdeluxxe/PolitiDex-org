@@ -541,12 +541,31 @@ section("8 · nothing on the do-not list moved");
 {
   const headEye = HEAD("all-seeing-eye.js");
   must(headEye, "the previous revision is unreachable, so 'no new score' has nothing to be measured against");
-  // NO NEW SCORE. The three functions that decide what wins are byte-identical.
+  // NO NEW SCORE. The two functions that decide RELEVANCE are byte-identical:
+  // what a query matches, and how strongly, is not this pass's business and has
+  // not moved since the revision that grouped the offices.
   const grab = (src, sig) => (src.match(new RegExp("function " + sig + "[\\s\\S]*?\\n    \\}")) || [""])[0];
-  for (const sig of ["score\\(", "rank\\(", "formalFirst\\("]) {
+  for (const sig of ["score\\(", "rank\\("]) {
     const a = grab(headEye, sig), b = grab(EYE_SRC, sig);
     must(a.length > 0, `the previous revision has no ${sig.replace("\\(", "()")} to compare`);
     eq(b, a, `${sig.replace("\\(", "()")} changed — this pass groups people, it does not re-rank them`);
+  }
+  // THE ONE ORDERING THIS PASS DOES OWN — the formal lane's record-first
+  // re-order, which replaced the binary formalFirst() partition — reads the
+  // record and nothing else. Byte-identity is the wrong instrument for a
+  // function that was deliberately rewritten, so the claim is about its INPUTS:
+  // formal depth, an exact name, an office. Not a party letter, not a
+  // Word-vs-Action percentage, not money. The party-rotation loop below and the
+  // fixtures in scripts/test-eye-record-first.mjs are the behavioural half.
+  {
+    const ordering = grab(EYE_SRC, "recordFirst\\(") + grab(EYE_SRC, "depthTier\\(") +
+      grab(EYE_SRC, "exactNameRank\\(") + grab(EYE_SRC, "officeHit\\(");
+    must(ordering.length > 0,
+      "the formal lane has no recordFirst() — the ordering this section audits does not exist");
+    for (const banned of ["party", "pct", "Pct", "wva", "WordAction", "finance", "raised", "donor", "money"]) {
+      no(ordering, banned,
+        `the formal lane's ordering reads ${JSON.stringify(banned)} — it may order on the record only`);
+    }
   }
   // NO PARTY SORT. Rotate every letter in the roster; not one row moves.
   const plain = boot(), rot = boot({ party: true });
@@ -562,7 +581,7 @@ section("8 · nothing on the do-not list moved");
   for (const banned of ["DistrictVoice", "PDX_DISTRICT_VOICE", "PACK_TTL", "packTtl"]) {
     no(CODE, banned, `the panel reaches into ${JSON.stringify(banned)}, which is out of scope for this pass`);
   }
-  console.log("      score/rank/formalFirst byte-identical · party rotation rejected in 2 lanes");
+  console.log("      score/rank byte-identical · recordFirst reads the record only · party rotation rejected in 2 lanes");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

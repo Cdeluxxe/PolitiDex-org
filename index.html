@@ -3883,6 +3883,23 @@ window.PDXLazy = (function () {
       .pdx-eye-meta .pdx-eye-tag{flex-shrink:0;}
       .pdx-eye-meta .pdx-eye-tag--src{max-width:none;}
       .pdx-eye-tag{flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.12rem 0.42rem;border-radius:9999px;white-space:nowrap;}
+      /* ── THE ONE FIGURE A PERSON ROW MAY PRINT ──────────────────────────
+         A Word-vs-Action percentage, in the same slot and the same geometry as
+         .pdxwa-eye-badge and .pdx-cov-badge, because all three are alternatives
+         for one slot on one row. Two rules about it, both of them the reported
+         defect's fault:
+           · IT CARRIES ITS DENOMINATOR. The number is painted with "N of M
+             tested" beside it, dimmer and smaller but not hidden and not behind
+             a hover — a percentage over an unnamed tested set is the figure
+             that read 88% at five tested and 72% at fifteen.
+           · IT IS NOT COLOURED BY ITS VERDICT. Slate, always. The row states a
+             record, not a judgment, and a green-or-red percentage on a search
+             result invites the comparison the panel is not making. The verdict
+             token rides on [data-eye-wva] for the profile to pick up, unstyled.
+         all-seeing-eye.js only emits this at all once PDXWordAction.figure()
+         reports ready, so there is nothing here for a warming state to style. */
+      .pdx-eye-wva{flex-shrink:0;display:inline-flex;align-items:baseline;gap:0.28rem;margin-left:0.4rem;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.6rem;letter-spacing:0.05em;padding:0.1rem 0.4rem;border-radius:0.35rem;white-space:nowrap;vertical-align:middle;color:#9fb4d4;background:rgba(148,163,184,0.12);border:1px solid rgba(148,163,184,0.34);}
+      .pdx-eye-wva-n{font-weight:600;font-size:0.55rem;letter-spacing:0.03em;color:#7d90ad;text-transform:none;}
       .pdx-eye-empty{padding:1.4rem 1rem;text-align:center;color:#8aa0c0;font-family:'Barlow',sans-serif;font-size:0.88rem;}
       .pdx-eye-empty b{color:#cdd9ec;font-weight:600;}
       /* ── WARMING: "SEARCHING THE RECORD…", NEVER "FINDS NOTHING" ────────
