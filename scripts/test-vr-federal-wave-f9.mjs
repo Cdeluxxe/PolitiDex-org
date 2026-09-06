@@ -971,6 +971,12 @@ const swNote = swWaveNote();
   // not anyone regenerates it — a device holding the old copy would serve a person's old
   // six lines. The section below requires the move to be THIS wave's.
   const DECLARED = new Set([
+    // The record-first Relevant-to-Me pass (v147), on the same later-wave terms: it
+    // repainted a Door 2 section and the cards inside it, and touched no wave artefact.
+    // app.css carries the record line's rules; the two harnesses below are the ones whose
+    // own assertions were pinned to the retired scorecard markup.
+    "app.css", "scripts/test-promise-honesty.mjs",
+    "scripts/test-relevant-is-my-ballot.mjs",
     // The issue-family pass (v109) — the one parent table finished, the family module
     // that reads it, the two surfaces that stopped grouping issues their own way, and the
     // shell bump that ships them together. See the booted-file note above for why the

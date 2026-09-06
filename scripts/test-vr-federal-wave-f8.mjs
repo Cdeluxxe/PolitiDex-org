@@ -936,6 +936,12 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
   // regenerated it, and any later wave that ships a judged act re-ranks the six-line
   // window again. F8's own requirement survives that — no person may LOSE their snapshot.
   const DECLARED = new Set([
+    // The record-first Relevant-to-Me pass (v147), on the same later-wave terms: it
+    // repainted a Door 2 section and the cards inside it, and touched no wave artefact.
+    // app.css carries the record line's rules; the two harnesses below are the ones whose
+    // own assertions were pinned to the retired scorecard markup.
+    "app.css", "scripts/test-promise-honesty.mjs",
+    "scripts/test-relevant-is-my-ballot.mjs",
     // The issue-family pass (v109) — the one parent table finished, the family module
     // that reads it, the two surfaces that stopped grouping issues their own way, and the
     // shell bump that ships them together. See the booted-file note above for why the

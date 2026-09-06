@@ -661,6 +661,19 @@ export const WA_SEAMS = [
   ["      var c = r.coverage, v = r.verdict;\n",
    "      // One phrase for this wait, shared with the Voting Record Highlights",
    "the hero ring's sub-line"],
+  // ── one row's sentence, with one author (v147) ────────────────────────────
+  // The row's spoken form — "Health care — formal record: every vote one way (12
+  // of 12)" — was built inline in the row's aria-label, which was fine while the
+  // row was the only surface that said it out loud. The record-first pass put the
+  // same sentence on a Relevant-to-Me list card, and a card phrased one way over a
+  // profile row phrased another is two vocabularies for one row. So the phrase is
+  // a named function above the row that reads it, and the card reads the same one.
+  // The span holds the phrase and the row's use of it, nothing else: the tier
+  // label, the counts and the leftover are all still the engine's, and no verb,
+  // direction or figure is composed in here.
+  ["    return '<span class=\"pdxwa-shape-n pdxwa-shape-n-off\">· no count on file yet</span>' + none;\n  }\n",
+   "    var name = '<span class=\"pdxwa-shape-iss\">' + esc(x.label) + '</span>';\n",
+   "one row's sentence, with one author"],
   // ── the issue file beside the pattern row (v133) ───────────────────────────
   // The brief's pattern rows are the third surface a reader meets an issue name
   // on, and the name was the one part of the row that led nowhere. The label
@@ -689,6 +702,28 @@ export const WA_SEAMS = [
   // happen to agree. It publishes no new arithmetic: figure() hands on read()'s
   // percentage and two of read()'s integers, and fractionOf() joins two integers
   // into one sentence.
+  // ── the brief's finding, on one line (v147) ───────────────────────────────
+  // A Relevant-to-Me card used to lead with a reading of the record — a ⚖️ rail —
+  // while the person's own file led with the record. recordLine() is the card's
+  // half of closing that: the SAME two lanes in the SAME precedence briefHeroHtml
+  // resolves below it (execRecordSummary.pick(pid).on, then the roll-call lane's
+  // formalPatternIndex.shape), reduced to one sentence and three kinds.
+  //   It is pinned here because the thing that would make it a lie is a second
+  // precedence. It composes no percentage, no grade and no verdict; on a pattern
+  // it prints the row's own sentence rather than a paraphrase; and it never prints
+  // the empty-file claim, which has a wall of its own in briefAbsenceCopy and is
+  // not a list card's to make. Where the shape is missing or still arriving the
+  // line says what the brief says.
+  ["        shapeMatchHtml(pid, p, { deep: false, recordAbove: true }) +\n        '</div>';\n    } catch (e) { return ''; }\n  }\n",
+   "  function briefHeroHtml(pid, p) {\n",
+   "the brief's finding, on one line"],
+  // ── the one-line finding, published (v147) ────────────────────────────────
+  // Two exports beside briefHtml, so the card and the profile are demonstrably
+  // one reader rather than two that happen to agree: recordLine is the finding at
+  // card length, shapeRowSay is the row sentence both of them print.
+  ["    briefHtml: briefHeroHtml,\n    heroNamesPatterns: heroNamesPatterns,\n",
+   "    // 📏 THE DENOMINATOR, IN ONE VOCABULARY.",
+   "the one-line finding, published"],
   ["    DEPTH_NOTE: DEPTH_NOTE,\n",
    "    dots: dots,\n",
    "the owner, published"],
@@ -1503,6 +1538,63 @@ export function assertWordActionSeams(bodies, api) {
     const m = wa(why);
     ok(!/\d\s*%|toFixed/.test(m), "a mount grew a figure of its own");
     ok(m.split("sliceNoteHtml").length === 2, "a mount calls the slice note more than once");
+  }
+  // ── one row's sentence, with one author (v147) ────────────────────────────
+  // The phrase exists once and the row reads it. What it may not do is compose:
+  // the tier label and the counts are the engine's, and a verb or a figure
+  // appearing in here is the card and the row starting to say different things.
+  const say = wa("one row's sentence, with one author");
+  has(say, "function shapeRowSay(x) {",
+    "the row's spoken sentence is inline again, so a list card printing the same row can be phrased " +
+    "differently from the row itself");
+  has(say, "' — formal record: ' + (x.patLabel || 'on file')",
+    "the row sentence names the pattern with something other than the tier's own published label");
+  has(say, "var say = shapeRowSay(x) +",
+    "the pattern row no longer speaks through the shared phrase — it built its own again");
+  {
+    const c = say.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+    ok(!/toFixed|Math\.|\/\s*100|\*\s*100|\bpct\b|percent|\bscore\b/i.test(c),
+      "the row sentence grew arithmetic or a score of its own — every figure in it is a re-print");
+    ok(!/\.party\b|Republican|Democrat|GOP/i.test(c), "the row sentence reads a party");
+  }
+  // ── the brief's finding, on one line (v147) ───────────────────────────────
+  // ONE precedence for the record, at two lengths. The line asks the two lanes
+  // in the order the brief below it asks them, prints the row's own sentence on a
+  // pattern, and never makes the empty-file claim.
+  const oneLine = wa("the brief's finding, on one line");
+  has(oneLine, "function recordLine(pid, p) {",
+    "the card-length form of the brief's finding is gone, so a list card has to word the record itself");
+  has(oneLine, "execRecordSummary",
+    "the one-line finding no longer asks the executive lane first, which is the order the brief resolves in");
+  has(oneLine, "formalPatternIndex",
+    "…nor the roll-call lane's published pattern index, which is the other half of that order");
+  has(oneLine, "out.text = shapeRowSay(row);",
+    "the one-line finding paraphrases the pattern row instead of printing the row's own sentence");
+  has(oneLine, "briefRecordOnHand(pid)",
+    "the one-line finding decides a candidate has no record without asking whether one is on hand");
+  has(oneLine, "if (!briefWaitOver(pid))",
+    "the one-line finding calls a record absent while it may still be arriving — the default is " +
+    "\"still loading\", the same as the brief's");
+  {
+    const c = oneLine.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+    ok(!/toFixed|\bpct\b|percent|\bscore\b|\bgrade\b|MIN_|FLOOR/i.test(c),
+      "the one-line finding grew a percentage, a score or a publication floor");
+    ok(!/\.party\b|Republican|Democrat|GOP/i.test(c), "the one-line finding reads a party");
+    ok(!/briefAbsenceCopy/.test(c),
+      "the one-line finding calls the empty-file paragraph, whose four vetoes exist because that claim " +
+      "is not a list card's to make");
+  }
+  ok(!/nothing on file|no record on file/i.test(oneLine.replace(/^\s*\/\/.*$/gm, "")),
+    "the one-line finding spells the empty-file claim itself");
+  // ── the one-line finding, published (v147) ────────────────────────────────
+  const oneLinePub = wa("the one-line finding, published");
+  has(oneLinePub, "recordLine: recordLine,",
+    "the card-length finding is no longer published, so a card and a profile agreeing can only be " +
+    "inferred from two rendered strings");
+  has(oneLinePub, "shapeRowSay: shapeRowSay,", "the shared row sentence is no longer published");
+  {
+    const c = oneLinePub.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+    ok(!/[(){}]/.test(c), "the one-line export seam grew something other than name-to-name export lines");
   }
   // ── the owner, published (v140) ───────────────────────────────────────────
   const pub = wa("the owner, published");

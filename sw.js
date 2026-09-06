@@ -2783,7 +2783,53 @@
 // nested interactives, no store renamed, and the local seat count is untouched -
 // the rail and the grid stay one expanded ballot. A twin boot leaves every
 // Direction Match read and every formal tier byte-identical.
-const CACHE_VERSION = 'v146';
+// v147 - RELEVANT TO ME IS THE CIVIC STACK, AND A CARD READS RECORD-FIRST. The
+// v146 scope gate above was too tight in one direction and the cards inside it
+// led with the wrong thing. A Layton reader IS governed by the President and by
+// the federal executive; they are simply not governed by another state's
+// Secretary of State. So the section now answers two questions instead of one:
+// what this reader votes on - the seat kinds their own slate names, and inside
+// those only their own state's people, with the seat field's answer exempt - and
+// what governs every reader: the presidency, held to its current occupant and
+// anyone on file running this cycle, and the federal executive, split out of
+// Door 1's secretary/director/ambassador bucket into its own group with the
+// sixteen state secretaries left behind in the state one. Neither federal group
+// is ever a race, ever state-filtered, or ever a pick slot: the ballot is still
+// 0 of 11 with fourteen local seats. Judges stay below the workspace, where v146
+// put them.
+//   And the cards in that section now lead with the formal record. They used to
+// open with a headed two-cell scorecard - a reading of the record - above the
+// record itself. Each card now prints the same one-line finding the person file's
+// brief prints, from the same two lanes in the same precedence, in the row's own
+// published words; Word vs Action and the reader's-issues read are demoted to
+// two small chips beneath it. A candidate with nothing in office reads "Record
+// begins in office", never a voting pattern, and the ⚖️ chip is suppressed there
+// rather than repeating that sentence. Nothing on a card claims an empty file:
+// the default is "still loading", and the line repaints when the record warms.
+//   PRECACHED SHELL FILES CHANGED - THEY ARE THE REASON FOR THE BUMP:
+//   · '/app.css'               - the .rel-rec* record line and the .rel-sig*
+//                                chip row that replace the retired .rel-dual*
+//                                scorecard. A warm shell has the old rules and
+//                                none of the new ones, so the record line paints
+//                                unstyled under a stylesheet still reserving
+//                                space for a two-cell grid.
+//   · '/word-action.js'        - recordLine(), the one-line form of the brief's
+//                                finding, and shapeRowSay(), the row sentence
+//                                extracted so the card and the profile row have
+//                                one author. A warm shell has neither export and
+//                                the card falls back to no record line at all.
+// ALSO CHANGED BUT RUNTIME-CACHED, SO IT ARRIVES FRESH WITHOUT THIS BUMP:
+// compare-hub.js (the federal stack, the two new groups, the record-first card
+// and the warm repaint).
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it. Unchanged here and last moved at v146:
+// index.html, door1-workspace.js and door1-workspace.css - the Door 1 desk and
+// its stylesheet are re-fetched by this bump and are byte-identical.
+// No cabinet record deleted, no state officer re-merged into the federal group,
+// no party sort, no ranking by Direction Match, no nested interactives, no store
+// renamed, and no seat-field district math touched. A twin boot leaves every
+// Direction Match read and every formal tier byte-identical.
+const CACHE_VERSION = 'v147';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
