@@ -274,6 +274,24 @@ a.bw-cand-name:hover, a.bw-cand-name:focus-visible { color: #93c5fd; text-decora
 }
 .bw-tag.is-inc { background: rgba(96, 165, 250, 0.14); color: #bfdbfe; border-color: rgba(96, 165, 250, 0.3); }
 .bw-tag.is-mine { background: rgba(251, 191, 36, 0.16); color: #fde68a; border-color: rgba(251, 191, 36, 0.36); }
+/* Running is a filing; Former is not a filing and not an office. They are told
+   apart by colour as well as word so the difference survives a glance. */
+.bw-tag.is-cand { background: rgba(45, 212, 191, 0.12); color: #99f6e4; border-color: rgba(45, 212, 191, 0.28); }
+.bw-tag.is-former { background: rgba(148, 163, 184, 0.12); color: #cbd5e1; border-color: rgba(148, 163, 184, 0.26); }
+
+/* ── The lines-may-move note ────────────────────────────────────────────────
+   Utah's congressional and legislative maps are under active court-ordered
+   revision, so the district a reader is in today is not guaranteed to be the
+   district they vote in. The note sits above the field, quiet, on the three
+   district seats only — never over a statewide seat, which has no lines to
+   move. */
+.bw-lines {
+  margin: 0 0 0.7rem; padding: 0.5rem 0.6rem;
+  font-size: 0.72rem; line-height: 1.5; color: #cbb783;
+  background: rgba(245, 200, 66, 0.06);
+  border: 1px solid rgba(245, 200, 66, 0.18); border-radius: 0.5rem;
+}
+.bw-lines b { color: #f5e3ad; font-weight: 700; }
 /* The gap word: why this candidate has no number. Never a placeholder figure. */
 .bw-gapword { display: block; font-size: 0.7rem; color: #94a3b8; margin-top: 0.25rem; line-height: 1.45; }
 

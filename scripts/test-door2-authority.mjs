@@ -197,8 +197,8 @@ for (const e of base.D.DEMOTE) {
 // legitimate "back to my team" link and quietly redirect it.
 ok(!/querySelectorAll\(['"]a\[href/.test(SPINE_CODE),
    "door2-spine.js sweeps anchors by href pattern — that will eventually redirect a legitimate back-link");
-has(HTML, "← Back to building your Voting Team",
-    "the in-context back-link into My Voting Team was removed — demotion was supposed to re-aim brochure CTAs, not delete navigation");
+has(HTML, "← Back to working your ballot",
+    "the in-context back-link into the picks view was removed — demotion was supposed to re-aim brochure CTAs, not delete navigation");
 
 // The nav pill and the footer links keep pointing at the view by name.
 const navHits = [...HTML.matchAll(/href="#my-politicians"/g)].length;

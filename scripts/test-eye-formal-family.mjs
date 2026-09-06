@@ -290,6 +290,19 @@ function boot(opts) {
 
 const tick = () => new Promise((r) => setTimeout(r, 0));
 
+// ── THE DESK'S OWN SETTLE WINDOW ────────────────────────────────────────────
+// door1-workspace's scrollDesk() debounces a repeat landing on the same mode for
+// 250ms, so a fixture that lands the desk and then immediately drives the tap
+// under test is asking the desk to land twice inside one gesture — and the
+// second one is correctly swallowed. That has nothing to do with what this file
+// claims: a reader who searches, reads and taps is not 40ms behind the desk's
+// own arrival. So the fixtures that pre-land the desk spend that window here,
+// explicitly, and the tap they then drive is a separate gesture. This is real
+// wall-clock because the debounce is real wall-clock (Date.now, not a timer the
+// harness can flush), and it is spent once per fixture, not once per assertion.
+const DESK_SETTLE_MS = 260;
+const settleDesk = () => { const t = Date.now(); while (Date.now() - t < DESK_SETTLE_MS); };
+
 function search(w, q, lane) {
   w.PDXEye.lane(lane || "formal");
   w.__eye.classList.add("is-open");
@@ -669,6 +682,7 @@ section("6 · both rows work with the desk already on the page");
   const B = boot();
   B.pdxDoor1Open("issue");
   B.pdxDoor1Issue(FILE);
+  settleDesk();
   eq(B.PDXDoor1._mode(), "issue", "the desk fixture is not in issue mode, so this section proves nothing");
   const html = search(B, "climate", "formal");
   const fam = ROWS(html).filter((r) => r.kind === "family" && r.key === CORE)[0];

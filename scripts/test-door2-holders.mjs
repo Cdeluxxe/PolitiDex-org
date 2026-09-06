@@ -68,6 +68,7 @@ const FILES = [
   "my-stances.js",
   "voter-hub-location.js",
   "compare-hub.js",
+  "seat-field.js",
   "ballot-breakdown.js",
   "who-represents-me.js",
 ];
@@ -415,11 +416,26 @@ section("5 · 'Work this seat' tags the pin's member, not the other district's")
 
   const houseField = W.PDXRaceSheet._field("house") || [];
   ok(houseField.length > 0, "the House seat has no field at all in this fixture");
-  ok(!houseField.some((c) => c.pid === "maloy" && c.incumbent),
-    "the House desk still tags Celeste Maloy as holding this reader's seat");
-  // Don't invent a challenger: the fix removes a false tag, never a person.
-  ok(houseField.some((c) => c.pid === "maloy"),
-    "the House field lost the candidate on the reader's 2026 ballot");
+  ok(houseField.some((c) => c.pid === "bmoore" && c.incumbent),
+    "the House desk does not tag Blake Moore as holding this reader's seat");
+  // THE FIELD IS THE DISTRICT, AND THE DISTRICT IS UT-1.
+  //
+  // This check used to run the other way: it required Celeste Maloy to stay in
+  // the field, untagged, on the reasoning that the fix should remove a false
+  // "holds this seat" tag without removing a person. That was right about the
+  // tag and wrong about the person. The field is now keyed on office + state +
+  // district by seat-field.js, and the district it uses is the one the resolver
+  // publishes — Utah's court-ordered map, under which this Layton address is
+  // UT-1. Maloy sits in UT-2. Keeping her in the field as "a candidate on this
+  // reader's ballot" printed a second district's member into a seat panel
+  // titled District 1, which is the same two-answers-for-one-seat defect the
+  // tag was, one row lower down.
+  //
+  // What the reader is owed instead is stated on the panel itself: the
+  // redistricting banner says the lines may still move and that this is who we
+  // hold on file under the map in force today, not the official ballot.
+  ok(!houseField.some((c) => c.pid === "maloy"),
+    "the House field still carries UT-2's member on a UT-1 reader's seat");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

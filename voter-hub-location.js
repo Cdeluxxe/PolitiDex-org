@@ -1907,7 +1907,7 @@
           '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.82rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.4;margin-bottom:0.3rem;">' +
             'Set your location and we map your <strong style="color:#93c5fd;">U.S. House</strong>, <strong style="color:#c4b5fd;">State Senate</strong> &amp; <strong style="color:#5eead4;">State House</strong> seats — then show who holds each one. Until then we will not guess: no location, no representative.' +
           '</div>' +
-          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.74rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7f93b4;margin-bottom:0.7rem;">Your seats → compare the field → pick for your team.</div>' +
+          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.74rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7f93b4;margin-bottom:0.7rem;">Your seats → compare the field → pick for your ballot.</div>' +
           '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">' +
             '<button type="button" onclick="window.toggleChangeLocation&&window.toggleChangeLocation()" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#2563eb,#3b82f6);border:1px solid rgba(96,165,250,0.5);border-radius:0.7rem;padding:0.5rem 0.95rem;cursor:pointer;white-space:nowrap;min-height:44px;">📍 Set my location →</button>' +
             '<button type="button" onclick="window.openDistrictMapModal&&window.openDistrictMapModal()" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#5eead4;background:none;border:1px solid rgba(45,212,191,0.5);border-radius:0.7rem;padding:0.5rem 0.85rem;cursor:pointer;white-space:nowrap;min-height:44px;">🗺️ Open map</button>' +
@@ -2045,7 +2045,7 @@
         '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.82rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.4;margin-bottom:0.3rem;">' + _wrLede + '</div>' +
         // The spine, in six words, above the rows it describes. A voter who reads
         // only this line still knows what the next two taps are for.
-        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.74rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7f93b4;margin-bottom:0.7rem;">Your seats → compare the field → pick for your team.</div>' +
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.74rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7f93b4;margin-bottom:0.7rem;">Your seats → compare the field → pick for your ballot.</div>' +
         '<div style="display:flex;flex-direction:column;gap:0.5rem;">' + _wrRows + '</div>' +
         // Local seats are NOT curated for the same areas the district seats are —
         // districtsResolvable is true for all of Utah, and local rosters are built
@@ -2324,8 +2324,8 @@
       var action = opts.hideAdd
         ? ''
         : (onTeam
-          ? '<span style="' + _onTeamTag + '">✓ On team</span>'
-          : '<button type="button" title="Add to My Voting Team" onclick="window.ballotPickCardAnimated(this,\'' + raceKey + '\',\'' + pid + '\')" style="' + _addLink + '" onmouseover="this.style.background=\'rgba(251,191,36,0.12)\';this.style.borderColor=\'rgba(251,191,36,0.45)\'" onmouseout="this.style.background=\'none\';this.style.borderColor=\'transparent\'">＋ Add</button>');
+          ? '<span style="' + _onTeamTag + '">✓ Your pick</span>'
+          : '<button type="button" title="Add to your ballot" onclick="window.ballotPickCardAnimated(this,\'' + raceKey + '\',\'' + pid + '\')" style="' + _addLink + '" onmouseover="this.style.background=\'rgba(251,191,36,0.12)\';this.style.borderColor=\'rgba(251,191,36,0.45)\'" onmouseout="this.style.background=\'none\';this.style.borderColor=\'transparent\'">＋ Add</button>');
       // "Currently representing you" eyebrow makes the strip's promise explicit —
       // every row is the sitting officeholder for the voter's own district, not a
       // generic listing — directly answering "who represents me right now?". A
@@ -2668,7 +2668,7 @@
         desc: 'Your <strong>U.S. House, State Senate &amp; State House</strong> seats — and exactly who represents you in each.',
         cta: 'See who represents me →',
         act: "var e=document.getElementById('my-politicians');if(e)e.scrollIntoView({behavior:'smooth',block:'start'})" },
-      { n: 3, ico: '⭐', title: 'Build your team', done: teamDone,
+      { n: 3, ico: '⭐', title: 'Work your ballot', done: teamDone,
         desc: teamDone
           ? 'All <strong>' + total + '</strong> seats filled with people who share your values.'
           : (filled >= 1
@@ -3090,12 +3090,12 @@
     if (action === 'remove') {
       toast.classList.add('removing');
       if (check) check.textContent = '✕';
-      if (title) title.textContent = 'Removed from your team';
+      if (title) title.textContent = 'Removed from your ballot';
       if (sub) sub.textContent = name;
     } else if (opts.complete) {
       toast.classList.add('complete');
       if (check) check.textContent = '🎉';
-      if (title) title.textContent = 'Your voting team is complete!';
+      if (title) title.textContent = 'Your ballot is complete!';
       if (sub) sub.textContent = name + (filledLabel ? ' fills your ' + filledLabel + ' seat — ' : ' fills your final slot — ') + 'all ' + total + ' picked!';
     } else if (opts.count === 1) {
       // First pick — a real milestone for a new voter. Acknowledge it warmly and
@@ -3104,10 +3104,10 @@
       toast.classList.add('complete');
       if (check) check.textContent = '⭐';
       if (title) title.textContent = 'That\'s your first pick! 🎉';
-      if (sub) sub.textContent = name + (filledLabel ? ' now holds your ' + filledLabel + ' seat' : ' is on your team') + ' — saved automatically. ' + Math.max(0, total - 1) + ' seats to go, at your own pace.';
+      if (sub) sub.textContent = name + (filledLabel ? ' now holds your ' + filledLabel + ' seat' : ' is on your ballot') + ' — saved automatically. ' + Math.max(0, total - 1) + ' seats to go, at your own pace.';
     } else {
       if (check) check.textContent = '✓';
-      if (title) title.textContent = filledLabel ? ('✓ ' + filledLabel + ' filled in My Voting Team') : '✓ Added to My Voting Team';
+      if (title) title.textContent = filledLabel ? ('✓ ' + filledLabel + ' filled on your ballot') : '✓ Added to your ballot';
       if (sub) sub.textContent = name + (filledLabel ? ' now holds your ' + filledLabel + ' seat' : '') + (opts.count ? '  ·  ' + opts.count + '/' + total + ' slots filled up top' : '');
     }
 

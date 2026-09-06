@@ -122,7 +122,7 @@ const SEAT_FILES = [
   // their pre-link onclick markup and the address assertions below would pass
   // for the wrong reason, or not at all.
   "person-link.js",
-  "voter-hub-location.js", "compare-hub.js", "ballot-breakdown.js",
+  "voter-hub-location.js", "compare-hub.js", "seat-field.js", "ballot-breakdown.js",
   "who-represents-me.js", "race-sheet.js", "ballot-workspace.js",
 ];
 

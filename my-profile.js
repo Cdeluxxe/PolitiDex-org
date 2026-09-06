@@ -548,7 +548,7 @@
       { ico: '🎯', num: ctx.stanceCount, lbl: 'Stances set' },
       { ico: '📚', num: c.reviewed || 0, lbl: 'Evidence reviewed' },
       { ico: '⚠️', num: ctx.contradictions, lbl: 'Contradictions flagged', warn: ctx.contradictions > 0 },
-      { ico: '⭐', num: ctx.teamCount, lbl: 'On your team' },
+      { ico: '⭐', num: ctx.teamCount, lbl: 'On your ballot' },
       { ico: '🤝', num: (ctx.alignment && ctx.alignment.sharedIssues) || 0, lbl: 'Issues shared w/ team' },
       { ico: '✉️', num: ctx.contacted, lbl: 'Reps contacted' },
       { ico: '🔥', num: (ctx.stats && ctx.stats.streak) || 0, lbl: 'Day streak' }

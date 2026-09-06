@@ -253,7 +253,7 @@ has(CODE("who-represents-me.js"), "pdxBallotWorkspaceOpen",
 section("7 · Door 2's own opening does not overpromise");
 
 const hubIntro = HTML.slice(HTML.indexOf('id="voter-hub"'), HTML.indexOf('id="voter-hub"') + 30000);
-must(hubIntro.includes("BUILD YOUR VOTING"), "the Door 2 intro could not be sliced — this probe is stale");
+must(hubIntro.includes("WORK YOUR "), "the Door 2 intro could not be sliced — this probe is stale");
 has(hubIntro, "For each seat PolitiDex can resolve for you",
     "the Door 2 opening still promises to fill every seat rather than the ones it can resolve");
 has(hubIntro, "says so instead of filling in a stranger",

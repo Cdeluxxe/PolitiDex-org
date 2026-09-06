@@ -124,13 +124,13 @@ has(SEC, 'No account needed',
 // The reordered story, stated rather than inferred.
 has(SEC, 'Find who represents you', 'front door: step ① is gone from the three-step story');
 has(SEC, 'Inspect their records', 'front door: step ② is gone — records are what step ① is FOR');
-has(SEC, 'Build your team', 'front door: step ③ is gone, so the band no longer bridges into Team Builder at all');
+has(SEC, 'Work your ballot', 'front door: step ③ is gone, so the band no longer bridges into the ballot at all');
 ok(SEC.indexOf('Find who represents you') < SEC.indexOf('Inspect their records')
-  && SEC.indexOf('Inspect their records') < SEC.indexOf('Build your team'),
+  && SEC.indexOf('Inspect their records') < SEC.indexOf('Work your ballot'),
   'front door: the three steps are out of order — find → inspect → build IS the reorder this pass\n' +
   '    delivered, and any other sequence puts the buried path back');
-ok(/Build your team<\/strong><em>Optional/.test(SEC),
-  'front door: step ③ no longer marks team building optional, so the band reads as a funnel into a\n' +
+ok(/Work your ballot<\/strong><em>Optional/.test(SEC),
+  'front door: step ③ no longer marks the ballot optional, so the band reads as a funnel into a\n' +
   '    slate builder rather than a lookup service that happens to offer one');
 
 // Coverage honesty in the cold state: name the levels, name which ones resolve
@@ -208,7 +208,7 @@ ok(navBlock.indexOf('#say-vs-do') < navBlock.indexOf('#my-politicians'),
 has(HTML, 'id="my-politicians"',
   'team builder: the builder section is gone — this pass was a reorder, not a removal');
 has(HTML, 'id="myteam-selected-panel"', 'team builder: the selected-team panel is gone');
-ok((HTML.match(/⭐ My Voting Team/g) || []).length >= 2,
+ok((HTML.match(/⭐ Your Ballot/g) || []).length >= 2,
   'team builder: the builder lost its nav entries, so the deeper step became the buried one');
 ok(HTML.indexOf('id="myteam-findreps"') < HTML.indexOf('id="myteam-selected-panel"'),
   'team builder: the "start one step earlier" strip is not the first thing in the builder\'s entry\n' +
@@ -223,8 +223,9 @@ has(STRIP, '>' + CTA + '<',
   `team builder: the strip's button is no longer the agreed copy "${CTA}"`);
 has(STRIP, 'window.pdxFindMyReps()',
   'team builder: the strip does not route through the shared action');
-has(STRIP, 'if you want one',
-  'team builder: the strip no longer marks the team optional, which is the framing the reorder rests on');
+has(STRIP, 'if you want to',
+  'team builder: the strip no longer marks the picks optional, which is the framing the reorder rests\n' +
+  '    on');
 // It has to retire itself, or a returning voter is told to do something they did.
 has(HTML, 'window._myteamFindRepsSync = sync;',
   'team builder: the strip does not export its sync, so nothing can retire it on a location change');
@@ -535,13 +536,13 @@ lacks(OUT, 'wrm-scopenote',
 
 // The next actions, in the order the band promised: records first, team optional.
 has(OUT, 'Compare them on an issue', 'band: the post-lookup step into issues is gone');
-has(OUT, 'Build my voting team', 'band: the post-lookup bridge into Team Builder is gone');
+has(OUT, 'Work your ballot', 'band: the post-lookup bridge into the picks view is gone');
 has(OUT, '(optional)',
-  'band: team building is no longer marked optional after the lookup, so the band funnels rather\n' +
-  '    than offers');
-ok(OUT.indexOf('Compare them on an issue') < OUT.indexOf('Build my voting team'),
-  'band: team building now precedes the record/issue step in the next actions — the whole reorder is\n' +
-  '    that accountability comes before list-building');
+  'band: working the ballot is no longer marked optional after the lookup, so the band funnels\n' +
+  '    rather than offers');
+ok(OUT.indexOf('Compare them on an issue') < OUT.indexOf('\u2b50 Work your ballot'),
+  'band: the ballot step now precedes the record/issue step in the next actions — the whole reorder\n' +
+  '    is that accountability comes before list-building');
 has(OUT, 'My local officials',
   'band: the band no longer points at local offices at all, which turns its own scope note into a\n' +
   '    dead end rather than a handoff');

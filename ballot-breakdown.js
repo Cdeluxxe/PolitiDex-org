@@ -179,6 +179,85 @@
 
     function _ballotCandidates(raceKey) {
       if (typeof CMP_DATA === 'undefined') return [];
+
+      // ── ONE FIELD FUNCTION OWNS THE FIVE KEYED SEATS ────────────────────────
+      // U.S. Senate · U.S. House · Governor · State Senate · State House are
+      // keyed seats: office + state + district number. seat-field.js answers
+      // them from the ROSTER on the key the RESOLVER publishes, which is the one
+      // source that carries Utah's corrected map — so a Layton voter's U.S.
+      // House field is UT-1 (Blake Moore, and everyone else on file for UT-1)
+      // instead of the curated 2026 ballot's UT-2. Every other Door 2 surface
+      // reads that same function, so "Compare Field", "Work this seat" and the
+      // Where-they-stand grid cannot list three different sets of humans for one
+      // seat any more.
+      //
+      // The body below is still the answer for everything that function refuses:
+      // President, Lt. Governor, Secretary of State, Attorney General, Chief
+      // Justice, the cabinet keys, local — and any keyed seat whose district the
+      // resolver could not draw. Those refusals are not fallbacks to a weaker
+      // guess; each one is a case where this file's own matcher is the only
+      // matcher, and it is unchanged.
+      //
+      // Rows are composed here rather than there: the Direction Match figure and
+      // the status vocabulary already have their owners in this file, and the
+      // field function is deliberately free of both (it ranks nothing and scores
+      // nothing). `incumbent` travels from pdxSeatHolders so a caller never has
+      // to re-derive who holds the seat from the row's own office string.
+      try {
+        if (typeof window.pdxSeatField === 'function') {
+          var _sf = window.pdxSeatField(raceKey);
+          if (_sf && _sf.answerable) {
+            return _sf.pids.map(function (pid) {
+              var sd = CMP_DATA[pid] || {};
+              return { pid: pid, name: sd.name, office: sd.office,
+                       score: _liveDirectionMatch(pid, sd).pct,
+                       status: _cStatus(sd), icon: sd.icon,
+                       incumbent: _sf.holders.indexOf(pid) !== -1 };
+            });
+          }
+        }
+      } catch (e) {}
+
+      // ── ONE LOCAL SEAT AT A TIME ───────────────────────────────────────────
+      // The ballot store has always held local picks per seat (local_mayor,
+      // local_county_commission, …) because a voter decides mayor and school
+      // board separately, and the picks grid expands the single generic "Local
+      // Office" slot into those real seats. Nothing could enumerate a FIELD for
+      // one of those keys, though: this function only ever answered the generic
+      // 'local', so the ballot workspace counted one local seat while the grid
+      // counted six, and opening a specific local seat had nothing to show.
+      //
+      // The curated local roster is the only source for these — local offices
+      // follow city and county lines, not legislative districts, so there is no
+      // key to derive them from — and _pdxVoterBallot() already resolves it to
+      // real ids for the voter's own area. This reads that, and only that: a
+      // seat we hold no curated roster for returns nothing rather than a
+      // text-scan guess at who might be a mayor somewhere.
+      if (/^local_/.test(String(raceKey || ''))) {
+        var _lseat = null;
+        try {
+          var _lvb = (typeof window._pdxVoterBallot === 'function') ? window._pdxVoterBallot() : null;
+          if (_lvb && _lvb.matched && _lvb.local && _lvb.local.seats) {
+            _lvb.local.seats.forEach(function (sq) {
+              if (!sq || !sq.raceKey) return;
+              if (('local_' + String(sq.raceKey).toLowerCase()) === String(raceKey).toLowerCase()) _lseat = sq;
+            });
+          }
+        } catch (e) { _lseat = null; }
+        if (!_lseat) return [];
+        return (_lseat.pids || []).filter(function (pid) { return !!CMP_DATA[pid]; }).map(function (pid) {
+          var ld = CMP_DATA[pid] || {};
+          return { pid: pid, name: ld.name, office: ld.office,
+                   score: _liveDirectionMatch(pid, ld).pct,
+                   status: _cStatus(ld), icon: ld.icon,
+                   // The curated roster's own first-named holder. Labelled as
+                   // such downstream — pdxSeatHolders has no local levels, so
+                   // this is a fact about our file, not the resolver's answer
+                   // about the reader's current representation.
+                   incumbent: pid === _lseat.incumbentPid };
+        });
+      }
+
       var userState = (window._hasUserLocation && window._currentVoterLocation && window._currentVoterLocation.state) || '';
       var userDistrict = (window._hasUserLocation && window._currentVoterLocation && window._currentVoterLocation.district) || '';
       var county = _ballotCountyKey();
@@ -413,7 +492,7 @@
         schemaVersion: TEAM_SCHEMA_VERSION,
         // Naming UI isn't enabled yet, but the field exists so a team can be
         // named later with zero data changes. Preserve any name already set.
-        name: (extra && extra.name) || 'My Team',
+        name: (extra && extra.name) || 'My ballot',
         slots: selections,            // keyed ballot map (one pid per race)
         members: members,             // flat pid list (convenience / legacy)
         isMain: true,                 // this is the user's default/main team
@@ -880,7 +959,7 @@
       else { try { localStorage.setItem(BALLOT_KEY, JSON.stringify(copy)); } catch (e) {} }
       if (typeof window._pdxReflectBallotPick === 'function') { try { window._pdxReflectBallotPick(pid, true); } catch (e) {} }
       var nm = (typeof CMP_DATA !== 'undefined' && CMP_DATA[pid]) ? CMP_DATA[pid].name : 'That official';
-      _homeToast('✓ Started your team with ' + nm + '. Keep them, swap, or add more — nothing is locked in.', 'home');
+      _homeToast('✓ Started your ballot with ' + nm + '. Keep them, swap, or add more — nothing is locked in.', 'home');
       _homeRepaintAll();
       if (typeof window._mypolBuildGrid === 'function') { try { window._mypolBuildGrid(); } catch (e) {} }
     };
@@ -980,7 +1059,7 @@
       _homeSetMode('home', { skipGrid: true });
       _homeRepaintAll();
       var filled = 0; for (var f in merged) { if (merged[f]) filled++; }
-      _homeToast('⭐ Your Voting Team is set — ' + filled + ' seat' + (filled === 1 ? '' : 's') + ' from where you live.', 'home');
+      _homeToast('⭐ Your ballot is set — ' + filled + ' seat' + (filled === 1 ? '' : 's') + ' from where you live.', 'home');
       return filled;
     };
 
@@ -1071,17 +1150,17 @@
     window.homeEnterResearch = function () {
       _homeSetMode('research');
       _homeRepaintAll();
-      _homeToast('🔬 Research mode — explore any area freely. Your saved Voting Team stays untouched.', 'home');
+      _homeToast('🔬 Research mode — explore any area freely. Your saved ballot stays untouched.', 'home');
     };
 
     // Promote the current builder contents to be the saved Home Team.
     window.homeSaveCurrentAsBase = function () {
       var active = (typeof window._ballotLoad === 'function') ? window._ballotLoad() : {};
       var n = 0; for (var k in active) { if (active[k]) n++; }
-      if (!n) { _homeToast('Add some picks first, then save them as your Voting Team.', 'warn'); return; }
-      if (_homeHasBase() && !window.confirm('Replace your saved Voting Team with these ' + n + ' current pick' + (n === 1 ? '' : 's') + '?')) return;
+      if (!n) { _homeToast('Add some picks first, then save them as your ballot.', 'warn'); return; }
+      if (_homeHasBase() && !window.confirm('Replace your saved ballot with these ' + n + ' current pick' + (n === 1 ? '' : 's') + '?')) return;
       _homeStore(active, _homeSnapshotLoc());
-      _homeToast('⭐ Saved as your Voting Team — ' + n + ' seat' + (n === 1 ? '' : 's') + '.', 'home');
+      _homeToast('⭐ Saved as your ballot — ' + n + ' seat' + (n === 1 ? '' : 's') + '.', 'home');
     };
 
     // Copy a single politician into the protected Home Team (without disturbing
@@ -1090,14 +1169,14 @@
       if (ev && ev.stopPropagation) ev.stopPropagation();
       if (!pid) return;
       var key = (typeof window._findRaceKeyForPolitician === 'function') ? window._findRaceKeyForPolitician(pid) : null;
-      if (!key) { _homeToast('That office isn’t one of your Voting Team seats.', 'warn'); return; }
+      if (!key) { _homeToast('That office isn’t a seat PolitiDex tracks for you.', 'warn'); return; }
       var slots = _homeSlots();
       var copy = {}; for (var k in slots) { if (slots[k]) copy[k] = slots[k]; }
       copy[key] = pid;
       var prevLoc = (_homeLoad() || {}).location || _homeSnapshotLoc();
       _homeStore(copy, prevLoc);
       var nm = (typeof CMP_DATA !== 'undefined' && CMP_DATA[pid]) ? CMP_DATA[pid].name : 'That pick';
-      _homeToast('⭐ Added ' + nm + ' to your Voting Team.', 'home');
+      _homeToast('⭐ Added ' + nm + ' to your ballot.', 'home');
       _homeRenderBanner();
       if (typeof window._mypolBuildGrid === 'function') { try { window._mypolBuildGrid(); } catch (e) {} }
     };
@@ -1282,7 +1361,7 @@
                 var newLabel = _homeLocLabel(c) || 'your new area';
                 var wantsUpdate = false;
                 try {
-                  wantsUpdate = window.confirm('You changed your address to ' + newLabel + '.\n\nUpdate My Voting Team to match your new area? Your current picks will be rebuilt from the representatives there.\n\nOK = rebuild my team · Cancel = keep my current picks and just explore this area');
+                  wantsUpdate = window.confirm('You changed your address to ' + newLabel + '.\n\nUpdate your ballot to match your new area? Your current picks will be rebuilt from the representatives there.\n\nOK = rebuild my ballot · Cancel = keep my current picks and just explore this area');
                 } catch (e) { wantsUpdate = false; }
                 if (wantsUpdate) {
                   // Rebuild the protected Home Base from the newly-saved address.
@@ -1290,7 +1369,7 @@
                     window.homeBuildFromLocation({ replace: true });
                   }
                 } else {
-  _homeToast('Your Voting Team is saved and unchanged.', 'home');
+  _homeToast('Your ballot is saved and unchanged.', 'home');
 }
               }
             }
@@ -1399,7 +1478,7 @@
           district: 'Utah House District 16', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'tlee',
           incumbentNote: 'Incumbent — running for re-election in 2026',
-          addLabel: 'Add House District 16 choice to My Team',
+          addLabel: 'Add House District 16 choice to your ballot',
           candidates: ['tlee', 'bob_stevenson']
         },
         {
@@ -1407,7 +1486,7 @@
           district: 'Utah Senate District 6', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'jstevenson',
           incumbentNote: 'Retiring — not seeking re-election in 2026',
-          addLabel: 'Add Senate District 6 choice to My Team',
+          addLabel: 'Add Senate District 6 choice to your ballot',
           candidates: ['tami_tran', 'robert_wanlass', 'jared_neal', 'josh_smith']
         },
         {
@@ -1417,7 +1496,7 @@
           incumbentNote: 'Incumbent — running for re-election in 2026',
           incumbentSince: 2023,
           incumbentSummary: 'Former county attorney representing Utah’s 2nd District, first elected in a 2023 special election.',
-          addLabel: 'Add Congressional District 2 choice to My Team',
+          addLabel: 'Add Congressional District 2 choice to your ballot',
           candidates: ['maloy'],
           extraNote: 'The 2025 court-ordered remap moved Davis County, including Layton, into District 2. The 2026 field is still forming — more candidates will appear here as filings are confirmed.'
         }
@@ -1429,7 +1508,7 @@
           district: 'Utah House District 61', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'lisa_shepherd',
           incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 61 choice to My Team',
+          addLabel: 'Add House District 61 choice to your ballot',
           candidates: ['lisa_shepherd'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.'
         },
@@ -1438,7 +1517,7 @@
           district: 'Utah Senate District 23', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'kgrover',
           incumbentNote: 'Incumbent — up for re-election in 2026',
-          addLabel: 'Add Senate District 23 choice to My Team',
+          addLabel: 'Add Senate District 23 choice to your ballot',
           candidates: ['kgrover'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.'
         },
@@ -1449,7 +1528,7 @@
           incumbentNote: 'Incumbent — first elected in 2024',
           incumbentSince: 2025,
           incumbentSummary: 'Physician and attorney serving Utah’s 3rd District in his first U.S. House term.',
-          addLabel: 'Add Congressional District 3 choice to My Team',
+          addLabel: 'Add Congressional District 3 choice to your ballot',
           candidates: ['kennedy'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.'
         }
@@ -1465,7 +1544,7 @@
           district: 'Utah House District 75', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'walt_brooks',
           incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 75 choice to My Team',
+          addLabel: 'Add House District 75 choice to your ballot',
           candidates: ['walt_brooks'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.'
         },
@@ -1475,9 +1554,9 @@
           color: '#a78bfa', incumbentPid: 'dipson',
           incumbentNote: 'Incumbent — current term runs through 2029',
           ballot: { tone: 'future', label: 'Next Election · 2028' },
-          addLabel: 'Add Senate District 29 choice to My Team',
+          addLabel: 'Add Senate District 29 choice to your ballot',
           candidates: ['dipson'],
-          extraNote: 'This seat is not on the 2026 ballot, but your senator’s record stays on your team for reference.'
+          extraNote: 'This seat is not on the 2026 ballot, but your senator’s record stays on your ballot for reference.'
         },
         {
           raceKey: 'house', short: 'Congressional District 2',
@@ -1486,7 +1565,7 @@
           incumbentNote: 'Incumbent — running for re-election in 2026',
           incumbentSince: 2023,
           incumbentSummary: 'Former county attorney representing Utah’s 2nd District, first elected in a 2023 special election.',
-          addLabel: 'Add Congressional District 2 choice to My Team',
+          addLabel: 'Add Congressional District 2 choice to your ballot',
           candidates: ['maloy'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.'
         }
@@ -1498,7 +1577,7 @@
           district: 'Utah House District 9', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'jake_sawyer',
           incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 9 choice to My Team',
+          addLabel: 'Add House District 9 choice to your ballot',
           candidates: ['jake_sawyer'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.'
         },
@@ -1507,7 +1586,7 @@
           district: 'Utah Senate District 5', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'amillner',
           incumbentNote: 'Incumbent — Weber County’s state senator',
-          addLabel: 'Add Senate District 5 choice to My Team',
+          addLabel: 'Add Senate District 5 choice to your ballot',
           candidates: ['amillner'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.'
         },
@@ -1518,7 +1597,7 @@
           incumbentNote: 'Incumbent — running for re-election in 2026',
           incumbentSince: 2023,
           incumbentSummary: 'Former county attorney representing Utah’s 2nd District, first elected in a 2023 special election.',
-          addLabel: 'Add Congressional District 2 choice to My Team',
+          addLabel: 'Add Congressional District 2 choice to your ballot',
           candidates: ['maloy'],
           extraNote: 'Weber County sits in the 2nd District under the 2026 court-ordered map. The 2026 field is still forming — more candidates will appear here as filings are confirmed.'
         }
@@ -1530,55 +1609,55 @@
         // is Grant Miller's seat.
         { raceKey: 'statehouse', short: 'House District 21', district: 'Utah House District 21', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'hollins_h24', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 21 choice to My Team', candidates: ['hollins_h24'],
+          addLabel: 'Add House District 21 choice to your ballot', candidates: ['hollins_h24'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 13', district: 'Utah Senate District 13', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'blouin_s13', incumbentNote: 'Incumbent — your current state senator',
-          addLabel: 'Add Senate District 13 choice to My Team', candidates: ['blouin_s13'],
+          addLabel: 'Add Senate District 13 choice to your ballot', candidates: ['blouin_s13'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'house', short: 'Congressional District 1', district: 'Utah Congressional District 1', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'bmoore', incumbentNote: 'Incumbent — running for re-election in 2026',
           incumbentSince: 2021, incumbentSummary: 'Representing Utah’s 1st District since 2021 and a member of U.S. House Republican leadership.',
-          addLabel: 'Add Congressional District 1 choice to My Team', candidates: ['bmoore'],
+          addLabel: 'Add Congressional District 1 choice to your ballot', candidates: ['bmoore'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
       ],
       // ── West Valley City (Salt Lake County) ────────────────────────
       west_valley: [
         { raceKey: 'statehouse', short: 'House District 30', district: 'Utah House District 30', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'fitisemanu_h30', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 30 choice to My Team', candidates: ['fitisemanu_h30'],
+          addLabel: 'Add House District 30 choice to your ballot', candidates: ['fitisemanu_h30'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 12', district: 'Utah Senate District 12', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'kwan_s12', incumbentNote: 'Incumbent — your current state senator',
-          addLabel: 'Add Senate District 12 choice to My Team', candidates: ['kwan_s12'],
+          addLabel: 'Add Senate District 12 choice to your ballot', candidates: ['kwan_s12'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'house', short: 'Congressional District 2', district: 'Utah Congressional District 2', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'maloy', incumbentNote: 'Incumbent — running for re-election in 2026',
           incumbentSince: 2023, incumbentSummary: 'Former county attorney representing Utah’s 2nd District, first elected in a 2023 special election.',
-          addLabel: 'Add Congressional District 2 choice to My Team', candidates: ['maloy'],
+          addLabel: 'Add Congressional District 2 choice to your ballot', candidates: ['maloy'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
       ],
       // ── West Jordan (Salt Lake County) ─────────────────────────────
       west_jordan: [
         { raceKey: 'statehouse', short: 'House District 39', district: 'Utah House District 39', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'ivory_h39', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 39 choice to My Team', candidates: ['ivory_h39'],
+          addLabel: 'Add House District 39 choice to your ballot', candidates: ['ivory_h39'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 16', district: 'Utah Senate District 16', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'harper_s16', incumbentNote: 'Incumbent — your current state senator',
-          addLabel: 'Add Senate District 16 choice to My Team', candidates: ['harper_s16'],
+          addLabel: 'Add Senate District 16 choice to your ballot', candidates: ['harper_s16'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'house', short: 'Congressional District 4', district: 'Utah Congressional District 4', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'owens', incumbentNote: 'Incumbent — running for re-election in 2026',
           incumbentSince: 2021, incumbentSummary: 'Representing Utah’s 4th District since 2021, serving on the Education and Judiciary committees.',
-          addLabel: 'Add Congressional District 4 choice to My Team', candidates: ['owens'],
+          addLabel: 'Add Congressional District 4 choice to your ballot', candidates: ['owens'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
       ],
       // ── South Jordan / Riverton (Salt Lake County) ─────────────────
       south_jordan: [
         { raceKey: 'statehouse', short: 'House District 44', district: 'Utah House District 44', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'teuscher_h44', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 44 choice to My Team', candidates: ['teuscher_h44'],
+          addLabel: 'Add House District 44 choice to your ballot', candidates: ['teuscher_h44'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 18', district: 'Utah Senate District 18', chamber: 'Utah State Senate',
           // Was labelled "Senate District 11" — McCay's PRE-2023 number, which his id
@@ -1586,12 +1665,12 @@
           // the 2022 redistricting, which is what _UTAH_SENATE_INFO and his own roster
           // record say. Assertion 10i now compares these two, so the stale label failed.
           color: '#a78bfa', incumbentPid: 'mccay_s11', incumbentNote: 'Incumbent — your current state senator',
-          addLabel: 'Add Senate District 18 choice to My Team', candidates: ['mccay_s11'],
+          addLabel: 'Add Senate District 18 choice to your ballot', candidates: ['mccay_s11'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'house', short: 'Congressional District 4', district: 'Utah Congressional District 4', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'owens', incumbentNote: 'Incumbent — running for re-election in 2026',
           incumbentSince: 2021, incumbentSummary: 'Representing Utah’s 4th District since 2021, serving on the Education and Judiciary committees.',
-          addLabel: 'Add Congressional District 4 choice to My Team', candidates: ['owens'],
+          addLabel: 'Add Congressional District 4 choice to your ballot', candidates: ['owens'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
       ],
       // ── Sandy / Cottonwood Heights (Salt Lake County) ──────────────
@@ -1606,96 +1685,96 @@
         // Miller's seat and is not wired to anyone.
         { raceKey: 'statehouse', short: 'House District 43', district: 'Utah House District 43', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'eliason_h45', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 43 choice to My Team', candidates: ['eliason_h45'],
+          addLabel: 'Add House District 43 choice to your ballot', candidates: ['eliason_h45'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 19', district: 'Utah Senate District 19', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'kcullimore', incumbentNote: 'Incumbent — your current state senator',
-          addLabel: 'Add Senate District 19 choice to My Team', candidates: ['kcullimore'],
+          addLabel: 'Add Senate District 19 choice to your ballot', candidates: ['kcullimore'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'house', short: 'Congressional District 4', district: 'Utah Congressional District 4', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'owens', incumbentNote: 'Incumbent — running for re-election in 2026',
           incumbentSince: 2021, incumbentSummary: 'Representing Utah’s 4th District since 2021, serving on the Education and Judiciary committees.',
-          addLabel: 'Add Congressional District 4 choice to My Team', candidates: ['owens'],
+          addLabel: 'Add Congressional District 4 choice to your ballot', candidates: ['owens'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
       ],
       // ── Clearfield / Syracuse (Davis County) ───────────────────────
       clearfield: [
         { raceKey: 'statehouse', short: 'House District 14', district: 'Utah House District 14', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'lisonbee_h14', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 14 choice to My Team', candidates: ['lisonbee_h14'],
+          addLabel: 'Add House District 14 choice to your ballot', candidates: ['lisonbee_h14'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 6', district: 'Utah Senate District 6', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'jstevenson', incumbentNote: 'Incumbent — your current state senator',
-          addLabel: 'Add Senate District 6 choice to My Team', candidates: ['jstevenson'],
+          addLabel: 'Add Senate District 6 choice to your ballot', candidates: ['jstevenson'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'house', short: 'Congressional District 1', district: 'Utah Congressional District 1', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'bmoore', incumbentNote: 'Incumbent — running for re-election in 2026',
           incumbentSince: 2021, incumbentSummary: 'Representing Utah’s 1st District since 2021 and a member of U.S. House Republican leadership.',
-          addLabel: 'Add Congressional District 1 choice to My Team', candidates: ['bmoore'],
+          addLabel: 'Add Congressional District 1 choice to your ballot', candidates: ['bmoore'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
       ],
       // ── South Ogden / Roy (Weber County) ───────────────────────────
       south_ogden: [
         { raceKey: 'statehouse', short: 'House District 11', district: 'Utah House District 11', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'hall_h11', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 11 choice to My Team', candidates: ['hall_h11'],
+          addLabel: 'Add House District 11 choice to your ballot', candidates: ['hall_h11'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 5', district: 'Utah Senate District 5', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'amillner', incumbentNote: 'Incumbent — your current state senator',
-          addLabel: 'Add Senate District 5 choice to My Team', candidates: ['amillner'],
+          addLabel: 'Add Senate District 5 choice to your ballot', candidates: ['amillner'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'house', short: 'Congressional District 1', district: 'Utah Congressional District 1', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'bmoore', incumbentNote: 'Incumbent — running for re-election in 2026',
           incumbentSince: 2021, incumbentSummary: 'Representing Utah’s 1st District since 2021 and a member of U.S. House Republican leadership.',
-          addLabel: 'Add Congressional District 1 choice to My Team', candidates: ['bmoore'],
+          addLabel: 'Add Congressional District 1 choice to your ballot', candidates: ['bmoore'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
       ],
       // ── Orem (Utah County) ─────────────────────────────────────────
       orem: [
         { raceKey: 'statehouse', short: 'House District 56', district: 'Utah House District 56', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'valpeterson_h56', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 56 choice to My Team', candidates: ['valpeterson_h56'],
+          addLabel: 'Add House District 56 choice to your ballot', candidates: ['valpeterson_h56'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 25', district: 'Utah Senate District 25', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'mckell_s25', incumbentNote: 'Incumbent — your current state senator',
-          addLabel: 'Add Senate District 25 choice to My Team', candidates: ['mckell_s25'],
+          addLabel: 'Add Senate District 25 choice to your ballot', candidates: ['mckell_s25'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'house', short: 'Congressional District 3', district: 'Utah Congressional District 3', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'kennedy', incumbentNote: 'Incumbent — first elected in 2024',
           incumbentSince: 2025, incumbentSummary: 'Physician and attorney serving Utah’s 3rd District in his first U.S. House term.',
-          addLabel: 'Add Congressional District 3 choice to My Team', candidates: ['kennedy'],
+          addLabel: 'Add Congressional District 3 choice to your ballot', candidates: ['kennedy'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
       ],
       // ── Lehi / Eagle Mountain (Utah County) ────────────────────────
       lehi: [
         { raceKey: 'statehouse', short: 'House District 50', district: 'Utah House District 50', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'gricius_h50', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 50 choice to My Team', candidates: ['gricius_h50'],
+          addLabel: 'Add House District 50 choice to your ballot', candidates: ['gricius_h50'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 21', district: 'Utah Senate District 21', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'brammer_s21', incumbentNote: 'Incumbent — your current state senator',
-          addLabel: 'Add Senate District 21 choice to My Team', candidates: ['brammer_s21'],
+          addLabel: 'Add Senate District 21 choice to your ballot', candidates: ['brammer_s21'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'house', short: 'Congressional District 3', district: 'Utah Congressional District 3', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'kennedy', incumbentNote: 'Incumbent — first elected in 2024',
           incumbentSince: 2025, incumbentSummary: 'Physician and attorney serving Utah’s 3rd District in his first U.S. House term.',
-          addLabel: 'Add Congressional District 3 choice to My Team', candidates: ['kennedy'],
+          addLabel: 'Add Congressional District 3 choice to your ballot', candidates: ['kennedy'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
       ],
       // ── Logan / Cache County ───────────────────────────────────────
       cache: [
         { raceKey: 'statehouse', short: 'House District 5', district: 'Utah House District 5', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'snider_h5', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 5 choice to My Team', candidates: ['snider_h5'],
+          addLabel: 'Add House District 5 choice to your ballot', candidates: ['snider_h5'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 1', district: 'Utah Senate District 1', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'ssandall', incumbentNote: 'Incumbent — your current state senator',
-          addLabel: 'Add Senate District 1 choice to My Team', candidates: ['ssandall'],
+          addLabel: 'Add Senate District 1 choice to your ballot', candidates: ['ssandall'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'house', short: 'Congressional District 1', district: 'Utah Congressional District 1', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'bmoore', incumbentNote: 'Incumbent — running for re-election in 2026',
           incumbentSince: 2021, incumbentSummary: 'Representing Utah’s 1st District since 2021 and a member of U.S. House Republican leadership.',
-          addLabel: 'Add Congressional District 1 choice to My Team', candidates: ['bmoore'],
+          addLabel: 'Add Congressional District 1 choice to your ballot', candidates: ['bmoore'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
       ],
       // ── Tooele / Grantsville (Tooele County) ───────────────────────
@@ -1706,16 +1785,16 @@
           // 2023; post-2023 District 68 is Scott Chew's Uintah Basin seat, so this block
           // was advertising a race 200 miles away to Tooele County readers. Caught by 10i.
           color: '#2dd4bf', incumbentPid: 'bolinder_h68', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 29 choice to My Team', candidates: ['bolinder_h68'],
+          addLabel: 'Add House District 29 choice to your ballot', candidates: ['bolinder_h68'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 1', district: 'Utah Senate District 1', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'ssandall', incumbentNote: 'Incumbent — your current state senator',
-          addLabel: 'Add Senate District 1 choice to My Team', candidates: ['ssandall'],
+          addLabel: 'Add Senate District 1 choice to your ballot', candidates: ['ssandall'],
           extraNote: 'Senate District 1 spans Box Elder, Cache and Tooele counties. 2026 challenger filings are still being certified.' },
         { raceKey: 'house', short: 'Congressional District 2', district: 'Utah Congressional District 2', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'maloy', incumbentNote: 'Incumbent — running for re-election in 2026',
           incumbentSince: 2023, incumbentSummary: 'Former county attorney representing Utah’s 2nd District, first elected in a 2023 special election.',
-          addLabel: 'Add Congressional District 2 choice to My Team', candidates: ['maloy'],
+          addLabel: 'Add Congressional District 2 choice to your ballot', candidates: ['maloy'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
       ],
       // ── Cedar City / Iron County ───────────────────────────────────
@@ -1726,16 +1805,16 @@
         // St. George seat, so the region, the number and the person were all wrong.
         { raceKey: 'statehouse', short: 'House District 71', district: 'Utah House District 71', chamber: 'Utah State House',
           color: '#2dd4bf', incumbentPid: 'rshipp', incumbentNote: 'Incumbent — eligible for re-election in 2026',
-          addLabel: 'Add House District 71 choice to My Team', candidates: ['rshipp'],
+          addLabel: 'Add House District 71 choice to your ballot', candidates: ['rshipp'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'statesenate', short: 'Senate District 28', district: 'Utah Senate District 28', chamber: 'Utah State Senate',
           color: '#a78bfa', incumbentPid: 'evickers', incumbentNote: 'Incumbent — your current state senator',
-          addLabel: 'Add Senate District 28 choice to My Team', candidates: ['evickers'],
+          addLabel: 'Add Senate District 28 choice to your ballot', candidates: ['evickers'],
           extraNote: '2026 challenger filings for this district are still being certified — more candidates will appear here.' },
         { raceKey: 'house', short: 'Congressional District 2', district: 'Utah Congressional District 2', chamber: 'U.S. House of Representatives',
           color: '#60a5fa', incumbentPid: 'maloy', incumbentNote: 'Incumbent — running for re-election in 2026',
           incumbentSince: 2023, incumbentSummary: 'Former county attorney representing Utah’s 2nd District, first elected in a 2023 special election.',
-          addLabel: 'Add Congressional District 2 choice to My Team', candidates: ['maloy'],
+          addLabel: 'Add Congressional District 2 choice to your ballot', candidates: ['maloy'],
           extraNote: 'The 2026 field is still forming — more candidates will appear here as filings are confirmed.' }
       ]
     };
@@ -1946,7 +2025,7 @@
         color: isHouse ? '#2dd4bf' : (isSenate ? '#a78bfa' : '#60a5fa'),
         incumbentPid: incPid || null,
         incumbentNote: isHouse || isSenate ? 'District mapped from official Utah legislative boundaries' : (KR_CONGRESSIONAL_INCUMBENTS[num] && KR_CONGRESSIONAL_INCUMBENTS[num].label) || 'District mapped from official Utah congressional boundaries',
-        addLabel: 'Add ' + short + ' choice to My Team',
+        addLabel: 'Add ' + short + ' choice to your ballot',
         candidates: incPid ? [incPid] : [],
         extraNote: location.city + ', ' + location.county + ' is mapped to this district using Utah’s official district boundaries. Candidate rosters will expand as local filings and profiles are added.'
       };
@@ -1984,7 +2063,7 @@
         incumbentNote: 'Incumbent — elected 2020, re-elected 2024 · next up 2028',
         incumbentSince: 2021,
         incumbentSummary: 'Utah’s 18th governor. Signs every state law and budget — known for rural development, water policy and mental-health initiatives.',
-        addLabel: 'Add your Governor pick to My Team',
+        addLabel: 'Add your Governor pick to your ballot',
         candidates: ['cox', 'lyman'],
         candidatesLabel: 'Challenged for This Seat · 2024',
         extraNote: 'Utah’s governorship is a four-year office, last contested in 2024 and next on the ballot in 2028. It’s shown for every Utah voter because the Governor signs every state law and budget — add the leader whose record you want to track.'
@@ -2023,7 +2102,7 @@
           lee: 'Utah’s senior U.S. Senator and a leading constitutional-conservative voice in Washington. His seat was last contested in 2022.',
           curtis: 'Utah’s junior U.S. Senator, formerly the 3rd District congressman, focused on energy and the environment. He won this seat in 2024.'
         },
-        addLabel: 'Add your U.S. Senate pick to My Team',
+        addLabel: 'Add your U.S. Senate pick to your ballot',
         candidates: ['lee', 'curtis'],
         extraNote: 'Utah’s two U.S. Senate seats are elected in different years, so a seat is on the ballot only once every six years — and neither falls in 2026. Sen. Lee’s seat is next contested in 2028 and Sen. Curtis’s in 2030. Both senators represent every Utah voter, so their records are shown here for reference, but there is no U.S. Senate choice to make on your 2026 ballot.'
       }
@@ -2813,8 +2892,8 @@
     // mechanism, same 6-slot team store).
     function _krPickBtn(race, pid, isPick) {
       return isPick
-        ? '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(74,222,128,0.22),rgba(74,222,128,0.10));border:1px solid rgba(74,222,128,0.55);color:#4ade80;">✓ On My Team</button>'
-        : '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer hover:scale-105" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(245,158,11,0.20),rgba(245,158,11,0.08));border:1px solid rgba(245,158,11,0.50);color:#fbbf24;">➕ Add to My Team</button>';
+        ? '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(74,222,128,0.22),rgba(74,222,128,0.10));border:1px solid rgba(74,222,128,0.55);color:#4ade80;">✓ Your pick</button>'
+        : '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="font-condensed font-700 text-xs tracking-wider uppercase rounded-lg transition-all cursor-pointer hover:scale-105" style="white-space:nowrap;padding:0.5rem 0.85rem;background:linear-gradient(135deg,rgba(245,158,11,0.20),rgba(245,158,11,0.08));border:1px solid rgba(245,158,11,0.50);color:#fbbf24;">➕ Add to ballot</button>';
     }
 
     // Compare / Profile action row shared by the incumbent hero and challenger rows.
@@ -3289,8 +3368,8 @@
       if (race.reference) {
         return '<div class="kr-mini-actions">' + prof + '</div>';
       }
-      var add = '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="kr-mini-btn kr-mini-add' + (isPick ? ' is-on' : '') + '" aria-label="' + (isPick ? 'Remove ' + d.name + ' from My Team' : 'Add ' + d.name + ' to My Team') + '">' +
-          '<span class="kr-mini-ico">' + (isPick ? '✓' : '➕') + '</span>' + (isPick ? 'On Team' : 'Add') +
+      var add = '<button onclick="window.ballotPickCardAnimated(this,\'' + race.raceKey + '\',\'' + pid + '\')" class="kr-mini-btn kr-mini-add' + (isPick ? ' is-on' : '') + '" aria-label="' + (isPick ? 'Remove ' + d.name + ' from your ballot' : 'Add ' + d.name + ' to your ballot') + '">' +
+          '<span class="kr-mini-ico">' + (isPick ? '✓' : '➕') + '</span>' + (isPick ? 'Your pick' : 'Add') +
         '</button>';
       return '<div class="kr-mini-actions">' + add + prof + '</div>';
     }
@@ -3350,12 +3429,12 @@
       if (selInThisRace && CMP_DATA[selInThisRace]) {
         coverStrip = '<div class="kr-cover-strip is-covered">' +
             '<span class="kr-cover-ico">✓</span>' +
-            '<span class="kr-cover-text"><strong>' + CMP_DATA[selInThisRace].name + '</strong> is on your team for this seat</span>' +
+            '<span class="kr-cover-text"><strong>' + CMP_DATA[selInThisRace].name + '</strong> is your pick for this seat</span>' +
           '</div>';
       } else if (_krRaceTone(race) === 'now' || _krRaceTone(race) === 'open') {
         coverStrip = '<div class="kr-cover-strip is-gap">' +
             '<span class="kr-cover-ico">🎯</span>' +
-            '<span class="kr-cover-text">No one on your team for ' + (race.short || 'this race') + ' yet — add the officeholder, or see the full field in Relevant to Me</span>' +
+            '<span class="kr-cover-text">No pick yet for ' + (race.short || 'this race') + ' — add the officeholder, or see the full field in Relevant to Me</span>' +
           '</div>';
       }
 
@@ -4977,7 +5056,7 @@
         if (pick) {
           nCov++;
           return '<button type="button" class="kr-cov-chip is-covered" onclick="window.keyRacesScrollToRace(\'' + r.raceKey + '\')" ' +
-              'aria-label="' + label + ' — ' + CMP_DATA[pick].name + ' is on your team; tap to view this race">' +
+              'aria-label="' + label + ' — ' + CMP_DATA[pick].name + ' is your pick; tap to view this race">' +
               '<span class="kr-cov-chip-ico">✓</span>' + label + '</button>';
         }
         return '<button type="button" class="kr-cov-chip is-open-gap" onclick="window.keyRacesScrollToRace(\'' + r.raceKey + '\')" ' +
@@ -4991,7 +5070,7 @@
       var title = complete ? 'Every seat we track is covered' : 'Build Your Ballot Team';
       var sub;
       if (complete) {
-        sub = 'You’ve added someone for every seat PolitiDex tracks in your districts. Compare your team, or fine-tune any pick below.';
+        sub = 'You’ve added someone for every seat PolitiDex tracks in your districts. Compare your picks, or fine-tune any pick below.';
       } else if (nCov === 0) {
         sub = 'You haven’t added anyone from your districts yet. Add a pick for each seat below to build a team that covers the seats we track — tap any gold race to jump straight to it.';
       } else {
@@ -5204,13 +5283,13 @@
             };
             var _compareTeam = function() { if (window.myteamCompareAll) window.myteamCompareAll(); else _viewTeam(); };
             if (_complete) {
-              if (_filled >= 2) _acts.push({ label: '⚖️ Compare your team', kind: 'primary', act: _compareTeam });
-              _acts.push({ label: '↑ See it in My Team', kind: 'secondary', act: _viewTeam });
+              if (_filled >= 2) _acts.push({ label: '⚖️ Compare your picks', kind: 'primary', act: _compareTeam });
+              _acts.push({ label: '↑ See it on your ballot', kind: 'secondary', act: _viewTeam });
             } else {
               // Always offer a one-tap hop up to watch the slot they just filled
               // light up — this is what closes the discover → add → see-it-appear
               // loop for the common single-pick add, where there was no action before.
-              _acts.push({ label: '↑ See it in My Team', kind: 'primary', act: _viewTeam });
+              _acts.push({ label: '↑ See it on your ballot', kind: 'primary', act: _viewTeam });
               if (_filled >= 2) _acts.push({ label: '⚖️ Compare my picks', kind: 'secondary', act: _compareTeam });
             }
             window._showTeamToast(pid, 'add', { count: _filled, total: _total, complete: _complete, actions: _acts });
@@ -5417,10 +5496,10 @@
 
       // The link opens THIS team, not the front page. A share that ends at the
       // homepage asks the reader to rebuild by hand what they were just sent.
-      var url = _teamShareUrl('My 2026 Voting Team', selections) || 'https://www.politidex.fyi';
+      var url = _teamShareUrl('My 2026 ballot', selections) || 'https://www.politidex.fyi';
       var text = filled > 0
-        ? '🗳️ My 2026 Voting Team (' + filled + '/6 picked):\n\n' + picks.join('\n') + '\n\nOpen this team → ' + url + '\n#PolitiDex #2026Ballot'
-        : 'Build your 2026 Voting Team at https://www.politidex.fyi #PolitiDex';
+        ? '🗳️ My 2026 ballot (' + filled + '/6 picked):\n\n' + picks.join('\n') + '\n\nOpen this ballot → ' + url + '\n#PolitiDex #2026Ballot'
+        : 'Work your 2026 ballot at https://www.politidex.fyi #PolitiDex';
 
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function() {
@@ -5588,7 +5667,7 @@
         return row.label + ': ' + (row.missing ? 'pick no longer on file' : row.name);
       });
       return {
-        title: name || 'My 2026 Voting Team',
+        title: name || 'My 2026 ballot',
         text: lines.join('\n'),
         url: _teamShareUrl(name, slots)
       };
@@ -5645,7 +5724,7 @@
         for (var k in (team.slots || {})) { if (team.slots[k]) members.push(team.slots[k]); }
         db.collection('userTeams').doc(u.uid).collection('teams').doc(team.id).set({
           schemaVersion: (window.PDX_TEAM_SCHEMA_VERSION || 2),
-          name: team.name || 'My Team',
+          name: team.name || 'My ballot',
           slots: team.slots || {},
           members: members,
           isMain: false,
@@ -5675,7 +5754,7 @@
             var d = doc.data() || {};
             if (!d.savedTeam) return;          // skip the auto-saved "main" team
             if (!byId[doc.id]) {
-              byId[doc.id] = { id: doc.id, name: d.name || 'My Team', slots: d.slots || {}, createdAt: Date.now(), updatedAt: Date.now() };
+              byId[doc.id] = { id: doc.id, name: d.name || 'My ballot', slots: d.slots || {}, createdAt: Date.now(), updatedAt: Date.now() };
               changed = true;
             }
           });
@@ -5696,7 +5775,7 @@
       }
       var input = document.getElementById('myteam-name-input');
       var name = input && input.value ? input.value.trim() : '';
-      if (!name) name = 'My Team ' + (_savedTeamsLoad().length + 1);
+      if (!name) name = 'My ballot ' + (_savedTeamsLoad().length + 1);
       name = name.slice(0, 60);
       var team = { id: _genTeamId(), name: name, slots: JSON.parse(JSON.stringify(slots)), createdAt: Date.now(), updatedAt: Date.now() };
       var teams = _savedTeamsLoad();
@@ -5787,13 +5866,13 @@
       // the raw key count, so a slate of ids we can no longer name does not
       // travel as a slate of blanks.
       if (_teamRoster(slots).filled === 0) {
-        _showShareToast('Add at least one pick, then share your team.');
+        _showShareToast('Add at least one pick, then share your ballot.');
         return Promise.resolve(false);
       }
       // The button confirms AFTER the platform does. It used to flip to
       // "Link Copied!" the moment it was pressed, which is a success signal
       // printed over a share that may never have happened.
-      return _shareTeam('My 2026 Voting Team', slots).then(function(done) {
+      return _shareTeam('My 2026 ballot', slots).then(function(done) {
         if (!done) return false;
         var btn = document.getElementById('myteam-share-btn');
         if (btn) {
