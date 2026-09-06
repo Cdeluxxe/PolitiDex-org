@@ -8417,6 +8417,15 @@
       font-weight: 700; font-size: 0.6rem; letter-spacing: 0.02em;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
+    /* The set that sizes the figure, in its own span so it cannot be ellipsized
+       away by the percentage beside it. Deliberately quieter and never tinted:
+       "15 of 26 tested" is how big the read is, not how good the record is, and
+       it carries the verdict's colour nowhere. It ships and hides WITH the
+       percentage — the chip prints both halves or neither. */
+    .rel-sig-den {
+      font-weight: 600; font-size: 0.55rem; letter-spacing: 0.05em;
+      opacity: 0.72; color: #8aa3c4; white-space: nowrap; flex-shrink: 0;
+    }
     @media (max-width: 380px) {
       .rel-rec-line { font-size: 0.72rem; }
       .rel-sig-row { flex-direction: column; align-items: flex-start; }

@@ -7346,10 +7346,29 @@
       var _isUSHouse = (polOffice.indexOf('u.s. rep') !== -1 || polOffice.indexOf('u.s. house') !== -1 ||
                         polOffice.indexOf('us house') !== -1 || polOffice.indexOf('house candidate') !== -1 ||
                         (polOffice.indexOf('representative') !== -1 && polOffice.indexOf('state') === -1));
+      // ── THE CHAMBER IS THE OFFICE KEY'S, NEVER THE DISTRICT NUMBER'S ────────
+      // Which office key this record is tested under decides WHICH district
+      // number it is tested against, so getting the chamber wrong is how a
+      // district number ends up deciding a seat on its own. `_isUSHouse` is an
+      // office-STRING guess ("says representative, does not say state"), and it
+      // used to be OR'd in front of the classifier's answer — so any state-house
+      // record whose office line omits the word "state" ("Utah House of
+      // Representatives", "Speaker of the House") was routed to the CONGRESSIONAL
+      // key and then matched against the reader's U.S. House district. A Utah
+      // House District 1 member would come back relevant as a UT-1 reader's
+      // congressman: the same district number, a different chamber, and nothing
+      // in the comparison to notice the difference.
+      //
+      // _classifyBrowseType is the app's one doctrine for "which chamber is this"
+      // — it is what the browse tree, seat-field.js and pdxSeatField all key on —
+      // so its answer is decisive here too, and the string test survives only as
+      // the fallback for a record it could not place at all. Office + state +
+      // district, in that order, with the office first.
       var _btype = (typeof _classifyBrowseType === 'function') ? _classifyBrowseType(pid) : '';
-      var _officeKey = (_btype === 'representative' || _isUSHouse) ? 'representative'
+      var _officeKey = (_btype === 'representative') ? 'representative'
                      : (_btype === 'state_senator') ? 'state_senator'
-                     : (_btype === 'state_rep') ? 'state_rep' : null;
+                     : (_btype === 'state_rep') ? 'state_rep'
+                     : (!_btype && _isUSHouse) ? 'representative' : null;
       if (_officeKey) {
         // Resolve the voter's OWN seat + authoritative roster for this office from
         // the single source of truth every location-aware surface now shares
@@ -8896,12 +8915,25 @@
     }
     window._relevantRecordLine = _relevantRecordLine;
 
+    // The one escape for everything this row prints. The values below are the
+    // figure owner's own strings and integers, but they land in an attribute as
+    // well as in text, and a title attribute is the shortest path from a stray
+    // quote to a broken node.
+    function _relSigEsc(v) {
+      if (typeof window._slEsc === 'function') return window._slEsc(v);
+      return String(v == null ? '' : v)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
     // The demoted pair. Same two reads, same two doors, one line of small chips.
-    // The LEFT chip is the OVERALL ⚖️ Word vs Action read across every position
-    // the politician has stated (window._pdxLedgerSlot, which fails closed to
-    // coverage prose and never invents a figure). The RIGHT chip is that same read
-    // narrowed to the visitor's chosen issues (_calcConsistencyScore, off the same
-    // PDXConsistency.officialRecord feed — a scope of the one system, not a rival).
+    // The LEFT chip is the OVERALL ⚖️ Word vs Action read across every position the
+    // politician has stated: PDXWordAction.figure() for the published figure, with
+    // window._pdxLedgerSlot behind it for every state where there is no figure to
+    // publish (it fails closed to coverage prose and never invents one). The RIGHT
+    // chip is that same read narrowed to the visitor's chosen issues
+    // (_calcConsistencyScore, off the same PDXConsistency.officialRecord feed — a
+    // scope of the one system, not a rival).
     //
     // `recKind` is the record line's own state, passed in so the two cannot say the
     // same sentence twice: on a candidate with no file the line already reads
@@ -8914,13 +8946,84 @@
 
       var waChip = '';
       var slot = window._pdxLedgerSlot(d, { pid: pid, status: status });
+      // ── THE ⚖️ CHIP SAYS THE FIGURE, OR IT SAYS NOTHING NUMERIC ──────────────
+      // WHAT IT SAID BEFORE. `slot.sub` on the publishable branch is the verdict's
+      // own word — "Backs it up", "Says one thing…" — and a verdict word with no
+      // figure and no set behind it is the loosest thing this row can print. On a
+      // card in a list, "Backs it up" reads as a grade on the person, and the
+      // reader has no way to see that it is standing on three tested statements
+      // out of a file of ninety. The person file solved exactly this for the
+      // letterhead chip: it prints the percentage AND the set that sizes it, both
+      // halves or neither.
+      //
+      // ONE OWNER, NOT A SECOND READING. PDXWordAction.figure(pid, d) is that
+      // owner — the same object the letterhead chip, the ⚖️ section, the search
+      // row and the homepage card print — carrying the percentage, the tested
+      // count, the eligible count and the ONE sentence those two integers make
+      // (`fraction`, "15 of 26 tested"). This chip prints that object. It composes
+      // no fraction of its own, applies no floor of its own and rounds nothing:
+      // `f.stamp` rides along on the node so a test can assert this surface is
+      // printing the owner's object rather than a transcription that happens to
+      // agree today.
+      //
+      // AND ONLY WHEN THE TESTED SET HAS STOPPED GROWING. `f.ready` is figure()'s
+      // own settled flag — a percentage, both halves of the fraction, and a
+      // coverage read that has stopped warming. This ledger GROWS during a page's
+      // life as the roll-call record and the lazy bundles land, and a card in a
+      // list is the surface the gate was written for: there is no ledger beside it
+      // to check the figure against, so an unsettled read would paint 88% over
+      // five tested and then settle to 72% over fifteen under a reader who has
+      // already carried the first one away. Unsettled prints NO NUMBER — a quiet
+      // line instead — and the section's warm repaint above brings the figure in
+      // when it is real.
+      //
+      // BELOW THE FLOOR NOTHING CHANGES. Every branch of _pdxLedgerSlot that
+      // already returns coverage prose ("Record begins in office", "Not enough
+      // record yet", "No matched votes yet") still prints exactly that prose, in
+      // exactly its own words: this replaces the VERDICT branch, which is the only
+      // branch that was saying more than it could show.
+      //
+      // IT IS STILL NOT A SCORE. Nothing sorts, filters, ranks or thresholds on
+      // these two integers — no surface reads them back — the chip remains one
+      // door to _pdxScoreCompareInfo, and the formal record line stays ABOVE it as
+      // the card's claim. A percentage under a finding is a size, not a grade.
+      var _waFig = null;
+      try {
+        var _waF = window.PDXWordAction;
+        if (_waF && typeof _waF.figure === 'function') _waFig = _waF.figure(pid, d);
+      } catch (e) { _waFig = null; }
+      var _figShown = !!(_waFig && _waFig.ready);
+      var waVal, waDen = '', waCol, waTitle, waStamp = '';
+      if (_figShown) {
+        waVal = _waFig.pct + '%';
+        waDen = _waFig.fraction;
+        waCol = (_waFig.verdict && _waFig.verdict.color) || slot.tint || '#9fb4d4';
+        waStamp = _waFig.stamp;
+        waTitle = '⚖️ Word vs Action — ' + _waFig.pct + '% over ' + _waFig.fraction +
+          '. The same figure their profile prints, published only once the tested set stopped ' +
+          'growing. Tap for how it works.';
+      } else if (slot.pct !== null) {
+        // Publishable, but the set under it is still arriving (or has no eligible
+        // total to size it against). No number, no verdict word, no colour.
+        waVal = (_waFig && _waFig.fraction) ? 'Reading the record…' : 'Not tested yet';
+        waCol = '';
+        waTitle = '⚖️ Word vs Action — their tested set is still being counted, so no figure is ' +
+          'published here yet. Tap for how it works.';
+      } else {
+        waVal = slot.sub;
+        waCol = slot.tint;
+        waTitle = '⚖️ Word vs Action — across every position they have stated, how often the record ' +
+          'backs it up. Campaign pledges are measured inside this read. Tap for how it works.';
+      }
       if (!(recKind === 'preoffice' && slot.state === 'candidate')) {
         waChip = '<button type="button" class="rel-sig-chip rel-sig-wa" ' +
             'onclick="event.stopPropagation();window._pdxScoreCompareInfo(event,\'' + pid + '\')" ' +
-            'title="⚖️ Word vs Action — across every position they have stated, how often the record backs it up. Campaign pledges are measured inside this read. Tap for how it works.">' +
+            (waStamp ? 'data-rel-wva-fig="' + _relSigEsc(waStamp) + '" ' : '') +
+            'title="' + _relSigEsc(waTitle) + '">' +
             '<span class="rel-sig-ico" aria-hidden="true">⚖️</span>' +
             '<span class="rel-sig-lbl">Word vs Action</span>' +
-            '<span class="rel-sig-val" style="color:' + (slot.tint || '#9fb4d4') + ';">' + slot.sub + '</span>' +
+            '<span class="rel-sig-val" style="color:' + (waCol || '#9fb4d4') + ';">' + _relSigEsc(waVal) + '</span>' +
+            (waDen ? '<span class="rel-sig-den">' + _relSigEsc(waDen) + '</span>' : '') +
           '</button>';
       }
 

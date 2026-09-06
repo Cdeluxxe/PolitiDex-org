@@ -2783,6 +2783,65 @@
 // nested interactives, no store renamed, and the local seat count is untouched -
 // the rail and the grid stay one expanded ballot. A twin boot leaves every
 // Direction Match read and every formal tier byte-identical.
+// v149 - A SEAT IS AN OFFICE PLUS A DISTRICT, AND THE ⚖️ CHIP SAYS THE FIGURE
+// OR SAYS NO NUMBER. Two things on the Relevant-to-Me section, both of them a
+// surface saying more than it could show.
+//   THE SEAT KEY. "Currently holds this seat" for the U.S. House on a Layton
+// ballot was reported to name a Utah HOUSE member - Box Elder / Cache County -
+// beside Blake Moore, because the two records share the numeral 1: Moore holds
+// Utah's 1st congressional district and the other holds Utah House District 1.
+// Every link in the chain that answers who fills a seat - pdxSeatField, the
+// seat's holder list, the browse group, the curated ballot - was audited end to
+// end and every one of them already keys on office AND state AND district, and
+// the reported symptom does not reproduce on this tree. What the audit did find
+// was one latent path: the relevance test that decides which district number a
+// record is measured against let a GUESS taken off the office string override the
+// chamber classifier that had already placed the record. No shipped record trips
+// it today - all 393 records that guess fires on are genuine U.S. House records -
+// but a Utah House record whose office read "Utah State House Candidate" would
+// have been measured against the reader's congressional district and worn the
+// 📍 Local badge four hours from home. The classifier is now decisive and the
+// office string survives only as a fallback for a record nothing else could
+// place. No classification changed, no district math moved, and the archive
+// still files that member under the chamber they actually sit in.
+//   THE ⚖️ CHIP. Under the record line, the Word vs Action chip printed the
+// verdict's own word - "Backs it up" - on a card in a list, with neither integer
+// that sizes it. Mike Lee's read is 84% standing on five tested statements out of
+// fourteen on offer, and the card published the grade and withheld the set. The
+// chip now prints PDXWordAction.figure()'s own percentage and its own
+// "K of M tested", the same object the person file's letterhead chip prints, and
+// carries that figure's stamp so the two surfaces cannot drift into two
+// arithmetics. It publishes ONLY once figure() reports the tested set has stopped
+// growing: a list card has no ledger beside it for a reader to check a figure
+// against, so a read that is still warming prints no number at all - a quiet
+// "Reading the record…" or "Not tested yet" - and the section's existing warm
+// repaint brings the figure in when it is real. Every coverage sentence the
+// shared ledger slot already owned prints unchanged, in its own words. The formal
+// record line stays ABOVE the chip as the card's claim; nothing sorts, filters or
+// thresholds on the two integers, and the chip is still one door to the
+// explainer.
+//   PRECACHED SHELL FILES CHANGED - THEY ARE THE REASON FOR THE BUMP:
+//   · '/app.css'               - the new .rel-sig-den rule, the quieter sibling
+//                                span that carries "5 of 14 tested" beside the
+//                                percentage. A warm shell has no rule for it, so
+//                                the denominator paints at the value span's
+//                                weight and colour and reads as a second figure
+//                                rather than as what sizes the first.
+// ALSO CHANGED BUT RUNTIME-CACHED, SO IT ARRIVES FRESH WITHOUT THIS BUMP:
+// compare-hub.js (the office-key ordering in the relevance test, and the ⚖️ chip
+// now printing the shared figure behind its settled gate).
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it. Unchanged here and last moved at v146:
+// index.html, door1-workspace.js and door1-workspace.css - the Door 1 desk and
+// its stylesheet are re-fetched by this bump and are byte-identical. word-action.js
+// is unchanged too: this pass reads figure() and consistency.js behind it, and
+// wrote neither.
+// No scope gate moved, no cabinet split changed, no record-line prose reworded,
+// no TEAM store renamed, no Direction Match floor touched, no party sort, no
+// ranking by Direction Match, no nested interactives, and no seat-field district
+// math changed. A twin boot leaves every Direction Match read and every formal
+// tier byte-identical.
+//
 // v148 - THE RECORD LINE ON A CARD IS PROSE, NOT MARKUP. v147 gave every
 // Relevant-to-Me card the same one-line finding the person file's brief prints,
 // and on a live Layton ballot five of them - Lee, Curtis, Moore, Trump, Rubio -
@@ -2875,7 +2934,7 @@
 // no party sort, no ranking by Direction Match, no nested interactives, no store
 // renamed, and no seat-field district math touched. A twin boot leaves every
 // Direction Match read and every formal tier byte-identical.
-const CACHE_VERSION = 'v148';
+const CACHE_VERSION = 'v149';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

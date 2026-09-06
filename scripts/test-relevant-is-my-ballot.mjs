@@ -42,6 +42,22 @@
 // life of the page, because the only deadline that ends that wait is armed by the
 // person file's own paragraph and never by a list.
 //
+// THEN THE SEAT ITSELF WAS ASKED THE WRONG QUESTION. "Currently holds this
+// seat" for the U.S. House on a Layton ballot was reported to name Thomas W.
+// Peterson beside Blake Moore. Peterson sits in the UTAH House, for Box Elder /
+// Cache County. The two records share exactly one thing: the numeral 1 — Moore
+// holds Utah's 1st congressional district, Peterson holds Utah House District 1.
+// A seat is an office AND a state AND a district, and the whole chain that
+// answers who fills one keys on all three. Section I asks every link in it.
+//
+// AND THE ⚖️ CHIP UNDER THE RECORD LINE PRINTED A GRADE. On a settled page it
+// read "Backs it up" — a verdict word, alone, on a card in a list, standing on
+// five tested statements out of fourteen with neither integer shown. The person
+// file's letterhead chip had already been fixed to print the figure AND the set
+// that sizes it, both halves or neither; this surface kept the loose half.
+// Section J holds it to the figure owner's own two integers, and to publishing
+// nothing at all until the tested set under them has stopped growing.
+//
 // SO THERE ARE TWO RULES, NOT ONE, AND THE SECOND IS NOT A HOLE IN THE FIRST:
 //   · WHAT THIS READER VOTES ON — the seat kinds their own slate names, and
 //     inside those, only their own state's people (with the seat field's answer
@@ -78,10 +94,19 @@
 //      for someone with no record. The lost-primary banner survives. AND THAT
 //      ONE-LINER IS PROSE: nothing on it is a tag, no statewide or national
 //      office wears the 📍 Local pin, and "still loading" is a wait that ends.
-//   I. NOTHING ON THE DO-NOT LIST WAS TOUCHED.
-//   J. TWIN BOOT. Direction Match and the formal tiers are byte-identical to
+//   I. THE SEAT IS AN OFFICE PLUS A DISTRICT, AND A DISTRICT NUMBER ALONE IS NOT
+//      A SEAT. "Currently holds this seat" for the U.S. House is Blake Moore and
+//      other U.S. House UT-01 records — never a Utah House member who happens to
+//      sit in a district numbered 1. Thomas Peterson stays on State House
+//      District 1, and nobody's chamber is decided by an office STRING when the
+//      classifier has already named their chamber.
+//   J. THE ⚖️ CHIP PRINTS A FIGURE IT OWNS, OR NO NUMBER AT ALL. Not the verdict
+//      word "Backs it up" — a percentage and the set that sizes it, straight off
+//      PDXWordAction.figure(), and only once that set has stopped growing.
+//   K. NOTHING ON THE DO-NOT LIST WAS TOUCHED.
+//   L. TWIN BOOT. Direction Match and the formal tiers are byte-identical to
 //      HEAD's, because this pass changed scope and presentation, not one reading.
-//   K. EVERY GUARD IS LOAD-BEARING — each bug is put back and has to be caught.
+//   M. EVERY GUARD IS LOAD-BEARING — each bug is put back and has to be caught.
 //
 //   node scripts/test-relevant-is-my-ballot.mjs
 //
@@ -94,6 +119,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox, ENGINE_FILES } from "./gen-hero-showcase.mjs";
+import { buildCorpus } from "./vr-record-corpus.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -182,7 +208,21 @@ function miniDom(win, ids) {
   return byId;
 }
 
-function boot(loc) {
+// THE OFFLINE ROLL-CALL RECORD, BUILT ONCE. The roster's member records arrive
+// over the network in the browser, so a bare sandbox boot leaves almost every
+// member's Word vs Action coverage empty and still warming — which is a real
+// state of the page, but it is the state in which the ⚖️ chip is SUPPOSED to
+// publish nothing. Section J needs the other state too: a settled ledger, which
+// is what a reader meets seconds later. noteMember() is the same door
+// voting-record.js uses when the fetch lands.
+let _corpus = null;
+const corpus = () => {
+  if (!_corpus) _corpus = buildCorpus(ROOT);
+  return _corpus;
+};
+
+function boot(loc, opts) {
+  opts = opts || {};
   const win = makeSandbox();
   const store = {}, sess = {};
   win.localStorage = {
@@ -201,11 +241,21 @@ function boot(loc) {
   const ctx = vm.createContext(win);
   win.PROFILES = win.CMP_DATA;
   win._pdxDisplayScore = () => null;
+  // compare-table.js owns this lookup and cannot boot headless. Without it the
+  // U.S. House redistricting path cannot confirm that the incumbent it resolved
+  // is a real record, so it hands back a blank pid and the seat field answers
+  // "district 1, holder unknown" — which is not the state a browser is ever in.
+  win._pdxPersonById = (pid) => (pid && win.CMP_DATA[pid]) || null;
   const loadErrors = [];
   for (const f of FILES) {
     try { vm.runInContext(R(f), ctx, { filename: f }); } catch (e) { loadErrors.push(`${f}: ${e.message}`); }
   }
   win.PROFILES = win.CMP_DATA;
+  if (opts.warm) {
+    for (const [pid, recs] of corpus().byMember) {
+      try { win.PDXVotingRecord.noteMember(pid, recs); } catch { /* not a member surface */ }
+    }
+  }
   win._hasUserLocation = !!(loc && loc.state);
   win._currentVoterLocation = loc || null;
   // The per-state ballot slate, exactly as the page sets it before the section
@@ -217,8 +267,8 @@ function boot(loc) {
   return { win, byId, loadErrors };
 }
 
-function render(loc) {
-  const r = boot(loc);
+function render(loc, opts) {
+  const r = boot(loc, opts);
   must(!r.loadErrors.length, `modules failed to load: ${r.loadErrors.join(" | ")}`);
   let threw = null;
   try { r.win.renderRelevantToMe(); } catch (e) { threw = e; }
@@ -226,6 +276,7 @@ function render(loc) {
     ...r, threw,
     groups: r.win._relevantLastOfficeGroups || {},
     html: r.byId["relevant-browse-grid"].innerHTML || "",
+    distOf: (pid) => r.win._pdxRelevantDistNum(pid),
     slate: (r.win.TEAM_POSITIONS || []).map((p) => p.key),
     stateOf: (pid) => String(r.win._pdxBrowseStateOf(pid) || ""),
     typeOf: (pid) => String(r.win._pdxBrowseType(pid) || ""),
@@ -978,7 +1029,393 @@ section("H · the card matches the person file");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("I · nothing on the Do-not list was touched");
+section("I · a district number alone is not a seat");
+// ═════════════════════════════════════════════════════════════════════════════
+// THE REPORT. On a Layton ballot, "Currently holds this seat" for the U.S. House
+// was said to name Thomas W. Peterson beside Blake Moore — and Peterson is a
+// UTAH HOUSE member, from Box Elder / Cache County, four hours north. The two
+// records have exactly one thing in common: the numeral 1. Moore holds
+// Utah's 1st CONGRESSIONAL district; Peterson holds Utah House District 1.
+// A seat is an office AND a state AND a district, and any surface that drops the
+// office from that key will hand a reader the wrong chamber's incumbent with
+// total confidence.
+//
+// WHAT THIS SECTION IS FOR. Every link in the chain that answers "who holds this
+// seat" — pdxSeatField, the seat's holders, the browse group, the 📍 Local badge
+// — is asked here whether the office is part of its key. The collision is real
+// and it is live: Peterson's browse district IS 1 and the Layton reader's
+// congressional district IS 1, so nothing but the office keeps them apart.
+{
+  const w = layton.win;
+  const PET = "thomas_peterson";
+  must(w.CMP_DATA[PET], `${PET} is gone from the roster — the reported collision has no subject`);
+  must(typeof w.pdxSeatField === "function", "pdxSeatField is gone — the seat has no owner to ask");
+
+  // ── The collision is genuinely there, so the rest of this section is not vacuous ──
+  eq(layton.typeOf(PET), "state_rep",
+     `${PET} does not classify as a state representative, so the reported chamber collision cannot be\n` +
+     "    reproduced here — re-derive this section against the record that does collide");
+  eq(layton.stateOf(PET), "Utah", `${PET} is no longer a Utah record`);
+  eq(layton.distOf(PET), 1,
+     `${PET}'s browse district is no longer 1, so the numeral this section is about is gone. The whole\n` +
+     "    point is that a Utah House district and a congressional district can share a number");
+  eq(String(layton.win.pdxSeatField("house").district || ""), "1",
+     "the Layton reader's congressional district is no longer 1 — the collision has no other half");
+
+  // ── THE U.S. HOUSE SEAT FIELD IS U.S. HOUSE RECORDS, FULL STOP ──
+  {
+    const sf = w.pdxSeatField("house");
+    must(sf && sf.answerable, "the U.S. House seat field cannot answer for Layton — this probe is stale");
+    eq(JSON.stringify(sf.holders || []), JSON.stringify(["bmoore"]),
+       "the U.S. House seat's holder list is not exactly Blake Moore. This is the reported symptom: a\n" +
+       "    state legislator standing in the congressional seat's \"currently holds this seat\" line");
+    const bad = (sf.pids || []).filter((pid) => layton.typeOf(pid) !== "representative");
+    eq(bad.map((p) => `${p}/${layton.typeOf(p)}`).join(" | "), "",
+       `${bad.length} record(s) in the U.S. House seat field are not U.S. House records. The seat key is\n` +
+       "    office + state + district; drop the office and the district number matches another chamber");
+    const offState = (sf.pids || []).filter((pid) => layton.stateOf(pid) !== "Utah");
+    eq(offState.join(" | "), "", "the U.S. House seat field carries a record from another state");
+    const offDist = (sf.pids || []).filter((pid) => layton.distOf(pid) !== null && layton.distOf(pid) !== 1);
+    eq(offDist.join(" | "), "", "the U.S. House seat field carries a record from another district");
+    ok((sf.pids || []).indexOf(PET) === -1,
+       `${PET} is in the U.S. House seat field for a Layton reader — he is a Utah House member and the\n` +
+       "    only thing he shares with this seat is the numeral 1");
+  }
+
+  // ── AND PETERSON STAYS WHERE HE IS: STATE HOUSE, DISTRICT 1 ──
+  // Not "he is filtered out of everything" — he is a real Utah legislator with a
+  // real seat, and the archive still says so. He is simply not THIS reader's.
+  {
+    const sh = w.pdxSeatField("statehouse");
+    must(sh && sh.answerable, "the state-house seat field cannot answer for Layton — this probe is stale");
+    eq(String(sh.district || ""), "15",
+       "the Layton reader's Utah House district is no longer 15 — re-derive this section");
+    ok((sh.pids || []).indexOf(PET) === -1,
+       `${PET} is in the Layton reader's state-house seat field. His district is 1 and theirs is 15 — the\n` +
+       "    right answer is a different district in the SAME chamber, not the same number in another");
+    eq(JSON.stringify(sh.holders || []), JSON.stringify(["defay_h15"]),
+       "the Layton reader's Utah House seat is no longer held by their own district-15 member");
+    // The archive still files him under the chamber he actually sits in.
+    eq(layton.typeOf(PET), "state_rep",
+       "the fix reclassified Peterson instead of keying the seat on the office. He holds a Utah House\n" +
+       "    seat and the archive must keep saying so");
+  }
+
+  // ── MOORE'S GROUP CARRIES NO STATE LEGISLATOR, AND PETERSON IS ON NO CARD HERE ──
+  {
+    const house = layton.groups.representative || [];
+    ok(house.indexOf("bmoore") !== -1, "the U.S. House group no longer names Blake Moore");
+    const intruders = house.filter((pid) => {
+      const t = layton.typeOf(pid);
+      return t === "state_rep" || t === "state_senator";
+    });
+    eq(intruders.map((p) => `${p}/${layton.typeOf(p)}`).join(" | "), "",
+       `${intruders.length} state legislator(s) are in the group headed by Blake Moore's congressional\n` +
+       "    seat. A chamber is not a district number");
+    house.forEach((pid) => {
+      eq(layton.typeOf(pid), "representative",
+         `${pid} is in the U.S. House group and classifies as ${JSON.stringify(layton.typeOf(pid))}`);
+      eq(layton.stateOf(pid), "Utah", `${pid} is in the Layton U.S. House group and is not a Utah record`);
+    });
+    // …and nowhere else on the page either.
+    Object.keys(layton.groups).forEach((g) => {
+      ok((layton.groups[g] || []).indexOf(PET) === -1,
+         `${PET} is on a Layton reader's Relevant-to-Me page, in the ${g} group. He represents Box Elder /\n` +
+         "    Cache County; this reader is in Davis County");
+    });
+    lacks(layton.html, w.CMP_DATA[PET].name,
+          "the Box Elder / Cache County state representative is painted on a Layton reader's ballot page");
+    console.log(`      U.S. House group: ${house.join(", ")} — all representative/Utah/1`);
+  }
+
+  // ── THE 📍 LOCAL BADGE KEYS ON THE OFFICE TOO ──
+  // _pdxIsLocalToUser is the exported door onto the reader's own relevance test,
+  // and it is the surface where a bare district number does the most damage: the
+  // badge SAYS "this person represents you".
+  {
+    must(typeof w._pdxIsLocalToUser === "function",
+         "_pdxIsLocalToUser is gone — the 📍 Local badge has no relevance owner to test");
+    eq(w._pdxIsLocalToUser(PET), false,
+       `${PET} wears the 📍 Local badge for a Layton reader. That badge is a claim that this person\n` +
+       "    represents them, and he does not: his district is a Utah House district that shares a number\n" +
+       "    with their congressional one");
+    eq(w._pdxIsLocalToUser("bmoore"), true,
+       "Blake Moore does NOT read as local to a Layton reader — this pass may not narrow the real answer");
+    eq(w._pdxIsLocalToUser("defay_h15"), true,
+       "the reader's own Utah House member does not read as local — this pass may not narrow the real answer");
+
+    // THE SWEEP. Nobody who reads as local to this reader carries another
+    // chamber's district number. Three chambers, three numbers, no crossing.
+    //
+    // ONE LEGITIMATE EXEMPTION, AND IT IS NOT THIS BUG. Utah's congressional map
+    // was redrawn, so the curated ballot can place a sitting member in the
+    // reader's race while that member's own record still names the district they
+    // were elected in — Celeste Maloy's record says District 2 and the curated
+    // UT-01 field names her. That is the ballot resolver making a considered
+    // claim about a RACE, by id, and this sweep defers to it. What it does not
+    // defer to is a district NUMBER matching across two different chambers,
+    // which no resolver ever claimed.
+    const WANT = { representative: 1, state_senator: 6, state_rep: 15 };
+    const vb = (typeof w._pdxVoterBallot === "function") ? (w._pdxVoterBallot() || {}) : {};
+    const byOffice = vb.byOffice || {};
+    must(byOffice.representative && byOffice.state_rep,
+         "the curated ballot no longer answers by office key — this sweep cannot tell a considered\n" +
+         "    race claim apart from a district-number collision");
+    const named = (t, pid) => ((byOffice[t] || {}).pids || []).indexOf(pid) !== -1;
+    const locals = Object.keys(w.CMP_DATA).filter((pid) => {
+      try { return w._pdxIsLocalToUser(pid); } catch { return false; }
+    });
+    ok(locals.length > 5, `only ${locals.length} record(s) read as local to Layton — this sweep is vacuous`);
+    const crossed = [];
+    locals.forEach((pid) => {
+      const t = layton.typeOf(pid);
+      if (!(t in WANT)) return;
+      const dn = layton.distOf(pid);
+      if (dn !== null && dn !== WANT[t] && !named(t, pid)) crossed.push(`${pid}/${t}/${dn}`);
+    });
+    eq(crossed.slice(0, 6).join(" | "), "",
+       `${crossed.length} record(s) read as this reader's own while sitting in a district their own\n` +
+       "    chamber does not have, and no ballot resolver named them for this reader's race. That is a\n" +
+       "    district number deciding a chamber");
+    // …and the exemption is not a hole: a record the curated ballot names is
+    // named for the reader's OWN chamber, never for another one.
+    Object.keys(WANT).forEach((t) => {
+      ((byOffice[t] || {}).pids || []).forEach((pid) => {
+        const bt = layton.typeOf(pid);
+        ok(bt === t || bt === "candidate" || bt === "other",
+           `the curated ballot names ${pid} for the reader's ${t} race and the archive classifies them as\n` +
+           `    ${JSON.stringify(bt)}. A resolver may move someone between DISTRICTS; it may not move them\n` +
+           "    between chambers");
+      });
+    });
+    console.log(`      ${locals.length} local record(s), none carrying another chamber's district number`);
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("J · the ⚖️ chip prints a figure it owns, or no number at all");
+// ═════════════════════════════════════════════════════════════════════════════
+// WHAT THE CHIP SAID. On a settled Layton page, the ⚖️ Word vs Action chip under
+// the record line read, for Mike Lee and John Curtis and Blake Moore:
+//
+//     ⚖️ WORD VS ACTION   Backs it up
+//
+// A verdict word, alone, on a card in a list. Lee's read is 84% standing on five
+// tested statements out of fourteen on offer; the chip published the grade and
+// withheld both integers that size it. The person file solved exactly this for
+// its letterhead chip a pass ago — figure AND fraction, both halves or neither —
+// and this surface kept the loose half.
+//
+// WHAT IT SAYS NOW. PDXWordAction.figure()'s own percentage and its own
+// "K of M tested", and ONLY once figure() reports the tested set has stopped
+// growing (`ready`). This ledger grows through a page's life as the roll-call
+// payloads land, and a list card has no set beside it for a reader to check a
+// figure against, so an unsettled read publishes NO NUMBER and the section's
+// warm repaint brings the figure in when it is real.
+//
+// This is asked on the settled page, because the defect only exists there.
+const warm = render(LAYTON, { warm: true });
+{
+  ok(!warm.threw, `the settled Layton page threw — ${warm.threw && warm.threw.message}`);
+  const w = warm.win, wa = w.PDXWordAction;
+  must(wa && typeof wa.figure === "function",
+       "PDXWordAction.figure() is gone — the chip and the person file have no shared figure owner");
+
+  const cardOf = (pid) => {
+    const i = warm.html.indexOf('data-pid="' + pid + '"');
+    return i === -1 ? "" : warm.html.slice(i, i + 14000);
+  };
+  const chipOf = (pid) => {
+    const m = cardOf(pid).match(/<button[^>]*rel-sig-wa[\s\S]*?<\/button>/);
+    return m ? m[0] : "";
+  };
+  const txt = (h) => String(h).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  // Everything an unsettled chip is allowed to say. The first two are this
+  // pass's; the rest are _pdxLedgerSlot's own coverage sentences, which this pass
+  // did not touch and which many other card surfaces print.
+  const QUIET = [
+    "Not tested yet", "Reading the record…",
+    "Record begins in office", "Not enough record yet", "No matched votes yet",
+    "Record archived", "No stated positions yet",
+  ];
+  QUIET.slice(2).forEach((q) => must(CH_SRC.indexOf(q) !== -1,
+    `the shared ledger slot no longer publishes ${JSON.stringify(q)} — re-derive the quiet vocabulary`));
+
+  // Everyone painted on the settled page, and where their figure stands.
+  const painted = [];
+  Object.keys(warm.groups).forEach((g) => (warm.groups[g] || []).forEach((pid) => {
+    if (painted.indexOf(pid) === -1 && cardOf(pid)) painted.push(pid);
+  }));
+  ok(painted.length > 20, `only ${painted.length} cards painted on the settled page — this section is vacuous`);
+
+  const READY = [], UNSETTLED = [];
+  painted.forEach((pid) => {
+    const d = w.CMP_DATA[pid];
+    let f = null;
+    try { f = wa.figure(pid, d); } catch { f = null; }
+    const slot = w._pdxLedgerSlot(d, { pid: pid });
+    if (f && f.ready) READY.push({ pid, f, slot });
+    else UNSETTLED.push({ pid, f, slot });
+  });
+  ok(READY.length >= 4,
+     `only ${READY.length} card(s) on the settled page carry a settled figure, so the assertions below are\n` +
+     "    nearly vacuous — the corpus normally settles at least the delegation");
+
+  // ── 1 · THE VERDICT WORD IS GONE FROM THIS SURFACE ──
+  // Every label the verdict vocabulary can produce, checked against the chip's
+  // own value span rather than the whole card, so an unrelated mention elsewhere
+  // cannot mask it.
+  {
+    const labels = [];
+    READY.forEach(({ f }) => { if (f.verdict && f.verdict.label && labels.indexOf(f.verdict.label) === -1) labels.push(f.verdict.label); });
+    must(labels.length > 0, "no settled read published a verdict label — this check has no subject");
+    must(labels.indexOf("Backs it up") !== -1,
+         "the reported string \"Backs it up\" is no longer a verdict label, so the smoke check below is\n" +
+         "    testing a string that cannot appear — re-derive it");
+    READY.forEach(({ pid }) => {
+      const chip = chipOf(pid);
+      must(chip, `${pid} has a settled figure and no ⚖️ chip at all — the chip may not disappear here`);
+      labels.forEach((lbl) => {
+        lacks(chip, ">" + lbl + "<",
+              `${pid}'s ⚖️ chip still prints the verdict word ${JSON.stringify(lbl)}. A grade with no set\n` +
+              "    behind it is the whole defect; the chip publishes the figure and what sizes it");
+      });
+    });
+  }
+
+  // ── 2 · THE SMOKE CHECK, BY NAME ──
+  // Lee and Curtis, the two records in the report, on the settled page.
+  ["lee", "curtis"].forEach((pid) => {
+    const row = READY.filter((r) => r.pid === pid)[0];
+    must(row, `${pid}'s figure does not settle on the warmed page — the report's own subject is missing`);
+    const t = txt(chipOf(pid));
+    eq(t, `⚖️ Word vs Action ${row.f.pct}% ${row.f.fraction}`,
+       `${pid}'s ⚖️ chip reads ${JSON.stringify(t)}. The brief asks for the figure and the tested set —\n` +
+       "    N% · K of M tested — and not the verdict word");
+    has(t, "%", `${pid}'s chip prints no percentage on a settled page`);
+    has(t, "tested", `${pid}'s chip prints a percentage with nothing sizing it`);
+    lacks(t, "Backs it up", `${pid}'s ⚖️ chip still reads "Backs it up" — this is the reported symptom`);
+    console.log(`      ${pid}: ${JSON.stringify(t)}`);
+  });
+
+  // ── 3 · IT IS THE FIGURE OWNER'S OBJECT, NOT A SECOND COUNT ──
+  // The chip carries figure()'s stamp, so this asserts the surface printed the
+  // owner's read rather than an arithmetic of its own that happens to agree.
+  READY.forEach(({ pid, f }) => {
+    const chip = chipOf(pid);
+    has(chip, 'data-rel-wva-fig="' + f.stamp + '"',
+        `${pid}'s ⚖️ chip does not carry PDXWordAction.figure()'s stamp, so nothing proves the two\n` +
+        "    integers on it came from the shared figure rather than a count taken here");
+    has(chip, ">" + f.pct + "%<", `${pid}'s chip does not print figure()'s own percentage`);
+    has(chip, ">" + f.fraction + "<",
+        `${pid}'s chip does not print figure()'s own fraction ${JSON.stringify(f.fraction)} — a paraphrase\n` +
+        "    of two integers is a second arithmetic");
+    has(chip, "rel-sig-den", `${pid}'s chip prints a percentage with no denominator span beside it`);
+  });
+
+  // ── 4 · SAME OWNER AS THE PERSON FILE'S CHIP ──
+  // Open /p/<pid> and the letterhead chip prints the same figure and the same
+  // fraction, character for character. The card may drop the verdict word (it has
+  // no section under it to explain one); it may not disagree about the number.
+  {
+    must(typeof wa.compactBadgeHtml === "function",
+         "the person file's letterhead chip builder is gone — the two surfaces have no shared owner");
+    READY.forEach(({ pid, f }) => {
+      const badge = txt(wa.compactBadgeHtml(pid, w.CMP_DATA[pid]));
+      has(badge, f.pct + "%", `the person file's chip for ${pid} does not print ${f.pct}%`);
+      has(badge, f.fraction,
+          `the person file's chip for ${pid} and their card print different fractions. One figure, one\n` +
+          "    owner, two surfaces");
+    });
+    console.log(`      ${READY.length} settled card(s), each agreeing with /p/<pid> on figure and fraction`);
+  }
+
+  // ── 5 · UNSETTLED PRINTS NO NUMBER, ANYWHERE IN THE CHIP ──
+  // Not a smaller number, not a rounded one, not one in a tooltip: none.
+  {
+    let checked = 0;
+    const leaked = [];
+    UNSETTLED.forEach(({ pid, f, slot }) => {
+      const chip = chipOf(pid);
+      if (!chip) return;                        // the pre-office stand-down, asserted in H
+      checked++;
+      if (/\d+\s*%/.test(chip)) leaked.push(`${pid}/${f && f.pct}%`);
+      lacks(chip, "rel-sig-den",
+            `${pid}'s figure has not settled and their chip still carries a denominator span`);
+      lacks(chip, "data-rel-wva-fig",
+            `${pid}'s figure has not settled and their chip is still stamped as a published figure`);
+      // And what it says instead is quiet, and true: either one of the two lines
+      // this pass added, or a coverage sentence the shared ledger slot already
+      // owned. (The slot is recomputed here without the card's status, which is
+      // what picks between "Record begins in office" and "Not enough record yet"
+      // for the same person, so both are accepted.)
+      const t = txt(chip).replace("⚖️ Word vs Action ", "");
+      ok(QUIET.indexOf(t) !== -1 || t === slot.sub,
+         `${pid}'s unsettled ⚖️ chip reads ${JSON.stringify(t)}, which is neither one of this pass's two\n` +
+         "    quiet lines nor a coverage sentence the shared ledger slot owns");
+    });
+    ok(checked > 10, `only ${checked} unsettled chip(s) checked — this half is vacuous`);
+    eq(leaked.slice(0, 5).join(" | "), "",
+       `${leaked.length} chip(s) publish a percentage while the tested set under them is still growing.\n` +
+       "    A card in a list has no set beside it, so a figure that will move is a figure the reader\n" +
+       "    carries away wrong");
+    console.log(`      ${checked} unsettled chip(s), not one percentage among them`);
+  }
+
+  // ── 6 · A CARD THAT IS MID-COUNT SAYS SO, AND THE PAINT RETURNS ──
+  // The one state that is neither settled nor empty: a publishable read whose
+  // ledger is still warming. It has to be visible as a wait, and the section has
+  // to have a door that repaints it.
+  {
+    const mid = UNSETTLED.filter(({ f, slot }) => f && f.shows && slot.pct !== null);
+    ok(mid.length > 0,
+       "no card on the settled page is mid-count (publishable but still warming), so the quiet middle\n" +
+       "    branch is untested here — re-derive this check");
+    mid.forEach(({ pid }) => {
+      has(chipOf(pid), "Reading the record…",
+          `${pid}'s read is publishable but still warming and their chip does not say so`);
+    });
+    has(CH_SRC, "'pdx-consistency-warm'",
+        "the Relevant-to-Me section no longer listens for the ledger warming, so a chip that withholds a\n" +
+        "    figure would withhold it for the life of the page");
+    must(CH_SRC.indexOf("_relevantWarmRepaint") !== -1, "the warm repaint is gone — this probe is stale");
+    console.log(`      ${mid.length} mid-count card(s): ${mid.map((m) => m.pid).join(", ")}`);
+  }
+
+  // ── 7 · IT IS NOT A SECOND SCORE, AND THE RECORD LINE IS STILL THE CLAIM ──
+  {
+    READY.forEach(({ pid }) => {
+      const card = cardOf(pid);
+      const iRec = card.indexOf('class="rel-rec ');
+      const iChip = card.indexOf("rel-sig-wa");
+      ok(iRec !== -1 && iRec < iChip,
+         `${pid}'s settled figure is printed above their formal record line. The figure is a reading of\n` +
+         "    the record; the record is the finding");
+      // One door, still. A percentage inside a control that is also a link, or a
+      // second button nested in it, is how a chip becomes a scoreboard.
+      const chip = chipOf(pid);
+      eq((chip.match(/<button/g) || []).length, 1,
+         `${pid}'s ⚖️ chip is no longer a single control`);
+      lacks(chip, "<a ", `${pid}'s ⚖️ chip grew a second destination`);
+      has(chip, "_pdxScoreCompareInfo", `${pid}'s ⚖️ chip no longer opens the explainer it is a door to`);
+    });
+    // And nothing reads the two integers back. The chip is the only place on this
+    // surface that prints them, and no sort, filter or threshold names them.
+    // Comments stripped first: the doctrine block above this builder says the
+    // words "ranks" and "thresholds" in order to forbid them, and a scan that
+    // cannot tell prose from code would fail on the promise itself.
+    const seg = CH_SRC.slice(CH_SRC.indexOf("function _relevantDualSignal"),
+                             CH_SRC.indexOf("function _renderRelevantPersonCard"))
+      .split("\n").filter((ln) => !/^\s*\/\//.test(ln)).join("\n");
+    must(seg.length > 800, "the dual-signal builder moved — this probe is stale");
+    ["sort(", "localeCompare", "threshold", "rank", "filter("].forEach((t) => {
+      lacks(seg, t, `the ⚖️ chip builder now ${JSON.stringify(t)}s on its own figure — it is a reading, not a rank`);
+    });
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("K · nothing on the Do-not list was touched");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   // The store keeps its name; the classifier keeps its buckets; the counts and
@@ -1053,7 +1490,7 @@ section("I · nothing on the Do-not list was touched");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("J · twin boot — the arithmetic never saw any of this");
+section("L · twin boot — the arithmetic never saw any of this");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const engine = (get) => {
@@ -1096,7 +1533,7 @@ section("J · twin boot — the arithmetic never saw any of this");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("K · every added guard is load-bearing");
+section("M · every added guard is load-bearing");
 // ═════════════════════════════════════════════════════════════════════════════
 // Each bug is put back as it shipped, and the property above it has to catch it.
 // A guard that passes with the bug reinstated is not a guard.
@@ -1117,7 +1554,8 @@ section("K · every added guard is load-bearing");
   // replaces it, so a counterfactual can revert a guard in compare-hub.js, in
   // word-action.js, or in both at once — the last two bugs this pass fixed live in
   // word-action.js and are only visible once the section has painted.
-  const bootBroken = (subs, loc) => {
+  const bootBroken = (subs, loc, opts) => {
+    opts = opts || {};
     const w = makeSandbox();
     const store = {};
     w.localStorage = { getItem: (k) => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: (k) => { delete store[k]; } };
@@ -1128,10 +1566,16 @@ section("K · every added guard is load-bearing");
     const ctx = vm.createContext(w);
     w.PROFILES = w.CMP_DATA;
     w._pdxDisplayScore = () => null;
+    w._pdxPersonById = (pid) => (pid && w.CMP_DATA[pid]) || null;
     for (const f of FILES) {
       try { vm.runInContext(Object.prototype.hasOwnProperty.call(subs, f) ? subs[f] : R(f), ctx, { filename: f }); } catch (e) { /* same guards as the real boot */ }
     }
     w.PROFILES = w.CMP_DATA;
+    if (opts.warm) {
+      for (const [pid, recs] of corpus().byMember) {
+        try { w.PDXVotingRecord.noteMember(pid, recs); } catch { /* not a member surface */ }
+      }
+    }
     w._hasUserLocation = true;
     w._currentVoterLocation = loc;
     try { w._updateTeamPositionsForLocation(); } catch (e) {}
@@ -1265,6 +1709,128 @@ section("K · every added guard is load-bearing");
        "    bounded wait in section H is guarding nothing. The reported symptom was a card that read\n" +
        "    \"Formal record still loading…\" for the life of the page — re-derive this check");
     console.log(`      unbounded wait, lane settled: ${stuck} still reads ${JSON.stringify(r.text)}`);
+  }
+
+  // ── 6. The office STRING back in front of the chamber classifier ──
+  // The Part A fix, reverted. _isRelevantToUser used to read
+  //
+  //     (_btype === 'representative' || _isUSHouse) ? 'representative'
+  //
+  // where _isUSHouse is a guess taken off the office string, and _officeKey is
+  // what decides WHICH district number the record is tested against. So a record
+  // the classifier had already filed as a state legislator, whose office string
+  // happened to trip that guess, was tested against the reader's CONGRESSIONAL
+  // district — a district number alone deciding a chamber.
+  //
+  // NO SHIPPED RECORD TRIPS IT TODAY, and that is said plainly here rather than
+  // papered over: all 393 records the office-string test fires on are genuine
+  // U.S. House records, because Thomas Peterson's office reads "Utah State
+  // Representative" and the guess excludes anything containing "state". The trap
+  // is one office string away, though — "Utah State House Candidate" contains
+  // both "state house" (so the classifier correctly says state_rep) and "house
+  // candidate" (so the guess says U.S. House) — so the subject is added here as
+  // a record rather than waiting for the archive to grow one.
+  {
+    const SYN = "probe_state_house_d1";
+    const synth = `\n;CMP_DATA[${JSON.stringify(SYN)}] = { name: "Probe State-House Member", ` +
+      `office: "Utah State House Candidate", state: "UT District 1 (Box Elder / Cache County)", ` +
+      `party: "R", termStart: "2022-09", bio: "Synthetic record: a Utah House seat in a district ` +
+      `numbered 1, whose office string trips the congressional guess." };\n`;
+    const CD = R("cmp-data.js") + synth;
+
+    const FIXED_KEY =
+      "      var _officeKey = (_btype === 'representative') ? 'representative'\n" +
+      "                     : (_btype === 'state_senator') ? 'state_senator'\n" +
+      "                     : (_btype === 'state_rep') ? 'state_rep'\n" +
+      "                     : (!_btype && _isUSHouse) ? 'representative' : null;";
+    const OVERRIDE_KEY =
+      "      var _officeKey = (_btype === 'representative' || _isUSHouse) ? 'representative'\n" +
+      "                     : (_btype === 'state_senator') ? 'state_senator'\n" +
+      "                     : (_btype === 'state_rep') ? 'state_rep' : null;";
+    must(CH_SRC.split(FIXED_KEY).length === 2,
+         "the relevance test no longer chooses its office key at a single site — this probe is stale");
+    const overridden = CH_SRC.replace(FIXED_KEY, OVERRIDE_KEY);
+
+    // First: the synthetic record is the shape this is about, under the real build.
+    const good = bootBroken({ "cmp-data.js": CD }, LAYTON);
+    eq(String(good.w._pdxBrowseType(SYN) || ""), "state_rep",
+       "the synthetic Utah House record does not classify as a state representative, so reverting the\n" +
+       "    office-string override would prove nothing — re-derive this counterfactual");
+    eq(good.w._pdxRelevantDistNum(SYN), 1,
+       "the synthetic record's district is not 1, so it does not collide with the reader's congressional\n" +
+       "    district — re-derive this counterfactual");
+    eq(good.w._pdxIsLocalToUser(SYN), false,
+       "a Box Elder / Cache County Utah House record reads as local to a Layton reader under the SHIPPED\n" +
+       "    build. Section I is not describing this tree");
+
+    // Then: the override put back, and the same record walks in.
+    const bad = bootBroken({ "cmp-data.js": CD, "compare-hub.js": overridden }, LAYTON);
+    must(String(bad.w._pdxBrowseType(SYN) || "") === "state_rep",
+         "the overridden build classifies the synthetic record differently — this probe is stale");
+    ok(bad.w._pdxIsLocalToUser(SYN) === true,
+       "putting the office-string override back in front of the chamber classifier does NOT make a Utah\n" +
+       "    House member from the other end of the state read as a Layton reader's own representative, so\n" +
+       "    section I's office-key guard is pinning nothing — re-derive it");
+    // And the reader's real people are unaffected either way, so this is the
+    // office key changing hands and not the whole matcher going loose.
+    ["bmoore", "defay_h15"].forEach((pid) => {
+      eq(bad.w._pdxIsLocalToUser(pid), true,
+         `the overridden build also drops ${pid}, so the difference above is not specifically the chamber`);
+    });
+    console.log(`      office string in front of the classifier: ${SYN} local = ` +
+      `${bad.w._pdxIsLocalToUser(SYN)} (shipped: ${good.w._pdxIsLocalToUser(SYN)})`);
+  }
+
+  // ── 7. The settled gate loosened to the publish gate ──
+  // `f.shows` is "there is a percentage and a fraction"; `f.ready` is that AND
+  // the coverage read has stopped warming. On a list card the difference is the
+  // whole point: shows publishes a number that is still moving.
+  {
+    const READY_GATE = "      var _figShown = !!(_waFig && _waFig.ready);";
+    must(CH_SRC.split(READY_GATE).length === 2,
+         "the ⚖️ chip no longer gates on the figure's settled flag at a single site — this probe is stale");
+    const loose = CH_SRC.replace(READY_GATE, "      var _figShown = !!(_waFig && _waFig.shows);");
+    const b = bootBroken({ "compare-hub.js": loose }, LAYTON, { warm: true });
+    must(b.html.indexOf("rel-sig-wa") !== -1, "the loosened build painted no ⚖️ chip — this probe is stale");
+    const w2 = b.w, wa2 = w2.PDXWordAction;
+    const moving = Object.keys(b.groups).reduce((acc, g) => acc.concat(b.groups[g] || []), [])
+      .filter((pid) => {
+        let f = null;
+        try { f = wa2.figure(pid, w2.CMP_DATA[pid]); } catch { f = null; }
+        return f && f.shows && !f.ready;
+      });
+    must(moving.length > 0,
+         "no card on the warmed page is publishable-but-still-warming, so shows and ready cannot be told\n" +
+         "    apart here — re-derive this counterfactual");
+    let leaked = 0;
+    moving.forEach((pid) => {
+      const i = b.html.indexOf('data-pid="' + pid + '"');
+      if (i === -1) return;
+      const card = b.html.slice(i, i + 14000);
+      const m = card.match(/<button[^>]*rel-sig-wa[\s\S]*?<\/button>/);
+      if (m && /\d+\s*%/.test(m[0])) leaked++;
+    });
+    ok(leaked > 0,
+       "gating the chip on `shows` instead of `ready` publishes no moving percentage, so section J's\n" +
+       "    settled-set guard is pinning nothing. The reported failure mode is a card that says 88% over\n" +
+       "    five tested and settles to 72% over fifteen after the reader has looked away — re-derive it");
+    console.log(`      shows instead of ready: ${leaked} moving percentage(s) published — ${moving.join(", ")}`);
+  }
+
+  // ── 8. The verdict word put back on the card ──
+  // How it shipped: the chip printed the shared ledger slot's `sub`, which on a
+  // publishable read is the verdict's own label. One string, no set behind it.
+  {
+    const FIG_VAL = "        waVal = _waFig.pct + '%';";
+    must(CH_SRC.split(FIG_VAL).length === 2,
+         "the ⚖️ chip no longer prints the figure's percentage at a single site — this probe is stale");
+    const worded = CH_SRC.replace(FIG_VAL, "        waVal = slot.sub;");
+    const b = bootBroken({ "compare-hub.js": worded }, LAYTON, { warm: true });
+    has(b.html, "Backs it up",
+        "putting the ledger slot's verdict label back on the chip prints no verdict word on any card, so\n" +
+        "    section J's smoke check is guarding nothing. The reported symptom was Lee's and Curtis's\n" +
+        "    cards reading \"Backs it up\" with no figure and no tested set — re-derive it");
+    console.log(`      verdict word back on the chip: ${(b.html.match(/Backs it up/g) || []).length} card(s) graded instead of measured`);
   }
 }
 
