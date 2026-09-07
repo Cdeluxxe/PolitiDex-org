@@ -392,6 +392,36 @@
   to = "/index.html"
   status = 200
 
+# District Room deep-links. THIS BLOCK FIXES THE URL SHAPE FOR THE ROOM, and it
+# is the only shape used anywhere in this pass:
+#
+#     /d/<districtKey>/<issueKey>      e.g. /d/ut-house-2/lands_preserve
+#
+# Two segments, both of them keys the database already holds: <districtKey> is
+# dd_districts.district_id (<state>-<house|statesenate|statehouse>-<number>) and
+# <issueKey> is dd_issue_keys.issue_key. A room is (district, issue) and nothing
+# else, so its address is (district, issue) and nothing else — there is no pid in
+# this path and there never will be, because the room is not a comment thread on
+# whoever currently holds the seat. When the seat changes hands the address does
+# not move.
+#
+# Serves index.html at 200 (a rewrite, not a redirect) so district-room.js can
+# read both keys out of location.pathname and open the room on arrival, exactly
+# the arrangement /p/*, /i/* and /b/* already use.
+#
+# NO EDGE FUNCTION STANDS IN FRONT OF THIS ONE, for the same reason /i/* has
+# none: a district-and-issue-specific title and an honest 404 would mean
+# resolving both keys server-side before first byte, and this pass does not
+# invent that. So the rewrite answers 200 for /d/<anything>/<anything> and the
+# CLIENT carries the honesty — district-room.js refuses to open on a key of the
+# wrong shape, and the room it does open says out loud when the pair names no
+# district or no issue the tables hold. No sitemap entry: a district's room is
+# for the people who live in it, not a page to invite crawlers to.
+[[redirects]]
+  from = "/d/*"
+  to = "/index.html"
+  status = 200
+
 # Bill-profile deep-links. The third face of the archive gets the same treatment
 # the person file got: /b/<sitting>/<number> — /b/119/H.R.%201 for a federal
 # measure, /b/2024GS/H.B.%20257 for a state one — SERVES index.html (HTTP 200

@@ -136,7 +136,7 @@
   // and with the id itself where it has not yet merged, because a name we have not
   // loaded is a loading problem and never a coverage claim. The blank copy is
   // reachable only where the resolver returned nothing at all.
-  function row(lv) {
+  function row(lv, reps) {
     var pid = lv.pid || null;
     var person = (pid && typeof window._pdxPersonById === 'function')
       ? window._pdxPersonById(pid) : null;
@@ -154,7 +154,7 @@
           '<span class="wrm-rowname wrm-rowname--muted">' + headline + '</span>' +
           '<span class="wrm-rowsub">' + sub + '</span>' +
         '</span>' +
-      '</div>' + seatCompare(lv);
+      '</div>' + seatCompare(lv) + districtRoom(lv, reps);
     }
 
     var name = (person && person.name) || pid;
@@ -200,7 +200,29 @@
         '<span class="wrm-rowsub">' + esc((person && person.office) || lv.tierLabel) + '</span>' +
       '</span>' +
       '<span class="wrm-rowgo" style="color:' + color + ';">See their record ›</span>' +
-    (plAttrs ? '</a>' : '</div>') + seatCompare(lv);
+    (plAttrs ? '</a>' : '</div>') + seatCompare(lv) + districtRoom(lv, reps);
+  }
+
+  // ── "District Voice" — the room for this district ──────────────────────────
+  // MOUNT (a) of two. A SIBLING of the row for the same reason seatCompare() is
+  // one: the row is itself the link to the officeholder's record, and a second
+  // interactive element cannot be nested inside it.
+  //
+  // What it is NOT, and this is the whole point of putting it here rather than on
+  // a person file: it is not a comment thread on the member named in the row
+  // above. The room is keyed on (district, issue) and never on a pid, so it
+  // survives the seat changing hands, and the row's own party letter, score and
+  // Direction Match do not cross into it.
+  //
+  // Rendered by window.PDXDistrictRoom.seatMountHtml(), which answers '' for any
+  // seat that composes no district key — a statewide row, an unmapped state, a
+  // row the resolver could not place — so this file never paints an entry to a
+  // room that does not exist, and it degrades to exactly today's markup when
+  // district-room.js has not loaded.
+  function districtRoom(lv, reps) {
+    var DR = window.PDXDistrictRoom;
+    if (!DR || typeof DR.seatMountHtml !== 'function') return '';
+    try { return DR.seatMountHtml(lv, reps && reps.state) || ''; } catch (e) { return ''; }
   }
 
   // ── "Compare field for this seat" ──────────────────────────────────────────
@@ -413,7 +435,7 @@
       return;
     }
 
-    var rows = reps.levels.map(row).join('');
+    var rows = reps.levels.map(function (lv) { return row(lv, reps); }).join('');
     var area = reps.area ? esc(reps.area) : '';
     var resolved = reps.levels.filter(function (l) { return l.resolved; }).length;
 

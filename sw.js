@@ -3046,7 +3046,74 @@
 // sw.js has always treated as a runtime entry rather than part of the shell.
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
-const CACHE_VERSION = 'v151';
+// ─────────────────────────────────────────────────────────────────────────────
+// v152 - THE DISTRICT ROOM EXISTS, AND IT IS READ-ONLY UNTIL RESIDENCY IS REAL
+// ─────────────────────────────────────────────────────────────────────────────
+// New surface: the District Room at /d/<districtKey>/<issueKey> - verified-
+// residency neighbours in ONE district talking about ONE issue. Reading is
+// public; writing goes through /api/district-room into the phase 0 dd_* tables
+// and is refused on no district, an unknown district, an unknown issue, an
+// unverified session, a session verified for a DIFFERENT district, and an empty
+// body. RESIDENCY IS A LABELLED STUB IN THIS PASS: this repo has identity
+// (Firebase) but no residency verifier anywhere in it, so residencyClaim()
+// returns verified:false for every caller, the composer renders for NOBODY, and
+// the closed note says so out loud instead of implying a check happened.
+//   PRECACHED SHELL FILES CHANGED - THEY ARE THE REASON FOR THE BUMP:
+//   · '/'  (index.html)        - the non-blocking district-room.css pair and the
+//                                deferred district-room.js tag. A warm shell has
+//                                neither, so a /d/<district>/<issue> arrival on
+//                                an old shell resolves the rewrite and then finds
+//                                no module to open the room - the reader lands on
+//                                the homepage after following a citation.
+//   · '/issue-file.js'         - headHtml() now prints mount (b), the entry block
+//                                on the letterhead. A warm shell paints the
+//                                letterhead without it, so the issue file offers
+//                                no way into the room for the reader's own
+//                                district. The LEDGER HOST IS UNTOUCHED and still
+//                                byte-identical to PDXDoor1.issueProfile(key).
+//   · '/district-room.js'      - NEW on this list, and its stylesheet with it.
+//   · '/district-room.css'       The pair is precached for the reason issue-file's
+//                                pair is: an unstyled room is a full-bleed block
+//                                of loose text on top of the page, and a device
+//                                holding the address rewrite but not the module
+//                                is a device that resolves /d/* and shows the
+//                                homepage.
+// ALSO CHANGED BUT NOT PRECACHED, SO IT ARRIVES FRESH WITHOUT THIS BUMP:
+// who-represents-me.js (mount (a), a SIBLING of each district seat row for the
+// same nesting reason the compare control is one - it degrades to nothing when
+// district-room.js is missing), netlify.toml (the /d/* 200 rewrite that fixes the
+// URL shape), netlify/functions/district-room.mts and
+// netlify/lib/district-room-core.mjs (the write gate and the pure decision it is
+// a wrapper over), scripts/test-district-room.mjs (the suite entry that pins the
+// four refusals, the one allow and the empty-room copy).
+// NOTHING IN THE RECORD MOVED, AND THE ROOM CANNOT REACH IT. The dd_* tables
+// carry no score, no party, no ranking and no count column, and no room read
+// touches vr_*, cee_*, pdx_forum_*, Direction Match, Word vs Action, the formal
+// floors, finance, the Mandate lane, the Eye, the Utah ingest or pack TTL. A room
+// is keyed on (district, issue) and never on a pid, so it is not a comment thread
+// on whoever holds the seat; posts from another district are not readable in it;
+// there is no like, no sort control and nothing that could order it; and no party,
+// caucus or team language appears anywhere in the surface. No migration: every
+// column the UI writes already existed at phase 0. A twin boot leaves every
+// Direction Match read and every formal tier byte-identical.
+// TRAVELS WITH THIS BUMP, UNCHANGED AND BYTE-IDENTICAL. Renaming the buckets
+// re-fetches every precached file whether or not this pass touched it, so the log
+// owes a reader the list rather than a surprise: door1-workspace.js and
+// door1-workspace.css (the Door 1 desk and its stylesheet), pdx-issue-family.js,
+// stance-tree.js, alignment-tool.js and issue-colors.js (the family table, the
+// topic tree, the alignment reader and the palette), issue-file.css,
+// issue-view.js and pdx-issue-profile.js (the issue file's stylesheet, the stage
+// that mounts it and the /i/<key> address that resolves it - issue-file.js itself
+// DID change, and is listed above), word-action.js and word-action.css (the
+// Word-vs-Action chip and its stylesheet), consistency.js (the Direction Match
+// arithmetic), and all-seeing-eye.js (Find the Record's panel, which sw.js has
+// always treated as a runtime entry rather than part of the shell). Not one of
+// them changed here. netlify.toml changed - it carries the new /d/* rewrite - but
+// it is served at the edge and is not a precached file, so it arrives with the
+// deploy rather than with this rename.
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it.
+const CACHE_VERSION = 'v152';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -3154,6 +3221,16 @@ const SHELL_ASSETS = [
   // text ON TOP of the page, which is worse than no overlay at all.
   '/issue-file.js',
   '/issue-file.css',
+  // The District Room and its stylesheet, /d/<districtKey>/<issueKey>. On this
+  // list for both of the reasons the issue-file pair above is: a device that
+  // holds the /d/* rewrite (it ships in netlify.toml, at the edge) but not this
+  // module resolves a neighbour's citation and then shows them the homepage, and
+  // an unstyled room is a full-bleed wall of text over the page rather than a
+  // panel. The pair is small and it paints nothing on the front page — the two
+  // entry blocks only exist on a district seat row and on an issue letterhead,
+  // and both answer '' for a reader we cannot place.
+  '/district-room.js',
+  '/district-room.css',
   // Issue color tokens. Tiny, and precached with alignment-tool.js so an offline
   // repeat visit keeps issues colour-coded instead of falling back to slate
   // everywhere, which would read as "nothing is a core issue".

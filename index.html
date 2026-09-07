@@ -2293,6 +2293,16 @@ window.PDXLazy = (function () {
        string the desk paints. Same non-blocking path as the overlay CSS above. -->
   <link rel="stylesheet" href="/issue-file.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/issue-file.css" /></noscript>
+  <!-- The District Room — /d/<districtKey>/<issueKey>, verified-residency
+       neighbours in ONE district talking about ONE issue. Its own sheet because
+       its whole visual argument is a refusal: it takes the neutral surface and one
+       cool accent, and NONE of the verdict palette. No green, no red, nothing that
+       intensifies with how busy the room is — a neighbour's sentence is not a
+       vindication or an indictment of anybody, and there is no count in these
+       tables for a style to read anyway. Same non-blocking path as the sheets
+       above; it styles both the two entry blocks and the room panel itself. -->
+  <link rel="stylesheet" href="/district-room.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/district-room.css" /></noscript>
   <!-- ↩️ Against their own stated position — the gathered list of ⚖️ Word vs Action's
        own `contradicts` verdicts. Its own sheet because its whole visual argument is
        that it does NOT reuse the score section's red at list scale: a page of red
@@ -22764,6 +22774,21 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        verbatim, which is PDXDoor1.issueProfile. Loaded before the address module
        that calls it, though the arrival is a macrotask either way. -->
   <script defer src="/issue-file.js"></script>
+  <!-- The District Room — the one surface for (district, issue) neighbour talk,
+       at /d/<districtKey>/<issueKey>. Owns its address, its panel, its composer
+       gate and the two blocks that lead into it: Who Represents Me calls
+       PDXDistrictRoom.seatMountHtml() beside a district seat row, and the issue
+       file calls PDXDistrictRoom.issueMountHtml() on its letterhead. There is NO
+       top-level nav item on purpose — you reach a district room from your own
+       district or from an issue you are already reading, never from a menu, so it
+       cannot become a site-wide board.
+       Reading is public. Writing goes to /api/district-room, which refuses on no
+       district, wrong district, unverified session and empty body, and residency
+       is a labelled stub in this pass: nobody is verified yet, so the composer
+       does not render for anybody and the closed note says why. Loaded after
+       who-represents-me.js and issue-file.js because those two call into it; both
+       mounts answer '' if this file is missing, so the order is documentation. -->
+  <script defer src="/district-room.js"></script>
   <!-- /i/<key> — the issue file's own address. Reads the key out of
        location.pathname, resolves it through the desk's own resolver, commits the
        pick through the desk's own entry point, and opens the SAME ledger a Door 1
