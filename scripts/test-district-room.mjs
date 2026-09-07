@@ -18,10 +18,12 @@
 //      no write. verified for a DIFFERENT district → no write. empty body → no
 //      write. And no combination of inputs reaches an allow without all five
 //      being affirmatively true — checked exhaustively, not by example.
-//   4. RESIDENCY IS A STUB THAT CANNOT PUBLISH. The shipped residencyClaim()
-//      returns verified:false for every caller, so the composer renders for
-//      nobody in this pass and the closed note says so out loud. The seam is
-//      real: hand the same gate a verified claim and it allows the write.
+//   4. RESIDENCY IS A FACT, AND ONLY A REVIEWER'S ROW OPENS A COMPOSER. Phase 2
+//      replaces the stub with a read of dd_residency. Pending cannot write.
+//      Revoked cannot write. A row verified for another district cannot write. A
+//      location pin cannot write even if something marks it verified. An admin
+//      grant is the only method that reaches verified in this pass, and the ID
+//      vendor is a seam nothing calls.
 //   5. THE FUNCTION DISCLOSES NOTHING. No uid, no handle and no pid leaves it.
 //      Reading a room creates no row. There is one insert into dd_posts and it
 //      is downstream of the gate.
@@ -49,6 +51,11 @@ import {
   COPY as CORE_COPY,
   DISTRICT_KEY_RE,
   ISSUE_KEY_RE,
+  RESIDENCY_METHODS,
+  RESIDENCY_METHODS_NEVER_VERIFY,
+  RESIDENCY_METHODS_VERIFYING,
+  RESIDENCY_STATES,
+  RESIDENCY_STATUSES,
   RESIDENCY_VERIFIER,
   ROOM_PATH_RE,
   ROOM_PREFIX,
@@ -57,8 +64,11 @@ import {
   normalizeBody,
   normalizeSourceUrl,
   residencyClaim,
+  residencyNote,
+  residencyStateAllowed,
   roomFromPath,
   roomPath,
+  verifyVendor,
 } from "../netlify/lib/district-room-core.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -77,6 +87,10 @@ const IF_SRC = R("issue-file.js");
 const MIGRATION = R(
   "netlify/database/migrations/20261029000000_create_dd_district_discussion_tables/migration.sql"
 );
+// Phase 2's own migration — the residency table the gate now reads.
+const MIGRATION_DIR = "netlify/database/migrations";
+const RESIDENCY_MIGRATION_ID = "20261030000000_create_dd_residency";
+const MIGRATION2 = R(`${MIGRATION_DIR}/${RESIDENCY_MIGRATION_ID}/migration.sql`);
 
 let passed = 0;
 const failures = [];
@@ -291,7 +305,9 @@ const signedOut = decideWrite({ district: UT2, issueKey: ISSUE, residency: resid
 eq(signedOut.ok, false, "a signed-out caller cannot write");
 eq(signedOut.status, 401, "a signed-out caller is refused 401");
 eq(signedOut.code, "signed_out", "a signed-out caller is refused as signed_out");
-eq(signedOut.message, CORE_COPY.closed, "a signed-out caller is told what would open the composer");
+eq(signedOut.message, CORE_COPY.closedSignedOut,
+  "a signed-out caller is told to sign in first, and that reading is open");
+eq(signedOut.reason, "signed_out", "a signed-out caller's refusal carries the finer reason");
 
 const anon = decideWrite({ district: UT2, issueKey: ISSUE, residency: residencyClaim({ uid: "a", isAnonymous: true }), body: BODY });
 eq(anon.ok, false, "an anonymous session cannot write");
@@ -301,7 +317,9 @@ const unverified = decideWrite({ district: UT2, issueKey: ISSUE, residency: resi
 eq(unverified.ok, false, "a signed-in but unverified caller cannot write");
 eq(unverified.status, 403, "an unverified caller is refused 403");
 eq(unverified.code, "not_verified", "an unverified caller is refused as not_verified");
-eq(unverified.message, CORE_COPY.closed, "an unverified caller is told what would open the composer");
+eq(unverified.message, `${CORE_COPY.closed} ${CORE_COPY.closedNoResidency}`,
+  "an unverified caller is told what would open the composer, and that nothing is established");
+eq(unverified.reason, "no_residency", "an unverified caller's refusal names the missing row");
 
 // VERIFIED FOR THE WRONG DISTRICT CANNOT WRITE. This is the refusal that keeps
 // the room honest: a room that accepted UT-1 would be showing a district posts
@@ -392,37 +410,288 @@ eq(allows, expected, `exactly ${expected} of ${DISTRICTS.length * ISSUES.length 
 ok(allows > 0, "the gate is capable of allowing a write at all");
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("4 · residency is a labelled stub, and it cannot publish");
+section("4 · residency is a fact, and only a reviewer's row opens a composer");
 
+// THE ROW SHAPES the gate will be handed. `districtKey` on a claim is always the
+// ROW's district — the room's key never leaks into it — so a claim can only open
+// the room it was established for.
+const HERE = "ut-house-2";
+const ADMIN_VERIFIED = { districtKey: HERE, status: "verified", method: "admin_grant" };
+const ADMIN_VERIFIED_THERE = { districtKey: "ut-house-1", status: "verified", method: "admin_grant" };
+const SELF_PENDING = { districtKey: HERE, status: "pending", method: "self_attest" };
+const ADMIN_REVOKED = { districtKey: HERE, status: "revoked", method: "admin_grant" };
+// The row nothing writes today, spelled out anyway: a location pin marked
+// verified. It must not publish, and that has to be a property of the gate
+// rather than a promise about which routes exist.
+const PIN_VERIFIED = { districtKey: HERE, status: "verified", method: "location_pin" };
+const SELF_VERIFIED = { districtKey: HERE, status: "verified", method: "self_attest" };
+const U = { uid: "u1", isAnonymous: false };
+const write = (residency, district) =>
+  decideWrite({ district: district || UT2, issueKey: ISSUE, residency, body: BODY });
+
+// ── THE VOCABULARY, AND WHICH HALF OF IT CAN VERIFY ───────────────────────
+eq(RESIDENCY_STATUSES.join(","), "pending,verified,revoked",
+  "the three residency states are pending, verified and revoked");
+eq(RESIDENCY_METHODS_VERIFYING.join(","), "admin_grant,vendor",
+  "only an admin grant or a vendor check can carry a verified status");
+eq(RESIDENCY_METHODS_NEVER_VERIFY.join(","), "self_attest,location_pin",
+  "a self-attested request and a location pin can never verify");
+for (const m of RESIDENCY_METHODS_NEVER_VERIFY) {
+  ok(RESIDENCY_METHODS_VERIFYING.indexOf(m) < 0, `${m} is not a verifying method`);
+}
+for (const m of RESIDENCY_METHODS_VERIFYING.concat(RESIDENCY_METHODS_NEVER_VERIFY)) {
+  ok(RESIDENCY_METHODS.indexOf(m) >= 0, `${m} is one of the recorded methods`);
+}
+
+// ── SIGNED OUT AND ANONYMOUS: NO ROW CAN HELP THEM ────────────────────────
+// Residency is keyed on a verified uid, so a caller the server cannot name has
+// nothing to be verified about — and handing the resolver a verified row anyway
+// changes nothing.
+for (const u of [null, undefined, { uid: "a", isAnonymous: true }]) {
+  const c = residencyClaim(u, ADMIN_VERIFIED);
+  eq(c.verified, false, `a caller of ${JSON.stringify(u)} is not verified even with a row`);
+  eq(c.reason, "signed_out", "and the reason is that they are signed out");
+  eq(c.districtKey, null, "a signed-out caller claims no district");
+  eq(write(c).status, 401, "a signed-out caller is refused 401");
+}
+
+// ── SIGNED IN, NO ROW: NOTHING IS ESTABLISHED ─────────────────────────────
+for (const r of [null, undefined, {}, { districtKey: HERE }, { status: "verified" },
+  { districtKey: "", status: "verified", method: "admin_grant" },
+  { districtKey: "ut-senate-2", status: "verified", method: "admin_grant" }]) {
+  const c = residencyClaim(U, r);
+  eq(c.verified, false, `a row of ${JSON.stringify(r)} establishes nothing`);
+  eq(c.districtKey, null, "and it claims no district");
+  eq(write(c).ok, false, "so the caller cannot write");
+}
+eq(residencyClaim(U, null).reason, "no_residency", "no row is reported as no residency");
+
+// ── PENDING CANNOT WRITE ──────────────────────────────────────────────────
+// The brief's first test, and the one the copy has to get right: a request in
+// the queue is told it is pending, not told to go and verify.
+const pending = residencyClaim(U, SELF_PENDING);
+eq(pending.verified, false, "a pending row cannot verify");
+eq(pending.status, "pending", "a pending row is reported as pending");
+eq(pending.reason, "pending", "and the reason is pending rather than a generic refusal");
+eq(pending.districtKey, null, "a pending row claims no district");
+const pendingWrite = write(pending);
+eq(pendingWrite.ok, false, "PENDING CANNOT WRITE");
+eq(pendingWrite.status, 403, "a pending caller is refused 403");
+eq(pendingWrite.code, "not_verified", "the Phase 1 gate code is unchanged");
+eq(pendingWrite.reason, "pending", "and the refusal carries the finer reason");
+eq(pendingWrite.message, CORE_COPY.pending, "a pending caller is told their request is pending");
+has(CORE_COPY.pending, "pending", "the pending sentence says pending");
+lacks(CORE_COPY.pending.toLowerCase(), "you are verified", "the pending sentence never says verified");
+const pendingComposer = composerState(pending, HERE);
+eq(pendingComposer.canPost, false, "a pending row does not open the composer");
+eq(pendingComposer.note, CORE_COPY.pending, "and the closed note says pending");
+lacks(pendingComposer.note, CORE_COPY.badge, "a pending reader is never shown the badge copy");
+
+// ── REVOKED CANNOT WRITE ──────────────────────────────────────────────────
+const revoked = residencyClaim(U, ADMIN_REVOKED);
+eq(revoked.verified, false, "a revoked row cannot verify");
+eq(revoked.reason, "revoked", "a revoked row is reported as revoked");
+const revokedWrite = write(revoked);
+eq(revokedWrite.ok, false, "REVOKED CANNOT WRITE");
+eq(revokedWrite.status, 403, "a revoked caller is refused 403");
+eq(revokedWrite.message, CORE_COPY.revoked, "a revoked caller is told their residency was revoked");
+eq(composerState(revoked, HERE).canPost, false, "a revoked row does not open the composer");
+has(CORE_COPY.revoked, "read here but not post", "a revoked reader is told they may still read");
+
+// ── A LOCATION PIN ALONE CANNOT WRITE ─────────────────────────────────────
+// window._currentVoterLocation is a zip or pin the reader typed, and the whole
+// point of this table is that it is not evidence of residence. Even a row that
+// somehow carries status 'verified' by that method cannot publish.
+for (const [name, row] of [["a location pin", PIN_VERIFIED], ["a self-attestation", SELF_VERIFIED]]) {
+  const c = residencyClaim(U, row);
+  eq(c.verified, false, `${name} marked verified still cannot verify`);
+  eq(c.districtKey, null, `${name} claims no district`);
+  eq(write(c).ok, false, `${name.toUpperCase()} ALONE CANNOT WRITE`);
+  eq(composerState(c, HERE).canPost, false, `${name} does not open the composer`);
+}
+// And the gate never reads a location at all.
+for (const forbidden of ["_currentVoterLocation", "voterLocation", "zip", "latitude", "longitude"]) {
+  lacks(strip(CORE_SRC), forbidden, `the gate does not read ${forbidden}`);
+}
+
+// ── VERIFIED FOR THE WRONG DISTRICT CANNOT WRITE ──────────────────────────
+const there = residencyClaim(U, ADMIN_VERIFIED_THERE);
+eq(there.verified, true, "a row verified in UT-1 is a verified row");
+eq(there.districtKey, "ut-house-1", "and it claims UT-1, not the room it was asked about");
+const thereWrite = write(there);
+eq(thereWrite.ok, false, "VERIFIED FOR THE WRONG DISTRICT CANNOT WRITE");
+eq(thereWrite.status, 403, "the wrong district is refused 403");
+eq(thereWrite.code, "wrong_district", "the wrong district keeps its Phase 1 gate code");
+eq(composerState(there, HERE).canPost, false, "a claim for another district opens no composer");
+eq(composerState(there, HERE).note, CORE_COPY.wrongDistrict,
+  "and the note says they are verified somewhere else");
+
+// ── VERIFIED FOR THIS DISTRICT CAN WRITE ──────────────────────────────────
+// The one path that publishes, and it is an admin grant.
+const here = residencyClaim(U, ADMIN_VERIFIED);
+eq(here.verified, true, "an admin-granted row for this district verifies");
+eq(here.districtKey, HERE, "and the claim carries the row's district");
+eq(here.method, "admin_grant", "and it remembers how that was established");
+const hereWrite = write(here);
+eq(hereWrite.ok, true, "VERIFIED FOR THIS DISTRICT CAN WRITE");
+eq(hereWrite.districtKey, HERE, "the allow carries the room's district");
+eq(composerState(here, HERE).canPost, true, "and the composer opens");
+eq(composerState(here, HERE).note, "", "an open composer carries no closed note");
+// The vendor method is honoured by the gate — that is the seam — and no row in
+// this pass has it, because nothing writes one.
+eq(residencyClaim(U, { districtKey: HERE, status: "verified", method: "vendor" }).verified, true,
+  "the gate would honour a vendor check, which is what makes the seam real");
+
+// ── ADMIN GRANT IS THE ONLY WAY STATUS BECOMES VERIFIED IN THIS PASS ──────
+// Checked at the only two places that can write the column: the attest route
+// hard-codes 'pending' and the grant route is behind the reviewer check.
+const fnSrc = strip(FN_SRC);
+has(fnSrc, 'status: "pending"', "the self-attest route writes pending and nothing else");
+ok(/attestResidency[\s\S]*?status:\s*"pending"/.test(fnSrc),
+  "the pending literal is inside the self-attest route");
+// The request route INSERTS and loses a conflict; only the reviewer's route
+// UPDATES an existing row. So a repeat request cannot change a decided row, and
+// there is exactly one statement in the file capable of setting a status.
+eq((fnSrc.match(/onConflictDoUpdate/g) || []).length, 1,
+  "exactly one statement can change an existing residency row");
+ok(fnSrc.indexOf("grantResidency") < fnSrc.indexOf("onConflictDoUpdate"),
+  "and it is inside the reviewer's route");
+ok(/attestResidency[\s\S]*?insert\(ddResidency\)[\s\S]*?onConflictDoNothing\(\)/.test(fnSrc),
+  "a repeat self-attest loses the conflict rather than rewriting a decided row");
+eq((fnSrc.match(/insert\(ddResidency\)/g) || []).length, 2,
+  "there are exactly two writes to dd_residency: the request and the decision");
+has(fnSrc, "viewer.isModerator", "the grant route is behind the reviewer check");
+ok(/if \(!viewer\.isModerator\)[\s\S]*?403/.test(fnSrc),
+  "a caller who is not a reviewer is refused 403");
+ok(fnSrc.indexOf("viewer.isModerator") < fnSrc.indexOf("onConflictDoUpdate"),
+  "the reviewer check comes before the upsert that sets verified");
+// The status a reviewer may set is bounded, and 'pending' is not one of them —
+// pending is what a request already is, not a decision.
+has(fnSrc, 'decided !== "verified" && decided !== "revoked"',
+  "a reviewer may only mark somebody verified or revoked");
+// And no route takes a method off the request: both literals are in the source.
+has(fnSrc, 'method: "self_attest"', "the request route records its own method");
+has(fnSrc, 'method: "admin_grant"', "the grant route records its own method");
+lacks(fnSrc, "method: payload", "no caller chooses the method their row is recorded with");
+lacks(fnSrc, "payload?.method", "no caller chooses the method their row is recorded with");
+lacks(fnSrc, "payload?.verified", "no caller asserts their own verification");
+
+// ── THE VENDOR SEAM EXISTS AND IS UNUSED ──────────────────────────────────
 eq(RESIDENCY_VERIFIER, null, "no residency vendor is wired in this pass");
-for (const u of [null, undefined, {}, { uid: "u1" }, { uid: "u1", isAnonymous: true },
-  { uid: "u1", email: "a@b.c", emailVerified: true },
-  { uid: "u1", districtKey: "ut-house-2", verified: true }]) {
-  const c = residencyClaim(u);
-  eq(c.verified, false, `the shipped residency stub cannot verify ${JSON.stringify(u)}`);
-  eq(c.districtKey, null, "the shipped residency stub claims no district");
+eq(typeof verifyVendor, "function", "the vendor seam is a single function");
+let threw = false;
+try { verifyVendor(); } catch { threw = true; }
+ok(threw, "the unwired vendor seam throws rather than quietly answering");
+lacks(fnSrc, "verifyVendor", "the Function does not call the vendor seam");
+lacks(strip(ROOM_SRC), "verifyVendor", "the client does not call the vendor seam");
+for (const vendor of ["stripe", "veriff", "persona", "onfido", "idenfy", "plaid"]) {
+  lacks(strip(CORE_SRC).toLowerCase(), vendor, `the gate calls no ${vendor}`);
+  lacks(fnSrc.toLowerCase(), vendor, `the Function calls no ${vendor}`);
+  lacks(strip(ROOM_SRC).toLowerCase(), vendor, `the client calls no ${vendor}`);
 }
-// So the composer renders for NOBODY, and the note says why rather than dangling
-// a "verify" that leads nowhere.
-const shipped = composerState(residencyClaim({ uid: "u1" }), "ut-house-2");
-eq(shipped.canPost, false, "the composer is closed for a signed-in reader in this pass");
-has(shipped.note, CORE_COPY.closed, "the closed note names the one thing that would open it");
-has(shipped.note, CORE_COPY.closedStub, "the closed note says out loud that nothing can open it yet");
-eq(composerState(residencyClaim(null), "ut-house-2").canPost, false,
-  "the composer is closed for a signed-out reader");
-// The seam, again from the read side: the UI opens the moment a verifier answers.
-eq(composerState(VERIFIED_HERE, "ut-house-2").canPost, true,
-  "a verified claim for this district opens the composer");
-eq(composerState(VERIFIED_THERE, "ut-house-2").canPost, false,
-  "a verified claim for another district does not open the composer");
-eq(composerState(VERIFIED_HERE, "ut-house-1").canPost, false,
-  "the same claim in another room does not open the composer");
-// The read side and the write side cannot disagree about who may type.
-for (const r of RESIDENCIES) {
-  const canPost = composerState(r, "ut-house-2").canPost;
-  const allowed = decideWrite({ district: UT2, issueKey: ISSUE, residency: r, body: BODY }).ok === true;
+
+// ── UTAH ONLY IN THIS PASS, SAID AS A SENTENCE ────────────────────────────
+eq(RESIDENCY_STATES.join(","), "UT", "Utah is the only state this pass verifies in");
+for (const st of ["UT", "ut", " Ut "]) {
+  eq(residencyStateAllowed(st), true, `${JSON.stringify(st)} is in scope`);
+}
+for (const st of ["ID", "NV", "WY", "AZ", "CO", "", null, undefined, "USA"]) {
+  eq(residencyStateAllowed(st), false, `${JSON.stringify(st)} is out of scope`);
+}
+has(CORE_COPY.notInScope, "Utah", "the out-of-scope sentence names the state that is in scope");
+has(CORE_COPY.notInScope, "cannot verify you", "and says plainly what it cannot do");
+has(fnSrc, "residencyStateAllowed(district.state)",
+  "both residency routes check the district's state against the one list");
+has(fnSrc, "COPY.notInScope", "and refuse another state with that sentence");
+// Every district key the gate could be handed is one dd_districts actually
+// seeded, and every seeded row is Utah.
+ok(/'ut-statehouse-68'/.test(MIGRATION), "dd_districts seeded ut-statehouse-68");
+ok(!/\('(?!ut-)[a-z]{2}-/.test(MIGRATION), "dd_districts seeded no state but Utah");
+
+// ── THE ROW THE GATE READS IS A REAL TABLE ────────────────────────────────
+// Stamped AFTER the applied tail and after the migration that created the table
+// it references — a mid-tree date would be rejected on deploy.
+const applied = new Set([
+  "20261028000000_vr_federal_wave_f11.sql",
+  "20261029000000_create_dd_district_discussion_tables",
+]);
+for (const prior of applied) {
+  ok(RESIDENCY_MIGRATION_ID > prior.replace(/\.sql$/, ""),
+    `the residency migration sorts after ${prior}`);
+}
+ok(/^20261030000000_/.test(RESIDENCY_MIGRATION_ID),
+  "the residency migration carries the hand-set version one past the tail");
+for (const piece of [
+  'CREATE TABLE IF NOT EXISTS "dd_residency"',
+  '"user_id" text NOT NULL',
+  '"district_key" text NOT NULL',
+  `"status" text DEFAULT 'pending' NOT NULL`,
+  '"method" text NOT NULL',
+  '"created_at" timestamp with time zone',
+  '"reviewed_at" timestamp with time zone',
+  `CHECK ("status" in ('pending', 'verified', 'revoked'))`,
+  'CREATE UNIQUE INDEX IF NOT EXISTS "dd_residency_user_district_unique"',
+  'REFERENCES "dd_districts"("district_id")',
+]) {
+  has(MIGRATION2, piece, `the residency migration carries ${piece}`);
+}
+// It creates the table and alters nothing that already exists.
+ok(!/ALTER TABLE "dd_(posts|threads|districts|issue_keys)"/.test(MIGRATION2),
+  "the residency migration alters no phase 0 table");
+ok(!/DROP |DELETE FROM |TRUNCATE /.test(MIGRATION2), "the residency migration destroys nothing");
+// The schema says the same thing the migration does.
+has(SCHEMA, 'export const ddResidency = pgTable(', "db/schema.ts carries the residency table");
+for (const col of ['userId: text("user_id")', 'districtKey: text("district_key")',
+  'status: text().notNull().default("pending")', "method: text().notNull()",
+  'reviewedAt: timestamp("reviewed_at"', 'uniqueIndex("dd_residency_user_district_unique")']) {
+  has(SCHEMA, col, `the residency table declares ${col}`);
+}
+// It is a fact about a district, not a profile.
+const resStart = SCHEMA.indexOf("export const ddResidency");
+const resCols = strip(SCHEMA.slice(resStart));
+for (const nope of ["email", "name", "address", "zip", "postal", "latitude", "longitude",
+  "document", "photo", "phone", "ssn", "dob"]) {
+  ok(resCols.toLowerCase().indexOf(`"${nope}"`) < 0,
+    `the residency table stores no ${nope}`);
+}
+
+// ── THE READ SIDE AND THE WRITE SIDE STILL CANNOT DISAGREE ────────────────
+// Every row shape, through both halves. The composer is shown to exactly the
+// callers the gate would accept, and to nobody else.
+const ROWS = [null, {}, SELF_PENDING, ADMIN_REVOKED, PIN_VERIFIED, SELF_VERIFIED,
+  ADMIN_VERIFIED, ADMIN_VERIFIED_THERE,
+  { districtKey: HERE, status: "verified", method: "vendor" },
+  { districtKey: HERE, status: "approved", method: "admin_grant" },
+  { districtKey: HERE, status: "verified", method: "" },
+  { districtKey: HERE, status: "verified" },
+];
+const USERS = [null, { uid: "a", isAnonymous: true }, U];
+let opens = 0;
+for (const u of USERS) for (const row of ROWS) for (const room of [HERE, "ut-house-1"]) {
+  const c = residencyClaim(u, row);
+  const canPost = composerState(c, room).canPost;
+  const allowed = decideWrite({
+    district: { districtKey: room }, issueKey: ISSUE, residency: c, body: BODY,
+  }).ok === true;
   eq(canPost, allowed, "the composer is shown to exactly the callers the gate would accept");
+  // A closed composer always carries a sentence, and never the badge.
+  if (!canPost) {
+    const note = composerState(c, room).note;
+    ok(!!note, "a closed composer always carries a reason");
+    lacks(note, CORE_COPY.badge, "a closed composer never wears the badge");
+  }
+  if (canPost) opens++;
 }
+// Only a verifying-method row, for the room it names, for a signed-in caller,
+// opens anything: ut-house-2 by admin grant, ut-house-2 by vendor check, and
+// ut-house-1 by admin grant in ITS own room. Three out of seventy-two.
+eq(opens, 3, "exactly the verified-for-this-room rows open a composer, and no others");
+// residencyNote() is the one owner of those sentences.
+eq(residencyNote(residencyClaim(null, null)), CORE_COPY.closedSignedOut,
+  "the signed-out sentence has one owner");
+eq(residencyNote(pending), CORE_COPY.pending, "the pending sentence has one owner");
+eq(residencyNote(revoked), CORE_COPY.revoked, "the revoked sentence has one owner");
+
 // The gate carries no database and no vendor.
 const core = strip(CORE_SRC);
 for (const forbidden of ["drizzle", "from \"../../db", "firebase", "fetch(", "process.env"]) {
@@ -519,7 +788,8 @@ for (const col of ["score", "rank", "votes", "upvotes", "reactions", "party", "p
   ok(ddCols.toLowerCase().indexOf(`"${col}"`) < 0 && ddCols.toLowerCase().indexOf(`${col}:`) < 0,
     `the dd_* tables carry no ${col} column for a style or a sort to read`);
 }
-// Every column the UI writes already existed at phase 0 — hence no migration.
+// Every column a POST writes already existed at phase 0 — the only migration this
+// pass adds is the residency table, which no post row touches.
 for (const col of ['threadId: integer("thread_id")', 'userId: text("user_id")',
   'verifiedResident: boolean("verified_resident")', "body: text().notNull()",
   'sourceUrl: text("source_url")']) {
@@ -579,7 +849,9 @@ lacks(body, "pdxdr-post\"", "an empty room paints no post");
 // reader can type into and then not send is a worse answer than no box.
 has(body, "pdxdr-closed", "an unverified reader gets the closed note");
 has(body, CORE_COPY.closed, "the closed note tells them what would open it");
-has(body, CORE_COPY.closedStub, "the closed note says nothing can open it yet");
+has(body, CORE_COPY.closedNoResidency,
+  "the closed note says nothing has been established, rather than dangling a verify that leads nowhere");
+lacks(body, CORE_COPY.badge, "a reader who cannot post is shown no badge");
 lacks(body, "<textarea", "an unverified reader is shown no field at all");
 lacks(body, "pdxdr-composer", "an unverified reader is shown no composer");
 lacks(body, "pdxdr-send", "an unverified reader is shown no post button");
@@ -622,6 +894,89 @@ has(vbody, "<textarea", "the composer is a field");
 has(vbody, 'data-pdxdr-form="1"', "the composer submits through the module's own listener");
 lacks(vbody, "pdxdr-closed", "a verified neighbour gets no closed note");
 has(vbody, CORE_COPY.empty, "the room under the composer is still honestly empty");
+
+// ── THE TWO RESIDENCY CONTROLS, AS PAINTED ────────────────────────────────
+// A reader the app can place in ut-house-2, so the self-attest control is
+// offered for their OWN district and nothing else.
+const MY_UT2 = {
+  pdxRepsForMe: () => ({
+    located: true, national: false, state: "Utah", districtsResolvable: true,
+    levels: [{ key: "ushouse2", seat: "house", district: 2, distLabel: "Utah · U.S. House District 2" }],
+  }),
+};
+function residencyPayload(res, extra) {
+  const base = roomPayload([]);
+  return Object.assign({}, base, extra || {}, {
+    residency: Object.assign(
+      {
+        status: null, reason: "no_residency",
+        canAttest: false, attest: CORE_COPY.attest, attestNote: CORE_COPY.attestNote,
+        canGrant: false, grant: CORE_COPY.grant, outOfScopeNote: "",
+      },
+      res || {}
+    ),
+  });
+}
+async function paint(payload, extras) {
+  const w = boot("/d/ut-house-2/lands_preserve", payload, extras);
+  w.flushTimers();
+  await new Promise((r) => setTimeout(r, 0));
+  await new Promise((r) => setTimeout(r, 0));
+  return w.document.getElementById("pdx-district-room-scroll").innerHTML;
+}
+
+// OFFERED, when the server says so AND the district is the reader's own.
+const attestBody = await paint(residencyPayload({ canAttest: true }), MY_UT2);
+has(attestBody, "data-pdxdr-attest", "a signed-in reader in their own district is offered the request");
+has(attestBody, CORE_COPY.attest, "and the control says what they are claiming");
+has(attestBody, CORE_COPY.attestNote, "and says plainly that saying it does not verify them");
+lacks(attestBody, "pdxdr-composer", "the request is not a composer");
+lacks(attestBody, "<textarea", "the request opens no field");
+lacks(attestBody, CORE_COPY.badge, "the request does not print the badge");
+
+// NOT OFFERED for a district the reader's own resolver does not place them in —
+// nobody is invited to claim a district that is not theirs.
+const notMine = await paint(residencyPayload({ canAttest: true }), {
+  pdxRepsForMe: () => ({
+    located: true, national: false, state: "Utah", districtsResolvable: true,
+    levels: [{ key: "ushouse1", seat: "house", district: 1, distLabel: "Utah · U.S. House District 1" }],
+  }),
+});
+lacks(notMine, "data-pdxdr-attest", "a district that is not the reader's own is not offered");
+// NOT OFFERED at all when the server did not say so.
+lacks(await paint(residencyPayload({ canAttest: false }), MY_UT2), "data-pdxdr-attest",
+  "the client never offers the request on its own opinion");
+
+// PENDING SAYS PENDING, and wears nothing.
+const pendingPayload = residencyPayload(
+  { status: "pending", reason: "pending", canAttest: false },
+  { canPost: false, closedNote: CORE_COPY.pending }
+);
+const pendingBody = await paint(pendingPayload, MY_UT2);
+has(pendingBody, CORE_COPY.pending, "a pending reader is told their request is pending");
+lacks(pendingBody, CORE_COPY.badge, "a pending reader is shown no badge");
+lacks(pendingBody, "pdxdr-composer", "a pending reader is shown no composer");
+lacks(pendingBody, "data-pdxdr-attest", "a pending reader is not asked to request again");
+
+// THE REVIEWER'S CONTROL, and it is not dressed as the request.
+const grantBody = await paint(residencyPayload({ canGrant: true }), MY_UT2);
+has(grantBody, "data-pdxdr-grant", "a reviewer is offered the grant");
+has(grantBody, CORE_COPY.grant, "and it is labelled as a grant, not as a claim");
+ok(CORE_COPY.grant !== CORE_COPY.attest, "the two paths are labelled differently");
+lacks(await paint(residencyPayload({ canGrant: false }), MY_UT2), "data-pdxdr-grant",
+  "a reader who is not a reviewer is offered no grant");
+
+// OUT OF SCOPE IS A SENTENCE, not an absent control.
+has(await paint(residencyPayload({ outOfScopeNote: CORE_COPY.notInScope }), MY_UT2),
+  CORE_COPY.notInScope, "a district outside this pass's one state says so out loud");
+
+// The client sends the request and the grant to their own routes and no others.
+const roomSrc = strip(ROOM_SRC);
+has(roomSrc, "'/residency/attest'", "the request goes to the attest route");
+has(roomSrc, "'/residency/grant'", "the grant goes to the grant route");
+ok(!/canPost\s*===\s*true[\s\S]{0,400}canAttest/.test(roomSrc),
+  "no residency control is rendered inside an open composer");
+lacks(roomSrc, "_currentVoterLocation", "the client never sends a self-typed location as residency");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("8 · two mounts, and only two");
@@ -743,8 +1098,10 @@ has(INDEX, 'defer src="/district-room.js"', "the room is deferred");
 has(SW, "'/district-room.js',", "the service worker precaches the room");
 has(SW, "'/district-room.css',", "the service worker precaches the room's stylesheet");
 const ver = (SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1];
-ok(ver && Number(ver) >= 152, `the shell cache was bumped for the two changed precached files (v${ver})`);
-has(SW, "v152 - THE DISTRICT ROOM EXISTS", "the bump carries its version-log entry");
+ok(ver && Number(ver) >= 153,
+  `the shell cache was bumped for the two changed precached files (v${ver})`);
+has(SW, "v152 - THE DISTRICT ROOM EXISTS", "the phase 1 version-log entry survives");
+has(SW, "v153 - RESIDENCY IS A FACT NOW", "the bump carries its own version-log entry");
 
 // ── Result ───────────────────────────────────────────────────────────────────
 console.log("");
@@ -754,5 +1111,6 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(`✓ district-room: all ${passed} assertions passed`);
-console.log("   one address · 5 refusals, exhaustively · residency stub cannot publish · " +
-  "newest first, no rank · 2 mounts · no pid, no party, no verdict hue");
+console.log("   one address · 5 refusals, exhaustively · pending/revoked/pin cannot publish · " +
+  "admin grant is the only verify · Utah only · newest first, no rank · 2 mounts · " +
+  "no pid, no party, no verdict hue");

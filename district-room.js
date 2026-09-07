@@ -42,10 +42,25 @@
    may post is decided in netlify/lib/district-room-core.mjs and returned by
    /api/district-room as `canPost` plus the note to print when it is false. This
    module renders that answer and never computes one — a UI that decides for
-   itself who may type is a UI that will eventually disagree with the gate. In
-   this pass canPost is false for everybody, because residency has no verifier
-   yet, and the note says so out loud rather than dangling a "verify" that leads
-   nowhere.
+   itself who may type is a UI that will eventually disagree with the gate. There
+   is no branch below that opens the composer on anything other than
+   `canPost === true`.
+
+   THE TWO RESIDENCY CONTROLS, LABELLED DIFFERENTLY. When the composer is closed
+   the server may also say what the reader can do about it, and the two things are
+   never dressed alike:
+
+     · "I live in this district" — a REQUEST. It is offered only when the server
+       says canAttest AND this room's district is one the reader's OWN resolver
+       already places them in, so nobody is invited to claim a district that is
+       not theirs. It records a pending row, the composer stays shut, and the
+       sentence afterwards says pending rather than verified.
+     · "Grant residency for this district" — a REVIEWER'S decision, offered only
+       when the server says canGrant. It is the one path that reaches verified.
+
+   THE BADGE IS NEVER PRINTED ON EITHER. `pdxdr-badge` appears on a post the
+   server marked verified, and inside an OPEN composer. A pending request and a
+   self-typed location get a sentence, never a badge.
 
    NO ARITHMETIC IN THIS FILE. Search it: there is no count, no percentage and no
    tally of any kind. The only integer it handles is a post id it hands back to
@@ -76,8 +91,21 @@
     strap: 'Neighbors in this district, this issue.',
     empty: 'No neighbor posts on this issue in this district yet.',
     closed: 'Verify you live in this district to post.',
-    closedStub: 'Residency checks are not switched on yet, so nobody can post in this pass. ' +
-      'Reading is open.',
+    closedSignedOut: 'Sign in first, then ask to be verified for this district. Reading is open.',
+    closedNoResidency: 'We have not established that you live in this district. Reading is open.',
+    pending: 'Your residency request for this district is pending review. ' +
+      'Reading is open; posting opens only if a reviewer approves it.',
+    revoked: 'Your residency for this district was revoked, so you can read here but not post.',
+    wrongDistrict: "You're verified in a different district, so you can read here but not post.",
+    attest: 'I live in this district',
+    attestNote: 'This records a request a reviewer decides on. Saying it does not verify you ' +
+      'and does not open the composer.',
+    attestSent: 'Recorded as pending. A reviewer decides; you are not verified yet.',
+    grant: 'Grant residency for this district',
+    granted: 'Verified for this district. The composer is open here.',
+    grantDenied: 'Only a site reviewer can grant residency.',
+    notInScope: 'Residency verification is Utah only in this pass, so we cannot verify you ' +
+      'for a district in another state yet.',
     badge: 'verified in this district',
     flag: 'Report',
     flagRecorded: 'Reported. This records your intent; review comes later.'
@@ -396,6 +424,49 @@
   // Exactly one of the two, and the server decided which. `canPost` false paints
   // a short note and no field — not a disabled textarea, because a box a reader
   // can click into and type in and then not send is a worse answer than no box.
+  // Is this room's district one the reader's OWN resolver places them in? The
+  // self-attest control is offered only where that is true — the server would
+  // accept a request for any mapped Utah district (a pending row cannot post
+  // whatever district it names), but offering one for a district that is not
+  // theirs would be inviting a claim nobody should make.
+  function isMine(districtKey) {
+    var d = String(districtKey == null ? '' : districtKey);
+    if (!d) return false;
+    var mine = myDistricts();
+    for (var i = 0; i < mine.length; i++) {
+      if (mine[i] && mine[i].districtKey === d) return true;
+    }
+    return false;
+  }
+
+  // What a reader with a closed composer may do about it, if anything. Both
+  // controls come from server flags; this function adds only the "is it their own
+  // district" restriction on the request, and never a verdict of its own.
+  function residencyHtml(data) {
+    var r = (data && data.residency) || null;
+    if (!r) return '';
+    var d = (data && data.district && data.district.districtKey) || '';
+    var out = '';
+    if (r.outOfScopeNote) {
+      out += '<p class="pdxdr-resnote">' + esc(r.outOfScopeNote) + '</p>';
+    }
+    if (r.canAttest === true && isMine(d)) {
+      out += '<div class="pdxdr-attest">' +
+          '<button type="button" class="pdxdr-attestbtn" data-pdxdr-attest="1">' +
+            esc(r.attest || COPY.attest) + '</button>' +
+          '<p class="pdxdr-resnote">' + esc(r.attestNote || COPY.attestNote) + '</p>' +
+        '</div>';
+    }
+    if (r.canGrant === true) {
+      out += '<div class="pdxdr-grant">' +
+          '<button type="button" class="pdxdr-grantbtn" data-pdxdr-grant="1">' +
+            esc(r.grant || COPY.grant) + '</button>' +
+        '</div>';
+    }
+    if (!out) return '';
+    return out + '<p class="pdxdr-say" role="status" data-pdxdr-say="1"></p>';
+  }
+
   function composerHtml(data) {
     if (data && data.canPost === true) {
       return '<form class="pdxdr-composer" data-pdxdr-form="1">' +
@@ -409,8 +480,8 @@
           '<p class="pdxdr-say" role="status" data-pdxdr-say="1"></p>' +
         '</form>';
     }
-    var note = (data && data.closedNote) || (COPY.closed + ' ' + COPY.closedStub);
-    return '<p class="pdxdr-closed" role="note">' + esc(note) + '</p>';
+    var note = (data && data.closedNote) || (COPY.closed + ' ' + COPY.closedNoResidency);
+    return '<p class="pdxdr-closed" role="note">' + esc(note) + '</p>' + residencyHtml(data);
   }
 
   // ── THE POSTS ─────────────────────────────────────────────────────────────
@@ -608,6 +679,51 @@
     return false;
   }
 
+  // ── THE RESIDENCY REQUEST ─────────────────────────────────────────────────
+  // Sends "I live in this district" and then says what came back — which, on
+  // success, is that it is PENDING. It does not open the composer, does not paint
+  // a badge and does not reload the room into a verified state, because none of
+  // those things happened. The room is re-read only so the note becomes the
+  // pending sentence the server now owns.
+  function attest(btn) {
+    if (!_room) return false;
+    if (btn) { try { btn.disabled = true; } catch (e) {} }
+    say('Sending…');
+    api('/residency/attest', { method: 'POST', body: { district: _room.districtKey } })
+      .then(function (res) {
+        if (!res.ok) {
+          if (btn) { try { btn.disabled = false; } catch (e) {} }
+          say((res.data && res.data.error) || 'That did not send.');
+          return;
+        }
+        say((res.data && res.data.message) || COPY.attestSent);
+        load();
+      });
+    return false;
+  }
+
+  // ── THE REVIEWER'S GRANT ──────────────────────────────────────────────────
+  // Only rendered when the server said canGrant, and the server checks again on
+  // arrival — this control is a convenience for the one person who has that
+  // standing, not the thing that confers it. The room is re-read afterwards, and
+  // whether the composer appears is entirely the next read's answer.
+  function grant(btn) {
+    if (!_room) return false;
+    if (btn) { try { btn.disabled = true; } catch (e) {} }
+    say('Sending…');
+    api('/residency/grant', { method: 'POST', body: { district: _room.districtKey } })
+      .then(function (res) {
+        if (btn) { try { btn.disabled = false; } catch (e) {} }
+        if (!res.ok) {
+          say((res.data && res.data.error) || 'That did not send.');
+          return;
+        }
+        say((res.data && res.data.message) || COPY.granted);
+        load();
+      });
+    return false;
+  }
+
   // ── REPORT ────────────────────────────────────────────────────────────────
   // A stub that records intent, and it says exactly that when it succeeds. It
   // moves nothing: no post is hidden, reordered or scored by being reported,
@@ -649,6 +765,20 @@
               ev.shiftKey || ev.altKey) return;
           var parts = String(chip.getAttribute('data-pdxdr-open') || '').split('|');
           if (parts.length === 2 && enter(parts[0], parts[1])) ev.preventDefault();
+          return;
+        }
+
+        var a = t.closest('[data-pdxdr-attest]');
+        if (a) {
+          ev.preventDefault();
+          attest(a);
+          return;
+        }
+
+        var g = t.closest('[data-pdxdr-grant]');
+        if (g) {
+          ev.preventDefault();
+          grant(g);
           return;
         }
 
