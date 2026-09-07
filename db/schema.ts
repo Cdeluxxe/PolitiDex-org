@@ -20,6 +20,7 @@ import {
   timestamp,
   uniqueIndex,
   index,
+  check,
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
@@ -1194,4 +1195,166 @@ export const vrVoteCorrectionOverlays = pgTable(
     // while the history of what was proposed and rejected stays unconstrained).
     // Declared there rather than here because the partial predicate is the point.
   })
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DISTRICT DISCUSSION — phase 0, the room next to the file
+// ─────────────────────────────────────────────────────────────────────────────
+// WHAT THIS IS. Four tables that stand up one room per (district, issue) and
+// nothing else. A room is a place where verified neighbours in one district will
+// later talk about one issue. It is not a feed, not a board, not a comment
+// section, and it is not attached to any person.
+//
+// WHAT IT DELIBERATELY IS NOT, AND WHY THE COLUMNS ARE MISSING RATHER THAN
+// DEFAULTED. There is no score, no vote, no reaction, no reply tally, no
+// ranking column and no party column. Those are not "off" — they do not exist,
+// because a column that counts is a column something will eventually rank, and
+// a ranked room is a poll wearing a conversation's clothes. Nothing here ever
+// becomes a number on a person's file: no count reaches person-file.js, nothing
+// is summed into a "mandate %", and no row in these tables is readable by the
+// formal record, Word vs Action, Direction Match, the finance lane, the
+// alignment tool or Door 2's picks. The knowledge tools stay free of this and
+// this stays free of them. The prefix is `dd_` so it can never be mistaken for,
+// or joined against, the `vr_` formal record, the `cee_` evidence exchange or
+// the `pdx_` free-conversation forum — this is a fourth thing and shares no row
+// with any of the three.
+//
+// PHASE 0 IS SCHEMA ONLY. No reader surface queries these tables, no Function
+// writes to them, and there is no route, nav entry or mount that renders them.
+// Auth and residency are RESERVED columns, not implemented behaviour: nothing
+// checks identity or residency in this pass.
+//
+// FAIL CLOSED IS A FOREIGN KEY, NOT A HOPE. Both vocabularies are their own
+// tables and both are referenced, so the database itself refuses a room that
+// names a district the app cannot resolve or an issue the app does not ship.
+// Neither `district_id` nor `issue_key` is free text at any point.
+
+// The district vocabulary. Seeded ONLY from districts the app already maps — the
+// curated area table KEY_RACES_LOCATIONS in ballot-breakdown.js, which is the
+// same source the ballot resolves a reader's own seat from. Nothing here is
+// invented: a district Utah has but the curated map does not carry gets no row,
+// so a room for it cannot be created, which is the honest answer while the app
+// still cannot tell a reader that seat is theirs.
+//
+// `district_id` speaks Door 2's seat language where that language exists. Door 2
+// names district seats with the keys `house`, `statesenate` and `statehouse`
+// (voter-hub-location.js's levels, compare-hub.js's _myteamDistrictNum), and it
+// has no composed per-district identifier at all — so the id is that seat key
+// with the two parts it was always missing, state and number, around it:
+//
+//   ut-house-2          U.S. House, Utah district 2
+//   ut-statesenate-6    Utah State Senate district 6
+//   ut-statehouse-15    Utah State House district 15
+//
+// Only the three geometric seat classes appear. Statewide seats (U.S. Senate,
+// Governor) and local offices carry no district and are absent by construction,
+// not by filter — see DISTRICT_MAPS.md, which is also where the rule lives that
+// a state widens only when all five of its requirements are true. `ut-` is the
+// only state prefix today for exactly that reason: districtsResolvable is true
+// in Utah and nowhere else, and this table says the same thing in rows.
+export const ddDistricts = pgTable(
+  "dd_districts",
+  {
+    // Composed, stable, and the only thing a thread may name.
+    districtId: text("district_id").primaryKey(),
+    // Two-letter postal code, uppercase. Kept alongside the composed id so a
+    // reader of this table does not have to parse the id to know the state.
+    state: text().notNull(),
+    // Door 2's seat key: house | statesenate | statehouse.
+    seatKey: text("seat_key").notNull(),
+    districtNumber: integer("district_number").notNull(),
+    // Human label for an admin view ("Utah State Senate District 6").
+    label: text().notNull(),
+  },
+  (t) => [
+    index("dd_districts_state_seat_idx").on(t.state, t.seatKey, t.districtNumber),
+    // The three geometric seat classes and no others. A statewide or local seat
+    // has no district to be a room about, so it cannot be written here at all.
+    check(
+      "dd_districts_seat_key_check",
+      sql`${t.seatKey} in ('house', 'statesenate', 'statehouse')`
+    ),
+    check("dd_districts_state_check", sql`${t.state} ~ '^[A-Z]{2}$'`),
+    check("dd_districts_number_check", sql`${t.districtNumber} > 0`),
+  ]
+);
+
+// The issue vocabulary. Seeded from db/issue-keys.json — the generated mirror of
+// ISSUE_MAP in alignment-tool.js, which is the shipped key set (121 keys today).
+// A room is about one of those keys or it does not exist. There is no free-text
+// topic column and no "other" key: a topic nobody has shipped an issue file for
+// is a room with nothing to stand next to, and inventing a key here would put a
+// vocabulary decision in a discussion table instead of in ISSUE_MAP, where the
+// repo makes those decisions (see db/vr-issue-key-proposals.md and the F6 rule-5
+// refusal that kept a District key out of the vocabulary).
+export const ddIssueKeys = pgTable(
+  "dd_issue_keys",
+  {
+    issueKey: text("issue_key").primaryKey(),
+  },
+  (t) => [check("dd_issue_keys_shape_check", sql`${t.issueKey} ~ '^[a-z0-9_]+$'`)]
+);
+
+// A room: exactly one per (district, issue). The unique key IS the product rule
+// — one district, one issue, one conversation. There is no way to open a second
+// room on the same pair, so there is no competition between rooms and nothing to
+// rank. Both columns are foreign keys, which is what makes an unmapped district
+// or an unshipped issue a write that the database refuses rather than a row a
+// reader later has to be protected from.
+export const ddThreads = pgTable(
+  "dd_threads",
+  {
+    id: serial().primaryKey(),
+    districtId: text("district_id")
+      .notNull()
+      .references(() => ddDistricts.districtId, { onDelete: "restrict" }),
+    issueKey: text("issue_key")
+      .notNull()
+      .references(() => ddIssueKeys.issueKey, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    // The rule: one room per district per issue.
+    uniqueIndex("dd_threads_district_issue_unique").on(t.districtId, t.issueKey),
+    index("dd_threads_district_idx").on(t.districtId),
+    index("dd_threads_issue_idx").on(t.issueKey),
+  ]
+);
+
+// A post in a room. Body, when, and optionally where the author got it.
+//
+// AUTHOR IS RESERVED, NOT WIRED. `userId` is nullable and `verifiedResident` is
+// a default-false boolean because phase 0 ships the shape of identity without
+// any of its behaviour: no Veriff, no Stripe, no residency check, no session
+// read. Nothing in this pass sets either column, and nothing reads them. They
+// exist now so that turning them on later is a write path and a backfill, not a
+// migration that changes the primary key of a conversation.
+//
+// `sourceUrl` is optional and carries no weight. It is not evidence, it is not
+// graded against EVIDENCE_STRENGTH.md, it does not promote anything into the
+// Evidence Locker, and it is not a citation the formal record will ever read. A
+// neighbour linking a news story in a room has linked a news story in a room.
+//
+// NO LLM WRITES HERE. Every row in this table is a person's own sentence. There
+// is no generated-body path, no summarizer, no AI triage column, and phase 1
+// does not add one.
+export const ddPosts = pgTable(
+  "dd_posts",
+  {
+    id: serial().primaryKey(),
+    threadId: integer("thread_id")
+      .notNull()
+      .references(() => ddThreads.id, { onDelete: "cascade" }),
+    // ── Reserved: identity and residency (see the note above) ─────────────
+    userId: text("user_id"),
+    verifiedResident: boolean("verified_resident").notNull().default(false),
+    // ── The post itself ───────────────────────────────────────────────────
+    body: text().notNull(),
+    sourceUrl: text("source_url"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    // The only read a room will ever need: this room, oldest first.
+    index("dd_posts_thread_created_idx").on(t.threadId, t.createdAt),
+  ]
 );

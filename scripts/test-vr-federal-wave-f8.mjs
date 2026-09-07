@@ -673,11 +673,24 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
   const sw = R("sw.js");
   const v = /const CACHE_VERSION = '(v\d+)';/.exec(sw);
   if (ok(!!v, "CACHE_VERSION is not locatable in sw.js")) {
-    let head = null;
-    try { head = /const CACHE_VERSION = '(v\d+)';/.exec(execFileSync("git", ["show", "HEAD:sw.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }))?.[1]; }
-    catch { /* no HEAD in this tree */ }
-    if (head) ok(Number(v[1].slice(1)) > Number(head.slice(1)),
-      `CACHE_VERSION is still ${head} — compare-hub.js gained two portraits and a warm device would keep serving the copy without them`);
+    // AT LEAST F8'S NUMBER, NOT MORE THAN THE WORKING TREE'S PARENT. This check used to
+    // read `git show HEAD:sw.js` and require the shipped counter to be strictly GREATER
+    // than the committed one. That is satisfiable exactly once — while F8's own bump to
+    // v99 is still uncommitted — and it has been unsatisfiable ever since that bump
+    // landed, because HEAD then carries the same number the working tree does. Every
+    // later pass inherited a failure that says "compare-hub.js gained two portraits"
+    // about a change it did not make, and the only ways to quiet it were to bump
+    // CACHE_VERSION for a pass that touches no precached shell file (which ships a
+    // pointless cache flush to every warm device) or to delete the check.
+    //
+    // So it is rewritten in the form the LATER F9 wave already argued for at its own
+    // version gate: at least this wave's number. What F8 requires is that ITS bump was
+    // never rolled BACK — v99 is still in place, and the note below still explains it —
+    // not that the counter moves again on every unrelated pass. A later wave that edits
+    // a precached asset is held to its own bump by its own suite, which is where that
+    // obligation belongs.
+    ok(Number(v[1].slice(1)) >= MY_VERSION,
+      `CACHE_VERSION is ${v[1]}, behind the v${MY_VERSION} this wave shipped compare-hub.js's two portraits with — a warm device would keep serving the copy without them`);
     const note = swWaveNote();
     ok(/compare-hub\.js/.test(note), "the version note does not name the file that changed");
     ok(/BROWSE_PHOTOS/.test(note), "the version note does not name what changed inside it");
@@ -1745,6 +1758,19 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "archive-browse.css",
     "judicial-ballot.js",
     "scripts/test-local-officials-routing.mjs",
+    // ── A LATER PASS, declared on the terms this wave established for F7's harness ──
+    // DISTRICT DISCUSSION phase 0 adds four tables to db/schema.ts — dd_districts,
+    // dd_issue_keys, dd_threads, dd_posts — and one new migration directory,
+    // 20261029000000_create_dd_district_discussion_tables, which is untracked and so
+    // was never in this guard's reach. The schema file is: a drizzle model set lives
+    // in exactly one file this repo points drizzle-kit at, so a table cannot be added
+    // anywhere else, and this wave's own rows, mappings, keys and refusals are not in
+    // that file at all. Nothing this pass adds is readable by the formal record — no
+    // dd_* table is referenced by any vr_* model, migration, ingest script, pack or
+    // reader surface, and phase 0 ships no query against them at all. The twin boot
+    // above is therefore untouched by it, which is the claim this list exists to keep
+    // checkable rather than the claim that nothing else may ever change.
+    "db/schema.ts",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};
