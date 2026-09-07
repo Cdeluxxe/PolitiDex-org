@@ -22,6 +22,13 @@
 # so this is not a stale/half-created-branch problem and no config change alters
 # the provisioning path — the resolution is simply to re-run the deploy, which the
 # platform does automatically on the next build. This block is documentation only.
+#   ⚠ THE PARENTHETICAL ABOVE IS WRONG and is corrected further down this file
+#   (see "CORRECTION TO THE LINE THAT USED TO CLOSE THIS BLOCK"): branch_id is
+#   built from the deploy ALIAS — the agent session id — not from the deployId, so
+#   it does NOT change between retries of the same session. The conclusion that no
+#   config change alters the provisioning path still holds; the stated reason for
+#   it does not. Left in place rather than rewritten because this block is the
+#   contemporaneous record of what wave 9 believed.
 #
 # Follow-up (word-vs-action scope-clarity pass): a preview failed a third time,
 # again after the app itself had built. Both bundlers finished — "Functions
@@ -53,6 +60,147 @@
 # clean full deploy, so the file set is re-uploaded from scratch instead of being
 # reconciled against the timed-out deploy's partial manifest. This edit is that
 # touch, and the note is the audit trail for it.
+#
+# Follow-up (money-on-the-person-file pass): a preview failed a fourth time, and
+# this one never reached the app at all. It died in the FIRST stage of the build,
+# "Netlify Database setup", before any bundler ran:
+#
+#   API error on "createSiteDatabaseBranch"
+#   Error message: Internal Server Error
+#   While calling the Netlify API endpoint 'createSiteDatabaseBranch' with:
+#     { "site_id": ..., "body": { "branch_id": "agent-<deployId>" } }
+#   { name: 'JSONHTTPError', status: 500, json: { code: 500, message: 'internal error' } }
+#
+# That is the same server-side provisioning failure the state-senate-wave-9 note
+# above records, and it is a 500 from Netlify's managed-database API — a status
+# class the repo cannot produce. The stack has no repo-side frame, no SQL, and no
+# file name in it. The changed set was audited after the failure rather than
+# assumed innocent, on the terms the earlier notes set:
+#   • The pass touched five files — FINANCE_INTEGRITY.md, finance-lane.js,
+#     profiles-full.js and two test scripts (test-finance-lane.mjs,
+#     test-vr-federal-wave-f9.mjs). NO migration, NO db/schema.ts, NO drizzle
+#     config, NO function, NO edge function. The stage that failed reads only
+#     netlify/database/migrations, and nothing in this pass is under that path,
+#     so there is no edge by which the change could reach the failing call.
+#   • The migration set loaded and LISTED cleanly in the failing log — all 154
+#     entries, ending at 20261028000000_vr_federal_wave_f11. It was re-audited
+#     here: no duplicate timestamp prefixes, no zero-byte file, every name on the
+#     <14-digit>_<slug> shape the loader expects, and the 17 extension-less
+#     entries are the pre-existing per-migration directories that have shipped
+#     since June. The failure is in branch CREATION, which happens after that
+#     listing and before any statement is applied.
+#   • Both changed browser scripts parse (`node --check`, run as scripts rather
+#     than modules — these are <script> files with HTML comments in them, so a
+#     bare `node --check` on a "type": "module" package reports a false
+#     "HTML comments are not allowed in modules" and must not be read as a defect).
+#   • The one behaviour change in the pass is a DELETION — profiles-full.js's
+#     `FINANCE_INTEGRITY` map of thirteen hand-set 0-100 numbers — and the deleted
+#     identifier has no remaining reader anywhere in the shipped bundle (swept
+#     across *.js/*.html; every surviving mention is prose or a test fence).
+#   • Every suite that owns this surface is green: test-finance-lane.mjs,
+#     test-accountability-retired.mjs, test-finance-refresh.mjs,
+#     test-score-consistency.mjs and test-acct-not-ranked.mjs.
+# CORRECTION TO THE LINE THAT USED TO CLOSE THIS BLOCK. It read: "Each deploy
+# provisions a brand-new branch (branch_id = agent-<deployId>), so this is not a
+# stale or half-created branch." The premise is false, and it is the reason the
+# remedy it recommended was expected to work and did not. The failing log shows
+# the two ids side by side and they are NOT the same value:
+#
+#   deployId  6a9e0ae45056d3f4a66b8712
+#   branch_id agent-6a9dfcd35e2005bc29b4521a   ← the --alias, not the deploy
+#
+# branch_id tracks the deploy ALIAS, which is the AGENT SESSION id and is stable
+# across every retry inside one session. So a retry does not ask for a new branch;
+# it asks for the same one again. Touching this config forces a clean full upload,
+# which is the right remedy for the manifest and timeout failures documented above
+# — but it does not and cannot change the branch_id, so it has no effect on this
+# stage at all. That is why the fourth attempt failed identically to the third.
+#
+# WHAT WAS CHECKED THIS PASS, and what it rules out. `netlify database status`
+# against this site answers "No database branch found for
+# agent-6a9dfcd35e2005bc29b4521a", so this is not a stale or half-created branch
+# being re-requested either — the record does not exist, and CREATION itself is
+# what returns 500. The provisioning API is not reachable from the build sandbox
+# for a closer look (getSiteDatabase and listSiteDatabaseBranches both answer
+# Unauthorized), so the branch cannot be inspected or reset from here.
+#
+# The migration set was re-audited rather than taken on trust from the note above:
+# 137 .sql files plus 17 snapshot directories is exactly the 154 entries the log
+# lists, there are no duplicate timestamp prefixes, no zero-byte file and no empty
+# directory. The two duplicate SLUGS in the tree
+# (create_vr_vote_correction_overlays and pdx_notification_follow_categories, each
+# once as .sql and once as a directory) are the deliberate hand-written/snapshot
+# twins those files document, and both twins are fully guarded
+# (CREATE TABLE IF NOT EXISTS / ADD COLUMN IF NOT EXISTS / a DO block that tests
+# pg_constraint), so applying them in sequence converges instead of aborting.
+#
+# There is no repo-side lever on this stage. Netlify's own documentation describes
+# branch provisioning and migration application for deploy previews as automatic
+# and "without requiring any code changes" — there is no netlify.toml key and no
+# environment variable that disables, renames, retargets or retimes it. A 500 from
+# it is a server-side failure with no configuration surface to correct, and the
+# resolution is a re-run once the platform side recovers. Squashing or pruning the
+# 7.4 MB migration tree to make a fresh branch cheaper to build is NOT the answer:
+# migrations here are append-only and immutable by rule, and editing an applied one
+# would trade a transient platform error for permanent drift.
+#
+# This edit is still the clean-deploy touch, because it costs nothing and the
+# upload stage genuinely benefits from it. The block is the audit trail, and the
+# correction above is here so the next reader does not re-derive a false premise.
+#
+# Fifth failure, same stage, and this pass read the code that makes the call
+# instead of reasoning about it. The step is @netlify/build's `db_provision`
+# core step (plugins_core/db_setup/index.js in the pinned @netlify/build 36.4.6).
+# Its ENTIRE repo-side input surface is two things, and both were checked here:
+#   1. package.json — the step runs at all only because "@netlify/database" is in
+#      dependencies. It is not decorative: db/index.ts builds the Drizzle client
+#      with drizzle-orm/netlify-db, every Netlify Function imports that client,
+#      and the production context runs the same step (createSiteDatabase, without
+#      the branch call). Dropping the dependency would skip this stage and take
+#      the database with it, in previews AND in production. Not a fix.
+#   2. netlify/database/migrations — read only to LIST names for the log, then to
+#      copy in the later `db_migrations_copy` step. The tree was run through
+#      Netlify's own validator (plugins_core/db_setup/validation.js): 17 migration
+#      directories + 137 .sql files = the 154 entries in the failing log, every
+#      name on the /^\d+_[a-z0-9_-]+$/ shape, every directory holding a
+#      migration.sql, and no duplicate migration NUMBER. valid: true.
+# The failing call itself carries no migration content — its body is
+# { branch_id } and nothing else — so migration size, count and SQL cannot reach
+# it. `netlify database status` still answers "No database branch found for
+# agent-<session>", so creation is what 500s, not a re-request of a live branch.
+# @netlify/config exposes exactly one database key, database.migrations.path;
+# there is no provisioning opt-out, no retry knob and no context override to set.
+# Conclusion unchanged and now source-backed: no repo-side lever exists on this
+# stage, the money-on-the-person-file pass touched nothing it reads (two browser
+# scripts, one doctrine doc, two test scripts), and the resolution is a re-run.
+#
+# Sixth occurrence, finance-id-alias pass, and the audit above stands unchanged
+# rather than being re-derived. That pass changed four files — index.html,
+# finance-lane.js, sw.js and one new test script — and none of them is under
+# netlify/, db/ or package.json, which is the whole input surface the failing
+# stage reads. Re-checked here anyway, not assumed: the migration tree still
+# validates through Netlify's own validator (17 dirs + 137 .sql, valid: true) and
+# `netlify database status` still answers "No database branch found", so creation
+# is still what returns 500. Same platform failure, same absence of a repo-side
+# lever, same resolution: re-run. This edit is the clean-deploy touch again.
+#
+# Seventh occurrence, same session alias, same 500 — and this pass spent its
+# effort on the one question the earlier notes could not answer: if the repo has
+# no lever, what does? The provisioning API was probed again from the build
+# sandbox. `netlify database status` still answers "No database branch found for
+# agent-<session>", so nothing half-created is being re-requested, and
+# `listSiteDatabaseBranches` for this site still answers Unauthorized, so the
+# branch inventory cannot be read from here. That leaves exactly one class of
+# cause a human can act on and a build cannot: state on the Netlify side of the
+# managed-database extension for this site — most plausibly accumulated deploy
+# branches from earlier agent sessions, since every preview asks for a NEW one
+# named after its session and nothing in this repo ever deletes them. That is
+# checked and cleared in the site's Database extension UI, not in a config file.
+# Repo side, the input surface was re-verified this run rather than assumed: the
+# migration tree still validates through Netlify's own validator (17 directories
+# + 137 .sql, valid: true) and the whole changed set since the last green deploy
+# is index.html, finance-lane.js, sw.js, netlify.toml and one test script — no
+# package.json, no netlify/, no db/. This edit is the clean-deploy touch.
 #
 # Secret scanning: the Firebase Web API key shipped in index.html is a PUBLIC
 # client identifier (access to Firebase is controlled by Security Rules, not by

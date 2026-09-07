@@ -43,7 +43,7 @@
 // Real shipped modules in a node:vm sandbox, and the REAL FTM_FUNDING seed lifted
 // out of index.html, so what is composed here is what a browser composes.
 
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -402,10 +402,14 @@ const L = laneBox().PDXFinanceLane;
 
 // ── 7 · the wall ────────────────────────────────────────────────────────────
 {
-  section("7 · finance is not an input to Direction Match, a tier, a floor or a count");
+  section("7 · finance is not an input to Direction Match, a tier, a floor, a count, alignment or a Door 2 pick");
 
   for (const k of ["directionMatch", "wordVsAction", "formalPatternTier",
-    "publicationFloor", "formalActCounts", "ballotSort", "yourMatch"]) {
+    "publicationFloor", "formalActCounts", "ballotSort", "yourMatch",
+    // The two surfaces where a money figure would stop being a report and start
+    // being advice: alignment is what the site says a reader has in common with a
+    // person, and a Door 2 pick is the reader's ballot.
+    "alignment", "door2Picks"]) {
     ok((L.NEVER_FEEDS || []).indexOf(k) >= 0, `NEVER_FEEDS names ${k}`);
   }
 
@@ -416,9 +420,74 @@ const L = laneBox().PDXFinanceLane;
   // is legislation being described, not a donation being read.
   const FIN = /PDXFinanceLane|_pdxFinance|_financeSignal|smallDollar|selfFunded|largeIndividual/;
   for (const f of ["word-action.js", "publication-floor.js", "voting-record.js",
-    "stance-helpers.js", "consistency.js"]) {
+    "stance-helpers.js", "consistency.js",
+    // The alignment engine and every Door 2 surface that orders a field or holds
+    // a pick. These are swept for the same reason the record engines are: the
+    // cheapest way for finance to become advice is one call site, and a call
+    // site that does not exist cannot be re-weighted later by accident.
+    "alignment-tool.js", "door2-spine.js", "ballot-workspace.js", "your-ballot.js",
+    "ballot-breakdown.js", "ballot-actions.js", "ballot-axes.js", "my-stances.js"]) {
     const src = R(f);
     ok(!FIN.test(src), `${f} does not name the finance lane or any funding bucket`);
+  }
+
+  // THE DATA SEAM HAS EXACTLY ONE OWNER, which is the structural form of the
+  // claim above. NEVER_FEEDS is an enumeration, and an enumeration is only ever
+  // as complete as the list someone remembered to extend. This is not: the
+  // filings live in one index built inside index.html's Follow-the-Money IIFE
+  // and published as `window._FTM_BY_ID`, so a module that never names that
+  // index (or the as-of stamp, or the funding table) cannot read a filing at
+  // all, whatever it later decides it wants to weigh. finance-lane.js is the
+  // only shipped module allowed to see it, and every other lane is therefore
+  // fenced by construction rather than by memory.
+  //   Comments are stripped before the sweep, for the reason
+  // test-accountability-retired.mjs strips them: every file this lane touched
+  // carries a note saying what used to read the filings there and why it does not
+  // any more, and a scan that could not tell a warning from a call site would
+  // force those notes to be deleted — which is the opposite of what keeps this
+  // shut.
+  const STRIP = (src) => src
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "")
+    .replace(/<!--[\s\S]*?-->/g, "");
+  const SEAM = /_FTM_BY_ID|FTM_AS_OF|FTM_FUNDING|FTM_DATA/;
+  const SHIPPED = readdirSync(ROOT)
+    .filter((f) => f.endsWith(".js"))
+    .filter((f) => !f.startsWith("sw") && !f.includes(".min."));
+  ok(SHIPPED.length > 40, `the seam sweep sees the shipped module set (${SHIPPED.length} files)`);
+  const seamOwners = SHIPPED.filter((f) => SEAM.test(STRIP(R(f))));
+  eq(seamOwners.join(","), "finance-lane.js",
+    "finance-lane.js is the only shipped module that can see the filings index");
+
+  // NO PER-PERSON 0-100 FUNDING NUMBER, ANYWHERE, UNDER ANY NAME. profiles-full.js
+  // carried one until this pass: a `FINANCE_INTEGRITY` map of thirteen hand-set
+  // 0-100 scores ("higher = more small-donor, less special-interest funded") that
+  // once seeded two People's Mandate principles. Its display path had already been
+  // deleted with the Constituents-First ramp, so it shipped as a dormant grade —
+  // and this file's own doctrine is that a dormant grade is how a retired grade
+  // comes back. The map is gone, and these assertions are what keeps it gone.
+  //   Matched on NAME and on SHAPE, because a rename is the cheap way back: a bag
+  // of bare 0-100 integers keyed by the pids that actually have filings is the
+  // fingerprint, whatever it gets called next time.
+  const SCORE_NAMES = ["FINANCE_INTEGRITY", "financeIntegrity", "FUNDING_INTEGRITY",
+    "fundingIntegrity", "financeScore", "fundingScore", "constituentsFirst",
+    "CONSTITUENTS_FIRST"];
+  for (const sym of SCORE_NAMES) {
+    const hits = SHIPPED.filter((f) => STRIP(R(f)).includes(sym));
+    eq(hits.length, 0, `no shipped module defines or reads ${sym} — found in ${hits.join(", ")}`);
+    ok(!STRIP(R("index.html")).includes(sym), `index.html does not reference ${sym}`);
+  }
+  // The shape: three or more of the filed pids in one object literal, each mapped
+  // to a bare integer no bigger than 100. The buckets in FTM_FUNDING are dollars
+  // in the millions, so they cannot trip this; a 0-100 grade bag is all that can.
+  const GRADE_BAG = new RegExp(
+    "(?:" + SEED_IDS.slice(0, 6).join("|") + ")\\s*:\\s*\\d{1,3}\\s*,[\\s\\S]{0,200}?" +
+    "(?:" + SEED_IDS.slice(0, 6).join("|") + ")\\s*:\\s*\\d{1,3}\\s*[,}]");
+  for (const f of SHIPPED) {
+    const src = STRIP(R(f));
+    const m = src.match(GRADE_BAG);
+    ok(!m || !/:\s*(?:100|\d{1,2})\s*[,}]/.test(m[0]),
+      `${f} carries no per-person 0-100 funding map keyed by the filed pids`);
   }
 
   // RUNTIME: seed a full filing and every record figure is byte-identical.
@@ -428,6 +497,10 @@ const L = laneBox().PDXFinanceLane;
     "acct-spotlight-data.js", "say-vs-do.js", "exec-action-data.js", "exec-record.js",
     "exec-record-ui.js", "consistency.js", "voting-record.js", "word-action.js",
     "publication-floor.js", "profile-spine.js", "profiles-full.js",
+    // Door 2's pick surface: the seat list, the field gate, the pick store and
+    // the running count all come off PDXBallotWorkspace, so the twin boot can
+    // read a pick rather than only grep for one.
+    "ballot-workspace.js", "door2-spine.js",
   ];
   const SRC = FILES.map((f) => [f, R(f)]);
   const { byMember } = buildCorpus(ROOT);
@@ -466,14 +539,40 @@ const L = laneBox().PDXFinanceLane;
     const fl = win.PDXPublicationFloor.read(PID);
     out.push(["floor", fl.publishable, fl.cited, fl.promises, (fl.reasons || []).join(";")].join("|"));
     out.push(["mapped", JSON.stringify(win._pdxRecordMappedCounts(PID) || null)].join("|"));
+    // ALIGNMENT. The issue side-map is what "Your Match" is computed over — the
+    // per-issue side, tier, tone, confidence and judged counts for this person —
+    // and _alignCoverage is how much record each of those sides rests on. If a
+    // filing could tilt what the site says a reader has in common with someone,
+    // it would show up here first.
+    const sides = win._alignRecordSideMap(PID);
+    must(sides && sides.sides && Object.keys(sides.sides).length > 3,
+      "the alignment side-map came back empty, so this fence would assert nothing");
+    out.push(["alignSides", JSON.stringify(sides)].join("|"));
+    out.push(["alignCoverage", JSON.stringify(win._alignCoverage(PID) || null)].join("|"));
+    // DOOR 2 PICKS. The seat list and its order, the gate that decides whether a
+    // seat may show a field at all, the pick held for each seat and the running
+    // count. A money figure that reordered a field or moved the counter would
+    // be the site handing out ballot advice off a filing.
+    const BW = win.PDXBallotWorkspace;
+    must(BW && typeof BW._seats === "function",
+      "PDXBallotWorkspace did not boot, so the Door 2 fence would assert nothing");
+    const seats = BW._seats() || [];
+    must(seats.length > 2, `the Door 2 seat list is too short to smoke (${seats.length})`);
+    out.push(["door2Seats", JSON.stringify(seats.map((x) => x && x.key))].join("|"));
+    out.push(["door2Count", BW._decided()].join("|"));
+    for (const st of seats) {
+      out.push(["door2Seat", st && st.key, JSON.stringify(st),
+        JSON.stringify(BW._gate(st && st.key) || null),
+        JSON.stringify(BW._picked(st && st.key) || null)].join("|"));
+    }
     return out.join("\n");
   };
   const without = snapshot(false);
   const withF = snapshot(true);
   ok(without.length > 300, `the record snapshot has something in it (${without.length} chars)`);
   eq(withF, without,
-    "Direction Match, the tiers, the publication floor and the mapped counts are identical " +
-    "with a full filing on file and with none");
+    "Direction Match, the tiers, the publication floor, the mapped counts, the alignment " +
+    "side-map and every Door 2 pick read are identical with a full filing on file and with none");
 }
 
 // ── 8 · the letterhead chip is a door, not a second money section ────────────

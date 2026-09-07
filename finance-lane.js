@@ -53,6 +53,13 @@
        any count of formal acts.
      • It is not an input to ballot sort order, Your Match, or any ranking of one
        person against another.
+     • It is not an input to the personal alignment read (the issue side-map and
+       its coverage) or to a Door 2 pick — not to the seat list, the field gate,
+       the pick store or the running count. Those two are named separately from
+       `ballotSort` and `yourMatch` above because they are the surfaces where a
+       money figure would stop being a report and start being advice: alignment
+       is what the site says a reader has in common with a person, and a Door 2
+       pick is the reader's ballot. Neither may move because a filing exists.
      • It reads no party field and has no opinion about one.
      • It carries no motive language. Filings show where money came from. They do
        not show why anyone voted for anything, and this lane never says they do.
@@ -600,6 +607,22 @@
   // hands back a shallow copy, so a display module cannot mutate the shipped record
   // it is reporting. The bare `_FTM_BY_ID` lookup stays as the second seam, because
   // that is where the fences and any future ingest attach their own index.
+  //   THE SECOND SEAM RESOLVES THE SAME IDS AS THE FIRST. Two of the thirteen
+  // filings are stored under a short key the roster does not use — `bking` for
+  // the person file `brian_king`, `gleich` for `caroline_gleich` — and the
+  // shipped index owns that mapping (FTM_ID_ALIAS in index.html, published as
+  // `PDX_FINANCE_ID_ALIAS`). `_pdxFinanceFiling` already applies it. The raw
+  // fallback below has to apply it too, or the lane would answer one way when
+  // index.html's accessors are present and another way when they are not, which
+  // is a per-environment disagreement about whether a person has a filing.
+  // The alias is read from the index rather than typed here: one table, two
+  // seams, and no chance of the copies drifting apart. Both seams are held to
+  // the same answer by scripts/test-finance-id-alias.mjs, which boots this file
+  // against the real shipped index with the accessor present and absent.
+  function aliasKey(pid) {
+    var map = W.PDX_FINANCE_ID_ALIAS;
+    return (map && typeof map === 'object' && map[pid]) ? map[pid] : '';
+  }
   function recordFor(pid) {
     if (!pid) return null;
     var get = W._pdxFinanceFiling;
@@ -607,7 +630,10 @@
       try { var r = get(pid); if (r) return r; } catch (e) {}
     }
     var by = W._FTM_BY_ID;
-    return (by && by[pid]) ? by[pid] : null;
+    if (!by) return null;
+    if (by[pid]) return by[pid];
+    var k = aliasKey(pid);
+    return (k && by[k]) ? by[k] : null;
   }
 
   // How much is on a partial file, counted rather than characterised. Reported
@@ -944,7 +970,8 @@
     scored: false,
     NEVER_FEEDS: ['directionMatch', 'wordVsAction', 'formalPatternTier',
                   'publicationFloor', 'formalActCounts', 'ballotSort',
-                  'yourMatch', 'anyCrossPersonRanking'],
+                  'yourMatch', 'anyCrossPersonRanking', 'alignment',
+                  'door2Picks'],
     // Test/ingest seams. Overriding a getter cannot change what a filing says —
     // it can only change the denominator the disclosure sentence quotes.
     _setCounters: function (onFileFn, rosterFn) {
