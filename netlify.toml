@@ -202,6 +202,92 @@
 # is index.html, finance-lane.js, sw.js, netlify.toml and one test script — no
 # package.json, no netlify/, no db/. This edit is the clean-deploy touch.
 #
+# Eighth occurrence, DISTRICT DISCUSSION phase 0, and this one is NOT like the seven
+# above it. Every earlier note could close by saying the failing pass touched nothing
+# the failing stage reads. This pass did: it adds a migration DIRECTORY,
+# 20261029000000_create_dd_district_discussion_tables, and netlify/database/migrations
+# is exactly the one path the db_provision step opens. So the audit was done against
+# the stage's own source rather than by pointing at the precedent:
+#   • The stage is @netlify/build 36.4.6's db_provision core step. It reads the
+#     migrations directory ONCE, to build a list of NAMES for the log, and then calls
+#     createSiteDatabase followed by createSiteDatabaseBranch. The branch call's body
+#     is `{ branch_id }` and nothing else — no migration name, no SQL, no count, no
+#     byte of the tree. Migration content has no path to the call that returned 500.
+#     The statements themselves are applied later and elsewhere; copying them into the
+#     deploy is a separate step (db_migrations_copy, onBuild) that this build never
+#     reached.
+#   • The tree was run through Netlify's own validator (plugins_core/db_setup/
+#     validation.js) as it stands with the new directory in it: 18 migration
+#     directories + 137 .sql files = 155 entries, every name on the
+#     /^\d+_[a-z0-9_-]+$/ shape, every directory carrying a migration.sql, no
+#     duplicate migration number, no stray entry. valid: true.
+#   • The new stamp is 20261029000000 — hand-set, one version after the current tail
+#     20261028000000_vr_federal_wave_f11, because `drizzle-kit generate` writes the
+#     wall clock (20260907042358) and this repo's hand-versioned migrations run ahead
+#     of the calendar, so the generated stamp would have sorted BEHIND migrations
+#     already applied. No existing migration was edited; the file is additive.
+#   • Every statement in it is guarded — CREATE TABLE / CREATE INDEX IF NOT EXISTS,
+#     each foreign key inside a DO block that swallows duplicate_object, both seeds
+#     ON CONFLICT DO NOTHING — so a re-apply converges instead of aborting, and it
+#     creates only dd_* objects, touching no existing table.
+# `netlify database status` for this site answers "No database branch found for
+# agent-6a9e3b6a78a2173787bd8c9a", so once again CREATION is what returns 500 rather
+# than a re-request of a live or half-built branch. And branch_id is the deploy ALIAS
+# — the agent session id — so it is the same value on every retry inside this session,
+# which is why the correction further up this file matters: the clean-deploy touch is
+# right for the upload and timeout failures, and it cannot move this stage. That is
+# still where the lever is missing: @netlify/config exposes exactly one database key,
+# database.migrations.path, and there is no provisioning opt-out, retry knob or
+# context override to set. This edit is the clean-deploy touch and this block is its
+# audit trail.
+
+# Ninth occurrence, same session alias, same stage, same 500 — and this pass read the
+# call site line by line instead of trusting the block above it. The step is
+# @netlify/build 36.4.6's `db_provision` core step (plugins_core/db_setup/index.js).
+# Its whole body is: resolve the migrations directory, read its entries, log their
+# NAMES, call createSiteDatabase, then — for any context that is not production — call
+# createSiteDatabaseBranch with `body: { branch_id: branch }`. That object is the entire
+# request. No migration name, no SQL, no count and no byte of the 7.4 MB tree is in it,
+# so nothing DISTRICT DISCUSSION phase 0 adds can reach the call that failed. The
+# statements are applied later and elsewhere; even copying them into the deploy is a
+# separate onBuild step (db_migrations_copy) that this build never reached.
+#
+# The phase-0 changed set was re-verified here rather than declared innocent:
+#   • The migration tree, with the new directory in it, passes Netlify's OWN validator
+#     (plugins_core/db_setup/validation.js) unmodified: 18 directories + 137 .sql = the
+#     155 entries the failing log lists, valid: true — no duplicate migration number, no
+#     directory missing its migration.sql, every name on the /^\d+_[a-z0-9_-]+$/ shape.
+#   • db/schema.ts resolves against the installed drizzle-orm: `check` is a real export
+#     of drizzle-orm/pg-core in the pinned beta and is imported at the top of the file
+#     alongside the column helpers the four dd_* models use. A wrong import there would
+#     have failed Functions bundling — a stage this build never reached, which is why it
+#     was checked by hand rather than inferred from a green log.
+#   • Snapshot chain intact: every snapshot.json in this tree, the new one included, is a
+#     standalone version-8 snapshot carrying no prevId, so hand-setting the directory
+#     stamp to 20261029000000 breaks no drizzle linkage. The stamp is one version after
+#     the current tail (20261028000000_vr_federal_wave_f11) because `drizzle-kit generate`
+#     writes the wall clock and this repo's hand-versioned migrations run ahead of the
+#     calendar; no applied migration was edited.
+#   • The suites this pass is answerable to are green: test-vr-pack-live-twin-boot.mjs
+#     (the DM + formal-tier + WVA twin boot, 15 assertions), test-accountability-retired.mjs
+#     (530), test-vr-federal-wave-f8.mjs (3475) and test-vr-federal-wave-f9.mjs (1827).
+#     sw.js is untouched, so CACHE_VERSION correctly did not move.
+#
+# The provisioning API was probed again from the sandbox and answers exactly as the
+# earlier notes record: `netlify database status` says "No database branch found for
+# agent-6a9e3b6a78a2173787bd8c9a", so CREATION is what returns 500 rather than a
+# re-request of a live or half-built branch, and both getSiteDatabase and
+# listSiteDatabaseBranches answer Unauthorized, so the branch inventory cannot be read or
+# pruned from inside a build. branch_id is the deploy ALIAS — the agent session id — so it
+# is the same value on every retry in this session, which is why the clean-deploy touch
+# cannot move this stage even though it stays right for the upload and timeout failures at
+# the top of this file. @netlify/config still exposes exactly one database key,
+# database.migrations.path, and dropping "@netlify/database" from package.json is the only
+# thing that would skip the stage at all — it would also take the database out of previews
+# AND production, since db/index.ts builds the Drizzle client from it and every Function
+# imports that client. So there is no repo-side fix for a 500 on this call. This edit is
+# the clean-deploy touch and this block is its audit trail.
+
 # Secret scanning: the Firebase Web API key shipped in index.html is a PUBLIC
 # client identifier (access to Firebase is controlled by Security Rules, not by
 # keeping this value secret — Google documents it as safe to include in client

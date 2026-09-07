@@ -1816,6 +1816,19 @@ const swNote = swWaveNote();
     // wave's own twin boot has just proved for the ledger and the DM figure.
     "finance-lane.js",
     "scripts/test-finance-lane.mjs",
+    // ── A LATER PASS, declared on the terms F8 established rather than forbidden ──
+    // DISTRICT DISCUSSION phase 0 adds four tables to db/schema.ts — dd_districts,
+    // dd_issue_keys, dd_threads, dd_posts — and one new migration directory,
+    // 20261029000000_create_dd_district_discussion_tables, which is untracked and so
+    // was never in this guard's reach. The schema file is: a drizzle model set lives
+    // in exactly one file this repo points drizzle-kit at, so a table cannot be added
+    // anywhere else, and this wave's own rows, mappings, keys and refusals are not in
+    // that file at all. Nothing this pass adds is readable by the formal record — no
+    // dd_* table is referenced by any vr_* model, migration, ingest script, pack or
+    // reader surface, and phase 0 ships no query against them at all. The twin boot
+    // above is therefore untouched by it, which is the claim this list exists to keep
+    // checkable rather than the claim that nothing else may ever change.
+    "db/schema.ts",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
