@@ -511,7 +511,26 @@
         (clip ? '<p class="pdxif-clip">' + esc(clip) + '</p>' : '') +
         (reading(c) ? '' : procHtml(c)) +
         jumpsHtml(key) +
+        districtRoom(key) +
       '</div>';
+  }
+
+  // ── "District Voice" — the room for this issue, in the reader's district ───
+  // MOUNT (b) of two. It lives on the LETTERHEAD and never in the ledger host,
+  // because the ledger host has to stay byte-identical to what
+  // PDXDoor1.issueProfile(key) returns — that equality is what keeps this file
+  // and the desk's panel one answer, and a block injected into it would be a
+  // second answer that only exists at /i/<key>.
+  //
+  // The issue is this file's own. The district is the reader's, from the one
+  // resolver, so window.PDXDistrictRoom.issueMountHtml() answers '' for a visitor
+  // we cannot place or whose state has no district rows — which is most of the
+  // country in this pass, and is the honest state rather than a dead link. ''
+  // also when district-room.js has not loaded, so the letterhead is unchanged.
+  function districtRoom(key) {
+    var DR = window.PDXDistrictRoom;
+    if (!DR || typeof DR.issueMountHtml !== 'function') return '';
+    try { return DR.issueMountHtml(key) || ''; } catch (e) { return ''; }
   }
 
   // ── The family's colour, off the one palette ──────────────────────────────

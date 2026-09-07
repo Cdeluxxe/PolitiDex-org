@@ -1087,12 +1087,19 @@ const FILED = await (async () => {
   // because a core has no file — and _showToast is the site's notice primitive,
   // which is what the Share jump says "copied" with. Neither one can answer a
   // question about the record, which is what this allowlist is guarding.
+  //
+  // A THIRD JOINED IT WITH THE DISTRICT ROOM, on the same terms: PDXDistrictRoom
+  // is the entry block for /d/<districtKey>/<issueKey>, mounted on the LETTERHEAD
+  // and never in the ledger host, and it is asked one question — "is there a room
+  // for this issue in this reader's own district" — which it answers with a link
+  // or with ''. It reads no record, holds no count and cannot characterise
+  // anybody: its tables carry no score, no party and no ranking column at all.
   eq(globals.join(","),
-    "MutationObserver,PDXDoor1,PDXIssueColors,PDXIssueFamily,PDXIssueFile,PDXIssueProfile," +
-    "PDXIssueScope,_showToast,addEventListener,pdxDoor1Issue",
+    "MutationObserver,PDXDistrictRoom,PDXDoor1,PDXIssueColors,PDXIssueFamily,PDXIssueFile," +
+    "PDXIssueProfile,PDXIssueScope,_showToast,addEventListener,pdxDoor1Issue",
     "issue-file.js touches a global beyond the desk and its one issue door, the family table, " +
-    "the palette, the address, the scope card, the notice primitive, the observer that watches " +
-    "the person overlay, and its own name");
+    "the palette, the address, the scope card, the notice primitive, the district room's entry " +
+    "block, the observer that watches the person overlay, and its own name");
   // The letterhead's copy is prose about a key, never a verdict about a person.
   for (const banned of ["backs up their words", "Direction Match", "consistency",
                         "ranked", "Add to team"]) {
