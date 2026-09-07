@@ -2984,7 +2984,69 @@
 // no party sort, no ranking by Direction Match, no nested interactives, no store
 // renamed, and no seat-field district math touched. A twin boot leaves every
 // Direction Match read and every formal tier byte-identical.
-const CACHE_VERSION = 'v150';
+// ─────────────────────────────────────────────────────────────────────────────
+// v151 - THE FIND-THE-RECORD RESULTS PANE HOLDS STILL
+// ─────────────────────────────────────────────────────────────────────────────
+// The All-Seeing Eye's result list bounced while a query ran. Not one bug: five
+// uncoordinated painters (the 60ms keystroke debounce, the immediate focus paint,
+// the 420ms warming recheck, refreshOpenPanel on every measures page / lazy
+// bundle / retry, and the saved-collection and issue-vote listeners), each one
+// doing a full innerHTML replacement of the scroll container - so each paint
+// snapped scrollTop to 0 - over a sort (recordFirst, then personalBoost) whose
+// inputs were still arriving, so the SAME query ordered its rows differently on
+// paint 1, 2 and 3. Rows swapped under the reader's thumb and the pane collapsed
+// and re-inflated around them.
+//   PRECACHED SHELL FILES CHANGED - THEY ARE THE REASON FOR THE BUMP:
+//   · '/index.html'            - the results pane honours a reserved height
+//                                (min-height set by the panel's one writer) and
+//                                turns off scroll anchoring so the restored
+//                                scrollTop is authoritative; .pdx-eye-item gets
+//                                a min-height and contain:layout so a late sub
+//                                line, a late Word-vs-Action chip or a late
+//                                headshot cannot change a row's height; the
+//                                avatar box is flex:none with a declared
+//                                min-width. Also the Find the Record copy - the
+//                                placeholder, the field's aria-label and both
+//                                nav tooltips now describe a search over the
+//                                archive rather than a roster of politicians. A
+//                                warm shell has the old stylesheet, so the
+//                                reserved height is ignored and the rows are
+//                                free to reflow again.
+// ALSO CHANGED BUT RUNTIME-CACHED, SO IT ARRIVES FRESH WITHOUT THIS BUMP:
+// all-seeing-eye.js - commit() is now the panel's ONE DOM write and it may
+// neither shrink the pane nor lose the reader's scroll position on a refresh;
+// holdOrder() freezes the row order a question has already painted so a late
+// source can only append; quietRepaint() collapses every non-keystroke painter
+// into a single frame and stands down while the reader's own paint is pending;
+// setActive() no longer scrolls a row that is already on screen; the measures
+// retry asks for data directly instead of by side effect of a paint; the group
+// order follows the SHAPE of the question, so the roster leads only a
+// name-shaped query and a topic, an office, a state or a county is answered by
+// files, families and measures first.
+// NOTHING IN THE RECORD MOVED. score(), rank(), recordFirst(), citeFirst() and
+// every lane count are untouched - holdOrder reads only the ids a group printed
+// last time and no record, party, score or depth. Judges stay in their own lane
+// and enter no legislative count. Direction Match, the formal floors, finance,
+// the Mandate lane, Door 2 and the Utah ingest are untouched, and a twin boot
+// leaves every Direction Match read and every formal tier byte-identical.
+// TRAVELS WITH THIS BUMP, UNCHANGED AND BYTE-IDENTICAL. Renaming the buckets
+// re-fetches every precached file whether or not this pass touched it, so the
+// log owes a reader the list rather than a surprise: door1-workspace.js and
+// door1-workspace.css (the Door 1 desk and the stylesheet its slice hides rows
+// with), pdx-issue-family.js, stance-tree.js, alignment-tool.js and
+// issue-colors.js (the family table, the topic tree, the alignment reader and
+// the palette the desk's chips take their hue from), issue-file.js,
+// issue-file.css, issue-view.js and pdx-issue-profile.js (the issue file panel,
+// its stylesheet, the stage that mounts it and the /i/<key> address that
+// resolves it), word-action.js and word-action.css (the Word-vs-Action chip and
+// its stylesheet), consistency.js (the Direction Match arithmetic), and
+// netlify.toml (the rewrites that serve index.html 200 for /i/*, /b/* and /p/*).
+// Not one of them changed here. The only precached file this pass edited is
+// index.html; the only other file it edited at all is all-seeing-eye.js, which
+// sw.js has always treated as a runtime entry rather than part of the shell.
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it.
+const CACHE_VERSION = 'v151';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

@@ -3634,7 +3634,7 @@ window.PDXLazy = (function () {
                the control is never dead. When the helper is there it takes over and
                focuses the eye in place — no scroll, because the eye is already on
                screen at every scroll position. -->
-          <a href="#say-vs-do" title="Paste a claim, or look anyone up — the All-Seeing Eye finds the voting record behind it" onclick="if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#eaf3ff;background:linear-gradient(135deg,#1e51a8,#2f6fd0);border:1.5px solid rgba(127,180,255,0.85);box-shadow:0 0 16px rgba(59,130,246,0.45),inset 0 1px 0 rgba(255,255,255,0.22);text-shadow:0 1px 2px rgba(0,0,0,0.45);">👁️ Find the Record</a>
+          <a href="#say-vs-do" title="Find the Record — search the archive by name, bill number or issue, or paste a claim and the Eye finds the voting record behind it" onclick="if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#eaf3ff;background:linear-gradient(135deg,#1e51a8,#2f6fd0);border:1.5px solid rgba(127,180,255,0.85);box-shadow:0 0 16px rgba(59,130,246,0.45),inset 0 1px 0 rgba(255,255,255,0.22);text-shadow:0 1px 2px rgba(0,0,0,0.45);">👁️ Find the Record</a>
           <a href="#my-politicians" title="Your ballot — the picks you are working and finalizing" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border:1.5px solid rgba(245,200,66,0.9);box-shadow:0 0 16px rgba(245,200,66,0.45),inset 0 1px 0 rgba(255,255,255,0.35);text-shadow:0 1px 1px rgba(255,255,255,0.25);">⭐ Your Ballot</a>
           <!-- Voter Hub, 🗳️ Your Ballot and 🔦 Local Issues used to sit here, at
                the same rank as the two doors. They are Door 2 VIEWS, so they moved
@@ -3819,7 +3819,7 @@ window.PDXLazy = (function () {
       .pdx-eye-clear:hover{color:#e7eefb;background:rgba(148,163,184,0.14);}
       .pdx-eye-box.has-text .pdx-eye-clear{display:inline-flex;}
       /* ── The revealing dropdown ───────────────────────────────────── */
-      .pdx-eye-panel{position:absolute;top:calc(100% + 0.5rem);left:0;right:0;z-index:60;display:none;max-height:min(70vh,32rem);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;contain:layout style paint;border-radius:1rem;background:linear-gradient(180deg,rgba(15,23,42,0.98),rgba(10,15,30,0.98));border:1px solid rgba(148,163,184,0.2);box-shadow:0 24px 60px rgba(0,0,0,0.55),0 0 0 1px rgba(245,200,66,0.06),0 0 40px rgba(59,130,246,0.06);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);}
+      .pdx-eye-panel{position:absolute;top:calc(100% + 0.5rem);left:0;right:0;z-index:60;display:none;max-height:min(70vh,32rem);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;contain:layout style paint;scroll-behavior:auto;overflow-anchor:none;border-radius:1rem;background:linear-gradient(180deg,rgba(15,23,42,0.98),rgba(10,15,30,0.98));border:1px solid rgba(148,163,184,0.2);box-shadow:0 24px 60px rgba(0,0,0,0.55),0 0 0 1px rgba(245,200,66,0.06),0 0 40px rgba(59,130,246,0.06);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);}
       .pdx-eye-box.is-open .pdx-eye-panel{display:block;animation:pdxEyeReveal .18s ease-out;}
       @keyframes pdxEyeReveal{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
       .pdx-eye-panel::-webkit-scrollbar{width:9px;}
@@ -3829,7 +3829,17 @@ window.PDXLazy = (function () {
       .pdx-eye-cat-h{display:flex;align-items:center;gap:0.45rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:#8aa0c0;margin:0 0.25rem 0.35rem;}
       .pdx-eye-cat-h .pdx-eye-cat-dot{width:0.4rem;height:0.4rem;border-radius:9999px;flex-shrink:0;}
       .pdx-eye-cat-h .pdx-eye-cat-n{margin-left:auto;font-size:0.66rem;letter-spacing:0.08em;color:#64748b;}
-      .pdx-eye-item{display:flex;align-items:center;gap:0.7rem;width:100%;text-align:left;padding:0.5rem 0.6rem;border-radius:0.7rem;background:none;border:none;cursor:pointer;transition:background .13s ease;}
+      /* THE ROW IS A FIXED BOX WHILE THE RECORD ARRIVES. A person row acquires
+         its sub line ("125 acts · 42 issues"), its Word-vs-Action chip and its
+         headshot at three different moments after the first paint, and each of
+         those used to be able to change the row's height — which restacks every
+         row under it and slides the hit somebody was reaching for out from under
+         their thumb. min-height is the two-line row's own height, so a row that
+         starts as one line already occupies the box it will end up in, and
+         contain:layout stops a late child from reflowing anything outside it.
+         Bill rows are exempt from the cap below on purpose (they wrap); the
+         floor applies to them too and costs them nothing. */
+      .pdx-eye-item{display:flex;align-items:center;gap:0.7rem;width:100%;min-height:3.35rem;text-align:left;padding:0.5rem 0.6rem;border-radius:0.7rem;background:none;border:none;cursor:pointer;transition:background .13s ease;contain:layout;}
       /* A person result row is an anchor to /p/<pid> rather than a <button>
          (all-seeing-eye.js rowOpen). Same box, same states — the row must not pick
          up the document's link colour or an underline, because it is a row, not a
@@ -3837,8 +3847,13 @@ window.PDXLazy = (function () {
       a.pdx-eye-item{color:inherit;text-decoration:none;box-sizing:border-box;}
       .pdx-eye-item:hover,.pdx-eye-item.is-active{background:rgba(59,130,246,0.12);}
       .pdx-eye-item.is-active{box-shadow:inset 0 0 0 1px rgba(245,200,66,0.35);}
-      .pdx-eye-thumb{flex-shrink:0;width:2.35rem;height:2.35rem;border-radius:9999px;overflow:hidden;background:linear-gradient(135deg,rgba(30,53,96,0.7),rgba(10,15,30,0.85));border:1.5px solid rgba(148,163,184,0.28);display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
-      .pdx-eye-thumb img{width:100%;height:100%;object-fit:cover;object-position:top center;}
+      /* A HEADSHOT LANDING MAY NOT MOVE A ROW. The box is declared, not derived:
+         fixed width and height, flex:none so it is never stretched or shrunk by
+         its siblings, and the <img> fills it. Whether the photo has arrived, is
+         still on the wire, or 404'd into the emoji fallback, the row is the same
+         height. */
+      .pdx-eye-thumb{flex:0 0 auto;width:2.35rem;height:2.35rem;min-width:2.35rem;border-radius:9999px;overflow:hidden;background:linear-gradient(135deg,rgba(30,53,96,0.7),rgba(10,15,30,0.85));border:1.5px solid rgba(148,163,184,0.28);display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+      .pdx-eye-thumb img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;}
       .pdx-eye-thumb.pdx-eye-thumb--issue{border-radius:0.6rem;border-color:rgba(251,146,60,0.4);background:linear-gradient(135deg,rgba(120,53,15,0.5),rgba(10,15,30,0.85));}
       .pdx-eye-body{min-width:0;flex:1;}
       /* display:block is what makes the next two lines mean anything. Both are
@@ -4236,10 +4251,10 @@ window.PDXLazy = (function () {
                  key — so it still behaves as a search field, not a composer. -->
             <textarea id="pdx-eye-input" class="pdx-eye-input" rows="1" role="combobox"
                    aria-expanded="false" aria-controls="pdx-eye-panel" aria-autocomplete="list"
-                   aria-label="Search politicians and issues, or paste a claim to check"
+                   aria-label="Find the record — search the archive by name, bill number or issue, or paste a claim to check"
                    autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                    inputmode="search" enterkeyhint="search"
-                   placeholder="Search politicians &amp; issues — or paste a claim to check…"></textarea>
+                   placeholder="Find the record — a name, a bill number, an issue, or paste a claim…"></textarea>
             <button id="pdx-eye-clear" class="pdx-eye-clear" type="button" aria-label="Clear search" tabindex="-1">&times;</button>
             <kbd class="pdx-eye-key" aria-hidden="true">/</kbd>
           </div>
@@ -4297,7 +4312,7 @@ window.PDXLazy = (function () {
            cursor exactly where the label promised. -->
       <div class="mnav-group-label">Start Here · Two Doors</div>
       <a href="#who-represents-me" title="Your seats &amp; races — who holds power over you, and who else is running for each seat" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#a8d4ff;">🏛️ Who Represents Me</a>
-      <a href="#say-vs-do" title="Paste a claim, or look anyone up — the All-Seeing Eye finds the voting record behind it" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ec8ff;">👁️ Find the Record</a>
+      <a href="#say-vs-do" title="Find the Record — search the archive by name, bill number or issue, or paste a claim and the Eye finds the voting record behind it" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ec8ff;">👁️ Find the Record</a>
       <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-mypol flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⭐ Your Ballot</a>
       <!-- ── SECONDARY · rooms inside Door 2, plus the personal surfaces ──
            These are views of the ballot workspace and the reader's own account

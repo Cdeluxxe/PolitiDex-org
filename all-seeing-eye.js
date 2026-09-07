@@ -1220,10 +1220,17 @@
       billsSettled = true;
       refreshOpenPanel();
     }
+    // A LATE SOURCE IS A REFRESH, NOT A NEW QUESTION. This is called from four
+    // places on the measures path alone (ensureIndex resolving, each page
+    // settling, the retry re-arm, the lazy bundle landing), and it used to paint
+    // synchronously from each of them — three full innerHTML replacements of the
+    // scroll container in one frame, each one snapping the reader back to the top
+    // of the list. quietRepaint() collapses them into a single frame and stands
+    // down entirely while the reader's own keystroke paint is pending.
     function refreshOpenPanel() {
       try {
         if (window.PDXEye) window.PDXEye.rebuild();
-        if (eye.classList.contains('is-open')) render(input.value);
+        quietRepaint(false);
       } catch (e) {}
     }
     function ensureEyeBills() {
@@ -1280,7 +1287,15 @@
           if (fellBack && !acc.length && measuresTries < MEASURES_TRIES) {
             billsFetchStarted = false;
             measuresAt = 0;
-            refreshOpenPanel();
+            // THE RETRY IS A DATA ASK, NOT A PAINT. It used to re-issue the
+            // request as a side effect of repainting (refreshOpenPanel → render
+            // → getIndex → ensureEyeBills), which tied a bounded retry to a
+            // paint — and the paint is deferred to the next frame now and stands
+            // down entirely while the reader is typing. So the ask is made
+            // directly and the repaint is asked for separately: neither can
+            // swallow the other. Still bounded by MEASURES_TRIES.
+            ensureEyeBills();
+            quietRepaint(false);
             return;
           }
           billsDone();
@@ -2189,9 +2204,14 @@
       } catch (e) { return ''; }
     }
     function polItem(e, q, terms, idx) {
+      // THE AVATAR BOX IS RESERVED BEFORE THE BYTES ARRIVE. width/height ride on
+      // the element as well as in the stylesheet, so the box exists at the very
+      // first layout rather than once the image has something to be sized
+      // against — a headshot landing late and changing a row's height is the
+      // reflow that restacks the whole list under the reader's thumb.
       var url = photoFor(e.id);
       var thumb = url
-        ? '<span class="pdx-eye-thumb"><img src="' + esc(url) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(e.icon) + '\'"></span>'
+        ? '<span class="pdx-eye-thumb"><img src="' + esc(url) + '" alt="" width="38" height="38" loading="lazy" decoding="async" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(e.icon) + '\'"></span>'
         : '<span class="pdx-eye-thumb">' + esc(e.icon) + '</span>';
       var tag = e.party ? '<span class="pdx-eye-tag" style="color:' + e.party.color + ';background:' + e.party.color + '22;border:1px solid ' + e.party.color + '55;">' + esc(e.party.label) + '</span>' : '';
       // RECORD-FIRST COPY. The office line is the row's identity and the record
@@ -2410,7 +2430,7 @@
     function stanceItem(e, q, terms, idx) {
       var url = photoFor(e.id);
       var thumb = url
-        ? '<span class="pdx-eye-thumb"><img src="' + esc(url) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(e.icon) + '\'"></span>'
+        ? '<span class="pdx-eye-thumb"><img src="' + esc(url) + '" alt="" width="38" height="38" loading="lazy" decoding="async" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(e.icon) + '\'"></span>'
         : '<span class="pdx-eye-thumb">' + esc(e.icon) + '</span>';
       var src = e.sourceLabel ? '<span class="pdx-eye-tag pdx-eye-tag--src">' + esc(e.sourceLabel) + '</span>' : '';
       var sub = posPill(e.pos) + esc(e.polName) + (e.polSub ? ' · ' + esc(e.polSub) : '') + (e.pledge ? ' · pledge' : '');
@@ -3283,6 +3303,195 @@
       navigate('pol', { id: r.id });
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // THE RESULTS PANE HOLDS STILL WHILE THE RECORD ARRIVES
+    // ─────────────────────────────────────────────────────────────────────────
+    // WHAT WAS WRONG. Typing "chew" or "lee" produced a list that bounced under
+    // the thumb, and it was not one bug — it was four painters and one sort, all
+    // of them correct on their own:
+    //
+    //   · FIVE ENTRY POINTS, NO COORDINATION. `input` (debounced 60ms), `focus`
+    //     (immediate), the 420ms warming recheck, refreshOpenPanel() on every
+    //     measures page / lazy-bundle arrival / retry, and the pdx-saved-change /
+    //     pdx-issue-votes listeners. Focus-then-type painted twice in one frame;
+    //     a keystroke landing next to a settling measures page painted three
+    //     times. Each paint was a full innerHTML replacement of the scroll
+    //     container, so each one snapped scrollTop back to 0.
+    //   · SORT ON EVERY KEY, OVER DATA THAT WAS STILL LANDING. recordFirst()
+    //     orders the roster by formal depth, and recordDepth() reads a
+    //     voting-record index that arrives in pages. The SAME query therefore
+    //     sorted differently on paint 1, paint 2 and paint 3: rows the reader was
+    //     aiming at swapped places under the finger. personalBoost() does the
+    //     same thing when the saved collection loads a moment later.
+    //   · THE PANE COLLAPSED AND RE-INFLATED. A refresh that ranked fewer rows,
+    //     or that fell back to the warming notice, shrank the panel to a line and
+    //     then grew it again — so the first hits moved even when their order
+    //     had not changed.
+    //   · AND THE HIGHLIGHT SCROLLED UNCONDITIONALLY. setActive() called
+    //     scrollIntoView on the active row every time, including on repaints the
+    //     reader did not cause, which is the move that scrolls somebody off the
+    //     row they were about to tap.
+    //
+    // The three functions below are the whole fix, and none of them decides a
+    // fact: commit() owns the one DOM write, holdOrder() freezes the order a
+    // query has already painted, and quietRepaint() collapses every non-keystroke
+    // painter into one frame that can never outrun the reader's own.
+    //
+    // ── ONE DOM WRITE, AND IT MAY NOT SHRINK OR SCROLL ─────────────────────
+    // Every paint of the panel goes through here. A paint is one of two things:
+    //
+    //   · A NEW QUESTION — the query or the lane changed. Geometry is released,
+    //     the pane is free to be whatever height the answer is, and the scroll
+    //     goes to the top because the reader asked something else.
+    //   · A REFRESH — the same question, repainted because a source arrived. The
+    //     pane keeps the tallest height it has already occupied for this question
+    //     (so nothing below the fold jumps up into the gap) and the reader's
+    //     scroll position is restored byte-for-byte (so the row under their thumb
+    //     stays under their thumb).
+    //
+    // The floor is RELEASED on the next question, so it can never accumulate: it
+    // is a reservation for one query's worth of loading, not a growing minimum.
+    var paintKey = null;   // the question the panel currently shows
+    var paintFloor = 0;        // px of height reserved for THIS question
+    function commit(html, key) {
+      var refresh = (key === paintKey);
+      var top = 0, h = 0;
+      if (refresh) {
+        try { top = panel.scrollTop || 0; } catch (e) {}
+        try { h = panel.offsetHeight || 0; } catch (e) {}
+        if (h > paintFloor) paintFloor = h;
+      } else {
+        paintFloor = 0;
+      }
+      panel.innerHTML = html;
+      try { panel.style.minHeight = paintFloor ? paintFloor + 'px' : ''; } catch (e) {}
+      try { panel.scrollTop = refresh ? top : 0; } catch (e) {}
+      paintKey = key;
+    }
+    // ── THE ORDER A QUESTION HAS ALREADY PAINTED IS THE ORDER IT KEEPS ─────
+    // Relevance is recomputed on every paint — it has to be, because the lane
+    // counts the reader is shown are the lengths of those lists and a number
+    // nobody computed would be wrong. What is NOT recomputed is the ORDER of the
+    // rows a reader can already see: for one question, in one lane, a row that
+    // has been painted keeps the slot it was painted in, and rows that only
+    // became findable later are appended behind them in their own relevance
+    // order.
+    //
+    // So a measures page landing, a depth index finishing, or a saved collection
+    // arriving can ADD to the bottom of a group. None of them can restack the top
+    // of it. The lock is dropped the moment the question changes, which is the
+    // only moment a reader expects the list to be different.
+    //
+    // NOTHING HERE IS A RANKING. It reads no record, no party, no score and no
+    // depth — only the ids this group printed last time. score(), rank(),
+    // recordFirst() and citeFirst() are untouched.
+    var orderKey = null, orderSeq = Object.create(null);
+    // The disclosure state, as a string. "See more" on a category is a reader
+    // action, so it releases the frozen geometry the same way a new query does —
+    // the pane is SUPPOSED to grow when somebody asks it to.
+    function expandKey() {
+      var s = '';
+      for (var k in expand) { if (expand[k]) s += k + ','; }
+      return s;
+    }
+    function entrySlot(e) {
+      if (!e) return '';
+      return String(e.kind || '') + ':' +
+        String(e.id || e.key || e.slug || e.num || e.title || '');
+    }
+    function holdOrder(cat, list, key) {
+      if (orderKey !== key) { orderKey = key; orderSeq = Object.create(null); }
+      if (!Array.isArray(list) || list.length < 2) {
+        if (Array.isArray(list)) orderSeq[cat] = list.map(entrySlot);
+        return list;
+      }
+      var prev = orderSeq[cat];
+      if (!prev) { orderSeq[cat] = list.map(entrySlot); return list; }
+      var was = Object.create(null);
+      for (var i = 0; i < prev.length; i++) { if (!(prev[i] in was)) was[prev[i]] = i; }
+      var kept = [], fresh = [];
+      list.forEach(function (e) {
+        var s = entrySlot(e);
+        if (s in was) kept.push({ e: e, r: was[s] }); else fresh.push(e);
+      });
+      kept.sort(function (a, b) { return a.r - b.r; });
+      var out = kept.map(function (k) { return k.e; }).concat(fresh);
+      orderSeq[cat] = out.map(entrySlot);
+      return out;
+    }
+    // ── ONE FRAME, ONE PAINT, AND THE READER'S PAINT WINS ──────────────────
+    // Every painter that is NOT a keystroke comes through here: the warming
+    // recheck, the measures/lazy-bundle arrivals, the saved-collection and
+    // issue-vote events. Two of them in the same frame are one paint, and none of
+    // them paints at all while the reader's own 60ms debounce is still pending —
+    // a late source must never repaint the list a fraction of a second before the
+    // keystroke that is about to replace it anyway. That double paint is the
+    // "two lists painting, then collapsing" the reader sees.
+    var typing = false, quietRaf = 0, quietKeep = false;
+    function raf(fn) {
+      try {
+        if (typeof window.requestAnimationFrame === 'function') return window.requestAnimationFrame(fn);
+      } catch (e) {}
+      return setTimeout(fn, 16);
+    }
+    function quietRepaint(keepFocus) {
+      if (!eye.classList.contains('is-open')) return;
+      if (typing) return;
+      if (keepFocus) quietKeep = true;
+      if (quietRaf) return;
+      quietRaf = raf(function () {
+        quietRaf = 0;
+        var keep = quietKeep; quietKeep = false;
+        if (!eye.classList.contains('is-open') || typing) return;
+        if (keep) rerenderKeepFocus(); else render(input.value);
+      }) || 1;
+    }
+
+    // ── WHAT SHAPE OF QUESTION IS THIS ─────────────────────────────────────
+    // THE EYE IS A SEARCH OVER THE ARCHIVE, NOT A ROSTER WITH A FILTER ON IT. A
+    // Utah reader typing "public lands" was answered with a wall of legislators
+    // from Texas and Connecticut whose bios contain those two words, because the
+    // roster group is the biggest haystack in the panel and every group competed
+    // on relevance alone. The record is what this site claims to hold, so the
+    // record answers first — and the roster answers first only when the question
+    // was a person's name in the first place.
+    //
+    // Three shapes, decided from the STRING and the roster's own name tokens.
+    // Nothing here reads a record, a party or a score:
+    //
+    //   · cite  — the reader named a document ("H.B. 400", "6644"). citeOf() and
+    //             citeMatches() already own that judgement; this only asks them.
+    //   · name  — a term is a name token in the roster (a surname, a given name).
+    //             "chew", "lee", "mike lee". The people group leads.
+    //   · issue — everything else: a topic, an office, a state, a county, a
+    //             question. Files, families and measures lead; the roster is still
+    //             printed, still complete, still one tap away — just not the wall
+    //             the panel opens on.
+    //
+    // A COUNTY OR A STATE IS NOT A NAME. "Utah", "Salt Lake County" and "state
+    // senate" are issue-shaped, which is the whole point of the third bucket: a
+    // reader who typed a place is asking what the record says about that place,
+    // and a list of everybody who happens to sit in it is not that answer.
+    var nameTokenSet = null, nameTokenKey = '';
+    function nameTokens(data) {
+      var key = String((data.people || []).length);
+      if (nameTokenSet && nameTokenKey === key) return nameTokenSet;
+      var set = Object.create(null);
+      (data.people || []).forEach(function (p) {
+        (p.tokens || []).forEach(function (t) { if (t && t.length > 1) set[t] = 1; });
+      });
+      nameTokenKey = key; nameTokenSet = set;
+      return set;
+    }
+    function queryShape(q, terms, data) {
+      if (!q) return 'issue';
+      try { if (citeOf(q)) return 'cite'; } catch (e) {}
+      if (/^\s*\d{1,5}\s*$/.test(q)) return 'cite';
+      var set = nameTokens(data);
+      for (var i = 0; i < terms.length; i++) { if (set[terms[i]]) return 'name'; }
+      return 'issue';
+    }
+
     function render(q) {
       var data = getIndex();
       curCtx = personalContext();   // who this eye belongs to, refreshed each render
@@ -3297,6 +3506,14 @@
       // Which lanes have not finished loading. Read ONCE per paint, so the notice,
       // the per-lane rows and the recheck timer cannot disagree about it.
       var warm = warmingLanes();
+      // THE QUESTION THIS PAINT ANSWERS. Query plus lane plus whichever
+      // in-panel disclosures the reader has opened: those are the only things a
+      // reader changes on purpose, so they are the only things allowed to release
+      // the pane's reserved height and its scroll position. Everything else —
+      // a measures page, the depth index, the saved collection — is a REFRESH of
+      // the same question and holds the geometry still. See commit() above.
+      var pKey = laneMode + '|' + q + '|' + expandKey() +
+        '|' + (connOpen ? '1' : '0') + '|' + connSel;
       // Reset on a NEW QUERY only. Switching lane re-renders the same string, so
       // curQ matches and an expanded category survives the switch — the reader's
       // question did not change, only which lane of it they are reading.
@@ -3326,12 +3543,20 @@
             ? catBlock('mand', 'People\u2019s Mandate \u00b7 proposed vehicles', '#c4b5fd', data.mandates || [], mandateItem, '', [])
             : mandateEmptyHtml();
           html += hintBar();
-          panel.innerHTML = html;
+          commit(html, pKey);
           wire();
           scheduleWarmRecheck(warm.length > 0);
           return flat.length;
         }
-        html += '<div class="pdx-eye-empty">The eye is open. <b>Ask a question or search politicians, issues &amp; hot topics</b> — then save what matters.</div>';
+        // FIND THE RECORD, NOT "ALL POLITICIANS IN AMERICA". The eye is a search
+        // over the archive: a name, a bill number, an issue, a claim. The old
+        // sentence promised a roster, which is what set a reader up to read the
+        // people group as the answer to every question they could type — and it
+        // is the one group that is guaranteed to have rows for a query about a
+        // subject, because a bio contains words. The roster is still here, still
+        // complete, and reachable through All Politicians; it is not what this
+        // box is for.
+        html += '<div class="pdx-eye-empty"><b>Find the Record.</b> Search the archive — a name, a bill number, an issue — or paste a claim to check.</div>';
         html += askBlock();
         html += connectionsBlock();
         html += savedBlock();
@@ -3342,7 +3567,7 @@
           html += '</div>';
         }
         html += hintBar();
-        panel.innerHTML = html;
+        commit(html, pKey);
         wire();
         scheduleWarmRecheck(warm.length > 0);
         return flat.length;
@@ -3393,6 +3618,32 @@
         var cl = citeFirst(bls, data.bills || [], q);
         bls = cl.list; citeLead = cl.lead;
       }
+      // ── AND NOW THE ORDER STOPS MOVING ──────────────────────────────────
+      // Everything above is relevance, and relevance is recomputed every paint
+      // over sources that are still landing. Everything below is what the reader
+      // sees, so from here down the order is the order this question already
+      // painted. holdOrder() is the last thing to touch a list and the first
+      // thing a late arrival has to get past: a row that has been on screen keeps
+      // its slot, a row that only just became findable is appended behind it.
+      //
+      // The LENGTHS are untouched, so every lane count below is still the honest
+      // number of hits, and citeLead is decided from the query string above
+      // rather than from a position — the promotion still happens, it just cannot
+      // be re-decided under the reader once the group has painted.
+      pols = holdOrder('pol', pols, pKey);
+      sts = holdOrder('stance', sts, pKey);
+      bls = holdOrder('bill', bls, pKey);
+      fils = holdOrder('file', fils, pKey);
+      fams = holdOrder('fam', fams, pKey);
+      spots = holdOrder('spot', spots, pKey);
+      mands = holdOrder('mand', mands, pKey);
+      jdgs = holdOrder('judge', jdgs, pKey);
+      // ── AND THE LANE OPENS ON THE RECORD UNLESS A NAME WAS TYPED ────────
+      // queryShape() (above) says which of three things the reader asked for.
+      // Only a name-shaped question puts the roster first; a topic, an office, a
+      // state or a county is a question about the RECORD, and the files, the
+      // families and the measures answer it before a list of people does.
+      var shape = queryShape(q, terms, data);
       // The issue answer is computed first: a question phrased in words nobody is
       // named after ("who actually backs housing?") can answer even when the
       // name/stance/bill ranking finds nothing at all.
@@ -3493,11 +3744,11 @@
         // each warming category this lane prints gets the same titled row it
         // gets when something else ranked — so the group the answer will appear
         // in is already on screen, holding a loading line instead of a zero.
-        panel.innerHTML = laneModeBar(laneCounts, warm) + (isMandate
+        commit(laneModeBar(laneCounts, warm) + (isMandate
           ? mandateEmptyHtml()
           : (warm.length
             ? warmPanel(warm) + warmStrip(warm, {})
-            : '<div class="pdx-eye-empty">The eye finds nothing for “<b>' + esc(q) + '</b>”.<br>Try a name, an office, a state, an issue, or a bill number.</div>'));
+            : '<div class="pdx-eye-empty">The eye finds nothing for “<b>' + esc(q) + '</b>”.<br>Try a name, an office, a state, an issue, or a bill number.</div>')), pKey);
         wire();
         scheduleWarmRecheck(warm.length > 0);
         return 0;
@@ -3534,17 +3785,41 @@
         // one document, and the row they named is the row `flat[0]` opens on
         // Enter. Same group, same label, same cap, same renderer; only its
         // position in the lane depends on the query having been a citation.
-        var billBlock = catBlock('bill', 'Legislation &amp; Bills', '#9ff0bd', bls, billItem, q, terms);
-        if (citeLead) html += billBlock;
-        html += catBlock('file', 'Issue files · the formal record', '#7dd3fc', fils, issueFileItem, q, terms);
-        html += catBlock('fam', 'Issue families · browse from here', '#fb923c', fams, familyItem, q, terms);
-        html += catBlock('pol', 'Politicians · formal record first', '#f5c842', pols, polItem, q, terms);
-        if (!citeLead) html += billBlock;
+        // ── THE GROUPS ARE BUILT IN THE ORDER THEY ARE PRINTED ────────────
+        // catBlock() assigns each row its `flat` index as a side effect, and the
+        // keyboard model reads `flat[active]` where `active` is a DOM position.
+        // So a block that is BUILT in one order and APPENDED in another hands
+        // Enter a different row than the one the highlight is on. The lane's
+        // order is therefore decided first, as a list, and the blocks are built
+        // by walking it — one loop, no block built out of turn.
+        //
+        // A NAME-SHAPED QUESTION IS ANSWERED BY A PERSON, and by that person
+        // first: "chew", "lee", "mike lee" are the one case where the roster is
+        // the record the reader asked for. A citation is answered by the
+        // document. Everything else — a topic, an office, a state, a county, a
+        // question — reads files, families and measures before it reads a list of
+        // people, so a Utah reader typing a place or a subject does not open on a
+        // wall of Texas and Connecticut names whose bios carry the words.
+        var SEQ = { bill: ['bill', 'Legislation &amp; Bills', '#9ff0bd', bls, billItem],
+                    file: ['file', 'Issue files · the formal record', '#7dd3fc', fils, issueFileItem],
+                    fam:  ['fam', 'Issue families · browse from here', '#fb923c', fams, familyItem],
+                    pol:  ['pol', 'Politicians · formal record first', '#f5c842', pols, polItem] };
+        var order = citeLead ? ['bill', 'file', 'fam', 'pol']
+                  : shape === 'name' ? ['pol', 'file', 'fam', 'bill']
+                  : ['file', 'fam', 'bill', 'pol'];
+        order.forEach(function (k) {
+          var b = SEQ[k];
+          html += catBlock(b[0], b[1], b[2], b[3], b[4], q, terms);
+        });
         html += judgeBlock(jdgs, q, terms);
       } else {
-        html += catBlock('spot', 'Issue Spotlights · sourced investigations', '#fb923c', spots, issueItem, q, terms);
-        html += catBlock('stance', 'Positions, Quotes &amp; Receipts', '#5eead4', sts, stanceItem, q, terms);
-        html += catBlock('pol', 'Politicians', '#f5c842', pols, polItem, q, terms);
+        var SEQP = { spot: ['spot', 'Issue Spotlights · sourced investigations', '#fb923c', spots, issueItem],
+                     stance: ['stance', 'Positions, Quotes &amp; Receipts', '#5eead4', sts, stanceItem],
+                     pol: ['pol', 'Politicians', '#f5c842', pols, polItem] };
+        (shape === 'name' ? ['pol', 'spot', 'stance'] : ['spot', 'stance', 'pol']).forEach(function (k) {
+          var b = SEQP[k];
+          html += catBlock(b[0], b[1], b[2], b[3], b[4], q, terms);
+        });
         html += judgeBlock(jdgs, q, terms);
       }
       // A lane that is still loading AND has nothing to show says so, in the lane's
@@ -3563,7 +3838,7 @@
         });
       }
       html += hintBar();
-      panel.innerHTML = html;
+      commit(html, pKey);
       wire();
       scheduleWarmRecheck(warm.length > 0);
       return flat.length;
@@ -3636,7 +3911,7 @@
       try {
         warmTimer = setTimeout(function () {
           warmTimer = 0;
-          if (eye.classList.contains('is-open')) render(input.value);
+          quietRepaint(false);
         }, 420);
       } catch (e) {}
     }
@@ -3846,6 +4121,21 @@
       btns.forEach(function (b, n) { b.classList.toggle('is-focus', n === j); });
       btns[j].scrollIntoView({ block: 'nearest' });
     }
+    // A ROW THAT IS ALREADY ON SCREEN IS NOT SCROLLED TO. This called
+    // scrollIntoView on the active row unconditionally, on every paint — including
+    // the repaints a reader did not cause. That is the move that scrolls somebody
+    // off the hit they were reaching for: the measures list settles, the panel
+    // repaints, the highlight is still on row 1, and the pane jumps back to it
+    // from wherever the reader had scrolled to. The scroll is now only performed
+    // when the row genuinely is not visible inside the pane, which is the only
+    // case it was ever for (arrow-keying past the fold).
+    function inPane(el) {
+      try {
+        var a = el.getBoundingClientRect(), b = panel.getBoundingClientRect();
+        if (!a || !b || (!a.height && !b.height)) return true;
+        return a.top >= b.top - 1 && a.bottom <= b.bottom + 1;
+      } catch (e) { return true; }
+    }
     function setActive(i) {
       var els = resEls();
       if (!els.length) { active = -1; actIdx = -1; return; }
@@ -3855,8 +4145,10 @@
       els.forEach(function (el, n) {
         var on = n === i;
         el.classList.toggle('is-active', on);
-        if (on) { input.setAttribute('aria-activedescendant', ''); el.scrollIntoView({ block: 'nearest' }); }
-        else { clearActFocus(el); }
+        if (on) {
+          input.setAttribute('aria-activedescendant', '');
+          if (!inPane(el)) { try { el.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
+        } else { clearActFocus(el); }
       });
     }
     // Re-render (e.g. after a save toggles a label / the My Saved count) while
@@ -3915,7 +4207,15 @@
       eye.classList.toggle('has-text', has);
       growField(); // immediate, not debounced — the box must track the paste
       clearTimeout(t);
-      t = setTimeout(function () { render(input.value); setActive(input.value.trim() ? 0 : -1); open(); }, 60);
+      // `typing` is what stops a late source from painting a list a fraction of a
+      // second before the keystroke that replaces it — the "two lists painting,
+      // then collapsing" flicker. It is set on the keystroke and cleared by the
+      // reader's own paint, so a quiet repaint can never land inside the window.
+      typing = true;
+      t = setTimeout(function () {
+        typing = false;
+        render(input.value); setActive(input.value.trim() ? 0 : -1); open();
+      }, 60);
     });
     input.addEventListener('focus', function () {
       eye.classList.add('is-focus');
@@ -3982,7 +4282,7 @@
     // My Saved page), keep the open panel truthful: flip Save→Saved labels and
     // refresh the My Saved count/list without losing the visitor's place.
     window.addEventListener('pdx-saved-change', function () {
-      if (eye.classList.contains('is-open')) rerenderKeepFocus();
+      quietRepaint(true);
     });
 
     // An issue answer is computed the moment the question is typed, before the roll-call
@@ -3990,7 +4290,7 @@
     // badges and the coverage note are all richer with votes counted, and the visitor
     // never has to retype to see it. Only fires while the panel is open.
     window.addEventListener('pdx-issue-votes', function () {
-      if (eye.classList.contains('is-open') && input.value.trim()) rerenderKeepFocus();
+      if (input.value.trim()) quietRepaint(true);
     });
 
     // Signal the eye is alive (subtle idle blink), once data can resolve.
