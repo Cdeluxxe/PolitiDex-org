@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// District Room — API (phase 1, the reader-facing room)
+// District Room — API (phase 2, the room a verified neighbour can post in)
 // ─────────────────────────────────────────────────────────────────────────────
 // One room per (district, issue). Verified-residency neighbours in ONE district
 // talking about ONE issue — not a comment thread on a politician, not a site-wide
@@ -17,6 +17,9 @@
 //   GET  /                        read a room: district, issue, posts, canPost
 //   POST /                        post into a room (fails closed — see below)
 //   POST /flag                    report a post (a stub that records intent)
+//   GET  /residency               the caller's OWN residency rows, and nobody's else
+//   POST /residency/attest        "I live in this district" — a REQUEST, stays pending
+//   POST /residency/grant         a site reviewer verifies or revokes one person
 //
 // ── WHAT IS NOT HERE, BY CONSTRUCTION ───────────────────────────────────────
 // No score, no vote, no reaction, no reply tally, no ranking parameter and no
@@ -38,14 +41,39 @@
 //                  malformed district key is no room rather than an empty one.
 //   no issue     → 404. Resolved against dd_issue_keys, the shipped ISSUE_MAP
 //                  vocabulary.
-//   not verified → 401/403 and the composer's closed note. In this pass that is
-//                  every caller: residency has no verifier yet (see the core).
+//   not verified → 401/403 and the composer's closed note. Resolved against
+//                  dd_residency: signed out, no row, pending and revoked all
+//                  read and none of them post (see the core).
 //   wrong district → 403. Verified in UT-1 is not a neighbour in UT-2.
 //   empty body   → 400.
 //
 // A thread row is created ONLY on a write that has already passed the gate.
 // Reading a room that nobody has posted in creates nothing: an empty room is an
 // empty read, not a row.
+//
+// ── THE TWO RESIDENCY PATHS, AND THEY ARE LABELLED DIFFERENTLY ──────────────
+// Both write dd_residency and only one of them can reach 'verified'.
+//
+//   POST /residency/attest   A signed-in reader says "I live in this district".
+//                            Written as status 'pending', method 'self_attest'.
+//                            The composer stays closed, the copy says pending,
+//                            and the badge is not printed. It is a request.
+//   POST /residency/grant    A site reviewer marks one person verified (or
+//                            revokes them) for ONE district. Status 'verified',
+//                            method 'admin_grant', reviewed_at stamped. This is
+//                            the ONLY path to 'verified' in this pass.
+//
+// UTAH ONLY. Both paths refuse a district outside RESIDENCY_STATES with a
+// sentence that says so, on top of the dd_districts foreign key that already
+// refuses a district the app does not map at all.
+//
+// NO VENDOR IS CALLED. There is no Stripe Identity call, no Veriff call, no
+// document upload and no third-party round trip in this file. The seam is
+// verifyVendor() in the core and this Function does not reference it.
+//
+// A SELF-TYPED LOCATION IS NOT RESIDENCY. window._currentVoterLocation never
+// reaches this Function, and no field on any request body can produce a verified
+// claim — only a row can, and only a reviewer writes one.
 //
 // ── WHAT A POST DISCLOSES ───────────────────────────────────────────────────
 // Body, timestamp, and the verification badge. No handle, no display name and no
@@ -56,7 +84,7 @@
 import type { Config } from "@netlify/functions";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "../../db/index.js";
-import { ddDistricts, ddIssueKeys, ddPosts, ddThreads } from "../../db/schema.js";
+import { ddDistricts, ddIssueKeys, ddPosts, ddResidency, ddThreads } from "../../db/schema.js";
 import { verifyUser } from "../../db/firebase-auth.js";
 import {
   COPY,
@@ -64,7 +92,9 @@ import {
   ISSUE_KEY_RE,
   composerState,
   decideWrite,
+  RESIDENCY_STATES,
   residencyClaim,
+  residencyStateAllowed,
 } from "../lib/district-room-core.mjs";
 
 // ── Helpers ──────────────────────────────────────────────────────────────
@@ -121,6 +151,30 @@ async function resolveIssue(issueKey: string) {
   return row?.issueKey || "";
 }
 
+// THE RESIDENCY FACT, for THIS caller and THIS district. One row or none, and
+// the gate is handed the row rather than a verdict this file computed — the
+// authority about what a row means is residencyClaim() in the core, which the
+// test exercises directly.
+//
+// Keyed on the uid the server verified, never on anything in the request body: a
+// caller cannot ask about somebody else's residency and cannot assert their own.
+// The reader's self-typed location is not consulted, because it is not evidence
+// of where they live.
+async function resolveResidency(uid: string, districtKey: string) {
+  if (!uid || !districtKey) return null;
+  const [row] = await db
+    .select({
+      districtKey: ddResidency.districtKey,
+      status: ddResidency.status,
+      method: ddResidency.method,
+      createdAt: ddResidency.createdAt,
+      reviewedAt: ddResidency.reviewedAt,
+    })
+    .from(ddResidency)
+    .where(and(eq(ddResidency.userId, uid), eq(ddResidency.districtKey, districtKey)));
+  return row || null;
+}
+
 // The room's thread row, if a neighbour has ever posted in it. NOT created here:
 // see the header. Returns null for a room nobody has opened yet, which is the
 // empty state and not an error.
@@ -159,8 +213,11 @@ async function readRoom(req: Request): Promise<Response> {
   // path uses. `canPost` is false for everybody in this pass and the note says
   // why — the client renders the note rather than writing its own.
   const viewer = await verifyUser(req);
-  const residency = residencyClaim(viewer);
+  const signedIn = !!viewer && !viewer.isAnonymous;
+  const row = signedIn ? await resolveResidency(viewer.uid, district.districtKey) : null;
+  const residency = residencyClaim(viewer, row);
   const composer = composerState(residency, district.districtKey);
+  const inScope = residencyStateAllowed(district.state);
 
   const thread = await findThread(district.districtKey, issue);
   // NEWEST FIRST, and there is no other order. No score column exists to sort
@@ -193,6 +250,24 @@ async function readRoom(req: Request): Promise<Response> {
     badge: COPY.badge,
     canPost: composer.canPost,
     closedNote: composer.note,
+    // The caller's OWN standing, and the two honest things they can do about it.
+    // `status` is null until a row exists, and 'pending' is reported as pending —
+    // nothing here ever describes a pending or location-derived row as verified,
+    // and the badge copy is not sent with one.
+    residency: {
+      status: residency.status,
+      reason: residency.reason,
+      // The self-attest REQUEST. Offered only to a signed-in reader with no row
+      // here yet, and only in a state this pass verifies at all.
+      canAttest: signedIn && inScope && !row,
+      attest: COPY.attest,
+      attestNote: COPY.attestNote,
+      // The reviewer's grant. The one path to 'verified' in this pass.
+      canGrant: !!(viewer && viewer.isModerator) && inScope,
+      grant: COPY.grant,
+      // Said out loud rather than implied by a control that is simply absent.
+      outOfScopeNote: inScope ? "" : COPY.notInScope,
+    },
     posts: posts.map((p) => ({
       id: p.id,
       body: p.body,
@@ -220,7 +295,10 @@ async function writePost(req: Request): Promise<Response> {
   const issue = await resolveIssue(issueKey);
 
   const viewer = await verifyUser(req);
-  const residency = residencyClaim(viewer);
+  const row = viewer && !viewer.isAnonymous && district
+    ? await resolveResidency(viewer.uid, district.districtKey)
+    : null;
+  const residency = residencyClaim(viewer, row);
 
   const verdict = decideWrite({
     district,
@@ -282,6 +360,190 @@ async function writePost(req: Request): Promise<Response> {
   });
 }
 
+// ── RESIDENCY, THE TWO PATHS ─────────────────────────────────────────────
+// Shared pre-flight for both. A residency row can only ever name a district the
+// app maps (dd_districts, hence the FK) in a state this pass actually verifies
+// (RESIDENCY_STATES, hence the sentence). Utah is the only one, and refusing
+// another state with a sentence beats refusing it with an absent control.
+async function residencyTarget(payload: any) {
+  const districtKey = String(payload?.district == null ? "" : payload.district).trim();
+  if (!DISTRICT_KEY_RE.test(districtKey)) {
+    return {
+      district: null,
+      refusal: json(
+        { error: "We don't map that district, so there is no room for it.", code: "no_district" },
+        404
+      ),
+    };
+  }
+  const district = await resolveDistrict(districtKey);
+  if (!district) {
+    return {
+      district: null,
+      refusal: json(
+        { error: "We don't map that district, so there is no room for it.", code: "no_district" },
+        404
+      ),
+    };
+  }
+  if (!residencyStateAllowed(district.state)) {
+    return {
+      district: null,
+      refusal: json({ error: COPY.notInScope, code: "out_of_scope" }, 403),
+    };
+  }
+  return { district, refusal: null };
+}
+
+// ── POST /residency/attest — "I live in this district" ───────────────────
+// A REQUEST, and it is labelled as one everywhere it appears. It writes status
+// 'pending' with method 'self_attest' and it cannot write anything else: the
+// status is a literal in this function, not a field off the body, so no caller
+// can hand themselves 'verified'. The composer stays closed afterwards, because
+// residencyClaim() honours a verified status only from a verifying method and
+// 'self_attest' is not one.
+//
+// The client offers this control only in a district the reader's own resolver
+// already places them in. That restriction is a courtesy, not the safeguard —
+// the safeguard is that this route cannot produce a claim that publishes, so it
+// does not matter which district somebody asks about.
+async function attestResidency(req: Request): Promise<Response> {
+  let payload: any = {};
+  try { payload = await req.json(); } catch { payload = {}; }
+
+  const viewer = await verifyUser(req);
+  if (!viewer || viewer.isAnonymous) {
+    return json({ error: COPY.closedSignedOut, code: "signed_out" }, 401);
+  }
+  const { district, refusal } = await residencyTarget(payload);
+  if (!district) return refusal || json({ error: "Which district?", code: "no_district" }, 404);
+
+  const existing = await resolveResidency(viewer.uid, district.districtKey);
+  // A row a reviewer has already decided is not re-opened by asking again. Both
+  // answers are the truth about their standing rather than a new request.
+  if (existing?.status === "verified") {
+    return ok({ status: "verified", districtKey: district.districtKey, message: COPY.granted });
+  }
+  if (existing?.status === "revoked") {
+    return json({ error: COPY.revoked, code: "revoked" }, 403);
+  }
+
+  await db
+    .insert(ddResidency)
+    .values({
+      userId: viewer.uid,
+      districtKey: district.districtKey,
+      status: "pending",
+      method: "self_attest",
+    })
+    .onConflictDoNothing();
+
+  // 202: recorded, and decided by nobody yet. The sentence says pending in the
+  // same breath as it says recorded, so "we got it" is never read as "you're in".
+  return json(
+    {
+      status: "pending",
+      districtKey: district.districtKey,
+      message: COPY.attestSent,
+      note: COPY.attestNote,
+    },
+    202
+  );
+}
+
+// ── POST /residency/grant — a reviewer decides ───────────────────────────
+// THE ONLY PATH TO 'verified' IN THIS PASS. A site reviewer (the same gate
+// db/firebase-auth.ts already uses for the evidence exchange) marks ONE person
+// verified for ONE district, or revokes them. `reviewedAt` is stamped because a
+// human looked; that is the difference between this route and the one above.
+//
+// `userId` defaults to the reviewer's own uid, so verifying yourself for your own
+// district is one call with no identifier to copy around.
+async function grantResidency(req: Request): Promise<Response> {
+  let payload: any = {};
+  try { payload = await req.json(); } catch { payload = {}; }
+
+  const viewer = await verifyUser(req);
+  if (!viewer || viewer.isAnonymous) {
+    return json({ error: COPY.closedSignedOut, code: "signed_out" }, 401);
+  }
+  if (!viewer.isModerator) {
+    return json({ error: COPY.grantDenied, code: "not_reviewer" }, 403);
+  }
+  const { district, refusal } = await residencyTarget(payload);
+  if (!district) return refusal || json({ error: "Which district?", code: "no_district" }, 404);
+
+  // Two decisions and no third. Anything else is refused rather than coerced,
+  // and 'pending' is not a decision a reviewer makes — it is what a request
+  // already is.
+  const decided = String(payload?.status == null ? "verified" : payload.status).trim();
+  if (decided !== "verified" && decided !== "revoked") {
+    return json({ error: "A reviewer marks somebody verified or revoked.", code: "bad_status" }, 400);
+  }
+  const subject = String(payload?.userId == null ? "" : payload.userId).trim() || viewer.uid;
+  if (subject.length > 128) {
+    return json({ error: "Which person?", code: "no_subject" }, 400);
+  }
+
+  const reviewedAt = new Date();
+  const [row] = await db
+    .insert(ddResidency)
+    .values({
+      userId: subject,
+      districtKey: district.districtKey,
+      status: decided,
+      method: "admin_grant",
+      reviewedAt,
+    })
+    .onConflictDoUpdate({
+      target: [ddResidency.userId, ddResidency.districtKey],
+      set: { status: decided, method: "admin_grant", reviewedAt },
+    })
+    .returning({
+      districtKey: ddResidency.districtKey,
+      status: ddResidency.status,
+      method: ddResidency.method,
+      reviewedAt: ddResidency.reviewedAt,
+    });
+
+  return ok({
+    status: row?.status || decided,
+    districtKey: district.districtKey,
+    method: row?.method || "admin_grant",
+    reviewedAt: row?.reviewedAt || reviewedAt,
+    self: subject === viewer.uid,
+    message: decided === "verified" ? COPY.granted : COPY.revoked,
+  });
+}
+
+// ── GET /residency — the caller's own standing ───────────────────────────
+// Their OWN rows and nobody else's: the where clause is the verified uid, so
+// there is no identifier a caller could pass to read somebody else's. No uid, no
+// name and no contact detail is in the response — a district, a status, a method
+// and two timestamps.
+async function readResidency(req: Request): Promise<Response> {
+  const viewer = await verifyUser(req);
+  if (!viewer || viewer.isAnonymous) {
+    return ok({ signedIn: false, reviewer: false, states: RESIDENCY_STATES, rows: [] });
+  }
+  const rows = await db
+    .select({
+      districtKey: ddResidency.districtKey,
+      status: ddResidency.status,
+      method: ddResidency.method,
+      createdAt: ddResidency.createdAt,
+      reviewedAt: ddResidency.reviewedAt,
+    })
+    .from(ddResidency)
+    .where(eq(ddResidency.userId, viewer.uid));
+  return ok({
+    signedIn: true,
+    reviewer: !!viewer.isModerator,
+    states: RESIDENCY_STATES,
+    rows,
+  });
+}
+
 // ── POST /flag — report a post ───────────────────────────────────────────
 // A STUB THAT RECORDS INTENT, and it says so in its own response. Phase 0 ships
 // no flag table and this pass does not add one: a moderation queue is a surface
@@ -333,6 +595,18 @@ export default async (req: Request): Promise<Response> => {
     }
     if (path === "/flag") {
       if (method === "POST") return await flagPost(req);
+      return json({ error: "Method not allowed" }, 405);
+    }
+    if (path === "/residency") {
+      if (method === "GET") return await readResidency(req);
+      return json({ error: "Method not allowed" }, 405);
+    }
+    if (path === "/residency/attest") {
+      if (method === "POST") return await attestResidency(req);
+      return json({ error: "Method not allowed" }, 405);
+    }
+    if (path === "/residency/grant") {
+      if (method === "POST") return await grantResidency(req);
       return json({ error: "Method not allowed" }, 405);
     }
     return json({ error: "Not found." }, 404);

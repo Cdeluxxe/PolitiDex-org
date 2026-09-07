@@ -1358,3 +1358,77 @@ export const ddPosts = pgTable(
     index("dd_posts_thread_created_idx").on(t.threadId, t.createdAt),
   ]
 );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DISTRICT DISCUSSION — phase 2, residency as a FACT rather than a client guess
+// ─────────────────────────────────────────────────────────────────────────────
+// WHAT THIS IS. One row per (person, district) recording whether this app has
+// established that they live there, how that was established, and when a human
+// looked at it. It is the table the write gate reads, and it is the ONLY thing
+// that can open a composer.
+//
+// WHY IT IS A ROW AND NOT A CLAIM ON THE REQUEST. The only location signal the
+// rest of the app holds is window._currentVoterLocation — a zip or a pin the
+// reader typed themselves, which is how Who Represents Me can answer "which
+// district am I in" without knowing anything about who is asking. That answer is
+// useful for showing somebody their own seats and it is NOT residency: a reader
+// can retype it at will, and a badge that says "verified in this district" has
+// to mean more than "you told us so". So residency lives here, keyed on the
+// verified Firebase uid, written only by a path that authenticates the writer,
+// and never inferred from a request body.
+//
+// THE THREE STATES, AND WHAT EACH ONE CAN DO.
+//   pending   somebody said they live here. Reads. CANNOT POST. Nothing on the
+//             surface calls a pending row "verified".
+//   verified  established. Can post in THIS district and nowhere else.
+//   revoked   was verified, is not any more. Reads. Cannot post. Kept as a row
+//             rather than deleted so the history of a reversal survives it.
+//
+// METHOD IS PART OF THE FACT. A status is only as good as how it was reached, so
+// the two are stored together and the gate reads both: only the methods in
+// RESIDENCY_METHODS_VERIFYING (netlify/lib/district-room-core.mjs) can carry a
+// verified status into a claim. In this pass that is `admin_grant` alone. A
+// `self_attest` row is a request, and a `location_pin` row — which nothing
+// writes today — could never post even if some future code path set its status
+// to verified by mistake. The vendor check named in the seam (verifyVendor) is
+// NOT wired in this pass: no Stripe, no Veriff, no ID upload, no third call.
+//
+// STILL NOT A PROFILE. There is no name, no email, no address, no zip, no
+// coordinate and no document in this table. It holds a uid, a district key the
+// app already maps, a status, and two timestamps. It is not readable by the
+// formal record (vr_*), the evidence exchange (cee_*), the open forum (pdx_*),
+// Direction Match, Word vs Action, the finance lane, the Eye, the Utah ingest or
+// the offline pack, and no count from it reaches a person file.
+export const ddResidency = pgTable(
+  "dd_residency",
+  {
+    id: serial().primaryKey(),
+    // The verified Firebase uid, exactly as dd_posts.user_id spells it. Never a
+    // handle, never an email.
+    userId: text("user_id").notNull(),
+    // The district this row is about. A foreign key, so residency cannot be
+    // recorded for a district the app does not map — the same fail-closed
+    // arrangement dd_threads.district_id has.
+    districtKey: text("district_key")
+      .notNull()
+      .references(() => ddDistricts.districtId, { onDelete: "restrict" }),
+    status: text().notNull().default("pending"),
+    method: text().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    // When a human last looked. Null on a self-attested request that nobody has
+    // reviewed, which is exactly what "pending" means.
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  },
+  (t) => [
+    // One row per person per district. A person legitimately has three district
+    // seats (U.S. House, State Senate, State House), so several rows per person
+    // are correct and several rows for the SAME district are not.
+    uniqueIndex("dd_residency_user_district_unique").on(t.userId, t.districtKey),
+    index("dd_residency_district_status_idx").on(t.districtKey, t.status),
+    check("dd_residency_status_check", sql`${t.status} in ('pending', 'verified', 'revoked')`),
+    check(
+      "dd_residency_method_check",
+      sql`${t.method} in ('admin_grant', 'self_attest', 'location_pin', 'vendor')`
+    ),
+  ]
+);

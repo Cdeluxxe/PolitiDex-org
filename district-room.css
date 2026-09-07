@@ -273,6 +273,59 @@
   color: #cbd5e1;
 }
 
+/* ── THE TWO RESIDENCY CONTROLS ────────────────────────────────────────────
+   Deliberately quieter than the composer's own Post button, and deliberately
+   NOT the same as each other: the request is an outline, the reviewer's decision
+   is filled. Neither is tinted with the verdict palette — nothing here is a
+   vindication or an indictment, and a pending request must not look like a
+   granted one. */
+.pdxdr-attest,
+.pdxdr-grant {
+  margin: 0 0 12px;
+}
+
+.pdxdr-attestbtn,
+.pdxdr-grantbtn {
+  appearance: none;
+  padding: 7px 13px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+
+/* The request. An outline, because asking is not being answered. */
+.pdxdr-attestbtn {
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  background: transparent;
+  color: #cbd5e1;
+}
+.pdxdr-attestbtn:hover:not(:disabled) {
+  border-color: rgba(148, 163, 184, 0.66);
+  color: #e2e8f0;
+}
+
+/* The reviewer's decision. Filled, and it is the only control in this block
+   that leads anywhere near an open composer. */
+.pdxdr-grantbtn {
+  border: 1px solid rgba(125, 211, 252, 0.42);
+  background: rgba(125, 211, 252, 0.16);
+  color: #e0f2fe;
+}
+.pdxdr-grantbtn:hover:not(:disabled) { background: rgba(125, 211, 252, 0.26); }
+
+.pdxdr-attestbtn:disabled,
+.pdxdr-grantbtn:disabled { opacity: 0.55; cursor: default; }
+
+/* The sentence under the request: what it is worth, in the room's own words. */
+.pdxdr-resnote {
+  margin: 7px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
 .pdxdr-say {
   margin: 8px 0 0;
   min-height: 1em;

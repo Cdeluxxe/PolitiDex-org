@@ -3113,7 +3113,54 @@
 // deploy rather than with this rename.
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
-const CACHE_VERSION = 'v152';
+// ─────────────────────────────────────────────────────────────────────────────
+// v153 - RESIDENCY IS A FACT NOW, SO A VERIFIED NEIGHBOUR CAN POST
+// ─────────────────────────────────────────────────────────────────────────────
+// v152 shipped the District Room read-only: residencyClaim() returned
+// verified:false for every caller on purpose, so the composer rendered for
+// nobody. This pass replaces that stub with a read of a new table, dd_residency
+// - one row per (person, district) carrying a status (pending | verified |
+// revoked) and the method it was reached by. The gate now honours a claim only
+// when BOTH are true: status 'verified' AND a method allowed to verify, which in
+// this pass is an admin grant alone.
+//   TWO HONEST PATHS, LABELLED DIFFERENTLY. A site reviewer can mark one person
+// verified (or revoked) for ONE Utah district - the only route to 'verified'. A
+// signed-in reader can submit "I live in this district" for a seat their OWN
+// resolver already places them in, which records a PENDING row: the composer
+// stays shut, the copy says pending, and the badge is not printed. Utah only,
+// refused elsewhere with a sentence rather than an absent control.
+//   A SELF-TYPED LOCATION IS STILL NOT VERIFICATION. window._currentVoterLocation
+// never reaches the Function, and a location_pin row could not publish even if
+// something marked it verified - that is a property of the gate, not a promise
+// about which routes exist. No ID vendor is called: verifyVendor() is a seam
+// nothing references, and there is no Stripe or Veriff call in this repo.
+//   PRECACHED SHELL FILES CHANGED - THEY ARE THE REASON FOR THE BUMP:
+//   · '/district-room.js'      - the two residency controls (the request and the
+//                                reviewer's grant) and the pending copy. A warm
+//                                shell has neither, so a verified neighbour on an
+//                                old shell sees a closed room with the phase 1
+//                                sentence that nothing can open it - which is no
+//                                longer true.
+//   · '/district-room.css'     - the styles for that pair, deliberately unalike
+//                                so a pending request cannot look like a granted
+//                                one, and neither wears the verdict palette.
+// ALSO CHANGED BUT NOT PRECACHED, SO IT ARRIVES FRESH WITHOUT THIS BUMP:
+// netlify/lib/district-room-core.mjs (residencyClaim now reads a row; the copy
+// for pending, revoked and out-of-scope), netlify/functions/district-room.mts
+// (the row read plus the attest and grant routes), db/schema.ts and the
+// 20261030000000_create_dd_residency migration (the table itself), and
+// scripts/test-district-room.mjs (pending, revoked, wrong-district, location-pin
+// and admin-grant, all pinned).
+// NOTHING IN THE RECORD MOVED. dd_residency is a uid, a district key the app
+// already maps, a status, a method and two timestamps - no name, no address, no
+// zip, no coordinate and no document. No room or residency read touches vr_*,
+// cee_*, pdx_forum_*, Direction Match, Word vs Action, the formal floors,
+// finance, the Mandate lane, the Eye, the Utah ingest or pack TTL, and no count
+// from it reaches a person file. A twin boot leaves every Direction Match read
+// and every formal tier byte-identical.
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it.
+const CACHE_VERSION = 'v153';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

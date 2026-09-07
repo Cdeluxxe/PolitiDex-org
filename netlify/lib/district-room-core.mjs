@@ -1,13 +1,19 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // District Room core — the gate, and nothing that needs a database
 // ─────────────────────────────────────────────────────────────────────────────
-// PHASE 1 OF THE DISTRICT ROOM ships one reader-facing surface: verified-
-// residency neighbours in ONE district, talking about ONE issue. The schema for
-// it landed in phase 0 (db/schema.ts, the dd_* tables). This file is the half of
-// phase 1 that has no Postgres in it — the ADDRESS SHAPE, the COPY, and above
-// all THE WRITE GATE — split out for the same reason rate-limit-core.mjs was:
-// everything a "fail closed" claim can get subtly wrong is a pure function over
-// four inputs, and none of it needs a branch database to check.
+// THE DISTRICT ROOM ships one reader-facing surface: verified-residency
+// neighbours in ONE district, talking about ONE issue. The schema landed in phase
+// 0 (db/schema.ts, the dd_* tables); phase 1 shipped the address, the copy and
+// the gate with residency deliberately stubbed to "nobody"; PHASE 2 replaces that
+// stub with a read of dd_residency, so a neighbour an admin has verified for this
+// district can post and everybody else still reads.
+//
+// This file is the half of that with no Postgres in it — the ADDRESS SHAPE, the
+// COPY, and above all THE WRITE GATE — split out for the same reason
+// rate-limit-core.mjs was: everything a "fail closed" claim can get subtly wrong
+// is a pure function over resolved inputs, and none of it needs a branch database
+// to check. The residency ROW is read by the Function and passed in here exactly
+// as the district row already is.
 //
 // netlify/functions/district-room.mts imports these. scripts/test-district-
 // room.mjs imports the same functions and exercises them directly, so the gate
@@ -97,13 +103,54 @@ export const COPY = {
   empty: "No neighbor posts on this issue in this district yet.",
   // The closed composer. Short, and it names the one thing that would open it.
   closed: "Verify you live in this district to post.",
-  // Why it is closed in this pass specifically. Said out loud rather than
-  // implied, because "verify" reads like an invitation and there is nothing to
-  // accept yet — see RESIDENCY IS A STUB below.
-  closedStub:
-    "Residency checks are not switched on yet, so nobody can post in this pass. " +
-    "Reading is open.",
-  // The badge on every post. Lowercase because it sits inline beside a
+  // The closed composer for somebody who is not signed in at all. Residency is
+  // recorded against a verified uid, so there is nothing to record for a reader
+  // the server cannot name.
+  closedSignedOut:
+    "Sign in first, then ask to be verified for this district. Reading is open.",
+  // Signed in, no residency row for this district. Says the one thing they can
+  // do next, and says what it is worth.
+  closedNoResidency:
+    "We have not established that you live in this district. Reading is open.",
+  // PENDING IS NOT VERIFIED, and this sentence is the whole reason the two
+  // statuses are told apart on the surface. A pending row can read and cannot
+  // post, and it never wears the badge.
+  pending:
+    "Your residency request for this district is pending review. " +
+    "Reading is open; posting opens only if a reviewer approves it.",
+  // Verified somewhere that is not this room. Its own sentence, because "verify
+  // to post" would be nonsense to somebody who already did.
+  wrongDistrict:
+    "You're verified in a different district, so you can read here but not post.",
+  // Was verified, is not any more.
+  revoked:
+    "Your residency for this district was revoked, so you can read here but not post.",
+
+  // ── The self-attest request ─────────────────────────────────────────────
+  // The control, and the sentence under it. Labelled as a REQUEST throughout:
+  // the button says what the reader is claiming, not what the app has checked.
+  attest: "I live in this district",
+  attestNote:
+    "This records a request a reviewer decides on. Saying it does not verify you " +
+    "and does not open the composer.",
+  attestSent:
+    "Recorded as pending. A reviewer decides; you are not verified yet.",
+
+  // ── The admin grant ─────────────────────────────────────────────────────
+  // The other honest path, and the only one that can reach 'verified' in this
+  // pass. Labelled differently from the request above on purpose.
+  grant: "Grant residency for this district",
+  granted: "Verified for this district. The composer is open here.",
+  grantDenied: "Only a site reviewer can grant residency.",
+
+  // Utah only in this pass, said as a sentence rather than implied by an empty
+  // dropdown. dd_districts holds ut- rows only, because pdxRepsForMe()
+  // .districtsResolvable is true in Utah and nowhere else.
+  notInScope:
+    "Residency verification is Utah only in this pass, so we cannot verify you " +
+    "for a district in another state yet.",
+
+  // The badge on every post.  // The badge on every post. Lowercase because it sits inline beside a
   // timestamp; it is an attestation about the author's district and nothing else
   // — no handle, no name, no party, no score.
   badge: "verified in this district",
@@ -137,34 +184,103 @@ export function normalizeSourceUrl(v) {
   return s;
 }
 
-// ── RESIDENCY IS A STUB IN THIS PASS, AND IT CANNOT PUBLISH ─────────────────
-// The brief for phase 1 is explicit: do not invent an ID vendor here. So this is
-// not a residency check wearing a TODO — it is a resolver that returns
-// "unverified" for every caller, on purpose, and the room's composer is closed
-// for everybody because of it.
+// ── RESIDENCY IS A FACT, AND THE FACT IS A ROW ──────────────────────────────
+// Phase 1 shipped this as a resolver that returned "unverified" for every caller
+// on purpose. Phase 2 replaces it with the thing it was a placeholder for: a read
+// of dd_residency, one row per (person, district), carrying a status and the
+// method that status was reached by.
 //
-// WHAT ALREADY EXISTS AND WHAT DOES NOT. Identity exists: db/firebase-auth.ts
-// verifies a Firebase ID token server-side, and /api/community, /api/threads and
-// /api/forum have authenticated callers with it for a while. RESIDENCY does not
-// exist anywhere in this repo — the only location signal the app holds is
-// window._currentVoterLocation, which a reader types or pins themselves. A
-// self-declared address is not a verified one, and treating it as one would make
-// "verified in this district" a badge the app cannot honour. So it is not read
-// here, and no code path in this pass can produce verified:true.
+// STILL NO DATABASE IN THIS FILE. The row is READ by the Function and PASSED IN
+// here, exactly as the district row and the issue key already are, so the gate
+// stays a pure function over resolved inputs and the test exercises the shipped
+// gate rather than a copy of it.
 //
-// WHERE THE VERIFIER LANDS. Here, and only here. A real check returns
-// { verified: true, districtKey: '<dd_districts.district_id>' } and NOTHING else
-// in the room changes: decideWrite() already compares that key against the room
-// the caller is posting into, the Function already refuses a mismatch, and the
-// client already renders the closed note whenever canPost is false.
+// WHAT IS NOT RESIDENCY. window._currentVoterLocation — the zip or pin a reader
+// types into Who Represents Me — is how the app answers "which district am I in"
+// without knowing who is asking. It is not read here and it never will be: a
+// reader can retype it at will, so treating it as verification would make
+// "verified in this district" a badge the app cannot honour. Nothing on the
+// request can produce a verified claim; only a row can.
+//
+// STATUS ALONE IS NOT ENOUGH. A status is only as good as how it was reached, so
+// the claim requires BOTH: status 'verified' AND a method that is allowed to
+// verify. That is what makes "a location pin cannot post" a property of this
+// function rather than a promise about the write paths — a location_pin row could
+// not publish even if some later code path set its status to verified by mistake.
+export const RESIDENCY_STATUSES = ["pending", "verified", "revoked"];
+export const RESIDENCY_METHODS = ["admin_grant", "self_attest", "location_pin", "vendor"];
+// The only methods whose 'verified' status the gate will honour. In this pass an
+// admin grant is the one that exists; 'vendor' is listed because the seam below
+// is where it would arrive, and it is written by nothing today.
+export const RESIDENCY_METHODS_VERIFYING = ["admin_grant", "vendor"];
+// A self-attested request and a location pin can never publish, whatever status
+// somebody manages to put on the row.
+export const RESIDENCY_METHODS_NEVER_VERIFY = ["self_attest", "location_pin"];
+
+// Utah only in this pass. dd_districts holds ut- rows only for the reason
+// DISTRICT_MAPS.md gives, and residency for a district the app cannot resolve
+// would be a confident wrong district. Two-letter postal codes, uppercase.
+export const RESIDENCY_STATES = ["UT"];
+export function residencyStateAllowed(state) {
+  return RESIDENCY_STATES.indexOf(String(state == null ? "" : state).trim().toUpperCase()) >= 0;
+}
+
+// ── THE VENDOR SEAM, AND IT IS UNUSED ──────────────────────────────────────
+// The ID check is the NEXT pass, not this one: no Stripe Identity call, no Veriff
+// call, no document upload and no third-party round trip is made anywhere in this
+// repo today. This is the single place one would land, and it is referenced by
+// nothing — it throws rather than returning a soft "false" so that wiring it in
+// is a deliberate act and never an accident that quietly verifies somebody.
 export const RESIDENCY_VERIFIER = null; // no vendor is wired in this pass
 
-export function residencyClaim(user) {
+export function verifyVendor() {
+  throw new Error("district-room: no residency vendor is wired in this pass");
+}
+
+// The claim, from the caller and their row for THIS district.
+//
+//   user  the server-verified identity, or null
+//   row   dd_residency for (user, this district), or null — { districtKey,
+//         status, method } is all of it that matters here
+//
+// Returns { verified, districtKey, reason, status, method }. `districtKey` is the
+// ROW's district and never the room's, so a claim can only ever open the room it
+// was established for — decideWrite() compares the two.
+export function residencyClaim(user, row) {
   if (!user || user.isAnonymous) {
-    return { verified: false, districtKey: null, reason: "signed_out" };
+    return { verified: false, districtKey: null, reason: "signed_out", status: null, method: null };
   }
-  // Signed in, and that is all we know. A verifier would answer here.
-  return { verified: false, districtKey: null, reason: "no_verifier" };
+  const r = row || null;
+  const status = r && typeof r.status === "string" ? r.status : "";
+  const method = r && typeof r.method === "string" ? r.method : "";
+  const districtKey = r && typeof r.districtKey === "string" ? r.districtKey : "";
+
+  // Signed in, and no row for this district. Not a refusal to explain away: the
+  // app simply has not established anything.
+  if (!r || !status || !DISTRICT_KEY_RE.test(districtKey)) {
+    return { verified: false, districtKey: null, reason: "no_residency", status: null, method: null };
+  }
+
+  if (status === "verified" && RESIDENCY_METHODS_VERIFYING.indexOf(method) >= 0) {
+    return { verified: true, districtKey, reason: "verified", status, method };
+  }
+
+  // Everything else reads and cannot post. `pending` and `revoked` get their own
+  // reason so the surface can say which one is true — a reader told "verify to
+  // post" while their request sits in a queue has been told the wrong thing.
+  const reason =
+    status === "pending" ? "pending" : status === "revoked" ? "revoked" : "not_verified";
+  return { verified: false, districtKey: null, reason, status, method: method || null };
+}
+
+// The sentence for a claim that cannot post. One owner, so the composer's note
+// and the write path's refusal cannot drift apart.
+export function residencyNote(residency) {
+  const reason = (residency && residency.reason) || "signed_out";
+  if (reason === "signed_out") return COPY.closedSignedOut;
+  if (reason === "pending") return COPY.pending;
+  if (reason === "revoked") return COPY.revoked;
+  return `${COPY.closed} ${COPY.closedNoResidency}`;
 }
 
 // ── THE GATE ────────────────────────────────────────────────────────────────
@@ -181,7 +297,7 @@ export function residencyClaim(user) {
 //
 //   1. no district      → no write   (unmapped, malformed, or no such row)
 //   2. no issue         → no write   (not in the shipped ISSUE_MAP vocabulary)
-//   3. not verified     → no write   (signed out, anonymous, or no verifier)
+//   3. not verified     → no write   (signed out, no row, pending, or revoked)
 //   4. wrong district   → no write   (verified somewhere else)
 //   5. empty body       → no write
 //
@@ -218,17 +334,23 @@ export function decideWrite(input) {
     };
   }
 
-  // 3. Residency. Signed out and signed-in-but-unverified are the same answer to
-  //    the room and a different answer to the reader, so the code splits and the
-  //    sentence does not: both are told the one thing that would open the
-  //    composer.
+  // 3. Residency, read off the dd_residency row the Function resolved. Signed
+  //    out, no row, pending and revoked are all the same answer to the room —
+  //    no — and four different answers to the reader, so the Phase 1 code stays
+  //    coarse (signed_out / not_verified) and `reason` plus the sentence carry
+  //    which one it is. A pending request is told it is pending; being told
+  //    "verify to post" while a request sits in the queue is the wrong thing.
   if (!residency || residency.verified !== true) {
     const signedOut = !residency || residency.reason === "signed_out";
     return {
       ok: false,
       status: signedOut ? 401 : 403,
       code: signedOut ? "signed_out" : "not_verified",
-      message: COPY.closed,
+      // The Phase 1 code is unchanged — a client that keyed off it still works —
+      // and `reason` carries the finer answer the surface needs to say "pending"
+      // where pending is the truth.
+      reason: (residency && residency.reason) || "signed_out",
+      message: residencyNote(residency),
     };
   }
 
@@ -240,7 +362,7 @@ export function decideWrite(input) {
       ok: false,
       status: 403,
       code: "wrong_district",
-      message: "You're verified in a different district, so you can read here but not post.",
+      message: COPY.wrongDistrict,
     };
   }
 
@@ -264,10 +386,20 @@ export function decideWrite(input) {
 export function composerState(residency, districtKey) {
   const d = String(districtKey || "");
   if (residency && residency.verified === true && String(residency.districtKey || "") === d) {
-    return { canPost: true, note: "" };
+    return { canPost: true, note: "", reason: "verified" };
   }
-  // Not verified for THIS district. In this pass that is everybody, so the note
-  // says both things: what would open it, and that nothing can open it yet.
-  const note = RESIDENCY_VERIFIER ? COPY.closed : `${COPY.closed} ${COPY.closedStub}`;
-  return { canPost: false, note };
+  // Verified SOMEWHERE, but not here. Its own sentence, because "verify to post"
+  // would be nonsense to somebody who already did.
+  if (residency && residency.verified === true) {
+    return {
+      canPost: false,
+      reason: "wrong_district",
+      note: COPY.wrongDistrict,
+    };
+  }
+  // Not verified anywhere the room cares about. The note says which of the ways
+  // that is true is the reader's: signed out, nothing established, a request
+  // still in the queue, or a revoked row.
+  const reason = (residency && residency.reason) || "signed_out";
+  return { canPost: false, reason, note: residencyNote(residency) };
 }
