@@ -2783,6 +2783,56 @@
 // nested interactives, no store renamed, and the local seat count is untouched -
 // the rail and the grid stay one expanded ballot. A twin boot leaves every
 // Direction Match read and every formal tier byte-identical.
+// v150 - TWO FILINGS WERE FILED UNDER A KEY THE PERSON FILE DOES NOT USE. The
+// money seed stores thirteen itemized filings, and two of them are keyed to a
+// short id the rest of the product retired: `bking` for the person file
+// `brian_king` (Brian S. King, former UT House District 23) and `gleich` for
+// `caroline_gleich`. Every pid-keyed finance reader dipped straight into the
+// `_FTM_BY_ID` index, so BOTH surfaces on those two files - the letterhead 💰
+// chip and the 💰 Money & Funding section below it - reported "No money file on
+// hand" while the dollars sat one alias away. That is the worst of the three
+// possible states: the site holding a filing and telling the reader it does not
+// have one, on the surface whose entire job is to say which gaps are real.
+//   ONE TABLE, ONE RESOLVER, BOTH READERS. index.html now carries FTM_ID_ALIAS
+// beside the index it aliases (profile id on the left, the id the filing is
+// stored under on the right) and one `_ftmRecord(pid)` resolver that every
+// pid-keyed accessor calls - `_pdxFinanceFiling` (the chip's door),
+// `_pdxFinanceSignal` (the section's door), `_pdxFinanceRecord` and
+// `_pdxFunding`. The chip and the section therefore cannot answer differently
+// for the same person, which is the failure this lane already shipped once.
+//   NOT A CHIP-ONLY REMAP, and not a new claim about anybody: the table says two
+// ids reach one filing, the same shape as the bridges the product already keeps
+// (PDX_PROFILE_ALIAS, db/vr-pid-aliases.json). PDX_PROFILE_ALIAS itself is NOT
+// the door, because test-identity-integrity §11 holds every value in it to a
+// live cmp-data record and `caroline_gleich` has none.
+//   COUNTS DID NOT MOVE. Aliases resolve at lookup time and are never written
+// into the index, so `_pdxFinanceIds()` still returns 13 keys and the coverage
+// sentence still counts 13 filings out of the roster - 13 people, not 15 keys.
+// No dollar figure is new, no percentage was added, and no second Money block or
+// second profile exists for either short key.
+//   PRECACHED SHELL FILES CHANGED - THEY ARE THE REASON FOR THE BUMP:
+//   · '/' (index.html)         - the finance index itself gained FTM_ID_ALIAS,
+//                                the `_ftmRecord` resolver and the published
+//                                `PDX_FINANCE_ID_ALIAS` mirror. A warm shell
+//                                serving the old document keeps the two files
+//                                empty no matter how fresh the lane is, because
+//                                the index and the accessors both live here.
+// ALSO CHANGED BUT RUNTIME-CACHED, SO IT ARRIVES FRESH WITHOUT THIS BUMP:
+// finance-lane.js - its second lookup seam (the raw-index fallback used by a
+// harness or a future ingest) now reads the same published alias table, so the
+// two seams cannot resolve one pid differently.
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it, and the shell's paired assets therefore
+// travel together on this bump as they must. Unchanged here and byte-identical -
+// re-fetched only because the bucket was renamed: app.css, word-action.js,
+// word-action.css, profiles-full.js, door1-workspace.js, door1-workspace.css,
+// pdx-issue-family.js, alignment-tool.js, stance-tree.js and issue-colors.js.
+// The retired 0-100 Constituents-First score stays deleted and no finance figure
+// feeds Direction Match, the formal pattern tiers, the Word vs Action read, the
+// publication floor, any alignment read or any Door 2 pick. No Utah citation,
+// pack key, Peterson or WRM surface was touched. A twin boot leaves every
+// Direction Match read and every formal tier byte-identical.
+//
 // v149 - A SEAT IS AN OFFICE PLUS A DISTRICT, AND THE ⚖️ CHIP SAYS THE FIGURE
 // OR SAYS NO NUMBER. Two things on the Relevant-to-Me section, both of them a
 // surface saying more than it could show.
@@ -2934,7 +2984,7 @@
 // no party sort, no ranking by Direction Match, no nested interactives, no store
 // renamed, and no seat-field district math touched. A twin boot leaves every
 // Direction Match read and every formal tier byte-identical.
-const CACHE_VERSION = 'v149';
+const CACHE_VERSION = 'v150';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

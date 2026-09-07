@@ -1782,6 +1782,40 @@ const swNote = swWaveNote();
     "archive-browse.css",
     "judicial-ballot.js",
     "scripts/test-local-officials-routing.mjs",
+    // THE MONEY LANE'S WALL WIDENED, on those same later-wave terms, and a roster
+    // wave is the file that has to declare it for the reason the block above gives:
+    // the thing that made the old finance grade indefensible was its DENOMINATOR,
+    // and R1/R2 are what moved it. Thirteen itemized filings against the 1,120
+    // records this wave's roster now carries is the ratio the lane discloses in
+    // words on every profile, so each admission this wave made is another person
+    // the money lane has to say "no filing on file" about honestly.
+    //   finance-lane.js adds two names to the NEVER_FEEDS wall it already
+    // published — `alignment` and `door2Picks`, the personal alignment read and the
+    // reader's own ballot — plus the comment saying why those two are named apart
+    // from `ballotSort` and `yourMatch`. No composition, figure, bucket, colour,
+    // coverage sentence or chip state changes: the array is read by the harness
+    // below and by nothing that renders.
+    //   scripts/test-finance-lane.mjs is a re-statement rather than a relaxation,
+    // in the sense test-door2-holders.mjs was above. It asserts the two new wall
+    // names; it sweeps the alignment engine and every Door 2 surface that orders a
+    // field or holds a pick for finance identifiers; it holds the filings index
+    // (`_FTM_BY_ID` / `FTM_AS_OF` / `FTM_FUNDING` / `FTM_DATA`) to a SINGLE shipped
+    // owner, so a lane that cannot see a filing cannot weigh one whatever it later
+    // decides — which is the structural form of a wall that was an enumeration; it
+    // extends the existing twin boot to compare the alignment side-map, its
+    // coverage, and every Door 2 pick read (seat list and order, field gate, pick
+    // store, running count) byte-identical with a full filing seeded and with none;
+    // and it fences, by name and by shape, the per-person 0-100 funding map that
+    // profiles-full.js carried until this pass. No assertion was dropped and every
+    // counterfactual still holds.
+    //   That deletion is the one behaviour change and it is a deletion: the
+    // `FINANCE_INTEGRITY` bag of thirteen hand-set 0-100 scores, already unread
+    // since the Constituents-First ramp was retired, is gone from the bundle rather
+    // than left dormant. Nothing read it, so no roll, mapping, key, floor,
+    // admission, tier, chip, count or Direction Match read moves — which this
+    // wave's own twin boot has just proved for the ledger and the DM figure.
+    "finance-lane.js",
+    "scripts/test-finance-lane.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }

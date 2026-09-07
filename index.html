@@ -18041,7 +18041,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // the profile Money section and the People's Mandate pillar. Returns null when
     // no itemized filing is on file (callers render a calm "Not on file" state).
     window._pdxFinanceSignal = function(pid) {
-      var p = pid && _FTM_BY_ID[pid];
+      var p = _ftmRecord(pid);
       return p ? _financeSignal(p) : null;
     };
 
@@ -18052,7 +18052,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // when no filing is on file. Additive: added for the My Profile "Money Tree"
     // foundation; existing finance surfaces are untouched.
     window._pdxFinanceRecord = function(pid) {
-      var p = pid && _FTM_BY_ID[pid];
+      var p = _ftmRecord(pid);
       if (!p) return null;
       return {
         id: p.id, name: p.name || '', office: p.office || '', photo: p.photo || '',
@@ -18300,6 +18300,60 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     var _FTM_BY_ID = {};
     FTM_DATA.forEach(function(p) { _FTM_BY_ID[p.id] = p; });
 
+    // ── ONE FILING, WHATEVER ID THE PERSON FILE IS OPEN UNDER ────────────────
+    // Two of the thirteen filings are stored under a SHORT KEY that the roster
+    // does not use. The funding seed calls them `bking` and `gleich`; the person
+    // file for the same two people opens as `brian_king` (a live cmp-data record,
+    // "Brian S. King", former UT House District 23) and `caroline_gleich` (the
+    // Caroline Gleich stance block's key). Every pid-keyed reader below dipped
+    // straight into `_FTM_BY_ID`, so those two profiles printed "No money file on
+    // hand" in the letterhead AND an empty 💰 Money & Funding section while the
+    // dollars sat one alias away — the site holding a filing and telling the
+    // reader it did not have one, which is the exact failure the coverage
+    // sentence exists to prevent.
+    //
+    // A SECOND KEY IS NOT A SECOND PERSON, and this table is the only place that
+    // is asserted for money. It is the same shape as the bridges the rest of the
+    // product keeps (PDX_PROFILE_ALIAS in profile-evidence.js, the stance keys in
+    // db/vr-pid-aliases.json): profile id on the left, the id the data is filed
+    // under on the right, and no new figure anywhere.
+    //   PDX_PROFILE_ALIAS itself is deliberately NOT the door here.
+    // test-identity-integrity §11 holds that table to "every value is a live
+    // cmp-data record, and no key is one", and `caroline_gleich` has no cmp-data
+    // record — so bridging her there would either fail that fence or force a
+    // roster claim this pass has no business making. The filing index is the
+    // narrower and more honest place to say "this money belongs to that file".
+    //
+    // COUNTS ARE UNAFFECTED. Aliases resolve at LOOKUP time and are never added
+    // to the index, so `_pdxFinanceIds()` still returns the 13 keys that carry a
+    // filing and the coverage sentence still counts 13 people, not 15 keys. Two
+    // ids reaching one record is one filing, the same way two addresses reaching
+    // one profile is one person.
+    var FTM_ID_ALIAS = {
+      brian_king:      'bking',
+      caroline_gleich: 'gleich'
+    };
+
+    // The one resolver. Every pid-keyed finance accessor in this file goes
+    // through it, which is what keeps the letterhead chip (via
+    // `_pdxFinanceFiling`) and the money section (via `_pdxFinanceSignal`) from
+    // ever disagreeing about whether a person has a file — the failure mode this
+    // lane has already shipped once and is fenced against by
+    // scripts/test-finance-id-alias.mjs.
+    function _ftmRecord(pid) {
+      if (!pid) return null;
+      var direct = _FTM_BY_ID[pid];
+      if (direct) return direct;
+      var key = FTM_ID_ALIAS[pid];
+      return (key && _FTM_BY_ID[key]) ? _FTM_BY_ID[key] : null;
+    }
+
+    // Published read-only, for finance-lane.js's second lookup seam: the lane
+    // falls back to the raw index when this file's accessors are absent (a test
+    // harness, a future ingest), and that fallback has to resolve the same ids
+    // this one does or the two seams would answer differently for the same pid.
+    window.PDX_FINANCE_ID_ALIAS = Object.assign({}, FTM_ID_ALIAS);
+
     // ── THE INDEX HAS TO LEAVE THIS CLOSURE ─────────────────────────────────
     // `_FTM_BY_ID` is a `var` inside this IIFE, so it is not a global and never
     // was. finance-lane.js — which owns the letterhead 💰 chip, the coverage
@@ -18321,7 +18375,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     // the coverage sentence and must be counted from the shipped data rather
     // than typed into it.
     window._pdxFinanceFiling = function(pid) {
-      var p = pid && _FTM_BY_ID[pid];
+      var p = _ftmRecord(pid);
       if (!p) return null;
       return {
         id: p.id, name: p.name || '', office: p.office || '',
@@ -18390,7 +18444,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     }
 
     window._pdxFunding = function(pid) {
-      var p = pid && _FTM_BY_ID[pid];
+      var p = _ftmRecord(pid);
       if (!p) return null;
       return {
         id: p.id,

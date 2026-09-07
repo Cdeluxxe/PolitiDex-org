@@ -282,16 +282,63 @@ Declared on the object as `PDXFinanceLane.NEVER_FEEDS` and asserted by
   any **count of formal acts**.
 - Not an input to **ballot sort order**, to **Your Match**, or to any ranking of
   one person against another.
+- Not an input to the **personal alignment read** (the per-issue side-map and its
+  coverage) or to a **Door 2 pick** — not the seat list, the field gate, the pick
+  store or the running count. These two are named separately from `ballotSort`
+  and `yourMatch` because they are where a money figure would stop being a report
+  and start being advice: alignment is what the site says a reader has in common
+  with a person, and a Door 2 pick is the reader's own ballot.
 - Reads no party field and has no opinion about one.
 - **No motive language.** A filing shows where money came from. It does not show
   why anyone voted for anything, and this lane never says it does.
 
-The suite enforces the wall twice: statically, `word-action.js`,
-`publication-floor.js`, `voting-record.js`, `stance-helpers.js` and
-`consistency.js` do not name the finance lane or any funding bucket at all; and
-at runtime, seeding a full filing onto the member under test leaves the Direction
-Match read, the formal pattern tiers, the publication floor and the mapped
-counts byte-identical.
+The suite enforces the wall three ways.
+
+**Statically** — `word-action.js`, `publication-floor.js`, `voting-record.js`,
+`stance-helpers.js` and `consistency.js` do not name the finance lane or any
+funding bucket at all, and neither do the alignment engine or any Door 2 surface
+that orders a field or holds a pick (`alignment-tool.js`, `door2-spine.js`,
+`ballot-workspace.js`, `your-ballot.js`, `ballot-breakdown.js`,
+`ballot-actions.js`, `ballot-axes.js`, `my-stances.js`).
+
+**By construction** — `NEVER_FEEDS` is an enumeration, and an enumeration is only
+ever as complete as the list someone remembered to extend. So the fence also holds
+the *data seam* to a single owner: the filings live in one index built inside
+index.html's Follow-the-Money block and published as `window._FTM_BY_ID`, and
+`finance-lane.js` is the only shipped module permitted to name it (or `FTM_AS_OF`
+/ `FTM_FUNDING` / `FTM_DATA`). A module that cannot see a filing cannot weigh one,
+whatever it later decides it wants. Comments are stripped before that sweep, so
+the retirement notes explaining what used to read the filings stay legal.
+
+**At runtime** — a twin boot. Seeding a full filing onto the member under test
+leaves the Direction Match read, the formal pattern tiers, the publication floor,
+the mapped counts, the alignment side-map and its coverage, and every Door 2 pick
+read (seat list and order, field gate, pick store, running count) byte-identical.
+
+### The last dormant 0–100 finance number is deleted
+
+`profiles-full.js` carried a `FINANCE_INTEGRITY` map: thirteen hand-set 0–100
+scores, one per flagship profile, documented as *"higher = more small-donor, less
+special-interest funded"*, which once seeded the **Transparency** and
+**Constituents-over-special-interests** principles of the People's Mandate
+scorecard.
+
+Its display path went with the Constituents-First ramp, and the comment above it
+said so — it shipped unread. Unread was not good enough. It was a per-person
+finance grade in the exact shape this codebase has now deleted twice (the
+Accountability composite's curated override map, then the Constituents-First
+levels), sitting in the bundle one call site away from being a Mandate input
+again, against the rule stated at the top of this page: **a dormant grade with a
+live accessor is how a retired grade comes back.** Thirteen numbers against a
+roster of 1,120 could not have been anything but a verdict drawn from data the
+site does not have.
+
+The map is deleted. `scripts/test-finance-lane.mjs` now fences it by **name** and
+by **shape** — a bag of bare 0–100 integers keyed by the pids that actually have
+filings is the fingerprint, whatever it gets called next time — so a rename is not
+a way back in. What stands in its place is the lane: composition and counts from
+the itemized filing, the letterhead's 💰 chip as the door to it, and an explicit
+coverage line wherever there is no filing.
 
 ## The data
 

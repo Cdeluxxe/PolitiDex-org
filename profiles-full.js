@@ -143,18 +143,30 @@
   // Leave a principle out to let it derive automatically from tracked data.
   var MANDATE_OVERRIDES = {};
 
-  // Funding integrity signal (higher = more small-donor, less special-interest
-  // funded). FALLBACK SEED ONLY: for anyone with an itemized filing in FTM_FUNDING,
-  // the live composition read of the itemized filing (window._pdxFinanceSignal,
-  // computed from real FEC / Utah-disclosure buckets with its reasons shown in the
-  // UI) supersedes these numbers. This map still seeds the Transparency and
-  // Constituents-over-special-interests mandate principles for officials who have
-  // no filing on file yet. See FINANCE_INTEGRITY.md.
-  var FINANCE_INTEGRITY = {
-    trump:32, cox:54, lee:48, curtis:68, massie:78, owens:58,
-    maloy:62, kennedy:55, bmoore:57, bilzerian:35, gallrein:64,
-    gleich:75, bking:48
-  };
+  // ── THE FUNDING-INTEGRITY SEED IS DELETED, AND THAT IS THE POINT ──────────
+  // A `FINANCE_INTEGRITY` map lived here: thirteen hand-set 0-100 numbers, one
+  // per flagship profile, documented as "higher = more small-donor, less
+  // special-interest funded", seeding the Transparency and
+  // Constituents-over-special-interests principles of the People's Mandate
+  // scorecard for anyone with no filing on file.
+  //   It was already unread — the display path that consumed it went when the
+  // 0-100 "Constituents-First signal" was retired, and the comment here said so.
+  // Unread was not good enough. It was a per-person finance GRADE, in the exact
+  // shape this codebase has now deleted twice (the Accountability composite's
+  // CURATED override map, then the Constituents-First ramp), sitting in the
+  // shipped bundle one call site away from being a Mandate input again — and
+  // FINANCE_INTEGRITY.md's own rule is that a dormant grade with a live accessor
+  // is how a retired grade comes back. Thirteen numbers against a roster of 1,120
+  // could not have been anything but a verdict drawn from data the site does not
+  // have.
+  //   What replaced it is the money lane: composition and counts from the
+  // itemized filing (finance-lane.js), the letterhead's 💰 chip as the door to
+  // it, and an explicit coverage line wherever there is no filing. Finance now
+  // reaches Mandate, alignment, Direction Match, the formal tiers, ballot order
+  // and Door 2 picks through nothing at all — asserted by the NEVER_FEEDS wall
+  // and the twin-boot fence in scripts/test-finance-lane.mjs, which also holds
+  // the filings index to a single owner so no module but the lane can even see a
+  // filing. See FINANCE_INTEGRITY.md.
 
   // Best-effort emoji for a free-text key issue, pulled from the Alignment
   // Tool's ISSUE_MAP so derived stances share the same visual vocabulary.
@@ -3315,8 +3327,10 @@
   // renders either way: on file it names the largest reported source and opens the
   // door to the full breakdown, off file it says plainly that no filing is on file
   // and that this is missing data rather than a finding.
-  // MANDATE_OVERRIDES and the curated FINANCE_INTEGRITY seed remain as data; no
-  // display path reads them any more.
+  // MANDATE_OVERRIDES remains as data and no display path reads it. The curated
+  // FINANCE_INTEGRITY seed that used to sit beside it is now deleted outright —
+  // see the block where it was declared for why "unread" was not enough for a
+  // per-person 0-100 finance number.
   // See scripts/test-acct-not-ranked.mjs and scripts/test-finance-lane.mjs.
   window._renderMandateAlignment = function(id, p) {
     p = p || {};
