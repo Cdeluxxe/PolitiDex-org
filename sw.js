@@ -3114,6 +3114,64 @@
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
 // ─────────────────────────────────────────────────────────────────────────────
+// v160 - HD-68 HAS A SEATED MEMBER, AND THE ADDRESS IS ENOUGH TO NAME HIM
+// ─────────────────────────────────────────────────────────────────────────────
+// v159 shipped the District File and it printed "We have not resolved who holds
+// this seat." over Utah State House District 68 - a seat the curated incumbent
+// map has held all along (68 -> chew_h68, whose person file at /p/chew_h68 works
+// and is unchanged by this pass). Nothing was missing from the data. The LOOKUP
+// was asked in one argument shape only: the page handed
+// window.pdxSeatedMemberFor the payload's ('statehouse', 68) pair and threw the
+// answer away when that pair was not the shape to hand, so a fact about the
+// district was printed as an admission about it.
+//   THE FIX IS THE LOOKUP, NOT THE DISTRICT. The resolver now reads every shape
+// this one seat is spelled in - the pair, the composed district key
+// 'ut-statehouse-68' on its own (the key carries the chamber and the number), the
+// key with the pair, and a number written 'HD-68' - and the page falls back to
+// the address it arrived on. No district is hardcoded and no second Chew was
+// invented: one entry in one map, read through one resolver. The seat vocabulary
+// stays honest, so 'statehouse' is the Utah chamber and 'house' is the U.S.
+// House, and neither borrows the other's map: pdxSeatedMemberFor('house', 68) is
+// still nobody, because there is no 68th U.S. House district in Utah.
+//   AND AN UNMAPPED DISTRICT STILL SAYS SO. The unresolved sentence is not
+// removed - it is what a district whose officeholder is not curated gets, which
+// is the honest answer for that district and was never the honest answer for
+// HD-68.
+//   PRECACHED SHELL FILES CHANGED - THEY ARE THE REASON FOR THE BUMP:
+//   · '/district-file.js'      - the seated member resolves from the district key
+//                                as well as from the payload, and it moved from
+//                                the scrolling body onto the LETTERHEAD, under
+//                                the district's own title. It is painted from the
+//                                address on arrival, so the name is there before
+//                                either GET returns and a read that never lands
+//                                cannot cost a neighbour the officeholder. A warm
+//                                shell keeps the old module and keeps the wrong
+//                                sentence, which is the whole reason for the
+//                                rename.
+//   · '/district-file.css'     - the seat block's margin (it has a header's
+//                                spacing now, not a body's) and the room list's
+//                                heading, which is the first thing in the body.
+//                                No new rule, no colour, no chip: there is still
+//                                nowhere in this stylesheet for a party letter or
+//                                a number to go.
+// ALSO CHANGED BUT NOT PRECACHED, SO IT ARRIVES FRESH WITHOUT THIS BUMP:
+// ballot-breakdown.js (window.pdxSeatedMemberFor reads the composed district key
+// and a loosely written number; the three incumbent maps themselves are
+// byte-identical) and scripts/test-district-file.mjs (which now boots the REAL
+// resolver instead of a stub written to match one argument shape - the suite had
+// agreed with the caller, and neither agreed with the resolver, which is how this
+// shipped).
+// NOTHING ELSE MOVED. No room, no thread, no post, no poll, no residency, no
+// grant and no migration: the lands_preserve row and the open room are exactly
+// as they were, and this pass writes nothing anywhere. It does not touch the
+// forum, the floors, the offline pack, Stripe, DMs, party framing, finance, the
+// Mandate lane, the Eye or the Utah ingest, and it prints no party letter, no
+// score, no grade and no percentage - the percent sign still does not occur in
+// district-file.js at all. A twin boot leaves every Direction Match read and
+// every formal tier byte-identical.
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it.
+// ─────────────────────────────────────────────────────────────────────────────
 // v159 - THE DISTRICT FILE: ONE PAGE PER DISTRICT, AND IT IS A LIST OF DOORS
 // ─────────────────────────────────────────────────────────────────────────────
 // New surface: the District File at /d/<districtKey> - one page per Utah
@@ -3507,7 +3565,7 @@
 // and every formal tier byte-identical.
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
-const CACHE_VERSION = 'v159';
+const CACHE_VERSION = 'v160';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

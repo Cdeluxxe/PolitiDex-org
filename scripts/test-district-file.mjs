@@ -223,6 +223,33 @@ const PERSON_LINK = {
     `<a class="${(opts && opts.cls) || ""}" href="/p/${pid}" data-pdx-person-link="${pid}">${label}</a>`,
 };
 
+// ── THE REAL RESOLVER, NOT A HAND-WRITTEN STUB ──────────────────────────────
+// Who holds a seat is answered by window.pdxSeatedMemberFor in ballot-breakdown.js,
+// so that file is booted in its own sandbox and the district file is handed the
+// REAL function. A stub written to match one argument shape is exactly how HD-68
+// came to paint "we have not resolved who holds this seat" over a seat the
+// curated map holds: the suite agreed with the caller and neither agreed with the
+// resolver. Nothing else from this sandbox is used.
+const BALLOT_WIN = (() => {
+  const w = makeSandbox();
+  w.window = w;
+  w.document = {
+    readyState: "complete", body: null, addEventListener() {}, removeEventListener() {},
+    getElementById: () => null, querySelector: () => null, querySelectorAll: () => [],
+    createElement: () => ({ style: {}, setAttribute() {}, appendChild() {} }),
+  };
+  w.setTimeout = () => 0;
+  w.clearTimeout = () => {};
+  w.location = { pathname: "/", href: "https://www.politidex.fyi/", search: "", hash: "" };
+  w.fetch = () => Promise.resolve({ ok: false, status: 0, json: () => Promise.resolve({}) });
+  const c = vm.createContext(w);
+  vm.runInContext(BALLOT_SRC, c, { filename: "ballot-breakdown.js" });
+  return w;
+})();
+must(typeof BALLOT_WIN.pdxSeatedMemberFor === "function",
+  "ballot-breakdown.js did not publish window.pdxSeatedMemberFor");
+const seatedFor = (a, b) => BALLOT_WIN.pdxSeatedMemberFor(a, b);
+
 // Boots BOTH modules into one context, room first — which is the order
 // index.html loads them in, and the order district-file.js documents.
 function boot(pathname, extras) {
@@ -244,8 +271,7 @@ function boot(pathname, extras) {
   };
   Object.assign(win, {
     _pdxPersonById: (pid) => PEOPLE[pid] || null,
-    pdxSeatedMemberFor: (seatKey, n) =>
-      (seatKey === "statehouse" && Number(n) === 68 ? "chew_h68" : null),
+    pdxSeatedMemberFor: (seatKey, n) => seatedFor(seatKey, n),
     PDXIssueFamily: FAMILY,
     PDXPersonLink: PERSON_LINK,
   }, extras || {});
@@ -357,15 +383,48 @@ eq(F.COPY.line,
   "Neighbors, issue by issue. Reading is open. Posting takes a reviewer grant.",
   "and that line is owned in exactly one place");
 
-// THE SEATED MEMBER IS A NAME AND AN ADDRESS.
-has(body.innerHTML, 'href="/p/chew_h68"', "the seated member links to their person file");
-has(body.innerHTML, "Scott Chew", "and is named");
-has(body.innerHTML, "data-pdx-person-link=", "through PDXPersonLink, like every other surface");
+// THE SEATED MEMBER IS A NAME AND AN ADDRESS, AND IT IS ON THE LETTERHEAD.
+// It sits in the header beside the district's own label because it is a fact
+// about the district in the same way the label is — and because the header is
+// painted from the ADDRESS on arrival, so the name is there before either GET
+// returns and a read that never lands cannot cost the reader the officeholder.
+has(head.innerHTML, 'href="/p/chew_h68"', "the seated member links to their person file");
+has(head.innerHTML, "Scott Chew", "and is named");
+has(head.innerHTML, "data-pdx-person-link=", "through PDXPersonLink, like every other surface");
+lacks(body.innerHTML, "pdxdf-seat",
+  "and the scrolling list does not repeat the seat, so a repaint cannot flicker it");
 // AND NOTHING ELSE. No party letter, no score, no grade, no percentage.
 for (const f of ["(R)", "(D)", "Republican", "Democrat", "score", "Score", "%", "grade",
   "Kept", "Broken", "Direction Match"]) {
-  lacks(body.innerHTML, f, `the seated member's block carries no ${f}`);
+  lacks(head.innerHTML, f, `the seated member's block carries no ${f}`);
 }
+
+// THE ADDRESS ALONE IS ENOUGH, WHICH IS THE BUG THIS PAGE HAD. HD-68 painted
+// "we have not resolved who holds this seat" over a seat that is curated, because
+// the seat was asked for in ONE argument shape and the answer was dropped when
+// the payload was not carrying that shape. The builder is handed the district key
+// and nothing else here — no payload at all — and still names the member.
+const seatFromKeyOnly = F.seatedHtml(HD68, null);
+has(seatFromKeyOnly, 'href="/p/chew_h68"',
+  "the seated member resolves from the district key with no payload");
+has(seatFromKeyOnly, "Scott Chew", "and is named from it");
+lacks(seatFromKeyOnly, F.COPY.seatedNone,
+  "so the unresolved sentence is not printed over a seat we hold");
+// A payload whose seat fields are missing or spelled some other way cannot undo
+// it either: the key is the authority and the pair is only a shortcut.
+has(F.seatedHtml(HD68, { label: "Utah State House District 68" }), 'href="/p/chew_h68"',
+  "a payload with no seat fields still resolves through the address");
+has(F.seatedHtml(HD68, { seatKey: "", districtNumber: null }), 'href="/p/chew_h68"',
+  "and so does one carrying empty ones");
+
+// A DISTRICT WHOSE SEAT IS NOT CURATED STILL SAYS SO. The honest answer is not
+// removed by any of the above — it is what an unmapped district gets.
+const seatUnmapped = F.seatedHtml("ut-statehouse-1", null);
+has(seatUnmapped, F.COPY.seatedNone,
+  "an unmapped district says we have not resolved who holds the seat");
+lacks(seatUnmapped, 'href="/p/', "and links to nobody");
+eq(F.COPY.seatedNone, "We have not resolved who holds this seat.",
+  "and that sentence is owned in exactly one place");
 
 // The seat is resolved from the ADDRESS, not from the reader. A visitor with no
 // location, no account and no resolver still gets the officeholder.
@@ -377,6 +436,29 @@ has(strip(BALLOT_SRC), "window.pdxSeatedMemberFor = function",
   "ballot-breakdown.js publishes that resolver");
 ok(/statehouse[\s\S]{0,80}KR_STATE_HOUSE_INCUMBENTS\[n\]/.test(strip(BALLOT_SRC)),
   "and it reads the state-house seat off the curated incumbent map");
+has(strip(BALLOT_SRC), "68:'chew_h68'",
+  "and HD-68 is an entry in that map, so the seat is a curated fact");
+
+// THE REAL RESOLVER, NOT THE SUITE'S STUB — this is the function the page calls,
+// booted from ballot-breakdown.js above. Every shape the app spells this one seat
+// in resolves to the one member, because they all name one seat.
+eq(seatedFor("statehouse", 68), "chew_h68", "the seat key and the number resolve HD-68");
+eq(seatedFor("statehouse", "68"), "chew_h68", "the number as a string resolves it");
+eq(seatedFor(HD68), "chew_h68", "the composed district key alone resolves it");
+eq(seatedFor(HD68, 68), "chew_h68", "the key and the number together resolve it");
+eq(seatedFor("statehouse-68"), "chew_h68", "and so does the key without its state prefix");
+eq(seatedFor("statehouse", "HD-68"), "chew_h68", "a number written HD-68 resolves it");
+// THE SEAT VOCABULARY STAYS HONEST. 'statehouse' is the Utah chamber and 'house'
+// is the U.S. House; neither falls back to the other's map, so no district is
+// handed a member from a chamber it does not belong to.
+eq(seatedFor("ut-house-2"), "maloy", "a U.S. House key reads the congressional map");
+eq(seatedFor("house", 68), null,
+  "and 68 names no U.S. House district, so it resolves to nobody rather than a state rep");
+eq(seatedFor("ut-statesenate-26"), "dhinkins", "a state senate key reads the senate map");
+eq(seatedFor("ut-statehouse-1"), null, "a district the map does not hold resolves to null");
+eq(seatedFor("statehouse", 0), null, "and so does a number that is not a district");
+eq(seatedFor("", 68), null, "a seat key that names no chamber resolves to nobody");
+eq(seatedFor(null, null), null, "and neither does nothing at all");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("4 · the list of issue rooms — lands_preserve is on it, and it opens");
@@ -644,8 +726,8 @@ ok(INDEX.indexOf('src="/district-room.js"') < INDEX.indexOf('src="/district-file
 has(SW, "'/district-file.js',", "the service worker precaches the module");
 has(SW, "'/district-file.css',", "and the stylesheet");
 const ver = /const CACHE_VERSION = '(v\d+)'/.exec(SW);
-ok(ver && parseInt(ver[1].slice(1), 10) >= 159,
-  `the shell cache version is bumped for the new pair — got ${ver && ver[1]}`);
+ok(ver && parseInt(ver[1].slice(1), 10) >= 160,
+  `the shell cache version is bumped for the seat fix — got ${ver && ver[1]}`);
 
 // ═════════════════════════════════════════════════════════════════════════════
 if (failures.length) {

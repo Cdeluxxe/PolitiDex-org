@@ -21,6 +21,13 @@
      · one line saying what this place is and who may post in it
      · the list of issue rooms, each row an issue, its counts if it has any, and
        a way in
+   The first three are the LETTERHEAD and the last one scrolls. The seated member
+   is up there rather than in the list because who holds the seat is a fact about
+   the district in the same way its name is — and because the letterhead is
+   painted from the ADDRESS the moment the panel opens, so the officeholder is on
+   the page before either GET returns. /d/ut-statehouse-68 names the seat by
+   itself; a reader who cannot be placed, a read that is slow and a read that
+   never lands cannot cost anybody the name.
 
    WHAT IS NOT ON IT. No party letter, no score, no grade, no composite
    percentage, no Direction Match, no forum, no floors, no offline pack, no
@@ -184,10 +191,21 @@
   // URL already names the district, so it asks the location-independent resolver
   // in ballot-breakdown.js instead. A signed-out reader three states away sees
   // the same officeholder as a neighbour, because there is only one.
-  function seatedPid(data) {
+  //
+  // THE DISTRICT KEY IS THE AUTHORITY, and the payload is only a shortcut. The
+  // resolver reads 'ut-statehouse-68' on its own — the composed key carries the
+  // chamber and the number — so the seat is answerable from the address the
+  // reader arrived on, before the district read returns and whatever the payload
+  // spells its seat fields as. This page printed "we have not resolved who holds
+  // this seat" over HD-68 for exactly that reason: the seat was asked for in one
+  // shape only, and the resolver's answer was thrown away when that shape was not
+  // the one to hand. The pair is still tried first, because a district whose key
+  // this app has not shipped yet is still resolvable from a payload.
+  function seatedPid(districtKey, data) {
     try {
       if (!fn(window.pdxSeatedMemberFor)) return '';
       var pid = window.pdxSeatedMemberFor(data && data.seatKey, data && data.districtNumber);
+      if (!pid) pid = window.pdxSeatedMemberFor(districtKey);
       return pid ? String(pid) : '';
     } catch (e) { return ''; }
   }
@@ -217,8 +235,8 @@
   // kept/broken tally and no percentage — see the header for why. The link is
   // built by PDXPersonLink so this page opens a person file exactly the way every
   // other surface does rather than hand-rolling a /p/ href.
-  function seatedHtml(data) {
-    var pid = seatedPid(data);
+  function seatedHtml(districtKey, data) {
+    var pid = seatedPid(districtKey, data);
     if (!pid) {
       return '<p class="pdxdf-seat pdxdf-seat--none">' +
         '<span class="pdxdf-seat-hd">' + esc(COPY.seatedHd) + '</span>' +
@@ -241,12 +259,19 @@
 
   // ── THE HEADER ────────────────────────────────────────────────────────────
   // The district's own label, from dd_districts, and the file's address printed
-  // where a letterhead prints a file number.
+  // where a letterhead prints a file number — and then the seated member, which
+  // is on the LETTERHEAD rather than in the scrolling body because it is a fact
+  // about the district in the same way the label is. It is also the one part of
+  // this page that needs nothing from the network: the seat resolves from the
+  // district key, so a neighbour arriving cold reads who holds their seat while
+  // the two GETs are still out, and a read that never lands cannot cost them the
+  // name. The body below repaints as the rooms arrive; this line does not have to.
   function headHtml(districtKey, data) {
     var label = (data && data.label) || districtKey;
     var p = path(districtKey);
     return '<p class="pdxdf-kick">' + esc(COPY.kick) + (p ? ' · ' + esc(p) : '') + '</p>' +
       '<h2 class="pdxdf-title" id="' + ID_TITLE + '">' + esc(label) + '</h2>' +
+      seatedHtml(districtKey, data) +
       '<p class="pdxdf-line">' + esc(COPY.line) + '</p>';
   }
 
@@ -479,7 +504,7 @@
       var head = el(ID_HEAD);
       if (head) { try { head.innerHTML = headHtml(districtKey, data); } catch (e) {} }
 
-      var pid = seatedPid(data);
+      var pid = seatedPid(districtKey, data);
       // The record branch is BEST EFFORT and the page does not wait on it being
       // there: a district whose seat we cannot resolve, or a record read that
       // fails, still prints every room that exists. The rooms are the authority;
@@ -508,7 +533,10 @@
     var body = el(ID_BODY);
     if (!body) return;
     try {
-      body.innerHTML = seatedHtml(data) + listHtml(districtKey, data, recordKeys || []);
+      // The seated member is not repainted here: it is on the letterhead, it was
+      // resolved from the address on arrival, and a repaint of the rooms is not a
+      // reason for the name to flicker.
+      body.innerHTML = listHtml(districtKey, data, recordKeys || []);
     } catch (e) {}
   }
 
@@ -608,7 +636,11 @@
     district: function () { return _key || null; },
     // Exposed for the suite: the merge of the two branches into one ordered list,
     // asserted directly rather than inferred from painted markup.
-    rows: rows
+    rows: rows,
+    // Exposed for the suite for the same reason: the seated member's line for a
+    // district key, so "HD-68 resolves to chew_h68" and "a district whose seat is
+    // not curated says so out loud" are both asserted on the real builder.
+    seatedHtml: seatedHtml
   };
 
   wire();
