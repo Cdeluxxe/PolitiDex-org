@@ -3114,6 +3114,73 @@
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
 // ─────────────────────────────────────────────────────────────────────────────
+// v156 - AND A GOOGLE SESSION IS ONE OF THE ACCOUNTS IT FOLLOWS
+// ─────────────────────────────────────────────────────────────────────────────
+// One precached shell file changed, so the bucket is renamed.
+//
+// district-room.js:
+//   v155 MADE THE ROOM FOLLOW THE CHIP, AND IT ONLY FOLLOWED HALF OF IT. On
+//   production /d/ut-statehouse-68/lands_preserve opened correctly for an
+//   email/password member - the poll and the composer painted - and still said
+//   "Sign in first, then ask to be verified for this district" to a reader who
+//   had signed in with Google, while the account chip in the top-right was
+//   painting that same Google user. One question, two answers, again.
+//
+//   WHY, AND IT IS THREE THINGS A GOOGLE SESSION DOES THAT A PASSWORD SIGN-IN
+//   DOES NOT.
+//     1. THE TOKEN ARRIVES AFTER THE USER DOES. The popup (or the redirect)
+//        hands the SDK a user a beat before it can mint an ID token for them.
+//        v155 resolved auth on the state callback alone, so a standing read
+//        could go out in that beat with no Authorization header - and a request
+//        the server cannot name is answered, correctly, "we cannot name you".
+//     2. THE POPUP CAN RESOLVE WHILE THE READ IS IN FLIGHT. The room resolved
+//        "signed out", sent the unauthenticated read, and the account existed by
+//        the time the answer came back - with no state change in between that
+//        the room could have heard.
+//     3. THE BOOT'S ANONYMOUS SIGN-IN CAN LAND AFTER THE POPUP. That leaves the
+//        SDK presenting the per-browser anonymous session while the reader is
+//        signed in to a real account. v155 read that as a sign-out and painted
+//        the signed-out sentence over the Google chip.
+//
+//   WHAT CHANGED, ALL OF IT IN THE ONE "who is this request" HELPER.
+//     · AUTH IS NOT RESOLVED UNTIL THERE IS A TOKEN. The room now waits for the
+//       state callback AND a real getIdToken() for that uid before the standing
+//       read goes out. A cold Google arrival holds on "Opening the room..." for
+//       that beat instead of printing a sentence it does not yet know to be
+//       true.
+//     · AN UNATTRIBUTED ANSWER IS CHECKED AGAINST THE SDK BEFORE IT IS PAINTED.
+//       If the read came back unattributed and the SDK now has an account the
+//       room never heard about, that account is adopted, its token is minted
+//       fresh, and the standing is asked exactly once more as that reader.
+//     · AN ANONYMOUS LEFTOVER IS SWITCHED AWAY FROM, NOT OBEYED. An anonymous
+//       session arriving under a resolved account is the leftover rather than a
+//       sign-out - a real sign-out reports null first - so the room switches the
+//       SDK back to the account (updateCurrentUser, which signs nothing out) and
+//       keeps its standing. There is now no path by which an anonymous ID token
+//       becomes this room's Authorization header.
+//     · AND THE PROVIDER IS NOT PART OF THE TEST. The chip's test is
+//       `user && !user.isAnonymous`; the room required a uid AND an email, which
+//       is a second notion of "signed in" the chip does not have. The email
+//       requirement is gone and no provider id is read anywhere on this surface,
+//       so Google and email/password are one case here rather than two.
+//   If all of that still disagrees with the server, the room says "You're
+//   signed in, but we could not confirm it for this room" - the sentence
+//   netlify/lib/district-room-core.mjs already owned. It never leaves "sign in
+//   first" up in front of an account that is signed in.
+//
+//   WHAT DID NOT CHANGE. Nothing was granted to anybody. Residency is still a
+//   row a reviewer writes and an admin grant is still the only method that
+//   reaches verified, so knowing WHO somebody is still says nothing about WHERE
+//   they live: a Google reader with no row gets the Ask, a pending row still
+//   says pending, and the composer still opens on canPost === true and nothing
+//   else. A self-typed location is still not an identity and is not read by the
+//   helper, and no ID vendor is called. No copy was added - the four sentences
+//   in play are the gate's.
+//
+// TRAVELS WITH THIS BUMP, UNCHANGED AND BYTE-IDENTICAL. district-room.css, the
+// two mounts (who-represents-me.js and issue-file.js) and every other precached
+// file are untouched by this pass; renaming the buckets re-fetches them anyway.
+// ─────────────────────────────────────────────────────────────────────────────
 // v155 - THE ROOM'S AUTH FOLLOWS THE NAV CHIP
 // ─────────────────────────────────────────────────────────────────────────────
 // One precached shell file changed, so the bucket is renamed.
@@ -3239,7 +3306,7 @@
 // and every formal tier byte-identical.
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
-const CACHE_VERSION = 'v155';
+const CACHE_VERSION = 'v156';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

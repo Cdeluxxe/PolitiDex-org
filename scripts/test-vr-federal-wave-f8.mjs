@@ -1771,6 +1771,24 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // above is therefore untouched by it, which is the claim this list exists to keep
     // checkable rather than the claim that nothing else may ever change.
     "db/schema.ts",
+    // ── A LATER PASS, declared on the terms this guard established ─────────────
+    // THE DISTRICT ROOM'S AUTH FOLLOWS THE NAV CHIP FOR A GOOGLE SESSION TOO.
+    // district-room.js changes in one place only — the "who is this request"
+    // helper — so a reader signed in with Google is signed in for the room as
+    // they already were for the account chip: auth resolves only once there is a
+    // real ID token for that uid, an unattributed answer is re-asked as the
+    // account the SDK has, and an anonymous leftover is switched away from rather
+    // than read as a sign-out. Its own suite (scripts/test-district-room.mjs)
+    // grows the section that pins it.
+    //   NOTHING IN THIS WAVE'S REACH MOVES. The room reads /api/district-room and
+    // the dd_* tables and nothing else: it queries no vr_* model, no pack, no
+    // ingest script and no reader surface this guard measures, it carries no
+    // roll, mapping, key, floor, admission, tier, chip, count or Direction Match
+    // figure, and it prints no pid. The twin boot above is therefore untouched by
+    // it — which is the claim this list exists to keep checkable rather than the
+    // claim that nothing else may ever change.
+    "district-room.js",
+    "scripts/test-district-room.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};
