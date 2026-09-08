@@ -53,11 +53,18 @@
 
      · "Ask to be verified for this district" — the NEIGHBOUR'S PRIMARY CONTROL,
        painted immediately under the closed note where somebody looking for the
-       way into the room will actually look for it. It is offered only when the
-       server says canAttest AND this room's district is one the reader's OWN
-       resolver already places them in, so nobody is invited to claim a district
-       that is not theirs. It records a PENDING row, the composer stays shut, and
-       the sentence afterwards says pending rather than verified.
+       way into the room will actually look for it. It is offered on exactly one
+       condition, the server's: canAttest, which is true for a signed-in reader
+       with NO dd_residency row for this district in a state this pass verifies.
+       No location is consulted. Phase 3 also required the room's district to be
+       one the reader's own resolver placed them in, and that check silently
+       removed the only control a signed-in unverified neighbour has whenever the
+       resolver had not been given a location — a reader correctly told "we have
+       not established that you live in this district" and then shown no way to
+       ask. A self-typed zip is not residency and must not decide who may ASK to
+       be verified, so it decides nothing here. It records a PENDING row, the
+       composer stays shut, and the sentence afterwards says pending rather than
+       verified.
      · "Grant residency (reviewer)" — a REVIEWER'S decision, offered only when the
        server says canGrant. It is the one path that reaches verified, and it is
        painted in its own footer BELOW THE POSTS under a "Reviewer tools" heading
@@ -744,38 +751,32 @@
   // Exactly one of the two, and the server decided which. `canPost` false paints
   // a short note and no field — not a disabled textarea, because a box a reader
   // can click into and type in and then not send is a worse answer than no box.
-  // Is this room's district one the reader's OWN resolver places them in? The
-  // self-attest control is offered only where that is true — the server would
-  // accept a request for any mapped Utah district (a pending row cannot post
-  // whatever district it names), but offering one for a district that is not
-  // theirs would be inviting a claim nobody should make.
-  function isMine(districtKey) {
-    var d = String(districtKey == null ? '' : districtKey);
-    if (!d) return false;
-    var mine = myDistricts();
-    for (var i = 0; i < mine.length; i++) {
-      if (mine[i] && mine[i].districtKey === d) return true;
-    }
-    return false;
-  }
-
   // THE NEIGHBOUR'S WAY IN, and the only control in this slot. A reader whose
   // composer is closed gets the ask — "Ask to be verified for this district" —
   // right under the note that told them why it is closed, because that is where
   // somebody looking for the way into the room looks. The reviewer's grant is NOT
   // here: it lives in reviewerHtml() below, under the posts.
   //
-  // Both flags come from the server; this function adds only the "is it their own
-  // district" restriction on the ask, and never a verdict of its own.
+  // THE ONLY CONDITION IS THE SERVER'S. `canAttest` is true for a signed-in
+  // reader with no dd_residency row for this district, in a state this pass
+  // verifies at all, and this function adds nothing to it — no verdict, and in
+  // particular no location. Phase 3 also required myDistricts() to contain the
+  // room's key, on the reasoning that nobody should be invited to claim a
+  // district that is not theirs; the effect was that a signed-in neighbour whose
+  // resolver held no location (the ordinary case — window._currentVoterLocation
+  // is a zip somebody types, and most readers never do) was told "we have not
+  // established that you live in this district" beneath no way to change that.
+  // The safeguard was never this check: asking writes a PENDING row and a
+  // pending row cannot post whatever district it names, and only a reviewer's
+  // grant reaches verified. So the ask is offered wherever the server offers it.
   function residencyHtml(data) {
     var r = (data && data.residency) || null;
     if (!r) return '';
-    var d = (data && data.district && data.district.districtKey) || '';
     var out = '';
     if (r.outOfScopeNote) {
       out += '<p class="pdxdr-resnote">' + esc(r.outOfScopeNote) + '</p>';
     }
-    if (r.canAttest === true && isMine(d)) {
+    if (r.canAttest === true) {
       out += '<div class="pdxdr-ask" data-pdxdr-saybox="1">' +
           '<button type="button" class="pdxdr-askbtn" data-pdxdr-attest="1">' +
             esc(r.attest || COPY.attest) + '</button>' +

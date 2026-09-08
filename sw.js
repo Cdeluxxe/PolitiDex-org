@@ -3114,6 +3114,59 @@
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
 // ─────────────────────────────────────────────────────────────────────────────
+// v157 - THE ROOM TOLD A NEIGHBOUR THEY WERE NOT VERIFIED AND GAVE THEM NO WAY TO ASK
+// ─────────────────────────────────────────────────────────────────────────────
+// One precached shell file changed, so the bucket is renamed.
+//
+// district-room.js:
+//   v156 GOT THE STANDING RIGHT AND THE CONTROL WRONG. On production
+//   /d/ut-statehouse-68/lands_preserve, a Google reader signed in on the account
+//   chip read exactly the true sentence - "Verify you live in this district to
+//   post. We have not established that you live in this district." - with no
+//   control of any kind under it. The composer was correctly shut and the poll
+//   correctly offered no Support/Oppose/Mixed, because nothing about them had
+//   been established. What was missing was the ONE thing that reader can do:
+//   ask.
+//
+//   WHY. The server was already offering it. /api/district-room returns
+//   residency.canAttest, true for a signed-in caller with no dd_residency row
+//   for this district in a state this pass verifies, and it was true for this
+//   reader. The client then ANDed that flag with a test of its own - was the
+//   room's district one myDistricts() placed the reader in - and myDistricts()
+//   reads window.pdxRepsForMe(), which answers "not located" until somebody
+//   types a zip into Who Represents Me. Most readers never type one. So the ask
+//   was hidden from precisely the people it exists for, and hidden silently:
+//   there was no note explaining the absence, because the absence was not
+//   supposed to be a state.
+//
+//   THE CHECK WAS NEVER THE SAFEGUARD, which is why removing it costs nothing.
+//   Asking writes status 'pending', method 'self_attest' - both literals in the
+//   Function, neither readable off a request body - and residencyClaim() honours
+//   a verified status only from a verifying method, of which 'self_attest' is
+//   not one. A pending row cannot post and cannot vote whatever district it
+//   names. The only path to verified is still a reviewer's grant.
+//
+//   WHAT IS NOW TRUE, AND IS PINNED. Signed in with no row: the ask is the
+//   primary control, full width and 46px, directly under the note that said why
+//   the composer is shut, with no location consulted on either side. Pressing it
+//   POSTs the district and nothing else to /residency/attest, and the room the
+//   reader is left looking at says pending, offers no second ask, has no
+//   composer and has no poll button. Pending: the pending sentence alone.
+//   Verified for THIS district: composer and the three poll buttons, and no ask.
+//   The reviewer's grant is unmoved - still below the conversation under its own
+//   "Reviewer tools" heading, still gone entirely once the composer is open.
+//   Google is still a way of signing in and not a residency, and no ID vendor is
+//   called.
+//
+//   NO COPY WAS ADDED OR CHANGED. Every sentence in play is the gate's, already
+//   shipped in netlify/lib/district-room-core.mjs.
+//
+// TRAVELS WITH THIS BUMP, UNCHANGED AND BYTE-IDENTICAL. district-room.css (the
+// ask's full-width 46px rule was already there, waiting for a button to paint),
+// the two mounts (who-represents-me.js and issue-file.js) and every other
+// precached file are untouched by this pass; renaming the buckets re-fetches
+// them anyway.
+// ─────────────────────────────────────────────────────────────────────────────
 // v156 - AND A GOOGLE SESSION IS ONE OF THE ACCOUNTS IT FOLLOWS
 // ─────────────────────────────────────────────────────────────────────────────
 // One precached shell file changed, so the bucket is renamed.
@@ -3306,7 +3359,7 @@
 // and every formal tier byte-identical.
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
-const CACHE_VERSION = 'v156';
+const CACHE_VERSION = 'v157';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

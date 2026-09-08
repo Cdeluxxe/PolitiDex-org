@@ -158,6 +158,12 @@ function makeDom(pathname) {
   }
 
   const body = node("body");
+  // The document's listeners are KEPT rather than dropped. district-room.js wires
+  // every control through one delegated click handler on the document, so a test
+  // that wants to press the Ask has to be able to reach that handler — dropping
+  // the registration makes the whole write path unobservable, which is how a
+  // missing control shipped in the first place.
+  const on = {};
   const doc = {
     readyState: "complete", cookie: "",
     body,
@@ -167,7 +173,12 @@ function makeDom(pathname) {
     getElementById: (id) => nodes.find((n) => n.id === id) || null,
     querySelector: () => null,
     querySelectorAll: () => [],
-    addEventListener() {}, removeEventListener() {}, dispatchEvent() { return true; },
+    __on: on,
+    addEventListener(type, fn) {
+      if (typeof fn !== "function") return;
+      (on[String(type)] = on[String(type)] || []).push(fn);
+    },
+    removeEventListener() {}, dispatchEvent() { return true; },
   };
 
   // Real-enough timers, so the arrival boot can be flushed on demand rather than
@@ -992,8 +1003,9 @@ lacks(vbody, "pdxdr-closed", "a verified neighbour gets no closed note");
 has(vbody, CORE_COPY.empty, "the room under the composer is still honestly empty");
 
 // ── THE TWO RESIDENCY CONTROLS, AS PAINTED ────────────────────────────────
-// A reader the app can place in ut-house-2, so the self-attest control is
-// offered for their OWN district and nothing else.
+// A reader the app happens to place in ut-house-2. The self-attest control does
+// NOT depend on this any more — see the location-independence block below — so
+// this fixture is here only so the painted room is the ordinary one.
 const MY_UT2 = {
   pdxRepsForMe: () => ({
     located: true, national: false, state: "Utah", districtsResolvable: true,
@@ -1021,27 +1033,48 @@ async function paint(payload, extras) {
   return w.document.getElementById("pdx-district-room-scroll").innerHTML;
 }
 
-// OFFERED, when the server says so AND the district is the reader's own.
+// OFFERED, on the server's flag and nothing else.
 const attestBody = await paint(residencyPayload({ canAttest: true }), MY_UT2);
-has(attestBody, "data-pdxdr-attest", "a signed-in reader in their own district is offered the request");
+has(attestBody, "data-pdxdr-attest", "a signed-in reader with no row is offered the request");
 has(attestBody, CORE_COPY.attest, "and the control says what they are claiming");
 has(attestBody, CORE_COPY.attestNote, "and says plainly that saying it does not verify them");
 lacks(attestBody, "pdxdr-composer", "the request is not a composer");
 lacks(attestBody, "<textarea", "the request opens no field");
 lacks(attestBody, CORE_COPY.badge, "the request does not print the badge");
 
-// NOT OFFERED for a district the reader's own resolver does not place them in —
-// nobody is invited to claim a district that is not theirs.
-const notMine = await paint(residencyPayload({ canAttest: true }), {
+// STILL OFFERED when the reader's own resolver places them somewhere else, and
+// still offered when it places them nowhere at all. Phase 3 suppressed the ask
+// in both of those rooms; the second one is the ordinary case — a self-typed zip
+// is the only thing that populates the resolver and most readers never type one —
+// so the suppression removed the single control a signed-in unverified neighbour
+// has, under a note telling them their residency was not established. The
+// safeguard is elsewhere and unchanged: asking writes a PENDING row, a pending
+// row cannot post whatever district it names, and only a reviewer reaches
+// verified (pinned in the write-gate sections above).
+const elsewhere = await paint(residencyPayload({ canAttest: true }), {
   pdxRepsForMe: () => ({
     located: true, national: false, state: "Utah", districtsResolvable: true,
     levels: [{ key: "ushouse1", seat: "house", district: 1, distLabel: "Utah · U.S. House District 1" }],
   }),
 });
-lacks(notMine, "data-pdxdr-attest", "a district that is not the reader's own is not offered");
-// NOT OFFERED at all when the server did not say so.
+has(elsewhere, "data-pdxdr-attest",
+  "a reader the resolver places in another district may still ASK about this one");
+const unplaced = await paint(residencyPayload({ canAttest: true }), {
+  pdxRepsForMe: () => ({ located: false, national: false, state: "", districtsResolvable: false, levels: [] }),
+});
+has(unplaced, "data-pdxdr-attest",
+  "a reader with no self-typed location is still offered the way into the room");
+has(unplaced, CORE_COPY.attest, "and it is the same ask, in the same words");
+// NOT OFFERED at all when the server did not say so. The server's flag is the
+// whole condition, in both directions.
 lacks(await paint(residencyPayload({ canAttest: false }), MY_UT2), "data-pdxdr-attest",
   "the client never offers the request on its own opinion");
+lacks(await paint(residencyPayload({ canAttest: false }), {
+  pdxRepsForMe: () => ({
+    located: true, national: false, state: "Utah", districtsResolvable: true,
+    levels: [{ key: "ushouse2", seat: "house", district: 2, distLabel: "Utah · U.S. House District 2" }],
+  }),
+}), "data-pdxdr-attest", "and being placed in the room's district does not conjure one");
 
 // PENDING SAYS PENDING, and wears nothing.
 const pendingPayload = residencyPayload(
@@ -1639,8 +1672,11 @@ section("11 · the room's auth follows the nav chip");
 
 // The standing read the Function actually returns, built out of the gate's own
 // composerState/pollState so the sentences here are the shipped sentences.
-function standingPayload(signedIn, extra) {
-  const residency = residencyClaim(signedIn ? { uid: "uid-chip-1" } : null, null);
+// `row` is the caller's dd_residency row for this district, or null — the ONE
+// thing canAttest turns on, because a person who already has a row has already
+// asked (or been decided about) and is never asked to ask again.
+function standingPayload(signedIn, extra, row) {
+  const residency = residencyClaim(signedIn ? { uid: "uid-chip-1" } : null, row || null);
   const composer = composerState(residency, "ut-statehouse-68");
   const ps = pollState(residency, "ut-statehouse-68");
   return Object.assign(roomPayload([]), {
@@ -1664,7 +1700,7 @@ function standingPayload(signedIn, extra) {
     residency: {
       status: residency.status,
       reason: residency.reason,
-      canAttest: signedIn,
+      canAttest: signedIn && !row,
       attest: CORE_COPY.attest,
       attestNote: CORE_COPY.attestNote,
       canGrant: false,
@@ -1717,8 +1753,13 @@ has(WIN.__calls[0].url, "district=ut-statehouse-68",
   "and it asked about the district in the address");
 
 // The Ask control is the one thing a signed-in reader with no row can do, and it
-// is on screen now that the room knows who they are. MY_UT68 places them in the
-// district so the client's own "is it their own district" test passes.
+// is on screen now that the room knows who they are — WITH NOTHING INJECTED. No
+// pdxRepsForMe, no location, no zip: this boot is the report's own browser, and
+// the missing control was the second half of the bug. The reader was correctly
+// told nothing had been established about them and then given no way to change
+// that, because the client also demanded that its own resolver place them in
+// this district and the resolver had never been given a location to place them
+// with.
 const MY_UT68 = {
   pdxRepsForMe: () => ({
     located: true, national: false, state: "Utah", districtsResolvable: true,
@@ -1728,10 +1769,110 @@ const MY_UT68 = {
 const askBody68 = scroll(await settled(boot(
   ROOM_68,
   () => ({ status: 200, data: standingPayload(true) }),
-  Object.assign({ auth: fakeAuth(chipAccount()) }, MY_UT68)
+  { auth: fakeAuth(chipAccount()) }
 )));
-has(askBody68, "data-pdxdr-attest", "a signed-in reader in their own district is offered the Ask");
+has(askBody68, "data-pdxdr-attest",
+  "THE BUG: a signed-in reader with no row is offered the Ask, with no location set");
+has(askBody68, CORE_COPY.attest, "and it is labelled in the gate's own words");
+has(askBody68, "pdxdr-askbtn", "painted as the room's primary control");
 lacks(askBody68, CORE_COPY.closedSignedOut, "and still never the signed-out sentence");
+lacks(askBody68, "pdxdr-composer", "the Ask is not a composer");
+lacks(askBody68, "pdxdr-pole", "and it opens no poll button");
+// Injecting a location changes nothing either way. The control is the server's
+// answer, not a function of where the reader typed they live.
+has(scroll(await settled(boot(
+  ROOM_68,
+  () => ({ status: 200, data: standingPayload(true) }),
+  Object.assign({ auth: fakeAuth(chipAccount()) }, MY_UT68)
+))), "data-pdxdr-attest", "and a reader the resolver does place here is offered the same Ask");
+
+// ── PRESSING THE ASK, END TO END ────────────────────────────────────────────
+// The painted room is a string of HTML rather than a node tree, so a press is
+// delivered the way the browser delivers it: to the delegated click listener
+// district-room.js registered on the document, with a target that answers
+// closest() for the one selector the control carries and nothing else.
+function press(win, selector) {
+  const btn = {
+    disabled: false,
+    getAttribute: () => null,
+    querySelector: () => null,
+    closest: (sel) => (sel === selector ? btn : null),
+  };
+  const ev = { target: btn, button: 0, defaultPrevented: false, preventDefault() {} };
+  ((win.document.__on && win.document.__on.click) || []).forEach((fn) => fn(ev));
+  return btn;
+}
+
+// The whole of the brief's test, in one boot: a signed-in uid, no row for
+// ut-statehouse-68, the lands_preserve room. The Ask is on screen; pressing it
+// writes a PENDING request through the attest route; and the room the reader is
+// left looking at says pending, still has no composer, still has no poll button
+// and does NOT offer a second Ask.
+let asked = 0;
+const PENDING_ROW = { districtKey: "ut-statehouse-68", status: "pending", method: "self_attest" };
+const askRoutes = (url, init) => {
+  const method = String((init && init.method) || "GET").toUpperCase();
+  if (method === "POST" && String(url).indexOf("/residency/attest") >= 0) {
+    asked++;
+    return {
+      status: 202,
+      data: {
+        status: "pending",
+        districtKey: "ut-statehouse-68",
+        message: CORE_COPY.attestSent,
+        note: CORE_COPY.attestNote,
+      },
+    };
+  }
+  // Every read after the request is answered the way the Function answers it
+  // once the row exists: pending, and no second ask on offer.
+  return { status: 200, data: standingPayload(true, null, asked ? PENDING_ROW : null) };
+};
+
+const WASKE2E = await settled(boot(ROOM_68, askRoutes, { auth: fakeAuth(chipAccount()) }));
+has(scroll(WASKE2E), "data-pdxdr-attest", "the Ask is on screen for a signed-in reader with no row");
+eq(asked, 0, "and nothing has been written just by opening the room");
+
+press(WASKE2E, "[data-pdxdr-attest]");
+await settled(WASKE2E, 8);
+
+eq(asked, 1, "pressing the Ask writes exactly one request");
+const attestCall = WASKE2E.__calls.find(
+  (c) => String(c.url).indexOf("/residency/attest") >= 0
+);
+ok(!!attestCall, "and it goes to the attest route and no other");
+eq(String((attestCall.init || {}).method).toUpperCase(), "POST", "as a POST");
+eq(bearerOf(attestCall), "Bearer tok-1", "carrying the reader's own ID token");
+has(String((attestCall.init || {}).body || ""), "ut-statehouse-68",
+  "and naming the district in the address");
+// NOT A GRANT. The body carries a district and nothing else — no status, no
+// method, no uid — so there is no field on this request that could ask for
+// 'verified', whoever signed the reader in.
+const attestBodySent = String((attestCall.init || {}).body || "");
+lacks(attestBodySent, "verified", "the request cannot ask to be verified");
+lacks(attestBodySent, "admin_grant", "or to be granted");
+lacks(attestBodySent, "location", "and carries no location");
+
+const afterAsk = scroll(WASKE2E);
+has(afterAsk, CORE_COPY.pending, "the room now says the request is pending");
+lacks(afterAsk, "data-pdxdr-attest", "and offers no second Ask");
+lacks(afterAsk, "pdxdr-composer", "asking opened no composer");
+lacks(afterAsk, "<textarea", "and no field");
+lacks(afterAsk, "pdxdr-pole", "and no poll button — a pending reader still cannot vote");
+lacks(afterAsk, CORE_COPY.badge, "and wears no badge");
+
+// VERIFIED FOR THIS DISTRICT IS THE OTHER SIDE OF IT: composer, poll buttons,
+// and no Ask, because there is nothing left to ask for.
+const VERIFIED_ROW = { districtKey: "ut-statehouse-68", status: "verified", method: "admin_grant" };
+const verifiedBody = scroll(await settled(boot(
+  ROOM_68,
+  () => ({ status: 200, data: standingPayload(true, null, VERIFIED_ROW) }),
+  { auth: fakeAuth(chipAccount()) }
+)));
+has(verifiedBody, "pdxdr-composer", "a verified neighbour gets the composer");
+has(verifiedBody, "pdxdr-pole", "and the three poll buttons");
+lacks(verifiedBody, "data-pdxdr-attest", "and is asked to ask for nothing");
+lacks(verifiedBody, CORE_COPY.closed, "and reads no closed note");
 
 // ── AN ANONYMOUS SESSION IS SIGNED OUT, HERE AND IN THE NAV ─────────────────
 // The chip does not appear for the per-browser anonymous session and neither
@@ -1944,13 +2085,20 @@ lacks(gBody, "pdxdr-composer", "and nothing here grants them a composer");
 lacks(gBody, CORE_COPY.badge, "or prints a badge");
 
 // The Ask is the one control a signed-in reader with no row has, and the Google
-// reader has it — which is the closed note the report asked for.
+// reader has it — with no location injected, which is the browser the report
+// came from.
 const gAskBody = scroll(await settled(boot(
-  ROOM_68, byGoogleToken, Object.assign({ auth: fakeAuth(googleAccount()) }, MY_UT68)
+  ROOM_68, byGoogleToken, { auth: fakeAuth(googleAccount()) }
 )));
-has(gAskBody, "data-pdxdr-attest", "a Google reader in their own district is offered the Ask");
+has(gAskBody, "data-pdxdr-attest", "a signed-in Google reader is offered the Ask");
 has(gAskBody, CORE_COPY.attest, "spelled with the gate's own sentence");
 lacks(gAskBody, CORE_COPY.closedSignedOut, "and still never the signed-out sentence");
+// And nothing about the Ask auto-grants them. Google is a way of signing in, not
+// a residency: this reader is still not verified, has no composer and no poll
+// button, and the room says so.
+lacks(gAskBody, "pdxdr-composer", "signing in with Google grants no composer");
+lacks(gAskBody, "pdxdr-pole", "and no poll button");
+lacks(gAskBody, CORE_COPY.badge, "and no badge");
 
 // A pending row is the other honest closed note, and it is not the signed-out
 // one either.

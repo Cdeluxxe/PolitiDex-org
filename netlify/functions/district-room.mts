@@ -364,8 +364,11 @@ async function readRoom(req: Request): Promise<Response> {
     residency: {
       status: residency.status,
       reason: residency.reason,
-      // The self-attest REQUEST. Offered only to a signed-in reader with no row
-      // here yet, and only in a state this pass verifies at all.
+      // The self-attest REQUEST. Offered to a signed-in reader with no row here
+      // yet, in a state this pass verifies at all — and to nobody else. This
+      // boolean is the WHOLE condition the client paints the ask on: it adds no
+      // location test of its own, because a zip somebody typed is not residency
+      // and a reader who cannot ask has no way into the room at all.
       canAttest: signedIn && inScope && !row,
       attest: COPY.attest,
       attestNote: COPY.attestNote,
@@ -576,10 +579,15 @@ async function residencyTarget(payload: any) {
 // residencyClaim() honours a verified status only from a verifying method and
 // 'self_attest' is not one.
 //
-// The client offers this control only in a district the reader's own resolver
-// already places them in. That restriction is a courtesy, not the safeguard —
-// the safeguard is that this route cannot produce a claim that publishes, so it
-// does not matter which district somebody asks about.
+// NO LOCATION IS CONSULTED, on either side. Phase 3's client also required the
+// room's district to be one the reader's own resolver placed them in; that
+// courtesy hid the ask from every signed-in neighbour whose resolver held no
+// self-typed zip, which is most of them, and left them reading "we have not
+// established that you live in this district" with no control beneath it. The
+// safeguard was never that check: this route cannot produce a claim that
+// publishes — the status is the literal 'pending' and the method the literal
+// 'self_attest', which residencyClaim() refuses to honour as verified at any
+// status — so it does not matter which district somebody asks about.
 async function attestResidency(req: Request): Promise<Response> {
   let payload: any = {};
   try { payload = await req.json(); } catch { payload = {}; }
