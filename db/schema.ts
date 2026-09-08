@@ -1432,3 +1432,65 @@ export const ddResidency = pgTable(
     ),
   ]
 );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 🗳️ THE DISTRICT ROOM'S ONE POLL (phase 3, additive)
+// ─────────────────────────────────────────────────────────────────────────────
+// ONE structured question per room, and this is the only table it needs.
+//
+// WHY THERE IS NO `dd_polls` TABLE. A poll here has no content of its own. The
+// question is fixed copy (COPY.pollQuestion in netlify/lib/district-room-core.mjs)
+// and the options are the three fixed poles Support / Oppose / Mixed — the same
+// poles My Stances already spends. A dd_polls row would therefore hold nothing
+// but the (district, issue) pair the room is already named by, and it would be a
+// row somebody could insert a SECOND of. So the poll is not a row: it IS the
+// room. "Exactly one poll per (district, issue)" is not a rule this code
+// remembers to enforce — it is a thing the schema cannot express otherwise,
+// because there is no poll identifier anywhere in it to have two of.
+//
+// WHAT A ROW IS. One person's answer in one room: (district_key, issue_key,
+// user_id) → one of three choices. The unique index on that triple is what makes
+// "one vote per person, and changing it overwrites" true in the database rather
+// than in a code path — the Function's only write is an upsert onto it, so a
+// second answer REPLACES the first and can never double-count.
+//
+// WHAT IS NOT HERE. No weight, no score, no percentage and no derived total: the
+// results are three integers the Function counts at read time and the client
+// prints as "N support · N oppose · N mixed". Nothing joins this table to
+// dd_posts, so a post is never promoted, ranked or reordered by an answer, and an
+// answer is never inferred from post text. No pid, no party, no name and no
+// location. Nothing here is read by the formal record (vr_*), the evidence
+// exchange (cee_*), the open forum (pdx_*), Direction Match, Word vs Action, the
+// finance lane, Mandate scoring, the Eye, the Utah ingest or the offline pack,
+// and no number from it reaches a person file.
+export const ddPollVotes = pgTable(
+  "dd_poll_votes",
+  {
+    id: serial().primaryKey(),
+    // The room, named the same way dd_threads names it — two foreign keys, so an
+    // answer cannot exist for a district the app does not map or an issue it does
+    // not ship.
+    districtKey: text("district_key")
+      .notNull()
+      .references(() => ddDistricts.districtId, { onDelete: "restrict" }),
+    issueKey: text("issue_key")
+      .notNull()
+      .references(() => ddIssueKeys.issueKey, { onDelete: "restrict" }),
+    // The verified Firebase uid, exactly as dd_posts and dd_residency spell it.
+    // Written so one person answers once; never selected into a response.
+    userId: text("user_id").notNull(),
+    // One of three, and the CHECK below is the schema's own refusal of a fourth.
+    choice: text().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    // When they last changed their mind. An overwrite, not a second row.
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    // ONE ANSWER PER PERSON PER ROOM. The upsert in the Function targets exactly
+    // this index, so changing an answer replaces it.
+    uniqueIndex("dd_poll_votes_room_user_unique").on(t.districtKey, t.issueKey, t.userId),
+    // The read: three grouped counts for one room.
+    index("dd_poll_votes_room_choice_idx").on(t.districtKey, t.issueKey, t.choice),
+    check("dd_poll_votes_choice_check", sql`${t.choice} in ('support', 'oppose', 'mixed')`),
+  ]
+);

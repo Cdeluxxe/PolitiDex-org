@@ -273,50 +273,179 @@
   color: #cbd5e1;
 }
 
-/* ── THE TWO RESIDENCY CONTROLS ────────────────────────────────────────────
-   Deliberately quieter than the composer's own Post button, and deliberately
-   NOT the same as each other: the request is an outline, the reviewer's decision
-   is filled. Neither is tinted with the verdict palette — nothing here is a
-   vindication or an indictment, and a pending request must not look like a
-   granted one. */
-.pdxdr-attest,
-.pdxdr-grant {
-  margin: 0 0 12px;
+/* ── THE NEIGHBOUR'S WAY IN ────────────────────────────────────────────────
+   "Ask to be verified for this district", directly under the closed note. In
+   phase 2 this was a thin outline and the reviewer's grant was the filled
+   control — which meant the loudest thing on the way into the room was a button
+   almost nobody can press. Phase 3 swaps that: THIS is the primary control, it
+   is full width so its hit target is the width of the note above it, and it is
+   comfortably past the 44px minimum on a phone.
+
+   Still not the verdict palette. The room's one cool accent, the same one the
+   composer's Post button wears, because asking to join is an ordinary thing to
+   do — not a vindication and not an indictment. */
+.pdxdr-ask {
+  margin: 0 0 14px;
 }
 
-.pdxdr-attestbtn,
-.pdxdr-grantbtn {
+.pdxdr-askbtn {
   appearance: none;
-  padding: 7px 13px;
-  border-radius: 999px;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 46px;
+  padding: 12px 18px;
+  border: 1px solid rgba(125, 211, 252, 0.48);
+  border-radius: 12px;
+  background: rgba(125, 211, 252, 0.18);
+  color: #e0f2fe;
   font: inherit;
-  font-size: 0.82rem;
+  font-size: 0.92rem;
+  font-weight: 650;
+  text-align: center;
   cursor: pointer;
   transition: border-color 0.16s ease, background 0.16s ease;
 }
-
-/* The request. An outline, because asking is not being answered. */
-.pdxdr-attestbtn {
-  border: 1px solid rgba(148, 163, 184, 0.42);
-  background: transparent;
-  color: #cbd5e1;
+.pdxdr-askbtn:hover:not(:disabled) {
+  border-color: rgba(125, 211, 252, 0.7);
+  background: rgba(125, 211, 252, 0.28);
 }
-.pdxdr-attestbtn:hover:not(:disabled) {
+
+/* ── THE REVIEWER'S FOOTER ─────────────────────────────────────────────────
+   The last block in the room, under the posts, behind its own heading. A bigger
+   hit target than phase 2 gave it — a reviewer has to be able to press it on a
+   phone — but deliberately NOT the filled accent any more: it is a tool for one
+   person, not the way in for everybody, and it must not read as the room's call
+   to action. Separated from the conversation by a rule rather than by a card, so
+   it does not compete with the posts above it. */
+.pdxdr-rev {
+  margin: 18px 0 0;
+  padding: 13px 0 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.pdxdr-revhd {
+  margin: 0 0 9px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.pdxdr-grantbtn {
+  appearance: none;
+  min-height: 44px;
+  padding: 11px 16px;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  border-radius: 11px;
+  background: rgba(15, 23, 42, 0.55);
+  color: #cbd5e1;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease;
+}
+.pdxdr-grantbtn:hover:not(:disabled) {
   border-color: rgba(148, 163, 184, 0.66);
   color: #e2e8f0;
 }
 
-/* The reviewer's decision. Filled, and it is the only control in this block
-   that leads anywhere near an open composer. */
-.pdxdr-grantbtn {
-  border: 1px solid rgba(125, 211, 252, 0.42);
-  background: rgba(125, 211, 252, 0.16);
+.pdxdr-askbtn:disabled,
+.pdxdr-grantbtn:disabled { opacity: 0.55; cursor: default; }
+
+/* ── THE ROOM'S ONE POLL ───────────────────────────────────────────────────
+   Above the composer, above the posts, and it is three buttons and three
+   numbers. What is deliberately absent from this block is most of what a poll
+   usually looks like:
+
+     · NO BAR, NO FILL, NO METER. There is no element in here whose width or
+       height is set from a result, so nothing can grow with a total. A
+       proportion drawn as a length reads as a grade, and neighbours disagreeing
+       about a road is not a grade.
+     · NO PERCENTAGE. The results are printed as the server's own sentence,
+       "N support · N oppose · N mixed", in one monospaced-tabular line.
+     · NO WINNING COLOUR. All three poles wear the same neutral. The one that is
+       marked is the READER'S OWN answer — an "is-mine" state, not a leader — and
+       it is marked with the room's cool accent, never with the record's
+       good-green or any red. A room does not tell you which side won. */
+.pdxdr-poll {
+  margin: 0 0 14px;
+  padding: 13px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.44);
+}
+
+.pdxdr-pollq {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 650;
+  line-height: 1.45;
+  color: #e2e8f0;
+}
+
+.pdxdr-poles {
+  margin: 11px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* One pole. Same size, same weight, same colour as the other two — a poll where
+   one option is drawn louder than the others has already answered itself. */
+.pdxdr-pole {
+  appearance: none;
+  flex: 1 1 90px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.36);
+  border-radius: 11px;
+  background: rgba(15, 23, 42, 0.6);
+  color: #cbd5e1;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease;
+}
+.pdxdr-pole:hover {
+  border-color: rgba(148, 163, 184, 0.62);
+  color: #e2e8f0;
+}
+
+/* THE READER'S OWN ANSWER, and that is all this state means. */
+.pdxdr-pole.is-mine {
+  border-color: rgba(125, 211, 252, 0.58);
+  background: rgba(125, 211, 252, 0.14);
   color: #e0f2fe;
 }
-.pdxdr-grantbtn:hover:not(:disabled) { background: rgba(125, 211, 252, 0.26); }
 
-.pdxdr-attestbtn:disabled,
-.pdxdr-grantbtn:disabled { opacity: 0.55; cursor: default; }
+/* The results. Three integers and the labels beside them, on one line, in
+   tabular figures so the numbers do not jump as they change. */
+.pdxdr-pollres {
+  margin: 11px 0 0;
+  font-size: 0.86rem;
+  font-variant-numeric: tabular-nums;
+  color: #cbd5e1;
+}
+
+/* Why this reader cannot answer, when they cannot. Reading the numbers is open
+   either way, and this sentence says so. */
+.pdxdr-pollnote {
+  margin: 8px 0 0;
+  font-size: 0.79rem;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+/* What the numbers are, and what they are not. */
+.pdxdr-pollfoot {
+  margin: 9px 0 0;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: #7d8ea6;
+}
 
 /* The sentence under the request: what it is worth, in the room's own words. */
 .pdxdr-resnote {
@@ -437,6 +566,10 @@
 
 @media (max-width: 560px) {
   .pdxdr { padding: 12px 8px; }
+  /* One pole per row rather than three squeezed ones: a 44px target is only a
+     target if it is wide enough to hit. */
+  .pdxdr-pole { flex: 1 1 100%; }
+  .pdxdr-poll { padding: 12px; }
   .pdxdr-panel { max-height: calc(100vh - 24px); border-radius: 12px; }
   .pdxdr-top { padding: 12px 10px 10px 12px; }
   .pdxdr-body { padding: 12px 12px 16px; }
