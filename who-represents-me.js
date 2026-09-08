@@ -315,6 +315,30 @@
       '🏙️ My local officials <em>(' + n + ')</em></button>';
   }
 
+  // ── YOUR FILE · the reader's own half of the comparison ────────────────────
+  // Everything else in this row is a record to go and read. This one is the
+  // reader's own eight positions, and it belongs here for the reason the row
+  // exists at all: "compare them on an issue" needs a THEM and an ME, and until
+  // now the band only ever offered the them.
+  //
+  // WHY IT HAD TO BE ADDED HERE AND NOT JUST IN THE COLD BLOCK. The band's other
+  // "Your file" control lives in .wrm-cold, which `.wrm[data-located] .wrm-cold`
+  // hides the moment a location resolves — so every returning visitor, i.e.
+  // everyone who has ever used this band, had no way to reach #your-file at all.
+  // The resolved action row is the one that is on screen for them.
+  //
+  // A REAL ANCHOR to the hash the overlay owns, so it can be copied, opened in a
+  // new tab and middle-clicked, and so it still works when your-file.js has not
+  // arrived — the hash alone opens the panel once the module parses.
+  // data-pdxyf-open is only what that module turns a plain left click into an
+  // in-app open with.
+  function yourFileButton(hasWs) {
+    return '<a class="wrm-next-btn' + (hasWs ? ' wrm-next-btn--sub' : '') + '"' +
+      ' href="#your-file" data-pdxyf-open="1"' +
+      ' title="Your positions on eight issues \u2014 used to compare formal records. Not a vote, and not a district poll.">' +
+      '\u{1F5C2}\uFE0F Your file</a>';
+  }
+
   function localGapNote(cov) {
     if (!cov || !cov.resolved || cov.ok) return '';
     var where = cov.area ? esc(cov.area) : 'your area';
@@ -380,6 +404,7 @@
           ' onclick="var e=document.getElementById(\'my-politicians\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});">' +
           '\u2b50 Work your ballot <em>(optional)</em></button>' +
         localButton(cov) +
+        yourFileButton(hasWs) +
       '</div>' +
       localGapNote(cov) +
       '<button type="button" class="wrm-changeloc"' +

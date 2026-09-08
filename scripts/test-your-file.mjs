@@ -53,6 +53,8 @@ const ALIGN_JS = R("alignment-tool.js");
 const INDEX = R("index.html");
 const SYNC_FN = R("netlify/functions/pdx-sync.mts");
 const SW = R("sw.js");
+const WRM_JS = R("who-represents-me.js");
+const HUB_JS = R("compare-hub.js");
 
 // Source-level claims are made against code, not prose: every "must not
 // contain" below runs on the comment-stripped file.
@@ -220,6 +222,12 @@ function boot(opts) {
     removeItem: (k) => { delete raw[k]; },
   };
   win.sessionStorage = { getItem: () => null, setItem() {}, removeItem() {} };
+  // The address the visitor ARRIVED at, set before a single module is evaluated —
+  // which is the only way to observe what a cold /#your-file actually does.
+  if (o.hash) {
+    win.location.hash = o.hash;
+    win.location.href = "https://www.politidex.fyi/" + o.hash;
+  }
   if (o.store !== null) win.PDXStore = store;
   if (o.account !== undefined) store.__account = o.account;
   else if (o.uid) store.__account = o.uid;
@@ -527,10 +535,18 @@ section("3 · the alignment path consumes the eight");
     seed.PDXYourFile.set("gun_rights", "oppose");
     return b;
   })() });
-  eq(cold._alignIssues.size, 0, "the cold boot's selection was populated before adopt()");
-  cold.PDXYourFile.adopt();
-  eq(cold._alignIssues.size, 2, "a cold boot did not adopt the file's sides");
+  // Adoption happens AT PARSE, not on a timer. This assertion used to read
+  // `size === 0` here and only expect the sides after an explicit adopt() call —
+  // which passed because the sandbox's setTimeout is a no-op and the module's
+  // arrival was queued on one. That was the same defect that stopped a cold
+  // /#your-file from opening, so the contract is now the strict one: by the time
+  // this module has been evaluated, the reader's sides are in the selection.
+  eq(cold._alignIssues.size, 2, "a cold boot did not adopt the file's sides at parse");
   eq(sideOf(cold, "gun_rights"), "oppose", "the adopted side is not the file's side");
+  // And calling it again changes nothing — projectOne compares before it writes.
+  cold.PDXYourFile.adopt();
+  eq(cold._alignIssues.size, 2, "a second adopt() widened the selection");
+  eq(sideOf(cold, "gun_rights"), "oppose", "a second adopt() moved the adopted side");
 
   // AND IT MOVES A REAL SCORE. Same politician, same selection, one answer
   // flipped: the number the engine returns has to change, or "reads these
@@ -679,8 +695,11 @@ section("5 · one address, one control in Door 2, and the copy");
   const INDEX_TAGS = INDEX.replace(/<!--[\s\S]*?-->/g, " ");
   const wrm = INDEX_TAGS.slice(INDEX_TAGS.indexOf('id="who-represents-me"'));
   const wrmBlock = wrm.slice(0, 20000);
+  // ONE control in the served markup. The other two are printed at runtime by
+  // who-represents-me.js and compare-hub.js and are asserted in section 6 — they
+  // cannot be counted here because neither is in the document as shipped.
   eq((INDEX_TAGS.match(/data-pdxyf-open/g) || []).length, 1,
-    "there is not exactly one control that opens Your file");
+    "there is not exactly one control that opens Your file in the served markup");
   has(wrmBlock, "data-pdxyf-open", "the Your file control is not in the Who Represents Me door");
   has(wrmBlock, "Your file", 'the control is not labelled "Your file"');
   // In the existing row, not a new one: it sits alongside the two controls that
@@ -700,7 +719,7 @@ section("5 · one address, one control in Door 2, and the copy");
   // THE SHELL WAS INVALIDATED. /alignment-tool.js and / are precached, and both
   // changed, so a stale shell would serve the old engine against the new file.
   const ver = (SW.match(/CACHE_VERSION\s*=\s*'(v\d+)'/) || [])[1];
-  ok(ver && Number(ver.slice(1)) >= 161, `the service worker cache version was not bumped (${ver})`);
+  ok(ver && Number(ver.slice(1)) >= 162, `the service worker cache version was not bumped (${ver})`);
   lacks(SW.match(/SHELL_ASSETS[\s\S]{0,4000}/)?.[0] || "", "/your-file.js",
     "your-file.js was precached into the shell");
 
@@ -713,6 +732,125 @@ section("5 · one address, one control in Door 2, and the copy");
     lacks(strip(YF_CSS).toLowerCase(), n, "the panel carries scorecard vocabulary");
   });
   lacks(YF_CODE, "Math.round(", "the panel computes a number");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6 · THE ADDRESS ACTUALLY OPENS IT
+// ─────────────────────────────────────────────────────────────────────────────
+// The bug this section exists to keep fixed: #your-file was reachable and the
+// module was on the page, but https://politidex.fyi/#your-file painted the
+// homepage. The arrival was a setTimeout(0) plus a 'load' listener, and a
+// macrotask runs AFTER every DOMContentLoaded handler on the document — so on
+// this homepage the hash had to survive a queue of other people's arrival code
+// before this file ever looked at it.
+//
+// Every assertion below runs in a sandbox whose setTimeout is a NO-OP and whose
+// 'load' event never fires. That is the point: if the panel opens here, it opened
+// because the module opened it while being parsed, waiting on nothing.
+section("6 · the address opens the panel, and two visible controls reach it");
+{
+  // ── COLD LOAD ─────────────────────────────────────────────────────────────
+  const cold = boot({ uid: "u_cold", hash: "#your-file" });
+  must(cold.PDXYourFile, "PDXYourFile missing on the cold arrival boot");
+  ok(cold.PDXYourFile.isOpen(), "a cold visit to /#your-file did not open the panel");
+  const panel = cold.document.getElementById("pdx-your-file");
+  ok(!!panel, "the overlay was never built on a cold arrival");
+  eq(panel && panel.hidden, false, "the overlay was built but left hidden");
+  eq(panel && panel.style.display, "flex", "the overlay was built but not displayed");
+  // The eight rows are painted on arrival, not after some later beat.
+  eq((cold.PDXYourFile.bodyHtml().match(/data-pdxyf-set/g) || []).length, 32,
+    "the arriving panel did not paint eight rows of four options");
+
+  // DOMContentLoaded is the beat the brief names, and it must be harmless: the
+  // panel is already open, and arriving twice must not build a second overlay.
+  (cold.__docOn["DOMContentLoaded"] || []).forEach((f) => f({ type: "DOMContentLoaded" }));
+  (cold.__winOn["load"] || []).forEach((f) => f({ type: "load" }));
+  ok(cold.PDXYourFile.isOpen(), "the panel closed itself on DOMContentLoaded / load");
+  eq(cold.__nodes.filter((n) => n.id === "pdx-your-file").length, 1,
+    "a second arrival built a second overlay");
+
+  // NOTHING WAS WAITED ON. A cold arrival must not have reached the network, and
+  // it must not depend on the roster being resolved.
+  eq(cold.__fetched.length, 0, `the arrival caused a network call: ${cold.__fetched.join(", ")}`);
+  eq(cold.__forumCalls.length, 0, "the arrival poked the forum");
+  const ARRIVAL = strip(YF_JS).slice(strip(YF_JS).indexOf("function arrive"));
+  ["pdxLocalSeatsForMe", "PDXWhoRepresentsMe", "pdxFindMyReps", "CMP_DATA", "roster"].forEach((n) => {
+    lacks(ARRIVAL, n, "the arrival waits on the roster");
+  });
+
+  // ── SIGNED OUT, THE EIGHT STILL SHOW ─────────────────────────────────────
+  const out = boot({ hash: "#your-file" });
+  ok(out.PDXYourFile.isOpen(), "a signed-out cold visit to /#your-file did not open the panel");
+  const outBody = out.PDXYourFile.bodyHtml();
+  eq((outBody.match(/data-pdxyf-set/g) || []).length, 32,
+    "signed out, the eight issues are not all offered");
+  has(outBody, "disabled", "signed out, the controls are not disabled");
+  has(outBody, "Sign in to keep your file.", "signed out, the panel does not say what is missing");
+
+  // ── CLOSE RESTORES THE PREVIOUS HASH ─────────────────────────────────────
+  // Arriving cold there IS no previous hash, so closing must leave the address
+  // bare rather than invent one.
+  cold.PDXYourFile.close();
+  ok(!cold.PDXYourFile.isOpen(), "close() left the panel open");
+  eq(cold.location.hash, "", "closing a cold arrival did not clear the address");
+
+  // In-app: the reader was somewhere else, set the hash, and closing has to put
+  // them back. The previous address is read off the hashchange's oldURL, so this
+  // holds even for a plain anchor whose click this module never saw.
+  const inapp = boot({ uid: "u_inapp", hash: "#say-vs-do" });
+  ok(!inapp.PDXYourFile.isOpen(), "the panel opened at an address it does not own");
+  inapp.location.hash = "#your-file";
+  inapp.location.href = "https://www.politidex.fyi/#your-file";
+  (inapp.__winOn["hashchange"] || []).forEach((f) => f({
+    type: "hashchange",
+    oldURL: "https://www.politidex.fyi/#say-vs-do",
+    newURL: "https://www.politidex.fyi/#your-file",
+  }));
+  ok(inapp.PDXYourFile.isOpen(), "an in-app hashchange to #your-file did not open the panel");
+  inapp.PDXYourFile.close();
+  ok(!inapp.PDXYourFile.isOpen(), "close() left the panel open after an in-app open");
+  eq(inapp.location.hash, "#say-vs-do", "close() did not restore the previous hash");
+
+  // ONE open path, used by both. The hash listener must not carry its own.
+  const WIRE = strip(YF_JS);
+  eq((WIRE.match(/\barrive\(\)/g) || []).length >= 4, true,
+    "the hash events and the boot do not share one arrival function");
+
+  // ── TWO VISIBLE CONTROLS ─────────────────────────────────────────────────
+  // Who Represents Me. The band's cold CTA row already had one, but
+  // `.wrm[data-located] .wrm-cold` hides that whole block the moment a location
+  // resolves — so the RESOLVED action row is the one a returning visitor sees,
+  // and it is the row that had no control at all.
+  has(INDEX, ".wrm[data-located] .wrm-cold{display:none;}",
+    "the cold block is no longer location-gated — re-check where the control belongs");
+  const NEXT = WRM_JS.slice(WRM_JS.indexOf("function nextActions"));
+  const nextEnd = NEXT.indexOf("\n  //");
+  const nextBody = NEXT.slice(0, nextEnd > 0 ? nextEnd : 4000);
+  has(nextBody, "yourFileButton", "the resolved action row has no Your file control");
+  has(WRM_JS, 'href="#your-file"', "the resolved control is not a real link to the address");
+  has(WRM_JS, "data-pdxyf-open", "the resolved control cannot be opened in-app");
+  has(WRM_JS, "Your file", 'the resolved control is not labelled "Your file"');
+  // It joined the row it belongs in, and displaced nothing.
+  has(nextBody, "Compare them on an issue", "the action row lost a control");
+  has(nextBody, "Work your ballot", "the action row lost a control");
+  has(nextBody, "localButton(cov)", "the action row lost My local officials");
+
+  // The signed-in account menu, desktop and mobile, same href.
+  const SIGNED_IN = HUB_JS.slice(HUB_JS.indexOf("function updateNavAuth"));
+  const signedOutAt = SIGNED_IN.indexOf("} else {");
+  const signedInBranch = SIGNED_IN.slice(0, signedOutAt > 0 ? signedOutAt : 8000);
+  eq((signedInBranch.match(/href="#your-file"/g) || []).length, 2,
+    "the account menu does not carry Your file on both desktop and mobile");
+  has(signedInBranch, "data-pdxyf-open", "the account menu control cannot be opened in-app");
+  // Signed out there is no account menu to put it in, and it must not appear as
+  // a sign-in teaser.
+  lacks(SIGNED_IN.slice(signedOutAt > 0 ? signedOutAt : SIGNED_IN.length),
+    "#your-file", "the signed-out nav advertises Your file");
+
+  // ── THE COPY IS UNCHANGED ────────────────────────────────────────────────
+  has(YF_JS, COPY_LINE, "the panel's one line of copy changed");
+  has(out.PDXYourFile.COPY.line, COPY_LINE, "the painted copy line changed");
+  eq(out.PDXYourFile.ISSUES.length, 8, "the locked list is no longer eight");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

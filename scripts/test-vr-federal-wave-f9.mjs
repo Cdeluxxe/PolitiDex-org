@@ -1055,6 +1055,17 @@ const swNote = swWaveNote();
     "person-file.js",
     "profiles-full.js",
     "stance-helpers.js",
+    // The Your file arrival pass (CACHE_VERSION v162), on those same later-wave terms.
+    // It writes no wave artefact: no roll, no mapping, no weight, no floor and no
+    // admission. your-file.js only changed WHEN it opens - the overlay at #your-file
+    // reached the shipped shell in v161 and never opened from a cold load, because the
+    // module's arrival was a macrotask that runs after DOMContentLoaded has already
+    // resolved the hash. It opens at parse now, through the same entry every hashchange
+    // uses. scripts/test-your-file.mjs is that suite, and it grew the section that pins
+    // the arrival with timers switched off, so the bug cannot come back as a passing
+    // test. Nothing in either file reads vr_*, a judged surface or Direction Match.
+    "your-file.js",
+    "scripts/test-your-file.mjs",
     "sw.js",
     "scripts/test-vr-federal-wave-f7.mjs",
     "scripts/test-vr-federal-wave-f8.mjs",

@@ -150,6 +150,13 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
+  // The fragment of a URL, or '' — used to read a hashchange's oldURL without
+  // assuming URL() exists or that the value parses.
+  function hashOf(url) {
+    var s = String(url == null ? '' : url);
+    var i = s.indexOf('#');
+    return i === -1 ? '' : s.slice(i);
+  }
   function store() { try { return window.PDXStore || null; } catch (e) { return null; } }
   function issueMap() {
     try { return (window.ISSUE_MAP && typeof window.ISSUE_MAP === 'object') ? window.ISSUE_MAP : {}; }
@@ -366,6 +373,7 @@
   var _open = false;
   var _return = '';
   var _flash = null;
+  var _adopted = false;
 
   function build() {
     if (_built) return el(ID);
@@ -609,16 +617,26 @@
       });
     } catch (e) {}
     // The hash IS the state, so a link, a paste, a bookmark and the back button
-    // all land the same way.
+    // all land the same way: through arrive(), the SAME function the cold boot
+    // below calls. There is deliberately no second open path — a cold visit that
+    // opened by one route and an in-app hashchange that opened by another is how
+    // this panel came to work from a click and not from a pasted URL.
     try {
-      window.addEventListener('hashchange', function () {
-        if (location.hash === HASH) { if (!_open) open(); }
-        else if (_open) hide();
+      window.addEventListener('hashchange', function (ev) {
+        // The address we were at before this one, taken from the event rather
+        // than tracked in a variable, so close() can put the reader back where
+        // they were even when the hash was set by a plain anchor this module
+        // never saw a click for.
+        var was = hashOf(ev && ev.oldURL);
+        if (location.hash === HASH) {
+          if (was && was !== HASH) _return = was;
+          arrive();
+        } else if (_open) hide();
       });
     } catch (e) {}
     try {
       window.addEventListener('popstate', function () {
-        if (location.hash === HASH) { if (!_open) open(); }
+        if (location.hash === HASH) arrive();
         else if (_open) hide();
       });
     } catch (e) {}
@@ -672,18 +690,38 @@
   wire();
 
   // ── ARRIVAL ───────────────────────────────────────────────────────────────
-  // A cold visit to /#your-file opens the file. Projection runs either way, so
-  // the alignment read has the reader's sides without the panel ever being
-  // opened on this device.
+  // A cold visit to /#your-file opens the file, and it opens it AS SOON AS THIS
+  // MODULE IS PARSED. This used to be a setTimeout(0) plus a 'load' listener,
+  // and that is the bug this pass fixes: a macrotask runs AFTER every
+  // DOMContentLoaded handler on the page, so on a 2 MB homepage full of them the
+  // hash had to survive a queue of other people's arrival code before this file
+  // ever looked at it — and a visit to /#your-file painted the homepage.
+  //
+  // IT WAITS FOR NOTHING. Not the roster, not auth, not the alignment engine,
+  // not a snapshot pull, not the seat lookup. There is nothing to wait for:
+  // signed out and with no stored answers at all this panel still has eight rows
+  // and four options each to print, so the honest arrival is the immediate one.
+  // Everything that arrives later — a uid, a cross-device snapshot, the engine —
+  // repaints the open panel through its own listener.
+  //
+  // Projection runs either way, so the alignment read has the reader's sides
+  // without the panel ever being opened on this device.
+  function arrive() {
+    if (!_adopted) { _adopted = true; try { adopt(); } catch (e) {} }
+    if (location.hash !== HASH) return false;
+    if (_open) return true;
+    try { return open(); } catch (e) { return false; }
+  }
   (function boot() {
-    var kicked = false;
-    var kick = function () {
-      if (kicked) return;
-      kicked = true;
-      adopt();
-      try { if (location.hash === HASH) open(); } catch (e) {}
-    };
-    try { setTimeout(kick, 0); } catch (e) {}
-    try { window.addEventListener('load', kick); } catch (e) {}
+    // The tag is deferred and sits at the end of <body>, so document.body is
+    // already parsed and this is the call that actually opens the panel.
+    if (arrive()) return;
+    // The three later beats, for the shells where it is not: a copy injected
+    // into <head>, an older cached document, a browser that ran this before the
+    // body existed. All four entry points are the SAME arrive(), and it is
+    // idempotent, so landing more than once cannot open two panels.
+    try { document.addEventListener('DOMContentLoaded', function () { arrive(); }); } catch (e) {}
+    try { window.addEventListener('load', function () { arrive(); }); } catch (e) {}
+    try { setTimeout(arrive, 0); } catch (e) {}
   })();
 })();

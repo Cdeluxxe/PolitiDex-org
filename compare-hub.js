@@ -1268,6 +1268,14 @@
       });
     }
 
+    // YOUR FILE IN THE ACCOUNT MENU. #your-file is saved to the signed-in uid, so
+    // the account menu is the one place in the chrome where it is unambiguously
+    // the reader's own thing rather than another surface about politicians. It is
+    // a real <a> to the hash the overlay owns (data-pdxyf-open only upgrades a
+    // plain left click into an in-app open), which is the same control the Who
+    // Represents Me action row carries — one address, two doors, no nav pill.
+    // It is printed ONLY in the signed-in branch: signed out there is no account
+    // menu to put it in, and the band's own control is the way in.
     function updateNavAuth(user) {
       const desktop = document.getElementById('nav-auth-desktop');
       const mobile = document.getElementById('nav-auth-mobile');
@@ -1300,6 +1308,10 @@
                     <div class="text-steel-500 text-[10px] lowercase truncate">${user.email || 'Logged In'}</div>
                   </div>
                 </div>
+                <a href="#your-file" data-pdxyf-open="1" class="w-full text-left font-condensed font-700 text-xs tracking-widest uppercase px-3 py-3 hover:bg-white/5 text-steel-300 hover:text-white transition-colors flex items-center gap-2 border-b border-white/5 no-underline">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"/></svg>
+                  Your file
+                </a>
                 <button onclick="if(window.PDXStances&&PDXStances.openViews)PDXStances.openViews();else location.hash='#my-stances';" class="w-full text-left font-condensed font-700 text-xs tracking-widest uppercase px-3 py-3 hover:bg-white/5 text-steel-300 hover:text-white transition-colors flex items-center gap-2 border-b border-white/5">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                   My Views
@@ -1321,6 +1333,7 @@
                 <div class="text-white font-display text-base tracking-wider truncate">${displayName}</div>
                 <div class="text-gold-400 font-condensed font-700 text-[11px] tracking-widest uppercase mt-0.5">My Account</div>
               </div>
+              <a href="#your-file" data-pdxyf-open="1" onclick="document.getElementById('mobileMenu')&&document.getElementById('mobileMenu').classList.add('hidden');" class="bg-navy-700/60 border border-white/10 text-steel-200 px-3 py-1.5 rounded-lg text-xs font-700 tracking-wider hover:bg-navy-700 transition-colors flex-shrink-0 no-underline">🗂️ Your file</a>
               <button onclick="if(window.PDXStances&&PDXStances.openViews)PDXStances.openViews();else location.hash='#my-stances';document.getElementById('mobileMenu')&&document.getElementById('mobileMenu').classList.add('hidden');" class="bg-navy-700/60 border border-white/10 text-steel-200 px-3 py-1.5 rounded-lg text-xs font-700 tracking-wider hover:bg-navy-700 transition-colors flex-shrink-0">👁 My Views</button>
               <button onclick="auth.signOut()" class="bg-red-950/40 border border-red-500/20 text-red-400 px-3 py-1.5 rounded-lg text-xs font-700 tracking-wider hover:bg-red-900/30 transition-colors flex-shrink-0">Logout</button>
             </div>
