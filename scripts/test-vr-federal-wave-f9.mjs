@@ -1912,6 +1912,30 @@ const swNote = swWaveNote();
     // weight, polarity or refusal is touched by any of it.
     "ballot-breakdown.js",
     "netlify/functions/voting-record.mts",
+    // ── AND THE PASS AFTER THAT: YOUR FILE ────────────────────────────────────
+    // EIGHT ISSUES, THE READER'S OWN ANSWER ON EACH, SAVED TO THEIR UID
+    // (#your-file, your-file.js, CACHE_VERSION v161). Alignment needed the
+    // reader's positions to compare a formal record against, and the app had
+    // nowhere to hold them: Forum chips are a topic interest, and a District Room
+    // poll is district+issue rather than a personal file.
+    //   netlify/functions/pdx-sync.mts gains ONE STRING, and it is a name in an
+    // allow-list: 'yourFile' joins the five personal collections already there.
+    // That function stores one opaque JSON snapshot per (user_id, collection) in
+    // pdx_snapshots and never looks inside it, so there is no schema change, no
+    // new table and NO MIGRATION — the row shape the other five use is the row
+    // shape this one uses. Every verifier, every limit, every query and every
+    // response in that file is byte-identical: the token check, FIREBASE_PROJECT_ID,
+    // MAX_SNAPSHOT_BYTES and the read/write handlers all still read as written.
+    //   NOTHING IN THIS WAVE'S REACH MOVES. This collection is PERSONAL data,
+    // merged on the client and read by no public surface. It is not poll data and
+    // it shares nothing with dd_poll_answers or dd_threads; no vr_* table, row,
+    // roll, mapping, key, floor, weight, tier, admission, refusal or Direction
+    // Match figure is written, read or published by any of it. The two scoring
+    // lanes in alignment-tool.js are byte-identical to HEAD — the file reaches the
+    // match through alignSetIntensity / alignToggleIssue, doors that were already
+    // exported — and the one span this pass does add to that file is carved and
+    // argued as AT_SEAMS in scripts/v103-chrome-seams.mjs.
+    "netlify/functions/pdx-sync.mts",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }

@@ -1879,6 +1879,16 @@
           // intersected against that selection). Repaint once if either changed.
           var c1 = _alignApplySaved(saved);
           var c2 = _alignApplyIntensity(savedInt);
+          // A saved signature is a full REPLACEMENT of the selection, so it can
+          // drop a key Your file put there (a signature saved before the file
+          // existed has none of the eight in it). Re-project after applying so
+          // the reader's own eight survive a cross-device pull — the file's
+          // module compares before it writes, so this is a no-op unless
+          // something actually went missing.
+          try {
+            var _yf = window.PDXYourFile;
+            if ((c1 || c2) && _yf && typeof _yf.adopt === 'function') _yf.adopt();
+          } catch (e) {}
           if (c1 || c2) _alignRefreshAll();
         } else if (_alignSeededUid !== uid && _alignIssues.size > 0) {
           // Brand-new signature → persist the visitor's current local picks (and

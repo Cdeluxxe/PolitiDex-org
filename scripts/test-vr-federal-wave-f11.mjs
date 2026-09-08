@@ -73,7 +73,7 @@ import { tmpdir } from "node:os";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { createHash } from "node:crypto";
-import { WA_SEAMS, CJ_SEAMS_ALL, carveSeams, assertConsistencySeams } from "./v103-chrome-seams.mjs";
+import { WA_SEAMS, CJ_SEAMS_ALL, AT_SEAMS, carveSeams, assertConsistencySeams } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -348,7 +348,34 @@ const NO_POLE = (() => {
   // are argued span by span in the shared seam module rather than excused. A door
   // that reached for a floor, a weight, a score, a party word or a percentage fails
   // there; anything outside the fourteen fails here, exactly as it did before.
-  const WAIVED = ["word-action.js", "consistency.js"];
+  // Hashed comparisons below: a failure should name the file, not print the engine.
+  const sha16 = (x) => createHash("sha256").update(x).digest("hex").slice(0, 16);
+  // THE THIRD WAIVER, AND IT IS THE NARROWEST OF THE THREE — one span, ten lines.
+  // alignment-tool.js moved for Your file (CACHE_VERSION v161, your-file.js): the
+  // reader now has somewhere to state their own position on eight issues, because
+  // the match compares a formal record against the reader's positions and the app
+  // held none. That feature deliberately did NOT edit the engine to be consumed.
+  // Both scoring lanes still resolve the user side the way HEAD wrote them, byte
+  // for byte, and the file reaches them by pushing each answer through this tool's
+  // own already-exported doors, alignSetIntensity and alignToggleIssue.
+  //
+  // What could not be done from outside is the span: a Signature pulled from
+  // Firestore REPLACES the picked set, so one saved on another device before this
+  // feature existed arrives holding none of the eight and drops answers the reader
+  // is looking at. The fix has to run between that apply and the repaint, and this
+  // file dispatches no event to listen for. So the span asks the file's module to
+  // re-project, in a try, only when something changed.
+  //
+  // The objection this wave would raise is answered on the same terms as the other
+  // two: the span holds no key, no keyword, no lean, no category, no weight, no
+  // floor, no band, no percentage, no roll and no side of the politician's half of
+  // the comparison, and it reads nothing out of the record. It is carved out of
+  // both trees by anchors unique on both sides, argued span by span in the shared
+  // seam module as AT_SEAMS, and everything else in the file — ISSUE_MAP, the
+  // reverse lookup, Direction Match, the two lanes, the evidence helpers and the
+  // team renderer — is compared byte for byte. Anything outside the one span fails
+  // here exactly as it did before.
+  const WAIVED = ["word-action.js", "consistency.js", "alignment-tool.js"];
   eq(touched.filter((f) => !WAIVED.includes(f)).length, 0,
     `F11 changed a booted engine file (${touched.join(", ")}) — a coverage wave writes mapping rows and no engine`);
   if (touched.includes("word-action.js")) {
@@ -358,13 +385,29 @@ const NO_POLE = (() => {
       "word-action.js changed outside the identity chip and the three spans below it — the module the " +
       "whole formal read is rendered from is not a coverage wave's to touch");
   }
+  if (touched.includes("alignment-tool.js")) {
+    const aa = carveSeams(headSrc("alignment-tool.js"), AT_SEAMS, "HEAD", "alignment-tool.js", ok);
+    const ab = carveSeams(nowSrc("alignment-tool.js"), AT_SEAMS, "now", "alignment-tool.js", ok);
+    eq(sha16(ab.pinned), sha16(aa.pinned),
+      "alignment-tool.js changed outside the one span named in scripts/v103-chrome-seams.mjs — " +
+      "ISSUE_MAP, the reverse lookup and both scoring lanes are not a coverage wave's to touch " +
+      "under this waiver");
+    // And the span itself is what it was argued to be: a re-projection call, and
+    // nothing that could reach for a key, a weight or a figure.
+    const body = (ab.bodies[0] || "").replace(/^\s*\/\/.*$/gm, "");
+    ok(/PDXYourFile/.test(body) && /adopt/.test(body),
+      "the span under this waiver is no longer the Your-file re-projection it was granted for");
+    ["ISSUE_MAP", "CORE_NATIONAL_ISSUES", "_recMap", "issueScore", "totalWeight", "Math.round"].forEach((n) => {
+      ok(!body.includes(n), `the span under this waiver reaches for ${n} — the waiver does not cover that`);
+    });
+  }
   if (touched.includes("consistency.js")) {
     const has = (x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`);
     const ca = carveSeams(headSrc("consistency.js"), CJ_SEAMS_ALL, "HEAD", "consistency.js", ok);
     const cb = carveSeams(nowSrc("consistency.js"), CJ_SEAMS_ALL, "now", "consistency.js", ok);
     // Hashed rather than compared outright: a failure here should name the file, not
     // print six hundred kilobytes of engine into the log.
-    const sha = (x) => createHash("sha256").update(x).digest("hex").slice(0, 16);
+    const sha = sha16;
     eq(sha(cb.pinned), sha(ca.pinned),
       "consistency.js changed outside the spans named in scripts/v103-chrome-seams.mjs — the arithmetic, " +
       "the floors and the bands are not a coverage wave's to touch under this waiver");

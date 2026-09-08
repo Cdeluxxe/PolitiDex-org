@@ -515,6 +515,45 @@ export const IC_SEAMS = [
    "the chip helper's export line"],
 ];
 
+// ── alignment-tool.js: one span — the re-projection after a Signature pull ──
+// This file is byte-pinned BELOW the CORE NATIONAL ISSUES parent table by nine
+// suites, and for the right reason: the reverse lookup, the evidence helpers, the
+// two scoring lanes and the team renderer all live down there, and no wave, no
+// roster and no crawl pass has any business in them.
+//
+// Your file (CACHE_VERSION v161, your-file.js) needed the reader's own answers on
+// eight issues to reach the match. It did NOT take them into the scoring lanes to
+// do it: both lanes still read `_alignMigrateLevel(_alignIntensity[key] ||
+// ALIGN_DEFAULT_LEVEL)` over the picked set, byte for byte as HEAD wrote them, and
+// the file reaches them by pushing each sided answer through this tool's own
+// public entry points — alignSetIntensity and alignToggleIssue. The engine that
+// scores the eight is the engine that was already there, and there is no second
+// resolver for a surface to drift away from.
+//
+// ONE THING COULD NOT BE DONE FROM OUTSIDE, AND IT IS THE SPAN. A Signature
+// pulled from Firestore is a full REPLACEMENT of the picked set: _alignApplySaved
+// overwrites the selection, so a Signature saved on another device before this
+// feature existed arrives holding none of the eight and silently drops answers
+// the reader is looking at. The fix has to run immediately after that apply and
+// before the repaint, and this file dispatches no event a module could listen for
+// (verified: no dispatchEvent, no CustomEvent anywhere in it), so there is no
+// outside seat to take. The span asks window.PDXYourFile to re-project, inside a
+// try, only when something actually changed — and the file's own module compares
+// before it writes, so on the device that authored the answers it is a no-op.
+//
+// WHAT THE SPAN CANNOT REACH, which is why the waiver is narrow rather than a
+// pass on the file: it holds no key, no keyword, no lean, no category, no weight,
+// no floor, no band, no percentage and no side of the politician's half of the
+// comparison. It reads nothing out of the record and it writes nothing into the
+// Signature — the module it calls does that, through the doors already exported.
+// Everything else in this file, above and below the parent table, is compared
+// byte for byte on the usual terms.
+export const AT_SEAMS = [
+  ["          var c2 = _alignApplyIntensity(savedInt);\n",
+   "          if (c1 || c2) _alignRefreshAll();\n",
+   "the re-projection after a Signature pull"],
+];
+
 // ── word-action.js: the shared figure, the chip, the section, the gate, the mounts ────
 export const WA_SEAMS = [
   // ── the shared figure and the shared repaint (v140) ────────────────
@@ -1760,7 +1799,19 @@ export function assertParentTableIsTheOnlyMove(api, headSrc, treeSrc, wave) {
   } else {
     ok(true, `${tag}alignment-tool.js is byte-identical above the parent table`);
   }
-  eq(B.after, A.after,
+  // The pinned half, with the ONE argued span cut out of both sides. AT_SEAMS is
+  // empty of everything a caller here cares about (see the note over it), and a
+  // seam whose anchors have moved or stopped being unique fails as a failure
+  // rather than quietly comparing the wrong bytes.
+  const cut = (src, side) => {
+    for (const [a, b, why] of AT_SEAMS) {
+      const one = (x) => src.split(x).length === 2;
+      if (!ok(one(a) && one(b) && src.indexOf(b) > src.indexOf(a),
+        `${tag}the seam for ${why} no longer reads as written in alignment-tool.js (${side}) — widen the anchor here, do not loosen the check`)) return src;
+    }
+    return carveSeams(src, AT_SEAMS, side, "alignment-tool.js", (c, m) => ok(c, m)).pinned;
+  };
+  eq(cut(B.after, "now"), cut(A.after, "HEAD"),
     `${tag}alignment-tool.js changed BELOW the parent table — the reverse lookup, the evidence ` +
     `helpers and the team-alignment renderer live there`);
   if (B.before === A.before && B.after === A.after && B.seam === A.seam) {

@@ -3114,6 +3114,67 @@
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
 // ─────────────────────────────────────────────────────────────────────────────
+// v161 - YOUR FILE: THE READER'S OWN EIGHT, AND THE MATCH READS THEM FIRST
+// ─────────────────────────────────────────────────────────────────────────────
+// Alignment and every ballot comparison in this app need one fact the app had
+// nowhere honest to hold: WHERE THE READER STANDS. Two surfaces looked like they
+// were asking and neither was. A Forum chip is a thread's topic - what a
+// conversation is about, not a position anybody holds. The District Room poll is
+// (district x issue), tallied, behind residency - a neighbourhood's answer to one
+// question, not a personal file and not portable to a candidate comparison. So
+// the reader's own side was either absent or inferred, and the Alignment
+// Signature - a bare set of picked issues - was the closest thing to it.
+// Your file is the third thing, at #your-file, and it is deliberately the small
+// one: EIGHT issues, one answer each (Support / Oppose / Mixed / Not sure), saved
+// to the signed-in uid. Not a survey, not a quiz, not a score. ISSUE_MAP carries
+// 100-odd keys and the list here is eight of them, hard-coded - the file does not
+// read the vocabulary, so it cannot grow a ninth row, and a snapshot pulled from
+// another device carrying one has it dropped on the way in.
+//   PRECACHED SHELL FILES CHANGED - THEY ARE THE REASON FOR THE BUMP:
+//   · '/' (index.html)         - the your-file.css link, the deferred
+//                                /your-file.js tag (after alignment-tool.js,
+//                                because the projection calls into it), the one
+//                                "Your file" control added to the EXISTING Who
+//                                Represents Me action row, and 'yourFile' added
+//                                to both account-sync collection lists. A warm
+//                                shell loads neither file, so the overlay does
+//                                not exist and the control opens nothing; it
+//                                also would not sync the collection.
+//   · '/alignment-tool.js'     - one 10-line insertion, and no scoring lane was
+//                                touched: a Signature pulled from Firestore is a
+//                                full REPLACEMENT of the picked set, so after it
+//                                is applied the file re-projects its eight and a
+//                                cross-device replacement cannot drop them. The
+//                                match consumes the file by projection through
+//                                the tool's existing public entry points, not by
+//                                a second resolver. A warm shell has the old
+//                                engine, which never re-projects - so the reader
+//                                answers eight questions and the match ignores
+//                                every one of them. That mismatch is the whole
+//                                reason this bump is load-bearing.
+// NEW AND DELIBERATELY NOT PRECACHED, SO THEY ARRIVE FRESH WITHOUT THIS BUMP:
+// your-file.js and your-file.css. Keeping them out of SHELL_ASSETS means a stale
+// shell can never serve an old copy of the file's own logic.
+// ALSO CHANGED BUT NOT A PRECACHED FILE: netlify/functions/pdx-sync.mts (one
+// collection name added to ALLOWED_COLLECTIONS - no schema change and no
+// migration, since a snapshot is one more opaque JSON row in pdx_snapshots keyed
+// by (user_id, collection)) and scripts/test-your-file.mjs.
+// NOTHING IN THE RECORD MOVED, AND THE FILE ASKS FOR NOTHING. There is no POST in
+// your-file.js at all: the only network it can cause is PDXStore's own snapshot
+// push for its own collection. It does not write dd_poll_answers, dd_threads, a
+// district room, the forum, a public profile or a share link, and it never
+// navigates to #open-forum. Nothing here touches vr_*, cee_*, pdx_forum_*,
+// Direction Match, Word vs Action, the formal floors, finance, the Mandate lane,
+// the Eye, the Utah ingest, residency or pack TTL. No party prior, no 0-100 "my
+// match" redesign, no grade, no ranking and none of the verdict palette - a
+// reader's own position cannot come out right or wrong, so Support gets no green
+// and Oppose gets no red.
+// LOCALLY THE KEY IS NAMESPACED PER ACCOUNT, like 'saved': two people sharing one
+// browser can neither see nor merge each other's file, which also stops the pull
+// reconciler from pushing one person's answers up under the other's name.
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it.
+// ─────────────────────────────────────────────────────────────────────────────
 // v160 - HD-68 HAS A SEATED MEMBER, AND THE ADDRESS IS ENOUGH TO NAME HIM
 // ─────────────────────────────────────────────────────────────────────────────
 // v159 shipped the District File and it printed "We have not resolved who holds
@@ -3565,7 +3626,13 @@
 // and every formal tier byte-identical.
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
-const CACHE_VERSION = 'v160';
+// v161 — Your file (#your-file). Two precached shell assets changed: `/` carries
+// the new stylesheet link, the deferred /your-file.js tag and the "Your file"
+// control in the Who Represents Me action row, and /alignment-tool.js now reads
+// that file first on its eight issue keys. /your-file.js and /your-file.css are
+// deliberately NOT in SHELL_ASSETS, so they arrive from the network on first use
+// and cannot be served stale from an older shell.
+const CACHE_VERSION = 'v161';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
