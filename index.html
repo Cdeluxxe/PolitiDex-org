@@ -2303,6 +2303,14 @@ window.PDXLazy = (function () {
        above; it styles both the two entry blocks and the room panel itself. -->
   <link rel="stylesheet" href="/district-room.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/district-room.css" /></noscript>
+  <!-- The district file — /d/<districtKey>, one page per Utah district, listing
+       the issue rooms that district has. Its own sheet for the same reason the
+       room has one and on the same terms: neutral surfaces, one cool accent, and
+       NONE of the verdict palette. Nothing in it scales with how busy a room is,
+       because a row with four hundred answers and a row with none are the same
+       door. Same non-blocking path as the sheets above. -->
+  <link rel="stylesheet" href="/district-file.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/district-file.css" /></noscript>
   <!-- ↩️ Against their own stated position — the gathered list of ⚖️ Word vs Action's
        own `contradicts` verdicts. Its own sheet because its whole visual argument is
        that it does NOT reuse the score section's red at list scale: a page of red
@@ -22789,6 +22797,16 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        who-represents-me.js and issue-file.js because those two call into it; both
        mounts answer '' if this file is missing, so the order is documentation. -->
   <script defer src="/district-room.js"></script>
+  <!-- /d/<districtKey> — the district file, and the door into District Voice that
+       is not a pasted room URL. One page per Utah district: the district's own
+       name, the seated member as a link to their person file, and the list of
+       issue rooms that district has. Served this same index.html by the /d/*
+       rewrite in netlify.toml, so a cold visit is opened from location.pathname
+       exactly the way /p/<pid> is. Loaded after district-room.js because it asks
+       that module for a room's address and for the in-app open; it degrades to a
+       plain anchor if the module is missing, and the room's seat mount prints no
+       control at all if THIS file is missing. -->
+  <script defer src="/district-file.js"></script>
   <!-- /i/<key> — the issue file's own address. Reads the key out of
        location.pathname, resolves it through the desk's own resolver, commits the
        pick through the desk's own entry point, and opens the SAME ledger a Door 1

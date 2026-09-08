@@ -16,6 +16,8 @@
 // Routes (all under /api/district-room):
 //   GET  /                        read a room: district, issue, poll, posts, canPost
 //   POST /                        post into a room (fails closed — see below)
+//   GET  /district                one district's rooms, for the district file at
+//                                 /d/<districtKey> — labels, issue keys, counts
 //   POST /poll/vote               answer the room's ONE poll (fails closed too)
 //   POST /flag                    report a post (a stub that records intent)
 //   GET  /residency               the caller's OWN residency rows, and nobody's else
@@ -740,6 +742,98 @@ async function readResidency(req: Request): Promise<Response> {
   });
 }
 
+// ── GET /district — the district file's list of rooms ────────────────────────
+// WHAT IT ANSWERS. One district, and the rooms it HAS. Not a room, not a post and
+// not a person: the reply is a district's own label, the issue keys that already
+// have a thread in this district, and the three integers each of those rooms has
+// answered so far. It is what the district file at /d/<districtKey> is built from.
+//
+// OPEN TO EVERYBODY. Reading the list is gated on nothing at all — not sign-in,
+// not residency, not a grant. A neighbour who cannot post yet still deserves to
+// see which doors exist, and the counts are shown to them for the same reason
+// readRoom shows them: being told the numbers is more honest than hiding them.
+//
+// A ROOM EXISTS OR IT DOES NOT. `rooms` is dd_threads and nothing else. This
+// route creates no thread, so listing is not a way to bring a room into being,
+// and it invents no room for an issue key nobody has opened — the list is short
+// because the rooms are few, not because it was trimmed.
+//
+// WHY THE VOCABULARY COMES BACK TOO. `issueKeys` is dd_issue_keys — the whole
+// shipped issue vocabulary, which is the set an issue key must be in for a room
+// to be able to exist for it at all. The district file needs it as an ALLOW-LIST:
+// it also offers a door for issues the district's seated member has a formal
+// record on, and that suggestion is only a room if the key is in this list. The
+// authority about what is a real issue key stays here, in the table, rather than
+// being re-typed in a client — and this route never learns whose record produced
+// the suggestion, because it takes no member and no identifier of one.
+//
+// NO DISTRICT, NO FILE. A malformed key is refused before the database and an
+// unmapped one is a 404, the same way a room's read refuses them, so "no district
+// file yet" is a fact about dd_districts and not a guess about a string.
+//
+// ALPHABETICAL BY KEY, WHICH IS TO SAY UNORDERED. The rooms come back in the
+// order their keys happen to fall in. Nothing about how busy a room is moves it,
+// there is no query parameter that reorders the list, and a district's first room
+// and its hundredth are printed the same size.
+async function readDistrict(req: Request): Promise<Response> {
+  const url = new URL(req.url);
+  const raw = String(url.searchParams.get("district") || "").trim().toLowerCase();
+  const districtKey = DISTRICT_KEY_RE.test(raw) ? raw : "";
+
+  const district = await resolveDistrict(districtKey);
+  if (!district) {
+    return json(
+      { error: "We don't map that district, so there is no district file yet.", code: "no_district" },
+      404
+    );
+  }
+
+  // The rooms. One query for the threads, one for every answer in the district
+  // grouped by (issue, choice), so the response cannot grow with how much anybody
+  // has said in any of them.
+  const threads = await db
+    .select({ issueKey: ddThreads.issueKey })
+    .from(ddThreads)
+    .where(eq(ddThreads.districtId, district.districtKey))
+    .orderBy(ddThreads.issueKey);
+
+  const answers = await db
+    .select({ issueKey: ddPollVotes.issueKey, choice: ddPollVotes.choice, n: count() })
+    .from(ddPollVotes)
+    .where(eq(ddPollVotes.districtKey, district.districtKey))
+    .groupBy(ddPollVotes.issueKey, ddPollVotes.choice);
+
+  const byIssue = new Map<string, { choice: string; n: number }[]>();
+  for (const a of answers) {
+    const k = String(a.issueKey || "");
+    if (!byIssue.has(k)) byIssue.set(k, []);
+    byIssue.get(k)!.push({ choice: String(a.choice || ""), n: Number(a.n || 0) });
+  }
+
+  const rooms = threads.map((t) => {
+    const results = pollTally(byIssue.get(t.issueKey) || []);
+    return {
+      issueKey: t.issueKey,
+      results,
+      resultLine: pollResultLine(results),
+      answered: results.total > 0,
+    };
+  });
+
+  const vocabulary = await db.select({ issueKey: ddIssueKeys.issueKey }).from(ddIssueKeys);
+
+  return ok({
+    districtKey: district.districtKey,
+    label: district.label,
+    state: district.state,
+    seatKey: district.seatKey,
+    districtNumber: district.districtNumber,
+    rooms,
+    issueKeys: vocabulary.map((v) => v.issueKey),
+    countsNote: COPY.pollCountsNote,
+  });
+}
+
 // ── POST /flag — report a post ───────────────────────────────────────────
 // A STUB THAT RECORDS INTENT, and it says so in its own response. Phase 0 ships
 // no flag table and this pass does not add one: a moderation queue is a surface
@@ -787,6 +881,10 @@ export default async (req: Request): Promise<Response> => {
     if (path === "/" || path === "") {
       if (method === "GET") return await readRoom(req);
       if (method === "POST") return await writePost(req);
+      return json({ error: "Method not allowed" }, 405);
+    }
+    if (path === "/district") {
+      if (method === "GET") return await readDistrict(req);
       return json({ error: "Method not allowed" }, 405);
     }
     if (path === "/poll/vote") {

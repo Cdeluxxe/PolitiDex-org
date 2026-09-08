@@ -674,7 +674,17 @@ if (!process.env.NETLIFY_DB_URL) {
 {
   ok(SQL.length > 0, `${MIG} exists`);
   const MIGS = readdirSync(join(ROOT, "netlify/database/migrations")).filter((f) => f.endsWith(".sql")).sort();
-  eq(MIGS[MIGS.length - 1], "20261028000000_vr_federal_wave_f11.sql", "F11's migration must be last in the tree");
+  // NOTHING IN THE RECORD LANE LANDS AFTER F11, which is the claim this line was
+  // written to make: a later vr_* wave editing the same vr_member_votes rows
+  // would silently reorder this one's effect, so F11 has to be the newest file
+  // in its own lane. Later passes on OTHER lanes do land after it and must - the
+  // dd_* district tables and the one dd_threads seed depend on nothing here and
+  // are touched by nothing here - so the sort is scoped to the lane rather than
+  // to the whole directory.
+  const LANE = MIGS.filter((f) => /_vr_/.test(f));
+  eq(LANE[LANE.length - 1], "20261028000000_vr_federal_wave_f11.sql", "F11's migration must be last in the record lane");
+  ok(MIGS.every((f) => f <= "20261028000000_vr_federal_wave_f11.sql" || !/_vr_/.test(f)),
+    "and no record-lane migration was slipped in behind it");
   ok(/F10's RESERVED STAMP/.test(SQL), "the migration must say which stamp it consumed and where the stamp came from");
   // No applied migration was edited: every other file is byte-identical to HEAD.
   const edited = MIGS.filter((f) => {

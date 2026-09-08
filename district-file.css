@@ -1,0 +1,303 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   district-file.css — the district file at /d/<districtKey>
+   ─────────────────────────────────────────────────────────────────────────────
+   One thing lives in here: the .pdxdf* panel painted by district-file.js — its
+   header, the seated member's line, and the list of issue rooms. The room panel
+   one segment deeper is district-room.css's, and neither sheet reaches into the
+   other's class names.
+
+   NO VERDICT PALETTE, for the reason district-room.css states at greater length:
+   the good-green (#4ade80 / #86efac) and every red mean "the record came out the
+   way they said it would", and this page is a door into a conversation between
+   neighbours rather than a judgement about anybody. It takes the app's neutral
+   surfaces and the same one cool accent the room takes.
+
+   AND NOTHING IN HERE SCALES WITH HOW BUSY A ROOM IS. A row with four hundred
+   answers and a row with none are the same size, the same weight and the same
+   colour. There is no bar, no fill, no length and no intensity that a count
+   could drive — a proportion drawn as a length reads as a grade.
+
+   Loaded non-blocking from index.html (media="print" + onload swap, the same
+   arrangement district-room.css and issue-file.css use), so an unstyled flash is
+   impossible and the sheet costs nothing on first paint.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── THE PANEL ────────────────────────────────────────────────────────────── */
+.pdxdf {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 14px;
+  background: rgba(2, 6, 23, 0.78);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  overflow: hidden;
+}
+
+.pdxdf[hidden] { display: none !important; }
+
+.pdxdf-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(720px, 100%);
+  max-height: calc(100vh - 48px);
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  border-radius: 14px;
+  background: #0b1220;
+  box-shadow: 0 24px 60px rgba(2, 6, 23, 0.6);
+  overflow: hidden;
+}
+
+.pdxdf-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 14px 12px 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  background: linear-gradient(180deg, rgba(125, 211, 252, 0.07), rgba(125, 211, 252, 0));
+}
+
+.pdxdf-head { flex: 1 1 auto; min-width: 0; }
+
+/* The file's own address, printed where a letterhead prints a file number. */
+.pdxdf-kick {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+}
+
+.pdxdf-title {
+  margin: 4px 0 0;
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #e2e8f0;
+}
+
+.pdxdf-line {
+  margin: 6px 0 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+.pdxdf-x {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 9px;
+  background: rgba(15, 23, 42, 0.6);
+  color: #cbd5e1;
+  cursor: pointer;
+}
+
+.pdxdf-x svg { width: 16px; height: 16px; }
+
+.pdxdf-x:hover,
+.pdxdf-x:focus-visible {
+  border-color: rgba(125, 211, 252, 0.5);
+  color: #e0f2fe;
+}
+
+.pdxdf-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 14px 16px 18px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pdxdf-busy {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #94a3b8;
+}
+
+/* ── THE SEATED MEMBER ────────────────────────────────────────────────────── */
+/* A label, a name that is a link, and the office. There is no chip in here for a
+   party letter to go in and no slot for a number, because neither is on this
+   page — see the header of district-file.js. */
+.pdxdf-seat {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-left: 3px solid rgba(125, 211, 252, 0.5);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.42);
+}
+
+.pdxdf-seat-hd {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+}
+
+.pdxdf-seat-link {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #e0f2fe;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(125, 211, 252, 0.4);
+}
+
+.pdxdf-seat-link:hover,
+.pdxdf-seat-link:focus-visible {
+  color: #f0f9ff;
+  border-bottom-color: rgba(125, 211, 252, 0.85);
+}
+
+.pdxdf-seat-office,
+.pdxdf-seat-muted {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+/* ── THE LIST OF ROOMS ────────────────────────────────────────────────────── */
+.pdxdf-listhd {
+  margin: 16px 0 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+}
+
+.pdxdf-listnote {
+  margin: 5px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+.pdxdf-list {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Every row is the same row. Nothing here reads a count. */
+.pdxdf-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  padding: 9px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.34);
+}
+
+.pdxdf-issuechip {
+  display: inline-block;
+  padding: 3px 10px;
+  border: 1px solid rgba(125, 211, 252, 0.3);
+  border-radius: 999px;
+  background: rgba(125, 211, 252, 0.08);
+  color: #bae6fd;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* Three integers, printed as a sentence. Not a bar, not a fill, not a ratio. */
+.pdxdf-counts {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  color: #94a3b8;
+}
+
+/* The way in, and it is a real anchor to the room's address. */
+.pdxdf-open {
+  flex: 0 0 auto;
+  padding: 4px 11px;
+  border: 1px solid rgba(125, 211, 252, 0.34);
+  border-radius: 999px;
+  background: rgba(125, 211, 252, 0.08);
+  color: #bae6fd;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.pdxdf-open:hover,
+.pdxdf-open:focus-visible {
+  border-color: rgba(125, 211, 252, 0.62);
+  background: rgba(125, 211, 252, 0.16);
+  color: #e0f2fe;
+}
+
+.pdxdf-empty {
+  margin: 10px 0 0;
+  font-size: 0.84rem;
+  color: #94a3b8;
+}
+
+@media (max-width: 560px) {
+  .pdxdf { padding: 0; }
+  .pdxdf-panel {
+    width: 100%;
+    max-height: 100vh;
+    border: 0;
+    border-radius: 0;
+  }
+  .pdxdf-open { width: 100%; text-align: center; }
+}
+
+/* ── THE WAY IN, ON THE SEAT ROW ──────────────────────────────────────────────
+   These two rules style a control district-room.js paints: "District rooms →" at
+   the foot of the seat mount inside Who Represents Me. They live HERE, in the
+   file's own stylesheet, rather than in district-room.css, and that is deliberate
+   in both directions.
+
+   The control only EXISTS when this module is loaded - district-room.js builds
+   its href by asking PDXDistrictFile.path(), and paints nothing at all when the
+   answer is empty - so the rules that dress it should arrive with the module that
+   makes it possible, not with the module that draws it. A device holding the
+   room's stylesheet but not this pair therefore has no unstyled control on the
+   seat row: it has no control. Nothing in district-room.css changed.
+
+   Styled as an address and not as a call to action, for the reason .pdxdr-chip
+   gives: it sits under a seat row that outranks it. It is a quieter thing than a
+   room chip, because it leads to a list of them. */
+.pdxdr-mount-file {
+  margin: 8px 0 0;
+}
+
+.pdxdr-filelink {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #7dd3fc;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(125, 211, 252, 0.32);
+}
+
+.pdxdr-filelink:hover,
+.pdxdr-filelink:focus-visible {
+  color: #e0f2fe;
+  border-bottom-color: rgba(125, 211, 252, 0.7);
+}

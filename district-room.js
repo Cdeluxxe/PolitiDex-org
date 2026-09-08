@@ -182,6 +182,13 @@
   var SEAT_LINE = 'Neighbors in this district, one issue at a time.';
   var SEAT_BLANK = 'A room is per issue. Open an issue file and this district’s room is on it.';
   var ISSUE_LINE = 'Talk to neighbors in your own district about this issue.';
+  // THE WAY TO THE DISTRICT FILE, and it is the one control on this block that
+  // is not an issue. It goes to /d/<districtKey> — the district's own page, with
+  // its rooms on it — and it goes nowhere else. In particular it does NOT go to
+  // the open forum: a neighbour looking for their district was being handed a
+  // site-wide, ranked board about any topic at all, which is the opposite of the
+  // thing they asked for.
+  var FILE_LINK = 'District rooms \u2192';
   var BUSY = 'Opening the room…';
   var GONE = 'That room did not open.';
 
@@ -630,7 +637,33 @@
           '<span class="pdxdr-mount-sub">' + esc(label) + '</span></p>' +
         '<p class="pdxdr-mount-line">' + esc(chips ? SEAT_LINE : SEAT_BLANK) + '</p>' +
         (chips ? '<p class="pdxdr-chips">' + chips + '</p>' : '') +
+        fileLinkHtml(dk) +
       '</div>';
+  }
+
+  // THE DISTRICT FILE'S CONTROL, printed on a seat row only when that district
+  // ACTUALLY HAS A FILE. The allow-list is not repeated here: district-file.js
+  // owns /d/<districtKey> and owns the list of districts it ships, so this asks
+  // it — path() answers '' for every district without a file and this block
+  // disappears rather than pointing at a door nobody is behind. It also
+  // disappears when district-file.js is not on the page at all, which is what
+  // keeps this mount's markup unchanged for any surface that loads the room
+  // without the file.
+  //
+  // A REAL ANCHOR, like the chips beside it: the file has a citable path, so the
+  // path belongs in the document where it can be middle-clicked, opened in a new
+  // tab and copied. district-file.js's own delegated listener turns a plain left
+  // click into an in-app open.
+  function fileLinkHtml(districtKey) {
+    var href = '';
+    try {
+      var F = window.PDXDistrictFile;
+      if (F && fn(F.path)) href = F.path(districtKey);
+    } catch (e) { href = ''; }
+    if (!href) return '';
+    return '<p class="pdxdr-mount-file">' +
+      '<a class="pdxdr-filelink" href="' + esc(href) + '"' +
+      ' data-pdxdf-open="' + esc(districtKey) + '">' + esc(FILE_LINK) + '</a></p>';
   }
 
   // ── MOUNT (b): the issue file at /i/<key> ─────────────────────────────────
