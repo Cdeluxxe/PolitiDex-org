@@ -333,6 +333,37 @@
   color: #94a3b8;
 }
 
+/* The subject field. A reviewer types a uid here and the grant sends it — the
+   footer is painted in rooms the reviewer can post in too, so the person being
+   verified is always written down rather than defaulted to whoever pressed the
+   button. Quiet like the rest of the footer: it is a tool, not the way in. */
+.pdxdr-revlbl {
+  display: block;
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #94a3b8;
+}
+
+.pdxdr-revuid {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 9px;
+  padding: 9px 11px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 9px;
+  background: #0b1220;
+  color: #e2e8f0;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.pdxdr-revuid:focus {
+  outline: none;
+  border-color: rgba(125, 211, 252, 0.6);
+}
+
 .pdxdr-grantbtn {
   appearance: none;
   min-height: 44px;

@@ -676,6 +676,18 @@ ok(fnSrc.indexOf("viewer.isModerator") < fnSrc.indexOf("onConflictDoUpdate"),
 // pending is what a request already is, not a decision.
 has(fnSrc, 'decided !== "verified" && decided !== "revoked"',
   "a reviewer may only mark somebody verified or revoked");
+// THE SUBJECT IS NAMED, AND IT IS NEVER THE REVIEWER. The grant used to fall
+// back to the caller's own uid, which was safe only while the client painted the
+// control in rooms the caller could not post in. It is painted for a reviewer
+// with an open composer now, so a missing subject would make it a self-grant and
+// an unreviewed row is exactly what this route exists not to write.
+has(fnSrc, "subject === viewer.uid", "the grant route refuses a reviewer naming themselves");
+has(fnSrc, "no_self_grant", "and refuses it with its own code");
+has(fnSrc, "no_subject", "a grant that names nobody is refused too");
+lacks(fnSrc, "|| viewer.uid", "the subject never defaults to whoever is asking");
+ok(/no_subject[\s\S]*?no_self_grant[\s\S]*?onConflictDoUpdate/.test(
+  fnSrc.slice(fnSrc.indexOf("grantResidency"))),
+  "both refusals come before the upsert that sets verified");
 // And no route takes a method off the request: both literals are in the source.
 has(fnSrc, 'method: "self_attest"', "the request route records its own method");
 has(fnSrc, 'method: "admin_grant"', "the grant route records its own method");
@@ -1019,7 +1031,8 @@ function residencyPayload(res, extra) {
       {
         status: null, reason: "no_residency",
         canAttest: false, attest: CORE_COPY.attest, attestNote: CORE_COPY.attestNote,
-        canGrant: false, grant: CORE_COPY.grant, outOfScopeNote: "",
+        canGrant: false, grant: CORE_COPY.grant, grantUid: CORE_COPY.grantUid,
+        outOfScopeNote: "",
       },
       res || {}
     ),
@@ -1144,12 +1157,36 @@ has(revBody, CORE_COPY.reviewerTools, "and it is labelled as reviewer tools");
 has(revBody, "data-pdxdr-grant", "and the grant lives inside it");
 ok(revBody.indexOf("pdxdr-list") < revBody.indexOf("pdxdr-rev"),
   "the reviewer footer sits BELOW the conversation, not where the way in belongs");
-// GRANT IS REVIEWER-ONLY, and it is gone entirely once the composer is open —
-// nothing in a verified neighbour's room hints at a permission they do not have.
+// GRANT IS REVIEWER-ONLY, and the reviewer bit is the WHOLE condition.
 lacks(await paint(residencyPayload({ canGrant: false }), MY_UT2), CORE_COPY.grant,
   "a reader who is not a reviewer never reads the grant label");
-lacks(await paint(residencyPayload({ canGrant: true }, { canPost: true }), MY_UT2),
-  "data-pdxdr-grant", "a room with an open composer shows no grant");
+// AND AN OPEN COMPOSER DOES NOT TAKE IT AWAY. Phase 3 hid the footer whenever
+// canPost was true, on the reasoning that somebody who can already post has
+// nothing to grant themselves. That reasoning only held while the grant's
+// subject defaulted to the reviewer — and it took the control away from exactly
+// the reviewer who is ALSO verified in the district they review, so a reviewer
+// reading their own room had a pending neighbour they could not approve and no
+// button anywhere that would approve them. Being able to post is not an opinion
+// about somebody else's residency, so it decides nothing here.
+const openRev = await paint(residencyPayload({ canGrant: true }, { canPost: true }), MY_UT2);
+has(openRev, "data-pdxdr-grant",
+  "a reviewer who can already post is still shown the grant");
+has(openRev, "pdxdr-composer", "and still has their own composer");
+has(openRev, CORE_COPY.reviewerTools, "the footer is still labelled as reviewer tools");
+ok(openRev.indexOf("pdxdr-list") < openRev.indexOf("pdxdr-rev"),
+  "and it is still the last thing in the room, under the conversation");
+// THE SUBJECT IS TYPED OUT. With the footer painted in a room whose composer is
+// open, a grant that defaulted to the caller would make the room's last button a
+// silent self-verification — so the uid being verified is a required field.
+has(openRev, 'data-pdxdr-grantuid="1"', "the grant carries a field for the uid it verifies");
+has(openRev, CORE_COPY.grantUid, "and the field says whose account it wants");
+has(openRev, 'for="pdxdr-grant-uid"', "the field is labelled for a screen reader too");
+has(roomSrc, "COPY.grantNoSelf", "and the client has a sentence for a reviewer naming themselves");
+lacks(openRev.slice(openRev.indexOf("pdxdr-rev")), "<textarea",
+  "the reviewer's field is one line, not a second composer");
+// The neighbour's way in is still nowhere near it: a reviewer is not being asked
+// to attest to anything, and canAttest is still the only thing that paints that.
+lacks(openRev, "data-pdxdr-attest", "the reviewer footer is not the neighbour's ask");
 // The two controls remain two different sentences on two different paths.
 ok(CORE_COPY.grant !== CORE_COPY.attest, "the way in and the decision are labelled differently");
 has(roomSrc, "'/residency/attest'", "the request still goes to the attest route");
@@ -1675,7 +1712,7 @@ section("11 · the room's auth follows the nav chip");
 // `row` is the caller's dd_residency row for this district, or null — the ONE
 // thing canAttest turns on, because a person who already has a row has already
 // asked (or been decided about) and is never asked to ask again.
-function standingPayload(signedIn, extra, row) {
+function standingPayload(signedIn, extra, row, reviewer) {
   const residency = residencyClaim(signedIn ? { uid: "uid-chip-1" } : null, row || null);
   const composer = composerState(residency, "ut-statehouse-68");
   const ps = pollState(residency, "ut-statehouse-68");
@@ -1703,8 +1740,11 @@ function standingPayload(signedIn, extra, row) {
       canAttest: signedIn && !row,
       attest: CORE_COPY.attest,
       attestNote: CORE_COPY.attestNote,
-      canGrant: false,
+      // THE REVIEWER BIT, and it is the Function's: isModerator and in scope,
+      // with nothing about whether this caller can post here.
+      canGrant: !!reviewer,
       grant: CORE_COPY.grant,
+      grantUid: CORE_COPY.grantUid,
       outOfScopeNote: "",
     },
   }, extra || {});
@@ -1873,6 +1913,102 @@ has(verifiedBody, "pdxdr-composer", "a verified neighbour gets the composer");
 has(verifiedBody, "pdxdr-pole", "and the three poll buttons");
 lacks(verifiedBody, "data-pdxdr-attest", "and is asked to ask for nothing");
 lacks(verifiedBody, CORE_COPY.closed, "and reads no closed note");
+// A VERIFIED NEIGHBOUR IS NOT A REVIEWER. The composer being open says nothing
+// about the grant in either direction — the reviewer bit does, and this reader
+// does not have it.
+lacks(verifiedBody, "data-pdxdr-grant", "and is shown no grant, because they are no reviewer");
+lacks(verifiedBody, CORE_COPY.grant, "and never reads the grant label");
+
+// ── THE REVIEWER WHO LIVES HERE TOO, WHICH IS THE WHOLE BUG ─────────────────
+// The reporter's case: a reviewer who is ALSO verified in ut-statehouse-68, so
+// the room hands them a composer — and phase 3 took the grant away in the same
+// read, leaving the one person able to approve a pending neighbour with no
+// control that approves anybody. Verified row AND the reviewer bit: composer and
+// grant, both, in one room.
+const granted = [];
+const revRoutes = (url, init) => {
+  const method = String((init && init.method) || "GET").toUpperCase();
+  if (method === "POST" && String(url).indexOf("/residency/grant") >= 0) {
+    granted.push(String((init && init.body) || ""));
+    return { status: 200, data: { status: "verified", districtKey: "ut-statehouse-68",
+      method: "admin_grant", message: CORE_COPY.granted } };
+  }
+  return { status: 200, data: standingPayload(true, null, VERIFIED_ROW, true) };
+};
+const WREV = await settled(boot(ROOM_68, revRoutes, { auth: fakeAuth(chipAccount()) }));
+const revRoom = scroll(WREV);
+has(revRoom, "pdxdr-composer", "a reviewer verified in this district still gets the composer");
+has(revRoom, "data-pdxdr-grant", "THE BUG: and the grant is in the room with it");
+has(revRoom, CORE_COPY.grant, "labelled as a reviewer's grant");
+has(revRoom, CORE_COPY.reviewerTools, "under the reviewer tools heading");
+has(revRoom, 'data-pdxdr-grantuid="1"', "with a field for the uid being verified");
+has(revRoom, CORE_COPY.grantUid, "and the field says what it wants");
+ok(revRoom.indexOf("pdxdr-list") < revRoom.indexOf("pdxdr-rev"),
+  "and the footer is still under the thread, not in the way in");
+eq(granted.length, 0, "and opening the room granted nobody");
+
+// PRESSING IT SENDS THE TYPED UID, and nothing about the reviewer.
+// The fake control answers the two selectors the module actually reads: its own,
+// and the status box its field and its message live in.
+function pressGrant(win, uid) {
+  const field = { value: uid == null ? "" : uid };
+  const said = { textContent: "" };
+  const box = {
+    querySelector: (sel) =>
+      sel === '[data-pdxdr-grantuid="1"]' ? field : sel === '[data-pdxdr-say="1"]' ? said : null,
+  };
+  const btn = {
+    disabled: false,
+    getAttribute: () => null,
+    querySelector: () => null,
+    closest: (sel) =>
+      sel === "[data-pdxdr-grant]" ? btn : sel === '[data-pdxdr-saybox="1"]' ? box : null,
+  };
+  const ev = { target: btn, button: 0, defaultPrevented: false, preventDefault() {} };
+  ((win.document.__on && win.document.__on.click) || []).forEach((fn) => fn(ev));
+  return { btn, field, said };
+}
+
+const sent = pressGrant(WREV, "uid-neighbour-9");
+await settled(WREV, 8);
+eq(granted.length, 1, "pressing the grant writes exactly one decision");
+const grantCall = WREV.__calls.find((c) => String(c.url).indexOf("/residency/grant") >= 0);
+ok(!!grantCall, "and it goes to the existing grant route and no other");
+eq(String((grantCall.init || {}).method).toUpperCase(), "POST", "as a POST");
+eq(bearerOf(grantCall), "Bearer tok-1", "carrying the reviewer's own ID token");
+has(granted[0], "uid-neighbour-9", "the body names the neighbour being verified");
+has(granted[0], "ut-statehouse-68", "and the district it is verifying them in");
+lacks(granted[0], "uid-chip-1", "and never the reviewer's own uid");
+lacks(granted[0], "admin_grant", "the method is the server's, not the caller's");
+eq(sent.said.textContent, CORE_COPY.granted, "and the reviewer is told what happened");
+
+// NO SELF-GRANT, and no round trip spent finding that out. The reviewer's own
+// uid in the field is refused before the request, and so is an empty field.
+const grantsSoFar = granted.length;
+const self = pressGrant(WREV, "uid-chip-1");
+await settled(WREV, 4);
+eq(granted.length, grantsSoFar, "a reviewer naming their own uid grants nobody");
+eq(self.said.textContent, CORE_COPY.grantNoSelf, "and is told the grant is for somebody else");
+const blank = pressGrant(WREV, "  ");
+await settled(WREV, 4);
+eq(granted.length, grantsSoFar, "an empty field grants nobody either");
+eq(blank.said.textContent, CORE_COPY.grantNeedUid, "and is told to name the person");
+
+// AND A NEIGHBOUR WHO IS NOT A REVIEWER NEVER SEES ANY OF IT — pending row, no
+// reviewer bit, so no footer, no field and no label. The other half of the test
+// the brief names.
+const pendingNeighbour = scroll(await settled(boot(
+  ROOM_68,
+  () => ({ status: 200, data: standingPayload(true, null, PENDING_ROW) }),
+  { auth: fakeAuth(chipAccount()) }
+)));
+has(pendingNeighbour, CORE_COPY.pending, "a pending neighbour is told their request is pending");
+lacks(pendingNeighbour, "data-pdxdr-grant", "and is shown no grant");
+lacks(pendingNeighbour, CORE_COPY.grant, "and never reads the grant label");
+lacks(pendingNeighbour, "pdxdr-rev", "and gets no reviewer footer at all");
+lacks(pendingNeighbour, 'data-pdxdr-grantuid="1"', "and no field to type a uid into");
+lacks(pendingNeighbour, CORE_COPY.grantUid, "and never reads what that field asks for");
+lacks(pendingNeighbour, "pdxdr-composer", "and still has no composer");
 
 // ── AN ANONYMOUS SESSION IS SIGNED OUT, HERE AND IN THE NAV ─────────────────
 // The chip does not appear for the per-browser anonymous session and neither

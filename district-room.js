@@ -70,7 +70,15 @@
        painted in its own footer BELOW THE POSTS under a "Reviewer tools" heading
        — deliberately not in the slot a neighbour reads as "join the room",
        because a control almost nobody can use must not be the loudest thing on
-       the way in. A reader who can already post is shown no grant at all.
+       the way in. canGrant is the WHOLE condition: the footer is painted for a
+       reviewer whose composer is open too, because the grant is a decision about
+       SOMEBODY ELSE and being able to post yourself is not an opinion about it.
+       Phase 3 hid it whenever canPost was true, which took the control away from
+       precisely the reviewer who is verified in the district they review — so a
+       reviewer reading their own room saw a pending neighbour they could not
+       approve. The uid being verified is a required field in that footer and the
+       reviewer's own uid is refused in it, here and at the Function; a grant with
+       no subject would be a self-verification dressed as an approval.
 
    WHO IS ASKING IS ONE QUESTION WITH ONE ANSWER, AND THE ANSWER IS THE NAV
    CHIP'S. Every call this module makes goes through one identity helper, and it
@@ -139,6 +147,9 @@
     reviewerTools: 'Reviewer tools',
     granted: 'Verified for this district. The composer is open here.',
     grantDenied: 'Only a site reviewer can grant residency.',
+    grantUid: 'Account ID (uid) of the neighbor you are verifying',
+    grantNeedUid: 'Paste the account ID of the neighbor you are verifying.',
+    grantNoSelf: 'This grant verifies somebody else, so it cannot name your own account.',
     notInScope: 'Residency verification is Utah only in this pass, so we cannot verify you ' +
       'for a district in another state yet.',
     badge: 'verified in this district',
@@ -178,6 +189,9 @@
   var ID_TITLE = 'pdx-district-room-title';
   var ID_HEAD = 'pdx-district-room-head';
   var ID_BODY = 'pdx-district-room-scroll';
+  // The reviewer footer's one field. Named here because the label's `for` and the
+  // input's `id` have to be the same string and only one room is ever painted.
+  var ID_GRANT_UID = 'pdxdr-grant-uid';
 
   function fn(x) { return typeof x === 'function'; }
   function el(id) { try { return document.getElementById(id); } catch (e) { return null; } }
@@ -787,17 +801,36 @@
     return out;
   }
 
-  // THE REVIEWER'S FOOTER, and it is the last thing in the room. Painted only
-  // when the server says canGrant, only when the composer is CLOSED (somebody who
-  // can already post has nothing to grant themselves), and always under its own
-  // "Reviewer tools" heading so it reads as what it is: a tool for the one person
-  // with that standing, not the neighbour's call to action.
+  // THE REVIEWER'S FOOTER, and it is the last thing in the room. Painted on the
+  // server's canGrant and on nothing else, always under its own "Reviewer tools"
+  // heading so it reads as what it is: a tool for the one person with that
+  // standing, not the neighbour's call to action.
+  //
+  // AND IT IS NO LONGER HIDDEN BY AN OPEN COMPOSER. Phase 3 also required
+  // `canPost !== true`, on the reasoning that somebody who can already post has
+  // nothing to grant themselves. The reasoning only holds while the grant's
+  // subject is the reviewer: a reviewer who is ALSO verified in the district they
+  // review — the ordinary case for whoever actually reads a room — had the
+  // composer opened and the grant taken away in the same read, so the one person
+  // able to approve a pending neighbour could never see the control that approves
+  // them. The composer is not a permission about somebody else, so it decides
+  // nothing here.
+  //
+  // WHICH IS WHY THE SUBJECT IS A FIELD. With the footer painted in a room whose
+  // composer is open, a grant that defaulted to the caller's own uid would mean a
+  // reviewer pressing the room's last button silently re-verified themselves. The
+  // uid being verified is typed out, it is required, and it is refused when it is
+  // the reviewer's own — here and again at the Function.
   function reviewerHtml(data) {
     var r = (data && data.residency) || null;
     if (!r || r.canGrant !== true) return '';
-    if (data && data.canPost === true) return '';
     return '<div class="pdxdr-rev" data-pdxdr-saybox="1">' +
         '<p class="pdxdr-revhd">' + esc(COPY.reviewerTools) + '</p>' +
+        '<label class="pdxdr-revlbl" for="' + ID_GRANT_UID + '">' +
+          esc(r.grantUid || COPY.grantUid) + '</label>' +
+        '<input type="text" id="' + ID_GRANT_UID + '" class="pdxdr-revuid"' +
+          ' data-pdxdr-grantuid="1" autocomplete="off" spellcheck="false"' +
+          ' maxlength="128">' +
         '<button type="button" class="pdxdr-grantbtn" data-pdxdr-grant="1">' +
           esc(r.grant || COPY.grant) + '</button>' +
         '<p class="pdxdr-say" role="status" data-pdxdr-say="1"></p>' +
@@ -1197,11 +1230,38 @@
   // arrival — this control is a convenience for the one person who has that
   // standing, not the thing that confers it. The room is re-read afterwards, and
   // whether the composer appears is entirely the next read's answer.
+  //
+  // IT VERIFIES SOMEBODY ELSE, ALWAYS. The uid is read out of the footer's field
+  // and sent as `userId`; an empty field is refused here rather than sent, and
+  // the reviewer's own uid is refused too, because the footer is now painted in
+  // rooms a reviewer can already post in and a grant with no subject would be a
+  // silent self-verification. Neither refusal is this module's authority — the
+  // Function refuses both again — they are only the two checks worth making
+  // before spending a round trip.
+  function grantUidField(btn) {
+    var box = null;
+    try {
+      if (btn && btn.closest) box = btn.closest('[data-pdxdr-saybox="1"]');
+    } catch (e) { box = null; }
+    try {
+      if (box && box.querySelector) return box.querySelector('[data-pdxdr-grantuid="1"]');
+    } catch (e) {}
+    return el(ID_GRANT_UID);
+  }
+
   function grant(btn) {
     if (!_room) return false;
+    var field = grantUidField(btn);
+    var subject = '';
+    try { subject = field ? String(field.value || '').trim() : ''; } catch (e) { subject = ''; }
+    if (!subject) { say(COPY.grantNeedUid, btn); return false; }
+    if (_who && _who.uid && subject === _who.uid) { say(COPY.grantNoSelf, btn); return false; }
     if (btn) { try { btn.disabled = true; } catch (e) {} }
     say('Sending…', btn);
-    api('/residency/grant', { method: 'POST', body: { district: _room.districtKey } })
+    api('/residency/grant', {
+      method: 'POST',
+      body: { district: _room.districtKey, userId: subject }
+    })
       .then(function (res) {
         if (btn) { try { btn.disabled = false; } catch (e) {} }
         if (!res.ok) {

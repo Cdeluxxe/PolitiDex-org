@@ -157,6 +157,17 @@ export const COPY = {
   reviewerTools: "Reviewer tools",
   granted: "Verified for this district. The composer is open here.",
   grantDenied: "Only a site reviewer can grant residency.",
+  // WHO IS BEING VERIFIED IS TYPED OUT, and it is never the reviewer. Phase 3
+  // let the grant default to the caller's own uid, which was a convenience while
+  // the control only ever appeared in a room whose composer was shut — the one
+  // room where a reviewer had nobody but themselves to verify. The control is
+  // now painted for a reviewer who can already post, which is exactly the
+  // reviewer who has a pending neighbour to approve, so the subject is a field
+  // rather than a default and the reviewer's own account is refused in it: a
+  // button that silently re-verifies the person pressing it is not an approval.
+  grantUid: "Account ID (uid) of the neighbor you are verifying",
+  grantNeedUid: "Paste the account ID of the neighbor you are verifying.",
+  grantNoSelf: "This grant verifies somebody else, so it cannot name your own account.",
 
   // Utah only in this pass, said as a sentence rather than implied by an empty
   // dropdown. dd_districts holds ut- rows only, because pdxRepsForMe()
