@@ -127,9 +127,13 @@
 /* ── THE SEATED MEMBER ────────────────────────────────────────────────────── */
 /* A label, a name that is a link, and the office. There is no chip in here for a
    party letter to go in and no slot for a number, because neither is on this
-   page — see the header of district-file.js. */
+   page — see the header of district-file.js. It sits INSIDE .pdxdf-head, under
+   the district's own title and above the one line, because who holds the seat is
+   a fact about the district in the same way the label is — so it does not scroll
+   away with the list and it is not repainted when the rooms arrive. The top
+   margin is its own: the header block has no padding between its lines. */
 .pdxdf-seat {
-  margin: 0;
+  margin: 8px 0 0;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -170,6 +174,11 @@
 }
 
 /* ── THE LIST OF ROOMS ────────────────────────────────────────────────────── */
+/* The list is the first thing in the scrolling body now that the seat is on the
+   letterhead, so its heading drops the leading gap it needed when it followed
+   the seat block. */
+.pdxdf-body > .pdxdf-listhd:first-child { margin-top: 0; }
+
 .pdxdf-listhd {
   margin: 16px 0 0;
   font-size: 0.7rem;

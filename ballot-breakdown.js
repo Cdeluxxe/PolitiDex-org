@@ -2373,18 +2373,52 @@
     // through window._pdxPersonById like every other surface. Returns null for a
     // seat this map does not hold, which is the honest answer for a district whose
     // officeholder is not curated yet.
+    //
+    // EVERY SHAPE THE ADDRESS SPELLS THE SEAT IN, because they all name ONE seat.
+    // The seat arrives here written three different ways depending on which side of
+    // the app is asking: dd_districts hands back the pair ('statehouse', 68), the
+    // district file's own URL carries the composed key 'ut-statehouse-68' with the
+    // number already inside it, and a hand-built link spells the number 'HD-68' or
+    // 'District 68'. All of them resolve, and the composed key resolves on its own
+    // with no second argument at all — pdxSeatedMemberFor('ut-statehouse-68') is
+    // the same question as pdxSeatedMemberFor('statehouse', 68) and gets the same
+    // answer. A lookup that returned null for a shape it could have read would
+    // print "we have not resolved who holds this seat" on the page, which is a
+    // claim about the DISTRICT and not about the argument it was handed, and HD-68
+    // is exactly where that went wrong: the seat is curated (68 → chew_h68, below)
+    // and the reader was told otherwise.
+    //
+    // The seat vocabulary itself is unchanged and stays honest: 'statehouse' and
+    // 'statesenate' are the Utah chambers, 'house' is the U.S. House, and no key
+    // falls back to another chamber's map. A number that names no district in the
+    // chamber it was asked about is still null.
+    function _pdxSeatKeyOf(raw) {
+      var s = String(raw == null ? '' : raw).toLowerCase();
+      // 'statehouse' before 'house', because 'ut-statehouse-68' contains both and
+      // only one of them is the seat it names.
+      if (s.indexOf('statehouse') >= 0) return 'statehouse';
+      if (s.indexOf('statesenate') >= 0) return 'statesenate';
+      if (/(^|[^a-z])house([^a-z]|$)/.test(s)) return 'house';
+      return '';
+    }
     window.pdxSeatedMemberFor = function (seatKey, districtNumber) {
       try {
-        var n = parseInt(districtNumber, 10);
+        var k = _pdxSeatKeyOf(seatKey);
+        if (!k) return null;
+        // The explicit number wins when there is one; otherwise the trailing digits
+        // of the composed key are the number, which is what lets the district key
+        // answer on its own.
+        var n = parseInt(String(districtNumber == null ? '' : districtNumber)
+          .replace(/[^0-9]/g, ''), 10);
+        if (!isFinite(n) || n <= 0) {
+          var m = /([0-9]+)\s*\/?\s*$/.exec(String(seatKey == null ? '' : seatKey));
+          n = m ? parseInt(m[1], 10) : NaN;
+        }
         if (!isFinite(n) || n <= 0) return null;
-        var k = String(seatKey || '').toLowerCase();
         if (k === 'statehouse') return KR_STATE_HOUSE_INCUMBENTS[n] || null;
         if (k === 'statesenate') return KR_STATE_SENATE_INCUMBENTS[n] || null;
-        if (k === 'house') {
-          var m = KR_CONGRESSIONAL_INCUMBENTS[n];
-          return (m && m.pid) || null;
-        }
-        return null;
+        var c = KR_CONGRESSIONAL_INCUMBENTS[n];
+        return (c && c.pid) || null;
       } catch (e) { return null; }
     };
 
