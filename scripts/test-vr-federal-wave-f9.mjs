@@ -1847,6 +1847,25 @@ const swNote = swWaveNote();
     // claim that nothing else may ever change.
     "district-room.js",
     "scripts/test-district-room.mjs",
+    // ── AND THE PASS AFTER IT, on the same terms ───────────────────────────────
+    // THE ROOM OFFERS ITS ASK TO THE NEIGHBOUR WHO NEEDS IT. A signed-in reader
+    // with no residency row read the true sentence — nothing has been established
+    // about where you live — under no control at all, because the client ANDed the
+    // server's offer with a test of its own: was this the district the reader's own
+    // "which district am I in" resolver placed them in? That resolver answers "not
+    // located" until somebody types a zip, so the ask was hidden from exactly the
+    // people it exists for. The client now paints it on the server's flag alone.
+    // netlify/functions/district-room.mts is in this list for COMMENTS ONLY — the
+    // route's prose asserted the restriction that just came out, so leaving it
+    // would have documented a safeguard that no longer exists. No statement, query,
+    // status, method or response field in it changed.
+    //   NOTHING IN THIS WAVE'S REACH MOVES, for the same reasons as above: the
+    // room still reads /api/district-room and the dd_* tables and nothing else, no
+    // vr_* model, pack or ingest script is queried, no roll, mapping, key, floor,
+    // admission, tier, chip, count or Direction Match figure is carried, and no pid
+    // is printed. Asking still writes a PENDING row that cannot post or vote, and a
+    // reviewer's grant is still the only path to verified.
+    "netlify/functions/district-room.mts",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
