@@ -903,7 +903,7 @@
       setRemoteBackend(makeNetlifyRemoteBackend({ userId: uid, getToken: identity.getToken }), {
         userId: uid,
         autoPush: true,                  // debounce-push a collection ~1.5s after it goes dirty
-        collections: ['saved', 'team', 'evidence', 'impact', 'stances']   // all personal collections sync (server allow-list)
+        collections: ['saved', 'team', 'evidence', 'impact', 'stances', 'yourFile']   // all personal collections sync (server allow-list)
       });
       // One-time startup sync of each synced collection, after the page has settled
       // (snapshot providers + reconcilers register during initial parse). We PULL
@@ -919,7 +919,7 @@
       // Both steps resolve gracefully and never throw — if the pull fails
       // (offline/error/no server data) local data is left exactly as-is.
       setTimeout(function () {
-        ['saved', 'team', 'evidence', 'impact', 'stances'].forEach(function (col) {
+        ['saved', 'team', 'evidence', 'impact', 'stances', 'yourFile'].forEach(function (col) {
           try {
             pullCollection(col).then(function () {
               try { pushCollection(col); } catch (e) {}
@@ -2311,6 +2311,15 @@ window.PDXLazy = (function () {
        door. Same non-blocking path as the sheets above. -->
   <link rel="stylesheet" href="/district-file.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/district-file.css" /></noscript>
+  <!-- Your file — #your-file, the reader's OWN positions on eight issues. Its own
+       sheet for the same reason the two district sheets have theirs, and with the
+       same refusal: neutral surfaces, one cool accent, and NONE of the verdict
+       palette. Support does not get the green and Oppose does not get the red,
+       because a reader's own position cannot come out right or wrong. Nothing in
+       it is a meter — there is no number on that panel. Same non-blocking path as
+       the sheets above. -->
+  <link rel="stylesheet" href="/your-file.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/your-file.css" /></noscript>
   <!-- ↩️ Against their own stated position — the gathered list of ⚖️ Word vs Action's
        own `contradicts` verdicts. Its own sheet because its whole visual argument is
        that it does NOT reuse the score section's red at list scale: a page of red
@@ -5569,6 +5578,14 @@ window.PDXLazy = (function () {
         <div class="wrm-ctarow">
           <button type="button" class="wrm-cta btn-tap" onclick="window.pdxFindMyReps&amp;&amp;window.pdxFindMyReps()">📍 See who represents me</button>
           <button type="button" class="wrm-cta2 btn-tap" onclick="window.openDistrictMapModal&amp;&amp;window.openDistrictMapModal()">🗺️ Find it on the map</button>
+          <!-- YOUR FILE. One control, reusing the secondary slot beside the map
+               opener rather than taking a nav pill: this is the reader's half of
+               the comparison the two controls above set up, so it belongs where
+               they are. A real anchor to the hash the overlay owns, so it can be
+               copied and middle-clicked; data-pdxyf-open is what your-file.js
+               turns a plain left click into an in-app open with. -->
+          <a href="#your-file" class="wrm-cta2 btn-tap" data-pdxyf-open="1"
+             title="Your positions on eight issues — used to compare formal records. Not a vote, and not a district poll.">🗂️ Your file</a>
         </div>
       </div>
 
@@ -22807,6 +22824,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        plain anchor if the module is missing, and the room's seat mount prints no
        control at all if THIS file is missing. -->
   <script defer src="/district-file.js"></script>
+  <!-- #your-file — YOUR FILE: the reader's own Support / Oppose / Mixed / Not sure
+       on EIGHT issues, one answer each, saved to the signed-in uid through
+       PDXStore's 'yourFile' collection (/api/pdx-sync → Netlify Database; no new
+       table). The locked list lives in that file and is not read from ISSUE_MAP,
+       so it cannot grow a ninth row. Signed out, the eight still render and every
+       control is disabled — the panel says "Sign in to keep your file."
+       ONE CONSUMER: the alignment read takes this file FIRST on those eight keys
+       (see _alignUserLevel in alignment-tool.js), and membership is projected into
+       the existing Alignment Signature through window.alignSetIntensity. Loaded
+       after alignment-tool.js for that reason. It writes NOTHING to the forum, to
+       a district room or to dd_poll_answers — there is no POST in the file at all.
+       Reached from ONE control, "Your file", in the Who Represents Me action row.
+       No nav pill. -->
+  <script defer src="/your-file.js"></script>
   <!-- /i/<key> — the issue file's own address. Reads the key out of
        location.pathname, resolves it through the desk's own resolver, commits the
        pick through the desk's own entry point, and opens the SAME ledger a Door 1

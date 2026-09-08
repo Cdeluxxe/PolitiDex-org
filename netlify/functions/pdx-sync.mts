@@ -53,7 +53,11 @@ const FIREBASE_PROJECT_ID = "politidex-979bd";
 // merge/GC logic lives on the client. Adding a collection here is purely an
 // allow-list widening: no schema change, since every snapshot is just another row
 // in the existing table.
-const ALLOWED_COLLECTIONS = new Set(["saved", "team", "evidence", "impact", "stances"]);
+// `yourFile` is the reader's own Support / Oppose / Mixed / Not sure on eight
+// issues (see your-file.js). It is personal data in exactly the same sense as the
+// others: one opaque snapshot per uid, merged on the client, never read by any
+// public surface. It is NOT poll data and shares nothing with dd_poll_answers.
+const ALLOWED_COLLECTIONS = new Set(["saved", "team", "evidence", "impact", "stances", "yourFile"]);
 
 // A sane ceiling so a caller can't push an unbounded payload. The `saved`
 // collection is small (bookmarks + short tags/notes); 1 MB is generous headroom.

@@ -1,0 +1,299 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   your-file.css — Your file, the reader's own positions on eight issues
+   ─────────────────────────────────────────────────────────────────────────────
+   One thing lives in here: the .pdxyf* panel painted by your-file.js — its
+   letterhead, the eight rows and the four answer controls on each row. It does
+   not reach into any other sheet's class names and no other sheet reaches into
+   these.
+
+   NO VERDICT PALETTE, for the reason district-room.css and district-file.css
+   both state at greater length: the good-green and every red in this app mean
+   "the record came out the way they said it would". A reader's own position is
+   not a verdict on anybody and cannot be right or wrong, so Support does not get
+   the green, Oppose does not get the red, and the selected answer is marked by
+   the same one cool accent every other neutral surface uses. Support, Oppose,
+   Mixed and Not sure are the SAME size, the same weight and the same colour
+   until one of them is chosen, and then the chosen one is simply the lit one.
+
+   AND NOTHING IN HERE IS A METER. No bar, no fill, no length, no percentage and
+   no intensity — there is no number on this panel for a style to read. Eight
+   answers and one answer look the same; the count on the letterhead is text.
+
+   The issue chip takes its colour from the four custom properties
+   PDXIssueColors.styleFor writes inline (--pdx-ic and friends), so an issue is
+   the same colour here as it is on every other surface that prints it, and this
+   sheet defines no palette of its own for issues.
+
+   Loaded non-blocking from index.html (media="print" + onload swap, the same
+   arrangement district-file.css, district-room.css and issue-file.css use), so
+   an unstyled flash is impossible and the sheet costs nothing on first paint.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── THE PANEL ────────────────────────────────────────────────────────────── */
+.pdxyf {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 14px;
+  background: rgba(2, 6, 23, 0.78);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  overflow: hidden;
+}
+
+.pdxyf[hidden] { display: none !important; }
+
+.pdxyf-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(720px, 100%);
+  max-height: calc(100vh - 48px);
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  border-radius: 14px;
+  background: #0b1220;
+  box-shadow: 0 24px 60px rgba(2, 6, 23, 0.6);
+  overflow: hidden;
+}
+
+.pdxyf-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 14px 12px 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  background: linear-gradient(180deg, rgba(125, 211, 252, 0.07), rgba(125, 211, 252, 0));
+}
+
+.pdxyf-head { flex: 1 1 auto; min-width: 0; }
+
+.pdxyf-kick {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+}
+
+.pdxyf-title {
+  margin: 4px 0 0;
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #e2e8f0;
+}
+
+/* The one line that says what the file is for and what it is not. It is on the
+   letterhead rather than in the scrolling body on purpose: "Not a vote. Not a
+   district poll." has to stay on screen while the reader answers. */
+.pdxyf-line {
+  margin: 6px 0 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+/* Text, not a meter. See the header. */
+.pdxyf-count {
+  margin: 5px 0 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
+  color: #7f95ad;
+}
+
+.pdxyf-x {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 9px;
+  background: rgba(15, 23, 42, 0.6);
+  color: #cbd5e1;
+  cursor: pointer;
+}
+
+.pdxyf-x svg { width: 16px; height: 16px; }
+
+.pdxyf-x:hover,
+.pdxyf-x:focus-visible {
+  border-color: rgba(125, 211, 252, 0.5);
+  color: #e0f2fe;
+}
+
+.pdxyf-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 14px 16px 18px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── WHOSE FILE THIS IS ───────────────────────────────────────────────────── */
+/* Two states, deliberately unalike so a saved file cannot look like one that is
+   only on screen: the signed-in note is quiet and the signed-out note carries
+   the accent border and the sign-in control, because it is the one that is
+   asking for something. */
+.pdxyf-acct {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  padding: 9px 11px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.42);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+.pdxyf-acct--out {
+  border-left: 3px solid rgba(125, 211, 252, 0.5);
+  color: #cbd5e1;
+}
+
+.pdxyf-acctico { flex: 0 0 auto; }
+
+.pdxyf-link {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid rgba(125, 211, 252, 0.4);
+  background: none;
+  font: inherit;
+  color: #7dd3fc;
+  cursor: pointer;
+}
+
+.pdxyf-link:hover,
+.pdxyf-link:focus-visible {
+  color: #e0f2fe;
+  border-bottom-color: rgba(125, 211, 252, 0.85);
+}
+
+/* ── THE EIGHT ROWS ───────────────────────────────────────────────────────── */
+.pdxyf-list {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pdxyf-row {
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.42);
+}
+
+.pdxyf-issue {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+/* The issue's own colour, from the inline custom properties PDXIssueColors
+   writes. The fallbacks keep the chip legible if that module never loaded. */
+.pdxyf-chip {
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 2px 9px;
+  border: 1px solid var(--pdx-ic-soft, rgba(148, 163, 184, 0.35));
+  border-radius: 999px;
+  background: var(--pdx-ic-wash, rgba(148, 163, 184, 0.1));
+  color: var(--pdx-ic-ink, #e2e8f0);
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.pdxyf-chipline {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #94a3b8;
+}
+
+/* ── THE FOUR ANSWERS ─────────────────────────────────────────────────────── */
+/* One row per issue, four controls, 44px tall on a phone. They wrap rather than
+   shrink, because an answer control that is too small to hit is not an answer
+   control. */
+.pdxyf-opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.pdxyf-opt {
+  flex: 1 1 7.2rem;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 9px;
+  background: rgba(2, 6, 23, 0.5);
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+
+.pdxyf-opt:hover,
+.pdxyf-opt:focus-visible {
+  border-color: rgba(125, 211, 252, 0.5);
+  color: #e0f2fe;
+}
+
+/* The chosen answer is the LIT one, and that is the whole difference. Support
+   does not get a green and Oppose does not get a red — see the header. */
+.pdxyf-opt.is-on {
+  border-color: rgba(125, 211, 252, 0.7);
+  background: rgba(125, 211, 252, 0.14);
+  color: #f0f9ff;
+}
+
+.pdxyf-opt[disabled] {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.pdxyf-opt[disabled]:hover {
+  border-color: rgba(148, 163, 184, 0.28);
+  color: #cbd5e1;
+}
+
+.pdxyf-optico { flex: 0 0 auto; font-size: 0.9rem; }
+.pdxyf-optlb { min-width: 0; }
+
+/* A just-answered row is briefly outlined so the change is felt rather than
+   silently redrawn. One frame of accent; no colour that means a verdict. */
+.pdxyf-flash {
+  border-color: rgba(125, 211, 252, 0.6);
+  background: rgba(125, 211, 252, 0.08);
+}
+
+@media (max-width: 480px) {
+  .pdxyf { padding: 12px 8px; }
+  .pdxyf-panel { max-height: calc(100vh - 24px); }
+  .pdxyf-top { padding: 12px 10px 10px 12px; }
+  .pdxyf-body { padding: 12px 12px 16px; }
+  .pdxyf-opt { flex: 1 1 45%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pdxyf-opt { transition: none; }
+}
