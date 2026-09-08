@@ -3114,6 +3114,33 @@
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
 // ─────────────────────────────────────────────────────────────────────────────
+// v154 - THE ROOM HAS ONE POLL, AND THE WAY IN IS THE LOUD CONTROL
+// ─────────────────────────────────────────────────────────────────────────────
+// Two precached shell files changed, so the bucket is renamed.
+//
+// district-room.js and district-room.css:
+//   1. THE WAY IN IS NOW THE PRIMARY CONTROL. v153 painted the reviewer's
+//      "Grant residency" as the filled button and the neighbour's request as a
+//      thin outline beside it - which put the loudest thing on the way into the
+//      room behind a permission almost nobody has. The request is now "Ask to be
+//      verified for this district", full width, directly under the closed note,
+//      and the grant moved to a "Reviewer tools" footer under the posts where a
+//      neighbour looking for the way in will not read it as one. It renders for a
+//      reviewer only, and never at all once the composer is already open.
+//   2. ONE POLL PER ROOM, above the composer. Fixed question, three fixed poles
+//      (support / oppose / mixed - the same poles as My Stances), and results
+//      printed as counts: "N support - N oppose - N mixed". No percentage, no
+//      bar, no meter: there is no element in the poll whose length is set from a
+//      result, because a proportion drawn as a length reads as a grade. Only a
+//      neighbour verified for THIS district can answer; everybody else, signed
+//      out included, still reads the numbers. Voting again replaces the answer
+//      rather than adding one, and nothing in the room is ordered by it - the
+//      posts are still newest first, and a post is never read as a vote.
+//
+// The two precached shell files are the only ones that changed. dd_poll_votes is
+// a new table and the vote route is a new Function path; neither is a precached
+// asset, so both arrive with the deploy.
+// ─────────────────────────────────────────────────────────────────────────────
 // v153 - RESIDENCY IS A FACT NOW, SO A VERIFIED NEIGHBOUR CAN POST
 // ─────────────────────────────────────────────────────────────────────────────
 // v152 shipped the District Room read-only: residencyClaim() returned
@@ -3160,7 +3187,7 @@
 // and every formal tier byte-identical.
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
-const CACHE_VERSION = 'v153';
+const CACHE_VERSION = 'v154';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

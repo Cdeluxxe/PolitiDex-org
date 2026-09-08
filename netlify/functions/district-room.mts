@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// District Room — API (phase 2, the room a verified neighbour can post in)
+// District Room — API (phase 3, the room a verified neighbour posts and answers in)
 // ─────────────────────────────────────────────────────────────────────────────
 // One room per (district, issue). Verified-residency neighbours in ONE district
 // talking about ONE issue — not a comment thread on a politician, not a site-wide
@@ -14,23 +14,38 @@
 //   · dd_*          THIS — one district, one issue, no ranking at all
 //
 // Routes (all under /api/district-room):
-//   GET  /                        read a room: district, issue, posts, canPost
+//   GET  /                        read a room: district, issue, poll, posts, canPost
 //   POST /                        post into a room (fails closed — see below)
+//   POST /poll/vote               answer the room's ONE poll (fails closed too)
 //   POST /flag                    report a post (a stub that records intent)
 //   GET  /residency               the caller's OWN residency rows, and nobody's else
 //   POST /residency/attest        "I live in this district" — a REQUEST, stays pending
 //   POST /residency/grant         a site reviewer verifies or revokes one person
 //
 // ── WHAT IS NOT HERE, BY CONSTRUCTION ───────────────────────────────────────
-// No score, no vote, no reaction, no reply tally, no ranking parameter and no
-// sort option. Posts come back NEWEST FIRST and that is the only order the room
-// has — there is no query string that reorders it, because a room with an order
-// knob is a leaderboard with a conversation's manners. No party letter, no
-// caucus, no "team" language and no politician score is read or returned. No
-// count from this file reaches a person file, Direction Match, Word vs Action,
-// the finance lane, Mandate scoring, the Eye, the Utah ingest or the offline
-// pack. And no LLM writes here: every row is a person's own sentence, so there is
-// no generated-body path and no summariser.
+// No score, no reaction, no reply tally, no ranking parameter and no sort
+// option. Posts come back NEWEST FIRST and that is the only order the room has —
+// there is no query string that reorders it, because a room with an order knob is
+// a leaderboard with a conversation's manners. No party letter, no caucus, no
+// "team" language and no politician score is read or returned. No number from
+// this file reaches a person file, Direction Match, Word vs Action, the finance
+// lane, Mandate scoring, the Eye, the Utah ingest or the offline pack. And no LLM
+// writes here: every row is a person's own sentence, so there is no
+// generated-body path and no summariser.
+//
+// ── THE POLL, AND WHAT IT IS NOT ────────────────────────────────────────────
+// Phase 3 adds ONE structured question per room. Its question is fixed copy, its
+// options are the three fixed poles Support / Oppose / Mixed, and its results are
+// three integers. It changes nothing about the posts: there is no join between
+// dd_poll_votes and dd_posts, no post is promoted, ranked or reordered by an
+// answer, and NO ANSWER IS EVER INFERRED FROM POST TEXT — decideVote() takes no
+// body and the vote route reads nothing but `choice`. A comment is not a vote.
+//
+// The counts are readable by everybody, including a reader who cannot answer:
+// being told the numbers and being told plainly why you are not in them is more
+// honest than hiding them. Answering is gated on exactly what posting is gated
+// on, so a vote from somebody who does not live here is impossible for the same
+// reason a post from them is.
 //
 // ── FAIL CLOSED, AND WHERE THAT LIVES ───────────────────────────────────────
 // The gate is netlify/lib/district-room-core.mjs — a pure function over resolved
@@ -82,16 +97,28 @@
 // neighbours, not accounts.
 
 import type { Config } from "@netlify/functions";
-import { and, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import { db } from "../../db/index.js";
-import { ddDistricts, ddIssueKeys, ddPosts, ddResidency, ddThreads } from "../../db/schema.js";
+import {
+  ddDistricts,
+  ddIssueKeys,
+  ddPollVotes,
+  ddPosts,
+  ddResidency,
+  ddThreads,
+} from "../../db/schema.js";
 import { verifyUser } from "../../db/firebase-auth.js";
 import {
   COPY,
   DISTRICT_KEY_RE,
   ISSUE_KEY_RE,
   composerState,
+  decideVote,
   decideWrite,
+  pollOptions,
+  pollResultLine,
+  pollState,
+  pollTally,
   RESIDENCY_STATES,
   residencyClaim,
   residencyStateAllowed,
@@ -186,6 +213,68 @@ async function findThread(districtKey: string, issueKey: string) {
   return row || null;
 }
 
+// ── THE POLL'S TWO READS ─────────────────────────────────────────────────
+// THE COUNTS. Three integers for ONE room, grouped in Postgres rather than
+// fetched and tallied here, so the response cannot grow with the room. There is
+// no poll row to look up first: the poll IS the room, so (district, issue) is the
+// whole of its identity and this query is the whole of its results.
+//
+// Everybody may read this, including a reader who cannot answer. The folding into
+// three named integers belongs to pollTally() in the core, which the test
+// exercises directly — including the row for a choice that is not a pole, which
+// is dropped rather than given a fourth bucket.
+async function resolvePollResults(districtKey: string, issueKey: string) {
+  const rows = await db
+    .select({ choice: ddPollVotes.choice, n: count() })
+    .from(ddPollVotes)
+    .where(and(eq(ddPollVotes.districtKey, districtKey), eq(ddPollVotes.issueKey, issueKey)))
+    .groupBy(ddPollVotes.choice);
+  return pollTally(rows);
+}
+
+// THE CALLER'S OWN ANSWER, so the room can show them which of the three they
+// picked and they can change it. Keyed on the uid the server verified, so there
+// is no identifier a caller could pass to read somebody else's answer — and
+// nobody else's answer is ever in a response, only the three totals.
+async function resolveMyVote(uid: string, districtKey: string, issueKey: string) {
+  if (!uid || !districtKey || !issueKey) return null;
+  const [row] = await db
+    .select({ choice: ddPollVotes.choice })
+    .from(ddPollVotes)
+    .where(
+      and(
+        eq(ddPollVotes.userId, uid),
+        eq(ddPollVotes.districtKey, districtKey),
+        eq(ddPollVotes.issueKey, issueKey)
+      )
+    );
+  return row?.choice || null;
+}
+
+// The poll block, assembled in one place so the read and the write return the
+// same shape. The question and the three options come from the core's constants —
+// there is no question column and no option column for either to come out of a
+// row — and the results are counts. No percentage, no ratio and no total-as-a-
+// denominator is computed anywhere in this file.
+function pollBlock(
+  results: { support: number; oppose: number; mixed: number; total: number },
+  gate: { canVote: boolean; note: string },
+  mine: string | null,
+  message?: string
+) {
+  return {
+    question: COPY.pollQuestion,
+    options: pollOptions(),
+    results,
+    resultLine: pollResultLine(results),
+    countsNote: COPY.pollCountsNote,
+    canVote: gate.canVote,
+    note: gate.note,
+    mine: mine || null,
+    message: message || "",
+  };
+}
+
 // ── GET / — read a room ──────────────────────────────────────────────────
 // Open to everybody. Reading is not gated on residency, sign-in or anything
 // else: the whole point of the surface is that an unverified visitor can read the
@@ -219,6 +308,14 @@ async function readRoom(req: Request): Promise<Response> {
   const composer = composerState(residency, district.districtKey);
   const inScope = residencyStateAllowed(district.state);
 
+  // The room's ONE poll. The counts are read for everybody; the caller's own
+  // answer only exists for a caller the server could name. `canVote` comes from
+  // the same residency claim the composer does, so the buttons a reader is shown
+  // are exactly the buttons the vote route would accept an answer from.
+  const results = await resolvePollResults(district.districtKey, issue);
+  const mine = signedIn ? await resolveMyVote(viewer!.uid, district.districtKey, issue) : null;
+  const poll = pollBlock(results, pollState(residency, district.districtKey), mine);
+
   const thread = await findThread(district.districtKey, issue);
   // NEWEST FIRST, and there is no other order. No score column exists to sort
   // by, and no query parameter changes this.
@@ -250,6 +347,9 @@ async function readRoom(req: Request): Promise<Response> {
     badge: COPY.badge,
     canPost: composer.canPost,
     closedNote: composer.note,
+    // ONE poll per room, above the composer and above the posts. It does not
+    // reorder them and it is not derived from them.
+    poll,
     // The caller's OWN standing, and the two honest things they can do about it.
     // `status` is null until a row exists, and 'pending' is reported as pending —
     // nothing here ever describes a pending or location-derived row as verified,
@@ -357,6 +457,72 @@ async function writePost(req: Request): Promise<Response> {
       verified: !!post.verifiedResident,
       createdAt: post.createdAt,
     },
+  });
+}
+
+// ── POST /poll/vote — answer the room's one poll ─────────────────────────
+// Every refusal comes from decideVote(), the write gate's twin: same district,
+// same issue, same residency claim, and the answer must be one of three. A
+// pending request, a revoked row, a location pin and somebody verified in another
+// district are all refused here for exactly the reasons they are refused a post.
+//
+// IT READS NOTHING BUT `choice`. There is no body field on this route, no text is
+// parsed and nothing is inferred from what anybody wrote in the room — a comment
+// is not a vote.
+//
+// ONE VOTE PER PERSON, AND CHANGING IT OVERWRITES. The single write is an upsert
+// onto the unique index on (district_key, issue_key, user_id), so a second answer
+// REPLACES the first in the database rather than in a code path that remembers
+// to. There is no delete, no history and no way to be counted twice.
+async function votePoll(req: Request): Promise<Response> {
+  let payload: any = {};
+  try { payload = await req.json(); } catch { payload = {}; }
+
+  const { districtKey, issueKey } = pair(payload?.district, payload?.issue);
+  const district = await resolveDistrict(districtKey);
+  const issue = await resolveIssue(issueKey);
+
+  const viewer = await verifyUser(req);
+  const row = viewer && !viewer.isAnonymous && district
+    ? await resolveResidency(viewer.uid, district.districtKey)
+    : null;
+  const residency = residencyClaim(viewer, row);
+
+  const verdict = decideVote({
+    district,
+    issueKey: issue,
+    residency,
+    choice: payload?.choice,
+  });
+  if (!verdict.ok) {
+    return json({ error: verdict.message, code: verdict.code }, verdict.status);
+  }
+
+  const now = new Date();
+  await db
+    .insert(ddPollVotes)
+    .values({
+      districtKey: verdict.districtKey,
+      issueKey: verdict.issueKey,
+      userId: viewer!.uid,
+      choice: verdict.choice,
+      updatedAt: now,
+    })
+    .onConflictDoUpdate({
+      target: [ddPollVotes.districtKey, ddPollVotes.issueKey, ddPollVotes.userId],
+      set: { choice: verdict.choice, updatedAt: now },
+    });
+
+  // The counts as they now stand, in the same shape the read returns, so the
+  // client repaints one block instead of re-reading the whole room.
+  const results = await resolvePollResults(verdict.districtKey, verdict.issueKey);
+  return ok({
+    poll: pollBlock(
+      results,
+      { canVote: true, note: "" },
+      verdict.choice,
+      COPY.pollVoted
+    ),
   });
 }
 
@@ -591,6 +757,10 @@ export default async (req: Request): Promise<Response> => {
     if (path === "/" || path === "") {
       if (method === "GET") return await readRoom(req);
       if (method === "POST") return await writePost(req);
+      return json({ error: "Method not allowed" }, 405);
+    }
+    if (path === "/poll/vote") {
+      if (method === "POST") return await votePoll(req);
       return json({ error: "Method not allowed" }, 405);
     }
     if (path === "/flag") {

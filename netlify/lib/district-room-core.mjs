@@ -126,20 +126,26 @@ export const COPY = {
   revoked:
     "Your residency for this district was revoked, so you can read here but not post.",
 
-  // ── The self-attest request ─────────────────────────────────────────────
-  // The control, and the sentence under it. Labelled as a REQUEST throughout:
-  // the button says what the reader is claiming, not what the app has checked.
-  attest: "I live in this district",
+  // ── The self-attest request — THE NEIGHBOUR'S PRIMARY CONTROL ───────────
+  // Phase 2 labelled this "I live in this district" and phase 3 relabels it: a
+  // neighbour looking for the way into the room is looking for the ASK, and the
+  // ask is the only control on this surface that leads anywhere for them. It is
+  // still a REQUEST and every sentence around it says pending rather than
+  // verified — what changed is which control is obvious, not what it does.
+  attest: "Ask to be verified for this district",
   attestNote:
-    "This records a request a reviewer decides on. Saying it does not verify you " +
-    "and does not open the composer.",
+    "This records a PENDING request a reviewer decides on. Asking does not verify " +
+    "you and does not open the composer.",
   attestSent:
     "Recorded as pending. A reviewer decides; you are not verified yet.",
 
-  // ── The admin grant ─────────────────────────────────────────────────────
+  // ── The admin grant — A REVIEWER'S TOOL, AND LABELLED AS ONE ────────────
   // The other honest path, and the only one that can reach 'verified' in this
-  // pass. Labelled differently from the request above on purpose.
-  grant: "Grant residency for this district",
+  // pass. It is named for the standing it requires, so it can never be mistaken
+  // for the neighbour's way in — and the client paints it in its own footer,
+  // away from the slot a neighbour reads as "join the room".
+  grant: "Grant residency (reviewer)",
+  reviewerTools: "Reviewer tools",
   granted: "Verified for this district. The composer is open here.",
   grantDenied: "Only a site reviewer can grant residency.",
 
@@ -157,6 +163,35 @@ export const COPY = {
   // The flag control and what it honestly promises today.
   flag: "Report",
   flagRecorded: "Reported. This records your intent; review comes later.",
+
+  // ── THE POLL ────────────────────────────────────────────────────────────
+  // ONE poll per room, and its question is FIXED COPY rather than a column
+  // somebody writes. Nobody composes a poll here: there is no question field, no
+  // option field and no second poll, because a room where neighbours write the
+  // question is a room where the question becomes the argument.
+  pollQuestion: "On this issue in this district, where do you stand?",
+  // Results are COUNTS. Not a percentage, not a bar, not a grade and not an
+  // order of merit — three numbers beside three labels, and the reader does
+  // whatever arithmetic they want with them.
+  pollNoVotes: "No votes yet.",
+  pollCountsNote:
+    "Counts only, and a neighbor's post is not a vote — nobody's answer here is " +
+    "read off what they wrote.",
+  pollVoted: "Recorded. Changing your answer replaces it.",
+  pollPick: "Pick support, oppose or mixed.",
+  // Who cannot vote, and which of the four ways that is true is theirs. Reading
+  // the numbers is open to all of them, and every sentence says so.
+  pollClosed:
+    "Verify you live in this district to answer. The counts are open to read.",
+  pollClosedSignedOut:
+    "Sign in, then ask to be verified for this district to answer. The counts " +
+    "are open to read.",
+  pollPending:
+    "Your residency request for this district is pending review, so you can read " +
+    "the counts but not answer yet.",
+  pollWrongDistrict:
+    "You're verified in a different district, so you can read the counts here " +
+    "but not answer.",
 };
 
 // ── THE POST BODY ───────────────────────────────────────────────────────────
@@ -402,4 +437,177 @@ export function composerState(residency, districtKey) {
   // still in the queue, or a revoked row.
   const reason = (residency && residency.reason) || "signed_out";
   return { canPost: false, reason, note: residencyNote(residency) };
+}
+
+// ── THE POLL: ONE PER ROOM, THREE POLES, COUNTS ONLY ────────────────────────
+// A room now carries EXACTLY ONE structured question, and this is the whole of
+// its vocabulary. Everything about it is fixed here rather than composed by a
+// caller, because every degree of freedom a poll has is a way for a room to turn
+// into a contest:
+//
+//   THE QUESTION IS FIXED COPY.  COPY.pollQuestion, one string, no column. There
+//   is no question field on any request body and no table row that stores one, so
+//   there is nothing to write a second question into.
+//   THE OPTIONS ARE FIXED.       Support / Oppose / Mixed — the SAME three poles
+//   My Stances already spends (my-stances.js POSITION_LABEL), so a neighbour
+//   answering here is answering in the vocabulary they already know. No custom
+//   option, no "other", no free text, and above all NO PARTY LABEL: a room is
+//   neighbours on an issue, and the moment the poles become teams it is a
+//   scoreboard for the two of them instead.
+//   THERE IS ONE POLL.           A poll is not a row somebody creates; it IS the
+//   room. (district, issue) names it, the question and the options are constants,
+//   and the only row anybody writes is their own answer — so a second poll in a
+//   room is not something the code refuses, it is something the schema cannot
+//   express.
+//
+// WHAT THE RESULTS ARE. Three integers and the three labels beside them. NO
+// PERCENTAGE — not in the copy, not in the payload, not in the markup — and no
+// bar, meter or fill, because a proportion drawn as a length reads as a grade and
+// this is not a grade. Nothing about the poll reorders, weights or scores the
+// posts underneath it: the room stays newest-first and a post with a matching
+// answer is not promoted by it.
+//
+// A COMMENT IS NOT A VOTE. No answer is ever inferred from post text. decideVote
+// below takes no body and normalizeBody is not called anywhere in it; the only
+// thing that produces an answer is a person pressing one of three buttons.
+export const POLL_CHOICES = ["support", "oppose", "mixed"];
+// The labels, spelled exactly as My Stances spells them.
+export const POLL_LABELS = { support: "Support", oppose: "Oppose", mixed: "Mixed" };
+
+// The three poles as the client paints them, built here so the labels have one
+// owner and a caller cannot slip a fourth option into the list.
+export function pollOptions() {
+  return POLL_CHOICES.map((k) => ({ key: k, label: POLL_LABELS[k] }));
+}
+
+// One of the three, or ''. '' is refused by decideVote, so this is the whole of
+// the "no custom options" rule — anything that is not a pole is not an answer.
+export function normalizeChoice(v) {
+  const s = typeof v === "string" ? v.trim().toLowerCase() : "";
+  return POLL_CHOICES.indexOf(s) >= 0 ? s : "";
+}
+
+// The grouped rows the Function read, folded into three integers. Written as a
+// pure function over rows so the test can hand it anything — including a row for
+// a choice that is not a pole, which is dropped rather than added to a fourth
+// bucket that would then need a label.
+export function pollTally(rows) {
+  const out = { support: 0, oppose: 0, mixed: 0, total: 0 };
+  (Array.isArray(rows) ? rows : []).forEach((r) => {
+    const k = normalizeChoice(r && r.choice);
+    if (!k) return;
+    const n = Number(r && r.n);
+    if (!Number.isFinite(n) || n <= 0) return;
+    out[k] += Math.floor(n);
+  });
+  out.total = out.support + out.oppose + out.mixed;
+  return out;
+}
+
+// The one sentence the results are ever printed as: "N support · N oppose · N
+// mixed", and the honest sentence when nobody has answered. There is no second
+// formatter, no ratio and no percentage anywhere in this file — the test asserts
+// the '%' character appears in neither the copy nor the painted block.
+export function pollResultLine(tally) {
+  const t = pollTally([
+    { choice: "support", n: (tally && tally.support) || 0 },
+    { choice: "oppose", n: (tally && tally.oppose) || 0 },
+    { choice: "mixed", n: (tally && tally.mixed) || 0 },
+  ]);
+  if (!t.total) return COPY.pollNoVotes;
+  return `${t.support} support · ${t.oppose} oppose · ${t.mixed} mixed`;
+}
+
+// The sentence for somebody who may read the counts and may not answer. Four
+// ways that is true, four sentences, one owner — the same arrangement
+// residencyNote() has for the composer.
+export function pollNote(residency) {
+  if (residency && residency.verified === true) return COPY.pollWrongDistrict;
+  const reason = (residency && residency.reason) || "signed_out";
+  if (reason === "signed_out") return COPY.pollClosedSignedOut;
+  if (reason === "pending") return COPY.pollPending;
+  return COPY.pollClosed;
+}
+
+// ── THE VOTE GATE ───────────────────────────────────────────────────────────
+// The write gate's twin, and it fails closed the same way. Same three residency
+// conditions as decideWrite() — status verified AND a verifying method AND the
+// row's district equal to the room's — because an answer counted from somebody
+// who does not live here is exactly the confident wrong number this surface must
+// never print.
+//
+//   1. no district      → no vote
+//   2. no issue         → no vote
+//   3. not verified     → no vote   (signed out, no row, pending, or revoked)
+//   4. wrong district   → no vote
+//   5. not one of three → no vote
+//
+// It takes NO BODY. There is no path from a sentence to an answer.
+export function decideVote(input) {
+  const inp = input || {};
+  const district = inp.district || null;
+  const issueKey = typeof inp.issueKey === "string" ? inp.issueKey : "";
+  const residency = inp.residency || null;
+  const choice = normalizeChoice(inp.choice);
+
+  const districtKey = district && typeof district.districtKey === "string"
+    ? district.districtKey
+    : "";
+
+  if (!districtKey || !DISTRICT_KEY_RE.test(districtKey)) {
+    return {
+      ok: false,
+      status: 404,
+      code: "no_district",
+      message: "We don't map that district, so there is no room for it.",
+    };
+  }
+  if (!issueKey || !ISSUE_KEY_RE.test(issueKey)) {
+    return {
+      ok: false,
+      status: 404,
+      code: "no_issue",
+      message: "We don't have an issue by that name.",
+    };
+  }
+  // Residency, read off the same dd_residency row the composer is gated on. A
+  // pending request reads the counts and does not add to them.
+  if (!residency || residency.verified !== true) {
+    const signedOut = !residency || residency.reason === "signed_out";
+    return {
+      ok: false,
+      status: signedOut ? 401 : 403,
+      code: signedOut ? "signed_out" : "not_verified",
+      reason: (residency && residency.reason) || "signed_out",
+      message: pollNote(residency),
+    };
+  }
+  if (String(residency.districtKey || "") !== districtKey) {
+    return {
+      ok: false,
+      status: 403,
+      code: "wrong_district",
+      message: COPY.pollWrongDistrict,
+    };
+  }
+  if (!choice) {
+    return { ok: false, status: 400, code: "no_choice", message: COPY.pollPick };
+  }
+  return { ok: true, districtKey, issueKey, choice };
+}
+
+// Whether the three buttons may be RENDERED at all — the read-side twin of the
+// vote gate, so the poll a reader can press is exactly the poll the server would
+// accept an answer from. A closed poll still prints the counts; it prints no
+// buttons, for the same reason a closed composer prints no textarea.
+export function pollState(residency, districtKey) {
+  const d = String(districtKey || "");
+  if (residency && residency.verified === true && String(residency.districtKey || "") === d) {
+    return { canVote: true, note: "", reason: "verified" };
+  }
+  if (residency && residency.verified === true) {
+    return { canVote: false, reason: "wrong_district", note: COPY.pollWrongDistrict };
+  }
+  const reason = (residency && residency.reason) || "signed_out";
+  return { canVote: false, reason, note: pollNote(residency) };
 }

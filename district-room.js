@@ -46,25 +46,37 @@
    is no branch below that opens the composer on anything other than
    `canPost === true`.
 
-   THE TWO RESIDENCY CONTROLS, LABELLED DIFFERENTLY. When the composer is closed
-   the server may also say what the reader can do about it, and the two things are
-   never dressed alike:
+   THE TWO RESIDENCY CONTROLS, LABELLED DIFFERENTLY, AND ONLY ONE OF THEM IS THE
+   WAY IN. When the composer is closed the server may also say what the reader can
+   do about it. The two things are never dressed alike and, since phase 3, they do
+   not even sit in the same place:
 
-     · "I live in this district" — a REQUEST. It is offered only when the server
-       says canAttest AND this room's district is one the reader's OWN resolver
-       already places them in, so nobody is invited to claim a district that is
-       not theirs. It records a pending row, the composer stays shut, and the
-       sentence afterwards says pending rather than verified.
-     · "Grant residency for this district" — a REVIEWER'S decision, offered only
-       when the server says canGrant. It is the one path that reaches verified.
+     · "Ask to be verified for this district" — the NEIGHBOUR'S PRIMARY CONTROL,
+       painted immediately under the closed note where somebody looking for the
+       way into the room will actually look for it. It is offered only when the
+       server says canAttest AND this room's district is one the reader's OWN
+       resolver already places them in, so nobody is invited to claim a district
+       that is not theirs. It records a PENDING row, the composer stays shut, and
+       the sentence afterwards says pending rather than verified.
+     · "Grant residency (reviewer)" — a REVIEWER'S decision, offered only when the
+       server says canGrant. It is the one path that reaches verified, and it is
+       painted in its own footer BELOW THE POSTS under a "Reviewer tools" heading
+       — deliberately not in the slot a neighbour reads as "join the room",
+       because a control almost nobody can use must not be the loudest thing on
+       the way in. A reader who can already post is shown no grant at all.
 
    THE BADGE IS NEVER PRINTED ON EITHER. `pdxdr-badge` appears on a post the
    server marked verified, and inside an OPEN composer. A pending request and a
    self-typed location get a sentence, never a badge.
 
-   NO ARITHMETIC IN THIS FILE. Search it: there is no count, no percentage and no
-   tally of any kind. The only integer it handles is a post id it hands back to
-   the report control.
+   THE ROOM'S ONE POLL. Phase 3 adds a single structured question above the
+   composer: fixed copy, three fixed poles (Support / Oppose / Mixed — the same
+   three My Stances spends), and results printed as three integers. This file does
+   no arithmetic of its own: the numbers and the sentence they are printed as both
+   arrive from the server, and the '%' character does not appear in this module at
+   all — no percentage, no bar, no fill, no meter. The poll does not touch the
+   posts underneath it: no post is reordered, promoted or marked by an answer, and
+   no answer is ever read off a post's text.
    ───────────────────────────────────────────────────────────────────────────── */
 (function () {
   'use strict';
@@ -97,19 +109,41 @@
       'Reading is open; posting opens only if a reviewer approves it.',
     revoked: 'Your residency for this district was revoked, so you can read here but not post.',
     wrongDistrict: "You're verified in a different district, so you can read here but not post.",
-    attest: 'I live in this district',
-    attestNote: 'This records a request a reviewer decides on. Saying it does not verify you ' +
-      'and does not open the composer.',
+    attest: 'Ask to be verified for this district',
+    attestNote: 'This records a PENDING request a reviewer decides on. Asking does not verify ' +
+      'you and does not open the composer.',
     attestSent: 'Recorded as pending. A reviewer decides; you are not verified yet.',
-    grant: 'Grant residency for this district',
+    grant: 'Grant residency (reviewer)',
+    reviewerTools: 'Reviewer tools',
     granted: 'Verified for this district. The composer is open here.',
     grantDenied: 'Only a site reviewer can grant residency.',
     notInScope: 'Residency verification is Utah only in this pass, so we cannot verify you ' +
       'for a district in another state yet.',
     badge: 'verified in this district',
     flag: 'Report',
-    flagRecorded: 'Reported. This records your intent; review comes later.'
+    flagRecorded: 'Reported. This records your intent; review comes later.',
+    pollQuestion: 'On this issue in this district, where do you stand?',
+    pollNoVotes: 'No votes yet.',
+    pollCountsNote: 'Counts only, and a neighbor\'s post is not a vote — nobody\'s answer here is ' +
+      'read off what they wrote.',
+    pollVoted: 'Recorded. Changing your answer replaces it.',
+    pollPick: 'Pick support, oppose or mixed.',
+    pollClosed: 'Verify you live in this district to answer. The counts are open to read.',
+    pollClosedSignedOut: 'Sign in, then ask to be verified for this district to answer. The counts ' +
+      'are open to read.',
+    pollPending: 'Your residency request for this district is pending review, so you can read ' +
+      'the counts but not answer yet.',
+    pollWrongDistrict: 'You\'re verified in a different district, so you can read the counts here ' +
+      'but not answer.'
   };
+  // The three poles, spelled as My Stances spells them, and there is no fourth.
+  // The server sends this list; this is only the fallback for a read that
+  // answered without one, so the block is never painted with no options at all.
+  var POLES = [
+    { key: 'support', label: 'Support' },
+    { key: 'oppose', label: 'Oppose' },
+    { key: 'mixed', label: 'Mixed' }
+  ];
   var KICK = 'District Room';
   var MOUNT_HD = 'District Voice';
   var SEAT_LINE = 'Neighbors in this district, one issue at a time.';
@@ -439,9 +473,14 @@
     return false;
   }
 
-  // What a reader with a closed composer may do about it, if anything. Both
-  // controls come from server flags; this function adds only the "is it their own
-  // district" restriction on the request, and never a verdict of its own.
+  // THE NEIGHBOUR'S WAY IN, and the only control in this slot. A reader whose
+  // composer is closed gets the ask — "Ask to be verified for this district" —
+  // right under the note that told them why it is closed, because that is where
+  // somebody looking for the way into the room looks. The reviewer's grant is NOT
+  // here: it lives in reviewerHtml() below, under the posts.
+  //
+  // Both flags come from the server; this function adds only the "is it their own
+  // district" restriction on the ask, and never a verdict of its own.
   function residencyHtml(data) {
     var r = (data && data.residency) || null;
     if (!r) return '';
@@ -451,25 +490,84 @@
       out += '<p class="pdxdr-resnote">' + esc(r.outOfScopeNote) + '</p>';
     }
     if (r.canAttest === true && isMine(d)) {
-      out += '<div class="pdxdr-attest">' +
-          '<button type="button" class="pdxdr-attestbtn" data-pdxdr-attest="1">' +
+      out += '<div class="pdxdr-ask" data-pdxdr-saybox="1">' +
+          '<button type="button" class="pdxdr-askbtn" data-pdxdr-attest="1">' +
             esc(r.attest || COPY.attest) + '</button>' +
           '<p class="pdxdr-resnote">' + esc(r.attestNote || COPY.attestNote) + '</p>' +
+          '<p class="pdxdr-say" role="status" data-pdxdr-say="1"></p>' +
         '</div>';
     }
-    if (r.canGrant === true) {
-      out += '<div class="pdxdr-grant">' +
-          '<button type="button" class="pdxdr-grantbtn" data-pdxdr-grant="1">' +
-            esc(r.grant || COPY.grant) + '</button>' +
-        '</div>';
+    return out;
+  }
+
+  // THE REVIEWER'S FOOTER, and it is the last thing in the room. Painted only
+  // when the server says canGrant, only when the composer is CLOSED (somebody who
+  // can already post has nothing to grant themselves), and always under its own
+  // "Reviewer tools" heading so it reads as what it is: a tool for the one person
+  // with that standing, not the neighbour's call to action.
+  function reviewerHtml(data) {
+    var r = (data && data.residency) || null;
+    if (!r || r.canGrant !== true) return '';
+    if (data && data.canPost === true) return '';
+    return '<div class="pdxdr-rev" data-pdxdr-saybox="1">' +
+        '<p class="pdxdr-revhd">' + esc(COPY.reviewerTools) + '</p>' +
+        '<button type="button" class="pdxdr-grantbtn" data-pdxdr-grant="1">' +
+          esc(r.grant || COPY.grant) + '</button>' +
+        '<p class="pdxdr-say" role="status" data-pdxdr-say="1"></p>' +
+      '</div>';
+  }
+
+  // ── THE ROOM'S ONE POLL ───────────────────────────────────────────────────
+  // Fixed question, three fixed poles, three integers. Everything printed here
+  // arrived from the server: the question, the option labels, the results and the
+  // sentence they are printed as. This function does NO arithmetic — it does not
+  // add the three numbers, does not divide them and does not draw them, because a
+  // proportion drawn as a length reads as a grade and this is not a grade. The
+  // '%' character does not appear in this module.
+  //
+  // The three buttons are rendered only when the server said canVote, for the
+  // same reason a closed composer paints no textarea: a control a reader can
+  // press and then be refused is a worse answer than no control. A reader who
+  // cannot answer still sees the numbers, and the sentence saying which of the
+  // four reasons is theirs.
+  //
+  // Nothing about this block touches the posts under it. There is no marker on a
+  // post, no reorder and no filter by answer.
+  function pollHtml(data) {
+    var p = (data && data.poll) || null;
+    if (!p) return '';
+    var opts = (p.options && p.options.length) ? p.options : POLES;
+    var mine = String(p.mine == null ? '' : p.mine);
+    var buttons = '';
+    if (p.canVote === true) {
+      buttons = opts.map(function (o) {
+        var k = String((o && o.key) || '');
+        if (!k) return '';
+        var on = k === mine;
+        return '<button type="button" class="pdxdr-pole' + (on ? ' is-mine' : '') + '"' +
+          ' data-pdxdr-vote="' + esc(k) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
+          esc((o && o.label) || k) + '</button>';
+      }).join('');
     }
-    if (!out) return '';
-    return out + '<p class="pdxdr-say" role="status" data-pdxdr-say="1"></p>';
+    return '<section class="pdxdr-poll" data-pdxdr-saybox="1">' +
+        '<p class="pdxdr-pollq">' + esc(p.question || COPY.pollQuestion) + '</p>' +
+        (buttons
+          ? '<div class="pdxdr-poles" role="group" aria-label="Where you stand">' +
+              buttons + '</div>'
+          : '') +
+        '<p class="pdxdr-pollres" role="status" data-pdxdr-pollres="1">' +
+          esc(p.resultLine || COPY.pollNoVotes) + '</p>' +
+        (p.canVote === true
+          ? ''
+          : '<p class="pdxdr-pollnote">' + esc(p.note || COPY.pollClosed) + '</p>') +
+        '<p class="pdxdr-pollfoot">' + esc(p.countsNote || COPY.pollCountsNote) + '</p>' +
+        '<p class="pdxdr-say" role="status" data-pdxdr-say="1"></p>' +
+      '</section>';
   }
 
   function composerHtml(data) {
     if (data && data.canPost === true) {
-      return '<form class="pdxdr-composer" data-pdxdr-form="1">' +
+      return '<form class="pdxdr-composer" data-pdxdr-form="1" data-pdxdr-saybox="1">' +
           '<label class="pdxdr-lbl" for="pdxdr-body">Say it to your neighbors</label>' +
           '<textarea id="pdxdr-body" class="pdxdr-ta" name="body" rows="4" maxlength="2000"' +
             ' placeholder="What should neighbors in this district know about this issue?"></textarea>' +
@@ -534,8 +632,15 @@
       list.map(function (p) { return postHtml(p, badge); }).join('') + '</ul>';
   }
 
+  // THE ORDER OF THE ROOM, and it is the brief's order: the header (painted
+  // separately, unchanged), then the poll, then the composer or the note that
+  // says why there isn't one, then the posts newest-first, then — last, and only
+  // for the handful of people it applies to — the reviewer footer.
   function bodyHtml(data) {
-    return composerHtml(data) + '<div class="pdxdr-list">' + postsHtml(data) + '</div>';
+    return pollHtml(data) +
+      composerHtml(data) +
+      '<div class="pdxdr-list">' + postsHtml(data) + '</div>' +
+      reviewerHtml(data);
   }
 
   // ── OPEN ──────────────────────────────────────────────────────────────────
@@ -645,9 +750,21 @@
     return false;
   }
 
-  function say(msg) {
-    var n;
-    try { n = document.querySelector('[data-pdxdr-say="1"]'); } catch (e) { n = null; }
+  // The room has several status lines now — one in the poll, one in the ask, one
+  // in the composer, one in the reviewer footer — so a message is printed in the
+  // block the control that sent it lives in rather than in whichever one happens
+  // to come first in the document.
+  function say(msg, from) {
+    var n = null;
+    try {
+      if (from && from.closest) {
+        var box = from.closest('[data-pdxdr-saybox="1"]');
+        if (box && box.querySelector) n = box.querySelector('[data-pdxdr-say="1"]');
+      }
+    } catch (e) { n = null; }
+    if (!n) {
+      try { n = document.querySelector('[data-pdxdr-say="1"]'); } catch (e) { n = null; }
+    }
     if (n) { try { n.textContent = String(msg || ''); } catch (e) {} }
   }
 
@@ -659,21 +776,21 @@
     if (!_room || !form) return false;
     var ta = form.querySelector ? form.querySelector('textarea[name="body"]') : null;
     var text = ta ? String(ta.value || '').trim() : '';
-    if (!text) { say('Write something first.'); return false; }
+    if (!text) { say('Write something first.', form); return false; }
     var btn = form.querySelector ? form.querySelector('.pdxdr-send') : null;
     if (btn) { try { btn.disabled = true; } catch (e) {} }
-    say('Posting…');
+    say('Posting…', form);
     api('', {
       method: 'POST',
       body: { district: _room.districtKey, issue: _room.issueKey, body: text }
     }).then(function (res) {
       if (btn) { try { btn.disabled = false; } catch (e) {} }
       if (!res.ok) {
-        say((res.data && res.data.error) || 'That did not post.');
+        say((res.data && res.data.error) || 'That did not post.', form);
         return;
       }
       if (ta) { try { ta.value = ''; } catch (e) {} }
-      say('Posted.');
+      say('Posted.', form);
       load();
     });
     return false;
@@ -688,15 +805,15 @@
   function attest(btn) {
     if (!_room) return false;
     if (btn) { try { btn.disabled = true; } catch (e) {} }
-    say('Sending…');
+    say('Sending…', btn);
     api('/residency/attest', { method: 'POST', body: { district: _room.districtKey } })
       .then(function (res) {
         if (!res.ok) {
           if (btn) { try { btn.disabled = false; } catch (e) {} }
-          say((res.data && res.data.error) || 'That did not send.');
+          say((res.data && res.data.error) || 'That did not send.', btn);
           return;
         }
-        say((res.data && res.data.message) || COPY.attestSent);
+        say((res.data && res.data.message) || COPY.attestSent, btn);
         load();
       });
     return false;
@@ -710,17 +827,64 @@
   function grant(btn) {
     if (!_room) return false;
     if (btn) { try { btn.disabled = true; } catch (e) {} }
-    say('Sending…');
+    say('Sending…', btn);
     api('/residency/grant', { method: 'POST', body: { district: _room.districtKey } })
       .then(function (res) {
         if (btn) { try { btn.disabled = false; } catch (e) {} }
         if (!res.ok) {
-          say((res.data && res.data.error) || 'That did not send.');
+          say((res.data && res.data.error) || 'That did not send.', btn);
           return;
         }
-        say((res.data && res.data.message) || COPY.granted);
+        say((res.data && res.data.message) || COPY.granted, btn);
         load();
       });
+    return false;
+  }
+
+  // ── THE VOTE ──────────────────────────────────────────────────────────────
+  // Sends ONE of the three poles and prints what came back. The client checks
+  // only that the pressed button named a pole at all; every other refusal —
+  // district, issue, residency, pending, wrong district — belongs to the vote
+  // gate, and this function prints whatever the gate said rather than guessing
+  // at it first.
+  //
+  // CHANGING AN ANSWER REPLACES IT. The server's write is an upsert on
+  // (district, issue, person), so pressing a second pole does not add a second
+  // answer, and this function does not adjust a number locally to make it look
+  // like it did — it repaints the block with the counts the server returned.
+  function vote(choice, btn) {
+    if (!_room) return false;
+    var k = String(choice == null ? '' : choice).trim();
+    if (!k) return false;
+    var box = null;
+    try { box = btn && btn.closest ? btn.closest('[data-pdxdr-saybox="1"]') : null; } catch (e) {}
+    say('Sending…', btn);
+    api('/poll/vote', {
+      method: 'POST',
+      body: { district: _room.districtKey, issue: _room.issueKey, choice: k }
+    }).then(function (res) {
+      if (!res.ok) {
+        say((res.data && res.data.error) || 'That did not send.', btn);
+        return;
+      }
+      var p = res.data && res.data.poll;
+      // Repaint the poll in place from the server's own numbers. The rest of the
+      // room — the composer and every post — is left exactly as it was, because
+      // an answer changes nothing about them.
+      if (p && box) {
+        try {
+          var line = box.querySelector('[data-pdxdr-pollres="1"]');
+          if (line) line.textContent = String(p.resultLine || COPY.pollNoVotes);
+          var poles = box.querySelectorAll('[data-pdxdr-vote]');
+          for (var i = 0; i < poles.length; i++) {
+            var on = poles[i].getAttribute('data-pdxdr-vote') === String(p.mine || '');
+            poles[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+            poles[i].className = 'pdxdr-pole' + (on ? ' is-mine' : '');
+          }
+        } catch (e) {}
+      }
+      say((p && p.message) || COPY.pollVoted, btn);
+    });
     return false;
   }
 
@@ -765,6 +929,13 @@
               ev.shiftKey || ev.altKey) return;
           var parts = String(chip.getAttribute('data-pdxdr-open') || '').split('|');
           if (parts.length === 2 && enter(parts[0], parts[1])) ev.preventDefault();
+          return;
+        }
+
+        var v = t.closest('[data-pdxdr-vote]');
+        if (v) {
+          ev.preventDefault();
+          vote(v.getAttribute('data-pdxdr-vote'), v);
           return;
         }
 

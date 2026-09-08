@@ -51,6 +51,7 @@ import {
   COPY as CORE_COPY,
   DISTRICT_KEY_RE,
   ISSUE_KEY_RE,
+  POLL_CHOICES,
   RESIDENCY_METHODS,
   RESIDENCY_METHODS_NEVER_VERIFY,
   RESIDENCY_METHODS_VERIFYING,
@@ -60,9 +61,15 @@ import {
   ROOM_PATH_RE,
   ROOM_PREFIX,
   composerState,
+  decideVote,
   decideWrite,
   normalizeBody,
+  normalizeChoice,
   normalizeSourceUrl,
+  pollOptions,
+  pollResultLine,
+  pollState,
+  pollTally,
   residencyClaim,
   residencyNote,
   residencyStateAllowed,
@@ -552,10 +559,22 @@ ok(/attestResidency[\s\S]*?status:\s*"pending"/.test(fnSrc),
 // The request route INSERTS and loses a conflict; only the reviewer's route
 // UPDATES an existing row. So a repeat request cannot change a decided row, and
 // there is exactly one statement in the file capable of setting a status.
-eq((fnSrc.match(/onConflictDoUpdate/g) || []).length, 1,
+//
+// Counted per STATEMENT and per TABLE rather than per file. Phase 3 added a
+// second upsert — a poll vote, because that is how "one vote per person, and
+// changing it replaces it" is spelled — so a file-wide count of the word would
+// now say two and mean nothing about residency.
+const insertStmts = fnSrc.split("insert(").slice(1).map((chunk) => {
+  const stmt = chunk.split(";")[0];
+  return { table: stmt.slice(0, stmt.indexOf(")")), upsert: stmt.indexOf("onConflictDoUpdate") >= 0 };
+});
+eq(insertStmts.filter((i) => i.table === "ddResidency" && i.upsert).length, 1,
   "exactly one statement can change an existing residency row");
-ok(fnSrc.indexOf("grantResidency") < fnSrc.indexOf("onConflictDoUpdate"),
+ok(/grantResidency[\s\S]*?insert\(ddResidency\)[\s\S]*?onConflictDoUpdate/.test(fnSrc),
   "and it is inside the reviewer's route");
+eq(insertStmts.filter((i) => i.upsert).map((i) => i.table).sort().join(","),
+  "ddPollVotes,ddResidency",
+  "the only two upserts in the file are the reviewer's decision and a poll vote");
 ok(/attestResidency[\s\S]*?insert\(ddResidency\)[\s\S]*?onConflictDoNothing\(\)/.test(fnSrc),
   "a repeat self-attest loses the conflict rather than rewriting a decided row");
 eq((fnSrc.match(/insert\(ddResidency\)/g) || []).length, 2,
@@ -979,7 +998,429 @@ ok(!/canPost\s*===\s*true[\s\S]{0,400}canAttest/.test(roomSrc),
 lacks(roomSrc, "_currentVoterLocation", "the client never sends a self-typed location as residency");
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("8 · two mounts, and only two");
+section("8 · the way in is the loud control, and the room has one poll");
+
+// ── THE WAY IN IS THE PRIMARY CONTROL ─────────────────────────────────────
+// Phase 2 shipped both residency controls side by side, and the reviewer's grant
+// was the filled one. That put the loudest thing on the way into the room behind
+// a permission almost nobody holds — a neighbour looking for "join the room"
+// read a button they cannot press. The request is now the primary control, in
+// the neighbour's own words, and the grant is a reviewer's tool in a footer
+// under the conversation.
+eq(CORE_COPY.attest, "Ask to be verified for this district",
+  "the neighbour's control asks to be verified, in the brief's own words");
+eq(CORE_COPY.grant, "Grant residency (reviewer)",
+  "the reviewer's control says out loud who it is for");
+has(CORE_COPY.grant.toLowerCase(), "reviewer", "the grant label names the reviewer");
+lacks(CORE_COPY.attest.toLowerCase(), "grant", "the way in is not spelled as a grant");
+// ASKING IS NOT BEING ANSWERED, and the copy for the request says so three times
+// over: on the control, in the note under it, and in the reply after it is sent.
+for (const [key, s] of [["attestNote", CORE_COPY.attestNote], ["attestSent", CORE_COPY.attestSent]]) {
+  ok(/pending/i.test(s), `COPY.${key} says pending`);
+  ok(/not verif|does not verif/i.test(s), `COPY.${key} says it is not a verification`);
+}
+lacks(CORE_COPY.attestSent.toLowerCase(), "verified you", "the reply to a request verifies nobody");
+
+const askBody = await paint(residencyPayload({ canAttest: true }), MY_UT2);
+has(askBody, "pdxdr-askbtn", "the request is painted as the room's primary control");
+has(askBody, CORE_COPY.attest, "and it is labelled in the neighbour's own words");
+lacks(askBody, "pdxdr-rev", "a neighbour who is not a reviewer gets no reviewer footer");
+lacks(askBody, CORE_COPY.grant, "and never reads the grant label");
+// The grant, when a reviewer is the one reading: below the posts, behind its own
+// heading, and NOT where a neighbour looks for the way in.
+const revBody = await paint(residencyPayload({ canGrant: true }), MY_UT2);
+has(revBody, "pdxdr-rev", "a reviewer gets the reviewer footer");
+has(revBody, CORE_COPY.reviewerTools, "and it is labelled as reviewer tools");
+has(revBody, "data-pdxdr-grant", "and the grant lives inside it");
+ok(revBody.indexOf("pdxdr-list") < revBody.indexOf("pdxdr-rev"),
+  "the reviewer footer sits BELOW the conversation, not where the way in belongs");
+// GRANT IS REVIEWER-ONLY, and it is gone entirely once the composer is open —
+// nothing in a verified neighbour's room hints at a permission they do not have.
+lacks(await paint(residencyPayload({ canGrant: false }), MY_UT2), CORE_COPY.grant,
+  "a reader who is not a reviewer never reads the grant label");
+lacks(await paint(residencyPayload({ canGrant: true }, { canPost: true }), MY_UT2),
+  "data-pdxdr-grant", "a room with an open composer shows no grant");
+// The two controls remain two different sentences on two different paths.
+ok(CORE_COPY.grant !== CORE_COPY.attest, "the way in and the decision are labelled differently");
+has(roomSrc, "'/residency/attest'", "the request still goes to the attest route");
+has(roomSrc, "'/residency/grant'", "the grant still goes to the grant route");
+
+// ── ONE POLL, THREE POLES, AND NOTHING ELSE ───────────────────────────────
+// The question is FIXED COPY and the options are the same three poles as My
+// Stances. Nobody composes a poll in this room, so there is no question field,
+// no option field, and no fourth bucket for a custom answer to land in.
+eq(CORE_COPY.pollQuestion, "On this issue in this district, where do you stand?",
+  "the poll asks exactly what it was asked to ask");
+eq(POLL_CHOICES.join(","), "support,oppose,mixed", "the three poles, and only three");
+eq(POLL_CHOICES.length, 3, "there is no fourth option");
+eq(pollOptions().map((o) => o.label).join(","), "Support,Oppose,Mixed",
+  "the poles are labelled Support, Oppose and Mixed");
+eq(pollOptions().map((o) => o.key).join(","), POLL_CHOICES.join(","),
+  "the painted options are the gate's own list, so a caller cannot add one");
+// NO PARTY LABELS. Not on an option, not in a note, not anywhere in the poll's
+// copy — a room is neighbours on one issue, and a pole is not a side.
+for (const k of Object.keys(CORE_COPY)) {
+  if (k.indexOf("poll") !== 0) continue;
+  for (const banned of ["party", "caucus", "score", "rank", "team", "grade",
+    "democrat", "republican", "gop", "independent", "liberal", "conservative"]) {
+    lacks(CORE_COPY[k].toLowerCase(), banned, `COPY.${k} does not spend the word "${banned}"`);
+  }
+  lacks(CORE_COPY[k], "%", `COPY.${k} prints no percentage`);
+}
+
+// ── NOT ONE OF THE THREE IS NOT AN ANSWER ─────────────────────────────────
+for (const good of ["support", "oppose", "mixed", "Support", " MIXED ", "Oppose "]) {
+  ok(POLL_CHOICES.indexOf(normalizeChoice(good)) >= 0, `${JSON.stringify(good)} is a pole`);
+}
+const NOT_POLES = ["", " ", null, undefined, 0, 1, true, {}, [], "yes", "no", "abstain",
+  "neutral", "other", "undecided", "strongly support", "support oppose", "sup",
+  "supports", "oppose!", "d", "r", "democrat", "republican", "1", "-1"];
+for (const bad of NOT_POLES) {
+  eq(normalizeChoice(bad), "", `${JSON.stringify(bad)} is not an answer`);
+}
+
+// ── THE VOTE GATE ANSWERS TO EXACTLY THE ROW THE COMPOSER ANSWERS TO ──────
+// Every residency shape, every user shape, both rooms, every pole: a caller can
+// answer the poll if and only if the same caller could post. So "pending cannot
+// vote or post" and "verified in the wrong district cannot vote or post" are not
+// two examples below — they are two of the seventy-two rows of this sweep.
+let voteOpens = 0;
+for (const u of USERS) for (const row of ROWS) for (const room of [HERE, "ut-house-1"]) {
+  const c = residencyClaim(u, row);
+  const canPost = composerState(c, room).canPost;
+  const gate = pollState(c, room);
+  eq(gate.canVote, canPost,
+    "the poll's buttons are offered to exactly the callers the composer is offered to");
+  if (!gate.canVote) {
+    ok(!!gate.note, "a closed poll always carries a reason");
+    ok(/counts/i.test(gate.note), "and every one of those reasons says the counts stay readable");
+  }
+  for (const choice of POLL_CHOICES) {
+    const v = decideVote({ district: { districtKey: room }, issueKey: ISSUE, residency: c, choice });
+    eq(v.ok, canPost, "the vote gate allows exactly the callers the write gate allows");
+    if (v.ok) { voteOpens++; eq(v.choice, choice, "and it returns the pole it was handed"); }
+    else {
+      ok(v.status === 401 || v.status === 403, "and refuses everybody else 401 or 403");
+      ok(!!v.message, "with a sentence");
+      lacks(v.message, "%", "and no percentage in the refusal");
+    }
+  }
+  // A pole is necessary as well as sufficient: being verified here is not enough.
+  for (const bad of ["", null, "yes", "abstain", "other", "strongly support"]) {
+    const v = decideVote({ district: { districtKey: room }, issueKey: ISSUE, residency: c, choice: bad });
+    eq(v.ok, false, `${JSON.stringify(bad)} is refused however verified the caller is`);
+    if (canPost) {
+      eq(v.status, 400, "a verified neighbour who picked nothing is refused 400");
+      eq(v.code, "no_choice", "and told to pick a pole");
+      eq(v.message, CORE_COPY.pollPick, "in the gate's own sentence");
+    }
+  }
+}
+eq(voteOpens, 9, "exactly the three verified-for-this-room rows may answer, once per pole");
+
+// PENDING, BY NAME. The row a phase-2 request creates reads the counts and adds
+// to none of them.
+const pendingVote = decideVote({
+  district: UT2, issueKey: ISSUE, residency: residencyClaim(U, SELF_PENDING), choice: "support",
+});
+eq(pendingVote.ok, false, "a pending neighbour cannot vote");
+eq(pendingVote.status, 403, "a pending neighbour is refused 403");
+eq(pendingVote.code, "not_verified", "a pending neighbour is refused as not_verified");
+eq(pendingVote.message, CORE_COPY.pollPending, "and told their request is still pending review");
+eq(decideWrite({ district: UT2, issueKey: ISSUE, residency: residencyClaim(U, SELF_PENDING), body: BODY }).ok,
+  false, "and the same neighbour cannot post");
+// VERIFIED IN THE WRONG DISTRICT, BY NAME. The refusal that keeps the number
+// honest: a count that included UT-1 would be a confident wrong number.
+const thereVote = decideVote({
+  district: UT2, issueKey: ISSUE, residency: residencyClaim(U, ADMIN_VERIFIED_THERE), choice: "oppose",
+});
+eq(thereVote.ok, false, "a neighbour verified in another district cannot vote");
+eq(thereVote.status, 403, "the wrong district is refused 403");
+eq(thereVote.code, "wrong_district", "the wrong district is refused as wrong_district");
+eq(decideWrite({ district: UT2, issueKey: ISSUE, residency: residencyClaim(U, ADMIN_VERIFIED_THERE), body: BODY }).ok,
+  false, "and the same neighbour cannot post here either");
+// VERIFIED HERE, BY NAME.
+const hereVote = decideVote({
+  district: UT2, issueKey: ISSUE, residency: residencyClaim(U, ADMIN_VERIFIED), choice: "mixed",
+});
+eq(hereVote.ok, true, "a neighbour verified in THIS district may answer");
+eq(hereVote.choice, "mixed", "with the pole they picked");
+eq(hereVote.districtKey, HERE, "in this district");
+eq(hereVote.issueKey, ISSUE, "on this issue");
+eq(decideWrite({ district: UT2, issueKey: ISSUE, residency: residencyClaim(U, ADMIN_VERIFIED), body: BODY }).ok,
+  true, "and the same neighbour may post");
+// SIGNED OUT reads and does not answer.
+const outVote = decideVote({ district: UT2, issueKey: ISSUE, residency: residencyClaim(null), choice: "support" });
+eq(outVote.status, 401, "a signed-out reader is refused 401");
+eq(outVote.message, CORE_COPY.pollClosedSignedOut, "and told to sign in, then ask");
+// NO ROOM, NO VOTE — the same two 404s the write gate has.
+eq(decideVote({ district: null, issueKey: ISSUE, residency: VERIFIED_HERE, choice: "support" }).status, 404,
+  "no district, no vote");
+eq(decideVote({ district: UT2, issueKey: "", residency: VERIFIED_HERE, choice: "support" }).status, 404,
+  "no issue, no vote");
+
+// ── THE RESULTS ARE COUNTS ────────────────────────────────────────────────
+// Three integers folded from the grouped rows, printed as one sentence. Nothing
+// here divides, so there is nothing to print as a percentage.
+eq(JSON.stringify(pollTally([])), JSON.stringify({ support: 0, oppose: 0, mixed: 0, total: 0 }),
+  "an unanswered poll tallies three zeroes");
+const T = pollTally([{ choice: "support", n: 2 }, { choice: "oppose", n: 1 }, { choice: "mixed", n: 3 }]);
+eq(T.total, 6, "the total is the sum of the three poles and nothing else");
+eq(pollResultLine(T), "2 support · 1 oppose · 3 mixed", "the results are printed as counts");
+eq(pollResultLine(pollTally([])), CORE_COPY.pollNoVotes, "an unanswered poll says so honestly");
+eq(pollResultLine(null), CORE_COPY.pollNoVotes, "and so does a missing tally");
+// A row for something that is not a pole is DROPPED, not given a fourth bucket
+// that would then need a label.
+const T2 = pollTally([{ choice: "support", n: 1 }, { choice: "abstain", n: 99 }, { choice: "", n: 5 }]);
+eq(T2.total, 1, "a row that is not a pole is dropped rather than counted");
+eq(pollResultLine(T2), "1 support · 0 oppose · 0 mixed", "and never printed");
+// Junk rows cannot make a number up.
+eq(pollTally([{ choice: "support", n: "3" }]).support, 3, "a numeric string counts as its number");
+for (const junk of [{ choice: "support", n: -1 }, { choice: "support", n: 0 },
+  { choice: "support", n: NaN }, { choice: "support" }, {}, null, "x"]) {
+  eq(pollTally([junk]).total, 0, `${JSON.stringify(junk)} counts as nothing`);
+}
+eq(pollTally("nope").total, 0, "and rows that are not rows tally zero");
+// NO PERCENTAGE, ANYWHERE, in either half of the poll.
+for (const t of [pollTally([]), T, T2,
+  pollTally([{ choice: "support", n: 1 }, { choice: "oppose", n: 2 }])]) {
+  lacks(pollResultLine(t), "%", "no result line prints a percentage");
+  lacks(pollResultLine(t), "/", "and none prints a ratio");
+}
+// The tally is integers and a sum. No mean, no share, no weight.
+const coreSrc = strip(CORE_SRC);
+const pollGate = coreSrc.slice(coreSrc.indexOf("export const POLL_CHOICES"));
+for (const arith of ["/ t.total", "/ total", "* 100", "toFixed", "Math.round(", "percent", "share", "weight"]) {
+  lacks(pollGate, arith, `the poll gate does no ${arith}`);
+}
+
+// ── ONE ROW PER PERSON PER ROOM, AND CHANGING IT REPLACES IT ──────────────
+// The vote table is keyed on (district_key, issue_key, user_id) with a UNIQUE
+// index, and the only write is an upsert onto that index. So a second answer
+// from the same person REPLACES the first rather than adding one — "one vote per
+// person" is a shape the table has, not a rule a route remembers.
+eq((fnSrc.match(/insert\(ddPollVotes\)/g) || []).length, 1,
+  "there is exactly one write to dd_poll_votes in the whole Function");
+ok(/insert\(ddPollVotes\)[\s\S]{0,600}onConflictDoUpdate/.test(fnSrc),
+  "and it is an upsert, so a changed answer overwrites");
+ok(/target: \[ddPollVotes\.districtKey, ddPollVotes\.issueKey, ddPollVotes\.userId\]/.test(fnSrc),
+  "the conflict target is the room and the person");
+lacks(fnSrc, "delete(ddPollVotes)", "nothing deletes a vote");
+ok(!/update\(ddPollVotes\)/.test(fnSrc), "and nothing edits one out of band");
+
+// THE POLL IS THE ROOM. There is no dd_polls table and no poll id, so "exactly
+// one poll per (district, issue)" is not enforced — it is inexpressible. A room
+// cannot have a second poll for the same reason it cannot have a second address.
+lacks(strip(SCHEMA), "dd_polls", "there is no dd_polls table to hold a second poll");
+lacks(fnSrc, "pollId", "and nothing anywhere carries a poll id");
+lacks(strip(CORE_SRC), "pollId", "not in the gate either");
+lacks(strip(ROOM_SRC), "pollId", "and not in the client");
+
+// ── A COMMENT IS NOT A VOTE ───────────────────────────────────────────────
+// The vote route reads THREE fields off the body — the room's two halves and the
+// pole — and the gate it calls takes no body at all. There is no path from a
+// sentence to an answer, in either direction.
+const voteSlice = fnSrc.slice(fnSrc.indexOf("async function votePoll"));
+const voteBody = voteSlice.slice(0, voteSlice.indexOf("\n}\n") + 2);
+const readFields = [...new Set((voteBody.match(/payload\?\.(\w+)/g) || []).map((m) => m.slice(9)))].sort();
+eq(readFields.join(","), "choice,district,issue",
+  "the vote route reads the room and the pole off the body, and nothing else");
+lacks(voteBody, "ddPosts", "casting a vote reads and writes no post");
+lacks(voteBody, "normalizeBody", "and never touches a neighbour's sentence");
+ok(!/decideVote\(\{[\s\S]{0,240}body/.test(fnSrc), "the vote gate is handed no body");
+ok(!/decideWrite\(\{[\s\S]{0,240}choice/.test(fnSrc), "and the write gate is handed no pole");
+lacks(pollGate, "normalizeBody(", "the poll gate cannot read a body even if it wanted to");
+// And the posts are untouched by the numbers: still newest first, still no sort.
+has(fnSrc, "desc(ddPosts.createdAt)", "the posts are still ordered newest first");
+ok(!/orderBy[\s\S]{0,120}ddPollVotes/.test(fnSrc), "and never by anything in the vote table");
+
+// ── THE COUNTS COME FROM THE VOTE TABLE, GROUPED ──────────────────────────
+const resultsSlice = fnSrc.slice(fnSrc.indexOf("async function resolvePollResults"));
+const resultsBody = resultsSlice.slice(0, resultsSlice.indexOf("\n}\n") + 2);
+has(resultsBody, "from(ddPollVotes)", "the counts are read from the vote table");
+has(resultsBody, "groupBy(ddPollVotes.choice)", "grouped by the pole");
+has(resultsBody, "pollTally(rows)", "and folded by the gate's own pure function");
+lacks(resultsBody, "ddPosts", "no post is counted as an answer");
+// The route exists, POST only.
+has(fnSrc, '"/poll/vote"', "the Function serves the vote route");
+ok(/path === "\/poll\/vote"\)[\s\S]{0,140}405/.test(fnSrc), "and refuses any method but POST");
+has(strip(ROOM_SRC), "'/poll/vote'", "the client posts a vote to that route and no other");
+
+// ── THE PAINTED POLL ──────────────────────────────────────────────────────
+// Built from the gate's own functions, in the shape the Function returns, so
+// what is painted below is what the server would actually send.
+function pollPayload(res, extra) {
+  const claim = res === undefined ? residencyClaim(U) : res;
+  const gate = pollState(claim, HERE);
+  const results = pollTally((extra && extra.rows) || []);
+  const base = roomPayload([], gate.canVote);
+  return Object.assign({}, base, (extra && extra.room) || {}, {
+    poll: {
+      question: CORE_COPY.pollQuestion,
+      options: pollOptions(),
+      results,
+      resultLine: pollResultLine(results),
+      countsNote: CORE_COPY.pollCountsNote,
+      canVote: gate.canVote,
+      note: gate.note,
+      mine: (extra && extra.mine) || null,
+      message: "",
+    },
+  });
+}
+const ROWS_3 = [{ choice: "support", n: 4 }, { choice: "oppose", n: 2 }, { choice: "mixed", n: 1 }];
+// The client escapes every sentence it prints, so a copy string with an
+// apostrophe in it ("a neighbor's post is not a vote") arrives escaped. Asserted
+// against the escaped form rather than loosened to a substring.
+const escd = (str) => String(str)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+const slicePoll = (html) => {
+  const i = html.indexOf('<section class="pdxdr-poll"');
+  return i < 0 ? "" : html.slice(i, html.indexOf("</section>", i) + 10);
+};
+
+// VERIFIED IN THIS DISTRICT: three buttons and a composer.
+const vPoll = await paint(pollPayload(residencyClaim(U, ADMIN_VERIFIED), { rows: ROWS_3 }), MY_UT2);
+const vSlice = slicePoll(vPoll);
+ok(!!vSlice, "the poll is painted");
+has(vSlice, CORE_COPY.pollQuestion, "the poll asks the fixed question");
+eq((vSlice.match(/data-pdxdr-vote="/g) || []).length, 3,
+  "a verified neighbour is offered three poles and no more");
+for (const k of POLL_CHOICES) has(vSlice, `data-pdxdr-vote="${k}"`, `the ${k} pole is pressable`);
+for (const l of ["Support", "Oppose", "Mixed"]) has(vSlice, `>${l}<`, `the ${l} pole is labelled`);
+has(vSlice, "4 support · 2 oppose · 1 mixed", "the results are printed as counts");
+has(vPoll, "pdxdr-composer", "and the same neighbour gets the composer");
+lacks(vSlice, "pdxdr-pollnote", "a neighbour who may answer is given no reason why they cannot");
+
+// ONE ANSWER MARKED, AND IT IS THE READER'S OWN — not a leader, not a winner.
+const mine = slicePoll(await paint(
+  pollPayload(residencyClaim(U, ADMIN_VERIFIED), { rows: ROWS_3, mine: "oppose" }), MY_UT2));
+eq((mine.match(/aria-pressed="true"/g) || []).length, 1, "exactly one pole is marked");
+ok(/data-pdxdr-vote="oppose" aria-pressed="true"/.test(mine),
+  "and it is the pole this reader picked, not the pole with the biggest number");
+eq((mine.match(/is-mine/g) || []).length, 1, "one pole wears the reader's own state");
+
+// PENDING: counts, no buttons, no composer.
+const pPoll = await paint(pollPayload(residencyClaim(U, SELF_PENDING),
+  { rows: ROWS_3, room: { canPost: false, closedNote: CORE_COPY.pending } }), MY_UT2);
+const pSlice = slicePoll(pPoll);
+lacks(pSlice, "data-pdxdr-vote", "a pending neighbour is offered no pole to press");
+lacks(pSlice, "<button", "and no button at all");
+has(pSlice, "4 support · 2 oppose · 1 mixed", "but reads the counts");
+has(pSlice, CORE_COPY.pollPending, "and is told their request is pending review");
+lacks(pPoll, "pdxdr-composer", "a pending neighbour is shown no composer");
+lacks(pPoll, "<textarea", "and no field");
+
+// VERIFIED IN ANOTHER DISTRICT: same answer.
+const wPoll = await paint(pollPayload(residencyClaim(U, ADMIN_VERIFIED_THERE), { rows: ROWS_3 }), MY_UT2);
+lacks(slicePoll(wPoll), "data-pdxdr-vote", "a neighbour verified elsewhere is offered no pole");
+has(slicePoll(wPoll), escd(CORE_COPY.pollWrongDistrict), "and told why, here, in this room");
+has(slicePoll(wPoll), "4 support · 2 oppose · 1 mixed", "and still reads the counts");
+lacks(wPoll, "pdxdr-composer", "and gets no composer");
+
+// SIGNED OUT: reading stays open, both halves of it.
+const oPoll = await paint(pollPayload(residencyClaim(null), { rows: ROWS_3 }), MY_UT2);
+lacks(slicePoll(oPoll), "data-pdxdr-vote", "a signed-out reader is offered no pole");
+has(slicePoll(oPoll), CORE_COPY.pollClosedSignedOut, "and told to sign in, then ask");
+has(slicePoll(oPoll), "4 support · 2 oppose · 1 mixed", "and still reads the counts");
+
+// AN UNANSWERED POLL SAYS SO, rather than printing three zeroes as a verdict.
+has(slicePoll(await paint(pollPayload(residencyClaim(null)), MY_UT2)), CORE_COPY.pollNoVotes,
+  "an unanswered poll says there are no votes yet");
+
+// ZERO PERCENT STRINGS, AND NOTHING SHAPED LIKE A BAR. No element in the poll
+// has a length set from a result, because a proportion drawn as a length reads
+// as a grade — and neighbours disagreeing about a road is not a grade.
+for (const [name, html] of [["verified", vSlice], ["pending", pSlice],
+  ["wrong district", slicePoll(wPoll)], ["signed out", slicePoll(oPoll)], ["marked", mine]]) {
+  lacks(html, "%", `the ${name} poll prints no percentage`);
+  lacks(html, "<progress", `the ${name} poll draws no meter`);
+  lacks(html, "<meter", `the ${name} poll draws no meter element`);
+  lacks(html, "style=", `the ${name} poll sets no inline length`);
+  lacks(html, "aria-valuenow", `the ${name} poll reports no value on a scale`);
+  lacks(html, "pdxdr-bar", `the ${name} poll draws no bar`);
+  has(html, escd(CORE_COPY.pollCountsNote), `the ${name} poll says what the numbers are not`);
+}
+// The stylesheet has no fill either: nothing in the poll block is sized from a
+// number, so there is nothing for a result to grow.
+const pollCss = strip(ROOM_CSS).slice(strip(ROOM_CSS).indexOf(".pdxdr-poll"));
+for (const grade of ["progress", "meter", "linear-gradient", "conic-gradient", "--fill"]) {
+  lacks(pollCss, grade, `the poll's rules carry no ${grade}`);
+}
+
+// ── LAYOUT: HEADER, POLL, COMPOSER, POSTS, AND THE REVIEWER LAST ──────────
+const ordered = await paint(pollPayload(residencyClaim(U, ADMIN_VERIFIED), { rows: ROWS_3 }), MY_UT2);
+ok(ordered.indexOf("pdxdr-poll") < ordered.indexOf("pdxdr-composer"),
+  "the poll sits above the composer");
+ok(ordered.indexOf("pdxdr-composer") < ordered.indexOf("pdxdr-list"),
+  "the composer sits above the posts");
+const closedOrder = await paint(pollPayload(residencyClaim(U, SELF_PENDING),
+  { room: { canPost: false, closedNote: CORE_COPY.pending } }), MY_UT2);
+ok(closedOrder.indexOf("pdxdr-poll") < closedOrder.indexOf("pdxdr-closed"),
+  "and above the closed note when the composer is shut");
+ok(closedOrder.indexOf("pdxdr-closed") < closedOrder.indexOf("pdxdr-list"),
+  "which sits where the composer would have been");
+// The poll is not attached to a person, here or anywhere.
+lacks(vSlice, "pdxdr-badge", "the poll wears no badge and names no author");
+for (const leak of ["uid", "handle", "@", "u1", "avatar"]) {
+  lacks(vSlice, leak, `the poll discloses no ${leak}`);
+}
+// A POST IS STILL NOT A VOTE, painted: no pole inside a post, no number on one.
+const withPosts = await paint(
+  Object.assign(pollPayload(residencyClaim(U, ADMIN_VERIFIED), { rows: ROWS_3 }), { posts: POSTS }),
+  MY_UT2
+);
+const list = withPosts.slice(withPosts.indexOf('<div class="pdxdr-list">'));
+lacks(list, "data-pdxdr-vote", "no post carries a pole");
+lacks(list, "support ·", "and no post carries the counts");
+ok(list.indexOf("Later post") < list.indexOf("Earlier post"),
+  "the posts are still newest first, and the poll reordered nothing");
+
+// ── THE VOTE TABLE IS A REAL TABLE, STAMPED AFTER THE APPLIED TAIL ────────
+const POLL_MIGRATION_ID = "20261031000000_create_dd_poll_votes";
+const MIGRATION3 = R(`${MIGRATION_DIR}/${POLL_MIGRATION_ID}/migration.sql`);
+for (const prior of [...applied, RESIDENCY_MIGRATION_ID]) {
+  ok(POLL_MIGRATION_ID > prior.replace(/\.sql$/, ""),
+    `the poll migration sorts after ${prior}`);
+}
+ok(/^20261031000000_/.test(POLL_MIGRATION_ID),
+  "the poll migration carries the hand-set version one past the tail");
+for (const piece of [
+  'CREATE TABLE IF NOT EXISTS "dd_poll_votes"',
+  '"district_key" text NOT NULL',
+  '"issue_key" text NOT NULL',
+  '"user_id" text NOT NULL',
+  '"choice" text NOT NULL',
+  `CHECK ("choice" in ('support', 'oppose', 'mixed'))`,
+  'CREATE UNIQUE INDEX IF NOT EXISTS "dd_poll_votes_room_user_unique" ON "dd_poll_votes" ("district_key","issue_key","user_id")',
+  'REFERENCES "dd_districts"("district_id")',
+  'REFERENCES "dd_issue_keys"("issue_key")',
+]) {
+  has(MIGRATION3, piece, `the poll migration carries ${piece}`);
+}
+ok(!/ALTER TABLE "dd_(posts|threads|districts|issue_keys|residency)"/.test(MIGRATION3),
+  "the poll migration alters no existing table");
+ok(!/DROP |DELETE FROM |TRUNCATE /.test(MIGRATION3), "the poll migration destroys nothing");
+lacks(MIGRATION3.replace(/^\s*--.*$/gm, " "), "dd_polls",
+  "and creates no table for a second poll");
+// The schema says the same thing, and it is a vote rather than a profile.
+has(SCHEMA, "export const ddPollVotes = pgTable(", "db/schema.ts carries the vote table");
+for (const col of ['districtKey: text("district_key")', 'issueKey: text("issue_key")',
+  'userId: text("user_id")', "choice: text().notNull()",
+  'uniqueIndex("dd_poll_votes_room_user_unique")',
+  `check("dd_poll_votes_choice_check", sql\`\${t.choice} in ('support', 'oppose', 'mixed')\`)`]) {
+  has(SCHEMA, col, `the vote table declares ${col}`);
+}
+const voteStart = SCHEMA.indexOf("export const ddPollVotes");
+const voteCols = strip(SCHEMA.slice(voteStart));
+for (const nope of ["question", "options", "weight", "score", "rank", "body", "text_answer",
+  "email", "name", "address", "party"]) {
+  ok(voteCols.toLowerCase().indexOf(`"${nope}"`) < 0, `the vote table stores no ${nope}`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("9 · two mounts, and only two");
 
 // The reader this pass can actually serve: located in Utah, districts resolvable.
 const UT_REPS = {
@@ -1087,7 +1528,7 @@ lacks(indexMarkup, "PDXDistrictRoom",
 lacks(INDEX, 'href="/d/', "index.html links no room directly");
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("9 · the shell ships the room, and the service worker knows it did");
+section("10 · the shell ships the room, and the service worker knows it did");
 
 has(INDEX, 'href="/district-room.css"', "index.html loads the room's stylesheet");
 has(INDEX, 'src="/district-room.js"', "index.html loads the room");
@@ -1098,10 +1539,11 @@ has(INDEX, 'defer src="/district-room.js"', "the room is deferred");
 has(SW, "'/district-room.js',", "the service worker precaches the room");
 has(SW, "'/district-room.css',", "the service worker precaches the room's stylesheet");
 const ver = (SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1];
-ok(ver && Number(ver) >= 153,
+ok(ver && Number(ver) >= 154,
   `the shell cache was bumped for the two changed precached files (v${ver})`);
 has(SW, "v152 - THE DISTRICT ROOM EXISTS", "the phase 1 version-log entry survives");
-has(SW, "v153 - RESIDENCY IS A FACT NOW", "the bump carries its own version-log entry");
+has(SW, "v153 - RESIDENCY IS A FACT NOW", "the phase 2 version-log entry survives");
+has(SW, "v154 - THE ROOM HAS ONE POLL", "the bump carries its own version-log entry");
 
 // ── Result ───────────────────────────────────────────────────────────────────
 console.log("");
