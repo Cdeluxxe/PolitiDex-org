@@ -69,6 +69,7 @@ import {
   pollOptions,
   pollResultLine,
   pollState,
+  pollNote,
   pollTally,
   residencyClaim,
   residencyNote,
@@ -256,6 +257,12 @@ function fakeAuth(user, opts) {
       a.currentUser = u || null;
       cbs.slice().forEach((cb) => { try { cb(a.currentUser); } catch { /* guarded */ } });
     },
+    // The switch Firebase gives for exactly one situation: the SDK is holding the
+    // per-browser anonymous session while the reader is signed in to a real
+    // account. Recorded so the suite can observe that the room switched rather
+    // than downgrading itself — and it signs nothing out.
+    switched: [],
+    updateCurrentUser(u) { a.switched.push(u); a.currentUser = u || null; return Promise.resolve(); },
   };
   return a;
 }
@@ -1859,6 +1866,241 @@ lacks(room11, "_currentVoterLocation",
 for (const vendor of ["stripe", "veriff", "identity.stripe", "onfido", "persona"]) {
   lacks(room11.toLowerCase(), vendor, `the room calls no ID vendor (${vendor})`);
 }
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("12 · a Google session is signed in, exactly as the chip says it is");
+
+// THE BUG THIS SECTION EXISTS FOR, AND IT IS THE SAME BUG AS SECTION 11 WITH A
+// DIFFERENT PROVIDER. v155 resolved auth instead of sampling it and fixed
+// email/password: cdeluxxe on /d/ut-statehouse-68/lands_preserve got the poll
+// and the composer. A Google sign-in on that same address still painted "Sign
+// in first, then ask to be verified for this district" while the account chip in
+// the top-right showed the Google user. Three things a Google session does that
+// a password sign-in does not:
+//
+//   1. THE TOKEN ARRIVES AFTER THE USER DOES. The popup (or the redirect) hands
+//      the SDK a user a beat before it can mint an ID token for them. A standing
+//      read taken in that beat carries no Authorization header, so the server
+//      cannot name the caller. Auth is now resolved only once BOTH have arrived.
+//   2. THE POPUP CAN RESOLVE MID-FLIGHT. The read went out signed-out and the
+//      account existed by the time the answer came back. An unattributed answer
+//      is now checked against the SDK before it is painted, and the account it
+//      finds there is adopted and asked again.
+//   3. THE BOOT'S ANONYMOUS SIGN-IN CAN LAND AFTER IT. That leaves the SDK
+//      presenting the per-browser anonymous session while the reader is signed
+//      in to a real account. The room switches the SDK back to the account
+//      rather than downgrading itself, and no anonymous token is ever sent.
+//
+// The room also stopped requiring an email of its own accord: the chip's test is
+// `user && !user.isAnonymous`, so that is the room's test too.
+has(strip(R("compare-hub.js")), "user && !user.isAnonymous",
+  "the nav chip's own test is a uid that is not the anonymous session");
+
+// A GOOGLE ACCOUNT, and it is not granted anything here: a uid, an email, the
+// google.com provider and a token mint this suite can count. Residency is still
+// a row a reviewer writes, so nothing below opens a composer.
+function googleAccount(email) {
+  const mail = email === undefined ? "clreber@gmail.com" : email;
+  const tokens = [];
+  const u = {
+    uid: "uid-google-1",
+    email: mail,
+    displayName: "C L Reber",
+    isAnonymous: false,
+    providerId: "google.com",
+    providerData: [{ providerId: "google.com", uid: mail || "uid-google-1", email: mail }],
+    tokens,
+    getIdToken(force) {
+      tokens.push(!!force);
+      return Promise.resolve(force ? "tok-g-fresh" : "tok-g");
+    },
+  };
+  return u;
+}
+// The read answers "signed in" only when the GOOGLE token actually arrived, so
+// every assertion below is about the token the room sent rather than about a
+// payload the test decided in advance.
+const byGoogleToken = (url, init) =>
+  ({ status: 200, data: standingPayload(bearerOf({ init }).indexOf("tok-g") === 7) });
+const sentAnon = (win) => win.__calls.some((c) => bearerOf(c).indexOf("tok-anon") >= 0);
+
+// ── THE BUG REPORT, AS A BOOT ───────────────────────────────────────────────
+const gAcct = googleAccount();
+const WG = await settled(boot(ROOM_68, byGoogleToken, { auth: fakeAuth(gAcct) }));
+eq(WG.PDXDistrictRoom.isOpen(), true, `a Google reader arriving on ${ROOM_68} opens the room`);
+eq(WG.PDXDistrictRoom.authResolved(), true, "auth resolved before the room was painted");
+eq(WG.PDXDistrictRoom.signedIn(), true,
+  "THE BUG: a Google session is signed in for the room, as it is for the chip");
+eq(bearerOf(WG.__calls[0]), "Bearer tok-g", "and the standing read carried their ID token");
+ok(!sentAnon(WG), "no request carried the anonymous token");
+const gBody = scroll(WG);
+lacks(gBody, CORE_COPY.closedSignedOut,
+  "THE BUG: the Google reader is never shown the signed-out sentence");
+lacks(gBody, CORE_COPY.pollClosedSignedOut,
+  "and the poll block never shows it to them either");
+has(gBody, CORE_COPY.closedNoResidency,
+  "they are shown the true reason instead — no residency has been established");
+lacks(gBody, "pdxdr-composer", "and nothing here grants them a composer");
+lacks(gBody, CORE_COPY.badge, "or prints a badge");
+
+// The Ask is the one control a signed-in reader with no row has, and the Google
+// reader has it — which is the closed note the report asked for.
+const gAskBody = scroll(await settled(boot(
+  ROOM_68, byGoogleToken, Object.assign({ auth: fakeAuth(googleAccount()) }, MY_UT68)
+)));
+has(gAskBody, "data-pdxdr-attest", "a Google reader in their own district is offered the Ask");
+has(gAskBody, CORE_COPY.attest, "spelled with the gate's own sentence");
+lacks(gAskBody, CORE_COPY.closedSignedOut, "and still never the signed-out sentence");
+
+// A pending row is the other honest closed note, and it is not the signed-out
+// one either.
+const gPend = Object.assign(standingPayload(true), (() => {
+  const res = residencyClaim({ uid: "uid-google-1" },
+    { status: "pending", method: "self_attest", districtKey: "ut-statehouse-68" });
+  return {
+    canPost: composerState(res, "ut-statehouse-68").canPost,
+    closedNote: composerState(res, "ut-statehouse-68").note,
+    poll: Object.assign(standingPayload(true).poll, { canVote: false, note: pollNote(res) }),
+  };
+})());
+const gPendBody = scroll(await settled(boot(ROOM_68, () => ({ status: 200, data: gPend }),
+  { auth: fakeAuth(googleAccount()) })));
+has(gPendBody, CORE_COPY.pending, "a Google reader with a pending request is told it is pending");
+lacks(gPendBody, CORE_COPY.closedSignedOut, "and not told to sign in");
+lacks(gPendBody, "pdxdr-composer", "and a pending request opens no composer");
+
+// ── NO READ GOES OUT UNTIL THERE IS A REAL TOKEN FOR THAT UID ───────────────
+// The popup's own sequence: onAuthStateChanged fires with the Google user, and
+// getIdToken for that uid resolves a beat later. The room waits for BOTH — a
+// read sent in that beat is the unauthenticated read that started all of this.
+let releaseToken;
+const tokenGate = new Promise((r) => { releaseToken = r; });
+const slowG = googleAccount();
+slowG.getIdToken = (force) => { slowG.tokens.push(!!force); return tokenGate.then(() => (force ? "tok-g-fresh" : "tok-g")); };
+const WGT = await settled(boot(ROOM_68, byGoogleToken, { auth: fakeAuth(slowG) }));
+eq(WGT.PDXDistrictRoom.isOpen(), true, "the room opens off the address alone");
+eq(WGT.PDXDistrictRoom.authResolved(), false,
+  "a Google user with no token yet has not resolved the room's auth");
+eq(WGT.__calls.length, 0, "and no standing read has gone out unauthenticated");
+has(scroll(WGT), "Opening the room", "the reader is held on the busy line");
+lacks(scroll(WGT), CORE_COPY.closedSignedOut,
+  "rather than being told to sign in while their token is still being minted");
+releaseToken();
+await settled(WGT);
+eq(WGT.PDXDistrictRoom.authResolved(), true, "the token resolves the room's auth");
+eq(WGT.PDXDistrictRoom.signedIn(), true, "and the Google reader is signed in");
+eq(bearerOf(WGT.__calls[0]), "Bearer tok-g", "the first read out carries the token");
+lacks(scroll(WGT), CORE_COPY.closedSignedOut, "and the painted room never says otherwise");
+
+// ── A POPUP THAT RESOLVES WHILE THE READ IS IN FLIGHT ───────────────────────
+// The room resolved signed-out (an anonymous session), the read went out with no
+// token, and the Google user landed in the SDK before the answer came back —
+// with no state callback the room could have heard, which is the production
+// shape of "the chip shows Google and the room says sign in first". The
+// unattributed answer is checked against the SDK before it is painted.
+const MIDA = fakeAuth(anonAccount());
+const gMid = googleAccount();
+let midCalls = 0;
+const WGM = await settled(boot(ROOM_68, (url, init) => {
+  if (midCalls++ === 0) { MIDA.currentUser = gMid; return { status: 200, data: standingPayload(false) }; }
+  return byGoogleToken(url, init);
+}, { auth: MIDA }));
+eq(WGM.PDXDistrictRoom.signedIn(), true, "the account the SDK now has is adopted");
+eq(WGM.__calls.length, 2, "and the standing is asked again as that reader");
+eq(bearerOf(WGM.__calls[0]), "", "the first read carried no token, because there was none");
+eq(bearerOf(WGM.__calls[1]), "Bearer tok-g-fresh",
+  "the second carried a freshly minted token for the Google account");
+ok(!sentAnon(WGM), "and never the anonymous token that was in the SDK a moment earlier");
+const midBody = scroll(WGM);
+lacks(midBody, CORE_COPY.closedSignedOut,
+  "THE BUG: the signed-out sentence is not painted over a chip that shows Google");
+lacks(midBody, CORE_COPY.pollClosedSignedOut, "nor in the poll block");
+has(midBody, CORE_COPY.closedNoResidency, "the true reason is painted instead");
+
+// ── AN ANONYMOUS LEFTOVER AFTER GOOGLE IS SWITCHED, NOT OBEYED ──────────────
+// The boot's signInAnonymously() resolving after the popup did. The room does
+// not downgrade itself to signed-out on it: it switches the SDK back to the
+// account, and the anonymous token is never sent.
+const LEFT = fakeAuth(null, { late: true });
+const gLeft = googleAccount();
+const WL = await settled(boot(ROOM_68, byGoogleToken, { auth: LEFT }));
+LEFT.fire(gLeft);
+await settled(WL);
+eq(WL.PDXDistrictRoom.signedIn(), true, "the Google user signs the room in");
+LEFT.fire(anonAccount());
+await settled(WL);
+eq(WL.PDXDistrictRoom.signedIn(), true,
+  "an anonymous session arriving after Google does not sign the room out");
+eq(LEFT.switched.length, 1, "the SDK is switched off the anonymous leftover exactly once");
+eq(LEFT.switched[0], gLeft, "and switched back to the account the reader signed in to");
+eq(LEFT.currentUser, gLeft, "so the SDK's own currentUser is the account again");
+ok(!sentAnon(WL), "no request in the room ever carried the anonymous token");
+lacks(scroll(WL), CORE_COPY.closedSignedOut,
+  "and the signed-out sentence is not painted over the Google chip");
+// And the next call out is still that reader's, not the leftover's.
+const beforeLeft = WL.__calls.length;
+WL.PDXDistrictRoom.enter("ut-statehouse-68", "lands_preserve");
+await settled(WL);
+ok(WL.__calls.length > beforeLeft, "a re-entered room reads its standing again");
+eq(bearerOf(WL.__calls[WL.__calls.length - 1]).indexOf("tok-g"), 7,
+  "and that read carries the Google account's token");
+
+// A REAL SIGN-OUT IS STILL A SIGN-OUT. Firebase reports null before the boot
+// signs in anonymously again, so the leftover rule pins nothing: the room signs
+// out and the signed-out sentence is the honest one again.
+LEFT.fire(null);
+await settled(WL);
+eq(WL.PDXDistrictRoom.signedIn(), false, "signing out of the Google account signs the room out");
+has(scroll(WL), CORE_COPY.closedSignedOut, "and that reader is told to sign in, truthfully");
+
+// ── A DISAGREEMENT IS STILL NOT DRESSED AS A SIGN-OUT ───────────────────────
+// The Google account is signed in by the chip's test and the server still
+// refuses to name it. One forced refresh, one retry, and then the sentence that
+// is actually true — never "Sign in first".
+const stubbornG = googleAccount();
+const WG401 = await settled(boot(ROOM_68,
+  () => ({ status: 401, data: { error: CORE_COPY.closedSignedOut, code: "signed_out" } }),
+  { auth: fakeAuth(stubbornG) }));
+eq(WG401.PDXDistrictRoom.signedIn(), true, "the chip says the Google user is signed in");
+eq(WG401.__calls.length, 2, "a 401 for that reader is asked exactly once more");
+eq(bearerOf(WG401.__calls[1]), "Bearer tok-g-fresh", "and the retry carries a force-refreshed token");
+eq(stubbornG.tokens.join(","), "false,true", "the second mint was the forced one");
+const g401Body = scroll(WG401);
+lacks(g401Body, CORE_COPY.closedSignedOut,
+  "THE BUG, THE OTHER WAY ROUND: a signed-in Google reader is not told to sign in");
+has(g401Body, "we could not confirm it for this room", "they are told what is actually wrong");
+eq(CORE_COPY.authUnconfirmed.indexOf("You're signed in"), 0,
+  "and that sentence starts by saying they are signed in");
+
+// ── THE ROOM'S TEST IS THE CHIP'S TEST, AND THE PROVIDER IS NOT IN IT ───────
+// A non-anonymous account the provider gave no email for is painted by the chip,
+// so it is signed in here too. The room used to require an email of its own
+// accord, which is a second notion of "signed in" this surface must not have.
+const noMail = googleAccount(null);
+noMail.getIdToken = (force) => { noMail.tokens.push(!!force); return Promise.resolve(force ? "tok-g-fresh" : "tok-g"); };
+const WNM = await settled(boot(ROOM_68, byGoogleToken, { auth: fakeAuth(noMail) }));
+eq(WNM.PDXDistrictRoom.signedIn(), true,
+  "a non-anonymous account with no email is signed in, exactly as the chip paints it");
+eq(bearerOf(WNM.__calls[0]), "Bearer tok-g", "and its read carries a token");
+lacks(scroll(WNM), CORE_COPY.closedSignedOut, "and it is never told to sign in");
+
+const room12 = strip(ROOM_SRC);
+lacks(room12, "google.com",
+  "the room does not branch on which provider signed the reader in");
+lacks(room12, "providerId", "and reads no provider id at all");
+has(room12, "updateCurrentUser",
+  "the anonymous leftover is switched away from rather than obeyed");
+ok(/function tokenUser\(/.test(room12) && /isAnonymous/.test(room12),
+  "and there is one place a token's user is chosen, which refuses an anonymous one");
+eq((room12.match(/getIdToken\(/g) || []).length, 1,
+  "still exactly one getIdToken call in the module");
+eq((room12.match(/\bfetch\(/g) || []).length, 1,
+  "and still exactly one fetch, so one helper answers who is asking");
+for (const vendor of ["stripe", "veriff", "onfido", "persona"]) {
+  lacks(room12.toLowerCase(), vendor, `the Google path calls no ID vendor (${vendor})`);
+}
+lacks(room12, "_currentVoterLocation",
+  "and a self-typed location is still not part of anybody's identity");
 
 // ═════════════════════════════════════════════════════════════════════════════
 // ── Result ───────────────────────────────────────────────────────────────────

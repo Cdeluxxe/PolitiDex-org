@@ -65,6 +65,19 @@
        because a control almost nobody can use must not be the loudest thing on
        the way in. A reader who can already post is shown no grant at all.
 
+   WHO IS ASKING IS ONE QUESTION WITH ONE ANSWER, AND THE ANSWER IS THE NAV
+   CHIP'S. Every call this module makes goes through one identity helper, and it
+   calls a reader signed in on the chip's own test — a uid that is not the
+   per-browser anonymous session — whatever provider signed them in. It does not
+   resolve until Firebase has reported a state AND a real ID token for that uid
+   has been minted, because a Google popup hands the SDK a user a beat before it
+   can mint one and a read sent in that beat carries no token at all. An
+   anonymous session arriving under a resolved account is a leftover rather than
+   a sign-out, so the SDK is switched back to the account and no anonymous token
+   is ever sent. If the server still cannot name a reader the chip is painting,
+   the room mints a fresh token and asks once more, and then says that it could
+   not confirm them — it never tells somebody who is signed in to sign in.
+
    THE BADGE IS NEVER PRINTED ON EITHER. `pdxdr-badge` appears on a post the
    server marked verified, and inside an OPEN composer. A pending request and a
    self-typed location get a sentence, never a badge.
@@ -289,24 +302,46 @@
   // server correctly answered "we cannot name you", and the room printed the
   // signed-out sentence over a signed-in account and never asked again.
   //
-  // THE ROOM'S SIGNED-IN BIT IS THE CHIP'S. compare-hub.js paints the account
-  // chip for a user with a uid that is not the anonymous session; the room reads
-  // the same object and calls it signed in when it carries a uid AND an email,
-  // which is exactly the set of accounts that chip appears for. There is no
-  // second notion of "signed in" on this surface.
+  // THE ROOM'S SIGNED-IN BIT IS THE CHIP'S, AND THE PROVIDER IS NOT PART OF IT.
+  // updateNavAuth() in compare-hub.js paints the account chip for `user &&
+  // !user.isAnonymous` — a uid that is not the per-browser anonymous session,
+  // whatever signed it in. The room reads the same object and applies the same
+  // test, so email/password and Google are one case here rather than two. The
+  // room used to additionally require an email, which is a second notion of
+  // "signed in" the chip does not have; it is gone.
   //
-  // AND IT IS RESOLVED, NOT SAMPLED. `who()` answers only once Firebase has said
-  // something — signed in OR signed out — so nothing paints from a standing read
-  // taken before the session was restored. Every later change re-reads the room.
+  // AND IT IS RESOLVED, NOT SAMPLED — AND NOT RESOLVED UNTIL THERE IS A TOKEN.
+  // `who()` answers only once Firebase has said something AND, for an account,
+  // once a real getIdToken() for that uid has come back. That second half is
+  // what a Google sign-in needs: the popup (or the redirect) hands the SDK a
+  // user a beat before it can mint an ID token for them, and a standing read
+  // that goes out in that beat carries no Authorization header, so the server
+  // cannot name the caller and the room would print the signed-out sentence over
+  // the account the chip is already painting. Nothing paints from a read taken
+  // before both halves have arrived — the reader holds on "Opening the room…"
+  // instead. Every later change re-reads the room.
+  //
+  // AND AN ANONYMOUS LEFTOVER IS NEVER THE CALLER. The boot's signInAnonymously()
+  // can land AFTER a Google popup resolves, which leaves the SDK presenting the
+  // per-browser anonymous session while the reader is signed in to a real
+  // account. That session is signed out everywhere on this surface: the room
+  // switches the SDK back to the account rather than downgrading itself, and
+  // there is no path by which an anonymous ID token becomes this room's
+  // Authorization header.
   //
   // A self-typed location is not part of this. window._currentVoterLocation
   // answers "which district am I in" and is never an identity, so it is not read
   // here and cannot contribute to a claim.
   var AUTH_WAIT = 6000;
-  var _who = null;          // { uid, email, user } once resolved, or null
+  var TOKEN_TTL = 300000;   // a resolved token is re-used for five minutes
+  var ATTACH_TRIES = [0, 50, 200, 800, 2000, 4000];
+  var _who = null;          // { uid, email, user, token, at } once resolved, or null
   var _whoKnown = false;    // has Firebase answered at all yet
   var _whoWait = [];        // callers holding for that first answer
   var _whoOn = false;       // is the state subscription attached
+  var _switched = false;    // the one-time anonymous-leftover switch
+
+  function nowMs() { try { return Date.now(); } catch (e) { return 0; } }
 
   function fbAuth() {
     try { if (typeof auth !== 'undefined' && auth) return auth; } catch (e) {}
@@ -323,25 +358,76 @@
     try { if (typeof firebase !== 'undefined' && firebase && fn(firebase.auth)) return true; } catch (e) {}
     return false;
   }
-  // The chip's own test, and the only one. Anonymous sessions are per-browser and
-  // the server rejects them, so they are signed out here exactly as they are in
-  // the nav.
+  // The chip's own test, and the only one: a uid that is not the anonymous
+  // session. An email is carried when the provider gave one and is never the
+  // test, because the chip appears without it and the room must not disagree
+  // with the chip about who is signed in.
   function chipUser(u) {
     if (!u) return null;
     var uid = '';
     var mail = '';
     try { uid = String(u.uid == null ? '' : u.uid); } catch (e) { uid = ''; }
     try { mail = String(u.email == null ? '' : u.email); } catch (e) { mail = ''; }
-    if (!uid || !mail) return null;
+    if (!uid) return null;
     if (u.isAnonymous === true) return null;
-    return { uid: uid, email: mail, user: u };
+    return { uid: uid, email: mail, user: u, token: null, at: 0 };
   }
-  function signedIn() { return !!(_who && _who.uid && _who.email); }
+  function signedIn() { return !!(_who && _who.uid); }
+  function anonUser(u) { return !!(u && u.isAnonymous === true); }
+
+  // The handle to mint a token from, and it is NEVER an anonymous one. The SDK's
+  // own currentUser is preferred when it is the same account (it is the handle
+  // the SDK keeps refreshed); the object the state callback handed us is the
+  // fallback, which is what covers the beat where an anonymous leftover is
+  // sitting in currentUser.
+  function tokenUser(w) {
+    if (!w || !w.uid) return null;
+    var cu = (fbAuth() || {}).currentUser;
+    if (cu && !anonUser(cu) && String(cu.uid || '') === w.uid) return cu;
+    if (w.user && !anonUser(w.user)) return w.user;
+    return null;
+  }
+
+  // The one place this module asks Firebase for an ID token. Resolves the token,
+  // or null when there is nobody to mint one for and when the mint itself fails
+  // (a rejected getIdToken is a token we do not have, not a reader who is signed
+  // out — the caller says so rather than printing the signed-out sentence).
+  function mint(w, fresh) {
+    var u = tokenUser(w);
+    if (!u || !fn(u.getIdToken)) return Promise.resolve(null);
+    try {
+      return Promise.resolve(u.getIdToken(!!fresh)).then(function (t) {
+        return t || null;
+      }, function () { return null; });
+    } catch (e) { return Promise.resolve(null); }
+  }
+
+  // The anonymous leftover, handled once: the SDK is holding the per-browser
+  // anonymous session while a real account is the one this reader is signed in
+  // to, so we switch it back to the account. updateCurrentUser is the switch
+  // Firebase gives for exactly this, and it never signs the account out. When
+  // the SDK has no such method nothing happens here — the leftover still cannot
+  // become this room's caller, because tokenUser() will not mint from it.
+  function switchOffAnon() {
+    var a = fbAuth();
+    var cu = a && a.currentUser;
+    if (!anonUser(cu)) return false;
+    if (!_who || !_who.uid || !_who.user || _who.uid === String(cu.uid || '')) return false;
+    if (_switched) return true;
+    _switched = true;
+    try {
+      if (fn(a.updateCurrentUser)) {
+        var p = a.updateCurrentUser(_who.user);
+        if (p && fn(p.catch)) p.catch(function () {});
+      }
+    } catch (e) {}
+    return true;
+  }
 
   // Record Firebase's answer and release everybody waiting on it. Returns true
   // when this changed a standing we had ALREADY resolved — that, and only that,
   // is what makes an open room re-read itself.
-  function settle(next) {
+  function finish(next) {
     var first = !_whoKnown;
     var was = (_who && _who.uid) || '';
     _who = next || null;
@@ -353,9 +439,51 @@
     return !first && was !== ((_who && _who.uid) || '');
   }
 
+  // Firebase said something. Resolving it means minting the token too, so that
+  // `who()` never releases a caller who would then send an unauthenticated read
+  // for an account the chip is painting.
+  function settle(u) {
+    var next = chipUser(u);
+    if (!next) {
+      // An anonymous session arriving under a resolved account is the leftover,
+      // not a sign-out: a real sign-out reports null first, which clears the
+      // account through the branch below. We switch the SDK back and keep the
+      // account — unless it can no longer mint a token at all, in which case it
+      // is genuinely gone and the room signs out honestly.
+      if (anonUser(u) && signedIn()) {
+        switchOffAnon();
+        var held = _who;
+        return mint(held, true).then(function (t) {
+          if (t && _who === held) { held.token = t; held.at = nowMs(); return false; }
+          if (t) return false;
+          return finish(null);
+        });
+      }
+      // A signed-out state is also the end of the session the one-time switch
+      // above belonged to, so the next account gets its own.
+      _switched = false;
+      return Promise.resolve(finish(null));
+    }
+    return mint(next, false).then(function (t) {
+      next.token = t || null;
+      next.at = t ? nowMs() : 0;
+      return finish(next);
+    });
+  }
+
   function who() {
     if (_whoKnown) return Promise.resolve(_who);
     return new Promise(function (resolve) { _whoWait.push(resolve); });
+  }
+
+  // The SDK, sampled one last time before a signed-out answer would be painted.
+  // A Google popup or redirect can resolve after the standing read went out, and
+  // the nav chip would then be painting an account this room was about to tell
+  // to sign in. Answers that account when there is one the room has not adopted,
+  // and null otherwise.
+  function lateChip() {
+    if (signedIn()) return null;
+    return chipUser((fbAuth() || {}).currentUser);
   }
 
   function attachAuth() {
@@ -365,16 +493,30 @@
     _whoOn = true;
     try {
       a.onAuthStateChanged(function (u) {
-        var moved = settle(chipUser(u));
-        if (moved && _open && _room) { busy(); load(); }
+        var next = chipUser(u);
+        var nextUid = (next && next.uid) || '';
+        var wasUid = (_who && _who.uid) || '';
+        // The last answer does not stay up while a new one is out; see busy().
+        if (_whoKnown && nextUid !== wasUid && !(anonUser(u) && wasUid) &&
+            _open && _room) busy();
+        settle(u).then(function (moved) {
+          if (moved && _open && _room) { busy(); load(); }
+        });
       });
     } catch (e) { _whoOn = false; }
   }
 
   function watchAuth() {
     attachAuth();
+    // firebase-boot.js is a deferred script like this one and defines the `auth`
+    // global before it, but a shell that loaded them out of order — or a slow
+    // SDK — must not leave the room with no subscription at all, because then
+    // nothing would ever re-read the standing when the reader signs in. Retried
+    // on a short ladder and on load until it takes.
     if (!_whoOn) {
-      try { setTimeout(attachAuth, 0); } catch (e) {}
+      ATTACH_TRIES.forEach(function (ms) {
+        try { setTimeout(attachAuth, ms); } catch (e) {}
+      });
       try { window.addEventListener('load', attachAuth); } catch (e) {}
     }
     if (_whoKnown) return;
@@ -384,19 +526,24 @@
     // same thing the chip would be painted from.
     try {
       setTimeout(function () {
-        if (!_whoKnown) settle(chipUser((fbAuth() || {}).currentUser));
+        if (!_whoKnown) settle((fbAuth() || {}).currentUser);
       }, AUTH_WAIT);
     } catch (e) { settle(null); }
   }
 
-  // The ID token for whoever `who()` named, or null. `fresh` forces Firebase to
-  // mint a new one, which is the retry below.
+  // The ID token for whoever `who()` named, or null. The token minted while auth
+  // resolved is re-used briefly so a room open does not mint twice; `fresh`
+  // forces Firebase to mint a new one, which is the retry below.
   function bearer(fresh) {
     return who().then(function (w) {
       if (!w) return null;
-      var u = w.user || ((fbAuth() || {}).currentUser);
-      if (!u || !fn(u.getIdToken)) return null;
-      try { return u.getIdToken(!!fresh); } catch (e) { return null; }
+      var stale = !w.token || (nowMs() - (w.at || 0)) > TOKEN_TTL;
+      if (!fresh && !stale) return w.token;
+      switchOffAnon();
+      return mint(w, !!fresh).then(function (t) {
+        if (t) { w.token = t; w.at = nowMs(); return t; }
+        return w.token || null;
+      });
     }).catch(function () { return null; });
   }
 
@@ -426,6 +573,14 @@
     opts = opts || {};
     return call(qs, opts, !!opts.fresh).then(function (res) {
       if (res.status === 401 && signedIn() && !opts.fresh) return call(qs, opts, true);
+      // And the same last look the standing read takes: a refusal for a reader
+      // the SDK has but the room has not adopted yet — the Google popup that
+      // resolved a beat ago — is retried as that reader rather than reported as
+      // a signed-out one.
+      if (res.status === 401 && !opts.fresh) {
+        var late = lateChip();
+        if (late) return settle(late.user).then(function () { return call(qs, opts, true); });
+      }
       return res;
     });
   }
@@ -921,6 +1076,18 @@
         // A read that landed after the reader moved on is dropped rather than
         // painted over whatever they are looking at now.
         if (moved(room)) return;
+        // AN UNATTRIBUTED ANSWER IS CHECKED AGAINST THE SDK BEFORE IT IS
+        // PAINTED. This is the Google case: the popup or the redirect resolved
+        // while this read was in flight, so the room resolved "signed out" a
+        // beat before the account existed and the chip is now painting it.
+        // Adopt that account — which mints its token — and ask again with it
+        // rather than printing the signed-out sentence at somebody the nav has
+        // signed in. It cannot loop: after this the room is signed in, so
+        // lateChip() answers null.
+        if (!res.ok ? res.status === 401 : readSaysSignedOut(res.data)) {
+          var late = lateChip();
+          if (late) return settle(late.user).then(function () { load(true); });
+        }
         var head = el(ID_HEAD);
         var body = el(ID_BODY);
         if (!res.ok) {
