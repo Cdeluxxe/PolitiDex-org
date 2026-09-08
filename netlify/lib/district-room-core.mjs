@@ -112,6 +112,15 @@ export const COPY = {
   // do next, and says what it is worth.
   closedNoResidency:
     "We have not established that you live in this district. Reading is open.",
+  // THE CHIP AND THE ROOM DISAGREED. Signed in by every test the nav account
+  // chip uses, and the server still could not name them — a stale or unmintable
+  // ID token. It is the one state the room must NOT describe with
+  // `closedSignedOut`, because telling a signed-in reader to sign in sends them
+  // to a modal that will close again on the account they already hold. Owned
+  // here with the rest so the client has no sentence of its own.
+  authUnconfirmed:
+    "You're signed in, but we could not confirm it for this room. Reload the " +
+    "page and it should open.",
   // PENDING IS NOT VERIFIED, and this sentence is the whole reason the two
   // statuses are told apart on the surface. A pending row can read and cannot
   // post, and it never wears the badge.

@@ -3114,6 +3114,58 @@
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
 // ─────────────────────────────────────────────────────────────────────────────
+// v155 - THE ROOM'S AUTH FOLLOWS THE NAV CHIP
+// ─────────────────────────────────────────────────────────────────────────────
+// One precached shell file changed, so the bucket is renamed.
+//
+// district-room.js:
+//   THE ROOM SAID "SIGN IN FIRST" TO A SIGNED-IN READER. On production,
+//   /d/ut-statehouse-68/lands_preserve painted "Sign in first, then ask to be
+//   verified for this district" while the account chip in the top-right already
+//   showed a signed-in member, and the poll block underneath it printed the same
+//   sentence. The Ask, the reviewer's grant and the composer never appeared,
+//   because the room's signed-in bit was false.
+//
+//   WHY. The room asked Firebase for auth.currentUser at the instant of each
+//   call. That is a different question from "who is signed in": on a cold
+//   arrival at /d/<district>/<issue> the SDK has not restored the session yet,
+//   so currentUser is null, the standing read went out with no Authorization
+//   header, the Function correctly answered "we cannot name this caller", and
+//   the room printed the signed-out sentence over a signed-in account - and then
+//   never asked again, because nothing was listening for the auth state to
+//   arrive a beat later. The nav chip, which does listen, painted the member.
+//   Two answers to one question, and the room had the wrong one.
+//
+//   WHAT CHANGED. One "who is this request" helper, and every call in the module
+//   goes through it: the standing read, the residency request, the reviewer's
+//   grant, the poll answer and the post. It RESOLVES auth rather than sampling
+//   it - it answers only once Firebase has said something either way - and it
+//   calls a reader signed in on the same test the account chip uses, a uid and
+//   an email that are not the per-browser anonymous session. A cold open now
+//   holds on "Opening the room..." until that answer arrives instead of
+//   printing a sentence it does not yet know to be true, and a sign-in or
+//   sign-out under an open room re-reads the standing rather than leaving the
+//   last answer up.
+//
+//   AND A DISAGREEMENT IS NOT DRESSED AS A SIGN-OUT. If the chip has somebody
+//   signed in and the standing read still comes back unattributed, the room
+//   mints a fresh token and asks exactly once more; if the second answer is the
+//   same it says what is actually wrong. It never leaves "sign in first" up in
+//   front of an account that is already signed in.
+//
+//   WHAT DID NOT CHANGE. Residency is still a row a reviewer writes, and the
+//   only path to verified is still the admin grant: knowing who somebody is has
+//   never been the same as knowing where they live. A self-typed location is
+//   still not an identity and is not read by the helper. No ID vendor is called.
+//   The composer still opens on canPost === true and nothing else, the copy
+//   still has one owner in netlify/lib/district-room-core.mjs (which gains the
+//   one sentence for the disagreement above), and the room still carries no
+//   score, no party, no ranking and no pid.
+//
+// TRAVELS WITH THIS BUMP, UNCHANGED AND BYTE-IDENTICAL. district-room.css, the
+// two mounts (who-represents-me.js and issue-file.js) and every other precached
+// file are untouched by this pass; renaming the buckets re-fetches them anyway.
+// ─────────────────────────────────────────────────────────────────────────────
 // v154 - THE ROOM HAS ONE POLL, AND THE WAY IN IS THE LOUD CONTROL
 // ─────────────────────────────────────────────────────────────────────────────
 // Two precached shell files changed, so the bucket is renamed.
@@ -3187,7 +3239,7 @@
 // and every formal tier byte-identical.
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
-const CACHE_VERSION = 'v154';
+const CACHE_VERSION = 'v155';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
