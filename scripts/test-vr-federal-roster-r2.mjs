@@ -706,11 +706,33 @@ section("7 · ship discipline — cache, census, floor, and the identity wall");
     // needs from the file is that it publishes no new key and moves no scope — ISSUE_MAP
     // and every scope note are in the pinned half, and "no key the table names is a key
     // ISSUE_MAP does not already publish" is one of the five things asserted there.
-    "compare-hub.js", "publication-floor.js"];
+    // compare-hub.js came off this list for the Your file arrival pass, on the same
+    // terms as the two files above and checked at a seam immediately below. What
+    // changed is one navigation link in the signed-in account menu, an href to
+    // #your-file; what R2 needs from the file is that a roster wave admits no
+    // identity through it. compare-hub.js does name identity directly - LOCAL_PIDS
+    // and the district table's pid fields - so that is what is pinned here, rather
+    // than a whole document a chrome edit cannot help but move.
+    "publication-floor.js"];
   for (const f of untouched) {
     const h = HEAD(f);
     if (!ok(h !== null, `${f} is not in HEAD, so "unchanged" could not be checked — if the file moved, fix this list`)) continue;
     eq(R(f), h, `${f} was modified — this wave admits identity and nothing else`);
+  }
+  {
+    // THE IDENTITY compare-hub.js NAMES, AND NOT ITS CHROME. Every pid in LOCAL_PIDS
+    // and every pid the district table hands out, byte-identical to HEAD: a wave that
+    // admitted somebody through this file, dropped somebody from it, or re-pointed a
+    // district at a different person fails here, and a link in a menu does not.
+    const f = "compare-hub.js", h = HEAD(f);
+    if (ok(h !== null, `${f} is not in HEAD, so the identity it names could not be checked`) && h !== R(f)) {
+      const identity = (src) => [
+        (src.match(/const LOCAL_PIDS = \[[^\]]*\]/) || ["NO LOCAL_PIDS"])[0],
+        ...(src.match(/pid:\s*'[a-z0-9_]+'/g) || []).sort(),
+      ].join("\n");
+      eq(identity(R(f)), identity(h),
+        `${f} changed the identity it names — this wave admits identity and nothing else`);
+    }
   }
   {
     const f = "alignment-tool.js", h = HEAD(f);

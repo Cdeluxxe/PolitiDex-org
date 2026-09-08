@@ -3114,6 +3114,50 @@
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
 // ─────────────────────────────────────────────────────────────────────────────
+// v162 - YOUR FILE OPENS FROM ITS ADDRESS
+// ─────────────────────────────────────────────────────────────────────────────
+// v161 shipped the overlay and one control, and #your-file still painted the
+// homepage. The address was REACHABLE and it did not OPEN. The module's arrival
+// was a setTimeout(0) plus a 'load' listener, and a macrotask runs after every
+// DOMContentLoaded handler on a 2 MB document - so a pasted /#your-file resolved
+// its hash long before your-file.js looked at one. There was also no visible way
+// in for most readers: the only "Your file" control lived in .wrm-cold, and
+// `.wrm[data-located] .wrm-cold{display:none}` hides that band for everyone whose
+// location the app already knows, which is every returning visitor.
+// The panel now opens SYNCHRONOUSLY the moment the deferred module parses,
+// through the same arrive() that hashchange and popstate call, and it waits on
+// nothing: not the roster, not auth, not the alignment engine. A close restores
+// whatever address the reader came from, read off the hashchange's oldURL rather
+// than only off a click the module saw, so an ordinary anchor is enough.
+//   PRECACHED SHELL FILE CHANGED - IT IS THE REASON FOR THE BUMP:
+//   · '/' (index.html)         - the .wrm-next-btn rule is anchor-safe now, so
+//                                the new link matches its sibling buttons.
+//   ALSO CHANGED, RUNTIME-CACHED UNDER THE VERSIONED NAME RATHER THAN PRECACHED:
+//   · '/who-represents-me.js'  - prints "Your file" in the RESOLVED action row,
+//                                beside Compare them on an issue / Work your
+//                                ballot / My local officials. This is the fix for
+//                                the band having no control at all.
+//   · '/compare-hub.js'        - the same href in the signed-in account menu,
+//                                desktop dropdown and mobile strip.
+//   · '/your-file.js'          - the arrival, and nothing else about the file.
+// The RUNTIME cache name carries CACHE_VERSION too, so this bump is what stops a
+// warm device serving those three modules from the v161 shell while it reads the
+// new page. ALSO CHANGED AND NOT A SERVED FILE: scripts/test-your-file.mjs.
+// EIGHT LOCKED ISSUES, COPY UNCHANGED, AND NOTHING ELSE MOVED. The overlay still
+// says "Your positions. Used to compare formal records. Not a vote. Not a
+// district poll.", still offers Support / Oppose / Mixed / Not sure on the same
+// eight hard-coded keys, and signed out still shows all eight disabled. Nothing
+// here touches Direction Match, Word vs Action, consistency.js, the formal
+// floors, the record, the Forum, the District Room, the Utah ingest or pack TTL.
+// Not one of the other precached files changed: door1-workspace.js,
+// door1-workspace.css, pdx-issue-family.js, stance-tree.js, alignment-tool.js,
+// issue-colors.js, issue-file.js, issue-file.css, issue-view.js,
+// pdx-issue-profile.js, word-action.js, word-action.css and all-seeing-eye.js are
+// byte-identical here, and netlify.toml did not move either - a bump renames both
+// cache buckets, so the log owes a reader that list rather than a surprise.
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it.
+// ─────────────────────────────────────────────────────────────────────────────
 // v161 - YOUR FILE: THE READER'S OWN EIGHT, AND THE MATCH READS THEM FIRST
 // ─────────────────────────────────────────────────────────────────────────────
 // Alignment and every ballot comparison in this app need one fact the app had
@@ -3632,7 +3676,7 @@
 // that file first on its eight issue keys. /your-file.js and /your-file.css are
 // deliberately NOT in SHELL_ASSETS, so they arrive from the network on first use
 // and cannot be served stale from an older shell.
-const CACHE_VERSION = 'v161';
+const CACHE_VERSION = 'v162';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

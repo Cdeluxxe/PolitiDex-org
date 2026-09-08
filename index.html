@@ -5515,7 +5515,8 @@ window.PDXLazy = (function () {
         cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.74rem;
         letter-spacing:0.03em;text-transform:uppercase;color:#cfe0f5;background:rgba(255,255,255,0.05);
         border:1px solid rgba(148,163,184,0.3);border-radius:0.6rem;padding:0.55rem 0.6rem;min-height:44px;
-        line-height:1.2;text-align:center;transition:background .15s ease,border-color .15s ease,color .15s ease;}
+        line-height:1.2;text-align:center;text-decoration:none;
+        transition:background .15s ease,border-color .15s ease,color .15s ease;}
       .wrm-next-btn:hover{color:#fff;background:rgba(96,165,250,0.15);border-color:rgba(96,165,250,0.5);}
       .wrm-next-btn--lead{color:#eaf3ff;background:rgba(59,130,246,0.16);border-color:rgba(96,165,250,0.5);}
       .wrm-next-btn em{font-style:normal;opacity:0.72;font-weight:600;}
@@ -22835,8 +22836,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        the existing Alignment Signature through window.alignSetIntensity. Loaded
        after alignment-tool.js for that reason. It writes NOTHING to the forum, to
        a district room or to dd_poll_answers — there is no POST in the file at all.
-       Reached from ONE control, "Your file", in the Who Represents Me action row.
-       No nav pill. -->
+       REACHED FROM TWO VISIBLE CONTROLS AND FROM THE HASH. "Your file" sits in the
+       Who Represents Me action row (both the cold CTA row and the resolved
+       action row — the cold one is hidden by `.wrm[data-located] .wrm-cold`, so
+       on its own it left every returning visitor with no control at all) and in
+       the signed-in account menu, both as a real <a href="#your-file">. The hash
+       is the state: this module opens the panel the moment it parses, so a pasted
+       or bookmarked /#your-file lands the same as a click. Still no nav pill. -->
   <script defer src="/your-file.js"></script>
   <!-- /i/<key> — the issue file's own address. Reads the key out of
        location.pathname, resolves it through the desk's own resolver, commits the
