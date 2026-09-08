@@ -345,6 +345,13 @@ async function readRoom(req: Request): Promise<Response> {
     strap: COPY.strap,
     empty: COPY.empty,
     badge: COPY.badge,
+    // WHETHER THE SERVER COULD NAME THE CALLER AT ALL, and it is a boolean about
+    // this request rather than anything about the person: no uid, no handle and
+    // no address. The client's own account chip already knows whether somebody
+    // is signed in, so returning the server's answer to the same question is
+    // what lets the room notice the two disagreeing — a signed-in reader whose
+    // token did not arrive must not be shown the signed-out sentence.
+    signedIn,
     canPost: composer.canPost,
     closedNote: composer.note,
     // ONE poll per room, above the composer and above the posts. It does not

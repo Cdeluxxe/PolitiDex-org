@@ -171,13 +171,23 @@ function makeDom(pathname) {
 
   // Real-enough timers, so the arrival boot can be flushed on demand rather than
   // silently dropped the way the shared sandbox's no-op timers drop it.
+  // Real-enough DELAYS too: a flush runs only the timers that are actually due,
+  // so district-room.js's auth safety deadline is not fired by the same flush
+  // that runs the arrival boot's setTimeout(…, 0). flushTimers(ms) opts in.
   const queue = [];
-  win.setTimeout = (f) => { queue.push(f); return queue.length; };
+  win.setTimeout = (f, ms) => { queue.push({ f, ms: Number(ms) || 0 }); return queue.length; };
   win.clearTimeout = () => {};
   win.document = doc;
   win.location = { href: "https://www.politidex.fyi" + pathname, pathname, search: "", hash: "", origin: "https://www.politidex.fyi" };
   win.history = { pushState() {}, replaceState() {} };
-  win.flushTimers = () => { const q = queue.splice(0); q.forEach((f) => { try { f(); } catch (e) {} }); };
+  win.flushTimers = (maxDelay) => {
+    const cap = maxDelay == null ? 0 : maxDelay;
+    const due = [];
+    for (let i = queue.length - 1; i >= 0; i--) {
+      if (queue[i].ms <= cap) due.unshift(queue.splice(i, 1)[0]);
+    }
+    due.forEach((t) => { try { t.f(); } catch (e) {} });
+  };
   return win;
 }
 
@@ -203,16 +213,76 @@ function roomPayload(posts, canPost) {
   };
 }
 
+// `payload` is either the object every call answers with, or a function of
+// (url, init) returning { status, data } so a test can answer one route
+// differently from another. Every request the module makes is recorded on
+// win.__calls, which is how "the standing read carried the reader's token" is
+// observed rather than asserted about source text.
 function boot(pathname, payload, extras) {
   const win = makeDom(pathname || "/");
-  win.fetch = () => Promise.resolve({
-    ok: true, status: 200,
-    json: () => Promise.resolve(payload || roomPayload([])),
-  });
+  win.__calls = [];
+  win.fetch = (url, init) => {
+    win.__calls.push({ url: String(url), init: init || {} });
+    const answered = typeof payload === "function" ? payload(String(url), init || {}) : null;
+    const status = (answered && answered.status) || 200;
+    const data = answered ? answered.data : (payload || roomPayload([]));
+    return Promise.resolve({
+      ok: status < 400,
+      status,
+      json: () => Promise.resolve(data),
+    });
+  };
   Object.assign(win, extras || {});
   vm.runInContext(ROOM_SRC, vm.createContext(win), { filename: "district-room.js" });
   return win;
 }
+
+// ═════════════════════════════════════════════════════════════════════════════
+// A FAKE FIREBASE AUTH, and it is exactly the two members district-room.js
+// reads: `currentUser` and `onAuthStateChanged`. `late: true` withholds the
+// first callback so a test can fire it after the room has already opened —
+// which is the production sequence a cold arrival at /d/* actually takes.
+function fakeAuth(user, opts) {
+  const o = opts || {};
+  const cbs = [];
+  const a = {
+    currentUser: o.late ? null : (user || null),
+    onAuthStateChanged(cb) {
+      cbs.push(cb);
+      if (!o.late) { try { cb(a.currentUser); } catch { /* the module guards */ } }
+      return () => {};
+    },
+    fire(u) {
+      a.currentUser = u || null;
+      cbs.slice().forEach((cb) => { try { cb(a.currentUser); } catch { /* guarded */ } });
+    },
+  };
+  return a;
+}
+// The account the nav chip paints: a uid and an email, and not the anonymous
+// session. `tokens` records every mint so a forced refresh is visible.
+function chipAccount(email) {
+  const tokens = [];
+  return {
+    uid: "uid-chip-1",
+    email: email || "clreber@gmail.com",
+    isAnonymous: false,
+    tokens,
+    getIdToken(force) { tokens.push(!!force); return Promise.resolve(force ? "tok-fresh" : "tok-1"); },
+  };
+}
+function anonAccount() {
+  return {
+    uid: "uid-anon-1",
+    email: null,
+    isAnonymous: true,
+    getIdToken() { return Promise.resolve("tok-anon"); },
+  };
+}
+const bearerOf = (call) => {
+  const h = (call && call.init && call.init.headers) || {};
+  return String(h.Authorization || h.authorization || "");
+};
 
 const W0 = boot("/");
 const DR = W0.PDXDistrictRoom;
@@ -1539,12 +1609,258 @@ has(INDEX, 'defer src="/district-room.js"', "the room is deferred");
 has(SW, "'/district-room.js',", "the service worker precaches the room");
 has(SW, "'/district-room.css',", "the service worker precaches the room's stylesheet");
 const ver = (SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1];
-ok(ver && Number(ver) >= 154,
-  `the shell cache was bumped for the two changed precached files (v${ver})`);
+ok(ver && Number(ver) >= 155,
+  `the shell cache was bumped for the changed precached files (v${ver})`);
 has(SW, "v152 - THE DISTRICT ROOM EXISTS", "the phase 1 version-log entry survives");
 has(SW, "v153 - RESIDENCY IS A FACT NOW", "the phase 2 version-log entry survives");
-has(SW, "v154 - THE ROOM HAS ONE POLL", "the bump carries its own version-log entry");
+has(SW, "v154 - THE ROOM HAS ONE POLL", "the phase 3 version-log entry survives");
+has(SW, "v155 - THE ROOM'S AUTH FOLLOWS THE NAV CHIP",
+  "the bump carries its own version-log entry");
 
+// ═════════════════════════════════════════════════════════════════════════════
+section("11 · the room's auth follows the nav chip");
+
+// THE BUG THIS SECTION EXISTS FOR. /d/ut-statehouse-68/lands_preserve painted
+// "Sign in first, then ask to be verified for this district" while the account
+// chip in the top-right already showed a signed-in member. The room sampled
+// `auth.currentUser` at the instant of the standing read; on a cold arrival the
+// Firebase SDK has not restored the session yet, so the read went out with no
+// token, the server correctly answered "we cannot name you", and the room
+// printed the signed-out sentence over a signed-in account and never asked
+// again. Auth is now RESOLVED rather than sampled, and every call in the module
+// goes through the one helper that resolves it.
+
+// The standing read the Function actually returns, built out of the gate's own
+// composerState/pollState so the sentences here are the shipped sentences.
+function standingPayload(signedIn, extra) {
+  const residency = residencyClaim(signedIn ? { uid: "uid-chip-1" } : null, null);
+  const composer = composerState(residency, "ut-statehouse-68");
+  const ps = pollState(residency, "ut-statehouse-68");
+  return Object.assign(roomPayload([]), {
+    district: {
+      districtKey: "ut-statehouse-68", label: "Utah · State House District 68",
+      state: "UT", seatKey: "statehouse", districtNumber: 68,
+    },
+    issueKey: "lands_preserve",
+    signedIn,
+    canPost: composer.canPost,
+    closedNote: composer.note,
+    poll: {
+      question: CORE_COPY.pollQuestion,
+      options: pollOptions(),
+      canVote: ps.canVote,
+      note: ps.note,
+      resultLine: pollResultLine(pollTally([])),
+      countsNote: CORE_COPY.pollCountsNote,
+      mine: null,
+    },
+    residency: {
+      status: residency.status,
+      reason: residency.reason,
+      canAttest: signedIn,
+      attest: CORE_COPY.attest,
+      attestNote: CORE_COPY.attestNote,
+      canGrant: false,
+      grant: CORE_COPY.grant,
+      outOfScopeNote: "",
+    },
+  }, extra || {});
+}
+
+// The Function's own two answers agree with the gate about which sentence goes
+// with which caller, so the payloads below are not a third opinion.
+eq(standingPayload(false).closedNote, CORE_COPY.closedSignedOut,
+  "a read with no verified caller carries the signed-out sentence");
+eq(standingPayload(false).poll.note, CORE_COPY.pollClosedSignedOut,
+  "and the poll block carries its own signed-out sentence");
+has(FN_SRC, "signedIn,",
+  "the standing read reports whether the server could name the caller at all");
+
+async function settled(win, ticks) {
+  win.flushTimers();
+  for (let i = 0; i < (ticks || 4); i++) await new Promise((r) => setTimeout(r, 0));
+  return win;
+}
+const scroll = (win) => win.document.getElementById("pdx-district-room-scroll").innerHTML;
+
+// ── A SIGNED-IN UID OPENS THE ROOM, AND THE NOTE IS NOT THE SIGNED-OUT ONE ──
+// The whole of the bug report, as a boot: an account the chip would paint, the
+// address the report names, and the sentence that must not be on screen.
+const ROOM_68 = "/d/ut-statehouse-68/lands_preserve";
+const acct = chipAccount("clreber@gmail.com");
+const WIN = await settled(boot(ROOM_68, (url) =>
+  ({ status: 200, data: standingPayload(true) }), { auth: fakeAuth(acct) }));
+
+eq(WIN.PDXDistrictRoom.isOpen(), true, `arriving on ${ROOM_68} opens the room`);
+eq(WIN.PDXDistrictRoom.authResolved(), true, "auth resolved before the room was painted");
+eq(WIN.PDXDistrictRoom.signedIn(), true,
+  "a uid and an email make the room signed in, exactly as they make the chip appear");
+const body68 = scroll(WIN);
+lacks(body68, CORE_COPY.closedSignedOut,
+  "THE BUG: a signed-in reader is never shown the signed-out sentence");
+lacks(body68, CORE_COPY.pollClosedSignedOut,
+  "and the poll block is never shown the signed-out sentence either");
+has(body68, CORE_COPY.closedNoResidency,
+  "they are shown the true reason instead — nothing has been established yet");
+// And the standing read actually carried their token, which is the only way the
+// server could have answered for them.
+eq(bearerOf(WIN.__calls[0]), "Bearer tok-1",
+  "the standing read carried the reader's ID token");
+has(WIN.__calls[0].url, "district=ut-statehouse-68",
+  "and it asked about the district in the address");
+
+// The Ask control is the one thing a signed-in reader with no row can do, and it
+// is on screen now that the room knows who they are. MY_UT68 places them in the
+// district so the client's own "is it their own district" test passes.
+const MY_UT68 = {
+  pdxRepsForMe: () => ({
+    located: true, national: false, state: "Utah", districtsResolvable: true,
+    levels: [{ key: "uthouse68", seat: "statehouse", district: 68, distLabel: "Utah House District 68" }],
+  }),
+};
+const askBody68 = scroll(await settled(boot(
+  ROOM_68,
+  () => ({ status: 200, data: standingPayload(true) }),
+  Object.assign({ auth: fakeAuth(chipAccount()) }, MY_UT68)
+)));
+has(askBody68, "data-pdxdr-attest", "a signed-in reader in their own district is offered the Ask");
+lacks(askBody68, CORE_COPY.closedSignedOut, "and still never the signed-out sentence");
+
+// ── AN ANONYMOUS SESSION IS SIGNED OUT, HERE AND IN THE NAV ─────────────────
+// The chip does not appear for the per-browser anonymous session and neither
+// does the room's signed-in bit, so this reader DOES get the signed-out sentence
+// — which is the true statement about them.
+const WANON = await settled(boot(ROOM_68, () => ({ status: 200, data: standingPayload(false) }),
+  { auth: fakeAuth(anonAccount()) }));
+eq(WANON.PDXDistrictRoom.signedIn(), false, "an anonymous session is signed out in the room");
+eq(bearerOf(WANON.__calls[0]), "", "and it sends no token, because the server rejects one");
+has(scroll(WANON), CORE_COPY.closedSignedOut,
+  "a reader nobody can name is told to sign in, and that sentence is still there for them");
+
+// ── A COLD OPEN HOLDS ON "OPENING THE ROOM…" UNTIL AUTH RESOLVES ────────────
+// The production sequence: the room opens off the address before Firebase has
+// restored the session. Nothing is painted from a standing read taken in that
+// window — the reader waits on the busy line instead of being told they are
+// signed out.
+const LATE = fakeAuth(chipAccount(), { late: true });
+const WLATE = await settled(boot(ROOM_68, () => ({ status: 200, data: standingPayload(true) }),
+  { auth: LATE }));
+eq(WLATE.PDXDistrictRoom.isOpen(), true, "the room opens off the address alone");
+eq(WLATE.PDXDistrictRoom.authResolved(), false, "auth has not resolved yet");
+eq(WLATE.__calls.length, 0, "and no standing read has gone out");
+const busyBody = scroll(WLATE);
+has(busyBody, "pdxdr-busy", "the reader is held on the busy line");
+has(busyBody, "Opening the room", "which says the room is opening");
+lacks(busyBody, CORE_COPY.closedSignedOut,
+  "and NOT on the signed-out sentence, which is not yet known to be true");
+lacks(busyBody, "pdxdr-closed", "no closed note is painted before auth has answered");
+
+// Firebase answers. Now the read goes out, with the token, and the room paints.
+LATE.fire(chipAccount());
+await settled(WLATE);
+eq(WLATE.PDXDistrictRoom.authResolved(), true, "the token-ready callback resolves auth");
+eq(WLATE.PDXDistrictRoom.signedIn(), true, "and the room is signed in from that moment");
+ok(WLATE.__calls.length >= 1, "the standing read goes out once auth has resolved");
+eq(bearerOf(WLATE.__calls[0]), "Bearer tok-1", "and it carries the token");
+lacks(scroll(WLATE), CORE_COPY.closedSignedOut,
+  "the painted room never shows the signed-out sentence to this reader");
+
+// AND IT IS A HOLD, NOT A HANG. A subscription that never answers must not keep
+// the room shut forever: on the safety deadline the room resolves with whatever
+// the SDK has, which is the same thing the chip would be painted from, and the
+// read goes out.
+const NEVER = fakeAuth(null, { late: true });
+const WNEVER = await settled(boot(ROOM_68, () => ({ status: 200, data: standingPayload(false) }),
+  { auth: NEVER }));
+eq(WNEVER.__calls.length, 0, "a silent auth holds the standing read");
+has(scroll(WNEVER), "pdxdr-busy", "and holds the reader on the busy line");
+WNEVER.flushTimers(60000);
+await settled(WNEVER);
+eq(WNEVER.PDXDistrictRoom.authResolved(), true, "the safety deadline resolves auth rather than hanging");
+eq(WNEVER.PDXDistrictRoom.signedIn(), false, "with no account, because there is none");
+has(scroll(WNEVER), CORE_COPY.closedSignedOut, "and the room paints the honest sentence");
+
+// ── SIGNING IN UNDER AN OPEN ROOM RE-READS THE STANDING ─────────────────────
+// Signed out on arrival, then signed in. The room does not keep the answer it
+// got before the account existed.
+const SWAP = fakeAuth(null);
+const WSWAP = await settled(boot(ROOM_68, (url, init) =>
+  ({ status: 200, data: standingPayload(!!bearerOf({ init })) }), { auth: SWAP }));
+has(scroll(WSWAP), CORE_COPY.closedSignedOut, "a signed-out arrival is told to sign in");
+const before = WSWAP.__calls.length;
+SWAP.fire(chipAccount());
+await settled(WSWAP);
+ok(WSWAP.__calls.length > before, "signing in re-reads the room's standing");
+eq(WSWAP.PDXDistrictRoom.signedIn(), true, "the room's signed-in bit followed the chip");
+lacks(scroll(WSWAP), CORE_COPY.closedSignedOut,
+  "and the signed-out sentence is gone, rather than left up under a signed-in chip");
+
+// Signing back out is the same move in reverse: the standing is re-read and the
+// signed-out sentence is the honest one again.
+SWAP.fire(null);
+await settled(WSWAP);
+eq(WSWAP.PDXDistrictRoom.signedIn(), false, "signing out signs the room out");
+has(scroll(WSWAP), CORE_COPY.closedSignedOut, "and the signed-out sentence returns");
+
+// ── A CHIP/SERVER DISAGREEMENT IS NOT PAINTED AS "SIGN IN FIRST" ────────────
+// Signed in by every test the chip uses, and the server still cannot name them.
+// The room mints a fresh token and asks once more; when the second answer is the
+// same it says so. It does NOT leave the signed-out copy up, because that
+// sentence is a false statement about this reader.
+const stubborn = chipAccount();
+const WMIS = await settled(boot(ROOM_68, () => ({ status: 200, data: standingPayload(false) }),
+  { auth: fakeAuth(stubborn) }));
+eq(WMIS.PDXDistrictRoom.signedIn(), true, "the chip says signed in");
+eq(WMIS.__calls.length, 2, "a signed-out answer for a signed-in chip is asked exactly once more");
+eq(bearerOf(WMIS.__calls[1]), "Bearer tok-fresh", "and the retry carries a freshly minted token");
+eq(stubborn.tokens.join(","), "false,true", "the second mint was a forced refresh");
+const misBody = scroll(WMIS);
+lacks(misBody, CORE_COPY.closedSignedOut,
+  "THE BUG, THE OTHER WAY ROUND: a signed-in reader is not told to sign in");
+lacks(misBody, CORE_COPY.pollClosedSignedOut, "nor in the poll block");
+has(misBody, "we could not confirm it for this room",
+  "they are told what is actually wrong");
+has(CORE_COPY.authUnconfirmed, "we could not confirm it for this room",
+  "and that sentence is the gate's, not a second one the client invented");
+lacks(misBody, "data-pdxdr-attest",
+  "and offered no request the server could not attribute anyway");
+lacks(misBody, "data-pdxdr-vote", "and no poll answer it would refuse");
+lacks(misBody, "pdxdr-composer", "a disagreement opens no composer");
+lacks(misBody, CORE_COPY.badge, "and prints no badge");
+
+// A 401 on a WRITE is the same rule: the room says what is wrong rather than
+// echoing a sentence that tells a signed-in reader to sign in.
+has(strip(ROOM_SRC), "refusal(res", "every refusal on this surface goes through one owner");
+ok(/status\s*===\s*401\s*&&\s*signedIn\(\)/.test(strip(ROOM_SRC)),
+  "a 401 handed to a signed-in reader is treated as a stale token, not as signed out");
+
+// ── ONE HELPER, AND ALL FIVE CALLS GO THROUGH IT ────────────────────────────
+// The standing read, the residency request, the reviewer's grant, the poll
+// answer and the post. There is no second place a token is attached and no
+// second notion of "signed in" on this surface.
+const room11 = strip(ROOM_SRC);
+eq((room11.match(/\bfetch\(/g) || []).length, 1,
+  "there is exactly one fetch in the module, so one helper answers who is asking");
+eq((room11.match(/headers\['Authorization'\]/g) || []).length, 1,
+  "and exactly one place a token becomes a header");
+ok(/function bearer\(/.test(room11) && /function who\(/.test(room11),
+  "the helper resolves the identity and mints the token in one place");
+ok(room11.indexOf("who().then") > 0, "the standing read waits on it");
+for (const route of ["'/residency/attest'", "'/residency/grant'", "'/poll/vote'"]) {
+  has(room11, route, `${route} is sent through the same api() helper`);
+}
+eq((room11.match(/getIdToken\(/g) || []).length, 1,
+  "there is exactly one getIdToken call in the module");
+
+// A LOCATION PIN IS STILL NOT AN IDENTITY. The helper reads Firebase and nothing
+// else — the zip a reader types into Who Represents Me cannot contribute to it.
+lacks(room11, "_currentVoterLocation",
+  "the identity helper never reads a self-typed location");
+for (const vendor of ["stripe", "veriff", "identity.stripe", "onfido", "persona"]) {
+  lacks(room11.toLowerCase(), vendor, `the room calls no ID vendor (${vendor})`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 // ── Result ───────────────────────────────────────────────────────────────────
 console.log("");
 if (failures.length) {

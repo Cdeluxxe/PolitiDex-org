@@ -105,6 +105,8 @@
     closed: 'Verify you live in this district to post.',
     closedSignedOut: 'Sign in first, then ask to be verified for this district. Reading is open.',
     closedNoResidency: 'We have not established that you live in this district. Reading is open.',
+    authUnconfirmed: 'You\'re signed in, but we could not confirm it for this room. Reload the ' +
+      'page and it should open.',
     pending: 'Your residency request for this district is pending review. ' +
       'Reading is open; posting opens only if a reviewer approves it.',
     revoked: 'Your residency for this district was revoked, so you can read here but not post.',
@@ -277,21 +279,129 @@
     return limit ? out.slice(0, limit) : out;
   }
 
-  // ── AUTH PLUMBING ─────────────────────────────────────────────────────────
-  // The same arrangement every other authenticated call in this app uses: the
-  // Firebase ID token in an Authorization header, verified server-side by
-  // db/firebase-auth.ts. An anonymous session sends no token, because an
-  // anonymous uid is per-browser and the server rejects it anyway.
-  function token() {
-    try {
-      var u = (typeof auth !== 'undefined') && auth.currentUser;
-      if (!u || u.isAnonymous) return Promise.resolve(null);
-      return u.getIdToken().catch(function () { return null; });
-    } catch (e) { return Promise.resolve(null); }
+  // ── WHO IS THIS REQUEST ───────────────────────────────────────────────────
+  // ONE answer to "who is asking", and every call this module makes goes through
+  // it: the standing read, the residency request, the reviewer's grant, the poll
+  // answer and the post. The room used to ask Firebase for `auth.currentUser` at
+  // the instant of each call, which is a different question — on a cold arrival
+  // at /d/<district>/<issue> the SDK has not restored the session yet, so a
+  // reader the nav chip was about to paint as signed in sent no token, the
+  // server correctly answered "we cannot name you", and the room printed the
+  // signed-out sentence over a signed-in account and never asked again.
+  //
+  // THE ROOM'S SIGNED-IN BIT IS THE CHIP'S. compare-hub.js paints the account
+  // chip for a user with a uid that is not the anonymous session; the room reads
+  // the same object and calls it signed in when it carries a uid AND an email,
+  // which is exactly the set of accounts that chip appears for. There is no
+  // second notion of "signed in" on this surface.
+  //
+  // AND IT IS RESOLVED, NOT SAMPLED. `who()` answers only once Firebase has said
+  // something — signed in OR signed out — so nothing paints from a standing read
+  // taken before the session was restored. Every later change re-reads the room.
+  //
+  // A self-typed location is not part of this. window._currentVoterLocation
+  // answers "which district am I in" and is never an identity, so it is not read
+  // here and cannot contribute to a claim.
+  var AUTH_WAIT = 6000;
+  var _who = null;          // { uid, email, user } once resolved, or null
+  var _whoKnown = false;    // has Firebase answered at all yet
+  var _whoWait = [];        // callers holding for that first answer
+  var _whoOn = false;       // is the state subscription attached
+
+  function fbAuth() {
+    try { if (typeof auth !== 'undefined' && auth) return auth; } catch (e) {}
+    try { if (window.auth) return window.auth; } catch (e) {}
+    return null;
   }
-  function api(qs, opts) {
-    opts = opts || {};
-    return token().then(function (t) {
+  // Is there a Firebase on this page at all? When there is not — a shell that
+  // failed to load the SDK, or a test harness with no auth — there is nothing to
+  // wait for and the honest resolved answer is "signed out". Reading is open, so
+  // the room still opens.
+  function fbHere() {
+    var a = fbAuth();
+    if (a && fn(a.onAuthStateChanged)) return true;
+    try { if (typeof firebase !== 'undefined' && firebase && fn(firebase.auth)) return true; } catch (e) {}
+    return false;
+  }
+  // The chip's own test, and the only one. Anonymous sessions are per-browser and
+  // the server rejects them, so they are signed out here exactly as they are in
+  // the nav.
+  function chipUser(u) {
+    if (!u) return null;
+    var uid = '';
+    var mail = '';
+    try { uid = String(u.uid == null ? '' : u.uid); } catch (e) { uid = ''; }
+    try { mail = String(u.email == null ? '' : u.email); } catch (e) { mail = ''; }
+    if (!uid || !mail) return null;
+    if (u.isAnonymous === true) return null;
+    return { uid: uid, email: mail, user: u };
+  }
+  function signedIn() { return !!(_who && _who.uid && _who.email); }
+
+  // Record Firebase's answer and release everybody waiting on it. Returns true
+  // when this changed a standing we had ALREADY resolved — that, and only that,
+  // is what makes an open room re-read itself.
+  function settle(next) {
+    var first = !_whoKnown;
+    var was = (_who && _who.uid) || '';
+    _who = next || null;
+    _whoKnown = true;
+    var waiting = _whoWait.splice(0);
+    for (var i = 0; i < waiting.length; i++) {
+      try { waiting[i](_who); } catch (e) {}
+    }
+    return !first && was !== ((_who && _who.uid) || '');
+  }
+
+  function who() {
+    if (_whoKnown) return Promise.resolve(_who);
+    return new Promise(function (resolve) { _whoWait.push(resolve); });
+  }
+
+  function attachAuth() {
+    if (_whoOn) return;
+    var a = fbAuth();
+    if (!a || !fn(a.onAuthStateChanged)) return;
+    _whoOn = true;
+    try {
+      a.onAuthStateChanged(function (u) {
+        var moved = settle(chipUser(u));
+        if (moved && _open && _room) { busy(); load(); }
+      });
+    } catch (e) { _whoOn = false; }
+  }
+
+  function watchAuth() {
+    attachAuth();
+    if (!_whoOn) {
+      try { setTimeout(attachAuth, 0); } catch (e) {}
+      try { window.addEventListener('load', attachAuth); } catch (e) {}
+    }
+    if (_whoKnown) return;
+    if (!fbHere()) { settle(null); return; }
+    // A subscription that never fires must not hold the room shut forever. On
+    // the safety deadline we resolve with whatever the SDK has, which is the
+    // same thing the chip would be painted from.
+    try {
+      setTimeout(function () {
+        if (!_whoKnown) settle(chipUser((fbAuth() || {}).currentUser));
+      }, AUTH_WAIT);
+    } catch (e) { settle(null); }
+  }
+
+  // The ID token for whoever `who()` named, or null. `fresh` forces Firebase to
+  // mint a new one, which is the retry below.
+  function bearer(fresh) {
+    return who().then(function (w) {
+      if (!w) return null;
+      var u = w.user || ((fbAuth() || {}).currentUser);
+      if (!u || !fn(u.getIdToken)) return null;
+      try { return u.getIdToken(!!fresh); } catch (e) { return null; }
+    }).catch(function () { return null; });
+  }
+
+  function call(qs, opts, fresh) {
+    return bearer(fresh).then(function (t) {
       var headers = { 'Content-Type': 'application/json' };
       if (t) headers['Authorization'] = 'Bearer ' + t;
       return fetch(API + (qs || ''), {
@@ -304,6 +414,27 @@
         });
       });
     }).catch(function () { return { ok: false, status: 0, data: {} }; });
+  }
+
+  // Every call in this module, and there is one retry in it: a 401 handed to a
+  // reader the chip has signed in is a stale token rather than a signed-out
+  // reader, so we mint a fresh one and ask exactly once more. If that also
+  // refuses, the caller says so — it never falls back to the signed-out
+  // sentence, because that sentence would be a false statement about this
+  // reader.
+  function api(qs, opts) {
+    opts = opts || {};
+    return call(qs, opts, !!opts.fresh).then(function (res) {
+      if (res.status === 401 && signedIn() && !opts.fresh) return call(qs, opts, true);
+      return res;
+    });
+  }
+
+  // The sentence for a refusal. One owner, so no path can print "sign in first"
+  // at somebody who is signed in.
+  function refusal(res, fallback) {
+    if (res && res.status === 401 && signedIn()) return COPY.authUnconfirmed;
+    return (res && res.data && res.data.error) || fallback;
   }
 
   // ── MOUNT (a): a district seat row in Who Represents Me ───────────────────
@@ -696,11 +827,7 @@
     var head = el(ID_HEAD);
     var body = el(ID_BODY);
     if (head) { try { head.innerHTML = headHtml(_room, null); } catch (e) {} }
-    if (body) {
-      try {
-        body.innerHTML = '<p class="pdxdr-busy" role="status">' + esc(BUSY) + '</p>';
-      } catch (e) {}
-    }
+    busy();
     show(overlay);
     lock();
     stamp(_room);
@@ -712,25 +839,103 @@
     return true;
   }
 
-  function load() {
+  // "Opening the room…", and it is the honest state for a room whose standing is
+  // not known yet. It is painted on the way in and again whenever auth moves
+  // under an open room, because the alternative — leaving the last answer up
+  // while a new one is out — is how a signed-in reader was left reading the
+  // signed-out sentence.
+  function busy() {
+    var body = el(ID_BODY);
+    if (!body) return;
+    try {
+      body.innerHTML = '<p class="pdxdr-busy" role="status">' + esc(BUSY) + '</p>';
+    } catch (e) {}
+  }
+
+  function moved(room) {
+    return !_open || !_room || _room.districtKey !== room.districtKey ||
+      _room.issueKey !== room.issueKey;
+  }
+
+  // Did the standing read answer as though nobody was asking? Both spellings the
+  // Function has for it, so this does not depend on which one a given deploy
+  // sends.
+  function readSaysSignedOut(data) {
+    if (!data) return false;
+    if (data.signedIn === false) return true;
+    var r = data.residency;
+    return !!(r && r.reason === 'signed_out');
+  }
+
+  // The one place the signed-out answer is overridden, and it overrides it only
+  // for a reader the chip has signed in. Nothing here invents standing: canPost
+  // stays false, canAttest and canGrant are withdrawn (a request the server
+  // cannot attribute is a request it would refuse) and every sentence the
+  // signed-out read carried is replaced by the one that is actually true.
+  function unconfirmed(data) {
+    var out = {};
+    var k;
+    for (k in data) {
+      if (Object.prototype.hasOwnProperty.call(data, k)) out[k] = data[k];
+    }
+    out.canPost = false;
+    out.closedNote = COPY.authUnconfirmed;
+    if (out.residency) {
+      var r = {};
+      for (k in out.residency) {
+        if (Object.prototype.hasOwnProperty.call(out.residency, k)) r[k] = out.residency[k];
+      }
+      r.canAttest = false;
+      r.canGrant = false;
+      out.residency = r;
+    }
+    if (out.poll) {
+      var p = {};
+      for (k in out.poll) {
+        if (Object.prototype.hasOwnProperty.call(out.poll, k)) p[k] = out.poll[k];
+      }
+      p.canVote = false;
+      p.note = COPY.authUnconfirmed;
+      out.poll = p;
+    }
+    return out;
+  }
+
+  // THE STANDING READ, AND IT WAITS FOR AUTH. `who()` resolves once Firebase has
+  // said something either way, so the room is never painted from a read taken
+  // before the session was restored — the reader holds on "Opening the room…"
+  // instead, which is the true statement about that moment.
+  //
+  // `fresh` is the one retry: a read that came back signed-out for a reader the
+  // chip has signed in is asked again with a newly minted token, and if the
+  // second answer is the same the room says so rather than printing "sign in
+  // first" at somebody who is signed in.
+  function load(fresh) {
     if (!_room) return;
     var room = _room;
     var qs = '?district=' + encodeURIComponent(room.districtKey) +
       '&issue=' + encodeURIComponent(room.issueKey);
-    api(qs).then(function (res) {
-      // A read that landed after the reader moved on is dropped rather than
-      // painted over whatever they are looking at now.
-      if (!_open || !_room || _room.districtKey !== room.districtKey ||
-          _room.issueKey !== room.issueKey) return;
-      var head = el(ID_HEAD);
-      var body = el(ID_BODY);
-      if (!res.ok) {
-        var msg = (res.data && res.data.error) || GONE;
-        if (body) { try { body.innerHTML = '<p class="pdxdr-gone">' + esc(msg) + '</p>'; } catch (e) {} }
-        return;
-      }
-      if (head) { try { head.innerHTML = headHtml(room, res.data); } catch (e) {} }
-      if (body) { try { body.innerHTML = bodyHtml(res.data); } catch (e) {} }
+    who().then(function () {
+      if (moved(room)) return;
+      return api(qs, { fresh: !!fresh }).then(function (res) {
+        // A read that landed after the reader moved on is dropped rather than
+        // painted over whatever they are looking at now.
+        if (moved(room)) return;
+        var head = el(ID_HEAD);
+        var body = el(ID_BODY);
+        if (!res.ok) {
+          var msg = refusal(res, GONE);
+          if (body) { try { body.innerHTML = '<p class="pdxdr-gone">' + esc(msg) + '</p>'; } catch (e) {} }
+          return;
+        }
+        var data = res.data;
+        if (signedIn() && readSaysSignedOut(data)) {
+          if (!fresh) { load(true); return; }
+          data = unconfirmed(data);
+        }
+        if (head) { try { head.innerHTML = headHtml(room, data); } catch (e) {} }
+        if (body) { try { body.innerHTML = bodyHtml(data); } catch (e) {} }
+      });
     });
   }
 
@@ -786,7 +991,7 @@
     }).then(function (res) {
       if (btn) { try { btn.disabled = false; } catch (e) {} }
       if (!res.ok) {
-        say((res.data && res.data.error) || 'That did not post.', form);
+        say(refusal(res, 'That did not post.'), form);
         return;
       }
       if (ta) { try { ta.value = ''; } catch (e) {} }
@@ -810,7 +1015,7 @@
       .then(function (res) {
         if (!res.ok) {
           if (btn) { try { btn.disabled = false; } catch (e) {} }
-          say((res.data && res.data.error) || 'That did not send.', btn);
+          say(refusal(res, 'That did not send.'), btn);
           return;
         }
         say((res.data && res.data.message) || COPY.attestSent, btn);
@@ -832,7 +1037,7 @@
       .then(function (res) {
         if (btn) { try { btn.disabled = false; } catch (e) {} }
         if (!res.ok) {
-          say((res.data && res.data.error) || 'That did not send.', btn);
+          say(refusal(res, 'That did not send.'), btn);
           return;
         }
         say((res.data && res.data.message) || COPY.granted, btn);
@@ -864,7 +1069,7 @@
       body: { district: _room.districtKey, issue: _room.issueKey, choice: k }
     }).then(function (res) {
       if (!res.ok) {
-        say((res.data && res.data.error) || 'That did not send.', btn);
+        say(refusal(res, 'That did not send.'), btn);
         return;
       }
       var p = res.data && res.data.poll;
@@ -904,7 +1109,7 @@
             btn.disabled = !!res.ok;
             btn.title = res.ok
               ? COPY.flagRecorded
-              : ((res.data && res.data.error) || 'That did not send.');
+              : refusal(res, 'That did not send.');
           } catch (e) {}
         }
       });
@@ -976,6 +1181,12 @@
       });
     } catch (e) {}
 
+    // THE ROOM FOLLOWS THE NAV CHIP. Subscribed before the arrival boot below
+    // runs, so a cold open at /d/<district>/<issue> holds on "Opening the room…"
+    // until Firebase has answered, and so a sign-in or sign-out under an open
+    // room re-reads the standing instead of leaving the last answer up.
+    watchAuth();
+
     // Back/forward across rooms and out of one. The address is the state, so the
     // panel follows it rather than keeping a history of its own.
     try {
@@ -1013,6 +1224,11 @@
     enter: enter,
     close: close,
     isOpen: function () { return !!_open; },
+    // The room's signed-in bit, which is the nav chip's. Exposed so the suite
+    // can boot a uid and observe that the room agrees with the account chip
+    // rather than asserting about the source that computes it.
+    signedIn: function () { return signedIn(); },
+    authResolved: function () { return !!_whoKnown; },
     room: function () { return _room ? { districtKey: _room.districtKey, issueKey: _room.issueKey } : null; }
   };
 
