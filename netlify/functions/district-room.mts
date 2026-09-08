@@ -372,9 +372,17 @@ async function readRoom(req: Request): Promise<Response> {
       canAttest: signedIn && inScope && !row,
       attest: COPY.attest,
       attestNote: COPY.attestNote,
-      // The reviewer's grant. The one path to 'verified' in this pass.
+      // The reviewer's grant. The one path to 'verified' in this pass, and it is
+      // a decision about SOMEBODY ELSE — so this bit is the reviewer bit and the
+      // state of scope, and deliberately nothing about whether the caller can
+      // post here. A reviewer who is also verified in this district is exactly
+      // the reviewer with a pending neighbour to approve, and the client paints
+      // the footer for them.
       canGrant: !!(viewer && viewer.isModerator) && inScope,
       grant: COPY.grant,
+      // The label on the required subject field. The uid is typed out; there is
+      // no default, and the caller's own uid is refused.
+      grantUid: COPY.grantUid,
       // Said out loud rather than implied by a control that is simply absent.
       outOfScopeNote: inScope ? "" : COPY.notInScope,
     },
@@ -638,8 +646,13 @@ async function attestResidency(req: Request): Promise<Response> {
 // verified for ONE district, or revokes them. `reviewedAt` is stamped because a
 // human looked; that is the difference between this route and the one above.
 //
-// `userId` defaults to the reviewer's own uid, so verifying yourself for your own
-// district is one call with no identifier to copy around.
+// `userId` NAMES SOMEBODY ELSE, AND IT IS REQUIRED. It used to default to the
+// reviewer's own uid, which was harmless only while the client painted the
+// control in rooms the reviewer could not post in — the one room where the
+// reviewer had nobody but themselves to name. The control is now painted for a
+// reviewer whose composer is open, so a missing subject would make the room's
+// last button a silent self-verification. A grant with no subject is refused and
+// a grant naming the caller is refused: approving yourself is not review.
 async function grantResidency(req: Request): Promise<Response> {
   let payload: any = {};
   try { payload = await req.json(); } catch { payload = {}; }
@@ -661,9 +674,12 @@ async function grantResidency(req: Request): Promise<Response> {
   if (decided !== "verified" && decided !== "revoked") {
     return json({ error: "A reviewer marks somebody verified or revoked.", code: "bad_status" }, 400);
   }
-  const subject = String(payload?.userId == null ? "" : payload.userId).trim() || viewer.uid;
-  if (subject.length > 128) {
-    return json({ error: "Which person?", code: "no_subject" }, 400);
+  const subject = String(payload?.userId == null ? "" : payload.userId).trim();
+  if (!subject || subject.length > 128) {
+    return json({ error: COPY.grantNeedUid, code: "no_subject" }, 400);
+  }
+  if (subject === viewer.uid) {
+    return json({ error: COPY.grantNoSelf, code: "no_self_grant" }, 400);
   }
 
   const reviewedAt = new Date();
@@ -692,7 +708,6 @@ async function grantResidency(req: Request): Promise<Response> {
     districtKey: district.districtKey,
     method: row?.method || "admin_grant",
     reviewedAt: row?.reviewedAt || reviewedAt,
-    self: subject === viewer.uid,
     message: decided === "verified" ? COPY.granted : COPY.revoked,
   });
 }

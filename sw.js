@@ -3114,6 +3114,63 @@
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
 // ─────────────────────────────────────────────────────────────────────────────
+// v158 - THE ONE READER WHO COULD APPROVE A NEIGHBOUR WAS THE ONE SHOWN NO GRANT
+// ─────────────────────────────────────────────────────────────────────────────
+// Two precached shell files changed, so the bucket is renamed.
+//
+// district-room.js:
+//   THE FOOTER WAS HIDDEN FROM THE PERSON IT IS FOR. On production
+//   /d/ut-statehouse-68/lands_preserve, a reviewer who is ALSO verified in
+//   ut-statehouse-68 read the room with an open composer and no reviewer footer
+//   anywhere in it, so the pending neighbour sitting in dd_residency had nobody
+//   who could see the control that approves them. The server was offering the
+//   grant the whole time: /api/district-room returns residency.canGrant for a
+//   moderator in a state this pass verifies, and it was true for this reader.
+//   reviewerHtml() then ANDed it with a test of its own - canPost !== true - on
+//   the phase 3 reasoning that somebody who can already post has nothing to
+//   grant themselves.
+//
+//   WHICH WAS TRUE ONLY BECAUSE THE GRANT USED TO MEAN 'ME'. The subject
+//   defaulted to the caller's own uid, so in a room whose composer was open the
+//   control really did have nothing left to do. A grant is a decision about
+//   SOMEBODY ELSE, and a reviewer verified in the district they review is
+//   precisely the reviewer with neighbours to approve - so being able to post is
+//   not an opinion about anybody's residency and it decides nothing here now.
+//   canGrant is the whole condition.
+//
+//   SO THE SUBJECT IS TYPED OUT, AND IT IS NEVER THE REVIEWER. The footer
+//   carries a required one-line field for the uid being verified. An empty field
+//   is refused before the request and the reviewer's own uid is refused too -
+//   both again at the Function, which no longer defaults the subject to whoever
+//   is asking and returns 400 for either. Without that, the room's last button
+//   would have been a silent self-verification.
+//
+//   WHAT IS NOW TRUE, AND IS PINNED. Reviewer bit plus a verified row: composer
+//   AND the grant, the footer still last in the room under the thread and under
+//   its own 'Reviewer tools' heading. Pressing it POSTs the district and the
+//   typed uid to the existing /residency/grant route and nothing else. A
+//   neighbour with a pending row and no reviewer bit gets no footer, no field
+//   and no label - unchanged, and asserted in both directions. The neighbour's
+//   ask, the composer and the poll are untouched.
+//
+// district-room.css:
+//   The field and its label, quiet like the rest of the footer - it is a tool
+//   for one person, not the room's call to action, and it wears no accent fill.
+//
+// ALSO CHANGED BUT NOT PRECACHED, SO IT ARRIVES FRESH WITHOUT THIS BUMP:
+// netlify/lib/district-room-core.mjs (three copy strings: the field's label and
+// the two refusals), netlify/functions/district-room.mts (canGrant is documented
+// as carrying nothing about canPost, the read sends the field's label, and the
+// grant route requires a subject that is not the caller) and
+// scripts/test-district-room.mjs.
+// NOTHING IN THE RECORD MOVED. No schema change and no migration: the grant
+// writes the same dd_residency row through the same statement it always did. No
+// uid leaves the Function in any response. Nothing here touches vr_*, cee_*,
+// pdx_forum_*, Direction Match, Word vs Action, the formal floors, finance, the
+// Mandate lane, the Eye, the Utah ingest or pack TTL.
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it.
+// ─────────────────────────────────────────────────────────────────────────────
 // v157 - THE ROOM TOLD A NEIGHBOUR THEY WERE NOT VERIFIED AND GAVE THEM NO WAY TO ASK
 // ─────────────────────────────────────────────────────────────────────────────
 // One precached shell file changed, so the bucket is renamed.
@@ -3359,7 +3416,7 @@
 // and every formal tier byte-identical.
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
-const CACHE_VERSION = 'v157';
+const CACHE_VERSION = 'v158';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

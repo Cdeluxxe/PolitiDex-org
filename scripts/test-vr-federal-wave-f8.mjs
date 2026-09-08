@@ -1808,6 +1808,25 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // is printed. Asking still writes a PENDING row that cannot post or vote, and a
     // reviewer's grant is still the only path to verified.
     "netlify/functions/district-room.mts",
+    // ── AND THE PASS AFTER THAT, on the same terms ─────────────────────────────
+    // THE ROOM'S REVIEWER FOOTER IS NO LONGER HIDDEN FROM THE REVIEWER WHO CAN
+    // POST. A reviewer verified in the district they review had the composer
+    // opened and the grant taken away in the same read, so the one reader able to
+    // approve a pending neighbour never saw the control that approves them. The
+    // client paints the footer on the server's reviewer flag alone and the uid
+    // being verified is now a required field in it, refused when it is the
+    // reviewer's own. district-room.css gains that field's two rules;
+    // netlify/lib/district-room-core.mjs gains three copy strings (the field's
+    // label and the two refusals) and nothing else — no gate function, no status,
+    // no method and no verifying-method list changes in it.
+    //   NOTHING IN THIS WAVE'S REACH MOVES, for the reasons the two blocks above
+    // give: the room still reads /api/district-room and the dd_* tables only, no
+    // vr_* model, pack or ingest script is queried, no roll, mapping, key, floor,
+    // admission, tier, chip, count or Direction Match figure is carried, and no
+    // pid is printed. A reviewer's grant is still the only path to verified, and
+    // it now has to name somebody other than the reviewer to be one.
+    "district-room.css",
+    "netlify/lib/district-room-core.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};
