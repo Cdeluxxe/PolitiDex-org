@@ -39,6 +39,9 @@
 //   GET /member/:politicianId   one member's record (the profile Voting Record tab)
 //        query: issue, chamber, actionType, position, result, from, to,
 //               q (bill text search), procedural=0|1, sort, page, pageSize
+//   GET /member/:politicianId/issue-keys
+//                               the issues this member has a readable formal
+//                               pattern on — issue key + act count, nothing else
 //   GET /issue/:issueKey        every member's votes/positions on one issue
 //        query: chamber, position, from, to, sort, page, pageSize
 //   GET /measure/:measureId     one measure + its issues, roll calls (with votes),
@@ -62,7 +65,7 @@
 //                               request per member (or per page).
 
 import type { Config } from "@netlify/functions";
-import { and, desc, eq, gte, ilike, inArray, lte, notInArray, or } from "drizzle-orm";
+import { and, count, desc, eq, gte, ilike, inArray, lte, notInArray, or } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import {
   vrMeasureActions,
@@ -1088,6 +1091,80 @@ async function getIssue(issueKey: string, url: URL): Promise<Response> {
   return json({ issueKey, byPolitician, ...paginate(items, f.page, f.pageSize) });
 }
 
+// ── GET /member/:politicianId/issue-keys ─────────────────────────────────────
+// WHAT IT IS. The issues this member has a READABLE FORMAL PATTERN on, and how
+// many formal acts each one rests on. Nothing else: an issue key and an integer.
+// No measure, no roll call, no title, no position, no date, no direction and no
+// characterisation — this route does not say which SIDE the member took, because
+// a district file listing rooms is not a scorecard and the side belongs to the
+// record lane's own surfaces.
+//
+// WHO ASKS. The district file at /d/<districtKey>, which lists the issue rooms a
+// district has: the rooms that already exist (dd_threads, answered by the
+// district-room API) plus the issues the seated member has a formal record on, so
+// a neighbour can open a room on something their representative has actually
+// acted on rather than only on whatever somebody already posted about.
+//
+// WHY THERE IS A FLOOR. A single incidental brush — one omnibus that happened to
+// carry a provision an issue maps to — is not a pattern, and presenting it as one
+// would put a door on the district file that the record cannot hold up. The floor
+// is ACTS, counted per issue, and it is deliberately the same size as the app's
+// other "enough to read" floors (_SO_MIN_ISSUES / _XS_MIN_ISSUES in
+// consistency.js, both 3). Below it the issue is simply absent from the list; it
+// is never listed with a caveat, because a caveat on a door is still a door.
+//
+// WHAT AN ACT IS. One roll-call vote is one act, and one non-roll-call position
+// (sponsorship, co-sponsorship, amicus, committee vote, statement) is one act.
+// They are summed rather than de-duplicated by measure ON PURPOSE: voting on a
+// bill you co-sponsored is two things you did, not one, and the two lanes are
+// counted by two queries so neither can be inflated by the other's join.
+//
+// ALLOW-LISTED VOCABULARY. Every key is checked against db/issue-keys.json before
+// it is returned, so a mapping row naming an issue the app does not ship cannot
+// put a room on the page.
+//
+// ORDER. Alphabetical by key, which is no order at all in the sense that matters:
+// the list is not ranked, the counts do not move a row, and the caller is given
+// the same list in the same order however busy any of it is.
+const ISSUE_PATTERN_MIN_ACTS = 3;
+
+async function getMemberIssueKeys(politicianId: string): Promise<Response> {
+  // Lane one: roll-call votes. member_votes → rollcalls → measure_issues.
+  const voteRows = await db
+    .select({ issueKey: vrMeasureIssues.issueKey, acts: count(vrMemberVotes.id) })
+    .from(vrMemberVotes)
+    .innerJoin(vrRollcalls, eq(vrMemberVotes.rollcallId, vrRollcalls.id))
+    .innerJoin(vrMeasureIssues, eq(vrMeasureIssues.measureId, vrRollcalls.measureId))
+    .where(eq(vrMemberVotes.politicianId, politicianId))
+    .groupBy(vrMeasureIssues.issueKey);
+
+  // Lane two: everything formal that has no roll call to hang on.
+  const posRows = await db
+    .select({ issueKey: vrMeasureIssues.issueKey, acts: count(vrPositions.id) })
+    .from(vrPositions)
+    .innerJoin(vrMeasureIssues, eq(vrMeasureIssues.measureId, vrPositions.measureId))
+    .where(eq(vrPositions.politicianId, politicianId))
+    .groupBy(vrMeasureIssues.issueKey);
+
+  const acts = new Map<string, number>();
+  for (const r of [...voteRows, ...posRows]) {
+    const key = String(r.issueKey || "");
+    if (!ISSUE_KEYS.has(key)) continue;
+    acts.set(key, (acts.get(key) ?? 0) + Number(r.acts || 0));
+  }
+
+  const rows = [...acts.entries()]
+    .filter(([, n]) => n >= ISSUE_PATTERN_MIN_ACTS)
+    .map(([issueKey, n]) => ({ issueKey, acts: n }))
+    .sort((a, b) => a.issueKey.localeCompare(b.issueKey));
+
+  return json({
+    politicianId,
+    minActs: ISSUE_PATTERN_MIN_ACTS,
+    rows,
+  });
+}
+
 // ── GET /member/:politicianId/impacts ────────────────────────────────────────
 // Read-only. The measures this member has a recorded vote or position on that ALSO
 // carry Distributional Impact Ledger rows — the "who their key votes affect" side of
@@ -2042,6 +2119,13 @@ export default async (req: Request): Promise<Response> => {
       const raw = packMatch[2] ? clean(decodeURIComponent(packMatch[2]), 64) : "";
       if (raw && !PACK_VERSION_RE.test(raw)) return json({ error: "Not found" }, 404);
       return await getMemberPack(id, req, raw || null);
+    }
+
+    const memberIssueKeysMatch = path.match(/^\/member\/([^/]+)\/issue-keys$/);
+    if (memberIssueKeysMatch) {
+      const id = canonicalPid(clean(decodeURIComponent(memberIssueKeysMatch[1]), ID_MAX));
+      if (!id) return json({ error: "Missing politician id" }, 400);
+      return await getMemberIssueKeys(id);
     }
 
     const memberImpactsMatch = path.match(/^\/member\/([^/]+)\/impacts$/);

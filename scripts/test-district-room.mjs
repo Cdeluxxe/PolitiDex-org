@@ -1379,7 +1379,13 @@ ok(!/decideWrite\(\{[\s\S]{0,240}choice/.test(fnSrc), "and the write gate is han
 lacks(pollGate, "normalizeBody(", "the poll gate cannot read a body even if it wanted to");
 // And the posts are untouched by the numbers: still newest first, still no sort.
 has(fnSrc, "desc(ddPosts.createdAt)", "the posts are still ordered newest first");
-ok(!/orderBy[\s\S]{0,120}ddPollVotes/.test(fnSrc), "and never by anything in the vote table");
+// Scoped to the STATEMENT rather than to a window of characters: the district
+// file's list also reads dd_poll_votes, in a query that sits right under an
+// ordered one, and a proximity match cannot tell "ordered by the vote table"
+// from "ordered, and then separately counting votes". The boundary is the
+// semicolon, so an orderBy naming a vote column is still caught however it is
+// spelled across lines.
+ok(!/orderBy\([^;]*ddPollVotes/.test(fnSrc), "and never by anything in the vote table");
 
 // ── THE COUNTS COME FROM THE VOTE TABLE, GROUPED ──────────────────────────
 const resultsSlice = fnSrc.slice(fnSrc.indexOf("async function resolvePollResults"));
@@ -1664,11 +1670,23 @@ for (const w of LEDGER_WRITES) {
 }
 
 const { readdirSync } = await import("node:fs");
-const CALLERS = readdirSync(ROOT)
-  .filter((f) => f.endsWith(".js") && f !== "district-room.js")
-  .filter((f) => /seatMountHtml|issueMountHtml|PDXDistrictRoom/.test(strip(R(f))));
-eq(CALLERS.sort().join(","), "issue-file.js,who-represents-me.js",
+const CLIENT_JS = readdirSync(ROOT)
+  .filter((f) => f.endsWith(".js") && f !== "district-room.js");
+// THE TWO MOUNTS, AND THERE ARE ONLY TWO. A mount is a block of the room's own
+// markup painted inside somebody else's surface, and only two surfaces get one.
+const MOUNTERS = CLIENT_JS
+  .filter((f) => /seatMountHtml|issueMountHtml/.test(strip(R(f))));
+eq(MOUNTERS.sort().join(","), "issue-file.js,who-represents-me.js",
   "exactly two modules mount a district room");
+// AND THE MODULES THAT MERELY USE THE ADDRESS OWNER, which is a shorter list and
+// a different thing. district-file.js is the page at /d/<districtKey>: it asks
+// this module for a room's path and for the in-app open, and it paints no mount
+// — its own rows are its own markup. It is enumerated here so a third surface
+// cannot start reaching into the room without this assertion noticing.
+const ROOM_USERS = CLIENT_JS
+  .filter((f) => /seatMountHtml|issueMountHtml|PDXDistrictRoom/.test(strip(R(f))));
+eq(ROOM_USERS.sort().join(","), "district-file.js,issue-file.js,who-represents-me.js",
+  "exactly three modules reach the room's address owner, and only two of them mount");
 const indexMarkup = INDEX.replace(/<!--[\s\S]*?-->/g, " ");
 lacks(indexMarkup, "PDXDistrictRoom",
   "there is no nav item, no top-level door and no inline caller in index.html");

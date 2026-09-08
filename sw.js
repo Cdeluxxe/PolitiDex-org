@@ -3114,6 +3114,97 @@
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
 // ─────────────────────────────────────────────────────────────────────────────
+// v159 - THE DISTRICT FILE: ONE PAGE PER DISTRICT, AND IT IS A LIST OF DOORS
+// ─────────────────────────────────────────────────────────────────────────────
+// New surface: the District File at /d/<districtKey> - one page per Utah
+// district, and every row on it is a door into a room. Until this pass the only
+// way into District Voice was a pasted /d/<district>/<issue> URL somebody had
+// already been sent, or the open forum, which is not a district and not an
+// issue. A neighbour who knew their district existed had nowhere to find out
+// which rooms were in it. ONE DISTRICT SHIPS: ut-statehouse-68. Every other
+// well-shaped Utah key resolves the rewrite and is told there is no district
+// file yet, out loud, rather than being shown an empty page that looks broken.
+// THE PAGE ASKS FOR NOTHING. Two GETs, no Authorization header on either, no
+// account, no residency read and no write path at all - no post, no Ask, no
+// Grant, no poll answer. A signed-out visitor reads the whole list. Residency is
+// untouched: the same pending/verified/revoked rows, the same admin_grant as the
+// only verifying method, the same Utah-only gate.
+//   PRECACHED SHELL FILES CHANGED - THEY ARE THE REASON FOR THE BUMP:
+//   · '/'  (index.html)        - the non-blocking district-file.css pair and the
+//                                deferred district-file.js tag, both root-
+//                                absolute and both AFTER the district-room pair.
+//                                A warm shell has neither, so a cold arrival at
+//                                /d/ut-statehouse-68 resolves the existing /d/*
+//                                rewrite and then finds no module that owns a
+//                                one-segment /d/ address - the reader follows a
+//                                link to their own district and lands on the
+//                                homepage.
+//   · '/district-file.js'      - NEW on this list, and its stylesheet with it.
+//   · '/district-file.css'       The pair is precached for the reason the room's
+//                                pair is: an unstyled file is a full-bleed column
+//                                of loose text over the page, and a device
+//                                holding the rewrite but not the module resolves
+//                                /d/* and shows the homepage.
+//   · '/district-room.js'      - the seat mount gained ONE control, "District
+//                                rooms →", pointing at /d/<districtKey>. It is
+//                                built through PDXDistrictFile.path(), so it
+//                                returns the empty string - and paints nothing -
+//                                when the file module is absent or the district
+//                                has no file. A warm shell keeps a seat row with
+//                                the room chips and no way to the file. The
+//                                control does NOT go to the open forum, and
+//                                neither module names one. Its two style rules
+//                                are in district-file.css rather than
+//                                district-room.css, because the control only
+//                                exists when this pair is loaded - so a device
+//                                holding the room's stylesheet but not the pair
+//                                has no unstyled control on the seat row, it has
+//                                no control. district-room.css is unchanged.
+// ALSO CHANGED BUT NOT PRECACHED, SO IT ARRIVES FRESH WITHOUT THIS BUMP:
+// ballot-breakdown.js (window.pdxSeatedMemberFor - the seat's officeholder
+// resolved from a seat key and a district number, WITHOUT a reader location, so
+// a visitor with no address still reads who holds HD-68),
+// netlify/functions/district-room.mts (GET /district - one district's rooms,
+// their poll counts as integers and the shipped issue vocabulary; it verifies
+// nobody and writes nothing), netlify/functions/voting-record.mts
+// (GET /member/:pid/issue-keys - the issue keys this member has at least three
+// formal acts on, roll-call votes and positions both, every key checked against
+// the shipped allow-list), the new data-only migration
+// 20261101000000_seed_dd_hd68_district_file_room.sql (ONE dd_threads row,
+// ut-statehouse-68 × lands_preserve, guarded on both parents and ON CONFLICT DO
+// NOTHING - a fresh branch database is seeded by migrations alone, so the room
+// the file must list cannot depend on somebody having posted), and
+// scripts/test-district-file.mjs.
+// NOT A SCORECARD, AND NO ROOM PER ISSUE KEY. The seated member is a name and a
+// /p/<pid> link and nothing else - no party letter, no score, no grade, no
+// composite percentage; the percent sign does not occur in district-file.js at
+// all. The list is the rooms that EXIST plus the issues the seat has a readable
+// formal pattern on, and nothing else: the issue vocabulary comes back so a
+// record key can be CHECKED against it, never so a row can be painted for each
+// of its keys. Counts are three integers from the room's own shared tally, the
+// list is ordered by the issue's printed label, and neither the server's order
+// nor how busy a room is can move a row. Nothing here touches Stripe, DMs, the
+// forum, the floors, the offline pack, party framing, finance, the Mandate lane,
+// the Eye or the Utah ingest. A twin boot leaves every Direction Match read and
+// every formal tier byte-identical.
+// TRAVELS WITH THIS BUMP, UNCHANGED AND BYTE-IDENTICAL. Renaming the buckets
+// re-fetches every precached file whether or not this pass touched it, so the log
+// owes a reader the list rather than a surprise: door1-workspace.js and
+// door1-workspace.css (the Door 1 desk and its stylesheet), pdx-issue-family.js,
+// stance-tree.js, alignment-tool.js and issue-colors.js (the family table, the
+// topic tree, the alignment reader and the palette), issue-file.js,
+// issue-file.css, issue-view.js and pdx-issue-profile.js (the issue file, its
+// stylesheet, the stage that mounts it and the /i/<key> address that resolves
+// it), word-action.js and word-action.css (the Word-vs-Action chip and its
+// stylesheet), consistency.js (the Direction Match arithmetic), and
+// all-seeing-eye.js (Find the Record's panel, which sw.js has always treated as
+// a runtime entry rather than part of the shell). Not one of them changed here.
+// netlify.toml did not change either: the /d/* 200 rewrite this address rides was
+// already in it from the room's pass, which is why the district file needed no
+// redirect of its own. index.html DID change and is listed above.
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it.
+// ─────────────────────────────────────────────────────────────────────────────
 // v158 - THE ONE READER WHO COULD APPROVE A NEIGHBOUR WAS THE ONE SHOWN NO GRANT
 // ─────────────────────────────────────────────────────────────────────────────
 // Two precached shell files changed, so the bucket is renamed.
@@ -3416,7 +3507,7 @@
 // and every formal tier byte-identical.
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
-const CACHE_VERSION = 'v158';
+const CACHE_VERSION = 'v159';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -3534,6 +3625,15 @@ const SHELL_ASSETS = [
   // and both answer '' for a reader we cannot place.
   '/district-room.js',
   '/district-room.css',
+  // The district file and its stylesheet, /d/<districtKey>. On this list for the
+  // same two reasons as the pair above, and for one more: it is the surface a
+  // neighbour is most likely to have SAVED. A device holding the /d/* rewrite
+  // without this module resolves a saved district address and then shows the
+  // homepage, which is the exact failure this page exists to fix. The pair is
+  // small and paints nothing on the front page — the panel only builds when the
+  // address names a district that has a file.
+  '/district-file.js',
+  '/district-file.css',
   // Issue color tokens. Tiny, and precached with alignment-tool.js so an offline
   // repeat visit keeps issues colour-coded instead of falling back to slate
   // everywhere, which would read as "nothing is a core issue".

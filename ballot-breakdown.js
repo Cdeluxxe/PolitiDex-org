@@ -2355,6 +2355,39 @@
     window._krInferLocation     = _krInferLocation;
     window._krLocationMeta      = _krLocationMeta;
 
+    // ── THE SEAT'S OFFICEHOLDER, WITHOUT A LOCATION ──────────────────────────
+    // window.pdxRepsForMe and window.pdxSeatHolders both answer "who represents
+    // ME", which means they need the reader's own location and answer nothing at
+    // all for a reader we cannot place. The district file at /d/<districtKey> asks
+    // a different question: the ADDRESS names the seat, so the seated member is a
+    // fact about the district and not about the visitor. A neighbour on a borrowed
+    // laptop, a signed-out reader and somebody three states away all get the same
+    // answer, because there is only one.
+    //
+    // Seat keys are the same three the ballot already spells — 'statehouse',
+    // 'statesenate', 'house' — which is also the vocabulary dd_districts.seat_key
+    // carries, so no translation table sits between the address and this lookup.
+    //
+    // ONE POLITICIAN ID AND NOTHING ELSE. No name, no party letter, no score, no
+    // roster record: the caller wants a /p/<pid> to link to and looks the rest up
+    // through window._pdxPersonById like every other surface. Returns null for a
+    // seat this map does not hold, which is the honest answer for a district whose
+    // officeholder is not curated yet.
+    window.pdxSeatedMemberFor = function (seatKey, districtNumber) {
+      try {
+        var n = parseInt(districtNumber, 10);
+        if (!isFinite(n) || n <= 0) return null;
+        var k = String(seatKey || '').toLowerCase();
+        if (k === 'statehouse') return KR_STATE_HOUSE_INCUMBENTS[n] || null;
+        if (k === 'statesenate') return KR_STATE_SENATE_INCUMBENTS[n] || null;
+        if (k === 'house') {
+          var m = KR_CONGRESSIONAL_INCUMBENTS[n];
+          return (m && m.pid) || null;
+        }
+        return null;
+      } catch (e) { return null; }
+    };
+
     // Expose the active area's district numbers so the top "Utah Voter Map" info
     // bar can show the exact U.S. House / State Senate / State House districts for
     // whichever location is selected here. Returns null if data is unavailable.

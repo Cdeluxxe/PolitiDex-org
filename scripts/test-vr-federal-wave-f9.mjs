@@ -1885,6 +1885,33 @@ const swNote = swWaveNote();
     // it now has to name somebody other than the reviewer to be one.
     "district-room.css",
     "netlify/lib/district-room-core.mjs",
+    // ── AND THE PASS AFTER THAT: THE DISTRICT FILE ────────────────────────────
+    // ONE PAGE PER DISTRICT, AND IT IS A LIST OF DOORS. /d/<districtKey> - one
+    // Utah district, its seated member, and the issue rooms in it - so a
+    // neighbour has a way into District Voice that is not a pasted room URL.
+    // ballot-breakdown.js gains ONE export, window.pdxSeatedMemberFor(seatKey,
+    // districtNumber): a lookup into the curated incumbent maps that were already
+    // in that file, resolved from an ADDRESS rather than from a reader location.
+    // It reads no roll, no mapping, no tier and no figure; it returns a pid or
+    // null and nothing else. Not one incumbent map entry, seat label, district
+    // math or location path in that file changed.
+    //   netlify/functions/voting-record.mts gains ONE ROUTE, and it only reads:
+    // GET /member/:pid/issue-keys returns the issue keys a member has at least
+    // three formal acts on, counted over vr_member_votes -> vr_rollcalls ->
+    // vr_measure_issues and vr_positions -> vr_measure_issues, every key checked
+    // against the shipped ISSUE_KEYS allow-list. It is a COUNT over rows this
+    // wave stored, so it cannot move them: no INSERT, no UPDATE, no DELETE, no
+    // mapping generation, no pack, no floor, no tier, no admission and no
+    // Direction Match figure is written, read or published by it. Every existing
+    // route, model, seed and migration in that file is byte-identical, and the
+    // three-act floor is the app's own existing minimum rather than a new one.
+    //   NOTHING IN THIS WAVE'S REACH MOVES. The district file prints an issue
+    // label, three integers from the room's own poll tally and a /p/<pid> link -
+    // no party, no score, no grade, no percentage, no rank - and the new
+    // migration inserts exactly one dd_threads row. No vr_* row, key, roll,
+    // weight, polarity or refusal is touched by any of it.
+    "ballot-breakdown.js",
+    "netlify/functions/voting-record.mts",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
