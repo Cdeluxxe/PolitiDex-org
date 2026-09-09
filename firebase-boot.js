@@ -52,6 +52,45 @@
   window.PROFILES = PROFILES;
 
   // ══════════════════════════════════════════════════════════════════════════
+  // ROSTER PHOTO CORRECTIONS — the one tier that outranks the live roster
+  // ──────────────────────────────────────────────────────────────────────────
+  // _getPhotoUrl() prefers PROFILES[pid].photo over every bundled tier, and that
+  // order is right: Firestore is where a portrait gets repaired without a deploy.
+  // It stops being right when the stored value is not a DEAD url but a DIFFERENT
+  // PERSON. `kennedy` — Mike Kennedy, U.S. Representative for Utah's 3rd, Bioguide
+  // K000403 — was filed with K000404, which is the Bioguide id of Kimberlyn
+  // King-Hinds, the delegate for the Northern Mariana Islands. One digit, and an
+  // image that loads: nothing downstream can tell it is wrong, no onerror fires,
+  // the share card proxies it happily, and the letterhead on /p/kennedy printed
+  // her face over his record. A wrong face on an accountability file is worse than
+  // no face, because it is a claim.
+  //
+  // So this map is applied to every document as it lands — the light index, the
+  // full-collection fallback and the lazy full fetch — which means PROFILES never
+  // holds the wrong url and every reader of it is corrected at once: _getPhotoUrl,
+  // the letterhead, the quick-view, the cards and the share card's proxy.
+  //
+  // THE RULES IT KEEPS. One entry per VERIFIED mis-identification, keyed to the
+  // canonical pid (no second pid is created, and no alias is added). The url is an
+  // official House/Clerk congressional portrait on a host already in the trusted
+  // set — the same value BROWSE_PHOTOS carries for the same person, pinned to it
+  // by scripts/test-photo-coverage.mjs so the two cannot drift. Nothing else about
+  // the document is touched: name, office, party, district, tenure and every
+  // formal-record field arrive exactly as the roster sent them.
+  var PDX_PHOTO_FIX = {
+    // UT-03 · Bioguide K000403. NOT K000404 (Kimberlyn King-Hinds, MP).
+    kennedy: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000403.jpg'
+  };
+  window.PDX_PHOTO_FIX = PDX_PHOTO_FIX;
+  // Applied on the object we are about to publish, never on a copy that is then
+  // discarded. Returns the same object so it can wrap an assignment inline.
+  function _pdxFixPhoto(id, obj) {
+    try { if (obj && PDX_PHOTO_FIX[id]) obj.photo = PDX_PHOTO_FIX[id]; } catch (e) {}
+    return obj;
+  }
+  window._pdxFixPhoto = _pdxFixPhoto;
+
+  // ══════════════════════════════════════════════════════════════════════════
   // FAST FIRST LOAD — lightweight directory index + lazy full profiles
   // ──────────────────────────────────────────────────────────────────────────
   // The page used to block on db.collection("politicians").get() — every full
@@ -155,7 +194,7 @@
             var obj = {};
             for (var k in fields) obj[k] = _pdxRestVal(fields[k]);
             obj.__lite = true;
-            PROFILES[id] = obj;
+            PROFILES[id] = _pdxFixPhoto(id, obj);
             count++;
           });
           if (data.nextPageToken) return page(data.nextPageToken);
@@ -187,7 +226,7 @@
     db.collection('politicians').get().then(function (querySnapshot) {
       console.log('📥 Fetched full politicians collection (fallback). Count:', querySnapshot.size);
       querySnapshot.forEach(function (doc) {
-        PROFILES[doc.id] = doc.data();
+        PROFILES[doc.id] = _pdxFixPhoto(doc.id, doc.data());
         window._pdxFullIds.add(doc.id);
       });
       window._pdxRosterState = 'done'; _pdxRenderRosterStatus();
@@ -229,7 +268,7 @@
         } else {
           merged.issues = rawIssues;
         }
-        PROFILES[id] = merged;
+        PROFILES[id] = _pdxFixPhoto(id, merged);
         if (typeof CMP_DATA !== 'undefined') {
           // A RETIRED ID MAY NOT BECOME A ROSTER ENTRY.
           //

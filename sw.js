@@ -3113,6 +3113,81 @@
 // deploy rather than with this rename.
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
+// ──────────────────────────────────────────────────────────────────────────────
+// v164 - A NAME IS MATCHED AT ITS EDGE, AND ONE FACE ON FILE WAS SOMEBODY ELSE
+// ──────────────────────────────────────────────────────────────────────────────
+// Two readings of a person that were not readings of that person at all, and one
+// menu row that was already there.
+//   TYPING "cox" LED WITH WILCOX. A name hit in the All-Seeing Eye was a raw
+// substring test, so "cox" matched Ryan D. Wilcox exactly as strongly as it
+// matched Governor Spencer Cox - and the formal lane then broke the tie the way it
+// is supposed to, on whether a formal record is on file. Wilcox holds a seeded
+// state record and a governor casts no roll calls, so recordFirst() hoisted the
+// person whose name merely CONTAINS the query above the person whose name IS it.
+// Nothing was mis-ranked by its own rule; the rule was being handed a match that
+// should not have been one.
+//   The fix is a lane, not a score. nameEdge()/nameLane()/nameEdgeSplit() in
+// all-seeing-eye.js partition the roster answer AFTER ranking into the people
+// whose name starts a word with what you typed and the people who only carry it
+// inside a longer word, and the second group prints under its own heading, "Also
+// in the name", with a sentence saying plainly that these are not who you typed.
+// score() and rank() are BYTE-IDENTICAL to the previous revision, recordFirst()
+// is unedited and now simply runs inside each group instead of across both, and no
+// party string entered a sort key anywhere. THE SPLIT ONLY HAPPENS WHEN THERE IS
+// SOMETHING TO LEAD WITH: if nobody matches at a word edge - "man", "ell", any
+// fragment query - the list is returned exactly as it was ranked, because a
+// secondary group above an empty primary one would be a worse answer than the
+// substring match it replaced.
+//   AND /p/kennedy WORE THE WRONG PERSON'S FACE. Mike Kennedy, UT-03, is Bioguide
+// K000403. The live roster document filed him with K000404 - Kimberlyn King-Hinds,
+// the delegate for the Northern Mariana Islands - one digit away, and an image
+// that LOADS, so no onerror fired, no monogram appeared, the share card proxied it
+// happily, and her portrait printed over his record. PROFILES[pid].photo outranks
+// every bundled tier in _getPhotoUrl(), which is the right order and the reason
+// BROWSE_PHOTOS could not repair it: the curated map already held the correct
+// K000403 url and was losing to the roster. firebase-boot.js now carries
+// PDX_PHOTO_FIX and applies it to every document as it lands - the light index,
+// the full-collection fallback and the lazy full fetch - so the letterhead, the
+// quick-view, the cards, the Eye's rows and the share proxy are all corrected from
+// one place. NO SECOND PID, no alias, no new image host: the value is the official
+// congressional portrait on a host already in the trusted set, and
+// scripts/test-photo-coverage.mjs pins the correction to BROWSE_PHOTOS, to the
+// ALLOWED host set and to every PROFILES write site, so the three copies cannot
+// drift and a future ingest path cannot quietly skip the corrector. Nothing else
+// on the document is touched - name, office, party, district, tenure and every
+// formal-record field arrive as the roster sent them, and no gender was inferred
+// from the file that was wrong.
+//   THE ACCOUNT MENU ALREADY OPENED YOUR FILE, and this pass left it that way.
+// The signed-in dropdown in compare-hub.js prints a real <a href="#your-file">
+// with data-pdxyf-open in both the desktop rows and the mobile account block, and
+// your-file.js owns that address, so the avatar reaches the SAME eight-issue
+// overlay Who Represents Me opens. No second form was built, no ninth row was
+// added and no nav pill appeared.
+//   FILES CHANGED, AND WHY THE RENAME IS PART OF THE FIX. None of the three is a
+// precached shell asset - they are stale-while-revalidate RUNTIME entries, and the
+// runtime cache name carries CACHE_VERSION, which is exactly why this bump is not
+// bookkeeping: a warm device would keep serving the old copies beside a fresh
+// document and the pass would read as not shipped.
+//   · all-seeing-eye.js       - the name-edge lane, the "Also in the name" group
+//                              and its note, and the paint-order hold for it. The
+//                              stale copy is the panel that led with Wilcox.
+//   · firebase-boot.js        - PDX_PHOTO_FIX and _pdxFixPhoto(), applied at the
+//                              three PROFILES ingest sites. The stale copy is the
+//                              one that decides which face the person file paints.
+//   · compare-hub.js          - the kennedy BROWSE_PHOTOS entry now carries the
+//                              K000403-vs-K000404 collision in writing, so the
+//                              value is never re-derived from a neighbouring id.
+//                              The account-menu rows are unchanged.
+// index.html itself did not change in this pass - it is precached as '/' and is
+// named here because the panel and the roster boot it loads did move, and a
+// navigation is stale-while-revalidate, so the document and its scripts have to
+// come out of the same generation of cache or the fix reads as not shipped.
+// DIRECTION MATCH DID NOT MOVE, and neither did anything it is computed from: no
+// stance, weight, issue key or alignment read was touched, the formal-record
+// ranking and the party filters are exactly as they shipped, and Forum, the
+// District Room, the floors, the offline pack and DM were not opened.
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it.
 // ─────────────────────────────────────────────────────────────────────────────
 // v163 - AN EMPTY FORMAL LANE CANNOT CARRY A WORD VS ACTION PERCENTAGE
 // ─────────────────────────────────────────────────────────────────────────────
@@ -3741,7 +3816,7 @@
 // that file first on its eight issue keys. /your-file.js and /your-file.css are
 // deliberately NOT in SHELL_ASSETS, so they arrive from the network on first use
 // and cannot be served stale from an older shell.
-const CACHE_VERSION = 'v163';
+const CACHE_VERSION = 'v164';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

@@ -406,7 +406,7 @@
     // two categories over one lane, which is why the warming notice is printed per
     // LANE and not per category — one loading roster is one fact.
     var CAT_LANE = {
-      pol: 'people', stance: 'people', bill: 'bills',
+      pol: 'people', polAlso: 'people', stance: 'people', bill: 'bills',
       // Files come from the register; families and spotlights come from the core
       // list and the spotlight bundle. Two sources, so two lanes.
       file: 'files', fam: 'issues', spot: 'issues'
@@ -1349,6 +1349,93 @@
       for (var i = 0; i < tokens.length; i++) { if (tokens[i].indexOf(t) === 0) return true; }
       return false;
     }
+    // ── A NAME MATCH IS A WORD, NOT A SUBSTRING ───────────────────────────────
+    //
+    // WHAT WAS WRONG. Typing "cox" answered with Ryan D. Wilcox above Governor
+    // Spencer Cox. Nobody's relevance was miscounted: "cox" IS in "wilcox", it is
+    // in it contiguously, and score() reads a name with indexOf(), so a run of
+    // letters sitting in the MIDDLE of a surname was scored as a hit on that
+    // surname. Then the formal lane's first key — does this person hold a formal
+    // record — put the Utah representative, whose shipped state index is real,
+    // above a governor, who casts no roll calls and therefore holds none. Both
+    // halves were behaving as designed, and the reader who typed a surname got
+    // somebody else's.
+    //
+    // THE RULE, AND IT KNOWS NO NAMES. A name is made of words. A query hits a
+    // name when it starts one of those words — "cox" starts Cox, "chew" starts
+    // Chew, "lee" starts Lee — and merely appearing inside one is a coincidence of
+    // spelling, the same coincidence subseqName() already refuses to reward across
+    // a space. So the roster's answer is split in two by WHERE the query landed:
+    // the people it names lead, and the people it is only spelled inside follow,
+    // in their own group, under a heading that says so.
+    //
+    // WHAT IS DELIBERATELY UNTOUCHED. score() and rank() — what counts as a match
+    // and how strongly is not being re-weighted, and a mid-name row keeps every
+    // point it ever had inside its own group. recordFirst() and its three keys —
+    // the formal lane still puts record-holders first, now within each group
+    // rather than across both, which is the whole repair: a formal record can
+    // outrank another PERSON THE READER NAMED, and it can no longer outrank the
+    // fact of being named. No party letter, no percentage and no money is read
+    // here, and nothing is dropped: every row that ranked still prints, still
+    // counts in the lane total, and is still one glance further down.
+    //
+    // AND IT ONLY SPLITS WHEN THERE IS SOMETHING TO LEAD WITH. If no name in the
+    // roster starts with the query — "ell" is inside Bell, Mitchell and Powell and
+    // starts none of them — then there is no "these lead" to draw, so the group
+    // stays whole and ordered exactly as it always was. A partial typed into a
+    // search box must never be answered with an empty first group.
+    //
+    // Boundary, not word-character class: the roster's names are normalised by
+    // norm() and split on the same \p{L}\p{N} rule entry.tokens is built with, so
+    // "o'brien", "miller-meeks" and "d." all have the boundaries a reader sees.
+    function nameEdge(name, needle) {
+      if (!name || !needle) return 0;
+      var i = name.indexOf(needle), inner = false;
+      while (i !== -1) {
+        if (i === 0 || /[^\p{L}\p{N}]/u.test(name.charAt(i - 1))) return 1;
+        inner = true;
+        i = name.indexOf(needle, i + 1);
+      }
+      return inner ? -1 : 0;
+    }
+    // 1 = the query (or one of its terms) starts a word in this row's name.
+    // -1 = it is only ever inside one. 0 = the name does not hold it at all, which
+    // is every row that matched on an office, a state or a bio and is NOT a name
+    // match to demote.
+    function nameLane(entry, q, terms) {
+      var name = String(entry && entry.titleLc || '');
+      if (!name) return 0;
+      var lane = nameEdge(name, q);
+      if (lane === 1) return 1;
+      for (var i = 0; i < (terms || []).length; i++) {
+        var v = nameEdge(name, terms[i]);
+        if (v === 1) return 1;
+        if (v === -1) lane = -1;
+      }
+      return lane === -1 ? -1 : 0;
+    }
+    // The split, over the list rank() already ranked and capped — so this decides
+    // the order of the answer and never what counts as one. Returns the original
+    // list untouched unless BOTH sides are non-empty.
+    function nameEdgeSplit(list, q, terms) {
+      var lead = [], also = [], named = false;
+      for (var i = 0; i < list.length; i++) {
+        var lane = nameLane(list[i], q, terms);
+        if (lane === 1) named = true;
+        (lane === -1 ? also : lead).push(list[i]);
+      }
+      if (!named || !also.length) return { lead: list, also: [] };
+      return { lead: lead, also: also };
+    }
+    // The group's standing sentence. It says what the rows are and what they are
+    // not, so a Wilcox sitting a few pixels under a Cox cannot be read as the Cox
+    // the reader typed — the same job the judicial group's note does for a
+    // retention seat. Not a warning and not an apology: these are real people with
+    // real files, reached by a real match, and the group exists so they stay
+    // reachable instead of being dropped for spelling.
+    var ALSO_NOTE = 'These people are not who you typed — your search is spelled ' +
+      'inside their name, not at the start of it. Their files are complete and ' +
+      'open the same way.';
     function score(entry, q, terms) {
       var name = entry.titleLc, hay = entry.hay, s = 0;
 
@@ -2091,7 +2178,7 @@
     var curQ = null;    // last-rendered query (to reset per-category expansion)
     var curCtx = null;  // personal context (saved + team) for the current render
     var badgeOff = false; // suppress the personal badge inside sections that already imply it
-    var expand = { pol: false, stance: false, iss: false, judge: false, saved: false, team: false }; // "see more" per category
+    var expand = { pol: false, polAlso: false, stance: false, iss: false, judge: false, saved: false, team: false }; // "see more" per category
 
     function highlight(text, q, terms) {
       var lc = norm(text), at = -1, len = 0;
@@ -3517,7 +3604,7 @@
       // Reset on a NEW QUERY only. Switching lane re-renders the same string, so
       // curQ matches and an expanded category survives the switch — the reader's
       // question did not change, only which lane of it they are reading.
-      if (q !== curQ) { expand = { pol: false, stance: false, bill: false, file: false, fam: false, spot: false, mand: false, judge: false, saved: false, team: false }; curQ = q; }
+      if (q !== curQ) { expand = { pol: false, polAlso: false, stance: false, bill: false, file: false, fam: false, spot: false, mand: false, judge: false, saved: false, team: false }; curQ = q; }
       var isMandate = (laneMode === 'mandate');
 
       if (!q) {
@@ -3607,7 +3694,20 @@
       // Nothing here is a score, and nothing here reads party, Word-vs-Action
       // percentage, or money. `rank()` and `score()` are untouched: this is a
       // stable re-order of what relevance already chose.
+      // THE ROSTER'S ANSWER IS SPLIT ON WHERE THE QUERY LANDED IN THE NAME —
+      // the people it names, then the people it is only spelled inside. See the
+      // wall over nameEdge(). Done BEFORE recordFirst() so the formal lane's
+      // record-first ordering runs inside each group instead of across both,
+      // which is what stopped a state representative called Wilcox from
+      // answering "cox" ahead of Governor Spencer Cox.
+      var polSplit = nameEdgeSplit(pols, q, terms);
+      pols = polSplit.lead;
+      var polsAlso = polSplit.also;
       if (formal) pols = recordFirst(pols, q, terms);
+      // The second group gets the SAME ordering function, unchanged: within a
+      // group the lane's one promise still holds. It is a different group, not a
+      // different rule.
+      if (formal && polsAlso.length) polsAlso = recordFirst(polsAlso, q, terms);
       // AND A CITATION LEADS THE WHOLE LANE. "H.B. 400" is the name of a
       // document, so the document answers — above the roster, not ninth behind
       // eight legislators whose bios happen to contain the digits. `citeLead` is
@@ -3631,6 +3731,7 @@
       // rather than from a position — the promotion still happens, it just cannot
       // be re-decided under the reader once the group has painted.
       pols = holdOrder('pol', pols, pKey);
+      polsAlso = holdOrder('polAlso', polsAlso, pKey);
       sts = holdOrder('stance', sts, pKey);
       bls = holdOrder('bill', bls, pKey);
       fils = holdOrder('file', fils, pKey);
@@ -3704,8 +3805,8 @@
       // which is the difference between "no legislative record here" and "the
       // eye finds nothing", the two sentences this whole pass is about.
       var laneCounts = {
-        formal: fils.length + fams.length + pols.length + bls.length,
-        'public': spots.length + sts.length + pols.length,
+        formal: fils.length + fams.length + pols.length + polsAlso.length + bls.length,
+        'public': spots.length + sts.length + pols.length + polsAlso.length,
         mandate: mands.length,
         judge: jdgs.length
       };
@@ -3721,7 +3822,7 @@
       // to a person hit there, and for the same reason.
       var nothingElse = isMandate
         ? !mands.length
-        : (!keyHtml && !ansHtml && !pols.length && !jdgs.length &&
+        : (!keyHtml && !ansHtml && !pols.length && !polsAlso.length && !jdgs.length &&
             (formal ? (!fils.length && !fams.length && !bls.length)
                     : (!spots.length && !sts.length)));
 
@@ -3800,25 +3901,35 @@
         // question — reads files, families and measures before it reads a list of
         // people, so a Utah reader typing a place or a subject does not open on a
         // wall of Texas and Connecticut names whose bios carry the words.
+        // THE SECOND ROSTER GROUP RIDES DIRECTLY BEHIND THE FIRST, in every
+        // order this lane can print — it is the same question's answer, continued,
+        // so it may never be separated from the group it continues by a measure
+        // or an issue file. Same colour, same renderer, same cap; the heading and
+        // the note are the whole of the difference, because the heading is the
+        // disclaimer: these people are not who you named, the query is just
+        // spelled inside their name. It is dropped entirely when there is nothing
+        // in it (catBlock returns '' for an empty list).
         var SEQ = { bill: ['bill', 'Legislation &amp; Bills', '#9ff0bd', bls, billItem],
                     file: ['file', 'Issue files · the formal record', '#7dd3fc', fils, issueFileItem],
                     fam:  ['fam', 'Issue families · browse from here', '#fb923c', fams, familyItem],
-                    pol:  ['pol', 'Politicians · formal record first', '#f5c842', pols, polItem] };
-        var order = citeLead ? ['bill', 'file', 'fam', 'pol']
-                  : shape === 'name' ? ['pol', 'file', 'fam', 'bill']
-                  : ['file', 'fam', 'bill', 'pol'];
+                    pol:  ['pol', 'Politicians · formal record first', '#f5c842', pols, polItem],
+                    polAlso: ['polAlso', 'Also in the name', '#f5c842', polsAlso, polItem, ALSO_NOTE] };
+        var order = citeLead ? ['bill', 'file', 'fam', 'pol', 'polAlso']
+                  : shape === 'name' ? ['pol', 'polAlso', 'file', 'fam', 'bill']
+                  : ['file', 'fam', 'bill', 'pol', 'polAlso'];
         order.forEach(function (k) {
           var b = SEQ[k];
-          html += catBlock(b[0], b[1], b[2], b[3], b[4], q, terms);
+          html += catBlock(b[0], b[1], b[2], b[3], b[4], q, terms, b[5]);
         });
         html += judgeBlock(jdgs, q, terms);
       } else {
         var SEQP = { spot: ['spot', 'Issue Spotlights · sourced investigations', '#fb923c', spots, issueItem],
                      stance: ['stance', 'Positions, Quotes &amp; Receipts', '#5eead4', sts, stanceItem],
-                     pol: ['pol', 'Politicians', '#f5c842', pols, polItem] };
-        (shape === 'name' ? ['pol', 'spot', 'stance'] : ['spot', 'stance', 'pol']).forEach(function (k) {
+                     pol: ['pol', 'Politicians', '#f5c842', pols, polItem],
+                     polAlso: ['polAlso', 'Also in the name', '#f5c842', polsAlso, polItem, ALSO_NOTE] };
+        (shape === 'name' ? ['pol', 'polAlso', 'spot', 'stance'] : ['spot', 'stance', 'pol', 'polAlso']).forEach(function (k) {
           var b = SEQP[k];
-          html += catBlock(b[0], b[1], b[2], b[3], b[4], q, terms);
+          html += catBlock(b[0], b[1], b[2], b[3], b[4], q, terms, b[5]);
         });
         html += judgeBlock(jdgs, q, terms);
       }
@@ -3833,7 +3944,7 @@
       // has nothing to be waiting for and prints no notice about it.
       if (!isMandate) {
         html += warmStrip(warm, {
-          pol: pols.length, stance: sts.length, bill: bls.length,
+          pol: pols.length, polAlso: polsAlso.length, stance: sts.length, bill: bls.length,
           file: fils.length, fam: fams.length, spot: spots.length
         });
       }
