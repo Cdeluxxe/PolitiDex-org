@@ -1,0 +1,183 @@
+{
+ "_lane": "Utah executive formal lane — wave E1 (signed and vetoed acts)",
+ "_sessions": [
+  "2024GS",
+  "2025GS"
+ ],
+ "_comment": "CURATOR FILE, HUMAN-ACCEPTED. scripts/vr-utah-exec-ingest.mjs reads this file and never writes it. Wave E1 attaches recorded gubernatorial acts — Governor Signed and Governor Vetoed — to Utah statewide executives as vr_positions rows of action_type gov_signed / gov_vetoed. An act is admitted ONLY when the bill already carries a reviewed issue mapping (floor wave, committee wave, or the single new review recorded in `bills` below) AND a vr_measures row for that bill already exists or is created by this wave's migration. Everything else is refused here in writing. A signed bill with no reviewed mapping stays unsigned to an issue: the act is not ingested, it does not characterise a row, and it is not carried as a partial.",
+ "_actVocabulary": "gov_signed (label \"Signed\", act weight 0.70) and gov_vetoed (label \"Vetoed\", act weight 0.70) are NEW state-executive action types added by this wave. They are deliberately distinct from the pre-existing presidential `signed` / `vetoed` / `issued` action types, which remain OUT of the stance-helpers act table and continue to route a president to the separate executive-enactment lane. Neither gov_signed nor gov_vetoed is a vote: both sit below a floor roll call (1.00), neither is offered to Direction Match, and neither is ever labeled with a ballot verb.",
+ "_howReviewed": "Deliverable 1 of the brief is a census, not a sample: every measure of the 2024 and 2025 General Sessions was enumerated from le.utah.gov and its own action history read, rather than only the bills already curated. 1,893 records were fetched. The reviewed-mapping pass in `bills` below covers the vetoed bills only — a veto is the act most likely to test a stated position, and the signed side already inherits 133 reviewed mappings from the floor and committee waves. Each veto was read against the 121 shipped issue keys under the standing six rules; the operative provision is named in every verdict, admitted or refused. No key was assigned by resemblance of title.",
+ "bills": [
+  {
+   "session": "2025GS",
+   "bill": "HB0306",
+   "number": "H.B. 306",
+   "chamber": "utah house",
+   "title": "Precious Metals Amendments",
+   "primeSponsor": "Rep. Ivory, Ken",
+   "floorSponsor": "Sen. Grover, Keith",
+   "generalProvisions": "This bill enacts and modifies provisions relating to state investment in gold and the establishment of a gold-backed digital payment system.",
+   "textKind": "enrolled",
+   "textUrl": "https://le.utah.gov/Session/2025/bills/enrolled/HB0306.xml",
+   "sourceUrl": "https://le.utah.gov/~2025/bills/static/HB0306.html",
+   "status": "vetoed",
+   "issues": [
+    {
+     "issueKey": "sound_money",
+     "weight": 65,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Enrolled text requires the state treasurer to develop and issue a competitive procurement for a precious metals-backed electronic payment system, sets the requirements for that request for proposals, requires the treasurer to evaluate the proposals, and extends the treasurer's precious metals study while adding a sunset date and annual reporting to the Revenue and Taxation Interim Committee. Every operative clause moves the state one step further toward holding and transacting in specie, which is exactly what this key measures; the shipped keyword list for sound_money already names gold, bullion, specie, legal tender and state treasurer. The bill runs one direction only — nothing in it narrows the state's precious-metals position — so a yea supports the key and the veto opposes it."
+    }
+   ]
+  }
+ ],
+ "_refusedVetoes": [
+  {
+   "session": "2024GS",
+   "bill": "HB0144",
+   "title": "Vehicle Accident Liability Amendments",
+   "why": "Clarifies that an operator intending to turn left need not yield the right-of-way to an oncoming vehicle that fails to stop at a stop sign or steady red signal. A rule of the road that reassigns fault between two drivers. No shipped key covers traffic law or tort allocation, and no key on the list carries a direction on which motorist bears liability."
+  },
+  {
+   "session": "2024GS",
+   "bill": "HB0152",
+   "title": "Residential Construction Amendments",
+   "why": "Requires the Division of Professional Licensing to provide certain sample contracts. The single operative duty falls on an agency's publication practice; it neither adds nor removes an obligation on a builder or a buyer, so reg_burden and housing_supply both lack a direction in the text."
+  },
+  {
+   "session": "2024GS",
+   "bill": "HB0239",
+   "title": "State Employee Cybersecurity Training Requirements",
+   "why": "Establishes a cybersecurity awareness training program for all state executive branch employees. No cybersecurity key and no state-workforce key is shipped. Refused for want of a key, not for want of substance — this is a coverage gap to record, not a mapping to force onto a neighbouring key."
+  },
+  {
+   "session": "2024GS",
+   "bill": "HB0412",
+   "title": "Legislative Auditor General Amendments",
+   "why": "Lets the Office of the Legislative Auditor General provide training, requires it to define when a finding is critical, requires it to report on audit recommendations not fully implemented, and requires agency self-assessment during legislative budget review. Every clause tightens the legislature's internal audit follow-up machinery; govt_transparency measures what the public may see, and none of these reports is a public-disclosure duty."
+  },
+  {
+   "session": "2024GS",
+   "bill": "SB0190",
+   "title": "Higher Education Development Areas Study",
+   "why": "Requires the Political Subdivisions Interim Committee to study a university's development of university-owned property. A study is not a direction — the standing rule that a bill commissioning a report carries no scorable position applies."
+  },
+  {
+   "session": "2024GS",
+   "bill": "SB0244",
+   "title": "Professional Licensing Modifications",
+   "why": "Introduced text (the bill was vetoed and has no enrolled text) carries one operative clause: the Division of Professional Licensing shall annually verify that its published criminal history guidelines reflect the most current provisions of the Utah Criminal Code. An internal accuracy check on an agency's own guidance document. Neither reg_burden nor either criminal-justice key has a direction — nothing about who may be licensed, charged or sentenced changes."
+  },
+  {
+   "session": "2024GS",
+   "bill": "SB0274",
+   "title": "Administrative Law Judge Amendments",
+   "why": "Requires a report from an agency that uses an administrative law judge. A reporting requirement on executive-branch adjudication; judicial_check is about the courts' power against the political branches, which this text does not touch, and a report is not a direction."
+  },
+  {
+   "session": "2025GS",
+   "bill": "HB0315",
+   "title": "Elected Official Vacancy Modifications",
+   "why": "Addresses midterm vacancies in municipal offices and modifies the procedure when three or more candidates tie. Election-administration mechanics with no direction on who may vote or on access to the ballot, so election_integrity and voting_access both carry no position here."
+  },
+  {
+   "session": "2025GS",
+   "bill": "SB0037",
+   "title": "Minimum Basic Tax Rate Amendments",
+   "why": "Requires school districts imposing the combined minimum basic tax to remit that revenue to the state, repeals the existing state-and-local contribution provisions, and in the same act guarantees state funding covering the full cost of the basic school program for those districts. Local tax revenue moves up to the state while a state funding floor moves down to the district; taxes and school_choice each run both ways inside one bill, so neither has a single direction."
+  },
+  {
+   "session": "2025GS",
+   "bill": "SB0106",
+   "title": "Utah-Ireland Trade Commission",
+   "why": "Creates the Utah-Ireland Trade Commission inside the Governor's Office of Economic Opportunity, sets its membership, purpose and duties, staffs it, requires an annual report, authorises fundraising and sunsets it in 2030. econ_trade measures tariffs, trade agreements and domestic manufacturing; standing up a body that will later study and promote trade is an institutional act, not a direction on trade policy."
+  },
+  {
+   "session": "2025GS",
+   "bill": "SB0197",
+   "title": "Property Tax Amendments",
+   "why": "Runs both ways on its own subject: bars a taxpayer from the homeowner's credit unless it was received in the previous two years and removes that credit's annual inflation adjustment, bars indigent abatement on the same two-year condition, and in the same act raises the household income limits and maximum amounts for the renter's credit. One bill both narrows and widens property-tax relief for different households, so taxes has no single direction."
+  }
+ ],
+ "_refusedLineItemVeto": {
+  "_why": "A line-item veto (action code GVETOLI) is not modeled by this wave. In both cases the bill itself became law; only named appropriation lines were struck. Recording the governor as having \"Vetoed\" an act that took effect would overstate the record, and there is no shipped act class for a partial veto. Refused by design, not for want of a mapping.",
+  "acts": [
+   "2024GS HB0002 2024-03-21",
+   "2024GS HB0003 2024-03-21"
+  ]
+ },
+ "_refusedNoSignature": {
+  "_why": "\"Became Law w/o Governor Signature\" (action code GNOSIGN) is the ABSENCE of a gubernatorial act. The governor neither signed nor vetoed; the bill took effect by operation of the constitutional deadline. Ingesting it as a formal act would attribute a decision that was never recorded. Refused by design.",
+  "acts": [
+   "2024GS HB0078 2024-03-21",
+   "2024GS SB0266 2024-03-21",
+   "2025GS HB0077 3/27/2025 9:57 AM",
+   "2025GS HB0353 3/27/2025 9:58 AM",
+   "2025GS SB0069 3/27/2025 9:59 AM"
+  ]
+ },
+ "_refusedNoMeasureRow": {
+  "_corrected": "THIS BUCKET WAS A DEFECT IN THE FIRST PASS AND IS NOW EMPTY. Five reviewed-and-mapped bills — 2024GS H.B. 348 and 2025GS H.B. 67, S.B. 26, S.B. 316, S.B. 336 — were refused here as \"mapped but no vr_measures row\". All five measures exist. They are created by netlify/database/migrations/20261010000000_vr_vocab_wave_v1.sql, because their issue keys (sound_money, dev_district_finance) were minted in the vocabulary wave rather than in a Utah data wave, and the generator's measure inventory scanned only migrations with \"utah\" in the filename. A refusal that misstates the record is worse than no refusal, because it reads as reviewed. The inventory now scans every migration and keys on a state chamber plus a utahSession stamp inside the same INSERT; all five signed acts are admitted, which is why this wave ships 138 gov_signed rather than 133.",
+  "count": 0,
+  "bills": [],
+  "admittedInstead": [
+   "2024GS HB0348",
+   "2025GS HB0067",
+   "2025GS SB0026",
+   "2025GS SB0316",
+   "2025GS SB0336"
+  ]
+ },
+ "_refusedUnmapped": {
+  "_why": "977 acts sit on a bill that has a recorded Governor Signed or Governor Vetoed action and NO reviewed issue mapping. Per the wave's mapping rule they stay unsigned to an issue: the act is not ingested, the bill does not characterise any row, and no key was inferred from a title. This is by far the largest refusal bucket in the wave. The rows are listed in full under `refused.unmappedBill` in db/vr-utah-exec-seed.json — they live there rather than here because the ingest regenerates them and a hand-kept second copy would drift.",
+  "count": 977,
+  "seeInstead": "db/vr-utah-exec-seed.json → refused.unmappedBill"
+ },
+ "_census": {
+  "_note": "Deliverable 1, and a full enumeration rather than a sample. le.utah.gov's bill list carries no status column and the site publishes no veto-list endpoint, so the only reliable source of a gubernatorial act is each bill's own action history — which means every measure of both sessions had to be read. The list endpoint used is https://le.utah.gov/data/<SESSION>/billlist.json and it INCLUDES the joint and concurrent resolutions; Utah joint and concurrent resolutions go to the governor and can carry a GSIGN action, and this wave's first enumeration read a bill-only list and left 45 resolutions of the 2025 session and 70 of the 2024 session unexamined. Regenerate with: node scripts/vr-utah-exec-ingest.mjs --census",
+  "recordsEnumerated": 1893,
+  "2025GS": {
+   "recordsEnumerated": 959,
+   "governorSigned": 551,
+   "signedReviewedMapped": 79,
+   "governorVetoed": 6,
+   "vetoedReviewedMapped": 2,
+   "lineItemVeto": 0,
+   "becameLawWithoutSignature": 3
+  },
+  "2024GS": {
+   "recordsEnumerated": 934,
+   "governorSigned": 553,
+   "signedReviewedMapped": 59,
+   "governorVetoed": 7,
+   "vetoedReviewedMapped": 0,
+   "lineItemVeto": 2,
+   "becameLawWithoutSignature": 2
+  },
+  "reviewedMappedActs": {
+   "signed": 138,
+   "vetoed": 2,
+   "_note": "138 signed acts and 2 vetoes sit on a bill that carries a reviewed mapping. The two vetoes are S.B. 296 (mapped in the committee wave) and H.B. 306 (mapped in this pass)."
+  },
+  "admittedThisWave": {
+   "gov_signed": 138,
+   "gov_vetoed": 2,
+   "total": 140,
+   "_note": "All 138 signed acts that sit on a reviewed-and-mapped bill with a measure row were admitted, and both mapped vetoes were admitted — S.B. 296's measure came from the committee wave, H.B. 306's is created by this wave's migration. Nothing reviewed-and-mapped is refused for want of a measure row; see _refusedNoMeasureRow for the defect that once said otherwise."
+  },
+  "refused": {
+   "unmappedBill": 977,
+   "mappedButNoMeasureRow": 0,
+   "vetoRefusedOnReview": 11,
+   "vetoAdmittedOnReview": 1,
+   "lineItemVeto": 2,
+   "becameLawWithoutSignature": 5,
+   "droppedNoOfficeholder": 0
+  },
+  "attributedTo": {
+   "cox": 140,
+   "_note": "Every admitted act belongs to the Governor of Utah, who was Spencer Cox for the whole of both sessions. No other roster id gains a row from this wave, and no House or Senate roll call is attached to any of them."
+  }
+ }
+}

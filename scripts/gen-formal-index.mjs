@@ -93,12 +93,23 @@ const MAPPING = [["2025GS", "db/vr-utah-committee-mapping-seed-2025GS.json"],
                  // on one documented measure — it just stops the index under-reporting a
                  // record the app already publishes.
                  ["2023GS", "db/vr-utah-committee-mapping-seed-2023GS.json"]];
+// The fourth feeder, added by the Utah executive lane (wave E1). A governor's
+// formal acts are recorded gubernatorial actions — bills signed, bills vetoed —
+// and they arrive in a flat `acts` array rather than nested under rollcalls or
+// committeeActs, because one act has exactly one actor. Without this feeder
+// PDXFormalIndex.has('cox') answered false over 135 sourced acts, which is the
+// same under-reporting the 2023GS mapping seed caused, on the one profile the
+// wave exists to fill: word-action.js's fxLane() is the owner that answers before
+// any payload has warmed, so the empty-lane gate would have fired on first paint
+// against a file that is not empty.
+const EXEC = [["db/vr-utah-exec-seed.json"]];
 const NOTES = "db/vr-utah-empty-file-notes.json";
 
 const acts = new Map();          // pid -> count
 const measures = new Map();      // pid -> Set(session|bill)
 const stats = { rollcalls: 0, unsourcedRollcalls: 0, floorVotes: 0,
-                committeeActs: 0, unsourcedActs: 0, committeeVotes: 0, people: 0 };
+                committeeActs: 0, unsourcedActs: 0, committeeVotes: 0,
+                execActs: 0, unsourcedExecActs: 0, people: 0 };
 
 const bump = (pid, key) => {
   if (!pid || typeof pid !== "string") return;
@@ -126,6 +137,17 @@ for (const [session, f] of [...COMMITTEE, ...MAPPING]) {
       if (!a.sourceUrl && !a.minutesUrl) { stats.unsourcedActs++; continue; }
       for (const v of a.votes || []) { stats.committeeVotes++; bump(v.politicianId, key); }
     }
+  }
+}
+
+for (const [f] of EXEC) {
+  if (!existsSync(join(ROOT, f))) continue;
+  for (const a of J(f).acts || []) {
+    stats.execActs++;
+    // Same rule as a roll call and a committee act: an act nobody can follow to a
+    // published page is not a citation and does not earn an address.
+    if (!a.sourceUrl) { stats.unsourcedExecActs++; continue; }
+    bump(a.politicianId, `${a.session}|${a.bill}`);
   }
 }
 
@@ -257,6 +279,7 @@ const body = [
 if (REPORT) {
   console.log(`roll calls          ${stats.rollcalls} (${stats.unsourcedRollcalls} unsourced, skipped)`);
   console.log(`committee acts      ${stats.committeeActs} (${stats.unsourcedActs} unsourced, skipped)`);
+  console.log(`executive acts      ${stats.execActs} (${stats.unsourcedExecActs} unsourced, skipped)`);
   console.log(`member votes        ${stats.floorVotes} floor + ${stats.committeeVotes} committee`);
   console.log(`people with a count ${stats.people}`);
   const two = pids.filter((p) => measures.get(p).size >= 2).length;

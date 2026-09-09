@@ -234,6 +234,9 @@ const ACTIVE = [
   // (runbook, "Still blocked after wave 3"), so both of these have waves left.
   "vr-utah-ingest.mjs",
   "vr-utah-committee-mapping.mjs",
+  // The Utah executive lane. Wave E1 covered 2024GS and 2025GS; the sessions
+  // before that, and any later one, are a wave each, so it has waves left.
+  "vr-utah-exec-ingest.mjs",
   // The skeleton every future wave starts from, whatever the jurisdiction.
   "vr-mapping-draft.mjs",
 ];

@@ -3145,3 +3145,199 @@ node scripts/test-vr-mapping-migration-pack-step.mjs
 node scripts/test-vr-utah-committee.mjs
 node scripts/test-depth-no-score-drift.mjs
 ```
+
+---
+
+## § Utah executive lane — signed and vetoed acts (wave E1, `20261102000000`)
+
+Governor Cox's profile read **"No formal pattern on file yet"**, and the reason was
+structural rather than a gap in the data: the pattern engine eats floor votes, committee
+votes and sponsorships, and a governor casts none of the three. The formal file for that
+office is the bills the officeholder **signed** and the bills the officeholder **vetoed**.
+This wave fills that lane out of the record. It invents no roll call, and it attaches no
+House or Senate vote to a governor.
+
+### Source of record, and the URL chain
+
+le.utah.gov's bill list carries no status column and the site publishes no veto-list
+endpoint, so the only reliable source of a gubernatorial act is **each bill's own action
+history** — which means every measure of both sessions had to be read.
+
+```
+list      https://le.utah.gov/data/<SESSION>/billlist.json
+bill      https://le.utah.gov/data/<SESSION>/<BILL>.json          e.g. 2025GS/HB0306.json
+status    https://le.utah.gov/~<YEAR>/bills/static/<BILL>.html     ← the source_url on every row
+enrolled  https://le.utah.gov/Session/<YEAR>/bills/enrolled/<BILL>.xml
+```
+
+**The list endpoint must be `billlist.json`, not a bill-numbered enumeration.** Utah joint
+and concurrent resolutions go to the governor and can carry a signature action, and this
+wave's first enumeration read a bill-only list, leaving **45 resolutions of 2025GS and 70
+of 2024GS unexamined**. `billlist.json` returns 959 and 934 records respectively — the
+numbers the census below is built on. Re-collecting the 115 added no veto, so the veto
+review was unaffected, but a census that silently omits 6 % of the record is not a census.
+
+**The WAF rejects Node's `fetch`.** `scripts/vr-utah-exec-ingest.mjs` shells out to `curl`
+with a browser user-agent plus `Accept` and `Accept-Language` headers, and treats a body
+containing `Request Rejected` as a **hard error, never an empty result** — the same rule
+the Utah floor and committee ingests run on. The cache is equally unforgiving: a cached
+body that does not begin with `[` or `{` is refused at write time, and a cached file that
+will not parse **throws** rather than being skipped. That rule was written because
+`2025GS-HB0009.json` was a cached 404 HTML page (2025GS has no H.B. 9) that a `try/catch …
+continue` had been silently swallowing, inflating the enumerated count.
+
+### The two action types are new, and deliberately distinct
+
+`signed`, `vetoed` and `issued` already exist in `vr_positions`, held **only by the
+President**, and `consistency.js` deliberately keeps all three *out* of the stance-helpers
+act table so a president's enactments route to the separate ✒️ Executive Enactment Record
+lane with their own verbs. Reusing them for a governor would have done two wrong things at
+once: **12 federal measures** would have flipped from the exec lane to the record lane
+because a weighable act suddenly existed on them, and every one of those rows would have
+been **relabeled**, because `_pdxActLabel` is consulted before the exec verb table.
+
+So the wave adds two state-executive types of its own, and exactly two rows to
+`_ACT_CLASSES`:
+
+| type | weight | label | floor? | Direction Match? |
+|---|---|---|---|---|
+| `gov_signed` | 0.70 | Signed | no | **no** |
+| `gov_vetoed` | 0.70 | Vetoed | no | **no** |
+
+0.70 sits **below a floor roll call (1.00)** and above a committee vote (0.60). Neither is
+a vote, neither is offered to Direction Match, and no surface labels either with a ballot
+verb. Same wall as committee votes and sponsorships: **depth in the record lane only.**
+`/p/trump` is byte-identical after this wave — no federal row changes class, weight or
+label.
+
+### Name map: fail closed, on the office rather than a printed name
+
+A Utah bill action **never prints the governor's name** — it prints "Governor Signed", and
+on a veto the action history's `owner` field reads "Lieutenant Governor's office for
+filing", which is a filing office and not the actor. There is therefore no printed name to
+match, and the identification is `(session, office) → roster id`, human-accepted in
+`db/vr-utah-exec-map.json`, exactly as `db/vr-utah-member-map.json` is for a roll-call
+cell. **Fail closed: an act whose session has no officeholder key is discarded, never
+guessed.** Both sessions map `governor → cox`.
+
+Utah's other statewide executives are on the roster and are recorded in that file under
+`_officesWithNoKey` with the reason each is keyless: `dhenderson`, `derek_brown_ut`,
+`sreyes`, `ddamschen` and `jdougall` hold offices that perform **neither** act, so they
+gain nothing here and the empty-lane gate still fires for them correctly. This wave is
+Utah governors only.
+
+### Admission rules — four fences, every refusal in writing
+
+1. **The act is recorded.** Action code `GSIGN` ("Governor Signed") or `GVETO` ("Governor
+   Vetoed") in the bill's own action history, with a date and a bill number.
+2. **The officeholder came from the map.** Fence above.
+3. **The bill carries a reviewed issue mapping** — from the floor waves, the committee
+   waves, or the single bill reviewed in this pass. A signed bill with no reviewed mapping
+   **stays unsigned to an issue**; it does not characterise a row. There are **977** of
+   them and they are refused in writing. No LLM-final key was written.
+4. **The bill has a `vr_measures` row**, and the inventory that checks for one reads
+   **every** migration rather than the ones with `utah` in the filename. The first cut
+   read only the latter and refused five signed bills — 2024GS H.B. 348 and 2025GS
+   H.B. 67, S.B. 26, S.B. 316, S.B. 336 — as "mapped but no measure row". All five
+   measures exist: `20261010000000_vr_vocab_wave_v1.sql` creates them, because their
+   keys (`sound_money`, `dev_district_finance`) were minted in the vocabulary wave
+   instead of a Utah data wave. A refusal that misstates the record is worse than no
+   refusal, because it reads as reviewed — so the inventory now keys on a state chamber
+   plus a `utahSession` stamp inside the same INSERT, and **skips this wave's own
+   migration**, which would otherwise report H.B. 306's measure as pre-existing and
+   stop the generator emitting the block that creates it. Those five acts are admitted,
+   which is why the wave ships 138 signed rather than 133. No reviewed-and-mapped bill
+   is refused for want of a measure row, and none is given a measure invented to hold a
+   signature.
+
+**Refused by design.** `GVETOLI` (line item veto — 2 acts, 2024GS H.B. 2 and H.B. 3): the
+bill itself became law and only named appropriation lines were struck, so calling it
+"Vetoed" would overstate the record and no act class models a partial veto. `GNOSIGN`
+("Became Law w/o Governor Signature" — 5 acts): that is the **absence** of a gubernatorial
+act, and ingesting it would attribute a decision that was never recorded. Nothing from a
+pledge ledger or a press release becomes a formal act — a statement is still word, not
+action.
+
+**The veto review.** All 13 vetoes and both line-item vetoes were read against the 121
+shipped keys. One was admitted: **2025GS H.B. 306, Precious Metals Amendments →
+`sound_money`** (weight 65, primary, `yea_supports`), read from the enrolled XML, including
+the check that the 10 % investment cap is pre-existing text (`dnum="…-o"`, the old-text
+marker) so the bill runs one direction only and the veto opposes the key. S.B. 296 was
+already mapped to `judicial_check` by the committee wave. The other eleven — H.B. 144,
+H.B. 152, H.B. 239, H.B. 315, H.B. 412, S.B. 37, S.B. 106, S.B. 190, S.B. 197, S.B. 244,
+S.B. 274 — are refused with prose grounded in each bill's actual text in
+`db/vr-utah-exec-bills.json`. Four of those rationales were rewritten after the first draft
+described the wrong bill; a refusal that misstates the record is worse than no refusal,
+because it looks reviewed.
+
+### Census (deliverable 1)
+
+**1 893 records enumerated** across both general sessions.
+
+| | records | signed | of which mapped | vetoed | of which mapped | line-item | became law w/o sig |
+|---|---|---|---|---|---|---|---|
+| 2025GS | 959 | 551 | 79 | 6 | 2 | 0 | 3 |
+| 2024GS | 934 | 553 | 59 | 7 | 0 | 2 | 2 |
+
+**Admitted: 140 acts** — 138 `gov_signed` + 2 `gov_vetoed`, all `cox`.
+**Refused: 977** unmapped bill · **0** mapped but no measure row · **11** vetoes refused on
+review · **2** line-item vetoes · **5** became law without signature · **0** dropped for no
+officeholder.
+
+### What it cost the reader, and what it bought
+
+Cox went from **0 formal rows and no entry in the formal index** to **140 acts across 140
+measures**, so the empty-office sentence is gone and the pattern chips read *Signed* and
+*Vetoed*. `formal-index.js` gained **exactly one line** — `'cox': [140, 140]` — which is
+why `fxLane('cox')` answers true on the first paint; `scripts/gen-formal-index.mjs` gained
+a fourth feeder (`db/vr-utah-exec-seed.json`) and every other pid in the generated file is
+byte-identical. No floor moved: `MIN_TESTED_ITEMS` is still 3, `MIN_TESTED_WEIGHT` still 4,
+and the record-band strengths are untouched.
+
+With the acts filed and each one resolved to the mapping the repo already ships for its
+bill, the 🏛 brief on `/p/cox` reads **"58 issues on the formal record · 147 votes and
+formal actions read · 8 deep enough to characterise"**, with *Tough on Crime* (11–0),
+*Parental Rights in Schools* (7–0), *Housing Affordability* (6–0) and *Expand Domestic
+Energy Production* (6–0) under **Strongest patterns**, and *Protect LGBTQ+ Rights* (1–4),
+*Private Property Rights* (3–1) and *Gold & Sound Money* (2–1) under **Ran both ways**.
+Every chip discloses what it was read from — *"No floor vote on file here — 11 signed
+bills"* — and no row on the page carries a ballot verb. Word vs Action publishes at
+**100 % over 5 tested issues**, all five tested by the record rather than by a
+pledge-ledger entry; the ⚖️ block was previously suppressed on an empty lane.
+
+The two silences remain reachable and remain distinct: an executive with no signed or
+vetoed rows still gets the empty-office sentence (Utah's Attorney General, Lieutenant
+Governor and Auditor all still do), and an executive whose lane is on file but tests no
+stated position gets *"No formal act tests a stated position"* rather than a percentage.
+`scripts/test-vr-utah-exec.mjs` pins both frames separately, in sections 9 and 11.
+
+#### Run it
+
+```bash
+# collect (WAF: curl only, and a rejection is a hard error)
+node scripts/vr-utah-exec-ingest.mjs --collect
+
+# deliverable 1, and the numbers in the table above
+node scripts/vr-utah-exec-ingest.mjs --census
+
+# the seed, then the migration
+node scripts/vr-utah-exec-ingest.mjs --seed
+node scripts/vr-utah-exec-ingest.mjs --sql --out /tmp/vr-utah-drafts
+node scripts/vr-utah-exec-ingest.mjs --verify
+
+# PACK STEP — this wave writes ONE vr_measure_issues row (H.B. 306 → sound_money),
+# so the mapping version MUST move: m940-da41abc2f46d → m941-<hash>. A wave that
+# writes a mapping row without moving the version is the bug.
+node scripts/test-vr-pack-key-version.mjs
+node scripts/test-vr-mapping-migration-pack-step.mjs
+
+node scripts/gen-formal-index.mjs --check
+node scripts/test-vr-utah-exec.mjs
+node scripts/test-depth-no-score-drift.mjs
+
+# ONE NEW BILL ADDRESS becomes openable with H.B. 306's measure row, so the
+# committed sitemap goes stale until it is regenerated. Exactly one <url> is
+# added; if more move, something outside this wave did it.
+node scripts/gen-sitemap.mjs
+node scripts/test-sitemap-bills.mjs
+```

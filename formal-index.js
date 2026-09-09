@@ -45,6 +45,7 @@
     'cmusselman': [136, 132],
     'colin_w_jack': [123, 115],
     'cory_maloy_h52': [132, 129],
+    'cox': [140, 140],
     'cwilson': [80, 74],
     'daniel_thatcher': [63, 62],
     'david_buxton': [43, 37],

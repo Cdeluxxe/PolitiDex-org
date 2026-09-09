@@ -1,0 +1,37 @@
+{
+  "_comment": "UTAH EXECUTIVE FORMAL LANE — recorded gubernatorial act to PolitiDex roster id. HUMAN-ACCEPTED. scripts/vr-utah-exec-ingest.mjs reads this file (--seed) and never writes it. Wave E1 attaches Governor Signed / Governor Vetoed actions to a statewide executive's formal record as vr_positions rows of action_type gov_signed / gov_vetoed.",
+
+  "_whyThisFileExists": "le.utah.gov never prints the governor's name on a bill action. A gubernatorial act appears in the bill's action history as a description (\"Governor Signed\", \"Governor Vetoed\") plus an action code (GSIGN, GVETO) — the office acts, and the person holding it on that date is left to the reader. So the identification here is (session, office) → roster id, and it is an identification a person made and can be held to, exactly as db/vr-utah-member-map.json is for a roll-call cell. Fail closed: an act whose (session, office) pair is not a key below is counted, listed in the seed as droppedNoOfficeholder, and DISCARDED. It is never attributed to whoever holds the office today.",
+
+  "_doNotUseTheOwnerField": "The action history's `owner` field on a veto row reads \"Lieutenant Governor's office for filing\" and on a signature row reads \"Executive Branch - Governor\". `owner` names the office that FILES or RECEIVES the paperwork, not the officer who acted. The ingest keys on actionCode / description only. Attributing a veto to the Lieutenant Governor because that office filed it would be a factual error, and the map below deliberately gives the Lt. Governor no key at all.",
+
+  "_howReviewed": "Utah's governor is elected to a four-year term. Spencer Cox took office in January 2021 and was re-elected in November 2024, so he held the office through the whole of both the 2024 and the 2025 General Session — every act in this wave's window. That was confirmed against the Governor's own office (governor.utah.gov) and against the acts' own dates, all of which fall between 2024-03-13 and 2025-03-27. No inference from a bill page was involved.",
+
+  "sessions": {
+    "2024GS": { "governor": "cox", "_confirmed": "Governor Spencer J. Cox, term beginning January 2021. All 543 signed/vetoed acts recorded in the 2024 General Session are dated 2024-01-19 through 2024-03-21." },
+    "2025GS": { "governor": "cox", "_confirmed": "Governor Spencer J. Cox, second term beginning January 2025. All 545 signed/vetoed acts recorded in the 2025 General Session are dated 2025-02-14 through 2025-03-27." }
+  },
+
+  "actionCodes": {
+    "GSIGN":  { "act": "gov_signed", "supports": true,  "printed": "Governor Signed" },
+    "GVETO":  { "act": "gov_vetoed", "supports": false, "printed": "Governor Vetoed" }
+  },
+
+  "_archiveShapeMatch": "Sessions before 2025 publish `actionhistory` entries with a free-text `action` and no action code. The ingest matches those on the printed text ANCHORED — /^Governor Signed$/i and /^Governor Vetoed$/i — so \"Governor Signed\" matches and \"Governor Vetoed Line Item\" does not. An unanchored match would have swept line-item vetoes into the veto bucket.",
+
+  "_refusedActionCodes": {
+    "GVETOLI": "Line item veto. The bill itself became law; only named appropriation lines were struck. No act class models a partial veto and calling it \"Vetoed\" would overstate the record. Refused by design — see _refusedLineItemVeto in db/vr-utah-exec-bills.json.",
+    "GNOSIGN": "\"Became Law w/o Governor Signature.\" This is the ABSENCE of a gubernatorial act: the governor neither signed nor vetoed and the bill took effect on the constitutional deadline. Ingesting it would attribute a decision that was never recorded. Refused by design."
+  },
+
+  "_officesWithNoKey": {
+    "dhenderson": "Deidre Henderson, Lieutenant Governor of Utah — on the roster (statewide executive tier) and deliberately given NO key here. A Utah Lieutenant Governor does not sign or veto bills; the office receives enrolled bills for filing and serves as chief election officer. Wave E1 therefore leaves this profile's formal lane empty rather than attributing the governor's acts to it, and the empty-office sentence continues to be the correct thing to show on that page.",
+    "derek_brown_ut": "Derek Brown, Utah Attorney General — same reason. The office litigates; it neither signs nor vetoes a bill.",
+    "sreyes": "Sean Reyes, former Utah Attorney General — same reason.",
+    "ddamschen": "Utah statewide executive on the roster; the office neither signs nor vetoes a bill.",
+    "jdougall": "John Dougall, former Utah State Auditor — the office audits; it neither signs nor vetoes a bill.",
+    "_note": "These entries are the fail-closed record, not a to-do list. None of these offices performs the act this lane ingests, so none of them will ever gain a gov_signed or gov_vetoed row from any wave. Their formal lanes stay empty until a lane that models what they actually do is built."
+  },
+
+  "_scopeThisWave": "Utah governors only. No federal officer, no other state, and no legislator gains a row from this file — a governor casts no floor or committee vote and no House or Senate roll is attached to one here."
+}

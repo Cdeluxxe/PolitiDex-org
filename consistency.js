@@ -305,6 +305,17 @@
   // entry in the act table and never will, because signing a bill Congress wrote
   // is a different claim about power than co-sponsoring one (see EXEC_CLASSES in
   // exec-record.js, which counts them per class for exactly that reason).
+  //   A UTAH GOVERNOR IS THE OTHER CASE, AND IT IS WHY THE TYPES ARE NAMED APART.
+  // Wave E1 gave the state-executive lane two act types of its own — 'gov_signed'
+  // and 'gov_vetoed', weight 0.70 each — so a governor with 138 signed bills and 2
+  // vetoes now routes to 'record' and gets a pattern read, instead of landing on
+  // 'exec' where _stDirRaw returns null and the row printed the empty-office
+  // sentence over the whole formal file. Those two ARE in the act table; the three
+  // federal names above still are not. The distinction is deliberate and load
+  // bearing: had the governor's acts reused 'signed' / 'vetoed', every presidential
+  // measure carrying one would have flipped out of the exec lane here, and would
+  // have been relabeled too, because _pdxActLabel is consulted before the exec verb
+  // table. Neither the federal lane nor its verbs changed.
   function _anyWeighedAct(items) {
     var f = window._pdxActClass;
     if (typeof f !== 'function') return false;   // fails closed to the old behaviour

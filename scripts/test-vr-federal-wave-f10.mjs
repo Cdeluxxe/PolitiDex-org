@@ -52,6 +52,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { SH_SEAMS, carveSeams, assertStanceHelpersSeam } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -456,9 +457,31 @@ const C = decide._counts || {};
   // pass that adds itself to the list below has to say so in writing, here, which is
   // the same price and the same paper trail.
   const MAY_RENDER = ["consistency.js", "word-action.js", "alignment-tool.js"];
-  const stray = touched.filter((f) => MAY_RENDER.indexOf(f) < 0);
+  // AND ONE FILE THAT IS NOT A RENDERER, SO IT IS CARVED RATHER THAN NAMED. The
+  // Utah executive lane (v165) put two act classes in stance-helpers.js's act
+  // table — gov_signed and gov_vetoed, 0.70 each — because a governor casts no
+  // floor vote, sits on no committee and sponsors nothing, so the formal lane for
+  // that office was empty by construction. That is the depth table F10 measures
+  // with, and "we wrote it down" is not a strong enough price for editing it: the
+  // file is carved at the three spans that pass declares in
+  // scripts/v103-chrome-seams.mjs, every other byte is compared against HEAD, and
+  // what is inside the spans is argued there. The roll-call class is still 1.00
+  // and is pinned inside the span it opens, so nothing F10 measured moved: no
+  // profile in this roster holds a gubernatorial act, which is why the figure
+  // sweep below comes out identical in both trees rather than merely close.
+  const CARVED = ["stance-helpers.js"];
+  const stray = touched.filter((f) => MAY_RENDER.indexOf(f) < 0 && CARVED.indexOf(f) < 0);
   eq(stray.length, 0,
     `F10 changed a booted engine file (${stray.join(", ")}) — a wave whose product is a measurement has no business editing the thing it measured`);
+  if (touched.includes("stance-helpers.js")) {
+    const has = (x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`);
+    const sa = carveSeams(headSrc("stance-helpers.js"), SH_SEAMS, "HEAD", "stance-helpers.js", ok);
+    const sb = carveSeams(nowSrc("stance-helpers.js"), SH_SEAMS, "now", "stance-helpers.js", ok);
+    eq(sb.pinned, sa.pinned,
+      "stance-helpers.js changed outside the spans named in scripts/v103-chrome-seams.mjs — the " +
+      "depth table this wave measured with is not a later pass's to move unannounced");
+    assertStanceHelpersSeam(sb.bodies, { has, ok, eq });
+  }
 
   // THESE AUDITS ARE NOT SAFE TO RUN CONCURRENTLY WITH EACH OTHER, and this is where you
   // find out. scripts/test-vr-federal-wave-f8.mjs proves its identity walls by MUTATING
