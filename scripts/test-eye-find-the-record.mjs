@@ -829,12 +829,37 @@ section("10 · nothing on the do-not list moved");
     eq(code(fnSrc(EYE_SRC, "polItem")), patched,
       "polItem() changed by more than the declared avatar box — the row builder is otherwise untouched");
     // AND THE SURFACES THIS PASS WAS TOLD TO LEAVE ALONE ARE THE SAME FILES.
-    for (const f of ["consistency.js", "word-action.js", "hero-showcase.js", "door2-spine.js",
+    for (const f of ["consistency.js", "hero-showcase.js", "door2-spine.js",
                      "finance-lane.js", "judicial-retention.js", "judicial-data.js",
                      "profile-evidence.js", "person-link.js", "cmp-data.js"]) {
       const h = HEAD(f);
       must(h != null, `${f} could not be read out of HEAD`);
       eq(R(f) === h, true, `${f} is not byte-identical with HEAD — it is on the do-not-touch list`);
+    }
+    // word-action.js IS ON THE LIST BY ENTRY POINT RATHER THAN BY BYTE, and only
+    // because a later pass had to change it: v163 vetoes a Word vs Action
+    // percentage on an office whose formal lane is empty (/p/cox printed 56%
+    // beside a brief that said "No formal pattern on file yet"). Whole-file byte
+    // identity was only ever a proxy for the claim this section actually makes —
+    // THE PANEL DOES NOT REACH INTO THAT MODULE — and the proxy expires the first
+    // time somebody else legitimately edits the file. So the claim is asserted
+    // directly instead, against the three functions all-seeing-eye.js calls and
+    // nothing else. This is the stronger reading of the same promise: if the eye
+    // pass ever starts moving the badge builders it prints, that shows up here
+    // whether or not the rest of the file has moved on.
+    {
+      const headWA = HEAD("word-action.js");
+      must(headWA != null, "word-action.js could not be read out of HEAD");
+      const waSrc = R("word-action.js");
+      const eyeCalls = [...EYE_SRC.matchAll(/PDXWordAction\.([a-zA-Z_$][\w$]*)/g)].map((m) => m[1]);
+      const entryPoints = [...new Set(eyeCalls)].sort();
+      eq(entryPoints.join(","), "figure,recordBadgeHTML,searchBadgeHTML",
+        "the panel calls something new on PDXWordAction — the entry-point freeze below no longer covers it");
+      for (const fn of entryPoints) {
+        const a = fnSrc(waSrc, fn), b = fnSrc(headWA, fn);
+        must(a && b, `word-action.js → ${fn}() cannot be read out of both revisions`);
+        eq(a, b, `word-action.js → ${fn}() is not byte-identical with HEAD — the panel's entry points are frozen`);
+      }
     }
   }
   // No reach into anything the panel does not own.
@@ -852,7 +877,8 @@ section("10 · nothing on the do-not list moved");
   for (const banned of ["party", "pct", "score(", "recordDepth", "finance", "state", "office"]) {
     no(shape, banned, `queryShape() reads ${JSON.stringify(banned)} — it may only read the string and name tokens`);
   }
-  console.log("      12 ranking functions byte-identical · 10 do-not-touch files byte-identical · " +
+  console.log("      12 ranking functions byte-identical · 9 do-not-touch files byte-identical · " +
+    "word-action.js frozen at its 3 entry points · " +
     "the freeze reads only ids");
 }
 

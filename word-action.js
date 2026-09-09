@@ -536,6 +536,188 @@
     return { state: 'untested', reason: 'no_action_yet', token: 'no_record' };
   }
 
+  // ── IS THERE A FORMAL LANE TO TEST AGAINST AT ALL ──────────────────────────
+  // A percentage here is one claim: this person's word, tested against their
+  // OFFICIAL RECORD. That claim needs a formal record to exist. A governor casts
+  // no roll calls, and until Utah signed/vetoed ingest lands there are no ✒️
+  // executive acts on file for one either — so for /p/cox the formal side of the
+  // comparison is empty, and the 🏛 record brief on the same page says so in
+  // plain words: "No formal pattern on file yet."
+  //
+  // The pledge ledger is not a substitute for it. A tracked pledge resolves in
+  // testOf() from its own kept/broken verdict — `basis: 'pledge-ledger'`, no
+  // formal act consulted — so nine resolved promises cleared both floors and
+  // published "56% Word vs Action · 9 of 25 tested" beside a brief that had just
+  // declared the same lane empty. One page, two facts. The number was never
+  // wrong arithmetic; it was arithmetic over a record that is not there.
+  //
+  // So the read asks, before it publishes anything, whether a formal row exists
+  // for this pid ANYWHERE. FOUR OWNERS ARE ASKED AND ANY ONE OF THEM
+  // SAYING YES IS ENOUGH. This gate exists to catch an empty lane, not to
+  // second-guess a lane with content in it:
+  //
+  //   1. PDXConsistency.formalPatternIndex — the roll-call / issue-row index the
+  //      brief itself reads. Any row at all counts; see fpiLane() on why the
+  //      row's `read` flag is not the test.
+  //   2. PDXConsistency.execRecordSummary — the ✒️ executive lane's OWN index,
+  //      asked separately because the pattern index holds exec rows it declines
+  //      to characterise: /p/trump is 37 rows, none of them `read`, against 34
+  //      readable executive acts and a legitimate 71%. Gating on `read` alone
+  //      would have deleted a president's number — floor-lowering in reverse,
+  //      and the one thing requirement 4 forbids in either direction.
+  //   3. PDXFormalIndex — the generated per-pid count of Utah legislative acts
+  //      on file, a static table that answers before anything has warmed.
+  //   4. The read's own tested set. Any tested item whose basis is not the pledge
+  //      ledger was, by definition, scored against a formal act; the lane has
+  //      content whatever the indexes happen to say about it.
+  //
+  // …and then the OFFICE has to be one that casts no floor votes, or the gate
+  // does not apply at all. That scope is requirement 2's, it is the difference
+  // between a standing fact and a fetch still in flight, and castsNoFloorVotes()
+  // below is where it is written down.
+  //
+  // NOTHING IS INVENTED AND NO FLOOR MOVES. No House or Senate vote is
+  // synthesised for a governor, no stance is read as a formal act, and
+  // MIN_TESTED_ITEMS / MIN_TESTED_WEIGHT are untouched. The gate only ever
+  // subtracts a percentage that had no record under it.
+  //
+  // FAIL OPEN, ON PURPOSE. If any reader cannot be reached — a page or a harness
+  // that loads word-action.js without the full consistency lane — the gate does
+  // not apply. A file that cannot be asked is never called empty; the same rule
+  // the brief's own absence copy already runs on.
+
+  // WHAT THE READER IS TOLD INSTEAD OF A NUMBER. It names the missing side — the
+  // OFFICE's formal acts — so nobody reads the silence as a mark against the
+  // person, and it is the same sentence wherever the gate fires: the ⚖️ block, the
+  // compare slot, anything that prints thin copy.
+  var NO_FORMAL_LANE_COPY = 'Word vs Action needs a formal record to test against. ' +
+                            'This office’s formal acts are not on file yet.';
+
+  // `true` there is a formal row for this pid · `false` there is none · `null` the
+  // index could not be asked, which is not an answer.
+  //
+  // A ROW EXISTING IS ENOUGH; `read` IS NOT THE TEST. `read` means "this row has a
+  // printable formal characterisation right now", and that flag goes false while
+  // the roll-call payload is still in flight and on rows the index holds but
+  // declines to characterise: /p/trump is 37 rows, not one of them `read`, over 34
+  // readable executive acts and a legitimate percentage. Rows exist because the
+  // index found formal material for this pid, so their presence is the positive
+  // knowledge this gate needs; their `read` flag is a question about warmth and
+  // printing, which is a different question.
+  function fpiLane(pid) {
+    try {
+      var cs = C();
+      var fpi = cs && cs.formalPatternIndex;
+      if (!fpi || typeof fpi.rows !== 'function') return null;
+      var rows = fpi.rows(pid);
+      if (!rows || typeof rows.length !== 'number') return null;
+      if (rows.length > 0) return true;
+      return false;
+    } catch (e) { return null; }
+  }
+
+  // Same three-valued answer from the executive lane's own index.
+  function execReadableRow(pid) {
+    try {
+      var cs = C();
+      var xs = cs && cs.execRecordSummary;
+      if (!xs || typeof xs.pick !== 'function') return null;
+      var s = xs.pick(pid);
+      if (!s) return false;
+      if (!s.on) return false;
+      if (typeof s.readable !== 'number') return null;
+      return s.readable > 0;
+    } catch (e) { return null; }
+  }
+
+  // …and from the generated per-pid count of Utah legislative acts on file. This
+  // one is a static table rather than a live index, so it answers the same the
+  // moment the page opens: PDXFormalIndex.has('defay_h15') is true over 74 acts
+  // whether or not the pattern index has warmed a single row for him yet.
+  function fxLane(pid) {
+    try {
+      var fx = window.PDXFormalIndex;
+      if (!fx || typeof fx.has !== 'function') return null;
+      return !!fx.has(pid);
+    } catch (e) { return null; }
+  }
+
+  // A tested item scored against anything other than the pledge ledger.
+  function testedOnFormalAct(tested) {
+    var list = tested || [];
+    for (var i = 0; i < list.length; i++) {
+      var t = list[i] && list[i].test;
+      if (t && t.basis && t.basis !== 'pledge-ledger') return true;
+    }
+    return false;
+  }
+
+  // ── WHICH OFFICES THIS GATE MAY FIRE ON AT ALL ─────────────────────────────
+  // Requirement 2 scopes the rule to "any statewide exec with zero readable
+  // formal rows" — NOT to any profile with zero readable rows, and the difference
+  // is the whole safety of the gate. An empty index is two different facts
+  // depending on the office. For a governor it is the standing state of the
+  // world: the office casts no floor votes, and until Utah signed/vetoed ingest
+  // lands there is nothing else to hold. For a senator it is a timing artefact —
+  // the roll-call payload is fetched per member, so ANY page that renders before
+  // that fetch resolves reads zero rows for a member of Congress. Firing there
+  // would print "This office's formal acts are not on file yet" onto a senator
+  // whose votes were in the air, which is not a floor and not caution; it is a
+  // false sentence, and the same "a file that is still loading is never called
+  // empty" rule the brief's own absence copy runs on.
+  //
+  // So the office has to say, on its own, that no roll call was ever coming. The
+  // two exclusions are checked FIRST and they are deliberately greedy — a title
+  // that reads legislative, or local, takes itself out of scope even if it also
+  // contains an executive word ("State Senate President", "Morgan School
+  // District Board (President)").
+  //
+  // Cabinet secretaries, agency heads and envoys are LEFT OUT on purpose. They
+  // cast no floor votes either, but their formal record is agency action that is
+  // not on file in any lane, and that is a different class of absence with its
+  // own copy to write. Out of scope reads as "gate does not apply", so their
+  // numbers are untouched by this pass.
+  var LEGISLATIVE_OFFICE = /senat|represent|congress|assembly|delegate|speaker|caucus|committee|legislat|\bhouse\b|\brep\b|\bwhip\b/i;
+  var LOCAL_OFFICE = /county|city|\bmayor\b|sheriff|school|\bboard\b|council|precinct|commission/i;
+  var STATEWIDE_EXEC_OFFICE = /\bgovernor\b|attorney general|secretary of state|state treasurer|state auditor|superintendent|\bpresident\b/i;
+
+  // `true` this office casts no floor votes · `false` it does, or the title does
+  // not say. No title is read as "exec" by elimination.
+  function castsNoFloorVotes(pid, p) {
+    var d = p || null;
+    if (!d) { try { d = (window.CMP_DATA && window.CMP_DATA[pid]) || null; } catch (e) { d = null; } }
+    var office = (d && d.office) ? String(d.office) : '';
+    if (!office) return false;
+    if (LEGISLATIVE_OFFICE.test(office)) return false;
+    if (LOCAL_OFFICE.test(office)) return false;
+    return STATEWIDE_EXEC_OFFICE.test(office);
+  }
+
+  // The one predicate every surface's silence comes from.
+  function formalLaneReadable(pid, tested, p) {
+    if (testedOnFormalAct(tested)) return true;
+    var a = fpiLane(pid);
+    if (a === true) return true;
+    var b = execReadableRow(pid);
+    if (b === true) return true;
+    var c2 = fxLane(pid);
+    if (c2 === true) return true;
+    if (a === null || b === null || c2 === null) return true;  // could not be asked → not empty
+    if (!castsNoFloorVotes(pid, p)) return true;               // out of scope → not this gate's call
+    return false;
+  }
+
+  // …and the same answer for a caller holding a read. DELIBERATELY NOT A FIELD ON
+  // THE READ. read()'s published object is compared byte-for-byte against HEAD by
+  // the twin-boot drift harnesses, and one added key reads there as 537 profiles
+  // whose arithmetic moved — which would bury the handful whose arithmetic
+  // genuinely did. It is one function call on two memoised index lookups, so a
+  // surface asking here is asking the same owner read() vetoed on and cannot come
+  // to a different conclusion about the same person.
+  function noFormalLane(pid, r, p) {
+    return !formalLaneReadable(pid, r && r.tested, p || null);
+  }
+
   // ── THE READ ───────────────────────────────────────────────────────────────
   // SCOPE. `opts.termScope` selects which slice of the ✒️ executive lane the ACTION
   // side is drawn from — 'all_time' (the default, and the number every headline
@@ -631,8 +813,16 @@
     else if (items.length) outcomeToken = 'limited';
     else outcomeToken = 'no_stance';
 
+    // THE FORMAL LANE HAS TO EXIST BEFORE THE FLOORS ARE EVEN WORTH CHECKING.
+    // See the long note over formalLaneReadable: on an office that casts no floor
+    // votes and has no formal row anywhere, the pledge ledger clears both floors
+    // on its own and prints a percentage against a record the same page calls
+    // empty. This is a veto, not a floor — nothing is loosened, and a lane with
+    // any content in it passes straight through unchanged.
+    var laneEmpty = !formalLaneReadable(pid, tested, p);
+
     // Rule 4 — fail closed. Both floors must clear before a number exists.
-    var publishable = tested.length >= MIN_TESTED_ITEMS && wN >= MIN_TESTED_WEIGHT;
+    var publishable = !laneEmpty && tested.length >= MIN_TESTED_ITEMS && wN >= MIN_TESTED_WEIGHT;
     var pct = publishable && wN ? Math.round(wSum / wN) : null;
 
     // …and the WORDS fail closed with the number. One tested item saying
@@ -640,6 +830,15 @@
     // blank percentage — a verdict resting on exactly the evidence the floor just
     // rejected. Below the floor the read says it is still looking, and the raw
     // outcome stays available as `outcomeToken` for anything that needs it.
+    // THE FALLBACK LADDER IS UNTOUCHED, including for an empty formal lane. It is
+    // tempting to move that case to `no_record` ("No record yet") — it is the more
+    // exact word than `limited` ("Limited record") — and it is not this pass's
+    // change to make: the ladder answers for every unpublished read in the
+    // product, so relabelling one branch of it moves the verdict word on hundreds
+    // of profiles that were never wrong, and the requirement here is about a
+    // percentage, a ring and a MIXED RECORD chip. `limited` reaches no verdict and
+    // makes no claim of a match, thinCopy() below says exactly which gap this is,
+    // and the fallback words are somebody else's pass.
     var token = publishable ? outcomeToken
               : (warming ? 'pending' : (items.length ? 'limited' : 'no_stance'));
 
@@ -1083,13 +1282,18 @@
   // The honest empty / thin state. It says which of the two things is missing —
   // word or action — because those are different gaps with different fixes, and a
   // single "no data" message hides which one a reader is looking at.
-  function thinCopy(r, name) {
+  function thinCopy(r, name, pid, p) {
     var c = r.coverage;
     if (!c.word) {
       return 'No documented position, pledge or signature issue is on file for ' + name + ' yet, so there is nothing to test a vote against. ' +
              'Word is added only as it is sourced — never inferred from how they voted.';
     }
     if (c.warming) return 'Checking ' + name + '’s formal record against ' + c.scorable + ' documented statement' + (c.scorable === 1 ? '' : 's') + '…';
+    // AFTER the warming branch, never before it: a lane still being fetched is not
+    // an empty one. See formalLaneReadable — this is the office with no formal
+    // record on file, not the person with a thin one, and the two are different
+    // gaps with different fixes.
+    if (noFormalLane(pid, r, p)) return NO_FORMAL_LANE_COPY;
     if (!c.scorable) {
       return 'All ' + c.word + ' position' + (c.word === 1 ? '' : 's') + ' on file for ' + name + ' ' + (c.word === 1 ? 'was' : 'were') +
              ' written up from the formal record itself, so ' + (c.word === 1 ? 'it' : 'they') + ' cannot test it. ' +
@@ -3691,7 +3895,7 @@
               // as a paragraph instead of a verdict.
               (hasPct
                 ? esc((v && v.short) || '')
-                : esc(thinCopy(r, name))) +
+                : esc(thinCopy(r, name, pid, p))) +
             '</p>' +
           '</div>' +
         '</div>' +
@@ -3888,6 +4092,11 @@
       // as two different jobs in progress.
       else if (c.warming) sub = 'Loading the record…';
       else if (!c.word) sub = '';
+      // An empty formal lane before the floor phrasings, because those phrasings
+      // are false here: the pledge ledger can carry nine tested items past a
+      // three-item floor on its own, and "9 of 3 tested needed" is what the ring
+      // said under a suppressed number on /p/cox.
+      else if (noFormalLane(pid, r, p)) sub = 'No formal record on file to test against';
       else if (!c.scorable) sub = 'Nothing said independently on file';
       else if (!c.tested) sub = c.scorable + ' on file, none tested yet';
       else sub = c.tested + ' of ' + r.floors.items + ' tested needed';
@@ -5897,6 +6106,20 @@
     scopedRead: scopedRead,
     issueRead: issueRead,
     heroRead: heroRead,
+    // ⚖️ WHETHER THERE IS A FORMAL LANE TO TEST AGAINST. Published so a surface
+    // that needs the answer without paying for a scoring pass — and the harness
+    // that proves a governor cannot publish a percentage — asks the same function
+    // `read()` vetoes on, rather than re-deriving it from the indexes. The answer
+    // is DELIBERATELY NOT a field on the read — noFormalLane(pid, r, p) is asked
+    // beside a read rather than carried inside one, because read()'s published
+    // object is compared key for key against HEAD by the twin-boot drift harnesses
+    // and one added key reads there as every profile in the roster moving at once.
+    // The sentence a reader is shown in place of the number is
+    // NO_FORMAL_LANE_COPY. See the wall over formalLaneReadable().
+    formalLaneReadable: formalLaneReadable,
+    noFormalLane: noFormalLane,
+    castsNoFloorVotes: castsNoFloorVotes,
+    NO_FORMAL_LANE_COPY: NO_FORMAL_LANE_COPY,
     // 🏛 The depth gate, published so tests and callers read the same two numbers
     // the hero does rather than a copy of them.
     SHAPE_MIN: SHAPE_MIN,
