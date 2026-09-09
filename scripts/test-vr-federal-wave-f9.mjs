@@ -1973,6 +1973,28 @@ const swNote = swWaveNote();
     // exported — and the one span this pass does add to that file is carved and
     // argued as AT_SEAMS in scripts/v103-chrome-seams.mjs.
     "netlify/functions/pdx-sync.mts",
+    // ── AND THE PASS AFTER THAT: A NAME'S EDGE, AND ONE CORRECTED PORTRAIT ──
+    // A ROSTER PHOTO THAT NAMED THE WRONG PERSON, AND A SEARCH THAT MATCHED A
+    // SURNAME IN THE MIDDLE OF ANOTHER ONE (CACHE_VERSION v164). `kennedy` was
+    // filed in the live roster with Bioguide K000404 - Kimberlyn King-Hinds, MP -
+    // instead of K000403, an image that loads, so nothing reported it;
+    // firebase-boot.js now corrects it as each document lands. And the All-Seeing
+    // Eye's roster answer is split after ranking into the people the query NAMES
+    // and the people it is only spelled inside, so "cox" no longer answers with
+    // Wilcox first.
+    //   scripts/test-photo-coverage.mjs is the harness that pins the correction:
+    // same url as BROWSE_PHOTOS for the same pid, host inside its already-vetted
+    // ALLOWED set, and applied at every PROFILES write site. It gains assertions
+    // and loosens none - the arrival-pool floor, the URL shape check, the
+    // duplicate-key scan, the host set and the netlify.toml cross-pin all still
+    // read exactly as written.
+    //   NOTHING IN THIS WAVE'S REACH MOVES. No vr_* table, row, roll, mapping,
+    // key, floor, weight, tier, polarity, admission, refusal or Direction Match
+    // figure is written, read or published by any of it. score() and rank() in
+    // all-seeing-eye.js are byte-identical to HEAD, recordFirst() is unedited and
+    // simply runs inside each of the two groups, no party letter entered a sort
+    // key, and no image host was added to the trusted set or to remote_images.
+    "scripts/test-photo-coverage.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }

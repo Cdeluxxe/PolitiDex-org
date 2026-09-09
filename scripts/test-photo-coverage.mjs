@@ -99,6 +99,48 @@ ok(strayHosts.size === 0,
   `BROWSE_PHOTOS points at ${strayHosts.size} host(s) outside the trusted set: ` +
   [...strayHosts].map(([h, ks]) => `${h} (${ks.slice(0, 4).join(", ")})`).join("; "));
 
+// ── The roster-correction tier agrees with the bundled one ──────────────────
+// _getPhotoUrl() prefers PROFILES[pid].photo — the live Firestore roster — over
+// every bundled tier, so BROWSE_PHOTOS cannot repair a stored portrait that is
+// not dead but simply the WRONG PERSON. `kennedy` was filed with K000404
+// (Kimberlyn King-Hinds, MP) instead of K000403, an image that loads, so no
+// onerror ever reported it. firebase-boot.js therefore carries PDX_PHOTO_FIX and
+// applies it to every document as it lands.
+//
+// That makes it a THIRD copy of a portrait url, and the drift is invisible: the
+// roster tier would keep winning with one face while BROWSE_PHOTOS holds another,
+// and both load. So each correction is pinned to the curated map here — same pid,
+// same url, host inside ALLOWED — and the map is required to be applied at every
+// PROFILES write site, because a correction that misses one ingest path is a fix
+// that works until the fallback runs.
+const fbSrc = readFileSync(new URL("../firebase-boot.js", import.meta.url), "utf8");
+const fixOpen = fbSrc.indexOf("var PDX_PHOTO_FIX = {");
+ok(fixOpen !== -1, "firebase-boot.js declares no PDX_PHOTO_FIX map, so a roster portrait naming the wrong person can no longer be corrected");
+if (fixOpen !== -1) {
+  const fixBody = fbSrc.slice(fixOpen, fbSrc.indexOf("};", fixOpen));
+  const fixes = [...fixBody.matchAll(/^\s*([A-Za-z0-9_]+)\s*:\s*'([^']+)'/gm)].map((m) => [m[1], m[2]]);
+  ok(fixes.length > 0, "PDX_PHOTO_FIX parsed no entries — did the map's shape change?");
+  for (const [pid, url] of fixes) {
+    ok(URLISH.test(url), `PDX_PHOTO_FIX.${pid} is not a usable image URL — ${url}`);
+    const host = (url.split("/")[2] || "").toLowerCase();
+    ok(ALLOWED.has(host),
+      `PDX_PHOTO_FIX.${pid} points at ${host}, which is outside the trusted portrait set — ` +
+      `a correction may not introduce a host the share card's proxy will refuse`);
+    ok(bp[pid] === url,
+      `PDX_PHOTO_FIX.${pid} and BROWSE_PHOTOS.${pid} disagree about which face belongs to this person, ` +
+      `and both urls load, so nothing at runtime would report it:\n      fix   ${url}\n      bundle ${bp[pid] || "(no entry)"}`);
+  }
+  // Every ingest path publishes through the corrector. The light index, the
+  // full-collection fallback and the lazy full fetch each assign PROFILES[id];
+  // one raw assignment is enough to serve the wrong face on a slow network.
+  const writes = [...fbSrc.matchAll(/PROFILES\[[^\]]*\]\s*=\s*([^;\n]*)/g)].map((m) => m[1].trim());
+  const raw = writes.filter((w) => !w.startsWith("_pdxFixPhoto("));
+  ok(writes.length >= 3, `firebase-boot.js has only ${writes.length} PROFILES write site(s) — the ingest paths moved, so this pin no longer covers them`);
+  ok(raw.length === 0,
+    `${raw.length} PROFILES write site(s) in firebase-boot.js bypass _pdxFixPhoto, so a corrected portrait ` +
+    `reverts on that path: ` + raw.join(" | "));
+}
+
 // ── …and the Image CDN allowlist says the same thing ────────────────────────
 // The share card (profile-card.js) cannot hotlink a portrait: a cross-origin
 // bitmap taints its canvas and toBlob() then throws in the reader's share

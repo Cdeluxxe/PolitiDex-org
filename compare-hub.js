@@ -66,7 +66,15 @@
       jason_smith: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001195.jpg',
       owens: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000086.jpg',
       maloy: 'https://bioguide.congress.gov/bioguide/photo/M/M001228.jpg',
-      kennedy: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000403.jpg',
+      // MIKE KENNEDY IS K000403, AND THE NEIGHBOURING ID IS SOMEBODY ELSE. UT-03's
+      // representative sits one digit away from K000404 — Kimberlyn King-Hinds,
+      // the delegate for the Northern Mariana Islands — and the live roster was
+      // filed with hers, which loads, so no placeholder and no onerror ever
+      // reported it. The official House/Clerk portrait for K000403 is the value
+      // here, PDX_PHOTO_FIX in firebase-boot.js holds the same string so the
+      // roster's copy cannot win, and scripts/test-photo-coverage.mjs pins the two
+      // together. Never re-derive this from a neighbouring id.
+      kennedy: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000403.jpg', // UT-03 · K000403
       boebert: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B000825.jpg',
       mtg: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000596.jpg',
       gaetz: 'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000578.jpg',
