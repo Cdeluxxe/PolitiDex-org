@@ -1937,6 +1937,43 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // simply runs inside each of the two groups, no party letter entered a sort
     // key, and no image host was added to the trusted set or to remote_images.
     "scripts/test-photo-coverage.mjs",
+    // ── AND THE PASS AFTER THAT: A GOVERNOR'S FORMAL LANE ──────────────────
+    // 140 RECORDED GUBERNATORIAL ACTS - 138 BILLS SIGNED, 2 VETOED - FILED FOR
+    // cox AS vr_positions ROWS (CACHE_VERSION v165). The pattern engine only ate
+    // floor, committee and sponsorship acts, none of which a governor casts, so
+    // the office printed "No formal pattern on file yet" over a record that
+    // le.utah.gov had all along. This wave fills the lane and INVENTS NO ROLL
+    // CALL: the two act types are new (gov_signed, gov_vetoed), they are weighted
+    // 0.70 - BELOW a floor vote - they are labeled "Signed" and "Vetoed", and no
+    // surface calls either one a vote or admits either to Direction Match.
+    //   formal-index.js gains exactly ONE LINE, 'cox': [140, 140], and
+    // scripts/gen-formal-index.mjs gains the feeder that produces it. That
+    // generator is a whole-document regeneration like sitemap.xml and
+    // db/share-index.json above, and it is here on the same later-wave terms: any
+    // wave that files formal acts for a person the index did not know re-emits the
+    // table. NOBODY LOSES A COUNT - the harness that owns this file proves the
+    // regeneration is additive, and F8's own people are byte-identical inside it.
+    //   scripts/test-vr-mapping-migration-pack-step.mjs gains one ingest name to
+    // its ACTIVE list, which is a claim about the FUTURE (this ingest has sessions
+    // left, so it is not finished) and not about any migration already applied.
+    //   NOTHING IN F8'S REACH MOVES. No federal act, no vr_rollcalls row, no
+    // vr_member_votes row, no roll, no floor, no Direction Match figure and no
+    // /p/trump byte is written, read or relabeled by any of it - the President's
+    // signature lane keeps its own act types and its own count, and section 6's
+    // proof that 20261024000000_vr_federal_wave_f8.sql is unchanged still holds.
+    // The two spans this pass adds to stance-helpers.js are carved and argued as
+    // SH_SEAMS in scripts/v103-chrome-seams.mjs, and consistency.js is identical
+    // below its comments.
+    "formal-index.js", "scripts/gen-formal-index.mjs",
+    "scripts/test-vr-mapping-migration-pack-step.mjs",
+    //   scripts/test-vr-utah-exec.mjs is the wave's OWN harness, listed here for
+    // the one reason a harness ever earns a place on this list: its twin-boot
+    // counterfactual was pinned to HEAD, which was the tree before the wave only
+    // while the wave was in flight. On a merged tree HEAD knows gov_signed, so it
+    // now walks stance-helpers.js back to the newest revision that does not and
+    // boots that instead. The comparison got MORE durable, not weaker - it refused
+    // to pass vacuously rather than going quiet, which is why it was found.
+    "scripts/test-vr-utah-exec.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

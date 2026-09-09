@@ -539,10 +539,19 @@
   // ── IS THERE A FORMAL LANE TO TEST AGAINST AT ALL ──────────────────────────
   // A percentage here is one claim: this person's word, tested against their
   // OFFICIAL RECORD. That claim needs a formal record to exist. A governor casts
-  // no roll calls, and until Utah signed/vetoed ingest lands there are no ✒️
-  // executive acts on file for one either — so for /p/cox the formal side of the
-  // comparison is empty, and the 🏛 record brief on the same page says so in
-  // plain words: "No formal pattern on file yet."
+  // no roll calls, so the lane can be empty by construction rather than by
+  // timing — which is what /p/cox was when this gate was written: no floor votes,
+  // no committee votes, no sponsorships, no ✒️ executive acts, and the 🏛 record
+  // brief on the same page saying so in plain words, "No formal pattern on file
+  // yet."
+  //   THAT IS NO LONGER COX'S STATE, AND THE GATE IS UNCHANGED BY THAT. Wave E1
+  // put the Utah governor's own acts on file — 138 signed bills and 2 vetoes as
+  // 'gov_signed' / 'gov_vetoed' rows — so his formal lane is readable and this
+  // gate now passes him on the evidence, through exactly the four owners below.
+  // Nothing here was widened to let him through and no floor was lowered. The
+  // gate still fires, correctly, for a statewide exec whose lane really is empty:
+  // Utah's Lieutenant Governor and Attorney General perform neither act, so they
+  // hold zero rows and still get the sentence.
   //
   // The pledge ledger is not a substitute for it. A tracked pledge resolves in
   // testOf() from its own kept/broken verdict — `basis: 'pledge-ledger'`, no
@@ -592,6 +601,27 @@
   // compare slot, anything that prints thin copy.
   var NO_FORMAL_LANE_COPY = 'Word vs Action needs a formal record to test against. ' +
                             'This office’s formal acts are not on file yet.';
+  // ── AND THE OTHER HALF OF THE SAME HONESTY, WHICH WAVE E1 CREATED ──────────
+  // A LANE THAT EXISTS IS NOT A LANE THAT TESTED ANYTHING. Before the Utah
+  // executive ingest, an exec's formal lane was empty and the sentence above was
+  // the whole story. Cox now holds 140 recorded gubernatorial acts, so
+  // formalLaneReadable() answers true for him — correctly, they are on file — and
+  // the veto above stands down. But every one of his tested items is still
+  // resolved from the PLEDGE LEDGER, and nine resolved pledges clear both floors
+  // on their own. Publishing there would print the same 56% the empty-lane pass
+  // deleted, over a formal record that happens to exist and happens to test
+  // nothing: a worse lie than the first one, because the record it points at is
+  // real and a reader could go looking for the overlap that produced the number.
+  //   So the number waits for an ACT THAT TESTS A STATED POSITION, and the
+  // sentence says which of the two gaps this is. Scoped exactly as the lane gate
+  // is — offices that cast no floor votes — so no member of Congress and no state
+  // legislator can reach it: for them a tested set that is all pledge ledger is
+  // ordinary, their roll calls are fetched per member, and suppressing there would
+  // delete real numbers over a fetch. This is a veto and not a floor. Nothing is
+  // loosened, MIN_TESTED_ITEMS and MIN_TESTED_WEIGHT are what they were, and a
+  // read with one formal tested item on it passes straight through.
+  var NO_TESTED_FORMAL_COPY = 'Word vs Action needs a formal act that tests something this office said. ' +
+                              'The formal acts are on file — none of them lines up with a documented position yet.';
 
   // `true` there is a formal row for this pid · `false` there is none · `null` the
   // index could not be asked, which is not an answer.
@@ -656,9 +686,10 @@
   // Requirement 2 scopes the rule to "any statewide exec with zero readable
   // formal rows" — NOT to any profile with zero readable rows, and the difference
   // is the whole safety of the gate. An empty index is two different facts
-  // depending on the office. For a governor it is the standing state of the
-  // world: the office casts no floor votes, and until Utah signed/vetoed ingest
-  // lands there is nothing else to hold. For a senator it is a timing artefact —
+  // depending on the office. For a statewide exec it can be the standing state of
+  // the world: the office casts no floor votes, and if it performs no act any lane
+  // models — a Lieutenant Governor signs and vetoes nothing — there is nothing
+  // else to hold. For a senator it is a timing artefact —
   // the roll-call payload is fetched per member, so ANY page that renders before
   // that fetch resolves reads zero rows for a member of Congress. Firing there
   // would print "This office's formal acts are not on file yet" onto a senator
@@ -716,6 +747,30 @@
   // to a different conclusion about the same person.
   function noFormalLane(pid, r, p) {
     return !formalLaneReadable(pid, r && r.tested, p || null);
+  }
+
+  // `true` when the formal lane HAS acts on file, the office casts no floor votes,
+  // and not one tested item was resolved against a formal act. The two vetoes are
+  // mutually exclusive by construction: this one returns false whenever the lane
+  // is empty, because that case already has an owner and its own sentence.
+  function formalActsTestNothing(pid, tested, p) {
+    if (!castsNoFloorVotes(pid, p || null)) return false;   // out of scope, same as the lane gate
+    // POSITIVE KNOWLEDGE, ASKED THE SAME WAY THE FIRST VETO ASKS IT. Not
+    // `formalLaneReadable`, which fails OPEN — it answers true when no index can be
+    // reached, and reading that as "the acts are on file and tested nothing" would
+    // turn an unaskable index into a suppressed number, which is the first veto's
+    // own mistake pointing the other way. A lane has to say, on its own, that it
+    // holds acts before this gate is entitled to notice that none of them tested
+    // anything.
+    var onFile = fpiLane(pid) === true || execReadableRow(pid) === true || fxLane(pid) === true;
+    if (!onFile) return false;      // empty, or could not be asked → not this gate's call
+    return !testedOnFormalAct(tested);
+  }
+  // …and the same answer for a caller holding a read, for the same reason
+  // noFormalLane() exists: not a field on the read, so read()'s published shape is
+  // still the shape the twin-boot drift harnesses compare against HEAD.
+  function untestedFormalLane(pid, r, p) {
+    return formalActsTestNothing(pid, r && r.tested, p || null);
   }
 
   // ── THE READ ───────────────────────────────────────────────────────────────
@@ -820,9 +875,14 @@
     // empty. This is a veto, not a floor — nothing is loosened, and a lane with
     // any content in it passes straight through unchanged.
     var laneEmpty = !formalLaneReadable(pid, tested, p);
+    // …AND THE ACTS IN IT HAVE TO HAVE TESTED SOMETHING. See the note over
+    // NO_TESTED_FORMAL_COPY: an exec whose formal lane is full and whose tested
+    // items are all pledge ledger publishes nothing either, because the record the
+    // percentage would point at never met the words it claims to measure.
+    var laneUntested = formalActsTestNothing(pid, tested, p);
 
     // Rule 4 — fail closed. Both floors must clear before a number exists.
-    var publishable = !laneEmpty && tested.length >= MIN_TESTED_ITEMS && wN >= MIN_TESTED_WEIGHT;
+    var publishable = !laneEmpty && !laneUntested && tested.length >= MIN_TESTED_ITEMS && wN >= MIN_TESTED_WEIGHT;
     var pct = publishable && wN ? Math.round(wSum / wN) : null;
 
     // …and the WORDS fail closed with the number. One tested item saying
@@ -1294,6 +1354,7 @@
     // record on file, not the person with a thin one, and the two are different
     // gaps with different fixes.
     if (noFormalLane(pid, r, p)) return NO_FORMAL_LANE_COPY;
+    if (untestedFormalLane(pid, r, p)) return NO_TESTED_FORMAL_COPY;
     if (!c.scorable) {
       return 'All ' + c.word + ' position' + (c.word === 1 ? '' : 's') + ' on file for ' + name + ' ' + (c.word === 1 ? 'was' : 'were') +
              ' written up from the formal record itself, so ' + (c.word === 1 ? 'it' : 'they') + ' cannot test it. ' +
@@ -4097,6 +4158,9 @@
       // three-item floor on its own, and "9 of 3 tested needed" is what the ring
       // said under a suppressed number on /p/cox.
       else if (noFormalLane(pid, r, p)) sub = 'No formal record on file to test against';
+      // The lane is on file and tested nothing — a different gap, and the floor
+      // phrasings below are just as false here as they are one line up.
+      else if (untestedFormalLane(pid, r, p)) sub = 'No formal act tests a stated position yet';
       else if (!c.scorable) sub = 'Nothing said independently on file';
       else if (!c.tested) sub = c.scorable + ' on file, none tested yet';
       else sub = c.tested + ' of ' + r.floors.items + ' tested needed';
@@ -6118,6 +6182,11 @@
     // NO_FORMAL_LANE_COPY. See the wall over formalLaneReadable().
     formalLaneReadable: formalLaneReadable,
     noFormalLane: noFormalLane,
+    // The second veto, published beside the first so a surface prints the gap it
+    // actually has: acts on file, none of them testing a stated position. The
+    // sentence is NO_TESTED_FORMAL_COPY.
+    untestedFormalLane: untestedFormalLane,
+    NO_TESTED_FORMAL_COPY: NO_TESTED_FORMAL_COPY,
     castsNoFloorVotes: castsNoFloorVotes,
     NO_FORMAL_LANE_COPY: NO_FORMAL_LANE_COPY,
     // 🏛 The depth gate, published so tests and callers read the same two numbers

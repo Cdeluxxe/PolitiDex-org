@@ -447,6 +447,33 @@ section("6 · the gate reads published counts, and moves nothing");
         "sitemap.xml gained a line of the slice pass — the sentence is a rendered note, not an address");
       continue;
     }
+    // formal-index.js IS A GENERATED FILE, in the same class as sitemap.xml above:
+    // scripts/gen-formal-index.mjs recounts it from the shipped Utah lane seeds, so
+    // every ingest wave that admits an act republishes it and byte equality could
+    // only ever hold in this pass's own tree. What the equality stood in for is
+    // checked instead — nobody HEAD counted lost or changed a count, and nothing
+    // the file gained is a line of the slice pass. A count that MOVED would still
+    // fail, because that is the claim: this pass reads the inventory and does not
+    // write it.
+    if (f === "formal-index.js") {
+      const rows = (src) => {
+        const out = new Map();
+        const re = /^\s*'([a-z0-9_]+)': \[(\d+), (\d+)\],$/gm;
+        let m;
+        while ((m = re.exec(src))) out.set(m[1], `${m[2]}/${m[3]}`);
+        return out;
+      };
+      const was = rows(h), now = rows(R(f));
+      must(was.size > 100, "formal-index.js's counts could not be read out of HEAD");
+      const moved = [...was].filter(([pid, v]) => now.get(pid) !== v)
+        .map(([pid, v]) => `${pid} ${v} → ${now.get(pid) || "gone"}`);
+      eq(moved.slice(0, 3).join(" | "), "",
+        `${moved.length} formal-index count(s) moved in a copy-only pass`);
+      const gained = R(f).split("\n").filter((l) => !h.includes(l));
+      ok(!gained.some((l) => /House rolls|career score|SLICE_/.test(l)),
+        "formal-index.js gained a line of the slice pass — the sentence is rendered, never counted");
+      continue;
+    }
     if (f === "stance-helpers.js" || f === "consistency.js") {
       const gained = R(f).split("\n").filter((l) => !h.includes(l));
       ok(!gained.some((l) => /House rolls|career score|SLICE_/.test(l)),

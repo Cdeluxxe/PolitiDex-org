@@ -3188,6 +3188,90 @@
 // District Room, the floors, the offline pack and DM were not opened.
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
+// ──────────────────────────────────────────────────────────────────────────────
+// v165 - A GOVERNOR'S FORMAL RECORD IS SIGNED BILLS AND VETOED BILLS
+// ──────────────────────────────────────────────────────────────────────────────
+// v163 stopped /p/cox printing a Word-vs-Action percentage over a formal lane that
+// was empty. It was the right silence and it was still a silence: the 🏛 brief said
+// "No formal pattern on file yet" about a governor who had signed 1,104 bills and
+// vetoed 13 across two Utah general sessions. The lane was empty because the
+// pattern engine only ate floor votes, committee votes and sponsorships, and a
+// governor casts none of those. THE FILE FOR THAT OFFICE IS SIGNATURES AND VETOES,
+// and this pass ingests them: 140 recorded gubernatorial acts - 138 signed, 2
+// vetoed - each one a bill number, a date and a le.utah.gov citation, on the 140
+// Utah measures that already carry a human-reviewed issue mapping.
+//   TWO NEW ACT TYPES, DELIBERATELY NOT THE PRESIDENT'S. gov_signed and gov_vetoed
+// enter the stance-helpers act table at 0.70, labelled "Signed" and "Vetoed",
+// ranked below a floor roll call (1.00) and above a committee vote (0.60). The
+// pre-existing federal 'signed' / 'vetoed' / 'issued' types are UNTOUCHED and stay
+// out of that table, which is what keeps a president routing to the separate ✒️
+// Executive Enactment Record: reusing them would have double-counted 12 federal
+// enactment measures into the 🏛 lane and relabelled the ✒️ one. /p/trump reads
+// byte-identically - the lane, the ratio and the 71% are the same objects.
+//   NEITHER ACT IS A VOTE, AND NO SURFACE MAY CALL IT ONE. They are vr_positions
+// rows: no roll call, no member vote, no seat in Direction Match, no ballot verb in
+// any of the three phrasings a row can print ("Signed", "signed bill", "signed
+// bills" / "Vetoed", "veto", "vetoes"). Depth only, in the record lane only - the
+// same wall committee votes and sponsorships already stand behind.
+//   THE SECOND SILENCE, WHICH IS NEW. A lane that is ON FILE is not a lane that
+// TESTS SOMETHING. All 140 acts are recorded and not one of them yet lines up with
+// a documented Cox position, so publishing a ratio off the pledge ledger alone
+// would have reproduced v163's 56% with a full lane as its alibi. read() now holds
+// a second veto beside the first: `laneUntested` fires when the lane is positively
+// readable and nothing in the tested set rests on a formal act, and the ⚖️ block
+// prints NO_TESTED_FORMAL_COPY instead of a number. It asks the three indexes
+// DIRECTLY rather than through formalLaneReadable(), which fails OPEN by design -
+// a fetch in flight must never be read as "tests nothing". Same scope as the first
+// veto (castsNoFloorVotes), so no legislator is reachable by either.
+//   NOBODY WAS GUESSED. le.utah.gov never prints the governor's name on a bill
+// action - it prints "Governor Signed" and a code - so the identification is
+// (session, office) → roster id in db/vr-utah-exec-map.json, accepted by a human
+// and failing closed. The Lieutenant Governor, the Attorney General and the other
+// statewide execs are on the roster with NO key, on purpose: those offices neither
+// sign nor veto, their lanes stay empty, and v163's empty-office sentence is still
+// the correct thing on those pages. Line-item vetoes (GVETOLI, the bill became law)
+// and "Became Law w/o Governor Signature" (GNOSIGN, the absence of an act) are
+// refused by design; 977 signed and vetoed acts on bills with no reviewed mapping
+// are refused as unmapped and characterise nothing.
+//   NO FLOOR MOVED. MIN_TESTED_ITEMS is still 3, MIN_TESTED_WEIGHT still 4, and
+// _RD_MIN_STRENGTH / _RD_THIN_MIN_STRENGTH / _RD_LEAN_MIN_STRENGTH / _RD_FLOOR_LED
+// are where waves 1-3 left them. A twin boot against HEAD leaves lee, chew_h68,
+// defay_h15 and trump identical on the Word-vs-Action read, the record verdict,
+// the lane routing and every per-issue formal tier.
+//   PRECACHED SHELL FILES CHANGED - THEY ARE THE REASON FOR THE BUMP:
+//   · '/stance-helpers.js'     - the two act-table rows, their place in
+//                                _ACT_ORDER and their nouns. A warm shell has an
+//                                act table with no gov_signed in it, so every
+//                                gubernatorial row it is handed reads as
+//                                unclassified and the brief stays mute.
+//   · '/word-action.js'        - the second veto (formalActsTestNothing,
+//                                untestedFormalLane), NO_TESTED_FORMAL_COPY and
+//                                the hero sub-line. Without it a warm device
+//                                paints a pledge-ledger percentage over the newly
+//                                full lane, which is the v163 bug with a better
+//                                disguise.
+//   · '/consistency.js'        - the row wording for the two acts and the
+//                                doctrine note on _anyWeighedAct that keeps the
+//                                federal three out of the act table.
+//   · '/formal-index.js'       - cox gains 'cox': [140, 140]. This is the file the
+//                                lane gates ask, so an old copy of it is exactly
+//                                the state where the acts exist and no surface
+//                                will open them.
+// ALSO CHANGED BUT NOT PRECACHED, SO IT ARRIVES FRESH WITHOUT THIS BUMP:
+// compare-hub.js (the ledger slot's untested-lane sub-line) - a
+// stale-while-revalidate runtime entry - netlify/functions/voting-record.mts (the
+// two POS_LABEL entries, server-side), the 20261102000000_vr_utah_exec_e1 migration
+// and its three db/ JSON files, db/vr-ingest-runbook.md, the harnesses
+// (scripts/test-vr-utah-exec.mjs, scripts/test-wva-empty-formal-lane.mjs), and
+// sitemap.xml, which gains exactly one <url>: H.B. 306 becomes an openable bill
+// address the moment its measure row exists, and the committed sitemap is checked
+// against the data rather than regenerated at deploy time.
+// NOTHING ELSE MOVED. No party score, no package percentage, no invented stance,
+// no House or Senate roll attached to a governor, and no pledge-ledger item turned
+// into a formal act. Your file, Forum, the District Room, District Voice, pack
+// TTL, the Kennedy photo and search rank were not opened.
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it.
 // ─────────────────────────────────────────────────────────────────────────────
 // v163 - AN EMPTY FORMAL LANE CANNOT CARRY A WORD VS ACTION PERCENTAGE
 // ─────────────────────────────────────────────────────────────────────────────
@@ -3816,7 +3900,14 @@
 // that file first on its eight issue keys. /your-file.js and /your-file.css are
 // deliberately NOT in SHELL_ASSETS, so they arrive from the network on first use
 // and cannot be served stale from an older shell.
-const CACHE_VERSION = 'v164';
+// v165 — The Utah executive formal lane. Four precached shell assets changed:
+// /stance-helpers.js (the gov_signed / gov_vetoed act rows), /word-action.js (the
+// untested-lane veto and its sentence), /consistency.js (the row wording) and
+// /formal-index.js (cox's 140 acts on 140 measures). A shell holding v164 that
+// takes the new formal-index.js but not the new word-action.js would print a
+// pledge-ledger percentage over a lane it can now see, which is the one thing
+// this pass exists to prevent — so the four travel together or not at all.
+const CACHE_VERSION = 'v165';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

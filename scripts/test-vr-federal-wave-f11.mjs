@@ -73,7 +73,8 @@ import { tmpdir } from "node:os";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { createHash } from "node:crypto";
-import { WA_SEAMS, CJ_SEAMS_ALL, AT_SEAMS, carveSeams, assertConsistencySeams } from "./v103-chrome-seams.mjs";
+import { WA_SEAMS, CJ_SEAMS_ALL, AT_SEAMS, SH_SEAMS, carveSeams, assertConsistencySeams,
+  assertStanceHelpersSeam } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -375,9 +376,30 @@ const NO_POLE = (() => {
   // reverse lookup, Direction Match, the two lanes, the evidence helpers and the
   // team renderer — is compared byte for byte. Anything outside the one span fails
   // here exactly as it did before.
-  const WAIVED = ["word-action.js", "consistency.js", "alignment-tool.js"];
+  //
+  // AND A FOURTH, ON THE SAME TERMS: the Utah executive lane (v165) added two act
+  // classes to stance-helpers.js's act table — gov_signed and gov_vetoed, 0.70
+  // each, below a floor roll call — because a governor casts no floor vote, sits
+  // on no committee and sponsors nothing, so the formal lane for that office was
+  // empty by construction and printed the empty-office sentence over 140 recorded
+  // acts. This wave's objection is answered the same way: neither class is a
+  // vote, neither is offered to Direction Match, no floor, band, weight or
+  // polarity this wave reads was touched, the roll-call class is still 1.00 and
+  // is pinned inside the span it opens, and no member of Congress can hold either
+  // act. The file is carved at the three spans that pass declares and everything
+  // outside them is compared byte for byte, exactly as the other three are.
+  const WAIVED = ["word-action.js", "consistency.js", "alignment-tool.js", "stance-helpers.js"];
   eq(touched.filter((f) => !WAIVED.includes(f)).length, 0,
     `F11 changed a booted engine file (${touched.join(", ")}) — a coverage wave writes mapping rows and no engine`);
+  if (touched.includes("stance-helpers.js")) {
+    const has = (x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`);
+    const sa = carveSeams(headSrc("stance-helpers.js"), SH_SEAMS, "HEAD", "stance-helpers.js", ok);
+    const sb = carveSeams(nowSrc("stance-helpers.js"), SH_SEAMS, "now", "stance-helpers.js", ok);
+    eq(sa.pinned, sb.pinned,
+      "stance-helpers.js changed outside the spans named in scripts/v103-chrome-seams.mjs — the act " +
+      "table, the resolver and every floor above it are this wave's subject, not its to edit");
+    assertStanceHelpersSeam(sb.bodies, { has, ok, eq });
+  }
   if (touched.includes("word-action.js")) {
     const wa = carveSeams(headSrc("word-action.js"), WA_SEAMS, "HEAD", "word-action.js", ok);
     const wb = carveSeams(nowSrc("word-action.js"), WA_SEAMS, "now", "word-action.js", ok);
@@ -725,9 +747,35 @@ if (!process.env.NETLIFY_DB_URL) {
   // are touched by nothing here - so the sort is scoped to the lane rather than
   // to the whole directory.
   const LANE = MIGS.filter((f) => /_vr_/.test(f));
-  eq(LANE[LANE.length - 1], "20261028000000_vr_federal_wave_f11.sql", "F11's migration must be last in the record lane");
-  ok(MIGS.every((f) => f <= "20261028000000_vr_federal_wave_f11.sql" || !/_vr_/.test(f)),
-    "and no record-lane migration was slipped in behind it");
+  const SELF = "20261028000000_vr_federal_wave_f11.sql";
+  ok(LANE.includes(SELF), "F11's migration is not in the record lane at all");
+  // AND WHAT LANDS BEHIND IT MAY NOT REWRITE WHAT IT WROTE. This used to require
+  // F11 to be the newest file in the whole vr_* lane, which was the cheap proxy
+  // for the sentence above: at the time, every vr_* wave wrote roll calls and
+  // member votes, so "newest in the lane" and "nothing reordered my rows" were
+  // the same claim. They came apart when the Utah executive lane (v165) landed a
+  // vr_* migration that writes no roll call and no member vote at all — a
+  // governor casts neither — and files 140 gubernatorial acts in vr_positions
+  // instead. Being later in the lane is not, by itself, a way to disturb this
+  // wave's product, so the proxy is replaced by the claim: every record-lane
+  // migration stamped after F11 must leave the two tables F11's rows live in
+  // alone, and must not retract or rewrite a mapping row either. That fails on
+  // the thing the sentence above was afraid of, and passes on work that merely
+  // happens afterwards.
+  const behind = LANE.filter((f) => f > SELF);
+  for (const f of behind) {
+    const sql = R(`netlify/database/migrations/${f}`);
+    const stmts = sql.split("\n").filter((l) => !/^\s*--/.test(l)).join("\n");
+    for (const t of ["vr_member_votes", "vr_rollcalls"]) {
+      ok(!new RegExp(`(insert\\s+into|update|delete\\s+from)\\s+${t}`, "i").test(stmts),
+        `${f} landed behind F11 and writes ${t} — a later wave touching the rows F11 wrote ` +
+        "silently reorders this one's effect, which is what the lane order used to stand for");
+    }
+    ok(!/(delete\s+from|update)\s+vr_measure_issues/i.test(stmts),
+      `${f} landed behind F11 and retracts or rewrites a mapping row — F11's admissions are ` +
+      "its product, and a later pass unwinding one has to be argued in that pass, not slipped in");
+  }
+  console.log(`      (record lane: F11 + ${behind.length} later migration(s), none of which touch its rows)`);
   ok(/F10's RESERVED STAMP/.test(SQL), "the migration must say which stamp it consumed and where the stamp came from");
   // No applied migration was edited: every other file is byte-identical to HEAD.
   const edited = MIGS.filter((f) => {

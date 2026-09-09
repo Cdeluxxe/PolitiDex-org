@@ -1231,12 +1231,19 @@ async function getMemberImpacts(politicianId: string): Promise<Response> {
   // copy, so it is the one place a drift can start. If a label changes there,
   // change it here in the same edit. Every entry is an act, none is a ballot verb:
   // "Voted" belongs to VOTE_LABEL above and appears nowhere in this map.
+  //   gov_signed / gov_vetoed are the STATE-executive act types added by the Utah
+  // executive lane (wave E1). They are not the presidential `signed` / `vetoed` /
+  // `issued` types, which are absent from this map on purpose: those route to the
+  // Executive Enactment Record and carry its own verbs ("Signed into law"), and a
+  // label here would override them.
   const POS_LABEL: Record<string, string> = {
     sponsor: "Lead sponsor",
     cosponsor: "Co-sponsored",
     amicus: "Joined amicus brief",
     plaintiff: "Party to the case",
     committee_vote: "Committee vote",
+    gov_signed: "Signed",
+    gov_vetoed: "Vetoed",
     statement: "On-record statement",
   };
   const actionByMeasure = new Map<number, string>();

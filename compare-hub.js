@@ -2266,6 +2266,20 @@
       if (lane) {
         return { state: 'wa', glyph: '—', label: 'Word vs Action', sub: 'No formal record on file', tint: '', pct: null, tested: 0 };
       }
+      // AND THE LANE THAT EXISTS BUT TESTED NOTHING, which is the shape wave E1
+      // created: the 140 signed and vetoed acts of a governor are on file, so the
+      // branch above stands down, and the tested items are still nine pledges.
+      // "Not enough record yet" is as false here as it was there — the record is
+      // deep, it just never met the words. Same owner, same question read()
+      // vetoed on; this only prints it.
+      var laneUntested = false;
+      try {
+        var waU = window.PDXWordAction;
+        if (r && waU && typeof waU.untestedFormalLane === 'function') laneUntested = waU.untestedFormalLane(opts.pid, r, p);
+      } catch (e) { laneUntested = false; }
+      if (laneUntested) {
+        return { state: 'wa', glyph: '—', label: 'Word vs Action', sub: 'No formal act tests a stated position', tint: '', pct: null, tested: 0 };
+      }
       if (cov && cov.tested > 0) {
         return { state: 'tracking', glyph: '⏳', label: 'Word vs Action', sub: 'Not enough record yet', tint: '', pct: null, tested: 0 };
       }

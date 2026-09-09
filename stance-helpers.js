@@ -569,9 +569,33 @@
     // deleting a lane, so it is classed where it belongs: bringing a case is moving
     // something, which is the lead-sponsor tier. It keeps the label the API already
     // ships ("Party to the case"), which does not claim sole authorship.
+    //
+    // WHY `gov_signed` AND `gov_vetoed` ARE IN THE TABLE, AND WHY THEY ARE NOT CALLED
+    // `signed` / `vetoed`. A governor casts no floor vote, sits on no committee and
+    // sponsors nothing, so before wave E1 the formal lane for that office was empty
+    // by construction and the profile said "No formal pattern on file yet". The
+    // formal file for a state executive is the bills the officeholder signed and the
+    // bills the officeholder vetoed — a recorded act with a date and a bill number.
+    // Those two types are STATE-executive types of their own, deliberately distinct
+    // from the pre-existing presidential `signed` / `vetoed` / `issued`, which are
+    // absent from this table on purpose (see consistency.js `_anyWeighedAct`) so a
+    // president's enactments route to the separate executive-enactment lane with
+    // their own verbs. Reusing the federal names would have flipped a dozen
+    // presidential measures out of that lane AND relabeled them, because
+    // _pdxActLabel is consulted before the exec verb table.
+    //   Weight 0.70 — BELOW a floor roll call, above a committee vote. Signing a
+    // bill is a decision the officeholder made alone and put a name to, which is
+    // more than a committee vote and less than a recorded ballot on the merits. Like
+    // every other non-floor act it is depth in the record lane only: it is never
+    // offered to Direction Match, and its label is a verb about an act ("Signed",
+    // "Vetoed"), never a ballot verb.
     var _ACT_CLASSES = {
       floor:          { key: 'floor',          w: 1.00, floor: true,
                         label: '',                    one: 'floor vote',      many: 'floor votes' },
+      gov_signed:     { key: 'gov_signed',     w: 0.70, floor: false,
+                        label: 'Signed',              one: 'signed bill',     many: 'signed bills' },
+      gov_vetoed:     { key: 'gov_vetoed',     w: 0.70, floor: false,
+                        label: 'Vetoed',              one: 'veto',            many: 'vetoes' },
       committee_vote: { key: 'committee_vote', w: 0.60, floor: false,
                         label: 'Committee vote',      one: 'committee vote',  many: 'committee votes' },
       sponsor:        { key: 'sponsor',        w: 0.45, floor: false,
@@ -589,7 +613,7 @@
     var _ACT_REFUSED = { statement: 'word_not_action' };
     // The order the mix is spoken in — strongest act first, so "1 committee vote
     // and 3 co-sponsorships" never comes out backwards.
-    var _ACT_ORDER = ['floor', 'committee_vote', 'sponsor', 'plaintiff', 'amicus', 'cosponsor'];
+    var _ACT_ORDER = ['floor', 'gov_signed', 'gov_vetoed', 'committee_vote', 'sponsor', 'plaintiff', 'amicus', 'cosponsor'];
 
     // ONE ITEM → ONE ACT CLASS, or null for "not admitted to the pattern".
     // A floor vote is anything the API did NOT mark as a position — the same test

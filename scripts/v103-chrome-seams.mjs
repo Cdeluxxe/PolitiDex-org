@@ -241,6 +241,19 @@ export const CJ_SEAMS = [
   ["      blurb: 'The hard, institutional score — their votes and formal legislative actions checked against what they say they stand for.',\n",
    "\n      // The ✒️ lane's wording for the same card.",
    "the official scope's empty wording"],
+  // ── and one for the state-executive act types (v165) ─────────────────────
+  // The lane router's own doctrine note, which is where the next reader asks why
+  // the federal enactment types are absent from the stance-helpers act table.
+  // Wave E1 answered a second question in the same place — a UTAH GOVERNOR does
+  // have two act types there, `gov_signed` and `gov_vetoed`, and the reason they
+  // are not the federal names is that reusing them would have flipped every
+  // presidential measure carrying one out of the ✒️ lane AND relabeled it. That
+  // belongs beside the paragraph it qualifies. The span is PROSE ONLY: not one
+  // statement of _anyWeighedAct or of the router above it is inside it, and the
+  // argument below says so in as many words.
+  ["  // exec-record.js, which counts them per class for exactly that reason).\n",
+   "  function _anyWeighedAct(items) {\n",
+   "the lane router's doctrine note on the exec act types"],
   ["    else if (counts.limited > 0) token = 'limited';\n",
    "\n    // Phase 7: Say-vs-Do carries its OWN pooled public-record integrity %",
    "the roll-up's empty-key token"],
@@ -488,7 +501,35 @@ export const CJ_SEAMS_ALL = CJ_SEAMS.concat(CJ_SEAMS_BELOW);
 // A wave has no stake in the span: no floor, no mapping, no weight, no score and
 // no admission is read or written inside it — it is a label and a destination —
 // and every stake in the rest of the file, which is compared byte for byte.
+// The first three spans are the state-executive act types (wave E1, v165), and
+// they are FIRST because they are first in the file: the act table sits at the top
+// of the module, so a pass landing there renumbers every span below it. That is
+// exactly the failure byWhy() was written for, and assertStanceHelpersSeam() now
+// looks its spans up by name rather than by position for that reason.
+//
+// A governor casts no floor vote, sits on no committee and sponsors nothing, so the
+// formal lane for that office was empty by construction and the profile said "No
+// formal pattern on file yet" over 140 recorded acts. The two new classes are the
+// acts the office actually performs. They are STATE-executive types of their own,
+// deliberately not the presidential `signed` / `vetoed` / `issued`, which stay out
+// of this table so a president still routes to the ✒️ lane with its own verbs.
+//
+// A wave has no stake in these three spans either: no floor moved (the roll-call
+// class is still 1.00 and is pinned inside the span it opens), no mapping, no
+// score and no admission is read or written in them, and nothing in them is
+// offered to Direction Match. What they add is depth in the record lane, which is
+// the same wall a committee vote and a sponsorship already stand behind.
 export const SH_SEAMS = [
+  ["    // ships (\"Party to the case\"), which does not claim sole authorship.\n",
+   "    var _ACT_CLASSES = {\n",
+   "why the state-executive act types are not the federal names"],
+  ["      floor:          { key: 'floor',          w: 1.00, floor: true,\n" +
+   "                        label: '',                    one: 'floor vote',      many: 'floor votes' },\n",
+   "      committee_vote: { key: 'committee_vote', w: 0.60, floor: false,\n",
+   "the two state-executive act classes"],
+  ["    // and 3 co-sponsorships\" never comes out backwards.\n",
+   "\n    // ONE ITEM → ONE ACT CLASS, or null for \"not admitted to the pattern\".",
+   "the order the act mix is spoken in"],
   ["    var formal = 0;\n",
    "\n  window._pdxStanceRecordStats = _pdxStanceRecordStats;",
    "the record-CTA stats"],
@@ -892,15 +933,16 @@ export function carveSeams(src, seams, side, file, must) {
  * assertConsistencySeams was handed the upper half whenever it was also handed a
  * lower half, and the whole file otherwise.
  */
-function byWhy(bodies, api, list) {
+function byWhy(bodies, api, list, file) {
+  const f = file || "consistency.js";
   const n = (bodies || []).length;
   api.ok(!!list && n === list.length,
-    `consistency.js was carved into ${n} spans and argued against a list of ` +
+    `${f} was carved into ${n} spans and argued against a list of ` +
     `${(list || []).length} — a seam was added to scripts/v103-chrome-seams.mjs and not to the caller`);
   const m = new Map();
   (bodies || []).forEach((b, k) => { if (list && list[k]) m.set(list[k][2], b); });
   return (why) => {
-    api.ok(m.has(why), `the seam named "${why}" is not among the spans this suite carved out of consistency.js`);
+    api.ok(m.has(why), `the seam named "${why}" is not among the spans this suite carved out of ${f}`);
     return m.get(why) || "";
   };
 }
@@ -935,6 +977,22 @@ export function assertConsistencySeams(bodies, api, below) {
     "…and an unread lane no longer says it is loading, or no longer asks for the read");
   ok(!/MIN_|FLOOR|floor|publishable|score|Math\.round/.test(rollup),
     "the empty-roll-up seam reads a floor, a score or a weight — it chooses one word for one empty case");
+
+  // ── the state-executive act types, explained where they are relevant (v165) ─
+  // PROSE ONLY, and the assertion is written to fail if that ever stops being
+  // true: strip the comment lines and the span must hold no statement at all. It
+  // must also still say the thing it was added to say — that the federal three
+  // are absent from the act table on purpose, and that the state two are named
+  // apart rather than reusing them.
+  const execNote = cut("the lane router's doctrine note on the exec act types");
+  ok(execNote.replace(/^\s*\/\/.*$/gm, "").trim() === "",
+    "the exec-act-types seam gained a statement — it is a doctrine note, and the router it " +
+    "explains is pinned byte for byte outside it");
+  has(execNote, "gov_signed",
+    "…and it no longer names the state-executive act types, so the next reader cannot tell " +
+    "why the federal three are absent while two others are present");
+  has(execNote, "_pdxActLabel",
+    "…nor why reusing the federal names would have relabeled a president's rows");
 
   // ── seams C-G: the ledger reads the index; it does not read the record ──────
   // Everything below is decidable from the WORKING COPY alone, which is all a
@@ -1313,13 +1371,61 @@ export function assertIssueColorsSeams(bodies, api) {
 /** Argue what is inside stance-helpers.js's one span. */
 export function assertStanceHelpersSeam(bodies, api) {
   const { has, ok } = api;
-  const body = bodies[0];
-  // Seam 2 · the topic chip names the key it holds and opens that key's record.
+  // BY NAME, NOT BY POSITION, for the reason consistency.js's spans already are:
+  // the act-table pass (v165) landed three spans at the TOP of the file, and the
+  // two arguments below used to read bodies[0] and bodies[1]. Position-indexed
+  // arguments would then have been silently arguing about the wrong bytes, which
+  // is worse than a failure because it passes. Names do not move.
+  const cut = byWhy(bodies, api, SH_SEAMS, "stance-helpers.js");
+  const body = cut("the record-CTA stats");
+
+  // ── the state-executive act types (v165) ───────────────────────────────────
+  // Span 1 is prose: it must carry no statement, and it must still say why the
+  // two new classes are not the federal names.
+  const why = cut("why the state-executive act types are not the federal names");
+  ok(why.replace(/^\s*\/\/.*$/gm, "").trim() === "",
+    "the act-types explanation seam gained a statement — it is a doctrine note, and the " +
+    "table it explains is argued separately");
+  has(why, "gov_signed", "…and it no longer names the state-executive act types");
+  has(why, "Direction Match",
+    "…nor says that neither act is offered to Direction Match, which is the wall this " +
+    "table has always stood behind");
+  // Span 2 is the two classes themselves, and the argument is the whole of what a
+  // wave has at stake in them: the floor class is untouched inside the span it
+  // opens, the two new ones weigh LESS than a roll call and are not floor acts,
+  // their labels are verbs about an act rather than ballot verbs, and no third
+  // class was smuggled in beside them.
+  const cls = cut("the two state-executive act classes").replace(/^\s*\/\/.*$/gm, "");
+  has(cls, "floor:          { key: 'floor',          w: 1.00, floor: true,",
+    "the floor class moved inside the seam that opens with it — a roll call is still the 1.00");
+  for (const [key, label, w] of [["gov_signed", "Signed", "0.70"], ["gov_vetoed", "Vetoed", "0.70"]]) {
+    has(cls, `${key}:`, `the act table lost ${key}, so a governor's lane is empty again`);
+    has(cls, `w: ${w}`, `${key} no longer weighs ${w} — below a floor roll call is the whole claim`);
+    has(cls, `label: '${label}'`, `${key} is no longer labelled ${JSON.stringify(label)}`);
+  }
+  ok(!/floor: true/.test(cls.replace(/^\s*floor: +\{[\s\S]*?\},$/m, "")),
+    "a state-executive act declared itself a floor act — neither is a vote at any weight");
+  ok(!/yea|nay|ballot|roll ?call|Voted/i.test(cls),
+    "a ballot verb reached the state-executive classes — a governor casts no vote");
+  const keys = (cls.match(/^ {6}([a-z_]+): +\{/gm) || []).map((l) => l.trim().replace(/:.*/, ""));
+  ok(keys.join(",") === "floor,gov_signed,gov_vetoed",
+    `the seam declares ${keys.join(", ")} — it may hold the floor class it opens with and the ` +
+    "two state-executive classes, and nothing else");
+  // Span 3 is the order the mix is spoken in, and the only thing at stake is that
+  // a roll call is still said first and the two new keys are in the list at all.
+  const order = cut("the order the act mix is spoken in").replace(/^\s*\/\/.*$/gm, "");
+  has(order, "['floor', 'gov_signed', 'gov_vetoed',",
+    "the act order no longer speaks a floor vote first, or dropped the state-executive acts " +
+    "out of the spoken mix");
+  ok(!/%|\bscore\b/.test(order), "the act-order seam gained a score or a percentage");
+
+  // Seam 4 · the topic chip names the key it holds and opens that key's record.
   // Comments come out first, as everywhere else in this file: the prose over the
   // chip NAMES what it stopped doing — the ranked overlay, the family label it
   // used to print — and that is the half a reader needs and the half a regex
   // would trip on. What is argued below is the code.
-  const chip = bodies[1] === undefined ? undefined : bodies[1].replace(/^\s*\/\/.*$/gm, "");
+  const chipBody = cut("the topic chip: its label and where it goes");
+  const chip = chipBody === undefined ? undefined : chipBody.replace(/^\s*\/\/.*$/gm, "");
   if (chip !== undefined) {
     has(chip, "window.pdxDoor1Issue('", "the topic chip no longer opens its key on the desk's one issue door");
     has(chip, "window.location.href='/i/", "…and has no address to fall back on when the desk has not booted");
@@ -1818,10 +1924,35 @@ export function assertWordActionSeams(bodies, api) {
   const veto = wa("the empty lane's veto, and both floors under it");
   has(veto, "var laneEmpty = !formalLaneReadable(pid, tested, p);",
     "the veto no longer asks the one predicate, so read() answers a question no other surface can");
-  has(veto, "var publishable = !laneEmpty && tested.length >= MIN_TESTED_ITEMS && wN >= MIN_TESTED_WEIGHT;",
-    "THE PUBLICATION RULE CHANGED SHAPE. Both floors, both constants and both operators are pinned " +
-    "here byte for byte, and the veto in front of them is a negated conjunction — the only form " +
-    "that can subtract a percentage without ever adding one");
+  // THE PUBLICATION RULE, PINNED BY SHAPE RATHER THAN BY ONE SPELLING. This used
+  // to be a byte match on the single-veto form. Wave E1 (v165) added a SECOND
+  // veto in front of the same two floors — an exec whose formal lane is full but
+  // whose tested items are all pledge ledger — and a byte match cannot tell that
+  // apart from a floor being loosened, which is the thing it exists to catch. So
+  // the claim is asserted directly instead, and it is the stronger reading of the
+  // same promise: both floors keep their constants and their operators byte for
+  // byte, and everything in front of them is a NEGATED term joined by `&&` — the
+  // only form that can subtract a percentage without ever adding one. A new veto
+  // is admitted; a new alternative, a bare term or a moved floor is not.
+  {
+    const m = /var publishable = ([\s\S]*?);\n/.exec(veto);
+    ok(!!m, "read() no longer declares `publishable` in this span, so no floor is pinned at all");
+    const terms = (m ? m[1] : "").split("&&").map((t) => t.trim());
+    const floors = terms.slice(-2).join(" && ");
+    ok(floors === "tested.length >= MIN_TESTED_ITEMS && wN >= MIN_TESTED_WEIGHT",
+      "THE PUBLICATION RULE CHANGED SHAPE. Both floors, both constants and both operators are " +
+      `pinned here byte for byte, and they now read ${JSON.stringify(floors)}`);
+    const vetoes = terms.slice(0, -2);
+    ok(vetoes.length >= 1, "the veto in front of the floors is gone — the floors alone let an empty lane publish");
+    for (const t of vetoes) {
+      ok(/^![a-zA-Z_$][\w$]*$/.test(t),
+        `\`${t}\` is not a negated boolean. Every term in front of the floors subtracts: a term that ` +
+        "can be TRUE on its own is a way to publish that the floors never approved");
+    }
+  }
+  has(veto, "var laneUntested = formalActsTestNothing(pid, tested, p);",
+    "the second veto no longer asks its own predicate. A lane that is on file and tests nothing is " +
+    "not the same silence as a lane that is empty, and read() owns both");
   has(veto, "var pct = publishable && wN ? Math.round(wSum / wN) : null;",
     "the percentage is no longer taken from the gate above it, character for character");
   has(veto, "var token = publishable ? outcomeToken\n              : (warming ? 'pending' : (items.length ? 'limited' : 'no_stance'));",

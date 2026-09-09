@@ -62,6 +62,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { measureAddresses, billPath } from "./vr-measure-addresses.mjs";
 import { CJ_SEAMS, CJ_SEAMS_BELOW, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
   assertWordActionSeams, assertParentTableIsTheOnlyMove } from "./v103-chrome-seams.mjs";
 
@@ -1995,6 +1996,37 @@ const swNote = swWaveNote();
     // simply runs inside each of the two groups, no party letter entered a sort
     // key, and no image host was added to the trusted set or to remote_images.
     "scripts/test-photo-coverage.mjs",
+    // ── AND THE PASS AFTER THAT: A GOVERNOR'S FORMAL LANE ──────────────────
+    // 140 RECORDED GUBERNATORIAL ACTS - 138 BILLS SIGNED, 2 VETOED - FILED FOR
+    // cox AS vr_positions ROWS (CACHE_VERSION v165). The office printed "No
+    // formal pattern on file yet" because the pattern engine only ate floor,
+    // committee and sponsorship acts, and a governor casts none of them. The two
+    // act types this wave adds are new (gov_signed, gov_vetoed), weighted 0.70 -
+    // BELOW a floor vote - labeled "Signed" and "Vetoed", kept out of Direction
+    // Match, and NO SURFACE CALLS EITHER ONE A VOTE. No roll call was invented.
+    //   formal-index.js gains exactly ONE LINE, 'cox': [140, 140], and
+    // scripts/gen-formal-index.mjs gains the feeder that produces it - a whole-
+    // document regeneration on the same later-wave terms as sitemap.xml above,
+    // additive, with F9's own people byte-identical inside it.
+    // scripts/test-vr-mapping-migration-pack-step.mjs gains one ingest name to
+    // its ACTIVE list, a claim about which ingests have sessions LEFT and not
+    // about any applied migration.
+    //   NOTHING IN F9'S REACH MOVES. No federal act, no amendment, no roll, no
+    // vr_member_votes row, no floor, no polarity and no Direction Match figure is
+    // written, read or relabeled - and /p/trump is byte-identical, because the
+    // President's signature lane keeps its own act types and its own count rather
+    // than being renamed into these. The spans this pass adds to stance-helpers.js
+    // and consistency.js are carved and argued in scripts/v103-chrome-seams.mjs.
+    "formal-index.js", "scripts/gen-formal-index.mjs",
+    "scripts/test-vr-mapping-migration-pack-step.mjs",
+    //   scripts/test-vr-utah-exec.mjs is the wave's OWN harness, listed here for
+    // the one reason a harness ever earns a place on this list: its twin-boot
+    // counterfactual was pinned to HEAD, which was the tree before the wave only
+    // while the wave was in flight. On a merged tree HEAD knows gov_signed, so it
+    // now walks stance-helpers.js back to the newest revision that does not and
+    // boots that instead. The comparison got MORE durable, not weaker - it refused
+    // to pass vacuously rather than going quiet, which is why it was found.
+    "scripts/test-vr-utah-exec.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
@@ -2030,7 +2062,26 @@ const swNote = swWaveNote();
         const enc = "/b/119/" + n2.replace(/ /g, "%20");
         ok(map.includes(enc + "<"), `${n2} is no longer an openable address in the sitemap`);
       }
-      const strayGain = gained.filter((l) => /\/b\//.test(l));
+      // AND EVERY OTHER MEASURE ADDRESS THE REGENERATION ADDED OPENS ONTO
+      // SOMETHING ON FILE. This used to require that NO /b/ line was gained at
+      // all, which was the cheap proxy for the sentence above: while F9 was the
+      // newest measure wave, any new bill address could only be drift. That
+      // stopped being the same claim once later waves began filing acts of their
+      // own - the Utah executive lane (v165) files 140 gubernatorial acts, and
+      // one of the bills they cite had no address before, so a truthful
+      // regeneration HAS to publish it. Forbidding the line would have meant
+      // shipping a record with no way in. So the proxy is replaced by the claim:
+      // each gained address must be a measure the migration tree itself admits,
+      // and it must open onto a real recorded act rather than an empty stub. A
+      // drifted or invented address fails that; a bill somebody actually signed
+      // does not.
+      const admitted = measureAddresses(ROOT).published;
+      const opens = new Map(admitted.map((a) => [billPath(a), a]));
+      const strayGain = gained.filter((l) => /\/b\//.test(l)).filter((l) => {
+        const u = /<loc>[^<]*?(\/b\/[^<]*)<\/loc>/.exec(l);
+        const a = u ? opens.get(u[1]) : null;
+        return !a || !(a.acts > 0);
+      });
       eq(strayGain.join(" | "), "", `${strayGain.length} measure address(es) appeared in a sitemap regeneration that opened no act`);
     }
   }
