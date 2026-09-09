@@ -704,6 +704,11 @@ has(RB, "Request Rejected", "…the WAF behaviour");
 has(RB, "vr-utah-exec-map.json", "…the name map");
 has(RB, "gov_signed", "…and the act types");
 
+// The 140-act file, built once in section 11 and handed to section 12 — the
+// dossier copy has to be read off the same page a reader actually loads, not a
+// five-act frame that happens to render the same sentences.
+let FULL_FILE = null;
+
 section("11 · the whole file, with every act carrying its own mapping");
 // SECTION 9 pinned the thin frame. This one pins the page the wave was actually
 // written for: all 140 admitted acts, each one resolved to the issue mapping the
@@ -740,6 +745,7 @@ section("11 · the whole file, with every act carrying its own mapping");
       session: null, rollNumber: null, issues: iss, source: { url: a.sourceUrl, label: "Utah bill status" } };
   });
   eq(full.length, TOTAL, "every admitted act is in the live fixture");
+  FULL_FILE = full;
   // ADMISSION HELD: nothing was seeded that the repo cannot map. If this ever
   // moves, the migration admitted an act on a bill nobody reviewed.
   eq(unmappedActs, 0, "an admitted act has no shipped issue mapping — the admission rule leaked");
@@ -795,6 +801,158 @@ section("11 · the whole file, with every act carrying its own mapping");
   }
   console.log(`      ${TOTAL} acts, ${counts.issues} issues, 0 unmapped · ` +
     `brief is a shape read · ratio publishes over ${(r.tested || []).length} tested items · no ballot word`);
+}
+
+section("12 · the dossier's own sentences, over acts nobody cast");
+// SECTION 11 proved the brief and the ratio speak signatures. This one goes down
+// to the surface a reader reaches by asking for more: the dossier's three-line
+// rows, the group face above them, and the door out into the full record. Every
+// assertion below reads RENDERED COPY out of the shipped engine — the same call
+// the sheet makes — because the defect this section pins was never in what the
+// lane decided. The lane was right: these acts route to 'record', they are weighed,
+// they sit outside Direction Match, and the cards said "Signed". The sentences
+// AROUND the cards were still teaching a floor: a Yea that was never cast, a roll
+// call that carries a question, and a count of "mapped votes" behind a door that
+// opens onto signatures.
+{
+  const live = boot(NOW);
+  must(FULL_FILE, "section 11 never handed the full file over");
+  live.PDXVotingRecord.noteMember(GOV, FULL_FILE);
+  const C = live.PDXConsistency;
+  must(C && typeof C.dossierRecordsHtml === "function", "the dossier is not exposed");
+  // The issue with the deepest stack of acts, chosen from the record rather than
+  // named here — a hard-coded key that stops holding acts is a silent pass.
+  const KEY = "tough_on_crime";
+  const dItems = C.dossierItems(GOV, KEY) || [];
+  must(dItems.length > 1, `${KEY} holds fewer than two acts — the fixture stopped offering the case`);
+  const strip = (h) => String(h || "").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&")
+    .replace(/&#8217;|&rsquo;/g, "\u2019").replace(/\s+/g, " ").trim();
+
+  // ── the rows are acts, and they know it ─────────────────────────────────
+  for (const d of dItems) {
+    eq(d.lane, "record", "a governor's signed bill left the 🏛 lane");
+    eq(d.execAct, true, `${d.ident} is not marked as a state-executive act`);
+    eq(d.question, "", `${d.ident} carries a floor question and no question was ever put`);
+    ok(d.act === "Signed" || d.act === "Vetoed",
+      `${d.ident} is labelled "${d.act}" — the act table says Signed or Vetoed`);
+  }
+
+  const recs = strip(C.dossierRecordsHtml(GOV, KEY));
+  ok(recs.length > 0, "the dossier's record group rendered nothing");
+
+  // ── 1 · WHAT IT DID is the act, and only the act ────────────────────────
+  has(recs, "What it did: Signed.", "the row face does not state the act plainly");
+
+  // ── 2 · WHICH WAY IT CUT is the mapping's polarity, not a ballot ─────────
+  has(recs, "this measure passing counts as support for the issue\u2019s direction, and they signed it",
+    "the polarity line does not state the mapping in the mapping's own vocabulary");
+  lacks(recs, "a Yea counts as", "the polarity line still teaches a ballot the governor never cast");
+
+  // ── 3 · THE DOOR counts what is behind it ───────────────────────────────
+  has(recs, `See all ${dItems.length} mapped acts on`,
+    "the door out of the dossier still counts votes over a file of signatures");
+  lacks(recs, "mapped votes on", "the dossier door names votes");
+  lacks(recs, "Open this vote in the full record",
+    "the dossier offers to open a vote that does not exist");
+
+  // ── 4 · THE ROLL-CALL EXPLAINER IS GONE where there is no roll call ─────
+  lacks(recs, "A roll call carries its question",
+    "the lane-asymmetry note describes a roll call over a list that holds none");
+
+  // NOT ONE BALLOT WORD, anywhere on the face or in the deeper body — the same
+  // sweep section 11 runs over the brief, run over the surface underneath it.
+  const bodies = dItems.map((d, i) => strip(C.dossierDetailHtml(GOV, KEY, i, dItems))).join(" ");
+  ok(bodies.length > 0, "no dossier row rendered an expanded body");
+  for (const verb of [/\bYea\b/, /\bNay\b/, /roll ?call/i, /\bballot\b/i,
+                      /voted (?:for|against|Yea|Nay)/i, /mapped votes/i,
+                      /the question on the floor/i]) {
+    ok(!verb.test(recs), `the dossier face uses a floor word (${verb}) over acts nobody cast`);
+    ok(!verb.test(bodies), `a dossier row body uses a floor word (${verb}) over an act nobody cast`);
+  }
+  has(bodies, "Open this act in the full record",
+    "the deeper body's door into the full record still offers to open a vote");
+
+  // ── AND THE OFFICIAL RECORD ROW'S OWN DOOR, which is the same door ──────
+  const orh = strip(C.officialRecordSectionHtml(GOV));
+  ok(orh.length > 0, "cox's Official Record section rendered nothing");
+  has(orh, "mapped acts on", "the Official Record row's door counts votes on a governor's file");
+  lacks(orh, "mapped votes on", "…and still names votes on at least one issue");
+
+  // ── NOTHING MOVED FOR THE PEOPLE WHO DO CAST VOTES ──────────────────────
+  // The predicates above are keyed on the two state-executive act types and on
+  // whether a roll call is present, so a member who actually votes must read
+  // exactly as they did: the ballot polarity lesson, the roll-call note, and a
+  // door that counts votes. Injected as a real record and read off the rendered
+  // dossier — the same call, the same surface, the other population.
+  const iss = [{ issueKey: KEY, weight: 70, isPrimary: true,
+    supportMeaning: "yea_supports", rationale: "Primary subject of this measure." }];
+  const ballot = (n, num, pos) => ({ kind: "vote", measureId: n, measureType: "bill",
+    number: num, title: `Crime Amendments ${num}`, chamber: "house", status: null,
+    date: "2025-03-01T00:00:00.000Z", action: "On Passage", actionType: null,
+    position: pos, result: "Passed", isParty: true, supports: pos === "Yea",
+    isProcedural: false, advanceInverted: false, isAmendment: false,
+    parentMeasureId: null, rollcallId: 9000 + n, congress: 119, session: null,
+    rollNumber: 100 + n, issues: iss,
+    source: { url: "https://www.congress.gov/", label: "Congress.gov" } });
+  const LEG = "chew_h68";
+  live.PDXVotingRecord.noteMember(LEG,
+    [ballot(1, "H.R. 11", "Yea"), ballot(2, "H.R. 12", "Yea"), ballot(3, "H.R. 13", "Nay")]);
+  const legItems = C.dossierItems(LEG, KEY) || [];
+  must(legItems.length === 3, "the injected roll-call record did not reach the dossier");
+  eq(legItems.every((d) => d.execAct === false), true,
+    "a roll call was marked as a state-executive act");
+  const legRecs = strip(C.dossierRecordsHtml(LEG, KEY));
+  must(legRecs, "the legislator's dossier rendered nothing");
+  has(legRecs, "a Yea counts as support for the issue\u2019s direction, and they voted Yea",
+    "the ballot polarity lesson was lost on a member who does cast votes");
+  has(legRecs, "What it did: Voted Yea on the question",
+    "a roll call stopped stating its question and its ballot");
+  has(legRecs, "A roll call carries its question",
+    "the roll-call explainer was dropped over a list that does hold roll calls");
+  has(legRecs, "See all 3 mapped votes on",
+    "a real vote's door was renamed and it counts votes");
+  lacks(legRecs, "mapped acts on", "…and it now counts acts instead");
+
+  // A MIXED LIST GETS BOTH. One roll call and one signature on the same issue is
+  // the case that decides whether these gates are per-row or per-list: the note
+  // and the door speak to the LIST (there is a roll call in it, so the lesson is
+  // owed and the noun is votes), while the polarity line speaks to the ROW (the
+  // signature still may not borrow a ballot). Injected together, asserted apart.
+  const MIX = "defay_h15";
+  const signature = { ...FULL_FILE.find((it) => (it.issues || [])
+    .some((i) => i.issueKey === KEY) && it.position === "gov_signed") };
+  must(signature && signature.number, `no signed act in the fixture maps to ${KEY}`);
+  live.PDXVotingRecord.noteMember(MIX, [ballot(4, "H.R. 14", "Yea"), signature]);
+  const mixRecs = strip(C.dossierRecordsHtml(MIX, KEY));
+  must(mixRecs, "the mixed dossier rendered nothing");
+  has(mixRecs, "A roll call carries its question",
+    "a list holding a roll call lost the lesson because it also holds a signature");
+  has(mixRecs, "mapped votes on", "…and its door stopped counting the vote in it");
+  has(mixRecs, "a Yea counts as", "…and the roll-call row lost its polarity lesson");
+  has(mixRecs, "this measure passing counts as",
+    "the signature in a mixed list borrowed the roll call's ballot vocabulary");
+
+  // ── TRUMP'S ✒️ LANE IS UNTOUCHED ─────────────────────────────────────────
+  // It never offered either door — the exec lane returns '' from both by design —
+  // and it never took the roll-call note. Read off his real file, every exec-lane
+  // issue on it, because "no change" is the whole promise made about this lane.
+  const tRows = (C.issueRows("trump") || []).filter((r) => r && r.lane === "exec");
+  must(tRows.length > 0, "trump has no exec-lane issue — the ✒️ guard would pass silently");
+  let tSeen = 0;
+  for (const r of tRows) {
+    const tRecs = strip(C.dossierRecordsHtml("trump", r.key));
+    if (!tRecs) continue;
+    tSeen++;
+    lacks(tRecs, "mapped acts on", `the ✒️ lane grew a roll-call door on ${r.key}`);
+    lacks(tRecs, "mapped votes on", `…or kept one on ${r.key}`);
+    lacks(tRecs, "A roll call carries its question", `the ✒️ lane took the roll-call note on ${r.key}`);
+    lacks(tRecs, "counts as support for the issue\u2019s direction",
+      `the ✒️ lane took the record lane's polarity line on ${r.key}`);
+  }
+  must(tSeen > 0, "not one of trump's exec-lane dossiers rendered");
+
+  console.log(`      ${dItems.length} act rows read as acts · 3 ballot rows unchanged · ` +
+    `mixed list keeps both · ${tSeen} ✒️ dossiers untouched`);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

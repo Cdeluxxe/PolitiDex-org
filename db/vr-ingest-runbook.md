@@ -3311,6 +3311,62 @@ Governor and Auditor all still do), and an executive whose lane is on file but t
 stated position gets *"No formal act tests a stated position"* rather than a percentage.
 `scripts/test-vr-utah-exec.mjs` pins both frames separately, in sections 9 and 11.
 
+### The sentences around the cards (copy pass, after the wave landed)
+
+The wave got the **lane** right and the **cards** right, and left the **prose between
+them** wrong. A reader on `/p/cox · Tough on Crime` met eleven rows correctly labelled
+*Signed*, correctly marked 📋 *On record · not in Direction Match* — surrounded by three
+sentences written for a floor:
+
+| Surface | Said | Says |
+| --- | --- | --- |
+| *Which way it cut* | "On 🚔 Tough on Crime **a Yea** counts as support for the issue's direction, and they signed" | "On 🚔 Tough on Crime **this measure passing** counts as support for the issue's direction, and they signed **it**" |
+| The door out | "See all 11 mapped **votes** on 🚔 Tough on Crime →" | "See all 11 mapped **acts** on 🚔 Tough on Crime →" |
+| The lane note | "**A roll call** carries its question, its ballot and its source…" | *(not printed — there is no roll call in this list)* |
+
+*What it did* already read `Signed.` and needed nothing: `_orProofBits` only fills a floor
+question when the item is a ballot, so a `kind: 'position'` row could never pick up
+roll-call framing on that line.
+
+Two predicates in `consistency.js` carry all three fixes, and both **fail closed to the
+congressional wording** — no act layer, or a throw in the lookup, and the copy is exactly
+what it was:
+
+* `_isExecAct(item)` — true for the two state-executive act types, read as `.key` off the
+  act table so `stance-helpers.js` stays the only place `gov_signed` and `gov_vetoed` are
+  named. Deliberately an explicit pair rather than "anything that is not a floor vote": a
+  **committee vote** *is* a ballot the member cast, and widening the predicate would have
+  rewritten committee and co-sponsorship rows on legislators' pages too.
+* `_anyRollCall(pid, issueKey)` — `_anyBallot` over the issue's items, for the two
+  surfaces that describe the *list* rather than a row.
+
+Row-level and list-level gates are separate on purpose, and the mixed case is what decides
+it: an issue holding **one roll call and one signature** keeps the roll-call note and the
+"mapped votes" door (there is a roll call in the list, so the lesson is owed and the noun
+is right), while the signature's own polarity line still refuses the ballot vocabulary.
+
+Nothing else moved. No weight, no mapping, no `supportMeaning`, no Direction Match
+membership, and the ✒️ federal lane is not in this pass at all — both doors return `''`
+on `lane === 'exec'` by design and still do. `scripts/test-vr-utah-exec.mjs` § 12 reads
+the rendered dossier for all four populations: cox's 11 act rows, three injected roll-call
+rows on a legislator, a mixed list, and every one of trump's 37 exec-lane dossiers.
+`sw.js` went to **v166** because the copy and the cards it surrounds ship in the same
+precached file. Two things about that bump are worth knowing before the next one:
+
+* **The newest version entry belongs at the top of the log.** Several pane tests read "the
+  newest entry" as the slice from their own `// vN - ` marker down to the `CACHE_VERSION`
+  constant, and assert that slice names the files their pane travels with. An entry written
+  directly above the constant makes that slice a few lines long and fails three of them
+  (`test-issue-record-ledger`, `test-issue-family`, `test-issue-file-address`).
+* **`test-eye-find-the-record` pinned this file whole.** Its section 10 asserted that
+  `consistency.js` was byte-identical to `HEAD` with comments stripped — a proxy for the
+  claim *the eye panel does not move the lane router*, which wave E1 had already re-declared
+  once when it made a prose-only edit here. A copy pass changes executable text in that file
+  without going near the router, so the pin is now declared over what it means: `_anyBallot`,
+  `_anyWeighedAct`, `recordItems` and `recordLaneFor` by byte, plus
+  `formalPatternIndexHtml` — the builder behind the single entry point the panel calls —
+  with the call enumeration asserted beside it so a new call cannot slip past the pin.
+
 #### Run it
 
 ```bash

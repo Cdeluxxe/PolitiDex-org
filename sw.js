@@ -3114,6 +3114,59 @@
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
 // ──────────────────────────────────────────────────────────────────────────────
+// v166 - A GOVERNOR DID NOT VOTE, AND THE SENTENCES AROUND THE CARDS SAID HE DID
+// ──────────────────────────────────────────────────────────────────────────────
+// v165 put a governor's signed and vetoed bills on the formal record and labelled
+// the cards Signed and Vetoed. It left the prose between them written for a floor.
+// A reader on /p/cox with 'Tough on Crime' open met eleven correctly labelled acts
+// wrapped in three roll-call sentences: "On 🚔 Tough on Crime A YEA counts as
+// support for the issue's direction, and they signed" - a polarity lesson about a
+// ballot that is not in the record, attributed to someone who was never on a
+// floor; a door reading "See all 11 mapped VOTES on 🚔 Tough on Crime" over a list
+// of signatures; and a note explaining that "A ROLL CALL carries its question, its
+// ballot and its source" printed above a list holding no roll call, no question
+// and no ballot.
+//   ONE PRECACHED SHELL FILE CHANGED: '/consistency.js'. The polarity line now
+// reads "this measure passing counts as support for the issue's direction, and
+// they signed it", the door counts "mapped acts" (and offers "Open this act in the
+// full record" where the issue holds one), and the roll-call note is not printed
+// where there is no roll call to explain. What it did already read "Signed." and
+// was not touched - a position item never picks up a floor question, so that line
+// could not have been wrong.
+//   WHY THE BUMP IS NOT SKIPPABLE. The copy and the cards it surrounds ship in the
+// same file, so a device holding v165 renders the old wording against the same
+// rows - which is exactly the mismatch that was reported.
+//   TWO PREDICATES CARRY IT, BOTH FAILING CLOSED to the congressional wording:
+// _isExecAct() reads the act key off the shared act table in stance-helpers.js
+// (unchanged), and _anyRollCall() asks _anyBallot() about the issue's own items.
+// _isExecAct is an explicit pair rather than "anything that is not a floor vote"
+// on purpose: a COMMITTEE VOTE is a ballot the member cast, where "a Yea counts
+// as" is the correct lesson, so widening it would have rewritten legislators'
+// committee and co-sponsorship rows too. The row-level gate and the list-level
+// gate stay separate, which is what makes a mixed list behave - one roll call and
+// one signature keeps the note and the "votes" noun, and the signature beside it
+// still refuses the ballot vocabulary.
+//   NO WEIGHT, MAPPING, SUPPORT MEANING OR DIRECTION MATCH MEMBERSHIP MOVED, and
+// no act changed lane, order or direction. The ✒️ federal executive lane is not in
+// this pass at all: both doors return '' on lane === 'exec' by design and still
+// do, and it never carried the roll-call note. Every one of trump's 37 exec-lane
+// dossiers is asserted unchanged in scripts/test-vr-utah-exec.mjs section 12,
+// alongside cox's eleven act rows, three injected roll-call rows on a legislator
+// and the mixed list.
+// ALSO CHANGED BUT NOT PRECACHED, SO IT ARRIVES FRESH WITHOUT THIS BUMP:
+// scripts/test-vr-utah-exec.mjs (section 12, which reads the rendered dossier
+// rather than the source), scripts/test-eye-find-the-record.mjs (its pin on this
+// file, re-declared over the lane router and the panel's entry point rather than
+// the whole file) and db/vr-ingest-runbook.md (what each of the three sentences
+// said before and after, and why the act test is an explicit pair).
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it. Nothing else changed here, and the log owes
+// a reader the list rather than a surprise: index.html, all-seeing-eye.js,
+// door1-workspace.js, door1-workspace.css, pdx-issue-family.js, stance-tree.js,
+// alignment-tool.js, issue-colors.js, issue-file.js, issue-file.css, issue-view.js,
+// pdx-issue-profile.js, word-action.js, word-action.css, stance-helpers.js and
+// formal-index.js are all re-fetched here without having changed.
+// ──────────────────────────────────────────────────────────────────────────────
 // v164 - A NAME IS MATCHED AT ITS EDGE, AND ONE FACE ON FILE WAS SOMEBODY ELSE
 // ──────────────────────────────────────────────────────────────────────────────
 // Two readings of a person that were not readings of that person at all, and one
@@ -3907,7 +3960,19 @@
 // takes the new formal-index.js but not the new word-action.js would print a
 // pledge-ledger percentage over a lane it can now see, which is the one thing
 // this pass exists to prevent — so the four travel together or not at all.
-const CACHE_VERSION = 'v165';
+// v166 — Exec-act copy on a governor's dossier. ONE precached shell asset
+// changed: /consistency.js, which now asks whether a row is a signature and
+// whether the issue holds a roll call before it teaches a ballot. The sentences
+// around the cards were still floor sentences — "a Yea counts as support" over an
+// act nobody cast, "A roll call carries its question" over a list with no roll
+// call in it, and "See all 11 mapped votes" on a door that opens onto signed
+// bills. Bumped rather than left to arrive on its own because the copy and the
+// cards it surrounds ship in the same file: a device holding v165 renders the old
+// wording against the same rows, which is exactly the mismatch a reader reported.
+// NO WEIGHT, MAPPING OR LANE MOVED, and the ✒️ lane is not in this pass at all —
+// both doors return '' there by design and still do. A twin boot leaves every
+// formal tier and every Direction Match read byte-identical.
+const CACHE_VERSION = 'v166';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
