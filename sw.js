@@ -3114,6 +3114,36 @@
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
 // ──────────────────────────────────────────────────────────────────────────────
+// v167 - A CANDIDATE WITH NO VOTES HAD A PLATFORM NOBODY WROTE DOWN
+// ──────────────────────────────────────────────────────────────────────────────
+// The word lane is the whole file for a challenger, a statewide hopeful and a
+// first-term member whose roll calls have not been ingested. Fifteen Utah records
+// on a 2026 ballot field hold zero formal rows between them, and the stance cards
+// standing in for that record were carrying sentences with no citation under them
+// - a few of them sentences no source says at all. "A constitutional conservative
+// who opposes new firearm restrictions" is a party read printed as a person's
+// position, which is the one inference this file's doctrine refuses.
+//   WHAT CHANGED IS ONE DATA FILE: /politician-stances-ext.js, the lazily-loaded
+// half of the stance table. Seven people in it - phil_lyman, rob_bishop,
+// jackie_larson, grant_pace, emily_buss, john_arthur and leah_hansen - now carry a
+// campaign issues page, a dated on-the-record interview or their own nomination
+// statement on every card that makes a claim, and eight cards that rested on
+// nothing were removed rather than dressed. politician-stances-core.js is
+// byte-identical: none of the seven lives in it.
+//   THE EXT CHUNK IS NOT IN SHELL_ASSETS, so it is not precached - but it is a
+// same-origin GET, so a warm device holds it in the stale-while-revalidate
+// RUNTIME_CACHE, whose bucket name is keyed to this constant. Without the bump a
+// reader on an old device keeps being served the uncited sentences this pass
+// removed, on people for whom the word lane is the only lane there is.
+//   NO FORMAL ROW WAS READ, ADDED OR INFERRED. Not one card here is authored from
+// a roll call, a scorecard or a party platform, so nothing enters the record-
+// derived holdout and no Direction Match denominator moves. All fifteen worklist
+// records still report zero formal rows, and their formal lane stays empty on
+// purpose: these people have not served. A twin boot leaves every formal tier and
+// every Direction Match read byte-identical.
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it.
+// ──────────────────────────────────────────────────────────────────────────────
 // v166 - A GOVERNOR DID NOT VOTE, AND THE SENTENCES AROUND THE CARDS SAID HE DID
 // ──────────────────────────────────────────────────────────────────────────────
 // v165 put a governor's signed and vetoed bills on the formal record and labelled
@@ -3972,7 +4002,16 @@
 // NO WEIGHT, MAPPING OR LANE MOVED, and the ✒️ lane is not in this pass at all —
 // both doors return '' there by design and still do. A twin boot leaves every
 // formal tier and every Direction Match read byte-identical.
-const CACHE_VERSION = 'v166';
+// v167 — Sourced word for people with no formal lane. NO precached shell asset
+// changed: the one file in this pass is /politician-stances-ext.js, the lazily-
+// loaded half of the stance table, which now carries a citation on every claim
+// made for seven Utah candidates and first-term members whose roll-call file is
+// empty. It is not in SHELL_ASSETS, but a warm device keeps it in the
+// stale-while-revalidate RUNTIME_CACHE, and that bucket is named after this
+// constant — so without the bump a reader is still served the uncited sentences
+// this pass removed, on people for whom the word lane is the only lane. NO
+// WEIGHT, MAPPING OR LANE MOVED, and no formal row was read, added or inferred.
+const CACHE_VERSION = 'v167';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
