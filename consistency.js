@@ -325,6 +325,37 @@
     }
     return false;
   }
+  // ── AND WHICH OF THOSE ACTS WAS SIGNED RATHER THAN CAST ────────────────────
+  // The two state-executive act types, named once. A governor's signature is a
+  // weighable formal act on the 🏛️ lane — it is in the act table, it routes to
+  // 'record', it earns a pattern read — and it is still not a ballot. Nobody was on
+  // a floor, no question was put, and no Yea was cast. So every sentence that
+  // teaches polarity in ballot vocabulary — "a Yea here counts as support" — is
+  // false on these rows however carefully it is worded, and the sentences that
+  // explain what a roll call carries are describing a document that does not exist.
+  // Those surfaces ask here first.
+  //   AN EXPLICIT LIST, NOT "ANYTHING THAT IS NOT A FLOOR VOTE". A committee vote IS
+  // a ballot the member cast, where "a Yea counts as" is the right lesson; a
+  // co-sponsorship's own copy problem is a different sentence needing a different
+  // fix. Widening this to "not floor" would quietly rewrite both. And the keys are
+  // READ OFF the act table rather than re-normalised from an actionType slug here,
+  // so stance-helpers.js stays the one place those two names live.
+  var _EXEC_ACTS = { gov_signed: 1, gov_vetoed: 1 };
+  function _isExecAct(item) {
+    var f = window._pdxActClass;
+    if (typeof f !== 'function' || !item) return false;
+    try { var c = f(item); return !!(c && _EXEC_ACTS[c.key]); } catch (e) { return false; }
+  }
+  // Is there an actual roll call in this issue's record? Asked wherever a surface is
+  // about to explain what a roll call carries, or offer to open "this vote" — the
+  // same question _anyBallot answers, keyed by issue so a caller holding only a pid
+  // and an issue does not have to fetch the items to ask it.
+  //   FAILS CLOSED TO YES, which is the wording every congressional surface already
+  // renders: no act layer, a throw in the lookup, or an issue whose items have not
+  // landed yet leaves the copy exactly as it was before this predicate existed.
+  function _anyRollCall(pid, issueKey) {
+    try { return _anyBallot(recordItems(pid, issueKey)); } catch (e) { return true; }
+  }
   // 'record' when a ballot or a weighable formal act is among the items on this
   // issue, 'exec' when they are all executive actions. Falls back to the
   // congressional lane, which is what every member surface already renders.
@@ -4597,9 +4628,15 @@
       var picks = _orProofPicks(pid, issueKey, ov, 1);
       if (picks.length) one = _orVoteKey(picks[0].item);
     }
+    // THE NOUN IS THE RECORD'S NOUN, not the lane's default. Where this issue holds
+    // no roll call — a governor's signed bills and vetoes, which are on the 🏛️ lane
+    // and are not votes — "See all 11 mapped votes" miscounts what is behind the
+    // door and misnames what a reader will find when it opens. The count and the
+    // destination are untouched; the word for what is being counted is not.
+    var acts = !_anyRollCall(pid, issueKey);
     var label = total === 1
-      ? 'Open this vote in the full record →'
-      : 'See all ' + total + ' mapped votes on ' + _issueLabel(issueKey) + ' →';
+      ? (acts ? 'Open this act in the full record →' : 'Open this vote in the full record →')
+      : 'See all ' + total + ' mapped ' + (acts ? 'acts' : 'votes') + ' on ' + _issueLabel(issueKey) + ' →';
     return '<button type="button" class="pdxor-vrlink"' +
       (one ? ' data-pdxc-vrvote="' + escAttr(one) + '"' : '') +
       ' data-pdxc-vrissue="' + escAttr(issueKey) + '"' +
@@ -13769,6 +13806,11 @@
           ident: b.bill || b.title || (b.isPosition ? 'Formal action' : 'Recorded vote'),
           title: p.item.title || p.item.shortTitle || '',
           act: b.act || '', question: b.question || '',
+          // Signed or vetoed by a governor: on the 🏛️ lane, weighed like the rest of
+          // it, and not a ballot. Carried on the row rather than re-derived by each
+          // sentence that needs it, so the face, the polarity line and the deeper
+          // body cannot disagree about whether this row is a vote.
+          execAct: _isExecAct(p.item),
           date: b.date || '',
           standing: null, power: null, effect: '', stance: _recStance,
           // Curated when the measure has an entry in _DOS_MECH, derived when it does
@@ -14120,6 +14162,20 @@
     // A ballot needs the support meaning spelled out. "A Yea here counts as support"
     // is not obvious, and it is the single step where a reader most often assumes the
     // opposite of what the mapping says.
+    // …AND A SIGNATURE IS NOT A BALLOT. Same lesson, same mapping, same polarity —
+    // stated about the measure instead of about a vote nobody cast. The old sentence
+    // read "On 🚔 Tough on Crime a Yea counts as support for the issue's direction,
+    // and they signed", which puts a governor on a floor they were never on and
+    // attributes to them a ballot that does not exist in the record. What the mapping
+    // actually says is a fact about the measure — which way it cuts if it passes —
+    // and that is what is printed here, with the act they took on it named as the act
+    // it was. Nothing about the mapping or its polarity changed; only the vocabulary.
+    if (d.lane === 'record' && d.support && d.execAct) {
+      var xMeaning = (d.support === 'yea_opposes') ? 'opposition to' : 'support for';
+      var xCast = d.act ? String(d.act).charAt(0).toLowerCase() + String(d.act).slice(1) : '';
+      return 'On ' + lbl + ' this measure passing counts as ' + xMeaning +
+        ' the issue’s direction' + (xCast ? ', and they ' + xCast + ' it' : '') + tail;
+    }
     if (d.lane === 'record' && d.support) {
       var meaning = (d.support === 'yea_opposes') ? 'opposition to' : 'support for';
       // Only the FIRST letter is lowered, never the whole phrase. The clause reads
@@ -15178,7 +15234,9 @@
     if (d.lane === 'record' && d.voteKey) {
       out.push('<div><button type="button" class="pdxdos-src"' +
         ' data-pdxc-vrvote="' + escAttr(d.voteKey) + '"' +
-        ' data-pdxc-vrissue="' + escAttr(issueKey) + '">Open this vote in the full record →</button></div>');
+        ' data-pdxc-vrissue="' + escAttr(issueKey) + '">' +
+        (d.execAct ? 'Open this act in the full record →' : 'Open this vote in the full record →') +
+        '</button></div>');
     }
     // What else the same instrument touched. Same measurement as everywhere else,
     // in this lane's nouns.
@@ -15569,7 +15627,14 @@
         '</div>'
       : '';
     // The lane asymmetry, stated once rather than papered over row by row.
-    var note = (items[0] && items[0].lane === 'record')
+    //   AND ONLY WHERE THERE IS A ROLL CALL TO EXPLAIN. This note taught the lane
+    // asymmetry off `lane === 'record'` alone, which was the same claim as "these are
+    // roll calls" only while the record lane held nothing else. It now holds committee
+    // votes, sponsorships and — since wave E1 — a governor's signed bills and vetoes,
+    // and over a list of eleven signatures the note described a question, a ballot and
+    // a floor that are nowhere in the drawer beneath it. Asked of the record itself,
+    // so a mixed list of roll calls and acts still gets the lesson it needs.
+    var note = (items[0] && items[0].lane === 'record' && _anyRollCall(pid, issueKey))
       ? '<div class="pdxdos-note">A roll call carries its question, its ballot and its source. It does not ' +
         'carry a written explanation the way an executive document does — so its two lines are assembled ' +
         'from the record itself rather than written, and nothing has been added to make them look the same.</div>'
@@ -15601,9 +15666,13 @@
     if (!ov || ov.lane === 'exec') return '';
     var total = (ov.record && ov.record.total) || 0;
     if (!total) return '';
+    // Same noun rule as the Official Record row's door, from the same predicate —
+    // the two doors are one door and may not disagree about what is behind them.
+    var acts = !_anyRollCall(pid, issueKey);
     var label = total === 1
-      ? 'Open this vote in the full record →'
-      : 'See all ' + total + ' mapped votes on ' + (_issueLabel(issueKey) || 'this issue') + ' →';
+      ? (acts ? 'Open this act in the full record →' : 'Open this vote in the full record →')
+      : 'See all ' + total + ' mapped ' + (acts ? 'acts' : 'votes') + ' on ' +
+        (_issueLabel(issueKey) || 'this issue') + ' →';
     return '<button type="button" class="pdxdos-vrlink"' +
       ' data-pdxc-vrissue="' + escAttr(issueKey) + '"' +
       ' data-pdxc-vrpid="' + escAttr(pid) + '">' + esc(label) + '</button>';

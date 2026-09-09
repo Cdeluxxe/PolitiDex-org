@@ -836,26 +836,41 @@ section("10 · nothing on the do-not list moved");
       must(h != null, `${f} could not be read out of HEAD`);
       eq(R(f) === h, true, `${f} is not byte-identical with HEAD — it is on the do-not-touch list`);
     }
-    // consistency.js IS STILL ON THE LIST, AND STILL BY BYTE — with its comments
-    // set aside. Wave E1 gave the state-executive lane two act types of its own
-    // ('gov_signed' / 'gov_vetoed') so a Utah governor's 140 signed and vetoed
-    // bills route to the record lane instead of the exec lane, and it wrote that
-    // reasoning into the block above _anyWeighedAct() here, because that is where
-    // the federal three are explained and where the next reader will ask why the
-    // state two are named apart. Not one statement moved. Whole-file byte identity
-    // was only ever a proxy for the claim this section makes — THE PANEL DOES NOT
-    // MOVE THE LANE ROUTER — and a prose-only edit is not a counterexample to it,
-    // so the pin is re-declared over the executable text rather than dropped. If
-    // the eye pass ever changes a line of code in that file, this still catches it.
+    // consistency.js IS STILL ON THE LIST, AND THE PIN IS STILL BY BYTE — over
+    // the functions this section is actually making a claim about. Whole-file
+    // identity was only ever a proxy for THE PANEL DOES NOT MOVE THE LANE ROUTER,
+    // and it has now been outlived twice by edits that are not counterexamples to
+    // that claim. Wave E1 wrote the reasoning for the two state-executive act
+    // types into the prose above _anyWeighedAct(), and the pin was re-declared
+    // over the executable text. The exec-act copy pass then changed executable
+    // text in the same file and nowhere near the router: _isExecAct() and
+    // _anyRollCall() were added, _dosDirLine() gained a branch for a governor's
+    // signature, and the two "See all N mapped ___" doors and the roll-call note
+    // learned to ask which of the two they are looking at. Not one of those is a
+    // routing decision, and a whole-file pin cannot tell the difference — so it
+    // is re-declared over the router itself, function by function, where it can.
+    //   THE ROUTER, BY BYTE. If the eye pass ever moves how an item is classified
+    // or which lane an issue lands on, this still catches it, and it now catches
+    // it by name instead of reporting that some line somewhere in 17,000 moved.
     {
       const h = HEAD("consistency.js");
       must(h != null, "consistency.js could not be read out of HEAD");
-      const code = (src) => src.split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n");
-      eq(code(R("consistency.js")), code(h),
-        "consistency.js changed by more than commentary — it is on the do-not-touch list");
-      const eyeCalls = [...new Set([...EYE_SRC.matchAll(/PDXConsistency\.([a-zA-Z_$][\w$]*)/g)]
+      const C_SRC = R("consistency.js");
+      for (const fn of ["_anyBallot", "_anyWeighedAct", "recordItems", "recordLaneFor"]) {
+        const a = fnSrc(C_SRC, fn), b = fnSrc(h, fn);
+        must(a && b, `${fn}() cannot be read out of both revisions of consistency.js`);
+        eq(a, b, `consistency.js ${fn}() is not byte-identical with HEAD — this pass may not move the lane router`);
+      }
+      // AND THE BUILDER BEHIND THE ONE THING THE PANEL ASKS THAT FILE FOR. The
+      // eye reaches PDXConsistency at a single entry point, whose namespace hangs
+      // off formalPatternIndexHtml(); that function is pinned by byte, and the
+      // enumeration is asserted beside it so a new call cannot slip past the pin.
+      const a = fnSrc(C_SRC, "formalPatternIndexHtml"), b = fnSrc(h, "formalPatternIndexHtml");
+      must(a && b, "formalPatternIndexHtml() cannot be read out of both revisions of consistency.js");
+      eq(a, b, "formalPatternIndexHtml() is not byte-identical with HEAD — the panel's entry point moved");
+      const cCalls = [...new Set([...EYE_SRC.matchAll(/PDXConsistency\.([a-zA-Z_$][\w$]*)/g)]
         .map((m) => m[1]))].sort();
-      eq(eyeCalls.join(","), "formalPatternIndex",
+      eq(cCalls.join(","), "formalPatternIndex",
         "the panel calls something new on PDXConsistency — the pin above no longer covers it");
     }
     // word-action.js IS ON THE LIST BY ENTRY POINT RATHER THAN BY BYTE, and only
@@ -900,7 +915,7 @@ section("10 · nothing on the do-not list moved");
     no(shape, banned, `queryShape() reads ${JSON.stringify(banned)} — it may only read the string and name tokens`);
   }
   console.log("      12 ranking functions byte-identical · 8 do-not-touch files byte-identical · " +
-    "consistency.js identical below its comments · " +
+    "consistency.js frozen at its lane router and the panel's entry point · " +
     "word-action.js frozen at its 3 entry points · " +
     "the freeze reads only ids");
 }
