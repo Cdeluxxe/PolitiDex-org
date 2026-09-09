@@ -1086,6 +1086,32 @@ const swNote = swWaveNote();
     "word-action.css",
     "scripts/v103-chrome-seams.mjs",
     "scripts/test-brief-slice-disclosure.mjs",
+    // THE EMPTY FORMAL LANE'S VETO (CACHE_VERSION v163), on those same later-wave
+    // terms, and the two harness files are here because the pass had to reframe a
+    // pin one of them held. /p/cox published "56% Word vs Action · 9 of 25 tested"
+    // and a MIXED RECORD chip over a formal brief that said "No formal pattern on
+    // file yet": a governor casts no roll calls, so the ACTION half of that
+    // comparison was empty and the percentage was the pledge ledger scoring
+    // itself. read() now vetoes its own number where no formal row exists for the
+    // pid in any of four indexes AND the office casts no floor votes — six spans,
+    // carved and argued in the seam module above, with both floors pinned inside
+    // two of them character for character. NOTHING IN THIS WAVE'S REACH MOVES: a
+    // veto is a conjunction, no roll, mapping, key, floor, weight, tier or
+    // admission is written, and the twin boot above has just proved every
+    // Direction Match figure identical. scripts/test-eye-find-the-record.mjs held
+    // word-action.js on a whole-file do-not-touch list; whole-file identity was
+    // only ever a proxy for the claim that section makes — the panel does not
+    // reach into that module — so the proxy is replaced by a freeze on the three
+    // entry points the panel actually calls. scripts/test-stance-worklist.mjs
+    // pinned the publication line whole and now pins both floor comparisons and
+    // both constants byte for byte, allowing only a negated conjunct ahead of
+    // them: the worklist's stake is that nothing got easier to publish, and that
+    // is what the narrower pin says. scripts/test-wva-empty-formal-lane.mjs is new
+    // and proves the gate, including that /p/cox publishes the reported 56% again
+    // the moment one formal row is handed to the same fixture.
+    "scripts/test-eye-find-the-record.mjs",
+    "scripts/test-wva-empty-formal-lane.mjs",
+    "scripts/test-stance-worklist.mjs",
     // THE IDENTITY CHIP'S DENOMINATOR (CACHE_VERSION v136), on those same
     // later-wave terms, and this wave has the same direct stake in it as in the
     // slice line above. It writes no roll, no mapping, no key, no floor and no

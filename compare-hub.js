@@ -2243,6 +2243,21 @@
       if (opts.status === 'candidate') {
         return { state: 'candidate', glyph: '🗳️', label: 'Word vs Action', sub: 'Record begins in office', tint: '', pct: null, tested: 0 };
       }
+      // AN EMPTY FORMAL LANE IS NOT A THIN ONE, and it has to be said first: a
+      // governor’s pledge ledger can hold nine resolved items, so `cov.tested`
+      // reads 9 and the branch below would tell a reader "Not enough record yet"
+      // about an office whose formal acts are not on file at all. word-action.js
+      // owns the distinction — PDXWordAction.noFormalLane(pid, read, profile) is
+      // the same question read() vetoed its own percentage on — and this only
+      // prints it.
+      var lane = false;
+      try {
+        var waL = window.PDXWordAction;
+        if (r && waL && typeof waL.noFormalLane === 'function') lane = waL.noFormalLane(opts.pid, r, p);
+      } catch (e) { lane = false; }
+      if (lane) {
+        return { state: 'wa', glyph: '—', label: 'Word vs Action', sub: 'No formal record on file', tint: '', pct: null, tested: 0 };
+      }
       if (cov && cov.tested > 0) {
         return { state: 'tracking', glyph: '⏳', label: 'Word vs Action', sub: 'Not enough record yet', tint: '', pct: null, tested: 0 };
       }

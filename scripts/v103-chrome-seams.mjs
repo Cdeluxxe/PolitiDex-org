@@ -556,6 +556,42 @@ export const AT_SEAMS = [
 
 // ── word-action.js: the shared figure, the chip, the section, the gate, the mounts ────
 export const WA_SEAMS = [
+  // ── the empty formal lane's veto (v163) ───────────────────────────────────
+  // TWO SPANS IN THE ENGINE ITSELF, which nothing in this list had needed before,
+  // and they are here because /p/cox published "56% Word vs Action · 9 of 25
+  // tested" and a MIXED RECORD chip over a formal brief that read "No formal
+  // pattern on file yet" three inches below it. A governor casts no roll calls and
+  // Utah's signed/vetoed ingest has not landed, so the ACTION half of that
+  // comparison was empty and the 56% was the pledge ledger scoring itself: nine
+  // resolved pledges at weight 3 clear the three-item floor and the four-weight
+  // floor on their own, and 5 of 9 is 56%.
+  //
+  // The fix is ONE VETO AT THE ONE OWNER, so every face goes quiet through the
+  // gate it already reads. A WAVE'S STAKE IN THESE TWO SPANS IS THE FLOORS, and
+  // the floors are argued below character for character: `!laneEmpty &&` is a
+  // conjunction in front of both comparisons, and a conjunction can only ever
+  // take a percentage away. Nothing is loosened, nothing is inferred, no roll call
+  // is invented for an office that casts none, and no stance is mapped into a
+  // formal act — the readers only ASK four indexes whether a formal row exists for
+  // this pid, and any one of them saying yes, or any one of them being
+  // unreachable, passes the read straight through unchanged.
+  //
+  // First: the readers and the office scope. formalLaneReadable() and the four
+  // indexes it asks, plus castsNoFloorVotes(), which is the reason this cannot
+  // fire on a legislator — an empty pattern index is a standing fact for a
+  // governor and a fetch still in flight for a member of Congress, and the same
+  // silence would be a false sentence on the second one.
+  ["    return { state: 'untested', reason: 'no_action_yet', token: 'no_record' };\n  }\n",
+   "  // \u2500\u2500 THE READ \u2500\u2500",
+   "the empty formal lane's readers"],
+  // Second: the veto, and both floors underneath it. The pct expression, the
+  // fallback ladder and the token it produces are inside the span too, and all
+  // three are argued as unmoved — the ladder especially, because `no_record` is
+  // the more exact word for this state than `limited` and relabelling it would
+  // have moved the verdict word on hundreds of profiles that were never wrong.
+  ["    else outcomeToken = 'no_stance';\n",
+   "    var cs = C();\n    var verdict = (cs && cs.VERDICTS && cs.VERDICTS[token]) || null;\n",
+   "the empty lane's veto, and both floors under it"],
   // ── the shared figure and the shared repaint (v140) ────────────────
   // The letterhead chip and the ⚖️ section print one finding about one person, a
   // screen apart, and they were printing two SIZES of it: "84% · 5 of 14 tested"
@@ -583,6 +619,18 @@ export const WA_SEAMS = [
   ["    if (typeof a === 'number' && typeof b === 'number') out.delta = b - a;\n    return out;\n  }\n",
    "  // ── CONNECTING THE DOTS",
    "the shared figure and the shared repaint"],
+  // ── the thin copy's empty-lane sentence (v163) ────────────────────────────
+  // One branch in thinCopy(), placed AFTER the warming branch and never before it:
+  // a lane still being fetched is not an empty one. The sentence a reader is shown
+  // in place of the number says which gap this is — the OFFICE has no formal acts
+  // on file, not the person a thin record — because those are different gaps with
+  // different fixes, and "not enough record yet" would promise a number that is
+  // not coming. The span states no position, maps no measure and moves no floor;
+  // the signature gained the pid and the profile because the office question
+  // cannot be answered out of a read alone.
+  ["  function thinCopy(r, name",
+   "      return 'All ' + c.word + ' position'",
+   "the thin copy's empty-lane sentence"],
   // ── the apparatus lid's label (v141) ──────────────────────────────
   // The lid label is the third face of one figure and it built the pair by hand:
   // r.coverage.tested + ' of ' + r.coverage.scorable + ' tested', a screen below
@@ -669,6 +717,15 @@ export const WA_SEAMS = [
   ["      var depthTag = hasPct\n",
    "      var body = '' +\n",
    "the section stamps the shared figure"],
+  // ── the letterhead's thin-copy call (v163) ────────────────────────────────
+  // The call site, and only the call site: thinCopy() needs the pid and the
+  // profile to answer the office question, so the letterhead hands over the two it
+  // is already holding. The clause around it — ONE sentence under the big number,
+  // gated on `hasPct` alone — is unchanged, and the verdict branch beside it is
+  // untouched.
+  ["              // as a paragraph instead of a verdict.\n",
+   "        // THE SHAPE, BESIDE THE NUMBER.",
+   "the letterhead's thin-copy call"],
   // Third and fourth: the head and the tail of the section's repaint. The body
   // between them — the open lids, the picked bucket, flat mode, the order they are
   // restored in — is outside the seam and byte-identical.
@@ -700,6 +757,17 @@ export const WA_SEAMS = [
   ["      var c = r.coverage, v = r.verdict;\n",
    "      // One phrase for this wait, shared with the Voting Record Highlights",
    "the hero ring's sub-line"],
+  // ── the hero ring's empty-lane sub-line (v163) ────────────────────────────
+  // One rung on the waiting ladder the span above deliberately stops before, and
+  // it is added ABOVE the floor phrasings because those phrasings are false here:
+  // the pledge ledger carries nine tested items past a three-item floor on its
+  // own, so the ring under the suppressed number on /p/cox read "9 of 3 tested
+  // needed". This is not a floor change wearing a copy pass's clothes — the floor
+  // rungs are inside this span and argued unmoved below, and the new rung is
+  // reached only where there is no formal record to test against at all.
+  ["      else if (!c.word) sub = '';\n",
+   "      else if (!c.scorable) sub = 'Nothing said independently on file';\n",
+   "the hero ring's empty-lane sub-line"],
   // ── one row's sentence, with one author (v147) ────────────────────────────
   // The row's spoken form — "Health care — formal record: every vote one way (12
   // of 12)" — was built inline in the row's aria-label, which was fine while the
@@ -756,6 +824,16 @@ export const WA_SEAMS = [
   ["        shapeMatchHtml(pid, p, { deep: false, recordAbove: true }) +\n        '</div>';\n    } catch (e) { return ''; }\n  }\n",
    "  function briefHeroHtml(pid, p) {\n",
    "the brief's finding, on one line"],
+  // ── the empty-lane predicate, published (v163) ────────────────────────────
+  // Four exports beside heroRead, so a surface that needs the answer without
+  // paying for a scoring pass — the card score slot every browse and compare
+  // surface routes through — asks the same function read() vetoed on rather than
+  // re-deriving it from the indexes. Reads only: nothing exported here writes,
+  // scores or renders, and the copy a reader is shown in place of the number is a
+  // constant rather than a sentence each caller spells.
+  ["    heroRead: heroRead,\n",
+   "    // \ud83c\udfdb The depth gate, published so tests and callers read the same two numbers\n",
+   "the empty-lane predicate, published"],
   // ── the one-line finding, published (v147) ────────────────────────────────
   // Two exports beside briefHtml, so the card and the profile are demonstrably
   // one reader rather than two that happen to agree: recordLine is the finding at
@@ -1681,6 +1759,159 @@ export function assertWordActionSeams(bodies, api) {
     "the export seam grew something other than name-to-name export lines");
   ok(!/MIN_|FLOOR|publishable|pct|percent|party/i.test(pubCode),
     "the export seam publishes a floor, a percentage or a party alongside the two names it added");
+
+  // ── the empty formal lane's veto (v163) ───────────────────────────────────
+  // SIX SPANS, AND THE FLOORS ARE INSIDE TWO OF THEM, so this is the one place in
+  // this file where an argument has to pin arithmetic rather than copy. It pins it
+  // character for character: both floor comparisons, the pct expression and the
+  // fallback ladder are asserted verbatim, and the only thing the veto may be is a
+  // NEGATED CONJUNCTION in front of them — a term that can subtract a percentage
+  // and can never add one. Everything else argued here is a reader or a sentence.
+  const readers = wa("the empty formal lane's readers");
+  has(readers, "function formalLaneReadable(pid, tested, p) {",
+    "the one predicate every surface's silence comes from is gone, so each surface decides for " +
+    "itself whether an office has a formal record — which is how two faces of one profile come to " +
+    "disagree about whether the file is empty");
+  has(readers, "var fpi = cs && cs.formalPatternIndex;", "the pattern index is no longer asked");
+  has(readers, "var xs = cs && cs.execRecordSummary;", "the executive lane's own index is no longer asked");
+  has(readers, "var fx = window.PDXFormalIndex;", "the generated act table is no longer asked");
+  has(readers, "if (t && t.basis && t.basis !== 'pledge-ledger') return true;",
+    "the read's own tested set is no longer asked — the cheapest positive knowledge there is, and " +
+    "the one reader that cannot be cold");
+  has(readers, "if (rows.length > 0) return true;",
+    "a pattern row has to be READABLE to count as a lane again. /p/trump is 37 rows, none of them " +
+    "warm, over 34 executive acts and a legitimate 71% — gating on the printability flag deletes a " +
+    "president's number to fix a governor's");
+  has(readers, "if (a === null || b === null || c2 === null) return true;",
+    "the readers stopped failing OPEN. A file that cannot be asked is never called empty, and an " +
+    "index that has not booted answers null, not no");
+  has(readers, "if (!castsNoFloorVotes(pid, p)) return true;",
+    "the gate lost its office scope, which is the difference between a standing fact and a fetch " +
+    "still in flight: an empty pattern index means \"this office casts no floor votes\" for a " +
+    "governor and \"the roll calls have not landed yet\" for a member of Congress, and roll calls " +
+    "are fetched per member");
+  has(readers, "if (LEGISLATIVE_OFFICE.test(office)) return false;", "the legislative exclusion is gone");
+  has(readers, "if (LOCAL_OFFICE.test(office)) return false;", "the local-office exclusion is gone");
+  has(readers, "return STATEWIDE_EXEC_OFFICE.test(office);",
+    "the scope stopped being a named list of statewide executive titles — an office read as exec by " +
+    "elimination is every unlabelled row in the roster");
+  has(readers, "var NO_FORMAL_LANE_COPY =",
+    "the sentence a reader is shown in place of the number is no longer one constant, so each " +
+    "surface spells its own version of the same claim");
+  {
+    const c = readers.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+    ok(!/MIN_TESTED_ITEMS|MIN_TESTED_WEIGHT|EVIDENCE_CAP|publishable/.test(c),
+      "a reader reaches for a floor. The readers answer one yes/no question — does a formal row " +
+      "exist for this pid — and the floors are read()'s, one span below");
+    ok(!/Math\.|toFixed|\*\s*100|\/\s*100/.test(c),
+      "the readers grew arithmetic. Nothing here scores, and nothing here may compose a figure");
+    ok(!/\.party\b|Republican|Democrat|GOP/i.test(c), "a reader reads a party");
+    ok(!/\.push\(|\.sort\(|localeCompare|Object\.keys/.test(c),
+      "a reader builds, ranks or sweeps something — every one of them is a question put to an index " +
+      "that already exists, and an index this pass filled in itself would be an invented record");
+    ok(!/%/.test(c),
+      "the empty-lane copy carries a percentage — this span exists to say there is none. (The prose " +
+      "above the readers quotes /p/cox's 56% and /p/trump's 71%, so the comments are stripped first.)");
+  }
+
+  // Second span: the veto, and both floors under it.
+  const veto = wa("the empty lane's veto, and both floors under it");
+  has(veto, "var laneEmpty = !formalLaneReadable(pid, tested, p);",
+    "the veto no longer asks the one predicate, so read() answers a question no other surface can");
+  has(veto, "var publishable = !laneEmpty && tested.length >= MIN_TESTED_ITEMS && wN >= MIN_TESTED_WEIGHT;",
+    "THE PUBLICATION RULE CHANGED SHAPE. Both floors, both constants and both operators are pinned " +
+    "here byte for byte, and the veto in front of them is a negated conjunction — the only form " +
+    "that can subtract a percentage without ever adding one");
+  has(veto, "var pct = publishable && wN ? Math.round(wSum / wN) : null;",
+    "the percentage is no longer taken from the gate above it, character for character");
+  has(veto, "var token = publishable ? outcomeToken\n              : (warming ? 'pending' : (items.length ? 'limited' : 'no_stance'));",
+    "the fallback ladder moved. `no_record` is the more exact word for an empty formal lane than " +
+    "`limited` and it is deliberately NOT taken: the ladder answers for every unpublished read in " +
+    "the product, so relabelling one rung moves the verdict word on hundreds of profiles that were " +
+    "never wrong");
+  {
+    const c = veto.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+    ok(!/publishable\s*=\s*[^;]*\|\|/.test(c),
+      "the veto became an ALTERNATIVE to the floors rather than a term added to them — one `||` here " +
+      "and an empty lane starts publishing what the floors just refused");
+    ok(!/MIN_TESTED_ITEMS\s*[-+*\/]|MIN_TESTED_WEIGHT\s*[-+*\/]/.test(c),
+      "a floor is arithmetic here instead of a constant, which is how a floor gets lowered in a " +
+      "pass that says it lowered nothing");
+    ok(!/laneEmpty\s*=\s*(?:true|false)/.test(c),
+      "the veto is hard-coded rather than read, so the gate stops answering per office");
+  }
+
+  // Third span: the sentence a reader is shown instead of the number.
+  const thin = wa("the thin copy's empty-lane sentence");
+  has(thin, "if (c.warming) return 'Checking '",
+    "the warming sentence left the branch above the empty-lane one");
+  has(thin, "if (noFormalLane(pid, r, p)) return NO_FORMAL_LANE_COPY;",
+    "the thin copy no longer says which gap this is, so an office with no formal acts on file reads " +
+    "as a person with a thin record");
+  ok(thin.indexOf("if (c.warming) return 'Checking '") < thin.indexOf("if (noFormalLane("),
+    "THE EMPTY-LANE BRANCH MOVED ABOVE THE WARMING BRANCH — a lane still being fetched would then " +
+    "be called an empty one, which is the one thing this whole gate exists to avoid");
+  {
+    const c = thin.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+    ok(!/MIN_|publishable|Math\./.test(c), "the thin copy tests a floor or scores");
+  }
+  ok(!/%/.test(thin), "the thin copy prints a percentage");
+
+  // Fourth span: the letterhead's call into it.
+  const thinCall = wa("the letterhead's thin-copy call");
+  has(thinCall, "? esc((v && v.short) || '')", "the letterhead's verdict branch moved");
+  has(thinCall, ": esc(thinCopy(r, name, pid, p))) +",
+    "the letterhead stopped handing thinCopy the pid and the profile, and the office question " +
+    "cannot be answered without them — dhenderson has no roster row, so a read alone reads as no " +
+    "office at all");
+  {
+    const c = thinCall.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+    ok(!/scopedRead\(|read\(pid/.test(c), "the letterhead takes a second read to print one sentence");
+    ok(!/%/.test(c), "the letterhead's thin clause grew a percentage");
+  }
+
+  // Fifth span: one rung on the ring's waiting ladder.
+  const heroLane = wa("the hero ring's empty-lane sub-line");
+  has(heroLane, "else if (noFormalLane(pid, r, p)) sub = 'No formal record on file to test against';",
+    "the ring's sub-line no longer says the formal lane is empty, so the rungs below it answer " +
+    "instead — and every one of them is a false sentence here");
+  // THE FLOOR PHRASINGS ARE OUTSIDE THIS SPAN AND STILL PINNED, which is what
+  // makes "the new rung sits above them" a fact about the file rather than a claim
+  // about it: the span ends at `else if (!c.scorable)`, so "N on file, none tested
+  // yet" and "N of 3 tested needed" are in the byte-compared half. On /p/cox the
+  // last of those read "9 of 3 tested needed" under a suppressed number — the
+  // pledge ledger clears a three-item floor on its own — and it is the sentence
+  // the new rung exists to reach first.
+  ok(!/tested needed|none tested yet|c\.scorable/.test(heroLane.replace(/^\s*\/\/.*$/gm, "")),
+    "a floor phrasing moved INTO the empty-lane span, out of the half that is compared byte for " +
+    "byte against HEAD — the new rung is above the floor rungs by construction, and this is the " +
+    "assertion that keeps it that way. (The note inside the span QUOTES the last of those " +
+    "sentences, so the comments come off first.)");
+  {
+    const c = heroLane.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+    ok(!/figure\(|fig\.|Math\.|publishable/.test(c),
+      "the new rung sizes or scores something — the ring's figure is taken one span above this and " +
+      "printed, never recomputed");
+  }
+  ok(!/%/.test(heroLane), "the ring's empty-lane rung prints a percentage");
+
+  // Sixth span: the predicate, published.
+  const lanePub = wa("the empty-lane predicate, published");
+  has(lanePub, "formalLaneReadable: formalLaneReadable,", "the predicate is no longer published");
+  has(lanePub, "noFormalLane: noFormalLane,",
+    "the question a caller holding a read asks is no longer published, so the card score slot every " +
+    "browse and compare surface routes through has to re-derive it from the indexes");
+  has(lanePub, "castsNoFloorVotes: castsNoFloorVotes,", "the office scope is no longer published");
+  has(lanePub, "NO_FORMAL_LANE_COPY: NO_FORMAL_LANE_COPY,",
+    "the reader's sentence is no longer published as one constant");
+  {
+    const c = lanePub.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+    ok(!/[(){}]/.test(c), "the empty-lane export seam grew something other than name-to-name export lines");
+    // Not /FLOOR/i: castsNoFloorVotes is one of the four names, and the word in it
+    // is the roll-call floor of a chamber, not a publication floor.
+    ok(!/MIN_|_FLOOR|pct|percent|party/i.test(c),
+      "the empty-lane export seam publishes a floor, a percentage or a party alongside its four names");
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

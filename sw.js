@@ -3114,6 +3114,71 @@
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
 // ─────────────────────────────────────────────────────────────────────────────
+// v163 - AN EMPTY FORMAL LANE CANNOT CARRY A WORD VS ACTION PERCENTAGE
+// ─────────────────────────────────────────────────────────────────────────────
+// /p/cox printed two facts about one record, a screen apart. The 🏛 brief said,
+// correctly, "No formal pattern on file yet." The letterhead and the ⚖️ block said
+// "56% Word vs Action · 9 of 25 tested" with a MIXED RECORD chip beside it. A
+// governor casts no roll calls, and until Utah signed/vetoed ingest lands there
+// are no ✒️ executive acts on file for one either - so the percentage was not a
+// reading of a formal record at all. All nine tested items came from the PLEDGE
+// LEDGER, where testOf() resolves a tracked promise from its own kept/broken
+// verdict and never consults officialRecord(). Five kept over nine resolved is
+// 55.6%, which is the number that shipped. The arithmetic was right; the record it
+// claimed to be over was not there.
+//   THE FIX IS ONE VETO AT THE ONE OWNER. read() now asks whether a formal lane
+// exists for the pid at all before it publishes anything, and every downstream
+// face - the letterhead chip, the hero ring, the ⚖️ number, the search row, the
+// compare slot, the record card - goes quiet through the `publishable` gate it
+// already reads. FOUR OWNERS ARE ASKED AND ANY OF THEM SAYING YES IS ENOUGH: the
+// formal-pattern index (any row, not just a `read` one), the executive lane's own
+// index, the generated PDXFormalIndex act counts, and the read's own tested set.
+// /p/trump carries 37 pattern rows, none of them `read`, over 34 readable
+// executive acts - gating on `read` alone would have deleted a president's
+// legitimate 71%, which is floor-lowering pointing the other way.
+//   AND THE OFFICE HAS TO CAST NO FLOOR VOTES, or the gate does not apply. An
+// empty index is two different facts depending on the office: for a governor it is
+// the standing state of the world, for a senator it is a fetch still in flight,
+// because roll calls are fetched per member and any page that renders before that
+// resolves reads zero rows. Firing there would have printed "this office's formal
+// acts are not on file yet" onto a member of Congress whose votes were in the air.
+// The scope is requirement 2's own - "any statewide exec" - and legislative and
+// local titles take themselves out of it first, so "State Senate President" and a
+// school-board seat are never read as executive.
+// NO FLOOR MOVED, IN EITHER DIRECTION. MIN_TESTED_ITEMS is still 3 and
+// MIN_TESTED_WEIGHT is still 4. No House or Senate vote was invented for a
+// governor, no stance was mapped into a formal act, and the pledge ledger is still
+// counted as coverage - it just cannot be the whole test any more. Swept over the
+// shipped roster of 1120 profiles, not one published percentage moved.
+//   PRECACHED SHELL FILES CHANGED - THEY ARE THE REASON FOR THE BUMP:
+//   · '/word-action.js'        - formalLaneReadable() and its four readers,
+//                                castsNoFloorVotes() and the scope it holds, the
+//                                `laneEmpty` veto in front of the two floors, the
+//                                reviewed sentence (NO_FORMAL_LANE_COPY) in
+//                                thinCopy() and the ring's own sub-line.
+//                                Precached, which is how a warm device would
+//                                otherwise keep painting 56%.
+// ALSO CHANGED BUT NOT PRECACHED, SO IT ARRIVES FRESH WITHOUT THIS BUMP:
+// compare-hub.js (window._pdxLedgerSlot now says "No formal record on file" before
+// it counts tested items, so nine resolved pledges no longer read as "Not enough
+// record yet") - a stale-while-revalidate runtime entry - and
+// scripts/test-wva-empty-formal-lane.mjs, which pins all of it.
+//   FIVE EXISTING HARNESSES HELD PINS THAT ONLY EVER STOOD IN FOR A CLAIM, and
+// the pins are re-declared rather than loosened. scripts/v103-chrome-seams.mjs
+// carries the six spans this pass adds to word-action.js as named WA_SEAMS, so
+// every wave suite still compares the whole rest of that file byte for byte
+// against HEAD and each span is ARGUED - both floors are asserted inside the veto
+// span character for character, and the only shape the new term may take is a
+// negated conjunction, which can subtract a percentage and never add one.
+// test-stance-worklist pinned the publication line whole and now pins both floor
+// comparisons and both constants with the same allowance. test-eye-find-the-record
+// held word-action.js on a whole-file do-not-touch list and now freezes the three
+// entry points the All-Seeing Eye panel actually calls. The two roster-wave
+// suites that keep a declared-file list name the two harness files this pass
+// touched.
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it.
+// ─────────────────────────────────────────────────────────────────────────────
 // v162 - YOUR FILE OPENS FROM ITS ADDRESS
 // ─────────────────────────────────────────────────────────────────────────────
 // v161 shipped the overlay and one control, and #your-file still painted the
@@ -3676,7 +3741,7 @@
 // that file first on its eight issue keys. /your-file.js and /your-file.css are
 // deliberately NOT in SHELL_ASSETS, so they arrive from the network on first use
 // and cannot be served stale from an older shell.
-const CACHE_VERSION = 'v162';
+const CACHE_VERSION = 'v163';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

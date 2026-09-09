@@ -324,7 +324,19 @@ section('7 · the circularity rule stands, and is named as permanent');
 
   // word-action.js still owns the rule, unedited.
   has(WA_SRC, 'isIndependentWord', 'isIndependentWord left word-action.js');
-  const floors = /var publishable = tested\.length >= MIN_TESTED_ITEMS && wN >= MIN_TESTED_WEIGHT;/.test(WA_SRC);
+  // BOTH FLOORS, PINNED BY THEIR OWN TERMS RATHER THAN BY THE WHOLE LINE. The
+  // empty-formal-lane pass (v163) added a term in front of them: an office that
+  // casts no floor votes and has no formal row in any of four indexes publishes
+  // nothing, because its pledge ledger alone clears both floors and prints a
+  // percentage against a record the same page calls empty — /p/cox read "56% · 9
+  // of 25 tested" over "No formal pattern on file yet". The worklist's stake here
+  // is that NOTHING GOT EASIER TO PUBLISH, so the check keeps both comparisons and
+  // both constants byte-identical and allows only negated conjuncts ahead of them:
+  // a `!x &&` term can take a percentage away and can never add one. Anything
+  // else — a `||`, arithmetic on a floor, a loosened operator — still fails.
+  const pubLine = (WA_SRC.match(/var publishable = [^\n]*/) || [''])[0];
+  const floors = /^var publishable = (?:!\w+ && )*tested\.length >= MIN_TESTED_ITEMS && wN >= MIN_TESTED_WEIGHT;$/
+    .test(pubLine.trim());
   ok(floors, 'the publication rule in word-action.js changed shape this phase');
 }
 
