@@ -74,7 +74,7 @@ import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { createHash } from "node:crypto";
 import { WA_SEAMS, CJ_SEAMS_ALL, AT_SEAMS, SH_SEAMS, carveSeams, assertConsistencySeams,
-  assertStanceHelpersSeam } from "./v103-chrome-seams.mjs";
+  assertStanceHelpersSeam, assertRosterOfficeIsTheOnlyMove } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -388,7 +388,23 @@ const NO_POLE = (() => {
   // is pinned inside the span it opens, and no member of Congress can hold either
   // act. The file is carved at the three spans that pass declares and everything
   // outside them is compared byte for byte, exactly as the other three are.
-  const WAIVED = ["word-action.js", "consistency.js", "alignment-tool.js", "stance-helpers.js"];
+  // AND ONE MORE FILE THAT IS DATA, SO THE MOVE IS NAMED RATHER THAN THE FILE.
+  // The word-first pass (v168) corrected phil_lyman's office label: he was filed
+  // as "Governor Candidate" after entering the UT-3 House race, so the roster, the
+  // live file and every card quoting the office disagreed. cmp-data.js is IDENTITY
+  // and pinning it by byte is right — an admission, a dropped row or a re-pointed
+  // district must never arrive as a side effect — so the pin is re-declared over
+  // the narrower claim it always stood for: same set of people, same every field,
+  // one declared office string moved in place. assertRosterOfficeIsTheOnlyMove in
+  // scripts/v103-chrome-seams.mjs makes each of those a check. Nothing this wave
+  // measures reads an office label, and the figure sweep below comes out identical
+  // in both trees rather than merely close.
+  const WAIVED = ["word-action.js", "consistency.js", "alignment-tool.js", "stance-helpers.js",
+    "cmp-data.js"];
+  if (touched.includes("cmp-data.js")) {
+    assertRosterOfficeIsTheOnlyMove({ ok, eq }, headSrc("cmp-data.js"), nowSrc("cmp-data.js"),
+      ["U.S. House Candidate (UT-3)"], "F11");
+  }
   eq(touched.filter((f) => !WAIVED.includes(f)).length, 0,
     `F11 changed a booted engine file (${touched.join(", ")}) — a coverage wave writes mapping rows and no engine`);
   if (touched.includes("stance-helpers.js")) {

@@ -120,12 +120,22 @@ const strip = (s) => String(s)
 // ── The subjects ─────────────────────────────────────────────────────────────
 // DEEP  — lee, warmed from the shipped roll-call seeds. A real deep federal file:
 //         51 issues of formal record and a publishable Direction Match.
-// EMPTY — mschultz, the UT House speaker this pass was reported on. The API has
-//         answered for them and the answer is nothing, which is the state the old
-//         hero rendered as a large percentage with no record in sight.
+// EMPTY — jknotts, a UT State Representative with no roll calls ingested AND no
+//         cited position on file. The API has answered and the answer is nothing,
+//         which is the state the old hero rendered as a large percentage with no
+//         record in sight.
 // COLD  — mschultz before the answer lands, i.e. the first paint.
+// WORD  — mschultz, the UT House speaker this pass was reported on. He was the
+//         EMPTY subject here, and he is not one any more: he has two cited
+//         positions, so his letterhead now leads with what he SAID rather than
+//         with a refusal about a record nobody has filed. THE CLAIM IS INVERTED
+//         RATHER THAN DELETED — section 3 asserts his new letterhead below, and
+//         the empty-record contracts he used to carry are asserted on someone
+//         they are still true of. A person with no formal record AND nothing on
+//         the word side still gets the refusal, and that is what EMPTY is for.
 const DEEP = "lee";
-const EMPTY = "mschultz";
+const EMPTY = "jknotts";
+const WORD = "mschultz";
 
 const corpus = buildCorpus(ROOT);
 must(corpus && corpus.byMember && corpus.byMember.size > 0,
@@ -138,8 +148,12 @@ function warm(win, opts) {
   if (opts && opts.resolveEmpty) {
     // What a live browser does when /api/voting-record answers "no rows": the
     // member is cached with an empty ledger, so the read stops warming and the
-    // absence becomes a finding instead of a spinner.
+    // absence becomes a finding instead of a spinner. Both subjects need it —
+    // BOTH letterheads wait for the payload, the refusal because an absence it
+    // has not been told about is a spinner, and the word-first block because a
+    // record nobody has asked for yet is not an empty record either.
     try { win.PDXVotingRecord.noteMember(EMPTY, []); } catch (e) {}
+    try { win.PDXVotingRecord.noteMember(WORD, []); } catch (e) {}
   }
   return win;
 }
@@ -154,8 +168,16 @@ must(A.CMP_DATA[DEEP] && A.CMP_DATA[EMPTY], "a subject is not in the bundled ros
 
 const DEEP_HERO = WA.heroMount(DEEP, A.CMP_DATA[DEEP], {});
 const EMPTY_HERO = WA.heroMount(EMPTY, A.CMP_DATA[EMPTY], {});
+// The first paint is read on WORD rather than on EMPTY, and the reason is a fact
+// about the product rather than a convenience: the loading sentence only belongs
+// to a member the record layer actually goes and asks about. Nobody asks for
+// jknotts, so his letterhead is not mid-flight, it is simply answered and empty —
+// which is what section 3 asserts of him. mschultz is asked, so he is the one who
+// has a before-the-answer state to hold the product to, and holding it here also
+// fences the word lane: his cited positions do NOT lead the file until the
+// roll-call payload has landed, because a lane nobody has asked yet is not empty.
 const COLD = warm(boot(), {});
-const COLD_HERO = COLD.PDXWordAction.heroMount(EMPTY, COLD.CMP_DATA[EMPTY], {});
+const COLD_HERO = COLD.PDXWordAction.heroMount(WORD, COLD.CMP_DATA[WORD], {});
 
 must(WA.shapeApplies(DEEP) === true,
   `${DEEP} no longer clears the depth gate — the deep-file case needs another subject`);
@@ -165,6 +187,19 @@ must(WA.shapeApplies(EMPTY) === false,
   const sh = A.PDXConsistency.formalPatternIndex.shape(EMPTY);
   must(sh && sh.issues === 0,
     `${EMPTY} now has ${sh && sh.issues} issues of formal record — the empty-file case needs another subject`);
+  // AND NOTHING ON THE WORD SIDE. An empty formal lane with cited positions in it
+  // is a different letterhead now (see WORD below), so a subject who quietly
+  // gained a stance card would turn every contract in section 3 into a test of
+  // the wrong block. Named here rather than discovered as nine failures.
+  let cited = null;
+  try { cited = WA.saidRowSet(EMPTY).cited; } catch (e) { cited = "unreadable"; }
+  must(cited === 0,
+    `${EMPTY} now has ${cited} cited position(s) — the empty-file case needs another subject`);
+  const wsh = A.PDXConsistency.formalPatternIndex.shape(WORD);
+  must(wsh && wsh.issues === 0, `${WORD} gained a formal record — the word-first case needs another subject`);
+  let wCited = 0;
+  try { wCited = WA.saidRowSet(WORD).cited; } catch (e) {}
+  must(wCited > 0, `${WORD} has no cited position — the word-first case needs another subject`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -286,11 +321,37 @@ section("3 · an empty record reads as empty");
   // The first paint is a load state, not an absence: two different facts, two
   // different sentences.
   const ct = txt(COLD_HERO);
+  lacksI(ct, "What they have said",
+    "the word-first letterhead led a file whose roll-call record was still in flight");
   hasI(ct, "Still loading the roll-call record",
     "before the record answers, the brief reports an absence instead of a load");
   lacksI(ct, "No formal pattern on file yet",
     "a record still in flight is reported as a record that does not exist");
   ok(!/\d+%/.test(ct), "the first paint printed a percentage");
+
+  // ── AND AN EMPTY RECORD WITH CITED POSITIONS IS NOT AN EMPTY FILE ──────────
+  // Same absent formal lane, different reader. Where there are documented
+  // positions on hand, the letterhead leads with those instead of opening on a
+  // refusal — and it is held to the same walls this section holds the refusal to:
+  // no percentage, no tier chip, no pattern list, nothing that reads as a finding
+  // about how this person votes.
+  const WORD_HERO = WA.heroMount(WORD, A.CMP_DATA[WORD], {});
+  const wt = txt(WORD_HERO);
+  hasI(wt, "What they have said",
+    "a file with cited positions and no formal record does not lead with what they said");
+  hasI(wt, "no formal term on file yet",
+    "the word-first letterhead does not say the formal lane is empty");
+  hasI(wt, "These are documented positions, not a voting pattern",
+    "the word-first letterhead does not distinguish a position from a pattern");
+  ok(!/\d+%/.test(wt), `the word-first letterhead printed a percentage: ${wt.slice(0, 160)}`);
+  lacks(WORD_HERO, "pdxst-pat", "the word-first letterhead was given a tier chip");
+  lacks(WORD_HERO, "pdxwa-shape-list", "the word-first letterhead was given a formal pattern list");
+  lacks(WORD_HERO, "pdxwa-shape-dm-v", "the word-first letterhead printed a Direction Match numeral");
+  lacksI(wt, "Strongest patterns", "the word-first letterhead was given a strongest-patterns heading");
+  // It names no pattern, so it does not do the standout strip's job and must not
+  // claim to — the accessor and the markup agree on that in section 6.
+  eq(WA.heroNamesPatterns(WORD), false,
+    "the word-first letterhead claims to have named this person's formal patterns");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

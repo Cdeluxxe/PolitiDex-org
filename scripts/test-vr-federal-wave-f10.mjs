@@ -52,7 +52,8 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
-import { SH_SEAMS, carveSeams, assertStanceHelpersSeam } from "./v103-chrome-seams.mjs";
+import { SH_SEAMS, carveSeams, assertStanceHelpersSeam,
+  assertRosterOfficeIsTheOnlyMove } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -469,10 +470,25 @@ const C = decide._counts || {};
   // and is pinned inside the span it opens, so nothing F10 measured moved: no
   // profile in this roster holds a gubernatorial act, which is why the figure
   // sweep below comes out identical in both trees rather than merely close.
-  const CARVED = ["stance-helpers.js"];
+  // AND ONE MORE FILE THAT IS DATA, SO THE MOVE IS NAMED RATHER THAN THE FILE.
+  // The word-first pass (v168) corrected phil_lyman's office label: he was filed
+  // as "Governor Candidate" after entering the UT-3 House race, so the roster, the
+  // live file and every card quoting the office disagreed. cmp-data.js is IDENTITY
+  // and pinning it by byte is right — an admission, a dropped row or a re-pointed
+  // district must never arrive as a side effect — so the pin is re-declared over
+  // the narrower claim it always stood for: same set of people, same every field,
+  // one declared office string moved in place. assertRosterOfficeIsTheOnlyMove in
+  // scripts/v103-chrome-seams.mjs makes each of those a check. Nothing this wave
+  // measures reads an office label, and the figure sweep below comes out identical
+  // in both trees rather than merely close.
+  const CARVED = ["stance-helpers.js", "cmp-data.js"];
   const stray = touched.filter((f) => MAY_RENDER.indexOf(f) < 0 && CARVED.indexOf(f) < 0);
   eq(stray.length, 0,
     `F10 changed a booted engine file (${stray.join(", ")}) — a wave whose product is a measurement has no business editing the thing it measured`);
+  if (touched.includes("cmp-data.js")) {
+    assertRosterOfficeIsTheOnlyMove({ ok, eq }, headSrc("cmp-data.js"), nowSrc("cmp-data.js"),
+      ["U.S. House Candidate (UT-3)"], "F10");
+  }
   if (touched.includes("stance-helpers.js")) {
     const has = (x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`);
     const sa = carveSeams(headSrc("stance-helpers.js"), SH_SEAMS, "HEAD", "stance-helpers.js", ok);

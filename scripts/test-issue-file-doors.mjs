@@ -473,11 +473,32 @@ section("6 · the sitemap lists the keys with something to read");
   const scoped = new Set(Object.keys(W.PDXIssueScope.SCOPE || {}));
   const orphans = Object.keys(W.ISSUE_MAP).filter((k) => !scoped.has(k) && listed.indexOf(k) === -1);
   ok(orphans.length > 0, "every tracked key is listed, so the floor this section checks does not exist");
-  // Person addresses are untouched by this pass.
+  // Person addresses are untouched by THIS pass, and the check now says that in
+  // the two halves it always meant. A LATER PASS MAY ADMIT SOMEBODY: the sitemap
+  // is a whole-document regeneration off one shared publication floor, so any
+  // pass that makes a person clear that floor re-emits the file. The word-first
+  // pass (v168) did — publication-floor.js was resolving a stance list by raw id
+  // only, while curated cards are routinely filed under a name slug, so people
+  // with cited positions on file were reading as having none. Three addresses
+  // arrived and nothing else moved.
+  //
+  // WHAT MAY NEVER HAPPEN IS A LOSS, and byte equality could not tell the two
+  // apart. An address that leaves this file is a person de-listed from search by
+  // a pass that was not about them, so that half is asserted on its own and it is
+  // absolute. What arrived is checked against a declared list: an addition nobody
+  // wrote down fails here exactly as it did before.
   const prevXml = HEAD("sitemap.xml");
   if (prevXml) {
-    const people = (s) => (s.match(/<loc>[^<]*\/p\/[^<]*<\/loc>/g) || []).join("\n");
-    eq(people(XML), people(prevXml), "the person half of the sitemap moved — this pass may not touch /p/ addresses");
+    const people = (s) => new Set((s.match(/<loc>[^<]*\/p\/([^<]*)<\/loc>/g) || [])
+      .map((x) => (x.match(/\/p\/([^<]*)/) || ["", ""])[1]));
+    const before = people(prevXml), after = people(XML);
+    const lost = [...before].filter((a) => !after.has(a)).sort();
+    eq(lost.join(" "), "",
+      `${lost.length} person address(es) left the sitemap — a regeneration may admit, never de-list`);
+    const gained = [...after].filter((a) => !before.has(a)).sort();
+    eq(gained.join(" "), "lyman mike_rogers_al rosie_rivera_slco",
+      "the person half of the sitemap gained an address this pass does not declare — the three above " +
+      "are the people whose cited positions the floor could not previously find");
   }
   // Two keys the migrations map are legacy spellings the app no longer resolves.
   // Matched as whole addresses: /i/crypto_regulation is a real key and must stay.

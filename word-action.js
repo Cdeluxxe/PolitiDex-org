@@ -5827,6 +5827,279 @@
     } catch (e) { return out; }
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // ✒️ THE SAID BRIEF — WORD FIRST, WHERE THE FORMAL LANE IS EMPTY
+  // ══════════════════════════════════════════════════════════════════════════
+  // WHAT WENT WRONG. /p/lyman opened like a sitting member with no file. Three
+  // absences, in the first screen, in this order: the kicker said "record still
+  // being built", the 🏛 brief printed a formal record of nought acts, and the
+  // demoted ⚖️ block said there was not enough on file to test. Every one of
+  // those sentences was true. Together they answered a question nobody asked. A
+  // reader who arrives at a candidate's file arrives with "who is this person,
+  // and what do they want" — and the answer was already in the document, seven
+  // sourced positions of his own words, filed below three denials.
+  //
+  // WHAT THIS IS. On a file with ZERO READABLE ACTS and at least one CITED
+  // position, the identity zone leads with what they said, in the same visual
+  // system as the Strongest patterns / Ran both ways rows above the gate: the
+  // issue's own colour rail, the issue name as the door, a side word, the ⓘ
+  // glossary and the 🏛 issue file, in that order. Same rows, different lane.
+  //
+  // WHAT IT REFUSES, AND WHY EACH REFUSAL IS LOAD-BEARING.
+  //   · NO PERCENTAGE. shapeMatchHtml is not called from here, at all. Direction
+  //     Match needs two halves and this class has one; a figure over it — even
+  //     a demoted one, even one whose own copy explains the gap — is the third
+  //     absence the pass exists to remove.
+  //   · NO RECORD WORD ON A STANCE ROW. The tag reads SAID. Not RECORD, not
+  //     PATTERN, and not the engine's .pdxst-pat chip: that span is the
+  //     characterisation engine's own claim, painted from its own tone table, and
+  //     nothing here has performed a characterisation. The side word therefore
+  //     gets its own quiet chip, the way the first-paint seed rows do, for the
+  //     same reason and with the same class of care.
+  //   · NO SIDE INFERRED FROM PARTY. The side word is the stance card's own,
+  //     read through PDXConsistency.issueRows — the exact object the topic tree's
+  //     leaf and the issue dossier read — so the row, the leaf and the sheet say
+  //     one thing about one position. There is no fallback that guesses.
+  //   · NO CLAIM ABOUT A RECORD IT HAS NOT SEEN. One honest line under the list
+  //     says the formal lane is empty and that these are documented positions
+  //     rather than a voting pattern. It is a statement about our file.
+  //
+  // AND IT DOES NOT MOVE THE RECORD-FIRST FILES AN INCH. The gate below takes
+  // positive knowledge on both sides — the pattern index has read nothing, AND
+  // the empty-file door (briefEmptyLegal: the vote chip is not counting, the
+  // header printed no rows, the shipped index holds nothing, and the wait is
+  // genuinely over) is open. cox is on the exec lane and returns before this is
+  // reached; chew_h68 has 118 measures in the shipped index; lee's roll calls
+  // veto it the moment they land and his outstanding request vetoes it before
+  // then. A file that is still loading is never called word-first, because a
+  // record that has not arrived is not an empty lane.
+  var SAID_CAP = 6;
+  // The eyebrow says which lane this is and what the other lane's silence means,
+  // in one line, because those are the two things a reader of a candidate file
+  // has to be told before the first row. "No formal term on file yet" is about
+  // the OFFICE, not the person: nobody has a voting record before they have a
+  // seat, and printing the absence as a property of the file is what made it read
+  // as a shortcoming.
+  var SAID_EYEBROW = 'What they have said — no formal term on file yet';
+  // THE HONEST LINE, QUOTED ONCE. It is the only sentence in this block that
+  // makes a claim about the formal record, and it makes the narrowest true one:
+  // nothing is on file, and what is above it is not a pattern. One unbroken
+  // literal — harnesses assert it character for character.
+  var SAID_NOTE = 'No roll call or signed act on file. These are documented positions, not a voting pattern.';
+
+  // ── THE ROWS, FROM THE ROW MODEL EVERY OTHER STANCE SURFACE READS ──────────
+  // PDXConsistency.issueRows(pid) is the profile's whole row model, memoized per
+  // politician per epoch, and `row.stance` on it is the shared SAID object:
+  // key ('support' / 'oppose' / 'mixed'), the published label for that key, and
+  // the card's own citation. Reading it here rather than resolving the stance
+  // list again is the difference between a summary and a second opinion — the
+  // tree's leaf and the dossier's "They said" line read the same object, so the
+  // row cannot say Supports over a sheet that says anything else.
+  //
+  // CURATOR ORDER, AND NOTHING RANKED HERE. The row model arrives in the order
+  // the curated cards were filed, one row per issue key. The cap takes the first
+  // SAID_CAP of them; no tension score, no salience weight and no re-sort, both
+  // because there is nothing on this class for such an order to be computed from
+  // and because "strongest" would be this surface inventing a ranking of a
+  // person's own words.
+  //
+  // TWO COUNTS, AND THEY ARE DIFFERENT ON PURPOSE. `cited` is what earns the
+  // brief — a position with no source URL is exactly what this product declines
+  // to publish, so it cannot be the thing that leads a file. `stated` is what the
+  // route-out counts, because the destination is the topic tree filtered to
+  // stated positions and the button has to name the set the reader will land in.
+  function saidRowSet(pid) {
+    var out = { rows: [], shown: [], cited: 0, stated: 0 };
+    try {
+      var CS = window.PDXConsistency;
+      if (!CS || typeof CS.issueRows !== 'function') return out;
+      var rows = CS.issueRows(pid) || [];
+      var seen = {};
+      for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        var st = r && r.stance;
+        if (!r || !r.key || !st || !st.key) continue;
+        if (seen[r.key]) continue;
+        seen[r.key] = 1;
+        out.stated++;
+        if (!(st.source && st.source.url)) continue;
+        out.cited++;
+        out.rows.push({
+          key: r.key, label: r.label || r.key,
+          side: st.key, sideLabel: st.label || ''
+        });
+      }
+      out.shown = out.rows.slice(0, SAID_CAP);
+    } catch (e) { return { rows: [], shown: [], cited: 0, stated: 0 }; }
+    return out;
+  }
+
+  // ── AND THE ROLL-CALL LANE ITSELF HAS TO HAVE ANSWERED ────────────────────
+  // briefEmptyLegal accepts THREE ways for the wait to be over, and one of them —
+  // "nobody ever asked" — is the wrong kind of knowing for this block. person-file
+  // warms the member AFTER the modal is up (see warm(pid), fired so a fetch cannot
+  // delay the open), so an in-app navigation to a sitting senator has a frame
+  // where no request is registered and no rows are in the tab. Reading that frame
+  // as "no formal term on file yet" would flash the word lane over a record
+  // already on its way, and a letterhead that changes its mind in front of a
+  // reader is worse than either version of it.
+  //
+  // So this asks for the payload itself, in the shape memberRecords documents:
+  // null until noteMember has run for this member, and an ARRAY — possibly empty
+  // — forever after. An empty array is the answer this block is entitled to act
+  // on: the lane was asked and it holds nothing. Anything that is not an array is
+  // not an answer, and the record leads until one arrives.
+  function saidLanded(pid) {
+    try {
+      var VR = window.PDXVotingRecord;
+      if (!VR || typeof VR.memberRecords !== 'function') return false;
+      var rows = VR.memberRecords(pid);
+      return !!rows && typeof rows.length === 'number';
+    } catch (e) { return false; }
+  }
+
+  // ── THE GATE ──────────────────────────────────────────────────────────────
+  // Both halves of the rule, asked of the two engines that already publish the
+  // answers, and two vetoes that are not in the rule as written but follow from
+  // it. The first: A LOADING FAILURE IS NOT AN EMPTY LANE. briefWaitOver counts an
+  // expired deadline as "the wait is over", which is right for the sentence that
+  // says the record did not load and wrong for a block that leads with "no formal
+  // term on file yet" — so briefGaveUp is refused here even though briefEmptyLegal
+  // admits it. The second is saidLanded above: A LANE NOBODY HAS ASKED YET IS NOT
+  // AN EMPTY LANE EITHER.
+  //
+  // `read` and `judged` are both asked. `read` is rows the index made a read of
+  // and `judged` is the acts behind them; either being non-zero means there are
+  // readable acts on file and the record leads, whatever the index made of them.
+  // Returns the row set rather than a boolean, so the caller renders exactly what
+  // the gate measured and the two cannot disagree.
+  function saidLead(pid, p) {
+    try {
+      if (!pid) return null;
+      if (!briefPerson(pid, p)) return null;
+      var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      if (!FPI || typeof FPI.shape !== 'function') return null;
+      var sh = FPI.shape(pid);
+      if (!sh) return null;
+      if (sh.read || sh.judged || sh.characterised) return null;
+      if (!briefEmptyLegal(pid)) return null;
+      if (briefGaveUp(pid)) return null;
+      if (!saidLanded(pid)) return null;
+      var set = saidRowSet(pid);
+      if (!set.cited) return null;
+      return set;
+    } catch (e) { return null; }
+  }
+  // Published for the surfaces that have to agree with this decision without
+  // rendering it twice — the two-jobs explainer asks it to know which of its two
+  // jobs is the main view on this file. One predicate, one answer.
+  function saidLeadApplies(pid, p) { return !!saidLead(pid, p); }
+
+  // ── ONE SAID ROW ──────────────────────────────────────────────────────────
+  // shapeRowHtml's markup, lane swapped: the same <li>, the same colour rail, the
+  // same door span with the same four data attributes, the same label button with
+  // the same ›, the same bar, the same two siblings outside the door. What differs
+  // is what goes in the bar and where the door lands.
+  //
+  // NO data-pdxst-focus, DELIBERATELY. The dossier takes three focus values —
+  // public, lanes, record — and there is no word column among them. `record`
+  // would scroll a reader with no record to the panel that says so, and `public`
+  // opens the Say-vs-Do coverage panel, which on a candidate is another absence.
+  // With no focus the sheet opens at the top, where _dosSummaryHtml already leads
+  // with its "They said" line — which is the word column, and is where this row
+  // promised to take them.
+  function saidRowHtml(x, pid) {
+    var key = x.key || '';
+    var door = !!(pid && key);
+    var rowId = door ? shapeRowId('said', pid, key) : '';
+    var say = x.label + ' — said: ' + (x.sideLabel || 'position on file') +
+      '. A documented position of theirs. Open what they said on it.';
+    var bar = '<span class="pdxwa-shape-bar">' +
+        '<span class="pdxwa-said-pat">' + esc(x.sideLabel || 'Position on file') + '</span>' +
+        '<span class="pdxwa-said-tag" title="' +
+          esc('A documented position of theirs, with a citation. Not a vote and not a formal act.') +
+          '">SAID</span>' +
+      '</span>';
+    var body = door
+      ? '<span class="pdxwa-shape-door"' +
+          ' data-pdxst-dos="' + esc(key) + '" data-pdxst-pid="' + esc(pid) + '"' +
+          ' data-pdxst-origin="' + esc(rowId) + '">' +
+          '<button type="button" class="pdxwa-shape-lbl pdxst-open"' +
+            ' aria-label="' + esc(say) + '">' +
+            esc(x.label) +
+            '<span class="pdxwa-shape-go" aria-hidden="true">›</span>' +
+          '</button>' +
+          bar +
+        '</span>'
+      : '<span class="pdxwa-shape-iss">' + esc(x.label) + '</span>' + bar;
+    return '<li class="pdxwa-shape-row pdxwa-said-row"' + (rowId ? ' id="' + esc(rowId) + '"' : '') +
+      issueTintAttr(key) + '>' +
+      body +
+      (door ? scopeControlHtml(key) : '') +
+      (door ? issueFileHtml(key, x.label) : '') +
+      '</li>';
+  }
+
+  // ── THE ROUTE OUT, FILTERED TO WHAT IT PROMISES ───────────────────────────
+  // exploreAllHtml's destination (the topic tree is the index for both lanes)
+  // with exploreAllHtml's jump, plus one thing the record lane's button does not
+  // need: the view. A reader who taps "See all 7 positions" and lands on a tree
+  // showing every issue — most of them nothing but an absence — was told a
+  // number and handed a different set. PDXStanceTree.showFilter puts the tree in
+  // its own "With stance" view before the jump, through the tree's own builder
+  // and its own filter table.
+  //
+  // IT ASKS, IT DOES NOT REQUIRE. A page served without stance-tree.js loses the
+  // filter and keeps the jump; the anchor is carried by the section's own three
+  // ids and resolves either way.
+  function saidAllHtml(total) {
+    var t = String(SHAPE_JUMP).replace(/[^A-Za-z0-9_-]/g, '');
+    var oc = ' onclick="event.stopPropagation();' +
+      'try{if(window.PDXStanceTree&&window.PDXStanceTree.showFilter){window.PDXStanceTree.showFilter(\'stance\');}}catch(err){}' +
+      'if(window._pdxNavJump){window._pdxNavJump(\'' + t + '\');}' +
+      'else{var el=document.getElementById(\'' + t + '\');if(el&&el.scrollIntoView){el.scrollIntoView({behavior:\'smooth\',block:\'start\'});}}"';
+    return '<button type="button" class="pdxwa-shape-all pdxwa-said-all"' + oc +
+        ' aria-label="' + esc('See all ' + total + ' stated position' + (total === 1 ? '' : 's') +
+          ', by topic') + '">' +
+        'See all ' + total + ' position' + (total === 1 ? '' : 's') +
+        ' <span aria-hidden="true">↓</span>' +
+      '</button>';
+  }
+
+  // ── THE BRIEF ─────────────────────────────────────────────────────────────
+  // The eyebrow, the capped rows, the honest line, the route out. No census (a
+  // count of an empty lane is the absence again, in figures), no tier wall (it
+  // explains chips this block does not print), no Direction Match.
+  function saidBriefHtml(pid, p, set) {
+    set = set || saidLead(pid, p);
+    if (!set) return '';
+    var shown = set.shown, more = Math.max(0, set.rows.length - shown.length);
+    return '<div class="pdxwa-brief pdxwa-brief-said">' +
+        '<div class="pdxwa-shape-hd pdxwa-said-hd">' +
+          '<span aria-hidden="true">✒️</span> ' + esc(SAID_EYEBROW) +
+        '</div>' +
+        '<div class="pdxwa-shape-grp">' +
+          // NOT pdxwa-shape-list, AND THE DIFFERENCE IS LOAD-BEARING. That class
+          // is the marker profiles-full.js and heroNamesPatterns() read as "the
+          // top of this file NAMED this person's formal patterns", which is how a
+          // profile keeps exactly one record block: where the top names them, the
+          // standout strip below stands down. This block names no formal pattern
+          // — that is the whole reason it exists — so it must not claim the
+          // strip's job, and the strip stays free to mount beneath it. Same list
+          // reset, different claim.
+          '<ul class="pdxwa-said-list">' +
+            shown.map(function (x) { return saidRowHtml(x, pid); }).join('') +
+          '</ul>' +
+          (more
+            ? '<p class="pdxwa-shape-more">' + more + ' more stated position' +
+                (more === 1 ? '' : 's') + ' in the topic tree below.</p>'
+            : '') +
+        '</div>' +
+        '<p class="pdxwa-said-note">' + esc(SAID_NOTE) + '</p>' +
+        saidAllHtml(set.stated || set.cited) +
+      '</div>';
+  }
+
   function briefHeroHtml(pid, p) {
     try {
       if (!pid) return '';
@@ -5849,6 +6122,20 @@
       if (!FPI || typeof FPI.shape !== 'function') return '';
       var sh = FPI.shape(pid);
       if (!sh) return '';
+      // ── ✒️ word first, where the formal lane is empty ─────────────────────
+      // ASKED BEFORE THE RECORD BRANCHES BELOW, AND NOWHERE ELSE. The gate is
+      // the whole reason this can sit at the top of the function safely: it
+      // takes positive knowledge that the pattern index has read nothing AND
+      // that the empty-file door is open, so every file with a record — arriving,
+      // arrived, shipped in the index, or counted by the chip — falls straight
+      // past it into the record-first briefs that were here before. It is asked
+      // ahead of `!sh.issues` rather than inside it because a thin candidate file
+      // can carry an issue row with no readable act behind it (one mapped
+      // instrument, nothing judged), and the block those files were getting was a
+      // formal brief of nought acts over a document holding seven sourced
+      // positions.
+      var said = saidLead(pid, p);
+      if (said) return saidBriefHtml(pid, p, said);
       // ── empty ────────────────────────────────────────────────────────────
       // Two different absences, and they are not interchangeable: a record that
       // has not arrived is a fact about this page load, a record with nothing on
@@ -6206,6 +6493,18 @@
     // does above the gate, one rung wider.
     briefHtml: briefHeroHtml,
     heroNamesPatterns: heroNamesPatterns,
+    // ✒️ The word-first lane: the predicate, the block, the row set and the two
+    // sentences it prints. Published as data-and-accessors for the same reason
+    // every other copy constant in this file is — the two-jobs explainer has to
+    // agree with this decision without rendering it, and a harness asserts the
+    // eyebrow and the honest line character for character rather than scraping
+    // markup for literals.
+    SAID_CAP: SAID_CAP,
+    SAID_EYEBROW: SAID_EYEBROW,
+    SAID_NOTE: SAID_NOTE,
+    saidRowSet: saidRowSet,
+    saidLeadApplies: saidLeadApplies,
+    saidBriefHtml: saidBriefHtml,
     // 🏛 And the one-line form of the same finding, for a list card. Same lanes,
     // same precedence, same words — three kinds ('pattern' / 'none' /
     // 'preoffice'), no figure. See recordLine(): a card that prints this and a

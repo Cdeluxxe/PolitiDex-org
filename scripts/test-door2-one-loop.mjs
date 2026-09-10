@@ -556,8 +556,25 @@ section("7 · Honest holes: the lines may move, and one name is not 'unopposed'"
   });
   single.forEach((k) => {
     const t = strip(pane(W, k));
+    const sf = W.pdxSeatField(k);
     has(t, "No other person on file", `${k}: a one-person field does not say so`);
-    has(t, "District ", `${k}: a one-person field does not name the district the claim is about`);
+    // THE CLAIM NAMES ITS OWN SCOPE, AND A STATEWIDE SEAT HAS NO DISTRICT TO NAME.
+    // This asked for "District " unconditionally, which held only while every
+    // one-person field in this fixture happened to be a districted seat. A
+    // governor's field is one person now, and ballot-workspace's kind === 'one'
+    // copy already answers it correctly: it names the district when the seat has
+    // one and says "for this seat" when it does not. Naming a district a
+    // statewide race does not have would be the bug, so the check follows the
+    // seat rather than the other way round.
+    if (sf.district != null) {
+      has(t, "District " + sf.district,
+        `${k}: a districted one-person field does not name the district the claim is about`);
+    } else {
+      has(t, "No other person on file for this seat",
+        `${k}: a statewide one-person field does not name the seat the claim is about`);
+      ok(!/\bDistrict\s/.test(t),
+        `${k}: a statewide one-person field names a district the seat does not have`);
+    }
   });
   if (!single.length) passed++;
 

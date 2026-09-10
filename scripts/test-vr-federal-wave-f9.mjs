@@ -2027,6 +2027,52 @@ const swNote = swWaveNote();
     // boots that instead. The comparison got MORE durable, not weaker - it refused
     // to pass vacuously rather than going quiet, which is why it was found.
     "scripts/test-vr-utah-exec.mjs",
+    // ── AND THE PASS AFTER THAT: WORD FIRST, WHERE THE FORMAL LANE IS EMPTY ─
+    // A CANDIDATE FILE OPENED WITH THREE ABSENCES OVER SEVEN SOURCED POSITIONS
+    // (CACHE_VERSION v168). /p/lyman printed "record still being built", a formal
+    // brief of nought acts and "not enough on file to test", in that order, while
+    // his own cited stance cards sat below the fold. On a file with ZERO READABLE
+    // ACTS and at least one CITED position, the identity zone now leads with what
+    // the person SAID — issue rows in the existing topic colours, each a door to
+    // that issue's dossier, tagged SAID, capped at six, over one honest line
+    // saying the formal lane is empty and that documented positions are not a
+    // voting pattern.
+    //   word-action.js carries the block; its three spans are carved and argued as
+    // "the word-first letterhead", "the word-first letterhead's mount" and "the
+    // word-first lane, published" in WA_SEAMS, and this suite argues every one of
+    // them through assertWordActionSeams — no percentage, no RECORD or PATTERN
+    // word on a stance row, no party letter, no Direction Match floor, and a gate
+    // that stands down for any file whose record has been read, has failed to
+    // load, or has not been asked for yet.
+    //   profile-spine.js gains the two-jobs explainer's word-first wording, which
+    // asks word-action.js's own published predicate rather than re-deriving the
+    // decision, so the explainer and the letterhead cannot disagree about which of
+    // the two jobs is the main view. WVA stays the integrity check.
+    //   publication-floor.js resolves a stance key the way stance-helpers already
+    // did — id, alias, name slug, alias of the slug — because curated cards are
+    // routinely filed under a name slug while the roster keeps a short id, and the
+    // floor was reading zero cited positions for a person whose file renders
+    // seven. NO FLOOR RULE MOVES: every threshold, every clears() branch and every
+    // publishable() branch is byte-identical to HEAD, the change is which key the
+    // stance list is fetched under, and it admits no identity of its own — the
+    // roster is read for a display name and never for membership.
+    //   scripts/test-record-top.mjs and scripts/test-door2-one-loop.mjs are
+    // pinned harnesses whose subjects moved under them, and both got NARROWER, not
+    // looser: the first now holds two subjects where it held one — an empty-record
+    // subject with no cited position (jknotts) and a word-first subject with two
+    // (mschultz) — and asserts the new letterhead on the second rather than
+    // dropping the old claim; the second's one-person-field assertion now branches
+    // on whether the seat HAS a district, because a corrected office label made
+    // the governor field one-person for the first time.
+    //   NOTHING IN THIS WAVE'S REACH MOVES. No vr_* table, row, roll, mapping,
+    // key, floor, weight, tier, polarity, admission, refusal or Direction Match
+    // figure is written, read or published by any of it. The block cannot render on
+    // a file that has a record — which is every member this wave admits — and it
+    // prints no figure on the files it does render on, because the one class of
+    // file whose action half is empty by definition is the one class that may
+    // never carry one.
+    "profile-spine.js", "publication-floor.js",
+    "scripts/test-record-top.mjs", "scripts/test-door2-one-loop.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }

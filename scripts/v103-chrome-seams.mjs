@@ -862,9 +862,47 @@ export const WA_SEAMS = [
   // the empty-file claim, which has a wall of its own in briefAbsenceCopy and is
   // not a list card's to make. Where the shape is missing or still arriving the
   // line says what the brief says.
+  //   THE SEAM ENDS AT recordLine'S OWN CLOSING BRACE, not at the next function.
+  // It used to run all the way to briefHeroHtml, which meant anything landing in
+  // the gap between the two was excused by a waiver written about a list card's
+  // sentence. The word-first letterhead landed exactly there, so the gap is now
+  // its own span with its own argument below, and this one holds what it always
+  // said it held.
   ["        shapeMatchHtml(pid, p, { deep: false, recordAbove: true }) +\n        '</div>';\n    } catch (e) { return ''; }\n  }\n",
-   "  function briefHeroHtml(pid, p) {\n",
+   "      return out;\n    } catch (e) { return out; }\n  }\n",
    "the brief's finding, on one line"],
+  // ── the word-first letterhead (v168) ─────────────────────────────
+  // /p/lyman opened like a sitting member with an empty file: a kicker saying the
+  // record was still being built, a formal brief of nought acts, and a Word vs
+  // Action block saying there was not enough on file to test. Three absences, in
+  // answer to "who is this person", over seven sourced positions filed below
+  // them. This span is the block that leads with those positions instead, on the
+  // one condition that there is nothing else to lead with.
+  //
+  // A WAVE'S STAKE HERE IS THE MEASUREMENT, AND THIS SPAN TAKES NONE. It prints
+  // no percentage and calls no part of the figure — not figure(), not
+  // shapeMatchHtml(), not a ring — which is argued character for character below,
+  // because a Direction Match over an empty action lane is the exact defect the
+  // v163 veto in this same file exists to refuse. It maps no measure, moves no
+  // floor and reads no roll call. Every side word it prints is the one the stance
+  // card already states, resolved through PDXConsistency.issueRows, so nothing is
+  // inferred from a party letter or an office; and no row it renders is labelled
+  // RECORD or PATTERN, because a documented position is not a voting pattern and
+  // the block says so in as many words.
+  ["      return out;\n    } catch (e) { return out; }\n  }\n",
+   "  function briefHeroHtml(pid, p) {\n",
+   "the word-first letterhead"],
+  // ── the word-first letterhead's mount (v168) ──────────────────────
+  // Two lines, asked once, above the record branches and below the exec lane's
+  // own claim on the slot. The mount is a QUESTION AND AN EARLY RETURN and
+  // nothing else: where the gate says no — and it says no for every file with a
+  // record arriving, arrived, shipped in the formal index, or still unasked — the
+  // function falls through to the briefs that were here before, byte for byte.
+  // No wave's row, floor or mapping can reach it, because it neither reads nor
+  // writes one.
+  ["      var sh = FPI.shape(pid);\n      if (!sh) return '';\n",
+   "      // ── empty ──",
+   "the word-first letterhead's mount"],
   // ── the empty-lane predicate, published (v163) ────────────────────────────
   // Four exports beside heroRead, so a surface that needs the answer without
   // paying for a scoring pass — the card score slot every browse and compare
@@ -879,7 +917,23 @@ export const WA_SEAMS = [
   // Two exports beside briefHtml, so the card and the profile are demonstrably
   // one reader rather than two that happen to agree: recordLine is the finding at
   // card length, shapeRowSay is the row sentence both of them print.
+  // ── the word-first lane, published (v168) ────────────────────────
+  // Six names beside briefHtml: the two sentences the block prints, the cap on
+  // how many rows it will show, the row set, the predicate and the block itself.
+  // They are published for the reason the rest of this file's copy constants are
+  // — the two-jobs explainer has to agree with the letterhead about which of its
+  // two jobs is the main view, and a surface that re-derives that answer is a
+  // second answer waiting to disagree. Reads only: nothing here scores, writes or
+  // maps, and the two sentences are constants rather than strings each caller
+  // spells for itself.
+  //
+  // This span exists because the seam below it used to open at briefHtml and
+  // therefore covered these lines silently, arguing "two exports beside
+  // briefHtml" while holding eight.
   ["    briefHtml: briefHeroHtml,\n    heroNamesPatterns: heroNamesPatterns,\n",
+   "    // 🏛 And the one-line form of the same finding, for a list card.",
+   "the word-first lane, published"],
+  ["    // 🏛 And the one-line form of the same finding, for a list card.",
    "    // 📏 THE DENOMINATOR, IN ONE VOCABULARY.",
    "the one-line finding, published"],
   ["    DEPTH_NOTE: DEPTH_NOTE,\n",
@@ -1369,6 +1423,99 @@ export function assertIssueColorsSeams(bodies, api) {
 }
 
 /** Argue what is inside stance-helpers.js's one span. */
+// ═════════════════════════════════════════════════════════════════════════════
+// publication-floor.js — THE THREE SPANS THAT MOVED A KEY, NOT A RULE (v168)
+// ═════════════════════════════════════════════════════════════════════════════
+// THIS FILE IS THE ONE PUBLISHABILITY RULE, read by the browser and by
+// scripts/gen-sitemap.mjs, so a wave that freezes it is protecting something
+// real: no wave may move a floor. The word-first pass had to touch it anyway,
+// and the distinction the seams draw is the whole reason it is allowed to — it
+// changed WHICH KEY the stance list is fetched under, and not one rule about what
+// clears. Curated cards are routinely filed under a name slug ("phil_lyman")
+// while the roster keeps a short id ("lyman"); stance-helpers has always taken
+// four hops to reconcile that, this file took one, and so the floor read zero
+// cited positions for a person whose file renders seven sourced cards.
+//
+// EVERY ANCHOR BELOW EXISTS AT HEAD TOO, deliberately: the point of the list is
+// that a caller can carve HEAD and now with the same seams and hold the pinned
+// halves byte-identical. MIN_CITED_POSITIONS, MIN_PROMISES, isPid, read(),
+// clears(), publishable() and identity() are all in that pinned half.
+export const PF_SEAMS = [
+  ["      formal: src.formal || root.PDXFormalIndex || null",
+   "  // Positions that carry a source URL.",
+   "the stance-key resolution chain"],
+  ["  function citedPositions(pid, src) {\n",
+   "  function promiseCount(pid, src) {",
+   "the cited-positions lookup"],
+  ["    _citedPositions: citedPositions,\n",
+   "    _promiseCount: promiseCount,",
+   "the resolution chain, published"],
+];
+
+/**
+ * Argue what is inside publication-floor.js's spans. Same contract as the two
+ * asserters above: the caller supplies its own has/eq/ok and pins the halves
+ * outside these spans itself.
+ */
+export function assertPublicationFloorSeams(bodies, api) {
+  const { has, ok } = api;
+  const cut = byWhy(bodies, api, PF_SEAMS, "publication-floor.js");
+
+  // ── the stance-key resolution chain ────────────────────────────
+  // FOUR HOPS, IN stance-helpers' ORDER, and a floor that still cannot throw.
+  const chain = cut("the stance-key resolution chain");
+  const code = chain.replace(/^\s*\/\/.*$/gm, "");
+  has(chain, "aliases: src.aliases || root.STANCE_ALIASES || {}",
+    "the alias table is no longer read defensively — a runtime without one (the sitemap generator " +
+    "loads five files and stance-helpers is not among them) must lose two hops, never a decision");
+  has(chain, "if (pid && isList(s[pid])) return s[pid];",
+    "the chain no longer tries the raw id first, which is the hop every already-published file " +
+    "depends on");
+  has(chain, "if (pid && aliases[pid] && isList(s[aliases[pid]])) return s[aliases[pid]];",
+    "the chain lost the explicit-alias hop");
+  has(chain, "if (nameSlug && isList(s[nameSlug])) return s[nameSlug];",
+    "the chain lost the name-slug hop, which is the one `lyman` actually needs");
+  has(chain, "if (nameSlug && aliases[nameSlug] && isList(s[aliases[nameSlug]])) return s[aliases[nameSlug]];",
+    "the chain lost the alias-of-the-slug hop, so it no longer takes the same four hops " +
+    "stance-helpers._resolveStanceList does and the sitemap can disagree with the file again");
+  has(chain, "return null;",
+    "the chain has no miss case — a key nobody filed cards under has to come back as nothing found, " +
+    "not as an empty publication");
+  // AND IT READS THE ROSTER FOR A NAME, NOT FOR MEMBERSHIP. A floor that admitted
+  // anyone for being in CMP_DATA would be publishing identity, which is the one
+  // thing this file exists to refuse.
+  has(chain, "var nameSlug = d && d.name ? stanceSlug(d.name) : '';",
+    "the roster row is used for something other than the display name the slug is derived from");
+  ok(!/\bpublishable\b|\bclears\b|MIN_/.test(code),
+    "the resolution chain reaches a floor rule or a floor threshold — it resolves a key and decides " +
+    "nothing");
+  ok(!/party|\bpty\b|office|state:/i.test(code),
+    "the resolution chain reads a party, an office or a state off the roster row — none of the three " +
+    "is a stance key");
+
+  // ── the cited-positions lookup ───────────────────────────────
+  // WHAT COUNTS AS CITED IS UNTOUCHED. Only where the list comes from moved.
+  const cited = cut("the cited-positions lookup");
+  has(cited, "var list = stanceList(pid, src);",
+    "citedPositions fetches its own list again, which is how the floor and the file come to look up " +
+    "one person under two different keys");
+  has(cited, "if (it && it.source && it.source.url) out.push(it);",
+    "the definition of a cited position moved — a source object with a label and no url is a " +
+    "citation you cannot follow, and it has never counted toward this floor");
+  ok(!/MIN_|>=|<=/.test(cited.replace(/^\s*\/\/.*$/gm, "")),
+    "the cited-positions lookup compares against a threshold — counting is its job and deciding is not");
+
+  // ── the resolution chain, published ─────────────────────────
+  const pub = cut("the resolution chain, published");
+  has(pub, "_stanceList: stanceList,",
+    "the resolver is no longer published, so a harness cannot ask which key a person's cards were " +
+    "found under without re-deriving the hops");
+  {
+    const c = pub.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+    ok(!/[(){}]/.test(c), "the floor's export seam grew something other than name-to-name export lines");
+  }
+}
+
 export function assertStanceHelpersSeam(bodies, api) {
   const { has, ok } = api;
   // BY NAME, NOT BY POSITION, for the reason consistency.js's spans already are:
@@ -1462,8 +1609,17 @@ export function assertWordActionSeams(bodies, api) {
   ok(bodies.length === WA_SEAMS.length,
     `word-action.js was carved into ${bodies.length} spans and argued against ${WA_SEAMS.length} — ` +
     "a seam was added to scripts/v103-chrome-seams.mjs and not to the caller");
+  // AND EVERY NAME HAS TO BE SPENT. The count above catches a seam added to the
+  // list and never carved; it cannot catch a seam CARVED AND NEVER ARGUED, which
+  // is the worse half — carving a span exempts those bytes from every wave's
+  // byte-freeze, so an unargued seam is a hole in the freeze with nothing else
+  // holding the bytes. The word-first pass (v168) landed three such spans and the
+  // eight wave suites went green over them. What each name is spent on is checked
+  // at the end of this function.
+  const spent = new Set();
   const wa = (why) => {
     ok(byName.has(why), `the seam named "${why}" is not among the spans this suite carved out of word-action.js`);
+    spent.add(why);
     return byName.get(why) || "";
   };
 
@@ -1844,6 +2000,101 @@ export function assertWordActionSeams(bodies, api) {
   }
   ok(!/nothing on file|no record on file/i.test(oneLine.replace(/^\s*\/\/.*$/gm, "")),
     "the one-line finding spells the empty-file claim itself");
+  // ── the word-first letterhead (v168) ──────────────────────────────────────
+  // WHAT THEY SAID, WHERE THERE IS NOTHING ELSE TO LEAD WITH — and not one thing
+  // a wave measures. The gate is argued first, because every other claim in the
+  // span is only true behind it.
+  const said = wa("the word-first letterhead");
+  const saidCode = said.replace(/^\s*\/\/.*$/gm, "");
+  has(said, "if (sh.read || sh.judged || sh.characterised) return null;",
+    "the word-first letterhead no longer stands down for a readable formal lane, which is the only " +
+    "thing keeping it off a file that HAS a record");
+  has(said, "if (!briefEmptyLegal(pid)) return null;",
+    "the word-first letterhead no longer asks the empty-file door whether this absence may be " +
+    "published at all");
+  has(said, "if (briefGaveUp(pid)) return null;",
+    "the word-first letterhead reads a record that FAILED TO LOAD as a record that does not exist — " +
+    "two different sentences, and only one of them is true");
+  has(said, "if (!saidLanded(pid)) return null;",
+    "the word-first letterhead no longer waits for the member payload, so an in-app arrival at a " +
+    "sitting member gets a frame of the word lane over a record already on its way");
+  has(said, "typeof rows.length === 'number'",
+    "the payload veto accepts something other than the array memberRecords documents — an object " +
+    "with no length is not an answer, and every cold-boot harness in scripts/ leans on that");
+  has(said, "if (!set.cited) return null;",
+    "the word-first letterhead renders with no cited position behind it, which is the empty file " +
+    "again under a warmer heading");
+  // THE FIGURE. A percentage over an empty action lane is the third absence this
+  // pass exists to remove, and this class of file is that lane by definition. It
+  // may not print one and it may not call anything that does.
+  ok(!/%/.test(saidCode),
+    "the word-first letterhead ships a percent sign — the one class of file whose action half is " +
+    "empty by definition is the one class that may never carry a figure");
+  ok(!/shapeMatchHtml|fractionOf\(|figure\(pid/.test(saidCode),
+    "the word-first letterhead reaches for the Direction Match renderer or the shared figure, so " +
+    "the empty action lane is being scored after all");
+  ok(!/MIN_[A-Z_]+/.test(saidCode),
+    "the word-first letterhead consults a Direction Match floor, which is a threshold on a lane it " +
+    "has already established is empty");
+  // THE ROWS: a stated position, said to be one, sided by the card itself.
+  has(said, "var SAID_CAP = 6;", "the word-first letterhead no longer caps its list at six rows");
+  has(said, "out.shown = out.rows.slice(0, SAID_CAP);",
+    "the cap is declared and not applied, so a file with thirty cited positions leads with thirty rows");
+  has(said, '">SAID</span>',
+    "the word-first rows no longer say SAID, so a documented position is tagged in whatever word is " +
+    "left — and the two words this surface must never use are the two it would fall back to");
+  ok(!/>RECORD<|>PATTERN<|pdxst-pat/.test(saidCode),
+    "the word-first letterhead labels a stated position RECORD or PATTERN, or paints it with the " +
+    "characterisation engine's own chip — nothing here has performed a characterisation");
+  has(said, "var st = r && r.stance;",
+    "the side word is no longer read off the shared stance object, so the row, the tree's leaf and " +
+    "the dossier can hold two opinions about one position");
+  ok(!/\bparty\b|\bpartyOf\b|\bpty\b/i.test(saidCode),
+    "the word-first letterhead reads a party letter — a side inferred from party is not a position " +
+    "anyone stated");
+  has(said, "if (!(st.source && st.source.url)) continue;",
+    "an uncited position counts toward the brief, and an uncited position is the one thing this " +
+    "product declines to publish, let alone lead a file with");
+  // THE TWO SENTENCES, whole. Harnesses assert them character for character.
+  has(said, "var SAID_EYEBROW = 'What they have said — no formal term on file yet';",
+    "the eyebrow no longer says which lane this is and what the other lane's silence means");
+  has(said, "var SAID_NOTE = 'No roll call or signed act on file. These are documented positions, " +
+    "not a voting pattern.';",
+    "the honest line moved — it is the only claim in this block about the formal record, and it has " +
+    "to keep making the narrowest true one");
+  has(said, "'<ul class=\"pdxwa-said-list\">'",
+    "the word-first list wears pdxwa-shape-list, the marker that says the top of this file named " +
+    "this person's FORMAL patterns — it names none, and the standout strip below would stand down " +
+    "for a claim nobody made");
+  // ── the word-first letterhead's mount (v168) ──────────────────────────────
+  // ONE QUESTION AND ONE EARLY RETURN, above every record branch. Anything more
+  // in this span is a second opinion about which lane leads.
+  const saidMount = wa("the word-first letterhead's mount");
+  has(saidMount, "var said = saidLead(pid, p);",
+    "the letterhead no longer asks the word-first gate, so the class of file the block was written " +
+    "for cannot reach it");
+  has(saidMount, "if (said) return saidBriefHtml(pid, p, said);",
+    "the mount renders something other than what the gate measured, so the decision and the block " +
+    "can disagree about the same person");
+  {
+    const c = saidMount.replace(/^\s*\/\/.*$/gm, "").split("\n").map((l) => l.trim())
+      .filter(Boolean).join(" ");
+    eq(c, "var sh = FPI.shape(pid); if (!sh) return ''; var said = saidLead(pid, p); " +
+      "if (said) return saidBriefHtml(pid, p, said);",
+      "the word-first mount grew something other than one question and one early return");
+  }
+  // ── the word-first lane, published (v168) ─────────────────────────────────
+  const saidPub = wa("the word-first lane, published");
+  has(saidPub, "saidLeadApplies: saidLeadApplies,",
+    "the word-first predicate is no longer published, so the two-jobs explainer has to re-derive " +
+    "which of its two jobs is the main view on this file");
+  has(saidPub, "SAID_EYEBROW: SAID_EYEBROW,", "the eyebrow is no longer a published constant");
+  has(saidPub, "SAID_NOTE: SAID_NOTE,", "the honest line is no longer a published constant");
+  {
+    const c = saidPub.replace(/^\s*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+    ok(!/[(){}]/.test(c),
+      "the word-first export seam grew something other than name-to-name export lines");
+  }
   // ── the one-line finding, published (v147) ────────────────────────────────
   const oneLinePub = wa("the one-line finding, published");
   has(oneLinePub, "recordLine: recordLine,",
@@ -2043,6 +2294,13 @@ export function assertWordActionSeams(bodies, api) {
     ok(!/MIN_|_FLOOR|pct|percent|party/i.test(c),
       "the empty-lane export seam publishes a floor, a percentage or a party alongside its four names");
   }
+
+  // ── EVERY CARVED SPAN, ARGUED ─────────────────────────────────────────────
+  const unspent = WA_SEAMS.map((s) => s[2]).filter((why) => !spent.has(why));
+  eq(unspent.join(" | "), "",
+    `word-action.js has ${unspent.length} span(s) carved out of every wave's byte-freeze and argued ` +
+    "by nobody — a seam names bytes a pass is allowed to change, so the arguments here are the only " +
+    "thing left holding them");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -2120,6 +2378,55 @@ const isSubsequence = (small, big) => {
  * this stays a byte equality for every wave that adds no parent — which is all of
  * them but one.
  */
+/**
+ * cmp-data.js — AN OFFICE LABEL MOVED, AND NOTHING ELSE DID (v168).
+ *
+ * THE ROSTER IS IDENTITY, so waves pin this file byte for byte and they are right
+ * to: an admission, a dropped row or a re-pointed district is exactly the kind of
+ * change that must never arrive as a side effect. But a roster row can also be
+ * WRONG, and this one was — phil_lyman was filed as "Governor Candidate" after he
+ * had entered the UT-3 House race, so the live file, the roster and every card
+ * that quotes the office disagreed with each other.
+ *
+ * The narrower invariant a byte pin was standing in for: NO ROW APPEARED, NO ROW
+ * VANISHED, and every field of every row is byte-identical to HEAD except the
+ * office label of the pids the caller names. A caller passes the offices it means
+ * to have corrected; anything else that moved fails here, and the failure names
+ * the line rather than the file. Callers: F10, F11 and the All-Seeing Eye's
+ * record-first suite, each of which boots this file to measure something else.
+ */
+export function assertRosterOfficeIsTheOnlyMove(api, headSrc, treeSrc, allowed, wave) {
+  const { ok, eq } = api;
+  const tag = wave ? `${wave}: ` : "";
+  const a = String(headSrc).split("\n"), b = String(treeSrc).split("\n");
+  if (!eq(b.length, a.length,
+    `${tag}cmp-data.js gained or lost lines — an office correction rewrites one value in place, and a ` +
+    "roster that changed length has admitted or dropped somebody")) return;
+
+  // WHICH LINES MOVED, AND WHAT IS ON THEM. Same length and same order, so a
+  // positional walk is the whole comparison; each side of a moved pair has to be
+  // an office value, and the value on our side has to be one the caller declared.
+  const moved = [];
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) moved.push([i + 1, a[i], b[i]]);
+  const OFFICE = /^\s*"office":\s*".*",?$/;
+  const bad = moved.filter(([, x, y]) => !OFFICE.test(x) || !OFFICE.test(y));
+  eq(bad.map(([n]) => `line ${n}`).join(", "), "",
+    `${tag}cmp-data.js changed ${bad.length} line(s) that are not an office label — this file names who ` +
+    "exists, and only the office copy was open to correction");
+  const got = moved.map(([, , y]) => (y.match(/"office":\s*"([^"]*)"/) || ["", ""])[1]).sort();
+  eq(got.join(" | "), (allowed || []).slice().sort().join(" | "),
+    `${tag}cmp-data.js corrected an office this caller does not declare`);
+
+  // AND THE ROSTER STILL NAMES THE SAME PEOPLE. Cheap and independent of the walk
+  // above: every pid key in HEAD is still a pid key here, and no key was added.
+  const pids = (src) => (String(src).match(/^\s*"([a-z0-9_]+)":\s*\{$/gm) || []).sort().join(",");
+  eq(pids(treeSrc), pids(headSrc),
+    `${tag}the roster's set of people changed — an office correction admits nobody and drops nobody`);
+  ok(moved.length > 0,
+    `${tag}cmp-data.js is byte-identical to HEAD, so this waiver is being spent on nothing — drop the ` +
+    "call and put the file back on the pinned list");
+}
+
 export function assertParentTableIsTheOnlyMove(api, headSrc, treeSrc, wave) {
   const { ok, eq } = api;
   const tag = wave ? `${wave}: ` : "";

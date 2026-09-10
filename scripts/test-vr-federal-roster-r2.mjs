@@ -39,8 +39,9 @@ import vm from "node:vm";
 import { execFileSync } from "node:child_process";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCrawlRecord } from "./gen-crawl-record.mjs";
-import { CJ_SEAMS_ALL as CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
-  assertWordActionSeams, assertParentTableIsTheOnlyMove } from "./v103-chrome-seams.mjs";
+import { CJ_SEAMS_ALL as CJ_SEAMS, SH_SEAMS, WA_SEAMS, PF_SEAMS, carveSeams, assertConsistencySeams,
+  assertStanceHelpersSeam, assertWordActionSeams, assertPublicationFloorSeams,
+  assertParentTableIsTheOnlyMove } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -646,7 +647,29 @@ section("7 · ship discipline — cache, census, floor, and the identity wall");
   // saying so is the point — an identity row is not a publication.
   const floorSrc = R("publication-floor.js");
   const floorHead = HEAD("publication-floor.js");
-  if (floorHead !== null) eq(floorSrc, floorHead, "publication-floor.js was edited by a wave that is not allowed to move the floor");
+  // A WAVE MAY NOT MOVE THE FLOOR, AND THE WORD-FIRST PASS DID NOT — it moved
+  // WHICH KEY the stance list is fetched under (v168). Curated cards are filed
+  // under a name slug while the roster keeps a short id, stance-helpers has always
+  // taken four hops to reconcile that, and this file took one, so the floor read
+  // zero cited positions for a person whose file renders seven sourced cards.
+  // This was `eq(floorSrc, floorHead)`, and the replacement is NARROWER where it
+  // counts rather than looser: everything outside three named spans is still held
+  // byte-identical to HEAD — MIN_CITED_POSITIONS, MIN_PROMISES, isPid, read(),
+  // clears(), publishable() and identity() all live in that pinned half — and the
+  // spans themselves are argued to resolve a key and decide nothing. R2 asserts
+  // its own twelve against the floor directly further down, which is the claim
+  // this section is actually making.
+  if (floorHead !== null && floorSrc === floorHead) {
+    passed++;
+  } else if (floorHead !== null) {
+    const a = carveSeams(floorHead, PF_SEAMS, "HEAD", "publication-floor.js", ok);
+    const b = carveSeams(floorSrc, PF_SEAMS, "now", "publication-floor.js", ok);
+    eq(b.pinned, a.pinned,
+      "publication-floor.js was edited outside its three named v168 seams by a wave that is not " +
+      "allowed to move the floor");
+    const pfHas = (x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`);
+    assertPublicationFloorSeams(b.bodies, { has: pfHas, eq, ok });
+  }
   const sitemap = R("sitemap.xml");
   const sitemapHead = HEAD("sitemap.xml");
   if (ok(sitemapHead !== null, "HEAD:sitemap.xml is unreadable, so the sitemap delta could not be checked")) {
@@ -713,7 +736,14 @@ section("7 · ship discipline — cache, census, floor, and the identity wall");
     // identity through it. compare-hub.js does name identity directly - LOCAL_PIDS
     // and the district table's pid fields - so that is what is pinned here, rather
     // than a whole document a chrome edit cannot help but move.
-    "publication-floor.js"];
+    //   publication-floor.js came off this list for the word-first pass (v168) and
+    // is checked as three named spans immediately above — PF_SEAMS in
+    // scripts/v103-chrome-seams.mjs, pinned half byte-identical to HEAD, every
+    // threshold and every rule branch inside that half. What R2 needs from the
+    // file is that no floor moved and that it admits no identity of its own: the
+    // spans resolve a stance key, they read the roster row for a display name and
+    // never for membership, and they reach no rule and no threshold at all.
+    ];
   for (const f of untouched) {
     const h = HEAD(f);
     if (!ok(h !== null, `${f} is not in HEAD, so "unchanged" could not be checked — if the file moved, fix this list`)) continue;

@@ -74,6 +74,7 @@ import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import vm from "node:vm";
 import { ENGINE_FILES, makeSandbox } from "./gen-hero-showcase.mjs";
+import { assertRosterOfficeIsTheOnlyMove } from "./v103-chrome-seams.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -831,10 +832,26 @@ section("10 · nothing on the do-not list moved");
     // AND THE SURFACES THIS PASS WAS TOLD TO LEAVE ALONE ARE THE SAME FILES.
     for (const f of ["hero-showcase.js", "door2-spine.js",
                      "finance-lane.js", "judicial-retention.js", "judicial-data.js",
-                     "profile-evidence.js", "person-link.js", "cmp-data.js"]) {
+                     "profile-evidence.js", "person-link.js"]) {
       const h = HEAD(f);
       must(h != null, `${f} could not be read out of HEAD`);
       eq(R(f) === h, true, `${f} is not byte-identical with HEAD — it is on the do-not-touch list`);
+    }
+    // cmp-data.js CAME OFF THAT LIST AND KEPT THE CLAIM IT WAS STANDING FOR. The
+    // word-first pass (v168) corrected phil_lyman's office label — he was filed as
+    // "Governor Candidate" after entering the UT-3 House race. What this suite
+    // needs from the roster is that the Eye still finds the same people: a byte pin
+    // was a proxy for "nobody was admitted, nobody was dropped, no row moved", and
+    // assertRosterOfficeIsTheOnlyMove asserts each of those three directly, plus
+    // that the only line that moved is a declared office string. The Eye's own
+    // record-first answers are ranked from the record, never from an office label.
+    {
+      const f = "cmp-data.js", h = HEAD(f);
+      must(h != null, `${f} could not be read out of HEAD`);
+      if (R(f) !== h) {
+        assertRosterOfficeIsTheOnlyMove({ ok, eq }, h, R(f),
+          ["U.S. House Candidate (UT-3)"], "the Eye's record-first suite");
+      } else { passed++; }
     }
     // consistency.js IS STILL ON THE LIST, AND THE PIN IS STILL BY BYTE — over
     // the functions this section is actually making a claim about. Whole-file

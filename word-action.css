@@ -1710,6 +1710,10 @@
   margin-bottom: 0.3rem;
 }
 .pdxwa-shape-list { list-style: none; margin: 0; padding: 0; }
+/* The word-first letterhead's row list. Same reset, deliberately not the same
+   class: .pdxwa-shape-list is the marker that says the top of the file named a
+   FORMAL pattern, and this list names none. See saidBriefHtml(). */
+.pdxwa-said-list { list-style: none; margin: 0; padding: 0; }
 /* Issue name and its tier chip on one row where there is width, stacked where
    there is not — the chip carries the counts and the lane marker, so it must
    never be truncated to keep the row on one line. */
@@ -2021,6 +2025,86 @@
   color: #7596c0;
   overflow-wrap: break-word;
 }
+
+/* ── ✒️ The SAID brief — word first, where the formal lane is empty ──────────
+   THE BLOCK. On a file with no readable formal act and at least one cited
+   position, the identity zone leads with what they said. See the wall over
+   saidBriefHtml() in word-action.js for the rule and its four refusals; what
+   this stylesheet has to hold up is one of them.
+
+   IT REUSES THE BRIEF'S FURNITURE ON PURPOSE. .pdxwa-shape-row, -door, -lbl,
+   -go, -bar, -list, -more, -all, the issue colour rail and the two siblings
+   outside the door are all the record brief's, unchanged, because the whole
+   point is that these rows are the SAME VISUAL SYSTEM as Strongest patterns and
+   Ran both ways one rung up. A second row treatment for the word lane would
+   read as a second, lesser kind of row — which is exactly the demotion this
+   pass exists to undo.
+
+   THE ONE NEW THING IS THE SIDE WORD, and it is deliberately NOT .pdxst-pat.
+   That chip is the characterisation engine's own claim, painted from its
+   green/red/amber tone table, and this row has not been characterised by
+   anything: a reader who has learned that green means "the record ran this way"
+   would be reading a verdict off a sentence that is only a quotation. So it
+   takes .pdxwa-seed-pat's treatment — house grey, uppercase, quiet, the same
+   weight as the tally it sits where — for the same reason that block does, and
+   Supports / Opposes / Mixed all render identically. The direction is a word,
+   not a colour. */
+.pdxwa-said-pat {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #c3d4ec;
+  white-space: nowrap;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+/* WHICH LANE THIS ROW IS IN, IN ONE WORD. It reads SAID and it can never read
+   RECORD or PATTERN — the letterhead writes the literal and there is no tone
+   table behind it. Quieter than the side word beside it, because it is a label
+   for the row's lane and not a fact about the issue: it says where the sentence
+   came from, the way a byline does. */
+.pdxwa-said-tag {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7596c0;
+  white-space: nowrap;
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  border: 1px solid rgba(159, 180, 212, 0.2);
+}
+/* The eyebrow. The record brief's own heading type — same family, size,
+   tracking, colour and spacing — because it occupies the same slot and a louder
+   one would stage the word lane as the more important of the two rather than as
+   the one this file happens to hold. It is longer than "The formal record", so
+   it is allowed to wrap rather than being nowrap'd into an ellipsis: the clause
+   after the dash is the half that says the record is not missing. */
+.pdxwa-said-hd {
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+/* The honest line, under the rows and above the route out. Sized and coloured as
+   the brief's other disclosures (.pdxwa-shape-wall, .pdxwa-seed-note), because
+   it is one — and with no rule, no fill and no badge, for the reason the empty
+   brief has none: an absence must not be dressed as a finding. */
+.pdxwa-said-note {
+  margin: 0.5rem 0 0.6rem;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: #7596c0;
+  overflow-wrap: break-word;
+}
+/* The route out is .pdxwa-shape-all, unchanged — same size, same tap target,
+   same quiet chrome as "Explore all N issues by topic". The extra class exists
+   so this destination can be found from a test and a stylesheet without
+   scraping the label, and it adds nothing to the paint. */
+.pdxwa-said-all { margin-bottom: 0; }
 
 /* THE HERO PLEDGE CHIP IS GONE — see pledgeChipHtml's obituary in word-action.js.
    "🤝 6 kept · 6 broken · 2 pending" no longer renders under the ring on any
