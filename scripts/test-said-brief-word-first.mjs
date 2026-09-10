@@ -421,8 +421,104 @@ ok(!WA.saidLeadApplies("no_such_person_at_all", { id: "no_such_person_at_all" })
   const SRC = R("word-action.js");
   const gate = (SRC.match(/function saidLead\(pid, p\) \{[\s\S]*?\n  \}/) || [])[0];
   must(!!gate, "saidLead() is not in word-action.js under that name — the gate cannot be read");
-  has(gate, "briefEmptyLegal(pid)",
+  has(gate, "saidEmptyLegal(pid)",
     "the gate does not ask whether this file may be called empty at all");
+  // …AND THE DOOR IT ASKS IS THIS LANE'S OWN, WHICH IS THE POINT. It used to ask
+  // briefEmptyLegal — the empty-file PARAGRAPH's door, whose four vetoes include
+  // the raw payload count and the nav chip's count. Those two are right about the
+  // paragraph ("nothing we hold for them is a vote or a formal action" beside a
+  // chip reading VOTES · 68) and wrong about this letterhead: one inert row from
+  // noteMember took both counts off zero and flipped /p/lyman from the SAID brief
+  // to record-first empty with nothing about the person changed. So this lane has
+  // its own door, and it keeps the two vetoes that see what saidNoTerm cannot —
+  // the edge's own header rows and the shipped static index — while replacing the
+  // payload COUNTS with the payload's own PREDICATE, which asks the one question
+  // SAID_NOTE makes a claim about: a ballot on any row, or an act the act layer
+  // can weigh.
+  const door = (SRC.match(/function saidEmptyLegal\(pid\) \{[\s\S]*?\n  \}/) || [])[0];
+  must(!!door, "saidEmptyLegal() is not in word-action.js under that name — this lane's door cannot be read");
+  has(door, "briefHeaderRowN(pid)",
+    "the SAID door no longer refuses the formal-record rows the edge printed into this document's header");
+  has(door, "formalHasRecord(pid)",
+    "the SAID door no longer refuses the shipped static index — chew_h68's letterhead rests on this veto");
+  has(door, "briefWaitOver(pid)",
+    "the SAID door no longer requires positive knowledge that the wait is over");
+  has(door, "saidPayloadHasAct(pid)",
+    "the SAID door does not ask whether the payload holds a roll call or a signed act");
+  ok(door.indexOf("voteChipN") === -1,
+    "the SAID door counts the nav chip again — one inert row from noteMember flips the letterhead");
+  ok(door.indexOf("briefLiveN") === -1,
+    "the SAID door counts the raw payload again — one inert row from noteMember flips the letterhead");
+  // AND WHAT THAT PREDICATE ASKS IS THE RECORD LANE'S OWN TEST, ROW BY ROW.
+  // consistency.js decides the lane one issue at a time with two halves —
+  // _anyBallot (a ballot word in `position` on a row that is not a stated
+  // position) and _anyWeighedAct (a kind 'position' row the act layer can class)
+  // — and both of them, and the ballot vocabulary under them, are private to that
+  // engine. The formal pattern index publishes one row and its band, an export
+  // list the wave suites argue closed, so this door cannot call the engine and
+  // must ask the same question of memberRecords itself.
+  //   A COPY IS A DRIFT RISK, SO THE COPY IS PINNED HERE. The ballot table in
+  // word-action.js is compared key for key against consistency.js's _BALLOTS
+  // below: add a ballot word to one and not the other and this fails, which is
+  // the failure to have, because the two files disagreeing about what a ballot is
+  // means the letterhead denying a roll call the lane read can see.
+  const hasAct = (SRC.match(/function saidPayloadHasAct\(pid\) \{[\s\S]*?\n  \}/) || [])[0];
+  must(!!hasAct, "saidPayloadHasAct() is not in word-action.js under that name");
+  has(hasAct, "VR.memberRecords(pid)",
+    "saidPayloadHasAct does not ask the record lane for the payload it is judging");
+  has(hasAct, "saidBallotRow(recs[i]) || saidWeighedRow(recs[i])",
+    "saidPayloadHasAct no longer asks both halves of the lane test — a ballot OR a weighable act, " +
+    "and either one of them is a record this letterhead may not deny");
+  has(hasAct, "return briefLiveN(pid) > 0",
+    "saidPayloadHasAct stopped failing closed to the count this door asked before — with no record " +
+    "lane to ask, refusing too much is the honest error and publishing the claim is not");
+  {
+    const ball = (SRC.match(/function saidBallotRow\(it\) \{[\s\S]*?\n  \}/) || [])[0];
+    must(!!ball, "saidBallotRow() is not in word-action.js under that name");
+    has(ball, "it.kind !== 'position'",
+      "the ballot test reads a kind as a ballot again — a stated position arrives as kind 'position' " +
+      "with an actionType in the same field a roll call puts its ballot in");
+    has(ball, "SAID_BALLOTS[String(it.position || '').toLowerCase()] === 1",
+      "the ballot test no longer reads the ballot word out of `position`");
+    const weigh = (SRC.match(/function saidWeighedRow\(it\) \{[\s\S]*?\n  \}/) || [])[0];
+    must(!!weigh, "saidWeighedRow() is not in word-action.js under that name");
+    has(weigh, "window._pdxActClass",
+      "the weighable-act test no longer asks the act layer, so it is deciding for itself what counts " +
+      "as a formal act");
+    has(weigh, "if (typeof f !== 'function') return false;",
+      "the weighable-act test stopped failing closed to false with no act layer — consistency.js's " +
+      "_anyWeighedAct fails closed the same way, and a row nothing can weigh is not an act this " +
+      "sentence has to deny");
+    has(weigh, "it.kind !== 'position'",
+      "the weighable-act test no longer requires kind 'position', so it could class a roll call twice");
+    // THE VOCABULARY, KEY FOR KEY, AGAINST THE ENGINE'S OWN TABLE.
+    const keysOf = (src, name) => {
+      const m = src.match(new RegExp("var " + name + " = \\{([\\s\\S]*?)\\};"));
+      if (!m) return null;
+      return (m[1].match(/(?:'[^']+'|[A-Za-z_][A-Za-z0-9_]*)(?=\s*:)/g) || [])
+        .map((k) => k.replace(/'/g, "")).sort();
+    };
+    const mine = keysOf(SRC, "SAID_BALLOTS");
+    const theirs = keysOf(R("consistency.js"), "_BALLOTS");
+    must(!!mine, "SAID_BALLOTS is not a readable object literal in word-action.js");
+    must(!!theirs, "_BALLOTS is not a readable object literal in consistency.js — this pin has nothing to read");
+    eq((mine || []).join("|"), (theirs || []).join("|"),
+      "the SAID lane's ballot vocabulary and consistency.js's _BALLOTS have drifted apart — one of " +
+      "these files thinks a word is a ballot and the other does not, and this letterhead is the one " +
+      "that prints \"no roll call or signed act on file\"");
+    ok((theirs || []).indexOf("not_voting") >= 0 && (theirs || []).indexOf("excused") >= 0,
+      "the engine's ballot table no longer counts a recorded absence — they were at the roll call, " +
+      "and the pin above is only worth having while both files agree on that");
+  }
+  // THE EMPTY-FILE PARAGRAPH'S OWN DOOR IS UNTOUCHED. All four vetoes, still
+  // absolute, still in briefEmptyForbidden — the fix above moved which door THIS
+  // lane knocks on and may not have loosened the paragraph's.
+  const forbidden = (SRC.match(/function briefEmptyForbidden\(pid\) \{[\s\S]*?\n  \}/) || [])[0];
+  must(!!forbidden, "briefEmptyForbidden() is not in word-action.js under that name");
+  for (const veto of ["voteChipN(pid)", "briefLiveN(pid)", "briefHeaderRowN(pid)", "formalHasRecord(pid)"]) {
+    has(forbidden, veto,
+      `the empty-file paragraph's door no longer refuses on ${veto} — that paragraph and a record on screen cannot both be true`);
+  }
   has(gate, "briefGaveUp(pid)",
     "the gate does not refuse a record that failed to load");
   has(gate, "saidNoTerm(pid)",

@@ -2074,9 +2074,65 @@ export function assertWordActionSeams(bodies, api) {
       "a row whose read is still pending is treated as inert, which paints the word lane over a " +
       "record that has not finished answering");
   }
-  has(said, "if (!briefEmptyLegal(pid)) return null;",
+  // AND THE DOOR IT ASKS, NARROWED IN v171 AND NOT WIDENED. The letterhead still
+  // may not publish an absence nobody has waited for, and it still asks an
+  // empty-file door for permission — but the door it asks is now this lane's own.
+  // It used to ask briefEmptyLegal, the empty-file PARAGRAPH's door, and inherit
+  // that paragraph's four vetoes. Two of those four are payload COUNTS: the raw
+  // memberRecords length and the nav chip's mapped total. They are right about the
+  // paragraph, which says "nothing we hold for them is a vote or a formal action"
+  // and must not say it beside a chip reading VOTES · 68 — and they are wrong
+  // about this letterhead, which claims one thing only, in SAID_NOTE: no roll call
+  // or signed act on file. One inert row from noteMember — a curated narrative
+  // mapped to an issue, a backfill crumb, a sponsorship the lane routes to exec —
+  // took both counts off zero and flipped /p/lyman from seven cited sentences to
+  // record-first empty with nothing about the person changed.
+  //   SO THE LANE'S DOOR KEEPS THE TWO VETOES THAT SEE WHAT saidNoTerm CANNOT —
+  // the edge's own header rows and the shipped static index, both unchanged and
+  // both still absolute — and replaces the two counts with the payload's own
+  // PREDICATE: does it hold a ballot, or an act the act layer can weigh. That is
+  // the record lane's test (_anyBallot / _anyWeighedAct), asked of the whole
+  // payload instead of one issue, so a roll call the issue mapping never reached
+  // cannot pass unseen under a sentence that denies it. The bounded wait is still
+  // required. A WAVE'S STAKE HERE IS UNCHANGED: the door still only ever REFUSES
+  // the word-first block, and briefEmptyForbidden still refuses the paragraph on
+  // all four vetoes, which is argued by its own suite.
+  has(said, "if (!saidEmptyLegal(pid)) return null;",
     "the word-first letterhead no longer asks the empty-file door whether this absence may be " +
     "published at all");
+  {
+    const el = said.slice(said.indexOf("function saidEmptyLegal(pid) {"));
+    const body = el.slice(0, el.indexOf("\n  }"));
+    ok(body.length > 0 && /briefHeaderRowN\(pid\)/.test(body),
+      "the lane's own empty-file door stopped refusing the formal-record rows the edge printed into " +
+      "this document's header — they are on screen, and no letterhead of ours may deny them");
+    ok(/formalHasRecord\(pid\)/.test(body),
+      "the lane's own empty-file door stopped refusing the shipped static index, which covers a lane " +
+      "the pattern index can be empty for — this is the veto a 118-measure file's letterhead rests on");
+    ok(/briefWaitOver\(pid\)/.test(body),
+      "the lane's own empty-file door no longer waits out the bounded load, so a lane nobody has heard " +
+      "from yet buys the word-first letterhead");
+    ok(/saidPayloadHasAct\(pid\)/.test(body),
+      "the lane's own empty-file door stopped asking whether the payload holds a ballot or a weighable " +
+      "act, which is the one claim SAID_NOTE actually makes");
+    ok(!/voteChipN|briefLiveN/.test(body),
+      "the lane's own empty-file door took back the paragraph's two payload counts — either one of " +
+      "them flips this file to record-first empty over a single inert row, which is the v171 defect");
+  }
+  {
+    const ha = said.slice(said.indexOf("function saidPayloadHasAct(pid) {"));
+    const body = ha.slice(0, ha.indexOf("\n  }"));
+    ok(body.length > 0 && /VR\.memberRecords\(pid\)/.test(body),
+      "the payload predicate no longer asks the record lane for the payload it is judging");
+    ok(/saidBallotRow\(recs\[i\]\) \|\| saidWeighedRow\(recs\[i\]\)/.test(body),
+      "the payload predicate no longer asks both halves of the lane test — a ballot OR a weighable " +
+      "act, and either one is a record this letterhead may not deny");
+    ok(/briefLiveN\(pid\) > 0/.test(body),
+      "the payload predicate stopped failing closed to the count this door asked before: with no " +
+      "record lane to ask, refusing too much is the honest error and publishing the claim is not");
+    ok(!/%|toFixed|\bpct\b/i.test(body.replace(/^\s*\/\/.*$/gm, "")),
+      "the payload predicate grew a figure — it answers yes or no about rows");
+  }
   has(said, "if (briefGaveUp(pid)) return null;",
     "the word-first letterhead reads a record that FAILED TO LOAD as a record that does not exist — " +
     "two different sentences, and only one of them is true");
