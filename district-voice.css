@@ -1,0 +1,350 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   district-voice.css — District Voice, on the seat file at /d/<seatKey>
+   ─────────────────────────────────────────────────────────────────────────────
+   One thing lives in here: the .pdxv* block painted by district-voice.js into the
+   top half of the district file's scroller. The file's own panel, letterhead and
+   issue-room list are district-file.css's, and the per-issue room panel one
+   segment deeper is district-room.css's. No sheet reaches into another's class
+   names.
+
+   NOTHING IN HERE SCALES WITH A COUNT. This is the rule the whole sheet is built
+   around. An option with four hundred answers and an option with none are the
+   same width, the same weight, the same colour and the same size. There is no
+   bar, no fill, no track, no ring, no gradient stop and no opacity that a number
+   could drive — and there is no rule below whose value comes from a count. A
+   proportion drawn as a length reads as a grade, and a neighbour's answer is not
+   a grade. The count is set in tabular figures next to the option's own words and
+   that is the entire visual treatment it gets.
+
+   NO VERDICT PALETTE, for the reason district-room.css states at greater length:
+   the good-green (#4ade80 / #86efac) and every red in this app mean "the record
+   came out the way they said it would". This block is neighbours talking, not a
+   judgement about anybody, so it takes the app's neutral surfaces and the same
+   one cool accent (#7dd3fc) the file and the room take. No party colour appears
+   anywhere in this sheet — there is no red/blue axis to draw, because there is no
+   party field to draw it from.
+
+   THE READER'S OWN MARK IS AN OUTLINE, NOT A WIN. .is-mine gets a quiet accent
+   border so somebody can find their own answer and their own take. It is
+   deliberately not a highlight, a badge or a colour that reads as correct.
+
+   Loaded non-blocking from index.html (media="print" + onload swap, the same
+   arrangement district-file.css and district-room.css use), so an unstyled flash
+   is impossible and the sheet costs nothing on first paint.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.pdxv {
+  display: block;
+}
+
+/* ── THE FRAME ────────────────────────────────────────────────────────────── */
+.pdxv-kick {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+}
+
+/* The required sentence. Printed at full contrast rather than as fine print,
+   because it is the block's whole claim about what it is and what it is not. */
+.pdxv-frame {
+  margin: 6px 0 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.pdxv-blockhd {
+  margin: 18px 0 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+}
+
+.pdxv-blocknote {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+/* Every honest-empty sentence in the block — no takes, no verified neighbours,
+   no formal act on this issue. One treatment, because all three are the same
+   kind of statement: a fact, printed as a sentence, in place of a feed. */
+.pdxv-empty {
+  margin: 10px 0 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+.pdxv-busy {
+  margin: 0;
+  font-size: 0.84rem;
+  color: #94a3b8;
+}
+
+/* ── THE POLL ─────────────────────────────────────────────────────────────── */
+.pdxv-q {
+  margin: 8px 0 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #e2e8f0;
+}
+
+.pdxv-opts {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Every option is the same box whether it can be pressed or not, so a reader who
+   cannot answer is looking at the same list of options and the same counts as a
+   neighbour who can — not at a greyed-out or truncated version of the question. */
+.pdxv-optrow,
+.pdxv-optbtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.06);
+  font: inherit;
+  font-size: 0.88rem;
+  color: #e2e8f0;
+  text-align: left;
+}
+
+.pdxv-optbtn {
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.pdxv-optbtn:hover,
+.pdxv-optbtn:focus-visible {
+  border-color: rgba(125, 211, 252, 0.55);
+  background: rgba(125, 211, 252, 0.09);
+  outline: none;
+}
+
+/* The reader's own answer, found rather than celebrated. */
+.pdxv-opt.is-mine > .pdxv-optrow,
+.pdxv-opt.is-mine > .pdxv-optbtn {
+  border-color: rgba(125, 211, 252, 0.6);
+}
+
+.pdxv-optlabel {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* THE COUNT. Tabular figures so the column of numbers lines up, and a fixed
+   size: the digits do not grow, brighten or bold as the number climbs. */
+.pdxv-optcount {
+  flex: 0 0 auto;
+  font-size: 0.86rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #cbd5e1;
+}
+
+.pdxv-countline,
+.pdxv-neighbors {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #94a3b8;
+}
+
+/* ── THE TAKES ────────────────────────────────────────────────────────────── */
+/* Newest first, and every take the same size. No score column, no vote arrows,
+   no reply affordance and no author block — there is nothing on a take to press. */
+.pdxv-takes {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pdxv-take {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.05);
+}
+
+.pdxv-take.is-mine {
+  border-color: rgba(125, 211, 252, 0.45);
+}
+
+.pdxv-takeissue {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+}
+
+.pdxv-takebody {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #e2e8f0;
+  overflow-wrap: anywhere;
+}
+
+/* ── THE COMPOSER ─────────────────────────────────────────────────────────── */
+.pdxv-composer {
+  margin-top: 4px;
+}
+
+.pdxv-clabel {
+  display: block;
+  margin: 10px 0 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.pdxv-select,
+.pdxv-body {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 9px;
+  background: rgba(2, 6, 23, 0.5);
+  font: inherit;
+  font-size: 0.88rem;
+  color: #e2e8f0;
+}
+
+.pdxv-body {
+  margin-top: 8px;
+  min-height: 82px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.pdxv-select:focus-visible,
+.pdxv-body:focus-visible {
+  border-color: rgba(125, 211, 252, 0.55);
+  outline: none;
+}
+
+.pdxv-crow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.pdxv-send {
+  padding: 8px 16px;
+  border: 1px solid rgba(125, 211, 252, 0.45);
+  border-radius: 9px;
+  background: rgba(125, 211, 252, 0.12);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #7dd3fc;
+  cursor: pointer;
+}
+
+.pdxv-send:hover,
+.pdxv-send:focus-visible {
+  background: rgba(125, 211, 252, 0.2);
+  outline: none;
+}
+
+.pdxv-count {
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  color: #94a3b8;
+}
+
+.pdxv-say {
+  margin: 8px 0 0;
+  min-height: 1em;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+/* THE CLOSED NOTE. The server's own sentence about why this reader cannot post,
+   printed plainly. Not an error, not a warning colour, and not louder than the
+   takes it sits under — being told why is part of reading the page, and reading
+   is open to everybody. */
+.pdxv-closed {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 2px solid rgba(125, 211, 252, 0.4);
+  border-radius: 0 9px 9px 0;
+  background: rgba(148, 163, 184, 0.05);
+  font-size: 0.83rem;
+  line-height: 1.55;
+  color: #cbd5e1;
+}
+
+/* ── THE RECORD STRIP ─────────────────────────────────────────────────────── */
+/* The seat's latest formal act on the question's issue. A link out to the same
+   public record page any reader can open, with no verdict on it: no kept/broken
+   tag, no direction arrow, no score and no colour that means anything. */
+.pdxv-weeklink {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.05);
+  color: #e2e8f0;
+  text-decoration: none;
+}
+
+.pdxv-weeklink:hover,
+.pdxv-weeklink:focus-visible {
+  border-color: rgba(125, 211, 252, 0.45);
+  outline: none;
+}
+
+.pdxv-weektitle {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.pdxv-weekdate {
+  flex: 0 0 auto;
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  color: #94a3b8;
+}
+
+@media (max-width: 520px) {
+  .pdxv-optrow,
+  .pdxv-optbtn { padding: 9px 10px; }
+  .pdxv-crow { flex-direction: column; align-items: stretch; }
+  .pdxv-send { width: 100%; }
+  .pdxv-count { text-align: right; }
+}

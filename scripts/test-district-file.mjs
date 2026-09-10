@@ -98,7 +98,7 @@ function makeDom(pathname) {
   function node(tag) {
     const n = {
       tagName: String(tag || "div").toUpperCase(),
-      id: "", className: "", innerHTML: "", textContent: "", hidden: false,
+      id: "", className: "", _html: "", textContent: "", hidden: false,
       children: [], parentNode: null, attrs: {}, disabled: false, scrollTop: 0,
       style: { setProperty(k, v) { this[k] = v; }, removeProperty(k) { delete this[k]; } },
       setAttribute(k, v) { this.attrs[k] = String(v); },
@@ -116,6 +116,32 @@ function makeDom(pathname) {
       closest() { return null; },
       focus() {},
     };
+    // The file builds its scroller as TWO containers — the Voice blocks and, under
+    // them, the issue rooms — and hands one of them to district-voice.js BY ID. So
+    // an assignment here registers the ids it declares as child nodes, in document
+    // order, and drops the ones it replaced: without that, every container reads
+    // as empty and the rooms list is unobservable.
+    Object.defineProperty(n, "innerHTML", {
+      enumerable: true, configurable: true,
+      get() { return n._html; },
+      set(html) {
+        const s = String(html == null ? "" : html);
+        n._html = s;
+        const prune = (kid) => {
+          kid.children.forEach(prune);
+          const i = nodes.indexOf(kid);
+          if (i >= 0) nodes.splice(i, 1);
+        };
+        n.children.forEach(prune);
+        n.children = [];
+        for (const m of s.matchAll(/<([a-zA-Z][\w-]*)[^>]*\sid="([^"]+)"/g)) {
+          const child = node(m[1]);
+          child.id = m[2];
+          child.parentNode = n;
+          n.children.push(child);
+        }
+      },
+    });
     nodes.push(n);
     return n;
   }
@@ -463,7 +489,19 @@ eq(seatedFor(null, null), null, "and neither does nothing at all");
 // ═════════════════════════════════════════════════════════════════════════════
 section("4 · the list of issue rooms — lands_preserve is on it, and it opens");
 
-const list = body.innerHTML;
+// THE ROOMS LIST LIVES UNDER THE VOICE BLOCKS. The scroller holds two containers
+// — District Voice first, then the rooms — because a seat's live question and its
+// neighbours' takes are the page and the rooms are where a subject is continued.
+// The list itself is unchanged, and this is where it hangs.
+const roomsEl = WA.document.getElementById("pdx-district-file-rooms");
+ok(roomsEl, "the scroller holds a container for the issue rooms");
+const list = roomsEl ? roomsEl.innerHTML : "";
+// AND THE LIST DOES NOT DEPEND ON VOICE BEING THERE. district-voice.js is not
+// loaded in this suite at all — the file asks for it, does not find it, and still
+// paints every room. A district whose Voice module failed to load is a district
+// with rooms, not a blank panel.
+eq(!!WA.PDXVoice, false, "district-voice.js is not loaded here");
+ok(list.length > 0, "and the rooms still painted without it");
 has(list, "Public lands", "lands_preserve is on the list, under its own label");
 has(list, 'href="/d/ut-statehouse-68/lands_preserve"',
   "and Open room hits /d/ut-statehouse-68/lands_preserve");

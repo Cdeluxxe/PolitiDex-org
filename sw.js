@@ -4150,7 +4150,60 @@
 // changed, and the one thing that did change about a percentage is that a file
 // with no formal term now prints none at all, because it never had two halves to
 // compute one from.
-const CACHE_VERSION = 'v169';
+// v170 - ONE UTAH SEAT GETS A PLACE, AND THE PLACE IS NOT A SECOND RECORD
+// EIGHT precached shell assets changed and two of them are new. /district-voice.js
+// and /district-voice.css are the seat's one live question, its verified
+// neighbours' takes and the composer that gates on residency. /district-file.js
+// and /district-file.css moved with them: the file's scroller is two containers
+// now, District Voice first and the issue rooms under it, which is the order the
+// brief asked for. /district-room.js moved because the one link into that file is
+// named for what is at the top of it — "Neighbors in this seat" where Voice has
+// opened, "District rooms" everywhere else, asked of PDXVoice so the room holds
+// no second copy of the allow-list. /person-file.js and /person-file.css carry the
+// same quiet link on the sitting member's file, one line, no chip and no count.
+// /index.html is where the new pair is registered — a deferred script tag and a
+// non-blocking stylesheet — and it is why this bump is load-bearing rather than
+// tidy: a warm device holding v169 serves the CACHED index.html, which has no tag
+// for either new file, so District Voice would never load on the devices most
+// likely to have saved a /d/<seatKey> address. The eight travel together because a
+// device that took the new district file without the Voice module opens a saved
+// seat and paints a page whose first block is missing. The module fails soft when
+// it is absent, so the rooms still paint — that is the honest fallback, not the
+// shipped page.
+//   AND WHAT THE BUMP CARRIES WITH IT, unchanged. Renaming SHELL_CACHE refetches
+// every precached asset and renaming RUNTIME_CACHE drops every runtime one, so
+// the whole shell arrives fresh in this pass whether or not a line of it moved.
+// The log owes a reader the version each file is holding, so they are named here
+// with what did NOT happen to them:
+//     · the issue desk and every pane it opens — /door1-workspace.js,
+//       /door1-workspace.css, /issue-file.js, /issue-file.css, /issue-view.js,
+//       /pdx-issue-profile.js, /pdx-issue-family.js, /issue-colors.js,
+//       /stance-tree.js and /alignment-tool.js — are byte-identical here. No
+//       count, order, boundary or measure read on the desk moved, and Voice
+//       added no row to any of them;
+//     · the Word vs Action chip and its skin, /word-action.js and
+//       /word-action.css, with /consistency.js behind them, are byte-identical
+//       here: the same index rows, the same denominator, the same refusal on a
+//       file with no formal term;
+//     · /all-seeing-eye.js is a RUNTIME entry rather than a precached one, so it
+//       is dropped by the runtime bucket's rename rather than by SHELL_ASSETS —
+//       and it is byte-identical too. Voice publishes no searchable person, so
+//       the panel has nothing new to rank;
+//     · /netlify.toml did not change at all. The /d/* 200 rewrite that serves
+//       index.html for a district address was already there for the district
+//       file, and District Voice lives inside that address rather than claiming
+//       a route, a top-nav destination or a Voice URL per person.
+//   That is measured rather than asserted: the district-voice suite twin-boots
+// cox, lee and chew_h68 through Direction Match, Word vs Action and the finance
+// lane with district-voice.js loaded and without it, and every read matches byte
+// for byte.
+//   NO WEIGHT, MAPPING, FLOOR OR LANE MOVED. Direction Match is byte-identical —
+// no floor, weight, mapping or lane read changed, and no formal direction was
+// inferred for anyone. District Voice writes no formal act, stance, Direction
+// Match figure, finance row or baseline; it holds no pid and no party field; and
+// it publishes one integer per poll option rather than any percentage, so nothing
+// on this bump can change what a record reads.
+const CACHE_VERSION = 'v170';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -4277,6 +4330,17 @@ const SHELL_ASSETS = [
   // address names a district that has a file.
   '/district-file.js',
   '/district-file.css',
+  // District Voice and its stylesheet — the seat's live question, its neighbours'
+  // takes and the composer, mounted INSIDE the district file above the issue rooms.
+  // On this list because it travels with the pair above and for one reason of its
+  // own: a device holding district-file.js WITHOUT this module opens a saved
+  // /d/<seatKey> and paints a file whose first block is missing, which reads as
+  // "this seat has nothing" over a seat with a live poll. The module fails soft
+  // when it is absent, so the rooms still paint — but the two are shipped as one
+  // page and are cached as one. It paints nothing anywhere else: the mount only
+  // runs for a seat on Voice's own allow-list, and there is no front-page work.
+  '/district-voice.js',
+  '/district-voice.css',
   // Issue color tokens. Tiny, and precached with alignment-tool.js so an offline
   // repeat visit keeps issues colour-coded instead of falling back to slate
   // everywhere, which would read as "nothing is a core issue".

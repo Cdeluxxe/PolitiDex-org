@@ -189,6 +189,12 @@
   // site-wide, ranked board about any topic at all, which is the opposite of the
   // thing they asked for.
   var FILE_LINK = 'District rooms \u2192';
+  // The SAME address, named for what is now at the top of it. A seat where
+  // District Voice has opened leads with the seat's own live question and its
+  // neighbours' takes, and the issue rooms are under them — so the link says
+  // that instead of naming the second block. One link either way: the file has
+  // one URL, and offering two controls to it would be two doors into one room.
+  var VOICE_LINK = 'Neighbors in this seat \u2192';
   var BUSY = 'Opening the room…';
   var GONE = 'That room did not open.';
 
@@ -661,9 +667,18 @@
       if (F && fn(F.path)) href = F.path(districtKey);
     } catch (e) { href = ''; }
     if (!href) return '';
+    // Does that file lead with District Voice? Asked of PDXVoice rather than
+    // answered here, so this module holds no second copy of the Voice
+    // allow-list and a seat that has not opened yet keeps exactly today's label.
+    var voiced = false;
+    try {
+      var V = window.PDXVoice;
+      voiced = !!(V && fn(V.shipped) && V.shipped(districtKey));
+    } catch (e) { voiced = false; }
     return '<p class="pdxdr-mount-file">' +
       '<a class="pdxdr-filelink" href="' + esc(href) + '"' +
-      ' data-pdxdf-open="' + esc(districtKey) + '">' + esc(FILE_LINK) + '</a></p>';
+      ' data-pdxdf-open="' + esc(districtKey) + '">' +
+      esc(voiced ? VOICE_LINK : FILE_LINK) + '</a></p>';
   }
 
   // ── MOUNT (b): the issue file at /i/<key> ─────────────────────────────────

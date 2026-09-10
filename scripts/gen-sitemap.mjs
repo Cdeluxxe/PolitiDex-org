@@ -257,6 +257,59 @@ function spotlightSlugs() {
   return [...declared].filter((s) => keyed.has(s)).sort();
 }
 
+// ── /d/<seatKey> — the district file, and District Voice on top of it ───────
+// ONE address per shipped district, and it is the CANONICAL spelling. The file
+// also answers to the short alias (/d/ut-hd-68 normalizes to
+// /d/ut-statehouse-68), and the alias is deliberately NOT listed here: two URLs
+// reaching one page is this file recommending a place twice, and advertising an
+// alias to crawlers is how a second district map gets built by accident. The
+// canonical key is the one the app links to everywhere, so it is the one crawled.
+//
+// AND NOT ONE ADDRESS PER PERSON. District Voice hangs off a seat, so there is no
+// /d/ URL for a member and nothing here touches the /p/<pid> list. A member's
+// file carries one quiet link INTO the seat's place; the place does not get an
+// address of its own for every person who has ever held it.
+//
+// TWO CONDITIONS, BOTH REQUIRED. A key is published only when:
+//
+//   1. district-file.js SHIPS a file for it — read out of that module's own
+//      SHIPPED allow-list by pattern, so this generator holds no second copy of
+//      the list and a district removed there stops being crawled here; and
+//   2. THE SEAT ACTUALLY EXISTS as a dd_districts row — read out of the seed
+//      migration's INSERT. Every address on the page is a foreign key to that
+//      table, so a key with no row is a page with no seat, no poll and no
+//      member: an address that resolves to a refusal. It is not advertised.
+//
+// A district that fails either check has an address that still works and is
+// simply not recommended, which is the same standing rule the person half of
+// this file applies below the publication floor.
+function districtAddresses() {
+  const fp = path.join(ROOT, "district-file.js");
+  if (!fs.existsSync(fp)) return [];
+  const src = fs.readFileSync(fp, "utf8");
+  // var SHIPPED = { 'ut-statehouse-68': 1 };
+  const m = /var\s+SHIPPED\s*=\s*\{([^}]*)\}/.exec(src);
+  if (!m) return [];
+  const shipped = [];
+  for (const k of m[1].matchAll(/['"]([a-z]{2}-(?:house|statesenate|statehouse)-[1-9][0-9]*)['"]/g)) {
+    shipped.push(k[1]);
+  }
+  if (!shipped.length) return [];
+
+  const mp = path.join(
+    ROOT,
+    "netlify/database/migrations/20261029000000_create_dd_district_discussion_tables/migration.sql"
+  );
+  if (!fs.existsSync(mp)) return [];
+  const sql = fs.readFileSync(mp, "utf8");
+  const seeded = new Set();
+  for (const r of sql.matchAll(/\(\s*'([a-z]{2}-(?:house|statesenate|statehouse)-[1-9][0-9]*)'\s*,/g)) {
+    seeded.add(r[1]);
+  }
+
+  return [...new Set(shipped)].filter((k) => seeded.has(k)).sort().map((k) => `/d/${k}`);
+}
+
 function xmlEscape(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;").replace(/'/g, "&apos;");
@@ -345,6 +398,10 @@ const urls = [
   ...publishable.map((pid) => `/p/${pid}`),
   ...bills.published.map(billPath),
   ...issues.listed.map((i) => i.url),
+  // Appended last, for the same reason the issue entries are appended after the
+  // bills: adding a district address cannot move, rename or drop a single
+  // /p/<pid>, /b/ or /i/ line.
+  ...districtAddresses(),
 ];
 
 // Two addresses reaching the same page would be this file recommending a record

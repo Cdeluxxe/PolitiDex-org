@@ -395,7 +395,17 @@ for (const b of BILLS.bills) {
 // stamped against — a wall-clock filename that sorts earlier would never run.
 const migs = readdirSync(join(ROOT, "netlify/database/migrations")).sort();
 const mine = MIG.split("/").pop();
-eq(migs[migs.length - 1], mine, "this wave's migration is the tail of the directory");
+const at = migs.indexOf(mine);
+ok(at >= 0, "this wave's migration is in the tree");
+// The load-bearing property is about what came BEFORE it, not about staying last:
+// a later wave stamping a higher prefix is the tree growing, and this file's
+// migration is still the tail it was stamped as. Every migration that predates it
+// has to sort earlier, because an applied migration is immutable and one that
+// sorted earlier than the tail it was stamped against would never run at all.
+for (const m of migs.slice(0, at)) {
+  ok(m < mine, `${m} predates this wave's migration and sorts before it`);
+}
+ok(mine > "20261101000000", "and it sorts after the tail it was stamped against");
 ok(migs.indexOf(mine) > migs.indexOf("20261101000000_seed_dd_hd68_district_file_room.sql"),
   "…and it sorts after the migration that was the tail when it was written");
 

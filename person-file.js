@@ -821,7 +821,7 @@
         'is still being built, so we do not advertise one for it yet.">record still being built</span>';
     }
 
-    host.innerHTML = '<span class="pf-kick-what">Person file</span>' + state;
+    host.innerHTML = '<span class="pf-kick-what">Person file</span>' + state + voiceLink(pid);
   }
 
   // The address in the kicker is a real anchor so it can be copied, opened in a
@@ -838,6 +838,31 @@
       if (pid) stamp(pid);
     } catch (e) {}
     return false;
+  }
+
+  // ── "Neighbors in this seat" ───────────────────────────────────────────────
+  // ONE quiet link, and only for the member who actually sits in a seat where
+  // District Voice has opened — which is one seat today. It points at that
+  // district's file, /d/<seatKey>, and it is the only thing about Voice anywhere
+  // near a person file.
+  //
+  // WHAT IT IS NOT. Not a comment section on this person: the takes it leads to
+  // are keyed on the SEAT, so they do not follow whoever holds it and no take is
+  // ever printed on this file. Not a number: no count, no badge, no activity dot
+  // — a tally of neighbours' sentences sitting on somebody's dossier would be a
+  // metric about the person, and this file publishes none it did not earn from
+  // the record. Not a new nav destination either; it lives here and on the seat
+  // row in Who Represents Me, both inside Door 2.
+  //
+  // Rendered by window.PDXVoice.personLinkHtml(), which answers '' for every pid
+  // that does not hold such a seat — so this file holds no allow-list of its own
+  // and degrades to exactly today's kicker when district-voice.js is missing.
+  function voiceLink(pid) {
+    try {
+      var V = window.PDXVoice;
+      if (!V || !fn(V.personLinkHtml)) return '';
+      return V.personLinkHtml(pid) || '';
+    } catch (e) { return ''; }
   }
 
   // ── Warming the formal record, at the moment the file opens ───────────────

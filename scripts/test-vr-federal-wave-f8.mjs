@@ -1825,6 +1825,28 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // it — which is the claim this list exists to keep checkable rather than the
     // claim that nothing else may ever change.
     "district-room.js",
+    // ── A LATER PASS, declared on the terms this guard established ─────────────
+    // DISTRICT VOICE OPENS ON ONE UTAH SEAT, AND IT IS NOT A SECOND RECORD.
+    // district-file.js and district-file.css paint the seat's file as two
+    // containers now — the sitting member's chip, the seat's one live question and
+    // its verified neighbours' takes first, the issue rooms under them — and
+    // scripts/test-district-file.mjs grows the sections that pin that order and
+    // the honest-empty sentence a seat with no takes prints instead of a feed.
+    // person-file.css carries the one quiet link on the sitting member's file:
+    // one line of type, no chip, no count and no figure.
+    //   NOTHING IN THIS WAVE'S REACH MOVES. Voice reads /api/district-voice and
+    // the voice_* and dd_* tables and nothing else: no vr_* model, no pack, no
+    // ingest script and no reader surface this guard measures. It writes no
+    // formal act, stance, tier, mapping, key, floor, admission, finance row or
+    // Direction Match figure, it holds no pid and no party field, and it
+    // publishes one integer per poll option rather than any percentage. The twin
+    // boot above is therefore untouched by it — which is the claim this list
+    // exists to keep checkable rather than the claim that nothing else may ever
+    // change.
+    "district-file.js",
+    "district-file.css",
+    "person-file.css",
+    "scripts/test-district-file.mjs",
     "scripts/test-district-room.mjs",
     // ── AND THE PASS AFTER IT, on the same terms ───────────────────────────────
     // THE ROOM OFFERS ITS ASK TO THE NEIGHBOUR WHO NEEDS IT. A signed-in reader

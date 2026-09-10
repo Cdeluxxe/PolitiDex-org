@@ -187,10 +187,20 @@ eq(locs.length, 1 + locs.filter((u) => u !== ORIGIN + "/").length, "the site roo
 // carrying either a boundary on file or a measure mapped to it — a key with
 // neither would open onto a definition that does not exist and a record of nobody.
 const issueFiles = locs.filter((u) => u.startsWith(ORIGIN + "/i/"));
+// THE FIFTH KIND IS NAMED, NOT WAIVED, on the same terms. /d/<seatKey> is the
+// district file — who sits in the seat, the seat's one live question, its
+// verified neighbours' takes and the issue rooms under them — and District Voice
+// opening on one Utah seat is what put it in the sitemap. It is advertised only
+// where the generator can prove BOTH halves out of the repo: the seat is in the
+// district file's own shipped allow-list, and the seat key has a row in the
+// district table the migrations seed. A key missing either half opens onto a page
+// with no seat, no poll and no member, which is a refusal dressed as an index
+// entry — the same standing rule the /i/ half applies above. Asserted below.
+const districtFiles = locs.filter((u) => u.startsWith(ORIGIN + "/d/"));
 const unaccounted = locs.filter((u) =>
   u !== ORIGIN + "/" && !u.startsWith(ORIGIN + "/p/") &&
   !u.startsWith(ORIGIN + "/issue/") && !u.startsWith(ORIGIN + "/b/") &&
-  !u.startsWith(ORIGIN + "/i/"));
+  !u.startsWith(ORIGIN + "/i/") && !u.startsWith(ORIGIN + "/d/"));
 eq(unaccounted.length, 0, `the sitemap carries ${unaccounted.length} address(es) of an unaccounted kind (e.g. ${unaccounted.slice(0, 3).join(", ")})`);
 
 ok(issueFiles.length > 0, "the issue files vanished from the sitemap");
@@ -225,6 +235,53 @@ eq(hollow.length, 0,
   `${hollow.length} issue file(s) are advertised with neither a boundary on file nor a measure mapped to them ` +
   `(e.g. ${hollow.slice(0, 3).join(", ")}) — that address opens onto an empty definition and a record of nobody`);
 console.log(`      ${issueFiles.length} issue files advertised, every one bounded or mapped`);
+
+// ── the district addresses, read out of the two files that decide them ───────
+// Nothing here reads the network or the database: the allow-list is a literal in
+// district-file.js and the seat rows are literals in the migration that created
+// the district table, which is what makes "advertised" checkable at build time.
+{
+  const SHIPPED = (() => {
+    const m = /var\s+SHIPPED\s*=\s*\{([^}]*)\}/.exec(R("district-file.js"));
+    if (!m) return null;
+    return new Set([...m[1].matchAll(/['"]([a-z]{2}-(?:house|statesenate|statehouse)-[1-9][0-9]*)['"]/g)]
+      .map((x) => x[1]));
+  })();
+  must(SHIPPED && SHIPPED.size > 0,
+    "district-file.js no longer carries a SHIPPED allow-list this file can read");
+  const SEATED = (() => {
+    const sql = R("netlify/database/migrations/20261029000000_create_dd_district_discussion_tables/migration.sql");
+    return new Set([...sql.matchAll(/\(\s*'([a-z]{2}-(?:house|statesenate|statehouse)-[1-9][0-9]*)'\s*,/g)]
+      .map((x) => x[1]));
+  })();
+  must(SEATED.size > 0, "the district table's migration no longer seeds a seat row this file can read");
+
+  const keys = districtFiles.map((u) => u.slice((ORIGIN + "/d/").length));
+  const dupD = keys.filter((k, i) => keys.indexOf(k) !== i);
+  eq(dupD.length, 0, `${dupD.length} district file(s) are listed more than once (e.g. ${dupD.slice(0, 3).join(", ")})`);
+  // The canonical spelling, and only it. ut-hd-68 is an accepted alias that
+  // normalises to ut-statehouse-68; advertising the alias would publish two
+  // addresses for one seat and invite a crawler to treat them as two districts.
+  const aliased = keys.filter((k) => !/^[a-z]{2}-(?:house|statesenate|statehouse)-[1-9][0-9]*$/.test(k));
+  eq(aliased.length, 0,
+    `${aliased.length} district address(es) are not the canonical seat key (e.g. ${aliased.slice(0, 3).join(", ")}) — ` +
+    `/d/ resolves an alias by normalising it, so advertising one publishes a second address for one seat`);
+  const unshippedD = keys.filter((k) => !SHIPPED.has(k));
+  eq(unshippedD.length, 0,
+    `${unshippedD.length} district file(s) are advertised for a seat the district file does not ship ` +
+    `(e.g. ${unshippedD.slice(0, 3).join(", ")}) — that address opens onto a page the app will not paint`);
+  const unseated = keys.filter((k) => !SEATED.has(k));
+  eq(unseated.length, 0,
+    `${unseated.length} district file(s) are advertised for a seat with no row in the district table ` +
+    `(e.g. ${unseated.slice(0, 3).join(", ")}) — no seat, no poll and no member is a refusal, not an index entry`);
+  // AND NO VOICE ADDRESS PER PERSON. District Voice lives inside the district
+  // file; a per-member Voice URL would be a second address for one record.
+  const voiceUrls = locs.filter((u) => /\/(voice|neighbors|neighbours)\b/.test(u));
+  eq(voiceUrls.length, 0,
+    `${voiceUrls.length} address(es) advertise District Voice on their own (e.g. ${voiceUrls.slice(0, 3).join(", ")}) — ` +
+    `Voice is a block inside /d/<seatKey>, not a page of its own`);
+  console.log(`      ${districtFiles.length} district file(s) advertised, every one shipped and seated`);
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 5 · One file, inside the protocol's limits, one Sitemap: line

@@ -68,6 +68,29 @@
    already reviewed and on file. Same muted treatment for both, and the same one
    the address it replaces uses, so neither reads as an error state and neither
    reads as a judgement of the person. */
+/* "Neighbors in this seat" — the one District Voice link on a person file, for
+   the member who actually sits in a seat where Voice has opened. Deliberately
+   the quietest thing in this row: dimmer than the citable address next to it, no
+   background, no pill and no count. It is a door to a place, not a figure about
+   the person, and a badge here would read as one. */
+.pf-kick-voice {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: #7f93b0;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+.pf-kick-voice:hover,
+.pf-kick-voice:focus-visible {
+  color: #cbd5e1;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
 .pf-kick-thin,
 .pf-kick-empty {
   color: #6b7c9c;

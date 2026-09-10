@@ -2311,6 +2311,18 @@ window.PDXLazy = (function () {
        door. Same non-blocking path as the sheets above. -->
   <link rel="stylesheet" href="/district-file.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/district-file.css" /></noscript>
+  <!-- District Voice — the .pdxv* blocks at the TOP of that same district file:
+       one live question, the neighbours' short takes, and the seat's latest
+       formal act on the question's issue. Its own sheet on the same terms as the
+       two above, and with the one rule that matters most on a page that prints
+       counts: NOTHING IN IT SCALES WITH A NUMBER. There is no bar, no fill, no
+       ring and no opacity a count could drive, so an option with four hundred
+       answers and an option with none are the same box — a proportion drawn as a
+       length reads as a grade, and a neighbour's answer is not a grade. Neutral
+       surfaces, one cool accent, no verdict palette and no party colour. Same
+       non-blocking path as the sheets above. -->
+  <link rel="stylesheet" href="/district-voice.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/district-voice.css" /></noscript>
   <!-- Your file — #your-file, the reader's OWN positions on eight issues. Its own
        sheet for the same reason the two district sheets have theirs, and with the
        same refusal: neutral surfaces, one cool accent, and NONE of the verdict
@@ -22825,6 +22837,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        plain anchor if the module is missing, and the room's seat mount prints no
        control at all if THIS file is missing. -->
   <script defer src="/district-file.js"></script>
+  <!-- District Voice — the belonging layer on ONE seat, painted into the top of
+       that district file. A verified neighbour in the seat answers one live
+       question and posts one short take keyed to an existing ISSUE_MAP key;
+       everybody else — signed out, no location, another district — READS ALL OF
+       IT, because the public record stays ungated and only Voice is
+       residency-gated. Keyed on the SEAT and never on a pid, so a take cannot
+       become a comment section on the member who happens to hold it. No score, no
+       percentage, no party field and no composite district number: the poll
+       publishes one integer per option and stops. Loaded after district-file.js
+       because that module mounts this one above its rooms list; the file degrades
+       to exactly its rooms list if THIS file is missing, and this module prints
+       nothing for a seat that is not in its allow-list. -->
+  <script defer src="/district-voice.js"></script>
   <!-- #your-file — YOUR FILE: the reader's own Support / Oppose / Mixed / Not sure
        on EIGHT issues, one answer each, saved to the signed-in uid through
        PDXStore's 'yourFile' collection (/api/pdx-sync → Netlify Database; no new
