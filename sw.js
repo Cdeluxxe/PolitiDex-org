@@ -4264,7 +4264,123 @@
 // /all-seeing-eye.js (a runtime entry rather than a precached one, dropped by the
 // runtime bucket's rename) and /index.html, which registers all of them and is
 // byte-identical here: this pass adds no script tag, no stylesheet and no route.
-const CACHE_VERSION = 'v171';
+// v172 - ONE LEDE, ONE ADDRESS, AND A RECORD STRIP THAT SAYS WHICH IT MEANS
+// TWO precached shell assets changed: /district-file.js and /district-voice.js.
+// Nothing new shipped in this pass — no replies, no likes, no events, no vendor,
+// no nav item, and not one seat was added to either allow-list. Four leftovers
+// from v170/v171 on the one seat that has a Voice, /d/ut-statehouse-68.
+//   FIRST, ONE LEDE. /district-file.js printed the rooms sentence — "Neighbors,
+// issue by issue. Reading is open. Posting takes a reviewer grant." — and then
+// District Voice printed its own required frame sentence under it, so the top of
+// a Voice seat's file was two ledes and the reader had to arbitrate between them.
+// NEITHER SENTENCE WAS REWRITTEN. The rooms lede simply stops leading a page it
+// does not describe: where Voice is mounted, Voice's frame is the frame, and the
+// rooms sentence stays exactly where it belongs on a rooms-only file. Which
+// answer applies is asked of PDXVoice rather than kept as a second copy of the
+// allow-list, and it FAILS SOFT TO FALSE — so a device that took this file and
+// not the Voice module, or any seat Voice has not opened, is a rooms-only file
+// that prints the rooms lede byte-identically to before Voice existed. That is
+// the whole twin-boot guarantee for this change, and it is the case the
+// district-file suite boots.
+//   SECOND, THE SHORT SPELLING OF ONE SEAT. /d/ut-hd-68 and /d/ut-statehouse-68
+// are one place, and both modules already normalized every spelling before
+// anything looked at it. What they could not do is save a COLD visit: the client
+// only gets to settle the address if the client loads, and a pasted short link
+// with only the /d/* wildcard rewrite in front of it is served index.html at 200
+// — leaving a second permanent address for one seat in somebody's history and in
+// a search index. So /netlify.toml gained an exact 301 from the alias to the
+// canonical seat (and one for the alias form of a room address, keeping its issue
+// segment), ordered AHEAD of the wildcard because Netlify takes the first match.
+// The client's own normalization is unchanged and still moves the bar for a
+// reader who arrived by a route the rule never saw, so the two agree rather than
+// one covering for the other. /netlify.toml is NOT a precached shell asset and
+// does not need this bump to take effect — it is named here because the two
+// halves of one address rule should be read together.
+//   THIRD, "THIS WEEK" NOW SAYS WHICH OF THREE THINGS IT MEANS. The strip had
+// one sentence for three different facts about the formal record — the read is
+// still out, the read landed and the record is empty, the read never landed — and
+// printed it the instant the block painted, before anything had been asked. Its
+// wording made that read like a fetch still on its way. It is now a three-state
+// strip and EVERY branch repaints: checking (said only while a read is genuinely
+// in flight), an act (printed as a link to the record's own source), a final
+// one-sentence empty that names the issue, and its own sentence for a read that
+// could not be made or did not come back. For HD-68 today the honest answer is
+// the empty one, and it is final rather than hedged: the seated member has no
+// formal act on the poll's issue, and every measure in the index on that key is a
+// U.S. House measure a state representative cannot vote on. NO FALLBACK KEY, no
+// nearest neighbour and no invented mapping — the strip is keyed to the poll's
+// issue and an act that comes back on any other key is dropped rather than
+// printed under a heading the poll owns. THE POLL WAS NOT RETARGETED and no
+// percentage appears on the strip in any of its four states.
+//   FOURTH, THE ONE QUIET LINK ON A PERSON FILE IS NOW A WORKING CONTROL.
+// "Neighbors in this seat" was already a real anchor with a real address; what it
+// was not was a control, and the reason was stacking rather than markup. The
+// person modal and the district file share z-index 50 — the number both need to
+// clear the site's fixed nav — so document order decides which covers which, and
+// the file is deliberately inserted BEFORE #modal-overlay so that a ROOM opened
+// from a FILE lands on top of the file. The same order put the file UNDER the
+// person modal the link was tapped in. Rather than reorder the overlays and trade
+// this defect for that one, the file now hands the person file off on the way in,
+// which is what the reader asked for: the homepage's Spotlight settled the same
+// question the same way years earlier. closeModal() is NOT edited and is called
+// once, only when the overlay is actually displayed — it rewrites the address on
+// its way out through /person-file.js, so calling it for a reader who never
+// opened a person file would move a bar that is nobody's to move — and it is
+// called BEFORE this file takes the address, so a close and then an open happen
+// in the order a reader would describe them. The link itself is untouched: one
+// line, no chip, no count, no activity dot, and absent from every file but the
+// sitting member's.
+//   AND WHAT THE BUMP CARRIES WITH IT, UNCHANGED. Renaming SHELL_CACHE refetches
+// every precached asset and renaming RUNTIME_CACHE drops every runtime one, so a
+// warm device takes fresh copies of files that did not move a line in this pass.
+// The log owes a reader the version each file is holding, so the ones a reader
+// might expect to have moved here are named with what did NOT happen to them:
+//     · /district-voice.css did not change. The strip's four states reuse the
+//       classes that were already there — the empty sentence and the act link —
+//       so no rule, hue, size or spacing moved, and there is no new element for
+//       one to style;
+//     · /index.html did not change. This pass registers no script, no stylesheet
+//       and no route, adds no nav item and mounts nothing itself: both mounts are
+//       still inside Door 2's own modules;
+//     · /person-file.js and /person-file.css did not change. The link they render
+//       was already a real anchor pointing at the canonical seat; the defect was
+//       never in its markup, and /person-file.css keeps the one quiet class it
+//       had — dimmer than the address beside it, no pill and no count;
+//     · /district-room.js did not change. Its seat mount lives in Who Represents
+//       Me rather than in an overlay, it still asks PDXVoice which label to print,
+//       and nothing about the room's own two-segment address moved;
+//     · the issue desk and every pane it opens — /door1-workspace.js,
+//       /door1-workspace.css, /issue-file.js, /issue-file.css, /issue-view.js,
+//       /pdx-issue-profile.js (the /i/* address module), /pdx-issue-family.js,
+//       /issue-colors.js, /stance-tree.js and /alignment-tool.js — are
+//       byte-identical here. No count, order, band, boundary or measure read on
+//       the desk moved, this pass mapped no issue and added no row to any of
+//       them, and a provision's vote still counts and still says so;
+//     · the Word vs Action chip and its skin, /word-action.js and
+//       /word-action.css, are byte-identical here: the same index rows, the same
+//       denominator, the same refusal on a file with no formal term. Nothing in
+//       this pass reads a formal term, and the strip's empty is a fact about one
+//       issue rather than a figure about a career;
+//     · /all-seeing-eye.js is a RUNTIME entry rather than a precached one, so it
+//       is dropped by the runtime bucket's rename rather than by SHELL_ASSETS —
+//       and it is byte-identical too. District Voice publishes no searchable
+//       person, so the panel has nothing new to find and nothing new to rank;
+//     · /netlify/lib/district-voice-core.mjs and
+//       /netlify/functions/district-voice.mts are neither of them precached shell
+//       assets and do not need this bump. The core lib is where the strip's three
+//       sentences are owned — one owner, so the page and the server cannot drift —
+//       and the Function now ships all three with the payload so the client never
+//       has to invent the two it was not sent. No table, column, gate, refusal or
+//       claim field changed in either.
+//   NO WEIGHT, MAPPING, FLOOR OR LANE MOVED, and no act was invented. Nothing in
+// this pass writes a formal act, stance, Direction Match figure, finance row or
+// baseline; nothing here holds a pid or a party field; the record is read through
+// the same public GET a signed-out reader can make, and it is read-only. Direction
+// Match, Word vs Action and the finance lane are byte-identical, which is measured
+// rather than asserted: the district-voice suite twin-boots cox, lee and chew_h68
+// through all three with district-voice.js loaded and without it, and every read
+// matches byte for byte.
+const CACHE_VERSION = 'v172';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

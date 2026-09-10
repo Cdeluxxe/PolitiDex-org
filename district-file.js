@@ -158,6 +158,23 @@
     return !!path(districtKey);
   }
 
+  // ── DOES DISTRICT VOICE LEAD THIS SEAT'S FILE? ────────────────────────────
+  // Asked of PDXVoice rather than answered here, so this module holds no second
+  // copy of the Voice allow-list and a seat that opens tomorrow needs no line in
+  // this file. Two callers, one answer: the letterhead (which drops the rooms
+  // lede when Voice is about to print its own frame sentence) and the mount.
+  //
+  // FAILS SOFT TO FALSE, and that is the whole twin-boot guarantee. A boot
+  // without district-voice.js — a device that took this file and not that one, a
+  // seat Voice has not opened — is a ROOMS-ONLY file, and a rooms-only file keeps
+  // the rooms lede, byte-identical to what it printed before Voice existed.
+  function voiceHere(districtKey) {
+    try {
+      var V = window.PDXVoice;
+      return !!(V && fn(V.shipped) && V.shipped(districtKey));
+    } catch (e) { return false; }
+  }
+
   // The district this address names, or null. Deliberately strict in both
   // directions: a second segment is a room and not a file, and a district we do
   // not ship a file for is not a file either.
@@ -292,13 +309,25 @@
   // district key, so a neighbour arriving cold reads who holds their seat while
   // the two GETs are still out, and a read that never lands cannot cost them the
   // name. The body below repaints as the rooms arrive; this line does not have to.
+  //
+  // ONE LEDE, NOT TWO. COPY.line describes a page of ROOMS — reading is open,
+  // posting takes a reviewer grant — and on a seat where District Voice has
+  // opened it was printing directly above Voice's own frame sentence, which
+  // describes something else entirely and is the one line that block is required
+  // to carry. Two ledes stacked on one letterhead make the reader arbitrate
+  // between them, and the wrong one was on top. So on a Voice seat this line is
+  // not printed at all and Voice's frame is the file's lede; on a rooms-only
+  // seat it is exactly the line it has always been. Neither sentence was
+  // rewritten to make that work.
   function headHtml(districtKey, data) {
     var label = (data && data.label) || districtKey;
     var p = path(districtKey);
     return '<p class="pdxdf-kick">' + esc(COPY.kick) + (p ? ' · ' + esc(p) : '') + '</p>' +
       '<h2 class="pdxdf-title" id="' + ID_TITLE + '">' + esc(label) + '</h2>' +
       seatedHtml(districtKey, data) +
-      '<p class="pdxdf-line">' + esc(COPY.line) + '</p>';
+      (voiceHere(districtKey)
+        ? ''
+        : '<p class="pdxdf-line">' + esc(COPY.line) + '</p>');
   }
 
   // ── THE LIST ──────────────────────────────────────────────────────────────
@@ -496,6 +525,60 @@
     try { body.innerHTML = '<p class="pdxdf-busy" role="status">' + esc(msg) + '</p>'; } catch (e) {}
   }
 
+  // ── THE HANDOFF FROM A PERSON FILE ────────────────────────────────────────
+  // "Neighbors in this seat" is one quiet line on a person file, and tapping it
+  // is a request to LEAVE the person and stand in the place. It was already a
+  // real anchor with a real href; what it was not was a working control, and the
+  // reason was stacking rather than markup. The person modal and this panel share
+  // z-index 50 — the number both need to clear the site's fixed nav — so which
+  // one covers which is decided by document order, and build() deliberately
+  // inserts this overlay BEFORE #modal-overlay so that a ROOM opened from a FILE
+  // lands on top of the file. The same order puts the file UNDER a person modal
+  // that is still open, and a reader who tapped the line watched nothing happen.
+  //
+  // Reordering the overlays would trade this defect for that one. So the person
+  // file is closed instead, which is also what the reader asked for: the two
+  // surfaces are alternatives, not a stack, and nobody wants a district file
+  // hidden behind the member whose file they just left. The homepage's own
+  // Spotlight settled this the same way years earlier — "a profile modal must
+  // never be left lurking" — and this is that rule, applied to this panel.
+  //
+  // closeModal() is NOT edited and is not asked to behave differently. It is
+  // called only when the overlay is actually displayed, because closing an
+  // already-closed modal still runs person-file.js's address restore and would
+  // rewrite the bar out from under a reader who never opened a person at all.
+  // And it is called BEFORE stamp(), so the address the person file hands back is
+  // the address this file captures as its return — a close, then an open, in the
+  // order a reader would describe them.
+  function modalUp(over) {
+    try {
+      if (!over) return false;
+      if (over.hidden) return false;
+      // The inline value is the one that actually decides this in production:
+      // index.html ships the overlay with style="display:none", openModal sets
+      // flex and closeModal sets none, so the attribute is never absent on a real
+      // page. The computed fallback is for a page that styled it some other way,
+      // and it demands an AFFIRMATIVE value — an environment that cannot answer
+      // is read as "not up", because closing a modal nobody opened rewrites the
+      // address for no reason.
+      var inline = over.style && over.style.display;
+      if (inline) return inline !== 'none';
+      var g = window.getComputedStyle;
+      if (!fn(g)) return false;
+      var disp = g(over).display;
+      return !!disp && disp !== 'none';
+    } catch (e) { return false; }
+  }
+
+  function handoff() {
+    try {
+      if (!modalUp(el('modal-overlay'))) return false;
+      if (!fn(window.closeModal)) return false;
+      window.closeModal();
+      return true;
+    } catch (e) { return false; }
+  }
+
   // ── OPEN ──────────────────────────────────────────────────────────────────
   // Paints the header from the address immediately — the district key is already
   // known, so the reader is never looking at a blank panel while the read is out
@@ -505,6 +588,7 @@
   function enter(districtKey) {
     var k = normalizeKey(districtKey);
     if (!k || !has(k)) return false;
+    handoff();
     var overlay = build();
     if (!overlay) return false;
 
@@ -603,8 +687,7 @@
   function voiceMount(districtKey, recordKeys) {
     try {
       var V = window.PDXVoice;
-      if (!V || !fn(V.mount) || !fn(V.shipped)) return;
-      if (!V.shipped(districtKey)) return;
+      if (!V || !fn(V.mount) || !voiceHere(districtKey)) return;
       V.mount(districtKey, ID_VOICE, recordKeys || []);
     } catch (e) {}
   }

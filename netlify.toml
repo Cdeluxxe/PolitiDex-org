@@ -417,6 +417,44 @@
 # wrong shape, and the room it does open says out loud when the pair names no
 # district or no issue the tables hold. No sitemap entry: a district's room is
 # for the people who live in it, not a page to invite crawlers to.
+# THE SHORT SPELLING OF A SEAT, NORMALIZED AT THE EDGE, BEFORE THE REWRITE.
+# /d/ut-hd-68 and /d/ut-statehouse-68 are one place: the same district row, the
+# same file, the same rooms. The client already knows that — district-file.js and
+# district-voice.js both normalize every spelling before anything looks at it —
+# but the client only gets to know it if the client loads, and a URL people paste
+# into a message, a print-out or a QR code has to survive a cold visit where the
+# rewrite is all that runs. A 301 here means the SERVER settles which spelling is
+# the address, so the short form cannot fall through to the front page and cannot
+# leave a second URL for one seat sitting in somebody's history or in a search
+# index.
+#
+# 301 rather than 200 on purpose: the alias is not a page, it is a nickname, and
+# the reader should end up standing at the canonical URL rather than reading the
+# canonical file at a non-canonical address. The client's own normalization stays
+# exactly as it is — it still moves the bar for a reader who arrived on the short
+# form by some route this rule never saw, and it is what keeps a two-segment room
+# address honest — so the two agree instead of one covering for the other.
+#
+# EXACT PATHS, ONE PER SHIPPED SEAT, and no wildcard. A pattern that rewrote
+# /d/:state-hd-:n wholesale would promise an address for every alias of every
+# district in the country, and only one seat has a file. Adding a seat is adding
+# a pair of rules here next to the line it needs in SHIPPED.
+#
+# BEFORE the /d/* rewrite below, because order decides in this file and the
+# wildcard would otherwise swallow the alias and serve it index.html at 200 — the
+# exact "two spellings, two addresses" outcome this rule exists to prevent.
+[[redirects]]
+  from = "/d/ut-hd-68"
+  to = "/d/ut-statehouse-68"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/d/ut-hd-68/*"
+  to = "/d/ut-statehouse-68/:splat"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "/d/*"
   to = "/index.html"

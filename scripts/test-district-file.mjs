@@ -402,12 +402,29 @@ section("3 · the title, the seated member, and the one line");
 has(head.innerHTML, "Utah State House District 68",
   "the title is the district's own label, as dd_districts spells it");
 has(head.innerHTML, "/d/ut-statehouse-68", "the header prints the file's own address");
+
+// THIS SUITE IS THE ROOMS-ONLY CASE, AND THAT IS WHY THE LINE IS HERE.
+// district-voice.js is deliberately never booted below (section 4 asserts its
+// absence), so every file this suite opens is a file with rooms and no Voice —
+// which is also a real device: one that took district-file.js and not
+// district-voice.js, and any seat Voice has not opened. On such a file the rooms
+// lede IS the lede and it prints exactly as it always has.
+//
+// Where Voice IS mounted, Voice's own frame sentence leads and this one is
+// dropped, because two ledes stacked at the top of a page made the reader
+// arbitrate between them. Neither sentence was rewritten to fix that; one of them
+// simply stops leading a page it does not describe. That half is asserted in
+// scripts/test-district-voice.mjs, which boots both modules — the two suites
+// together are the whole rule, and this assertion is the half that guarantees the
+// rooms-only file did not change.
 has(head.innerHTML,
   "Neighbors, issue by issue. Reading is open. Posting takes a reviewer grant.",
   "the one line says what this place is and who may post in it");
 eq(F.COPY.line,
   "Neighbors, issue by issue. Reading is open. Posting takes a reviewer grant.",
   "and that line is owned in exactly one place");
+eq((head.innerHTML.match(/pdxdf-line/g) || []).length, 1,
+  "printed once, and once only, on a rooms-only file");
 
 // THE SEATED MEMBER IS A NAME AND AN ADDRESS, AND IT IS ON THE LETTERHEAD.
 // It sits in the header beside the district's own label because it is a fact
@@ -761,6 +778,78 @@ lacks(INDEX, 'href="district-file.css"', "and so is the stylesheet");
 ok(INDEX.indexOf('src="/district-room.js"') < INDEX.indexOf('src="/district-file.js"'),
   "the file is loaded after the room it asks for a room's address");
 
+// ═════════════════════════════════════════════════════════════════════════════
+section("10 · the handoff — a person modal is never left lurking over the file");
+
+// The one control that opens this file from outside Door 2 is "Neighbors in this
+// seat" on a person file, and that link lives INSIDE the person modal. The modal
+// and this panel share z-index 50 (the number both need to clear the site's fixed
+// nav), so document order decides which covers which — and build() deliberately
+// inserts this overlay BEFORE #modal-overlay so a ROOM opened from a FILE lands
+// on top of the file. The same order put the file under an open person modal, and
+// a reader who tapped the link watched nothing happen.
+//
+// So the file closes the person file on the way in. closeModal() is not edited
+// and is not asked to behave differently; it is simply called, once, and only
+// when the overlay is actually up.
+{
+  const w = boot("/");
+  const over = w.document.createElement("div");
+  over.id = "modal-overlay";
+  w.document.body.appendChild(over);
+  over.style.display = "flex";
+  const closes = [];
+  // Recorded at CALL time: closeModal hands the address back through
+  // PDXPerson.restore(), so this file has to take the bar AFTER that, never before.
+  w.closeModal = () => { closes.push(w.__pushed.length); over.style.display = "none"; };
+
+  eq(w.PDXDistrictFile.enter(HD68), true, "the file opens from inside a person modal");
+  eq(closes.length, 1, "and closes it, exactly once");
+  eq(closes[0], 0, "before taking the address, not after");
+  eq(over.style.display, "none", "with nothing left lurking over the panel");
+  ok(w.__pushed.includes("/d/" + HD68), "and the reader is standing at the file's address");
+  eq(w.PDXDistrictFile.isOpen(), true, "on the file, which is the surface they asked for");
+}
+// A MODAL THAT IS NOT UP IS LEFT ALONE, because closeModal() rewrites the address
+// on its way out and a reader who never opened a person file has an address that
+// is nobody's to move.
+{
+  const w = boot("/");
+  const over = w.document.createElement("div");
+  over.id = "modal-overlay";
+  w.document.body.appendChild(over);
+  over.style.display = "none";
+  let called = 0;
+  w.closeModal = () => { called++; };
+  eq(w.PDXDistrictFile.enter(HD68), true, "the file opens with the modal closed");
+  eq(called, 0, "and closeModal is not called on a modal nobody opened");
+}
+// And a page with no person modal at all opens the file without reaching for one.
+{
+  const w = boot("/");
+  let called = 0;
+  w.closeModal = () => { called++; };
+  eq(w.PDXDistrictFile.enter(HD68), true, "the file opens on a page with no person modal");
+  eq(called, 0, "and asks nothing of closeModal");
+}
+// A refused key closes nothing — the handoff is part of opening a file, not a
+// side effect of tapping something that names no file.
+{
+  const w = boot("/");
+  const over = w.document.createElement("div");
+  over.id = "modal-overlay";
+  w.document.body.appendChild(over);
+  over.style.display = "flex";
+  let called = 0;
+  w.closeModal = () => { called++; };
+  eq(w.PDXDistrictFile.enter("ut-statehouse-67"), false, "a district with no file opens nothing");
+  eq(called, 0, "and closes nothing on the way to opening nothing");
+  eq(over.style.display, "flex", "the person file the reader was reading is still there");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("11 · the shell ships it");
+
 has(SW, "'/district-file.js',", "the service worker precaches the module");
 has(SW, "'/district-file.css',", "and the stylesheet");
 const ver = /const CACHE_VERSION = '(v\d+)'/.exec(SW);
@@ -776,5 +865,6 @@ if (failures.length) {
 console.log(`\n✓ district-file: all ${passed} assertions passed`);
 console.log(
   "   one address, not the room's · HD-68 lists lands_preserve · Open room hits the room · " +
-  "WRM leads here, not the forum · signed-out reads it · asks for nothing · no verdict palette"
+  "WRM leads here, not the forum · signed-out reads it · asks for nothing · no verdict palette · " +
+  "rooms-only keeps its lede · no person modal left lurking"
 );
