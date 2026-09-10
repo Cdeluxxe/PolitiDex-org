@@ -1004,8 +1004,57 @@
       '</b> with a position to test against it.';
   }
 
+  // ── AND THE SAME FRAME ON A FILE WITH NO TERM YET ─────────────────────────
+  // WHAT WAS WRONG WITH ONE VERSION OF THIS NOTE. Its first line calls 🏛 the
+  // record "the main view", and on a candidate's file that is a pointer at an
+  // empty lane: there is no term, so there are no votes, so the main view names
+  // nothing. Its third paragraph then explains that most issues have a record
+  // and nothing quotable to test it against — the exact inverse of this class,
+  // where every issue on file has a quote and none has a record. Two sentences
+  // that are true of a sitting member and false here, in the one block on the
+  // page whose whole job is to tell a reader which surface answers what.
+  //
+  // SO THE THREE JOBS ARE NAMED IN THE ORDER THIS FILE ACTUALLY HOLDS THEM: what
+  // they said is the main view until a term exists, the record is empty and says
+  // why, and Word vs Action is the integrity check for later. WVA is not
+  // demoted, redefined or softened — it is the same test with the same two
+  // halves, described at the moment it has one of them.
+  //
+  // THE CLASS IS NOT DECIDED HERE. PDXWordAction.saidLeadApplies is the letterhead's
+  // own gate, and it is asked rather than re-derived so this note and the block at
+  // the top of the file cannot disagree about which lane leads. No accessor, no
+  // note variant: the shared version prints, which is the behaviour that was here
+  // before.
+  function twoJobsWordFirst(pid, p) {
+    try {
+      var W = window.PDXWordAction;
+      if (!W || typeof W.saidLeadApplies !== 'function') return false;
+      return !!W.saidLeadApplies(pid, p || {});
+    } catch (e) { return false; }
+  }
+
+  function twoJobsWordFirstHtml(pid, p, uid) {
+    var L = window.PDXLearn;
+    return L.note(TWO_JOBS_ID, {
+      icon: '🧭',
+      title: 'This profile does two different jobs.',
+      html:
+        '<p>✒️ <b>What they said</b> — the main view here. No formal term is on file yet, so ' +
+          'their documented positions are what this file holds; each one is a door to that ' +
+          'issue, with the citation behind it.</p>' +
+        '<p>🏛 <b>The record</b> — empty on this file. A voting record starts with a term in ' +
+          'office, so there is nothing here to be missing, and nothing above is inferred from ' +
+          'what they said.</p>' +
+        '<p>⚖️ <b>Word vs Action</b> — the integrity check, for later. It needs both halves: a ' +
+          'stated position, and a formal record to test it against. With one half on file it ' +
+          'publishes no figure at all, which is why there is none. An integrity check, not an ' +
+          'approval rating or an overall grade.</p>'
+    });
+  }
+
   function twoJobsNoteHtml(pid, p, uid) {
     var L = window.PDXLearn;
+    if (twoJobsWordFirst(pid, p)) return twoJobsWordFirstHtml(pid, p, uid);
     // One door into the glossary, on the phrase that carries the whole point.
     var untestable = (typeof L.term === 'function')
       ? L.term('notscored', 'nothing quotable to test it against')
@@ -1253,6 +1302,10 @@
     // computes nothing and reads both counts off the surfaces that publish them.
     twoJobsMount: twoJobsMount,
     TWO_JOBS_ID: TWO_JOBS_ID,
+    // Which of the note's two framings this file gets. Published so a harness can
+    // assert the branch against the shipped module instead of reading the prose,
+    // and so the answer has exactly one source — the letterhead's own gate.
+    twoJobsWordFirst: twoJobsWordFirst,
     _twoJobsCounts: twoJobsCounts,
     _twoJobsCountLine: twoJobsCountLine,
     hydrate: hydrate,

@@ -103,16 +103,60 @@
       stances: src.stances || root.ISSUE_STANCE_DATA || {},
       // Absent in a sandbox that did not load formal-index.js, which must cost
       // the third door and nothing else — never a thrown floor decision.
-      formal: src.formal || root.PDXFormalIndex || null
+      formal: src.formal || root.PDXFormalIndex || null,
+      // The stance-key alias table, when a runtime has one. Same defensive
+      // shape: missing it costs two hops of the resolution chain below and
+      // never a thrown decision.
+      aliases: src.aliases || root.STANCE_ALIASES || {}
     };
+  }
+
+  // ── Stance-key resolution: the same hops stance-helpers takes ─────────────
+  // ONE PERSON, TWO KEYS, AND A FLOOR THAT ONLY KNEW ONE OF THEM. The app never
+  // looks a stance list up by raw id — stance-helpers._resolveStanceList tries
+  // the id, then an explicit alias, then a slug of the roster display name, then
+  // an alias of that slug, precisely because curated cards are routinely keyed
+  // under a name-slug ("phil_lyman") while the roster keeps a short id
+  // ("lyman"). This file did the direct lookup only, which meant the floor read
+  // zero cited positions for a person whose file renders seven sourced cards,
+  // and the kicker then printed "record still being built" over them. Same class
+  // of wrongness the third door fixed for the formal lane: the content was
+  // there, the floor was looking at the wrong key.
+  //
+  // WHY THIS IS COPIED RATHER THAN IMPORTED. scripts/gen-sitemap.mjs loads this
+  // file in a VM with cmp-data.js, the stance chunks and formal-index.js — and
+  // NOT stance-helpers.js, which is 4,000 lines of render helpers that assume a
+  // document. So the hop chain has to stand on its own here. It reads
+  // root.STANCE_ALIASES when a runtime happens to have published one (the
+  // browser always has, by the time any floor question is asked) and derives the
+  // name slug from the roster record this file already reads. If the alias table
+  // is absent the chain simply loses its two alias hops and keeps the name-slug
+  // one, which is the hop `lyman` actually needs.
+  //
+  // Kept deliberately in step with stance-helpers.js's _resolveStanceList: if a
+  // hop is added there, add it here, or the sitemap and the file disagree again.
+  function stanceSlug(s) {
+    return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  }
+
+  function stanceList(pid, src) {
+    var s = sources(src).stances || {};
+    var aliases = sources(src).aliases || {};
+    var isList = function (v) { return !!v && typeof v.length === 'number'; };
+    if (pid && isList(s[pid])) return s[pid];
+    if (pid && aliases[pid] && isList(s[aliases[pid]])) return s[aliases[pid]];
+    var d = sources(src).roster[pid];
+    var nameSlug = d && d.name ? stanceSlug(d.name) : '';
+    if (nameSlug && isList(s[nameSlug])) return s[nameSlug];
+    if (nameSlug && aliases[nameSlug] && isList(s[aliases[nameSlug]])) return s[aliases[nameSlug]];
+    return null;
   }
 
   // Positions that carry a source URL. A source object with a label and no url
   // is a citation you cannot follow, so it does not count toward the floor.
   function citedPositions(pid, src) {
-    var s = sources(src).stances;
-    var list = s && s[pid];
-    if (!list || typeof list.length !== 'number') return [];
+    var list = stanceList(pid, src);
+    if (!list) return [];
     var out = [];
     for (var i = 0; i < list.length; i++) {
       var it = list[i];
@@ -205,6 +249,7 @@
     clears: clears,
     publishable: publishable,
     _citedPositions: citedPositions,
+    _stanceList: stanceList,
     _promiseCount: promiseCount,
     _formalMeasures: formalMeasures,
     _identity: identity

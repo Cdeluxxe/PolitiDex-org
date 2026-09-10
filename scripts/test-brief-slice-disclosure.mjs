@@ -421,10 +421,30 @@ section("6 · the gate reads published counts, and moves nothing");
   has(body, "_pdxRecordMappedCounts", "the gate no longer cross-checks the record lane's distinct-instrument count");
   has(body, "memberRecords", "the gate no longer checks the chamber and Congress of the lane it describes");
 
-  // The floor did not move, and this pass did not touch the file that owns it.
+  // The floor did not move, and this pass did not touch what the floor decides.
+  // publication-floor.js IS NOT BYTE-FROZEN ANY MORE, for the same reason
+  // formal-index.js below is not: a later pass — the word-first letterhead —
+  // taught it to resolve stance-key aliases, because a roster id (lyman) and the
+  // key its cards are filed under (phil_lyman) are the same person and the floor
+  // was counting zero cited positions for a file that renders seven cards. That
+  // is a resolution fix, not a floor change, and the claim this equality stood in
+  // for is checked directly instead: the cited minimum is still 2, the decision
+  // still refuses an id with nothing behind it, and nothing the file gained is a
+  // line of the slice pass.
   const PF = R("publication-floor.js");
   has(PF, "var MIN_CITED_POSITIONS = 2;", "the publication floor moved");
-  eq(PF, HEAD("publication-floor.js"), "publication-floor.js changed in a copy-only pass");
+  {
+    const h = HEAD("publication-floor.js");
+    if (h !== null) {
+      const gained = PF.split("\n").filter((l) => !h.includes(l));
+      ok(!gained.some((l) => /House rolls|career score|SLICE_/.test(l)),
+        "publication-floor.js gained a line of the slice pass — the sentence is rendered, never published");
+      const floors = (src) => (src.match(/var MIN_[A-Z_]+ = \d+;/g) || []).join(" | ");
+      eq(floors(PF), floors(h), "a publication floor constant moved");
+      const contentOk = (src) => (/var contentOk =[\s\S]*?;\n/.exec(src) || [""])[0];
+      eq(contentOk(PF), contentOk(h), "the publishability test itself changed");
+    }
+  }
   for (const f of ["consistency.js", "voting-record.js", "inventory.js", "stance-helpers.js",
                    "cmp-data.js", "formal-index.js", "sitemap.xml"]) {
     const h = HEAD(f);
@@ -472,6 +492,22 @@ section("6 · the gate reads published counts, and moves nothing");
       const gained = R(f).split("\n").filter((l) => !h.includes(l));
       ok(!gained.some((l) => /House rolls|career score|SLICE_/.test(l)),
         "formal-index.js gained a line of the slice pass — the sentence is rendered, never counted");
+      continue;
+    }
+    // cmp-data.js IS THE ROSTER, and a roster row is corrected when the world
+    // corrects it: the word-first pass moved Phil Lyman's office from Governor
+    // Candidate to U.S. House Candidate (UT-3), which is the office he is
+    // actually running for. That is a fact about a person, not a line of this
+    // pass, so what the equality stood in for is checked instead — no id left the
+    // roster and nothing it gained belongs to the slice sentence.
+    if (f === "cmp-data.js") {
+      const ids = (src) => new Set((src.match(/^\s*"([a-z0-9_]+)": \{$/gm) || []));
+      const was = ids(h), now = ids(R(f));
+      const lost = [...was].filter((k) => !now.has(k));
+      eq(lost.slice(0, 3).join(" | "), "", `${lost.length} roster row(s) left cmp-data.js`);
+      const gained = R(f).split("\n").filter((l) => !h.includes(l));
+      ok(!gained.some((l) => /House rolls|career score|SLICE_/.test(l)),
+        "cmp-data.js gained a line of the slice pass — the sentence is rendered, never stored");
       continue;
     }
     if (f === "stance-helpers.js" || f === "consistency.js") {

@@ -1698,6 +1698,52 @@
   }
   try { bindOnce(); } catch (e) {}
 
+  // ── SETTING THE VIEW FROM OUTSIDE ─────────────────────────────────────────
+  // WHY THIS EXISTS. A surface elsewhere on the profile can now send a reader
+  // here with a promise attached: the ✒️ word-first letterhead's "See all N
+  // positions" names a count of STATED positions, and landing that reader on the
+  // full tree — most of whose rows, on that class of file, are an absence —
+  // delivers a different set than the one the button counted. So the caller may
+  // ask for a view, and the tree changes to it the same way a chip does.
+  //
+  // IT IS THE CHIP'S OWN PATH, NOT A SECOND ONE. Same normalisation through
+  // filterOf (an unrecognised key renders the full view rather than an empty
+  // one), same re-render through treeHtml, same uid so leaf ids — which are the
+  // `origin` a dossier's back pill returns to — survive the swap, and the
+  // reader's ORDER rides across it untouched. Nothing is hidden in the DOM: the
+  // tally, the branch counts, the summaries and the mode all describe the set
+  // that is on screen, because the block was rebuilt for it.
+  //
+  // A CLICK IS NOT USED, DELIBERATELY. chipsFor draws a chip only where it would
+  // narrow the profile, so on exactly the files this was built for — every issue
+  // on file carries a stated position — the "With stance" chip is not in the bar
+  // to click. Rendering with the view active puts it there (chipsFor always keeps
+  // the ACTIVE chip), which is also how the reader sees what they were given and
+  // the way back out.
+  //
+  // Answers true when at least one tree is in the requested view, so a caller
+  // that has a fallback can tell whether it is needed. Never throws.
+  function showFilter(key, root) {
+    var want = filterOf(key).key;
+    var scope = root || (typeof document !== 'undefined' ? document : null);
+    if (!scope || typeof scope.querySelectorAll !== 'function') return false;
+    var hit = false, roots;
+    try { roots = scope.querySelectorAll('.pdxtree[data-pdxtree-pid]'); } catch (e) { return false; }
+    for (var i = 0; i < (roots ? roots.length : 0); i++) {
+      var r = roots[i];
+      try {
+        if ((r.getAttribute('data-pdxtree-filter') || FILTER_ALL) === want) { hit = true; continue; }
+        var next = treeHtml(r.getAttribute('data-pdxtree-pid') || '', {
+          uid: r.getAttribute('data-pdxtree-uid') || '',
+          filter: want,
+          sort: r.getAttribute('data-pdxtree-sort') || SORT_TOPIC
+        });
+        if (next) { r.outerHTML = next; hit = true; }
+      } catch (e2) {}
+    }
+    return hit;
+  }
+
   window.PDXStanceTree = {
     // The grouping map and the vocabularies, as data. Every label this surface can
     // print is reachable from here, which is what lets the tests assert the copy
@@ -1727,6 +1773,9 @@
     EMPTY_NOTE: EMPTY_NOTE,
     filter: filterLeaves,
     chipsFor: chipsFor,
+    // …and the one way a view may be set from off this surface. See showFilter:
+    // it is the chip's own re-render, reached without a chip.
+    showFilter: showFilter,
     // The flat-mode threshold and the rule that reads it, in one place each.
     FLAT: FLAT,
     modeFor: modeFor,

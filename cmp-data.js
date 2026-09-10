@@ -9646,7 +9646,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "lyman": {
   "name": "Phil Lyman",
-  "office": "Governor Candidate",
+  "office": "U.S. House Candidate (UT-3)",
   "state": "Utah",
   "party": "R",
   "score": null,

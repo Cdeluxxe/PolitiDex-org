@@ -3114,6 +3114,48 @@
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
 // ──────────────────────────────────────────────────────────────────────────────
+// v168 - A PERSON WITH NO TERM WAS INTRODUCED BY THREE THINGS HE DOES NOT HAVE
+// ──────────────────────────────────────────────────────────────────────────────
+// /p/lyman opened like a sitting member whose file had gone missing. The kicker
+// said "record still being built". The brief under it headlined THE FORMAL RECORD
+// and counted one issue on it, zero votes read. Word vs Action, a screen later,
+// said "not enough on file". Three absences in a row, and a two-jobs explainer
+// underneath still calling the record the main view - for a man who has never
+// held the office and therefore has no roll call to be missing. Seven sourced
+// stance cards sat on the same page, below the fold, each with a citation. The
+// material a reader came for was already there; the letterhead was reporting its
+// absence instead.
+//   WHAT CHANGED: when the formal pattern index holds zero READABLE acts and at
+// least one CITED stance card, the identity zone now leads with a SAID brief -
+// the same rows, rail and doors as the strongest-pattern brief, carrying the word
+// instead of the record. Issue chip, the card's own side word, the tag SAID, four
+// to six of them, a door each into that issue's dossier, one line saying "No roll
+// call or signed act on file. These are documented positions, not a voting
+// pattern.", and a door to all stated positions. Four precached shell assets
+// carry it: /word-action.js (the gate and the brief), /word-action.css (the side
+// word, in house grey), /stance-tree.js (showFilter, so the overflow door can put
+// the topic tree in its stated view) and /profile-spine.js (the two-jobs note,
+// word-first for this class). /cmp-data.js changed too - Phil Lyman's office row
+// said Governor Candidate and he is running for UT-3.
+//   AND ONE FILE THAT IS NOT PRECACHED: /publication-floor.js now resolves stance
+// keys through the same alias chain stance-helpers uses, because lyman's seven
+// citations are filed under phil_lyman and the floor was reading zero cited
+// positions for a file that renders seven cards. It is a runtime entry rather
+// than a shell asset, and that bucket is named after this constant, so the bump
+// is what carries it to a warm device.
+//   WHAT IT REFUSES, AND WHY THE BUMP IS NOT OPTIONAL: no percentage, because one
+// half of Word vs Action publishes no figure; no row labelled RECORD or PATTERN
+// and no record chip borrowed, because a stated side is not a verdict; no side
+// inferred from party, every word read off the card's own resolved stance; and no
+// record-first file moved - cox, lee and chew_h68 read exactly the brief they read
+// before. A device holding v167 would take the new cmp-data.js and the new floor
+// while still painting the old letterhead, which is the same three absences over
+// a file the rest of the shell has already agreed to publish. NO WEIGHT, MAPPING
+// OR LANE MOVED, no formal direction was invented for anybody, and a twin boot
+// leaves every formal tier and every Direction Match read byte-identical.
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it.
+// ──────────────────────────────────────────────────────────────────────────────
 // v167 - A CANDIDATE WITH NO VOTES HAD A PLATFORM NOBODY WROTE DOWN
 // ──────────────────────────────────────────────────────────────────────────────
 // The word lane is the whole file for a challenger, a statewide hopeful and a
@@ -4011,7 +4053,19 @@
 // constant — so without the bump a reader is still served the uncited sentences
 // this pass removed, on people for whom the word lane is the only lane. NO
 // WEIGHT, MAPPING OR LANE MOVED, and no formal row was read, added or inferred.
-const CACHE_VERSION = 'v167';
+// v168 — The word-first letterhead. FOUR precached shell assets changed:
+// /word-action.js (the SAID brief and the gate that only opens on an empty formal
+// lane with a cited card behind it), /word-action.css (the side word's chip),
+// /stance-tree.js (showFilter, the stated view the overflow door asks for) and
+// /profile-spine.js (the word-first two-jobs note), plus /cmp-data.js for one
+// corrected office row. /publication-floor.js changed as well and is a runtime
+// entry, not a shell asset — its alias fix is what lets lyman's citations count
+// at all, and this constant names the bucket that would otherwise keep serving
+// the old copy. A device holding v167 would read the new floor and the new office
+// through the old letterhead, printing an absent record over a file the rest of
+// the shell already publishes, so the six travel together. NO WEIGHT, MAPPING OR
+// LANE MOVED and no formal direction was inferred for anyone.
+const CACHE_VERSION = 'v168';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

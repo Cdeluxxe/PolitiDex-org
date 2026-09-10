@@ -995,7 +995,15 @@ section("H · the card matches the person file");
       const i = layton.html.indexOf('data-pid="' + pid + '"');
       if (i === -1) return;
       n++;
-      const card = layton.html.slice(i, i + 14000);
+      // THE CARD, TO ITS OWN EDGE. This used to read a fixed 14000-character
+      // window, which is longer than some cards and therefore read the NEXT
+      // card's badge as this one's — a false positive that arrives the moment the
+      // paint order shifts, for reasons that have nothing to do with the pin.
+      // data-pid is the card boundary (cardPids above relies on the same fact),
+      // and a card's own badge is inside its own markup, so slicing to the next
+      // one is the stricter read as well as the stable one.
+      const nx = layton.html.indexOf('data-pid="', i + 10);
+      const card = nx === -1 ? layton.html.slice(i) : layton.html.slice(i, nx);
       if (card.indexOf("📍 Local") !== -1) pinned.push(`${g}/${pid}`);
     }));
     ok(n > 3, `only ${n} statewide-federal cards painted — this check may be vacuous`);
@@ -1730,6 +1738,22 @@ section("L · twin boot — the arithmetic never saw any of this");
   if (!A || !A.PDXWordAction || typeof A.PDXWordAction.read !== "function") {
     console.log("      no HEAD copy available in this checkout — twin boot skipped");
   } else {
+    // ── A ROSTER ROW THAT MOVED IS NOT ARITHMETIC THAT MOVED ─────────────────
+    // scopedOverall() echoes the person's own office string back inside its
+    // scope block, so correcting an office in cmp-data.js moves this comparison
+    // without moving a single figure. That is a copy edit, not a measurement,
+    // and the check should be able to tell them apart: where the roster row
+    // itself differs between the trees, the FIGURE is compared and the quoted
+    // roster copy is not. Everything else stays byte-for-byte, and the set of
+    // rows allowed this treatment is named out loud below rather than being an
+    // open exemption.
+    const rosterMoved = Object.keys(B.CMP_DATA).filter((pid) =>
+      A.CMP_DATA[pid] && JSON.stringify(A.CMP_DATA[pid]) !== JSON.stringify(B.CMP_DATA[pid]));
+    const figureOnly = (o) => {
+      const c = JSON.parse(JSON.stringify(o || null));
+      if (c && c.scope) { delete c.scope.office; delete c.scope.name; }
+      return JSON.stringify(c);
+    };
     const drift = [];
     let n = 0;
     for (const pid of Object.keys(B.CMP_DATA)) {
@@ -1737,8 +1761,11 @@ section("L · twin boot — the arithmetic never saw any of this");
       n++;
       if (JSON.stringify(A.PDXWordAction.read(pid)) !== JSON.stringify(B.PDXWordAction.read(pid))) drift.push(`${pid}/ledger`);
       if (A.PDXConsistency && B.PDXConsistency) {
-        if (JSON.stringify(A.PDXConsistency.scopedOverall(A.CMP_DATA[pid], pid)) !==
-            JSON.stringify(B.PDXConsistency.scopedOverall(B.CMP_DATA[pid], pid))) drift.push(`${pid}/dm`);
+        const da = A.PDXConsistency.scopedOverall(A.CMP_DATA[pid], pid);
+        const db = B.PDXConsistency.scopedOverall(B.CMP_DATA[pid], pid);
+        const moved = rosterMoved.indexOf(pid) !== -1;
+        if (moved ? figureOnly(da) !== figureOnly(db)
+                  : JSON.stringify(da) !== JSON.stringify(db)) drift.push(`${pid}/dm`);
         if (JSON.stringify(A.PDXConsistency.formalPatternIndex.shape(pid)) !==
             JSON.stringify(B.PDXConsistency.formalPatternIndex.shape(pid))) drift.push(`${pid}/formal`);
       }
@@ -1747,7 +1774,27 @@ section("L · twin boot — the arithmetic never saw any of this");
     eq(drift.slice(0, 6).join(" | "), "",
        `${drift.length} read(s) moved. This pass scoped a section's group list; the Direction Match ` +
        "ledger and the formal tiers must be byte-identical to HEAD's");
-    console.log(`      ${n} people swept; DM ledger and formal tiers identical to HEAD`);
+    // And the exemption is held to its own claim: every roster row that moved
+    // moved in its office copy alone, and its published figure did not move.
+    const notCopy = rosterMoved.filter((pid) => {
+      const a = A.CMP_DATA[pid], b = B.CMP_DATA[pid];
+      const ka = Object.keys(a), kb = Object.keys(b);
+      if (ka.length !== kb.length) return true;
+      return ka.some((k) => k !== "office" && JSON.stringify(a[k]) !== JSON.stringify(b[k]));
+    });
+    eq(notCopy.join(" | "), "",
+       `${notCopy.length} roster row(s) changed in something other than their office copy, so the ` +
+       "figure-only comparison above is covering an edit it was not written for");
+    rosterMoved.forEach((pid) => {
+      const da = A.PDXConsistency.scopedOverall(A.CMP_DATA[pid], pid);
+      const db = B.PDXConsistency.scopedOverall(B.CMP_DATA[pid], pid);
+      eq(String(db && db.scope && db.scope.score), String(da && da.scope && da.scope.score),
+         `${pid}: the Direction Match figure moved when their office copy was corrected`);
+      eq(String(db && db.token), String(da && da.token),
+         `${pid}: the Direction Match token moved when their office copy was corrected`);
+    });
+    console.log(`      ${n} people swept; DM ledger and formal tiers identical to HEAD` +
+      (rosterMoved.length ? ` (${rosterMoved.length} roster office row(s) corrected, figures unmoved)` : ""));
   }
 }
 
