@@ -515,6 +515,17 @@ const NO_POLE = (() => {
     }
     ok(dm > 100, `the Direction Match sweep was wide enough to mean something (${dm} profiles)`);
     eq(dmBad, 0, "Direction Match drifted — F11 writes mapping rows to the database and changes no shipped stance file, so every DM input is the same object it was");
+    // ONE PAIR IS DECLARED, AND ONLY DOWNWARD. The word-first gate pass in this
+    // same tree withdrew a curated backfill that keyed a Phil Lyman spotlight
+    // pattern summary — a biography sentence with no measure, no ballot and no
+    // date — to lands_local, so an issue that read as TESTED against an act
+    // nobody cast now reads untested. It is not this wave's write and not this
+    // wave's stake: no roll call, no mapping and no support_meaning of its own
+    // is involved, and the profile publishes no figure on either side. What is
+    // required of the pair here is that the withdrawal only ever took a finding
+    // AWAY — tested to untested, no percentage where there was one, and the
+    // verdict back to pending. Any other movement on it still fails.
+    const WITHDRAWN = { lyman: "lands_local" };
     let rows = 0, rowBad = 0;
     const tiers = new Map();
     for (const pid of PIDS) {
@@ -532,6 +543,15 @@ const NO_POLE = (() => {
         try { sa = head.PDXConsistency.rowResult(r); } catch { sa = { __err: 1 }; }
         try { sb = work.PDXConsistency.rowResult(q); } catch { sb = { __err: 1 }; }
         if (!sa || !sb) continue;
+        if (WITHDRAWN[pid] === r.key) {
+          if (!(sa.state === "tested" && sb.state === "untested" && sb.pct === null &&
+                (q.verdict || {}).token === "pending")) {
+            rowBad++;
+            failures.push(`${pid}/${r.key}: the withdrawn mapping did not simply stop being tested — ` +
+              `${sa.state}/${sa.pct} → ${sb.state}/${sb.pct}`);
+          }
+          continue;
+        }
         for (const k of ["state", "metric", "pct"]) if (sb[k] !== sa[k]) { rowBad++; failures.push(`${pid}/${r.key}: row ${k} moved`); }
         if ((q.verdict || {}).token !== (r.verdict || {}).token) { rowBad++; failures.push(`${pid}/${r.key}: the verdict moved`); }
         if (sa.state) tiers.set(sa.state, (tiers.get(sa.state) || 0) + 1);

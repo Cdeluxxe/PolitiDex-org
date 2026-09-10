@@ -2020,6 +2020,48 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "profile-spine.js", "publication-floor.js",
     "scripts/test-record-top.mjs", "scripts/test-door2-one-loop.mjs",
     "scripts/test-vr-utah-exec.mjs",
+    // ── AND THE PASS AFTER THAT: AN UNREAD CRUMB IS NOT A FORMAL TERM ────
+    // THE WORD-FIRST GATE COUNTED ROWS WHERE IT MEANT TO COUNT ACTS
+    // (CACHE_VERSION v169). /p/lyman still opened on the record-first brief,
+    // reading "1 issue on the formal record · 0 votes and formal actions read ·
+    // 0 deep enough to characterise" over the same seven cited stance cards the
+    // pass before it had just promoted. The gate asked the formal pattern index
+    // whether anything had been READ, and a row read out of a member's own
+    // stated positions carries read: true with nothing judged — so one crumb
+    // outranked seven sourced sentences.
+    //   word-action.js's gate is rebuilt on a published predicate, saidNoTerm,
+    // which asks for ACTS: zero characterised, zero read with a side, and every
+    // row on the lane inert. It deliberately never reads the lane's read count,
+    // and both it and saidRowInert are argued in the shared seam module — the
+    // count that caused this is asserted as an ABSENCE, so it cannot come back
+    // as a copy edit.
+    //   consistency.js drops ONE curated line from OFFICIAL_ACTION_ISSUE_BACKFILL:
+    // the lyman spotlight pattern summary keyed to lands_local. It is the class
+    // that map's own documented rule excludes — a biography sentence with no
+    // measure, no ballot and no date — and it was the whole of the "1 issue on
+    // the formal record" count. While it was mapped it also published a TESTED
+    // lands_local row with a 100% Direction match and a "consistent" verdict for
+    // someone who has never cast a vote; it sat below the publication floor, so
+    // no percentage was ever printed, but the row was on the issue desk. The
+    // spotlight item itself is untouched and still reads in its own lane: no act
+    // was invented and no material was removed. That withdrawal is the ONE PAIR
+    // the twin boots in this wave family now declare, downward only — tested to
+    // untested, the figure gone, the verdict back to pending — and it writes no
+    // vr_* row, no key, no floor and no admission of its own.
+    //   gaps.js gains one non-askable type, no_formal_term, which collapses the
+    // per-issue "no action yet" rows on this class into a single sentence — "No
+    // formal term to test yet — N documented positions, 0 acts on file." — so the
+    // Evidence surface stops itemising a candidate's issues as OPEN GAP /
+    // SUGGEST A LEAD as though votes had been ducked that were never eligible to
+    // be cast. It carries no severity pill, no ask, no lead and no method link,
+    // and because it is not askable the open-gap count drops those rows rather
+    // than renaming them.
+    //   NOTHING ELSE IN THIS WAVE'S REACH MOVES. Every formal tier and every
+    // Direction Match read outside the declared pair is byte-identical to HEAD,
+    // which the twin boot above has just measured across 1,120 files.
+    "gaps.js",
+    "scripts/test-gaps.mjs",
+    "scripts/test-said-brief-word-first.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

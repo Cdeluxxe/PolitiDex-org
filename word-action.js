@@ -5870,7 +5870,7 @@
   // header printed no rows, the shipped index holds nothing, and the wait is
   // genuinely over) is open. cox is on the exec lane and returns before this is
   // reached; chew_h68 has 118 measures in the shipped index; lee's roll calls
-  // veto it the moment they land and his outstanding request vetoes it before
+  // veto it the moment they land and their outstanding request vetoes it before
   // then. A file that is still loading is never called word-first, because a
   // record that has not arrived is not an empty lane.
   var SAID_CAP = 6;
@@ -5958,9 +5958,72 @@
     } catch (e) { return false; }
   }
 
+  // ── ONE INERT ROW ─────────────────────────────────────────────────────────
+  // AN UNREAD CRUMB IS NOT A TERM. The pattern index lists a row for every issue
+  // that holds anything formal at all, and "anything" includes material that is
+  // not a term in office in any sense a reader would recognise: a curated
+  // narrative the official-actions feeder mapped to an issue key, a recorded
+  // absence, an issue our own mapping gives no for-or-against side, a lane the
+  // pattern read has not been extended to. Those rows are why /p/lyman mounted a
+  // record-first letterhead reading "1 issue on the formal record · 0 votes and
+  // formal actions read · 0 deep enough to characterise" over seven sourced
+  // positions: one crumb outranked the whole word lane, and the letterhead it
+  // won was an empty-looking one.
+  //
+  // SO THE TEST IS THE ACTS, NOT THE ROW COUNT, and the field that carries acts
+  // is `judged` — the items the index actually weighed on this row. It is zero on
+  // every unread row, on every no-side row, and on every incidental one; it is
+  // NON-zero the moment there is a recorded vote or signed act behind the row,
+  // whatever the index made of it. `read` is deliberately NOT asked: a row can
+  // read `true` off the third rung (_fpiPublishedRead quotes the browse lane's
+  // published tier so the index cannot contradict the chip beside it), and a read
+  // quoted from a member's own stated positions is not evidence of a formal term.
+  // That is exactly the row this brief was reported over.
+  //
+  // AND ONE ROW IS NEVER INERT: the one still waiting. _fpiUnreadWhy's `pending`
+  // is a statement about our network, not their record, so a row that says it is
+  // still loading holds the record-first letterhead until it has an answer. Same
+  // doctrine as saidLanded below, one layer in.
+  function saidRowInert(x) {
+    if (!x) return true;
+    if ((x.judged || 0) > 0) return false;
+    if (x.why && x.why.id === 'pending') return false;
+    return true;
+  }
+  // ── AND THEREFORE: IS THERE A FORMAL TERM TO TEST YET ─────────────────────
+  // The rule, in the shape it was written: readable characterised acts === 0, and
+  // either nothing on the formal record at all or every row on it inert, with no
+  // act judged anywhere on it. Two doors, one answer, and the shape's own counters
+  // carry both halves — `characterised` is strongN + splitN, and the judged count
+  // is the acts summed across every row, so a file that clears this holds no act
+  // any surface here has weighed.
+  //
+  // Published, because three surfaces have to agree about this class: the
+  // letterhead, the two-jobs explainer that says which of the two jobs is the
+  // main view, and the evidence locker's open-gaps band, which may not list a
+  // documented position as a ducked vote. One predicate, one answer, no second
+  // opinion about the same file.
+  function saidNoTerm(pid) {
+    try {
+      var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
+      if (!FPI || typeof FPI.shape !== 'function') return false;
+      var sh = FPI.shape(pid);
+      if (!sh) return false;
+      if ((sh.characterised || 0) > 0) return false;
+      if ((sh.judged || 0) > 0) return false;
+      if (!sh.issues) return true;
+      var rows = (typeof FPI.rows === 'function') ? (FPI.rows(pid) || []) : null;
+      if (!rows || !rows.length) return true;
+      for (var i = 0; i < rows.length; i++) {
+        if (!saidRowInert(rows[i])) return false;
+      }
+      return true;
+    } catch (e) { return false; }
+  }
+
   // ── THE GATE ──────────────────────────────────────────────────────────────
   // Both halves of the rule, asked of the two engines that already publish the
-  // answers, and two vetoes that are not in the rule as written but follow from
+  // answers, and three vetoes that are not in the rule as written but follow from
   // it. The first: A LOADING FAILURE IS NOT AN EMPTY LANE. briefWaitOver counts an
   // expired deadline as "the wait is over", which is right for the sentence that
   // says the record did not load and wrong for a block that leads with "no formal
@@ -5968,20 +6031,23 @@
   // admits it. The second is saidLanded above: A LANE NOBODY HAS ASKED YET IS NOT
   // AN EMPTY LANE EITHER.
   //
-  // `read` and `judged` are both asked. `read` is rows the index made a read of
-  // and `judged` is the acts behind them; either being non-zero means there are
-  // readable acts on file and the record leads, whatever the index made of them.
+  // THE THIRD IS briefEmptyLegal, AND IT IS WHY THE RECORD-FIRST FILES DO NOT
+  // MOVE. saidNoTerm is a statement about the pattern index, and the index covers
+  // one lane: a member whose acts are in the shipped formal index, on the vote
+  // chip, or in the rows the edge printed into this document's own header can
+  // reach it with an index that lists nothing. chew_h68 is that file — 118
+  // measures in the shipped index, zero rows here — and the empty-file door is
+  // what keeps their letterhead. cox is on the exec lane and returns before this is
+  // reached; lee's roll calls veto it the moment they land and their outstanding
+  // request vetoes it before then.
+  //
   // Returns the row set rather than a boolean, so the caller renders exactly what
   // the gate measured and the two cannot disagree.
   function saidLead(pid, p) {
     try {
       if (!pid) return null;
       if (!briefPerson(pid, p)) return null;
-      var FPI = window.PDXConsistency && window.PDXConsistency.formalPatternIndex;
-      if (!FPI || typeof FPI.shape !== 'function') return null;
-      var sh = FPI.shape(pid);
-      if (!sh) return null;
-      if (sh.read || sh.judged || sh.characterised) return null;
+      if (!saidNoTerm(pid)) return null;
       if (!briefEmptyLegal(pid)) return null;
       if (briefGaveUp(pid)) return null;
       if (!saidLanded(pid)) return null;
@@ -6504,6 +6570,13 @@
     SAID_NOTE: SAID_NOTE,
     saidRowSet: saidRowSet,
     saidLeadApplies: saidLeadApplies,
+    // THE CLASS, WITHOUT THE LETTERHEAD. saidLeadApplies answers "does this file
+    // lead with its words", which is the letterhead's question and carries the
+    // letterhead's own loading vetoes. saidNoTerm answers the narrower one the
+    // evidence locker needs — "is there a formal term to test yet at all" — so a
+    // surface that is not deciding a hero does not have to borrow one's refusals.
+    saidNoTerm: saidNoTerm,
+    saidRowInert: saidRowInert,
     saidBriefHtml: saidBriefHtml,
     // 🏛 And the one-line form of the same finding, for a list card. Same lanes,
     // same precedence, same words — three kinds ('pattern' / 'none' /

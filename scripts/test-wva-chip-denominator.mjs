@@ -340,10 +340,34 @@ section("4 · twin boot — the arithmetic never saw this");
   if (!A.PDXWordAction || typeof A.PDXWordAction.read !== "function") {
     console.log("      no HEAD copy available in this checkout — twin boot skipped");
   } else {
+    // ONE PERSON IS EXEMPT FROM BYTE EQUALITY, AND ONLY DOWNWARD. The word-first
+    // gate pass withdrew a curated backfill that keyed a Phil Lyman spotlight
+    // pattern summary — a biography sentence with no measure, ballot or date — to
+    // lands_local, so an issue that read as TESTED against an act nobody cast now
+    // reads as untested. Their figure is not affected: the read was unpublishable
+    // before and is unpublishable now, so no percentage moved on any page. What is
+    // asserted for them instead is exactly that: the percentage and the publish flag
+    // still match HEAD's, the tested count may only FALL, the scorable pool may not
+    // move, and their formal pattern index must hold zero rows. Everybody else is
+    // still held byte-identical, which is what this section is for.
+    const WITHDRAWN = { lyman: "lands_local backfill withdrawn — it was a biography summary, not an act" };
     const drift = [];
     let swept = 0;
     for (const pid of ROSTER) {
       swept++;
+      if (WITHDRAWN[pid]) {
+        const a = A.PDXWordAction.read(pid, A.CMP_DATA[pid]);
+        const b = B.PDXWordAction.read(pid, B.CMP_DATA[pid]);
+        if (a && b) {
+          eq(b.pct, a.pct, `${pid}: withdrawn (${WITHDRAWN[pid]}) — Direction Match moved`);
+          eq(b.publishable, a.publishable, `${pid}: withdrawn — the publish flag moved`);
+          ok(b.coverage.tested <= a.coverage.tested, `${pid}: withdrawn — the tested count rose`);
+          eq(b.coverage.scorable, a.coverage.scorable, `${pid}: withdrawn — the scorable pool moved`);
+          const shp = B.PDXConsistency.formalPatternIndex.shape(pid) || {};
+          eq(shp.issues, 0, `${pid}: withdrawn — the formal pattern index still holds a row`);
+        }
+        continue;
+      }
       const a = A.PDXWordAction.read(pid, A.CMP_DATA[pid]);
       const b = B.PDXWordAction.read(pid, B.CMP_DATA[pid]);
       // THE FOUR NUMBERS THE WORK ORDER NAMES, each on its own, so a failure says

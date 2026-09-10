@@ -1754,12 +1754,28 @@ section("L · twin boot — the arithmetic never saw any of this");
       if (c && c.scope) { delete c.scope.office; delete c.scope.name; }
       return JSON.stringify(c);
     };
+    // AND ONE FORMAL SHAPE IS DECLARED, DOWNWARD ONLY. The word-first gate pass
+    // withdrew a curated backfill that keyed a Phil Lyman spotlight pattern
+    // summary — a biography sentence with no measure, no ballot and no date — to
+    // lands_local, so their formal pattern index holds zero rows where it held one.
+    // This section has no stake in it: they are not a seat on anybody's ballot roster
+    // and no figure of theirs moved. What is required is that the shape only emptied,
+    // which is asserted rather than waived.
+    const SHAPE_EMPTIED = { lyman: "the lands_local backfill was withdrawn — it was never an act" };
     const drift = [];
     let n = 0;
     for (const pid of Object.keys(B.CMP_DATA)) {
       if (!A.CMP_DATA[pid]) continue;
       n++;
       if (JSON.stringify(A.PDXWordAction.read(pid)) !== JSON.stringify(B.PDXWordAction.read(pid))) drift.push(`${pid}/ledger`);
+      if (SHAPE_EMPTIED[pid] && A.PDXConsistency && B.PDXConsistency) {
+        const sa = A.PDXConsistency.formalPatternIndex.shape(pid) || {};
+        const sb = B.PDXConsistency.formalPatternIndex.shape(pid) || {};
+        ok(sb.issues === 0 && sa.issues >= sb.issues && (sb.judged || 0) === 0,
+          `${pid}: ${SHAPE_EMPTIED[pid]} — the formal shape did something other than empty ` +
+          `(${sa.issues} → ${sb.issues} issues)`);
+        continue;
+      }
       if (A.PDXConsistency && B.PDXConsistency) {
         const da = A.PDXConsistency.scopedOverall(A.CMP_DATA[pid], pid);
         const db = B.PDXConsistency.scopedOverall(B.CMP_DATA[pid], pid);

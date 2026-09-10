@@ -109,6 +109,12 @@ const FILES = [
   "word-action.js",
   "stance-tree.js",
   "profile-spine.js",
+  // §14's three: the evidence surface that used to list one ducked-vote card per
+  // documented position. coverage.js and inventory.js ride along because gaps.js
+  // reads both, and a gaps list derived without them is not the one that ships.
+  "coverage.js",
+  "inventory.js",
+  "gaps.js",
 ];
 
 function boot() {
@@ -419,8 +425,26 @@ ok(!WA.saidLeadApplies("no_such_person_at_all", { id: "no_such_person_at_all" })
     "the gate does not ask whether this file may be called empty at all");
   has(gate, "briefGaveUp(pid)",
     "the gate does not refuse a record that failed to load");
-  has(gate, "sh.read || sh.judged || sh.characterised",
-    "the gate no longer turns on readable formal acts — a real thin record could take the word-first brief");
+  has(gate, "saidNoTerm(pid)",
+    "the gate no longer asks whether a formal term exists to test — a real record could take the word-first brief");
+  // AND WHAT saidNoTerm ITSELF MAY WEIGH. The rule is the ACTS: characterised
+  // reads and judged items, both zero, and every row on the index inert. It may
+  // not turn on `read`, because a row reads `true` off the browse lane's
+  // published tier — a characterisation quoted from the member's own stated
+  // positions — and letting that hold the record-first letterhead is the defect
+  // this brief was filed over: one unread mapped issue outranking seven sourced
+  // sentences.
+  const noterm = (SRC.match(/function saidNoTerm\(pid\) \{[\s\S]*?\n  \}/) || [])[0];
+  must(!!noterm, "saidNoTerm() is not in word-action.js under that name — the predicate cannot be read");
+  has(noterm, "sh.characterised", "saidNoTerm does not refuse a characterised read");
+  has(noterm, "sh.judged", "saidNoTerm does not refuse judged formal acts");
+  has(noterm, "saidRowInert", "saidNoTerm does not test the rows it is counting");
+  ok(noterm.indexOf("sh.read") === -1,
+    "saidNoTerm turns on sh.read — a read quoted from stated positions is not evidence of a formal term");
+  const inert = (SRC.match(/function saidRowInert\(x\) \{[\s\S]*?\n  \}/) || [])[0];
+  must(!!inert, "saidRowInert() is not in word-action.js under that name — the row test cannot be read");
+  has(inert, "x.judged", "saidRowInert does not read the acts the index weighed on the row");
+  has(inert, "pending", "saidRowInert calls a row that is still loading inert");
   ok(gate.indexOf("office") === -1 && gate.indexOf("status") === -1,
     "the gate reads an office or a status — this class is an empty formal lane, and three of its four subjects are sitting state representatives");
 }
@@ -505,6 +529,136 @@ ok(TREE.showFilter("stance", null) === false,
   "showFilter claims a hit with no document to work on");
 ok(TREE.showFilter("not_a_filter_at_all", null) === false,
   "showFilter throws or claims a hit on an unknown filter key");
+
+// ── 13. an unread crumb is not a term ───────────────────────────────────────
+// THE REPORTED STATE, REPRODUCED. /p/lyman mounted the record-first brief over
+// "1 issue on the formal record · 0 votes and formal actions read · 0 deep
+// enough to characterise" — a formal pattern index holding exactly one row that
+// no act stands behind. Two things put a row there: a curated official action
+// with no measure named (lyman's, now off the backfill — see the note in
+// consistency.js), and a row the index reads off the browse lane's published
+// tier, which is a characterisation quoted from the member's OWN STATED
+// POSITIONS. The second is the one that cannot be fixed in the data, and it is
+// why the gate no longer asks `read` at all: a read borrowed from the word lane
+// is not evidence of a formal term, and one of them may not outrank seven
+// sourced sentences.
+section("13. an unread crumb is not a term");
+{
+  const cr = boot();
+  must(cr.__err.length === 0, `the crumb sandbox did not load: ${cr.__err.join(" | ")}`);
+  const CWA = cr.PDXWordAction;
+  const FPI = cr.PDXConsistency.formalPatternIndex;
+  const realShape = FPI.shape, realRows = FPI.rows;
+  const SUBJ = "grant_pace";
+  const subj = Object.assign({ id: SUBJ }, cr.CMP_DATA[SUBJ]);
+  const stub = (shape, rows) => {
+    FPI.shape = (pid) => (pid === SUBJ ? shape : realShape(pid));
+    FPI.rows = (pid) => (pid === SUBJ ? rows : realRows(pid));
+  };
+  must(CWA.saidLeadApplies(SUBJ, subj),
+    "the crumb fixture does not take the SAID brief with an empty index — §13 would prove nothing");
+
+  // ONE ROW, READ OFF THE WORD LANE, NO ACT BEHIND IT. The exact reported shape.
+  stub({ issues: 1, read: 1, judged: 0, characterised: 0, strongN: 0, splitN: 0,
+         readThinN: 1, readOtherN: 0, thinN: 0, tailN: 1, tops: [], splits: [] },
+       [{ key: "lands_local", tier: "thin", judged: 0, read: true, deferred: true,
+          held: 1, why: null, displayTier: "thin" }]);
+  ok(CWA.saidLeadApplies(SUBJ, subj),
+    "one row read off the browse lane, with no judged act behind it, still outranks the word lane");
+  hasNot(CWA.heroHtml(SUBJ, subj), "issue on the formal record",
+    "the depth line still prints its three zeroes over a file with no formal term");
+  hasNot(CWA.heroHtml(SUBJ, subj), "%",
+    "a percentage reached the letterhead on a file with one half of Word vs Action");
+
+  // AN UNREAD, NO-SIDE ROW WITH ITEMS ON FILE. lyman's own shape before the
+  // backfill entry came off: held 1, judged 0, no direction claimed.
+  stub({ issues: 1, read: 0, judged: 0, characterised: 0, strongN: 0, splitN: 0,
+         readThinN: 0, readOtherN: 0, thinN: 1, tailN: 1, tops: [], splits: [] },
+       [{ key: "lands_local", tier: "unread", judged: 0, read: false, held: 1,
+          why: { id: "no_side" }, displayTier: "" }]);
+  ok(CWA.saidLeadApplies(SUBJ, subj),
+    "one unread no-side row with nothing judged on it still holds the record-first letterhead");
+
+  // AND THE THREE REFUSALS. A judged act, a characterised read, and a row that is
+  // still loading each keep the record first — the widening may not swallow any
+  // of them.
+  stub({ issues: 1, read: 1, judged: 3, characterised: 0, strongN: 0, splitN: 0,
+         readThinN: 1, readOtherN: 0, thinN: 0, tailN: 1, tops: [], splits: [] },
+       [{ key: "lands_local", tier: "thin", judged: 3, read: true, held: 3, why: null }]);
+  ok(!CWA.saidLeadApplies(SUBJ, subj),
+    "three judged acts on one row were treated as an inert crumb");
+  stub({ issues: 1, read: 1, judged: 8, characterised: 1, strongN: 1, splitN: 0,
+         readThinN: 0, readOtherN: 0, thinN: 0, tailN: 0, tops: [], splits: [] },
+       [{ key: "lands_local", tier: "strong", judged: 8, read: true, held: 8, why: null }]);
+  ok(!CWA.saidLeadApplies(SUBJ, subj),
+    "a characterised read was demoted by the word lane");
+  stub({ issues: 1, read: 0, judged: 0, characterised: 0, strongN: 0, splitN: 0,
+         readThinN: 0, readOtherN: 0, thinN: 1, tailN: 1, tops: [], splits: [] },
+       [{ key: "lands_local", tier: "unread", judged: 0, read: false, held: 1,
+          why: { id: "pending" }, displayTier: "" }]);
+  ok(!CWA.saidLeadApplies(SUBJ, subj),
+    "a row that says it is still loading was read as an empty formal lane");
+  FPI.shape = realShape;
+  FPI.rows = realRows;
+}
+{
+  // AND THE MAPPING GHOST ITSELF. lyman's one "formal issue" was a Ballotpedia
+  // biography line — "pressed the same public-lands themes in legislation",
+  // 2019–2024, no measure, no vote, no date — carried into the formal pattern
+  // index by an official-action backfill entry whose own rule excludes
+  // pattern-summary items. It is off the map, and the item is still in the
+  // spotlight data where it always was.
+  const cs = R("consistency.js");
+  ok(cs.indexOf("'lyman||carried his public lands fight from protest into the statehouse': 'lands_local'") === -1,
+    "the lyman public-lands narrative is mapped as a formal action again — one biography line, one 'issue on the formal record'");
+  has(R("acct-spotlight-data.js"), "Carried his public-lands fight from protest into the statehouse",
+    "the spotlight item itself was deleted — the fix was to stop claiming it as an act, not to drop the material");
+  eq((CS.formalPatternIndex.shape("lyman") || {}).issues, 0,
+    "lyman's formal pattern index still lists a row");
+}
+
+// ── 14. the evidence surface does not bill a position as a ducked vote ──────
+// SEVEN OPEN GAPS, EACH WITH A ＋ SUGGEST A LEAD BUTTON, on a file with no seat:
+// "No action on file — 🏠 Housing Affordability", "No action on file — 💧 Water
+// Conservation", and so on down the list. Every one of them was OUR homework
+// stated as THEIR omission, and no lead could ever close one: there is no vote
+// to find. One band, one sentence, and the positions stay open in the ✒️ brief.
+section("14. the evidence surface states the absent term once");
+const GAPS = W.PDXGaps;
+must(GAPS && typeof GAPS.forPolitician === "function" && typeof GAPS.sectionHtml === "function",
+  "PDXGaps.forPolitician / sectionHtml are gone — the evidence surface cannot be asked");
+must(GAPS.TYPES && GAPS.TYPES.no_formal_term,
+  "PDXGaps.TYPES.no_formal_term is gone — the collapsed band has no taxonomy entry");
+ok(GAPS.TYPES.no_formal_term.askable === false,
+  "the no-formal-term band is askable — it would carry a ＋ Suggest a lead for an act that cannot exist");
+for (const pid of EMPTY) {
+  const gaps = GAPS.forPolitician(pid, person(pid));
+  const ducked = gaps.filter((g) => g.type === "no_action_yet");
+  const band = gaps.filter((g) => g.type === "no_formal_term");
+  eq(ducked.length, 0, `${pid}: the evidence surface still lists one ducked-vote card per position`);
+  eq(band.length, 1, `${pid}: the absent formal term is not stated once`);
+  const n = WA.saidRowSet(pid).cited;
+  eq(band[0].label,
+    `No formal term to test yet — ${n} documented ${n === 1 ? "position" : "positions"}, 0 acts on file.`,
+    `${pid}: the one sentence is not the reviewed one, or its count disagrees with the letterhead`);
+  const sec = GAPS.sectionHtml(pid, person(pid));
+  has(sec, band[0].label, `${pid}: the section does not print the sentence`);
+  hasNot(sec, "No action on file —", `${pid}: a "No action on file" row survives in the section`);
+  hasNot(sec, "Held by the method", `${pid}: the sentence was filed under our own method holding material out`);
+}
+{
+  // NOT A ROUTE ROUND THE GAP PANEL FOR EVERYONE. chew_h68's record is in the
+  // shipped index rather than in this index's rows, so a predicate built on the
+  // rows alone would call their file termless and swallow five real gaps. The
+  // empty-file door is what stops it, and this is the check that says so.
+  for (const pid of RECORDED) {
+    const gaps = GAPS.forPolitician(pid, person(pid));
+    eq(gaps.filter((g) => g.type === "no_formal_term").length, 0,
+      `${pid}: a file with a record on hand was handed the no-formal-term band`);
+  }
+  has(GAPS.sectionHtml("chew_h68", person("chew_h68")), "No action on file —",
+    "chew_h68's real per-issue gaps were collapsed away with the class that has no term");
+}
 
 // ── Verdict ─────────────────────────────────────────────────────────────────
 console.log("");
