@@ -1494,3 +1494,185 @@ export const ddPollVotes = pgTable(
     check("dd_poll_votes_choice_check", sql`${t.choice} in ('support', 'oppose', 'mixed')`),
   ]
 );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DISTRICT VOICE — voice_* (slice 1)
+// ─────────────────────────────────────────────────────────────────────────────
+// The belonging layer: one PLACE per Utah seat where a verified neighbour answers
+// one poll and posts one short take. Five tables, and they are the FIFTH family
+// in this file — they share no row with the other four:
+//
+//   · vr_*          the formal record         (roll calls, citations)
+//   · cee_*         the evidence exchange     (triaged, can graduate)
+//   · pdx_forum_*   the open board            (any topic, ranked by votes)
+//   · dd_*          the District Room         (one district, one issue)
+//   · voice_*       THIS — one seat, one poll, issue-keyed takes
+//
+// WHY NOT dd_posts / dd_poll_votes. A take is keyed to a SEAT and carries an
+// issue key, so a seat's feed is one list across issues rather than one list per
+// (district, issue) thread; a take is 280 characters where dd_posts has no
+// ceiling; and slice 1's poll has a STORED question with two-to-four STORED
+// options where dd_poll_votes has neither. Migration
+// 20261103000000_create_voice_tables.sql carries the long form of that decision.
+// Nothing here reads, writes or joins a dd_* table.
+//
+// THE WALLS, AS COLUMNS THAT DO NOT EXIST. No party, no score, no upvote, no
+// reaction, no reply parent, no rank, no weight, no percentage and no stored
+// total. There is no pid, measure id, roll call, citation, stance or finance
+// column either: Voice never writes the formal record, Direction Match, Word vs
+// Action, the finance lane or a baseline-from-record, and it holds no key into
+// any of them. No table below can express a composite "district mood" number.
+//
+// THE TWO BORROWED VOCABULARIES are foreign keys, not free text, so a seat the
+// app does not map and an issue it does not ship cannot have a poll, a take or a
+// resident:  seatKey → ddDistricts.districtId,  issueKey → ddIssueKeys.issueKey.
+//
+// AN AUTHOR HASH, NOT A UID. Every person-shaped column is `authorHash` —
+// sha256(uid + ':' + seatKey), truncated, computed in
+// netlify/lib/district-voice-core.mjs. Stable for one person in one seat, which is
+// what "one answer per person" and "act on a report" need; different for that
+// person in the next seat, so two seats' rows cannot be joined into a profile.
+// The verified Firebase uid is never stored here and never leaves the Function.
+
+// One active poll per seat, tied to ONE issue key. The partial unique index is
+// what makes "one active" a property of the schema rather than a rule a caller
+// remembers: a seat may keep any number of retired polls and can never have two
+// live ones.
+export const voicePolls = pgTable(
+  "voice_polls",
+  {
+    id: serial().primaryKey(),
+    seatKey: text("seat_key")
+      .notNull()
+      .references(() => ddDistricts.districtId, { onDelete: "restrict" }),
+    // The issue the poll is about — and the same key the district file's "This
+    // week" strip asks the formal record for the member's latest act on.
+    issueKey: text("issue_key")
+      .notNull()
+      .references(() => ddIssueKeys.issueKey, { onDelete: "restrict" }),
+    // Stored copy, because slice 1's question is per-seat rather than one fixed
+    // sentence. There is no route that writes it: a poll is seeded.
+    question: text().notNull(),
+    active: boolean().default(true).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("voice_polls_seat_idx").on(t.seatKey),
+    check("voice_polls_question_len_check", sql`char_length(${t.question}) between 1 and 200`),
+  ]
+);
+
+// Two to four options, issue-sided or plain yes/no. The count is enforced by the
+// write path and the seed (a row constraint cannot count its siblings); what the
+// schema enforces is that an ANSWER can only name an option that exists, through
+// the composite foreign key on voicePollAnswers. No pid column and no party
+// column, so an option is a side of an issue and cannot be a person.
+export const voicePollOptions = pgTable(
+  "voice_poll_options",
+  {
+    id: serial().primaryKey(),
+    pollId: integer("poll_id")
+      .notNull()
+      .references(() => voicePolls.id, { onDelete: "cascade" }),
+    optionKey: text("option_key").notNull(),
+    label: text().notNull(),
+    sortOrder: integer("sort_order").default(0).notNull(),
+  },
+  (t) => [
+    // The composite an answer's foreign key points at.
+    uniqueIndex("voice_poll_options_poll_key_unique").on(t.pollId, t.optionKey),
+    index("voice_poll_options_poll_order_idx").on(t.pollId, t.sortOrder),
+    check("voice_poll_options_key_shape_check", sql`${t.optionKey} ~ '^[a-z0-9_]+$'`),
+    check("voice_poll_options_label_len_check", sql`char_length(${t.label}) between 1 and 60`),
+  ]
+);
+
+// One answer per person per poll. The upsert in the Function targets the unique
+// index below, so changing an answer replaces it and a count can never
+// double-count anybody. No percentage, no weight, no stored total: results are one
+// integer per option, grouped at read time.
+export const voicePollAnswers = pgTable(
+  "voice_poll_answers",
+  {
+    id: serial().primaryKey(),
+    pollId: integer("poll_id")
+      .notNull()
+      .references(() => voicePolls.id, { onDelete: "cascade" }),
+    optionKey: text("option_key").notNull(),
+    authorHash: text("author_hash").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("voice_poll_answers_poll_author_unique").on(t.pollId, t.authorHash),
+    index("voice_poll_answers_poll_option_idx").on(t.pollId, t.optionKey),
+  ]
+);
+
+// A take: { seatKey, issueKey, body <= 280, createdAt, authorHash } and nothing
+// else. The ceiling is a CHECK rather than a client rule, so a body that got past
+// a caller still cannot land. No party field, no upvote, no reply parent — slice 1
+// has no thread and this table cannot express one.
+export const voiceTakes = pgTable(
+  "voice_takes",
+  {
+    id: serial().primaryKey(),
+    seatKey: text("seat_key")
+      .notNull()
+      .references(() => ddDistricts.districtId, { onDelete: "restrict" }),
+    // MUST exist in the shipped ISSUE_MAP vocabulary. Refused by the core's gate,
+    // by the vocabulary read in the Function, and finally by this foreign key —
+    // three refusals, the last of which no code path can forget.
+    issueKey: text("issue_key")
+      .notNull()
+      .references(() => ddIssueKeys.issueKey, { onDelete: "restrict" }),
+    body: text().notNull(),
+    authorHash: text("author_hash").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    // One seat, NEWEST FIRST, capped at twenty. The only order this table is ever
+    // asked for; there is no column another order could be built from.
+    index("voice_takes_seat_created_idx").on(t.seatKey, t.createdAt.desc()),
+    index("voice_takes_seat_issue_idx").on(t.seatKey, t.issueKey),
+    check("voice_takes_body_len_check", sql`char_length(${t.body}) between 1 and 280`),
+  ]
+);
+
+// The verified-residency flag the write gate reads, one row per (person, seat).
+//
+//   method 'location_match' is slice 1: a signed-in reader whose saved ballot
+//   location names a county the app maps AND a house district that county
+//   actually contains, resolving to THIS seat. It is a consistency check on the
+//   reader's own datum, not an identity check, and the Function re-runs it on
+//   every write — so a row alone grants nothing and changing the saved location
+//   closes the composer immediately.
+//
+//   method 'vendor' is reserved for the ID check that is NOT wired in this pass.
+//   No Stripe Identity call, no Veriff call, no upload and no charge exists in
+//   this repo. The seam is window.PDXVoice.verify() on the client and
+//   verifyVendor() in the core, and nothing writes this method today.
+//
+// Not a profile: no name, no email, no address, no zip, no coordinate, no
+// document. The count of verified rows is what the file prints instead of a fake
+// feed when a seat has no neighbours yet.
+export const voiceResidency = pgTable(
+  "voice_residency",
+  {
+    id: serial().primaryKey(),
+    seatKey: text("seat_key")
+      .notNull()
+      .references(() => ddDistricts.districtId, { onDelete: "restrict" }),
+    authorHash: text("author_hash").notNull(),
+    status: text().default("pending").notNull(),
+    method: text().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  },
+  (t) => [
+    uniqueIndex("voice_residency_seat_author_unique").on(t.seatKey, t.authorHash),
+    index("voice_residency_seat_status_idx").on(t.seatKey, t.status),
+    check("voice_residency_status_check", sql`${t.status} in ('pending', 'verified', 'revoked')`),
+    check("voice_residency_method_check", sql`${t.method} in ('location_match', 'vendor')`),
+  ]
+);

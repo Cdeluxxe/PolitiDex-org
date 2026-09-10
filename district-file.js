@@ -84,6 +84,28 @@
   var DISTRICT_KEY_RE = /^[a-z]{2}-(?:house|statesenate|statehouse)-[1-9][0-9]*$/;
   var ISSUE_KEY_RE = /^[a-z0-9_]+$/;
 
+  // THE ALIAS, AND THERE IS STILL ONLY ONE DISTRICT MAP. 'ut-hd-68' is
+  // 'ut-statehouse-68' written short: the same place, the same row, the same
+  // file, two spellings of one string. Every spelling is normalized by
+  // normalizeKey() before anything else looks at it, so the canonical key is the
+  // only one that reaches SHIPPED, an href, a request or the address bar — and a
+  // reader who followed the short link ends up standing at the canonical URL
+  // rather than at a second address for one seat.
+  var ALIAS_RE = /^([a-z]{2})-(hd|sd|cd)-([1-9][0-9]*)$/;
+  var ALIAS_CHAMBERS = { hd: 'statehouse', sd: 'statesenate', cd: 'house' };
+
+  function normalizeKey(raw) {
+    var k = String(raw == null ? '' : raw).trim().toLowerCase();
+    if (!k) return '';
+    if (DISTRICT_KEY_RE.test(k)) return k;
+    var m = ALIAS_RE.exec(k);
+    if (!m) return '';
+    var chamber = ALIAS_CHAMBERS[m[2]];
+    if (!chamber) return '';
+    var out = m[1] + '-' + chamber + '-' + m[3];
+    return DISTRICT_KEY_RE.test(out) ? out : '';
+  }
+
   // THE WHOLE ALLOW-LIST. See the header.
   var SHIPPED = { 'ut-statehouse-68': 1 };
 
@@ -107,6 +129,9 @@
   var ID_TITLE = 'pdx-district-file-title';
   var ID_HEAD = 'pdx-district-file-head';
   var ID_BODY = 'pdx-district-file-scroll';
+  // The scroller's two children: District Voice first, the issue rooms under it.
+  var ID_VOICE = 'pdx-district-file-voice';
+  var ID_ROOMS = 'pdx-district-file-rooms';
 
   function fn(x) { return typeof x === 'function'; }
   function el(id) { try { return document.getElementById(id); } catch (e) { return null; } }
@@ -121,8 +146,8 @@
   // there is no way to build a link to a file that does not exist. Every caller
   // — the seat mount's control, the rows, the boot — goes through this.
   function path(districtKey) {
-    var k = String(districtKey == null ? '' : districtKey).trim().toLowerCase();
-    if (!DISTRICT_KEY_RE.test(k)) return '';
+    var k = normalizeKey(districtKey);
+    if (!k) return '';
     if (!Object.prototype.hasOwnProperty.call(SHIPPED, k)) return '';
     return PREFIX + k;
   }
@@ -142,9 +167,10 @@
     })() : p);
     var m = PATH_RE.exec(s);
     if (!m) return null;
-    var k = String(m[1] || '').toLowerCase();
-    if (!DISTRICT_KEY_RE.test(k)) return null;
-    return k;
+    // The alias resolves here too, so a cold arrival on /d/ut-hd-68 opens the
+    // canonical file instead of falling through to the front page.
+    var k = normalizeKey(m[1]);
+    return k || null;
   }
 
   // ── READS ─────────────────────────────────────────────────────────────────
@@ -440,7 +466,10 @@
     if (!p) return;
     try {
       if (location.pathname === p) return;
-      _return = location.pathname + (location.search || '');
+      // A reader who arrived on the alias is being moved to the canonical URL for
+      // the SAME file, so there is nothing behind them to restore — going "back"
+      // to the alias would just re-open this panel. Home is the honest return.
+      _return = fromPath(location.pathname) ? '/' : (location.pathname + (location.search || ''));
       if (history && fn(history.pushState)) history.pushState({ pdxdf: 1 }, '', p);
     } catch (e) {}
   }
@@ -474,8 +503,8 @@
   // rather than showing an empty list, because "no rooms yet" and "we could not
   // reach the district" are different facts.
   function enter(districtKey) {
-    var k = String(districtKey == null ? '' : districtKey).trim().toLowerCase();
-    if (!has(k)) return false;
+    var k = normalizeKey(districtKey);
+    if (!k || !has(k)) return false;
     var overlay = build();
     if (!overlay) return false;
 
@@ -529,14 +558,61 @@
     });
   }
 
+  // TWO CONTAINERS, PAINTED IN THIS ORDER: District Voice first, the issue rooms
+  // under it. Voice is the belonging layer for the SEAT — one live question and
+  // the neighbours' own takes — and the rooms are the per-issue conversations,
+  // each of which still lives at its own /d/<district>/<issue> address and is
+  // reached from the list below exactly as before. Nothing about a room moved.
+  //
+  // The split also exists because paint() runs TWICE on one open: once as soon as
+  // the rooms arrive and again if the best-effort record read adds issue keys. A
+  // single innerHTML for the whole panel would tear down Voice's poll and
+  // composer mid-typing on that second pass, so the rooms are the only thing
+  // repainted and Voice is mounted exactly once per open.
   function paint(districtKey, data, recordKeys) {
     var body = el(ID_BODY);
     if (!body) return;
+    var rooms = el(ID_ROOMS);
+    if (!rooms) {
+      try {
+        body.innerHTML =
+          '<div id="' + ID_VOICE + '" class="pdxdf-voice"></div>' +
+          '<div id="' + ID_ROOMS + '" class="pdxdf-rooms"></div>';
+      } catch (e) { return; }
+      rooms = el(ID_ROOMS);
+      voiceMount(districtKey, recordKeys || []);
+    } else {
+      // Second pass: hand the record keys to Voice's composer rather than
+      // remounting it, so a half-typed take survives.
+      voiceIssues(recordKeys || []);
+    }
+    if (!rooms) return;
     try {
       // The seated member is not repainted here: it is on the letterhead, it was
       // resolved from the address on arrival, and a repaint of the rooms is not a
       // reason for the name to flicker.
-      body.innerHTML = listHtml(districtKey, data, recordKeys || []);
+      rooms.innerHTML = listHtml(districtKey, data, recordKeys || []);
+    } catch (e) {}
+  }
+
+  // DISTRICT VOICE, MOUNTED IF IT IS ON THE PAGE AND SHIPPED IN THIS SEAT. Both
+  // checks fail soft: a seat with no Voice, or a boot where district-voice.js has
+  // not loaded, prints exactly today's file with the rooms list at the top. This
+  // module never renders a poll, a take or a refusal of its own — it owns the
+  // rooms, and Voice owns the seat blocks.
+  function voiceMount(districtKey, recordKeys) {
+    try {
+      var V = window.PDXVoice;
+      if (!V || !fn(V.mount) || !fn(V.shipped)) return;
+      if (!V.shipped(districtKey)) return;
+      V.mount(districtKey, ID_VOICE, recordKeys || []);
+    } catch (e) {}
+  }
+
+  function voiceIssues(recordKeys) {
+    try {
+      var V = window.PDXVoice;
+      if (V && fn(V.issues)) V.issues(recordKeys || []);
     } catch (e) {}
   }
 
@@ -625,8 +701,12 @@
     PREFIX: PREFIX,
     PATH_RE: PATH_RE,
     DISTRICT_KEY_RE: DISTRICT_KEY_RE,
+    ALIAS_RE: ALIAS_RE,
     SHIPPED: SHIPPED,
     COPY: COPY,
+    // Exposed for the suite: the one place every spelling of a seat becomes the
+    // canonical one.
+    normalizeKey: normalizeKey,
     path: path,
     has: has,
     fromPath: fromPath,

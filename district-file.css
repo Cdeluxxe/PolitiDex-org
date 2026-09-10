@@ -177,7 +177,20 @@
 /* The list is the first thing in the scrolling body now that the seat is on the
    letterhead, so its heading drops the leading gap it needed when it followed
    the seat block. */
-.pdxdf-body > .pdxdf-listhd:first-child { margin-top: 0; }
+/* The rooms heading sits flush at the top of whichever container holds it: the
+   scroller directly on a boot where district-voice.js has not loaded, and the
+   .pdxdf-rooms half of the split when District Voice is mounted above it. */
+.pdxdf-body > .pdxdf-listhd:first-child,
+.pdxdf-rooms > .pdxdf-listhd:first-child { margin-top: 0; }
+
+/* The two halves of the scroller. District Voice paints into the first, the
+   issue rooms into the second, and the rule between them says out loud that the
+   seat's own blocks end and the per-issue rooms begin. */
+.pdxdf-voice:not(:empty) + .pdxdf-rooms {
+  margin-top: 18px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
 
 .pdxdf-listhd {
   margin: 16px 0 0;
