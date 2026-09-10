@@ -1042,9 +1042,10 @@
         '<p>✒️ <b>What they said</b> — the main view here. No formal term is on file yet, so ' +
           'their documented positions are what this file holds; each one is a door to that ' +
           'issue, with the citation behind it.</p>' +
-        '<p>🏛 <b>The record</b> — empty on this file. A voting record starts with a term in ' +
-          'office, so there is nothing here to be missing, and nothing above is inferred from ' +
-          'what they said.</p>' +
+        '<p>🏛 <b>The record</b> — nothing on it to test yet. A voting record starts with a ' +
+          'term in office; where our file does hold a mapped item, none of it is a vote or ' +
+          'formal act we have read a direction from, so there is nothing here for the check ' +
+          'below to run on. Nothing above is inferred from it, either.</p>' +
         '<p>⚖️ <b>Word vs Action</b> — the integrity check, for later. It needs both halves: a ' +
           'stated position, and a formal record to test it against. With one half on file it ' +
           'publishes no figure at all, which is why there is none. An integrity check, not an ' +

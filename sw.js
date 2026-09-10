@@ -3114,6 +3114,68 @@
 // A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
 // whether or not this pass touched it.
 // ──────────────────────────────────────────────────────────────────────────────
+// v169 - ONE UNREAD CRUMB OUTRANKED SEVEN SOURCED SENTENCES
+// ──────────────────────────────────────────────────────────────────────────────
+// v168 gave a person with no term a word-first letterhead, and then handed the
+// whole class back to the record on a technicality. The SAID brief only mounted
+// when the formal pattern index held zero readable acts, so a single mapped row -
+// unread, no side taken, nothing on it read as a direction - was enough to keep
+// the record-first hero. /p/lyman still opened with "1 issue on the formal record
+// - 0 votes and formal actions read - 0 deep enough to characterise": three
+// counts, two of them zero, the third a crumb, printed as the headline over seven
+// cited stance cards that were pushed below the fold. A reader met an apology for
+// an empty record instead of the material the file actually holds.
+//   WHAT CHANGED IS THE GATE: /word-action.js now decides the letterhead on acts
+// rather than on rows. saidNoTerm(pid) asks the index for characterised acts and
+// for acts read with a side, and calls the lane empty when both are zero and
+// every row on it is inert - no side taken, nothing pending. It deliberately does
+// not ask whether a row was READ, because a read quoted from the member's own
+// stated positions is a characterisation of the word lane, not evidence of a
+// formal term, and that third rung is exactly what was holding the old veto open.
+// The rest of the gate is unchanged: the payload must have landed as an array, at
+// least one CITED card must exist, and the empty-brief legality check still
+// stands, which is why chew_h68 - a record in the shipped formal index with no
+// rows in this reader - keeps its record-first brief.
+//   AND ONE MAPPING GHOST IS GONE: /consistency.js no longer backfills an issue
+// for lyman's "carried his public lands fight from protest into the statehouse"
+// spotlight item. That item is a pattern summary with no measure, no ballot, no
+// date and a biography for a source - the kind of item this map's own rule
+// excludes - and it was the whole of the "1 issue on the formal record" count.
+// Nothing was deleted: the spotlight item itself is untouched and still reads in
+// its own lane. No act was invented for anybody, and lyman's formal index now
+// honestly reports zero rows.
+//   THE EVIDENCE SURFACE SAYS IT ONCE: /gaps.js stops listing every mapped issue
+// as an OPEN GAP or a SUGGEST A LEAD for this class, which read as though a
+// candidate had ducked votes they were never eligible to cast. One band, one
+// sentence - "No formal term to test yet - N documented positions, 0 acts on
+// file." - and the askable count drops those rows, so the inventory stops
+// advertising fourteen gaps nobody can close. /profile-spine.js runs the two-jobs
+// explainer off the same predicate: on this class the word is the main view, and
+// the record paragraph now says there is nothing on it to test yet rather than
+// implying a missing one.
+//   A BUMP RENAMES BOTH CACHE BUCKETS, so the whole precached shell arrives fresh
+// whether or not this pass touched it, and the log owes a reader the list rather
+// than a surprise: /word-action.css (the side word and the brief's rail),
+// /stance-tree.js, /alignment-tool.js, /issue-colors.js and /pdx-issue-family.js
+// (the topic tree, the alignment reader, the palette and the family table),
+// /issue-file.js, /issue-file.css, /issue-view.js and /pdx-issue-profile.js
+// (the issue dossier the brief's doors open, its stylesheet, the stage that
+// mounts it and the /i/<key> address that resolves it), /door1-workspace.js and
+// /door1-workspace.css (the Door 1 desk and its stylesheet), /index.html (the
+// shell itself) and /all-seeing-eye.js (Find the Record's panel, which sw.js
+// treats as a runtime entry rather than shell). Not one of them changed here.
+// netlify.toml did not change either, and it is served at the edge rather than
+// precached, so no rewrite travels with this rename.
+//   WHAT IT REFUSES: no percentage, because one half of Word vs Action still
+// publishes no figure for a file with no acts; no row labelled RECORD or PATTERN;
+// no formal direction invented to fill the lane; and no record-first file moved -
+// cox reads on the executive lane, lee's roll calls carry sides, and chew_h68 and
+// grant_pace read exactly the brief they read before. NO WEIGHT, MAPPING OR LANE
+// MOVED, and a twin boot leaves every formal tier and every Direction Match read
+// byte-identical.
+// A BUMP RENAMES BOTH CACHE BUCKETS, so it invalidates the whole precached shell
+// whether or not this pass touched it.
+// ──────────────────────────────────────────────────────────────────────────────
 // v168 - A PERSON WITH NO TERM WAS INTRODUCED BY THREE THINGS HE DOES NOT HAVE
 // ──────────────────────────────────────────────────────────────────────────────
 // /p/lyman opened like a sitting member whose file had gone missing. The kicker
@@ -4065,7 +4127,30 @@
 // through the old letterhead, printing an absent record over a file the rest of
 // the shell already publishes, so the six travel together. NO WEIGHT, MAPPING OR
 // LANE MOVED and no formal direction was inferred for anyone.
-const CACHE_VERSION = 'v168';
+// v169 - An unread crumb is not a formal term. FOUR precached shell assets
+// changed: /word-action.js (the gate now reads saidNoTerm — no characterised
+// read, no judged act, every index row inert — instead of refusing on any read
+// at all), /consistency.js (one official-action backfill entry removed: a
+// Ballotpedia biography line was being carried into the formal pattern index as
+// an act on public lands), /gaps.js (the N "No action on file — <issue>" cards
+// on a file with no term collapse into one sentence, and stop soliciting leads
+// for votes that cannot exist) and /profile-spine.js (the two-jobs note no
+// longer calls the record "empty on this file" now that the class admits a file
+// holding one unread row). A device holding v168 would take the new gate through
+// the old gaps list, printing a word-first letterhead over seven Open gap cards
+// that read as ducked votes on the same page — so the four travel together. NO
+// WEIGHT, MAPPING OR LANE MOVED, no formal direction was inferred for anyone,
+// and no act was invented: the spotlight item behind the removed mapping is
+// untouched and still reads on the profile.
+//   AND WHAT THE BUMP CARRIES WITH IT, unchanged. Renaming the buckets refetches
+// every shell asset, so /door1-workspace.js, /door1-workspace.css and /index.html
+// arrive fresh in this pass as well without a line of them having moved — the
+// issue desk, its stylesheet and the page it paints on are byte-identical here.
+// Direction Match is byte-identical too: no floor, weight, mapping or lane read
+// changed, and the one thing that did change about a percentage is that a file
+// with no formal term now prints none at all, because it never had two halves to
+// compute one from.
+const CACHE_VERSION = 'v169';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

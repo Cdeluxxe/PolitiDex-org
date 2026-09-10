@@ -254,6 +254,19 @@ export const CJ_SEAMS = [
   ["  // exec-record.js, which counts them per class for exactly that reason).\n",
    "  function _anyWeighedAct(items) {\n",
    "the lane router's doctrine note on the exec act types"],
+  // ── and one for the withdrawn public-lands backfill (v169) ───────────────
+  // The curated backfill keyed one of Phil Lyman's spotlight items — a
+  // pattern-summary sentence with no measure, no ballot and no date, sourced to a
+  // biography — to lands_local, which is the class the rule printed three lines
+  // above the map excludes. While it was mapped it put one row into the formal
+  // pattern index for a man with no formal record, and made that issue read as a
+  // TESTED row with a Direction Match against an act nobody cast. The span is the
+  // map's opening line and the note that replaced the entry: PROSE ONLY, argued
+  // below to hold no mapping at all, so a pass that quietly re-keys a spotlight
+  // sentence through this seam fails here rather than passing as a copy edit.
+  ["  var OFFICIAL_ACTION_ISSUE_BACKFILL = {\n",
+   "    'rand_paul||blocked fast track passage of the 9 11 victim compensation fund': 'national_debt',\n",
+   "the withdrawn public-lands backfill"],
   ["    else if (counts.limited > 0) token = 'limited';\n",
    "\n    // Phase 7: Say-vs-Do carries its OWN pooled public-record integrity %",
    "the roll-up's empty-key token"],
@@ -1031,6 +1044,25 @@ export function assertConsistencySeams(bodies, api, below) {
     "…and an unread lane no longer says it is loading, or no longer asks for the read");
   ok(!/MIN_|FLOOR|floor|publishable|score|Math\.round/.test(rollup),
     "the empty-roll-up seam reads a floor, a score or a weight — it chooses one word for one empty case");
+
+  // ── the withdrawn public-lands backfill (v169) ──────────────────────────────
+  // The span replaced a mapping with a note, so the argument is that a note is all
+  // it is. Comments out, nothing quoted may remain: one more key here would be a
+  // formal action asserted for a person in a file whose own rule excludes it, and
+  // it would arrive with no measure a reader could open.
+  const backfill = cut("the withdrawn public-lands backfill");
+  has(backfill, "var OFFICIAL_ACTION_ISSUE_BACKFILL = {",
+    "the withdrawn-entry seam no longer opens on the map it belongs to");
+  const bfCode = backfill.replace(/^\s*\/\/.*$/gm, "");
+  ok(!/'/.test(bfCode),
+    "the withdrawn-entry seam carries a mapping again — this span is the map's opening line and the " +
+    "note that replaced one entry, and a spotlight sentence re-keyed through it would enter the formal " +
+    "pattern index as an act with no measure behind it");
+  has(backfill, "carried his public lands fight",
+    "the note no longer records WHICH entry was withdrawn, so the removal is unauditable");
+  has(backfill, "saidNoTerm",
+    "the note no longer points at the gate that fixes the letterhead independently, which is what keeps " +
+    "this removal from reading as the fix for a hero it does not paint");
 
   // ── the state-executive act types, explained where they are relevant (v165) ─
   // PROSE ONLY, and the assertion is written to fail if that ever stops being
@@ -2006,9 +2038,42 @@ export function assertWordActionSeams(bodies, api) {
   // span is only true behind it.
   const said = wa("the word-first letterhead");
   const saidCode = said.replace(/^\s*\/\/.*$/gm, "");
-  has(said, "if (sh.read || sh.judged || sh.characterised) return null;",
-    "the word-first letterhead no longer stands down for a readable formal lane, which is the only " +
-    "thing keeping it off a file that HAS a record");
+  // THE GATE'S FIRST VETO, REWRITTEN IN v169 AND NOT LOOSENED. v168 stood down for
+  // any row the index reported as READ, which reads one rung too low: the browse
+  // lane publishes a tier for a position quoted from the member's own stated
+  // words, so one such crumb — unread, no side taken, nothing judged — held the
+  // record-first letterhead over seven cited sentences. The veto now asks the
+  // lane for ACTS. A file with a characterised act, or any act read with a side,
+  // or a row still pending, is still a file with a record, and this block still
+  // refuses it.
+  has(said, "if (!saidNoTerm(pid)) return null;",
+    "the word-first letterhead no longer stands down for a lane with a formal act on it, which is the " +
+    "only thing keeping it off a file that HAS a record");
+  {
+    const nt = said.slice(said.indexOf("function saidNoTerm(pid) {"));
+    const body = nt.slice(0, nt.indexOf("\n  }"));
+    ok(body.length > 0 && /FPI\.shape|shape\(pid\)/.test(body),
+      "the gate's veto no longer asks the formal pattern index what is on the lane");
+    ok(/sh\.characterised/.test(body) && /sh\.judged/.test(body),
+      "the veto stopped counting characterised acts, or stopped counting acts read with a side — " +
+      "both are a record, and either one of them outranks the word lane");
+    ok(/saidRowInert/.test(body),
+      "the veto no longer walks the lane's own rows, so a single mapped row is trusted to describe " +
+      "itself by the shape counts alone");
+    ok(!/\bsh\.read\b/.test(body),
+      "the veto reads the lane's READ count again, which is the v168 defect: a tier quoted from a " +
+      "member's own stated position is a characterisation of the word lane, not evidence of a term");
+  }
+  {
+    const ri = said.slice(said.indexOf("function saidRowInert(x) {"));
+    const body = ri.slice(0, ri.indexOf("\n  }"));
+    ok(/x\.judged/.test(body),
+      "a row with an act read on it is no longer treated as live, so a real formal act could be " +
+      "called inert");
+    ok(/'pending'/.test(body),
+      "a row whose read is still pending is treated as inert, which paints the word lane over a " +
+      "record that has not finished answering");
+  }
   has(said, "if (!briefEmptyLegal(pid)) return null;",
     "the word-first letterhead no longer asks the empty-file door whether this absence may be " +
     "published at all");

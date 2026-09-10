@@ -158,7 +158,11 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
   const ASKABLE = ['no_record', 'thin_record', 'thin_formal_action', 'no_action_yet',
     'pending_pledge', 'unitemized_pledges', 'not_issue_linked', 'no_public_record',
     'unexplained_mapping'];
-  const EXPLAIN = ['circular_hold', 'spoken_for', 'below_floor'];
+  // no_formal_term is deliberately in neither list above: it is not askable (no
+  // lead can close it — there is no vote to find on a file with no term) and it
+  // is not our method holding material out of a number either. It is a one-line
+  // statement about the file, in a band of its own. See test-said-brief-word-first.
+  const EXPLAIN = ['circular_hold', 'spoken_for', 'below_floor', 'no_formal_term'];
   ASKABLE.forEach((t) => {
     ok(G.TYPES[t] && G.TYPES[t].askable === true, `${t} must be askable`);
   });

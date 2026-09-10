@@ -378,7 +378,39 @@ const LIFTED = {
   robert_garcia: "climate_action — stated position(s) sourced to robertgarcia.house.gov",
 };
 
-let published = 0, thinPerfect = 0, curated = 0, lifted = 0;
+// ── One mapped item withdrawn, because it was never an act ───────────────────
+// The third movement this file has to reason about, and the most dangerous one:
+// a mapped formal item REMOVED. A removal that lowers a score is the drift this
+// harness exists to catch, so the licence below is the narrowest of the three and
+// it is spent on a single (person, key) pair.
+//
+// September 2026 word-first gate pass — the issue map's curated backfill was
+// keying one of Phil Lyman's spotlight items, "carried his public lands fight
+// from protest into the statehouse", to lands_local. That item is a pattern
+// summary drawn from a biography: no measure, no ballot, no date, no clerk. It is
+// exactly the class the map's own documented rule excludes, and while it was
+// mapped it did two things — it printed "1 issue on the formal record" over a file
+// with no formal record, and it made lands_local read as a TESTED row with a
+// Direction match of 100% and a verdict of "consistent" for someone who has never
+// cast a vote. A 100% agreement between a stated position and a biography
+// sentence is the invented finding this codebase refuses everywhere else.
+//
+// So a withdrawal is allowed to move exactly what an un-invented finding leaves
+// behind, and nothing else. It may NEVER touch a published figure: the profile had
+// to be unpublishable before and must still be unpublishable now, so no reader
+// ever saw the number this removes. The scorable pool may not shrink and the word
+// count may not move — a position was not deleted, it stopped being tested — so
+// what falls out of `tested` must land in `untested`. And the removal has to be
+// visible in the source rather than asserted: the backfill line is gone from
+// consistency.js, and the formal pattern index reports zero rows for the person.
+const WITHDRAWN = {
+  lyman: {
+    key: "lands_local",
+    why: "the lands_local backfill was a biography pattern summary, not an act",
+  },
+};
+
+let published = 0, thinPerfect = 0, curated = 0, lifted = 0, withdrawn = 0;
 for (const pid of PIDS) {
   const p = before.CMP_DATA[pid];
   let a = null, b = null;
@@ -432,6 +464,29 @@ for (const pid of PIDS) {
     lifted++;
     continue;
   }
+  if (WITHDRAWN[pid]) {
+    const w = WITHDRAWN[pid];
+    ok(!a.publishable, `${pid}: withdrawn (${w.why}) — the figure it removes was never published`);
+    ok(!b.publishable, `${pid}: withdrawn — nothing became publishable`);
+    ok((b.testedWeight || 0) <= (a.testedWeight || 0),
+      `${pid}: withdrawn — tested weight rose, so this was not a removal`);
+    eq(b.word, a.word, `${pid}: withdrawn — no stated position was deleted with the mapping`);
+    eq(cb.word, ca.word, `${pid}: withdrawn — coverage.word is unchanged`);
+    eq(cb.scorable, ca.scorable, `${pid}: withdrawn — the scorable pool is unchanged`);
+    eq(cb.recordDerived, ca.recordDerived, `${pid}: withdrawn — no position became record-derived`);
+    eq(cb.warming, ca.warming, `${pid}: withdrawn — warming state is unchanged`);
+    ok(cb.tested <= ca.tested, `${pid}: withdrawn — the tested count rose`);
+    eq(cb.tested + cb.untested, ca.tested + ca.untested,
+      `${pid}: withdrawn — an issue left the file instead of moving from tested to untested`);
+    // The two witnesses in the source, so a quiet re-map cannot pass as a fix.
+    const csNoComments = nowSrc("consistency.js").replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, "");
+    ok(csNoComments.indexOf("lyman||carried his public lands fight") === -1,
+      `${pid}: withdrawn — the backfill line is still live in consistency.js`);
+    const shp = after.PDXConsistency.formalPatternIndex.shape(pid) || {};
+    eq(shp.issues, 0, `${pid}: withdrawn — the formal pattern index still holds a row`);
+    withdrawn++;
+    continue;
+  }
   for (const k of READ_KEYS) {
     eq(JSON.stringify(b[k]), JSON.stringify(a[k]), `${pid}: read().${k} is unchanged`);
   }
@@ -479,6 +534,8 @@ eq(curated, Object.keys(CURATED).length,
   "every profile on the curated list was actually reached — a stale name would hide a real freeze");
 eq(lifted, Object.keys(LIFTED).length,
   "every profile on the lifted list was actually reached — a stale name would hide a real freeze");
+eq(withdrawn, Object.keys(WITHDRAWN).length,
+  "every profile on the withdrawn list was actually reached — a stale name would hide a real removal");
 ok(published > 0, "there were published figures to compare");
 ok(thinPerfect > 0, "…including the thin, near-perfect ones this pass is about");
 
@@ -512,7 +569,14 @@ for (const pid of PIDS) {
     }
     eq(sb.pct, sa.pct, `${pid}: ${slice}.pct is unchanged`);
     eq(sb.publishable, sa.publishable, `${pid}: ${slice}.publishable is unchanged`);
-    if (CURATED[pid]) {
+    if (WITHDRAWN[pid]) {
+      // The slice may lose the withdrawn test and may not lose a position: the
+      // figure it published is held identical two lines up, on both slices.
+      ok(sb.coverage.tested <= sa.coverage.tested,
+        `${pid}: withdrawn — the ${slice} tested count rose`);
+      eq(sb.coverage.scorable, sa.coverage.scorable,
+        `${pid}: withdrawn — the ${slice} scorable pool is unchanged`);
+    } else if (CURATED[pid]) {
       ok(sb.coverage.tested >= sa.coverage.tested, `${pid}: ${slice} tested count did not fall`);
       ok(sb.coverage.scorable >= sa.coverage.scorable, `${pid}: ${slice} scorable pool did not shrink`);
     } else {
@@ -567,6 +631,18 @@ for (const pid of PIDS) {
         `${pid}/${r.key}: lifted — the row either gained a test or stayed as it was (${sa.state} → ${sb.state})`);
       if (sa.state === sb.state) eq(sb.pct, sa.pct, `${pid}/${r.key}: lifted — an untouched row kept its percentage`);
       if (sa.state === sb.state) eq((q.verdict || {}).token, (r.verdict || {}).token, `${pid}/${r.key}: lifted — an untouched row kept its verdict`);
+      continue;
+    }
+    if (WITHDRAWN[pid] && r.key === WITHDRAWN[pid].key) {
+      // The one row the withdrawal is spent on: it held a Direction match with no
+      // act under it, and it must now read as an untested row with no figure, no
+      // metric and no lane — not as a different finding.
+      eq(sa.state, "tested", `${pid}/${r.key}: withdrawn — the row was not tested before, so nothing was withdrawn`);
+      eq(sb.state, "untested", `${pid}/${r.key}: withdrawn — the row is still tested`);
+      eq(sb.pct, null, `${pid}/${r.key}: withdrawn — the row still carries a percentage`);
+      ok(!sb.metric, `${pid}/${r.key}: withdrawn — the row still names a metric`);
+      eq((q.verdict || {}).token, "pending", `${pid}/${r.key}: withdrawn — the row still carries a verdict`);
+      ok(!(q.verdict || {}).basis, `${pid}/${r.key}: withdrawn — the row is still decided in a lane`);
       continue;
     }
     eq(sb.state, sa.state, `${pid}/${r.key}: row state is unchanged`);

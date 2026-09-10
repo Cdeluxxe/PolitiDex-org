@@ -51,6 +51,20 @@
     thin_record:        { sev: 80,  askable: true,  label: 'Still documenting' },
     thin_formal_action: { sev: 70,  askable: true,  label: 'Formal-action coverage still thin' },
     no_action_yet:      { sev: 60,  askable: true,  label: 'Said it — no action on file yet' },
+    // ── THE WHOLE CLASS IN ONE ROW, FOR A FILE WITH NO TERM YET ──────────────
+    // NOT ASKABLE, AND THAT IS THE POINT. `no_action_yet` is the right row for a
+    // sitting member who has voted on plenty and not on this: a lead could name
+    // the vote we are missing. It is the wrong row, N times over, for a file with
+    // no formal term at all — /p/grant_pace listed seven "No action on file —
+    // <issue>" cards, each with an Open gap pill and a ＋ Suggest a lead button,
+    // which reads as seven issues they ducked a vote on. There is no vote to find:
+    // nobody has a voting record before they have a seat, and soliciting leads for
+    // acts that cannot exist would fill the queue with submissions no moderator
+    // could ever action.
+    //   So on that class the N rows collapse into this one, and it says the one
+    // true thing in one sentence. See noTermToTest() for who is in the class and
+    // why the predicate is borrowed rather than re-derived.
+    no_formal_term:     { sev: 96,  askable: false, label: 'No formal term to test yet' },
     pending_pledge:     { sev: 50,  askable: true,  label: 'Pledge still open' },
     unitemized_pledges: { sev: 40,  askable: true,  label: 'Resolved pledges not itemized' },
     not_issue_linked:   { sev: 30,  askable: true,  label: 'Not tied to an issue yet' },
@@ -147,6 +161,47 @@
     var parts = n.split(/\s+/);
     return parts.length > 1 ? parts[parts.length - 1] : n;
   }
+  // ── THE CLASS WITH NO FORMAL TERM TO TEST ──────────────────────────────────
+  // BORROWED, NOT RE-DERIVED. word-action.js's saidNoTerm() is the letterhead's
+  // own reading of the formal pattern index — no characterised read, no judged
+  // act, and every row it lists inert — and briefEmptyLegal() is the door that
+  // asks whether this file may be called empty at all: the vote chip is not
+  // counting, the member payload holds nothing, the crawl header printed no rows,
+  // the shipped index holds nothing, and the wait is genuinely over. A file that
+  // clears both is one nobody could name a missing vote on. chew_h68 does NOT
+  // clear it — their 118 measures are in the shipped index rather than in this
+  // index's rows — which is exactly the case a predicate of our own would have
+  // got wrong.
+  //
+  // THE TWO REFUSALS THIS DOES NOT BORROW are saidLead's own: a failed fetch and
+  // an unasked lane. Those decide which HERO to paint, where guessing wrong swaps
+  // a letterhead in front of a reader. Here they would only mean "list seven
+  // ducked-vote cards while we wait", which is the defect. briefEmptyLegal
+  // already carries the positive knowledge that the wait is over.
+  //
+  // AND N IS THE LETTERHEAD'S OWN COUNT. saidRowSet().cited is what the ✒️ brief
+  // published above — seven sourced positions on lyman — so the two surfaces
+  // cannot print two different totals for the same file. Zero cited positions is
+  // not this class: with nothing documented there is nothing to say is untested.
+  function noTermToTest(pid, p) {
+    try {
+      var W = window.PDXWordAction;
+      if (!W || typeof W.saidNoTerm !== 'function' || typeof W.saidRowSet !== 'function') return null;
+      if (typeof W.briefEmptyLegal !== 'function') return null;
+      if (!W.saidNoTerm(pid)) return null;
+      if (!W.briefEmptyLegal(pid)) return null;
+      var n = (W.saidRowSet(pid) || {}).cited || 0;
+      if (n < 1) return null;
+      return { positions: n };
+    } catch (e) { return null; }
+  }
+  // ONE SENTENCE, AND NO SECOND CLAUSE. It states what is on file and what is
+  // not, in that order, and claims nothing about why. Harnesses assert it.
+  function noTermLine(n) {
+    return 'No formal term to test yet — ' + n + ' documented ' + plural(n, 'position') +
+      ', 0 acts on file.';
+  }
+
   function issueLabel(key) {
     if (!key) return '';
     try {
@@ -274,6 +329,15 @@
     // one is derived — the display cap lives in panelHtml, which discloses what
     // it held back. Truncating here would make count() report a number smaller
     // than the real hole, which is the one thing this panel must never do.
+    var noTerm = noTermToTest(pid, p);
+    if (noTerm && issueRows.no_action_yet.length) {
+      // THE COLLAPSE, AND IT IS A COLLAPSE RATHER THAN A SUPPRESSION. The rows are
+      // not dropped for being inconvenient: every one of them said the same thing
+      // about the same absent term, so the absent term is stated once instead of N
+      // times, and count() falls to what is genuinely askable on this file. The
+      // positions themselves are untouched and still open in the ✒️ brief above.
+      push('no_formal_term', { count: noTerm.positions, label: noTermLine(noTerm.positions) });
+    } else {
     issueRows.no_action_yet
       .sort(function (a, b) { return (b.weight || 0) - (a.weight || 0); })
       .forEach(function (it) {
@@ -287,6 +351,7 @@
           ask: 'A vote, sponsorship, committee action, signed order or official filing of theirs on ' + lbl + ' — with a link to the official record.'
         });
       });
+    }
 
     // 5 · Tracked pledges with no sourced outcome yet. Never counted either way.
     issueRows.pending_pledge
@@ -483,6 +548,18 @@
     // one keyed to an issue outside the core set — resolves to neutral slate.
     var ic = (gap.issueKey && window.PDXIssueColors && typeof window.PDXIssueColors.styleFor === 'function')
       ? ' style="' + window.PDXIssueColors.styleFor(gap.issueKey) + '"' : '';
+    // ── THE ONE-SENTENCE BAND ROW ───────────────────────────────────────────
+    // No pill, no detail paragraph, no ask, no lead button and no method link:
+    // this row is not a hole a reader can help fill and it is not our method
+    // holding material out of a number either. It is a statement about the file,
+    // and it is the whole row. Both render surfaces below lift it out of the
+    // "held out of the number" list into a band of its own for the same reason.
+    if (gap.type === 'no_formal_term') {
+      return '' +
+        '<li class="pdxg-row pdxg-row-noterm" data-pdx-gap="' + k + '">' +
+          '<span class="pdxg-row-label">' + esc(gap.label) + '</span>' +
+        '</li>';
+    }
     if (!gap.askable) {
       return '' +
         '<li class="pdxg-row pdxg-row-hold" data-pdx-gap="' + k + '">' +
@@ -526,9 +603,12 @@
       if (!pid) return '';
       var gaps = forPolitician(pid, p, pre);
       var ask = gaps.filter(function (g) { return g.askable; });
-      var holds = gaps.filter(function (g) { return !g.askable; });
+      var noterm = gaps.filter(function (g) { return g.type === 'no_formal_term'; });
+      var holds = gaps.filter(function (g) { return !g.askable && g.type !== 'no_formal_term'; });
       // Nothing to ask for → no extra UI at all. A well-documented profile must
-      // not grow furniture, or the signal stops meaning anything.
+      // not grow furniture, or the signal stops meaning anything. That rule holds
+      // on the no-term class too: the sentence is a statement, not a request, and
+      // the citable section below carries it whether this fold opens or not.
       if (!ask.length) return '';
 
       var shown = ask.slice(0, MAX_ASK_ROWS);
@@ -563,6 +643,9 @@
           '<div class="pdxg-body"' + (isOpen ? '' : ' hidden') + '>' +
             '<p class="pdxg-note">Here is what we do not have on file yet for this record, and why. ' +
               'Nothing below counts for or against anyone — it is a list of our own homework.</p>' +
+            (noterm.length
+              ? '<p class="pdxg-note pdxg-noterm">' + esc(noterm[0].label) + '</p>'
+              : '') +
             (hidden
               ? '<p class="pdxg-showing">Showing ' + shown.length + ' of ' + ask.length + ' — the rest are ' +
                 'the same kinds of gap on this record.</p>'
@@ -818,6 +901,13 @@
         '.pdxgs-grp-h{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.76rem;' +
           'letter-spacing:0.07em;text-transform:uppercase;color:#cfe0f8;}' +
         '.pdxgs-grp-h b{color:#fff;}' +
+        // THE ONE-SENTENCE BAND IS A SENTENCE, SO IT IS SET AS ONE. The band
+        // headers above are three-word condensed caps ("STILL LOOKING — 4 OPEN
+        // GAPS"); the same treatment on a full sentence with a full stop reads as
+        // a shout, on the one file whose whole point is that nothing here is an
+        // accusation. Same colour, same weight, sentence case.
+        '.pdxgs-grp-noterm .pdxgs-grp-h{font-family:inherit;font-weight:700;font-size:0.8rem;' +
+          'letter-spacing:0;text-transform:none;line-height:1.5;}' +
         '.pdxgs-grp-note{font-size:0.72rem;color:#8fa6c6;line-height:1.5;margin:0.18rem 0 0.5rem;}' +
         '.pdxgs-cite{display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;margin:0.9rem 0 0;' +
           'font-size:0.7rem;color:#8fa6c6;}' +
@@ -841,7 +931,8 @@
       var gaps = forPolitician(pid, p, pre);
       if (!gaps.length) return '';
       var ask = gaps.filter(function (g) { return g.askable; });
-      var holds = gaps.filter(function (g) { return !g.askable; });
+      var noterm = gaps.filter(function (g) { return g.type === 'no_formal_term'; });
+      var holds = gaps.filter(function (g) { return !g.askable && g.type !== 'no_formal_term'; });
       ensureSectionStyles();
       var who = (p && p.name) ? p.name : 'this official';
 
@@ -868,6 +959,18 @@
             'what we have documented, not about them, and it disappears by itself the day ' +
             'the missing material lands.</p>' +
           inv +
+          // ── ONE BAND, ONE SENTENCE ──────────────────────────────────────────
+          // On a file with no formal term it is the first thing in the section and
+          // there is nothing under it, because there is nothing under it: no list,
+          // no count of holes, no invitation to find an act that cannot exist. Any
+          // other gap on the file — a position not tied to an issue yet, a pledge
+          // with no outcome — is still its own askable row in the band below,
+          // because those are real research holes and a lead really can close them.
+          (noterm.length
+            ? '<div class="pdxgs-grp pdxgs-grp-noterm">' +
+                '<div class="pdxgs-grp-h">' + esc(noterm[0].label) + '</div>' +
+              '</div>'
+            : '') +
           (ask.length
             ? '<div class="pdxgs-grp">' +
                 '<div class="pdxgs-grp-h">Still looking — <b>' + ask.length + '</b> open ' +

@@ -496,9 +496,13 @@ section("6 · the sitemap lists the keys with something to read");
     eq(lost.join(" "), "",
       `${lost.length} person address(es) left the sitemap — a regeneration may admit, never de-list`);
     const gained = [...after].filter((a) => !before.has(a)).sort();
-    eq(gained.join(" "), "lyman mike_rogers_al rosie_rivera_slco",
-      "the person half of the sitemap gained an address this pass does not declare — the three above " +
-      "are the people whose cited positions the floor could not previously find");
+    // lyman, mike_rogers_al and rosie_rivera_slco were v168's three arrivals and
+    // are in the committed file now, so they are no longer a gain against it. The
+    // word-first gate pass (v169) admits nobody: it moves which brief a file with
+    // no acts leads with, not whether that file clears the publication floor.
+    eq(gained.join(" "), "",
+      "the person half of the sitemap gained an address this pass does not declare — a regeneration " +
+      "may only admit somebody the pass wrote down");
   }
   // Two keys the migrations map are legacy spellings the app no longer resolves.
   // Matched as whole addresses: /i/crypto_regulation is a real key and must stay.

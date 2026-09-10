@@ -862,6 +862,18 @@ function boot(get, label) {
     ok(dm > 100, `the Direction Match sweep was wide enough to mean something (${dm} profiles)`);
     eq(dmBad, 0, "Direction Match drifted");
 
+    // ONE PAIR IS DECLARED, AND ONLY DOWNWARD. The word-first gate pass in this
+    // same tree withdrew a curated backfill that keyed a Phil Lyman spotlight
+    // pattern summary — a biography sentence with no measure, no ballot and no
+    // date — to lands_local, so an issue that read as TESTED against an act
+    // nobody cast now reads untested. It is not this wave's write and not this
+    // wave's stake: no roll call, no mapping and no support_meaning of its own
+    // is involved, and the profile publishes no figure on either side. What is
+    // required of the pair here is that the withdrawal only ever took a finding
+    // AWAY — tested to untested, no percentage where there was one, and the
+    // verdict back to pending. Any other movement on it still fails.
+    const WITHDRAWN = { lyman: "lands_local" };
+
     // The current-term slice, which is a second published figure with its own floors.
     let scoped = 0, scopedBad = 0;
     for (const pid of PIDS) {
@@ -880,7 +892,16 @@ function boot(get, label) {
         if (!sa || !sb) continue;
         if (sb.pct !== sa.pct) { scopedBad++; failures.push(`${pid}: ${slice}.pct moved — ${sa.pct} → ${sb.pct}`); }
         if (sb.publishable !== sa.publishable) { scopedBad++; failures.push(`${pid}: ${slice}.publishable moved`); }
-        if (sb.coverage.tested !== sa.coverage.tested) { scopedBad++; failures.push(`${pid}: ${slice} tested count moved`); }
+        if (sb.coverage.tested !== sa.coverage.tested) {
+          // The declared pair: withdrawing the backfill takes one issue out of the
+          // tested pool and puts nothing anywhere. The pool it was drawn from does
+          // not move, and the figure stays unpublishable on both sides.
+          if (WITHDRAWN[pid] && sb.coverage.tested === sa.coverage.tested - 1) {
+            // allowed, and only in this direction
+          } else {
+            scopedBad++; failures.push(`${pid}: ${slice} tested count moved — ${sa.coverage.tested} → ${sb.coverage.tested}`);
+          }
+        }
         if (sb.coverage.scorable !== sa.coverage.scorable) { scopedBad++; failures.push(`${pid}: ${slice} scorable pool moved`); }
       }
     }
@@ -910,6 +931,15 @@ function boot(get, label) {
         try { sb = work.PDXConsistency.rowResult(q); } catch (e) { sb = { __err: 1 }; }
         if (!!sa !== !!sb) { rowBad++; failures.push(`${pid}/${r.key}: one engine resolves the row and the other does not`); continue; }
         if (!sa || !sb) continue;
+        if (WITHDRAWN[pid] === r.key) {
+          if (!(sa.state === "tested" && sb.state === "untested" && sb.pct === null &&
+                (q.verdict || {}).token === "pending")) {
+            rowBad++;
+            failures.push(`${pid}/${r.key}: the withdrawn mapping did not simply stop being tested — ` +
+              `${sa.state}/${sa.pct} → ${sb.state}/${sb.pct}`);
+          }
+          continue;
+        }
         for (const k of ["state", "metric", "pct"]) {
           if (sb[k] !== sa[k]) { rowBad++; failures.push(`${pid}/${r.key}: row ${k} moved — ${JSON.stringify(sa[k])} → ${JSON.stringify(sb[k])}`); }
         }

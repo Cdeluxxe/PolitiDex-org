@@ -475,7 +475,25 @@
   // 683 KB data file) so the Phase 4 mapping is auditable in one place; a later pass
   // can fold these back into the source data.
   var OFFICIAL_ACTION_ISSUE_BACKFILL = {
-    'lyman||carried his public lands fight from protest into the statehouse': 'lands_local',
+    // ── ONE ENTRY REMOVED, BY THIS MAP'S OWN RULE ────────────────────────────
+    // 'lyman||carried his public lands fight from protest into the statehouse'
+    // used to resolve to 'lands_local'. It is a pattern-summary item — "pressed
+    // the same public-lands, states'-rights and federal-overreach themes in
+    // legislation", dated 2019–2024, sourced to a Ballotpedia biography, naming
+    // no measure, no vote and no date — and the rule three lines above excludes
+    // exactly that: pattern-summary items stay UNRESOLVED rather than take a weak
+    // mapping. This one did not, and the cost of the exception was legible on the
+    // profile: it put a single row into the formal pattern index for a man with
+    // nothing on the formal record, and that row was enough to hand /p/lyman a
+    // record-first letterhead reading "1 issue on the formal record · 0 votes and
+    // formal actions read · 0 deep enough to characterise" over seven sourced
+    // positions. An act a reader cannot open is not an act.
+    //   NOTHING WAS DELETED AND NO ACT WAS INVENTED. The spotlight item itself is
+    // untouched in acct-spotlight-data.js and still reads on the profile exactly
+    // as its two siblings do — it simply stops being claimed as a formal action on
+    // an issue key. The letterhead is fixed independently of this, in
+    // word-action.js's saidNoTerm: an unread crumb may not outrank the word lane
+    // even where a mapping like this one is defensible.
     'rand_paul||blocked fast track passage of the 9 11 victim compensation fund': 'national_debt',
     'kriebe||a steady public education through line': 'public_schools',
     'jdailey||year after year steward of utah s medical cannabis program': 'cannabis_reform',
