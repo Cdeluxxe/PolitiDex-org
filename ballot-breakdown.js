@@ -568,25 +568,92 @@
       }
     }
 
+    // The three tiers, under ONE key. Split out of _getPhotoUrl so the key can be
+    // varied without the priority order being restated per key: an edited/live
+    // photo on the merged profile (PROFILES) → a photo on the bundled static
+    // record (CMP_DATA) → the curated BROWSE_PHOTOS fallback map.
+    //   BROWSE_PHOTOS is a `var` inside another <script> closure, so it isn't
+    // lexically visible here — read it off the window (exposed where it's
+    // defined). This guarantees cards resolve a real photo immediately, even
+    // before the Firestore roster (which supplies PROFILES[pid].photo) has loaded.
+    function _photoUnder(key) {
+      if (!key) return '';
+      var pr = (typeof window.PROFILES !== 'undefined' && window.PROFILES) ? window.PROFILES[key] : null;
+      if (pr && pr.photo && String(pr.photo).trim()) return pr.photo;
+      var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[key] : null;
+      if (d && d.photo && String(d.photo).trim()) return d.photo;
+      if (typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[key]) return BROWSE_PHOTOS[key];
+      if (typeof window !== 'undefined' && window.BROWSE_PHOTOS && window.BROWSE_PHOTOS[key]) return window.BROWSE_PHOTOS[key];
+      return '';
+    }
+
+    // ── ONE PERSON, TWO KEYS, AND ONE OF THEM HAS THE FACE ────────────────────
+    // The same two-identity gap the stance lane crosses with a hop chain, arriving
+    // at the headshot. A person is routinely filed under a slug of their display
+    // name in one table and a short roster id in another — `phil_lyman` and
+    // `lyman` are the pair this was reported on — and a Firestore photo, an
+    // editor's upload or a curated BROWSE_PHOTOS entry lands under whichever key
+    // the writer happened to hold. This function knew one key, so a headshot
+    // filed under the other resolved to '' and profiles-full.js painted the
+    // ph-fallback icon over it: an eagle where a face had already loaded.
+    //
+    // chew_h68 is the precedent. That id got a hand-added BROWSE_PHOTOS entry to
+    // fix this exact defect one person at a time; the hop chain fixes the class,
+    // and it invents no data — every key it tries is one this repo already writes
+    // the same person under.
+    //
+    // THE ALTERNATES, in the order they are tried after the pid itself:
+    //   · a slug of the display name, from the merged profile first and the roster
+    //     second, because on a warm frame the merge holds the name before CMP_DATA
+    //     does. This is the hop `lyman` → `phil_lyman` actually needs.
+    //   · the alias tables, BOTH WAYS. They are written pointing at the roster id
+    //     (PDX_PROFILE_ALIAS maps phil_lyman → lyman), and the key we hold IS the
+    //     roster id, so the useful direction is the reverse one — read by scanning
+    //     for entries that point here. Forward is kept too, for the tables that
+    //     happen to be written the other way round.
+    //
+    // Every key is tried through all three tiers in order, and the pid is always
+    // first, so nothing that resolves today resolves differently: this can only
+    // turn a '' into a photo. It returns a URL and never a person — no roster row
+    // is created, read as canonical, or written anywhere by any of this.
+    function _photoSlug(s) {
+      return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    }
+    function _photoKeys(pid) {
+      var out = [], seen = {};
+      var push = function (k) {
+        if (!k || typeof k !== 'string' || seen[k]) return;
+        seen[k] = 1; out.push(k);
+      };
+      push(pid);
+      var pr = (typeof window.PROFILES !== 'undefined' && window.PROFILES) ? window.PROFILES[pid] : null;
+      var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+      push(_photoSlug(pr && pr.name));
+      push(_photoSlug(d && d.name));
+      var tables = [window.PDX_PROFILE_ALIAS, window.STANCE_ALIASES, window.PDX_PID_ALIASES];
+      for (var t = 0; t < tables.length; t++) {
+        var tbl = tables[t];
+        if (!tbl || typeof tbl !== 'object') continue;
+        if (tbl[pid]) push(tbl[pid]);
+        for (var k in tbl) {
+          if (!Object.prototype.hasOwnProperty.call(tbl, k)) continue;
+          if (tbl[k] === pid) push(k);
+        }
+      }
+      return out;
+    }
+
     function _getPhotoUrl(pid) {
       // Single source of truth for a politician's headshot, shared by the full
       // profile hero, the medium quick-view modal and every card so all three
       // always show the SAME photo (no view ends up on a bare icon while another
-      // shows a real face). Priority: an edited/live photo on the merged profile
-      // (PROFILES) → a photo on the bundled static record (CMP_DATA) → the
-      // curated BROWSE_PHOTOS fallback map.
+      // shows a real face).
       if (!pid) return '';
-      var pr = (typeof window.PROFILES !== 'undefined' && window.PROFILES) ? window.PROFILES[pid] : null;
-      if (pr && pr.photo && String(pr.photo).trim()) return pr.photo;
-      var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
-      if (d && d.photo && String(d.photo).trim()) return d.photo;
-      // Curated fallback headshots. BROWSE_PHOTOS is a `var` inside another
-      // <script> closure, so it isn't lexically visible here — read it off the
-      // window (exposed where it's defined). This guarantees cards resolve a real
-      // photo immediately, even before the Firestore roster (which supplies
-      // PROFILES[pid].photo) has loaded.
-      if (typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[pid]) return BROWSE_PHOTOS[pid];
-      if (typeof window !== 'undefined' && window.BROWSE_PHOTOS && window.BROWSE_PHOTOS[pid]) return window.BROWSE_PHOTOS[pid];
+      var keys = _photoKeys(pid);
+      for (var i = 0; i < keys.length; i++) {
+        var url = _photoUnder(keys[i]);
+        if (url) return url;
+      }
       return '';
     }
     window._getPhotoUrl = _getPhotoUrl;

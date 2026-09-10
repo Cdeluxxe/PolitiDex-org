@@ -4203,7 +4203,68 @@
 // Match figure, finance row or baseline; it holds no pid and no party field; and
 // it publishes one integer per poll option rather than any percentage, so nothing
 // on this bump can change what a record reads.
-const CACHE_VERSION = 'v170';
+// v171 - ONE INERT ROW MUST NOT TAKE A FILE'S LETTERHEAD AWAY FROM IT
+// ONE precached shell asset changed: /word-action.js. /p/lyman first-painted the
+// word-first letterhead — seven sourced positions, the honest line about the
+// formal record under them — and then the roster warmed, noteMember landed a
+// single curated narrative row the official-actions feeder had mapped to public
+// lands, and the file re-rendered as record-first EMPTY: courthouse art, CURRENT
+// CANDIDATE, "No formal pattern on file yet", the position chips gone. Nothing
+// about the person had changed. Three things in that one file moved, and nothing
+// else in the repo did.
+//   FIRST, THE GATE'S OWN EMPTY-FILE DOOR. The letterhead was asking
+// briefEmptyLegal, which is the empty-file PARAGRAPH's door, and inheriting that
+// paragraph's four vetoes. Two of the four are payload COUNTS — the raw
+// memberRecords length and the nav chip's mapped total — and they are correct
+// about the paragraph, which says "nothing we hold for them is a vote or a
+// formal action" and must never say it beside a chip reading VOTES · 68. They
+// are the wrong test for this letterhead, which claims one thing only: no roll
+// call or signed act on file. So the lane now asks its own door. It keeps the
+// two vetoes that see what the acts test cannot — the formal-record rows the
+// edge printed into the served document, and the shipped static index — keeps
+// the bounded wait, and replaces the two counts with the payload's own
+// predicate: is there a ballot on any row, or an act the act layer can weigh.
+// That is the record lane's test, asked of the whole payload instead of one
+// issue at a time, so a roll call the issue mapping never reached still refuses
+// the block rather than passing unseen under a sentence that denies it. A
+// recorded absence counts as a ballot: they were at the roll call.
+//   SECOND, ONE PERSON'S TWO KEYS. The curated stance cards are filed under
+// phil_lyman and the file's address is lyman, so the gate — which resolved cards
+// through the roster's own display name and nothing else — could be handed a
+// warm person object whose name field had not landed yet and count zero cited
+// positions for a file that has seven. It now walks the same hop chain the
+// publication floor walks (direct id, alias table, slug of the display name,
+// alias of that slug), and it walks it ONLY when the direct read comes back
+// empty, so no file that resolves today resolves differently.
+//   THIRD, THE FACE. /ballot-breakdown.js's photo reader resolves the same two
+// keys now, for the reason the letterhead does: a headshot filed under one key
+// must not be replaced by the eagle placeholder because the file was addressed
+// by the other. It is NOT a precached shell asset — it never has been — so it
+// does not need this bump to reach a warm device, and it is named here anyway
+// because the two halves of the identity fix are one change.
+//   NO WEIGHT, MAPPING, FLOOR OR LANE MOVED, and no act was invented.
+// /consistency.js is byte-identical: no arithmetic, no floor, no band, no
+// mechanism entry and no export of the formal pattern index changed, and the
+// ballot vocabulary the gate now reads is asserted equal to that engine's own
+// table at source rather than allowed to drift from it. Direction Match is
+// byte-identical, and the word-first block still prints no percentage at all,
+// because a file with no formal term never had two halves to compute one from.
+// No second roster row was created for either key, no stance was mapped to a
+// formal act, and nothing about /p/pace, /p/larson, /p/chew_h68 or /p/lee moved.
+//   AND WHAT THE BUMP CARRIES WITH IT, UNCHANGED. Renaming both buckets
+// refetches every shell asset, so a warm device takes fresh copies of files that
+// did not move a line in this pass: /word-action.css (the chip's skin — the
+// figure it sizes is not printed on this class of file), /door1-workspace.js and
+// /door1-workspace.css (the issue desk and its stylesheet), /issue-file.js,
+// /issue-file.css and /issue-view.js (the issue file's panel, its skin and the
+// view behind it), /pdx-issue-profile.js (the /i/* address module) with the /i/*
+// 200 rewrite in /netlify.toml behind it, /pdx-issue-family.js,
+// /alignment-tool.js, /stance-tree.js and /issue-colors.js (the family table,
+// the issue vocabulary, the stance tree and the one hue per key),
+// /all-seeing-eye.js (a runtime entry rather than a precached one, dropped by the
+// runtime bucket's rename) and /index.html, which registers all of them and is
+// byte-identical here: this pass adds no script tag, no stylesheet and no route.
+const CACHE_VERSION = 'v171';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

@@ -5908,30 +5908,93 @@
   // to publish, so it cannot be the thing that leads a file. `stated` is what the
   // route-out counts, because the destination is the topic tree filtered to
   // stated positions and the button has to name the set the reader will land in.
-  function saidRowSet(pid) {
-    var out = { rows: [], shown: [], cited: 0, stated: 0 };
+  //
+  // ── ONE PERSON, TWO KEYS, AND A GATE THAT ONLY KNEW ONE OF THEM ────────────
+  // Curated cards are routinely filed under a slug of the display name while the
+  // roster keeps a short id. /p/lyman is the case this was reported on: the
+  // roster row is `lyman`, the seven sourced cards are `phil_lyman`, and every
+  // other surface in the app that reads cards crosses that gap the same way —
+  // stance-helpers._resolveStanceList hops id → explicit alias → slug of the
+  // display name → alias of that slug, and PDXPublicationFloor.stanceList copies
+  // those four hops verbatim so the sitemap cannot disagree with the file.
+  //
+  // THIS GATE TOOK NONE OF THEM. It asked issueRows(pid) with the raw address,
+  // and issueRows resolves stances through _polPositionMap(pid, CMP_DATA[pid]) —
+  // the ROSTER's copy of the name, never the person object this gate was handed.
+  // So the cited count was hostage to one roster row, and the frame the letterhead
+  // is repainted in is exactly the frame that row is least reliable in: the warm
+  // path re-renders with a person assembled from the merge (roster row, Firestore
+  // document, noteMember pack), and on any frame where CMP_DATA[pid] has not
+  // landed or its name is still blank, `cited` falls to zero and the SAID brief is
+  // refused for a file whose cards never moved. The reader sees a word-first
+  // letterhead flip to record-first empty over the same seven positions.
+  //
+  // So the pid is resolved through the same hop chain BEFORE the cards are
+  // counted, and the person object the caller was already passing is what carries
+  // the display name when the roster cannot — p.name is tried AHEAD of the roster
+  // name for that reason, and it is the only thing read off the person object.
+  //
+  // IT CAN ONLY EVER ADD A HOP. The direct read is taken first and kept whenever
+  // it finds a single cited card, so no file that leads with its word today
+  // changes lane, and no file that leads with its record can be talked into the
+  // word lane by this: the hop moves which cards are COUNTED and touches none of
+  // the four refusals in saidLead below.
+  function saidSlug(s) {
+    return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  }
+  function saidStanceId(pid, p) {
     try {
-      var CS = window.PDXConsistency;
-      if (!CS || typeof CS.issueRows !== 'function') return out;
-      var rows = CS.issueRows(pid) || [];
-      var seen = {};
-      for (var i = 0; i < rows.length; i++) {
-        var r = rows[i];
-        var st = r && r.stance;
-        if (!r || !r.key || !st || !st.key) continue;
-        if (seen[r.key]) continue;
-        seen[r.key] = 1;
-        out.stated++;
-        if (!(st.source && st.source.url)) continue;
-        out.cited++;
-        out.rows.push({
-          key: r.key, label: r.label || r.key,
-          side: st.key, sideLabel: st.label || ''
-        });
+      var S = window.ISSUE_STANCE_DATA || {};
+      var A = window.STANCE_ALIASES || {};
+      var isList = function (v) { return !!v && typeof v.length === 'number' && v.length > 0; };
+      if (!pid) return pid;
+      if (isList(S[pid])) return pid;
+      if (A[pid] && isList(S[A[pid]])) return A[pid];
+      var d = window.CMP_DATA && window.CMP_DATA[pid];
+      var names = [p && p.name, d && d.name];
+      for (var i = 0; i < names.length; i++) {
+        var slug = saidSlug(names[i]);
+        if (!slug || slug === pid) continue;
+        if (isList(S[slug])) return slug;
+        if (A[slug] && isList(S[A[slug]])) return A[slug];
       }
-      out.shown = out.rows.slice(0, SAID_CAP);
-    } catch (e) { return { rows: [], shown: [], cited: 0, stated: 0 }; }
+      return pid;
+    } catch (e) { return pid; }
+  }
+  function saidRowsUnder(id) {
+    var out = { rows: [], shown: [], cited: 0, stated: 0 };
+    var CS = window.PDXConsistency;
+    if (!CS || typeof CS.issueRows !== 'function') return out;
+    var rows = CS.issueRows(id) || [];
+    var seen = {};
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      var st = r && r.stance;
+      if (!r || !r.key || !st || !st.key) continue;
+      if (seen[r.key]) continue;
+      seen[r.key] = 1;
+      out.stated++;
+      if (!(st.source && st.source.url)) continue;
+      out.cited++;
+      out.rows.push({
+        key: r.key, label: r.label || r.key,
+        side: st.key, sideLabel: st.label || ''
+      });
+    }
+    out.shown = out.rows.slice(0, SAID_CAP);
     return out;
+  }
+  function saidRowSet(pid, p) {
+    try {
+      var out = saidRowsUnder(pid);
+      if (out.cited) return out;
+      var alt = saidStanceId(pid, p);
+      if (alt && alt !== pid) {
+        var hop = saidRowsUnder(alt);
+        if (hop.cited) return hop;
+      }
+      return out;
+    } catch (e) { return { rows: [], shown: [], cited: 0, stated: 0 }; }
   }
 
   // ── AND THE ROLL-CALL LANE ITSELF HAS TO HAVE ANSWERED ────────────────────
@@ -6043,15 +6106,124 @@
   //
   // Returns the row set rather than a boolean, so the caller renders exactly what
   // the gate measured and the two cannot disagree.
+  // ── AND THE DOOR THIS LANE ACTUALLY NEEDS ─────────────────────────────────
+  // briefEmptyLegal IS THE WRONG DOOR FOR THIS BLOCK, and it took a roster warm to
+  // show it. That door guards the EMPTY-FILE PARAGRAPH — "nothing we hold for them
+  // is a vote or a formal action" printed beside a nav chip reading VOTES · 68 —
+  // and its four vetoes are calibrated for exactly that sentence: if the tab holds
+  // ANY member record at all, in any shape, the paragraph is a lie and may not be
+  // printed. briefLiveN counts the raw payload and voteChipN counts what the chip
+  // counts off the same payload, and both of them are right about the paragraph.
+  //
+  // They are wrong about this letterhead, and /p/lyman is the report. Boot cold
+  // and the SAID brief paints: the cards are there, the index reads nothing, the
+  // payload is empty. Then the roster warms, noteMember lands ONE row — a curated
+  // narrative the official-actions feeder mapped to an issue, a backfill crumb, a
+  // sponsorship the record lane routes to the executive lane — and briefLiveN goes
+  // to 1, voteChipN goes to 1, this door slams, and the letterhead re-renders as
+  // record-first empty: courthouse art, CURRENT CANDIDATE, "No formal pattern on
+  // file yet", chips gone. Nothing about the person changed. One inert row arrived
+  // and the file changed its mind in front of the reader.
+  //
+  // saidNoTerm IS ALREADY THE AUTHORITY ON THAT ROW. It asks the acts — judged and
+  // characterised, both zero, every row on the index inert — so an empty payload
+  // stays SAID, an unread row stays SAID, a deferred read stays SAID, and the
+  // moment a vote is weighed anywhere on the index it refuses. Re-asking the raw
+  // payload afterwards is not a second safeguard, it is a SECOND OPINION about the
+  // same row, and it is the one that cannot tell an act from a crumb.
+  //
+  // SO THIS DOOR ASKS THE THREE THINGS saidNoTerm CANNOT SEE, and nothing else:
+  //
+  //   briefHeaderRowN  the formal-record rows the EDGE printed into this exact
+  //                    document's header. On screen behind the modal, and no
+  //                    letterhead of ours may deny them.
+  //   formalHasRecord  the shipped static index, which covers a lane the pattern
+  //                    index can be empty for — chew_h68 is 118 measures in the
+  //                    index and zero rows here, and THIS is the veto that keeps
+  //                    their record-first letterhead, not the payload counts.
+  //   payloadHasAct    the payload's own answer to the only question SAID_NOTE
+  //                    makes a claim about: is there a roll call or a signed act
+  //                    on file. Asked of memberRecords directly, row by row, in
+  //                    the two halves consistency.js's lane read asks one issue at
+  //                    a time — a ballot word in `position` on a row that is not a
+  //                    stated position, or a kind 'position' row the act layer can
+  //                    class and therefore weigh. Asked here of the WHOLE payload,
+  //                    because a roll call the issue mapping never reached is on no
+  //                    row of the index and would otherwise pass unseen under a
+  //                    sentence that denies it. A recorded absence counts: they
+  //                    were at the roll call.
+  //                      THE VOCABULARY IS CONSISTENCY.JS'S, COPIED RATHER THAN
+  //                    CALLED. _anyBallot, _anyWeighedAct and _BALLOTS are private
+  //                    to that engine, and the formal pattern index publishes one
+  //                    row and its band — an export list the wave suites argue
+  //                    CLOSED, which this pass is not entitled to widen. A copy is
+  //                    a drift risk, so the two ballot tables are asserted equal at
+  //                    source in scripts/test-said-brief-word-first.mjs: add a
+  //                    ballot word to consistency.js and not here, and that harness
+  //                    fails before any letterhead prints the wrong sentence.
+  //
+  // Plus briefWaitOver, unchanged and still required, so a lane nobody has heard
+  // from yet cannot buy the word-first letterhead.
+  //
+  // NOTHING HERE IS A NEW SOURCE OF FACT and nothing here is a figure. Two of the
+  // three readers are briefEmptyForbidden's own, kept verbatim; the third replaces
+  // that door's two payload COUNTS with the payload's own PREDICATE, so the test
+  // matches the sentence the block prints instead of over-shooting it. The
+  // empty-file paragraph's door is untouched — briefEmptyForbidden still refuses on
+  // all four, and every record-first branch below still goes through it.
+  var SAID_BALLOTS = {
+    yea: 1, nay: 1, aye: 1, no: 1, yes: 1, present: 1,
+    not_voting: 1, notvoting: 1, 'not voting': 1, abstain: 1, absent: 1, excused: 1
+  };
+  // A BALLOT IS A POSITION CAST, NOT A KIND. Roll calls arrive as kind 'vote' with
+  // the ballot in `position`; a stated position arrives as kind 'position' with an
+  // actionType in that same field, through the same endpoint. So the test is the
+  // ballot word, on a row that is not a stated position — consistency.js's
+  // _anyBallot, one row at a time.
+  function saidBallotRow(it) {
+    return !!it && it.kind !== 'position' && SAID_BALLOTS[String(it.position || '').toLowerCase()] === 1;
+  }
+  // AND A FORMAL ACT THAT IS NOT A BALLOT. A co-sponsorship, a lead sponsorship, a
+  // committee vote, a signed law: kind 'position' rows the act layer can class,
+  // which is what makes them weighable — consistency.js's _anyWeighedAct, one row
+  // at a time. FAILS CLOSED TO FALSE with no act layer, exactly as it does there:
+  // a row nothing can weigh is not an act this sentence must deny.
+  function saidWeighedRow(it) {
+    var f = window._pdxActClass;
+    if (typeof f !== 'function') return false;
+    if (!it || it.kind !== 'position') return false;
+    try { return !!f(it); } catch (e) { return false; }
+  }
+  function saidPayloadHasAct(pid) {
+    try {
+      var VR = window.PDXVotingRecord;
+      // FAILS CLOSED TO THE OLD TEST. A runtime with no record lane to ask gets the
+      // raw payload count this door had before, which refuses more than it should
+      // rather than printing "no roll call or signed act on file" behind nothing.
+      if (!VR || typeof VR.memberRecords !== 'function') return briefLiveN(pid) > 0;
+      var recs = VR.memberRecords(pid);
+      if (!recs || typeof recs.length !== 'number') return briefLiveN(pid) > 0;
+      for (var i = 0; i < recs.length; i++)
+        if (saidBallotRow(recs[i]) || saidWeighedRow(recs[i])) return true;
+      return false;
+    } catch (e) { return true; }
+  }
+  function saidEmptyLegal(pid) {
+    if (briefHeaderRowN(pid) > 0) return false;
+    if (formalHasRecord(pid)) return false;
+    if (saidPayloadHasAct(pid)) return false;
+    return briefWaitOver(pid);
+  }
+
   function saidLead(pid, p) {
     try {
       if (!pid) return null;
       if (!briefPerson(pid, p)) return null;
       if (!saidNoTerm(pid)) return null;
-      if (!briefEmptyLegal(pid)) return null;
+      if (!saidEmptyLegal(pid)) return null;
       if (briefGaveUp(pid)) return null;
       if (!saidLanded(pid)) return null;
-      var set = saidRowSet(pid);
+      var set = saidRowSet(pid, p);
       if (!set.cited) return null;
       return set;
     } catch (e) { return null; }
@@ -6570,6 +6742,9 @@
     SAID_NOTE: SAID_NOTE,
     saidRowSet: saidRowSet,
     saidLeadApplies: saidLeadApplies,
+    saidEmptyLegal: saidEmptyLegal,
+    saidPayloadHasAct: saidPayloadHasAct,
+    saidStanceId: saidStanceId,
     // THE CLASS, WITHOUT THE LETTERHEAD. saidLeadApplies answers "does this file
     // lead with its words", which is the letterhead's question and carries the
     // letterhead's own loading vetoes. saidNoTerm answers the narrower one the
