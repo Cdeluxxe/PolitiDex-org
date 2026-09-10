@@ -2084,6 +2084,35 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "gaps.js",
     "scripts/test-gaps.mjs",
     "scripts/test-said-brief-word-first.mjs",
+    // ── AND THE PASS AFTER THAT, on the same terms ─────────────────────────────
+    // VOICE SLICE 1.1 IS HYGIENE ON ONE UTAH SEAT: ONE LEDE, ONE ADDRESS, AND A
+    // RECORD STRIP THAT SAYS WHICH QUESTION IT MEANS. district-voice.js stops
+    // printing one hedged sentence for three different outcomes — the read is in
+    // flight, the record came back empty, the read failed — and prints a distinct
+    // sentence for each, so the strip never implies a fetch is still coming after
+    // it has landed; an item that returns on a key other than the poll's issue is
+    // dropped rather than shown, so the strip cannot silently answer a different
+    // question than the poll above it. netlify/lib/district-voice-core.mjs is the
+    // one owner of that copy and gains the two new sentences; the Function
+    // netlify/functions/district-voice.mts ships all three keys in the read
+    // payload's copy block and is otherwise unchanged — no new query, column,
+    // status or response field. scripts/test-district-voice.mjs grows the section
+    // that pins the four strip states, both spellings of the address, the single
+    // lede, and the person-modal handoff.
+    //   NOTHING IN THIS WAVE'S REACH MOVES. Voice still reads /api/district-voice
+    // and the voice_* and dd_* tables and nothing else: no vr_* model, no pack, no
+    // ingest script and no reader surface this guard measures. It writes no formal
+    // act, stance, tier, mapping, key, floor, admission, finance row or Direction
+    // Match figure; it holds no pid and no party field; it publishes one integer
+    // per poll option and never a percentage. The strip's own read is the existing
+    // voting-record route, asked for one row on the poll's issue and printed as a
+    // title and a date with no figure of any kind. The twin boot above is
+    // therefore untouched by it — which is the claim this list exists to keep
+    // checkable rather than the claim that nothing else may ever change.
+    "district-voice.js",
+    "netlify/lib/district-voice-core.mjs",
+    "netlify/functions/district-voice.mts",
+    "scripts/test-district-voice.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

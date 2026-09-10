@@ -361,7 +361,23 @@ export const COPY = {
   takesHd: "Neighbor takes",
   takesNote: "Newest first. One short take, keyed to an issue this seat touches.",
   weekHd: "This week",
-  weekNone: "No formal act on this issue in the current record.",
+  // THE STRIP HAS THREE STATES AND THREE SENTENCES, and it used to have one.
+  // "The read has not landed", "the read landed and the record is empty" and "the
+  // read did not land at all" are three different facts about the record, and
+  // printing weekNone for all three told a reader that a formal act had been
+  // looked for and not found in the two cases where nothing had been looked at
+  // yet. Worse, the old wording — "in the current record" — read as a fetch still
+  // coming, so the honest empty was indistinguishable from a spinner in prose.
+  //
+  // {issue} is filled with the issue's printed label by whoever renders the
+  // sentence, so the empty names the question it is empty about. The strip and
+  // the poll are the same issue key; when they ever are not, the renderer labels
+  // that in the sentence rather than letting the strip quietly answer a different
+  // question than the one above it. No count and no percentage in any of the
+  // three — a formal act is a thing that happened, not a score.
+  weekBusy: "Checking this seat’s formal record on {issue}…",
+  weekNone: "The record holds no formal act on {issue} for this seat.",
+  weekUnread: "We could not read this seat’s formal record just now.",
 
   // Honest empty. A sentence, never a placeholder row and never a fake feed.
   emptyTakes: "No takes yet. Nobody has posted in this seat.",

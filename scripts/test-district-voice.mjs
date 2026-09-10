@@ -146,6 +146,7 @@ const strip = (src) =>
 const CORE_CODE = strip(CORE_SRC);
 const FN_CODE = strip(FN_SRC);
 const VOICE_CODE = strip(VOICE_SRC);
+const FILE_CODE = strip(FILE_SRC);
 const CSS_CODE = String(VOICE_CSS).replace(/\/\*[\s\S]*?\*\//g, " ");
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -213,6 +214,35 @@ has(FILE_SRC, "function normalizeKey", "and normalizes every spelling in one pla
 
 // The rewrite that serves a cold arrival.
 has(TOML, 'from = "/d/*"', "netlify.toml still serves /d/* this same index.html");
+
+// AND THE SHORT SPELLING IS SETTLED BY THE SERVER, NOT ONLY BY THE CLIENT.
+// The client normalizes, and that is what moves the address bar for a reader who
+// is already running the app. It is NOT what saves a cold visit: a pasted
+// /d/ut-hd-68 with the wildcard rewrite in front of it would be served
+// index.html at 200 and the alias would become a second permanent address for
+// one seat. The exact 301 below settles it before a byte of JavaScript runs, so
+// "it must not fall through to the homepage" is true whether or not this file's
+// scripts load at all.
+{
+  const alias1 = TOML.indexOf('from = "/d/ut-hd-68"');
+  const alias2 = TOML.indexOf('from = "/d/ut-hd-68/*"');
+  const wild = TOML.indexOf('from = "/d/*"');
+  ok(alias1 >= 0, "netlify.toml redirects the alias /d/ut-hd-68");
+  ok(alias2 >= 0, "and the alias form of a room address too");
+  // ORDER IS THE RULE. Netlify takes the first match, so the wildcard standing
+  // ahead of these would swallow them and the redirect would never run.
+  ok(alias1 < wild, "the alias rule stands BEFORE the /d/* wildcard rewrite");
+  ok(alias2 < wild, "and so does the alias room rule");
+  const block = TOML.slice(alias1, wild);
+  has(block, 'to = "/d/' + HD68 + '"', "the alias points at the canonical seat address");
+  has(block, "status = 301", "as a permanent redirect — the alias is a nickname, not a page");
+  has(block, "force = true", "and it fires even though nothing else claims that path");
+  has(block, 'to = "/d/' + HD68 + '/:splat"',
+    "and an alias room address keeps its issue segment on the way over");
+  // No rule moves the canonical address anywhere. One 301, one direction.
+  no(TOML, 'from = "/d/' + HD68 + '"',
+    "and nothing redirects the canonical address — the normalization runs one way");
+}
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("2 · Read is free and ungated. Only the two writes are gated.");
@@ -1054,6 +1084,10 @@ function boot(pathname, opts) {
       if (wanted === HD68) data = ROOMS_PAYLOAD;
       else { status = 404; data = { error: "no district", code: "no_district" }; }
     } else if (u.indexOf("/api/voting-record/member/") === 0) {
+      // o.recordStatus lets a probe make the RECORD read fail while the seat read
+      // still lands, which is the one combination that separates "the record holds
+      // nothing" from "we could not read the record".
+      if (o.recordStatus) status = o.recordStatus;
       data = o.record || { rows: [{ issueKey: FLAGSHIP_ISSUE }] };
     }
     return Promise.resolve({ ok: status < 400, status, json: () => Promise.resolve(data) });
@@ -1451,6 +1485,305 @@ for (const t of ["voicePolls", "voicePollOptions", "voicePollAnswers", "voiceTak
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+section("12 · Slice 1.1 hygiene — one lede, one alias, three record states, one working link");
+
+// ── (1) ONE LEDE ────────────────────────────────────────────────────────────
+// Two sentences were stacked at the top of a Voice seat: the district file's
+// rooms lede ("Neighbors, issue by issue…") and Voice's required frame line
+// ("Verified neighbors. Not a poll of the internet…"). Both are true and neither
+// is rewritten here. What is fixed is that only ONE of them leads a given file:
+// where Voice is mounted, Voice's frame is the frame, and the rooms lede — which
+// describes the rooms list further down — stops claiming the top of the page.
+{
+  const w = boot("/d/" + HD68);
+  await settle(w);
+  const head = w.document.getElementById("pdx-district-file-head");
+  const voice = w.document.getElementById("pdx-district-file-voice");
+  must(head && voice, "the flagship file did not paint — the lede probe is stale");
+
+  const ROOMS_LEDE = w.PDXDistrictFile.COPY.line;
+  ok(typeof ROOMS_LEDE === "string" && ROOMS_LEDE.length > 20,
+    "district-file.js still owns the rooms lede in exactly one place");
+  has(ROOMS_LEDE, "Posting takes a reviewer grant",
+    "and it is still the sentence about who may post in a room");
+
+  // NOT ON A VOICE SEAT — not in the letterhead and not anywhere else on the page.
+  no(head.innerHTML, ROOMS_LEDE, "the rooms lede is not printed above Voice");
+  const painted = w.__nodes.map((n) => n.innerHTML).join(" ");
+  no(painted, ROOMS_LEDE, "and not anywhere else on the file either");
+  eq((painted.match(/pdxdf-line/g) || []).length, 0,
+    "the lede's own element is not painted at all on a Voice seat");
+
+  // AND VOICE'S SENTENCE IS STILL THERE, ONCE, VERBATIM.
+  has(voice.innerHTML, CORE_COPY.frame, "Voice's required frame sentence still leads the block");
+  eq((painted.match(/Verified neighbors\. Not a poll of the internet\./g) || []).length, 1,
+    "exactly one frame sentence — one lede, not two, and not two copies of one");
+
+  // THE TWIN-BOOT GUARANTEE, OBSERVED RATHER THAN ASSUMED. A device that took
+  // district-file.js and not district-voice.js — or a seat Voice has not opened —
+  // is a ROOMS-ONLY file, and a rooms-only file keeps the lede it always had. The
+  // answer comes from PDXVoice rather than from a second allow-list in the file,
+  // so dropping PDXVoice off the page is exactly that case.
+  w.PDXVoice = null;
+  w.PDXDistrictFile.close();
+  eq(w.PDXDistrictFile.enter(HD68), true, "the file still opens with no Voice on the page");
+  await settle(w);
+  const head2 = w.document.getElementById("pdx-district-file-head");
+  has(head2.innerHTML, ROOMS_LEDE,
+    "and a rooms-only file prints the rooms lede, byte-identical to before Voice existed");
+}
+// The rooms-only seat is also the whole of scripts/test-district-file.mjs, which
+// never boots district-voice.js — so that suite is the standing regression for
+// the sentence this one asserts is absent.
+has(R("scripts/test-district-file.mjs"), "Neighbors, issue by issue",
+  "the rooms-only suite still asserts the lede it owns");
+has(R("scripts/test-district-file.mjs"), 'eq(!!WA.PDXVoice, false',
+  "and it still asserts Voice is not on the page, which is what makes it that case");
+// The file asks Voice rather than keeping a second copy of the allow-list.
+has(FILE_SRC, "function voiceHere", "district-file.js asks one question about Voice");
+has(FILE_CODE, "window.PDXVoice", "and asks PDXVoice itself");
+eq((FILE_CODE.match(/'ut-statehouse-68'/g) || []).length, 1,
+  "the seat is named exactly once in district-file.js — its own SHIPPED line");
+
+// ── (2) THE ALIAS, BOTH SPELLINGS, ONE FILE ─────────────────────────────────
+// The edge rule is asserted in section 1. This is the other half: with the
+// scripts running, BOTH spellings open the same file and the bar ends up on the
+// canonical address. Neither one reaches the homepage.
+for (const spelling of [HD68, HD68_ALIAS]) {
+  const w = boot("/d/" + spelling);
+  await settle(w);
+  eq(w.PDXDistrictFile.isOpen(), true, `/d/${spelling} opens the district file`);
+  eq(w.PDXDistrictFile.district(), HD68, `/d/${spelling} opens the canonical seat`);
+  eq(w.PDXVoice.seat(), HD68, `and Voice mounted on the canonical seat from /d/${spelling}`);
+  const voice = w.document.getElementById("pdx-district-file-voice");
+  must(voice, `/d/${spelling} painted no Voice block`);
+  has(voice.innerHTML, CORE_COPY.frame, `/d/${spelling} is the same file, with the same frame`);
+  // The bar reads /d/ut-statehouse-68 either way: already there, or moved there.
+  const barred = spelling === HD68
+    ? w.location.pathname === "/d/" + HD68
+    : w.__pushed.includes("/d/" + HD68);
+  ok(barred, `/d/${spelling} leaves the reader standing at /d/${HD68}`);
+  no(JSON.stringify(w.__pushed), HD68_ALIAS, `/d/${spelling} never pushes the alias`);
+  // AND IT IS NOT THE HOMEPAGE. Nothing pushed '/' and the panel is up.
+  ok(!w.__pushed.includes("/"), `/d/${spelling} did not fall through to the homepage`);
+}
+
+// ── (3) THIS WEEK — THREE STATES, THREE SENTENCES ───────────────────────────
+// The strip printed one hedged sentence in all three of "the read is out", "the
+// record is empty" and "the read failed". The middle one is HD-68's real answer
+// — Chew has no formal act on lands_preserve, and every lands_preserve measure
+// in the index is a U.S. House measure a state representative cannot vote on —
+// so the empty has to read as FINAL, and the other two have to stop borrowing it.
+const WEEK_ISSUE_LABEL = "lands preserve";
+const weekSay = (tpl) => String(tpl).replace(/\{issue\}/g, WEEK_ISSUE_LABEL);
+const WEEK_BUSY = weekSay(CORE_COPY.weekBusy);
+const WEEK_NONE = weekSay(CORE_COPY.weekNone);
+const WEEK_UNREAD = weekSay(CORE_COPY.weekUnread);
+
+// The three sentences are three different sentences, owned in one place, and the
+// old hedge is gone from the tree.
+ok(new Set([WEEK_BUSY, WEEK_NONE, WEEK_UNREAD]).size === 3,
+  "the three record states have three distinct sentences");
+has(CORE_COPY.weekNone, "{issue}", "the empty names the issue it is empty about");
+ok(/[.]$/.test(CORE_COPY.weekNone.trim()), "and it is a finished sentence");
+// Over comment-stripped copies, so the comment explaining what the old sentence
+// got wrong is allowed to quote it — the repo's own convention for a refusal.
+for (const [name, src] of [["the gate", CORE_CODE], ["the client", VOICE_CODE],
+  ["the Function", FN_CODE]]) {
+  no(src, "in the current record", `${name} no longer hedges with "the current record"`);
+}
+for (const s of [CORE_COPY.weekNone, CORE_COPY.weekUnread]) {
+  no(s, "yet", `"${s}" does not promise a later answer`);
+  no(s, "Checking", `"${s}" does not read as a fetch still coming`);
+  no(s, "%", `"${s}" carries no percentage`);
+}
+// All three travel with the payload, so the client never has to invent one.
+for (const k of ["weekBusy", "weekNone", "weekUnread"]) {
+  has(FN_CODE, `${k}: COPY.${k}`, `the read ships COPY.${k} with the payload`);
+}
+
+// (3a) THE READ IS OUT → it says so, once, and it is a live region.
+{
+  const w = boot("/");
+  const payload = seatPayload();
+  w.fetch = (url) => {
+    const u = String(url);
+    // The record read never lands. The seat read does.
+    if (u.indexOf("/api/voting-record/member/") === 0) return new Promise(() => {});
+    return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(payload) });
+  };
+  const host = w.__mk("pdxv-week-probe");
+  eq(w.PDXVoice.mount(HD68, "pdxv-week-probe", []), true, "the block mounted for the strip probe");
+  await settle(w);
+  eq(w.PDXVoice.weekState(), "busy", "with the record read outstanding the strip is still checking");
+  has(host.innerHTML, WEEK_BUSY, "and says so, naming the issue it is checking");
+  no(host.innerHTML, WEEK_NONE, "it does NOT print the empty before anything was looked at");
+  no(host.innerHTML, WEEK_UNREAD, "nor the unread sentence");
+  has(host.innerHTML, 'role="status"', "the checking line is announced, because it will change");
+}
+
+// (3b) THE RECORD IS EMPTY → one final sentence, naming the issue. HD-68's case.
+{
+  const w = boot("/d/" + HD68);
+  await settle(w);
+  const voice = w.document.getElementById("pdx-district-file-voice");
+  must(voice, "the flagship file painted no Voice block — the strip probe is stale");
+  eq(w.PDXVoice.weekState(), "none",
+    "the read landed and the record holds no formal act on this seat's issue");
+  has(voice.innerHTML, CORE_COPY.weekHd, "the strip still has its heading");
+  has(voice.innerHTML, WEEK_NONE, "and one final sentence under it, naming the issue");
+  no(voice.innerHTML, WEEK_BUSY, "nothing is still being checked");
+  no(voice.innerHTML, WEEK_UNREAD, "and nothing failed");
+  no(voice.innerHTML, "pdxv-weeklink", "there is no act link, because there is no act");
+  no(voice.innerHTML, "%", "and no percentage on the strip");
+  // THE POLL IS NOT RETARGETED. The empty strip is about the poll's issue, and
+  // the poll is still asking what it was seeded to ask.
+  eq(w.PDXVoice.payload().poll.issueKey, FLAGSHIP_ISSUE,
+    "the poll still asks about the issue it was seeded on");
+  has(voice.innerHTML, "which should state policy weigh more heavily",
+    "and the question itself is untouched");
+}
+
+// (3c) THE READ FAILED → its own sentence. "We did not look" is not "there is
+// nothing", and the strip is not allowed to say the second when it means the first.
+{
+  const w = boot("/d/" + HD68, { recordStatus: 500 });
+  await settle(w);
+  const voice = w.document.getElementById("pdx-district-file-voice");
+  eq(w.PDXVoice.weekState(), "unread", "a record read that fails is not an empty record");
+  has(voice.innerHTML, WEEK_UNREAD, "and it says which of the two happened");
+  no(voice.innerHTML, WEEK_NONE, "without claiming the record is empty");
+  no(voice.innerHTML, WEEK_BUSY, "and without leaving the strip checking forever");
+  // The rest of the block is unharmed — the strip is best effort, as it always was.
+  has(voice.innerHTML, CORE_COPY.frame, "the frame sentence survives a failed record read");
+  has(voice.innerHTML, "which should state policy weigh more heavily",
+    "and so does the question");
+}
+
+// (3d) NO SEAT-HOLDER TO ASK ABOUT → also unread, never empty.
+{
+  const w = boot("/", { extras: { pdxSeatedMemberFor: () => "" } });
+  const host = w.__mk("pdxv-week-nopid");
+  w.PDXVoice.mount(HD68, "pdxv-week-nopid", []);
+  await settle(w);
+  eq(w.PDXVoice.weekState(), "unread",
+    "with nobody resolved to ask about, the record was not read — and the strip says that");
+  has(host.innerHTML, WEEK_UNREAD, "in the unread sentence, not the empty one");
+  no(host.innerHTML, WEEK_NONE, "the empty is reserved for a read that actually landed");
+}
+
+// (3e) AN ACT ON FILE → it is printed, as a link to its own source.
+{
+  const ACT = {
+    title: "H.B. 214 — Senate concurrence",
+    date: "Feb 11, 2026",
+    issueKey: FLAGSHIP_ISSUE,
+    source: { url: "https://le.utah.gov/~2026/bills/static/HB0214.html" },
+  };
+  const w = boot("/d/" + HD68, { record: { items: [ACT] } });
+  await settle(w);
+  const voice = w.document.getElementById("pdx-district-file-voice");
+  eq(w.PDXVoice.weekState(), "act", "an act on file is an act on file");
+  has(voice.innerHTML, "pdxv-weeklink", "and it is printed as a link");
+  has(voice.innerHTML, ACT.title, "with the act's own title");
+  has(voice.innerHTML, ACT.date, "and its date");
+  has(voice.innerHTML, ACT.source.url, "pointing at the record's own source");
+  has(voice.innerHTML, 'rel="noopener noreferrer"', "opened safely");
+  no(voice.innerHTML, WEEK_NONE, "and the empty sentence is gone");
+  no(voice.innerHTML, WEEK_BUSY, "and so is the checking one");
+  no(voice.innerHTML, "%", "an act is a thing that happened, not a percentage");
+}
+
+// (3f) AN ACT ON A DIFFERENT KEY IS DROPPED, NOT PRINTED. The strip and the poll
+// ask about the same issue or the strip says nothing. No fallback key, no nearest
+// neighbour and no invented mapping — a strip quietly answering a different
+// question than the poll above it is worse than an empty strip that names its own.
+{
+  const w = boot("/d/" + HD68, {
+    record: {
+      items: [{
+        title: "H.B. 9 — passage", date: "Jan 30, 2026", issueKey: "guns",
+        source: { url: "https://example.invalid/hb9" },
+      }],
+    },
+  });
+  await settle(w);
+  const voice = w.document.getElementById("pdx-district-file-voice");
+  eq(w.PDXVoice.weekState(), "none", "an act on another issue is not this issue's act");
+  no(voice.innerHTML, "H.B. 9", "so it is not printed under a heading the poll owns");
+  no(voice.innerHTML, "guns", "and the other issue is not named on the file at all");
+  has(voice.innerHTML, WEEK_NONE, "the strip says what it honestly has: nothing on this key");
+}
+
+// ── (4) THE PERSON LINK IS A REAL CONTROL ───────────────────────────────────
+// "Neighbors in this seat" was already a real anchor with a real href. What it
+// was not was a working control: the person modal and this panel share z-index 50
+// and document order decides, so the file opened UNDERNEATH the modal the reader
+// tapped it in. The file now hands the person file off on the way in.
+{
+  const w = boot("/");
+  // The person modal, up, exactly as index.html and openModal leave it.
+  const over = w.__mk("modal-overlay");
+  over.style.display = "flex";
+  const closes = [];
+  w.closeModal = () => {
+    // Recorded at CALL time, so "before the address moved" is observed and not
+    // inferred: closeModal hands the bar back through PDXPerson.restore(), and
+    // this file's stamp has to happen after that, never before it.
+    closes.push({ pushed: w.__pushed.length });
+    over.style.display = "none";
+  };
+
+  const link = w.PDXVoice.personLinkHtml(CHEW);
+  has(link, 'data-pdxdf-open="' + HD68 + '"', "the link carries the seat the file opens on");
+  has(link, 'href="/d/' + HD68 + '"', "and is a real address that can be copied or opened in a tab");
+  // STILL ONE QUIET LINE. No chip, no count, no activity dot.
+  eq((String(link).match(/<a /g) || []).length, 1, "still exactly one anchor");
+  no(link, "pdxv-dot", "no activity dot");
+  no(link, "pdxv-chip", "no chip");
+  ok(!/\d/.test(String(link).replace(/ut-statehouse-68|pf-kick-voice/g, "")),
+    "and no count of any kind");
+
+  eq(w.PDXDistrictFile.enter(HD68), true, "tapping it opens the district file");
+  eq(closes.length, 1, "and closes the person file it was tapped in, exactly once");
+  eq(closes[0].pushed, 0, "before this file took the address, not after");
+  eq(w.PDXDistrictFile.isOpen(), true, "the file is the surface the reader is left on");
+  ok(w.__pushed.includes("/d/" + HD68), "standing at the seat's canonical address");
+  eq(over.style.display, "none", "with nothing of the person modal left lurking over it");
+  await settle(w);
+  const voice = w.document.getElementById("pdx-district-file-voice");
+  must(voice, "the file opened from the person link painted no Voice block");
+  has(voice.innerHTML, CORE_COPY.frame, "and it is the same file, with the same frame");
+}
+
+// A MODAL THAT IS NOT UP IS NOT TOUCHED. closeModal() rewrites the address on the
+// way out, so calling it for a reader who never opened a person file would move
+// the bar for no reason.
+{
+  const w = boot("/");
+  const over = w.__mk("modal-overlay");
+  over.style.display = "none";
+  let called = 0;
+  w.closeModal = () => { called++; };
+  eq(w.PDXDistrictFile.enter(HD68), true, "the file opens with no person modal up");
+  eq(called, 0, "and closeModal is not called on a modal that was already closed");
+}
+// And a page with no person modal at all — every other surface Voice's link is
+// not on — opens the file without reaching for one.
+{
+  const w = boot("/");
+  let called = 0;
+  w.closeModal = () => { called++; };
+  eq(w.PDXDistrictFile.enter(HD68), true, "the file opens on a page with no person modal");
+  eq(called, 0, "and asks nothing of closeModal");
+}
+// Lee and Cox are not in this seat, so the link is absent from their files —
+// asserted in section 9 over the real builder, and the reason it holds is that
+// the seat is resolved from the curated incumbent table rather than guessed.
+eq(boot("/").PDXVoice.personLinkHtml("lee"), "", "Lee gets no link");
+eq(boot("/").PDXVoice.personLinkHtml("cox"), "", "and neither does Cox");
+
+// ═════════════════════════════════════════════════════════════════════════════
 // ── Result ───────────────────────────────────────────────────────────────────
 console.log("");
 if (failures.length) {
@@ -1461,4 +1794,5 @@ if (failures.length) {
 console.log(`✓ district-voice: all ${passed} assertions passed`);
 console.log("   one address + one alias · read free, writes gated · 2 gates exhaustive, 1 allow each · " +
   "counts not percentages · Chew on the letterhead, honest empty · 2 mounts, no new nav · " +
-  "1 canonical sitemap URL · twin boot: DM / WVA / finance unchanged");
+  "1 canonical sitemap URL · twin boot: DM / WVA / finance unchanged · " +
+  "one lede · both spellings · 3 record states · the person link opens the file");

@@ -92,7 +92,12 @@
     takesHd: 'Neighbor takes',
     takesNote: 'Newest first. One short take, keyed to an issue this seat touches.',
     weekHd: 'This week',
-    weekNone: 'No formal act on this issue in the current record.',
+    // Three states, three sentences. See netlify/lib/district-voice-core.mjs,
+    // which owns these strings; {issue} is filled here with the issue's printed
+    // label, because the label lives in this file's issue vocabulary.
+    weekBusy: 'Checking this seat\u2019s formal record on {issue}\u2026',
+    weekNone: 'The record holds no formal act on {issue} for this seat.',
+    weekUnread: 'We could not read this seat\u2019s formal record just now.',
     emptyTakes: 'No takes yet. Nobody has posted in this seat.',
     emptyNeighbors: 'No verified neighbors in this seat yet.',
     emptyAnswers: 'No answers yet.',
@@ -372,17 +377,57 @@
   // reinterprets a formal act, and no take or answer touches it. When the record
   // holds nothing on that issue the strip says so — which is a fact about the
   // record, not a gap this file papers over.
+  //
+  // AND IT HAS THREE STATES, WHICH IS THE WHOLE POINT. The read can be out, it
+  // can land on an empty record, and it can fail — and one sentence for all three
+  // is the defect this replaces: the strip printed "no formal act … in the current
+  // record" the instant the block painted, before anything had been asked, and
+  // the wording made that read like a fetch still on its way. So:
+  //   busy   — the record read is genuinely in flight. Said once, and it goes
+  //            away, because every branch below repaints.
+  //   act    — an act is on file, and it is printed as a link to its source.
+  //   none   — the read landed and the record holds nothing on this issue. A
+  //            final sentence naming the issue, with no "yet" and no "checking".
+  //            This is HD-68's real answer today: the seat has no formal act on
+  //            the poll's issue, and the strip says exactly that.
+  //   unread — the read could not be made or did not come back. Its own sentence,
+  //            because "we did not look" is not "there is nothing".
+  //
+  // ONE ISSUE, ONE QUESTION. The strip is keyed to the poll's issue and to
+  // nothing else — no fallback key, no nearest neighbour, no invented mapping. An
+  // act that came back on some other key is dropped rather than printed, because
+  // a strip quietly answering a different question than the poll above it is
+  // worse than an empty strip that names its question.
+  function weekFill(tpl) {
+    var issue = _payload && _payload.poll && _payload.poll.issueKey;
+    return String(tpl == null ? '' : tpl)
+      .replace(/\{issue\}/g, issueLabel(issue || ''));
+  }
+
+  function weekSentence(state) {
+    var copy = (_payload && _payload.copy) || {};
+    if (state === 'busy') return weekFill(copy.weekBusy || COPY.weekBusy);
+    if (state === 'unread') return weekFill(copy.weekUnread || COPY.weekUnread);
+    return weekFill(copy.weekNone || COPY.weekNone);
+  }
+
   function weekHtml() {
-    var act = _week;
-    var body = act
-      ? '<a class="pdxv-weeklink" href="' + esc(act.href || '#') + '"' +
-          (act.href ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' +
-          '<span class="pdxv-weektitle">' + esc(act.title) + '</span>' +
-          (act.date ? '<span class="pdxv-weekdate">' + esc(act.date) + '</span>' : '') +
-        '</a>'
-      : '<p class="pdxv-empty">' + esc(COPY.weekNone) + '</p>';
+    var copy = (_payload && _payload.copy) || {};
+    var act = _weekState === 'act' ? _week : null;
+    var body;
+    if (act) {
+      body = '<a class="pdxv-weeklink" href="' + esc(act.href || '#') + '"' +
+        (act.href ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' +
+        '<span class="pdxv-weektitle">' + esc(act.title) + '</span>' +
+        (act.date ? '<span class="pdxv-weekdate">' + esc(act.date) + '</span>' : '') +
+      '</a>';
+    } else {
+      body = '<p class="pdxv-empty"' +
+        (_weekState === 'busy' ? ' role="status"' : '') + '>' +
+        esc(weekSentence(_weekState)) + '</p>';
+    }
     return '<div class="pdxv-week">' +
-      '<p class="pdxv-blockhd">' + esc(COPY.weekHd) + '</p>' + body +
+      '<p class="pdxv-blockhd">' + esc(copy.weekHd || COPY.weekHd) + '</p>' + body +
     '</div>';
   }
 
@@ -417,6 +462,10 @@
   var _mountId = '';
   var _recordKeys = [];
   var _week = null;
+  // 'busy' | 'act' | 'none' | 'unread'. Starts busy because a fresh mount has a
+  // read coming; every exit from loadWeek() moves it off busy, so the strip can
+  // never be left saying it is still checking.
+  var _weekState = 'busy';
   var _sending = false;
 
   function mountEl() { return _mountId ? el(_mountId) : null; }
@@ -444,6 +493,7 @@
     _mountId = String(mountId || '');
     _payload = null;
     _week = null;
+    _weekState = 'busy';
     if (Array.isArray(recordKeys)) _recordKeys = recordKeys.slice();
 
     var host = mountEl();
@@ -489,29 +539,54 @@
     } catch (e) { return ''; }
   }
 
+  // EVERY BRANCH SETTLES THE STRIP. There is no path out of this function that
+  // leaves _weekState on 'busy', because the one thing the strip must never do is
+  // keep saying it is checking when nothing is checking any more. A read that
+  // cannot be made, a read that fails, a read that lands empty and a read that
+  // lands on an act each set their own state and repaint.
+  function settleWeek(k, state, act) {
+    if (_seat !== k) return;
+    _week = act || null;
+    _weekState = state;
+    repaint();
+  }
+
   function loadWeek() {
     var k = _seat;
     var issue = _payload && _payload.poll && _payload.poll.issueKey;
     var pid = seatedPid();
-    if (!issue || !pid) return;
+    // Nothing to ask, or nobody to ask about. Not an empty record — we never
+    // looked — so it says so rather than borrowing the empty's sentence.
+    if (!issue || !pid) { settleWeek(k, 'unread', null); return; }
     var url = RECORD_API + encodeURIComponent(pid) +
       '?issue=' + encodeURIComponent(issue) + '&pageSize=1&sort=date';
     fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' } })
       .then(function (res) { return res.ok ? res.json() : null; })
       .catch(function () { return null; })
       .then(function (data) {
-        if (_seat !== k || !data) return;
+        if (_seat !== k) return;
+        if (!data) { settleWeek(k, 'unread', null); return; }
         var items = (data && (data.items || data.rows)) || [];
         var it = items[0];
-        if (!it) return;
+        if (!it) { settleWeek(k, 'none', null); return; }
+        // The read was keyed to the poll's issue, so an item on another key is a
+        // surprise from the record lane and not something to print under a
+        // heading the poll owns.
+        var got = String(it.issueKey || it.issue || '').trim().toLowerCase();
+        if (got && got !== String(issue).trim().toLowerCase()) {
+          settleWeek(k, 'none', null);
+          return;
+        }
         var src = it.source || {};
-        _week = {
+        var act = {
           title: String(it.title || it.action || ''),
           date: String(it.date || ''),
           href: String(src.url || '')
         };
-        if (!_week.title) { _week = null; return; }
-        repaint();
+        // An unprintable row is nothing on file, not a broken strip: there is no
+        // heading without a title, and inventing one would be inventing an act.
+        if (!act.title) { settleWeek(k, 'none', null); return; }
+        settleWeek(k, 'act', act);
       });
   }
 
@@ -663,7 +738,11 @@
     seatForPid: seatForPid,
     personLinkHtml: personLinkHtml,
     seat: function () { return _seat || null; },
-    payload: function () { return _payload; }
+    payload: function () { return _payload; },
+    // Exposed for the suite: which of the strip's four states is showing, so
+    // "still checking" / "nothing on file" / "we could not look" are asserted as
+    // three different answers rather than guessed at from one sentence.
+    weekState: function () { return _weekState; }
   };
 
   wire();

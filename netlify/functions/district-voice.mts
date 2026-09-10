@@ -340,7 +340,14 @@ async function readSeat(req: Request, url: URL): Promise<Response> {
       takesHd: COPY.takesHd,
       takesNote: COPY.takesNote,
       weekHd: COPY.weekHd,
+      // All three record-strip sentences, because the strip is a three-state
+      // control and the client must not have to invent the two the payload left
+      // out. Each carries the {issue} slot the client fills with the printed
+      // label; the server does not fill it, because the label lives in the
+      // client's issue vocabulary.
+      weekBusy: COPY.weekBusy,
       weekNone: COPY.weekNone,
+      weekUnread: COPY.weekUnread,
       emptyTakes: COPY.emptyTakes,
     },
     poll: pollBlock(resolvedPoll),
