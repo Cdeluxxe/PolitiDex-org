@@ -4478,7 +4478,114 @@
 // row changed, and Direction Match is byte-identical — it still publishes no
 // figure at all on a file with no formal term, because a file with one half of the
 // test never had two halves to compute one from.
-const CACHE_VERSION = 'v173';
+// v174 - AN EMPTY ANSWER IS STILL AN ANSWER, AND A LANDED RECORD IS NEVER A
+// LOADING FAILURE
+// TWO precached shell assets changed: /word-action.js and /voting-record.js. A
+// HARD REFRESH ON /p/lyman settled empty — eagle placeholder, "No formal pattern
+// on file yet", the seven sourced position chips gone — while the SAME SESSION,
+// homepage first and then Lyman opened in-app, painted the word-first letterhead
+// with its chips. Nothing about the person differed between those two readings.
+// v171 and v173 fixed WHICH CARDS THE GATE CAN SEE, and that work is intact and
+// byte-identical in its reasoning: the hop from the address lyman to the cards
+// filed under phil_lyman still needs no display name and still cannot invent
+// anybody. This pass is about something else entirely — not what the gate answers
+// when asked, but WHETHER ANYTHING EVER ASKED IT AGAIN. The cold page is not one
+// render. It is a mount and then a sequence of repaints driven by events, and two
+// links in that sequence were broken for exactly one class of member: the one
+// whose roll-call record is genuinely empty.
+//   THE ARRIVAL WAS FILED IN SILENCE. memberRecords() answers null until
+// noteMember has run and an array — POSSIBLY EMPTY — forever after, and that flip
+// is the whole difference between "the answer is not here" and "the answer is
+// none". The letterhead's saidLanded asks for precisely it, because a lane nobody
+// has heard from is not an empty lane and a file must not be called wordless
+// while its record is still in flight. But noteMember's arrival event was guarded
+// on `items.length`, so the single member class whose answer IS empty announced
+// that flip to nobody. On a cold /p/ arrival the hero mounts on an honest wait
+// ("Still loading the roll-call record"), the answer lands 120ms later with
+// totalRecords 0, and no surface in the tab was told. The wait stayed on screen
+// over a payload already in memory. NOW A FIRST ARRIVAL ANNOUNCES ITSELF WHATEVER
+// ITS LENGTH, and a later empty call over rows already held still does not — the
+// event remains a transition rather than a per-call broadcast, and no caller that
+// was already hearing it hears it a second time.
+//   THEN THE 6s DEADLINE CALLED IT A LOADING FAILURE. armBriefDeadline exists so
+// that a request which never comes back cannot leave "still loading" on a page
+// forever, and that honesty is not negotiable. But it fired here over a record
+// that had been filed five and a half seconds earlier, set the give-up flag, and
+// the give-up is a hard veto on the word-first lane. From that moment the brief
+// was unreachable for the life of the document and the record-first lane printed
+// its empty-file paragraph over seven sourced positions — the settled frame in
+// the report. A GIVE-UP IS A STATEMENT ABOUT A REQUEST, NOT ABOUT A PERSON: it
+// now yields to the payload's own answer, because once the rows are filed — rows
+// or none — there is nothing left to have given up on. The deadline still
+// dispatches its repaint either way, since whatever is on screen is a wait that
+// is over and the frame is owed regardless of which lane wins it.
+//   A REQUEST THAT GENUINELY NEVER ANSWERS STILL SAYS SO. That is the reason the
+// deadline exists and the one thing this pass could have quietly destroyed. It is
+// measured rather than asserted: the new suite boots the identical cold document
+// with the member answer WITHHELD, lets the real 6s timer come due, and requires
+// the settled frame to read "The roll-call record did not load" and not an empty
+// file. A network failure and an empty record are two different sentences and
+// both are still sayable.
+//   THE HOMEPAGE-FIRST PATH NEVER MET EITHER BUG, which is the whole asymmetry in
+// the report: something else in the tab had already noted lyman, so the lane's
+// answer was in hand at the FIRST paint, no wait was ever armed, and no deadline
+// had anything to fire over. Both boots are now held side by side in one file —
+// warm-then-open, and a fresh document on /p/lyman with no roster row, no
+// Firestore document and no display name anywhere, mounted from a bare { id } —
+// and every frame from the answer onward must be the word-first letterhead, with
+// the empty-file paragraph appearing in no frame the reader ever held.
+//   NOTHING WAS LOOSENED AND NOTHING WAS INVENTED. The four refusals in the gate
+// are untouched: saidNoTerm still refuses the moment the pattern index weighs an
+// act, and the lane's own door still refuses on a ballot or weighable act anywhere
+// in the payload, on the rows the edge printed into the served document, and on
+// the shipped static index. chew_h68 and lee keep their record-first letterhead
+// through the identical cold boot. No act was added to any index, the roster still
+// holds exactly ONE row for this person — phil_lyman is a card key and is not
+// minted as a second roster id — and no rows are filed under the second spelling.
+// The photo resolver is byte-identical and the key list a cold /p/ arrival asks is
+// asserted equal to the list an in-app open asks, so a headshot under either
+// spelling resolves in both states and the eagle is still only ever the honest
+// answer for a person the bundle carries no face for.
+//   AND WHAT THE BUMP CARRIES WITH IT, UNCHANGED. Renaming SHELL_CACHE refetches
+// every precached asset and renaming RUNTIME_CACHE drops every runtime one, so a
+// warm device takes fresh copies of files that did not move a line in this pass:
+//     · /ballot-breakdown.js did not change. Its photo hop is v171's, and this
+//       pass reads that hop in a harness rather than editing it;
+//     · /word-action.css did not change. No element, class, hue or spacing on the
+//       brief moved — the fix is WHEN the block is recomputed, not what it looks
+//       like once it prints, and it adds no sentence to the letterhead;
+//     · /consistency.js is byte-identical, including the deliberate choice not to
+//       note a zero-row member from the matrix warm: that caller holds no answer
+//       for such a member and must not claim one. No arithmetic, floor, band,
+//       mapping or mechanism entry moved;
+//     · /profile-evidence.js and /cmp-data.js did not change. PDX_PROFILE_ALIAS
+//       already said phil_lyman is lyman, so the correct amount of new data in
+//       this pass is none;
+//     · /index.html did not change. No script, stylesheet or route is registered,
+//       nothing new is mounted, and /netlify.toml is untouched — the head's
+//       prefetch box this pass depends on is the one that already shipped;
+//     · /stance-helpers.js, /publication-floor.js, /formal-index.js and
+//       /gaps.js are byte-identical. The floor hops the same hops, the static
+//       index judges exactly the people it judged before — it holds no reviewed
+//       empty note for this person and none was added — and the evidence locker's
+//       absent-term band still prints the letterhead's own cited total;
+//     · the issue desk and every pane it opens — /door1-workspace.js,
+//       /door1-workspace.css, /issue-file.js, /issue-file.css, /issue-view.js,
+//       /pdx-issue-profile.js, /pdx-issue-family.js, /issue-colors.js,
+//       /stance-tree.js and /alignment-tool.js — are byte-identical. This pass
+//       mapped no issue, added no row and changed no count, and the desk never
+//       asked the SAID gate anything in the first place;
+//     · /district-voice.js, /district-file.js and /district-room.js are
+//       byte-identical: no poll, option, tally, claim field or seat allow-list was
+//       touched, and Voice adds no person and no formal act;
+//     · /all-seeing-eye.js is a RUNTIME entry, dropped by the runtime bucket's
+//       rename rather than by SHELL_ASSETS, and it is byte-identical too: this
+//       pass publishes no searchable person and changes nothing about ranking.
+//   NO WEIGHT, MAPPING, FLOOR OR LANE MOVED, no nav item, route, score or Voice
+// row changed, and Direction Match is byte-identical — it still publishes no
+// figure on a file with no formal term, because a file with one half of the test
+// never had two halves to compute one from.
+const CACHE_VERSION = 'v174';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

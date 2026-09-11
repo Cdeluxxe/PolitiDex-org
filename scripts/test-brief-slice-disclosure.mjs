@@ -510,6 +510,29 @@ section("6 · the gate reads published counts, and moves nothing");
         "cmp-data.js gained a line of the slice pass — the sentence is rendered, never stored");
       continue;
     }
+    // voting-record.js IS NOT BYTE-FROZEN ANY MORE EITHER, and for the same kind
+    // of reason as publication-floor.js above: a later pass — the cold /p/
+    // letterhead — taught noteMember to announce a FIRST arrival even when the
+    // answer is empty. memberRecords() answers null until that call runs and an
+    // array, possibly empty, forever after, and that flip is the transition every
+    // loading wait in the client is waiting on; guarding the announcement on
+    // items.length left the one member class whose answer IS empty filing it in
+    // silence. That is an announcement fix inside the record lane, not a change to
+    // anything this pass reads, so the claim the equality stood in for is checked
+    // directly instead: nothing the file gained is a line of the slice pass, and
+    // the two reads the slice gate makes of this lane still answer where they did.
+    if (f === "voting-record.js") {
+      const now = R(f);
+      const gained = now.split("\n").filter((l) => !h.includes(l));
+      ok(!gained.some((l) => /House rolls|career score|SLICE_/.test(l)),
+        "voting-record.js gained a line of the slice pass — the sentence is rendered, never stored");
+      for (const seam of ["memberRecords: function (id) { return this._records[canonPid(id)] || null; },",
+                          "window._pdxRecordMappedCounts = function (pid) {"]) {
+        must(h.includes(seam), `HEAD's voting-record.js does not spell ${JSON.stringify(seam.slice(0, 40))} — this narrowing is stale`);
+        has(now, seam, "the slice gate's read of the record lane moved");
+      }
+      continue;
+    }
     if (f === "stance-helpers.js" || f === "consistency.js") {
       const gained = R(f).split("\n").filter((l) => !h.includes(l));
       ok(!gained.some((l) => /House rolls|career score|SLICE_/.test(l)),

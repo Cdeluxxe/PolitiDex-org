@@ -506,14 +506,31 @@
       // member GAINED rows — first arrival, or a longer answer replacing a shorter
       // one — which is once per member per page load.
       //
+      // AND AN EMPTY ANSWER IS AN ARRIVAL. `items.length &&` used to guard the
+      // whole dispatch, which left the one transition every wait in the client is
+      // waiting on unannounced: memberRecords() answers null until noteMember runs
+      // and an array — POSSIBLY EMPTY — forever after, and that flip is the whole
+      // difference between "the answer is not here" and "the answer is none". A member
+      // whose record is genuinely empty (a candidate with no roll calls on file)
+      // therefore filed its answer in silence, and a letterhead mounted before it
+      // landed sat on "still loading the roll-call record" until the 6s deadline
+      // declared a loading failure over a payload that was already in memory.
+      // That is the cold /p/lyman report: the word-first letterhead its seven
+      // sourced positions had earned was never reached, because the fact that
+      // entitles it to lead — the lane answered, and it holds nothing — reached no
+      // surface. So a FIRST arrival announces itself whatever its length; a later
+      // empty call over rows already held still does not (`!had`), which is what
+      // keeps this a transition and not a per-call broadcast.
+      //
       // BOTH IDS TRAVEL. Listeners are bound with the id their surface resolved,
       // which is not always the id the record cache is keyed under (/p/scott_chew
       // is stored as chew_h68), so a handler comparing one string would drop the
       // repaint for exactly the alias arrivals person-file.js works hardest to get
       // right. `pid` is the caller's id, `canon` is the cache key; a listener may
       // match either.
+      var gained = items.length ? (!had || had.length < items.length) : !had;
       try {
-        if (items.length && (!had || had.length < items.length) &&
+        if (gained &&
             typeof window.dispatchEvent === 'function' && typeof window.CustomEvent === 'function') {
           window.dispatchEvent(new CustomEvent('pdx-record-noted', {
             detail: { pid: String(id), canon: String(key), n: items.length }
