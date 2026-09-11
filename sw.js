@@ -4668,7 +4668,87 @@
 //       names six people the roster already carried and mints none;
 //     · no nav item was added, no second district was opened, and slice 2 —
 //       replies, likes, digest events, the identity vendor — is still unshipped.
-const CACHE_VERSION = 'v175';
+// v176 - THE FORMAL BRIEF'S OWN CLOCK. pdx-perf.js has documented two stages
+// since the first perf pass — 'brief-loading' ("formal brief painted a loading
+// state") and 'brief' ("formal brief swapped off loading") — and NOTHING EVER
+// TOOK THEM. Both printed an em dash on every waterfall, the headline "time to
+// brief off-loading" printed one with them, and pdx-perf.js reads a missing
+// 'brief' beside a present 'vr-data' as a FINDING, so the instrument was not
+// merely silent about the last stage of a person file, it was permanently wrong
+// about it. word-action.js now takes both marks at the two paints that mean
+// them: 'brief' at the census with real counts (the roll-call lane's, the
+// executive lane's, or a SETTLED absence — reviewed empty file, mapped gap,
+// failed load), 'brief-loading' at a wait sentence, on /p/<pid> only and first
+// write wins, so a cold open that waited and then painted carries the pair and
+// the gap between them is the wait the reader actually sat through.
+//   ONE PRECACHED SHELL ASSET CHANGED, WHICH IS THE WHOLE REASON FOR THE BUMP.
+//     · /word-action.js gained ONE contiguous region at heroInner — a perfBrief
+//       helper and the two marked returns of the lane order that was already
+//       there. Taken off the FRAME, not off the branch: heroInner is the
+//       letterhead's single choke point, so the shape lane, the brief lane and the
+//       exec lane are all marked by the string that is actually painted, and the
+//       ring fallback takes neither mark because it is not a brief. The region is
+//       declared as a seam in scripts/v103-chrome-seams.mjs (WA_SEAMS, "the
+//       brief's two stages, on the clock") and argued there, so every wave's
+//       byte-freeze on this letterhead still holds everywhere else in the file.
+//       Nothing else in it moved: no count, no copy, no gate, no branch and no
+//       threshold. PDXPerf.mark is idempotent and its absence is a no-op, so a
+//       device that takes this file against any older shell renders exactly what
+//       it rendered before and simply lays two more marks; a device that keeps
+//       the old file lays none. Neither half is broken by the other — but a
+//       precached shell asset changed, so the rule at the top applies.
+//     · /pdx-perf.js is BYTE-IDENTICAL. The stage list, the headline list, the
+//       waterfall and the one-line cold report already named both stages; the
+//       marks were the missing half, not the map.
+//   EVERYTHING ELSE IN THE SHELL IS BYTE-IDENTICAL, and the list is spelled out
+//   because a perf pass is exactly the kind of pass that quietly moves a figure:
+//     · /index.html is unchanged: the head clock, the cold-open prefetch, its two
+//       alias mirrors (PDX_PROFILE_ALIAS and PDX_PID_ALIASES), the '?pageSize=100'
+//       query, the sessionStorage key and the 12s deadline are all where they
+//       were. The prefetch still fires from the head at the CANONICAL pid, so
+//       /p/scott_chew still asks for chew_h68 and the retired identity stays
+//       retired;
+//     · /consistency.js, /formal-index.js, /voting-record.js, /person-file.js and
+//       /profiles-full.js are unchanged. No page size moved, no all-pages wait was
+//       added or removed (there never was one — the brief has always painted the
+//       first page's inventory the moment noteMember accepts it), issues[].rationale
+//       is still shipped, and noteMember's generation gate and the offline pack's
+//       claim logic are untouched;
+//     · /word-action.css is unchanged: the two marks emit no markup, so there is
+//       no class, no rule and no layout for a half-pickup to disagree about. This
+//       is the one bump in recent memory that is a SCRIPT ALONE, and it is safe as
+//       one precisely because nothing it added is visible;
+//     · Direction Match and every formal tier are untouched — /say-vs-do.js,
+//       /stance-helpers.js, /publication-floor.js and /exec-record.js did not
+//       change a line, no floor moved, no score, percentage or party read moved,
+//       and the census figures a person file prints are identical warm and cold
+//       (pinned by scripts/test-person-file-ttt.mjs);
+//     · the issue desk and every pane it opens — /door1-workspace.js,
+//       /door1-workspace.css, /issue-file.js, /issue-file.css, /issue-view.js,
+//       /pdx-issue-profile.js, /pdx-issue-family.js, /issue-colors.js,
+//       /stance-tree.js and /alignment-tool.js — are byte-identical. This pass
+//       mapped no issue, added no row, moved no count and changed no hue: it marks
+//       two paints on a PERSON file, and the desk was never asked about a clock;
+//     · the district surfaces — /district-file.js, /district-file.css,
+//       /district-room.js, /district-room.css, /district-voice.js,
+//       /district-voice.css, /district-ballot.js and /district-ballot.css — are
+//       byte-identical, and Voice was not touched in any sense: same core in
+//       netlify/lib/district-voice-core.mjs, same seat key, same verified-neighbour
+//       grant checked in the same place;
+//     · /all-seeing-eye.js, /ballot-breakdown.js, /finance-lane.js, /cmp-data.js
+//       and /person-link.js are byte-identical. This pass publishes no searchable
+//       person, mints no roster record, moves no finance figure and adds no query
+//       key; /all-seeing-eye.js is a RUNTIME entry dropped by that bucket's rename
+//       rather than by SHELL_ASSETS, and it answers exactly as it did;
+//     · /netlify.toml is untouched: no route, rewrite, redirect or header moved.
+//       The server half is untouched too — netlify/functions/voting-record.mts is
+//       byte-identical, so /api/voting-record/member/:id answers the same payload
+//       from the same PAGE_SIZE_DEFAULT (50) and PAGE_SIZE_MAX (100) declared
+//       there, and issues[].rationale is still selected and still returned. No
+//       published figure shifts;
+//     · no pack key, pack-generation token or issue mapping was touched, and no
+//       nav item was added.
+const CACHE_VERSION = 'v176';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

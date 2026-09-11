@@ -916,6 +916,41 @@ export const WA_SEAMS = [
   ["      var sh = FPI.shape(pid);\n      if (!sh) return '';\n",
    "      // ── empty ──",
    "the word-first letterhead's mount"],
+  // ── the brief's two stages, on the clock (v176) ────────────────────────────
+  // A MEASUREMENT SEAM, and the narrowest one on this list: it publishes nothing,
+  // reads no record, and returns the html it was handed, unaltered.
+  //
+  // pdx-perf.js has DECLARED two stages since the first perf pass --
+  // `brief-loading` ("formal brief painted a loading state") and `brief` ("formal
+  // brief swapped off loading") — and nothing in the app ever took either. Both
+  // printed an em dash on every waterfall, the headline "time to brief
+  // off-loading" printed one with them, and the report reads a missing `brief`
+  // beside a present `vr-data` as a FINDING, in as many words. So the one stage a
+  // person-file pass is judged on was not a blank cell, it was a permanent false
+  // positive, and the last row of the cold-open waterfall could not be read at all.
+  //
+  // THE SPAN IS heroInner AND THE ONE HELPER ABOVE IT, because heroInner is the
+  // letterhead's single choke point — the shape lane, the brief lane and the
+  // executive lane all return through it. Marking there rather than at four render
+  // sites is what keeps this to ONE span, and it is also the truer instrument: the
+  // mark is laid on the string that is about to be PAINTED, not on a branch that
+  // intended to. A frame carrying one of the two wait sentences is `brief-loading`;
+  // every other frame the brief produces — the census with its real counts, the
+  // exec lane's census, or a settled absence — is the brief being true, which is
+  // `brief`. The ring fallback takes neither, so a waterfall that says the brief
+  // never painted is saying what happened.
+  //
+  // A WAVE'S STAKE IN IT IS NOTHING, and the arguments below are what make that
+  // checkable. The span holds no count, no percentage, no party read, no floor, no
+  // threshold, no issue key and no mapping; it adds no branch to the lane order
+  // (shape, then brief, then the ring — unchanged, in that order), it returns each
+  // lane's html by identity, and the only thing it reaches out of the file for is
+  // PDXPerf.mark, which is idempotent and whose absence is a no-op. It fires on
+  // /p/<pid> only, because the same renderer draws heroes inside homepage strips
+  // and first-write-wins would keep a mark taken for somebody else.
+  ["      return briefBodyHtml(pid, p, sh, { census: depth, total: total, cls: '' });\n    } catch (e) { return ''; }\n  }\n",
+   "  function ringHtml(pid, p, opts) {\n",
+   "the brief's two stages, on the clock"],
   // ── the empty-lane predicate, published (v163) ────────────────────────────
   // Four exports beside heroRead, so a surface that needs the answer without
   // paying for a scoring pass — the card score slot every browse and compare
@@ -2416,6 +2451,50 @@ export function assertWordActionSeams(bodies, api) {
       "the empty-lane export seam publishes a floor, a percentage or a party alongside its four names");
   }
 
+  // Seventh span: the brief's two stages, on the clock (v176). A measurement that
+  // must not be able to become a gate — so what is argued is that it marks, that
+  // it marks the right thing, and that it does nothing else.
+  const clock = wa("the brief's two stages, on the clock");
+  has(clock, "function perfBrief(html) {", "the brief's clock helper is gone from the span");
+  has(clock, "P.mark(waiting ? 'brief-loading' : 'brief');",
+    "the span no longer lays pdx-perf.js's two brief stages, so the last row of the cold-open " +
+    "waterfall goes back to the em dash the report reads as a finding");
+  has(clock, "_WAIT_COPIES = [WAIT_ONFILE_COPY, WAIT_BARE_COPY]",
+    "the loading state is no longer classified by the two wait sentences themselves — a settled " +
+    "absence (a reviewed empty file, a mapped gap, a load that failed and says so) would be " +
+    "reported as a wait the reader never sat through");
+  has(clock, "return html;", "the span no longer returns the html it was handed");
+  ok(/\/\^\\\/p\\\/\[A-Za-z0-9_\]\+\\\/\?\$\//.test(clock),
+    "the brief marks are no longer restricted to /p/<pid>, so a hero drawn inside a homepage strip " +
+    "can spend the mark on somebody else's file and first-write-wins will keep it");
+  // THE LANE ORDER IS THE ONE HEAD WROTE. Shape, then brief, then the ring: the
+  // mark rides on each return rather than adding a branch of its own, and the
+  // fallback takes no mark because it is not the brief.
+  has(clock, "var shaped = shapeHeroHtml(pid, p);\n    if (shaped) return perfBrief(shaped);",
+    "the shape lane is no longer first, or is no longer marked on its own return");
+  has(clock, "var brief = briefHeroHtml(pid, p);\n    if (brief) return perfBrief(brief);",
+    "the brief lane is no longer second, or is no longer marked on its own return");
+  has(clock, "return ringHtml(pid, p, opts);", "the ring is no longer the fail-closed fallback");
+  ok(!/perfBrief\(ringHtml/.test(clock),
+    "the ring fallback takes a brief mark — it is not the brief, and marking it would report a " +
+    "letterhead that never painted a brief as one that did");
+  {
+    // The code, with comments and string literals removed: a measurement span may
+    // not hold arithmetic, a floor, a threshold, a percentage or a party read.
+    const c = clock.replace(/^[ \t]*\/\/.*$/gm, "").replace(/'[^']*'/g, "''");
+    ok(!/Math\.|toFixed|percent|MIN_|_FLOOR|\bparty\b|isPrimary|\bscore\b/i.test(c),
+      "the brief's clock span holds arithmetic, a floor, a percentage, a party read or a score — it " +
+      "is allowed to observe which frame painted and nothing else");
+    ok(!/%/.test(c), "the brief's clock span prints a percentage");
+    ok(!/dispatchEvent|CustomEvent|setTimeout|fetch\(/.test(c),
+      "the brief's clock span dispatches, schedules or requests something — a mark is not an event");
+    ok(!/innerHTML|querySelector|createElement/.test(c),
+      "the brief's clock span touches the document — it is handed the html and hands it back");
+    // One global out of the file, and it is the clock (plus the address it guards on).
+    const globals = [...new Set((c.match(/\bwindow\.[A-Za-z_$][\w$]*/g) || []))].sort();
+    eq(globals.join(", "), "window.PDXPerf, window.location",
+      "the brief's clock span reaches a global other than window.PDXPerf and the address it guards on");
+  }
   // ── EVERY CARVED SPAN, ARGUED ─────────────────────────────────────────────
   const unspent = WA_SEAMS.map((s) => s[2]).filter((why) => !spent.has(why));
   eq(unspent.join(" | "), "",
