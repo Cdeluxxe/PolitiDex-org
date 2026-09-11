@@ -59,7 +59,12 @@
 //   5. THE WARM FRAME IS THE SAME FRAME. A Firestore document merging in, a
 //      blanked roster name, a missing roster row, a person object carrying
 //      nothing but an id — every shape the warm path can hand the gate still
-//      lands on phil_lyman's cards and still reads SAID.
+//      lands on phil_lyman's cards and still reads SAID. INCLUDING THE FRAME WITH
+//      NO DISPLAY NAME ANYWHERE ON IT (section 5b): the slug hop has nothing to
+//      slug when the roster name is blank, the roster row is missing, or the name
+//      has only reached the merged document, and the alias tables — read
+//      backwards, the way they are actually written — carry the resolution with
+//      no name at all.
 //   6. THE PHOTO CROSSES THE SAME GAP. A headshot filed under either key
 //      resolves on the other, and a photo that already resolved is unchanged —
 //      so the eagle is never painted over a loaded face.
@@ -103,6 +108,12 @@ const FILES = [
   "acct-spotlight-data.js", "say-vs-do.js", "exec-action-data.js", "exec-record.js",
   "formal-index.js", "issue-colors.js", "consistency.js", "voting-record.js",
   "word-action.js", "stance-tree.js", "profile-spine.js",
+  // profile-evidence.js publishes PDX_PROFILE_ALIAS — the table that says
+  // phil_lyman and lyman are one person — and index.html serves it as a PLAIN
+  // script, so it has run before any deferred module here even parses. It is in
+  // this list because the hop chain reads that table, and a sandbox without it
+  // would pass the nameless frames for the wrong reason.
+  "profile-evidence.js",
 ];
 
 function boot() {
@@ -439,6 +450,126 @@ section("5 · the warm frame — every shape the merge can hand the gate");
     eq(WA.saidStanceId(id, person(W, id)), id,
       `${id}: the hop chain moved a file whose cards are already under its own id`);
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+section("5b · the frame with no display name on it");
+// ─────────────────────────────────────────────────────────────────────────────
+// THE FRAME THAT WAS STILL FLIPPING. Section 5 hands the gate a person object OR
+// a roster row that carries the display name, and the slug hop — the publication
+// floor's own hop — needs one of those two to be true. The warm path can make
+// both false at once, and does:
+//
+//   · bindHero repaints with the person object captured at MOUNT, which on a cold
+//     /p/lyman arrival is a bare { id } assembled before the roster answered;
+//   · firebase-boot.js's merge will not let a blank document field overwrite a
+//     curated one, so a roster row can sit in memory with `name` empty;
+//   · the merged Firestore document lands in PROFILES before CMP_DATA has a row
+//     at all, so on that frame the only copy of the name is one the slug hop was
+//     not reading.
+//
+// In each of those the cited count fell to zero and /p/lyman re-rendered
+// record-first empty over seven sourced positions — the reported defect, one
+// frame later than the pass that fixed the named-frame version of it. The hop now
+// reads the merged profile's name as well as the roster's, and then falls through
+// to the alias tables read BACKWARDS (PDX_PROFILE_ALIAS is written phil_lyman →
+// lyman, and the id in hand is the roster id), which needs no display name at all.
+// Every case below is re-asked AFTER a noteMember, because a warm frame with no
+// name is a warm frame that has just been handed a payload.
+{
+  const NAMELESS = { id: PID };
+  const frames = [
+    ["the roster name has not landed and the person object has none", (w) => {
+      w.CMP_DATA[PID] = Object.assign({}, w.CMP_DATA[PID], { name: "" });
+    }],
+    ["there is no roster row and no name anywhere", (w) => {
+      delete w.CMP_DATA[PID];
+    }],
+    ["the name is only in the merged Firestore document", (w) => {
+      w.CMP_DATA[PID] = Object.assign({}, w.CMP_DATA[PID], { name: "" });
+      w.PROFILES = w.PROFILES || {};
+      w.PROFILES[PID] = { id: PID, name: CMP[PID].name, bio: "Utah legislator and 2026 candidate." };
+    }],
+  ];
+  for (const [label, frame] of frames) {
+    const w = boot();
+    must(w.__err.length === 0, `${label}: the sandbox did not load: ${w.__err.join(" | ")}`);
+    const A = w.PDXWordAction;
+    frame(w);
+    w.PDXVotingRecord.noteMember(PID, [narrative(ISSUE)]);
+    changed(w);
+    eq(A.saidStanceId(PID, NAMELESS), CARD_KEY,
+      `${label}: the hop chain cannot reach phil_lyman`);
+    eq(A.saidRowSet(PID, NAMELESS).cited, CITED,
+      `${label}: the cited cards are lost, which is what flips the letterhead`);
+    ok(A.saidNoTerm(PID), `${label}: saidNoTerm read a formal term into an inert row`);
+    ok(A.saidLeadApplies(PID, NAMELESS),
+      `${label}: the letterhead flipped off the word lane`);
+    const hero = A.heroHtml(PID, NAMELESS);
+    has(hero, "pdxwa-brief-said", `${label}: the letterhead re-rendered as record-first`);
+    has(hero, A.SAID_NOTE, `${label}: the honest line is gone from the warm letterhead`);
+    hasNot(hero, "No formal pattern on file yet",
+      `${label}: the record-first absence replaced the word lane`);
+    hasNot(hero, "%", `${label}: a percentage reached the warm letterhead`);
+    ok(w.PDXProfileSpine.twoJobsWordFirst(PID, NAMELESS),
+      `${label}: the two-jobs explainer handed the main view back to the record`);
+    // ONE FILE, ONE COUNT. The evidence locker's absent-term band prints the
+    // letterhead's own cited total, so it is asked on the same frame with the
+    // same object: two surfaces disagreeing about one file is the same class of
+    // defect as the flip itself.
+    eq((w.PDXWordAction.saidRowSet(PID, NAMELESS) || {}).cited, CITED,
+      `${label}: the open-gaps band would print a different total than the brief`);
+  }
+}
+{
+  // AND THE BACKWARD HOP INVENTS NOTHING. It resolves only to a key that already
+  // carries a non-empty stance list, and only after the direct read, the forward
+  // alias and every name slug have come back empty.
+  const A = WA;
+  const S = W.ISSUE_STANCE_DATA || {};
+  eq(A.saidStanceId("no_such_person_at_all", { id: "no_such_person_at_all" }),
+    "no_such_person_at_all", "the backward hop invented a stance key for a nameless unknown id");
+  ok(!A.saidLeadApplies("no_such_person_at_all", { id: "no_such_person_at_all" }),
+    "the gate fired for a nameless id with no cards");
+  // EVERY BRIDGED KEY IN THE SHIPPED TABLES, SWEPT. For each roster id the alias
+  // tables point at, the hop must return either the id itself or a key with cards
+  // on it — never a key this repo holds nothing under, and never a key the tables
+  // have not declared to be the same person.
+  const tables = [W.STANCE_ALIASES, W.PDX_PROFILE_ALIAS, W.PDX_PID_ALIASES].filter(Boolean);
+  must(tables.length === 3,
+    "one of the three alias tables is no longer published — the sweep would pass vacuously");
+  let bridged = 0;
+  for (const tbl of tables) {
+    for (const from of Object.keys(tbl)) {
+      const to = tbl[from];
+      if (!to || typeof to !== "string") continue;
+      bridged++;
+      const got = A.saidStanceId(to, { id: to });
+      if (got === to) continue;
+      ok((S[got] || []).length > 0,
+        `${to}: the hop chain resolved to ${got}, which carries no stance cards`);
+      // Declared the same person by one of the two things the chain is allowed to
+      // read: a slug of a display name this repo files under that id, or an alias
+      // table entry in either direction.
+      const slug = (v) => String(v || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+      const declared = got === from ||
+        slug((CMP[to] || {}).name) === got ||
+        slug(((W.PROFILES || {})[to] || {}).name) === got ||
+        tables.some((t) => t[got] === to || t[to] === got);
+      ok(declared,
+        `${to}: the hop chain resolved to ${got}, which nothing in this repo declares to be the same person`);
+    }
+  }
+  must(bridged > 20, `the bridged-key sweep covered ${bridged} entries — too few to mean anything`);
+  // AND THE FULL NO-OP SWEEP. Every roster id whose cards are filed under its own
+  // id resolves to itself, with no person object in hand — the state the nameless
+  // frame puts every other file in too.
+  const own = Object.keys(S).filter((k) => CMP[k] && (S[k] || []).length);
+  must(own.length > 100, `only ${own.length} roster ids carry their own cards — the no-op sweep is thin`);
+  const moved = own.filter((id) => A.saidStanceId(id, { id: id }) !== id);
+  eq(moved.length, 0,
+    `the hop chain moved ${moved.slice(0, 5).join(", ")} — a file whose cards are already under its own id`);
+  console.log(`      ${own.length} own-key files and ${bridged} bridged keys swept; none moved`);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -4380,7 +4380,105 @@
 // rather than asserted: the district-voice suite twin-boots cox, lee and chew_h68
 // through all three with district-voice.js loaded and without it, and every read
 // matches byte for byte.
-const CACHE_VERSION = 'v172';
+// v173 - THE LETTERHEAD MUST NOT NEED A DISPLAY NAME TO KNOW WHOSE FILE IT IS
+// TWO precached shell assets changed: /word-action.js and /gaps.js. /p/lyman was
+// reported flipping again — the SAID brief on first paint, then "Loading the
+// latest roster…" resolves and the same address re-renders record-first empty:
+// courthouse/eagle art, CURRENT CANDIDATE, "No formal pattern on file yet", the
+// position chips gone. Pace, Larson, Chew and Lee did not flip. v171 fixed the
+// NAMED frame of this: the cards are filed under phil_lyman, the address is
+// lyman, and the gate learned the publication floor's hop chain — direct id,
+// alias table, slug of the display name, alias of that slug. What v171 left is
+// the frame with NO DISPLAY NAME IN IT, and the warm path produces it three ways.
+// The hero repaints with the person object captured at MOUNT, which on a cold
+// arrival is a bare { id } assembled before the roster answered; firebase-boot.js
+// will not let a blank document field overwrite a curated one, so a roster row
+// can legitimately sit in memory with `name` empty; and the merged Firestore
+// document reaches PROFILES before CMP_DATA has a row at all. In each of those
+// the slug hop had nothing to slug, the cited count fell to zero, and the brief
+// was refused for a file whose seven sourced positions never moved.
+//   SO THE HOP NO LONGER DEPENDS ON A NAME. Two readers were added to it, both of
+// tables this repo already writes. The merged profile's name is read AHEAD of the
+// roster's, because the warm path puts the name there first — the headshot
+// resolver has read it in exactly that order since v171, for exactly this reason.
+// And then the alias tables are read BACKWARDS: they are written pointing AT the
+// roster id (PDX_PROFILE_ALIAS maps phil_lyman → lyman), the id in hand IS the
+// roster id, so the useful direction is the reverse one, found by scanning for
+// entries that point here. That hop needs no display name at all, which is what
+// makes the nameless frame safe. STANCE_ALIASES and PDX_PID_ALIASES are read the
+// same way, because a curated card block can be filed under any key one of those
+// three tables has already declared to be this person.
+//   IT STILL CANNOT INVENT ANYBODY. Every candidate key must carry a non-empty
+// stance list of its own before it is returned; the direct read is taken first and
+// kept; an id with no list, no alias and no matching name resolves to itself and
+// reads nothing. That is measured rather than asserted: the lyman suite sweeps all
+// 673 roster ids whose cards are filed under their own id and every one of them
+// still resolves to itself with no person object in hand, and it sweeps all 70
+// bridged keys in the three shipped alias tables and requires each hop to land on
+// a key this repo both holds cards under and declares to be the same person.
+//   /gaps.js IS THE SECOND FILE, AND FOR THE SAME SENTENCE. The evidence locker's
+// absent-term band prints the letterhead's own cited total — "No formal term to
+// test yet — 7 documented positions, 0 acts on file." — and it was asking for that
+// total without passing the person object it already holds. On the nameless frame
+// the band and the brief would have printed two different counts for one file, so
+// the object now travels with the pid. One predicate, one answer; no new source of
+// fact and no new sentence.
+//   NOTHING ELSE MOVED, AND NOTHING WAS LOOSENED. The four refusals in the gate
+// are untouched: saidNoTerm still refuses the moment the pattern index weighs an
+// act, this lane's own door still refuses on a ballot or a weighable act anywhere
+// in the payload, on the rows the edge printed into the served document, and on
+// the shipped static index — so an empty payload stays SAID, an unread or deferred
+// or backfill row stays SAID, and a roll call or signed act still takes the file
+// back to its record. chew_h68 keeps its record-first letterhead through a
+// noteMember on the strength of the shipped index, lee's roll calls still refuse
+// the word lane, and Pace, Larson and Bishop still lead with their words. The
+// photo hop shipped in v171 is byte-identical and its 715-headshot regression
+// sweep still moves nothing, so the eagle is still never painted over a loaded
+// face. No second roster row is created for either spelling, no act is invented,
+// and no percentage reaches a letterhead with one half of Word vs Action.
+//   AND WHAT THE BUMP CARRIES WITH IT, UNCHANGED. Renaming SHELL_CACHE refetches
+// every precached asset and renaming RUNTIME_CACHE drops every runtime one, so a
+// warm device takes fresh copies of files that did not move a line in this pass:
+//     · /word-action.css did not change. No element, class, hue or spacing on the
+//       brief moved — the fix is which cards the gate can SEE, not what the block
+//       looks like once it prints;
+//     · /consistency.js is byte-identical. No arithmetic, no floor, no band, no
+//       mapping, no mechanism entry and no export of the formal pattern index
+//       moved, and the ballot vocabulary the gate reads is still asserted equal to
+//       that engine's own private table at source;
+//     · /stance-helpers.js and /publication-floor.js are byte-identical. The floor
+//       hops the same four hops it always did and the sitemap's decision about
+//       either spelling is unchanged; this pass ADDS a hop at the letterhead
+//       rather than editing the floor;
+//     · /profile-evidence.js and /cmp-data.js did not change. PDX_PROFILE_ALIAS
+//       already said phil_lyman is lyman and the roster still holds exactly one
+//       row for them, which is why the correct amount of new data here is none;
+//     · /ballot-breakdown.js did not change. Its photo hop is v171's and is not a
+//       precached shell asset in any case;
+//     · /index.html did not change. This pass registers no script, no stylesheet
+//       and no route, adds no nav item and mounts nothing itself: both readers are
+//       new lines inside a module the page already loads, and /netlify.toml is
+//       untouched too — neither spelling of this file's address moved, and the one
+//       that redirects is still the one that redirected before;
+//     · the issue desk and every pane it opens — /door1-workspace.js,
+//       /door1-workspace.css, /issue-file.js, /issue-file.css, /issue-view.js,
+//       /pdx-issue-profile.js (the /i/* address module), /pdx-issue-family.js,
+//       /issue-colors.js, /stance-tree.js and /alignment-tool.js — are
+//       byte-identical here. No count, order, band, boundary or measure read on
+//       the desk moved, this pass mapped no issue and added no row to any of them,
+//       and the desk never asked the SAID gate anything in the first place;
+//     · /district-voice.js, /district-file.js, /district-room.js and every Voice
+//       surface are byte-identical: no poll, option, tally, claim field or seat
+//       allow-list was touched, and Voice adds no person and no formal act;
+//     · /all-seeing-eye.js is a RUNTIME entry rather than a precached one, so it
+//       is dropped by the runtime bucket's rename rather than by SHELL_ASSETS —
+//       and it is byte-identical too: this pass publishes no searchable person and
+//       changes nothing about how one is ranked.
+//   NO WEIGHT, MAPPING, FLOOR OR LANE MOVED, no nav item, route, score or Voice
+// row changed, and Direction Match is byte-identical — it still publishes no
+// figure at all on a file with no formal term, because a file with one half of the
+// test never had two halves to compute one from.
+const CACHE_VERSION = 'v173';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
