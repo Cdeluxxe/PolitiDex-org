@@ -1165,12 +1165,21 @@ async function settle(win) {
   }
   no(voice.innerHTML, CHEW, "and no pid — a take belongs to the seat, not the member");
 
-  // VOICE BLOCKS FIRST, ISSUE ROOMS UNDER THEM.
+  // VOICE BLOCKS FIRST, THE SEAT'S BALLOT STRIP UNDER THEM, ISSUE ROOMS UNDER
+  // BOTH. This boot does NOT load district-ballot.js, so the middle container is
+  // present and EMPTY — which is the guarantee being asserted here: the file
+  // emits the slot, the strip's absence paints nothing into it, and the order of
+  // what a reader actually sees is unchanged from the file that shipped before
+  // the strip existed. The strip's own contents are asserted in
+  // test-district-ballot.mjs.
   const scroll = w.document.getElementById("pdx-district-file-scroll");
   const order = scroll.children.map((c) => c.id);
   eq(JSON.stringify(order),
-    JSON.stringify(["pdx-district-file-voice", "pdx-district-file-rooms"]),
-    "Voice is painted first and the issue rooms under it");
+    JSON.stringify(["pdx-district-file-voice", "pdx-district-file-ballot",
+      "pdx-district-file-rooms"]),
+    "Voice is painted first, the ballot slot second, the issue rooms under both");
+  eq(w.document.getElementById("pdx-district-file-ballot").innerHTML, "",
+    "and with district-ballot.js absent that slot paints nothing at all");
   // The rooms are still there, and still at their own addresses.
   has(rooms.innerHTML, "Issue rooms", "the issue rooms list is still on the file");
   has(rooms.innerHTML, "/d/" + HD68 + "/" + FLAGSHIP_ISSUE,

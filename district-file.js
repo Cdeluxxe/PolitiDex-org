@@ -129,8 +129,13 @@
   var ID_TITLE = 'pdx-district-file-title';
   var ID_HEAD = 'pdx-district-file-head';
   var ID_BODY = 'pdx-district-file-scroll';
-  // The scroller's two children: District Voice first, the issue rooms under it.
+  // The scroller's three children, painted in this order: District Voice first,
+  // then "This seat's ballot" — the officials this district answers to, as links
+  // to person files that already exist — then the issue rooms under both. Each is
+  // its own container because each is its own module's, and both of the first two
+  // fail soft to an empty div this file leaves alone.
   var ID_VOICE = 'pdx-district-file-voice';
+  var ID_BALLOT = 'pdx-district-file-ballot';
   var ID_ROOMS = 'pdx-district-file-rooms';
 
   function fn(x) { return typeof x === 'function'; }
@@ -642,8 +647,8 @@
     });
   }
 
-  // TWO CONTAINERS, PAINTED IN THIS ORDER: District Voice first, the issue rooms
-  // under it. Voice is the belonging layer for the SEAT — one live question and
+  // THREE CONTAINERS, PAINTED IN THIS ORDER: District Voice first, the seat's
+  // ballot strip under it, the issue rooms under both. Voice is the belonging layer for the SEAT — one live question and
   // the neighbours' own takes — and the rooms are the per-issue conversations,
   // each of which still lives at its own /d/<district>/<issue> address and is
   // reached from the list below exactly as before. Nothing about a room moved.
@@ -661,10 +666,12 @@
       try {
         body.innerHTML =
           '<div id="' + ID_VOICE + '" class="pdxdf-voice"></div>' +
+          '<div id="' + ID_BALLOT + '" class="pdxdf-ballot"></div>' +
           '<div id="' + ID_ROOMS + '" class="pdxdf-rooms"></div>';
       } catch (e) { return; }
       rooms = el(ID_ROOMS);
       voiceMount(districtKey, recordKeys || []);
+      ballotMount(districtKey);
     } else {
       // Second pass: hand the record keys to Voice's composer rather than
       // remounting it, so a half-typed take survives.
@@ -689,6 +696,25 @@
       var V = window.PDXVoice;
       if (!V || !fn(V.mount) || !voiceHere(districtKey)) return;
       V.mount(districtKey, ID_VOICE, recordKeys || []);
+    } catch (e) {}
+  }
+
+  // THIS SEAT'S BALLOT, MOUNTED IF IT IS ON THE PAGE AND TABLED FOR THIS
+  // DISTRICT. Same terms as the Voice mount above and for the same reasons: both
+  // checks fail soft, so a boot without district-ballot.js — or a district that
+  // module holds no ballot for — paints exactly today's file and leaves an empty
+  // div the stylesheet collapses. This module renders no name, office or line of
+  // its own here; it owns the rooms, and the strip owns the officials.
+  //
+  // MOUNTED ONCE PER OPEN, beside Voice, for the same reason: paint() runs twice
+  // on one open and the second pass repaints the rooms only. The strip reads no
+  // network and holds no typing, but remounting it would still be work with no
+  // question it answers differently the second time.
+  function ballotMount(districtKey) {
+    try {
+      var B = window.PDXDistrictBallot;
+      if (!B || !fn(B.mount)) return;
+      B.mount(districtKey, ID_BALLOT);
     } catch (e) {}
   }
 

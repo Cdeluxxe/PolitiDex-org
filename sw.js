@@ -4585,7 +4585,90 @@
 // row changed, and Direction Match is byte-identical — it still publishes no
 // figure on a file with no formal term, because a file with one half of the test
 // never had two halves to compute one from.
-const CACHE_VERSION = 'v174';
+// ─────────────────────────────────────────────────────────────────────────────
+// v175 - "THIS SEAT'S BALLOT": WHAT A NEIGHBOUR ON /d/ut-statehouse-68 CAN POINT
+// AT. Who talks does not change. District Voice is still the only Voice file, it
+// is still keyed on the SEAT and never on a pid, reading is still open to
+// everybody and writing is still the same verified-neighbour grant checked in the
+// same place — netlify/lib/district-voice-core.mjs, which did not change a line.
+// What the page gained is one short strip between Voice's question and the issue
+// rooms, naming the officials who actually touch this district as LINKS TO PERSON
+// FILES THAT ALREADY EXIST: the member sitting in the seat, the U.S. House names
+// the roster files for this geography, both U.S. Senators and the Governor.
+//   FIVE PRECACHED SHELL ASSETS CHANGED AND TWO OF THEM ARE NEW.
+//     · /district-ballot.js and /district-ballot.css are the new pair. The module
+//       holds one district in one table, renders '' for every other one, sends NO
+//       request — there is no fetch, no API address, no POST, no form and no
+//       control that writes anything in the file — and mints no person, office or
+//       district: a pid the roster has no row for is dropped rather than printed.
+//     · /district-file.js emits a third scroller container between its two and
+//       mounts the strip into it once per open. Both checks fail soft, so a device
+//       that takes this file and not the new pair paints exactly yesterday's file.
+//     · /district-file.css turns its one separator into three, every one of them
+//       keyed on :not(:empty), so an empty container spends no rule, no border and
+//       no gap and a rooms-only file stays what it was.
+//     · /index.html registers the new pair and nothing else: one deferred script
+//       after /district-file.js, and the stylesheet on the same non-blocking
+//       media="print" + onload swap the three district sheets already use. No nav
+//       item, no route, no second district and no other tag moved — the served
+//       document is precached as '/' rather than as '/index.html', which is why
+//       the bump is what refreshes it.
+//   NO SCORE, NO PERCENTAGE, NO PARTY AND NO RANKING WAS ADDED. There is no
+// percentage in the strip: none is computed, none is rendered, and any line that
+// arrives from an engine upstream with a '%' in it is DROPPED rather than trimmed.
+// No party letter, colour, caucus or sort — there is no party field in the sort,
+// which is alphabetical on the displayed name and on nothing else. No new score,
+// grade, composite, tier hue, bar, fill or ring, and nothing in the sheet scales
+// with anything about the person in the row. No "district vs the member" tile and
+// no "neighbours agree with X" tile: the strip compares nobody to anybody, and a
+// district's answers are still not evidence about a member.
+//   THE ONE-LINER IS THE PERSON FILE'S OWN OR THERE IS NONE. Record first —
+// PDXConsistency.recordStandout.pick, in the engine's own words through
+// window._PDX_RD_SAYS_LEAD, at the pattern engine's own floor — then the SAID
+// cards labelled `Said:` exactly as every other surface labels them, then
+// nothing. A thin file prints one line or no line instead of a placeholder, and no
+// act is invented for anybody: lyman has stance cards and no formal acts on file,
+// and that is what his row shows.
+//   AND WHAT THE BUMP CARRIES WITH IT, UNCHANGED. Renaming SHELL_CACHE refetches
+// every precached asset and renaming RUNTIME_CACHE drops every runtime one, so a
+// warm device takes fresh copies of files that did not move a line in this pass:
+//     · /district-voice.js and /district-voice.css are byte-identical. No poll,
+//       option, tally, claim field, composer state or seat allow-list was touched,
+//       the strip lives OUTSIDE the .pdxv section, and Voice still carries no
+//       politician id in any request it sends or row it writes. The person file's
+//       one quiet neighbour link is unchanged and still answers '' for everybody
+//       who does not sit in a Voice seat — lee and cox included;
+//     · /district-room.js and /district-room.css did not change. A room row still
+//       opens the room and never a person, and no take was rekeyed: a take is
+//       still keyed to an ISSUE and is never required to name the seat's member;
+//     · /consistency.js, /stance-helpers.js, /say-vs-do.js, /word-action.js and
+//       /word-action.css are byte-identical. The new strip READS the pattern
+//       engine and the stance resolver and writes to neither; no tier, floor,
+//       mapping, weight, denominator or lead phrase moved, no element or hue on
+//       the brief changed, and Direction Match is untouched;
+//     · /cmp-data.js, /profiles-full.js and /ballot-breakdown.js did not change.
+//       The correct amount of new roster data in a pass whose whole point is
+//       pointing at files that already exist is none — the strip resolves the
+//       seat's own member through pdxSeatedMemberFor and keeps no second copy of
+//       the incumbent table;
+//     · /finance-lane.js and every finance surface are byte-identical. No lane,
+//       coverage read or Mandate figure was touched;
+//     · the issue desk and every pane it opens — /door1-workspace.js,
+//       /door1-workspace.css, /issue-file.js, /issue-file.css, /issue-view.js,
+//       /pdx-issue-profile.js, /pdx-issue-family.js, /issue-colors.js,
+//       /stance-tree.js and /alignment-tool.js — are byte-identical. This pass
+//       mapped no issue, added no row, moved no count and changed no hue: the
+//       strip sits on a DISTRICT file, the issue rooms under it still open rooms
+//       rather than people, and the desk was never asked about a district;
+//     · /netlify.toml is untouched: no route, rewrite or redirect was added, and
+//       /d/ut-hd-68 still 301s to /d/ut-statehouse-68 exactly as it did;
+//     · /all-seeing-eye.js is byte-identical, and it is a RUNTIME entry dropped by
+//       that bucket's rename rather than by SHELL_ASSETS. This pass publishes no
+//       searchable person, no new query key and nothing about ranking: the strip
+//       names six people the roster already carried and mints none;
+//     · no nav item was added, no second district was opened, and slice 2 —
+//       replies, likes, digest events, the identity vendor — is still unshipped.
+const CACHE_VERSION = 'v175';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -4723,6 +4806,18 @@ const SHELL_ASSETS = [
   // runs for a seat on Voice's own allow-list, and there is no front-page work.
   '/district-voice.js',
   '/district-voice.css',
+  // "This seat's ballot" and its stylesheet — the strip between Voice's question
+  // and the issue rooms on the same district file, naming the officials the
+  // district answers to as links to person files that already exist. On this list
+  // for the same reason the pair above is: it travels with that page, and a
+  // device holding district-file.js WITHOUT this module opens a saved
+  // /d/<districtKey> and paints a file that has lost a block it had yesterday.
+  // The pair is small, it makes no request of its own — every fact in it is
+  // already in the shell — and it paints nothing anywhere else: the mount only
+  // runs for a district in this module's own table, and there is no front-page
+  // work.
+  '/district-ballot.js',
+  '/district-ballot.css',
   // Issue color tokens. Tiny, and precached with alignment-tool.js so an offline
   // repeat visit keeps issues colour-coded instead of falling back to slate
   // everywhere, which would read as "nothing is a core issue".

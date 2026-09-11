@@ -2323,6 +2323,20 @@ window.PDXLazy = (function () {
        non-blocking path as the sheets above. -->
   <link rel="stylesheet" href="/district-voice.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/district-voice.css" /></noscript>
+  <!-- "This seat's ballot" — the .pdxb* strip between District Voice's question
+       and the issue rooms on that same district file, naming the officials this
+       district answers to as links to person files that already exist. Its own
+       sheet on the same terms as the three above, and with the rule that matters
+       on a strip full of names: NOTHING IN IT SCALES WITH ANYTHING ABOUT THE
+       PERSON IN THE ROW. Same size, same weight, same colour for the seat's own
+       member and for the statewide office above them, no bar, no fill, no chip
+       and no tier hue — there is no number in the strip for a style to read, and
+       an office list that got louder down the page would be a ranking. Neutral
+       surfaces, one cool accent, no verdict palette and no party colour, because
+       there is no party field to draw one from. Same non-blocking path as the
+       sheets above. -->
+  <link rel="stylesheet" href="/district-ballot.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/district-ballot.css" /></noscript>
   <!-- Your file — #your-file, the reader's OWN positions on eight issues. Its own
        sheet for the same reason the two district sheets have theirs, and with the
        same refusal: neutral surfaces, one cool accent, and NONE of the verdict
@@ -22850,6 +22864,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        to exactly its rooms list if THIS file is missing, and this module prints
        nothing for a seat that is not in its allow-list. -->
   <script defer src="/district-voice.js"></script>
+  <!-- "This seat's ballot" — one short strip on that same district file, under
+       Voice's question and above the issue rooms, naming the officials who
+       actually touch the district: the member who sits in the seat, the U.S.
+       House names the roster files for this geography, both U.S. Senators and the
+       Governor. Every row is a LINK TO A PERSON FILE THAT ALREADY EXISTS plus, if
+       that file already has one, one record-first line in the app's own words —
+       no mini-profile, no new score, no percentage, no party field and no party
+       sort, and no person, office or district is minted here. It is a separate
+       module because district-voice.js carries no politician id in any request it
+       sends or row it writes, and that promise is what keeps a seat's takes from
+       becoming a comment section about its member. No network, no write and no
+       form: every fact it prints is already in this page. Loaded after
+       district-file.js because that module mounts this one between its two other
+       blocks; the file degrades to exactly Voice plus its rooms list if THIS file
+       is missing, and this module prints nothing for a district that is not in
+       its own table. -->
+  <script defer src="/district-ballot.js"></script>
   <!-- #your-file — YOUR FILE: the reader's own Support / Oppose / Mixed / Not sure
        on EIGHT issues, one answer each, saved to the signed-in uid through
        PDXStore's 'yourFile' collection (/api/pdx-sync → Netlify Database; no new
