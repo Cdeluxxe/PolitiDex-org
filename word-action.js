@@ -5942,6 +5942,43 @@
   function saidSlug(s) {
     return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
   }
+  // ── AND THE HOP HAS TO SURVIVE A FRAME WITH NO DISPLAY NAME ON IT ──────────
+  // THE NAME SLUG IS THE FLOOR'S HOP, AND IT IS NOT ENOUGH HERE. The publication
+  // floor resolves cards off a person it has already loaded, so a display name is
+  // always in its hand. This gate is asked on the warm frame, and the warm frame
+  // is exactly where a display name is the field most likely to be missing:
+  // _pdxColdOpen.merge re-runs the file with the Firestore document over the
+  // roster row, bindHero repaints with the person object captured at MOUNT — which
+  // on a cold arrival is a bare { id } — and firebase-boot.js will not let a blank
+  // document field overwrite a curated one, so a roster row can legitimately be
+  // present with `name` empty. In every one of those frames the slug hop has
+  // nothing to slug, `cited` fell to zero, and /p/lyman re-rendered record-first
+  // empty over seven sourced positions. Three additions, all of them readers of
+  // tables this repo already writes:
+  //
+  //   · PROFILES[pid].name, AHEAD OF THE ROSTER. The merged profile is where the
+  //     warm path puts the name first — the photo resolver reads it in exactly
+  //     this order and for exactly this reason — so the frame where CMP_DATA has
+  //     not landed still has a name to slug.
+  //   · THE ALIAS TABLES, READ BACKWARDS. They are written pointing AT the roster
+  //     id (PDX_PROFILE_ALIAS maps phil_lyman → lyman), and the id we hold IS the
+  //     roster id, so the useful direction is the reverse one — found by scanning
+  //     for entries that point here. This is the hop that needs NO display name at
+  //     all, which is what makes the nameless frame safe: the app's own statement
+  //     that these two keys are one person is the whole resolution.
+  //   · PDX_PROFILE_ALIAS AND PDX_PID_ALIASES ALONGSIDE STANCE_ALIASES, both ways,
+  //     because a curated card block can be filed under any key one of those three
+  //     tables has already declared to be this person.
+  //
+  // IT STILL CANNOT INVENT A PERSON. Every candidate key must carry a non-empty
+  // stance list of its own before it is returned, the direct read is taken first,
+  // and an id with no list, no alias and no matching name resolves to itself and
+  // reads nothing. And it still only ever ADDS a hop: an id whose cards are filed
+  // under the id itself returns at the first line, so no file that resolves today
+  // resolves differently.
+  function saidAliasTables() {
+    return [window.STANCE_ALIASES, window.PDX_PROFILE_ALIAS, window.PDX_PID_ALIASES];
+  }
   function saidStanceId(pid, p) {
     try {
       var S = window.ISSUE_STANCE_DATA || {};
@@ -5950,13 +5987,27 @@
       if (!pid) return pid;
       if (isList(S[pid])) return pid;
       if (A[pid] && isList(S[A[pid]])) return A[pid];
+      var pr = window.PROFILES && window.PROFILES[pid];
       var d = window.CMP_DATA && window.CMP_DATA[pid];
-      var names = [p && p.name, d && d.name];
+      var names = [p && p.name, pr && pr.name, d && d.name];
       for (var i = 0; i < names.length; i++) {
         var slug = saidSlug(names[i]);
         if (!slug || slug === pid) continue;
         if (isList(S[slug])) return slug;
         if (A[slug] && isList(S[A[slug]])) return A[slug];
+      }
+      // The alias tables, forward first (a table written this way round) and then
+      // backwards (the way they are actually written), with no name required.
+      var tables = saidAliasTables();
+      for (var t = 0; t < tables.length; t++) {
+        var tbl = tables[t];
+        if (!tbl || typeof tbl !== 'object') continue;
+        if (tbl[pid] && tbl[pid] !== pid && isList(S[tbl[pid]])) return tbl[pid];
+        for (var k in tbl) {
+          if (!Object.prototype.hasOwnProperty.call(tbl, k)) continue;
+          if (tbl[k] !== pid || k === pid) continue;
+          if (isList(S[k])) return k;
+        }
       }
       return pid;
     } catch (e) { return pid; }

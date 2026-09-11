@@ -183,6 +183,11 @@
   // published above — seven sourced positions on lyman — so the two surfaces
   // cannot print two different totals for the same file. Zero cited positions is
   // not this class: with nothing documented there is nothing to say is untested.
+  // The person object goes with the pid for the same reason it does at the
+  // letterhead: the cards can be filed under a slug of the display name
+  // (phil_lyman) while the address is the roster id (lyman), and on a warm frame
+  // the object in hand is where that name lands first. Asking without it is how
+  // the band and the brief come to print two different counts for one file.
   function noTermToTest(pid, p) {
     try {
       var W = window.PDXWordAction;
@@ -190,7 +195,7 @@
       if (typeof W.briefEmptyLegal !== 'function') return null;
       if (!W.saidNoTerm(pid)) return null;
       if (!W.briefEmptyLegal(pid)) return null;
-      var n = (W.saidRowSet(pid) || {}).cited || 0;
+      var n = (W.saidRowSet(pid, p) || {}).cited || 0;
       if (n < 1) return null;
       return { positions: n };
     } catch (e) { return null; }
