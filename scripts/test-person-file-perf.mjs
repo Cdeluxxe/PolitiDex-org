@@ -44,8 +44,13 @@
 //   7. LOADING IS NEVER THE ONLY TOP STATE. The brief's wait has a finite
 //      deadline, the hero repaints on the record's own arrival, and "absent from
 //      the formal index" is not reported as "empty file".
-//   8. THE STAGES ARE DOCUMENTED. Every perf mark the app takes is named in
-//      pdx-perf.js's stage list, so the waterfall cannot drift from its own map.
+//   8. THE STAGES ARE DOCUMENTED, IN BOTH DIRECTIONS. Every perf mark the app
+//      takes is named in pdx-perf.js's stage list, AND every stage that list
+//      declares is actually taken somewhere in the shipped files. The second half
+//      is the one that went wrong: pdx-perf.js reads a missing stage as a FINDING,
+//      so 'brief' / 'brief-loading' — declared from the first perf pass and marked
+//      by nothing — were not blank cells in the waterfall, they were a permanent
+//      false positive about the only stage a person-file pass is judged on.
 //   9. THE FIRST PAINT IS NOT COVERED UP. A cold arrival opens the modal on a
 //      loading shell, and that shell repeats the first-byte header's name, office
 //      and formal rows instead of drawing a spinner over them. The header itself
@@ -464,8 +469,8 @@ section("9 · the member endpoint can be revalidated");
   has(API, "rationale", "issues[].rationale is still returned (consistency / receipt cards read it)");
 }
 
-// ── 10 · the stages are documented ──────────────────────────────────────────
-section("10 · every mark the app takes is named in the stage list");
+// ── 10 · the stages are documented, and the documentation is taken ─────────
+section("10 · the stage list and the marks match, in both directions");
 {
   must(existsSync(join(ROOT, "pdx-perf.js")), "pdx-perf.js does not exist");
   const PERF = R("pdx-perf.js");
@@ -490,6 +495,61 @@ section("10 · every mark the app takes is named in the stage list");
   });
   must(taken.size > 4, `found only ${taken.size} perf marks in the app`);
   taken.forEach((n) => ok(stages.has(n), `mark '${n}' is taken but not documented in pdx-perf.js's stage list`));
+
+  // AND THE OTHER DIRECTION, which is the one that actually went wrong. The
+  // check above only proves no mark is undocumented. It says nothing about a
+  // stage that is documented and never taken — and pdx-perf.js reads absence as
+  // a FINDING ("`brief` missing while `vr-data` is present means the brief
+  // painted a loading state and never swapped off it"). So a declared-but-never-
+  // laid stage is not a blank cell in the waterfall, it is a permanent false
+  // positive, and 'brief' / 'brief-loading' were exactly that from the first
+  // perf pass until the marks were taken in word-action.js. The stage list is a
+  // contract in both directions or it is decoration.
+  const ALL_SOURCES = { "index.html": INDEX, "voting-record.js": VR, "person-file.js": PF,
+    "profiles-full.js": PROF, "pdx-perf.js": PERFJS, "word-action.js": WA };
+  const laid = new Map();
+  Object.keys(ALL_SOURCES).forEach((f) => {
+    // Line-scoped so pdx-perf.js's own STAGES/HEADLINES tables — which name
+    // every stage and take none of them — cannot be mistaken for marks.
+    String(ALL_SOURCES[f]).split("\n").forEach((line) => {
+      if (!/\b(?:P\.mark|mark|mk|perf|perfBrief)\s*\(/.test(line)) return;
+      [...line.matchAll(/'([a-z][a-z-]+)'/g)].forEach((m) => {
+        if (stages.has(m[1]) && !laid.has(m[1])) laid.set(m[1], f);
+      });
+    });
+  });
+  [...stages].forEach((n) => ok(laid.has(n),
+    `stage '${n}' is documented in pdx-perf.js but nothing in the app ever marks it — ` +
+    `the waterfall would print an em dash forever and the report would read it as a finding`));
+
+  // The two the brief is judged on, pinned to their owner by name, because the
+  // whole point of a time-to-true pass is that the last stage can be read.
+  eq(laid.get("brief"), "word-action.js", "the brief's off-loading mark is taken by the renderer that paints it");
+  eq(laid.get("brief-loading"), "word-action.js", "the brief's loading mark is taken by the renderer that paints it");
+  // A mark is not a gate. It must be reachable from the paint and cost nothing.
+  const pb = WA.match(/function perfBrief\(html\) \{[\s\S]*?\n  \}/);
+  must(pb, "word-action.js's perfBrief is gone, or no longer takes the frame it marks");
+  has(pb[0], "/^\\/p\\/[A-Za-z0-9_]+\\/?$/", "the brief marks are taken on /p/<pid> only, not inside homepage strips");
+  has(pb[0], "try {", "a document served without the head clock is a no-op, not a throw");
+  has(pb[0], "return html;", "the mark is an observation — it returns the frame it was handed, unaltered");
+  // It is taken OFF THE FRAME, not off the branch: heroInner is the letterhead's
+  // one choke point, so the shape lane, the brief lane and the exec lane are all
+  // marked by the string that is actually painted, and the ring fallback — which
+  // is not a brief — takes neither mark.
+  has(WA, "if (shaped) return perfBrief(shaped);", "the shape lane's frame is marked");
+  has(WA, "if (brief) return perfBrief(brief);", "the brief lane's frame is marked");
+  ok(!/perfBrief\(ringHtml/.test(WA),
+    "the ring fallback takes a brief mark — a letterhead that never painted a brief would be " +
+    "reported as one that did");
+  // The two loading sentences are the only thing that counts as 'brief-loading';
+  // every settled absence (empty file, mapped gap, failed load) is the brief
+  // being true, because a reader told "reload to try again" is not waiting.
+  const wc = WA.match(/_WAIT_COPIES = \[[^\]]*\]/);
+  must(wc, "the wait-copy list perfBrief classifies on is gone");
+  has(wc[0], "WAIT_ONFILE_COPY", "a wait on an on-file record is classified as loading");
+  has(wc[0], "WAIT_BARE_COPY", "a bare wait is classified as loading");
+  hasnt(wc[0], "FAILED_ONFILE_COPY", "a failed load is a settled answer, not a loading state");
+  hasnt(wc[0], "FAILED_BARE_COPY", "a failed bare load is a settled answer, not a loading state");
 
   // The four numbers the pass is judged on.
   ["time to first paint", "time to roster", "time to first voting-record page",

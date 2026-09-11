@@ -6484,22 +6484,73 @@
     } catch (e) { return ''; }
   }
 
+  // ── THE BRIEF'S TWO STAGES, ON THE CLOCK ──────────────────────────────────
+  // pdx-perf.js has documented `brief-loading` and `brief` since the first perf
+  // pass — "formal brief painted a loading state" and "formal brief swapped off
+  // loading" — and NOTHING EVER TOOK THEM. Both printed an em dash on every
+  // waterfall, the headline "time to brief off-loading" printed one with them,
+  // and the report reads that absence as a finding in as many words ("`brief`
+  // missing while `vr-data` is present means the brief painted a loading state
+  // and never swapped off it"). So the one stage a person-file pass is judged on
+  // was not merely unreadable, it was a permanent false positive. Taken here.
+  //
+  // MARKED OFF THE FRAME, NOT OFF THE BRANCH. heroInner is the letterhead's one
+  // choke point — the shape lane, the brief lane and the executive lane all
+  // return through it — so the mark is laid once, on the string that is about to
+  // be painted, rather than at four render sites that would each have to remember
+  // to. It also makes the instrument honest about the thing it measures: what
+  // counts is not "the brief rendered" (it renders a wait too, and a mark taken
+  // on every render would land at t=0 on a page that then sat on "still loading"
+  // for six seconds) but WHICH FRAME painted. A frame carrying one of the two
+  // wait sentences is `brief-loading`; every other frame the brief produces — the
+  // census with its real counts, the exec lane's census, or a settled absence: a
+  // reviewed empty file, a mapping gap, a load that failed and says so — is the
+  // brief being TRUE, which is `brief`. First write wins on both, so a cold open
+  // that waited and then painted carries the pair, and the gap between them is
+  // the wait the reader actually sat through.
+  //
+  // ON /p/<pid> ONLY, for the same reason pdx-perf.js's cold line is: these are
+  // navigation-relative stages about the file this address named, and the same
+  // renderer also draws heroes inside homepage strips, where a mark would be
+  // taken for somebody else and first-write-wins would keep it.
+  //
+  // COSTS NOTHING AND CHANGES NOTHING. The html is returned unaltered; no count,
+  // no copy, no gate, no threshold and no branch moves. PDXPerf.mark is
+  // idempotent, and its absence — a document served without the head clock — is a
+  // no-op.
+  var _WAIT_COPIES = null;
+  function perfBrief(html) {
+    try {
+      if (!/^\/p\/[A-Za-z0-9_]+\/?$/.test(String(window.location.pathname || ''))) return html;
+      var P = window.PDXPerf;
+      if (!P || typeof P.mark !== 'function') return html;
+      if (!_WAIT_COPIES) _WAIT_COPIES = [WAIT_ONFILE_COPY, WAIT_BARE_COPY];
+      var waiting = false;
+      for (var i = 0; i < _WAIT_COPIES.length; i++) {
+        if (String(html).indexOf(_WAIT_COPIES[i]) !== -1) { waiting = true; break; }
+      }
+      P.mark(waiting ? 'brief-loading' : 'brief');
+    } catch (e) {}
+    return html;
+  }
+
   function heroInner(pid, p, opts) {
     opts = opts || {};
     // 🏛 SHAPE FIRST, WHERE THERE IS A SHAPE. Above the depth gate the lead is
     // what the formal record looks like and Direction Match rides inside it, one
     // block down at secondary size.
     var shaped = shapeHeroHtml(pid, p);
-    if (shaped) return shaped;
+    if (shaped) return perfBrief(shaped);
     // 🏛 …AND THE RECORD FIRST WHERE THERE IS NO SHAPE. Below the gate the brief
     // does the same job in fewer lines, including on a file with nothing on the
     // formal record at all, where it names the absence. Direction Match rides
     // inside it, demoted, exactly as it does above the gate.
     var brief = briefHeroHtml(pid, p);
-    if (brief) return brief;
+    if (brief) return perfBrief(brief);
     // Fail closed to the hero this file has always drawn. Reachable when the
     // formal-pattern index is unavailable or the pid resolves to nobody — never
-    // as the ordinary state of a profile.
+    // as the ordinary state of a profile. NOT a brief, so it takes neither mark:
+    // the waterfall says the brief never painted, which is what happened.
     return ringHtml(pid, p, opts);
   }
 
