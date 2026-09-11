@@ -4963,7 +4963,18 @@
       }, PAYLOAD_GRACE_MS + 50);
     } catch (e) { _liveTimer[pid] = null; }
   }
-  function briefGaveUp(pid) { return !!_briefGaveUp[pid]; }
+  // ── A GIVE-UP IS A STATEMENT ABOUT A REQUEST, NOT ABOUT A PERSON ──────────
+  // The deadline below means one thing: a member request went out and did not
+  // come back. It is read as "the record did not load" by the absence copy and as
+  // a veto by saidLead, and BOTH of those are wrong the moment the payload is
+  // actually in memory. The cold /p/lyman report is that second reading: the lane
+  // answered empty at ~300ms and filed it silently (see THE ARRIVAL, ANNOUNCED
+  // WHERE IT HAPPENS in voting-record.js), nothing repainted, the 6s timer fired
+  // over a payload that had already landed, and from then on the word-first
+  // letterhead was permanently vetoed by a loading failure that had not happened.
+  // briefNoted is the payload's own answer and it outranks the clock: once the
+  // rows are filed — rows or none — there is nothing left to have given up on.
+  function briefGaveUp(pid) { return !!_briefGaveUp[pid] && !briefNoted(pid); }
   function armBriefDeadline(pid, p) {
     if (!pid || _briefGaveUp[pid] || _briefTimer[pid]) return;
     try {
@@ -4981,7 +4992,13 @@
         // permanent on a request that failed.
         if (briefShaped(pid)) return;
         if (!briefWarming(pid, p) && !briefRecordOnHand(pid) && !briefAsked(pid)) return;
-        _briefGaveUp[pid] = true;
+        // THE PAYLOAD MAY HAVE LANDED WITHOUT A SOUND. An empty answer used to be
+        // filed with no event behind it, so this timer was the first moment any
+        // surface could learn the lane had answered at all. Declaring a failure
+        // then would be a lie about a record that is in memory — but the repaint
+        // is still owed, because whatever is on screen is a wait that is over. So
+        // the flag is skipped and the event fires anyway.
+        if (!briefNoted(pid)) _briefGaveUp[pid] = true;
         // Same repaint path the warm events use, so the surfaces that render a
         // loading state are the surfaces that get to replace it. bindHero
         // listens for this alongside the two warm events.
