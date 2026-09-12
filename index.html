@@ -120,6 +120,11 @@
   var m;
   try { m = String(location.pathname).match(/^\/p\/([A-Za-z0-9_]+)\/?$/); } catch (e) { m = null; }
   if (!m) return;
+  // /p/null is not a person. encodeURIComponent(null) === 'null', so a missing
+  // pid somewhere upstream arrives here as a word that matches the path shape —
+  // and the record endpoint must never be asked for a member named null. Bail
+  // before any request is opened; person-file.js takes the address off the bar.
+  if (/^(?:null|undefined|nan)$/i.test(m[1])) return;
 
   // Mirror of PDX_PROFILE_ALIAS (profile-evidence.js) — "which id has a roster
   // record". Applied FIRST, because that is the order the arrival path resolves
@@ -2376,6 +2381,16 @@ window.PDXLazy = (function () {
        down where the next editor will read them. See support-lane.css. -->
   <link rel="stylesheet" href="/support-lane.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/support-lane.css" /></noscript>
+  <!-- 💛 Support ROUTING — two rules, both about the donate card being the thing
+       on screen once a reader has asked for it: the card is lifted above the Your
+       Trail bar's layer, and the bar tucks while #support-politidex is the live
+       hash (and only then). A DIFFERENT product from support-lane.css above,
+       which is the backing/momentum counts: this sheet is the donate lane and
+       names no count, total or goal. Non-blocking, same media="print" swap as its
+       neighbour — nothing here is needed for first paint. See support-route.css
+       and support-route.js. -->
+  <link rel="stylesheet" href="/support-route.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/support-route.css" /></noscript>
   <!-- Chart.js (profile finance charts) and Leaflet (the interactive Utah
        district-picker map) are CODE-SPLIT: they used to load render-blocking here
        in <head> (~350 KB combined) even though the home page and Your Ballot never
@@ -3581,6 +3596,10 @@ window.PDXLazy = (function () {
       var el=document.getElementById('pdx-crawl-person');
       if(!el) return;
       var m=String(location.pathname||'').match(/^\/p\/([A-Za-z0-9_]+)\/?$/);
+      // A sentinel address names nobody, so it is not an address this block can
+      // be "about": treated as no person path at all, which neutralises the
+      // served header instead of stamping it for /p/null.
+      if(m&&/^(?:null|undefined|nan)$/i.test(m[1])) m=null;
       var here=m?'/p/'+m[1]:'';
       var stamp=el.getAttribute('data-pdx-crawl-for')||'';
       // The stage clock's first person-file mark, and the one Colt's cold-open
@@ -3794,7 +3813,7 @@ window.PDXLazy = (function () {
               <a href="#open-forum" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">💬</span><span class="pdx-navmenu__lb">Open Discussion</span></a>
               <a href="#voter-academy" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🎓</span><span class="pdx-navmenu__lb">Education</span></a>
               <a href="#submit" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">✍️</span><span class="pdx-navmenu__lb">Submit a Receipt</span></a>
-              <a href="#support-politidex" role="menuitem" class="pdx-navmenu__item pdx-navmenu__item--donate" title="Support PolitiDex — help keep the receipts free"><span class="pdx-navmenu__ico" aria-hidden="true">💛</span><span class="pdx-navmenu__lb">Donate</span></a>
+              <a href="#support-politidex" data-pdx-support role="menuitem" class="pdx-navmenu__item pdx-navmenu__item--donate" title="Support PolitiDex — help keep the receipts free"><span class="pdx-navmenu__ico" aria-hidden="true">💛</span><span class="pdx-navmenu__lb">Donate</span></a>
             </div>
           </div>
         </div>
@@ -4421,7 +4440,7 @@ window.PDXLazy = (function () {
       <a href="#issue-front-door" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-300 hover:text-gold-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🧭 Browse Issues</a>
       <a href="#myteam-browse-panel" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-400 hover:text-gold-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🏛 All Politicians</a>
       <a href="#agenda" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-300 hover:text-gold-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700">✊ Mandate</a>
-      <a href="#support-politidex" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors" style="color:#f2d38a;">💛 Support PolitiDex</a>
+      <a href="#support-politidex" data-pdx-support onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors" style="color:#f2d38a;">💛 Support PolitiDex</a>
       <a href="#database-expansion" data-admin-only onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-crimson-400 hover:text-crimson-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="display:none;">🔄 Expand Database</a>
       <a href="#politician-manager" data-admin-only onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-crimson-400 hover:text-crimson-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="display:none;">🛠 Manage Politicians</a>
       <a href="#submit" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="hover:text-white active:text-crimson-400 flex items-center py-3.5 transition-colors">Submit</a>
@@ -20541,6 +20560,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               <div class="flex flex-col gap-2.5 text-steel-400">
                 <a href="#methodology" class="hover:text-white transition-colors">Methodology</a>
                 <a href="#our-mission" class="hover:text-white transition-colors">About PolitiDex</a>
+                <!-- The footer's money control. Same hash as the hamburger item and
+                     the desktop overflow "Donate": one destination, so a phone
+                     reader who scrolled to the bottom looking for a way to give
+                     does not end up on the People's Mandate instead. -->
+                <a href="#support-politidex" data-pdx-support class="hover:text-white transition-colors" style="color:#f2d38a;">Support PolitiDex</a>
                 <a href="#" class="hover:text-white transition-colors">Editorial Policy</a>
                 <a href="#" class="hover:text-white transition-colors">Contact</a>
               </div>
@@ -22699,6 +22723,13 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        Loads after say-vs-do.js and issue-view.js (it drives PDXReceipts /
        PDXIssueView actions) and reuses compare / team / PDXSaved / showProfile. -->
   <script defer src="/journey.js"></script>
+  <!-- Support routing — one destination for every money control
+       (window.PDXSupportRoute). Loads AFTER journey.js because the rail it keeps
+       off the Venmo button and the QR is that file's bar, and after person-file.js
+       because an arrival closes an open person file so the card is what is on
+       screen. Routes money only: the backing lane, the People's Mandate and the
+       forum keep their own ids and are not pointed at Venmo. -->
+  <script defer src="/support-route.js"></script>
   <!-- Biggest Controversies — the neutral, sourced flashpoints block on each
        profile (window._renderControversies). Loads after say-vs-do.js,
        issue-view.js and journey.js: it reads PDXReceipts for the contested,

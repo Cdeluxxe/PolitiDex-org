@@ -832,10 +832,43 @@ section("10 · nothing on the do-not list moved");
     // AND THE SURFACES THIS PASS WAS TOLD TO LEAVE ALONE ARE THE SAME FILES.
     for (const f of ["hero-showcase.js",
                      "finance-lane.js", "judicial-retention.js", "judicial-data.js",
-                     "profile-evidence.js", "person-link.js"]) {
+                     "profile-evidence.js"]) {
       const h = HEAD(f);
       must(h != null, `${f} could not be read out of HEAD`);
       eq(R(f) === h, true, `${f} is not byte-identical with HEAD — it is on the do-not-touch list`);
+    }
+    // person-link.js CAME OFF THAT LIST, on the same terms door2-spine.js did
+    // below. The byte pin was a proxy for one claim this suite has at stake: the
+    // Eye's rows link to a politician's file through the one link builder, and
+    // that builder does not become a second opinion about who is a politician.
+    // The support-routing pass then had to close /p/null — pid() gates on
+    // PID_RE, which is letters and digits, and 'null' is letters, so the word a
+    // missing value stringifies into passed the gate and the Eye's own rows could
+    // emit a link to a member named null. That is a REFUSAL added to the gate,
+    // not an opinion added to it, and a whole-file pin cannot tell the
+    // difference. So the change is subtracted by name and the rest of the file is
+    // still compared byte for byte: HEAD's source plus the sentinel constant and
+    // the one guard line is the shipped source, and if a later pass moves
+    // anything else in this file, this says so.
+    {
+      const f = "person-link.js", h = HEAD(f);
+      must(h != null, `${f} could not be read out of HEAD`);
+      const DECL = "  var PID_SENTINEL = /^(?:null|undefined|nan)$/i;\n";
+      const GUARD = "    if (PID_SENTINEL.test(id)) return '';\n";
+      const now = R(f);
+      has(now, DECL, "person-link.js no longer declares the sentinel pattern");
+      has(now, GUARD, "person-link.js's pid() no longer refuses the sentinel words");
+      // Subtract the declaration (with the comment lines above it) and the guard,
+      // and what is left has to be HEAD exactly.
+      const cut = now
+        .split("\n").filter((l) => !/PID_SENTINEL/.test(l) && !/^  \/\/ (PID_RE alone accepts|Those three words|person-file\.js puts)/.test(l))
+        .join("\n");
+      eq(cut, h,
+        "person-link.js changed by more than the declared sentinel refusal — with that constant and that one " +
+        "guard line set aside, this file is still HEAD's link builder");
+      // And the refusal is a refusal: no new address shape, no second gate.
+      eq((now.match(/'\/p\/'/g) || []).length, (h.match(/'\/p\/'/g) || []).length,
+        "person-link.js gained or lost a place where it builds a /p/ address");
     }
     // door2-spine.js CAME OFF THAT LIST, on the same terms cmp-data.js did below.
     // The byte pin was a proxy for ONE claim that matters to this suite: the Eye

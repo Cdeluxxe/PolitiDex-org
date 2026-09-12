@@ -125,6 +125,38 @@
     });
   }
   function fn(x) { return typeof x === 'function'; }
+
+  // ── "/p/null" IS NOT A PERSON ─────────────────────────────────────────────
+  // encodeURIComponent(null) === 'null'. A missing pid that reaches a template
+  // or a concatenation does not vanish on the way through String() — it turns
+  // into a word, and the app publishes the address of a politician named null.
+  // Analytics had /p/null as the second most visited path in this app. Every
+  // guard here read `if (!pid)`, which catches null and undefined and '' and
+  // cannot catch the three words they become.
+  //
+  // ONE predicate, exported, so the share URLs, the prefetch, the sitemap, the
+  // trail chips and the compare buttons all fail on the same inputs in the same
+  // way: by emitting nothing, rather than by emitting a person who is not one.
+  var PID_SENTINEL = /^(?:null|undefined|nan)$/i;
+  function realPid(pid) {
+    if (pid == null) return false;
+    var s = String(pid).trim();
+    if (!s) return false;
+    return !PID_SENTINEL.test(s);
+  }
+
+  // Takes a sentinel address off the bar without a redirect and without a new
+  // history entry: the reader asked for nobody, so they get the front page, and
+  // Back still goes where they came from. No 301, and no guessing at which real
+  // politician a null was supposed to be.
+  function scrubSentinelPath() {
+    try {
+      var m = String(location.pathname || '').match(PATH_RE);
+      if (!m || realPid(m[1])) return false;
+      history.replaceState(null, '', '/' + (location.search || '') + (location.hash || ''));
+      return true;
+    } catch (e) { return false; }
+  }
   function floor() { return window.PDXPublicationFloor || null; }
   function formal() { return window.PDXFormalIndex || null; }
 
@@ -295,7 +327,7 @@
   // built by pasting onto "wherever the reader happens to be" inherits an
   // address that means something else.
   function url(pid) {
-    if (!pid) return '';
+    if (!realPid(pid)) return '';
     return origin() + PREFIX + encodeURIComponent(pid);
   }
 
@@ -327,7 +359,7 @@
     return SECTION_HASH[String(alias || '').toLowerCase()] ? base + '#' + String(alias).toLowerCase() : base;
   }
   function path(pid) {
-    if (!pid) return '';
+    if (!realPid(pid)) return '';
     return PREFIX + encodeURIComponent(pid);
   }
 
@@ -1067,6 +1099,11 @@
   function adopt() {
     var asked = fromUrl();
     if (!asked) return '';
+    // A sentinel is not an unknown id — it is the absence of one, and nobody
+    // typed it. So there is no honest not-found answer to give and no notice to
+    // raise: the address is quietly corrected to the front page and the reader
+    // gets the homepage they would have got from a bare '/'.
+    if (!realPid(asked)) { scrubSentinelPath(); return ''; }
     // Strict, unlike open(): an id out of the address bar is untrusted input,
     // so an arrival that resolves to nobody says so instead of handing openModal
     // an id it will only fail on. Fails CLOSED — no modal, no blank shell
@@ -1105,6 +1142,10 @@
     fromPath: fromPath,
     fromUrl: fromUrl,
     adopt: adopt,
+    // The sentinel wall. Exported so every other emitter of a /p/ address can
+    // ask this file the question rather than each keeping its own list.
+    realPid: realPid,
+    scrubSentinelPath: scrubSentinelPath,
     record: record,
     resolve: resolve,
     // The arrival surface: what the edge already told this document about the
@@ -1299,6 +1340,9 @@
   function bootAdopt() {
     var pid = fromPath();
     if (!pid) return '';      // ?p= is still owned by _pdxOpenFromUrl
+    // /p/null, /p/undefined: no poll, no roster wait, and above all no warm() —
+    // the record endpoint must never be asked for a member named null.
+    if (!realPid(pid)) { scrubSentinelPath(); return ''; }
     perf('person-boot');
     // The record does not depend on the roster. attempt() below is a WAIT — for
     // the roster to settle so an unknown id can be answered honestly — and the
@@ -1340,6 +1384,9 @@
   window.addEventListener('popstate', function () {
     try {
       var raw = fromPath();
+      // A sentinel popped into the bar names nobody — not a bad link, an absent
+      // one — so it is scrubbed and then treated exactly like '/'.
+      if (raw && !realPid(raw)) { scrubSentinelPath(); raw = ''; }
       var pid = raw ? resolve(raw) : '';
       var openNow = window._pdxCurrentProfileId || '';
       if (pid && pid !== openNow) { open(pid); return; }

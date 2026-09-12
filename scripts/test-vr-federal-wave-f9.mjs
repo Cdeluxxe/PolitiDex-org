@@ -2207,6 +2207,54 @@ const swNote = swWaveNote();
     "scripts/test-door2-authority.mjs",
     "scripts/test-eye-find-the-record.mjs",
     "scripts/test-mobile-body-lock.mjs",
+    // ── THE SUPPORT-ROUTING AND /p/null PASS (CACHE_VERSION v179), on the same
+    // later-wave terms as everything above: a destination, a refusal and a
+    // stacking order.
+    //   A phone reader who tapped anything labelled Support landed on four
+    // different surfaces and never on the donate card, and the path analytics
+    // showed /p/null as the second most-viewed address in the tree. Three
+    // causes. The shell's money-labelled controls either set the hash and let
+    // the native jump finish on some other section or offered no money control
+    // at all, so support-route.js now owns arrival — it parks
+    // #support-politidex under the measured nav, closes an open person file
+    // first, and stands down entirely while the document is locked — and
+    // my-profile.js prints one gold control that goes to that hash instead of
+    // to #voter-hub. encodeURIComponent(null) is the four-character string
+    // "null", which every `if (!pid)` guard in the tree waves through, so
+    // person-file.js declares the sentinel predicate and realPid(), and
+    // person-link.js, share-links.js, record-card.js, profiles-full.js,
+    // self-defection.js, gen-sitemap.mjs, digest-record-core.mjs and
+    // share-target.ts each refuse the same three words before they concatenate
+    // a /p/ address. support-route.css lifts the donate card one step above the
+    // Your Trail rail and tucks the rail on that hash alone, so the QR and the
+    // Venmo button are never painted over.
+    //   NOTHING IN THIS WAVE'S REACH MOVES, and that is the claim this list
+    // exists to keep checkable. No vr_* model, pack, migration, ingest script
+    // or member file was read or written. No formal act, stance, tier, mapping,
+    // key, floor, admission, finance row or Direction Match figure moved: the
+    // refusals named here withhold an address that names nobody and leave every
+    // address that names somebody byte-for-byte as it was, which is why the
+    // /p/ builder count in each of those files is itself pinned. No surface
+    // gained a percentage, a party letter or a count of anything, no payment
+    // processor was added, and the donate card still publishes no total, goal or
+    // progress bar, because a donation is not a score. The twin boot above is
+    // untouched by all of it. The harnesses named here are edited rather than
+    // weakened: test-eye-find-the-record.mjs traded its whole-file byte pin on
+    // person-link.js for the claim that pin stood for, asserted directly — the
+    // file still builds a /p/ address in the same one place and its only change
+    // is the sentinel refusal — on exactly the terms it traded the
+    // door2-spine.js pin one pass earlier; and this list gains the files above
+    // in both F8 and F9, and nothing else, because a cache bump does not reach
+    // a mapping.
+    "my-profile.js",
+    "person-link.js",
+    "record-card.js",
+    "self-defection.js",
+    "share-links.js",
+    "netlify/lib/digest-record-core.mjs",
+    "netlify/lib/share-target.ts",
+    "scripts/test-vr-federal-wave-f8.mjs",
+    "scripts/test-vr-federal-wave-f9.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }

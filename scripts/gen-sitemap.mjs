@@ -395,7 +395,12 @@ const issues = issueAddresses(bills.issueKeys);
 const urls = [
   "/",
   ...spotlightSlugs().map((s) => `/issue/${s}`),
-  ...publishable.map((pid) => `/p/${pid}`),
+  // A sentinel never reaches the sitemap. encodeURIComponent(null) === "null",
+  // so a roster key that went missing upstream fits the pid charset and would be
+  // ADVERTISED to search engines as a person file. Filtered rather than thrown
+  // on: one bad key must not cost the other several hundred real addresses.
+  ...publishable.filter((pid) => pid && !/^(?:null|undefined|nan)$/i.test(String(pid).trim()))
+    .map((pid) => `/p/${pid}`),
   ...bills.published.map(billPath),
   ...issues.listed.map((i) => i.url),
   // Appended last, for the same reason the issue entries are appended after the

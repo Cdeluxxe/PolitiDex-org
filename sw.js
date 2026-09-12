@@ -5006,7 +5006,59 @@
 //     surface in this pass reads it, computes it or prints it — and neither are
 //     the formal tiers, the act floors, the finance lane, the Mandate math,
 //     person-file performance, the pack keys or any issue mapping.
-const CACHE_VERSION = 'v178';
+// v179 - SUPPORT ROUTING, AND /p/null. This pass changed index.html,
+//     person-file.js, my-profile.js, sw.js and the shipped share/sitemap
+//     emitters, and added support-route.js and support-route.css.
+//     · ONE DESTINATION FOR "SUPPORT POLITIDEX". Four surfaces claimed the
+//       label and none of them reliably reached the donate card on a phone. The
+//       hamburger item, the desktop overflow "Donate", a new footer link and a
+//       new control on the reader's own profile rail now all resolve to
+//       #support-politidex, and support-route.js owns the arrival: it closes an
+//       open person file, re-issues a settling scroll while the ground above the
+//       card is still moving, and parks the card under the measured nav. A tap
+//       on a hash already in the bar fires no hashchange, which is why the same
+//       arrival is re-issued from a delegated click as well.
+//     · THE TRAIL STOPPED COVERING THE QR. .pj-bar is fixed to the bottom of the
+//       viewport at z-index 45, which on a 390-wide phone is exactly where the
+//       Venmo button and the QR frame are. support-route.css lifts the card to
+//       46 AND tucks the bar while that hash is live — the trail is untouched
+//       everywhere else, and nothing is dismissed or cleared.
+//     · /p/null IS NOT A PERSON. encodeURIComponent(null) === 'null', so every
+//       `if (!pid)` guard in the app passed the word a missing value turns into
+//       and /p/null became the second most visited path on the site. person-file
+//       owns the predicate (PDXPerson.realPid) and takes the address off the bar
+//       without a redirect; the share URLs, the record card, the head prefetch,
+//       the crawl stamp, the person links, the sitemap, the edge's target parser
+//       and this file's own person-document cache key all refuse it now. A real
+//       unknown id still gets the honest "we don't carry that person" answer.
+//     · Nothing on the do-not list moved: no new payment processor, no donation
+//       total, goal or progress bar, and the Mandate, the forum, Join the People
+//       and support-lane.js (the backing counts) keep their own ids and are not
+//       pointed at Venmo. No score, party metric, Direction Match floor or
+//       finance surface was touched.
+//
+//     AND THE REST OF THE SHELL IS BYTE-IDENTICAL, named here because a bump
+//     renames both cache buckets and so re-issues every one of these files to a
+//     warm device whether or not this pass touched them — what the log owes the
+//     next reader is which of them actually changed under it. These did not:
+//     app.css, mobile-polish.css and pdx-stability.js (the donate card's own
+//     appearance and its phone scroll contract are still owned by app.css and
+//     mobile-polish.css §7d, and the scroll lock is still pdx-stability.js's —
+//     support-route.js asks it whether the document is held rather than holding
+//     it); all-seeing-eye.js (its rows reach a file through person-link.js,
+//     which gained a refusal and no opinion); door1-workspace.js and
+//     door1-workspace.css (Door 1's desk was not rewritten, and it still claims
+//     no hash this pass uses); issue-file.js, issue-file.css and issue-view.js;
+//     word-action.js and word-action.css; pdx-issue-profile.js, the /i/<key>
+//     address module, and netlify.toml, which rewrites it — this pass added no
+//     route and no redirect, and /p/null is corrected in the client rather than
+//     at the edge; pdx-issue-family.js, alignment-tool.js, stance-tree.js,
+//     issue-colors.js and consistency.js — no issue was mapped, no hue moved and
+//     no arithmetic was read; and journey.js, journey.css with support-lane.js /
+//     support-lane.css — the trail is tucked by a class on <html>, not by
+//     editing journey.js, and the backing lane is a different product that was
+//     not opened.
+const CACHE_VERSION = 'v179';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
@@ -5072,6 +5124,11 @@ const SHELL_ASSETS = [
   '/say-vs-do.css',
   '/issue-view.css',
   '/journey.css',
+  // The donate lane's two rules (the card above the trail's layer, the trail
+  // tucked on the donate hash). Precached with journey.css because the pair only
+  // makes sense together: the sheet that paints the bar and the sheet that keeps
+  // it off the Venmo button must never be one deploy apart.
+  '/support-route.css',
   // Stance data is split (see scripts/split-stances.mjs): the CORE chunk boots the
   // app shell offline; the long-tail EXT chunk is left to the runtime cache
   // (stale-while-revalidate) so it costs nothing on first paint but still works
@@ -5202,6 +5259,10 @@ const SHELL_ASSETS = [
   '/consistency.js',
   '/issue-view.js',
   '/journey.js',
+  // One destination for every money control. Precached because a repeat visitor
+  // tapping Support offline still has the donate card in the shell, and without
+  // this the tap is a native hash jump into a 2.3 MB document again.
+  '/support-route.js',
   // The one share resolver every surface now asks (window.PDXShareAnywhere).
   // Precached because it renders the share control on the mobile compact sheets,
   // the share sheet and the search action strips; without it those controls fall
@@ -5621,7 +5682,10 @@ const PERSON_DOC_LIMIT = 4;
 function navDocKey(url) {
   if (!url || url.origin !== self.location.origin) return '';
   const person = PERSON_NAV_RE.exec(url.pathname);
-  if (person) return '/p/' + person[1];
+  // /p/null is not a person, so it does not get one of the four person-document
+  // slots — a sentinel navigation must not evict a real file. '' means "serve
+  // from the shell, store nothing", which is what that address deserves.
+  if (person) return /^(?:null|undefined|nan)$/i.test(person[1]) ? '' : '/p/' + person[1];
   // The plain homepage document, and nothing wearing a query the edge rewrites for
   // (?p=, ?issue=, ?bill=, ?rank=, ?receipt=, ?record=, ?views= all change the head).
   if ((url.pathname === '/' || url.pathname === '/index.html') && !url.search) return '/';

@@ -200,6 +200,14 @@ export type NotFound = { notFound: true; kind: TargetKind; message: string };
 
 const MAX_ID = 120;
 
+// encodeURIComponent(null) === "null", so a pid that went missing upstream does
+// not arrive here as an empty string — it arrives as a word that fits the pid
+// charset exactly. It names nobody, so it is not a target at all: no canonical,
+// no og:url, no crawl block, and above all no /p/null in a served head. An id a
+// reader actually typed and we do not carry is a different case and still gets
+// the honest unknown-record answer.
+const SENTINEL_ID = /^(?:null|undefined|nan)$/i;
+
 function clean(v: string | null | undefined, max = MAX_ID): string {
   if (typeof v !== "string") return "";
   return v.trim().slice(0, max);
@@ -226,7 +234,7 @@ export function parseTarget(url: URL): Target | null {
   // path the reader arrived on. The share button copies whatever is in the bar, so
   // /issue/<slug>?p=<id> is a real URL people can send, and it is about the person.
   const p = clean(q.get("p"));
-  if (p) return { kind: "profile", id: canonicalPersonId(p) };
+  if (p && !SENTINEL_ID.test(p)) return { kind: "profile", id: canonicalPersonId(p) };
 
   // /vote/<congress>/<chamber>/<roll> — the official roll-call address.
   const vote = path.match(/^\/vote\/([^/]+)\/([^/]+)\/([^/]+)\/?$/);
@@ -254,7 +262,9 @@ export function parseTarget(url: URL): Target | null {
   // canonical, one og:url, one crawl block. An id with no alias entry — including
   // one that names nobody — passes through untouched.
   const person = path.match(/^\/p\/([A-Za-z0-9_]+)\/?$/);
-  if (person) return { kind: "profile", id: canonicalPersonId(clean(person[1])) };
+  if (person && !SENTINEL_ID.test(person[1])) {
+    return { kind: "profile", id: canonicalPersonId(clean(person[1])) };
+  }
 
   // /b/<sitting>/<number> — the canonical bill address, and /b/<number> for a
   // number cited without one. A bill profile is a record like a person file is a

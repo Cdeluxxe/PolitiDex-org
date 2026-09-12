@@ -78,6 +78,10 @@
   // PATH_RE and the edge's PERSON_PATH all say the same thing. Anything outside
   // it is not a pid, and gets no link rather than an escaped guess at one.
   var PID_RE = /^[A-Za-z0-9_]+$/;
+  // PID_RE alone accepts the word a missing value becomes: 'null' is letters.
+  // Those three words are not pids, so they get no link — the same wall
+  // person-file.js puts in front of the router.
+  var PID_SENTINEL = /^(?:null|undefined|nan)$/i;
 
   function esc(s) {
     if (s == null) return '';
@@ -100,6 +104,7 @@
         if (a) { a = String(a); if (a && a !== id) id = a; }
       }
     } catch (e) {}
+    if (PID_SENTINEL.test(id)) return '';
     return PID_RE.test(id) ? id : '';
   }
 

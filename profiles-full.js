@@ -8226,6 +8226,23 @@
   // app's own hashes on arrival.
   window._pdxShareData = null;
 
+  // ── The sentinel wall ──────────────────────────────────────────────────────
+  // encodeURIComponent(null) === 'null'. person-file.js owns the predicate and
+  // the reason behind it (/p/null was the app's second most visited path); this
+  // asks that file when it is loaded, and keeps the same three words locally for
+  // the case where it is not. A pid this rejects gets NO address at all — never
+  // '/p/' plus the word a missing value turned into.
+  var PID_SENTINEL = /^(?:null|undefined|nan)$/i;
+  function _pdxRealPid(pid) {
+    try {
+      var P = window.PDXPerson;
+      if (P && typeof P.realPid === 'function') return !!P.realPid(pid);
+    } catch (e) {}
+    if (pid == null) return false;
+    var s = String(pid).trim();
+    return !!s && !PID_SENTINEL.test(s);
+  }
+
   function _pdxLinks() {
     try { return window.PDXShareLinks || null; } catch (e) { return null; }
   }
@@ -8234,6 +8251,9 @@
   // location.pathname is not always '/' — the app also answers on /vote/… , and a
   // link built there carried the roll-call path along with it.
   window.pdxShareUrl = function(id) {
+    // No pid, no address. '' is the caller's cue to print nothing rather than a
+    // link to /p/null — see person-file.js's sentinel note.
+    if (!_pdxRealPid(id)) return '';
     var L = _pdxLinks();
     if (L && typeof L.profile === 'function') {
       var u = L.profile(id);

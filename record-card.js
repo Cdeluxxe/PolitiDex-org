@@ -77,6 +77,23 @@
   function WA() { return window.PDXWordAction || null; }
   function INV() { return window.PDXInventory || null; }
   function GAPS() { return window.PDXGaps || null; }
+  // ── The sentinel wall ──────────────────────────────────────────────────────
+  // encodeURIComponent(null) === 'null'. person-file.js owns the predicate and
+  // the reason behind it (/p/null was the app's second most visited path); this
+  // asks that file when it is loaded, and keeps the same three words locally for
+  // the case where it is not. A pid this rejects gets NO address at all — never
+  // '/p/' plus the word a missing value turned into.
+  var PID_SENTINEL = /^(?:null|undefined|nan)$/i;
+  function realPid(pid) {
+    try {
+      var P = window.PDXPerson;
+      if (P && typeof P.realPid === 'function') return !!P.realPid(pid);
+    } catch (e) {}
+    if (pid == null) return false;
+    var s = String(pid).trim();
+    return !!s && !PID_SENTINEL.test(s);
+  }
+
   function SL() { return window.PDXShareLinks || null; }
   function PC() { return window.PDXProfileCard || null; }
 
@@ -214,7 +231,7 @@
     // hand rather than fall back to a different one.
     var origin = '';
     try { origin = location.origin || ''; } catch (e) { origin = ''; }
-    if (!pid) return origin + '/';
+    if (!realPid(pid)) return origin + '/';
     var base = origin + '/p/' + encodeURIComponent(String(pid));
     return issueKey ? base + '?record=' + encodeURIComponent(String(pid) + '~' + String(issueKey)) : base;
   }
@@ -613,7 +630,8 @@
     var i = u.indexOf('://');
     if (i > 0) { var j = u.indexOf('/', i + 3); return j > 0 ? u.slice(j) : '/'; }
     if (u.charAt(0) === '/') return u;
-    return '/p/' + encodeURIComponent(String(m && m.pid || ''));
+    var raw = m && m.pid;
+    return realPid(raw) ? '/p/' + encodeURIComponent(String(raw)) : '/';
   }
 
   // ── audit() · the honesty check, as data ───────────────────────────────────
