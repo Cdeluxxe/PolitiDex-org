@@ -29,15 +29,57 @@
    an unstyled flash is impossible and the sheet costs nothing on first paint.
    ───────────────────────────────────────────────────────────────────────────── */
 
-/* ── THE PANEL ────────────────────────────────────────────────────────────── */
+/* ── THE PANEL, AND THE SCROLL CONTRACT ───────────────────────────────────────
+   THE LARGE VIEWPORT IS NOT THE SCREEN, and this panel used to be sized by it.
+   A `position: fixed; inset: 0` box is laid out against the fixed-position
+   viewport, which on iOS Safari is the height the page would have with the
+   browser toolbar hidden — the same height `100vh` reports. So a panel capped at
+   `calc(100vh - 48px)` inside a `100lvh` box is taller than the glass whenever
+   the toolbar is showing: its last rows sit behind the toolbar, its own scroller
+   never reaches them, and the overscroll at the end of the range is handed to
+   the document — which is the "jumpy, lags, stops scrolling" report in three
+   parts. test-mobile-bottom-chrome.mjs pins the same doctrine on the #modal-*
+   stack; this is that doctrine, here.
+
+   THE CONTRACT, in one place so a later edit has to argue with it:
+
+     1. THE BOX IS THE VISIBLE VIEWPORT. `height: 100dvh` (with a 100vh
+        fallback for engines without dynamic units) instead of `inset: 0`'s
+        implied large viewport, so the box shrinks and grows WITH the toolbar
+        rather than reaching behind it. `bottom: auto` so the two are never
+        over-constrained.
+     2. THE PANEL IS BOUNDED BY THAT BOX AND NOTHING ELSE. `max-height: 100%`
+        — the box already subtracts its own padding, which is this panel's
+        header/footer clearance, so there is exactly one place the height is
+        computed.
+     3. THE SAFE AREA IS THE SAME GAP, NOT A SECOND ONE. `max(gap, env(inset))`,
+        the rule #modal-footer states, so a notched phone pays for the home
+        indicator once.
+     4. .pdxyf-body IS THE ONLY SCROLLER WHILE THIS IS OPEN. It owns
+        `overflow-y: auto`; the document scroller is held by the shared lock in
+        pdx-stability.js (html.pdx-scroll-locked), which lists this panel among
+        the overlays it refuses to unlock under.
+     5. OVERSCROLL DOES NOT CHAIN AND TOUCH DOES NOT FIGHT THE TOOLBAR.
+        `overscroll-behavior-y: contain` keeps a fling that reaches the end of
+        the list inside the list instead of passing it to the page behind (and,
+        on iOS, to the toolbar show/hide gesture); `touch-action: pan-y` says
+        what the gesture is FOR, so the engine commits to the pan on the first
+        frame rather than waiting to see whether a pinch or a double-tap was
+        starting. */
 .pdxyf {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: auto;
+  height: 100vh;          /* fallback: engines without dynamic viewport units */
+  height: 100dvh;         /* the glass, toolbar included */
   z-index: 50;
   display: none;
   align-items: flex-start;
   justify-content: center;
-  padding: 24px 14px;
+  padding: max(24px, env(safe-area-inset-top, 0px)) 14px
+           max(24px, env(safe-area-inset-bottom, 0px));
   background: rgba(2, 6, 23, 0.78);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
@@ -50,7 +92,8 @@
   display: flex;
   flex-direction: column;
   width: min(720px, 100%);
-  max-height: calc(100vh - 48px);
+  max-height: 100%;
+  min-height: 0;
   border: 1px solid rgba(148, 163, 184, 0.26);
   border-radius: 14px;
   background: #0b1220;
@@ -127,11 +170,14 @@
   color: #e0f2fe;
 }
 
+/* THE ONE SCROLLER. See the contract above the panel: rules 4 and 5 live here. */
 .pdxyf-body {
   flex: 1 1 auto;
   min-height: 0;
   padding: 14px 16px 18px;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -225,7 +271,16 @@
 /* ── THE FOUR ANSWERS ─────────────────────────────────────────────────────── */
 /* One row per issue, four controls, 44px tall on a phone. They wrap rather than
    shrink, because an answer control that is too small to hit is not an answer
-   control. */
+   control.
+
+   `touch-action: manipulation` IS THE "REGISTERS ON FIRST TOUCH" HALF. Without
+   it a mobile engine holds a tap for ~300ms to find out whether a double-tap to
+   zoom is starting, and inside a scroller that delay is felt as the first tap
+   doing nothing — the reader taps again, or lifts and scrolls, and the answer
+   lands late or not at all. Declaring the element manipulation-only removes the
+   double-tap gesture from it and nothing else: the pan inherited from
+   .pdxyf-body still works, so a drag that begins on a control still scrolls the
+   list rather than being swallowed as a press. */
 .pdxyf-opts {
   display: flex;
   flex-wrap: wrap;
@@ -236,6 +291,7 @@
 .pdxyf-opt {
   flex: 1 1 7.2rem;
   min-height: 44px;
+  touch-action: manipulation;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -286,12 +342,23 @@
   background: rgba(125, 211, 252, 0.08);
 }
 
+/* The phone case. The gutter narrows; the HEIGHT is not recomputed here, because
+   the box above already is the visible viewport and a second cap in vh would be
+   the bug this file just removed. Same `max(gap, env(inset))` rule — one gap. */
 @media (max-width: 480px) {
-  .pdxyf { padding: 12px 8px; }
-  .pdxyf-panel { max-height: calc(100vh - 24px); }
+  .pdxyf {
+    padding: max(12px, env(safe-area-inset-top, 0px)) 8px
+             max(12px, env(safe-area-inset-bottom, 0px));
+  }
   .pdxyf-top { padding: 12px 10px 10px 12px; }
   .pdxyf-body { padding: 12px 12px 16px; }
   .pdxyf-opt { flex: 1 1 45%; }
+}
+
+/* 360px-wide phones (Galaxy A/S class). Two answers per line rather than four
+   squeezed ones: a control too narrow to carry its own label is not a control. */
+@media (max-width: 380px) {
+  .pdxyf-opt { flex: 1 1 42%; font-size: 0.76rem; padding: 8px 6px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

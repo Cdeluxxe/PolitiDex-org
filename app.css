@@ -13998,6 +13998,102 @@
       }
     }
 
+    /* ── The donate tap target ─────────────────────────────────
+       The card above this rule used to be a QR code and a handle, which is a
+       donate path that works on every device except the one the page is being
+       read on. This is the control a thumb can actually hit.
+
+       IT IS SIZED AS A PRIMARY ACTION, not as a link in a paragraph: 48px of
+       minimum height (above the 44px floor §5 sets for everything else) and
+       full width up to a readable cap, because it is the only thing on the
+       surface a reader might have come here to do.
+
+       IT WEARS VENMO'S OWN BLUE (#3d95ce), not the site's crimson-and-blue
+       flag gradient and not the Mandate's gold. A donate button in a PolitiDex
+       colour looks like a PolitiDex feature; this one hands the reader to
+       somebody else's app, and it should look like it. The colour is also not
+       a verdict hue — nothing about giving money grades anybody's record.
+
+       NO ANIMATION. The frame beneath it already had a six-second infinite
+       gradient sweep, which is the jank this pass is removing on phones; a
+       second moving thing next to it would be worse, not better. Hover lift
+       only, and only where there is a pointer to hover with. */
+    .pdx-donate-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      width: 100%;
+      max-width: 22rem;
+      min-height: 48px;
+      margin: 0 auto 0.65rem;
+      padding: 0.85rem 1.5rem;
+      border-radius: 0.85rem;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: linear-gradient(180deg, #4aa3d8 0%, #3d95ce 55%, #3184b9 100%);
+      color: #ffffff;
+      font-family: 'Oswald', 'Barlow Condensed', system-ui, sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      box-shadow: 0 10px 26px rgba(61,149,206,0.28), inset 0 1px 0 rgba(255,255,255,0.18);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(61,149,206,0.25);
+    }
+    .pdx-donate-btn__ico {
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+    @media (hover: hover) {
+      .pdx-donate-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 34px rgba(61,149,206,0.38), inset 0 1px 0 rgba(255,255,255,0.22);
+      }
+    }
+    .pdx-donate-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 16px rgba(61,149,206,0.26), inset 0 1px 0 rgba(255,255,255,0.14);
+    }
+    .pdx-donate-btn:focus-visible,
+    .pdx-donate-deep:focus-visible {
+      outline: 2px solid #f5c842;
+      outline-offset: 3px;
+    }
+
+    /* The second row: the app-scheme deep link, and the handle for the reader
+       who is going to type it. Set at caption size on purpose — both are
+       fallbacks for the button above, and a fallback that competes visually
+       with the primary control makes the reader choose when they should not
+       have to. */
+    .pdx-donate-alt {
+      margin: 0 0 1.25rem;
+      font-family: 'Barlow Condensed', system-ui, sans-serif;
+      font-size: 0.86rem;
+      letter-spacing: 0.03em;
+      color: #8ea2c0;
+      line-height: 1.6;
+    }
+    .pdx-donate-deep {
+      color: #9fc7e6;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      padding: 0.35rem 0.1rem;
+      touch-action: manipulation;
+    }
+    @media (hover: hover) {
+      .pdx-donate-deep:hover { color: #cfe6f7; }
+    }
+    .pdx-donate-sep { margin: 0 0.45rem; color: #4d5f7a; }
+    .pdx-donate-handle {
+      color: #c7d3e6;
+      font-weight: 600;
+      -webkit-user-select: all;
+      user-select: all;
+    }
+
     /* ── Venmo text: better gradient and spacing ──────────────── */
     #our-mission .bg-navy-800\/50 .font-condensed.text-sm.tracking-widest {
       font-size: 0.9rem;

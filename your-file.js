@@ -141,6 +141,10 @@
   var ID_TITLE = 'pdx-your-file-title';
   var ID_HEAD = 'pdx-your-file-head';
   var ID_BODY = 'pdx-your-file-scroll';
+  // The count carries its own id for ONE reason: so "2 answers of 8" can be
+  // updated on its own node. See patchRow() — an answer must not remount the
+  // list it was given on.
+  var ID_COUNT = 'pdx-your-file-count';
 
   function fn(x) { return typeof x === 'function'; }
   function el(id) { try { return document.getElementById(id); } catch (e) { return null; } }
@@ -359,7 +363,7 @@
     save(s, true);
     projectOne(issueKey, pos);
     _flash = issueKey;
-    render();
+    patchRow(issueKey);
     try {
       window.dispatchEvent(new CustomEvent('pdx-your-file-change', {
         detail: { issueKey: issueKey, position: pos }
@@ -508,11 +512,17 @@
     '</li>';
   }
 
+  // One sentence, one place it is built, so the letterhead's first paint and
+  // every later update cannot word it differently.
+  function countSentence(n) {
+    return n + ' ' + (n === 1 ? COPY.countOne : COPY.countMany);
+  }
+
   function headHtml(n) {
     return '<p class="pdxyf-kick">' + esc(COPY.kick) + '</p>' +
       '<h2 class="pdxyf-title" id="' + ID_TITLE + '">' + esc(COPY.title) + '</h2>' +
       '<p class="pdxyf-line">' + esc(COPY.line) + '</p>' +
-      '<p class="pdxyf-count">' + n + ' ' + esc(n === 1 ? COPY.countOne : COPY.countMany) + '</p>';
+      '<p class="pdxyf-count" id="' + ID_COUNT + '">' + esc(countSentence(n)) + '</p>';
   }
 
   function bodyHtml() {
@@ -533,13 +543,88 @@
       '</ul>';
   }
 
+  // ── WHOLESALE REPAINT ─────────────────────────────────────────────────────
+  // For the changes that really do change every row: an account switch, a sign
+  // in or out (which flips `disabled` on all thirty-two controls), a snapshot
+  // arriving from another device. An ANSWER is not one of these — see patchRow.
+  //
+  // It preserves the scroller's own offset across the swap, because replacing a
+  // scroller's children empties it for one layout and the engine clamps
+  // scrollTop to a range that is momentarily zero. Restoring it synchronously,
+  // in the same task, means the reader's position was never painted anywhere
+  // else.
   function render() {
     var head = el(ID_HEAD);
     var body = el(ID_BODY);
     if (!head && !body) return;
+    var at = 0;
+    try { at = (body && body.scrollTop) || 0; } catch (e) { at = 0; }
     var n = answered().length;
     if (head) { try { head.innerHTML = headHtml(n); } catch (e) {} }
     if (body) { try { body.innerHTML = bodyHtml(); } catch (e) {} }
+    if (body && at > 0) { try { body.scrollTop = at; } catch (e) {} }
+    _flash = null;
+  }
+
+  // ── ONE ANSWER, IN PLACE ──────────────────────────────────────────────────
+  // THE BUG THIS REPLACES. An answer called render(), which rewrote the whole
+  // of .pdxyf-body's innerHTML. Three things fell out of that and all three were
+  // in the report:
+  //
+  //   · THE SCROLL POSITION JUMPED. Eight rows leave and eight rows arrive, so
+  //     for one layout the scroller's content is empty and the engine clamps
+  //     scrollTop to 0. Answer the seventh issue and you are returned to the
+  //     first — which, on a phone, reads as the panel throwing you out.
+  //   · THE NEXT SCROLL WAS STOLEN. The node under the finger is destroyed
+  //     mid-gesture. A touch sequence that began on a button that no longer
+  //     exists does not become a pan on its replacement; it is dropped, and the
+  //     reader's next swipe does nothing at all.
+  //   · IT WAS 32 CONTROLS OF WORK FOR ONE BIT OF STATE, every tap, on the
+  //     slowest device.
+  //
+  // So an answer now touches exactly what changed: the four controls on the one
+  // row (their lit class and their aria-pressed), the row's one-frame flash, and
+  // the count sentence on the letterhead. Nothing else is re-created, so there
+  // is nothing for the scroller to clamp and nothing for the gesture to lose.
+  // If the row is not on screen — an older shell, a panel that never built —
+  // this falls back to render() rather than silently dropping the repaint.
+  function patchRow(issueKey) {
+    var body = el(ID_BODY);
+    var row = null;
+    try {
+      row = body && body.querySelector
+        ? body.querySelector('[data-pdxyf-row="' + String(issueKey).replace(/"/g, '') + '"]')
+        : null;
+    } catch (e) { row = null; }
+    if (!row) { render(); return; }
+
+    var mine = position(issueKey);
+    var btns;
+    try { btns = row.querySelectorAll('[data-pdxyf-set]'); } catch (e) { btns = null; }
+    if (!btns || !btns.length) { render(); return; }
+
+    for (var i = 0; i < btns.length; i++) {
+      var b = btns[i];
+      var parts = String(b.getAttribute('data-pdxyf-set') || '').split('|');
+      var on = (parts.length === 2 && parts[1] === mine);
+      try { b.classList[on ? 'add' : 'remove']('is-on'); } catch (e) {}
+      try { b.setAttribute('aria-pressed', on ? 'true' : 'false'); } catch (e) {}
+    }
+
+    // The flash is one frame of accent on the row that just changed, and it is
+    // removed on a timer rather than by the next repaint — there is no next
+    // repaint now.
+    try {
+      row.classList.add('pdxyf-flash');
+      setTimeout(function () { try { row.classList.remove('pdxyf-flash'); } catch (e) {} }, 700);
+    } catch (e) {}
+
+    // "2 answers of 8", updated on its own node. Text, not a meter — see the
+    // stylesheet's header.
+    try {
+      var c = el(ID_COUNT);
+      if (c) c.textContent = countSentence(answered().length);
+    } catch (e) {}
     _flash = null;
   }
 
@@ -682,6 +767,9 @@
     answered: answered,
     adopt: adopt,
     render: render,
+    // The in-place update an answer takes. Exposed so the suite can assert that
+    // a pick does not move the scroller, rather than inferring it from source.
+    patchRow: patchRow,
     // Exposed for the suite: the painted body, asserted directly rather than
     // reconstructed from source text.
     bodyHtml: bodyHtml

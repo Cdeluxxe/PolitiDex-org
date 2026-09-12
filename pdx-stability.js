@@ -155,6 +155,15 @@
     // Issue Spotlight overlay (uses the `hidden` attribute).
     var is = document.getElementById('issue-spotlight');
     if (is && !is.hidden) return true;
+    // Your file — the reader's own eight, at #your-file. Added because it is the
+    // one overlay a reader is likely to open FROM another one (the Who Represents
+    // Me door, a ballot surface) and then have closed out from under: any other
+    // module's `overflow = ''` while this is up unlocks the document, the page
+    // drifts behind the open panel, and the eight rows the reader is answering
+    // scroll away with it. Read from the same `hidden` attribute your-file.js
+    // already maintains — no getComputedStyle, so this stays cheap to poll.
+    var yf = document.getElementById('pdx-your-file');
+    if (yf && !yf.hidden) return true;
     return false;
   }
 
