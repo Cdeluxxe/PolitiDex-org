@@ -305,13 +305,41 @@
     return '<span class="pdxb-name">' + esc(name) + '</span>';
   }
 
+  // THE FACE, AND IT COMES FROM THE RESOLVER THAT ALREADY HAS IT. No new map, no
+  // new address and no request: window._getPhotoUrl is the one place this app
+  // keeps the URL of a person's portrait, and every other surface that shows a
+  // face asks it the same question. A person this app has no photo for, or a page
+  // booted without that resolver, answers the empty string — and the row prints
+  // no image element at all rather than a silhouette, a set of initials or a grey
+  // square standing in for a face nobody has. FAIL SOFT MEANS SMALLER, NOT FAKER.
+  function faceUrl(pid) {
+    try {
+      if (!fn(window._getPhotoUrl)) return '';
+      var u = window._getPhotoUrl(pid);
+      return u ? String(u) : '';
+    } catch (e) { return ''; }
+  }
+
+  // A ROW IS A CARD NOW, AND IT IS STILL THE SAME FOUR FACTS. Portrait, name,
+  // the roster's own office string, and at most one line that person has already
+  // published. Nothing was added to the model to make the card: there is no bio,
+  // no blurb, no summary, no chip row, no second line and no number on it. What
+  // changed is that the four offices this district answers to read as four groups
+  // of PEOPLE rather than as sixteen interchangeable lines of text.
   function personHtml(row) {
     var line = row.line;
+    var face = faceUrl(row.pid);
     return '<li class="pdxb-person">' +
-      nameHtml(row.pid, row.name) +
-      (row.office ? '<span class="pdxb-role">' + esc(row.office) + '</span>' : '') +
-      (line ? '<span class="pdxb-line" data-pdxb-line="' + esc(line.kind) + '">' +
-        esc(line.text) + '</span>' : '') +
+      (face
+        ? '<img class="pdxb-face" src="' + esc(face) + '" alt="" ' +
+            'loading="lazy" decoding="async" width="44" height="44">'
+        : '') +
+      '<span class="pdxb-id">' +
+        nameHtml(row.pid, row.name) +
+        (row.office ? '<span class="pdxb-role">' + esc(row.office) + '</span>' : '') +
+        (line ? '<span class="pdxb-line" data-pdxb-line="' + esc(line.kind) + '">' +
+          esc(line.text) + '</span>' : '') +
+      '</span>' +
     '</li>';
   }
 

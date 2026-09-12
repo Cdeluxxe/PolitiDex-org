@@ -779,6 +779,170 @@ ok(INDEX.indexOf('src="/district-room.js"') < INDEX.indexOf('src="/district-file
   "the file is loaded after the room it asks for a room's address");
 
 // ═════════════════════════════════════════════════════════════════════════════
+section("9b · the page is a place — a letterhead, a rail, and one fold");
+
+// ── THE LETTERHEAD NAMES THE GROUND, AND QUOTES IT ──────────────────────────
+// A seat file whose title is "Utah State House District 68" has told the reader
+// the number of the box they live in and nothing about where that is. The answer
+// is already published: the seated member's own roster row spells the district as
+// "UT District 68 (Vernal, Uintah / Duchesne County)". The page reads the
+// parenthetical out of that one string and prints it.
+//
+// IT IS QUOTED, NOT COMPOSED. There is no county table, no basin name and no
+// region map in this module — asserted below — so a seat whose roster row has no
+// parenthetical prints no line at all rather than a plausible guess.
+{
+  const withPlace = boot("/d/" + HD68, {
+    _pdxPersonById: (pid) => (pid === "chew_h68"
+      ? { name: "Scott Chew", office: "Utah State Representative",
+          state: "UT District 68 (Vernal, Uintah / Duchesne County)",
+          party: "R", score: 71, kept: 3, broken: 1 }
+      : null),
+  });
+  const h = withPlace.PDXDistrictFile.headHtml(HD68, { label: "Utah State House District 68" });
+  has(h, "Vernal, Uintah / Duchesne County", "the place line is the roster's own parenthetical");
+  has(h, "pdxdf-place", "printed as the letterhead's place line");
+  lacks(h, "UT District 68 (", "and the bracket itself is not reprinted around it");
+  // ONE FIELD OFF THAT ROW, AND ONLY ONE. The same row carries a party letter, a
+  // score and a kept/broken tally. None of them reach the page.
+  for (const leak of ["(R)", "R)", "71", "score", "Kept", "Broken", "%"]) {
+    lacks(h, leak, `and nothing else off that row — no ${leak}`);
+  }
+}
+// A roster row with no parenthetical, a roster row with none of the field at all,
+// and a page with no roster: three ways of not knowing, and all three print
+// nothing rather than a guess.
+for (const [what, row] of [
+  ["no parenthetical", { name: "Scott Chew", office: "Utah State Representative", state: "Utah" }],
+  ["no state field", { name: "Scott Chew", office: "Utah State Representative" }],
+  ["an empty one", { name: "Scott Chew", office: "Utah State Representative", state: "" }],
+]) {
+  const w9 = boot("/d/" + HD68, { _pdxPersonById: () => row });
+  const h9 = w9.PDXDistrictFile.headHtml(HD68, { label: "Utah State House District 68" });
+  lacks(h9, "pdxdf-place", `a roster row with ${what} prints no place line`);
+  has(h9, "Scott Chew", "and the seat is still named");
+}
+// No geography of this module's own, in the source.
+for (const invented of ["Uintah Basin", "Vernal", "County", "Basin", "county"]) {
+  lacks(fileSrc, invented, `district-file.js names no place of its own (${invented})`);
+}
+
+// ── THE SEATED MEMBER IS AN IDENTITY ROW ────────────────────────────────────
+// A face, a name, an office. The portrait comes from the app's one photo
+// resolver and from nowhere else, and it is FAIL-SOFT in both directions.
+{
+  const wFace = boot("/d/" + HD68, { _getPhotoUrl: (pid) => (pid === "chew_h68" ? "https://example.test/chew.jpg" : "") });
+  const seat = wFace.PDXDistrictFile.seatedHtml(HD68, null);
+  has(seat, 'src="https://example.test/chew.jpg"', "the seated member's portrait is painted");
+  has(seat, "pdxdf-seat-face", "in the letterhead's own face slot");
+  has(seat, 'alt=""', "decorative — the name beside it is the row's label");
+  has(seat, 'href="/p/chew_h68"', "and the name is still the door");
+  eq((seat.match(/<img/g) || []).length, 1, "exactly one image in the row");
+}
+has(strip(FILE_SRC), "window._getPhotoUrl", "the portrait is asked of the app's one resolver");
+lacks(fileSrc, "images/legislator", "the module builds no portrait URL of its own");
+// This suite's own boot provides NO resolver, which is the fail-soft case: the
+// row above in section 3 painted the whole seat with no image element in it.
+lacks(head.innerHTML, "<img", "a page with no photo resolver paints no image element");
+has(head.innerHTML, "Scott Chew", "and still names the member");
+
+// ── THE ROOMS FOLD, AND THE FOLD IS NOT A RANKING ───────────────────────────
+// The list was eight rows at identical weight, four of which said nothing but
+// "No answers yet." So the rooms with answers stay open at full size and the
+// quiet ones go behind ONE control. The split is the same yes/no the row's own
+// line already prints — not a count, not a threshold, not a popularity order.
+has(list, "pdxdf-fold", "the quiet rooms sit behind a fold");
+has(list, "More issues this seat touches", "and the control says what is behind it");
+eq(F.COPY.roomsFold, "More issues this seat touches",
+  "that control's wording is owned in exactly one place");
+has(list, "<details", "the fold is a <details>, so it opens with no JavaScript");
+has(list, "<summary", "with a real summary as its control");
+lacks(list, "aria-expanded", "and it does not re-describe a state the element already announces");
+// THE ANSWERED ROOM IS NOT IN THE FOLD, and the quiet ones are. The payload has
+// one answered room (lands_preserve) and three doors.
+{
+  const foldAt = list.indexOf("pdxdf-fold");
+  const landsAt = list.indexOf("Public lands");
+  ok(landsAt >= 0 && foldAt >= 0 && landsAt < foldAt,
+    "the room with answers is above the fold, at full size");
+  has(list.slice(foldAt), "No answers yet.", "and the rooms with none are inside it");
+  lacks(list.slice(0, foldAt), "No answers yet.",
+    "with no honest-empty room left stranded outside");
+  eq((list.slice(0, foldAt).match(/pdxdf-row/g) || []).length, 1,
+    "exactly one room is open: the one somebody answered");
+  eq((list.slice(foldAt).match(/pdxdf-row/g) || []).length, 3,
+    "and the other three are folded");
+  has(list, '<span class="pdxdf-foldn">3</span>',
+    "the control says how many doors are behind it, as an integer");
+}
+// EVERY ROOM IS STILL ON THE PAGE. Folding is not dropping: all four keys paint.
+for (const lbl of ["Public lands", "Water", "School choice", "Privacy"]) {
+  has(list, lbl, `${lbl} is still painted`);
+}
+// AND THE ORDER IS UNTOUCHED. rows() is the only thing that orders this list and
+// it was not changed — the fold splits the output, it does not sort it.
+eq(F.rows(districtPayload(), ISSUE_KEYS_PAYLOAD.rows.map((r) => r.issueKey))
+    .map((r) => r.issueKey).join(","),
+  "privacy_rights,lands_preserve,school_choice,water",
+  "the merged row order is exactly what it was before the fold existed");
+// A district where EVERY room has answers has nothing to fold, and prints no
+// control — an empty fold would be a door to an empty room.
+{
+  const allLive = districtPayload();
+  allLive.rooms = allLive.rooms.map((r) => ({
+    ...r, answered: true, results: LANDS_TALLY, resultLine: "4 support · 2 oppose · 1 mixed",
+  }));
+  allLive.issueKeys = allLive.rooms.map((r) => r.issueKey);
+  const liveOnly = F.listHtml(HD68, allLive, []);
+  lacks(liveOnly, "pdxdf-fold", "a district with no quiet rooms prints no fold");
+  lacks(liveOnly, "More issues this seat touches", "and no control for one");
+}
+// A district with NO rooms at all is still the one honest sentence, not a fold.
+{
+  const none = F.listHtml(HD68, { issueKeys: [], rooms: [] }, []);
+  has(none, F.COPY.noRooms, "a district with no rooms says so");
+  lacks(none, "pdxdf-fold", "and prints no fold");
+  lacks(none, "pdxdf-row", "and no row");
+}
+
+// ── THE ISSUE'S COLOUR IS A RAIL, AND IT IS BORROWED ────────────────────────
+// The rail comes from PDXIssueColors as inline custom properties, so this module
+// holds no per-issue rule and cannot disagree with the room, the person file or
+// Voice about what colour an issue is. THIS SUITE LOADS NO COLOUR MODULE, which
+// is the fail-soft case: every row gets the neutral rail and no data-ic at all.
+lacks(list, 'data-ic="on"', "with no colour module on the page, no row claims a colour");
+lacks(list, "--pdx-ic", "and no inline colour property is emitted");
+has(strip(FILE_SRC), "window.PDXIssueColors", "the colour is asked of the module that owns it");
+has(strip(FILE_SRC), "C.skin(", "through its skin() resolver, like every other surface");
+lacks(fileSrc, "#2ECC71", "and the module hard-codes no issue colour of its own");
+ok(!/#[0-9a-f]{6}/i.test(fileSrc), "no hex colour is written in the module at all");
+// The rail is one width for every row, in the sheet, so it can never read as an
+// amount of anything.
+ok(/\.pdxdf-row\s*\{[^}]*border-left:\s*3px/.test(cssRules),
+  "the rail is 3px on every row");
+ok(/\.pdxdf-row\[data-ic="on"\]\s*\{\s*border-left-color:\s*var\(--pdx-ic\)/.test(cssRules),
+  "and a resolved key changes its colour, never its width");
+
+// ── ONE DISPLAY FACE, ONE KICKER FACE ──────────────────────────────────────
+// The page had one accent-blue uppercase label per block at the weight of the
+// sentence under it, six of them down the page, so its furniture was as loud as
+// its content. The title is now the display face; every label is the kicker face
+// in slate.
+ok(/\.pdxdf-title\s*\{[^}]*Bebas Neue/.test(cssRules), "the district's name is in the display face");
+ok(/\.pdxdf-title\s*\{[^}]*clamp\(/.test(cssRules),
+  "sized against the VIEWPORT, and against nothing on the page");
+for (const kicker of ["pdxdf-listhd", "pdxdf-seat-hd", "pdxdf-fam", "pdxdf-place"]) {
+  ok(new RegExp("\\." + kicker + "[^{]*\\{[^}]*Barlow Condensed").test(cssRules),
+    `.${kicker} is set in the kicker face`);
+}
+// And no label is set in the display face, which is what "kickers must not
+// out-shout the question" means in a stylesheet.
+for (const kicker of ["pdxdf-listhd", "pdxdf-seat-hd", "pdxdf-fam", "pdxdf-foldhd"]) {
+  ok(!new RegExp("\\." + kicker + "[^{]*\\{[^}]*Bebas Neue").test(cssRules),
+    `.${kicker} is not set in the display face`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 section("10 · the handoff — a person modal is never left lurking over the file");
 
 // The one control that opens this file from outside Door 2 is "Neighbors in this

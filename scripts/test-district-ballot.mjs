@@ -625,9 +625,55 @@ for (const foreign of [".pdxv", ".pdxdr-", ".pdxdf-"]) {
 }
 lacks(strip(FILE_CSS), ".pdxb-", "and district-file.css does not style the strip's rows");
 has(strip(FILE_CSS), ".pdxdf-ballot", "it styles only its own container for it");
-// NOT A MINI-PROFILE: no face, no bio, no chip row, no stat.
-for (const bad of ["<img", "photo", "headshot", "avatar", "bio", "blurb", "summary"]) {
-  lacks(BAL_CODE, bad, `no "${bad}" — a row is a name, an office and at most one line`);
+// NOT A MINI-PROFILE: a portrait, a name, an office and at most one line. The
+// face is the one thing a reader recognises faster than they can read, and this
+// app already holds these six portraits, so the card shows one — but it is NOT
+// the first item of a profile. No bio, no blurb, no summary, no chip row, no
+// second line and no number.
+for (const bad of ["bio", "blurb", "summary", "initials", "placeholder", "silhouette"]) {
+  lacks(BAL_CODE, bad, `no "${bad}" — a card is a face, a name, an office and at most one line`);
+}
+// THE PORTRAIT COMES FROM THE RESOLVER THAT ALREADY HAS IT, and from nowhere
+// else. No photo map of this module's own, no URL built from a pid, and no
+// request: the app keeps portrait URLs in exactly one place and this asks that
+// place the same question every other surface asks it.
+has(BAL_CODE, "window._getPhotoUrl", "the portrait is asked of the app's one photo resolver");
+eq((BAL_CODE.match(/<img/g) || []).length, 1,
+  "exactly one image element in the module, and it is that portrait");
+lacks(BAL_CODE, "images/legislator", "the module builds no portrait URL of its own");
+lacks(BAL_CODE, "BROWSE_PHOTOS", "and keeps no photo map");
+ok(/alt=""/.test(BAL_CODE),
+  "the portrait is decorative — the name beside it is the row's accessible label");
+ok(/loading="lazy"/.test(BAL_CODE), "and it is lazy, so the strip costs nothing on first paint");
+
+// FAIL SOFT MEANS SMALLER, NOT FAKER. A person the resolver has no portrait for,
+// and a page booted without the resolver at all, both produce a card with NO
+// image element in it — never a silhouette, a set of initials or a grey square
+// standing in for a face nobody has.
+{
+  const withPhotos = boot("/d/" + HD68, {
+    extras: { _getPhotoUrl: (pid) => (pid === "lee" ? "https://example.test/lee.jpg" : "") },
+  });
+  await settle(withPhotos);
+  const strip6 = withPhotos.document.getElementById("pdx-district-file-ballot");
+  const painted = strip6 ? strip6.innerHTML : "";
+  ok(painted.length > 0, "the strip painted with a photo resolver on the page");
+  has(painted, 'src="https://example.test/lee.jpg"', "the one person with a portrait gets it");
+  eq((painted.match(/<img/g) || []).length, 1,
+    "and the five the resolver answered nothing for get no image element at all");
+  has(painted, "Mike Lee", "every one of them is still named");
+  has(painted, "John Curtis", "including the ones with no portrait");
+  lacks(painted, "%", "and no percentage came with the portrait");
+}
+{
+  const noResolver = boot("/d/" + HD68);
+  await settle(noResolver);
+  const strip7 = noResolver.document.getElementById("pdx-district-file-ballot");
+  const bare = strip7 ? strip7.innerHTML : "";
+  ok(bare.length > 0, "a page with no photo resolver still paints the whole strip");
+  eq((bare.match(/<img/g) || []).length, 0, "with no image element anywhere in it");
+  has(bare, "Mike Lee", "and all six people still named");
+  has(bare, "Spencer Cox", "including the statewide office");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

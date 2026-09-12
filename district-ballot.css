@@ -97,8 +97,47 @@
   margin-top: 8px;
 }
 
+/* ── A CARD, AND EVERY CARD IS THE SAME CARD ──────────────────────────────── */
+/* Portrait left, identity right. The strip was four headings over sixteen
+   indistinguishable lines of text — the same shape as every other paragraph on
+   the page — so a reader scanning for "who do I call about this" had to read it
+   rather than look at it. A face is the fastest thing a person recognises, and
+   this app already has these six faces, so the row shows one.
+   EQUAL BY CONSTRUCTION: one padding, one border, one background, one portrait
+   size. A person with nineteen stance cards and a person with none get the same
+   card; the only difference a reader sees is that one has a second line. */
 .pdxb-person {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 9px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.34);
+}
+
+/* THE PORTRAIT, AT FORTY-FOUR PIXELS AND NEVER ANY OTHER SIZE. Fixed in both
+   axes, so a portrait of any aspect is cropped to the same square instead of
+   setting the height of the card, and so a card whose photo did not resolve is
+   not a different size from the one beside it. There is no placeholder rule
+   here: district-ballot.js prints no <img> at all when the resolver has no URL
+   for that person, and the card simply starts at the name. */
+.pdxb-face {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 9px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  object-fit: cover;
+  object-position: center top;
+  background: rgba(15, 23, 42, 0.6);
+}
+
+/* Name, office, line — stacked beside the portrait rather than wrapping around
+   it, so three short strings read as one identity. */
+.pdxb-id {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 /* ── A ROW ────────────────────────────────────────────────────────────────── */
@@ -152,5 +191,11 @@ a.pdxb-name:focus-visible {
   }
   .pdxb-frame {
     font-size: 0.83rem;
+  }
+  /* The portrait gets smaller on a narrow screen and stays square. It is still
+     one constant for every card. */
+  .pdxb-face {
+    width: 38px;
+    height: 38px;
   }
 }

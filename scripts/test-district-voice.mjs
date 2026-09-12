@@ -1147,16 +1147,69 @@ async function settle(win) {
   no(voice.innerHTML, "pdxv-take ", "and there is no take row painted");
   eq((voice.innerHTML.match(/class="pdxv-takes"/g) || []).length, 0,
     "the takes list is not painted at all when there are none");
-  // ZERO VERIFIED NEIGHBOURS → also a sentence.
-  has(voice.innerHTML, CORE_COPY.emptyNeighbors, "zero verified neighbours is a sentence");
-  // NO ANSWERS → a sentence, not a row of zeroes dressed as a result.
-  has(voice.innerHTML, CORE_COPY.emptyAnswers, "no answers yet is a sentence");
+  // ZERO IS ONE SENTENCE, NOT THREE. A seat nobody has answered yet used to print
+  // three zeroes beside the three choices, then "No answers yet.", then "No
+  // verified neighbors in this seat yet." — three different ways of saying the
+  // same nothing, stacked, which reads as a page that is broken rather than as a
+  // question nobody has reached. The one that survives is the one that answers
+  // the question a reader actually has about the block above it.
+  //
+  // THIS IS NOT A SOFTENING OF THE EMPTY RULE, it is the empty rule applied once
+  // instead of three times: no placeholder row, no skeleton, no sample feed, no
+  // zero dressed as a result, and nothing that implies an answer exists. The
+  // headcount sentence comes back the moment there is a headcount to print —
+  // asserted below — and the gate still owns the string either way.
+  has(voice.innerHTML, CORE_COPY.emptyAnswers, "no answers yet is the one sentence");
+  no(voice.innerHTML, CORE_COPY.emptyNeighbors,
+    "and the third way of saying nothing is not stacked under it");
+  ok(typeof CORE_COPY.emptyNeighbors === "string" && CORE_COPY.emptyNeighbors.length > 12,
+    "the gate still owns that sentence for the seats that need it");
   // A SIGNED-OUT READER SEES THE CLOSED NOTE, and no composer.
   has(voice.innerHTML, CORE_COPY.closedSignedOut, "the closed note says why, in the server's words");
   no(voice.innerHTML, "pdxv-body", "and no composer is painted for them");
   no(voice.innerHTML, "pdxv-optbtn", "nor a pressable option");
-  // …but every option and every count IS visible to them.
-  has(voice.innerHTML, "pdxv-optcount", "the counts are visible to a reader who cannot answer");
+  // …but every option IS visible to them, in full, and so is any count there is
+  // to see. AT ZERO THERE IS NO COUNT TO SEE: a nought beside a choice is not a
+  // fact about that choice, it is the absence of one, and printing three of them
+  // makes an unanswered question look like a result that came in flat. The
+  // sentence above says the same thing once and truthfully.
+  no(voice.innerHTML, "pdxv-optcount",
+    "no count chips at zero — three noughts are not three results");
+  for (const o of OPTIONS) {
+    has(voice.innerHTML, o.label, `but "${o.label}" is still fully printed for them`);
+  }
+
+  // AND THE COUNTS ARE VISIBLE TO A READER WHO CANNOT ANSWER, the moment any
+  // exist. This is the other half of that rule and it is asserted on a second
+  // boot of the same signed-out reader, against a seat where neighbours HAVE
+  // answered: they see the same choices and the same integers as somebody who
+  // could press one. Reading is open — what is gated is answering.
+  {
+    const wCounts = boot("/d/" + HD68, {
+      payload: seatPayload({
+        neighbors: { verified: 9, line: "9 verified neighbors in this seat." },
+        poll: Object.assign(seatPayload().poll, {
+          options: [
+            { ...OPTIONS[0], count: 7 },
+            { ...OPTIONS[1], count: 0 },
+            { ...OPTIONS[2], count: 2 },
+          ],
+          answered: 9,
+          countLine: "7 keeping them preserved · 0 opening more for development and grazing · 2 depends on the parcel",
+        }),
+      }),
+    });
+    await settle(wCounts);
+    const vc = wCounts.document.getElementById("pdx-district-file-voice");
+    const seen = vc ? vc.innerHTML : "";
+    has(seen, "pdxv-optcount", "a signed-out reader sees the counts when there are counts");
+    has(seen, ">7<", "seven is printed as seven");
+    has(seen, ">2<", "and two as two");
+    no(seen, "pdxv-optbtn", "and still has nothing to press");
+    no(seen, "%", "no percentage came with them");
+    no(seen, CORE_COPY.emptyAnswers,
+      "and the no-answers sentence is gone, because there are answers");
+  }
 
   // NO PID, NO PARTY, NO PERCENTAGE ANYWHERE IN THE VOICE BLOCK.
   no(voice.innerHTML, "%", "no percentage in the painted block");
@@ -1791,6 +1844,164 @@ for (const k of ["weekBusy", "weekNone", "weekUnread"]) {
 // the seat is resolved from the curated incumbent table rather than guessed.
 eq(boot("/").PDXVoice.personLinkHtml("lee"), "", "Lee gets no link");
 eq(boot("/").PDXVoice.personLinkHtml("cox"), "", "and neither does Cox");
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("13 · the block reads as a place — one loud question, one empty sentence");
+
+// ── THE QUESTION IS THE LOUDEST THING IN THE BLOCK ──────────────────────────
+// Every block on this seat was a labelled paragraph at the same size under an
+// accent-blue uppercase kicker, so the one thing on the page asking the reader
+// for something looked exactly like the five things telling them something. The
+// question is now the display face at display size; every label is the kicker
+// face in slate.
+ok(/\.pdxv-q\s*\{[^}]*Bebas Neue/.test(CSS_CODE), "the question is set in the display face");
+ok(/\.pdxv-q\s*\{[^}]*clamp\(/.test(CSS_CODE),
+  "sized against the VIEWPORT — and there is no count in the world that moves it");
+ok(/\.pdxv-q\s*\{[^}]*#f0f9ff/.test(CSS_CODE), "at the block's brightest ink");
+for (const kicker of ["pdxv-blockhd", "pdxv-kick", "pdxv-clabel", "pdxv-weekkick", "pdxv-takeissue"]) {
+  ok(new RegExp("\\." + kicker + "[^{]*\\{[^}]*Barlow Condensed").test(CSS_CODE),
+    `.${kicker} is set in the small kicker face`);
+  ok(!new RegExp("\\." + kicker + "[^{]*\\{[^}]*Bebas Neue").test(CSS_CODE),
+    `and .${kicker} is not set in the display face — a label may not out-shout the question`);
+}
+
+// ── THREE CARDS, AND EVERY CARD IS THE SAME CARD ────────────────────────────
+// The choices were thin full-width rows indistinguishable from the composer's
+// own controls. They are cards now, and they are equal BY CONSTRUCTION: one grid
+// track each, one min-height, one padding, one border. No arrangement of counts
+// can make one choice bigger, brighter or first.
+ok(/\.pdxv-opts\s*\{[^}]*display:\s*grid/.test(CSS_CODE), "the choices are a grid of cards");
+ok(/\.pdxv-opts\s*\{[^}]*auto-fit/.test(CSS_CODE),
+  "which wraps on the viewport's width and on nothing else");
+ok(/min-height:\s*\d+px/.test(CSS_CODE),
+  "and the card has a constant min-height, so a card with no count is the size of one with a count");
+// The count chip is one fixed size. This is the whole treatment a count gets.
+ok(/\.pdxv-optcount\s*\{[^}]*tabular-nums/.test(CSS_CODE), "the count is in tabular figures");
+ok(/\.pdxv-optcount\s*\{[^}]*padding:\s*[\d.]+px\s+[\d.]+px/.test(CSS_CODE),
+  "in a chip with a constant padding — never a length a number could set");
+
+// ── THE DASHED WELL, AND ONE EMPTY STATE INSTEAD OF TWO ─────────────────────
+// Zero takes plus a reader who cannot post used to be two stacked boxes: an
+// empty-takes sentence, then a closed note under it. It is one outline now,
+// holding the sentence and the server's own reason. A solid empty card reads as
+// something that failed to load; dashes read as a space nobody has filled.
+ok(/\.pdxv-well\s*\{[^}]*border:\s*1px dashed/.test(CSS_CODE),
+  "the empty-takes well is a dashed outline, not a card");
+{
+  const w = boot("/d/" + HD68);
+  await settle(w);
+  const voice = w.document.getElementById("pdx-district-file-voice");
+  const seen = voice ? voice.innerHTML : "";
+  has(seen, "pdxv-well", "a signed-out reader with no takes gets the well");
+  has(seen, CORE_COPY.emptyTakes, "holding the one empty sentence");
+  has(seen, CORE_COPY.closedSignedOut, "and the server's own reason, inside the same outline");
+  eq((seen.match(/pdxv-closed/g) || []).length, 1,
+    "printed once — the closed note is not also stacked under the well");
+  eq((seen.match(/pdxv-well/g) || []).length, 1, "and there is exactly one well");
+}
+// A reader who CAN post gets the composer, not the well's note — the well is for
+// the case where there is nothing to read and nothing to write.
+{
+  const w = boot("/d/" + HD68, {
+    currentUser: { uid: "u", isAnonymous: false, getIdToken: () => Promise.resolve("t") },
+    payload: seatPayload({ voice: { canPost: true, reason: "verified", note: "" } }),
+  });
+  await settle(w);
+  const voice = w.document.getElementById("pdx-district-file-voice");
+  const seen = voice ? voice.innerHTML : "";
+  has(seen, "pdxv-body", "a verified neighbour still gets the composer");
+  has(seen, CORE_COPY.emptyTakes, "and still reads the honest empty above it");
+  no(seen, "pdxv-closed", "with no closed note, because nothing is closed to them");
+}
+
+// ── THE RECORD STRIP SAYS WHICH IT MEANS BY ITS SHAPE ───────────────────────
+// An act is a block with the bill's own number on it and a door to the record.
+// No act is ONE QUIET LINE under the question — an aside, demoted, not a peer
+// section with a heading and an empty state of its own.
+{
+  const w = boot("/d/" + HD68, {
+    record: {
+      items: [{
+        number: "H.B. 256",
+        title: "Municipal and County Zoning Amendments",
+        date: "2025-03-06",
+        issueKey: FLAGSHIP_ISSUE,
+        source: { url: "https://le.utah.gov/~2025/bills/static/HB0256.html" },
+      }],
+    },
+  });
+  await settle(w);
+  const voice = w.document.getElementById("pdx-district-file-voice");
+  const seen = voice ? voice.innerHTML : "";
+  has(seen, "pdxv-weeklink", "a landed act is a block with a door");
+  has(seen, "H.B. 256", "carrying the bill's own number");
+  has(seen, "pdxv-weeknum", "printed as the citation it is");
+  has(seen, "Municipal and County Zoning Amendments", "and the bill's own title");
+  has(seen, "Mar 6, 2025", "with the date in the app's own long form");
+  no(seen, "2025-03-06", "rather than the wire format it arrived in");
+  has(seen, "https://le.utah.gov/~2025/bills/static/HB0256.html", "and the record's own source");
+  no(seen, "pdxv-week--quiet", "and no quiet line, because there is an act");
+  no(seen, "%", "an act is a thing that happened, not a percentage");
+}
+// AN ACT WITH NO NUMBER IS STILL AN ACT. The number is printed when the record
+// carries one and omitted when it does not — no placeholder citation.
+{
+  const w = boot("/d/" + HD68, {
+    record: { items: [{ title: "Senate concurrence", date: "Feb 11, 2026",
+      issueKey: FLAGSHIP_ISSUE, source: { url: "https://example.test/x" } }] },
+  });
+  await settle(w);
+  const seen = w.document.getElementById("pdx-district-file-voice").innerHTML;
+  has(seen, "pdxv-weeklink", "an act with no number is still printed");
+  has(seen, "Senate concurrence", "under its own title");
+  no(seen, "pdxv-weeknum", "with no empty citation slot");
+}
+// AN ACT THAT NAMES NO ISSUE AT ALL IS TRUSTED. The record was asked for this
+// member AND this issue, so an item that carries no key of its own is an answer
+// to that question — the guard drops items that name a DIFFERENT issue, not items
+// that name none. Dropping those would empty the strip on every record whose rows
+// do not repeat the key back.
+{
+  const w = boot("/d/" + HD68, {
+    record: { items: [{ title: "Third reading", date: "Jan 5, 2026",
+      source: { url: "https://example.test/y" } }] },
+  });
+  await settle(w);
+  eq(w.PDXVoice.weekState(), "act", "an item with no issue key of its own is this issue's act");
+  has(w.document.getElementById("pdx-district-file-voice").innerHTML, "Third reading",
+    "and it is printed");
+}
+// THE QUIET LINE IS DEMOTED, IN THE SHEET. No heading, no card, no border — the
+// kicker is smaller and greyer than every other kicker in the block, because it
+// labels an aside rather than a section.
+{
+  const w = boot("/d/" + HD68, { record: { items: [] } });
+  await settle(w);
+  const seen = w.document.getElementById("pdx-district-file-voice").innerHTML;
+  has(seen, "pdxv-week--quiet", "no act is one quiet line");
+  has(seen, WEEK_NONE, "saying honestly that there is nothing on this key");
+  no(seen, "pdxv-weeklink", "with no door to a record that does not exist");
+  // One line, not a section: the kicker and the sentence share one element.
+  eq((seen.match(/pdxv-week--quiet/g) || []).length, 1, "printed once");
+  has(seen, "pdxv-weekkick", "with a kicker rather than a heading");
+}
+ok(/\.pdxv-week--quiet\s*\{[^}]*padding:\s*0/.test(CSS_CODE),
+  "the quiet line has no padding — it is a line, not a panel");
+ok(!/\.pdxv-week--quiet\s*\{[^}]*border:/.test(CSS_CODE), "and no border");
+
+// ── THE TAKE'S RAIL IS THE SUBJECT, AND IT IS BORROWED ─────────────────────
+// The rail carries the issue's colour from PDXIssueColors through inline
+// --pdx-ic* properties, so this sheet holds no per-issue rule and cannot
+// disagree with any other surface. THIS SUITE LOADS NO COLOUR MODULE, which is
+// the fail-soft case: the neutral rail, and no data-ic at all.
+has(CSS_CODE, 'data-ic="on"', "the sheet dresses a resolved issue colour");
+ok(/\.pdxv-take\s*\{[^}]*border-left:\s*3px/.test(CSS_CODE),
+  "the rail is 3px on every take — it says which issue, never how much");
+ok(/\.pdxv-take\[data-ic="on"\]\s*\{\s*border-left-color:\s*var\(--pdx-ic\)/.test(CSS_CODE),
+  "and a resolved key changes its colour, not its width");
+has(VOICE_CODE, "window.PDXIssueColors", "the client asks the module that owns the mapping");
+has(VOICE_CODE, "C.skin(", "through the same skin() resolver every other surface uses");
+ok(!/#[0-9a-f]{6}/i.test(VOICE_CODE), "and hard-codes no colour of its own");
 
 // ═════════════════════════════════════════════════════════════════════════════
 // ── Result ───────────────────────────────────────────────────────────────────
