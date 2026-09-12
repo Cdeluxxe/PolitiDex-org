@@ -12,6 +12,25 @@
   // ════════════════════════════════════════════════════════
   // LIKE + DISLIKE SYSTEM — Firestore "votes" collection
   // Document ID = politician pid, fields: likes, dislikes
+  //
+  // ONE STORE, AND IT IS FIRESTORE. Every write below used to be mirrored to a
+  // POST on /api/votes, and the read path fell back to a GET on the same URL.
+  // No Netlify Function was ever routed there, so all of it 404'd — the mirror
+  // silently, the read fallback loudly (it fanned out one request per politician
+  // in the roster whenever a per-document listener errored, which is how this
+  // one path came to be the site's top dead route at 169,076 requests a month).
+  // The calls are gone. No edge rule replaced them either — a 410 needs a body
+  // to point at and the only one on disk is the 2 MB app shell, so the path keeps
+  // Netlify's own 404, which is the honest answer for a route that never existed
+  // (netlify.toml records that decision). Nothing stood in for the endpoint: these
+  // counts are popularity, not record, and they have exactly one home.
+  //
+  // THIS IS NOT THE VOTING RECORD. A like is a reader's opinion about a person.
+  // The formal record — roll calls, positions, measures — is served only by
+  // /api/voting-record and read only through PDXVotingRecord. Do not retarget
+  // anything in this file there, and do not stand /api/votes back up under any
+  // name: a second endpoint that returns record-shaped rows is a second record
+  // engine, and the site is only allowed one.
   // ════════════════════════════════════════════════════════
   var _likedPids = new Set(JSON.parse(localStorage.getItem('pdx_liked_pids') || '[]'));
   var _dislikedPids = new Set(JSON.parse(localStorage.getItem('pdx_disliked_pids') || '[]'));
@@ -134,14 +153,6 @@
     });
 
     _saveUserVoteToFirestore(basePid, 'like');
-
-    fetch('/api/votes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pid: basePid, type: 'like' })
-    }).catch(function(e) {
-      console.warn('Netlify votes write error:', e);
-    });
   }
 
   function handleDislike(btn, pid) {
@@ -179,14 +190,6 @@
     });
 
     _saveUserVoteToFirestore(basePid, 'dislike');
-
-    fetch('/api/votes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pid: basePid, type: 'dislike' })
-    }).catch(function(e) {
-      console.warn('Netlify votes write error:', e);
-    });
   }
 
   // ════════════════════════════════════════════════════════
@@ -1171,20 +1174,15 @@
             _votesDataLoaded = true;
             _syncVoteUI(pid);
           }, function(e) {
-            console.warn('votes doc onSnapshot error for ' + pid + ', trying Netlify API:', e);
-            fetch('/api/votes')
-              .then(res => res.json())
-              .then(data => {
-                data.forEach(function(row) {
-                  var rPid = row.politician_id;
-                  _likeCounts[rPid] = typeof row.likes === 'number' ? Math.max(0, row.likes) : 0;
-                  _dislikeCounts[rPid] = typeof row.dislikes === 'number' ? Math.max(0, row.dislikes) : 0;
-                  _syncVoteUI(rPid);
-                });
-                _votesDataLoaded = true;
-              }).catch(fErr => {
-                console.error("Netlify fallback votes load error:", fErr);
-              });
+            // Last resort, and it is a dead end by design. This used to fan out to
+            // a GET on the retired /api/votes path — one request PER POLITICIAN,
+            // every time the per-document listener errored, against an endpoint
+            // that was never deployed. That fan-out was the single loudest 404 on
+            // the site (169,076 requests in a month). Popularity counts live in
+            // Firestore and nowhere else, so when Firestore cannot be read there
+            // is no second source to ask: report it and leave the chips at the
+            // zeroes they already hold rather than manufacturing a number.
+            console.warn('votes doc onSnapshot error for ' + pid + '; leaving counts unread:', e);
           });
         });
       });

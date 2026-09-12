@@ -510,6 +510,30 @@
   to = "/index.html"
   status = 200
 
+# /api/votes IS RETIRED, AND ON PURPOSE THERE IS NO RULE FOR IT HERE.
+#
+# Netlify's top-resources-not-found report for Aug 12 - Sep 11 put /api/votes at
+# 169,076 requests, the loudest dead path on the site. It was never a Function:
+# nothing in netlify/functions has ever declared that path, and the formal record
+# has only ever been served by /api/voting-record. The 404s came from four client
+# emitters (index.html's agenda handler, like-dislike.js's like/dislike writes,
+# and a read fallback in like-dislike.js that issued one GET per politician in the
+# roster whenever a Firestore per-document listener errored). All four are gone,
+# and scripts/test-no-legacy-votes-api.mjs fails the build if the string returns
+# to shipped code or if a Function claims the path.
+#
+# A 410 (Gone) was the preferred edge answer and was skipped after reading the
+# parser: @netlify/redirect-parser only allows `to` to be omitted for FORWARD
+# rules (from ending in /* with a 2xx status), so a 410 rule needs a `to` and
+# therefore a body file to point it at. The only body already on disk is the 2 MB
+# app shell, and rewriting a dead API path into that shell is precisely the
+# mistake this site already made once at /p/person-file.js - it converts a cheap,
+# honest 404 into a 2 MB response that tells a client the endpoint exists. So the
+# path keeps Netlify's built-in 404, which is the correct answer for a route that
+# never existed, and this block is the record of the decision rather than a rule.
+# If a body file is ever added for other reasons, a `from = "/api/votes"` /
+# `status = 410` rule pointed at it is the right follow-up.
+
 # Portrait hosts the Image CDN may fetch from.
 #
 # This exists for ONE caller: the shareable record card (profile-card.js). Every

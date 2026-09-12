@@ -5006,6 +5006,52 @@
 //     surface in this pass reads it, computes it or prints it — and neither are
 //     the formal tiers, the act floors, the finance lane, the Mandate math,
 //     person-file performance, the pack keys or any issue mapping.
+// v180 - /api/votes IS RETIRED. This pass changed index.html, like-dislike.js
+//     and sw.js, and added scripts/test-no-legacy-votes-api.mjs.
+//     · THE LOUDEST DEAD PATH ON THE SITE. Netlify's top-not-found report for
+//       Aug 12 – Sep 11 put /api/votes at 169,076 requests. It was never a
+//       politician page and never a Function: nothing in netlify/functions has
+//       ever been routed there. Four client emitters were calling it — the
+//       agenda card's up/down handler in index.html, handleLike and
+//       handleDislike in like-dislike.js, and a read fallback in
+//       _startVotesListener that fanned out ONE GET PER POLITICIAN in the roster
+//       whenever a per-document Firestore listener errored. That fan-out is the
+//       shape of the number: a single bad session emitted hundreds of 404s.
+//     · REMOVED, NOT REPOINTED. The three writes were mirrors of a Firestore
+//       write that already succeeded, so deleting them loses nothing — the
+//       "votes" collection is and was the only store for a like. The read
+//       fallback now logs and leaves the chips at the zeroes they hold, because
+//       when Firestore cannot be read there is no second source to ask and a
+//       manufactured count is worse than an honest blank.
+//     · NO COMPATIBILITY SHIM. The formal record stays on /api/voting-record and
+//       stays reachable only through PDXVotingRecord — no /api/votes Function was
+//       created, nothing was retargeted at the record helper (a like is an
+//       opinion about a person, not a roll call), and no endpoint returns empty
+//       JSON pretending to be a roll-call list. The member and pack URLs are
+//       byte-identical, and scripts/test-no-legacy-votes-api.mjs now fails the
+//       build if the string comes back in shipped code or if a Function claims
+//       the path.
+//     · NO EDGE RULE, DELIBERATELY. A 410 was preferred over a rewrite and then
+//       skipped: @netlify/redirect-parser requires a `to` on any non-forward
+//       rule, so a 410 needs a body file alongside the config edit, and the only
+//       body already on disk big enough to name is the 2 MB shell — which is the
+//       exact mistake this repo made once at /p/person-file.js. The path keeps
+//       Netlify's own 404, which is already the honest answer.
+//     · WHY THIS NEEDS A BUMP, AND WHICH FILES. index.html is precached as '/',
+//       so a warm device holding v179's copy keeps the agenda handler with the
+//       mirror POST in it. like-dislike.js is a stale-while-revalidate runtime
+//       entry rather than a precached asset — but the runtime cache NAME carries
+//       CACHE_VERSION too, so only a rename evicts the v179 copy that still
+//       carries the per-politician GET fan-out. Both files are the reason for the
+//       bump; a warm phone on v179 would otherwise keep calling the retired path
+//       from cached code no matter what ships.
+//     · Nothing on the do-not list moved: no party metric, blended score, DM
+//       floor, mapping, Voice or Support/Venmo change; no parser-blocking tag was
+//       converted; spotlights, the stance library and judicial were not
+//       compacted; every emitted API path stays relative, so the apex/www origin
+//       question is untouched. District voice, the HD-68 rooms, the donate card
+//       and Your File were not opened.
+//
 // v179 - SUPPORT ROUTING, AND /p/null. This pass changed index.html,
 //     person-file.js, my-profile.js, sw.js and the shipped share/sitemap
 //     emitters, and added support-route.js and support-route.css.
@@ -5058,7 +5104,7 @@
 //     support-lane.css — the trail is tucked by a class on <html>, not by
 //     editing journey.js, and the backing lane is a different product that was
 //     not opened.
-const CACHE_VERSION = 'v179';
+const CACHE_VERSION = 'v180';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 
