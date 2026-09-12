@@ -121,6 +121,23 @@
     // here and there is no field on the returned item to put it in.
     return { name: String(name), office: String((p && (p.office || p.title || p.role)) || '').trim() };
   }
+  // ── The sentinel wall ──────────────────────────────────────────────────────
+  // encodeURIComponent(null) === 'null'. person-file.js owns the predicate and
+  // the reason behind it (/p/null was the app's second most visited path); this
+  // asks that file when it is loaded, and keeps the same three words locally for
+  // the case where it is not. A pid this rejects gets NO address at all — never
+  // '/p/' plus the word a missing value turned into.
+  var PID_SENTINEL = /^(?:null|undefined|nan)$/i;
+  function realPid(pid) {
+    try {
+      var P = window.PDXPerson;
+      if (P && typeof P.realPid === 'function') return !!P.realPid(pid);
+    } catch (e) {}
+    if (pid == null) return false;
+    var s = String(pid).trim();
+    return !!s && !PID_SENTINEL.test(s);
+  }
+
   function issueLabel(k) {
     try { if (typeof window._issueLabel === 'function') return window._issueLabel(k) || k; } catch (e) {}
     return k;
@@ -130,7 +147,7 @@
       var P = window.PDXPerson;
       if (P && typeof P.path === 'function') return P.path(pid);
     } catch (e) {}
-    return '/p/' + encodeURIComponent(String(pid || ''));
+    return realPid(pid) ? '/p/' + encodeURIComponent(String(pid)) : '';
   }
   function dateText(iso) {
     if (!iso) return '';

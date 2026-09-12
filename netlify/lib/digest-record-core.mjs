@@ -115,8 +115,13 @@ export function rollcallPath(congress, chamber, rollNumber) {
 }
 
 // The person file is the spine: a person-anchored act belongs at /p/<pid>.
+// A sentinel is not a pid: encodeURIComponent(null) === "null", so `pid ?` alone
+// let a missing value through as the word it stringified into and published
+// /p/null as if it were somebody's file.
+const SENTINEL_PID = /^(?:null|undefined|nan)$/i;
 export function personPath(pid) {
-  return pid ? `/p/${pid}` : null;
+  if (!pid || SENTINEL_PID.test(String(pid).trim())) return null;
+  return `/p/${pid}`;
 }
 
 // Newest act first; undated last rather than dropped, because an undated formal

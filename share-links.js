@@ -291,6 +291,23 @@
   // above put a "we couldn't open that roll call" notice on top of it, because the
   // path still claimed to be a roll call nobody had resolved. Rooting the builder
   // removes the whole class.
+  // ── The sentinel wall ──────────────────────────────────────────────────────
+  // encodeURIComponent(null) === 'null'. person-file.js owns the predicate and
+  // the reason behind it (/p/null was the app's second most visited path); this
+  // asks that file when it is loaded, and keeps the same three words locally for
+  // the case where it is not. A pid this rejects gets NO address at all — never
+  // '/p/' plus the word a missing value turned into.
+  var PID_SENTINEL = /^(?:null|undefined|nan)$/i;
+  function realPid(pid) {
+    try {
+      var P = window.PDXPerson;
+      if (P && typeof P.realPid === 'function') return !!P.realPid(pid);
+    } catch (e) {}
+    if (pid == null) return false;
+    var s = String(pid).trim();
+    return !!s && !PID_SENTINEL.test(s);
+  }
+
   function origin() {
     try { return location.origin; } catch (e) { return ''; }
   }
@@ -391,7 +408,7 @@
     // problem the person file exists to end — so every person file has one
     // address, and the sitemap simply does not list all of them.
     profile: function (pid) {
-      if (!pid) return '';
+      if (!realPid(pid)) return '';
       try {
         var P = window.PDXPerson;
         if (P && typeof P.path === 'function') return origin() + P.path(pid);
@@ -414,7 +431,7 @@
     // so the link, the copy text and the image payload cannot disagree about
     // where a shared card points.
     personRecord: function (pid, issueKey) {
-      if (!pid) return origin() + '/';
+      if (!realPid(pid)) return origin() + '/';
       var base = API.profile(pid) || (origin() + '/p/' + encodeURIComponent(pid));
       if (!issueKey) return base;
       return base + '?record=' + encodeURIComponent(pid + '~' + issueKey);

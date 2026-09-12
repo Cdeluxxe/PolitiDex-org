@@ -1,0 +1,48 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   PolitiDex — SUPPORT ROUTING  ·  support-route.css
+   Two rules, both about one thing: when a reader has asked for the donate card,
+   the donate card is what is on screen. Paired with support-route.js, which
+   puts `pdx-support-hash` on <html> while #support-politidex is the live hash.
+
+   THE TRAIL MUST NOT COVER THE QR. #pdx-journey / .pj-bar is the Your Trail bar
+   — position:fixed; bottom:0; z-index:45 (journey.css) — and on a 390×844
+   viewport the bottom of the donate card is exactly where it sits. A reader who
+   followed a Support control to the card found "Compare with another" painted
+   over the Venmo button and the QR frame: the one control on the card, and the
+   one thing a phone camera scans, behind the one bar the reader did not ask
+   for. Both halves of the fix are here, and they are independent:
+
+     1 · the card is LIFTED above the bar's layer (z-index 46 > 45), so even
+         with the bar up, the button and the QR are the topmost thing at those
+         coordinates and take the taps;
+     2 · the bar is TUCKED on this hash only, so nothing is painted over the
+         card at all.
+
+   The trail is not deleted, dismissed or cleared — the class is on <html>, the
+   crumbs stay in storage, and the moment the hash is anything else the bar is
+   back exactly as journey.js left it.
+
+   NO MONEY RULES LIVE HERE. The card's appearance, its button, its handle and
+   its QR are owned by app.css and mobile-polish.css §7d, and none of them is
+   touched. This sheet adds no total, goal or progress bar, and support-lane.css
+   (the backing counts — a different product) is not referenced.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1 · The card owns its coordinates. `position:relative` is already on the
+   element (index.html); this only names the layer, and only names one above
+   the trail's. */
+#support-politidex {
+  position: relative;
+  z-index: 46;
+  /* A native hash jump — a pasted link, a crawler-followed anchor, a browser
+     that restores the hash before any script runs — lands the card under the
+     fixed nav without this. support-route.js parks it with the same offset; the
+     two agree so the scroll cannot end in two places. */
+  scroll-margin-top: calc(var(--pdx-chrome, 7.125rem) + 12px);
+}
+
+/* 2 · The trail tucks while the reader is on the card, and only then. */
+html.pdx-support-hash #pdx-journey,
+html.pdx-support-hash .pj-bar {
+  display: none !important;
+}

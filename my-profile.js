@@ -753,6 +753,31 @@
     return section('Your money tree', '💰', null, null, body);
   }
 
+  /* ── the rail's money control ─────────────────────────────────────────
+     THE FOURTH SURFACE. A phone reader tapping anything labelled Support landed
+     on four different places, and this rail — the reader's own profile, the one
+     page that is entirely about their relationship to the project — had no way
+     to give at all. So the nearest Support-looking control was the People's
+     Mandate or the backing lane, neither of which is about money.
+
+     One link, the same hash as the hamburger item, the desktop overflow
+     "Donate" and the footer: #support-politidex, the donate card that already
+     shipped. NOT a second donate surface — no Venmo link, no handle, no QR and
+     above all no total, goal or progress bar is rendered here; this is a door to
+     the one card, and support-route.js is what makes the door land on it.
+
+     Nothing on this rail's money tree is touched. That section is campaign
+     finance — who funds the politicians the reader follows — and it is a record
+     surface. This is a donation to PolitiDex, and the two are never added up. */
+  function renderSupport() {
+    var body = '<p class="mp-sub">PolitiDex takes no party money and sells no data. '
+      + 'If the receipts are worth something to you, you can help keep them free '
+      + 'for everyone else.</p>'
+      + '<div class="mp-guide-actions"><a class="mp-btn mp-btn--gold" href="#support-politidex" data-pdx-support>'
+      + 'Support PolitiDex</a></div>';
+    return section('Support PolitiDex', '💛', null, null, body);
+  }
+
   /* ── compose ────────────────────────────────────────────────────────── */
   function buildContext() {
     var stances = myStances();
@@ -784,7 +809,8 @@
       + renderStats(ctx)
       + '<div class="mp-cols">' + renderStances(ctx) + renderTeam(ctx) + '</div>'
       + renderEvidence(ctx)
-      + renderMoney(ctx);
+      + renderMoney(ctx)
+      + renderSupport();
     host.innerHTML = html;
   }
 
