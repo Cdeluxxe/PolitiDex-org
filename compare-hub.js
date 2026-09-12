@@ -1284,9 +1284,45 @@
     // Represents Me action row carries — one address, two doors, no nav pill.
     // It is printed ONLY in the signed-in branch: signed out there is no account
     // menu to put it in, and the band's own control is the way in.
+    //
+    // ── AND PAINTING THE CHIP IS THE WHOLE JOB ────────────────────────────────
+    // This function is allowed to replace the account chip's label, photo and
+    // menu markup. It is not allowed to read Firestore, rebuild a grid, or ask
+    // the alignment engine for its sixteen-wide repaint — a member's name
+    // arriving in the bar is not new information about anybody's record, so
+    // nothing about the homepage changes because of it. The pull that DOES carry
+    // new information is syncUserDataFromFirestore below, and it owns its own
+    // repaints; see the note on its four reads.
+    //
+    // THE SIGNATURE GUARD. Firebase re-announces the same session several times
+    // in one visit — the cold resolve, the anonymous roster warm, a token
+    // refresh, and the reconcile call at the bottom of this file — and every
+    // announcement used to re-parse and re-insert two large HTML templates.
+    // That threw away the dropdown the reader was hovering (the markup holding
+    // :hover IS the markup being replaced) and re-laid-out the bar for no
+    // change. A session that changes nothing now paints nothing.
+    var _navAuthSig = null;
     function updateNavAuth(user) {
       const desktop = document.getElementById('nav-auth-desktop');
       const mobile = document.getElementById('nav-auth-mobile');
+
+      var sig = (user && !user.isAnonymous)
+        ? 'in|' + (user.uid || '') + '|' + (user.displayName || '') + '|' + (user.email || '') + '|' + (user.photoURL || '')
+        : 'out';
+      // Read back what is actually in the slots rather than trusting the variable
+      // alone: the static fallback markup in index.html carries no signature, so
+      // the first real call always paints even if it matches a remembered one.
+      var painted = null;
+      try {
+        painted = (desktop && desktop.getAttribute('data-pdx-nav-sig')) ||
+                  (mobile && mobile.getAttribute('data-pdx-nav-sig')) || null;
+      } catch (e) {}
+      if (sig === _navAuthSig && painted === sig) return;
+      _navAuthSig = sig;
+      try {
+        if (desktop) desktop.setAttribute('data-pdx-nav-sig', sig);
+        if (mobile) mobile.setAttribute('data-pdx-nav-sig', sig);
+      } catch (e) {}
 
       if (user && !user.isAnonymous) {
         const displayName = user.displayName || (user.email ? user.email.split('@')[0] : 'Member');
@@ -1369,8 +1405,87 @@
       }
     }
 
+    // ── THE ACCOUNT PULL, AND WHAT AN OPEN MENU IS ALLOWED TO COST ───────────
+    // WHAT WAS REPORTED. Signed in on a desktop, clicking the account chip put
+    // Chrome's "Page Unresponsive" dialog on screen with the account dropdown
+    // still open. The dropdown is not the slow part and never was: it is pure
+    // CSS (group-hover on the markup printed above — there is no JS open handler
+    // to make faster). What the reader was waiting on was this pull and the
+    // repaints hanging off it, and three things about the shape below paid for
+    // it:
+    //
+    //   1. FIVE READS IN A CHAIN. users/{uid}, then its votes, then its
+    //      comments, then userTeams/{uid}, then userTeams/{uid}/teams/{main} —
+    //      each waiting on the previous round trip although only the last two
+    //      are genuinely ordered. Five serial trips are five chances to land in
+    //      the middle of the reader's next gesture.
+    //   2. EVERY LANDING REPAINTED THE WORLD. Several hops ask the alignment
+    //      engine for its sixteen-wide pass, so one sign-in rebuilt the homepage
+    //      grids once per read instead of once.
+    //   3. THE LOCATION RESTORE FANNED OUT NINE FUNCTIONS SYNCHRONOUSLY, five of
+    //      which rebuild a whole grid — #relevant-browse-grid is a tree of every
+    //      race the reader can vote in — inside the promise callback, on a pull
+    //      that on a returning device usually restores the area already showing.
+    //
+    // WHAT CHANGED, and it is only ever WHEN:
+    //   · The reads that do not depend on each other are issued together, so the
+    //     network runs in parallel. Processing order is unchanged where it
+    //     matters: the team lanes still run behind the user doc, which is the
+    //     guard that stops a lossy reconstruction from overwriting a good saved
+    //     team (see _finalizeTeam).
+    //   · Every repaint is one idle slice later than the read that asked for it,
+    //     so a menu, sheet or panel the reader just opened gets its frame and
+    //     the work lands in the gap after it.
+    //   · ONE paint hold spans the whole pull — alignRefreshHold is a counter, so
+    //     it nests with the Your File and My Views holds — released when the last
+    //     lane settles, so four landings collapse into one pass.
+    //   · The location fan-out runs only when the restored area DIFFERS from the
+    //     one already stored on this device. A pull that changed nothing repaints
+    //     nothing, which is what keeps #relevant-browse-grid out of the turn the
+    //     account chip was clicked in.
+    //
+    // NOT TOUCHED: every read, every field, every fallback and every grid rebuild
+    // is the same one, with the same guards, in the same relative order.
+    function _syncIdle(run) {
+      var go = function () { try { run(); } catch (e) {} };
+      try {
+        if (typeof window.requestIdleCallback === 'function') {
+          window.requestIdleCallback(go, { timeout: 1200 });
+          return;
+        }
+      } catch (e) {}
+      setTimeout(go, 0);
+    }
+    function _syncHold(on) {
+      try { if (typeof window.alignRefreshHold === 'function') window.alignRefreshHold(!!on); } catch (e) {}
+    }
+    // True while any of the account reads is still in the air. Read by the
+    // surfaces that must not rebuild themselves just because a chip was opened
+    // mid-pull — the pull repaints what it actually changed, once, on release.
+    var _syncInFlight = 0;
+    window._pdxUserSyncInFlight = function () { return _syncInFlight > 0; };
+
     function syncUserDataFromFirestore(uid) {
-      db.collection('users').doc(uid).get().then(function(doc) {
+      var userRef = db.collection('users').doc(uid);
+      // In the air together, not one behind the other.
+      var userRead = userRef.get();
+      var votesRead = userRef.collection('votes').get();
+      var commentsRead = userRef.collection('comments').get();
+      var teamsRead = db.collection('userTeams').doc(uid).get();
+
+      var _lanes = 4, _released = false;
+      _syncInFlight++;
+      _syncHold(true);
+      function laneOut() {
+        if (_released) return;
+        if (--_lanes > 0) return;
+        _released = true;
+        _syncInFlight = Math.max(0, _syncInFlight - 1);
+        _syncHold(false);
+      }
+
+      // ── LANE 1 · the member's own document ──────────────────────────────────
+      var userLane = userRead.then(function(doc) {
         if (doc.exists) {
           const data = doc.data();
           if (data.my_politicians) {
@@ -1414,13 +1529,32 @@
           // visitor already set locally in this session.
           if (data.voter_location && data.voter_location.state && !window._hasUserLocation) {
             try {
-              localStorage.setItem('politidex_voter_location', JSON.stringify(data.voter_location));
+              var _prevLoc = null;
+              try { _prevLoc = localStorage.getItem('politidex_voter_location'); } catch(e) {}
+              var _nextLoc = JSON.stringify(data.voter_location);
+              localStorage.setItem('politidex_voter_location', _nextLoc);
               if (typeof window.loadVoterLocation === 'function') window.loadVoterLocation();
               var _ls = document.getElementById('voter-state-sel');
               if (_ls) _ls.value = data.voter_location.state || '';
-              ['_updateTeamPositionsForLocation','updateRelevantLocationText','updateMyTeamLocationText','updateRacesAndPositions','_vhBallotRerender','_vhSyncBanner','renderRelevantToMe','myteamBrowseFilter','pmFilterLocation'].forEach(function(fn) {
+              // The light half now: these three write text into lines that are
+              // already on screen, and a reader whose area has just been restored
+              // should see it named rather than watch a stale one.
+              ['updateRelevantLocationText','updateMyTeamLocationText','_vhSyncBanner'].forEach(function(fn) {
                 try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
               });
+              // The heavy half — five grid rebuilds, one of which is the whole
+              // relevant-to-me tree — one idle slice later, and only when the
+              // restored area is not the one this device already had.
+              if (_prevLoc !== _nextLoc) {
+                _syncIdle(function() {
+                  _syncHold(true);
+                  try {
+                    ['_updateTeamPositionsForLocation','updateRacesAndPositions','_vhBallotRerender','renderRelevantToMe','myteamBrowseFilter','pmFilterLocation'].forEach(function(fn) {
+                      try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
+                    });
+                  } finally { _syncHold(false); }
+                });
+              }
             } catch(e) { console.warn('Restore voter_location failed:', e); }
           }
         } else {
@@ -1442,45 +1576,76 @@
           });
         }
 
-        db.collection('users').doc(uid).collection('votes').get().then(function(votesSnap) {
-          votesSnap.forEach(function(voteDoc) {
-            var vPid = voteDoc.id;
-            var vData = voteDoc.data();
-            if (vData.type === 'like') {
-              _likedPids.add(vPid);
-              _dislikedPids.delete(vPid);
-            } else if (vData.type === 'dislike') {
-              _dislikedPids.add(vPid);
-              _likedPids.delete(vPid);
-            }
-          });
-          localStorage.setItem('pdx_liked_pids', JSON.stringify(Array.from(_likedPids)));
-          localStorage.setItem('pdx_disliked_pids', JSON.stringify(Array.from(_dislikedPids)));
-          if (typeof _refreshAllVoteUI === 'function') _refreshAllVoteUI();
-        }).catch(function(e) {
-          console.warn('Error loading user votes from Firestore:', e);
+        _syncIdle(function() {
+          _potentialBuildGrid();
+          _favoritesBuildGrid();
+          _refreshAllHeartUI();
+          if (typeof filterDirectory === 'function') filterDirectory();
         });
+      }).catch(function(error) {
+        console.error("Error syncing Firestore user data:", error);
+        _mypolLoad();
+        _loadFavorites();
+        _potentialLoad();
 
-        db.collection('users').doc(uid).collection('comments').get().then(function(commentsSnap) {
-          commentsSnap.forEach(function(cDoc) {
-            var cData = cDoc.data();
-            if (cData.pid) _commentedPids.add(cData.pid);
-          });
-          localStorage.setItem('pdx_commented_pids', JSON.stringify(Array.from(_commentedPids)));
+        _syncIdle(function() {
+          _mypolBuildGrid();
+          _potentialBuildGrid();
+          _favoritesBuildGrid();
+          _refreshAllHeartUI();
+          if (typeof filterDirectory === 'function') filterDirectory();
+        });
+        throw error;   // the team lanes below stay behind a failed user doc
+      });
+
+      userLane.then(laneOut, laneOut);
+
+      // ── LANE 2 · the votes this member has cast ─────────────────────────────
+      votesRead.then(function(votesSnap) {
+        votesSnap.forEach(function(voteDoc) {
+          var vPid = voteDoc.id;
+          var vData = voteDoc.data();
+          if (vData.type === 'like') {
+            _likedPids.add(vPid);
+            _dislikedPids.delete(vPid);
+          } else if (vData.type === 'dislike') {
+            _dislikedPids.add(vPid);
+            _likedPids.delete(vPid);
+          }
+        });
+        localStorage.setItem('pdx_liked_pids', JSON.stringify(Array.from(_likedPids)));
+        localStorage.setItem('pdx_disliked_pids', JSON.stringify(Array.from(_dislikedPids)));
+        _syncIdle(function() {
+          if (typeof _refreshAllVoteUI === 'function') _refreshAllVoteUI();
+        });
+      }).catch(function(e) {
+        console.warn('Error loading user votes from Firestore:', e);
+      }).then(laneOut, laneOut);
+
+      // ── LANE 3 · the profiles this member has commented on ──────────────────
+      commentsRead.then(function(commentsSnap) {
+        commentsSnap.forEach(function(cDoc) {
+          var cData = cDoc.data();
+          if (cData.pid) _commentedPids.add(cData.pid);
+        });
+        localStorage.setItem('pdx_commented_pids', JSON.stringify(Array.from(_commentedPids)));
+        _syncIdle(function() {
           document.querySelectorAll('[data-comment-pid]').forEach(function(btn) {
             var cPid = btn.getAttribute('data-comment-pid');
             if (_commentedPids.has(cPid)) btn.classList.add('commented');
           });
-        }).catch(function(e) {
-          console.warn('Error loading user comments from Firestore:', e);
         });
+      }).catch(function(e) {
+        console.warn('Error loading user comments from Firestore:', e);
+      }).then(laneOut, laneOut);
 
-        _potentialBuildGrid();
-        _favoritesBuildGrid();
-        _refreshAllHeartUI();
-        if (typeof filterDirectory === 'function') filterDirectory();
-
-        db.collection('userTeams').doc(uid).get().then(function(teamDoc) {
+      // ── LANE 4 · the saved voting team ──────────────────────────────────────
+      // Issued with the others, PROCESSED behind the user document: the keyed
+      // `team_ballot` map restored above is the authoritative slate, and reading
+      // it before the restore lands is how a back-fill could overwrite a good
+      // saved team with a lossy reconstruction.
+      userLane.then(function() {
+        return teamsRead.then(function(teamDoc) {
           // The authoritative voting team is the keyed `team_ballot` map saved
           // under the user's account (one pid per ballot slot). Start from
           // whatever was just loaded into localStorage so a stale or lossy
@@ -1532,7 +1697,7 @@
           // flat `members` list) to fill any slots not already set. This is the
           // forward-looking structure that also supports naming + future sharing.
           var mainId = (teamDoc.exists && teamDoc.data() && teamDoc.data().mainTeamId) || window.PDX_DEFAULT_TEAM_ID || 'main';
-          db.collection('userTeams').doc(uid).collection('teams').doc(mainId).get()
+          return db.collection('userTeams').doc(uid).collection('teams').doc(mainId).get()
             .then(function(mainDoc) {
               if (mainDoc.exists) {
                 var t = mainDoc.data() || {};
@@ -1557,18 +1722,8 @@
           _mypolUpdateCount();
           if (typeof window._vhBallotRerender === 'function') window._vhBallotRerender();
         });
-      }).catch(function(error) {
-        console.error("Error syncing Firestore user data:", error);
-        _mypolLoad();
-        _loadFavorites();
-        _potentialLoad();
-
-        _mypolBuildGrid();
-        _potentialBuildGrid();
-        _favoritesBuildGrid();
-        _refreshAllHeartUI();
-        if (typeof filterDirectory === 'function') filterDirectory();
-      });
+      }).catch(function() { /* the user-doc lane already reported and recovered */ })
+        .then(laneOut, laneOut);
     }
 
     // Load the visitor's My Team, Favorites and Watching lists straight from this
@@ -8163,19 +8318,53 @@
       if (typeof window._pdxRenderQuickChips === 'function') window._pdxRenderQuickChips();
       if (typeof window._pdxRenderStateTabs === 'function') window._pdxRenderStateTabs();
 
-      if (typeof window.renderRelevantToMe === 'function') {
+      // The relevant-to-me tree ranks by the same filters, so a reader who
+      // narrows this list gets that surface re-ranked with it. A BUNDLE
+      // ARRIVING IS NOT A READER NARROWING A LIST: it is new prose under cards
+      // that are already correct, and rebuilding a second full grid for it is
+      // what turned one data landing into two whole-surface repaints in a
+      // single task. The arrival path sets _chubRosterOnly and hands that
+      // surface to its own rate-limited warm instead (_relevantWarmRepaint).
+      if (!_chubRosterOnly && typeof window.renderRelevantToMe === 'function') {
         window.renderRelevantToMe();
       }
     };
 
+    // Set while a repaint was asked for by DATA ARRIVING rather than by the
+    // reader touching a filter. Counted, not a boolean, so nested calls cannot
+    // clear each other's suppression.
+    var _chubRosterOnly = 0;
+
     // Run 3 perf: bio + stances now arrive on demand (cmp-data-detail.js). When
     // they land, drop the memoized search haystack (so bio/stance text becomes
     // searchable) and repaint the roster (so documented-stance chips fill in).
+    //
+    // THE ARRIVAL IS NOT THE READER'S FRAME. This bundle is injected on the
+    // first interaction of the visit (pdx-lazy-data.js), which on a signed-in
+    // desktop is very often the click that opened the account dropdown. Doing
+    // the haystack drop, a full roster rebuild AND the relevant-to-me tree in
+    // the event's own task is how a menu click came to be followed by a
+    // multi-second block and Chrome's "Page Unresponsive" dialog. So: the
+    // cheap invalidation stays here, the roster rebuild takes its own idle
+    // slice, and the relevant grid is left to its rate-limited warm — which
+    // does nothing at all while the account pull is still in the air, because
+    // that pull repaints what it actually changed, once, on release.
     document.addEventListener('pdx:data:cmpDetail', function () {
+      try { if (typeof window._pdxClearHayCache === 'function') window._pdxClearHayCache(); } catch (e) {}
+      var run = function () {
+        _chubRosterOnly++;
+        try {
+          if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
+        } catch (e) {} finally { _chubRosterOnly--; }
+        try {
+          if (typeof window._pdxUserSyncInFlight === 'function' && window._pdxUserSyncInFlight()) return;
+          if (typeof window._pdxRelevantWarmRepaint === 'function') window._pdxRelevantWarmRepaint();
+        } catch (e) {}
+      };
       try {
-        if (typeof window._pdxClearHayCache === 'function') window._pdxClearHayCache();
-        if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
+        if (typeof window.requestIdleCallback === 'function') { window.requestIdleCallback(run, { timeout: 1500 }); return; }
       } catch (e) {}
+      setTimeout(run, 0);
     });
 
     // Keep the All-Politicians board launcher label honest about what it will
@@ -11805,6 +11994,12 @@
         window.addEventListener(ev, _relevantWarmRepaint);
       });
     } catch (e) {}
+    // The one door for "some data got warmer, this surface may want to say so".
+    // Exposed because the cmp-detail arrival above is the same class of event as
+    // the three warms, and it must go through the same two guards — one rebuild
+    // per batch, and never on a grid that has not painted a card yet — rather
+    // than calling renderRelevantToMe straight.
+    window._pdxRelevantWarmRepaint = _relevantWarmRepaint;
 
     // Last-resort renderer. Builds the slate straight from the curated Key Races
     // rosters, which reference politicians BY ID and therefore never depend on
