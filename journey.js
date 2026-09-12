@@ -203,7 +203,40 @@
     else if (jaction === 'compare' && typeof window.openCompare === 'function') window.openCompare();
   }
 
+  // ── THE TRAIL STANDS DOWN ON THE DONATE CARD ──────────────────────────────
+  // support-route.css hides #pdx-journey / .pj-bar outright while
+  // #support-politidex is the address, so the QR and the Venmo button are not
+  // under a fixed bar. But hiding the bar does not stop this function from
+  // PAYING for it, and two of the costs land inside the arrival:
+  //
+  //   · `body.pj-has-bar { padding-bottom: 3.5rem }` (journey.css) still
+  //     applies to a display:none bar. So a reader who navigated to the card —
+  //     which is a journey step, which calls renderBar() — had 56px of body
+  //     padding added in the same frame the arrival scroll was measuring the
+  //     card's document-space top. The document got taller, the card moved,
+  //     and support-route's settle chain re-issued the scroll. That is the
+  //     layout fight, and it costs a whole extra smooth scroll on arrival.
+  //   · The innerHTML write itself rebuilds the crumb list and the nudge
+  //     button for a bar nobody can see.
+  //
+  // So while this hash is up: write nothing, add no body class, and remember
+  // that a render was owed. Leaving the hash pays it back (see the hashchange
+  // listener in boot) — the trail is exactly as it was, one frame later, on a
+  // page where it is actually visible.
+  var _barOwed = false;
+  function onDonateCard() {
+    try { return String(location.hash || '') === '#support-politidex'; } catch (e) { return false; }
+  }
+
   function renderBar() {
+    if (onDonateCard()) {
+      _barOwed = true;
+      // Drop the reservation too: the bar is not on screen, so the 3.5rem it
+      // reserves is 3.5rem of the donate card pushed off the bottom.
+      try { document.body.classList.remove('pj-has-bar'); } catch (e) {}
+      return;
+    }
+    _barOwed = false;
     var bar = ensureBar();
     // Show only once the voter has actually moved (more than just Home) and hasn't
     // dismissed it this session.
@@ -361,6 +394,18 @@
   function boot() {
     restore(); restore.done = true;
     renderBar();
+    // Pay back a render skipped on the donate card, and stand down on arrival
+    // at it. Hash-driven either way, so a link, the back button and a tap on a
+    // Support control all land the same way. popstate is listened for beside
+    // hashchange because a hash set through pushState fires neither the first
+    // event nor a click this file sees, and the bar's 3.5rem reservation must
+    // not survive a navigation the reader made.
+    var onHash = function () {
+      if (onDonateCard()) { renderBar(); return; }   // stands the bar down
+      if (_barOwed) renderBar();
+    };
+    try { window.addEventListener('hashchange', onHash); } catch (e) {}
+    try { window.addEventListener('popstate', onHash); } catch (e) {}
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();

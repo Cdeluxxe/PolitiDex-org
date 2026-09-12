@@ -485,3 +485,53 @@ html.pdx-instant-scroll {
     background-position: 0% 50%;
   }
 }
+
+
+/* ── 7h · The donate card stands still at EVERY width ─────────────────────
+   THE REPORT: "the donate hash is still hitchy on phone and a bit on desktop."
+   §7g above stood the card's two permanent compositor jobs down at ≤640px and
+   §6's reduced-motion block stood them down for a reader who had asked for
+   less motion. That left one case uncovered — a desktop reader who has not
+   asked — and it is the case the report calls "a bit on desktop."
+
+   THE TWO JOBS, and why neither survives being asked to prove itself:
+
+   1. `animation: venmoGlow 6s ease-in-out infinite` repaints a 300%×300%
+      five-stop gradient on a shadowed, rounded box every frame, forever,
+      on screen or not. A background-position sweep is not a compositor-only
+      animation: `background-position` is not a transform or an opacity, so it
+      cannot be handed to the compositor — every frame is a paint of the
+      element on the main thread, which is the same thread the arrival scroll
+      and the card's layout are on. That is the fight.
+
+   2. The two `.pdx-donate-glow` circles are `w-64 h-64` (256px) under
+      Tailwind's `blur-3xl` — a 64px Gaussian. A blur filter promotes its
+      element to its own layer and expands that layer well past its own box, so
+      the card carries two ~380px composited surfaces whose only job is a
+      tint. The claim in the brief was "stand them down unless you can prove 0
+      extra layer": a `filter` other than `none` is, by the spec's own
+      definition, a stacking context and a new layer. It cannot be proven free
+      because it is not free. The same tint is reachable with no layer at all —
+      the circles are already a flat radial colour at 50% opacity behind a
+      backdrop-blurred card, so `filter: none` with the opacity held at the
+      value §7g uses is visually the same card.
+
+   WHAT IS NOT CHANGED. app.css keeps `@keyframes venmoGlow` and keeps
+   declaring it on `.venmo-qr-frame`: the keyframes are the card's identity and
+   scripts/test-mobile-body-lock.mjs pins that declaration deliberately, so
+   this stand-down is ADDITIVE and scoped to `.pdx-donate` — the one place the
+   frame ships. A QR frame used anywhere else, now or later, is untouched.
+
+   And nothing here is a layout change: no size, no position, no flow. The card
+   publishes no total, goal or progress bar before this rule and none after it,
+   and the Venmo address is the one address it already had. */
+.pdx-donate .venmo-qr-frame {
+  animation: none !important;
+  /* Pinned where the sweep began, so the frame keeps its gradient. */
+  background-position: 0% 50%;
+}
+.pdx-donate .pdx-donate-glow {
+  -webkit-filter: none;
+  filter: none;
+  opacity: 0.5;
+}

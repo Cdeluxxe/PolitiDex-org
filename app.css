@@ -14371,7 +14371,29 @@
       border-radius: 0.5rem;
     }
 
-    /* ── Fast-first-load: roster status pill + skeleton roster ─────────────── */
+    /* ── Fast-first-load: roster status pill + skeleton roster ───────────────
+       "Loading the latest roster…" IS A BACKGROUND WARM AND MUST BEHAVE LIKE
+       ONE. Two things about this pill were making it a foreground event:
+
+       · IT TOOK TAPS. A z-index:9000 fixed pill, centred at bottom:18px, sits
+         directly over the bottom third of a 390-wide screen — which is where
+         the Your File panel's last rows and the donate card's Venmo button and
+         QR are. With no pointer-events rule it swallowed every tap that landed
+         on it, so a reader answering the eight bottom-up, or reaching for
+         Donate, was tapping a status message. `pointer-events: none` makes it
+         the label it always was; its Retry button opts back in, because that
+         one IS meant to be tapped.
+
+       · IT REPAINTED THE PAGE UNDER IT. `backdrop-filter: blur(10px)` samples
+         and blurs whatever is behind the element, so every frame the document
+         scrolls the pill re-blurs a fresh sample of it — permanent composited
+         work, pinned over the scroller, for the duration of a load. The pill's
+         background is already rgba(13,21,40,0.92): at 92% opacity there is
+         almost nothing of the page showing through to blur. Dropped, the pill
+         looks the same and costs nothing to scroll past.
+
+       The warm itself is untouched: same fetch, same toast, same text. This
+       only stops the toast from being in the reader's way while it runs. */
     .pdx-roster-status {
       position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
       z-index: 9000; display: flex; align-items: center; gap: 0.55rem;
@@ -14380,12 +14402,14 @@
       border-radius: 999px; box-shadow: 0 10px 34px rgba(0,0,0,0.45);
       color: #cfe0f5; font-family: 'Barlow Condensed', sans-serif;
       font-size: 0.86rem; letter-spacing: 0.02em;
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      pointer-events: none;
       animation: pdxRosterIn 0.35s ease both;
     }
     @keyframes pdxRosterIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
     .pdx-roster-status.is-error { border-color: rgba(248,113,113,0.5); color: #fecaca; }
+    /* The one thing in the pill that IS a control opts back in. */
     .pdx-roster-status button {
+      pointer-events: auto;
       min-height: 0; padding: 0.2rem 0.7rem; margin-left: 0.25rem;
       background: rgba(192,21,42,0.85); color: #fff; border: 0; border-radius: 999px;
       font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.8rem;

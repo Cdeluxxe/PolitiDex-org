@@ -231,9 +231,13 @@ function boot(opts) {
   if (o.store !== null) win.PDXStore = store;
   if (o.account !== undefined) store.__account = o.account;
   else if (o.uid) store.__account = o.uid;
+  // `captureAuth` hands back every listener the module registers, so the
+  // roster warm's signInAnonymously() can be fired at it directly rather than
+  // inferred from source.
+  win.__authHandlers = [];
   win.auth = {
     currentUser: o.uid ? { uid: o.uid, isAnonymous: false } : null,
-    onAuthStateChanged() {},
+    onAuthStateChanged(f) { if (o.captureAuth && typeof f === "function") win.__authHandlers.push(f); },
   };
   // A spy standing exactly where the forum's only client bridge stands. If any
   // part of this feature reaches for it, the call is recorded.
@@ -851,6 +855,312 @@ section("6 · the address opens the panel, and two visible controls reach it");
   has(YF_JS, COPY_LINE, "the panel's one line of copy changed");
   has(out.PDXYourFile.COPY.line, COPY_LINE, "the painted copy line changed");
   eq(out.PDXYourFile.ISSUES.length, 8, "the locked list is no longer eight");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("7 · a tap costs one row, and it costs it in the same frame");
+// ═════════════════════════════════════════════════════════════════════════════
+// THE REPORT: a phone could not finish the eight. Every tap was doing far more
+// than the four things a tap is for, and this section pins the list.
+//
+// THE EXTRA CALLERS THAT WERE ON THE TAP PATH, by name:
+//
+//   1. projectOne() → window.alignSetIntensity() → _alignSave()
+//      + _alignRefreshAll() + _alignPulse(). _alignRefreshAll is the ceiling —
+//      sixteen document-wide repaints per call: _alignSyncAllChips,
+//      _alignUpdateStatus, _alignRenderProfile, _alignUpdateFab,
+//      _alignSyncBrowseChips, syncRelevantAlignmentUI, renderRelevantToMe,
+//      _mypolBuildGrid, chubFilter, _potentialBuildGrid, filterDirectory,
+//      myteamBrowseFilter, _buildCmpTable, _updateCmpFloat, renderKeyRaces,
+//      _pdxRaceSheetRefresh. Eight taps were eight homepage rebuilds.
+//   2. Those render paths kick _alignQueueConsistWarm →
+//      PDXVotingRecord.fetchCompare — a vote-pack request, opened by a pick.
+//   3. adopt() at cold boot multiplied the same fan-out by up to eight.
+//   4. auth.onAuthStateChanged → adopt(); render(). The roster warm's
+//      signInAnonymously() fires this, so the background warm was remounting
+//      all eight rows of an open panel to paint the identical thing.
+//
+// What is left is the list the brief allows: four aria-pressed flips, the count
+// text, and the persist. Everything else is deferred or gone.
+{
+  const w = boot({ uid: "u_tap" });
+  const YFW = w.PDXYourFile;
+
+  // ── set() DOES NOT CALL render() ─────────────────────────────────────────
+  // Observed, not inferred. render() rewrites .pdxyf-head and .pdxyf-body's
+  // innerHTML; patchRow() touches four buttons and one text node. So a pick
+  // must not move the body's innerHTML at all.
+  YFW.open();
+  const bodyEl = w.document.getElementById("pdx-your-file-scroll");
+  const headEl = w.document.getElementById("pdx-your-file-head");
+  ok(!!bodyEl && !!headEl, "the panel opened without a head and a body to patch");
+  // The count sentence lives inside the letterhead's innerHTML, which this
+  // sandbox's DOM does not parse into nodes — so stand a real node where
+  // patchRow looks for it, and the in-place count update becomes observable.
+  const countEl = w.document.createElement("span");
+  countEl.id = "pdx-your-file-count";
+  let bodyWrites = 0, headWrites = 0;
+  let bodyHTML = bodyEl.innerHTML, headHTML = headEl.innerHTML;
+  Object.defineProperty(bodyEl, "innerHTML", {
+    get() { return bodyHTML; },
+    set(v) { bodyWrites++; bodyHTML = v; },
+    configurable: true,
+  });
+  Object.defineProperty(headEl, "innerHTML", {
+    get() { return headHTML; },
+    set(v) { headWrites++; headHTML = v; },
+    configurable: true,
+  });
+  // A real row under the finger, so patchRow does not fall back to render().
+  const btnFor = (key, pos) => ({
+    getAttribute: (a) => (a === "data-pdxyf-set" ? key + "|" + pos : null),
+    setAttribute(a, v) { this["_" + a] = v; },
+    classList: { _s: new Set(), add(c) { this._s.add(c); }, remove(c) { this._s.delete(c); }, contains(c) { return this._s.has(c); } },
+  });
+  const rowFor = (key) => ({
+    _key: key,
+    _btns: ["support", "oppose", "mixed", "unsure"].map((p) => btnFor(key, p)),
+    classList: { _s: new Set(), add(c) { this._s.add(c); }, remove(c) { this._s.delete(c); }, contains(c) { return this._s.has(c); } },
+    querySelectorAll() { return this._btns; },
+  });
+  const rows = {};
+  YFW.KEYS.forEach((k) => { rows[k] = rowFor(k); });
+  bodyEl.querySelector = (sel) => {
+    const m = /data-pdxyf-row="([^"]+)"/.exec(String(sel));
+    return m ? rows[m[1]] || null : null;
+  };
+
+  const fetchedBefore = w.__fetched.length;
+  YFW.set("lands_preserve", "support");
+  eq(bodyWrites, 0, "a pick rewrote .pdxyf-body's innerHTML — set() called render()");
+  eq(headWrites, 0, "a pick rewrote .pdxyf-head's innerHTML — set() called render()");
+
+  // ── ALL EIGHT, IN A ROW, STILL ZERO REMOUNTS ─────────────────────────────
+  // This is the smoke test's shape: tap all eight without lifting, count 8/8.
+  const seq = [
+    ["housing", "oppose"], ["housing_build", "support"], ["gun_rights", "mixed"],
+    ["public_schools", "support"], ["school_choice", "oppose"],
+    ["energy_production", "support"], ["lower_taxes", "unsure"],
+  ];
+  seq.forEach(([k, p]) => YFW.set(k, p));
+  eq(bodyWrites, 0, `answering all eight remounted the list ${bodyWrites} time(s)`);
+  eq(headWrites, 0, `answering all eight rewrote the letterhead ${headWrites} time(s)`);
+  eq(Object.keys(YFW.answers()).length, 8, "eight taps did not produce eight answers");
+  eq(YFW.answered().length, 8, "the count does not read 8 of 8 after eight taps");
+  eq(countEl.textContent.indexOf("8") >= 0, true,
+    "the count sentence was not updated by the in-place patch");
+
+  // ── THE ROW FLIPPED IN THE SAME CALL ─────────────────────────────────────
+  // aria-pressed on exactly the chosen option, set synchronously — not on a
+  // timer, not on a frame. The brief: "the row must flip in the same frame as
+  // the tap."
+  const pressed = rows["gun_rights"]._btns.map((b) => b["_aria-pressed"]);
+  eq(pressed.join(","), "false,false,true,false", "the row's four controls did not flip to the picked option");
+  eq(rows["gun_rights"].classList.contains("pdxyf-flash"), true, "the picked row was not flashed");
+
+  // ── NO FETCH WAS KICKED WITH THE PICK ────────────────────────────────────
+  // Eight picks, zero requests. The sandbox records AND rejects every fetch, so
+  // a stray reach shows up here as a URL.
+  eq(w.__fetched.length, fetchedBefore,
+    `a pick opened ${w.__fetched.length - fetchedBefore} request(s): ${w.__fetched.slice(fetchedBefore).join(", ")}`);
+  eq(w.__fetched.length, 0, `answering the eight reached the network: ${w.__fetched.join(", ")}`);
+
+  // ── AND NO /api/votes WORK ───────────────────────────────────────────────
+  // The vote pack is the expensive one and it used to be warmed by the render
+  // paths _alignRefreshAll runs. Nothing on the pick path may name it.
+  const YFC = strip(YF_JS);
+  ["/api/votes", "PDXVotingRecord", "fetchCompare", "_alignQueueConsistWarm", "votes-api"].forEach((n) => {
+    lacks(YFC, n, `your-file.js names ${JSON.stringify(n)} — a pick must not touch the votes API`);
+  });
+  // Observed too: a spy where the warmer stands, driven through eight picks.
+  {
+    const v = boot({ uid: "u_votes" });
+    const seen = [];
+    v.PDXVotingRecord = { fetchCompare: (...a) => { seen.push(a); return Promise.reject(new Error("no network")); } };
+    v._alignQueueConsistWarm = (...a) => { seen.push(["warm", ...a]); };
+    v.PDXYourFile.open();
+    v.PDXYourFile.KEYS.forEach((k, i) => v.PDXYourFile.set(k, i % 2 ? "oppose" : "support"));
+    eq(seen.length, 0, `the eight picks kicked ${seen.length} vote-pack call(s)`);
+    eq(v.__fetched.length, 0, `the eight picks reached the network: ${v.__fetched.join(", ")}`);
+  }
+
+  // ── THE SIXTEEN REPAINTS ARE HELD WHILE THE PANEL IS UP ──────────────────
+  // Your File owns ONE panel, and every surface _alignRefreshAll repaints is
+  // behind it. The state still lands synchronously — the projection assertions
+  // in section 3 are the proof of that, and they run on this same path — but
+  // the paint is coalesced onto alignRefreshSoon and held until the panel
+  // closes, so eight picks cost one refresh instead of eight.
+  {
+    const h = boot({ uid: "u_hold" });
+    // _alignRefreshAll is a closure, so it cannot be wrapped from outside. It
+    // is counted through one of the sixteen surfaces it repaints
+    // unconditionally off window — which is a truer probe anyway: this counts
+    // the repaints actually reaching the homepage.
+    let refreshes = 0;
+    h.renderKeyRaces = function () { refreshes++; };
+    ok(typeof h.alignRefreshHold === "function", "the engine exposes no paint hold for a full-screen panel");
+    ok(typeof h.alignRefreshSoon === "function", "the engine exposes no coalesced refresh");
+    h.PDXYourFile.open();
+    h.PDXYourFile.KEYS.forEach((k, i) => h.PDXYourFile.set(k, i % 2 ? "oppose" : "support"));
+    eq(refreshes, 0, `eight picks ran _alignRefreshAll ${refreshes} time(s) behind a full-screen panel`);
+    // The state is there anyway — deferred paint, not deferred truth.
+    eq(h._alignIssues.size, 8, "the picks did not reach the selection while the paint was held");
+    // Closing pays it back, once. The sandbox's setTimeout is a no-op and there
+    // is no rAF, so alignRefreshSoon falls through to running inline — which is
+    // exactly the "no scheduler at all" branch.
+    h.PDXYourFile.close();
+    eq(refreshes, 1, `closing the panel ran _alignRefreshAll ${refreshes} time(s) — eight picks owe exactly one`);
+    // AND THE HOLD BALANCES. open() is reachable twice without a close between
+    // (the hash lands, then a control is tapped), and a second hold against one
+    // release would park every repaint on the site for the rest of the session.
+    h.PDXYourFile.open();
+    h.PDXYourFile.open();
+    h.PDXYourFile.set("housing", "mixed");
+    eq(refreshes, 1, "a pick repainted while the panel was up");
+    h.PDXYourFile.close();
+    eq(refreshes, 2, `a double open() leaked the paint hold — the release paid back ${refreshes - 1} of 2`);
+    h.alignSetIntensity("healthcare", "oppose");
+    eq(refreshes, 3, "the engine never repainted again after the panel closed — the hold leaked");
+  }
+
+  // AND THE ENGINE'S DOORS DID NOT MOVE TO ARRANGE ANY OF THAT. The hold lives
+  // entirely inside alignment-tool.js — two guards and the lane that holds them
+  // — so no entry point gained a parameter and no caller anywhere can opt out
+  // of a refresh by passing something. This is also what keeps the file inside
+  // the byte pin nine wave suites hold it to (scripts/v103-chrome-seams.mjs).
+  ok(/window\.alignSetIntensity = function\(issue, level\) \{/.test(ALIGN_JS),
+    "alignSetIntensity's signature moved — the hold must not be a parameter on the engine's doors");
+  ok(/window\.alignToggleIssue = function\(issueKey\) \{/.test(ALIGN_JS),
+    "alignToggleIssue's signature moved — the hold must not be a parameter on the engine's doors");
+  lacks(ALIGN_JS, "opts.defer", "alignment-tool.js grew a per-call defer flag — the hold is the only lane");
+  ok(/function _alignRefreshAll\(\) \{\n[^}]*if \(_refreshHeld\) \{ _refreshWanted = true; return; \}/.test(ALIGN_JS),
+    "the refresh guard is not the first statement of _alignRefreshAll");
+  ok(/function _alignPulse\(issue\) \{[\s\S]{0,600}?if \(_refreshHeld\) return;[\s\S]{0,40}?\n      document\.querySelectorAll/.test(ALIGN_JS),
+    "the pulse guard is not in front of _alignPulse's forced layout");
+
+  // The engine's own callers are untouched: a chip tapped in the Alignment Tool
+  // itself still repaints eagerly, because there is no panel over those
+  // surfaces and the reader is looking at them.
+  {
+    const e = boot({ uid: "u_eager" });
+    let refreshes = 0;
+    e.renderKeyRaces = function () { refreshes++; };
+    e.alignSetIntensity("healthcare", "oppose");
+    eq(refreshes, 1, "a direct alignSetIntensity call stopped repainting — the tool's own chips would go stale");
+    e.alignToggleIssue("healthcare");
+    eq(refreshes, 2, "a direct alignToggleIssue call stopped repainting");
+  }
+
+  // ── THE ROSTER WARM DOES NOT REMOUNT THE PANEL ───────────────────────────
+  // firebase-boot's directory warm calls auth.signInAnonymously() to read the
+  // index, which fires onAuthStateChanged. An anonymous session is not a member
+  // (user() refuses one), so nothing about the panel changes — and the listener
+  // now compares the uid signature before repainting.
+  {
+    // OBSERVED. Boot with an auth object that hands its listener back, open the
+    // panel, then fire the callback the way signInAnonymously() does: an
+    // anonymous session, then the same anonymous session again. Neither is a
+    // member, so neither may remount the eight rows.
+    const r = boot({ uid: null, captureAuth: true });
+    // Several modules listen on auth; only the one your-file.js registered is
+    // under test. It is identified by source, so this cannot silently start
+    // testing somebody else's listener.
+    const handlers = (r.__authHandlers || []).filter((f) => /_authSig/.test(String(f)));
+    eq(handlers.length, 1, `your-file.js registered ${handlers.length} auth listeners — expected exactly one`);
+    r.PDXYourFile.open();
+    const rBody = r.document.getElementById("pdx-your-file-scroll");
+    let rWrites = 0, rHTML = rBody.innerHTML;
+    Object.defineProperty(rBody, "innerHTML", {
+      get() { return rHTML; },
+      set(v) { rWrites++; rHTML = v; },
+      configurable: true,
+    });
+    r.auth.currentUser = { uid: "anon_abc", isAnonymous: true };
+    handlers.forEach((f) => { try { f(r.auth.currentUser); } catch (e) {} });
+    eq(rWrites, 0, "the roster warm's anonymous session remounted all eight rows of the open panel");
+    handlers.forEach((f) => { try { f(r.auth.currentUser); } catch (e) {} });
+    eq(rWrites, 0, "a repeat of the same session remounted the panel");
+
+    // A REAL SIGN-IN STILL REPAINTS. That is the case this listener exists for:
+    // 32 controls go from disabled to live, so the list genuinely does change.
+    r.auth.currentUser = { uid: "u_real", isAnonymous: false };
+    handlers.forEach((f) => { try { f(r.auth.currentUser); } catch (e) {} });
+    eq(rWrites, 1, `a real sign-in repainted the panel ${rWrites} time(s) — it must repaint exactly once`);
+    handlers.forEach((f) => { try { f(r.auth.currentUser); } catch (e) {} });
+    eq(rWrites, 1, "the same signed-in session repainted the panel a second time");
+
+    has(strip(YF_JS), "if (sig === _authSig) return;",
+      "the auth listener does not compare the identity signature before repainting");
+    has(strip(YF_JS), "if (_open) render();",
+      "the auth listener repaints a panel that is not even open");
+    ok(!/onAuthStateChanged\(function \(\) \{ adopt\(\); render\(\); \}\)/.test(strip(YF_JS)),
+      "the unguarded adopt(); render(); auth listener is still in place");
+  }
+
+  // ── THE FOUR MARKS ───────────────────────────────────────────────────────
+  // "Measure then cut." PDXPerf.mark is first-write-wins, so the per-set marks
+  // carry their own issue key — otherwise taps two through eight would be
+  // silently folded onto tap one and the waterfall would report the panel as
+  // instant however slow it was.
+  {
+    const m = boot({ uid: "u_marks" });
+    const laid = [];
+    m.PDXPerf = { marks: {}, order: [], mark(n) { if (this.marks[n] !== undefined) return; this.marks[n] = laid.length; laid.push(n); } };
+    m.PDXYourFile.open();
+    m.PDXYourFile.set("housing", "support");
+    m.PDXYourFile.set("gun_rights", "oppose");
+    has(laid.join(" "), "yf-open", "opening the panel laid no mark");
+    has(laid.join(" "), "yf-rows-painted", "the first paint of the eight rows laid no mark");
+    has(laid.join(" "), "yf-set-housing-in", "a pick laid no start mark");
+    has(laid.join(" "), "yf-set-housing-out", "a pick laid no end mark");
+    has(laid.join(" "), "yf-set-gun_rights-in", "the second pick was folded onto the first mark");
+    ok(laid.indexOf("yf-set-housing-in") < laid.indexOf("yf-set-housing-out"),
+      "the pick's end mark was laid before its start mark");
+    eq(laid.filter((n) => n === "yf-rows-painted").length, 1, "the first-paint mark was laid more than once");
+  }
+
+  // ── open() OWNS ONE PANEL ────────────────────────────────────────────────
+  // It builds its own overlay, paints its own rows, locks the body and stamps
+  // the hash. It does not rebuild Door 2 and it does not rebuild the homepage.
+  {
+    const OPEN = strip(YF_JS).slice(strip(YF_JS).indexOf("function open()"));
+    const openBody = OPEN.slice(0, OPEN.indexOf("\n  function hide()"));
+    ["renderHomepage", "buildDoor", "_door2", "renderDoor", "_alignRefreshAll()",
+     "filterDirectory", "_mypolBuildGrid", "renderKeyRaces", "location.reload"].forEach((n) => {
+      lacks(openBody, n, `open() reaches for ${JSON.stringify(n)} — Your File owns one panel`);
+    });
+    has(openBody, "holdAlign(true)", "open() does not hold the alignment repaint while the panel covers it");
+  }
+
+  // ── PERSIST IS ASYNC, AND IT IS NOT ON THE TAP PATH ──────────────────────
+  // save() writes localStorage and calls PDXStore.write, which marks the
+  // collection dirty; the only listener on that is the 1500 ms debounced
+  // auto-push. Nothing in the chain is awaited, and the answer is readable the
+  // instant set() returns.
+  eq(w.__store.isDirty("yourFile"), true, "a pick did not mark the collection dirty for the debounced push");
+  eq(YFW.position("gun_rights"), "mixed", "the answer was not readable the moment set() returned");
+  // set()'s own body, from its signature to its matching two-space brace. The
+  // comment stripper collapses comment lines, so the brace is the boundary.
+  const SETSRC = (() => {
+    const c = strip(YF_JS);
+    const at = c.indexOf("function set(issueKey, pos)");
+    return c.slice(at, c.indexOf("\n  }", at) + 4);
+  })();
+  ok(SETSRC.indexOf("return true;") > 0 && SETSRC.length < 1200,
+    `the set() slice did not resolve to one function body (${SETSRC.length} chars)`);
+  lacks(SETSRC, "render()", "set() calls render()");
+  lacks(SETSRC, "await", "set() awaits something on the tap path");
+  lacks(SETSRC, ".then(", "set() chains a promise on the tap path");
+  lacks(SETSRC, "fetch", "set() reaches the network");
+  lacks(SETSRC, "roster", "set() waits on the roster");
+  has(SETSRC, "patchRow(issueKey)", "set() no longer patches the one row");
+  has(SETSRC, "projectOne(issueKey, pos)", "set() no longer projects the answer into the signature");
+  // The projection is wrapped in the engine's paint hold, so the state lands on
+  // this line and the sixteen repaints do not. A set() that projects OUTSIDE the
+  // hold is the regression this pass exists to prevent.
+  has(SETSRC, "holdAlign(true)", "set() projects outside the paint hold — the sixteen repaints are back on the tap path");
+  ok(/holdAlign\(true\);[\s\S]*projectOne\(issueKey, pos\)[\s\S]*holdAlign\(false\)/.test(SETSRC),
+    "set() takes the paint hold but does not project inside it");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
