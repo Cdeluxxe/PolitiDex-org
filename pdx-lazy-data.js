@@ -55,39 +55,42 @@
 
   function ensureAll(keys) { (keys || []).forEach(ensure); }
 
-  // ── ONE BUNDLE PER IDLE SLICE ─────────────────────────────────────────────
-  // ensureAll() injects every key it is handed in the same task. For the two
-  // bulk warms below — the first interaction, and the post-load safety net —
-  // that is spotlights-data.js (~1.2 MB), acct-spotlight-data.js (~587 KB) and
-  // the cmp-data detail split parsed, executed AND fanned out back-to-back with
-  // no frame in between. The previous pass moved that off the gesture itself,
-  // which kept the tapped control's own frame; it still handed the browser the
-  // whole two megabytes as a single unit a beat later, and a single unit is
-  // exactly what makes a block unbreakable. On a signed-in desktop the first
-  // interaction of a visit is very often the click that opens the account
-  // dropdown, and the block landed under the open menu — which is Chrome's
-  // "Page Unresponsive" dialog, reported with that dropdown still on screen.
+  // ── ONE DEFERRED TASK, ALL THREE BUNDLES ──────────────────────────────────
+  // Two rules, and they pull in opposite directions until you notice that only
+  // one of them is about the reader's frame:
   //
-  // So the chain asks for a FRESH idle slice between files: each bundle lands in
-  // its own task, the browser gets the gaps to paint the menu the reader just
-  // opened and to answer their next tap, and the consumers of each file get
-  // their arrival event in a task of its own too. Nothing about WHICH files load
-  // — or that all of them eventually do — changes; only how many share one task.
-  function warmChain(keys, i) {
+  //   NOT ON THE CLICK. ensureAll() used to run inside the gesture's own task,
+  //   so the first tap of a visit appended ~2 MB of data script before the
+  //   tapped control's handler had run. That is the defect the previous pass
+  //   fixed and it stays fixed: the body below always lands in a LATER task
+  //   than the gesture.
+  //
+  //   AND NOT A THREE-SLICE CHAIN. The previous pass then asked for a fresh
+  //   idle slice BETWEEN files and waited for each bundle's onload before
+  //   requesting the next. That is what made the whole visit feel dead: three
+  //   bundles fetched and executed strictly one after another, each gated on an
+  //   idle callback that a busy main thread hands out slowly, is ~2 MB spread
+  //   over three to six seconds — and for those seconds every consumer of this
+  //   data is still empty and every transition is competing with a bundle
+  //   landing. Serialising the work did not make it smaller; it made it last
+  //   longer and overlap everything the reader did next.
+  //
+  // So: ONE task, all three tags. Appending three <script src> elements costs
+  // nothing measurable — the parse and execute happen in the browser's own
+  // tasks, which it can interleave with painting, and with async=false it still
+  // executes them in the order given. The network fetches now run in parallel
+  // instead of head-to-tail, so the warm finishes in roughly the time of the
+  // slowest file rather than the sum of all three.
+  function warmSoon(keys) {
     var list = keys || [];
-    var at = i || 0;
-    if (at >= list.length) return;
-    var slice = function () {
-      var next = function () { warmChain(list, at + 1); };
-      var landing;
-      try { landing = ensure(list[at]); } catch (e) { landing = null; }
-      if (landing && typeof landing.then === 'function') landing.then(next, next);
-      else next();
-    };
+    var run = function () { try { ensureAll(list); } catch (e) {} };
+    // A short idle timeout, not a long one: the point is to miss the gesture's
+    // task and let the browser paint what was just touched, not to wait for a
+    // quiet main thread that on this page may never come.
     try {
-      if ('requestIdleCallback' in window) { requestIdleCallback(slice, { timeout: 1200 }); return; }
+      if ('requestIdleCallback' in window) { requestIdleCallback(run, { timeout: 250 }); return; }
     } catch (e) {}
-    setTimeout(slice, 0);
+    setTimeout(run, 0);
   }
 
   window.PDXLazyData = {
@@ -154,22 +157,27 @@
   //     (which fired three times for one tap and always before the handler). By
   //     the time a bubbled click reaches window the inline onclick has already
   //     flipped the class, so the gesture's own work is done.
-  //   · THE BODY IS DEFERRED OUT OF THE GESTURE TASK. requestIdleCallback lets
-  //     the browser paint the drawer first and does the injection in the gap
-  //     after; the 1200 ms timeout means an always-busy main thread cannot starve
-  //     it, and setTimeout(0) is the fallback where rIC is missing. Either way
-  //     the three tags land in a LATER task than the tap.
+  //   · THE BODY IS DEFERRED OUT OF THE GESTURE TASK — ONCE, NOT ONCE PER FILE.
+  //     requestIdleCallback lets the browser paint the drawer first and does the
+  //     injection in the gap after; the short 250 ms timeout means an always-busy
+  //     main thread cannot starve it, and setTimeout(0) is the fallback where rIC
+  //     is missing. Either way all three tags land together in a LATER task than
+  //     the tap. Asking for a fresh slice BETWEEN files, and waiting on each
+  //     bundle's onload before requesting the next, was tried and withdrawn: it
+  //     spread the same ~2 MB across three to six seconds and made the whole
+  //     visit feel dead. See warmSoon above.
   // Arming is still on the first interaction, and Triggers 1 and 3 below are
   // unchanged, so the data still arrives for a visitor who never taps at all.
   var IX = ['click', 'keydown', 'scroll'];
   var IX_OPTS = { passive: true };
   function onFirstInteraction() {
     IX.forEach(function (ev) { window.removeEventListener(ev, onFirstInteraction, false); });
-    // Deferred AND split: see warmChain above. The first slice is still an idle
-    // callback with a timeout (a permanently busy main thread cannot starve the
-    // load every consumer of this data waits on), with setTimeout as the
-    // fallback where requestIdleCallback is missing.
-    warmChain(['cmpDetail', 'acctSpotlight', 'spotlights'], 0);
+    // Deferred, not split: see warmSoon above. One idle callback with a short
+    // timeout (a permanently busy main thread cannot starve the load every
+    // consumer of this data waits on), with setTimeout(0) as the fallback where
+    // requestIdleCallback is missing. Either way the three tags land together,
+    // in a later task than the tap.
+    warmSoon(['cmpDetail', 'acctSpotlight', 'spotlights']);
   }
   IX.forEach(function (ev) { window.addEventListener(ev, onFirstInteraction, IX_OPTS); });
 
@@ -177,7 +185,10 @@
   // Nothing that reads this data can stay empty even for a visitor who never
   // scrolls or interacts. Runs well after first paint, off the critical path.
   function idleFallback() {
-    var run = function () { warmChain(['cmpDetail', 'spotlights', 'acctSpotlight'], 0); };
+    // The net for a visitor who never taps. Also one task, also all three: a
+    // reader who has not interacted is exactly the reader who should not be
+    // handed a staggered three-to-six-second warm the moment they finally do.
+    var run = function () { try { ensureAll(['cmpDetail', 'spotlights', 'acctSpotlight']); } catch (e) {} };
     if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 4000 });
     else setTimeout(run, 3000);
   }

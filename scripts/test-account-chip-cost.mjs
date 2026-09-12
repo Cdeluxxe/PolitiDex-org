@@ -26,14 +26,13 @@
         race the reader can vote in), on a pull that on a returning device
         usually restores the area already on screen.
 
-     3. THE FIRST INTERACTION OF THE VISIT STILL PAID FOR TWO MEGABYTES IN ONE
-        TASK. The previous pass moved the bulk data injection off the gesture
-        into an idle callback, which kept the tapped control's frame — and then
-        handed the browser all three bundles as a single unit a beat later. On a
+     3. THE FIRST INTERACTION OF THE VISIT WARMED TWO MEGABYTES OF DATA. On a
         signed-in desktop that first interaction is very often the click that
-        opens this dropdown. (The split itself is asserted in
-        test-chrome-gesture-cost.mjs §1; what is asserted here is the fan-out
-        that used to hang off the arrival.)
+        opens this dropdown, so whatever the warm costs, the reader pays it with
+        the menu on screen. It must not run in the gesture's task, and it must
+        not be split one bundle per idle slice either — both are asserted in
+        test-chrome-gesture-cost.mjs §1. What is asserted HERE is the fan-out
+        that used to hang off the arrival.
 
      4. THE ARRIVAL REBUILT TWO WHOLE SURFACES. pdx:data:cmpDetail called
         myteamBrowseFilter(), whose tail calls renderRelevantToMe() — the roster
@@ -44,16 +43,31 @@
    re-parsed and re-inserted two large templates, throwing away the very markup
    that holds the :hover the dropdown is drawn by.
 
+   AND THEN THE FIX ITSELF WAS REPORTED AS A REGRESSION (P1b). Deferring is not
+   free, and the first pass over-bought it: every landing waited for an idle
+   callback with a second-plus timeout, the bulk data warm took a fresh idle
+   slice per bundle, and ONE paint hold spanned all four reads whether or not
+   anything was covering the page. Nothing froze any more — the whole visit just
+   arrived in slow motion, several seconds of empty grids and dragging
+   transitions, reported as the site being ten times slower. Deferral is about
+   WHICH TASK the work lands in, not how long it is postponed, so the rules below
+   name the unit: the next frame, and one task for the whole warm. The paint hold
+   is kept for the case it was written for — work behind a full-screen surface
+   nobody can see — and dropped for the case where those repaints ARE the page.
+
    THE RULES THIS FILE HOLDS
      1. updateNavAuth paints the chip. No Firestore read, no grid, no fan-out.
-     2. The pull runs its reads together and its repaints one idle slice later,
-        under one paint hold, and only repaints the location surfaces when the
-        restored area actually differs.
+     2. The pull runs its reads together and its repaints one FRAME later, holds
+        the paint only while one of our full-screen surfaces is up, and only
+        repaints the location surfaces when the restored area actually differs —
+        then once, not a deferred fan-out plus a flushed sixteen-wide pass.
      3. Your File and My Views each take the engine's paint hold for the whole of
         their opening, and neither runs the homepage fan-out.
      4. A bundle arriving is not a reader narrowing a list: it repaints the
-        roster, not the relevant tree, and not in the event's own task.
-     5. The hamburger is a class toggle against a CSS cap — no measurement.
+        roster, not the relevant tree, and not in the event's own task — but on
+        the next frame, not on an idle callback a busy tab may not hand out.
+     5. A pull being in the air skips a DUPLICATE rebuild, never a first paint.
+     6. The hamburger is a class toggle against a CSS cap — no measurement.
 
      node scripts/test-account-chip-cost.mjs
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -143,7 +157,7 @@ ok(/group-hover/.test(NAV),
   'handler cannot be slow to open, and any JS open path has to be measured again');
 
 // ═════════════════════════════════════════════════════════════════════════════
-section('2 · the account pull reads in parallel and repaints on idle, once');
+section('2 · the account pull reads in parallel and repaints a frame later');
 // ═════════════════════════════════════════════════════════════════════════════
 const SYNC = fnSrc(HUB, 'syncUserDataFromFirestore');
 must(SYNC, 'syncUserDataFromFirestore is gone from compare-hub.js');
@@ -158,36 +172,81 @@ const beforeFirstThen = SYNC.slice(0, SYNC.indexOf('.then('));
 ok(/votesRead/.test(beforeFirstThen) && /commentsRead/.test(beforeFirstThen) && /teamsRead/.test(beforeFirstThen),
   'a read is issued only after another has resolved, so the pull is serial again');
 
-// One hold for the whole pull, released exactly once when the last lane settles.
+// THE HOLD IS CONDITIONAL, AND THAT IS THE P1b CORRECTION. Holding for the
+// whole pull collapses four landings into one pass — and, with nothing covering
+// the page, parks the homepage's own grids behind four round trips. It is taken
+// only when one of our full-screen surfaces is actually up.
 ok(/_syncHold\(true\)/.test(SYNC) && /_syncHold\(false\)/.test(SYNC),
-  'the pull no longer takes the alignment engine\'s paint hold, so four landings repaint the homepage four times');
+  'the pull can no longer take the alignment engine\'s paint hold at all, so four landings repaint the homepage ' +
+  'four times behind an open overlay');
+ok(/_syncOverlayUp\(\)/.test(SYNC),
+  'the pull holds the paint unconditionally again. With nothing open, those repaints ARE the page the reader is ' +
+  'looking at, and holding them until the last of four reads lands is the "whole site is slower" regression');
+ok(/if \(_held\) _syncHold\(true\)/.test(SYNC) && /if \(_held\) \{ _held = false; _syncHold\(false\); \}/.test(SYNC),
+  'the pull\'s hold is not paired against the flag that decided to take it — an unpaired release would drop a ' +
+  'hold belonging to an open panel, and an unpaired take would park every repaint on the site');
 ok(/function laneOut/.test(SYNC) && /_released/.test(SYNC),
-  'nothing counts the lanes, so the hold is released before the last read has landed (or more than once, which ' +
-  'would release a hold belonging to an open panel)');
+  'nothing counts the lanes, so the hold is released before the last read has landed (or more than once)');
+
+const overlayFn = fnSrc(HUB, '_syncOverlayUp');
+must(overlayFn, '_syncOverlayUp is gone');
+ok(/pdx-your-file/.test(overlayFn) && /ms-ov/.test(overlayFn) && /modal-overlay/.test(overlayFn),
+  '_syncOverlayUp no longer recognises all three full-screen surfaces (Your File, the My Views overlay, a ' +
+  'profile modal) — whichever it forgot will have the pull repainting the homepage behind it');
+
 const holdFn = fnSrc(HUB, '_syncHold');
 must(holdFn, '_syncHold is gone');
 ok(/alignRefreshHold/.test(holdFn),
   '_syncHold no longer routes through alignRefreshHold — the counter has to live in the engine so the Your File ' +
   'and My Views holds can nest with this one');
 
-// Every repaint one slice later than the read that asked for it.
-const idleFn = fnSrc(HUB, '_syncIdle');
-must(idleFn, '_syncIdle is gone');
-ok(/requestIdleCallback/.test(idleFn) && /timeout:/.test(idleFn) && /setTimeout/.test(idleFn),
-  '_syncIdle does not schedule with a timeout and a fallback, so a repaint can either land in the read\'s own ' +
-  'task or be starved forever on a busy main thread');
-ok((SYNC.match(/_syncIdle\(/g) || []).length >= 4,
-  'the pull\'s repaints are not deferred: fewer than four of its landings hand their UI work to an idle slice');
+// EVERY REPAINT ONE FRAME LATER, NOT ONE IDLE SLICE. Out of the read's own task
+// is the whole requirement; waiting for a quiet main thread is not, and a
+// second-plus idle timeout per landing is how the visit came to fill in over
+// several seconds instead of a couple of frames.
+const soonFn = fnSrc(HUB, '_syncSoon');
+must(soonFn, '_syncSoon is gone');
+ok(/requestAnimationFrame/.test(soonFn) && /setTimeout/.test(soonFn),
+  '_syncSoon does not schedule on a frame with a setTimeout fallback, so a repaint can land in the read\'s own ' +
+  'task or wait out a main thread that never goes quiet');
+ok(!/requestIdleCallback/.test(soonFn),
+  '_syncSoon is back on requestIdleCallback. A repaint the reader is waiting to see has to be scheduled in ' +
+  'frames (~16 ms), not handed to a callback a busy tab defers for up to its timeout');
+ok(!/timeout:\s*\d{3,}/.test(soonFn),
+  '_syncSoon carries a multi-hundred-millisecond deferral budget — that is the regression, not the fix');
+ok((SYNC.match(/_syncSoon\(/g) || []).length >= 4,
+  'the pull\'s repaints are not deferred: fewer than four of its landings hand their UI work to a later frame');
 
 // The location restore: light lines now, grids later, and only on a real change.
 ok(/_prevLoc !== _nextLoc/.test(SYNC),
   'the location fan-out runs unconditionally again. On a returning device the pull restores the area already on ' +
   'screen, and rebuilding five grids to redraw the same thing is the freeze this pass is about');
-const fanout = (SYNC.match(/_syncIdle\(function\(\) \{\s*_syncHold\(true\);[\s\S]*?\}\);/) || [''])[0];
+// Brace-balanced, because the block nests a forEach whose own `});` a lazy
+// regex would stop at — and the assertion about the release is below it.
+const fanout = (() => {
+  const i = SYNC.indexOf('_syncSoon(function() {\n                  _chubRosterOnly++;');
+  if (i < 0) return '';
+  let depth = 0, started = false;
+  for (let j = i; j < SYNC.length; j++) {
+    if (SYNC[j] === '{') { depth++; started = true; }
+    else if (SYNC[j] === '}') { depth--; if (started && depth === 0) return SYNC.slice(i, j + 1); }
+  }
+  return '';
+})();
 must(fanout.length > 60, 'the deferred location fan-out probe matched nothing');
 ok(/renderRelevantToMe/.test(fanout) && /myteamBrowseFilter/.test(fanout) && /updateRacesAndPositions/.test(fanout),
-  'the heavy half of the location restore is no longer in the deferred, held block — a restored location still ' +
-  'has to re-rank every one of those surfaces, just not inside the promise callback');
+  'the heavy half of the location restore is no longer in the deferred block — a restored location still has to ' +
+  're-rank every one of those surfaces, just not inside the promise callback');
+// ONE PASS FOR A CHANGED LOCATION. The fan-out names renderRelevantToMe itself,
+// so myteamBrowseFilter's tail must be suppressed for its duration; and it must
+// not take the paint hold, because the release then flushes the engine's
+// sixteen-wide refresh over the grids it has just finished rebuilding.
+ok(/_chubRosterOnly\+\+/.test(fanout) && /_chubRosterOnly--/.test(fanout),
+  'the location fan-out does not suppress myteamBrowseFilter\'s tail call, so the relevant-to-me tree is rebuilt ' +
+  'twice for one restored location');
+ok(!/_syncHold/.test(fanout),
+  'the location fan-out takes the paint hold again. Releasing it flushes a sixteen-wide refresh across the same ' +
+  'surfaces the fan-out just rebuilt — two whole-surface passes where the reader needs one');
 const syncHead = SYNC.slice(0, SYNC.indexOf('_prevLoc !== _nextLoc') + 1);
 ok(!/^\s*(window\.)?renderRelevantToMe\(\);/m.test(syncHead),
   'the pull calls renderRelevantToMe straight from a read callback again');
@@ -260,15 +319,33 @@ section('4 · a bundle arriving repaints the roster, not the relevant tree');
 const ARRIVAL = (HUB.match(/document\.addEventListener\('pdx:data:cmpDetail', function \(\) \{[\s\S]*?\n    \}\);/) || [''])[0];
 must(ARRIVAL.length > 80, 'the pdx:data:cmpDetail listener probe matched nothing');
 
-ok(/requestIdleCallback|setTimeout/.test(ARRIVAL),
+ok(/requestAnimationFrame|setTimeout/.test(ARRIVAL),
   'the cmp-detail arrival still rebuilds the roster in the event\'s own task. That event fires from the first ' +
   'interaction of the visit, which on a signed-in desktop is often the click that opened the account dropdown');
+// ONE FRAME, NOT AN IDLE WAIT. This event fires while the browser is still
+// executing the bundle that just arrived, so "when idle" is close to a
+// guaranteed multi-second wait — the cards were in memory and the reader was
+// still looking at the old grid.
+ok(/requestAnimationFrame/.test(ARRIVAL) && !/requestIdleCallback/.test(ARRIVAL),
+  'the arrival waits for requestIdleCallback. A busy tab hands those out slowly (and this one is busy because ' +
+  'of the bundle that just landed), so the cards appear seconds late instead of a frame late');
 ok(/_chubRosterOnly\+\+/.test(ARRIVAL) && /_chubRosterOnly--/.test(ARRIVAL),
   'the arrival no longer marks itself as a roster-only repaint, so myteamBrowseFilter\'s tail rebuilds the ' +
   'relevant-to-me tree as well — two whole surfaces for one data landing');
+// IN-FLIGHT SKIPS A DUPLICATE, NOT A FIRST PAINT. A grid that already shows
+// cards does not need a second rebuild from this arrival, because the pull
+// repaints what it changed. A grid that has never painted has no duplicate to
+// skip: its first slate builds from the eager cmp-data.js roster, and four reads
+// being in the air must not be the reason a reader stares at an empty section.
 ok(/_pdxUserSyncInFlight/.test(ARRIVAL),
-  'the arrival repaints the relevant grid even while the account pull is still in the air; that pull repaints ' +
-  'what it actually changed, once, on release');
+  'the arrival repaints the relevant grid a second time while the account pull is still in the air; that pull ' +
+  'repaints what it actually changed');
+ok(/_painted\s*&&\s*typeof window\._pdxUserSyncInFlight/.test(ARRIVAL),
+  'the in-flight check is unconditional, so a pull in the air suppresses the relevant grid\'s FIRST paint and ' +
+  'not just a duplicate rebuild — that is a homepage left empty for the length of four Firestore reads');
+ok(/relevant-browse-grid/.test(ARRIVAL) && /pdx-card/.test(ARRIVAL),
+  'nothing in the arrival distinguishes a painted grid from a cold one, which is the whole basis for calling a ' +
+  'rebuild a duplicate');
 ok(/_pdxRelevantWarmRepaint/.test(ARRIVAL) && !/window\.renderRelevantToMe\(\)/.test(ARRIVAL),
   'the arrival calls renderRelevantToMe directly instead of going through the rate-limited warm, which is the ' +
   'one path that skips a grid with no cards in it and collapses a batch into one rebuild');
@@ -336,5 +413,7 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(`\n✓ account chip cost: all ${passed} assertions passed — the chip paints only when the session ` +
-  'changed, the account pull reads in parallel and repaints one slice later under one hold, both account-menu ' +
-  'doors hold the paint while they are open, and a bundle landing rebuilds the roster instead of two surfaces');
+  'changed, the account pull reads in parallel and repaints a frame later (holding the paint only behind a ' +
+  'full-screen surface), both account-menu doors hold the paint while they are open, a bundle landing rebuilds ' +
+  'the roster on the next frame instead of two surfaces on an idle callback, and a pull in the air skips a ' +
+  'duplicate rebuild rather than a first paint');

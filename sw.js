@@ -5148,6 +5148,26 @@
 //     support-lane.css — the trail is tucked by a class on <html>, not by
 //     editing journey.js, and the backing lane is a different product that was
 //     not opened.
+// v183 - THE DEFERRAL GETS TUNED, NOT REVERTED. v182's pass moved the account
+//     chip's freeze off the reader's frame and was then reported as the whole
+//     site being ~10x slower: the bulk data warm took a fresh idle slice PER
+//     bundle (~2 MB fetched and executed head-to-tail over several seconds), the
+//     account pull held the alignment engine's paint for all four Firestore
+//     reads whether or not anything covered the page, and every landing waited
+//     on requestIdleCallback with a second-plus timeout. Nothing froze; the visit
+//     just arrived in slow motion. So the unit changes, not the shape: the warm
+//     injects its three tags in ONE deferred task (still never in the gesture's
+//     own task, and the browser fetches them in parallel), the pull's repaints
+//     land on the next animation frame instead of an idle callback, the paint
+//     hold is taken only while Your File, the My Views overlay or a profile
+//     modal is actually up, a changed location is one fan-out rather than a
+//     deferred fan-out plus a flushed sixteen-wide refresh, and the pull being
+//     in flight now skips a DUPLICATE relevant-grid rebuild rather than its first
+//     paint. DID NOT MOVE: the four parallel reads and their ordering, the
+//     updateNavAuth signature guard, the Your File / My Views holds, the
+//     hamburger toggle, the runtime cache split above, and the rule that the
+//     account click never calls renderRelevantToMe in its own turn. No score, no
+//     mapping, no formal-record path was touched.
 // v182 - THE BUMP STOPS COSTING 9 MB. Every previous entry in this log is
 //     honest about a cost it should not have had: both cache buckets carried
 //     CACHE_VERSION, so a rename emptied the runtime bucket as well as the shell
@@ -5191,7 +5211,7 @@
 //     mapping and no formal-record path was touched by any of the above — this
 //     pass is cache policy, one deleted inline filter, one deferred injection and
 //     one cheaper close.
-const CACHE_VERSION = 'v182';
+const CACHE_VERSION = 'v183';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

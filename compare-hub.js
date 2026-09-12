@@ -1433,35 +1433,78 @@
     //     matters: the team lanes still run behind the user doc, which is the
     //     guard that stops a lossy reconstruction from overwriting a good saved
     //     team (see _finalizeTeam).
-    //   · Every repaint is one idle slice later than the read that asked for it,
-    //     so a menu, sheet or panel the reader just opened gets its frame and
-    //     the work lands in the gap after it.
-    //   · ONE paint hold spans the whole pull — alignRefreshHold is a counter, so
-    //     it nests with the Your File and My Views holds — released when the last
-    //     lane settles, so four landings collapse into one pass.
+    //   · Every repaint is one FRAME later than the read that asked for it, not
+    //     one idle slice — see _syncSoon. A menu, sheet or panel the reader just
+    //     opened still gets its own frame, and the work lands in the next one
+    //     (~16 ms) instead of whenever a busy main thread next goes quiet.
+    //   · THE PAINT HOLD IS CONDITIONAL, AND THIS IS THE P1b CORRECTION. Holding
+    //     for the whole pull collapsed four landings into one pass, but it also
+    //     parked every repaint on the site behind four round trips: on a normal
+    //     signed-in visit, with nothing open, the homepage grids sat empty until
+    //     the last lane settled. That is the "site is 10× slower" report. So the
+    //     hold is taken ONLY when a full-screen surface of ours is actually up —
+    //     Your File, the My Views overlay, or a profile modal — which is the
+    //     case it was written for: work behind an overlay is work nobody can see
+    //     done between the reader's taps. With nothing open, each lane paints
+    //     what it loaded as soon as it lands, one frame later, and no lane waits
+    //     on any other.
     //   · The location fan-out runs only when the restored area DIFFERS from the
     //     one already stored on this device. A pull that changed nothing repaints
     //     nothing, which is what keeps #relevant-browse-grid out of the turn the
-    //     account chip was clicked in.
+    //     account chip was clicked in. When it DID change, it is one pass: the
+    //     fan-out names renderRelevantToMe itself, so myteamBrowseFilter's tail
+    //     is suppressed and nothing takes a hold whose release would then flush a
+    //     second sixteen-wide refresh over the same grids.
     //
     // NOT TOUCHED: every read, every field, every fallback and every grid rebuild
     // is the same one, with the same guards, in the same relative order.
-    function _syncIdle(run) {
-      var go = function () { try { run(); } catch (e) {} };
+    // OFF THIS TASK, ON THE NEXT FRAME. The only thing a read's UI work must not
+    // do is run inside the promise callback that a gesture may be waiting behind;
+    // it does NOT need to wait for the main thread to go quiet. requestIdleCallback
+    // with a long timeout was the wrong instrument for that — on a page that is
+    // still warming bundles the queue is rarely idle, so "one slice later" became
+    // "up to a second and a bit later", multiplied by every deferred landing, and
+    // the reader watched the site fill in over several seconds. An animation frame
+    // is the right unit: the browser paints first, our work runs in the next
+    // frame, cards appear in ~16 ms.
+    function _syncSoon(run) {
+      var done = false;
+      var go = function () { if (done) return; done = true; try { run(); } catch (e) {} };
+      var framed = false;
       try {
-        if (typeof window.requestIdleCallback === 'function') {
-          window.requestIdleCallback(go, { timeout: 1200 });
-          return;
-        }
+        if (typeof window.requestAnimationFrame === 'function') { window.requestAnimationFrame(go); framed = true; }
       } catch (e) {}
-      setTimeout(go, 0);
+      // A frame is the fast path, not the only one: requestAnimationFrame does
+      // not fire in a background tab, and a member who signs in and switches
+      // away must not come back to grids that were never built. Whichever fires
+      // first wins — `done` makes the other a no-op.
+      setTimeout(go, framed ? 250 : 0);
     }
     function _syncHold(on) {
       try { if (typeof window.alignRefreshHold === 'function') window.alignRefreshHold(!!on); } catch (e) {}
     }
-    // True while any of the account reads is still in the air. Read by the
-    // surfaces that must not rebuild themselves just because a chip was opened
-    // mid-pull — the pull repaints what it actually changed, once, on release.
+    // Is one of OUR full-screen surfaces up right now? That — and only that — is
+    // what the paint hold was written for: while an overlay covers every surface
+    // _alignRefreshAll repaints, refreshing them is invisible work on the main
+    // thread between the reader's taps. With nothing open those same repaints are
+    // the page the reader is looking at, and holding them is the regression.
+    function _syncOverlayUp() {
+      try {
+        var yf = document.getElementById('pdx-your-file');
+        if (yf && yf.getAttribute('aria-hidden') === 'false') return true;
+        if (document.querySelector('.ms-ov')) return true;             // My Views overlay
+        var mo = document.getElementById('modal-overlay');             // profile modal
+        if (mo) {
+          var d = mo.style && mo.style.display;
+          if (d && d !== 'none') return true;
+        }
+      } catch (e) {}
+      return false;
+    }
+    // True while any of the account reads is still in the air. Read by surfaces
+    // that would otherwise rebuild themselves a SECOND time just because a chip
+    // was opened mid-pull. It is not a reason to leave a surface empty: a grid
+    // that has not painted yet does not have a duplicate to skip.
     var _syncInFlight = 0;
     window._pdxUserSyncInFlight = function () { return _syncInFlight > 0; };
 
@@ -1475,13 +1518,18 @@
 
       var _lanes = 4, _released = false;
       _syncInFlight++;
-      _syncHold(true);
+      // Hold ONLY behind an overlay, and remember whether we took one so the
+      // release is exactly paired. Decided once, at the start: an overlay that
+      // opens mid-pull takes its own hold, and one that closes mid-pull must not
+      // be able to leave ours dangling.
+      var _held = _syncOverlayUp();
+      if (_held) _syncHold(true);
       function laneOut() {
         if (_released) return;
         if (--_lanes > 0) return;
         _released = true;
         _syncInFlight = Math.max(0, _syncInFlight - 1);
-        _syncHold(false);
+        if (_held) { _held = false; _syncHold(false); }
       }
 
       // ── LANE 1 · the member's own document ──────────────────────────────────
@@ -1543,16 +1591,26 @@
                 try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
               });
               // The heavy half — five grid rebuilds, one of which is the whole
-              // relevant-to-me tree — one idle slice later, and only when the
-              // restored area is not the one this device already had.
+              // relevant-to-me tree — one frame later, and ONLY when the restored
+              // area is not the one this device already had. An unchanged area
+              // skips this entirely: nothing to re-rank, so renderRelevantToMe is
+              // not deferred, not queued, not called.
+              //
+              // AND WHEN IT DID CHANGE IT IS ONE PASS. This used to take the paint
+              // hold around the fan-out, which meant the release then flushed the
+              // engine's sixteen-wide refresh over the same grids the fan-out had
+              // just rebuilt — a location change cost two whole-surface passes plus
+              // an idle wait. No hold here: the list below already names
+              // renderRelevantToMe, and myteamBrowseFilter's own tail call to it is
+              // suppressed for the duration so the tree is rebuilt once.
               if (_prevLoc !== _nextLoc) {
-                _syncIdle(function() {
-                  _syncHold(true);
+                _syncSoon(function() {
+                  _chubRosterOnly++;
                   try {
                     ['_updateTeamPositionsForLocation','updateRacesAndPositions','_vhBallotRerender','renderRelevantToMe','myteamBrowseFilter','pmFilterLocation'].forEach(function(fn) {
                       try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
                     });
-                  } finally { _syncHold(false); }
+                  } finally { _chubRosterOnly--; }
                 });
               }
             } catch(e) { console.warn('Restore voter_location failed:', e); }
@@ -1576,7 +1634,7 @@
           });
         }
 
-        _syncIdle(function() {
+        _syncSoon(function() {
           _potentialBuildGrid();
           _favoritesBuildGrid();
           _refreshAllHeartUI();
@@ -1588,7 +1646,7 @@
         _loadFavorites();
         _potentialLoad();
 
-        _syncIdle(function() {
+        _syncSoon(function() {
           _mypolBuildGrid();
           _potentialBuildGrid();
           _favoritesBuildGrid();
@@ -1615,7 +1673,7 @@
         });
         localStorage.setItem('pdx_liked_pids', JSON.stringify(Array.from(_likedPids)));
         localStorage.setItem('pdx_disliked_pids', JSON.stringify(Array.from(_dislikedPids)));
-        _syncIdle(function() {
+        _syncSoon(function() {
           if (typeof _refreshAllVoteUI === 'function') _refreshAllVoteUI();
         });
       }).catch(function(e) {
@@ -1629,7 +1687,7 @@
           if (cData.pid) _commentedPids.add(cData.pid);
         });
         localStorage.setItem('pdx_commented_pids', JSON.stringify(Array.from(_commentedPids)));
-        _syncIdle(function() {
+        _syncSoon(function() {
           document.querySelectorAll('[data-comment-pid]').forEach(function(btn) {
             var cPid = btn.getAttribute('data-comment-pid');
             if (_commentedPids.has(cPid)) btn.classList.add('commented');
@@ -8339,32 +8397,52 @@
     // they land, drop the memoized search haystack (so bio/stance text becomes
     // searchable) and repaint the roster (so documented-stance chips fill in).
     //
-    // THE ARRIVAL IS NOT THE READER'S FRAME. This bundle is injected on the
-    // first interaction of the visit (pdx-lazy-data.js), which on a signed-in
-    // desktop is very often the click that opened the account dropdown. Doing
-    // the haystack drop, a full roster rebuild AND the relevant-to-me tree in
-    // the event's own task is how a menu click came to be followed by a
-    // multi-second block and Chrome's "Page Unresponsive" dialog. So: the
-    // cheap invalidation stays here, the roster rebuild takes its own idle
-    // slice, and the relevant grid is left to its rate-limited warm — which
-    // does nothing at all while the account pull is still in the air, because
-    // that pull repaints what it actually changed, once, on release.
+    // THE ARRIVAL IS NOT THE READER'S FRAME — BUT IT IS THE VERY NEXT ONE. This
+    // bundle is injected on the first interaction of the visit
+    // (pdx-lazy-data.js), which on a signed-in desktop is very often the click
+    // that opened the account dropdown. Doing the haystack drop, a full roster
+    // rebuild AND the relevant-to-me tree in the event's own task is how a menu
+    // click came to be followed by a multi-second block and Chrome's "Page
+    // Unresponsive" dialog. So the cheap invalidation stays here and the roster
+    // rebuild goes one task out.
+    //
+    // ONE FRAME, NOT AN IDLE WAIT (P1b). The previous pass scheduled that
+    // rebuild with requestIdleCallback and a 1500 ms timeout, which on a page
+    // that is still executing the bundle that just arrived is close to a
+    // guaranteed wait — the roster and every card under it appeared seconds
+    // after the data was already in memory. requestAnimationFrame is the right
+    // unit: the browser paints the menu, then we rebuild, so cards fill in about
+    // a frame behind the bar rather than several idle gaps behind it.
     document.addEventListener('pdx:data:cmpDetail', function () {
       try { if (typeof window._pdxClearHayCache === 'function') window._pdxClearHayCache(); } catch (e) {}
+      var _ran = false;
       var run = function () {
+        if (_ran) return; _ran = true;
         _chubRosterOnly++;
         try {
           if (typeof window.myteamBrowseFilter === 'function') window.myteamBrowseFilter();
         } catch (e) {} finally { _chubRosterOnly--; }
         try {
-          if (typeof window._pdxUserSyncInFlight === 'function' && window._pdxUserSyncInFlight()) return;
+          // SYNC-IN-FLIGHT SKIPS A DUPLICATE, NOT A FIRST PAINT. The account
+          // pull repaints what it changed, so a relevant grid that ALREADY shows
+          // cards does not need a second rebuild from this arrival. A grid that
+          // has not painted one yet is the opposite case: its first slate can be
+          // built from the eager cmp-data.js roster, and four Firestore reads
+          // being in the air is not a reason to leave the reader looking at an
+          // empty section until they land.
+          var _rg = document.getElementById('relevant-browse-grid');
+          var _painted = !!(_rg && _rg.innerHTML && _rg.innerHTML.indexOf('pdx-card') !== -1);
+          if (_painted && typeof window._pdxUserSyncInFlight === 'function' && window._pdxUserSyncInFlight()) return;
           if (typeof window._pdxRelevantWarmRepaint === 'function') window._pdxRelevantWarmRepaint();
         } catch (e) {}
       };
+      var _framed = false;
       try {
-        if (typeof window.requestIdleCallback === 'function') { window.requestIdleCallback(run, { timeout: 1500 }); return; }
+        if (typeof window.requestAnimationFrame === 'function') { window.requestAnimationFrame(run); _framed = true; }
       } catch (e) {}
-      setTimeout(run, 0);
+      // Same pair as _syncSoon: a frame normally, a timer as the net for a
+      // background tab where frames never come. `_ran` makes the loser a no-op.
+      setTimeout(run, _framed ? 250 : 0);
     });
 
     // Keep the All-Politicians board launcher label honest about what it will
