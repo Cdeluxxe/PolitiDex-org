@@ -111,7 +111,18 @@ must(base.D && Array.isArray(base.D.VIEWS), "PDXDoor2 did not register in a sand
 
 eq(base.D.AUTHORITY, "ballot-workspace", "the Door 2 authority is no longer the ballot workspace");
 has(HTML, 'id="ballot-workspace"', "the authority surface is not in the document");
-eq(base.D.VIEWS.length, 3, "the declared view list changed size");
+// A TRIPWIRE, NOT A FACT ABOUT THE NUMBER FIVE. Every view carries chrome that
+// claims authority over the reader's ballot, so the list growing or shrinking is
+// something a human should have to confirm rather than something that happens in
+// passing. It moved from 3 to 5 in the pass that relabelled the two mid-page
+// surfaces a phone report described as "copies of the ballot workspace":
+// #evidence-for-my-vote and #my-saved each sat under the fold, under their own
+// full-width headings, inside the same Door 2 section as the workspace itself,
+// and neither said anywhere on it that it showed the same ballot. Nothing was
+// hidden, moved or deleted and no sixth destination was added — the per-view
+// loop below is what actually holds the contract (a mount, a label, a job, and
+// not being the authority), and both new entries satisfy it.
+eq(base.D.VIEWS.length, 5, "the declared view list changed size");
 // A view's mount is either static markup or a section a module creates for
 // itself (your-ballot.js sets section.id = MOUNT_ID at first paint), so both
 // count — but a declared view with NO mount anywhere is a strip painted into

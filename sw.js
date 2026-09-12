@@ -4749,6 +4749,169 @@
 //     · no pack key, pack-generation token or issue mapping was touched, and no
 //       nav item was added.
 //
+// v178 - THE PHONE GOT ITS SCROLL BACK, SUPPORT GOT A BUTTON, AND THE OFFLINE
+//     BANNER STOPPED LYING. Reported from a 390x844 screen: the Support card and
+//     the eight-issue "Your positions" panel were jumpy, lagged, and stopped
+//     scrolling partway; Support was a QR code and nothing tappable; the homepage
+//     still read as several ballot products; and a 'You're offline' banner sat at
+//     the bottom of the page while the device was on working cell data. Four
+//     causes, none of them the same bug, all of them on this shell.
+//
+//     · THE LARGE VIEWPORT IS NOT THE SCREEN, again. your-file.css sized the
+//       eight-issue panel with `max-height: calc(100vh - 48px)` INSIDE a
+//       `position:fixed; inset:0` box. A fixed box lays out against the LARGE
+//       viewport; `100vh` is that same large viewport; so while the browser
+//       toolbar was showing, the panel was taller than the glass and its last
+//       rows lived behind the toolbar — "stops scrolling". The box is now
+//       `height: 100dvh` with a `100vh` line above it for engines without
+//       dynamic units, the panel is `max-height: 100%` of that box, and
+//       .pdxyf-body is the single scroller with `overscroll-behavior-y: contain`
+//       and `touch-action: pan-y`, so a flick that runs out of range ends rather
+//       than handing the gesture to the document and the toolbar. Safe area is
+//       paid ONCE, as `max(gap, env(inset))` — never `calc(gap + env(inset))`,
+//       which is the doctrine scripts/test-mobile-bottom-chrome.mjs pins.
+//     · A PICK NO LONGER REMOUNTS THE LIST. your-file.js answered every tap by
+//       rewriting all eight rows through innerHTML. Three consequences, all
+//       reported: replacing a scroller's children empties it for one layout and
+//       the engine clamps scrollTop to 0 (the scroll jumped); the node under the
+//       finger was destroyed mid-gesture, so the next scroll went nowhere (the
+//       tap "stole" it); and one tap did thirty-two controls of work. The new
+//       patchRow() touches the row that changed — its four aria-pressed states
+//       and its class — and updates "2 answers of 8" on its own node, which is
+//       why the count node now carries an id. render() also restores scrollTop
+//       in the same task for the wholesale paths that remain.
+//     · THE SCROLL LOCK DID NOT KNOW ABOUT YOUR FILE. pdx-stability.js refuses
+//       to release the reference-counted lock while any overlay it KNOWS about
+//       is open, and #pdx-your-file was not on that list — so any other module's
+//       `overflow = ''` unlocked the document while the panel was up, and the
+//       page drifted behind the eight rows the reader was answering. It now
+//       reads the same `hidden` attribute your-file.js already maintains. No
+//       getComputedStyle: the check is polled and has to stay cheap.
+//     · A QR CODE IS NOT A TAP TARGET. #support-politidex offered a QR and a
+//       handle, which is a donate path that works on every device except the one
+//       the page is being read on. It now leads with a real <a href> to
+//       https://venmo.com/u/PolitiDex — the universal link, which the installed
+//       app claims and which otherwise lands on the web profile, so one href
+//       covers both outcomes with no interception script — labelled "Donate with
+//       Venmo". The venmo:// app-scheme deep link is offered second, because a
+//       bare custom scheme fails silently without the app and a control that
+//       sometimes does nothing must not be offered first, and the handle stays
+//       visible and selectable for the reader who will type it. The QR stays; it
+//       is the right affordance for a laptop screen somebody points a phone at,
+//       and its payload was re-pointed from venmo.com/PolitiDex to the same
+//       venmo.com/u/PolitiDex the buttons use, so the scan, the tap and the
+//       typed handle cannot land in three different places. NO new payment
+//       processor, and no total, goal, count or progress bar: a donation is not
+//       a score and this card publishes no number.
+//     · THE LAG WAS AN ANIMATION NOBODY WAS LOOKING AT. .venmo-qr-frame ran
+//       `venmoGlow 6s infinite` over a 300%x300% five-stop gradient on a
+//       shadowed rounded box, forever, on or off screen, behind two 256px
+//       circles under `blur(64px)`. mobile-polish.css §7g stands the sweep down
+//       at phone widths (the gradient stays, pinned), flattens the two blur
+//       circles to the same tint with no filter, and gives the card's inner
+//       wrapper the same scroll contract the panel above got — `overflow-y:auto`
+//       bounded by `calc(100dvh - var(--pdx-chrome) - 40px)`, contained
+//       overscroll, `touch-action: pan-y` — so the CARD scrolls under the finger
+//       and the document behind it is not asked to move at the same time. A
+//       `prefers-reduced-motion` rule stills the sweep at every width, since §6
+//       had never covered it: its animation is a background-position sweep, not
+//       one of the named decorative keyframes that block hushes.
+//     · THE BANNER WAS A FALSE OFFLINE, AND THE BUG WAS EDGE-TRIGGERED STATE.
+//       index.html's PWA block drove the banner entirely from the
+//       `online`/`offline` event pair, consulting navigator.onLine exactly once
+//       at boot, and showBanner() itself never checked anything. On a phone the
+//       edges get dropped: a carrier handover fires `offline`, the matching
+//       `online` arrives while the tab is frozen in the background, a frozen
+//       page runs no listeners, and the event is not replayed on resume — so the
+//       page wakes holding a state that stopped being true minutes ago, and
+//       nothing in the block would ever take the banner down again. A
+//       back/forward-cache restore brought the banner back with the DOM. Two
+//       fixes, both of the "cannot be wrong" kind rather than the "detects
+//       better" kind: showBanner() now refuses outright while
+//       navigator.onLine === true (re-checked inside its own rAF, because the
+//       radio can return between the call and the paint), and the state is
+//       RE-READ on visibilitychange, pageshow and focus — the three moments a
+//       page may have missed an edge while it was not running. Refusals are
+//       counted and readable as window.PDXNet.falseOfflineRefusals(). NO
+//       connectivity probe was added: a background fetch to second-guess a flag
+//       that is already correct in this case spends the reader's cell data, and
+//       keeps spending it on exactly the slow connection where a timeout looks
+//       like an outage. The service worker was NOT serving a stale shell here —
+//       the shell was current and the detector was wrong — but this pass touches
+//       SHELL files, so the version moves regardless, which is what that rule is
+//       for.
+//     · THE MID-PAGE GHOSTS WERE RELABELLED, NOT DELETED. #evidence-for-my-vote
+//       and #my-saved sit under the fold inside the same Door 2 section as
+//       #ballot-workspace, each under its own full-width heading, neither saying
+//       it was showing the same ballot as the tool three screens above.
+//       door2-spine.js now carries both in its VIEWS list, so paint() gives each
+//       the strip the other three already had: "View of your ballot workspace",
+//       the job it does that the workspace does not, and one "↑ Work the ballot"
+//       jump. No workspace was deleted, no section moved or was re-parented, and
+//       NO sixth destination was added — the strip's control points at the
+//       workspace that already exists. door2-spine.js computes nothing: its
+//       count still comes from PDXBallotWorkspace._decided()/_seats() or is not
+//       printed at all.
+//
+//     FOUR SHELL ASSETS CHANGED, which is what this bump is for: / (index.html
+//     — the donate card and the PWA block), /app.css (the donate button's own
+//     rules, added beside the QR frame they sit above), /mobile-polish.css (§7g
+//     and the reduced-motion rule) and /pdx-stability.js (the Your File entry in
+//     anyOverlayOpen). your-file.js, your-file.css and door2-spine.js also
+//     changed and are deliberately NOT shell assets — the note above SHELL_ASSETS
+//     explains why the Your File pair is kept out — so they arrive from the
+//     network and cannot be served stale beside a new shell.
+//
+//     WHAT TRAVELS TOGETHER, AND DID NOT MOVE. Named so a later reader can see
+//     the coupled sets were considered rather than forgotten:
+//     · your-file.js + your-file.css moved AS A PAIR. The new patchRow() reads
+//       [data-pdxyf-row] and [data-pdxyf-set], which the same file writes, and
+//       the panel's dvh box and its .pdxyf-body scroller are one contract across
+//       the two files. Neither is precached, so a device cannot hold one half;
+//     · mobile-polish.css + index.html — §7g spends var(--pdx-chrome), which the
+//       inline measurer in index.html publishes. Both moved in this pass and the
+//       rule carries a 56px fallback, so a warm device with one and not the
+//       other still bounds the card;
+//     · app.css + index.html — .pdx-donate-btn, .pdx-donate-alt and
+//       .pdx-donate-scroll are defined in one and used in the other, and both
+//       moved here. An unstyled fallback is still a working link, which is why
+//       the tap target is an <a href> and not a scripted button;
+//     · support-lane.js and support-lane.css are BYTE-IDENTICAL and were the
+//       first thing checked. That lane is the MOMENTUM/backing-count lane and has
+//       nothing to do with donations; its pdxsup- prefix isolation is asserted by
+//       scripts/test-support-lane.mjs, and putting a donate rule in that sheet
+//       would have broken it. Different meaning of the word "support", different
+//       file;
+//     · ballot-workspace.js and ballot-workspace.css are byte-identical.
+//       door2-spine.js gained two VIEWS entries; the workspace itself was not
+//       asked for anything new and still owns the only count;
+//     · door1-workspace.js + door1-workspace.css, issue-file.js +
+//       issue-file.css + issue-view.js, word-action.js + word-action.css,
+//       pdx-issue-family.js + issue-colors.js — all byte-identical. This pass
+//       mapped no issue, moved no hue and added no row.
+//
+//     THREE FROZEN-SET GUARDS WERE TRADED, NOT DELETED, and they are named here
+//     because the next reader of this entry is the one who will want to know that
+//     door2-spine.js used to be pinned. test-door2-authority.mjs's view-count
+//     tripwire moved 3 → 5 with the reason recorded inline; its per-view
+//     assertions are what hold the contract and both new views satisfy them.
+//     test-eye-find-the-record.mjs listed door2-spine.js as byte-identical with
+//     HEAD, and the pin came off on the terms that file already documents for
+//     cmp-data.js: the claim it was a proxy for — the spine may not become a
+//     second opinion about the ballot — is now asserted directly, over
+//     progress(), strip(), toWorkspace() and the declared authority, plus the
+//     whole file minus comments against HEAD's plus exactly the two new entries.
+//     test-vr-federal-wave-f8.mjs and -f9.mjs each gained one more "later-wave
+//     terms" block declaring this pass's files, like every pass since them.
+//
+//     And nothing on the do-not list moved: district-voice-core.mjs, the HD-68
+//     rooms, the pack keys and the DM floors are byte-identical; no district,
+//     Voice reply, score, party metric or issue mapping was added anywhere; the
+//     spotlights and the stance library were not ranked or compacted and neither
+//     was judicial (all three are the next pass); Direction Match is not read,
+//     computed or printed by any surface in this pass; and none of the 75
+//     parser-blocking tags were converted.
+//
 // v177 - THE SEAT FILE BECAME A PLACE. /d/ut-statehouse-68 was a stack of
 //     equal-weight labelled paragraphs: the live question, the empty takes, the
 //     record strip, the ballot strip and eight issue rooms were all set at the
@@ -4843,7 +5006,7 @@
 //     surface in this pass reads it, computes it or prints it — and neither are
 //     the formal tiers, the act floors, the finance lane, the Mandate math,
 //     person-file performance, the pack keys or any issue mapping.
-const CACHE_VERSION = 'v177';
+const CACHE_VERSION = 'v178';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

@@ -2113,6 +2113,47 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "netlify/lib/district-voice-core.mjs",
     "netlify/functions/district-voice.mts",
     "scripts/test-district-voice.mjs",
+    // ── THE MOBILE BODY-LOCK PASS (CACHE_VERSION v178), on the same later-wave
+    // terms as everything above, and it is the narrowest kind of edit this list
+    // ever has to absorb: a scroll contract, a tap target, a relabel and a guard.
+    //   A phone report said the Support card and the eight-issue "Your positions"
+    // panel were jumpy, laggy and stopped scrolling; that Support was a QR code
+    // with nothing tappable; and that a "You're offline" banner was up on working
+    // cell data. Four causes. your-file.css capped the panel with
+    // `calc(100vh - 48px)` inside a `position:fixed; inset:0` box, so it was sized
+    // by the LARGE viewport and its last rows sat behind the browser toolbar; the
+    // box is now 100dvh and .pdxyf-body is the only scroller, with contained
+    // overscroll. your-file.js answered every pick by rewriting all eight rows
+    // through innerHTML, which clamped the scroller to zero and destroyed the node
+    // under the finger mid-gesture; patchRow() now moves four aria-pressed states
+    // and the count's own text node. pdx-stability.js adds #pdx-your-file to the
+    // overlay list its reference-counted lock consults, so nothing else can unlock
+    // the document behind an open panel. mobile-polish.css §7g gives the donate
+    // card the same dvh-bounded scroller and stands down a 300%-gradient animation
+    // that repainted forever behind two blurred circles. door2-spine.js gained two
+    // entries in its declarative VIEWS list so #evidence-for-my-vote and #my-saved
+    // print the "View of your ballot workspace" strip the other three already had.
+    //   NOTHING IN THIS WAVE'S REACH MOVES, and that is the claim this list exists
+    // to keep checkable. No vr_* model, pack, migration, ingest script or member
+    // file was read or written. No formal act, stance, tier, mapping, key, floor,
+    // admission, finance row or Direction Match figure moved; no surface gained a
+    // percentage, a party letter or a count of anything; the donate card publishes
+    // no total, goal or progress bar, because a donation is not a score. The twin
+    // boot above is untouched by all of it. The two harnesses named here are edited
+    // rather than weakened: test-door2-authority.mjs's view-count tripwire moved
+    // from 3 to 5 with the reason recorded inline (its per-view assertions — a
+    // mount, a label, a job, not being the authority — are what hold the contract
+    // and both new views satisfy them), and test-eye-find-the-record.mjs traded a
+    // whole-file byte pin on door2-spine.js for the claim that pin stood for,
+    // asserted directly: the spine still computes nothing, still declares one
+    // authority, and with comments set aside its only change is the two entries.
+    "your-file.css",
+    "mobile-polish.css",
+    "pdx-stability.js",
+    "door2-spine.js",
+    "scripts/test-door2-authority.mjs",
+    "scripts/test-eye-find-the-record.mjs",
+    "scripts/test-mobile-body-lock.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

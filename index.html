@@ -19524,12 +19524,47 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         </a>
       </div>
 
-      <!-- Donation / Support Section -->
-      <div id="support-politidex" class="bg-navy-800/50 border border-white/10 rounded-2xl p-8 md:p-10 text-center animate-on-scroll relative overflow-hidden" style="transition-delay:0.18s;box-shadow:0 20px 56px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.03);">
+      <!-- ═══ Donation / Support Section ═══════════════════════════════════════
+           A QR CODE IS NOT A TAP TARGET. This card used to be a QR and three
+           lines of copy, which is a working donate path on exactly one device:
+           somebody else's. A reader holding the phone the card is rendered on
+           cannot scan the screen they are looking at, so the whole surface
+           asked them to fetch a second device or to type a handle from memory.
+           So the QR stays — it is the right affordance for a laptop screen
+           somebody points a phone at — and a real control sits above it:
+
+             · THE PRIMARY CONTROL IS THE UNIVERSAL LINK,
+               https://venmo.com/u/PolitiDex. On a phone with Venmo installed
+               the app claims that address and opens on the profile, which is
+               the deep link; with no app it lands on the web profile. One href,
+               both outcomes, and no interception script to get wrong.
+             · THE APP-SCHEME DEEP LINK IS OFFERED SEPARATELY, venmo://, for the
+               reader who wants the pay sheet rather than the profile. It is
+               second because a bare custom scheme fails silently on a device
+               without the app, and a control that sometimes does nothing must
+               not be the one that is offered first.
+             · THE HANDLE STAYS VISIBLE AND SELECTABLE, because typing it in is
+               the path that works with no app, no camera and no link handler.
+
+           ONE ADDRESS. The QR encoded venmo.com/PolitiDex while the copy read
+           @PolitiDex; both now resolve to the same venmo.com/u/PolitiDex the
+           buttons use, so the scan, the tap and the typed handle cannot land in
+           three different places. No new payment processor was added and no
+           count, total, goal or progress bar was: a donation is not a score and
+           this card publishes no number.
+
+           THE SCROLL CONTRACT lives in mobile-polish.css (§7d). On a phone the
+           inner .pdx-donate-scroll owns overflow-y and a dvh-bounded height, so
+           the CARD is the scroller while the reader is on it and the document
+           behind it is not — and the gradient sweep on the QR frame, which
+           repainted a 300%-wide gradient forever behind two blurred 256px
+           circles, is stood down at phone widths. That animation was the "lag"
+           half of the report and it was decoration. -->
+      <div id="support-politidex" class="pdx-donate bg-navy-800/50 border border-white/10 rounded-2xl p-8 md:p-10 text-center animate-on-scroll relative overflow-hidden" style="transition-delay:0.18s;box-shadow:0 20px 56px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.03);">
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-crimson-600 via-white to-blue-700"></div>
-        <div class="absolute -top-32 -right-32 w-64 h-64 rounded-full bg-crimson-600/5 blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-32 -left-32 w-64 h-64 rounded-full bg-blue-700/5 blur-3xl pointer-events-none"></div>
-        <div class="relative z-10">
+        <div class="pdx-donate-glow absolute -top-32 -right-32 w-64 h-64 rounded-full bg-crimson-600/5 blur-3xl pointer-events-none"></div>
+        <div class="pdx-donate-glow absolute -bottom-32 -left-32 w-64 h-64 rounded-full bg-blue-700/5 blur-3xl pointer-events-none"></div>
+        <div class="pdx-donate-scroll relative z-10">
           <div class="inline-flex items-center gap-2.5 bg-gold-400/10 border border-gold-400/20 rounded-full px-5 py-2 mb-5" style="box-shadow:0 0 12px rgba(245,200,66,0.06);">
             <span class="font-condensed text-xs tracking-widest uppercase text-gold-400">&#9733; Community Funded &#9733;</span>
           </div>
@@ -19537,13 +19572,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <p class="font-body text-steel-300 text-sm max-w-lg mx-auto mb-8 leading-relaxed">
             PolitiDex is 100% community-funded. No corporate sponsors. No political donors. Every dollar goes directly toward building tools that hold politicians accountable.
           </p>
+
+          <!-- The tap target. A real <a href>, not a script-driven button, so it
+               can be long-pressed, copied, opened in a new tab and middle-clicked
+               like any other link on the page. -->
+          <a class="pdx-donate-btn" href="https://venmo.com/u/PolitiDex" target="_blank" rel="noopener noreferrer"
+             aria-label="Donate with Venmo — opens the PolitiDex Venmo profile">
+            <span class="pdx-donate-btn__ico" aria-hidden="true">&#128179;</span>
+            <span class="pdx-donate-btn__lb">Donate with Venmo</span>
+          </a>
+          <p class="pdx-donate-alt">
+            <a class="pdx-donate-deep" href="venmo://paycharge?txn=pay&amp;recipients=PolitiDex"
+               aria-label="Open the Venmo app to pay PolitiDex">Open in the Venmo app</a>
+            <span class="pdx-donate-sep" aria-hidden="true">&middot;</span>
+            <span>or send to <b class="pdx-donate-handle">&#64;PolitiDex</b></span>
+          </p>
+
           <div class="venmo-qr-frame mb-6">
             <div class="venmo-qr-inner">
-              <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://venmo.com/PolitiDex" alt="Venmo PolitiDex QR Code" style="width:200px;height:200px;" class="rounded-lg" loading="lazy">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://venmo.com/u/PolitiDex" alt="Venmo QR code for the PolitiDex profile at venmo.com/u/PolitiDex" style="width:200px;height:200px;" class="rounded-lg" loading="lazy" decoding="async">
             </div>
           </div>
-          <p class="font-condensed text-sm tracking-widest uppercase mb-2 font-700" style="background:linear-gradient(90deg,#c0152a,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Scan to donate via Venmo</p>
-          <p class="font-condensed text-xs tracking-wider text-steel-500 mb-1">@PolitiDex</p>
+          <p class="font-condensed text-sm tracking-widest uppercase mb-2 font-700" style="background:linear-gradient(90deg,#c0152a,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Or scan from another device</p>
+          <p class="font-condensed text-xs tracking-wider text-steel-500 mb-1">venmo.com/u/PolitiDex</p>
           <p class="font-body text-steel-500 text-xs mt-3">Every contribution &mdash; no matter how small &mdash; fuels transparency.</p>
         </div>
       </div>
@@ -32628,9 +32679,64 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       return el;
     }
 
+    // ── THE FALSE-OFFLINE BUG, AND WHY THE GUARD IS HERE ────────────────
+    // Reported from a phone on cell data with a working connection: the 📡
+    // "You're offline" banner was up while the page loaded and fetched fine.
+    // It was not a network problem. It was this block's state machine.
+    //
+    // The banner used to be driven ENTIRELY by the `online`/`offline` event
+    // pair, with `navigator.onLine` consulted once at boot. Those events are
+    // edge-triggered, and on a phone the edges get dropped:
+    //
+    //   · A CARRIER HANDOVER (cell → wifi, tower → tower, a tunnel, a lift)
+    //     fires `offline`, and the matching `online` arrives while the tab is
+    //     frozen in the background. A frozen page does not run listeners and
+    //     the event is not replayed on resume, so the page wakes up holding a
+    //     state that stopped being true minutes ago.
+    //   · A BACKGROUNDED OR BACK/FORWARD-CACHED TAB restores from the page
+    //     cache with its DOM intact — banner included, still translated to
+    //     Y(0) — and `pageshow` is the only notification it gets.
+    //   · `showBanner()` ITSELF NEVER CHECKED. Any call from any path showed
+    //     the banner unconditionally, so one stale edge was permanent: nothing
+    //     in the block would take it down again until a real `online` fired.
+    //
+    // Two changes fix it, and both are deliberately of the "cannot be wrong"
+    // kind rather than the "detects better" kind:
+    //
+    //   1. showBanner() IS SELF-GUARDED. `navigator.onLine === true` is the
+    //      browser's own answer and it is authoritative in the one direction
+    //      that matters here: the flag can be true while a captive portal eats
+    //      the traffic (a false POSITIVE for connectivity), but it is not true
+    //      while the radio is off. So an online flag is a hard refusal to paint
+    //      the banner — the failure mode becomes "we didn't warn you", which
+    //      costs a confused fetch, instead of "we told you you're offline while
+    //      you're not", which costs the reader's trust in everything else on
+    //      the page. Refusals are counted on window.PDXNet for the console.
+    //
+    //   2. THE STATE IS RE-READ, NOT REMEMBERED. `visibilitychange`,
+    //      `pageshow` and `focus` all re-run the sync, because each is a moment
+    //      the page may have missed an edge while it was not running. Reading a
+    //      flag costs nothing; trusting an event that may never have been
+    //      delivered costs the bug above.
+    //
+    // NO PROBE WAS ADDED. A background fetch to test the connection would be
+    // the obvious "real" detector and it is the wrong tool: it spends the
+    // reader's cell data to second-guess a flag that is already correct in the
+    // case being fixed, and it would keep spending it on a slow connection —
+    // the exact one where a timeout looks like an outage.
+    var refusedWhileOnline = 0;
+
     function showBanner() {
+      // The guard. See above: an online flag means this banner is a lie.
+      if (navigator.onLine !== false) { refusedWhileOnline++; hideBanner(); return; }
       var el = ensureBanner();
-      requestAnimationFrame(function () { el.style.transform = 'translateY(0)'; });
+      requestAnimationFrame(function () {
+        // Re-checked inside the frame: the radio can come back between the call
+        // and the paint, and a banner that appears one frame after the network
+        // returns is the same bug with better timing.
+        if (navigator.onLine !== false) { refusedWhileOnline++; hideBanner(); return; }
+        el.style.transform = 'translateY(0)';
+      });
     }
     function hideBanner() {
       var el = document.getElementById('pdx-offline-banner');
@@ -32644,13 +32750,27 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
     window.addEventListener('online', syncOnlineState);
     window.addEventListener('offline', syncOnlineState);
-    // Reflect initial state (covers reloads that start offline).
-    if (navigator.onLine === false) {
-      if (document.body) syncOnlineState();
-      else window.addEventListener('DOMContentLoaded', syncOnlineState);
-    }
-    // Expose a tiny helper so other code can query PWA/offline status if needed.
-    window.PDXNet = { isOnline: function () { return navigator.onLine !== false; } };
+    // The three moments a page can have missed an edge while it was not
+    // running. Each re-reads the flag rather than trusting what it remembers.
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') syncOnlineState();
+    });
+    window.addEventListener('pageshow', syncOnlineState);
+    window.addEventListener('focus', syncOnlineState);
+    // Reflect initial state (covers reloads that start offline). Unconditional
+    // now: when the flag says online this takes a restored banner back down,
+    // which is the back/forward-cache case above.
+    if (document.body) syncOnlineState();
+    else window.addEventListener('DOMContentLoaded', syncOnlineState);
+    // Expose a tiny helper so other code can query PWA/offline status if
+    // needed. `falseOfflineRefusals` is the diagnostic: if it is ever above
+    // zero, something asked for the offline banner while the browser said the
+    // connection was up, and this block declined.
+    window.PDXNet = {
+      isOnline: function () { return navigator.onLine !== false; },
+      falseOfflineRefusals: function () { return refusedWhileOnline; },
+      _sync: syncOnlineState
+    };
 
     // ── Service worker registration ─────────────────────────────────────
     if ('serviceWorker' in navigator) {

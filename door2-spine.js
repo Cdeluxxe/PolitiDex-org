@@ -8,14 +8,17 @@
    carrying the field on the formal record, and a pick control that never leaves
    the page. That surface is correct and it is authoritative.
 
-   It just was not the only thing on the page claiming to be Door 2. Three older
+   It just was not the only thing on the page claiming to be Door 2. Five older
    surfaces still sat below it, each with its own heading, its own "what now?"
-   stack, and — the sharp part — its own progress readout:
+   stack, and — the sharp part — some with their own progress readout:
 
      · Your Ballot (#your-ballot)        every contest we track, listed
      · Your picks (#my-politicians)      the picks, all seats at once, with a
                                          "0 of 6 seats filled" meter of its own
      · Your finished slate (#ballot-breakdown)  the print/share view
+     · Evidence for My Vote (#evidence-for-my-vote)  the receipts behind the
+                                         names, under its own full-width hero
+     · My Saved (#my-saved)              the saved shelf, under its own heading
 
    Every number on them was already correct. ballot-workspace.js reads the same
    window.TEAM_POSITIONS the team builder's meter counts, so "3 of 6" here has
@@ -33,7 +36,7 @@
      1. AUTHORITY. One declared answer to "which surface owns the loop"
         (AUTHORITY = 'ballot-workspace'), so nothing has to infer it.
 
-     2. VIEW CHROME. Each of the three older surfaces gets one strip at its top:
+     2. VIEW CHROME. Each of those older surfaces gets one strip at its top:
         what it is a view OF, the job it does that the workspace does not, the
         count read FROM the workspace, and one control back to it. A view is
         then legible as a view — "the same ballot, listed" — rather than as a
@@ -102,6 +105,31 @@
       id: 'ballot-breakdown',
       label: 'Your finished slate',
       job: 'the slate as one page, to print, share or check'
+    },
+    // ── The two that were still unlabelled ────────────────────────────────
+    // Added after a phone report: "the homepage still paints mid-page copies of
+    // the ballot workspace." Both of these sit under the fold inside the same
+    // Door 2 <section> the workspace is in, both carry their own full-width
+    // heading and their own "what now?" stack, and neither said anywhere on it
+    // that it was showing the same ballot as the tool three screens above. A
+    // reader scrolling past them met what looked like a second and a third
+    // ballot product.
+    //
+    // They are RELABELLED, not hidden, and no sixth door was added. Both do a
+    // job the workspace does not, which is the test this file's VIEWS list
+    // applies to everything in it: the workspace is one seat at a time on the
+    // formal record, and neither the evidence gather nor the saved shelf is
+    // reachable from inside a single open seat. A view that failed that test
+    // would belong deleted rather than described — see the comment above.
+    {
+      id: 'evidence-for-my-vote',
+      label: 'Evidence for My Vote',
+      job: 'the promises, money and receipts behind the names on your ballot, gathered in one place'
+    },
+    {
+      id: 'my-saved',
+      label: 'My Saved',
+      job: 'the politicians, issues and evidence you saved, kept together to come back to'
     }
   ];
 

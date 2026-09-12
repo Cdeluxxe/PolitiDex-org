@@ -830,12 +830,67 @@ section("10 · nothing on the do-not list moved");
     eq(code(fnSrc(EYE_SRC, "polItem")), patched,
       "polItem() changed by more than the declared avatar box — the row builder is otherwise untouched");
     // AND THE SURFACES THIS PASS WAS TOLD TO LEAVE ALONE ARE THE SAME FILES.
-    for (const f of ["hero-showcase.js", "door2-spine.js",
+    for (const f of ["hero-showcase.js",
                      "finance-lane.js", "judicial-retention.js", "judicial-data.js",
                      "profile-evidence.js", "person-link.js"]) {
       const h = HEAD(f);
       must(h != null, `${f} could not be read out of HEAD`);
       eq(R(f) === h, true, `${f} is not byte-identical with HEAD — it is on the do-not-touch list`);
+    }
+    // door2-spine.js CAME OFF THAT LIST, on the same terms cmp-data.js did below.
+    // The byte pin was a proxy for ONE claim that matters to this suite: the Eye
+    // ranks its record-first answers from the record, and Door 2's spine may not
+    // become a second opinion about the ballot that the Eye or anything else could
+    // read. The mobile-body-lock pass then relabelled the two mid-page surfaces a
+    // phone report described as "copies of the ballot workspace" —
+    // #evidence-for-my-vote and #my-saved each got the "View of your ballot
+    // workspace" strip the other three views already had — which is an addition to
+    // a declarative list and is not a counterexample to that claim. A whole-file
+    // pin cannot tell the difference, so the claim is re-declared directly:
+    //
+    //   · THE SPINE STILL COMPUTES NOTHING. Its count comes from the workspace's
+    //     own _decided()/_seats() or is not printed at all, and there is still
+    //     exactly one declared authority. Both pinned by byte over the functions
+    //     that would have to change for either to stop being true.
+    //   · THE ONLY EXECUTABLE CHANGE IS THE TWO VIEW OBJECTS. With comments set
+    //     aside, HEAD's source plus those two entries is the shipped source. If a
+    //     later pass moves anything else in this file, this says so by name rather
+    //     than reporting that some line somewhere moved.
+    {
+      const f = "door2-spine.js", h = HEAD(f);
+      must(h != null, `${f} could not be read out of HEAD`);
+      const D_SRC = R(f);
+      for (const fn of ["progress", "strip", "toWorkspace"]) {
+        const a = fnSrc(D_SRC, fn), b = fnSrc(h, fn);
+        must(a && b, `${fn}() cannot be read out of both revisions of ${f}`);
+        eq(a, b, `${f} ${fn}() is not byte-identical with HEAD — this pass may not give Door 2 a second ` +
+          'opinion about the ballot, and these three are where one would have to come from');
+      }
+      const decl = (src) => /var AUTHORITY = '([a-z2-]+)'/.exec(src);
+      must(decl(D_SRC) && decl(h), "the declared authority cannot be read out of both revisions");
+      eq(decl(D_SRC)[1], decl(h)[1], "Door 2's declared authority moved");
+      // The two added views, and nothing else. Comments are stripped from both
+      // sides because this pass wrote its reasoning into them at length.
+      const bare = (src) => src.split("\n")
+        .filter((l) => !/^\s*\/\//.test(l))
+        .join("\n").replace(/\/\*[\s\S]*?\*\//g, "");
+      const ADDED = "    {\n" +
+        "      id: 'evidence-for-my-vote',\n" +
+        "      label: 'Evidence for My Vote',\n" +
+        "      job: 'the promises, money and receipts behind the names on your ballot, gathered in one place'\n" +
+        "    },\n" +
+        "    {\n" +
+        "      id: 'my-saved',\n" +
+        "      label: 'My Saved',\n" +
+        "      job: 'the politicians, issues and evidence you saved, kept together to come back to'\n" +
+        "    }";
+      const grown = bare(h).replace(
+        "      job: 'the slate as one page, to print, share or check'\n    }",
+        "      job: 'the slate as one page, to print, share or check'\n    },\n" + ADDED);
+      must(grown !== bare(h), "the ballot-breakdown view's job string moved, so the splice point is gone");
+      eq(bare(D_SRC), grown,
+        `${f} changed by more than the two declared views — with comments set aside the ONLY change is two ` +
+        'entries appended to VIEWS');
     }
     // cmp-data.js CAME OFF THAT LIST AND KEPT THE CLAIM IT WAS STANDING FOR. The
     // word-first pass (v168) corrected phil_lyman's office label — he was filed as

@@ -397,3 +397,91 @@ html.pdx-instant-scroll {
   }
 }
 
+
+/* ── 7g · The donate card owns its own scroll on a phone ──────────────────
+   THE REPORT: on a 390×844 screen the Support card was "jumpy, laggy, and
+   stops scrolling." Three separate causes, all of them in this one card:
+
+   1. IT WAS THE TALLEST CARD ON THE HOMEPAGE AND HAD NO SCROLLER OF ITS OWN.
+      Badge, heading, paragraph, a 210px QR block and four more lines of copy
+      run past 844px of glass once the browser toolbar is showing, so the
+      reader's only way through it was the document scroller — and the document
+      scroller is the one the toolbar's own show/hide gesture competes with.
+      The fix is the scroll contract this pass applies everywhere: the panel
+      hosting Support owns `overflow-y: auto` and a height bounded in `dvh`
+      minus the measured fixed chrome, so the CARD is what scrolls under the
+      finger and the page behind it is not asked to move at the same time.
+
+      `--pdx-chrome` (§7c) is the measured nav depth, so this is the visible
+      viewport minus the bar that covers it, minus a margin so the card visibly
+      ends inside the screen rather than exactly at its edge. `dvh`, not `vh`:
+      §7c and the bottom-chrome doctrine both say it, and a `vh`-bounded box is
+      precisely the bug being fixed on the Your File panel in the same pass.
+
+      THE FALLBACK IS 7.125rem BECAUSE THAT IS THE ONE LITERAL. index.html
+      declares `--pdx-chrome: 7.125rem` on :root for the frames before the
+      measurer runs, and scripts/test-top-chrome.mjs pins every `var(--pdx-chrome,
+      …)` fallback in every sheet to that same value — "one offset". A second
+      number here, however reasonable on its own, is first paint disagreeing with
+      the second frame about where the page starts.
+
+   2. `overscroll-behavior-y: contain` STOPS THE HANDOFF. Without it, a flick
+      that reaches the end of the card's range chains straight into the document
+      and the toolbar — which is the "jumpy" half: the reader lifts a finger and
+      the whole page lurches. Contained, the card's range simply ends.
+
+   3. `animation: venmoGlow 6s infinite` ON THE QR FRAME WAS THE LAG. It
+      repaints a 300%×300% five-stop gradient on a shadowed, rounded box, every
+      frame, forever, whether or not the card is on screen — sitting behind two
+      256px circles under a `blur(64px)` filter. That is three large composited
+      layers of permanent work for a decorative shimmer nobody is looking at
+      while they scroll. On phones the frame keeps its gradient, pinned at one
+      position, and stops animating; the blur circles fade to a flat tint. The
+      appearance barely changes. Desktop keeps all of it.
+
+   Scoped to ≤640px and to touch, because none of the three is a problem on a
+   desktop viewport that fits the card whole and has the headroom to paint it.
+   Nothing here adds a number, a percentage, a party read or a count — the card
+   publishes no total and this rule does not give it one. */
+@media (max-width: 640px) {
+  .pdx-donate .pdx-donate-scroll {
+    max-height: calc(100dvh - var(--pdx-chrome, 7.125rem) - 40px);
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+    /* The card's own padding already inset the content; this only keeps the
+       scrollbar (where one is drawn) off the last character of a line. */
+    padding-right: 2px;
+  }
+  /* The sweep stands down. The gradient stays — it is the card's frame — it
+     just holds still at the position the animation started from. */
+  .pdx-donate .venmo-qr-frame {
+    animation: none !important;
+    background-position: 0% 50%;
+  }
+  /* Two 256px circles under a 64px blur, for a tint. Same tint, no blur. */
+  .pdx-donate .pdx-donate-glow {
+    -webkit-filter: none;
+    filter: none;
+    opacity: 0.5;
+  }
+  /* The button is full-bleed inside the card at phone width: it is the action
+     the card exists for, and a centred 22rem control on a 390px screen leaves
+     dead margin on both sides of the only thing worth tapping. */
+  .pdx-donate .pdx-donate-btn {
+    max-width: 100%;
+    min-height: 52px;
+  }
+}
+
+/* A reader who has asked for less motion gets the still card at every width,
+   not just on a phone. §6 already hushes the decorative loops; the QR frame
+   was never in that list because its animation is a `background-position`
+   sweep rather than one of the named keyframes. */
+@media (prefers-reduced-motion: reduce) {
+  .venmo-qr-frame {
+    animation: none !important;
+    background-position: 0% 50%;
+  }
+}
