@@ -84,6 +84,24 @@
   // ── THE ADDRESS ───────────────────────────────────────────────────────────
   var HASH = '#your-file';
 
+  // ── THE CLOCK ─────────────────────────────────────────────────────────────
+  // Four marks, so "the phone cannot finish the eight" is a number rather than
+  // a feeling: when the panel opened, when the eight rows were first painted,
+  // and the in/out edges of every set(). PDXPerf.mark is FIRST-WRITE-WINS, so
+  // each set() mark carries its own issue key — otherwise tap two through eight
+  // would be silently dropped onto tap one's timestamp and the waterfall would
+  // report the panel as instant no matter how slow it was.
+  //
+  //   PDXPerf.between('yf-set-housing-in', 'yf-set-housing-out')
+  //
+  // is the cost of one tap, end to end, including the row flip.
+  function mark(name) {
+    try {
+      var P = window.PDXPerf;
+      if (P && typeof P.mark === 'function') P.mark(name);
+    } catch (e) {}
+  }
+
   // ── STORAGE ───────────────────────────────────────────────────────────────
   // KEY is the BASE key. The key actually read and written is per-account (see
   // activeKey below): "saved to the signed-in uid" has to be true on this device
@@ -179,6 +197,13 @@
     } catch (e) { return null; }
   }
   function signedIn() { return !!user(); }
+
+  // The identity signature this module repaints on: the member's uid, or '' for
+  // nobody. Anonymous sessions collapse onto '' because user() already refuses
+  // them, which is what makes the roster warm's signInAnonymously() a no-change
+  // event rather than a repaint (see the onAuthStateChanged listener).
+  function authSig() { var u = user(); return u ? String(u.uid || '') : ''; }
+  var _authSig = null;
 
   // ── PER-ACCOUNT KEY (isolation) ───────────────────────────────────────────
   // Same shape as the 'saved' collection's isolation (see PDXSaved.activeKey in
@@ -324,6 +349,31 @@
     try { return (window._alignIntensity && window._alignIntensity[k]) || 'support'; }
     catch (e) { return 'support'; }
   }
+  //
+  // THE PAINT IS NOT ON THIS PATH, AND THAT IS THE WHOLE FIX. Every call site
+  // below wraps the projection in the engine's paint hold (holdAlign), so the
+  // selection state is applied synchronously — window._alignIssues and
+  // window._alignIntensity are correct on the very next line, and no reader can
+  // see a half-applied pick — while the repaint the engine would have run on
+  // this frame is collapsed into the single pass it runs when the hold lifts.
+  // Nothing is passed to the engine to arrange that: alignSetIntensity and
+  // alignToggleIssue are called exactly as HEAD wrote them, with exactly the
+  // arguments HEAD takes.
+  //
+  // THIS IS THE CEILING THE REPORT WAS HITTING. alignSetIntensity's eager tail
+  // is _alignSave() + _alignRefreshAll() + _alignPulse(), and _alignRefreshAll
+  // is sixteen document-wide repaints: _alignSyncAllChips, _alignUpdateStatus,
+  // _alignRenderProfile, _alignUpdateFab, _alignSyncBrowseChips,
+  // syncRelevantAlignmentUI, renderRelevantToMe, _mypolBuildGrid, chubFilter,
+  // _potentialBuildGrid, filterDirectory, myteamBrowseFilter, _buildCmpTable,
+  // _updateCmpFloat, renderKeyRaces, _pdxRaceSheetRefresh. Several of those
+  // rebuild a whole grid, and their render paths are also what kick
+  // _alignQueueConsistWarm → PDXVotingRecord.fetchCompare, so one tap on one of
+  // eight rows was rebuilding the homepage AND opening a vote-pack request.
+  // Eight taps in a row were doing it eight times, behind the finger, which is
+  // exactly the "cannot finish the eight" in the report.
+  //
+  // Held, all eight taps cost one refresh, after the last row has flipped.
   function projectOne(k, pos) {
     if (!IS_MINE[k]) return;
     var want = LEVEL[pos] || null;
@@ -339,29 +389,62 @@
   }
   // Every sided answer, projected. Runs after a boot and after a pull, and is a
   // no-op on the device that authored the answers (projectOne compares first).
+  //
+  // ALWAYS HELD, and this is the cold-boot half of the same fix: a member who
+  // has answered all eight used to arrive on the homepage and spend eight
+  // _alignRefreshAll passes before the first frame. The state is applied eight
+  // times, as it must be; the paint happens once, after the last one.
   function adopt() {
     var s = load();
-    KEYS.forEach(function (k) {
-      var r = s.answers[k];
-      if (r && LEVEL[r.position]) projectOne(k, r.position);
-    });
+    holdAlign(true);
+    try {
+      KEYS.forEach(function (k) {
+        var r = s.answers[k];
+        if (r && LEVEL[r.position]) projectOne(k, r.position);
+      });
+    } finally {
+      holdAlign(false);
+    }
   }
 
   // ── THE ONE MUTATION ──────────────────────────────────────────────────────
   // One answer per issue: setting a position REPLACES whatever was there. It
   // refuses a key outside the eight, a position outside the four, and — the rule
   // the brief is explicit about — every write while signed out.
+  //
+  // WHAT A TAP IS ALLOWED TO DO, and this is the whole list: write one answer
+  // into the store, apply that answer's side to the alignment signature, flip
+  // the four buttons on the one row, and update the count sentence. Nothing
+  // here paints a second surface, waits for the roster, or opens a request.
+  //
+  //   · PERSIST IS ASYNC ALREADY and stays off the critical path. save() writes
+  //     localStorage and calls PDXStore.write → markDirty, whose only listener
+  //     is the 1500 ms debounced auto-push. Nothing in that chain blocks.
+  //   · THE PROJECTION IS HELD — state now, paint later. See projectOne. The
+  //     hold is taken around the projection here as well as by open(), so a
+  //     pick made with the panel closed costs one coalesced pass rather than
+  //     sixteen synchronous repaints; with the panel open the counter simply
+  //     goes to two and back, and nothing repaints until it closes.
+  //   · NO ROSTER WAIT. signedIn() reads the session that already resolved; it
+  //     never asks for one, and the directory index is not consulted at all.
+  //   · pdx-your-file-change has no listeners in the app. It is kept because it
+  //     is the documented seam for one, and dispatching to nobody is free.
+  //
+  // The row therefore flips in the same frame as the tap, and the marks below
+  // prove it: yf-set-<key>-in to yf-set-<key>-out is the measured cost.
   function set(issueKey, pos) {
     if (!IS_MINE[issueKey] || !VALID[pos]) return false;
     if (!signedIn()) return false;
     var s = load();
     var prev = s.answers[issueKey];
     if (prev && prev.position === pos) return true;    // nothing moved
+    mark('yf-set-' + issueKey + '-in');
     var ts = now();
     s.answers[issueKey] = { position: pos, updatedAt: ts };
     s.updatedAt = ts;
     save(s, true);
-    projectOne(issueKey, pos);
+    holdAlign(true);
+    try { projectOne(issueKey, pos); } finally { holdAlign(false); }
     _flash = issueKey;
     patchRow(issueKey);
     try {
@@ -369,7 +452,16 @@
         detail: { issueKey: issueKey, position: pos }
       }));
     } catch (e) {}
+    mark('yf-set-' + issueKey + '-out');
     return true;
+  }
+
+  // Take or release the alignment engine's paint hold. The counter lives in the
+  // engine, so nesting is safe and no holder can release another's hold. An
+  // absent engine — or an older copy of it without the hold — is a no-op, and
+  // the engine then repaints eagerly, exactly as it did before this pass.
+  function holdAlign(on) {
+    try { if (fn(window.alignRefreshHold)) window.alignRefreshHold(!!on); } catch (e) {}
   }
 
   // ── THE PANEL ─────────────────────────────────────────────────────────────
@@ -563,6 +655,9 @@
     if (head) { try { head.innerHTML = headHtml(n); } catch (e) {} }
     if (body) { try { body.innerHTML = bodyHtml(); } catch (e) {} }
     if (body && at > 0) { try { body.scrollTop = at; } catch (e) {} }
+    // First paint of the eight rows. First-write-wins, so this is the FIRST
+    // time the list existed in the document and later repaints do not move it.
+    if (body) mark('yf-rows-painted');
     _flash = null;
   }
 
@@ -651,7 +746,20 @@
   function open() {
     var overlay = build();
     if (!overlay) return false;
+    mark('yf-open');
+    var wasOpen = _open;
     _open = true;
+    // THIS PANEL OWNS ONE PANEL. It does not rebuild Door 2 and it does not
+    // rebuild the homepage — and while it is up, neither does anybody else on
+    // its behalf: the hold parks _alignRefreshAll's sixteen repaints until the
+    // panel closes, because every one of those surfaces is behind this overlay.
+    // Picks made in between collapse into one pass on release (see hide()).
+    //
+    // ONE HOLD PER OPENING, taken only on the transition. open() is reachable
+    // twice without a close in between — the hash lands and a control is tapped
+    // — and a second hold with one release would park every repaint on the site
+    // for the rest of the session.
+    if (!wasOpen) holdAlign(true);
     render();
     try { overlay.hidden = false; } catch (e) {}
     try { overlay.setAttribute('aria-hidden', 'false'); } catch (e) {}
@@ -665,6 +773,7 @@
   }
 
   function hide() {
+    if (_open) holdAlign(false);     // releases, and flushes one refresh if any pick landed
     _open = false;
     var overlay = el(ID);
     if (overlay) {
@@ -729,10 +838,27 @@
     // to be repainted rather than left showing the previous session's state. The
     // eight are also re-projected: a member who answered on another device gets
     // their sides into the signature as soon as the pull lands.
+    //
+    // GUARDED ON THE UID, and that guard is the roster fix. firebase-boot's
+    // roster warm calls auth.signInAnonymously() to read the directory index,
+    // which fires onAuthStateChanged — so the "Loading the latest roster…"
+    // background warm was remounting all eight rows of an open panel, mid-tap,
+    // to paint exactly the same thing (an anonymous session is not a member, so
+    // `locked` does not change and no answer belongs to it). Comparing the uid
+    // signature first means a session arriving that changes nothing repaints
+    // nothing; a real sign-in, sign-out or account switch still repaints, which
+    // is the case this listener exists for.
     try {
+      _authSig = authSig();          // whatever is already resolved is not a change
       var a = (typeof auth !== 'undefined' && auth) ? auth : null;
       if (a && fn(a.onAuthStateChanged)) {
-        a.onAuthStateChanged(function () { adopt(); render(); });
+        a.onAuthStateChanged(function () {
+          var sig = authSig();
+          if (sig === _authSig) return;
+          _authSig = sig;
+          adopt();
+          if (_open) render();       // closed panel has nothing to paint
+        });
       }
     } catch (e) {}
     // The isolation switch. PDXStore fires this with { userId } on every account

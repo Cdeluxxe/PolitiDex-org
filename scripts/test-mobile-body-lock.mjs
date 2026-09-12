@@ -297,11 +297,107 @@ ok(fb.length > 0,
 ok(fb.every((v) => v === chromeLit),
   `a --pdx-chrome fallback in mobile-polish.css is not the literal index.html declares (${chromeLit}) — found ` +
   `${JSON.stringify([...new Set(fb)])}. Two numbers for one offset is first paint disagreeing with the second frame.`);
-// Desktop keeps the sweep; only phones and reduced-motion stand it down.
+// The keyframes and the base declaration STAY. This card's frame is a gradient
+// and that is its identity; the stand-downs below are additive overrides, so a
+// `.venmo-qr-frame` used anywhere other than the donate card is untouched.
 ok(/animation:\s*venmoGlow/.test(APC),
-  'the venmoGlow animation was deleted outright rather than stood down on phones — desktop was not the problem');
+  'the venmoGlow animation was deleted outright rather than stood down — the stand-down is supposed to be additive');
+ok(/@keyframes\s+venmoGlow/.test(APC),
+  'the venmoGlow keyframes were deleted — the stand-down is an override, not a removal');
 ok(/prefers-reduced-motion[^{]*\{[\s\S]{0,400}?\.venmo-qr-frame\s*\{[^}]*animation:\s*none/.test(MPC),
   'a reader who asked for less motion still gets the gradient sweep at desktop widths');
+
+// ── AND IT STANDS DOWN AT EVERY WIDTH ────────────────────────────────────────
+// THE REPORT: "the donate hash is still hitchy on phone and a bit on desktop."
+// Phones were covered above, reduced-motion readers by the block above that.
+// The case left over was a desktop reader who had not asked for less motion,
+// and it is the case the report names. The brief's condition was "stand down
+// unless you can prove 0 extra layer", and neither of these can be:
+//
+//   · `background-position` is not a transform or an opacity, so a
+//     background-position animation cannot be handed to the compositor. Every
+//     frame is a main-thread paint of the element — the same thread the arrival
+//     scroll and the card's layout are on.
+//   · A `filter` other than `none` is a stacking context and a new layer by
+//     the spec's own definition, and a 64px Gaussian expands that layer well
+//     past its own 256px box. Two of them, for a tint.
+//
+// Asserted OUTSIDE every media block: the rule has to apply unconditionally,
+// so a rule that only exists at ≤640px does not satisfy this.
+{
+  // mobile-polish.css with every @media block cut out — what applies at all widths.
+  let unconditional = MPC;
+  for (;;) {
+    const at = unconditional.search(/@media[^{]*\{/);
+    if (at === -1) break;
+    const open = unconditional.indexOf('{', at);
+    let depth = 1, i = open + 1;
+    while (i < unconditional.length && depth > 0) {
+      if (unconditional[i] === '{') depth++;
+      else if (unconditional[i] === '}') depth--;
+      i++;
+    }
+    unconditional = unconditional.slice(0, at) + unconditional.slice(i);
+  }
+  must(!/@media/.test(unconditional), 'the media-block stripper left an @media behind — this probe is unreliable');
+  ok(/\.pdx-donate\s+\.venmo-qr-frame\s*\{[^}]*animation:\s*none/.test(unconditional),
+    'the QR frame still sweeps a 300% gradient at desktop widths — background-position cannot be composited, so ' +
+    'every frame is a main-thread paint on the thread the arrival scroll is on');
+  ok(/\.pdx-donate\s+\.pdx-donate-glow\s*\{[^}]*filter:\s*none/.test(unconditional),
+    'the two 256px decoration circles still carry blur(64px) at desktop widths — a filter is a new layer by ' +
+    'definition, so "0 extra layer" cannot be proven for it');
+  // Scoped to the donate card, so nothing else that uses the frame is restyled.
+  ok(!/(?:^|[};])\s*\.venmo-qr-frame\s*\{[^}]*animation:\s*none/.test(unconditional),
+    'the all-width stand-down is not scoped to .pdx-donate — it would restyle a QR frame anywhere on the site');
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section('4b. "Loading the latest roster…" is a background warm, not a control');
+// ═════════════════════════════════════════════════════════════════════════════
+// THE REPORT: the phone could not finish the eight Your File issues, and the
+// donate card was hitchy. This pill was in the way of both, literally.
+//
+// It is `position: fixed; bottom: 18px; left: 50%; z-index: 9000` — the bottom
+// centre of the glass, over the Your File panel's last rows and over the donate
+// card's Venmo button and QR. With no pointer-events rule it took every tap
+// that landed on it, so a reader answering the eight bottom-up, or reaching for
+// Donate, was tapping a status message. And its `backdrop-filter: blur(10px)`
+// re-blurred a fresh sample of the page behind it on every scrolled frame, at
+// 92% background opacity, where there was almost nothing showing through.
+{
+  const pill = rule(APC, '.pdx-roster-status');
+  must(pill, 'app.css no longer declares .pdx-roster-status');
+  must(/position:\s*fixed/.test(pill) && /z-index:\s*9000/.test(pill),
+    'the roster pill is no longer a fixed z-index:9000 overlay — re-check whether it can still take a tap');
+  ok(/pointer-events:\s*none/.test(pill),
+    'the roster toast still takes taps — a fixed z-index:9000 pill at the bottom centre of the glass sits over ' +
+    'the Your File panel\'s last rows and over the donate card\'s Venmo button');
+  ok(!/backdrop-filter/.test(pill),
+    'the roster toast still carries a backdrop-filter — it re-blurs a sample of the page on every scrolled frame, ' +
+    'for a pill whose own background is already 92% opaque');
+  // Its one real control opts back in, or Retry becomes unclickable.
+  const pillBtn = rule(APC, '.pdx-roster-status button');
+  must(pillBtn, 'app.css no longer declares .pdx-roster-status button');
+  ok(/pointer-events:\s*auto/.test(pillBtn),
+    'the pill is pointer-events:none and its Retry button does not opt back in — the retry cannot be tapped');
+}
+// AND THE WARM DOES NOT HOLD A LOCK OR REPAINT THE PANEL. The directory read
+// calls signInAnonymously(), which fires onAuthStateChanged; your-file.js's
+// listener compares the uid signature first, so an anonymous session — which is
+// not a member, so nothing about the eight rows changes — repaints nothing.
+// (test-your-file.mjs section 7 drives that listener directly.)
+{
+  const BOOT = read('firebase-boot.js');
+  must(/Loading the latest roster/.test(BOOT), 'firebase-boot.js no longer paints the roster toast');
+  ok(!/body\.style\.overflow/.test(BOOT),
+    'the roster warm locks the document body — a background warm must not take the scroll lock');
+  ok(!/PDXStability[\s\S]{0,40}lock/.test(BOOT),
+    'the roster warm takes a stability lock — that would block the donate scroll');
+  ok(!/PDXYourFile/.test(BOOT),
+    'the roster warm reaches into Your File — it must not repaint the panel it is loading behind');
+  ok(/if \(sig === _authSig\) return;/.test(YFJS),
+    'your-file.js repaints on every auth event again — the roster warm\'s anonymous session remounts all eight rows');
+}
 
 // ═════════════════════════════════════════════════════════════════════════════
 section('5. Support has a real tap target, and it is not QR-only');

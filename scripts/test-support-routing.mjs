@@ -240,7 +240,19 @@ function sandbox(opts) {
       markIntent: (ms) => calls.intent.push(ms),
     },
   };
-  if (opts.profileOpen) win._pdxCurrentProfileId = opts.profileOpen;
+  // A PERSON FILE THAT IS OPEN IS AN OVERLAY THAT IS SHOWING. person-file.js
+  // sets #modal-overlay's inline display when it mounts, so a sandbox that set
+  // only the id was not modelling an open file — it was modelling the STALE id
+  // an already-closed file leaves behind, which is the bug in section 4 below.
+  // `profileOpen` now does both; `staleProfileId` does the id alone.
+  if (opts.profileOpen) {
+    win._pdxCurrentProfileId = opts.profileOpen;
+    doc.getElementById("modal-overlay").style.display = "flex";
+  }
+  if (opts.staleProfileId) {
+    win._pdxCurrentProfileId = opts.staleProfileId;
+    doc.getElementById("modal-overlay").style.display = "none";
+  }
   win.window = win;
   win.globalThis = win;
   const ctx = vm.createContext(win);
@@ -407,13 +419,37 @@ eq(drift.calls.scrollTo[drift.calls.scrollTo.length - 1].top, 4200 + 900 - 114 -
   "the final scroll parked the card at the offset it had BEFORE the ground moved");
 
 // THE RE-TAP. Tapping a control whose hash is already in the bar fires no
-// hashchange; the arrival has to come from the click.
-const tap = sandbox({ location: { hash: HASH }, cardTop: 3000 });
-tap.drain();
-const before = tap.calls.scrollTo.length;
-tap.fireDoc("click", { target: { nodeType: 1, hasAttribute: (a) => a === "data-pdx-support", getAttribute: () => null, parentNode: null } });
-tap.drain();
-ok(tap.calls.scrollTo.length > before, "a second tap on the donate control with the hash already set did nothing");
+// hashchange; the arrival has to come from the click. What that arrival then
+// DOES depends on where the card is:
+//
+//   · already parked → nothing. There is no scroll that would move it, and
+//     issuing one anyway is the hitch (see "ALREADY PARKED" below).
+//   · drifted out of position → re-park it. This is the reader who scrolled
+//     away and tapped Support again to come back, and it is the case the
+//     re-tap handler exists for.
+const supportClick = {
+  target: { nodeType: 1, hasAttribute: (a) => a === "data-pdx-support", getAttribute: () => null, parentNode: null },
+};
+
+const tapParked = sandbox({ location: { hash: HASH }, cardTop: 3000 });
+tapParked.drain();
+const parkedAfterArrival = tapParked.calls.scrollTo.length;
+ok(parkedAfterArrival >= 1, "the first arrival parked nothing");
+tapParked.fireDoc("click", supportClick);
+tapParked.drain();
+eq(tapParked.calls.scrollTo.length, parkedAfterArrival,
+  "a re-tap on a card that is ALREADY parked scrolled the document again — that is the hitch, not the fix");
+
+const tapAway = sandbox({ location: { hash: HASH }, cardTop: 3000 });
+tapAway.drain();
+const awayBefore = tapAway.calls.scrollTo.length;
+tapAway.win.pageYOffset = 0;                     // the reader scrolled back to the top
+tapAway.fireDoc("click", supportClick);
+tapAway.drain();
+ok(tapAway.calls.scrollTo.length > awayBefore,
+  "a second tap on the donate control, from a page scrolled away from the card, did nothing");
+eq(tapAway.calls.scrollTo[tapAway.calls.scrollTo.length - 1].top, 3000 - 114 - 12,
+  "the re-tap did not park the card under the measured nav");
 
 // AN IN-APP TAP from a person file: hash changes, file closes, card is parked.
 const inapp = sandbox({ location: { pathname: "/p/cox", hash: "" }, profileOpen: "cox", cardTop: 2500 });
@@ -426,6 +462,105 @@ ok(inapp.rootCls.has(inapp.S.STATE_CLASS), "a hashchange onto the donate hash di
 eq(inapp.calls.closeModal.length, 1, "an in-app tap left the person file open over the card");
 eq(inapp.calls.menuHidden.length >= 1, true, "an in-app tap left the mobile drawer open over its own destination");
 ok(inapp.calls.scrollTo.length >= 1, "an in-app tap parked nothing");
+
+// ── ALREADY PARKED: ≤1 DOCUMENT SCROLL, AND ACTUALLY ZERO ─────────────────
+// THE REPORT: "the donate hash is still hitchy on phone and a bit on desktop."
+// An arrival that finds the card already sitting at the park target used to
+// issue a smooth scrollTo to the offset it was already at, mark 1200 ms of
+// stability intent, and then arm the 320 ms and 700 ms retries — each of which
+// re-measures a 2.3 MB document. Three scroll animations for zero pixels.
+//
+// The card's top here is 4200 and the scroller is at 4200 - 114 - 12 = 4074,
+// which is exactly what park() would ask for, so the honest number of scrolls
+// is none.
+const parked = sandbox({ location: { hash: HASH }, cardTop: 4200, scrollY: 4200 - 114 - 12, chrome: "114px" });
+parked.drain();
+ok(parked.calls.scrollTo.length <= 1,
+  `an arrival on an already-parked card issued ${parked.calls.scrollTo.length} document scrolls — the brief allows at most one`);
+eq(parked.calls.scrollTo.length, 0, "an arrival on an already-parked card scrolled the document at all");
+eq(parked.calls.intent.length, 0,
+  "the arrival marked scroll intent for a scroll it never issued — that suppresses pdx-stability for 1200ms for nothing");
+ok(parked.rootCls.has(parked.S.STATE_CLASS),
+  "standing the scroll down also stood the state class down — the trail would cover the QR");
+
+// ONE PIXEL OF SLOP, because getBoundingClientRect is fractional and a rounded
+// `want` can differ from a settled position without anything having moved.
+const parkedOff1 = sandbox({ location: { hash: HASH }, cardTop: 4200, scrollY: 4200 - 114 - 12 - 1, chrome: "114px" });
+parkedOff1.drain();
+eq(parkedOff1.calls.scrollTo.length, 0, "a card 1px off the target was scrolled at — that is sub-pixel noise, not a move");
+
+// AND IT IS SLOP, NOT A DEAD ZONE. A card genuinely off-target is still parked.
+const parkedOff40 = sandbox({ location: { hash: HASH }, cardTop: 4200, scrollY: 4200 - 114 - 12 - 40, chrome: "114px" });
+parkedOff40.drain();
+ok(parkedOff40.calls.scrollTo.length >= 1, "a card 40px off the park target was left where it was");
+eq(parkedOff40.calls.scrollTo[0].top, 4200 - 114 - 12, "the 40px correction parked the card somewhere else");
+
+// ── A STALE PROFILE ID IS NOT AN OPEN PERSON FILE ─────────────────────────
+// window._pdxCurrentProfileId is the last person file opened in this tab, and
+// it OUTLIVES that file being closed. Closing on the id alone ran a full
+// closeModal() over a page with no modal on it — clearing
+// document.body.style.overflow, tearing down the jump rail, destroying the
+// charts, calling PDXPerson.restore() and re-running two document-wide chip
+// refreshers, in the same frame as the arrival scroll. That is the layout
+// fight. The overlay's own display is the truth and is read first.
+const stale = sandbox({ location: { hash: HASH }, staleProfileId: "mike_lee", cardTop: 4200, chrome: "114px" });
+stale.drain();
+eq(stale.calls.closeModal.length, 0,
+  "the arrival closed a person file that was not open — a stale id is not an overlay");
+ok(stale.calls.scrollTo.length >= 1, "standing the needless close down also stood the parking down");
+eq(stale.win._pdxCurrentProfileId, "mike_lee", "the arrival cleared an id belonging to no open file");
+eq(stale.S._personFileShowing(), false, "a hidden overlay with a stale id reads as a person file on screen");
+
+// …and a file that IS open still closes, on the overlay rather than the id.
+const showing = sandbox({ location: { hash: HASH }, profileOpen: "cox", cardTop: 4200, chrome: "114px" });
+eq(showing.S._personFileShowing(), true, "an overlay with display:flex did not read as a person file on screen");
+showing.drain();
+eq(showing.calls.closeModal.length, 1, "an OPEN person file was left over the donate card");
+
+// THE OVERLAY WINS OVER THE ID, both ways round: no id at all, overlay up.
+const orphan = sandbox({ location: { hash: HASH }, cardTop: 4200, chrome: "114px" });
+orphan.doc.getElementById("modal-overlay").style.display = "flex";
+eq(orphan.S._personFileShowing(), true, "a showing overlay with no id did not read as a person file on screen");
+
+// ── NO /api/votes, AND NO FETCH AT ALL ────────────────────────────────────
+// An arrival on the donate card is a scroll. It is not a data load, and it is
+// certainly not a vote-pack warm: the card publishes no total, so there is
+// nothing for it to fetch. The sandbox has no fetch at all, so the module
+// touching one would have thrown — asserted in source too, because a throw
+// inside this module's own try/catch would be silent.
+lacks(stripJS(ROUTE_JS).toLowerCase(), "fetch(", "support-route.js opens a request on arrival");
+lacks(stripJS(ROUTE_JS).toLowerCase(), "/api/votes", "support-route.js names the votes API");
+lacks(stripJS(ROUTE_JS), "PDXVotingRecord", "support-route.js reaches into the voting record on arrival");
+lacks(stripJS(ROUTE_JS), "fetchCompare", "support-route.js warms a vote pack on arrival");
+
+// ── THE TRAIL PAYS FOR NOTHING ON THIS HASH ───────────────────────────────
+// support-route.css hides .pj-bar here, but hiding it does not stop journey.js
+// from writing its innerHTML and adding body.pj-has-bar — and pj-has-bar is
+// `padding-bottom: 3.5rem` (journey.css), which still applies to a display:none
+// bar. So a reader who navigated to the card had 56px of body padding added in
+// the same frame the arrival was measuring the card's document-space top: the
+// document got taller, the card moved, and the settle chain re-issued the
+// scroll. journey.js stands the whole render down on this hash and pays it back
+// on the way out.
+const TRAIL_JS = stripJS(R("journey.js"));
+const TRAIL_CSS = R("journey.css");
+has(TRAIL_CSS, "body.pj-has-bar", "journey.css stopped reserving space for the bar — this test has the wrong premise now");
+has(TRAIL_JS, "'#support-politidex'", "journey.js does not name the donate hash — the trail still pays for itself there");
+ok(/function onDonateCard\s*\(/.test(TRAIL_JS), "journey.js has no donate-hash check in renderBar's path");
+{
+  const rb = TRAIL_JS.split("function renderBar()")[1] || "";
+  const body = rb.slice(0, rb.indexOf("\n  }"));
+  ok(/onDonateCard\(\)/.test(body), "renderBar does not check the donate hash before writing the bar");
+  const guard = body.slice(0, body.indexOf("return;") + 7);
+  ok(/remove\('pj-has-bar'\)/.test(guard) || /remove\("pj-has-bar"\)/.test(guard),
+    "renderBar leaves body.pj-has-bar on while the bar is hidden — 3.5rem of donate card is pushed off the bottom");
+  ok(guard.indexOf("innerHTML") === -1, "renderBar still writes the bar's innerHTML on the donate hash");
+}
+has(TRAIL_JS, "hashchange", "journey.js never re-renders the trail after leaving the donate hash");
+// popstate beside it: a hash set through pushState fires neither hashchange nor
+// a click this file sees, and the bar's 3.5rem reservation must not survive a
+// navigation the reader made.
+has(TRAIL_JS, "'popstate'", "journey.js hears a hash change but not a pushState one — the reservation could outlive the card");
 
 // LEAVING the hash takes the class off again — the trail is tucked on this hash
 // only, so the class must not outlive it.

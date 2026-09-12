@@ -602,10 +602,72 @@ export const IC_SEAMS = [
 // Signature — the module it calls does that, through the doors already exported.
 // Everything else in this file, above and below the parent table, is compared
 // byte for byte on the usual terms.
+// ── AND THREE SPANS FOR THE PAINT, AND ONLY THE PAINT (v181) ──
+// Your File asks the reader eight questions, and on a phone the eighth one could
+// not be reached: each pick ran _alignRefreshAll, which is sixteen document-wide
+// repaints — two of them whole grid rebuilds — on the frame the next tap had to
+// land in. Eight picks bought eight of those, behind a full-screen panel that
+// covers every one of the sixteen surfaces, so none of the work was visible and
+// all of it was between the taps.
+//
+// The fix is a HOLD at the one owner of the fan-out, and the three spans below
+// are the whole of it. What makes this narrow enough to argue rather than a pass
+// on the file is what did NOT move: every entry point is byte-identical to HEAD.
+// alignSetIntensity, alignToggleIssue, alignToggle, alignClearAll and
+// _alignApplySaved still take the same arguments, still write the same state on
+// the same lines, and still ask for the same repaint on the same line — the
+// diff adds no parameter, no flag and no second door. Which means no caller can
+// opt out of a refresh, and a wave's stake here is untouched: no key, no
+// keyword, no lean, no level, no weight, no floor, no band, no percentage, no
+// category and no side of the comparison is read or written in these spans, and
+// nothing in them can be reached from the record at all.
+//
+//   1 · THE PULSE GUARD. _alignPulse's `void c.offsetWidth` is a synchronous
+//       whole-document style and layout flush, and it is there to restart a CSS
+//       animation on a chip. Behind a full-screen panel the animation is
+//       invisible and the flush is not, so under a hold the pulse is skipped
+//       rather than queued — there is nothing for an unseen animation to catch
+//       up on. The declaration line of _alignPulse is above the span, not in it.
+//
+//   2 · THE LANE. alignRefreshSoon (one pass per animation frame, with a timer
+//       fallback for a hidden tab, each cancelling the other so the pass runs
+//       once) and alignRefreshHold (a counter, so two holders cannot release
+//       each other's hold; releasing to zero flushes if anything was asked for).
+//       Declared between alignClearAll and _alignRefreshAll, both of which stay
+//       pinned on either side of it.
+//
+//   3 · THE REFRESH GUARD, three lines at the top of _alignRefreshAll: while
+//       held, remember that a pass is owed and return. The release runs exactly
+//       one pass, so a reader who answered eight issues sees the sixteen
+//       surfaces in the state eight passes would have left them in — the
+//       selection was already written before the guard was reached, so no
+//       reader of _alignIssues or _alignIntensity can observe a half-applied
+//       pick, and nothing is dropped, only coalesced. `function
+//       _alignRefreshAll() {` itself is an anchor, so the declaration is
+//       compared byte for byte and the body below the guard is outside the span.
+//
+// WHY IT COULD NOT BE DONE FROM OUTSIDE, the same question span one had to
+// answer: _alignRefreshAll is a closure. window._alignRefreshAll is a reference
+// published for one outside caller, and the sixteen repaints are reached through
+// the closure from inside this file, so nothing assigned to that property is on
+// the path a pick takes. The only seat from which eight picks can become one
+// pass is the function itself.
 export const AT_SEAMS = [
   ["          var c2 = _alignApplyIntensity(savedInt);\n",
    "          if (c1 || c2) _alignRefreshAll();\n",
    "the re-projection after a Signature pull"],
+  ["    // Brief pulse on every chip that represents an issue, wherever it's mounted.\n" +
+   "    function _alignPulse(issue) {\n",
+   "      document.querySelectorAll('.align-chip[data-align-issue=\"' + issue + '\"]')",
+   "the pulse guard under a hold"],
+  ["    window.alignClearAll = function() {\n      _alignIssues.clear();\n" +
+   "      _alignIntensity = {};\n      _alignExposeIntensity();\n      _alignSave();\n" +
+   "      _alignRefreshAll();\n    };\n",
+   "    function _alignRefreshAll() {\n",
+   "the coalesced refresh and the hold"],
+  ["    function _alignRefreshAll() {\n",
+   "      _alignSyncAllChips();\n      _alignUpdateStatus();\n",
+   "the refresh guard under a hold"],
 ];
 
 // ── word-action.js: the shared figure, the chip, the section, the gate, the mounts ────

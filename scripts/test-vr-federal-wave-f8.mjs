@@ -2212,6 +2212,48 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // an endpoint that was never deployed, one read fallback that fanned out a
     // 404 per politician, and prose saying so.
     "like-dislike.js",
+    // ── THE INSTANT-TAP PASS (CACHE_VERSION v181), on the same later-wave terms
+    // as everything above it: a paint was deferred, two surfaces stopped
+    // fighting over one scroll, and nothing was measured differently.
+    //   Your File asks the reader eight questions and on a phone the eighth
+    // could not be reached. Each pick ran _alignRefreshAll — sixteen
+    // document-wide repaints, two of them whole grid rebuilds — behind a
+    // full-screen panel that covers all sixteen, and the render paths in it
+    // also warmed a vote pack, so one tap on one of eight rows rebuilt the
+    // homepage and opened a request. The fix is a PAINT HOLD at the one owner
+    // of that fan-out: three argued spans in scripts/v103-chrome-seams.mjs, in
+    // which every entry point of the engine stays byte-identical to HEAD — no
+    // parameter, no flag, no second door, so no caller anywhere gained a way to
+    // opt out of a refresh — plus your-file.js taking that hold while its panel
+    // is up and releasing it, once, when the panel closes. The 75
+    // parser-blocking script tags were deliberately NOT converted in this pass;
+    // they are not what the eight taps were paying for.
+    //   The donate half is three files and no money rule. support-route.js
+    // issues no scroll when the card's top is already within 1px of the park
+    // target and no longer closes a person file that is not open; journey.js
+    // stands its trail bar down on #support-politidex, because journey.css's
+    // body.pj-has-bar adds 3.5rem to the document even with the bar display:none
+    // and it was doing it in the same frame the arrival scroll measured the
+    // card; app.css takes the pointer events off the "Loading the latest
+    // roster…" pill, which is a background warm and not a control, and drops
+    // its backdrop-filter; mobile-polish.css stands the donate card's glow
+    // filters down at every width rather than on phones alone.
+    //   NOTHING IN THIS WAVE'S REACH MOVES, which is the claim this list exists
+    // to keep checkable. No vr_* model, pack, migration, ingest script or
+    // member file was read or written. No formal act, stance, tier, mapping,
+    // issue key, keyword, lean, level, weight, floor, band, admission, score or
+    // Direction Match figure moved — the eight answers still reach the match
+    // through the engine's own public doors, called exactly as HEAD wrote them,
+    // and what this pass changed is WHEN the repaint runs and nothing about
+    // what it computes. One Venmo URL, no processor added, and the donate card
+    // still publishes no total, goal or progress bar. The three files below are
+    // the only ones this list did not already carry; the pass's others
+    // (alignment-tool.js, your-file.js, app.css, mobile-polish.css, sw.js,
+    // scripts/v103-chrome-seams.mjs, scripts/test-your-file.mjs and
+    // scripts/test-mobile-body-lock.mjs) are declared further up.
+    "journey.js",
+    "support-route.js",
+    "scripts/test-support-routing.mjs",
     "scripts/test-vr-federal-wave-f8.mjs",
     "scripts/test-vr-federal-wave-f9.mjs",
   ]);

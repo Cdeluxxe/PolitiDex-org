@@ -5006,6 +5006,48 @@
 //     surface in this pass reads it, computes it or prints it — and neither are
 //     the formal tiers, the act floors, the finance lane, the Mandate math,
 //     person-file performance, the pack keys or any issue mapping.
+// v181 - YOUR FILE PICKS AND THE SUPPORT CARD FEEL INSTANT. This pass changed
+//     your-file.js, alignment-tool.js, support-route.js, journey.js, app.css
+//     and mobile-polish.css, and extended three suites.
+//     · A PICK WAS REBUILDING THE HOMEPAGE. projectOne() routed every answer
+//       through alignSetIntensity, whose eager tail is _alignSave() +
+//       _alignRefreshAll() + _alignPulse() — and _alignRefreshAll is sixteen
+//       document-wide repaints. Eight taps were eight homepage rebuilds, and
+//       the render paths it runs are also what kick _alignQueueConsistWarm, so
+//       a pick was opening a vote-pack request too. The engine now carries a
+//       PAINT HOLD: alignRefreshHold() counts holders, alignRefreshSoon()
+//       collapses everything asked for while one was up into a single pass on
+//       release, and two guards — one at the top of _alignRefreshAll, one in
+//       front of _alignPulse's forced layout — are the whole of it. None of the
+//       engine's entry points changed, so no caller gained a way to opt out of
+//       a refresh. Your File holds the paint while its full-screen panel covers
+//       those sixteen surfaces and around each write, so eight picks cost one
+//       refresh, after the panel closes; cold-boot adoption of eight saved
+//       answers costs one too, instead of eight before the first frame.
+//     · THE ROSTER WARM WAS REMOUNTING THE OPEN PANEL. firebase-boot's
+//       directory read calls signInAnonymously(), which fires
+//       onAuthStateChanged, and your-file.js repainted all eight rows on every
+//       one of those events. An anonymous session is not a member, so the
+//       repaint changed nothing observable. The listener now compares the uid
+//       signature first. The roster toast also stopped taking taps
+//       (pointer-events) and stopped re-blurring the page behind it.
+//     · THE DONATE ARRIVAL STOPPED FIGHTING THE LAYOUT. park() no longer
+//       issues a smooth scroll, a stability intent mark and two retries at a
+//       card that is already within 1px of the park target; closeCoverings()
+//       reads #modal-overlay's own display instead of the stale
+//       _pdxCurrentProfileId, so arriving after having looked at anybody no
+//       longer runs a full closeModal() over a page with no modal on it; the
+//       QR frame's background-position sweep and the two blur(64px) circles
+//       stand down at every width; and journey.js stops writing the trail — and
+//       stops reserving body.pj-has-bar's 3.5rem — while the donate hash is up.
+//     · FOUR MARKS, so the phone is measurable: yf-open, yf-rows-painted, and
+//       per-key yf-set-<key>-in / -out around every set().
+//
+//     Nothing on the do-not list moved: no score, party read, Direction Match
+//     or issue mapping changed; patchRow is still the only tap path; there is
+//     still one Venmo URL, no new processor and no donation total; and the 75
+//     parser-blocking tags were NOT converted in this pass — they are not the
+//     Your File ceiling, _alignRefreshAll was.
 // v180 - /api/votes IS RETIRED. This pass changed index.html, like-dislike.js
 //     and sw.js, and added scripts/test-no-legacy-votes-api.mjs.
 //     · THE LOUDEST DEAD PATH ON THE SITE. Netlify's top-not-found report for
@@ -5104,7 +5146,7 @@
 //     support-lane.css — the trail is tucked by a class on <html>, not by
 //     editing journey.js, and the backing lane is a different product that was
 //     not opened.
-const CACHE_VERSION = 'v180';
+const CACHE_VERSION = 'v181';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

@@ -99,13 +99,43 @@
       var menu = el('mobileMenu');
       if (menu && menu.classList) menu.classList.add('hidden');
     } catch (e) {}
-    // The person file.
+    // The person file — CLOSED ONLY IF ONE IS ACTUALLY ON SCREEN.
+    //
+    // This used to fire on window._pdxCurrentProfileId alone, and that id is
+    // the last person file opened in this tab, not the one showing: it survives
+    // the file being closed. So arriving on the donate card after having looked
+    // at anybody ran a full closeModal() over a page with no modal on it —
+    // which clears document.body.style.overflow, tears down the jump rail,
+    // destroys the charts, calls PDXPerson.restore() and re-runs two
+    // document-wide chip refreshers, all in the same frame as the arrival
+    // scroll. That is the layout fight in the report, and on a phone it is the
+    // hitch itself.
+    //
+    // The overlay's own display is the truth, so it is read first. The id is
+    // kept only as the fallback for a shell where the overlay element is not in
+    // the document at all (an older cached page), where a live file would have
+    // to be the id's doing.
     try {
-      var open = window._pdxCurrentProfileId;
-      var ov = el('modal-overlay');
-      var showing = ov && ov.style && ov.style.display && ov.style.display !== 'none';
-      if ((open || showing) && fn(window.closeModal)) window.closeModal();
+      if (personFileShowing() && fn(window.closeModal)) window.closeModal();
     } catch (e) {}
+  }
+
+  // Is a person file on screen right now? Null when there is no way to tell.
+  function personFileShowing() {
+    var ov = null;
+    try { ov = el('modal-overlay'); } catch (e) { ov = null; }
+    if (ov) {
+      var d = '';
+      try { d = String((ov.style && ov.style.display) || ''); } catch (e) { d = ''; }
+      if (d) return d !== 'none';
+      // No inline display: the stylesheet owns it, so ask the engine.
+      try {
+        var c = getComputedStyle(ov);
+        if (c && c.display) return String(c.display) !== 'none';
+      } catch (e) {}
+      // Neither could be read — fall through to the id.
+    }
+    try { return !!window._pdxCurrentProfileId; } catch (e) { return false; }
   }
 
   // Is the document still held by an overlay this arrival did not close? Then
@@ -159,6 +189,22 @@
       if (prevTop !== null && Math.abs(top - prevTop) < 24) return;   // settled
       prevTop = top;
       var want = Math.max(0, Math.round(top - chrome() - 12));
+      // ── ALREADY PARKED: SCROLL NOTHING ──────────────────────────────────
+      // The card is where this function would put it, so there is no scroll to
+      // issue — and issuing one anyway is not free. A smooth scrollTo to the
+      // offset you are already at still hands the compositor a scroll
+      // animation, still trips markIntent (which suppresses the stability
+      // layer's own corrections for 1200 ms), and still arms the 320 ms and
+      // 700 ms retries, each of which re-measures a 2.3 MB document. Three
+      // times, for zero pixels. That is the "hitchy on phone and a bit on
+      // desktop" in the report: the re-tap case, where the reader is looking
+      // at the card and taps Support again.
+      //
+      // 1px, because getBoundingClientRect is fractional and a rounded `want`
+      // can differ from a settled position by a sub-pixel without anything
+      // having moved. Returning here also ends the retry chain, so an arrival
+      // on a card that is already parked performs exactly zero scrolls.
+      if (Math.abs(y - want) <= 1) return;
       try {
         var S = window.PDXStability;
         if (S && fn(S.markIntent)) S.markIntent(1200);
@@ -236,6 +282,9 @@
     isMoneyLabel: function (s) { return MONEY_LABEL.test(String(s == null ? '' : s).trim()); },
     isSupportControl: isSupportControl,
     active: active,
+    // Exposed for the suite: the overlay read that decides whether the arrival
+    // is allowed to close anything.
+    _personFileShowing: personFileShowing,
     arrive: arrive,
     // Exposed for the suite: the parking maths, without the scroll.
     _chrome: chrome,

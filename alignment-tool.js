@@ -4274,6 +4274,13 @@
 
     // Brief pulse on every chip that represents an issue, wherever it's mounted.
     function _alignPulse(issue) {
+      // A HELD REFRESH MEANS A FULL-SCREEN PANEL IS UP (see alignRefreshHold
+      // below), and every chip this animates is behind it. The two class writes
+      // would be invisible; the `void c.offsetWidth` between them would not — it
+      // forces a whole-document style and layout flush, synchronously, on the
+      // frame the reader's tap has to land in. So the pulse is skipped, not
+      // queued: an animation nobody saw has nothing to catch up on.
+      if (_refreshHeld) return;
       document.querySelectorAll('.align-chip[data-align-issue="' + issue + '"]').forEach(function(c) {
         c.classList.remove('just-toggled'); void c.offsetWidth; c.classList.add('just-toggled');
         setTimeout(function() { c.classList.remove('just-toggled'); }, 360);
@@ -4319,7 +4326,66 @@
       _alignRefreshAll();
     };
 
+    // ── THE COALESCED REFRESH, AND THE HOLD ──────────────────────────────────
+    // _alignRefreshAll below is sixteen calls wide and several of them rebuild a
+    // whole grid, so running it once per tap is what made answering eight issues
+    // in a row on a phone feel like eight page loads. Nothing here changes WHAT
+    // a refresh does or WHEN the selection changes — every caller still writes
+    // its state and still asks for the same repaint on the same line. The two
+    // things this lane adds are both about the paint only:
+    //
+    //   alignRefreshSoon()  — collapse any number of requests landing inside one
+    //     animation frame into a single pass. The timer is a fallback, not a
+    //     second scheduler: a hidden tab is handed no frames and the reader must
+    //     not come back to a stale grid, and whichever of the two arrives first
+    //     cancels the other so the pass runs exactly once.
+    //
+    //   alignRefreshHold(on) — while a full-screen panel covers every surface
+    //     _alignRefreshAll repaints, refreshing them is work the reader cannot
+    //     see, done on the main thread BETWEEN their taps. The panel takes the
+    //     hold when it opens and releases it when it closes; everything asked
+    //     for in between collapses into one pass on release. A counter, not a
+    //     boolean, so two holders cannot release each other's hold.
+    //
+    // WHAT THIS DOES NOT TOUCH: no key, no keyword, no lean, no level, no
+    // weight, no floor, no band and no percentage. The selection state is
+    // written by the caller before the guard is ever reached, so no reader of
+    // _alignIssues or _alignIntensity can observe a half-applied pick.
+    var _refreshSoonRaf = 0, _refreshSoonTimer = 0, _refreshHeld = 0, _refreshWanted = false;
+    function _refreshSoonRun() {
+      // Whichever scheduler got here first cancels the other, so the pass runs
+      // once. Cancelling an already-fired handle is a no-op in every engine.
+      if (_refreshSoonRaf) {
+        try { if (window.cancelAnimationFrame) window.cancelAnimationFrame(_refreshSoonRaf); } catch (e) {}
+        _refreshSoonRaf = 0;
+      }
+      if (_refreshSoonTimer) { try { clearTimeout(_refreshSoonTimer); } catch (e) {} _refreshSoonTimer = 0; }
+      try { _alignRefreshAll(); } catch (e) {}
+    }
+    window.alignRefreshSoon = function () {
+      if (_refreshHeld) { _refreshWanted = true; return; }   // the holder flushes it
+      if (_refreshSoonRaf || _refreshSoonTimer) return;      // one is already queued
+      try {
+        if (window.requestAnimationFrame) {
+          _refreshSoonRaf = window.requestAnimationFrame(_refreshSoonRun);
+        }
+      } catch (e) { _refreshSoonRaf = 0; }
+      try { _refreshSoonTimer = setTimeout(_refreshSoonRun, 120); } catch (e) {}
+      if (!_refreshSoonRaf && !_refreshSoonTimer) _refreshSoonRun();   // no scheduler at all
+    };
+    window.alignRefreshHold = function (on) {
+      if (on) { _refreshHeld++; return; }
+      if (_refreshHeld > 0) _refreshHeld--;
+      if (_refreshHeld > 0 || !_refreshWanted) return;
+      _refreshWanted = false;
+      window.alignRefreshSoon();
+    };
+
     function _alignRefreshAll() {
+      // Held: remember that a pass is owed and let the tap have the frame. The
+      // release flushes exactly one, so a reader who answered eight issues sees
+      // the same sixteen surfaces they would have seen after eight passes.
+      if (_refreshHeld) { _refreshWanted = true; return; }
       _alignSyncAllChips();
       _alignUpdateStatus();
       _alignRenderProfile();
