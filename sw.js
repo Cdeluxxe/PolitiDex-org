@@ -29,7 +29,9 @@
    localStorage via PDXStore, so it is available offline the moment the shell
    loads — this worker just guarantees the shell itself loads offline.
 
-   Bump CACHE_VERSION to ship a new shell; old caches are pruned on activate.
+   Bump CACHE_VERSION to ship a new shell; old SHELL caches are pruned on
+   activate. The RUNTIME bucket is unversioned and survives every bump — it
+   holds the offline packs, the person documents and the runtime assets.
    ═══════════════════════════════════════════════════════════════════════ */
 
 'use strict';
@@ -5146,9 +5148,68 @@
 //     support-lane.css — the trail is tucked by a class on <html>, not by
 //     editing journey.js, and the backing lane is a different product that was
 //     not opened.
-const CACHE_VERSION = 'v181';
-const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
-const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
+// v182 - THE BUMP STOPS COSTING 9 MB. Every previous entry in this log is
+//     honest about a cost it should not have had: both cache buckets carried
+//     CACHE_VERSION, so a rename emptied the runtime bucket as well as the shell
+//     one and activate's prune deleted it outright — the offline VR packs, the
+//     four cached person documents and every runtime asset, gone on a deploy that
+//     may have changed one line. install then refetched all ~9 MB of the precache
+//     with { cache: 'reload' }, which bypasses the HTTP cache, so byte-identical
+//     files crossed the network again too. Three changes, no behaviour moved:
+//     RUNTIME_CACHE is unversioned and is never in activate's delete list (the
+//     prune is scoped to SHELL_PREFIX); install revalidates instead of reloading,
+//     so an unchanged asset answers 304 with no body; and a person document is a
+//     runtime entry now rather than a shell one, since it is keyed to one address
+//     and nothing on SHELL_ASSETS depends on it. A shell-asset change still gets a
+//     new SHELL_CACHE name and still re-issues the precache, which is what the
+//     bump is for; a runtime asset stays current through handleStatic's
+//     stale-while-revalidate write, and a pack built from a retired mapping is
+//     still refused by version at its own URL. Activate carries the entries out of
+//     politidex-runtime-v* once so this deploy is not itself the last wipe. No
+//     route, rewrite, record path, mapping, score or floor was touched.
+//     CHANGED UNDER THIS PASS: sw.js; index.html (the mobile drawer's inline
+//     backdrop-filter is deleted, not overridden); app.css (that blur, given
+//     back as a min-width: 641px rule the cascade can reach); mobile-polish.css
+//     (§7d also drops #modal-overlay's blur on phones — bg-black/85 already
+//     hides the page); pdx-lazy-data.js (the ~2 MB first-tap injection now lands
+//     in a later task than the gesture); like-dislike.js and profiles-full.js
+//     (close is one chip pass, the closed file leaves the document, and the
+//     alignment paint hold your-file.js proved is taken around an open file).
+//     BYTE-IDENTICAL, named because the bump re-issues them anyway:
+//     pdx-stability.js (the scroll lock and --pdx-chrome are untouched),
+//     alignment-tool.js (the hold and the coalescer are used, not changed),
+//     voting-record.js, consistency.js, compare-hub.js, your-file.js,
+//     support-route.js, person-file.js; the issue lane in full — word-action.js,
+//     word-action.css, door1-workspace.js, door1-workspace.css, issue-file.js,
+//     issue-file.css, issue-view.js, pdx-issue-family.js, stance-tree.js and
+//     issue-colors.js, no issue read, no stance tree and no hue was opened; and
+//     all-seeing-eye.js, still a runtime entry rather than a precached one, which
+//     is now a bucket that survives the bump instead of one the bump empties; plus
+//     pdx-issue-profile.js with netlify.toml — no address, redirect, header or
+//     rewrite was edited, and /p/* still answers index.html with a 200.
+//     DID NOT MOVE: Direction Match. No score, no floor, no party read, no
+//     mapping and no formal-record path was touched by any of the above — this
+//     pass is cache policy, one deleted inline filter, one deferred injection and
+//     one cheaper close.
+const CACHE_VERSION = 'v182';
+const SHELL_PREFIX = 'politidex-shell-';
+const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
+
+// THE RUNTIME BUCKET IS DELIBERATELY UNVERSIONED. It used to carry
+// CACHE_VERSION, which meant every deploy renamed it and activate's prune threw
+// away the whole thing: the offline VR packs, the person documents and every
+// runtime asset a warm device had already paid for. None of that goes stale
+// because a SHELL asset changed, so none of it is version-scoped any more. A
+// changed runtime asset is refreshed by the stale-while-revalidate write in
+// handleStatic, and a pack that is wrong for the current mapping is already
+// refused by version at its own URL (see VR_PACK_RE). Bumping CACHE_VERSION now
+// swaps the precached shell and nothing else.
+const RUNTIME_CACHE = 'politidex-runtime';
+
+// Buckets from before that decision: politidex-runtime-v181 and friends. Matched
+// so activate can MOVE their entries into the unversioned bucket once, instead of
+// making the deploy that fixes the wipe perform one last wipe.
+const RUNTIME_LEGACY_RE = /^politidex-runtime-v/;
 
 // Same-origin assets that make up the bootable app shell. Kept to files we
 // know exist and ship on every deploy — dynamic endpoints are excluded.
@@ -5502,7 +5563,12 @@ self.addEventListener('install', (event) => {
     const cache = await caches.open(SHELL_CACHE);
     await Promise.all(SHELL_ASSETS.map(async (url) => {
       try {
-        const res = await fetch(url, { cache: 'reload' });
+        // No { cache: 'reload' }. Netlify serves these with an ETag and
+        // max-age=0/must-revalidate, so a plain fetch revalidates: a file whose
+        // bytes did not change answers 304 with no body. Forcing 'reload'
+        // bypassed the HTTP cache and re-downloaded all ~9 MB of the precache on
+        // every version bump, byte-identical files included.
+        const res = await fetch(url);
         if (res && (res.ok || res.type === 'opaque')) await cache.put(url, res.clone());
       } catch (_) { /* asset unavailable at install time — fetched at runtime */ }
     }));
@@ -5510,12 +5576,35 @@ self.addEventListener('install', (event) => {
   })());
 });
 
-// ─── Activate: drop caches from previous versions, take control ─────────────
+// ─── Activate: retire old SHELL buckets only, take control ──────────────────
+// RUNTIME_CACHE IS NEVER IN THE DELETE LIST. That is the whole change: the prune
+// is scoped to SHELL_PREFIX, so a deploy that only bumps CACHE_VERSION leaves the
+// packs, the person documents and the runtime assets exactly where they are.
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
-    const keep = new Set([SHELL_CACHE, RUNTIME_CACHE]);
     const names = await caches.keys();
-    await Promise.all(names.map((n) => (keep.has(n) ? null : caches.delete(n))));
+
+    // One-time carry-over from the versioned runtime buckets. Cache-to-cache, no
+    // network, and sequential so a phone is never holding several ~2 MB documents
+    // at once. An existing entry always wins: the unversioned bucket is live by
+    // the time this runs.
+    try {
+      const runtime = await caches.open(RUNTIME_CACHE);
+      for (const n of names) {
+        if (!RUNTIME_LEGACY_RE.test(n)) continue;
+        const old = await caches.open(n);
+        for (const req of await old.keys()) {
+          if (await runtime.match(req)) continue;
+          const res = await old.match(req);
+          if (res) await runtime.put(req, res).catch(() => {});
+        }
+        await caches.delete(n).catch(() => {});
+      }
+    } catch (e) { /* migration is hygiene: a failure costs a refetch, never correctness */ }
+
+    await Promise.all(names.map((n) => (
+      n !== SHELL_CACHE && SHELL_PREFIX && n.indexOf(SHELL_PREFIX) === 0 ? caches.delete(n) : null
+    )));
     await self.clients.claim();
   })());
 });
@@ -5800,12 +5889,21 @@ async function prunePersonDocs(cache, keepKey) {
 }
 
 async function handleNavigate(req) {
-  const cache = await caches.open(SHELL_CACHE);
+  const shell = await caches.open(SHELL_CACHE);
 
   let url = null;
   try { url = new URL(req.url); } catch (e) { url = null; }
   const key = navDocKey(url);
   const isPerson = key.slice(0, 3) === '/p/';
+
+  // A PERSON DOCUMENT IS A RUNTIME ENTRY, NOT A SHELL ONE. It is keyed to a single
+  // address, it is not on SHELL_ASSETS, and nothing on the precache list depends on
+  // it — version-scoping it only meant re-downloading ~2 MB per bookmarked file on
+  // every deploy. It stays current the same way every other runtime entry does:
+  // stale-while-revalidate below refreshes it behind the paint. '/' keeps its shell
+  // slot, because it IS a precached shell asset and swapping it is what a
+  // CACHE_VERSION bump is for.
+  const cache = isPerson ? await caches.open(RUNTIME_CACHE) : shell;
 
   const network = fetch(req).then(async (res) => {
     if (res && res.ok && key) {
@@ -5830,8 +5928,8 @@ async function handleNavigate(req) {
   // Offline, with no document of this address's own. '/' is the app shell and it
   // names nobody — the honest stand-in for any address, and the one fallback that
   // cannot claim to be a person we have not resolved.
-  const shell = await cache.match('/');
-  if (shell) return shell;
+  const shellDoc = await shell.match('/');
+  if (shellDoc) return shellDoc;
 
   return new Response(OFFLINE_FALLBACK, {
     status: 200,

@@ -3675,8 +3675,17 @@ section("16 · A partial census does not wear a finished heading");
     `door1-workspace.js AND door1-workspace.css, all four precached. The stylesheet is the loud one: ` +
     `without the bump a warm device paints the filter row, accepts a press, and then shows every row ` +
     `the slice just hid, because the old sheet has no [hidden] rule for a person row`);
-  has(SW, "const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`",
+  // v182 composed the shell name from a prefix constant so activate's prune could
+  // be scoped to it by name — the bucket is still version-scoped, which is what
+  // this assertion is for. The RUNTIME bucket deliberately is not any more, so a
+  // bump swaps the precached panel and leaves the warm packs and person documents
+  // where they are.
+  has(SW, "const SHELL_PREFIX = 'politidex-shell-'",
+    "the shell cache's prefix moved, so activate's prune is no longer scoped to the shell bucket");
+  has(SW, "const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`",
     "the shell cache name no longer carries CACHE_VERSION, so a bump does not drop the stale panel");
+  has(SW, "const RUNTIME_CACHE = 'politidex-runtime'",
+    "the runtime bucket is version-scoped again — a bump would wipe the warm packs and person documents");
   console.log(`      v${v} · panel, stylesheet and desk travel together`);
 }
 

@@ -105,12 +105,36 @@
   // ── Trigger 2 · first meaningful user interaction ─────────────────────────
   // As soon as the visitor engages (scroll / tap / key), warm the data that a
   // profile modal, search or comparison opened moments later would need.
-  var IX = ['pointerdown', 'keydown', 'touchstart', 'wheel', 'scroll'];
+  //
+  // THIS USED TO RUN ON THE FINGER, AND IT WAS THE SLOWEST GESTURE ON THE SITE.
+  // The listener was registered in CAPTURE phase on window for pointerdown,
+  // touchstart, wheel, keydown and scroll, and it called ensureAll() inline — so
+  // the very first tap anywhere injected ~2 MB of data script (spotlights-data,
+  // acct-spotlight-data, cmp-data-detail) BEFORE the tapped control's own handler
+  // had run. Tapping the hamburger meant compiling two megabytes of curated data
+  // and only then toggling a class, which is why the drawer arrived seconds late.
+  //
+  // Two changes, and the loader itself is untouched:
+  //   · BUBBLE PHASE, NOT CAPTURE, and 'click' rather than pointerdown/touchstart
+  //     (which fired three times for one tap and always before the handler). By
+  //     the time a bubbled click reaches window the inline onclick has already
+  //     flipped the class, so the gesture's own work is done.
+  //   · THE BODY IS DEFERRED OUT OF THE GESTURE TASK. requestIdleCallback lets
+  //     the browser paint the drawer first and does the injection in the gap
+  //     after; the 1200 ms timeout means an always-busy main thread cannot starve
+  //     it, and setTimeout(0) is the fallback where rIC is missing. Either way
+  //     the three tags land in a LATER task than the tap.
+  // Arming is still on the first interaction, and Triggers 1 and 3 below are
+  // unchanged, so the data still arrives for a visitor who never taps at all.
+  var IX = ['click', 'keydown', 'scroll'];
+  var IX_OPTS = { passive: true };
   function onFirstInteraction() {
-    IX.forEach(function (ev) { window.removeEventListener(ev, onFirstInteraction, true); });
-    ensureAll(['cmpDetail', 'acctSpotlight', 'spotlights']);
+    IX.forEach(function (ev) { window.removeEventListener(ev, onFirstInteraction, false); });
+    var run = function () { ensureAll(['cmpDetail', 'acctSpotlight', 'spotlights']); };
+    if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 1200 });
+    else setTimeout(run, 0);
   }
-  IX.forEach(function (ev) { window.addEventListener(ev, onFirstInteraction, true); });
+  IX.forEach(function (ev) { window.addEventListener(ev, onFirstInteraction, IX_OPTS); });
 
   // ── Trigger 3 · guaranteed idle fallback after load ───────────────────────
   // Nothing that reads this data can stay empty even for a visitor who never

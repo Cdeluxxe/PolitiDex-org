@@ -873,12 +873,24 @@
 
   // Re-sync every visible card chip from the cached counts — called when the
   // profile / comment modal closes so freshly-added comments show on the cards.
+  //
+  // ONE PASS OVER THE CHIPS THAT EXIST, not one document scan per pid that has
+  // ever been commented on. This used to walk Object.keys(_commentCounts) and run
+  // a document-wide querySelectorAll for each key, so closing a profile cost
+  // O(commented politicians) × O(document) — a figure that grows with the comment
+  // archive and never shrinks, on a gesture that should be free. _commentCounts is
+  // filled from a whole-collection read, so that multiplier is the site's entire
+  // discussion history. The chips are the small set: query them once and read each
+  // one's own pid off the element, exactly as _pdxRefreshVoteChips below already
+  // does. Same result — a chip with no cached count still reads 0, which is what
+  // the per-pid loop left it at too.
   window._pdxRefreshCommentChips = function() {
     if (typeof _commentCounts === 'undefined') return;
-    Object.keys(_commentCounts).forEach(function(pid) {
-      document.querySelectorAll('[data-comment-pid="' + pid + '"] .comment-count').forEach(function(el) {
-        el.textContent = _commentCounts[pid];
-      });
+    document.querySelectorAll('[data-comment-pid]').forEach(function(chip) {
+      var pid = chip.getAttribute('data-comment-pid');
+      if (!pid) return;
+      var el = chip.querySelector('.comment-count');
+      if (el) el.textContent = _commentCounts[pid] || 0;
     });
   };
 

@@ -364,6 +364,16 @@ html.pdx-instant-scroll {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
+
+  /* The profile overlay blurs a page that is already hidden. #modal-overlay is
+     bg-black/85 AND backdrop-blur-md: at 85% opacity the blur is all but
+     invisible, and it costs a full-viewport rasterisation on every profile open
+     and every close — the two gestures a reader makes most. Dropped on phones
+     only; the tablet and desktop rule is untouched. */
+  #modal-overlay {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 /* ── 7e · Hush the huge decorative blur loops on phones ───────────────────

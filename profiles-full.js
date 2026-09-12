@@ -4682,7 +4682,38 @@
     }
   };
 
+  // ── The paint hold, for the file that covers every surface it repaints ──
+  // _alignRefreshAll is sixteen document-wide passes (alignment-tool.js) and an
+  // open person file covers all sixteen of them: the relevant-to-me grid, the
+  // ballot grid, the directory, the compare table, the race sheet. The one that
+  // actually fires here is the consistency warm queue — opening a file queues the
+  // record fetch, and when the batch lands it repaints the whole homepage behind
+  // the overlay, on the main thread, between the reader's taps. Held, that pass
+  // is remembered and flushed exactly once on close, which is the contract
+  // your-file.js already proved with eight picks.
+  //
+  // NOTHING GOES STALE UNDER IT. The file renders no align chip and no alignment
+  // surface of its own (#align-profile-summary and #align-fab are homepage
+  // elements), so the reader cannot change a stance while it is up — there is no
+  // half-applied state for the hold to hide.
+  //
+  // The boolean is what makes it safe rather than the caller being careful:
+  // openModal is RE-ENTRANT (the loading-shell path fetches, then calls itself),
+  // and closeModal is called defensively from several wrappers. alignRefreshHold
+  // counts holders, so an unpaired take would suppress every later refresh for
+  // the life of the page. Taking a hold we already hold, or releasing one we do
+  // not, is a no-op here.
+  var _pdxAlignHeld = false;
+  function _pdxHoldAlign(on) {
+    try {
+      if (on) { if (_pdxAlignHeld) return; _pdxAlignHeld = true; }
+      else { if (!_pdxAlignHeld) return; _pdxAlignHeld = false; }
+      if (typeof window.alignRefreshHold === 'function') window.alignRefreshHold(!!on);
+    } catch (e) {}
+  }
+
   function openModal(id) {
+    _pdxHoldAlign(true);
     // A card, saved My-Team pick or deep link (?p=<id>) may name an id that is
     // not the one the roster record lives under — a browse pid (`ray_ward` →
     // `rward`) or a curated theme key (`kivory` → `ivory_h39`). PDXProfilePid()
@@ -7992,6 +8023,22 @@
       overlay.style.overscrollBehavior = 'contain';
     }
     document.body.style.overflow = '';
+    // THE CLOSED FILE LEAVES THE DOCUMENT. Hiding the overlay used to be the
+    // whole of it, so every person file ever opened stayed in the tree — a few
+    // thousand nodes each, hidden, and counted by every document-wide
+    // querySelectorAll after it. That is why closing the second profile hitched
+    // worse than the first: the chip refreshes below, the delegated click
+    // handlers' closest() walks and the next file's own render were all paying
+    // for files nobody could see. The clear is deliberately HERE and not earlier:
+    // the charts are destroyed, the rail's observers are disconnected and the
+    // overlay is already hidden, so nothing is mid-teardown and no frame shows
+    // the emptying. #modal-content is the renderer's own host — openModal
+    // overwrites it outright on the next open — so there is nothing to preserve.
+    // The rail lives in #modal-body and is taken down by its own close wrapper.
+    try {
+      const _mcClose = document.getElementById('modal-content');
+      if (_mcClose) _mcClose.innerHTML = '';
+    } catch (e) {}
     // Put back the address the reader was on before the file opened. This is
     // person-file.js's job because it is the thing that changed the address in
     // the first place, and because /p/<id> — unlike the old ?p= param — is a
@@ -8008,6 +8055,9 @@
     // the profile shows live the moment the modal closes.
     if (typeof window._pdxRefreshCommentChips === 'function') window._pdxRefreshCommentChips();
     if (typeof window._pdxRefreshVoteChips === 'function') window._pdxRefreshVoteChips();
+    // Last, so the one flushed pass repaints surfaces the reader can now see,
+    // against a document the closed file has already left.
+    _pdxHoldAlign(false);
   }
 
 

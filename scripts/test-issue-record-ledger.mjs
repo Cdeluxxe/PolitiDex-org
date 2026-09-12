@@ -767,13 +767,24 @@ section("8 · The assets travel together");
   for (const f of ["/", "/consistency.js", "/door1-workspace.js", "/door1-workspace.css"]) {
     has(SW, `'${f}'`, `${f} is not precached, so it can go stale on its own`);
   }
-  // all-seeing-eye.js is a RUNTIME entry, not a precached one. It still cannot go
-  // stale against this pass, because the runtime cache NAME carries CACHE_VERSION
-  // — which is the whole reason the bump is not skippable: the old Eye would call
-  // a resolver the new desk publishes and the key hit would silently not appear.
+  // all-seeing-eye.js is a RUNTIME entry, not a precached one. Since v182 the
+  // runtime bucket is unversioned, so what keeps it from going stale against this
+  // pass is handleStatic's revalidating write rather than the rename — otherwise
+  // the old Eye would call a resolver the new desk publishes and the key hit would
+  // silently not appear. The bump is still not skippable for the shell.
   no(SW, "'/all-seeing-eye.js'", "all-seeing-eye.js became a precache entry and this note is stale");
-  has(SW, "RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`",
-    "the runtime cache name no longer carries CACHE_VERSION, so a runtime entry can outlive a bump");
+  // SW CACHE POLICY MOVED IN v182: the runtime bucket is deliberately unversioned
+  // now, so a bump no longer throws away the runtime-cached all-seeing-eye.js.
+  // The bump is still what re-issues the PRECACHED shell (index.html and friends), and what
+  // keeps a runtime asset current is handleStatic's stale-while-revalidate write,
+  // not the rename. Pinned here so a pass cannot quietly re-version the runtime
+  // bucket and make every warm device pay for the whole shell again.
+  has(SW, "const RUNTIME_CACHE = 'politidex-runtime'",
+    "the runtime bucket is version-scoped again — a bump would wipe the warm packs and person documents");
+  has(SW, "const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`",
+    "the shell cache name no longer carries the version, so a bump would not re-issue the precache");
+  has(SW, "cache.put(req, res.clone())",
+    "handleStatic no longer writes the revalidated copy back, so a runtime asset could stay stale forever");
   const m = SW.match(/CACHE_VERSION\s*=\s*'v(\d+)'/);
   must(m, "sw.js no longer carries a CACHE_VERSION this file can read");
   const v = Number(m[1]);
