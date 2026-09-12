@@ -92,17 +92,41 @@ must(FIRST, 'onFirstInteraction is gone from pdx-lazy-data.js — the loader was
 ok(!/^\s*ensureAll\(/m.test(FIRST),
   'onFirstInteraction still calls ensureAll() as a statement of its own body — that is ~2 MB of script ' +
   "injection inside the tap's own task, which is the defect");
-ok(/requestIdleCallback|setTimeout/.test(FIRST),
-  'onFirstInteraction defers nothing. The injection has to land in a LATER task than the gesture, so the ' +
+// P1b: the deferral, the timeout and the loader call moved one level down, into
+// the warm chain onFirstInteraction now delegates to. Deferring off the gesture
+// kept the tapped control's frame but still handed the browser all ~2 MB as ONE
+// task a beat later — which is the block that put "Page Unresponsive" under the
+// open account dropdown. So the assertions below read the arming function AND
+// its delegate together: what matters is that the gesture's own task does none
+// of this, that the work is scheduled, and that it still eventually happens.
+const WARM = fnSrc(LAZY, 'warmChain');
+must(WARM, 'warmChain is gone from pdx-lazy-data.js — the split warm was removed, not refined');
+const ARMED = FIRST + '\n' + WARM;
+
+ok(/requestIdleCallback|setTimeout/.test(ARMED),
+  'the arming path defers nothing. The injection has to land in a LATER task than the gesture, so the ' +
   'browser can paint what the reader touched first');
-ok(/requestIdleCallback/.test(FIRST) && /timeout:/.test(FIRST),
+ok(/requestIdleCallback/.test(ARMED) && /timeout:/.test(ARMED),
   'the deferral has no requestIdleCallback timeout, so a permanently busy main thread can starve the load ' +
   'that every consumer of this data is waiting on');
-ok(/setTimeout/.test(FIRST),
+ok(/setTimeout/.test(ARMED),
   'there is no setTimeout fallback for engines without requestIdleCallback');
-ok(/ensureAll\(/.test(FIRST),
-  'onFirstInteraction no longer loads the data at all — this pass moves the loader off the finger, it does ' +
+ok(/ensure(All)?\(/.test(ARMED),
+  'the arming path no longer loads the data at all — this pass moves the loader off the finger, it does ' +
   'not delete it');
+
+// ONE BUNDLE PER SLICE. The chain must schedule itself again between files
+// rather than inject them all at once: three ~megabyte bundles in one task is a
+// multi-second block no gesture can interrupt.
+ok(!/^\s*ensureAll\(/m.test(WARM),
+  'warmChain still calls ensureAll() as a statement of its own body, so every bundle lands in one task again');
+ok(/warmChain\(/.test(WARM),
+  'warmChain never re-enters itself — it is not a chain, so nothing splits the bundles across tasks');
+ok(/then\(/.test(WARM),
+  'warmChain does not wait for a bundle to land before asking for the next slice');
+const firstCall = (FIRST.match(/warmChain\(\s*\[[^\]]*\]/) || [])[0] || '';
+ok(firstCall.split("'").length - 1 >= 4,
+  'onFirstInteraction no longer hands the chain the bulk data keys it is responsible for warming');
 
 // The listener set. pointerdown and touchstart both fire for one tap, and both
 // fire BEFORE click, which is what put the injection ahead of the handler.

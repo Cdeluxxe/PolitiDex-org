@@ -722,6 +722,17 @@
     try { if (typeof window._alignRefreshAll === 'function') window._alignRefreshAll(); } catch (e) {}
   }
 
+  // Take or release the alignment engine's paint hold. The counter lives in the
+  // engine, so nesting is safe and no holder can release another's hold; an
+  // engine without the hold is a no-op and repaints eagerly, exactly as before.
+  // Same helper, same reason, as your-file.js: while a panel of ours is the
+  // thing the reader is looking at, the sixteen surfaces _alignRefreshAll
+  // repaints are all behind it, and repainting them is work nobody can see done
+  // on the main thread between their taps.
+  function holdAlign(on) {
+    try { if (typeof window.alignRefreshHold === 'function') window.alignRefreshHold(!!on); } catch (e) {}
+  }
+
   function setNote(issueKey, note) {
     var s = load();
     var rec = s.items[issueKey];
@@ -1106,8 +1117,14 @@
       '</div>';
     document.body.appendChild(host);
     document.body.style.overflow = 'hidden';
+    // ONE HOLD PER OPENING, released when the panel hides. This overlay covers
+    // every surface _alignRefreshAll repaints, so anything asked for while it is
+    // up collapses into a single pass on close.
+    var _held = true;
+    holdAlign(true);
     requestAnimationFrame(function () { host.classList.add('is-open'); });
     function close() {
+      if (_held) { _held = false; holdAlign(false); }
       host.classList.remove('is-open');
       document.body.style.overflow = '';
       setTimeout(function () { if (host.parentNode) host.parentNode.removeChild(host); }, 220);
@@ -1539,12 +1556,25 @@
     // navigation / render
     open: function (issueKey) { init(); scrollTo('my-stances'); if (issueKey) setTimeout(function () { gotoIssue(issueKey); }, 60); },
     // Jump to the section and highlight the My Views showcase card (account menu).
+    //
+    // THIS IS ONE OF THE TWO ACCOUNT-MENU DOORS, AND IT OWNS ONE SECTION. The
+    // other is Your File. Both are reached from a menu the reader has just
+    // opened, so both are held for the whole of their opening: init() mounts
+    // this section and render() writes its markup, and while that is happening
+    // nothing may ask the alignment engine to rebuild the homepage's grids on
+    // our behalf — the reader is looking at this. Neither door runs the homepage
+    // fan-out itself (no renderRelevantToMe, no myteamBrowseFilter, no
+    // updateRacesAndPositions here); the hold covers anything downstream that
+    // would have asked for one, and the release flushes exactly one pass.
     openViews: function () {
-      init(); scrollTo('my-stances');
+      holdAlign(true);
+      try { init(); scrollTo('my-stances'); } catch (e) {}
       setTimeout(function () {
-        var card = el(MOUNT) && el(MOUNT).querySelector('[data-ms-viewscard]');
-        var target = card || (el(MOUNT) && el(MOUNT).querySelector('.ms-showcase'));
-        if (target) { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); target.classList.add('ms-flash'); setTimeout(function () { target.classList.remove('ms-flash'); }, 1200); }
+        try {
+          var card = el(MOUNT) && el(MOUNT).querySelector('[data-ms-viewscard]');
+          var target = card || (el(MOUNT) && el(MOUNT).querySelector('.ms-showcase'));
+          if (target) { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); target.classList.add('ms-flash'); setTimeout(function () { target.classList.remove('ms-flash'); }, 1200); }
+        } finally { holdAlign(false); }
       }, 80);
     },
     render: function () { if (_inited) render(); }

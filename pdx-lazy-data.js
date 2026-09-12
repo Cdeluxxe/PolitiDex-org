@@ -55,6 +55,41 @@
 
   function ensureAll(keys) { (keys || []).forEach(ensure); }
 
+  // ── ONE BUNDLE PER IDLE SLICE ─────────────────────────────────────────────
+  // ensureAll() injects every key it is handed in the same task. For the two
+  // bulk warms below — the first interaction, and the post-load safety net —
+  // that is spotlights-data.js (~1.2 MB), acct-spotlight-data.js (~587 KB) and
+  // the cmp-data detail split parsed, executed AND fanned out back-to-back with
+  // no frame in between. The previous pass moved that off the gesture itself,
+  // which kept the tapped control's own frame; it still handed the browser the
+  // whole two megabytes as a single unit a beat later, and a single unit is
+  // exactly what makes a block unbreakable. On a signed-in desktop the first
+  // interaction of a visit is very often the click that opens the account
+  // dropdown, and the block landed under the open menu — which is Chrome's
+  // "Page Unresponsive" dialog, reported with that dropdown still on screen.
+  //
+  // So the chain asks for a FRESH idle slice between files: each bundle lands in
+  // its own task, the browser gets the gaps to paint the menu the reader just
+  // opened and to answer their next tap, and the consumers of each file get
+  // their arrival event in a task of its own too. Nothing about WHICH files load
+  // — or that all of them eventually do — changes; only how many share one task.
+  function warmChain(keys, i) {
+    var list = keys || [];
+    var at = i || 0;
+    if (at >= list.length) return;
+    var slice = function () {
+      var next = function () { warmChain(list, at + 1); };
+      var landing;
+      try { landing = ensure(list[at]); } catch (e) { landing = null; }
+      if (landing && typeof landing.then === 'function') landing.then(next, next);
+      else next();
+    };
+    try {
+      if ('requestIdleCallback' in window) { requestIdleCallback(slice, { timeout: 1200 }); return; }
+    } catch (e) {}
+    setTimeout(slice, 0);
+  }
+
   window.PDXLazyData = {
     ensure: ensure,
     loaded: function (key) { return !!(FILES[key] && FILES[key].loaded); },
@@ -130,9 +165,11 @@
   var IX_OPTS = { passive: true };
   function onFirstInteraction() {
     IX.forEach(function (ev) { window.removeEventListener(ev, onFirstInteraction, false); });
-    var run = function () { ensureAll(['cmpDetail', 'acctSpotlight', 'spotlights']); };
-    if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 1200 });
-    else setTimeout(run, 0);
+    // Deferred AND split: see warmChain above. The first slice is still an idle
+    // callback with a timeout (a permanently busy main thread cannot starve the
+    // load every consumer of this data waits on), with setTimeout as the
+    // fallback where requestIdleCallback is missing.
+    warmChain(['cmpDetail', 'acctSpotlight', 'spotlights'], 0);
   }
   IX.forEach(function (ev) { window.addEventListener(ev, onFirstInteraction, IX_OPTS); });
 
@@ -140,7 +177,7 @@
   // Nothing that reads this data can stay empty even for a visitor who never
   // scrolls or interacts. Runs well after first paint, off the critical path.
   function idleFallback() {
-    var run = function () { ensureAll(['cmpDetail', 'spotlights', 'acctSpotlight']); };
+    var run = function () { warmChain(['cmpDetail', 'spotlights', 'acctSpotlight'], 0); };
     if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 4000 });
     else setTimeout(run, 3000);
   }
