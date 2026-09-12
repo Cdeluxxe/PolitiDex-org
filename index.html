@@ -16510,13 +16510,11 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     _fbAuthReady.then(function() {
       db.collection('votes').doc(pid).set(update, { merge: true }).catch(function(e) { console.warn("agenda vote write error:", e); });
     });
-    fetch('/api/votes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pid: pid, likesDelta: upDelta, dislikesDelta: downDelta })
-    }).catch(function(e) {
-      console.warn('Netlify agenda votes write error:', e);
-    });
+    // The Firestore write above is the whole of it. A mirror POST to /api/votes
+    // used to sit here; no Function was ever routed at that path, so it 404'd on
+    // every agenda tap. Removed rather than repointed — the agenda tally has one
+    // store, and the formal record lives at /api/voting-record where nothing in
+    // this handler belongs.
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _loadAgendaVotes);

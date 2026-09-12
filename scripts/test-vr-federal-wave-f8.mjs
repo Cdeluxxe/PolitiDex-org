@@ -2200,6 +2200,18 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "share-links.js",
     "netlify/lib/digest-record-core.mjs",
     "netlify/lib/share-target.ts",
+
+    // The /api/votes retirement, on the same later-wave terms as every entry
+    // above it: a dead client call was deleted and a shell version was renamed.
+    // like-dislike.js is the only file this list did not already carry — the
+    // pass's other three (index.html, sw.js, netlify.toml) are declared further
+    // up. It holds the like/dislike popularity chips, which are a Firestore
+    // collection and not a wave artefact: no mapping, no roll call, no measure,
+    // no issue key and no judged surface is reachable from it, and the twin boot
+    // below does not load it. What moved in it is three deleted mirror POSTs to
+    // an endpoint that was never deployed, one read fallback that fanned out a
+    // 404 per politician, and prose saying so.
+    "like-dislike.js",
     "scripts/test-vr-federal-wave-f8.mjs",
     "scripts/test-vr-federal-wave-f9.mjs",
   ]);
