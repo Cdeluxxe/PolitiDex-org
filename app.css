@@ -3680,6 +3680,22 @@
       .dir-filter-grid { grid-template-columns: 1fr !important; }
     }
 
+    /* ── The mobile drawer's blur, as a rule instead of an inline style ──
+       #mobileMenu used to carry style="backdrop-filter:blur(20px)" in the
+       markup, which put it out of reach of every stylesheet that tried to turn
+       it off — including mobile-polish.css §7d, whose whole subject is exactly
+       this cost. The drawer is near-viewport-height and 98% opaque, so on a
+       phone the blur is a full-screen re-rasterisation nobody can see, paid on
+       every open AND every close. The declaration is gone from the markup and
+       lives here, above phone width only: the drawer is lg:hidden, so this is
+       the tablet band that still shows it and can still afford it. */
+    @media (min-width: 641px) {
+      #mobileMenu {
+        -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px);
+      }
+    }
+
     /* ── Enhanced Mobile Responsiveness ────────────────── */
     @media (max-width: 768px) {
       /* Nav touch targets */
