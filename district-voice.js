@@ -100,6 +100,10 @@
     weekUnread: 'We could not read this seat\u2019s formal record just now.',
     emptyTakes: 'No takes yet. Nobody has posted in this seat.',
     emptyNeighbors: 'No verified neighbors in this seat yet.',
+    // THE ONE SENTENCE A ZERO-ANSWER QUESTION GETS. Three zeroes, "no answers"
+    // and "no verified neighbors" stacked under one question were three ways of
+    // saying nothing, and a reader had to read all three to learn it once. See
+    // pollHtml() for which two stopped being printed.
     emptyAnswers: 'No answers yet.',
     busy: 'Reading this seat…',
     gone: 'We could not reach this seat’s Voice.',
@@ -114,6 +118,25 @@
   };
 
   function fn(x) { return typeof x === 'function'; }
+  // ── THE ISSUE'S OWN COLOUR, BORROWED AND NEVER INVENTED ───────────────────
+  // PDXIssueColors is the app's one answer to "what colour is this issue", and
+  // it hands back the whole ` data-ic="on" style="--pdx-ic:…"` fragment ready to
+  // drop inside an opening tag. A key that lands on no Core National Issue gets
+  // an EMPTY fragment by that module's own design, and a boot without the module
+  // gets one too — so the rail is a recognition aid that is simply absent when
+  // there is nothing to recognise, never a neutral slate pretending to be one.
+  //
+  // A COLOUR IS NOT A VERDICT. It says "this is the lands take", never "this
+  // take is right". Nothing downstream reads it, and no rule in the sheet lets a
+  // count reach it.
+  function icAttr(key) {
+    try {
+      var C = window.PDXIssueColors;
+      if (!C || !fn(C.skin)) return '';
+      var sk = C.skin(String(key == null ? '' : key), window.PDXIssueFamily);
+      return (sk && sk.attr) ? String(sk.attr) : '';
+    } catch (e) { return ''; }
+  }
   function esc(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -269,21 +292,39 @@
   }
 
   // ── RENDER ────────────────────────────────────────────────────────────────
-  // THE POLL. Counts only. One integer per option, printed as an integer, next to
-  // the option's own words. Deliberately NOT a bar, a ring, a share or a
-  // proportion: this file computes no denominator, so there is nothing here a
-  // reader could mistake for a mandate or a grade. The reader's own answer is
-  // marked, and answering again replaces it rather than adding one.
+  // THE POLL, AND IT IS THE LOUDEST THING ON THE PAGE. The question is set in the
+  // app's display face at display size and every label around it is a kicker, so
+  // a reader arriving cold reads the question first and the furniture second.
+  // That is the whole of the hierarchy: nothing else on this seat competes with
+  // it, and the sheet gives the three choices the only cards in the block.
+  //
+  // COUNTS ONLY, AND ONLY WHEN THERE IS ONE. One integer per option, printed as
+  // an integer beside the option's own words. Deliberately NOT a bar, a ring, a
+  // share or a proportion: this file computes no denominator, so there is nothing
+  // here a reader could mistake for a mandate. The reader's own answer is marked,
+  // and answering again replaces it rather than adding one.
+  //
+  // A ZERO IS NOT A RESULT, SO A ZERO IS NOT PRINTED. This block used to stack
+  // three statements under an unanswered question — a nought beside all three
+  // options, "Answers so far: No answers yet." and "No verified neighbors in this
+  // seat yet." — which is three ways of saying the same nothing, and it made an
+  // empty question look like a finished one with everybody at zero. Now the
+  // count rides an option only when somebody has picked it, the tally sentence
+  // is printed only when somebody has answered, and the neighbour headcount is
+  // printed only when there is a neighbour to count. At zero the question gets
+  // ONE sentence. Nothing was softened to get there: the sentence still refuses
+  // to imply completeness, and every number that exists is still printed whole.
   function pollHtml(seatKey, payload) {
     var poll = payload && payload.poll;
     if (!poll) return '';
+    var copy = (payload && payload.copy) || {};
     var canPost = !!(payload.voice && payload.voice.canPost);
     var opts = (poll.options || []).map(function (o) {
       var mine = poll.myAnswer && String(poll.myAnswer) === String(o.optionKey);
       var n = Number(o.count || 0);
       var inner =
         '<span class="pdxv-optlabel">' + esc(o.label) + '</span>' +
-        '<span class="pdxv-optcount">' + esc(String(n)) + '</span>';
+        (n > 0 ? '<span class="pdxv-optcount">' + esc(String(n)) + '</span>' : '');
       // A reader who cannot answer still SEES every option and every count.
       // Being told the numbers and told plainly why you are not in them is more
       // honest than hiding them.
@@ -297,32 +338,72 @@
           inner + '</button></li>';
     }).join('');
 
+    // The tally is the gate's own sentence or it is the gate's own empty — this
+    // file composes neither and prints exactly one of them.
+    var tally = poll.answered
+      ? '<p class="pdxv-countline">' + esc(copy.pollCounts || COPY.pollCounts) + ': ' +
+          esc(String(poll.countLine || '')) + '</p>'
+      : '<p class="pdxv-pollempty">' + esc(copy.emptyAnswers || COPY.emptyAnswers) + '</p>';
+
+    // THE HEADCOUNT IS AN INTEGER OR IT IS ABSENT. A verified neighbour is a
+    // real fact worth printing; zero of them under a question nobody has
+    // answered is the same nothing the sentence above already said.
+    var nbrs = payload.neighbors || null;
+    var verified = Number((nbrs && nbrs.verified) || 0);
+    var nbrLine = (verified > 0 && nbrs && nbrs.line)
+      ? '<p class="pdxv-neighbors">' + esc(String(nbrs.line)) + '</p>'
+      : '';
+
     return '<div class="pdxv-poll">' +
-      '<p class="pdxv-blockhd">' + esc(COPY.pollHd) + '</p>' +
+      '<p class="pdxv-blockhd">' + esc(copy.pollHd || COPY.pollHd) + '</p>' +
       '<p class="pdxv-q">' + esc(poll.question) + '</p>' +
       '<ul class="pdxv-opts">' + opts + '</ul>' +
-      '<p class="pdxv-countline">' + esc(COPY.pollCounts) + ': ' +
-        esc(poll.answered ? poll.countLine : COPY.emptyAnswers) + '</p>' +
-      '<p class="pdxv-neighbors">' + esc((payload.neighbors && payload.neighbors.line) || COPY.emptyNeighbors) + '</p>' +
+      tally + nbrLine +
     '</div>';
   }
 
-  // THE TAKES. Newest first, twenty, no author identifier and no reply box. A
-  // take carries the issue it is keyed to and nothing that could rank it.
-  function takesHtml(payload) {
+  // THE TAKES. Newest first, twenty, no identifier of who wrote one and no reply
+  // box. A take carries the issue it is keyed to and nothing that could rank it:
+  // there is no upvote, no like, no reaction and no order knob, so the only thing
+  // one take has that another does not is having been posted later.
+  //
+  // THE RAIL IS THE ISSUE'S OWN COLOUR. Every take already named its issue in
+  // words; the left edge now carries that issue's colour from the app's one
+  // colour module, so a stack of takes reads as a stack of subjects at a glance
+  // instead of as one undifferentiated column. Not a tier, not a temperature and
+  // not a verdict — see icAttr(), and see the sheet for the rule that nothing on
+  // a take may vary with anything except which issue it is about.
+  //
+  // ZERO TAKES IS A DASHED WELL WITH ONE SENTENCE IN IT, and — for a reader who
+  // cannot post — the server's own sentence about why, in the same well. The
+  // dashes are the point: a solid card with nothing in it reads as a thing that
+  // failed to load, and a well that is visibly an outline reads as a space
+  // nobody has filled yet, which is exactly what it is. Never a placeholder row,
+  // never a skeleton and never a sample take.
+  function takesHtml(payload, noteInWell) {
     var takes = (payload && payload.takes) || [];
-    var list = takes.length
-      ? '<ul class="pdxv-takes">' + takes.map(function (t) {
-          return '<li class="pdxv-take' + (t.mine ? ' is-mine' : '') + '">' +
-            '<span class="pdxv-takeissue">' + esc(issueLabel(t.issueKey)) + '</span>' +
-            '<span class="pdxv-takebody">' + esc(t.body) + '</span>' +
-          '</li>';
-        }).join('') + '</ul>'
-      // HONEST EMPTY: a sentence, never a placeholder row and never a sample.
-      : '<p class="pdxv-empty">' + esc(COPY.emptyTakes) + '</p>';
+    var copy = (payload && payload.copy) || {};
+    var list;
+    if (takes.length) {
+      list = '<ul class="pdxv-takes">' + takes.map(function (t) {
+        return '<li class="pdxv-take' + (t.mine ? ' is-mine' : '') + '"' +
+            icAttr(t.issueKey) + '>' +
+          '<span class="pdxv-takeissue">' + esc(issueLabel(t.issueKey)) + '</span>' +
+          '<span class="pdxv-takebody">' + esc(t.body) + '</span>' +
+        '</li>';
+      }).join('') + '</ul>';
+    } else {
+      var voice = (payload && payload.voice) || {};
+      list = '<div class="pdxv-well">' +
+        '<p class="pdxv-empty">' + esc(copy.emptyTakes || COPY.emptyTakes) + '</p>' +
+        (noteInWell
+          ? '<p class="pdxv-closed">' + esc(voice.note || COPY.signIn) + '</p>'
+          : '') +
+      '</div>';
+    }
     return '<div class="pdxv-takesblock">' +
-      '<p class="pdxv-blockhd">' + esc(COPY.takesHd) + '</p>' +
-      '<p class="pdxv-blocknote">' + esc(COPY.takesNote) + '</p>' +
+      '<p class="pdxv-blockhd">' + esc(copy.takesHd || COPY.takesHd) + '</p>' +
+      '<p class="pdxv-blocknote">' + esc(copy.takesNote || COPY.takesNote) + '</p>' +
       list +
     '</div>';
   }
@@ -330,10 +411,18 @@
   // THE COMPOSER. Painted on `canPost === true` and on nothing else. When it is
   // false the server's own sentence is printed in its place — this file writes no
   // refusal copy of its own, so the page and the gate cannot say different things.
-  function composerHtml(payload) {
+  //
+  // AND IT IS SAID ONCE. When there are no takes the refusal has already been
+  // printed inside the empty well, beside the sentence it explains — that is the
+  // one place on an empty seat where "nobody has posted" and "here is why you
+  // cannot" belong together. `noteInWell` is render()'s answer to which of the
+  // two slots got it, so the sentence is never printed twice and never dropped.
+  function composerHtml(payload, noteInWell) {
     var voice = (payload && payload.voice) || {};
     if (voice.canPost !== true) {
-      return '<p class="pdxv-closed">' + esc(voice.note || COPY.signIn) + '</p>';
+      return noteInWell
+        ? ''
+        : '<p class="pdxv-closed">' + esc(voice.note || COPY.signIn) + '</p>';
     }
     var keys = issueChoices(payload);
     var opts = keys.map(function (k) {
@@ -411,24 +500,44 @@
     return weekFill(copy.weekNone || COPY.weekNone);
   }
 
+  // AN ACT IS A BLOCK. NO ACT IS A FOOTNOTE. This is the one asymmetry in the
+  // whole module and it is deliberate. When the record holds a formal act on the
+  // question's issue, that act is a real thing a reader should be able to see and
+  // open, so it gets a heading, the measure's own NUMBER, its title, its date and
+  // a door to the record's own source. When the record holds nothing, the honest
+  // sentence is still printed — it is never removed and never softened — but it
+  // is printed as one quiet line under the question rather than as a third
+  // full-weight section peering at the reader. A sentence that says "there is
+  // nothing here" should not be the same size as a sentence that says what
+  // happened; giving them equal billing is what made this page read as a stack of
+  // equal-weight paragraphs in the first place.
+  //
+  // THE NUMBER IS THE MEASURE'S OWN. H.B. 256, S.B. 187 — the string the record
+  // lane already publishes on the item, printed beside the title rather than
+  // instead of it, because a reader who recognises the number and a reader who
+  // recognises the subject are two different readers and neither one should have
+  // to open the link to find out.
   function weekHtml() {
     var copy = (_payload && _payload.copy) || {};
     var act = _weekState === 'act' ? _week : null;
-    var body;
     if (act) {
-      body = '<a class="pdxv-weeklink" href="' + esc(act.href || '#') + '"' +
-        (act.href ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' +
-        '<span class="pdxv-weektitle">' + esc(act.title) + '</span>' +
-        (act.date ? '<span class="pdxv-weekdate">' + esc(act.date) + '</span>' : '') +
-      '</a>';
-    } else {
-      body = '<p class="pdxv-empty"' +
-        (_weekState === 'busy' ? ' role="status"' : '') + '>' +
-        esc(weekSentence(_weekState)) + '</p>';
+      return '<div class="pdxv-week">' +
+        '<p class="pdxv-blockhd">' + esc(copy.weekHd || COPY.weekHd) + '</p>' +
+        '<a class="pdxv-weeklink" href="' + esc(act.href || '#') + '"' +
+          (act.href ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' +
+          '<span class="pdxv-weekid">' +
+            (act.number ? '<span class="pdxv-weeknum">' + esc(act.number) + '</span>' : '') +
+            '<span class="pdxv-weektitle">' + esc(act.title) + '</span>' +
+          '</span>' +
+          (act.date ? '<span class="pdxv-weekdate">' + esc(act.date) + '</span>' : '') +
+        '</a>' +
+      '</div>';
     }
-    return '<div class="pdxv-week">' +
-      '<p class="pdxv-blockhd">' + esc(copy.weekHd || COPY.weekHd) + '</p>' + body +
-    '</div>';
+    return '<p class="pdxv-week pdxv-week--quiet"' +
+        (_weekState === 'busy' ? ' role="status"' : '') + '>' +
+      '<span class="pdxv-weekkick">' + esc(copy.weekHd || COPY.weekHd) + '</span>' +
+      '<span class="pdxv-weekline">' + esc(weekSentence(_weekState)) + '</span>' +
+    '</p>';
   }
 
   function issueLabel(key) {
@@ -446,12 +555,17 @@
   function render(seatKey, payload) {
     var p = payload || {};
     var copy = p.copy || {};
+    // WHICH SLOT HOLDS THE REFUSAL. On an empty seat the "you cannot post here"
+    // sentence belongs in the well beside "nobody has posted here"; anywhere else
+    // it belongs where the composer would have been. One answer, computed once,
+    // so the two renderers below cannot both print it or both skip it.
+    var noteInWell = !((p.takes || []).length) && (p.voice || {}).canPost !== true;
     return '<section class="pdxv" data-pdxv-seat="' + esc(normalizeSeatKey(seatKey)) + '">' +
       '<p class="pdxv-kick">' + esc(copy.kick || COPY.kick) + '</p>' +
       '<p class="pdxv-frame">' + esc(copy.frame || COPY.frame) + '</p>' +
       pollHtml(seatKey, p) +
-      takesHtml(p) +
-      composerHtml(p) +
+      takesHtml(p, noteInWell) +
+      composerHtml(p, noteInWell) +
       weekHtml() +
     '</section>';
   }
@@ -551,6 +665,49 @@
     repaint();
   }
 
+  // ── WHICH ISSUES IS THIS ITEM FILED UNDER ─────────────────────────────────
+  // A record item spells its issues as a LIST — `issues: [{issueKey, …}]` — and
+  // the guard below used to ask only for `it.issueKey`, a field a real item does
+  // not carry. So the guard was dead: it read undefined, skipped itself, and the
+  // strip printed whatever came back regardless of what it was about. The read is
+  // already keyed to one issue so nothing wrong was reaching the page, but a
+  // guard that cannot fire is not a guard, and the ONE ISSUE, ONE QUESTION rule
+  // above is only true while something enforces it. Both spellings are collected
+  // here, so an item shaped either way is checked and neither shape is trusted.
+  function itemIssueKeys(it) {
+    var out = [];
+    var push = function (v) {
+      var t = String(v == null ? '' : v).trim().toLowerCase();
+      if (t) out.push(t);
+    };
+    push(it && it.issueKey);
+    push(it && it.issue);
+    var list = (it && it.issues) || [];
+    if (Object.prototype.toString.call(list) === '[object Array]') {
+      for (var i = 0; i < list.length; i++) {
+        push(list[i] && (list[i].issueKey || list[i].key));
+      }
+    }
+    return out;
+  }
+
+  // THE DATE AS A READER READS IT. The record lane publishes an ISO timestamp,
+  // and the strip was printing it raw — "2025-03-06T22:11:00.000Z" under a
+  // heading that says "This week" is a machine's answer to a human question.
+  // Reformatted to the day, in the month's own short name, and NOTHING is
+  // recomputed: no timezone is applied, no relative wording is invented, and a
+  // string that is not an ISO date is printed exactly as it arrived.
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function actDate(raw) {
+    var t = String(raw == null ? '' : raw).trim();
+    var m = /^([0-9]{4})-([0-9]{2})-([0-9]{2})/.exec(t);
+    if (!m) return t;
+    var mi = Number(m[2]) - 1;
+    if (!(mi >= 0 && mi < 12)) return t;
+    return MONTHS[mi] + ' ' + String(Number(m[3])) + ', ' + m[1];
+  }
+
   function loadWeek() {
     var k = _seat;
     var issue = _payload && _payload.poll && _payload.poll.issueKey;
@@ -572,15 +729,17 @@
         // The read was keyed to the poll's issue, so an item on another key is a
         // surprise from the record lane and not something to print under a
         // heading the poll owns.
-        var got = String(it.issueKey || it.issue || '').trim().toLowerCase();
-        if (got && got !== String(issue).trim().toLowerCase()) {
+        var got = itemIssueKeys(it);
+        var want = String(issue).trim().toLowerCase();
+        if (got.length && got.indexOf(want) < 0) {
           settleWeek(k, 'none', null);
           return;
         }
         var src = it.source || {};
         var act = {
+          number: String(it.number || ''),
           title: String(it.title || it.action || ''),
-          date: String(it.date || ''),
+          date: actDate(it.date),
           href: String(src.url || '')
         };
         // An unprintable row is nothing on file, not a broken strip: there is no

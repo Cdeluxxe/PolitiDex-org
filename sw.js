@@ -4748,7 +4748,102 @@
 //       published figure shifts;
 //     · no pack key, pack-generation token or issue mapping was touched, and no
 //       nav item was added.
-const CACHE_VERSION = 'v176';
+//
+// v177 - THE SEAT FILE BECAME A PLACE. /d/ut-statehouse-68 was a stack of
+//     equal-weight labelled paragraphs: the live question, the empty takes, the
+//     record strip, the ballot strip and eight issue rooms were all set at the
+//     same size, under the same accent-blue uppercase kicker, so nothing on the
+//     page was the page. Everything on it was true and none of it was legible as
+//     a hierarchy. This is a VISUAL pass over the six files that mount that seat
+//     and nothing else — no new copy doctrine, no new request, no new field.
+//
+//     What a reader sees now:
+//     · THE LETTERHEAD names the ground, not just the box. The district's own
+//       label is set in the app's display face, and under it sits the
+//       parenthetical the roster already carries on the seated member's own row
+//       ("Vernal, Uintah / Duchesne County"). No geography was invented and no
+//       county table was added: a seat whose roster row has no parenthetical
+//       prints no line. The seated member became a 40px identity row — portrait
+//       from window._getPhotoUrl, name, office — which still carries no party
+//       letter, no score and no percentage;
+//     · THE QUESTION IS THE LOUDEST THING ON THE PAGE, in the display face at
+//       display size, and the three choices are cards rather than three form
+//       pills indistinguishable from the composer's own controls. Every card is
+//       the same card: one grid track, one min-height, one padding. A count
+//       prints as a fixed integer chip and ONLY when it is above zero — a nought
+//       beside a choice is the absence of a fact, not a fact, and three of them
+//       made an unanswered question look like a flat result;
+//     · ZERO IS ONE SENTENCE NOW, NOT THREE. A fresh seat printed three zeroes,
+//       then "No answers yet.", then "No verified neighbors in this seat yet." —
+//       three ways of saying one nothing, stacked, which reads as broken rather
+//       than as unreached. "No answers yet." survives; the headcount sentence
+//       returns the moment there is a headcount. The empty rule is applied once,
+//       not softened: still no placeholder row, skeleton or sample feed;
+//     · A NEIGHBOUR'S TAKE CARRIES ITS ISSUE'S COLOUR on a 3px left rail, from
+//       PDXIssueColors through inline --pdx-ic* properties, so no sheet holds a
+//       per-issue rule and none can disagree about what colour an issue is. An
+//       unmapped key keeps the neutral rail. Zero takes is a dashed well holding
+//       one sentence — and, for a reader who cannot post, the server's own
+//       sentence about why, folded into the same outline rather than stacked
+//       under it as a second empty state;
+//     · THE RECORD STRIP SAYS WHICH IT MEANS BY ITS SHAPE. A landed act is a
+//       block with the bill NUMBER, its title, a formatted date and the door to
+//       the public record it already linked to. No act is one quiet demoted line
+//       under the question — an aside, not a peer section with its own heading.
+//       The issue-key guard that was written but unreachable is now live, so the
+//       strip can only ever print an act on the question's own issue;
+//     · THE BALLOT STRIP'S FOUR OFFICES became cards with portraits: face, name,
+//       the roster's own office string, one already-published line. Same four
+//       offices, same six people, same zero requests, and the portrait is
+//       FAIL-SOFT in both directions — no resolver and no photo for that person
+//       both come out as a card with no image element, never a silhouette or a
+//       set of initials;
+//     · THE ISSUE ROOMS group by issue family, in the order the rows already
+//       arrived in — rows() is untouched and nothing sorts, weights or promotes
+//       anything. Rooms with answers stay open at full size; rooms whose whole
+//       content is "No answers yet." fold behind one <details> control, "More
+//       issues this seat touches", which works with no JavaScript. NOT A
+//       RANKING: the split is the same yes/no the row's own line already prints.
+//
+//     What did not change: district-voice-core.mjs is byte-identical, the write
+//     path's request set and grants are untouched, no politician id entered the
+//     Voice write path, the Voice container still paints no pid, /d/ut-hd-68
+//     still 301s to the canonical key, no district was added, no nav item was
+//     added, and no module gained a fetch, an /api/ address or a percent sign.
+//     Six SHELL assets changed — district-voice.js, district-voice.css,
+//     district-file.js, district-file.css, district-ballot.js and
+//     district-ballot.css — which is what this bump is for.
+//
+//     WHAT TRAVELS TOGETHER, AND DID NOT MOVE IN THIS PASS. The shell's other
+//     coupled sets are named here so a later reader can see they were considered
+//     and left alone rather than forgotten — a warm device that took one half of
+//     a pair and not the other is the failure this log exists to prevent, and a
+//     pass that changes nothing in a set still has to say so. NONE of the
+//     following changed:
+//     · index.html — no script tag, link tag, stylesheet or nav item was added,
+//       removed or reordered. All six files above were already registered on it;
+//     · netlify.toml — no route, rewrite or redirect moved. /d/ut-hd-68 still
+//       301s to /d/ut-statehouse-68 and its rooms splat still 301s beside it;
+//     · pdx-issue-family.js and issue-colors.js — these two matter most to this
+//       pass, because it is the first time the district surfaces spend
+//       var(--pdx-ic*). The mapping table and the palette are READ through
+//       PDXIssueFamily.coreOf/label and PDXIssueColors.skin and neither was
+//       edited, so a device holding this shell beside an older colour module
+//       gets the neutral rail both new sheets fall back to rather than a chip
+//       with a gate and no hue;
+//     · door1-workspace.js and door1-workspace.css — Door 1's desk and its
+//       stylesheet still travel as one pair;
+//     · issue-file.js, issue-file.css and issue-view.js — the issue file panel,
+//       its stylesheet and its stage;
+//     · word-action.js and word-action.css — the say-vs-do lane and its sheet;
+//     · pdx-issue-profile.js — the /i/<key> address module;
+//     · all-seeing-eye.js, consistency.js, alignment-tool.js and stance-tree.js.
+//
+//     And nothing on the do-not list moved: Direction Match is untouched — no
+//     surface in this pass reads it, computes it or prints it — and neither are
+//     the formal tiers, the act floors, the finance lane, the Mandate math,
+//     person-file performance, the pack keys or any issue mapping.
+const CACHE_VERSION = 'v177';
 const SHELL_CACHE = `politidex-shell-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `politidex-runtime-${CACHE_VERSION}`;
 

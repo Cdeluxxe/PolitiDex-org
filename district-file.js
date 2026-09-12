@@ -122,7 +122,12 @@
     noFile: 'No district file yet for that district.',
     gone: 'That district file did not open.',
     noRooms: 'No issue rooms in this district yet.',
-    noAnswers: 'No answers yet.'
+    noAnswers: 'No answers yet.',
+    // THE ONE CONTROL THE QUIET ROOMS SIT BEHIND. It says what is behind it —
+    // issues this seat touches — rather than "show more", because a reader
+    // deciding whether to open it is deciding whether they care about the
+    // subjects, not about the number.
+    roomsFold: 'More issues this seat touches'
   };
 
   var ID = 'pdx-district-file';
@@ -278,11 +283,84 @@
     return '';
   }
 
-  // THE SEATED MEMBER'S BLOCK. A name, the office they hold, and a link to their
-  // person file. That is the whole of it: no party letter, no score, no grade, no
-  // kept/broken tally and no percentage — see the header for why. The link is
-  // built by PDXPersonLink so this page opens a person file exactly the way every
-  // other surface does rather than hand-rolling a /p/ href.
+  // THE PLACE, AND IT IS QUOTED RATHER THAN WRITTEN. A seat file that says only
+  // "Utah State House District 68" tells a neighbour the number of the box they
+  // live in and nothing about where that is. The roster already carries the
+  // answer — chew_h68's own row spells the district as "UT District 68 (Vernal,
+  // Uintah / Duchesne County)" — so this reads the parenthetical out of that one
+  // string and prints it. NO GEOGRAPHY IS INVENTED HERE: there is no county
+  // table, no basin name and no region map in this module, and a roster row
+  // without a parenthetical prints nothing at all rather than a guess. The
+  // district's own label is still the title; this is the line under it.
+  //
+  // ONE FIELD, AND ONLY ONE. It reads .state and nothing else off that row. The
+  // same row carries a party letter and a score, which is exactly why this
+  // function names the field it wants instead of handing the row to a formatter.
+  var PLACE_RE = /\(([^)]+)\)/;
+  function placeLine(pid) {
+    try {
+      if (!fn(window._pdxPersonById)) return '';
+      var p = window._pdxPersonById(pid);
+      var where = p && p.state ? String(p.state) : '';
+      var m = PLACE_RE.exec(where);
+      var inner = m ? String(m[1]).trim() : '';
+      return inner && inner.length < 90 ? inner : '';
+    } catch (e) { return ''; }
+  }
+
+  // THE FACE, FROM THE RESOLVER THAT ALREADY HAS IT. No new map, no new address
+  // and no fallback silhouette: a person this app has no photo for gets a row
+  // with no photo in it, which is the honest shape of not having one.
+  function photoUrl(pid) {
+    try {
+      if (!fn(window._getPhotoUrl)) return '';
+      var u = window._getPhotoUrl(pid);
+      return u ? String(u) : '';
+    } catch (e) { return ''; }
+  }
+
+  // THE ISSUE'S OWN COLOUR, as inline custom properties, from the one module that
+  // owns the mapping. This file holds no per-issue rule, so it cannot disagree
+  // with the room, the person file or Voice about what colour an issue is. A key
+  // that maps to no Core National Issue gets an EMPTY string here — deliberately,
+  // so an unrecognised subject wears the neutral rail rather than being dressed
+  // up as a recognised one.
+  function icAttr(key) {
+    try {
+      var C = window.PDXIssueColors;
+      if (!C || !fn(C.skin)) return '';
+      var sk = C.skin(String(key == null ? '' : key), window.PDXIssueFamily);
+      return (sk && sk.attr) ? String(sk.attr) : '';
+    } catch (e) { return ''; }
+  }
+
+  // THE FAMILY A ROOM BELONGS TO, for grouping only. Same two owners as the
+  // label, and the same rule: if the mapping module is not on the page, or the
+  // key is not in it, this returns null and the rooms print as one flat list. A
+  // heading is never invented for a family this app cannot name.
+  function familyOf(key) {
+    try {
+      var F = window.PDXIssueFamily;
+      if (!F || !fn(F.coreOf) || !fn(F.label)) return null;
+      var core = F.coreOf(String(key == null ? '' : key));
+      if (!core) return null;
+      var lab = F.label(core);
+      return lab ? { id: String(core), label: String(lab) } : null;
+    } catch (e) { return null; }
+  }
+
+  // THE SEATED MEMBER'S BLOCK. A face, a name, the office they hold, and a link
+  // to their person file. That is the whole of it: no party letter, no score, no
+  // grade, no kept/broken tally and no percentage — see the header for why. The
+  // link is built by PDXPersonLink so this page opens a person file exactly the
+  // way every other surface does rather than hand-rolling a /p/ href.
+  //
+  // IT IS AN IDENTITY ROW, NOT A CARD. Photo at 40px, the label above the name,
+  // the office under it — small enough to read as "who holds this seat" in one
+  // glance and deliberately not big enough to become the subject of the page.
+  // The question below it is the subject. The photo is FAIL-SOFT in both
+  // directions: no resolver on the page and no photo for this person both come
+  // out as a row with no image element in it, and the row does not resize.
   function seatedHtml(districtKey, data) {
     var pid = seatedPid(districtKey, data);
     if (!pid) {
@@ -292,6 +370,7 @@
     }
     var name = personName(pid);
     var office = personOffice(pid);
+    var face = photoUrl(pid);
     var link = name;
     try {
       var L = window.PDXPersonLink;
@@ -299,9 +378,15 @@
     } catch (e) { link = esc(name); }
     if (link === name) link = '<a class="pdxdf-seat-link" href="/p/' + esc(pid) + '">' + esc(name) + '</a>';
     return '<p class="pdxdf-seat">' +
-      '<span class="pdxdf-seat-hd">' + esc(COPY.seatedHd) + '</span>' +
-      link +
-      (office ? '<span class="pdxdf-seat-office">' + esc(office) + '</span>' : '') +
+      (face
+        ? '<img class="pdxdf-seat-face" src="' + esc(face) + '" alt="" ' +
+            'loading="lazy" decoding="async" width="40" height="40">'
+        : '') +
+      '<span class="pdxdf-seat-id">' +
+        '<span class="pdxdf-seat-hd">' + esc(COPY.seatedHd) + '</span>' +
+        link +
+        (office ? '<span class="pdxdf-seat-office">' + esc(office) + '</span>' : '') +
+      '</span>' +
       '</p>';
   }
 
@@ -327,8 +412,10 @@
   function headHtml(districtKey, data) {
     var label = (data && data.label) || districtKey;
     var p = path(districtKey);
+    var where = placeLine(seatedPid(districtKey, data));
     return '<p class="pdxdf-kick">' + esc(COPY.kick) + (p ? ' · ' + esc(p) : '') + '</p>' +
       '<h2 class="pdxdf-title" id="' + ID_TITLE + '">' + esc(label) + '</h2>' +
+      (where ? '<p class="pdxdf-place">' + esc(where) + '</p>' : '') +
       seatedHtml(districtKey, data) +
       (voiceHere(districtKey)
         ? ''
@@ -385,7 +472,7 @@
       if (R && fn(R.path)) href = R.path(districtKey, row.issueKey);
     } catch (e) { href = ''; }
     if (!href) href = '/d/' + districtKey + '/' + row.issueKey;
-    return '<li class="pdxdf-row">' +
+    return '<li class="pdxdf-row"' + icAttr(row.issueKey) + '>' +
         '<span class="pdxdf-issuechip">' + esc(row.label) + '</span>' +
         '<span class="pdxdf-counts">' + esc(row.line) + '</span>' +
         '<a class="pdxdf-open" href="' + esc(href) + '"' +
@@ -394,16 +481,78 @@
       '</li>';
   }
 
+  // GROUPED BY FAMILY, IN THE ORDER THE ROWS ALREADY ARRIVED IN. The rows are
+  // still alphabetical by printed label — rows() is untouched and nothing here
+  // sorts, counts, weights or promotes anything. A family heading appears at the
+  // point its first room appears, so the grouping reorders NOTHING: it only draws
+  // a line between the subjects a reader was already scrolling past in that
+  // order. Where the mapping module cannot name a family, every row falls into
+  // one unheaded bucket and the output is the flat list it has always been.
+  function groupedHtml(districtKey, list) {
+    var order = [];
+    var buckets = {};
+    var i;
+    for (i = 0; i < list.length; i++) {
+      var f = familyOf(list[i].issueKey);
+      var slot = 'f_' + (f ? f.id : '');
+      if (!buckets[slot]) {
+        buckets[slot] = { label: f ? f.label : '', rows: [] };
+        order.push(slot);
+      }
+      buckets[slot].rows.push(list[i]);
+    }
+    var out = '';
+    for (i = 0; i < order.length; i++) {
+      var b = buckets[order[i]];
+      out += (b.label ? '<p class="pdxdf-fam">' + esc(b.label) + '</p>' : '') +
+        '<ul class="pdxdf-list">' + b.rows.map(function (r) {
+          return rowHtml(districtKey, r);
+        }).join('') + '</ul>';
+    }
+    return out;
+  }
+
+  // TWO KINDS OF ROOM, AND THEY ARE NOT PEERS ON THE PAGE. A room somebody has
+  // answered has something in it to read; a room whose whole content is "No
+  // answers yet." is a door. The page used to print eight of them at identical
+  // weight, so the four sentences worth reading were buried under four that were
+  // not, and the list read as a wall of the same paragraph.
+  //
+  // So the answered rooms stay open at full size and the quiet ones fold behind
+  // ONE control. NOT A RANKING: the split is on whether a room has any answer at
+  // all, which is the same yes/no the row's own line already prints, and within
+  // each group the order is untouched. A room with one answer and a room with
+  // four hundred sit in the same group at the same size, because the fold is
+  // about whether there is anything to read, never about how much.
+  //
+  // A <details> is the control, so the fold works with no JavaScript at all and
+  // announces its own state to a screen reader without this module describing it.
+  // The open/closed choice is remembered in _fold only because this page paints
+  // twice per visit and a reader who opened the fold should not have it shut
+  // under them when the second read lands.
   function listHtml(districtKey, data, recordKeys) {
     var rs = rows(data, recordKeys);
-    var body = rs.length
-      ? '<ul class="pdxdf-list">' + rs.map(function (r) {
-          return rowHtml(districtKey, r);
-        }).join('') + '</ul>'
-      : '<p class="pdxdf-empty">' + esc(COPY.noRooms) + '</p>';
-    return '<p class="pdxdf-listhd">' + esc(COPY.roomsHd) + '</p>' +
-      '<p class="pdxdf-listnote">' + esc(COPY.roomsNote) + '</p>' +
-      body;
+    var head = '<p class="pdxdf-listhd">' + esc(COPY.roomsHd) + '</p>' +
+      '<p class="pdxdf-listnote">' + esc(COPY.roomsNote) + '</p>';
+    if (!rs.length) {
+      return head + '<p class="pdxdf-empty">' + esc(COPY.noRooms) + '</p>';
+    }
+    var live = [];
+    var quiet = [];
+    for (var i = 0; i < rs.length; i++) {
+      (rs[i].line === COPY.noAnswers ? quiet : live).push(rs[i]);
+    }
+    var body = live.length ? groupedHtml(districtKey, live) : '';
+    if (quiet.length) {
+      body += '<details class="pdxdf-fold"' + (_fold ? ' open' : '') + '>' +
+        '<summary class="pdxdf-foldhd" data-pdxdf-fold="1">' +
+          '<span class="pdxdf-foldlabel">' + esc(COPY.roomsFold) + '</span>' +
+          '<span class="pdxdf-foldn">' + esc(String(quiet.length)) + '</span>' +
+        '</summary>' +
+        groupedHtml(districtKey, quiet) +
+      '</details>';
+    }
+    return head + body;
   }
 
   // ── THE PANEL ─────────────────────────────────────────────────────────────
@@ -411,6 +560,10 @@
   var _open = false;
   var _key = '';
   var _return = '';
+  // Whether the reader has opened the quiet-rooms fold on this visit. Survives
+  // the second paint; reset when the file closes, because the next district is a
+  // different list of rooms.
+  var _fold = false;
 
   function build() {
     if (_built) return el(ID);
@@ -728,6 +881,7 @@
   function close() {
     _open = false;
     _key = '';
+    _fold = false;
     var overlay = el(ID);
     if (overlay) {
       try { overlay.hidden = true; } catch (e) {}
@@ -764,6 +918,18 @@
         if (!ev) return;
         var t = ev.target;
         if (!t || !t.closest) return;
+
+        // The quiet-rooms fold. The <details> does the opening on its own; this
+        // only records which way the reader left it, so the second paint of this
+        // visit reproduces it instead of shutting it.
+        var fo = t.closest('[data-pdxdf-fold]');
+        if (fo) {
+          try {
+            var det = fo.parentNode;
+            _fold = !(det && det.open === true);
+          } catch (e) { _fold = !_fold; }
+          return;
+        }
 
         // Into a room, from a row on this page.
         var r = t.closest('[data-pdxdf-room]');
@@ -829,7 +995,13 @@
     // Exposed for the suite for the same reason: the seated member's line for a
     // district key, so "HD-68 resolves to chew_h68" and "a district whose seat is
     // not curated says so out loud" are both asserted on the real builder.
-    seatedHtml: seatedHtml
+    seatedHtml: seatedHtml,
+    // And the other two builders, for the same reason again: the letterhead —
+    // whose place line is read out of one roster field and must print nothing
+    // when that field says nothing — and the rooms list, whose fold appears only
+    // when there is a quiet room to put behind it.
+    headHtml: headHtml,
+    listHtml: listHtml
   };
 
   wire();
