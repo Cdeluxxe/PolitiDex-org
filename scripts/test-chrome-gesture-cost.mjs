@@ -92,15 +92,21 @@ must(FIRST, 'onFirstInteraction is gone from pdx-lazy-data.js — the loader was
 ok(!/^\s*ensureAll\(/m.test(FIRST),
   'onFirstInteraction still calls ensureAll() as a statement of its own body — that is ~2 MB of script ' +
   "injection inside the tap's own task, which is the defect");
-// P1b: the deferral, the timeout and the loader call moved one level down, into
-// the warm chain onFirstInteraction now delegates to. Deferring off the gesture
-// kept the tapped control's frame but still handed the browser all ~2 MB as ONE
-// task a beat later — which is the block that put "Page Unresponsive" under the
-// open account dropdown. So the assertions below read the arming function AND
-// its delegate together: what matters is that the gesture's own task does none
-// of this, that the work is scheduled, and that it still eventually happens.
-const WARM = fnSrc(LAZY, 'warmChain');
-must(WARM, 'warmChain is gone from pdx-lazy-data.js — the split warm was removed, not refined');
+// P1b: the deferral and the loader call live one level down, in the warm the
+// arming function delegates to. TWO RULES, BOTH ASSERTED BELOW, and the second
+// one is the P1b correction:
+//
+//   NOT ON THE CLICK. The gesture's own task must not inject anything — that is
+//   the original defect and it stays fixed.
+//
+//   AND NOT A THREE-SLICE CHAIN. The first fix then asked for a fresh idle slice
+//   BETWEEN bundles and waited on each one's onload before requesting the next.
+//   That serialised ~2 MB of fetch-and-execute across three to six seconds, so
+//   every consumer stayed empty and every transition competed with a bundle
+//   landing — reported as the whole site being ~10× slower. The warm must hand
+//   the loader all of its keys in ONE task.
+const WARM = fnSrc(LAZY, 'warmSoon');
+must(WARM, 'warmSoon is gone from pdx-lazy-data.js — the deferred warm was removed, not refined');
 const ARMED = FIRST + '\n' + WARM;
 
 ok(/requestIdleCallback|setTimeout/.test(ARMED),
@@ -109,24 +115,39 @@ ok(/requestIdleCallback|setTimeout/.test(ARMED),
 ok(/requestIdleCallback/.test(ARMED) && /timeout:/.test(ARMED),
   'the deferral has no requestIdleCallback timeout, so a permanently busy main thread can starve the load ' +
   'that every consumer of this data is waiting on');
+const warmTimeout = Number((WARM.match(/timeout:\s*(\d+)/) || [])[1] || 0);
+ok(warmTimeout > 0 && warmTimeout <= 1000,
+  `the warm's idle timeout is ${warmTimeout} ms. The point of deferring is to miss the gesture's task, not to ` +
+  'wait out a main thread that on this page may never go quiet — a long timeout is how the warm came to trail ' +
+  'seconds behind the tap');
 ok(/setTimeout/.test(ARMED),
   'there is no setTimeout fallback for engines without requestIdleCallback');
 ok(/ensure(All)?\(/.test(ARMED),
   'the arming path no longer loads the data at all — this pass moves the loader off the finger, it does ' +
   'not delete it');
 
-// ONE BUNDLE PER SLICE. The chain must schedule itself again between files
-// rather than inject them all at once: three ~megabyte bundles in one task is a
-// multi-second block no gesture can interrupt.
-ok(!/^\s*ensureAll\(/m.test(WARM),
-  'warmChain still calls ensureAll() as a statement of its own body, so every bundle lands in one task again');
-ok(/warmChain\(/.test(WARM),
-  'warmChain never re-enters itself — it is not a chain, so nothing splits the bundles across tasks');
-ok(/then\(/.test(WARM),
-  'warmChain does not wait for a bundle to land before asking for the next slice');
-const firstCall = (FIRST.match(/warmChain\(\s*\[[^\]]*\]/) || [])[0] || '';
+// ALL THE BUNDLES, ONE TASK. Explicitly NOT one-key-per-slice: the warm hands
+// every key it was given to the loader together, and does not re-enter itself
+// or wait on a bundle's promise before asking for the next slice.
+ok(/ensureAll\(/.test(WARM),
+  'the warm no longer hands its whole key list to ensureAll(), so the bundles are being injected one at a time ' +
+  'again — three ~megabyte fetches head-to-tail is the multi-second dead visit, not a fix for it');
+ok(!/warmSoon\(/.test(WARM.slice(WARM.indexOf('{'))),
+  'the warm re-enters itself — it is a chain again, which spreads ~2 MB across as many idle gaps as there are ' +
+  'files');
+ok(!/\.then\(/.test(WARM),
+  "the warm waits for a bundle to land before scheduling more work. Script tags with async=false already " +
+  'execute in order; gating the next request on the previous onload only serialises the network');
+const firstCall = (FIRST.match(/warmSoon\(\s*\[[^\]]*\]/) || [])[0] || '';
 ok(firstCall.split("'").length - 1 >= 4,
-  'onFirstInteraction no longer hands the chain the bulk data keys it is responsible for warming');
+  'onFirstInteraction no longer hands the warm the bulk data keys it is responsible for warming');
+
+// The post-load net for a visitor who never taps is the same shape: one task.
+const FALLBACK = fnSrc(LAZY, 'idleFallback');
+must(FALLBACK, 'idleFallback is gone from pdx-lazy-data.js');
+ok(/ensureAll\(/.test(FALLBACK) && !/warmSoon\(/.test(FALLBACK),
+  'the post-load fallback warms one bundle per slice. A reader who has not interacted is exactly the reader who ' +
+  'should not be handed a staggered multi-second warm the moment they finally do');
 
 // The listener set. pointerdown and touchstart both fire for one tap, and both
 // fire BEFORE click, which is what put the injection ahead of the handler.
