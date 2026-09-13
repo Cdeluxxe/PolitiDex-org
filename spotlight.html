@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+<!-- ═════════════════════════════════════════════════════════════════════════════
+     spotlight.html — THE FOURTH SHELL. /issue/<slug> IS ITS OWN DOCUMENT.
+     ────────────────────────────────────────────────────────────────────────────
+     WHAT WAS WRONG. /issue/<slug> is Spotlight: long, curated, sourced writeups
+     that live in spotlights-data.js — 1.2 MB of prose, timelines, cases, sources
+     and 1,260 stance rows across 60 Spotlights. That payload, its ~1,200-line
+     renderer and its ~394 CSS rules were all on index.html, which means every
+     visitor to the front page carried the machinery for pages they had not
+     opened, and one scroll past #local-issues / #all-spotlights / the Digital
+     Library started the 1.2 MB fetch for them as well. Meanwhile a reader who
+     followed a shared Spotlight link downloaded the whole 2.3 MB homepage OS —
+     Compare Hub, Door 2, the ballot workspace, the account graph, the Archive,
+     the Locker — to read one explainer.
+
+     WHAT THIS IS. The Spotlight's own shell, served for /issue/* by a single
+     netlify.toml rewrite, carrying the Spotlight lane and nothing else:
+
+       • spotlights-data.js, the corpus, parser-blocking and FIRST, because the
+         renderer below is useless without it and there is nothing else on this
+         document competing for the main thread;
+       • spotlight-engine.js — index.html's Issue Spotlight engine, lifted out
+         whole, with six marked SHELL SEAMs that turn its in-app gestures into
+         real navigations (see the file header);
+       • spotlight-overlay.css — the same ~394 .pdxis-* rules, lifted out of the
+         same document, self-sufficient: no custom properties, no app.css;
+       • person-link.js, because a name in a Spotlight is a cross-document
+         navigation to /p/<pid> now and person-link.js owns that address;
+       • one inline copy of the PDXStance vocabulary (below), the four-state
+         stance language the "How Politicians Stand" rows speak.
+
+     THAT IS THE WHOLE DOCUMENT. Four files, one inline block, one bar.
+
+     WHAT IT DELIBERATELY DOES NOT CARRY. app.css (986 KB), app-2.css, tailwind,
+     compare-hub.js, alignment-tool.js, the Door 2 / hero-showcase surfaces,
+     ballot-workspace.js, the person-file spine, issue.html's ledger builder
+     (door1-workspace.js / issue-file.js / pdx-issue-profile.js), issue-page.js,
+     voting-record.js, profiles-full.js, cmp-data.js, the stance databases,
+     spotlight-cards-data.js, firebase, Voice, like/dislike, the account graph,
+     pdx-lazy-data.js and pdx-stability.js. The last two are named because they
+     are on both other shells: there is no on-demand data left to fetch here (the
+     corpus IS the document) and pdx-stability.js installs a ResizeObserver and a
+     MutationObserver, which is the one thing this shell was asked not to have.
+
+     Every reference from the engine to a dropped module is a `typeof` or `&&`
+     lookup, so a Spotlight paints its complete authored content — summary,
+     status, fact box, timeline, what changed, both cases, the board, say-vs-do,
+     evidence, data context, what to watch, sources, related, and every stance
+     row with its own name/office/icon out of the corpus — and quietly paints one
+     block fewer where a richer document would have layered live data over it.
+     .netlify/results.md lists exactly what a Spotlight loses on this shell.
+
+     NO EMPTY MOUNT. The overlay container is built in JS below and appended to
+     <body> at boot. This document ships no hidden #issue-spotlight section for
+     the layout engine to reason about before the renderer has anything to put
+     in it, and it installs no observer of any kind.
+
+     THE RULE THIS DOCUMENT LIVES BY: EVERY SAME-ORIGIN PATH IS ROOT-ABSOLUTE.
+     /issue/* is served with HTTP 200 at a two-segment path, so
+     a bare src of spotlight-engine.js would resolve to /issue/spotlight-engine.js, the
+     rewrite would catch it, and the browser would be handed this document and
+     told to parse HTML as JavaScript. A leading slash is correct at every depth.
+     scripts/test-spotlight-shell.mjs fails on a relative src or href here.
+
+     A SLUG THAT IS NOT A SPOTLIGHT IS NOT AN ERROR. /issue/housing is a
+     vocabulary key, not a Spotlight, and the Issue File owns that key. The
+     engine answers a registry miss with one location.replace() to /i/<key>,
+     carrying ?pid= through untouched. No slug list is enumerated in
+     netlify.toml, no dossier is rebuilt here, and /i/* itself is unchanged.
+
+     NO JSON-LD AND NO SCORE. index.html's WebSite/Organization block describes
+     the front page and a Spotlight is not the front page; article-level
+     structured data belongs to the record and this split does not invent it.
+     Nothing here prints a percentage, a party score or a blend.
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- THE HEAD THE EDGE FUNCTION WRITES INTO, AND THE ONE THE ENGINE UPDATES.
+       netlify/edge-functions/share-preview.ts already claims /issue/* (see its
+       config.path) and it rewrites whatever the origin hands it — which is now
+       this document instead of index.html. It replaces the FIRST match of each
+       tag below by an attribute-ordered regex, so the order `property` then
+       `content` (and `rel` then `href` on the canonical) is load-bearing: a
+       reshuffle here is a silent no-op there, not an error. The engine's own
+       setMeta() updates the same tags client-side for anything that reads the
+       live DOM. The static values are the ones an address with no slug should
+       unfurl with — a Spotlight overwrites every one of them. -->
+  <title>Issue Spotlights · PolitiDex</title>
+  <link rel="canonical" href="https://politidex.us/" />
+  <meta name="description" content="Issue Spotlights — calm, sourced explainers on the fights shaping 2026. What happened, who stands where, and the receipts behind it." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:title" content="Issue Spotlights · PolitiDex" />
+  <meta property="og:description" content="Issue Spotlights — calm, sourced explainers on the fights shaping 2026. What happened, who stands where, and the receipts behind it." />
+  <meta property="og:url" content="https://politidex.us/" />
+  <meta property="og:image" content="https://politidex.us/og-image.png" />
+  <meta property="og:image:alt" content="PolitiDex Issue Spotlight" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Issue Spotlights · PolitiDex" />
+  <meta name="twitter:description" content="Issue Spotlights — calm, sourced explainers on the fights shaping 2026. What happened, who stands where, and the receipts behind it." />
+  <meta name="twitter:image" content="https://politidex.us/og-image.png" />
+  <meta name="theme-color" content="#0a0f1e" />
+
+  <!-- The corpus is the critical path on this document, so it is preloaded with
+       the document rather than discovered when the parser reaches <body>. The
+       renderer and its stylesheet are the other two files a first paint waits
+       on. There is no third. -->
+  <link rel="preload" as="script" href="/spotlights-data.js" />
+  <link rel="preload" as="script" href="/spotlight-engine.js" />
+  <link rel="preload" as="style" href="/spotlight-overlay.css" />
+
+  <!-- Barlow / Bebas Neue, non-blocking, with the same swap index.html,
+       person.html and issue.html use. A swap written differently on one document
+       is a visible font flash on exactly one URL shape. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+
+  <!-- The Spotlight surface itself: 394 .pdxis-* rules, lifted verbatim out of
+       index.html's inline <style> when this document was split off. Render-
+       blocking on purpose — it is the only stylesheet here and the overlay is
+       the page. -->
+  <link rel="stylesheet" href="/spotlight-overlay.css" />
+
+  <style>
+    /* THE FIXED CHROME, MEASURED ONCE. Same contract person.html and issue.html
+       answer for their own chrome, and for the same reason: a custom property
+       that is never declared invalidates every calc() that reads it. This
+       document's chrome is ONE row and no search, so the number is the height of
+       the bar declared below. The @supports guard is the one both other shells
+       carry — a custom property accepts any token sequence, so an engine that
+       cannot parse env() would swallow the declaration and invalidate every
+       calc() reading it; an engine without env() also has no notch. */
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    /* No app.css here, so the page's own ground colour is declared rather than
+       inherited from a 986 KB stylesheet this document does not load. */
+    html, body { background: #070b16; color: #e7eefb; }
+    body {
+      margin: 0;
+      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+      padding-top: calc(var(--pdx-chrome) + 0.75rem);
+    }
+
+    /* The one-row shell bar. Static: no search field, no layout observer, no
+       measurement pass, nothing that reads the viewport. A Spotlight is usually
+       arrived at from a shared link, so the bar exists to say whose site this is
+       and to offer the way out. */
+    .pdx-spot-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1200;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.75rem; height: 3.25rem; padding: env(safe-area-inset-top, 0px) 1rem 0;
+      background: rgba(10, 15, 30, 0.86); backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .pdx-spot-bar a { text-decoration: none; }
+    .pdx-spot-wordmark {
+      font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      font-size: 1.15rem; letter-spacing: 0.12em; color: #fff;
+    }
+    .pdx-spot-wordmark span { color: #e0273f; }
+    .pdx-spot-links { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
+    .pdx-spot-back, .pdx-spot-home {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #9fb4d4;
+      border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 0.5rem;
+      padding: 0.3rem 0.65rem; white-space: nowrap; cursor: pointer;
+      background: transparent;
+    }
+    .pdx-spot-back[hidden] { display: none; }
+
+    /* The overlay is fixed and full-bleed, so it would sit OVER the bar at its
+       own z-index of 1000. On this document the bar is chrome, not a layer to be
+       covered: the surface starts below it. This is the only .pdxis- rule that
+       is not a verbatim lift, and it is here rather than in the stylesheet
+       because it is a fact about THIS shell's chrome. */
+    .pdxis-overlay { top: var(--pdx-chrome); }
+
+    /* The one thing a reader sees before the renderer has anything to show, and
+       the only thing they see if JavaScript never runs. */
+    .pdx-spot-note {
+      max-width: 40rem; margin: 2.5rem auto; padding: 0 1.1rem;
+      font: 400 1rem/1.6 'Barlow', system-ui, sans-serif; color: #9fb4d4;
+    }
+    .pdx-spot-note a { color: #f5d77a; }
+  </style>
+
+</head>
+<body>
+
+  <!-- ══ THE SHELL BAR — THIS DOCUMENT'S ONLY CHROME ════════════════════
+       index.html's nav is two fixed rows, a search field, the account menu and a
+       layout observer. None of that belongs on an address whose whole job is to
+       open one explainer. Three controls: whose site this is, the way back if
+       the reader came from somewhere on this origin, and the front page.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <header class="pdx-spot-bar">
+    <a href="/" class="pdx-spot-wordmark" aria-label="PolitiDex home">POLITI<span>DEX</span></a>
+    <span class="pdx-spot-links">
+      <a id="pdx-spot-back" class="pdx-spot-back" href="/" hidden>← Back</a>
+      <a href="/" class="pdx-spot-home">← All politicians</a>
+    </span>
+  </header>
+
+  <p class="pdx-spot-note" id="pdx-spot-note">
+    Loading this Issue Spotlight… If it does not appear, the address may not name
+    one — <a href="/">go to PolitiDex</a> to browse the record.
+  </p>
+
+  <!-- ══ THE WAY BACK, AND THE MOUNT ════════════════════════════════════
+       Two small jobs, both about this document rather than about Spotlights.
+
+       THE BACK CONTROL IS OPTIONAL AND HONEST. It appears only when the reader
+       actually arrived from a same-origin page that is not another Spotlight —
+       a shared link opened cold has nothing to go back to, and an arrow that
+       lands on a search-engine results page is worse than no arrow. It is a
+       plain <a href="/"> in the markup so it works without JavaScript and
+       degrades to the front page; the click handler prefers history.back() only
+       when the referrer proves there is somewhere to return to. "← All
+       politicians" stays a separate control to / either way, exactly as it is on
+       the other two shells, so the way home never depends on history.
+
+       THE MOUNT IS BUILT, NOT SHIPPED. The renderer paints into #pdxis-wrap
+       inside a fixed .pdxis-overlay. This document ships neither: they are
+       created here and appended to <body>, so nothing empty is in the parsed
+       markup and there is no mount for the layout engine to reason about before
+       the renderer has content. spotlight-engine.js's boot waits for
+       DOMContentLoaded and asks for #issue-spotlight, so building it from an
+       inline script anywhere in <body> is in time.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <script src="/person-link.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    // ── The way back ────────────────────────────────────────────────────
+    var safe = false;
+    try {
+      if (document.referrer) {
+        var u = new URL(document.referrer, location.href);
+        safe = (u.origin === location.origin) && !/^\/issue\//.test(u.pathname || '');
+      }
+    } catch (e) { safe = false; }
+    var back = document.getElementById('pdx-spot-back');
+    if (back && safe) {
+      back.hidden = false;
+      back.addEventListener('click', function (e) {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+        if (history.length > 1) { e.preventDefault(); history.back(); }
+      });
+    }
+
+    // ── The mount ───────────────────────────────────────────────────────
+    var host = document.createElement('section');
+    host.id = 'issue-spotlight';
+    host.className = 'pdxis-overlay';
+    host.hidden = true;
+    host.setAttribute('aria-hidden', 'true');
+    host.setAttribute('role', 'dialog');
+    host.setAttribute('aria-label', 'Issue Spotlight');
+    host.setAttribute('aria-modal', 'true');
+    var bg = document.createElement('div');
+    bg.className = 'pdxis-bg';
+    var wrap = document.createElement('div');
+    wrap.className = 'pdxis-wrap';
+    wrap.id = 'pdxis-wrap';
+    host.appendChild(bg);
+    host.appendChild(wrap);
+    document.body.appendChild(host);
+
+    // The placeholder line is for the wait and for the no-JavaScript case. Once
+    // a Spotlight is on screen it is behind a full-bleed fixed overlay, but a
+    // screen reader would still read it, so it goes when the surface opens.
+    document.addEventListener('pdx:spotlight:open', function () {
+      var n = document.getElementById('pdx-spot-note');
+      if (n && n.parentNode) n.parentNode.removeChild(n);
+    });
+  })();
+  </script>
+
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 28146–28264 ════════════════
+       THE STANCE VOCABULARY. window.PDXStance is the canonical four-state stance
+       language — supported / opposed / mixed / none — and the Spotlight's "How
+       Politicians Stand on This Issue" rows are one of its readers. It is an
+       inline copy rather than a shared file for the same reason person.html
+       carries one (person.html lines 3528–3646): index.html declares it inline,
+       mid-document, and moving it into a script file there would change the
+       order it runs in relative to everything that reads it on the front page.
+       This split does not touch index.html's copy.
+
+       scripts/test-spotlight-shell.mjs pins this block to index.html's line for
+       line, so a fix applied to one document cannot silently skip the other.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <script>
+  // ── PDXStance — shared canonical stance language (single source of truth) ────
+  // Lifted out of the Issue Spotlight "Who Stands Where" module so every surface
+  // (Profile Key Issue Stances, Compare, My Priorities, Hot Topics, Evidence
+  // Locker) can speak the exact same four-state language instead of maintaining
+  // its own divergent copy. Read-only over existing stance records — no new data.
+  //
+  // Four canonical states (LOCKED — do not add a fifth):
+  //   supported → teal   #4fd6b3   "Supported"
+  //   opposed   → orange #ff9d84   "Opposed"
+  //   mixed     → amber  #f3cb5c   "Mixed / Nuanced"
+  //   none      → gray   #a4b4cc   "No Clear Position"
+  //
+  // Legacy/older vocabularies collapse into these on resolution:
+  //   "Researching" / "On record" / tracking / unknown / missing → none
+  //   "Top Priority" is NOT a stance color — it is a separate emphasis marker,
+  //   surfaced via PDXStance.isTopPriority() (the visual star is handled later).
+  //
+  // The pill markup + colors mirror the .pdxis-stance-* CSS exactly, so callers
+  // get the calm Who Stands Where look (thin border, low-saturation fill, small
+  // "STANCE" caption + color dot) for free.
+  (function () {
+    'use strict';
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    // Canonical state definitions. `cls` maps to the .pdxis-stance-<cls> CSS.
+    // `color` is the accent (dot + text); `fill`/`border` mirror that CSS so a
+    // surface building bespoke markup can match Who Stands Where without guessing.
+    var STATES = {
+      supported: { key:'supported', label:'Supported',         cls:'supported', color:'#4fd6b3', fill:'rgba(45,212,164,.13)', border:'rgba(45,212,164,.42)' },
+      opposed:   { key:'opposed',   label:'Opposed',           cls:'opposed',   color:'#ff9d84', fill:'rgba(248,113,90,.13)', border:'rgba(248,113,90,.42)' },
+      mixed:     { key:'mixed',     label:'Mixed / Nuanced',   cls:'mixed',     color:'#f3cb5c', fill:'rgba(245,193,66,.13)', border:'rgba(245,193,66,.42)' },
+      none:      { key:'none',      label:'No Clear Position', cls:'none',      color:'#a4b4cc', fill:'rgba(140,156,182,.1)', border:'rgba(140,156,182,.3)' }
+    };
+    var ORDER = ['supported', 'opposed', 'mixed', 'none'];
+
+    // Raw string → canonical key. Recognizes the canonical keys/labels plus the
+    // legacy vocabularies scattered across the older renderers (posMeta,
+    // _prioStanceDir, STANCE_META, _POL_STANCE_META). Returns null when nothing
+    // matches so callers can fall through before defaulting to `none`. Note:
+    // "Top Priority"/"priority" deliberately do NOT resolve here — they are
+    // emphasis, not a stance (see isTopPriority).
+    var ALIASES = {
+      'supported':'supported', 'support':'supported', 'supports':'supported', 'for':'supported', 'yes':'supported', 'favor':'supported', 'favors':'supported',
+      'opposed':'opposed', 'oppose':'opposed', 'opposes':'opposed', 'against':'opposed', 'no':'opposed',
+      'mixed':'mixed', 'nuanced':'mixed', 'mixed / nuanced':'mixed', 'mixed record':'mixed', 'partial':'mixed', 'conditional':'mixed', 'complicated':'mixed',
+      'none':'none', 'no clear position':'none', 'no position':'none', 'unknown':'none', 'unclear':'none',
+      'researching':'none', 'tracking':'none', 'on record':'none'
+    };
+    function _norm(raw) {
+      if (raw == null) return null;
+      var v = String(raw).trim().toLowerCase();
+      if (!v) return null;
+      if (STATES[v]) return v;
+      return Object.prototype.hasOwnProperty.call(ALIASES, v) ? ALIASES[v] : null;
+    }
+
+    // resolveStance(record[, override]) → one of the four canonical keys.
+    // `record` may be a stance record ({issueStance|pos|stance|text}) or a raw
+    // string. `override` (optional) is an explicit stance pinned by the surface
+    // (e.g. a Spotlight person's `stance`) and wins when recognized. Mirrors the
+    // original Who Stands Where derivation exactly:
+    //   explicit override → issueStance/pos → any sourced text ⇒ mixed → none.
+    function resolveStance(record, override) {
+      var o = _norm(override);
+      if (o) return o;
+      if (record == null) return 'none';
+      if (typeof record === 'string') { return _norm(record) || 'none'; }
+      var raw = record.issueStance || record.pos || record.stance || record.dir || '';
+      var n = _norm(raw);
+      if (n) return n;
+      if (record.text) return 'mixed';   // a sourced position we can't cleanly classify
+      return 'none';
+    }
+
+    // Full state descriptor for a record/key (label, cls, color, fill, border).
+    function stanceState(keyOrRecord) {
+      var key = (typeof keyOrRecord === 'string' && STATES[keyOrRecord])
+        ? keyOrRecord
+        : (STATES[_norm(keyOrRecord)] ? _norm(keyOrRecord) : resolveStance(keyOrRecord));
+      return STATES[key] || STATES.none;
+    }
+
+    // stancePill(keyOrRecord) → the calm pill element, byte-identical to the
+    // original Who Stands Where markup. Accepts a canonical key or a raw record.
+    function stancePill(keyOrRecord) {
+      var s = STATES[keyOrRecord] || stanceState(keyOrRecord);
+      return '<span class="pdxis-stance pdxis-stance-' + s.cls + '" title="Position on this issue: ' + esc(s.label) + '">' +
+        '<span class="pdxis-stance-dot" aria-hidden="true"></span>' +
+        '<span class="pdxis-stance-k">Stance</span>' + esc(s.label) + '</span>';
+    }
+
+    // Emphasis marker, kept strictly separate from the stance color. Detects the
+    // legacy "Top Priority" flag/label so surfaces can render a star later without
+    // polluting the four-state stance vocabulary.
+    function isTopPriority(record) {
+      if (record == null) return false;
+      if (record === true) return true;
+      if (typeof record === 'object') {
+        if (record.priority === true || record.topPriority === true) return true;
+        record = record.priority || record.emphasis || record.stance || record.tag || record.pos || '';
+      }
+      return /top\s*priority/i.test(String(record));
+    }
+
+    window.PDXStance = {
+      STATES: STATES,          // canonical state definitions (label/cls/color/fill/border)
+      ORDER: ORDER,            // stable render order of the four states
+      resolveStance: resolveStance,
+      stanceState: stanceState,
+      stancePill: stancePill,
+      normalize: _norm,        // raw string → canonical key or null
+      isTopPriority: isTopPriority,
+      esc: esc
+    };
+  })();
+  </script>
+
+  <!-- ══ THE CORPUS, THEN THE RENDERER ══════════════════════════════════
+       Parser-blocking and in this order, which is the whole reason the boot in
+       spotlight-engine.js is one pass with no retry ladder: by the time the
+       engine runs, window.SPOTLIGHTS is complete. On index.html this file was
+       fetched on demand by pdx-lazy-data.js because it was 1.2 MB the homepage
+       did not need; here it is the page, so deferring it would only delay the
+       one thing the reader asked for.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <script src="/spotlights-data.js"></script>
+  <script src="/spotlight-engine.js"></script>
+
+</body>
+</html>

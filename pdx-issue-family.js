@@ -235,9 +235,99 @@
   // other read in this file does; it does not stem, alias, guess or reparent. A
   // key with no name in the register still gets its own address, because the
   // register is what decides that and this file does not overrule it.
-  function profileUrl(key) {
+  //
+  // AND THE SECOND ARGUMENT IS WHO THE READER WAS READING, which is the whole
+  // of the person-to-issue-and-back path.
+  //
+  // WHAT WAS WRONG. Every Issue File door on a person file is a NAVIGATION now:
+  // /p/<pid> and /i/<key> are two documents, so the tap leaves person.html. The
+  // address it left for said nothing about where it came from, so the issue
+  // shell's way back could only offer the front page — and the front page on
+  // this app is the 2.3 MB homepage the split exists to keep off these two
+  // documents. A reader who tapped Issue File on /p/lee to check one key and
+  // then wanted their file back paid for the entire civic OS to get it.
+  //
+  // So the door carries the person. ?pid=<pid> is not state and it is not
+  // tracking: it is the return address, read by issue.html's bar (the way back
+  // to the person file) and by pdx-issue-profile.js's restore() (where the
+  // panel's own X lands). A query rather than a path segment because /i/<key>
+  // is the CITATION — one issue, one address, whoever is reading — and
+  // pdx-issue-profile.js's PATH_RE never looks at the query, so the same key
+  // arrived at from six doors is one canonical URL with one canonical title.
+  //
+  // THE PID IS NOT SPELT HERE EITHER. person-link.js owns "what is a pid":
+  // PDXPersonLink.pid() runs the retired-id alias hop and the shape and sentinel
+  // walls, and returns '' for anything it will not advertise. So the query holds
+  // the CANONICAL id — the same one /p/ is served at — which is what lets the
+  // bar's referrer check compare the two addresses at all. A document without
+  // person-link.js gets no query rather than an unchecked one: the way back is
+  // built by the same module, so a page that cannot build the link has no use
+  // for the parameter that feeds it.
+  function pidParam(pid) {
+    try {
+      if (pid == null || pid === '') return '';
+      var PL = window.PDXPersonLink;
+      if (!PL || typeof PL.pid !== 'function') return '';
+      var id = PL.pid(pid);
+      return id ? encodeURIComponent(id) : '';
+    } catch (e) { return ''; }
+  }
+  function profileUrl(key, pid) {
     var k = norm(key);
-    return k ? ('/i/' + encodeURIComponent(k)) : '';
+    if (!k) return '';
+    var u = '/i/' + encodeURIComponent(k);
+    var q = pidParam(pid);
+    return q ? (u + '?pid=' + q) : u;
+  }
+
+  // IS THERE ACTUALLY AN ISSUE BY THIS NAME — the wall a caller has to clear
+  // before it is allowed to turn a string into one of the addresses above.
+  //
+  // profileUrl() deliberately does not ask. It is a formatter: it will build
+  // /i/<anything> because the register, not this function, decides what has a
+  // name, and a surface that already holds a real key should not pay for a
+  // lookup it does not need. But a caller holding a string it is NOT sure about
+  // is the dangerous case, and there are two of them on a person file: the
+  // signature chips in profile-spine.js and the Flashpoint issue action in
+  // controversies.js are both built from curated lists that hold DISPLAY LABELS
+  // ("Public Lands") as often as keys. Handing a label to an opener is how those
+  // chips used to widen silently into whichever core issue sorted first — an
+  // unrelated issue, opened with no sign anything had been guessed. A navigation
+  // makes that worse than the overlay did, because a wrong address is one a
+  // reader can bookmark, cite and share.
+  //
+  // So the test lives here, once, in the file that owns the address, rather than
+  // once per door: two copies of a vocabulary gate is how two doors end up
+  // disagreeing about what an issue is. It is the same three steps
+  // issue-page.js's has() runs, in the same order, for the same reason —
+  //
+  //   1. SHAPE. A key is [A-Za-z0-9_-]+ and nothing else. This rejects every
+  //      multi-word label, every slash and every path fragment before any table
+  //      is touched, so a caller cannot smuggle an address in as a key.
+  //   2. THE REGISTER. ISSUE_MAP is the table every other read in this file
+  //      answers to, and hasOwnProperty rather than a truthiness test so an
+  //      inherited Object.prototype member ("constructor", "toString") is not
+  //      mistaken for an issue.
+  //   3. THE SCOPE TABLE, for keys the measure mappings and the formal-pattern
+  //      index already agree on but the register has not been given a label for
+  //      yet. Those have a real formal record to show, so they are real.
+  //
+  // Anything else is false, and a false answer means the door keeps whatever
+  // behaviour it had. This function never guesses which key a curator meant,
+  // and it is not the place to start.
+  function keyIsReal(key) {
+    try {
+      var k = norm(key);
+      if (!k || !/^[A-Za-z0-9_-]+$/.test(k)) return false;
+      var m = issueMap();
+      if (m && Object.prototype.hasOwnProperty.call(m, k)) return true;
+      var sc = window.PDXIssueScope;
+      if (sc && typeof sc.read === 'function') {
+        var r = sc.read(k);
+        if (r && r.defined) return true;
+      }
+    } catch (e) {}
+    return false;
   }
 
   window.PDXIssueFamily = {
@@ -255,6 +345,8 @@
     publishedKeys: publishedKeys,
     orphans: orphans,
     duplicates: duplicates,
-    profileUrl: profileUrl
+    profileUrl: profileUrl,
+    pidParam: pidParam,
+    keyIsReal: keyIsReal
   };
 })();

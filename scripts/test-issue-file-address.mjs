@@ -79,7 +79,7 @@
 // and the real record corpus. Every claim about painted markup is about markup
 // this harness painted.
 
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -609,7 +609,7 @@ section("6 · The doors point at the address");
   // button's sibling, and closest() therefore cannot walk from one to the other.
   const treeCode = TREE.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, "");
   has(treeCode, "issueFileHtml(lf)", "the leaf does not print an issue-file control");
-  has(treeCode, "F.profileUrl(lf.key)", "the leaf does not ask the family table for the path");
+  has(treeCode, "F.profileUrl(lf.key, lf.pid)", "the leaf does not ask the family table for the path, with the way back");
   has(treeCode, "pdxtree-file", "the leaf's issue-file control has no class of its own");
   const dosAt = treeCode.indexOf("data-pdxtree-dos=");
   const linkAt = treeCode.indexOf("issueFileHtml(lf)");
@@ -692,7 +692,18 @@ section("8 · The files travel together");
   const iBlock = TOML.indexOf('from = "/i/*"');
   must(iBlock > 0, "netlify.toml has no /i/* rewrite, so the issue file has no address");
   const block = TOML.slice(iBlock, iBlock + 200);
-  has(block, 'to = "/index.html"', "/i/* does not rewrite to the single document");
+  // THE DOCUMENT IT NAMES MOVED, AND THAT IS THE POINT OF THE SPLIT. /i/* was a
+  // rewrite to index.html when this file was written; it is a rewrite to
+  // issue.html now, which is the same rewrite CLASS — one 200, one document, the
+  // key read out of location.pathname on arrival — served by a document that is
+  // not the 2.3 MB homepage. What this suite still owns is that the rule is a 200
+  // rewrite and that its target is a document the repo ships;
+  // scripts/test-issue-shell.mjs owns "and the target is issue.html".
+  const target = /to = "(\/[A-Za-z0-9_.-]+\.html)"/.exec(block);
+  ok(!!target, "/i/* does not rewrite to a single document");
+  has(block, "status = 200", "/i/* is not a 200 rewrite any more");
+  if (target) ok(existsSync(join(ROOT, target[1].slice(1))),
+    `/i/* rewrites to ${target[1]}, which this repo does not ship`);
   has(block, "status = 200", "/i/* is a redirect rather than a rewrite, so the bar would move");
   // The person file's rewrite is the pattern being followed; both must be there.
   has(TOML, 'from = "/p/*"', "the person file's rewrite is gone");
@@ -735,8 +746,15 @@ section("9 · Nothing was characterised here");
   }
   // The globals it may touch, and nothing else on the window.
   const globals = [...new Set([...CODE.matchAll(/window\.([A-Za-z_$][\w$]*)/g)].map((m) => m[1]))].sort();
+  // PDXIssueBack JOINED THE LIST, and it is the narrowest read in it: issue.html's
+  // bar block publishes the answer to "where does close() land on the issue
+  // shell" — the person file the ?pid= names, or the front page — and restore()
+  // asks it rather than deciding. Its ABSENCE is load-bearing: index.html does not
+  // publish it, so the homepage's own overlay still closes onto the page
+  // underneath through the replaceState below, and nothing in this module turns an
+  // in-page overlay into a navigation. It holds no record, no count and no name.
   eq(globals.join(","),
-    "PDXDoor1,PDXIssueFamily,PDXIssueFile,PDXIssueProfile,PDXShareLinks,addEventListener,pdxDoor1Issue",
+    "PDXDoor1,PDXIssueBack,PDXIssueFamily,PDXIssueFile,PDXIssueProfile,PDXShareLinks,addEventListener,pdxDoor1Issue",
     "pdx-issue-profile.js touches a global beyond the desk, the family table, the file panel, " +
     "the notice and its own name");
   // NO SECOND HOME. Closing is not this file's business.

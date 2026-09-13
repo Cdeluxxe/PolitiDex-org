@@ -1578,8 +1578,11 @@ section("9 · the engines did not move");
       // ── seam 2: the topic chip opens the record on the key it holds ──────────
       const row = sb.bodies[1].replace(/^\s*\/\/.*$/gm, "");
       has(row, "window.pdxDoor1Issue('", "the topic chip no longer opens its key on the desk's one issue door");
-      has(row, "window.location.href='/i/",
+      // v186: the chip asks PDXIssueFamily for the whole address — path AND the
+      // ?pid= that gets the reader back to this file — instead of pasting the prefix.
+      has(row, "FAM.profileUrl(key, id)",
         "…and has no address to fall back on for a page where the desk has not booted");
+      has(row, "window.location.href='", "…and the fallback no longer navigates at all");
       ok(row.indexOf("PDXIssueView") === -1,
         "the topic chip reaches the ranked consistency overlay again — a chip on a person must not open a " +
         "league table of persons");

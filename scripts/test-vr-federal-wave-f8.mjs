@@ -2254,6 +2254,14 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "journey.js",
     "support-route.js",
     "scripts/test-support-routing.mjs",
+    // The person-to-issue-and-back pass (v186). /i/* is its own document now, so
+    // every Issue File control on a person record is a NAVIGATION: it carries the
+    // pid as ?pid= so the issue shell's bar and its close control can offer the
+    // way back to that person's file instead of the homepage. controversies.js is
+    // the Flashpoint card's Issue Spotlight action and issue.html is the shell
+    // whose bar reads the parameter; neither holds a wave artefact, a mapping, a
+    // floor or a figure, and this wave's own seams are asserted above.
+    "controversies.js", "issue.html",
     "scripts/test-vr-federal-wave-f8.mjs",
     "scripts/test-vr-federal-wave-f9.mjs",
   ]);

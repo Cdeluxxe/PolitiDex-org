@@ -371,8 +371,15 @@
             ' Issue Spotlight' + (n === 1 ? '' : 's') + '</span>' +
           '<span class="pdxis-rail-c">' +
             sps.map(function (sp) {
-              return '<button type="button" class="pdxis-rail-b" data-spotlight="' + esc(sp.slug) + '">' +
-                esc(sp.title) + '<span class="pdxis-rail-go" aria-hidden="true">→</span></button>';
+              // AN <a>, NOT A <button>. /issue/<slug> is its own document
+              // (spotlight.html) since the third split, so this chip is a
+              // navigation and owes the reader a real link: middle-clickable,
+              // hoverable, and identical in shape to every other Spotlight door
+              // on the page. It keeps data-spotlight so anything that used to
+              // find these chips by that attribute still can.
+              return '<a class="pdxis-rail-b" href="/issue/' + encodeURIComponent(String(sp.slug || '')) +
+                '" data-spotlight="' + esc(sp.slug) + '">' +
+                esc(sp.title) + '<span class="pdxis-rail-go" aria-hidden="true">→</span></a>';
             }).join('') +
           '</span>' +
         '</div>';

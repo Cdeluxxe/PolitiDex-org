@@ -4538,7 +4538,7 @@
       // The key, last and outside the door — see the wall above.
       (door ? scopeControlHtml(key) : '') +
       // And the issue file, on the same footing and for the same reason.
-      (door ? issueFileHtml(key, x.label) : '') +
+      (door ? issueFileHtml(key, x.label, owner) : '') +
       '</li>';
   }
   // ── THE TITLE IS A DOOR, AND HERE THAT DOOR IS A SIBLING ──────────────────
@@ -4556,11 +4556,15 @@
   //   THE ADDRESS IS ASKED, NOT SPELLED. pdx-issue-family.js owns the string; no
   // module writes '/i/' inline, and a page served without that module renders no
   // control rather than a link to a guess.
-  function issueFileHtml(key, label) {
+  //   AND THE OWNER RIDES ALONG. Both row builders below know whose brief they
+  // are rendering, so the address carries that pid as ?pid= and the issue file
+  // can offer the way back to this person's file instead of the front page. The
+  // query is PDXIssueFamily's to build, for the same reason the path is.
+  function issueFileHtml(key, label, pid) {
     var href = '';
     try {
       var F = window.PDXIssueFamily;
-      if (F && typeof F.profileUrl === 'function') href = F.profileUrl(key) || '';
+      if (F && typeof F.profileUrl === 'function') href = F.profileUrl(key, pid) || '';
     } catch (e) { href = ''; }
     if (!href) return '';
     return '<a class="pdxwa-shape-file" href="' + esc(href) + '"' +
@@ -6342,7 +6346,7 @@
       issueTintAttr(key) + '>' +
       body +
       (door ? scopeControlHtml(key) : '') +
-      (door ? issueFileHtml(key, x.label) : '') +
+      (door ? issueFileHtml(key, x.label, pid) : '') +
       '</li>';
   }
 

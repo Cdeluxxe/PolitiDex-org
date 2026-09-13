@@ -3716,11 +3716,18 @@
   // href FIRST, class SECOND, and that is not cosmetic: _titleAttr is the class
   // attribute the issue colour is painted through, and three suites match the
   // exact string `class="pdxgap-title...">` immediately followed by the label.
-  function _issueFileHref(key) {
+  //
+  // AND IT CARRIES THE PERSON. This sheet is opened on ONE member's record, so
+  // the file it links out to is owed the way back to that member: the pid rides
+  // as ?pid= and issue.html's bar turns it into "← Person file". The query is
+  // built by PDXIssueFamily.profileUrl, not pasted here — same reason the path
+  // is not pasted here. A sheet rendered with no pid in hand, or on a document
+  // without person-link.js, links to the bare /i/<key> exactly as before.
+  function _issueFileHref(key, pid) {
     try {
       var F = window.PDXIssueFamily;
       if (!F || typeof F.profileUrl !== 'function' || !key) return '';
-      return F.profileUrl(key) || '';
+      return F.profileUrl(key, pid) || '';
     } catch (e) { return ''; }
   }
   function _issueScopeCtl(key) {
@@ -3730,8 +3737,8 @@
       return S.controlHtml(key) || '';
     } catch (e) { return ''; }
   }
-  function _issueTitleHtml(key, lbl, attr) {
-    var href = _issueFileHref(key);
+  function _issueTitleHtml(key, lbl, attr, pid) {
+    var href = _issueFileHref(key, pid);
     var el = href
       ? '<a href="' + escAttr(href) + '"' + attr +
           ' data-pdxgap-file="' + escAttr(key) + '"' +
@@ -16664,7 +16671,7 @@
     // a re-sizing, not a removal.
     var head =
       '<div class="pdxgap-h">' +
-        _issueTitleHtml(issueKey, lbl, _titleAttr) +
+        _issueTitleHtml(issueKey, lbl, _titleAttr, pid) +
         _dosBucketHtml(_dosRow) +
         // Verdict first, stated position second. The verdict is what the reader came
         // to check; the stance is the thing it was checked against.

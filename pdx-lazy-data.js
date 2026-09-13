@@ -1,7 +1,7 @@
 // PolitiDex data module (Run 3 perf): ON-DEMAND loader for the largest curated
-// data files. Instead of parsing spotlights-data.js (~1.2MB), acct-spotlight-data.js
-// (~587KB) and the cmp-data detail split during page startup, this injects each
-// file only when it is actually needed:
+// data files. Instead of parsing acct-spotlight-data.js (~587KB) and the
+// cmp-data detail split during page startup, this injects each file only when it
+// is actually needed:
 //   • when a section that consumes it approaches the viewport,
 //   • on the first meaningful user interaction, or
 //   • (as a guaranteed safety net) shortly after window `load`.
@@ -15,8 +15,14 @@
 
   // key -> descriptor. `loaded` flips true once the file has executed; `promise`
   // is memoized so ensure() is idempotent (a file is fetched at most once).
+  // spotlights-data.js (~1.2MB) USED TO BE THE BIGGEST ENTRY HERE and is
+  // deliberately gone. Lazy-loading it was the right fix while /issue/<slug>
+  // was an overlay on this document, but it was still 1.2 MB fetched and
+  // compiled on a scroll or the first tap, for writeups most visitors never
+  // opened. /issue/<slug> is its own document now (spotlight.html) and owns the
+  // corpus outright; this page reads spotlight-index.js instead — ~86 KB of
+  // slug/title/place/blurb that ships with the document and needs no loader.
   var FILES = {
-    spotlights:    { src: '/spotlights-data.js' },
     acctSpotlight: { src: '/acct-spotlight-data.js' },
     cmpDetail:     { src: '/cmp-data-detail.js' },
     // Legislation browse (Phase 1): the light inline bill index, fetched the first
@@ -111,10 +117,10 @@
   // ── Trigger 1 · sections approaching the viewport ─────────────────────────
   // Each below-the-fold section pulls exactly the data it renders from, a screen
   // or so before it scrolls into view, so content is ready by the time it shows.
+  // #digital-library, #local-issues and #all-spotlights are no longer listed:
+  // all three read window.PDXSpotlight, which is now the always-present index
+  // rather than a file that had to arrive.
   var SECTIONS = [
-    { sel: '#digital-library',     keys: ['spotlights'] },
-    { sel: '#local-issues',        keys: ['spotlights'] },
-    { sel: '#all-spotlights',      keys: ['spotlights'] },
     { sel: '#say-vs-do',           keys: ['acctSpotlight'] },
     { sel: '#hr1-showcase',        keys: ['acctSpotlight'] },
     { sel: '#myteam-browse-panel', keys: ['cmpDetail', 'acctSpotlight'] }
@@ -124,7 +130,7 @@
     if (!('IntersectionObserver' in window)) {
       // No observer support (very old browsers): load everything now so nothing
       // that depends on this data is ever missing.
-      ensureAll(['spotlights', 'acctSpotlight', 'cmpDetail']);
+      ensureAll(['acctSpotlight', 'cmpDetail']);
       return;
     }
     var io = new IntersectionObserver(function (entries) {
@@ -177,7 +183,7 @@
     // consumer of this data waits on), with setTimeout(0) as the fallback where
     // requestIdleCallback is missing. Either way the three tags land together,
     // in a later task than the tap.
-    warmSoon(['cmpDetail', 'acctSpotlight', 'spotlights']);
+    warmSoon(['cmpDetail', 'acctSpotlight']);
   }
   IX.forEach(function (ev) { window.addEventListener(ev, onFirstInteraction, IX_OPTS); });
 
@@ -188,7 +194,7 @@
     // The net for a visitor who never taps. Also one task, also all three: a
     // reader who has not interacted is exactly the reader who should not be
     // handed a staggered three-to-six-second warm the moment they finally do.
-    var run = function () { try { ensureAll(['cmpDetail', 'spotlights', 'acctSpotlight']); } catch (e) {} };
+    var run = function () { try { ensureAll(['cmpDetail', 'acctSpotlight']); } catch (e) {} };
     if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 4000 });
     else setTimeout(run, 3000);
   }

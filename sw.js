@@ -5148,6 +5148,210 @@
 //     support-lane.css — the trail is tucked by a class on <html>, not by
 //     editing journey.js, and the backing lane is a different product that was
 //     not opened.
+// v187 - AND SO IS /issue/<slug>. THE THIRD SPLIT, and the one that finally
+//     takes 1.2 MB off the front page. This pass changed index.html, netlify.toml,
+//     pdx-lazy-data.js, spotlight-hub.js and share-preview.ts, and added four
+//     files: spotlight.html, spotlight-engine.js, spotlight-overlay.css and the
+//     generated spotlight-index.js.
+//
+//     WHAT WAS WRONG. /issue/<slug> is an Issue Spotlight: one long curated
+//     writeup, and the sixty of them live in spotlights-data.js — 1.2 MB. That
+//     file was on index.html, so EVERY HOMEPAGE VISIT paid to fetch and parse
+//     sixty articles the reader had not opened (lazily, since v-something, which
+//     moved the cost off first paint but never removed it — a scroll or the first
+//     tap still bought the whole corpus). And a reader who did open one got the
+//     writeup wrapped in the entire app: Compare Hub, the alignment tool, Door 2,
+//     the ballot workspace, the person-file spine.
+//
+//     WHAT MOVED. netlify.toml now rewrites /issue/* to /spotlight.html, declared
+//     AFTER /p/* and /i/* so first-match-wins cannot let a Spotlight rule swallow
+//     a person file or an Issue File. /spotlight.html is 26 KB with 5 script tags
+//     against index.html's 2.2 MB and ~114, and it loads four things: the corpus,
+//     spotlight-engine.js (index.html's inline engine, moved out verbatim bar
+//     seven seams), spotlight-overlay.css (its inline stylesheet, verbatim) and
+//     person-link.js so a name still opens that person's file. index.html lost
+//     the .pdxis-* stylesheet, the #issue-spotlight mount and the engine outright
+//     — 1,741 lines — keeping only the shared stance pill (profiles-full.js paints
+//     it there) and window.PDXStance (Compare, My Priorities, Hot Topics and the
+//     Locker all read it). What backs Local Issues, the Spotlight Hub, the profile
+//     callouts and search on the front page now is spotlight-index.js: ~86 KB of
+//     slug, title, place, blurb, issue keys and documentation badge, generated
+//     from the corpus and pinned against it by a test. Every Spotlight door kept
+//     its /issue/<slug> address; what changed is that they are ordinary links to
+//     another document instead of buttons that opened an overlay.
+//
+//     WHY A BUMP. A warm device holding v186 has an index.html that still expects
+//     the engine and the corpus on the page, and it has no /spotlight.html at all
+//     — a /issue/<slug> navigation offline would fall through to '/', which is
+//     exactly the document that no longer carries the Spotlight surface. The
+//     precache list gains one entry, '/spotlight.html', and that is the only
+//     addition.
+//
+//     NO PER-SLUG DOCUMENT IS CACHED, and this is a decision rather than an
+//     omission. navDocKey still returns '' for a /issue/ path, so nothing is
+//     stored per address; SPOTLIGHT_NAV_RE decides a FALLBACK only, and it is
+//     tested after the /p/ and /i/ branches so neither can be intercepted. The
+//     sixty documents are byte-identical chrome — the writeup is in the corpus,
+//     one static asset the runtime bucket already keeps once. Sixty copies of the
+//     same 26 KB would buy nothing and spend a phone's quota.
+//
+//     DID NOT MOVE. /i/* still serves /issue.html and /p/* still serves
+//     /person.html, byte for byte: no Issue File door, no person-file door and no
+//     part of the v185/v186 back-path was opened. ISSUE_NAV_RE, PERSON_NAV_RE,
+//     navDocKey and PERSON_DOC_LIMIT are exactly as v186 left them. No floor, no
+//     mapping, no score, no Voice, no idle-callback policy and no doctrine.
+// v186 - THE WAY BACK. This pass changed issue.html, pdx-issue-profile.js,
+//     pdx-issue-family.js and the six Issue File doors (consistency.js,
+//     stance-tree.js, word-action.js, stance-helpers.js, profile-spine.js,
+//     controversies.js). No module was added to SHELL_ASSETS and no route moved.
+//
+//     WHAT LIVE SMOKE FOUND. v185's split worked — /i/gun_safety is ~27 KB
+//     gzipped and neither compare-hub.js nor alignment-tool.js loads on it — and
+//     then the way OUT of it was still the homepage. The doors on a person file
+//     advertised the bare /i/<key>, so the issue shell had no idea whose record
+//     the reader had come from and its bar could only offer "/". The panel's own
+//     X was worse: close() hands the address back through
+//     PDXIssueProfile.restore(), which on index.html reveals the homepage
+//     underneath and is correct there, but on issue.html there is nothing
+//     underneath — it left a reader on an empty shell whose URL said "/", one
+//     tap from paying 2.3 MB to get anywhere. Both halves of the split were
+//     fast and the seam between them sent every reader through the front door.
+//
+//     SO THE DOOR CARRIES THE PERSON. Every Issue File control on a person
+//     record now advertises /i/<key>?pid=<canonical-pid>, built by
+//     PDXIssueFamily.profileUrl(key, pid) — the one place an issue address is
+//     spelled, which now also owns the query, and which asks
+//     PDXPersonLink.pid() what a canonical pid is rather than deciding for
+//     itself. issue.html's bar reads that parameter and offers "← Person file"
+//     beside, never instead of, "← All politicians"; restore() asks the same
+//     answer where to land, preferring history.back() when the referrer says
+//     this document was opened from that same person's file.
+//
+//     WHY A BUMP. A warm device holding v185 has the OLD issue.html and the OLD
+//     pdx-issue-profile.js precached. Served against the new doors it would
+//     receive an address carrying ?pid= and still close onto "/" — the exact
+//     defect this pass fixes, invisible to anyone who had already visited. The
+//     document, its close behaviour and the doors that feed it have to arrive as
+//     one set, which is the same argument v184 and v185 made for their own.
+//
+//     NOTHING NEW IS PRECACHED. /issue.html was already on the list (v185) and
+//     every module named above was already on it. This bump re-issues the same
+//     manifest with new bytes behind two of its entries.
+//
+//     DID NOT MOVE: no mapping, floor, score, Direction Match or party read; no
+//     module added to or removed from either shell; no navigation fallback
+//     changed — ISSUE_NAV_RE and navDocKey are exactly as v185 left them, and an
+//     /i/ address still returns NO KEY, so no per-key issue document is cached;
+//     /issue/* is still the Spotlight's address on index.html; and the in-page
+//     overlays (the homepage's issue file, the gap sheet on a person file) still
+//     close onto the page underneath — window.PDXIssueBack exists only on the
+//     issue shell, and its absence is what keeps that true.
+// v185 - AND SO IS /i/<key>. The second split gave the person file its own
+//     document and the very next tap gave it straight back: every "Issue file"
+//     control on a person record is an <a href="/i/<key>"> — the gap sheet's
+//     title, the stance tree's leaf row, the Word-vs-Action shape row, the
+//     mandate chip's fallback — and netlify.toml rewrote /i/* to index.html. A
+//     reader on /p/lee who tapped Issue File left a 234 KB document and landed
+//     on the 2.3 MB homepage OS to read one issue's formal record. /i/* now
+//     serves /issue.html: 83 KB of markup, 46 script tags against index.html's
+//     ~114, and no homepage grid, Compare Hub, account graph, Door 2, Archive,
+//     Locker or spotlight data on it at all.
+//
+//     WHY A BUMP AND NOT A QUIET ADD, same answer v184 gave for /person.html: a
+//     phone holding v184 has '/' and /person.html precached and nothing under
+//     /issue.html, so the moment the rewrite lands its offline issue navigation
+//     falls back to a document the address no longer serves. The document and
+//     its fallback have to arrive as one set.
+//
+//     WHAT IS NEW ON SHELL_ASSETS: '/issue.html', and ONLY that. This is the
+//     cheapest bump in this log and the reason is worth writing down — the issue
+//     lane was already precached in full. Every one of the 42 modules and 8
+//     stylesheets on the new document is an entry v184 or earlier already put on
+//     this list: the stance data and its sixteen state-senate chunks,
+//     stance-helpers.js, issue-map.js, pdx-issue-family.js, issue-colors.js,
+//     issue-scope.js, formal-index.js, publication-floor.js, voting-record.js,
+//     say-vs-do.js, consistency.js, issue-view.js, door1-workspace.js,
+//     issue-file.js, pdx-issue-profile.js, share-anywhere.js, person-link.js,
+//     profile-evidence.js, data-hygiene.js, firebase-boot.js, pdx-perf.js,
+//     pdx-lazy-data.js, share-links.js, cmp-data.js, pdx-stability.js, and
+//     tailwind/app/app-2/issue-file/door1-workspace/issue-view/say-vs-do/
+//     mobile-polish. A shell that carries strictly less than person.html needs
+//     strictly nothing added for it. TWO FILES IT REFERENCES STAY OFF, both for
+//     reasons already on this list: /politician-stances-ext.js is 1.1 MB of
+//     long-tail local officials and ships fetchpriority="low" precisely so a
+//     mandatory install does not swallow it, and /firebase-config.js has never
+//     been precached because it is written at request time — a precached copy is
+//     a stale one by definition.
+//
+//     AND handleNavigate NOW FALLS BACK TO THE RIGHT SHELL FOR /i/, via the same
+//     shape v184 gave /p/: offline on an issue address with no network, it
+//     reaches for /issue.html before '/'. /issue.html names no issue until
+//     pdx-issue-profile.js reads the address, which is the property that makes it
+//     an honest stand-in, and it is the document the network would have
+//     returned.
+//
+//     DID NOT MOVE, and this is the important half of the entry. navDocKey is
+//     untouched: an /i/ address still returns NO KEY, so an issue document is
+//     still never written to either bucket. That is deliberate rather than
+//     unfinished — a person document is keyed because share-preview.ts rewrites
+//     its head per pid and a cached one would otherwise claim the wrong person;
+//     no edge function serves /i/*, so every issue document is byte-identical
+//     and one precached /issue.html is the whole win. It also means /i/ cannot
+//     touch PERSON_DOC_LIMIT's four slots or prunePersonDocs. Also unmoved:
+//     PERSON_NAV_RE and the /p/ policy in full, the runtime/shell split,
+//     handleStatic, and the '/' fallback for everything else — /issue/*, the
+//     Spotlight address, still boots from '/' because netlify.toml still sends
+//     it to index.html and this pass routed only /i/*. No score, mapping, floor,
+//     party read or formal-record path was touched; no denylisted module was
+//     added to the install.
+//     CHANGED UNDER THIS PASS: sw.js; netlify.toml (the /i/* rewrite's target
+//     and its comment; no other route, redirect or header moved); issue.html
+//     (new); profile-spine.js and controversies.js (each gains one LAST-resort
+//     navigation branch on a control whose in-page openers do not exist on
+//     person.html, so a tap that was being swallowed now lands — the in-page
+//     open still wins wherever it exists); pdx-issue-family.js (keyIsReal, the
+//     one vocabulary gate both of those branches ask before a string is allowed
+//     to become an address). scripts/test-issue-shell.mjs is new and ships no
+//     runtime byte.
+// v184 - /p/<pid> IS ITS OWN DOCUMENT NOW, SO THE SHELL LEARNS ITS NAME. The
+//     first split gave the person file a second shell: netlify.toml rewrites
+//     /p/* to /person.html instead of /index.html, and person.html is 234 KB of
+//     markup and 59 modules against index.html's 2.3 MB and ~114. Every person
+//     address on this site used to download the homepage civic OS, the account
+//     graph, Compare, the Archive, the Evidence Locker and both Doors in order
+//     to read one record, and run all of it on the main thread underneath the
+//     record. That is what this bump is for.
+//
+//     WHY A BUMP AND NOT A QUIET ADD. A phone holding v183 has '/' precached and
+//     nothing under /person.html, so the moment the rewrite lands its offline
+//     person navigation falls back to a document the address no longer serves.
+//     The new shell and its module list have to arrive as one set.
+//
+//     WHAT IS NEW ON SHELL_ASSETS: /person.html, plus the person-lane modules
+//     index.html had never needed precached because its own runtime path reached
+//     them — profiles-full.js (the record itself), profile-evidence.js (the
+//     alias table behind the mike_lee → lee hop), data-hygiene.js, firebase-boot
+//     .js, pdx-perf.js, issue-map.js, publication-floor.js, finance-lane.js +
+//     .css, the executive lane (exec-action-data.js, exec-record.js,
+//     exec-record-ui.js, controversies.js + .css), the sixteen state-senate
+//     stance chunks, and pdx-learn.css. /politician-stances-ext.js is the one
+//     file on person.html deliberately LEFT OFF: it is 1.1 MB of long-tail local
+//     officials, it already ships with fetchpriority="low" for that reason, and
+//     putting it in a mandatory install would undo the thing this split is for.
+//     It stays a stale-while-revalidate runtime entry, as it was.
+//
+//     AND handleNavigate NOW FALLS BACK TO THE RIGHT SHELL. Offline on a person
+//     address with no document of its own, it reaches for /person.html before
+//     '/'. Both name nobody, which is the property that made '/' the honest
+//     stand-in — but /person.html is the document the network would have
+//     returned, and its inline crawl guard already prints the generic "Person
+//     file · record still loading" header for an address it cannot resolve.
+//     DID NOT MOVE: the runtime/shell split, navDocKey's keying (a person
+//     document is still keyed to its own address and still a runtime entry),
+//     PERSON_DOC_LIMIT's four slots, the sentinel-pid rule, prunePersonDocs, or
+//     handleStatic. No Door 2 or account-graph module was added to the install —
+//     none of them is on person.html. No score, mapping, floor or
+//     formal-record path was touched.
 // v183 - THE DEFERRAL GETS TUNED, NOT REVERTED. v182's pass moved the account
 //     chip's freeze off the reader's frame and was then reported as the whole
 //     site being ~10x slower: the bulk data warm took a fresh idle slice PER
@@ -5211,7 +5415,7 @@
 //     mapping and no formal-record path was touched by any of the above — this
 //     pass is cache policy, one deleted inline filter, one deferred injection and
 //     one cheaper close.
-const CACHE_VERSION = 'v183';
+const CACHE_VERSION = 'v187';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -5240,6 +5444,33 @@ const RUNTIME_LEGACY_RE = /^politidex-runtime-v/;
 // their first (online) use.
 const SHELL_ASSETS = [
   '/',
+  // THE SECOND SHELL. netlify.toml rewrites /p/* here rather than to index.html,
+  // so this is the document every person address actually receives. Precached
+  // beside '/' and for the same reason: it is a bootable shell, and swapping it
+  // is what a CACHE_VERSION bump is for. A cached PERSON DOCUMENT is still a
+  // separate thing — keyed to its own /p/<pid> address in the runtime bucket by
+  // navDocKey below — and this entry is what a person address falls back to
+  // offline when it has no document of its own yet.
+  '/person.html',
+  // THE THIRD SHELL, on the same terms. netlify.toml rewrites /i/* here, so this
+  // is the document every issue-file address actually receives — and it is the
+  // ONLY thing this version adds to the list, because the issue lane's 42 modules
+  // and 8 stylesheets are already entries below. Unlike a person document, an
+  // issue document is not keyed per address: no edge function rewrites /i/*, so
+  // every /i/<key> arrival is byte-identical to every other and this one entry
+  // serves all of them (see navDocKey — an /i/ path returns no key on purpose).
+  '/issue.html',
+  // THE FOURTH SHELL, same terms again. netlify.toml rewrites /issue/* here, so
+  // this is the document every Issue Spotlight address receives. Like an issue
+  // document and unlike a person document it is NOT keyed per address: no edge
+  // rewrite differentiates one /issue/<slug> arrival from another at the HTML
+  // level, so this one entry answers all sixty (see navDocKey — a /issue/ path
+  // returns no key on purpose, and SPOTLIGHT_NAV_RE decides a fallback rather
+  // than a cache slot). PER-SLUG CACHING IS DELIBERATELY NOT DONE: the document
+  // is 26 KB of chrome and the writeup itself lives in /spotlights-data.js,
+  // which is a static asset the runtime bucket already handles once — sixty
+  // near-identical document copies would buy nothing and cost a reader's quota.
+  '/spotlight.html',
   '/css/tailwind.css',
   // The above-the-fold record card. Parser-blocking in index.html, so on a
   // repeat visit these two must come from the cache or they add latency to the
@@ -5547,6 +5778,70 @@ const SHELL_ASSETS = [
   '/judge-file.js',
   '/judicial-ballot.js',
   '/judicial-retention.css',
+
+  // ── THE PERSON LANE person.html ADDED ──────────────────────────────────────
+  // Everything below was already reachable on index.html, but through its
+  // runtime path rather than its install: profiles-full.js and person-file.js
+  // were deliberately stale-while-revalidate entries, and pdx-perf.js was
+  // deliberately off the list as "a deferred reporting module, nothing a first
+  // paint depends on". Those calls were right when a person file was a modal on
+  // a warm homepage. They are not right when /p/<pid> is the whole document and
+  // the record is the page: a person address that opens with no profiles-full.js
+  // has nothing to render, and a first paint that has to fetch it is the latency
+  // this split exists to remove.
+  '/pdx-perf.js',
+  '/firebase-boot.js',
+  '/data-hygiene.js',
+  // The record, and the address canonicaliser. profile-evidence.js is the only
+  // definer of PDX_PROFILE_ALIAS and PDXProfilePid — the table that makes
+  // /p/mike_lee and /p/lee the same file — so a skew between these two is a
+  // shared link that resolves to nobody.
+  '/profiles-full.js',
+  '/profile-evidence.js',
+  // /politician-stances-ext.js is NOT here on purpose. It is 1.1 MB of long-tail
+  // local officials, it ships with fetchpriority="low" for exactly that reason,
+  // and a mandatory install is the wrong place for it. The sixteen state-senate
+  // chunks below total ~250 KB and are additive over the same
+  // window.ISSUE_STANCE_DATA object, so a partial pickup is a file that renders
+  // a state legislator with no positions at all — they precache as one set.
+  '/state-senate-stances.js',
+  '/state-senate-stances-w2.js',
+  '/state-senate-stances-w3.js',
+  '/state-senate-stances-w4.js',
+  '/state-senate-stances-w5.js',
+  '/state-senate-stances-w6.js',
+  '/state-senate-stances-w7.js',
+  '/state-senate-stances-w8.js',
+  '/state-senate-stances-w9.js',
+  '/state-senate-stances-w10.js',
+  '/state-senate-stances-w11.js',
+  '/state-senate-stances-w12.js',
+  '/state-senate-stances-w13.js',
+  '/state-senate-stances-w14.js',
+  '/state-senate-stances-w15.js',
+  '/state-senate-stances-w16.js',
+  // issue-map.js is the issue register — ISSUE_MAP, CORE_NATIONAL_ISSUES and the
+  // category helpers — copied verbatim out of alignment-tool.js because the
+  // formal brief reads several of them WITHOUT a guard and alignment-tool.js
+  // itself is a homepage surface person.html does not ship. It is precached for
+  // the same reason alignment-tool.js is: with no register, the brief is blank.
+  '/issue-map.js',
+  // Whether a record clears the bar to be published as a citable /p/ address.
+  '/publication-floor.js',
+  '/finance-lane.js',
+  '/finance-lane.css',
+  // THE EXECUTIVE LANE. Not optional once /p/* serves one document for every
+  // person address: without these, a governor's or a president's file answers a
+  // real address with a congressional "nothing on file".
+  '/exec-action-data.js',
+  '/exec-record.js',
+  '/exec-record-ui.js',
+  '/controversies.js',
+  '/controversies.css',
+  // The glossary sheet. pdx-learn.js is a homepage module and is not on
+  // person.html, but consistency.js and voting-record.js both emit pdxl-
+  // classes, so the stylesheet ships without the module that named it.
+  '/pdx-learn.css',
   '/manifest.json',
   '/assets/icon.svg',
   '/assets/icon-maskable.svg'
@@ -5850,10 +6145,14 @@ async function prunePacks(cache, pid, keepUrl) {
 //                         homepage's the way Lee's header did.
 //
 // A person address with no entry of its own goes to the NETWORK rather than
-// borrowing '/'. Correct identity in the first bytes is the whole point of the
-// document; a fast paint of the wrong person is the thing being fixed. Only when
-// the network fails does '/' stand in — and '/' names nobody, so it is a bootable
-// shell with an empty crawl seam, which index.html's inline guard leaves generic.
+// borrowing another document. Correct identity in the first bytes is the whole
+// point of the document; a fast paint of the wrong person is the thing being
+// fixed. Only when the network fails does a shell stand in, and since the split
+// that shell is /person.html rather than '/' — the document the address actually
+// serves, precached, naming nobody, with an empty crawl seam that its own inline
+// guard leaves generic. '/' is no longer a candidate for a /p/ path: netlify.toml
+// does not send /p/* there any more, so it would be the wrong document and not
+// merely an anonymous one.
 //
 // THE COST OF THAT, NAMED, because it is the one thing this policy is slower at.
 // A cold person address on a warm device used to paint instantly from '/'; it now
@@ -5869,10 +6168,49 @@ async function prunePacks(cache, pid, keepUrl) {
 // names nobody.
 const PERSON_NAV_RE = /^\/p\/([A-Za-z0-9_]+)\/?$/;
 
-// How many person documents to keep. Each is the whole ~2 MB app shell, so this is
-// a storage decision and not a correctness one: correctness is the KEY, and an
-// entry that was pruned is simply refetched. Small enough to be polite on a phone,
-// big enough that moving between a handful of files stays instant.
+// AND THE SAME QUESTION FOR AN ISSUE ADDRESS, for one purpose only: which shell
+// stands in when the network is gone. /i/* is rewritten to /issue.html, which is
+// precached, so an offline issue navigation has a document that is both the right
+// one and anonymous — it names no issue until pdx-issue-profile.js reads the
+// address out of location.pathname, and it says so out loud when the register
+// carries no key by that name. '/' would hand an issue address the homepage,
+// which since the split is not even the document the network would return.
+//
+// THE KEY SHAPE IS THE REGISTER'S, not a path glob: [A-Za-z0-9_-]+, which is what
+// PDXIssueFamily.keyIsReal tests and what ISSUE_MAP's identifiers are. Anything
+// with a second segment, a slash or a space is not an issue key and is left to
+// the generic fallback.
+//
+// /issue/* IS NOT THIS, and it never was the same product: /i/<key> is the Issue
+// File (a dossier ledger over a vocabulary key), /issue/<slug> is an Issue
+// Spotlight (one curated writeup). They share a prefix in spelling only. Since
+// the third split /issue/* has a document of its own too, and its own line
+// below — this regex stays exactly as v186 left it.
+const ISSUE_NAV_RE = /^\/i\/([A-Za-z0-9_-]+)\/?$/;
+
+// AND THE THIRD OF THESE, for the Spotlight address, for the same single
+// purpose: which shell stands in when the network is gone. /issue/* is rewritten
+// to /spotlight.html, which is precached, so an offline Spotlight navigation has
+// a document that is both the right one and anonymous — it names no Spotlight
+// until spotlight-engine.js reads the slug out of location.pathname, and it
+// prints a plain "Loading this Issue Spotlight…" line with a way home for a slug
+// it cannot find. '/' would hand it the homepage, which since this split does not
+// carry the Spotlight surface at all and is not the document the network would
+// have returned.
+//
+// THE SLUG SHAPE IS THE CORPUS'S: [A-Za-z0-9_-]+, one segment. A trailing slash
+// is allowed (bare /issue/ included — the document sends that one home rather
+// than pretending to be a directory). Anything with a second segment is not a
+// Spotlight address and is left to the generic fallback.
+const SPOTLIGHT_NAV_RE = /^\/issue\/([A-Za-z0-9_-]*)\/?$/;
+
+// How many person documents to keep. Each USED to be the whole ~2 MB app shell;
+// since the split it is person.html, ~234 KB, so four slots now cost less than
+// one did. Still a storage decision and not a correctness one: correctness is the
+// KEY, and an entry that was pruned is simply refetched. The number is left at
+// four rather than raised — it is already big enough that moving between a
+// handful of files stays instant, and the cheaper document is a saving to give
+// back to the phone, not a budget to spend.
 const PERSON_DOC_LIMIT = 4;
 
 // The cache key for a navigation, or '' for "serve from the shell, store nothing".
@@ -5915,6 +6253,12 @@ async function handleNavigate(req) {
   try { url = new URL(req.url); } catch (e) { url = null; }
   const key = navDocKey(url);
   const isPerson = key.slice(0, 3) === '/p/';
+  // Read off the URL rather than off `key`, because navDocKey deliberately gives
+  // an issue address no key: this flag decides a FALLBACK, not a cache slot.
+  const isIssue = !!(url && url.origin === self.location.origin && ISSUE_NAV_RE.test(url.pathname));
+  // Third of the same kind, and ordered after the two above for the same reason:
+  // a FALLBACK, not a cache slot. No per-slug document is ever stored.
+  const isSpotlight = !!(url && url.origin === self.location.origin && SPOTLIGHT_NAV_RE.test(url.pathname));
 
   // A PERSON DOCUMENT IS A RUNTIME ENTRY, NOT A SHELL ONE. It is keyed to a single
   // address, it is not on SHELL_ASSETS, and nothing on the precache list depends on
@@ -5945,9 +6289,40 @@ async function handleNavigate(req) {
   const res = await network;
   if (res) return res;
 
-  // Offline, with no document of this address's own. '/' is the app shell and it
-  // names nobody — the honest stand-in for any address, and the one fallback that
-  // cannot claim to be a person we have not resolved.
+  // Offline, with no document of this address's own. Since the split there are
+  // two bootable shells, and a person address has one of its own: /person.html is
+  // precached, it is the document the network would have returned for this path,
+  // and its inline crawl guard prints the generic "Person file · record still
+  // loading" header for an address it cannot name. '/' no longer serves /p/* at
+  // all, so falling back to it here would hand a person address the homepage.
+  if (isPerson) {
+    const personDoc = await shell.match('/person.html');
+    if (personDoc) return personDoc;
+  }
+
+  // Offline on an issue address. Same rule, third shell: /issue.html is precached,
+  // it is what the network would have returned for this path, and it names no
+  // issue on its own. Before '/', because since the second split '/' does not
+  // serve /i/* at all and would be the wrong document rather than merely an
+  // anonymous one.
+  if (isIssue) {
+    const issueDoc = await shell.match('/issue.html');
+    if (issueDoc) return issueDoc;
+  }
+
+  // Offline on a Spotlight address. Same rule, fourth shell, and deliberately
+  // AFTER the /p/ and /i/ branches above so neither can be intercepted by it.
+  // /spotlight.html is precached, it is what the network would have returned for
+  // this path, and it names no Spotlight on its own. Again before '/', which
+  // since this split holds no Spotlight surface at all.
+  if (isSpotlight) {
+    const spotDoc = await shell.match('/spotlight.html');
+    if (spotDoc) return spotDoc;
+  }
+
+  // Everything else: '/' is the app shell and it names nobody — the honest
+  // stand-in for any address, and the one fallback that cannot claim to be a
+  // person we have not resolved.
   const shellDoc = await shell.match('/');
   if (shellDoc) return shellDoc;
 
