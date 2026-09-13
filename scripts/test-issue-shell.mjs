@@ -626,10 +626,23 @@ ok(/<body class="bg-navy-900 text-white font-body">/.test(html),
   // no business in anyone's mandatory install, and that is the regression this
   // catches — a future pass adding an issue-lane module to the precache and
   // reaching for a denylisted one by mistake.
+  // Asked of EVERY precached shell, not only of index.html. When this gate was
+  // written the app had two documents, so "the homepage loads it" and "some
+  // precached shell loads it" were the same sentence. The fourth split made them
+  // different: ballot-workspace.js came off index.html and went onto ballot.html,
+  // which is itself a SHELL_ASSETS entry — so the module is still legitimately in
+  // the mandatory install, and asking only the homepage would have reported a
+  // correctly-precached module as an orphan. The claim being defended is
+  // unchanged: nothing may sit in the mandatory install that NO shipped shell
+  // loads. Every document is read from disk rather than named from a list, so a
+  // sixth shell is covered the day it exists.
+  const SHELLS = ["index.html", "person.html", "issue.html", "spotlight.html", "ballot.html"]
+    .filter((d) => { try { read(d); return true; } catch (e) { return false; } })
+    .map((d) => read(d));
   for (const f of DENY) {
     if (!shellAssets.has("/" + f)) { passed++; continue; }
-    ok(index.includes(`src="/${f}"`),
-      `sw: /${f} is on SHELL_ASSETS but index.html does not load it either — nothing should be in the mandatory install for a document that refuses it`);
+    ok(SHELLS.some((doc) => doc.includes(`src="/${f}"`)),
+      `sw: /${f} is on SHELL_ASSETS but no shipped shell loads it — nothing should be in the mandatory install that no document asks for`);
   }
   // And the ones that are not on index.html must not appear at all. These are
   // the modules with no shell left to justify them.

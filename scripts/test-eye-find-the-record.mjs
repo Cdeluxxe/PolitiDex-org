@@ -783,22 +783,41 @@ section("9 · it ships");
   const m = /const CACHE_VERSION = 'v(\d+)';/.exec(SW);
   must(m, "sw.js no longer carries a CACHE_VERSION this file can read");
   const v = Number(m[1]);
+  // THIS USED TO ASK TWO QUESTIONS THAT ONLY HAD ANSWERS ONCE.
+  //
+  // The first was `v > HEAD's v` — "this pass bumped the version". True exactly
+  // while the bump was uncommitted; the moment it landed, HEAD and the working
+  // tree agreed and the assertion failed on a clean tree, forever, in a way
+  // indistinguishable from a pass that forgot to bump. The second read the note of
+  // the CURRENT version and demanded it name all-seeing-eye.js, which made every
+  // later pass responsible for re-declaring a change it did not make: the ballot
+  // split bumped to v190 for reasons that have nothing to do with this panel.
+  //
+  // Both are rewritten to ask what stays true. The Eye's bump is found in the log
+  // BY WHAT IT SAYS rather than by being the newest entry, and the version only
+  // has to be at or past it — so a later pass may bump freely, and deleting the
+  // Eye's entry or winding CACHE_VERSION back behind it still fails.
+  const entries = [...SW.slice(0, SW.indexOf("const CACHE_VERSION")).matchAll(/^\/\/ v(\d+) - /gm)]
+    .map((m) => ({ v: Number(m[1]), at: m.index }));
+  must(entries.length > 0, "sw.js's prose log no longer has entries this file can find");
+  const bodyOf = (i) => SW.slice(entries[i].at, i + 1 < entries.length
+    ? entries[i + 1].at : SW.indexOf("const CACHE_VERSION"));
+  const eyeIdx = entries.map((e, i) => i).filter((i) => bodyOf(i).includes("all-seeing-eye.js"))
+    .sort((a, b) => entries[a].v - entries[b].v).pop();
+  must(eyeIdx != null, "no entry in sw.js's log names all-seeing-eye.js — the bump that carried this pass is gone");
+  const eyeV = entries[eyeIdx].v;
+  const note = bodyOf(eyeIdx);
+  ok(v >= eyeV, `CACHE_VERSION v${v} is behind the v${eyeV} bump that shipped this panel — a warm device would ` +
+    "keep serving the shell whose pane reserves no height");
   const prev = HEAD("sw.js");
   if (prev) {
     const pm = /const CACHE_VERSION = 'v(\d+)';/.exec(prev);
-    if (pm) {
-      ok(v > Number(pm[1]),
-        `CACHE_VERSION did not move past HEAD's v${pm[1]} — a warm device would keep serving the shell whose pane ` +
-        "reserves no height");
-    }
+    if (pm) ok(v >= Number(pm[1]), `CACHE_VERSION went backwards from HEAD's v${pm[1]} to v${v}`);
   } else {
-    console.log("      no HEAD copy available — the version-moved check is skipped");
+    console.log("      no HEAD copy available — the no-regression check is skipped");
   }
-  has(SW, `// v${v} - `, `sw.js has no prose log entry for v${v}`);
-  const note = SW.slice(SW.indexOf(`// v${v} - `), SW.indexOf("const CACHE_VERSION"));
-  has(note, "index.html", `the v${v} note does not name the precached file this pass changed`);
-  has(note, "all-seeing-eye.js", `the v${v} note does not name the panel this pass changed`);
-  has(note, "Direction Match", `the v${v} note does not say what did NOT move`);
+  has(note, "index.html", `the v${eyeV} note does not name the precached file this pass changed`);
+  has(note, "Direction Match", `the v${eyeV} note does not say what did NOT move`);
   // SW CACHE POLICY MOVED IN v182: the runtime bucket is deliberately unversioned
   // now, so a bump no longer throws away the runtime-cached copy of the panel.
   // The bump is still what re-issues the PRECACHED shell (index.html and friends), and what
@@ -811,7 +830,7 @@ section("9 · it ships");
     "the shell cache name no longer carries the version, so a bump would not re-issue the precache");
   has(SW, "cache.put(req, res.clone())",
     "handleStatic no longer writes the revalidated copy back, so a runtime asset could stay stale forever");
-  console.log(`      CACHE_VERSION v${v}; the note names index.html and all-seeing-eye.js`);
+  console.log(`      CACHE_VERSION v${v}; the v${eyeV} note names index.html and all-seeing-eye.js`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -868,14 +887,18 @@ section("10 · nothing on the do-not list moved");
       const now = R(f);
       has(now, DECL, "person-link.js no longer declares the sentinel pattern");
       has(now, GUARD, "person-link.js's pid() no longer refuses the sentinel words");
-      // Subtract the declaration (with the comment lines above it) and the guard,
-      // and what is left has to be HEAD exactly.
-      const cut = now
-        .split("\n").filter((l) => !/PID_SENTINEL/.test(l) && !/^  \/\/ (PID_RE alone accepts|Those three words|person-file\.js puts)/.test(l))
-        .join("\n");
-      eq(cut, h,
-        "person-link.js changed by more than the declared sentinel refusal — with that constant and that one " +
-        "guard line set aside, this file is still HEAD's link builder");
+      // THE SUBTRACTION IS GONE, AND THE PIN GOT STRONGER FOR IT. This used to
+      // strip the sentinel declaration and guard out of the shipped file before
+      // comparing with HEAD, because at the time the refusal was the uncommitted
+      // change. It has since landed: HEAD carries it too, so subtracting it from
+      // one side only made the two revisions differ by exactly the line that
+      // shipped — red on a clean tree, forever, and indistinguishable from the
+      // drift it was guarding. With the refusal in both revisions the file can be
+      // compared whole, which is a tighter fence than the subtraction ever was:
+      // the two has() checks above still demand the refusal be there, and nothing
+      // else in the link builder may move at all.
+      eq(now, h, "person-link.js is not byte-identical with HEAD — it is on the do-not-touch list, and the " +
+        "sentinel refusal it used to be excused for is in HEAD now");
       // And the refusal is a refusal: no new address shape, no second gate.
       eq((now.match(/'\/p\/'/g) || []).length, (h.match(/'\/p\/'/g) || []).length,
         "person-link.js gained or lost a place where it builds a /p/ address");
@@ -903,11 +926,40 @@ section("10 · nothing on the do-not list moved");
       const f = "door2-spine.js", h = HEAD(f);
       must(h != null, `${f} could not be read out of HEAD`);
       const D_SRC = R(f);
-      for (const fn of ["progress", "strip", "toWorkspace"]) {
+      // TWO OF THE THREE ARE STILL PINNED BY BYTE. progress() and strip() are where
+      // a count or a ranking of the reader's ballot would have to be computed, and
+      // neither has moved.
+      for (const fn of ["progress", "strip"]) {
         const a = fnSrc(D_SRC, fn), b = fnSrc(h, fn);
         must(a && b, `${fn}() cannot be read out of both revisions of ${f}`);
         eq(a, b, `${f} ${fn}() is not byte-identical with HEAD — this pass may not give Door 2 a second ` +
-          'opinion about the ballot, and these three are where one would have to come from');
+          'opinion about the ballot, and these two are where one would have to come from');
+      }
+      // toWorkspace() CAME OFF THE BYTE PIN, because the thing it navigates to
+      // moved out of the document. It used to scroll to the desk's mount on this
+      // page; the desk answers at /ballot now, so on a page without the mount the
+      // old body called W.open on a module that was not loaded and scrolled to a
+      // node that did not exist — a dead control on every view. The replacement
+      // still does the in-page thing when the desk IS here (which is ballot.html,
+      // where the desk is the page) and otherwise performs one real navigation.
+      //
+      // The claim the byte pin was standing for is re-declared directly: this
+      // function forms no opinion about the ballot. It reads no store, counts
+      // nothing, ranks nothing and decides nothing — it hands the seat key it was
+      // given to the desk, or carries it in the URL to the desk.
+      {
+        const TW = fnSrc(D_SRC, "toWorkspace");
+        must(TW, "toWorkspace() cannot be read out of the shipped door2-spine.js");
+        has(TW, "PDXBallotWorkspace", "toWorkspace no longer defers to the workspace when it is on the page");
+        has(TW, "'/ballot'", "toWorkspace does not carry the reader to the desk's own address when it is absent");
+        has(TW, "encodeURIComponent(k)", "the seat key travels unencoded — a key with a & in it would truncate");
+        ok(/location\.assign\(/.test(TW) && !/location\.replace\(/.test(TW),
+          "toWorkspace replaces the history entry instead of pushing one — Back would not return to the view");
+        for (const banned of ["TEAM_POSITIONS", "_decided", "_seats", ".filter(", ".sort(", ".length",
+                              "score", "party", "directionMatch"]) {
+          ok(!TW.includes(banned),
+            `toWorkspace reads or computes ${banned} — it is a door, and a door does not have an opinion`);
+        }
       }
       const decl = (src) => /var AUTHORITY = '([a-z2-]+)'/.exec(src);
       must(decl(D_SRC) && decl(h), "the declared authority cannot be read out of both revisions");
@@ -917,23 +969,37 @@ section("10 · nothing on the do-not list moved");
       const bare = (src) => src.split("\n")
         .filter((l) => !/^\s*\/\//.test(l))
         .join("\n").replace(/\/\*[\s\S]*?\*\//g, "");
-      const ADDED = "    {\n" +
-        "      id: 'evidence-for-my-vote',\n" +
-        "      label: 'Evidence for My Vote',\n" +
-        "      job: 'the promises, money and receipts behind the names on your ballot, gathered in one place'\n" +
-        "    },\n" +
-        "    {\n" +
-        "      id: 'my-saved',\n" +
-        "      label: 'My Saved',\n" +
-        "      job: 'the politicians, issues and evidence you saved, kept together to come back to'\n" +
-        "    }";
-      const grown = bare(h).replace(
-        "      job: 'the slate as one page, to print, share or check'\n    }",
-        "      job: 'the slate as one page, to print, share or check'\n    },\n" + ADDED);
-      must(grown !== bare(h), "the ballot-breakdown view's job string moved, so the splice point is gone");
-      eq(bare(D_SRC), grown,
-        `${f} changed by more than the two declared views — with comments set aside the ONLY change is two ` +
-        'entries appended to VIEWS');
+      // THE TWO ADDED VIEWS ARE IN HEAD NOW. This fence used to splice them INTO
+      // HEAD's source before comparing, which is what a scope fence written during
+      // its own pass looks like: true while the change was uncommitted, and false
+      // on a clean tree the moment it landed — HEAD already carries the entries, so
+      // adding them again made the two sides differ by exactly the change that had
+      // shipped. They are asserted as PRESENT in both revisions instead, which is
+      // the claim that outlives the commit.
+      for (const ghost of ["id: 'evidence-for-my-vote'", "id: 'my-saved'"]) {
+        has(D_SRC, ghost, `door2-spine.js no longer declares ${ghost} — the relabelled mid-page surface lost its strip`);
+        has(h, ghost, `HEAD's door2-spine.js does not declare ${ghost} — this fence has lost its subject`);
+      }
+      // #my-politicians LEFT THE LIST, and that is this pass's one declarative
+      // change. See door2-spine.js's own note where the entry used to be: with the
+      // desk at /ballot the side-by-side picks panel became a door card, and a
+      // "View of your ballot workspace" strip above a two-line door labels
+      // something that is not on the page. Removing a declared entry is not an
+      // opinion about the ballot either.
+      const REMOVED = "    {\n" +
+        "      id: 'my-politicians',\n" +
+        "      label: 'Your picks',\n" +
+        "      job: 'the picks you have made, side by side, with the tools to change them'\n" +
+        "    },\n";
+      // toWorkspace() is cut out of BOTH sides before the whole-file comparison,
+      // because it is asserted above on its own terms and leaving it in would make
+      // this a restatement of the same diff rather than a fence around the rest.
+      const cutTW = (src) => { const t = fnSrc(src, "toWorkspace"); return t ? src.replace(t, "⟦toWorkspace⟧") : src; };
+      const headBare = cutTW(bare(h));
+      must(headBare.includes(REMOVED), "the #my-politicians view object is not where this splice expects it");
+      eq(cutTW(bare(D_SRC)), headBare.replace(REMOVED, ""),
+        `${f} changed by more than the two declared moves — with comments and toWorkspace set aside the ONLY ` +
+        'change is the removed #my-politicians entry');
     }
     // cmp-data.js CAME OFF THAT LIST AND KEPT THE CLAIM IT WAS STANDING FOR. The
     // word-first pass (v168) corrected phil_lyman's office label — he was filed as

@@ -122,6 +122,12 @@ const SEAT_FILES = [
   // their pre-link onclick markup and the address assertions below would pass
   // for the wrong reason, or not at all.
   "person-link.js",
+  // 🖼 The curated portrait map. It used to be a literal inside compare-hub.js,
+  // which is why this list got its faces for free; it lives in browse-photos.js
+  // now so /ballot can paint the same headshots without loading the hub. Loaded
+  // one tag ahead of the hub, exactly as index.html loads it, because
+  // _getPhotoUrl's last tier reads window.BROWSE_PHOTOS.
+  "browse-photos.js",
   "voter-hub-location.js", "compare-hub.js", "seat-field.js", "ballot-breakdown.js",
   "who-represents-me.js", "race-sheet.js", "ballot-workspace.js",
 ];
@@ -257,7 +263,12 @@ const pane = (w) => {
 };
 const openPane = (w, key) => { w.pdxBallotWorkspaceOpen(key); return pane(w); };
 
-const NAMES = ["lee", "curtis", "cox", "bmoore", "jstevenson", "defay_h15"];
+// The six rows a warm Layton band owes this reader. The House row is MALOY, not
+// Moore: Davis County votes in UT-2, so UT-2's member is this reader's House
+// member. This list named bmoore while the House seat was resolved off the prior
+// map; the seat now follows the district on the location line, and a band that
+// still named UT-1's member would be naming the wrong district's member.
+const NAMES = ["lee", "curtis", "cox", "maloy", "jstevenson", "defay_h15"];
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("1 · one owner announces that the roster landed");
@@ -376,7 +387,7 @@ section("2 · a cold Layton boot still finishes six of six");
     }
   });
   ok(shot >= 4, `only ${shot} of the six named rows resolved a real photo`);
-  lacks(warm, "Celeste Maloy", "the band names the UT-2 member as this reader's House member");
+  lacks(warm, "Blake Moore", "the band names UT-1's member as this UT-2 reader's House member");
 
   // …and the workspace header, on the seat that was already open. Nothing here
   // re-opened it: the subscription repainted the pane the reader was looking at.
@@ -395,10 +406,10 @@ section("2 · a cold Layton boot still finishes six of six");
   });
   has(strip(openPane(w, "governor")), String(w.CMP_DATA.cox.name),
     "the Governor header does not name Cox");
-  has(strip(openPane(w, "house")), String(w.CMP_DATA.bmoore.name),
-    "the House header does not name Blake Moore");
-  lacks(strip(openPane(w, "house")), "Holds this seat now: " + String(w.CMP_DATA.maloy.name),
-    "the House header names the UT-2 member as the holder");
+  has(strip(openPane(w, "house")), String(w.CMP_DATA.maloy.name),
+    "the House header does not name this reader's House member");
+  lacks(strip(openPane(w, "house")), "Holds this seat now: " + String(w.CMP_DATA.bmoore.name),
+    "the House header names UT-1's member as the holder of a UT-2 seat");
 
   // The owner's own answer, for the record: six seats, every one with a pid.
   const gaps = (w.pdxRepsForMe().levels || []).filter((lv) => !lv.pid).map((lv) => lv.key);

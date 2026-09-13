@@ -2248,11 +2248,10 @@ window.PDXLazy = (function () {
        Overlay-only, so it loads non-blocking like the rest of the modal CSS. -->
   <link rel="stylesheet" href="/race-sheet.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/race-sheet.css" /></noscript>
-  <!-- The Door 2 ballot workspace. Same low-priority load as the race sheet it
-       reads its model from: neither is above the fold, and neither is allowed to
-       block the first paint. -->
-  <link rel="stylesheet" href="/ballot-workspace.css" media="print" onload="this.media='all'" />
-  <noscript><link rel="stylesheet" href="/ballot-workspace.css" /></noscript>
+  <!-- ballot-workspace.css moved to ballot.html with the desk it paints. It is
+       render-blocking there, because there the desk is the page. Nothing on this
+       document carries a .bw- class any more: the workspace section is gone and
+       the panel that used to sit beside it is a door card. -->
   <!-- Door 2 view chrome. Labels the older ballot surfaces as views of the
        workspace above rather than as rival products; carries no figure of its
        own beyond the workspace's own decided/total count. Same non-blocking
@@ -3711,7 +3710,7 @@ window.PDXLazy = (function () {
                focuses the eye in place — no scroll, because the eye is already on
                screen at every scroll position. -->
           <a href="#say-vs-do" title="Find the Record — search the archive by name, bill number or issue, or paste a claim and the Eye finds the voting record behind it" onclick="if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#eaf3ff;background:linear-gradient(135deg,#1e51a8,#2f6fd0);border:1.5px solid rgba(127,180,255,0.85);box-shadow:0 0 16px rgba(59,130,246,0.45),inset 0 1px 0 rgba(255,255,255,0.22);text-shadow:0 1px 2px rgba(0,0,0,0.45);">👁️ Find the Record</a>
-          <a href="#my-politicians" title="Your ballot — the picks you are working and finalizing" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border:1.5px solid rgba(245,200,66,0.9);box-shadow:0 0 16px rgba(245,200,66,0.45),inset 0 1px 0 rgba(255,255,255,0.35);text-shadow:0 1px 1px rgba(255,255,255,0.25);">⭐ Your Ballot</a>
+          <a href="/ballot" title="Your ballot — the picks you are working and finalizing" class="flex items-center gap-1.5 font-condensed font-700 text-xs tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all hover:scale-105" style="white-space:nowrap;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border:1.5px solid rgba(245,200,66,0.9);box-shadow:0 0 16px rgba(245,200,66,0.45),inset 0 1px 0 rgba(255,255,255,0.35);text-shadow:0 1px 1px rgba(255,255,255,0.25);">⭐ Your Ballot</a>
           <!-- Voter Hub, 🗳️ Your Ballot and 🔦 Local Issues used to sit here, at
                the same rank as the two doors. They are Door 2 VIEWS, so they moved
                into the EXPLORE & DISCOVER panel below under "Your Vote · Door 2".
@@ -3781,7 +3780,13 @@ window.PDXLazy = (function () {
                    visitor who came looking for their ballot should not have to read
                    past the archive to find it. -->
               <div class="pdx-navmenu__hd">Your Vote · Door 2</div>
-              <a href="#your-ballot" title="Enter your address and see the contests PolitiDex tracks for your districts" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🗳️</span><span class="pdx-navmenu__lb">Your Ballot</span></a>
+              <!-- No "Your Ballot" row here. Door 2 is ONE address now (/ballot, its
+                   own document), and the primary bar carries it as the ⭐ Your Ballot
+                   pill two items to the left of the control this panel drops out of.
+                   A second row with the same label and the same href is the same
+                   duplicate the ballot demotion removed from the page body, wearing a
+                   menu row instead. What stays here are the rooms that are still
+                   rooms on this page: the Voter Hub and the local fights. -->
               <a href="#voter-hub" title="The Voter Hub — your seats, your races and what is on them" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🏛️</span><span class="pdx-navmenu__lb">Voter Hub</span></a>
               <a href="#local-issues" title="The fights on your local ballot — set your location to see them" onclick="var _li=document.getElementById('local-issues');if(!_li||_li.hidden){event.preventDefault();(window.openLocationModal||window.toggleChangeLocation||function(){})();}" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🔦</span><span class="pdx-navmenu__lb">Local Issues</span></a>
               <div class="pdx-navmenu__sep"></div>
@@ -4389,7 +4394,7 @@ window.PDXLazy = (function () {
       <div class="mnav-group-label">Start Here · Two Doors</div>
       <a href="#who-represents-me" title="Your seats &amp; races — who holds power over you, and who else is running for each seat" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#a8d4ff;">🏛️ Who Represents Me</a>
       <a href="#say-vs-do" title="Find the Record — search the archive by name, bill number or issue, or paste a claim and the Eye finds the voting record behind it" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenEye){event.preventDefault();window.pdxOpenEye();}" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ec8ff;">👁️ Find the Record</a>
-      <a href="#my-politicians" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-mypol flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⭐ Your Ballot</a>
+      <a href="/ballot" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-mypol flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⭐ Your Ballot</a>
       <!-- ── SECONDARY · rooms inside Door 2, plus the personal surfaces ──
            These are views of the ballot workspace and the reader's own account
            pages. They came off the DESKTOP row in Phase 3 (Voter Hub, Your
@@ -4400,7 +4405,8 @@ window.PDXLazy = (function () {
            hidden band. -->
       <div class="mnav-group-label">More of Your Vote</div>
       <a href="#voter-hub" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🏛️ Voter Hub</a>
-      <a href="#your-ballot" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🗳️ Your Ballot</a>
+      <!-- "Your Ballot" is not repeated here. It is the third row of the primary
+           group above, at the one address Door 2 has. -->
       <a href="#local-issues" onclick="document.getElementById('mobileMenu').classList.add('hidden');var _li=document.getElementById('local-issues');if(!_li||_li.hidden){event.preventDefault();(window.openLocationModal||window.toggleChangeLocation||function(){})();}" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🔦 Local Issues</a>
       <a href="#my-stances" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🎯 My Stances</a>
       <a href="#my-profile" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">👤 My Profile</a>
@@ -5320,7 +5326,7 @@ window.PDXLazy = (function () {
       <a href="#myteam-browse-panel" class="pulse-chip" style="--c:#60a5fa;"><span class="pc-ico">🔎</span><span class="pc-text"><span class="pc-label">Look Up a Politician</span><span class="pc-value">Search the record</span></span></a>
       <a href="#evidence-locker" class="pulse-chip" style="--c:#4ade80;"><span class="pc-ico">📑</span><span class="pc-text"><span class="pc-label">Evidence Library</span><span class="pc-value">Sourced receipts</span></span></a>
       <a href="#follow-the-money" class="pulse-chip" style="--c:#34d399;"><span class="pc-ico">💰</span><span class="pc-text"><span class="pc-label">Follow the Money</span><span class="pc-value">Who funds them</span></span></a>
-      <a href="#my-politicians" class="pulse-chip" style="--c:#fbbf24;"><span class="pc-ico">⭐</span><span class="pc-text"><span class="pc-label">Work Your Ballot</span><span class="pc-value">One seat at a time</span></span></a>
+      <a href="/ballot" class="pulse-chip" style="--c:#fbbf24;"><span class="pc-ico">⭐</span><span class="pc-text"><span class="pc-label">Work Your Ballot</span><span class="pc-value">One seat at a time</span></span></a>
     </div>
   </div>
   <script>
@@ -7004,23 +7010,51 @@ window.PDXLazy = (function () {
       </div>
 
       <!-- ══════════════════════════════════════════════════════════════════
-           YOUR BALLOT WORKSPACE — the whole election loop on one surface
+           YOUR BALLOT — THE DOOR. THE DESK IS AT /ballot.
            ──────────────────────────────────────────────────────────────────
-           Door 2 already had every piece of this: the seat list at the top of
-           the page, the field comparison in a full-screen overlay, the team
-           store two thousand lines below. What it did not have was the loop.
-           This section holds it — a persistent rail of every seat with its pick
-           state and a running count, plus one open seat carrying who holds it,
-           the field on the formal record, and the pick button. Painted by
-           ballot-workspace.js; the mount is static so the section exists at
-           first paint even if that file is slow, and the file itself renders a
-           one-line "set my location" state until there is a ballot to work.
-           Placed directly under the location card because that card is the one
-           input the workspace needs, and above the countdown because a deadline
-           is context for a decision, not a step in making one.
+           WHAT STOOD HERE. #ballot-workspace / #bw-body, the mount
+           ballot-workspace.js painted the whole election loop into: a seat rail,
+           one open seat, the field on the formal record, the pick. All of it is
+           now its own document at /ballot, so a front-page visitor no longer
+           carries 55 KB of desk plus its stylesheet for a surface they may never
+           open, and a voter who came to decide no longer scrolls past the front
+           page to reach it.
+
+           WHY THE MOUNT IS GONE AND NOT LEFT EMPTY. A mount for a script that
+           is not on the document is a section that never fills. judicial-ballot.js
+           also keys off #ballot-workspace, so an abandoned shell here would have
+           it paint a retention line beside a desk that does not exist.
+
+           WHY THE DOOR IS HERE. This is where Door 2 has always started: one
+           card below the location card, because that card is the one input the
+           workspace needs, and a reader who has just told us where they vote is
+           exactly the reader who can now work their seats. Who Represents Me
+           stays directly above it — it is the front step, it answers "who
+           represents me", and it hands the reader on.
+
+           IT IS A LINK, NOT A SCRIPT. A real <a href="/ballot"> so it works
+           before any JavaScript runs, is middle-clickable, and is something a
+           crawler can follow. No replaceState, no in-page reveal: the workspace
+           is an address now. Every other "work this seat" control on this page
+           leads to the same place — see the door shim beside the race sheet's
+           <script> tag.
+
+           NO COUNT LIVES ON THIS CARD. Not "6 seats", not "N of M" — the seat
+           list belongs to the voter's own resolved location and the desk is the
+           one surface that reads it. A number here would be a second tally in a
+           second place, which is the exact thing this split removed.
       ════════════════════════════════════════════════════════════════════ -->
-      <section id="ballot-workspace" class="bw animate-on-scroll" aria-label="Your ballot workspace — one seat at a time" style="transition-delay:0.045s;">
-        <div id="bw-body"></div>
+      <section class="animate-on-scroll" aria-labelledby="pdx-ballot-door-t" style="transition-delay:0.045s;margin:1.25rem 0 0;">
+        <a id="pdx-ballot-door" href="/ballot"
+           style="display:flex;align-items:center;gap:0.9rem;text-decoration:none;padding:1.05rem 1.15rem;border:1px solid rgba(129,140,248,0.34);border-radius:0.9rem;background:linear-gradient(135deg,rgba(129,140,248,0.13),rgba(96,165,250,0.07));"
+           aria-label="Open your ballot workspace — work your seats one at a time">
+          <span aria-hidden="true" style="font-size:1.6rem;line-height:1;flex:none;">🗳️</span>
+          <span style="min-width:0;flex:1 1 auto;">
+            <span id="pdx-ballot-door-t" style="display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.12rem;letter-spacing:0.01em;color:#e8eefc;">Your ballot — one seat at a time</span>
+            <span style="display:block;margin-top:0.2rem;font-size:0.86rem;line-height:1.45;color:#9fb4d4;">Open a seat, read the field on <b style="color:#c7d6f0;">the formal record</b>, pick who earns it, move to the next seat we can resolve. Your picks save as you go.</span>
+          </span>
+          <span aria-hidden="true" style="flex:none;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:0.12em;font-size:0.72rem;color:#aab8d8;border:1px solid rgba(255,255,255,0.14);border-radius:0.5rem;padding:0.35rem 0.6rem;white-space:nowrap;">Open ›</span>
+        </a>
       </section>
 
       <!-- ══════════════════════════════════════════════════════════════════
@@ -8243,170 +8277,110 @@ window.PDXLazy = (function () {
              That stopped being true when the workspace took over the
              seat-by-seat loop, and the stale note is recorded rather than
              silently dropped so the change is legible in one place. -->
-        <div id="myteam-selected-panel" class="mb-6 myteam-primary-hub">
-          <div class="bg-gradient-to-br from-amber-900/30 via-navy-800/85 to-navy-900/95 border-2 border-amber-500/55 rounded-3xl p-6 md:p-9" style="box-shadow: 0 18px 60px rgba(0,0,0,0.45), 0 0 60px rgba(245,158,11,0.16), inset 0 0 0 1px rgba(245,200,66,0.08);">
-            <div class="flex items-center justify-between gap-3 mb-6 flex-wrap">
-              <div class="flex items-center gap-3">
-                <div class="myteam-hub-star w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700/60 flex items-center justify-center text-2xl shadow-lg" style="box-shadow:0 0 32px rgba(245,158,11,0.35);">⭐</div>
-                <div>
-                <div class="inline-flex items-center gap-1.5 font-condensed font-700 text-xs uppercase rounded-full px-3 py-1 mb-2" style="letter-spacing:0.16em;color:#1a1206;background:linear-gradient(135deg,#ffe486,#e7b53e);box-shadow:0 4px 14px rgba(245,200,66,0.3);">★ Build &amp; Finalize Your Slate</div>
-                  <h3 class="font-display text-4xl md:text-5xl tracking-wider text-amber-300 uppercase" style="line-height:1.05;text-shadow:0 0 36px rgba(245,158,11,0.4);">YOUR PICKS <span id="myteam-count-badge" class="font-condensed text-base font-bold tracking-wider text-amber-400 bg-amber-500/18 border border-amber-500/35 rounded-full px-4 py-1 ml-3">0/6</span></h3>
-                  <!-- Compact picks-set meter — glanceable goal (dots + "X of N picks
-                       set") sitting directly under the title. Populated live by
-                       _mypolBuildGrid() from the same seat-pick count as the bar. -->
-                  <div id="myteam-picks-meter" class="myteam-picks-meter" role="status" aria-live="polite" title="How many ballot seats you've set a pick for">
-                    <span id="myteam-picks-dots" class="myteam-picks-dots" aria-hidden="true"><span class="myteam-picks-dot"></span><span class="myteam-picks-dot"></span><span class="myteam-picks-dot"></span><span class="myteam-picks-dot"></span><span class="myteam-picks-dot"></span><span class="myteam-picks-dot"></span></span>
-                    <span id="myteam-picks-text" class="myteam-picks-text">0 of 6 picks set</span>
-                  </div>
-                  <p id="myteam-subtext" class="font-condensed text-sm text-amber-400/70 tracking-wide mt-1">Your personal slate — <strong class="text-white">the people who will actually make the decisions that affect you</strong>. Fill every seat with whoever earns it on record and values, not the letter after their name.</p>
-                  <p id="myteam-location-text" class="font-condensed text-xs text-amber-300/85 tracking-wide mt-1.5">📍 Set Your Location to see your representatives — <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#fbbf24;text-decoration:underline;">choose location</button> to personalize your slate.</p>
-                  <!-- Journey breadcrumb — marks this as the destination of the
-                       ① Find → ② Research → ★ Build flow, so the supporting
-                       sections below read as feeding into it. Step ① is named for
-                       the question a visitor actually asks ("who represents me?")
-                       rather than for the data structure that answers it. -->
-                  <div class="myteam-journey" aria-hidden="true">
-                    <span class="myteam-journey__step">① Who Represents You</span>
-                    <span class="myteam-journey__arrow">→</span>
-                    <span class="myteam-journey__step">② Relevant to Me</span>
-                    <span class="myteam-journey__arrow">→</span>
-                    <span class="myteam-journey__step is-here">★ Your picks <em>you're here</em></span>
-                  </div>
-                </div>
-              </div>
-              <div class="flex gap-2 items-center flex-wrap">
-                <button onclick="window._myteamGuideGo && window._myteamGuideGo('pick')" class="font-condensed text-xs text-amber-300 hover:text-amber-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-amber-500/12 border border-amber-500/30 hover:border-amber-400/55" style="background:rgba(245,158,11,0.07);" title="Jump to your next open race and keep building">➕ Add more picks</button>
-                <button onclick="window.openBallotSummary && window.openBallotSummary()" id="myteam-ballot-top-btn" class="font-condensed text-xs text-amber-200 hover:text-white tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg border border-amber-400/45 hover:border-amber-300/70" style="background:linear-gradient(135deg,rgba(245,200,66,0.16),rgba(230,184,0,0.08));display:none;" title="See, print, or copy the slate you’ve built">📋 My Ballot</button>
-                <button onclick="myteamCompareAll()" id="myteam-compare-top-btn" class="font-condensed text-xs text-blue-300 hover:text-blue-200 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg hover:bg-blue-500/12 border border-blue-500/25 hover:border-blue-400/50" style="background:rgba(59,130,246,0.06);display:none;">⚖️ Compare picks</button>
-                <button onclick="mypolClearAll()" class="font-condensed text-xs text-red-400/75 hover:text-red-300 tracking-wider uppercase transition-all cursor-pointer px-3 py-1.5 rounded-lg border border-red-500/25 hover:border-red-400/50 hover:bg-red-500/12" style="background:rgba(239,68,68,0.06);">🗑 Clear All</button>
-              </div>
-            </div>
+        <!-- ══════════════════════════════════════════════════════════════════
+             DEMOTED TO A DOOR. THE SECOND BALLOT PRODUCT IS GONE.
+             ──────────────────────────────────────────────────────────────────
+             WHAT WAS HERE. "YOUR PICKS 0/6" — a gold-ribboned panel with its own
+             count badge, its own six-dot picks meter, its own progress bar and
+             pip row, its own "Your 6 ballot slots" label, a six-slot grid, a
+             stats block and an empty state. It was described in its own comment
+             as a VIEW of the ballot workspace, and door2-spine.js painted a
+             header above it saying so. It did not read as a view. It read as a
+             second product: a reader who had worked seats in the workspace
+             upstairs met a second surface, two thousand lines down, that also
+             called itself their ballot and counted their progress in its own
+             numbers and its own words.
 
-            <!-- ═══ HOME VOTING BASE / RESEARCH mode banner ═══
-                 Rendered entirely by _homeRenderBanner(). It tells the voter
-                 which mode they're in — their protected "My Home Team" (the
-                 real representatives where they live) vs. the flexible
-                 "Research Mode" scratch team — and gives the switch / save /
-                 build actions. Empty until the team JS paints it. -->
-            <div id="myteam-mode-banner" style="display:none;"></div>
+             Two counters for one fact is one counter too many, and with the desk
+             moved to /ballot the duplicate had nothing left to be a view OF.
 
-            <!-- ═══ HERO: the actual 6-seat builder, lifted to the top ═══
-                 The slots are the primary task, so they now sit directly under the
-                 header + progress bar with no large guidance blocks in front of
-                 them. All the supporting guidance (how-to, values matching, the
-                 next-step checklist, stats) was moved BELOW the grid and slimmed
-                 down so the voter reaches their seats with almost no scrolling. -->
+             WHAT IS HERE NOW. One door to /ballot, and nothing that counts.
+             The deciding happens at /ballot; the picks a reader has made are
+             read there, on the surface that made them. This card does not say
+             how many seats there are or how many are filled — that belongs to
+             the voter's own resolved seat list, and the desk is the one place
+             that reads it.
 
-            <!-- Ballot completion progress — bar + per-slot pips. Kept directly
-                 above the slots so the count and the seats read as one unit. -->
-            <div id="myteam-progress" class="myteam-progress">
-              <div class="myteam-progress-track">
-                <div id="myteam-progress-fill" class="myteam-progress-fill" style="width:0%;"></div>
-              </div>
-              <div class="myteam-progress-meta">
-                <div id="myteam-progress-pips" class="myteam-progress-pips"></div>
-                <div id="myteam-progress-label" class="myteam-progress-label">0 of 6 seats filled</div>
-              </div>
-            </div>
+             WHY THE HOOK NODES SURVIVE. #my-politicians is still a scroll target
+             from a dozen places in this document, and compare-hub.js's builder
+             (_mypolBuildGrid and the writers around it) still runs on this page
+             for Find the Record — it walks this exact id list and assigns
+             .innerHTML / .textContent to whatever it finds. Every one of those
+             reads is `var el = getElementById(id); if (el) …`, so a missing node
+             is survivable — but thirty-one of them in one function is thirty-one
+             chances for a future edit to drop the guard, and the writers are not
+             this pass's business. So the nodes stay, empty and hidden, and the
+             values written into them are written into nothing. The markup they
+             used to carry — the literal six dots, the "0/6" badge, the "0 of 6
+             seats filled" label, the "Your 6 ballot slots" line — is gone
+             outright: those were the only hardcoded seat counts on the surface,
+             and the JS that fills these nodes derives its own total from
+             window.TEAM_POSITIONS anyway.
+        ════════════════════════════════════════════════════════════════════ -->
+        <div id="myteam-selected-panel" class="mb-6">
+          <!-- Journey breadcrumb — ① Find → ② Research → ★ Ballot. It survived the
+               demotion recorded above because it is the flow, not a counter: it
+               names no seats, counts no picks and asserts no total. Step ① is named
+               for the question a visitor actually asks ("who represents me?")
+               rather than for the data structure that answers it.
+               What changed is the last step. ★ used to read "Your picks — you're
+               here", which was true while the six-slot builder was directly under
+               it. The deciding happens at /ballot now, so the step names the door
+               instead of claiming the reader has already arrived. -->
+          <div class="myteam-journey" aria-hidden="true">
+            <span class="myteam-journey__step">① Who Represents You</span>
+            <span class="myteam-journey__arrow">&rarr;</span>
+            <span class="myteam-journey__step">② Relevant to Me</span>
+            <span class="myteam-journey__arrow">&rarr;</span>
+            <span class="myteam-journey__step">★ Your ballot <em>one tap away</em></span>
+          </div>
+          <a id="pdx-myteam-door" href="/ballot"
+             style="display:flex;align-items:center;gap:0.9rem;text-decoration:none;padding:1.05rem 1.15rem;border:1px solid rgba(245,200,66,0.34);border-radius:0.9rem;background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(10,15,30,0.4));"
+             aria-label="Open your ballot workspace to make and review your picks">
+            <span aria-hidden="true" style="font-size:1.6rem;line-height:1;flex:none;">🗳️</span>
+            <span style="min-width:0;flex:1 1 auto;">
+              <span style="display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.12rem;letter-spacing:0.01em;color:#f6e7c0;">Open your ballot</span>
+              <span style="display:block;margin-top:0.2rem;font-size:0.86rem;line-height:1.45;color:#c9b98f;">Your picks live in the workspace, with the field on the formal record beside each seat. Make them and read them back in one place.</span>
+            </span>
+            <span aria-hidden="true" style="flex:none;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:0.12em;font-size:0.72rem;color:#e0cf9a;border:1px solid rgba(245,200,66,0.3);border-radius:0.5rem;padding:0.35rem 0.6rem;white-space:nowrap;">Open ›</span>
+          </a>
 
-            <!-- 6-Slot Position Grid — the focal point of the whole page, now the
-                 first thing in the builder body. A compact label marks it as the
-                 thing to fill so the slots read as the action. -->
-            <div class="myteam-slots-focus-label">
-              <span class="myteam-slots-focus-ico" aria-hidden="true">🗳️</span>
-              <span class="myteam-slots-focus-text" id="myteam-slots-focus-text">Your 6 ballot slots — <strong>one pick per office.</strong> Add candidates from the sections below; they land here.</span>
-            </div>
-            <!-- Mobile-only swipe affordance — the six seats become one
-                 horizontal strip on phones, so this cues the gesture. -->
-            <div class="myteam-swipe-hint" aria-hidden="true"><span>←</span> Swipe through all your seats <span>→</span></div>
-            <div id="myteam-slots-grid" class="myteam-slots-grid"></div>
-
-            <!-- Live team summary / friendly empty-state line -->
-            <div id="myteam-summary-line" class="myteam-summary-line" style="display:none;"></div>
-
-            <!-- Compare All + Alignment Action Bar -->
-            <div id="myteam-compare-bar" class="myteam-compare-all-bar" style="display:none;">
-              <button id="myteam-compare-all-btn" onclick="myteamCompareAll()" class="flex items-center gap-2 bg-blue-600/80 hover:bg-blue-500 border border-blue-400/40 text-white font-condensed font-700 text-xs tracking-widest uppercase px-5 py-3 rounded-lg transition-all cursor-pointer" style="white-space:nowrap;box-shadow:0 4px 16px rgba(59,130,246,0.2);">
-                <svg style="width:1.1rem;height:1.1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                ⚖️ Compare All Your Picks Side-by-Side
-              </button>
-              <span id="myteam-compare-bar-hint" class="font-condensed text-xs text-steel-500 tracking-wide"></span>
-            </div>
-
-            <!-- ═══ Supporting context & results, BELOW the hero grid ═══ -->
-
-            <!-- Per-office picks summary — compact roster of every office. -->
-            <div id="myteam-office-summary" class="myteam-office-summary" style="display:none;"></div>
-
-            <!-- Team Alignment Overview — team's overall Your Match %, per-member
-                 breakdown, and the issues driving the match. -->
-            <div id="myteam-alignment-bar" class="myteam-alignment-bar" style="display:none;"></div>
-
-            <!-- My Team's Evidence — dashboard-level launch pad into the Evidence
-                 Locker for the saved team: a team-wide "Browse team evidence ↗"
-                 summary plus per-issue jumps. Painted by _renderTeamEvidenceSection()
-                 inside _mypolBuildGrid(); honesty-gated so it only shows real
-                 evidence entry points. -->
-            <div id="myteam-evidence-bar" class="myteam-evidence-bar" style="display:none;"></div>
-
-            <!-- Team stats bar -->
-            <div id="myteam-stats" class="mb-6 mt-6" style="display:none;">
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                <div class="bg-navy-900/70 border border-green-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
-                  <div id="myteam-stat-avg" class="font-display text-3xl text-green-400" style="text-shadow:0 0 16px rgba(74,222,128,0.25);">—</div>
-                  <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Pledge Receipts</div>
-                </div>
-                <div class="bg-navy-900/70 border border-amber-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
-                  <div id="myteam-stat-count" class="font-display text-3xl text-amber-400">0</div>
-                  <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Your Picks</div>
-                </div>
-                <div class="bg-navy-900/70 border border-blue-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
-                  <div id="myteam-stat-offices" class="font-display text-3xl text-blue-400">0</div>
-                  <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Positions Filled</div>
-                </div>
-                <div class="bg-navy-900/70 border border-purple-500/20 rounded-xl p-3.5 text-center" style="box-shadow:0 2px 12px rgba(0,0,0,0.2);">
-                  <div id="myteam-stat-align" class="font-display text-3xl text-purple-400" style="text-shadow:0 0 16px rgba(139,92,246,0.25);">—</div>
-                  <div class="font-condensed text-xs text-steel-500 tracking-wider uppercase" style="font-size:0.62rem;">Pick Alignment</div>
-                </div>
-              </div>
-              <div id="myteam-compare-team-cta" class="text-center" style="display:none;">
-                <button onclick="myteamCompareAll()" class="inline-flex items-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 border border-blue-400/40 text-white font-condensed font-700 text-sm tracking-widest uppercase px-7 py-3.5 rounded-xl transition-all cursor-pointer" style="box-shadow:0 6px 24px rgba(59,130,246,0.25), 0 0 20px rgba(59,130,246,0.1);">
-                  <svg style="width:1.25rem;height:1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                  Compare my picks
-                </button>
-              </div>
-            </div>
-
-            <!-- JS hook only (hidden). The in-builder "While building your team"
-                 checklist that used to render here was removed to cut repetition
-                 with the persistent team progress shown at the top of Relevant to
-                 Me below. This node is kept (and stays hidden) because
-                 _renderTeamNextStep() still runs on every builder repaint for its
-                 side-effects — the persistent Team Builder dock and the Voter Hub
-                 "Your Path" sync — but it no longer renders any visible block. -->
-            <div id="myteam-next-step" class="mt-1" style="display:none;"></div>
-
-            <!-- Persistence reassurance — confirms the team is saved on this device
-                 (and synced when signed in). Shown by _mypolBuildGrid once a pick
-                 exists so the feature reads as durable, not throwaway. -->
-            <div id="myteam-save-status" class="myteam-save-status" style="display:none;"></div>
-
-            <!-- "Your Districts" coverage map — currently suppressed inside
-                 _renderTeamDistrictCoverage() (the grouped grid carries it), kept
-                 here so the JS hook still has its node. -->
-            <div id="myteam-district-coverage" class="myteam-dcov" style="display:none;"></div>
-
-            <!-- Empty state for team -->
-            <div id="myteam-empty" class="text-center py-16" style="display:none;">
-              <div class="text-7xl mb-6" style="filter:drop-shadow(0 0 30px rgba(245,158,11,0.35));animation:float 3s ease-in-out infinite;">🗳️</div>
-              <div class="font-display text-4xl md:text-5xl tracking-wider text-steel-300 mb-4" style="text-shadow:0 2px 12px rgba(0,0,0,0.3);">WORK YOUR BALLOT</div>
-              <p class="text-steel-300 text-base md:text-lg mb-3 max-w-lg mx-auto leading-relaxed">Pick the politicians who actually represent what you believe in. Each office below — from the U.S. Senate down to your local government — goes to the candidate who earns it on <strong class="text-white">record and values</strong>, not the letter after their name.</p>
-              <p class="text-steel-500 text-sm max-w-md mx-auto mb-6">Your picks save automatically on this device as you work — come back anytime and they are still here. Sign in to also sync it across your devices.</p>
-              <button onclick="window.jumpToRelevantAccordion('senate')" class="inline-flex items-center gap-2.5 bg-gradient-to-r from-amber-600/30 to-amber-500/20 border-2 border-amber-500/50 hover:border-amber-400/80 text-amber-300 hover:text-amber-200 font-condensed font-700 text-base tracking-widest uppercase px-8 py-4 rounded-xl transition-all hover:shadow-lg" style="text-decoration:none;box-shadow:0 4px 20px rgba(245,158,11,0.15);">
-                <svg style="width:1.2rem;height:1.2rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
-                Find Candidates Who Match You
-              </button>
-            </div>
+          <!-- JS HOOKS ONLY — no visible surface, no count, no seat list.
+               See the note above. Hidden by the attribute AND by the inline
+               style, because one of the writers below toggles inline display on
+               individual children and an attribute alone could be undone. -->
+          <div id="pdx-myteam-hooks" hidden aria-hidden="true" style="display:none !important;">
+            <div id="myteam-count-badge"></div>
+            <div id="myteam-picks-meter"></div>
+            <div id="myteam-picks-dots"></div>
+            <div id="myteam-picks-text"></div>
+            <div id="myteam-subtext"></div>
+            <div id="myteam-location-text"></div>
+            <div id="myteam-ballot-top-btn"></div>
+            <div id="myteam-compare-top-btn"></div>
+            <div id="myteam-mode-banner"></div>
+            <div id="myteam-progress"></div>
+            <div id="myteam-progress-fill"></div>
+            <div id="myteam-progress-pips"></div>
+            <div id="myteam-progress-label"></div>
+            <div id="myteam-slots-focus-text"></div>
+            <div id="myteam-slots-grid"></div>
+            <div id="myteam-summary-line"></div>
+            <div id="myteam-compare-bar"></div>
+            <div id="myteam-compare-bar-hint"></div>
+            <div id="myteam-office-summary"></div>
+            <div id="myteam-alignment-bar"></div>
+            <div id="myteam-evidence-bar"></div>
+            <div id="myteam-stats"></div>
+            <div id="myteam-stat-avg"></div>
+            <div id="myteam-stat-count"></div>
+            <div id="myteam-stat-offices"></div>
+            <div id="myteam-stat-align"></div>
+            <div id="myteam-compare-team-cta"></div>
+            <div id="myteam-next-step"></div>
+            <div id="myteam-save-status"></div>
+            <div id="myteam-district-coverage"></div>
+            <div id="myteam-empty"></div>
           </div>
         </div>
 
@@ -10590,7 +10564,7 @@ window.PDXLazy = (function () {
           <h3 class="ht-topic-title">Your 2026 Ballot</h3>
           <p class="ht-topic-desc">Governor, Congress, and the Legislature are all up this November. Work your ballot now and walk into the booth knowing exactly who's earned your vote.</p>
           <div class="ht-topic-actions">
-            <a class="ht-topic-btn ht-topic-btn-primary" href="#my-politicians">⭐ Work My Ballot</a>
+            <a class="ht-topic-btn ht-topic-btn-primary" href="/ballot">⭐ Work My Ballot</a>
             <a class="ht-topic-btn" href="#key-dates">📅 Key Dates</a>
           </div>
         </div>
@@ -13834,8 +13808,15 @@ window.PDXLazy = (function () {
                 <p id="tracker-depth-line" class="font-condensed text-xs tracking-wide mt-1.5" style="color:#9fb4d4;display:none;"></p>
               </div>
             </div>
-            <div id="myteam-browse-team-status" class="flex items-center gap-2 flex-shrink-0" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:0.75rem;padding:0.5rem 0.85rem;">
-              <span class="font-condensed text-xs font-700 tracking-widest uppercase text-amber-400" id="myteam-browse-slots-label">0/6 Seats Filled</span>
+            <!-- Seats-filled chip. The literal "0/6" that used to sit in this span was
+                 a hardcoded seat count: the number of seats a voter can resolve comes
+                 from their own location, so six is wrong in 49 states and in several
+                 Utah counties. The chip now ships EMPTY and HIDDEN, and the one writer
+                 that knows the real total (_myteamRenderSelected in compare-hub.js,
+                 which reads _counts.total) reveals it when it has a number to show.
+                 An unresolved location therefore shows nothing instead of a lie. -->
+            <div id="myteam-browse-team-status" class="flex items-center gap-2 flex-shrink-0" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:0.75rem;padding:0.5rem 0.85rem;display:none;">
+              <span class="font-condensed text-xs font-700 tracking-widest uppercase text-amber-400" id="myteam-browse-slots-label"></span>
               <div style="width:60px;height:5px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;">
                 <div id="myteam-browse-slots-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#f59e0b,#fbbf24);border-radius:999px;transition:width 0.6s ease;"></div>
               </div>
@@ -18953,7 +18934,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         <div class="va-eyebrow"><span>🎓 Voter Academy · The Deep Dive</span></div>
         <h2 class="section-title font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">EDUCATIONAL <span class="text-crimson-400">LIBRARY</span></h2>
         <p class="va-tagline">The full deep dive: learn how the system really works — <span style="color:#fff;">then go work your ballot.</span></p>
-        <div class="mt-4"><a href="#my-politicians" class="inline-flex items-center gap-2 font-condensed text-xs tracking-widest uppercase text-amber-300 hover:text-white transition-colors" style="text-decoration:none;">← Back to working your ballot</a></div>
+        <div class="mt-4"><a href="/ballot" class="inline-flex items-center gap-2 font-condensed text-xs tracking-widest uppercase text-amber-300 hover:text-white transition-colors" style="text-decoration:none;">← Back to working your ballot</a></div>
         <div class="w-32 h-1 bg-gradient-to-r from-crimson-600 via-white to-blue-700 mx-auto rounded-full mt-6"></div>
 
         <!-- Academy stat chips -->
@@ -19377,7 +19358,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           <p class="font-condensed text-sm tracking-widest uppercase text-steel-400 mb-3">Now take what you've learned and put it to work</p>
           <div class="flex items-center justify-center gap-4 flex-wrap">
             <a href="#voter-hub" class="inline-flex items-center gap-2 bg-crimson-600/25 hover:bg-crimson-600/40 border border-crimson-500/40 hover:border-crimson-400/60 rounded-lg px-5 py-2.5 font-condensed text-xs tracking-widest uppercase text-crimson-300 hover:text-white transition-all" style="text-decoration:none;">🗳️ See Your Reps</a>
-            <a href="#my-politicians" class="inline-flex items-center gap-2 bg-blue-600/20 hover:bg-blue-600/35 border border-blue-500/35 hover:border-blue-400/55 rounded-lg px-5 py-2.5 font-condensed text-xs tracking-widest uppercase text-blue-300 hover:text-white transition-all" style="text-decoration:none;">⭐ Work Your Ballot</a>
+            <a href="/ballot" class="inline-flex items-center gap-2 bg-blue-600/20 hover:bg-blue-600/35 border border-blue-500/35 hover:border-blue-400/55 rounded-lg px-5 py-2.5 font-condensed text-xs tracking-widest uppercase text-blue-300 hover:text-white transition-all" style="text-decoration:none;">⭐ Work Your Ballot</a>
           </div>
         </div>
       </div>
@@ -20544,7 +20525,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
               <div class="text-white font-700 mb-3 text-xs flex items-center gap-1.5"><span class="text-blue-400">&#9670;</span> Features</div>
               <div class="flex flex-col gap-2.5 text-steel-400">
                 <a href="#voter-hub" class="hover:text-white transition-colors">Voter Hub</a>
-                <a href="#my-politicians" class="hover:text-white transition-colors">Work Your Ballot</a>
+                <a href="/ballot" class="hover:text-white transition-colors">Work Your Ballot</a>
                 <a href="#compare-hub" class="hover:text-white transition-colors">Compare Tool</a>
                 <a href="#wealth-leaderboard" class="hover:text-white transition-colors">Wealth Tracker</a>
                 <a href="#follow-the-money" class="hover:text-white transition-colors">Follow the Money</a>
@@ -20582,7 +20563,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         <div class="flex flex-wrap items-center justify-center gap-3 text-steel-400 text-xs font-condensed tracking-widest uppercase">
           <a href="#voter-hub" class="hover:text-white transition-colors">Voter Hub</a>
           <span class="text-steel-600">&#9733;</span>
-          <a href="#my-politicians" class="hover:text-white transition-colors">Your Ballot</a>
+          <a href="/ballot" class="hover:text-white transition-colors">Your Ballot</a>
           <span class="text-steel-600">&#9733;</span>
           <a href="#follow-the-money" class="hover:text-white transition-colors">Follow the Money</a>
           <span class="text-steel-600">&#9733;</span>
@@ -20858,10 +20839,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   </style>
   <div id="team-dock" class="team-dock" style="display:none;" aria-live="polite">
     <button type="button" class="team-dock-main" id="team-dock-main" onclick="window._teamDockNext && window._teamDockNext()" aria-label="Go to your next open ballot seat">
-      <span class="team-dock-ring" id="team-dock-ring" style="--pct:0;"><span class="team-dock-ring-num" id="team-dock-ring-num">0/6</span></span>
+      <!-- Ships blank. The dock is display:none until _paintTeamDock() has a real
+           st.total from the voter's own resolved slate, and that function writes
+           every one of these three nodes before it reveals the dock. The "0/6" and
+           "Start: U.S. Senate" that used to sit here were a hardcoded seat count
+           and a hardcoded first race for a voter whose ballot may have neither. -->
+      <span class="team-dock-ring" id="team-dock-ring" style="--pct:0;"><span class="team-dock-ring-num" id="team-dock-ring-num"></span></span>
       <span class="team-dock-text">
         <span class="team-dock-line1" id="team-dock-line1">Work your ballot</span>
-        <span class="team-dock-line2" id="team-dock-line2">Start: U.S. Senate →</span>
+        <span class="team-dock-line2" id="team-dock-line2"></span>
       </span>
     </button>
     <button type="button" class="team-dock-up" id="team-dock-up" onclick="window._relevantScrollToTeam && window._relevantScrollToTeam()" title="Back to your ballot" aria-label="Back to your ballot">
@@ -22397,6 +22383,12 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   </script>
 
 
+  <!-- The curated headshot map — lifted OUT of compare-hub.js into /browse-photos.js
+       so /ballot can paint the same faces without loading the hub. Same position the
+       hub occupies, one tag earlier, so window.BROWSE_PHOTOS is published before the
+       hub's closure reads it and before _getPhotoUrl's last tier is ever asked. -->
+  <script src="/browse-photos.js"></script>
+
   <!-- Compare Hub + My Politicians collection — extracted to /compare-hub.js (first-paint pass). Plain sync script at
        the original inline position: same execution order, same global scope.
        The preload scanner fetches it in parallel long before the parser gets here. -->
@@ -22895,7 +22887,57 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        (voter-hub-location.js), _pdxLedgerSlot (compare-hub.js), ISSUE_MAP and
        _msPriorityWeight (my-stances.js), _alignSignalChipHtml, PDXConsistency. -->
   <script defer src="/race-sheet.js"></script>
-    <script defer src="/ballot-workspace.js"></script>
+  <!-- ══ DOOR 2 IS ITS OWN DOCUMENT NOW: /ballot ════════════════════════
+       ballot-workspace.js USED TO LOAD HERE. It is 55 KB of desk on top of the
+       ~11.9 MB this document already asks for, and it painted a surface most
+       front-page visitors never worked — so it moved to ballot.html, served for
+       /ballot by one netlify.toml rewrite, with the record lane it needs and
+       none of this page.
+
+       THE DOORS STAY, AND THIS IS THE HINGE. Four surfaces on this page offer
+       to open a seat in the workspace — Who Represents Me's "Work my ballot",
+       the race sheet's "Work this seat", Compare Hub's _pdxWorkSeat, and the
+       Door 2 view strips — and every one of them asks the same question first:
+       `typeof window.pdxBallotWorkspaceOpen === 'function'`. That guard was
+       written so a slow deferred file could not break the page, and with the
+       desk gone it would answer false and those controls would quietly vanish
+       rather than lead anywhere.
+
+       So the name keeps answering, and what it does is a real navigation to the
+       document that now owns it. Every existing call site works unchanged, the
+       guards read true, the controls stay on the page, and the seat the caller
+       named survives the trip as ?seat= — which ballot-workspace.js honours on
+       arrival, but only when the key names a seat on that voter's own resolved
+       list.
+
+       location.assign, not replaceState: a reader who opens a seat from the
+       front page and presses Back expects the front page. This is the same
+       close/open rule /p/<pid> already lives by.
+
+       THIS SHIM IS INDEX.HTML'S ONLY. On ballot.html the real
+       ballot-workspace.js defines pdxBallotWorkspaceOpen and opens the seat in
+       place, because there the desk IS the page. Nothing here is loaded there.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <script>
+  (function () {
+    'use strict';
+    // Do not shadow the real desk. If ballot-workspace.js is ever on this
+    // document again, it owns the name and this does nothing.
+    if (typeof window.pdxBallotWorkspaceOpen === 'function') return;
+    function ballotHref(seatKey) {
+      var k = (seatKey == null) ? '' : String(seatKey).trim();
+      return '/ballot' + (k ? '?seat=' + encodeURIComponent(k) : '');
+    }
+    window._pdxBallotHref = ballotHref;
+    window.pdxBallotWorkspaceOpen = function (seatKey) {
+      var to = ballotHref(seatKey);
+      try { location.assign(to); return true; } catch (e) {}
+      try { location.href = to; return true; } catch (e2) {}
+      try { location.replace(to); return true; } catch (e3) {}
+      return false;
+    };
+  })();
+  </script>
   <!-- Door 2 spine. Reads the workspace's own seat/decided counts (never its
        own tally) and paints a one-line "this is a view of that workspace"
        header onto Your Ballot, My Voting Team and the finished-slate page, then
@@ -24545,7 +24587,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     window._teamDockNext = function () {
       var st = window._teamDockState || {};
       if (st.complete) { if (window.openBallotSummary) window.openBallotSummary(); else if (window._relevantScrollToTeam) window._relevantScrollToTeam(); return; }
-      if (st.nextKey && window.jumpToRelevantAccordion) window.jumpToRelevantAccordion(st.nextKey);
+      if (st.nextKey && typeof window.pdxBallotWorkspaceOpen === 'function') window.pdxBallotWorkspaceOpen(st.nextKey);
+      else if (st.nextKey && window.jumpToRelevantAccordion) window.jumpToRelevantAccordion(st.nextKey);
       else if (window._relevantScrollToTeam) window._relevantScrollToTeam(true);
     };
 

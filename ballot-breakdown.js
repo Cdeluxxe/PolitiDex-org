@@ -2610,6 +2610,38 @@
     //     are always kept while neighbouring-district politicians are cut.
     // Returns null only when the Key Races data isn't ready yet, so every caller
     // can fall back to its prior behaviour and degrade gracefully.
+    // ── "IS THIS A REAL PERSON?" — ASKED OF THE ROSTER, NOT OF A SURFACE ──────
+    // Both resolvers below refuse to name anybody the app does not hold a record
+    // for: an honest blank beats a wrong name, and a pid that resolves to nothing
+    // is a wrong name waiting to be printed. The test used to be
+    // `window._pdxPersonById(pid)` and nothing else, and that accessor is defined
+    // in compare-table.js — a homepage module.
+    //
+    // WHAT THAT COST ON /ballot. ballot.html carries this resolver, the roster
+    // (cmp-data.js + profiles-full.js) and the desk, but not compare-table.js. So
+    // `typeof window._pdxPersonById === 'function'` was false, `_real()` returned
+    // false for EVERY pid, and the resolver handed the desk three district seats
+    // with no officeholder and an empty candidate list — "District 1 · not
+    // mapped" over a seat whose member the document had in memory the whole time.
+    // A coverage admission caused by a script tag is not a coverage admission.
+    //
+    // So the question is put to the data instead. The accessor is still preferred
+    // where it exists (it is the app's one display-record read, and it is where an
+    // alias or a display rule would be added), and where the document does not
+    // carry it the roster it would have read is asked directly. Same answer, one
+    // fewer module to be absent. It is still a real-record test: an empty roster
+    // resolves nobody, which is the honest blank this rule exists to produce.
+    function _pdxRealPerson(pid) {
+      if (!pid) return false;
+      try {
+        if (typeof window._pdxPersonById === 'function') return !!window._pdxPersonById(pid);
+      } catch (e) {}
+      try {
+        var r = window.CMP_DATA;
+        return !!(r && r[pid]);
+      } catch (e2) { return false; }
+    }
+
     window._pdxVoterBallot = function() {
       try {
         var loc = window._currentVoterLocation || {};
@@ -2639,7 +2671,7 @@
 
         var _num = function(v) { var n = parseInt(String(v == null ? '' : v).replace(/[^0-9]/g, ''), 10); return isNaN(n) ? null : n; };
         var _distOf = function(r) { var m = String(r.district || r.short || '').match(/(\d+)\s*$/); return m ? parseInt(m[1], 10) : null; };
-        var _real = function(pid) { return !!(pid && typeof window._pdxPersonById === 'function' && window._pdxPersonById(pid)); };
+        var _real = _pdxRealPerson;
 
         // Curated area defaults: district, sitting incumbent and the full roster
         // (incumbent + challengers) for each of the voter's three district seats.
@@ -2754,7 +2786,7 @@
         var currentDist = meta.priorCongressDistrict || null; // the current-map district
         if (!ballotDist || !currentDist || ballotDist === currentDist) return null;
 
-        var _real = function(pid) { return !!(pid && typeof window._pdxPersonById === 'function' && window._pdxPersonById(pid)); };
+        var _real = _pdxRealPerson;
         var currentPid = (KR_CONGRESSIONAL_INCUMBENTS[currentDist] && KR_CONGRESSIONAL_INCUMBENTS[currentDist].pid) || null;
         var ballotPid  = (KR_CONGRESSIONAL_INCUMBENTS[ballotDist]  && KR_CONGRESSIONAL_INCUMBENTS[ballotDist].pid)  || null;
         if (!_real(currentPid)) currentPid = null; // honest placeholder rather than a wrong name

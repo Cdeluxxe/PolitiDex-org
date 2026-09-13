@@ -455,6 +455,48 @@
   to = "/spotlight.html"
   status = 200
 
+# ─────────────────────────────────────────────────────────────────────────────
+# DOOR 2 — THE BALLOT WORKSPACE GETS ITS OWN DOCUMENT: /ballot -> ballot.html
+# ─────────────────────────────────────────────────────────────────────────────
+# THE FIFTH SHELL. Door 2 is where a voter resolves their seats: open one seat,
+# read the field on the formal record, pick, move to the next undecided seat.
+# It was a section of index.html, which meant a voter who came to work their
+# ballot downloaded the 2.24 MB front page — the hero, Who Represents Me,
+# Compare Hub, the Spotlight directory, the Archive, the Locker, the account
+# graph — and then scrolled past all of it to reach the desk.
+#
+# ballot.html carries the record lane and nothing else: the desk, where this
+# voter votes, the field for a seat, the stance corpus the record ruler reads,
+# and the one side-by-side overlay. .netlify/results.md lists what it drops.
+#
+# THIS IS ONE PATH, NOT A PREFIX. Two exact rules and no wildcard, because
+# /ballot has no sub-addresses: the seat is a query (/ballot?seat=<key>), not a
+# segment, so there is nothing for a /ballot/* rule to match that a typo would
+# not also match. An unknown seat key is answered inside the document — the desk
+# honours ?seat= only when it names a seat on THIS voter's own resolved list,
+# and falls through to their first undecided seat otherwise.
+#
+# ORDER MATTERS AND THIS BLOCK IS AFTER ALL THREE OTHER SHELLS. Netlify is
+# first-match-wins: /p/* (the person file), /i/* (the Issue File) and /issue/*
+# (the Spotlight) are declared above and none of them can be swallowed by the
+# rules here, which take two exact paths and no prefix. /vote/*, /d/*, /b/*,
+# /locker and /me are untouched, and so is / — the front page is still
+# index.html, and Who Represents Me is still the front step on it.
+[[redirects]]
+  from = "/ballot"
+  to = "/ballot.html"
+  status = 200
+
+# The trailing-slash form of the same address, declared rather than left to a
+# redirect, so a pasted /ballot/ is the workspace instead of a hop. It is also
+# why every same-origin path inside ballot.html is root-absolute: served at
+# /ballot/, a bare src would resolve one directory down, this rule would answer
+# it, and the browser would be handed the document to parse as JavaScript.
+[[redirects]]
+  from = "/ballot/"
+  to = "/ballot.html"
+  status = 200
+
 # District Room deep-links. THIS BLOCK FIXES THE URL SHAPE FOR THE ROOM, and it
 # is the only shape used anywhere in this pass:
 #

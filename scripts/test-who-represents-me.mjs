@@ -198,7 +198,9 @@ must(HTML.indexOf('THREE PILLS') !== -1,
 ok(navBlock.indexOf('#who-represents-me') < navBlock.indexOf('#say-vs-do'),
   'chrome: the lookup pill is no longer first in the desktop bar — the front step comes before Door 1,\n' +
   '    and the bar\'s own comment says so');
-ok(navBlock.indexOf('#say-vs-do') < navBlock.indexOf('#my-politicians'),
+// Door 2's pill carries the workspace's own address now (href="/ballot") rather
+// than an in-page anchor; the ordering claim is unchanged.
+ok(navBlock.indexOf('#say-vs-do') < navBlock.indexOf('"/ballot"'),
   'chrome: Door 1 no longer precedes Door 2 in the left group');
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -403,17 +405,57 @@ eq(nat.levels.filter((l) => l.resolved).length, 0,
   'resolver: the national pseudo-location resolved seats for somebody — "National" is not a state\n' +
   '    and has neither senators nor a governor of its own');
 
-// Redistricting travels with the resolver, so both surfaces say the same thing.
+// Redistricting travels with the resolver, so both surfaces say the same thing —
+// and what it may not do is give the reader a second answer to "which district am
+// I in". The seat row carries the district THIS VOTER'S LOCATION RESOLVED, which
+// is the district the Voting Districts strip prints one band away, paired with
+// that district's member or with a blank.
+//
+// WHAT THIS REPLACED, because it was a deliberate rule and not an oversight. The
+// resolver used to swap both halves of the House seat to the CURRENT map when the
+// bridge reported a redrawn area: "who represents you right now" is the prior
+// district until the new map takes effect, so a Layton voter got District 1 and
+// UT-1's member. Internally consistent, and two contradictory district numbers on
+// one screen — the strip said UT-2, the seat row said District 1 — with a name
+// under the second one belonging to a district the reader is not in. On /ballot it
+// degraded further: that document holds no record for the current-map member, so
+// the swap took the district and dropped the name, printing "District 1 · not
+// mapped" over a seat whose District 2 member the page had in memory. `redrawn` is
+// still published for a surface that wants to add the current-map context in
+// words; it is no longer allowed to change which seat this is.
 const redrawn = mkResolverCtx({
-  _pdxHouseRedistrict: () => ({ changed: true, currentPid: 'p-old', currentDistrict: '2' }),
+  _pdxHouseRedistrict: () => ({
+    changed: true,
+    currentPid: 'p-old', currentDistrict: '2',
+    ballotDistrict: '1', ballotIncumbentPid: 'p-house',
+  }),
 }).pdxRepsForMe();
 eq(redrawn.redrawn, true, 'resolver: a redrawn House seat is no longer flagged to its callers');
-eq(byKey(redrawn, 'house').pid, 'p-old',
-  'resolver: a redrawn seat names the future member as the current one — who represents you NOW is\n' +
-  '    the question the band asked');
-eq(byKey(redrawn, 'house').distLabel, 'U.S. House · District 2',
-  'resolver: the redrawn row pairs the current member with a district number that is not theirs —\n' +
-  '    the label and the name it opens have to describe the same seat');
+eq(byKey(redrawn, 'house').pid, 'p-house',
+  'resolver: a redrawn seat names the CURRENT-map member over the district this voter\'s location\n' +
+  '    resolved — no UT-1 member on a UT-2 detect');
+eq(byKey(redrawn, 'house').distLabel, 'U.S. House · District 1',
+  'resolver: the redrawn row prints a district other than the one the location line prints, so one\n' +
+  '    document tells the same reader two different House districts');
+
+// And the blank-honest half of the same rule: a redrawn area whose ballot-district
+// member we hold no record for leaves the NAME empty and the DISTRICT alone. The
+// seat is still the seat this voter votes in; we simply have nobody for it yet.
+const redrawnThin = mkResolverCtx({
+  _pdxVoterBallot: () => ({ districts: { house: '1' }, byOffice: {} }),
+  keyRacesRelevantData: () => ({ matched: true, label: 'Bountiful, Davis County', byRace: {} }),
+  _pdxHouseRedistrict: () => ({
+    changed: true,
+    currentPid: 'p-old', currentDistrict: '2',
+    ballotDistrict: '1', ballotIncumbentPid: null,
+  }),
+}).pdxRepsForMe();
+eq(byKey(redrawnThin, 'house').pid, null,
+  'resolver: with no record for the ballot district\'s member the row borrowed the current-map\n' +
+  '    member instead of staying blank');
+eq(byKey(redrawnThin, 'house').distLabel, 'U.S. House · District 1',
+  'resolver: a blank House seat also lost its district — the reader can no longer see WHICH seat\n' +
+  '    we have nobody for');
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 5 · Driven: the band paints cold, warm, and honestly partial

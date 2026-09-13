@@ -453,8 +453,11 @@ section("7 · The spine comes first, and no headline sells browse-by-score");
   const nav = HTML.slice(HTML.indexOf('href="#who-represents-me"'));
   ok(HTML.indexOf('href="#who-represents-me"') < HTML.indexOf('href="#say-vs-do"'),
     "Who Represents Me lost its lead position in the nav");
-  has(nav.slice(0, 4000), 'href="#my-politicians"',
-    "My Voting Team is no longer in the same nav row");
+  // The ballot entry sits in the same row; it spells its address href="/ballot"
+  // now that the workspace is its own document rather than href="#my-politicians",
+  // an in-page anchor. The claim here is adjacency, not the spelling.
+  ok(/href="(?:#my-politicians|\/ballot)"/.test(nav.slice(0, 4000)),
+    "the ballot entry is no longer in the same nav row as Who Represents Me");
 
   // The spine line reads the same everywhere it is stated.
   const SPINE = "Your seats → compare the field → pick for your ballot.";

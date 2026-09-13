@@ -682,16 +682,26 @@ section("G · the judicial wall is out of the pick flow");
 
   const IX = R("index.html");
   has(IX, 'id="judicial-lane"', "index.html has no judicial lane section");
-  const iWs = IX.indexOf('id="ballot-workspace"');
+  // THE WORKSPACE IS NOT ON THIS PAGE ANY MORE. It answers at /ballot, in a
+  // document of its own, so "is the judicial lane above the ballot workspace?"
+  // cannot be asked of index.html — and it no longer needs to be: a lane on the
+  // homepage cannot stand between a reader and a desk that is not on the homepage.
+  // The claim is kept in the strongest form this page can still hold it: the
+  // workspace mount is absent, and the lane sits below both surfaces that remain.
   const iPicks = IX.indexOf('id="my-politicians"');
   const iRel = IX.indexOf('id="relevant-section"');
   const iLane = IX.indexOf('id="judicial-lane"');
-  must(iWs > 0 && iPicks > 0 && iRel > 0 && iLane > 0, "a Door 2 section id moved — this probe is stale");
-  ok(iLane > iWs, "the judicial lane is above the ballot workspace in the document");
-  ok(iLane > iPicks, "the judicial lane is above the reader's picks in the document");
+  must(iPicks > 0 && iRel > 0 && iLane > 0, "a Door 2 section id moved — this probe is stale");
+  ok(IX.indexOf('id="ballot-workspace"') === -1,
+     "the ballot workspace mount is back on index.html — the desk is supposed to live at /ballot, and a\n" +
+     "    homepage copy of it puts the judicial lane back in front of a pick flow");
+  ok(iLane > iPicks, "the judicial lane is above the door into the reader's picks in the document");
   ok(iLane > iRel, "the judicial lane is above Relevant to Me in the document");
+  // The front step still comes before the door into Door 2. It used to be read
+  // against the workspace mount itself; the workspace is its own document now, so
+  // the nearest thing on this page is the door that opens it.
   const iWrm = IX.indexOf('id="who-represents-me"');
-  ok(iWrm < iWs, "Who Represents Me is no longer above the workspace — this probe is stale");
+  ok(iWrm > 0 && iWrm < iPicks, "Who Represents Me is no longer above the door into Door 2 — this probe is stale");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

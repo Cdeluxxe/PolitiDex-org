@@ -8,8 +8,14 @@
 //   · "Compare field for this seat" on the U.S. House named CELESTE MALOY as the
 //     holder and printed "nobody holds the seat" over BLAKE MOORE. The field came
 //     from the curated 2026 ballot (Davis County → UT-2); the holder came from
-//     the resolver, which applies the court-ordered map (Layton → UT-1). Two
-//     districts, one seat, one screen.
+//     the resolver, which applies the prior map (Layton → UT-1). Two districts,
+//     one seat, one screen. WHICH OF THE TWO WINS WAS SETTLED AFTERWARDS, AND IT
+//     IS THE BALLOT MAP: a Davis County reader casts a UT-2 ballot, so UT-2's
+//     member is the only one this document may name on that seat. Section 2's
+//     pins were first written the other way round, off a smoke report that read
+//     the district from the resolver; they now read it from the same 2026 row the
+//     location line prints. The defect was never which map is right — it was
+//     that one seat had two answers on one screen.
 //   · The state seats painted the holder alone, while "Where they stand" three
 //     rows above already listed other rostered people for that same seat.
 //   · A tap on Caroline Gleich in Relevant to Me opened a compact Kept/Broken
@@ -27,8 +33,9 @@
 //   1. ONE FIELD FUNCTION. pdxSeatField owns office + state + district → every
 //      roster pid on that key. Holders are pdxSeatHolders' pids and nothing else.
 //      Recomputed here from the roster keyers: nobody on the key is omitted.
-//   2. UT-1 IS THE FIELD. Moore is in it and tagged as holding it; Maloy, who is
-//      UT-2's candidate, is not in a UT-1 reader's field on any surface.
+//   2. THE BALLOT DISTRICT IS THE FIELD. Layton votes in UT-2, so Maloy is in it
+//      and tagged as holding it, and Moore — UT-1's member under the prior map —
+//      is not in this reader's field on any surface.
 //   3. EVERY FIELD SURFACE READS IT. Compare Field (_ballotCandidates), the race
 //      sheet's model and the workspace desk return the same pid set for a seat.
 //   4. WHERE THEY STAND AGREES. The Relevant-to-Me columns for the state seats
@@ -74,8 +81,10 @@ const HUB = R("compare-hub.js");
 const WORK = R("ballot-workspace.js");
 
 // Layton, Davis County: the 2026 congressional row carries district 2 (the map
-// Maloy runs on) while the resolver's court-ordered map puts Layton in UT-1 with
-// Blake Moore. This address is the one that broke, so it is the one under test.
+// Maloy runs on) while the resolver's prior map put Layton in UT-1 with Blake
+// Moore. The ballot this reader casts is the 2026 one, so district 2 is the
+// answer every surface here owes them. This address is the one that broke, so it
+// is the one under test.
 const LAYTON = { state: "Utah", city: "Layton", county: "Davis County" };
 const COLUMBUS = { state: "Ohio", city: "Columbus", county: "Franklin County" };
 
@@ -285,9 +294,9 @@ const HOUSE = W.pdxSeatField("house");
     `the House seat is not answerable for a located Utah reader (${HOUSE && HOUSE.reason})`);
   eq(HOUSE.reason, "", "an answerable field still carries a refusal reason");
   eq(HOUSE.state, "Utah", "the House field is not keyed to the reader's state");
-  eq(Number(HOUSE.district), 1, "the House field is not keyed to the reader's resolved district");
+  eq(Number(HOUSE.district), 2, "the House field is not keyed to the district on the reader's own ballot");
   eq(HOUSE.statewide, false, "the House seat is claimed to be statewide");
-  eq(HOUSE.scope, "Utah · District 1",
+  eq(HOUSE.scope, "Utah · District 2",
     "the field does not title the district it is about — that title is what used to read 'your districts'");
 
   // The holders are the resolver's pids and nothing else. A second opinion here
@@ -298,9 +307,14 @@ const HOUSE = W.pdxSeatField("house");
   ok((HOUSE.holders || []).length > 0, "the House seat has no holder for a located Utah reader");
 
   // Nobody on the key is omitted.
-  const expect = rosterOnKey(W, "representative", "Utah", 1);
-  ok(expect.length >= 2,
-    `the roster carries ${expect.length} UT-1 House rows, so 'the whole field' is not testable here`);
+  const expect = rosterOnKey(W, "representative", "Utah", 2);
+  // THE GUARD ASKS FOR A FIELD, NOT FOR A CROWD. It used to demand two rows or
+  // more, which was true of UT-1 and is not true of UT-2 in this fixture: the
+  // bundled roster carries one UT-2 House row. One row is still a field, and
+  // section 7 is where what the desk SAYS about a one-person field is pinned, so
+  // all this guard owes is that the key resolves to somebody at all.
+  ok(expect.length >= 1,
+    `the roster carries ${expect.length} UT-2 House rows, so 'the whole field' is not testable here`);
   eq(sorted(HOUSE.pids), sorted(expect),
     "the House field is not every roster row on this office + state + district key");
 
@@ -341,29 +355,37 @@ const HOUSE = W.pdxSeatField("house");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("2 · The field is UT-1: Moore is in it, UT-2's candidate is not");
+section("2 · The field is the ballot district: UT-2's member is in it, UT-1's is not");
 
 {
-  has(HOUSE.pids.join(","), "bmoore",
-    "the UT-1 member is missing from a UT-1 reader's House field");
-  ok((HOUSE.holders || []).indexOf("bmoore") >= 0,
-    "Blake Moore is not tagged as holding the seat he holds for this reader");
-  lacks(HOUSE.pids.join(","), "maloy",
-    "UT-2's member is still in a UT-1 reader's House field — the reported bug");
+  // THIS BLOCK ONCE ASSERTED THE OPPOSITE, AND THE REVERSAL IS THE WHOLE POINT.
+  // It was written from a smoke report that read the House district off the
+  // resolver's prior map (Layton → UT-1 → Blake Moore). The rule now is that the
+  // district on the seat is the district on the location line: Davis County
+  // votes in UT-2, every other surface prints UT-2, and naming UT-1's member on
+  // a UT-2 ballot is the wrong district's member — the one thing a ballot
+  // document may never do. So Maloy is in the field and tagged as holding it,
+  // and Moore is absent from it.
+  has(HOUSE.pids.join(","), "maloy",
+    "the ballot district's member is missing from this reader's House field");
+  ok((HOUSE.holders || []).indexOf("maloy") >= 0,
+    "Celeste Maloy is not tagged as holding the seat this reader votes on");
+  lacks(HOUSE.pids.join(","), "bmoore",
+    "UT-1's member is in a UT-2 reader's House field — the wrong district's member");
 
   // The same claim on every surface the reader can reach it from.
   const cf = W._ballotCandidates("house") || [];
   const cfp = cf.map((c) => c.pid);
-  ok(cfp.indexOf("bmoore") >= 0, "Compare Field's House row set is missing Blake Moore");
-  ok(cfp.indexOf("maloy") < 0, "Compare Field still lists UT-2's member on this reader's House seat");
-  ok(cf.some((c) => c.pid === "bmoore" && c.incumbent),
-    "Compare Field does not tag Blake Moore as the incumbent of the seat he holds");
-  ok(!cf.some((c) => c.incumbent && c.pid !== "bmoore"),
+  ok(cfp.indexOf("maloy") >= 0, "Compare Field's House row set is missing the ballot district's member");
+  ok(cfp.indexOf("bmoore") < 0, "Compare Field still lists UT-1's member on this reader's House seat");
+  ok(cf.some((c) => c.pid === "maloy" && c.incumbent),
+    "Compare Field does not tag Celeste Maloy as the incumbent of the seat she holds");
+  ok(!cf.some((c) => c.incumbent && c.pid !== "maloy"),
     "Compare Field tags somebody other than the resolved holder as this seat's incumbent");
 
   const deskText = strip(pane(W, "house"));
-  has(deskText, "Blake Moore", "the workspace desk for the House seat does not name Blake Moore");
-  lacks(deskText, "Celeste Maloy", "the workspace desk still names UT-2's member on a UT-1 seat");
+  has(deskText, "Celeste Maloy", "the workspace desk for the House seat does not name its member");
+  lacks(deskText, "Blake Moore", "the workspace desk names UT-1's member on a UT-2 seat");
   lacks(deskText, "nobody holds", "the desk still prints 'nobody holds' over a named holder");
   lacks(deskText, "No record on file for the current holder",
     "the desk still prints the blank-holder sentence over a named holder");

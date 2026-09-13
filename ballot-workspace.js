@@ -30,9 +30,14 @@
    It owns layout, sequencing and one piece of state — which seat is open — and
    nothing else. Every fact on it is read from the surface that already owns it:
 
-     · the seat list          → window.TEAM_POSITIONS (the same six slots the
-                                team builder's own meter counts, so "3 of 6"
-                                here cannot disagree with "3 of 6" there)
+     · the seat list          → window.TEAM_POSITIONS (the same slots the team
+                                builder's own meter counts, so the two surfaces
+                                cannot disagree about what is on this ballot)
+     · the count it prints    → that list filtered through fieldGate, i.e. the
+                                seats we can actually resolve for THIS voter.
+                                The rail lists every seat; the meter promises
+                                only the ones we can hand them, and neither
+                                number is ever a literal
      · who holds a seat       → window.pdxRepsForMe() (the one resolver Who
                                 Represents Me and the Voter Hub both read)
      · the field for a seat   → PDXRaceSheet._field (which wraps
@@ -118,6 +123,86 @@
     var PL = window.PDXPersonLink;
     var a = (PL && typeof PL.attrs === 'function') ? PL.attrs(pid) : '';
     return a ? '</a>' : '</button>';
+  }
+
+  // ── The same face the person file paints ──────────────────────────────────
+  // A desk row is a person, and until this pass it was a person with no face:
+  // a name, a lane label and a button. The record the row opens has a headshot
+  // at the top of it, so the reader met a candidate as a string here and as a
+  // person one tap later — and on a seat with five filings, a column of names
+  // is the hardest form a field can take.
+  //
+  // ONE RESOLVER, NOT A FOURTH COPY OF THE RULE. window._getPhotoUrl
+  // (ballot-breakdown.js) is the app's single answer to "which face belongs to
+  // this pid": PROFILES -> CMP_DATA -> BROWSE_PHOTOS, with the alias hop run in
+  // both directions so a portrait filed under a card key (chew_h68) still
+  // resolves on the roster id. Asking it first is what makes this row agree
+  // with the person file by construction rather than by coincidence. The two
+  // direct map reads below it are for the document that does not load it, not a
+  // second opinion; the order among them is the resolver's own order.
+  //
+  // NO NEW FETCH ON THE CRITICAL PATH. Every tier above is a table already in
+  // memory — /browse-photos.js is the curated map, loaded once on this document
+  // as data. Nothing here asks the network for a URL; the <img> asks for the
+  // image, lazily, after the seat panel has painted.
+  function photoish(u) {
+    // What may enter a src attribute. CMP_DATA and PROFILES rows carry icons and
+    // emoji in neighbouring fields, and an emoji in src is a broken image frame
+    // on a candidate's row — which is worse than the placeholder, because it
+    // reads as a failure rather than as an absence. https only: every curated
+    // portrait is already https, and a plain-http face on an https document is
+    // a blocked request, which is the same broken frame arriving later.
+    var s = String(u == null ? '' : u).trim();
+    return /^(https:\/\/|\/[^\/]|data:image\/)/i.test(s) ? s : '';
+  }
+  function candPhoto(pid) {
+    var p = canonPid(pid);
+    if (!p) return '';
+    if (fn('_getPhotoUrl')) {
+      try { var u = photoish(window._getPhotoUrl(p)); if (u) return u; } catch (e) {}
+    }
+    try {
+      var bp = window.BROWSE_PHOTOS;
+      if (bp && bp[p]) { var b = photoish(bp[p]); if (b) return b; }
+    } catch (e) {}
+    try {
+      var d = window.CMP_DATA && window.CMP_DATA[p];
+      if (d && d.photo) { var c = photoish(d.photo); if (c) return c; }
+    } catch (e) {}
+    return '';
+  }
+  // The canonical id, decided by the one module that decides it. candOpen builds
+  // the href through PDXPersonLink.attrs, which canonicalises internally, so the
+  // face has to ask the same question or a retired alias could paint one
+  // person's portrait inside a link to the record it was folded into.
+  function canonPid(raw) {
+    var PL = window.PDXPersonLink;
+    if (PL && typeof PL.pid === 'function') { try { return PL.pid(raw) || ''; } catch (e) {} }
+    if (fn('PDXProfilePid')) { try { return String(window.PDXProfilePid(raw) || raw || ''); } catch (e) {} }
+    return String(raw == null ? '' : raw);
+  }
+  // A MISSING PHOTO IS A BOX, NOT A HOLE. The placeholder is the courthouse the
+  // rest of the app uses for a person with no portrait (who-represents-me.js's
+  // wrm-avatar--empty), in a box of exactly the <img>'s dimensions, so a field
+  // where two of five have faces still reads as one column of rows. width and
+  // height are on the tag as well as in the stylesheet: the intrinsic ratio is
+  // what stops the row from reflowing when the portrait lands.
+  //
+  // AND IT IS DECORATIVE, DELIBERATELY. alt is empty and the box is aria-hidden
+  // because the name is inside the same link and the link already carries
+  // "Open <name>'s full record" — a portrait that also announced the name would
+  // make a screen reader read every candidate twice.
+  function candFace(pid) {
+    var url = candPhoto(pid);
+    if (!url) return '<span class="bw-face is-empty" aria-hidden="true">&#127963;</span>';
+    return '<span class="bw-face" aria-hidden="true">' +
+      '<img class="bw-face-img" src="' + esc(url) + '" alt="" width="38" height="38"' +
+      ' loading="lazy" decoding="async"' +
+      // The only thing that can still fail is the network. onerror rewrites the
+      // WRAPPER, never the anchor: the name is inside the same link and a
+      // fallback that reached for parentElement would delete it.
+      ' onerror="var w=this.parentElement;if(w){w.className=&quot;bw-face is-empty&quot;;w.innerHTML=&quot;&amp;#127963;&quot;}">' +
+    '</span>';
   }
   function rs() {
     var r = window.PDXRaceSheet;
@@ -563,10 +648,15 @@
   }
 
   // ── One candidate row ─────────────────────────────────────────────────────
-  function scoreColor(s) {
-    try { if (fn('_alignScoreColor')) return window._alignScoreColor(s); } catch (e) {}
-    return s >= 70 ? '#4ade80' : s >= 50 ? '#fbbf24' : '#f87171';
-  }
+  // RETIRED: scoreColor(). It graded the number slot on a green / amber / red
+  // ramp — the app's alignment-strength ramp. Three different reads print on this
+  // one row, and a traffic light is the face a reader has already been taught to
+  // read as a verdict on the person, so the lane that borrowed it was read as the
+  // candidate's grade instead of as the reader's own overlap with their record.
+  // The slot now carries ONE hue of its own (.bw-score-n in ballot-workspace.css),
+  // which is what tells it apart from the other two reads beside it. Deleted
+  // rather than left unused: a colour ramp for "a score" is the easiest way for
+  // the graded read to come back.
 
   // Direction Match, read from the slot that owns the publishable floor. `pct` is
   // null on every branch the ledger has not published and `tested` rides with it,
@@ -598,10 +688,34 @@
       head = '<span class="bw-score"><span class="bw-score-dash" aria-hidden="true">—</span>' +
         '<span class="bw-score-l">no score</span></span>';
     } else {
-      var col = scoreColor(c.score);
+      // ── LANE TWO, NAMED AS LANE TWO ────────────────────────────────────────
+      // This figure is the reader's OWN positions measured against this person's
+      // formal record. Three reads print within a few pixels of each other on
+      // this row and they answer three different questions:
+      //
+      //   1. the FORMAL RECORD itself — what they advanced and what they went
+      //      against. It has no chip and no percentage: it is the pattern
+      //      language in the seat's own copy, and it is what orders this field.
+      //   2. THIS — your match against that record. A percentage, because it is
+      //      an overlap between two sets of positions and a share is what an
+      //      overlap is.
+      //   3. WORD vs ACTION / Direction Match — their stated positions against
+      //      their own record. Grey, under the name, below a publication floor,
+      //      and it orders nothing (see dmLine above).
+      //
+      // The label used to read "RECORD" and nothing else, so a 12% tile beside a
+      // candidate's name read as a verdict on the candidate — their integrity
+      // score, or their record's grade — when what it actually says is "you and
+      // this person's record agree on 12% of what you told us matters". "RECORD"
+      // stays, because the record IS what was measured; "your match" goes in
+      // front of it, because the reader is the other half of the measurement and
+      // was the half nothing on the tile named.
       head = '<span class="bw-score">' +
-        '<span class="bw-score-n" style="color:' + col + ';">' + c.score + '<i>%</i></span>' +
-        '<span class="bw-score-l">record</span></span>';
+        '<span class="bw-score-n"' +
+          ' title="Your match · record — the positions YOU set against this person’s votes and formal' +
+          ' actions. It is not their integrity score and it is not Word vs Action.">' +
+          c.score + '<i>%</i></span>' +
+        '<span class="bw-score-l">your match<i>&middot;</i>record</span></span>';
     }
     // The gap word belongs to a candidate the ACTIVE LANE could not score, and it
     // is a claim about them — so it is only printed where there is a lane doing
@@ -640,7 +754,9 @@
       head +
       '<span class="bw-cand-who">' +
         candOpen(c.pid, ' aria-label="Open ' + esc(c.name) + '’s full record"') +
-          esc(c.name) + candClose(c.pid) +
+          candFace(c.pid) +
+          '<span class="bw-cand-label">' + esc(c.name) + '</span>' +
+        candClose(c.pid) +
         (tags ? '<span class="bw-cand-tags">' + tags + '</span>' : '') +
         gapWord +
         dmLine(c) +
@@ -737,7 +853,7 @@
         'Next seat · ' + esc(nx.label) + ' <span aria-hidden="true">›</span></button>';
     } else {
       bits += '<button type="button" class="bw-go is-next"' +
-        ' onclick="var e=document.getElementById(\'my-politicians\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});"' +
+        ' onclick="var e=document.getElementById(\'my-politicians\')||document.querySelector(\'.bw-rail\');if(e)e.scrollIntoView({behavior:\'smooth\',block:\'start\'});"' +
         ' aria-label="Every seat we track has a pick — review your picks">' +
         'Every seat decided · review your ballot <span aria-hidden="true">›</span></button>';
     }
@@ -830,8 +946,28 @@
   }
 
   // ── Paint ─────────────────────────────────────────────────────────────────
+  // An arriving link names the seat. /ballot?seat=senate is how a link from
+  // anywhere else in the app — a seat card, a next-seat button that used to stay
+  // on the homepage — says which seat it meant, and a named seat has to beat
+  // whatever this tab was last looking at. Without that, following a link to one
+  // seat would open a different one and look like the link was broken.
+  //
+  // Only a seat on this voter's own list is honoured. A ?seat= naming a seat
+  // they cannot vote falls through to the normal default rather than painting a
+  // race that is not theirs.
+  function urlSeat() {
+    var q = '';
+    try { q = String(location.search || ''); } catch (e) { return ''; }
+    var m = q.match(/[?&]seat=([^&]*)/);
+    if (!m) return '';
+    try { return decodeURIComponent(m[1] || '').trim(); } catch (e) { return String(m[1] || '').trim(); }
+  }
   function readOpen(list) {
-    var k = '';
+    var k = urlSeat();
+    var u = false;
+    list.forEach(function (s) { if (s.key === k) u = true; });
+    if (u) { writeOpen(k); return k; }
+    k = '';
     try { k = sessionStorage.getItem(OPEN_KEY) || ''; } catch (e) { k = ''; }
     var ok = false;
     list.forEach(function (s) { if (s.key === k) ok = true; });
@@ -918,10 +1054,36 @@
     list.forEach(function (s) { if (s.key === openKey) seat = s; });
     if (!seat) seat = list[0];
 
+    // ── PROGRESS IS OUT OF WHAT WE CAN ACTUALLY RESOLVE ──────────────────────
+    // The denominator used to be list.length — every slot on the ballot, gaps
+    // included. For a Utah voter that is six, and on a document where two of them
+    // cannot be resolved (a district we do not map, a local roster that did not
+    // travel) the desk opened on "0/6": a target the reader could not reach, and
+    // a total that was really a per-state constant dressed up as their ballot.
+    //
+    // fieldGate() is already the one function that decides whether a seat has a
+    // field this reader can work, and it is the function the desk below paints
+    // from — 'ok' means a field, anything else means a stated gap. So the meter
+    // counts the seats it returns 'ok' for, and the label says which figure that
+    // is in words. The rail still lists all six, because six is how many seats
+    // this voter decides; the meter promises only the ones we can hand them.
+    //
+    // NO LITERAL. M is the length of this voter's own resolved list, and where
+    // that list is empty the meter is not printed at all — "0 of 0" is not a
+    // progress bar, and the gap sentences beside each seat already say why.
+    var workable = list.filter(function (s) { return fieldGate(s, r) === 'ok'; });
     var decided = 0;
-    list.forEach(function (s) { if (pickedFor(s.key)) decided++; });
-    var pct = list.length ? Math.round((decided / list.length) * 100) : 0;
+    workable.forEach(function (s) { if (pickedFor(s.key)) decided++; });
+    var pct = workable.length ? Math.round((decided / workable.length) * 100) : 0;
     var area = r.area ? esc(r.area) : '';
+    var progHtml = workable.length
+      ? '<div class="bw-prog">' +
+          '<span class="bw-prog-n">' + decided + '<small>/' + workable.length + '</small></span>' +
+          '<span class="bw-prog-bar"><i style="width:' + pct + '%;"></i></span>' +
+          '<span class="bw-prog-lbl">seat' + (workable.length === 1 ? '' : 's') +
+            ' we can resolve</span>' +
+        '</div>'
+      : '';
 
     host.innerHTML =
       '<div class="bw-hd">' +
@@ -931,11 +1093,7 @@
         'read the field on <b>the formal record</b>, pick who earns it, move on. Your picks save ' +
         'as you go.</p>' +
         officialNote() +
-        '<div class="bw-prog">' +
-          '<span class="bw-prog-n">' + decided + '<small>/' + list.length + '</small></span>' +
-          '<span class="bw-prog-bar"><i style="width:' + pct + '%;"></i></span>' +
-          '<span class="bw-prog-lbl">seat' + (decided === 1 ? '' : 's') + ' decided</span>' +
-        '</div>' +
+        progHtml +
       '</div>' +
       '<div class="bw-body">' + railHtml(list, seat ? seat.key : '') +
         (seat ? deskHtml(seat, list, r) : '') + '</div>';
@@ -988,6 +1146,14 @@
     // Exposed for the harness: the seat list, the gate that decides whether a
     // seat may show a field, and the running count. Pure reads.
     _seats: seats, _gate: fieldGate, _picked: pickedFor,
+    // THIS VOTER'S RESOLVED LIST, which is the meter's denominator and is never a
+    // literal. It is `_seats` filtered through `_gate` — the same gate the desk
+    // paints each seat from — so there is no second definition of "a seat we can
+    // resolve" for the counter to drift against.
+    _workable: function () {
+      var r = reps();
+      return seats().filter(function (s) { return fieldGate(s, r) === 'ok'; });
+    },
     // The rail's two rules, exposed so a harness can assert them without a
     // browser: where a chip has to put the scroller, and -1 wherever the answer
     // is "do not move".

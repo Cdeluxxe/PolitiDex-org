@@ -57,6 +57,17 @@ const must = (c, m) => { if (c) return; console.error(`✗ door 2 authority: STA
 
 const INDEX = R("index.html");
 const HTML = INDEX.replace(/<!--[\s\S]*?-->/g, "");
+// THE AUTHORITY IS NO LONGER ON THIS PAGE. Door 2's workspace moved to its own
+// document at /ballot, so "is the mount in the markup?" has to be asked of every
+// shipped shell rather than of the homepage. ballot.html builds the mount in
+// JavaScript (el.id = 'ballot-workspace') because a hardcoded <div> there would
+// paint an empty desk for a signed-out reader, so the sweep accepts the id as an
+// attribute OR as a quoted string — the same latitude the per-view loop below
+// has always given your-ballot.js, which creates its own section that way.
+const SHELL_DOCS = ["index.html", "person.html", "issue.html", "spotlight.html", "ballot.html"]
+  .map((f) => { try { return R(f); } catch (e) { return ""; } })
+  .join("\n")
+  .replace(/<!--[\s\S]*?-->/g, "");
 const SPINE = R("door2-spine.js");
 const SPINE_CODE = CODE("door2-spine.js");
 
@@ -110,7 +121,8 @@ const base = sandbox({});
 must(base.D && Array.isArray(base.D.VIEWS), "PDXDoor2 did not register in a sandbox");
 
 eq(base.D.AUTHORITY, "ballot-workspace", "the Door 2 authority is no longer the ballot workspace");
-has(HTML, 'id="ballot-workspace"', "the authority surface is not in the document");
+ok(SHELL_DOCS.includes(`id="${base.D.AUTHORITY}"`) || SHELL_DOCS.includes(`'${base.D.AUTHORITY}'`),
+   "the authority surface is not mounted by any shipped shell — the workspace moved to /ballot, it did not disappear");
 // A TRIPWIRE, NOT A FACT ABOUT THE NUMBER FIVE. Every view carries chrome that
 // claims authority over the reader's ballot, so the list growing or shrinking is
 // something a human should have to confirm rather than something that happens in
@@ -122,7 +134,15 @@ has(HTML, 'id="ballot-workspace"', "the authority surface is not in the document
 // hidden, moved or deleted and no sixth destination was added — the per-view
 // loop below is what actually holds the contract (a mount, a label, a job, and
 // not being the authority), and both new entries satisfy it.
-eq(base.D.VIEWS.length, 5, "the declared view list changed size");
+//
+// It moved from 5 back to 4 when the desk became its own document. #my-politicians
+// was the fifth: the side-by-side picks panel. With the workspace at /ballot that
+// panel is a door card, and a strip reading "View of your ballot workspace · the
+// picks you have made" printed above a two-line door describes something that is
+// not on the page. The entry left the list rather than paint over nothing — which
+// is the "should be deleted rather than described" clause door2-spine.js itself
+// writes above VIEWS. The four that remain each still hold the contract.
+eq(base.D.VIEWS.length, 4, "the declared view list changed size");
 // A view's mount is either static markup or a section a module creates for
 // itself (your-ballot.js sets section.id = MOUNT_ID at first paint), so both
 // count — but a declared view with NO mount anywhere is a strip painted into
@@ -211,9 +231,14 @@ ok(!/querySelectorAll\(['"]a\[href/.test(SPINE_CODE),
 has(HTML, "← Back to working your ballot",
     "the in-context back-link into the picks view was removed — demotion was supposed to re-aim brochure CTAs, not delete navigation");
 
-// The nav pill and the footer links keep pointing at the view by name.
-const navHits = [...HTML.matchAll(/href="#my-politicians"/g)].length;
-ok(navHits >= 4, `the My Voting Team links were deleted rather than demoted (${navHits} left)`);
+// The nav pill and the footer links keep reaching the desk by name. They used to
+// spell it href="#my-politicians", an in-page anchor; the desk now answers at its
+// own address, so most of them spell it href="/ballot". Both forms count, because
+// the claim being pinned is that the demotion RE-AIMED navigation rather than
+// removing it — a reader who asks for their ballot by name still gets it. Counting
+// only the old spelling would read the successful move as a deletion.
+const navHits = [...HTML.matchAll(/href="(?:#my-politicians|\/ballot)"/g)].length;
+ok(navHits >= 4, `the links into the ballot desk were deleted rather than demoted (${navHits} left)`);
 
 // Demotion is recorded reversibly, so what it changed can be audited on a page.
 has(SPINE_CODE, "data-door2-was", "demotion does not record the href it replaced");
@@ -374,9 +399,18 @@ ok(!/Every seat is below/.test(BW_CODE), "the unbounded 'every seat is below' cl
 
 // ── Placement: above the completion mechanics, and not hidden ────────────────
 const iNote = BW.indexOf("officialNote() +");
-const iProg = BW.indexOf('bw-prog"');
+// THE ORDER THAT MATTERS IS THE ORDER IN THE TEMPLATE, NOT IN THE FILE. The
+// progress meter is no longer a literal spliced into the header string — its
+// total is this voter's resolvable list, so it is computed above the template
+// and interpolated as `progHtml`, and the meter vanishes entirely when there is
+// nothing resolvable to count. Indexing the literal `bw-prog"` therefore finds
+// the BUILDER (which sits above sync()'s innerHTML by necessity) rather than the
+// slot, and would report the meter printing before a boundary it prints after.
+// So the position asked for is the interpolation point.
+const iProg = BW.indexOf("progHtml +");
 const iRail = BW.indexOf('\'<div class="bw-body">\' + railHtml(');
 ok(iNote > 0, "the workspace no longer renders the note in sync()");
+ok(iProg > 0, "the workspace no longer interpolates the progress meter into its header");
 ok(iProg > iNote, "the progress bar prints before the boundary — the claim lands before the denial");
 ok(iRail > iNote, "the seat rail prints before the boundary");
 const BWCSS = R("ballot-workspace.css");
@@ -386,8 +420,10 @@ for (const hide of ["display:none", "display: none", "visibility:hidden", "visib
                     "font-size:0", "opacity:0", "opacity: 0"]) {
   ok(!rule.includes(hide), `.bw-official is suppressed with ${hide}`);
 }
-// The workspace mounts in the document, so the note has somewhere to land.
-has(HTML, 'id="ballot-workspace"', "the workspace mount is gone from the document");
+// The workspace mounts in some shipped document, so the note has somewhere to
+// land. That document is ballot.html now; see SHELL_DOCS above.
+ok(SHELL_DOCS.includes('id="ballot-workspace"') || SHELL_DOCS.includes("'ballot-workspace'"),
+   "the workspace mount is gone from every shipped shell — the boundary note has nowhere to land");
 has(INDEX, 'src="/your-ballot.js"', "index.html no longer loads the module that owns the sentence");
 
 console.log("");
