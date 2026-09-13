@@ -225,7 +225,7 @@ section("4 · both spellings open one file, at the canonical address");
 // ─────────────────────────────────────────────────────────────────────────────
 function personFile(opts) {
   opts = opts || {};
-  const calls = { openModal: [], replace: [] };
+  const calls = { openModal: [], replace: [], assign: [] };
   const doc = {
     readyState: "complete", _els: {}, _listeners: {},
     addEventListener(t, f) { (doc._listeners[t] = doc._listeners[t] || []).push(f); },
@@ -248,7 +248,16 @@ function personFile(opts) {
   };
   const win = {
     document: doc,
-    location: { origin: "https://www.politidex.fyi", pathname: opts.pathname || "/", search: "", hash: "", href: "https://www.politidex.fyi/" },
+    location: {
+      origin: "https://www.politidex.fyi", pathname: opts.pathname || "/", search: "", hash: "",
+      href: "https://www.politidex.fyi" + (opts.pathname || "/"),
+      // A person file is its own document, so an open from anywhere else is a
+      // navigation. Recorded rather than stubbed away, because the difference
+      // between correcting an address and fetching a different one is the
+      // whole property section 4 pins.
+      assign(u) { calls.assign.push(String(u)); },
+      replace(u) { calls.assign.push("REPLACE:" + String(u)); },
+    },
     history: { replaceState(a, b, url) { calls.replace.push(url); }, pushState() {} },
     _listeners: {},
     addEventListener(t, f) { (win._listeners[t] = win._listeners[t] || []).push(f); },
@@ -274,7 +283,10 @@ function personFile(opts) {
   const chewRec = { name: "Scott Chew", office: "Utah State Representative", district: "UT District 68" };
   const stray = { [RETIRED_KEY]: { name: "Scott Chew", bio: "x", score: 100 } };
 
-  const both = personFile({ roster: { [CANON]: chewRec }, profiles: stray });
+  // Booted ON the retired address, because that is where the correction happens:
+  // the document was served for /p/scott_chew and the file it holds is already
+  // the canonical one.
+  const both = personFile({ roster: { [CANON]: chewRec }, profiles: stray, pathname: `/p/${RETIRED_KEY}` });
   must(both.P && typeof both.P.resolve === "function", "PDXPerson.resolve did not register");
 
   eq(both.P.resolve(RETIRED_KEY), CANON,
@@ -284,10 +296,24 @@ function personFile(opts) {
     "the display name resolves to the canonical file (the second spelling this pass pins)");
   eq(both.P.resolve("SCOTT_CHEW"), CANON, "a shouted address still resolves to one file");
 
+  both.calls.openModal.length = 0; both.calls.replace.length = 0; both.calls.assign.length = 0;
   both.P.open(RETIRED_KEY);
   eq(both.calls.openModal[0], CANON, "opening the retired address renders the canonical file");
   ok(String(both.calls.replace[0] || "").endsWith(`/p/${CANON}`),
     `the address is canonicalised on arrival (got ${JSON.stringify(both.calls.replace[0])})`);
+  eq(both.calls.assign.length, 0,
+    "the arriving document re-fetched itself to correct its own address — a reload the reader did not ask for");
+
+  // And from anywhere else, the retired spelling still reaches one file — by
+  // navigating to the canonical address, since the person file is its own
+  // document. The correction is in the address that is FETCHED, not stamped
+  // on afterwards.
+  const away = personFile({ roster: { [CANON]: chewRec }, profiles: stray });
+  away.P.open(RETIRED_KEY);
+  eq(away.calls.assign[0], `/p/${CANON}`,
+    "the retired spelling opened from elsewhere did not go to the canonical address");
+  eq(away.calls.replace.length, 0,
+    "an open from another address rewrote the address it was on instead of leaving it in the trail");
 
   // Nothing about an ordinary arrival changed: an id with a record of its own and
   // no table entry still opens itself, and an unknown id still resolves to ''.

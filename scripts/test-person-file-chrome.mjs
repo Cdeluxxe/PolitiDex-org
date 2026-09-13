@@ -97,7 +97,7 @@ const ROSTER = { aaron_bean: BEAN, lee: LEE, alan_armstrong: ARMSTRONG };
 
 function sandbox(opts) {
   opts = opts || {};
-  const calls = { openModal: [], replace: [], notice: [], journey: [], titles: [] };
+  const calls = { openModal: [], replace: [], notice: [], journey: [], titles: [], assign: [] };
   const clock = makeClock();
   let title = Object.prototype.hasOwnProperty.call(opts, "title")
     ? opts.title
@@ -152,8 +152,15 @@ function sandbox(opts) {
   const win = {
     document: doc,
     console,
+    // assign() is recorded, not omitted: going to a person is a navigation now, so
+    // a harness whose location cannot be navigated makes open() look like a
+    // no-op that forgot to set the tab.
     location: Object.assign(
-      { origin: "https://www.politidex.fyi", pathname: "/", search: "", hash: "", href: "https://www.politidex.fyi/" },
+      {
+        origin: "https://www.politidex.fyi", pathname: "/", search: "", hash: "", href: "https://www.politidex.fyi/",
+        assign(u) { calls.assign.push(String(u)); },
+        replace(u) { calls.assign.push(String(u)); },
+      },
       opts.location || {}),
     history: { replaceState(a, b, url) { calls.replace.push(url); }, pushState() {} },
     _listeners: {},
@@ -361,15 +368,29 @@ section("3 · document.title and the crumb name the file that is open");
   eq(c.calls.journey[0].pid, "aaron_bean", "the crumb names somebody else");
   eq(c.calls.journey[0].label, "Aaron Bean", "the crumb is not labelled with the person's name");
 
-  // A second person, opened from inside the first — the reported case.
+  // A SECOND PERSON IS A SECOND DOCUMENT, so the hop is a navigation and the tab
+  // is named on arrival rather than in place. This used to assert that the hop
+  // renamed the tab here, which was only true while one document rendered every
+  // person: /p/<pid> is served by person.html, so opening Mike Lee from inside
+  // Aaron Bean's file replaces the document, and renaming this one on the way
+  // out would be writing a title onto a page that is being torn down.
+  //
+  // The trail does not lose the step. PDXJourney mirrors to sessionStorage, and
+  // the arriving document records the crumb through this same chrome() call on
+  // its own open — which is where the crumb for the person actually on screen
+  // has always come from on a cold arrival.
   c.P.open("lee");
-  eq(c.doc.title, "Mike Lee · PolitiDex", "opening a second file left the tab on the first person");
-  eq(c.calls.journey[c.calls.journey.length - 1].pid, "lee", "…and left the crumb on the first person");
+  eq(c.calls.assign[c.calls.assign.length - 1], "/p/lee",
+     `the hop to another person file did not navigate (saw ${JSON.stringify(c.calls.assign)})`);
+  eq(c.doc.title, "Aaron Bean · PolitiDex",
+     "the hop renamed the tab on the document it was leaving");
+  eq(c.calls.journey.length, 1,
+     `the hop recorded a crumb on the document it was leaving (saw ${JSON.stringify(c.calls.journey)})`);
 
   // Close: the front page's own wording, not a person and not a blank.
   c.P.restore();
   eq(c.doc.title, "PolitiDex | Bound by Truth", "closing the file left the tab on the person");
-  eq(c.calls.journey.length, 2, "closing the file recorded a breadcrumb — closing is the end of a step, not one");
+  eq(c.calls.journey.length, 1, "closing the file recorded a breadcrumb — closing is the end of a step, not one");
 }
 
 // A HOMEPAGE SESSION keeps whatever title the document arrived with, because on
@@ -377,7 +398,12 @@ section("3 · document.title and the crumb name the file that is open");
 {
   const c = sandbox({ title: "PolitiDex | Bound by Truth" });
   c.P.open("lee");
-  eq(c.doc.title, "Mike Lee · PolitiDex", "an in-app open did not name the tab");
+  // …and it keeps it through the open, too, because the open leaves: person.html
+  // is what names the tab for a person, and it does it on arrival.
+  eq(c.calls.assign[c.calls.assign.length - 1], "/p/lee",
+     `opening a person from the homepage did not navigate (saw ${JSON.stringify(c.calls.assign)})`);
+  eq(c.doc.title, "PolitiDex | Bound by Truth",
+     "the homepage renamed its own tab for a person it was navigating away to");
   c.P.restore();
   eq(c.doc.title, "PolitiDex | Bound by Truth", "an in-app close did not put the front page back");
 }

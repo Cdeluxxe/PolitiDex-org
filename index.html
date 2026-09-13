@@ -17160,7 +17160,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         var safeId = String(id).replace(/'/g, "\\'");
         var onTeam = !!(team && (team.reps[String(id)] || team.tracked[String(id)]));
         return '<button type="button" class="pp-link-chip' + (onTeam ? ' is-team' : '') + '" ' +
-          'onclick="event.stopPropagation(); if(typeof openModal===\'function\') openModal(\'' + esc(safeId) + '\')" ' +
+          'onclick="event.stopPropagation(); if(typeof window.showProfile===\'function\') window.showProfile(\'' + esc(safeId) + '\'); else if(typeof openModal===\'function\') openModal(\'' + esc(safeId) + '\')" ' +
           'title="' + (onTeam ? 'On your ballot — view profile' : 'View profile') + '">' +
           (onTeam ? '⭐ ' : '👤 ') + esc(nameOf(id)) + '</button>';
       }).join('');

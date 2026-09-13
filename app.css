@@ -8670,6 +8670,14 @@
       padding: 0.15rem 0.5rem;
       border-radius: 999px;
     }
+    /* Home-ballot badge. This comment's OPENING delimiter was missing, which in
+       CSS is not a cosmetic defect: with nothing to open it, the parser read the
+       prose below and the orphaned terminator after it as the beginning of a
+       SELECTOR, ran that selector up to the next brace, found it invalid and
+       dropped the whole qualified rule — so .chub-home-badge shipped with no
+       declarations at all. (Delimiters are named rather than written here on
+       purpose: CSS comments do not nest, so spelling either one inside this
+       block would break it again.)
        Emerald + house glyph so "this is part of my real ballot" reads instantly
        and distinctly from the lighter "📍 Local" / "✓ On Team" badges. */
     .chub-home-badge {

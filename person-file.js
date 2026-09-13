@@ -398,6 +398,24 @@
           ? '/'
           : location.pathname + location.search;
       }
+      // A STAMP CORRECTS AN ADDRESS; IT MAY NOT CHANGE WHICH DOCUMENT IS AT ONE.
+      // replaceState is the right tool for exactly one job here: an arrival on
+      // /p/scott_chew whose record is filed under chew_h68 has to end up with
+      // the canonical address in the bar, and it must NOT gain a history entry
+      // doing it — Back from a corrected address to the uncorrected one would
+      // re-resolve and correct again, which is a trap rather than a history.
+      //
+      // It is the wrong tool for the transition it used to be asked to make.
+      // From '/' — the homepage, or the legacy /?p=<pid> form — the reader is on
+      // index.html, and replaceState moves the bar to /p/<pid> while leaving
+      // index.html loaded. That is the same class of defect as the close that
+      // left person.html on screen at '/', seen from the other end: an address
+      // that names a document the reader is not looking at. Since the person
+      // split the only honest way onto a person address from the homepage is a
+      // real navigation, and open() below makes one. So the stamp declines: a
+      // caller already on a person path gets its correction, and a caller
+      // anywhere else is left alone rather than given a lie.
+      if (!fromPath(location.pathname)) return;
       // The hash is a section within the app and survives; the ?p= param does
       // not, because the path now carries what it used to.
       var search = '';
@@ -663,10 +681,54 @@
     try { el.style.display = 'none'; } catch (e) {}
   }
 
+  // ── ON THE PERSON SHELL, CLOSE HAS TO LEAVE ───────────────────────────────
+  // WHAT WAS WRONG, as it shipped. /p/* is served by person.html now, and on
+  // that document the person file is not an overlay over anything: it IS the
+  // page. So closing it handed the address back with a replaceState — which
+  // changes the bar and fetches NOTHING — and left the reader looking at
+  // person.html with its modal shut, at the homepage's address. The tell in the
+  // live report was person.html's own `padding-top: calc(var(--pdx-chrome) +
+  // 0.75rem)` still on <body> at '/': that offset exists to clear this
+  // document's one-row bar and index.html does not declare it, so seeing it at
+  // '/' is proof the document underneath never changed. Nothing was wrong with
+  // that rule. The close was wrong.
+  //
+  // THE OTHER TWO SHELLS ALREADY DID THIS. pdx-issue-profile.js's restore()
+  // leaves through PDXIssueBack.leave(), spotlight-engine.js leaves through its
+  // own leave() — both with a real navigation, both for this exact reason. The
+  // person shell is the one that was missed, and this is the same answer in the
+  // same shape.
+  //
+  // ARRIVAL IS THE SIGNAL, and it is why this stays scoped to the shell. It is
+  // the address THIS DOCUMENT WAS SERVED FOR, read once at module evaluation
+  // (see the note over it), so it is non-empty on exactly the documents where
+  // the file is the page. On index.html it is '' — the homepage's own profile
+  // modal has a page underneath it, so it keeps closing onto that page through
+  // the replaceState below, untouched. So does the /?p=<pid> form, which is
+  // index.html too. Nothing here turns an in-page overlay into a navigation.
+  //
+  // AND IT IS A NAVIGATION, NOT A REPLACE. location.assign leaves a history
+  // entry, so the browser's own Back still returns the reader to the file they
+  // just closed — which is what Back meant on this document before the close
+  // did anything at all.
+  function leaveHome() {
+    try { location.assign('/'); return true; } catch (e) {}
+    try { location.href = '/'; return true; } catch (e2) {}
+    try { location.replace('/'); return true; } catch (e3) {}
+    return false;
+  }
+
   function restore() {
     // The tab goes home with the address. Same helper the open used, so there is
     // exactly one spelling of "this tab is the front page" in the module.
     try { chrome(''); } catch (e) {}
+    if (ARRIVAL) {
+      _return = null;
+      // Falls through to the replaceState below if every navigation spelling
+      // threw: a corrected address is a worse outcome than a loaded homepage and
+      // a better one than a closed file still on the screen.
+      if (leaveHome()) return;
+    }
     try {
       var back = _return;
       _return = null;
@@ -957,6 +1019,56 @@
     } catch (e) {}
   }
 
+  // ── The address for a section, as a hash ──────────────────────────────────
+  // SECTION_HASH maps the short citable alias to the DOM id. open()'s `section`
+  // option is the DOM id — the form _pdxNavJump takes — while some callers pass
+  // the short alias instead, so this accepts either and always emits the alias,
+  // which is the half that belongs in an address.
+  // FAIL CLOSED, the same way sectionFromHash does: '' for anything unmapped,
+  // because a hash this file cannot map is one the arriving document could not
+  // act on either, and a bare /p/<pid> opens at the top rather than nowhere.
+  function sectionHash(section) {
+    var want = String(section || '');
+    if (!want) return '';
+    var low = want.toLowerCase();
+    if (SECTION_HASH[low]) return '#' + low;
+    for (var alias in SECTION_HASH) {
+      if (Object.prototype.hasOwnProperty.call(SECTION_HASH, alias) &&
+          SECTION_HASH[alias] === want) return '#' + alias;
+    }
+    return '';
+  }
+
+  // ── GOING TO A PERSON IS A NAVIGATION, AND THE PUSH IS THE POINT ──────────
+  // /p/<pid> is served by person.html. So opening a person from a surface that
+  // is not already that person's document is not a view change, it is a change
+  // of document — and the only thing that actually changes the document is a
+  // navigation.
+  //
+  // WHY NOT replaceState, WHICH IS WHAT THIS USED TO BE. A result row on '/'
+  // called openModal and then stamped /p/<pid> into the bar with replaceState.
+  // That left index.html loaded under a person's address and, because
+  // replaceState overwrites the current entry instead of adding one, it also
+  // consumed the homepage's place in the history: Back from a file opened out of
+  // a search skipped past '/' entirely to whatever the reader was on before it.
+  // A push is what makes Back mean "the list I came from".
+  //
+  // AND WHY NOT location.replace EITHER. It navigates, so the document would be
+  // right — but it still overwrites the entry, so Back would still skip the
+  // list. assign is the whole requirement; href is the same navigation spelled
+  // for an engine that has taken assign away. There is deliberately no
+  // location.replace fallback: failing to navigate is recoverable (the caller
+  // gets false and the <a href> that surface printed is left to do the work),
+  // whereas navigating without a history entry is the defect.
+  function goToPerson(pid, section) {
+    var to = path(pid);
+    if (!to) return false;
+    to += sectionHash(section);
+    try { location.assign(to); return true; } catch (e) {}
+    try { location.href = to; return true; } catch (e2) {}
+    return false;
+  }
+
   // ── The one way in ────────────────────────────────────────────────────────
   // Everything that opens a person calls this. It resolves the record, opens
   // the file through the renderer that owns it, stamps the address, sets the
@@ -979,6 +1091,29 @@
     // a genuinely unknown id still reaches openModal and still gets its honest
     // error state instead of being silently swallowed here.
     pid = resolve(pid) || pid;
+
+    // ── IS THIS DOCUMENT ALREADY THIS PERSON'S? ──────────────────────────────
+    // The one question that decides between rendering and navigating, and it is
+    // asked of the ADDRESS rather than of the DOM: fromUrl() is every way a URL
+    // can name a person, so it is true on a cold /p/<pid> arrival, on the alias
+    // form /p/scott_chew whose record is chew_h68, and on the legacy /?p=<pid>
+    // — and false on the homepage, on an issue or Spotlight address, and on
+    // another person's file.
+    //
+    // WHEN IT IS ALREADY OURS, RENDER. This is what keeps the change from
+    // eating itself: adopt() calls open() on a cold arrival and the popstate
+    // handler calls it after the browser has already moved the bar, so an
+    // unconditional navigation here would reload person.html on arrival, for
+    // ever, and would turn every Back into a forward. Both of those paths arrive
+    // with the address already naming this person, so both fall through to the
+    // renderer below exactly as before.
+    //
+    // WHEN IT IS NOT, GO. Resolved on both sides before comparing, so an alias
+    // arrival is recognised as already-here (and gets its in-place stamp
+    // correction) instead of being navigated to its own canonical twin.
+    var asked = fromUrl();
+    var hereIs = asked ? (resolve(asked) || asked) : '';
+    if (hereIs !== pid && goToPerson(pid, opts.section)) return true;
 
     // The renderer. _pdxOpenFullModal is the internal name; showProfile is the
     // public one and does the journey bookkeeping, so it is preferred — but

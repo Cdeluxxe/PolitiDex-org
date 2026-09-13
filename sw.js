@@ -5415,7 +5415,114 @@
 //     mapping and no formal-record path was touched by any of the above — this
 //     pass is cache policy, one deleted inline filter, one deferred injection and
 //     one cheaper close.
-const CACHE_VERSION = 'v187';
+//
+// v188 - THE CLOSE THAT NEVER LEFT. A production defect on the person shell, and
+//     one invariant in this file that was true only by accident.
+//
+//     THE SYMPTOM. Closing a file at /p/<pid> put '/' in the address bar and left
+//     person.html on the screen. The reader was looking at the person shell with
+//     its modal shut — an empty document whose <body> still carries
+//     person.html's own `padding-top: calc(var(--pdx-chrome) + 0.75rem)`, at the
+//     homepage's address. Nothing was broken about that CSS; it was the tell.
+//     The close was a history.replaceState, which changes the address WITHOUT
+//     fetching a document, and since the person split there is no homepage
+//     underneath a person file to be revealed — person.html IS the page. The
+//     issue and Spotlight shells already navigate on close (PDXIssueBack.leave,
+//     spotlight-engine's leave); the person shell was the one that never got it.
+//     person-file.js's restore() now does, which is the fix. This file's part is
+//     to make sure the navigation it performs actually lands on the homepage.
+//
+//     WHAT MOVED HERE, and it is a guard rather than a behaviour change. The '/'
+//     navigation could be answered from cache with a SUB-SHELL body, which would
+//     make the new location.assign('/') look exactly as broken as the
+//     replaceState did. Since v187 no code path writes one there — a document is
+//     keyed by the address it was generated at, and only '/' and /index.html
+//     write the '/' key — so the invariant held, but only because no writer
+//     violated it. The pre-v187 policy DID violate it (`cache.put('/', res)` for
+//     every navigation, the /p/khanna-printing-Lee's-record defect), and a phone
+//     that has not had a shell bump since then still holds that entry.
+//
+//     So two things, neither of which changes a correct request's answer:
+//       · subShellIdOf() reads the identity banner person.html, issue.html and
+//         spotlight.html each already open with ("person.html — THE SECOND
+//         SHELL", and its two siblings), off a bounded prefix of a CLONED body.
+//         It never consumes the response it is checking and never decodes more
+//         than the prefix, so identifying a 2.2 MB index.html costs a few
+//         hundred bytes. handleNavigate now refuses a cached '/' entry whose
+//         body names a sub-shell — and DELETES it, so the next homepage
+//         navigation is clean rather than paying the check forever — and refuses
+//         to write one under '/' in the first place.
+//       · isHome is now a factor in isPerson/isIssue/isSpotlight, so the three
+//         offline sub-shell fallbacks cannot be reached by a homepage navigation
+//         even if a later edit to one of those regexes made it match '/'.
+//     A body with NO banner is accepted, deliberately: fail-open means a
+//     document from before this pass is served rather than refused, and the only
+//     thing ever refused is one that positively names itself as another shell.
+//
+//     NO HTML MOVED FOR THIS. A dedicated marker meta was tried first and
+//     withdrawn: the sub-shells copy numbered LINE RANGES out of index.html and
+//     out of each other, and the shell-contract suites assert those regions
+//     byte-identical BY LINE NUMBER, so a single inserted line dislocates every
+//     range beneath it. The banners were already there and are already each
+//     document's self-declaration.
+//
+//     WHY THE BUMP. app.css is precached and changed this pass (one CSS comment
+//     whose opening delimiter was missing, which cost .chub-home-badge its whole
+//     rule), and person-file.js is precached and changed too. The bump also
+//     evicts, once, any poisoned '/' entry still sitting in a pre-v187 shell
+//     bucket — the guard above is what stops one coming back.
+//     NOTHING NEW IS PRECACHED. SHELL_ASSETS is unchanged.
+//     DID NOT MOVE. No score, floor, mapping, party read or formal-record path.
+//     No route, redirect, header or rewrite in netlify.toml. Person documents are
+//     still keyed per address by navDocKey, and the /p/, /i/ and /issue/ offline
+//     fallbacks still answer their own addresses with their own shells.
+// v189 - A RESULT OPENS A DOCUMENT, NOT A MODAL. The reader-visible half of the
+//     person split, finished. Opening a person from a search result, from the
+//     Eye or from a directory row used to render the profile into index.html and
+//     then call history.replaceState to put /p/<pid> in the address bar. That is
+//     the homepage document sitting at a person's address, and because
+//     replaceState CONSUMES the entry it lands on rather than stacking on it,
+//     Back from a result skipped the list the reader had just been searching.
+//     PDXPerson.open now compares the resolved pid against the address the
+//     document was served for and, when they differ, calls
+//     location.assign('/p/<pid>') — so person.html is actually fetched and the
+//     page left behind stays in the history. Asked of the ADDRESS and not of the
+//     DOM on purpose: adopt() on a cold arrival and the popstate handler both
+//     call open() with the address already naming the person, and those two have
+//     to render in place or person.html reloads itself forever.
+//
+//     WHY THE BUMP. Four precached files changed: the homepage document itself
+//     (listed as '/'), person-file.js, profiles-full.js and index.html. Without
+//     a rename, a warm device keeps serving the old person-file.js out of
+//     politidex-shell-v188 and the navigation reaches nobody. compare-table.js
+//     changed too and is a runtime entry, refreshed by handleStatic's
+//     revalidating write.
+//
+//     WHAT THE BUMP CARRIES, WHICH IS NOT THE SAME AS WHAT THIS PASS CHANGED.
+//     Renaming SHELL_CACHE re-issues the WHOLE precache on activate, so every
+//     entry in SHELL_ASSETS travels with v189 whether or not this pass touched
+//     it: app.css, mobile-polish.css, pdx-stability.js, alignment-tool.js,
+//     door1-workspace.js, door1-workspace.css, pdx-issue-family.js,
+//     pdx-issue-profile.js, stance-tree.js, issue-colors.js, word-action.js,
+//     word-action.css, issue-file.js, issue-file.css and issue-view.js among
+//     them, beside the four above. Said here because a reader auditing a warm
+//     device needs to know what a v189 device holds and not only what this diff
+//     was — and because the paired ones, a script and the stylesheet for what it
+//     emits, are only safe to reason about if they demonstrably ship together.
+//     THE RUNTIME HALF IS NOT IN THAT LIST and is not thrown away by the rename
+//     either (v182): all-seeing-eye.js and compare-table.js among them are
+//     stale-while-revalidate RUNTIME_CACHE entries, kept current by
+//     handleStatic's revalidating write rather than by this constant.
+//
+//     NOTHING NEW IS PRECACHED. SHELL_ASSETS is unchanged.
+//     NOTHING IN THIS FILE'S BEHAVIOUR MOVED. The v188 guards below are
+//     untouched: '/' still refuses and heals a cached sub-shell body, person
+//     documents are still keyed per address by navDocKey, and the /p/, /i/ and
+//     /issue/ offline fallbacks still answer their own addresses with their own
+//     shells. No route, redirect, header or rewrite in netlify.toml moved.
+//     DID NOT MOVE. No Direction Match read, tier, score, floor, mapping, party
+//     read or formal-record path.
+const CACHE_VERSION = 'v189';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -6213,6 +6320,86 @@ const SPOTLIGHT_NAV_RE = /^\/issue\/([A-Za-z0-9_-]*)\/?$/;
 // back to the phone, not a budget to spend.
 const PERSON_DOC_LIMIT = 4;
 
+// ─── WHICH SHELL A BODY IS ──────────────────────────────────────────────────
+// Reads the identity banner each sub-shell document already opens with — the
+// line person.html, issue.html and spotlight.html each carry in their first ~300
+// bytes, naming themselves and the address they serve:
+//
+//   person.html — THE SECOND SHELL. /p/<pid> IS ITS OWN DOCUMENT.
+//   issue.html — THE THIRD SHELL. /i/<key> IS ITS OWN DOCUMENT.
+//   spotlight.html — THE FOURTH SHELL. /issue/<slug> IS ITS OWN DOCUMENT.
+//
+// index.html carries no such line anywhere in its 2.2 MB, which is what makes
+// this a discriminator rather than a guess. A DEDICATED MARKER META WAS TRIED
+// FIRST AND WITHDRAWN: the three sub-shells copy numbered LINE RANGES out of
+// index.html and out of each other, and test-person-shell / test-issue-shell
+// assert those regions byte-identical by line number, so inserting a line into
+// any of the four documents dislocates every range below it. The banners are
+// already there, they are already each document's self-declaration, and reading
+// them costs nothing. test-close-to-home.mjs asserts all three still say what
+// this regex reads, so rewording one fails the suite loudly instead of silently
+// disarming the guard below.
+//
+// WHY THE BODY AND NOT A HEADER. A cached Response keeps the headers the CDN
+// sent, and none of them separates two documents served from one origin with one
+// content type — a Netlify rewrite is transparent, so /p/lee and '/' answer with
+// identical header sets. The identity only exists in the body.
+const SUB_SHELL_BANNER_RE = /\b(person|issue|spotlight)\.html\s*—\s*THE\s+(?:SECOND|THIRD|FOURTH)\s+SHELL\b/;
+
+// The prefix ceiling, in decoded characters. The furthest of the three banners
+// sits ~283 characters in, so this is an order of magnitude of headroom: a banner
+// that somehow drifted past it stops being FOUND, which fails open, rather than
+// being misread.
+const SHELL_SNIFF_CHARS = 4096;
+
+// The sub-shell a body declares itself to be, or '' for "not one of them". Never
+// consumes the response it is handed: the body is cloned, a bounded prefix is
+// pulled off the clone's stream and the reader is cancelled, so identifying a
+// 2.2 MB index.html costs a few hundred bytes and no full decode.
+//
+// '' IS NOT AN ACCUSATION. It is returned for a body with no banner, an
+// unreadable stream, or anything this regex does not recognise, and every caller
+// treats '' as "carry on". The guard's only job is to refuse a body that
+// positively names itself as a DIFFERENT shell; everything else is served.
+async function subShellIdOf(res) {
+  if (!res) return '';
+  let probe = null;
+  try { probe = res.clone(); } catch (e) { return ''; }
+
+  let head = '';
+  try {
+    if (probe.body && typeof probe.body.getReader === 'function') {
+      const reader = probe.body.getReader();
+      const dec = new TextDecoder('utf-8');
+      try {
+        while (head.length < SHELL_SNIFF_CHARS) {
+          const step = await reader.read();
+          if (step.done) break;
+          head += dec.decode(step.value, { stream: true });
+        }
+      } finally {
+        // Cancel rather than drain: not paying for the rest of the document is
+        // the whole reason this reads a prefix.
+        try { await reader.cancel(); } catch (e) {}
+      }
+    } else {
+      // No streaming body to sample — a synthesized Response, or an engine with
+      // no readable body on a cached one. Reading it whole is acceptable here
+      // because it is the fallback, not the path a real document takes.
+      head = String(await probe.text()).slice(0, SHELL_SNIFF_CHARS);
+    }
+  } catch (e) { /* a partial prefix is still enough to find a banner in it */ }
+
+  const m = SUB_SHELL_BANNER_RE.exec(head);
+  return m ? String(m[1]).toLowerCase() : '';
+}
+
+// The one condition under which anything below refuses a cached or fetched
+// document: the body says it is person.html, issue.html or spotlight.html.
+async function isSubShellBody(res) {
+  return (await subShellIdOf(res)) !== '';
+}
+
 // The cache key for a navigation, or '' for "serve from the shell, store nothing".
 function navDocKey(url) {
   if (!url || url.origin !== self.location.origin) return '';
@@ -6252,13 +6439,23 @@ async function handleNavigate(req) {
   let url = null;
   try { url = new URL(req.url); } catch (e) { url = null; }
   const key = navDocKey(url);
-  const isPerson = key.slice(0, 3) === '/p/';
+  // THE HOMEPAGE NAVIGATION, NAMED ONCE — and then made a factor in all three
+  // flags below. '/' cannot match PERSON_NAV_RE, ISSUE_NAV_RE or
+  // SPOTLIGHT_NAV_RE as they are written, so none of the three sub-shell
+  // fallbacks is reachable from a homepage navigation today. That is a property
+  // of three regexes in another part of this file, which is a thin thing for the
+  // homepage's correctness to rest on: a later edit that widened any of them
+  // would hand '/' a sub-shell and reproduce exactly the defect v188 exists to
+  // close. So the homepage is excluded HERE, where the fallbacks are chosen,
+  // rather than left to be excluded by accident somewhere else.
+  const isHome = key === '/';
+  const isPerson = !isHome && key.slice(0, 3) === '/p/';
   // Read off the URL rather than off `key`, because navDocKey deliberately gives
   // an issue address no key: this flag decides a FALLBACK, not a cache slot.
-  const isIssue = !!(url && url.origin === self.location.origin && ISSUE_NAV_RE.test(url.pathname));
+  const isIssue = !isHome && !!(url && url.origin === self.location.origin && ISSUE_NAV_RE.test(url.pathname));
   // Third of the same kind, and ordered after the two above for the same reason:
   // a FALLBACK, not a cache slot. No per-slug document is ever stored.
-  const isSpotlight = !!(url && url.origin === self.location.origin && SPOTLIGHT_NAV_RE.test(url.pathname));
+  const isSpotlight = !isHome && !!(url && url.origin === self.location.origin && SPOTLIGHT_NAV_RE.test(url.pathname));
 
   // A PERSON DOCUMENT IS A RUNTIME ENTRY, NOT A SHELL ONE. It is keyed to a single
   // address, it is not on SHELL_ASSETS, and nothing on the precache list depends on
@@ -6272,6 +6469,15 @@ async function handleNavigate(req) {
   const network = fetch(req).then(async (res) => {
     if (res && res.ok && key) {
       try {
+        // THE WRITE HALF OF THE v188 GUARD. Netlify does not serve person.html,
+        // issue.html or spotlight.html at '/', so a 200 for a homepage
+        // navigation that identifies itself as a sub-shell did not come from the
+        // origin as configured — and storing it is what made the homepage serve
+        // a person file for the rest of the device's life the last time this
+        // went wrong. The response is still RETURNED: refusing to remember a
+        // document is this function's business, refusing to show the reader what
+        // the network just said is not.
+        if (isHome && await isSubShellBody(res)) return res;
         await cache.put(key, res.clone());
         if (isPerson) await prunePersonDocs(cache, key);
       } catch (e) { /* a cache write failure must not fail the navigation */ }
@@ -6280,13 +6486,46 @@ async function handleNavigate(req) {
   }).catch(() => null);
 
   // Stale-while-revalidate, but only against this address's OWN entry.
-  const cached = key ? await cache.match(key) : null;
+  let cached = key ? await cache.match(key) : null;
+
+  // THE READ HALF OF THE SAME GUARD. A phone that has not had a shell bump since
+  // the pre-v187 one-key policy still holds a person document under '/', and
+  // serving it is the live symptom: the reader closes a file, the address goes to
+  // '/', and person.html is still on the screen — indistinguishable, from the
+  // reader's side, from the replaceState defect person-file.js just stopped
+  // doing. Refusing it here is unconditional; REMOVING it waits, for the reason
+  // below.
+  let poisonedHome = false;
+  if (cached && isHome && await isSubShellBody(cached)) {
+    poisonedHome = true;
+    cached = null;
+  }
+
   if (cached) {
     network; // fire-and-forget background refresh
     return cached;
   }
 
   const res = await network;
+
+  // AND THE HALF THAT HEALS — deliberately here, after the network has settled,
+  // rather than beside the refusal above. Deleting the entry is the point (a
+  // device that steps over the poison on every navigation pays this check
+  // forever instead of once), but the background write is already in flight by
+  // the time the refusal runs, so deleting THERE races it: interleaved awaits
+  // decide whether the delete lands before the network's own homepage document
+  // is stored or after it, and after means the device throws away the very entry
+  // that fixed it. The network promise resolves only once its cache.put has
+  // completed, so by this line the write has either happened or not, and asking
+  // the cache what is actually in the slot is an answer rather than a guess:
+  // drop what is there only if what is there is still a sub-shell.
+  if (poisonedHome) {
+    try {
+      const still = await cache.match(key);
+      if (still && await isSubShellBody(still)) await cache.delete(key);
+    } catch (e) { /* hygiene: the refusal above already protected the reader */ }
+  }
+
   if (res) return res;
 
   // Offline, with no document of this address's own. Since the split there are
@@ -6324,7 +6563,12 @@ async function handleNavigate(req) {
   // stand-in for any address, and the one fallback that cannot claim to be a
   // person we have not resolved.
   const shellDoc = await shell.match('/');
-  if (shellDoc) return shellDoc;
+  // Same refusal, on the last fallback: '/' stands in for EVERY address that has
+  // no shell of its own, so a poisoned entry here would hand a person file to
+  // /d/<district>, /b/<bill> and /locker as well as to the homepage. An
+  // unmarked document is still served — the only thing refused is one that names
+  // itself as another shell.
+  if (shellDoc && !(await isSubShellBody(shellDoc))) return shellDoc;
 
   return new Response(OFFLINE_FALLBACK, {
     status: 200,
