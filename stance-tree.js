@@ -956,7 +956,11 @@
   function issueFileHtml(lf) {
     var F = window.PDXIssueFamily;
     var href = '';
-    try { if (F && typeof F.profileUrl === 'function') href = F.profileUrl(lf.key) || ''; } catch (e) { href = ''; }
+    // The leaf already knows whose record it is (lf.pid is what the row model
+    // filed it under), so the door hands that to the address builder and the
+    // issue file gets a way back to THIS person's file rather than to the
+    // homepage. Nothing about the key changes; the query is the return address.
+    try { if (F && typeof F.profileUrl === 'function') href = F.profileUrl(lf.key, lf.pid) || ''; } catch (e) { href = ''; }
     if (!href) return '';
     return '<a class="pdxtree-file" href="' + escAttr(href) + '"' +
       ' data-pdxtree-file="' + escAttr(lf.key) + '"' +

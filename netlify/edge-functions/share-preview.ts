@@ -1,6 +1,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // share-preview — give every shared PolitiDex link its own unfurl
 // ─────────────────────────────────────────────────────────────────────────────
+// (SINCE WRITING: the app is four documents, not one — index.html, person.html,
+// issue.html and spotlight.html. The mechanism below is unchanged and unaffected;
+// it rewrites the head of whatever context.next() returns. See config at the
+// bottom of this file.)
+//
 // The whole app is one index.html with one set of static Open Graph tags, so a
 // pasted link to a profile, an Issue Spotlight, a bill, a ranking or a receipt has
 // always unfurled as the same generic homepage card. Social scrapers do not run
@@ -493,8 +498,25 @@ export default async (req: Request, context: Context): Promise<Response | undefi
 };
 
 export const config: Config = {
-  // /p/* and /b/* are here for the same reason /issue/* and /vote/* are: the
-  // rewrites in netlify.toml serve index.html for them, so without this function a
-  // person file or a bill profile would unfurl — and canonicalise — as the homepage.
+  // Every path here is a clean, shareable address that netlify.toml serves by
+  // rewrite. Without this function each one would unfurl — and canonicalise — as
+  // whichever document it was rewritten to, rather than as the record it names.
+  //
+  // NOT ALL OF THEM ARE index.html ANY MORE, and nothing here had to change for
+  // that. /p/* now serves /person.html, /issue/* now serves /spotlight.html, and
+  // this function never knew or cared: it calls context.next(), takes whatever
+  // document the rewrite chain produced, and rewrites the tags it finds in that
+  // document's head. What each of those documents has to hold up its end is the
+  // tag set applyMeta looks for, in the attribute order setMeta/setCanonical
+  // match (property-then-content, rel-then-href) — <title>, canonical,
+  // name=description, og:title/description/url/image/image:alt and
+  // twitter:title/description/image. spotlight.html carries all of them in that
+  // order for exactly this reason, and scripts/test-spotlight-shell.mjs pins it.
+  //
+  // /i/* IS DELIBERATELY NOT LISTED. An Issue File address is a vocabulary key,
+  // and there is still no resolver that turns a key into a title, a description
+  // and a card — so adding it would buy a rewritten head full of nothing. When
+  // there is a key resolver, that is the change; until then /i/<key> unfurls as
+  // issue.html's own static tags, which name the product and claim no record.
   path: ["/", "/index.html", "/issue/*", "/vote/*", "/p/*", "/b/*"],
 };

@@ -10,7 +10,7 @@
    registry it appears here automatically. No registry edits, no per-card HTML.
 
    NO NEW DATA. Everything is read from globals the app already ships:
-     • window.PDXSpotlight.list() / .strengthFor() / .open() / .match()
+     • window.PDXSpotlight.list() / .strengthFor() / .match()
      • window._pdxCategoryOf(issueKey) → broad category key   (alignment-tool.js)
      • window._pdxEvidenceCategory(key) → { key, icon, label }
      • window._issueLabel(issueKey)     → friendly issue label
@@ -24,6 +24,15 @@
      #shub-empty         empty state
 
    Exposes window.PDXSpotlightHub.render() so other surfaces can force a rebuild.
+
+   THE SPLIT (see spotlight.html). /issue/<slug> is its own document now, and
+   the 1.2 MB corpus went with it, so on this page window.PDXSpotlight is the
+   card-sized index (spotlight-index.js) rather than the reader engine. Nothing
+   here had to change for that — the index publishes the same list()/
+   strengthFor()/match() shape with the same field names — except the cards
+   themselves, which are now ORDINARY LINKS to /issue/<slug> instead of buttons
+   that opened an in-page overlay. Same address, real navigation, and a browse
+   grid that works with middle-click, Cmd-click, and Open in New Tab.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -132,7 +141,9 @@
     // visibly distinct rather than blurred into one.
     var ics = (window.PDXIssueColors && typeof window.PDXIssueColors.styleFor === 'function')
       ? window.PDXIssueColors.styleFor(sp.primaryIssueKey || '') : '';
-    return '<button type="button" class="shub-card" data-slug="' + esc(sp.slug) + '" ' +
+    // An <a>, not a <button>: this is a link to another document.
+    return '<a class="shub-card" href="/issue/' + encodeURIComponent(sp.slug) + '" ' +
+        'data-slug="' + esc(sp.slug) + '" ' +
         'data-scope="' + scope + '" data-cat="' + esc(cat) + '" data-hay="' + esc(hay) + '" ' +
         'style="--cat:' + col + ';' + ics + '" ' +
         'aria-label="Open the ' + esc(sp.title) + ' Issue Spotlight">' +
@@ -148,7 +159,7 @@
       '<span class="shub-foot">' +
         '<span class="shub-cta">View Spotlight →</span>' +
       '</span>' +
-    '</button>';
+    '</a>';
   }
 
   // Build the scope + category chip rows from the registry, so the categories
@@ -285,6 +296,7 @@
         'text-transform:uppercase;color:#7d97bd;margin:.2rem 0 1rem;}' +
       '.shub-grid{display:grid;gap:.85rem;grid-template-columns:repeat(auto-fill,minmax(16.5rem,1fr));}' +
       '.shub-card{display:flex;flex-direction:column;gap:.4rem;text-align:left;width:100%;cursor:pointer;height:100%;' +
+        'text-decoration:none;' +
         'background:linear-gradient(160deg,rgba(19,29,52,.85),rgba(13,21,38,.9));border:1px solid rgba(159,180,212,.16);' +
         // Issue colour on the spine (issue-colors.js), category colour still the
         // fallback so a Spotlight with no primary issue key keeps the edge it had.
@@ -358,12 +370,7 @@
 
     injectCss();
     grid.innerHTML = list.map(function (sp) { return cardHtml(sp, api); }).join('');
-    grid.querySelectorAll('[data-slug]').forEach(function (b) {
-      b.addEventListener('click', function () {
-        var slug = b.getAttribute('data-slug');
-        if (window.PDXSpotlight && typeof window.PDXSpotlight.open === 'function') window.PDXSpotlight.open(slug);
-      });
-    });
+    // No click wiring: each card carries its own href to /issue/<slug>.
 
     buildChips(list);
 

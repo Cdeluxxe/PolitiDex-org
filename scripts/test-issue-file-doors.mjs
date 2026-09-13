@@ -57,7 +57,7 @@
  *   node scripts/test-issue-file-doors.mjs
  */
 
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -411,9 +411,16 @@ section("5 · /i/<key> resolves from a cold load, same rewrite class as /p/");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const TOML = R("netlify.toml");
-  // The two paths are served by the same kind of rule: a 200 rewrite to the shell.
-  const rule = /\[\[redirects\]\]\s*\n\s*from = "\/i\/\*"\s*\n\s*to = "\/index\.html"\s*\n\s*status = 200/.exec(TOML);
+  // The two paths are served by the same kind of rule: a 200 rewrite to A shell.
+  // WHICH shell changed under this suite — /i/* answered index.html when this file
+  // was written and answers /issue.html since the second split — so the rule is
+  // matched on its CLASS (a 200 rewrite to a document this repo ships) and the
+  // document it names is asserted to exist. scripts/test-issue-shell.mjs owns the
+  // stronger claim that the target is issue.html and nothing else.
+  const rule = /\[\[redirects\]\]\s*\n\s*from = "\/i\/\*"\s*\n\s*to = "(\/[A-Za-z0-9_.-]+\.html)"\s*\n\s*status = 200/.exec(TOML);
   ok(!!rule, "netlify.toml does not rewrite /i/* to the shell at status 200");
+  if (rule) ok(existsSync(join(ROOT, rule[1].slice(1))),
+    `netlify.toml rewrites /i/* to ${rule[1]}, which this repo does not ship`);
   ok(/from = "\/p\/\*"[\s\S]{0,120}status = 200/.test(TOML), "the /p/* rewrite this rule is modelled on is gone");
 
   const PROF = R("pdx-issue-profile.js");

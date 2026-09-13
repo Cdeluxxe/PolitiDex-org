@@ -250,8 +250,12 @@
 <script defer src="/cmp-data.js"></script>
 <script defer src="/spotlight-cards-data.js"></script>
 <!-- ^ Run 2 perf: large curated data (roster, Spotlights, accountability) extracted from index.html; deferred + cached.
-     Run 3 perf: spotlights-data.js (~1.2MB) and acct-spotlight-data.js (~587KB) are no longer parsed at startup —
-     pdx-lazy-data.js injects them on demand (section-approaching-viewport / first interaction / idle fallback).
+     Run 3 perf: acct-spotlight-data.js (~587KB) is no longer parsed at startup —
+     pdx-lazy-data.js injects it on demand (section-approaching-viewport / first interaction / idle fallback).
+     Run 4: spotlights-data.js (~1.2MB, the /issue/<slug> writeups) is not on this document at ALL any more,
+     lazily or otherwise. /issue/<slug> is its own document (spotlight.html) and owns the corpus; the front
+     page reads spotlight-index.js instead. NOTE: spotlight-cards-data.js above is UNRELATED despite the
+     name — window.SPOTLIGHT_DATA is the per-politician evidence map, read by all four shells.
      cmp-data.js is now the light roster search index; its bio+stances detail loads on demand via cmp-data-detail.js. -->
 <!-- ═══════════════════════════════════════════════════════════════════════
      PDXStore — CLIENT-SIDE PERSISTENCE FOUNDATION (Phase 5: account-sync prep)
@@ -6389,7 +6393,7 @@ window.PDXLazy = (function () {
 
   <!-- ═══════════════════════ LOCAL ISSUES · ISSUE SPOTLIGHTS ════════
        A calm, reference-style front door to the Issue Spotlight surface. It reads
-       the SPOTLIGHTS registry (via window.PDXSpotlight) and auto-renders up to four
+       the Spotlight index (via window.PDXSpotlight, spotlight-index.js) and auto-renders up to four
        cards — one-line description, a documentation-strength badge, and a single
        "View Spotlight" action. No content feed, no alarm language: the goal is to
        let someone who cares about a real local fight (data centers, water, growth,
@@ -6420,6 +6424,7 @@ window.PDXLazy = (function () {
       #local-issues .li-sub{font:400 1rem/1.55 'Barlow',sans-serif;color:#9fb4d4;max-width:34rem;margin:0;}
       #local-issues .li-grid{display:grid;gap:.9rem;grid-template-columns:repeat(auto-fill,minmax(17rem,1fr));}
       #local-issues .li-card{display:flex;flex-direction:column;text-align:left;width:100%;cursor:pointer;
+        text-decoration:none;color:inherit;
         background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);
         border-left:3px solid rgba(245,200,66,.5);border-radius:.9rem;padding:1.05rem 1.1rem;color:inherit;
         transition:transform .16s ease,border-color .16s ease,background .16s ease;}
@@ -6489,10 +6494,10 @@ window.PDXLazy = (function () {
   </section>
   <script>
     // ── Local Issues discovery — render Spotlight cards from the registry ──────
-    // Reads window.PDXSpotlight (defined later in the document) and renders up to
-    // four cards. Retries briefly because the Spotlight engine boots near the end
-    // of <body>; hides the whole section if the registry is empty, so the front
-    // door never shows an empty shell.
+    // Reads window.PDXSpotlight (spotlight-index.js, a deferred script near the
+    // end of <body>) and renders up to six cards. Retries briefly for that
+    // reason; hides the whole section if the index is empty, so the front door
+    // never shows an empty shell. Each card is a link to /issue/<slug>.
     (function () {
       var MAX = 6;
       var esc = (typeof window._esc === 'function') ? window._esc : function (s) {
@@ -6553,7 +6558,11 @@ window.PDXLazy = (function () {
         }).join('');
         // A compact, lowercased haystack for the inline filter.
         var hay = (sp.title + ' ' + sp.place + ' ' + (sp.searchKeywords || '') + ' ' + blurb).toLowerCase();
-        return '<button type="button" class="li-card" data-slug="' + esc(sp.slug) + '" ' +
+        // An <a>, not a <button>: /issue/<slug> is its own document now
+        // (spotlight.html), so this is a plain link to another page — which
+        // also means middle-click and Cmd-click behave the way a reader expects.
+        return '<a class="li-card" href="/issue/' + encodeURIComponent(sp.slug) + '" ' +
+            'data-slug="' + esc(sp.slug) + '" ' +
             'data-hay="' + esc(hay) + '" aria-label="View the ' + esc(sp.title) + ' Issue Spotlight">' +
           '<span class="li-ck">' + esc(sp.eyebrow || 'Issue Spotlight') + '</span>' +
           '<span class="li-cn">' + esc(sp.title) + '</span>' +
@@ -6565,7 +6574,7 @@ window.PDXLazy = (function () {
               esc(s.sources + ' sourced events · ' + s.receipts + ' receipts') + '">📑 ' + esc(s.label) + '</span>' +
             '<span class="li-cta">View Spotlight →</span>' +
           '</span>' +
-        '</button>';
+        '</a>';
       }
 
       // Live filter over the rendered cards. Every space-separated term must match
@@ -6619,13 +6628,12 @@ window.PDXLazy = (function () {
         if (!sec || !grid) return true;
         var api = window.PDXSpotlight;
         if (!api || typeof api.list !== 'function') return false;
-        // Run 3 perf: Spotlight data loads on demand. Once the visitor has a
-        // location (the gate for this surface), make sure it is being fetched; the
-        // pdx:data:spotlights listener below re-runs render() the moment it lands.
-        if (window._hasUserLocation && window.PDXLazyData &&
-            !window.PDXLazyData.loaded('spotlights')) {
-          window.PDXLazyData.ensure('spotlights');
-        }
+        // The 1.2 MB corpus used to be lazy-fetched here and this surface had to
+        // wait for it (and repaint on pdx:data:spotlights when it landed). It is
+        // not on this page at all any more — /issue/<slug> owns it. What backs
+        // these cards is spotlight-index.js, ~86 KB of slug/title/place/blurb
+        // that ships with the document, so there is nothing to wait for and no
+        // repaint event to listen for.
 
         // Gate the whole surface on a confirmed location. Before a visitor sets
         // where they vote, Local Issues stays hidden so the intro flow (Voter Hub)
@@ -6650,14 +6658,7 @@ window.PDXLazy = (function () {
         }
 
         grid.innerHTML = list.slice(0, MAX).map(function (sp) { return cardHtml(sp, api); }).join('');
-        grid.querySelectorAll('[data-slug]').forEach(function (b) {
-          b.addEventListener('click', function () {
-            var slug = b.getAttribute('data-slug');
-            if (window.PDXSpotlight && typeof window.PDXSpotlight.open === 'function') {
-              window.PDXSpotlight.open(slug);
-            }
-          });
-        });
+        // No click wiring: every card carries its own href to /issue/<slug>.
         var input = document.getElementById('li-search-input');
         if (input && !input._liWired) {
           input._liWired = true;
@@ -6679,9 +6680,6 @@ window.PDXLazy = (function () {
       // the moment a visitor sets or changes their location (see
       // _triggerLocationReaction). Safe to call repeatedly.
       window._pdxRenderLocalIssues = render;
-      // Run 3 perf: repaint the moment on-demand Spotlight data arrives, so a
-      // location set before it loaded still fills in without another action.
-      document.addEventListener('pdx:data:spotlights', function () { try { render(); } catch (e) {} });
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () { boot(0); });
       } else { boot(0); }
@@ -10622,7 +10620,7 @@ window.PDXLazy = (function () {
       <!-- ───── Browse every Issue Spotlight ─────────────────────────────────
            The curated cards above are hand-picked; this is the full, always-
            complete collection, rendered by spotlight-hub.js straight from the
-           PDXSpotlight registry. Every Spotlight (national + local) shows here
+           PDXSpotlight index. Every Spotlight (national + local) shows here
            the moment it's added — filterable by scope/topic and searchable — so
            nothing stays buried behind a deep-link. -->
       <div id="all-spotlights">
@@ -22757,10 +22755,23 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        consistency.js / word-action.js paint; every consumer is guarded, so a
        missing module costs the line and nothing else. -->
   <script defer src="/inventory.js"></script>
+  <!-- Spotlight index (window.PDXSpotlight) — GENERATED; see
+       scripts/gen-spotlight-index.mjs. /issue/<slug> is its own document now
+       (spotlight.html), and the 1.2 MB spotlights-data.js corpus went with it —
+       this page used to carry the whole corpus plus a 65 KB reader engine for
+       writeups most visitors never opened. What the front page actually reads is
+       a slug, a title, a place, a one-line blurb, a few issue keys and the
+       documentation badge, for Local Issues / the Spotlight Hub / profile
+       callouts / search suggestions. That is this file, ~86 KB, and every door
+       it feeds is an ordinary link to /issue/<slug>. open() navigates; there is
+       no overlay on this document any more. -->
+  <script defer src="/spotlight-index.js"></script>
   <!-- Spotlight Hub — the "browse every Issue Spotlight" directory
-       (window.PDXSpotlightHub). Renders the full PDXSpotlight registry into the
+       (window.PDXSpotlightHub). Renders the Spotlight index into the
        filterable/searchable grid in #all-spotlights, so newly added Spotlights
-       always surface. Loads after the app shell that defines window.PDXSpotlight. -->
+       always surface. Cards are links to /issue/<slug>. Loads after
+       spotlight-index.js, which defines window.PDXSpotlight (both deferred, so
+       document order is execution order). -->
   <script defer src="/spotlight-hub.js"></script>
   <!-- Federal Spending Tracker — government contracts by agency, company & state
        (window.PDXContracts). Owns the curated, sourced contracts dataset, the
@@ -27732,127 +27743,46 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   })();
   </script>
 
-  <!-- ═══════════════════════════ ISSUE SPOTLIGHT ════════════════════════════
-       A first-class, shareable surface that turns scattered per-politician data
-       into one calm, sourced view of a single local controversy. It deep-links
-       at /issue/<slug>, reuses ISSUE_STANCE_DATA for every position + receipt,
-       links each name to their Full Stance Record (showProfile), and reuses the
-       Community Exchange gold bridge (PDXCommunity.openForIssue). No new data is
-       stored — the page is a lens over what PolitiDex already knows.
+  <!-- ═══════════════════════ SHARED STANCE PILL (ONLY) ═══════════════════════
+       The Issue Spotlight used to live at this spot in the document: ~395 lines
+       of .pdxis-* CSS, the #issue-spotlight overlay mount, and a ~66 KB engine —
+       and behind them the 1.2 MB spotlights-data.js corpus, which every homepage
+       visitor paid for whether or not they ever opened a writeup.
+
+       /issue/<slug> is its own document now. See spotlight.html (the shell),
+       spotlight-engine.js (this engine, moved out verbatim bar seven seams) and
+       spotlight-overlay.css (this stylesheet, moved out verbatim). The front
+       page keeps ordinary links to /issue/<slug> and a slug index
+       (spotlight-index.js, ~86 KB — 7% of the corpus) — never the corpus itself.
+
+       WHAT STAYED HERE, AND WHY IT WAS NEVER REALLY SPOTLIGHT-ONLY:
+       (1) The stance pill rules below. profiles-full.js paints
+           .pdxis-stance / -stance-k / -stance-dot / -stance-none (its "No stance
+           on file" pill) and .pdxis-p-meta / .pdxis-meta-k (the Evidence meta
+           row) on THIS page, and app-2.css only shrinks the pill inside
+           .el-pss-row — nothing anywhere defines the base rule. Deleting these
+           with the rest of the block would have silently unstyled the profile
+           modal. The engine-only pills (.pdxis-stance-cta, .pdxis-stverd) went.
+       (2) window.PDXStance, immediately below — the canonical four-state stance
+           language that Compare, My Priorities, Hot Topics and the Evidence
+           Locker all read. It is a dependency of the engine, not a part of it.
+       (3) The "Featured in Issue Spotlight" rail on the profile modal, and its
+           .pdxis-callout* fallback rules. This one is a DOOR, not the room
+           behind it: profiles-full.js asks for it when a profile opens (its
+           call is typeof-guarded, so nothing threw while it was gone), it reads
+           nothing but slug + title, and PDXDossier.railHtml — which ships on
+           this document in profile-dossier.js and had no other caller — paints
+           it. It only lived inside the engine because the engine was where
+           forPolitician() was. That now comes from spotlight-index.js, so the
+           rail costs 60 rows instead of 1.2 MB. Its chips are ORDINARY LINKS to
+           /issue/<slug>, as every Spotlight door on this page now is.
+
+       (1) and (2) are duplicated for the new document (the CSS inside
+       spotlight-overlay.css, PDXStance inline in spotlight.html);
+       scripts/test-spotlight-shell.mjs pins both copies against these so they
+       cannot drift apart.
        ──────────────────────────────────────────────────────────────────────── -->
   <style>
-    .pdxis-overlay{position:fixed;inset:0;z-index:1000;background:#070b16;color:#e7eefb;
-      overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
-      font-family:'Barlow',system-ui,-apple-system,sans-serif;}
-    .pdxis-overlay[hidden]{display:none;}
-    .pdxis-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
-      background:radial-gradient(1100px 540px at 78% -8%,rgba(245,200,66,0.08),transparent 60%),
-                 radial-gradient(900px 480px at 8% 4%,rgba(59,99,168,0.10),transparent 62%),#070b16;}
-    .pdxis-wrap{position:relative;z-index:1;max-width:60rem;margin:0 auto;padding:0 1.1rem 5rem;}
-    /* Sticky top bar: back, share */
-    .pdxis-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:.6rem;
-      padding:.85rem 0 .75rem;margin-bottom:.4rem;
-      background:linear-gradient(180deg,#070b16 72%,rgba(7,11,22,0));}
-    .pdxis-back{display:inline-flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.12);color:#cdd9f0;border-radius:.7rem;padding:.5rem .8rem;
-      font:600 .82rem/1 'Barlow Condensed',sans-serif;letter-spacing:.04em;text-transform:uppercase;
-      cursor:pointer;transition:.16s;min-height:40px;}
-    .pdxis-back:hover{background:rgba(255,255,255,.09);color:#fff;}
-    .pdxis-top-spacer{flex:1;}
-    .pdxis-share{display:inline-flex;align-items:center;gap:.42rem;background:rgba(245,200,66,.12);
-      border:1px solid rgba(245,200,66,.34);color:#f5d77a;border-radius:.7rem;padding:.5rem .85rem;
-      font:700 .82rem/1 'Barlow Condensed',sans-serif;letter-spacing:.05em;text-transform:uppercase;
-      cursor:pointer;transition:.16s;min-height:40px;}
-    .pdxis-share:hover{background:rgba(245,200,66,.2);color:#ffe9a6;}
-    /* Header */
-    .pdxis-eyebrow{display:inline-flex;align-items:center;gap:.45rem;
-      font:700 .72rem/1 'Barlow Condensed',sans-serif;letter-spacing:.22em;text-transform:uppercase;
-      color:#f5c842;background:rgba(245,200,66,.09);border:1px solid rgba(245,200,66,.28);
-      padding:.36rem .7rem;border-radius:999px;}
-    .pdxis-title{font:700 clamp(2rem,5vw,3.1rem)/1.02 'Bebas Neue','Barlow Condensed',sans-serif;
-      letter-spacing:.01em;margin:.7rem 0 .25rem;color:#fff;}
-    .pdxis-place{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;color:#9fb4d4;
-      font:500 .95rem/1.3 'Barlow',sans-serif;}
-    .pdxis-place .pdxis-dot{opacity:.5;}
-    .pdxis-updated{font:600 .72rem/1 'Barlow Condensed',sans-serif;letter-spacing:.08em;
-      text-transform:uppercase;color:#7596c0;}
-    /* Documentation-strength chip — computed from sourced events + receipts */
-    .pdxis-doc{display:inline-flex;align-items:center;gap:.3rem;border-radius:999px;padding:.2rem .55rem;
-      font:700 .68rem/1 'Barlow Condensed',sans-serif;letter-spacing:.06em;text-transform:uppercase;
-      border:1px solid transparent;}
-    .pdxis-doc-strong{color:#7ee2a8;background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.3);}
-    .pdxis-doc-moderate{color:#f5d77a;background:rgba(245,200,66,.1);border-color:rgba(245,200,66,.3);}
-    .pdxis-doc-limited{color:#a9bbd6;background:rgba(159,180,212,.08);border-color:rgba(159,180,212,.24);}
-    /* Generic section scaffolding */
-    .pdxis-sec{margin-top:2.2rem;}
-    .pdxis-sec-h{display:flex;align-items:baseline;gap:.6rem;margin-bottom:.9rem;}
-    .pdxis-sec-h h2{font:700 1.18rem/1.1 'Barlow Condensed',sans-serif;letter-spacing:.05em;
-      text-transform:uppercase;color:#eaf1ff;margin:0;}
-    .pdxis-sec-h .pdxis-kicker{font:600 .72rem/1 'Barlow Condensed',sans-serif;letter-spacing:.1em;
-      text-transform:uppercase;color:#7596c0;}
-    /* Summary card */
-    .pdxis-summary{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);
-      border-left:3px solid rgba(245,200,66,.55);border-radius:.9rem;padding:1.15rem 1.25rem;}
-    .pdxis-summary p{margin:0 0 .7rem;font:400 1.02rem/1.62 'Barlow',sans-serif;color:#dde7f7;}
-    .pdxis-summary p:last-child{margin-bottom:0;}
-    .pdxis-summary .pdxis-why{color:#c6d3ea;font-size:.97rem;}
-    .pdxis-summary .pdxis-why b{color:#f5d77a;font-weight:600;}
-    /* Timeline */
-    .pdxis-tl{list-style:none;margin:0;padding:0;position:relative;}
-    .pdxis-tl:before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:2px;
-      background:linear-gradient(180deg,rgba(245,200,66,.5),rgba(59,99,168,.35));}
-    .pdxis-tl li{position:relative;padding:0 0 1.05rem 1.7rem;}
-    .pdxis-tl li:last-child{padding-bottom:0;}
-    .pdxis-tl li:before{content:'';position:absolute;left:0;top:5px;width:14px;height:14px;
-      border-radius:50%;background:#0b1326;border:2px solid #f5c842;}
-    .pdxis-tl-date{font:700 .76rem/1 'Barlow Condensed',sans-serif;letter-spacing:.08em;
-      text-transform:uppercase;color:#f5c842;margin-bottom:.25rem;}
-    .pdxis-tl-text{font:400 .96rem/1.55 'Barlow',sans-serif;color:#d7e2f5;}
-    .pdxis-src{display:inline-flex;align-items:center;gap:.3rem;margin-top:.3rem;
-      font:600 .76rem/1.2 'Barlow',sans-serif;color:#8fb4ec;text-decoration:none;}
-    .pdxis-src:hover{color:#bcd4ff;text-decoration:underline;}
-    .pdxis-src:before{content:'🔗';font-size:.72rem;opacity:.85;}
-    /* Who stands where */
-    .pdxis-group{margin-bottom:1.3rem;}
-    .pdxis-group:last-child{margin-bottom:0;}
-    .pdxis-group-h{font:700 .76rem/1 'Barlow Condensed',sans-serif;letter-spacing:.1em;
-      text-transform:uppercase;color:#9fb4d4;margin:0 0 .6rem;padding-bottom:.35rem;
-      border-bottom:1px solid rgba(255,255,255,.07);}
-    /* Honest-gap caption under a board group — e.g. "documented N of M votes". Kept
-       quiet and italic so it reads as a transparency note, not a headline. */
-    .pdxis-group-note{font:400 .82rem/1.45 'Barlow',sans-serif;color:#8aa0c0;
-      font-style:italic;margin:-.2rem 0 .7rem;}
-    .pdxis-person{display:block;width:100%;text-align:left;background:rgba(255,255,255,.035);
-      border:1px solid rgba(255,255,255,.08);border-radius:.85rem;padding:.95rem 1.05rem;
-      margin-bottom:.65rem;cursor:pointer;transition:.16s;color:inherit;}
-    .pdxis-person:hover{background:rgba(255,255,255,.07);border-color:rgba(245,200,66,.3);
-      transform:translateY(-1px);}
-    .pdxis-person:last-child{margin-bottom:0;}
-    .pdxis-p-top{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;}
-    .pdxis-p-ico{width:38px;height:38px;flex:0 0 38px;border-radius:.6rem;display:flex;
-      align-items:center;justify-content:center;font-size:1.1rem;background:rgba(59,99,168,.18);
-      border:1px solid rgba(255,255,255,.1);}
-    .pdxis-p-id{flex:1;min-width:9rem;}
-    .pdxis-p-name{font:700 1rem/1.15 'Barlow',sans-serif;color:#fff;}
-    .pdxis-p-office{font:500 .8rem/1.25 'Barlow',sans-serif;color:#9fb4d4;}
-    .pdxis-p-pos{margin-top:.6rem;font:400 .92rem/1.5 'Barlow',sans-serif;color:#d3deef;}
-    .pdxis-p-foot{margin-top:.55rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;
-      justify-content:space-between;}
-    .pdxis-p-cta{font:700 .74rem/1 'Barlow Condensed',sans-serif;letter-spacing:.06em;
-      text-transform:uppercase;color:#f5d77a;display:inline-flex;align-items:center;gap:.3rem;}
-    .pdxis-person:hover .pdxis-p-cta{color:#ffe9a6;}
-    /* Badges */
-    .pdxis-badges{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;}
-    .pdxis-badge{display:inline-flex;align-items:center;gap:.35rem;border-radius:999px;
-      padding:.24rem .6rem;font:700 .68rem/1 'Barlow Condensed',sans-serif;letter-spacing:.06em;
-      text-transform:uppercase;border:1px solid transparent;}
-    .pdxis-badge .pdxis-dots{letter-spacing:-.05em;font-size:.66rem;}
-    .pdxis-st-strong{color:#7ee2a8;background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.32);}
-    .pdxis-st-moderate{color:#f5d77a;background:rgba(245,200,66,.1);border-color:rgba(245,200,66,.32);}
-    .pdxis-st-limited{color:#a9bbd6;background:rgba(159,180,212,.08);border-color:rgba(159,180,212,.26);}
-    .pdxis-st-none{color:#8a9ab4;background:rgba(138,154,180,.06);border-color:rgba(138,154,180,.2);}
-    .pdxis-impact{color:#cdd9f0;background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);}
-    .pdxis-pledge{color:#e3b7f0;background:rgba(190,120,220,.08);border-color:rgba(190,120,220,.3);}
     /* Stance indicator — the headline signal: did this person SUPPORT, OPPOSE, take a
        MIXED position, or have NO CLEAR POSITION on the issue. Deliberately more
        prominent than the evidence-strength badge and sits up next to the name so it
@@ -27877,99 +27807,15 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     @media (max-width:480px){
       .pdxis-stance{margin-top:.15rem;}
     }
-    /* Evidence */
-    .pdxis-ev-group{margin-bottom:1.25rem;}
-    .pdxis-ev-group:last-child{margin-bottom:0;}
-    .pdxis-ev-card{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);
-      border-radius:.8rem;padding:.85rem 1rem;margin-bottom:.55rem;}
-    .pdxis-ev-card:last-child{margin-bottom:0;}
-    .pdxis-ev-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;
-      margin-bottom:.35rem;flex-wrap:wrap;}
-    .pdxis-ev-who{font:700 .82rem/1.2 'Barlow Condensed',sans-serif;letter-spacing:.04em;
-      text-transform:uppercase;color:#bcd0ee;cursor:pointer;background:none;border:none;padding:0;}
-    .pdxis-ev-who:hover{color:#ffe9a6;text-decoration:underline;}
-    .pdxis-ev-text{font:400 .92rem/1.52 'Barlow',sans-serif;color:#d7e2f5;}
-    /* Community */
-    .pdxis-comm{background:linear-gradient(135deg,rgba(245,200,66,.1),rgba(245,200,66,.04));
-      border:1px solid rgba(245,200,66,.32);border-radius:1rem;padding:1.25rem 1.3rem;
-      display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
-    .pdxis-comm-body{flex:1;min-width:14rem;}
-    .pdxis-comm-h{font:700 1.05rem/1.2 'Barlow Condensed',sans-serif;letter-spacing:.04em;
-      text-transform:uppercase;color:#ffe9a6;margin:0 0 .25rem;}
-    .pdxis-comm-sub{font:400 .9rem/1.45 'Barlow',sans-serif;color:#d8c79a;}
-    .pdxis-comm-btn{display:inline-flex;align-items:center;gap:.45rem;background:#f5c842;color:#1a1305;
-      border:none;border-radius:.7rem;padding:.7rem 1.15rem;cursor:pointer;
-      font:800 .85rem/1 'Barlow Condensed',sans-serif;letter-spacing:.05em;text-transform:uppercase;
-      transition:.16s;min-height:44px;}
-    .pdxis-comm-btn:hover{background:#ffd95e;transform:translateY(-1px);}
-    .pdxis-comm-count{display:inline-flex;align-items:center;gap:.3rem;font:700 .78rem/1 'Barlow',sans-serif;
-      color:#1a1305;background:rgba(26,19,5,.16);border-radius:999px;padding:.2rem .5rem;margin-left:.35rem;}
-    /* Say vs. Do — two sourced axes of the same law, side by side */
-    .pdxis-svd{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);
-      border-radius:.8rem;padding:.85rem 1rem;margin-bottom:.6rem;}
-    .pdxis-svd:last-child{margin-bottom:0;}
-    .pdxis-svd-who{font:800 .82rem/1.2 'Barlow Condensed',sans-serif;letter-spacing:.04em;text-transform:uppercase;
-      color:#bcd0ee;background:none;border:none;padding:0;cursor:pointer;margin-bottom:.5rem;}
-    .pdxis-svd-who:hover{color:#ffe9a6;text-decoration:underline;}
-    .pdxis-svd-cols{display:flex;gap:.6rem;align-items:stretch;flex-wrap:wrap;}
-    .pdxis-svd-col{flex:1 1 12rem;min-width:11rem;background:rgba(10,15,30,.4);border:1px solid rgba(255,255,255,.07);
-      border-radius:.65rem;padding:.6rem .7rem;}
-    .pdxis-svd-k{display:block;font:700 .6rem/1 'Barlow Condensed',sans-serif;letter-spacing:.11em;text-transform:uppercase;
-      color:#7596c0;margin-bottom:.35rem;}
-    .pdxis-svd-txt{font:400 .86rem/1.5 'Barlow',sans-serif;color:#d7e2f5;margin:.3rem 0;}
-    .pdxis-svd-vs{align-self:center;font:800 .7rem/1 'Barlow Condensed',sans-serif;letter-spacing:.08em;
-      text-transform:uppercase;color:#f5c842;flex:0 0 auto;padding:0 .15rem;}
-    .pdxis-svd-note{font:400 .84rem/1.5 'Barlow',sans-serif;color:#e6b8b8;margin-top:.55rem;
-      border-left:2px solid rgba(248,113,113,.4);padding-left:.6rem;}
-    /* Live recorded votes (hydrated from the voting-record database) */
-    .pdxis-vr{margin-top:.2rem;}
-    .pdxis-vr-load{font:400 .85rem/1.5 'Barlow',sans-serif;color:#7596c0;padding:.6rem 0;}
-    .pdxis-vrow{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;background:rgba(255,255,255,.035);
-      border:1px solid rgba(255,255,255,.08);border-radius:.7rem;padding:.6rem .8rem;margin-bottom:.5rem;}
-    .pdxis-vrow:last-child{margin-bottom:0;}
-    .pdxis-vrow-name{font:800 .8rem/1.2 'Barlow Condensed',sans-serif;letter-spacing:.03em;text-transform:uppercase;
-      color:#bcd0ee;background:none;border:none;padding:0;cursor:pointer;flex:1 1 8rem;text-align:left;}
-    .pdxis-vrow-name:hover{color:#ffe9a6;text-decoration:underline;}
-    .pdxis-vr-pill{font:700 .64rem/1 'Barlow Condensed',sans-serif;letter-spacing:.06em;text-transform:uppercase;
-      border-radius:999px;padding:.2rem .55rem;white-space:nowrap;}
-    .pdxis-vr-yea{background:rgba(74,222,128,.16);color:#6ee7a0;border:1px solid rgba(74,222,128,.35);}
-    .pdxis-vr-nay{background:rgba(248,113,113,.16);color:#fca5a5;border:1px solid rgba(248,113,113,.35);}
-    .pdxis-vr-neutral{background:rgba(159,180,212,.14);color:#9fb4d4;border:1px solid rgba(159,180,212,.3);}
-    .pdxis-vr-verdict{font:700 .64rem/1 'Barlow Condensed',sans-serif;letter-spacing:.05em;text-transform:uppercase;
-      border-radius:999px;padding:.2rem .55rem;white-space:nowrap;}
-    .pdxis-vr-v-consistent{background:rgba(74,222,128,.16);color:#6ee7a0;border:1px solid rgba(74,222,128,.35);}
-    .pdxis-vr-v-contradicts{background:rgba(248,113,113,.18);color:#fca5a5;border:1px solid rgba(248,113,113,.4);}
-    .pdxis-vr-v-mixed{background:rgba(96,165,250,.16);color:#93c5fd;border:1px solid rgba(96,165,250,.35);}
-    .pdxis-vr-src{font:400 .74rem/1 'Barlow',sans-serif;color:#93c5fd;text-decoration:none;flex:0 0 auto;}
-    .pdxis-vr-src:hover{text-decoration:underline;}
-    /* How Politicians Stand on This Issue — reps-first, say-vs-do at a glance */
-    .pdxis-stands-reps{margin-bottom:1.4rem;}
-    .pdxis-stands-h{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;}
-    .pdxis-yourrep{display:inline-flex;align-items:center;gap:.25rem;margin-left:.5rem;
-      vertical-align:middle;font:800 .6rem/1 'Barlow Condensed',sans-serif;letter-spacing:.1em;
-      text-transform:uppercase;color:#1a1305;background:#f5c842;border-radius:999px;padding:.2rem .5rem;}
-    .pdxis-stperson.is-yourrep{border-color:rgba(245,200,66,.42);
-      background:linear-gradient(135deg,rgba(245,200,66,.09),rgba(245,200,66,.02));}
-    .pdxis-stperson.is-yourrep:hover{border-color:rgba(245,200,66,.55);}
-    .pdxis-stverd{margin-top:.55rem;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;}
-    .pdxis-stverd:empty{display:none;}
-    .pdxis-stance-cta{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;
-      margin-top:1.15rem;background:linear-gradient(135deg,#f5c842,#ffd95e);color:#1a1305;border:none;
-      border-radius:.85rem;padding:1rem 1.25rem;cursor:pointer;min-height:52px;
-      font:800 .92rem/1.15 'Barlow Condensed',sans-serif;letter-spacing:.05em;text-transform:uppercase;
-      transition:.16s;box-shadow:0 6px 18px rgba(245,200,66,.16);text-align:center;}
-    .pdxis-stance-cta:hover{filter:brightness(1.04);transform:translateY(-1px);
-      box-shadow:0 8px 22px rgba(245,200,66,.24);}
-    .pdxis-stance-cta-arrow{font-size:1.15rem;line-height:1;}
-    /* Honest-gap note */
-    .pdxis-note{font:400 .85rem/1.5 'Barlow',sans-serif;color:#9fb4d4;font-style:italic;      margin-top:.5rem;}
-    .pdxis-foot{margin-top:2.4rem;padding-top:1.1rem;border-top:1px solid rgba(255,255,255,.08);
-      font:400 .82rem/1.5 'Barlow',sans-serif;color:#7596c0;}
-    /* "Related Issue Spotlight" callout injected into a politician's profile */
+    /* "Related Issue Spotlight" callout injected into a politician's profile. The
+       FALLBACK shape only: when profile-dossier.js has loaded (it is a deferred
+       script on this document) the rail below prefers PDXDossier.railHtml, which
+       is styled by profile-dossier.css. This is what the door looks like if the
+       reader opens a profile before that file lands. */
     .pdxis-callout{display:flex;align-items:center;gap:.7rem;margin:.85rem 0 .25rem;
       background:linear-gradient(135deg,rgba(245,200,66,.1),rgba(245,200,66,.03));
-      border:1px solid rgba(245,200,66,.3);border-radius:.8rem;padding:.7rem .85rem;cursor:pointer;
-      transition:.16s;text-align:left;width:100%;color:inherit;}
+      border:1px solid rgba(245,200,66,.3);border-radius:.8rem;padding:.7rem .85rem;
+      transition:.16s;text-align:left;width:100%;color:inherit;text-decoration:none;}
     .pdxis-callout:hover{background:rgba(245,200,66,.16);transform:translateY(-1px);}
     .pdxis-callout-ico{font-size:1.3rem;flex:0 0 auto;}
     .pdxis-callout-body{flex:1;min-width:0;}
@@ -27977,170 +27823,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       text-transform:uppercase;color:#f5c842;}
     .pdxis-callout-t{font:600 .94rem/1.25 'Barlow',sans-serif;color:#fff;margin-top:.15rem;}
     .pdxis-callout-arrow{color:#f5d77a;font-size:1.1rem;flex:0 0 auto;}
-    /* ── Policy-explainer Spotlight extensions (fast-moving national issues) ──
-       Additive layer for explainer cards (Case For/Against, fact box, verified vs.
-       developing flags). Existing politician-centric Spotlights don't set these
-       fields, so none of the rules below affect them. */
-    /* Live status banner — pinned high so a fast-moving story shows its freshness */
-    .pdxis-status{display:flex;align-items:center;gap:.55rem;margin-top:.95rem;
-      background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.28);
-      border-left:3px solid #60a5fa;border-radius:.7rem;padding:.6rem .85rem;
-      font:600 .84rem/1.4 'Barlow',sans-serif;color:#cfe0fb;}
-    .pdxis-status-dot{width:.55rem;height:.55rem;border-radius:50%;background:#60a5fa;flex:0 0 auto;
-      box-shadow:0 0 0 4px rgba(96,165,250,.18);animation:pdxisPulse 2.2s ease-in-out infinite;}
-    @keyframes pdxisPulse{0%,100%{opacity:1;}50%{opacity:.45;}}
-    @media (prefers-reduced-motion:reduce){.pdxis-status-dot{animation:none;}}
-    /* Verified / Developing chips — the core transparency signal on this card */
-    .pdxis-chip{display:inline-flex;align-items:center;gap:.3rem;border-radius:999px;
-      padding:.16rem .5rem;font:700 .62rem/1 'Barlow Condensed',sans-serif;letter-spacing:.09em;
-      text-transform:uppercase;border:1px solid transparent;vertical-align:middle;}
-    .pdxis-chip:before{font-size:.7rem;}
-    .pdxis-chip-verified{color:#7ee2a8;background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.32);}
-    .pdxis-chip-verified:before{content:'✓';}
-    .pdxis-chip-developing{color:#f5c06a;background:rgba(245,168,66,.1);border-color:rgba(245,168,66,.36);}
-    .pdxis-chip-developing:before{content:'◔';}
-    /* Fact box — verified before/after figures */
-    .pdxis-fact{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);
-      border-left:3px solid rgba(74,222,128,.5);border-radius:.9rem;padding:1.05rem 1.15rem;}
-    .pdxis-fact-note{font:400 .96rem/1.6 'Barlow',sans-serif;color:#dde7f7;margin:0 0 .85rem;}
-    .pdxis-fact-tbl{width:100%;border-collapse:collapse;font:400 .9rem/1.4 'Barlow',sans-serif;}
-    .pdxis-fact-tbl th,.pdxis-fact-tbl td{text-align:left;padding:.5rem .55rem;border-bottom:1px solid rgba(255,255,255,.08);}
-    .pdxis-fact-tbl th{font:700 .64rem/1.2 'Barlow Condensed',sans-serif;letter-spacing:.09em;
-      text-transform:uppercase;color:#7596c0;}
-    .pdxis-fact-tbl td{color:#d7e2f5;}
-    .pdxis-fact-tbl tr:last-child td{border-bottom:none;}
-    .pdxis-fact-tbl tr.pdxis-fact-total td{font-weight:700;color:#fff;background:rgba(255,255,255,.03);}
-    .pdxis-fact-foot{font:400 .9rem/1.55 'Barlow',sans-serif;color:#c6d3ea;margin:.85rem 0 0;}
-    /* Top Contractors visual — horizontal-bar leaderboard for the contracting Spotlight */
-    .pdxis-gctop{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);
-      border-left:3px solid rgba(127,180,255,.6);border-radius:.9rem;padding:1.05rem 1.15rem;}
-    .pdxis-gctop-lead{font:400 .9rem/1.55 'Barlow',sans-serif;color:#c6d3ea;margin:0 0 .85rem;}
-    .pdxis-gctop-row{display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;background:none;
-      border:0;cursor:pointer;padding:.45rem .4rem;border-radius:.55rem;transition:background .15s;}
-    .pdxis-gctop-row:hover{background:rgba(127,180,255,.09);}
-    .pdxis-gctop-row:focus-visible{outline:2px solid rgba(127,180,255,.6);outline-offset:2px;}
-    .pdxis-gctop-rank{flex-shrink:0;width:1.4rem;height:1.4rem;border-radius:999px;display:flex;align-items:center;
-      justify-content:center;font:800 .72rem/1 'Barlow Condensed',sans-serif;color:#0a0f1e;background:#7fb4ff;}
-    .pdxis-gctop-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:.3rem;}
-    .pdxis-gctop-name{font:700 .92rem/1.15 'Barlow Condensed',sans-serif;color:#fff;display:flex;flex-wrap:wrap;
-      align-items:baseline;gap:.4rem;}
-    .pdxis-gctop-cat{font:600 .6rem/1 'Barlow Condensed',sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#8aa0c4;}
-    .pdxis-gctop-track{height:.5rem;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;}
-    .pdxis-gctop-fill{display:block;height:100%;border-radius:999px;min-width:.5rem;}
-    .pdxis-gctop-amt{flex-shrink:0;font:800 1.05rem/1 'Bebas Neue','Barlow Condensed',sans-serif;letter-spacing:.02em;
-      color:#9ff0bd;white-space:nowrap;}
-    .pdxis-gctop-foot{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin-top:.95rem;padding-top:.7rem;
-      border-top:1px solid rgba(255,255,255,.08);}
-    .pdxis-gctop-cta{cursor:pointer;font:700 .72rem/1 'Barlow Condensed',sans-serif;letter-spacing:.05em;
-      text-transform:uppercase;color:#0a0f1e;background:#7fb4ff;border:0;border-radius:999px;padding:.5rem .9rem;}
-    .pdxis-gctop-cta:hover{background:#9cc7ff;}
-    .pdxis-gctop-note{font:400 .7rem/1.4 'Barlow Condensed',sans-serif;letter-spacing:.03em;text-transform:uppercase;color:#6d84a8;}
-    /* Promised vs. Delivered — neutral two-column comparison (stated claim vs. record) */
-    .pdxis-pvd{display:flex;flex-direction:column;gap:.6rem;}
-    .pdxis-pvd-intro{font:400 .9rem/1.55 'Barlow',sans-serif;color:#c6d3ea;margin:0 0 .2rem;}
-    .pdxis-pvd-row{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;align-items:stretch;}
-    .pdxis-pvd-cell{border-radius:.7rem;padding:.7rem .8rem;font:400 .86rem/1.5 'Barlow',sans-serif;}
-    .pdxis-pvd-promised{background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.22);color:#e9dcae;}
-    .pdxis-pvd-delivered{background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.22);color:#cfe0f5;}
-    .pdxis-pvd-tag{display:block;font:700 .6rem/1 'Barlow Condensed',sans-serif;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.35rem;}
-    .pdxis-pvd-promised .pdxis-pvd-tag{color:#e0b13a;}
-    .pdxis-pvd-delivered .pdxis-pvd-tag{color:#7fb4ff;}
-    .pdxis-pvd-foot{font:400 .82rem/1.5 'Barlow',sans-serif;color:#9fb1cc;margin:.3rem 0 0;font-style:italic;}
-    @media (max-width:640px){.pdxis-pvd-row{grid-template-columns:1fr;}}
-    /* "What this does NOT do" — a myth-correction block */
-    .pdxis-notdo{background:rgba(159,180,212,.06);border:1px solid rgba(159,180,212,.2);
-      border-radius:.9rem;padding:1.05rem 1.15rem;}
-    .pdxis-notdo-intro{font:400 .95rem/1.6 'Barlow',sans-serif;color:#d7e2f5;margin:0 0 .6rem;}
-    .pdxis-notdo ul{list-style:none;margin:0;padding:0;}
-    .pdxis-notdo li{position:relative;padding:.28rem 0 .28rem 1.5rem;font:400 .93rem/1.55 'Barlow',sans-serif;color:#d3deef;}
-    .pdxis-notdo li:before{content:'✕';position:absolute;left:0;top:.3rem;color:#fca5a5;font-weight:700;}
-    .pdxis-notdo-outro{font:400 .93rem/1.55 'Barlow',sans-serif;color:#c6d3ea;margin:.65rem 0 0;font-style:italic;}
-    /* What changed — verified management differences, each with a verified/developing chip */
-    .pdxis-chg{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);
-      border-radius:.8rem;padding:.8rem .95rem;margin-bottom:.55rem;}
-    .pdxis-chg:last-child{margin-bottom:0;}
-    .pdxis-chg-h{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.3rem;}
-    .pdxis-chg-t{font:700 .82rem/1.25 'Barlow Condensed',sans-serif;letter-spacing:.04em;
-      text-transform:uppercase;color:#eaf1ff;}
-    .pdxis-chg-x{font:400 .92rem/1.55 'Barlow',sans-serif;color:#d3deef;}
-    /* Case For / Case Against — equal-weight two columns, no favored side */
-    .pdxis-cases{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start;}
-    .pdxis-case{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);
-      border-radius:.9rem;padding:1rem 1.05rem;}
-    .pdxis-case-h{display:flex;align-items:center;gap:.45rem;font:700 .82rem/1.1 'Barlow Condensed',sans-serif;
-      letter-spacing:.08em;text-transform:uppercase;margin:0 0 .3rem;color:#eaf1ff;}
-    .pdxis-case-for .pdxis-case-h:before{content:'＋';color:#7ee2a8;font-weight:700;}
-    .pdxis-case-against .pdxis-case-h:before{content:'－';color:#fca5a5;font-weight:700;}
-    .pdxis-case-sub{font:400 .8rem/1.4 'Barlow',sans-serif;color:#8aa0c0;margin:0 0 .7rem;font-style:italic;}
-    .pdxis-arg{border-top:1px solid rgba(255,255,255,.07);padding:.7rem 0 .2rem;}
-    .pdxis-arg:first-of-type{border-top:none;padding-top:.1rem;}
-    .pdxis-arg-t{font:400 .92rem/1.55 'Barlow',sans-serif;color:#d7e2f5;}
-    .pdxis-arg-t b{color:#f5d77a;font-weight:600;}
-    .pdxis-arg-note{font:400 .82rem/1.45 'Barlow',sans-serif;color:#9fb4d4;margin-top:.3rem;font-style:italic;}
-    /* Inline 60-day reopening marker */
-    .pdxis-marker{display:inline-flex;align-items:center;gap:.3rem;border-radius:999px;
-      padding:.14rem .5rem;margin-left:.35rem;font:700 .62rem/1 'Barlow Condensed',sans-serif;
-      letter-spacing:.06em;text-transform:uppercase;color:#f5c06a;background:rgba(245,168,66,.1);
-      border:1px solid rgba(245,168,66,.36);}
-    .pdxis-marker:before{content:'⏳';font-size:.68rem;}
-    /* Data & Context / What to Watch shared list */
-    .pdxis-dl{list-style:none;margin:0;padding:0;}
-    .pdxis-dl li{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);
-      border-radius:.7rem;padding:.7rem .85rem;margin-bottom:.5rem;
-      font:400 .92rem/1.55 'Barlow',sans-serif;color:#d3deef;}
-    .pdxis-dl li:last-child{margin-bottom:0;}
-    .pdxis-dl .pdxis-dl-k{font:700 .68rem/1.2 'Barlow Condensed',sans-serif;letter-spacing:.06em;
-      text-transform:uppercase;color:#bcd0ee;margin-right:.4rem;}
-    .pdxis-watch li{position:relative;padding-left:1.7rem;}
-    .pdxis-watch li:before{content:'👁';position:absolute;left:.7rem;top:.7rem;font-size:.8rem;opacity:.8;}
-    /* Sources — each tagged support / opposition / neutral so vantage is visible */
-    .pdxis-srcs{list-style:none;margin:0;padding:0;display:grid;gap:.4rem;}
-    .pdxis-srcrow{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;
-      font:400 .88rem/1.4 'Barlow',sans-serif;}
-    .pdxis-srcrow a{color:#8fb4ec;text-decoration:none;}
-    .pdxis-srcrow a:hover{color:#bcd4ff;text-decoration:underline;}
-    .pdxis-lean{font:700 .58rem/1 'Barlow Condensed',sans-serif;letter-spacing:.08em;text-transform:uppercase;
-      border-radius:999px;padding:.14rem .45rem;border:1px solid transparent;flex:0 0 auto;}
-    .pdxis-lean-support{color:#7ee2a8;background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.3);}
-    .pdxis-lean-opposition{color:#fca5a5;background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.3);}
-    .pdxis-lean-neutral{color:#a9bbd6;background:rgba(159,180,212,.08);border-color:rgba(159,180,212,.24);}
-    /* Related issues — scannable chips */
-    .pdxis-rel{display:flex;flex-wrap:wrap;gap:.5rem;}
-    .pdxis-rel-chip{display:inline-flex;align-items:center;gap:.35rem;border-radius:999px;
-      padding:.4rem .75rem;font:600 .82rem/1 'Barlow',sans-serif;color:#cdd9f0;
-      background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);}
-    .pdxis-rel-chip.is-rec{color:#ffe9a6;background:rgba(245,200,66,.1);border-color:rgba(245,200,66,.32);}
-    .pdxis-rel-chip.is-rec:after{content:'✦ suggested';font:700 .56rem/1 'Barlow Condensed',sans-serif;
-      letter-spacing:.08em;text-transform:uppercase;opacity:.75;}
-    /* Clickable related chip — the "connecting the dots" jump to a sibling Spotlight
-       (🔦) or to this issue in the Stance Library. */
-    .pdxis-rel-chip.is-link{cursor:pointer;color:#ffe9a6;background:rgba(245,200,66,.08);
-      border-color:rgba(245,200,66,.28);transition:.16s;}
-    .pdxis-rel-chip.is-link:hover{background:rgba(245,200,66,.16);border-color:rgba(245,200,66,.5);
-      transform:translateY(-1px);}
-    .pdxis-rel-go{font:800 .9rem/1 'Barlow Condensed',sans-serif;opacity:.8;}
-    /* Related Spotlights — auto-computed sibling explainers (connecting the dots) */
-    .pdxis-relspots{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.6rem;}
-    .pdxis-relspot{display:flex;align-items:center;gap:.7rem;text-align:left;width:100%;cursor:pointer;
-      background:linear-gradient(135deg,rgba(245,200,66,.09),rgba(245,200,66,.02));
-      border:1px solid rgba(245,200,66,.28);border-radius:.85rem;padding:.8rem .9rem;color:inherit;transition:.16s;}
-    .pdxis-relspot:hover{background:rgba(245,200,66,.16);border-color:rgba(245,200,66,.5);transform:translateY(-1px);}
-    .pdxis-relspot-ico{font-size:1.2rem;flex:0 0 auto;}
-    .pdxis-relspot-body{flex:1;min-width:0;}
-    .pdxis-relspot-t{display:block;font:700 .92rem/1.2 'Barlow',sans-serif;color:#fff;}
-    .pdxis-relspot-p{display:block;font:500 .74rem/1.2 'Barlow',sans-serif;color:#9fb4d4;margin-top:.15rem;}
-    .pdxis-relspot-go{color:#f5d77a;font-size:1.1rem;flex:0 0 auto;}
-    @media (max-width:560px){
-      .pdxis-comm{flex-direction:column;align-items:stretch;}
-      .pdxis-comm-btn{justify-content:center;}
-      .pdxis-cases{grid-template-columns:1fr;}
-    }
   </style>
-
-  <section id="issue-spotlight" class="pdxis-overlay" hidden aria-hidden="true" role="dialog" aria-label="Issue Spotlight" aria-modal="true">
-    <div class="pdxis-bg"></div>
-    <div class="pdxis-wrap" id="pdxis-wrap"></div>
-  </section>
 
   <script>
   // ── PDXStance — shared canonical stance language (single source of truth) ────
@@ -28264,1218 +27947,96 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   })();
   </script>
 
+  <!-- ══════════════ FEATURED IN ISSUE SPOTLIGHT — the profile-modal door ═════
+       profiles-full.js calls window._pdxRelatedSpotlight(id) when a profile
+       modal paints, behind a typeof guard. It used to be defined by the inline
+       Spotlight engine, which is why it left with it; but the engine is the
+       ROOM and this is only the DOOR, and the door belongs on this document.
+       It reads slug + title out of spotlight-index.js (forPolitician), so it
+       costs 60 rows rather than the 1.2 MB corpus, and every chip is an
+       ordinary <a href="/issue/<slug>"> — middle-clickable, hoverable, and
+       identical to the Local Issues and All Spotlights cards.
+       PREFERS THE COMPACT RAIL. PDXDossier.railHtml (profile-dossier.js, also
+       on this document, and this is its only caller) turns three full-width
+       callouts into one labelled row of title chips. The callout markup below
+       is the degrade path for the case where that deferred file has not landed
+       yet — a fallback, not a hard switch, so the entry point never vanishes.
+       ────────────────────────────────────────────────────────────────────── -->
   <script>
-  // ── Issue Spotlight engine ──────────────────────────────────────────────────
   (function () {
-    'use strict';
-    var esc = (typeof window._esc === 'function') ? window._esc : function (s) {
-      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    function esc(s) {
+      return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
       });
-    };
-
-    // The registry. Each Spotlight is a LENS over existing data, not a copy of it:
-    // people + evidence reference (politician id, stance topic) pairs that are
-    // resolved against the live ISSUE_STANCE_DATA at render time, so the displayed
-    // position text and source links stay in lock-step with the underlying record.
-    // The summary and timeline are the only authored prose, and every timeline row
-    // is sourced. Strength / impact are honest editorial classifications: a recorded
-    // vote or legal ruling reads Strong, a public statement Moderate, a campaign
-    // pledge Limited, and an absent position "No record yet".
-    var SPOTLIGHTS = window.SPOTLIGHTS || {}; window.SPOTLIGHTS = SPOTLIGHTS;;
-    window.PDX_ISSUE_SPOTLIGHTS = SPOTLIGHTS;
-
-    // ── Data access helpers (read-only over existing structures) ──────────────
-    function recFor(id) {
-      return (window.PROFILES && window.PROFILES[id]) ||
-             (typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) || null;
     }
-    function stanceList(id) {
-      if (typeof window._resolveStanceList === 'function') {
-        try { var l = window._resolveStanceList(id, recFor(id)); if (l) return l; } catch (e) {}
-      }
-      return (window.ISSUE_STANCE_DATA && window.ISSUE_STANCE_DATA[id]) || null;
-    }
-    // Find a specific stance by its topic; fall back to the first stance tagged to
-    // the spotlight's issue keys if the named topic isn't found.
-    function findStance(id, topic, issueKeys) {
-      var list = stanceList(id);
-      if (!Array.isArray(list)) return null;
-      var i;
-      if (topic) {
-        for (i = 0; i < list.length; i++) {
-          if (list[i] && list[i].topic === topic) return list[i];
-        }
-      }
-      if (issueKeys && issueKeys.length) {
-        for (i = 0; i < list.length; i++) {
-          if (list[i] && issueKeys.indexOf(list[i].issueKey) !== -1) return list[i];
-        }
-      }
-      return null;
-    }
-    function nameFor(p) { var r = recFor(p.id); return (r && r.name) || p.name || p.id; }
-    function officeFor(p) {
-      var r = recFor(p.id);
-      if (r && r.office) { return r.office + (r.state ? ' · ' + r.state : ''); }
-      return p.office || '';
-    }
-    function iconFor(p) { var r = recFor(p.id); return (r && r.icon) || p.icon || '👤'; }
-
-    var ST_LABEL = { strong: 'Strong', moderate: 'Moderate', limited: 'Limited', none: 'No record yet' };
-    var ST_DOTS = { strong: '●●●', moderate: '●●○', limited: '●○○', none: '○○○' };
-    function strengthBadge(level) {
-      var lv = ST_LABEL[level] ? level : 'none';
-      return '<span class="pdxis-badge pdxis-st-' + lv + '">' +
-        '<span class="pdxis-dots">' + ST_DOTS[lv] + '</span>' + esc(ST_LABEL[lv]) + '</span>';
-    }
-
-    // ── Stance indicator ──────────────────────────────────────────────────────
-    // Answers the reader's first question — did this person SUPPORT, OPPOSE, take a
-    // MIXED/nuanced position, or have NO CLEAR POSITION on the issue — separately from
-    // (and more prominently than) how well-sourced that position is. The value is
-    // derived from the person's actual stance record: every record in ISSUE_STANCE_DATA
-    // already carries an honest `issueStance`/`pos` of support | oppose | mixed (a
-    // yes-vote/defense reads support, a no-vote/opposition reads oppose, a conditional
-    // or complicated position reads mixed). When no record resolves for the issue — i.e.
-    // almost no sourced information — it falls back to "No Clear Position". A Spotlight
-    // may also pin an explicit `stance` on a person to override the derivation.
-    // The stance language (STANCE map, STANCE_FROM_POS, resolveStance, stancePill)
-    // now lives in the shared window.PDXStance helper defined just above this
-    // module, so there is a single source of truth for every surface. These thin
-    // wrappers preserve the existing call sites and the exact Who Stands Where
-    // behavior by delegating to it: the person's pinned `stance` (if any) is the
-    // explicit override, and the resolved stance record supplies the rest.
-    function resolveStance(p, st) {
-      return window.PDXStance.resolveStance(st, p && p.stance);
-    }
-    function stancePill(key) {
-      return window.PDXStance.stancePill(key);
-    }
-    function srcLink(src) {
-      if (!src || !src.url) return '';
-      return '<a class="pdxis-src" href="' + esc(src.url) + '" target="_blank" rel="noopener noreferrer">' +
-        esc(src.label || 'Source') + '</a>';
-    }
-
-    // ── Documentation-strength signal ─────────────────────────────────────────
-    // A lightweight, honest read of how well-sourced a Spotlight is, computed
-    // straight from the static registry (no live-stance resolution needed, so it
-    // is cheap enough to run during the home-page discovery render). It counts the
-    // sourced timeline rows and the evidence receipts the editor selected, plus how
-    // many of those receipts are graded Strong (a recorded vote, ruling or record).
-    // The vocabulary matches the Evidence Locker: Strong / Moderate / Limited.
-    function spotlightStrength(sp) {
-      if (!sp) return { receipts: 0, strong: 0, sources: 0, level: 'limited', label: 'Emerging' };
-      var sources = (sp.timeline || []).filter(function (t) { return t && t.src && t.src.url; }).length;
-      var receipts = 0, strong = 0;
-      (sp.evidence || []).forEach(function (grp) {
-        (grp.items || []).forEach(function (it) {
-          receipts++;
-          if ((it.strength || '') === 'strong') strong++;
-        });
-      });
-      var level, label;
-      if (strong >= 3 && sources >= 4) { level = 'strong'; label = 'Strongly documented'; }
-      else if (receipts + sources >= 5) { level = 'strong'; label = 'Well documented'; }
-      else if (receipts + sources >= 2) { level = 'moderate'; label = 'Documented'; }
-      else { level = 'limited'; label = 'Emerging'; }
-      return { receipts: receipts, strong: strong, sources: sources, level: level, label: label };
-    }
-
-    // ── Renderers ─────────────────────────────────────────────────────────────
-    function renderSummary(sp) {
-      return '<div class="pdxis-summary">' +
-        '<p>' + esc(sp.summary) + '</p>' +
-        '<p class="pdxis-why"><b>' + esc(sp.controversyLabel || 'Why it’s contested:') + '</b> ' + esc(sp.controversy) + '</p>' +
-        '</div>';
-    }
-    function renderTimeline(sp) {
-      if (!sp.timeline || !sp.timeline.length) return '';
-      var rows = sp.timeline.map(function (t) {
-        return '<li><div class="pdxis-tl-date">' + esc(t.date) + '</div>' +
-          '<div class="pdxis-tl-text">' + esc(t.text) + '</div>' +
-          srcLink(t.src) + '</li>';
-      }).join('');
-      return section('Timeline', 'How it unfolded', '<ul class="pdxis-tl">' + rows + '</ul>');
-    }
-    function renderPerson(sp, p) {
-      var st = findStance(p.id, p.topic, sp.communityIssueKeys);
-      var pos = st && st.text
-        ? esc(st.text)
-        : '<span class="pdxis-note">No public position on record for this issue yet.</span>';
-      var level = st ? (p.strength || 'moderate') : 'none';
-      var stance = resolveStance(p, st);
-      // Secondary meta: evidence strength + editorial impact + pledge flag.
-      var meta = strengthBadge(level);
-      if (p.impact) meta += '<span class="pdxis-badge pdxis-impact">' + esc(p.impact) + '</span>';
-      if (p.pledge) meta += '<span class="pdxis-badge pdxis-pledge" title="A campaign pledge, not yet a governing record">Pledge</span>';
-      var src = st && st.source ? srcLink(st.source) : '';
-      return '<button type="button" class="pdxis-person" data-pid="' + esc(p.id) + '" ' +
-          'aria-label="Open the full record on the issues for ' + esc(nameFor(p)) + '">' +
-        '<div class="pdxis-p-top">' +
-          '<div class="pdxis-p-ico">' + esc(iconFor(p)) + '</div>' +
-          '<div class="pdxis-p-id">' +
-            '<div class="pdxis-p-name">' + esc(nameFor(p)) + '</div>' +
-            '<div class="pdxis-p-office">' + esc(officeFor(p)) + '</div>' +
-          '</div>' +
-          stancePill(stance) +
-        '</div>' +
-        '<div class="pdxis-p-meta">' +
-          '<span class="pdxis-meta-k">Evidence</span>' + meta +
-        '</div>' +
-        '<div class="pdxis-p-pos">' + pos + '</div>' +
-        '<div class="pdxis-p-foot">' +
-          (src || '<span></span>') +
-          '<span class="pdxis-p-cta">Record on the issues →</span>' +
-        '</div>' +
-      '</button>';
-    }
-    function renderBoard(sp) {
-      if (!sp.groups || !sp.groups.length) return '';
-      var html = sp.groups.map(function (g) {
-        return '<div class="pdxis-group">' +
-          '<div class="pdxis-group-h">' + esc(g.label) + '</div>' +
-          (g.note ? '<div class="pdxis-group-note">' + esc(g.note) + '</div>' : '') +
-          g.people.map(function (p) { return renderPerson(sp, p); }).join('') +
-        '</div>';
-      }).join('');
-      return section('Who Stands Where', 'Each person’s stance at a glance — tap a name for their full record', html);
-    }
-    function renderEvidence(sp) {
-      if (!sp.evidence || !sp.evidence.length) return '';
-      var groups = sp.evidence.map(function (grp) {
-        var cards = grp.items.map(function (it) {
-          var st = findStance(it.id, it.topic, sp.communityIssueKeys);
-          if (!st) return '';
-          return '<div class="pdxis-ev-card">' +
-            '<div class="pdxis-ev-top">' +
-              '<button type="button" class="pdxis-ev-who" data-pid="' + esc(it.id) + '">' +
-                esc(nameFor({ id: it.id })) + (st.topic ? ' · ' + esc(st.topic) : '') + '</button>' +
-              strengthBadge(it.strength || 'moderate') +
-            '</div>' +
-            '<div class="pdxis-ev-text">' + esc(st.text || '') + '</div>' +
-            (st.source ? '<div>' + srcLink(st.source) + '</div>' : '') +
-          '</div>';
-        }).join('');
-        if (!cards) return '';
-        return '<div class="pdxis-ev-group">' +
-          '<div class="pdxis-group-h">' + esc(grp.label) + '</div>' + cards + '</div>';
-      }).join('');
-      return section('Strongest Evidence', 'Receipts from the Evidence Locker', groups +
-        '<p class="pdxis-note">A focused selection — not every receipt. Each links to its original source so you can check it yourself.</p>');
-    }
-    function renderCommunity(sp) {
-      var inner = '<div class="pdxis-comm" id="pdxis-comm">' +
-        '<div class="pdxis-comm-body">' +
-          '<div class="pdxis-comm-h">Community Discussion</div>' +
-          '<div class="pdxis-comm-sub">See what neighbors are surfacing about this project — sources, questions and receipts the Locker may have missed.</div>' +
-        '</div>' +
-        '<button type="button" class="pdxis-comm-btn" id="pdxis-comm-btn">🧭 Open the Exchange' +
-          '<span class="pdxis-comm-count" id="pdxis-comm-count" hidden></span></button>' +
-      '</div>';
-      return section('Join the conversation', '', inner);
-    }
-    // ── Say vs. Do — two sourced axes of the SAME law that pull against each other.
-    // Pure lens over ISSUE_STANCE_DATA (no network): each row resolves two stance
-    // topics for one person so the contradiction is shown straight from the record.
-    function renderSayVsDo(sp) {
-      if (!sp.sayVsDo || !sp.sayVsDo.length) return '';
-      var col = function (person, ref) {
-        var st = findStance(person, ref.topic, sp.communityIssueKeys);
-        if (!st) return '';
-        return '<div class="pdxis-svd-col">' +
-          '<span class="pdxis-svd-k">' + esc(ref.label || 'On the record') + '</span>' +
-          stancePill(resolveStance({ id: person }, st)) +
-          '<div class="pdxis-svd-txt">' + esc(st.text || '') + '</div>' +
-          (st.source ? srcLink(st.source) : '') +
-        '</div>';
-      };
-      var rows = sp.sayVsDo.map(function (r) {
-        var a = col(r.person, r.say), b = col(r.person, r.doIt);
-        if (!a || !b) return '';
-        return '<div class="pdxis-svd">' +
-          '<button type="button" class="pdxis-svd-who" data-pid="' + esc(r.person) + '" ' +
-            'aria-label="Open the full record for ' + esc(nameFor({ id: r.person })) + '">' +
-            esc(nameFor({ id: r.person })) + '</button>' +
-          '<div class="pdxis-svd-cols">' + a + '<div class="pdxis-svd-vs">vs</div>' + b + '</div>' +
-          (r.note ? '<div class="pdxis-svd-note">' + esc(r.note) + '</div>' : '') +
-        '</div>';
-      }).join('');
-      if (!rows) return '';
-      return section('Say vs. Do', 'The same law, the same person — two sourced axes in tension', rows);
-    }
-    // ── Recorded roll-call votes, hydrated live from the voting-record database.
-    // Renders an empty, identified section synchronously; hydrateVotingRecord fills
-    // it after fetching. Additive + defensive: if the API/data are unavailable or no
-    // roll call is ingested yet, the whole section removes itself (see hydrate).
-    function renderVotingRecord(sp) {
-      var vr = sp.votingRecord;
-      if (!vr) return '';
-      return '<div class="pdxis-sec" id="pdxis-vr-sec">' +
-        '<div class="pdxis-sec-h"><h2>' + esc(vr.heading || 'Recorded votes') + '</h2>' +
-          (vr.kicker ? '<span class="pdxis-kicker">' + esc(vr.kicker) + '</span>' : '') + '</div>' +
-        '<div class="pdxis-vr" id="pdxis-vr"><div class="pdxis-vr-load">Loading recorded votes…</div></div>' +
-        (vr.note ? '<p class="pdxis-note">' + esc(vr.note) + '</p>' : '') +
-      '</div>';
-    }
-    // Canonical bill-number compare so "H.R. 1", "HR 1", "h.r.1" all match.
-    function canonNum(n) { return String(n == null ? '' : n).toLowerCase().replace(/[.\s]/g, ''); }
-    var VR_VERDICT = {
-      consistent: { cls: 'consistent', label: 'Backs their stance' },
-      contradicts: { cls: 'contradicts', label: 'Against their stance' },
-      mixed: { cls: 'mixed', label: 'Mixed record' }
-    };
-    function hydrateVotingRecord(sp) {
-      var vr = sp.votingRecord;
-      var sec = document.getElementById('pdxis-vr-sec');
-      var host = document.getElementById('pdxis-vr');
-      if (!vr || !host) return;
-      var hide = function () { if (sec && sec.parentNode) sec.parentNode.removeChild(sec); };
-      var api = window.PDXVotingRecord;
-      if (!api || typeof api.fetchCompare !== 'function') { hide(); return; }
-      api.fetchCompare(vr.members || []).then(function () {
-        if (_open !== sp.slug) return;                 // navigated away while fetching
-        var want = canonNum(vr.measureNumber);
-        var rows = [];
-        (vr.members || []).forEach(function (pid) {
-          var recs = (typeof api.memberRecords === 'function') ? api.memberRecords(pid) : null;
-          if (!recs) return;
-          // The passage roll call for this bill (a recorded vote, not a position row).
-          var it = recs.filter(function (r) {
-            return r && r.kind === 'vote' && canonNum(r.number) === want;
-          }).sort(function (a, b) {
-            var ap = a.actionType === 'passage' ? 0 : 1, bp = b.actionType === 'passage' ? 0 : 1;
-            return ap - bp;
-          })[0];
-          if (!it) return;
-          var posCls = it.position === 'yea' ? 'yea' : it.position === 'nay' ? 'nay' : 'neutral';
-          var posTxt = it.position === 'yea' ? 'Voted Yea' : it.position === 'nay' ? 'Voted Nay' : (it.position || '—');
-          // No party-agreement chip rides next to the vote. The item still carries
-          // isParty from the API — it is ingest provenance, computed against the
-          // full chamber tally — but "Crossed party" is a claim about a caucus, not
-          // about whether this person did what they said. The verdict chip below is
-          // the accountability signal here, and it is measured against their stance.
-          // Official Record verdict — votes/formal actions only (this is the voting
-          // record section). Say-vs-Do (public record) is surfaced separately.
-          var verdict = '';
-          try {
-            if (window.PDXConsistency && typeof window.PDXConsistency.officialRecord === 'function') {
-              verdict = window.PDXConsistency.chipHtml(window.PDXConsistency.officialRecord(pid, vr.issueKey), null, { frame: false, hideEmpty: true });
-            } else if (typeof window._pdxRecordIssueSummary === 'function') {
-              var sum = window._pdxRecordIssueSummary(pid, vr.issueKey);
-              var v = sum && VR_VERDICT[sum.netVerdict];
-              if (v) verdict = '<span class="pdxis-vr-verdict pdxis-vr-v-' + v.cls + '">' + v.label + '</span>';
-            }
-          } catch (e) {}
-          var src = (it.source && it.source.url)
-            ? '<a class="pdxis-vr-src" href="' + esc(it.source.url) + '" target="_blank" rel="noopener noreferrer">' +
-                esc(it.source.label || 'Source') + ' ↗</a>'
-            : '';
-          rows.push('<div class="pdxis-vrow">' +
-            '<button type="button" class="pdxis-vrow-name" data-pid="' + esc(pid) + '">' + esc(nameFor({ id: pid })) + '</button>' +
-            '<span class="pdxis-vr-pill pdxis-vr-' + posCls + '">' + esc(posTxt) + '</span>' +
-            verdict + src +
-          '</div>');
-        });
-        if (!rows.length) { hide(); return; }          // nothing ingested yet → stay out of the way
-        host.innerHTML = rows.join('');
-        host.querySelectorAll('[data-pid]').forEach(function (el) {
-          el.addEventListener('click', function () { toProfile(el.getAttribute('data-pid')); });
-        });
-      }).catch(function () { hide(); });
-    }
-    function section(title, kicker, body) {
-      return '<div class="pdxis-sec">' +
-        '<div class="pdxis-sec-h"><h2>' + esc(title) + '</h2>' +
-          (kicker ? '<span class="pdxis-kicker">' + esc(kicker) + '</span>' : '') + '</div>' +
-        body + '</div>';
-    }
-
-    // ── Policy-explainer renderers (all optional; emit nothing when the field is
-    // absent, so the existing politician-centric Spotlights are untouched). ──────
-    function chip(tag) {
-      if (tag !== 'verified' && tag !== 'developing') return '';
-      var label = tag === 'verified' ? 'Verified' : 'Developing';
-      return '<span class="pdxis-chip pdxis-chip-' + tag + '">' + label + '</span>';
-    }
-    function renderStatus(sp) {
-      if (!sp.status) return '';
-      var text = typeof sp.status === 'string' ? sp.status : (sp.status.text || '');
-      if (!text) return '';
-      return '<div class="pdxis-status"><span class="pdxis-status-dot" aria-hidden="true"></span>' +
-        '<span><b>Status:</b> ' + esc(text) + '</span></div>';
-    }
-    // Top Contractors visual — a compact horizontal-bar leaderboard of the
-    // largest tracked federal contractors by dollar volume. Data-driven from the
-    // Federal Spending Tracker (gov-contracts.js) and gated to the contracting
-    // Spotlight, so it appears nowhere else and shows nothing if that module or
-    // its data is unavailable. Each bar deep-links into the tracker filtered to
-    // that company; the footer opens the full tracker. Neutral by construction —
-    // it reports where federal dollars go, not who caused or benefited from them.
-    function renderContractsTopN(sp) {
-      if (!sp || sp.slug !== 'government-contracting-influence-waste') return '';
-      var C = window.PDXContracts;
-      if (!C || typeof C.topRecipients !== 'function') return '';
-      var top = C.topRecipients(5);
-      if (!top || !top.length) return '';
-      var max = top[0].amount || 1;
-      var moneyFn = (typeof C.money === 'function') ? C.money : function (n) { return '$' + n; };
-      var combined = top.reduce(function (s, r) { return s + (r.amount || 0); }, 0);
-      var bars = top.map(function (r, i) {
-        var cm = (typeof C.catMeta === 'function') ? C.catMeta(r.category) : { accent: '#7fb4ff', icon: '', label: '' };
-        var pct = Math.max(6, Math.round((r.amount / max) * 100));
-        return '<button type="button" class="pdxis-gctop-row" data-gc-recipient="' + esc(r.recipient) + '" ' +
-            'title="Open the Federal Spending Tracker filtered to ' + esc(r.recipient) + '">' +
-          '<span class="pdxis-gctop-rank">' + (i + 1) + '</span>' +
-          '<span class="pdxis-gctop-main">' +
-            '<span class="pdxis-gctop-name">' + esc(r.recipient) +
-              (cm.label ? ' <span class="pdxis-gctop-cat">' + esc(cm.icon) + ' ' + esc(cm.label) + '</span>' : '') + '</span>' +
-            '<span class="pdxis-gctop-track"><span class="pdxis-gctop-fill" style="width:' + pct + '%;background:' + cm.accent + ';"></span></span>' +
-          '</span>' +
-          '<span class="pdxis-gctop-amt">' + esc(moneyFn(r.amount)) + '</span>' +
-        '</button>';
-      }).join('');
-      var body = '<div class="pdxis-gctop">' +
-        '<p class="pdxis-gctop-lead">The federal government’s largest tracked contractors by approximate recent-year dollar volume — about <b>' + esc(moneyFn(combined)) + '</b> combined. Bars are relative to the largest. Tap a company to open it in the Federal Spending Tracker.</p>' +
-        bars +
-        '<div class="pdxis-gctop-foot">' +
-          '<button type="button" class="pdxis-gctop-cta" data-gc-open="1">🔍 Open the Federal Spending Tracker →</button>' +
-          '<span class="pdxis-gctop-note">Figures rounded &amp; approximate · geographic &amp; volume context only · sources in the tracker</span>' +
-        '</div>' +
-      '</div>';
-      return section('Top 5 Contractors', 'By dollar volume', body);
-    }
-    function renderFactBox(sp) {
-      var fb = sp.factBox;
-      if (!fb || !fb.rows || !fb.rows.length) return '';
-      var rows = fb.rows.map(function (r) {
-        return '<tr' + (r.total ? ' class="pdxis-fact-total"' : '') + '>' +
-          '<td>' + esc(r.label) + '</td>' +
-          '<td>' + esc(r.before || '') + '</td>' +
-          '<td>' + esc(r.after || '') + '</td>' +
-          '<td>' + esc(r.share || '') + '</td>' +
-        '</tr>';
-      }).join('');
-      // Column headers default to the monument labels (Bears Ears card) but can be
-      // overridden per-card via fb.cols for other tabular explainers.
-      var cols = (fb.cols && fb.cols.length === 4)
-        ? fb.cols : ['Monument', 'Before', 'After', 'Remaining'];
-      var head = cols.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('');
-      var body = '<div class="pdxis-fact">' +
-        (fb.note ? '<p class="pdxis-fact-note">' + esc(fb.note) + '</p>' : '') +
-        '<table class="pdxis-fact-tbl"><thead><tr>' + head +
-        '</tr></thead><tbody>' + rows + '</tbody></table>' +
-        (fb.foot ? '<p class="pdxis-fact-foot">' + esc(fb.foot) + '</p>' : '') +
-      '</div>';
-      return section('Top Fact Box', 'What is verified', body);
-    }
-    // Promised vs. Delivered — a neutral two-column comparison of what officials
-    // publicly stated or implied against what the record ultimately showed. Purely
-    // data-driven and optional: renders only for a card that supplies the field, so
-    // every other Spotlight is untouched. Text is plain (escaped); no motive assigned.
-    function renderPromiseVsDelivery(sp) {
-      var pv = sp.promiseVsDelivery;
-      if (!pv || !pv.rows || !pv.rows.length) return '';
-      var rows = pv.rows.map(function (r) {
-        return '<div class="pdxis-pvd-row">' +
-          '<div class="pdxis-pvd-cell pdxis-pvd-promised"><span class="pdxis-pvd-tag">Stated / promised</span>' + esc(r.promised) + '</div>' +
-          '<div class="pdxis-pvd-cell pdxis-pvd-delivered"><span class="pdxis-pvd-tag">What the record shows</span>' + esc(r.delivered) + '</div>' +
-        '</div>';
-      }).join('');
-      var body = '<div class="pdxis-pvd">' +
-        (pv.intro ? '<p class="pdxis-pvd-intro">' + esc(pv.intro) + '</p>' : '') +
-        rows +
-        (pv.foot ? '<p class="pdxis-pvd-foot">' + esc(pv.foot) + '</p>' : '') +
-      '</div>';
-      return section(pv.title || 'Promised vs. Delivered', pv.kicker || 'Statements vs. the record', body);
-    }
-    function renderNotDo(sp) {
-      var nd = sp.notDo;
-      if (!nd || !nd.items || !nd.items.length) return '';
-      var items = nd.items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
-      var body = '<div class="pdxis-notdo">' +
-        (nd.intro ? '<p class="pdxis-notdo-intro">' + esc(nd.intro) + '</p>' : '') +
-        '<ul>' + items + '</ul>' +
-        (nd.outro ? '<p class="pdxis-notdo-outro">' + esc(nd.outro) + '</p>' : '') +
-      '</div>';
-      return section('What this does NOT do', '', body);
-    }
-    function renderWhatChanged(sp) {
-      if (!sp.whatChanged || !sp.whatChanged.length) return '';
-      var cards = sp.whatChanged.map(function (c) {
-        var marker = c.marker ? '<span class="pdxis-marker">' + esc(c.marker) + '</span>' : '';
-        return '<div class="pdxis-chg">' +
-          '<div class="pdxis-chg-h"><span class="pdxis-chg-t">' + esc(c.title) + '</span>' +
-            chip(c.tag) + marker + '</div>' +
-          '<div class="pdxis-chg-x">' + esc(c.text) + '</div>' +
-        '</div>';
-      }).join('');
-      return section('What Changed', 'Verified management differences', cards);
-    }
-    // Per-argument engagement: each Case For / Against bullet gets its own
-    // vote + comment thread, keyed by a stable target id (slug + argument text),
-    // reusing the shared item-engagement system (auto-hydrated by the observer).
-    function argEngage(sp, side, point, i) {
-      if (typeof window._pdxSpotlightEngageHTML !== 'function') return '';
-      // Anchor each argument's vote + comment thread to a STABLE key so the
-      // discussion survives wording edits — these explainers are "developing" and
-      // get refined over time. Prefer an authored point.id; otherwise fall back to
-      // the argument text, then the index. Always namespaced by slug + side so an
-      // id can never collide across cards or across the For/Against columns.
-      var key = point.id || (point.text ? point.text.replace(/<[^>]+>/g, '') : String(i));
-      var id = (typeof window._pdxVoteTargetId === 'function')
-        ? window._pdxVoteTargetId('issue-arg', sp.slug + ':' + side, key)
-        : 'issue-arg:' + sp.slug + ':' + side + ':' + i;
-      return window._pdxSpotlightEngageHTML(id, 'this argument');
-    }
-    function renderCaseCol(sp, side, col) {
-      if (!col || !col.points || !col.points.length) return '';
-      var cls = side === 'for' ? 'pdxis-case-for' : 'pdxis-case-against';
-      var heading = side === 'for' ? 'The Case For' : 'The Case Against';
-      var pts = col.points.map(function (p, i) {
-        return '<div class="pdxis-arg">' +
-          '<div class="pdxis-arg-t">' + p.text + '</div>' +
-          (p.note ? '<div class="pdxis-arg-note">' + esc(p.note) + '</div>' : '') +
-          argEngage(sp, side, p, i) +
-        '</div>';
-      }).join('');
-      return '<div class="pdxis-case ' + cls + '">' +
-        '<div class="pdxis-case-h">' + heading + '</div>' +
-        (col.sub ? '<p class="pdxis-case-sub">' + esc(col.sub) + '</p>' : '') +
-        pts +
-      '</div>';
-    }
-    function renderCases(sp) {
-      if (!sp.caseFor && !sp.caseAgainst) return '';
-      var body = '<div class="pdxis-cases">' +
-        renderCaseCol(sp, 'for', sp.caseFor) +
-        renderCaseCol(sp, 'against', sp.caseAgainst) +
-      '</div>';
-      return section('Both Sides', 'Strongest points — vote or discuss each', body);
-    }
-    function renderDataContext(sp) {
-      if (!sp.dataContext || !sp.dataContext.length) return '';
-      var items = sp.dataContext.map(function (d) {
-        return '<li>' + (d.label ? '<span class="pdxis-dl-k">' + esc(d.label) + '</span>' : '') +
-          chip(d.tag) + (d.tag ? ' ' : '') + esc(d.text) + '</li>';
-      }).join('');
-      return section('Data & Context', '', '<ul class="pdxis-dl">' + items + '</ul>');
-    }
-    function renderWhatToWatch(sp) {
-      if (!sp.whatToWatch || !sp.whatToWatch.length) return '';
-      var items = sp.whatToWatch.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
-      return section('What to Watch', 'Still developing', '<ul class="pdxis-dl pdxis-watch">' + items + '</ul>');
-    }
-    function renderSources(sp) {
-      if (!sp.sources || !sp.sources.length) return '';
-      var LEAN = { support: 'Support', opposition: 'Opposition', neutral: 'Neutral' };
-      var rows = sp.sources.map(function (s) {
-        var lean = LEAN[s.lean] ? s.lean : 'neutral';
-        return '<li class="pdxis-srcrow">' +
-          '<span class="pdxis-lean pdxis-lean-' + lean + '">' + esc(LEAN[lean]) + '</span>' +
-          (s.url
-            ? '<a href="' + esc(s.url) + '" target="_blank" rel="noopener noreferrer">' + esc(s.label) + ' ↗</a>'
-            : '<span>' + esc(s.label) + '</span>') +
-        '</li>';
-      }).join('');
-      return section('Sources', 'Tagged by vantage — check them yourself', '<ul class="pdxis-srcs">' + rows + '</ul>');
-    }
-    function renderRelated(sp) {
-      if (!sp.relatedIssues || !sp.relatedIssues.length) return '';
-      var linkable = false;
-      var chips = sp.relatedIssues.map(function (r) {
-        var label = typeof r === 'string' ? r : r.label;
-        var rec = (r && r.rec) ? ' is-rec' : '';
-        // "Connecting the dots": an entry can carry a `slug` (jump to a sibling
-        // Spotlight) or an `issueKey` (open the Stance Library filtered to it),
-        // turning the chip into a 2-way navigation button. Plain labels still render
-        // as static chips, so existing cards are untouched.
-        var slug = r && r.slug, ik = r && r.issueKey;
-        if (slug && SPOTLIGHTS[slug]) {
-          linkable = true;
-          return '<button type="button" class="pdxis-rel-chip is-link' + rec + '" data-rel-slug="' + esc(slug) + '" ' +
-            'aria-label="Open the ' + esc(label) + ' Issue Spotlight">🔦 ' + esc(label) +
-            ' <span class="pdxis-rel-go" aria-hidden="true">→</span></button>';
-        }
-        if (ik) {
-          linkable = true;
-          return '<button type="button" class="pdxis-rel-chip is-link' + rec + '" data-rel-ik="' + esc(ik) + '" ' +
-            'aria-label="See where politicians stand on ' + esc(label) + ' in the Stance Library">' + esc(label) +
-            ' <span class="pdxis-rel-go" aria-hidden="true">→</span></button>';
-        }
-        return '<span class="pdxis-rel-chip' + rec + '">' + esc(label) + '</span>';
-      }).join('');
-      return section('Related Issues', linkable ? 'Tap to jump to a connected spotlight or the Stance Library' : '',
-        '<div class="pdxis-rel">' + chips + '</div>');
-    }
-
-    // ── Related Spotlights (auto) ─────────────────────────────────────────────
-    // Connecting the dots, spotlight → spotlight: score every OTHER spotlight by how
-    // many issue keys it shares with this one (primary + community + stands keys) and
-    // surface the strongest matches as clickable cards. Fully automatic, so every card
-    // links to its neighbors without hand-authored slugs, and new cards join the web
-    // the moment they are added. Manual `relatedIssues` slugs still add curated chips
-    // above; this adds the discovered ones as richer cards.
-    function spotlightKeySet(o) {
-      var set = {};
-      [o.primaryIssueKey]
-        .concat(o.communityIssueKeys || [], (o.standsOnIssue && o.standsOnIssue.matchIssueKeys) || [])
-        .forEach(function (k) { if (k) set[k] = true; });
-      return set;
-    }
-    function renderRelatedSpotlights(sp) {
-      var mine = spotlightKeySet(sp);
-      var scored = [];
-      Object.keys(SPOTLIGHTS).forEach(function (slug) {
-        if (slug === sp.slug) return;
-        var o = SPOTLIGHTS[slug];
-        var theirs = spotlightKeySet(o), overlap = 0, curated = 0;
-        Object.keys(theirs).forEach(function (k) { if (mine[k]) overlap++; });
-        (sp.relatedIssues || []).forEach(function (r) { if (r && r.slug === slug) curated = Math.max(curated, 2); });
-        (o.relatedIssues || []).forEach(function (r) { if (r && r.slug === sp.slug) curated = Math.max(curated, 1); });
-        if (overlap > 0 || curated > 0) scored.push({ o: o, overlap: overlap, curated: curated });
-      });
-      if (!scored.length) return '';
-      // Explicit links lead, including reverse links authored on the other card;
-      // shared issue-key overlap then breaks ties.
-      scored.sort(function (a, b) { return (b.curated - a.curated) || (b.overlap - a.overlap); });
-      var cards = scored.slice(0, 4).map(function (e) {
-        return '<button type="button" class="pdxis-relspot" data-rel-slug="' + esc(e.o.slug) + '" ' +
-            'aria-label="Open the ' + esc(e.o.title) + ' Issue Spotlight">' +
-          '<span class="pdxis-relspot-ico" aria-hidden="true">🔦</span>' +
-          '<span class="pdxis-relspot-body">' +
-            '<span class="pdxis-relspot-t">' + esc(e.o.title) + '</span>' +
-            '<span class="pdxis-relspot-p">' + esc(e.o.place || 'Issue Spotlight') + '</span>' +
-          '</span>' +
-          '<span class="pdxis-relspot-go" aria-hidden="true">→</span>' +
-        '</button>';
-      }).join('');
-      return section('Related Spotlights', 'Other sourced explainers that connect to this one',
-        '<div class="pdxis-relspots">' + cards + '</div>');
-    }
-
-    // ── How Politicians Stand on This Issue ───────────────────────────────────
-    // A politician layer for the policy-explainer cards (which carry no `groups`).
-    // It pulls the reader's OWN representatives to the top (when a location is set)
-    // with a "Your Rep" badge, then shows a curated, balanced set of key figures.
-    // Each row is a pure lens over ISSUE_STANCE_DATA — stance chip + sourced position
-    // + a link to the full record — and a say-vs-do verdict is layered in live from
-    // the voting-record database (see hydrateStands). It ends with a prominent button
-    // into the Stance Library, filtered to this issue. Emits nothing unless the card
-    // declares `standsOnIssue`, so the existing Spotlights are untouched.
-    function renderStandsPersonRow(sp, p, keys, isRep) {
-      var st = findStance(p.id, p.topic, keys);
-      var stance = resolveStance(p, st);   // honors a pinned issue-relative `stance`
-      // Prefer the live stance record; fall back to an authored, sourced position
-      // (`p.posText` + `p.source`) for topics the stance DB does not track — e.g. a
-      // specific case rather than a policy issue. Existing cards set neither, so they
-      // resolve from the DB exactly as before.
-      var authored = !st && p.posText;
-      var posTxt = st && st.text
-        ? esc(st.text)
-        : (p.posText
-            ? esc(p.posText)
-            : '<span class="pdxis-note">No public position on record for this issue yet.</span>');
-      var repBadge = isRep
-        ? '<span class="pdxis-yourrep" title="Elected to represent your area">★ Your Rep</span>' : '';
-      var srcHtml = st && st.source ? srcLink(st.source) : (p.source ? srcLink(p.source) : '');
-      var authoredVerdict = p.verdict && p.verdict.label
-        ? '<span class="pdxis-meta-k">Say vs. Do</span>' +
-          '<span class="pdxis-vr-verdict pdxis-vr-v-' + esc(p.verdict.cls || 'mixed') + '">' + esc(p.verdict.label) + '</span>'
-        : '';
-      return '<button type="button" class="pdxis-person pdxis-stperson' + (isRep ? ' is-yourrep' : '') + '" ' +
-          'data-pid="' + esc(p.id) + '" aria-label="Open the full record on the issues for ' + esc(nameFor(p)) + '">' +
-        '<div class="pdxis-p-top">' +
-          '<div class="pdxis-p-ico">' + esc(iconFor(p)) + '</div>' +
-          '<div class="pdxis-p-id">' +
-            '<div class="pdxis-p-name">' + esc(nameFor(p)) + repBadge + '</div>' +
-            '<div class="pdxis-p-office">' + esc(officeFor(p)) + '</div>' +
-          '</div>' +
-          stancePill(stance) +
-        '</div>' +
-        '<div class="pdxis-p-pos">' + posTxt + '</div>' +
-        '<div class="pdxis-stverd" data-svd-pid="' + esc(p.id) + '">' + authoredVerdict + '</div>' +
-        '<div class="pdxis-p-foot">' +
-          (srcHtml || '<span></span>') +
-          '<span class="pdxis-p-cta">' + (authored ? 'View profile →' : 'Record on the issues →') + '</span>' +
-        '</div>' +
-      '</button>';
-    }
-    function renderStandsOnIssue(sp) {
-      var soi = sp.standsOnIssue;
-      if (!soi || !soi.people || !soi.people.length) return '';
-      var keys = soi.matchIssueKeys || sp.communityIssueKeys || [];
-      var libraryKey = soi.libraryKey || sp.primaryIssueKey;
-
-      // 1) The reader's own representatives (only those with a resolvable position on
-      //    THIS issue), pulled to the top with a "Your Rep" badge.
-      var repIds = [];
-      try {
-        var loc = window._currentVoterLocation || null;
-        if (window._hasUserLocation && loc && loc.state &&
-            window.PDXTeamView && typeof window.PDXTeamView.representsMe === 'function') {
-          (window.PDXTeamView.representsMe(loc) || []).forEach(function (r) {
-            if (r && r.pid && repIds.indexOf(r.pid) === -1) repIds.push(r.pid);
-          });
-        }
-      } catch (e) {}
-
-      var authoredById = {};
-      soi.people.forEach(function (p) { if (p && p.id) authoredById[p.id] = p; });
-
-      var shown = {}, repRows = [];
-      repIds.forEach(function (pid) {
-        var authored = authoredById[pid];
-        var st = findStance(pid, authored && authored.topic, keys);
-        if (!st && !(authored && authored.posText)) return; // no position on THIS issue → skip
-        repRows.push(renderStandsPersonRow(sp, authored || { id: pid }, keys, true));
-        shown[pid] = true;
-      });
-
-      // 2) The curated key figures (skip any already shown as one of the reader's reps).
-      var keyRows = soi.people.filter(function (p) { return p && p.id && !shown[p.id]; })
-        .map(function (p) { return renderStandsPersonRow(sp, p, keys, false); }).join('');
-
-      var repBlock = repRows.length
-        ? '<div class="pdxis-stands-reps">' +
-            '<div class="pdxis-group-h pdxis-stands-h">👤 Your representatives on this issue</div>' +
-            '<div class="pdxis-group-note">You set your location, so these are the officials who answer to you. Tap any name for the full record.</div>' +
-            repRows.join('') +
-          '</div>'
-        : '';
-      var keyBlock = keyRows
-        ? '<div class="pdxis-stands-key">' +
-            '<div class="pdxis-group-h pdxis-stands-h">' +
-              esc(repRows.length ? 'Other key voices on this issue' : 'Key voices on this issue') + '</div>' +
-            keyRows +
-          '</div>'
-        : '';
-
-      var body = (repBlock || keyBlock)
-        ? repBlock + keyBlock
-        : '<p class="pdxis-note">No stance records resolve for this issue yet.</p>';
-
-      body += '<p class="pdxis-note">' + esc(soi.note ||
-        'Positions are resolved live from each official’s stance record; the say-vs-do verdict compares what they say against their recorded votes when one is on file. This is a focused selection — the Stance Library has everyone.') + '</p>';
-
-      if (libraryKey) {
-        body += '<button type="button" class="pdxis-stance-cta" data-pdxis-lib="' + esc(libraryKey) + '">' +
-          'See all stances &amp; voting records on this issue ' +
-          '<span class="pdxis-stance-cta-arrow" aria-hidden="true">→</span></button>';
-      }
-
-      return section('How Politicians Stand on This Issue',
-        'Your reps first, then other key figures — stance and say-vs-do at a glance', body);
-    }
-    // Layer the live say-vs-do verdict (stated stance vs. recorded votes) onto each
-    // stands row after the voting-record cache warms. Self-effacing: rows with no
-    // record on this issue simply keep their empty verdict slot (which collapses).
-    function hydrateStands(sp) {
-      var soi = sp.standsOnIssue;
-      if (!soi) return;
-      var wrap = document.getElementById('pdxis-wrap');
-      if (!wrap) return;
-      var slots = wrap.querySelectorAll('.pdxis-stverd[data-svd-pid]');
-      if (!slots.length) return;
-      var libraryKey = soi.libraryKey || sp.primaryIssueKey;
-      var pids = Array.prototype.map.call(slots, function (s) { return s.getAttribute('data-svd-pid'); });
-      var fill = function () {
-        if (_open !== sp.slug) return;                    // navigated away while fetching
-        slots.forEach(function (slot) {
-          var pid = slot.getAttribute('data-svd-pid');
-          var sum = null;
-          try {
-            if (typeof window._pdxRecordIssueSummary === 'function') {
-              sum = window._pdxRecordIssueSummary(pid, libraryKey);
-            }
-          } catch (e) {}
-          var v = sum && VR_VERDICT[sum.netVerdict];
-          var uni = null;
-          try { if (window.PDXConsistency && typeof window.PDXConsistency.officialRecord === 'function') uni = window.PDXConsistency.officialRecord(pid, libraryKey); } catch (e) {}
-          if (uni && ['consistent', 'contradicts', 'mixed', 'pending'].indexOf(uni.token) >= 0) {
-            slot.innerHTML = '<span class="pdxis-meta-k">Official Record</span>' + window.PDXConsistency.chipHtml(uni, null, { frame: false });
-          } else if (v) {
-            slot.innerHTML = '<span class="pdxis-meta-k">Official Record</span>' +
-              '<span class="pdxis-vr-verdict pdxis-vr-v-' + v.cls + '">' + esc(sum.label || v.label) + '</span>';
-          }
-        });
-      };
-      var api = window.PDXVotingRecord;
-      if (api && typeof api.fetchCompare === 'function') {
-        api.fetchCompare(pids).then(fill).catch(function () {});
-      } else { fill(); }
-    }
-
-    function render(sp) {
-      var wrap = document.getElementById('pdxis-wrap');
-      if (!wrap) return;
-      wrap.innerHTML =
-        '<div class="pdxis-top">' +
-          '<button type="button" class="pdxis-back" id="pdxis-back">← Back</button>' +
-          '<div class="pdxis-top-spacer"></div>' +
-          '<button type="button" class="pdxis-share" id="pdxis-share">🔗 Share</button>' +
-        '</div>' +
-        '<div class="pdxis-eyebrow">🔦 ' + esc(sp.eyebrow) + '</div>' +
-        '<h1 class="pdxis-title">' + esc(sp.title) + '</h1>' +
-        '<div class="pdxis-place">' +
-          '<span>📍 ' + esc(sp.place) + '</span>' +
-          '<span class="pdxis-dot">·</span>' +
-          '<span class="pdxis-updated">' + esc(sp.updated) + '</span>' +
-          (function () {
-            var s = spotlightStrength(sp);
-            return '<span class="pdxis-dot">·</span>' +
-              '<span class="pdxis-doc pdxis-doc-' + s.level + '" title="' +
-                esc(s.sources + ' sourced events · ' + s.receipts + ' receipts in the Evidence Locker') + '">' +
-                '📑 ' + esc(s.label) + '</span>';
-          })() +
-        '</div>' +
-        renderStatus(sp) +
-        renderSummary(sp) +
-        renderContractsTopN(sp) +
-        renderFactBox(sp) +
-        renderPromiseVsDelivery(sp) +
-        renderNotDo(sp) +
-        renderTimeline(sp) +
-        renderWhatChanged(sp) +
-        renderCases(sp) +
-        renderBoard(sp) +
-        renderSayVsDo(sp) +
-        renderVotingRecord(sp) +
-        renderEvidence(sp) +
-        renderDataContext(sp) +
-        renderWhatToWatch(sp) +
-        renderSources(sp) +
-        renderRelated(sp) +
-        renderRelatedSpotlights(sp) +
-        renderStandsOnIssue(sp) +
-        renderCommunity(sp) +
-        '<div class="pdxis-foot">PolitiDex Issue Spotlight — a calm, sourced lens over what we already track. ' +
-          'Every position links to that official’s full record on the issues; every receipt links to its original source. ' +
-          'Positions marked <b>Pledge</b> are campaign promises, not yet a governing record.</div>';
-      wireWrap(sp);
-    }
-
-    function wireWrap(sp) {
-      var wrap = document.getElementById('pdxis-wrap');
-      var back = document.getElementById('pdxis-back');
-      if (back) back.onclick = function () { close(); };
-      var share = document.getElementById('pdxis-share');
-      if (share) share.onclick = function () { shareSpotlight(sp, share); };
-      // Person / receipt links → that official's Full Stance Record.
-      wrap.querySelectorAll('[data-pid]').forEach(function (el) {
-        el.addEventListener('click', function () { toProfile(el.getAttribute('data-pid')); });
-      });
-      // Top Contractors visual → open the Federal Spending Tracker, either filtered
-      // to the tapped company or (footer button) to the full, unfiltered tracker.
-      wrap.querySelectorAll('[data-gc-recipient]').forEach(function (el) {
-        el.addEventListener('click', function () {
-          var r = el.getAttribute('data-gc-recipient');
-          if (window.PDXContracts && typeof window.PDXContracts.open === 'function') { close(); window.PDXContracts.open({ recipient: r }); }
-        });
-      });
-      var gcOpen = wrap.querySelector('[data-gc-open]');
-      if (gcOpen) gcOpen.addEventListener('click', function () {
-        if (window.PDXContracts && typeof window.PDXContracts.open === 'function') { close(); window.PDXContracts.open(); }
-      });
-      // Related-issue chips → jump to a sibling Spotlight in place (issue→issue) …
-      wrap.querySelectorAll('[data-rel-slug]').forEach(function (el) {
-        el.addEventListener('click', function () {
-          var slug = el.getAttribute('data-rel-slug');
-          if (slug && SPOTLIGHTS[slug]) { try { document.getElementById('issue-spotlight').scrollTop = 0; } catch (e) {} open(slug); }
-        });
-      });
-      // … or into the Stance Library, filtered to that issue (issue→library).
-      wrap.querySelectorAll('[data-rel-ik]').forEach(function (el) {
-        el.addEventListener('click', function () {
-          var key = el.getAttribute('data-rel-ik');
-          close();
-          setTimeout(function () {
-            if (window.PDXStanceLibrary && typeof window.PDXStanceLibrary.open === 'function') {
-              window.PDXStanceLibrary.open(key);
-            } else { try { location.hash = '#stance-library'; } catch (e) {} }
-          }, 60);
-        });
-      });
-      // Layer live recorded votes over the static story (no-op unless the spotlight
-      // declares a votingRecord block; self-removing if the data can't be reached).
-      hydrateVotingRecord(sp);
-      // Layer the say-vs-do verdicts onto the "How Politicians Stand" rows (no-op
-      // unless the card declares standsOnIssue).
-      hydrateStands(sp);
-      // "See all stances & voting records on this issue →" → the Stance Library,
-      // filtered to this issue. Close the Spotlight first so the library (a page
-      // section) owns the screen, mirroring the community hand-off.
-      var slcta = wrap.querySelector('[data-pdxis-lib]');
-      if (slcta) slcta.onclick = function () {
-        var key = slcta.getAttribute('data-pdxis-lib');
-        close();
-        setTimeout(function () {
-          if (window.PDXStanceLibrary && typeof window.PDXStanceLibrary.open === 'function') {
-            window.PDXStanceLibrary.open(key);
-          } else {
-            try { location.hash = '#stance-library'; } catch (e) {}
-          }
-        }, 60);
-      };
-      var cbtn = document.getElementById('pdxis-comm-btn');
-      if (cbtn) cbtn.onclick = function () {
-        if (window.PDXCommunity && typeof window.PDXCommunity.openForIssue === 'function') {
-          // Visually step aside so the Exchange (a page section) is in view.
-          hideOverlay();
-          window.PDXCommunity.openForIssue(sp.primaryIssueKey, sp.title);
-        } else {
-          try { location.hash = '#community-exchange'; } catch (e) {}
-        }
-      };
-      loadCommunityCount(sp);
-    }
-
-    // Show a live count of community posts tagged to this issue, if any.
-    function loadCommunityCount(sp) {
-      if (!window.PDXCommunity || typeof window.PDXCommunity.issuesWithPosts !== 'function') return;
-      window.PDXCommunity.issuesWithPosts().then(function (counts) {
-        if (!counts) return;
-        var n = 0;
-        (sp.communityIssueKeys || []).forEach(function (k) { n += (counts[k] || 0); });
-        var el = document.getElementById('pdxis-comm-count');
-        if (el && n > 0) { el.textContent = '💬 ' + n; el.hidden = false; }
-      }).catch(function () {});
-    }
-
-    // ── Navigation / lifecycle ────────────────────────────────────────────────
-    var _open = null;            // currently open slug
-    var _meta = null;            // saved <title>/meta for restore
-    // Clean share paths (/issue/<slug>, /vote/<congress>/<chamber>/<roll>) are
-    // rewrites of this same document, so closing an overlay must return to "/"
-    // rather than to a path that only ever existed to be shared.
-    var _basePath = /^\/(issue|vote)\//.test(location.pathname || '') ? '/' : (location.pathname || '/');
-
-    function spotlightUrl(slug) { return location.origin + '/issue/' + slug; }
-
-    function setMeta(sp) {
-      if (!_meta) {
-        _meta = { title: document.title };
-        ['og:title', 'og:description', 'og:url', 'twitter:title', 'twitter:description', 'description'].forEach(function (n) {
-          var sel = (n === 'description') ? 'meta[name="description"]' :
-            (n.indexOf('og:') === 0 ? 'meta[property="' + n + '"]' : 'meta[name="' + n + '"]');
-          var el = document.querySelector(sel);
-          _meta[n] = el ? el.getAttribute(n === 'description' || n.indexOf('twitter') === 0 ? 'content' : 'content') : null;
-        });
-        // The document's single hardcoded canonical href, saved so closing the
-        // Spotlight puts it back exactly as the server sent it.
-        var _canon = document.querySelector('link[rel="canonical"]');
-        _meta.canonical = _canon ? _canon.getAttribute('href') : null;
-      }
-      document.title = sp.title + ' — PolitiDex Issue Spotlight';
-      setMetaTag('meta[property="og:title"]', document.title);
-      setMetaTag('meta[name="twitter:title"]', document.title);
-      setMetaTag('meta[property="og:description"]', sp.metaDescription);
-      setMetaTag('meta[name="twitter:description"]', sp.metaDescription);
-      setMetaTag('meta[name="description"]', sp.metaDescription);
-      setMetaTag('meta[property="og:url"]', spotlightUrl(sp.slug));
-      // og:url without rel=canonical is half the job. index.html ships ONE
-      // canonical href for the whole single-page app, so an open Spotlight was
-      // telling anything that reads the live DOM — a crawler that executes JS, a
-      // reader-mode extension, a "copy canonical link" tool — that this record is
-      // really the homepage. The edge function fixes the served HTML for scrapers
-      // (netlify/edge-functions/share-preview.ts); this fixes the live document.
-      setCanonicalHref(spotlightUrl(sp.slug));
-    }
-    function setMetaTag(sel, val) { var el = document.querySelector(sel); if (el && val != null) el.setAttribute('content', val); }
-    function setCanonicalHref(val) {
-      var el = document.querySelector('link[rel="canonical"]');
-      if (el && val != null) el.setAttribute('href', val);
-    }
-    function restoreMeta() {
-      if (!_meta) return;
-      document.title = _meta.title;
-      setMetaTag('meta[property="og:title"]', _meta['og:title']);
-      setMetaTag('meta[name="twitter:title"]', _meta['twitter:title']);
-      setMetaTag('meta[property="og:description"]', _meta['og:description']);
-      setMetaTag('meta[name="twitter:description"]', _meta['twitter:description']);
-      setMetaTag('meta[name="description"]', _meta['description']);
-      setMetaTag('meta[property="og:url"]', _meta['og:url']);
-      setCanonicalHref(_meta.canonical);
-      _meta = null;
-    }
-
-    function showOverlay() {
-      var el = document.getElementById('issue-spotlight');
-      if (!el) return;
-      el.hidden = false; el.setAttribute('aria-hidden', 'false');
-      el.scrollTop = 0;
-      document.body.style.overflow = 'hidden';
-    }
-    function hideOverlay() {
-      var el = document.getElementById('issue-spotlight');
-      if (!el) return;
-      el.hidden = true; el.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    }
-
-    function open(slug, opts) {
-      opts = opts || {};
-      var sp = SPOTLIGHTS[slug];
-      if (!sp) {
-        // Run 3 perf: Spotlight data now loads on demand. If a link is followed
-        // before it has arrived, fetch it and retry the open once ready (once).
-        if (window.PDXLazyData && !window.PDXLazyData.loaded('spotlights') && !opts._retried) {
-          window.PDXLazyData.whenReady('spotlights', function () {
-            open(slug, Object.assign({}, opts, { _retried: true }));
-          });
-          return true;
-        }
-        return false;
-      }
-      // A profile modal must never be left lurking under the Spotlight.
-      if (typeof window.closeModal === 'function' && document.getElementById('modal-overlay') &&
-          getComputedStyle(document.getElementById('modal-overlay')).display !== 'none') {
-        try { window.closeModal(); } catch (e) {}
-      }
-      render(sp);
-      showOverlay();
-      setMeta(sp);
-      _open = slug;
-      if (!opts.fromPop) {
-        try { history.pushState({ pdxSpotlight: slug }, document.title, '/issue/' + slug); } catch (e) {}
-      }
-      return true;
-    }
-
-    function close(opts) {
-      opts = opts || {};
-      if (!_open) { hideOverlay(); return; }
-      hideOverlay();
-      restoreMeta();
-      var was = _open; _open = null;
-      if (!opts.fromPop) {
-        if (history.state && history.state.pdxSpotlight === was) {
-          try { history.back(); return; } catch (e) {}
-        }
-        try { history.pushState({}, document.title, _basePath); } catch (e) {}
-      }
-    }
-
-    // Person link → close the Spotlight, then open their full profile. A clean
-    // navigation rather than a stack, so the profile modal owns the screen.
-    function toProfile(id) {
-      if (!id) return;
-      close();
-      setTimeout(function () {
-        if (typeof window.showProfile === 'function') window.showProfile(id);
-      }, 40);
-    }
-
-    function shareSpotlight(sp, btn) {
-      var url = spotlightUrl(sp.slug);
-      var payload = { title: sp.title + ' — PolitiDex', text: sp.metaDescription, url: url };
-      if (navigator.share) {
-        navigator.share(payload).catch(function () {});
-      } else if (navigator.clipboard) {
-        navigator.clipboard.writeText(url).then(function () {
-          if (btn) { var o = btn.innerHTML; btn.innerHTML = '✅ Link copied'; setTimeout(function () { btn.innerHTML = o; }, 1800); }
-        }).catch(function () { window.prompt('Copy this link:', url); });
-      } else {
-        window.prompt('Copy this link:', url);
-      }
-    }
-
-    // ── Deep-link resolution: /issue/<slug>, ?issue=<slug>, #issue/<slug> ──────
-    function slugFromLocation() {
-      var m = (location.pathname || '').match(/^\/issue\/([A-Za-z0-9_-]+)\/?$/);
-      if (m) return m[1];
-      try {
-        var qs = new URLSearchParams(location.search).get('issue');
-        if (qs) return qs;
-      } catch (e) {}
-      var h = (location.hash || '').match(/^#issue\/([A-Za-z0-9_-]+)$/);
-      if (h) return h[1];
-      return null;
-    }
-    function syncFromUrl(fromPop) {
-      var slug = slugFromLocation();
-      if (slug && SPOTLIGHTS[slug]) {
-        // Normalise ?issue= / #issue/ entry points to the canonical clean path.
-        var viaPath = (location.pathname || '').indexOf('/issue/') === 0;
-        if (open(slug, { fromPop: fromPop || viaPath }) && !viaPath && !fromPop) {
-          try { history.replaceState({ pdxSpotlight: slug }, document.title, '/issue/' + slug); } catch (e) {}
-        }
-        return true;
-      }
-      // THE SAME PREFIX, TWO KINDS OF PAGE. /issue/<slug> was only ever a
-      // spotlight address, so /issue/housing - a vocabulary key with no spotlight
-      // of its own - fell through this function and rendered the front page while
-      // netlify.toml was happily serving the document for it. The issue page
-      // (issue-page.js) is that slug's owner now. The spotlight branch above still
-      // runs first, so a slug the spotlight set already owns keeps its spotlight.
-      if (syncIssuePage(slug, fromPop)) return true;
-      if (_open && fromPop) close({ fromPop: true });
-      return false;
-    }
-    // The vocabulary-key half of /issue/*, kept in one place so the boot gate, a
-    // popstate and a back button out of the page all take the same road.
-    function syncIssuePage(slug, fromPop) {
-      var IP = window.PDXIssuePage;
-      if (!IP || typeof IP.has !== 'function') return false;
-      try {
-        if (slug && IP.has(slug)) {
-          if (_open) close({ fromPop: true });
-          return IP.open(slug, { fromPop: true });
-        }
-        // Walked back off /issue/<key> - the page is the thing that has to close.
-        if (!slug && fromPop && typeof IP.isOpen === 'function' && IP.isOpen()) {
-          IP.close({ fromPop: true });
-        }
-      } catch (e) {}
-      return false;
-    }
-
-    window.addEventListener('popstate', function () { syncFromUrl(true); });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && _open) { e.preventDefault(); close(); }
-    });
-
-    // Public API.
-    window.PDXSpotlight = {
-      open: function (slug) { return open(slug); },
-      close: function () { close(); },
-      has: function (slug) { return !!SPOTLIGHTS[slug]; },
-      registry: SPOTLIGHTS,
-      // Every Spotlight, in registry order — the source of truth for home-page
-      // discovery. Adding a Spotlight to SPOTLIGHTS above is all it takes to make
-      // it appear in the "Local Issues" section and in search automatically.
-      list: function () {
-        return Object.keys(SPOTLIGHTS).map(function (s) { return SPOTLIGHTS[s]; });
-      },
-      // Documentation-strength signal for a Spotlight — see spotlightStrength().
-      strength: function (slug) { return spotlightStrength(SPOTLIGHTS[slug]); },
-      strengthFor: function (sp) { return spotlightStrength(sp); },
-      // Find spotlights that feature a given politician id (used for profile callouts).
-      // Scans every place a person can appear — the politician-centric `groups`, the
-      // policy-explainer `standsOnIssue.people`, plus `evidence` and `sayVsDo` — so a
-      // profile links back to ANY spotlight that features them (politician→issue).
-      forPolitician: function (id) {
-        var out = [];
-        Object.keys(SPOTLIGHTS).forEach(function (slug) {
-          var sp = SPOTLIGHTS[slug];
-          var hit =
-            (sp.groups || []).some(function (g) {
-              return (g.people || []).some(function (p) { return p.id === id; });
-            }) ||
-            (sp.standsOnIssue && (sp.standsOnIssue.people || []).some(function (p) { return p.id === id; })) ||
-            (sp.evidence || []).some(function (grp) {
-              return (grp.items || []).some(function (it) { return it.id === id; });
-            }) ||
-            (sp.sayVsDo || []).some(function (r) { return r.person === id; });
-          if (hit) out.push(sp);
-        });
-        return out;
-      },
-      // Find spotlights tied to an issueKey — its primary key, its community keys, or
-      // its stands/library key — so other surfaces (e.g. the Stance Library) can link
-      // back into a relevant spotlight (issue→spotlight, the reverse direction).
-      forIssueKey: function (key) {
-        if (!key) return [];
-        return Object.keys(SPOTLIGHTS).map(function (s) { return SPOTLIGHTS[s]; }).filter(function (sp) {
-          if (sp.primaryIssueKey === key) return true;
-          if ((sp.communityIssueKeys || []).indexOf(key) !== -1) return true;
-          var soi = sp.standsOnIssue;
-          if (soi && (soi.libraryKey === key || (soi.matchIssueKeys || []).indexOf(key) !== -1)) return true;
-          return false;
-        });
-      },
-      // Lightweight search match for the browse suggestions. Token-based: every
-      // word in the query must appear somewhere in the title/place/keywords, so a
-      // natural phrase like "box elder data center" matches even though those words
-      // are not contiguous in the keyword string.
-      match: function (q) {
-        q = String(q || '').toLowerCase().trim();
-        if (!q) return [];
-        var terms = q.split(/\s+/).filter(Boolean);
-        return Object.keys(SPOTLIGHTS).map(function (s) { return SPOTLIGHTS[s]; }).filter(function (sp) {
-          var hay = (sp.title + ' ' + sp.place + ' ' + (sp.searchKeywords || '')).toLowerCase();
-          return terms.every(function (t) { return hay.indexOf(t) !== -1; });
-        });
-      }
-    };
-
-    // Resolve an initial deep-link once the roster has had a chance to load (so
-    // names/offices/icons resolve from PROFILES). Retry briefly if not yet ready.
-    function bootDeepLink(tries) {
-      var slug = slugFromLocation();
-      if (!slug) return;
-      var ready = (window.PROFILES && Object.keys(window.PROFILES).length) ||
-                  (typeof CMP_DATA !== 'undefined');
-      // A slug that is not a spotlight is a candidate ISSUE KEY, and the key table
-      // it is checked against (ISSUE_MAP, via PDXIssuePage.has) ships in a deferred
-      // script of its own. Asking too early answers "not a key" and drops the
-      // reader on the front page with their address still in the bar, so the gate
-      // waits for the page module too - and gives up on the same tries ceiling
-      // rather than waiting forever for a slug that is genuinely neither.
-      if (ready && !SPOTLIGHTS[slug] && !window.PDXIssuePage && (tries || 0) <= 20) {
-        setTimeout(function () { bootDeepLink((tries || 0) + 1); }, 250);
-        return;
-      }
-      if (ready || tries > 20) { syncFromUrl(false); return; }
-      setTimeout(function () { bootDeepLink((tries || 0) + 1); }, 250);
-    }
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function () { bootDeepLink(0); });
-    } else { bootDeepLink(0); }
-
-    // ── Cross-link: compact "Issue Spotlight" rail inside a profile modal ────
-    // Called at the end of openModal (see the showProfile/openModal render).
-    //
-    // This used to emit up to THREE full-width callout cards — icon, kicker,
-    // title, arrow, ~64px each — stacked directly between the profile hero and
-    // the accountability spine. On a phone that pushed the primary Word vs Action
-    // score most of a screen further down, which made a cross-link the loudest
-    // thing above the score it was cross-linking from.
-    //
-    // Same destinations, same cap, one line: a labelled rail of title chips
-    // (PDXDossier.railHtml). Each chip still opens the full Spotlight. The
-    // fallback below keeps the old callout markup for the case where the dossier
-    // module has not loaded, so the entry point never disappears entirely.
+    function url(slug) { return "/issue/" + encodeURIComponent(String(slug || "")); }
     window._pdxRelatedSpotlight = function (id) {
       try {
-        var sps = window.PDXSpotlight.forPolitician(id);
+        if (!(window.PDXSpotlight && typeof window.PDXSpotlight.forPolitician === "function")) return;
+        var sps = window.PDXSpotlight.forPolitician(id) || [];
         if (!sps.length) return;
-        // Cap at three so a frequently-featured figure doesn't flood the profile.
+        // Cap at three so a frequently-featured figure does not flood the profile.
         sps = sps.slice(0, 3);
-        var host = document.getElementById('modal-content');
+        var host = document.getElementById("modal-content");
         if (!host) return;
-        var existing = host.querySelector('.pdxis-callout-block');
+        var existing = host.querySelector(".pdxis-callout-block");
         if (existing) existing.parentNode.removeChild(existing);
-        var block = document.createElement('div');
-        block.className = 'pdxis-callout-block';
-        var rail = '';
+        var block = document.createElement("div");
+        block.className = "pdxis-callout-block";
+        var rail = "";
         try {
-          rail = (window.PDXDossier && typeof window.PDXDossier.railHtml === 'function')
-            ? (window.PDXDossier.railHtml(id, sps) || '') : '';
-        } catch (e) { rail = ''; }
+          rail = (window.PDXDossier && typeof window.PDXDossier.railHtml === "function")
+            ? (window.PDXDossier.railHtml(id, sps) || "") : "";
+        } catch (e) { rail = ""; }
         block.innerHTML = rail || sps.map(function (sp) {
-          return '<button type="button" class="pdxis-callout" data-spotlight="' + esc(sp.slug) + '">' +
-            '<span class="pdxis-callout-ico">🔦</span>' +
+          return '<a class="pdxis-callout" href="' + esc(url(sp.slug)) + '" data-spotlight="' + esc(sp.slug) + '">' +
+            '<span class="pdxis-callout-ico" aria-hidden="true">🔦</span>' +
             '<span class="pdxis-callout-body">' +
               '<span class="pdxis-callout-k">Featured in Issue Spotlight</span>' +
               '<span class="pdxis-callout-t">' + esc(sp.title) + '</span>' +
             '</span>' +
-            '<span class="pdxis-callout-arrow">→</span>' +
-          '</button>';
-        }).join('');
-        var hero = host.querySelector('.profile-hero');
+            '<span class="pdxis-callout-arrow" aria-hidden="true">→</span>' +
+          '</a>';
+        }).join("");
+        var hero = host.querySelector(".profile-hero");
         if (hero && hero.parentNode) { hero.parentNode.insertBefore(block, hero.nextSibling); }
         else { host.insertBefore(block, host.firstChild); }
-        block.querySelectorAll('[data-spotlight]').forEach(function (b) {
-          b.addEventListener('click', function () {
-            var slug = b.getAttribute('data-spotlight');
-            if (typeof window.closeModal === 'function') { try { window.closeModal(); } catch (e) {} }
-            setTimeout(function () { window.PDXSpotlight.open(slug); }, 40);
-          });
-        });
       } catch (e) { /* never let a callout break a profile */ }
     };
+  })();
+  </script>
+
+
+  <!-- ══════════ THE /issue/<key> HALF, WHICH IS NOT A SPOTLIGHT AT ALL ═══════
+       Two kinds of page shared one prefix here for a long time. /issue/<slug>
+       is a Spotlight and has its own document now (spotlight.html). But
+       issue-page.js — the in-page dossier for a VOCABULARY KEY, opened by the
+       bill letterhead chip, the person's signature chip and the ⓘ card — still
+       pushes /issue/<key> when it opens, because that is the address it has
+       always published.
+       SO THIS DOCUMENT STILL OWES IT A POPSTATE. The Spotlight engine used to
+       own the whole /issue/* router and closed the issue page on the way back
+       out (syncIssuePage's !slug branch). The engine is gone, so this is that
+       one branch and nothing else: no spotlight registry, no slug lookup, no
+       second issue UI. Without it, a reader who opened the dossier and pressed
+       Back got the old address restored and the overlay left standing.
+       (A NAVIGATION to /issue/<key> is no longer this document's problem:
+       netlify.toml serves spotlight.html, which hops an unknown slug once to
+       /i/<key> — the Issue File. Only the entries issue-page.js pushed itself
+       are still in this document's history, and those are what this handles.)
+       ────────────────────────────────────────────────────────────────────── -->
+  <script>
+  (function () {
+    window.addEventListener("popstate", function () {
+      var IP = window.PDXIssuePage;
+      if (!IP || typeof IP.has !== "function") return;
+      try {
+        var m = (location.pathname || "").match(/^\/issue\/([^\/?#]+)\/?$/);
+        var key = m ? decodeURIComponent(m[1]) : "";
+        if (key && IP.has(key)) { IP.open(key, { fromPop: true }); return; }
+        if (typeof IP.isOpen === "function" && IP.isOpen()) { IP.close({ fromPop: true }); }
+      } catch (e) {}
+    });
   })();
   </script>
 

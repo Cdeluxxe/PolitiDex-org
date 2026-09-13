@@ -1168,14 +1168,48 @@
   // and quietly widened them into whichever core issue happened to sort first -
   // an unrelated issue, opened silently.
   //   So: a chip whose key is a real vocabulary key opens that key's own page
-  // (/issue/<key>, every measure mapped to it). Anything else keeps the old
+  // (/i/<key>, every measure mapped to it). Anything else keeps the old
   // behaviour, because a label is not a key and this file will not guess which
   // key a curator meant.
-  function sigTapJs(key) {
+  //
+  // AND IT NOW LANDS SOMEWHERE ON A PERSON FILE. Both in-page openers this used
+  // to rely on live on the homepage shell: PDXIssuePage is issue-page.js and
+  // PDXIssueView is issue-view.js's overlay, and /p/* is served by person.html,
+  // which ships neither opener's front door. So on the document where these chips
+  // are actually rendered, every branch above missed and the tap was eaten - the
+  // chip looked live, moved nothing, and said nothing about why.
+  //   The third branch is a real NAVIGATION to the issue file's own address,
+  // which since /i/* got its own document is a page the size of the dossier
+  // rather than the homepage OS. Three walls on it, in order:
+  //   1. IT IS LAST. An in-page open is still better than a page load, so a shell
+  //      that has either opener keeps its behaviour exactly.
+  //   2. IT IS GATED ON A REAL KEY, mirroring PDXIssuePage.has - shape, then the
+  //      register, then the scope table. A display label must never be widened
+  //      into a key by a navigation either; that is the bug the comment above
+  //      describes, and an address makes it permanent instead of momentary.
+  //   3. THE ADDRESS IS BUILT BY THE FILE THAT OWNS IT, AND SO IS THE GATE.
+  //      PDXIssueFamily.profileUrl is the one place /i/ is spelled in this app,
+  //      and PDXIssueFamily.keyIsReal is the one place "is this a key or a label"
+  //      is answered. Nothing here spells a path or re-implements the vocabulary
+  //      test, so this door cannot drift from the rule netlify.toml routes or
+  //      disagree with the other door about what an issue is.
+  // The pid rides along as ?pid=, which is what issue.html's bar reads to offer
+  // the way back to this person's file. pdx-issue-profile.js's stamp() preserves
+  // location.search and points the canonical at the bare /i/<key>, so the query
+  // costs the issue file no canonical honesty.
+  // The whole address, INCLUDING the query, is profileUrl's to build: this door
+  // used to append "?pid=" itself, which made it the second place in the repo
+  // that knew the shape of an issue-file address. It hands over the two facts it
+  // holds — the key and whose file this is — and spells neither the path nor the
+  // parameter. An empty pid is passed through as '' and dropped there.
+  function sigTapJs(key, pid) {
     var k = jsStr(key);
+    var p = pid ? jsStr(pid) : '';
     return "var K='" + k + "';" +
       "if(window.PDXIssuePage&&window.PDXIssuePage.has(K)){window.PDXIssuePage.open(K);}" +
-      "else if(window.PDXIssueView&&window.PDXIssueView.open){window.PDXIssueView.open(K);}";
+      "else if(window.PDXIssueView&&window.PDXIssueView.open){window.PDXIssueView.open(K);}" +
+      "else if(window.PDXIssueFamily&&window.PDXIssueFamily.keyIsReal&&window.PDXIssueFamily.keyIsReal(K)){" +
+        "var U=window.PDXIssueFamily.profileUrl(K,'" + p + "');if(U){window.location.href=U;}}";
   }
 
   // briefHtml — the first screen below the letterhead. Self-gating on substance:
@@ -1194,7 +1228,7 @@
     var name = firstName(p);
     var sigHtml = sigs.length
       ? '<div class="pdxbr-sigs">' + sigs.map(function (s) {
-          var tap = s.key ? ' onclick="' + sigTapJs(s.key) + '"' : '';
+          var tap = s.key ? ' onclick="' + sigTapJs(s.key, pid) + '"' : '';
           return '<button type="button" class="pdxbr-sig"' + tap +
               ' title="' + escAttr('Where ' + name + ' stands on ' + s.label) + '">' +
               '<span class="pdxbr-sig-lbl">' + esc(s.label) + '</span>' +

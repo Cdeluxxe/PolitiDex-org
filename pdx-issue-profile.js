@@ -316,12 +316,40 @@
   //
   // Nothing captured means a cold deep link straight onto /i/<key>, and the
   // honest destination for that is the front door — not an issue we just closed.
+  //
+  // ── AND ON THE ISSUE SHELL, CLOSE HAS TO LEAVE ────────────────────────────
+  // WHAT WAS WRONG. /i/* is served by issue.html now, and on that document the
+  // issue file is not an overlay over anything: it IS the page. So handing the
+  // address back with a replaceState left the reader looking at an empty shell
+  // whose URL said "/" — a blank page at the homepage's address, one tap from
+  // paying 2.3 MB to get anywhere. Live smoke found exactly that: "the X goes to
+  // /, then the reader pays the fat homepage, then /p/lee feels slow again."
+  //
+  // THE HONEST DESTINATION IS THE ONE THE ADDRESS NAMES. issue.html's bar block
+  // reads the ?pid= the door carried and publishes window.PDXIssueBack: the
+  // person file when the query names one, the front page when it does not, and
+  // history.back() in preference to either when the referrer says this document
+  // was opened from that same person's file (their scroll position comes back
+  // and no history entry is spent).
+  //
+  // ITS ABSENCE IS THE SIGNAL, and that is what keeps this scoped. index.html
+  // publishes no PDXIssueBack, so the homepage's overlay still closes onto the
+  // page underneath through the replaceState below, unchanged. The gap sheet on
+  // a person file does not come through here at all. Nothing in this pass turns
+  // an in-page overlay into a navigation — the only close that navigates is the
+  // one on the document where there is nowhere to close TO.
   function restore() {
     try { document.title = _homeTitle; } catch (e) {}
     try {
       var link = document.querySelector('link[rel="canonical"]');
       if (link) link.setAttribute('href', origin() + '/');
     } catch (e) {}
+    var B = null;
+    try { B = window.PDXIssueBack || null; } catch (e) { B = null; }
+    if (B && fn(B.leave)) {
+      _return = null;
+      try { if (B.leave()) return true; } catch (e) {}
+    }
     try {
       var back = _return;
       _return = null;

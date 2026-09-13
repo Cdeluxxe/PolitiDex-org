@@ -317,6 +317,7 @@ button.pdxdo-chip-sl:hover { background: rgba(245, 200, 66, 0.2); border-color: 
   text-overflow: ellipsis;
   transition: background 0.18s, border-color 0.18s;
 }
+.pdxis-rail-b { text-decoration: none; }   /* it is an <a> since the third split */
 .pdxis-rail-b:hover { background: rgba(245, 200, 66, 0.16); border-color: rgba(245, 200, 66, 0.45); color: #fff; }
 .pdxis-rail-go { color: #c9a94a; flex-shrink: 0; }
 

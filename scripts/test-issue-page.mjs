@@ -551,12 +551,35 @@ eq(WIN.PDXIssueScope.BILLS_DOOR, "See all bills on this issue", "the ⓘ card's 
 }
 const IDX = readFileSync(join(ROOT, "index.html"), "utf8");
 has(IDX, 'src="/issue-page.js"', "index.html does not load the issue page module");
-has(IDX, "syncIssuePage(slug, fromPop)", "the /issue/* router does not offer the slug to the issue page");
-ok(IDX.indexOf("if (slug && SPOTLIGHTS[slug])") < IDX.indexOf("if (syncIssuePage(slug, fromPop)) return true;"),
-  "the issue page is offered a slug the spotlight set already owns");
+// THE ROUTER IS NOT HERE ANY MORE, AND THE PAGE STILL PUSHES ITS ADDRESS.
+// /issue/<slug> was a Spotlight address and a vocabulary-key address at once,
+// and one inline router on this document sorted them: spotlight first, then
+// syncIssuePage() for a key the spotlight set did not own. The third split gave
+// /issue/* its own document (spotlight.html), so that router left with the
+// engine — and an unknown slug there now hops once to /i/<key>, the Issue File,
+// rather than being answered in-page.
+//
+// What did NOT change is that issue-page.js pushes /issue/<key> when its overlay
+// opens (setUrl, ~line 850). Those history entries are this document's own, so
+// this document still owes them a popstate: forward onto one re-opens the page,
+// back off one CLOSES it. That branch — and only that branch, no registry, no
+// slug lookup, no second issue UI — is what remains inline here. Without it the
+// overlay is left standing with the old address restored under it.
+has(IDX, "window.PDXIssuePage", "index.html no longer reaches the issue page at all");
+has(IDX, "IP.open(key, { fromPop: true })", "walking forward onto /issue/<key> does not re-open the page");
 has(IDX, "IP.close({ fromPop: true })", "walking back off /issue/<key> does not close the page");
+// Against the CODE, not the comment that explains the branch's absence: the
+// banner above the popstate block names syncIssuePage to say what left.
+const IDXC = IDX.replace(/<!--[\s\S]*?-->/g, " ");
+ok(!/syncIssuePage/.test(IDXC),
+  "index.html still carries the old /issue/* router — that address belongs to spotlight.html now, and a second router here would race it");
+ok(!/SPOTLIGHTS\[slug\]/.test(IDXC),
+  "index.html still consults a spotlight registry for a URL — the 1.2 MB corpus is not on this document any more");
 const NT = readFileSync(join(ROOT, "netlify.toml"), "utf8");
-has(NT, '/issue/*', "netlify.toml no longer serves the app for /issue/<key>");
+ok(/from = "\/issue\/\*"\s*\n\s*to = "\/spotlight\.html"/.test(NT),
+  "netlify.toml no longer serves spotlight.html for /issue/*");
+ok(/from = "\/i\/\*"\s*\n\s*to = "\/issue\.html"/.test(NT),
+  "netlify.toml no longer serves issue.html for /i/<key> — that is where an unknown /issue/ slug is sent");
 const VR = readFileSync(join(ROOT, "netlify/functions/voting-record.mts"), "utf8");
 has(VR, "primaryIssueKeys", "the browse route does not publish every primary flag");
 has(VR, "lastRoll", "the browse route does not publish the last floor roll");

@@ -437,10 +437,22 @@ const LANDCORE = (() => {
     no(CODE, banned, `pdx-issue-family.js reaches for ${banned} — the table names families, ` +
       `it does not read records, order people or produce a figure`);
   }
-  // The two things it IS allowed to read, and nothing else on the window.
+  // What it IS allowed to read, and nothing else on the window. Four tables now,
+  // and the two additions are both about ADDRESSES rather than about records,
+  // which is the line this assertion exists to hold:
+  //   · PDXIssueScope — keyIsReal's third step. A key the measure mappings and
+  //     the formal-pattern index agree on has a real record to show even when the
+  //     register has not been given a label for it yet, and the alternative to
+  //     asking is this file keeping its own second list of what an issue is.
+  //   · PDXPersonLink — pidParam's only step. This file owns the issue address
+  //     and person-link.js owns the person one, so when the issue address has to
+  //     carry a pid back to a person file it asks that module what a canonical
+  //     pid is instead of deciding. It reads pid() and nothing else: no name, no
+  //     office, no record, no roster.
+  // Neither is a record module, and the banned list above still stands.
   const globals = [...new Set([...CODE.matchAll(/window\.([A-Za-z_$][\w$]*)/g)].map((m) => m[1]))].sort();
-  eq(globals.join(","), "CORE_NATIONAL_ISSUES,ISSUE_MAP,PDXIssueFamily",
-    "pdx-issue-family.js touches a global other than the parent table and the register");
+  eq(globals.join(","), "CORE_NATIONAL_ISSUES,ISSUE_MAP,PDXIssueFamily,PDXIssueScope,PDXPersonLink",
+    "pdx-issue-family.js touches a global other than the parent table, the register and the two address owners");
   // THE CHILD'S ADDRESS IS REAL NOW, and this is the one place that spells it.
   // It was `#issue=<key>` for as long as nothing routed it; /i/* is a 200 rewrite
   // in netlify.toml and pdx-issue-profile.js mounts the ledger on arrival, so the
@@ -462,7 +474,10 @@ const LANDCORE = (() => {
   // a document that loaded the tree without this module gets no link at all.
   const TREE = SRC.get("stance-tree.js");
   has(TREE, "PDXIssueFamily", "the topic tree does not ask this module for the address");
-  has(TREE, "F.profileUrl(lf.key)", "the topic tree does not read profileUrl for a leaf");
+  // Two arguments since v186: the key, and the pid the row model filed the leaf
+  // under. The second one is the return address the issue shell reads to offer the
+  // way back to this person's file — built by profileUrl, never composed by a door.
+  has(TREE, "F.profileUrl(lf.key, lf.pid)", "the topic tree does not read profileUrl for a leaf");
   no(TREE, "'/i/'", "the topic tree spells the issue-file path itself instead of asking");
   no(TREE, '"/i/"', "the topic tree spells the issue-file path itself instead of asking");
   const face = TREE.indexOf("issueFileHtml(lf)");

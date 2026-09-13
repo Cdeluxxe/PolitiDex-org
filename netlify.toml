@@ -297,16 +297,6 @@
 [build.environment]
   SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyDNkLuB8wmLuz38dfL8ZP6rvnv-efZvnyU"
 
-# Issue Spotlight deep-links. The whole app is a single index.html, so a clean,
-# shareable path like /issue/box-elder-stratos-data-center must serve that same
-# document (HTTP 200 rewrite, not a redirect) and let the client-side router read
-# the slug from location.pathname. Scoped to /issue/* only, so every other asset
-# (/, /css/*, /netlify/*, the Functions) keeps its normal routing.
-[[redirects]]
-  from = "/issue/*"
-  to = "/index.html"
-  status = 200
-
 # Shareable roll-call deep-links. A clean path like
 # /vote/119/house/190 must serve the same single-page document (HTTP 200 rewrite)
 # so the client-side router can read the congress/chamber/roll from the path and
@@ -329,10 +319,29 @@
   status = 200
 
 # Person-file deep-links. Phase 1 gave the politician profile a durable address
-# of its own: /p/<pid>. Same arrangement as /issue/* above — the whole app is one
-# index.html, so a citable path like /p/celeste_maloy must SERVE that document
+# of its own: /p/<pid>. A citable path like /p/celeste_maloy must SERVE a document
 # (HTTP 200 rewrite, not a redirect) and let person-file.js read the pid out of
 # location.pathname and open the file.
+#
+# THE DOCUMENT IT SERVES IS NOW /person.html, NOT /index.html. This is the whole
+# of the first split. Every other rewrite in this file still points at index.html
+# — /, /vote/*, /d/*, /b/* and /locker are unchanged — because those addresses
+# really are the one-document app. (/i/* and /issue/* later got documents of
+# their own too, on the same terms; see the two blocks below.) A person file is
+# not: it opens
+# one record, and it was paying 2.3 MB of markup and ~114 script tags (~11.9 MB)
+# for the homepage civic OS, the account graph, Compare, the Archive, the Evidence
+# Locker and both Doors, none of which appear on the page a reader asked for and
+# all of which ran on the main thread underneath it. That is what froze the tab.
+# /person.html is the person lane alone: 234 KB of markup, 59 modules.
+#
+# THE ORDER OF THE TWO RULES IS NOT LOAD-BEARING — /p/* and the index.html
+# fallbacks match disjoint paths — but the ROOT-ABSOLUTE ASSET PATHS IN
+# person.html ARE. /p/<pid> is two segments deep and this rule returns 200 for
+# anything under it, so a relative src="person-file.js" on that document would
+# resolve to /p/person-file.js, match this rule, and hand the browser an HTML
+# document to parse as JavaScript. scripts/test-person-shell.mjs fails the build
+# on a relative same-origin path anywhere in person.html for that reason.
 #
 # The pid, not a name slug: a name in a URL is a claim nothing on arrival can
 # check, and the pid is the identifier the roster, the stance corpus, the
@@ -354,7 +363,7 @@
 # resolve, rather than showing the front page to someone who followed a citation.
 [[redirects]]
   from = "/p/*"
-  to = "/index.html"
+  to = "/person.html"
   status = 200
 
 # Issue-file deep-links. The third durable address, on exactly the terms /p/<pid>
@@ -387,9 +396,63 @@
 # someone who followed a link. Sitemap entries for the register's keys are left
 # to that same later pass, for the same reason: an address a crawler is invited
 # to should have a head written for it first.
+#
+# share-preview.ts IS NOT BEING EXTENDED TO /i/* IN THIS PASS EITHER, and for a
+# sharper version of the same reason: its path list carries /issue/*, and adding
+# /i/* would put the edge in front of an address it cannot resolve. With no
+# server-side key lookup it would rewrite the tags with nothing to say and emit
+# the generic site card on every issue file — worse than the honest untouched
+# head issue.html already ships, because a wrong card looks authoritative. The
+# og:*, twitter:*, <title> and canonical anchors on issue.html are carried in
+# share-preview's exact tag shape, and scripts/test-issue-shell.mjs pins each one
+# against the regexes that function actually uses, so the day a resolver lands
+# the edge can be pointed here without touching the document.
+#
+# ── WHAT CHANGED: /i/* NOW SERVES ITS OWN DOCUMENT ────────────────────────────
+# This rule used to answer /index.html, and that quietly undid the person-file
+# split one tap downstream. Every "Issue file" control on a person record is an
+# <a href="/i/<key>"> — consistency.js's gap-sheet title, stance-tree.js's leaf
+# row, word-action.js's shape row, stance-helpers.js's mandate-chip fallback — so
+# a reader on /p/lee who tapped Issue File was handed the 2.3 MB homepage shell:
+# the homepage grids, Compare Hub, the account graph, Door 2, the Archive, the
+# Locker and the spotlight fuel, none of it on the page they asked for. /i/* now
+# serves /issue.html, which carries the ledger lane and nothing else.
+#
+# /issue/* IS NOT THIS ADDRESS, and the block below it is not this document.
+# /i/<key> is the Issue File — the dossier ledger over a vocabulary key.
+# /issue/<slug> is an Issue Spotlight — one long curated writeup. They share a
+# prefix in spelling only, they are different products, and each now has a
+# document of its own. /, /vote/*, /d/*, /b/* and /locker are untouched: none of
+# them is an Issue File URL on a person record.
 [[redirects]]
   from = "/i/*"
-  to = "/index.html"
+  to = "/issue.html"
+  status = 200
+
+# Issue Spotlight deep-links — THE THIRD SPLIT. A clean, shareable path like
+# /issue/box-elder-stratos-data-center must SERVE a document (HTTP 200 rewrite,
+# not a redirect) and let the page read the slug out of location.pathname.
+#
+# THE DOCUMENT IT SERVES IS NOW /spotlight.html, NOT /index.html. A Spotlight is
+# one curated writeup, and the writeups live in spotlights-data.js — 1.2 MB. That
+# payload sat on the front page, so every homepage visit paid to parse 60 long
+# articles the reader had not asked for, while the Spotlight itself arrived
+# wrapped in the whole app: Compare Hub, the alignment tool, Door 2, the ballot
+# workspace, the person-file spine. spotlight.html carries the corpus, the engine
+# and the one stylesheet it paints with, and nothing else. The front page keeps
+# ordinary links to this address plus spotlight-index.js (~86 KB of slug, title,
+# place and blurb) — never the corpus.
+#
+# ORDER MATTERS, AND THIS BLOCK IS DELIBERATELY LAST OF THE THREE. Netlify is
+# first-match-wins, so /i/* and /p/* are declared above: /i/<key> keeps the Issue
+# File and /p/<pid> keeps the person file, and neither can be swallowed by a
+# broader Spotlight rule. /issue/* takes only its own prefix — /, /vote/*, /d/*,
+# /b/* and /locker are untouched. NO SLUG IS ENUMERATED HERE: an unknown slug is
+# answered inside the document (spotlight-engine.js hops once to /i/<key>,
+# carrying ?pid= if it arrived), not by a growing list of rules in this file.
+[[redirects]]
+  from = "/issue/*"
+  to = "/spotlight.html"
   status = 200
 
 # District Room deep-links. THIS BLOCK FIXES THE URL SHAPE FOR THE ROOM, and it

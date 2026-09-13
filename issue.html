@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+<!-- ═════════════════════════════════════════════════════════════════════════════
+     issue.html — THE THIRD SHELL. /i/<key> IS ITS OWN DOCUMENT.
+     ────────────────────────────────────────────────────────────────────────────
+     WHAT WAS WRONG. The first split gave the person file its own document, and
+     the very next tap undid the win. Every "🏛 Issue file" control on a person
+     record — the gap sheet's title, the stance tree's leaf row, the Word-vs-Action
+     shape row, the mandate chip — is an <a href="/i/<key>">, and netlify.toml
+     rewrote /i/* to index.html. So a reader on /p/lee who tapped Issue File
+     downloaded the 2.3 MB homepage OS to read one issue's formal record: the
+     homepage grids, Compare Hub, the account graph, Door 2, Your File, the
+     Archive, the Locker, the 1.2 MB spotlight fuel — none of it on the page they
+     asked for, all of it on the main thread.
+
+     WHAT THIS IS. The issue dossier's own shell, served for /i/* by a single
+     netlify.toml rewrite. It carries the ledger lane and nothing else:
+
+       • the SAME promise-ledger, Firebase-boot and split-seam blocks person.html
+         carries, copied VERBATIM FROM person.html rather than forked a third
+         time (see the marker comment above each — scripts/test-issue-shell.mjs
+         pins every one byte-identical to its source lines in person.html, so a
+         fix applied to one document cannot silently skip the others);
+       • the builder the dossier is already made of: pdx-issue-profile.js reads
+         /i/<key> off the path, PDXDoor1.issueProfile (door1-workspace.js) builds
+         the ledger, PDXIssueFile mounts it, PDXConsistency.formalPatternIndex and
+         PDXIssueView.buildRanking supply the formal record behind it. No second
+         issue UI is invented here and nothing is rebuilt;
+       • 42 module scripts — the issue register, the formal record, the ledger and
+         the gap sheet a row opens.
+
+     WHAT IT DELIBERATELY DOES NOT CARRY. compare-hub.js, alignment-tool.js,
+     like-dislike.js, journey.js, support-route.js, self-defection.js,
+     my-profile.js, my-stances.js, ballot-workspace.js, archive-browse.js,
+     evidence-locker.js, all-seeing-eye.js, your-file.js, voter-hub-location.js,
+     account-graph.js, spotlights-data.js, issue-page.js, the homepage card and
+     relevant-grid stack and the Door surfaces. It also drops two modules
+     person.html keeps: profiles-full.js (593 KB of person records — a ledger row
+     names a person, it does not paint one, and without it a person name in a row
+     is a real cross-document navigation to /p/<pid>, which is the behaviour
+     person-link.js documents as the right one) and word-action.js (424 KB — the
+     dossier does not read it).
+
+     Every reference to a dropped module from a module that DOES ship here is a
+     `typeof` or `&&` optional lookup, so its absence costs the dossier a block,
+     never its boot. The unguarded exceptions are exactly the ones person.html
+     already answers: alignment-tool.js's issue vocabulary, answered by
+     /issue-map.js, and window._pdxMandateForIssue, answered by the split-seam
+     stub copied below. Door 1's DESK is not mounted here on purpose —
+     door1-workspace.js's sync() returns false without its mount and paints
+     nothing. .netlify/results.md lists what an issue file loses on this shell.
+
+     THE RULE THIS DOCUMENT LIVES BY: EVERY SAME-ORIGIN PATH IS ROOT-ABSOLUTE.
+     /i/* is served with HTTP 200 at a two-segment path, so `src="issue-map.js"`
+     resolves to /i/issue-map.js, the rewrite catches it, and the browser is
+     handed this document and told to parse HTML as JavaScript. A leading slash
+     is correct at every depth. scripts/test-issue-shell.mjs fails the build on a
+     relative src or href anywhere in this file.
+
+     NO JSON-LD AND NO SCORE. index.html's WebSite/Organization block describes
+     the front page and an issue file is not the front page; issue-level
+     structured data belongs to the record, not to the shell, and this split does
+     not invent it. Nothing here prints a percentage, a party score or a blend.
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Warm the hosts the first paint of an issue file actually waits on: the
+       Firebase SDK host (the compat bundles below), the Firestore REST host that
+       serves the roster index a ledger row reads a name out of, and the Wikimedia
+       host that serves the portraits on a receipt card. Same hints person.html
+       carries, minus the ones for surfaces this document does not have. -->
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://www.gstatic.com">
+  <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  <link rel="preconnect" href="https://upload.wikimedia.org">
+  <link rel="dns-prefetch" href="https://upload.wikimedia.org">
+  <link rel="preload" as="style" href="/app.css">
+  <!-- The three files that decide how fast the ledger can paint: the module that
+       reads the address, the module that builds the ledger, and the module that
+       mounts it. All three are deferred below; preloading them here means the
+       fetch starts with the document rather than after the parse. -->
+  <link rel="preload" as="script" href="/pdx-issue-profile.js">
+  <link rel="preload" as="script" href="/door1-workspace.js">
+  <link rel="preload" as="script" href="/issue-file.js">
+
+  <!-- The perf ledger and the lazy-data loader the issue lane reads. cmp-data.js
+       is the light roster index a ledger row reads a name out of; share-links.js
+       owns the one "that link didn't resolve" notice pdx-issue-profile.js prints
+       when the register carries no key by the name in the address.
+       spotlight-cards-data.js and spotlights-data.js, which sit alongside these
+       in index.html, are homepage card fuel and are not here. -->
+  <script defer src="/pdx-perf.js"></script>
+  <script defer src="/pdx-lazy-data.js"></script>
+  <script defer src="/share-links.js"></script>
+  <script defer src="/cmp-data.js"></script>
+
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 1373–1882 ═════════════════
+       THE PROMISE LEDGER AND THE FIRESTORE GATE. This block is on this document
+       for one narrow, unavoidable reason: firebase-boot.js reads the BARE
+       identifiers `_firestoreLoaded` and `_checkAndTrigger` (lines 208, 209,
+       223, 233, 234, 238, 239) and neither is declared in that file. They are
+       declared here, in the same closure-free head scope index.html and
+       person.html declare them in. Without this block firebase-boot.js throws on
+       every /i/ address the moment the roster index lands, and the ledger's
+       person names never resolve.
+
+       The pledge helpers it also defines (`_pdxPledgeNote`, `_pdxCountsNote`,
+       `_pdxDisplayScore` and the rest) have no reader on this shell — they are
+       carried because the block is copied whole and byte-identical rather than
+       cut down into a third fork, which is the rule this split works by. The
+       header comment inside is person.html's own; the Promise % score is retired
+       and nothing here prints a rate.
+
+       COPIED FROM person.html, NOT FROM index.html. person.html already took
+       this block verbatim out of index.html lines 1406–1915 and
+       scripts/test-person-shell.mjs pins it there. This document pins to
+       person.html, so the three copies form a chain rather than a fan and a fix
+       to index.html surfaces as one test failure per document, not three forks
+       drifting quietly. ═══════════════════════════════════════ -->
+
+<script>
+  // Capture DOMContentLoaded listeners to defer execution until after Firestore data is fetched
+  var _deferredDomEvents = [];
+  var _originalAddEventListener = document.addEventListener;
+  document.addEventListener = function(type, listener, options) {
+    if (type === 'DOMContentLoaded') {
+      _deferredDomEvents.push({ listener: listener, options: options });
+    } else {
+      _originalAddEventListener.call(document, type, listener, options);
+    }
+  };
+
+  var _firestoreLoaded = false;
+  var _domContentLoaded = false;
+  var _deferredRan = false;
+
+  // Global cache for original states before they get overwritten by Firestore
+  window._originalStates = {};
+
+  // ── Promise ledger helpers (the Promise % score is RETIRED) ──────────────
+  // PolitiDex publishes ONE integrity percentage: the ⚖️ Word vs Action score
+  // (word-action.js). Promise Follow-Through used to be a second, rival rate —
+  // "X% Kept Word" — and it is now retired as a scored metric everywhere. The
+  // pledge ledger itself is untouched and is still shown, as COUNTS: kept,
+  // broken and pending are real receipts and they feed the pledge tier of
+  // Word vs Action.
+  // So these helpers exist to state what is known WITHOUT a percentage:
+  // `_pdxPledgeNote` / `_pdxCountsNote` / `_pdxTrackingNote` are the count
+  // labels every surface should print where the rate used to sit.
+  // `_pdxDisplayScore` survives only as a HAS-A-CLOSED-LEDGER state flag (a
+  // number means "this record has resolved pledges", null means it does not) —
+  // it must not be interpolated into markup as a figure, and `p.score` stays
+  // untouched so sorting and the separate accountability model are unaffected.
+  // The kept / broken tally behind the score, read from whichever shape a record
+  // carries, plus the pending / partial side of the same ledger. `resolved` is
+  // still kept + broken and nothing else — pending and partial are reported
+  // separately so they can be SHOWN without ever entering the percentage.
+  window._pdxPromiseTally = function(p) {
+    if (!p) return { kept: 0, broken: 0, resolved: 0, pending: 0, partial: 0, unresolved: 0, tracked: 0 };
+    var k = parseInt(p.kept, 10);   if (isNaN(k)) k = 0;
+    var b = parseInt(p.broken, 10); if (isNaN(b)) b = 0;
+    // Fall back to a detailed promise list / breakdown when the summary counts
+    // are absent, so a profile that tracks promises only in those shapes still
+    // counts as having a record.
+    if (k + b === 0 && Array.isArray(p.promises)) {
+      for (var i = 0; i < p.promises.length; i++) {
+        var v = p.promises[i] && p.promises[i].verdict;
+        if (v === 'kept') k++; else if (v === 'broken') b++;
+      }
+    }
+    if (k + b === 0 && p.promiseBreakdown) {
+      var pk = parseInt(p.promiseBreakdown.kept, 10);   if (!isNaN(pk)) k += pk;
+      var pb = parseInt(p.promiseBreakdown.broken, 10); if (!isNaN(pb)) b += pb;
+    }
+    // The unresolved side, counted the same three ways. In the breakdown shape a
+    // partial promise is stored as `compromise`. Pending and partial are gated
+    // separately, unlike kept / broken: no record carries a summary `partial`
+    // field, so a record with a summary pending count would otherwise lose the
+    // partials sitting in its promises[] list. Each side only falls back when it
+    // is still zero, so nothing is ever double counted.
+    var pend = parseInt(p.pending, 10); if (isNaN(pend)) pend = 0;
+    var part = parseInt(p.partial, 10); if (isNaN(part)) part = 0;
+    var scanPend = (pend === 0), scanPart = (part === 0);
+    if ((scanPend || scanPart) && Array.isArray(p.promises)) {
+      for (var j = 0; j < p.promises.length; j++) {
+        var uv = p.promises[j] && p.promises[j].verdict;
+        if (scanPend && uv === 'pending') pend++;
+        else if (scanPart && uv === 'partial') part++;
+      }
+    }
+    if (p.promiseBreakdown) {
+      if (pend === 0) { var bp = parseInt(p.promiseBreakdown.pending, 10);    if (!isNaN(bp)) pend += bp; }
+      if (part === 0) { var bc = parseInt(p.promiseBreakdown.compromise, 10); if (!isNaN(bc)) part += bc; }
+    }
+    return {
+      kept: k, broken: b, resolved: k + b,
+      pending: pend, partial: part, unresolved: pend + part,
+      tracked: k + b + pend + part
+    };
+  };
+  window._pdxResolvedPromises = function(p) {
+    return window._pdxPromiseTally(p).resolved;
+  };
+  window._pdxHasPromiseRecord = function(p) {
+    return window._pdxResolvedPromises(p) > 0;
+  };
+  // ── Second honesty guard: a rate needs an INSPECTABLE ledger ──────────────
+  // The guard above asks "has anything resolved?". That is necessary but not
+  // sufficient. A record can carry summary `kept` / `broken` / `pending` counts
+  // with no itemized promises[] behind them — 41 of the 756 roster records do —
+  // and in that shape a published percentage is a number the reader cannot audit:
+  // the Promise Tracker below it renders from promises[] and has nothing to show,
+  // so the profile asserted "77%" while its own pledge list was empty.
+  //
+  // Under the one-score standard the pledge lane is a TIER of Word vs Action, not
+  // a rival headline, and a tier that cannot be inspected does not get to publish
+  // a rate. Counts still show — they are directly attested and useful. Only the
+  // percentage is withheld, and only until an itemized ledger exists.
+  //
+  // Deliberately synchronous and re-read per render, and re-read is the operative
+  // word. promises[] is populated from the record rather than fetched on its own,
+  // but the RECORD can arrive in two passes: a cold /p/<pid> arrival now mounts the
+  // full file off the bundled CMP_DATA seed and merges the Firestore document in
+  // behind the paint (see window._pdxColdOpen in profiles-full.js), and a CMP_DATA
+  // seed carries summary counts with no promises[] behind them. So for the length
+  // of that window this returns false for a person whose itemized ledger is about
+  // to land, and the pledge block reads "the individual pledges behind them are not
+  // itemized yet".
+  //
+  // THAT IS THE RIGHT ANSWER AND NOT A PLACEHOLDER FOR ONE. It is exactly what the
+  // guard is for: at that instant the ledger genuinely is not inspectable, the
+  // Promise Tracker below genuinely has nothing to render, and the copy says "not
+  // itemized yet" — the same sentence the 41 counts-only records get permanently,
+  // with a "yet" that the merge then makes good on. No rate is published in either
+  // state, so nothing is withheld on the way in and nothing is retracted on the way
+  // out; the merge repaints and the ledger appears. A "still loading" variant here
+  // would buy a reader nothing and would put a spinner where a true sentence is.
+  // Which is why this stays synchronous: do NOT make it consult _pdxFullIds or the
+  // merge promise.
+  window._pdxHasItemizedPledges = function(p) {
+    if (!p || !Array.isArray(p.promises)) return false;
+    for (var i = 0; i < p.promises.length; i++) {
+      if (p.promises[i]) return true;
+    }
+    return false;
+  };
+  // The Promise Score to DISPLAY: the stored score when there is a real record
+  // AND that record is itemized enough to be checked, otherwise null (callers
+  // render this as "—" / counts-only). Both guards are required — see
+  // _pdxHasItemizedPledges above for why "something resolved" is not enough.
+  window._pdxDisplayScore = function(p) {
+    if (!p) return null;
+    var s = p.score;
+    if (s === null || s === undefined || s === '') return null;
+    if (!window._pdxHasPromiseRecord(p)) return null;
+    return window._pdxHasItemizedPledges(p) ? s : null;
+  };
+  // The sample size behind that percentage — "3 of 4 resolved" (long) or
+  // "3/4 resolved" (short, for tight rails and table cells). Reads only the
+  // kept / broken counts the score already rests on; pending and partial items
+  // stay out of it, exactly as they stay out of the math. Returns '' when
+  // nothing has resolved, so a no-record profile shows no percentage AND no
+  // parenthetical rather than a hollow "0 of 0".
+  window._pdxScoreDenominator = function(p, form) {
+    var t = window._pdxPromiseTally(p);
+    if (!t.resolved) return '';
+    return form === 'short'
+      ? t.kept + '/' + t.resolved + ' resolved'
+      : t.kept + ' of ' + t.resolved + ' resolved';
+  };
+  // ── Four honest promise states ───────────────────────────────────────────
+  // 'resolved' — something resolved AND the pledges are itemized, so a
+  //              percentage is earned, checkable, and shown.
+  // 'counts'   — something resolved but only as summary counts, with no
+  //              inspectable promises[] behind them. Real, attested counts; no
+  //              percentage. Added because withholding the rate must not cost the
+  //              record its substance: a sitting member with 27 kept and 8 broken
+  //              on file was falling through to the 'empty' branch and rendering
+  //              "No record yet", which is a worse lie than the rate was.
+  // 'tracking' — promises ARE on file but none has resolved. No percentage, and
+  //              this must not look like an empty record either.
+  // 'empty'    — nothing on file at all; the existing empty state stands.
+  window._pdxPromiseState = function(p) {
+    var t = window._pdxPromiseTally(p);
+    if (t.resolved > 0) {
+      return window._pdxHasItemizedPledges(p) ? 'resolved' : 'counts';
+    }
+    return t.unresolved > 0 ? 'tracking' : 'empty';
+  };
+  // The 'counts' label — what IS known, stated as counts, for the slot a
+  // percentage would have filled: "27 kept · 8 broken" (short) or
+  // "27 kept · 8 broken of 35 resolved" (long). '' in the other three states, so
+  // a caller can render it unconditionally wherever it puts the rate.
+  window._pdxCountsNote = function(p, form) {
+    if (window._pdxPromiseState(p) !== 'counts') return '';
+    var t = window._pdxPromiseTally(p);
+    var base = t.kept + ' kept · ' + t.broken + ' broken';
+    return form === 'short' ? base : base + ' of ' + t.resolved + ' resolved';
+  };
+  // The same counts, ungated: "27 kept · 8 broken" (short) or "27 kept · 8
+  // broken of 35 resolved" (long) for ANY record with a closed pledge ledger,
+  // itemized or not. This is what surfaces print where the retired Promise %
+  // used to go — `_pdxCountsNote` above stays gated to the 'counts' state
+  // because it also carries the "not itemized yet" caveat, but a surface that
+  // simply wants the receipts, and would otherwise fall back to a percentage,
+  // wants this one. '' when nothing has resolved.
+  window._pdxPledgeNote = function(p, form) {
+    var t = window._pdxPromiseTally(p);
+    if (!t.resolved) return '';
+    var base = t.kept + ' kept · ' + t.broken + ' broken';
+    return form === 'short' ? base : base + ' of ' + t.resolved + ' resolved';
+  };
+  // Why the 'counts' state shows no percentage, in one voter-readable clause.
+  // Kept next to the note above so no surface has to invent its own wording.
+  window._pdxCountsWhy = function(p) {
+    return window._pdxPromiseState(p) === 'counts'
+      ? 'Counts are on file; the individual pledges are not itemized yet, so no rate is published.'
+      : '';
+  };
+  // The 'tracking' label — "3 tracked · none resolved yet" (long) or
+  // "3 tracked · none resolved" (short). '' in the other three states.
+  window._pdxTrackingNote = function(p, form) {
+    var t = window._pdxPromiseTally(p);
+    if (t.resolved > 0 || !t.unresolved) return '';
+    return t.tracked + ' tracked · none resolved' + (form === 'short' ? '' : ' yet');
+  };
+  // Unobtrusive companion to a real percentage — "+2 pending", "+1 partial" or
+  // "+2 pending · 1 partial". Names what is still outstanding without implying it
+  // counts toward the score. '' when nothing is outstanding.
+  window._pdxPendingNote = function(p) {
+    var t = window._pdxPromiseTally(p);
+    var parts = [];
+    if (t.pending) parts.push(t.pending + ' pending');
+    if (t.partial) parts.push(t.partial + ' partial');
+    return parts.length ? '+' + parts.join(' · ') : '';
+  };
+  // Count of tracked-but-unresolved promises, labelled for a tight slot:
+  // "3 Promises" / "1 Promise".
+  window._pdxTrackedCountLabel = function(p) {
+    var t = window._pdxPromiseTally(p);
+    if (!t.tracked) return '';
+    return t.tracked + (t.tracked === 1 ? ' Promise' : ' Promises');
+  };
+
+  // ── A BLANK IS NOT AN ANSWER, AND NEVER OVERWRITES ONE ────────────────────
+  // This merge used to be Object.assign(CMP_DATA[id], p), and it is where a live
+  // phone lost three officeholders. `p` is the LIGHT Firestore stub, and the loop
+  // above defaults every essential field on it before the merge — so a document
+  // that simply does not carry `office` or `state` arrives here carrying
+  // office:'' and state:'', and Object.assign wrote those two empty strings over
+  // the bundled roster's "U.S. Senator" / "Utah".
+  //
+  // Statewide seats are resolved from exactly those two strings (see
+  // _pdxStatewideSeats in voter-hub-location.js), so the consequence was not a
+  // cosmetic gap: Who Represents Me painted six of six for a Layton reader with
+  // John Curtis, Mike Lee and Spencer Cox, the roster pill finished, this merge
+  // ran, and the same three rows became "No record on file yet — we'd rather
+  // leave this blank than name the wrong person" with the count at three of six.
+  //
+  // So the rule is the obvious one: a live document still wins every field it
+  // actually has, and an absent field loses to whatever the bundle already knew.
+  // Empty string, null, undefined and an empty array are all "the payload did not
+  // carry this", because after the defaulting above they are literally
+  // indistinguishable from it — a deliberately-cleared field in Firestore reaches
+  // this line looking exactly like a missing one, and of the two readings only
+  // this one can be wrong in the direction of deleting a sitting senator.
+  function _pdxMergeRosterRecord(dst, src) {
+    if (!dst || !src) return dst;
+    Object.keys(src).forEach(function (k) {
+      var v = src[k];
+      var blank = (v === '' || v === null || v === undefined ||
+                   (Array.isArray(v) && !v.length));
+      if (blank && !_pdxIsBlankValue(dst[k])) return;
+      dst[k] = v;
+    });
+    return dst;
+  }
+  function _pdxIsBlankValue(v) {
+    return v === '' || v === null || v === undefined || (Array.isArray(v) && !v.length);
+  }
+
+  function _checkAndTrigger() {
+    if (_firestoreLoaded && _domContentLoaded) {
+      console.log("⚡ BOTH Firestore and DOMContentLoaded are ready. Syncing data and running deferred events.");
+      // Copy PROFILES to CMP_DATA if CMP_DATA is defined
+      if (typeof CMP_DATA !== 'undefined') {
+        // Cache original states before merging Firestore profiles
+        Object.keys(CMP_DATA).forEach(function(id) {
+          if (CMP_DATA[id] && CMP_DATA[id].state) {
+            window._originalStates[id] = CMP_DATA[id].state;
+          }
+        });
+
+        Object.keys(PROFILES).forEach(function(id) {
+          var p = PROFILES[id];
+          if (p) {
+            // Ensure essential properties have defaults so rendering never crashes
+            p.name = p.name || '';
+            p.office = p.office || '';
+            p.state = p.state || '';
+            p.party = p.party || '';
+            p.score = p.score !== undefined ? p.score : null;
+            p.kept = p.kept !== undefined ? p.kept : 0;
+            p.broken = p.broken !== undefined ? p.broken : 0;
+            p.pending = p.pending !== undefined ? p.pending : 0;
+            p.icon = p.icon || '🏛';
+            
+            // Normalize issues array
+            var rawIssues = p.issues || p.keyIssues || [];
+            if (!Array.isArray(rawIssues)) {
+              if (typeof rawIssues === 'string') {
+                p.issues = rawIssues.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+              } else {
+                p.issues = [];
+              }
+            } else {
+              p.issues = rawIssues;
+            }
+          }
+
+          if (!CMP_DATA[id]) {
+            CMP_DATA[id] = p;
+          } else {
+            _pdxMergeRosterRecord(CMP_DATA[id], p);
+          }
+        });
+      }
+      // ── In-file officeholders not (yet) in the live Firestore roster ──────
+      // A short allow-list of current, curated officials who exist only in the
+      // bundled static roster (CMP_DATA): they carry full ISSUE_STANCE_DATA and
+      // Evidence Locker records here but have no politicians/ document yet. Seed
+      // them into PROFILES so they show up in the public directory/search and
+      // open like any other profile. Guarded on (!PROFILES[id]) so a later
+      // Firestore document always wins, and safe to re-run.
+      //
+      // The federal block below is the National 7–10 batch: the Vice President,
+      // Cabinet secretaries, congressional leadership (Speaker, floor leaders,
+      // whips), key committee chairs, and high-profile members. They were wired
+      // into CMP_DATA (so comparison and browse already reach them) but had no
+      // Firestore document, so without this seed they never entered PROFILES and
+      // were missing from the public directory, global search, and Your Ballot.
+      // Each id matches its ISSUE_STANCE_DATA card, so the curated stances light
+      // up on their profiles directly.
+      [
+        'lorene_kamalu',
+        // National 7 — top of the federal ticket & congressional leaders
+        'vance', 'thune', 'jeffries', 'schumer',
+        // National 8 — Speaker, Cabinet, high-profile members
+        'mike_johnson', 'rubio', 'bessent', 'cruz', 'aoc',
+        // National 9 — Cabinet, floor leaders & whips
+        'bondi', 'noem', 'lutnick', 'scalise', 'barrasso', 'emmer', 'durbin', 'kclark',
+        'jim_jordan', 'jason_smith', 'burgum', 'chris_wright', 'zeldin', 'vought', 'rollins',
+        // National 10 — committee chairs & influential members
+        'grassley', 'rand_paul', 'graham', 'hawley', 'murkowski', 'warren', 'fetterman',
+        'booker', 'crockett', 'khanna',
+        // National wave 18 — administration power players & influential members (July 2026)
+        'tom_homan', 'peter_navarro', 'stephen_miran', 'keith_kellogg', 'dan_crenshaw',
+        'raja_krishnamoorthi', 'josh_gottheimer', 'seth_moulton', 'marie_gluesenkamp_perez', 'jon_ossoff',
+        // National wave 19 — high-profile senators & influential members (July 2026)
+        'ted_budd', 'kevin_hern', 'nancy_mace', 'tommy_tuberville', 'ayanna_pressley',
+        'delia_ramirez', 'sarah_mcbride', 'jake_auchincloss', 'greg_landsman', 'john_cornyn',
+        // // Federal-wave directory backfill (waves 2-17): federal figures added to CMP_DATA by earlier waves
+        // that were never seeded into the public directory. Guarded by !PROFILES[id].
+        'duffy', 'wicker', 'tim_scott', 'brian_mast', 'chris_murphy', 'mark_kelly',
+        'wyden', 'kennedy_john', 'french_hill', 'tom_cole', 'arrington', 'guthrie',
+        'capito', 'lankford', 'ernst', 'lummis', 'gallego', 'kaine',
+        'schiff', 'warner', 'delauro', 'meeks', 'raskin', 'neal',
+        'pallone', 'adam_smith', 'hagerty', 'britt', 'banks', 'coons',
+        'reed', 'shaheen', 'murray', 'whitehouse', 'cantwell', 'peters',
+        'heinrich', 'moreno', 'sheehy', 'chip_roy', 'mehmet_oz', 'marty_makary',
+        'jay_bhattacharya', 'mike_rounds', 'kevin_cramer', 'jim_mcgovern', 'brendan_boyle', 'rick_larsen',
+        'jan_schakowsky', 'diana_degette', 'gillibrand', 'debbie_dingell', 'maggie_hassan', 'bennet',
+        'steny_hoyer', 'deb_fischer', 'jim_justice', 'ashley_moody', 'ricketts', 'hoeven',
+        'andy_harris', 'mike_bost', 'brian_babin', 'roger_williams', 'bryan_steil', 'maxine_waters',
+        'jim_himes', 'zoe_lofgren', 'jared_huffman', 'yvette_clarke', 'mcclain', 'hudson',
+        'mullin', 'schmitt', 'luna', 'neguse', 'takano', 'bobby_scott',
+        'blunt_rochester', 'alsobrooks', 'scott_turner', 'pfluger', 'dan_sullivan', 'roger_marshall',
+        'mike_lawler', 'summer_lee', 'hickenlooper', 'welch', 'tina_smith', 'maxwell_frost',
+        'daines', 'walberg', 'garbarino', 'paul_atkins', 'brendan_carr', 'delbene',
+        'andy_kim', 'hirono', 'rosen', 'dan_goldman', 'chavez_deremer', 'doug_collins',
+        'mike_waltz', 'ron_johnson', 'todd_young', 'blumenthal', 'merkley', 'tlaib',
+        'nadler', 'jared_golden', 'witkoff', 'hassett', 'mcmahon', 'tillis',
+        'fitzpatrick', 'lujan', 'torres', 'omar', 'markey', 'clyburn',
+        'greer', 'stephen_miller', 'blackburn', 'rick_scott', 'foxx', 'casar',
+        'ted_lieu', 'angus_king', 'schatz', 'robert_garcia', 'aguilar', 'jayapal',
+        'van_hollen', 'padilla', 'warnock', 'duckworth', 'patel', 'ratcliffe',
+        'donalds', 'stefanik', 'boozman', 'cassidy', 'sam_graves', 'glenn_thompson',
+        'jerry_moran', 'angie_craig', 'tammy_baldwin', 'cortez_masto',
+        // National wave 20 — federal admin/agency leaders + top governors (July 2026)
+        'jerome_powell', 'dan_bongino', 'kelly_loeffler', 'andrew_ferguson', 'ron_desantis',
+        'greg_abbott', 'gavin_newsom', 'gretchen_whitmer', 'josh_shapiro', 'jb_pritzker',
+        // National wave 21 — the next tier of high-leverage governors (July 2026)
+        'glenn_youngkin', 'brian_kemp', 'sarah_huckabee_sanders', 'jeff_landry', 'mike_dewine',
+        'tim_walz', 'wes_moore', 'kathy_hochul', 'jared_polis', 'andy_beshear',
+        // National wave 22 — more high-leverage governors (July 2026)
+        'kevin_stitt', 'kim_reynolds', 'patrick_morrisey', 'greg_gianforte', 'mike_braun',
+        'katie_hobbs', 'bob_ferguson', 'michelle_lujan_grisham', 'janet_mills', 'josh_green',
+        // National wave 23 — Mitch McConnell, former Senate Republican Leader (July 2026)
+        'mcconnell',
+        // National wave 24 — high-impact swing/large-state governors (July 2026)
+        'evers', 'josh_stein', 'maura_healey', 'tina_kotek', 'mikie_sherrill',
+        'joe_lombardo', 'bill_lee', 'henry_mcmaster', 'mike_kehoe', 'kay_ivey',
+        // National wave 25 — the final 13 state governors, completing all-50 coverage (July 2026)
+        'dunleavy', 'ned_lamont', 'matt_meyer', 'brad_little', 'laura_kelly',
+        'tate_reeves', 'jim_pillen', 'kelly_ayotte', 'kelly_armstrong', 'dan_mckee',
+        'larry_rhoden', 'phil_scott', 'mark_gordon',
+        // National wave 26 — high-impact state attorneys general, the litigation front (July 2026)
+        'rob_bonta', 'letitia_james', 'keith_ellison', 'kwame_raoul', 'kris_mayes',
+        'raul_labrador', 'liz_murrill', 'chris_carr', 'brenna_bird', 'dave_yost',
+        // National wave 27 — major-state legislative leaders + federal swing-district members (July 2026)
+        'dan_patrick', 'dustin_burrows', 'mike_mcguire', 'robert_rivas', 'ben_albritton',
+        'daniel_perez_fl', 'stewart_cousins', 'carl_heastie', 'don_bacon', 'tom_suozzi',
+        // National wave 28 — big-city mayors, the municipal-executive tier (July 2026)
+        'zohran_mamdani', 'karen_bass', 'brandon_johnson', 'john_whitmire', 'daniel_lurie',
+        'cherelle_parker', 'mike_johnston', 'kate_gallego', 'mattie_parker', 'eric_johnson_dallas',
+        // National wave 29 — battleground-state attorneys general, litigation front tier 2 (July 2026)
+        'dana_nessel', 'josh_kaul', 'jeff_jackson', 'aaron_ford',
+        'dave_sunday', 'james_uthmeier', 'jonathan_skrmetti', 'kris_kobach',
+        // National wave 30 — state legislative leaders, tier 2: PA · MI · IL · NV · NC · WI · AZ (July 2026)
+        'joanna_mcclinton', 'winnie_brinks', 'don_harmon', 'chris_welch', 'nicole_cannizzaro',
+        'kim_ward', 'matt_hall', 'phil_berger', 'robin_vos', 'warren_petersen',
+        // National wave 32 — influential state legislators: opposition leaders & marquee members (July 2026)
+        'gene_wu', 'jay_costa', 'ranjeev_puri', 'greta_neubauer',
+        'heath_flora', 'destin_hall', 'jon_burns', 'bryan_hughes',
+        // National wave 34 — state legislative leaders in new states: VA · OH · MN · CO · WA · NH (July 2026)
+        'don_scott', 'erin_murphy', 'julie_mccluskie', 'laurie_jinkins',
+        'matt_huffman', 'rob_mccolley', 'lisa_demuth', 'sharon_carson',
+        // National wave 36 — state legislative leaders in new states: NJ · MA · MD · TN · KY · IA · IN (July 2026)
+        'nicholas_scutari', 'ron_mariano', 'karen_spilka', 'bill_ferguson',
+        'cameron_sexton', 'robert_stivers', 'pat_grassley', 'todd_huston',
+        // National wave 37 — state legislative leaders in new states: OR · CT · ME · CO · MO · SC · KS · LA (July 2026)
+        'julie_fahey', 'matt_ritter', 'ryan_fecteau', 'james_coleman',
+        'jon_patterson', 'murrell_smith', 'ty_masterson', 'phillip_devillier',
+        // National AG wave 1 — state Attorneys General: CT · CO · WA · MA · IN · AR · MT · SC (July 2026)
+        'william_tong', 'phil_weiser', 'nick_brown', 'andrea_joy_campbell',
+        'todd_rokita', 'tim_griffin', 'austin_knudsen', 'alan_wilson',
+        // National AG wave 2 — state Attorneys General: AL · OK · ND · MS · MD · OR · NM · DE (July 2026)
+        'steve_marshall', 'gentner_drummond', 'drew_wrigley', 'lynn_fitch',
+        'anthony_brown', 'dan_rayfield', 'raul_torrez', 'kathy_jennings',
+        // National AG wave 3 — state Attorneys General: KY · NE · NH · WV · RI · VT · ME · HI (July 2026)
+        'russell_coleman', 'mike_hilgers', 'john_formella', 'jb_mccuskey',
+        'peter_neronha', 'charity_clark', 'aaron_frey', 'anne_lopez',
+        // National AG wave 4 — state Attorneys General: TX · NJ · AK · UT · MO · WY (July 2026)
+        'ken_paxton', 'matthew_platkin', 'treg_taylor', 'derek_brown_ut', 'catherine_hanaway', 'bridget_hill',
+        // National SoS wave 1 — state Secretaries of State: MI · AZ · NV · MN · GA · OH · PA · AL (July 2026)
+        'jocelyn_benson', 'adrian_fontes', 'cisco_aguilar', 'steve_simon',
+        'brad_raffensperger', 'frank_larose', 'al_schmidt', 'wes_allen',
+        // National AG wave 5 — completes all-50 AG coverage: SD · VA (July 2026)
+        'marty_jackley', 'jay_jones',
+        // National SoS wave 2 — state Secretaries of State: CA · CO · WA · NM · TX · IN · MS · KY (July 2026)
+        'shirley_weber', 'jena_griswold', 'steve_hobbs', 'maggie_toulouse_oliver',
+        'jane_nelson_tx', 'diego_morales', 'michael_watson_ms', 'michael_adams_ky',
+        // National Lt. Gov wave 1 — Lieutenant Governors: MI · PA · CA · MN · GA · MS · OK · OH (July 2026)
+        'garlin_gilchrist', 'austin_davis', 'eleni_kounalakis', 'peggy_flanagan',
+        'burt_jones', 'delbert_hosemann', 'matt_pinnell', 'jim_tressel',
+        // Complete Chellie Pingree — farm-bill amendment author (July 2026)
+        'chellie_pingree',
+        // Voting Record depth pass — the 20 sitting U.S. House members wired into
+        // CMP_DATA by the July 2026 Voting Record unlock (July 2026). Each has
+        // curated stance cards, roll-call history and Connected Evidence, but none
+        // has a Firestore document, so without this seed they resolved from a direct
+        // link yet never appeared in the public directory, global search, or Your
+        // Ballot. Eleven now carry sourced promise ledgers; the rest correctly read
+        // "No record yet" until there is a resolved promise to show.
+        'bennie_thompson', 'bruce_westerman', 'don_davis', 'frank_lucas', 'josh_brecheen',
+        'julie_fedorchak', 'mariannette_miller_meeks', 'michael_guest', 'mike_collins',
+        'mike_ezell', 'mike_flood', 'mike_simpson', 'rick_crawford', 'rob_bresnahan',
+        'ryan_mackenzie', 'scott_perry', 'stephanie_bice', 'steve_womack', 'trent_kelly',
+        'troy_downing',
+      ].forEach(function (id) {
+        if (!PROFILES[id] && typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) {
+          PROFILES[id] = CMP_DATA[id];
+        }
+      });
+      // Drop any cached search text so the freshly-merged profiles re-index.
+      if (typeof window._pdxClearHayCache === 'function') window._pdxClearHayCache();
+      // Populate DIR_DATA
+      if (typeof _populateDirData === 'function') {
+        _populateDirData();
+      }
+      // Update Database Expansion stats
+      if (typeof updateExpansionStats === 'function') {
+        updateExpansionStats();
+      }
+      // Refresh the Live Pulse Bar now that PROFILES is populated.
+      if (typeof window._renderPulseBar === 'function') {
+        window._renderPulseBar();
+      }
+      // Refresh the public "collection depth" line in the Promise Tracker header
+      // (documented positions / tracked promises) now that the full roster is merged.
+      if (typeof window._mypolUpdateCount === 'function') {
+        try { window._mypolUpdateCount(); } catch (e) {}
+      }
+      // Trigger deferred DOMContentLoaded events — but only ONCE. _checkAndTrigger
+      // can run again later (e.g. a roster retry or an admin refresh re-flips
+      // _firestoreLoaded); those re-runs still re-merge data and refresh the
+      // sections above, but must not re-fire the one-shot DOMContentLoaded
+      // listeners (which bind handlers and would double up).
+      if (!_deferredRan) {
+        _deferredRan = true;
+        _triggerDeferredEvents();
+      }
+      // If the page was opened with a ?p=<id> deep link, open that profile now
+      // that PROFILES is populated and the renderers are defined.
+      setTimeout(function() {
+        if (typeof window._pdxOpenFromUrl === 'function') window._pdxOpenFromUrl();
+      }, 0);
+    }
+  }
+
+  _originalAddEventListener.call(document, 'DOMContentLoaded', function() {
+    console.log("📁 Browser DOMContentLoaded officially fired.");
+    _domContentLoaded = true;
+    _checkAndTrigger();
+  });
+
+  function _triggerDeferredEvents() {
+    console.log("⚡ Triggering deferred DOMContentLoaded events with dynamic PROFILES data... Total listeners:", _deferredDomEvents.length);
+    // 1. Run all of the deferred DOMContentLoaded listeners in order
+    _deferredDomEvents.forEach(function(item) {
+      try {
+        item.listener.call(document, new Event('DOMContentLoaded'));
+      } catch (e) {
+        console.error("Error running deferred DOMContentLoaded listener:", e);
+      }
+    });
+    // 2. Restore original addEventListener
+    document.addEventListener = _originalAddEventListener;
+  }
+</script>
+
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 1974–1997 ═════════════════
+       FIREBASE, ANONYMOUS ONLY — the three compat bundles, the request-time key
+       injection, the synchronous stub that guarantees `db` / `auth` / `PROFILES`
+       exist before anything can touch them, and the boot that signs in
+       anonymously and loads the roster index that fills window.PROFILES. That
+       roster is what turns a pid in a ledger row into a person's name, which is
+       the whole reason Firebase is on an issue file at all. No account graph, no
+       sign-in UI, no per-user reads: those are Door 2, and Door 2 is what these
+       splits take off these addresses. ══════════════════════════════ -->
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<!-- The Firebase Web API key is injected at request time from the Netlify
+     environment variable FIREBASE_API_KEY by netlify/edge-functions/firebase-config.ts.
+     It is intentionally NOT hardcoded here so the value never lives in source
+     control or the deployed HTML (and the build's secrets scanner passes). -->
+<script defer src="/firebase-config.js"></script>
+<script>
+  // Run 1 perf: the Firebase SDKs and the bootstrap below are DEFERRED so they no
+  // longer block first paint. This tiny synchronous stub guarantees the globals
+  // that other inline code could touch at parse time exist; firebase-boot.js
+  // (deferred → runs after the SDK, before DOMContentLoaded) then replaces them
+  // with the live Firebase objects and starts the lightweight roster load. Net
+  // effect: identical behavior, but the ~800 KB compat SDK no longer gates paint.
+  var app, db, firestore, auth;
+  var PROFILES = window.PROFILES || {}; window.PROFILES = PROFILES;
+  window._pdxFullIds = window._pdxFullIds || new Set();
+  window._pdxFullPending = window._pdxFullPending || {};
+  function setDoc(docRef, data, options) { return docRef.set(data, options); }
+  db = { collection: null }; firestore = db;
+  auth = { currentUser: null, onAuthStateChanged: function (cb) { try { cb(null); } catch (e) {} return function () {}; }, signInAnonymously: function () { return Promise.reject(new Error('auth pending')); }, signOut: function () { return Promise.resolve(); } };
+</script>
+<script src="/firebase-boot.js" defer></script>
+
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 2000–2034 ═════════════════
+       THE SPLIT SEAM. The same two stubs, unchanged, because the first of them
+       is required here for the same reason and by the same file: stance-helpers
+       .js ships on this document, it publishes window._pdxMandateChip, and it
+       calls that chip from three places of its own (3054, 3556, 4024). The
+       chip's body then calls window._pdxMandateForIssue(issueKey) with no guard
+       and no try/catch, and its only real definition is index.html's People's
+       Mandate block — a Door surface these splits exist to keep off these
+       addresses. Unstubbed, the evidence rows behind a ledger entry throw
+       mid-render.
+
+       The second stub, _pdxPromiseInfo, has no reader here at all: its only
+       caller is profiles-full.js, which this document does not ship. It is
+       carried because the block is copied whole rather than cut down, and
+       because both stubs install only if absent. The prose inside is
+       person.html's own and names /p/ addresses; that is the cost of one copy
+       instead of a third fork, and it is the cheaper cost. ══════════════ -->
+  <script>
+  // Almost everything this shell drops is reached through a `typeof` check, so
+  // its absence costs a person file one block and nothing else. Exactly two
+  // reads are not guarded, and both come from code that DOES ship here.
+  //
+  // _pdxMandateForIssue — stance-helpers.js ships window._pdxMandateChip, and
+  //   profiles-full.js calls the chip under a `typeof` guard that PASSES. The
+  //   chip's own body then calls window._pdxMandateForIssue(issueKey) with no
+  //   guard and no try/catch. Its only definition is the People's Mandate block
+  //   in index.html (around line 27058) — a Door surface this split exists to
+  //   keep off a person file. Unstubbed, the first stance row on every /p/
+  //   address throws mid-render and the file stops painting.
+  //
+  //   Returning [] is not a placeholder standing in for a real answer: it IS
+  //   this document's answer. No citizen reform is on file on a shell that does
+  //   not carry the Mandate, the chip resolves to '' on an empty list, and an
+  //   issue with no reform tied to it renders exactly the same way on
+  //   index.html. The person file says nothing instead of guessing.
+  //
+  // _pdxPromiseInfo — defined by like-dislike.js; profiles-full.js writes its
+  //   name into an onclick attribute string on the Word vs Act figure. That is
+  //   a click-time TypeError rather than a render throw, so the file would
+  //   still paint — but the figure would be a control that visibly fails. A
+  //   no-op makes it inert: the number still reads, tapping it does nothing.
+  //   .netlify/results.md records that as a deliberate gap in the first split.
+  //
+  // Both are installed only if absent, so a later document that ships the real
+  // definitions overrides these rather than fighting them.
+  if (typeof window._pdxMandateForIssue !== 'function') {
+    window._pdxMandateForIssue = function () { return []; };
+  }
+  if (typeof window._pdxPromiseInfo !== 'function') {
+    window._pdxPromiseInfo = function () {};
+  }
+  </script>
+
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 2052–2096 ═════════════════
+       THE SHARE FURNITURE. Every tag here is an anchor that
+       netlify/edge-functions/share-preview.ts regex-replaces at request time:
+       <title>, name="description", the og:* and twitter:* pairs and
+       <link rel="canonical">. They are carried with person.html's exact shape,
+       attribute order included, and scripts/test-issue-shell.mjs pins each one
+       against the regexes that edge function actually uses.
+
+       THE EDGE FUNCTION DOES NOT ROUTE /i/* AND IS NOT BEING EXTENDED TO IT.
+       share-preview.ts's path list is ["/", "/index.html", "/issue/*",
+       "/vote/*", "/p/*", "/b/*"] — /i/* is absent, and /issue/* stays on
+       index.html in this pass. Adding /i/* would mean the edge writing a card
+       for an issue key, and there is no server-side resolver for an ISSUE_MAP
+       key: the function would have nothing to say and would emit the generic
+       site card, which is the one outcome this pass was told not to produce. So
+       the anchors below are the pre-rewrite state, they are correct and
+       complete, and the day /i/* gets a real resolver the tags are already the
+       right shape for it to rewrite. .netlify/results.md records this as a
+       deliberate limit rather than an oversight.
+
+       index.html's WebSite/Organization JSON-LD is deliberately NOT copied, for
+       the reason person.html gives: it describes the front page, and an issue
+       file is not the front page. ════════════════════════════════ -->
+  <title>PolitiDex | Bound by Truth</title>
+  <meta name="description" content="We check what politicians say against how they actually vote — one clear Word vs Action read, backed by sourced receipts. No spin. No sides. Just receipts." />
+  <meta name="keywords" content="PolitiDex, politician accountability, promise tracker, fact check, political promises, word vs action, voting record, political reforms, national politics, state politics, term limits, campaign finance reform" />
+  <meta name="author" content="Colt Reber / PolitiDex" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.politidex.fyi/" />
+
+  <!-- ── Open Graph / Facebook ─────────────────────────────── -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.politidex.fyi/" />
+  <meta property="og:title" content="PolitiDex | Bound by Truth" />
+  <meta property="og:description" content="We check what politicians say against how they actually vote — one clear Word vs Action read, backed by sourced receipts. No spin. No sides. Just receipts." />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:locale" content="en_US" />
+  <!-- Default share image (site-wide). A branded 1200×630 card, rasterized from
+       SVG to PNG on demand by the Netlify Image CDN so every social platform gets
+       a real image. Per-share "My Views" links override these tags at the edge
+       (see netlify/edge-functions/stance-share.ts). -->
+  <meta property="og:image" content="https://www.politidex.fyi/.netlify/images?url=%2Fassets%2Fog-default.svg&fm=png&w=1200&h=630&fit=cover" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="PolitiDex — Bound by Truth" />
+
+  <!-- ── Twitter / X Card ─────────────────────────────────── -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@politidex" />
+  <meta name="twitter:image" content="https://www.politidex.fyi/.netlify/images?url=%2Fassets%2Fog-default.svg&fm=png&w=1200&h=630&fit=cover" />
+  <meta name="twitter:title" content="PolitiDex | Bound by Truth" />
+  <meta name="twitter:description" content="Does what they say match what they do? One clear Word vs Action read per politician, backed by sourced receipts." />
+
+  <!-- ── Favicon (SVG + emoji fallback) ───────────────────── -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23c0152a'/><text y='46' x='5' font-size='42' font-family='Arial Black,sans-serif' font-weight='900' fill='white' letter-spacing='-2'>PX</text></svg>" />
+  <link rel="alternate icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛</text></svg>" />
+  <meta name="theme-color" content="#0a0f1e" />
+  <meta name="msapplication-TileColor" content="#0a0f1e" />
+
+  <!-- ── PWA: installable web app (manifest + home-screen icons) ────────── -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="application-name" content="PolitiDex" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="PolitiDex" />
+  <link rel="apple-touch-icon" href="/assets/icon.svg" />
+  <link rel="mask-icon" href="/assets/icon.svg" color="#c0152a" />
+
+
+  <!-- ── Stylesheets ──────────────────────────────────────────────────
+       FIVE RENDER-BLOCKING SHEETS. Three of them are the shell (Tailwind,
+       app.css, app-2.css) and two are this document's CONTENT: on an /i/ arrival
+       the issue file mounts over the page immediately, so issue-file.css dresses
+       the panel and door1-workspace.css dresses the ledger inside it. Both are
+       above the fold on the only address this document serves, which is the same
+       criterion person.html applied when it moved three sheets off the blocking
+       list.
+
+       The list was measured, not copied: every class token the 42 shipped
+       modules emit was matched against every stylesheet in the repo, and a sheet
+       is here only where it UNIQUELY owns tokens this document can paint. That is
+       why four sheets person.html carries are absent — alignment-tool.css
+       (`align-` is emitted by profiles-full.js, which is not here; the one token
+       left, `is-pending`, rides a `pdxgap-read` element consistency.js styles
+       itself), stance-library.css (`sl-chip`, same reason), pdx-learn.css
+       (`pdxl-link` renders only when window.PDXLearn exists, and pdx-learn.js is
+       not here) and word-action.css (two `pdxg-list` <ul>s, both alongside
+       classes consistency.js injects). consistency.js, voting-record.js and
+       issue-scope.js inject their own — `pdxgap-`, `pdxst-`, `pdxfpi-`, `pdxc-`,
+       `pdxdos-`, `pdxor-`, `pdxsd-`, `pdxvru`, `vr-`, `pdxis-` — which is why no
+       sheet is listed for them. The <noscript> copies keep the file fully styled
+       with JS off. -->
+  <link rel="stylesheet" href="/css/tailwind.css" />
+  <link rel="stylesheet" href="/app.css">
+  <link rel="stylesheet" href="/app-2.css">
+  <link rel="stylesheet" href="/issue-file.css">
+  <link rel="stylesheet" href="/door1-workspace.css">
+
+  <!-- Low priority, loaded after first paint: the ranking issue-view.js paints
+       inside the ledger, the receipt cards say-vs-do.js paints inside the gap
+       sheet, and the phone-width corrections. -->
+  <link rel="stylesheet" href="/issue-view.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/issue-view.css" /></noscript>
+  <link rel="stylesheet" href="/say-vs-do.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/say-vs-do.css" /></noscript>
+  <link rel="stylesheet" href="/mobile-polish.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/mobile-polish.css" /></noscript>
+
+
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 2159–2162 ═════════════════
+       The two display faces and their non-blocking swap, unchanged: the wordmark
+       above and the ledger's own headings are Bebas Neue and Barlow Condensed,
+       and a swap that is written differently on one document is a visible font
+       flash on exactly one URL shape. ════════════════════════════════ -->
+  <!-- Barlow / Bebas Neue, non-blocking with the same swap index.html uses. -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+
+  <style>
+    /* THE FIXED CHROME, MEASURED ONCE — the same contract app.css and
+       mobile-polish.css read on index.html, answered for THIS document's chrome.
+       app.css computes scroll-padding-top from calc(var(--pdx-chrome) …) and
+       mobile-polish.css offsets from it too; a custom property that is never
+       declared invalidates every calc() that consumes it, which turns the
+       document's scroll padding into 0 and lands a jumped-to heading behind the
+       bar — and the ledger is a document a reader jumps around inside, so that
+       is not a cosmetic loss here. index.html declares 7.125rem because its
+       chrome is two stacked rows (nav + the All-Seeing Eye search row). This
+       document's chrome is ONE row and no search, the same shape person.html
+       settled on, so the number is the height of the bar declared below.
+
+       The @supports guard is the same one both other documents carry and for the
+       same reason: a custom property accepts any token sequence, so an engine
+       that cannot parse env() would swallow the declaration and invalidate every
+       calc() reading it. An engine without env() also has no notch, so the plain
+       literal is the right answer there. */
+    :root { --pdx-chrome: 3.25rem; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+
+    /* The one-row shell bar. Static: no search field, no layout observer, no
+       measurement pass and nothing that reads the viewport. An issue file's job
+       is to open one ledger; the bar exists so a reader who followed a citation
+       can see whose site they are on and has a way back. */
+    .pdx-issue-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.75rem; height: 3.25rem; padding: env(safe-area-inset-top, 0px) 1rem 0;
+      background: rgba(10, 15, 30, 0.86); backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .pdx-issue-bar a { text-decoration: none; }
+    .pdx-issue-wordmark {
+      font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      font-size: 1.15rem; letter-spacing: 0.12em; color: #fff;
+    }
+    .pdx-issue-wordmark span { color: #e0273f; }
+    .pdx-issue-links { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
+    .pdx-issue-back, .pdx-issue-home {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #9fb4d4;
+      border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 0.5rem;
+      padding: 0.3rem 0.65rem; white-space: nowrap;
+    }
+    .pdx-issue-back[hidden] { display: none; }
+    /* The document's own flow starts below the bar. On the two surfaces this
+       document paints — the issue file panel and the gap sheet — both are fixed
+       and full-bleed, so they ignore this. What the padding protects is the
+       static notice pdx-issue-profile.js prints when the register carries no key
+       by the name in the address, and anything a reader sees before the panel
+       mounts. */
+    body { padding-top: calc(var(--pdx-chrome) + 0.75rem); }
+  </style>
+
+</head>
+<body class="bg-navy-900 text-white font-body">
+
+  <!-- Layout-stability hardening. The first script FILE in <body>, for the same
+       reason it is on both other documents: it installs the shared scroll-lock
+       coordinator on document.body.style, and that seam has to exist before the
+       issue file below can open and set body.style.overflow. -->
+  <script src="/pdx-stability.js"></script>
+
+  <!-- ══ THE SHELL BAR — THIS DOCUMENT'S ONLY CHROME ════════════════════
+       index.html's nav is two fixed rows, a search field, the account menu and a
+       layout observer. None of that belongs on an address whose whole job is to
+       open one issue's formal record. What a reader who followed a citation
+       needs is to know whose site this is, a way to the front page, and — when
+       the address says which person's file they came from — a way back to it.
+       So that is all this is: static markup and one eight-line script that
+       fills in a href it has been handed.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <header class="pdx-issue-bar">
+    <a href="/" class="pdx-issue-wordmark" aria-label="PolitiDex home">POLITI<span>DEX</span></a>
+    <span class="pdx-issue-links">
+      <a id="pdx-issue-back" class="pdx-issue-back" href="/" hidden>← Person file</a>
+      <a href="/" class="pdx-issue-home">← All politicians</a>
+    </span>
+  </header>
+
+  <!-- The canonical /p/ link builder and the person-link delegation that turns
+       any [data-pdx-person-link] node in a rendered ledger row into a real
+       address. Parser-blocking and here rather than in the deferred chain
+       because the bar script below is its first caller. -->
+  <script src="/person-link.js"></script>
+
+  <!-- ══ THE WAY BACK TO THE PERSON FILE ═══════════════════════════════
+       An issue file is usually arrived at FROM a person file, and /p/<pid> and
+       /i/<key> are two documents now, so that arrival is a real navigation. This
+       block is the way back, and it is a RECEIVER, not a new door: it reads the
+       pid the address was given, turns the hidden anchor above into a link to
+       that person's file, and publishes the same answer for the panel's own
+       close control to use. It never guesses. Absent, malformed or sentinel pid
+       and the anchor stays hidden — the bar simply offers the front page.
+
+       WHY THE CLOSE CONTROL NEEDS THIS. On index.html the issue file is an
+       overlay: closing it reveals the homepage that was underneath, and
+       pdx-issue-profile.js's restore() hands the address back with a
+       replaceState. On THIS document there is nothing underneath — closing the
+       panel would leave a reader on an empty issue shell whose address had been
+       rewritten to "/", which is the "X goes to /, then pay for the homepage"
+       path live smoke found. So the close has to LEAVE, and where it leaves to
+       is the question this block answers: the person file when the address names
+       one, the front page when it does not.
+
+       THREE TARGETS, THREE DIFFERENT THINGS, and that is deliberate:
+         · "← Person file" (the anchor above) and the panel's X → /p/<pid>
+         · "← All politicians" → / — a separate control, never folded into the
+           other two, because "back to whose record I was reading" and "show me
+           everyone" are different questions and a reader on a phone needs both.
+         · The browser's own Back → wherever they actually came from.
+       history.back() is PREFERRED for the X when the referrer says this document
+       was opened from that same person's file, because it restores their scroll
+       position in the file and spends no new history entry; the explicit href is
+       the fallback for a cold open, a shared link or a referrer the browser
+       withheld. Never both: the two would fight.
+
+       THE ADDRESS IS BUILT BY THE FILE THAT OWNS IT. PDXPersonLink.href() is the
+       one builder for a person address — it runs the retired-id alias hop and
+       the pid shape wall, and returns '' for anything it will not advertise —
+       and PDXPersonLink.PREFIX is how the referrer is recognised. No person path
+       is spelled here, so this bar cannot end up linking to an address the app
+       does not serve, and the referrer comparison is canonical-against-
+       canonical: /p/<retired-id> as a referrer still matches ?pid=<current-id>.
+
+       THE SHAPES IT ACCEPTS, and they are the only ones: ?pid=<pid>, ?p=<pid>,
+       #p/<pid> and #/p/<pid>. All six Issue File doors on a person file emit the
+       first. Reading location.search directly rather than through URLSearchParams
+       keeps this working on the oldest engines the rest of the shell still
+       supports; a throw here must not cost the page its boot. -->
+  <script>
+  (function () {
+    var href = '';
+    var pid = '';
+    var viaBack = false;
+    try {
+      var raw = '';
+      var m = String(location.search || '').match(/[?&](?:pid|p)=([^&#]*)/);
+      if (m) { try { raw = decodeURIComponent(m[1]); } catch (e) { raw = m[1]; } }
+      if (!raw) {
+        var h = String(location.hash || '').match(/^#\/?p\/([^/?&#]+)/);
+        if (h) { try { raw = decodeURIComponent(h[1]); } catch (e2) { raw = h[1]; } }
+      }
+      var PL = window.PDXPersonLink;
+      if (raw && PL && typeof PL.href === 'function') {
+        href = PL.href(raw) || '';
+        if (href && typeof PL.pid === 'function') pid = PL.pid(raw) || '';
+      }
+      // Did this document come from that same person's file? Compared as two
+      // canonical addresses, both built by PDXPersonLink, so an alias spelling
+      // on either side still matches.
+      if (href && PL && PL.PREFIX) {
+        var org = '';
+        try { org = String(location.origin || (location.protocol + '//' + location.host)); } catch (e3) { org = ''; }
+        var ref = String(document.referrer || '');
+        var head = org + String(PL.PREFIX);
+        if (org && ref.indexOf(head) === 0) {
+          var seg = ref.slice(head.length).split(/[/?#]/)[0];
+          if (seg) {
+            var dec = seg;
+            try { dec = decodeURIComponent(seg); } catch (e4) { dec = seg; }
+            viaBack = (PL.href(dec) || '') === href;
+          }
+        }
+      }
+      if (href) {
+        var a = document.getElementById('pdx-issue-back');
+        if (a) {
+          a.setAttribute('href', href);
+          a.removeAttribute('hidden');
+        }
+      }
+    } catch (e) {}
+    // The answer, published for pdx-issue-profile.js's restore(). Its presence is
+    // also the signal that this is the ISSUE SHELL rather than the homepage with
+    // an issue file open over it: index.html publishes no PDXIssueBack, so its
+    // overlay keeps closing onto the page underneath exactly as before. The same
+    // is true of the gap sheet on a person file — nothing here turns an in-page
+    // overlay into a navigation.
+    try {
+      window.PDXIssueBack = {
+        pid: pid,
+        href: href,
+        fromPerson: viaBack,
+        target: function () { return href || '/'; },
+        leave: function () {
+          try {
+            if (viaBack && typeof history !== 'undefined' && history.length > 1 &&
+                typeof history.back === 'function') {
+              history.back();
+              return true;
+            }
+          } catch (e) {}
+          try { location.assign(href || '/'); return true; } catch (e2) {}
+          try { location.href = href || '/'; return true; } catch (e3) {}
+          return false;
+        }
+      };
+    } catch (e) {}
+  })();
+  </script>
+
+  <!-- Data hygiene — the normalisation pass every record read goes through. -->
+  <script src="/data-hygiene.js"></script>
+
+  <!-- ══ THE ISSUE LANE — 38 DEFERRED MODULES ═════════════════════════
+       index.html's relative order, each tag keeping index.html's own attributes
+       (including the fetchpriority split on the stance data), because these
+       modules extend one shared window.ISSUE_STANCE_DATA and register with each
+       other in order. Everything index.html loads between these that belongs to
+       a homepage grid, the account graph, Compare, the Archive, the Locker or a
+       Door is simply absent — see the head comment for the list.
+       ══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Stance data. CORE is the accountability-linked set the ranking reads
+       first; EXT is the long tail, deprioritised so it stops competing with
+       render-critical bytes. The State Senate waves are additive over the same
+       object. -->
+  <script defer fetchpriority="high" src="/politician-stances-core.js"></script>
+  <script defer fetchpriority="low" src="/politician-stances-ext.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w2.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w3.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w4.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w5.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w6.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w7.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w8.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w9.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w10.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w11.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w12.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w13.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w14.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w15.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w16.js"></script>
+
+  <!-- The stance vocabulary every surface below reads, and the chip builders the
+       evidence rows behind a ledger entry call. -->
+  <script defer src="/stance-helpers.js"></script>
+
+  <!-- ══ /issue-map.js — THE FILE THE FIRST SPLIT HAD TO CREATE ════════════
+       In index.html's load order this slot is alignment-tool.js, which is
+       denylisted on both split shells. Its first 1,300 lines are not a tool,
+       they are the ISSUE REGISTER: ISSUE_MAP, CORE_NATIONAL_ISSUES,
+       coreIssueForKey and the category helpers. On this document that register is
+       not a dependency, it is the SUBJECT — pdx-issue-profile.js resolves the key
+       in the address against it, and PDXDoor1.issueKeyFor and PDXIssueFamily read
+       it for every label and every parent. Several of those reads are unguarded.
+
+       person.html created this file (the region, copied verbatim out of
+       alignment-tool.js) and scripts/test-person-shell.mjs pins the two
+       byte-identical. Nothing is re-cut here; the same file is loaded.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <script defer src="/issue-map.js"></script>
+
+  <!-- Issue taxonomy, colours and scoping over that register. pdx-issue-family
+       .js owns profileUrl(key) — the /i/<key> address every Issue File door in
+       the app is built from, and the one this document is served at. -->
+  <script defer src="/pdx-issue-family.js"></script>
+  <script defer src="/issue-colors.js"></script>
+  <script defer src="/issue-scope.js"></script>
+
+  <!-- The formal record: what is on file, and whether it clears the bar to be
+       published as a citable address. -->
+  <script defer src="/formal-index.js"></script>
+  <script defer src="/publication-floor.js"></script>
+
+  <!-- Roll calls. The ledger is a read of the formal record and this is the
+       module that holds it; there is no head prefetch on this document because
+       an issue address names no single member to prefetch for. -->
+  <script defer src="/voting-record.js"></script>
+
+  <!-- say-vs-do.js is here for what it PUBLISHES, not for its homepage band:
+       window._resolveStanceList (read by stance-helpers.js, consistency.js and
+       publication-floor.js), window.PDXReceipts (the receipt lightbox a ledger
+       row's evidence opens) and window._getPhotoUrl. Without it the ledger has
+       no stance list behind its rows. -->
+  <script defer src="/say-vs-do.js"></script>
+
+  <!-- Word vs Act — and, on this document, the two exports the ledger cannot be
+       built without: PDXConsistency.formalPatternIndex, which door1-workspace.js
+       requires before it will rank anyone, and PDXConsistency.openGap, which is
+       what a `.pdxst-open` button in a ledger row opens. openGap builds its own
+       sheet and injects its own styles, so no markup here answers to it. -->
+  <script defer src="/consistency.js"></script>
+
+  <!-- The share affordance in the gap sheet's header, at index.html's own slot
+       in the order (it sits between consistency.js and issue-view.js there, and
+       the order these modules register in is behaviour). Fail-open by design:
+       with neither share pipeline on this document — profile-card.js is dropped
+       and word-action.js is not here — it says so in its own hint and offers the
+       link instead of a control that fails. -->
+  <script defer src="/share-anywhere.js"></script>
+
+  <!-- The ranking behind the ledger: PDXIssueView.buildRanking is what
+       door1-workspace.js's issuePeople() calls, and without it issueLedger()
+       returns null and the dossier prints its honest "the formal-record index is
+       not loaded on this page" line instead of a ledger. -->
+  <script defer src="/issue-view.js"></script>
+
+  <!-- ══ THE LEDGER BUILDER ═════════════════════════════════════
+       door1-workspace.js is the one builder of the issue dossier's body
+       (issueProfileHtml → PDXDoor1.issueProfile), and this document ships it for
+       that export and that export alone. Its DESK is not mounted here: sync()
+       looks for its own mount and its body host, finds neither, sets _live=false
+       and returns false, so nothing paints and no second issue UI exists. The
+       measure shelf it would otherwise warm from bills-index.js is behind a
+       `window.PDXLazyData &&` guard and simply never fires.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <script defer src="/door1-workspace.js"></script>
+
+  <!-- The panel the ledger is mounted in. It builds its own overlay DOM from
+       scratch and appends it to <body>, so this document carries no container
+       markup for it — which is also why nothing here can go stale against it. -->
+  <script defer src="/issue-file.js"></script>
+
+  <!-- ══ THE ADDRESS ═════════════════════════════════════════════
+       pdx-issue-profile.js is this document's cold open. It reads /i/<key> off
+       location.pathname with its own PATH_RE, resolves the key through the
+       register (accepting a label spelling and re-stamping the address to the
+       canonical key), commits the pick, titles the tab, repoints
+       <link rel="canonical"> at this address, and opens the file. It self-kicks
+       on a truthy path read, so no bootstrap here calls it, and it answers a
+       popstate the same way. A key the register does not carry gets the honest
+       notice, not a guess. LAST in the chain, so every module it asks for has
+       already executed. ═══════════════════════════════════════════ -->
+  <script defer src="/pdx-issue-profile.js"></script>
+
+
+  <!-- The address canonicaliser, at index.html's own position in the document.
+       profile-evidence.js is the only definer of window.PDX_PROFILE_ALIAS and
+       window.PDXProfilePid — the table behind the mike_lee → lee hop, which is
+       what keeps a person name in a ledger row pointing at the one address that
+       person's file is published at. Parser-blocking, so it runs before every
+       deferred module above it regardless of where in the body it sits; kept
+       here anyway so all three documents load the shared modules in the
+       identical order and scripts/test-issue-shell.mjs can hold them to it. -->
+  <script src="/profile-evidence.js"></script>
+
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 3644–3840 ═════════════════
+       THE PWA RUNTIME. Same registration, same first-install guard, same update
+       handling — sw.js now precaches /issue.html and this document's module list,
+       and serves an /i/ address from /issue.html rather than from the 2.3 MB
+       shell when the reader is offline. ════════════════════════════ -->
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- ═══════════════════════════════════════════════════════════════════
+       PWA runtime — service-worker registration + offline awareness.
+       Progressive enhancement only: if the browser lacks service workers or
+       registration fails, the site behaves exactly as before. Registration is
+       deferred to `load` so it never competes with first paint or data fetches.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <script>
+  (function () {
+    'use strict';
+
+    // ── Offline status banner ───────────────────────────────────────────
+    // A single, unobtrusive bottom banner. Saved team & evidence live in
+    // localStorage, so they keep working offline — we just tell the voter
+    // that live features (new data, sync, community) are paused.
+    function ensureBanner() {
+      var el = document.getElementById('pdx-offline-banner');
+      if (el) return el;
+      el = document.createElement('div');
+      el.id = 'pdx-offline-banner';
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'polite');
+      el.style.cssText = [
+        'position:fixed', 'left:0', 'right:0', 'bottom:0', 'z-index:2147483000',
+        'transform:translateY(110%)', 'transition:transform .28s ease',
+        'background:linear-gradient(180deg,#141a2e,#0a0f1e)',
+        'color:#e5e9f0', 'border-top:1px solid rgba(192,21,42,.55)',
+        'box-shadow:0 -8px 24px rgba(0,0,0,.45)',
+        'font-family:\'Barlow\',system-ui,-apple-system,sans-serif',
+        'padding:calc(.7rem + env(safe-area-inset-bottom,0px)) 1rem .7rem',
+        'display:flex', 'align-items:center', 'gap:.6rem', 'justify-content:center',
+        'font-size:.9rem', 'line-height:1.3', 'text-align:center'
+      ].join(';');
+      el.innerHTML =
+        '<span aria-hidden="true" style="font-size:1.05rem">📡</span>' +
+        '<span><strong style="color:#fff">You’re offline</strong> — some features are limited. ' +
+        'Your saved ballot &amp; evidence are still available.</span>';
+      (document.body || document.documentElement).appendChild(el);
+      return el;
+    }
+
+    // ── THE FALSE-OFFLINE BUG, AND WHY THE GUARD IS HERE ────────────────
+    // Reported from a phone on cell data with a working connection: the 📡
+    // "You're offline" banner was up while the page loaded and fetched fine.
+    // It was not a network problem. It was this block's state machine.
+    //
+    // The banner used to be driven ENTIRELY by the `online`/`offline` event
+    // pair, with `navigator.onLine` consulted once at boot. Those events are
+    // edge-triggered, and on a phone the edges get dropped:
+    //
+    //   · A CARRIER HANDOVER (cell → wifi, tower → tower, a tunnel, a lift)
+    //     fires `offline`, and the matching `online` arrives while the tab is
+    //     frozen in the background. A frozen page does not run listeners and
+    //     the event is not replayed on resume, so the page wakes up holding a
+    //     state that stopped being true minutes ago.
+    //   · A BACKGROUNDED OR BACK/FORWARD-CACHED TAB restores from the page
+    //     cache with its DOM intact — banner included, still translated to
+    //     Y(0) — and `pageshow` is the only notification it gets.
+    //   · `showBanner()` ITSELF NEVER CHECKED. Any call from any path showed
+    //     the banner unconditionally, so one stale edge was permanent: nothing
+    //     in the block would take it down again until a real `online` fired.
+    //
+    // Two changes fix it, and both are deliberately of the "cannot be wrong"
+    // kind rather than the "detects better" kind:
+    //
+    //   1. showBanner() IS SELF-GUARDED. `navigator.onLine === true` is the
+    //      browser's own answer and it is authoritative in the one direction
+    //      that matters here: the flag can be true while a captive portal eats
+    //      the traffic (a false POSITIVE for connectivity), but it is not true
+    //      while the radio is off. So an online flag is a hard refusal to paint
+    //      the banner — the failure mode becomes "we didn't warn you", which
+    //      costs a confused fetch, instead of "we told you you're offline while
+    //      you're not", which costs the reader's trust in everything else on
+    //      the page. Refusals are counted on window.PDXNet for the console.
+    //
+    //   2. THE STATE IS RE-READ, NOT REMEMBERED. `visibilitychange`,
+    //      `pageshow` and `focus` all re-run the sync, because each is a moment
+    //      the page may have missed an edge while it was not running. Reading a
+    //      flag costs nothing; trusting an event that may never have been
+    //      delivered costs the bug above.
+    //
+    // NO PROBE WAS ADDED. A background fetch to test the connection would be
+    // the obvious "real" detector and it is the wrong tool: it spends the
+    // reader's cell data to second-guess a flag that is already correct in the
+    // case being fixed, and it would keep spending it on a slow connection —
+    // the exact one where a timeout looks like an outage.
+    var refusedWhileOnline = 0;
+
+    function showBanner() {
+      // The guard. See above: an online flag means this banner is a lie.
+      if (navigator.onLine !== false) { refusedWhileOnline++; hideBanner(); return; }
+      var el = ensureBanner();
+      requestAnimationFrame(function () {
+        // Re-checked inside the frame: the radio can come back between the call
+        // and the paint, and a banner that appears one frame after the network
+        // returns is the same bug with better timing.
+        if (navigator.onLine !== false) { refusedWhileOnline++; hideBanner(); return; }
+        el.style.transform = 'translateY(0)';
+      });
+    }
+    function hideBanner() {
+      var el = document.getElementById('pdx-offline-banner');
+      if (el) el.style.transform = 'translateY(110%)';
+    }
+
+    function syncOnlineState() {
+      if (navigator.onLine === false) showBanner();
+      else hideBanner();
+    }
+
+    window.addEventListener('online', syncOnlineState);
+    window.addEventListener('offline', syncOnlineState);
+    // The three moments a page can have missed an edge while it was not
+    // running. Each re-reads the flag rather than trusting what it remembers.
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') syncOnlineState();
+    });
+    window.addEventListener('pageshow', syncOnlineState);
+    window.addEventListener('focus', syncOnlineState);
+    // Reflect initial state (covers reloads that start offline). Unconditional
+    // now: when the flag says online this takes a restored banner back down,
+    // which is the back/forward-cache case above.
+    if (document.body) syncOnlineState();
+    else window.addEventListener('DOMContentLoaded', syncOnlineState);
+    // Expose a tiny helper so other code can query PWA/offline status if
+    // needed. `falseOfflineRefusals` is the diagnostic: if it is ever above
+    // zero, something asked for the offline banner while the browser said the
+    // connection was up, and this block declined.
+    window.PDXNet = {
+      isOnline: function () { return navigator.onLine !== false; },
+      falseOfflineRefusals: function () { return refusedWhileOnline; },
+      _sync: syncOnlineState
+    };
+
+    // ── Service worker registration ─────────────────────────────────────
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        // Was this page ALREADY under a worker's control before we registered?
+        // This is the only reliable way to tell a genuine shell update from a
+        // first install, and getting it wrong was a real bug: sw.js calls
+        // skipWaiting() on install and clients.claim() on activate, so on a
+        // visitor's FIRST ever load the brand-new worker claims this
+        // uncontrolled page, 'controllerchange' fires, and the old code below
+        // reloaded — every first visit rebooted itself mid-read, a few seconds
+        // in. The `refreshing` flag never guarded that; it only stopped a
+        // second reload within the same page.
+        var hadController = !!navigator.serviceWorker.controller;
+        navigator.serviceWorker.register('/sw.js').then(function (reg) {
+          var refreshing = false;
+
+          // A reload is never urgent, but it IS destructive: it throws away an
+          // open profile, a half-typed composer, and the reader's place on the
+          // page. So when a genuine update lands we only reload at a moment
+          // where that costs nothing — otherwise we wait until the tab is
+          // backgrounded and do it off-screen, or simply leave it for the next
+          // navigation (the worker has already refreshed the cached shell).
+          function busy() {
+            try {
+              if (window.PDXStability && window.PDXStability.isLocked()) return true;
+              var a = document.activeElement;
+              if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT' ||
+                        a.isContentEditable)) return true;
+            } catch (e) {}
+            return false;
+          }
+          function reloadWhenIdle() {
+            if (refreshing) return;
+            if (!busy()) { refreshing = true; location.reload(); return; }
+            // Try again the moment the tab goes to the background.
+            document.addEventListener('visibilitychange', function onHide() {
+              if (document.visibilityState !== 'hidden' || refreshing) return;
+              document.removeEventListener('visibilitychange', onHide);
+              refreshing = true;
+              location.reload();
+            });
+          }
+
+          navigator.serviceWorker.addEventListener('controllerchange', function () {
+            if (!hadController) return;   // first install — nothing to refresh to
+            reloadWhenIdle();
+          });
+          reg.addEventListener('updatefound', function () {
+            var nw = reg.installing;
+            if (!nw) return;
+            nw.addEventListener('statechange', function () {
+              // A new worker is waiting and we already control the page →
+              // activate it immediately for a seamless update.
+              if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+                nw.postMessage('SKIP_WAITING');
+              }
+            });
+          });
+        }).catch(function () { /* SW unsupported/blocked — app still works */ });
+      });
+    }
+  })();
+  </script>
+
+</body>
+</html>

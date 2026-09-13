@@ -1280,8 +1280,12 @@ export function assertConsistencySeams(bodies, api, below) {
   // fail closed — a document served without either module keeps the inert <div>
   // this sheet has always had, which is why neither is a dependency.
   const doors = cut("the title door and the ⓘ beside it");
-  has(doors, "function _issueTitleHtml(key, lbl, attr) {", "the title door is not where the seam says it is");
-  has(doors, "F.profileUrl(key)", "the dossier composes the issue address instead of asking the module that owns it");
+  has(doors, "function _issueTitleHtml(key, lbl, attr, pid) {", "the title door is not where the seam says it is");
+  // The fourth argument is the return address (v186): this sheet is opened on ONE
+  // member, so the file it links to carries that member as ?pid= and the issue
+  // shell can offer the way back to them rather than to the homepage. Still one
+  // owner of the string — the query is built by profileUrl, not composed here.
+  has(doors, "F.profileUrl(key, pid)", "the dossier composes the issue address instead of asking the module that owns it");
   has(doors, "S.controlHtml(key)", "the ⓘ is not issue-scope.js's own control");
   has(doors, "'<div' + attr + '>' + esc(lbl) + '</div>'",
     "the title no longer falls back to the inert heading when the family module is absent");
@@ -1432,7 +1436,7 @@ export function assertConsistencyExportSeams(bodies, api) {
   has(cut("the heading chosen by the count"), "esc(d.docs === 1 ? _DOS_DRV_H1 : _DOS_DRV_H)",
     "the roll-up picks its heading on something other than how many measures it holds");
   const mount = cut("the dossier title's mount");
-  has(mount, "_issueTitleHtml(issueKey, lbl, _titleAttr)", "the dossier header mounts something other than the title door");
+  has(mount, "_issueTitleHtml(issueKey, lbl, _titleAttr, pid)", "the dossier header mounts something other than the title door");
   ok(mount.split("_issueTitleHtml").length === 2, "the dossier header mounts the title door more than once");
 
   // ── seams L1-L7: the lower half of the bill door (v138) ───────────────────
@@ -1704,7 +1708,14 @@ export function assertStanceHelpersSeam(bodies, api) {
   const chip = chipBody === undefined ? undefined : chipBody.replace(/^\s*\/\/.*$/gm, "");
   if (chip !== undefined) {
     has(chip, "window.pdxDoor1Issue('", "the topic chip no longer opens its key on the desk's one issue door");
-    has(chip, "window.location.href='/i/", "…and has no address to fall back on when the desk has not booted");
+    // v186: the fallback address is no longer PASTED here. This chip was the one
+    // door on a person file that spelled '/i/' itself, so it was also the one that
+    // could not pick up the return address the other five now carry. It asks
+    // PDXIssueFamily for the whole string — path and ?pid= — and embeds the result,
+    // which is why the seam is the call and not the prefix.
+    has(chip, "FAM.profileUrl(key, id)", "…and has no address to fall back on when the desk has not booted");
+    has(chip, "window.location.href='", "…and the fallback no longer navigates at all");
+    ok(!/'\/i\//.test(chip), "the topic chip spells the issue-file prefix inline again");
     ok(chip.indexOf("PDXIssueView") === -1,
       "the topic chip reaches the ranked consistency overlay again — a chip on a person must not open a " +
       "league table of persons");
@@ -1992,9 +2003,11 @@ export function assertWordActionSeams(bodies, api) {
   // in another drops every span after it out of the row. The address is asked for,
   // not spelled, and the row keeps its primary tap on the person's own record.
   const file = wa("the issue file beside the pattern row");
-  has(file, "F.profileUrl(key)", "the brief composes the issue address instead of asking the module that owns it");
+  has(file, "F.profileUrl(key, pid)", "the brief composes the issue address instead of asking the module that owns it");
   has(file, "if (!href) return '';", "the row no longer renders nothing when the family module is absent");
-  has(file, "(door ? issueFileHtml(key, x.label) : '') +", "the issue file is mounted somewhere other than after the row's door");
+  ok(file.indexOf("(door ? issueFileHtml(key, x.label, owner) : '') +") >= 0 ||
+     file.indexOf("(door ? issueFileHtml(key, x.label, pid) : '') +") >= 0,
+    "the issue file is mounted somewhere other than after the row's door");
   ok(!/'\/i\//.test(file.replace(/^\s*\/\/.*$/gm, "")), "the brief spells the issue-file prefix inline");
   ok(file.indexOf("scopeControlHtml(key) : '') +\n      // And the issue file") > 0 ||
     file.indexOf("(door ? scopeControlHtml(key) : '') +") === 0 ||

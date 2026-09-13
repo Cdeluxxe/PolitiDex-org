@@ -3993,9 +3993,25 @@
           } catch (e) { keyLab = ''; }
         }
         var keyTxt = _pdxConnectLabel(keyLab || key);
+        //    THE FALLBACK ADDRESS IS ASKED FOR, NOT SPELLED. This chip used to
+        //    paste '/i/' + encodeURIComponent(key) inline, which made it the one
+        //    door on a person file that knew the shape of an issue-file address
+        //    — a rename would have shipped half-done, and it could not pick up
+        //    the return address the other five doors now carry. It asks
+        //    PDXIssueFamily for the whole string instead, and hands it `id`, the
+        //    pid whose stance row this chip is on, so a reader who lands on the
+        //    issue file gets "← Person file" back to them rather than the
+        //    homepage. A page served without that module keeps the desk attempt
+        //    and loses only the fallback — no link to a guess.
+        var fileHref = '';
+        try {
+          var FAM = window.PDXIssueFamily;
+          if (FAM && typeof FAM.profileUrl === 'function') fileHref = FAM.profileUrl(key, id) || '';
+        } catch (e) { fileHref = ''; }
+        var jsHref = String(fileHref).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
         var openKey = "event.stopPropagation();event.preventDefault();" +
           "if(window.pdxDoor1Issue&&window.pdxDoor1Issue('" + jsKey + "')){}" +
-          "else{window.location.href='/i/" + encodeURIComponent(key) + "';}";
+          (fileHref ? "else{window.location.href='" + jsHref + "';}" : "");
         chips.push('<span class="pdx-connect-chip is-topic" role="link" tabindex="0" ' +
           'title="' + _pdxMandateEsc('Open the formal record on ' + keyTxt +
             ' — who advanced it, who cut against it, who ran both ways') + '" ' +

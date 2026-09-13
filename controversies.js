@@ -52,6 +52,17 @@
     });
   }
   function escAttr(v) { return esc(v).replace(/`/g, '&#96;'); }
+  // A pid, or nothing. Only used where a pid is written INTO a JavaScript string
+  // literal inside an HTML attribute (the issue action below), and that is two
+  // escaping layers deep: esc() turns a quote into &#39;, the browser turns it
+  // back into a quote while parsing the attribute, and the JS parser then sees a
+  // string that ends early. Rather than reason about that, this refuses anything
+  // that is not the pid shape person-link.js publishes — which every real pid in
+  // the roster already is — so there is no quote to get back out.
+  function _ctvPid(v) {
+    var s = String(v == null ? '' : v).trim();
+    return /^[A-Za-z0-9_]+$/.test(s) ? s : '';
+  }
   function clip(s, n) {
     s = String(s == null ? '' : s).trim();
     if (s.length <= n) return s;
@@ -249,11 +260,45 @@
         '<span aria-hidden="true">🧾</span> Full receipt</button>');
     }
     // Related Issue Spotlight (the issue-first ranked view).
+    //
+    // IT USED TO DO NOTHING ON THE DOCUMENT IT IS RENDERED ON. PDXIssueView is
+    // issue-view.js's overlay and it is a homepage-shell module; Flashpoint cards
+    // are rendered on a person file, and /p/* is served by person.html, which
+    // does not ship it. So the whole onclick was one `if` whose condition was
+    // false on arrival: the button painted, took the tap, stopped the event and
+    // moved nothing. A control that swallows a tap is worse than one that is not
+    // there, because the reader concludes the answer does not exist.
+    //
+    // The fallback is a real navigation to the issue file's own address, and it
+    // keeps the button's own promise rather than inventing a new one: the title
+    // says "See where everyone stands on <topic>", and the /i/<key> dossier's
+    // ledger IS the ranked read of everyone's formal record on that key — the
+    // same ranking issue-view.js builds, on a document the size of the dossier
+    // instead of the 2.3 MB homepage shell. /issue/* — the Spotlight address
+    // proper — is untouched by this and still answers index.html; nothing here
+    // routes it or loads its data.
+    //
+    // Two walls, both borrowed rather than rebuilt. The in-page open still wins
+    // when it exists, so index.html behaves exactly as before. And the key is
+    // tested by PDXIssueFamily.keyIsReal before it is allowed to become an
+    // address, because `it.issue.label` and `it.issueKey` come from the same
+    // curated items and a label must never be widened into a key — least of all
+    // into one a reader can bookmark. The address itself is built by
+    // PDXIssueFamily.profileUrl, the one place /i/ is spelled. `id` is the pid of
+    // the file this card is on, so it rides along as ?pid= and issue.html's bar
+    // offers the way back here.
     if (it.issueKey) {
       var topic = (it.issue && it.issue.label) ? it.issue.label : 'this issue';
       acts.push('<button type="button" class="pdx-ctv-act" ' +
-        'onclick="event.stopPropagation();if(window.PDXIssueView&&window.PDXIssueView.open)window.PDXIssueView.open(&quot;' +
-        escAttr(it.issueKey) + '&quot;);" title="' + escAttr('See where everyone stands on ' + topic) + '">' +
+        'onclick="event.stopPropagation();' +
+        'if(window.PDXIssueView&&window.PDXIssueView.open){window.PDXIssueView.open(&quot;' +
+          escAttr(it.issueKey) + '&quot;);}' +
+        'else if(window.PDXIssueFamily&&window.PDXIssueFamily.keyIsReal&&' +
+          'window.PDXIssueFamily.keyIsReal(&quot;' + escAttr(it.issueKey) + '&quot;)){' +
+          'var U=window.PDXIssueFamily.profileUrl(&quot;' + escAttr(it.issueKey) + '&quot;,' +
+            '&quot;' + _ctvPid(id) + '&quot;);' +
+          'if(U){window.location.href=U;}}" ' +
+        'title="' + escAttr('See where everyone stands on ' + topic) + '">' +
         '<span aria-hidden="true">🔦</span> Issue Spotlight</button>');
     }
     // Jump to the formal record on this same profile. The label used to be
