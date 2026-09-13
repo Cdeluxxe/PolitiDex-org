@@ -99,7 +99,7 @@ function makeClock() {
 
 function sandbox(opts) {
   opts = opts || {};
-  const calls = { openModal: [], jump: [], replace: [], notice: [] };
+  const calls = { openModal: [], jump: [], replace: [], notice: [], assign: [], locReplace: [], push: [] };
   const clock = makeClock();
   const doc = {
     readyState: opts.readyState || "complete",
@@ -132,10 +132,37 @@ function sandbox(opts) {
     : { mike_lee: { name: "Mike Lee", office: "U.S. Senator", state: "Utah" } };
   const win = {
     document: doc,
-    location: Object.assign({ origin: "https://www.politidex.fyi", pathname: "/", search: "", hash: "", href: "https://www.politidex.fyi/" }, opts.location || {}),
+    // A REAL NAVIGATION IS OBSERVABLE, and it has to be: the close leaves with a
+    // location.assign and an open goes to the person's document with one, so a
+    // harness whose location has no assign() cannot tell "navigated" from "did
+    // nothing" — both look like an empty calls.replace.
+    //
+    // AND THE THREE SPELLINGS ARE RECORDED APART, because the rule this file
+    // pins distinguishes them. location.assign pushes a history entry;
+    // location.replace navigates and overwrites the entry instead, which is one
+    // of the two mechanisms forbidden from '/' onto /p/<pid> (history.replaceState
+    // is the other, in calls.replace below). A harness that folded them together
+    // could not tell a compliant push from the defect. `href =` is the same
+    // navigation as assign, spelled for an engine that has taken assign away, so
+    // it is a setter rather than a string — assigned silently, it would be a hole.
+    location: (function () {
+      const loc = {
+        origin: "https://www.politidex.fyi", pathname: "/", search: "", hash: "",
+        assign(u) { calls.assign.push(String(u)); },
+        replace(u) { calls.locReplace.push(String(u)); },
+      };
+      Object.assign(loc, opts.location || {});
+      let href = loc.href || ("https://www.politidex.fyi" + loc.pathname + loc.search + loc.hash);
+      Object.defineProperty(loc, "href", {
+        get() { return href; },
+        set(u) { href = String(u); calls.assign.push(String(u)); },
+        enumerable: true, configurable: true,
+      });
+      return loc;
+    })(),
     history: {
       replaceState(a, b, url) { calls.replace.push(url); },
-      pushState() {},
+      pushState(a, b, url) { calls.push.push(url); },
     },
     _listeners: {},
     addEventListener(type, fn) {
@@ -187,32 +214,98 @@ ok(!P.PATH_RE.test("/p/mike-lee/extra"), "the path matcher accepts a deeper path
 // ─────────────────────────────────────────────────────────────────────────────
 // 2 · Opening: one call in, one modal out, one address stamped
 // ─────────────────────────────────────────────────────────────────────────────
-section("2 · open() opens the modal and stamps the address");
+section("2 · open() goes to the person's own document, with a real push");
 
-ok(P.open("mike_lee") === true, "open() reported failure with openModal available");
-eq(calls.openModal.length, 1, "open() did not call openModal exactly once");
-eq(calls.openModal[0], "mike_lee", "open() opened somebody else");
-ok(calls.replace.some((u) => String(u).startsWith("/p/mike_lee")),
-   `open() did not stamp the person path (saw ${JSON.stringify(calls.replace)})`);
+// FROM A SURFACE THAT IS NOT THIS PERSON'S DOCUMENT, OPENING IS A NAVIGATION.
+// This section used to assert the opposite — openModal once, then a replaceState
+// stamping /p/mike_lee — and that pair WAS the defect. /p/<pid> is served by
+// person.html, so rendering the file into index.html and then writing the
+// person's address over the homepage's history entry left the reader looking at
+// one document under another document's address, and took '/' out of the history
+// on the way: Back from a file opened out of a search skipped the list it was
+// opened from.
+ok(P.open("mike_lee") === true, "open() reported failure with a resolvable pid");
+eq(calls.assign[calls.assign.length - 1], "/p/mike_lee",
+   `open() from / did not push the person address (saw assign=${JSON.stringify(calls.assign)})`);
+eq(calls.openModal.length, 0,
+   `open() from / rendered the person file into index.html instead of going to its document (saw ${JSON.stringify(calls.openModal)})`);
+
+// THE TWO FORBIDDEN MECHANISMS, NAMED. Both would put the right address in the
+// bar; neither leaves a history entry behind, so Back would still skip the list.
+ok(!calls.replace.some((u) => String(u).indexOf("/p/") === 0),
+   `open() from / stamped a person path with history.replaceState (saw ${JSON.stringify(calls.replace)})`);
+eq(calls.locReplace.length, 0,
+   `open() from / navigated with location.replace, which overwrites the entry Back needs (saw ${JSON.stringify(calls.locReplace)})`);
 
 // No loop: the funnel must not call the function that calls the funnel.
 ok(!/showProfile/.test(CODE("person-file.js").replace(/_pdxOpenFullProfileModal/g, "")),
    "person-file.js calls showProfile — showProfile calls the funnel, so that is a loop");
 
-// A second open from inside a file still returns to where the FIRST one started.
-const s2 = sandbox({ location: { pathname: "/issue/box-elder-stratos-data-center" } });
-s2.P.open("mike_lee");
-s2.P.open("mike_lee");
-s2.P.restore();
-ok(s2.calls.replace[s2.calls.replace.length - 1] === "/issue/box-elder-stratos-data-center",
-   `closing a person file returns to the surface it was opened from (saw ${JSON.stringify(s2.calls.replace)})`);
+// ── AND ON THE PERSON'S OWN DOCUMENT, IT STILL RENDERS ────────────────────
+// The half that keeps the change from eating itself. adopt() calls open() on a
+// cold arrival and the popstate handler calls it once the browser has already
+// moved the bar; if open() navigated unconditionally, the first would reload
+// person.html for ever and the second would turn every Back into a forward.
+const own = sandbox({ location: { pathname: "/p/mike_lee" } });
+ok(own.P.open("mike_lee") === true, "open() failed on the person's own document");
+eq(own.calls.openModal.length, 1,
+   `a cold arrival did not render in place (saw openModal=${JSON.stringify(own.calls.openModal)}, assign=${JSON.stringify(own.calls.assign)})`);
+eq(own.calls.assign.length, 0,
+   `open() navigated to the document it is already on — this is the reload loop (saw ${JSON.stringify(own.calls.assign)})`);
+ok(own.calls.replace.some((u) => String(u).indexOf("/p/mike_lee") === 0),
+   `the in-place open did not stamp its own address (saw ${JSON.stringify(own.calls.replace)})`);
 
-// A cold deep link has no surface to return to, so it returns to the root rather
-// than to whatever happened to be in the address bar.
+// A DIFFERENT PERSON'S FILE IS A DIFFERENT DOCUMENT, so the hop is a push too.
+const hop = sandbox({
+  location: { pathname: "/p/mike_lee" },
+  roster: {
+    mike_lee: { name: "Mike Lee", office: "U.S. Senator", state: "Utah" },
+    celeste_maloy: { name: "Celeste Maloy", office: "U.S. Representative", state: "Utah" },
+  },
+});
+hop.P.open("celeste_maloy");
+eq(hop.calls.assign[hop.calls.assign.length - 1], "/p/celeste_maloy",
+   `hopping from one person file to another did not push (saw ${JSON.stringify(hop.calls.assign)})`);
+eq(hop.calls.openModal.length, 0,
+   `the hop rendered another person into this person's document (saw ${JSON.stringify(hop.calls.openModal)})`);
+
+// A SECTION SURVIVES THE PUSH. The element id and the short citable alias are
+// both accepted; the address carries the alias, which is the half an address is
+// allowed to have.
+const sec = sandbox({ location: { pathname: "/" } });
+sec.P.open("mike_lee", { section: "pdxsec-standout" });
+eq(sec.calls.assign[sec.calls.assign.length - 1], "/p/mike_lee#record",
+   `the section was dropped on the way to the document (saw ${JSON.stringify(sec.calls.assign)})`);
+const sec2 = sandbox({ location: { pathname: "/" } });
+sec2.P.open("mike_lee", { section: "record" });
+eq(sec2.calls.assign[sec2.calls.assign.length - 1], "/p/mike_lee#record",
+   `the alias spelling of a section was dropped (saw ${JSON.stringify(sec2.calls.assign)})`);
+const sec3 = sandbox({ location: { pathname: "/" } });
+sec3.P.open("mike_lee", { section: "not-a-section" });
+eq(sec3.calls.assign[sec3.calls.assign.length - 1], "/p/mike_lee",
+   `an unmapped section became a hash the arriving document cannot act on (saw ${JSON.stringify(sec3.calls.assign)})`);
+
+// THE LEGACY /?p=<pid> FORM RENDERS IN PLACE AND IS LEFT ALONE. It names this
+// person, so it is an arrival rather than a result click — and it must not be
+// "corrected" onto /p/<pid>: a replaceState there is the forbidden transition,
+// and a push there is a back-trap (Back would return to /?p=<pid>, which would
+// resolve and push forward again).
+const q = sandbox({ location: { pathname: "/", search: "?p=mike_lee" } });
+ok(q.P.open("mike_lee") === true, "open() failed on the legacy query form");
+eq(q.calls.openModal.length, 1,
+   `the /?p= form stopped rendering in place (saw openModal=${JSON.stringify(q.calls.openModal)}, assign=${JSON.stringify(q.calls.assign)})`);
+eq(q.calls.assign.length, 0,
+   `the /?p= form navigated, which traps Back (saw ${JSON.stringify(q.calls.assign)})`);
+ok(!q.calls.replace.some((u) => String(u).indexOf("/p/") === 0),
+   `the /?p= form was rewritten onto /p/<pid> with replaceState from / (saw ${JSON.stringify(q.calls.replace)})`);
+
+// A cold deep link has no surface to return to, so it goes to the root rather
+// than to whatever happened to be in the address bar. On the person shell that is
+// a navigation: see the close-to-home section below for why.
 const s3 = sandbox({ location: { pathname: "/p/mike_lee" } });
 s3.P.restore();
-ok(s3.calls.replace.length === 0 || s3.calls.replace[s3.calls.replace.length - 1] === "/",
-   `a cold deep link restores to the root (saw ${JSON.stringify(s3.calls.replace)})`);
+eq(s3.calls.assign[s3.calls.assign.length - 1], "/",
+   `a cold deep link leaves for the root (saw assign=${JSON.stringify(s3.calls.assign)}, replace=${JSON.stringify(s3.calls.replace)})`);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 3 · Every door goes through the funnel
@@ -417,13 +510,22 @@ for (const [path, why] of [
 }
 
 // Closing a cold-arrived file goes to the front door, not back to the address of
-// the file that was just closed.
+// the file that was just closed — AND IT GETS THERE BY NAVIGATING.
+//
+// This used to assert a replaceState to "/", and that is the defect it was
+// unwittingly pinning in place. A cold arrival is served person.html, where the
+// file is not an overlay over the homepage: it IS the document. Changing the
+// address without fetching anything left the reader looking at the closed shell
+// at "/" — person.html's own body padding still under them, one tap from
+// nothing. The destination is unchanged; the means is a real navigation.
 {
   const c = cold("/p/lee");
   c.clock.tick(2000);
   c.P.restore();
-  eq(c.calls.replace[c.calls.replace.length - 1], "/",
-     `closing a cold-arrived person file must return to the front door (saw ${JSON.stringify(c.calls.replace)})`);
+  eq(c.calls.assign[c.calls.assign.length - 1], "/",
+     `closing a cold-arrived person file must NAVIGATE to the front door (saw assign=${JSON.stringify(c.calls.assign)}, replace=${JSON.stringify(c.calls.replace)})`);
+  ok(!c.calls.replace.some((u) => u === "/" || u === "/undefined"),
+     `the close handed the address back with a replaceState instead of leaving (saw ${JSON.stringify(c.calls.replace)})`);
 }
 
 // A reader who navigated away before the roster landed is not hijacked.

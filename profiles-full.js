@@ -3707,10 +3707,12 @@
         window.PDXJourney.record('profile', { label: _jn, icon: '👤', nav: { type: 'profile', pid: id } });
       }
     } catch (e) {}
-    // One funnel. PDXPerson.open resolves the record, opens this same renderer,
-    // stamps /p/<id> and sets the file kicker — so a person opened from search,
-    // from a ballot seat, from a share link or from a Direction Match card is
-    // the same act with the same address, not five near-identical ones.
+    // One funnel. PDXPerson.open resolves the record and then GOES to /p/<id>,
+    // which since the person split is its own document rather than a modal over
+    // this one — so a person opened from search, from a ballot seat, from a share
+    // link or from a Direction Match card is the same act, at the same address,
+    // reached the same way, and Back returns to the list that was left behind.
+    // The renderer below is the fallback for a page without person-file.js.
     if (window.PDXPerson && typeof window.PDXPerson.open === 'function') {
       if (window.PDXPerson.open(id)) return;
     }

@@ -1524,7 +1524,11 @@
       return `<button class="cmp-btn-team${onTeam ? ' on-team' : ''}" onclick="_cmpToggleTeam('${pid}', this)">${onTeam ? '✓ Your pick' : '⭐ Add to ballot'}</button>`;
     }), '');
     rows += row('Full Profile', pids.map(pid => {
-      return `<button class="cmp-btn-profile" onclick="closeCompare();setTimeout(()=>openModal('${pid}'),280)">
+      // Through showProfile, not straight into the renderer: a person file is its
+      // own document at /p/<pid>, so opening one is a navigation and the funnel is
+      // what performs it. openModal stays as the fallback for a page that never
+      // loaded person-file.js, which is also why the overlay is still closed first.
+      return `<button class="cmp-btn-profile" onclick="closeCompare();setTimeout(()=>(typeof window.showProfile==='function'?window.showProfile('${pid}'):openModal('${pid}')),280)">
         <svg style="width:0.7rem;height:0.7rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
         View Profile
       </button>`;

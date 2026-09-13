@@ -137,6 +137,15 @@ const DOM_IDS = [
 function boot(opts) {
   opts = opts || {};
   const win = makeSandbox();
+  // The person file is its own document, so the door's success is a NAVIGATION
+  // to /p/<pid>. Recorded here, because a location that cannot be assigned to
+  // silently swallows the door and would make section 5 vacuous.
+  const nav = [];
+  win.location = Object.assign({}, win.location, {
+    assign(u) { nav.push(String(u)); },
+    replace(u) { nav.push("REPLACE:" + String(u)); },
+  });
+  win.__nav = nav;
   const store = opts.store || {};
   const sess = {};
   win.localStorage = {
@@ -429,8 +438,10 @@ section("5 · One person door: a name opens the file, not a quick-view");
   eq(W.PDXPersonLink.href("gleich"), "/p/gleich", "the person link's href for Gleich moved");
   eq(W.PDXPersonLink.href("bmoore"), "/p/bmoore", "the person link's href for a bundled row moved");
 
-  // The door. openModal is index.html's renderer, so the sandbox supplies it and
-  // records what it was asked to open — which is what "opens the file" means.
+  // The door. A person file is its own document, so "opens the file" means the
+  // door left this page for /p/<pid> with a real navigation. openModal is still
+  // supplied — index.html owns it — so that a door which rendered a modal in
+  // place instead of going to the file is visible rather than silent.
   const D = boot({ location: LAYTON });
   D.CMP_DATA.gleich = GLEICH;
   const opened = [];
@@ -443,8 +454,10 @@ section("5 · One person door: a name opens the file, not a quick-view");
   catch (e) { doorThrew = e.message; }
   eq(doorThrew, "",
     "the person door fell through to the compact quick-view renderer instead of opening the file");
-  eq(opened.join(","), "gleich,bmoore",
+  eq(D.__nav.join(","), "/p/gleich,/p/bmoore",
     "a tap on a person did not open their file — the door still goes somewhere else");
+  eq(opened.length, 0,
+    "the door rendered a modal on top of index.html instead of going to the person's own document");
   eq(typeof D._pdxMediumId, "undefined",
     "the compact quick-view rendered underneath the person file — that is the Kept/Broken card the reader saw");
   eq(String(D.document.getElementById("pdx-medium-content").innerHTML || ""), "",
