@@ -5522,7 +5522,148 @@
 //     shells. No route, redirect, header or rewrite in netlify.toml moved.
 //     DID NOT MOVE. No Direction Match read, tier, score, floor, mapping, party
 //     read or formal-record path.
-const CACHE_VERSION = 'v189';
+// v190 - DOOR 2 IS ITS OWN DOCUMENT. The ballot workspace — resolve this voter's
+//     seats, open one seat, compare the field on the formal record, pick, move on
+//     to the next undecided seat — used to be a section of index.html, so a voter
+//     who arrived to decide downloaded the whole front page and scrolled past it
+//     to reach the desk, and met a SECOND ballot surface beside it with its own
+//     count badge and its own progress bar. netlify.toml now rewrites /ballot and
+//     /ballot/ to /ballot.html at 200: 23 KB of document carrying the record lane
+//     and nothing else. The homepage keeps the door and loses the desk.
+//
+//     WHAT THIS FILE LEARNED. '/ballot.html' joins SHELL_ASSETS — one entry
+//     answers every seat, because the seat is a QUERY (?seat=<key>) and not a path
+//     segment, so navDocKey gives /ballot no key of its own, exactly as it gives
+//     /i/ and /issue/ none. BALLOT_NAV_RE is the tightest of the four shell
+//     regexes: two exact paths, no capture group, matching the two exact rewrites
+//     rather than a prefix, so /ballots and /ballot/senate are not this address.
+//     The new isBallot fallback in handleNavigate is ordered AFTER the /p/, /i/
+//     and /issue/ branches and BEFORE the generic '/' one, and it carries !isHome
+//     like its three siblings, so no homepage navigation can reach it. Path '/' is
+//     still answered by index.html and by nothing else.
+//
+//     THE v188 POISON GUARD IS KEPT AND WIDENED, not weakened:
+//     SUB_SHELL_BANNER_RE now recognises a FIFTH shell alongside the second,
+//     third and fourth, so a cached '/' whose body is ballot.html is refused and
+//     healed the same way a cached '/' whose body is person.html has been since
+//     v188, and ballot.html declares itself inside the first 4096 characters.
+//
+//     WHY THE BUMP. index.html changed (the desk's script, stylesheet and mount
+//     came out; two door cards, the pdxBallotWorkspaceOpen navigation shim and ten
+//     /ballot links went in), and so did ballot-workspace.js, compare-hub.js and
+//     door2-spine.js. Without a rename a warm device keeps serving the v189
+//     homepage, where the desk's script is still requested and the doors do not
+//     exist. No route, header or redirect in netlify.toml moved except the two
+//     added /ballot rewrites.
+//
+//     WHAT THE BUMP CARRIES, WHICH IS NOT WHAT THIS PASS CHANGED. Renaming
+//     SHELL_CACHE re-issues the WHOLE precache on activate, so every SHELL_ASSETS
+//     entry travels with v190 whether or not this pass opened it: person.html,
+//     issue.html, spotlight.html, app.css, mobile-polish.css, pdx-stability.js,
+//     alignment-tool.js, pdx-issue-profile.js, issue-file.js, issue-file.css,
+//     door1-workspace.js, door1-workspace.css, pdx-issue-family.js, stance-tree.js,
+//     issue-colors.js, word-action.js, word-action.css, issue-view.js,
+//     person-file.js, profiles-full.js, ballot-workspace.js and
+//     ballot-workspace.css among them. THE RUNTIME HALF IS NOT IN THAT LIST and is
+//     not thrown away by the rename either (v182).
+//
+//     DID NOT MOVE. No Direction Match read, tier, score, floor, issue mapping,
+//     party read, formal-record path or Voice surface.
+//
+// v191 - /BALLOT CLEANUP: ONE DESK, ONE DISTRICT, ONE DENOMINATOR, THREE FACES.
+//
+//     No new shell — /ballot is still the fifth document and nothing in
+//     netlify.toml moved. What changed is what that document PAINTED.
+//
+//     · ONE BALLOT. your-ballot.js appended its homepage mount to document.body
+//       when #voter-hub was absent, so /ballot — which loads it for one caveat
+//       helper — grew a second, unstyled ballot under the desk. ensureMounted()
+//       returns null with no anchor, and the caveat export left the mount gate.
+//     · STATEWIDE SEATS SURVIVE A LOCATION WRITE. voter-hub-location.js keeps a
+//       statewide seat book keyed by state beside the districted one keyed by the
+//       whole location, so a Detect inside the same state can no longer wipe U.S.
+//       Senate or Governor back to "NO RECORD ON FILE YET".
+//     · THE BALLOT MAP GOVERNS THE HOUSE SEAT. The redistricting bridge only
+//       FILLS a gap now; it never overwrites a district the 2026 ballot row has
+//       answered. Davis County reads UT-2 on the location line AND on the seat.
+//     · NO PRINTED SEAT COUNT. The desk's meter is its own seat list filtered
+//       through the gate it paints each seat from ("N of M seats we can resolve"),
+//       no literal on either side, and omitted entirely when M is zero.
+//     · THREE READS, THREE FACES. The record tiles read "your match · record" in
+//       their own hue; Direction Match keeps the ring, the scale and "tested"; the
+//       divergence lines print counts, not a percentage. The retired score ramp is
+//       gone, so no surface prints one lane's label over another lane's number.
+//     · A PERSON IS A PUSH. ballot.html claims window.showProfile — a global out
+//       of non-IIFE profiles-full.js — and makes it location.assign('/p/<pid>'),
+//       because the modal it used to call has no host here.
+//
+//     WHY THE BUMP. ballot.html, ballot-workspace.js and ballot-workspace.css are
+//     precached and all three changed; your-ballot.js, voter-hub-location.js and
+//     ballot-breakdown.js changed under them. Without a rename a warm device keeps
+//     serving the v190 ballot: two ballots, 0/6, a modal that cannot open.
+//
+//     WHAT THE BUMP CARRIES, WHICH IS NOT WHAT THIS PASS CHANGED. Renaming
+//     SHELL_CACHE re-issues the WHOLE precache on activate, so every SHELL_ASSETS
+//     entry travels with v191 whether or not this pass opened it: index.html,
+//     person.html, issue.html, spotlight.html, app.css, mobile-polish.css,
+//     pdx-stability.js, alignment-tool.js, pdx-issue-profile.js, issue-file.js,
+//     issue-file.css, door1-workspace.js, door1-workspace.css, stance-tree.js,
+//     pdx-issue-family.js, issue-colors.js, word-action.js, word-action.css,
+//     issue-view.js, person-file.js, profiles-full.js, ballot-workspace.js and
+//     ballot-workspace.css. THE RUNTIME HALF IS NOT IN THAT LIST and is not thrown
+//     away by the rename either (v182).
+//
+//     DID NOT MOVE. No Direction Match read, tier, score, floor, issue mapping,
+//     party read, formal-record path or Voice surface. Local offices on /ballot
+//     are still empty and still say so; no field was invented to fill them.
+// v192 - THE BALLOT DESK GETS FACES, AND THE PORTRAIT MAP GETS A HOME.
+//
+//     A desk row on /ballot was a name, a lane label and a button, while the
+//     record it opens has a headshot at the top — so a reader met a candidate
+//     as a string on the desk and as a person one tap later. Every row now
+//     carries the SAME portrait the person file paints, resolved by the same
+//     window._getPhotoUrl, inside the same <a href="/p/<pid>"> as the name.
+//
+//     · BROWSE_PHOTOS MOVED. The curated map — 715 portrait URLs, no DOM, no
+//       listeners — left compare-hub.js for /browse-photos.js. index.html loads
+//       it one tag ahead of the hub's old position, so nothing about the home
+//       page's order or globals changed; /ballot loads it deferred. The hub
+//       reads it off window like every other consumer. /BALLOT STILL DOES NOT
+//       LOAD COMPARE-HUB.JS, which is the whole reason the map had to move: the
+//       desk may not drag ten thousand lines of collection manager onto the
+//       document to find out what a candidate looks like.
+//     · A MISSING PORTRAIT IS A BOX, NOT A HOLE. The courthouse the rest of the
+//       app uses, in the <img>'s own 38px square, so a field where two of five
+//       have faces still reads as one column of rows. width/height on the tag,
+//       loading="lazy", and an onerror that rewrites the wrapper — never the
+//       anchor, which is where the name lives.
+//     · NO PARTY RING, NO SECOND OPINION. The only colour on the frame is the
+//       hairline every card on that surface uses, and the row carries no alias
+//       walk and no tier order of its own — _getPhotoUrl owns both. netlify.toml
+//       did not change and did not need to: every URL in the map that moved is
+//       already on a host its [images] remote_images allowlist names.
+//
+//     WHY THE BUMP. ballot.html, ballot-workspace.js and ballot-workspace.css
+//     are precached and all three changed, and index.html ('/') changed with
+//     them. Without a rename a warm device keeps serving the v191 desk: names
+//     with no faces, and a document that never asks for /browse-photos.js.
+//
+//     WHAT THE BUMP CARRIES, WHICH IS NOT WHAT THIS PASS CHANGED. Renaming
+//     SHELL_CACHE re-issues the WHOLE precache on activate, so every SHELL_ASSETS
+//     entry travels with v192 whether or not this pass opened it: index.html,
+//     person.html, issue.html, spotlight.html, ballot.html, app.css,
+//     mobile-polish.css, pdx-stability.js, alignment-tool.js, issue-file.js,
+//     issue-file.css, pdx-issue-profile.js, door1-workspace.js, stance-tree.js,
+//     door1-workspace.css, pdx-issue-family.js, issue-colors.js, word-action.js,
+//     word-action.css, issue-view.js, person-file.js, profiles-full.js,
+//     ballot-workspace.js and ballot-workspace.css. browse-photos.js is NOT in
+//     that list: like the hub it came out of, it is a runtime-cached asset, and
+//     the runtime half is not thrown away by a rename either (v182).
+//
+//     DID NOT MOVE. No floor, score, tier, mapping, Direction Match read or
+//     meter copy. No local-office field was invented, no hash overlay returned,
+//     and no surface gained a second way to open a person.
+const CACHE_VERSION = 'v192';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -5578,6 +5719,13 @@ const SHELL_ASSETS = [
   // which is a static asset the runtime bucket already handles once — sixty
   // near-identical document copies would buy nothing and cost a reader's quota.
   '/spotlight.html',
+  // THE FIFTH SHELL, same terms — and ONE ENTRY is the whole offline answer, for
+  // a stronger reason than the two above: /ballot is a single address. The seat a
+  // reader is working is a QUERY (?seat=<key>), so there is nothing per-seat to
+  // key and navDocKey gives it none. 25 KB of chrome whose record lane is made of
+  // static assets the runtime bucket already holds, so a voter who has opened
+  // their ballot once can open it again on a train.
+  '/ballot.html',
   '/css/tailwind.css',
   // The above-the-fold record card. Parser-blocking in index.html, so on a
   // repeat visit these two must come from the cache or they add latency to the
@@ -6311,6 +6459,16 @@ const ISSUE_NAV_RE = /^\/i\/([A-Za-z0-9_-]+)\/?$/;
 // Spotlight address and is left to the generic fallback.
 const SPOTLIGHT_NAV_RE = /^\/issue\/([A-Za-z0-9_-]*)\/?$/;
 
+// ─── THE BALLOT ADDRESS ─────────────────────────────────────────────────────
+// /ballot and /ballot/ and nothing else — THE TIGHTEST OF THE FOUR on purpose.
+// The other three own a prefix with a variable tail; the workspace has no
+// sub-addresses, because the seat is a query and not a segment. So no capture
+// group and nothing after the optional slash: /ballots and /ballot/senate are
+// not this address, matching netlify.toml, where the same two exact rules are
+// declared with no wildcard. The query is not looked at — /ballot?seat=senate
+// and /ballot are one document, and navDocKey already drops a search string.
+const BALLOT_NAV_RE = /^\/ballot\/?$/;
+
 // How many person documents to keep. Each USED to be the whole ~2 MB app shell;
 // since the split it is person.html, ~234 KB, so four slots now cost less than
 // one did. Still a storage decision and not a correctness one: correctness is the
@@ -6344,7 +6502,7 @@ const PERSON_DOC_LIMIT = 4;
 // sent, and none of them separates two documents served from one origin with one
 // content type — a Netlify rewrite is transparent, so /p/lee and '/' answer with
 // identical header sets. The identity only exists in the body.
-const SUB_SHELL_BANNER_RE = /\b(person|issue|spotlight)\.html\s*—\s*THE\s+(?:SECOND|THIRD|FOURTH)\s+SHELL\b/;
+const SUB_SHELL_BANNER_RE = /\b(person|issue|spotlight|ballot)\.html\s*—\s*THE\s+(?:SECOND|THIRD|FOURTH|FIFTH)\s+SHELL\b/;
 
 // The prefix ceiling, in decoded characters. The furthest of the three banners
 // sits ~283 characters in, so this is an order of magnitude of headroom: a banner
@@ -6456,6 +6614,10 @@ async function handleNavigate(req) {
   // Third of the same kind, and ordered after the two above for the same reason:
   // a FALLBACK, not a cache slot. No per-slug document is ever stored.
   const isSpotlight = !isHome && !!(url && url.origin === self.location.origin && SPOTLIGHT_NAV_RE.test(url.pathname));
+  // Fourth of the same kind: navDocKey gives /ballot no key, so this flag decides
+  // a FALLBACK and not a cache slot, and the one precached /ballot.html answers
+  // every seat. !isHome is carried for the reason given above the isHome line.
+  const isBallot = !isHome && !!(url && url.origin === self.location.origin && BALLOT_NAV_RE.test(url.pathname));
 
   // A PERSON DOCUMENT IS A RUNTIME ENTRY, NOT A SHELL ONE. It is keyed to a single
   // address, it is not on SHELL_ASSETS, and nothing on the precache list depends on
@@ -6557,6 +6719,17 @@ async function handleNavigate(req) {
   if (isSpotlight) {
     const spotDoc = await shell.match('/spotlight.html');
     if (spotDoc) return spotDoc;
+  }
+
+  // Offline on the ballot address. Fifth shell, deliberately LAST of the four so
+  // none of /p/, /i/ or /issue/ can be intercepted by it — it could not be, as
+  // BALLOT_NAV_RE is written, and the order keeps that true after the next edit
+  // to any of these regexes. Before '/', which since this split carries no desk
+  // at all: falling back to it would hand a voter who asked for their ballot the
+  // front page.
+  if (isBallot) {
+    const ballotDoc = await shell.match('/ballot.html');
+    if (ballotDoc) return ballotDoc;
   }
 
   // Everything else: '/' is the app shell and it names nobody — the honest

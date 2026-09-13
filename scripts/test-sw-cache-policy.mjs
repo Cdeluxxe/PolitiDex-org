@@ -41,6 +41,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
@@ -255,8 +256,27 @@ const entryLines = SW.slice(entryStart, SW.indexOf('const CACHE_VERSION')).split
 ok(entryLines <= 48,
   `the ${version} log entry is ${entryLines} lines — sw.js ships whole on every deploy, so one honest ` +
   'paragraph plus the file manifest is the budget, not another chapter');
-ok(commentLines - 5507 < 80,
-  `the changelog grew by ${commentLines - 5507} lines in this pass`);
+// MEASURED AGAINST HEAD, NOT AGAINST A CONSTANT. This pin used to read
+// `commentLines - 5507 < 80`, where 5507 was the comment count on the day it was
+// written. Every pass since has added its own honest paragraph, so the constant
+// drifted 603 lines behind the file and the pin reported the whole changelog as
+// one pass's growth — which is to say it failed on a clean tree and told nobody
+// anything. Reading the baseline from HEAD measures what the sentence actually
+// claims: THIS pass did not add a chapter. It goes quiet rather than guessing
+// when git is unavailable (a tarball checkout, a sandbox), because a pin that
+// invents its own baseline is how the constant went stale in the first place.
+let headComments = null;
+try {
+  const headSw = execFileSync('git', ['show', 'HEAD:sw.js'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  headComments = headSw.split('\n').filter((l) => /^\s*(\/\/|\/\*|\*)/.test(l)).length;
+} catch (e) { headComments = null; }
+if (headComments === null) {
+  console.log('      (changelog growth skipped — git show unavailable)');
+} else {
+  console.log(`      changelog: ${headComments} → ${commentLines} comment lines (+${commentLines - headComments} this pass)`);
+  ok(commentLines - headComments < 80,
+    `the changelog grew by ${commentLines - headComments} lines in this pass`);
+}
 console.log(`      ${version} entry: ${entryLines} lines (budget 48)`);
 
 // ═════════════════════════════════════════════════════════════════════════════

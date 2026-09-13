@@ -267,10 +267,17 @@ function memberMap() {
 
 // BROWSE_PHOTOS, read the same two URL forms the map generator reads, so "the
 // portrait's Bioguide" means the same thing in both files.
+const PHOTO_FILE = "browse-photos.js";
 function portraitBioguides() {
-  const src = readFileSync(join(ROOT, "compare-hub.js"), "utf8");
+  // The curated map's home moved from compare-hub.js to browse-photos.js when
+  // /ballot's desk grew headshots (it is data, the hub is behaviour, and the
+  // ballot document does not load the hub). Read whichever file declares it so
+  // this census does not care which pass moved it last.
+  const src = [PHOTO_FILE, "compare-hub.js"]
+    .map((f) => { try { return readFileSync(join(ROOT, f), "utf8"); } catch { return ""; } })
+    .find((t) => t.indexOf("var BROWSE_PHOTOS = {") !== -1) || "";
   const open = src.indexOf("var BROWSE_PHOTOS = {");
-  if (open === -1) throw new Error("BROWSE_PHOTOS not found in compare-hub.js");
+  if (open === -1) throw new Error("BROWSE_PHOTOS not found in browse-photos.js or compare-hub.js");
   const close = src.indexOf("\n    };", open);
   const body = src.slice(open, close === -1 ? undefined : close);
   const FORMS = [

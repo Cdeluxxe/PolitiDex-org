@@ -620,10 +620,16 @@ const roster = J("db/vr-roster-admitted.json");
 // member is the King-Hinds collision with the halves swapped — right votes,
 // someone else's face, and nothing that looks wrong from either end.
 {
-  const src = R("compare-hub.js");
+  // The map's home moved after this wave shipped: compare-hub.js held it when the
+  // eight were admitted, and /browse-photos.js holds it now, so /ballot's desk can
+  // paint the same faces without loading the hub. Read whichever file declares it —
+  // the claim under test is that each of the eight has a bundled portrait, not which
+  // file the literal sits in.
+  const src = ["browse-photos.js", "compare-hub.js"].map((f) => { try { return R(f); } catch { return ""; } })
+    .find((t) => t.indexOf("var BROWSE_PHOTOS = {") !== -1) || "";
   const open = src.indexOf("var BROWSE_PHOTOS = {");
   const map = open === -1 ? "" : src.slice(open, src.indexOf("\n    };", open));
-  ok(open !== -1, "BROWSE_PHOTOS is not in compare-hub.js, so the bundled photo tier cannot be checked");
+  ok(open !== -1, "BROWSE_PHOTOS is in neither browse-photos.js nor compare-hub.js, so the bundled photo tier cannot be checked");
   const photos = {};
   for (const m of map.matchAll(/^\s*([A-Za-z0-9_]+)\s*:\s*'([^']+)'/gm)) photos[m[1]] = m[2];
   const bios = JSON.parse(R("db/vr-member-map.json")).map || {};

@@ -77,6 +77,11 @@ const SRC = FILES.map((f) => [f, R(f)]);
 const SHEET = R("race-sheet.js");
 const WORK = R("ballot-workspace.js");
 const HTML = R("index.html");
+// The desk moved to its own document in the fourth split. index.html keeps the
+// DOOR, ballot.html carries the DESK — so the mount, the script and the
+// stylesheet are asserted against the document that actually serves /ballot.
+// scripts/test-ballot-shell.mjs owns the split itself; this file owns the desk.
+const BALLOT = R("ballot.html");
 const CSS = R("ballot-workspace.css");
 const SW = R("sw.js");
 const WRM = R("who-represents-me.js");
@@ -202,28 +207,33 @@ must(RICH.length >= 1, "no seat on the fixture ballot has a field of 2+ any more
 const SEAT = RICH[0];
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("1 · One surface, mounted in Door 2, shipped whole");
+section("1 · One surface, served at its own address, shipped whole");
 
 {
+  // THE DESK IS AT /ballot. It is built in JS there rather than shipped as an
+  // empty section, because a mount that never fills is worse than no mount.
+  ok(/\.id\s*=\s*['"]ballot-workspace['"]/.test(BALLOT), "the workspace has no mount on ballot.html");
+  ok(/\.id\s*=\s*['"]bw-body['"]/.test(BALLOT), "the workspace body mount is missing from ballot.html");
+  has(BALLOT, 'href="/ballot-workspace.css"', "the workspace stylesheet is not linked on ballot.html");
+  has(BALLOT, 'src="/ballot-workspace.js"', "the workspace script is not loaded on ballot.html");
+  // Deferred there too: the desk builds its own mount at parse time, so nothing
+  // above the fold waits on the module.
+  ok(/<script defer src="\/ballot-workspace\.js"><\/script>/.test(BALLOT),
+    "the workspace script is not deferred on ballot.html");
+  // The sheet owns every model helper the workspace reads, so it must load first.
+  ok(BALLOT.indexOf('src="/race-sheet.js"') < BALLOT.indexOf('src="/ballot-workspace.js"'),
+    "the workspace loads before the race sheet model it reads");
+
+  // AND THE HOMEPAGE KEEPS ONLY THE DOOR. Two desks on two addresses would share
+  // one sessionStorage key and disagree about which seat is open.
+  ok(HTML.indexOf('id="ballot-workspace"') < 0, "the desk mount is back on index.html");
+  ok(!/src="\/ballot-workspace\.js"/.test(HTML), "the desk script is back on index.html");
   const iHub = HTML.indexOf('id="voter-hub"');
   const iLoc = HTML.indexOf("pm-location-bar");
-  const iBw = HTML.indexOf('id="ballot-workspace"');
-  const iDates = HTML.indexOf('id="key-dates"');
-  ok(iBw > 0, "the workspace has no mount in the document");
-  ok(iHub > 0 && iBw > iHub, "the workspace is not inside Door 2");
-  ok(iLoc > 0 && iBw > iLoc, "the workspace sits above the location card it depends on");
-  ok(iDates > 0 && iBw < iDates, "the countdown comes before the ballot it is context for");
-  has(HTML, 'id="bw-body"', "the workspace body mount is missing");
-
-  has(HTML, 'href="/ballot-workspace.css"', "the workspace stylesheet is not linked");
-  has(HTML, 'src="/ballot-workspace.js"', "the workspace script is not loaded");
-  // Deferred, like every other module on this page: the mount is static markup,
-  // so nothing above the fold waits on it.
-  ok(/<script defer src="\/ballot-workspace\.js"><\/script>/.test(HTML),
-    "the workspace script is not deferred");
-  // The sheet owns every model helper the workspace reads, so it must load first.
-  ok(HTML.indexOf('src="/race-sheet.js"') < HTML.indexOf('src="/ballot-workspace.js"'),
-    "the workspace loads before the race sheet model it reads");
+  const iDoor = HTML.indexOf('id="pdx-ballot-door"');
+  ok(iDoor > 0, "Door 2 has no entrance on the homepage");
+  ok(iHub > 0 && iDoor > iHub, "the door is not inside Door 2");
+  ok(iLoc > 0 && iDoor > iLoc, "the door sits above the location card the desk depends on");
   // The precache comment in sw.js warns against splitting a feature's JS from its
   // CSS. Both, or the first offline visit paints an unstyled rail.
   has(SW, "'/ballot-workspace.js'", "the workspace script is not precached");
@@ -245,11 +255,29 @@ section("2 · The rail is the ballot, and its count is the team's count");
   SEATS.forEach((s) => has(html, `pdxBallotWorkspaceOpen('${s.key}')`,
     `the rail cannot open the ${s.key} seat`));
 
-  // The count is over TEAM_POSITIONS, which is the same list the team builder's
-  // "0 of 6" meter counts. Two surfaces reading one list cannot drift.
-  has(html, `/${SEATS.length}<`, "the progress figure does not count the whole ballot");
+  // ── AND THE METER COUNTS WHAT WE CAN ACTUALLY RESOLVE ─────────────────────
+  // The denominator used to be SEATS.length — the whole ballot, gaps included.
+  // For Utah that is six, and two of those six regularly cannot be resolved (a
+  // district we do not map, a local roster this document did not load), so the
+  // desk opened on "0/6": a target the reader cannot reach and a per-state
+  // constant presented as their progress.
+  //
+  // It is now the length of THIS VOTER'S RESOLVED LIST — `_seats` filtered
+  // through `_gate`, which is the same gate the desk paints each seat from. So
+  // the figure is computed here the way the surface computes it, out of the
+  // module's own exports, and there is no literal on either side of this
+  // assertion. The rail is still asserted at SEATS.length above: six is how many
+  // seats this voter decides, and the meter promises only the ones we can hand
+  // them.
+  const workable = w.PDXBallotWorkspace._workable();
+  ok(workable.length > 0, "the fixture resolves no seats at all, so the meter cannot be measured");
+  ok(workable.length <= SEATS.length, "the resolved list is longer than the ballot it comes from");
+  workable.forEach((s) => eq(w.PDXBallotWorkspace._gate(s, w.pdxRepsForMe()), "ok",
+    `the resolved list carries ${s.key}, which the gate does not call resolvable`));
+  has(html, `/${workable.length}<`, "the progress figure does not count this voter's resolved seats");
   eq(w.PDXBallotWorkspace._decided(), 0, "a fresh visitor is not at zero decided");
-  has(html, "seats decided", "the progress figure is not labelled");
+  has(html, "we can resolve", "the progress figure does not say which figure it is");
+  lacks(html, "seats decided", "the meter still claims to count decisions out of the whole ballot");
   lacks(html, "NaN", "the progress figure did not resolve");
 }
 

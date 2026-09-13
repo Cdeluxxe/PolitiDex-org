@@ -6,8 +6,8 @@
 // seats. The two U.S. Senate rows and the Governor row printed "No record on
 // file yet / we'd rather leave this blank than name the wrong person" over Mike
 // Lee, John Curtis and Spencer Cox — three people with full files at /p/lee,
-// /p/curtis and /p/cox. "Work this seat" on the U.S. House tagged Celeste Maloy
-// (UT-2) as HOLDS THIS SEAT for a reader whose resolved district is UT-1. And
+// /p/curtis and /p/cox. "Work this seat" on the U.S. House tagged a member of a
+// district the resolver was not publishing for this reader at all. And
 // the Senate workspace header said "No record on file for the current holder"
 // directly above a field listing Curtis and Lee.
 //
@@ -18,14 +18,17 @@
 //   1. ONE OWNER. pdxSeatKey/pdxSeatHolders exist, every resolver level carries
 //      the seat key they project on, and the homepage band, the race sheet and
 //      the workspace all go through that owner rather than re-deriving holders.
-//   2. LAYTON RESOLVES SIX OF SIX. Both senators, the Governor, the UT-1
-//      House member, and both statehouse seats — by incumbency, not by party.
+//   2. LAYTON RESOLVES SIX OF SIX. Both senators, the Governor, the member of
+//      the U.S. House district this address VOTES IN — UT-2 on the 2026 map,
+//      which is the district every other surface on the page prints for it —
+//      and both statehouse seats, by incumbency and never by party.
 //   3. STATEWIDE COMES FROM THE STATE ROSTER, NOT THE HOUSE DISTRICT MAP, and
 //      survives the load order that broke it (resolver before cmp-data.js).
 //   4. THE BAND NAMES THEM. Name, photo and "See their record" on every
 //      resolved row; the blank sentence on none of them.
 //   5. THE DESK AGREES WITH THE PIN. HOLDS THIS SEAT is exactly the owner's pid
-//      list — so the 2026 UT-2 candidate is not tagged as this reader's member.
+//      list, and the field is exactly that district's — so no other district's
+//      member is tagged, listed, or named in the header.
 //   6. HEADER AND BODY AGREE. The header reads the owner's pid list and nothing
 //      else: every pid it returns is NAMED and linked, and the blank sentence is
 //      reachable only where the owner returned no pid at all.
@@ -67,6 +70,11 @@ const FILES = [
   "issue-colors.js",
   "my-stances.js",
   "voter-hub-location.js",
+  // The curated portrait map, which index.html loads one tag ahead of the hub
+  // and /ballot loads on its own. It left compare-hub.js when the ballot desk
+  // grew headshots, so a boot that wants faces has to load it the way a
+  // document does — section 4's photo frames are the assertion that cares.
+  "browse-photos.js",
   "compare-hub.js",
   "seat-field.js",
   "ballot-breakdown.js",
@@ -283,13 +291,32 @@ const HOLD = {};
   eq((HOLD.governor.pids || []).join(","), "cox", "the Governor seat does not resolve to Cox");
   ok(HOLD.governor.statewide, "the Governor seat is not marked statewide");
 
-  // The House pid is the CURRENT holder of the reader's district under the map
-  // in force today — UT-1, Blake Moore — and not the incumbent of the district
-  // this address moves into on the 2026 map (UT-2, Celeste Maloy).
-  eq((HOLD.house.pids || []).join(","), "bmoore",
-    "the House seat does not resolve to the UT-1 member");
-  ok((HOLD.house.pids || []).indexOf("maloy") < 0,
-    "the House seat resolves to the UT-2 member for a Davis County reader");
+  // ── THE HOUSE SEAT IS THE BALLOT'S DISTRICT, AND ITS MEMBER ────────────────
+  // This pin was reversed on 2026-09-13, and the reversal is the point of the
+  // comment. It required the CURRENT map's member — UT-1, Blake Moore — for a
+  // Davis County address, on the reading that "who holds this seat" is a
+  // question about today.
+  //
+  // What that produced on the preview is the second smoke report: the districts
+  // strip, the "Relevant to Me" filter and the location line all print UT-2 for
+  // this address, because the curated area row's congressDistrict IS 2 and every
+  // location-aware surface reads it — and then the seat row underneath them read
+  // "District 1", with Blake Moore under it. One page, two district numbers for
+  // one seat, and a member who does not sit in the one it printed on top.
+  //
+  // The document is a BALLOT. Every seat on it is a seat this reader will vote
+  // in, which makes the 2026 map the only map that answers the question the page
+  // is asking. So the district and the name move together or not at all, and
+  // both come from the district the rest of the page already published: UT-2,
+  // Celeste Maloy. Blake Moore holds UT-1, and UT-1 is not on this ballot.
+  //
+  // What the reader is owed about the difference is stated on the panel itself,
+  // not smuggled into the seat row: the redistricting banner says the lines may
+  // still move, and `redrawn` still publishes unchanged so it keeps saying it.
+  eq((HOLD.house.pids || []).join(","), "maloy",
+    "the House seat does not resolve to the member of the district this ballot votes in");
+  ok((HOLD.house.pids || []).indexOf("bmoore") < 0,
+    "the House seat names UT-1's member on a UT-2 ballot seat");
   ok(!HOLD.house.statewide, "the House seat is marked statewide");
 
   eq((HOLD.statesenate.pids || []).join(","), "jstevenson",
@@ -343,7 +370,7 @@ const BAND = band(W);
   ok(BAND.length > 500, "the band painted nothing");
   const BT = strip(BAND);
   [["lee", "Mike Lee"], ["curtis", "John Curtis"], ["cox", "Spencer Cox"],
-   ["bmoore", "Blake Moore"], ["jstevenson", "Jerry Stevenson"]].forEach(([pid, name]) => {
+   ["maloy", "Celeste Maloy"], ["jstevenson", "Jerry Stevenson"]].forEach(([pid, name]) => {
     const p = W.CMP_DATA[pid];
     has(BT, (p && p.name) || name, `${pid} is not named in the band`);
   });
@@ -366,8 +393,10 @@ const BAND = band(W);
     "a resolved district row still carries the unmapped-district copy");
   lacks(BAND, "wrm-row--unresolved",
     "a row is painted unresolved though every seat resolved");
-  // The UT-2 member is not this reader's representative and is not named as one.
-  lacks(BT, "Celeste Maloy", "the band names the UT-2 member as a Davis County holder");
+  // And UT-1's member is not named on this ballot: the seat the band prints is
+  // the seat this reader votes in, so the only House member on it is that
+  // district's. See section 2 for the whole argument.
+  lacks(BT, "Blake Moore", "the band names UT-1's member on a UT-2 ballot seat");
 }
 
 {
@@ -416,26 +445,30 @@ section("5 · 'Work this seat' tags the pin's member, not the other district's")
 
   const houseField = W.PDXRaceSheet._field("house") || [];
   ok(houseField.length > 0, "the House seat has no field at all in this fixture");
-  ok(houseField.some((c) => c.pid === "bmoore" && c.incumbent),
-    "the House desk does not tag Blake Moore as holding this reader's seat");
-  // THE FIELD IS THE DISTRICT, AND THE DISTRICT IS UT-1.
+  ok(houseField.some((c) => c.pid === "maloy" && c.incumbent),
+    "the House desk does not tag this seat's sitting member as holding it");
+  // THE FIELD IS THE DISTRICT, AND THE DISTRICT IS THE ONE ON THIS BALLOT.
   //
-  // This check used to run the other way: it required Celeste Maloy to stay in
-  // the field, untagged, on the reasoning that the fix should remove a false
-  // "holds this seat" tag without removing a person. That was right about the
-  // tag and wrong about the person. The field is now keyed on office + state +
-  // district by seat-field.js, and the district it uses is the one the resolver
-  // publishes — Utah's court-ordered map, under which this Layton address is
-  // UT-1. Maloy sits in UT-2. Keeping her in the field as "a candidate on this
-  // reader's ballot" printed a second district's member into a seat panel
-  // titled District 1, which is the same two-answers-for-one-seat defect the
-  // tag was, one row lower down.
+  // This check has now been written three ways, and the two rewrites are worth
+  // keeping in one place because they are the same argument settling down.
   //
-  // What the reader is owed instead is stated on the panel itself: the
-  // redistricting banner says the lines may still move and that this is who we
-  // hold on file under the map in force today, not the official ballot.
-  ok(!houseField.some((c) => c.pid === "maloy"),
-    "the House field still carries UT-2's member on a UT-1 reader's seat");
+  // FIRST it required Maloy to stay in the field untagged — remove the false
+  // "holds this seat" tag without removing a person. Right about the tag, wrong
+  // about the person: a second district's member listed inside a panel titled
+  // with one district number is the same two-answers-for-one-seat defect as the
+  // tag, one row down.
+  //
+  // THEN it required Blake Moore, tagged, because the resolver was swapping the
+  // seat to the map in force today. That made the field internally consistent
+  // and made the PAGE inconsistent: the strip above it said UT-2.
+  //
+  // NOW the field is keyed on office + state + district by seat-field.js, and
+  // the district is the one the resolver publishes — the district this reader
+  // votes in, which is the 2026 map, which is what every other surface on the
+  // page prints. UT-2's member is tagged; UT-1's member is not in the field at
+  // all, because UT-1 is not a seat on this ballot.
+  ok(!houseField.some((c) => c.pid === "bmoore"),
+    "the House field carries UT-1's member on a UT-2 ballot seat");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -459,8 +492,8 @@ section("6 · The workspace header agrees with the pane under it");
   has(HT, "Holds this seat now", "the House pane does not say who holds the seat");
   has(HT, W.CMP_DATA[houseLv.pid].name,
     "the House header does not name the same member the band pinned");
-  lacks(HT, "Holds this seat now: " + W.CMP_DATA.maloy.name,
-    "the House header names the UT-2 member as the holder");
+  lacks(HT, "Holds this seat now: " + W.CMP_DATA.bmoore.name,
+    "the House header names UT-1's member as the holder of a UT-2 seat");
   lacks(HT, "No record on file",
     "the House header claims no record over a member with a file");
 
@@ -544,7 +577,7 @@ section("6 · The workspace header agrees with the pane under it");
   lacks(ST, "No current officeholder resolved",
     "the Senate header reports no officeholder while the pane lists Curtis and Lee");
   lacks(strip(pane(W, "house")), "No current officeholder resolved",
-    "the House header reports no officeholder while the pane lists Blake Moore");
+    "the House header reports no officeholder while the pane lists this seat's member");
   lacks(gov, "No current officeholder resolved",
     "the Governor header reports no officeholder while the pane lists Cox");
 }

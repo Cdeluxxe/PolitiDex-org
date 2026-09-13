@@ -780,8 +780,21 @@ ok(!/aggregateRating|ratingValue|"score"/.test(bare), "edge: no score, rating or
   ok(raw < perRaw && raw < issRaw,
     `size: spotlight.html is the smallest of the four shells (${(raw / 1024).toFixed(1)} vs person ${(perRaw / 1024).toFixed(1)} / issue ${(issRaw / 1024).toFixed(1)} KB)`);
 
-  // THE FRONT PAGE ACTUALLY GAVE UP THE WEIGHT. Against HEAD, so this measures
-  // the pass and not an absolute that a later feature could quietly re-inflate.
+  // THE FRONT PAGE ACTUALLY GAVE UP THE WEIGHT — and did not take it back.
+  //
+  // This gate used to say one thing only: "index.html shed more than 80 KB
+  // against HEAD." That was true and worth pinning on the day the Spotlight split
+  // was written, and it became unsatisfiable the moment the split was COMMITTED,
+  // because from then on HEAD *is* the shed document and the delta is zero. A pin
+  // that can only pass in the working tree of the pass that authored it reports
+  // its own obsolescence forever after, which is indistinguishable from the
+  // regression it was meant to catch.
+  //
+  // So it asks whichever question HEAD makes meaningful. While the split is still
+  // uncommitted — HEAD's index.html still loading the Spotlight corpus — the shed
+  // is the claim, exactly as before. Once it has landed, the claim that still has
+  // teeth is that the weight has not come BACK: a later pass may trim index.html
+  // freely, but it may not re-inflate it, and it may never put the corpus back.
   let headIdx = null;
   try {
     headIdx = execFileSync("git", ["show", "HEAD:index.html"], { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
@@ -789,12 +802,24 @@ ok(!/aggregateRating|ratingValue|"score"/.test(bare), "edge: no score, rating or
   if (headIdx) {
     const hRaw = Buffer.byteLength(headIdx);
     const hGz = gzipSync(headIdx).length;
-    ok(idxRaw < hRaw - 80 * 1024,
-      `size: index.html shed more than 80 KB against HEAD (${(hRaw / 1024).toFixed(1)} → ${(idxRaw / 1024).toFixed(1)} KB raw)`);
-    ok(idxGz < hGz,
-      `size: index.html shed gzipped bytes too (${(hGz / 1024).toFixed(1)} → ${(idxGz / 1024).toFixed(1)} KB gz)`);
+    const headStillFat = /src="\/spotlights-data\.js"/.test(headIdx);
+    if (headStillFat) {
+      ok(idxRaw < hRaw - 80 * 1024,
+        `size: index.html shed more than 80 KB against HEAD (${(hRaw / 1024).toFixed(1)} → ${(idxRaw / 1024).toFixed(1)} KB raw)`);
+      ok(idxGz < hGz,
+        `size: index.html shed gzipped bytes too (${(hGz / 1024).toFixed(1)} → ${(idxGz / 1024).toFixed(1)} KB gz)`);
+    } else {
+      // 8 KB of headroom, not zero: an ordinary copy or markup change on the
+      // homepage is not a re-inflation, and a pin that fails on a sentence is a
+      // pin people delete. Putting the corpus back would cost 1.2 MB.
+      ok(idxRaw <= hRaw + 8 * 1024,
+        `size: index.html did not re-inflate against HEAD (${(hRaw / 1024).toFixed(1)} → ${(idxRaw / 1024).toFixed(1)} KB raw)`);
+      ok(!/src="\/spotlights-data\.js"/.test(index),
+        "size: the Spotlight corpus is back on index.html — the split has been undone");
+    }
     console.log(`  index.html:     ${(hRaw / 1024).toFixed(1)} → ${(idxRaw / 1024).toFixed(1)} KB raw, ` +
-      `${(hGz / 1024).toFixed(1)} → ${(idxGz / 1024).toFixed(1)} KB gz, ${idxTags} script tags`);
+      `${(hGz / 1024).toFixed(1)} → ${(idxGz / 1024).toFixed(1)} KB gz, ${idxTags} script tags` +
+      `${headStillFat ? "  (HEAD still carries the corpus: measuring the shed)" : "  (split already landed: measuring against re-inflation)"}`);
   } else {
     console.log("  (index.html vs HEAD skipped — git show unavailable)");
   }

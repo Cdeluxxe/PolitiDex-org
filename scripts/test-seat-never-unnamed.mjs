@@ -297,7 +297,17 @@ const BEFORE = pidsOf(W);
     "not every seat still offers the reader their record");
   // No invention on the way through: the band names the same six people, not a
   // guess, a challenger or a party stand-in.
-  lacks(AT, "Celeste Maloy", "the band names the UT-2 member as a Davis County holder");
+  //
+  // AND THE ONE WHO MUST NOT BE HERE IS UT-1'S MEMBER. Davis County is UT-1 on
+  // the current map and UT-2 on the 2026 map, so this fixture is the exact place
+  // the two can be confused. The curated area data — the same data the districts
+  // strip prints from — says district 2, and the seat names district 2's member.
+  // Blake Moore holds UT-1, so his name on this row would be the wrong
+  // district's member under a district number the rest of the page does not
+  // print. The resolver used to swap this seat back to the prior map, which is
+  // how "District 1 · Blake Moore" appeared beneath a location line reading
+  // UT-2; the name and the district number now move together or not at all.
+  lacks(AT, "Blake Moore", "the band names UT-1's member on a UT-2 ballot seat");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -307,7 +317,7 @@ section("3 · The seat owner keeps every holder, and names nobody twice");
   eq(senate(W), "curtis,lee", "the Senate seat lost a holder to the second payload");
   eq((W.pdxSeatHolders("governor").pids || []).join(","), "cox",
     "the Governor seat lost its holder to the second payload");
-  eq((W.pdxSeatHolders("house").pids || []).join(","), "bmoore",
+  eq((W.pdxSeatHolders("house").pids || []).join(","), "maloy",
     "the House seat changed holder across a payload that touched no district");
   ok(W.pdxSeatHolders("senate").ok, "the Senate seat reports no holders");
   // The statewide walk answered out of its own ledger here, so these are its own
@@ -392,8 +402,24 @@ section("5 · An empty roster is a load state, not a resignation");
   Object.keys(w.CMP_DATA).forEach((k) => { delete w.CMP_DATA[k]; });
   eq(Object.keys(w.CMP_DATA).length, 0, "the roster was not actually emptied");
   eq(count(w), 6, "an empty roster un-named the reader's seats");
-  ok(w.pdxSeatHolders("house").sticky,
-    "a level refilled from the seat ledger is not reported as refilled");
+  // WHICH MEMORY ANSWERED IS NOT THE CLAIM; THAT SOMEBODY DID IS. Three layers
+  // can name a seat here — the curated area data, `_pdxStatewideBest` for the
+  // statewide seats, and the seat ledger behind both — and `sticky` flags only
+  // the third. This assertion used to require the House seat to come back
+  // through the ledger, which was true only because the resolver first threw the
+  // curated answer away: it overwrote the seat with the prior map's district and
+  // member, and an emptied roster nulled that member, leaving the ledger as the
+  // only way back to a name. Now the curated answer stands, so the seat never
+  // needs refilling — the reader keeps their member either way, which is the
+  // rule this section is named for. So the pin is on the outcome, plus the
+  // requirement that the flag still tells the truth about which path ran.
+  const hs = w.pdxSeatHolders("house");
+  ok(hs.ok && hs.pids.length === 1, "an empty roster left the House seat with no holder");
+  ok(!hs.districtGap, "an empty roster reopened a district gap on a seat already resolved");
+  (w.pdxRepsForMe().levels || []).forEach((lv) => {
+    if (lv.sticky) ok(!!lv.pid, `${lv.key} is flagged as refilled from the ledger but carries no holder`);
+    if (lv.sticky) ok(!!lv.resolved, `${lv.key} was refilled from the ledger and still reads unresolved`);
+  });
   eq(pidsOf(w), before, "an empty roster changed which pid sits on which seat");
   lacks(strip(band(w)), "No record on file yet",
     "an empty roster paints the blank-coverage sentence over named holders");
@@ -449,7 +475,7 @@ section("6 · What still releases a seat: a new answer, a departure, a new addre
   ok((m.pdxSeatHolders("senate").pids || []).length === 2,
     "the moved reader does not get their own two senators");
   const ob = strip(band(m));
-  ["Mike Lee", "Spencer Cox", "Blake Moore", "Jerry Stevenson"].forEach((n) =>
+  ["Mike Lee", "Spencer Cox", "Celeste Maloy", "Jerry Stevenson"].forEach((n) =>
     lacks(ob, n, `an Ohio reader is shown Utah's ${n}`));
   has(ob, "Not resolved for your area yet",
     "an unmapped district stops saying so for a moved reader");

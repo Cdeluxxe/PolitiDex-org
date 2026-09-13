@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+<!-- ═════════════════════════════════════════════════════════════════════════════
+     ballot.html — THE FIFTH SHELL. /ballot IS ITS OWN DOCUMENT.
+     ────────────────────────────────────────────────────────────────────────────
+     WHAT WAS WRONG. Door 2 — the ballot workspace — was a section of the
+     homepage. So was Who Represents Me, the hero, Compare Hub, the Spotlight
+     directory, the Archive, the Locker and the account graph. A voter who came
+     to work their seats loaded 2.24 MB of document and ~11.9 MB of JavaScript,
+     nearly all of it for surfaces they had not asked for, and then had to scroll
+     past the front page to reach the desk. Worse, the workspace shared the page
+     with an older ballot surface — "MY VOTING TEAM" and its own pick counter —
+     so the same voter met two products that both claimed to be their ballot and
+     counted their progress differently.
+
+     WHAT THIS IS. The workspace's own document, served for /ballot by a single
+     netlify.toml rewrite, carrying the record lane and nothing else:
+
+       • ballot-workspace.js — the desk, unchanged: the seat rail, one open seat,
+         the field on file for that seat, the pick, the next undecided seat;
+       • voter-hub-location.js, which owns where this voter votes and therefore
+         which seats exist for them;
+       • seat-field.js + ballot-breakdown.js, which turn a seat into the field
+         of people actually on the record for it;
+       • the stance corpus + alignment-tool.js + consistency.js + formal-index.js
+         + publication-floor.js, because the desk orders a field by the FORMAL
+         RECORD and the record lane is what those files are;
+       • race-sheet.js and /race-sheet.css, for "Full side-by-side" — the desk's
+         one overlay, which self-builds into <body>;
+       • person-link.js, because a candidate's name here is a cross-document
+         navigation to /p/<pid> and person-link.js owns that address;
+       • your-ballot.js, for one sentence: the official-ballot note the desk
+         borrows rather than re-writing (see THE COPY RULE below).
+
+     WHAT IT DELIBERATELY DOES NOT CARRY. app.css (986 KB), app-2.css, tailwind,
+     the homepage hero and its showcase, Who Represents Me, compare-hub.js and
+     the Compare Hub directory, door2-spine.js (it paints a header over Door 2's
+     views on the homepage and there are no rival views here), spotlights-data.js
+     and the Spotlight overlay, the person-file spine (person-file.js /
+     profile-modal machinery), issue.html's ledger family (door1-workspace.js /
+     issue-file.js / pdx-issue-profile.js / issue-page.js), my-stances.js, Voice,
+     like/dislike, firebase, the account graph, the Archive, the Locker,
+     pdx-lazy-data.js and pdx-stability.js.
+
+     TWO SURFACES GO QUIET, ON PURPOSE. compare-hub.js is absent, so the desk's
+     Direction Match chip renders as nothing and the local-seat expansion stays
+     collapsed. Both are explicitly secondary — Direction Match orders no field
+     and names no winner — and both were already null-guarded, so what a reader
+     loses is one chip, not a broken desk. .netlify/results.md names them.
+
+     THE RULER IS UNCHANGED. The formal record orders every field on this
+     document, exactly as it did when the desk was a homepage section. Nothing
+     here introduces a floor, a mapping, a score, a party weight or a blend, and
+     a field we cannot rank on the record says so in words instead of being
+     ranked on something weaker.
+
+     NEVER A HARDCODED SEAT COUNT. The rail, the counter and the progress row all
+     read the length of THIS voter's resolved seat list. There is no "6" in this
+     document's copy and no national slate invented for a reader we cannot place:
+     no location means one honest empty that offers to set one or to go home.
+
+     NO EMPTY MOUNT. #ballot-workspace and #bw-body are built by the inline
+     script at the end of <body> and appended to <body> there. This document
+     ships no hidden desk section for the layout engine to reason about before
+     the workspace has seats to put in it, and it installs no observer.
+
+     THE RULE THIS DOCUMENT LIVES BY: EVERY SAME-ORIGIN PATH IS ROOT-ABSOLUTE.
+     /ballot/ is served with HTTP 200 at a trailing-slash path, so a bare src of
+     ballot-workspace.js would resolve to /ballot/ballot-workspace.js, the
+     rewrite would catch it, and the browser would be handed this document and
+     told to parse HTML as JavaScript. A leading slash is correct at every depth.
+     scripts/test-ballot-shell.mjs fails on a relative src or href here.
+
+     THE COPY RULE. This is not an official ballot and this document never says
+     otherwise. The desk prints the caveat itself, borrowed from Door 1 through
+     window._pdxOfficialBallotNote so there is exactly one spelling of it in the
+     app; the chrome above says "Your ballot" and the no-script note below says
+     "the seats we can resolve", which is the true claim.
+
+     NO JSON-LD AND NO SCORE. index.html's WebSite/Organization block describes
+     the front page and a private workspace is not the front page. Nothing here
+     prints a percentage, a party score or a blend.
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- A workspace is private and personal: there is nothing here to unfurl and
+       nothing a crawler should index. The tags exist so a link pasted into a
+       chat window says what the address is rather than showing a bare URL, and
+       they are in share-preview.ts's attribute order (`property` then `content`,
+       `rel` then `href`) for the same reason the other shells are — that edge
+       function rewrites by an attribute-ordered regex, so a reshuffle here would
+       be a silent no-op there rather than an error, on the day /ballot is ever
+       added to its config.path. -->
+  <title>Your ballot · PolitiDex</title>
+  <link rel="canonical" href="https://politidex.us/ballot" />
+  <meta name="robots" content="noindex, follow" />
+  <meta name="description" content="Your ballot workspace — one seat at a time. Open a seat, compare the field on the formal record, make your pick, move to the next seat we can resolve." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:title" content="Your ballot · PolitiDex" />
+  <meta property="og:description" content="Your ballot workspace — one seat at a time. Open a seat, compare the field on the formal record, make your pick, move to the next seat we can resolve." />
+  <meta property="og:url" content="https://politidex.us/ballot" />
+  <meta property="og:image" content="https://politidex.us/og-image.png" />
+  <meta property="og:image:alt" content="PolitiDex — your ballot workspace" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Your ballot · PolitiDex" />
+  <meta name="twitter:description" content="Your ballot workspace — one seat at a time. Open a seat, compare the field on the formal record, make your pick, move to the next seat we can resolve." />
+  <meta name="twitter:image" content="https://politidex.us/og-image.png" />
+  <meta name="theme-color" content="#0a0f1e" />
+
+  <!-- The three files a first paint actually waits on: where this voter votes,
+       the desk that paints their seats, and the desk's stylesheet. Everything
+       else below is deferred data the desk fills in as it arrives. -->
+  <link rel="preload" as="script" href="/voter-hub-location.js" />
+  <link rel="preload" as="script" href="/ballot-workspace.js" />
+  <link rel="preload" as="style" href="/ballot-workspace.css" />
+
+  <!-- Barlow / Bebas Neue, non-blocking, with the same swap index.html,
+       person.html, issue.html and spotlight.html use. A swap written differently
+       on one document is a visible font flash on exactly one URL shape. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+
+  <!-- The desk's own stylesheet. Render-blocking on purpose: it is the page.
+       Self-sufficient — its one custom property (--bw-accent, set inline per
+       seat by the desk) is read with a literal fallback, so there is no app.css
+       cascade to inherit here. -->
+  <link rel="stylesheet" href="/ballot-workspace.css" />
+  <!-- The race sheet is one overlay behind one button, so its 47 KB loads the
+       same non-blocking way it does on the homepage and never blocks the desk.
+       Also self-sufficient: every var() in it carries a literal fallback. -->
+  <link rel="stylesheet" href="/race-sheet.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/race-sheet.css" /></noscript>
+
+  <style>
+    /* THE FIXED CHROME, MEASURED ONCE. Same contract person.html, issue.html and
+       spotlight.html answer for their own chrome, and for the same reason: a
+       custom property that is never declared invalidates every calc() that reads
+       it. This document's chrome is ONE row and no search, so the number is the
+       height of the bar declared below. The @supports guard is the one all three
+       other shells carry — a custom property accepts any token sequence, so an
+       engine that cannot parse env() would swallow the declaration and
+       invalidate every calc() reading it; an engine without env() also has no
+       notch. */
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    /* No app.css here, so the page's own ground colour is declared rather than
+       inherited from a 986 KB stylesheet this document does not load. */
+    html, body { background: #070b16; color: #e7eefb; }
+    body {
+      margin: 0;
+      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+      padding-top: calc(var(--pdx-chrome) + 0.75rem);
+    }
+
+    /* The one-row shell bar. Static: no search field, no layout observer, no
+       measurement pass, nothing that reads the viewport. */
+    .pdx-bal-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1200;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.75rem; height: 3.25rem; padding: env(safe-area-inset-top, 0px) 1rem 0;
+      background: rgba(10, 15, 30, 0.86); backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .pdx-bal-bar a { text-decoration: none; }
+    .pdx-bal-wordmark {
+      font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      font-size: 1.15rem; letter-spacing: 0.12em; color: #fff;
+    }
+    .pdx-bal-wordmark span { color: #e0273f; }
+    .pdx-bal-links { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
+    .pdx-bal-home {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #9fb4d4;
+      border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 0.5rem;
+      padding: 0.3rem 0.65rem; white-space: nowrap; cursor: pointer;
+      background: transparent;
+    }
+
+    /* The desk's own section is a homepage child in its stylesheet, so it gets
+       its page width here rather than inheriting one from a layout this document
+       does not have. */
+    #ballot-workspace { max-width: 60rem; margin: 0 auto 3rem; padding: 0 1rem; }
+
+    /* The race sheet is fixed and full-bleed, so it would sit OVER the bar. On
+       this document the bar is chrome, not a layer to be covered: the overlay
+       starts below it. This is the only .rs- rule that is not in the stylesheet,
+       and it is here because it is a fact about THIS shell's chrome. */
+    .rs-overlay { top: var(--pdx-chrome); }
+
+    /* The only thing a reader sees if JavaScript never runs. It claims the seats
+       we can resolve, which is true, rather than an official ballot, which would
+       not be. */
+    .pdx-bal-note {
+      max-width: 40rem; margin: 2.5rem auto; padding: 0 1.1rem;
+      font: 400 1rem/1.6 'Barlow', system-ui, sans-serif; color: #9fb4d4;
+    }
+    .pdx-bal-note a { color: #f5d77a; }
+  </style>
+
+</head>
+<body>
+
+  <!-- ══ THE SHELL BAR — THIS DOCUMENT'S ONLY CHROME ════════════════════
+       index.html's nav is two fixed rows, a search field, the account menu and a
+       layout observer. None of that belongs on an address whose whole job is to
+       work one voter's seats. Two controls: whose site this is, and the way home.
+
+       "← HOME" IS THE PERSON FILE'S CLOSE RULE. It is a real navigation with
+       location.assign, not a history.back() and not a replaceState: the reader
+       may have arrived here cold from a shared link or a bookmark, in which case
+       there is no history to go back through, and a replace would destroy the
+       entry they came from. assign leaves an entry, so the browser's own Back
+       still returns them to the ballot they just left. The markup is a plain
+       <a href="/"> underneath, so it works with JavaScript off and needs no
+       handler to be correct.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <header class="pdx-bal-bar">
+    <a href="/" class="pdx-bal-wordmark" aria-label="PolitiDex home">POLITI<span>DEX</span></a>
+    <span class="pdx-bal-links">
+      <a href="/" class="pdx-bal-home" id="pdx-bal-home">← Home</a>
+    </span>
+  </header>
+
+  <p class="pdx-bal-note" id="pdx-bal-note">
+    Loading your ballot workspace — the seats we can resolve for where you vote,
+    one at a time. If it does not appear, <a href="/">go to PolitiDex</a> to set
+    where you vote.
+  </p>
+
+  <script src="/person-link.js"></script>
+
+  <!-- ══ THE SHELL SEAMS ════════════════════════════════════════════════
+       Four gestures inside the desk assumed a homepage underneath it. Each one
+       becomes a real navigation here instead of a dead control. They are
+       declared BEFORE the deferred modules below so the desk's boot cannot run
+       first, and each one that overrides a function from a module is re-applied
+       after load for the same reason.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <script>
+  (function () {
+    'use strict';
+
+    // ── The way home ────────────────────────────────────────────────────
+    // One spelling of "this tab goes to the front page", same three-step
+    // fallback person-file.js's leaveHome() uses, and used by the chrome link
+    // and by the location seam below.
+    function home(hash) {
+      var to = '/' + (hash || '');
+      try { location.assign(to); return true; } catch (e) {}
+      try { location.href = to; return true; } catch (e2) {}
+      try { location.replace(to); return true; } catch (e3) {}
+      return false;
+    }
+    window._pdxBallotGoHome = home;
+
+    var homeLink = document.getElementById('pdx-bal-home');
+    if (homeLink) {
+      homeLink.addEventListener('click', function (e) {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+        e.preventDefault();
+        home('');
+      });
+    }
+
+    // ── SEAM 1: setting a location is a trip home ───────────────────────
+    // The desk's honest empty offers one button — "Set my location" — and both
+    // functions behind it (voter-hub-location.js's toggleChangeLocation and
+    // openLocationModal) open the homepage's #change-location-form and return
+    // early when it is absent. It IS absent here, so without this the one
+    // control on the one screen a no-location reader sees would do nothing at
+    // all: the worst possible failure on the worst possible screen.
+    //
+    // Who Represents Me is the front step and it stays on /. So this is not a
+    // modal reimplemented on a second document — it is the reader being taken
+    // to the place that asks the question, which is where the answer has always
+    // been set. The same override serves the "Change location" button on a
+    // painted desk.
+    //
+    // Applied on a timer as well as now because voter-hub-location.js is loaded
+    // below and assigns both names at evaluation, which would overwrite these.
+    function seamLocation() {
+      window.toggleChangeLocation = function () { return home('#who-represents-me'); };
+      window.openLocationModal = function () { return home('#who-represents-me'); };
+    }
+    seamLocation();
+    document.addEventListener('DOMContentLoaded', seamLocation);
+    window.addEventListener('load', seamLocation);
+
+    // ── SEAM 2: "tell us your positions" is a trip home ─────────────────
+    // The desk and the race sheet both offer a link to the stance editor, and
+    // both spell it the same guarded way: open window.PDXStances if it is there,
+    // otherwise set location.hash = '#my-stances'. my-stances.js is a separate
+    // 86 KB product that needs its own homepage mount, so it is NOT loaded here
+    // and PDXStances is NOT stubbed — a fake .count() would let the record lane
+    // believe this reader has saved stances when they have none, and the desk
+    // would silently claim a ranking it cannot support. It says "not ranked"
+    // instead, which is true.
+    //
+    // So the fallback branch fires, and a bare hash on a document with no
+    // #my-stances is a no-op. Catching it here turns it into the navigation it
+    // was always trying to be.
+    window.addEventListener('hashchange', function () {
+      if ((location.hash || '') === '#my-stances') home('#my-stances');
+    });
+
+    // ── SEAM 3: opening a person is a navigation to /p/<pid> ────────────
+    // Every candidate name on the desk is a real <a href="/p/<pid>"> — that part
+    // was already right. What was wrong is who answered the click.
+    //
+    // person-link.js installs one delegated handler for every person link in the
+    // app, and it hands the click to the in-app funnel whenever the funnel LOOKS
+    // available: PDXPerson.open, or failing that window.showProfile. Neither
+    // check is about whether a file can actually appear. person-file.js is not on
+    // this document, so PDXPerson is absent and the second guard answers — and it
+    // answers TRUE, because profiles-full.js is loaded here (the desk needs
+    // CMP_DATA and the roster helpers out of it) and declares showProfile as a
+    // plain top-level function, which on a classic script is a global.
+    //
+    // So the funnel claimed the click, called preventDefault, and asked the modal
+    // renderer to paint into #modal-content — a host that does not exist on this
+    // document. The reader tapped a name on their ballot and nothing happened at
+    // all: the href was suppressed by the very handler that could not honour it.
+    //
+    // The override is the same answer SEAM 1 and SEAM 2 give. A person's record
+    // is its own document at /p/<pid> and the only thing that changes documents
+    // is a navigation, so this one is assign() — a real history entry, not a
+    // replaceState, because Back from a record has to mean "the ballot I left".
+    // Nothing here writes the address without also moving the document: an
+    // address that names a file the reader is not looking at is the defect this
+    // whole split exists to have removed.
+    //
+    // Re-applied on the same two events as SEAM 1, because profiles-full.js is
+    // deferred below and assigns the name at evaluation.
+    function seamPerson() {
+      window.showProfile = function (id, ev) {
+        if (ev && ev.stopPropagation) ev.stopPropagation();
+        var pid = id ? String(id) : '';
+        if (!pid) return false;
+        // The ADVERTISED address, resolved through the one table that owns which
+        // id a retired alias is filed under, so the ballot and the record agree
+        // on the person's URL.
+        var to = '';
+        try {
+          var PL = window.PDXPersonLink;
+          if (PL && typeof PL.href === 'function') to = PL.href(pid) || '';
+        } catch (e) {}
+        if (!to) to = '/p/' + encodeURIComponent(pid);
+        try { location.assign(to); return true; } catch (e2) {}
+        try { location.href = to; return true; } catch (e3) {}
+        return false;
+      };
+    }
+    seamPerson();
+    document.addEventListener('DOMContentLoaded', seamPerson);
+    window.addEventListener('load', seamPerson);
+  })();
+  </script>
+
+  <!-- ══ THE RECORD LANE ════════════════════════════════════════════════
+       The desk's dependency chain, in index.html's own relative order, because
+       several of these files read a global the previous one assigned at
+       evaluation and reordering them changes what is defined when.
+
+       Every cross-module read in this chain is a `typeof window[n] ===
+       'function'` or an `&&`, which is why a chain this specific can be lifted
+       out of a 115-script document at all: the files that are NOT here are not
+       missing, they are absent, and absent is a state each of these was written
+       to paint.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <script defer src="/cmp-data.js"></script>
+  <script defer src="/data-hygiene.js"></script>
+  <script defer src="/profiles-full.js"></script>
+
+  <!-- Where this voter votes, and therefore which seats exist for them. There is
+       no seat list on this document that is not derived from this file. -->
+  <script defer src="/voter-hub-location.js"></script>
+  <script defer src="/seat-field.js"></script>
+
+  <!-- The faces. _getPhotoUrl (ballot-breakdown.js, next tag) resolves a portrait
+       through PROFILES -> CMP_DATA -> BROWSE_PHOTOS, and on this document the first
+       two tiers are empty of photos: the bundled roster carries none and Firestore
+       may never answer. So the desk's headshots come from the curated map, which is
+       why it is a file of its own rather than a passenger in compare-hub.js — the
+       hub is 10,000 lines of collection manager and /ballot does not load it. Data
+       only: no DOM, no listeners, 715 URLs. Deferred, because a face is not the
+       record and must never delay the seat panel that is. -->
+  <script defer src="/browse-photos.js"></script>
+  <script defer src="/ballot-breakdown.js"></script>
+
+  <!-- The stance corpus. The desk does not print a stance, but the record lane
+       ranks a field by reading it, and a field ranked against a corpus that is
+       half-loaded is a field ranked wrong — so it is all here, at the same
+       priorities index.html gives it. -->
+  <script defer fetchpriority="high" src="/politician-stances-core.js"></script>
+  <script defer fetchpriority="low" src="/politician-stances-ext.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w2.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w3.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w4.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w5.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w6.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w7.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w8.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w9.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w10.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w11.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w12.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w13.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w14.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w15.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w16.js"></script>
+  <script defer src="/stance-helpers.js"></script>
+
+  <!-- The ruler. alignment-tool.js owns _calcAlignmentScore, which is what
+       race-sheet.rank(list, 'record') calls to order a field on the formal
+       record. No floor, mapping or weight in this document changes it. -->
+  <script defer src="/alignment-tool.js"></script>
+  <script defer src="/pdx-issue-family.js"></script>
+  <script defer src="/issue-colors.js"></script>
+  <script defer src="/issue-scope.js"></script>
+  <script defer src="/formal-index.js"></script>
+  <script defer src="/publication-floor.js"></script>
+
+  <!-- Door 1's file, here for one sentence. The desk's official-ballot caveat is
+       borrowed from window._pdxOfficialBallotNote rather than re-written, so the
+       app has exactly one spelling of what this workspace is not. -->
+  <script defer src="/your-ballot.js"></script>
+  <script defer src="/voting-record.js"></script>
+  <script defer src="/say-vs-do.js"></script>
+  <script defer src="/consistency.js"></script>
+
+  <!-- "Full side-by-side": one overlay, self-built into <body>. -->
+  <script defer src="/race-sheet.js"></script>
+
+  <!-- The desk. -->
+  <script defer src="/ballot-workspace.js"></script>
+
+  <!-- ══ THE MOUNT — BUILT, NOT SHIPPED ═════════════════════════════════
+       ballot-workspace.js paints into #bw-body inside #ballot-workspace and
+       bails unless both exist. This document ships neither in its parsed markup:
+       they are created here and appended to <body>, so there is no empty desk
+       for the layout engine to reason about before there are seats to put in it.
+
+       This runs at parse time, which is before every deferred module above and
+       therefore well before the desk's own DOMContentLoaded boot — so the mount
+       is there the first time sync() asks for it and there is no empty-mount
+       fight to lose.
+
+       The no-script note is removed here rather than hidden in CSS: if this
+       script runs, the note has been replaced by the thing it was apologising
+       for; if it does not run, the note is the page and must stay.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <script>
+  (function () {
+    'use strict';
+
+    var note = document.getElementById('pdx-bal-note');
+    if (note && note.parentNode) note.parentNode.removeChild(note);
+
+    var sec = document.createElement('section');
+    sec.id = 'ballot-workspace';
+    sec.className = 'bw';
+    // The homepage mount carries an aria-label naming the surface and no seat
+    // count, which is the right label here too: the count belongs to this
+    // voter's resolved list and the desk writes it.
+    sec.setAttribute('aria-label', 'Your ballot workspace — one seat at a time');
+    var body = document.createElement('div');
+    body.id = 'bw-body';
+    sec.appendChild(body);
+    document.body.appendChild(sec);
+  })();
+  </script>
+
+</body>
+</html>

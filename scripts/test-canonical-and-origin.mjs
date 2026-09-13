@@ -246,9 +246,15 @@ section("4 · the live document's canonical tracks the open record too");
   // Scrapers read the served HTML; JS-executing crawlers, reader modes and
   // "copy canonical link" tools read the DOM. The Spotlight overlay changes what
   // the page IS, so both have to move.
-  const html = R("index.html");
+  // Read from spotlight-engine.js, not index.html. The third split lifted the
+  // Spotlight overlay out of the homepage document into its own module (and its
+  // own address, /issue/<slug> → spotlight.html), taking setMeta with it — which
+  // silently stranded this harness: it went on asking index.html for a function
+  // that had moved, so the only thing it could still report was its own
+  // staleness. The contract it guards did not move, so neither should the pin.
+  const html = R("spotlight-engine.js");
   const start = html.indexOf("function setMeta(sp)");
-  must(start > 0, "index.html no longer defines the Spotlight's setMeta(sp)");
+  must(start > 0, "spotlight-engine.js no longer defines the Spotlight's setMeta(sp)");
   const block = html.slice(start, html.indexOf("function showOverlay", start));
   has(block, "setCanonicalHref(spotlightUrl(sp.slug))", "opening a Spotlight repoints the live canonical at the Spotlight");
   has(block, "_meta.canonical", "…the homepage canonical is saved first");

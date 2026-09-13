@@ -111,7 +111,13 @@ const sql = R(join(MIG_DIR, MIGRATION));
 const memberMap = J("db/vr-member-map.json");
 const roster = J("db/vr-roster-admitted.json");
 const gen = R(GEN);
-const hub = R("compare-hub.js");
+// The curated portrait map. It was a literal inside compare-hub.js when this wave
+// shipped; it lives in browse-photos.js since /ballot's desk grew headshots, because
+// a face is data and the Compare Hub is 10,000 lines of behaviour /ballot does not
+// load. `hub` is read here ONLY for that map, so both files are joined and whichever
+// one declares it answers — this wave's claim is that its three admitted members have
+// a portrait on an allowlisted host, not which file the URL is filed in.
+const hub = ["browse-photos.js", "compare-hub.js"].map((f) => { try { return R(f); } catch { return ""; } }).join("\n");
 const toml = R("netlify.toml");
 // netlify.toml stores each allowed image host as an escaped regex, so the literal host
 // string is never in the file. Unescape once, here, rather than at every comparison.
@@ -2262,6 +2268,26 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // whose bar reads the parameter; neither holds a wave artefact, a mapping, a
     // floor or a figure, and this wave's own seams are asserted above.
     "controversies.js", "issue.html",
+    // The ballot-desk faces pass (CACHE_VERSION v192), on those same later-wave
+    // terms. A candidate row on /ballot printed a name where the record it opens
+    // prints a headshot, so every row now carries the SAME portrait the person
+    // file paints, inside the same <a href="/p/<pid>"> as the name. The only
+    // thing in it that touches this wave's reach is WHERE the curated portrait
+    // map is filed: BROWSE_PHOTOS came out of compare-hub.js into
+    // /browse-photos.js so the desk can paint faces without loading ten thousand
+    // lines of collection manager. Not one URL changed — the literal moved
+    // verbatim, compare-hub.js reads it off window, and the census scripts and
+    // harnesses below were repointed to read whichever file declares it rather
+    // than having their assertions relaxed. ballot.html gained the script tag;
+    // scripts/test-person-shell.mjs re-based its index.html line anchors by the
+    // six lines the new tag added above them, byte-identity untouched.
+    //   NO ROLL, MAPPING, ADMISSION, PORTRAIT URL, FLOOR OR FIGURE MOVED.
+    "browse-photos.js", "ballot.html",
+    "scripts/vr-federal-roster-r2-census.mjs",
+    "scripts/vr-federal-wave-f8-census.mjs",
+    "scripts/test-lyman-letterhead-warm.mjs",
+    "scripts/test-door2-mobile-cards.mjs",
+    "scripts/test-person-shell.mjs",
     "scripts/test-vr-federal-wave-f8.mjs",
     "scripts/test-vr-federal-wave-f9.mjs",
   ]);

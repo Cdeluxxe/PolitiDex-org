@@ -528,7 +528,9 @@ const SEED_NAMES = {
 // ── 1. slug → bioguide from BROWSE_PHOTOS congress portraits ──────────────────
 // BROWSE_PHOTOS was declared in an inline <script> in index.html until the
 // first-paint pass moved the large inline blocks into external files loaded from
-// the same document positions; it now lives in compare-hub.js. Read the document
+// the same document positions; it lived in compare-hub.js after that and lives in
+// browse-photos.js now, because /ballot's desk needs the same faces and does not
+// load the hub. None of those moves is hard-coded here. Read the document
 // TOGETHER WITH the local scripts it loads so the map is found either way — this
 // must stay in step with scripts/audit-photo-coverage.mjs, which reads the same
 // map the same way.

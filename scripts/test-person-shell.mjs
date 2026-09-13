@@ -331,13 +331,28 @@ const COPIES = [
   [1936, 2010, "PDXLazy"],
   [2012, 2035, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
   [2040, 2085, "the share furniture share-preview.ts rewrites"],
-  [3567, 3630, "the crawl-header guard"],
-  [17791, 18713, "the funding lane, up to the cut"],
-  [20603, 20637, "the profile modal down to #modal-content"],
-  [20698, 20744, "the stance popover, the record overlay and the share sheet"],
-  [27828, 27948, "PDXStance"],
-  [31232, 31427, "the PWA runtime and the service-worker registration"],
+  [3566, 3629, "the crawl-header guard"],
+  [17771, 18693, "the funding lane, up to the cut"],
+  [20583, 20617, "the profile modal down to #modal-content"],
+  [20678, 20724, "the stance popover, the record overlay and the share sheet"],
+  [27870, 27990, "PDXStance"],
+  [31274, 31469, "the PWA runtime and the service-worker registration"],
 ];
+// THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
+// ones re-based here were re-based by the fourth split, which lifted the ballot
+// workspace out of this document: removing the desk's script, stylesheet and
+// mount pulled the lower half of the file up, demoting the duplicate ballot panel
+// to a door card changed the count again below it, and restoring the journey
+// breadcrumb above that door moved the last five by fifteen more. The last two
+// moved six further when the curated portrait map was lifted out of
+// compare-hub.js: /browse-photos.js takes a script tag and its comment one line
+// above the hub's, at index.html line 22389, and everything under that tag slid
+// down by six. Not one
+// byte of any copied block changed — every block above was located verbatim in the
+// new index.html and only its line numbers moved. So a failure here means one of
+// two very different things, and the two assertions below separate them: an
+// "out of range or empty" failure is a stale anchor, and a "NOT byte-identical"
+// failure on an in-range slice is real drift between the two documents.
 for (const [a, b, what] of COPIES) {
   const slice = idxLines.slice(a - 1, b).join("\n");
   ok(slice.split("\n").length === b - a + 1 && slice.trim().length > 0,

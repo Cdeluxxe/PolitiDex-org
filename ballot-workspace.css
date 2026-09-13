@@ -241,24 +241,77 @@
 .bw-cand.is-mine { background: rgba(251, 191, 36, 0.09); border-color: rgba(251, 191, 36, 0.38); }
 .bw-cand.is-gap { background: rgba(255, 255, 255, 0.02); border-style: dashed; }
 
+/* ── THREE READS, THREE FACES, AND THIS IS THE SECOND ──────────────────────
+   A candidate row prints as many as three measurements within a few pixels of
+   each other, and a reader tells them apart by their face long before they read
+   the label:
+
+     1. THE FORMAL RECORD — no chip, no figure, no colour. It is the pattern
+        language in the seat's copy (.bw-diverge, .bw-fact) and it is what orders
+        the field.
+     2. YOUR MATCH · RECORD — this tile. One hue, violet, used nowhere else on
+        this surface, with the reader's half of the measurement in the label.
+     3. WORD vs ACTION / Direction Match — .bw-dm below, grey and small, with the
+        ⚖️ keycap the app uses for that read everywhere.
+
+   The number used to be painted on the alignment green / amber / red ramp, which
+   is the one colour language a reader already reads as a verdict on a person —
+   so a 12% tile beside a name in red said "this candidate is bad" rather than
+   "you and their record overlap on 12% of your issues". One flat hue says
+   "this is a lane", not "this is a grade", and a share of the reader's own
+   issues has no good or bad end to grade towards. */
 .bw-score { grid-row: span 2; text-align: center; }
 .bw-score-n {
   display: block; font-family: 'Oswald', sans-serif; font-weight: 700;
   font-size: 1.3rem; line-height: 1;
+  color: #c4b5fd;
 }
 .bw-score-n i { font-style: normal; font-size: 0.7rem; opacity: 0.75; }
 .bw-score-l {
   display: block; font-size: 0.56rem; letter-spacing: 0.08em; text-transform: uppercase;
-  color: #7f93b0; margin-top: 0.15rem;
+  color: #a99adf; margin-top: 0.15rem; max-width: 5.4rem; line-height: 1.25;
 }
+/* The separator inside the label is a hairline dot, not a word: "your match" and
+   "record" are the two halves of one lane name and must not read as two chips. */
+.bw-score-l i { font-style: normal; opacity: 0.6; margin: 0 0.15em; }
 .bw-score-dash { display: block; font-size: 1.1rem; color: #64748b; line-height: 1; }
 
 .bw-cand-who { min-width: 0; }
 .bw-cand-name {
-  display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  display: inline-flex; align-items: center; gap: 0.55rem; max-width: 100%;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
   font-size: 1rem; letter-spacing: 0.02em; color: #fff; cursor: pointer;
   background: none; border: 0; padding: 0; text-align: left;
 }
+/* ── The face, and why it is inside the link ───────────────────────────────
+   The headshot and the name are one target: tapping either opens the same
+   /p/<pid>, because a reader who taps a face is asking for that person's
+   record and a second behaviour on the same row would just be a way to get it
+   wrong. So the <img> is a child of the anchor candOpen() already built — not
+   a sibling with its own handler, and never a modal.
+
+   THE BOX EXISTS WHETHER THE IMAGE DOES OR NOT. 38px square, fixed in both
+   directions, with the same square reserved for the courthouse placeholder.
+   A portrait arriving late cannot reflow the row (the intrinsic ratio is on
+   the tag too), and a seat where three of five candidates have no photo still
+   reads as one column of rows rather than a ragged list.
+
+   NO PARTY RING. The only colour on it is the hairline every other card on
+   this surface uses. A tinted border around a face is a party read, this
+   surface has three measurements on it already, and none of them is "which
+   team". */
+.bw-face {
+  flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%;
+  overflow: hidden; display: grid; place-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.bw-face-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* The placeholder: the app's courthouse, dimmed, in the portrait's own box. */
+.bw-face.is-empty { font-size: 1.05rem; line-height: 1; color: #8ea3bd; }
+/* The name's own text, so the flex row lays out face + words and the words can
+   wrap inside the row without dragging the face off its baseline. */
+.bw-cand-label { min-width: 0; }
 .bw-cand-name:hover { color: #93c5fd; text-decoration: underline; }
 /* The name is a real <a href="/p/<pid>"> now (ballot-workspace.js candOpen). It
    keeps the heading colour and stays undecorated until hover, so a list of

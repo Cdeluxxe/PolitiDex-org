@@ -91,16 +91,14 @@
       label: 'Your Ballot',
       job: 'every contest we track for your districts, listed at once'
     },
-    {
-      id: 'my-politicians',
-      // "My Voting Team" was the old name for this view and it was the wrong
-      // word twice over: a team is something you join and stay loyal to, and
-      // these are ballot picks a reader is meant to change their mind about.
-      // The store keeps its name (window.TEAM_POSITIONS) — renaming it is a
-      // separate, riskier pass — but nothing a reader sees says "team".
-      label: 'Your picks',
-      job: 'the picks you have made, side by side, with the tools to change them'
-    },
+    // #my-politicians IS NO LONGER A VIEW. It used to be "Your picks" — the
+    // panel that showed every pick side by side with the tools to change them,
+    // and the one this file worked hardest to label as a view rather than a
+    // rival product. With the desk moved to /ballot that panel became a single
+    // door card pointing at it, and a strip reading "View of your ballot
+    // workspace · the picks you have made" above a two-line door describes
+    // something that is not there. The entry is removed rather than left to
+    // paint over nothing; the door speaks for itself.
     {
       id: 'ballot-breakdown',
       label: 'Your finished slate',
@@ -192,14 +190,33 @@
   // Scroll to it and, when a seat is named, open that seat — so "work this seat"
   // from a view lands on the seat rather than on the top of the workspace with
   // the reader to find it again.
+  //
+  // THE WORKSPACE IS ITS OWN DOCUMENT NOW. When the desk is on this page — which
+  // is ballot.html, where the desk IS the page — this still opens the seat and
+  // scrolls, exactly as before. When it is not, the scroll had nowhere to land
+  // and W.open did not exist, so this function did nothing at all: a dead
+  // control on every view. So the absent desk means one real navigation to
+  // /ballot, carrying the seat the caller named as ?seat= — which the desk
+  // honours on arrival, but only for a seat on that voter's own resolved list.
+  //
+  // assign, not replace: a reader who came from this page expects Back to
+  // return to it. Returns false either way, because every caller is an inline
+  // onclick using the return value to cancel the default.
   function toWorkspace(seatKey) {
     var host = el(AUTHORITY);
     var W = window.PDXBallotWorkspace;
-    if (seatKey && W && fn(W.open)) { try { W.open(seatKey); } catch (e) {} }
-    if (host && host.scrollIntoView) {
-      try { host.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-      catch (e) { host.scrollIntoView(true); }
+    if (host && W && fn(W.open)) {
+      if (seatKey) { try { W.open(seatKey); } catch (e) {} }
+      if (host.scrollIntoView) {
+        try { host.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        catch (e2) { host.scrollIntoView(true); }
+      }
+      return false;
     }
+    var k = (seatKey == null) ? '' : String(seatKey).trim();
+    var to = '/ballot' + (k ? '?seat=' + encodeURIComponent(k) : '');
+    try { location.assign(to); return false; } catch (e3) {}
+    try { location.href = to; } catch (e4) {}
     return false;
   }
 

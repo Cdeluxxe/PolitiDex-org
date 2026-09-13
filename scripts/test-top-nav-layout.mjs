@@ -112,15 +112,24 @@ ok(/id="nav-auth-desktop" class="[^"]*flex-shrink-0/.test(NAV), 'the account clu
    ballot views into the Explore panel, so the left group now ends at ⭐ My Voting
    Team — Door 2 itself. The seam is the same seam; only the item on this side of
    it changed, and it is read from the markup rather than pinned by name twice. */
-const iLastLeft = NAV.indexOf('href="#my-politicians"');
+/* Door 2's pill spells its address href="/ballot" now that the workspace is its
+   own document; it was href="#my-politicians" while the desk lived in a section
+   of this page. Same control, same place in the row — only the address moved. */
+const iLastLeft = NAV.indexOf('href="/ballot"');
 const iMandate = NAV.indexOf('nav-mandate-btn');
 const iCommunity = NAV.indexOf('#community-exchange" class="pdx-navmenu__btn');
 const iBell = NAV.indexOf('id="wc-bell"');
 must(iLastLeft > 0 && iMandate > 0 && iCommunity > 0 && iBell > 0, 'one of the four reported controls is gone from the nav');
-ok(iLastLeft < iMandate, '⭐ My Voting Team is the left group\'s last item and ✊ Mandate is painted after it');
+ok(iLastLeft < iMandate, '⭐ Your Ballot is the left group\'s last item and ✊ Mandate is painted after it');
 /* And the three that moved are genuinely out of the left group: each now appears
    only AFTER the halves' seam, i.e. inside the right-hand Explore panel. */
-for (const href of ['#voter-hub', '#your-ballot', '#local-issues']) {
+/* #your-ballot is not checked here any more. It was one of the three views moved
+   into the Explore panel in Phase 3; when the workspace became its own document
+   the primary bar took that label and that address as the ⭐ Your Ballot pill, so
+   the demoted row was removed rather than left as the same href in the bar twice.
+   The two rooms that are still rooms on this page are still asserted to sit past
+   the seam — see test-top-nav-weight.mjs, which pins their demoted rank. */
+for (const href of ['#voter-hub', '#local-issues']) {
   const at = NAV.indexOf('href="' + href + '"');
   must(at > 0, `${href} vanished from the nav entirely — it should have been nested, not dropped`);
   ok(at > iMandate, `${href} sits past the seam now, in the Explore panel rather than the left group`);
@@ -247,8 +256,11 @@ for (const [needle, what] of [
   ['id="nav-auth-desktop"', 'the account cluster'],
   ["getElementById('mobileMenu').classList.toggle('hidden')", 'the hamburger'],
   ['href="#who-represents-me"', '🏛️ Who Represents Me'],
-  ['href="#my-politicians"', '⭐ My Voting Team'],
-  ['href="#your-ballot"', '🗳️ Your Ballot'],
+  /* One entry where there were two. ⭐ My Voting Team and 🗳️ Your Ballot were
+     two controls pointing at two sections of one ballot workspace; the workspace
+     is its own document now and both collapsed into the one pill that carries its
+     address. Pinning the old pair would demand the bar reopen the duplicate. */
+  ['href="/ballot"', '⭐ Your Ballot'],
   ['href="#voter-hub"', 'Voter Hub'],
   ['href="#say-vs-do"', '👁️ Find the Record'],
 ]) ok(NAV.includes(needle), `${what} is still in the bar`);
@@ -474,19 +486,28 @@ ok(tightest > 0, `no width in 320–480px is a tie — the tightest (${tightestA
 ok(tightestAt <= 344, 'and the tightest screen is one of the sub-345px outliers, not a mainstream phone');
 
 /* ── NO ASSET IN THE BAR HAS A PATH TO GET WRONG ────────────────────────────
-   The nav is emoji glyphs and inline <svg>: no <img>, no url(), no href that is
-   not a same-page fragment. That is worth pinning now that Phase 1 publishes
-   real nested addresses — a relative `src="assets/logo.png"` in a bar that is
-   painted on /p/<pid> resolves to /p/assets/logo.png and 404s the brand on every
-   person file, while looking perfect on the homepage where it was written. */
+   The nav is emoji glyphs and inline <svg>: no <img>, no url(), and no RELATIVE
+   href. That is worth pinning now that Phase 1 publishes real nested addresses —
+   a relative `src="assets/logo.png"` in a bar that is painted on /p/<pid>
+   resolves to /p/assets/logo.png and 404s the brand on every person file, while
+   looking perfect on the homepage where it was written.
+
+   The bar used to hold nothing but same-page fragments, and this read "every link
+   is a fragment". It is not a fragments-only bar any more: Door 2 answers at its
+   own address, so the ⭐ Your Ballot pill is href="/ballot". That is not the
+   defect this paragraph describes — a root-anchored path means the same thing on
+   / and on /p/<pid>, which is exactly the property being demanded. So the pin now
+   says what it always meant: nothing in the bar inherits the reader's directory.
+   A `href="ballot"` or `href="../ballot"` still fails, which is the hazard. */
 const navAssets = [...NAV.matchAll(/\ssrc="([^"]*)"/g)].map(m => m[1]);
 eq(navAssets.length, 0, `the bar loads no image assets at all (found ${JSON.stringify(navAssets)})`);
 eq((NAV.match(/url\(/g) || []).length, 0, 'and no stylesheet url() inside the markup either');
 for (const blk of [CSS, strip(HTML.slice(HTML.indexOf('<style id="pdx-topnav-weight">'), HTML.indexOf('</style>', HTML.indexOf('<style id="pdx-topnav-weight">'))))]) {
   eq((blk.match(/url\(/g) || []).length, 0, 'neither nav style block references an external asset by path');
 }
-const navHrefs = [...NAV.matchAll(/\shref="([^"]*)"/g)].map(m => m[1]).filter(h => !h.startsWith('#'));
-eq(navHrefs.length, 0, `every link in the bar is a same-page fragment (found ${JSON.stringify(navHrefs)})`);
+const navHrefs = [...NAV.matchAll(/\shref="([^"]*)"/g)].map(m => m[1])
+  .filter(h => !h.startsWith('#') && !h.startsWith('/'));
+eq(navHrefs.length, 0, `every link in the bar is a fragment or root-anchored (found ${JSON.stringify(navHrefs)})`);
 
 const narrow = PHONES.filter(([w]) => w <= 375).map(([w]) => phoneBar(w, false));
 ok(narrow.every(b => b.need > b.avail), 'every phone at or below 375px overflowed its row before the fix');

@@ -237,9 +237,13 @@ section('4 · one ladder: the primary path is the loudest thing at rest');
    — it is still the first thing read, and the assertion below pins that it is
    still a full-size control — it just stopped claiming to be a destination.
    See section 4a for the shape it kept. */
-const glowing = [...ROW.matchAll(/href="(#[^"]*)"[^>]*box-shadow:0 0 16px/g)].map(m => m[1]);
+/* The matcher reads PATH hrefs as well as hash ones. Door 2 stopped being an
+   in-page anchor when the ballot workspace became its own document: the pill is
+   href="/ballot" now. A hash-only matcher would see one glowing control and
+   report the door as unpainted, which is the opposite of what happened. */
+const glowing = [...ROW.matchAll(/href="((?:#|\/)[^"]*)"[^>]*box-shadow:0 0 16px/g)].map(m => m[1]);
 eq(glowing.length, 2, `exactly two controls in the bar glow at rest (found ${JSON.stringify(glowing)})`);
-eq(glowing.slice().sort().join(','), '#my-politicians,#say-vs-do',
+eq(glowing.slice().sort().join(','), '#say-vs-do,/ballot',
   'and they are the two doors — the front step is not a third one');
 
 /* Rung 1 vs rung 3 — Mandate used to be heavier than the pills it sat beside. */
@@ -325,7 +329,15 @@ eq((ROW.match(/class="nav-link clr-voter/g) || []).length, 0,
      Discover proper, and reading past it would let a discovery row satisfy a
      Door-2 assertion. */
   const group = ROW.slice(panelAt, ROW.indexOf('pdx-navmenu__sep', panelAt));
-  for (const href of ['#your-ballot', '#voter-hub', '#local-issues']) {
+  /* #your-ballot is not in this list any more, and its absence is the point. The
+     row it used to be read "🗳️ Your Ballot" and pointed at an in-page section;
+     when Door 2 became its own document the primary bar took that exact label and
+     that exact address as a pill two items to the left of the control this panel
+     drops out of. Keeping the row would put the same label and the same href in
+     the bar twice — the duplicate the ballot demotion removed from the page body,
+     wearing a menu row instead. What is asserted below is that the rooms which
+     are still rooms ON THIS PAGE kept their demoted rank. */
+  for (const href of ['#voter-hub', '#local-issues']) {
     const row = (group.match(new RegExp('<a href="' + href + '"[\\s\\S]*?</a>')) || [])[0] || '';
     ok(!!row, `${href} is still reachable, as a row under that heading`);
     ok(/pdx-navmenu__item/.test(row), `${href} is nested as a menu item, not promoted back to a pill`);

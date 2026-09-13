@@ -90,15 +90,21 @@ const isNavItem = href => href !== '#hero';
    ═══════════════════════════════════════════════════════════════════════════ */
 section('1 · desktop primary: front step, Door 1, Door 2 — and nothing else');
 
-const leftHrefs = [...LEFT.matchAll(/<a href="(#[\w-]+)"/g)].map(m => m[1]).filter(isNavItem);
-eq(leftHrefs.join(' → '), '#who-represents-me → #say-vs-do → #my-politicians',
+/* Door 2's address is a PATH, not a hash. The fourth split gave the ballot
+   workspace its own document, so the third item in the primary list is a real
+   navigation to /ballot rather than an in-page jump. The matcher has to accept
+   both forms or the list reads as two items and every order assertion below it
+   goes vacuous. */
+const leftHrefs = [...LEFT.matchAll(/<a href="((?:#|\/)[\w/-]*)"/g)].map(m => m[1])
+  .filter(isNavItem).filter(h => h !== '/');
+eq(leftHrefs.join(' → '), '#who-represents-me → #say-vs-do → /ballot',
   'the left group is exactly the front step, then Door 1, then Door 2, in that order');
 
 /* The ORDER is the argument, not decoration. The front step comes first because a
    stranger's first question is "who are my people", and it feeds Door 2. Door 1
    precedes Door 2 because the record is what a ballot choice is made OF. */
 ok(leftHrefs.indexOf('#who-represents-me') === 0, 'the front step is read first');
-ok(leftHrefs.indexOf('#say-vs-do') < leftHrefs.indexOf('#my-politicians'),
+ok(leftHrefs.indexOf('#say-vs-do') < leftHrefs.indexOf('/ballot'),
   'and the record comes before the ballot built out of it');
 
 /* Rank, expressed as paint. Two doors are filled; the step is outlined. Asserted
@@ -108,7 +114,7 @@ must(step, 'the front step is gone from the primary list');
 ok(!/linear-gradient|box-shadow/.test(step), 'the front step wears no door paint — no fill, no glow');
 ok(/border:1\.5px solid/.test(step) && /px-3 py-1\.5/.test(step),
   'but keeps a visible outline and full pill geometry — a step you can still see and hit');
-for (const door of ['#say-vs-do', '#my-politicians']) {
+for (const door of ['#say-vs-do', '/ballot']) {
   const d = (LEFT.match(new RegExp('<a href="' + door + '"[\\s\\S]*?</a>')) || [])[0] || '';
   must(d, `${door} is gone from the primary list`);
   ok(/linear-gradient/.test(d), `${door} is filled — it is a door`);
@@ -120,7 +126,14 @@ for (const door of ['#say-vs-do', '#my-politicians']) {
    ═══════════════════════════════════════════════════════════════════════════ */
 section('2 · the Door 2 views are nested under Explore, not loose in the bar');
 
-const DEMOTED = ['#voter-hub', '#your-ballot', '#local-issues'];
+/* '#your-ballot' is no longer on this list, and its absence is the point. It was
+   a view of the ballot workspace WHEN the workspace was a band on this page. The
+   fourth split made Door 2 its own document at /ballot, so that row's address
+   became the same address as the primary Door 2 entry — one label, one href,
+   twice in one menu. A demoted duplicate of the door is not a nested view; it is
+   the second product this pass exists to remove. What is left on this list are
+   the two surfaces that are still surfaces on this page. */
+const DEMOTED = ['#voter-hub', '#local-issues'];
 for (const href of DEMOTED) {
   ok(!LEFT.includes('href="' + href + '"'), `${href} is no longer a top-level item in the bar`);
 }
@@ -160,8 +173,8 @@ ok(/Two Doors/i.test(labels[0]),
 const g1From = DRAWER.indexOf(`<div class="mnav-group-label">${labels[0]}</div>`);
 const g1To = DRAWER.indexOf('<div class="mnav-group-label">', g1From + 10);
 const G1 = DRAWER.slice(g1From, g1To);
-const g1Hrefs = [...G1.matchAll(/<a href="(#[\w-]+)"/g)].map(m => m[1]);
-eq(g1Hrefs.join(' → '), '#who-represents-me → #say-vs-do → #my-politicians',
+const g1Hrefs = [...G1.matchAll(/<a href="((?:#|\/)[\w/-]*)"/g)].map(m => m[1]).filter(h => h !== '/');
+eq(g1Hrefs.join(' → '), '#who-represents-me → #say-vs-do → /ballot',
   'the drawer\'s primary group is the same three rows in the same order as the bar');
 eq(labels.filter(l => /Two Doors/i.test(l)).length, 1, 'and there is only one primary group');
 

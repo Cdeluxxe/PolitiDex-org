@@ -140,25 +140,38 @@
   }
 
   /* ── mount the section AFTER the team builder (Voter Hub) ─────────────── */
+  /* THIS MODULE DOES NOT INVENT A HOST. It mounts in exactly one place — directly
+     after the Voter Hub / team builder, the primary teaching flow this is the
+     "when you're ready" step past. If that anchor is not on the document there is
+     no place for this section, so ensureMounted returns null: render() and enter()
+     already treat a null host as "nothing to paint", so the module goes quiet and
+     still exports the boundary sentence from boot().
+
+     WHY THE end-of-body FALLBACK WAS DELETED. It appended this section to <body>
+     when #voter-hub was missing, on the assumption that a missing anchor meant a
+     homepage that had moved its hub. Then /ballot became its own document
+     (ballot.html), which loads this file for one thing only — officialNote(), the
+     single spelling of "Not an official ballot" that ballot-workspace.js borrows
+     rather than re-writing. With no hub on that document the fallback fired, and a
+     second, unstyled ballot painted itself underneath the desk: its own "Your
+     Ballot" heading, its own "N of M races" counter disagreeing with the desk's
+     progress, and footer links home to fragments (#my-politicians, #voter-hub)
+     that do not exist there. Two surfaces claiming to be the same voter's ballot
+     and counting it differently is the exact defect the split was performed to
+     end, so the loader may no longer summon this one by accident. A surface with
+     nowhere to belong renders nothing. */
   function ensureMounted() {
     if (_mounted && el(MOUNT_ID)) return el(MOUNT_ID);
     var existing = el(MOUNT_ID);
     if (existing) { _mounted = true; return existing; }
 
+    var anchor = el('voter-hub');
+    if (!anchor || !anchor.parentNode) return null;
+
     var section = document.createElement('section');
     section.id = MOUNT_ID;
     section.setAttribute('aria-label', 'Your Ballot');
-
-    // Your Ballot is the "when you're ready" consolidated view, not the front
-    // door. The Voter Hub / My Voting Team is the primary teaching flow, so mount
-    // this directly AFTER it (right past the team builder) rather than above it.
-    // Fall back to end-of-body if the hub isn't present for some reason.
-    var anchor = el('voter-hub');
-    if (anchor && anchor.parentNode) {
-      anchor.parentNode.insertBefore(section, anchor.nextSibling);
-    } else {
-      document.body.appendChild(section);
-    }
+    anchor.parentNode.insertBefore(section, anchor.nextSibling);
     _mounted = true;
     return section;
   }
@@ -614,16 +627,24 @@
 
   /* ── boot ─────────────────────────────────────────────────────────────── */
   function boot() {
-    ensureMounted();
-    installConsolidation();
-    render();
-    document.addEventListener('click', onClick);
-    // Any team change (local pick, or a cross-device sync reconcile) reflects here.
-    window.addEventListener('pdx-team-change', syncPickStates);
-    // If located but data isn't ready yet, poll until the ballot can be built.
-    if (hasLocation()) scheduleRetry();
-    // Expose a small API for the consolidated handoffs / debugging.
-    window.YourBallot = { render: render, enter: enter, sync: syncPickStates };
+    // Two halves, and only one of them is conditional. The SECTION half — the
+    // mount, the consolidation handoffs, the click delegation, the team-change
+    // listener and the data-ready poll — exists to paint and drive a surface, so
+    // it installs only where that surface has a host (see ensureMounted). The
+    // EXPORT half below is a pure read of the voter's location and installs on
+    // every document that loads this file, because ballot.html loads it for
+    // exactly that sentence and for nothing else.
+    if (ensureMounted()) {
+      installConsolidation();
+      render();
+      document.addEventListener('click', onClick);
+      // Any team change (local pick, or a cross-device sync reconcile) reflects here.
+      window.addEventListener('pdx-team-change', syncPickStates);
+      // If located but data isn't ready yet, poll until the ballot can be built.
+      if (hasLocation()) scheduleRetry();
+      // Expose a small API for the consolidated handoffs / debugging.
+      window.YourBallot = { render: render, enter: enter, sync: syncPickStates };
+    }
     /* ── The boundary, exported ────────────────────────────────────────────
        Phase 5. The sentence above — "Not an official ballot", plus the link to
        the reader's own state authority — is the single most important thing

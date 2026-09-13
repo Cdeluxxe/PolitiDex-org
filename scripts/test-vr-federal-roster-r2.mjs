@@ -152,7 +152,10 @@ if (ok(!!CMP, "CMP_DATA did not boot")) {
     seedSrc.indexOf("\n};", seedSrc.indexOf("const SEED_SLUGS = {")));
   const SEED = Object.fromEntries([...seedBlock.matchAll(/([a-z0-9_]+):\s*"([A-Z][0-9]+)"/g)].map((m) => [m[1], m[2]]));
 
-  const hub = R("compare-hub.js");
+  // Portraits only. The curated map was lifted out of compare-hub.js into
+  // browse-photos.js when /ballot's desk grew headshots; both are joined so this
+  // roster census keeps checking the URLs wherever they are filed.
+  const hub = ["browse-photos.js", "compare-hub.js"].map((f) => { try { return R(f); } catch { return ""; } }).join("\n");
   const photoBlock = hub.slice(hub.indexOf("var BROWSE_PHOTOS = {"), hub.indexOf("\n    };", hub.indexOf("var BROWSE_PHOTOS = {")));
   const PORTRAIT = Object.fromEntries([...photoBlock.matchAll(/([a-z0-9_]+):\s*'(https:\/\/[^']+)'/g)].map((m) => [m[1], m[2]]));
   const portraitBio = (url) =>

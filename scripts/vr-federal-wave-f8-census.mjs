@@ -180,7 +180,13 @@ async function legislators(file, url) {
 }
 
 function browsePhotos() {
-  const src = readFileSync(join(ROOT, "compare-hub.js"), "utf8");
+  // browse-photos.js is where the curated map lives since /ballot's desk grew
+  // headshots; compare-hub.js is read as a fallback so an older checkout of this
+  // census still answers. Same six-space entry shape either way — the map moved
+  // verbatim, indentation included.
+  const src = ["browse-photos.js", "compare-hub.js"]
+    .map((f) => { try { return readFileSync(join(ROOT, f), "utf8"); } catch { return ""; } })
+    .join("\n");
   const out = {};
   for (const m of src.matchAll(/^\s{6}([a-z0-9_]+):\s*'([^']+)'/gm)) out[m[1]] = m[2];
   return out;

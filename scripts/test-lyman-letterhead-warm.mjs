@@ -681,15 +681,23 @@ section("6 · the photo crosses the same gap");
   // (h) AND THE SHIPPED TABLES DO NOT REGRESS. Every roster id that resolves a
   // photo today still resolves the same one.
   {
+    // THE TABLE MOVED, AND THE SWEEP FOLLOWED IT. This used to boot
+    // compare-hub.js, which is where the first-paint pass parked the curated map
+    // when it came out of index.html. The ballot-desk-photos pass lifted it again
+    // — into /browse-photos.js, a file of 715 URLs and nothing else — because
+    // /ballot needs the same faces the person file paints and may not load ten
+    // thousand lines of collection manager to get them. What this sweep asserts
+    // is unchanged: it needs THE SHIPPED TABLE, wherever the table lives, so it
+    // asks the file whose only job is to publish it.
     const BP = (() => {
       const ctx = { console, JSON, Object, String, Math, document: {}, window: null };
       ctx.window = ctx; ctx.globalThis = ctx; ctx.self = ctx;
-      try { vm.runInContext(R("compare-hub.js"), vm.createContext(ctx), { filename: "compare-hub.js" }); }
-      catch (e) { /* the file wants a DOM; BROWSE_PHOTOS is published before it needs one */ }
+      try { vm.runInContext(R("browse-photos.js"), vm.createContext(ctx), { filename: "browse-photos.js" }); }
+      catch (e) { /* data only: it cannot want a DOM, and a throw here is the failure below */ }
       return ctx.BROWSE_PHOTOS || null;
     })();
     must(BP && Object.keys(BP).length > 50,
-      "compare-hub.js no longer publishes BROWSE_PHOTOS on window — the regression sweep has no table");
+      "browse-photos.js no longer publishes BROWSE_PHOTOS on window — the regression sweep has no table");
     const c = mk({ CMP_DATA: CMP, BROWSE_PHOTOS: BP, PDX_PROFILE_ALIAS: W.PDX_PROFILE_ALIAS || {} });
     let swept = 0, moved = [];
     for (const id of Object.keys(BP)) {

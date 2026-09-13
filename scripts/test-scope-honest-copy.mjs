@@ -153,7 +153,12 @@ section("3 · the official-ballot boundary is stated, in both states");
   has(YB, "county clerk", "the boundary abandons the phrasing the Key Dates footer already uses");
   has(INDEX, "county clerk", "…which index.html no longer uses either");
   // Both states of the section: the set-location card and the located ballot.
-  eq((YB.match(/officialNote\(\)/g) || []).length, 3,
+  // Counted over CODE, not prose. This file now carries a comment explaining
+  // that /ballot loads it for officialNote() and for nothing else — which is a
+  // claim ABOUT the helper, not a third rendering of it, and a count that cannot
+  // tell those apart would forbid the explanation.
+  const YB_CODE = YB.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
+  eq((YB_CODE.match(/officialNote\(\)/g) || []).length, 3,
     "the boundary is defined once and rendered in both states (empty + located)");
   const setloc = YB.slice(YB.indexOf("function renderEmpty"), YB.indexOf("function renderBallot"));
   has(setloc, "officialNote()", "the set-location state does not carry the boundary");
@@ -183,7 +188,9 @@ section("4 · two doors, and a front step that is not called one");
   // Order is still find → record → learn → build → decide.
   ok(nav.indexOf("#who-represents-me") < nav.indexOf("#say-vs-do"),
     "the lookup no longer comes before the record entry in the bar");
-  ok(nav.indexOf("#say-vs-do") < nav.indexOf("#my-politicians"),
+  // The ballot entry spells its own address now — the workspace is a document at
+  // /ballot rather than a section of this one. The order claim is unchanged.
+  ok(nav.indexOf("#say-vs-do") < nav.indexOf('"/ballot"'),
     "the record entry no longer comes before the ballot entry in the bar");
 }
 

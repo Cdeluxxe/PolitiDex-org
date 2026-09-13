@@ -2317,6 +2317,26 @@ const swNote = swWaveNote();
     "controversies.js", "issue.html",
     "scripts/test-vr-federal-wave-f8.mjs",
     "scripts/test-vr-federal-wave-f9.mjs",
+    // The ballot-desk faces pass (CACHE_VERSION v192), on those same later-wave
+    // terms. A candidate row on /ballot printed a name where the record it opens
+    // prints a headshot, so every row now carries the SAME portrait the person
+    // file paints, inside the same <a href="/p/<pid>"> as the name. The only
+    // thing in it that touches this wave's reach is WHERE the curated portrait
+    // map is filed: BROWSE_PHOTOS came out of compare-hub.js into
+    // /browse-photos.js so the desk can paint faces without loading ten thousand
+    // lines of collection manager. Not one URL changed — the literal moved
+    // verbatim, compare-hub.js reads it off window, and the census scripts and
+    // harnesses below were repointed to read whichever file declares it rather
+    // than having their assertions relaxed. ballot.html gained the script tag;
+    // scripts/test-person-shell.mjs re-based its index.html line anchors by the
+    // six lines the new tag added above them, byte-identity untouched.
+    //   NO ROLL, MAPPING, ADMISSION, PORTRAIT URL, FLOOR OR FIGURE MOVED.
+    "browse-photos.js", "ballot.html",
+    "scripts/vr-federal-roster-r2-census.mjs",
+    "scripts/vr-federal-wave-f8-census.mjs",
+    "scripts/test-lyman-letterhead-warm.mjs",
+    "scripts/test-door2-mobile-cards.mjs",
+    "scripts/test-person-shell.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }

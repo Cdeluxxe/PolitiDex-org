@@ -1502,8 +1502,36 @@
   // under _pdxHouseRedistrict(). So a district level is only refilled where the
   // fresh district is absent or unchanged, and the remembered district label
   // comes back with the pid.
+  // ── AND THE SCOPE OF THE WIPE IS THE SCOPE OF THE SEAT ────────────────────
+  // Two ledgers, because there are two kinds of seat and they are keyed on
+  // different facts about the reader.
+  //
+  // A DISTRICT seat (U.S. House, State Senate, State House) is a function of the
+  // full location — city, county and district line — so moving invalidates it
+  // outright. A reader who looks up Layton and then Columbus must not keep
+  // Layton's representative, which is what the full signature enforces.
+  //
+  // A STATEWIDE seat (both U.S. Senate seats, Governor) is a function of the
+  // STATE and of nothing else. This file says so twice already: _pdxStatewideSeats
+  // takes a state name and no other argument, and its own doctrine is that state
+  // in gives officeholders out for all fifty states. Keying its memory on
+  // city|county|district was therefore keying it on facts the answer does not
+  // depend on — and a Detect is precisely a write to those facts.
+  //
+  // WHAT THE READER SAW. Utah, no precise address: Curtis, Lee and Cox named on
+  // all three statewide rows. Then "Detect my location" resolved Layton / Davis
+  // County / District 2 — the same state, a better address — and the location
+  // signature changed, so the whole ledger was dropped. The district rows SHOULD
+  // re-resolve there; that is the point of detecting. But the statewide rows went
+  // with them, and the next walk landed mid-roster, so three people with full
+  // files at /p/curtis, /p/lee and /p/cox repainted as "No record on file yet —
+  // we'd rather leave this blank than name the wrong person". A voter who gave the
+  // app MORE information about themselves was told it now knew LESS about who
+  // their senators are. Detect may refine a seat. It may never clear one.
   var _pdxSeatLedger = {};
   var _pdxSeatLedgerSig = null;
+  var _pdxSwSeatLedger = {};
+  var _pdxSwSeatLedgerSig = null;
 
   function _pdxLocSig(loc, state) {
     var l = loc || {};
@@ -1511,9 +1539,19 @@
             String(l.district || '')].join('|').toLowerCase();
   }
 
+  // The statewide half of the same reader's identity: the state, and nothing that
+  // a more precise address inside it can change.
+  function _pdxStateSig(state) {
+    return String(state || '').trim().toLowerCase();
+  }
+
   function _pdxStickLevels(levels, loc, state) {
     var sig = _pdxLocSig(loc, state);
     if (sig !== _pdxSeatLedgerSig) { _pdxSeatLedgerSig = sig; _pdxSeatLedger = {}; }
+    var swSig = _pdxStateSig(state);
+    if (swSig !== _pdxSwSeatLedgerSig) { _pdxSwSeatLedgerSig = swSig; _pdxSwSeatLedger = {}; }
+
+    var bookFor = function (lv) { return lv.statewide ? _pdxSwSeatLedger : _pdxSeatLedger; };
 
     // NOBODY IS NAMED TWICE. A restore fills a slot the current walk left empty,
     // and a person already standing in another slot of this ballot is not
@@ -1524,15 +1562,16 @@
 
     return levels.map(function (lv) {
       if (!lv || !lv.key) return lv;
-      var mem = _pdxSeatLedger[lv.key];
+      var book = bookFor(lv);
+      var mem = book[lv.key];
 
       if (lv.pid) {
-        _pdxSeatLedger[lv.key] = { pid: lv.pid, district: lv.district, distLabel: lv.distLabel };
+        book[lv.key] = { pid: lv.pid, district: lv.district, distLabel: lv.distLabel };
         return lv;
       }
       if (!mem || !mem.pid) return lv;
       if (taken[mem.pid]) return lv;
-      if (!_pdxRosterKeeps(mem.pid)) { delete _pdxSeatLedger[lv.key]; return lv; }
+      if (!_pdxRosterKeeps(mem.pid)) { delete book[lv.key]; return lv; }
       // A statewide seat has no district to disagree about. A district seat that
       // has since resolved a DIFFERENT district is a different seat, and the
       // remembered member does not belong to it.
@@ -1560,6 +1599,8 @@
   window._pdxForgetSeatHolders = function () {
     _pdxSeatLedger = {};
     _pdxSeatLedgerSig = null;
+    _pdxSwSeatLedger = {};
+    _pdxSwSeatLedgerSig = null;
   };
 
   // ── window.pdxRepsForMe() — the ONE resolution of "who represents me" ───────
@@ -1664,21 +1705,31 @@
       var hr = (utah && typeof window._pdxHouseRedistrict === 'function') ? window._pdxHouseRedistrict() : null;
       if (hr && hr.changed) {
         redrawn = true;
-        // THE NAME AND THE DISTRICT NUMBER MOVE TOGETHER OR NOT AT ALL. Taking the
-        // current-map district while leaving the 2026 ballot district's incumbent
-        // in place produces a row that is internally false — "U.S. House ·
-        // District 1 → Celeste Maloy" for a Layton voter, pairing UT-1's number
-        // with UT-2's member. That happens whenever the bridge resolves the
-        // district but holds no record for the member who sits in it, so the pid
-        // is taken from the bridge unconditionally: no record for the current-map
-        // member means a BLANK House seat, which the surfaces already know how to
-        // say honestly, rather than a real person under the wrong district.
-        if (hr.currentDistrict != null) {
-          hd = hr.currentDistrict;
-          hp = hr.currentPid || null;
-        } else {
-          hp = hr.currentPid || hp;
-        }
+        // THE NAME AND THE DISTRICT NUMBER MOVE TOGETHER OR NOT AT ALL, AND THE
+        // DISTRICT IS THE ONE THE REST OF THE PAGE ALREADY PRINTED.
+        //
+        // This branch used to swap BOTH halves to the current map: a Layton voter
+        // whose Voting Districts strip read "U.S. House · UT-2 / State Senate ·
+        // SD-6 / State House · HD-15" got a House seat row reading District 1,
+        // filled with UT-1's member (Blake Moore), because "who represents you
+        // right now" is District 1 until the 2026 map takes effect. Internally
+        // consistent, and wrong on the page: one document told the same reader
+        // their House district was 2 in one band and 1 in the next, and the name
+        // under the second one belongs to a district they are not in. On /ballot
+        // it was worse still — the bridge holds no record for the current-map
+        // member on a document without the homepage roster accessor, so the swap
+        // took the district and left the name blank: "District 1 · not mapped"
+        // for a voter whose District 2 member we hold in full.
+        //
+        // So the seat row keeps the district this voter's own location resolved —
+        // the detected / map-pinned / curated 2026 ballot district, the one the
+        // location line prints — paired with that district's member or with an
+        // honest blank. `redrawn` is still published, and unchanged, so a surface
+        // that wants to say "you are in District 1 until January" can: that is
+        // context a band adds beside the seat, not a different answer to which
+        // seat this is.
+        if (hr.ballotDistrict != null && hd == null) hd = hr.ballotDistrict;
+        if (hr.ballotIncumbentPid && !hp) hp = hr.ballotIncumbentPid;
       }
     } catch (e) {}
 

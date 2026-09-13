@@ -544,7 +544,13 @@ must(/evidence-for-my-vote/.test(SPINE) && /'my-saved'/.test(SPINE),
   'read as separate ballot products');
 const viewsBlock = SPINE.slice(SPINE.indexOf('var VIEWS = ['), SPINE.indexOf('var DEMOTE = ['));
 const ids = (viewsBlock.match(/id: '([a-z-]+)'/g) || []).map((s) => s.split("'")[1]);
-ok(ids.length === 5, `door2-spine.js declares ${ids.length} views; expected the original three plus the two ghosts`);
+// Four, not five: the two ghosts above are still declared (the must() proves it),
+// and the fifth entry — #my-politicians, the side-by-side picks panel — left the
+// list when the workspace became its own document at /ballot. That panel is a
+// door card on this page now, and a "View of your ballot workspace" strip above a
+// two-line door labels something that is not there. See door2-spine.js's own note
+// where the entry used to be, and test-door2-authority.mjs's VIEWS tripwire.
+ok(ids.length === 4, `door2-spine.js declares ${ids.length} views; expected the two ghosts plus your-ballot and the finished slate`);
 ok(!/%|directionMatch|partyLean/.test(viewsBlock), 'a view description carries a score or party read');
 ok(/_decided\(\)/.test(SPINE) && /_seats\(\)/.test(SPINE),
   'door2-spine.js stopped reading its count from the workspace, which means it is computing one');

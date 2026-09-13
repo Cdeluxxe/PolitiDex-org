@@ -742,7 +742,7 @@ section("5 · one address, one control in Door 2, and the copy");
 // 6 · THE ADDRESS ACTUALLY OPENS IT
 // ─────────────────────────────────────────────────────────────────────────────
 // The bug this section exists to keep fixed: #your-file was reachable and the
-// module was on the page, but https://politidex.fyi/#your-file painted the
+// module was on the page, but https://www.politidex.fyi/#your-file painted the
 // homepage. The arrival was a setTimeout(0) plus a 'load' listener, and a
 // macrotask runs AFTER every DOMContentLoaded handler on the document — so on
 // this homepage the hash had to survive a queue of other people's arrival code
