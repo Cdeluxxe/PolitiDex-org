@@ -331,12 +331,12 @@ const COPIES = [
   [1936, 2010, "PDXLazy"],
   [2012, 2035, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
   [2040, 2085, "the share furniture share-preview.ts rewrites"],
-  [3566, 3629, "the crawl-header guard"],
-  [17971, 18893, "the funding lane, up to the cut"],
-  [20783, 20817, "the profile modal down to #modal-content"],
-  [20878, 20924, "the stance popover, the record overlay and the share sheet"],
-  [28077, 28197, "PDXStance"],
-  [31481, 31676, "the PWA runtime and the service-worker registration"],
+  [3564, 3627, "the crawl-header guard"],
+  [17913, 18835, "the funding lane, up to the cut"],
+  [20725, 20759, "the profile modal down to #modal-content"],
+  [20820, 20866, "the stance popover, the record overlay and the share sheet"],
+  [28014, 28134, "PDXStance"],
+  [31418, 31613, "the PWA runtime and the service-worker registration"],
 ];
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
 // ones re-based here were re-based by the fourth split, which lifted the ballot
@@ -359,7 +359,16 @@ const COPIES = [
 // six-chip #pdx-issue-strip went into #hot-topics (~line 10600) — all of it above
 // the funding lane, so every one of the five slid down by the same amount. Not one
 // byte of any copied block changed — every block above was located verbatim in the
-// new index.html and only its line numbers moved. So a failure here means one of
+// new index.html and only its line numbers moved. The homepage trim that retired
+// the second profile band and collapsed three marketing billboards to one line
+// each moved the last six UP rather than down, and by three different amounts,
+// because the markup came out at three different heights: the two my-profile.css
+// link tags in <head> took two lines off everything below them, the #my-profile
+// region and the drawer row that pointed at it took fifty-six more off everything
+// under index.html ~line 13650, and collapsing #issue-compare and #stance-library
+// (index.html ~line 26400) took five off the last two. So the crawl guard moved by
+// −2, the funding lane, the modal and the popovers by −58, and PDXStance and the
+// PWA runtime by −63. So a failure here means one of
 // two very different things, and the two assertions below separate them: an
 // "out of range or empty" failure is a stale anchor, and a "NOT byte-identical"
 // failure on an in-range slice is real drift between the two documents.

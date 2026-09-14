@@ -5895,7 +5895,52 @@
 //     Represents Me — whose "Work this seat" still lands on the seat it names,
 //     because the arrival key still wins the first seat.
 
-const CACHE_VERSION = 'v197';
+// v198 - THE HOMEPAGE STOPS REHEARSING, AND THE STANCE LIBRARY OPENS AS A DESK.
+//
+//     Two leftovers and a wall. A "This Cycle in Utah" card carried ＋ Add to
+//     ballot, a second MY PROFILE band painted a loading line and rebuilt the
+//     reader's file on a page that is not it, and two modules sold a tool one
+//     tap away with an eyebrow, a title and a lede. The library's browse view
+//     was every ISSUE_MAP key with a stance in one scroll: 117 cards, 3 rails.
+//
+//     · THE TOPIC CARDS LINK, THEY DO NOT MUTATE. Both ＋ Add to ballot buttons
+//       are gone from #hot-topics; View Candidates, Work My Ballot and Key Dates
+//       are untouched, already anchors to #voter-hub, /ballot and #key-dates.
+//     · ONE PROFILE, AT ITS ADDRESS. The #my-profile region, its stylesheets, its
+//       script tag and the drawer row that pointed at it are off /. my-profile.js
+//       still ships and still publishes window.PDXProfile; nothing on / mounts
+//       it, so nothing on / loads a profile. The file is /me.
+//     · THE BILLBOARDS ARE ONE LINE EACH. #my-stances is "Your file → /me" over
+//       its <template>, #stance-library is "Browse issues →" over the body the
+//       module paints, #issue-compare is its mount and takes padding only once
+//       #ic-body fills. Every opener and both hashes still work.
+//     · THE LIBRARY IS SHELVES. First paint: the search box, ONE chip row
+//       (Shelves · All issues · the thirteen Core National Issues · Hot), a Hot
+//       shelf open over thirteen folded <details> — heading, count, four preview
+//       cards, "Show all N in this bundle" — so 54 cards, not 117. The flat list
+//       stays behind "All issues"; a query answers flat. Chips and rails read
+//       issue-colors.js as a bill letterhead does; counts stay "N on record".
+//
+//     WHY THE BUMP. index.html and stance-library.js are both precached, so a
+//     warm v197 device would pair a cached homepage that still ships the
+//     #my-profile band with a page that no longer loads my-profile.js, or the new
+//     header with a module that paints the old wall into it.
+//
+//     WHAT THE BUMP CARRIES, WHICH IS NOT WHAT THIS PASS CHANGED. Renaming
+//     SHELL_CACHE re-issues the WHOLE precache, so every SHELL_ASSETS entry
+//     travels with v198 — ballot.html, me.html, person.html, issue.html,
+//     spotlight.html, app.css, mobile-polish.css, pdx-stability.js,
+//     door1-workspace.js, door1-workspace.css, word-action.js, word-action.css,
+//     issue-file.js, issue-file.css, issue-view.js, pdx-issue-profile.js,
+//     pdx-issue-family.js, stance-tree.js, alignment-tool.js, issue-colors.js,
+//     race-sheet.js and the rest — unchanged, re-issued only because the bucket's
+//     name moved. netlify.toml is not cached and did not change.
+//
+//     DID NOT MOVE. No score, party rank, Direction Match, WVA change, new issue
+//     key or second issue index URL; my-profile.js and my-profile.css stay in the
+//     tree, My Stances stays behind its template, no person file entered the grid.
+
+const CACHE_VERSION = 'v198';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
