@@ -76,6 +76,13 @@
      national roster, because the failure that rule exists to prevent — showing
      a Columbus voter Utah's House field — is exactly the failure a "helpful"
      fallback produces.
+   · THE READER OUTRANKS THE LINK. An arriving ?seat= chooses the FIRST seat and
+     nothing after it. Every later seat change belongs to the reader, is held in
+     module state, and is written back into the address — with replaceState, so
+     working six seats leaves one history entry and Back still means "the page I
+     came from". A paint never re-derives the open seat from the address, because
+     this surface repaints on a pick, a move, a roster arrival and three settle
+     timers, and any one of those doing so would throw the reader's tap away.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -87,6 +94,20 @@
   // sessionStorage. A returning visitor starts on their first undecided seat,
   // which is the more useful answer than "wherever you were last week".
   var OPEN_KEY = 'pdx_bw_seat';
+  // ── THE RAIL OUTRANKS THE ADDRESS ─────────────────────────────────────────
+  // The seat the reader opened ON THIS SURFACE, once they have opened one. It is
+  // module state rather than storage because it answers a question storage
+  // cannot: has the reader overruled the link they arrived on? Until they have,
+  // an arriving ?seat= is the best answer available. The moment they have, it is
+  // stale.
+  //
+  // That distinction is the whole bug. This desk repaints on a pick, on a
+  // location change, on a roster arrival and on three settle timers, and every
+  // one of those paints used to re-derive the open seat from location.search. So
+  // /ballot?seat=house painted House, the rail chips called open() correctly, and
+  // each one was undone by the sync() it had just asked for — a rail that looked
+  // dead while doing exactly what it was told.
+  var _chosen = '';
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -962,8 +983,33 @@
     if (!m) return '';
     try { return decodeURIComponent(m[1] || '').trim(); } catch (e) { return String(m[1] || '').trim(); }
   }
+  function onList(list, k) {
+    if (!k) return false;
+    var hit = false;
+    list.forEach(function (s) { if (s.key === k) hit = true; });
+    return hit;
+  }
+
+  // FOUR ANSWERS, IN ONE ORDER, AND THE READER IS FIRST.
+  //   1. the seat they opened here  — their own tap, never re-derived
+  //   2. an arriving ?seat=         — the link they followed, while (1) is empty
+  //   3. this tab's last open seat  — sessionStorage
+  //   4. their first undecided seat — the work they came to do
+  //
+  // Step 2 is read ONLY while step 1 is empty, and that single condition is the
+  // fix: the query is an ARRIVAL key, not a standing instruction. It gets to
+  // choose the first seat and nothing after it, so no repaint can hand the desk
+  // back to a link the reader has already moved on from.
+  //
+  // Step 1 is also checked against the live list, not trusted blind. A reader who
+  // opens Governor and then changes where they vote may land in a state with no
+  // governor's race on file this cycle; their old choice is then not an answer,
+  // and the walk continues WITHOUT consulting the address — which by then names a
+  // seat chosen for a different ballot. Falling through to (3) and (4) says "the
+  // first thing here you have not decided", which is true.
   function readOpen(list) {
-    var k = urlSeat();
+    if (_chosen && onList(list, _chosen)) return _chosen;
+    var k = _chosen ? '' : urlSeat();
     var u = false;
     list.forEach(function (s) { if (s.key === k) u = true; });
     if (u) { writeOpen(k); return k; }
@@ -980,6 +1026,42 @@
   }
   function writeOpen(k) {
     try { sessionStorage.setItem(OPEN_KEY, String(k || '')); } catch (e) {}
+  }
+
+  // ── THE ADDRESS FOLLOWS THE OPEN SEAT; IT NEVER LEADS IT ──────────────────
+  // A reader who arrived on /ballot?seat=house and then opened Governor holds an
+  // address naming a seat they are not looking at. That address is wrong to
+  // read, wrong to share and wrong to reload, so every seat change corrects it.
+  //
+  // TWO RULES, BOTH DELIBERATE.
+  //  · REPLACE, NEVER PUSH. Working a ballot is one visit to one surface, not
+  //    six pages. An entry per chip would redefine Back as "the seat before this
+  //    one", so a reader who walked five seats would need five Backs to leave —
+  //    the history trap every other door in this app is written to avoid.
+  //  · CORRECT A KEY, NEVER ADD ONE. Where the address carries no ?seat= there
+  //    is nothing contradicting the desk, and writing one in would decorate a
+  //    clean /ballot the reader never asked to have decorated. Silent and
+  //    correct are both acceptable states for this address; wrong is not.
+  //
+  // The /g on the rewrite is not decoration either: urlSeat() reads the FIRST
+  // seat= it finds, so a hand-built ?seat=house&seat=senate would otherwise keep
+  // a second, stale key behind the corrected one.
+  function syncAddress(key) {
+    var h = null;
+    try { h = window.history; } catch (e) { h = null; }
+    if (!h || typeof h.replaceState !== 'function') return;
+    var q = '';
+    try { q = String(location.search || ''); } catch (e) { return; }
+    if (!/[?&]seat=/.test(q)) return;
+    var next = q.replace(/([?&])seat=[^&]*/g, function (_m, lead) {
+      return lead + 'seat=' + encodeURIComponent(String(key || ''));
+    });
+    if (next === q) return;
+    var st = null;
+    try { st = h.state; } catch (e) { st = null; }
+    try {
+      h.replaceState(st, '', location.pathname + next + (location.hash || ''));
+    } catch (e) {}
   }
 
   // The brochure flag. Set from the same located read the workspace paints from,
@@ -1105,6 +1187,16 @@
   // Opening a seat repaints in place and never navigates. That is the whole
   // point: the loop's second step used to be a full-screen overlay and its
   // fourth step used to be two thousand lines down the document.
+  //
+  // THIS IS THE ONLY WAY A SEAT OPENS, which is why the arrival key is only
+  // handled here. The rail chips, the "Next seat" button, door2-spine.js's
+  // in-page branch and compare-hub.js's guided "fill your ballot" step all call
+  // this one name — so a reader's choice is recorded, the address is corrected
+  // and the desk repaints in that order, once, from a single place. There is no
+  // second opener for a future arrival key to sneak past. (A sweep for the
+  // others named in this bug found none: location.hash is read on this desk only
+  // for the #my-stances jump, and no data-seat attribute reaches it — ?seat= is
+  // the one arrival key the workspace has.)
   window.pdxBallotWorkspaceOpen = function (seatKey) {
     var list = seats(), hit = null;
     var R = rs();
@@ -1114,7 +1206,10 @@
     }
     list.forEach(function (s) { if (s.key === want) hit = s; });
     if (!hit) return false;
+    // Before sync(), because sync() is the paint that used to overrule this.
+    _chosen = hit.key;
     writeOpen(hit.key);
+    syncAddress(hit.key);
     sync();
     var mount = document.getElementById(MOUNT_ID);
     if (mount && mount.scrollIntoView) {

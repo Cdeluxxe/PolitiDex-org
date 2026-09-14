@@ -5849,7 +5849,53 @@
 //     Represents Me, the map; no scoring, Direction Match, finance or Mandate
 //     figure; no issue key, no party metric and no second ballot.
 
-const CACHE_VERSION = 'v196';
+// v197 - THE RAIL OUTRANKS THE ADDRESS IT ARRIVED ON.
+//
+//     Who Represents Me's "Work this seat" opens /ballot?seat=<key>, and the desk
+//     honoured that key on EVERY paint rather than on arrival. A reader who came
+//     in on ?seat=house got House, and then the whole left rail was dead: tapping
+//     U.S. Senate, Governor or State House wrote the new seat and asked for a
+//     repaint, and the repaint re-read the query and put House back. Arriving
+//     with no query worked perfectly, which is the tell — the rail was never
+//     broken, the address was outranking it on every paint.
+//
+//     · THE QUERY IS AN ARRIVAL KEY, NOT A STANDING INSTRUCTION. It chooses the
+//       first seat and nothing after it. The seat the reader opens is held in
+//       module state and read FIRST, so none of the five things that repaint this
+//       desk — a pick, a location change, the roster landing, three settle
+//       timers — can re-derive the open seat and throw their tap away.
+//     · THE ADDRESS FOLLOWS THE OPEN SEAT. A seat change rewrites ?seat= to the
+//       seat actually on screen, so the bar is right to read, share and reload.
+//       With replaceState, never push: six seats of tapping leaves one history
+//       entry and Back still means "the page I came from". A bare /ballot stays
+//       bare — a wrong key is corrected, a missing one is not invented.
+//     · ONE OPENER. The rail chips, "Next seat", door2-spine.js's in-page branch
+//       and compare-hub.js's guided step all call pdxBallotWorkspaceOpen, so a
+//       future arrival key cannot route around the fix. A sweep for the others
+//       named in this bug found none: location.hash is read on this desk only for
+//       the #my-stances jump, and no data-seat attribute reaches it.
+//
+//     WHY THE BUMP. ballot-workspace.js is a precached SHELL_ASSETS entry, so on
+//     a warm v196 device the cached copy serves /ballot and the seat rail would
+//     stay dead until that cache turned over — last on the devices that use the
+//     app most. ballot.html is unchanged: it only mounts the desk.
+//
+//     WHAT THE BUMP CARRIES, WHICH IS NOT WHAT THIS PASS CHANGED. Renaming
+//     SHELL_CACHE re-issues the WHOLE precache, so every SHELL_ASSETS entry
+//     travels with v197 — index.html, ballot.html, me.html, person.html,
+//     issue.html, spotlight.html, app.css, mobile-polish.css, pdx-stability.js,
+//     ballot-workspace.css, door1-workspace.js, door1-workspace.css,
+//     word-action.js, word-action.css, issue-file.js, issue-file.css,
+//     issue-view.js, pdx-issue-family.js, alignment-tool.js, stance-tree.js,
+//     issue-colors.js, race-sheet.js and the rest of the list, every one of them
+//     unchanged from v196 and re-issued only because the bucket's name moved.
+//
+//     DID NOT MOVE. The pick store, the scores, party, Direction Match, the
+//     official-ballot note, the honest "No other person on file" empty, and Who
+//     Represents Me — whose "Work this seat" still lands on the seat it names,
+//     because the arrival key still wins the first seat.
+
+const CACHE_VERSION = 'v197';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
