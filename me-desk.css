@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   me-desk.css — /me, the voter's own file. One document, six regions.
+   me-desk.css — /me, the voter's own file. One document, seven regions.
    ─────────────────────────────────────────────────────────────────────────────
    WHAT THIS SHEET IS FOR. me.html is a DESK, not a product: one document that
    says what this account holds and hands the reader to the tool that does the
@@ -24,6 +24,10 @@
        class for one to arrive in.
      · NO SECOND NAV. Region f is three text links in a paragraph. It shares the
        .me-jump class with nothing that could become a button bar.
+     · NO BOARD ON THIS DOCUMENT. Region g is a standing line and one control.
+       This sheet gives it a tag, a link and a sentence and NO list, card grid,
+       thread shape or avatar row — see the block over .me-voicetag, and
+       district-voice.css, which is not loaded here and owns the board itself.
 
    THE EDITOR IS NOT RESTYLED HERE. Region b is your-file.js's own eight rows,
    painted by your-file.js into a host this document supplies, styled by
@@ -366,6 +370,64 @@
   cursor: pointer;
 }
 .me-link:hover, .me-link:focus-visible { color: #e0f2fe; }
+
+/* ── REGION g · DISTRICT VOICE ────────────────────────────────────────────── */
+/* THREE RULES FOR A SLOT, NOT A BOARD. This region is a standing line and one
+   control, so it gets a tag, a link and a plain sentence — and deliberately no
+   list, no card grid, no thread shape and no avatar row. There is nothing here
+   for the board's contents to leak into, which is the point: a shape that could
+   hold a feed is a shape somebody will eventually put a feed in.
+
+   THE TAG IS NOT A VERDICT PALETTE AND NOT A SCORE. It is the same cool blue
+   every neutral surface on this document uses, at the same weight as a region
+   count, because "verified resident" is a FACT about where somebody lives and
+   not a grade on them. There is no green here for it to read as approval, no
+   red for its absence, and no width, fill or length anywhere in the block for a
+   later edit to turn into a meter. The unverified and signed-out standings get
+   no tag at all rather than a greyed-out one: a dimmed badge still says "badge",
+   and this document must not imply a board that a reader does not have. */
+.me-voicetag {
+  flex: 0 0 auto;
+  padding: 0.16rem 0.45rem;
+  border: 1px solid rgba(125, 211, 252, 0.35);
+  border-radius: 0.4rem;
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+  white-space: nowrap;
+}
+/* The one control. An anchor in every standing that has a destination, styled
+   like region d's "Work this seat" because it is the same kind of thing: a trip
+   to the surface that owns the work. */
+.me-voicecta {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 0.5rem;
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9fb4d4;
+  text-decoration: none;
+}
+.me-voicecta:hover, .me-voicecta:focus-visible {
+  border-color: rgba(125, 211, 252, 0.5);
+  color: #e0f2fe;
+}
+/* "Verified, and the board is not open in your seat yet." A SENTENCE, and it is
+   styled as one — no border, no chrome, nothing that could be pressed. It reads
+   like the honest empty above it because it is one. */
+.me-voicedark {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: #8fa3bf;
+}
 
 /* ── THE FOOT ─────────────────────────────────────────────────────────────── */
 /* What this document is not, said once, at the bottom, where the reader has
