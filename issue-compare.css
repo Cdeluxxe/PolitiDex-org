@@ -8,30 +8,25 @@
    contradicts #f89b9b, mixed #93c5fd, neutral #9fb4d4).
    ═══════════════════════════════════════════════════════════════════════════ */
 
-#issue-compare {
+/* THE BAND COSTS NOTHING UNTIL THE TOOL RENDERS. #ic-body is empty markup on
+   the homepage — issue-compare.js writes into it only on #issue-compare or on
+   PDXIssueCompare.open() — so the frame (padding, rules, gradient) is attached
+   to "the body has something in it" rather than to the section existing. An
+   engine without :has() drops the rule and gets the collapsed state, which is
+   the state the homepage wants; the tool still renders, unframed. */
+#issue-compare { padding: 0; }
+#issue-compare:has(#ic-body:not(:empty)) {
   padding: 3.25rem 1rem 4rem;
   background: linear-gradient(180deg, rgba(10, 15, 30, 0.96) 0%, rgba(13, 21, 38, 0.92) 100%);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 .ic-shell { max-width: 74rem; margin: 0 auto; }
-.ic-head { text-align: center; margin-bottom: 1.4rem; }
-.ic-eyebrow {
-  display: inline-flex; align-items: center; gap: 0.4rem;
-  background: rgba(96, 165, 250, 0.1); border: 1px solid rgba(96, 165, 250, 0.3);
-  border-radius: 999px; padding: 0.32rem 0.9rem; margin-bottom: 0.8rem;
-  font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem;
-  letter-spacing: 0.18em; text-transform: uppercase; color: #93c5fd;
-}
-.ic-title {
-  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
-  font-size: clamp(2.1rem, 6vw, 3.4rem); letter-spacing: 0.04em; line-height: 1.02;
-  margin: 0 0 0.5rem; color: #eef4ff;
-}
-.ic-title span { color: #fcd34d; }
-.ic-lede { max-width: 46rem; margin: 0 auto; color: #9fb4d4; font-family: 'Barlow', sans-serif; font-size: 0.98rem; line-height: 1.6; }
-
-.ic-status { text-align: center; color: #6f83a6; padding: 2.5rem 0; font-family: 'Barlow', sans-serif; }
+/* THE HEADER BLOCK IS GONE, AND SO IS ITS STATUS LINE. #issue-compare carried
+   an eyebrow, a display title and a lede on the homepage for a tool that only
+   renders when something asks for it, plus a `.ic-status` "Loading…" that was
+   static markup and never written by issue-compare.js. Both are removed with
+   the markup; `.ic-shell` above still frames whatever the tool renders. */
 
 /* generic buttons + links */
 .ic-btn {

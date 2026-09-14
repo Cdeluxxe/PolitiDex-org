@@ -2432,6 +2432,50 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "spotlight-hub.js",
     "your-ballot.js",
     "scripts/test-me-document.mjs",
+    // THE HOMEPAGE LEFTOVER TRIM, AND A STANCE LIBRARY THAT IS NOT A WALL
+    // (CACHE_VERSION v198), on the same later-wave terms. Four blocks on / were
+    // doing a job that already has an address: a "This Cycle in Utah" card
+    // carried ＋ Add to ballot, a second #my-profile band painted a loading line
+    // and then rebuilt the reader's stances, ballot and receipts on a document
+    // that is not their file, and #issue-compare and #stance-library each opened
+    // with an eyebrow, a display title and a three-line lede for a tool one tap
+    // away. Underneath, the Stance Library's browse view was every ISSUE_MAP key
+    // with a documented stance in one scroll — 117 cards under three rails of
+    // filters — and it is now a desk: one chip row, a Hot shelf open over
+    // thirteen folded <details>, four preview cards each, and the flat list of
+    // every key behind an "All issues" chip rather than as the landing.
+    //   WHAT THIS WAVE'S SUBJECTS SEE OF IT: nothing. No roll, mapping,
+    // admission, seed, migration, floor, key, weight, tier, figure or census
+    // output is touched. No issue key was added, renamed or retired — the shelves
+    // are the thirteen CORE_NATIONAL_ISSUES that already existed, filled by the
+    // coreIssueForKey this repo already ships. Nothing on either surface reads a
+    // Direction Match, a finance number or a party: the library sorts by how many
+    // people are on record and then by title, and every count on it is coverage.
+    // The only file below that a wave gate reads for a number is sw.js, and only
+    // for its CACHE_VERSION.
+    //   stance-library.js is the file this pass has to declare by name. It gained
+    // shelves() and renderShelves() over the flat grid it already built, a
+    // 'shelf' default filter kind that filters nothing, and a _view() hook the
+    // new scripts/test-stance-shelves.mjs reads so the default paint can be
+    // asserted without a browser. Its card markup, its detail view, its evidence
+    // and forum deep-links and its colour source are untouched: chips, shelf
+    // rails and card rails all still ask PDXIssueColors.styleFor, which is the
+    // same table and the same ROLLUP_PARENT road every bill letterhead takes.
+    // stance-library.css lost the billboard header and the three-group filter
+    // scaffolding and gained the shelf rules; issue-compare.css lost five dead
+    // header rules and now gates the band's own padding on #ic-body having
+    // content, so a tool nobody opened costs no vertical space.
+    //   me.html is again a one-line edit and NOT a content change: it re-declares
+    // the index.html line range its verbatim PDXSaved copy came from, because the
+    // retired band took 63 lines out above it. scripts/test-me-document.mjs moves
+    // the same numbers, and scripts/test-person-shell.mjs re-based its own six
+    // anchors by −2, −58 and −63 — three amounts because the markup came out at
+    // three different heights. Byte-identity of every copied block is untouched.
+    //   index.html, sw.js, scripts/test-me-document.mjs and
+    // scripts/test-person-shell.mjs are declared above already.
+    "stance-library.js",
+    "stance-library.css",
+    "issue-compare.css",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

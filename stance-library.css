@@ -22,26 +22,21 @@
 }
 .sl-shell { max-width: 80rem; margin: 0 auto; }
 
-/* ── Header ─────────────────────────────────────────────────────────────── */
-.sl-head { text-align: center; margin-bottom: 1.75rem; }
-.sl-eyebrow {
-  display: inline-flex; align-items: center; gap: 0.4rem;
-  background: rgba(96, 165, 250, 0.12); border: 1px solid rgba(96, 165, 250, 0.28);
-  border-radius: 999px; padding: 0.35rem 0.9rem; margin-bottom: 0.85rem;
-  font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem;
-  letter-spacing: 0.18em; text-transform: uppercase; color: #93c5fd;
+/* ── Header · ONE LINE ──────────────────────────────────────────────────────
+   The eyebrow, the clamp(2.1rem,6vw,3.4rem) display title and the lede that
+   stood here were a billboard above a tool the reader had already arrived at.
+   What is left is the sentence that names the surface and its destination. */
+.sl-line {
+  margin: 0 0 1.15rem; display: flex; align-items: baseline; justify-content: center;
+  gap: 0.5rem; flex-wrap: wrap; text-align: center;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.95rem;
+  letter-spacing: 0.14em; text-transform: uppercase; color: #cfe0f5;
 }
-.sl-title {
-  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
-  font-size: clamp(2.1rem, 6vw, 3.4rem); letter-spacing: 0.04em;
-  line-height: 1.02; margin: 0 0 0.55rem; color: #eef4ff;
+.sl-line-go {
+  background: none; border: 0; padding: 0; cursor: pointer; font: inherit;
+  color: #93c5fd; border-bottom: 1px solid rgba(147, 197, 253, 0.45);
 }
-.sl-title span { color: #60a5fa; }
-.sl-lede {
-  max-width: 46rem; margin: 0 auto; color: #9fb4d4;
-  font-family: 'Barlow', sans-serif; font-size: 0.98rem; line-height: 1.6;
-}
-.sl-lede strong { color: #cfe0fb; }
+.sl-line-go:hover, .sl-line-go:focus-visible { color: #dbeafe; }
 
 /* ── Toolbar: search + filter groups ───────────────────────────────────── */
 .sl-toolbar {
@@ -66,12 +61,10 @@
 }
 .sl-search-clear:hover { color: #cfe0fb; }
 
-.sl-fgroup { margin-bottom: 0.55rem; }
-.sl-fgroup-label {
-  font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem;
-  letter-spacing: 0.16em; text-transform: uppercase; color: #7f93b6;
-  margin: 0 0 0.35rem 0.1rem;
-}
+/* ONE CHIP ROW, NOT THREE LABELLED GROUPS. `.sl-fgroup` / `.sl-fgroup-label`
+   framed a Hot Topics row, a Core National Issues row and an All Topics row of
+   nineteen categories — three rails of filters above a grid of every leaf. The
+   desk has one rail: All issues, the thirteen core bundles, and Hot. */
 .sl-chips {
   display: flex; gap: 0.4rem; flex-wrap: nowrap; overflow-x: auto;
   padding-bottom: 0.35rem; -webkit-overflow-scrolling: touch;
@@ -79,6 +72,11 @@
 }
 .sl-chips::-webkit-scrollbar { height: 5px; }
 .sl-chips::-webkit-scrollbar-thumb { background: rgba(96, 165, 250, 0.28); border-radius: 4px; }
+/* Sixteen chips fit on a desk but not on a phone: wrap where there is room,
+   keep the swipeable single line where there is not. */
+@media (min-width: 768px) {
+  .sl-chips { flex-wrap: wrap; overflow-x: visible; }
+}
 .sl-chip {
   flex: none; cursor: pointer; white-space: nowrap;
   background: rgba(30, 44, 74, 0.55); border: 1px solid rgba(96, 165, 250, 0.2);
@@ -175,6 +173,70 @@
 }
 .sl-card-count b { color: #eaf1ff; }
 .sl-card-go { color: #60a5fa; }
+
+/* ── Shelves · the default view ─────────────────────────────────────────────
+   ONE SCROLL OF EVERY LEAF WAS THE PROBLEM. The browse view used to be every
+   ISSUE_MAP key with a documented stance in a single grid — a hundred-plus
+   cards, sorted by coverage, with no structure a reader could skim. The desk
+   is a Hot shelf plus one folded <details> per Core National Issue: a heading,
+   the issue count, four preview cards, and a control that reveals the rest of
+   that bundle. "All issues" is still on the rail; it is now a choice.
+
+   THE SHELF WEARS ITS BUNDLE'S COLOUR, from the same PDXIssueColors table the
+   rail chip, the card rail and every bill letterhead read — `--pdx-ic*` inline,
+   consumed here, so no hex for a topic is ever written in this file. */
+.sl-shelf {
+  border: 1px solid rgba(96, 165, 250, 0.14);
+  border-left: 3px solid var(--pdx-ic, rgba(96, 165, 250, 0.4));
+  border-radius: 0.9rem; margin-bottom: 0.7rem;
+  background: rgba(13, 21, 38, 0.45);
+}
+.sl-shelf[open] { background: rgba(13, 21, 38, 0.62); }
+.sl-shelf-sum {
+  cursor: pointer; list-style: none; display: flex; align-items: center;
+  gap: 0.6rem; padding: 0.8rem 1rem; min-height: 48px;
+}
+.sl-shelf-sum::-webkit-details-marker { display: none; }
+.sl-shelf-sum::after {
+  content: '▸'; margin-left: auto; flex: none; color: #7f93b6;
+  font-size: 0.85rem; transition: transform 0.15s ease;
+}
+.sl-shelf[open] > .sl-shelf-sum::after { transform: rotate(90deg); }
+.sl-shelf-sum:hover { background: rgba(30, 58, 138, 0.14); border-radius: 0.85rem; }
+.sl-shelf-sum:focus-visible { outline: 2px solid var(--pdx-ic, #60a5fa); outline-offset: -2px; }
+.sl-shelf-title {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 0.95rem;
+  letter-spacing: 0.05em; color: var(--pdx-ic-ink, #dbe7fb); min-width: 0;
+}
+/* A COUNT, AND ONLY EVER A COUNT. Coverage, never a grade: how many issues sit
+   on this shelf, and on each card how many people are on record. */
+.sl-shelf-n {
+  flex: none; font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #8ea4c6;
+  background: var(--pdx-ic-soft, rgba(96, 165, 250, 0.1));
+  border: 1px solid var(--pdx-ic, rgba(96, 165, 250, 0.2));
+  border-radius: 999px; padding: 0.12rem 0.5rem;
+}
+.sl-shelf-body { padding: 0 1rem 1rem; }
+.sl-shelf-more {
+  cursor: pointer; margin-top: 0.7rem; width: 100%; min-height: 44px;
+  background: rgba(30, 44, 74, 0.5); border: 1px dashed var(--pdx-ic, rgba(96, 165, 250, 0.35));
+  border-radius: 0.7rem; padding: 0.55rem 0.9rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.82rem;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--pdx-ic-ink, #c4d5f0);
+}
+.sl-shelf-more:hover { color: #eaf1ff; border-style: solid; }
+/* The one line above the shelves. Says what the view is; no figure on it. */
+.sl-shelf-note {
+  font-family: 'Barlow', sans-serif; font-size: 0.86rem; color: #8ea4c6;
+  padding: 0 0 0.85rem;
+}
+.sl-shelf-note b { color: #eaf1ff; }
+@media (max-width: 480px) {
+  .sl-shelf-sum { padding: 0.7rem 0.75rem; }
+  .sl-shelf-body { padding: 0 0.75rem 0.85rem; }
+  .sl-shelf-title { font-size: 0.88rem; }
+}
 
 .sl-empty { text-align: center; padding: 3rem 1rem; color: #8ea4c6; }
 .sl-empty-ico { font-size: 2rem; margin-bottom: 0.5rem; }

@@ -14,6 +14,18 @@
          one-tap "Discuss this issue" that opens the forum composer pre-tied to
          it (window.PDXForum), so conversation and reform ideas gather per topic.
 
+   IT OPENS AS A DESK, NOT AS A WALL. The browse view used to be every ISSUE_MAP
+   key with a documented stance in one grid — a hundred-plus cards under three
+   rails of filters (eleven hot facets, thirteen core bundles, nineteen broad
+   categories). First paint is now: the search box, ONE chip row (Shelves · All
+   issues · the thirteen Core National Issues · Hot), and shelves — a Hot shelf
+   open, then one folded <details> per core bundle carrying its heading, its
+   issue count and four preview cards over "Show all N in this bundle". The flat
+   list of every key on record is still there, behind the "All issues" chip: a
+   choice rather than a landing. A search always answers flat, across everything.
+   Sorting is by COVERAGE only — how many people are on record — never by party,
+   lean or any match figure, and every count on the surface is coverage too.
+
    IT OWNS NO DATA OF ITS OWN. It is a lens built entirely from globals that
    already exist:
        window.ISSUE_MAP            (issue vocabulary: label, cat, stanceKeys, keywords)
@@ -21,7 +33,7 @@
        window.CORE_NATIONAL_ISSUES (curated bundles of issueKeys — the primary filter)
        window.PROFILES             (id → {name, office, party, photo} — display only)
        window.PDXStance            (canonical stance resolve + pill)
-       window._pdxIssueCategories / _pdxIssueCategory  (the 19 topic categories)
+       window._pdxIssueCategory    (a leaf's topic category, printed on its card)
        window.coreIssueForKey      (issueKey → its core national issue)
        window.openModal            (open a politician profile)
        window._pdxOpenEvidenceLocker / window.PDXForum  (deep-links out)
@@ -41,8 +53,15 @@
   var _profilesSig = 0;       // how many PROFILES keys we last rendered with
   var _community = {};        // issueKey → { threads, loaded } cache
 
-  // Single-select filter + free-text query.
-  var state = { fkind: 'all', fkey: '', query: '', view: 'browse', issueKey: '' };
+  // Single-select filter + free-text query. `fkind: 'shelf'` is the DEFAULT and
+  // is not a filter at all — it is the desk: a Hot shelf plus one folded bundle
+  // per Core National Issue. 'all' is the flat list of every issue on record,
+  // which is now something the reader chooses rather than what they land on.
+  // `shown` holds the bundles whose "Show all N" has been pressed this session.
+  var state = { fkind: 'shelf', fkey: '', query: '', view: 'browse', issueKey: '', shown: {} };
+
+  // Preview cards per shelf before "Show all N in this bundle".
+  var SHELF_PREVIEW = 4;
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -197,10 +216,16 @@
     return [];
   }
   function passesFilter(issueKey) {
-    if (state.fkind === 'all') return true;
+    if (state.fkind === 'all' || state.fkind === 'shelf') return true;
     if (state.fkind === 'core') return coreKeysFor(state.fkey).indexOf(issueKey) !== -1;
+    // No chip emits 'cat' any more — the nineteen-category rail is gone — but the
+    // predicate stays so an existing caller that sets one still filters.
     if (state.fkind === 'cat') { var MAP = G('ISSUE_MAP'); return MAP && MAP[issueKey] && MAP[issueKey].cat === state.fkey; }
     if (state.fkind === 'hot') {
+      // The rail now carries ONE Hot chip rather than eleven facet chips, so an
+      // empty fkey means "in any hot facet". A named facet still resolves, which
+      // is what keeps the detail view's cross-links and any deep link working.
+      if (!state.fkey) return hotTopicsFor(issueKey).length > 0;
       var h = HOT_TOPICS.filter(function (x) { return x.key === state.fkey; })[0];
       var MAP2 = G('ISSUE_MAP'); var d = (MAP2 && MAP2[issueKey]) || {};
       try { return h ? h.test(issueKey, d) : true; } catch (e) { return false; }
@@ -213,18 +238,51 @@
     return hay.indexOf(q) !== -1;
   }
 
-  // Issues that have at least one politician on record, filtered + searched,
-  // sorted by how many politicians are documented (most-covered first).
-  function visibleIssues() {
+  // EVERY issue with at least one politician on record, sorted by how many are
+  // documented — coverage, most-covered first. Never by party, never by lean,
+  // never by a match: the order is how much there is to read, and nothing else.
+  // Both views build on this one list, so the shelves and "All issues" can never
+  // disagree about which keys exist.
+  function allIssueRows() {
     if (!_index) return [];
     return Object.keys(_index)
       .filter(function (k) { return _index[k].total > 0; })
       .map(function (k) { return { key: k, meta: issueMeta(k), agg: _index[k] }; })
-      .filter(function (o) { return passesFilter(o.key) && passesQuery(o.meta); })
       .sort(function (a, b) {
         if (b.agg.total !== a.agg.total) return b.agg.total - a.agg.total;
         return a.meta.title.localeCompare(b.meta.title);
       });
+  }
+
+  // The flat list: allIssueRows() through the current chip and search box.
+  function visibleIssues() {
+    return allIssueRows().filter(function (o) { return passesFilter(o.key) && passesQuery(o.meta); });
+  }
+
+  // ── Shelves ──────────────────────────────────────────────────────────────
+  // The desk. A Hot shelf (any issue in any hot facet) followed by one shelf per
+  // Core National Issue, in the taxonomy's own order, and a catch-all for any
+  // on-record key the taxonomy has not filed — so the shelves cover every key
+  // "All issues" can show and nothing becomes unreachable by being unparented.
+  function shelves() {
+    var rows = allIssueRows();
+    var CORE = G('CORE_NATIONAL_ISSUES') || [];
+    var out = [];
+    var hot = rows.filter(function (o) { return hotTopicsFor(o.key).length > 0; });
+    if (hot.length) out.push({ key: 'hot', kind: 'hot', label: '🔥 Hot right now', rows: hot, open: true });
+    var byCore = Object.create(null);
+    rows.forEach(function (o) {
+      var ck = (o.meta.core && o.meta.core.key) || '';
+      (byCore[ck] || (byCore[ck] = [])).push(o);
+    });
+    CORE.forEach(function (ci) {
+      var list = byCore[ci.key];
+      if (list && list.length) out.push({ key: ci.key, kind: 'core', label: ci.label, rows: list, open: false });
+    });
+    if (byCore[''] && byCore[''].length) {
+      out.push({ key: '_other', kind: 'other', label: '🗂 Other tracked issues', rows: byCore[''], open: false });
+    }
+    return out;
   }
 
   // ── Toolbar (search + filter chip groups) ────────────────────────────────
@@ -241,9 +299,9 @@
     });
     return n;
   }
-  function chip(kind, key, label, hot) {
-    var active = state.fkind === kind && (kind === 'all' || state.fkey === key);
-    var n = kind === 'all' ? 0 : chipCount(kind, key);
+  function chip(kind, key, label, hot, title) {
+    var active = state.fkind === kind && (kind === 'all' || kind === 'shelf' || state.fkey === key);
+    var n = (kind === 'all' || kind === 'shelf') ? 0 : chipCount(kind, key);
     // Core National Issue chips wear their issue's colour, so the filter rail is
     // the legend for every issue-coloured surface underneath it: tap the amber
     // chip, get the amber cards. Hot Topics and broad category chips are NOT
@@ -254,16 +312,30 @@
     return '<button type="button" class="sl-chip' + (hot ? ' sl-chip--hot' : '') +
       (ic ? ' sl-chip--core' : '') + (active ? ' is-active' : '') +
       '" data-fkind="' + esc(kind) + '" data-fkey="' + esc(key) + '"' +
+      (title ? ' title="' + esc(title) + '"' : '') +
       (ic ? ' style="' + esc(ic) + '"' : '') + '>' + esc(label) +
       (n ? '<span class="sl-chip-n">' + n + '</span>' : '') + '</button>';
   }
+  // A bundle's own label, shortened for a chip. The taxonomy writes them long on
+  // purpose — "💵 Economy, Cost of Living & Infrastructure" — because a core
+  // cannot deny what is filed under it; a rail of thirteen of those is unusable.
+  // The clause before the first comma is the bundle's name, the full label is the
+  // title attribute and the shelf heading, and no label is written twice here.
+  function shortCoreLabel(label) {
+    var t = String(label || '');
+    var cut = t.indexOf(',');
+    return cut > 0 ? t.slice(0, cut) : t;
+  }
+
+  // ONE CHIP ROW. Three rails stood here: eleven hot facets, the thirteen core
+  // bundles, and nineteen broad categories — sixty-odd filters above a grid of
+  // every leaf. The rail is now All issues, the bundles, and Hot.
   function toolbarHtml() {
     var CORE = G('CORE_NATIONAL_ISSUES') || [];
-    var cats = (typeof G('_pdxIssueCategories') === 'function') ? G('_pdxIssueCategories')() : [];
-    var hot = HOT_TOPICS.map(function (h) { return chip('hot', h.key, h.label, true); }).join('');
-    var core = [chip('all', '', 'All issues')].concat(
-      CORE.map(function (c) { return chip('core', c.key, c.label); })).join('');
-    var cat = cats.map(function (c) { return chip('cat', c.key, (c.icon ? c.icon + ' ' : '') + c.label); }).join('');
+    var row = [chip('shelf', '', '🗂 Shelves'), chip('all', '', 'All issues')]
+      .concat(CORE.map(function (c) { return chip('core', c.key, shortCoreLabel(c.label), false, c.label); }))
+      .concat([chip('hot', '', '🔥 Hot', true)])
+      .join('');
     var qval = esc(state.query);
     return '' +
       '<div class="sl-searchbar">' +
@@ -271,9 +343,7 @@
         '<input type="search" class="sl-search" id="sl-search" placeholder="Search issues — e.g. data centers, tariffs, water…" aria-label="Search issues" value="' + qval + '">' +
         (qval ? '<button type="button" class="sl-search-clear" id="sl-search-clear" aria-label="Clear search">×</button>' : '') +
       '</div>' +
-      '<div class="sl-fgroup"><div class="sl-fgroup-label">🔥 Hot Topics</div><div class="sl-chips">' + hot + '</div></div>' +
-      '<div class="sl-fgroup"><div class="sl-fgroup-label">🎯 Core National Issues</div><div class="sl-chips">' + core + '</div></div>' +
-      '<div class="sl-fgroup"><div class="sl-fgroup-label">🗂 All Topics</div><div class="sl-chips">' + cat + '</div></div>';
+      '<div class="sl-chips" role="group" aria-label="Filter issues">' + row + '</div>';
   }
 
   // ── Browse cards ─────────────────────────────────────────────────────────
@@ -320,10 +390,52 @@
     wireToolbar();
   }
 
-  // Only the grid re-renders on a query keystroke — the toolbar (and the focused
-  // search box inside it) stays put, so typing never loses focus or caret.
+  // ── One shelf ────────────────────────────────────────────────────────────
+  // A <details>: heading, issue count, four preview cards, and — when the bundle
+  // has more — "Show all N in this bundle". The colour is the bundle's own, from
+  // PDXIssueColors, resolved by the same table (and the same ROLLUP_PARENT road)
+  // the cards and every bill letterhead use; a shelf that is not a Core National
+  // Issue gets no treatment rather than a guessed one.
+  function shelfHtml(sh) {
+    var IC = G('PDXIssueColors');
+    var ic = (sh.kind === 'core' && IC && typeof IC.styleFor === 'function') ? IC.styleFor(sh.key) : '';
+    var n = sh.rows.length;
+    var full = !!state.shown[sh.key];
+    var rows = full ? sh.rows : sh.rows.slice(0, SHELF_PREVIEW);
+    var hidden = n - rows.length;
+    return '<details class="sl-shelf" data-sl-shelf="' + esc(sh.key) + '"' +
+        (sh.open ? ' open' : '') + (ic ? ' style="' + esc(ic) + '"' : '') + '>' +
+      '<summary class="sl-shelf-sum">' +
+        '<span class="sl-shelf-title">' + esc(sh.label) + '</span>' +
+        '<span class="sl-shelf-n">' + n + ' issue' + (n === 1 ? '' : 's') + '</span>' +
+      '</summary>' +
+      '<div class="sl-shelf-body">' +
+        '<div class="sl-grid">' + rows.map(cardHtml).join('') + '</div>' +
+        (hidden > 0
+          ? '<button type="button" class="sl-shelf-more" data-sl-more="' + esc(sh.key) + '">' +
+              'Show all ' + n + ' in this bundle</button>'
+          : '') +
+      '</div>' +
+    '</details>';
+  }
+
+  function renderShelves() {
+    var host = el('sl-results'); if (!host) return;
+    var list = shelves();
+    if (!list.length) { host.innerHTML = '<div class="sl-status">No documented stances yet.</div>'; return; }
+    host.innerHTML =
+      '<div class="sl-shelf-note">Open a bundle to see the issues inside it, or pick <b>All issues</b> ' +
+      'above for the flat list. Every count is <b>coverage</b> — how many people are on record — not a grade.</div>' +
+      list.map(shelfHtml).join('');
+  }
+
+  // Only the results re-render on a query keystroke — the toolbar (and the
+  // focused search box inside it) stays put, so typing never loses focus or
+  // caret. A query always produces the flat list: a reader searching "water"
+  // wants the matches, not fourteen shelves with one card behind some of them.
   function renderResults() {
     var host = el('sl-results'); if (!host) return;
+    if (state.fkind === 'shelf' && !state.query) { renderShelves(); return; }
     var list = visibleIssues();
     if (!list.length) {
       host.innerHTML = '<div class="sl-empty"><div class="sl-empty-ico">🔍</div>' +
@@ -751,6 +863,11 @@
         state.query = ''; var si = el('sl-search'); if (si) { si.value = ''; try { si.focus(); } catch (e) {} }
         renderResults(); syncClearBtn(); return;
       }
+      var more = t.closest && t.closest('[data-sl-more]');
+      if (more) {
+        state.shown[more.getAttribute('data-sl-more')] = true;
+        renderResults(); return;
+      }
       var chip = t.closest && t.closest('.sl-chip');
       if (chip) {
         state.fkind = chip.getAttribute('data-fkind'); state.fkey = chip.getAttribute('data-fkey') || '';
@@ -853,11 +970,34 @@
   else setup();
 
   // Small public hook so other surfaces can deep-link into a specific issue.
+  // _view() is for the test harness: the two lists the desk is built from, in a
+  // sandbox with no document, so a suite can assert that the default paint is a
+  // set of folded bundles rather than every leaf — and that the shelves between
+  // them still cover every key "All issues" lists.
   window.PDXStanceLibrary = {
     open: function (issueKey) {
       init();
       try { el(MOUNT).scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
       if (issueKey && ensureIndex() && _index[issueKey]) renderDetail(issueKey);
+    },
+    _view: function () {
+      if (!ensureIndex()) return null;
+      var save = { fkind: state.fkind, fkey: state.fkey, query: state.query };
+      state.fkind = 'all'; state.fkey = ''; state.query = '';
+      var all = visibleIssues().map(function (o) { return o.key; });
+      state.fkind = save.fkind; state.fkey = save.fkey; state.query = save.query;
+      return {
+        preview: SHELF_PREVIEW,
+        defaultKind: 'shelf',
+        all: all,
+        shelves: shelves().map(function (sh) {
+          return {
+            key: sh.key, kind: sh.kind, label: sh.label, open: !!sh.open,
+            keys: sh.rows.map(function (o) { return o.key; }),
+            previewKeys: sh.rows.slice(0, SHELF_PREVIEW).map(function (o) { return o.key; })
+          };
+        })
+      };
     }
   };
 })();

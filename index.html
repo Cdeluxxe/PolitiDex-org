@@ -2238,8 +2238,6 @@ window.PDXLazy = (function () {
   <link rel="stylesheet" href="/profile-spine.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/profile-spine.css" /></noscript>
   <!-- My Profile — the signed-in visitor's personal civic hub (read-only view). -->
-  <link rel="stylesheet" href="/my-profile.css" media="print" onload="this.media='all'" />
-  <noscript><link rel="stylesheet" href="/my-profile.css" /></noscript>
   <!-- Issue Comparison — compare politicians on one issue (stated position + Say-vs-Do). -->
   <link rel="stylesheet" href="/issue-compare.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/issue-compare.css" /></noscript>
@@ -4413,7 +4411,6 @@ window.PDXLazy = (function () {
            own address, so this is a plain link to it — one row, one destination,
            and the same destination the account menu's two entries now have. -->
       <a href="/me" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🗂️ Your File</a>
-      <a href="#my-profile" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">👤 My Profile</a>
       <div class="mnav-group-label">Track &amp; Compare</div>
       <a href="#say-vs-do" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-300 hover:text-gold-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🧾 Say vs. Do</a>
       <a href="#evidence-locker" title="Open the Evidence Locker — every receipt in one place" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">📂 Evidence Locker</a>
@@ -10601,7 +10598,6 @@ window.PDXLazy = (function () {
           <p class="ht-topic-desc">A surge of new AI data centers is straining Utah's power supply and water — and raising questions about who pays for it. See where your candidates stand before you vote.</p>
           <div class="ht-topic-actions">
             <a class="ht-topic-btn ht-topic-btn-primary" href="#voter-hub">⚡ View Candidates</a>
-            <button type="button" class="ht-topic-btn" onclick="window.mypolToggleAnimated(this,'cox')">＋ Add to ballot</button>
           </div>
         </div>
 
@@ -10614,7 +10610,6 @@ window.PDXLazy = (function () {
           <p class="ht-topic-desc">From federal land transfers to a shrinking Great Salt Lake, the fight over Utah's land and water is on the ballot. Know who's protecting it and who isn't.</p>
           <div class="ht-topic-actions">
             <a class="ht-topic-btn ht-topic-btn-primary" href="#voter-hub">🏔️ View Candidates</a>
-            <button type="button" class="ht-topic-btn" onclick="window.mypolToggleAnimated(this,'maloy')">＋ Add to ballot</button>
           </div>
         </div>
 
@@ -13656,23 +13651,14 @@ window.PDXLazy = (function () {
     </template>
   </section>
 
-  <!-- ═══════════════════════════ MY PROFILE ════════════════════════════════
-       The signed-in visitor's personal civic hub. Composes the existing personal
-       systems (My Stances, Impact Tracker, My Voting Team, Evidence/Receipts) and
-       the finance layer into one page. Owns no data — my-profile.js renders every
-       section read-only from globals that already exist, with guarded empty states.
-       This container is just the mount point + accessible heading. -->
-  <section id="my-profile" aria-labelledby="mp-heading">
-    <div class="mp-shell">
-      <div class="mp-head">
-        <span class="mp-eyebrow">👤 Your page</span>
-        <h2 class="mp-title" id="mp-heading">MY <span>PROFILE</span></h2>
-        <p class="mp-lede">Everything you've built in one place: <strong>what you stand for</strong>, <strong>your ballot</strong>, your civic footprint, the receipts tied to the officials you follow — and the first look at the <strong>money that follows them</strong>.</p>
-      </div>
-      <div id="mp-body"><div class="mp-status">Loading your profile…</div></div>
-    </div>
-  </section>
-
+  <!-- MY PROFILE IS NOT ON THIS DOCUMENT ANY MORE. The band that stood here
+       painted a "MY PROFILE" heading over a loading line on every load of / and
+       then composed the reader's stances, ballot, receipts and finance lane a
+       second time — a second personal file, on a page that is not the file.
+       The file is a document at /me. my-profile.js is still in the tree and
+       still publishes window.PDXProfile; nothing on / mounts it, so nothing on
+       / loads a profile. The one row that pointed here now reads "Your File"
+       and goes to /me, which is the address it was always describing. -->
   <!-- ═══════════════════════════ MY STANCES ═══════════════════════════════
        A CLOSED DOOR NOW, AND THE REASON IS THAT THE READER'S OWN FILE HAS AN
        ADDRESS. This was the wall where the visitor's positions were set: the
@@ -13706,64 +13692,31 @@ window.PDXLazy = (function () {
        synced to the Firebase account. -->
   <section id="my-stances" class="ms-closed" aria-labelledby="ms-door-heading">
       <style>
-        /* The card. Deliberately small: this region's job is now to name an
-           address, not to be a product. Same door vocabulary the Evidence
-           Locker uses one section up, so the two read as one pattern. */
-        .ms-door{max-width:44rem;margin:0 auto;text-align:center;padding:0 1rem;}
-        .ms-door-eyebrow{display:inline-flex;align-items:center;gap:0.5rem;margin-bottom:0.8rem;
-          padding:0.32rem 0.95rem;border-radius:999px;background:rgba(30,58,138,0.34);
-          border:1px solid rgba(59,130,246,0.28);}
-        .ms-door-eyebrow-lb{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.7rem;
-          letter-spacing:0.2em;text-transform:uppercase;color:#93c5fd;}
-        .ms-door-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.9rem,6vw,2.9rem);
-          letter-spacing:0.045em;line-height:1;color:#fff;margin:0 0 0.7rem;}
-        .ms-door-title span{color:#93c5fd;}
-        .ms-door-sub{font-family:'Barlow',sans-serif;font-size:0.95rem;line-height:1.55;color:#9fb4d4;
-          max-width:32rem;margin:0 auto 1.1rem;}
-        .ms-door-sub strong{color:#e6eefb;font-weight:700;}
-        /* One line, and it is a COUNT, never a percentage and never a grade:
-           there is no such thing as a partly-complete voter. Hidden until
-           there is a real number behind it. */
-        .ms-door-count{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;
-          letter-spacing:0.06em;text-transform:uppercase;color:#dbeafe;margin:0 0 1.1rem;}
-        .ms-door-open{display:inline-flex;align-items:center;gap:0.55rem;
-          font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.9rem;
-          letter-spacing:0.14em;text-transform:uppercase;color:#eaf3ff;text-decoration:none;
-          padding:0.72rem 1.5rem;border-radius:0.7rem;
-          background:linear-gradient(135deg,#1e51a8,#2f6fd0);
-          border:1.5px solid rgba(127,180,255,0.85);
-          box-shadow:0 0 16px rgba(59,130,246,0.35),inset 0 1px 0 rgba(255,255,255,0.2);
-          transition:transform .12s ease,box-shadow .15s ease;}
-        .ms-door-open:hover,.ms-door-open:focus-visible{transform:translateY(-2px);
-          box-shadow:0 0 22px rgba(59,130,246,0.5),inset 0 1px 0 rgba(255,255,255,0.24);}
-        .ms-door-note{font-family:'Barlow',sans-serif;font-size:0.78rem;line-height:1.5;
-          color:#8aa0c4;margin:1rem auto 0;max-width:31rem;}
+        /* ONE LINE. The card that stood here was a product — eyebrow, display
+           heading, two-sentence lede, a gradient button and a footnote — for a
+           region whose whole job is to name an address that is not this page.
+           A line is the honest size of that job. Same ids, so my-stances.js's
+           wireDoor() still finds the count and the "full collection" control. */
+        .ms-door{max-width:44rem;margin:0 auto;padding:1.15rem 1rem;display:flex;
+          align-items:baseline;justify-content:center;gap:0.55rem;flex-wrap:wrap;}
+        .ms-door-title{margin:0;font-family:'Barlow Condensed',sans-serif;font-weight:800;
+          font-size:0.92rem;letter-spacing:0.14em;text-transform:uppercase;color:#cfe0f5;}
+        .ms-door-title a{color:#93c5fd;text-decoration:none;border-bottom:1px solid rgba(147,197,253,0.45);}
+        .ms-door-title a:hover,.ms-door-title a:focus-visible{color:#dbeafe;}
+        .ms-door-count{margin:0;font-family:'Barlow',sans-serif;font-size:0.8rem;color:#8aa0c4;}
         .ms-door-more{background:none;border:none;padding:0;cursor:pointer;
-          font:inherit;color:#93c5fd;text-decoration:underline;text-underline-offset:2px;}
+          font-family:'Barlow',sans-serif;font-size:0.8rem;color:#93c5fd;
+          text-decoration:underline;text-underline-offset:2px;}
         .ms-door-more:hover,.ms-door-more:focus-visible{color:#dbeafe;}
-        @media (prefers-reduced-motion: reduce){.ms-door-open{transition:none;}
-          .ms-door-open:hover,.ms-door-open:focus-visible{transform:none;}}
-        /* The collection replaces the card in place, so the section keeps its
+        /* The collection replaces the line in place, so the section keeps its
            address (#my-stances) whether it is open or shut. */
         #my-stances.ms-closed .ms-shell{display:none;}
       </style>
       <div class="ms-door" id="ms-door">
-        <div class="ms-door-eyebrow">
-          <span aria-hidden="true">🎯</span>
-          <span class="ms-door-eyebrow-lb">What you stand for</span>
-        </div>
-        <h2 class="ms-door-title" id="ms-door-heading">YOUR FILE LIVES AT <span>/me</span></h2>
-        <p class="ms-door-sub">
-          <strong>Your positions are yours, in one place.</strong> Support, Oppose, Mixed or Not sure on the issues &mdash; the answers PolitiDex checks formal records against. Set them once, on your own page.
-        </p>
+        <h2 class="ms-door-title" id="ms-door-heading">Your file &rarr;
+          <a href="/me" title="Your positions, your starred issues, your ballot picks and your saved evidence">/me</a></h2>
         <p class="ms-door-count" id="ms-door-count" hidden></p>
-        <a class="ms-door-open" id="ms-door-open" href="/me"
-           title="Your file — your positions, your starred issues, your ballot picks and your saved evidence">
-          <span aria-hidden="true">🗂️</span> Open your file
-        </a>
-        <p class="ms-door-note">
-          Private by default. Nothing here is published, nothing is scored, and no one else can read it. Want priority, a private note or a public showcase across the whole issue list? <button type="button" class="ms-door-more" id="ms-door-more">Open the full stance collection here</button>.
-        </p>
+        <button type="button" class="ms-door-more" id="ms-door-more">full stance collection</button>
       </div>
 
     <!-- ── THE COLLECTION · inert until something asks for it ───────────────────
@@ -13787,42 +13740,31 @@ window.PDXLazy = (function () {
     </template>
   </section>
 
-  <!-- ═══════════════════════════ ISSUE COMPARISON ═══════════════════════════
-       Issue-first comparison: pick one issue (ideally a stance you just took),
-       pick a field of politicians (My Team / Relevant to me / All tracked), and
-       see — for that single issue — each one's stated position AND whether their
-       voting record backs it up (Say-vs-Do). The natural next step after setting
-       a stance. Rendered entirely by issue-compare.js from globals that already
-       exist (PDXStances, ISSUE_MAP, _polPositionMap, _pdxRecordIssueSummary,
-       PDXTeamView, CMP_DATA); it owns no data. Mount point + accessible heading. -->
-  <section id="issue-compare" aria-labelledby="ic-heading">
-    <div class="ic-shell">
-      <div class="ic-head">
-        <span class="ic-eyebrow">⚖️ One issue at a time</span>
-        <h2 class="ic-title" id="ic-heading">ISSUE <span>COMPARISON</span></h2>
-        <p class="ic-lede">Zoom the <strong>Alignment Tool</strong> in on one issue at a time. Pick an issue you care about — ideally one you've taken a stance on — and see who lines up: each politician's <strong>stated position</strong> next to their <strong>⚖️ Say-vs-Do</strong> record, so you can tell the difference between what they say and what they do.</p>
-      </div>
-      <div id="ic-body"><div class="ic-status">Loading…</div></div>
-    </div>
+  <!-- ISSUE COMPARISON · AN ADDRESS, NOT A BILLBOARD. What stood here was an
+       eyebrow, a display heading, a two-sentence lede and a static "Loading…"
+       that painted on every load of / for a tool that only ever renders when
+       something asks for it — issue-compare.js inits on #issue-compare or on
+       PDXIssueCompare.open(issueKey, field), and on nothing else. The section
+       and #ic-body are unchanged, so both doors still land here; the marketing
+       above them is gone and the body starts genuinely empty. -->
+  <section id="issue-compare" aria-label="Issue comparison">
+    <div class="ic-shell"><div id="ic-body"></div></div>
   </section>
 
-
-  <!-- ═══════════════════════════ STANCE LIBRARY ════════════════════════════
-       Issue-first companion to the Evidence Locker above. Pick a topic and see
-       every politician on record, how they lean (the shared four-state stance
-       vocabulary), the sourced evidence behind each position, and the community
-       conversation around it — all in one place. The whole surface is rendered
-       by stance-library.js from globals that already exist (ISSUE_STANCE_DATA,
-       ISSUE_MAP, CORE_NATIONAL_ISSUES, PROFILES, PDXStance) — it owns no data of
-       its own. This container is just the mount point + accessible heading. -->
+  <!-- STANCE LIBRARY · ONE LINE, THEN THE SHELVES. The eyebrow, the display
+       heading and the three-line lede that stood here were marketing for a tool
+       the reader is already looking at. What replaces them is the one sentence
+       that says what this is and where it goes; everything else on this surface
+       is rendered by stance-library.js, which now opens as a desk — search, one
+       chip row, a Hot shelf and a folded <details> per Core National Issue —
+       rather than as every ISSUE_MAP leaf in one scroll. #sl-body starts empty:
+       the module fills it when the section is reached or when something calls
+       PDXStanceLibrary.open(). -->
   <section id="stance-library" aria-labelledby="sl-heading">
     <div class="sl-shell">
-      <div class="sl-head">
-        <span class="sl-eyebrow">🔗 Connect the dots</span>
-        <h2 class="sl-title" id="sl-heading">STANCE <span>LIBRARY</span></h2>
-        <p class="sl-lede">Browse PolitiDex by <strong>issue</strong> instead of by politician. Pick a topic to see <strong>who stands where</strong>, the sourced evidence behind each position, and the community discussion — nonpartisan, and always tied back to the receipts.</p>
-      </div>
-      <div id="sl-body"><div class="sl-status">Loading issue data…</div></div>
+      <h2 class="sl-line" id="sl-heading">Browse issues &rarr;
+        <button type="button" class="sl-line-go" onclick="if(window.PDXStanceLibrary&amp;&amp;window.PDXStanceLibrary.open)window.PDXStanceLibrary.open();">who stands where, and the receipts</button></h2>
+      <div id="sl-body"></div>
     </div>
   </section>
 
@@ -23069,11 +23011,6 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        PDXContracts, PDXVotingRecord, PDXImpactLedger, _polPositionMap,
        PDXWordAction). -->
   <script defer src="/profile-connect.js"></script>
-  <!-- My Profile — the signed-in visitor's personal civic hub (window.PDXProfile).
-       Read-only composition layer: loaded LAST so every personal + finance module
-       it reads is already defined (PDXStances, PDXImpact, PDXTeamView/PDXTeamV2,
-       PDXActions, PDXReceipts, PDXContracts, _pdxFinanceSignal/_pdxFinanceRecord). -->
-  <script defer src="/my-profile.js"></script>
   <!-- Issue Comparison — issue-first comparison of politicians (stated position +
        Say-vs-Do). Loads after the systems it reads: PDXStances, ISSUE_MAP /
        _polPositionMap (alignment-tool + stance-helpers), _pdxRecordIssueSummary
